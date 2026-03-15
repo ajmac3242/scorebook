@@ -1,7 +1,3 @@
-provider "aws" {
-  region = var.aws_region
-}
-
 # --- Cognito ---
 resource "aws_cognito_user_pool" "pool" {
   name = "basketball-stats-pool"
@@ -70,16 +66,31 @@ resource "aws_dynamodb_table" "table" {
 
 # --- S3 for Hosting ---
 resource "aws_s3_bucket" "hosting_bucket" {
-  bucket = "basketball-stats-frontend-${random_id.id.hex}"
+  bucket        = "basketball-stats-frontend-${random_id.id.hex}"
+  force_destroy = true
+
+  tags = {
+    Name        = "Basketball Stats Frontend"
+    Environment = "Production"
+  }
 }
 
-resource "aws_s3_bucket_website_configuration" "hosting_config" {
+resource "aws_s3_bucket_public_access_block" "hosting_bucket_block" {
   bucket = aws_s3_bucket.hosting_bucket.id
-  index_document {
-    suffix = "index.html"
-  }
-  error_document {
-    key = "index.html"
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "hosting_bucket_encryption" {
+  bucket = aws_s3_bucket.hosting_bucket.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
   }
 }
 
@@ -133,6 +144,7 @@ resource "aws_cloudfront_distribution" "distribution" {
 
   viewer_certificate {
     cloudfront_default_certificate = true
+    minimum_protocol_version       = "TLSv1.2_2021"
   }
 }
 
