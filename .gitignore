@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.env
+.terraform/
+*.tfstate
+*.tfstate.backup
+*.zip
+*.log
+backend/dist/
+frontend/dist/
