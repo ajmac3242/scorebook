@@ -39,7 +39,7 @@ jobs:
           git-commit-message: "docs(infra): auto-update terraform-docs README [skip ci]"
 
   # ---------------------------------------------------------------
-  # Job 2: Generate architecture diagram from Terraform via Mermaid
+  # Job 2: Generate architecture diagram
   # ---------------------------------------------------------------
   architecture-diagram:
     name: Generate Architecture Diagram
@@ -54,6 +54,9 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
+      - name: Install Graphviz (required by diagrams library)
+        run: sudo apt-get update -y && sudo apt-get install -y graphviz
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -62,8 +65,9 @@ jobs:
       - name: Install diagram dependencies
         run: pip install diagrams
 
-      - name: Generate architecture diagram script
+      - name: Generate architecture diagram
         run: |
+          mkdir -p docs
           cat > /tmp/gen_diagram.py << 'PYEOF'
           from diagrams import Diagram, Cluster, Edge
           from diagrams.aws.network import CloudFront, APIGateway
@@ -102,19 +106,11 @@ jobs:
           PYEOF
           python /tmp/gen_diagram.py
 
-      - name: Ensure docs directory exists
-        run: mkdir -p docs
-
-      - name: Move diagram to docs/
-        run: |
-          if [ -f "Scorebook - AWS Architecture.png" ]; then
-            mv "Scorebook - AWS Architecture.png" docs/architecture.png
-          fi
-
       - name: Commit diagram if changed
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git pull --rebase
           git add docs/architecture.png
           if git diff --cached --quiet; then
             echo "No diagram changes to commit."
