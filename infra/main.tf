@@ -99,16 +99,19 @@ resource "random_id" "id" {
 }
 
 # --- CloudFront ---
-resource "aws_cloudfront_origin_access_identity" "oai" {}
+resource "aws_cloudfront_origin_access_control" "oac" {
+  name                              = "s3-oac-${random_id.id.hex}"
+  description                       = "OAC for Basketball Stats S3"
+  origin_access_control_origin_type = "s3"
+  signing_behavior                  = "always"
+  signing_protocol                  = "sigv4"
+}
 
 resource "aws_cloudfront_distribution" "distribution" {
   origin {
-    domain_name = aws_s3_bucket.hosting_bucket.bucket_regional_domain_name
-    origin_id   = "S3-Frontend"
-
-    s3_origin_config {
-      origin_access_identity = aws_cloudfront_origin_access_identity.oai.cloudfront_access_identity_path
-    }
+    domain_name              = aws_s3_bucket.hosting_bucket.bucket_regional_domain_name
+    origin_id                = "S3-Frontend"
+    origin_access_control_id = aws_cloudfront_origin_access_control.oac.id
   }
 
   enabled             = true
@@ -206,9 +209,12 @@ resource "aws_apigatewayv2_api" "http_api" {
   name          = "basketball-stats-api"
   protocol_type = "HTTP"
   cors_configuration {
-    allow_origins = ["*"] # Narrow this down later
+    # In a real app, this should be the CloudFront domain.
+    # For now, we keep it broad but acknowledge the need to narrow it down.
+    allow_origins = ["*"]
     allow_methods = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
     allow_headers = ["Content-Type", "Authorization"]
+    max_age       = 300
   }
 }
 
@@ -216,6 +222,40 @@ resource "aws_apigatewayv2_stage" "default" {
   api_id      = aws_apigatewayv2_api.http_api.id
   name        = "$default"
   auto_deploy = true
+}
+
+resource "aws_apigatewayv2_authorizer" "cognito" {
+  api_id           = aws_apigatewayv2_api.http_api.id
+  authorizer_type  = "JWT"
+  identity_sources = ["$request.header.Authorization"]
+  name             = "cognito-authorizer"
+
+  jwt_configuration {
+    audience = [aws_cognito_user_pool_client.client.id]
+    issuer   = "https://${aws_cognito_user_pool.pool.endpoint}"
+  }
+}
+
+resource "aws_s3_bucket_policy" "hosting_bucket_policy" {
+  bucket = aws_s3_bucket.hosting_bucket.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action   = "s3:GetObject"
+        Effect   = "Allow"
+        Resource = "${aws_s3_bucket.hosting_bucket.arn}/*"
+        Principal = {
+          Service = "cloudfront.amazonaws.com"
+        }
+        Condition = {
+          StringEquals = {
+            "AWS:SourceArn" = aws_cloudfront_distribution.distribution.arn
+          }
+        }
+      }
+    ]
+  })
 }
 
 # Example Lambda (Proxy)
@@ -255,9 +295,11 @@ resource "aws_apigatewayv2_integration" "lambda_integration" {
 }
 
 resource "aws_apigatewayv2_route" "proxy_route" {
-  api_id    = aws_apigatewayv2_api.http_api.id
-  route_key = "ANY /{proxy+}"
-  target    = "integrations/${aws_apigatewayv2_integration.lambda_integration.id}"
+  api_id             = aws_apigatewayv2_api.http_api.id
+  route_key          = "ANY /{proxy+}"
+  target             = "integrations/${aws_apigatewayv2_integration.lambda_integration.id}"
+  authorization_type = "JWT"
+  authorizer_id      = aws_apigatewayv2_authorizer.cognito.id
 }
 
 resource "aws_lambda_permission" "api_gw" {
