@@ -4,11 +4,11 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'infra/**.tf'
+      - master
   pull_request:
-    paths:
-      - 'infra/**.tf'
+    branches:
+      - main
+      - master
   workflow_dispatch:
 
 permissions:
