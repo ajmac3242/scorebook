@@ -16,12 +16,14 @@ jobs:
       s3_bucket_name: ${{ steps.outputs.outputs.s3_bucket_name }}
       api_endpoint: ${{ steps.outputs.outputs.api_endpoint }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::269555264437:role/github_deployment
           aws-region: us-east-1
+          # Explicitly set the audience to match your AWS config
+          audience: sts.amazonaws.com
       - uses: hashicorp/setup-terraform@v2
         with:
           terraform_wrapper: false
@@ -69,12 +71,14 @@ jobs:
     needs: infra
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::269555264437:role/github_deployment
           aws-region: us-east-1
+          # Explicitly set the audience to match your AWS config
+          audience: sts.amazonaws.com
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
