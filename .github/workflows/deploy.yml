@@ -4,25 +4,37 @@ on:
   push:
     branches: [ main ]
 
+permissions:
+  id-token: write # Required for requesting the JWT
+  contents: read  # Required for actions/checkout
+
 jobs:
   infra:
     name: Terraform
     runs-on: ubuntu-latest
+    outputs:
+      s3_bucket_name: ${{ steps.outputs.outputs.s3_bucket_name }}
+      api_endpoint: ${{ steps.outputs.outputs.api_endpoint }}
     steps:
       - uses: actions/checkout@v3
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: arn:aws:iam::269555264437:role/github_deployment
+          aws-region: us-east-1
       - uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_wrapper: false
       - name: Terraform Init
         run: cd infra && terraform init
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: us-east-1
       - name: Terraform Apply
         run: cd infra && terraform apply -auto-approve
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: us-east-1
+      - name: Capture Outputs
+        id: outputs
+        run: |
+          cd infra
+          echo "s3_bucket_name=$(terraform output -raw s3_bucket_name)" >> $GITHUB_OUTPUT
+          echo "api_endpoint=$(terraform output -raw api_endpoint)" >> $GITHUB_OUTPUT
 
   backend:
     name: Build & Deploy Backend
@@ -30,6 +42,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: arn:aws:iam::269555264437:role/github_deployment
+          aws-region: us-east-1
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
@@ -38,17 +55,12 @@ jobs:
         run: |
           cd backend
           npm install --production
-          npm install --save-dev typescript @types/node # Need tsc for build
+          npm install --save-dev typescript @types/node
           npm run build
-          # Zip dist AND node_modules
           zip -r ../lambda.zip dist node_modules
       - name: Deploy to Lambda
         run: |
           aws lambda update-function-code --function-name basketball-stats-api-handler --zip-file fileb://backend/lambda.zip
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: us-east-1
 
   frontend:
     name: Build & Deploy Frontend
@@ -56,6 +68,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: arn:aws:iam::269555264437:role/github_deployment
+          aws-region: us-east-1
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
@@ -64,20 +81,7 @@ jobs:
         run: |
           cd frontend
           npm install
-          npm run build
+          VITE_API_ENDPOINT=${{ needs.infra.outputs.api_endpoint }} npm run build
       - name: Deploy to S3
         run: |
-          # We'd need to fetch the bucket name from Terraform outputs or hardcode
-          # For now, assuming bucket name is known or passed via secret
-          aws s3 sync frontend/dist/ s3://${{ secrets.S3_BUCKET_NAME }} --delete
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: us-east-1
-      - name: Invalidate CloudFront
-        run: |
-          aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: us-east-1
+          aws s3 sync frontend/dist/ s3://${{ needs.infra.outputs.s3_bucket_name }} --delete
