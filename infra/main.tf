@@ -36,16 +36,8 @@ resource "aws_cognito_user_pool_client" "client" {
 resource "aws_dynamodb_table" "table" {
   name         = "BasketballStats"
   billing_mode = "PAY_PER_REQUEST"
-
-  # Use key_schema instead of deprecated top-level hash_key / range_key
-  key_schema {
-    attribute_name = "PK"
-    key_type       = "HASH"
-  }
-  key_schema {
-    attribute_name = "SK"
-    key_type       = "RANGE"
-  }
+  hash_key     = "PK"
+  range_key    = "SK"
 
   attribute {
     name = "PK"
@@ -217,10 +209,10 @@ resource "aws_apigatewayv2_stage" "default" {
 }
 
 resource "aws_apigatewayv2_authorizer" "cognito" {
-  api_id            = aws_apigatewayv2_api.http_api.id
-  authorizer_type   = "JWT"
-  identity_sources  = ["$request.header.Authorization"]
-  name              = "cognito-authorizer"
+  api_id           = aws_apigatewayv2_api.http_api.id
+  authorizer_type  = "JWT"
+  identity_sources = ["$request.header.Authorization"]
+  name             = "cognito-authorizer"
   jwt_configuration {
     audience = [aws_cognito_user_pool_client.client.id]
     issuer   = "https://${aws_cognito_user_pool.pool.endpoint}"
