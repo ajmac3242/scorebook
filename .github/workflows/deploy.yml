@@ -3,6 +3,7 @@ name: Deploy Basketball Stats
 on:
   push:
     branches: [ main ]
+  workflow_dispatch:
 
 permissions:
   id-token: write # Required for requesting the JWT
