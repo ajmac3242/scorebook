@@ -11,10 +11,10 @@ resource "aws_cognito_user_pool" "pool" {
   }
 
   schema {
-    attribute_data_type      = "String"
-    developer_only_attribute = false
-    mutable                  = true
-    name                     = "role"
+    attribute_data_type       = "String"
+    developer_only_attribute  = false
+    mutable                   = true
+    name                      = "role"
     string_attribute_constraints {
       min_length = 1
       max_length = 256
@@ -25,7 +25,6 @@ resource "aws_cognito_user_pool" "pool" {
 resource "aws_cognito_user_pool_client" "client" {
   name         = "basketball-stats-client"
   user_pool_id = aws_cognito_user_pool.pool.id
-
   explicit_auth_flows = [
     "ALLOW_USER_PASSWORD_AUTH",
     "ALLOW_REFRESH_TOKEN_AUTH",
@@ -35,36 +34,41 @@ resource "aws_cognito_user_pool_client" "client" {
 
 # --- DynamoDB ---
 resource "aws_dynamodb_table" "table" {
-  name           = "BasketballStats"
-  billing_mode   = "PAY_PER_REQUEST"
-  hash_key       = "PK"
-  range_key      = "SK"
+  name         = "BasketballStats"
+  billing_mode = "PAY_PER_REQUEST"
+
+  # Use key_schema instead of deprecated top-level hash_key / range_key
+  key_schema {
+    attribute_name = "PK"
+    key_type       = "HASH"
+  }
+  key_schema {
+    attribute_name = "SK"
+    key_type       = "RANGE"
+  }
 
   attribute {
     name = "PK"
     type = "S"
   }
-
   attribute {
     name = "SK"
     type = "S"
   }
-
   attribute {
     name = "GSI1PK"
     type = "S"
   }
-
   attribute {
     name = "GSI1SK"
     type = "S"
   }
 
   global_secondary_index {
-    name               = "GSI1"
-    hash_key           = "GSI1PK"
-    range_key          = "GSI1SK"
-    projection_type    = "ALL"
+    name            = "GSI1"
+    hash_key        = "GSI1PK"
+    range_key       = "GSI1SK"
+    projection_type = "ALL"
   }
 }
 
@@ -72,7 +76,6 @@ resource "aws_dynamodb_table" "table" {
 resource "aws_s3_bucket" "hosting_bucket" {
   bucket        = "basketball-stats-frontend-${random_id.id.hex}"
   force_destroy = true
-
   tags = {
     Name        = "Basketball Stats Frontend"
     Environment = "Production"
@@ -80,8 +83,7 @@ resource "aws_s3_bucket" "hosting_bucket" {
 }
 
 resource "aws_s3_bucket_public_access_block" "hosting_bucket_block" {
-  bucket = aws_s3_bucket.hosting_bucket.id
-
+  bucket                  = aws_s3_bucket.hosting_bucket.id
   block_public_acls       = true
   block_public_policy     = true
   ignore_public_acls      = true
@@ -90,7 +92,6 @@ resource "aws_s3_bucket_public_access_block" "hosting_bucket_block" {
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "hosting_bucket_encryption" {
   bucket = aws_s3_bucket.hosting_bucket.id
-
   rule {
     apply_server_side_encryption_by_default {
       sse_algorithm = "AES256"
@@ -122,20 +123,17 @@ resource "aws_cloudfront_distribution" "distribution" {
     origin_id                = "S3-Frontend"
     origin_access_control_id = aws_cloudfront_origin_access_control.oac.id
   }
-
   enabled             = true
   is_ipv6_enabled     = true
   default_root_object = "index.html"
   web_acl_id          = "arn:aws:wafv2:us-east-1:269555264437:global/webacl/CreatedByCloudFront-8f01ac9e/b8d2f941-5117-4f5a-9167-a09fe56d7e01"
-
-  # CloudFront Free Tier / Price Class 100 (US, Canada, Europe)
-  price_class = "PriceClass_All"
+  price_class         = "PriceClass_All"
 
   default_cache_behavior {
-    allowed_methods  = ["GET", "HEAD", "OPTIONS"]
-    cached_methods   = ["GET", "HEAD"]
-    target_origin_id = "S3-Frontend"
-    cache_policy_id = "658327ea-f89d-4fab-a63d-7e88639e58f6"
+    allowed_methods        = ["GET", "HEAD", "OPTIONS"]
+    cached_methods         = ["GET", "HEAD"]
+    target_origin_id       = "S3-Frontend"
+    cache_policy_id        = "658327ea-f89d-4fab-a63d-7e88639e58f6"
     viewer_protocol_policy = "redirect-to-https"
     min_ttl                = 0
     default_ttl            = 3600
@@ -154,22 +152,17 @@ resource "aws_cloudfront_distribution" "distribution" {
   }
 }
 
-# --- API Gateway & Lambda (Skeleton) ---
-
+# --- IAM for Lambda ---
 resource "aws_iam_role" "lambda_exec" {
   name = "basketball_stats_lambda_exec"
-
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
-      Action = "sts:AssumeRole"
-      Effect = "Allow"
-      Sid    = ""
-      Principal = {
-        Service = "lambda.amazonaws.com"
-      }
-      }
-    ]
+      Action    = "sts:AssumeRole"
+      Effect    = "Allow"
+      Sid       = ""
+      Principal = { Service = "lambda.amazonaws.com" }
+    }]
   })
 }
 
@@ -181,7 +174,6 @@ resource "aws_iam_role_policy_attachment" "lambda_policy" {
 resource "aws_iam_role_policy" "dynamodb_policy" {
   name = "dynamodb_policy"
   role = aws_iam_role.lambda_exec.id
-
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -198,9 +190,7 @@ resource "aws_iam_role_policy" "dynamodb_policy" {
         Resource = aws_dynamodb_table.table.arn
       },
       {
-        Action = [
-          "dynamodb:Query"
-        ]
+        Action   = ["dynamodb:Query"]
         Effect   = "Allow"
         Resource = "${aws_dynamodb_table.table.arn}/index/*"
       }
@@ -208,12 +198,11 @@ resource "aws_iam_role_policy" "dynamodb_policy" {
   })
 }
 
+# --- API Gateway ---
 resource "aws_apigatewayv2_api" "http_api" {
   name          = "basketball-stats-api"
   protocol_type = "HTTP"
   cors_configuration {
-    # In a real app, this should be the CloudFront domain.
-    # For now, we keep it broad but acknowledge the need to narrow it down.
     allow_origins = ["*"]
     allow_methods = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
     allow_headers = ["Content-Type", "Authorization"]
@@ -228,11 +217,10 @@ resource "aws_apigatewayv2_stage" "default" {
 }
 
 resource "aws_apigatewayv2_authorizer" "cognito" {
-  api_id           = aws_apigatewayv2_api.http_api.id
-  authorizer_type  = "JWT"
-  identity_sources = ["$request.header.Authorization"]
-  name             = "cognito-authorizer"
-
+  api_id            = aws_apigatewayv2_api.http_api.id
+  authorizer_type   = "JWT"
+  identity_sources  = ["$request.header.Authorization"]
+  name              = "cognito-authorizer"
   jwt_configuration {
     audience = [aws_cognito_user_pool_client.client.id]
     issuer   = "https://${aws_cognito_user_pool.pool.endpoint}"
@@ -243,33 +231,27 @@ resource "aws_s3_bucket_policy" "hosting_bucket_policy" {
   bucket = aws_s3_bucket.hosting_bucket.id
   policy = jsonencode({
     Version = "2012-10-17"
-    Statement = [
-      {
-        Action   = "s3:GetObject"
-        Effect   = "Allow"
-        Resource = "${aws_s3_bucket.hosting_bucket.arn}/*"
-        Principal = {
-          Service = "cloudfront.amazonaws.com"
-        }
-        Condition = {
-          StringEquals = {
-            "AWS:SourceArn" = aws_cloudfront_distribution.distribution.arn
-          }
+    Statement = [{
+      Action    = "s3:GetObject"
+      Effect    = "Allow"
+      Resource  = "${aws_s3_bucket.hosting_bucket.arn}/*"
+      Principal = { Service = "cloudfront.amazonaws.com" }
+      Condition = {
+        StringEquals = {
+          "AWS:SourceArn" = aws_cloudfront_distribution.distribution.arn
         }
       }
-    ]
+    }]
   })
 }
 
-# Example Lambda (Proxy)
-data "archive_file" "dummy_lambda" {
-  type        = "zip"
-  source_dir  = "${path.module}/dist"
-  output_path = "${path.module}/dummy_lambda.zip"
-}
-
+# --- Lambda ---
+# lambda.zip is built by the build-backend job and downloaded by the
+# Terraform job before running terraform apply. The lifecycle block
+# tells Terraform to never overwrite the code after initial creation
+# since deploy-backend handles all subsequent code updates.
 resource "aws_lambda_function" "api_handler" {
-  filename      = data.archive_file.dummy_lambda.output_path
+  filename      = "../lambda.zip"
   function_name = "basketball-stats-api-handler"
   role          = aws_iam_role.lambda_exec.arn
   handler       = "dist/index.handler"
@@ -281,19 +263,16 @@ resource "aws_lambda_function" "api_handler" {
     }
   }
 
-  # Ignore changes to filename/source_code_hash as GitHub Actions will update it
   lifecycle {
     ignore_changes = [filename, source_code_hash]
   }
 }
 
-
 resource "aws_apigatewayv2_integration" "lambda_integration" {
-  api_id           = aws_apigatewayv2_api.http_api.id
-  integration_type = "AWS_PROXY"
-
-  integration_uri    = aws_lambda_function.api_handler.invoke_arn
-  integration_method = "POST"
+  api_id                 = aws_apigatewayv2_api.http_api.id
+  integration_type       = "AWS_PROXY"
+  integration_uri        = aws_lambda_function.api_handler.invoke_arn
+  integration_method     = "POST"
   payload_format_version = "2.0"
 }
 
