@@ -65,7 +65,7 @@ jobs:
           zip -r ../lambda.zip dist node_modules
       - name: Deploy to Lambda
         run: |
-          aws lambda update-function-code --function-name basketball-stats-api-handler --zip-file fileb://backend/lambda.zip
+          aws lambda update-function-code --function-name basketball-stats-api-handler --zip-file fileb://lambda.zip
 
   frontend:
     name: Build & Deploy Frontend
