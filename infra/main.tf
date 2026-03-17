@@ -107,6 +107,11 @@ resource "aws_cloudfront_origin_access_control" "oac" {
   signing_protocol                  = "sigv4"
 }
 
+import {
+  to = aws_cloudfront_distribution.distribution
+  id = "E1BIBL3IY13Y6G"
+}
+
 resource "aws_cloudfront_distribution" "distribution" {
   origin {
     domain_name              = aws_s3_bucket.hosting_bucket.bucket_regional_domain_name
@@ -119,7 +124,7 @@ resource "aws_cloudfront_distribution" "distribution" {
   default_root_object = "index.html"
 
   # CloudFront Free Tier / Price Class 100 (US, Canada, Europe)
-  price_class = "PriceClass_100"
+  price_class = "PriceClass_All"
 
   default_cache_behavior {
     allowed_methods  = ["GET", "HEAD", "OPTIONS"]
