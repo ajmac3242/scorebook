@@ -129,7 +129,7 @@ resource "aws_cloudfront_distribution" "distribution" {
 
   default_cache_behavior {
     allowed_methods  = ["GET", "HEAD", "OPTIONS"]
-    cached_methods   = ["GET", "HEAD"]
+    # cached_methods   = ["GET", "HEAD"]
     target_origin_id = "S3-Frontend"
 
     forwarded_values {
@@ -140,9 +140,9 @@ resource "aws_cloudfront_distribution" "distribution" {
     }
 
     viewer_protocol_policy = "redirect-to-https"
-    # min_ttl                = 0
-    # default_ttl            = 3600
-    # max_ttl                = 86400
+     min_ttl                = 0
+     default_ttl            = 3600
+     max_ttl                = 86400
   }
 
   restrictions {
