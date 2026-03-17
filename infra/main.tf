@@ -262,11 +262,17 @@ resource "aws_s3_bucket_policy" "hosting_bucket_policy" {
 }
 
 # Example Lambda (Proxy)
+data "archive_file" "dummy_lambda" {
+  type        = "zip"
+  source_file = "${path.module}/index.js"
+  output_path = "${path.module}/dummy_lambda.zip"
+}
+
 resource "aws_lambda_function" "api_handler" {
-  filename      = "dummy_lambda.zip" # Placeholder
+  filename      = data.archive_file.dummy_lambda.output_path
   function_name = "basketball-stats-api-handler"
   role          = aws_iam_role.lambda_exec.arn
-  handler       = "dist/index.handler"
+  handler       = "index.handler"
   runtime       = "nodejs20.x"
 
   environment {
@@ -281,12 +287,6 @@ resource "aws_lambda_function" "api_handler" {
   }
 }
 
-# For terraform plan to succeed without a real zip
-resource "null_resource" "dummy_zip" {
-  provisioner "local-exec" {
-    command = "echo 'exports.handler = async () => ({statusCode: 200, body: \"Hello\"})' > index.js && zip dummy_lambda.zip index.js"
-  }
-}
 
 resource "aws_apigatewayv2_integration" "lambda_integration" {
   api_id           = aws_apigatewayv2_api.http_api.id
