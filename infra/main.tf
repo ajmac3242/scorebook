@@ -275,7 +275,7 @@ resource "aws_s3_bucket_policy" "hosting_bucket_policy" {
 # Example Lambda (Proxy)
 data "archive_file" "dummy_lambda" {
   type        = "zip"
-  source_file = "${path.module}/index.js"
+  source_dir  = "${path.module}/dist"
   output_path = "${path.module}/dummy_lambda.zip"
 }
 
@@ -283,7 +283,7 @@ resource "aws_lambda_function" "api_handler" {
   filename      = data.archive_file.dummy_lambda.output_path
   function_name = "basketball-stats-api-handler"
   role          = aws_iam_role.lambda_exec.arn
-  handler       = "index.handler"
+  handler       = "dist/index.handler"
   runtime       = "nodejs20.x"
 
   environment {
