@@ -122,6 +122,7 @@ resource "aws_cloudfront_distribution" "distribution" {
   enabled             = true
   is_ipv6_enabled     = true
   default_root_object = "index.html"
+  web_acl_id          = "arn:aws:wafv2:us-east-1:269555264437:global/webacl/CreatedByCloudFront-8f01ac9e/b8d2f941-5117-4f5a-9167-a09fe56d7e01"
 
   # CloudFront Free Tier / Price Class 100 (US, Canada, Europe)
   price_class = "PriceClass_All"
