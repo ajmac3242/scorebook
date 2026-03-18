@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+515import React, { useState, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -174,7 +174,7 @@ const GameMode: React.FC = () => {
 
   const QuickAction = ({ type, label, icon: Icon, color }: any) => (
     <Button
-      variant={statType === type ? "filled" : "outlined"}
+      variant={statType === type ? "contained" : "outlined"}
       color="inherit"
       onClick={() => {
         setStatType(type);
@@ -234,7 +234,7 @@ const GameMode: React.FC = () => {
                   key={type}
                   label={type}
                   onClick={() => setMarkerFilter(type)}
-                  variant={markerFilter === type ? "filled" : "outlined"}
+                  variant={markerFilter === type ? "contained" : "outlined"}
                   size="small"
                   sx={{
                     bgcolor: markerFilter === type ? "#2D2D2D" : "transparent",
@@ -293,7 +293,7 @@ const GameMode: React.FC = () => {
                   <Button
                     key={p.id}
                     variant={
-                      selectedPlayerId === p.id ? "filled" : "outlined"
+                      selectedPlayerId === p.id ? "contained" : "outlined"
                     }
                     onClick={() => setSelectedPlayerId(p.id ?? null)}
                     sx={{
@@ -483,11 +483,11 @@ const GameMode: React.FC = () => {
                   <Button
                     key={pts}
                     fullWidth
-                    variant={points === pts ? "filled" : "outlined"}
+                    variant={points === pts ? "contained" : "outlined"}
                     onClick={() => setPoints(pts)}
                     sx={{
                       borderColor: "#D1D1D1",
-                      backgroundColor:
+                      backgroundColorcontained
                         points === pts ? "#2D2D2D" : "transparent",
                       color: points === pts ? "#FFFDF5" : "#2D2D2D",
                     }}
@@ -512,7 +512,7 @@ const GameMode: React.FC = () => {
           </Button>
           <Button
             onClick={() => handleSaveStat()}
-            variant="filled"
+            variant="contained"
             disabled={!selectedPlayerId || !statType}
             sx={{ px: 4 }}
           >
@@ -542,7 +542,7 @@ const GameMode: React.FC = () => {
           <Button
             onClick={handleDeleteStat}
             color="error"
-            variant="filled"
+            variant="contained"
             autoFocus
           >
             Delete
