@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Box,
   Typography,
@@ -17,53 +17,59 @@ import {
   Select,
   MenuItem,
   Stack,
-  Fab
-} from '@mui/material';
-import { Add as AddIcon } from '@mui/icons-material';
-import { db, type Game, type Team, type Season } from '../db';
-import { useLiveQuery } from 'dexie-react-hooks';
-import { useNavigate } from 'react-router-dom';
+  Fab,
+} from "@mui/material";
+import { Add as AddIcon } from "@mui/icons-material";
+import { db, type Game, type Team, type Season } from "../db";
+import { useLiveQuery } from "dexie-react-hooks";
+import { useNavigate } from "react-router-dom";
 
 const Games: React.FC = () => {
   const navigate = useNavigate();
-  const [selectedSeasonId, setSelectedSeasonId] = useState<string>('');
-  const [selectedTeamId, setSelectedTeamId] = useState<string>('');
+  const [selectedSeasonId, setSelectedSeasonId] = useState<string>("");
+  const [selectedTeamId, setSelectedTeamId] = useState<string>("");
   const [open, setOpen] = useState(false);
-  const [opponent, setOpponent] = useState('');
-  const [date, setDate] = useState('');
-  const [location, setLocation] = useState('');
+  const [opponent, setOpponent] = useState("");
+  const [date, setDate] = useState("");
+  const [location, setLocation] = useState("");
 
-  const seasons = useLiveQuery(async () => {
-    try {
-      await db.open();
-      return await db.seasons.toArray();
-    } catch (err) {
-      console.error("Failed to fetch seasons:", err);
-      return [];
-    }
-  }) || [];
+  const seasons =
+    useLiveQuery(async () => {
+      try {
+        await db.open();
+        return await db.seasons.toArray();
+      } catch (err) {
+        console.error("Failed to fetch seasons:", err);
+        return [];
+      }
+    }) || [];
 
-  const teams = useLiveQuery(async () => {
-    try {
-      await db.open();
-      if (!selectedSeasonId) return await db.teams.toArray();
-      return await db.teams.where('seasonId').equals(selectedSeasonId).toArray();
-    } catch (err) {
-      console.error("Failed to fetch teams:", err);
-      return [];
-    }
-  }, [selectedSeasonId]) || [];
+  const teams =
+    useLiveQuery(async () => {
+      try {
+        await db.open();
+        if (!selectedSeasonId) return await db.teams.toArray();
+        return await db.teams
+          .where("seasonId")
+          .equals(selectedSeasonId)
+          .toArray();
+      } catch (err) {
+        console.error("Failed to fetch teams:", err);
+        return [];
+      }
+    }, [selectedSeasonId]) || [];
 
-  const games = useLiveQuery(async () => {
-    try {
-      await db.open();
-      if (!selectedTeamId) return [];
-      return await db.games.where('teamId').equals(selectedTeamId).toArray();
-    } catch (err) {
-      console.error("Failed to fetch games:", err);
-      return [];
-    }
-  }, [selectedTeamId]) || [];
+  const games =
+    useLiveQuery(async () => {
+      try {
+        await db.open();
+        if (!selectedTeamId) return [];
+        return await db.games.where("teamId").equals(selectedTeamId).toArray();
+      } catch (err) {
+        console.error("Failed to fetch games:", err);
+        return [];
+      }
+    }, [selectedTeamId]) || [];
 
   const handleAddGame = async () => {
     if (!selectedTeamId) return;
@@ -72,15 +78,15 @@ const Games: React.FC = () => {
       opponent,
       date,
       location,
-      synced: 0
+      synced: 0,
     };
     try {
       await db.open();
       await db.games.add(newGame);
       setOpen(false);
-      setOpponent('');
-      setDate('');
-      setLocation('');
+      setOpponent("");
+      setDate("");
+      setLocation("");
     } catch (err) {
       console.error("Failed to add game:", err);
     }
@@ -88,20 +94,24 @@ const Games: React.FC = () => {
 
   return (
     <Box>
-      <Typography variant="h4" gutterBottom>Games</Typography>
+      <Typography variant="h4" gutterBottom>
+        Games
+      </Typography>
 
-      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ mb: 3 }}>
+      <Stack direction={{ xs: "column", sm: "row" }} spacing={2} sx={{ mb: 3 }}>
         <FormControl fullWidth variant="outlined">
           <InputLabel>Filter by Season</InputLabel>
           <Select
             value={selectedSeasonId}
             onChange={(e) => {
               setSelectedSeasonId(e.target.value as string);
-              setSelectedTeamId('');
+              setSelectedTeamId("");
             }}
             label="Filter by Season"
           >
-            <MenuItem value=""><em>All Seasons</em></MenuItem>
+            <MenuItem value="">
+              <em>All Seasons</em>
+            </MenuItem>
             {seasons.map((season) => (
               <MenuItem key={season.id} value={season.id?.toString()}>
                 {season.name}
@@ -129,7 +139,9 @@ const Games: React.FC = () => {
       {selectedTeamId && (
         <Paper className="moleskine-card">
           <List>
-            {games.length === 0 && <Typography>No games for this team.</Typography>}
+            {games.length === 0 && (
+              <Typography>No games for this team.</Typography>
+            )}
             {games.map((game) => (
               <ListItem
                 key={game.id}
@@ -138,7 +150,9 @@ const Games: React.FC = () => {
                   <Button
                     variant="outlined"
                     size="small"
-                    onClick={() => navigate(`/game?gameId=${game.id}&teamId=${game.teamId}`)}
+                    onClick={() =>
+                      navigate(`/game?gameId=${game.id}&teamId=${game.teamId}`)
+                    }
                   >
                     Start Tracking
                   </Button>
@@ -158,7 +172,7 @@ const Games: React.FC = () => {
         <Fab
           color="primary"
           aria-label="add"
-          sx={{ position: 'fixed', bottom: 32, right: 32 }}
+          sx={{ position: "fixed", bottom: 32, right: 32 }}
           onClick={() => setOpen(true)}
         >
           <AddIcon />
@@ -200,7 +214,9 @@ const Games: React.FC = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpen(false)}>Cancel</Button>
-          <Button onClick={handleAddGame} variant="contained">Add</Button>
+          <Button onClick={handleAddGame} variant="contained">
+            Add
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>

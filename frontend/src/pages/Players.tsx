@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Box,
   Typography,
@@ -12,39 +12,40 @@ import {
   DialogContent,
   DialogActions,
   TextField,
-  Fab
-} from '@mui/material';
-import { Add as AddIcon } from '@mui/icons-material';
-import { db, type Player } from '../db';
-import { useLiveQuery } from 'dexie-react-hooks';
+  Fab,
+} from "@mui/material";
+import { Add as AddIcon } from "@mui/icons-material";
+import { db, type Player } from "../db";
+import { useLiveQuery } from "dexie-react-hooks";
 
 const Players: React.FC = () => {
   const [open, setOpen] = useState(false);
-  const [name, setName] = useState('');
-  const [defaultNumber, setDefaultNumber] = useState('');
+  const [name, setName] = useState("");
+  const [defaultNumber, setDefaultNumber] = useState("");
 
-  const players = useLiveQuery(async () => {
-    try {
-      await db.open();
-      return await db.players.toArray();
-    } catch (err) {
-      console.error("Failed to fetch players:", err);
-      return [];
-    }
-  }) || [];
+  const players =
+    useLiveQuery(async () => {
+      try {
+        await db.open();
+        return await db.players.toArray();
+      } catch (err) {
+        console.error("Failed to fetch players:", err);
+        return [];
+      }
+    }) || [];
 
   const handleAddPlayer = async () => {
     const newPlayer: Player = {
       name,
       defaultNumber,
-      synced: 0
+      synced: 0,
     };
     try {
       await db.open();
       await db.players.add(newPlayer);
       setOpen(false);
-      setName('');
-      setDefaultNumber('');
+      setName("");
+      setDefaultNumber("");
     } catch (err) {
       console.error("Failed to add player:", err);
     }
@@ -52,10 +53,14 @@ const Players: React.FC = () => {
 
   return (
     <Box>
-      <Typography variant="h4" gutterBottom>Players</Typography>
+      <Typography variant="h4" gutterBottom>
+        Players
+      </Typography>
       <Paper className="moleskine-card">
         <List>
-          {players.length === 0 && <Typography>No players created yet.</Typography>}
+          {players.length === 0 && (
+            <Typography>No players created yet.</Typography>
+          )}
           {players.map((player) => (
             <ListItem key={player.id} divider>
               <ListItemText
@@ -70,7 +75,7 @@ const Players: React.FC = () => {
       <Fab
         color="primary"
         aria-label="add"
-        sx={{ position: 'fixed', bottom: 32, right: 32 }}
+        sx={{ position: "fixed", bottom: 32, right: 32 }}
         onClick={() => setOpen(true)}
       >
         <AddIcon />
@@ -101,7 +106,9 @@ const Players: React.FC = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpen(false)}>Cancel</Button>
-          <Button onClick={handleAddPlayer} variant="contained">Add</Button>
+          <Button onClick={handleAddPlayer} variant="contained">
+            Add
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>

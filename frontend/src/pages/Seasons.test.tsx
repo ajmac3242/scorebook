@@ -1,10 +1,10 @@
-import { render, screen } from '@testing-library/react';
-import Seasons from './Seasons';
-import { describe, it, expect, vi } from 'vitest';
-import { BrowserRouter } from 'react-router-dom';
+import { render, screen } from "@testing-library/react";
+import Seasons from "./Seasons";
+import { describe, it, expect, vi } from "vitest";
+import { BrowserRouter } from "react-router-dom";
 
 // Mock Dexie
-vi.mock('../db', () => ({
+vi.mock("../db", () => ({
   db: {
     open: vi.fn().mockResolvedValue(null),
     seasons: {
@@ -14,15 +14,17 @@ vi.mock('../db', () => ({
   },
 }));
 
-describe('Seasons Component', () => {
-  it('renders Seasons page', () => {
+describe("Seasons Component", () => {
+  it("renders Seasons page", () => {
     render(
       <BrowserRouter>
         <Seasons />
-      </BrowserRouter>
+      </BrowserRouter>,
     );
 
     // Use a more specific query since "Seasons" appears in the empty state message too
-    expect(screen.getByRole('heading', { name: /Seasons/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: /Seasons/i }),
+    ).toBeInTheDocument();
   });
 });

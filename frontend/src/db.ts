@@ -1,4 +1,4 @@
-import Dexie, { type Table } from 'dexie';
+import Dexie, { type Table } from "dexie";
 
 export interface Season {
   id?: string;
@@ -60,14 +60,14 @@ export class AppDatabase extends Dexie {
   stats!: Table<StatEvent>;
 
   constructor() {
-    super('BasketballStatsDB');
+    super("BasketballStatsDB");
     this.version(2).stores({
-      seasons: '++id, synced',
-      teams: '++id, seasonId, synced',
-      players: '++id, synced',
-      teamPlayers: '++id, teamId, playerId, synced',
-      games: '++id, teamId, synced',
-      stats: '++id, gameId, playerId, synced'
+      seasons: "++id, synced",
+      teams: "++id, seasonId, synced",
+      players: "++id, synced",
+      teamPlayers: "++id, teamId, playerId, synced",
+      games: "++id, teamId, synced",
+      stats: "++id, gameId, playerId, synced",
     });
   }
 }

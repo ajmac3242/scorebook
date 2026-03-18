@@ -1,10 +1,10 @@
-import { render, screen } from '@testing-library/react';
-import Teams from './Teams';
-import { describe, it, expect, vi } from 'vitest';
-import { BrowserRouter } from 'react-router-dom';
+import { render, screen } from "@testing-library/react";
+import Teams from "./Teams";
+import { describe, it, expect, vi } from "vitest";
+import { BrowserRouter } from "react-router-dom";
 
 // Mock Dexie
-vi.mock('../db', () => ({
+vi.mock("../db", () => ({
   db: {
     open: vi.fn().mockResolvedValue(null),
     seasons: {
@@ -27,12 +27,12 @@ vi.mock('../db', () => ({
   },
 }));
 
-describe('Teams Component', () => {
-  it('renders Teams page', () => {
+describe("Teams Component", () => {
+  it("renders Teams page", () => {
     render(
       <BrowserRouter>
         <Teams />
-      </BrowserRouter>
+      </BrowserRouter>,
     );
 
     expect(screen.getByText(/Team Management/i)).toBeInTheDocument();

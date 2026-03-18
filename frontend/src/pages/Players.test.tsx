@@ -1,10 +1,10 @@
-import { render, screen } from '@testing-library/react';
-import Players from './Players';
-import { describe, it, expect, vi } from 'vitest';
-import { BrowserRouter } from 'react-router-dom';
+import { render, screen } from "@testing-library/react";
+import Players from "./Players";
+import { describe, it, expect, vi } from "vitest";
+import { BrowserRouter } from "react-router-dom";
 
 // Mock Dexie
-vi.mock('../db', () => ({
+vi.mock("../db", () => ({
   db: {
     open: vi.fn().mockResolvedValue(null),
     players: {
@@ -14,15 +14,17 @@ vi.mock('../db', () => ({
   },
 }));
 
-describe('Players Component', () => {
-  it('renders Players page', () => {
+describe("Players Component", () => {
+  it("renders Players page", () => {
     render(
       <BrowserRouter>
         <Players />
-      </BrowserRouter>
+      </BrowserRouter>,
     );
 
     // Use a more specific query since "Players" appears in the empty state message too
-    expect(screen.getByRole('heading', { name: /Players/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: /Players/i }),
+    ).toBeInTheDocument();
   });
 });

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { AuthenticationDetails, CognitoUser } from 'amazon-cognito-identity-js';
-import { UserPool } from '../UserPool';
+import React, { useState } from "react";
+import { AuthenticationDetails, CognitoUser } from "amazon-cognito-identity-js";
+import { UserPool } from "../UserPool";
 import {
   Box,
   Button,
@@ -8,15 +8,15 @@ import {
   Typography,
   Container,
   Paper,
-  Alert
-} from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+  Alert,
+} from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const Login: React.FC = () => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const navigate = useNavigate();
   const { setIsAuthenticated } = useAuth();
 
@@ -35,18 +35,18 @@ const Login: React.FC = () => {
 
     user.authenticateUser(authDetails, {
       onSuccess: (data) => {
-        console.log('onSuccess:', data);
+        console.log("onSuccess:", data);
         setIsAuthenticated(true);
-        localStorage.setItem('isAuthenticated', 'true');
-        navigate('/');
+        localStorage.setItem("isAuthenticated", "true");
+        navigate("/");
       },
       onFailure: (err) => {
-        console.error('onFailure:', err);
+        console.error("onFailure:", err);
         setError(err.message || JSON.stringify(err));
       },
       newPasswordRequired: (userAttributes, requiredAttributes) => {
-        console.log('newPasswordRequired:', userAttributes, requiredAttributes);
-        setError('New password required');
+        console.log("newPasswordRequired:", userAttributes, requiredAttributes);
+        setError("New password required");
       },
     });
   };
@@ -54,12 +54,20 @@ const Login: React.FC = () => {
   return (
     <Container maxWidth="xs">
       <Box sx={{ mt: 8 }}>
-        <Paper elevation={3} sx={{ p: 4, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <Paper
+          elevation={3}
+          sx={{
+            p: 4,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
           <Typography component="h1" variant="h5" gutterBottom>
             Sign In
           </Typography>
           {error && (
-            <Alert severity="error" sx={{ width: '100%', mb: 2 }}>
+            <Alert severity="error" sx={{ width: "100%", mb: 2 }}>
               {error}
             </Alert>
           )}

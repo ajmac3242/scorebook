@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { CognitoUserSession } from 'amazon-cognito-identity-js';
-import { UserPool } from '../UserPool';
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { CognitoUserSession } from "amazon-cognito-identity-js";
+import { UserPool } from "../UserPool";
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -11,25 +11,29 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const user = UserPool.getCurrentUser();
     if (user) {
-      user.getSession((err: Error | null, session: CognitoUserSession | null) => {
-        if (err || !session || !session.isValid()) {
-          setIsAuthenticated(false);
-          localStorage.removeItem('isAuthenticated');
-        } else {
-          setIsAuthenticated(true);
-        }
-        setLoading(false);
-      });
+      user.getSession(
+        (err: Error | null, session: CognitoUserSession | null) => {
+          if (err || !session || !session.isValid()) {
+            setIsAuthenticated(false);
+            localStorage.removeItem("isAuthenticated");
+          } else {
+            setIsAuthenticated(true);
+          }
+          setLoading(false);
+        },
+      );
     } else {
       setIsAuthenticated(false);
-      localStorage.removeItem('isAuthenticated');
+      localStorage.removeItem("isAuthenticated");
       setLoading(false);
     }
   }, []);
@@ -40,11 +44,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       user.signOut();
     }
     setIsAuthenticated(false);
-    localStorage.removeItem('isAuthenticated');
+    localStorage.removeItem("isAuthenticated");
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, loading, setIsAuthenticated, logout }}>
+    <AuthContext.Provider
+      value={{ isAuthenticated, loading, setIsAuthenticated, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -53,7 +59,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };

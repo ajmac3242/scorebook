@@ -1,10 +1,10 @@
-import { render, screen } from '@testing-library/react';
-import Games from './Games';
-import { describe, it, expect, vi } from 'vitest';
-import { BrowserRouter } from 'react-router-dom';
+import { render, screen } from "@testing-library/react";
+import Games from "./Games";
+import { describe, it, expect, vi } from "vitest";
+import { BrowserRouter } from "react-router-dom";
 
 // Mock Dexie
-vi.mock('../db', () => ({
+vi.mock("../db", () => ({
   db: {
     open: vi.fn().mockResolvedValue(null),
     seasons: {
@@ -29,12 +29,12 @@ vi.mock('../db', () => ({
   },
 }));
 
-describe('Games Component', () => {
-  it('renders Games page', () => {
+describe("Games Component", () => {
+  it("renders Games page", () => {
     render(
       <BrowserRouter>
         <Games />
-      </BrowserRouter>
+      </BrowserRouter>,
     );
 
     expect(screen.getByText(/Games/i)).toBeInTheDocument();
