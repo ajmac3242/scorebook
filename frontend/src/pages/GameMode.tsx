@@ -397,7 +397,7 @@ const GameMode: React.FC = () => {
             Cancel
           </Button>
           <Button
-            onClick={handleSaveStat}
+            onClick={() => handleSaveStat()}
             variant="contained"
             disabled={!selectedPlayerId || !statType}
             sx={{ px: 4 }}
