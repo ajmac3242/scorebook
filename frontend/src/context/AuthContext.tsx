@@ -21,6 +21,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       user.getSession((err: Error | null, session: CognitoUserSession | null) => {
         if (err || !session || !session.isValid()) {
           setIsAuthenticated(false);
+          localStorage.removeItem('isAuthenticated');
         } else {
           setIsAuthenticated(true);
         }
@@ -28,6 +29,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
     } else {
       setIsAuthenticated(false);
+      localStorage.removeItem('isAuthenticated');
       setLoading(false);
     }
   }, []);

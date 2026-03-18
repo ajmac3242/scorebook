@@ -12,7 +12,11 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
   const { isAuthenticated, loading } = useAuth();
 
   if (loading) {
-    return null; // Or a loading spinner
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 8 }}>
+        <Typography>Loading...</Typography>
+      </Box>
+    );
   }
 
   return isAuthenticated ? <>{children}</> : <Navigate to="/login" />;
