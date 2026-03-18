@@ -102,8 +102,7 @@ jobs:
             ")
           else
             lines="Coverage not available"
-          fi
-          echo "summary=$lines" >> $GITHUB_OUTPUT
+              console.log('Statements: ' + Math.round(s.statements.pct * 10) / 10 + '% | Branches: ' + Math.round(s.branches.pct * 10) / 10 + '% | Functions: ' + Math.round(s.functions.pct * 10) / 10 + '% | Lines: ' + Math.round(s.lines.pct * 10) / 10 + '%');          echo "summary=$lines" >> $GITHUB_OUTPUT
 
       - name: Save coverage summary
         run: echo "${{ steps.coverage.outputs.summary }}" > coverage-summary-backend.txt
@@ -147,8 +146,7 @@ jobs:
             ")
           else
             lines="Coverage not available"
-          fi
-          echo "summary=$lines" >> $GITHUB_OUTPUT
+              console.log('Statements: ' + Math.round(s.statements.pct * 10) / 10 + '% | Branches: ' + Math.round(s.branches.pct * 10) / 10 + '% | Functions: ' + Math.round(s.functions.pct * 10) / 10 + '% | Lines: ' + Math.round(s.lines.pct * 10) / 10 + '%');          echo "summary=$lines" >> $GITHUB_OUTPUT
 
       - name: Save coverage summary
         run: echo "${{ steps.coverage.outputs.summary }}" > coverage-summary-frontend.txt
