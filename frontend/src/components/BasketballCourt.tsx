@@ -1,7 +1,9 @@
-import React from 'react';
-import { Box } from '@mui/material';
+import React from "react";
+import { Box } from "@mui/material";
 
-const BasketballCourt: React.FC<{ onCoordClick: (x: number, y: number) => void }> = ({ onCoordClick }) => {
+const BasketballCourt: React.FC<{
+  onCoordClick: (x: number, y: number) => void;
+}> = ({ onCoordClick }) => {
   const handleClick = (e: React.MouseEvent<SVGSVGElement>) => {
     const svg = e.currentTarget;
     const rect = svg.getBoundingClientRect();
@@ -10,22 +12,45 @@ const BasketballCourt: React.FC<{ onCoordClick: (x: number, y: number) => void }
     onCoordClick(x, y);
   };
 
-  const charcoal = '#2D2D2D';
+  const charcoal = "#2D2D2D";
   const strokeWidth = 2;
 
   return (
-    <Box sx={{ width: '100%', aspectRatio: '50 / 47', position: 'relative', bgcolor: '#FFFDF5' }}>
+    <Box
+      sx={{
+        width: "100%",
+        aspectRatio: "50 / 47",
+        position: "relative",
+        bgcolor: "#FFFDF5",
+      }}
+    >
       <svg
         viewBox="0 0 500 470"
         onClick={handleClick}
-        style={{ width: '100%', height: '100%', cursor: 'crosshair' }}
+        style={{ width: "100%", height: "100%", cursor: "crosshair" }}
         xmlns="http://www.w3.org/2000/svg"
       >
         {/* Out of bounds / Court Perimeter */}
-        <rect x="0" y="0" width="500" height="470" fill="none" stroke={charcoal} strokeWidth={strokeWidth} />
+        <rect
+          x="0"
+          y="0"
+          width="500"
+          height="470"
+          fill="none"
+          stroke={charcoal}
+          strokeWidth={strokeWidth}
+        />
 
         {/* Key / Paint */}
-        <rect x="170" y="0" width="160" height="190" fill="none" stroke={charcoal} strokeWidth={strokeWidth} />
+        <rect
+          x="170"
+          y="0"
+          width="160"
+          height="190"
+          fill="none"
+          stroke={charcoal}
+          strokeWidth={strokeWidth}
+        />
 
         {/* Free Throw Circle (Top half) */}
         <path
@@ -45,8 +70,22 @@ const BasketballCourt: React.FC<{ onCoordClick: (x: number, y: number) => void }
 
         {/* Three Point Line */}
         {/* Side lines */}
-        <line x1="30" y1="0" x2="30" y2="140" stroke={charcoal} strokeWidth={strokeWidth} />
-        <line x1="470" y1="0" x2="470" y2="140" stroke={charcoal} strokeWidth={strokeWidth} />
+        <line
+          x1="30"
+          y1="0"
+          x2="30"
+          y2="140"
+          stroke={charcoal}
+          strokeWidth={strokeWidth}
+        />
+        <line
+          x1="470"
+          y1="0"
+          x2="470"
+          y2="140"
+          stroke={charcoal}
+          strokeWidth={strokeWidth}
+        />
         {/* Arc - starts at y=140 on both sides, center is hoop (250, 40), radius approx 220-237 depending on scale */}
         {/* Standard FIBA: 6.75m. NBA: 7.24m. High School: 6.02m. */}
         {/* Using a visually representative arc */}
@@ -66,10 +105,24 @@ const BasketballCourt: React.FC<{ onCoordClick: (x: number, y: number) => void }
         />
 
         {/* Backboard */}
-        <line x1="220" y1="40" x2="280" y2="40" stroke={charcoal} strokeWidth={strokeWidth * 1.5} />
+        <line
+          x1="220"
+          y1="40"
+          x2="280"
+          y2="40"
+          stroke={charcoal}
+          strokeWidth={strokeWidth * 1.5}
+        />
 
         {/* Rim / Hoop */}
-        <circle cx="250" cy="47" r="7" fill="none" stroke={charcoal} strokeWidth={strokeWidth} />
+        <circle
+          cx="250"
+          cy="47"
+          r="7"
+          fill="none"
+          stroke={charcoal}
+          strokeWidth={strokeWidth}
+        />
       </svg>
     </Box>
   );

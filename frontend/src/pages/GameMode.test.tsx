@@ -1,10 +1,10 @@
-import { render, screen } from '@testing-library/react';
-import GameMode from './GameMode';
-import { describe, it, expect, vi } from 'vitest';
-import { ThemeProvider, createTheme } from '@mui/material';
+import { render, screen } from "@testing-library/react";
+import GameMode from "./GameMode";
+import { describe, it, expect, vi } from "vitest";
+import { ThemeProvider, createTheme } from "@mui/material";
 
 // Mock Dexie
-vi.mock('../db', () => ({
+vi.mock("../db", () => ({
   db: {
     players: {
       toArray: vi.fn().mockResolvedValue([]),
@@ -24,12 +24,12 @@ vi.mock('../db', () => ({
 
 const theme = createTheme();
 
-describe('GameMode Component', () => {
-  it('renders GameMode page', async () => {
+describe("GameMode Component", () => {
+  it("renders GameMode page", async () => {
     render(
       <ThemeProvider theme={theme}>
         <GameMode />
-      </ThemeProvider>
+      </ThemeProvider>,
     );
 
     expect(screen.getByText(/Live Game Tracker/i)).toBeInTheDocument();
