@@ -25,9 +25,9 @@ jobs:
       - name: Build
         run: |
           cd backend
-          npm ci --production
-          npm install --save-dev typescript @types/node
+          npm ci
           npm run build
+          npm prune --production
           zip -r ../lambda.zip dist node_modules
 
       - name: Upload lambda.zip artifact
