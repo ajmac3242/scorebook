@@ -1,16 +1,13 @@
 name: PR Quality Checks
-
 on:
   pull_request:
     branches: [ main ]
     types: [ opened, synchronize, reopened ]
-
 permissions:
-  contents: write   # needed to push formatting + comment fixes
-  pull-requests: write  # needed to post PR comments
+  contents: write # needed to push formatting + comment fixes
+  pull-requests: write # needed to post PR comments
 
 jobs:
-
   # ---------------------------------------------------------------
   # Job 1: Lint & format backend (Prettier + ESLint + JSDoc checks)
   # ---------------------------------------------------------------
@@ -22,30 +19,25 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
           token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
-
       - name: Install dependencies
         run: |
           cd backend
           npm install
           npm install --save-dev prettier eslint @typescript-eslint/eslint-plugin @typescript-eslint/parser eslint-plugin-jsdoc
-
       - name: Run Prettier (auto-format)
         run: |
           cd backend
           npx prettier --write "src/**/*.ts"
-
       - name: Write ESLint config with JSDoc rules
         run: |
           cat > backend/eslint.config.mjs << 'ESLINTEOF'
           import tsPlugin from "@typescript-eslint/eslint-plugin";
           import tsParser from "@typescript-eslint/parser";
           import jsdocPlugin from "eslint-plugin-jsdoc";
-
           export default [
             {
               files: ["src/**/*.ts"],
@@ -85,7 +77,6 @@ jobs:
             }
           ];
           ESLINTEOF
-
       - name: Run ESLint (lint + JSDoc check)
         id: backend-eslint
         run: |
@@ -94,18 +85,16 @@ jobs:
           echo "result<<EOF" >> $GITHUB_OUTPUT
           echo "$output" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
-
       - name: Auto-add missing JSDoc stubs
         run: |
           cd backend
           # Use eslint --fix-type suggestion to insert missing JSDoc where possible
           npx eslint "src/**/*.ts" --fix --rule '{"jsdoc/require-jsdoc": ["warn", {"enableFixer": true, "require": {"FunctionDeclaration": true, "FunctionExpression": true, "MethodDefinition": true}}]}' 2>/dev/null || true
-
       - name: Commit formatting + JSDoc fixes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "style(backend): auto-format with Prettier and add missing JSDoc stubs"
-          file_pattern: "backend/src/**/*.ts backend/eslint.config.mjs"
+          file_pattern: "backend/src/**"
 
   # ---------------------------------------------------------------
   # Job 2: Lint & format frontend (Prettier + ESLint + JSDoc checks)
@@ -118,23 +107,19 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
           token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
-
       - name: Install dependencies
         run: |
           cd frontend
           npm install
           npm install --save-dev prettier eslint-plugin-jsdoc
-
       - name: Run Prettier (auto-format)
         run: |
           cd frontend
           npx prettier --write "src/**/*.{ts,tsx}"
-
       - name: Write ESLint config with JSDoc rules
         run: |
           cat > frontend/eslint.config.mjs << 'ESLINTEOF'
@@ -145,7 +130,6 @@ jobs:
           import reactRefresh from "eslint-plugin-react-refresh";
           import jsdocPlugin from "eslint-plugin-jsdoc";
           import globals from "globals";
-
           export default [
             { ignores: ["dist", "src/__tests__/**"] },
             {
@@ -190,7 +174,6 @@ jobs:
             }
           ];
           ESLINTEOF
-
       - name: Run ESLint (lint + JSDoc check)
         id: frontend-eslint
         run: |
@@ -199,17 +182,15 @@ jobs:
           echo "result<<EOF" >> $GITHUB_OUTPUT
           echo "$output" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
-
       - name: Auto-add missing JSDoc stubs
         run: |
           cd frontend
           npx eslint "src/**/*.{ts,tsx}" --fix --rule '{"jsdoc/require-jsdoc": ["warn", {"enableFixer": true, "require": {"FunctionDeclaration": true, "FunctionExpression": true, "MethodDefinition": true}}]}' 2>/dev/null || true
-
       - name: Commit formatting + JSDoc fixes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "style(frontend): auto-format with Prettier and add missing JSDoc stubs"
-          file_pattern: "frontend/src/**/*.{ts,tsx} frontend/eslint.config.mjs"
+          file_pattern: "frontend/src/**"
 
   # ---------------------------------------------------------------
   # Job 3: Comment quality audit — scan all changed files for
@@ -224,30 +205,25 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
-
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
-
       - name: Install audit tools
         run: |
           cd backend && npm install && npm install --save-dev eslint-plugin-jsdoc @typescript-eslint/eslint-plugin @typescript-eslint/parser
           cd ../frontend && npm install && npm install --save-dev eslint-plugin-jsdoc
-
       - name: Audit backend JSDoc coverage
         id: backend-audit
         run: |
           cd backend
-          # Count total exported functions/classes vs those with JSDoc
+          # Count total exported symbols
           total=$(grep -rE "^(export (async )?function|export (default )?class|export const [a-zA-Z]+ = (async )?(function|\.{3}|\()" src --include="*.ts" | grep -v __tests__ | wc -l | tr -d ' ')
-          documented=$(grep -rB1 "^(export (async )?function|export (default )?class|export const [a-zA-Z]+ = (async )?(function|\.{3}|\()" src --include="*.ts" | grep -v __tests__ | grep -c "\*/" || echo "0")
           output=$(npx eslint "src/**/*.ts" --rule '{"jsdoc/require-jsdoc":["warn",{"require":{"FunctionDeclaration":true,"FunctionExpression":true,"MethodDefinition":true,"ClassDeclaration":true},"enableFixer":false}],"jsdoc/require-description":["warn",{"descriptionStyle":"body"}]}' --plugin jsdoc --format compact 2>&1 || true)
           echo "total=$total" >> $GITHUB_OUTPUT
           echo "result<<EOF" >> $GITHUB_OUTPUT
           echo "$output" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
-
       - name: Audit frontend JSDoc coverage
         id: frontend-audit
         run: |
@@ -258,7 +234,6 @@ jobs:
           echo "result<<EOF" >> $GITHUB_OUTPUT
           echo "$output" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
-
       - name: Get list of changed TS/TSX files
         id: changed-files
         run: |
@@ -267,50 +242,37 @@ jobs:
           echo "list<<EOF" >> $GITHUB_OUTPUT
           echo "$files" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
-
       - name: Post PR comment
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           header: pr-quality
           message: |
             ## PR Quality Report
-
             ### Changed TypeScript Files
             ```
             ${{ steps.changed-files.outputs.list }}
             ```
-
             ---
-
             ### Backend Lint & Comment Audit
             > **Exported symbols found:** ${{ steps.backend-audit.outputs.total }}
-
             <details>
             <summary>Show backend JSDoc warnings</summary>
-
             ```
             ${{ steps.backend-audit.outputs.result }}
             ```
             </details>
-
             ---
-
             ### Frontend Lint & Comment Audit
             > **Exported symbols found:** ${{ steps.frontend-audit.outputs.total }}
-
             <details>
             <summary>Show frontend JSDoc warnings</summary>
-
             ```
             ${{ steps.frontend-audit.outputs.result }}
             ```
             </details>
-
             ---
-
             ### What was auto-fixed
             - Prettier formatting applied to all changed `.ts` / `.tsx` files
             - Missing JSDoc stubs (`/** */`) inserted on exported functions and classes via ESLint fixer
             - Auto-fix commits are pushed back to this PR branch
-
             > :warning: Review any remaining JSDoc warnings above. Fill in descriptions, `@param`, and `@returns` tags where shown.
