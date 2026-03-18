@@ -74,7 +74,7 @@ jobs:
           push_options: "--force-with-lease"
 
   test:
-    name: Unit Tests (Backend & Frontend)
+    name: Unit Tests (${{ matrix.app }})
     runs-on: ubuntu-latest
     needs: [lint-backend, lint-frontend]
     strategy:
@@ -92,18 +92,51 @@ jobs:
       - name: Install dependencies
         run: cd ${{ matrix.app }} && npm ci
 
-      - name: Run tests
-        run: cd ${{ matrix.app }} && npm test
+      - name: Run tests with coverage
+        run: cd ${{ matrix.app }} && npm test -- --coverage --coverageReporters=json-summary --coverageReporters=text 2>&1 | tee ../coverage-${{ matrix.app }}.txt
+
+      - name: Extract coverage summary
+        id: coverage
+        run: |
+          if [ -f ${{ matrix.app }}/coverage/coverage-summary.json ]; then
+            lines=$(node -e "
+              const s = require('./${{ matrix.app }}/coverage/coverage-summary.json').total;
+              console.log('Statements: ' + s.statements.pct + '% | Branches: ' + s.branches.pct + '% | Functions: ' + s.functions.pct + '% | Lines: ' + s.lines.pct + '%');
+            ")
+          else
+            lines="Coverage summary not available"
+          fi
+          echo "summary=$lines" >> $GITHUB_OUTPUT
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ matrix.app }}
+          path: ${{ matrix.app }}/coverage/
+          retention-days: 7
+
+      - name: Save coverage summary
+        run: echo "${{ steps.coverage.outputs.summary }}" > coverage-summary-${{ matrix.app }}.txt
+
+      - name: Upload coverage summary
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-summary-${{ matrix.app }}
+          path: coverage-summary-${{ matrix.app }}.txt
+          retention-days: 7
 
   terraform-plan:
     name: Terraform Plan
     runs-on: ubuntu-latest
     permissions:
       id-token: write
-      contents: read
+      contents: write
       pull-requests: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -117,8 +150,15 @@ jobs:
         with:
           terraform_wrapper: false
 
-      - name: Terraform Format Check
-        run: cd infra && terraform fmt -check
+      - name: Terraform Format (auto-fix)
+        run: cd infra && terraform fmt -recursive
+
+      - name: Commit Terraform formatting
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "style(infra): auto-format Terraform files"
+          file_pattern: "infra/**/*.tf"
+          push_options: "--force-with-lease"
 
       - name: Terraform Init
         run: cd infra && terraform init
@@ -137,15 +177,13 @@ jobs:
         with:
           header: terraform-plan
           message: |
-            ## 🏗️ Terraform Plan
-
+            ## Terraform Plan
             <details>
             <summary>Show Plan</summary>
 
             ```hcl
             ${{ steps.plan.outputs.plan }}
             ```
-
             </details>
 
             > This is a plan only. Changes are applied after merge to `main`.
@@ -153,7 +191,7 @@ jobs:
   comment-audit:
     name: Comment Quality Audit
     runs-on: ubuntu-latest
-    needs: [lint-backend, lint-frontend]
+    needs: [lint-backend, lint-frontend, test]
     if: always()
     steps:
       - uses: actions/checkout@v4
@@ -174,7 +212,7 @@ jobs:
         id: backend-audit
         run: |
           cd backend
-          total=$(grep -rE "^(export (async )?function|export (default )?class|export const [a-zA-Z]+ = (async )?(function|\.\.\.|\())" src --include="*.ts" | grep -v __tests__ | wc -l | tr -d ' ')
+          total=$(grep -rE "^(export (async )?function|export (default )?class|export const [a-zA-Z]+ = (async )?(function|\.\.\.|(\())) " src --include="*.ts" | grep -v __tests__ | wc -l | tr -d ' ')
           output=$(npx eslint "src/**/*.ts" --rule '{"jsdoc/require-jsdoc":["warn",{"require":{"FunctionDeclaration":true,"FunctionExpression":true,"MethodDefinition":true,"ClassDeclaration":true},"enableFixer":false}],"jsdoc/require-description":["warn",{"descriptionStyle":"body"}]}' --plugin jsdoc --format compact 2>&1 || true)
           echo "total=$total" >> $GITHUB_OUTPUT
           echo "result<<EOF" >> $GITHUB_OUTPUT
@@ -190,6 +228,32 @@ jobs:
           echo "total=$total" >> $GITHUB_OUTPUT
           echo "result<<EOF" >> $GITHUB_OUTPUT
           echo "$output" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Download backend coverage summary
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-summary-backend
+          path: ./coverage-summaries
+        continue-on-error: true
+
+      - name: Download frontend coverage summary
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-summary-frontend
+          path: ./coverage-summaries
+        continue-on-error: true
+
+      - name: Read coverage summaries
+        id: coverage-summaries
+        run: |
+          backend_cov=$(cat ./coverage-summaries/coverage-summary-backend.txt 2>/dev/null || echo "Not available")
+          frontend_cov=$(cat ./coverage-summaries/coverage-summary-frontend.txt 2>/dev/null || echo "Not available")
+          echo "backend<<EOF" >> $GITHUB_OUTPUT
+          echo "$backend_cov" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          echo "frontend<<EOF" >> $GITHUB_OUTPUT
+          echo "$frontend_cov" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Get list of changed TS/TSX files
@@ -215,6 +279,14 @@ jobs:
 
             ---
 
+            ### Test Coverage
+            | App | Coverage |
+            |-----|----------|
+            | Backend | ${{ steps.coverage-summaries.outputs.backend }} |
+            | Frontend | ${{ steps.coverage-summaries.outputs.frontend }} |
+
+            ---
+
             ### Backend Lint & Comment Audit
             > **Exported symbols found:** ${{ steps.backend-audit.outputs.total }}
             <details>
@@ -223,7 +295,6 @@ jobs:
             ```
             ${{ steps.backend-audit.outputs.result }}
             ```
-
             </details>
 
             ---
@@ -236,7 +307,6 @@ jobs:
             ```
             ${{ steps.frontend-audit.outputs.result }}
             ```
-
             </details>
 
             ---
@@ -244,6 +314,7 @@ jobs:
             ### What was auto-fixed
             - Prettier formatting applied to `.ts` / `.tsx` files
             - JSDoc stubs inserted where possible via ESLint fixer
+            - Terraform files auto-formatted via `terraform fmt`
             - Auto-fix commits pushed back to this PR branch
 
-            > ⚠️ Review remaining JSDoc warnings and fill in `@param` / `@returns` details.
+            > Review remaining JSDoc warnings and fill in `@param` / `@returns` details.
