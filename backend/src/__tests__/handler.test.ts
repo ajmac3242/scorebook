@@ -1,5 +1,9 @@
 import { handler } from "../index.js";
-import { DynamoDBDocumentClient, QueryCommand, PutCommand } from "@aws-sdk/lib-dynamodb";
+import {
+  DynamoDBDocumentClient,
+  QueryCommand,
+  PutCommand,
+} from "@aws-sdk/lib-dynamodb";
 import { mockClient } from "aws-sdk-client-mock";
 
 const ddbMock = mockClient(DynamoDBDocumentClient);
@@ -14,7 +18,12 @@ describe("Lambda Handler", () => {
     process.env.TABLE_NAME = "TestTable";
   });
 
-  const createEvent = (method: string, path: string, body: any = null, queryStringParameters: any = null) => ({
+  const createEvent = (
+    method: string,
+    path: string,
+    body: any = null,
+    queryStringParameters: any = null,
+  ) => ({
     requestContext: {
       http: {
         method,
@@ -35,7 +44,9 @@ describe("Lambda Handler", () => {
       const response = await handler(event);
 
       expect(response.statusCode).toBe(200);
-      expect(JSON.parse(response.body)).toEqual([{ id: "1", name: "Season 1" }]);
+      expect(JSON.parse(response.body)).toEqual([
+        { id: "1", name: "Season 1" },
+      ]);
     });
 
     it("POST /seasons creates an item", async () => {
@@ -67,7 +78,10 @@ describe("Lambda Handler", () => {
     it("POST /teams creates an item", async () => {
       ddbMock.on(PutCommand).resolves({});
 
-      const event = createEvent("POST", "/teams", { name: "New Team", seasonId: "s1" });
+      const event = createEvent("POST", "/teams", {
+        name: "New Team",
+        seasonId: "s1",
+      });
       const response = await handler(event);
 
       expect(response.statusCode).toBe(201);
@@ -114,7 +128,10 @@ describe("Lambda Handler", () => {
     it("POST /games creates an item", async () => {
       ddbMock.on(PutCommand).resolves({});
 
-      const event = createEvent("POST", "/games", { teamId: "t1", opponent: "Opponent" });
+      const event = createEvent("POST", "/games", {
+        teamId: "t1",
+        opponent: "Opponent",
+      });
       const response = await handler(event);
 
       expect(response.statusCode).toBe(201);
@@ -136,7 +153,10 @@ describe("Lambda Handler", () => {
     it("POST /games/:id/stats creates an item", async () => {
       ddbMock.on(PutCommand).resolves({});
 
-      const event = createEvent("POST", "/games/g1/stats", { type: "SHOT", playerId: "p1" });
+      const event = createEvent("POST", "/games/g1/stats", {
+        type: "SHOT",
+        playerId: "p1",
+      });
       const response = await handler(event);
 
       expect(response.statusCode).toBe(201);
