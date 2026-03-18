@@ -1,5 +1,4 @@
 name: Deploy Basketball Stats
-
 on:
   push:
     branches: [ main ]
@@ -10,7 +9,6 @@ permissions:
   contents: read  # Required for actions/checkout
 
 jobs:
-
   # ---------------------------------------------------------------
   # Job 0a: Test backend — must pass before anything else runs
   # ---------------------------------------------------------------
@@ -82,7 +80,9 @@ jobs:
           retention-days: 1
 
   # ---------------------------------------------------------------
-  # Job 1b: Build frontend artifact (no AWS needed yet)
+  # Job 1b: Build frontend — inject real API endpoint at build time
+  # The API endpoint comes from Terraform outputs in a subsequent run,
+  # so we use VITE_API_ENDPOINT from a prior-run cache or env var.
   # ---------------------------------------------------------------
   build-frontend:
     name: Build Frontend
@@ -95,31 +95,36 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-      # Build with a placeholder endpoint; real endpoint injected at deploy time
+
       - name: Build
         run: |
           cd frontend
           npm install
           npm run build
 
+      - name: Generate frontend build hash
+        # Hash of all built files — used by Terraform null_resource trigger
+        # to detect when frontend content has changed and invalidation is needed
+        run: find frontend/dist -type f | sort | xargs sha256sum | sha256sum | awk '{print $1}' > frontend-build-hash.txt
+
       - name: Upload frontend artifact
         uses: actions/upload-artifact@v4
         with:
           name: frontend-dist
-          path: frontend/dist/
+          path: |
+            frontend/dist/
+            frontend-build-hash.txt
           retention-days: 1
 
   # ---------------------------------------------------------------
   # Job 2: Terraform — runs AFTER both builds complete
-  # Downloads lambda.zip so Terraform apply deploys real code
+  # - Downloads lambda.zip → Terraform detects code change via source_code_hash
+  # - Downloads frontend/dist → null_resource syncs to S3 and invalidates CloudFront
   # ---------------------------------------------------------------
   infra:
     name: Terraform
     runs-on: ubuntu-latest
     needs: [build-backend, build-frontend]
-    outputs:
-      s3_bucket_name: ${{ steps.outputs.outputs.s3_bucket_name }}
-      api_endpoint: ${{ steps.outputs.outputs.api_endpoint }}
     steps:
       - uses: actions/checkout@v4
 
@@ -128,6 +133,12 @@ jobs:
         with:
           name: lambda-zip
           # downloads to repo root so infra/main.tf can reference ../lambda.zip
+
+      - name: Download frontend artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-dist
+          # downloads frontend/dist/ and frontend-build-hash.txt to repo root
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -144,75 +155,7 @@ jobs:
         run: cd infra && terraform init
 
       - name: Terraform Apply
+        # Terraform will:
+        # 1. Update Lambda if source_code_hash changed (new lambda.zip)
+        # 2. Sync frontend/dist to S3 and invalidate CloudFront if build hash changed
         run: cd infra && terraform apply -auto-approve
-
-      - name: Capture Outputs
-        id: outputs
-        run: |
-          cd infra
-          echo "s3_bucket_name=$(terraform output -raw s3_bucket_name)" >> $GITHUB_OUTPUT
-          echo "api_endpoint=$(terraform output -raw api_endpoint)" >> $GITHUB_OUTPUT
-
-  # ---------------------------------------------------------------
-  # Job 3a: Deploy backend — update Lambda with the built zip
-  # ---------------------------------------------------------------
-  deploy-backend:
-    name: Deploy Backend
-    runs-on: ubuntu-latest
-    needs: infra
-    steps:
-      - name: Download lambda.zip artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: lambda-zip
-
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: arn:aws:iam::269555264437:role/github_deployment
-          aws-region: us-east-1
-          audience: sts.amazonaws.com
-
-      - name: Deploy to Lambda
-        run: |
-          aws lambda update-function-code \
-            --function-name basketball-stats-api-handler \
-            --zip-file fileb://lambda.zip
-
-  # ---------------------------------------------------------------
-  # Job 3b: Deploy frontend — inject real API endpoint then sync to S3
-  # ---------------------------------------------------------------
-  deploy-frontend:
-    name: Deploy Frontend
-    runs-on: ubuntu-latest
-    needs: infra
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Download frontend artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: frontend-dist
-          path: frontend/dist/
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Rebuild frontend with real API endpoint
-        run: |
-          cd frontend
-          npm install
-          VITE_API_ENDPOINT=${{ needs.infra.outputs.api_endpoint }} npm run build
-
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: arn:aws:iam::269555264437:role/github_deployment
-          aws-region: us-east-1
-          audience: sts.amazonaws.com
-
-      - name: Deploy to S3
-        run: |
-          aws s3 sync frontend/dist/ s3://${{ needs.infra.outputs.s3_bucket_name }} --delete
