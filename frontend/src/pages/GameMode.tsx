@@ -487,7 +487,7 @@ const GameMode: React.FC = () => {
                     onClick={() => setPoints(pts)}
                     sx={{
                       borderColor: "#D1D1D1",
-                      backgroundColorcontained
+                      backgroundColor:
                         points === pts ? "#2D2D2D" : "transparent",
                       color: points === pts ? "#FFFDF5" : "#2D2D2D",
                     }}
