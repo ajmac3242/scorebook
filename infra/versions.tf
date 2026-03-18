@@ -6,7 +6,7 @@ terraform {
     key            = "terraform.tfstate"
     region         = "us-east-1"
     encrypt        = true
-    dynamodb_table = "basketball-stats-terraform-lock"
+    use_lockfile = "basketball-stats-terraform-lock"
   }
 
   required_providers {
