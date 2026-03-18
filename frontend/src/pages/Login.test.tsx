@@ -2,12 +2,15 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import Login from './Login';
 import { describe, it, expect, vi } from 'vitest';
+import { AuthProvider } from '../context/AuthContext';
 
 describe('Login Component', () => {
   it('renders login form', () => {
     render(
       <BrowserRouter>
-        <Login />
+        <AuthProvider>
+          <Login />
+        </AuthProvider>
       </BrowserRouter>
     );
 
@@ -20,7 +23,9 @@ describe('Login Component', () => {
   it('updates input fields on change', () => {
     render(
       <BrowserRouter>
-        <Login />
+        <AuthProvider>
+          <Login />
+        </AuthProvider>
       </BrowserRouter>
     );
 
