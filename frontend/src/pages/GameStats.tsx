@@ -25,41 +25,23 @@ import { useLiveQuery } from "dexie-react-hooks";
 const GameStats: React.FC = () => {
   const [searchParams] = useSearchParams();
   const gameIdParam = searchParams.get("gameId");
-  const gameId = gameIdParam
-    ? isNaN(Number(gameIdParam))
-      ? gameIdParam
-      : Number(gameIdParam)
-    : undefined;
+  const gameId = gameIdParam ? (isNaN(Number(gameIdParam)) ? gameIdParam : Number(gameIdParam)) : undefined;
   const navigate = useNavigate();
 
-  const [selectedPlayerId, setSelectedPlayerId] = useState<number | string>(
-    "ALL",
-  );
+  const [selectedPlayerId, setSelectedPlayerId] = useState<number | string>("ALL");
   const [selectedType, setSelectedType] = useState<string>("ALL");
 
-  const game = useLiveQuery(
-    () =>
-      gameId !== undefined
-        ? db.games.get(gameId as any)
-        : Promise.resolve(undefined),
-    [gameId],
-  );
+  const game = useLiveQuery(() => (gameId !== undefined ? db.games.get(gameId as any) : Promise.resolve(undefined)), [gameId]);
 
   const players = useLiveQuery(() => db.players.toArray()) || [];
 
-  const stats =
-    useLiveQuery(
-      () =>
-        gameId !== undefined
-          ? db.stats.where("gameId").equals(gameId).toArray()
-          : Promise.resolve([]),
-      [gameId],
-    ) || [];
+  const stats = useLiveQuery(() =>
+    gameId !== undefined ? db.stats.where("gameId").equals(gameId).toArray() : Promise.resolve([]),
+  [gameId]) || [];
 
   const filteredStats = useMemo(() => {
-    return stats.filter((s) => {
-      if (selectedPlayerId !== "ALL" && s.playerId !== selectedPlayerId)
-        return false;
+    return stats.filter(s => {
+      if (selectedPlayerId !== "ALL" && s.playerId !== selectedPlayerId) return false;
       if (selectedType !== "ALL" && s.type !== selectedType) return false;
       return true;
     });
@@ -68,25 +50,25 @@ const GameStats: React.FC = () => {
   const playerAggregates = useMemo(() => {
     const agg: Record<string, any> = {};
 
-    stats.forEach((s) => {
+    stats.forEach(s => {
       const pId = s.playerId.toString();
       if (!agg[pId]) {
         agg[pId] = {
           id: s.playerId,
-          name: players.find((p) => p.id === s.playerId)?.name || "Unknown",
+          name: players.find(p => p.id === s.playerId)?.name || "Unknown",
           points: 0,
           rebounds: 0,
           assists: 0,
           steals: 0,
           turnovers: 0,
           makes: 0,
-          attempts: 0,
+          attempts: 0
         };
       }
 
       const p = agg[pId];
       if (s.type === "MAKE") {
-        p.points += s.points || 0;
+        p.points += (s.points || 0);
         p.makes += 1;
         p.attempts += 1;
       } else if (s.type === "MISS") {
@@ -123,9 +105,7 @@ const GameStats: React.FC = () => {
               label="Filter by Player"
               onChange={(e) => {
                 const val = e.target.value;
-                setSelectedPlayerId(
-                  isNaN(Number(val)) || val === "" ? val : Number(val),
-                );
+                setSelectedPlayerId(isNaN(Number(val)) || val === "" ? val : Number(val));
               }}
             >
               <MenuItem value="ALL">All Players</MenuItem>
@@ -163,12 +143,12 @@ const GameStats: React.FC = () => {
               Game Heat Map
             </Typography>
             <BasketballCourt
-              markers={filteredStats.map((s) => ({
+              markers={filteredStats.map(s => ({
                 id: s.id,
                 x: s.locationX || 0,
                 y: s.locationY || 0,
                 type: s.type,
-                label: players.find((p) => p.id === s.playerId)?.defaultNumber,
+                label: players.find(p => p.id === s.playerId)?.defaultNumber
               }))}
             />
           </Paper>
@@ -194,18 +174,14 @@ const GameStats: React.FC = () => {
                   <TableRow key={row.id}>
                     <TableCell sx={{ fontWeight: 600 }}>{row.name}</TableCell>
                     <TableCell align="right">{row.points}</TableCell>
-                    <TableCell align="right">
-                      {row.makes}/{row.attempts}
-                    </TableCell>
+                    <TableCell align="right">{row.makes}/{row.attempts}</TableCell>
                     <TableCell align="right">{row.rebounds}</TableCell>
                     <TableCell align="right">{row.assists}</TableCell>
                   </TableRow>
                 ))}
                 {playerAggregates.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={5} align="center">
-                      No stats recorded for this game.
-                    </TableCell>
+                    <TableCell colSpan={5} align="center">No stats recorded for this game.</TableCell>
                   </TableRow>
                 )}
               </TableBody>

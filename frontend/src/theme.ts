@@ -10,7 +10,7 @@ const theme = createTheme({
     },
     background: {
       default: "#FFFDF5", // Ivory/Cream
-      paper: "#FFFFFF",
+      paper: "#FFFDF5", // Keep paper same for Moleskine feel
     },
     text: {
       primary: "#2D2D2D",
@@ -53,30 +53,77 @@ const theme = createTheme({
     borderRadius: 4, // More squared/elegant look
   },
   components: {
+    MuiCssBaseline: {
+      styleOverrides: `
+        @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&display=swap');
+
+        :root {
+          --moleskine-ivory: #FFFDF5;
+          --moleskine-charcoal: #2D2D2D;
+          --moleskine-grey: #D1D1D1;
+          --serif: "EB Garamond", serif;
+          --sans: system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+          background-color: var(--moleskine-ivory);
+          background-image: radial-gradient(var(--moleskine-grey) 0.5px, transparent 0.5px);
+          background-size: 20px 20px;
+          background-attachment: fixed;
+        }
+
+        .moleskine-card {
+          background-color: #FFFFFF !important;
+          border: 1px solid var(--moleskine-grey) !important;
+          box-shadow: 2px 2px 0px rgba(0,0,0,0.05) !important;
+          border-radius: 2px !important;
+          position: relative;
+        }
+
+        .moleskine-card::before {
+          content: "";
+          position: absolute;
+          left: 40px;
+          top: 0;
+          bottom: 0;
+          width: 1px;
+          background-color: rgba(255, 0, 0, 0.1);
+          pointer-events: none;
+        }
+      `,
+    },
     MuiButton: {
       styleOverrides: {
         root: {
-          borderRadius: 20, // Rounded buttons for a modern touch in a classic theme
-          padding: "8px 24px",
+          borderRadius: 2,
+          padding: "6px 20px",
           boxShadow: "none",
+          border: "1px solid #2D2D2D",
           "&:hover": {
-            boxShadow: "0px 2px 4px rgba(0,0,0,0.1)",
+            boxShadow: "2px 2px 0px rgba(0,0,0,0.1)",
+            backgroundColor: "rgba(0,0,0,0.02)",
           },
         },
         containedPrimary: {
           backgroundColor: "#2D2D2D",
+          color: "#FFFDF5",
           "&:hover": {
             backgroundColor: "#454545",
           },
+        },
+        outlinedPrimary: {
+          borderColor: "#2D2D2D",
+          color: "#2D2D2D",
         },
       },
     },
     MuiCard: {
       styleOverrides: {
         root: {
-          borderRadius: 8,
-          border: "1px solid #E0E0E0",
-          boxShadow: "0px 4px 12px rgba(0,0,0,0.03)",
+          borderRadius: 2,
+          border: "1px solid #D1D1D1",
+          boxShadow: "2px 2px 0px rgba(0,0,0,0.05)",
+          backgroundColor: "#FFFFFF",
         },
       },
     },
@@ -86,7 +133,7 @@ const theme = createTheme({
           backgroundColor: "#FFFDF5",
           color: "#2D2D2D",
           boxShadow: "none",
-          borderBottom: "1px solid #E0E0E0",
+          borderBottom: "1px solid #D1D1D1",
         },
       },
     },

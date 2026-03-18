@@ -55,10 +55,13 @@ const Players: React.FC = () => {
 
   return (
     <Box>
-      <Typography variant="h4" gutterBottom>
-        Players
+      <Typography
+        variant="h4"
+        sx={{ fontFamily: "var(--serif)", mb: 4, textAlign: "center" }}
+      >
+        Roster Notebook
       </Typography>
-      <Paper className="moleskine-card">
+      <Paper className="moleskine-card" sx={{ p: 2 }}>
         <List>
           {players.length === 0 && (
             <Typography>No players created yet.</Typography>

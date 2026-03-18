@@ -12,6 +12,7 @@ import {
   IconButton,
   Avatar,
   Chip,
+  DialogContentText,
   Stack,
   useTheme,
   useMediaQuery,
@@ -30,7 +31,6 @@ import {
   Edit,
   Delete,
 } from "@mui/icons-material";
-import { DialogContentText } from "@mui/material";
 import BasketballCourt from "../components/BasketballCourt";
 import { db, type StatEvent } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -42,18 +42,12 @@ const GameMode: React.FC = () => {
 
   const queryParams = new URLSearchParams(window.location.search);
   const gameIdParam = queryParams.get("gameId");
-  const gameId = gameIdParam
-    ? isNaN(Number(gameIdParam))
-      ? gameIdParam
-      : Number(gameIdParam)
-    : "practice-session";
+  const gameId = gameIdParam ? (isNaN(Number(gameIdParam)) ? gameIdParam : Number(gameIdParam)) : "practice-session";
 
   const [selectedX, setSelectedX] = useState<number | null>(null);
   const [selectedY, setSelectedY] = useState<number | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [selectedPlayerId, setSelectedPlayerId] = useState<
-    number | string | null
-  >(null);
+  const [selectedPlayerId, setSelectedPlayerId] = useState<number | string | null>(null);
   const [statType, setStatType] = useState<string | null>(null);
   const [points, setPoints] = useState<number>(2);
 
@@ -79,12 +73,12 @@ const GameMode: React.FC = () => {
     useLiveQuery(async () => {
       try {
         await db.open();
-        const stats = await db.stats.where("gameId").equals(gameId).toArray();
+        const stats = await db.stats
+          .where("gameId")
+          .equals(gameId)
+          .toArray();
         return stats
-          .sort(
-            (a, b) =>
-              new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
-          )
+          .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
           .slice(0, 10);
       } catch (err) {
         console.error("Failed to fetch recent stats:", err);
@@ -221,15 +215,7 @@ const GameMode: React.FC = () => {
               )}
             </Box>
             <Box sx={{ mb: 2, display: "flex", gap: 1, flexWrap: "wrap" }}>
-              {[
-                "ALL",
-                "MAKE",
-                "MISS",
-                "REBOUND",
-                "ASSIST",
-                "STEAL",
-                "TURNOVER",
-              ].map((type) => (
+              {["ALL", "MAKE", "MISS", "REBOUND", "ASSIST", "STEAL", "TURNOVER"].map((type) => (
                 <Chip
                   key={type}
                   label={type}
@@ -246,9 +232,7 @@ const GameMode: React.FC = () => {
             <BasketballCourt
               onCoordClick={handleCourtClick}
               markers={gameStats
-                .filter(
-                  (s) => markerFilter === "ALL" || s.type === markerFilter,
-                )
+                .filter(s => markerFilter === "ALL" || s.type === markerFilter)
                 .map((s) => ({
                   id: s.id,
                   x: s.locationX || 0,
@@ -293,17 +277,26 @@ const GameMode: React.FC = () => {
                   <Button
                     key={p.id}
                     variant={
-                      selectedPlayerId === p.id ? "contained" : "outlined"
+                      selectedPlayerId === p.id
+                        ? "contained"
+                        : "outlined"
                     }
-                    onClick={() => setSelectedPlayerId(p.id ?? null)}
+                    onClick={() =>
+                      setSelectedPlayerId(p.id ?? null)
+                    }
                     sx={{
                       justifyContent: "flex-start",
                       px: 1,
                       py: 1,
                       borderColor: "#D1D1D1",
                       backgroundColor:
-                        selectedPlayerId === p.id ? "#2D2D2D" : "transparent",
-                      color: selectedPlayerId === p.id ? "#FFFDF5" : "#2D2D2D",
+                        selectedPlayerId === p.id
+                          ? "#2D2D2D"
+                          : "transparent",
+                      color:
+                        selectedPlayerId === p.id
+                          ? "#FFFDF5"
+                          : "#2D2D2D",
                     }}
                   >
                     <Avatar
@@ -313,9 +306,13 @@ const GameMode: React.FC = () => {
                         fontSize: "0.75rem",
                         mr: 1,
                         bgcolor:
-                          selectedPlayerId === p.id ? "#FFFDF5" : "#2D2D2D",
+                          selectedPlayerId === p.id
+                            ? "#FFFDF5"
+                            : "#2D2D2D",
                         color:
-                          selectedPlayerId === p.id ? "#2D2D2D" : "#FFFDF5",
+                          selectedPlayerId === p.id
+                            ? "#2D2D2D"
+                            : "#FFFDF5",
                       }}
                     >
                       {p.defaultNumber}
@@ -352,8 +349,8 @@ const GameMode: React.FC = () => {
                     <Box sx={{ flexGrow: 1 }}>
                       <Typography variant="body2">
                         <strong>
-                          {players?.find((p) => p.id === s.playerId)?.name ||
-                            "Unknown"}
+                          {players?.find((p) => p.id === s.playerId)
+                            ?.name || "Unknown"}
                         </strong>
                         : {s.type}
                       </Typography>
@@ -433,7 +430,9 @@ const GameMode: React.FC = () => {
                     key={p.id}
                     size="small"
                     variant="outlined"
-                    onClick={() => setSelectedPlayerId(p.id ?? null)}
+                    onClick={() =>
+                      setSelectedPlayerId(p.id ?? null)
+                    }
                     sx={{ borderColor: "#D1D1D1", color: "#2D2D2D" }}
                   >
                     #{p.defaultNumber}

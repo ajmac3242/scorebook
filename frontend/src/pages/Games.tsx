@@ -94,8 +94,11 @@ const Games: React.FC = () => {
 
   return (
     <Box>
-      <Typography variant="h4" gutterBottom>
-        Games
+      <Typography
+        variant="h4"
+        sx={{ fontFamily: "var(--serif)", mb: 4, textAlign: "center" }}
+      >
+        Games Schedule
       </Typography>
 
       <Stack direction={{ xs: "column", sm: "row" }} spacing={2} sx={{ mb: 3 }}>
@@ -137,7 +140,7 @@ const Games: React.FC = () => {
       </Stack>
 
       {selectedTeamId && (
-        <Paper className="moleskine-card">
+        <Paper className="moleskine-card" sx={{ p: 2 }}>
           <List>
             {games.length === 0 && (
               <Typography>No games for this team.</Typography>
@@ -151,7 +154,9 @@ const Games: React.FC = () => {
                     <Button
                       variant="outlined"
                       size="small"
-                      onClick={() => navigate(`/game/stats?gameId=${game.id}`)}
+                      onClick={() =>
+                        navigate(`/game/stats?gameId=${game.id}`)
+                      }
                     >
                       Stats
                     </Button>
@@ -159,9 +164,7 @@ const Games: React.FC = () => {
                       variant="contained"
                       size="small"
                       onClick={() =>
-                        navigate(
-                          `/game?gameId=${game.id}&teamId=${game.teamId}`,
-                        )
+                        navigate(`/game?gameId=${game.id}&teamId=${game.teamId}`)
                       }
                     >
                       Start Tracking

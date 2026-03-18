@@ -21,7 +21,7 @@ describe("Players Component", () => {
     );
 
     expect(
-      screen.getByRole("heading", { name: /Players/i }),
+      screen.getByRole("heading", { name: /Roster Notebook/i }),
     ).toBeInTheDocument();
     expect(screen.getByText(/No players created yet/i)).toBeInTheDocument();
   });

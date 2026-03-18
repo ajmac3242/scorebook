@@ -3,7 +3,10 @@ import Login from "../pages/Login";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "../context/AuthContext";
-import { CognitoUser, AuthenticationDetails } from "amazon-cognito-identity-js";
+import {
+  CognitoUser,
+  AuthenticationDetails,
+} from "amazon-cognito-identity-js";
 
 // Mock useNavigate
 const mockNavigate = vi.fn();

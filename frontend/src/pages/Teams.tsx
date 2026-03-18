@@ -176,10 +176,13 @@ const Teams: React.FC = () => {
 
   return (
     <Box>
-      <Typography variant="h4" gutterBottom>
-        Team Management
+      <Typography
+        variant="h4"
+        sx={{ fontFamily: "var(--serif)", mb: 4, textAlign: "center" }}
+      >
+        Teams Directory
       </Typography>
-      <Paper className="moleskine-card" sx={{ mb: 3 }}>
+      <Paper className="moleskine-card" sx={{ mb: 3, p: 2 }}>
         <FormControl fullWidth variant="outlined">
           <InputLabel>Select Season</InputLabel>
           <Select
@@ -220,7 +223,7 @@ const Teams: React.FC = () => {
               <Typography>No teams in this season.</Typography>
             )}
             {teams.map((team) => (
-              <Paper key={team.id} className="moleskine-card">
+              <Paper key={team.id} className="moleskine-card" sx={{ p: 2 }}>
                 <Box
                   sx={{
                     display: "flex",
@@ -228,7 +231,12 @@ const Teams: React.FC = () => {
                     alignItems: "center",
                   }}
                 >
-                  <Typography variant="h6">{team.name}</Typography>
+                  <Typography
+                    variant="h6"
+                    sx={{ fontFamily: "var(--serif)", fontWeight: 600 }}
+                  >
+                    {team.name}
+                  </Typography>
                   <Button
                     size="small"
                     startIcon={<PersonAddIcon />}
