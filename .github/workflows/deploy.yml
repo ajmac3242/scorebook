@@ -40,7 +40,7 @@ jobs:
           retention-days: 1
 
   # ---------------------------------------------------------------
-  # Job 2: Terraform — runs AFTER backend build
+  # Job 2: Terraform - runs AFTER backend build
   # - Initial apply deploys infrastructure (Cognito, API GW, Lambda)
   # - Reads Terraform outputs to inject real Cognito IDs into frontend
   # - Builds frontend with live env vars baked in
@@ -73,7 +73,14 @@ jobs:
       - name: Terraform Init
         run: cd infra && terraform init
 
-      - name: Force Unlock Stale Terraform State           run: |             aws dynamodb delete-item \               --table-name basketball-stats-terraform-lock \               --key '{"LockID": {"S": "basketball-stats-terraform-state-269555264437/terraform.tfstate"}}' \               --region us-east-1 || true         - name: Terraform Plan
+      - name: Force Unlock Stale Terraform State
+        run: |
+          aws dynamodb delete-item \
+            --table-name basketball-stats-terraform-lock \
+            --key '{"LockID": {"S": "basketball-stats-terraform-state-269555264437/terraform.tfstate"}}' \
+            --region us-east-1 || true
+
+      - name: Terraform Plan
         run: cd infra && terraform plan -out=tfplan
 
       - name: Terraform Apply (Initial)
