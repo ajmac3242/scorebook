@@ -34,7 +34,10 @@ const Dashboard: React.FC = () => {
           },
         ].map((item) => (
           <Grid item xs={12} sm={6} md={4} key={item.label}>
-            <Paper className="moleskine-card" sx={{ p: 3, position: "relative" }}>
+            <Paper
+              className="moleskine-card"
+              sx={{ p: 3, position: "relative" }}
+            >
               <Typography
                 variant="h2"
                 sx={{ position: "absolute", top: 16, right: 16, opacity: 0.1 }}

@@ -88,7 +88,10 @@ const Seasons: React.FC = () => {
           {/* Left Side: Calendar View */}
           <Grid item xs={12} md={6}>
             <Paper className="moleskine-card" sx={{ p: 2 }}>
-              <Typography variant="h6" sx={{ fontFamily: "var(--serif)", mb: 2 }}>
+              <Typography
+                variant="h6"
+                sx={{ fontFamily: "var(--serif)", mb: 2 }}
+              >
                 Planner
               </Typography>
               <Box sx={{ border: "1px solid #D1D1D1", borderRadius: 1 }}>
@@ -133,11 +136,21 @@ const Seasons: React.FC = () => {
 
           {/* Right Side: Agenda View */}
           <Grid item xs={12} md={6}>
-            <Paper className="moleskine-card" sx={{ p: 3, height: "100%", minHeight: 400 }}>
-              <Typography variant="h6" sx={{ fontFamily: "var(--serif)", mb: 1 }}>
+            <Paper
+              className="moleskine-card"
+              sx={{ p: 3, height: "100%", minHeight: 400 }}
+            >
+              <Typography
+                variant="h6"
+                sx={{ fontFamily: "var(--serif)", mb: 1 }}
+              >
                 Agenda
               </Typography>
-              <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+              <Typography
+                variant="subtitle2"
+                color="text.secondary"
+                gutterBottom
+              >
                 {selectedDate?.format("MMMM D, YYYY")}
               </Typography>
               <Divider sx={{ my: 2 }} />
@@ -163,7 +176,11 @@ const Seasons: React.FC = () => {
                         <Button
                           variant="outlined"
                           size="small"
-                          onClick={() => navigate(`/game?gameId=${game.id}&teamId=${game.teamId}`)}
+                          onClick={() =>
+                            navigate(
+                              `/game?gameId=${game.id}&teamId=${game.teamId}`,
+                            )
+                          }
                         >
                           Start
                         </Button>
@@ -180,7 +197,10 @@ const Seasons: React.FC = () => {
               </List>
 
               <Box sx={{ mt: "auto", pt: 4 }}>
-                <Typography variant="h6" sx={{ fontFamily: "var(--serif)", mb: 2 }}>
+                <Typography
+                  variant="h6"
+                  sx={{ fontFamily: "var(--serif)", mb: 2 }}
+                >
                   All Seasons
                 </Typography>
                 <Stack spacing={1}>
@@ -202,7 +222,8 @@ const Seasons: React.FC = () => {
                         {s.name}
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
-                        {dayjs(s.startDate).format("MMM YYYY")} - {dayjs(s.endDate).format("MMM YYYY")}
+                        {dayjs(s.startDate).format("MMM YYYY")} -{" "}
+                        {dayjs(s.endDate).format("MMM YYYY")}
                       </Typography>
                     </Box>
                   ))}
@@ -215,14 +236,21 @@ const Seasons: React.FC = () => {
         <Fab
           color="primary"
           aria-label="add"
-          sx={{ position: "fixed", bottom: 32, right: 32, bgcolor: "var(--moleskine-charcoal)" }}
+          sx={{
+            position: "fixed",
+            bottom: 32,
+            right: 32,
+            bgcolor: "var(--moleskine-charcoal)",
+          }}
           onClick={() => setOpen(true)}
         >
           <AddIcon />
         </Fab>
 
         <Dialog open={open} onClose={() => setOpen(false)}>
-          <DialogTitle sx={{ fontFamily: "var(--serif)" }}>New Season</DialogTitle>
+          <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
+            New Season
+          </DialogTitle>
           <DialogContent>
             <TextField
               autoFocus
@@ -258,7 +286,9 @@ const Seasons: React.FC = () => {
             />
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => setOpen(false)} color="inherit">Cancel</Button>
+            <Button onClick={() => setOpen(false)} color="inherit">
+              Cancel
+            </Button>
             <Button onClick={handleAddSeason} variant="contained">
               Create
             </Button>

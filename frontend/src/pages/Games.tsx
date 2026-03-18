@@ -154,9 +154,7 @@ const Games: React.FC = () => {
                     <Button
                       variant="outlined"
                       size="small"
-                      onClick={() =>
-                        navigate(`/game/stats?gameId=${game.id}`)
-                      }
+                      onClick={() => navigate(`/game/stats?gameId=${game.id}`)}
                     >
                       Stats
                     </Button>
@@ -164,7 +162,9 @@ const Games: React.FC = () => {
                       variant="contained"
                       size="small"
                       onClick={() =>
-                        navigate(`/game?gameId=${game.id}&teamId=${game.teamId}`)
+                        navigate(
+                          `/game?gameId=${game.id}&teamId=${game.teamId}`,
+                        )
                       }
                     >
                       Start Tracking
