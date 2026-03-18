@@ -137,7 +137,7 @@ const GameMode: React.FC = () => {
               <Typography variant="h6" sx={{ fontFamily: 'var(--serif)' }}>Live Game Tracker</Typography>
               {selectedPlayerId && (
                 <Chip
-                  label={`Recording for: ${players.find(p => p.id?.toString() === selectedPlayerId)?.name}`}
+                  label={`Recording for: ${players?.find(p => p.id?.toString() === selectedPlayerId)?.name || 'Unknown'}`}
                   onDelete={() => setSelectedPlayerId(null)}
                   color="primary"
                 />
@@ -189,7 +189,7 @@ const GameMode: React.FC = () => {
                 {recentStats.map(s => (
                   <Box key={s.id} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 0.5, borderBottom: '1px solid #F0F0F0' }}>
                     <Typography variant="body2">
-                      <strong>{players.find(p => p.id?.toString() === s.playerId)?.name}</strong>: {s.type}
+                      <strong>{players?.find(p => p.id?.toString() === s.playerId)?.name || 'Unknown'}</strong>: {s.type}
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
                       {new Date(s.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -213,7 +213,7 @@ const GameMode: React.FC = () => {
         <DialogTitle sx={{ fontFamily: 'var(--serif)', pb: 1 }}>
           Record Action
           <Typography variant="body2" color="text.secondary">
-            {selectedPlayerId ? `Player: ${players.find(p => p.id?.toString() === selectedPlayerId)?.name}` : 'Select Player'}
+            {selectedPlayerId ? `Player: ${players?.find(p => p.id?.toString() === selectedPlayerId)?.name || 'Unknown'}` : 'Select Player'}
           </Typography>
         </DialogTitle>
         <DialogContent>
