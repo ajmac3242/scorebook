@@ -73,13 +73,10 @@ jobs:
           file_pattern: "frontend/src/**"
           push_options: "--force-with-lease"
 
-  test:
-    name: Unit Tests (${{ matrix.app }})
+  test-backend:
+    name: Test Backend
     runs-on: ubuntu-latest
-    needs: [lint-backend, lint-frontend]
-    strategy:
-      matrix:
-        app: [backend, frontend]
+    needs: [lint-backend]
     steps:
       - uses: actions/checkout@v4
 
@@ -87,42 +84,80 @@ jobs:
         with:
           node-version: 20
           cache: npm
-          cache-dependency-path: ${{ matrix.app }}/package-lock.json
+          cache-dependency-path: backend/package-lock.json
 
       - name: Install dependencies
-        run: cd ${{ matrix.app }} && npm ci
+        run: cd backend && npm ci
 
       - name: Run tests with coverage
-        run: cd ${{ matrix.app }} && npm test -- --coverage --coverageReporters=json-summary --coverageReporters=text 2>&1 | tee ../coverage-${{ matrix.app }}.txt
+        run: cd backend && npm test -- --coverage --coverageReporters=json-summary --coverageReporters=text
 
       - name: Extract coverage summary
         id: coverage
         run: |
-          if [ -f ${{ matrix.app }}/coverage/coverage-summary.json ]; then
+          if [ -f backend/coverage/coverage-summary.json ]; then
             lines=$(node -e "
-              const s = require('./${{ matrix.app }}/coverage/coverage-summary.json').total;
-              console.log('Statements: ' + s.statements.pct + '% | Branches: ' + s.branches.pct + '% | Functions: ' + s.functions.pct + '% | Lines: ' + s.lines.pct + '%');
+              const s = require('./backend/coverage/coverage-summary.json').total;
+              console.log('Statements: ' + s.statements.pct.toFixed(1) + '% | Branches: ' + s.branches.pct.toFixed(1) + '% | Functions: ' + s.functions.pct.toFixed(1) + '% | Lines: ' + s.lines.pct.toFixed(1) + '%');
             ")
           else
-            lines="Coverage summary not available"
+            lines="Coverage not available"
           fi
           echo "summary=$lines" >> $GITHUB_OUTPUT
 
-      - name: Upload coverage report
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-${{ matrix.app }}
-          path: ${{ matrix.app }}/coverage/
-          retention-days: 7
-
       - name: Save coverage summary
-        run: echo "${{ steps.coverage.outputs.summary }}" > coverage-summary-${{ matrix.app }}.txt
+        run: echo "${{ steps.coverage.outputs.summary }}" > coverage-summary-backend.txt
 
       - name: Upload coverage summary
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-summary-${{ matrix.app }}
-          path: coverage-summary-${{ matrix.app }}.txt
+          name: coverage-summary-backend
+          path: coverage-summary-backend.txt
+          retention-days: 7
+
+  test-frontend:
+    name: Test Frontend
+    runs-on: ubuntu-latest
+    needs: [lint-frontend]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: cd frontend && npm ci
+
+      - name: Install Vitest coverage
+        run: cd frontend && npm install --save-dev @vitest/coverage-v8
+
+      - name: Run tests with coverage
+        run: cd frontend && npm test -- --coverage.enabled --coverage.reporter=json-summary --coverage.reporter=text
+
+      - name: Extract coverage summary
+        id: coverage
+        run: |
+          if [ -f frontend/coverage/coverage-summary.json ]; then
+            lines=$(node -e "
+              const s = require('./frontend/coverage/coverage-summary.json').total;
+              console.log('Statements: ' + s.statements.pct.toFixed(1) + '% | Branches: ' + s.branches.pct.toFixed(1) + '% | Functions: ' + s.functions.pct.toFixed(1) + '% | Lines: ' + s.lines.pct.toFixed(1) + '%');
+            ")
+          else
+            lines="Coverage not available"
+          fi
+          echo "summary=$lines" >> $GITHUB_OUTPUT
+
+      - name: Save coverage summary
+        run: echo "${{ steps.coverage.outputs.summary }}" > coverage-summary-frontend.txt
+
+      - name: Upload coverage summary
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-summary-frontend
+          path: coverage-summary-frontend.txt
           retention-days: 7
 
   terraform-plan:
@@ -191,7 +226,7 @@ jobs:
   comment-audit:
     name: Comment Quality Audit
     runs-on: ubuntu-latest
-    needs: [lint-backend, lint-frontend, test]
+    needs: [lint-backend, lint-frontend, test-backend, test-frontend]
     if: always()
     steps:
       - uses: actions/checkout@v4
@@ -212,7 +247,7 @@ jobs:
         id: backend-audit
         run: |
           cd backend
-          total=$(grep -rE "^(export (async )?function|export (default )?class|export const [a-zA-Z]+ = (async )?(function|\.\.\.|(\())) " src --include="*.ts" | grep -v __tests__ | wc -l | tr -d ' ')
+          total=$(grep -rE "^(export (async )?function|export (default )?class|export const [a-zA-Z]+ = (async )?(function|\.\.\.|(\()) ) " src --include="*.ts" | grep -v __tests__ | wc -l | tr -d ' ')
           output=$(npx eslint "src/**/*.ts" --rule '{"jsdoc/require-jsdoc":["warn",{"require":{"FunctionDeclaration":true,"FunctionExpression":true,"MethodDefinition":true,"ClassDeclaration":true},"enableFixer":false}],"jsdoc/require-description":["warn",{"descriptionStyle":"body"}]}' --plugin jsdoc --format compact 2>&1 || true)
           echo "total=$total" >> $GITHUB_OUTPUT
           echo "result<<EOF" >> $GITHUB_OUTPUT
