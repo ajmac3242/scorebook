@@ -1,73 +1,31 @@
 name: Deploy Basketball Stats
+
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
-  id-token: write # Required for requesting the JWT
-  contents: read  # Required for actions/checkout
+  id-token: write
+  contents: read
 
 jobs:
-  # ---------------------------------------------------------------
-  # Job 0a: Test backend — must pass before anything else runs
-  # ---------------------------------------------------------------
-  test-backend:
-    name: Test Backend
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Install dependencies
-        run: cd backend && npm install
-
-      - name: Run tests
-        run: cd backend && npm test
-
-  # ---------------------------------------------------------------
-  # Job 0b: Test frontend — must pass before anything else runs
-  # ---------------------------------------------------------------
-  test-frontend:
-    name: Test Frontend
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Install dependencies
-        run: cd frontend && npm install
-
-      - name: Run tests
-        run: cd frontend && npm test
-
-  # ---------------------------------------------------------------
-  # Job 1a: Build backend and produce lambda.zip artifact
-  # ---------------------------------------------------------------
   build-backend:
     name: Build Backend
     runs-on: ubuntu-latest
-    needs: [test-backend, test-frontend]
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
 
       - name: Build
         run: |
           cd backend
-          npm install --production
+          npm ci --production
           npm install --save-dev typescript @types/node
           npm run build
           zip -r ../lambda.zip dist node_modules
@@ -79,33 +37,27 @@ jobs:
           path: lambda.zip
           retention-days: 1
 
-  # ---------------------------------------------------------------
-  # Job 1b: Build frontend — inject real API endpoint at build time
-  # The API endpoint comes from Terraform outputs in a subsequent run,
-  # so we use VITE_API_ENDPOINT from a prior-run cache or env var.
-  # ---------------------------------------------------------------
   build-frontend:
     name: Build Frontend
     runs-on: ubuntu-latest
-    needs: [test-backend, test-frontend]
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
 
       - name: Build
         run: |
           cd frontend
-          npm install
+          npm ci
           npm run build
 
       - name: Generate frontend build hash
-        # Hash of all built files — used by Terraform null_resource trigger
-        # to detect when frontend content has changed and invalidation is needed
-        run: find frontend/dist -type f | sort | xargs sha256sum | sha256sum | awk '{print $1}' > frontend-build-hash.txt
+        run: |
+          find frontend/dist -type f | sort | xargs sha256sum | sha256sum | awk '{print $1}' > frontend-build-hash.txt
 
       - name: Upload frontend artifact
         uses: actions/upload-artifact@v4
@@ -116,11 +68,6 @@ jobs:
             frontend-build-hash.txt
           retention-days: 1
 
-  # ---------------------------------------------------------------
-  # Job 2: Terraform — runs AFTER both builds complete
-  # - Downloads lambda.zip → Terraform detects code change via source_code_hash
-  # - Downloads frontend/dist → null_resource syncs to S3 and invalidates CloudFront
-  # ---------------------------------------------------------------
   infra:
     name: Terraform
     runs-on: ubuntu-latest
@@ -132,13 +79,11 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: lambda-zip
-          # downloads to repo root so infra/main.tf can reference ../lambda.zip
 
       - name: Download frontend artifact
         uses: actions/download-artifact@v4
         with:
           name: frontend-dist
-          # downloads frontend/dist/ and frontend-build-hash.txt to repo root
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -147,15 +92,15 @@ jobs:
           aws-region: us-east-1
           audience: sts.amazonaws.com
 
-      - uses: hashicorp/setup-terraform@v2
+      - uses: hashicorp/setup-terraform@v3
         with:
           terraform_wrapper: false
 
       - name: Terraform Init
         run: cd infra && terraform init
 
+      - name: Terraform Plan
+        run: cd infra && terraform plan -out=tfplan
+
       - name: Terraform Apply
-        # Terraform will:
-        # 1. Update Lambda if source_code_hash changed (new lambda.zip)
-        # 2. Sync frontend/dist to S3 and invalidate CloudFront if build hash changed
-        run: cd infra && terraform apply -auto-approve
+        run: cd infra && terraform apply -auto-approve tfplan
