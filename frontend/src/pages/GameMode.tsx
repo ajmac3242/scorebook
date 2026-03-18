@@ -174,7 +174,7 @@ const GameMode: React.FC = () => {
 
   const QuickAction = ({ type, label, icon: Icon, color }: any) => (
     <Button
-      variant={statType === type ? "contained" : "outlined"}
+      variant={statType === type ? "filled" : "outlined"}
       color="inherit"
       onClick={() => {
         setStatType(type);
@@ -234,7 +234,7 @@ const GameMode: React.FC = () => {
                   key={type}
                   label={type}
                   onClick={() => setMarkerFilter(type)}
-                  variant={markerFilter === type ? "contained" : "outlined"}
+                  variant={markerFilter === type ? "filled" : "outlined"}
                   size="small"
                   sx={{
                     bgcolor: markerFilter === type ? "#2D2D2D" : "transparent",
@@ -293,7 +293,7 @@ const GameMode: React.FC = () => {
                   <Button
                     key={p.id}
                     variant={
-                      selectedPlayerId === p.id ? "contained" : "outlined"
+                      selectedPlayerId === p.id ? "filled" : "outlined"
                     }
                     onClick={() => setSelectedPlayerId(p.id ?? null)}
                     sx={{
@@ -483,7 +483,7 @@ const GameMode: React.FC = () => {
                   <Button
                     key={pts}
                     fullWidth
-                    variant={points === pts ? "contained" : "outlined"}
+                    variant={points === pts ? "filled" : "outlined"}
                     onClick={() => setPoints(pts)}
                     sx={{
                       borderColor: "#D1D1D1",
@@ -512,7 +512,7 @@ const GameMode: React.FC = () => {
           </Button>
           <Button
             onClick={() => handleSaveStat()}
-            variant="contained"
+            variant="filled"
             disabled={!selectedPlayerId || !statType}
             sx={{ px: 4 }}
           >
@@ -542,7 +542,7 @@ const GameMode: React.FC = () => {
           <Button
             onClick={handleDeleteStat}
             color="error"
-            variant="contained"
+            variant="filled"
             autoFocus
           >
             Delete
