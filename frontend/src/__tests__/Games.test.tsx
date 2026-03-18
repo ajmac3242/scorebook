@@ -62,7 +62,7 @@ describe("Games Component", () => {
       </BrowserRouter>,
     );
 
-    expect(screen.getByText("Games")).toBeInTheDocument();
+    expect(screen.getByText("Games Schedule")).toBeInTheDocument();
 
     await selectTeam();
 

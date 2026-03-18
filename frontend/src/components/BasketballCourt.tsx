@@ -1,10 +1,20 @@
 import React from "react";
 import { Box } from "@mui/material";
 
+interface Marker {
+  id?: string | number;
+  x: number;
+  y: number;
+  type: string;
+  label?: string;
+}
+
 const BasketballCourt: React.FC<{
-  onCoordClick: (x: number, y: number) => void;
-}> = ({ onCoordClick }) => {
+  onCoordClick?: (x: number, y: number) => void;
+  markers?: Marker[];
+}> = ({ onCoordClick, markers = [] }) => {
   const handleClick = (e: React.MouseEvent<SVGSVGElement>) => {
+    if (!onCoordClick) return;
     const svg = e.currentTarget;
     const rect = svg.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / rect.width) * 100;
@@ -123,6 +133,47 @@ const BasketballCourt: React.FC<{
           stroke={charcoal}
           strokeWidth={strokeWidth}
         />
+
+        {/* Markers / Heatmap Points */}
+        {markers.map((marker, index) => {
+          let color = "#2D2D2D";
+          if (marker.type === "MAKE") color = "#4CAF50";
+          else if (marker.type === "MISS") color = "#F44336";
+          else if (marker.type === "REBOUND") color = "#2196F3";
+          else if (marker.type === "STEAL") color = "#FF9800";
+          else if (marker.type === "ASSIST") color = "#9C27B0";
+          else if (marker.type === "TURNOVER") color = "#795548";
+
+          // Convert percentage back to SVG coordinates (0-500, 0-470)
+          const svgX = (marker.x / 100) * 500;
+          const svgY = (marker.y / 100) * 470;
+
+          return (
+            <g key={marker.id || index}>
+              <circle
+                cx={svgX}
+                cy={svgY}
+                r="6"
+                fill={color}
+                fillOpacity="0.6"
+                stroke={color}
+                strokeWidth="1"
+              />
+              {marker.label && (
+                <text
+                  x={svgX}
+                  y={svgY - 8}
+                  fontSize="10"
+                  textAnchor="middle"
+                  fill={charcoal}
+                  style={{ pointerEvents: "none", fontWeight: "bold" }}
+                >
+                  {marker.label}
+                </text>
+              )}
+            </g>
+          );
+        })}
       </svg>
     </Box>
   );

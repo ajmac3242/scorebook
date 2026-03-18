@@ -21,7 +21,7 @@ describe("Players Component", () => {
     );
 
     expect(
-      screen.getByRole("heading", { name: /Players/i }),
+      screen.getByRole("heading", { name: /Roster Notebook/i }),
     ).toBeInTheDocument();
     expect(screen.getByText(/No players created yet/i)).toBeInTheDocument();
   });
@@ -36,7 +36,7 @@ describe("Players Component", () => {
     );
 
     expect(screen.getByText("John Doe")).toBeInTheDocument();
-    expect(screen.getByText(/Default Number: 23/i)).toBeInTheDocument();
+    expect(screen.getByText(/Default Number: # 23/i)).toBeInTheDocument();
   });
 
   it("adds a new player", async () => {

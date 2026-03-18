@@ -16,6 +16,8 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Seasons from "./pages/Seasons";
 import Players from "./pages/Players";
+import PlayerStats from "./pages/PlayerStats";
+import GameStats from "./pages/GameStats";
 import Teams from "./pages/Teams";
 import Games from "./pages/Games";
 import { Navigate } from "react-router-dom";
@@ -77,6 +79,22 @@ const AppContent: React.FC = () => {
             element={
               <ProtectedRoute>
                 <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/game/stats"
+            element={
+              <ProtectedRoute>
+                <GameStats />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/players/:playerId"
+            element={
+              <ProtectedRoute>
+                <PlayerStats />
               </ProtectedRoute>
             }
           />

@@ -14,11 +14,13 @@ import {
   TextField,
   Fab,
 } from "@mui/material";
-import { Add as AddIcon } from "@mui/icons-material";
+import { Add as AddIcon, BarChart } from "@mui/icons-material";
 import { db, type Player } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
+import { useNavigate, Link } from "react-router-dom";
 
 const Players: React.FC = () => {
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [defaultNumber, setDefaultNumber] = useState("");
@@ -53,19 +55,36 @@ const Players: React.FC = () => {
 
   return (
     <Box>
-      <Typography variant="h4" gutterBottom>
-        Players
+      <Typography
+        variant="h4"
+        sx={{ fontFamily: "var(--serif)", mb: 4, textAlign: "center" }}
+      >
+        Roster Notebook
       </Typography>
-      <Paper className="moleskine-card">
+      <Paper className="moleskine-card" sx={{ p: 2 }}>
         <List>
           {players.length === 0 && (
             <Typography>No players created yet.</Typography>
           )}
           {players.map((player) => (
-            <ListItem key={player.id} divider>
+            <ListItem
+              key={player.id}
+              divider
+              secondaryAction={
+                <Button
+                  variant="outlined"
+                  size="small"
+                  startIcon={<BarChart />}
+                  component={Link}
+                  to={`/players/${player.id}`}
+                >
+                  Stats
+                </Button>
+              }
+            >
               <ListItemText
                 primary={player.name}
-                secondary={`Default Number: ${player.defaultNumber}`}
+                secondary={`Default Number: # ${player.defaultNumber}`}
               />
             </ListItem>
           ))}

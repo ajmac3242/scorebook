@@ -44,11 +44,11 @@ describe("Teams Component", () => {
       </BrowserRouter>,
     );
 
-    expect(screen.getByText(/Team Management/i)).toBeInTheDocument();
+    expect(screen.getByText(/Teams Directory/i)).toBeInTheDocument();
 
     await selectSeason();
 
-    expect(await screen.findByText(/Teams/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Teams Directory/i)).toBeInTheDocument();
     expect(screen.getByText("Team 1")).toBeInTheDocument();
   });
 

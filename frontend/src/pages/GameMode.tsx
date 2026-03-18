@@ -12,6 +12,7 @@ import {
   IconButton,
   Avatar,
   Chip,
+  DialogContentText,
   Stack,
   useTheme,
   useMediaQuery,
@@ -27,6 +28,8 @@ import {
   SportsBasketball,
   PanTool,
   SwapHoriz,
+  Edit,
+  Delete,
 } from "@mui/icons-material";
 import BasketballCourt from "../components/BasketballCourt";
 import { db, type StatEvent } from "../db";
@@ -37,12 +40,29 @@ const GameMode: React.FC = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const isIPad = useMediaQuery(theme.breakpoints.between("sm", "md"));
 
+  const queryParams = new URLSearchParams(window.location.search);
+  const gameIdParam = queryParams.get("gameId");
+  const gameId = gameIdParam
+    ? isNaN(Number(gameIdParam))
+      ? gameIdParam
+      : Number(gameIdParam)
+    : "practice-session";
+
   const [selectedX, setSelectedX] = useState<number | null>(null);
   const [selectedY, setSelectedY] = useState<number | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
+  const [selectedPlayerId, setSelectedPlayerId] = useState<
+    number | string | null
+  >(null);
   const [statType, setStatType] = useState<string | null>(null);
   const [points, setPoints] = useState<number>(2);
+
+  const [markerFilter, setMarkerFilter] = useState<string>("ALL");
+
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [statToDelete, setStatToDelete] = useState<number | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingStatId, setEditingStatId] = useState<number | null>(null);
 
   const players =
     useLiveQuery(async () => {
@@ -59,12 +79,29 @@ const GameMode: React.FC = () => {
     useLiveQuery(async () => {
       try {
         await db.open();
-        return await db.stats.orderBy("timestamp").reverse().limit(5).toArray();
+        const stats = await db.stats.where("gameId").equals(gameId).toArray();
+        return stats
+          .sort(
+            (a, b) =>
+              new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
+          )
+          .slice(0, 10);
       } catch (err) {
         console.error("Failed to fetch recent stats:", err);
         return [];
       }
-    }) || [];
+    }, [gameId]) || [];
+
+  const gameStats =
+    useLiveQuery(async () => {
+      try {
+        await db.open();
+        return await db.stats.where("gameId").equals(gameId).toArray();
+      } catch (err) {
+        console.error("Failed to fetch game stats:", err);
+        return [];
+      }
+    }, [gameId]) || [];
 
   const handleCourtClick = (x: number, y: number) => {
     setSelectedX(x);
@@ -82,32 +119,57 @@ const GameMode: React.FC = () => {
     const typeToSave = currentType || statType;
     if (!selectedPlayerId || !typeToSave) return;
 
-    const gameId =
-      new URLSearchParams(window.location.search).get("gameId") ||
-      "practice-session";
-
-    const newStat: StatEvent = {
-      gameId: gameId,
-      playerId: selectedPlayerId,
-      type: typeToSave,
-      points: typeToSave === "MAKE" ? points : 0,
-      locationX: selectedX || 0,
-      locationY: selectedY || 0,
-      timestamp: new Date().toISOString(),
-      synced: 0,
-    };
-
     try {
       await db.open();
-      await db.stats.add(newStat);
+      if (isEditing && editingStatId) {
+        await db.stats.update(editingStatId, {
+          playerId: selectedPlayerId,
+          type: typeToSave,
+          points: typeToSave === "MAKE" ? points : 0,
+        });
+      } else {
+        const newStat: StatEvent = {
+          gameId: gameId,
+          playerId: selectedPlayerId,
+          type: typeToSave,
+          points: typeToSave === "MAKE" ? points : 0,
+          locationX: selectedX || 0,
+          locationY: selectedY || 0,
+          timestamp: new Date().toISOString(),
+          synced: 0,
+        };
+        await db.stats.add(newStat);
+      }
     } catch (err) {
       console.error("Failed to save stat:", err);
     }
     setDialogOpen(false);
     setStatType(null);
-    // Keep selectedPlayerId for consecutive actions by same player?
-    // Usually yes, like a rebound after a miss, but let's clear for now to be safe
-    // setSelectedPlayerId(null);
+    setIsEditing(false);
+    setEditingStatId(null);
+  };
+
+  const handleDeleteStat = async () => {
+    if (!statToDelete) return;
+    try {
+      await db.open();
+      await db.stats.delete(statToDelete);
+      setDeleteDialogOpen(false);
+      setStatToDelete(null);
+    } catch (err) {
+      console.error("Failed to delete stat:", err);
+    }
+  };
+
+  const openEditDialog = (stat: StatEvent) => {
+    setEditingStatId(stat.id ?? null);
+    setSelectedPlayerId(stat.playerId);
+    setStatType(stat.type);
+    setPoints(stat.points || 2);
+    setSelectedX(stat.locationX || 0);
+    setSelectedY(stat.locationY || 0);
+    setIsEditing(true);
+    setDialogOpen(true);
   };
 
   const QuickAction = ({ type, label, icon: Icon, color }: any) => (
@@ -158,7 +220,42 @@ const GameMode: React.FC = () => {
                 />
               )}
             </Box>
-            <BasketballCourt onCoordClick={handleCourtClick} />
+            <Box sx={{ mb: 2, display: "flex", gap: 1, flexWrap: "wrap" }}>
+              {[
+                "ALL",
+                "MAKE",
+                "MISS",
+                "REBOUND",
+                "ASSIST",
+                "STEAL",
+                "TURNOVER",
+              ].map((type) => (
+                <Chip
+                  key={type}
+                  label={type}
+                  onClick={() => setMarkerFilter(type)}
+                  variant={markerFilter === type ? "contained" : "outlined"}
+                  size="small"
+                  sx={{
+                    bgcolor: markerFilter === type ? "#2D2D2D" : "transparent",
+                    color: markerFilter === type ? "#FFFDF5" : "#2D2D2D",
+                  }}
+                />
+              ))}
+            </Box>
+            <BasketballCourt
+              onCoordClick={handleCourtClick}
+              markers={gameStats
+                .filter(
+                  (s) => markerFilter === "ALL" || s.type === markerFilter,
+                )
+                .map((s) => ({
+                  id: s.id,
+                  x: s.locationX || 0,
+                  y: s.locationY || 0,
+                  type: s.type,
+                }))}
+            />
             <Typography
               variant="caption"
               sx={{
@@ -196,26 +293,17 @@ const GameMode: React.FC = () => {
                   <Button
                     key={p.id}
                     variant={
-                      selectedPlayerId === p.id?.toString()
-                        ? "contained"
-                        : "outlined"
+                      selectedPlayerId === p.id ? "contained" : "outlined"
                     }
-                    onClick={() =>
-                      setSelectedPlayerId(p.id?.toString() || null)
-                    }
+                    onClick={() => setSelectedPlayerId(p.id ?? null)}
                     sx={{
                       justifyContent: "flex-start",
                       px: 1,
                       py: 1,
                       borderColor: "#D1D1D1",
                       backgroundColor:
-                        selectedPlayerId === p.id?.toString()
-                          ? "#2D2D2D"
-                          : "transparent",
-                      color:
-                        selectedPlayerId === p.id?.toString()
-                          ? "#FFFDF5"
-                          : "#2D2D2D",
+                        selectedPlayerId === p.id ? "#2D2D2D" : "transparent",
+                      color: selectedPlayerId === p.id ? "#FFFDF5" : "#2D2D2D",
                     }}
                   >
                     <Avatar
@@ -225,13 +313,9 @@ const GameMode: React.FC = () => {
                         fontSize: "0.75rem",
                         mr: 1,
                         bgcolor:
-                          selectedPlayerId === p.id?.toString()
-                            ? "#FFFDF5"
-                            : "#2D2D2D",
+                          selectedPlayerId === p.id ? "#FFFDF5" : "#2D2D2D",
                         color:
-                          selectedPlayerId === p.id?.toString()
-                            ? "#2D2D2D"
-                            : "#FFFDF5",
+                          selectedPlayerId === p.id ? "#2D2D2D" : "#FFFDF5",
                       }}
                     >
                       {p.defaultNumber}
@@ -265,19 +349,40 @@ const GameMode: React.FC = () => {
                       borderBottom: "1px solid #F0F0F0",
                     }}
                   >
-                    <Typography variant="body2">
-                      <strong>
-                        {players?.find((p) => p.id?.toString() === s.playerId)
-                          ?.name || "Unknown"}
-                      </strong>
-                      : {s.type}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      {new Date(s.timestamp).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </Typography>
+                    <Box sx={{ flexGrow: 1 }}>
+                      <Typography variant="body2">
+                        <strong>
+                          {players?.find((p) => p.id === s.playerId)?.name ||
+                            "Unknown"}
+                        </strong>
+                        : {s.type}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {new Date(s.timestamp).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </Typography>
+                    </Box>
+                    <Box>
+                      <IconButton
+                        size="small"
+                        onClick={() => openEditDialog(s)}
+                        sx={{ color: "text.secondary" }}
+                      >
+                        <Edit fontSize="small" />
+                      </IconButton>
+                      <IconButton
+                        size="small"
+                        onClick={() => {
+                          setStatToDelete(s.id ?? null);
+                          setDeleteDialogOpen(true);
+                        }}
+                        sx={{ color: "text.secondary" }}
+                      >
+                        <Delete fontSize="small" />
+                      </IconButton>
+                    </Box>
                   </Box>
                 ))}
               </Stack>
@@ -289,16 +394,20 @@ const GameMode: React.FC = () => {
       {/* Action Dialog */}
       <Dialog
         open={dialogOpen}
-        onClose={() => setDialogOpen(false)}
+        onClose={() => {
+          setDialogOpen(false);
+          setIsEditing(false);
+          setEditingStatId(null);
+        }}
         fullWidth
         maxWidth="xs"
         PaperProps={{ sx: { borderRadius: 2, p: 1 } }}
       >
         <DialogTitle sx={{ fontFamily: "var(--serif)", pb: 1 }}>
-          Record Action
+          {isEditing ? "Edit Action" : "Record Action"}
           <Typography variant="body2" color="text.secondary">
             {selectedPlayerId
-              ? `Player: ${players?.find((p) => p.id?.toString() === selectedPlayerId)?.name || "Unknown"}`
+              ? `Player: ${players?.find((p) => p.id === selectedPlayerId)?.name || "Unknown"}`
               : "Select Player"}
           </Typography>
         </DialogTitle>
@@ -324,9 +433,7 @@ const GameMode: React.FC = () => {
                     key={p.id}
                     size="small"
                     variant="outlined"
-                    onClick={() =>
-                      setSelectedPlayerId(p.id?.toString() || null)
-                    }
+                    onClick={() => setSelectedPlayerId(p.id ?? null)}
                     sx={{ borderColor: "#D1D1D1", color: "#2D2D2D" }}
                   >
                     #{p.defaultNumber}
@@ -393,7 +500,14 @@ const GameMode: React.FC = () => {
           )}
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setDialogOpen(false)} color="inherit">
+          <Button
+            onClick={() => {
+              setDialogOpen(false);
+              setIsEditing(false);
+              setEditingStatId(null);
+            }}
+            color="inherit"
+          >
             Cancel
           </Button>
           <Button
@@ -402,7 +516,36 @@ const GameMode: React.FC = () => {
             disabled={!selectedPlayerId || !statType}
             sx={{ px: 4 }}
           >
-            Save
+            {isEditing ? "Update" : "Save"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+        PaperProps={{ sx: { borderRadius: 2 } }}
+      >
+        <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
+          Confirm Delete
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete this action? This cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={() => setDeleteDialogOpen(false)} color="inherit">
+            Cancel
+          </Button>
+          <Button
+            onClick={handleDeleteStat}
+            color="error"
+            variant="contained"
+            autoFocus
+          >
+            Delete
           </Button>
         </DialogActions>
       </Dialog>
