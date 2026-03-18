@@ -89,6 +89,9 @@ const Teams: React.FC = () => {
       }
     }) || [];
 
+  /**
+   * Adds a new team to the selected season.
+   */
   const handleAddTeam = async () => {
     if (!selectedSeasonId) return;
     const newTeam: Team = {
@@ -106,6 +109,9 @@ const Teams: React.FC = () => {
     }
   };
 
+  /**
+   * Adds a player to the active team roster.
+   */
   const handleAddPlayerToTeam = async (playerId: string) => {
     if (!activeTeamId) return;
     // Check if already in team
@@ -113,7 +119,6 @@ const Teams: React.FC = () => {
       (tp) => tp.teamId === activeTeamId && tp.playerId === playerId,
     );
     if (exists) return;
-
     const newTeamPlayer: TeamPlayer = {
       teamId: activeTeamId,
       playerId: playerId,
@@ -127,6 +132,41 @@ const Teams: React.FC = () => {
     }
   };
 
+  /**
+   * Removes a player from the active team roster.
+   */
+  const handleRemovePlayerFromTeam = async (
+    playerId: string,
+    teamId?: string,
+  ) => {
+    const targetTeamId = teamId ?? activeTeamId;
+    if (!targetTeamId) return;
+    try {
+      await db.open();
+      await db.teamPlayers
+        .where("[teamId+playerId]")
+        .equals([targetTeamId, playerId])
+        .delete();
+    } catch (err) {
+      // Fallback: filter and delete by key
+      try {
+        const record = await db.teamPlayers
+          .filter(
+            (tp) => tp.teamId === targetTeamId && tp.playerId === playerId,
+          )
+          .first();
+        if (record?.id !== undefined) {
+          await db.teamPlayers.delete(record.id);
+        }
+      } catch (innerErr) {
+        console.error("Failed to remove player from team:", innerErr);
+      }
+    }
+  };
+
+  /**
+   * Returns the list of players assigned to a given team.
+   */
   const getPlayersForTeam = (teamId: string) => {
     const playerIds = teamPlayers
       .filter((tp) => tp.teamId === teamId.toString())
@@ -139,7 +179,6 @@ const Teams: React.FC = () => {
       <Typography variant="h4" gutterBottom>
         Team Management
       </Typography>
-
       <Paper className="moleskine-card" sx={{ mb: 3 }}>
         <FormControl fullWidth variant="outlined">
           <InputLabel>Select Season</InputLabel>
@@ -176,7 +215,6 @@ const Teams: React.FC = () => {
               New Team
             </Button>
           </Box>
-
           <Stack spacing={2}>
             {teams.length === 0 && (
               <Typography>No teams in this season.</Typography>
@@ -209,6 +247,12 @@ const Teams: React.FC = () => {
                       key={p.id}
                       label={`${p.name} (#${p.defaultNumber})`}
                       variant="outlined"
+                      onDelete={() =>
+                        handleRemovePlayerFromTeam(
+                          p.id?.toString() || "",
+                          team.id?.toString(),
+                        )
+                      }
                     />
                   ))}
                   {getPlayersForTeam(team.id?.toString() || "").length ===
@@ -254,10 +298,10 @@ const Teams: React.FC = () => {
         fullWidth
         maxWidth="sm"
       >
-        <DialogTitle>Add Players to Roster</DialogTitle>
+        <DialogTitle>Manage Roster</DialogTitle>
         <DialogContent>
           <Typography variant="body2" gutterBottom>
-            Select players from the master list to add to this team.
+            Add or remove players from this team.
           </Typography>
           <List>
             {players.map((player) => {
@@ -270,14 +314,26 @@ const Teams: React.FC = () => {
                 <ListItem
                   key={player.id}
                   secondaryAction={
-                    <Button
-                      disabled={isInTeam}
-                      onClick={() =>
-                        handleAddPlayerToTeam(player.id?.toString() || "")
-                      }
-                    >
-                      {isInTeam ? "In Roster" : "Add"}
-                    </Button>
+                    isInTeam ? (
+                      <Button
+                        color="error"
+                        onClick={() =>
+                          handleRemovePlayerFromTeam(
+                            player.id?.toString() || "",
+                          )
+                        }
+                      >
+                        Remove
+                      </Button>
+                    ) : (
+                      <Button
+                        onClick={() =>
+                          handleAddPlayerToTeam(player.id?.toString() || "")
+                        }
+                      >
+                        Add
+                      </Button>
+                    )
                   }
                 >
                   <ListItemText
