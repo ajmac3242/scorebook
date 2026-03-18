@@ -6,7 +6,7 @@ terraform {
     key            = "terraform.tfstate"
     region         = "us-east-1"
     encrypt        = true
-    use_lockfile = "basketball-stats-terraform-lock"
+    use_lockfile = true
   }
 
   required_providers {
