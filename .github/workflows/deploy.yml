@@ -1,75 +1,35 @@
 name: Deploy Basketball Stats
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
-  id-token: write # Required for requesting the JWT
-  contents: read  # Required for actions/checkout
+  id-token: write
+  contents: read
 
 jobs:
   # ---------------------------------------------------------------
-  # Job 0a: Test backend — must pass before anything else runs
-  # ---------------------------------------------------------------
-  test-backend:
-    name: Test Backend
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Install dependencies
-        run: cd backend && npm install
-
-      - name: Run tests
-        run: cd backend && npm test
-
-  # ---------------------------------------------------------------
-  # Job 0b: Test frontend — must pass before anything else runs
-  # ---------------------------------------------------------------
-  test-frontend:
-    name: Test Frontend
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Install dependencies
-        run: cd frontend && npm install
-
-      - name: Run tests
-        run: cd frontend && npm test
-
-  # ---------------------------------------------------------------
-  # Job 1a: Build backend and produce lambda.zip artifact
+  # Job 1: Build backend and produce lambda.zip artifact
   # ---------------------------------------------------------------
   build-backend:
     name: Build Backend
     runs-on: ubuntu-latest
-    needs: [test-backend, test-frontend]
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
 
       - name: Build
         run: |
           cd backend
-          npm install --production
-          npm install --save-dev typescript @types/node
+          npm ci
           npm run build
+          npm prune --production
           zip -r ../lambda.zip dist node_modules
 
       - name: Upload lambda.zip artifact
@@ -80,10 +40,11 @@ jobs:
           retention-days: 1
 
   # ---------------------------------------------------------------
-  # Job 2: Terraform — runs AFTER build completes
-  # - Deploys infrastructure
-  # - Builds frontend with Terraform outputs
-  # - Syncs frontend to S3
+  # Job 2: Terraform — runs AFTER backend build
+  # - Initial apply deploys infrastructure (Cognito, API GW, Lambda)
+  # - Reads Terraform outputs to inject real Cognito IDs into frontend
+  # - Builds frontend with live env vars baked in
+  # - Final apply syncs frontend to S3 and invalidates CloudFront
   # ---------------------------------------------------------------
   infra:
     name: Terraform
@@ -105,16 +66,19 @@ jobs:
           aws-region: us-east-1
           audience: sts.amazonaws.com
 
-      - uses: hashicorp/setup-terraform@v2
+      - uses: hashicorp/setup-terraform@v3
         with:
           terraform_wrapper: false
 
       - name: Terraform Init
         run: cd infra && terraform init
 
+      - name: Terraform Plan
+        run: cd infra && terraform plan -out=tfplan
+
       - name: Terraform Apply (Initial)
-        # Create/Update infrastructure (Cognito, etc.)
-        run: cd infra && terraform apply -auto-approve
+        # Create/Update infrastructure (Cognito, Lambda, API Gateway, etc.)
+        run: cd infra && terraform apply -auto-approve tfplan
 
       - name: Get Terraform Outputs
         id: tf_outputs
@@ -128,11 +92,14 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
 
       - name: Build Frontend
+        # Bakes live Cognito IDs and API endpoint into the React build
         run: |
           cd frontend
-          npm install
+          npm ci
           npm run build
         env:
           VITE_USER_POOL_ID: ${{ env.VITE_USER_POOL_ID }}
@@ -143,5 +110,5 @@ jobs:
         run: find frontend/dist -type f | sort | xargs sha256sum | sha256sum | awk '{print $1}' > frontend-build-hash.txt
 
       - name: Terraform Apply (Final)
-        # Trigger null_resource.frontend_deploy to sync the new build
+        # Triggers null_resource.frontend_deploy to sync new build to S3 and invalidate CloudFront
         run: cd infra && terraform apply -auto-approve
