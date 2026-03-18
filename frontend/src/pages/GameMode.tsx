@@ -234,7 +234,7 @@ const GameMode: React.FC = () => {
                   key={type}
                   label={type}
                   onClick={() => setMarkerFilter(type)}
-                  variant={=== type ? "filled" : "outlined"}
+                  variant={markerFilter === type ? "filled" : "outlined"}
                   size="small"
                   sx={{
                     bgcolor: markerFilter === type ? "#2D2D2D" : "transparent",
