@@ -8,6 +8,10 @@ vi.mock('amazon-cognito-identity-js', () => {
   });
   const CognitoUser = vi.fn().mockImplementation(function() {
     this.authenticateUser = vi.fn();
+    this.getSession = vi.fn((callback) => {
+      callback(null, { isValid: () => true });
+    });
+    this.signOut = vi.fn();
   });
   const AuthenticationDetails = vi.fn().mockImplementation(function() {});
 

@@ -11,12 +11,14 @@ import {
   Alert
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const Login: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const { setIsAuthenticated } = useAuth();
 
   const onSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -34,6 +36,7 @@ const Login: React.FC = () => {
     user.authenticateUser(authDetails, {
       onSuccess: (data) => {
         console.log('onSuccess:', data);
+        setIsAuthenticated(true);
         localStorage.setItem('isAuthenticated', 'true');
         navigate('/');
       },
