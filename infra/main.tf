@@ -279,7 +279,7 @@ resource "aws_lambda_function" "api_handler" {
   function_name = "basketball-stats-api-handler"
   role          = aws_iam_role.lambda_exec.arn
   handler       = "dist/index.handler"
-  runtime       = "nodejs20.x"
+  runtime       = "nodejs22.x"
 
   source_code_hash = fileexists("../lambda.zip") ? filebase64sha256("../lambda.zip") : null
 
