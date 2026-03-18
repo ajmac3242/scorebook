@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import Dashboard from "./Dashboard";
+import Dashboard from "../pages/Dashboard";
 import { describe, it, expect } from "vitest";
 
 describe("Dashboard Component", () => {

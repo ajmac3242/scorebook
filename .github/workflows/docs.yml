@@ -4,13 +4,11 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'infra/**'
+      - master
   pull_request:
     branches:
       - main
-    paths:
-      - 'infra/**'
+      - master
   workflow_dispatch:
 
 permissions:
@@ -42,11 +40,11 @@ jobs:
 
   # ---------------------------------------------------------------
   # Job 2: Generate architecture diagram
-  # Runs independently - does not block or depend on terraform-docs
   # ---------------------------------------------------------------
   architecture-diagram:
     name: Generate Architecture Diagram
     runs-on: ubuntu-latest
+    needs: terraform-docs
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     steps:
       - name: Checkout repository
@@ -78,34 +76,39 @@ jobs:
           from diagrams.aws.database import Dynamodb
           from diagrams.aws.security import Cognito
           from diagrams.onprem.client import User
+
           with Diagram(
-            "Scorebook - AWS Architecture",
-            filename="docs/architecture",
-            outformat="png",
-            show=False,
-            direction="LR",
+              "Scorebook - AWS Architecture",
+              filename="docs/architecture",
+              outformat="png",
+              show=False,
+              direction="LR",
           ):
-            user = User("Browser / App")
-            with Cluster("Auth"):
-              cognito = Cognito("Cognito\nUser Pool")
-            with Cluster("Frontend"):
-              s3 = S3("S3\n(Static Hosting)")
-              cf = CloudFront("CloudFront\nDistribution")
-            with Cluster("Backend"):
-              apigw = APIGateway("API Gateway v2\n(HTTP API + JWT Auth)")
-              fn = Lambda("Lambda\n(api_handler)")
-              db = Dynamodb("DynamoDB\n(BasketballStats)")
-            user >> cf >> s3
-            user >> cognito
-            user >> apigw
-            apigw >> Edge(label="JWT via Cognito") >> cognito
-            apigw >> fn >> db
+              user = User("Browser / App")
+
+              with Cluster("Auth"):
+                  cognito = Cognito("Cognito\nUser Pool")
+
+              with Cluster("Frontend"):
+                  s3 = S3("S3\n(Static Hosting)")
+                  cf = CloudFront("CloudFront\nDistribution")
+
+              with Cluster("Backend"):
+                  apigw = APIGateway("API Gateway v2\n(HTTP API + JWT Auth)")
+                  fn = Lambda("Lambda\n(api_handler)")
+                  db = Dynamodb("DynamoDB\n(BasketballStats)")
+
+              user >> cf >> s3
+              user >> cognito
+              user >> apigw
+              apigw >> Edge(label="JWT via Cognito") >> cognito
+              apigw >> fn >> db
           PYEOF
           python /tmp/gen_diagram.py
 
       - name: Commit diagram if changed
         run: |
-          git config user.name "github-actions[bot]"
+          git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git pull --rebase
           git add docs/architecture.png
