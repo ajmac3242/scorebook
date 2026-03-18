@@ -58,7 +58,6 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: lambda-zip
-          # downloads to repo root so infra/main.tf can reference ../lambda.zip
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
