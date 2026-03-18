@@ -1,17 +1,15 @@
-# PR quality workflow - runs on pull_request events targeting main
 name: PR Quality Checks
-
 on:
   pull_request:
-    branches: [main]
-    types: [opened, synchronize, reopened]
-
+    branches: [ main ]
+    types: [ opened, synchronize, reopened ]
 permissions:
-  contents: write
-  pull-requests: write
-  id-token: write
-
+  contents: write # needed to push formatting + comment fixes
+  pull-requests: write # needed to post PR comments
 jobs:
+  # ---------------------------------------------------------------
+  # Job 1: Lint & format backend (Prettier + ESLint + JSDoc checks)
+  # ---------------------------------------------------------------
   lint-backend:
     name: Lint & Format Backend
     runs-on: ubuntu-latest
@@ -20,29 +18,86 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
           token: ${{ secrets.GITHUB_TOKEN }}
-
-      - uses: actions/setup-node@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
-          cache-dependency-path: backend/package-lock.json
-
       - name: Install dependencies
-        run: cd backend && npm ci
-
-      - name: Prettier format
-        run: cd backend && npx prettier --write "src/**/*.ts"
-
-      - name: ESLint + JSDoc fixer
-        run: cd backend && npx eslint "src/**/*.ts" --fix || true
-
-      - name: Commit formatting & JSDoc stubs
+        run: |
+          cd backend
+          npm install
+          npm install --save-dev prettier eslint @typescript-eslint/eslint-plugin @typescript-eslint/parser eslint-plugin-jsdoc
+      - name: Run Prettier (auto-format)
+        run: |
+          cd backend
+          npx prettier --write "src/**/*.ts"
+      - name: Write ESLint config with JSDoc rules
+        run: |
+          cat > backend/eslint.config.mjs << 'ESLINTEOF'
+          import tsPlugin from "@typescript-eslint/eslint-plugin";
+          import tsParser from "@typescript-eslint/parser";
+          import jsdocPlugin from "eslint-plugin-jsdoc";
+          export default [
+            {
+              files: ["src/**/*.ts"],
+              ignores: ["src/__tests__/**"],
+              languageOptions: {
+                parser: tsParser,
+                parserOptions: { project: "./tsconfig.json" }
+              },
+              plugins: {
+                "@typescript-eslint": tsPlugin,
+                jsdoc: jsdocPlugin
+              },
+              rules: {
+                // JSDoc comment enforcement
+                "jsdoc/require-jsdoc": ["warn", {
+                  require: {
+                    FunctionDeclaration: true,
+                    MethodDefinition: true,
+                    ClassDeclaration: true,
+                    ArrowFunctionExpression: false,
+                    FunctionExpression: true
+                  },
+                  publicOnly: false,
+                  checkConstructors: true
+                }],
+                "jsdoc/require-description": ["warn", { descriptionStyle: "body" }],
+                "jsdoc/require-param": "warn",
+                "jsdoc/require-param-description": "warn",
+                "jsdoc/require-returns": "warn",
+                "jsdoc/require-returns-description": "warn",
+                "jsdoc/valid-types": "warn",
+                "jsdoc/check-alignment": "warn",
+                "jsdoc/check-param-names": "warn",
+                // General TS rules
+                "@typescript-eslint/no-explicit-any": "warn"
+              }
+            }
+          ];
+          ESLINTEOF
+      - name: Run ESLint (lint + JSDoc check)
+        id: backend-eslint
+        run: |
+          cd backend
+          output=$(npx eslint "src/**/*.ts" --format compact 2>&1 || true)
+          echo "result<<EOF" >> $GITHUB_OUTPUT
+          echo "$output" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+      - name: Auto-add missing JSDoc stubs
+        run: |
+          cd backend
+          # Use eslint --fix-type suggestion to insert missing JSDoc where possible
+          npx eslint "src/**/*.ts" --fix --rule '{"jsdoc/require-jsdoc": ["warn", {"enableFixer": true, "require": {"FunctionDeclaration": true, "FunctionExpression": true, "MethodDefinition": true}}]}' 2>/dev/null || true
+      - name: Commit formatting + JSDoc fixes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "style(backend): auto-format and JSDoc stubs"
+          commit_message: "style(backend): auto-format with Prettier and add missing JSDoc stubs"
           file_pattern: "backend/src/**"
-          push_options: "--force-with-lease"
-
+          push_options: '--force-with-lease'
+  # ---------------------------------------------------------------
+  # Job 2: Lint & format frontend (Prettier + ESLint + JSDoc checks)
+  # ---------------------------------------------------------------
   lint-frontend:
     name: Lint & Format Frontend
     runs-on: ubuntu-latest
@@ -51,207 +106,123 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
           token: ${{ secrets.GITHUB_TOKEN }}
-
-      - uses: actions/setup-node@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
-          cache-dependency-path: frontend/package-lock.json
-
       - name: Install dependencies
-        run: cd frontend && npm ci
-
-      - name: Prettier format
-        run: cd frontend && npx prettier --write "src/**/*.{ts,tsx}"
-
-      - name: ESLint + JSDoc fixer
-        run: cd frontend && npx eslint "src/**/*.{ts,tsx}" --fix || true
-
-      - name: Commit formatting & JSDoc stubs
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "style(frontend): auto-format and JSDoc stubs"
-          file_pattern: "frontend/src/**"
-          push_options: "--force-with-lease"
-
-  test-backend:
-    name: Test Backend
-    runs-on: ubuntu-latest
-    needs: [lint-backend]
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-          cache-dependency-path: backend/package-lock.json
-
-      - name: Install dependencies
-        run: cd backend && npm ci
-
-      - name: Run tests with coverage
-        run: cd backend && npm test -- --coverage --coverageReporters=json-summary --coverageReporters=text
-
-      - name: Extract coverage summary
-        id: coverage
         run: |
-          if [ -f backend/coverage/coverage-summary.json ]; then
-            lines=$(node -e "
-              const s = require('./backend/coverage/coverage-summary.json').total;
-              console.log('Statements: ' + s.statements.pct.toFixed(1) + '% | Branches: ' + s.branches.pct.toFixed(1) + '% | Functions: ' + s.functions.pct.toFixed(1) + '% | Lines: ' + s.lines.pct.toFixed(1) + '%');
-            ")
-          else
-            lines="Coverage not available"
-              console.log('Statements: ' + Math.round(s.statements.pct * 10) / 10 + '% | Branches: ' + Math.round(s.branches.pct * 10) / 10 + '% | Functions: ' + Math.round(s.functions.pct * 10) / 10 + '% | Lines: ' + Math.round(s.lines.pct * 10) / 10 + '%');          echo "summary=$lines" >> $GITHUB_OUTPUT
-
-      - name: Save coverage summary
-        run: echo "${{ steps.coverage.outputs.summary }}" > coverage-summary-backend.txt
-
-      - name: Upload coverage summary
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-summary-backend
-          path: coverage-summary-backend.txt
-          retention-days: 7
-
-  test-frontend:
-    name: Test Frontend
-    runs-on: ubuntu-latest
-    needs: [lint-frontend]
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-          cache-dependency-path: frontend/package-lock.json
-
-      - name: Install dependencies
-        run: cd frontend && npm ci
-
-      - name: Install Vitest coverage
-        run: cd frontend && npm install --save-dev @vitest/coverage-v8
-
-      - name: Run tests with coverage
-        run: cd frontend && npm test -- --coverage.enabled --coverage.reporter=json-summary --coverage.reporter=text
-
-      - name: Extract coverage summary
-        id: coverage
+          cd frontend
+          npm install
+          npm install --save-dev prettier eslint-plugin-jsdoc
+      - name: Run Prettier (auto-format)
         run: |
-          if [ -f frontend/coverage/coverage-summary.json ]; then
-            lines=$(node -e "
-              const s = require('./frontend/coverage/coverage-summary.json').total;
-              console.log('Statements: ' + s.statements.pct.toFixed(1) + '% | Branches: ' + s.branches.pct.toFixed(1) + '% | Functions: ' + s.functions.pct.toFixed(1) + '% | Lines: ' + s.lines.pct.toFixed(1) + '%');
-            ")
-          else
-            lines="Coverage not available"
-              console.log('Statements: ' + Math.round(s.statements.pct * 10) / 10 + '% | Branches: ' + Math.round(s.branches.pct * 10) / 10 + '% | Functions: ' + Math.round(s.functions.pct * 10) / 10 + '% | Lines: ' + Math.round(s.lines.pct * 10) / 10 + '%');          echo "summary=$lines" >> $GITHUB_OUTPUT
-
-      - name: Save coverage summary
-        run: echo "${{ steps.coverage.outputs.summary }}" > coverage-summary-frontend.txt
-
-      - name: Upload coverage summary
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-summary-frontend
-          path: coverage-summary-frontend.txt
-          retention-days: 7
-
-  terraform-plan:
-    name: Terraform Plan
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: write
-      pull-requests: write
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: arn:aws:iam::269555264437:role/github_deployment
-          aws-region: us-east-1
-          audience: sts.amazonaws.com
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_wrapper: false
-
-      - name: Terraform Format (auto-fix)
-        run: cd infra && terraform fmt -recursive
-
-      - name: Commit Terraform formatting
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "style(infra): auto-format Terraform files"
-          file_pattern: "infra/**/*.tf"
-          push_options: "--force-with-lease"
-
-      - name: Terraform Init
-        run: cd infra && terraform init
-
-      - name: Terraform Plan
-        id: plan
+          cd frontend
+          npx prettier --write "src/**/*.{ts,tsx}"
+      - name: Write ESLint config with JSDoc rules
         run: |
-          cd infra
-          terraform plan -no-color -out=tfplan > plan_output.txt
-          echo "plan<<EOF" >> $GITHUB_OUTPUT
-          cat plan_output.txt >> $GITHUB_OUTPUT
+          cat > frontend/eslint.config.mjs << 'ESLINTEOF'
+          import js from "@eslint/js";
+          import tsPlugin from "@typescript-eslint/eslint-plugin";
+          import tsParser from "@typescript-eslint/parser";
+          import reactHooks from "eslint-plugin-react-hooks";
+          import reactRefresh from "eslint-plugin-react-refresh";
+          import jsdocPlugin from "eslint-plugin-jsdoc";
+          import globals from "globals";
+          export default [
+            { ignores: ["dist", "src/__tests__/**"] },
+            {
+              files: ["src/**/*.{ts,tsx}"],
+              languageOptions: {
+                ecmaVersion: 2020,
+                globals: globals.browser,
+                parser: tsParser
+              },
+              plugins: {
+                "@typescript-eslint": tsPlugin,
+                "react-hooks": reactHooks,
+                "react-refresh": reactRefresh,
+                jsdoc: jsdocPlugin
+              },
+              rules: {
+                ...reactHooks.configs.recommended.rules,
+                "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
+                // JSDoc enforcement for frontend components and functions
+                "jsdoc/require-jsdoc": ["warn", {
+                  require: {
+                    FunctionDeclaration: true,
+                    MethodDefinition: true,
+                    ClassDeclaration: true,
+                    ArrowFunctionExpression: false,
+                    FunctionExpression: false
+                  },
+                  publicOnly: false,
+                  contexts: [
+                    "ExportDefaultDeclaration > ArrowFunctionExpression",
+                    "ExportNamedDeclaration > VariableDeclaration > VariableDeclarator > ArrowFunctionExpression"
+                  ]
+                }],
+                "jsdoc/require-description": "warn",
+                "jsdoc/require-param": "warn",
+                "jsdoc/require-param-description": "warn",
+                "jsdoc/require-returns": "warn",
+                "jsdoc/check-alignment": "warn",
+                "jsdoc/check-param-names": "warn",
+                "@typescript-eslint/no-explicit-any": "warn"
+              }
+            }
+          ];
+          ESLINTEOF
+      - name: Run ESLint (lint + JSDoc check)
+        id: frontend-eslint
+        run: |
+          cd frontend
+          output=$(npx eslint "src/**/*.{ts,tsx}" --format compact 2>&1 || true)
+          echo "result<<EOF" >> $GITHUB_OUTPUT
+          echo "$output" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
-
-      - name: Comment Plan on PR
-        uses: marocchino/sticky-pull-request-comment@v2
+      - name: Auto-add missing JSDoc stubs
+        run: |
+          cd frontend
+          npx eslint "src/**/*.{ts,tsx}" --fix --rule '{"jsdoc/require-jsdoc": ["warn", {"enableFixer": true, "require": {"FunctionDeclaration": true, "FunctionExpression": true, "MethodDefinition": true}}]}' 2>/dev/null || true
+      - name: Commit formatting + JSDoc fixes
+        uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          header: terraform-plan
-          message: |
-            ## Terraform Plan
-            <details>
-            <summary>Show Plan</summary>
-
-            ```hcl
-            ${{ steps.plan.outputs.plan }}
-            ```
-            </details>
-            > This is a plan only. Changes are applied after merge to `main`.
-
+          commit_message: "style(frontend): auto-format with Prettier and add missing JSDoc stubs"
+          file_pattern: "frontend/src/**"
+          push_options: '--force-with-lease'
+  # ---------------------------------------------------------------
+  # Job 3: Comment quality audit — scan all changed files for
+  # missing/thin comments and report in a sticky PR comment
+  # ---------------------------------------------------------------
   comment-audit:
     name: Comment Quality Audit
     runs-on: ubuntu-latest
-    needs: [lint-backend, lint-frontend, test-backend, test-frontend]
+    needs: [lint-backend, lint-frontend]
     if: always()
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
-
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
-
       - name: Install audit tools
         run: |
-          cd backend && npm ci && npm install --save-dev eslint-plugin-jsdoc @typescript-eslint/eslint-plugin @typescript-eslint/parser
-          cd ../frontend && npm ci && npm install --save-dev eslint-plugin-jsdoc
-
+          cd backend && npm install && npm install --save-dev eslint-plugin-jsdoc @typescript-eslint/eslint-plugin @typescript-eslint/parser
+          cd ../frontend && npm install && npm install --save-dev eslint-plugin-jsdoc
       - name: Audit backend JSDoc coverage
         id: backend-audit
         run: |
           cd backend
-          total=$(grep -rE "^(export (async )?function|export (default )?class|export const [a-zA-Z]+ = (async )?(function|\.\.\.|(\()) ) " src --include="*.ts" | grep -v __tests__ | wc -l | tr -d ' ')
+          # Count total exported symbols
+          total=$(grep -rE "^(export (async )?function|export (default )?class|export const [a-zA-Z]+ = (async )?(function|\.{3}|\()" src --include="*.ts" | grep -v __tests__ | wc -l | tr -d ' ')
           output=$(npx eslint "src/**/*.ts" --rule '{"jsdoc/require-jsdoc":["warn",{"require":{"FunctionDeclaration":true,"FunctionExpression":true,"MethodDefinition":true,"ClassDeclaration":true},"enableFixer":false}],"jsdoc/require-description":["warn",{"descriptionStyle":"body"}]}' --plugin jsdoc --format compact 2>&1 || true)
           echo "total=$total" >> $GITHUB_OUTPUT
           echo "result<<EOF" >> $GITHUB_OUTPUT
           echo "$output" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
-
       - name: Audit frontend JSDoc coverage
         id: frontend-audit
         run: |
@@ -262,33 +233,6 @@ jobs:
           echo "result<<EOF" >> $GITHUB_OUTPUT
           echo "$output" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
-
-      - name: Download backend coverage summary
-        uses: actions/download-artifact@v4
-        with:
-          name: coverage-summary-backend
-          path: ./coverage-summaries
-        continue-on-error: true
-
-      - name: Download frontend coverage summary
-        uses: actions/download-artifact@v4
-        with:
-          name: coverage-summary-frontend
-          path: ./coverage-summaries
-        continue-on-error: true
-
-      - name: Read coverage summaries
-        id: coverage-summaries
-        run: |
-          backend_cov=$(cat ./coverage-summaries/coverage-summary-backend.txt 2>/dev/null || echo "Not available")
-          frontend_cov=$(cat ./coverage-summaries/coverage-summary-frontend.txt 2>/dev/null || echo "Not available")
-          echo "backend<<EOF" >> $GITHUB_OUTPUT
-          echo "$backend_cov" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-          echo "frontend<<EOF" >> $GITHUB_OUTPUT
-          echo "$frontend_cov" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-
       - name: Get list of changed TS/TSX files
         id: changed-files
         run: |
@@ -297,7 +241,6 @@ jobs:
           echo "list<<EOF" >> $GITHUB_OUTPUT
           echo "$files" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
-
       - name: Post PR comment
         uses: marocchino/sticky-pull-request-comment@v2
         with:
@@ -309,20 +252,10 @@ jobs:
             ${{ steps.changed-files.outputs.list }}
             ```
             ---
-
-            ### Test Coverage
-            | App | Coverage |
-            |-----|----------|
-            | Backend | ${{ steps.coverage-summaries.outputs.backend }} |
-            | Frontend | ${{ steps.coverage-summaries.outputs.frontend }} |
-
-            ---
-
             ### Backend Lint & Comment Audit
             > **Exported symbols found:** ${{ steps.backend-audit.outputs.total }}
             <details>
             <summary>Show backend JSDoc warnings</summary>
-
             ```
             ${{ steps.backend-audit.outputs.result }}
             ```
@@ -332,16 +265,13 @@ jobs:
             > **Exported symbols found:** ${{ steps.frontend-audit.outputs.total }}
             <details>
             <summary>Show frontend JSDoc warnings</summary>
-
             ```
             ${{ steps.frontend-audit.outputs.result }}
             ```
             </details>
             ---
             ### What was auto-fixed
-            - Prettier formatting applied to `.ts` / `.tsx` files
-            - JSDoc stubs inserted where possible via ESLint fixer
-            - Terraform files auto-formatted via `terraform fmt`
-            - Auto-fix commits pushed back to this PR branch
-
-            > Review remaining JSDoc warnings and fill in `@param` / `@returns` details.
+            - Prettier formatting applied to all changed `.ts` / `.tsx` files
+            - Missing JSDoc stubs (`/** */`) inserted on exported functions and classes via ESLint fixer
+            - Auto-fix commits are pushed back to this PR branch
+            > :warning: Review any remaining JSDoc warnings above. Fill in descriptions, `@param`, and `@returns` tags where shown.

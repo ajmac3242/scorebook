@@ -1,21 +1,23 @@
 name: Terraform Integration Tests
 
+# Manual trigger only - these tests deploy real AWS resources
+# Run this before major infrastructure changes
 on:
   workflow_dispatch:
-  workflow_run:
-    workflows: ["Deploy Basketball Stats"]
-    types: [completed]
-    branches: [main]
+  # Optionally run on PRs that modify infra code
+  pull_request:
+    paths:
+      - 'infra/**'
+      - '.github/workflows/terratest.yml'
 
 permissions:
-  id-token: write
-  contents: read
+  id-token: write # Required for requesting the JWT (OIDC)
+  contents: read  # Required for actions/checkout
 
 jobs:
   terratest:
     name: Run Terratest Suite
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     timeout-minutes: 60
 
     steps:
@@ -25,11 +27,12 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: "1.21"
+          go-version: '1.21'
+          # No cache-dependency-path here; go.sum is generated at runtime via go mod tidy
           cache: false
 
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
+        uses: hashicorp/setup-terraform@v2
         with:
           terraform_wrapper: false
 
@@ -40,32 +43,31 @@ jobs:
           aws-region: us-east-1
           audience: sts.amazonaws.com
 
-      - name: Setup Node for backend build
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-          cache-dependency-path: backend/package-lock.json
-
       - name: Build backend for Lambda test
         run: |
           cd backend
-          npm ci
+          npm install --production
+          npm install --save-dev typescript @types/node
           npm run build
-          npm prune --production
           zip -r ../infra/lambda.zip dist node_modules
 
       - name: Initialize Go module and download dependencies
         working-directory: infra/tests
-        run: go mod tidy
+        run: |
+          # go mod tidy generates go.sum and resolves all module dependencies
+          go mod tidy
 
       - name: Run Terratest
         working-directory: infra/tests
-        run: go test -v -timeout 60m
+        run: |
+          # Run tests with verbose output
+          go test -v -timeout 60m
         env:
           AWS_DEFAULT_REGION: us-east-1
 
       - name: Cleanup on failure
         if: failure()
         working-directory: infra
-        run: terraform destroy -auto-approve || true
+        run: |
+          # Attempt to destroy any partially created resources
+          terraform destroy -auto-approve || true

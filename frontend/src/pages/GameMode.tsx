@@ -78,8 +78,9 @@ const GameMode: React.FC = () => {
     }
   };
 
-  const handleSaveStat = async () => {
-    if (!selectedPlayerId || !statType) return;
+  const handleSaveStat = async (currentType?: string) => {
+    const typeToSave = currentType || statType;
+    if (!selectedPlayerId || !typeToSave) return;
 
     const gameId =
       new URLSearchParams(window.location.search).get("gameId") ||
@@ -88,8 +89,8 @@ const GameMode: React.FC = () => {
     const newStat: StatEvent = {
       gameId: gameId,
       playerId: selectedPlayerId,
-      type: statType,
-      points: statType === "MAKE" ? points : 0,
+      type: typeToSave,
+      points: typeToSave === "MAKE" ? points : 0,
       locationX: selectedX || 0,
       locationY: selectedY || 0,
       timestamp: new Date().toISOString(),
@@ -115,7 +116,7 @@ const GameMode: React.FC = () => {
       color="inherit"
       onClick={() => {
         setStatType(type);
-        if (type !== "MAKE") handleSaveStat();
+        if (type !== "MAKE") handleSaveStat(type);
       }}
       sx={{
         flexDirection: "column",
