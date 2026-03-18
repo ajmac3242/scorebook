@@ -6,7 +6,6 @@ on:
 permissions:
   contents: write # needed to push formatting + comment fixes
   pull-requests: write # needed to post PR comments
-
 jobs:
   # ---------------------------------------------------------------
   # Job 1: Lint & format backend (Prettier + ESLint + JSDoc checks)
@@ -95,7 +94,7 @@ jobs:
         with:
           commit_message: "style(backend): auto-format with Prettier and add missing JSDoc stubs"
           file_pattern: "backend/src/**"
-
+          push_options: '--force-with-lease'
   # ---------------------------------------------------------------
   # Job 2: Lint & format frontend (Prettier + ESLint + JSDoc checks)
   # ---------------------------------------------------------------
@@ -191,7 +190,7 @@ jobs:
         with:
           commit_message: "style(frontend): auto-format with Prettier and add missing JSDoc stubs"
           file_pattern: "frontend/src/**"
-
+          push_options: '--force-with-lease'
   # ---------------------------------------------------------------
   # Job 3: Comment quality audit — scan all changed files for
   # missing/thin comments and report in a sticky PR comment
