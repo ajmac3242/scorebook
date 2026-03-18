@@ -32,36 +32,51 @@ const PlayerStats: React.FC = () => {
   const [selectedGameId, setSelectedGameId] = useState<number | string>("");
   const [selectedType, setSelectedType] = useState<string>("");
 
-  const player = useLiveQuery(() => (playerId ? db.players.get(playerId) : Promise.resolve(undefined)), [playerId]);
+  const player = useLiveQuery(
+    () => (playerId ? db.players.get(playerId) : Promise.resolve(undefined)),
+    [playerId],
+  );
 
   const seasons = useLiveQuery(() => db.seasons.toArray()) || [];
 
-  const teams = useLiveQuery(async () => {
-    if (!selectedSeasonId) return [];
-    return await db.teams.where("seasonId").equals(selectedSeasonId).toArray();
-  }, [selectedSeasonId]) || [];
+  const teams =
+    useLiveQuery(async () => {
+      if (!selectedSeasonId) return [];
+      return await db.teams
+        .where("seasonId")
+        .equals(selectedSeasonId)
+        .toArray();
+    }, [selectedSeasonId]) || [];
 
-  const games = useLiveQuery(async () => {
-    if (selectedGameId) {
-      const game = await db.games.get(Number(selectedGameId));
-      return game ? [game] : [];
-    }
-    if (teams.length > 0) {
-      const teamIds = teams.map((t) => t.id).filter(Boolean) as number[];
-      return await db.games.where("teamId").anyOf(teamIds).toArray();
-    }
-    return await db.games.toArray();
-  }, [selectedGameId, teams]) || [];
+  const games =
+    useLiveQuery(async () => {
+      if (selectedGameId) {
+        const game = await db.games.get(Number(selectedGameId));
+        return game ? [game] : [];
+      }
+      if (teams.length > 0) {
+        const teamIds = teams.map((t) => t.id).filter(Boolean) as number[];
+        return await db.games.where("teamId").anyOf(teamIds).toArray();
+      }
+      return await db.games.toArray();
+    }, [selectedGameId, teams]) || [];
 
-  const allStats = useLiveQuery(async () => {
-    if (playerId === undefined) return [];
-    return await db.stats.where("playerId").equals(playerId).toArray();
-  }, [playerId]) || [];
+  const allStats =
+    useLiveQuery(async () => {
+      if (playerId === undefined) return [];
+      return await db.stats.where("playerId").equals(playerId).toArray();
+    }, [playerId]) || [];
 
   const filteredStats = useMemo(() => {
     return allStats.filter((stat) => {
-      const gId = typeof stat.gameId === "string" && !isNaN(Number(stat.gameId)) ? Number(stat.gameId) : stat.gameId;
-      const selGId = typeof selectedGameId === "string" && !isNaN(Number(selectedGameId)) ? Number(selectedGameId) : selectedGameId;
+      const gId =
+        typeof stat.gameId === "string" && !isNaN(Number(stat.gameId))
+          ? Number(stat.gameId)
+          : stat.gameId;
+      const selGId =
+        typeof selectedGameId === "string" && !isNaN(Number(selectedGameId))
+          ? Number(selectedGameId)
+          : selectedGameId;
 
       if (selectedGameId !== "" && gId !== selGId) return false;
       if (selectedType !== "" && stat.type !== selectedType) return false;
@@ -76,23 +91,30 @@ const PlayerStats: React.FC = () => {
   }, [allStats, selectedGameId, selectedType, selectedSeasonId, games]);
 
   const aggregates = useMemo(() => {
-    const makes = filteredStats.filter(s => s.type === "MAKE");
-    const misses = filteredStats.filter(s => s.type === "MISS");
+    const makes = filteredStats.filter((s) => s.type === "MAKE");
+    const misses = filteredStats.filter((s) => s.type === "MISS");
     const attempts = makes.length + misses.length;
 
     return {
       points: makes.reduce((acc, s) => acc + (s.points || 0), 0),
-      rebounds: filteredStats.filter(s => s.type === "REBOUND").length,
-      assists: filteredStats.filter(s => s.type === "ASSIST").length,
-      steals: filteredStats.filter(s => s.type === "STEAL").length,
-      turnovers: filteredStats.filter(s => s.type === "TURNOVER").length,
-      fgPct: attempts > 0 ? ((makes.length / attempts) * 100).toFixed(1) : "0.0",
+      rebounds: filteredStats.filter((s) => s.type === "REBOUND").length,
+      assists: filteredStats.filter((s) => s.type === "ASSIST").length,
+      steals: filteredStats.filter((s) => s.type === "STEAL").length,
+      turnovers: filteredStats.filter((s) => s.type === "TURNOVER").length,
+      fgPct:
+        attempts > 0 ? ((makes.length / attempts) * 100).toFixed(1) : "0.0",
       makes: makes.length,
-      attempts
+      attempts,
     };
   }, [filteredStats]);
 
-  const StatCard = ({ label, value }: { label: string; value: string | number }) => (
+  const StatCard = ({
+    label,
+    value,
+  }: {
+    label: string;
+    value: string | number;
+  }) => (
     <Card sx={{ bgcolor: "#FFFDF5", border: "1px solid #D1D1D1" }}>
       <CardContent sx={{ p: 2, "&:last-child": { pb: 2 } }}>
         <Typography variant="caption" color="text.secondary" gutterBottom>
@@ -120,7 +142,9 @@ const PlayerStats: React.FC = () => {
               label="Season"
               onChange={(e) => {
                 const val = e.target.value;
-                setSelectedSeasonId(isNaN(Number(val)) || val === "" ? val : Number(val));
+                setSelectedSeasonId(
+                  isNaN(Number(val)) || val === "" ? val : Number(val),
+                );
                 setSelectedGameId("");
               }}
             >
@@ -140,7 +164,9 @@ const PlayerStats: React.FC = () => {
               label="Game"
               onChange={(e) => {
                 const val = e.target.value;
-                setSelectedGameId(isNaN(Number(val)) || val === "" ? val : Number(val));
+                setSelectedGameId(
+                  isNaN(Number(val)) || val === "" ? val : Number(val),
+                );
               }}
             >
               <MenuItem value="">All Games</MenuItem>
@@ -175,9 +201,14 @@ const PlayerStats: React.FC = () => {
         <Grid item xs={12} md={4}>
           <Stack spacing={2}>
             <StatCard label="Total Points" value={aggregates.points} />
-            <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2 }}>
+            <Box
+              sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2 }}
+            >
               <StatCard label="FG%" value={`${aggregates.fgPct}%`} />
-              <StatCard label="FG" value={`${aggregates.makes}/${aggregates.attempts}`} />
+              <StatCard
+                label="FG"
+                value={`${aggregates.makes}/${aggregates.attempts}`}
+              />
               <StatCard label="REB" value={aggregates.rebounds} />
               <StatCard label="AST" value={aggregates.assists} />
               <StatCard label="STL" value={aggregates.steals} />
@@ -192,12 +223,12 @@ const PlayerStats: React.FC = () => {
               Shot Map / Activity Heat Map
             </Typography>
             <BasketballCourt
-               markers={filteredStats.map(s => ({
-                 id: s.id,
-                 x: s.locationX || 0,
-                 y: s.locationY || 0,
-                 type: s.type
-               }))}
+              markers={filteredStats.map((s) => ({
+                id: s.id,
+                x: s.locationX || 0,
+                y: s.locationY || 0,
+                type: s.type,
+              }))}
             />
           </Paper>
         </Grid>
@@ -214,19 +245,33 @@ const PlayerStats: React.FC = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {filteredStats.slice().reverse().map((stat) => (
-                  <TableRow key={stat.id}>
-                    <TableCell>{new Date(stat.timestamp).toLocaleString()}</TableCell>
-                    <TableCell>
-                       {games.find(g => g.id === (typeof stat.gameId === "string" && !isNaN(Number(stat.gameId)) ? Number(stat.gameId) : stat.gameId))?.opponent || "Unknown"}
-                    </TableCell>
-                    <TableCell>{stat.type}</TableCell>
-                    <TableCell>{stat.points || 0}</TableCell>
-                  </TableRow>
-                ))}
+                {filteredStats
+                  .slice()
+                  .reverse()
+                  .map((stat) => (
+                    <TableRow key={stat.id}>
+                      <TableCell>
+                        {new Date(stat.timestamp).toLocaleString()}
+                      </TableCell>
+                      <TableCell>
+                        {games.find(
+                          (g) =>
+                            g.id ===
+                            (typeof stat.gameId === "string" &&
+                            !isNaN(Number(stat.gameId))
+                              ? Number(stat.gameId)
+                              : stat.gameId),
+                        )?.opponent || "Unknown"}
+                      </TableCell>
+                      <TableCell>{stat.type}</TableCell>
+                      <TableCell>{stat.points || 0}</TableCell>
+                    </TableRow>
+                  ))}
                 {filteredStats.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={4} align="center">No actions found for filters.</TableCell>
+                    <TableCell colSpan={4} align="center">
+                      No actions found for filters.
+                    </TableCell>
                   </TableRow>
                 )}
               </TableBody>
