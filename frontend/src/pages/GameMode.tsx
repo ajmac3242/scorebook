@@ -44,8 +44,25 @@ const GameMode: React.FC = () => {
   const [statType, setStatType] = useState<string | null>(null);
   const [points, setPoints] = useState<number>(2);
 
-  const players = useLiveQuery(() => db.players.toArray()) || [];
-  const recentStats = useLiveQuery(() => db.stats.orderBy('timestamp').reverse().limit(5).toArray()) || [];
+  const players = useLiveQuery(async () => {
+    try {
+      await db.open();
+      return await db.players.toArray();
+    } catch (err) {
+      console.error("Failed to fetch players:", err);
+      return [];
+    }
+  }) || [];
+
+  const recentStats = useLiveQuery(async () => {
+    try {
+      await db.open();
+      return await db.stats.orderBy('timestamp').reverse().limit(5).toArray();
+    } catch (err) {
+      console.error("Failed to fetch recent stats:", err);
+      return [];
+    }
+  }) || [];
 
   const handleCourtClick = (x: number, y: number) => {
     setSelectedX(x);
@@ -75,7 +92,12 @@ const GameMode: React.FC = () => {
       synced: 0
     };
 
-    await db.stats.add(newStat);
+    try {
+      await db.open();
+      await db.stats.add(newStat);
+    } catch (err) {
+      console.error("Failed to save stat:", err);
+    }
     setDialogOpen(false);
     setStatType(null);
     // Keep selectedPlayerId for consecutive actions by same player?
