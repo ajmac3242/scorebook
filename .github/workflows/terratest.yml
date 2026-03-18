@@ -11,8 +11,8 @@ on:
       - '.github/workflows/terratest.yml'
 
 permissions:
-  id-token: write  # Required for requesting the JWT (OIDC)
-  contents: read   # Required for actions/checkout
+  id-token: write # Required for requesting the JWT (OIDC)
+  contents: read  # Required for actions/checkout
 
 jobs:
   terratest:
@@ -28,7 +28,8 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: '1.21'
-          cache-dependency-path: infra/tests/go.sum
+          # No cache-dependency-path here; go.sum is generated at runtime via go mod tidy
+          cache: false
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
@@ -50,9 +51,11 @@ jobs:
           npm run build
           zip -r ../infra/lambda.zip dist node_modules
 
-      - name: Download Go dependencies
+      - name: Initialize Go module and download dependencies
         working-directory: infra/tests
-        run: go mod download
+        run: |
+          # go mod tidy generates go.sum and resolves all module dependencies
+          go mod tidy
 
       - name: Run Terratest
         working-directory: infra/tests
