@@ -13,7 +13,7 @@ vi.mock("amazon-cognito-identity-js", () => {
     });
     this.signOut = vi.fn();
   });
-  const AuthenticationDetails = vi.fn().mockImplementation(function () {});
+  const AuthenticationDetails = vi.fn().mockImplementation(function (data: { Username: string; Password: string }) {       // Store credentials so tests can inspect them via getPassword() / getUsername()       this.getPassword = vi.fn().mockReturnValue(data?.Password ?? "");       this.getUsername = vi.fn().mockReturnValue(data?.Username ?? "");     });
 
   return {
     CognitoUserPool,
