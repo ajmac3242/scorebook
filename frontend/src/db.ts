@@ -1,7 +1,7 @@
 import Dexie, { type Table } from "dexie";
 
 export interface Season {
-  id?: string;
+  id?: number;
   name: string;
   startDate: string;
   endDate: string;
@@ -9,30 +9,30 @@ export interface Season {
 }
 
 export interface Team {
-  id?: string;
-  seasonId: string;
+  id?: number;
+  seasonId: number | string;
   name: string;
   synced?: number;
 }
 
 export interface Player {
-  id?: string;
+  id?: number;
   name: string;
   defaultNumber: string;
   synced?: number;
 }
 
 export interface TeamPlayer {
-  id?: string;
-  teamId: string;
-  playerId: string;
+  id?: number;
+  teamId: number | string;
+  playerId: number | string;
   jerseyNumber?: string;
   synced?: number;
 }
 
 export interface Game {
-  id?: string;
-  teamId: string;
+  id?: number;
+  teamId: number | string;
   opponent: string;
   date: string;
   location: string;
@@ -40,9 +40,9 @@ export interface Game {
 }
 
 export interface StatEvent {
-  id?: string;
-  gameId: string;
-  playerId: string;
+  id?: number;
+  gameId: number | string;
+  playerId: number | string;
   type: string;
   points?: number;
   locationX?: number;

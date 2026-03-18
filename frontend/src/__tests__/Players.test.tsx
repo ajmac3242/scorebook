@@ -36,7 +36,7 @@ describe("Players Component", () => {
     );
 
     expect(screen.getByText("John Doe")).toBeInTheDocument();
-    expect(screen.getByText(/Default Number: 23/i)).toBeInTheDocument();
+    expect(screen.getByText(/Default Number: # 23/i)).toBeInTheDocument();
   });
 
   it("adds a new player", async () => {

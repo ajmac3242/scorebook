@@ -147,15 +147,26 @@ const Games: React.FC = () => {
                 key={game.id}
                 divider
                 secondaryAction={
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    onClick={() =>
-                      navigate(`/game?gameId=${game.id}&teamId=${game.teamId}`)
-                    }
-                  >
-                    Start Tracking
-                  </Button>
+                  <Stack direction="row" spacing={1}>
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      onClick={() =>
+                        navigate(`/game/stats?gameId=${game.id}`)
+                      }
+                    >
+                      Stats
+                    </Button>
+                    <Button
+                      variant="contained"
+                      size="small"
+                      onClick={() =>
+                        navigate(`/game?gameId=${game.id}&teamId=${game.teamId}`)
+                      }
+                    >
+                      Start Tracking
+                    </Button>
+                  </Stack>
                 }
               >
                 <ListItemText
