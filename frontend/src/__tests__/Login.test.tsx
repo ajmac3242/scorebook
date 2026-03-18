@@ -31,12 +31,16 @@ describe("Login Component", () => {
 
     expect(screen.getByLabelText(/Username/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Password/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Sign In/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /Sign In/i }),
+    ).toBeInTheDocument();
   });
 
   it("handles successful login", async () => {
     const authenticateUserMock = vi.fn((authDetails, callbacks) => {
-      callbacks.onSuccess({ getAccessToken: () => ({ getJwtToken: () => "token" }) });
+      callbacks.onSuccess({
+        getAccessToken: () => ({ getJwtToken: () => "token" }),
+      });
     });
 
     (CognitoUser as any).mockImplementation(function () {
@@ -51,8 +55,12 @@ describe("Login Component", () => {
       </BrowserRouter>,
     );
 
-    fireEvent.change(screen.getByLabelText(/Username/i), { target: { value: "testuser" } });
-    fireEvent.change(screen.getByLabelText(/Password/i), { target: { value: "password123" } });
+    fireEvent.change(screen.getByLabelText(/Username/i), {
+      target: { value: "testuser" },
+    });
+    fireEvent.change(screen.getByLabelText(/Password/i), {
+      target: { value: "password123" },
+    });
     fireEvent.click(screen.getByRole("button", { name: /Sign In/i }));
 
     await waitFor(() => {
@@ -78,8 +86,12 @@ describe("Login Component", () => {
       </BrowserRouter>,
     );
 
-    fireEvent.change(screen.getByLabelText(/Username/i), { target: { value: "testuser" } });
-    fireEvent.change(screen.getByLabelText(/Password/i), { target: { value: "wrongpassword" } });
+    fireEvent.change(screen.getByLabelText(/Username/i), {
+      target: { value: "testuser" },
+    });
+    fireEvent.change(screen.getByLabelText(/Password/i), {
+      target: { value: "wrongpassword" },
+    });
     fireEvent.click(screen.getByRole("button", { name: /Sign In/i }));
 
     await waitFor(() => {
@@ -104,8 +116,12 @@ describe("Login Component", () => {
       </BrowserRouter>,
     );
 
-    fireEvent.change(screen.getByLabelText(/Username/i), { target: { value: "testuser" } });
-    fireEvent.change(screen.getByLabelText(/Password/i), { target: { value: "password123" } });
+    fireEvent.change(screen.getByLabelText(/Username/i), {
+      target: { value: "testuser" },
+    });
+    fireEvent.change(screen.getByLabelText(/Password/i), {
+      target: { value: "password123" },
+    });
     fireEvent.click(screen.getByRole("button", { name: /Sign In/i }));
 
     await waitFor(() => {

@@ -1,4 +1,10 @@
-import { render, screen, fireEvent, waitFor, within } from "@testing-library/react";
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import GameMode from "../pages/GameMode";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { BrowserRouter } from "react-router-dom";
@@ -17,7 +23,14 @@ vi.mock("../components/BasketballCourt", () => ({
 
 describe("GameMode Component", () => {
   const mockPlayers = [{ id: "p1", name: "Player 1", defaultNumber: "23" }];
-  const mockStats = [{ id: "s1", playerId: "p1", type: "MAKE", timestamp: new Date().toISOString() }];
+  const mockStats = [
+    {
+      id: "s1",
+      playerId: "p1",
+      type: "MAKE",
+      timestamp: new Date().toISOString(),
+    },
+  ];
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -57,7 +70,7 @@ describe("GameMode Component", () => {
 
     // Action dialog - wait for text
     await waitFor(() => {
-        expect(screen.getByText("What happened?")).toBeInTheDocument();
+      expect(screen.getByText("What happened?")).toBeInTheDocument();
     });
 
     fireEvent.click(screen.getByText("Make"));
@@ -89,7 +102,7 @@ describe("GameMode Component", () => {
 
     // Action dialog
     await waitFor(() => {
-        expect(screen.getByText("What happened?")).toBeInTheDocument();
+      expect(screen.getByText("What happened?")).toBeInTheDocument();
     });
 
     // Non-MAKE types trigger save immediately

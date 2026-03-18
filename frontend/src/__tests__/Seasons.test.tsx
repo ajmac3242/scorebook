@@ -7,7 +7,12 @@ import { useLiveQuery } from "dexie-react-hooks";
 
 describe("Seasons Component", () => {
   const mockSeasons = [
-    { id: "1", name: "Spring 2024", startDate: "2024-03-01", endDate: "2024-05-31" },
+    {
+      id: "1",
+      name: "Spring 2024",
+      startDate: "2024-03-01",
+      endDate: "2024-05-31",
+    },
   ];
 
   beforeEach(() => {
@@ -22,7 +27,9 @@ describe("Seasons Component", () => {
       </BrowserRouter>,
     );
 
-    expect(screen.getByRole("heading", { name: /Seasons/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: /Seasons/i }),
+    ).toBeInTheDocument();
     expect(screen.getByText(/No seasons created yet/i)).toBeInTheDocument();
   });
 
@@ -50,26 +57,34 @@ describe("Seasons Component", () => {
 
     fireEvent.click(screen.getByLabelText(/add/i));
 
-    fireEvent.change(screen.getByLabelText(/Season Name/i), { target: { value: "Summer 2024" } });
-    fireEvent.change(screen.getByLabelText(/Start Date/i), { target: { value: "2024-06-01" } });
-    fireEvent.change(screen.getByLabelText(/End Date/i), { target: { value: "2024-08-31" } });
+    fireEvent.change(screen.getByLabelText(/Season Name/i), {
+      target: { value: "Summer 2024" },
+    });
+    fireEvent.change(screen.getByLabelText(/Start Date/i), {
+      target: { value: "2024-06-01" },
+    });
+    fireEvent.change(screen.getByLabelText(/End Date/i), {
+      target: { value: "2024-08-31" },
+    });
 
     fireEvent.click(screen.getByRole("button", { name: /Add/i }));
 
     await waitFor(() => {
-      expect(db.seasons.add).toHaveBeenCalledWith(expect.objectContaining({
-        name: "Summer 2024",
-        startDate: "2024-06-01",
-        endDate: "2024-08-31",
-      }));
+      expect(db.seasons.add).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: "Summer 2024",
+          startDate: "2024-06-01",
+          endDate: "2024-08-31",
+        }),
+      );
     });
   });
 
   it("handles fetch error", async () => {
     const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     (useLiveQuery as any).mockImplementation((cb) => {
-        cb().catch(() => {});
-        return [];
+      cb().catch(() => {});
+      return [];
     });
     (db.open as any).mockRejectedValue(new Error("Dexie error"));
 
@@ -80,7 +95,10 @@ describe("Seasons Component", () => {
     );
 
     await waitFor(() => {
-      expect(consoleSpy).toHaveBeenCalledWith("Failed to fetch seasons:", expect.any(Error));
+      expect(consoleSpy).toHaveBeenCalledWith(
+        "Failed to fetch seasons:",
+        expect.any(Error),
+      );
     });
   });
 
@@ -95,11 +113,16 @@ describe("Seasons Component", () => {
     );
 
     fireEvent.click(screen.getByLabelText(/add/i));
-    fireEvent.change(screen.getByLabelText(/Season Name/i), { target: { value: "Error Season" } });
+    fireEvent.change(screen.getByLabelText(/Season Name/i), {
+      target: { value: "Error Season" },
+    });
     fireEvent.click(screen.getByRole("button", { name: /Add/i }));
 
     await waitFor(() => {
-      expect(consoleSpy).toHaveBeenCalledWith("Failed to add season:", expect.any(Error));
+      expect(consoleSpy).toHaveBeenCalledWith(
+        "Failed to add season:",
+        expect.any(Error),
+      );
     });
   });
 });

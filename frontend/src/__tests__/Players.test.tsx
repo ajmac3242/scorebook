@@ -6,9 +6,7 @@ import { db } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
 
 describe("Players Component", () => {
-  const mockPlayers = [
-    { id: "1", name: "John Doe", defaultNumber: "23" },
-  ];
+  const mockPlayers = [{ id: "1", name: "John Doe", defaultNumber: "23" }];
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -22,7 +20,9 @@ describe("Players Component", () => {
       </BrowserRouter>,
     );
 
-    expect(screen.getByRole("heading", { name: /Players/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: /Players/i }),
+    ).toBeInTheDocument();
     expect(screen.getByText(/No players created yet/i)).toBeInTheDocument();
   });
 
@@ -50,24 +50,30 @@ describe("Players Component", () => {
 
     fireEvent.click(screen.getByLabelText(/add/i));
 
-    fireEvent.change(screen.getByLabelText(/Player Name/i), { target: { value: "Jane Smith" } });
-    fireEvent.change(screen.getByLabelText(/Default Number/i), { target: { value: "10" } });
+    fireEvent.change(screen.getByLabelText(/Player Name/i), {
+      target: { value: "Jane Smith" },
+    });
+    fireEvent.change(screen.getByLabelText(/Default Number/i), {
+      target: { value: "10" },
+    });
 
     fireEvent.click(screen.getByRole("button", { name: /Add/i }));
 
     await waitFor(() => {
-      expect(db.players.add).toHaveBeenCalledWith(expect.objectContaining({
-        name: "Jane Smith",
-        defaultNumber: "10",
-      }));
+      expect(db.players.add).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: "Jane Smith",
+          defaultNumber: "10",
+        }),
+      );
     });
   });
 
   it("handles fetch error", async () => {
     const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     (useLiveQuery as any).mockImplementation((cb) => {
-        cb().catch(() => {});
-        return [];
+      cb().catch(() => {});
+      return [];
     });
     (db.open as any).mockRejectedValue(new Error("Dexie error"));
 
@@ -78,7 +84,10 @@ describe("Players Component", () => {
     );
 
     await waitFor(() => {
-      expect(consoleSpy).toHaveBeenCalledWith("Failed to fetch players:", expect.any(Error));
+      expect(consoleSpy).toHaveBeenCalledWith(
+        "Failed to fetch players:",
+        expect.any(Error),
+      );
     });
   });
 
@@ -93,11 +102,16 @@ describe("Players Component", () => {
     );
 
     fireEvent.click(screen.getByLabelText(/add/i));
-    fireEvent.change(screen.getByLabelText(/Player Name/i), { target: { value: "Error Player" } });
+    fireEvent.change(screen.getByLabelText(/Player Name/i), {
+      target: { value: "Error Player" },
+    });
     fireEvent.click(screen.getByRole("button", { name: /Add/i }));
 
     await waitFor(() => {
-      expect(consoleSpy).toHaveBeenCalledWith("Failed to add player:", expect.any(Error));
+      expect(consoleSpy).toHaveBeenCalledWith(
+        "Failed to add player:",
+        expect.any(Error),
+      );
     });
   });
 });

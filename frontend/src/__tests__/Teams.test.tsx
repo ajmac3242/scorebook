@@ -1,4 +1,10 @@
-import { render, screen, fireEvent, waitFor, within } from "@testing-library/react";
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import Teams from "../pages/Teams";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { BrowserRouter } from "react-router-dom";
@@ -17,16 +23,17 @@ describe("Teams Component", () => {
       const code = cb.toString();
       if (code.includes("seasons")) return mockSeasons;
       if (code.includes("teams")) return mockTeams;
-      if (code.includes("players") && !code.includes("teamPlayers")) return mockPlayers;
+      if (code.includes("players") && !code.includes("teamPlayers"))
+        return mockPlayers;
       if (code.includes("teamPlayers")) return mockTeamPlayers;
       return [];
     });
   });
 
   const selectSeason = async () => {
-    const comboboxes = screen.getAllByRole('combobox');
+    const comboboxes = screen.getAllByRole("combobox");
     fireEvent.mouseDown(comboboxes[0]);
-    const option = await screen.findByRole('option', { name: "Season 1" });
+    const option = await screen.findByRole("option", { name: "Season 1" });
     fireEvent.click(option);
   };
 
@@ -57,14 +64,18 @@ describe("Teams Component", () => {
     await selectSeason();
 
     fireEvent.click(await screen.findByRole("button", { name: /New Team/i }));
-    fireEvent.change(screen.getByLabelText(/Team Name/i), { target: { value: "Lakers" } });
+    fireEvent.change(screen.getByLabelText(/Team Name/i), {
+      target: { value: "Lakers" },
+    });
     fireEvent.click(screen.getByRole("button", { name: /Add/i }));
 
     await waitFor(() => {
-      expect(db.teams.add).toHaveBeenCalledWith(expect.objectContaining({
-        seasonId: "s1",
-        name: "Lakers",
-      }));
+      expect(db.teams.add).toHaveBeenCalledWith(
+        expect.objectContaining({
+          seasonId: "s1",
+          name: "Lakers",
+        }),
+      );
     });
   });
 
@@ -73,7 +84,8 @@ describe("Teams Component", () => {
       const code = cb.toString();
       if (code.includes("seasons")) return mockSeasons;
       if (code.includes("teams")) return mockTeams;
-      if (code.includes("players") && !code.includes("teamPlayers")) return mockPlayers;
+      if (code.includes("players") && !code.includes("teamPlayers"))
+        return mockPlayers;
       if (code.includes("teamPlayers")) return [];
       return [];
     });
@@ -86,17 +98,21 @@ describe("Teams Component", () => {
 
     await selectSeason();
 
-    fireEvent.click(await screen.findByRole("button", { name: /Manage Roster/i }));
+    fireEvent.click(
+      await screen.findByRole("button", { name: /Manage Roster/i }),
+    );
 
     const dialog = await screen.findByRole("dialog");
     const addButton = within(dialog).getByRole("button", { name: "Add" });
     fireEvent.click(addButton);
 
     await waitFor(() => {
-      expect(db.teamPlayers.add).toHaveBeenCalledWith(expect.objectContaining({
-        teamId: "t1",
-        playerId: "p1",
-      }));
+      expect(db.teamPlayers.add).toHaveBeenCalledWith(
+        expect.objectContaining({
+          teamId: "t1",
+          playerId: "p1",
+        }),
+      );
     });
   });
 
@@ -120,7 +136,10 @@ describe("Teams Component", () => {
     );
 
     await waitFor(() => {
-      expect(consoleSpy).toHaveBeenCalledWith("Failed to fetch seasons:", expect.any(Error));
+      expect(consoleSpy).toHaveBeenCalledWith(
+        "Failed to fetch seasons:",
+        expect.any(Error),
+      );
     });
   });
 });

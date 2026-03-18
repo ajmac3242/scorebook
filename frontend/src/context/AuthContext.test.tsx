@@ -1,4 +1,10 @@
-import { render, screen, waitFor, fireEvent, act } from "@testing-library/react";
+import {
+  render,
+  screen,
+  waitFor,
+  fireEvent,
+  act,
+} from "@testing-library/react";
 import { AuthProvider, useAuth } from "./AuthContext";
 import { UserPool } from "../UserPool";
 import { describe, it, expect, vi, beforeEach } from "vitest";
@@ -9,7 +15,9 @@ const TestComponent = () => {
   if (loading) return <div>Loading...</div>;
   return (
     <div>
-      <div data-testid="auth-status">{isAuthenticated ? "Authenticated" : "Not Authenticated"}</div>
+      <div data-testid="auth-status">
+        {isAuthenticated ? "Authenticated" : "Not Authenticated"}
+      </div>
       <button onClick={logout}>Logout</button>
     </div>
   );
@@ -30,28 +38,34 @@ describe("AuthContext", () => {
     render(
       <AuthProvider>
         <TestComponent />
-      </AuthProvider>
+      </AuthProvider>,
     );
 
     await waitFor(() => {
-      expect(screen.getByTestId("auth-status")).toHaveTextContent("Authenticated");
+      expect(screen.getByTestId("auth-status")).toHaveTextContent(
+        "Authenticated",
+      );
     });
   });
 
   it("sets authenticated to false if session is invalid", async () => {
     const mockUser = {
-      getSession: vi.fn((callback) => callback(new Error("Session error"), null)),
+      getSession: vi.fn((callback) =>
+        callback(new Error("Session error"), null),
+      ),
     };
     (UserPool.getCurrentUser as any).mockReturnValue(mockUser);
 
     render(
       <AuthProvider>
         <TestComponent />
-      </AuthProvider>
+      </AuthProvider>,
     );
 
     await waitFor(() => {
-      expect(screen.getByTestId("auth-status")).toHaveTextContent("Not Authenticated");
+      expect(screen.getByTestId("auth-status")).toHaveTextContent(
+        "Not Authenticated",
+      );
     });
   });
 
@@ -61,11 +75,13 @@ describe("AuthContext", () => {
     render(
       <AuthProvider>
         <TestComponent />
-      </AuthProvider>
+      </AuthProvider>,
     );
 
     await waitFor(() => {
-      expect(screen.getByTestId("auth-status")).toHaveTextContent("Not Authenticated");
+      expect(screen.getByTestId("auth-status")).toHaveTextContent(
+        "Not Authenticated",
+      );
     });
   });
 
@@ -79,11 +95,13 @@ describe("AuthContext", () => {
     render(
       <AuthProvider>
         <TestComponent />
-      </AuthProvider>
+      </AuthProvider>,
     );
 
     await waitFor(() => {
-      expect(screen.getByTestId("auth-status")).toHaveTextContent("Authenticated");
+      expect(screen.getByTestId("auth-status")).toHaveTextContent(
+        "Authenticated",
+      );
     });
 
     await act(async () => {
@@ -92,7 +110,9 @@ describe("AuthContext", () => {
 
     expect(mockUser.signOut).toHaveBeenCalled();
     await waitFor(() => {
-      expect(screen.getByTestId("auth-status")).toHaveTextContent("Not Authenticated");
+      expect(screen.getByTestId("auth-status")).toHaveTextContent(
+        "Not Authenticated",
+      );
     });
   });
 });

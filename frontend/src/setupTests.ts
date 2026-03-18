@@ -31,7 +31,7 @@ vi.mock("./db", () => ({
       where: vi.fn().mockReturnThis(),
       equals: vi.fn().mockReturnThis(),
       toArray: vi.fn(),
-      add: vi.fn()
+      add: vi.fn(),
     },
     players: { toArray: vi.fn(), add: vi.fn() },
     teamPlayers: { toArray: vi.fn(), add: vi.fn() },
@@ -39,31 +39,31 @@ vi.mock("./db", () => ({
       where: vi.fn().mockReturnThis(),
       equals: vi.fn().mockReturnThis(),
       toArray: vi.fn(),
-      add: vi.fn()
+      add: vi.fn(),
     },
     stats: {
       orderBy: vi.fn().mockReturnThis(),
       reverse: vi.fn().mockReturnThis(),
       limit: vi.fn().mockReturnThis(),
       toArray: vi.fn(),
-      add: vi.fn()
-    }
+      add: vi.fn(),
+    },
   },
 }));
 
 // Mock dexie-react-hooks
 vi.mock("dexie-react-hooks", () => ({
   useLiveQuery: vi.fn((cb) => {
-    if (typeof cb === 'function') {
-        try {
-            const res = cb();
-            if (res && typeof res.then === 'function') {
-                return [];
-            }
-            return res;
-        } catch (e) {
-            return [];
+    if (typeof cb === "function") {
+      try {
+        const res = cb();
+        if (res && typeof res.then === "function") {
+          return [];
         }
+        return res;
+      } catch (e) {
+        return [];
+      }
     }
     return [];
   }),
