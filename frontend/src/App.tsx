@@ -5,6 +5,10 @@ import theme from './theme';
 import GameMode from './pages/GameMode';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
+import Seasons from './pages/Seasons';
+import Players from './pages/Players';
+import Teams from './pages/Teams';
+import Games from './pages/Games';
 import { Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
@@ -34,7 +38,10 @@ const AppContent: React.FC = () => {
               Basketball Stats
             </Typography>
             <Button color="inherit" component={Link} to="/">Dashboard</Button>
-            <Button color="inherit" component={Link} to="/game">New Game</Button>
+            <Button color="inherit" component={Link} to="/seasons">Seasons</Button>
+            <Button color="inherit" component={Link} to="/players">Players</Button>
+            <Button color="inherit" component={Link} to="/teams">Teams</Button>
+            <Button color="inherit" component={Link} to="/games">Games</Button>
             <Button color="inherit" onClick={logout}>Logout</Button>
           </Toolbar>
         </AppBar>
@@ -45,6 +52,26 @@ const AppContent: React.FC = () => {
           <Route path="/" element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/seasons" element={
+            <ProtectedRoute>
+              <Seasons />
+            </ProtectedRoute>
+          } />
+          <Route path="/players" element={
+            <ProtectedRoute>
+              <Players />
+            </ProtectedRoute>
+          } />
+          <Route path="/teams" element={
+            <ProtectedRoute>
+              <Teams />
+            </ProtectedRoute>
+          } />
+          <Route path="/games" element={
+            <ProtectedRoute>
+              <Games />
             </ProtectedRoute>
           } />
           <Route path="/game" element={

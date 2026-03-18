@@ -22,6 +22,14 @@ export interface Player {
   synced?: number;
 }
 
+export interface TeamPlayer {
+  id?: string;
+  teamId: string;
+  playerId: string;
+  jerseyNumber?: string;
+  synced?: number;
+}
+
 export interface Game {
   id?: string;
   teamId: string;
@@ -47,15 +55,17 @@ export class AppDatabase extends Dexie {
   seasons!: Table<Season>;
   teams!: Table<Team>;
   players!: Table<Player>;
+  teamPlayers!: Table<TeamPlayer>;
   games!: Table<Game>;
   stats!: Table<StatEvent>;
 
   constructor() {
     super('BasketballStatsDB');
-    this.version(1).stores({
+    this.version(2).stores({
       seasons: '++id, synced',
       teams: '++id, seasonId, synced',
       players: '++id, synced',
+      teamPlayers: '++id, teamId, playerId, synced',
       games: '++id, teamId, synced',
       stats: '++id, gameId, playerId, synced'
     });
