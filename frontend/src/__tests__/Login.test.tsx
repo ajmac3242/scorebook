@@ -3,7 +3,10 @@ import Login from "../pages/Login";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "../context/AuthContext";
-import { CognitoUser } from "amazon-cognito-identity-js";
+import {
+  CognitoUser,
+  AuthenticationDetails,
+} from "amazon-cognito-identity-js";
 
 // Mock useNavigate
 const mockNavigate = vi.fn();
@@ -28,7 +31,6 @@ describe("Login Component", () => {
         </AuthProvider>
       </BrowserRouter>,
     );
-
     expect(screen.getByLabelText(/Username/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Password/i)).toBeInTheDocument();
     expect(
@@ -42,11 +44,9 @@ describe("Login Component", () => {
         getAccessToken: () => ({ getJwtToken: () => "token" }),
       });
     });
-
     (CognitoUser as any).mockImplementation(function () {
       this.authenticateUser = authenticateUserMock;
     });
-
     render(
       <BrowserRouter>
         <AuthProvider>
@@ -54,7 +54,6 @@ describe("Login Component", () => {
         </AuthProvider>
       </BrowserRouter>,
     );
-
     fireEvent.change(screen.getByLabelText(/Username/i), {
       target: { value: "testuser" },
     });
@@ -62,7 +61,6 @@ describe("Login Component", () => {
       target: { value: "password123" },
     });
     fireEvent.click(screen.getByRole("button", { name: /Sign In/i }));
-
     await waitFor(() => {
       expect(authenticateUserMock).toHaveBeenCalled();
       expect(mockNavigate).toHaveBeenCalledWith("/");
@@ -73,11 +71,9 @@ describe("Login Component", () => {
     const authenticateUserMock = vi.fn((authDetails, callbacks) => {
       callbacks.onFailure({ message: "Invalid credentials" });
     });
-
     (CognitoUser as any).mockImplementation(function () {
       this.authenticateUser = authenticateUserMock;
     });
-
     render(
       <BrowserRouter>
         <AuthProvider>
@@ -85,7 +81,6 @@ describe("Login Component", () => {
         </AuthProvider>
       </BrowserRouter>,
     );
-
     fireEvent.change(screen.getByLabelText(/Username/i), {
       target: { value: "testuser" },
     });
@@ -93,7 +88,6 @@ describe("Login Component", () => {
       target: { value: "wrongpassword" },
     });
     fireEvent.click(screen.getByRole("button", { name: /Sign In/i }));
-
     await waitFor(() => {
       expect(screen.getByText(/Invalid credentials/i)).toBeInTheDocument();
     });
@@ -103,10 +97,47 @@ describe("Login Component", () => {
     const authenticateUserMock = vi.fn((authDetails, callbacks) => {
       callbacks.newPasswordRequired({}, {});
     });
-
     (CognitoUser as any).mockImplementation(function () {
       this.authenticateUser = authenticateUserMock;
     });
+    render(
+      <BrowserRouter>
+        <AuthProvider>
+          <Login />
+        </AuthProvider>
+      </BrowserRouter>,
+    );
+    fireEvent.change(screen.getByLabelText(/Username/i), {
+      target: { value: "testuser" },
+    });
+    fireEvent.change(screen.getByLabelText(/Password/i), {
+      target: { value: "password123" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /Sign In/i }));
+    await waitFor(() => {
+      expect(screen.getByText(/New password required/i)).toBeInTheDocument();
+    });
+  });
+
+  it("passes complex password with special characters (including !) verbatim to AuthenticationDetails", async () => {
+    // Regression test: passwords containing ! and other special chars were
+    // being mangled before reaching Cognito. Verify the raw string is
+    // forwarded unchanged.
+    const COMPLEX_PASSWORD =
+      "PAqsh4-AbpY_gGFHjubK*gqFu-j6MtvAZ!XGsnMoB7Bqmw7mvj-y@zy-67WZ.Xup";
+
+    let capturedPassword: string | undefined;
+    const authenticateUserMock = vi.fn((authDetails, callbacks) => {
+      capturedPassword = authDetails.getPassword();
+      callbacks.onSuccess({
+        getAccessToken: () => ({ getJwtToken: () => "token" }),
+      });
+    });
+    (CognitoUser as any).mockImplementation(function () {
+      this.authenticateUser = authenticateUserMock;
+    });
+    // Use the real AuthenticationDetails so getPassword() works
+    (AuthenticationDetails as any).mockRestore?.();
 
     render(
       <BrowserRouter>
@@ -120,12 +151,51 @@ describe("Login Component", () => {
       target: { value: "testuser" },
     });
     fireEvent.change(screen.getByLabelText(/Password/i), {
-      target: { value: "password123" },
+      target: { value: COMPLEX_PASSWORD },
     });
     fireEvent.click(screen.getByRole("button", { name: /Sign In/i }));
 
     await waitFor(() => {
-      expect(screen.getByText(/New password required/i)).toBeInTheDocument();
+      expect(authenticateUserMock).toHaveBeenCalled();
+    });
+
+    // Verify the password was not modified before being passed to Cognito
+    expect(capturedPassword).toBe(COMPLEX_PASSWORD);
+    expect(mockNavigate).toHaveBeenCalledWith("/");
+  });
+
+  it("accepts and submits passwords containing ! without error", async () => {
+    const authenticateUserMock = vi.fn((authDetails, callbacks) => {
+      callbacks.onSuccess({
+        getAccessToken: () => ({ getJwtToken: () => "token" }),
+      });
+    });
+    (CognitoUser as any).mockImplementation(function () {
+      this.authenticateUser = authenticateUserMock;
+    });
+
+    render(
+      <BrowserRouter>
+        <AuthProvider>
+          <Login />
+        </AuthProvider>
+      </BrowserRouter>,
+    );
+
+    // Passwords with ! should be accepted without validation errors
+    fireEvent.change(screen.getByLabelText(/Username/i), {
+      target: { value: "testuser" },
+    });
+    fireEvent.change(screen.getByLabelText(/Password/i), {
+      target: { value: "MyP@ssw0rd!" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /Sign In/i }));
+
+    await waitFor(() => {
+      // Should succeed - no error displayed
+      expect(authenticateUserMock).toHaveBeenCalled();
+      expect(mockNavigate).toHaveBeenCalledWith("/");
+      expect(screen.queryByRole("alert")).not.toBeInTheDocument();
     });
   });
 });
