@@ -6,7 +6,7 @@ import { db } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
 
 describe("Players Component", () => {
-  const mockPlayers = [{ id: "1", name: "John Doe", defaultNumber: "23" }];
+  const mockPlayers = [{ id: "1", name: "John Doe", avatarColor: "#4E7D5B" }];
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -36,7 +36,6 @@ describe("Players Component", () => {
     );
 
     expect(screen.getByText("John Doe")).toBeInTheDocument();
-    expect(screen.getByText(/Default Number: # 23/i)).toBeInTheDocument();
   });
 
   it("adds a new player", async () => {
@@ -53,9 +52,6 @@ describe("Players Component", () => {
     fireEvent.change(screen.getByLabelText(/Player Name/i), {
       target: { value: "Jane Smith" },
     });
-    fireEvent.change(screen.getByLabelText(/Default Number/i), {
-      target: { value: "10" },
-    });
 
     fireEvent.click(screen.getByRole("button", { name: /Add/i }));
 
@@ -63,7 +59,6 @@ describe("Players Component", () => {
       expect(db.players.add).toHaveBeenCalledWith(
         expect.objectContaining({
           name: "Jane Smith",
-          defaultNumber: "10",
         }),
       );
     });

@@ -13,17 +13,30 @@ import {
   DialogActions,
   TextField,
   Fab,
+  Avatar,
+  IconButton,
 } from "@mui/material";
-import { Add as AddIcon, BarChart } from "@mui/icons-material";
+import { Add as AddIcon, BarChart, Palette } from "@mui/icons-material";
 import { db, type Player } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useNavigate, Link } from "react-router-dom";
+
+const AVATAR_COLORS = [
+  "#4E7D5B", // Sage Green
+  "#A64444", // Muted Red
+  "#5A7381", // Blue Ash
+  "#154C56", // Deep Ocean
+  "#D9B382", // Golden Dune
+  "#1F2D33", // Midnight
+  "#7B68EE", // Medium Slate Blue
+  "#FF8C00", // Dark Orange
+];
 
 const Players: React.FC = () => {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
-  const [defaultNumber, setDefaultNumber] = useState("");
+  const [avatarColor, setAvatarColor] = useState(AVATAR_COLORS[0]);
 
   const players =
     useLiveQuery(async () => {
@@ -39,7 +52,7 @@ const Players: React.FC = () => {
   const handleAddPlayer = async () => {
     const newPlayer: Player = {
       name,
-      defaultNumber,
+      avatarColor,
       synced: 0,
     };
     try {
@@ -47,10 +60,19 @@ const Players: React.FC = () => {
       await db.players.add(newPlayer);
       setOpen(false);
       setName("");
-      setDefaultNumber("");
+      setAvatarColor(AVATAR_COLORS[0]);
     } catch (err) {
       console.error("Failed to add player:", err);
     }
+  };
+
+  const getInitials = (name: string) => {
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
   };
 
   return (
@@ -82,10 +104,16 @@ const Players: React.FC = () => {
                 </Button>
               }
             >
-              <ListItemText
-                primary={player.name}
-                secondary={`Default Number: # ${player.defaultNumber}`}
-              />
+              <Avatar
+                sx={{
+                  bgcolor: player.avatarColor || "grey.500",
+                  mr: 2,
+                  fontFamily: "var(--serif)",
+                }}
+              >
+                {getInitials(player.name)}
+              </Avatar>
+              <ListItemText primary={player.name} />
             </ListItem>
           ))}
         </List>
@@ -112,16 +140,28 @@ const Players: React.FC = () => {
             variant="outlined"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            sx={{ mb: 2 }}
           />
-          <TextField
-            margin="dense"
-            label="Default Number"
-            type="text"
-            fullWidth
-            variant="outlined"
-            value={defaultNumber}
-            onChange={(e) => setDefaultNumber(e.target.value)}
-          />
+          <Typography variant="subtitle2" gutterBottom>
+            Avatar Color
+          </Typography>
+          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+            {AVATAR_COLORS.map((color) => (
+              <Box
+                key={color}
+                onClick={() => setAvatarColor(color)}
+                sx={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: "50%",
+                  bgcolor: color,
+                  cursor: "pointer",
+                  border: avatarColor === color ? "3px solid #000" : "none",
+                  boxSizing: "border-box",
+                }}
+              />
+            ))}
+          </Box>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpen(false)}>Cancel</Button>
