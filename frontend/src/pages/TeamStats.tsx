@@ -618,7 +618,9 @@ const TeamStats: React.FC = () => {
                       )
                     }
                   >
-                    <TableCell sx={{ fontWeight: 700, color: "text.secondary" }}>
+                    <TableCell
+                      sx={{ fontWeight: 700, color: "text.secondary" }}
+                    >
                       {row.jerseyNumber || "-"}
                     </TableCell>
                     <TableCell>
@@ -713,13 +715,22 @@ const TeamStats: React.FC = () => {
                       gap: 2,
                     }}
                   >
-                    <Typography variant="h4" sx={{ fontWeight: 700, color: "text.secondary", minWidth: 40 }}>
+                    <Typography
+                      variant="h4"
+                      sx={{
+                        fontWeight: 700,
+                        color: "text.secondary",
+                        minWidth: 40,
+                      }}
+                    >
                       {tp?.jerseyNumber || "-"}
                     </Typography>
                     <Avatar sx={{ bgcolor: player.avatarColor || "grey.500" }}>
                       {getInitials(player.name)}
                     </Avatar>
-                    <Typography sx={{ fontWeight: 600 }}>{player.name}</Typography>
+                    <Typography sx={{ fontWeight: 600 }}>
+                      {player.name}
+                    </Typography>
                   </Paper>
                 </Grid>
               );

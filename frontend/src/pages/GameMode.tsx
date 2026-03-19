@@ -662,9 +662,7 @@ const GameMode: React.FC = () => {
         open={endGameDialogOpen}
         onClose={() => setEndGameDialogOpen(false)}
       >
-        <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
-          End Game?
-        </DialogTitle>
+        <DialogTitle sx={{ fontFamily: "var(--serif)" }}>End Game?</DialogTitle>
         <DialogContent>
           <DialogContentText>
             Is the game finished? Once ended, the results will be finalized for
@@ -695,13 +693,20 @@ const GameMode: React.FC = () => {
             </Typography>
             <Typography
               variant="h5"
-              color={currentScore > opponentScore ? "success.main" : "error.main"}
+              color={
+                currentScore > opponentScore ? "success.main" : "error.main"
+              }
               sx={{ fontWeight: 600, mb: 3 }}
             >
-              {currentScore > opponentScore ? "WIN" : currentScore < opponentScore ? "LOSS" : "DRAW"}
+              {currentScore > opponentScore
+                ? "WIN"
+                : currentScore < opponentScore
+                  ? "LOSS"
+                  : "DRAW"}
             </Typography>
             <Typography variant="body1">
-              The game has been finalized. You can view the full box score in the Game Stats page.
+              The game has been finalized. You can view the full box score in
+              the Game Stats page.
             </Typography>
           </Box>
         </DialogContent>
