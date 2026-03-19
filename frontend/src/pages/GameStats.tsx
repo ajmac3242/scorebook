@@ -61,10 +61,17 @@ const GameStats: React.FC = () => {
     [gameId],
   );
 
-  const teamPlayers = useLiveQuery(
-    () => (game?.teamId ? db.teamPlayers.where("teamId").equals(game.teamId.toString()).toArray() : Promise.resolve([])),
-    [game?.teamId]
-  ) || [];
+  const teamPlayers =
+    useLiveQuery(
+      () =>
+        game?.teamId
+          ? db.teamPlayers
+              .where("teamId")
+              .equals(game.teamId.toString())
+              .toArray()
+          : Promise.resolve([]),
+      [game?.teamId],
+    ) || [];
 
   const players = useLiveQuery(() => db.players.toArray()) || [];
 
@@ -167,7 +174,9 @@ const GameStats: React.FC = () => {
   };
 
   const getPlayerJersey = (pId: number | string) => {
-    const tp = teamPlayers.find(t => t.playerId.toString() === pId.toString());
+    const tp = teamPlayers.find(
+      (t) => t.playerId.toString() === pId.toString(),
+    );
     return tp?.jerseyNumber || "";
   };
 
@@ -224,8 +233,24 @@ const GameStats: React.FC = () => {
                     .filter((p) => p.id !== "OPPONENT")
                     .map((row: any) => (
                       <TableRow key={row.id}>
-                        <TableCell sx={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <Avatar sx={{ width: 24, height: 24, fontSize: '0.75rem', bgcolor: players.find(p => p.id === row.id)?.avatarColor || 'grey.500' }}>
+                        <TableCell
+                          sx={{
+                            fontWeight: 600,
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1,
+                          }}
+                        >
+                          <Avatar
+                            sx={{
+                              width: 24,
+                              height: 24,
+                              fontSize: "0.75rem",
+                              bgcolor:
+                                players.find((p) => p.id === row.id)
+                                  ?.avatarColor || "grey.500",
+                            }}
+                          >
                             {getPlayerJersey(row.id)}
                           </Avatar>
                           {row.name}
@@ -327,7 +352,10 @@ const GameStats: React.FC = () => {
                     x: s.locationX || 0,
                     y: s.locationY || 0,
                     type: s.type,
-                    label: s.playerId !== OPPONENT_PLAYER_ID ? getPlayerJersey(s.playerId) : undefined,
+                    label:
+                      s.playerId !== OPPONENT_PLAYER_ID
+                        ? getPlayerJersey(s.playerId)
+                        : undefined,
                     playerId: s.playerId,
                   }))}
                 onMarkerClick={handleMarkerClick}

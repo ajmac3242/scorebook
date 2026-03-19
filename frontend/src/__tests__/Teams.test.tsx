@@ -44,11 +44,15 @@ describe("Teams Component", () => {
       </BrowserRouter>,
     );
 
-    expect(screen.getByRole("heading", { name: /^Teams$/i, level: 4 })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: /^Teams$/i, level: 4 }),
+    ).toBeInTheDocument();
 
     await selectSeason();
 
-    expect(await screen.findByRole("heading", { name: /^Teams$/i, level: 4 })).toBeInTheDocument();
+    expect(
+      await screen.findByRole("heading", { name: /^Teams$/i, level: 4 }),
+    ).toBeInTheDocument();
     expect(screen.getByText("Team 1")).toBeInTheDocument();
   });
 

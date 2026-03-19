@@ -96,9 +96,7 @@ const Teams: React.FC = () => {
       </Box>
 
       <Stack spacing={2}>
-        {teams.length === 0 && (
-          <Typography>No teams found.</Typography>
-        )}
+        {teams.length === 0 && <Typography>No teams found.</Typography>}
         {teams.map((team) => (
           <Paper
             key={team.id}
@@ -124,7 +122,9 @@ const Teams: React.FC = () => {
                 {team.name}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                {seasons.find((s) => s.id?.toString() === team.seasonId?.toString())?.name || "No Season"}
+                {seasons.find(
+                  (s) => s.id?.toString() === team.seasonId?.toString(),
+                )?.name || "No Season"}
               </Typography>
             </Box>
           </Paper>

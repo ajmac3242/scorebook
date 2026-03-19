@@ -35,7 +35,11 @@ const PlayerStats: React.FC = () => {
   const seasonIdParam = searchParams.get("seasonId");
 
   const [selectedSeasonId, setSelectedSeasonId] = useState<number | string>(
-    seasonIdParam ? (isNaN(Number(seasonIdParam)) ? seasonIdParam : Number(seasonIdParam)) : ""
+    seasonIdParam
+      ? isNaN(Number(seasonIdParam))
+        ? seasonIdParam
+        : Number(seasonIdParam)
+      : "",
   );
   const [selectedGameId, setSelectedGameId] = useState<number | string>("");
   const [selectedType, setSelectedType] = useState<string>("");
@@ -45,10 +49,17 @@ const PlayerStats: React.FC = () => {
     [playerId],
   );
 
-  const teamPlayers = useLiveQuery(
-    () => (playerId ? db.teamPlayers.where("playerId").equals(playerId.toString()).toArray() : Promise.resolve([])),
-    [playerId]
-  ) || [];
+  const teamPlayers =
+    useLiveQuery(
+      () =>
+        playerId
+          ? db.teamPlayers
+              .where("playerId")
+              .equals(playerId.toString())
+              .toArray()
+          : Promise.resolve([]),
+      [playerId],
+    ) || [];
 
   const seasons = useLiveQuery(() => db.seasons.toArray()) || [];
 
@@ -68,7 +79,9 @@ const PlayerStats: React.FC = () => {
         return game ? [game] : [];
       }
       if (teams.length > 0) {
-        const teamIds = teams.map((t) => t.id?.toString()).filter(Boolean) as string[];
+        const teamIds = teams
+          .map((t) => t.id?.toString())
+          .filter(Boolean) as string[];
         return await db.games.where("teamId").anyOf(teamIds).toArray();
       }
       return await db.games.toArray();
@@ -122,12 +135,19 @@ const PlayerStats: React.FC = () => {
   }, [filteredStats]);
 
   const getInitials = (name: string) => {
-    return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
   };
 
   const getJerseyNumber = () => {
     if (teamIdParam) {
-      const tp = teamPlayers.find(t => t.teamId.toString() === teamIdParam.toString());
+      const tp = teamPlayers.find(
+        (t) => t.teamId.toString() === teamIdParam.toString(),
+      );
       if (tp) return tp.jerseyNumber;
     }
     return "";
@@ -154,38 +174,54 @@ const PlayerStats: React.FC = () => {
 
   return (
     <Box sx={{ pb: 4 }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, mb: 4 }}>
-        <Box sx={{ position: 'relative' }}>
-          <Avatar sx={{ width: 80, height: 80, bgcolor: player?.avatarColor || 'grey.500', fontSize: '2rem', fontFamily: 'var(--serif)' }}>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 3, mb: 4 }}>
+        <Box sx={{ position: "relative" }}>
+          <Avatar
+            sx={{
+              width: 80,
+              height: 80,
+              bgcolor: player?.avatarColor || "grey.500",
+              fontSize: "2rem",
+              fontFamily: "var(--serif)",
+            }}
+          >
             {player ? getInitials(player.name) : ""}
           </Avatar>
           {getJerseyNumber() && (
-            <Box sx={{
-              position: 'absolute',
-              bottom: 0,
-              right: 0,
-              bgcolor: 'var(--midnight)',
-              color: 'white',
-              borderRadius: '50%',
-              width: 28,
-              height: 28,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '0.8rem',
-              fontWeight: 'bold',
-              border: '2px solid white'
-            }}>
+            <Box
+              sx={{
+                position: "absolute",
+                bottom: 0,
+                right: 0,
+                bgcolor: "var(--midnight)",
+                color: "white",
+                borderRadius: "50%",
+                width: 28,
+                height: 28,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "0.8rem",
+                fontWeight: "bold",
+                border: "2px solid white",
+              }}
+            >
               {getJerseyNumber()}
             </Box>
           )}
         </Box>
         <Box>
-          <Typography variant="h3" sx={{ fontFamily: "var(--serif)", fontWeight: 700 }}>
+          <Typography
+            variant="h3"
+            sx={{ fontFamily: "var(--serif)", fontWeight: 700 }}
+          >
             {player?.name}
           </Typography>
           <Typography variant="h6" color="text.secondary">
-            {teamIdParam ? teams.find(t => t.id?.toString() === teamIdParam.toString())?.name : "Player Career Stats"}
+            {teamIdParam
+              ? teams.find((t) => t.id?.toString() === teamIdParam.toString())
+                  ?.name
+              : "Player Career Stats"}
           </Typography>
         </Box>
       </Box>
