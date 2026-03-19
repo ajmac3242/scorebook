@@ -42,7 +42,11 @@ const BasketballCourt: React.FC<{
       <svg
         viewBox="0 0 500 470"
         onClick={handleCourtClick}
-        style={{ width: "100%", height: "100%", cursor: onCoordClick ? "crosshair" : "default" }}
+        style={{
+          width: "100%",
+          height: "100%",
+          cursor: onCoordClick ? "crosshair" : "default",
+        }}
         xmlns="http://www.w3.org/2000/svg"
       >
         {/* Out of bounds / Court Perimeter */}
@@ -182,10 +186,13 @@ const BasketballCourt: React.FC<{
           const svgY = (marker.y / 100) * 470;
 
           return (
-            <g key={marker.id || index} onClick={(e) => {
-              e.stopPropagation();
-              if (onMarkerClick) onMarkerClick(marker);
-            }}>
+            <g
+              key={marker.id || index}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (onMarkerClick) onMarkerClick(marker);
+              }}
+            >
               <circle
                 className={isLatest ? "latest-marker" : "court-marker"}
                 cx={svgX}

@@ -90,7 +90,11 @@ const Sidebar: React.FC = () => {
 
       <List sx={{ flexGrow: 1, px: 1 }}>
         {menuItems.map((item) => (
-          <ListItem key={item.text} disablePadding sx={{ display: "block", mb: 0.5 }}>
+          <ListItem
+            key={item.text}
+            disablePadding
+            sx={{ display: "block", mb: 0.5 }}
+          >
             <Tooltip title={!open ? item.text : ""} placement="right">
               <ListItemButton
                 component={Link}
@@ -122,7 +126,9 @@ const Sidebar: React.FC = () => {
                 >
                   {item.icon}
                 </ListItemIcon>
-                {open && <ListItemText primary={item.text} sx={{ opacity: 1 }} />}
+                {open && (
+                  <ListItemText primary={item.text} sx={{ opacity: 1 }} />
+                )}
               </ListItemButton>
             </Tooltip>
           </ListItem>

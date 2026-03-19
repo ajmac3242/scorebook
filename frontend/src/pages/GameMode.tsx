@@ -366,7 +366,10 @@ const GameMode: React.FC = () => {
                   x: s.locationX || 0,
                   y: s.locationY || 0,
                   type: s.type,
-                  color: s.playerId === OPPONENT_PLAYER_ID ? theme.palette.secondary.main : undefined,
+                  color:
+                    s.playerId === OPPONENT_PLAYER_ID
+                      ? theme.palette.secondary.main
+                      : undefined,
                 }))}
             />
           </Paper>
@@ -376,7 +379,11 @@ const GameMode: React.FC = () => {
           <Stack spacing={3}>
             {trackingMode === "TEAM" ? (
               <Paper className="moleskine-card">
-                <Typography variant="subtitle2" gutterBottom sx={{ fontWeight: 600 }}>
+                <Typography
+                  variant="subtitle2"
+                  gutterBottom
+                  sx={{ fontWeight: 600 }}
+                >
                   Team Roster
                 </Typography>
                 <Box sx={{ display: "grid", gap: 1 }}>
@@ -384,15 +391,30 @@ const GameMode: React.FC = () => {
                     <Box key={p.id} sx={{ display: "flex", gap: 1 }}>
                       <Button
                         fullWidth
-                        variant={selectedPlayerId === p.id ? "contained" : "outlined"}
+                        variant={
+                          selectedPlayerId === p.id ? "contained" : "outlined"
+                        }
                         onClick={() => setSelectedPlayerId(p.id ?? null)}
                         sx={{
                           justifyContent: "flex-start",
-                          bgcolor: selectedPlayerId === p.id ? "primary.main" : "transparent",
-                          color: selectedPlayerId === p.id ? "white" : "text.primary",
+                          bgcolor:
+                            selectedPlayerId === p.id
+                              ? "primary.main"
+                              : "transparent",
+                          color:
+                            selectedPlayerId === p.id
+                              ? "white"
+                              : "text.primary",
                         }}
                       >
-                        <Avatar sx={{ width: 24, height: 24, fontSize: "0.75rem", mr: 1 }}>
+                        <Avatar
+                          sx={{
+                            width: 24,
+                            height: 24,
+                            fontSize: "0.75rem",
+                            mr: 1,
+                          }}
+                        >
                           {p.defaultNumber}
                         </Avatar>
                         {p.name}
@@ -402,25 +424,44 @@ const GameMode: React.FC = () => {
                         onClick={() => toggleOnCourt(p.id!)}
                         color={onCourtIds.has(p.id!) ? "primary" : "default"}
                       >
-                        {onCourtIds.has(p.id!) ? <RemoveCircleOutline /> : <AddCircleOutline />}
+                        {onCourtIds.has(p.id!) ? (
+                          <RemoveCircleOutline />
+                        ) : (
+                          <AddCircleOutline />
+                        )}
                       </IconButton>
                     </Box>
                   ))}
                 </Box>
               </Paper>
             ) : (
-              <Paper className="moleskine-card" sx={{ bgcolor: "secondary.light", color: "secondary.contrastText" }}>
-                <Typography variant="subtitle2" gutterBottom sx={{ fontWeight: 600 }}>
+              <Paper
+                className="moleskine-card"
+                sx={{
+                  bgcolor: "secondary.light",
+                  color: "secondary.contrastText",
+                }}
+              >
+                <Typography
+                  variant="subtitle2"
+                  gutterBottom
+                  sx={{ fontWeight: 600 }}
+                >
                   Opponent Tracking
                 </Typography>
                 <Typography variant="body2">
-                  Stats recorded in this mode will be assigned to the generic "Opponent" player to track lead and flow.
+                  Stats recorded in this mode will be assigned to the generic
+                  "Opponent" player to track lead and flow.
                 </Typography>
               </Paper>
             )}
 
             <Paper className="moleskine-card">
-              <Typography variant="subtitle2" gutterBottom sx={{ fontWeight: 600, display: "flex", alignItems: "center" }}>
+              <Typography
+                variant="subtitle2"
+                gutterBottom
+                sx={{ fontWeight: 600, display: "flex", alignItems: "center" }}
+              >
                 <History sx={{ fontSize: 18, mr: 1 }} /> Recent Actions
               </Typography>
               <Stack spacing={1}>
@@ -440,16 +481,23 @@ const GameMode: React.FC = () => {
                         <strong>
                           {s.playerId === OPPONENT_PLAYER_ID
                             ? "Opponent"
-                            : players?.find((p) => p.id === s.playerId)?.name || "Unknown"}
+                            : players?.find((p) => p.id === s.playerId)?.name ||
+                              "Unknown"}
                         </strong>
                         : {s.type}
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
-                        {new Date(s.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                        {new Date(s.timestamp).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
                       </Typography>
                     </Box>
                     <Box>
-                      <IconButton size="small" onClick={() => openEditDialog(s)}>
+                      <IconButton
+                        size="small"
+                        onClick={() => openEditDialog(s)}
+                      >
                         <Edit fontSize="small" />
                       </IconButton>
                       <IconButton
@@ -470,28 +518,61 @@ const GameMode: React.FC = () => {
         </Grid>
       </Grid>
 
-      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} fullWidth maxWidth="xs">
+      <Dialog
+        open={dialogOpen}
+        onClose={() => setDialogOpen(false)}
+        fullWidth
+        maxWidth="xs"
+      >
         <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
           {isEditing ? "Edit Action" : "Record Action"}
           <Typography variant="body2" color="text.secondary">
             {selectedPlayerId === OPPONENT_PLAYER_ID
               ? "Opponent"
-              : players?.find((p) => p.id === selectedPlayerId)?.name || "Select Player"}
+              : players?.find((p) => p.id === selectedPlayerId)?.name ||
+                "Select Player"}
           </Typography>
         </DialogTitle>
         <DialogContent>
-          <Box sx={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 1, mt: 1 }}>
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: 1,
+              mt: 1,
+            }}
+          >
             <QuickAction type={ACTION_TYPES.MAKE} label="Make" icon={Check} />
             <QuickAction type={ACTION_TYPES.MISS} label="Miss" icon={Close} />
-            <QuickAction type={ACTION_TYPES.REBOUND} label="Rebound" icon={SportsBasketball} />
-            <QuickAction type={ACTION_TYPES.STEAL} label="Steal" icon={FlashOn} />
-            <QuickAction type={ACTION_TYPES.ASSIST} label="Assist" icon={PanTool} />
-            <QuickAction type={ACTION_TYPES.TURNOVER} label="TO" icon={SwapHoriz} />
+            <QuickAction
+              type={ACTION_TYPES.REBOUND}
+              label="Rebound"
+              icon={SportsBasketball}
+            />
+            <QuickAction
+              type={ACTION_TYPES.STEAL}
+              label="Steal"
+              icon={FlashOn}
+            />
+            <QuickAction
+              type={ACTION_TYPES.ASSIST}
+              label="Assist"
+              icon={PanTool}
+            />
+            <QuickAction
+              type={ACTION_TYPES.TURNOVER}
+              label="TO"
+              icon={SwapHoriz}
+            />
           </Box>
 
           {statType === ACTION_TYPES.MAKE && (
             <Box sx={{ mt: 3 }}>
-              <Typography variant="caption" gutterBottom sx={{ display: "block", mb: 1 }}>
+              <Typography
+                variant="caption"
+                gutterBottom
+                sx={{ display: "block", mb: 1 }}
+              >
                 Points
               </Typography>
               <Stack direction="row" spacing={1}>
@@ -513,16 +594,27 @@ const GameMode: React.FC = () => {
           <Button onClick={() => setDialogOpen(false)} color="inherit">
             Cancel
           </Button>
-          <Button onClick={() => handleSaveStat()} variant="contained" disabled={!selectedPlayerId || !statType}>
+          <Button
+            onClick={() => handleSaveStat()}
+            variant="contained"
+            disabled={!selectedPlayerId || !statType}
+          >
             {isEditing ? "Update" : "Save"}
           </Button>
         </DialogActions>
       </Dialog>
 
-      <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
-        <DialogTitle sx={{ fontFamily: "var(--serif)" }}>Confirm Delete</DialogTitle>
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+      >
+        <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
+          Confirm Delete
+        </DialogTitle>
         <DialogContent>
-          <DialogContentText>Are you sure you want to delete this action?</DialogContentText>
+          <DialogContentText>
+            Are you sure you want to delete this action?
+          </DialogContentText>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
           <Button onClick={() => setDeleteDialogOpen(false)} color="inherit">

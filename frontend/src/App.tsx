@@ -48,7 +48,7 @@ const AppContent: React.FC = () => {
         sx={{
           flexGrow: 1,
           p: { xs: 2, sm: 3 },
-          width: { sm: `calc(100% - ${isAuthenticated ? '240px' : '0px'})` },
+          width: { sm: `calc(100% - ${isAuthenticated ? "240px" : "0px"})` },
         }}
       >
         <Container maxWidth="xl">

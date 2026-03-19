@@ -44,18 +44,20 @@ describe("GameMode Component", () => {
       const code = cb.toString();
       if (code.includes("players")) return mockPlayers;
       if (code.includes("stats")) return mockStats;
-      if (code.includes("db.games.get")) return { opponent: "Test Opponent", date: "2023-01-01" };
+      if (code.includes("db.games.get"))
+        return { opponent: "Test Opponent", date: "2023-01-01" };
       return [];
     });
   });
 
-  const renderComponent = () => render(
-    <ThemeProvider theme={theme}>
-      <BrowserRouter>
-        <GameMode />
-      </BrowserRouter>
-    </ThemeProvider>
-  );
+  const renderComponent = () =>
+    render(
+      <ThemeProvider theme={theme}>
+        <BrowserRouter>
+          <GameMode />
+        </BrowserRouter>
+      </ThemeProvider>,
+    );
 
   it("renders GameMode page and displays players/stats", async () => {
     renderComponent();
