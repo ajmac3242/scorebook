@@ -26,7 +26,7 @@ vi.mock("../components/BasketballCourt", () => ({
 }));
 
 describe("GameMode Component", () => {
-  const mockPlayers = [{ id: "p1", name: "Player 1", defaultNumber: "23" }];
+  const mockPlayers = [{ id: "p1", name: "Player 1", avatarColor: "#4E7D5B" }];
   const mockStats = [
     {
       id: "s1",
@@ -37,15 +37,16 @@ describe("GameMode Component", () => {
       timestamp: new Date().toISOString(),
     },
   ];
+  const mockTeamPlayers = [{ id: "tp1", teamId: "practice-session", playerId: "p1", jerseyNumber: "23" }];
 
   beforeEach(() => {
     vi.clearAllMocks();
     (useLiveQuery as any).mockImplementation((cb) => {
       const code = cb.toString();
-      if (code.includes("players")) return mockPlayers;
-      if (code.includes("stats")) return mockStats;
-      if (code.includes("db.games.get"))
-        return { opponent: "Test Opponent", date: "2023-01-01" };
+      if (code.includes("db.stats")) return mockStats;
+      if (code.includes("db.games.get")) return { id: "practice-session", opponent: "Test Opponent", date: "2023-01-01" };
+      if (code.includes("db.players")) return mockPlayers;
+      if (code.includes("db.teamPlayers")) return mockTeamPlayers;
       return [];
     });
   });
@@ -65,23 +66,25 @@ describe("GameMode Component", () => {
     await waitFor(() => {
       expect(screen.getByText(/vs Test Opponent/i)).toBeInTheDocument();
     });
-    expect(screen.getAllByText("Player 1").length).toBeGreaterThan(0);
+    // Use getAllByText because it appears in Roster and Recent Actions
+    expect(await screen.findAllByText(/Player 1/i)).toBeDefined();
   });
 
   it("records a MAKE stat", async () => {
     renderComponent();
 
-    // Sidebar lineup (Roster)
-    const lineup = await screen.findByText("Team Roster");
-    const playerBtn = within(lineup.parentElement!).getByText("Player 1");
+    // Roster is in a Paper with "Team Roster" title
+    const rosterHeader = await screen.findByText("Team Roster");
+    const rosterContainer = rosterHeader.parentElement!;
+    const playerBtn = within(rosterContainer).getByText(/Player 1/i);
     fireEvent.click(playerBtn);
 
     // Click court
     fireEvent.click(screen.getByTestId("basketball-court"));
 
-    // Action dialog - wait for text
+    // Action dialog
     await waitFor(() => {
-      expect(screen.getByText("What happened?")).toBeInTheDocument();
+      expect(screen.getByText(/Record Action/i)).toBeInTheDocument();
     });
 
     fireEvent.click(screen.getByText("Make"));
@@ -110,9 +113,9 @@ describe("GameMode Component", () => {
   it("records a non-MAKE stat", async () => {
     renderComponent();
 
-    // Sidebar lineup
-    const lineup = await screen.findByText("Team Roster");
-    const playerBtn = within(lineup.parentElement!).getByText("Player 1");
+    const rosterHeader = await screen.findByText("Team Roster");
+    const rosterContainer = rosterHeader.parentElement!;
+    const playerBtn = within(rosterContainer).getByText(/Player 1/i);
     fireEvent.click(playerBtn);
 
     // Click court
@@ -120,7 +123,7 @@ describe("GameMode Component", () => {
 
     // Action dialog
     await waitFor(() => {
-      expect(screen.getByText("What happened?")).toBeInTheDocument();
+      expect(screen.getByText(/Record Action/i)).toBeInTheDocument();
     });
 
     // Non-MAKE types trigger save immediately
