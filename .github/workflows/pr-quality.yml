@@ -212,39 +212,6 @@ jobs:
         run: |
           cd backend && npm install && npm install --save-dev eslint-plugin-jsdoc @typescript-eslint/eslint-plugin @typescript-eslint/parser
           cd ../frontend && npm install && npm install --save-dev eslint-plugin-jsdoc
-        - name: Write backend ESLint config with JSDoc rules
-                    run: |
-                            cat > backend/eslint.config.mjs << 'ESLINTEOF'
-                                    import tsPlugin from "@typescript-eslint/eslint-plugin";
-                                            import tsParser from "@typescript-eslint/parser";
-                                                    import jsdocPlugin from "eslint-plugin-jsdoc";
-                                                            export default [
-                                                                      {
-                                                                                  files: ["src/**/*.ts"],
-                                                                                              ignores: ["src/__tests__/**"],
-                                                                                                          languageOptions: {
-                                                                                                                        parser: tsParser,
-                                                                                                                                      parserOptions: { project: "./tsconfig.json" }
-                                                                                                                                                  },
-                                                                                                                                                              plugins: {
-                                                                                                                                                                            "@typescript-eslint": tsPlugin,
-                                                                                                                                                                                          jsdoc: jsdocPlugin
-                                                                                                                                                                                                      },
-                                                                                                                                                                                                                  rules: {
-                                                                                                                                                                                                                                "jsdoc/require-jsdoc": ["warn", {
-                                                                                                                                                                                                                                                require: {
-                                                                                                                                                                                                                                                                  FunctionDeclaration: true,
-                                                                                                                                                                                                                                                                                    MethodDefinition: true,
-                                                                                                                                                                                                                                                                                                      ClassDeclaration: true,
-                                                                                                                                                                                                                                                                                                                        FunctionExpression: true
-                                                                                                                                                                                                                                                                                                                                        },
-                                                                                                                                                                                                                                                                                                                                                        enableFixer: false
-                                                                                                                                                                                                                                                                                                                                                                      }],
-                                                                                                                                                                                                                                                                                                                                                                                    "jsdoc/require-description": ["warn", { descriptionStyle: "body" }]
-                                                                                                                                                                                                                                                                                                                                                                                                }
-                                                                                                                                                                                                                                                                                                                                                                                                          }
-                                                                                                                                                                                                                                                                                                                                                                                                                  ];
-                                                                                                                                                                                                                                                                                                                                                                                                                          ESLINTEOF
       - name: Audit backend JSDoc coverage
         id: backend-audit
         run: |
