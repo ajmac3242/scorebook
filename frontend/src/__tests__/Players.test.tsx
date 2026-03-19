@@ -67,7 +67,8 @@ describe("Players Component", () => {
   it("handles fetch error", async () => {
     const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     (useLiveQuery as any).mockImplementation((cb) => {
-      cb().catch(() => {});
+      const res = cb();
+      if (res && res.catch) res.catch(() => {});
       return [];
     });
     (db.open as any).mockRejectedValue(new Error("Dexie error"));

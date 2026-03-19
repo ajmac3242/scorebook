@@ -151,7 +151,7 @@ describe("Games Component", () => {
 
     expect(await screen.findByText(/vs Bulls/i)).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: /Start Tracking/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Track/i }));
 
     expect(mockNavigate).toHaveBeenCalledWith("/game?gameId=g1&teamId=t1");
   });
