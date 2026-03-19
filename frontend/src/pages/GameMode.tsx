@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   Box,
   Typography,
@@ -46,16 +47,16 @@ const OPPONENT_PLAYER_ID = "OPPONENT";
 const GameMode: React.FC = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const [searchParams] = useSearchParams();
 
-  const queryParams = new URLSearchParams(window.location.search);
-  const gameIdParam = queryParams.get("gameId");
+  const gameIdParam = searchParams.get("gameId");
   const gameId = gameIdParam
     ? isNaN(Number(gameIdParam))
       ? gameIdParam
       : Number(gameIdParam)
     : "practice-session";
 
-  const teamIdParam = queryParams.get("teamId");
+  const teamIdParam = searchParams.get("teamId");
   const teamId = teamIdParam
     ? isNaN(Number(teamIdParam))
       ? teamIdParam
@@ -82,17 +83,18 @@ const GameMode: React.FC = () => {
   const [period, setPeriod] = useState(1);
   const [trackingMode, setTrackingMode] = useState<"TEAM" | "OPPONENT">("TEAM");
 
+  const teamPlayers = useLiveQuery(
+    () => (teamId ? db.teamPlayers.where("teamId").equals(teamId.toString()).toArray() : Promise.resolve([])),
+    [teamId]
+  ) || [];
+
   const players =
     useLiveQuery(async () => {
       try {
         await db.open();
         if (!teamId) return await db.players.toArray();
 
-        const tp = await db.teamPlayers
-          .where("teamId")
-          .equals(teamId.toString())
-          .toArray();
-        const playerIds = tp.map((t) =>
+        const playerIds = teamPlayers.map((t) =>
           isNaN(Number(t.playerId)) ? t.playerId : Number(t.playerId),
         );
         return await db.players
@@ -103,7 +105,7 @@ const GameMode: React.FC = () => {
         console.error("Failed to fetch players:", err);
         return [];
       }
-    }, [teamId]) || [];
+    }, [teamId, teamPlayers]) || [];
 
   const game = useLiveQuery(
     () =>
@@ -276,6 +278,21 @@ const GameMode: React.FC = () => {
     </Button>
   );
 
+  const getPlayerJersey = (pId?: number | string) => {
+    if (!pId) return "";
+    const tp = teamPlayers.find(t => t.playerId.toString() === pId.toString());
+    return tp?.jerseyNumber || "";
+  };
+
+  const getInitials = (name: string) => {
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
   return (
     <Box sx={{ pb: 4 }}>
       <Grid container spacing={3}>
@@ -366,6 +383,7 @@ const GameMode: React.FC = () => {
                   x: s.locationX || 0,
                   y: s.locationY || 0,
                   type: s.type,
+                  label: s.playerId !== OPPONENT_PLAYER_ID ? getPlayerJersey(s.playerId) : undefined,
                   color:
                     s.playerId === OPPONENT_PLAYER_ID
                       ? theme.palette.secondary.main
@@ -413,9 +431,10 @@ const GameMode: React.FC = () => {
                             height: 24,
                             fontSize: "0.75rem",
                             mr: 1,
+                            bgcolor: p.avatarColor || "grey.500",
                           }}
                         >
-                          {p.defaultNumber}
+                          {getPlayerJersey(p.id)}
                         </Avatar>
                         {p.name}
                       </Button>

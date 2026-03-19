@@ -20,6 +20,7 @@ import {
   Tabs,
   Chip,
   useTheme,
+  Avatar,
 } from "@mui/material";
 import BasketballCourt from "../components/BasketballCourt";
 import { db } from "../db";
@@ -59,6 +60,11 @@ const GameStats: React.FC = () => {
         : Promise.resolve(undefined),
     [gameId],
   );
+
+  const teamPlayers = useLiveQuery(
+    () => (game?.teamId ? db.teamPlayers.where("teamId").equals(game.teamId.toString()).toArray() : Promise.resolve([])),
+    [game?.teamId]
+  ) || [];
 
   const players = useLiveQuery(() => db.players.toArray()) || [];
 
@@ -160,6 +166,11 @@ const GameStats: React.FC = () => {
     setSelectedPlayerId(marker.playerId || "ALL");
   };
 
+  const getPlayerJersey = (pId: number | string) => {
+    const tp = teamPlayers.find(t => t.playerId.toString() === pId.toString());
+    return tp?.jerseyNumber || "";
+  };
+
   return (
     <Box sx={{ pb: 4 }}>
       <Typography variant="h4" sx={{ fontFamily: "var(--serif)", mb: 1 }}>
@@ -213,7 +224,10 @@ const GameStats: React.FC = () => {
                     .filter((p) => p.id !== "OPPONENT")
                     .map((row: any) => (
                       <TableRow key={row.id}>
-                        <TableCell sx={{ fontWeight: 600 }}>
+                        <TableCell sx={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Avatar sx={{ width: 24, height: 24, fontSize: '0.75rem', bgcolor: players.find(p => p.id === row.id)?.avatarColor || 'grey.500' }}>
+                            {getPlayerJersey(row.id)}
+                          </Avatar>
                           {row.name}
                         </TableCell>
                         <TableCell align="right">{row.points}</TableCell>
@@ -313,8 +327,7 @@ const GameStats: React.FC = () => {
                     x: s.locationX || 0,
                     y: s.locationY || 0,
                     type: s.type,
-                    label: players.find((p) => p.id === s.playerId)
-                      ?.defaultNumber,
+                    label: s.playerId !== OPPONENT_PLAYER_ID ? getPlayerJersey(s.playerId) : undefined,
                     playerId: s.playerId,
                   }))}
                 onMarkerClick={handleMarkerClick}

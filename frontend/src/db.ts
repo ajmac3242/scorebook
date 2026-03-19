@@ -18,7 +18,7 @@ export interface Team {
 export interface Player {
   id?: number;
   name: string;
-  defaultNumber: string;
+  avatarColor?: string;
   synced?: number;
 }
 
@@ -61,11 +61,11 @@ export class AppDatabase extends Dexie {
 
   constructor() {
     super("BasketballStatsDB");
-    this.version(2).stores({
+    this.version(4).stores({
       seasons: "++id, synced",
       teams: "++id, seasonId, synced",
       players: "++id, synced",
-      teamPlayers: "++id, teamId, playerId, synced",
+      teamPlayers: "++id, [teamId+playerId], teamId, playerId, synced",
       games: "++id, teamId, synced",
       stats: "++id, gameId, playerId, synced",
     });
