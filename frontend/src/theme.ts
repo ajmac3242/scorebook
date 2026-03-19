@@ -3,38 +3,38 @@ import { createTheme } from "@mui/material/styles";
 const theme = createTheme({
   palette: {
     primary: {
-      main: "#2D2D2D", // Charcoal
+      main: "#154C56", // Deep Ocean
     },
     secondary: {
-      main: "#757575", // Medium grey
+      main: "#D9B382", // Golden Dune
     },
     background: {
-      default: "#FFFDF5", // Ivory/Cream
-      paper: "#FFFDF5", // Keep paper same for Moleskine feel
+      default: "#F5F5F5", // Light Grey
+      paper: "#FFFFFF",
     },
     text: {
-      primary: "#2D2D2D",
-      secondary: "#5F5F5F",
+      primary: "#1F2D33", // Midnight
+      secondary: "#5A7381", // Blue Ash
     },
   },
   typography: {
     fontFamily: '"EB Garamond", "Playfair Display", "Georgia", serif',
-    h1: { fontWeight: 600, color: "#2D2D2D" },
-    h2: { fontWeight: 600, color: "#2D2D2D" },
-    h3: { fontWeight: 600, color: "#2D2D2D" },
+    h1: { fontWeight: 600, color: "#1F2D33" },
+    h2: { fontWeight: 600, color: "#1F2D33" },
+    h3: { fontWeight: 600, color: "#1F2D33" },
     h4: {
       fontWeight: 500,
-      color: "#2D2D2D",
+      color: "#1F2D33",
       fontFamily: "system-ui, sans-serif",
     },
     h5: {
       fontWeight: 500,
-      color: "#2D2D2D",
+      color: "#1F2D33",
       fontFamily: "system-ui, sans-serif",
     },
     h6: {
       fontWeight: 500,
-      color: "#2D2D2D",
+      color: "#1F2D33",
       fontFamily: "system-ui, sans-serif",
     },
     button: {
@@ -50,7 +50,7 @@ const theme = createTheme({
     },
   },
   shape: {
-    borderRadius: 4, // More squared/elegant look
+    borderRadius: 8, // Standard Material Design rounding
   },
   components: {
     MuiCssBaseline: {
@@ -58,89 +58,69 @@ const theme = createTheme({
         @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&display=swap');
 
         :root {
-          --moleskine-ivory: #FFFDF5;
-          --moleskine-charcoal: #2D2D2D;
-          --moleskine-grey: #D1D1D1;
+          --palette-deep-ocean: #154C56;
+          --palette-golden-dune: #D9B382;
+          --palette-midnight: #1F2D33;
+          --palette-light-grey: #F5F5F5;
           --serif: "EB Garamond", serif;
           --sans: system-ui, -apple-system, sans-serif;
         }
 
         body {
-          background-color: var(--moleskine-ivory);
-          background-image: radial-gradient(var(--moleskine-grey) 0.5px, transparent 0.5px);
-          background-size: 20px 20px;
+          background-color: var(--palette-light-grey);
+          background-image: radial-gradient(#D1D1D1 0.5px, transparent 0.5px);
+          background-size: 24px 24px;
           background-attachment: fixed;
         }
 
-        .moleskine-card {
-          background-color: #FFFFFF !important;
-          border: 1px solid var(--moleskine-grey) !important;
-          box-shadow: 2px 2px 0px rgba(0,0,0,0.05) !important;
-          border-radius: 2px !important;
-          position: relative;
+        /* Small interactions for icons */
+        .MuiIconButton-root {
+          transition: transform 0.2s ease-in-out, background-color 0.2s;
+        }
+        .MuiIconButton-root:hover {
+          transform: scale(1.1);
+        }
+        .MuiIconButton-root:active {
+          transform: scale(0.95);
         }
 
-        .moleskine-card::before {
-          content: "";
-          position: absolute;
-          left: 40px;
-          top: 0;
-          bottom: 0;
-          width: 1px;
-          background-color: rgba(255, 0, 0, 0.1);
-          pointer-events: none;
+        /* Small interactions for buttons */
+        .MuiButton-root {
+          transition: transform 0.1s ease-in-out, box-shadow 0.2s;
+        }
+        .MuiButton-root:hover {
+          transform: translateY(-1px);
+        }
+        .MuiButton-root:active {
+          transform: translateY(1px);
         }
       `,
     },
     MuiButton: {
       styleOverrides: {
         root: {
-          borderRadius: 2,
-          padding: "6px 20px",
+          padding: "8px 22px",
           boxShadow: "none",
-          border: "1px solid #2D2D2D",
           "&:hover": {
-            boxShadow: "2px 2px 0px rgba(0,0,0,0.1)",
-            backgroundColor: "rgba(0,0,0,0.02)",
+            boxShadow: "0px 2px 4px rgba(0,0,0,0.1)",
           },
-        },
-        containedPrimary: {
-          backgroundColor: "#2D2D2D",
-          color: "#FFFDF5",
-          "&:hover": {
-            backgroundColor: "#454545",
-          },
-        },
-        outlinedPrimary: {
-          borderColor: "#2D2D2D",
-          color: "#2D2D2D",
         },
       },
     },
     MuiCard: {
       styleOverrides: {
         root: {
-          borderRadius: 2,
-          border: "1px solid #D1D1D1",
-          boxShadow: "2px 2px 0px rgba(0,0,0,0.05)",
-          backgroundColor: "#FFFFFF",
+          boxShadow: "0px 4px 12px rgba(0,0,0,0.05)",
+          border: "1px solid rgba(0,0,0,0.05)",
         },
       },
     },
     MuiAppBar: {
       styleOverrides: {
         root: {
-          backgroundColor: "#FFFDF5",
-          color: "#2D2D2D",
-          boxShadow: "none",
-          borderBottom: "1px solid #D1D1D1",
-        },
-      },
-    },
-    MuiPaper: {
-      styleOverrides: {
-        root: {
           backgroundColor: "#FFFFFF",
+          color: "#1F2D33",
+          boxShadow: "0px 1px 3px rgba(0,0,0,0.1)",
         },
       },
     },
