@@ -179,4 +179,31 @@ describe("Lambda Handler", () => {
     expect(response.statusCode).toBe(500);
     expect(JSON.parse(response.body).message).toBe("DDB Error");
   });
+
+  describe("Edge Cases", () => {
+    it("POST /seasons with malformed JSON returns 500", async () => {
+      const event = {
+        requestContext: { http: { method: "POST", path: "/seasons" } },
+        body: "invalid-json",
+      };
+      const response = await handler(event);
+      expect(response.statusCode).toBe(500);
+    });
+
+    it("GET /teams without seasonId returns empty if DDB query handles it", async () => {
+      // The code does: const seasonId = event.queryStringParameters?.seasonId;
+      // then queries with SEASON#undefined if missing.
+      ddbMock.on(QueryCommand).resolves({ Items: [] });
+      const event = createEvent("GET", "/teams");
+      const response = await handler(event);
+      expect(response.statusCode).toBe(200);
+      expect(JSON.parse(response.body)).toEqual([]);
+    });
+
+    it("POST /teams missing body returns 500", async () => {
+      const event = createEvent("POST", "/teams", null);
+      const response = await handler(event);
+      expect(response.statusCode).toBe(500);
+    });
+  });
 });
