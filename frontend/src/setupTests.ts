@@ -54,6 +54,7 @@ vi.mock("./db", () => ({
       limit: vi.fn().mockReturnThis(),
       toArray: vi.fn(),
       add: vi.fn(),
+      delete: vi.fn(),
     },
   },
 }));

@@ -20,6 +20,7 @@ import {
 import {
   AddCircleOutline,
   RemoveCircleOutline,
+  Undo as UndoIcon,
   RadioButtonChecked,
   History,
   Person,
@@ -48,6 +49,13 @@ const GameMode: React.FC = () => {
       : Number(gameIdParam)
     : "practice-session";
 
+  const teamIdParam = queryParams.get("teamId");
+  const teamId = teamIdParam
+    ? isNaN(Number(teamIdParam))
+      ? teamIdParam
+      : Number(teamIdParam)
+    : null;
+
   const [selectedX, setSelectedX] = useState<number | null>(null);
   const [selectedY, setSelectedY] = useState<number | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -64,16 +72,31 @@ const GameMode: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editingStatId, setEditingStatId] = useState<number | null>(null);
 
+  const [onCourtIds, setOnCourtIds] = useState<Set<number | string>>(new Set());
+  const [period, setPeriod] = useState(1);
+
   const players =
     useLiveQuery(async () => {
       try {
         await db.open();
-        return await db.players.toArray();
+        if (!teamId) return await db.players.toArray();
+
+        const tp = await db.teamPlayers
+          .where("teamId")
+          .equals(teamId.toString())
+          .toArray();
+        const playerIds = tp.map((t) =>
+          isNaN(Number(t.playerId)) ? t.playerId : Number(t.playerId),
+        );
+        return await db.players
+          .where("id")
+          .anyOf(playerIds as any)
+          .toArray();
       } catch (err) {
         console.error("Failed to fetch players:", err);
         return [];
       }
-    }) || [];
+    }, [teamId]) || [];
 
   const recentStats =
     useLiveQuery(async () => {
@@ -102,6 +125,21 @@ const GameMode: React.FC = () => {
         return [];
       }
     }, [gameId]) || [];
+
+  const currentScore = gameStats.reduce((sum, s) => sum + (s.points || 0), 0);
+
+  const handleUndo = async () => {
+    if (recentStats.length === 0) return;
+    const lastStat = recentStats[0];
+    if (lastStat.id) {
+      try {
+        await db.open();
+        await db.stats.delete(lastStat.id);
+      } catch (err) {
+        console.error("Failed to undo stat:", err);
+      }
+    }
+  };
 
   const handleCourtClick = (x: number, y: number) => {
     setSelectedX(x);
@@ -147,6 +185,38 @@ const GameMode: React.FC = () => {
     setStatType(null);
     setIsEditing(false);
     setEditingStatId(null);
+  };
+
+  const toggleOnCourt = async (playerId: number | string) => {
+    const newOnCourt = new Set(onCourtIds);
+    const isNowOnCourt = !newOnCourt.has(playerId);
+
+    if (isNowOnCourt) {
+      if (newOnCourt.size >= 5) {
+        // Automatically bench someone if already 5? For now just return
+        // alert("Max 5 players on court");
+        // return;
+      }
+      newOnCourt.add(playerId);
+    } else {
+      newOnCourt.delete(playerId);
+    }
+
+    setOnCourtIds(newOnCourt);
+
+    // Record sub event
+    try {
+      await db.open();
+      await db.stats.add({
+        gameId: gameId,
+        playerId: playerId,
+        type: isNowOnCourt ? "SUB_IN" : "SUB_OUT",
+        timestamp: new Date().toISOString(),
+        synced: 0,
+      });
+    } catch (err) {
+      console.error("Failed to record sub event:", err);
+    }
   };
 
   const handleDeleteStat = async () => {
@@ -209,9 +279,25 @@ const GameMode: React.FC = () => {
                 px: 1,
               }}
             >
-              <Typography variant="h6" sx={{ fontFamily: "var(--serif)" }}>
-                Live Game Tracker
-              </Typography>
+              <Box>
+                <Typography variant="h6" sx={{ fontFamily: "var(--serif)" }}>
+                  Live Game Tracker
+                </Typography>
+                <Stack direction="row" spacing={2} sx={{ mt: 0.5 }}>
+                  <Chip
+                    label={`Score: ${currentScore}`}
+                    size="small"
+                    color="primary"
+                    sx={{ fontWeight: 'bold' }}
+                  />
+                  <Chip
+                    label={`Period: ${period}`}
+                    size="small"
+                    onClick={() => setPeriod(p => p < 4 ? p + 1 : 1)}
+                    variant="outlined"
+                  />
+                </Stack>
+              </Box>
               {selectedPlayerId && (
                 <Chip
                   label={`Recording for: ${players?.find((p) => p.id?.toString() === selectedPlayerId)?.name || "Unknown"}`}
@@ -220,7 +306,17 @@ const GameMode: React.FC = () => {
                 />
               )}
             </Box>
-            <Box sx={{ mb: 2, display: "flex", gap: 1, flexWrap: "wrap" }}>
+            <Box sx={{ mb: 2, display: "flex", gap: 1, flexWrap: "wrap", alignItems: 'center' }}>
+              <Button
+                size="small"
+                variant="outlined"
+                startIcon={<UndoIcon />}
+                onClick={handleUndo}
+                disabled={recentStats.length === 0}
+                sx={{ mr: 1, borderColor: '#D1D1D1', color: '#2D2D2D' }}
+              >
+                Undo
+              </Button>
               {[
                 "ALL",
                 "MAKE",
@@ -278,53 +374,72 @@ const GameMode: React.FC = () => {
               <Typography
                 variant="subtitle2"
                 gutterBottom
-                sx={{ fontWeight: 600 }}
+                sx={{ fontWeight: 600, display: "flex", justifyContent: "space-between" }}
               >
                 Active Lineup
+                <Typography variant="caption" color="text.secondary">
+                  {onCourtIds.size}/5 On Court
+                </Typography>
               </Typography>
               <Box
                 sx={{
                   display: "grid",
-                  gridTemplateColumns: "repeat(2, 1fr)",
+                  gridTemplateColumns: "repeat(1, 1fr)",
                   gap: 1,
                 }}
               >
-                {players.map((p) => (
-                  <Button
-                    key={p.id}
-                    variant={
-                      selectedPlayerId === p.id ? "contained" : "outlined"
-                    }
-                    onClick={() => setSelectedPlayerId(p.id ?? null)}
-                    sx={{
-                      justifyContent: "flex-start",
-                      px: 1,
-                      py: 1,
-                      borderColor: "#D1D1D1",
-                      backgroundColor:
-                        selectedPlayerId === p.id ? "#2D2D2D" : "transparent",
-                      color: selectedPlayerId === p.id ? "#FFFDF5" : "#2D2D2D",
-                    }}
-                  >
-                    <Avatar
-                      sx={{
-                        width: 24,
-                        height: 24,
-                        fontSize: "0.75rem",
-                        mr: 1,
-                        bgcolor:
-                          selectedPlayerId === p.id ? "#FFFDF5" : "#2D2D2D",
-                        color:
-                          selectedPlayerId === p.id ? "#2D2D2D" : "#FFFDF5",
-                      }}
-                    >
-                      {p.defaultNumber}
-                    </Avatar>
-                    <Typography variant="body2" noWrap>
-                      {p.name}
-                    </Typography>
-                  </Button>
-                ))}
+                {players
+                  .sort((a, b) => {
+                    const aOn = onCourtIds.has(a.id!) ? 1 : 0;
+                    const bOn = onCourtIds.has(b.id!) ? 1 : 0;
+                    return bOn - aOn;
+                  })
+                  .map((p) => (
+                    <Box key={p.id} sx={{ display: "flex", gap: 1 }}>
+                      <Button
+                        variant={
+                          selectedPlayerId === p.id ? "contained" : "outlined"
+                        }
+                        onClick={() => setSelectedPlayerId(p.id ?? null)}
+                        sx={{
+                          flexGrow: 1,
+                          justifyContent: "flex-start",
+                          px: 1,
+                          py: 1,
+                          borderColor: onCourtIds.has(p.id!) ? "primary.main" : "#D1D1D1",
+                          backgroundColor:
+                            selectedPlayerId === p.id ? "#2D2D2D" : "transparent",
+                          color: selectedPlayerId === p.id ? "#FFFDF5" : "#2D2D2D",
+                        }}
+                      >
+                        <Avatar
+                          sx={{
+                            width: 24,
+                            height: 24,
+                            fontSize: "0.75rem",
+                            mr: 1,
+                            bgcolor:
+                              selectedPlayerId === p.id ? "#FFFDF5" : "#2D2D2D",
+                            color:
+                              selectedPlayerId === p.id ? "#2D2D2D" : "#FFFDF5",
+                          }}
+                        >
+                          {p.defaultNumber}
+                        </Avatar>
+                        <Typography variant="body2" noWrap>
+                          {p.name}
+                        </Typography>
+                      </Button>
+                      <IconButton
+                        size="small"
+                        onClick={() => toggleOnCourt(p.id!)}
+                        color={onCourtIds.has(p.id!) ? "primary" : "default"}
+                        sx={{ border: "1px solid", borderColor: "divider" }}
+                      >
+                        {onCourtIds.has(p.id!) ? <RemoveCircleOutline /> : <AddCircleOutline />}
+                      </IconButton>
+                    </Box>
+                  ))}
               </Box>
             </Paper>
 

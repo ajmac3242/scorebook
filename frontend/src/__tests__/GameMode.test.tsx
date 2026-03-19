@@ -85,6 +85,21 @@ describe("GameMode Component", () => {
     });
   });
 
+  it("undoes the last stat", async () => {
+    render(
+      <BrowserRouter>
+        <GameMode />
+      </BrowserRouter>,
+    );
+
+    const undoBtn = screen.getByRole("button", { name: /undo/i });
+    fireEvent.click(undoBtn);
+
+    await waitFor(() => {
+      expect(db.stats.delete).toHaveBeenCalledWith("s1");
+    });
+  });
+
   it("records a non-MAKE stat", async () => {
     render(
       <BrowserRouter>
