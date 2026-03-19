@@ -1,0 +1,267 @@
+import React, { useState } from "react";
+import {
+  Box,
+  Drawer,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  IconButton,
+  Typography,
+  Divider,
+  Tooltip,
+  useTheme,
+  useMediaQuery,
+} from "@mui/material";
+import {
+  Menu as MenuIcon,
+  ChevronLeft as ChevronLeftIcon,
+  Dashboard as DashboardIcon,
+  EventNote as SeasonsIcon,
+  People as PlayersIcon,
+  Groups as TeamsIcon,
+  SportsBasketball as GamesIcon,
+  Logout as LogoutIcon,
+  Person as PersonIcon,
+  SportsBasketball as BasketballIcon,
+} from "@mui/icons-material";
+import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+
+const drawerWidth = 240;
+const collapsedDrawerWidth = 72;
+
+const Sidebar: React.FC = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const { logout } = useAuth();
+  const location = useLocation();
+  const [open, setOpen] = useState(!isMobile);
+
+  const toggleDrawer = () => {
+    setOpen(!open);
+  };
+
+  const menuItems = [
+    { text: "Dashboard", icon: <DashboardIcon />, path: "/" },
+    { text: "Seasons", icon: <SeasonsIcon />, path: "/seasons" },
+    { text: "Players", icon: <PlayersIcon />, path: "/players" },
+    { text: "Teams", icon: <TeamsIcon />, path: "/teams" },
+    { text: "Games", icon: <GamesIcon />, path: "/games" },
+  ];
+
+  const drawerContent = (
+    <Box
+      sx={{
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        bgcolor: "primary.main",
+        color: "primary.contrastText",
+      }}
+    >
+      <Box
+        sx={{
+          p: 2,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: open ? "space-between" : "center",
+          minHeight: 64,
+        }}
+      >
+        {open && (
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <BasketballIcon sx={{ color: "secondary.main" }} />
+            <Typography variant="h6" noWrap sx={{ fontFamily: "var(--serif)" }}>
+              Stats
+            </Typography>
+          </Box>
+        )}
+        {!open && <BasketballIcon sx={{ color: "secondary.main" }} />}
+        {open && !isMobile && (
+          <IconButton onClick={toggleDrawer} sx={{ color: "inherit" }}>
+            <ChevronLeftIcon />
+          </IconButton>
+        )}
+      </Box>
+
+      <Divider sx={{ bgcolor: "rgba(255,255,255,0.1)" }} />
+
+      <List sx={{ flexGrow: 1, px: 1 }}>
+        {menuItems.map((item) => (
+          <ListItem
+            key={item.text}
+            disablePadding
+            sx={{ display: "block", mb: 0.5 }}
+          >
+            <Tooltip title={!open ? item.text : ""} placement="right">
+              <ListItemButton
+                component={Link}
+                to={item.path}
+                sx={{
+                  minHeight: 48,
+                  justifyContent: open ? "initial" : "center",
+                  px: 2.5,
+                  borderRadius: 1,
+                  bgcolor:
+                    location.pathname === item.path
+                      ? "rgba(255,255,255,0.1)"
+                      : "transparent",
+                  "&:hover": {
+                    bgcolor: "rgba(255,255,255,0.2)",
+                  },
+                }}
+              >
+                <ListItemIcon
+                  sx={{
+                    minWidth: 0,
+                    mr: open ? 3 : "auto",
+                    justifyContent: "center",
+                    color:
+                      location.pathname === item.path
+                        ? "secondary.main"
+                        : "inherit",
+                  }}
+                >
+                  {item.icon}
+                </ListItemIcon>
+                {open && (
+                  <ListItemText primary={item.text} sx={{ opacity: 1 }} />
+                )}
+              </ListItemButton>
+            </Tooltip>
+          </ListItem>
+        ))}
+      </List>
+
+      <Divider sx={{ bgcolor: "rgba(255,255,255,0.1)" }} />
+
+      <List sx={{ px: 1 }}>
+        <ListItem disablePadding sx={{ display: "block", mb: 0.5 }}>
+          <ListItemButton
+            sx={{
+              minHeight: 48,
+              justifyContent: open ? "initial" : "center",
+              px: 2.5,
+              borderRadius: 1,
+            }}
+          >
+            <ListItemIcon
+              sx={{
+                minWidth: 0,
+                mr: open ? 3 : "auto",
+                justifyContent: "center",
+                color: "inherit",
+              }}
+            >
+              <PersonIcon />
+            </ListItemIcon>
+            {open && <ListItemText primary="Profile" />}
+          </ListItemButton>
+        </ListItem>
+        <ListItem disablePadding sx={{ display: "block" }}>
+          <ListItemButton
+            onClick={logout}
+            sx={{
+              minHeight: 48,
+              justifyContent: open ? "initial" : "center",
+              px: 2.5,
+              borderRadius: 1,
+              "&:hover": {
+                bgcolor: "error.main",
+              },
+            }}
+          >
+            <ListItemIcon
+              sx={{
+                minWidth: 0,
+                mr: open ? 3 : "auto",
+                justifyContent: "center",
+                color: "inherit",
+              }}
+            >
+              <LogoutIcon />
+            </ListItemIcon>
+            {open && <ListItemText primary="Logout" />}
+          </ListItemButton>
+        </ListItem>
+      </List>
+
+      {!open && !isMobile && (
+        <IconButton
+          onClick={toggleDrawer}
+          sx={{
+            color: "inherit",
+            alignSelf: "center",
+            mb: 2,
+            bgcolor: "rgba(255,255,255,0.05)",
+          }}
+        >
+          <MenuIcon />
+        </IconButton>
+      )}
+    </Box>
+  );
+
+  if (isMobile) {
+    return (
+      <>
+        <IconButton
+          onClick={toggleDrawer}
+          sx={{
+            position: "fixed",
+            bottom: 16,
+            left: 16,
+            zIndex: theme.zIndex.drawer + 1,
+            bgcolor: "primary.main",
+            color: "white",
+            "&:hover": { bgcolor: "primary.dark" },
+          }}
+        >
+          <MenuIcon />
+        </IconButton>
+        <Drawer
+          anchor="bottom"
+          open={open}
+          onClose={toggleDrawer}
+          PaperProps={{
+            sx: {
+              borderTopLeftRadius: 16,
+              borderTopRightRadius: 16,
+              height: "auto",
+              maxHeight: "80%",
+            },
+          }}
+        >
+          {drawerContent}
+        </Drawer>
+      </>
+    );
+  }
+
+  return (
+    <Drawer
+      variant="permanent"
+      open={open}
+      sx={{
+        width: open ? drawerWidth : collapsedDrawerWidth,
+        flexShrink: 0,
+        "& .MuiDrawer-paper": {
+          width: open ? drawerWidth : collapsedDrawerWidth,
+          boxSizing: "border-box",
+          transition: theme.transitions.create("width", {
+            easing: theme.transitions.easing.sharp,
+            duration: theme.transitions.duration.enteringScreen,
+          }),
+          overflowX: "hidden",
+          border: "none",
+        },
+      }}
+    >
+      {drawerContent}
+    </Drawer>
+  );
+};
+
+export default Sidebar;

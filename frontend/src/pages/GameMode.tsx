@@ -16,6 +16,8 @@ import {
   Stack,
   useTheme,
   useMediaQuery,
+  ToggleButton,
+  ToggleButtonGroup,
 } from "@mui/material";
 import {
   AddCircleOutline,
@@ -31,15 +33,19 @@ import {
   SwapHoriz,
   Edit,
   Delete,
+  Shield,
+  FlashOn,
 } from "@mui/icons-material";
 import BasketballCourt from "../components/BasketballCourt";
 import { db, type StatEvent } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
+import { ACTION_TYPES } from "../constants/stats";
+
+const OPPONENT_PLAYER_ID = "OPPONENT";
 
 const GameMode: React.FC = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const isIPad = useMediaQuery(theme.breakpoints.between("sm", "md"));
 
   const queryParams = new URLSearchParams(window.location.search);
   const gameIdParam = queryParams.get("gameId");
@@ -74,6 +80,7 @@ const GameMode: React.FC = () => {
 
   const [onCourtIds, setOnCourtIds] = useState<Set<number | string>>(new Set());
   const [period, setPeriod] = useState(1);
+  const [trackingMode, setTrackingMode] = useState<"TEAM" | "OPPONENT">("TEAM");
 
   const players =
     useLiveQuery(async () => {
@@ -97,6 +104,14 @@ const GameMode: React.FC = () => {
         return [];
       }
     }, [teamId]) || [];
+
+  const game = useLiveQuery(
+    () =>
+      gameId !== undefined
+        ? db.games.get(gameId as any)
+        : Promise.resolve(undefined),
+    [gameId],
+  );
 
   const recentStats =
     useLiveQuery(async () => {
@@ -126,7 +141,12 @@ const GameMode: React.FC = () => {
       }
     }, [gameId]) || [];
 
-  const currentScore = gameStats.reduce((sum, s) => sum + (s.points || 0), 0);
+  const currentScore = gameStats
+    .filter((s) => s.playerId !== OPPONENT_PLAYER_ID)
+    .reduce((sum, s) => sum + (s.points || 0), 0);
+  const opponentScore = gameStats
+    .filter((s) => s.playerId === OPPONENT_PLAYER_ID)
+    .reduce((sum, s) => sum + (s.points || 0), 0);
 
   const handleUndo = async () => {
     if (recentStats.length === 0) return;
@@ -144,13 +164,10 @@ const GameMode: React.FC = () => {
   const handleCourtClick = (x: number, y: number) => {
     setSelectedX(x);
     setSelectedY(y);
-    // If player is already selected, move to stat selection
-    if (selectedPlayerId) {
-      setDialogOpen(true);
-    } else {
-      // Maybe show a hint to select player first or just open dialog
-      setDialogOpen(true);
+    if (trackingMode === "OPPONENT") {
+      setSelectedPlayerId(OPPONENT_PLAYER_ID);
     }
+    setDialogOpen(true);
   };
 
   const handleSaveStat = async (currentType?: string) => {
@@ -163,14 +180,14 @@ const GameMode: React.FC = () => {
         await db.stats.update(editingStatId, {
           playerId: selectedPlayerId,
           type: typeToSave,
-          points: typeToSave === "MAKE" ? points : 0,
+          points: typeToSave === ACTION_TYPES.MAKE ? points : 0,
         });
       } else {
         const newStat: StatEvent = {
           gameId: gameId,
           playerId: selectedPlayerId,
           type: typeToSave,
-          points: typeToSave === "MAKE" ? points : 0,
+          points: typeToSave === ACTION_TYPES.MAKE ? points : 0,
           locationX: selectedX || 0,
           locationY: selectedY || 0,
           timestamp: new Date().toISOString(),
@@ -185,6 +202,7 @@ const GameMode: React.FC = () => {
     setStatType(null);
     setIsEditing(false);
     setEditingStatId(null);
+    if (trackingMode === "OPPONENT") setSelectedPlayerId(null);
   };
 
   const toggleOnCourt = async (playerId: number | string) => {
@@ -192,11 +210,6 @@ const GameMode: React.FC = () => {
     const isNowOnCourt = !newOnCourt.has(playerId);
 
     if (isNowOnCourt) {
-      if (newOnCourt.size >= 5) {
-        // Automatically bench someone if already 5? For now just return
-        // alert("Max 5 players on court");
-        // return;
-      }
       newOnCourt.add(playerId);
     } else {
       newOnCourt.delete(playerId);
@@ -204,13 +217,12 @@ const GameMode: React.FC = () => {
 
     setOnCourtIds(newOnCourt);
 
-    // Record sub event
     try {
       await db.open();
       await db.stats.add({
         gameId: gameId,
         playerId: playerId,
-        type: isNowOnCourt ? "SUB_IN" : "SUB_OUT",
+        type: isNowOnCourt ? ACTION_TYPES.SUB_IN : ACTION_TYPES.SUB_OUT,
         timestamp: new Date().toISOString(),
         synced: 0,
       });
@@ -242,21 +254,21 @@ const GameMode: React.FC = () => {
     setDialogOpen(true);
   };
 
-  const QuickAction = ({ type, label, icon: Icon, color }: any) => (
+  const QuickAction = ({ type, label, icon: Icon }: any) => (
     <Button
       variant={statType === type ? "contained" : "outlined"}
       color="inherit"
       onClick={() => {
         setStatType(type);
-        if (type !== "MAKE") handleSaveStat(type);
+        if (type !== ACTION_TYPES.MAKE) handleSaveStat(type);
       }}
       sx={{
         flexDirection: "column",
         py: 2,
         minWidth: 80,
         borderColor: "#D1D1D1",
-        backgroundColor: statType === type ? "#2D2D2D" : "transparent",
-        color: statType === type ? "#FFFDF5" : "#2D2D2D",
+        backgroundColor: statType === type ? "primary.main" : "transparent",
+        color: statType === type ? "white" : "text.primary",
       }}
     >
       <Icon sx={{ mb: 1 }} />
@@ -267,45 +279,49 @@ const GameMode: React.FC = () => {
   return (
     <Box sx={{ pb: 4 }}>
       <Grid container spacing={3}>
-        {/* Court Area */}
         <Grid item xs={12} md={8}>
-          <Paper className="moleskine-card" sx={{ p: 1, position: "relative" }}>
+          <Paper className="moleskine-card" sx={{ p: 2 }}>
             <Box
               sx={{
                 mb: 2,
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-                px: 1,
               }}
             >
               <Box>
                 <Typography variant="h6" sx={{ fontFamily: "var(--serif)" }}>
-                  Live Game Tracker
+                  {game?.opponent ? `vs ${game.opponent}` : "Live Tracker"}
                 </Typography>
-                <Stack direction="row" spacing={2} sx={{ mt: 0.5 }}>
+                <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
                   <Chip
-                    label={`Score: ${currentScore}`}
-                    size="small"
+                    label={`TEAM: ${currentScore}`}
                     color="primary"
                     sx={{ fontWeight: "bold" }}
                   />
                   <Chip
-                    label={`Period: ${period}`}
-                    size="small"
+                    label={`OPP: ${opponentScore}`}
+                    color="secondary"
+                    sx={{ fontWeight: "bold" }}
+                  />
+                  <Chip
+                    label={`P: ${period}`}
                     onClick={() => setPeriod((p) => (p < 4 ? p + 1 : 1))}
                     variant="outlined"
                   />
                 </Stack>
               </Box>
-              {selectedPlayerId && (
-                <Chip
-                  label={`Recording for: ${players?.find((p) => p.id?.toString() === selectedPlayerId)?.name || "Unknown"}`}
-                  onDelete={() => setSelectedPlayerId(null)}
-                  color="primary"
-                />
-              )}
+              <ToggleButtonGroup
+                value={trackingMode}
+                exclusive
+                onChange={(_, val) => val && setTrackingMode(val)}
+                size="small"
+              >
+                <ToggleButton value="TEAM">Our Team</ToggleButton>
+                <ToggleButton value="OPPONENT">Opponent</ToggleButton>
+              </ToggleButtonGroup>
             </Box>
+
             <Box
               sx={{
                 mb: 2,
@@ -321,32 +337,24 @@ const GameMode: React.FC = () => {
                 startIcon={<UndoIcon />}
                 onClick={handleUndo}
                 disabled={recentStats.length === 0}
-                sx={{ mr: 1, borderColor: "#D1D1D1", color: "#2D2D2D" }}
+                sx={{ mr: 1 }}
               >
                 Undo
               </Button>
-              {[
-                "ALL",
-                "MAKE",
-                "MISS",
-                "REBOUND",
-                "ASSIST",
-                "STEAL",
-                "TURNOVER",
-              ].map((type) => (
-                <Chip
-                  key={type}
-                  label={type}
-                  onClick={() => setMarkerFilter(type)}
-                  variant={markerFilter === type ? "filled" : "outlined"}
-                  size="small"
-                  sx={{
-                    bgcolor: markerFilter === type ? "#2D2D2D" : "transparent",
-                    color: markerFilter === type ? "#FFFDF5" : "#2D2D2D",
-                  }}
-                />
-              ))}
+              {["ALL", "MAKE", "MISS", "REBOUND", "ASSIST", "STEAL"].map(
+                (type) => (
+                  <Chip
+                    key={type}
+                    label={type}
+                    onClick={() => setMarkerFilter(type)}
+                    variant={markerFilter === type ? "filled" : "outlined"}
+                    size="small"
+                    color={markerFilter === type ? "primary" : "default"}
+                  />
+                ),
+              )}
             </Box>
+
             <BasketballCourt
               onCoordClick={handleCourtClick}
               markers={gameStats
@@ -358,75 +366,45 @@ const GameMode: React.FC = () => {
                   x: s.locationX || 0,
                   y: s.locationY || 0,
                   type: s.type,
+                  color:
+                    s.playerId === OPPONENT_PLAYER_ID
+                      ? theme.palette.secondary.main
+                      : undefined,
                 }))}
             />
-            <Typography
-              variant="caption"
-              sx={{
-                mt: 1,
-                display: "block",
-                textAlign: "center",
-                color: "text.secondary",
-              }}
-            >
-              Tap court to record event location
-            </Typography>
           </Paper>
         </Grid>
 
-        {/* Sidebar / Controls */}
         <Grid item xs={12} md={4}>
           <Stack spacing={3}>
-            {/* Player Selection */}
-            <Paper className="moleskine-card">
-              <Typography
-                variant="subtitle2"
-                gutterBottom
-                sx={{
-                  fontWeight: 600,
-                  display: "flex",
-                  justifyContent: "space-between",
-                }}
-              >
-                Active Lineup
-                <Typography variant="caption" color="text.secondary">
-                  {onCourtIds.size}/5 On Court
+            {trackingMode === "TEAM" ? (
+              <Paper className="moleskine-card">
+                <Typography
+                  variant="subtitle2"
+                  gutterBottom
+                  sx={{ fontWeight: 600 }}
+                >
+                  Team Roster
                 </Typography>
-              </Typography>
-              <Box
-                sx={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(1, 1fr)",
-                  gap: 1,
-                }}
-              >
-                {players
-                  .sort((a, b) => {
-                    const aOn = onCourtIds.has(a.id!) ? 1 : 0;
-                    const bOn = onCourtIds.has(b.id!) ? 1 : 0;
-                    return bOn - aOn;
-                  })
-                  .map((p) => (
+                <Box sx={{ display: "grid", gap: 1 }}>
+                  {players.map((p) => (
                     <Box key={p.id} sx={{ display: "flex", gap: 1 }}>
                       <Button
+                        fullWidth
                         variant={
                           selectedPlayerId === p.id ? "contained" : "outlined"
                         }
                         onClick={() => setSelectedPlayerId(p.id ?? null)}
                         sx={{
-                          flexGrow: 1,
                           justifyContent: "flex-start",
-                          px: 1,
-                          py: 1,
-                          borderColor: onCourtIds.has(p.id!)
-                            ? "primary.main"
-                            : "#D1D1D1",
-                          backgroundColor:
+                          bgcolor:
                             selectedPlayerId === p.id
-                              ? "#2D2D2D"
+                              ? "primary.main"
                               : "transparent",
                           color:
-                            selectedPlayerId === p.id ? "#FFFDF5" : "#2D2D2D",
+                            selectedPlayerId === p.id
+                              ? "white"
+                              : "text.primary",
                         }}
                       >
                         <Avatar
@@ -435,23 +413,16 @@ const GameMode: React.FC = () => {
                             height: 24,
                             fontSize: "0.75rem",
                             mr: 1,
-                            bgcolor:
-                              selectedPlayerId === p.id ? "#FFFDF5" : "#2D2D2D",
-                            color:
-                              selectedPlayerId === p.id ? "#2D2D2D" : "#FFFDF5",
                           }}
                         >
                           {p.defaultNumber}
                         </Avatar>
-                        <Typography variant="body2" noWrap>
-                          {p.name}
-                        </Typography>
+                        {p.name}
                       </Button>
                       <IconButton
                         size="small"
                         onClick={() => toggleOnCourt(p.id!)}
                         color={onCourtIds.has(p.id!) ? "primary" : "default"}
-                        sx={{ border: "1px solid", borderColor: "divider" }}
                       >
                         {onCourtIds.has(p.id!) ? (
                           <RemoveCircleOutline />
@@ -461,10 +432,30 @@ const GameMode: React.FC = () => {
                       </IconButton>
                     </Box>
                   ))}
-              </Box>
-            </Paper>
+                </Box>
+              </Paper>
+            ) : (
+              <Paper
+                className="moleskine-card"
+                sx={{
+                  bgcolor: "secondary.light",
+                  color: "secondary.contrastText",
+                }}
+              >
+                <Typography
+                  variant="subtitle2"
+                  gutterBottom
+                  sx={{ fontWeight: 600 }}
+                >
+                  Opponent Tracking
+                </Typography>
+                <Typography variant="body2">
+                  Stats recorded in this mode will be assigned to the generic
+                  "Opponent" player to track lead and flow.
+                </Typography>
+              </Paper>
+            )}
 
-            {/* Recent Activity */}
             <Paper className="moleskine-card">
               <Typography
                 variant="subtitle2"
@@ -485,11 +476,13 @@ const GameMode: React.FC = () => {
                       borderBottom: "1px solid #F0F0F0",
                     }}
                   >
-                    <Box sx={{ flexGrow: 1 }}>
+                    <Box>
                       <Typography variant="body2">
                         <strong>
-                          {players?.find((p) => p.id === s.playerId)?.name ||
-                            "Unknown"}
+                          {s.playerId === OPPONENT_PLAYER_ID
+                            ? "Opponent"
+                            : players?.find((p) => p.id === s.playerId)?.name ||
+                              "Unknown"}
                         </strong>
                         : {s.type}
                       </Typography>
@@ -504,7 +497,6 @@ const GameMode: React.FC = () => {
                       <IconButton
                         size="small"
                         onClick={() => openEditDialog(s)}
-                        sx={{ color: "text.secondary" }}
                       >
                         <Edit fontSize="small" />
                       </IconButton>
@@ -514,7 +506,6 @@ const GameMode: React.FC = () => {
                           setStatToDelete(s.id ?? null);
                           setDeleteDialogOpen(true);
                         }}
-                        sx={{ color: "text.secondary" }}
                       >
                         <Delete fontSize="small" />
                       </IconButton>
@@ -527,85 +518,55 @@ const GameMode: React.FC = () => {
         </Grid>
       </Grid>
 
-      {/* Action Dialog */}
       <Dialog
         open={dialogOpen}
-        onClose={() => {
-          setDialogOpen(false);
-          setIsEditing(false);
-          setEditingStatId(null);
-        }}
+        onClose={() => setDialogOpen(false)}
         fullWidth
         maxWidth="xs"
-        PaperProps={{ sx: { borderRadius: 2, p: 1 } }}
       >
-        <DialogTitle sx={{ fontFamily: "var(--serif)", pb: 1 }}>
+        <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
           {isEditing ? "Edit Action" : "Record Action"}
           <Typography variant="body2" color="text.secondary">
-            {selectedPlayerId
-              ? `Player: ${players?.find((p) => p.id === selectedPlayerId)?.name || "Unknown"}`
-              : "Select Player"}
+            {selectedPlayerId === OPPONENT_PLAYER_ID
+              ? "Opponent"
+              : players?.find((p) => p.id === selectedPlayerId)?.name ||
+                "Select Player"}
           </Typography>
         </DialogTitle>
         <DialogContent>
-          {!selectedPlayerId && (
-            <Box sx={{ mb: 3 }}>
-              <Typography
-                variant="caption"
-                gutterBottom
-                sx={{ display: "block", mb: 1 }}
-              >
-                Select Player First
-              </Typography>
-              <Box
-                sx={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(3, 1fr)",
-                  gap: 1,
-                }}
-              >
-                {players.map((p) => (
-                  <Button
-                    key={p.id}
-                    size="small"
-                    variant="outlined"
-                    onClick={() => setSelectedPlayerId(p.id ?? null)}
-                    sx={{ borderColor: "#D1D1D1", color: "#2D2D2D" }}
-                  >
-                    #{p.defaultNumber}
-                  </Button>
-                ))}
-              </Box>
-            </Box>
-          )}
-
-          <Typography
-            variant="caption"
-            gutterBottom
-            sx={{ display: "block", mb: 1 }}
-          >
-            What happened?
-          </Typography>
           <Box
             sx={{
               display: "grid",
               gridTemplateColumns: "repeat(3, 1fr)",
               gap: 1,
+              mt: 1,
             }}
           >
-            <QuickAction type="MAKE" label="Make" icon={Check} />
-            <QuickAction type="MISS" label="Miss" icon={Close} />
+            <QuickAction type={ACTION_TYPES.MAKE} label="Make" icon={Check} />
+            <QuickAction type={ACTION_TYPES.MISS} label="Miss" icon={Close} />
             <QuickAction
-              type="REBOUND"
+              type={ACTION_TYPES.REBOUND}
               label="Rebound"
               icon={SportsBasketball}
             />
-            <QuickAction type="STEAL" label="Steal" icon={RadioButtonChecked} />
-            <QuickAction type="ASSIST" label="Assist" icon={PanTool} />
-            <QuickAction type="TURNOVER" label="TO" icon={SwapHoriz} />
+            <QuickAction
+              type={ACTION_TYPES.STEAL}
+              label="Steal"
+              icon={FlashOn}
+            />
+            <QuickAction
+              type={ACTION_TYPES.ASSIST}
+              label="Assist"
+              icon={PanTool}
+            />
+            <QuickAction
+              type={ACTION_TYPES.TURNOVER}
+              label="TO"
+              icon={SwapHoriz}
+            />
           </Box>
 
-          {statType === "MAKE" && (
+          {statType === ACTION_TYPES.MAKE && (
             <Box sx={{ mt: 3 }}>
               <Typography
                 variant="caption"
@@ -621,12 +582,6 @@ const GameMode: React.FC = () => {
                     fullWidth
                     variant={points === pts ? "contained" : "outlined"}
                     onClick={() => setPoints(pts)}
-                    sx={{
-                      borderColor: "#D1D1D1",
-                      backgroundColor:
-                        points === pts ? "#2D2D2D" : "transparent",
-                      color: points === pts ? "#FFFDF5" : "#2D2D2D",
-                    }}
                   >
                     {pts}
                   </Button>
@@ -636,51 +591,36 @@ const GameMode: React.FC = () => {
           )}
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
-          <Button
-            onClick={() => {
-              setDialogOpen(false);
-              setIsEditing(false);
-              setEditingStatId(null);
-            }}
-            color="inherit"
-          >
+          <Button onClick={() => setDialogOpen(false)} color="inherit">
             Cancel
           </Button>
           <Button
             onClick={() => handleSaveStat()}
             variant="contained"
             disabled={!selectedPlayerId || !statType}
-            sx={{ px: 4 }}
           >
             {isEditing ? "Update" : "Save"}
           </Button>
         </DialogActions>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
       <Dialog
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
-        PaperProps={{ sx: { borderRadius: 2 } }}
       >
         <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
           Confirm Delete
         </DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to delete this action? This cannot be undone.
+            Are you sure you want to delete this action?
           </DialogContentText>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
           <Button onClick={() => setDeleteDialogOpen(false)} color="inherit">
             Cancel
           </Button>
-          <Button
-            onClick={handleDeleteStat}
-            color="error"
-            variant="contained"
-            autoFocus
-          >
+          <Button onClick={handleDeleteStat} color="error" variant="contained">
             Delete
           </Button>
         </DialogActions>

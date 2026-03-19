@@ -11,6 +11,10 @@ import { BrowserRouter } from "react-router-dom";
 import { db } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
 import React from "react";
+import { ACTION_TYPES } from "../constants/stats";
+import { ThemeProvider, createTheme } from "@mui/material";
+
+const theme = createTheme();
 
 // Mock BasketballCourt to avoid coordinate calculation issues in JSDOM
 vi.mock("../components/BasketballCourt", () => ({
@@ -26,8 +30,10 @@ describe("GameMode Component", () => {
   const mockStats = [
     {
       id: "s1",
+      gameId: "practice-session",
       playerId: "p1",
-      type: "MAKE",
+      type: ACTION_TYPES.MAKE,
+      points: 2,
       timestamp: new Date().toISOString(),
     },
   ];
@@ -38,31 +44,36 @@ describe("GameMode Component", () => {
       const code = cb.toString();
       if (code.includes("players")) return mockPlayers;
       if (code.includes("stats")) return mockStats;
+      if (code.includes("db.games.get"))
+        return { opponent: "Test Opponent", date: "2023-01-01" };
       return [];
     });
   });
 
-  it("renders GameMode page and displays players/stats", async () => {
+  const renderComponent = () =>
     render(
-      <BrowserRouter>
-        <GameMode />
-      </BrowserRouter>,
+      <ThemeProvider theme={theme}>
+        <BrowserRouter>
+          <GameMode />
+        </BrowserRouter>
+      </ThemeProvider>,
     );
 
-    expect(screen.getByText(/Live Game Tracker/i)).toBeInTheDocument();
+  it("renders GameMode page and displays players/stats", async () => {
+    renderComponent();
+
+    await waitFor(() => {
+      expect(screen.getByText(/vs Test Opponent/i)).toBeInTheDocument();
+    });
     expect(screen.getAllByText("Player 1").length).toBeGreaterThan(0);
   });
 
   it("records a MAKE stat", async () => {
-    render(
-      <BrowserRouter>
-        <GameMode />
-      </BrowserRouter>,
-    );
+    renderComponent();
 
-    // Sidebar lineup
-    const lineup = screen.getByText("Active Lineup").parentElement;
-    const playerBtn = within(lineup!).getByText("Player 1");
+    // Sidebar lineup (Roster)
+    const lineup = await screen.findByText("Team Roster");
+    const playerBtn = within(lineup.parentElement!).getByText("Player 1");
     fireEvent.click(playerBtn);
 
     // Click court
@@ -86,13 +97,9 @@ describe("GameMode Component", () => {
   });
 
   it("undoes the last stat", async () => {
-    render(
-      <BrowserRouter>
-        <GameMode />
-      </BrowserRouter>,
-    );
+    renderComponent();
 
-    const undoBtn = screen.getByRole("button", { name: /undo/i });
+    const undoBtn = await screen.findByRole("button", { name: /undo/i });
     fireEvent.click(undoBtn);
 
     await waitFor(() => {
@@ -101,15 +108,11 @@ describe("GameMode Component", () => {
   });
 
   it("records a non-MAKE stat", async () => {
-    render(
-      <BrowserRouter>
-        <GameMode />
-      </BrowserRouter>,
-    );
+    renderComponent();
 
     // Sidebar lineup
-    const lineup = screen.getByText("Active Lineup").parentElement;
-    const playerBtn = within(lineup!).getByText("Player 1");
+    const lineup = await screen.findByText("Team Roster");
+    const playerBtn = within(lineup.parentElement!).getByText("Player 1");
     fireEvent.click(playerBtn);
 
     // Click court
