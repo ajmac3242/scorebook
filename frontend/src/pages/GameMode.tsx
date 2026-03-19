@@ -288,12 +288,12 @@ const GameMode: React.FC = () => {
                     label={`Score: ${currentScore}`}
                     size="small"
                     color="primary"
-                    sx={{ fontWeight: 'bold' }}
+                    sx={{ fontWeight: "bold" }}
                   />
                   <Chip
                     label={`Period: ${period}`}
                     size="small"
-                    onClick={() => setPeriod(p => p < 4 ? p + 1 : 1)}
+                    onClick={() => setPeriod((p) => (p < 4 ? p + 1 : 1))}
                     variant="outlined"
                   />
                 </Stack>
@@ -306,14 +306,22 @@ const GameMode: React.FC = () => {
                 />
               )}
             </Box>
-            <Box sx={{ mb: 2, display: "flex", gap: 1, flexWrap: "wrap", alignItems: 'center' }}>
+            <Box
+              sx={{
+                mb: 2,
+                display: "flex",
+                gap: 1,
+                flexWrap: "wrap",
+                alignItems: "center",
+              }}
+            >
               <Button
                 size="small"
                 variant="outlined"
                 startIcon={<UndoIcon />}
                 onClick={handleUndo}
                 disabled={recentStats.length === 0}
-                sx={{ mr: 1, borderColor: '#D1D1D1', color: '#2D2D2D' }}
+                sx={{ mr: 1, borderColor: "#D1D1D1", color: "#2D2D2D" }}
               >
                 Undo
               </Button>
@@ -374,7 +382,11 @@ const GameMode: React.FC = () => {
               <Typography
                 variant="subtitle2"
                 gutterBottom
-                sx={{ fontWeight: 600, display: "flex", justifyContent: "space-between" }}
+                sx={{
+                  fontWeight: 600,
+                  display: "flex",
+                  justifyContent: "space-between",
+                }}
               >
                 Active Lineup
                 <Typography variant="caption" color="text.secondary">
@@ -406,10 +418,15 @@ const GameMode: React.FC = () => {
                           justifyContent: "flex-start",
                           px: 1,
                           py: 1,
-                          borderColor: onCourtIds.has(p.id!) ? "primary.main" : "#D1D1D1",
+                          borderColor: onCourtIds.has(p.id!)
+                            ? "primary.main"
+                            : "#D1D1D1",
                           backgroundColor:
-                            selectedPlayerId === p.id ? "#2D2D2D" : "transparent",
-                          color: selectedPlayerId === p.id ? "#FFFDF5" : "#2D2D2D",
+                            selectedPlayerId === p.id
+                              ? "#2D2D2D"
+                              : "transparent",
+                          color:
+                            selectedPlayerId === p.id ? "#FFFDF5" : "#2D2D2D",
                         }}
                       >
                         <Avatar
@@ -436,7 +453,11 @@ const GameMode: React.FC = () => {
                         color={onCourtIds.has(p.id!) ? "primary" : "default"}
                         sx={{ border: "1px solid", borderColor: "divider" }}
                       >
-                        {onCourtIds.has(p.id!) ? <RemoveCircleOutline /> : <AddCircleOutline />}
+                        {onCourtIds.has(p.id!) ? (
+                          <RemoveCircleOutline />
+                        ) : (
+                          <AddCircleOutline />
+                        )}
                       </IconButton>
                     </Box>
                   ))}
