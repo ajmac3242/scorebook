@@ -47,10 +47,18 @@ const GameMode: React.FC = () => {
   const [searchParams] = useSearchParams();
 
   const gameIdParam = searchParams.get("gameId");
-  const gameId = gameIdParam ? (isNaN(Number(gameIdParam)) ? gameIdParam : Number(gameIdParam)) : null;
+  const gameId = gameIdParam
+    ? isNaN(Number(gameIdParam))
+      ? gameIdParam
+      : Number(gameIdParam)
+    : null;
 
   const teamIdParam = searchParams.get("teamId");
-  const teamId = teamIdParam ? (isNaN(Number(teamIdParam)) ? teamIdParam : Number(teamIdParam)) : null;
+  const teamId = teamIdParam
+    ? isNaN(Number(teamIdParam))
+      ? teamIdParam
+      : Number(teamIdParam)
+    : null;
 
   useEffect(() => {
     if (!gameId || !teamId) {
@@ -59,13 +67,15 @@ const GameMode: React.FC = () => {
   }, [gameId, teamId, navigate]);
 
   if (!gameId || !teamId) {
-     return null;
+    return null;
   }
 
   const [selectedX, setSelectedX] = useState<number | null>(null);
   const [selectedY, setSelectedY] = useState<number | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [selectedPlayerId, setSelectedPlayerId] = useState<number | string | null>(null);
+  const [selectedPlayerId, setSelectedPlayerId] = useState<
+    number | string | null
+  >(null);
   const [statType, setStatType] = useState<string | null>(null);
   const [points, setPoints] = useState<number>(2);
 
@@ -83,48 +93,69 @@ const GameMode: React.FC = () => {
   const [period, setPeriod] = useState(1);
   const [trackingMode, setTrackingMode] = useState<"TEAM" | "OPPONENT">("TEAM");
 
-  const teamPlayers = useLiveQuery(
-    () => teamId ? db.teamPlayers.where("teamId").equals(teamId.toString()).toArray() : Promise.resolve([]),
-    [teamId]
-  ) || [];
+  const teamPlayers =
+    useLiveQuery(
+      () =>
+        teamId
+          ? db.teamPlayers.where("teamId").equals(teamId.toString()).toArray()
+          : Promise.resolve([]),
+      [teamId],
+    ) || [];
 
-  const players = useLiveQuery(async () => {
-    try {
-      await db.open();
-      if (!teamId) return [];
-      const playerIds = teamPlayers.map((t) => isNaN(Number(t.playerId)) ? t.playerId : Number(t.playerId));
-      return await db.players.where("id").anyOf(playerIds as any).toArray();
-    } catch (err) {
-      console.error("Failed to fetch players:", err);
-      return [];
-    }
-  }, [teamId, teamPlayers]) || [];
+  const players =
+    useLiveQuery(async () => {
+      try {
+        await db.open();
+        if (!teamId) return [];
+        const playerIds = teamPlayers.map((t) =>
+          isNaN(Number(t.playerId)) ? t.playerId : Number(t.playerId),
+        );
+        return await db.players
+          .where("id")
+          .anyOf(playerIds as any)
+          .toArray();
+      } catch (err) {
+        console.error("Failed to fetch players:", err);
+        return [];
+      }
+    }, [teamId, teamPlayers]) || [];
 
   const game = useLiveQuery(() => db.games.get(gameId as any), [gameId]);
 
-  const recentStats = useLiveQuery(async () => {
-    try {
-      await db.open();
-      const stats = await db.stats.where("gameId").equals(gameId).toArray();
-      return stats.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()).slice(0, 10);
-    } catch (err) {
-      console.error("Failed to fetch recent stats:", err);
-      return [];
-    }
-  }, [gameId]) || [];
+  const recentStats =
+    useLiveQuery(async () => {
+      try {
+        await db.open();
+        const stats = await db.stats.where("gameId").equals(gameId).toArray();
+        return stats
+          .sort(
+            (a, b) =>
+              new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
+          )
+          .slice(0, 10);
+      } catch (err) {
+        console.error("Failed to fetch recent stats:", err);
+        return [];
+      }
+    }, [gameId]) || [];
 
-  const gameStats = useLiveQuery(async () => {
-    try {
-      await db.open();
-      return await db.stats.where("gameId").equals(gameId).toArray();
-    } catch (err) {
-      console.error("Failed to fetch game stats:", err);
-      return [];
-    }
-  }, [gameId]) || [];
+  const gameStats =
+    useLiveQuery(async () => {
+      try {
+        await db.open();
+        return await db.stats.where("gameId").equals(gameId).toArray();
+      } catch (err) {
+        console.error("Failed to fetch game stats:", err);
+        return [];
+      }
+    }, [gameId]) || [];
 
-  const currentScore = gameStats.filter((s) => s.playerId !== OPPONENT_PLAYER_ID).reduce((sum, s) => sum + (s.points || 0), 0);
-  const opponentScore = gameStats.filter((s) => s.playerId === OPPONENT_PLAYER_ID).reduce((sum, s) => sum + (s.points || 0), 0);
+  const currentScore = gameStats
+    .filter((s) => s.playerId !== OPPONENT_PLAYER_ID)
+    .reduce((sum, s) => sum + (s.points || 0), 0);
+  const opponentScore = gameStats
+    .filter((s) => s.playerId === OPPONENT_PLAYER_ID)
+    .reduce((sum, s) => sum + (s.points || 0), 0);
 
   const handleUndo = async () => {
     if (recentStats.length === 0) return;
@@ -264,46 +295,110 @@ const GameMode: React.FC = () => {
       <Grid container spacing={3}>
         <Grid item xs={12} md={8}>
           <MoleskineCard>
-            <Box sx={{ mb: 2, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <Box
+              sx={{
+                mb: 2,
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
               <Box>
                 <Typography variant="h6" sx={{ fontFamily: "var(--serif)" }}>
                   {game?.opponent ? `vs ${game.opponent}` : "Live Tracker"}
                 </Typography>
                 <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
-                  <Chip label={`TEAM: ${currentScore}`} color="primary" sx={{ fontWeight: "bold" }} />
-                  <Chip label={`OPP: ${opponentScore}`} color="secondary" sx={{ fontWeight: "bold" }} />
-                  <Chip label={`P: ${period}`} onClick={() => setPeriod((p) => (p < 4 ? p + 1 : 1))} variant="outlined" />
+                  <Chip
+                    label={`TEAM: ${currentScore}`}
+                    color="primary"
+                    sx={{ fontWeight: "bold" }}
+                  />
+                  <Chip
+                    label={`OPP: ${opponentScore}`}
+                    color="secondary"
+                    sx={{ fontWeight: "bold" }}
+                  />
+                  <Chip
+                    label={`P: ${period}`}
+                    onClick={() => setPeriod((p) => (p < 4 ? p + 1 : 1))}
+                    variant="outlined"
+                  />
                   {!game?.completed && (
-                    <Button size="small" variant="contained" color="error" onClick={() => setEndGameDialogOpen(true)} sx={{ ml: 2 }}>
+                    <Button
+                      size="small"
+                      variant="contained"
+                      color="error"
+                      onClick={() => setEndGameDialogOpen(true)}
+                      sx={{ ml: 2 }}
+                    >
                       End Game
                     </Button>
                   )}
                 </Stack>
               </Box>
-              <ToggleButtonGroup value={trackingMode} exclusive onChange={(_, val) => val && setTrackingMode(val)} size="small">
+              <ToggleButtonGroup
+                value={trackingMode}
+                exclusive
+                onChange={(_, val) => val && setTrackingMode(val)}
+                size="small"
+              >
                 <ToggleButton value="TEAM">Our Team</ToggleButton>
                 <ToggleButton value="OPPONENT">Opponent</ToggleButton>
               </ToggleButtonGroup>
             </Box>
 
-            <Box sx={{ mb: 2, display: "flex", gap: 1, flexWrap: "wrap", alignItems: "center" }}>
-              <Button size="small" variant="outlined" startIcon={<UndoIcon />} onClick={handleUndo} disabled={recentStats.length === 0} sx={{ mr: 1 }}>Undo</Button>
-              {["ALL", "MAKE", "MISS", "REBOUND", "ASSIST", "STEAL"].map((type) => (
-                <Chip key={type} label={type} onClick={() => setMarkerFilter(type)} variant={markerFilter === type ? "filled" : "outlined"} size="small" color={markerFilter === type ? "primary" : "default"} />
-              ))}
+            <Box
+              sx={{
+                mb: 2,
+                display: "flex",
+                gap: 1,
+                flexWrap: "wrap",
+                alignItems: "center",
+              }}
+            >
+              <Button
+                size="small"
+                variant="outlined"
+                startIcon={<UndoIcon />}
+                onClick={handleUndo}
+                disabled={recentStats.length === 0}
+                sx={{ mr: 1 }}
+              >
+                Undo
+              </Button>
+              {["ALL", "MAKE", "MISS", "REBOUND", "ASSIST", "STEAL"].map(
+                (type) => (
+                  <Chip
+                    key={type}
+                    label={type}
+                    onClick={() => setMarkerFilter(type)}
+                    variant={markerFilter === type ? "filled" : "outlined"}
+                    size="small"
+                    color={markerFilter === type ? "primary" : "default"}
+                  />
+                ),
+              )}
             </Box>
 
             <BasketballCourt
               onCoordClick={handleCourtClick}
               markers={gameStats
-                .filter((s) => markerFilter === "ALL" || s.type === markerFilter)
+                .filter(
+                  (s) => markerFilter === "ALL" || s.type === markerFilter,
+                )
                 .map((s) => ({
                   id: s.id,
                   x: s.locationX || 0,
                   y: s.locationY || 0,
                   type: s.type,
-                  label: s.playerId !== OPPONENT_PLAYER_ID ? getPlayerJersey(s.playerId, teamPlayers) : undefined,
-                  color: s.playerId === OPPONENT_PLAYER_ID ? theme.palette.secondary.main : undefined,
+                  label:
+                    s.playerId !== OPPONENT_PLAYER_ID
+                      ? getPlayerJersey(s.playerId, teamPlayers)
+                      : undefined,
+                  color:
+                    s.playerId === OPPONENT_PLAYER_ID
+                      ? theme.palette.secondary.main
+                      : undefined,
                 }))}
             />
           </MoleskineCard>
@@ -313,53 +408,136 @@ const GameMode: React.FC = () => {
           <Stack spacing={3}>
             {trackingMode === "TEAM" ? (
               <MoleskineCard>
-                <Typography variant="subtitle2" gutterBottom sx={{ fontWeight: 600 }}>Team Roster</Typography>
+                <Typography
+                  variant="subtitle2"
+                  gutterBottom
+                  sx={{ fontWeight: 600 }}
+                >
+                  Team Roster
+                </Typography>
                 <Box sx={{ display: "grid", gap: 1 }}>
                   {players.map((p) => (
                     <Box key={p.id} sx={{ display: "flex", gap: 1 }}>
                       <Button
                         fullWidth
-                        variant={selectedPlayerId === p.id ? "contained" : "outlined"}
+                        variant={
+                          selectedPlayerId === p.id ? "contained" : "outlined"
+                        }
                         onClick={() => setSelectedPlayerId(p.id ?? null)}
                         sx={{
                           justifyContent: "flex-start",
-                          bgcolor: selectedPlayerId === p.id ? "primary.main" : "transparent",
-                          color: selectedPlayerId === p.id ? "white" : "text.primary",
+                          bgcolor:
+                            selectedPlayerId === p.id
+                              ? "primary.main"
+                              : "transparent",
+                          color:
+                            selectedPlayerId === p.id
+                              ? "white"
+                              : "text.primary",
                         }}
                       >
-                        <Avatar sx={{ width: 24, height: 24, fontSize: "0.75rem", mr: 1, bgcolor: p.avatarColor || "grey.500" }}>{getPlayerJersey(p.id, teamPlayers)}</Avatar>
+                        <Avatar
+                          sx={{
+                            width: 24,
+                            height: 24,
+                            fontSize: "0.75rem",
+                            mr: 1,
+                            bgcolor: p.avatarColor || "grey.500",
+                          }}
+                        >
+                          {getPlayerJersey(p.id, teamPlayers)}
+                        </Avatar>
                         {p.name}
                       </Button>
-                      <IconButton size="small" onClick={() => toggleOnCourt(p.id!)} color={onCourtIds.has(p.id!) ? "primary" : "default"}>
-                        {onCourtIds.has(p.id!) ? <RemoveCircleOutline /> : <AddCircleOutline />}
+                      <IconButton
+                        size="small"
+                        onClick={() => toggleOnCourt(p.id!)}
+                        color={onCourtIds.has(p.id!) ? "primary" : "default"}
+                      >
+                        {onCourtIds.has(p.id!) ? (
+                          <RemoveCircleOutline />
+                        ) : (
+                          <AddCircleOutline />
+                        )}
                       </IconButton>
                     </Box>
                   ))}
                 </Box>
               </MoleskineCard>
             ) : (
-              <MoleskineCard sx={{ bgcolor: "secondary.light", color: "secondary.contrastText" }}>
-                <Typography variant="subtitle2" gutterBottom sx={{ fontWeight: 600 }}>Opponent Tracking</Typography>
-                <Typography variant="body2">Stats recorded in this mode will be assigned to the "Opponent" player.</Typography>
+              <MoleskineCard
+                sx={{
+                  bgcolor: "secondary.light",
+                  color: "secondary.contrastText",
+                }}
+              >
+                <Typography
+                  variant="subtitle2"
+                  gutterBottom
+                  sx={{ fontWeight: 600 }}
+                >
+                  Opponent Tracking
+                </Typography>
+                <Typography variant="body2">
+                  Stats recorded in this mode will be assigned to the "Opponent"
+                  player.
+                </Typography>
               </MoleskineCard>
             )}
 
             <MoleskineCard>
-              <Typography variant="subtitle2" gutterBottom sx={{ fontWeight: 600, display: "flex", alignItems: "center" }}>
+              <Typography
+                variant="subtitle2"
+                gutterBottom
+                sx={{ fontWeight: 600, display: "flex", alignItems: "center" }}
+              >
                 <History sx={{ fontSize: 18, mr: 1 }} /> Recent Actions
               </Typography>
               <Stack spacing={1}>
                 {recentStats.map((s) => (
-                  <Box key={s.id} sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", py: 0.5, borderBottom: "1px solid #F0F0F0" }}>
+                  <Box
+                    key={s.id}
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      py: 0.5,
+                      borderBottom: "1px solid #F0F0F0",
+                    }}
+                  >
                     <Box>
                       <Typography variant="body2">
-                        <strong>{s.playerId === OPPONENT_PLAYER_ID ? "Opponent" : players?.find((p) => p.id === s.playerId)?.name || "Unknown"}</strong>: {s.type}
+                        <strong>
+                          {s.playerId === OPPONENT_PLAYER_ID
+                            ? "Opponent"
+                            : players?.find((p) => p.id === s.playerId)?.name ||
+                              "Unknown"}
+                        </strong>
+                        : {s.type}
                       </Typography>
-                      <Typography variant="caption" color="text.secondary">{new Date(s.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {new Date(s.timestamp).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </Typography>
                     </Box>
                     <Box>
-                      <IconButton size="small" onClick={() => openEditDialog(s)}><Edit fontSize="small" /></IconButton>
-                      <IconButton size="small" onClick={() => { setStatToDelete(s.id ?? null); setDeleteDialogOpen(true); }}><Delete fontSize="small" /></IconButton>
+                      <IconButton
+                        size="small"
+                        onClick={() => openEditDialog(s)}
+                      >
+                        <Edit fontSize="small" />
+                      </IconButton>
+                      <IconButton
+                        size="small"
+                        onClick={() => {
+                          setStatToDelete(s.id ?? null);
+                          setDeleteDialogOpen(true);
+                        }}
+                      >
+                        <Delete fontSize="small" />
+                      </IconButton>
                     </Box>
                   </Box>
                 ))}
@@ -369,70 +547,175 @@ const GameMode: React.FC = () => {
         </Grid>
       </Grid>
 
-      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} fullWidth maxWidth="xs">
+      <Dialog
+        open={dialogOpen}
+        onClose={() => setDialogOpen(false)}
+        fullWidth
+        maxWidth="xs"
+      >
         <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
           {isEditing ? "Edit Action" : "Record Action"}
           <Typography variant="body2" color="text.secondary">
-            {selectedPlayerId === OPPONENT_PLAYER_ID ? "Opponent" : players?.find((p) => p.id === selectedPlayerId)?.name || "Select Player"}
+            {selectedPlayerId === OPPONENT_PLAYER_ID
+              ? "Opponent"
+              : players?.find((p) => p.id === selectedPlayerId)?.name ||
+                "Select Player"}
           </Typography>
         </DialogTitle>
         <DialogContent>
-          <Box sx={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 1, mt: 1 }}>
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: 1,
+              mt: 1,
+            }}
+          >
             <QuickAction type={ACTION_TYPES.MAKE} label="Make" icon={Check} />
             <QuickAction type={ACTION_TYPES.MISS} label="Miss" icon={Close} />
-            <QuickAction type={ACTION_TYPES.REBOUND} label="Rebound" icon={SportsBasketball} />
-            <QuickAction type={ACTION_TYPES.STEAL} label="Steal" icon={FlashOn} />
-            <QuickAction type={ACTION_TYPES.ASSIST} label="Assist" icon={PanTool} />
-            <QuickAction type={ACTION_TYPES.TURNOVER} label="TO" icon={SwapHoriz} />
+            <QuickAction
+              type={ACTION_TYPES.REBOUND}
+              label="Rebound"
+              icon={SportsBasketball}
+            />
+            <QuickAction
+              type={ACTION_TYPES.STEAL}
+              label="Steal"
+              icon={FlashOn}
+            />
+            <QuickAction
+              type={ACTION_TYPES.ASSIST}
+              label="Assist"
+              icon={PanTool}
+            />
+            <QuickAction
+              type={ACTION_TYPES.TURNOVER}
+              label="TO"
+              icon={SwapHoriz}
+            />
           </Box>
           {statType === ACTION_TYPES.MAKE && (
             <Box sx={{ mt: 3 }}>
-              <Typography variant="caption" gutterBottom sx={{ display: "block", mb: 1 }}>Points</Typography>
+              <Typography
+                variant="caption"
+                gutterBottom
+                sx={{ display: "block", mb: 1 }}
+              >
+                Points
+              </Typography>
               <Stack direction="row" spacing={1}>
                 {[1, 2, 3].map((pts) => (
-                  <Button key={pts} fullWidth variant={points === pts ? "contained" : "outlined"} onClick={() => setPoints(pts)}>{pts}</Button>
+                  <Button
+                    key={pts}
+                    fullWidth
+                    variant={points === pts ? "contained" : "outlined"}
+                    onClick={() => setPoints(pts)}
+                  >
+                    {pts}
+                  </Button>
                 ))}
               </Stack>
             </Box>
           )}
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setDialogOpen(false)} color="inherit">Cancel</Button>
-          <Button onClick={() => handleSaveStat()} variant="contained" disabled={!selectedPlayerId || !statType}>{isEditing ? "Update" : "Save"}</Button>
+          <Button onClick={() => setDialogOpen(false)} color="inherit">
+            Cancel
+          </Button>
+          <Button
+            onClick={() => handleSaveStat()}
+            variant="contained"
+            disabled={!selectedPlayerId || !statType}
+          >
+            {isEditing ? "Update" : "Save"}
+          </Button>
         </DialogActions>
       </Dialog>
 
-      <Dialog open={endGameDialogOpen} onClose={() => setEndGameDialogOpen(false)}>
+      <Dialog
+        open={endGameDialogOpen}
+        onClose={() => setEndGameDialogOpen(false)}
+      >
         <DialogTitle sx={{ fontFamily: "var(--serif)" }}>End Game?</DialogTitle>
-        <DialogContent><DialogContentText>Is the game finished? Once ended, the results will be finalized for team averages.</DialogContentText></DialogContent>
+        <DialogContent>
+          <DialogContentText>
+            Is the game finished? Once ended, the results will be finalized for
+            team averages.
+          </DialogContentText>
+        </DialogContent>
         <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setEndGameDialogOpen(false)} color="inherit">No, Continue</Button>
-          <Button onClick={handleEndGame} color="error" variant="contained">Yes, Finish Game</Button>
+          <Button onClick={() => setEndGameDialogOpen(false)} color="inherit">
+            No, Continue
+          </Button>
+          <Button onClick={handleEndGame} color="error" variant="contained">
+            Yes, Finish Game
+          </Button>
         </DialogActions>
       </Dialog>
 
-      <Dialog open={summaryDialogOpen} onClose={() => setSummaryDialogOpen(false)}>
-        <DialogTitle sx={{ fontFamily: "var(--serif)", textAlign: "center" }}>Game Summary</DialogTitle>
+      <Dialog
+        open={summaryDialogOpen}
+        onClose={() => setSummaryDialogOpen(false)}
+      >
+        <DialogTitle sx={{ fontFamily: "var(--serif)", textAlign: "center" }}>
+          Game Summary
+        </DialogTitle>
         <DialogContent>
           <Box sx={{ textAlign: "center", py: 2 }}>
-            <Typography variant="h3" sx={{ fontWeight: 700, mb: 1 }}>{currentScore} - {opponentScore}</Typography>
-            <Typography variant="h5" color={currentScore > opponentScore ? "success.main" : "error.main"} sx={{ fontWeight: 600, mb: 3 }}>
-              {currentScore > opponentScore ? "WIN" : currentScore < opponentScore ? "LOSS" : "DRAW"}
+            <Typography variant="h3" sx={{ fontWeight: 700, mb: 1 }}>
+              {currentScore} - {opponentScore}
             </Typography>
-            <Typography variant="body1">The game has been finalized. You can view the full box score in the Game Stats page.</Typography>
+            <Typography
+              variant="h5"
+              color={
+                currentScore > opponentScore ? "success.main" : "error.main"
+              }
+              sx={{ fontWeight: 600, mb: 3 }}
+            >
+              {currentScore > opponentScore
+                ? "WIN"
+                : currentScore < opponentScore
+                  ? "LOSS"
+                  : "DRAW"}
+            </Typography>
+            <Typography variant="body1">
+              The game has been finalized. You can view the full box score in
+              the Game Stats page.
+            </Typography>
           </Box>
         </DialogContent>
         <DialogActions sx={{ justifyContent: "center", pb: 3 }}>
-          <Button variant="contained" onClick={() => { setSummaryDialogOpen(false); navigate(`/game/stats?gameId=${gameId}`); }}>View Box Score</Button>
+          <Button
+            variant="contained"
+            onClick={() => {
+              setSummaryDialogOpen(false);
+              navigate(`/game/stats?gameId=${gameId}`);
+            }}
+          >
+            View Box Score
+          </Button>
         </DialogActions>
       </Dialog>
 
-      <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
-        <DialogTitle sx={{ fontFamily: "var(--serif)" }}>Confirm Delete</DialogTitle>
-        <DialogContent><DialogContentText>Are you sure you want to delete this action?</DialogContentText></DialogContent>
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+      >
+        <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
+          Confirm Delete
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete this action?
+          </DialogContentText>
+        </DialogContent>
         <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setDeleteDialogOpen(false)} color="inherit">Cancel</Button>
-          <Button onClick={handleDeleteStat} color="error" variant="contained">Delete</Button>
+          <Button onClick={() => setDeleteDialogOpen(false)} color="inherit">
+            Cancel
+          </Button>
+          <Button onClick={handleDeleteStat} color="error" variant="contained">
+            Delete
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>

@@ -1,7 +1,11 @@
 import React from "react";
 import { Paper, PaperProps, Typography, Box } from "@mui/material";
 
-export const MoleskineCard: React.FC<PaperProps> = ({ children, sx, ...props }) => (
+export const MoleskineCard: React.FC<PaperProps> = ({
+  children,
+  sx,
+  ...props
+}) => (
   <Paper
     className="moleskine-card"
     sx={{
@@ -20,7 +24,11 @@ interface PageHeaderProps {
   actions?: React.ReactNode;
 }
 
-export const PageHeader: React.FC<PageHeaderProps> = ({ title, subtitle, actions }) => (
+export const PageHeader: React.FC<PageHeaderProps> = ({
+  title,
+  subtitle,
+  actions,
+}) => (
   <Box sx={{ mb: 4, textAlign: "center" }}>
     <Typography
       variant="h4"

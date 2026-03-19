@@ -29,7 +29,7 @@ export const getInitials = (name: string): string => {
 
 export const getPlayerJersey = (
   pId: number | string | undefined,
-  teamPlayers: TeamPlayer[]
+  teamPlayers: TeamPlayer[],
 ): string => {
   if (!pId) return "";
   const tp = teamPlayers.find((t) => t.playerId.toString() === pId.toString());
@@ -40,7 +40,7 @@ export const calculatePlayerAggregates = (
   players: any[],
   stats: StatEvent[],
   teamPlayers: TeamPlayer[] = [],
-  viewType: "total" | "average" = "total"
+  viewType: "total" | "average" = "total",
 ): PlayerAggregates[] => {
   const statsMap: Record<string, PlayerAggregates> = {};
 
@@ -50,7 +50,9 @@ export const calculatePlayerAggregates = (
       id: p.id,
       name: p.name,
       avatarColor: p.avatarColor,
-      jerseyNumber: teamPlayers.find((tp) => tp.playerId.toString() === pId)?.jerseyNumber || "",
+      jerseyNumber:
+        teamPlayers.find((tp) => tp.playerId.toString() === pId)
+          ?.jerseyNumber || "",
       gamesPlayed: new Set(),
       gp: 0,
       points: 0,
@@ -91,7 +93,8 @@ export const calculatePlayerAggregates = (
   return Object.values(statsMap).map((p) => {
     const gp = p.gamesPlayed.size || 1;
     p.gp = p.gamesPlayed.size;
-    p.fgPct = p.attempts > 0 ? ((p.makes / p.attempts) * 100).toFixed(1) : "0.0";
+    p.fgPct =
+      p.attempts > 0 ? ((p.makes / p.attempts) * 100).toFixed(1) : "0.0";
 
     if (viewType === "average") {
       return {
@@ -110,11 +113,15 @@ export const calculatePlayerAggregates = (
 export const calculateTeamAggregates = (
   games: any[],
   stats: StatEvent[],
-  completedOnly = true
+  completedOnly = true,
 ) => {
-  const targetGames = completedOnly ? games.filter((g) => g.completed === 1) : games;
+  const targetGames = completedOnly
+    ? games.filter((g) => g.completed === 1)
+    : games;
   const targetGameIds = targetGames.map((g) => g.id);
-  const relevantStats = stats.filter((s) => targetGameIds.includes(s.gameId as any));
+  const relevantStats = stats.filter((s) =>
+    targetGameIds.includes(s.gameId as any),
+  );
 
   let totalPoints = 0;
   let totalRebounds = 0;

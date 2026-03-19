@@ -15,16 +15,49 @@ const Dashboard: React.FC = () => {
       <PageHeader title="Notebook Overview" />
       <Grid container spacing={3}>
         {[
-          { label: "Seasons", count: seasons.length, to: "/seasons", icon: "📅" },
+          {
+            label: "Seasons",
+            count: seasons.length,
+            to: "/seasons",
+            icon: "📅",
+          },
           { label: "Teams", count: teams.length, to: "/teams", icon: "🏀" },
-          { label: "Players", count: players.length, to: "/players", icon: "👤" },
+          {
+            label: "Players",
+            count: players.length,
+            to: "/players",
+            icon: "👤",
+          },
         ].map((item) => (
           <Grid item xs={12} sm={6} md={4} key={item.label}>
             <MoleskineCard sx={{ position: "relative", p: 3 }}>
-              <Typography variant="h2" sx={{ position: "absolute", top: 16, right: 16, opacity: 0.1 }}>{item.icon}</Typography>
-              <Typography variant="h6" sx={{ fontFamily: "var(--serif)", fontWeight: 600 }}>{item.label}</Typography>
-              <Typography variant="h3" sx={{ my: 2, fontFamily: "var(--serif)" }}>{item.count}</Typography>
-              <Button component={Link} to={item.to} fullWidth variant="outlined" sx={{ mt: 1 }}>Open Notebook</Button>
+              <Typography
+                variant="h2"
+                sx={{ position: "absolute", top: 16, right: 16, opacity: 0.1 }}
+              >
+                {item.icon}
+              </Typography>
+              <Typography
+                variant="h6"
+                sx={{ fontFamily: "var(--serif)", fontWeight: 600 }}
+              >
+                {item.label}
+              </Typography>
+              <Typography
+                variant="h3"
+                sx={{ my: 2, fontFamily: "var(--serif)" }}
+              >
+                {item.count}
+              </Typography>
+              <Button
+                component={Link}
+                to={item.to}
+                fullWidth
+                variant="outlined"
+                sx={{ mt: 1 }}
+              >
+                Open Notebook
+              </Button>
             </MoleskineCard>
           </Grid>
         ))}

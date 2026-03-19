@@ -20,26 +20,31 @@ const Teams: React.FC = () => {
   const navigate = useNavigate();
   const [selectedSeasonId, setSelectedSeasonId] = useState<string>("");
 
-  const seasons = useLiveQuery(async () => {
-    try {
-      await db.open();
-      return await db.seasons.toArray();
-    } catch (err) {
-      console.error("Failed to fetch seasons:", err);
-      return [];
-    }
-  }) || [];
+  const seasons =
+    useLiveQuery(async () => {
+      try {
+        await db.open();
+        return await db.seasons.toArray();
+      } catch (err) {
+        console.error("Failed to fetch seasons:", err);
+        return [];
+      }
+    }) || [];
 
-  const teams = useLiveQuery(async () => {
-    try {
-      await db.open();
-      if (!selectedSeasonId) return await db.teams.toArray();
-      return await db.teams.where("seasonId").equals(selectedSeasonId).toArray();
-    } catch (err) {
-      console.error("Failed to fetch teams:", err);
-      return [];
-    }
-  }, [selectedSeasonId]) || [];
+  const teams =
+    useLiveQuery(async () => {
+      try {
+        await db.open();
+        if (!selectedSeasonId) return await db.teams.toArray();
+        return await db.teams
+          .where("seasonId")
+          .equals(selectedSeasonId)
+          .toArray();
+      } catch (err) {
+        console.error("Failed to fetch teams:", err);
+        return [];
+      }
+    }, [selectedSeasonId]) || [];
 
   return (
     <Box>
@@ -62,9 +67,23 @@ const Teams: React.FC = () => {
         </FormControl>
       </MoleskineCard>
 
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 2,
+        }}
+      >
         <Typography variant="h5">Teams</Typography>
-        <Button variant="contained" startIcon={<AddIcon />} component={Link} to="/seasons">Manage Seasons</Button>
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
+          component={Link}
+          to="/seasons"
+        >
+          Manage Seasons
+        </Button>
       </Box>
 
       <Stack spacing={2}>
@@ -72,13 +91,29 @@ const Teams: React.FC = () => {
         {teams.map((team) => (
           <MoleskineCard
             key={team.id}
-            sx={{ cursor: "pointer", "&:hover": { bgcolor: "rgba(0,0,0,0.02)" } }}
+            sx={{
+              cursor: "pointer",
+              "&:hover": { bgcolor: "rgba(0,0,0,0.02)" },
+            }}
             onClick={() => navigate(`/teams/${team.id}`)}
           >
-            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <Typography variant="h6" sx={{ fontFamily: "var(--serif)", fontWeight: 600 }}>{team.name}</Typography>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <Typography
+                variant="h6"
+                sx={{ fontFamily: "var(--serif)", fontWeight: 600 }}
+              >
+                {team.name}
+              </Typography>
               <Typography variant="body2" color="text.secondary">
-                {seasons.find((s) => s.id?.toString() === team.seasonId?.toString())?.name || "No Season"}
+                {seasons.find(
+                  (s) => s.id?.toString() === team.seasonId?.toString(),
+                )?.name || "No Season"}
               </Typography>
             </Box>
           </MoleskineCard>
