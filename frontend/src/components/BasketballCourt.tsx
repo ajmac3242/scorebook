@@ -135,7 +135,31 @@ const BasketballCourt: React.FC<{
         />
 
         {/* Markers / Heatmap Points */}
+        <style>
+          {`
+            @keyframes marker-appear {
+              0% { transform: scale(0); opacity: 0; }
+              70% { transform: scale(1.2); opacity: 1; }
+              100% { transform: scale(1); opacity: 0.6; }
+            }
+            .court-marker {
+              animation: marker-appear 0.3s ease-out forwards;
+              transform-origin: center;
+              transform-box: fill-box;
+            }
+            .latest-marker {
+              animation: marker-appear 0.3s ease-out forwards, pulse 2s infinite 0.3s;
+              opacity: 1 !important;
+            }
+            @keyframes pulse {
+              0% { r: 6; stroke-width: 1; }
+              50% { r: 8; stroke-width: 3; }
+              100% { r: 6; stroke-width: 1; }
+            }
+          `}
+        </style>
         {markers.map((marker, index) => {
+          const isLatest = index === markers.length - 1;
           let color = "#2D2D2D";
           if (marker.type === "MAKE") color = "#4CAF50";
           else if (marker.type === "MISS") color = "#F44336";
@@ -151,13 +175,14 @@ const BasketballCourt: React.FC<{
           return (
             <g key={marker.id || index}>
               <circle
+                className={isLatest ? "latest-marker" : "court-marker"}
                 cx={svgX}
                 cy={svgY}
                 r="6"
                 fill={color}
-                fillOpacity="0.6"
+                fillOpacity={isLatest ? "1" : "0.6"}
                 stroke={color}
-                strokeWidth="1"
+                strokeWidth={isLatest ? "2" : "1"}
               />
               {marker.label && (
                 <text
