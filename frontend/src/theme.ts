@@ -4,9 +4,27 @@ const theme = createTheme({
   palette: {
     primary: {
       main: "#154C56", // Deep Ocean
+      light: "#3D7A86",
+      dark: "#0D3138",
+      contrastText: "#FFFFFF",
     },
     secondary: {
       main: "#D9B382", // Golden Dune
+      light: "#E6CCAA",
+      dark: "#B88E56",
+      contrastText: "#1F2D33",
+    },
+    success: {
+      main: "#4E7D5B", // Sage Green
+    },
+    error: {
+      main: "#A64444", // Muted Red
+    },
+    warning: {
+      main: "#D99E32", // Ochre
+    },
+    info: {
+      main: "#5A7381", // Blue Ash
     },
     background: {
       default: "#F5F5F5", // Light Grey
@@ -62,6 +80,10 @@ const theme = createTheme({
           --palette-golden-dune: #D9B382;
           --palette-midnight: #1F2D33;
           --palette-light-grey: #F5F5F5;
+          --palette-sage-green: #4E7D5B;
+          --palette-muted-red: #A64444;
+          --palette-ochre: #D99E32;
+          --palette-blue-ash: #5A7381;
           --serif: "EB Garamond", serif;
           --sans: system-ui, -apple-system, sans-serif;
         }
@@ -93,6 +115,14 @@ const theme = createTheme({
         }
         .MuiButton-root:active {
           transform: translateY(1px);
+        }
+
+        .moleskine-card {
+           border-radius: 8px;
+           box-shadow: 0px 4px 12px rgba(0,0,0,0.05);
+           border: 1px solid rgba(0,0,0,0.05);
+           background-color: #FFFFFF;
+           padding: 16px;
         }
       `,
     },
