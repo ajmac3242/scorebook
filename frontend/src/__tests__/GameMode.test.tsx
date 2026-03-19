@@ -37,14 +37,26 @@ describe("GameMode Component", () => {
       timestamp: new Date().toISOString(),
     },
   ];
-  const mockTeamPlayers = [{ id: "tp1", teamId: "practice-session", playerId: "p1", jerseyNumber: "23" }];
+  const mockTeamPlayers = [
+    {
+      id: "tp1",
+      teamId: "practice-session",
+      playerId: "p1",
+      jerseyNumber: "23",
+    },
+  ];
 
   beforeEach(() => {
     vi.clearAllMocks();
     (useLiveQuery as any).mockImplementation((cb) => {
       const code = cb.toString();
       if (code.includes("db.stats")) return mockStats;
-      if (code.includes("db.games.get")) return { id: "practice-session", opponent: "Test Opponent", date: "2023-01-01" };
+      if (code.includes("db.games.get"))
+        return {
+          id: "practice-session",
+          opponent: "Test Opponent",
+          date: "2023-01-01",
+        };
       if (code.includes("db.players")) return mockPlayers;
       if (code.includes("db.teamPlayers")) return mockTeamPlayers;
       return [];

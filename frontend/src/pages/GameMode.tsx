@@ -83,10 +83,14 @@ const GameMode: React.FC = () => {
   const [period, setPeriod] = useState(1);
   const [trackingMode, setTrackingMode] = useState<"TEAM" | "OPPONENT">("TEAM");
 
-  const teamPlayers = useLiveQuery(
-    () => (teamId ? db.teamPlayers.where("teamId").equals(teamId.toString()).toArray() : Promise.resolve([])),
-    [teamId]
-  ) || [];
+  const teamPlayers =
+    useLiveQuery(
+      () =>
+        teamId
+          ? db.teamPlayers.where("teamId").equals(teamId.toString()).toArray()
+          : Promise.resolve([]),
+      [teamId],
+    ) || [];
 
   const players =
     useLiveQuery(async () => {
@@ -280,7 +284,9 @@ const GameMode: React.FC = () => {
 
   const getPlayerJersey = (pId?: number | string) => {
     if (!pId) return "";
-    const tp = teamPlayers.find(t => t.playerId.toString() === pId.toString());
+    const tp = teamPlayers.find(
+      (t) => t.playerId.toString() === pId.toString(),
+    );
     return tp?.jerseyNumber || "";
   };
 
@@ -383,7 +389,10 @@ const GameMode: React.FC = () => {
                   x: s.locationX || 0,
                   y: s.locationY || 0,
                   type: s.type,
-                  label: s.playerId !== OPPONENT_PLAYER_ID ? getPlayerJersey(s.playerId) : undefined,
+                  label:
+                    s.playerId !== OPPONENT_PLAYER_ID
+                      ? getPlayerJersey(s.playerId)
+                      : undefined,
                   color:
                     s.playerId === OPPONENT_PLAYER_ID
                       ? theme.palette.secondary.main
