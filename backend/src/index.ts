@@ -2,19 +2,31 @@ import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import {
   DynamoDBDocumentClient,
   PutCommand,
-  GetCommand,
   QueryCommand,
-  BatchWriteCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { v4 as uuidv4 } from "uuid";
+import {
+  APIGatewayProxyEventV2,
+  APIGatewayProxyResultV2,
+  APIGatewayProxyStructuredResultV2,
+} from "aws-lambda";
 
 const client = new DynamoDBClient({});
 const docClient = DynamoDBDocumentClient.from(client);
 const TABLE_NAME = process.env.TABLE_NAME;
 
-export const handler = async (event: any) => {
+/**
+ * Main Lambda handler for the Basketball Stats API.
+ * Handles seasons, teams, players, games, and stats.
+ *
+ * @param event - The API Gateway proxy event (v2).
+ * @returns The API Gateway proxy result (v2).
+ */
+export const handler = async (
+  event: APIGatewayProxyEventV2,
+): Promise<APIGatewayProxyResultV2> => {
   console.log("Event:", JSON.stringify(event));
-  const { routeKey, pathParameters, body } = event;
+  const body = event.body;
   const method = event.requestContext.http.method;
   const path = event.requestContext.http.path;
 
@@ -32,7 +44,7 @@ export const handler = async (event: any) => {
         );
         return response(200, result.Items);
       }
-      if (method === "POST") {
+      if (method === "POST" && body) {
         const data = JSON.parse(body);
         const id = uuidv4();
         const item = {
@@ -64,7 +76,7 @@ export const handler = async (event: any) => {
         );
         return response(200, result.Items);
       }
-      if (method === "POST") {
+      if (method === "POST" && body) {
         const data = JSON.parse(body);
         const id = uuidv4();
         const item = {
@@ -95,7 +107,7 @@ export const handler = async (event: any) => {
         );
         return response(200, result.Items);
       }
-      if (method === "POST") {
+      if (method === "POST" && body) {
         const data = JSON.parse(body);
         const id = uuidv4();
         const item = {
@@ -127,7 +139,7 @@ export const handler = async (event: any) => {
         );
         return response(200, result.Items);
       }
-      if (method === "POST") {
+      if (method === "POST" && body) {
         const data = JSON.parse(body);
         const id = uuidv4();
         const item = {
@@ -161,7 +173,7 @@ export const handler = async (event: any) => {
         );
         return response(200, result.Items);
       }
-      if (method === "POST") {
+      if (method === "POST" && body) {
         const data = JSON.parse(body);
         const id = uuidv4();
         const timestamp = new Date().toISOString();
@@ -180,13 +192,24 @@ export const handler = async (event: any) => {
     }
 
     return response(404, { message: "Route not found" });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error(error);
-    return response(500, { message: error.message });
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return response(500, { message });
   }
 };
 
-const response = (statusCode: number, body: any) => ({
+/**
+ * Helper to construct an APIGatewayProxyStructuredResultV2.
+ *
+ * @param statusCode - The HTTP status code.
+ * @param body - The body to be JSON stringified.
+ * @returns The APIGatewayProxyStructuredResultV2.
+ */
+const response = (
+  statusCode: number,
+  body: unknown,
+): APIGatewayProxyStructuredResultV2 => ({
   statusCode,
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify(body),

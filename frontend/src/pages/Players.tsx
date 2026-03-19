@@ -17,10 +17,9 @@ import {
 import { Add as AddIcon, BarChart } from "@mui/icons-material";
 import { db, type Player } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
-import { useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const Players: React.FC = () => {
-  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [defaultNumber, setDefaultNumber] = useState("");

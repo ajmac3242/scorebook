@@ -51,6 +51,9 @@ export interface StatEvent {
   synced?: number;
 }
 
+/**
+ * Main application database using Dexie.js for IndexedDB.
+ */
 export class AppDatabase extends Dexie {
   seasons!: Table<Season>;
   teams!: Table<Team>;
@@ -59,6 +62,9 @@ export class AppDatabase extends Dexie {
   games!: Table<Game>;
   stats!: Table<StatEvent>;
 
+  /**
+   * Initializes the database and defines the schema.
+   */
   constructor() {
     super("BasketballStatsDB");
     this.version(2).stores({

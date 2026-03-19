@@ -3,10 +3,10 @@ terraform {
 
   backend "s3" {
     bucket         = "basketball-stats-terraform-state-269555264437"
-    key            = "terraform.tfstate"
+    key            = "base/terraform.tfstate"
     region         = "us-east-1"
     encrypt        = true
-    use_lockfile = true
+    use_lockfile   = true
   }
 
   required_providers {
@@ -16,10 +16,6 @@ terraform {
     }
     random = {
       source  = "hashicorp/random"
-      version = "~> 3.0"
-    }
-    null = {
-      source  = "hashicorp/null"
       version = "~> 3.0"
     }
   }

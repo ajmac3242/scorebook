@@ -1,4 +1,5 @@
 name: Deploy Basketball Stats
+
 on:
   push:
     branches: [main]
@@ -18,15 +19,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
           cache-dependency-path: backend/package-lock.json
 
       - name: Build
+        working-directory: backend
         run: |
-          cd backend
           npm ci
           npm run build
           npm prune --production
@@ -40,24 +42,17 @@ jobs:
           retention-days: 1
 
   # ---------------------------------------------------------------
-  # Job 2: Terraform - runs AFTER backend build
-  # - Initial apply deploys infrastructure (Cognito, API GW, Lambda)
-  # - Reads Terraform outputs to inject real Cognito IDs into frontend
-  # - Builds frontend with live env vars baked in
-  # - Final apply syncs frontend to S3 and invalidates CloudFront
+  # Job 2: Apply Infrastructure Base layer (Stateful Resources)
   # ---------------------------------------------------------------
-  infra:
-    name: Terraform
+  infra-base:
+    name: Infrastructure (Base)
     runs-on: ubuntu-latest
-    needs: [build-backend]
+    outputs:
+      user_pool_id: ${{ steps.tf_outputs.outputs.user_pool_id }}
+      user_pool_client_id: ${{ steps.tf_outputs.outputs.user_pool_client_id }}
+      api_endpoint: ${{ steps.tf_outputs.outputs.api_endpoint }}
     steps:
       - uses: actions/checkout@v4
-
-      - name: Download lambda.zip artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: lambda-zip
-          # downloads to repo root so infra/main.tf can reference ../lambda.zip
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -71,29 +66,30 @@ jobs:
           terraform_wrapper: false
 
       - name: Terraform Init
-        run: cd infra && terraform init
+        working-directory: infra/base
+        run: terraform init
 
-      - name: Force Unlock Stale Terraform State
-        run: |
-          aws dynamodb delete-item \
-            --table-name basketball-stats-terraform-lock \
-            --key '{"LockID": {"S": "basketball-stats-terraform-state-269555264437/terraform.tfstate"}}' \
-            --region us-east-1 || true
-
-      - name: Terraform Plan
-        run: cd infra && terraform plan -out=tfplan
-
-      - name: Terraform Apply (Initial)
-        # Create/Update infrastructure (Cognito, Lambda, API Gateway, etc.)
-        run: cd infra && terraform apply -auto-approve tfplan
+      - name: Terraform Apply
+        working-directory: infra/base
+        run: terraform apply -auto-approve
 
       - name: Get Terraform Outputs
         id: tf_outputs
+        working-directory: infra/base
         run: |
-          cd infra
-          echo "VITE_USER_POOL_ID=$(terraform output -raw user_pool_id)" >> $GITHUB_ENV
-          echo "VITE_CLIENT_ID=$(terraform output -raw user_pool_client_id)" >> $GITHUB_ENV
-          echo "VITE_API_ENDPOINT=$(terraform output -raw api_endpoint)" >> $GITHUB_ENV
+          echo "user_pool_id=$(terraform output -raw user_pool_id)" >> $GITHUB_OUTPUT
+          echo "user_pool_client_id=$(terraform output -raw user_pool_client_id)" >> $GITHUB_OUTPUT
+          echo "api_endpoint=$(terraform output -raw api_endpoint)" >> $GITHUB_OUTPUT
+
+  # ---------------------------------------------------------------
+  # Job 3: Build Frontend (using outputs from infra-base)
+  # ---------------------------------------------------------------
+  build-frontend:
+    name: Build Frontend
+    runs-on: ubuntu-latest
+    needs: [infra-base]
+    steps:
+      - uses: actions/checkout@v4
 
       - name: Setup Node for Frontend Build
         uses: actions/setup-node@v4
@@ -103,19 +99,92 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
 
       - name: Build Frontend
-        # Bakes live Cognito IDs and API endpoint into the React build
+        working-directory: frontend
         run: |
-          cd frontend
           npm ci
           npm run build
         env:
-          VITE_USER_POOL_ID: ${{ env.VITE_USER_POOL_ID }}
-          VITE_CLIENT_ID: ${{ env.VITE_CLIENT_ID }}
-          VITE_API_ENDPOINT: ${{ env.VITE_API_ENDPOINT }}
+          VITE_USER_POOL_ID: ${{ needs.infra-base.outputs.user_pool_id }}
+          VITE_CLIENT_ID: ${{ needs.infra-base.outputs.user_pool_client_id }}
+          VITE_API_ENDPOINT: ${{ needs.infra-base.outputs.api_endpoint }}
 
-      - name: Generate frontend build hash
-        run: find frontend/dist -type f | sort | xargs sha256sum | sha256sum | awk '{print $1}' > frontend-build-hash.txt
+      - name: Upload frontend dist artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist/
+          retention-days: 1
 
-      - name: Terraform Apply (Final)
-        # Triggers null_resource.frontend_deploy to sync new build to S3 and invalidate CloudFront
-        run: cd infra && terraform apply -auto-approve
+  # ---------------------------------------------------------------
+  # Job 4: Apply Infrastructure App layer (Stateless/Deployable Resources)
+  # ---------------------------------------------------------------
+  infra-app:
+    name: Infrastructure (App)
+    runs-on: ubuntu-latest
+    needs: [build-backend, build-frontend]
+    outputs:
+      s3_bucket_name: ${{ steps.tf_outputs.outputs.s3_bucket_name }}
+      cloudfront_distribution_id: ${{ steps.tf_outputs.outputs.cloudfront_distribution_id }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download lambda.zip artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: lambda-zip
+          path: .
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::269555264437:role/github_deployment
+          aws-region: us-east-1
+          audience: sts.amazonaws.com
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
+
+      - name: Terraform Init
+        working-directory: infra/app
+        run: terraform init
+
+      - name: Terraform Apply
+        working-directory: infra/app
+        run: terraform apply -auto-approve
+
+      - name: Get Terraform Outputs
+        id: tf_outputs
+        working-directory: infra/app
+        run: |
+          echo "s3_bucket_name=$(terraform output -raw s3_bucket_name)" >> $GITHUB_OUTPUT
+          echo "cloudfront_distribution_id=$(terraform output -raw cloudfront_distribution_id)" >> $GITHUB_OUTPUT
+
+  # ---------------------------------------------------------------
+  # Job 5: Sync Frontend and Invalidate CloudFront
+  # ---------------------------------------------------------------
+  sync-frontend:
+    name: Sync Frontend
+    runs-on: ubuntu-latest
+    needs: [infra-app, build-frontend]
+    steps:
+      - name: Download frontend dist artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-dist
+          path: dist
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::269555264437:role/github_deployment
+          aws-region: us-east-1
+          audience: sts.amazonaws.com
+
+      - name: Sync S3
+        run: |
+          aws s3 sync dist/ s3://${{ needs.infra-app.outputs.s3_bucket_name }} --delete
+
+      - name: Invalidate CloudFront
+        run: |
+          aws cloudfront create-invalidation --distribution-id ${{ needs.infra-app.outputs.cloudfront_distribution_id }} --paths "/*"

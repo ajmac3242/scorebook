@@ -69,7 +69,7 @@ vi.mock("dexie-react-hooks", () => ({
           return [];
         }
         return res;
-      } catch (e) {
+      } catch {
         return [];
       }
     }

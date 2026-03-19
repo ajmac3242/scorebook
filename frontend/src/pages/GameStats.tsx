@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { useParams, useSearchParams, useNavigate } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import {
   Box,
   Typography,
@@ -16,7 +16,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Chip,
 } from "@mui/material";
 import BasketballCourt from "../components/BasketballCourt";
 import { db } from "../db";
@@ -30,7 +29,6 @@ const GameStats: React.FC = () => {
       ? gameIdParam
       : Number(gameIdParam)
     : undefined;
-  const navigate = useNavigate();
 
   const [selectedPlayerId, setSelectedPlayerId] = useState<number | string>(
     "ALL",
@@ -40,7 +38,7 @@ const GameStats: React.FC = () => {
   const game = useLiveQuery(
     () =>
       gameId !== undefined
-        ? db.games.get(gameId as any)
+        ? db.games.get(gameId as number)
         : Promise.resolve(undefined),
     [gameId],
   );
@@ -66,7 +64,18 @@ const GameStats: React.FC = () => {
   }, [stats, selectedPlayerId, selectedType]);
 
   const playerAggregates = useMemo(() => {
-    const agg: Record<string, any> = {};
+    interface Aggregate {
+      id: number | string;
+      name: string;
+      points: number;
+      rebounds: number;
+      assists: number;
+      steals: number;
+      turnovers: number;
+      makes: number;
+      attempts: number;
+    }
+    const agg: Record<string, Aggregate> = {};
 
     stats.forEach((s) => {
       const pId = s.playerId.toString();
@@ -190,7 +199,7 @@ const GameStats: React.FC = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {playerAggregates.map((row: any) => (
+                {playerAggregates.map((row) => (
                   <TableRow key={row.id}>
                     <TableCell sx={{ fontWeight: 600 }}>{row.name}</TableCell>
                     <TableCell align="right">{row.points}</TableCell>

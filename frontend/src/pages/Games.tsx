@@ -20,7 +20,7 @@ import {
   Fab,
 } from "@mui/material";
 import { Add as AddIcon } from "@mui/icons-material";
-import { db, type Game, type Team, type Season } from "../db";
+import { db, type Game } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useNavigate } from "react-router-dom";
 

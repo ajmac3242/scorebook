@@ -5,6 +5,10 @@ import {
   PutCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { mockClient } from "aws-sdk-client-mock";
+import {
+  APIGatewayProxyEventV2,
+  APIGatewayProxyStructuredResultV2,
+} from "aws-lambda";
 
 const ddbMock = mockClient(DynamoDBDocumentClient);
 
@@ -23,16 +27,26 @@ describe("Lambda Handler", () => {
     path: string,
     body: any = null,
     queryStringParameters: any = null,
-  ) => ({
-    requestContext: {
-      http: {
-        method,
-        path,
+  ): APIGatewayProxyEventV2 =>
+    ({
+      version: "2.0",
+      routeKey: "$default",
+      rawPath: path,
+      rawQueryString: "",
+      headers: {},
+      requestContext: {
+        http: {
+          method,
+          path,
+          protocol: "HTTP/1.1",
+          sourceIp: "127.0.0.1",
+          userAgent: "jest",
+        },
       },
-    },
-    body: body ? JSON.stringify(body) : null,
-    queryStringParameters,
-  });
+      body: body ? JSON.stringify(body) : null,
+      queryStringParameters,
+      isBase64Encoded: false,
+    }) as any;
 
   describe("Seasons", () => {
     it("GET /seasons returns items", async () => {
@@ -41,10 +55,12 @@ describe("Lambda Handler", () => {
       });
 
       const event = createEvent("GET", "/seasons");
-      const response = await handler(event);
+      const response = (await handler(
+        event,
+      )) as APIGatewayProxyStructuredResultV2;
 
       expect(response.statusCode).toBe(200);
-      expect(JSON.parse(response.body)).toEqual([
+      expect(JSON.parse(response.body || "[]")).toEqual([
         { id: "1", name: "Season 1" },
       ]);
     });
@@ -53,10 +69,12 @@ describe("Lambda Handler", () => {
       ddbMock.on(PutCommand).resolves({});
 
       const event = createEvent("POST", "/seasons", { name: "New Season" });
-      const response = await handler(event);
+      const response = (await handler(
+        event,
+      )) as APIGatewayProxyStructuredResultV2;
 
       expect(response.statusCode).toBe(201);
-      const body = JSON.parse(response.body);
+      const body = JSON.parse(response.body || "{}");
       expect(body.name).toBe("New Season");
       expect(body.id).toBe("test-uuid");
     });
@@ -69,10 +87,14 @@ describe("Lambda Handler", () => {
       });
 
       const event = createEvent("GET", "/teams", null, { seasonId: "s1" });
-      const response = await handler(event);
+      const response = (await handler(
+        event,
+      )) as APIGatewayProxyStructuredResultV2;
 
       expect(response.statusCode).toBe(200);
-      expect(JSON.parse(response.body)).toEqual([{ id: "t1", name: "Team 1" }]);
+      expect(JSON.parse(response.body || "[]")).toEqual([
+        { id: "t1", name: "Team 1" },
+      ]);
     });
 
     it("POST /teams creates an item", async () => {
@@ -82,10 +104,12 @@ describe("Lambda Handler", () => {
         name: "New Team",
         seasonId: "s1",
       });
-      const response = await handler(event);
+      const response = (await handler(
+        event,
+      )) as APIGatewayProxyStructuredResultV2;
 
       expect(response.statusCode).toBe(201);
-      const body = JSON.parse(response.body);
+      const body = JSON.parse(response.body || "{}");
       expect(body.name).toBe("New Team");
       expect(body.seasonId).toBe("s1");
     });
@@ -98,7 +122,9 @@ describe("Lambda Handler", () => {
       });
 
       const event = createEvent("GET", "/players");
-      const response = await handler(event);
+      const response = (await handler(
+        event,
+      )) as APIGatewayProxyStructuredResultV2;
 
       expect(response.statusCode).toBe(200);
     });
@@ -107,7 +133,9 @@ describe("Lambda Handler", () => {
       ddbMock.on(PutCommand).resolves({});
 
       const event = createEvent("POST", "/players", { name: "New Player" });
-      const response = await handler(event);
+      const response = (await handler(
+        event,
+      )) as APIGatewayProxyStructuredResultV2;
 
       expect(response.statusCode).toBe(201);
     });
@@ -120,7 +148,9 @@ describe("Lambda Handler", () => {
       });
 
       const event = createEvent("GET", "/games", null, { teamId: "t1" });
-      const response = await handler(event);
+      const response = (await handler(
+        event,
+      )) as APIGatewayProxyStructuredResultV2;
 
       expect(response.statusCode).toBe(200);
     });
@@ -132,7 +162,9 @@ describe("Lambda Handler", () => {
         teamId: "t1",
         opponent: "Opponent",
       });
-      const response = await handler(event);
+      const response = (await handler(
+        event,
+      )) as APIGatewayProxyStructuredResultV2;
 
       expect(response.statusCode).toBe(201);
     });
@@ -145,7 +177,9 @@ describe("Lambda Handler", () => {
       });
 
       const event = createEvent("GET", "/games/g1/stats");
-      const response = await handler(event);
+      const response = (await handler(
+        event,
+      )) as APIGatewayProxyStructuredResultV2;
 
       expect(response.statusCode).toBe(200);
     });
@@ -157,7 +191,9 @@ describe("Lambda Handler", () => {
         type: "SHOT",
         playerId: "p1",
       });
-      const response = await handler(event);
+      const response = (await handler(
+        event,
+      )) as APIGatewayProxyStructuredResultV2;
 
       expect(response.statusCode).toBe(201);
     });
@@ -165,7 +201,9 @@ describe("Lambda Handler", () => {
 
   it("returns 404 for unknown route", async () => {
     const event = createEvent("GET", "/unknown");
-    const response = await handler(event);
+    const response = (await handler(
+      event,
+    )) as APIGatewayProxyStructuredResultV2;
 
     expect(response.statusCode).toBe(404);
   });
@@ -174,10 +212,12 @@ describe("Lambda Handler", () => {
     ddbMock.on(QueryCommand).rejects(new Error("DDB Error"));
 
     const event = createEvent("GET", "/seasons");
-    const response = await handler(event);
+    const response = (await handler(
+      event,
+    )) as APIGatewayProxyStructuredResultV2;
 
     expect(response.statusCode).toBe(500);
-    expect(JSON.parse(response.body).message).toBe("DDB Error");
+    expect(JSON.parse(response.body || "{}").message).toBe("DDB Error");
   });
 
   describe("Edge Cases", () => {
@@ -185,24 +225,28 @@ describe("Lambda Handler", () => {
       const event = {
         requestContext: { http: { method: "POST", path: "/seasons" } },
         body: "invalid-json",
-      };
-      const response = await handler(event);
+      } as any;
+      const response = (await handler(
+        event,
+      )) as APIGatewayProxyStructuredResultV2;
       expect(response.statusCode).toBe(500);
     });
 
     it("GET /teams without seasonId returns empty if DDB query handles it", async () => {
-      // The code does: const seasonId = event.queryStringParameters?.seasonId;
-      // then queries with SEASON#undefined if missing.
       ddbMock.on(QueryCommand).resolves({ Items: [] });
       const event = createEvent("GET", "/teams");
-      const response = await handler(event);
+      const response = (await handler(
+        event,
+      )) as APIGatewayProxyStructuredResultV2;
       expect(response.statusCode).toBe(200);
-      expect(JSON.parse(response.body)).toEqual([]);
+      expect(JSON.parse(response.body || "[]")).toEqual([]);
     });
 
     it("POST /teams missing body returns 500", async () => {
       const event = createEvent("POST", "/teams", null);
-      const response = await handler(event);
+      const response = (await handler(
+        event,
+      )) as APIGatewayProxyStructuredResultV2;
       expect(response.statusCode).toBe(500);
     });
   });

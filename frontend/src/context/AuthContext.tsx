@@ -11,6 +11,11 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+/**
+ *
+ * @param root0
+ * @param root0.children
+ */
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
@@ -23,8 +28,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       user.getSession(
         (err: Error | null, session: CognitoUserSession | null) => {
           if (err || !session || !session.isValid()) {
-            setIsAuthenticated(false);
             localStorage.removeItem("isAuthenticated");
+            setIsAuthenticated(false);
           } else {
             setIsAuthenticated(true);
           }
@@ -32,8 +37,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         },
       );
     } else {
-      setIsAuthenticated(false);
       localStorage.removeItem("isAuthenticated");
+      setIsAuthenticated(false);
       setLoading(false);
     }
   }, []);
@@ -56,6 +61,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   );
 };
 
+/**
+ *
+ */
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {

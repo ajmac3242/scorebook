@@ -26,7 +26,6 @@ import { useLiveQuery } from "dexie-react-hooks";
 const PlayerStats: React.FC = () => {
   const { playerId: playerIdParam } = useParams<{ playerId: string }>();
   const playerId = playerIdParam ? Number(playerIdParam) : undefined;
-  const navigate = useNavigate();
 
   const [selectedSeasonId, setSelectedSeasonId] = useState<number | string>("");
   const [selectedGameId, setSelectedGameId] = useState<number | string>("");
@@ -107,25 +106,6 @@ const PlayerStats: React.FC = () => {
       attempts,
     };
   }, [filteredStats]);
-
-  const StatCard = ({
-    label,
-    value,
-  }: {
-    label: string;
-    value: string | number;
-  }) => (
-    <Card sx={{ bgcolor: "#FFFDF5", border: "1px solid #D1D1D1" }}>
-      <CardContent sx={{ p: 2, "&:last-child": { pb: 2 } }}>
-        <Typography variant="caption" color="text.secondary" gutterBottom>
-          {label}
-        </Typography>
-        <Typography variant="h5" sx={{ fontFamily: "var(--serif)" }}>
-          {value}
-        </Typography>
-      </CardContent>
-    </Card>
-  );
 
   return (
     <Box sx={{ pb: 4 }}>
@@ -282,5 +262,24 @@ const PlayerStats: React.FC = () => {
     </Box>
   );
 };
+
+const StatCard = ({
+  label,
+  value,
+}: {
+  label: string;
+  value: string | number;
+}) => (
+  <Card sx={{ bgcolor: "#FFFDF5", border: "1px solid #D1D1D1" }}>
+    <CardContent sx={{ p: 2, "&:last-child": { pb: 2 } }}>
+      <Typography variant="caption" color="text.secondary" gutterBottom>
+        {label}
+      </Typography>
+      <Typography variant="h5" sx={{ fontFamily: "var(--serif)" }}>
+        {value}
+      </Typography>
+    </CardContent>
+  </Card>
+);
 
 export default PlayerStats;

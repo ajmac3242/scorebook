@@ -16,10 +16,9 @@ import {
   Grid,
   Stack,
   Divider,
-  IconButton,
 } from "@mui/material";
-import { Add as AddIcon, ChevronLeft, ChevronRight } from "@mui/icons-material";
-import { db, type Season, type Game } from "../db";
+import { Add as AddIcon } from "@mui/icons-material";
+import { db, type Season } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
 import { LocalizationProvider, StaticDatePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";

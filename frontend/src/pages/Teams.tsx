@@ -17,7 +17,6 @@ import {
   Select,
   MenuItem,
   Stack,
-  IconButton,
   Divider,
   Chip,
 } from "@mui/material";
@@ -111,6 +110,7 @@ const Teams: React.FC = () => {
 
   /**
    * Adds a player to the active team roster.
+   * @param playerId
    */
   const handleAddPlayerToTeam = async (playerId: string) => {
     if (!activeTeamId) return;
@@ -134,6 +134,8 @@ const Teams: React.FC = () => {
 
   /**
    * Removes a player from the active team roster.
+   * @param playerId
+   * @param teamId
    */
   const handleRemovePlayerFromTeam = async (
     playerId: string,
@@ -166,6 +168,7 @@ const Teams: React.FC = () => {
 
   /**
    * Returns the list of players assigned to a given team.
+   * @param teamId
    */
   const getPlayersForTeam = (teamId: string) => {
     const playerIds = teamPlayers

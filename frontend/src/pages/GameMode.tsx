@@ -242,28 +242,6 @@ const GameMode: React.FC = () => {
     setDialogOpen(true);
   };
 
-  const QuickAction = ({ type, label, icon: Icon, color }: any) => (
-    <Button
-      variant={statType === type ? "contained" : "outlined"}
-      color="inherit"
-      onClick={() => {
-        setStatType(type);
-        if (type !== "MAKE") handleSaveStat(type);
-      }}
-      sx={{
-        flexDirection: "column",
-        py: 2,
-        minWidth: 80,
-        borderColor: "#D1D1D1",
-        backgroundColor: statType === type ? "#2D2D2D" : "transparent",
-        color: statType === type ? "#FFFDF5" : "#2D2D2D",
-      }}
-    >
-      <Icon sx={{ mb: 1 }} />
-      <Typography variant="caption">{label}</Typography>
-    </Button>
-  );
-
   return (
     <Box sx={{ pb: 4 }}>
       <Grid container spacing={3}>
@@ -593,16 +571,49 @@ const GameMode: React.FC = () => {
               gap: 1,
             }}
           >
-            <QuickAction type="MAKE" label="Make" icon={Check} />
-            <QuickAction type="MISS" label="Miss" icon={Close} />
+            <QuickAction
+              type="MAKE"
+              label="Make"
+              icon={Check}
+              statType={statType}
+              handleSaveStat={handleSaveStat}
+              onClick={() => setStatType("MAKE")}
+            />
+            <QuickAction
+              type="MISS"
+              label="Miss"
+              icon={Close}
+              statType={statType}
+              handleSaveStat={handleSaveStat}
+            />
             <QuickAction
               type="REBOUND"
               label="Rebound"
               icon={SportsBasketball}
+              statType={statType}
+              handleSaveStat={handleSaveStat}
             />
-            <QuickAction type="STEAL" label="Steal" icon={RadioButtonChecked} />
-            <QuickAction type="ASSIST" label="Assist" icon={PanTool} />
-            <QuickAction type="TURNOVER" label="TO" icon={SwapHoriz} />
+            <QuickAction
+              type="STEAL"
+              label="Steal"
+              icon={RadioButtonChecked}
+              statType={statType}
+              handleSaveStat={handleSaveStat}
+            />
+            <QuickAction
+              type="ASSIST"
+              label="Assist"
+              icon={PanTool}
+              statType={statType}
+              handleSaveStat={handleSaveStat}
+            />
+            <QuickAction
+              type="TURNOVER"
+              label="TO"
+              icon={SwapHoriz}
+              statType={statType}
+              handleSaveStat={handleSaveStat}
+            />
           </Box>
 
           {statType === "MAKE" && (
@@ -688,5 +699,44 @@ const GameMode: React.FC = () => {
     </Box>
   );
 };
+
+const QuickAction = ({
+  type,
+  label,
+  icon: Icon,
+  statType,
+  handleSaveStat,
+  onClick,
+}: {
+  type: string;
+  label: string;
+  icon: React.ElementType;
+  statType: string | null;
+  handleSaveStat: (type?: string) => void;
+  onClick?: () => void;
+}) => (
+  <Button
+    variant={statType === type ? "contained" : "outlined"}
+    color="inherit"
+    onClick={() => {
+      if (onClick) {
+        onClick();
+      } else if (type !== "MAKE") {
+        handleSaveStat(type);
+      }
+    }}
+    sx={{
+      flexDirection: "column",
+      py: 2,
+      minWidth: 80,
+      borderColor: "#D1D1D1",
+      backgroundColor: statType === type ? "#2D2D2D" : "transparent",
+      color: statType === type ? "#FFFDF5" : "#2D2D2D",
+    }}
+  >
+    <Icon sx={{ mb: 1 }} />
+    <Typography variant="caption">{label}</Typography>
+  </Button>
+);
 
 export default GameMode;
