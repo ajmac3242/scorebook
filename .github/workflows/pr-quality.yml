@@ -248,43 +248,17 @@ jobs:
       - name: Audit backend JSDoc coverage
         id: backend-audit
         run: |
-          cd backend
-          # Count total exported symbols
-          total=$(grep -rE "^(export (async )?function|export (default )?class|export const [a-zA-Z]+ = (async )?(function|\.{3}|\()" src --include="*.ts" | grep -v __tests__ | wc -l | tr -d ' ')
-          output=$(npx eslint "src/**/*.ts" --rule '{"jsdoc/require-jsdoc":["warn",{"require":{"FunctionDeclaration":true,"FunctionExpression":true,"MethodDefinition":true,"ClassDeclaration":true},"enableFixer":false}],"jsdoc/require-description":["warn",{"descriptionStyle":"body"}]}' 
-          echo "total=$total" >> $GITHUB_OUTPUT
-          echo "result<<EOF" >> $GITHUB_OUTPUT
-          echo "$output" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
       - name: Audit frontend JSDoc coverage
         id: frontend-audit
         run: |
           cd frontend
-            - name: Write frontend ESLint config with JSDoc rules
-                    run: |
-                            cat > frontend/eslint.config.mjs << 'ESLINTEOF'
-                                    import js from "@eslint/js";
-                                            import tsPlugin from "@typescript-eslint/eslint-plugin";
-                                                    import tsParser from "@typescript-eslint/parser";
-                                                            import reactHooks from "eslint-plugin-react-hooks";
-                                                                    import reactRefresh from "eslint-plugin-react-refresh";
-                                                                            import jsdocPlugin from "eslint-plugin-jsdoc";
-                                                                                    import globals from "globals";
-                                                                                            export default [
-                                                                                                      { ignores: ["dist", "src/__tests__/**"] },
-                                                                                                                {
-                                                                                                                            files: ["src/**/*.{ts,tsx}"],
-                                                                                                                                        languageOptions: {
-                                                                                                                                                      ecmaVersion: 2020,
-                                                                                                                                                                    globals: globals.browser,
-                                                                                                                                                                                  parser: tsParser
-                                                                                                                                                                                              },
-                                                                                                                                                                                                          plugins: {
-                                                                                                                                                                                                                        "@typescript-eslint": tsPlugin,
-                                                                                                                                                                                                                                      "react-hooks": reactHooks,
-                                                                                                                                                                                                                                                    "react-refresh": reactRefresh,
-                                                                                                                                                                                                                                                                  jsdoc: jsdocPlugin
-                                                                                                                                                                                                                                                                              },
+    # Count total exported symbols
+    total=$(grep -rE "^(export (default )?(async )?function|export (default )?class|export const [a-zA-Z]+ = )" src --include="*.ts" --include="*.tsx" | grep -v __tests__ | wc -l | tr -d ' ')
+    output=$(npx eslint "src/**/*.{ts,tsx}" --rule '{"jsdoc/require-jsdoc":["warn",{"require":{"FunctionDeclaration":true,"FunctionExpression":true,"MethodDefinition":true,"ClassDeclaration":true},"enableFixer":false}],"jsdoc/require-description":["warn",{"descriptionStyle":"body"}]}' --plugin jsdoc --format compact 2>&1 || true)
+    echo "total=$total" >> $GITHUB_OUTPUT
+    echo "result<<EOF" >> $GITHUB_OUTPUT
+    echo "$output" >> $GITHUB_OUTPUT
+    echo "EOF" >> $GITHUB_OUTPUT
                                                                                                                                                                                                                                                                                           rules: {
                                                                                                                                                                                                                                                                                                         "jsdoc/require-jsdoc": ["warn", {
                                                                                                                                                                                                                                                                                                                         require: {
