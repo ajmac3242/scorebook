@@ -79,6 +79,9 @@ const GameMode: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editingStatId, setEditingStatId] = useState<number | null>(null);
 
+  const [endGameDialogOpen, setEndGameDialogOpen] = useState(false);
+  const [summaryDialogOpen, setSummaryDialogOpen] = useState(false);
+
   const [onCourtIds, setOnCourtIds] = useState<Set<number | string>>(new Set());
   const [period, setPeriod] = useState(1);
   const [trackingMode, setTrackingMode] = useState<"TEAM" | "OPPONENT">("TEAM");
@@ -164,6 +167,18 @@ const GameMode: React.FC = () => {
       } catch (err) {
         console.error("Failed to undo stat:", err);
       }
+    }
+  };
+
+  const handleEndGame = async () => {
+    if (!gameId || gameId === "practice-session") return;
+    try {
+      await db.open();
+      await db.games.update(gameId as any, { completed: 1 });
+      setEndGameDialogOpen(false);
+      setSummaryDialogOpen(true);
+    } catch (err) {
+      console.error("Failed to end game:", err);
     }
   };
 
@@ -332,6 +347,17 @@ const GameMode: React.FC = () => {
                     onClick={() => setPeriod((p) => (p < 4 ? p + 1 : 1))}
                     variant="outlined"
                   />
+                  {!game?.completed && gameId !== "practice-session" && (
+                    <Button
+                      size="small"
+                      variant="contained"
+                      color="error"
+                      onClick={() => setEndGameDialogOpen(true)}
+                      sx={{ ml: 2 }}
+                    >
+                      End Game
+                    </Button>
+                  )}
                 </Stack>
               </Box>
               <ToggleButtonGroup
@@ -628,6 +654,71 @@ const GameMode: React.FC = () => {
             disabled={!selectedPlayerId || !statType}
           >
             {isEditing ? "Update" : "Save"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={endGameDialogOpen}
+        onClose={() => setEndGameDialogOpen(false)}
+      >
+        <DialogTitle sx={{ fontFamily: "var(--serif)" }}>End Game?</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Is the game finished? Once ended, the results will be finalized for
+            team averages.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={() => setEndGameDialogOpen(false)} color="inherit">
+            No, Continue
+          </Button>
+          <Button onClick={handleEndGame} color="error" variant="contained">
+            Yes, Finish Game
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={summaryDialogOpen}
+        onClose={() => setSummaryDialogOpen(false)}
+      >
+        <DialogTitle sx={{ fontFamily: "var(--serif)", textAlign: "center" }}>
+          Game Summary
+        </DialogTitle>
+        <DialogContent>
+          <Box sx={{ textAlign: "center", py: 2 }}>
+            <Typography variant="h3" sx={{ fontWeight: 700, mb: 1 }}>
+              {currentScore} - {opponentScore}
+            </Typography>
+            <Typography
+              variant="h5"
+              color={
+                currentScore > opponentScore ? "success.main" : "error.main"
+              }
+              sx={{ fontWeight: 600, mb: 3 }}
+            >
+              {currentScore > opponentScore
+                ? "WIN"
+                : currentScore < opponentScore
+                  ? "LOSS"
+                  : "DRAW"}
+            </Typography>
+            <Typography variant="body1">
+              The game has been finalized. You can view the full box score in
+              the Game Stats page.
+            </Typography>
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ justifyContent: "center", pb: 3 }}>
+          <Button
+            variant="contained"
+            onClick={() => {
+              setSummaryDialogOpen(false);
+              // Option to navigate away? Or just stay.
+            }}
+          >
+            Close
           </Button>
         </DialogActions>
       </Dialog>
