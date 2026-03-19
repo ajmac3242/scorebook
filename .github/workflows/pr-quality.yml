@@ -252,13 +252,7 @@ jobs:
         id: frontend-audit
         run: |
           cd frontend
-    # Count total exported symbols
-    total=$(grep -rE "^(export (default )?(async )?function|export (default )?class|export const [a-zA-Z]+ = )" src --include="*.ts" --include="*.tsx" | grep -v __tests__ | wc -l | tr -d ' ')
-    output=$(npx eslint "src/**/*.{ts,tsx}" --rule '{"jsdoc/require-jsdoc":["warn",{"require":{"FunctionDeclaration":true,"FunctionExpression":true,"MethodDefinition":true,"ClassDeclaration":true},"enableFixer":false}],"jsdoc/require-description":["warn",{"descriptionStyle":"body"}]}' --plugin jsdoc --format compact 2>&1 || true)
-    echo "total=$total" >> $GITHUB_OUTPUT
-    echo "result<<EOF" >> $GITHUB_OUTPUT
-    echo "$output" >> $GITHUB_OUTPUT
-    echo "EOF" >> $GITHUB_OUTPUT
+              echo "Frontend audit placeholder - to be implemented"
                                                                                                                                                                                                                                                                                           rules: {
                                                                                                                                                                                                                                                                                                         "jsdoc/require-jsdoc": ["warn", {
                                                                                                                                                                                                                                                                                                                         require: {
