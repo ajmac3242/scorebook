@@ -26,6 +26,7 @@ import BasketballCourt from "../components/BasketballCourt";
 import { db } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
 import { STAT_ACRONYMS, ACTION_TYPES } from "../constants/stats";
+const OPPONENT_PLAYER_ID = "OPPONENT";
 import {
   LineChart,
   Line,
