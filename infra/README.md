@@ -34,6 +34,10 @@ terraform apply
 ---
 
 <!-- BEGIN_TF_DOCS -->
+@file main.tf
+@description Main Terraform configuration for the Basketball Stats application.
+Defines Cognito, DynamoDB, S3, API Gateway, Lambda, and CloudFront resources.
+
 ## Requirements
 
 | Name | Version |
@@ -96,15 +100,18 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_aws_region"></a> [aws\_region](#input\_aws\_region) | n/a | `string` | `"us-east-1"` | no |
+| <a name="input_aws_region"></a> [aws\_region](#input\_aws\_region) | The AWS region to deploy all resources into. | `string` | `"us-east-1"` | no |
+| <a name="input_project_name"></a> [project\_name](#input\_project\_name) | The name of the project, used as a prefix for various resource names. | `string` | `"basketball-stats"` | no |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
-| <a name="output_api_endpoint"></a> [api\_endpoint](#output\_api\_endpoint) | n/a |
-| <a name="output_cloudfront_domain_name"></a> [cloudfront\_domain\_name](#output\_cloudfront\_domain\_name) | n/a |
-| <a name="output_s3_bucket_name"></a> [s3\_bucket\_name](#output\_s3\_bucket\_name) | n/a |
-| <a name="output_user_pool_client_id"></a> [user\_pool\_client\_id](#output\_user\_pool\_client\_id) | n/a |
-| <a name="output_user_pool_id"></a> [user\_pool\_id](#output\_user\_pool\_id) | n/a |
+| <a name="output_api_endpoint"></a> [api\_endpoint](#output\_api\_endpoint) | The base URL for the HTTP API Gateway. |
+| <a name="output_cloudfront_domain"></a> [cloudfront\_domain](#output\_cloudfront\_domain) | The domain name of the CloudFront distribution hosting the website. |
+| <a name="output_cognito_client_id"></a> [cognito\_client\_id](#output\_cognito\_client\_id) | The ID of the Cognito User Pool Client for the frontend. |
+| <a name="output_cognito_user_pool_id"></a> [cognito\_user\_pool\_id](#output\_cognito\_user\_pool\_id) | The ID of the Cognito User Pool for authentication. |
+| <a name="output_data_bucket_id"></a> [data\_bucket\_id](#output\_data\_bucket\_id) | The name of the S3 bucket storing JSON snapshots. |
+| <a name="output_dynamodb_table_name"></a> [dynamodb\_table\_name](#output\_dynamodb\_table\_name) | The name of the main DynamoDB table for all application data. |
+| <a name="output_hosting_bucket_id"></a> [hosting\_bucket\_id](#output\_hosting\_bucket\_id) | The name of the S3 bucket hosting the frontend assets. |
 <!-- END_TF_DOCS -->
