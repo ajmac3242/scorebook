@@ -17,12 +17,18 @@ import {
   MenuItem,
   Stack,
   Fab,
+  Chip,
 } from "@mui/material";
-import { Add as AddIcon } from "@mui/icons-material";
+import {
+  Add as AddIcon,
+  SportsBasketball as BallIcon,
+} from "@mui/icons-material";
 import { db, type Game } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useNavigate } from "react-router-dom";
 import { MoleskineCard, PageHeader } from "../components/SharedUI";
+import { calculateGameResult } from "../utils/stats";
+import { Avatar } from "@mui/material";
 
 const Games: React.FC = () => {
   const navigate = useNavigate();
@@ -64,12 +70,43 @@ const Games: React.FC = () => {
       try {
         await db.open();
         if (!selectedTeamId) return [];
-        return await db.games.where("teamId").equals(selectedTeamId).toArray();
+        const items = await db.games
+          .where("teamId")
+          .equals(selectedTeamId)
+          .toArray();
+        return items.sort(
+          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+        );
       } catch (err) {
         console.error("Failed to fetch games:", err);
         return [];
       }
     }, [selectedTeamId]) || [];
+
+  const gameIds = games.map((g) => g.id).filter(Boolean);
+  const allStats =
+    useLiveQuery(
+      () =>
+        gameIds.length > 0
+          ? db.stats
+              .where("gameId")
+              .anyOf(gameIds as any[])
+              .toArray()
+          : Promise.resolve([]),
+      [gameIds],
+    ) || [];
+
+  const currentTeam = useLiveQuery(
+    () =>
+      selectedTeamId
+        ? db.teams.get(
+            isNaN(Number(selectedTeamId))
+              ? selectedTeamId
+              : Number(selectedTeamId),
+          )
+        : Promise.resolve(undefined),
+    [selectedTeamId],
+  );
 
   const handleAddGame = async () => {
     if (!selectedTeamId) return;
@@ -137,39 +174,126 @@ const Games: React.FC = () => {
             {games.length === 0 && (
               <Typography>No games for this team.</Typography>
             )}
-            {games.map((game) => (
-              <ListItem
-                key={game.id}
-                divider
-                secondaryAction={
-                  <Stack direction="row" spacing={1}>
-                    <Button
-                      variant="outlined"
-                      size="small"
-                      onClick={() => navigate(`/game/stats?gameId=${game.id}`)}
-                    >
-                      Stats
-                    </Button>
-                    <Button
-                      variant="contained"
-                      size="small"
-                      onClick={() =>
-                        navigate(
-                          `/game?gameId=${game.id}&teamId=${game.teamId}`,
-                        )
+            {games.map((game) => {
+              const { teamScore, oppScore, result } = calculateGameResult(
+                game.id!,
+                allStats,
+              );
+              return (
+                <ListItem
+                  key={game.id}
+                  divider
+                  sx={{
+                    bgcolor: game.completed
+                      ? "rgba(0,0,0,0.02)"
+                      : "transparent",
+                    transition: "background-color 0.2s",
+                  }}
+                  secondaryAction={
+                    <Stack direction="row" spacing={1}>
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        onClick={() =>
+                          navigate(`/game/stats?gameId=${game.id}`)
+                        }
+                      >
+                        Stats
+                      </Button>
+                      {game.completed ? (
+                        <Button
+                          variant="outlined"
+                          size="small"
+                          color="secondary"
+                          onClick={() =>
+                            navigate(
+                              `/game?gameId=${game.id}&teamId=${game.teamId}`,
+                            )
+                          }
+                        >
+                          Edit Game
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="contained"
+                          size="small"
+                          onClick={() =>
+                            navigate(
+                              `/game?gameId=${game.id}&teamId=${game.teamId}`,
+                            )
+                          }
+                        >
+                          Track
+                        </Button>
+                      )}
+                    </Stack>
+                  }
+                >
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      width: "100%",
+                      mr: 2,
+                    }}
+                  >
+                    {currentTeam?.logoUrl ? (
+                      <Avatar
+                        src={currentTeam.logoUrl}
+                        sx={{
+                          width: 32,
+                          height: 32,
+                          mr: 2,
+                          border: "1px solid #eee",
+                        }}
+                      />
+                    ) : (
+                      <Avatar
+                        sx={{
+                          width: 32,
+                          height: 32,
+                          mr: 2,
+                          bgcolor: "primary.main",
+                          fontSize: "0.8rem",
+                        }}
+                      >
+                        <BallIcon sx={{ fontSize: 18 }} />
+                      </Avatar>
+                    )}
+                    <ListItemText
+                      primary={
+                        <Box
+                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                        >
+                          <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                            vs {game.opponent}
+                          </Typography>
+                          {game.completed && (
+                            <Chip
+                              label={`${result} ${teamScore}-${oppScore}`}
+                              size="small"
+                              color={
+                                result === "W"
+                                  ? "success"
+                                  : result === "L"
+                                    ? "error"
+                                    : "default"
+                              }
+                              sx={{
+                                fontWeight: 700,
+                                height: 20,
+                                fontSize: "0.7rem",
+                              }}
+                            />
+                          )}
+                        </Box>
                       }
-                    >
-                      Track
-                    </Button>
-                  </Stack>
-                }
-              >
-                <ListItemText
-                  primary={`vs ${game.opponent}`}
-                  secondary={`${game.date} @ ${game.location}`}
-                />
-              </ListItem>
-            ))}
+                      secondary={`${game.date} @ ${game.location}`}
+                    />
+                  </Box>
+                </ListItem>
+              );
+            })}
           </List>
         </MoleskineCard>
       )}

@@ -161,3 +161,21 @@ export const calculateTeamAggregates = (
     totalGames: targetGames.length,
   };
 };
+
+export const calculateGameResult = (
+  gameId: number | string,
+  stats: StatEvent[],
+) => {
+  const gameStats = stats.filter(
+    (s) => s.gameId.toString() === gameId.toString(),
+  );
+  const teamScore = gameStats
+    .filter((s) => s.playerId !== "OPPONENT")
+    .reduce((sum, s) => sum + (s.points || 0), 0);
+  const oppScore = gameStats
+    .filter((s) => s.playerId === "OPPONENT")
+    .reduce((sum, s) => sum + (s.points || 0), 0);
+
+  const result = teamScore > oppScore ? "W" : teamScore < oppScore ? "L" : "D";
+  return { teamScore, oppScore, result };
+};

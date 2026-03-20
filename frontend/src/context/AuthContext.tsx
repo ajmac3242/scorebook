@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { CognitoUserSession } from "amazon-cognito-identity-js";
 import { UserPool } from "../UserPool";
+import { syncService } from "../utils/syncService";
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -27,6 +28,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
             localStorage.removeItem("isAuthenticated");
           } else {
             setIsAuthenticated(true);
+            // Trigger initial sync on load if authenticated
+            syncService.pullAll();
           }
           setLoading(false);
         },
@@ -45,6 +48,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
     setIsAuthenticated(false);
     localStorage.removeItem("isAuthenticated");
+    // Clear sync markers on logout to ensure fresh data for next user
+    localStorage.clear();
   };
 
   return (

@@ -8,10 +8,15 @@ import {
   Select,
   MenuItem,
   Stack,
-  Divider,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Fab,
 } from "@mui/material";
 import { Add as AddIcon } from "@mui/icons-material";
-import { db } from "../db";
+import { db, type Team } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
 import { Link, useNavigate } from "react-router-dom";
 import { MoleskineCard, PageHeader } from "../components/SharedUI";
@@ -19,6 +24,10 @@ import { MoleskineCard, PageHeader } from "../components/SharedUI";
 const Teams: React.FC = () => {
   const navigate = useNavigate();
   const [selectedSeasonId, setSelectedSeasonId] = useState<string>("");
+  const [open, setOpen] = useState(false);
+  const [teamName, setTeamName] = useState("");
+  const [logoUrl, setLogoUrl] = useState("");
+  const [primaryColor, setPrimaryColor] = useState("#154C56");
 
   const seasons =
     useLiveQuery(async () => {
@@ -46,8 +55,32 @@ const Teams: React.FC = () => {
       }
     }, [selectedSeasonId]) || [];
 
+  const handleAddTeam = async () => {
+    if (!selectedSeasonId) {
+      alert("Please select a season first");
+      return;
+    }
+    try {
+      await db.open();
+      const newTeam: Team = {
+        name: teamName,
+        seasonId: selectedSeasonId,
+        logoUrl,
+        primaryColor,
+        synced: 0,
+      };
+      await db.teams.add(newTeam);
+      setOpen(false);
+      setTeamName("");
+      setLogoUrl("");
+      setPrimaryColor("#154C56");
+    } catch (err) {
+      console.error("Failed to add team:", err);
+    }
+  };
+
   return (
-    <Box>
+    <Box sx={{ pb: 8 }}>
       <PageHeader title="Teams" />
       <MoleskineCard sx={{ mb: 3 }}>
         <FormControl fullWidth variant="outlined">
@@ -87,7 +120,14 @@ const Teams: React.FC = () => {
       </Box>
 
       <Stack spacing={2}>
-        {teams.length === 0 && <Typography>No teams found.</Typography>}
+        {teams.length === 0 && (
+          <Typography
+            color="text.secondary"
+            sx={{ textAlign: "center", py: 4 }}
+          >
+            No teams found.
+          </Typography>
+        )}
         {teams.map((team) => (
           <MoleskineCard
             key={team.id}
@@ -119,6 +159,66 @@ const Teams: React.FC = () => {
           </MoleskineCard>
         ))}
       </Stack>
+
+      <Fab
+        color="primary"
+        aria-label="add"
+        sx={{ position: "fixed", bottom: 32, right: 32 }}
+        onClick={() => setOpen(true)}
+        disabled={!selectedSeasonId}
+      >
+        <AddIcon />
+      </Fab>
+
+      <Dialog open={open} onClose={() => setOpen(false)}>
+        <DialogTitle>Add New Team</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Team Name"
+            fullWidth
+            variant="outlined"
+            value={teamName}
+            onChange={(e) => setTeamName(e.target.value)}
+            sx={{ mb: 2 }}
+          />
+          <TextField
+            margin="dense"
+            label="Logo URL (optional)"
+            fullWidth
+            variant="outlined"
+            value={logoUrl}
+            onChange={(e) => setLogoUrl(e.target.value)}
+            sx={{ mb: 2 }}
+          />
+          <Typography variant="subtitle2" gutterBottom>
+            Primary Color
+          </Typography>
+          <input
+            type="color"
+            style={{
+              display: "block",
+              width: "100%",
+              height: 40,
+              border: "1px solid #D1D1D1",
+              borderRadius: 4,
+            }}
+            value={primaryColor}
+            onChange={(e) => setPrimaryColor(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpen(false)}>Cancel</Button>
+          <Button
+            onClick={handleAddTeam}
+            variant="contained"
+            disabled={!teamName}
+          >
+            Add
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

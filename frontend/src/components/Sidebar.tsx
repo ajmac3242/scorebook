@@ -50,6 +50,7 @@ const Sidebar: React.FC = () => {
       setIsOnline(true);
       // Trigger background sync when coming back online
       syncService.pushUpdates();
+      syncService.pullAll();
     };
     const handleOffline = () => setIsOnline(false);
     window.addEventListener("online", handleOnline);
