@@ -1,8 +1,9 @@
 import React from "react";
-import { Typography, Box, Grid, Paper, Button } from "@mui/material";
+import { Typography, Box, Grid, Button } from "@mui/material";
 import { Link } from "react-router-dom";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "../db";
+import { MoleskineCard, PageHeader } from "../components/SharedUI";
 
 const Dashboard: React.FC = () => {
   const seasons = useLiveQuery(() => db.seasons.toArray()) || [];
@@ -11,12 +12,7 @@ const Dashboard: React.FC = () => {
 
   return (
     <Box>
-      <Typography
-        variant="h4"
-        sx={{ fontFamily: "var(--serif)", mb: 4, textAlign: "center" }}
-      >
-        Notebook Overview
-      </Typography>
+      <PageHeader title="Notebook Overview" />
       <Grid container spacing={3}>
         {[
           {
@@ -34,10 +30,7 @@ const Dashboard: React.FC = () => {
           },
         ].map((item) => (
           <Grid item xs={12} sm={6} md={4} key={item.label}>
-            <Paper
-              className="moleskine-card"
-              sx={{ p: 3, position: "relative" }}
-            >
+            <MoleskineCard sx={{ position: "relative", p: 3 }}>
               <Typography
                 variant="h2"
                 sx={{ position: "absolute", top: 16, right: 16, opacity: 0.1 }}
@@ -65,7 +58,7 @@ const Dashboard: React.FC = () => {
               >
                 Open Notebook
               </Button>
-            </Paper>
+            </MoleskineCard>
           </Grid>
         ))}
       </Grid>

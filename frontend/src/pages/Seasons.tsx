@@ -2,7 +2,6 @@ import React, { useState, useMemo } from "react";
 import {
   Box,
   Typography,
-  Paper,
   Button,
   List,
   ListItem,
@@ -16,15 +15,15 @@ import {
   Grid,
   Stack,
   Divider,
-  IconButton,
 } from "@mui/material";
-import { Add as AddIcon, ChevronLeft, ChevronRight } from "@mui/icons-material";
-import { db, type Season, type Game } from "../db";
+import { Add as AddIcon } from "@mui/icons-material";
+import { db, type Season } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
 import { LocalizationProvider, StaticDatePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs, { Dayjs } from "dayjs";
 import { useNavigate } from "react-router-dom";
+import { MoleskineCard, PageHeader } from "../components/SharedUI";
 
 const Seasons: React.FC = () => {
   const navigate = useNavigate();
@@ -38,15 +37,9 @@ const Seasons: React.FC = () => {
   const allGames = useLiveQuery(() => db.games.toArray()) || [];
 
   const handleAddSeason = async () => {
-    const newSeason: Season = {
-      name,
-      startDate,
-      endDate,
-      synced: 0,
-    };
     try {
       await db.open();
-      await db.seasons.add(newSeason);
+      await db.seasons.add({ name, startDate, endDate, synced: 0 });
       setOpen(false);
       setName("");
       setStartDate("");
@@ -65,8 +58,8 @@ const Seasons: React.FC = () => {
   const activeSeasonForDate = useMemo(() => {
     if (!selectedDate) return null;
     return seasons.find((s) => {
-      const start = dayjs(s.startDate);
-      const end = dayjs(s.endDate);
+      const start = dayjs(s.startDate),
+        end = dayjs(s.endDate);
       return (
         (selectedDate.isAfter(start) || selectedDate.isSame(start, "day")) &&
         (selectedDate.isBefore(end) || selectedDate.isSame(end, "day"))
@@ -77,17 +70,10 @@ const Seasons: React.FC = () => {
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Box sx={{ p: 2 }}>
-        <Typography
-          variant="h4"
-          sx={{ fontFamily: "var(--serif)", mb: 4, textAlign: "center" }}
-        >
-          Seasons & Events
-        </Typography>
-
+        <PageHeader title="Seasons & Events" />
         <Grid container spacing={4}>
-          {/* Left Side: Calendar View */}
           <Grid item xs={12} md={6}>
-            <Paper className="moleskine-card" sx={{ p: 2 }}>
+            <MoleskineCard sx={{ p: 2 }}>
               <Typography
                 variant="h6"
                 sx={{ fontFamily: "var(--serif)", mb: 2 }}
@@ -103,16 +89,7 @@ const Seasons: React.FC = () => {
                     actionBar: { sx: { display: "none" } },
                     toolbar: { hidden: true },
                   }}
-                  sx={{
-                    bgcolor: "transparent",
-                    "& .MuiPickersDay-root.Mui-selected": {
-                      bgcolor: "var(--moleskine-charcoal)",
-                      color: "var(--moleskine-ivory)",
-                    },
-                    "& .MuiPickersDay-today": {
-                      borderColor: "var(--moleskine-charcoal)",
-                    },
-                  }}
+                  sx={{ bgcolor: "transparent" }}
                 />
               </Box>
               {activeSeasonForDate ? (
@@ -131,15 +108,11 @@ const Seasons: React.FC = () => {
                   </Typography>
                 </Box>
               )}
-            </Paper>
+            </MoleskineCard>
           </Grid>
 
-          {/* Right Side: Agenda View */}
           <Grid item xs={12} md={6}>
-            <Paper
-              className="moleskine-card"
-              sx={{ p: 3, height: "100%", minHeight: 400 }}
-            >
+            <MoleskineCard sx={{ p: 3, height: "100%", minHeight: 400 }}>
               <Typography
                 variant="h6"
                 sx={{ fontFamily: "var(--serif)", mb: 1 }}
@@ -154,7 +127,6 @@ const Seasons: React.FC = () => {
                 {selectedDate?.format("MMMM D, YYYY")}
               </Typography>
               <Divider sx={{ my: 2 }} />
-
               <List>
                 {gamesForSelectedDate.length === 0 ? (
                   <Box sx={{ py: 4, textAlign: "center" }}>
@@ -167,7 +139,7 @@ const Seasons: React.FC = () => {
                     <ListItem
                       key={game.id}
                       sx={{
-                        borderLeft: "4px solid var(--moleskine-charcoal)",
+                        borderLeft: "4px solid var(--palette-deep-ocean)",
                         mb: 2,
                         bgcolor: "rgba(0,0,0,0.02)",
                         borderRadius: "0 4px 4px 0",
@@ -195,7 +167,6 @@ const Seasons: React.FC = () => {
                   ))
                 )}
               </List>
-
               <Box sx={{ mt: "auto", pt: 4 }}>
                 <Typography
                   variant="h6"
@@ -229,34 +200,24 @@ const Seasons: React.FC = () => {
                   ))}
                 </Stack>
               </Box>
-            </Paper>
+            </MoleskineCard>
           </Grid>
         </Grid>
-
         <Fab
           color="primary"
           aria-label="add"
-          sx={{
-            position: "fixed",
-            bottom: 32,
-            right: 32,
-            bgcolor: "var(--moleskine-charcoal)",
-          }}
+          sx={{ position: "fixed", bottom: 32, right: 32 }}
           onClick={() => setOpen(true)}
         >
           <AddIcon />
         </Fab>
-
         <Dialog open={open} onClose={() => setOpen(false)}>
-          <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
-            New Season
-          </DialogTitle>
+          <DialogTitle>New Season</DialogTitle>
           <DialogContent>
             <TextField
               autoFocus
               margin="dense"
               label="Season Name"
-              type="text"
               fullWidth
               variant="outlined"
               value={name}
@@ -286,9 +247,7 @@ const Seasons: React.FC = () => {
             />
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => setOpen(false)} color="inherit">
-              Cancel
-            </Button>
+            <Button onClick={() => setOpen(false)}>Cancel</Button>
             <Button onClick={handleAddSeason} variant="contained">
               Create
             </Button>

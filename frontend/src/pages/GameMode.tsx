@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import {
   Box,
   Typography,
-  Paper,
   Grid,
   Button,
   Dialog,
@@ -16,7 +15,6 @@ import {
   DialogContentText,
   Stack,
   useTheme,
-  useMediaQuery,
   ToggleButton,
   ToggleButtonGroup,
 } from "@mui/material";
@@ -24,9 +22,7 @@ import {
   AddCircleOutline,
   RemoveCircleOutline,
   Undo as UndoIcon,
-  RadioButtonChecked,
   History,
-  Person,
   Check,
   Close,
   SportsBasketball,
@@ -34,19 +30,20 @@ import {
   SwapHoriz,
   Edit,
   Delete,
-  Shield,
   FlashOn,
 } from "@mui/icons-material";
 import BasketballCourt from "../components/BasketballCourt";
 import { db, type StatEvent } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
 import { ACTION_TYPES } from "../constants/stats";
+import { getInitials, getPlayerJersey } from "../utils/stats";
+import { MoleskineCard } from "../components/SharedUI";
 
 const OPPONENT_PLAYER_ID = "OPPONENT";
 
 const GameMode: React.FC = () => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
   const gameIdParam = searchParams.get("gameId");
@@ -54,7 +51,7 @@ const GameMode: React.FC = () => {
     ? isNaN(Number(gameIdParam))
       ? gameIdParam
       : Number(gameIdParam)
-    : "practice-session";
+    : null;
 
   const teamIdParam = searchParams.get("teamId");
   const teamId = teamIdParam
@@ -62,6 +59,16 @@ const GameMode: React.FC = () => {
       ? teamIdParam
       : Number(teamIdParam)
     : null;
+
+  useEffect(() => {
+    if (!gameId || !teamId) {
+      navigate("/");
+    }
+  }, [gameId, teamId, navigate]);
+
+  if (!gameId || !teamId) {
+    return null;
+  }
 
   const [selectedX, setSelectedX] = useState<number | null>(null);
   const [selectedY, setSelectedY] = useState<number | null>(null);
@@ -99,8 +106,7 @@ const GameMode: React.FC = () => {
     useLiveQuery(async () => {
       try {
         await db.open();
-        if (!teamId) return await db.players.toArray();
-
+        if (!teamId) return [];
         const playerIds = teamPlayers.map((t) =>
           isNaN(Number(t.playerId)) ? t.playerId : Number(t.playerId),
         );
@@ -114,13 +120,7 @@ const GameMode: React.FC = () => {
       }
     }, [teamId, teamPlayers]) || [];
 
-  const game = useLiveQuery(
-    () =>
-      gameId !== undefined
-        ? db.games.get(gameId as any)
-        : Promise.resolve(undefined),
-    [gameId],
-  );
+  const game = useLiveQuery(() => db.games.get(gameId as any), [gameId]);
 
   const recentStats =
     useLiveQuery(async () => {
@@ -171,7 +171,6 @@ const GameMode: React.FC = () => {
   };
 
   const handleEndGame = async () => {
-    if (!gameId || gameId === "practice-session") return;
     try {
       await db.open();
       await db.games.update(gameId as any, { completed: 1 });
@@ -229,13 +228,7 @@ const GameMode: React.FC = () => {
   const toggleOnCourt = async (playerId: number | string) => {
     const newOnCourt = new Set(onCourtIds);
     const isNowOnCourt = !newOnCourt.has(playerId);
-
-    if (isNowOnCourt) {
-      newOnCourt.add(playerId);
-    } else {
-      newOnCourt.delete(playerId);
-    }
-
+    isNowOnCourt ? newOnCourt.add(playerId) : newOnCourt.delete(playerId);
     setOnCourtIds(newOnCourt);
 
     try {
@@ -297,28 +290,11 @@ const GameMode: React.FC = () => {
     </Button>
   );
 
-  const getPlayerJersey = (pId?: number | string) => {
-    if (!pId) return "";
-    const tp = teamPlayers.find(
-      (t) => t.playerId.toString() === pId.toString(),
-    );
-    return tp?.jerseyNumber || "";
-  };
-
-  const getInitials = (name: string) => {
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
-  };
-
   return (
     <Box sx={{ pb: 4 }}>
       <Grid container spacing={3}>
         <Grid item xs={12} md={8}>
-          <Paper className="moleskine-card" sx={{ p: 2 }}>
+          <MoleskineCard>
             <Box
               sx={{
                 mb: 2,
@@ -347,7 +323,7 @@ const GameMode: React.FC = () => {
                     onClick={() => setPeriod((p) => (p < 4 ? p + 1 : 1))}
                     variant="outlined"
                   />
-                  {!game?.completed && gameId !== "practice-session" && (
+                  {!game?.completed && (
                     <Button
                       size="small"
                       variant="contained"
@@ -417,7 +393,7 @@ const GameMode: React.FC = () => {
                   type: s.type,
                   label:
                     s.playerId !== OPPONENT_PLAYER_ID
-                      ? getPlayerJersey(s.playerId)
+                      ? getPlayerJersey(s.playerId, teamPlayers)
                       : undefined,
                   color:
                     s.playerId === OPPONENT_PLAYER_ID
@@ -425,13 +401,13 @@ const GameMode: React.FC = () => {
                       : undefined,
                 }))}
             />
-          </Paper>
+          </MoleskineCard>
         </Grid>
 
         <Grid item xs={12} md={4}>
           <Stack spacing={3}>
             {trackingMode === "TEAM" ? (
-              <Paper className="moleskine-card">
+              <MoleskineCard>
                 <Typography
                   variant="subtitle2"
                   gutterBottom
@@ -469,7 +445,7 @@ const GameMode: React.FC = () => {
                             bgcolor: p.avatarColor || "grey.500",
                           }}
                         >
-                          {getPlayerJersey(p.id)}
+                          {getPlayerJersey(p.id, teamPlayers)}
                         </Avatar>
                         {p.name}
                       </Button>
@@ -487,10 +463,9 @@ const GameMode: React.FC = () => {
                     </Box>
                   ))}
                 </Box>
-              </Paper>
+              </MoleskineCard>
             ) : (
-              <Paper
-                className="moleskine-card"
+              <MoleskineCard
                 sx={{
                   bgcolor: "secondary.light",
                   color: "secondary.contrastText",
@@ -504,13 +479,13 @@ const GameMode: React.FC = () => {
                   Opponent Tracking
                 </Typography>
                 <Typography variant="body2">
-                  Stats recorded in this mode will be assigned to the generic
-                  "Opponent" player to track lead and flow.
+                  Stats recorded in this mode will be assigned to the "Opponent"
+                  player.
                 </Typography>
-              </Paper>
+              </MoleskineCard>
             )}
 
-            <Paper className="moleskine-card">
+            <MoleskineCard>
               <Typography
                 variant="subtitle2"
                 gutterBottom
@@ -567,7 +542,7 @@ const GameMode: React.FC = () => {
                   </Box>
                 ))}
               </Stack>
-            </Paper>
+            </MoleskineCard>
           </Stack>
         </Grid>
       </Grid>
@@ -619,7 +594,6 @@ const GameMode: React.FC = () => {
               icon={SwapHoriz}
             />
           </Box>
-
           {statType === ACTION_TYPES.MAKE && (
             <Box sx={{ mt: 3 }}>
               <Typography
@@ -715,10 +689,10 @@ const GameMode: React.FC = () => {
             variant="contained"
             onClick={() => {
               setSummaryDialogOpen(false);
-              // Option to navigate away? Or just stay.
+              navigate(`/game/stats?gameId=${gameId}`);
             }}
           >
-            Close
+            View Box Score
           </Button>
         </DialogActions>
       </Dialog>

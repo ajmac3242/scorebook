@@ -25,12 +25,23 @@ vi.mock("../components/BasketballCourt", () => ({
   ),
 }));
 
+// Mock useNavigate and useSearchParams
+const mockNavigate = vi.fn();
+vi.mock("react-router-dom", async (importOriginal) => {
+  const actual: any = await importOriginal();
+  return {
+    ...actual,
+    useNavigate: () => mockNavigate,
+    useSearchParams: () => [new URLSearchParams("gameId=g1&teamId=t1")],
+  };
+});
+
 describe("GameMode Component", () => {
   const mockPlayers = [{ id: "p1", name: "Player 1", avatarColor: "#4E7D5B" }];
   const mockStats = [
     {
       id: "s1",
-      gameId: "practice-session",
+      gameId: "g1",
       playerId: "p1",
       type: ACTION_TYPES.MAKE,
       points: 2,
@@ -40,7 +51,7 @@ describe("GameMode Component", () => {
   const mockTeamPlayers = [
     {
       id: "tp1",
-      teamId: "practice-session",
+      teamId: "t1",
       playerId: "p1",
       jerseyNumber: "23",
     },
@@ -53,7 +64,7 @@ describe("GameMode Component", () => {
       if (code.includes("db.stats")) return mockStats;
       if (code.includes("db.games.get"))
         return {
-          id: "practice-session",
+          id: "g1",
           opponent: "Test Opponent",
           date: "2023-01-01",
         };

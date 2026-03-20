@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import {
   Box,
   Typography,
-  Paper,
   Button,
   List,
   ListItem,
@@ -14,26 +13,26 @@ import {
   TextField,
   Fab,
   Avatar,
-  IconButton,
 } from "@mui/material";
-import { Add as AddIcon, BarChart, Palette } from "@mui/icons-material";
+import { Add as AddIcon, BarChart } from "@mui/icons-material";
 import { db, type Player } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useNavigate, Link } from "react-router-dom";
+import { getInitials } from "../utils/stats";
+import { MoleskineCard, PageHeader } from "../components/SharedUI";
 
 const AVATAR_COLORS = [
-  "#4E7D5B", // Sage Green
-  "#A64444", // Muted Red
-  "#5A7381", // Blue Ash
-  "#154C56", // Deep Ocean
-  "#D9B382", // Golden Dune
-  "#1F2D33", // Midnight
-  "#7B68EE", // Medium Slate Blue
-  "#FF8C00", // Dark Orange
+  "#4E7D5B",
+  "#A64444",
+  "#5A7381",
+  "#154C56",
+  "#D9B382",
+  "#1F2D33",
+  "#7B68EE",
+  "#FF8C00",
 ];
 
 const Players: React.FC = () => {
-  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [avatarColor, setAvatarColor] = useState(AVATAR_COLORS[0]);
@@ -50,14 +49,9 @@ const Players: React.FC = () => {
     }) || [];
 
   const handleAddPlayer = async () => {
-    const newPlayer: Player = {
-      name,
-      avatarColor,
-      synced: 0,
-    };
     try {
       await db.open();
-      await db.players.add(newPlayer);
+      await db.players.add({ name, avatarColor, synced: 0 });
       setOpen(false);
       setName("");
       setAvatarColor(AVATAR_COLORS[0]);
@@ -66,24 +60,10 @@ const Players: React.FC = () => {
     }
   };
 
-  const getInitials = (name: string) => {
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
-  };
-
   return (
     <Box>
-      <Typography
-        variant="h4"
-        sx={{ fontFamily: "var(--serif)", mb: 4, textAlign: "center" }}
-      >
-        Roster Notebook
-      </Typography>
-      <Paper className="moleskine-card" sx={{ p: 2 }}>
+      <PageHeader title="Roster Notebook" />
+      <MoleskineCard sx={{ p: 2 }}>
         <List>
           {players.length === 0 && (
             <Typography>No players created yet.</Typography>
@@ -104,20 +84,14 @@ const Players: React.FC = () => {
                 </Button>
               }
             >
-              <Avatar
-                sx={{
-                  bgcolor: player.avatarColor || "grey.500",
-                  mr: 2,
-                  fontFamily: "var(--serif)",
-                }}
-              >
+              <Avatar sx={{ bgcolor: player.avatarColor || "grey.500", mr: 2 }}>
                 {getInitials(player.name)}
               </Avatar>
               <ListItemText primary={player.name} />
             </ListItem>
           ))}
         </List>
-      </Paper>
+      </MoleskineCard>
 
       <Fab
         color="primary"
@@ -135,7 +109,6 @@ const Players: React.FC = () => {
             autoFocus
             margin="dense"
             label="Player Name"
-            type="text"
             fullWidth
             variant="outlined"
             value={name}

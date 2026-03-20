@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import {
   Box,
   Typography,
-  Paper,
   Button,
   List,
   ListItem,
@@ -20,9 +19,10 @@ import {
   Fab,
 } from "@mui/material";
 import { Add as AddIcon } from "@mui/icons-material";
-import { db, type Game, type Team, type Season } from "../db";
+import { db, type Game } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useNavigate } from "react-router-dom";
+import { MoleskineCard, PageHeader } from "../components/SharedUI";
 
 const Games: React.FC = () => {
   const navigate = useNavigate();
@@ -73,16 +73,15 @@ const Games: React.FC = () => {
 
   const handleAddGame = async () => {
     if (!selectedTeamId) return;
-    const newGame: Game = {
-      teamId: selectedTeamId,
-      opponent,
-      date,
-      location,
-      synced: 0,
-    };
     try {
       await db.open();
-      await db.games.add(newGame);
+      await db.games.add({
+        teamId: selectedTeamId,
+        opponent,
+        date,
+        location,
+        synced: 0,
+      });
       setOpen(false);
       setOpponent("");
       setDate("");
@@ -94,13 +93,7 @@ const Games: React.FC = () => {
 
   return (
     <Box>
-      <Typography
-        variant="h4"
-        sx={{ fontFamily: "var(--serif)", mb: 4, textAlign: "center" }}
-      >
-        Games Schedule
-      </Typography>
-
+      <PageHeader title="Games Schedule" />
       <Stack direction={{ xs: "column", sm: "row" }} spacing={2} sx={{ mb: 3 }}>
         <FormControl fullWidth variant="outlined">
           <InputLabel>Filter by Season</InputLabel>
@@ -115,14 +108,13 @@ const Games: React.FC = () => {
             <MenuItem value="">
               <em>All Seasons</em>
             </MenuItem>
-            {seasons.map((season) => (
-              <MenuItem key={season.id} value={season.id?.toString()}>
-                {season.name}
+            {seasons.map((s) => (
+              <MenuItem key={s.id} value={s.id?.toString()}>
+                {s.name}
               </MenuItem>
             ))}
           </Select>
         </FormControl>
-
         <FormControl fullWidth variant="outlined">
           <InputLabel>Select Team</InputLabel>
           <Select
@@ -130,9 +122,9 @@ const Games: React.FC = () => {
             onChange={(e) => setSelectedTeamId(e.target.value as string)}
             label="Select Team"
           >
-            {teams.map((team) => (
-              <MenuItem key={team.id} value={team.id?.toString()}>
-                {team.name}
+            {teams.map((t) => (
+              <MenuItem key={t.id} value={t.id?.toString()}>
+                {t.name}
               </MenuItem>
             ))}
           </Select>
@@ -140,7 +132,7 @@ const Games: React.FC = () => {
       </Stack>
 
       {selectedTeamId && (
-        <Paper className="moleskine-card" sx={{ p: 2 }}>
+        <MoleskineCard sx={{ p: 2 }}>
           <List>
             {games.length === 0 && (
               <Typography>No games for this team.</Typography>
@@ -167,7 +159,7 @@ const Games: React.FC = () => {
                         )
                       }
                     >
-                      Start Tracking
+                      Track
                     </Button>
                   </Stack>
                 }
@@ -179,7 +171,7 @@ const Games: React.FC = () => {
               </ListItem>
             ))}
           </List>
-        </Paper>
+        </MoleskineCard>
       )}
 
       {selectedTeamId && (
@@ -200,7 +192,6 @@ const Games: React.FC = () => {
             autoFocus
             margin="dense"
             label="Opponent"
-            type="text"
             fullWidth
             variant="outlined"
             value={opponent}
@@ -219,7 +210,6 @@ const Games: React.FC = () => {
           <TextField
             margin="dense"
             label="Location"
-            type="text"
             fullWidth
             variant="outlined"
             value={location}
