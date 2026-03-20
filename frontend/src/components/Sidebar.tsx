@@ -25,6 +25,8 @@ import {
   Logout as LogoutIcon,
   Person as PersonIcon,
   SportsBasketball as BasketballIcon,
+  Wifi as OnlineIcon,
+  WifiOff as OfflineIcon,
 } from "@mui/icons-material";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -38,6 +40,18 @@ const Sidebar: React.FC = () => {
   const { logout } = useAuth();
   const location = useLocation();
   const [open, setOpen] = useState(!isMobile);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+
+  React.useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, []);
 
   const toggleDrawer = () => {
     setOpen(!open);
@@ -138,6 +152,40 @@ const Sidebar: React.FC = () => {
       <Divider sx={{ bgcolor: "rgba(255,255,255,0.1)" }} />
 
       <List sx={{ px: 1 }}>
+        <ListItem disablePadding sx={{ display: "block", mb: 0.5 }}>
+          <Tooltip title={!open ? (isOnline ? "Online" : "Offline") : ""} placement="right">
+            <ListItemButton
+              sx={{
+                minHeight: 48,
+                justifyContent: open ? "initial" : "center",
+                px: 2.5,
+                borderRadius: 1,
+              }}
+            >
+              <ListItemIcon
+                sx={{
+                  minWidth: 0,
+                  mr: open ? 3 : "auto",
+                  justifyContent: "center",
+                  color: isOnline ? "success.light" : "error.light",
+                }}
+              >
+                {isOnline ? (
+                    <OnlineIcon className="hover-grow" />
+                ) : (
+                    <OfflineIcon className="sync-pulse" />
+                )}
+              </ListItemIcon>
+              {open && (
+                <ListItemText
+                  primary={isOnline ? "Online" : "Offline"}
+                  secondary={open ? "System Status" : ""}
+                  secondaryTypographyProps={{ sx: { color: "rgba(255,255,255,0.5)", fontSize: "0.7rem" } }}
+                />
+              )}
+            </ListItemButton>
+          </Tooltip>
+        </ListItem>
         <ListItem disablePadding sx={{ display: "block", mb: 0.5 }}>
           <ListItemButton
             sx={{
