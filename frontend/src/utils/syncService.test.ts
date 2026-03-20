@@ -10,25 +10,27 @@ vi.mock("../db", () => ({
     players: { put: vi.fn() },
     teamPlayers: { put: vi.fn() },
     games: {
-        put: vi.fn(),
-        where: vi.fn().mockReturnThis(),
-        equals: vi.fn().mockReturnThis(),
-        toArray: vi.fn().mockResolvedValue([])
+      put: vi.fn(),
+      where: vi.fn().mockReturnThis(),
+      equals: vi.fn().mockReturnThis(),
+      toArray: vi.fn().mockResolvedValue([]),
     },
     stats: { put: vi.fn() },
-  }
+  },
 }));
 
 // Mock UserPool
 vi.mock("../UserPool", () => ({
   UserPool: {
     getCurrentUser: vi.fn(() => ({
-      getSession: vi.fn((cb) => cb(null, {
-        isValid: () => true,
-        getAccessToken: () => ({ getJwtToken: () => "test-token" })
-      }))
-    }))
-  }
+      getSession: vi.fn((cb) =>
+        cb(null, {
+          isValid: () => true,
+          getAccessToken: () => ({ getJwtToken: () => "test-token" }),
+        }),
+      ),
+    })),
+  },
 }));
 
 describe("SyncService", () => {
@@ -41,21 +43,28 @@ describe("SyncService", () => {
   it("syncTeamRoster fetches and updates local DB", async () => {
     const mockData = {
       team: { id: "t1", name: "Team 1" },
-      players: [{ id: "p1", name: "Player 1", jerseyNumber: "10" }]
+      players: [{ id: "p1", name: "Player 1", jerseyNumber: "10" }],
     };
 
     (global.fetch as any).mockResolvedValue({
       ok: true,
       status: 200,
       json: () => Promise.resolve(mockData),
-      headers: { get: (name: string) => name === "ETag" ? "etag-1" : null }
+      headers: { get: (name: string) => (name === "ETag" ? "etag-1" : null) },
     });
 
     await syncService.syncTeamRoster("t1");
 
-    expect(global.fetch).toHaveBeenCalledWith("/data/teams/t1/roster.json", expect.any(Object));
-    expect(db.teams.put).toHaveBeenCalledWith(expect.objectContaining({ id: "t1", synced: 1 }));
-    expect(db.players.put).toHaveBeenCalledWith(expect.objectContaining({ id: "p1", synced: 1 }));
+    expect(global.fetch).toHaveBeenCalledWith(
+      "/data/teams/t1/roster.json",
+      expect.any(Object),
+    );
+    expect(db.teams.put).toHaveBeenCalledWith(
+      expect.objectContaining({ id: "t1", synced: 1 }),
+    );
+    expect(db.players.put).toHaveBeenCalledWith(
+      expect.objectContaining({ id: "p1", synced: 1 }),
+    );
     expect(localStorage.getItem("etag_team_t1")).toBe("etag-1");
   });
 
@@ -63,14 +72,16 @@ describe("SyncService", () => {
     localStorage.setItem("etag_team_t1", "etag-1");
     (global.fetch as any).mockResolvedValue({
       status: 304,
-      ok: false
+      ok: false,
     });
 
     await syncService.syncTeamRoster("t1");
 
     expect(global.fetch).toHaveBeenCalledWith(
-        "/data/teams/t1/roster.json",
-        expect.objectContaining({ headers: expect.objectContaining({ "If-None-Match": "etag-1" }) })
+      "/data/teams/t1/roster.json",
+      expect.objectContaining({
+        headers: expect.objectContaining({ "If-None-Match": "etag-1" }),
+      }),
     );
     expect(db.teams.put).not.toHaveBeenCalled();
   });

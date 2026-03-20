@@ -21,7 +21,12 @@ vi.mock("react-router-dom", async () => {
 });
 
 describe("TeamStats Sync Button", () => {
-  const mockTeam = { id: "t1", name: "Team 1", seasonId: "s1", primaryColor: "#154C56" };
+  const mockTeam = {
+    id: "t1",
+    name: "Team 1",
+    seasonId: "s1",
+    primaryColor: "#154C56",
+  };
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -36,7 +41,7 @@ describe("TeamStats Sync Button", () => {
     render(
       <BrowserRouter>
         <TeamStats />
-      </BrowserRouter>
+      </BrowserRouter>,
     );
 
     const syncButton = screen.getByRole("button", { name: /sync/i });
