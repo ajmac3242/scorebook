@@ -22,8 +22,8 @@ export const handler = async (
   const method = (event as any).method || (event as any).httpMethod || event.requestContext?.http?.method || "GET";
   let rawPath = event.rawPath || (event as any).path || event.requestContext?.http?.path || "/";
 
-  // Normalize path: strip stage, ensure leading slash, remove trailing slash
-  let path = rawPath.replace(/^\/\$default/, "");
+  // Normalize path: strip stage, strip /api prefix, ensure leading slash, remove trailing slash
+  let path = rawPath.replace(/^\/\$default/, "").replace(/^\/api/, "");
   if (!path.startsWith("/")) path = "/" + path;
   if (path.length > 1 && path.endsWith("/")) path = path.slice(0, -1);
 

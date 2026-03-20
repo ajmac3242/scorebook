@@ -6,6 +6,7 @@ import {
   Grid,
   Button,
   Avatar,
+  IconButton,
   Table,
   TableBody,
   TableCell,
@@ -27,7 +28,10 @@ import {
   Tab,
   Chip,
 } from "@mui/material";
-import { PersonAdd as PersonAddIcon } from "@mui/icons-material";
+import {
+  PersonAdd as PersonAddIcon,
+  ArrowBack as ArrowBackIcon,
+} from "@mui/icons-material";
 import { db, type TeamPlayer } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
 import { STAT_ACRONYMS } from "../constants/stats";
@@ -57,8 +61,9 @@ const TeamStats: React.FC = () => {
     "upcoming",
   );
   const [openSettingsDialog, setOpenSettingsDialog] = useState(false);
+  const [editName, setEditName] = useState("");
   const [editLogoUrl, setEditLogoUrl] = useState("");
-  const [editColor, setEditColor] = useState("");
+  const [editColor, setEditColor] = useState("#154C56");
   const [isSyncing, setIsSyncing] = useState(false);
   const [sortConfig, setSortConfig] = useState<{
     key: string;
@@ -72,6 +77,16 @@ const TeamStats: React.FC = () => {
         : Promise.resolve(undefined),
     [teamId],
   );
+
+  // Sync edit states when team loads
+  React.useEffect(() => {
+    if (team) {
+      setEditName(team.name || "");
+      setEditLogoUrl(team.logoUrl || "");
+      setEditColor(team.primaryColor || "#154C56");
+    }
+  }, [team]);
+
   const season = useLiveQuery(
     () =>
       team?.seasonId
@@ -174,8 +189,10 @@ const TeamStats: React.FC = () => {
   const handleUpdateTeamSettings = async () => {
     if (!teamId) return;
     await db.teams.update(teamId as any, {
+      name: editName,
       logoUrl: editLogoUrl,
       primaryColor: editColor,
+      synced: 0,
     });
     setOpenSettingsDialog(false);
   };
@@ -230,9 +247,24 @@ const TeamStats: React.FC = () => {
           color: "white",
           position: "relative",
           overflow: "hidden",
+          transition: "background-color 0.3s ease",
         }}
       >
-        <Grid container alignItems="center" spacing={4}>
+        <IconButton
+          onClick={() => navigate("/teams")}
+          sx={{
+            position: "absolute",
+            top: 16,
+            left: 16,
+            color: "white",
+            bgcolor: "rgba(255,255,255,0.1)",
+            "&:hover": { bgcolor: "rgba(255,255,255,0.2)" },
+          }}
+        >
+          <ArrowBackIcon />
+        </IconButton>
+
+        <Grid container alignItems="center" spacing={4} sx={{ mt: 1 }}>
           <Grid item>
             {team?.logoUrl ? (
               <Box
@@ -319,6 +351,7 @@ const TeamStats: React.FC = () => {
             variant="outlined"
             size="small"
             onClick={() => {
+              setEditName(team?.name || "");
               setEditLogoUrl(team?.logoUrl || "");
               setEditColor(team?.primaryColor || "#154C56");
               setOpenSettingsDialog(true);
@@ -593,6 +626,12 @@ const TeamStats: React.FC = () => {
         <DialogTitle>Edit Team Details</DialogTitle>
         <DialogContent>
           <Stack spacing={3} sx={{ mt: 1 }}>
+            <TextField
+              fullWidth
+              label="Team Name"
+              value={editName}
+              onChange={(e) => setEditName(e.target.value)}
+            />
             <TextField
               fullWidth
               label="Logo URL"

@@ -18,6 +18,7 @@ import {
   Stack,
   Fab,
   Chip,
+  Autocomplete,
 } from "@mui/material";
 import {
   Add as AddIcon,
@@ -82,6 +83,20 @@ const Games: React.FC = () => {
         return [];
       }
     }, [selectedTeamId]) || [];
+
+  const allRecentLocations =
+    useLiveQuery(async () => {
+      try {
+        await db.open();
+        const items = await db.games.toArray();
+        const locations = items
+          .map((g) => g.location)
+          .filter(Boolean) as string[];
+        return Array.from(new Set(locations)).sort();
+      } catch (err) {
+        return [];
+      }
+    }) || [];
 
   const gameIds = games.map((g) => g.id).filter(Boolean);
   const allStats =
@@ -331,13 +346,21 @@ const Games: React.FC = () => {
             value={date}
             onChange={(e) => setDate(e.target.value)}
           />
-          <TextField
-            margin="dense"
-            label="Location"
-            fullWidth
-            variant="outlined"
+          <Autocomplete
+            freeSolo
+            options={allRecentLocations}
             value={location}
-            onChange={(e) => setLocation(e.target.value)}
+            onInputChange={(_, newValue) => setLocation(newValue)}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                margin="dense"
+                label="Location"
+                fullWidth
+                variant="outlined"
+              />
+            )}
+            sx={{ mt: 1 }}
           />
         </DialogContent>
         <DialogActions>

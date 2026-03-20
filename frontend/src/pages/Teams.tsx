@@ -26,6 +26,7 @@ const Teams: React.FC = () => {
   const [selectedSeasonId, setSelectedSeasonId] = useState<string>("");
   const [open, setOpen] = useState(false);
   const [teamName, setTeamName] = useState("");
+  const [seasonIdInDialog, setSeasonIdInDialog] = useState<string>("");
   const [logoUrl, setLogoUrl] = useState("");
   const [primaryColor, setPrimaryColor] = useState("#154C56");
 
@@ -56,15 +57,15 @@ const Teams: React.FC = () => {
     }, [selectedSeasonId]) || [];
 
   const handleAddTeam = async () => {
-    if (!selectedSeasonId) {
-      alert("Please select a season first");
+    if (!seasonIdInDialog) {
+      alert("Please select a season");
       return;
     }
     try {
       await db.open();
       const newTeam: Team = {
         name: teamName,
-        seasonId: selectedSeasonId,
+        seasonId: seasonIdInDialog,
         logoUrl,
         primaryColor,
         synced: 0,
@@ -81,24 +82,28 @@ const Teams: React.FC = () => {
 
   return (
     <Box sx={{ pb: 8 }}>
-      <PageHeader title="Teams" />
-      <MoleskineCard sx={{ mb: 3 }}>
-        <FormControl fullWidth variant="outlined">
-          <InputLabel>Filter by Season</InputLabel>
-          <Select
-            value={selectedSeasonId}
-            onChange={(e) => setSelectedSeasonId(e.target.value as string)}
-            label="Filter by Season"
-          >
-            <MenuItem value="">All Seasons</MenuItem>
-            {seasons.map((season) => (
-              <MenuItem key={season.id} value={season.id?.toString()}>
-                {season.name}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      </MoleskineCard>
+      <PageHeader
+        title="Teams"
+        actions={
+          <Box sx={{ display: "flex", justifyContent: "center", mt: -1 }}>
+            <FormControl variant="outlined" size="small" sx={{ minWidth: 200 }}>
+              <InputLabel>Filter by Season</InputLabel>
+              <Select
+                value={selectedSeasonId}
+                onChange={(e) => setSelectedSeasonId(e.target.value as string)}
+                label="Filter by Season"
+              >
+                <MenuItem value="">All Seasons</MenuItem>
+                {seasons.map((season) => (
+                  <MenuItem key={season.id} value={season.id?.toString()}>
+                    {season.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+        }
+      />
 
       <Box
         sx={{
@@ -108,15 +113,9 @@ const Teams: React.FC = () => {
           mb: 2,
         }}
       >
-        <Typography variant="h5">Teams</Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          component={Link}
-          to="/seasons"
-        >
-          Manage Seasons
-        </Button>
+        <Typography variant="h5" sx={{ fontFamily: "var(--serif)" }}>
+          Teams
+        </Typography>
       </Box>
 
       <Stack spacing={2}>
@@ -164,8 +163,10 @@ const Teams: React.FC = () => {
         color="primary"
         aria-label="add"
         sx={{ position: "fixed", bottom: 32, right: 32 }}
-        onClick={() => setOpen(true)}
-        disabled={!selectedSeasonId}
+        onClick={() => {
+          setSeasonIdInDialog(selectedSeasonId);
+          setOpen(true);
+        }}
       >
         <AddIcon />
       </Fab>
@@ -173,6 +174,21 @@ const Teams: React.FC = () => {
       <Dialog open={open} onClose={() => setOpen(false)}>
         <DialogTitle>Add New Team</DialogTitle>
         <DialogContent>
+          <FormControl fullWidth variant="outlined" sx={{ mt: 1, mb: 2 }}>
+            <InputLabel>Season</InputLabel>
+            <Select
+              value={seasonIdInDialog}
+              onChange={(e) => setSeasonIdInDialog(e.target.value as string)}
+              label="Season"
+              required
+            >
+              {seasons.map((season) => (
+                <MenuItem key={season.id} value={season.id?.toString()}>
+                  {season.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
           <TextField
             autoFocus
             margin="dense"

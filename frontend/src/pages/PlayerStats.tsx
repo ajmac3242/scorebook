@@ -18,7 +18,15 @@ import {
   TableHead,
   TableRow,
   Avatar,
+  IconButton,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
 } from "@mui/material";
+import { ArrowBack as ArrowBackIcon } from "@mui/icons-material";
 import BasketballCourt from "../components/BasketballCourt";
 import { db } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -52,6 +60,20 @@ const PlayerStats: React.FC = () => {
   );
   const [selectedGameId, setSelectedGameId] = useState<number | string>("");
   const [selectedType, setSelectedType] = useState<string>("");
+  const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [editName, setEditName] = useState("");
+  const [editColor, setEditColor] = useState("");
+
+  const AVATAR_COLORS = [
+    "#4E7D5B",
+    "#A64444",
+    "#5A7381",
+    "#154C56",
+    "#D9B382",
+    "#1F2D33",
+    "#7B68EE",
+    "#FF8C00",
+  ];
 
   const player = useLiveQuery(
     () =>
@@ -124,6 +146,16 @@ const PlayerStats: React.FC = () => {
     });
   }, [allStats, selectedGameId, selectedType, selectedSeasonId, games]);
 
+  const handleUpdatePlayer = async () => {
+    if (!playerId) return;
+    await db.players.update(playerId as any, {
+      name: editName,
+      avatarColor: editColor,
+      synced: 0,
+    });
+    setOpenEditDialog(false);
+  };
+
   const aggregates = useMemo(() => {
     const res = calculatePlayerAggregates(
       [player].filter(Boolean),
@@ -174,55 +206,168 @@ const PlayerStats: React.FC = () => {
 
   return (
     <Box sx={{ pb: 4 }}>
-      <Box sx={{ display: "flex", alignItems: "center", gap: 3, mb: 4 }}>
-        <Box sx={{ position: "relative" }}>
-          <Avatar
-            sx={{
-              width: 80,
-              height: 80,
-              bgcolor: player?.avatarColor,
-              fontSize: "2rem",
-            }}
-          >
-            {player ? getInitials(player.name) : ""}
-          </Avatar>
-          {getJerseyNumber() && (
-            <Box
+      <Box
+        sx={{
+          p: 4,
+          mb: 4,
+          borderRadius: "8px",
+          bgcolor: player?.avatarColor || "var(--palette-deep-ocean)",
+          color: "white",
+          position: "relative",
+          overflow: "hidden",
+          transition: "background-color 0.3s ease",
+        }}
+      >
+        <IconButton
+          onClick={() => navigate("/players")}
+          sx={{
+            position: "absolute",
+            top: 16,
+            left: 16,
+            color: "white",
+            bgcolor: "rgba(255,255,255,0.1)",
+            "&:hover": { bgcolor: "rgba(255,255,255,0.2)" },
+          }}
+        >
+          <ArrowBackIcon />
+        </IconButton>
+
+        <Grid container alignItems="center" spacing={4} sx={{ mt: 1 }}>
+          <Grid item>
+            <Box sx={{ position: "relative" }}>
+              <Avatar
+                sx={{
+                  width: { xs: 80, md: 120 },
+                  height: { xs: 80, md: 120 },
+                  bgcolor: "rgba(255,255,255,0.2)",
+                  fontSize: "3rem",
+                  border: "4px solid rgba(255,255,255,0.3)",
+                }}
+              >
+                {player ? getInitials(player.name) : ""}
+              </Avatar>
+              {getJerseyNumber() && (
+                <Box
+                  sx={{
+                    position: "absolute",
+                    bottom: 0,
+                    right: 0,
+                    bgcolor: "var(--palette-golden-dune)",
+                    color: "var(--palette-midnight)",
+                    borderRadius: "50%",
+                    width: 36,
+                    height: 36,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "1rem",
+                    fontWeight: "bold",
+                    border: "3px solid white",
+                  }}
+                >
+                  {getJerseyNumber()}
+                </Box>
+              )}
+            </Box>
+          </Grid>
+          <Grid item xs={12} md>
+            <Typography
+              variant="h3"
               sx={{
-                position: "absolute",
-                bottom: 0,
-                right: 0,
-                bgcolor: "var(--palette-midnight)",
+                fontFamily: "var(--serif)",
+                fontWeight: 700,
                 color: "white",
-                borderRadius: "50%",
-                width: 28,
-                height: 28,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "0.8rem",
-                fontWeight: "bold",
-                border: "2px solid white",
               }}
             >
-              {getJerseyNumber()}
-            </Box>
-          )}
-        </Box>
-        <Box>
-          <Typography
-            variant="h3"
-            sx={{ fontFamily: "var(--serif)", fontWeight: 700 }}
+              {player?.name}
+            </Typography>
+            <Typography variant="h6" sx={{ opacity: 0.9, color: "white" }}>
+              {teamIdParam
+                ? teams.find((t) => t.id?.toString() === teamIdParam)?.name
+                : "Career Stats"}
+            </Typography>
+          </Grid>
+        </Grid>
+
+        <Box
+          sx={{
+            position: "absolute",
+            top: 16,
+            right: 16,
+          }}
+        >
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={() => {
+              setEditName(player?.name || "");
+              setEditColor(player?.avatarColor || "#154C56");
+              setOpenEditDialog(true);
+            }}
+            sx={{
+              color: "white",
+              borderColor: "rgba(255,255,255,0.5)",
+              "&:hover": {
+                borderColor: "white",
+                bgcolor: "rgba(255,255,255,0.1)",
+              },
+            }}
           >
-            {player?.name}
-          </Typography>
-          <Typography variant="h6" color="text.secondary">
-            {teamIdParam
-              ? teams.find((t) => t.id?.toString() === teamIdParam)?.name
-              : "Career Stats"}
-          </Typography>
+            Edit Player
+          </Button>
         </Box>
       </Box>
+
+      <Dialog
+        open={openEditDialog}
+        onClose={() => setOpenEditDialog(false)}
+        fullWidth
+        maxWidth="xs"
+      >
+        <DialogTitle>Edit Player Details</DialogTitle>
+        <DialogContent>
+          <Stack spacing={3} sx={{ mt: 1 }}>
+            <TextField
+              fullWidth
+              label="Player Name"
+              value={editName}
+              onChange={(e) => setEditName(e.target.value)}
+            />
+            <Box>
+              <Typography variant="subtitle2" gutterBottom>
+                Avatar Color
+              </Typography>
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                {AVATAR_COLORS.map((color) => (
+                  <Box
+                    key={color}
+                    onClick={() => setEditColor(color)}
+                    sx={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: "50%",
+                      bgcolor: color,
+                      cursor: "pointer",
+                      border: editColor === color ? "3px solid #000" : "none",
+                      boxSizing: "border-box",
+                    }}
+                  />
+                ))}
+              </Box>
+            </Box>
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenEditDialog(false)}>Cancel</Button>
+          <Button
+            onClick={handleUpdatePlayer}
+            variant="contained"
+            disabled={!editName}
+          >
+            Save
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <MoleskineCard sx={{ mb: 3 }}>
         <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
