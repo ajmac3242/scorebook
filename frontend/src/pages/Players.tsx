@@ -16,6 +16,7 @@ import {
 } from "@mui/material";
 import { Add as AddIcon, BarChart } from "@mui/icons-material";
 import { db, type Player } from "../db";
+import { syncService } from "../utils/syncService";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useNavigate, Link } from "react-router-dom";
 import { getInitials } from "../utils/stats";
@@ -53,6 +54,7 @@ const Players: React.FC = () => {
     try {
       await db.open();
       await db.players.add({ name, avatarColor, synced: 0 });
+      syncService.pushUpdates();
       setOpen(false);
       setName("");
       setAvatarColor(AVATAR_COLORS[0]);
