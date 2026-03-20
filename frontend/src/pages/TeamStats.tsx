@@ -37,6 +37,8 @@ import {
   getInitials,
 } from "../utils/stats";
 import { MoleskineCard, StatItem } from "../components/SharedUI";
+import { syncService } from "../utils/syncService";
+import { Refresh as RefreshIcon } from "@mui/icons-material";
 
 const TeamStats: React.FC = () => {
   const { teamId: teamIdParam } = useParams<{ teamId: string }>();
@@ -57,6 +59,7 @@ const TeamStats: React.FC = () => {
   const [openSettingsDialog, setOpenSettingsDialog] = useState(false);
   const [editLogoUrl, setEditLogoUrl] = useState("");
   const [editColor, setEditColor] = useState("");
+  const [isSyncing, setIsSyncing] = useState(false);
 
   const team = useLiveQuery(
     () =>
@@ -168,6 +171,13 @@ const TeamStats: React.FC = () => {
     setOpenSettingsDialog(false);
   };
 
+  const handleSync = async () => {
+    if (!teamId) return;
+    setIsSyncing(true);
+    await syncService.syncAllForTeam(teamId.toString());
+    setIsSyncing(false);
+  };
+
   return (
     <Box sx={{ pb: 4 }}>
       <Box
@@ -235,7 +245,35 @@ const TeamStats: React.FC = () => {
             </Stack>
           </Grid>
         </Grid>
-        <Box sx={{ position: "absolute", top: 16, right: 16 }}>
+        <Box
+          sx={{
+            position: "absolute",
+            top: 16,
+            right: 16,
+            display: "flex",
+            gap: 1,
+          }}
+        >
+          <Button
+            variant="outlined"
+            size="small"
+            startIcon={
+              isSyncing ? <RefreshIcon className="spin" /> : <RefreshIcon />
+            }
+            onClick={handleSync}
+            disabled={isSyncing}
+            className="hover-grow"
+            sx={{
+              color: "white",
+              borderColor: "rgba(255,255,255,0.5)",
+              "&:hover": {
+                borderColor: "white",
+                bgcolor: "rgba(255,255,255,0.1)",
+              },
+            }}
+          >
+            {isSyncing ? "Syncing..." : "Sync"}
+          </Button>
           <Button
             variant="outlined"
             size="small"
