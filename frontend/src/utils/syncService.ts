@@ -32,6 +32,23 @@ class SyncService {
     });
   }
 
+  async hasUnsyncedChanges(): Promise<boolean> {
+    try {
+      const counts = await Promise.all([
+        db.seasons.where("synced").equals(0).count(),
+        db.teams.where("synced").equals(0).count(),
+        db.players.where("synced").equals(0).count(),
+        db.teamPlayers.where("synced").equals(0).count(),
+        db.games.where("synced").equals(0).count(),
+        db.stats.where("synced").equals(0).count(),
+      ]);
+      return counts.some((count) => count > 0);
+    } catch (e) {
+      console.error("Error checking for unsynced changes:", e);
+      return false;
+    }
+  }
+
   async pushUpdates() {
     if (this.isSyncing) return;
     this.isSyncing = true;
@@ -43,75 +60,99 @@ class SyncService {
       // Push Seasons
       const seasons = await db.seasons.where("synced").equals(0).toArray();
       for (const s of seasons) {
-        const res = await fetch("/api/seasons", {
-          method: "POST",
-          headers,
-          body: JSON.stringify(s),
-        });
-        if (res.ok) await db.seasons.update(s.id!, { synced: 1 });
+        try {
+          const res = await fetch("/api/seasons", {
+            method: "POST",
+            headers,
+            body: JSON.stringify(s),
+          });
+          if (res.ok) await db.seasons.update(s.id!, { synced: 1 });
+        } catch (err) {
+          console.error(`Failed to push season ${s.id}:`, err);
+        }
       }
 
       // Push Teams
       const teams = await db.teams.where("synced").equals(0).toArray();
       for (const t of teams) {
-        const res = await fetch("/api/teams", {
-          method: "POST",
-          headers,
-          body: JSON.stringify(t),
-        });
-        if (res.ok) await db.teams.update(t.id!, { synced: 1 });
+        try {
+          const res = await fetch("/api/teams", {
+            method: "POST",
+            headers,
+            body: JSON.stringify(t),
+          });
+          if (res.ok) await db.teams.update(t.id!, { synced: 1 });
+        } catch (err) {
+          console.error(`Failed to push team ${t.id}:`, err);
+        }
       }
 
       // Push Players
       const players = await db.players.where("synced").equals(0).toArray();
       for (const p of players) {
-        const res = await fetch("/api/players", {
-          method: "POST",
-          headers,
-          body: JSON.stringify(p),
-        });
-        if (res.ok) await db.players.update(p.id!, { synced: 1 });
+        try {
+          const res = await fetch("/api/players", {
+            method: "POST",
+            headers,
+            body: JSON.stringify(p),
+          });
+          if (res.ok) await db.players.update(p.id!, { synced: 1 });
+        } catch (err) {
+          console.error(`Failed to push player ${p.id}:`, err);
+        }
       }
 
       // Push TeamPlayers
       const tp = await db.teamPlayers.where("synced").equals(0).toArray();
       for (const item of tp) {
-        const res = await fetch(`/api/teams/${item.teamId}/players`, {
-          method: "POST",
-          headers,
-          body: JSON.stringify(item),
-        });
-        if (res.ok) await db.teamPlayers.update(item.id!, { synced: 1 });
+        try {
+          const res = await fetch(`/api/teams/${item.teamId}/players`, {
+            method: "POST",
+            headers,
+            body: JSON.stringify(item),
+          });
+          if (res.ok) await db.teamPlayers.update(item.id!, { synced: 1 });
+        } catch (err) {
+          console.error(`Failed to push teamPlayer ${item.id}:`, err);
+        }
       }
 
       // Push Games
       const games = await db.games.where("synced").equals(0).toArray();
       for (const g of games) {
-        const res = await fetch("/api/games", {
-          method: "POST",
-          headers,
-          body: JSON.stringify(g),
-        });
-        if (res.ok) {
-          await db.games.update(g.id!, { synced: 1 });
-          if (g.completed) {
-            await fetch(`/api/games/${g.id}/complete`, {
-              method: "POST",
-              headers,
-            });
+        try {
+          const res = await fetch("/api/games", {
+            method: "POST",
+            headers,
+            body: JSON.stringify(g),
+          });
+          if (res.ok) {
+            await db.games.update(g.id!, { synced: 1 });
+            if (g.completed) {
+              await fetch(`/api/games/${g.id}/complete`, {
+                method: "POST",
+                headers,
+              });
+            }
           }
+        } catch (err) {
+          console.error(`Failed to push game ${g.id}:`, err);
         }
       }
 
       // Push Stats
       const stats = await db.stats.where("synced").equals(0).toArray();
       for (const st of stats) {
-        const res = await fetch(`/api/games/${st.gameId}/stats`, {
-          method: "POST",
-          headers,
-          body: JSON.stringify(st),
-        });
-        if (res.ok) await db.stats.update(st.id!, { synced: 1 });
+        try {
+          const res = await fetch(`/api/games/${st.gameId}/stats`, {
+            method: "POST",
+            headers,
+            body: JSON.stringify(st),
+          });
+          if (res.ok) await db.stats.update(st.id!, { synced: 1 });
+        } catch (err) {
+          console.error(`Failed to push stat ${st.id}:`, err);
+        }
       }
 
       console.log("Push updates complete.");

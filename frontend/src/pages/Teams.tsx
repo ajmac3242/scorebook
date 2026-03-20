@@ -17,6 +17,7 @@ import {
 } from "@mui/material";
 import { Add as AddIcon } from "@mui/icons-material";
 import { db, type Team } from "../db";
+import { syncService } from "../utils/syncService";
 import { useLiveQuery } from "dexie-react-hooks";
 import { Link, useNavigate } from "react-router-dom";
 import { MoleskineCard, PageHeader } from "../components/SharedUI";
@@ -71,6 +72,7 @@ const Teams: React.FC = () => {
         synced: 0,
       };
       await db.teams.add(newTeam);
+      syncService.pushUpdates();
       setOpen(false);
       setTeamName("");
       setLogoUrl("");

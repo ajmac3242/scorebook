@@ -13,6 +13,12 @@ import {
   Tooltip,
   useTheme,
   useMediaQuery,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Button,
 } from "@mui/material";
 import {
   Menu as MenuIcon,
@@ -42,6 +48,7 @@ const Sidebar: React.FC = () => {
   const { logout } = useAuth();
   const location = useLocation();
   const [open, setOpen] = useState(!isMobile);
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [isSyncing, setIsSyncing] = useState(false);
 
@@ -70,6 +77,20 @@ const Sidebar: React.FC = () => {
 
   const toggleDrawer = () => {
     setOpen(!open);
+  };
+
+  const handleLogoutClick = async () => {
+    const hasUnsynced = await syncService.hasUnsyncedChanges();
+    if (hasUnsynced) {
+      setLogoutDialogOpen(true);
+    } else {
+      logout();
+    }
+  };
+
+  const confirmLogout = () => {
+    setLogoutDialogOpen(false);
+    logout();
   };
 
   const menuItems = [
@@ -238,7 +259,7 @@ const Sidebar: React.FC = () => {
         </ListItem>
         <ListItem disablePadding sx={{ display: "block" }}>
           <ListItemButton
-            onClick={logout}
+            onClick={handleLogoutClick}
             sx={{
               minHeight: 48,
               justifyContent: open ? "initial" : "center",
@@ -280,6 +301,28 @@ const Sidebar: React.FC = () => {
     </Box>
   );
 
+  const logoutDialog = (
+    <Dialog open={logoutDialogOpen} onClose={() => setLogoutDialogOpen(false)}>
+      <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
+        Unsynced Changes
+      </DialogTitle>
+      <DialogContent>
+        <DialogContentText>
+          You have data that hasn't been synced to the server yet. If you logout
+          now, these changes may be lost. Are you sure you want to logout?
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions sx={{ p: 2 }}>
+        <Button onClick={() => setLogoutDialogOpen(false)} color="inherit">
+          Cancel
+        </Button>
+        <Button onClick={confirmLogout} color="error" variant="contained">
+          Logout Anyway
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+
   if (isMobile) {
     return (
       <>
@@ -312,31 +355,35 @@ const Sidebar: React.FC = () => {
         >
           {drawerContent}
         </Drawer>
+        {logoutDialog}
       </>
     );
   }
 
   return (
-    <Drawer
-      variant="permanent"
-      open={open}
-      sx={{
-        width: open ? drawerWidth : collapsedDrawerWidth,
-        flexShrink: 0,
-        "& .MuiDrawer-paper": {
+    <>
+      <Drawer
+        variant="permanent"
+        open={open}
+        sx={{
           width: open ? drawerWidth : collapsedDrawerWidth,
-          boxSizing: "border-box",
-          transition: theme.transitions.create("width", {
-            easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.enteringScreen,
-          }),
-          overflowX: "hidden",
-          border: "none",
-        },
-      }}
-    >
-      {drawerContent}
-    </Drawer>
+          flexShrink: 0,
+          "& .MuiDrawer-paper": {
+            width: open ? drawerWidth : collapsedDrawerWidth,
+            boxSizing: "border-box",
+            transition: theme.transitions.create("width", {
+              easing: theme.transitions.easing.sharp,
+              duration: theme.transitions.duration.enteringScreen,
+            }),
+            overflowX: "hidden",
+            border: "none",
+          },
+        }}
+      >
+        {drawerContent}
+      </Drawer>
+      {logoutDialog}
+    </>
   );
 };
 

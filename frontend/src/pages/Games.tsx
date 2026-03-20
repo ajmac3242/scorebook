@@ -25,6 +25,7 @@ import {
   SportsBasketball as BallIcon,
 } from "@mui/icons-material";
 import { db, type Game } from "../db";
+import { syncService } from "../utils/syncService";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useNavigate } from "react-router-dom";
 import { MoleskineCard, PageHeader } from "../components/SharedUI";
@@ -134,6 +135,7 @@ const Games: React.FC = () => {
         location,
         synced: 0,
       });
+      syncService.pushUpdates();
       setOpen(false);
       setOpponent("");
       setDate("");
