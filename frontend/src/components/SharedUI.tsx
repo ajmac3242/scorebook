@@ -1,8 +1,20 @@
+/**
+ * @file SharedUI.tsx
+ * @description Provides standardized UI components used throughout the application.
+ * Includes layout wrappers, page headers, and statistic display items.
+ */
+
 import React from "react";
 import { Paper, PaperProps, Typography, Box, IconButton } from "@mui/material";
 import { ArrowBack as ArrowBackIcon } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 
+/**
+ * Standardized card component with Moleskine-style paper effects.
+ *
+ * @param {PaperProps} props - MUI Paper component props.
+ * @returns {React.ReactElement}
+ */
 export const MoleskineCard: React.FC<PaperProps> = ({
   children,
   sx,
@@ -20,6 +32,9 @@ export const MoleskineCard: React.FC<PaperProps> = ({
   </Paper>
 );
 
+/**
+ * Interface representing the props for the PageHeader component.
+ */
 interface PageHeaderProps {
   title: string;
   subtitle?: string;
@@ -28,6 +43,12 @@ interface PageHeaderProps {
   backTo?: string;
 }
 
+/**
+ * Standardized page header component with optional back button and action area.
+ *
+ * @param {PageHeaderProps} props - Component props.
+ * @returns {React.ReactElement}
+ */
 export const PageHeader: React.FC<PageHeaderProps> = ({
   title,
   subtitle,
@@ -75,12 +96,21 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
   );
 };
 
+/**
+ * Interface representing the props for the StatItem component.
+ */
 interface StatItemProps {
   label: string;
   value: string | number;
   light?: boolean;
 }
 
+/**
+ * Standardized component for displaying a single numerical statistic with a label.
+ *
+ * @param {StatItemProps} props - Component props.
+ * @returns {React.ReactElement}
+ */
 export const StatItem: React.FC<StatItemProps> = ({ label, value, light }) => (
   <Box sx={{ textAlign: "center" }}>
     <Typography

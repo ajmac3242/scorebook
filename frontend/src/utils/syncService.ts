@@ -1,19 +1,39 @@
+/**
+ * @file syncService.ts
+ * @description Provides logic for bidirectional synchronization between local IndexedDB and the backend API.
+ * Implements push (local-to-remote) and pull (remote-to-local via API and S3 snapshots) functionality.
+ */
+
 import { db } from "../db";
 import { UserPool } from "../UserPool";
 
+/**
+ * Interface representing the team roster snapshot structure from S3.
+ */
 interface RosterSnapshot {
   team: any;
   players: any[];
 }
 
+/**
+ * Interface representing the game stats snapshot structure from S3.
+ */
 interface GameSnapshot {
   game: any;
   stats: any[];
 }
 
+/**
+ * Service class for handling all data synchronization tasks.
+ */
 class SyncService {
   private isSyncing = false;
 
+  /**
+   * Helper function to get authorization headers for API requests.
+   * @returns {Promise<Record<string, string>>} Headers object with Authorization token.
+   * @private
+   */
   private async getHeaders(): Promise<Record<string, string>> {
     const user = UserPool.getCurrentUser();
     if (!user) return { "Content-Type": "application/json" };
@@ -32,6 +52,10 @@ class SyncService {
     });
   }
 
+  /**
+   * Checks if there are any records in IndexedDB marked as unsynced (synced: 0).
+   * @returns {Promise<boolean>} True if unsynced changes exist.
+   */
   async hasUnsyncedChanges(): Promise<boolean> {
     try {
       const counts = await Promise.all([
@@ -49,6 +73,10 @@ class SyncService {
     }
   }
 
+  /**
+   * Pushes all local, unsynced changes to the backend API.
+   * Iterates through all entities and updates their synced status upon success.
+   */
   async pushUpdates() {
     if (this.isSyncing) return;
     this.isSyncing = true;
@@ -57,7 +85,7 @@ class SyncService {
     try {
       const headers = await this.getHeaders();
 
-      // Push Seasons
+      // --- Push Seasons ---
       const seasons = await db.seasons.where("synced").equals(0).toArray();
       for (const s of seasons) {
         try {
@@ -72,7 +100,7 @@ class SyncService {
         }
       }
 
-      // Push Teams
+      // --- Push Teams ---
       const teams = await db.teams.where("synced").equals(0).toArray();
       for (const t of teams) {
         try {
@@ -87,7 +115,7 @@ class SyncService {
         }
       }
 
-      // Push Players
+      // --- Push Players ---
       const players = await db.players.where("synced").equals(0).toArray();
       for (const p of players) {
         try {
@@ -102,7 +130,7 @@ class SyncService {
         }
       }
 
-      // Push TeamPlayers
+      // --- Push TeamPlayers ---
       const tp = await db.teamPlayers.where("synced").equals(0).toArray();
       for (const item of tp) {
         try {
@@ -117,7 +145,7 @@ class SyncService {
         }
       }
 
-      // Push Games
+      // --- Push Games ---
       const games = await db.games.where("synced").equals(0).toArray();
       for (const g of games) {
         try {
@@ -128,6 +156,7 @@ class SyncService {
           });
           if (res.ok) {
             await db.games.update(g.id!, { synced: 1 });
+            // If game is completed, send a separate completion signal
             if (g.completed) {
               await fetch(`/api/games/${g.id}/complete`, {
                 method: "POST",
@@ -140,7 +169,7 @@ class SyncService {
         }
       }
 
-      // Push Stats
+      // --- Push Individual Stats ---
       const stats = await db.stats.where("synced").equals(0).toArray();
       for (const st of stats) {
         try {
@@ -163,6 +192,11 @@ class SyncService {
     }
   }
 
+  /**
+   * Syncs the team roster using the JSON snapshot from S3.
+   * Utilizes If-None-Match ETag for caching.
+   * @param {string} teamId - The team ID to sync.
+   */
   async syncTeamRoster(teamId: string) {
     const etag = localStorage.getItem(`etag_team_${teamId}`);
     try {
@@ -184,6 +218,7 @@ class SyncService {
         const newEtag = response.headers.get("ETag");
         if (newEtag) localStorage.setItem(`etag_team_${teamId}`, newEtag);
 
+        // Bulk update local database within a transaction
         await db.transaction(
           "rw",
           [db.teams, db.players, db.teamPlayers],
@@ -215,6 +250,10 @@ class SyncService {
     }
   }
 
+  /**
+   * Syncs the list of games for a specific team using the JSON snapshot.
+   * @param {string} teamId - The team ID.
+   */
   async syncTeamGamesList(teamId: string) {
     const etag = localStorage.getItem(`etag_team_games_${teamId}`);
     try {
@@ -251,6 +290,10 @@ class SyncService {
     }
   }
 
+  /**
+   * Syncs the stats for a specific completed game using the JSON snapshot.
+   * @param {string} gameId - The game ID.
+   */
   async syncGameStats(gameId: string) {
     const etag = localStorage.getItem(`etag_game_${gameId}`);
     try {
@@ -293,14 +336,18 @@ class SyncService {
     }
   }
 
+  /**
+   * Triggers a sync of all roster, games, and stats for a specific team.
+   * @param {string} teamId - The team ID.
+   */
   async syncAllForTeam(teamId: string) {
-    // 2. Sync Roster
+    // Sync Roster
     await this.syncTeamRoster(teamId);
 
-    // 3. Sync Games list to discover new games
+    // Sync Games list to discover new games
     await this.syncTeamGamesList(teamId);
 
-    // 4. Sync stats for each completed game
+    // Sync stats for each completed game
     const games = await db.games.where("teamId").equals(teamId).toArray();
     for (const game of games) {
       if (game.completed) {
@@ -309,6 +356,10 @@ class SyncService {
     }
   }
 
+  /**
+   * Performs a full pull synchronization for the entire application.
+   * Fetches seasons, teams, rosters, and completed game stats.
+   */
   async pullAll() {
     if (this.isSyncing) return;
     this.isSyncing = true;
@@ -317,7 +368,7 @@ class SyncService {
     try {
       const headers = await this.getHeaders();
 
-      // 1. Pull Seasons
+      // 1. Pull all Seasons
       const seasonsRes = await fetch("/api/seasons", { headers });
       if (seasonsRes.ok) {
         const seasons = await seasonsRes.json();
@@ -340,7 +391,7 @@ class SyncService {
               }
             });
 
-            // 3. Pull Team Details (Roster, Games, Stats)
+            // 3. Pull Team Details (Roster, Games) for each team
             for (const t of teams) {
               await this.syncTeamRoster(t.id);
               await this.syncTeamGamesList(t.id);
@@ -349,7 +400,7 @@ class SyncService {
         }
       }
 
-      // 4. Pull all players (to be sure we have them all)
+      // 4. Pull all global players
       const playersRes = await fetch("/api/players", { headers });
       if (playersRes.ok) {
         const players = await playersRes.json();
@@ -360,7 +411,7 @@ class SyncService {
         });
       }
 
-      // 5. Pull stats for all completed games found
+      // 5. Pull stats for all completed games discovered
       const completedGames = await db.games
         .where("completed")
         .equals(1)
@@ -377,9 +428,16 @@ class SyncService {
     }
   }
 
+  /**
+   * Returns whether a synchronization process is currently active.
+   * @returns {boolean} True if syncing.
+   */
   getSyncingStatus() {
     return this.isSyncing;
   }
 }
 
+/**
+ * Exported singleton instance of SyncService.
+ */
 export const syncService = new SyncService();
