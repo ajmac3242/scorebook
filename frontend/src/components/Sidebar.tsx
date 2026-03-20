@@ -30,6 +30,8 @@ import {
 } from "@mui/icons-material";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { syncService } from "../utils/syncService";
+import { Refresh as SyncingIcon } from "@mui/icons-material";
 
 const drawerWidth = 240;
 const collapsedDrawerWidth = 72;
@@ -41,15 +43,27 @@ const Sidebar: React.FC = () => {
   const location = useLocation();
   const [open, setOpen] = useState(!isMobile);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [isSyncing, setIsSyncing] = useState(false);
 
   React.useEffect(() => {
-    const handleOnline = () => setIsOnline(true);
+    const handleOnline = () => {
+      setIsOnline(true);
+      // Trigger background sync when coming back online
+      syncService.pushUpdates();
+    };
     const handleOffline = () => setIsOnline(false);
     window.addEventListener("online", handleOnline);
     window.addEventListener("offline", handleOffline);
+
+    // Poll for syncing status
+    const interval = setInterval(() => {
+      setIsSyncing(syncService.getSyncingStatus());
+    }, 1000);
+
     return () => {
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
+      clearInterval(interval);
     };
   }, []);
 
@@ -170,10 +184,16 @@ const Sidebar: React.FC = () => {
                   minWidth: 0,
                   mr: open ? 3 : "auto",
                   justifyContent: "center",
-                  color: isOnline ? "success.light" : "error.light",
+                  color: isSyncing
+                    ? "secondary.main"
+                    : isOnline
+                      ? "success.light"
+                      : "error.light",
                 }}
               >
-                {isOnline ? (
+                {isSyncing ? (
+                  <SyncingIcon className="spin" />
+                ) : isOnline ? (
                   <OnlineIcon className="hover-grow" />
                 ) : (
                   <OfflineIcon className="sync-pulse" />
@@ -181,7 +201,9 @@ const Sidebar: React.FC = () => {
               </ListItemIcon>
               {open && (
                 <ListItemText
-                  primary={isOnline ? "Online" : "Offline"}
+                  primary={
+                    isSyncing ? "Syncing..." : isOnline ? "Online" : "Offline"
+                  }
                   secondary={open ? "System Status" : ""}
                   secondaryTypographyProps={{
                     sx: { color: "rgba(255,255,255,0.5)", fontSize: "0.7rem" },

@@ -20,17 +20,12 @@ export const handler = async (
   console.log("Event:", JSON.stringify(event));
 
   const method = (event as any).method || (event as any).httpMethod || event.requestContext?.http?.method || "GET";
-  let path = event.rawPath || (event as any).path || event.requestContext?.http?.path || "/";
+  let rawPath = event.rawPath || (event as any).path || event.requestContext?.http?.path || "/";
 
-  if (path.startsWith("/$default")) {
-    path = path.replace("/$default", "");
-  }
+  // Normalize path: strip stage, ensure leading slash, remove trailing slash
+  let path = rawPath.replace(/^\/\$default/, "");
   if (!path.startsWith("/")) path = "/" + path;
-
-  // Normalize path by removing trailing slash if not root
-  if (path.length > 1 && path.endsWith("/")) {
-    path = path.slice(0, -1);
-  }
+  if (path.length > 1 && path.endsWith("/")) path = path.slice(0, -1);
 
   console.log("Routing:", { method, path });
 
@@ -66,6 +61,7 @@ export const handler = async (
         if (resp.statusCode === 201) {
             const newItem = JSON.parse(resp.body);
             await snapshotTeamRoster(newItem.id, TABLE_NAME);
+            await snapshotTeamGames(newItem.id, TABLE_NAME);
         }
         return resp;
       }
@@ -109,7 +105,14 @@ export const handler = async (
         const teamId = event.queryStringParameters?.teamId;
         return await getItemsByGSI(`TEAM#${teamId}`, TABLE_NAME);
       }
-      if (method === "POST") return await createItem("GAME", "METADATA", `TEAM#${body?.teamId}`, body, TABLE_NAME);
+      if (method === "POST") {
+        const resp = await createItem("GAME", "METADATA", `TEAM#${body?.teamId}`, body, TABLE_NAME);
+        if (resp.statusCode === 201) {
+            const newItem = JSON.parse(resp.body);
+            await snapshotTeamGames(newItem.teamId, TABLE_NAME);
+        }
+        return resp;
+      }
     }
 
     // Game Completion (e.g., /games/123/complete)
@@ -117,6 +120,12 @@ export const handler = async (
     if (gameCompleteMatch) {
         const gameId = gameCompleteMatch[1];
         if (method === "POST") {
+            const getResp = await docClient.send(new GetCommand({
+                TableName: TABLE_NAME,
+                Key: { PK: `GAME#${gameId}`, SK: `METADATA#${gameId}` }
+            }));
+            if (!getResp.Item) return response(404, { message: "Game not found" });
+
             await docClient.send(new UpdateCommand({
                 TableName: TABLE_NAME,
                 Key: { PK: `GAME#${gameId}`, SK: `METADATA#${gameId}` },
@@ -124,6 +133,7 @@ export const handler = async (
                 ExpressionAttributeValues: { ":c": 1 }
             }));
             await snapshotGameStats(gameId, TABLE_NAME);
+            await snapshotTeamGames(getResp.Item.teamId, TABLE_NAME);
             return response(200, { message: "Game completed" });
         }
     }
@@ -143,11 +153,13 @@ export const handler = async (
         return response(200, result.Items || []);
       }
       if (method === "POST") {
-        const id = uuidv4();
-        const timestamp = new Date().toISOString();
+        const id = body?.id || uuidv4();
+        const timestamp = body?.timestamp || new Date().toISOString();
         const item = {
           PK: `GAME#${gameId}`,
           SK: `STAT#${timestamp}#${id}`,
+          GSI1PK: `GAME#${gameId}`,
+          GSI1SK: `STAT#${timestamp}#${id}`,
           ...body,
           id,
           timestamp,
@@ -212,6 +224,28 @@ async function snapshotTeamRoster(teamId: string, tableName: string) {
             const snapshot = { team: teamResult.Item, players: playersResult.Items || [] };
             await s3Client.send(new PutObjectCommand({ Bucket: DATA_BUCKET, Key: `teams/${teamId}/roster.json`, Body: JSON.stringify(snapshot), ContentType: "application/json" }));
         }
+    } catch (e) {
+        console.error("Snapshot error:", e);
+    }
+}
+
+async function snapshotTeamGames(teamId: string, tableName: string) {
+    const DATA_BUCKET = process.env.DATA_BUCKET;
+    if (!DATA_BUCKET) return;
+    try {
+        const gamesResult = await docClient.send(new QueryCommand({
+            TableName: tableName,
+            IndexName: "GSI1",
+            KeyConditionExpression: "GSI1PK = :pk AND begins_with(GSI1SK, :sk)",
+            ExpressionAttributeValues: { ":pk": `TEAM#${teamId}`, ":sk": "GAME#" }
+        }));
+        const snapshot = { games: gamesResult.Items || [] };
+        await s3Client.send(new PutObjectCommand({
+            Bucket: DATA_BUCKET,
+            Key: `teams/${teamId}/games.json`,
+            Body: JSON.stringify(snapshot),
+            ContentType: "application/json"
+        }));
     } catch (e) {
         console.error("Snapshot error:", e);
     }

@@ -5,17 +5,43 @@ import { db } from "../db";
 // Mock Dexie
 vi.mock("../db", () => ({
   db: {
-    transaction: vi.fn((mode, tables, cb) => cb()),
-    teams: { put: vi.fn() },
-    players: { put: vi.fn() },
-    teamPlayers: { put: vi.fn() },
+    transaction: vi.fn((_mode, _tables, cb) => cb()),
+    teams: {
+      put: vi.fn(),
+      where: vi.fn().mockReturnThis(),
+      equals: vi.fn().mockReturnThis(),
+      toArray: vi.fn().mockResolvedValue([]),
+    },
+    players: {
+      put: vi.fn(),
+      where: vi.fn().mockReturnThis(),
+      equals: vi.fn().mockReturnThis(),
+      toArray: vi.fn().mockResolvedValue([]),
+    },
+    teamPlayers: {
+      put: vi.fn(),
+      where: vi.fn().mockReturnThis(),
+      equals: vi.fn().mockReturnThis(),
+      toArray: vi.fn().mockResolvedValue([]),
+    },
     games: {
       put: vi.fn(),
       where: vi.fn().mockReturnThis(),
       equals: vi.fn().mockReturnThis(),
       toArray: vi.fn().mockResolvedValue([]),
     },
-    stats: { put: vi.fn() },
+    stats: {
+      put: vi.fn(),
+      where: vi.fn().mockReturnThis(),
+      equals: vi.fn().mockReturnThis(),
+      toArray: vi.fn().mockResolvedValue([]),
+    },
+    seasons: {
+      put: vi.fn(),
+      where: vi.fn().mockReturnThis(),
+      equals: vi.fn().mockReturnThis(),
+      toArray: vi.fn().mockResolvedValue([]),
+    },
   },
 }));
 
@@ -34,9 +60,11 @@ vi.mock("../UserPool", () => ({
 }));
 
 describe("SyncService", () => {
+  const fetchMock = vi.fn();
+
   beforeEach(() => {
     vi.clearAllMocks();
-    global.fetch = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
     localStorage.clear();
   });
 
@@ -46,16 +74,16 @@ describe("SyncService", () => {
       players: [{ id: "p1", name: "Player 1", jerseyNumber: "10" }],
     };
 
-    (global.fetch as any).mockResolvedValue({
+    fetchMock.mockResolvedValue({
       ok: true,
       status: 200,
       json: () => Promise.resolve(mockData),
-      headers: { get: (name: string) => (name === "ETag" ? "etag-1" : null) },
+      headers: new Headers({ ETag: "etag-1" }),
     });
 
     await syncService.syncTeamRoster("t1");
 
-    expect(global.fetch).toHaveBeenCalledWith(
+    expect(fetchMock).toHaveBeenCalledWith(
       "/data/teams/t1/roster.json",
       expect.any(Object),
     );
@@ -70,14 +98,14 @@ describe("SyncService", () => {
 
   it("syncTeamRoster skips if 304 Not Modified", async () => {
     localStorage.setItem("etag_team_t1", "etag-1");
-    (global.fetch as any).mockResolvedValue({
+    fetchMock.mockResolvedValue({
       status: 304,
       ok: false,
     });
 
     await syncService.syncTeamRoster("t1");
 
-    expect(global.fetch).toHaveBeenCalledWith(
+    expect(fetchMock).toHaveBeenCalledWith(
       "/data/teams/t1/roster.json",
       expect.objectContaining({
         headers: expect.objectContaining({ "If-None-Match": "etag-1" }),

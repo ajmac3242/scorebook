@@ -88,7 +88,7 @@ describe("Lambda Handler", () => {
       expect(JSON.parse(response.body)).toEqual([{ id: "t1", name: "Team 1" }]);
     });
 
-    it("POST /teams creates an item and snapshots roster", async () => {
+    it("POST /teams creates an item and snapshots roster and games", async () => {
         ddbMock.on(PutCommand).resolves({});
         ddbMock.on(GetCommand).resolves({ Item: { id: "test-uuid", name: "New Team" } });
         ddbMock.on(QueryCommand).resolves({ Items: [] });
@@ -101,7 +101,7 @@ describe("Lambda Handler", () => {
         const response: any = await handler(event);
 
         expect(response.statusCode).toBe(201);
-        expect(s3Mock.calls().length).toBe(1);
+        expect(s3Mock.calls().length).toBe(2); // roster.json and games.json
     });
 
     it("POST /teams/:id/players adds player and snapshots roster", async () => {
@@ -133,6 +133,13 @@ describe("Lambda Handler", () => {
 
       expect(response.statusCode).toBe(200);
     });
+
+    it("POST /players creates a player", async () => {
+        ddbMock.on(PutCommand).resolves({});
+        const event = createEvent("POST", "/players", { name: "Player 1" });
+        const response: any = await handler(event);
+        expect(response.statusCode).toBe(201);
+    });
   });
 
   describe("Games", () => {
@@ -147,9 +154,19 @@ describe("Lambda Handler", () => {
       expect(response.statusCode).toBe(200);
     });
 
-    it("POST /games/:id/complete marks as completed and snapshots", async () => {
+    it("POST /games creates a game and snapshots team games", async () => {
+        ddbMock.on(PutCommand).resolves({});
+        ddbMock.on(QueryCommand).resolves({ Items: [] });
+        s3Mock.on(PutObjectCommand).resolves({});
+        const event = createEvent("POST", "/games", { teamId: "t1", opponent: "Opp" });
+        const response: any = await handler(event);
+        expect(response.statusCode).toBe(201);
+        expect(s3Mock.calls().length).toBe(1);
+    });
+
+    it("POST /games/:id/complete marks as completed and snapshots stats and team games", async () => {
         ddbMock.on(UpdateCommand).resolves({});
-        ddbMock.on(GetCommand).resolves({ Item: { id: "g1", opponent: "Opp" } });
+        ddbMock.on(GetCommand).resolves({ Item: { id: "g1", teamId: "t1", opponent: "Opp" } });
         ddbMock.on(QueryCommand).resolves({ Items: [{ id: "st1", type: "SHOT" }] });
         s3Mock.on(PutObjectCommand).resolves({});
 
@@ -157,7 +174,16 @@ describe("Lambda Handler", () => {
         const response: any = await handler(event);
 
         expect(response.statusCode).toBe(200);
-        expect(s3Mock.calls().length).toBe(1);
+        expect(s3Mock.calls().length).toBe(2); // stats.json and team games.json
+    });
+
+    it("POST /games/:id/stats records a stat", async () => {
+        ddbMock.on(PutCommand).resolves({});
+        const event = createEvent("POST", "/games/g1/stats", { type: "MAKE", points: 2 });
+        const response: any = await handler(event);
+        expect(response.statusCode).toBe(201);
+        const body = JSON.parse(response.body);
+        expect(body.GSI1PK).toBe("GAME#g1");
     });
   });
 
