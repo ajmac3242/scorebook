@@ -155,6 +155,19 @@ resource "random_id" "id" {
 }
 
 # --- CloudFront ---
+
+data "aws_cloudfront_cache_policy" "optimized" {
+  name = "Managed-CachingOptimized"
+}
+
+data "aws_cloudfront_cache_policy" "disabled" {
+  name = "Managed-CachingDisabled"
+}
+
+data "aws_cloudfront_origin_request_policy" "all_except_host" {
+  name = "Managed-AllViewerExceptHostHeader"
+}
+
 resource "aws_cloudfront_origin_access_control" "oac" {
   name                              = "s3-oac-${random_id.id.hex}"
   description                       = "OAC for Basketball Stats S3"
@@ -206,12 +219,9 @@ resource "aws_cloudfront_distribution" "distribution" {
     target_origin_id = "S3-Frontend"
 
     # Use Managed-CachingOptimized policy which includes ETag headers by default
-    cache_policy_id = "658327ea-f89d-4fab-a63d-7e88639e58f6"
+    cache_policy_id  = data.aws_cloudfront_cache_policy.optimized.id
 
     viewer_protocol_policy = "redirect-to-https"
-    min_ttl                = 0
-    default_ttl            = 3600
-    max_ttl                = 86400
   }
 
   ordered_cache_behavior {
@@ -222,8 +232,8 @@ resource "aws_cloudfront_distribution" "distribution" {
 
     # Forward all headers, cookies, and query strings to API Gateway
     # Use Managed-CachingDisabled to ensure API is not cached by CloudFront
-    cache_policy_id          = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad"
-    origin_request_policy_id = "b689b0a8-53d0-40a8-b0e6-2b073257596c" # Managed-AllViewerExceptHostHeader
+    cache_policy_id          = data.aws_cloudfront_cache_policy.disabled.id
+    origin_request_policy_id = data.aws_cloudfront_origin_request_policy.all_except_host.id # Managed-AllViewerExceptHostHeader
 
     viewer_protocol_policy = "redirect-to-https"
   }
@@ -234,7 +244,7 @@ resource "aws_cloudfront_distribution" "distribution" {
     cached_methods   = ["GET", "HEAD"]
     target_origin_id = "S3-Data"
 
-    cache_policy_id = "658327ea-f89d-4fab-a63d-7e88639e58f6" # Managed-CachingOptimized
+    cache_policy_id =  data.aws_cloudfront_cache_policy.optimized.id
 
     viewer_protocol_policy = "redirect-to-https"
     min_ttl                = 0
