@@ -43,7 +43,7 @@ class SyncService {
       // Push Seasons
       const seasons = await db.seasons.where("synced").equals(0).toArray();
       for (const s of seasons) {
-        const res = await fetch("/seasons", {
+        const res = await fetch("/api/seasons", {
           method: "POST",
           headers,
           body: JSON.stringify(s),
@@ -54,7 +54,7 @@ class SyncService {
       // Push Teams
       const teams = await db.teams.where("synced").equals(0).toArray();
       for (const t of teams) {
-        const res = await fetch("/teams", {
+        const res = await fetch("/api/teams", {
           method: "POST",
           headers,
           body: JSON.stringify(t),
@@ -65,7 +65,7 @@ class SyncService {
       // Push Players
       const players = await db.players.where("synced").equals(0).toArray();
       for (const p of players) {
-        const res = await fetch("/players", {
+        const res = await fetch("/api/players", {
           method: "POST",
           headers,
           body: JSON.stringify(p),
@@ -76,7 +76,7 @@ class SyncService {
       // Push TeamPlayers
       const tp = await db.teamPlayers.where("synced").equals(0).toArray();
       for (const item of tp) {
-        const res = await fetch(`/teams/${item.teamId}/players`, {
+        const res = await fetch(`/api/teams/${item.teamId}/players`, {
           method: "POST",
           headers,
           body: JSON.stringify(item),
@@ -87,7 +87,7 @@ class SyncService {
       // Push Games
       const games = await db.games.where("synced").equals(0).toArray();
       for (const g of games) {
-        const res = await fetch("/games", {
+        const res = await fetch("/api/games", {
           method: "POST",
           headers,
           body: JSON.stringify(g),
@@ -95,7 +95,7 @@ class SyncService {
         if (res.ok) {
           await db.games.update(g.id!, { synced: 1 });
           if (g.completed) {
-            await fetch(`/games/${g.id}/complete`, { method: "POST", headers });
+            await fetch(`/api/games/${g.id}/complete`, { method: "POST", headers });
           }
         }
       }
@@ -103,7 +103,7 @@ class SyncService {
       // Push Stats
       const stats = await db.stats.where("synced").equals(0).toArray();
       for (const st of stats) {
-        const res = await fetch(`/games/${st.gameId}/stats`, {
+        const res = await fetch(`/api/games/${st.gameId}/stats`, {
           method: "POST",
           headers,
           body: JSON.stringify(st),
@@ -274,7 +274,7 @@ class SyncService {
       const headers = await this.getHeaders();
 
       // 1. Pull Seasons
-      const seasonsRes = await fetch("/seasons", { headers });
+      const seasonsRes = await fetch("/api/seasons", { headers });
       if (seasonsRes.ok) {
         const seasons = await seasonsRes.json();
         await db.transaction("rw", [db.seasons], async () => {
@@ -285,7 +285,7 @@ class SyncService {
 
         // 2. Pull Teams for each season
         for (const s of seasons) {
-          const teamsRes = await fetch(`/teams?seasonId=${s.id}`, { headers });
+          const teamsRes = await fetch(`/api/teams?seasonId=${s.id}`, { headers });
           if (teamsRes.ok) {
             const teams = await teamsRes.json();
             await db.transaction("rw", [db.teams], async () => {
@@ -304,7 +304,7 @@ class SyncService {
       }
 
       // 4. Pull all players (to be sure we have them all)
-      const playersRes = await fetch("/players", { headers });
+      const playersRes = await fetch("/api/players", { headers });
       if (playersRes.ok) {
         const players = await playersRes.json();
         await db.transaction("rw", [db.players], async () => {
