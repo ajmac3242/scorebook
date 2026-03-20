@@ -34,6 +34,7 @@ import {
 } from "@mui/icons-material";
 import BasketballCourt from "../components/BasketballCourt";
 import { db, type StatEvent } from "../db";
+import { syncService } from "../utils/syncService";
 import { useLiveQuery } from "dexie-react-hooks";
 import { ACTION_TYPES } from "../constants/stats";
 import { getInitials, getPlayerJersey } from "../utils/stats";
@@ -130,6 +131,13 @@ const GameMode: React.FC = () => {
     }
   }, [game?.completed]);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      syncService.pushUpdates();
+    }, 60000); // 1 minute
+    return () => clearInterval(interval);
+  }, []);
+
   const recentStats =
     useLiveQuery(async () => {
       try {
@@ -181,7 +189,8 @@ const GameMode: React.FC = () => {
   const handleEndGame = async () => {
     try {
       await db.open();
-      await db.games.update(gameId as any, { completed: 1 });
+      await db.games.update(gameId as any, { completed: 1, synced: 0 });
+      syncService.pushUpdates();
       setEndGameDialogOpen(false);
       setSummaryDialogOpen(true);
     } catch (err) {

@@ -18,6 +18,7 @@ import {
 } from "@mui/material";
 import { Add as AddIcon } from "@mui/icons-material";
 import { db, type Season } from "../db";
+import { syncService } from "../utils/syncService";
 import { useLiveQuery } from "dexie-react-hooks";
 import { LocalizationProvider, StaticDatePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -40,6 +41,7 @@ const Seasons: React.FC = () => {
     try {
       await db.open();
       await db.seasons.add({ name, startDate, endDate, synced: 0 });
+      syncService.pushUpdates();
       setOpen(false);
       setName("");
       setStartDate("");
