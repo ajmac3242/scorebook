@@ -95,7 +95,10 @@ class SyncService {
         if (res.ok) {
           await db.games.update(g.id!, { synced: 1 });
           if (g.completed) {
-            await fetch(`/api/games/${g.id}/complete`, { method: "POST", headers });
+            await fetch(`/api/games/${g.id}/complete`, {
+              method: "POST",
+              headers,
+            });
           }
         }
       }
@@ -285,7 +288,9 @@ class SyncService {
 
         // 2. Pull Teams for each season
         for (const s of seasons) {
-          const teamsRes = await fetch(`/api/teams?seasonId=${s.id}`, { headers });
+          const teamsRes = await fetch(`/api/teams?seasonId=${s.id}`, {
+            headers,
+          });
           if (teamsRes.ok) {
             const teams = await teamsRes.json();
             await db.transaction("rw", [db.teams], async () => {

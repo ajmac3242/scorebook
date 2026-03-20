@@ -28,7 +28,10 @@ import {
   Tab,
   Chip,
 } from "@mui/material";
-import { PersonAdd as PersonAddIcon, ArrowBack as ArrowBackIcon } from "@mui/icons-material";
+import {
+  PersonAdd as PersonAddIcon,
+  ArrowBack as ArrowBackIcon,
+} from "@mui/icons-material";
 import { db, type TeamPlayer } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
 import { STAT_ACRONYMS } from "../constants/stats";
