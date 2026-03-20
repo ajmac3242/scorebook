@@ -1,3 +1,9 @@
+/**
+ * @file App.tsx
+ * @description Main application entry point for the React frontend.
+ * Configures the theme, routing, authentication provider, and layout.
+ */
+
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import {
@@ -22,6 +28,14 @@ import Sidebar from "./components/Sidebar";
 import { Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 
+/**
+ * Higher-order component to protect routes that require authentication.
+ * Redirects to the login page if the user is not authenticated.
+ *
+ * @param {object} props - Component props.
+ * @param {React.ReactNode} props.children - Child components to render if authenticated.
+ * @returns {React.ReactElement}
+ */
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
@@ -38,17 +52,26 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
   return isAuthenticated ? <>{children}</> : <Navigate to="/login" />;
 };
 
+/**
+ * Main layout component containing the navigation and routed page content.
+ * Handles the display of the sidebar based on authentication state.
+ *
+ * @returns {React.ReactElement}
+ */
 const AppContent: React.FC = () => {
   const { isAuthenticated } = useAuth();
 
   return (
     <Box sx={{ display: "flex", minHeight: "100vh" }}>
+      {/* Show sidebar only for authenticated users */}
       {isAuthenticated && <Sidebar />}
+
       <Box
         component="main"
         sx={{
           flexGrow: 1,
           p: { xs: 2, sm: 3 },
+          // Adjust width to account for the sidebar if present
           width: { sm: `calc(100% - ${isAuthenticated ? "240px" : "0px"})` },
         }}
       >
@@ -127,7 +150,7 @@ const AppContent: React.FC = () => {
                 </ProtectedRoute>
               }
             />
-            {/* Catch-all route to redirect to home (which redirects to login if unauthenticated) */}
+            {/* Catch-all route to redirect to home */}
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </Container>
@@ -136,6 +159,11 @@ const AppContent: React.FC = () => {
   );
 };
 
+/**
+ * Root App component providing global providers (Theme, Auth, Router).
+ *
+ * @returns {React.ReactElement}
+ */
 const App: React.FC = () => {
   return (
     <ThemeProvider theme={theme}>

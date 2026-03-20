@@ -1,3 +1,12 @@
+/**
+ * @file stats.ts (constants)
+ * @description Defines constants for statistical acronyms and game action types.
+ * These are shared across the UI and data aggregation logic.
+ */
+
+/**
+ * Standardized acronyms for basketball statistics.
+ */
 export const STAT_ACRONYMS = {
   POINTS: "PTS",
   REBOUNDS: "REB",
@@ -18,6 +27,9 @@ export const STAT_ACRONYMS = {
   MINUTES: "MIN",
 };
 
+/**
+ * Supported game action types that can be recorded as events.
+ */
 export const ACTION_TYPES = {
   MAKE: "MAKE",
   MISS: "MISS",

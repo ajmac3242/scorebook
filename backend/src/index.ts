@@ -1,3 +1,10 @@
+/**
+ * @file index.ts
+ * @description Main Lambda handler for the Basketball Stats API.
+ * Provides RESTful endpoints for managing Seasons, Teams, Players, Games, and Stats.
+ * Implements an offline-first synchronization strategy with S3 snapshot generation.
+ */
+
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import {
   DynamoDBDocumentClient,
@@ -10,15 +17,25 @@ import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { v4 as uuidv4 } from "uuid";
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
 
+// Clients
 const client = new DynamoDBClient({});
 const docClient = DynamoDBDocumentClient.from(client);
 const s3Client = new S3Client({});
 
+/**
+ * Main Lambda handler function.
+ * Handles routing based on HTTP method and path, processes request bodies,
+ * and interacts with DynamoDB and S3.
+ *
+ * @param {APIGatewayProxyEventV2} event - The API Gateway event object.
+ * @returns {Promise<APIGatewayProxyResultV2>} The HTTP response.
+ */
 export const handler = async (
   event: APIGatewayProxyEventV2
 ): Promise<APIGatewayProxyResultV2> => {
   console.log("Event:", JSON.stringify(event));
 
+  // Extract HTTP method and path with normalization for different event formats
   const method = (event as any).method || (event as any).httpMethod || event.requestContext?.http?.method || "GET";
   let rawPath = event.rawPath || (event as any).path || event.requestContext?.http?.path || "/";
 
@@ -29,6 +46,7 @@ export const handler = async (
 
   console.log("Routing:", { method, path });
 
+  // Parse JSON body if present
   let body: any = {};
   if (event.body) {
     try {
@@ -41,13 +59,13 @@ export const handler = async (
   try {
     const TABLE_NAME = process.env.TABLE_NAME || "BasketballStats";
 
-    // Seasons
+    // --- Seasons Endpoints ---
     if (path === "/seasons") {
       if (method === "GET") return await getItems("SEASON", "SEASON", TABLE_NAME);
       if (method === "POST") return await createItem("SEASON", "METADATA", "SEASON", body, TABLE_NAME);
     }
 
-    // Teams
+    // --- Teams Endpoints ---
     if (path === "/teams") {
       if (method === "GET") {
         const seasonId = event.queryStringParameters?.seasonId;
@@ -60,6 +78,7 @@ export const handler = async (
         const resp = await createItem("TEAM", "METADATA", `SEASON#${body?.seasonId}`, body, TABLE_NAME);
         if (resp.statusCode === 201) {
             const newItem = JSON.parse(resp.body);
+            // After creating a team, update relevant snapshots
             await snapshotTeamRoster(newItem.id, TABLE_NAME);
             await snapshotTeamGames(newItem.id, TABLE_NAME);
         }
@@ -67,12 +86,13 @@ export const handler = async (
       }
     }
 
-    // Team Players (e.g., /teams/123/players)
+    // --- Team Players Endpoints (e.g., /teams/123/players) ---
     const teamPlayersMatch = path.match(/^\/teams\/([^\/]+)\/players$/);
     if (teamPlayersMatch) {
         const teamId = teamPlayersMatch[1];
         if (method === "GET") return await getItemsByGSI(`TEAM#${teamId}`, TABLE_NAME);
         if (method === "POST") {
+            // Create the player record and associate it with the team in a junction table
             const resp = await createItem("PLAYER", "METADATA", "PLAYER", body, TABLE_NAME);
             if (resp.statusCode === 201) {
                 const player = JSON.parse(resp.body);
@@ -86,6 +106,7 @@ export const handler = async (
                     teamId
                 };
                 await docClient.send(new PutCommand({ TableName: TABLE_NAME, Item: teamPlayerItem }));
+                // Update team roster snapshot after adding a player
                 await snapshotTeamRoster(teamId, TABLE_NAME);
                 return response(201, teamPlayerItem);
             }
@@ -93,13 +114,13 @@ export const handler = async (
         }
     }
 
-    // Players
+    // --- Global Players Endpoints ---
     if (path === "/players") {
       if (method === "GET") return await getItems("PLAYER", "PLAYER", TABLE_NAME);
       if (method === "POST") return await createItem("PLAYER", "METADATA", "PLAYER", body, TABLE_NAME);
     }
 
-    // Games
+    // --- Games Endpoints ---
     if (path === "/games") {
       if (method === "GET") {
         const teamId = event.queryStringParameters?.teamId;
@@ -109,36 +130,41 @@ export const handler = async (
         const resp = await createItem("GAME", "METADATA", `TEAM#${body?.teamId}`, body, TABLE_NAME);
         if (resp.statusCode === 201) {
             const newItem = JSON.parse(resp.body);
+            // Update the team's games snapshot after creating a new game
             await snapshotTeamGames(newItem.teamId, TABLE_NAME);
         }
         return resp;
       }
     }
 
-    // Game Completion (e.g., /games/123/complete)
+    // --- Game Completion Endpoint (e.g., /games/123/complete) ---
     const gameCompleteMatch = path.match(/^\/games\/([^\/]+)\/complete$/);
     if (gameCompleteMatch) {
         const gameId = gameCompleteMatch[1];
         if (method === "POST") {
+            // Check if game exists
             const getResp = await docClient.send(new GetCommand({
                 TableName: TABLE_NAME,
                 Key: { PK: `GAME#${gameId}`, SK: `METADATA#${gameId}` }
             }));
             if (!getResp.Item) return response(404, { message: "Game not found" });
 
+            // Mark game as completed in DynamoDB
             await docClient.send(new UpdateCommand({
                 TableName: TABLE_NAME,
                 Key: { PK: `GAME#${gameId}`, SK: `METADATA#${gameId}` },
                 UpdateExpression: "SET completed = :c",
                 ExpressionAttributeValues: { ":c": 1 }
             }));
+
+            // Finalize snapshots for the completed game
             await snapshotGameStats(gameId, TABLE_NAME);
             await snapshotTeamGames(getResp.Item.teamId, TABLE_NAME);
             return response(200, { message: "Game completed" });
         }
     }
 
-    // Game Stats (e.g., /games/123/stats)
+    // --- Game Stats Endpoints (e.g., /games/123/stats) ---
     const gameStatsMatch = path.match(/^\/games\/([^\/]+)\/stats$/);
     if (gameStatsMatch) {
       const gameId = gameStatsMatch[1];
@@ -153,6 +179,7 @@ export const handler = async (
         return response(200, result.Items || []);
       }
       if (method === "POST") {
+        // Create individual stat event record
         const id = body?.id || uuidv4();
         const timestamp = body?.timestamp || new Date().toISOString();
         const item = {
@@ -176,6 +203,14 @@ export const handler = async (
   }
 };
 
+/**
+ * Retrieves items from DynamoDB based on PK prefix and GSI1PK.
+ *
+ * @param {string} pkPrefix - The prefix for the PK.
+ * @param {string} gsiPrefix - The prefix for the GSI1PK.
+ * @param {string} tableName - The name of the DynamoDB table.
+ * @returns {Promise<APIGatewayProxyResultV2>} The HTTP response with the items.
+ */
 async function getItems(pkPrefix: string, gsiPrefix: string, tableName: string) {
   const result = await docClient.send(
     new QueryCommand({
@@ -188,6 +223,13 @@ async function getItems(pkPrefix: string, gsiPrefix: string, tableName: string) 
   return response(200, result.Items || []);
 }
 
+/**
+ * Retrieves items from DynamoDB using GSI1PK.
+ *
+ * @param {string} gsiPk - The GSI1PK value.
+ * @param {string} tableName - The name of the DynamoDB table.
+ * @returns {Promise<APIGatewayProxyResultV2>} The HTTP response with the items.
+ */
 async function getItemsByGSI(gsiPk: string, tableName: string) {
   const result = await docClient.send(
     new QueryCommand({
@@ -200,6 +242,16 @@ async function getItemsByGSI(gsiPk: string, tableName: string) {
   return response(200, result.Items || []);
 }
 
+/**
+ * Creates a new item in DynamoDB.
+ *
+ * @param {string} type - The item type (e.g., SEASON, TEAM).
+ * @param {string} skPrefix - The prefix for the SK.
+ * @param {string} gsiPk - The GSI1PK value.
+ * @param {any} data - The item data.
+ * @param {string} tableName - The name of the DynamoDB table.
+ * @returns {Promise<APIGatewayProxyResultV2>} The HTTP response with the created item.
+ */
 async function createItem(type: string, skPrefix: string, gsiPk: string, data: any, tableName: string) {
   const id = data?.id || uuidv4();
   const item = {
@@ -214,6 +266,12 @@ async function createItem(type: string, skPrefix: string, gsiPk: string, data: a
   return response(201, item);
 }
 
+/**
+ * Generates and uploads a team roster snapshot JSON to S3.
+ *
+ * @param {string} teamId - The team ID.
+ * @param {string} tableName - The name of the DynamoDB table.
+ */
 async function snapshotTeamRoster(teamId: string, tableName: string) {
     const DATA_BUCKET = process.env.DATA_BUCKET;
     if (!DATA_BUCKET) return;
@@ -229,6 +287,12 @@ async function snapshotTeamRoster(teamId: string, tableName: string) {
     }
 }
 
+/**
+ * Generates and uploads a list of games for a team as a snapshot JSON to S3.
+ *
+ * @param {string} teamId - The team ID.
+ * @param {string} tableName - The name of the DynamoDB table.
+ */
 async function snapshotTeamGames(teamId: string, tableName: string) {
     const DATA_BUCKET = process.env.DATA_BUCKET;
     if (!DATA_BUCKET) return;
@@ -251,6 +315,12 @@ async function snapshotTeamGames(teamId: string, tableName: string) {
     }
 }
 
+/**
+ * Generates and uploads a detailed game stats snapshot JSON to S3, including calculated results.
+ *
+ * @param {string} gameId - The game ID.
+ * @param {string} tableName - The name of the DynamoDB table.
+ */
 async function snapshotGameStats(gameId: string, tableName: string) {
     const DATA_BUCKET = process.env.DATA_BUCKET;
     if (!DATA_BUCKET) return;
@@ -278,6 +348,13 @@ async function snapshotGameStats(gameId: string, tableName: string) {
     }
 }
 
+/**
+ * Formats a standardized JSON response.
+ *
+ * @param {number} statusCode - The HTTP status code.
+ * @param {any} body - The JSON body data.
+ * @returns {object} The formatted response object.
+ */
 function response(statusCode: number, body: any) {
   return {
     statusCode,

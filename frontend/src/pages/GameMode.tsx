@@ -1,3 +1,10 @@
+/**
+ * @file GameMode.tsx
+ * @description The live game tracking interface.
+ * Allows users to record statistical events (makes, misses, rebounds, etc.)
+ * on an interactive court, manage active lineups, and track opponent scoring.
+ */
+
 import React, { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import {
@@ -43,12 +50,18 @@ import { useLocation } from "react-router-dom";
 
 const OPPONENT_PLAYER_ID = "OPPONENT";
 
+/**
+ * GameMode page component.
+ * Manages the state for live game tracking, including selections,
+ * dialogs for recording actions, and real-time score calculation.
+ */
 const GameMode: React.FC = () => {
   const theme = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
 
+  // Extract game and team IDs from URL parameters
   const gameIdParam = searchParams.get("gameId");
   const gameId = gameIdParam
     ? isNaN(Number(gameIdParam))
@@ -63,6 +76,7 @@ const GameMode: React.FC = () => {
       : Number(teamIdParam)
     : null;
 
+  // Ensure required parameters are present, otherwise redirect
   useEffect(() => {
     if (!gameId || !teamId) {
       navigate("/");
@@ -73,6 +87,7 @@ const GameMode: React.FC = () => {
     return null;
   }
 
+  // Local state for recording individual actions
   const [selectedX, setSelectedX] = useState<number | null>(null);
   const [selectedY, setSelectedY] = useState<number | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -82,20 +97,25 @@ const GameMode: React.FC = () => {
   const [statType, setStatType] = useState<string | null>(null);
   const [points, setPoints] = useState<number>(2);
 
+  // Filter for displaying court markers
   const [markerFilter, setMarkerFilter] = useState<string>("ALL");
 
+  // State for editing and deleting actions
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [statToDelete, setStatToDelete] = useState<number | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editingStatId, setEditingStatId] = useState<number | null>(null);
 
+  // Game lifecycle state
   const [endGameDialogOpen, setEndGameDialogOpen] = useState(false);
   const [summaryDialogOpen, setSummaryDialogOpen] = useState(false);
 
+  // Roster and lineup state
   const [onCourtIds, setOnCourtIds] = useState<Set<number | string>>(new Set());
   const [period, setPeriod] = useState(1);
   const [trackingMode, setTrackingMode] = useState<"TEAM" | "OPPONENT">("TEAM");
 
+  // Fetch roster data for the current team
   const teamPlayers =
     useLiveQuery(
       () =>
@@ -125,12 +145,14 @@ const GameMode: React.FC = () => {
 
   const game = useLiveQuery(() => db.games.get(gameId as any), [gameId]);
 
+  // Show summary dialog automatically if game is completed
   useEffect(() => {
     if (game?.completed && !summaryDialogOpen && !endGameDialogOpen) {
       setSummaryDialogOpen(true);
     }
   }, [game?.completed]);
 
+  // Periodic background sync during live tracking
   useEffect(() => {
     const interval = setInterval(() => {
       syncService.pushUpdates();
@@ -138,6 +160,7 @@ const GameMode: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
+  // Fetch recent actions for the history sidebar
   const recentStats =
     useLiveQuery(async () => {
       try {
@@ -155,6 +178,7 @@ const GameMode: React.FC = () => {
       }
     }, [gameId]) || [];
 
+  // Fetch all game stats for score calculation and court markers
   const gameStats =
     useLiveQuery(async () => {
       try {
@@ -166,6 +190,7 @@ const GameMode: React.FC = () => {
       }
     }, [gameId]) || [];
 
+  // Derived scores
   const currentScore = gameStats
     .filter((s) => s.playerId !== OPPONENT_PLAYER_ID)
     .reduce((sum, s) => sum + (s.points || 0), 0);
@@ -173,6 +198,9 @@ const GameMode: React.FC = () => {
     .filter((s) => s.playerId === OPPONENT_PLAYER_ID)
     .reduce((sum, s) => sum + (s.points || 0), 0);
 
+  /**
+   * Undoes the most recent statistical action.
+   */
   const handleUndo = async () => {
     if (recentStats.length === 0) return;
     const lastStat = recentStats[0];
@@ -186,6 +214,9 @@ const GameMode: React.FC = () => {
     }
   };
 
+  /**
+   * Finalizes the game, marking it as completed and triggering a sync.
+   */
   const handleEndGame = async () => {
     try {
       await db.open();
@@ -198,15 +229,25 @@ const GameMode: React.FC = () => {
     }
   };
 
+  /**
+   * Handles a click on the court to start recording an action.
+   * @param {number} x - The X coordinate on the court.
+   * @param {number} y - The Y coordinate on the court.
+   */
   const handleCourtClick = (x: number, y: number) => {
     setSelectedX(x);
     setSelectedY(y);
+    // Auto-select opponent if in opponent tracking mode
     if (trackingMode === "OPPONENT") {
       setSelectedPlayerId(OPPONENT_PLAYER_ID);
     }
     setDialogOpen(true);
   };
 
+  /**
+   * Saves a new or edited statistical event to IndexedDB.
+   * @param {string} currentType - (Optional) Overrides the stat type.
+   */
   const handleSaveStat = async (currentType?: string) => {
     const typeToSave = currentType || statType;
     if (!selectedPlayerId || !typeToSave) return;
@@ -235,6 +276,7 @@ const GameMode: React.FC = () => {
     } catch (err) {
       console.error("Failed to save stat:", err);
     }
+    // Reset state after save
     setDialogOpen(false);
     setStatType(null);
     setIsEditing(false);
@@ -242,6 +284,11 @@ const GameMode: React.FC = () => {
     if (trackingMode === "OPPONENT") setSelectedPlayerId(null);
   };
 
+  /**
+   * Toggles a player into or out of the active lineup.
+   * Records a SUB_IN or SUB_OUT event.
+   * @param {number | string} playerId - The player ID.
+   */
   const toggleOnCourt = async (playerId: number | string) => {
     const newOnCourt = new Set(onCourtIds);
     const isNowOnCourt = !newOnCourt.has(playerId);
@@ -262,6 +309,9 @@ const GameMode: React.FC = () => {
     }
   };
 
+  /**
+   * Deletes a specific statistical event.
+   */
   const handleDeleteStat = async () => {
     if (!statToDelete) return;
     try {
@@ -274,6 +324,10 @@ const GameMode: React.FC = () => {
     }
   };
 
+  /**
+   * Populates the dialog state with an existing stat for editing.
+   * @param {StatEvent} stat - The stat event to edit.
+   */
   const openEditDialog = (stat: StatEvent) => {
     setEditingStatId(stat.id ?? null);
     setSelectedPlayerId(stat.playerId);
@@ -285,12 +339,16 @@ const GameMode: React.FC = () => {
     setDialogOpen(true);
   };
 
+  /**
+   * Reusable component for quick-action buttons in the recording dialog.
+   */
   const QuickAction = ({ type, label, icon: Icon }: any) => (
     <Button
       variant={statType === type ? "contained" : "outlined"}
       color="inherit"
       onClick={() => {
         setStatType(type);
+        // Automatically save for non-scoring actions to improve speed
         if (type !== ACTION_TYPES.MAKE) handleSaveStat(type);
       }}
       sx={{
@@ -310,6 +368,7 @@ const GameMode: React.FC = () => {
   return (
     <Box sx={{ pb: 4 }}>
       <Grid container spacing={3}>
+        {/* Main Content Area: Scoreboard and Court */}
         <Grid item xs={12} md={8}>
           <MoleskineCard>
             <Box
@@ -383,6 +442,7 @@ const GameMode: React.FC = () => {
               >
                 Undo
               </Button>
+              {/* Markers filtering chips */}
               {["ALL", "MAKE", "MISS", "REBOUND", "ASSIST", "STEAL"].map(
                 (type) => (
                   <Chip
@@ -424,6 +484,7 @@ const GameMode: React.FC = () => {
           </MoleskineCard>
         </Grid>
 
+        {/* Sidebar: Roster and Recent Actions */}
         <Grid item xs={12} md={4}>
           <Stack spacing={3}>
             {trackingMode === "TEAM" ? (
@@ -567,6 +628,7 @@ const GameMode: React.FC = () => {
         </Grid>
       </Grid>
 
+      {/* Record/Edit Action Dialog */}
       <Dialog
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}
@@ -652,6 +714,7 @@ const GameMode: React.FC = () => {
         </DialogActions>
       </Dialog>
 
+      {/* Confirm End Game Dialog */}
       <Dialog
         open={endGameDialogOpen}
         onClose={() => setEndGameDialogOpen(false)}
@@ -673,6 +736,7 @@ const GameMode: React.FC = () => {
         </DialogActions>
       </Dialog>
 
+      {/* Final Game Summary Dialog */}
       <Dialog
         open={summaryDialogOpen}
         onClose={() => setSummaryDialogOpen(false)}
@@ -726,6 +790,7 @@ const GameMode: React.FC = () => {
         </DialogActions>
       </Dialog>
 
+      {/* Confirm Delete Stat Dialog */}
       <Dialog
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}

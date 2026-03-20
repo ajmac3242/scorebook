@@ -1,4 +1,11 @@
-import React, { useState } from "react";
+/**
+ * @file Sidebar.tsx
+ * @description Main navigation sidebar component.
+ * Handles application routing, drawer state (expanded/collapsed),
+ * system connectivity status (online/offline), and logout with data safety checks.
+ */
+
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Drawer,
@@ -42,6 +49,12 @@ import { Refresh as SyncingIcon } from "@mui/icons-material";
 const drawerWidth = 240;
 const collapsedDrawerWidth = 72;
 
+/**
+ * Sidebar component that provides navigation links and system status indicators.
+ * Adapts to mobile screens by transforming into a bottom drawer.
+ *
+ * @returns {React.ReactElement}
+ */
 const Sidebar: React.FC = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -52,18 +65,23 @@ const Sidebar: React.FC = () => {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [isSyncing, setIsSyncing] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
+    /**
+     * Handles the browser coming back online.
+     * Triggers immediate synchronization.
+     */
     const handleOnline = () => {
       setIsOnline(true);
-      // Trigger background sync when coming back online
       syncService.pushUpdates();
       syncService.pullAll();
     };
+
     const handleOffline = () => setIsOnline(false);
+
     window.addEventListener("online", handleOnline);
     window.addEventListener("offline", handleOffline);
 
-    // Poll for syncing status
+    // Poll for the current synchronization status from the sync service
     const interval = setInterval(() => {
       setIsSyncing(syncService.getSyncingStatus());
     }, 1000);
@@ -75,10 +93,17 @@ const Sidebar: React.FC = () => {
     };
   }, []);
 
+  /**
+   * Toggles the expanded/collapsed state of the drawer.
+   */
   const toggleDrawer = () => {
     setOpen(!open);
   };
 
+  /**
+   * Handles the logout button click.
+   * If there are unsynced changes, a warning dialog is shown.
+   */
   const handleLogoutClick = async () => {
     const hasUnsynced = await syncService.hasUnsyncedChanges();
     if (hasUnsynced) {
@@ -88,11 +113,15 @@ const Sidebar: React.FC = () => {
     }
   };
 
+  /**
+   * Confirms and executes the logout action from the dialog.
+   */
   const confirmLogout = () => {
     setLogoutDialogOpen(false);
     logout();
   };
 
+  // Configuration for main navigation items
   const menuItems = [
     { text: "Dashboard", icon: <DashboardIcon />, path: "/" },
     { text: "Seasons", icon: <SeasonsIcon />, path: "/seasons" },

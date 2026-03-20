@@ -1,8 +1,17 @@
+/**
+ * @file AuthContext.tsx
+ * @description Provides authentication state management using Cognito.
+ * Manages the global authentication status and triggers initial synchronization.
+ */
+
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { CognitoUserSession } from "amazon-cognito-identity-js";
 import { UserPool } from "../UserPool";
 import { syncService } from "../utils/syncService";
 
+/**
+ * Interface representing the structure of the authentication context.
+ */
 interface AuthContextType {
   isAuthenticated: boolean;
   loading: boolean;
@@ -12,6 +21,14 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+/**
+ * AuthProvider component that wraps the application and provides auth state.
+ * Automatically checks for existing sessions on mount.
+ *
+ * @param {object} props - Component props.
+ * @param {React.ReactNode} props.children - Child components.
+ * @returns {React.ReactElement}
+ */
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
@@ -19,6 +36,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Check for an existing Cognito user session on component mount
     const user = UserPool.getCurrentUser();
     if (user) {
       user.getSession(
@@ -28,7 +46,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
             localStorage.removeItem("isAuthenticated");
           } else {
             setIsAuthenticated(true);
-            // Trigger initial sync on load if authenticated
+            // Trigger an initial full pull synchronization if a session exists
             syncService.pullAll();
           }
           setLoading(false);
@@ -41,6 +59,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, []);
 
+  /**
+   * Signs out the current user and clears local session data.
+   */
   const logout = () => {
     const user = UserPool.getCurrentUser();
     if (user) {
@@ -48,7 +69,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
     setIsAuthenticated(false);
     localStorage.removeItem("isAuthenticated");
-    // Clear sync markers on logout to ensure fresh data for next user
+    // Clear sync markers and ETags on logout to ensure fresh data for the next user
     localStorage.clear();
   };
 
@@ -61,6 +82,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   );
 };
 
+/**
+ * Hook to access authentication context.
+ * @returns {AuthContextType}
+ * @throws {Error} if used outside of an AuthProvider.
+ */
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {

@@ -1,6 +1,15 @@
+/**
+ * @file stats.ts
+ * @description Utility functions for calculating basketball statistics (averages, totals, records).
+ * Processes StatEvent records into player and team level aggregates.
+ */
+
 import { ACTION_TYPES } from "../constants/stats";
 import { StatEvent, TeamPlayer } from "../db";
 
+/**
+ * Interface for aggregated player statistics.
+ */
 export interface PlayerAggregates {
   id: number | string;
   name: string;
@@ -18,6 +27,11 @@ export interface PlayerAggregates {
   fgPct: string;
 }
 
+/**
+ * Returns the initials of a name (max 2 characters).
+ * @param {string} name - The full name.
+ * @returns {string} The uppercase initials.
+ */
 export const getInitials = (name: string): string => {
   return name
     .split(" ")
@@ -27,6 +41,12 @@ export const getInitials = (name: string): string => {
     .slice(0, 2);
 };
 
+/**
+ * Retrieves the jersey number for a player from the team roster.
+ * @param {number | string | undefined} pId - The player ID.
+ * @param {TeamPlayer[]} teamPlayers - The team-player junction records.
+ * @returns {string} The jersey number or an empty string.
+ */
 export const getPlayerJersey = (
   pId: number | string | undefined,
   teamPlayers: TeamPlayer[],
@@ -36,6 +56,16 @@ export const getPlayerJersey = (
   return tp?.jerseyNumber || "";
 };
 
+/**
+ * Calculates aggregated statistics for a list of players based on a set of events.
+ * Supports both total and per-game average calculations.
+ *
+ * @param {any[]} players - List of player objects.
+ * @param {StatEvent[]} stats - List of statistical events to process.
+ * @param {TeamPlayer[]} teamPlayers - (Optional) Team roster for jersey numbers.
+ * @param {"total" | "average"} viewType - (Optional) Type of calculation, defaults to "total".
+ * @returns {PlayerAggregates[]} Array of aggregated statistics.
+ */
 export const calculatePlayerAggregates = (
   players: any[],
   stats: StatEvent[],
@@ -44,6 +74,7 @@ export const calculatePlayerAggregates = (
 ): PlayerAggregates[] => {
   const statsMap: Record<string, PlayerAggregates> = {};
 
+  // Initialize the map with base player data
   players.forEach((p) => {
     const pId = p.id!.toString();
     statsMap[pId] = {
@@ -66,6 +97,7 @@ export const calculatePlayerAggregates = (
     };
   });
 
+  // Accumulate statistics from event stream
   stats.forEach((s) => {
     const pId = s.playerId.toString();
     if (statsMap[pId]) {
@@ -90,6 +122,7 @@ export const calculatePlayerAggregates = (
     }
   });
 
+  // Finalize totals, percentages, and averages
   return Object.values(statsMap).map((p) => {
     const gp = p.gamesPlayed.size || 1;
     p.gp = p.gamesPlayed.size;
@@ -110,6 +143,14 @@ export const calculatePlayerAggregates = (
   });
 };
 
+/**
+ * Calculates aggregated team statistics (PPG, RPG, etc.) and W/L record.
+ *
+ * @param {any[]} games - List of games.
+ * @param {StatEvent[]} stats - List of statistical events across those games.
+ * @param {boolean} completedOnly - (Optional) Only include completed games, defaults to true.
+ * @returns {object} Team level aggregates.
+ */
 export const calculateTeamAggregates = (
   games: any[],
   stats: StatEvent[],
@@ -162,6 +203,13 @@ export const calculateTeamAggregates = (
   };
 };
 
+/**
+ * Calculates the score and result (W, L, D) for a single game.
+ *
+ * @param {number | string} gameId - The game ID.
+ * @param {StatEvent[]} stats - All statistics events for filtering.
+ * @returns {object} Final team score, opponent score, and result code.
+ */
 export const calculateGameResult = (
   gameId: number | string,
   stats: StatEvent[],
