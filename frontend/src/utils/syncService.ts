@@ -315,7 +315,10 @@ class SyncService {
       }
 
       // 5. Pull stats for all completed games found
-      const completedGames = await db.games.where("completed").equals(1).toArray();
+      const completedGames = await db.games
+        .where("completed")
+        .equals(1)
+        .toArray();
       for (const g of completedGames) {
         await this.syncGameStats(g.id!.toString());
       }

@@ -213,7 +213,9 @@ const TeamStats: React.FC = () => {
         whiteSpace: "nowrap",
       }}
     >
-      {label} {sortConfig.key === sortKey && (sortConfig.direction === "asc" ? "↑" : "↓")}
+      {label}{" "}
+      {sortConfig.key === sortKey &&
+        (sortConfig.direction === "asc" ? "↑" : "↓")}
     </TableCell>
   );
 
@@ -452,15 +454,34 @@ const TeamStats: React.FC = () => {
             <Table size="small">
               <TableHead>
                 <TableRow sx={{ bgcolor: "rgba(0,0,0,0.02)" }}>
-                  <SortableHeader label="#" sortKey="jerseyNumber" align="left" />
+                  <SortableHeader
+                    label="#"
+                    sortKey="jerseyNumber"
+                    align="left"
+                  />
                   <SortableHeader label="PLAYER" sortKey="name" align="left" />
                   <SortableHeader label="GP" sortKey="gp" align="center" />
-                  <SortableHeader label={STAT_ACRONYMS.POINTS} sortKey="points" />
+                  <SortableHeader
+                    label={STAT_ACRONYMS.POINTS}
+                    sortKey="points"
+                  />
                   <SortableHeader label="FG%" sortKey="fgPct" />
-                  <SortableHeader label={STAT_ACRONYMS.REBOUNDS} sortKey="rebounds" />
-                  <SortableHeader label={STAT_ACRONYMS.ASSISTS} sortKey="assists" />
-                  <SortableHeader label={STAT_ACRONYMS.STEALS} sortKey="steals" />
-                  <SortableHeader label={STAT_ACRONYMS.TURNOVERS} sortKey="turnovers" />
+                  <SortableHeader
+                    label={STAT_ACRONYMS.REBOUNDS}
+                    sortKey="rebounds"
+                  />
+                  <SortableHeader
+                    label={STAT_ACRONYMS.ASSISTS}
+                    sortKey="assists"
+                  />
+                  <SortableHeader
+                    label={STAT_ACRONYMS.STEALS}
+                    sortKey="steals"
+                  />
+                  <SortableHeader
+                    label={STAT_ACRONYMS.TURNOVERS}
+                    sortKey="turnovers"
+                  />
                 </TableRow>
               </TableHead>
               <TableBody>
