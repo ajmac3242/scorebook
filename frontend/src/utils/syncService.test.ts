@@ -6,36 +6,6 @@ import { db } from "../db";
 vi.mock("../db", () => ({
   db: {
     transaction: vi.fn((_mode, _tables, cb) => cb()),
-    teams: {
-      put: vi.fn(),
-      where: vi.fn().mockReturnThis(),
-      equals: vi.fn().mockReturnThis(),
-      toArray: vi.fn().mockResolvedValue([]),
-    },
-    players: {
-      put: vi.fn(),
-      where: vi.fn().mockReturnThis(),
-      equals: vi.fn().mockReturnThis(),
-      toArray: vi.fn().mockResolvedValue([]),
-    },
-    teamPlayers: {
-      put: vi.fn(),
-      where: vi.fn().mockReturnThis(),
-      equals: vi.fn().mockReturnThis(),
-      toArray: vi.fn().mockResolvedValue([]),
-    },
-    games: {
-      put: vi.fn(),
-      where: vi.fn().mockReturnThis(),
-      equals: vi.fn().mockReturnThis(),
-      toArray: vi.fn().mockResolvedValue([]),
-    },
-    stats: {
-      put: vi.fn(),
-      where: vi.fn().mockReturnThis(),
-      equals: vi.fn().mockReturnThis(),
-      toArray: vi.fn().mockResolvedValue([]),
-    },
     seasons: {
       put: vi.fn(),
       where: vi.fn().mockReturnThis(),
@@ -230,15 +200,9 @@ describe("SyncService", () => {
 
       await syncService.pushUpdates();
 
-      expect(fetchMock).toHaveBeenCalledWith(
-        "/api/seasons",
-        expect.any(Object),
-      );
+      expect(fetchMock).toHaveBeenCalledWith("/api/seasons", expect.any(Object));
       expect(fetchMock).toHaveBeenCalledWith("/api/teams", expect.any(Object));
-      expect(fetchMock).toHaveBeenCalledWith(
-        "/api/players",
-        expect.any(Object),
-      );
+      expect(fetchMock).toHaveBeenCalledWith("/api/players", expect.any(Object));
       expect(fetchMock).toHaveBeenCalledWith(
         "/api/teams/2/players",
         expect.any(Object),
