@@ -60,6 +60,10 @@ const TeamStats: React.FC = () => {
   const [editLogoUrl, setEditLogoUrl] = useState("");
   const [editColor, setEditColor] = useState("");
   const [isSyncing, setIsSyncing] = useState(false);
+  const [sortConfig, setSortConfig] = useState<{
+    key: string;
+    direction: "asc" | "desc";
+  }>({ key: "points", direction: "desc" });
 
   const team = useLiveQuery(
     () =>
@@ -118,16 +122,21 @@ const TeamStats: React.FC = () => {
     () => calculateTeamAggregates(games, allStats),
     [games, allStats],
   );
-  const playerStats = useMemo(
-    () =>
-      calculatePlayerAggregates(
-        teamPlayerDetails,
-        allStats,
-        teamPlayers,
-        statView,
-      ),
-    [teamPlayerDetails, allStats, teamPlayers, statView],
-  );
+  const playerStats = useMemo(() => {
+    const stats = calculatePlayerAggregates(
+      teamPlayerDetails,
+      allStats,
+      teamPlayers,
+      statView,
+    );
+    return [...stats].sort((a: any, b: any) => {
+      const aValue = a[sortConfig.key];
+      const bValue = b[sortConfig.key];
+      if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
+      if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
+      return 0;
+    });
+  }, [teamPlayerDetails, allStats, teamPlayers, statView, sortConfig]);
 
   const handleAddPlayerToTeam = async (playerId: string) => {
     if (
@@ -177,6 +186,36 @@ const TeamStats: React.FC = () => {
     await syncService.syncAllForTeam(teamId.toString());
     setIsSyncing(false);
   };
+
+  const handleSort = (key: string) => {
+    setSortConfig((prev) => ({
+      key,
+      direction: prev.key === key && prev.direction === "desc" ? "asc" : "desc",
+    }));
+  };
+
+  const SortableHeader = ({
+    label,
+    sortKey,
+    align = "right",
+  }: {
+    label: string;
+    sortKey: string;
+    align?: "left" | "center" | "right";
+  }) => (
+    <TableCell
+      align={align}
+      onClick={() => handleSort(sortKey)}
+      sx={{
+        cursor: "pointer",
+        fontWeight: 700,
+        "&:hover": { color: "primary.main" },
+        whiteSpace: "nowrap",
+      }}
+    >
+      {label} {sortConfig.key === sortKey && (sortConfig.direction === "asc" ? "↑" : "↓")}
+    </TableCell>
+  );
 
   return (
     <Box sx={{ pb: 4 }}>
@@ -413,15 +452,15 @@ const TeamStats: React.FC = () => {
             <Table size="small">
               <TableHead>
                 <TableRow sx={{ bgcolor: "rgba(0,0,0,0.02)" }}>
-                  <TableCell>#</TableCell>
-                  <TableCell>PLAYER</TableCell>
-                  <TableCell align="center">GP</TableCell>
-                  <TableCell align="right">{STAT_ACRONYMS.POINTS}</TableCell>
-                  <TableCell align="right">FG%</TableCell>
-                  <TableCell align="right">{STAT_ACRONYMS.REBOUNDS}</TableCell>
-                  <TableCell align="right">{STAT_ACRONYMS.ASSISTS}</TableCell>
-                  <TableCell align="right">{STAT_ACRONYMS.STEALS}</TableCell>
-                  <TableCell align="right">{STAT_ACRONYMS.TURNOVERS}</TableCell>
+                  <SortableHeader label="#" sortKey="jerseyNumber" align="left" />
+                  <SortableHeader label="PLAYER" sortKey="name" align="left" />
+                  <SortableHeader label="GP" sortKey="gp" align="center" />
+                  <SortableHeader label={STAT_ACRONYMS.POINTS} sortKey="points" />
+                  <SortableHeader label="FG%" sortKey="fgPct" />
+                  <SortableHeader label={STAT_ACRONYMS.REBOUNDS} sortKey="rebounds" />
+                  <SortableHeader label={STAT_ACRONYMS.ASSISTS} sortKey="assists" />
+                  <SortableHeader label={STAT_ACRONYMS.STEALS} sortKey="steals" />
+                  <SortableHeader label={STAT_ACRONYMS.TURNOVERS} sortKey="turnovers" />
                 </TableRow>
               </TableHead>
               <TableBody>

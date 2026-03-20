@@ -38,12 +38,14 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { ACTION_TYPES } from "../constants/stats";
 import { getInitials, getPlayerJersey } from "../utils/stats";
 import { MoleskineCard } from "../components/SharedUI";
+import { useLocation } from "react-router-dom";
 
 const OPPONENT_PLAYER_ID = "OPPONENT";
 
 const GameMode: React.FC = () => {
   const theme = useTheme();
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
 
   const gameIdParam = searchParams.get("gameId");
@@ -121,6 +123,12 @@ const GameMode: React.FC = () => {
     }, [teamId, teamPlayers]) || [];
 
   const game = useLiveQuery(() => db.games.get(gameId as any), [gameId]);
+
+  useEffect(() => {
+    if (game?.completed && !summaryDialogOpen && !endGameDialogOpen) {
+      setSummaryDialogOpen(true);
+    }
+  }, [game?.completed]);
 
   const recentStats =
     useLiveQuery(async () => {
@@ -319,7 +327,7 @@ const GameMode: React.FC = () => {
                     sx={{ fontWeight: "bold" }}
                   />
                   <Chip
-                    label={`P: ${period}`}
+                    label={`Quarter: ${period}`}
                     onClick={() => setPeriod((p) => (p < 4 ? p + 1 : 1))}
                     variant="outlined"
                   />
@@ -384,7 +392,10 @@ const GameMode: React.FC = () => {
               onCoordClick={handleCourtClick}
               markers={gameStats
                 .filter(
-                  (s) => markerFilter === "ALL" || s.type === markerFilter,
+                  (s) =>
+                    (markerFilter === "ALL" || s.type === markerFilter) &&
+                    s.type !== ACTION_TYPES.SUB_IN &&
+                    s.type !== ACTION_TYPES.SUB_OUT,
                 )
                 .map((s) => ({
                   id: s.id,
@@ -685,6 +696,15 @@ const GameMode: React.FC = () => {
           </Box>
         </DialogContent>
         <DialogActions sx={{ justifyContent: "center", pb: 3 }}>
+          <Button
+            variant="outlined"
+            onClick={() => {
+              setSummaryDialogOpen(false);
+            }}
+            sx={{ mr: 2 }}
+          >
+            Close & Review Actions
+          </Button>
           <Button
             variant="contained"
             onClick={() => {

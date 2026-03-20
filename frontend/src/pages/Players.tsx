@@ -41,7 +41,8 @@ const Players: React.FC = () => {
     useLiveQuery(async () => {
       try {
         await db.open();
-        return await db.players.toArray();
+        const items = await db.players.toArray();
+        return items.sort((a, b) => a.name.localeCompare(b.name));
       } catch (err) {
         console.error("Failed to fetch players:", err);
         return [];

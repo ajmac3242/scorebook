@@ -258,7 +258,19 @@ async function snapshotGameStats(gameId: string, tableName: string) {
         const gameResult = await docClient.send(new GetCommand({ TableName: tableName, Key: { PK: `GAME#${gameId}`, SK: `METADATA#${gameId}` } }));
         const statsResult = await docClient.send(new QueryCommand({ TableName: tableName, KeyConditionExpression: "PK = :pk AND begins_with(SK, :sk)", ExpressionAttributeValues: { ":pk": `GAME#${gameId}`, ":sk": "STAT#" } }));
         if (gameResult.Item) {
-            const snapshot = { game: gameResult.Item, stats: statsResult.Items || [] };
+            const stats = statsResult.Items || [];
+            let teamScore = 0;
+            let oppScore = 0;
+            stats.forEach((s: any) => {
+                if (s.playerId === "OPPONENT") oppScore += (s.points || 0);
+                else teamScore += (s.points || 0);
+            });
+            const result = teamScore > oppScore ? "W" : teamScore < oppScore ? "L" : "D";
+
+            const snapshot = {
+                game: { ...gameResult.Item, teamScore, oppScore, result },
+                stats
+            };
             await s3Client.send(new PutObjectCommand({ Bucket: DATA_BUCKET, Key: `games/${gameId}/stats.json`, Body: JSON.stringify(snapshot), ContentType: "application/json" }));
         }
     } catch (e) {

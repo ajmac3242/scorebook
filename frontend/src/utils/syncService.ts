@@ -250,9 +250,6 @@ class SyncService {
   }
 
   async syncAllForTeam(teamId: string) {
-    // 1. Push any local changes first
-    await this.pushUpdates();
-
     // 2. Sync Roster
     await this.syncTeamRoster(teamId);
 
@@ -265,6 +262,69 @@ class SyncService {
       if (game.completed) {
         await this.syncGameStats(game.id!.toString());
       }
+    }
+  }
+
+  async pullAll() {
+    if (this.isSyncing) return;
+    this.isSyncing = true;
+    console.log("Starting full pull sync...");
+
+    try {
+      const headers = await this.getHeaders();
+
+      // 1. Pull Seasons
+      const seasonsRes = await fetch("/seasons", { headers });
+      if (seasonsRes.ok) {
+        const seasons = await seasonsRes.json();
+        await db.transaction("rw", [db.seasons], async () => {
+          for (const s of seasons) {
+            await db.seasons.put({ ...s, id: s.id, synced: 1 });
+          }
+        });
+
+        // 2. Pull Teams for each season
+        for (const s of seasons) {
+          const teamsRes = await fetch(`/teams?seasonId=${s.id}`, { headers });
+          if (teamsRes.ok) {
+            const teams = await teamsRes.json();
+            await db.transaction("rw", [db.teams], async () => {
+              for (const t of teams) {
+                await db.teams.put({ ...t, id: t.id, synced: 1 });
+              }
+            });
+
+            // 3. Pull Team Details (Roster, Games, Stats)
+            for (const t of teams) {
+              await this.syncTeamRoster(t.id);
+              await this.syncTeamGamesList(t.id);
+            }
+          }
+        }
+      }
+
+      // 4. Pull all players (to be sure we have them all)
+      const playersRes = await fetch("/players", { headers });
+      if (playersRes.ok) {
+        const players = await playersRes.json();
+        await db.transaction("rw", [db.players], async () => {
+          for (const p of players) {
+            await db.players.put({ ...p, id: p.id, synced: 1 });
+          }
+        });
+      }
+
+      // 5. Pull stats for all completed games found
+      const completedGames = await db.games.where("completed").equals(1).toArray();
+      for (const g of completedGames) {
+        await this.syncGameStats(g.id!.toString());
+      }
+
+      console.log("Full pull sync complete.");
+    } catch (e) {
+      console.error("Full pull sync failed:", e);
+    } finally {
+      this.isSyncing = false;
     }
   }
 
