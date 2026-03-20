@@ -230,9 +230,15 @@ describe("SyncService", () => {
 
       await syncService.pushUpdates();
 
-      expect(fetchMock).toHaveBeenCalledWith("/api/seasons", expect.any(Object));
+      expect(fetchMock).toHaveBeenCalledWith(
+        "/api/seasons",
+        expect.any(Object),
+      );
       expect(fetchMock).toHaveBeenCalledWith("/api/teams", expect.any(Object));
-      expect(fetchMock).toHaveBeenCalledWith("/api/players", expect.any(Object));
+      expect(fetchMock).toHaveBeenCalledWith(
+        "/api/players",
+        expect.any(Object),
+      );
       expect(fetchMock).toHaveBeenCalledWith(
         "/api/teams/2/players",
         expect.any(Object),
