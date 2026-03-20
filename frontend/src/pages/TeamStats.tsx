@@ -245,18 +245,31 @@ const TeamStats: React.FC = () => {
             </Stack>
           </Grid>
         </Grid>
-        <Box sx={{ position: "absolute", top: 16, right: 16, display: "flex", gap: 1 }}>
+        <Box
+          sx={{
+            position: "absolute",
+            top: 16,
+            right: 16,
+            display: "flex",
+            gap: 1,
+          }}
+        >
           <Button
             variant="outlined"
             size="small"
-            startIcon={isSyncing ? <RefreshIcon className="spin" /> : <RefreshIcon />}
+            startIcon={
+              isSyncing ? <RefreshIcon className="spin" /> : <RefreshIcon />
+            }
             onClick={handleSync}
             disabled={isSyncing}
             className="hover-grow"
             sx={{
-                color: "white",
-                borderColor: "rgba(255,255,255,0.5)",
-                "&:hover": { borderColor: "white", bgcolor: "rgba(255,255,255,0.1)" }
+              color: "white",
+              borderColor: "rgba(255,255,255,0.5)",
+              "&:hover": {
+                borderColor: "white",
+                bgcolor: "rgba(255,255,255,0.1)",
+              },
             }}
           >
             {isSyncing ? "Syncing..." : "Sync"}

@@ -47,9 +47,9 @@ const Sidebar: React.FC = () => {
 
   React.useEffect(() => {
     const handleOnline = () => {
-        setIsOnline(true);
-        // Trigger background sync when coming back online
-        syncService.pushUpdates();
+      setIsOnline(true);
+      // Trigger background sync when coming back online
+      syncService.pushUpdates();
     };
     const handleOffline = () => setIsOnline(false);
     window.addEventListener("online", handleOnline);
@@ -57,7 +57,7 @@ const Sidebar: React.FC = () => {
 
     // Poll for syncing status
     const interval = setInterval(() => {
-        setIsSyncing(syncService.getSyncingStatus());
+      setIsSyncing(syncService.getSyncingStatus());
     }, 1000);
 
     return () => {
@@ -167,7 +167,10 @@ const Sidebar: React.FC = () => {
 
       <List sx={{ px: 1 }}>
         <ListItem disablePadding sx={{ display: "block", mb: 0.5 }}>
-          <Tooltip title={!open ? (isOnline ? "Online" : "Offline") : ""} placement="right">
+          <Tooltip
+            title={!open ? (isOnline ? "Online" : "Offline") : ""}
+            placement="right"
+          >
             <ListItemButton
               sx={{
                 minHeight: 48,
@@ -181,22 +184,30 @@ const Sidebar: React.FC = () => {
                   minWidth: 0,
                   mr: open ? 3 : "auto",
                   justifyContent: "center",
-                  color: isSyncing ? "secondary.main" : (isOnline ? "success.light" : "error.light"),
+                  color: isSyncing
+                    ? "secondary.main"
+                    : isOnline
+                      ? "success.light"
+                      : "error.light",
                 }}
               >
                 {isSyncing ? (
-                    <SyncingIcon className="spin" />
+                  <SyncingIcon className="spin" />
                 ) : isOnline ? (
-                    <OnlineIcon className="hover-grow" />
+                  <OnlineIcon className="hover-grow" />
                 ) : (
-                    <OfflineIcon className="sync-pulse" />
+                  <OfflineIcon className="sync-pulse" />
                 )}
               </ListItemIcon>
               {open && (
                 <ListItemText
-                  primary={isSyncing ? "Syncing..." : (isOnline ? "Online" : "Offline")}
+                  primary={
+                    isSyncing ? "Syncing..." : isOnline ? "Online" : "Offline"
+                  }
                   secondary={open ? "System Status" : ""}
-                  secondaryTypographyProps={{ sx: { color: "rgba(255,255,255,0.5)", fontSize: "0.7rem" } }}
+                  secondaryTypographyProps={{
+                    sx: { color: "rgba(255,255,255,0.5)", fontSize: "0.7rem" },
+                  }}
                 />
               )}
             </ListItemButton>
