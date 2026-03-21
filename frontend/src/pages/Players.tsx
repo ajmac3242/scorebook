@@ -150,83 +150,102 @@ const Players: React.FC = () => {
             <ListItem
               key={player.id}
               divider
-              secondaryAction={
-                <Box sx={{ display: "flex", gap: 1 }}>
-                  <Tooltip title="Stats">
-                    <IconButton
-                      size="small"
-                      component={Link}
-                      to={`/players/${player.id}`}
-                      sx={{
-                        transition: "transform 0.2s",
-                        "&:hover": { transform: "scale(1.1)" },
-                      }}
-                    >
-                      <BarChart />
-                    </IconButton>
-                  </Tooltip>
-                  {player.isArchived ? (
-                    <Tooltip title="Restore">
-                      <IconButton
-                        size="small"
-                        color="success"
-                        onClick={() => handleRestorePlayer(player.id!)}
-                      >
-                        <Restore />
-                      </IconButton>
-                    </Tooltip>
-                  ) : (
-                    <Tooltip title="Archive">
-                      <IconButton
-                        size="small"
-                        color="warning"
-                        onClick={() => handleArchivePlayer(player.id!)}
-                      >
-                        <Archive />
-                      </IconButton>
-                    </Tooltip>
-                  )}
-                  <Tooltip title="Delete">
-                    <IconButton
-                      size="small"
-                      color="error"
-                      onClick={() => handleDeletePlayer(player.id!)}
-                    >
-                      <Delete />
-                    </IconButton>
-                  </Tooltip>
-                </Box>
-              }
               sx={{
                 "&:hover": { bgcolor: "rgba(0,0,0,0.01)" },
                 opacity: player.isArchived ? 0.6 : 1,
+                flexDirection: { xs: "column", sm: "row" },
+                alignItems: { xs: "flex-start", sm: "center" },
+                py: { xs: 2, sm: 1 },
               }}
             >
-              <Avatar
+              <Box
                 sx={{
-                  bgcolor: player.avatarColor || "grey.500",
-                  mr: 2,
-                  transition: "transform 0.3s",
-                  "&:hover": { transform: "rotate(10deg) scale(1.1)" },
+                  display: "flex",
+                  alignItems: "center",
+                  width: "100%",
+                  mb: { xs: 1, sm: 0 },
                 }}
               >
-                {getInitials(player.name)}
-              </Avatar>
-              <ListItemText
-                primary={
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    {player.name}
-                    {player.isArchived && (
-                      <Chip
-                        label="Archived"
-                        size="small"
-                        icon={<History sx={{ fontSize: "12px !important" }} />}
-                      />
-                    )}
-                  </Box>
-                }
-                primaryTypographyProps={{ fontWeight: 600 }}
-              />
+                <Avatar
+                  sx={{
+                    bgcolor: player.avatarColor || "grey.500",
+                    mr: 2,
+                    transition: "transform 0.3s",
+                    "&:hover": { transform: "rotate(10deg) scale(1.1)" },
+                  }}
+                >
+                  {getInitials(player.name)}
+                </Avatar>
+                <ListItemText
+                  primary={
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      {player.name}
+                      {player.isArchived && (
+                        <Chip
+                          label="Archived"
+                          size="small"
+                          icon={
+                            <History sx={{ fontSize: "12px !important" }} />
+                          }
+                        />
+                      )}
+                    </Box>
+                  }
+                  primaryTypographyProps={{ fontWeight: 600 }}
+                />
+              </Box>
+              <Box
+                sx={{
+                  display: "flex",
+                  gap: 1,
+                  width: { xs: "100%", sm: "auto" },
+                  justifyContent: { xs: "flex-end", sm: "initial" },
+                }}
+              >
+                <Tooltip title="Stats">
+                  <IconButton
+                    size="small"
+                    component={Link}
+                    to={`/players/${player.id}`}
+                    sx={{
+                      transition: "transform 0.2s",
+                      "&:hover": { transform: "scale(1.1)" },
+                    }}
+                  >
+                    <BarChart />
+                  </IconButton>
+                </Tooltip>
+                {player.isArchived ? (
+                  <Tooltip title="Restore">
+                    <IconButton
+                      size="small"
+                      color="success"
+                      onClick={() => handleRestorePlayer(player.id!)}
+                    >
+                      <Restore />
+                    </IconButton>
+                  </Tooltip>
+                ) : (
+                  <Tooltip title="Archive">
+                    <IconButton
+                      size="small"
+                      color="warning"
+                      onClick={() => handleArchivePlayer(player.id!)}
+                    >
+                      <Archive />
+                    </IconButton>
+                  </Tooltip>
+                )}
+                <Tooltip title="Delete">
+                  <IconButton
+                    size="small"
+                    color="error"
+                    onClick={() => handleDeletePlayer(player.id!)}
+                  >
+                    <Delete />
+                  </IconButton>
+                </Tooltip>
+              </Box>
             </ListItem>
           ))}
         </List>

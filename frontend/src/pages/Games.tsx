@@ -202,53 +202,17 @@ const Games: React.FC = () => {
                       ? "rgba(0,0,0,0.02)"
                       : "transparent",
                     transition: "background-color 0.2s",
+                    flexDirection: { xs: "column", sm: "row" },
+                    alignItems: { xs: "flex-start", sm: "center" },
+                    py: { xs: 2, sm: 1 },
                   }}
-                  secondaryAction={
-                    <Stack direction="row" spacing={1}>
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        onClick={() =>
-                          navigate(`/game/stats?gameId=${game.id}`)
-                        }
-                      >
-                        Stats
-                      </Button>
-                      {game.completed ? (
-                        <Button
-                          variant="outlined"
-                          size="small"
-                          color="secondary"
-                          onClick={() =>
-                            navigate(
-                              `/game?gameId=${game.id}&teamId=${game.teamId}`,
-                            )
-                          }
-                        >
-                          Edit Game
-                        </Button>
-                      ) : (
-                        <Button
-                          variant="contained"
-                          size="small"
-                          onClick={() =>
-                            navigate(
-                              `/game?gameId=${game.id}&teamId=${game.teamId}`,
-                            )
-                          }
-                        >
-                          Track
-                        </Button>
-                      )}
-                    </Stack>
-                  }
                 >
                   <Box
                     sx={{
                       display: "flex",
                       alignItems: "center",
                       width: "100%",
-                      mr: 2,
+                      mb: { xs: 2, sm: 0 },
                     }}
                   >
                     {currentTeam?.logoUrl ? (
@@ -277,7 +241,12 @@ const Games: React.FC = () => {
                     <ListItemText
                       primary={
                         <Box
-                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1,
+                            flexWrap: "wrap",
+                          }}
                         >
                           <Typography variant="body1" sx={{ fontWeight: 600 }}>
                             vs {game.opponent}
@@ -305,6 +274,48 @@ const Games: React.FC = () => {
                       secondary={`${game.date} @ ${game.location}`}
                     />
                   </Box>
+                  <Stack
+                    direction="row"
+                    spacing={1}
+                    sx={{
+                      width: { xs: "100%", sm: "auto" },
+                      justifyContent: { xs: "flex-end", sm: "initial" },
+                    }}
+                  >
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      onClick={() => navigate(`/game/stats?gameId=${game.id}`)}
+                    >
+                      Stats
+                    </Button>
+                    {game.completed ? (
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        color="secondary"
+                        onClick={() =>
+                          navigate(
+                            `/game?gameId=${game.id}&teamId=${game.teamId}`,
+                          )
+                        }
+                      >
+                        Edit Game
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="contained"
+                        size="small"
+                        onClick={() =>
+                          navigate(
+                            `/game?gameId=${game.id}&teamId=${game.teamId}`,
+                          )
+                        }
+                      >
+                        Track
+                      </Button>
+                    )}
+                  </Stack>
                 </ListItem>
               );
             })}
