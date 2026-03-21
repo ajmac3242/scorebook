@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from "react";
-import { useSearchParams } from "react-router-dom";
+import React, { useState, useMemo, useEffect } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import {
   Box,
   Typography,
@@ -26,14 +26,24 @@ import {
   DialogContent,
   DialogActions,
   Button,
+  Alert,
+  AlertTitle,
+  DialogContentText,
 } from "@mui/material";
-import { OpenInFull as ExpandIcon } from "@mui/icons-material";
+import {
+  OpenInFull as ExpandIcon,
+  Delete,
+  Restore,
+  Warning,
+} from "@mui/icons-material";
 import BasketballCourt from "../components/BasketballCourt";
-import { db } from "../db";
+import { db, type StatEvent } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
 import { STAT_ACRONYMS, ACTION_TYPES } from "../constants/stats";
 import { calculatePlayerAggregates, getPlayerJersey } from "../utils/stats";
 import { MoleskineCard, PageHeader } from "../components/SharedUI";
+import { syncService } from "../utils/syncService";
+import dayjs from "dayjs";
 import {
   LineChart,
   Line,
@@ -49,6 +59,7 @@ const OPPONENT_PLAYER_ID = "OPPONENT";
 
 const GameStats: React.FC = () => {
   const theme = useTheme();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const gameId = searchParams.get("gameId") || undefined;
 
@@ -57,6 +68,9 @@ const GameStats: React.FC = () => {
     "ALL",
   );
   const [selectedType, setSelectedType] = useState<string>("ALL");
+  const [periodFilter, setPeriodFilter] = useState<string>("ALL");
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [timeLeft, setTimeLeft] = useState("");
 
   const game = useLiveQuery(
     () =>
@@ -65,6 +79,21 @@ const GameStats: React.FC = () => {
         : Promise.resolve(undefined),
     [gameId],
   );
+
+  const team = useLiveQuery(
+    () =>
+      game?.teamId ? db.teams.get(game.teamId) : Promise.resolve(undefined),
+    [game?.teamId],
+  );
+
+  const season = useLiveQuery(
+    () =>
+      team?.seasonId
+        ? db.seasons.get(team.seasonId)
+        : Promise.resolve(undefined),
+    [team?.seasonId],
+  );
+
   const teamPlayers =
     useLiveQuery(
       () =>
@@ -74,7 +103,7 @@ const GameStats: React.FC = () => {
       [game?.teamId],
     ) || [];
   const players = useLiveQuery(() => db.players.toArray()) || [];
-  const stats =
+  const allStats =
     useLiveQuery(
       () =>
         gameId !== undefined
@@ -82,6 +111,28 @@ const GameStats: React.FC = () => {
           : Promise.resolve([]),
       [gameId],
     ) || [];
+
+  useEffect(() => {
+    if (game?.deletedAt) {
+      const timer = setInterval(() => {
+        const deleteTime = dayjs(game.deletedAt).add(24, "hour");
+        const diff = deleteTime.diff(dayjs());
+        if (diff <= 0) {
+          setTimeLeft("Deleting now...");
+        } else {
+          const hours = Math.floor(diff / (1000 * 60 * 60));
+          const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+          setTimeLeft(`${hours}h ${mins}m`);
+        }
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [game?.deletedAt]);
+
+  const stats = useMemo(() => {
+    if (periodFilter === "ALL") return allStats;
+    return allStats.filter((s) => s.period === parseInt(periodFilter));
+  }, [allStats, periodFilter]);
 
   const playerAggregates = useMemo(
     () => calculatePlayerAggregates(players, stats, teamPlayers),
@@ -140,6 +191,43 @@ const GameStats: React.FC = () => {
         .length,
     };
   }, [stats]);
+
+  const handleDeleteGame = async () => {
+    if (!gameId || !game) return;
+    try {
+      await db.games.update(game.id!, {
+        deletedAt: new Date().toISOString(),
+        synced: 0,
+      });
+      syncService.pushUpdates();
+      setDeleteDialogOpen(false);
+    } catch (err) {
+      console.error("Failed to delete game:", err);
+    }
+  };
+
+  const handleRestoreGame = async () => {
+    if (!gameId || !game) return;
+    try {
+      await db.games.update(game.id!, { deletedAt: undefined, synced: 0 });
+      syncService.pushUpdates();
+    } catch (err) {
+      console.error("Failed to restore game:", err);
+    }
+  };
+
+  const periodLabel = season?.periodType === "HALVES" ? "Half" : "Quarter";
+  const maxPeriod = season?.periodType === "HALVES" ? 2 : 4;
+  const periods = useMemo(() => {
+    const p = ["ALL"];
+    for (let i = 1; i <= maxPeriod; i++) p.push(i.toString());
+    // Check for OT
+    const otPeriods = Array.from(new Set(allStats.map((s) => s.period)))
+      .filter((periodNum) => periodNum > maxPeriod)
+      .sort((a, b) => a - b);
+    otPeriods.forEach((periodNum) => p.push(periodNum.toString()));
+    return p;
+  }, [maxPeriod, allStats]);
 
   const boxScoreTable = (
     <TableContainer>
@@ -291,12 +379,67 @@ const GameStats: React.FC = () => {
     </ResponsiveContainer>
   );
 
+  const isDeleted =
+    !!game?.deletedAt || !!team?.deletedAt || !!season?.deletedAt;
+
   return (
-    <Box sx={{ pb: 4 }}>
+    <Box sx={{ pb: 4, opacity: isDeleted ? 0.7 : 1 }}>
       <PageHeader
         title={game?.opponent ? `vs ${game.opponent}` : "Game Stats"}
         subtitle={`${game?.date || ""} | ${game?.location || ""}`}
+        showBack
+        actions={
+          <Stack direction="row" spacing={1} justifyContent="center">
+            {!isDeleted ? (
+              <Button
+                startIcon={<Delete />}
+                color="error"
+                onClick={() => setDeleteDialogOpen(true)}
+              >
+                Delete Game
+              </Button>
+            ) : game?.deletedAt && !team?.deletedAt && !season?.deletedAt ? (
+              <Button
+                startIcon={<Restore />}
+                variant="contained"
+                color="success"
+                onClick={handleRestoreGame}
+              >
+                Restore Game
+              </Button>
+            ) : null}
+          </Stack>
+        }
       />
+
+      {isDeleted && (
+        <Alert severity="warning" icon={<Warning />} sx={{ mb: 4 }}>
+          <AlertTitle>Read Only Mode</AlertTitle>
+          {game?.deletedAt
+            ? `This game is scheduled for deletion in ${timeLeft}.`
+            : "The associated team or season is pending deletion."}
+        </Alert>
+      )}
+
+      <Box
+        sx={{
+          mb: 4,
+          display: "flex",
+          gap: 1,
+          flexWrap: "wrap",
+          justifyContent: "center",
+        }}
+      >
+        {periods.map((p) => (
+          <Chip
+            key={p}
+            label={p === "ALL" ? "Full Game" : `${periodLabel} ${p}`}
+            onClick={() => setPeriodFilter(p)}
+            color={periodFilter === p ? "primary" : "default"}
+            variant={periodFilter === p ? "filled" : "outlined"}
+          />
+        ))}
+      </Box>
 
       <Grid container spacing={3}>
         {/* Box Score Card */}
@@ -311,7 +454,8 @@ const GameStats: React.FC = () => {
               }}
             >
               <Typography variant="h6" sx={{ fontFamily: "var(--serif)" }}>
-                Box Score
+                Box Score{" "}
+                {periodFilter !== "ALL" && `(${periodLabel} ${periodFilter})`}
               </Typography>
               <IconButton onClick={() => setExpandedSection("boxScore")}>
                 <ExpandIcon />
@@ -333,7 +477,8 @@ const GameStats: React.FC = () => {
               }}
             >
               <Typography variant="h6" sx={{ fontFamily: "var(--serif)" }}>
-                Shot Chart
+                Shot Chart{" "}
+                {periodFilter !== "ALL" && `(${periodLabel} ${periodFilter})`}
               </Typography>
               <IconButton onClick={() => setExpandedSection("shotChart")}>
                 <ExpandIcon />
@@ -356,7 +501,8 @@ const GameStats: React.FC = () => {
               }}
             >
               <Typography variant="h6" sx={{ fontFamily: "var(--serif)" }}>
-                Score Flow
+                Score Flow{" "}
+                {periodFilter !== "ALL" && `(${periodLabel} ${periodFilter})`}
               </Typography>
               <IconButton onClick={() => setExpandedSection("scoreFlow")}>
                 <ExpandIcon />
@@ -405,6 +551,27 @@ const GameStats: React.FC = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setExpandedSection(null)}>Close</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+      >
+        <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
+          Delete Game?
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete this game? You will have 24 hours to
+            restore it.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+          <Button onClick={handleDeleteGame} color="error" variant="contained">
+            Yes, Delete
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>

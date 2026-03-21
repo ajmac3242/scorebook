@@ -24,6 +24,7 @@ import {
   useTheme,
   ToggleButton,
   ToggleButtonGroup,
+  Alert,
 } from "@mui/material";
 import {
   AddCircleOutline,
@@ -38,6 +39,7 @@ import {
   Edit,
   Delete,
   FlashOn,
+  Warning,
 } from "@mui/icons-material";
 import BasketballCourt from "../components/BasketballCourt";
 import { db, type StatEvent } from "../db";
@@ -126,6 +128,18 @@ const GameMode: React.FC = () => {
     }, [teamId, teamPlayers]) || [];
 
   const game = useLiveQuery(() => db.games.get(gameId as any), [gameId]);
+  const team = useLiveQuery(
+    () =>
+      game?.teamId ? db.teams.get(game.teamId) : Promise.resolve(undefined),
+    [game?.teamId],
+  );
+  const season = useLiveQuery(
+    () =>
+      team?.seasonId
+        ? db.seasons.get(team.seasonId)
+        : Promise.resolve(undefined),
+    [team?.seasonId],
+  );
 
   // Show summary dialog automatically if game is completed
   useEffect(() => {
@@ -174,10 +188,10 @@ const GameMode: React.FC = () => {
 
   // Derived scores
   const currentScore = gameStats
-    .filter((s) => s.playerId !== OPPONENT_PLAYER_ID)
+    .filter((s) => s.playerId !== OPPONENT_PLAYER_ID && !s.deletedAt)
     .reduce((sum, s) => sum + (s.points || 0), 0);
   const opponentScore = gameStats
-    .filter((s) => s.playerId === OPPONENT_PLAYER_ID)
+    .filter((s) => s.playerId === OPPONENT_PLAYER_ID && !s.deletedAt)
     .reduce((sum, s) => sum + (s.points || 0), 0);
 
   /**
@@ -217,6 +231,7 @@ const GameMode: React.FC = () => {
    * @param {number} y - The Y coordinate on the court.
    */
   const handleCourtClick = (x: number, y: number) => {
+    if (isDeleted) return;
     setSelectedX(x);
     setSelectedY(y);
     // Auto-select opponent if in opponent tracking mode
@@ -252,6 +267,7 @@ const GameMode: React.FC = () => {
           points: typeToSave === ACTION_TYPES.MAKE ? points : 0,
           locationX: selectedX || 0,
           locationY: selectedY || 0,
+          period,
           timestamp: new Date().toISOString(),
           synced: 0,
         };
@@ -274,6 +290,7 @@ const GameMode: React.FC = () => {
    * @param {string} playerId - The player ID.
    */
   const toggleOnCourt = async (playerId: string) => {
+    if (isDeleted) return;
     const newOnCourt = new Set(onCourtIds);
     const isNowOnCourt = !newOnCourt.has(playerId);
     isNowOnCourt ? newOnCourt.add(playerId) : newOnCourt.delete(playerId);
@@ -287,6 +304,7 @@ const GameMode: React.FC = () => {
         gameId: gameId,
         playerId: playerId,
         type: isNowOnCourt ? ACTION_TYPES.SUB_IN : ACTION_TYPES.SUB_OUT,
+        period,
         timestamp: new Date().toISOString(),
         synced: 0,
       });
@@ -315,6 +333,7 @@ const GameMode: React.FC = () => {
    * @param {StatEvent} stat - The stat event to edit.
    */
   const openEditDialog = (stat: StatEvent) => {
+    if (isDeleted) return;
     setEditingStatId(stat.id ?? null);
     setSelectedPlayerId(stat.playerId as string);
     setStatType(stat.type);
@@ -351,8 +370,27 @@ const GameMode: React.FC = () => {
     </Button>
   );
 
+  const isDeleted =
+    !!game?.deletedAt || !!team?.deletedAt || !!season?.deletedAt;
+  const periodType = season?.periodType || "QUARTERS";
+  const periodLabel = periodType === "HALVES" ? "Half" : "Quarter";
+  const maxPeriod = periodType === "HALVES" ? 2 : 4;
+
+  const handleNextPeriod = () => {
+    setPeriod((p) => {
+      // Allow going up to 10 (arbitrary max for OT)
+      return p < 10 ? p + 1 : 1;
+    });
+  };
+
   return (
-    <Box sx={{ pb: 4 }}>
+    <Box sx={{ pb: 4, opacity: isDeleted ? 0.7 : 1 }}>
+      {isDeleted && (
+        <Alert severity="warning" icon={<Warning />} sx={{ mb: 2 }}>
+          This game is in read-only mode because it or its parent is pending
+          deletion.
+        </Alert>
+      )}
       <Grid container spacing={3}>
         {/* Main Content Area: Scoreboard and Court */}
         <Grid item xs={12} md={8}>
@@ -381,11 +419,12 @@ const GameMode: React.FC = () => {
                     sx={{ fontWeight: "bold" }}
                   />
                   <Chip
-                    label={`Quarter: ${period}`}
-                    onClick={() => setPeriod((p) => (p < 4 ? p + 1 : 1))}
+                    label={`${periodLabel}: ${period > maxPeriod ? `OT ${period - maxPeriod}` : period}`}
+                    onClick={isDeleted ? undefined : handleNextPeriod}
                     variant="outlined"
+                    color={period > maxPeriod ? "warning" : "default"}
                   />
-                  {!game?.completed && (
+                  {!game?.completed && !isDeleted && (
                     <Button
                       size="small"
                       variant="contained"
@@ -403,6 +442,7 @@ const GameMode: React.FC = () => {
                 exclusive
                 onChange={(_, val) => val && setTrackingMode(val)}
                 size="small"
+                disabled={isDeleted}
               >
                 <ToggleButton value="TEAM">Our Team</ToggleButton>
                 <ToggleButton value="OPPONENT">Opponent</ToggleButton>
@@ -423,7 +463,7 @@ const GameMode: React.FC = () => {
                 variant="outlined"
                 startIcon={<UndoIcon />}
                 onClick={handleUndo}
-                disabled={recentStats.length === 0}
+                disabled={recentStats.length === 0 || isDeleted}
                 sx={{ mr: 1 }}
               >
                 Undo
@@ -448,6 +488,7 @@ const GameMode: React.FC = () => {
               markers={gameStats
                 .filter(
                   (s) =>
+                    !s.deletedAt &&
                     (markerFilter === "ALL" || s.type === markerFilter) &&
                     s.type !== ACTION_TYPES.SUB_IN &&
                     s.type !== ACTION_TYPES.SUB_OUT,
@@ -487,6 +528,7 @@ const GameMode: React.FC = () => {
                     <Box key={p.id} sx={{ display: "flex", gap: 1 }}>
                       <Button
                         fullWidth
+                        disabled={isDeleted}
                         variant={
                           selectedPlayerId === p.id ? "contained" : "outlined"
                         }
@@ -532,6 +574,7 @@ const GameMode: React.FC = () => {
                       </Button>
                       <IconButton
                         size="small"
+                        disabled={isDeleted}
                         onClick={() => toggleOnCourt(p.id!)}
                         color={onCourtIds.has(p.id!) ? "primary" : "default"}
                       >
@@ -575,53 +618,54 @@ const GameMode: React.FC = () => {
                 <History sx={{ fontSize: 18, mr: 1 }} /> Recent Actions
               </Typography>
               <Stack spacing={1}>
-                {recentStats.map((s) => (
-                  <Box
-                    key={s.id}
-                    sx={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      py: 0.5,
-                      borderBottom: "1px solid #F0F0F0",
-                    }}
-                  >
-                    <Box>
-                      <Typography variant="body2">
-                        <strong>
-                          {s.playerId === OPPONENT_PLAYER_ID
-                            ? "Opponent"
-                            : players?.find((p) => p.id === s.playerId)?.name ||
-                              "Unknown"}
-                        </strong>
-                        : {s.type}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {new Date(s.timestamp).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </Typography>
+                {recentStats
+                  .filter((s) => !s.deletedAt)
+                  .map((s) => (
+                    <Box
+                      key={s.id}
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        py: 0.5,
+                        borderBottom: "1px solid #F0F0F0",
+                      }}
+                    >
+                      <Box>
+                        <Typography variant="body2">
+                          <strong>
+                            {s.playerId === OPPONENT_PLAYER_ID
+                              ? "Opponent"
+                              : players?.find((p) => p.id === s.playerId)
+                                  ?.name || "Unknown"}
+                          </strong>
+                          : {s.type}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {periodLabel} {s.period || 1}
+                        </Typography>
+                      </Box>
+                      <Box>
+                        <IconButton
+                          size="small"
+                          disabled={isDeleted}
+                          onClick={() => openEditDialog(s)}
+                        >
+                          <Edit fontSize="small" />
+                        </IconButton>
+                        <IconButton
+                          size="small"
+                          disabled={isDeleted}
+                          onClick={() => {
+                            setStatToDelete(s.id ?? null);
+                            setDeleteDialogOpen(true);
+                          }}
+                        >
+                          <Delete fontSize="small" />
+                        </IconButton>
+                      </Box>
                     </Box>
-                    <Box>
-                      <IconButton
-                        size="small"
-                        onClick={() => openEditDialog(s)}
-                      >
-                        <Edit fontSize="small" />
-                      </IconButton>
-                      <IconButton
-                        size="small"
-                        onClick={() => {
-                          setStatToDelete(s.id ?? null);
-                          setDeleteDialogOpen(true);
-                        }}
-                      >
-                        <Delete fontSize="small" />
-                      </IconButton>
-                    </Box>
-                  </Box>
-                ))}
+                  ))}
               </Stack>
             </MoleskineCard>
           </Stack>

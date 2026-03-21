@@ -13,14 +13,25 @@ import {
   TextField,
   Fab,
   Avatar,
+  FormControlLabel,
+  Switch,
+  IconButton,
+  Tooltip,
 } from "@mui/material";
-import { Add as AddIcon, BarChart } from "@mui/icons-material";
+import {
+  Add as AddIcon,
+  BarChart,
+  Delete,
+  Archive,
+  Restore,
+  History,
+} from "@mui/icons-material";
 import { db } from "../db";
 import { syncService } from "../utils/syncService";
 import { Link } from "react-router-dom";
 import { getInitials } from "../utils/stats";
 import { MoleskineCard, PageHeader } from "../components/SharedUI";
-import { usePlayers } from "../hooks/usePlayers";
+import { useLiveQuery } from "dexie-react-hooks";
 import { logger } from "../utils/logger";
 import { AVATAR_COLORS } from "../constants/colors";
 
@@ -33,9 +44,19 @@ const Players: React.FC = () => {
   const [name, setName] = useState("");
   const [avatarColor, setAvatarColor] = useState(AVATAR_COLORS[0]);
   const [showValidation, setShowValidation] = useState(false);
+  const [showArchived, setShowArchived] = useState(false);
 
-  // Use shared hook for data fetching
-  const players = usePlayers();
+  // Use live query directly to handle archived/deleted filtering
+  const players =
+    useLiveQuery(async () => {
+      let query = db.players.toCollection();
+      const all = await query.toArray();
+      return all.filter((p) => {
+        if (p.deletedAt) return false;
+        if (!showArchived && p.isArchived) return false;
+        return true;
+      });
+    }, [showArchived]) || [];
 
   /**
    * Handles adding a new player record.
@@ -51,6 +72,7 @@ const Players: React.FC = () => {
         id: crypto.randomUUID(),
         name: name.trim(),
         avatarColor,
+        isArchived: 0,
         synced: 0,
       });
       syncService.pushUpdates();
@@ -63,14 +85,64 @@ const Players: React.FC = () => {
     }
   };
 
+  const handleArchivePlayer = async (id: string) => {
+    try {
+      await db.players.update(id, { isArchived: 1, synced: 0 });
+      syncService.pushUpdates();
+    } catch (err) {
+      logger.error("Failed to archive player", err, { id });
+    }
+  };
+
+  const handleRestorePlayer = async (id: string) => {
+    try {
+      await db.players.update(id, { isArchived: 0, synced: 0 });
+      syncService.pushUpdates();
+    } catch (err) {
+      logger.error("Failed to restore player", err, { id });
+    }
+  };
+
+  const handleDeletePlayer = async (id: string) => {
+    if (
+      !window.confirm(
+        "Are you sure you want to delete this player? They will be moved to pending deletion for 24 hours.",
+      )
+    )
+      return;
+    try {
+      await db.players.update(id, {
+        deletedAt: new Date().toISOString(),
+        synced: 0,
+      });
+      syncService.pushUpdates();
+    } catch (err) {
+      logger.error("Failed to delete player", err, { id });
+    }
+  };
+
   return (
     <Box>
-      <PageHeader title="Roster Notebook" />
+      <PageHeader
+        title="Roster Notebook"
+        actions={
+          <FormControlLabel
+            control={
+              <Switch
+                checked={showArchived}
+                onChange={(e) => setShowArchived(e.target.checked)}
+                color="primary"
+              />
+            }
+            label="Show Archived"
+          />
+        }
+      />
       <MoleskineCard sx={{ p: 2 }}>
         <List>
           {players.length === 0 && (
             <Typography sx={{ textAlign: "center", py: 2 }}>
-              No players created yet.
+              No {showArchived ? "" : "active"} players found.
             </Typography>
           )}
           {players.map((player) => (
@@ -78,22 +150,55 @@ const Players: React.FC = () => {
               key={player.id}
               divider
               secondaryAction={
-                <Button
-                  variant="outlined"
-                  size="small"
-                  startIcon={<BarChart />}
-                  component={Link}
-                  to={`/players/${player.id}`}
-                  sx={{
-                    transition: "transform 0.2s",
-                    "&:hover": { transform: "scale(1.05)" },
-                  }}
-                >
-                  Stats
-                </Button>
+                <Box sx={{ display: "flex", gap: 1 }}>
+                  <Tooltip title="Stats">
+                    <IconButton
+                      size="small"
+                      component={Link}
+                      to={`/players/${player.id}`}
+                      sx={{
+                        transition: "transform 0.2s",
+                        "&:hover": { transform: "scale(1.1)" },
+                      }}
+                    >
+                      <BarChart />
+                    </IconButton>
+                  </Tooltip>
+                  {player.isArchived ? (
+                    <Tooltip title="Restore">
+                      <IconButton
+                        size="small"
+                        color="success"
+                        onClick={() => handleRestorePlayer(player.id!)}
+                      >
+                        <Restore />
+                      </IconButton>
+                    </Tooltip>
+                  ) : (
+                    <Tooltip title="Archive">
+                      <IconButton
+                        size="small"
+                        color="warning"
+                        onClick={() => handleArchivePlayer(player.id!)}
+                      >
+                        <Archive />
+                      </IconButton>
+                    </Tooltip>
+                  )}
+                  <Tooltip title="Delete">
+                    <IconButton
+                      size="small"
+                      color="error"
+                      onClick={() => handleDeletePlayer(player.id!)}
+                    >
+                      <Delete />
+                    </IconButton>
+                  </Tooltip>
+                </Box>
               }
               sx={{
                 "&:hover": { bgcolor: "rgba(0,0,0,0.01)" },
+                opacity: player.isArchived ? 0.6 : 1,
               }}
             >
               <Avatar
@@ -107,7 +212,18 @@ const Players: React.FC = () => {
                 {getInitials(player.name)}
               </Avatar>
               <ListItemText
-                primary={player.name}
+                primary={
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    {player.name}
+                    {player.isArchived && (
+                      <Chip
+                        label="Archived"
+                        size="small"
+                        icon={<History sx={{ fontSize: "12px !important" }} />}
+                      />
+                    )}
+                  </Box>
+                }
                 primaryTypographyProps={{ fontWeight: 600 }}
               />
             </ListItem>
@@ -149,7 +265,7 @@ const Players: React.FC = () => {
             variant="outlined"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            sx={{ mb: 2 }}
+            sx={{ mb: 2, mt: 1 }}
             error={showValidation && !name.trim()}
             helperText={
               showValidation && !name.trim() ? "Player name is required" : ""

@@ -15,8 +15,9 @@ import {
   Grid,
   Stack,
   Divider,
+  MenuItem,
 } from "@mui/material";
-import { Add as AddIcon } from "@mui/icons-material";
+import { Add as AddIcon, Settings } from "@mui/icons-material";
 import { db, type Season } from "../db";
 import { syncService } from "../utils/syncService";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -32,6 +33,9 @@ const Seasons: React.FC = () => {
   const [name, setName] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [periodType, setPeriodType] = useState<"QUARTERS" | "HALVES">(
+    "QUARTERS",
+  );
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(dayjs());
 
   const seasons = useLiveQuery(() => db.seasons.toArray()) || [];
@@ -45,6 +49,7 @@ const Seasons: React.FC = () => {
         name,
         startDate,
         endDate,
+        periodType,
         synced: 0,
       });
       syncService.pushUpdates();
@@ -52,6 +57,7 @@ const Seasons: React.FC = () => {
       setName("");
       setStartDate("");
       setEndDate("");
+      setPeriodType("QUARTERS");
     } catch (err) {
       console.error("Failed to add season:", err);
     }
@@ -60,12 +66,13 @@ const Seasons: React.FC = () => {
   const gamesForSelectedDate = useMemo(() => {
     if (!selectedDate) return [];
     const dateStr = selectedDate.format("YYYY-MM-DD");
-    return allGames.filter((g) => g.date === dateStr);
+    return allGames.filter((g) => g.date === dateStr && !g.deletedAt);
   }, [allGames, selectedDate]);
 
   const activeSeasonForDate = useMemo(() => {
     if (!selectedDate) return null;
     return seasons.find((s) => {
+      if (s.deletedAt) return false;
       const start = dayjs(s.startDate),
         end = dayjs(s.endDate);
       return (
@@ -101,13 +108,33 @@ const Seasons: React.FC = () => {
                 />
               </Box>
               {activeSeasonForDate ? (
-                <Box sx={{ mt: 2, p: 2, bgcolor: "#f9f9f9", borderRadius: 1 }}>
-                  <Typography variant="caption" color="text.secondary">
-                    Active Season
-                  </Typography>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                    {activeSeasonForDate.name}
-                  </Typography>
+                <Box
+                  sx={{
+                    mt: 2,
+                    p: 2,
+                    bgcolor: "#f9f9f9",
+                    borderRadius: 1,
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <Box>
+                    <Typography variant="caption" color="text.secondary">
+                      Active Season
+                    </Typography>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                      {activeSeasonForDate.name}
+                    </Typography>
+                  </Box>
+                  <Button
+                    startIcon={<Settings />}
+                    onClick={() =>
+                      navigate(`/seasons/${activeSeasonForDate.id}`)
+                    }
+                  >
+                    Manage
+                  </Button>
                 </Box>
               ) : (
                 <Box sx={{ mt: 2, p: 2, textAlign: "center" }}>
@@ -186,7 +213,7 @@ const Seasons: React.FC = () => {
                   {seasons.map((s) => (
                     <Box
                       key={s.id}
-                      onClick={() => setSelectedDate(dayjs(s.startDate))}
+                      onClick={() => navigate(`/seasons/${s.id}`)}
                       sx={{
                         display: "flex",
                         justifyContent: "space-between",
@@ -194,16 +221,20 @@ const Seasons: React.FC = () => {
                         p: 1,
                         borderBottom: "1px dashed #D1D1D1",
                         cursor: "pointer",
+                        opacity: s.deletedAt ? 0.5 : 1,
                         "&:hover": { bgcolor: "rgba(0,0,0,0.02)" },
                       }}
                     >
-                      <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                        {s.name}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {dayjs(s.startDate).format("MMM YYYY")} -{" "}
-                        {dayjs(s.endDate).format("MMM YYYY")}
-                      </Typography>
+                      <Box>
+                        <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                          {s.name} {s.deletedAt && "(Pending Delete)"}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {dayjs(s.startDate).format("MMM YYYY")} -{" "}
+                          {dayjs(s.endDate).format("MMM YYYY")}
+                        </Typography>
+                      </Box>
+                      <Button size="small">Details</Button>
                     </Box>
                   ))}
                 </Stack>
@@ -252,7 +283,18 @@ const Seasons: React.FC = () => {
               InputLabelProps={{ shrink: true }}
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
+              sx={{ mb: 2 }}
             />
+            <TextField
+              select
+              label="Period Type"
+              fullWidth
+              value={periodType}
+              onChange={(e) => setPeriodType(e.target.value as any)}
+            >
+              <MenuItem value="QUARTERS">Quarters (1-4)</MenuItem>
+              <MenuItem value="HALVES">Halves (1-2)</MenuItem>
+            </TextField>
           </DialogContent>
           <DialogActions>
             <Button onClick={() => setOpen(false)}>Cancel</Button>

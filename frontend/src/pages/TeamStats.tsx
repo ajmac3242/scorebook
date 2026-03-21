@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   Box,
@@ -26,8 +26,16 @@ import {
   Tabs,
   Tab,
   Chip,
+  Alert,
+  AlertTitle,
+  DialogContentText,
 } from "@mui/material";
-import { PersonAdd as PersonAddIcon } from "@mui/icons-material";
+import {
+  PersonAdd as PersonAddIcon,
+  Delete,
+  Restore,
+  Warning,
+} from "@mui/icons-material";
 import { db, type TeamPlayer } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
 import { STAT_ACRONYMS } from "../constants/stats";
@@ -41,6 +49,7 @@ import { syncService } from "../utils/syncService";
 import EntityBanner from "../components/EntityBanner";
 import { useGames } from "../hooks/useGames";
 import { usePlayers } from "../hooks/usePlayers";
+import dayjs from "dayjs";
 
 /**
  * TeamStats page component.
@@ -58,10 +67,12 @@ const TeamStats: React.FC = () => {
     "upcoming",
   );
   const [openSettingsDialog, setOpenSettingsDialog] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [editName, setEditName] = useState("");
   const [editLogoUrl, setEditLogoUrl] = useState("");
   const [editColor, setEditColor] = useState("#154C56");
   const [isSyncing, setIsSyncing] = useState(false);
+  const [timeLeft, setTimeLeft] = useState("");
   const [sortConfig, setSortConfig] = useState<{
     key: string;
     direction: "asc" | "desc";
@@ -76,13 +87,30 @@ const TeamStats: React.FC = () => {
   );
 
   // Sync edit states when team loads
-  React.useEffect(() => {
+  useEffect(() => {
     if (team) {
       setEditName(team.name || "");
       setEditLogoUrl(team.logoUrl || "");
       setEditColor(team.primaryColor || "#154C56");
     }
   }, [team]);
+
+  useEffect(() => {
+    if (team?.deletedAt) {
+      const timer = setInterval(() => {
+        const deleteTime = dayjs(team.deletedAt).add(24, "hour");
+        const diff = deleteTime.diff(dayjs());
+        if (diff <= 0) {
+          setTimeLeft("Deleting now...");
+        } else {
+          const hours = Math.floor(diff / (1000 * 60 * 60));
+          const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+          setTimeLeft(`${hours}h ${mins}m`);
+        }
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [team?.deletedAt]);
 
   const season = useLiveQuery(
     () =>
@@ -211,6 +239,43 @@ const TeamStats: React.FC = () => {
     setOpenSettingsDialog(false);
   };
 
+  const handleDeleteTeam = async () => {
+    if (!teamId || !team) return;
+    try {
+      const deletedAt = new Date().toISOString();
+      await db.teams.update(team.id!, { deletedAt, synced: 0 });
+      // Also soft delete all games for this team
+      const teamGames = await db.games
+        .where("teamId")
+        .equals(team.id!)
+        .toArray();
+      for (const g of teamGames) {
+        await db.games.update(g.id!, { deletedAt, synced: 0 });
+      }
+      syncService.pushUpdates();
+      setDeleteDialogOpen(false);
+    } catch (err) {
+      console.error("Failed to delete team:", err);
+    }
+  };
+
+  const handleRestoreTeam = async () => {
+    if (!teamId || !team) return;
+    try {
+      await db.teams.update(team.id!, { deletedAt: undefined, synced: 0 });
+      const teamGames = await db.games
+        .where("teamId")
+        .equals(team.id!)
+        .toArray();
+      for (const g of teamGames) {
+        await db.games.update(g.id!, { deletedAt: undefined, synced: 0 });
+      }
+      syncService.pushUpdates();
+    } catch (err) {
+      console.error("Failed to restore team:", err);
+    }
+  };
+
   /**
    * Triggers a sync of all data for the current team.
    */
@@ -259,8 +324,11 @@ const TeamStats: React.FC = () => {
     </TableCell>
   );
 
+  const isDeleted = !!team?.deletedAt || !!season?.deletedAt;
+  const isPendingDelete = !!team?.deletedAt;
+
   return (
-    <Box sx={{ pb: 4 }}>
+    <Box sx={{ pb: 4, opacity: isDeleted ? 0.7 : 1 }}>
       <EntityBanner
         title={team?.name || "Team"}
         subtitle={`${teamAggregates.record} | ${season?.name || ""}`}
@@ -277,14 +345,42 @@ const TeamStats: React.FC = () => {
         onSync={handleSync}
         isSyncing={isSyncing}
         actions={
-          <Button
-            variant="outlined"
-            size="small"
-            onClick={() => setOpenSettingsDialog(true)}
-            sx={{ color: "white", borderColor: "rgba(255,255,255,0.5)" }}
-          >
-            Edit Team
-          </Button>
+          <Stack direction="row" spacing={1}>
+            {!isDeleted ? (
+              <>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  onClick={() => setOpenSettingsDialog(true)}
+                  sx={{ color: "white", borderColor: "rgba(255,255,255,0.5)" }}
+                >
+                  Edit Team
+                </Button>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  color="error"
+                  onClick={() => setDeleteDialogOpen(true)}
+                  sx={{
+                    borderColor: "rgba(255,0,0,0.5)",
+                    "&:hover": { borderColor: "error.main" },
+                  }}
+                >
+                  Delete Team
+                </Button>
+              </>
+            ) : isPendingDelete && !season?.deletedAt ? (
+              <Button
+                variant="contained"
+                size="small"
+                color="success"
+                startIcon={<Restore />}
+                onClick={handleRestoreTeam}
+              >
+                Restore Team
+              </Button>
+            ) : null}
+          </Stack>
         }
       />
 
@@ -308,6 +404,19 @@ const TeamStats: React.FC = () => {
           <Tab label="Roster" sx={{ fontWeight: 600 }} />
         </Tabs>
       </Box>
+
+      {isDeleted && (
+        <Alert severity="warning" icon={<Warning />} sx={{ mb: 4, mx: 2 }}>
+          <AlertTitle>
+            {season?.deletedAt
+              ? "Season Pending Deletion"
+              : "Team Pending Deletion"}
+          </AlertTitle>
+          {season?.deletedAt
+            ? "The entire season is pending deletion. This team is in read-only mode."
+            : `This team and its games are scheduled for permanent deletion in ${timeLeft}. All data is currently read-only.`}
+        </Alert>
+      )}
 
       {tabValue === 0 && (
         <Box>
@@ -336,8 +445,9 @@ const TeamStats: React.FC = () => {
             {games
               .filter(
                 (g) =>
-                  scheduleView === "all" ||
-                  (!g.completed && new Date(g.date) >= new Date()),
+                  (scheduleView === "all" ||
+                    (!g.completed && new Date(g.date) >= new Date())) &&
+                  !g.deletedAt,
               )
               .sort(
                 (a, b) =>
@@ -371,6 +481,7 @@ const TeamStats: React.FC = () => {
                       <Button
                         variant="contained"
                         size="small"
+                        disabled={isDeleted}
                         onClick={(e) => {
                           e.stopPropagation();
                           navigate(`/game?gameId=${game.id}&teamId=${teamId}`);
@@ -502,6 +613,7 @@ const TeamStats: React.FC = () => {
             </Typography>
             <Button
               variant="contained"
+              disabled={isDeleted}
               startIcon={<PersonAddIcon />}
               onClick={() => setOpenRosterDialog(true)}
               sx={{
@@ -654,6 +766,28 @@ const TeamStats: React.FC = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenRosterDialog(false)}>Close</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+      >
+        <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
+          Delete Team?
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete <strong>{team?.name}</strong>? This
+            will mark the team and ALL its associated games as pending deletion.
+            You will have 24 hours to restore it.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+          <Button onClick={handleDeleteTeam} color="error" variant="contained">
+            Yes, Delete
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>
