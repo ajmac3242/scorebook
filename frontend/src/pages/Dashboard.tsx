@@ -9,7 +9,7 @@ import { Typography, Box, Grid, Button } from "@mui/material";
 import { Link } from "react-router-dom";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "../db";
-import { MoleskineCard, PageHeader } from "../components/SharedUI";
+import { MoleskineCard, PageHeader, AnimatedNumber } from "../components/SharedUI";
 
 /**
  * Dashboard component providing a high-level summary of the stored data.
@@ -65,7 +65,7 @@ const Dashboard: React.FC = () => {
                 variant="h3"
                 sx={{ my: 2, fontFamily: "var(--serif)" }}
               >
-                {item.count}
+                <AnimatedNumber value={item.count} />
               </Typography>
 
               <Button

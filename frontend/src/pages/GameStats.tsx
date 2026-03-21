@@ -20,7 +20,14 @@ import {
   Chip,
   useTheme,
   Avatar,
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
 } from "@mui/material";
+import { OpenInFull as ExpandIcon } from "@mui/icons-material";
 import BasketballCourt from "../components/BasketballCourt";
 import { db } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -45,7 +52,7 @@ const GameStats: React.FC = () => {
   const [searchParams] = useSearchParams();
   const gameId = searchParams.get("gameId") || undefined;
 
-  const [tabValue, setTabValue] = useState(0);
+  const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const [selectedPlayerId, setSelectedPlayerId] = useState<number | string>(
     "ALL",
   );
@@ -134,6 +141,156 @@ const GameStats: React.FC = () => {
     };
   }, [stats]);
 
+  const boxScoreTable = (
+    <TableContainer>
+      <Table size="small">
+        <TableHead>
+          <TableRow sx={{ bgcolor: "rgba(0,0,0,0.02)" }}>
+            <TableCell>PLAYER</TableCell>
+            <TableCell align="right">PTS</TableCell>
+            <TableCell align="right">FG</TableCell>
+            <TableCell align="right">FG%</TableCell>
+            <TableCell align="right">REB</TableCell>
+            <TableCell align="right">AST</TableCell>
+            <TableCell align="right">STL</TableCell>
+            <TableCell align="right">TO</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {playerAggregates
+            .filter((p) => p.attempts > 0 || p.rebounds > 0 || p.assists > 0)
+            .map((row) => (
+              <TableRow key={row.id}>
+                <TableCell
+                  sx={{
+                    fontWeight: 600,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                  }}
+                >
+                  <Avatar
+                    sx={{
+                      width: 24,
+                      height: 24,
+                      fontSize: "0.75rem",
+                      bgcolor: row.avatarColor,
+                    }}
+                  >
+                    {row.jerseyNumber}
+                  </Avatar>
+                  {row.name}
+                </TableCell>
+                <TableCell align="right">{row.points}</TableCell>
+                <TableCell align="right">
+                  {row.makes}-{row.attempts}
+                </TableCell>
+                <TableCell align="right">{row.fgPct}%</TableCell>
+                <TableCell align="right">{row.rebounds}</TableCell>
+                <TableCell align="right">{row.assists}</TableCell>
+                <TableCell align="right">{row.steals}</TableCell>
+                <TableCell align="right">{row.turnovers}</TableCell>
+              </TableRow>
+            ))}
+          <TableRow sx={{ bgcolor: "secondary.light" }}>
+            <TableCell sx={{ fontWeight: 700 }}>OPPONENT</TableCell>
+            <TableCell align="right">{oppData.points}</TableCell>
+            <TableCell align="right">
+              {oppData.makes}-{oppData.attempts}
+            </TableCell>
+            <TableCell align="right">{oppData.fgPct}%</TableCell>
+            <TableCell align="right">{oppData.rebounds}</TableCell>
+            <TableCell align="right">{oppData.assists}</TableCell>
+            <TableCell align="right">{oppData.steals}</TableCell>
+            <TableCell align="right">{oppData.turnovers}</TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
+
+  const shotChartFilters = (
+    <Box sx={{ mb: 2 }}>
+      <Typography variant="subtitle2" gutterBottom>
+        Filters
+      </Typography>
+      <Stack direction="row" spacing={2}>
+        <FormControl fullWidth size="small">
+          <InputLabel>Player</InputLabel>
+          <Select
+            value={selectedPlayerId}
+            label="Player"
+            onChange={(e) => setSelectedPlayerId(e.target.value)}
+          >
+            <MenuItem value="ALL">All Players</MenuItem>
+            {players.map((p) => (
+              <MenuItem key={p.id} value={p.id}>
+                {p.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        <FormControl fullWidth size="small">
+          <InputLabel>Type</InputLabel>
+          <Select
+            value={selectedType}
+            label="Type"
+            onChange={(e) => setSelectedType(e.target.value)}
+          >
+            <MenuItem value="ALL">All Shots</MenuItem>
+            <MenuItem value="MAKE">Makes</MenuItem>
+            <MenuItem value="MISS">Misses</MenuItem>
+          </Select>
+        </FormControl>
+      </Stack>
+    </Box>
+  );
+
+  const shotChartCourt = (
+    <BasketballCourt
+      markers={filteredStats
+        .filter((s) => s.type === "MAKE" || s.type === "MISS")
+        .map((s) => ({
+          id: s.id,
+          x: s.locationX || 0,
+          y: s.locationY || 0,
+          type: s.type,
+          label:
+            s.playerId !== OPPONENT_PLAYER_ID
+              ? getPlayerJersey(s.playerId, teamPlayers)
+              : undefined,
+          playerId: s.playerId,
+        }))}
+      onMarkerClick={(m) => setSelectedPlayerId(m.playerId || "ALL")}
+    />
+  );
+
+  const scoreFlowChart = (
+    <ResponsiveContainer width="100%" height="100%">
+      <LineChart data={scoreFlowData}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="time" />
+        <YAxis />
+        <Tooltip />
+        <Legend />
+        <Line
+          type="stepAfter"
+          dataKey="Team"
+          stroke={theme.palette.primary.main}
+          strokeWidth={3}
+          dot={false}
+        />
+        <Line
+          type="stepAfter"
+          dataKey="Opponent"
+          stroke={theme.palette.secondary.main}
+          strokeWidth={3}
+          dot={false}
+        />
+      </LineChart>
+    </ResponsiveContainer>
+  );
+
   return (
     <Box sx={{ pb: 4 }}>
       <PageHeader
@@ -141,180 +298,106 @@ const GameStats: React.FC = () => {
         subtitle={`${game?.date || ""} | ${game?.location || ""}`}
       />
 
-      <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 3 }}>
-        <Tabs
-          value={tabValue}
-          onChange={(_, val) => setTabValue(val)}
-          textColor="primary"
-          indicatorColor="primary"
-        >
-          <Tab label="Box Score" />
-          <Tab label="Shot Chart" />
-          <Tab label="Score Flow" />
-        </Tabs>
-      </Box>
-
-      {tabValue === 0 && (
-        <TableContainer component={MoleskineCard}>
-          <Table size="small">
-            <TableHead>
-              <TableRow sx={{ bgcolor: "rgba(0,0,0,0.02)" }}>
-                <TableCell>PLAYER</TableCell>
-                <TableCell align="right">PTS</TableCell>
-                <TableCell align="right">FG</TableCell>
-                <TableCell align="right">FG%</TableCell>
-                <TableCell align="right">REB</TableCell>
-                <TableCell align="right">AST</TableCell>
-                <TableCell align="right">STL</TableCell>
-                <TableCell align="right">TO</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {playerAggregates
-                .filter(
-                  (p) => p.attempts > 0 || p.rebounds > 0 || p.assists > 0,
-                )
-                .map((row) => (
-                  <TableRow key={row.id}>
-                    <TableCell
-                      sx={{
-                        fontWeight: 600,
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 1,
-                      }}
-                    >
-                      <Avatar
-                        sx={{
-                          width: 24,
-                          height: 24,
-                          fontSize: "0.75rem",
-                          bgcolor: row.avatarColor,
-                        }}
-                      >
-                        {row.jerseyNumber}
-                      </Avatar>
-                      {row.name}
-                    </TableCell>
-                    <TableCell align="right">{row.points}</TableCell>
-                    <TableCell align="right">
-                      {row.makes}-{row.attempts}
-                    </TableCell>
-                    <TableCell align="right">{row.fgPct}%</TableCell>
-                    <TableCell align="right">{row.rebounds}</TableCell>
-                    <TableCell align="right">{row.assists}</TableCell>
-                    <TableCell align="right">{row.steals}</TableCell>
-                    <TableCell align="right">{row.turnovers}</TableCell>
-                  </TableRow>
-                ))}
-              <TableRow sx={{ bgcolor: "secondary.light" }}>
-                <TableCell sx={{ fontWeight: 700 }}>OPPONENT</TableCell>
-                <TableCell align="right">{oppData.points}</TableCell>
-                <TableCell align="right">
-                  {oppData.makes}-{oppData.attempts}
-                </TableCell>
-                <TableCell align="right">{oppData.fgPct}%</TableCell>
-                <TableCell align="right">{oppData.rebounds}</TableCell>
-                <TableCell align="right">{oppData.assists}</TableCell>
-                <TableCell align="right">{oppData.steals}</TableCell>
-                <TableCell align="right">{oppData.turnovers}</TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </TableContainer>
-      )}
-
-      {tabValue === 1 && (
-        <Grid container spacing={3}>
-          <Grid item xs={12} lg={4}>
-            <MoleskineCard>
-              <Typography variant="subtitle2" gutterBottom>
-                Filters
+      <Grid container spacing={3}>
+        {/* Box Score Card */}
+        <Grid item xs={12}>
+          <MoleskineCard>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                mb: 2,
+              }}
+            >
+              <Typography variant="h6" sx={{ fontFamily: "var(--serif)" }}>
+                Box Score
               </Typography>
-              <Stack spacing={2}>
-                <FormControl fullWidth size="small">
-                  <InputLabel>Player</InputLabel>
-                  <Select
-                    value={selectedPlayerId}
-                    label="Player"
-                    onChange={(e) => setSelectedPlayerId(e.target.value)}
-                  >
-                    <MenuItem value="ALL">All Players</MenuItem>
-                    {players.map((p) => (
-                      <MenuItem key={p.id} value={p.id}>
-                        {p.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <FormControl fullWidth size="small">
-                  <InputLabel>Type</InputLabel>
-                  <Select
-                    value={selectedType}
-                    label="Type"
-                    onChange={(e) => setSelectedType(e.target.value)}
-                  >
-                    <MenuItem value="ALL">All Shots</MenuItem>
-                    <MenuItem value="MAKE">Makes</MenuItem>
-                    <MenuItem value="MISS">Misses</MenuItem>
-                  </Select>
-                </FormControl>
-              </Stack>
-            </MoleskineCard>
-          </Grid>
-          <Grid item xs={12} lg={8}>
-            <MoleskineCard sx={{ p: 1 }}>
-              <BasketballCourt
-                markers={filteredStats
-                  .filter((s) => s.type === "MAKE" || s.type === "MISS")
-                  .map((s) => ({
-                    id: s.id,
-                    x: s.locationX || 0,
-                    y: s.locationY || 0,
-                    type: s.type,
-                    label:
-                      s.playerId !== OPPONENT_PLAYER_ID
-                        ? getPlayerJersey(s.playerId, teamPlayers)
-                        : undefined,
-                    playerId: s.playerId,
-                  }))}
-                onMarkerClick={(m) => setSelectedPlayerId(m.playerId || "ALL")}
-              />
-            </MoleskineCard>
-          </Grid>
+              <IconButton onClick={() => setExpandedSection("boxScore")}>
+                <ExpandIcon />
+              </IconButton>
+            </Box>
+            {boxScoreTable}
+          </MoleskineCard>
         </Grid>
-      )}
 
-      {tabValue === 2 && (
-        <MoleskineCard sx={{ p: 3, height: 400 }}>
-          <Typography variant="h6" gutterBottom align="center">
-            Score Flow
-          </Typography>
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={scoreFlowData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="time" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Line
-                type="stepAfter"
-                dataKey="Team"
-                stroke={theme.palette.primary.main}
-                strokeWidth={3}
-                dot={false}
-              />
-              <Line
-                type="stepAfter"
-                dataKey="Opponent"
-                stroke={theme.palette.secondary.main}
-                strokeWidth={3}
-                dot={false}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </MoleskineCard>
-      )}
+        {/* Shot Chart Card */}
+        <Grid item xs={12} md={6}>
+          <MoleskineCard>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                mb: 2,
+              }}
+            >
+              <Typography variant="h6" sx={{ fontFamily: "var(--serif)" }}>
+                Shot Chart
+              </Typography>
+              <IconButton onClick={() => setExpandedSection("shotChart")}>
+                <ExpandIcon />
+              </IconButton>
+            </Box>
+            {shotChartFilters}
+            <Box sx={{ p: 1 }}>{shotChartCourt}</Box>
+          </MoleskineCard>
+        </Grid>
+
+        {/* Score Flow Card */}
+        <Grid item xs={12} md={6}>
+          <MoleskineCard>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                mb: 2,
+              }}
+            >
+              <Typography variant="h6" sx={{ fontFamily: "var(--serif)" }}>
+                Score Flow
+              </Typography>
+              <IconButton onClick={() => setExpandedSection("scoreFlow")}>
+                <ExpandIcon />
+              </IconButton>
+            </Box>
+            <Box sx={{ height: 400 }}>{scoreFlowChart}</Box>
+          </MoleskineCard>
+        </Grid>
+      </Grid>
+
+      {/* Expanded Section Dialog */}
+      <Dialog
+        fullWidth
+        maxWidth="lg"
+        open={expandedSection !== null}
+        onClose={() => setExpandedSection(null)}
+      >
+        <DialogTitle sx={{ fontFamily: "var(--serif)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          {expandedSection === "boxScore" && "Box Score"}
+          {expandedSection === "shotChart" && "Shot Chart"}
+          {expandedSection === "scoreFlow" && "Score Flow"}
+          <IconButton onClick={() => setExpandedSection(null)}>
+            <ExpandIcon sx={{ transform: "rotate(180deg)" }} />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent>
+          {expandedSection === "boxScore" && boxScoreTable}
+          {expandedSection === "shotChart" && (
+            <>
+              {shotChartFilters}
+              <Box sx={{ p: 1, maxWidth: 800, mx: "auto" }}>{shotChartCourt}</Box>
+            </>
+          )}
+          {expandedSection === "scoreFlow" && (
+            <Box sx={{ height: 500 }}>{scoreFlowChart}</Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setExpandedSection(null)}>Close</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
