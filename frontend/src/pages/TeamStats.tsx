@@ -160,7 +160,9 @@ const TeamStats: React.FC = () => {
     )
       return;
 
-    const player = allPlayers.find((p) => p.id?.toString() === playerId.toString());
+    const player = allPlayers.find(
+      (p) => p.id?.toString() === playerId.toString(),
+    );
 
     const newTeamPlayer: TeamPlayer = {
       teamId: teamId.toString(),
