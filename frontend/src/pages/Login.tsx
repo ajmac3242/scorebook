@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { syncService } from "../utils/syncService";
 
 const Login: React.FC = () => {
   const [username, setUsername] = useState("");
@@ -38,6 +39,8 @@ const Login: React.FC = () => {
         console.log("onSuccess:", data);
         setIsAuthenticated(true);
         localStorage.setItem("isAuthenticated", "true");
+        // Trigger a full pull sync immediately after login
+        syncService.pullAll();
         navigate("/");
       },
       onFailure: (err) => {

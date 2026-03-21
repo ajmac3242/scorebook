@@ -46,6 +46,8 @@ export interface TeamPlayer {
   id?: number;
   teamId: number | string;
   playerId: number | string;
+  name?: string;
+  avatarColor?: string;
   jerseyNumber?: string;
   synced?: number;
 }

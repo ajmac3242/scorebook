@@ -32,7 +32,8 @@ export interface PlayerAggregates {
  * @param {string} name - The full name.
  * @returns {string} The uppercase initials.
  */
-export const getInitials = (name: string): string => {
+export const getInitials = (name: string | undefined | null): string => {
+  if (!name) return "";
   return name
     .split(" ")
     .map((n) => n[0])

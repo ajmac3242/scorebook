@@ -43,7 +43,7 @@ const Players: React.FC = () => {
       try {
         await db.open();
         const items = await db.players.toArray();
-        return items.sort((a, b) => a.name.localeCompare(b.name));
+        return items.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
       } catch (err) {
         console.error("Failed to fetch players:", err);
         return [];
