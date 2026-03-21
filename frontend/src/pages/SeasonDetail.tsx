@@ -15,6 +15,7 @@ import {
   Alert,
   AlertTitle,
   MenuItem,
+  IconButton,
 } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import { db, type Season, type Team } from "../db";
@@ -22,12 +23,7 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { MoleskineCard, PageHeader } from "../components/SharedUI";
 import { syncService } from "../utils/syncService";
 import dayjs from "dayjs";
-import {
-  Delete,
-  Restore,
-  Warning,
-  Edit as EditIcon,
-} from "@mui/icons-material";
+import { Delete, Restore, Warning, Edit as EditIcon } from "@mui/icons-material";
 import EntityBanner from "../components/EntityBanner";
 
 const SeasonDetail: React.FC = () => {
@@ -201,13 +197,13 @@ const SeasonDetail: React.FC = () => {
 
       <Box sx={{ p: { xs: 1, sm: 2 }, mt: 2 }}>
         {isDeleted && (
-          <Alert severity="warning" icon={<Warning />} sx={{ mb: 4 }}>
-            <AlertTitle>Pending Deletion</AlertTitle>
-            This season and all its data (teams, games, stats) are scheduled for
-            permanent deletion in <strong>{timeLeft}</strong>. All data is
-            currently read-only.
-          </Alert>
-        )}
+        <Alert severity="warning" icon={<Warning />} sx={{ mb: 4 }}>
+          <AlertTitle>Pending Deletion</AlertTitle>
+          This season and all its data (teams, games, stats) are scheduled for
+          permanent deletion in <strong>{timeLeft}</strong>. All data is
+          currently read-only.
+        </Alert>
+      )}
 
         <Grid container spacing={3}>
           <Grid item xs={12} md={4}>
@@ -336,43 +332,131 @@ const SeasonDetail: React.FC = () => {
             <Typography variant="subtitle2" gutterBottom>
               Banner Color
             </Typography>
-            <input
-              type="color"
-              style={{
-                display: "block",
-                width: "100%",
-                height: 40,
-                border: "1px solid #D1D1D1",
-                borderRadius: 4,
-              }}
-              value={primaryColor}
-              onChange={(e) => setPrimaryColor(e.target.value)}
-            />
-          </DialogContent>
-          <DialogActions sx={{ justifyContent: "space-between", px: 3, pb: 3 }}>
+            <List sx={{ width: "100%" }}>
+              {teams.filter((t) => !t.deletedAt).length === 0 ? (
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ py: 2 }}
+                >
+                  No teams found.
+                </Typography>
+              ) : (
+                teams
+                  .filter((t) => !t.deletedAt)
+                  .map((team) => (
+                    <Box
+                      key={team.id}
+                      sx={{
+                        p: 2,
+                        mb: 1,
+                        border: "1px solid #eee",
+                        borderRadius: 1,
+                        cursor: "pointer",
+                        "&:hover": { bgcolor: "#f5f5f5" },
+                      }}
+                      onClick={() => navigate(`/teams/${team.id}`)}
+                    >
+                      <Typography sx={{ fontWeight: 600 }}>
+                        {team.name}
+                      </Typography>
+                    </Box>
+                  ))
+              )}
+            </List>
+          </MoleskineCard>
+        </Grid>
+      </Grid>
+
+      {/* Edit Dialog */}
+      <Dialog open={editDialogOpen} onClose={() => setEditDialogOpen(false)}>
+        <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
+          Edit Season Details
+        </DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Season Name"
+            fullWidth
+            variant="outlined"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            sx={{ mb: 2, mt: 1 }}
+          />
+          <TextField
+            margin="dense"
+            label="Start Date"
+            type="date"
+            fullWidth
+            variant="outlined"
+            InputLabelProps={{ shrink: true }}
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            sx={{ mb: 2 }}
+          />
+          <TextField
+            margin="dense"
+            label="End Date"
+            type="date"
+            fullWidth
+            variant="outlined"
+            InputLabelProps={{ shrink: true }}
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+            sx={{ mb: 2 }}
+          />
+          <TextField
+            select
+            label="Period Type"
+            fullWidth
+            value={periodType}
+            onChange={(e) => setPeriodType(e.target.value as any)}
+            sx={{ mb: 2 }}
+          >
+            <MenuItem value="QUARTERS">Quarters (1-4)</MenuItem>
+            <MenuItem value="HALVES">Halves (1-2)</MenuItem>
+          </TextField>
+          <Typography variant="subtitle2" gutterBottom>
+            Banner Color
+          </Typography>
+          <input
+            type="color"
+            style={{
+              display: "block",
+              width: "100%",
+              height: 40,
+              border: "1px solid #D1D1D1",
+              borderRadius: 4,
+            }}
+            value={primaryColor}
+            onChange={(e) => setPrimaryColor(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions sx={{ justifyContent: "space-between", px: 3, pb: 3 }}>
+          <Button
+            color="error"
+            variant="outlined"
+            startIcon={<Delete />}
+            onClick={() => {
+              setEditDialogOpen(false);
+              setDeleteDialogOpen(true);
+            }}
+          >
+            Delete Season
+          </Button>
+          <Box>
+            <Button onClick={() => setEditDialogOpen(false)}>Cancel</Button>
             <Button
-              color="error"
-              variant="outlined"
-              startIcon={<Delete />}
-              onClick={() => {
-                setEditDialogOpen(false);
-                setDeleteDialogOpen(true);
-              }}
+              onClick={handleUpdateSeason}
+              variant="contained"
+              sx={{ ml: 1 }}
             >
-              Delete Season
+              Save
             </Button>
-            <Box>
-              <Button onClick={() => setEditDialogOpen(false)}>Cancel</Button>
-              <Button
-                onClick={handleUpdateSeason}
-                variant="contained"
-                sx={{ ml: 1 }}
-              >
-                Save
-              </Button>
-            </Box>
-          </DialogActions>
-        </Dialog>
+          </Box>
+        </DialogActions>
+      </Dialog>
 
         {/* Delete Confirmation */}
         <Dialog
@@ -402,6 +486,7 @@ const SeasonDetail: React.FC = () => {
           </DialogActions>
         </Dialog>
       </Box>
+    </Box>
     </Box>
   );
 };
