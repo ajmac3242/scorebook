@@ -87,7 +87,12 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
         spacing={{ xs: 2, sm: 4 }}
         sx={{ mt: { xs: 0, sm: 1 } }}
       >
-        <Grid item xs={12} sm="auto" sx={{ textAlign: { xs: "center", sm: "left" } }}>
+        <Grid
+          item
+          xs={12}
+          sm="auto"
+          sx={{ textAlign: { xs: "center", sm: "left" } }}
+        >
           <Box
             sx={{
               position: "relative",

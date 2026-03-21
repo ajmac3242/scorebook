@@ -36,6 +36,7 @@ const Seasons: React.FC = () => {
   const [periodType, setPeriodType] = useState<"QUARTERS" | "HALVES">(
     "QUARTERS",
   );
+  const [primaryColor, setPrimaryColor] = useState("#154C56");
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(dayjs());
 
   const seasons = useLiveQuery(() => db.seasons.toArray()) || [];
@@ -50,6 +51,7 @@ const Seasons: React.FC = () => {
         startDate,
         endDate,
         periodType,
+        primaryColor,
         synced: 0,
       });
       syncService.pushUpdates();
@@ -58,6 +60,7 @@ const Seasons: React.FC = () => {
       setStartDate("");
       setEndDate("");
       setPeriodType("QUARTERS");
+      setPrimaryColor("#154C56");
     } catch (err) {
       console.error("Failed to add season:", err);
     }
@@ -266,7 +269,13 @@ const Seasons: React.FC = () => {
         <Fab
           color="primary"
           aria-label="add"
-          sx={{ position: "fixed", bottom: 32, right: 32 }}
+          sx={{
+            position: "fixed",
+            bottom: 32,
+            right: 32,
+            transition: "transform 0.2s",
+            "&:hover": { transform: "scale(1.1) rotate(90deg)" },
+          }}
           onClick={() => setOpen(true)}
         >
           <AddIcon />
@@ -312,10 +321,26 @@ const Seasons: React.FC = () => {
               fullWidth
               value={periodType}
               onChange={(e) => setPeriodType(e.target.value as any)}
+              sx={{ mb: 2 }}
             >
               <MenuItem value="QUARTERS">Quarters (1-4)</MenuItem>
               <MenuItem value="HALVES">Halves (1-2)</MenuItem>
             </TextField>
+            <Typography variant="subtitle2" gutterBottom>
+              Banner Color
+            </Typography>
+            <input
+              type="color"
+              style={{
+                display: "block",
+                width: "100%",
+                height: 40,
+                border: "1px solid #D1D1D1",
+                borderRadius: 4,
+              }}
+              value={primaryColor}
+              onChange={(e) => setPrimaryColor(e.target.value)}
+            />
           </DialogContent>
           <DialogActions>
             <Button onClick={() => setOpen(false)}>Cancel</Button>

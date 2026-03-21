@@ -26,6 +26,7 @@ import {
   Archive,
   Restore,
   History,
+  Edit as EditIcon,
 } from "@mui/icons-material";
 import { db } from "../db";
 import { syncService } from "../utils/syncService";
@@ -42,10 +43,14 @@ import { AVATAR_COLORS } from "../constants/colors";
  */
 const Players: React.FC = () => {
   const [open, setOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [selectedPlayer, setSelectedPlayer] = useState<any>(null);
   const [name, setName] = useState("");
   const [avatarColor, setAvatarColor] = useState(AVATAR_COLORS[0]);
   const [showValidation, setShowValidation] = useState(false);
   const [showArchived, setShowArchived] = useState(false);
+  const [hasAssociations, setHasAssociations] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   // Use live query directly to handle archived/deleted filtering
   const players =
@@ -86,12 +91,54 @@ const Players: React.FC = () => {
     }
   };
 
-  const handleArchivePlayer = async (id: string) => {
+  const handleOpenEdit = async (player: any) => {
+    setSelectedPlayer(player);
+    setName(player.name);
+    setAvatarColor(player.avatarColor || AVATAR_COLORS[0]);
+
+    // Check for associations
+    const statsCount = await db.stats
+      .where("playerId")
+      .equals(player.id)
+      .count();
+    const teamCount = await db.teamPlayers
+      .where("playerId")
+      .equals(player.id)
+      .count();
+    setHasAssociations(statsCount > 0 || teamCount > 0);
+
+    setEditOpen(true);
+  };
+
+  const handleUpdatePlayer = async () => {
+    if (!name.trim() || !selectedPlayer) {
+      setShowValidation(true);
+      return;
+    }
     try {
-      await db.players.update(id, { isArchived: 1, synced: 0 });
+      await db.players.update(selectedPlayer.id, {
+        name: name.trim(),
+        avatarColor,
+        synced: 0,
+      });
       syncService.pushUpdates();
+      setEditOpen(false);
+      setSelectedPlayer(null);
+      setName("");
+      setShowValidation(false);
     } catch (err) {
-      logger.error("Failed to archive player", err, { id });
+      logger.error("Failed to update player", err);
+    }
+  };
+
+  const handleArchivePlayer = async () => {
+    if (!selectedPlayer) return;
+    try {
+      await db.players.update(selectedPlayer.id, { isArchived: 1, synced: 0 });
+      syncService.pushUpdates();
+      setEditOpen(false);
+    } catch (err) {
+      logger.error("Failed to archive player", err, { id: selectedPlayer.id });
     }
   };
 
@@ -104,21 +151,15 @@ const Players: React.FC = () => {
     }
   };
 
-  const handleDeletePlayer = async (id: string) => {
-    if (
-      !window.confirm(
-        "Are you sure you want to delete this player? They will be moved to pending deletion for 24 hours.",
-      )
-    )
-      return;
+  const handleDeletePlayer = async () => {
+    if (!selectedPlayer) return;
     try {
-      await db.players.update(id, {
-        deletedAt: new Date().toISOString(),
-        synced: 0,
-      });
+      await db.players.delete(selectedPlayer.id);
       syncService.pushUpdates();
+      setDeleteDialogOpen(false);
+      setEditOpen(false);
     } catch (err) {
-      logger.error("Failed to delete player", err, { id });
+      logger.error("Failed to delete player", err, { id: selectedPlayer.id });
     }
   };
 
@@ -180,7 +221,7 @@ const Players: React.FC = () => {
                   primary={
                     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                       {player.name}
-                      {player.isArchived && (
+                      {Boolean(player.isArchived) && (
                         <Chip
                           label="Archived"
                           size="small"
@@ -226,25 +267,16 @@ const Players: React.FC = () => {
                     </IconButton>
                   </Tooltip>
                 ) : (
-                  <Tooltip title="Archive">
+                  <Tooltip title="Edit">
                     <IconButton
                       size="small"
-                      color="warning"
-                      onClick={() => handleArchivePlayer(player.id!)}
+                      color="primary"
+                      onClick={() => handleOpenEdit(player)}
                     >
-                      <Archive />
+                      <EditIcon />
                     </IconButton>
                   </Tooltip>
                 )}
-                <Tooltip title="Delete">
-                  <IconButton
-                    size="small"
-                    color="error"
-                    onClick={() => handleDeletePlayer(player.id!)}
-                  >
-                    <Delete />
-                  </IconButton>
-                </Tooltip>
               </Box>
             </ListItem>
           ))}
@@ -315,14 +347,127 @@ const Players: React.FC = () => {
             ))}
           </Box>
         </DialogContent>
-        <DialogActions>
+        <DialogActions sx={{ p: 2 }}>
           <Button onClick={() => setOpen(false)}>Cancel</Button>
           <Button
             onClick={handleAddPlayer}
             variant="contained"
             disabled={!name}
           >
-            Add
+            Add Player
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Edit Player Dialog */}
+      <Dialog
+        open={editOpen}
+        onClose={() => {
+          setEditOpen(false);
+          setShowValidation(false);
+        }}
+      >
+        <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
+          Edit Player Details
+        </DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Player Name"
+            fullWidth
+            variant="outlined"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            sx={{ mb: 2, mt: 1 }}
+            error={showValidation && !name.trim()}
+            helperText={
+              showValidation && !name.trim() ? "Player name is required" : ""
+            }
+            required
+          />
+          <Typography variant="subtitle2" gutterBottom>
+            Avatar Color
+          </Typography>
+          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+            {AVATAR_COLORS.map((color) => (
+              <Box
+                key={color}
+                onClick={() => setAvatarColor(color)}
+                sx={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: "50%",
+                  bgcolor: color,
+                  cursor: "pointer",
+                  border: avatarColor === color ? "3px solid #000" : "none",
+                  boxSizing: "border-box",
+                  transition: "transform 0.1s",
+                  "&:hover": { transform: "scale(1.2)" },
+                }}
+              />
+            ))}
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ justifyContent: "space-between", px: 3, pb: 3 }}>
+          <Box>
+            {hasAssociations ? (
+              <Button
+                color="warning"
+                variant="outlined"
+                startIcon={<Archive />}
+                onClick={handleArchivePlayer}
+              >
+                Archive
+              </Button>
+            ) : (
+              <Button
+                color="error"
+                variant="outlined"
+                startIcon={<Delete />}
+                onClick={() => setDeleteDialogOpen(true)}
+              >
+                Delete
+              </Button>
+            )}
+          </Box>
+          <Box>
+            <Button onClick={() => setEditOpen(false)}>Cancel</Button>
+            <Button
+              onClick={handleUpdatePlayer}
+              variant="contained"
+              sx={{ ml: 1 }}
+              disabled={!name.trim()}
+            >
+              Save
+            </Button>
+          </Box>
+        </DialogActions>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+      >
+        <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
+          Delete Player?
+        </DialogTitle>
+        <DialogContent>
+          <Typography>
+            Are you sure you want to permanently delete{" "}
+            <strong>{selectedPlayer?.name}</strong>? This action cannot be
+            undone.
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+          <Button
+            onClick={handleDeletePlayer}
+            color="error"
+            variant="contained"
+          >
+            Yes, Delete
           </Button>
         </DialogActions>
       </Dialog>
