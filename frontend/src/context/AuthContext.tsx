@@ -69,8 +69,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
     setIsAuthenticated(false);
     localStorage.removeItem("isAuthenticated");
-    // Clear sync markers and ETags on logout to ensure fresh data for the next user
-    localStorage.clear();
+    // We no longer call localStorage.clear() to allow ETags to persist across sessions
   };
 
   return (

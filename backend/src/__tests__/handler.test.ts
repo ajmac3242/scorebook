@@ -121,7 +121,7 @@ describe("Lambda Handler", () => {
       s3Mock.on(PutObjectCommand).resolves({});
 
       const event = createEvent("POST", "/teams/t1/players", {
-        id: "p1",
+        playerId: "p1",
         name: "Player 1",
         jerseyNumber: "10",
       });
@@ -197,6 +197,7 @@ describe("Lambda Handler", () => {
     it("POST /games/:id/stats records a stat", async () => {
       ddbMock.on(PutCommand).resolves({});
       const event = createEvent("POST", "/games/g1/stats", {
+        id: "st1",
         type: "MAKE",
         points: 2,
       });

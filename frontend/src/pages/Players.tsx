@@ -53,7 +53,12 @@ const Players: React.FC = () => {
   const handleAddPlayer = async () => {
     try {
       await db.open();
-      await db.players.add({ name, avatarColor, synced: 0 });
+      await db.players.add({
+        id: crypto.randomUUID(),
+        name,
+        avatarColor,
+        synced: 0,
+      });
       syncService.pushUpdates();
       setOpen(false);
       setName("");

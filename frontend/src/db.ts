@@ -10,7 +10,7 @@ import Dexie, { type Table } from "dexie";
  * Interface representing a basketball season.
  */
 export interface Season {
-  id?: number;
+  id?: string;
   name: string;
   startDate: string;
   endDate: string;
@@ -21,8 +21,8 @@ export interface Season {
  * Interface representing a basketball team.
  */
 export interface Team {
-  id?: number;
-  seasonId: number | string;
+  id?: string;
+  seasonId: string;
   name: string;
   logoUrl?: string;
   primaryColor?: string;
@@ -33,7 +33,7 @@ export interface Team {
  * Interface representing a master player record.
  */
 export interface Player {
-  id?: number;
+  id?: string;
   name: string;
   avatarColor?: string;
   synced?: number;
@@ -43,9 +43,9 @@ export interface Player {
  * Junction table interface linking players to specific teams with season-specific data.
  */
 export interface TeamPlayer {
-  id?: number;
-  teamId: number | string;
-  playerId: number | string;
+  id?: string;
+  teamId: string;
+  playerId: string;
   name?: string;
   avatarColor?: string;
   jerseyNumber?: string;
@@ -56,8 +56,8 @@ export interface TeamPlayer {
  * Interface representing a single basketball game.
  */
 export interface Game {
-  id?: number;
-  teamId: number | string;
+  id?: string;
+  teamId: string;
   opponent: string;
   date: string;
   location: string;
@@ -69,9 +69,9 @@ export interface Game {
  * Interface representing an individual statistical event during a game.
  */
 export interface StatEvent {
-  id?: number;
-  gameId: number | string;
-  playerId: number | string;
+  id?: string;
+  gameId: string;
+  playerId: string;
   type: string; // e.g., 'PTS', 'REB', 'AST'
   points?: number;
   locationX?: number;
@@ -95,13 +95,14 @@ export class AppDatabase extends Dexie {
     super("BasketballStatsDB");
 
     // Define the database schema with primary keys and indexes
-    this.version(5).stores({
-      seasons: "++id, synced",
-      teams: "++id, seasonId, synced",
-      players: "++id, synced",
-      teamPlayers: "++id, [teamId+playerId], teamId, playerId, synced",
-      games: "++id, teamId, completed, synced",
-      stats: "++id, gameId, playerId, synced",
+    // Version 6: Switch from auto-incrementing IDs to UUIDs for consistency
+    this.version(6).stores({
+      seasons: "id, synced",
+      teams: "id, seasonId, synced",
+      players: "id, synced",
+      teamPlayers: "id, [teamId+playerId], teamId, playerId, synced",
+      games: "id, teamId, completed, synced",
+      stats: "id, gameId, playerId, synced",
     });
   }
 }

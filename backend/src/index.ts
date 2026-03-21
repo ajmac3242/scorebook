@@ -116,35 +116,24 @@ export const handler = async (
       if (method === "GET")
         return await getItemsByGSI(`TEAM#${teamId}`, TABLE_NAME);
       if (method === "POST") {
-        // Create or update the player record
-        const resp = await createItem(
-          "PLAYER",
-          "METADATA",
-          "PLAYER",
-          body,
-          TABLE_NAME,
+        if (!body.playerId) return response(400, { message: "playerId required" });
+
+        const cleanBody = stripLocalFields(body);
+        const teamPlayerItem = {
+          PK: `TEAM#${teamId}`,
+          SK: `PLAYER#${body.playerId}`,
+          GSI1PK: `TEAM#${teamId}`,
+          GSI1SK: `PLAYER#${body.playerId}`,
+          ...cleanBody,
+          id: body.id,
+          teamId,
+        };
+        await docClient.send(
+          new PutCommand({ TableName: TABLE_NAME, Item: teamPlayerItem }),
         );
-        if (resp.statusCode === 201) {
-          const player = JSON.parse(resp.body);
-          const teamPlayerItem = {
-            PK: `TEAM#${teamId}`,
-            SK: `PLAYER#${player.id}`,
-            GSI1PK: `TEAM#${teamId}`,
-            GSI1SK: `PLAYER#${player.id}`,
-            jerseyNumber: body?.jerseyNumber,
-            name: player.name,
-            avatarColor: player.avatarColor,
-            id: player.id,
-            teamId,
-          };
-          await docClient.send(
-            new PutCommand({ TableName: TABLE_NAME, Item: teamPlayerItem }),
-          );
-          // Update team roster snapshot after adding a player
-          await snapshotTeamRoster(teamId, TABLE_NAME);
-          return response(201, teamPlayerItem);
-        }
-        return resp;
+        // Update team roster snapshot after adding a player
+        await snapshotTeamRoster(teamId, TABLE_NAME);
+        return response(201, teamPlayerItem);
       }
     }
 
@@ -237,12 +226,13 @@ export const handler = async (
         // Create individual stat event record
         const id = body?.id || uuidv4();
         const timestamp = body?.timestamp || new Date().toISOString();
+        const cleanBody = stripLocalFields(body);
         const item = {
           PK: `GAME#${gameId}`,
           SK: `STAT#${timestamp}#${id}`,
           GSI1PK: `GAME#${gameId}`,
           GSI1SK: `STAT#${timestamp}#${id}`,
-          ...body,
+          ...cleanBody,
           id,
           timestamp,
         };
@@ -321,12 +311,13 @@ async function createItem(
   tableName: string,
 ) {
   const id = data?.id || uuidv4();
+  const cleanData = stripLocalFields(data);
   const item = {
     PK: `${type}#${id}`,
     SK: `${skPrefix}#${id}`,
     GSI1PK: gsiPk,
     GSI1SK: `${type}#${id}`,
-    ...data,
+    ...cleanData,
     id,
   };
   await docClient.send(new PutCommand({ TableName: tableName, Item: item }));
@@ -461,6 +452,17 @@ async function snapshotGameStats(gameId: string, tableName: string) {
   } catch (e) {
     console.error("Snapshot error:", e);
   }
+}
+
+/**
+ * Strips local-only fields from the data object before saving to DynamoDB.
+ *
+ * @param {any} data - The data object to clean.
+ * @returns {any} The cleaned object.
+ */
+function stripLocalFields(data: any) {
+  const { synced, id, ...rest } = data;
+  return rest;
 }
 
 /**

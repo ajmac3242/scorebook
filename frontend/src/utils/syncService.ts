@@ -260,8 +260,14 @@ class SyncService {
    */
   async syncTeamGamesList(teamId: string) {
     // Check if we have any games for this team before relying on the ETag
-    const localGamesCount = await db.games.where("teamId").equals(teamId).count();
-    const etag = localGamesCount > 0 ? localStorage.getItem(`etag_team_games_${teamId}`) : null;
+    const localGamesCount = await db.games
+      .where("teamId")
+      .equals(teamId)
+      .count();
+    const etag =
+      localGamesCount > 0
+        ? localStorage.getItem(`etag_team_games_${teamId}`)
+        : null;
 
     try {
       const headers = await this.getHeaders();
@@ -304,7 +310,9 @@ class SyncService {
   async syncGameStats(gameId: string) {
     // Check if we have the game in our local database before relying on the ETag
     const localGame = await db.games.get(gameId as any);
-    const etag = localGame?.completed ? localStorage.getItem(`etag_game_${gameId}`) : null;
+    const etag = localGame?.completed
+      ? localStorage.getItem(`etag_game_${gameId}`)
+      : null;
 
     try {
       const headers = await this.getHeaders();

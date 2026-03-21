@@ -129,6 +129,7 @@ const Games: React.FC = () => {
     try {
       await db.open();
       await db.games.add({
+        id: crypto.randomUUID(),
         teamId: selectedTeamId,
         opponent,
         date,
