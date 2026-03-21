@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
-import { useParams, useSearchParams } from "react-router-dom";
+import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import {
   Box,
   Typography,
@@ -25,7 +25,7 @@ import {
   AlertTitle,
 } from "@mui/material";
 import BasketballCourt from "../components/BasketballCourt";
-import { db } from "../db";
+import { db, Player, Season, Team, StatEvent } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
 import { calculatePlayerAggregates } from "../utils/stats";
 import { MoleskineCard, StatCard } from "../components/SharedUI";
@@ -43,6 +43,7 @@ import dayjs from "dayjs";
  */
 const PlayerStats: React.FC = () => {
   const { playerId } = useParams<{ playerId: string }>();
+  const navigate = useNavigate();
 
   const [searchParams] = useSearchParams();
   const teamIdParam = searchParams.get("teamId");
@@ -59,8 +60,8 @@ const PlayerStats: React.FC = () => {
   const [timeLeft, setTimeLeft] = useState("");
 
   const player = useLiveQuery(
-    () =>
-      playerId ? db.players.get(playerId as any) : Promise.resolve(undefined),
+    async () =>
+      playerId ? await db.players.get(playerId) : undefined,
     [playerId],
   );
 
@@ -87,39 +88,41 @@ const PlayerStats: React.FC = () => {
 
   const teamPlayers =
     useLiveQuery(
-      () =>
+      async () =>
         playerId
-          ? db.teamPlayers
+          ? await db.teamPlayers
               .where("playerId")
               .equals(playerId.toString())
               .toArray()
-          : Promise.resolve([]),
+          : [],
       [playerId],
     ) || [];
 
   const games =
     useLiveQuery(async () => {
-      if (selectedGameId)
-        return [await db.games.get(selectedGameId)].filter(Boolean) as any[];
+      if (selectedGameId) {
+        const g = await db.games.get(selectedGameId);
+        return g ? [g] : [];
+      }
       if (teams.length > 0)
-        return db.games
+        return await db.games
           .where("teamId")
           .anyOf(teams.map((t) => t.id!).filter(Boolean))
           .toArray();
-      return db.games.toArray();
+      return await db.games.toArray();
     }, [selectedGameId, teams]) || [];
 
   const allStats =
     useLiveQuery(
-      () =>
+      async () =>
         playerId !== undefined
-          ? db.stats.where("playerId").equals(playerId).toArray()
-          : Promise.resolve([]),
+          ? await db.stats.where("playerId").equals(playerId).toArray()
+          : [],
       [playerId],
     ) || [];
 
   const filteredStats = useMemo(() => {
-    return allStats.filter((stat) => {
+    return (allStats as StatEvent[]).filter((stat) => {
       if (selectedGameId !== "" && stat.gameId !== selectedGameId) return false;
       if (selectedType !== "" && stat.type !== selectedType) return false;
       if (
@@ -137,7 +140,7 @@ const PlayerStats: React.FC = () => {
    */
   const handleUpdatePlayer = async () => {
     if (!playerId) return;
-    await db.players.update(playerId as any, {
+    await db.players.update(playerId, {
       name: editName,
       avatarColor: editColor,
       synced: 0,

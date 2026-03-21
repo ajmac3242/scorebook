@@ -30,8 +30,8 @@ import {
   AlertTitle,
   DialogContentText,
 } from "@mui/material";
-import { PersonAdd as PersonAddIcon, Delete, Restore, Warning } from "@mui/icons-material";
-import { db, type TeamPlayer } from "../db";
+import { PersonAdd as PersonAddIcon, Restore, Warning } from "@mui/icons-material";
+import { db, TeamPlayer, Team, Season, StatEvent } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
 import { STAT_ACRONYMS } from "../constants/stats";
 import {
@@ -74,10 +74,10 @@ const TeamStats: React.FC = () => {
   }>({ key: "points", direction: "desc" });
 
   const team = useLiveQuery(
-    () =>
+    async () =>
       teamId !== undefined
-        ? db.teams.get(teamId as any)
-        : Promise.resolve(undefined),
+        ? await db.teams.get(teamId)
+        : undefined,
     [teamId],
   );
 
@@ -108,10 +108,10 @@ const TeamStats: React.FC = () => {
   }, [team?.deletedAt]);
 
   const season = useLiveQuery(
-    () =>
+    async () =>
       team?.seasonId
-        ? db.seasons.get(team.seasonId)
-        : Promise.resolve(undefined),
+        ? await db.seasons.get(team.seasonId)
+        : undefined,
     [team?.seasonId],
   );
 
@@ -121,15 +121,15 @@ const TeamStats: React.FC = () => {
 
   const teamPlayers =
     useLiveQuery(
-      () =>
+      async () =>
         teamId !== undefined
-          ? db.teamPlayers.where("teamId").equals(teamId.toString()).toArray()
-          : Promise.resolve([]),
+          ? await db.teamPlayers.where("teamId").equals(teamId.toString()).toArray()
+          : [],
       [teamId],
     ) || [];
 
   const teamPlayerDetails = useMemo(() => {
-    const playerIds = teamPlayers.map((tp) => tp.playerId.toString());
+    const playerIds = teamPlayers.map((tp: TeamPlayer) => tp.playerId.toString());
     return allPlayers.filter((p) => playerIds.includes(p.id?.toString() || ""));
   }, [allPlayers, teamPlayers]);
 
@@ -139,26 +139,26 @@ const TeamStats: React.FC = () => {
   );
   const allStats =
     useLiveQuery(
-      () =>
+      async () =>
         gameIds.length > 0
-          ? db.stats
+          ? await db.stats
               .where("gameId")
-              .anyOf(gameIds as any[])
+              .anyOf(gameIds as string[])
               .toArray()
-          : Promise.resolve([]),
+          : [],
       [gameIds],
     ) || [];
 
   const teamAggregates = useMemo(
-    () => calculateTeamAggregates(games, allStats),
+    () => calculateTeamAggregates(games, allStats as StatEvent[]),
     [games, allStats],
   );
 
   const playerStats = useMemo(() => {
     const stats = calculatePlayerAggregates(
       teamPlayerDetails,
-      allStats,
-      teamPlayers,
+      allStats as StatEvent[],
+      teamPlayers as TeamPlayer[],
       statView,
     );
     return [...stats].sort((a: any, b: any) => {
@@ -176,7 +176,7 @@ const TeamStats: React.FC = () => {
   const handleAddPlayerToTeam = async (playerId: string) => {
     if (
       !teamId ||
-      teamPlayers.some((tp) => tp.playerId.toString() === playerId.toString())
+      teamPlayers.some((tp: TeamPlayer) => tp.playerId.toString() === playerId.toString())
     )
       return;
 
@@ -225,7 +225,7 @@ const TeamStats: React.FC = () => {
    */
   const handleUpdateTeamSettings = async () => {
     if (!teamId) return;
-    await db.teams.update(teamId as any, {
+    await db.teams.update(teamId, {
       name: editName,
       logoUrl: editLogoUrl,
       primaryColor: editColor,
@@ -627,7 +627,7 @@ const TeamStats: React.FC = () => {
                     }}
                   >
                     {teamPlayers.find(
-                      (t) => t.playerId.toString() === player.id?.toString(),
+                      (t: TeamPlayer) => t.playerId.toString() === player.id?.toString(),
                     )?.jerseyNumber || "-"}
                   </Typography>
                   <Avatar sx={{ bgcolor: player.avatarColor }}>
@@ -699,7 +699,7 @@ const TeamStats: React.FC = () => {
           <List>
             {allPlayers.map((player) => {
               const tp = teamPlayers.find(
-                (t) => t.playerId.toString() === player.id?.toString(),
+                (t: TeamPlayer) => t.playerId.toString() === player.id?.toString(),
               );
               return (
                 <ListItem
