@@ -9,7 +9,11 @@ import { Typography, Box, Grid, Button } from "@mui/material";
 import { Link } from "react-router-dom";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "../db";
-import { MoleskineCard, PageHeader, AnimatedNumber } from "../components/SharedUI";
+import {
+  MoleskineCard,
+  PageHeader,
+  AnimatedNumber,
+} from "../components/SharedUI";
 
 /**
  * Dashboard component providing a high-level summary of the stored data.

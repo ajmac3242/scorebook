@@ -131,11 +131,7 @@ export const StatItem: React.FC<StatItemProps> = ({ label, value, light }) => (
       variant="h4"
       sx={{ fontWeight: 700, color: light ? "white" : "text.primary" }}
     >
-      {typeof value === "number" ? (
-        <AnimatedNumber value={value} />
-      ) : (
-        value
-      )}
+      {typeof value === "number" ? <AnimatedNumber value={value} /> : value}
     </Typography>
   </Box>
 );
@@ -168,11 +164,7 @@ export const StatCard: React.FC<StatCardProps> = ({ label, value }) => (
         {label}
       </Typography>
       <Typography variant="h5" sx={{ fontFamily: "var(--serif)" }}>
-        {typeof value === "number" ? (
-          <AnimatedNumber value={value} />
-        ) : (
-          value
-        )}
+        {typeof value === "number" ? <AnimatedNumber value={value} /> : value}
       </Typography>
     </CardContent>
   </Card>

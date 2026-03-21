@@ -374,7 +374,14 @@ const GameStats: React.FC = () => {
         open={expandedSection !== null}
         onClose={() => setExpandedSection(null)}
       >
-        <DialogTitle sx={{ fontFamily: "var(--serif)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <DialogTitle
+          sx={{
+            fontFamily: "var(--serif)",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
           {expandedSection === "boxScore" && "Box Score"}
           {expandedSection === "shotChart" && "Shot Chart"}
           {expandedSection === "scoreFlow" && "Score Flow"}
@@ -387,7 +394,9 @@ const GameStats: React.FC = () => {
           {expandedSection === "shotChart" && (
             <>
               {shotChartFilters}
-              <Box sx={{ p: 1, maxWidth: 800, mx: "auto" }}>{shotChartCourt}</Box>
+              <Box sx={{ p: 1, maxWidth: 800, mx: "auto" }}>
+                {shotChartCourt}
+              </Box>
             </>
           )}
           {expandedSection === "scoreFlow" && (
