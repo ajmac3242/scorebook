@@ -163,6 +163,7 @@ const TeamStats: React.FC = () => {
     const player = allPlayers.find((p) => p.id?.toString() === playerId.toString());
 
     const newTeamPlayer: TeamPlayer = {
+      id: crypto.randomUUID(),
       teamId: teamId.toString(),
       playerId,
       name: player?.name,

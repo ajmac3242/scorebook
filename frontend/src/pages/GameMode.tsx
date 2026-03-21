@@ -262,6 +262,7 @@ const GameMode: React.FC = () => {
         });
       } else {
         const newStat: StatEvent = {
+          id: crypto.randomUUID(),
           gameId: gameId,
           playerId: selectedPlayerId,
           type: typeToSave,
@@ -298,6 +299,7 @@ const GameMode: React.FC = () => {
     try {
       await db.open();
       await db.stats.add({
+        id: crypto.randomUUID(),
         gameId: gameId,
         playerId: playerId,
         type: isNowOnCourt ? ACTION_TYPES.SUB_IN : ACTION_TYPES.SUB_OUT,

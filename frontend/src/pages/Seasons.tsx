@@ -40,7 +40,13 @@ const Seasons: React.FC = () => {
   const handleAddSeason = async () => {
     try {
       await db.open();
-      await db.seasons.add({ name, startDate, endDate, synced: 0 });
+      await db.seasons.add({
+        id: crypto.randomUUID(),
+        name,
+        startDate,
+        endDate,
+        synced: 0,
+      });
       syncService.pushUpdates();
       setOpen(false);
       setName("");
