@@ -42,7 +42,11 @@ describe("Lambda Handler", () => {
         userAgent: "jest",
       },
     },
-    body: body ? (typeof body === 'string' ? body : JSON.stringify(body)) : null,
+    body: body
+      ? typeof body === "string"
+        ? body
+        : JSON.stringify(body)
+      : null,
     queryStringParameters,
     isBase64Encoded: false,
   });
@@ -89,36 +93,42 @@ describe("Lambda Handler", () => {
     });
 
     it("POST /teams creates an item and snapshots roster and games", async () => {
-        ddbMock.on(PutCommand).resolves({});
-        ddbMock.on(GetCommand).resolves({ Item: { id: "test-uuid", name: "New Team" } });
-        ddbMock.on(QueryCommand).resolves({ Items: [] });
-        s3Mock.on(PutObjectCommand).resolves({});
+      ddbMock.on(PutCommand).resolves({});
+      ddbMock
+        .on(GetCommand)
+        .resolves({ Item: { id: "test-uuid", name: "New Team" } });
+      ddbMock.on(QueryCommand).resolves({ Items: [] });
+      s3Mock.on(PutObjectCommand).resolves({});
 
-        const event = createEvent("POST", "/teams", {
-          name: "New Team",
-          seasonId: "s1",
-        });
-        const response: any = await handler(event);
+      const event = createEvent("POST", "/teams", {
+        name: "New Team",
+        seasonId: "s1",
+      });
+      const response: any = await handler(event);
 
-        expect(response.statusCode).toBe(201);
-        expect(s3Mock.calls().length).toBe(2); // roster.json and games.json
+      expect(response.statusCode).toBe(201);
+      expect(s3Mock.calls().length).toBe(2); // roster.json and games.json
     });
 
     it("POST /teams/:id/players adds player and snapshots roster", async () => {
-        ddbMock.on(PutCommand).resolves({});
-        ddbMock.on(GetCommand).resolves({ Item: { id: "t1", name: "Team 1" } });
-        ddbMock.on(QueryCommand).resolves({ Items: [{ id: "p1", name: "Player 1", jerseyNumber: "10" }] });
-        s3Mock.on(PutObjectCommand).resolves({});
-
-        const event = createEvent("POST", "/teams/t1/players", {
-            id: "p1",
-            name: "Player 1",
-            jerseyNumber: "10"
+      ddbMock.on(PutCommand).resolves({});
+      ddbMock.on(GetCommand).resolves({ Item: { id: "t1", name: "Team 1" } });
+      ddbMock
+        .on(QueryCommand)
+        .resolves({
+          Items: [{ id: "p1", name: "Player 1", jerseyNumber: "10" }],
         });
-        const response: any = await handler(event);
+      s3Mock.on(PutObjectCommand).resolves({});
 
-        expect(response.statusCode).toBe(201);
-        expect(s3Mock.calls().length).toBe(1);
+      const event = createEvent("POST", "/teams/t1/players", {
+        id: "p1",
+        name: "Player 1",
+        jerseyNumber: "10",
+      });
+      const response: any = await handler(event);
+
+      expect(response.statusCode).toBe(201);
+      expect(s3Mock.calls().length).toBe(1);
     });
   });
 
@@ -135,10 +145,10 @@ describe("Lambda Handler", () => {
     });
 
     it("POST /players creates a player", async () => {
-        ddbMock.on(PutCommand).resolves({});
-        const event = createEvent("POST", "/players", { name: "Player 1" });
-        const response: any = await handler(event);
-        expect(response.statusCode).toBe(201);
+      ddbMock.on(PutCommand).resolves({});
+      const event = createEvent("POST", "/players", { name: "Player 1" });
+      const response: any = await handler(event);
+      expect(response.statusCode).toBe(201);
     });
   });
 
@@ -155,35 +165,45 @@ describe("Lambda Handler", () => {
     });
 
     it("POST /games creates a game and snapshots team games", async () => {
-        ddbMock.on(PutCommand).resolves({});
-        ddbMock.on(QueryCommand).resolves({ Items: [] });
-        s3Mock.on(PutObjectCommand).resolves({});
-        const event = createEvent("POST", "/games", { teamId: "t1", opponent: "Opp" });
-        const response: any = await handler(event);
-        expect(response.statusCode).toBe(201);
-        expect(s3Mock.calls().length).toBe(1);
+      ddbMock.on(PutCommand).resolves({});
+      ddbMock.on(QueryCommand).resolves({ Items: [] });
+      s3Mock.on(PutObjectCommand).resolves({});
+      const event = createEvent("POST", "/games", {
+        teamId: "t1",
+        opponent: "Opp",
+      });
+      const response: any = await handler(event);
+      expect(response.statusCode).toBe(201);
+      expect(s3Mock.calls().length).toBe(1);
     });
 
     it("POST /games/:id/complete marks as completed and snapshots stats and team games", async () => {
-        ddbMock.on(UpdateCommand).resolves({});
-        ddbMock.on(GetCommand).resolves({ Item: { id: "g1", teamId: "t1", opponent: "Opp" } });
-        ddbMock.on(QueryCommand).resolves({ Items: [{ id: "st1", type: "SHOT" }] });
-        s3Mock.on(PutObjectCommand).resolves({});
+      ddbMock.on(UpdateCommand).resolves({});
+      ddbMock
+        .on(GetCommand)
+        .resolves({ Item: { id: "g1", teamId: "t1", opponent: "Opp" } });
+      ddbMock
+        .on(QueryCommand)
+        .resolves({ Items: [{ id: "st1", type: "SHOT" }] });
+      s3Mock.on(PutObjectCommand).resolves({});
 
-        const event = createEvent("POST", "/games/g1/complete");
-        const response: any = await handler(event);
+      const event = createEvent("POST", "/games/g1/complete");
+      const response: any = await handler(event);
 
-        expect(response.statusCode).toBe(200);
-        expect(s3Mock.calls().length).toBe(2); // stats.json and team games.json
+      expect(response.statusCode).toBe(200);
+      expect(s3Mock.calls().length).toBe(2); // stats.json and team games.json
     });
 
     it("POST /games/:id/stats records a stat", async () => {
-        ddbMock.on(PutCommand).resolves({});
-        const event = createEvent("POST", "/games/g1/stats", { type: "MAKE", points: 2 });
-        const response: any = await handler(event);
-        expect(response.statusCode).toBe(201);
-        const body = JSON.parse(response.body);
-        expect(body.GSI1PK).toBe("GAME#g1");
+      ddbMock.on(PutCommand).resolves({});
+      const event = createEvent("POST", "/games/g1/stats", {
+        type: "MAKE",
+        points: 2,
+      });
+      const response: any = await handler(event);
+      expect(response.statusCode).toBe(201);
+      const body = JSON.parse(response.body);
+      expect(body.GSI1PK).toBe("GAME#g1");
     });
   });
 
