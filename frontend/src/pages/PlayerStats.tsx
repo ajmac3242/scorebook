@@ -78,9 +78,7 @@ const PlayerStats: React.FC = () => {
   const games =
     useLiveQuery(async () => {
       if (selectedGameId)
-        return [await db.games.get(selectedGameId)].filter(
-          Boolean,
-        ) as any[];
+        return [await db.games.get(selectedGameId)].filter(Boolean) as any[];
       if (teams.length > 0)
         return db.games
           .where("teamId")
@@ -100,11 +98,7 @@ const PlayerStats: React.FC = () => {
 
   const filteredStats = useMemo(() => {
     return allStats.filter((stat) => {
-      if (
-        selectedGameId !== "" &&
-        stat.gameId !== selectedGameId
-      )
-        return false;
+      if (selectedGameId !== "" && stat.gameId !== selectedGameId) return false;
       if (selectedType !== "" && stat.type !== selectedType) return false;
       if (
         selectedSeasonId !== "" &&
@@ -281,9 +275,7 @@ const PlayerStats: React.FC = () => {
             <Select
               value={selectedGameId}
               label="Game"
-              onChange={(e) =>
-                setSelectedGameId(e.target.value as string)
-              }
+              onChange={(e) => setSelectedGameId(e.target.value as string)}
             >
               <MenuItem value="">All Games</MenuItem>
               {games.map((g) => (
@@ -366,8 +358,8 @@ const PlayerStats: React.FC = () => {
                         {new Date(stat.timestamp).toLocaleString()}
                       </TableCell>
                       <TableCell>
-                        {games.find((g) => g.id === stat.gameId)
-                          ?.opponent || "Unknown"}
+                        {games.find((g) => g.id === stat.gameId)?.opponent ||
+                          "Unknown"}
                       </TableCell>
                       <TableCell>{stat.type}</TableCell>
                       <TableCell align="right">{stat.points || 0}</TableCell>

@@ -208,7 +208,9 @@ const Teams: React.FC = () => {
             onChange={(e) => setTeamName(e.target.value)}
             sx={{ mb: 2 }}
             error={showValidation && !teamName}
-            helperText={showValidation && !teamName ? "Team name is required" : ""}
+            helperText={
+              showValidation && !teamName ? "Team name is required" : ""
+            }
             required
           />
           <TextField

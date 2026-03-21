@@ -62,10 +62,7 @@ const GameStats: React.FC = () => {
     useLiveQuery(
       () =>
         game?.teamId
-          ? db.teamPlayers
-              .where("teamId")
-              .equals(game.teamId)
-              .toArray()
+          ? db.teamPlayers.where("teamId").equals(game.teamId).toArray()
           : Promise.resolve([]),
       [game?.teamId],
     ) || [];

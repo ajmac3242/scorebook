@@ -118,10 +118,7 @@ const GameMode: React.FC = () => {
         await db.open();
         if (!teamId) return [];
         const playerIds = teamPlayers.map((t) => t.playerId.toString());
-        return await db.players
-          .where("id")
-          .anyOf(playerIds)
-          .toArray();
+        return await db.players.where("id").anyOf(playerIds).toArray();
       } catch (err) {
         console.error("Failed to fetch players:", err);
         return [];
