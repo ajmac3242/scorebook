@@ -159,9 +159,16 @@ const TeamStats: React.FC = () => {
       teamPlayers.some((tp) => tp.playerId.toString() === playerId.toString())
     )
       return;
+
+    const player = allPlayers.find(
+      (p) => p.id?.toString() === playerId.toString(),
+    );
+
     const newTeamPlayer: TeamPlayer = {
       teamId: teamId.toString(),
       playerId,
+      name: player?.name,
+      avatarColor: player?.avatarColor,
       jerseyNumber: "",
       synced: 0,
     };
