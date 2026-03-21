@@ -63,6 +63,12 @@ const TeamStats: React.FC = () => {
 
   const [statView, setStatView] = useState<"total" | "average">("total");
   const [openRosterDialog, setOpenRosterDialog] = useState(false);
+  const [pendingRosterChanges, setPendingRosterChanges] = useState<{
+    [playerId: string]: { action: "add" | "remove"; jersey?: string };
+  }>({});
+  const [localJerseyNumbers, setLocalJerseyNumbers] = useState<{
+    [playerId: string]: string;
+  }>({});
   const [tabValue, setTabValue] = useState(0);
   const [scheduleView, setScheduleView] = useState<"upcoming" | "all">(
     "upcoming",
@@ -177,55 +183,102 @@ const TeamStats: React.FC = () => {
   }, [teamPlayerDetails, allStats, teamPlayers, statView, sortConfig]);
 
   /**
-   * Adds a global player to the team's roster.
+   * Stages a player to be added or removed from the team's roster locally.
    */
-  const handleAddPlayerToTeam = async (playerId: string) => {
-    if (
-      !teamId ||
-      teamPlayers.some(
-        (tp: TeamPlayer) => tp.playerId.toString() === playerId.toString(),
-      )
-    )
-      return;
-
-    const player = allPlayers.find(
-      (p) => p.id?.toString() === playerId.toString(),
-    );
-
-    const newTeamPlayer: TeamPlayer = {
-      id: crypto.randomUUID(),
-      teamId: teamId.toString(),
-      playerId,
-      name: player?.name,
-      avatarColor: player?.avatarColor,
-      jerseyNumber: "",
-      synced: 0,
-    };
-    await db.teamPlayers.add(newTeamPlayer);
+  const stageRosterChange = (playerId: string, currentlyIn: boolean) => {
+    setPendingRosterChanges((prev) => {
+      const next = { ...prev };
+      if (currentlyIn) {
+        // Was in, so we stage removal
+        if (next[playerId]?.action === "add") {
+          delete next[playerId]; // Cancelled out addition
+        } else {
+          next[playerId] = { action: "remove" };
+        }
+      } else {
+        // Was out, so we stage addition
+        if (next[playerId]?.action === "remove") {
+          delete next[playerId]; // Cancelled out removal
+        } else {
+          next[playerId] = { action: "add" };
+        }
+      }
+      return next;
+    });
   };
 
   /**
-   * Removes a player from the team roster.
+   * Updates the local staged jersey number.
    */
-  const handleRemovePlayerFromTeam = async (playerId: string) => {
-    if (!teamId) return;
-    await db.teamPlayers
-      .where("[teamId+playerId]")
-      .equals([teamId.toString(), playerId.toString()])
-      .delete();
+  const stageJerseyUpdate = (playerId: string, jersey: string) => {
+    setLocalJerseyNumbers((prev) => ({ ...prev, [playerId]: jersey }));
   };
 
   /**
-   * Updates a player's jersey number for this team.
+   * Persists all staged roster and jersey changes to the database.
    */
-  const handleUpdateJersey = async (playerId: string, jersey: string) => {
+  const handleSaveRoster = async () => {
     if (!teamId) return;
-    const record = await db.teamPlayers
-      .where("[teamId+playerId]")
-      .equals([teamId.toString(), playerId.toString()])
-      .first();
-    if (record?.id)
-      await db.teamPlayers.update(record.id, { jerseyNumber: jersey });
+
+    try {
+      // 1. Process Additions/Removals
+      for (const [pId, change] of Object.entries(pendingRosterChanges)) {
+        if (change.action === "add") {
+          const player = allPlayers.find((p) => p.id?.toString() === pId);
+          await db.teamPlayers.add({
+            id: crypto.randomUUID(),
+            teamId: teamId.toString(),
+            playerId: pId,
+            name: player?.name,
+            avatarColor: player?.avatarColor,
+            jerseyNumber: localJerseyNumbers[pId] || "",
+            synced: 0,
+          });
+        } else if (change.action === "remove") {
+          await db.teamPlayers
+            .where("[teamId+playerId]")
+            .equals([teamId.toString(), pId])
+            .delete();
+        }
+      }
+
+      // 2. Process remaining jersey updates for players already in the roster
+      const existingPlayerIds = teamPlayers.map((tp) => tp.playerId.toString());
+      for (const [pId, jersey] of Object.entries(localJerseyNumbers)) {
+        // Only if they are in roster and not staged for removal
+        if (
+          existingPlayerIds.includes(pId) &&
+          pendingRosterChanges[pId]?.action !== "remove"
+        ) {
+          const record = await db.teamPlayers
+            .where("[teamId+playerId]")
+            .equals([teamId.toString(), pId])
+            .first();
+          if (record?.id) {
+            await db.teamPlayers.update(record.id, {
+              jerseyNumber: jersey,
+              synced: 0,
+            });
+          }
+        }
+      }
+
+      syncService.pushUpdates();
+      setOpenRosterDialog(false);
+      setPendingRosterChanges({});
+      setLocalJerseyNumbers({});
+    } catch (err) {
+      console.error("Failed to save roster changes:", err);
+    }
+  };
+
+  /**
+   * Resets local roster state and closes dialog.
+   */
+  const handleCancelRoster = () => {
+    setOpenRosterDialog(false);
+    setPendingRosterChanges({});
+    setLocalJerseyNumbers({});
   };
 
   /**
@@ -348,8 +401,6 @@ const TeamStats: React.FC = () => {
           { label: "APG", value: teamAggregates.apg },
           { label: "OPPG", value: teamAggregates.oppg },
         ]}
-        onSync={handleSync}
-        isSyncing={isSyncing}
         actions={
           <Stack direction="row" spacing={1} alignItems="center">
             {!isDeleted ? (
@@ -798,50 +849,57 @@ const TeamStats: React.FC = () => {
 
       <Dialog
         open={openRosterDialog}
-        onClose={() => setOpenRosterDialog(false)}
+        onClose={handleCancelRoster}
         fullWidth
         maxWidth="sm"
       >
-        <DialogTitle>Manage Team Roster</DialogTitle>
+        <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
+          Manage Team Roster
+        </DialogTitle>
         <DialogContent>
           <List>
             {allPlayers.map((player) => {
-              const tp = teamPlayers.find(
-                (t: TeamPlayer) =>
-                  t.playerId.toString() === player.id?.toString(),
+              const pId = player.id!.toString();
+              const dbRecord = teamPlayers.find(
+                (t: TeamPlayer) => t.playerId.toString() === pId,
               );
+              const stagedChange = pendingRosterChanges[pId];
+
+              // Is currently considered "in" the roster in the UI
+              let isIn = !!dbRecord;
+              if (stagedChange?.action === "add") isIn = true;
+              if (stagedChange?.action === "remove") isIn = false;
+
+              const jersey =
+                localJerseyNumbers[pId] !== undefined
+                  ? localJerseyNumbers[pId]
+                  : dbRecord?.jerseyNumber || "";
+
               return (
                 <ListItem
                   key={player.id}
                   divider
                   secondaryAction={
                     <Box sx={{ display: "flex", gap: 1 }}>
-                      {tp && (
+                      {isIn && (
                         <TextField
                           size="small"
                           label="#"
                           type="number"
                           slotProps={{ htmlInput: { min: 0, max: 99 } }}
                           sx={{ width: 60 }}
-                          defaultValue={tp.jerseyNumber}
-                          onBlur={(e) =>
-                            handleUpdateJersey(
-                              player.id!.toString(),
-                              e.target.value,
-                            )
+                          value={jersey}
+                          onChange={(e) =>
+                            stageJerseyUpdate(pId, e.target.value)
                           }
                         />
                       )}
                       <Button
-                        variant={tp ? "outlined" : "contained"}
-                        color={tp ? "error" : "primary"}
-                        onClick={() =>
-                          tp
-                            ? handleRemovePlayerFromTeam(player.id!.toString())
-                            : handleAddPlayerToTeam(player.id!.toString())
-                        }
+                        variant={isIn ? "outlined" : "contained"}
+                        color={isIn ? "error" : "primary"}
+                        onClick={() => stageRosterChange(pId, !!dbRecord)}
                       >
-                        {tp ? "Remove" : "Add"}
+                        {isIn ? "Remove" : "Add"}
                       </Button>
                     </Box>
                   }
@@ -855,8 +913,11 @@ const TeamStats: React.FC = () => {
             })}
           </List>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenRosterDialog(false)}>Close</Button>
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={handleCancelRoster}>Cancel</Button>
+          <Button onClick={handleSaveRoster} variant="contained">
+            Save Changes
+          </Button>
         </DialogActions>
       </Dialog>
 

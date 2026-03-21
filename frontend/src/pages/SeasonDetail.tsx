@@ -15,6 +15,7 @@ import {
   Alert,
   AlertTitle,
   MenuItem,
+  IconButton,
 } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import { db, type Season, type Team } from "../db";
@@ -22,7 +23,8 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { MoleskineCard, PageHeader } from "../components/SharedUI";
 import { syncService } from "../utils/syncService";
 import dayjs from "dayjs";
-import { Delete, Restore, Warning } from "@mui/icons-material";
+import { Delete, Restore, Warning, Edit as EditIcon } from "@mui/icons-material";
+import EntityBanner from "../components/EntityBanner";
 
 const SeasonDetail: React.FC = () => {
   const { seasonId } = useParams<{ seasonId: string }>();
@@ -35,6 +37,7 @@ const SeasonDetail: React.FC = () => {
   const [periodType, setPeriodType] = useState<"QUARTERS" | "HALVES">(
     "QUARTERS",
   );
+  const [primaryColor, setPrimaryColor] = useState("#154C56");
   const [timeLeft, setTimeLeft] = useState<string>("");
 
   const season = useLiveQuery(
@@ -57,6 +60,7 @@ const SeasonDetail: React.FC = () => {
       setStartDate(season.startDate);
       setEndDate(season.endDate);
       setPeriodType(season.periodType || "QUARTERS");
+      setPrimaryColor(season.primaryColor || "#154C56");
     }
   }, [season]);
 
@@ -85,6 +89,7 @@ const SeasonDetail: React.FC = () => {
         startDate,
         endDate,
         periodType,
+        primaryColor,
         synced: 0,
       });
       syncService.pushUpdates();
@@ -152,36 +157,29 @@ const SeasonDetail: React.FC = () => {
   const isDeleted = !!season.deletedAt;
 
   return (
-    <Box sx={{ p: { xs: 1, sm: 2 }, opacity: isDeleted ? 0.7 : 1 }}>
-      <PageHeader
+    <Box sx={{ p: 0, opacity: isDeleted ? 0.7 : 1 }}>
+      <EntityBanner
         title={season.name}
         subtitle={`${dayjs(season.startDate).format("MMM YYYY")} - ${dayjs(season.endDate).format("MMM YYYY")}`}
-        showBack
         backTo="/seasons"
+        primaryColor={primaryColor}
         actions={
-          <Stack
-            direction={{ xs: "column", sm: "row" }}
-            spacing={1}
-            justifyContent="center"
-          >
+          <Stack direction="row" spacing={1} alignItems="center">
             {!isDeleted ? (
               <>
-                <Button
-                  variant="outlined"
-                  startIcon={<Delete />}
-                  color="error"
-                  onClick={() => setDeleteDialogOpen(true)}
-                  fullWidth={{ xs: true, sm: false } as any}
-                >
-                  Delete Season
-                </Button>
-                <Button
-                  variant="contained"
+                <IconButton
                   onClick={() => setEditDialogOpen(true)}
-                  fullWidth={{ xs: true, sm: false } as any}
+                  sx={{
+                    color: "white",
+                    bgcolor: "rgba(255,255,255,0.1)",
+                    "&:hover": {
+                      bgcolor: "rgba(255,255,255,0.2)",
+                      transform: "scale(1.1)",
+                    },
+                  }}
                 >
-                  Edit Details
-                </Button>
+                  <EditIcon />
+                </IconButton>
               </>
             ) : (
               <Button
@@ -189,7 +187,6 @@ const SeasonDetail: React.FC = () => {
                 variant="contained"
                 color="success"
                 onClick={handleRestoreSeason}
-                fullWidth={{ xs: true, sm: false } as any}
               >
                 Restore Season
               </Button>
@@ -198,7 +195,8 @@ const SeasonDetail: React.FC = () => {
         }
       />
 
-      {isDeleted && (
+      <Box sx={{ p: { xs: 1, sm: 2 }, mt: 2 }}>
+        {isDeleted && (
         <Alert severity="warning" icon={<Warning />} sx={{ mb: 4 }}>
           <AlertTitle>Pending Deletion</AlertTitle>
           This season and all its data (teams, games, stats) are scheduled for
@@ -284,7 +282,9 @@ const SeasonDetail: React.FC = () => {
 
       {/* Edit Dialog */}
       <Dialog open={editDialogOpen} onClose={() => setEditDialogOpen(false)}>
-        <DialogTitle>Edit Season</DialogTitle>
+        <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
+          Edit Season Details
+        </DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
@@ -324,16 +324,49 @@ const SeasonDetail: React.FC = () => {
             fullWidth
             value={periodType}
             onChange={(e) => setPeriodType(e.target.value as any)}
+            sx={{ mb: 2 }}
           >
             <MenuItem value="QUARTERS">Quarters (1-4)</MenuItem>
             <MenuItem value="HALVES">Halves (1-2)</MenuItem>
           </TextField>
+          <Typography variant="subtitle2" gutterBottom>
+            Banner Color
+          </Typography>
+          <input
+            type="color"
+            style={{
+              display: "block",
+              width: "100%",
+              height: 40,
+              border: "1px solid #D1D1D1",
+              borderRadius: 4,
+            }}
+            value={primaryColor}
+            onChange={(e) => setPrimaryColor(e.target.value)}
+          />
         </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setEditDialogOpen(false)}>Cancel</Button>
-          <Button onClick={handleUpdateSeason} variant="contained">
-            Save Changes
+        <DialogActions sx={{ justifyContent: "space-between", px: 3, pb: 3 }}>
+          <Button
+            color="error"
+            variant="outlined"
+            startIcon={<Delete />}
+            onClick={() => {
+              setEditDialogOpen(false);
+              setDeleteDialogOpen(true);
+            }}
+          >
+            Delete Season
           </Button>
+          <Box>
+            <Button onClick={() => setEditDialogOpen(false)}>Cancel</Button>
+            <Button
+              onClick={handleUpdateSeason}
+              variant="contained"
+              sx={{ ml: 1 }}
+            >
+              Save
+            </Button>
+          </Box>
         </DialogActions>
       </Dialog>
 
@@ -364,6 +397,7 @@ const SeasonDetail: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
+    </Box>
     </Box>
   );
 };
