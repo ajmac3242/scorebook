@@ -53,7 +53,7 @@ export const getPlayerJersey = (
   teamPlayers: TeamPlayer[],
 ): string => {
   if (!pId) return "";
-  const tp = teamPlayers.find((t) => t.playerId.toString() === pId.toString());
+  const tp = teamPlayers.find((t) => t.playerId === pId);
   return tp?.jerseyNumber || "";
 };
 
@@ -77,13 +77,13 @@ export const calculatePlayerAggregates = (
 
   // Initialize the map with base player data
   players.forEach((p) => {
-    const pId = p.id!.toString();
+    const pId = p.id!;
     statsMap[pId] = {
       id: p.id,
       name: p.name,
       avatarColor: p.avatarColor,
       jerseyNumber:
-        teamPlayers.find((tp) => tp.playerId.toString() === pId)
+        teamPlayers.find((tp) => tp.playerId === pId)
           ?.jerseyNumber || "",
       gamesPlayed: new Set(),
       gp: 0,
@@ -100,7 +100,7 @@ export const calculatePlayerAggregates = (
 
   // Accumulate statistics from event stream
   stats.forEach((s) => {
-    const pId = s.playerId.toString();
+    const pId = s.playerId;
     if (statsMap[pId]) {
       const p = statsMap[pId];
       p.gamesPlayed.add(s.gameId);
@@ -216,7 +216,7 @@ export const calculateGameResult = (
   stats: StatEvent[],
 ) => {
   const gameStats = stats.filter(
-    (s) => s.gameId.toString() === gameId.toString(),
+    (s) => s.gameId === gameId,
   );
   const teamScore = gameStats
     .filter((s) => s.playerId !== "OPPONENT")

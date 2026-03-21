@@ -115,11 +115,7 @@ const Games: React.FC = () => {
   const currentTeam = useLiveQuery(
     () =>
       selectedTeamId
-        ? db.teams.get(
-            isNaN(Number(selectedTeamId))
-              ? selectedTeamId
-              : Number(selectedTeamId),
-          )
+        ? db.teams.get(selectedTeamId)
         : Promise.resolve(undefined),
     [selectedTeamId],
   );

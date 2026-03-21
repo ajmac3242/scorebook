@@ -43,12 +43,7 @@ const OPPONENT_PLAYER_ID = "OPPONENT";
 const GameStats: React.FC = () => {
   const theme = useTheme();
   const [searchParams] = useSearchParams();
-  const gameIdParam = searchParams.get("gameId");
-  const gameId = gameIdParam
-    ? isNaN(Number(gameIdParam))
-      ? gameIdParam
-      : Number(gameIdParam)
-    : undefined;
+  const gameId = searchParams.get("gameId") || undefined;
 
   const [tabValue, setTabValue] = useState(0);
   const [selectedPlayerId, setSelectedPlayerId] = useState<number | string>(
@@ -69,7 +64,7 @@ const GameStats: React.FC = () => {
         game?.teamId
           ? db.teamPlayers
               .where("teamId")
-              .equals(game.teamId.toString())
+              .equals(game.teamId)
               .toArray()
           : Promise.resolve([]),
       [game?.teamId],
