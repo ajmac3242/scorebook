@@ -278,13 +278,8 @@ resource "aws_cloudfront_distribution" "distribution" {
     allowed_methods  = ["GET", "HEAD", "OPTIONS"]
     cached_methods   = ["GET", "HEAD"]
     target_origin_id = "S3-Data"
-
-    cache_policy_id =  data.aws_cloudfront_cache_policy.optimized.id
-
+    cache_policy_id  =  data.aws_cloudfront_cache_policy.optimized.id
     viewer_protocol_policy = "redirect-to-https"
-    min_ttl                = 0
-    default_ttl            = 3600
-    max_ttl                = 86400
 
     # Apply CloudFront Function to validate JWT for snapshot access
     function_association {
@@ -302,7 +297,6 @@ resource "aws_cloudfront_distribution" "distribution" {
 
   viewer_certificate {
     cloudfront_default_certificate = true
-    minimum_protocol_version       = "TLSv1.2_2021"
   }
 
   # Support client-side routing in React by redirecting all 403/404 errors to index.html
