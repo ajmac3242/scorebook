@@ -18,10 +18,16 @@ import {
 import { Add as AddIcon } from "@mui/icons-material";
 import { db, type Team } from "../db";
 import { syncService } from "../utils/syncService";
-import { useLiveQuery } from "dexie-react-hooks";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { MoleskineCard, PageHeader } from "../components/SharedUI";
+import { useSeasons } from "../hooks/useSeasons";
+import { logger } from "../utils/logger";
+import { useTeams } from "../hooks/useTeams";
 
+/**
+ * Teams page component.
+ * Displays a list of teams, allows filtering by season, and provides a way to add new teams.
+ */
 const Teams: React.FC = () => {
   const navigate = useNavigate();
   const [selectedSeasonId, setSelectedSeasonId] = useState<string>("");
@@ -30,36 +36,18 @@ const Teams: React.FC = () => {
   const [seasonIdInDialog, setSeasonIdInDialog] = useState<string>("");
   const [logoUrl, setLogoUrl] = useState("");
   const [primaryColor, setPrimaryColor] = useState("#154C56");
+  const [showValidation, setShowValidation] = useState(false);
 
-  const seasons =
-    useLiveQuery(async () => {
-      try {
-        await db.open();
-        return await db.seasons.toArray();
-      } catch (err) {
-        console.error("Failed to fetch seasons:", err);
-        return [];
-      }
-    }) || [];
+  // Use shared hooks for data fetching
+  const seasons = useSeasons();
+  const teams = useTeams(selectedSeasonId);
 
-  const teams =
-    useLiveQuery(async () => {
-      try {
-        await db.open();
-        if (!selectedSeasonId) return await db.teams.toArray();
-        return await db.teams
-          .where("seasonId")
-          .equals(selectedSeasonId)
-          .toArray();
-      } catch (err) {
-        console.error("Failed to fetch teams:", err);
-        return [];
-      }
-    }, [selectedSeasonId]) || [];
-
+  /**
+   * Handles adding a new team to the database.
+   */
   const handleAddTeam = async () => {
-    if (!seasonIdInDialog) {
-      alert("Please select a season");
+    if (!seasonIdInDialog || !teamName) {
+      setShowValidation(true);
       return;
     }
     try {
@@ -78,8 +66,9 @@ const Teams: React.FC = () => {
       setTeamName("");
       setLogoUrl("");
       setPrimaryColor("#154C56");
+      setShowValidation(false);
     } catch (err) {
-      console.error("Failed to add team:", err);
+      logger.error("Failed to add team", err, { teamName, seasonIdInDialog });
     }
   };
 
@@ -135,7 +124,11 @@ const Teams: React.FC = () => {
             key={team.id}
             sx={{
               cursor: "pointer",
-              "&:hover": { bgcolor: "rgba(0,0,0,0.02)" },
+              "&:hover": {
+                bgcolor: "rgba(0,0,0,0.02)",
+                transform: "translateY(-2px)",
+                transition: "transform 0.2s, background-color 0.2s",
+              },
             }}
             onClick={() => navigate(`/teams/${team.id}`)}
           >
@@ -174,10 +167,23 @@ const Teams: React.FC = () => {
         <AddIcon />
       </Fab>
 
-      <Dialog open={open} onClose={() => setOpen(false)}>
-        <DialogTitle>Add New Team</DialogTitle>
+      <Dialog
+        open={open}
+        onClose={() => {
+          setOpen(false);
+          setShowValidation(false);
+        }}
+      >
+        <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
+          Add New Team
+        </DialogTitle>
         <DialogContent>
-          <FormControl fullWidth variant="outlined" sx={{ mt: 1, mb: 2 }}>
+          <FormControl
+            fullWidth
+            variant="outlined"
+            sx={{ mt: 1, mb: 2 }}
+            error={showValidation && !seasonIdInDialog}
+          >
             <InputLabel>Season</InputLabel>
             <Select
               value={seasonIdInDialog}
@@ -201,6 +207,11 @@ const Teams: React.FC = () => {
             value={teamName}
             onChange={(e) => setTeamName(e.target.value)}
             sx={{ mb: 2 }}
+            error={showValidation && !teamName}
+            helperText={
+              showValidation && !teamName ? "Team name is required" : ""
+            }
+            required
           />
           <TextField
             margin="dense"

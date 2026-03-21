@@ -6,7 +6,6 @@ import {
   Grid,
   Button,
   Avatar,
-  IconButton,
   Table,
   TableBody,
   TableCell,
@@ -28,10 +27,7 @@ import {
   Tab,
   Chip,
 } from "@mui/material";
-import {
-  PersonAdd as PersonAddIcon,
-  ArrowBack as ArrowBackIcon,
-} from "@mui/icons-material";
+import { PersonAdd as PersonAddIcon } from "@mui/icons-material";
 import { db, type TeamPlayer } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
 import { STAT_ACRONYMS } from "../constants/stats";
@@ -40,10 +36,17 @@ import {
   calculateTeamAggregates,
   getInitials,
 } from "../utils/stats";
-import { MoleskineCard, StatItem } from "../components/SharedUI";
+import { MoleskineCard } from "../components/SharedUI";
 import { syncService } from "../utils/syncService";
-import { Refresh as RefreshIcon } from "@mui/icons-material";
+import EntityBanner from "../components/EntityBanner";
+import { useGames } from "../hooks/useGames";
+import { usePlayers } from "../hooks/usePlayers";
 
+/**
+ * TeamStats page component.
+ * Provides detailed statistics for a team, including a schedule, box scores,
+ * and roster management.
+ */
 const TeamStats: React.FC = () => {
   const { teamId } = useParams<{ teamId: string }>();
   const navigate = useNavigate();
@@ -88,6 +91,11 @@ const TeamStats: React.FC = () => {
         : Promise.resolve(undefined),
     [team?.seasonId],
   );
+
+  // Use shared hooks
+  const games = useGames(teamId);
+  const allPlayers = usePlayers();
+
   const teamPlayers =
     useLiveQuery(
       () =>
@@ -96,21 +104,12 @@ const TeamStats: React.FC = () => {
           : Promise.resolve([]),
       [teamId],
     ) || [];
-  const allPlayers = useLiveQuery(() => db.players.toArray()) || [];
 
   const teamPlayerDetails = useMemo(() => {
     const playerIds = teamPlayers.map((tp) => tp.playerId.toString());
     return allPlayers.filter((p) => playerIds.includes(p.id?.toString() || ""));
   }, [allPlayers, teamPlayers]);
 
-  const games =
-    useLiveQuery(
-      () =>
-        teamId !== undefined
-          ? db.games.where("teamId").equals(teamId.toString()).toArray()
-          : Promise.resolve([]),
-      [teamId],
-    ) || [];
   const gameIds = useMemo(
     () => games.map((g) => g.id).filter(Boolean),
     [games],
@@ -131,6 +130,7 @@ const TeamStats: React.FC = () => {
     () => calculateTeamAggregates(games, allStats),
     [games, allStats],
   );
+
   const playerStats = useMemo(() => {
     const stats = calculatePlayerAggregates(
       teamPlayerDetails,
@@ -147,6 +147,9 @@ const TeamStats: React.FC = () => {
     });
   }, [teamPlayerDetails, allStats, teamPlayers, statView, sortConfig]);
 
+  /**
+   * Adds a global player to the team's roster.
+   */
   const handleAddPlayerToTeam = async (playerId: string) => {
     if (
       !teamId ||
@@ -170,6 +173,9 @@ const TeamStats: React.FC = () => {
     await db.teamPlayers.add(newTeamPlayer);
   };
 
+  /**
+   * Removes a player from the team roster.
+   */
   const handleRemovePlayerFromTeam = async (playerId: string) => {
     if (!teamId) return;
     await db.teamPlayers
@@ -178,6 +184,9 @@ const TeamStats: React.FC = () => {
       .delete();
   };
 
+  /**
+   * Updates a player's jersey number for this team.
+   */
   const handleUpdateJersey = async (playerId: string, jersey: string) => {
     if (!teamId) return;
     const record = await db.teamPlayers
@@ -188,6 +197,9 @@ const TeamStats: React.FC = () => {
       await db.teamPlayers.update(record.id, { jerseyNumber: jersey });
   };
 
+  /**
+   * Updates team-level metadata.
+   */
   const handleUpdateTeamSettings = async () => {
     if (!teamId) return;
     await db.teams.update(teamId as any, {
@@ -199,6 +211,9 @@ const TeamStats: React.FC = () => {
     setOpenSettingsDialog(false);
   };
 
+  /**
+   * Triggers a sync of all data for the current team.
+   */
   const handleSync = async () => {
     if (!teamId) return;
     setIsSyncing(true);
@@ -206,6 +221,9 @@ const TeamStats: React.FC = () => {
     setIsSyncing(false);
   };
 
+  /**
+   * Updates the column sorting configuration.
+   */
   const handleSort = (key: string) => {
     setSortConfig((prev) => ({
       key,
@@ -213,6 +231,9 @@ const TeamStats: React.FC = () => {
     }));
   };
 
+  /**
+   * Helper component for sortable table headers.
+   */
   const SortableHeader = ({
     label,
     sortKey,
@@ -240,130 +261,32 @@ const TeamStats: React.FC = () => {
 
   return (
     <Box sx={{ pb: 4 }}>
-      <Box
-        sx={{
-          p: 4,
-          mb: 0,
-          borderRadius: "8px 8px 0 0",
-          bgcolor: team?.primaryColor || "var(--palette-deep-ocean)",
-          color: "white",
-          position: "relative",
-          overflow: "hidden",
-          transition: "background-color 0.3s ease",
-        }}
-      >
-        <IconButton
-          onClick={() => navigate("/teams")}
-          sx={{
-            position: "absolute",
-            top: 16,
-            left: 16,
-            color: "white",
-            bgcolor: "rgba(255,255,255,0.1)",
-            "&:hover": { bgcolor: "rgba(255,255,255,0.2)" },
-          }}
-        >
-          <ArrowBackIcon />
-        </IconButton>
-
-        <Grid container alignItems="center" spacing={4} sx={{ mt: 1 }}>
-          <Grid item>
-            {team?.logoUrl ? (
-              <Box
-                component="img"
-                src={team.logoUrl}
-                sx={{
-                  width: { xs: 100, md: 150 },
-                  height: "auto",
-                  filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.3))",
-                }}
-              />
-            ) : (
-              <Avatar
-                sx={{
-                  width: { xs: 100, md: 150 },
-                  height: { xs: 100, md: 150 },
-                  bgcolor: "rgba(255,255,255,0.1)",
-                  fontSize: "3rem",
-                }}
-              >
-                {getInitials(team?.name || "T")}
-              </Avatar>
-            )}
-          </Grid>
-          <Grid item xs={12} md>
-            <Typography
-              variant="h3"
-              sx={{
-                fontFamily: "var(--serif)",
-                fontWeight: 700,
-                textTransform: "uppercase",
-                letterSpacing: 1,
-                color: "white",
-              }}
-            >
-              {team?.name}
-            </Typography>
-            <Typography
-              variant="h5"
-              sx={{ opacity: 0.9, fontWeight: 500, color: "white" }}
-            >
-              {teamAggregates.record} | {season?.name}
-            </Typography>
-          </Grid>
-          <Grid item xs={12} md="auto">
-            <Stack direction="row" spacing={4}>
-              <StatItem label="PPG" value={teamAggregates.ppg} light />
-              <StatItem label="RPG" value={teamAggregates.rpg} light />
-              <StatItem label="APG" value={teamAggregates.apg} light />
-              <StatItem label="OPPG" value={teamAggregates.oppg} light />
-            </Stack>
-          </Grid>
-        </Grid>
-        <Box
-          sx={{
-            position: "absolute",
-            top: 16,
-            right: 16,
-            display: "flex",
-            gap: 1,
-          }}
-        >
+      <EntityBanner
+        title={team?.name || "Team"}
+        subtitle={`${teamAggregates.record} | ${season?.name || ""}`}
+        avatarSrc={team?.logoUrl}
+        avatarColor="rgba(255,255,255,0.1)"
+        backTo="/teams"
+        primaryColor={team?.primaryColor}
+        stats={[
+          { label: "PPG", value: teamAggregates.ppg },
+          { label: "RPG", value: teamAggregates.rpg },
+          { label: "APG", value: teamAggregates.apg },
+          { label: "OPPG", value: teamAggregates.oppg },
+        ]}
+        onSync={handleSync}
+        isSyncing={isSyncing}
+        actions={
           <Button
             variant="outlined"
             size="small"
-            startIcon={
-              isSyncing ? <RefreshIcon className="spin" /> : <RefreshIcon />
-            }
-            onClick={handleSync}
-            disabled={isSyncing}
-            className="hover-grow"
-            sx={{
-              color: "white",
-              borderColor: "rgba(255,255,255,0.5)",
-              "&:hover": {
-                borderColor: "white",
-                bgcolor: "rgba(255,255,255,0.1)",
-              },
-            }}
-          >
-            {isSyncing ? "Syncing..." : "Sync"}
-          </Button>
-          <Button
-            variant="outlined"
-            size="small"
-            onClick={() => {
-              setEditName(team?.name || "");
-              setEditLogoUrl(team?.logoUrl || "");
-              setEditColor(team?.primaryColor || "#154C56");
-              setOpenSettingsDialog(true);
-            }}
+            onClick={() => setOpenSettingsDialog(true)}
             sx={{ color: "white", borderColor: "rgba(255,255,255,0.5)" }}
           >
             Edit Team
           </Button>
-        </Box>
-      </Box>
+        }
+      />
 
       <Box
         sx={{
@@ -428,6 +351,7 @@ const TeamStats: React.FC = () => {
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "center",
+                    "&:hover": { bgcolor: "rgba(0,0,0,0.02)" },
                   }}
                   onClick={() => navigate(`/game/stats?gameId=${game.id}`)}
                 >
@@ -592,7 +516,13 @@ const TeamStats: React.FC = () => {
             {teamPlayerDetails.map((player) => (
               <Grid item xs={12} sm={6} md={4} key={player.id}>
                 <MoleskineCard
-                  sx={{ display: "flex", alignItems: "center", gap: 2 }}
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 2,
+                    transition: "transform 0.2s",
+                    "&:hover": { transform: "translateY(-4px)" },
+                  }}
                 >
                   <Typography
                     variant="h4"

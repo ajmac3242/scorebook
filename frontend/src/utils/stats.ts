@@ -83,8 +83,7 @@ export const calculatePlayerAggregates = (
       name: p.name,
       avatarColor: p.avatarColor,
       jerseyNumber:
-        teamPlayers.find((tp) => tp.playerId === pId)
-          ?.jerseyNumber || "",
+        teamPlayers.find((tp) => tp.playerId === pId)?.jerseyNumber || "",
       gamesPlayed: new Set(),
       gp: 0,
       points: 0,
@@ -215,9 +214,7 @@ export const calculateGameResult = (
   gameId: number | string,
   stats: StatEvent[],
 ) => {
-  const gameStats = stats.filter(
-    (s) => s.gameId === gameId,
-  );
+  const gameStats = stats.filter((s) => s.gameId === gameId);
   const teamScore = gameStats
     .filter((s) => s.playerId !== "OPPONENT")
     .reduce((sum, s) => sum + (s.points || 0), 0);

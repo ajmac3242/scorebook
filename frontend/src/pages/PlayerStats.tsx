@@ -1,5 +1,5 @@
-import React, { useState, useMemo, useEffect } from "react";
-import { useParams, useSearchParams, useNavigate } from "react-router-dom";
+import React, { useState, useMemo } from "react";
+import { useParams, useSearchParams } from "react-router-dom";
 import {
   Box,
   Typography,
@@ -9,16 +9,12 @@ import {
   Select,
   MenuItem,
   Stack,
-  Card,
-  CardContent,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Avatar,
-  IconButton,
   Button,
   Dialog,
   DialogTitle,
@@ -26,20 +22,23 @@ import {
   DialogActions,
   TextField,
 } from "@mui/material";
-import { ArrowBack as ArrowBackIcon } from "@mui/icons-material";
 import BasketballCourt from "../components/BasketballCourt";
 import { db } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
-import {
-  calculatePlayerAggregates,
-  getInitials,
-  getPlayerJersey,
-} from "../utils/stats";
-import { MoleskineCard, PageHeader } from "../components/SharedUI";
+import { calculatePlayerAggregates } from "../utils/stats";
+import { MoleskineCard, StatCard } from "../components/SharedUI";
+import EntityBanner from "../components/EntityBanner";
+import { useSeasons } from "../hooks/useSeasons";
+import { useTeams } from "../hooks/useTeams";
+import { AVATAR_COLORS } from "../constants/colors";
 
+/**
+ * PlayerStats page component.
+ * Displays career and season-specific statistics for an individual player,
+ * including a shot chart and a detailed action log.
+ */
 const PlayerStats: React.FC = () => {
   const { playerId } = useParams<{ playerId: string }>();
-  const navigate = useNavigate();
 
   const [searchParams] = useSearchParams();
   const teamIdParam = searchParams.get("teamId");
@@ -54,34 +53,15 @@ const PlayerStats: React.FC = () => {
   const [editName, setEditName] = useState("");
   const [editColor, setEditColor] = useState("");
 
-  const AVATAR_COLORS = [
-    "#4E7D5B",
-    "#A64444",
-    "#5A7381",
-    "#154C56",
-    "#D9B382",
-    "#1F2D33",
-    "#7B68EE",
-    "#FF8C00",
-  ];
-
   const player = useLiveQuery(
     () =>
       playerId ? db.players.get(playerId as any) : Promise.resolve(undefined),
     [playerId],
   );
-  const seasons = useLiveQuery(() => db.seasons.toArray()) || [];
-  const teams =
-    useLiveQuery(
-      async () =>
-        selectedSeasonId
-          ? db.teams
-              .where("seasonId")
-              .equals(selectedSeasonId.toString())
-              .toArray()
-          : [],
-      [selectedSeasonId],
-    ) || [];
+
+  // Use shared hooks
+  const seasons = useSeasons();
+  const teams = useTeams(selectedSeasonId);
 
   const teamPlayers =
     useLiveQuery(
@@ -98,9 +78,7 @@ const PlayerStats: React.FC = () => {
   const games =
     useLiveQuery(async () => {
       if (selectedGameId)
-        return [await db.games.get(selectedGameId)].filter(
-          Boolean,
-        ) as any[];
+        return [await db.games.get(selectedGameId)].filter(Boolean) as any[];
       if (teams.length > 0)
         return db.games
           .where("teamId")
@@ -120,11 +98,7 @@ const PlayerStats: React.FC = () => {
 
   const filteredStats = useMemo(() => {
     return allStats.filter((stat) => {
-      if (
-        selectedGameId !== "" &&
-        stat.gameId !== selectedGameId
-      )
-        return false;
+      if (selectedGameId !== "" && stat.gameId !== selectedGameId) return false;
       if (selectedType !== "" && stat.type !== selectedType) return false;
       if (
         selectedSeasonId !== "" &&
@@ -136,6 +110,9 @@ const PlayerStats: React.FC = () => {
     });
   }, [allStats, selectedGameId, selectedType, selectedSeasonId, games]);
 
+  /**
+   * Updates player-level metadata.
+   */
   const handleUpdatePlayer = async () => {
     if (!playerId) return;
     await db.players.update(playerId as any, {
@@ -165,6 +142,9 @@ const PlayerStats: React.FC = () => {
     );
   }, [player, filteredStats]);
 
+  /**
+   * Retrieves the jersey number for the current player within the filtered team context.
+   */
   const getJerseyNumber = () => {
     if (teamIdParam) {
       const tp = teamPlayers.find(
@@ -175,117 +155,26 @@ const PlayerStats: React.FC = () => {
     return "";
   };
 
-  const StatCard = ({
-    label,
-    value,
-  }: {
-    label: string;
-    value: string | number;
-  }) => (
-    <Card sx={{ bgcolor: "#FFFDF5", border: "1px solid #D1D1D1" }}>
-      <CardContent sx={{ p: 2, "&:last-child": { pb: 2 } }}>
-        <Typography variant="caption" color="text.secondary" gutterBottom>
-          {label}
-        </Typography>
-        <Typography variant="h5" sx={{ fontFamily: "var(--serif)" }}>
-          {value}
-        </Typography>
-      </CardContent>
-    </Card>
-  );
-
   return (
     <Box sx={{ pb: 4 }}>
-      <Box
-        sx={{
-          p: 4,
-          mb: 4,
-          borderRadius: "8px",
-          bgcolor: player?.avatarColor || "var(--palette-deep-ocean)",
-          color: "white",
-          position: "relative",
-          overflow: "hidden",
-          transition: "background-color 0.3s ease",
-        }}
-      >
-        <IconButton
-          onClick={() => navigate("/players")}
-          sx={{
-            position: "absolute",
-            top: 16,
-            left: 16,
-            color: "white",
-            bgcolor: "rgba(255,255,255,0.1)",
-            "&:hover": { bgcolor: "rgba(255,255,255,0.2)" },
-          }}
-        >
-          <ArrowBackIcon />
-        </IconButton>
-
-        <Grid container alignItems="center" spacing={4} sx={{ mt: 1 }}>
-          <Grid item>
-            <Box sx={{ position: "relative" }}>
-              <Avatar
-                sx={{
-                  width: { xs: 80, md: 120 },
-                  height: { xs: 80, md: 120 },
-                  bgcolor: "rgba(255,255,255,0.2)",
-                  fontSize: "3rem",
-                  border: "4px solid rgba(255,255,255,0.3)",
-                }}
-              >
-                {player ? getInitials(player.name) : ""}
-              </Avatar>
-              {getJerseyNumber() && (
-                <Box
-                  sx={{
-                    position: "absolute",
-                    bottom: 0,
-                    right: 0,
-                    bgcolor: "var(--palette-golden-dune)",
-                    color: "var(--palette-midnight)",
-                    borderRadius: "50%",
-                    width: 36,
-                    height: 36,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: "1rem",
-                    fontWeight: "bold",
-                    border: "3px solid white",
-                  }}
-                >
-                  {getJerseyNumber()}
-                </Box>
-              )}
-            </Box>
-          </Grid>
-          <Grid item xs={12} md>
-            <Typography
-              variant="h3"
-              sx={{
-                fontFamily: "var(--serif)",
-                fontWeight: 700,
-                color: "white",
-              }}
-            >
-              {player?.name}
-            </Typography>
-            <Typography variant="h6" sx={{ opacity: 0.9, color: "white" }}>
-              {teamIdParam
-                ? teams.find((t) => t.id?.toString() === teamIdParam)?.name
-                : "Career Stats"}
-            </Typography>
-          </Grid>
-        </Grid>
-
-        <Box
-          sx={{
-            position: "absolute",
-            top: 16,
-            right: 16,
-          }}
-        >
+      <EntityBanner
+        title={player?.name || "Player"}
+        subtitle={
+          teamIdParam
+            ? teams.find((t) => t.id?.toString() === teamIdParam)?.name
+            : "Career Stats"
+        }
+        avatarColor={player?.avatarColor}
+        backTo="/players"
+        primaryColor={player?.avatarColor}
+        jerseyNumber={getJerseyNumber()}
+        stats={[
+          { label: "PTS", value: aggregates.points },
+          { label: "FG%", value: `${aggregates.fgPct}%` },
+          { label: "REB", value: aggregates.rebounds },
+          { label: "AST", value: aggregates.assists },
+        ]}
+        actions={
           <Button
             variant="outlined"
             size="small"
@@ -305,8 +194,8 @@ const PlayerStats: React.FC = () => {
           >
             Edit Player
           </Button>
-        </Box>
-      </Box>
+        }
+      />
 
       <Dialog
         open={openEditDialog}
@@ -340,6 +229,8 @@ const PlayerStats: React.FC = () => {
                       cursor: "pointer",
                       border: editColor === color ? "3px solid #000" : "none",
                       boxSizing: "border-box",
+                      "&:hover": { transform: "scale(1.1)" },
+                      transition: "transform 0.1s",
                     }}
                   />
                 ))}
@@ -359,7 +250,7 @@ const PlayerStats: React.FC = () => {
         </DialogActions>
       </Dialog>
 
-      <MoleskineCard sx={{ mb: 3 }}>
+      <MoleskineCard sx={{ mb: 3, mt: 3 }}>
         <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
           <FormControl fullWidth size="small">
             <InputLabel>Season</InputLabel>
@@ -384,9 +275,7 @@ const PlayerStats: React.FC = () => {
             <Select
               value={selectedGameId}
               label="Game"
-              onChange={(e) =>
-                setSelectedGameId(e.target.value as string)
-              }
+              onChange={(e) => setSelectedGameId(e.target.value as string)}
             >
               <MenuItem value="">All Games</MenuItem>
               {games.map((g) => (
@@ -450,11 +339,13 @@ const PlayerStats: React.FC = () => {
           <TableContainer component={MoleskineCard}>
             <Table size="small">
               <TableHead>
-                <TableRow>
-                  <TableCell>Time</TableCell>
-                  <TableCell>Game</TableCell>
-                  <TableCell>Action</TableCell>
-                  <TableCell>Points</TableCell>
+                <TableRow sx={{ bgcolor: "rgba(0,0,0,0.02)" }}>
+                  <TableCell sx={{ fontWeight: 700 }}>Time</TableCell>
+                  <TableCell sx={{ fontWeight: 700 }}>Game</TableCell>
+                  <TableCell sx={{ fontWeight: 700 }}>Action</TableCell>
+                  <TableCell sx={{ fontWeight: 700 }} align="right">
+                    Points
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -462,16 +353,16 @@ const PlayerStats: React.FC = () => {
                   .slice()
                   .reverse()
                   .map((stat) => (
-                    <TableRow key={stat.id}>
+                    <TableRow key={stat.id} hover>
                       <TableCell>
                         {new Date(stat.timestamp).toLocaleString()}
                       </TableCell>
                       <TableCell>
-                        {games.find((g) => g.id === stat.gameId)
-                          ?.opponent || "Unknown"}
+                        {games.find((g) => g.id === stat.gameId)?.opponent ||
+                          "Unknown"}
                       </TableCell>
                       <TableCell>{stat.type}</TableCell>
-                      <TableCell>{stat.points || 0}</TableCell>
+                      <TableCell align="right">{stat.points || 0}</TableCell>
                     </TableRow>
                   ))}
               </TableBody>

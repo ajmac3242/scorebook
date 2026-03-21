@@ -118,10 +118,7 @@ const GameMode: React.FC = () => {
         await db.open();
         if (!teamId) return [];
         const playerIds = teamPlayers.map((t) => t.playerId.toString());
-        return await db.players
-          .where("id")
-          .anyOf(playerIds)
-          .toArray();
+        return await db.players.where("id").anyOf(playerIds).toArray();
       } catch (err) {
         console.error("Failed to fetch players:", err);
         return [];
@@ -504,6 +501,20 @@ const GameMode: React.FC = () => {
                             selectedPlayerId === p.id
                               ? "white"
                               : "text.primary",
+                          transform:
+                            selectedPlayerId === p.id
+                              ? "scale(1.02)"
+                              : "scale(1)",
+                          boxShadow:
+                            selectedPlayerId === p.id
+                              ? "0 4px 12px rgba(0,0,0,0.2)"
+                              : "none",
+                          transition: "all 0.2s ease",
+                          borderWidth: "2px",
+                          "&:hover": {
+                            borderWidth: "2px",
+                            transform: "scale(1.02)",
+                          },
                         }}
                       >
                         <Avatar
