@@ -4,7 +4,7 @@
  * Includes layout wrappers, page headers, and statistic display items.
  */
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Paper,
   PaperProps,
@@ -131,7 +131,7 @@ export const StatItem: React.FC<StatItemProps> = ({ label, value, light }) => (
       variant="h4"
       sx={{ fontWeight: 700, color: light ? "white" : "text.primary" }}
     >
-      {value}
+      {typeof value === "number" ? <AnimatedNumber value={value} /> : value}
     </Typography>
   </Box>
 );
@@ -164,8 +164,50 @@ export const StatCard: React.FC<StatCardProps> = ({ label, value }) => (
         {label}
       </Typography>
       <Typography variant="h5" sx={{ fontFamily: "var(--serif)" }}>
-        {value}
+        {typeof value === "number" ? <AnimatedNumber value={value} /> : value}
       </Typography>
     </CardContent>
   </Card>
 );
+
+/**
+ * Interface representing the props for the AnimatedNumber component.
+ */
+interface AnimatedNumberProps {
+  value: number;
+  duration?: number;
+  decimals?: number;
+}
+
+/**
+ * Component that animates a number from 0 to its target value.
+ *
+ * @param {AnimatedNumberProps} props - Component props.
+ * @returns {React.ReactElement}
+ */
+export const AnimatedNumber: React.FC<AnimatedNumberProps> = ({
+  value,
+  duration = 500,
+  decimals = 0,
+}) => {
+  const [displayValue, setDisplayValue] = useState(0);
+
+  useEffect(() => {
+    let startTimestamp: number | null = null;
+    let animationFrameId: number;
+
+    const step = (timestamp: number) => {
+      if (!startTimestamp) startTimestamp = timestamp;
+      const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+      setDisplayValue(progress * value);
+      if (progress < 1) {
+        animationFrameId = window.requestAnimationFrame(step);
+      }
+    };
+
+    animationFrameId = window.requestAnimationFrame(step);
+    return () => window.cancelAnimationFrame(animationFrameId);
+  }, [value, duration]);
+
+  return <>{displayValue.toFixed(decimals)}</>;
+};

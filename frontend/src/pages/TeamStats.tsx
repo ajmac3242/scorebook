@@ -617,7 +617,9 @@ const TeamStats: React.FC = () => {
                         <TextField
                           size="small"
                           label="#"
-                          sx={{ width: 50 }}
+                          type="number"
+                          slotProps={{ htmlInput: { min: 0, max: 99 } }}
+                          sx={{ width: 60 }}
                           defaultValue={tp.jerseyNumber}
                           onBlur={(e) =>
                             handleUpdateJersey(
