@@ -30,12 +30,7 @@ import {
   AlertTitle,
   DialogContentText,
 } from "@mui/material";
-import {
-  PersonAdd as PersonAddIcon,
-  Delete,
-  Restore,
-  Warning,
-} from "@mui/icons-material";
+import { PersonAdd as PersonAddIcon, Delete, Restore, Warning } from "@mui/icons-material";
 import { db, type TeamPlayer } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
 import { STAT_ACRONYMS } from "../constants/stats";
@@ -245,10 +240,7 @@ const TeamStats: React.FC = () => {
       const deletedAt = new Date().toISOString();
       await db.teams.update(team.id!, { deletedAt, synced: 0 });
       // Also soft delete all games for this team
-      const teamGames = await db.games
-        .where("teamId")
-        .equals(team.id!)
-        .toArray();
+      const teamGames = await db.games.where("teamId").equals(team.id!).toArray();
       for (const g of teamGames) {
         await db.games.update(g.id!, { deletedAt, synced: 0 });
       }
@@ -263,10 +255,7 @@ const TeamStats: React.FC = () => {
     if (!teamId || !team) return;
     try {
       await db.teams.update(team.id!, { deletedAt: undefined, synced: 0 });
-      const teamGames = await db.games
-        .where("teamId")
-        .equals(team.id!)
-        .toArray();
+      const teamGames = await db.games.where("teamId").equals(team.id!).toArray();
       for (const g of teamGames) {
         await db.games.update(g.id!, { deletedAt: undefined, synced: 0 });
       }
@@ -361,10 +350,7 @@ const TeamStats: React.FC = () => {
                   size="small"
                   color="error"
                   onClick={() => setDeleteDialogOpen(true)}
-                  sx={{
-                    borderColor: "rgba(255,0,0,0.5)",
-                    "&:hover": { borderColor: "error.main" },
-                  }}
+                  sx={{ borderColor: "rgba(255,0,0,0.5)", "&:hover": { borderColor: "error.main" } }}
                 >
                   Delete Team
                 </Button>
@@ -407,14 +393,11 @@ const TeamStats: React.FC = () => {
 
       {isDeleted && (
         <Alert severity="warning" icon={<Warning />} sx={{ mb: 4, mx: 2 }}>
-          <AlertTitle>
-            {season?.deletedAt
-              ? "Season Pending Deletion"
-              : "Team Pending Deletion"}
-          </AlertTitle>
+          <AlertTitle>{season?.deletedAt ? "Season Pending Deletion" : "Team Pending Deletion"}</AlertTitle>
           {season?.deletedAt
             ? "The entire season is pending deletion. This team is in read-only mode."
-            : `This team and its games are scheduled for permanent deletion in ${timeLeft}. All data is currently read-only.`}
+            : `This team and its games are scheduled for permanent deletion in ${timeLeft}. All data is currently read-only.`
+          }
         </Alert>
       )}
 
@@ -446,8 +429,7 @@ const TeamStats: React.FC = () => {
               .filter(
                 (g) =>
                   (scheduleView === "all" ||
-                    (!g.completed && new Date(g.date) >= new Date())) &&
-                  !g.deletedAt,
+                  (!g.completed && new Date(g.date) >= new Date())) && !g.deletedAt,
               )
               .sort(
                 (a, b) =>
@@ -769,25 +751,18 @@ const TeamStats: React.FC = () => {
         </DialogActions>
       </Dialog>
 
-      <Dialog
-        open={deleteDialogOpen}
-        onClose={() => setDeleteDialogOpen(false)}
-      >
-        <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
-          Delete Team?
-        </DialogTitle>
+      <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
+        <DialogTitle sx={{ fontFamily: "var(--serif)" }}>Delete Team?</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to delete <strong>{team?.name}</strong>? This
-            will mark the team and ALL its associated games as pending deletion.
+            Are you sure you want to delete <strong>{team?.name}</strong>?
+            This will mark the team and ALL its associated games as pending deletion.
             You will have 24 hours to restore it.
           </DialogContentText>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
           <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
-          <Button onClick={handleDeleteTeam} color="error" variant="contained">
-            Yes, Delete
-          </Button>
+          <Button onClick={handleDeleteTeam} color="error" variant="contained">Yes, Delete</Button>
         </DialogActions>
       </Dialog>
     </Box>

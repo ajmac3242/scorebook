@@ -11,6 +11,7 @@ import {
   TextField,
   Grid,
   Stack,
+  List,
   Alert,
   AlertTitle,
   MenuItem,
@@ -31,24 +32,11 @@ const SeasonDetail: React.FC = () => {
   const [name, setName] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [periodType, setPeriodType] = useState<"QUARTERS" | "HALVES">(
-    "QUARTERS",
-  );
+  const [periodType, setPeriodType] = useState<"QUARTERS" | "HALVES">("QUARTERS");
   const [timeLeft, setTimeLeft] = useState<string>("");
 
-  const season = useLiveQuery(
-    () => db.seasons.get(seasonId as string),
-    [seasonId],
-  );
-  const teams =
-    useLiveQuery(
-      () =>
-        db.teams
-          .where("seasonId")
-          .equals(seasonId || "")
-          .toArray(),
-      [seasonId],
-    ) || [];
+  const season = useLiveQuery(() => db.seasons.get(seasonId as string), [seasonId]);
+  const teams = useLiveQuery(() => db.teams.where("seasonId").equals(seasonId || "").toArray(), [seasonId]) || [];
 
   useEffect(() => {
     if (season) {
@@ -99,16 +87,10 @@ const SeasonDetail: React.FC = () => {
       const deletedAt = new Date().toISOString();
       await db.seasons.update(season.id!, { deletedAt, synced: 0 });
       // Also soft delete all teams and games in this season
-      const seasonTeams = await db.teams
-        .where("seasonId")
-        .equals(season.id!)
-        .toArray();
+      const seasonTeams = await db.teams.where("seasonId").equals(season.id!).toArray();
       for (const t of seasonTeams) {
         await db.teams.update(t.id!, { deletedAt, synced: 0 });
-        const teamGames = await db.games
-          .where("teamId")
-          .equals(t.id!)
-          .toArray();
+        const teamGames = await db.games.where("teamId").equals(t.id!).toArray();
         for (const g of teamGames) {
           await db.games.update(g.id!, { deletedAt, synced: 0 });
         }
@@ -126,16 +108,10 @@ const SeasonDetail: React.FC = () => {
       await db.seasons.update(season.id!, { deletedAt: undefined, synced: 0 });
       // Restore associated teams and games if they were deleted at the same time or similar
       // For simplicity, we just clear deletedAt for all teams in this season
-      const seasonTeams = await db.teams
-        .where("seasonId")
-        .equals(season.id!)
-        .toArray();
+      const seasonTeams = await db.teams.where("seasonId").equals(season.id!).toArray();
       for (const t of seasonTeams) {
         await db.teams.update(t.id!, { deletedAt: undefined, synced: 0 });
-        const teamGames = await db.games
-          .where("teamId")
-          .equals(t.id!)
-          .toArray();
+        const teamGames = await db.games.where("teamId").equals(t.id!).toArray();
         for (const g of teamGames) {
           await db.games.update(g.id!, { deletedAt: undefined, synced: 0 });
         }
@@ -161,27 +137,15 @@ const SeasonDetail: React.FC = () => {
           <Stack direction="row" spacing={1} justifyContent="center">
             {!isDeleted ? (
               <>
-                <Button
-                  startIcon={<Delete />}
-                  color="error"
-                  onClick={() => setDeleteDialogOpen(true)}
-                >
+                <Button startIcon={<Delete />} color="error" onClick={() => setDeleteDialogOpen(true)}>
                   Delete Season
                 </Button>
-                <Button
-                  variant="contained"
-                  onClick={() => setEditDialogOpen(true)}
-                >
+                <Button variant="contained" onClick={() => setEditDialogOpen(true)}>
                   Edit Details
                 </Button>
               </>
             ) : (
-              <Button
-                startIcon={<Restore />}
-                variant="contained"
-                color="success"
-                onClick={handleRestoreSeason}
-              >
+              <Button startIcon={<Restore />} variant="contained" color="success" onClick={handleRestoreSeason}>
                 Restore Season
               </Button>
             )}
@@ -192,81 +156,54 @@ const SeasonDetail: React.FC = () => {
       {isDeleted && (
         <Alert severity="warning" icon={<Warning />} sx={{ mb: 4 }}>
           <AlertTitle>Pending Deletion</AlertTitle>
-          This season and all its data (teams, games, stats) are scheduled for
-          permanent deletion in <strong>{timeLeft}</strong>. All data is
-          currently read-only.
+          This season and all its data (teams, games, stats) are scheduled for permanent deletion in <strong>{timeLeft}</strong>.
+          All data is currently read-only.
         </Alert>
       )}
 
       <Grid container spacing={3}>
         <Grid item xs={12} md={4}>
           <MoleskineCard sx={{ p: 2 }}>
-            <Typography
-              variant="h6"
-              gutterBottom
-              sx={{ fontFamily: "var(--serif)" }}
-            >
+            <Typography variant="h6" gutterBottom sx={{ fontFamily: "var(--serif)" }}>
               Season Rules
             </Typography>
             <Stack spacing={2}>
               <Box>
-                <Typography variant="caption" color="text.secondary">
-                  Period Type
-                </Typography>
-                <Typography variant="body1">
-                  {season.periodType || "QUARTERS"}
-                </Typography>
+                <Typography variant="caption" color="text.secondary">Period Type</Typography>
+                <Typography variant="body1">{season.periodType || "QUARTERS"}</Typography>
               </Box>
               <Box>
-                <Typography variant="caption" color="text.secondary">
-                  Teams Tracked
-                </Typography>
-                <Typography variant="body1">
-                  {teams.filter((t) => !t.deletedAt).length}
-                </Typography>
+                <Typography variant="caption" color="text.secondary">Teams Tracked</Typography>
+                <Typography variant="body1">{teams.filter(t => !t.deletedAt).length}</Typography>
               </Box>
             </Stack>
           </MoleskineCard>
         </Grid>
         <Grid item xs={12} md={8}>
           <MoleskineCard sx={{ p: 2 }}>
-            <Typography
-              variant="h6"
-              gutterBottom
-              sx={{ fontFamily: "var(--serif)" }}
-            >
+            <Typography variant="h6" gutterBottom sx={{ fontFamily: "var(--serif)" }}>
               Teams in Season
             </Typography>
-            <List sx={{ width: "100%" }}>
-              {teams.filter((t) => !t.deletedAt).length === 0 ? (
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{ py: 2 }}
-                >
-                  No teams found.
-                </Typography>
+            <List sx={{ width: '100%' }}>
+              {teams.filter(t => !t.deletedAt).length === 0 ? (
+                <Typography variant="body2" color="text.secondary" sx={{ py: 2 }}>No teams found.</Typography>
               ) : (
-                teams
-                  .filter((t) => !t.deletedAt)
-                  .map((team) => (
-                    <Box
-                      key={team.id}
-                      sx={{
-                        p: 2,
-                        mb: 1,
-                        border: "1px solid #eee",
-                        borderRadius: 1,
-                        cursor: "pointer",
-                        "&:hover": { bgcolor: "#f5f5f5" },
-                      }}
-                      onClick={() => navigate(`/teams/${team.id}`)}
-                    >
-                      <Typography sx={{ fontWeight: 600 }}>
-                        {team.name}
-                      </Typography>
-                    </Box>
-                  ))
+                teams.filter(t => !t.deletedAt).map((team) => (
+                  <Box
+                    key={team.id}
+                    sx={{
+                      p: 2,
+                      mb: 1,
+                      border: '1px solid #eee',
+                      borderRadius: 1,
+                      cursor: 'pointer',
+                      '&:hover': { bgcolor: '#f5f5f5' }
+                    }}
+                    onClick={() => navigate(`/teams/${team.id}`)}
+                  >
+                    <Typography sx={{ fontWeight: 600 }}>{team.name}</Typography>
+                  </Box>
+                ))
               )}
             </List>
           </MoleskineCard>
@@ -322,37 +259,23 @@ const SeasonDetail: React.FC = () => {
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
           <Button onClick={() => setEditDialogOpen(false)}>Cancel</Button>
-          <Button onClick={handleUpdateSeason} variant="contained">
-            Save Changes
-          </Button>
+          <Button onClick={handleUpdateSeason} variant="contained">Save Changes</Button>
         </DialogActions>
       </Dialog>
 
       {/* Delete Confirmation */}
-      <Dialog
-        open={deleteDialogOpen}
-        onClose={() => setDeleteDialogOpen(false)}
-      >
-        <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
-          Delete Season?
-        </DialogTitle>
+      <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
+        <DialogTitle sx={{ fontFamily: "var(--serif)" }}>Delete Season?</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to delete <strong>{season.name}</strong>? This
-            will mark the season and ALL associated teams, games, and stats as
-            pending deletion. You will have 24 hours to restore it before it is
-            permanently removed.
+            Are you sure you want to delete <strong>{season.name}</strong>?
+            This will mark the season and ALL associated teams, games, and stats as pending deletion.
+            You will have 24 hours to restore it before it is permanently removed.
           </DialogContentText>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
           <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
-          <Button
-            onClick={handleDeleteSeason}
-            color="error"
-            variant="contained"
-          >
-            Yes, Delete
-          </Button>
+          <Button onClick={handleDeleteSeason} color="error" variant="contained">Yes, Delete</Button>
         </DialogActions>
       </Dialog>
     </Box>

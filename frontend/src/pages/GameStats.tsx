@@ -30,12 +30,7 @@ import {
   AlertTitle,
   DialogContentText,
 } from "@mui/material";
-import {
-  OpenInFull as ExpandIcon,
-  Delete,
-  Restore,
-  Warning,
-} from "@mui/icons-material";
+import { OpenInFull as ExpandIcon, Delete, Restore, Warning } from "@mui/icons-material";
 import BasketballCourt from "../components/BasketballCourt";
 import { db, type StatEvent } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -81,17 +76,13 @@ const GameStats: React.FC = () => {
   );
 
   const team = useLiveQuery(
-    () =>
-      game?.teamId ? db.teams.get(game.teamId) : Promise.resolve(undefined),
-    [game?.teamId],
+    () => game?.teamId ? db.teams.get(game.teamId) : Promise.resolve(undefined),
+    [game?.teamId]
   );
 
   const season = useLiveQuery(
-    () =>
-      team?.seasonId
-        ? db.seasons.get(team.seasonId)
-        : Promise.resolve(undefined),
-    [team?.seasonId],
+    () => team?.seasonId ? db.seasons.get(team.seasonId) : Promise.resolve(undefined),
+    [team?.seasonId]
   );
 
   const teamPlayers =
@@ -131,7 +122,7 @@ const GameStats: React.FC = () => {
 
   const stats = useMemo(() => {
     if (periodFilter === "ALL") return allStats;
-    return allStats.filter((s) => s.period === parseInt(periodFilter));
+    return allStats.filter(s => s.period === parseInt(periodFilter));
   }, [allStats, periodFilter]);
 
   const playerAggregates = useMemo(
@@ -195,10 +186,7 @@ const GameStats: React.FC = () => {
   const handleDeleteGame = async () => {
     if (!gameId || !game) return;
     try {
-      await db.games.update(game.id!, {
-        deletedAt: new Date().toISOString(),
-        synced: 0,
-      });
+      await db.games.update(game.id!, { deletedAt: new Date().toISOString(), synced: 0 });
       syncService.pushUpdates();
       setDeleteDialogOpen(false);
     } catch (err) {
@@ -379,8 +367,7 @@ const GameStats: React.FC = () => {
     </ResponsiveContainer>
   );
 
-  const isDeleted =
-    !!game?.deletedAt || !!team?.deletedAt || !!season?.deletedAt;
+  const isDeleted = !!game?.deletedAt || !!team?.deletedAt || !!season?.deletedAt;
 
   return (
     <Box sx={{ pb: 4, opacity: isDeleted ? 0.7 : 1 }}>
@@ -390,24 +377,15 @@ const GameStats: React.FC = () => {
         showBack
         actions={
           <Stack direction="row" spacing={1} justifyContent="center">
-            {!isDeleted ? (
-              <Button
-                startIcon={<Delete />}
-                color="error"
-                onClick={() => setDeleteDialogOpen(true)}
-              >
-                Delete Game
-              </Button>
-            ) : game?.deletedAt && !team?.deletedAt && !season?.deletedAt ? (
-              <Button
-                startIcon={<Restore />}
-                variant="contained"
-                color="success"
-                onClick={handleRestoreGame}
-              >
-                Restore Game
-              </Button>
-            ) : null}
+             {!isDeleted ? (
+               <Button startIcon={<Delete />} color="error" onClick={() => setDeleteDialogOpen(true)}>
+                 Delete Game
+               </Button>
+             ) : game?.deletedAt && !team?.deletedAt && !season?.deletedAt ? (
+               <Button startIcon={<Restore />} variant="contained" color="success" onClick={handleRestoreGame}>
+                 Restore Game
+               </Button>
+             ) : null}
           </Stack>
         }
       />
@@ -415,29 +393,19 @@ const GameStats: React.FC = () => {
       {isDeleted && (
         <Alert severity="warning" icon={<Warning />} sx={{ mb: 4 }}>
           <AlertTitle>Read Only Mode</AlertTitle>
-          {game?.deletedAt
-            ? `This game is scheduled for deletion in ${timeLeft}.`
-            : "The associated team or season is pending deletion."}
+          {game?.deletedAt ? `This game is scheduled for deletion in ${timeLeft}.` : "The associated team or season is pending deletion."}
         </Alert>
       )}
 
-      <Box
-        sx={{
-          mb: 4,
-          display: "flex",
-          gap: 1,
-          flexWrap: "wrap",
-          justifyContent: "center",
-        }}
-      >
-        {periods.map((p) => (
-          <Chip
+      <Box sx={{ mb: 4, display: 'flex', gap: 1, flexWrap: 'wrap', justifyContent: 'center' }}>
+        {periods.map(p => (
+           <Chip
             key={p}
             label={p === "ALL" ? "Full Game" : `${periodLabel} ${p}`}
             onClick={() => setPeriodFilter(p)}
             color={periodFilter === p ? "primary" : "default"}
             variant={periodFilter === p ? "filled" : "outlined"}
-          />
+           />
         ))}
       </Box>
 
@@ -454,8 +422,7 @@ const GameStats: React.FC = () => {
               }}
             >
               <Typography variant="h6" sx={{ fontFamily: "var(--serif)" }}>
-                Box Score{" "}
-                {periodFilter !== "ALL" && `(${periodLabel} ${periodFilter})`}
+                Box Score {periodFilter !== "ALL" && `(${periodLabel} ${periodFilter})`}
               </Typography>
               <IconButton onClick={() => setExpandedSection("boxScore")}>
                 <ExpandIcon />
@@ -477,8 +444,7 @@ const GameStats: React.FC = () => {
               }}
             >
               <Typography variant="h6" sx={{ fontFamily: "var(--serif)" }}>
-                Shot Chart{" "}
-                {periodFilter !== "ALL" && `(${periodLabel} ${periodFilter})`}
+                Shot Chart {periodFilter !== "ALL" && `(${periodLabel} ${periodFilter})`}
               </Typography>
               <IconButton onClick={() => setExpandedSection("shotChart")}>
                 <ExpandIcon />
@@ -501,8 +467,7 @@ const GameStats: React.FC = () => {
               }}
             >
               <Typography variant="h6" sx={{ fontFamily: "var(--serif)" }}>
-                Score Flow{" "}
-                {periodFilter !== "ALL" && `(${periodLabel} ${periodFilter})`}
+                Score Flow {periodFilter !== "ALL" && `(${periodLabel} ${periodFilter})`}
               </Typography>
               <IconButton onClick={() => setExpandedSection("scoreFlow")}>
                 <ExpandIcon />
@@ -554,24 +519,16 @@ const GameStats: React.FC = () => {
         </DialogActions>
       </Dialog>
 
-      <Dialog
-        open={deleteDialogOpen}
-        onClose={() => setDeleteDialogOpen(false)}
-      >
-        <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
-          Delete Game?
-        </DialogTitle>
+      <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
+        <DialogTitle sx={{ fontFamily: "var(--serif)" }}>Delete Game?</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to delete this game? You will have 24 hours to
-            restore it.
+            Are you sure you want to delete this game? You will have 24 hours to restore it.
           </DialogContentText>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
           <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
-          <Button onClick={handleDeleteGame} color="error" variant="contained">
-            Yes, Delete
-          </Button>
+          <Button onClick={handleDeleteGame} color="error" variant="contained">Yes, Delete</Button>
         </DialogActions>
       </Dialog>
     </Box>

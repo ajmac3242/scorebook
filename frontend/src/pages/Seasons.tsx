@@ -33,9 +33,7 @@ const Seasons: React.FC = () => {
   const [name, setName] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [periodType, setPeriodType] = useState<"QUARTERS" | "HALVES">(
-    "QUARTERS",
-  );
+  const [periodType, setPeriodType] = useState<"QUARTERS" | "HALVES">("QUARTERS");
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(dayjs());
 
   const seasons = useLiveQuery(() => db.seasons.toArray()) || [];
@@ -108,17 +106,7 @@ const Seasons: React.FC = () => {
                 />
               </Box>
               {activeSeasonForDate ? (
-                <Box
-                  sx={{
-                    mt: 2,
-                    p: 2,
-                    bgcolor: "#f9f9f9",
-                    borderRadius: 1,
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                  }}
-                >
+                <Box sx={{ mt: 2, p: 2, bgcolor: "#f9f9f9", borderRadius: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Box>
                     <Typography variant="caption" color="text.secondary">
                       Active Season
@@ -127,12 +115,7 @@ const Seasons: React.FC = () => {
                       {activeSeasonForDate.name}
                     </Typography>
                   </Box>
-                  <Button
-                    startIcon={<Settings />}
-                    onClick={() =>
-                      navigate(`/seasons/${activeSeasonForDate.id}`)
-                    }
-                  >
+                  <Button startIcon={<Settings />} onClick={() => navigate(`/seasons/${activeSeasonForDate.id}`)}>
                     Manage
                   </Button>
                 </Box>

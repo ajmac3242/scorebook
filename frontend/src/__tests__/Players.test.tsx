@@ -81,9 +81,7 @@ describe("Players Component", () => {
   it("handles error when adding player", async () => {
     // We use logger.error now
     const logger = await import("../utils/logger");
-    const loggerSpy = vi
-      .spyOn(logger.logger, "error")
-      .mockImplementation(() => {});
+    const loggerSpy = vi.spyOn(logger.logger, "error").mockImplementation(() => {});
     (db.players.add as any).mockRejectedValue(new Error("Add error"));
 
     render(
