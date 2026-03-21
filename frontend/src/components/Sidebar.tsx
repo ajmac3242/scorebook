@@ -223,6 +223,12 @@ const Sidebar: React.FC = () => {
             placement="right"
           >
             <ListItemButton
+              onClick={() => {
+                if (isOnline) {
+                  syncService.pushUpdates();
+                  syncService.pullAll();
+                }
+              }}
               sx={{
                 minHeight: 48,
                 justifyContent: open ? "initial" : "center",
