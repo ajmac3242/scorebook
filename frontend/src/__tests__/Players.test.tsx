@@ -105,8 +105,9 @@ describe("Players Component", () => {
 
     await waitFor(() => {
       expect(consoleSpy).toHaveBeenCalledWith(
-        "Failed to add player:",
+        expect.stringContaining("Failed to add player"),
         expect.any(Error),
+        expect.any(Object),
       );
     });
   });

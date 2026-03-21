@@ -27,6 +27,7 @@ import Games from "./pages/Games";
 import Sidebar from "./components/Sidebar";
 import { Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
+import DevAuthBypass from "./components/DevAuthBypass";
 
 /**
  * Higher-order component to protect routes that require authentication.
@@ -170,6 +171,7 @@ const App: React.FC = () => {
       <CssBaseline />
       <Router>
         <AuthProvider>
+          <DevAuthBypass />
           <AppContent />
         </AuthProvider>
       </Router>

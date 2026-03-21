@@ -5,7 +5,15 @@
  */
 
 import React from "react";
-import { Paper, PaperProps, Typography, Box, IconButton } from "@mui/material";
+import {
+  Paper,
+  PaperProps,
+  Typography,
+  Box,
+  IconButton,
+  Card,
+  CardContent,
+} from "@mui/material";
 import { ArrowBack as ArrowBackIcon } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 
@@ -126,4 +134,38 @@ export const StatItem: React.FC<StatItemProps> = ({ label, value, light }) => (
       {value}
     </Typography>
   </Box>
+);
+
+/**
+ * Interface representing the props for the StatCard component.
+ */
+interface StatCardProps {
+  label: string;
+  value: string | number;
+}
+
+/**
+ * Standardized component for displaying a statistic within a card.
+ *
+ * @param {StatCardProps} props - Component props.
+ * @returns {React.ReactElement}
+ */
+export const StatCard: React.FC<StatCardProps> = ({ label, value }) => (
+  <Card
+    sx={{
+      bgcolor: "#FFFDF5",
+      border: "1px solid #D1D1D1",
+      transition: "transform 0.2s",
+      "&:hover": { transform: "translateY(-4px)" },
+    }}
+  >
+    <CardContent sx={{ p: 2, "&:last-child": { pb: 2 } }}>
+      <Typography variant="caption" color="text.secondary" gutterBottom>
+        {label}
+      </Typography>
+      <Typography variant="h5" sx={{ fontFamily: "var(--serif)" }}>
+        {value}
+      </Typography>
+    </CardContent>
+  </Card>
 );

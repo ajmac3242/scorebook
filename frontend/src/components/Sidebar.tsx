@@ -44,7 +44,7 @@ import {
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { syncService } from "../utils/syncService";
-import { Refresh as SyncingIcon } from "@mui/icons-material";
+import { Refresh as SyncingIcon, CloudSync } from "@mui/icons-material";
 
 const drawerWidth = 240;
 const collapsedDrawerWidth = 72;
@@ -391,6 +391,35 @@ const Sidebar: React.FC = () => {
 
   return (
     <>
+      {isSyncing && (
+        <Box
+          sx={{
+            position: "fixed",
+            top: 16,
+            right: 16,
+            zIndex: 9999,
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
+            bgcolor: "secondary.main",
+            color: "secondary.contrastText",
+            px: 2,
+            py: 1,
+            borderRadius: 20,
+            boxShadow: 3,
+            animation: "slideIn 0.3s ease-out, pulse 2s infinite",
+            "@keyframes slideIn": {
+              from: { transform: "translateX(100%)", opacity: 0 },
+              to: { transform: "translateX(0)", opacity: 1 },
+            },
+          }}
+        >
+          <CloudSync className="spin" />
+          <Typography variant="caption" sx={{ fontWeight: "bold" }}>
+            SYNCING DATA
+          </Typography>
+        </Box>
+      )}
       <Drawer
         variant="permanent"
         open={open}
