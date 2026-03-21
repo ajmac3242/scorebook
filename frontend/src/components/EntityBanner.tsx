@@ -53,7 +53,8 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
   return (
     <Box
       sx={{
-        p: 4,
+        p: { xs: 2, sm: 4 },
+        pt: { xs: 7, sm: 4 },
         mb: 0,
         borderRadius: "8px",
         bgcolor: primaryColor,
@@ -80,9 +81,19 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
         <ArrowBackIcon />
       </IconButton>
 
-      <Grid container alignItems="center" spacing={4} sx={{ mt: 1 }}>
-        <Grid item>
-          <Box sx={{ position: "relative" }}>
+      <Grid
+        container
+        alignItems="center"
+        spacing={{ xs: 2, sm: 4 }}
+        sx={{ mt: { xs: 0, sm: 1 } }}
+      >
+        <Grid item xs={12} sm="auto" sx={{ textAlign: { xs: "center", sm: "left" } }}>
+          <Box
+            sx={{
+              position: "relative",
+              display: "inline-block",
+            }}
+          >
             {avatarSrc ? (
               <Box
                 component="img"
@@ -99,8 +110,9 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                   width: { xs: 80, md: 120 },
                   height: { xs: 80, md: 120 },
                   bgcolor: avatarColor || "rgba(255,255,255,0.2)",
-                  fontSize: "3rem",
+                  fontSize: { xs: "2rem", md: "3rem" },
                   border: "4px solid rgba(255,255,255,0.3)",
+                  mx: "auto",
                 }}
               >
                 {getInitials(title)}
@@ -115,12 +127,12 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                   bgcolor: "var(--palette-golden-dune)",
                   color: "var(--palette-midnight)",
                   borderRadius: "50%",
-                  width: 36,
-                  height: 36,
+                  width: { xs: 28, sm: 36 },
+                  height: { xs: 28, sm: 36 },
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  fontSize: "1rem",
+                  fontSize: { xs: "0.75rem", sm: "1rem" },
                   fontWeight: "bold",
                   border: "3px solid white",
                   zIndex: 2,
@@ -131,7 +143,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
             )}
           </Box>
         </Grid>
-        <Grid item xs={12} md>
+        <Grid item xs={12} sm sx={{ textAlign: { xs: "center", sm: "left" } }}>
           <Typography
             variant="h3"
             sx={{
@@ -140,6 +152,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
               textTransform: "uppercase",
               letterSpacing: 1,
               color: "white",
+              fontSize: { xs: "1.75rem", sm: "3rem" },
             }}
           >
             {title}
@@ -147,7 +160,12 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
           {subtitle && (
             <Typography
               variant="h6"
-              sx={{ opacity: 0.9, fontWeight: 500, color: "white" }}
+              sx={{
+                opacity: 0.9,
+                fontWeight: 500,
+                color: "white",
+                fontSize: { xs: "1rem", sm: "1.25rem" },
+              }}
             >
               {subtitle}
             </Typography>
@@ -155,7 +173,11 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
         </Grid>
         {stats.length > 0 && (
           <Grid item xs={12} md="auto">
-            <Stack direction="row" spacing={4}>
+            <Stack
+              direction="row"
+              spacing={{ xs: 2, sm: 4 }}
+              justifyContent={{ xs: "center", sm: "flex-start" }}
+            >
               {stats.map((stat) => (
                 <StatItem
                   key={stat.label}

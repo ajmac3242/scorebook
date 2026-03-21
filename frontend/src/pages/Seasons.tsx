@@ -88,14 +88,23 @@ const Seasons: React.FC = () => {
         <PageHeader title="Seasons & Events" />
         <Grid container spacing={4}>
           <Grid item xs={12} md={6}>
-            <MoleskineCard sx={{ p: 2 }}>
+            <MoleskineCard sx={{ p: { xs: 1, sm: 2 } }}>
               <Typography
                 variant="h6"
                 sx={{ fontFamily: "var(--serif)", mb: 2 }}
               >
                 Planner
               </Typography>
-              <Box sx={{ border: "1px solid #D1D1D1", borderRadius: 1 }}>
+              <Box
+                sx={{
+                  border: "1px solid #D1D1D1",
+                  borderRadius: 1,
+                  overflow: "hidden",
+                  "& .MuiPickersLayout-root": {
+                    minWidth: "unset",
+                  },
+                }}
+              >
                 <StaticDatePicker
                   displayStaticWrapperAs="desktop"
                   value={selectedDate}
@@ -104,7 +113,19 @@ const Seasons: React.FC = () => {
                     actionBar: { sx: { display: "none" } },
                     toolbar: { hidden: true },
                   }}
-                  sx={{ bgcolor: "transparent" }}
+                  sx={{
+                    bgcolor: "transparent",
+                    "& .MuiDateCalendar-root": {
+                      width: "100%",
+                      height: "auto",
+                    },
+                    "& .MuiDayCalendar-header": {
+                      justifyContent: "space-around",
+                    },
+                    "& .MuiDayCalendar-weekContainer": {
+                      justifyContent: "space-around",
+                    },
+                  }}
                 />
               </Box>
               {activeSeasonForDate ? (

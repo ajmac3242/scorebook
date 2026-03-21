@@ -399,15 +399,21 @@ const GameMode: React.FC = () => {
               sx={{
                 mb: 2,
                 display: "flex",
+                flexDirection: { xs: "column", sm: "row" },
                 justifyContent: "space-between",
-                alignItems: "center",
+                alignItems: { xs: "flex-start", sm: "center" },
+                gap: 2,
               }}
             >
-              <Box>
+              <Box sx={{ width: { xs: "100%", sm: "auto" } }}>
                 <Typography variant="h6" sx={{ fontFamily: "var(--serif)" }}>
                   {game?.opponent ? `vs ${game.opponent}` : "Live Tracker"}
                 </Typography>
-                <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
+                <Stack
+                  direction="row"
+                  spacing={1}
+                  sx={{ mt: 1, flexWrap: "wrap", gap: 1 }}
+                >
                   <Chip
                     label={`TEAM: ${currentScore}`}
                     color="primary"
@@ -430,7 +436,6 @@ const GameMode: React.FC = () => {
                       variant="contained"
                       color="error"
                       onClick={() => setEndGameDialogOpen(true)}
-                      sx={{ ml: 2 }}
                     >
                       End Game
                     </Button>
@@ -443,6 +448,8 @@ const GameMode: React.FC = () => {
                 onChange={(_, val) => val && setTrackingMode(val)}
                 size="small"
                 disabled={isDeleted}
+                fullWidth={theme.breakpoints.down("sm") as any}
+                sx={{ width: { xs: "100%", sm: "auto" } }}
               >
                 <ToggleButton value="TEAM">Our Team</ToggleButton>
                 <ToggleButton value="OPPONENT">Opponent</ToggleButton>
@@ -464,23 +471,33 @@ const GameMode: React.FC = () => {
                 startIcon={<UndoIcon />}
                 onClick={handleUndo}
                 disabled={recentStats.length === 0 || isDeleted}
-                sx={{ mr: 1 }}
               >
                 Undo
               </Button>
               {/* Markers filtering chips */}
-              {["ALL", "MAKE", "MISS", "REBOUND", "ASSIST", "STEAL"].map(
-                (type) => (
-                  <Chip
-                    key={type}
-                    label={type}
-                    onClick={() => setMarkerFilter(type)}
-                    variant={markerFilter === type ? "filled" : "outlined"}
-                    size="small"
-                    color={markerFilter === type ? "primary" : "default"}
-                  />
-                ),
-              )}
+              <Box
+                sx={{
+                  display: "flex",
+                  gap: 0.5,
+                  overflowX: "auto",
+                  pb: 1,
+                  width: { xs: "100%", sm: "auto" },
+                  "&::-webkit-scrollbar": { display: "none" },
+                }}
+              >
+                {["ALL", "MAKE", "MISS", "REBOUND", "ASSIST", "STEAL"].map(
+                  (type) => (
+                    <Chip
+                      key={type}
+                      label={type}
+                      onClick={() => setMarkerFilter(type)}
+                      variant={markerFilter === type ? "filled" : "outlined"}
+                      size="small"
+                      color={markerFilter === type ? "primary" : "default"}
+                    />
+                  ),
+                )}
+              </Box>
             </Box>
 
             <BasketballCourt
@@ -523,9 +540,25 @@ const GameMode: React.FC = () => {
                 >
                   Team Roster
                 </Typography>
-                <Box sx={{ display: "grid", gap: 1 }}>
+                <Box
+                  sx={{
+                    display: "grid",
+                    gridTemplateColumns: {
+                      xs: "repeat(auto-fill, minmax(140px, 1fr))",
+                      sm: "1fr",
+                    },
+                    gap: 1,
+                  }}
+                >
                   {players.map((p) => (
-                    <Box key={p.id} sx={{ display: "flex", gap: 1 }}>
+                    <Box
+                      key={p.id}
+                      sx={{
+                        display: "flex",
+                        gap: 0.5,
+                        alignItems: "center",
+                      }}
+                    >
                       <Button
                         fullWidth
                         disabled={isDeleted}
@@ -535,6 +568,7 @@ const GameMode: React.FC = () => {
                         onClick={() => setSelectedPlayerId(p.id ?? null)}
                         sx={{
                           justifyContent: "flex-start",
+                          px: 1,
                           bgcolor:
                             selectedPlayerId === p.id
                               ? "primary.main"
@@ -551,37 +585,48 @@ const GameMode: React.FC = () => {
                             selectedPlayerId === p.id
                               ? "0 4px 12px rgba(0,0,0,0.2)"
                               : "none",
-                          transition: "all 0.2s ease",
-                          borderWidth: "2px",
+                          transition: "all 0.1s ease",
+                          borderWidth: "1.5px",
                           "&:hover": {
-                            borderWidth: "2px",
+                            borderWidth: "1.5px",
                             transform: "scale(1.02)",
                           },
                         }}
                       >
                         <Avatar
                           sx={{
-                            width: 24,
-                            height: 24,
-                            fontSize: "0.75rem",
-                            mr: 1,
+                            width: 20,
+                            height: 20,
+                            fontSize: "0.65rem",
+                            mr: 0.5,
                             bgcolor: p.avatarColor || "grey.500",
                           }}
                         >
                           {getPlayerJersey(p.id, teamPlayers)}
                         </Avatar>
-                        {p.name}
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            fontWeight: 600,
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                          }}
+                        >
+                          {p.name}
+                        </Typography>
                       </Button>
                       <IconButton
                         size="small"
                         disabled={isDeleted}
                         onClick={() => toggleOnCourt(p.id!)}
                         color={onCourtIds.has(p.id!) ? "primary" : "default"}
+                        sx={{ p: 0.5 }}
                       >
                         {onCourtIds.has(p.id!) ? (
-                          <RemoveCircleOutline />
+                          <RemoveCircleOutline fontSize="small" />
                         ) : (
-                          <AddCircleOutline />
+                          <AddCircleOutline fontSize="small" />
                         )}
                       </IconButton>
                     </Box>
