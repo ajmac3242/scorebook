@@ -15,6 +15,7 @@ export interface Season {
   startDate: string;
   endDate: string;
   periodType: "QUARTERS" | "HALVES";
+  primaryColor?: string;
   deletedAt?: string; // ISO timestamp for soft delete (24h window)
   synced?: number; // 0 (not synced) or 1 (synced)
 }
