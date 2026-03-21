@@ -62,19 +62,8 @@ const GameMode: React.FC = () => {
   const [searchParams] = useSearchParams();
 
   // Extract game and team IDs from URL parameters
-  const gameIdParam = searchParams.get("gameId");
-  const gameId = gameIdParam
-    ? isNaN(Number(gameIdParam))
-      ? gameIdParam
-      : Number(gameIdParam)
-    : null;
-
-  const teamIdParam = searchParams.get("teamId");
-  const teamId = teamIdParam
-    ? isNaN(Number(teamIdParam))
-      ? teamIdParam
-      : Number(teamIdParam)
-    : null;
+  const gameId = searchParams.get("gameId");
+  const teamId = searchParams.get("teamId");
 
   // Ensure required parameters are present, otherwise redirect
   useEffect(() => {
@@ -91,9 +80,7 @@ const GameMode: React.FC = () => {
   const [selectedX, setSelectedX] = useState<number | null>(null);
   const [selectedY, setSelectedY] = useState<number | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [selectedPlayerId, setSelectedPlayerId] = useState<
-    number | string | null
-  >(null);
+  const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
   const [statType, setStatType] = useState<string | null>(null);
   const [points, setPoints] = useState<number>(2);
 
@@ -102,17 +89,17 @@ const GameMode: React.FC = () => {
 
   // State for editing and deleting actions
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [statToDelete, setStatToDelete] = useState<number | null>(null);
+  const [statToDelete, setStatToDelete] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [editingStatId, setEditingStatId] = useState<number | null>(null);
+  const [editingStatId, setEditingStatId] = useState<string | null>(null);
 
   // Game lifecycle state
   const [endGameDialogOpen, setEndGameDialogOpen] = useState(false);
   const [summaryDialogOpen, setSummaryDialogOpen] = useState(false);
 
   // Roster and lineup state
-  const [onCourtIds, setOnCourtIds] = useState<Set<number | string>>(new Set());
-  const [period, setPeriod] = useState(1);
+  const [onCourtIds, setOnCourtIds] = useState<Set<string>>(new Set());
+  const [period, setPeriod] = useState<number>(1);
   const [trackingMode, setTrackingMode] = useState<"TEAM" | "OPPONENT">("TEAM");
 
   // Fetch roster data for the current team
@@ -130,12 +117,10 @@ const GameMode: React.FC = () => {
       try {
         await db.open();
         if (!teamId) return [];
-        const playerIds = teamPlayers.map((t) =>
-          isNaN(Number(t.playerId)) ? t.playerId : Number(t.playerId),
-        );
+        const playerIds = teamPlayers.map((t) => t.playerId.toString());
         return await db.players
           .where("id")
-          .anyOf(playerIds as any)
+          .anyOf(playerIds)
           .toArray();
       } catch (err) {
         console.error("Failed to fetch players:", err);
@@ -253,17 +238,19 @@ const GameMode: React.FC = () => {
     if (!selectedPlayerId || !typeToSave) return;
 
     try {
+      if (!gameId) return;
       await db.open();
       if (isEditing && editingStatId) {
         await db.stats.update(editingStatId, {
-          playerId: selectedPlayerId,
+          playerId: selectedPlayerId!,
           type: typeToSave,
           points: typeToSave === ACTION_TYPES.MAKE ? points : 0,
         });
       } else {
         const newStat: StatEvent = {
+          id: crypto.randomUUID(),
           gameId: gameId,
-          playerId: selectedPlayerId,
+          playerId: selectedPlayerId!,
           type: typeToSave,
           points: typeToSave === ACTION_TYPES.MAKE ? points : 0,
           locationX: selectedX || 0,
@@ -287,17 +274,19 @@ const GameMode: React.FC = () => {
   /**
    * Toggles a player into or out of the active lineup.
    * Records a SUB_IN or SUB_OUT event.
-   * @param {number | string} playerId - The player ID.
+   * @param {string} playerId - The player ID.
    */
-  const toggleOnCourt = async (playerId: number | string) => {
+  const toggleOnCourt = async (playerId: string) => {
     const newOnCourt = new Set(onCourtIds);
     const isNowOnCourt = !newOnCourt.has(playerId);
     isNowOnCourt ? newOnCourt.add(playerId) : newOnCourt.delete(playerId);
     setOnCourtIds(newOnCourt);
 
     try {
+      if (!gameId) return;
       await db.open();
       await db.stats.add({
+        id: crypto.randomUUID(),
         gameId: gameId,
         playerId: playerId,
         type: isNowOnCourt ? ACTION_TYPES.SUB_IN : ACTION_TYPES.SUB_OUT,
@@ -330,7 +319,7 @@ const GameMode: React.FC = () => {
    */
   const openEditDialog = (stat: StatEvent) => {
     setEditingStatId(stat.id ?? null);
-    setSelectedPlayerId(stat.playerId);
+    setSelectedPlayerId(stat.playerId as string);
     setStatType(stat.type);
     setPoints(stat.points || 2);
     setSelectedX(stat.locationX || 0);

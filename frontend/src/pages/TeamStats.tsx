@@ -45,13 +45,7 @@ import { syncService } from "../utils/syncService";
 import { Refresh as RefreshIcon } from "@mui/icons-material";
 
 const TeamStats: React.FC = () => {
-  const { teamId: teamIdParam } = useParams<{ teamId: string }>();
-  // Support mixed ID types
-  const teamId = teamIdParam
-    ? isNaN(Number(teamIdParam))
-      ? teamIdParam
-      : Number(teamIdParam)
-    : undefined;
+  const { teamId } = useParams<{ teamId: string }>();
   const navigate = useNavigate();
 
   const [statView, setStatView] = useState<"total" | "average">("total");
@@ -90,7 +84,7 @@ const TeamStats: React.FC = () => {
   const season = useLiveQuery(
     () =>
       team?.seasonId
-        ? db.seasons.get(Number(team.seasonId))
+        ? db.seasons.get(team.seasonId)
         : Promise.resolve(undefined),
     [team?.seasonId],
   );
@@ -163,6 +157,7 @@ const TeamStats: React.FC = () => {
     const player = allPlayers.find((p) => p.id?.toString() === playerId.toString());
 
     const newTeamPlayer: TeamPlayer = {
+      id: crypto.randomUUID(),
       teamId: teamId.toString(),
       playerId,
       name: player?.name,

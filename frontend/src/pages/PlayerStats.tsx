@@ -38,27 +38,17 @@ import {
 import { MoleskineCard, PageHeader } from "../components/SharedUI";
 
 const PlayerStats: React.FC = () => {
-  const { playerId: playerIdParam } = useParams<{ playerId: string }>();
+  const { playerId } = useParams<{ playerId: string }>();
   const navigate = useNavigate();
-  // Support both numeric (Dexie) and string (UUID) IDs
-  const playerId = playerIdParam
-    ? isNaN(Number(playerIdParam))
-      ? playerIdParam
-      : Number(playerIdParam)
-    : undefined;
 
   const [searchParams] = useSearchParams();
   const teamIdParam = searchParams.get("teamId");
   const seasonIdParam = searchParams.get("seasonId");
 
-  const [selectedSeasonId, setSelectedSeasonId] = useState<number | string>(
-    seasonIdParam
-      ? isNaN(Number(seasonIdParam))
-        ? seasonIdParam
-        : Number(seasonIdParam)
-      : "",
+  const [selectedSeasonId, setSelectedSeasonId] = useState<string>(
+    seasonIdParam || "",
   );
-  const [selectedGameId, setSelectedGameId] = useState<number | string>("");
+  const [selectedGameId, setSelectedGameId] = useState<string>("");
   const [selectedType, setSelectedType] = useState<string>("");
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [editName, setEditName] = useState("");
@@ -108,13 +98,13 @@ const PlayerStats: React.FC = () => {
   const games =
     useLiveQuery(async () => {
       if (selectedGameId)
-        return [await db.games.get(Number(selectedGameId))].filter(
+        return [await db.games.get(selectedGameId)].filter(
           Boolean,
         ) as any[];
       if (teams.length > 0)
         return db.games
           .where("teamId")
-          .anyOf(teams.map((t) => t.id?.toString()).filter(Boolean) as string[])
+          .anyOf(teams.map((t) => t.id!).filter(Boolean))
           .toArray();
       return db.games.toArray();
     }, [selectedGameId, teams]) || [];
@@ -132,14 +122,14 @@ const PlayerStats: React.FC = () => {
     return allStats.filter((stat) => {
       if (
         selectedGameId !== "" &&
-        Number(stat.gameId) !== Number(selectedGameId)
+        stat.gameId !== selectedGameId
       )
         return false;
       if (selectedType !== "" && stat.type !== selectedType) return false;
       if (
         selectedSeasonId !== "" &&
         selectedGameId === "" &&
-        !games.some((g) => g.id === Number(stat.gameId))
+        !games.some((g) => g.id === stat.gameId)
       )
         return false;
       return true;
@@ -395,9 +385,7 @@ const PlayerStats: React.FC = () => {
               value={selectedGameId}
               label="Game"
               onChange={(e) =>
-                setSelectedGameId(
-                  e.target.value === "" ? "" : Number(e.target.value),
-                )
+                setSelectedGameId(e.target.value as string)
               }
             >
               <MenuItem value="">All Games</MenuItem>
@@ -479,7 +467,7 @@ const PlayerStats: React.FC = () => {
                         {new Date(stat.timestamp).toLocaleString()}
                       </TableCell>
                       <TableCell>
-                        {games.find((g) => g.id === Number(stat.gameId))
+                        {games.find((g) => g.id === stat.gameId)
                           ?.opponent || "Unknown"}
                       </TableCell>
                       <TableCell>{stat.type}</TableCell>

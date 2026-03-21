@@ -115,11 +115,7 @@ const Games: React.FC = () => {
   const currentTeam = useLiveQuery(
     () =>
       selectedTeamId
-        ? db.teams.get(
-            isNaN(Number(selectedTeamId))
-              ? selectedTeamId
-              : Number(selectedTeamId),
-          )
+        ? db.teams.get(selectedTeamId)
         : Promise.resolve(undefined),
     [selectedTeamId],
   );
@@ -129,6 +125,7 @@ const Games: React.FC = () => {
     try {
       await db.open();
       await db.games.add({
+        id: crypto.randomUUID(),
         teamId: selectedTeamId,
         opponent,
         date,
