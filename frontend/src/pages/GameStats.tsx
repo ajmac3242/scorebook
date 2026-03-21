@@ -242,11 +242,26 @@ const GameStats: React.FC = () => {
             <TableCell sx={{ minWidth: 100 }}>PLAYER</TableCell>
             <TableCell align="right">PTS</TableCell>
             <TableCell align="right">FG</TableCell>
-            <TableCell align="right" sx={{ display: { xs: "none", sm: "table-cell" } }}>FG%</TableCell>
+            <TableCell
+              align="right"
+              sx={{ display: { xs: "none", sm: "table-cell" } }}
+            >
+              FG%
+            </TableCell>
             <TableCell align="right">REB</TableCell>
             <TableCell align="right">AST</TableCell>
-            <TableCell align="right" sx={{ display: { xs: "none", sm: "table-cell" } }}>STL</TableCell>
-            <TableCell align="right" sx={{ display: { xs: "none", sm: "table-cell" } }}>TO</TableCell>
+            <TableCell
+              align="right"
+              sx={{ display: { xs: "none", sm: "table-cell" } }}
+            >
+              STL
+            </TableCell>
+            <TableCell
+              align="right"
+              sx={{ display: { xs: "none", sm: "table-cell" } }}
+            >
+              TO
+            </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -272,7 +287,13 @@ const GameStats: React.FC = () => {
                   >
                     {row.jerseyNumber}
                   </Avatar>
-                  <Typography variant="body2" sx={{ fontWeight: 600, fontSize: { xs: "0.75rem", sm: "0.875rem" } }}>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontWeight: 600,
+                      fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                    }}
+                  >
                     {row.name}
                   </Typography>
                 </TableCell>
@@ -280,11 +301,26 @@ const GameStats: React.FC = () => {
                 <TableCell align="right">
                   {row.makes}-{row.attempts}
                 </TableCell>
-                <TableCell align="right" sx={{ display: { xs: "none", sm: "table-cell" } }}>{row.fgPct}%</TableCell>
+                <TableCell
+                  align="right"
+                  sx={{ display: { xs: "none", sm: "table-cell" } }}
+                >
+                  {row.fgPct}%
+                </TableCell>
                 <TableCell align="right">{row.rebounds}</TableCell>
                 <TableCell align="right">{row.assists}</TableCell>
-                <TableCell align="right" sx={{ display: { xs: "none", sm: "table-cell" } }}>{row.steals}</TableCell>
-                <TableCell align="right" sx={{ display: { xs: "none", sm: "table-cell" } }}>{row.turnovers}</TableCell>
+                <TableCell
+                  align="right"
+                  sx={{ display: { xs: "none", sm: "table-cell" } }}
+                >
+                  {row.steals}
+                </TableCell>
+                <TableCell
+                  align="right"
+                  sx={{ display: { xs: "none", sm: "table-cell" } }}
+                >
+                  {row.turnovers}
+                </TableCell>
               </TableRow>
             ))}
           <TableRow sx={{ bgcolor: "secondary.light" }}>
@@ -293,11 +329,26 @@ const GameStats: React.FC = () => {
             <TableCell align="right">
               {oppData.makes}-{oppData.attempts}
             </TableCell>
-            <TableCell align="right" sx={{ display: { xs: "none", sm: "table-cell" } }}>{oppData.fgPct}%</TableCell>
+            <TableCell
+              align="right"
+              sx={{ display: { xs: "none", sm: "table-cell" } }}
+            >
+              {oppData.fgPct}%
+            </TableCell>
             <TableCell align="right">{oppData.rebounds}</TableCell>
             <TableCell align="right">{oppData.assists}</TableCell>
-            <TableCell align="right" sx={{ display: { xs: "none", sm: "table-cell" } }}>{oppData.steals}</TableCell>
-            <TableCell align="right" sx={{ display: { xs: "none", sm: "table-cell" } }}>{oppData.turnovers}</TableCell>
+            <TableCell
+              align="right"
+              sx={{ display: { xs: "none", sm: "table-cell" } }}
+            >
+              {oppData.steals}
+            </TableCell>
+            <TableCell
+              align="right"
+              sx={{ display: { xs: "none", sm: "table-cell" } }}
+            >
+              {oppData.turnovers}
+            </TableCell>
           </TableRow>
         </TableBody>
       </Table>
