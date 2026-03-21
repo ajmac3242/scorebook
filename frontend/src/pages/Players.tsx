@@ -19,7 +19,14 @@ import {
   IconButton,
   Tooltip,
 } from "@mui/material";
-import { Add as AddIcon, BarChart, Delete, Archive, Restore, History } from "@mui/icons-material";
+import {
+  Add as AddIcon,
+  BarChart,
+  Delete,
+  Archive,
+  Restore,
+  History,
+} from "@mui/icons-material";
 import { db } from "../db";
 import { syncService } from "../utils/syncService";
 import { Link } from "react-router-dom";
@@ -41,15 +48,16 @@ const Players: React.FC = () => {
   const [showArchived, setShowArchived] = useState(false);
 
   // Use live query directly to handle archived/deleted filtering
-  const players = useLiveQuery(async () => {
-    let query = db.players.toCollection();
-    const all = await query.toArray();
-    return all.filter(p => {
-      if (p.deletedAt) return false;
-      if (!showArchived && p.isArchived) return false;
-      return true;
-    });
-  }, [showArchived]) || [];
+  const players =
+    useLiveQuery(async () => {
+      let query = db.players.toCollection();
+      const all = await query.toArray();
+      return all.filter((p) => {
+        if (p.deletedAt) return false;
+        if (!showArchived && p.isArchived) return false;
+        return true;
+      });
+    }, [showArchived]) || [];
 
   /**
    * Handles adding a new player record.
@@ -97,9 +105,17 @@ const Players: React.FC = () => {
   };
 
   const handleDeletePlayer = async (id: string) => {
-    if (!window.confirm("Are you sure you want to delete this player? They will be moved to pending deletion for 24 hours.")) return;
+    if (
+      !window.confirm(
+        "Are you sure you want to delete this player? They will be moved to pending deletion for 24 hours.",
+      )
+    )
+      return;
     try {
-      await db.players.update(id, { deletedAt: new Date().toISOString(), synced: 0 });
+      await db.players.update(id, {
+        deletedAt: new Date().toISOString(),
+        synced: 0,
+      });
       syncService.pushUpdates();
     } catch (err) {
       logger.error("Failed to delete player", err, { id });
@@ -141,26 +157,41 @@ const Players: React.FC = () => {
                       size="small"
                       component={Link}
                       to={`/players/${player.id}`}
-                      sx={{ transition: "transform 0.2s", "&:hover": { transform: "scale(1.1)" } }}
+                      sx={{
+                        transition: "transform 0.2s",
+                        "&:hover": { transform: "scale(1.1)" },
+                      }}
                     >
                       <BarChart />
                     </IconButton>
                   </Tooltip>
                   {player.isArchived ? (
                     <Tooltip title="Restore">
-                      <IconButton size="small" color="success" onClick={() => handleRestorePlayer(player.id!)}>
+                      <IconButton
+                        size="small"
+                        color="success"
+                        onClick={() => handleRestorePlayer(player.id!)}
+                      >
                         <Restore />
                       </IconButton>
                     </Tooltip>
                   ) : (
                     <Tooltip title="Archive">
-                      <IconButton size="small" color="warning" onClick={() => handleArchivePlayer(player.id!)}>
+                      <IconButton
+                        size="small"
+                        color="warning"
+                        onClick={() => handleArchivePlayer(player.id!)}
+                      >
                         <Archive />
                       </IconButton>
                     </Tooltip>
                   )}
                   <Tooltip title="Delete">
-                    <IconButton size="small" color="error" onClick={() => handleDeletePlayer(player.id!)}>
+                    <IconButton
+                      size="small"
+                      color="error"
+                      onClick={() => handleDeletePlayer(player.id!)}
+                    >
                       <Delete />
                     </IconButton>
                   </Tooltip>
@@ -183,9 +214,15 @@ const Players: React.FC = () => {
               </Avatar>
               <ListItemText
                 primary={
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                     {player.name}
-                    {player.isArchived && <Chip label="Archived" size="small" icon={<History sx={{ fontSize: '12px !important' }} />} />}
+                    {player.isArchived && (
+                      <Chip
+                        label="Archived"
+                        size="small"
+                        icon={<History sx={{ fontSize: "12px !important" }} />}
+                      />
+                    )}
                   </Box>
                 }
                 primaryTypographyProps={{ fontWeight: 600 }}
