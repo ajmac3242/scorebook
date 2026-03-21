@@ -152,26 +152,33 @@ const SeasonDetail: React.FC = () => {
   const isDeleted = !!season.deletedAt;
 
   return (
-    <Box sx={{ p: 2, opacity: isDeleted ? 0.7 : 1 }}>
+    <Box sx={{ p: { xs: 1, sm: 2 }, opacity: isDeleted ? 0.7 : 1 }}>
       <PageHeader
         title={season.name}
         subtitle={`${dayjs(season.startDate).format("MMM YYYY")} - ${dayjs(season.endDate).format("MMM YYYY")}`}
         showBack
         backTo="/seasons"
         actions={
-          <Stack direction="row" spacing={1} justifyContent="center">
+          <Stack
+            direction={{ xs: "column", sm: "row" }}
+            spacing={1}
+            justifyContent="center"
+          >
             {!isDeleted ? (
               <>
                 <Button
+                  variant="outlined"
                   startIcon={<Delete />}
                   color="error"
                   onClick={() => setDeleteDialogOpen(true)}
+                  fullWidth={{ xs: true, sm: false } as any}
                 >
                   Delete Season
                 </Button>
                 <Button
                   variant="contained"
                   onClick={() => setEditDialogOpen(true)}
+                  fullWidth={{ xs: true, sm: false } as any}
                 >
                   Edit Details
                 </Button>
@@ -182,6 +189,7 @@ const SeasonDetail: React.FC = () => {
                 variant="contained"
                 color="success"
                 onClick={handleRestoreSeason}
+                fullWidth={{ xs: true, sm: false } as any}
               >
                 Restore Season
               </Button>

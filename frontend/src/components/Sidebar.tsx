@@ -359,12 +359,15 @@ const Sidebar: React.FC = () => {
           onClick={toggleDrawer}
           sx={{
             position: "fixed",
-            bottom: 16,
+            bottom: "calc(16px + env(safe-area-inset-bottom))",
             left: 16,
             zIndex: theme.zIndex.drawer + 1,
             bgcolor: "primary.main",
             color: "white",
-            "&:hover": { bgcolor: "primary.dark" },
+            boxShadow: 4,
+            width: 56,
+            height: 56,
+            "&:hover": { bgcolor: "primary.dark", transform: "scale(1.1)" },
           }}
         >
           <MenuIcon />
@@ -375,10 +378,11 @@ const Sidebar: React.FC = () => {
           onClose={toggleDrawer}
           PaperProps={{
             sx: {
-              borderTopLeftRadius: 16,
-              borderTopRightRadius: 16,
+              borderTopLeftRadius: 24,
+              borderTopRightRadius: 24,
               height: "auto",
-              maxHeight: "80%",
+              maxHeight: "90%",
+              pb: "env(safe-area-inset-bottom)",
             },
           }}
         >

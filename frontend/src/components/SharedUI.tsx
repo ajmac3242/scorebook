@@ -67,38 +67,58 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
   const navigate = useNavigate();
 
   return (
-    <Box sx={{ mb: 4, position: "relative" }}>
-      {showBack && (
-        <IconButton
-          onClick={() => (backTo ? navigate(backTo) : navigate(-1))}
+    <Box sx={{ mb: { xs: 3, sm: 4 }, position: "relative" }}>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          minHeight: 48,
+          position: "relative",
+          px: 6,
+        }}
+      >
+        {showBack && (
+          <IconButton
+            onClick={() => (backTo ? navigate(backTo) : navigate(-1))}
+            sx={{
+              position: "absolute",
+              left: 0,
+              color: "text.primary",
+              "&:hover": {
+                transform: "scale(1.1)",
+                transition: "transform 0.2s",
+              },
+            }}
+          >
+            <ArrowBackIcon />
+          </IconButton>
+        )}
+        <Box sx={{ textAlign: "center" }}>
+          <Typography
+            variant="h4"
+            sx={{
+              fontFamily: "var(--serif)",
+              fontSize: { xs: "1.75rem", sm: "2.125rem" },
+            }}
+          >
+            {title}
+          </Typography>
+        </Box>
+      </Box>
+      {subtitle && (
+        <Typography
+          variant="h6"
+          color="text.secondary"
           sx={{
-            position: "absolute",
-            left: 0,
-            top: "50%",
-            transform: "translateY(-50%)",
-            color: "text.primary",
-            "&:hover": {
-              transform: "translateY(-50%) scale(1.1)",
-              transition: "transform 0.2s",
-            },
+            textAlign: "center",
+            mt: 0.5,
+            fontSize: { xs: "1rem", sm: "1.25rem" },
           }}
         >
-          <ArrowBackIcon />
-        </IconButton>
-      )}
-      <Box sx={{ textAlign: "center" }}>
-        <Typography
-          variant="h4"
-          sx={{ fontFamily: "var(--serif)", mb: subtitle ? 1 : 0 }}
-        >
-          {title}
+          {subtitle}
         </Typography>
-        {subtitle && (
-          <Typography variant="h6" color="text.secondary">
-            {subtitle}
-          </Typography>
-        )}
-      </Box>
+      )}
       {actions && <Box sx={{ mt: 2, textAlign: "center" }}>{actions}</Box>}
     </Box>
   );

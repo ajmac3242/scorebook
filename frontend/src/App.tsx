@@ -72,12 +72,19 @@ const AppContent: React.FC = () => {
         component="main"
         sx={{
           flexGrow: 1,
-          p: { xs: 2, sm: 3 },
+          p: { xs: 1, sm: 3 },
+          pt: { xs: 2, sm: 3 },
           // Adjust width to account for the sidebar if present
           width: { sm: `calc(100% - ${isAuthenticated ? "240px" : "0px"})` },
+          overflowX: "hidden",
         }}
       >
-        <Container maxWidth="xl">
+        <Container
+          maxWidth="xl"
+          sx={{
+            px: { xs: 1, sm: 2 },
+          }}
+        >
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route

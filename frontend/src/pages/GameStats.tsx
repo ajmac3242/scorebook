@@ -230,18 +230,23 @@ const GameStats: React.FC = () => {
   }, [maxPeriod, allStats]);
 
   const boxScoreTable = (
-    <TableContainer>
+    <TableContainer
+      sx={{
+        mx: { xs: -2, sm: 0 },
+        width: { xs: "calc(100% + 32px)", sm: "100%" },
+      }}
+    >
       <Table size="small">
         <TableHead>
           <TableRow sx={{ bgcolor: "rgba(0,0,0,0.02)" }}>
-            <TableCell>PLAYER</TableCell>
+            <TableCell sx={{ minWidth: 100 }}>PLAYER</TableCell>
             <TableCell align="right">PTS</TableCell>
             <TableCell align="right">FG</TableCell>
-            <TableCell align="right">FG%</TableCell>
+            <TableCell align="right" sx={{ display: { xs: "none", sm: "table-cell" } }}>FG%</TableCell>
             <TableCell align="right">REB</TableCell>
             <TableCell align="right">AST</TableCell>
-            <TableCell align="right">STL</TableCell>
-            <TableCell align="right">TO</TableCell>
+            <TableCell align="right" sx={{ display: { xs: "none", sm: "table-cell" } }}>STL</TableCell>
+            <TableCell align="right" sx={{ display: { xs: "none", sm: "table-cell" } }}>TO</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -267,17 +272,19 @@ const GameStats: React.FC = () => {
                   >
                     {row.jerseyNumber}
                   </Avatar>
-                  {row.name}
+                  <Typography variant="body2" sx={{ fontWeight: 600, fontSize: { xs: "0.75rem", sm: "0.875rem" } }}>
+                    {row.name}
+                  </Typography>
                 </TableCell>
                 <TableCell align="right">{row.points}</TableCell>
                 <TableCell align="right">
                   {row.makes}-{row.attempts}
                 </TableCell>
-                <TableCell align="right">{row.fgPct}%</TableCell>
+                <TableCell align="right" sx={{ display: { xs: "none", sm: "table-cell" } }}>{row.fgPct}%</TableCell>
                 <TableCell align="right">{row.rebounds}</TableCell>
                 <TableCell align="right">{row.assists}</TableCell>
-                <TableCell align="right">{row.steals}</TableCell>
-                <TableCell align="right">{row.turnovers}</TableCell>
+                <TableCell align="right" sx={{ display: { xs: "none", sm: "table-cell" } }}>{row.steals}</TableCell>
+                <TableCell align="right" sx={{ display: { xs: "none", sm: "table-cell" } }}>{row.turnovers}</TableCell>
               </TableRow>
             ))}
           <TableRow sx={{ bgcolor: "secondary.light" }}>
@@ -286,11 +293,11 @@ const GameStats: React.FC = () => {
             <TableCell align="right">
               {oppData.makes}-{oppData.attempts}
             </TableCell>
-            <TableCell align="right">{oppData.fgPct}%</TableCell>
+            <TableCell align="right" sx={{ display: { xs: "none", sm: "table-cell" } }}>{oppData.fgPct}%</TableCell>
             <TableCell align="right">{oppData.rebounds}</TableCell>
             <TableCell align="right">{oppData.assists}</TableCell>
-            <TableCell align="right">{oppData.steals}</TableCell>
-            <TableCell align="right">{oppData.turnovers}</TableCell>
+            <TableCell align="right" sx={{ display: { xs: "none", sm: "table-cell" } }}>{oppData.steals}</TableCell>
+            <TableCell align="right" sx={{ display: { xs: "none", sm: "table-cell" } }}>{oppData.turnovers}</TableCell>
           </TableRow>
         </TableBody>
       </Table>
@@ -302,7 +309,7 @@ const GameStats: React.FC = () => {
       <Typography variant="subtitle2" gutterBottom>
         Filters
       </Typography>
-      <Stack direction="row" spacing={2}>
+      <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
         <FormControl fullWidth size="small">
           <InputLabel>Player</InputLabel>
           <Select

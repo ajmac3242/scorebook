@@ -33,8 +33,9 @@ import EntityBanner from "../components/EntityBanner";
 import { useSeasons } from "../hooks/useSeasons";
 import { useTeams } from "../hooks/useTeams";
 import { AVATAR_COLORS } from "../constants/colors";
-import { Warning } from "@mui/icons-material";
+import { Warning, Edit as EditIcon } from "@mui/icons-material";
 import dayjs from "dayjs";
+import IconButton from "@mui/material/IconButton";
 
 /**
  * PlayerStats page component.
@@ -201,26 +202,27 @@ const PlayerStats: React.FC = () => {
           { label: "AST", value: aggregates.assists },
         ]}
         actions={
-          <Button
-            variant="outlined"
-            size="small"
-            disabled={isDeleted}
-            onClick={() => {
-              setEditName(player?.name || "");
-              setEditColor(player?.avatarColor || "#154C56");
-              setOpenEditDialog(true);
-            }}
-            sx={{
-              color: "white",
-              borderColor: "rgba(255,255,255,0.5)",
-              "&:hover": {
-                borderColor: "white",
-                bgcolor: "rgba(255,255,255,0.1)",
-              },
-            }}
-          >
-            Edit Player
-          </Button>
+          <Stack direction="row" spacing={1} alignItems="center">
+            {!isDeleted && (
+              <IconButton
+                onClick={() => {
+                  setEditName(player?.name || "");
+                  setEditColor(player?.avatarColor || "#154C56");
+                  setOpenEditDialog(true);
+                }}
+                sx={{
+                  color: "white",
+                  bgcolor: "rgba(255,255,255,0.1)",
+                  "&:hover": {
+                    bgcolor: "rgba(255,255,255,0.2)",
+                    transform: "scale(1.1)",
+                  },
+                }}
+              >
+                <EditIcon />
+              </IconButton>
+            )}
+          </Stack>
         }
       />
 
@@ -371,15 +373,30 @@ const PlayerStats: React.FC = () => {
           </MoleskineCard>
         </Grid>
         <Grid item xs={12}>
-          <TableContainer component={MoleskineCard}>
+          <TableContainer
+            component={MoleskineCard}
+            sx={{
+              mx: { xs: -2, sm: 0 },
+              width: { xs: "calc(100% + 32px)", sm: "100%" },
+            }}
+          >
             <Table size="small">
               <TableHead>
                 <TableRow sx={{ bgcolor: "rgba(0,0,0,0.02)" }}>
-                  <TableCell sx={{ fontWeight: 700 }}>Period</TableCell>
-                  <TableCell sx={{ fontWeight: 700 }}>Game</TableCell>
-                  <TableCell sx={{ fontWeight: 700 }}>Action</TableCell>
-                  <TableCell sx={{ fontWeight: 700 }} align="right">
-                    Points
+                  <TableCell sx={{ fontWeight: 700, p: { xs: 1, sm: 2 } }}>
+                    Period
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: 700, p: { xs: 1, sm: 2 } }}>
+                    Game
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: 700, p: { xs: 1, sm: 2 } }}>
+                    Action
+                  </TableCell>
+                  <TableCell
+                    sx={{ fontWeight: 700, p: { xs: 1, sm: 2 } }}
+                    align="right"
+                  >
+                    Pts
                   </TableCell>
                 </TableRow>
               </TableHead>
@@ -389,14 +406,33 @@ const PlayerStats: React.FC = () => {
                   .reverse()
                   .map((stat) => {
                     const g = games.find((g) => g.id === stat.gameId);
-                    // We don't have season type here easily without querying for each stat,
-                    // so we'll just show the number for now.
                     return (
                       <TableRow key={stat.id} hover>
-                        <TableCell>P{stat.period || 1}</TableCell>
-                        <TableCell>{g?.opponent || "Unknown"}</TableCell>
-                        <TableCell>{stat.type}</TableCell>
-                        <TableCell align="right">{stat.points || 0}</TableCell>
+                        <TableCell sx={{ p: { xs: 1, sm: 2 } }}>
+                          P{stat.period || 1}
+                        </TableCell>
+                        <TableCell sx={{ p: { xs: 1, sm: 2 } }}>
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                              fontWeight: 500,
+                            }}
+                          >
+                            {g?.opponent || "Unknown"}
+                          </Typography>
+                        </TableCell>
+                        <TableCell sx={{ p: { xs: 1, sm: 2 } }}>
+                          <Typography
+                            variant="body2"
+                            sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+                          >
+                            {stat.type}
+                          </Typography>
+                        </TableCell>
+                        <TableCell align="right" sx={{ p: { xs: 1, sm: 2 } }}>
+                          {stat.points || 0}
+                        </TableCell>
                       </TableRow>
                     );
                   })}
