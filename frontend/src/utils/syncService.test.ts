@@ -13,6 +13,7 @@ vi.mock("../db", () => ({
       toArray: vi.fn().mockResolvedValue([]),
       count: vi.fn().mockResolvedValue(0),
       update: vi.fn().mockResolvedValue(1),
+      get: vi.fn().mockResolvedValue(undefined),
     },
     teams: {
       put: vi.fn(),
@@ -21,6 +22,7 @@ vi.mock("../db", () => ({
       toArray: vi.fn().mockResolvedValue([]),
       count: vi.fn().mockResolvedValue(0),
       update: vi.fn().mockResolvedValue(1),
+      get: vi.fn().mockResolvedValue(undefined),
     },
     players: {
       put: vi.fn(),
@@ -29,6 +31,7 @@ vi.mock("../db", () => ({
       toArray: vi.fn().mockResolvedValue([]),
       count: vi.fn().mockResolvedValue(0),
       update: vi.fn().mockResolvedValue(1),
+      get: vi.fn().mockResolvedValue(undefined),
     },
     teamPlayers: {
       put: vi.fn(),
@@ -37,6 +40,7 @@ vi.mock("../db", () => ({
       toArray: vi.fn().mockResolvedValue([]),
       count: vi.fn().mockResolvedValue(0),
       update: vi.fn().mockResolvedValue(1),
+      get: vi.fn().mockResolvedValue(undefined),
     },
     games: {
       put: vi.fn(),
@@ -110,6 +114,8 @@ describe("SyncService", () => {
 
   it("syncTeamRoster skips if 304 Not Modified", async () => {
     localStorage.setItem("etag_team_t1", "etag-1");
+    vi.mocked(db.teams.get).mockResolvedValue({ id: "t1" });
+
     fetchMock.mockResolvedValue({
       status: 304,
       ok: false,
@@ -124,6 +130,26 @@ describe("SyncService", () => {
       }),
     );
     expect(db.teams.put).not.toHaveBeenCalled();
+  });
+
+  it("syncTeamRoster does NOT skip if IndexedDB is empty even if ETag exists", async () => {
+    localStorage.setItem("etag_team_t1", "etag-1");
+    vi.mocked(db.teams.get).mockResolvedValue(undefined);
+
+    fetchMock.mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve({ team: { id: "t1" }, players: [] }),
+    });
+
+    await syncService.syncTeamRoster("t1");
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/data/teams/t1/roster.json",
+      expect.objectContaining({
+        headers: expect.not.objectContaining({ "If-None-Match": "etag-1" }),
+      }),
+    );
   });
 
   describe("hasUnsyncedChanges", () => {
