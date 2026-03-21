@@ -18,6 +18,7 @@ import GameMode from "./pages/GameMode";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Seasons from "./pages/Seasons";
+import SeasonDetail from "./pages/SeasonDetail";
 import Players from "./pages/Players";
 import PlayerStats from "./pages/PlayerStats";
 import GameStats from "./pages/GameStats";
@@ -116,6 +117,14 @@ const AppContent: React.FC = () => {
               element={
                 <ProtectedRoute>
                   <Seasons />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/seasons/:seasonId"
+              element={
+                <ProtectedRoute>
+                  <SeasonDetail />
                 </ProtectedRoute>
               }
             />

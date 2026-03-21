@@ -3,17 +3,17 @@ import { vi } from "vitest";
 
 // Mock Cognito
 vi.mock("amazon-cognito-identity-js", () => {
-  const CognitoUserPool = vi.fn().mockImplementation(function () {
+  const CognitoUserPool = vi.fn().mockImplementation(function (this: any) {
     this.getCurrentUser = vi.fn();
   });
-  const CognitoUser = vi.fn().mockImplementation(function () {
+  const CognitoUser = vi.fn().mockImplementation(function (this: any) {
     this.authenticateUser = vi.fn();
     this.getSession = vi.fn((callback) => {
       callback(null, { isValid: () => true });
     });
     this.signOut = vi.fn();
   });
-  const AuthenticationDetails = vi.fn().mockImplementation(function (data: {
+  const AuthenticationDetails = vi.fn().mockImplementation(function (this: any, data: {
     Username: string;
     Password: string;
   }) {
@@ -33,20 +33,26 @@ vi.mock("amazon-cognito-identity-js", () => {
 vi.mock("./db", () => ({
   db: {
     open: vi.fn().mockResolvedValue(null),
-    seasons: { toArray: vi.fn(), add: vi.fn() },
+    seasons: { toArray: vi.fn(), add: vi.fn(), get: vi.fn(), update: vi.fn(), where: vi.fn().mockReturnThis(), equals: vi.fn().mockReturnThis() },
     teams: {
       where: vi.fn().mockReturnThis(),
       equals: vi.fn().mockReturnThis(),
       toArray: vi.fn(),
       add: vi.fn(),
+      get: vi.fn(),
+      update: vi.fn(),
+      anyOf: vi.fn().mockReturnThis(),
     },
-    players: { toArray: vi.fn(), add: vi.fn() },
-    teamPlayers: { toArray: vi.fn(), add: vi.fn() },
+    players: { toArray: vi.fn(), add: vi.fn(), get: vi.fn(), update: vi.fn(), where: vi.fn().mockReturnThis(), equals: vi.fn().mockReturnThis(), anyOf: vi.fn().mockReturnThis(), toCollection: vi.fn().mockReturnThis() },
+    teamPlayers: { toArray: vi.fn(), add: vi.fn(), where: vi.fn().mockReturnThis(), equals: vi.fn().mockReturnThis(), anyOf: vi.fn().mockReturnThis(), delete: vi.fn(), first: vi.fn() },
     games: {
       where: vi.fn().mockReturnThis(),
       equals: vi.fn().mockReturnThis(),
       toArray: vi.fn(),
       add: vi.fn(),
+      get: vi.fn(),
+      update: vi.fn(),
+      anyOf: vi.fn().mockReturnThis(),
     },
     stats: {
       orderBy: vi.fn().mockReturnThis(),
@@ -55,7 +61,11 @@ vi.mock("./db", () => ({
       toArray: vi.fn(),
       add: vi.fn(),
       delete: vi.fn(),
+      where: vi.fn().mockReturnThis(),
+      equals: vi.fn().mockReturnThis(),
+      anyOf: vi.fn().mockReturnThis(),
     },
+    transaction: vi.fn((_mode, _tables, callback) => callback()),
   },
 }));
 
@@ -66,13 +76,13 @@ vi.mock("dexie-react-hooks", () => ({
       try {
         const res = cb();
         if (res && typeof res.then === "function") {
-          return [];
+          return undefined; // Or some meaningful default
         }
         return res;
       } catch (e) {
-        return [];
+        return undefined;
       }
     }
-    return [];
+    return undefined;
   }),
 }));

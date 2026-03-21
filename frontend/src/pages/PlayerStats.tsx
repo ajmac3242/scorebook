@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from "react";
-import { useParams, useSearchParams } from "react-router-dom";
+import React, { useState, useMemo, useEffect } from "react";
+import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import {
   Box,
   Typography,
@@ -21,9 +21,11 @@ import {
   DialogContent,
   DialogActions,
   TextField,
+  Alert,
+  AlertTitle,
 } from "@mui/material";
 import BasketballCourt from "../components/BasketballCourt";
-import { db } from "../db";
+import { db, Player, Season, Team, StatEvent } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
 import { calculatePlayerAggregates } from "../utils/stats";
 import { MoleskineCard, StatCard } from "../components/SharedUI";
@@ -31,6 +33,8 @@ import EntityBanner from "../components/EntityBanner";
 import { useSeasons } from "../hooks/useSeasons";
 import { useTeams } from "../hooks/useTeams";
 import { AVATAR_COLORS } from "../constants/colors";
+import { Warning } from "@mui/icons-material";
+import dayjs from "dayjs";
 
 /**
  * PlayerStats page component.
@@ -39,6 +43,7 @@ import { AVATAR_COLORS } from "../constants/colors";
  */
 const PlayerStats: React.FC = () => {
   const { playerId } = useParams<{ playerId: string }>();
+  const navigate = useNavigate();
 
   const [searchParams] = useSearchParams();
   const teamIdParam = searchParams.get("teamId");
@@ -52,12 +57,30 @@ const PlayerStats: React.FC = () => {
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [editName, setEditName] = useState("");
   const [editColor, setEditColor] = useState("");
+  const [timeLeft, setTimeLeft] = useState("");
 
   const player = useLiveQuery(
-    () =>
-      playerId ? db.players.get(playerId as any) : Promise.resolve(undefined),
+    async () =>
+      playerId ? await db.players.get(playerId) : undefined,
     [playerId],
   );
+
+  useEffect(() => {
+    if (player?.deletedAt) {
+      const timer = setInterval(() => {
+        const deleteTime = dayjs(player.deletedAt).add(24, "hour");
+        const diff = deleteTime.diff(dayjs());
+        if (diff <= 0) {
+          setTimeLeft("Deleting now...");
+        } else {
+          const hours = Math.floor(diff / (1000 * 60 * 60));
+          const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+          setTimeLeft(`${hours}h ${mins}m`);
+        }
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [player?.deletedAt]);
 
   // Use shared hooks
   const seasons = useSeasons();
@@ -65,39 +88,41 @@ const PlayerStats: React.FC = () => {
 
   const teamPlayers =
     useLiveQuery(
-      () =>
+      async () =>
         playerId
-          ? db.teamPlayers
+          ? await db.teamPlayers
               .where("playerId")
               .equals(playerId.toString())
               .toArray()
-          : Promise.resolve([]),
+          : [],
       [playerId],
     ) || [];
 
   const games =
     useLiveQuery(async () => {
-      if (selectedGameId)
-        return [await db.games.get(selectedGameId)].filter(Boolean) as any[];
+      if (selectedGameId) {
+        const g = await db.games.get(selectedGameId);
+        return g ? [g] : [];
+      }
       if (teams.length > 0)
-        return db.games
+        return await db.games
           .where("teamId")
           .anyOf(teams.map((t) => t.id!).filter(Boolean))
           .toArray();
-      return db.games.toArray();
+      return await db.games.toArray();
     }, [selectedGameId, teams]) || [];
 
   const allStats =
     useLiveQuery(
-      () =>
+      async () =>
         playerId !== undefined
-          ? db.stats.where("playerId").equals(playerId).toArray()
-          : Promise.resolve([]),
+          ? await db.stats.where("playerId").equals(playerId).toArray()
+          : [],
       [playerId],
     ) || [];
 
   const filteredStats = useMemo(() => {
-    return allStats.filter((stat) => {
+    return (allStats as StatEvent[]).filter((stat) => {
       if (selectedGameId !== "" && stat.gameId !== selectedGameId) return false;
       if (selectedType !== "" && stat.type !== selectedType) return false;
       if (
@@ -115,7 +140,7 @@ const PlayerStats: React.FC = () => {
    */
   const handleUpdatePlayer = async () => {
     if (!playerId) return;
-    await db.players.update(playerId as any, {
+    await db.players.update(playerId, {
       name: editName,
       avatarColor: editColor,
       synced: 0,
@@ -155,8 +180,10 @@ const PlayerStats: React.FC = () => {
     return "";
   };
 
+  const isDeleted = !!player?.deletedAt;
+
   return (
-    <Box sx={{ pb: 4 }}>
+    <Box sx={{ pb: 4, opacity: isDeleted ? 0.7 : 1 }}>
       <EntityBanner
         title={player?.name || "Player"}
         subtitle={
@@ -178,6 +205,7 @@ const PlayerStats: React.FC = () => {
           <Button
             variant="outlined"
             size="small"
+            disabled={isDeleted}
             onClick={() => {
               setEditName(player?.name || "");
               setEditColor(player?.avatarColor || "#154C56");
@@ -196,6 +224,13 @@ const PlayerStats: React.FC = () => {
           </Button>
         }
       />
+
+      {isDeleted && (
+        <Alert severity="warning" icon={<Warning />} sx={{ mb: 4, mt: 3 }}>
+          <AlertTitle>Pending Deletion</AlertTitle>
+          This player is scheduled for deletion in <strong>{timeLeft}</strong>. Restore them from the Players list.
+        </Alert>
+      )}
 
       <Dialog
         open={openEditDialog}
@@ -340,7 +375,7 @@ const PlayerStats: React.FC = () => {
             <Table size="small">
               <TableHead>
                 <TableRow sx={{ bgcolor: "rgba(0,0,0,0.02)" }}>
-                  <TableCell sx={{ fontWeight: 700 }}>Time</TableCell>
+                  <TableCell sx={{ fontWeight: 700 }}>Period</TableCell>
                   <TableCell sx={{ fontWeight: 700 }}>Game</TableCell>
                   <TableCell sx={{ fontWeight: 700 }}>Action</TableCell>
                   <TableCell sx={{ fontWeight: 700 }} align="right">
@@ -352,19 +387,23 @@ const PlayerStats: React.FC = () => {
                 {filteredStats
                   .slice()
                   .reverse()
-                  .map((stat) => (
-                    <TableRow key={stat.id} hover>
-                      <TableCell>
-                        {new Date(stat.timestamp).toLocaleString()}
-                      </TableCell>
-                      <TableCell>
-                        {games.find((g) => g.id === stat.gameId)?.opponent ||
-                          "Unknown"}
-                      </TableCell>
-                      <TableCell>{stat.type}</TableCell>
-                      <TableCell align="right">{stat.points || 0}</TableCell>
-                    </TableRow>
-                  ))}
+                  .map((stat) => {
+                    const g = games.find((g) => g.id === stat.gameId);
+                    // We don't have season type here easily without querying for each stat,
+                    // so we'll just show the number for now.
+                    return (
+                      <TableRow key={stat.id} hover>
+                        <TableCell>
+                          P{stat.period || 1}
+                        </TableCell>
+                        <TableCell>
+                          {g?.opponent || "Unknown"}
+                        </TableCell>
+                        <TableCell>{stat.type}</TableCell>
+                        <TableCell align="right">{stat.points || 0}</TableCell>
+                      </TableRow>
+                    );
+                  })}
               </TableBody>
             </Table>
           </TableContainer>
