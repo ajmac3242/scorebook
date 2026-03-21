@@ -304,10 +304,12 @@ const TeamStats: React.FC = () => {
     label,
     sortKey,
     align = "right",
+    hideOnMobile = false,
   }: {
     label: string;
     sortKey: string;
     align?: "left" | "center" | "right";
+    hideOnMobile?: boolean;
   }) => (
     <TableCell
       align={align}
@@ -317,6 +319,7 @@ const TeamStats: React.FC = () => {
         fontWeight: 700,
         "&:hover": { color: "primary.main" },
         whiteSpace: "nowrap",
+        display: hideOnMobile ? { xs: "none", sm: "table-cell" } : "table-cell",
       }}
     >
       {label}{" "}
@@ -504,8 +507,10 @@ const TeamStats: React.FC = () => {
             sx={{
               mb: 3,
               display: "flex",
+              flexDirection: { xs: "column", sm: "row" },
               justifyContent: "space-between",
-              alignItems: "center",
+              alignItems: { xs: "flex-start", sm: "center" },
+              gap: 2,
             }}
           >
             <Typography variant="h5" sx={{ fontFamily: "var(--serif)" }}>
@@ -516,12 +521,19 @@ const TeamStats: React.FC = () => {
               exclusive
               onChange={(_, val) => val && setStatView(val)}
               size="small"
+              fullWidth={{ xs: true, sm: false } as any}
             >
               <ToggleButton value="total">Totals</ToggleButton>
               <ToggleButton value="average">Averages</ToggleButton>
             </ToggleButtonGroup>
           </Box>
-          <TableContainer component={MoleskineCard}>
+          <TableContainer
+            component={MoleskineCard}
+            sx={{
+              mx: { xs: -2, sm: 0 },
+              width: { xs: "calc(100% + 32px)", sm: "100%" },
+            }}
+          >
             <Table size="small">
               <TableHead>
                 <TableRow sx={{ bgcolor: "rgba(0,0,0,0.02)" }}>
@@ -529,9 +541,15 @@ const TeamStats: React.FC = () => {
                     label="#"
                     sortKey="jerseyNumber"
                     align="left"
+                    hideOnMobile
                   />
                   <SortableHeader label="PLAYER" sortKey="name" align="left" />
-                  <SortableHeader label="GP" sortKey="gp" align="center" />
+                  <SortableHeader
+                    label="GP"
+                    sortKey="gp"
+                    align="center"
+                    hideOnMobile
+                  />
                   <SortableHeader
                     label={STAT_ACRONYMS.POINTS}
                     sortKey="points"
@@ -548,10 +566,12 @@ const TeamStats: React.FC = () => {
                   <SortableHeader
                     label={STAT_ACRONYMS.STEALS}
                     sortKey="steals"
+                    hideOnMobile
                   />
                   <SortableHeader
                     label={STAT_ACRONYMS.TURNOVERS}
                     sortKey="turnovers"
+                    hideOnMobile
                   />
                 </TableRow>
               </TableHead>
@@ -567,30 +587,87 @@ const TeamStats: React.FC = () => {
                       )
                     }
                   >
-                    <TableCell sx={{ fontWeight: 700 }}>
+                    <TableCell
+                      sx={{
+                        fontWeight: 700,
+                        display: { xs: "none", sm: "table-cell" },
+                      }}
+                    >
                       {row.jerseyNumber || "-"}
                     </TableCell>
                     <TableCell>
                       <Box
-                        sx={{ display: "flex", alignItems: "center", gap: 2 }}
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
                       >
-                        <Avatar sx={{ bgcolor: row.avatarColor || "grey.500" }}>
-                          {getInitials(row.name)}
+                        <Avatar
+                          sx={{
+                            bgcolor: row.avatarColor || "grey.500",
+                            width: { xs: 24, sm: 40 },
+                            height: { xs: 24, sm: 40 },
+                          }}
+                        >
+                          <Typography
+                            variant="caption"
+                            sx={{ fontSize: { xs: "0.6rem", sm: "0.8rem" } }}
+                          >
+                            {getInitials(row.name)}
+                          </Typography>
                         </Avatar>
-                        <Typography sx={{ fontWeight: 600 }}>
+                        <Typography
+                          sx={{
+                            fontWeight: 600,
+                            fontSize: { xs: "0.75rem", sm: "1rem" },
+                          }}
+                        >
                           {row.name}
                         </Typography>
                       </Box>
                     </TableCell>
-                    <TableCell align="center">{row.gp}</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 700 }}>
+                    <TableCell
+                      align="center"
+                      sx={{ display: { xs: "none", sm: "table-cell" } }}
+                    >
+                      {row.gp}
+                    </TableCell>
+                    <TableCell
+                      align="right"
+                      sx={{
+                        fontWeight: 700,
+                        fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                      }}
+                    >
                       {row.points}
                     </TableCell>
-                    <TableCell align="right">{row.fgPct}%</TableCell>
-                    <TableCell align="right">{row.rebounds}</TableCell>
-                    <TableCell align="right">{row.assists}</TableCell>
-                    <TableCell align="right">{row.steals}</TableCell>
-                    <TableCell align="right">{row.turnovers}</TableCell>
+                    <TableCell
+                      align="right"
+                      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+                    >
+                      {row.fgPct}%
+                    </TableCell>
+                    <TableCell
+                      align="right"
+                      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+                    >
+                      {row.rebounds}
+                    </TableCell>
+                    <TableCell
+                      align="right"
+                      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+                    >
+                      {row.assists}
+                    </TableCell>
+                    <TableCell
+                      align="right"
+                      sx={{ display: { xs: "none", sm: "table-cell" } }}
+                    >
+                      {row.steals}
+                    </TableCell>
+                    <TableCell
+                      align="right"
+                      sx={{ display: { xs: "none", sm: "table-cell" } }}
+                    >
+                      {row.turnovers}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>

@@ -77,8 +77,19 @@ const Teams: React.FC = () => {
       <PageHeader
         title="Teams"
         actions={
-          <Box sx={{ display: "flex", justifyContent: "center", mt: -1 }}>
-            <FormControl variant="outlined" size="small" sx={{ minWidth: 200 }}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              mt: -1,
+              width: "100%",
+            }}
+          >
+            <FormControl
+              variant="outlined"
+              size="small"
+              sx={{ minWidth: { xs: "100%", sm: 200 } }}
+            >
               <InputLabel>Filter by Season</InputLabel>
               <Select
                 value={selectedSeasonId}
@@ -96,19 +107,6 @@ const Teams: React.FC = () => {
           </Box>
         }
       />
-
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          mb: 2,
-        }}
-      >
-        <Typography variant="h5" sx={{ fontFamily: "var(--serif)" }}>
-          Teams
-        </Typography>
-      </Box>
 
       <Stack spacing={2}>
         {teams.length === 0 && (

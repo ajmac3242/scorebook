@@ -93,6 +93,10 @@ const theme = createTheme({
           background-image: radial-gradient(#D1D1D1 0.5px, transparent 0.5px);
           background-size: 24px 24px;
           background-attachment: fixed;
+          padding-top: env(safe-area-inset-top);
+          padding-bottom: env(safe-area-inset-bottom);
+          padding-left: env(safe-area-inset-left);
+          padding-right: env(safe-area-inset-right);
         }
 
         /* Small interactions for icons */
