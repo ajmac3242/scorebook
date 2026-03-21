@@ -225,7 +225,8 @@ const PlayerStats: React.FC = () => {
       {isDeleted && (
         <Alert severity="warning" icon={<Warning />} sx={{ mb: 4, mt: 3 }}>
           <AlertTitle>Pending Deletion</AlertTitle>
-          This player is scheduled for deletion in <strong>{timeLeft}</strong>. Restore them from the Players list.
+          This player is scheduled for deletion in <strong>{timeLeft}</strong>.
+          Restore them from the Players list.
         </Alert>
       )}
 
@@ -390,12 +391,8 @@ const PlayerStats: React.FC = () => {
                     // so we'll just show the number for now.
                     return (
                       <TableRow key={stat.id} hover>
-                        <TableCell>
-                          P{stat.period || 1}
-                        </TableCell>
-                        <TableCell>
-                          {g?.opponent || "Unknown"}
-                        </TableCell>
+                        <TableCell>P{stat.period || 1}</TableCell>
+                        <TableCell>{g?.opponent || "Unknown"}</TableCell>
                         <TableCell>{stat.type}</TableCell>
                         <TableCell align="right">{stat.points || 0}</TableCell>
                       </TableRow>
