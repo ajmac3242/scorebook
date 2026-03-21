@@ -650,7 +650,8 @@ const GameMode: React.FC = () => {
                         <Delete fontSize="small" />
                       </IconButton>
                     </Box>
-                  ))}
+                  </Box>
+                ))}
               </Stack>
             </MoleskineCard>
           </Stack>
