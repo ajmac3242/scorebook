@@ -116,7 +116,7 @@ export const handler = async (
       if (method === "GET")
         return await getItemsByGSI(`TEAM#${teamId}`, TABLE_NAME);
       if (method === "POST") {
-        // Create the player record and associate it with the team in a junction table
+        // Create or update the player record
         const resp = await createItem(
           "PLAYER",
           "METADATA",
@@ -132,6 +132,8 @@ export const handler = async (
             GSI1PK: `TEAM#${teamId}`,
             GSI1SK: `PLAYER#${player.id}`,
             jerseyNumber: body?.jerseyNumber,
+            name: player.name,
+            avatarColor: player.avatarColor,
             id: player.id,
             teamId,
           };

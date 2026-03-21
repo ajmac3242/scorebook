@@ -233,12 +233,13 @@ class SyncService {
               await db.players.put({
                 id: p.id,
                 name: p.name,
+                avatarColor: p.avatarColor,
                 synced: 1,
               });
               await db.teamPlayers.put({
+                ...p,
                 teamId: teamId,
                 playerId: p.id,
-                jerseyNumber: p.jerseyNumber,
                 synced: 1,
               });
             }
