@@ -30,7 +30,11 @@ import {
   AlertTitle,
   DialogContentText,
 } from "@mui/material";
-import { PersonAdd as PersonAddIcon, Restore, Warning } from "@mui/icons-material";
+import {
+  PersonAdd as PersonAddIcon,
+  Restore,
+  Warning,
+} from "@mui/icons-material";
 import { db, TeamPlayer, Team, Season, StatEvent } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
 import { STAT_ACRONYMS } from "../constants/stats";
@@ -74,10 +78,7 @@ const TeamStats: React.FC = () => {
   }>({ key: "points", direction: "desc" });
 
   const team = useLiveQuery(
-    async () =>
-      teamId !== undefined
-        ? await db.teams.get(teamId)
-        : undefined,
+    async () => (teamId !== undefined ? await db.teams.get(teamId) : undefined),
     [teamId],
   );
 
@@ -109,9 +110,7 @@ const TeamStats: React.FC = () => {
 
   const season = useLiveQuery(
     async () =>
-      team?.seasonId
-        ? await db.seasons.get(team.seasonId)
-        : undefined,
+      team?.seasonId ? await db.seasons.get(team.seasonId) : undefined,
     [team?.seasonId],
   );
 
@@ -123,13 +122,18 @@ const TeamStats: React.FC = () => {
     useLiveQuery(
       async () =>
         teamId !== undefined
-          ? await db.teamPlayers.where("teamId").equals(teamId.toString()).toArray()
+          ? await db.teamPlayers
+              .where("teamId")
+              .equals(teamId.toString())
+              .toArray()
           : [],
       [teamId],
     ) || [];
 
   const teamPlayerDetails = useMemo(() => {
-    const playerIds = teamPlayers.map((tp: TeamPlayer) => tp.playerId.toString());
+    const playerIds = teamPlayers.map((tp: TeamPlayer) =>
+      tp.playerId.toString(),
+    );
     return allPlayers.filter((p) => playerIds.includes(p.id?.toString() || ""));
   }, [allPlayers, teamPlayers]);
 
@@ -176,7 +180,9 @@ const TeamStats: React.FC = () => {
   const handleAddPlayerToTeam = async (playerId: string) => {
     if (
       !teamId ||
-      teamPlayers.some((tp: TeamPlayer) => tp.playerId.toString() === playerId.toString())
+      teamPlayers.some(
+        (tp: TeamPlayer) => tp.playerId.toString() === playerId.toString(),
+      )
     )
       return;
 
@@ -240,7 +246,10 @@ const TeamStats: React.FC = () => {
       const deletedAt = new Date().toISOString();
       await db.teams.update(team.id!, { deletedAt, synced: 0 });
       // Also soft delete all games for this team
-      const teamGames = await db.games.where("teamId").equals(team.id!).toArray();
+      const teamGames = await db.games
+        .where("teamId")
+        .equals(team.id!)
+        .toArray();
       for (const g of teamGames) {
         await db.games.update(g.id!, { deletedAt, synced: 0 });
       }
@@ -255,7 +264,10 @@ const TeamStats: React.FC = () => {
     if (!teamId || !team) return;
     try {
       await db.teams.update(team.id!, { deletedAt: undefined, synced: 0 });
-      const teamGames = await db.games.where("teamId").equals(team.id!).toArray();
+      const teamGames = await db.games
+        .where("teamId")
+        .equals(team.id!)
+        .toArray();
       for (const g of teamGames) {
         await db.games.update(g.id!, { deletedAt: undefined, synced: 0 });
       }
@@ -350,7 +362,10 @@ const TeamStats: React.FC = () => {
                   size="small"
                   color="error"
                   onClick={() => setDeleteDialogOpen(true)}
-                  sx={{ borderColor: "rgba(255,0,0,0.5)", "&:hover": { borderColor: "error.main" } }}
+                  sx={{
+                    borderColor: "rgba(255,0,0,0.5)",
+                    "&:hover": { borderColor: "error.main" },
+                  }}
                 >
                   Delete Team
                 </Button>
@@ -393,11 +408,14 @@ const TeamStats: React.FC = () => {
 
       {isDeleted && (
         <Alert severity="warning" icon={<Warning />} sx={{ mb: 4, mx: 2 }}>
-          <AlertTitle>{season?.deletedAt ? "Season Pending Deletion" : "Team Pending Deletion"}</AlertTitle>
+          <AlertTitle>
+            {season?.deletedAt
+              ? "Season Pending Deletion"
+              : "Team Pending Deletion"}
+          </AlertTitle>
           {season?.deletedAt
             ? "The entire season is pending deletion. This team is in read-only mode."
-            : `This team and its games are scheduled for permanent deletion in ${timeLeft}. All data is currently read-only.`
-          }
+            : `This team and its games are scheduled for permanent deletion in ${timeLeft}. All data is currently read-only.`}
         </Alert>
       )}
 
@@ -429,7 +447,8 @@ const TeamStats: React.FC = () => {
               .filter(
                 (g) =>
                   (scheduleView === "all" ||
-                  (!g.completed && new Date(g.date) >= new Date())) && !g.deletedAt,
+                    (!g.completed && new Date(g.date) >= new Date())) &&
+                  !g.deletedAt,
               )
               .sort(
                 (a, b) =>
@@ -627,7 +646,8 @@ const TeamStats: React.FC = () => {
                     }}
                   >
                     {teamPlayers.find(
-                      (t: TeamPlayer) => t.playerId.toString() === player.id?.toString(),
+                      (t: TeamPlayer) =>
+                        t.playerId.toString() === player.id?.toString(),
                     )?.jerseyNumber || "-"}
                   </Typography>
                   <Avatar sx={{ bgcolor: player.avatarColor }}>
@@ -699,7 +719,8 @@ const TeamStats: React.FC = () => {
           <List>
             {allPlayers.map((player) => {
               const tp = teamPlayers.find(
-                (t: TeamPlayer) => t.playerId.toString() === player.id?.toString(),
+                (t: TeamPlayer) =>
+                  t.playerId.toString() === player.id?.toString(),
               );
               return (
                 <ListItem
@@ -751,18 +772,25 @@ const TeamStats: React.FC = () => {
         </DialogActions>
       </Dialog>
 
-      <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
-        <DialogTitle sx={{ fontFamily: "var(--serif)" }}>Delete Team?</DialogTitle>
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+      >
+        <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
+          Delete Team?
+        </DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to delete <strong>{team?.name}</strong>?
-            This will mark the team and ALL its associated games as pending deletion.
+            Are you sure you want to delete <strong>{team?.name}</strong>? This
+            will mark the team and ALL its associated games as pending deletion.
             You will have 24 hours to restore it.
           </DialogContentText>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
           <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
-          <Button onClick={handleDeleteTeam} color="error" variant="contained">Yes, Delete</Button>
+          <Button onClick={handleDeleteTeam} color="error" variant="contained">
+            Yes, Delete
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>

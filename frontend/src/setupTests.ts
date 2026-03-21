@@ -13,10 +13,13 @@ vi.mock("amazon-cognito-identity-js", () => {
     });
     this.signOut = vi.fn();
   });
-  const AuthenticationDetails = vi.fn().mockImplementation(function (this: any, data: {
-    Username: string;
-    Password: string;
-  }) {
+  const AuthenticationDetails = vi.fn().mockImplementation(function (
+    this: any,
+    data: {
+      Username: string;
+      Password: string;
+    },
+  ) {
     // Store credentials so tests can inspect them via getPassword() / getUsername()
     this.getPassword = vi.fn().mockReturnValue(data?.Password ?? "");
     this.getUsername = vi.fn().mockReturnValue(data?.Username ?? "");
@@ -33,7 +36,14 @@ vi.mock("amazon-cognito-identity-js", () => {
 vi.mock("./db", () => ({
   db: {
     open: vi.fn().mockResolvedValue(null),
-    seasons: { toArray: vi.fn(), add: vi.fn(), get: vi.fn(), update: vi.fn(), where: vi.fn().mockReturnThis(), equals: vi.fn().mockReturnThis() },
+    seasons: {
+      toArray: vi.fn(),
+      add: vi.fn(),
+      get: vi.fn(),
+      update: vi.fn(),
+      where: vi.fn().mockReturnThis(),
+      equals: vi.fn().mockReturnThis(),
+    },
     teams: {
       where: vi.fn().mockReturnThis(),
       equals: vi.fn().mockReturnThis(),
@@ -43,8 +53,25 @@ vi.mock("./db", () => ({
       update: vi.fn(),
       anyOf: vi.fn().mockReturnThis(),
     },
-    players: { toArray: vi.fn(), add: vi.fn(), get: vi.fn(), update: vi.fn(), where: vi.fn().mockReturnThis(), equals: vi.fn().mockReturnThis(), anyOf: vi.fn().mockReturnThis(), toCollection: vi.fn().mockReturnThis() },
-    teamPlayers: { toArray: vi.fn(), add: vi.fn(), where: vi.fn().mockReturnThis(), equals: vi.fn().mockReturnThis(), anyOf: vi.fn().mockReturnThis(), delete: vi.fn(), first: vi.fn() },
+    players: {
+      toArray: vi.fn(),
+      add: vi.fn(),
+      get: vi.fn(),
+      update: vi.fn(),
+      where: vi.fn().mockReturnThis(),
+      equals: vi.fn().mockReturnThis(),
+      anyOf: vi.fn().mockReturnThis(),
+      toCollection: vi.fn().mockReturnThis(),
+    },
+    teamPlayers: {
+      toArray: vi.fn(),
+      add: vi.fn(),
+      where: vi.fn().mockReturnThis(),
+      equals: vi.fn().mockReturnThis(),
+      anyOf: vi.fn().mockReturnThis(),
+      delete: vi.fn(),
+      first: vi.fn(),
+    },
     games: {
       where: vi.fn().mockReturnThis(),
       equals: vi.fn().mockReturnThis(),

@@ -128,8 +128,18 @@ const GameMode: React.FC = () => {
     }, [teamId, teamPlayers]) || [];
 
   const game = useLiveQuery(() => db.games.get(gameId as any), [gameId]);
-  const team = useLiveQuery(() => game?.teamId ? db.teams.get(game.teamId) : Promise.resolve(undefined), [game?.teamId]);
-  const season = useLiveQuery(() => team?.seasonId ? db.seasons.get(team.seasonId) : Promise.resolve(undefined), [team?.seasonId]);
+  const team = useLiveQuery(
+    () =>
+      game?.teamId ? db.teams.get(game.teamId) : Promise.resolve(undefined),
+    [game?.teamId],
+  );
+  const season = useLiveQuery(
+    () =>
+      team?.seasonId
+        ? db.seasons.get(team.seasonId)
+        : Promise.resolve(undefined),
+    [team?.seasonId],
+  );
 
   // Show summary dialog automatically if game is completed
   useEffect(() => {
@@ -360,15 +370,16 @@ const GameMode: React.FC = () => {
     </Button>
   );
 
-  const isDeleted = !!game?.deletedAt || !!team?.deletedAt || !!season?.deletedAt;
+  const isDeleted =
+    !!game?.deletedAt || !!team?.deletedAt || !!season?.deletedAt;
   const periodType = season?.periodType || "QUARTERS";
   const periodLabel = periodType === "HALVES" ? "Half" : "Quarter";
   const maxPeriod = periodType === "HALVES" ? 2 : 4;
 
   const handleNextPeriod = () => {
-    setPeriod(p => {
-       // Allow going up to 10 (arbitrary max for OT)
-       return p < 10 ? p + 1 : 1;
+    setPeriod((p) => {
+      // Allow going up to 10 (arbitrary max for OT)
+      return p < 10 ? p + 1 : 1;
     });
   };
 
@@ -376,7 +387,8 @@ const GameMode: React.FC = () => {
     <Box sx={{ pb: 4, opacity: isDeleted ? 0.7 : 1 }}>
       {isDeleted && (
         <Alert severity="warning" icon={<Warning />} sx={{ mb: 2 }}>
-          This game is in read-only mode because it or its parent is pending deletion.
+          This game is in read-only mode because it or its parent is pending
+          deletion.
         </Alert>
       )}
       <Grid container spacing={3}>
@@ -606,49 +618,52 @@ const GameMode: React.FC = () => {
                 <History sx={{ fontSize: 18, mr: 1 }} /> Recent Actions
               </Typography>
               <Stack spacing={1}>
-                {recentStats.filter(s => !s.deletedAt).map((s) => (
-                  <Box
-                    key={s.id}
-                    sx={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      py: 0.5,
-                      borderBottom: "1px solid #F0F0F0",
-                    }}
-                  >
-                    <Box>
-                      <Typography variant="body2">
-                        <strong>
-                          {s.playerId === OPPONENT_PLAYER_ID
-                            ? "Opponent"
-                            : players?.find((p) => p.id === s.playerId)?.name ||
-                              "Unknown"}
-                        </strong>
-                        : {s.type}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {periodLabel} {s.period || 1}
-                      </Typography>
-                    </Box>
-                    <Box>
-                      <IconButton
-                        size="small"
-                        disabled={isDeleted}
-                        onClick={() => openEditDialog(s)}
-                      >
-                        <Edit fontSize="small" />
-                      </IconButton>
-                      <IconButton
-                        size="small"
-                        disabled={isDeleted}
-                        onClick={() => {
-                          setStatToDelete(s.id ?? null);
-                          setDeleteDialogOpen(true);
-                        }}
-                      >
-                        <Delete fontSize="small" />
-                      </IconButton>
+                {recentStats
+                  .filter((s) => !s.deletedAt)
+                  .map((s) => (
+                    <Box
+                      key={s.id}
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        py: 0.5,
+                        borderBottom: "1px solid #F0F0F0",
+                      }}
+                    >
+                      <Box>
+                        <Typography variant="body2">
+                          <strong>
+                            {s.playerId === OPPONENT_PLAYER_ID
+                              ? "Opponent"
+                              : players?.find((p) => p.id === s.playerId)
+                                  ?.name || "Unknown"}
+                          </strong>
+                          : {s.type}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {periodLabel} {s.period || 1}
+                        </Typography>
+                      </Box>
+                      <Box>
+                        <IconButton
+                          size="small"
+                          disabled={isDeleted}
+                          onClick={() => openEditDialog(s)}
+                        >
+                          <Edit fontSize="small" />
+                        </IconButton>
+                        <IconButton
+                          size="small"
+                          disabled={isDeleted}
+                          onClick={() => {
+                            setStatToDelete(s.id ?? null);
+                            setDeleteDialogOpen(true);
+                          }}
+                        >
+                          <Delete fontSize="small" />
+                        </IconButton>
+                      </Box>
                     </Box>
                   ))}
               </Stack>
