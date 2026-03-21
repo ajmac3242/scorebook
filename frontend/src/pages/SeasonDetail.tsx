@@ -205,44 +205,132 @@ const SeasonDetail: React.FC = () => {
         </Alert>
       )}
 
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={4}>
-          <MoleskineCard sx={{ p: 2 }}>
-            <Typography
-              variant="h6"
-              gutterBottom
-              sx={{ fontFamily: "var(--serif)" }}
-            >
-              Season Rules
-            </Typography>
-            <Stack spacing={2}>
-              <Box>
-                <Typography variant="caption" color="text.secondary">
-                  Period Type
-                </Typography>
-                <Typography variant="body1">
-                  {season.periodType || "QUARTERS"}
-                </Typography>
-              </Box>
-              <Box>
-                <Typography variant="caption" color="text.secondary">
-                  Teams Tracked
-                </Typography>
-                <Typography variant="body1">
-                  {teams.filter((t) => !t.deletedAt).length}
-                </Typography>
-              </Box>
-            </Stack>
-          </MoleskineCard>
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={4}>
+            <MoleskineCard sx={{ p: 2 }}>
+              <Typography
+                variant="h6"
+                gutterBottom
+                sx={{ fontFamily: "var(--serif)" }}
+              >
+                Season Rules
+              </Typography>
+              <Stack spacing={2}>
+                <Box>
+                  <Typography variant="caption" color="text.secondary">
+                    Period Type
+                  </Typography>
+                  <Typography variant="body1">
+                    {season.periodType || "QUARTERS"}
+                  </Typography>
+                </Box>
+                <Box>
+                  <Typography variant="caption" color="text.secondary">
+                    Teams Tracked
+                  </Typography>
+                  <Typography variant="body1">
+                    {teams.filter((t) => !t.deletedAt).length}
+                  </Typography>
+                </Box>
+              </Stack>
+            </MoleskineCard>
+          </Grid>
+          <Grid item xs={12} md={8}>
+            <MoleskineCard sx={{ p: 2 }}>
+              <Typography
+                variant="h6"
+                gutterBottom
+                sx={{ fontFamily: "var(--serif)" }}
+              >
+                Teams in Season
+              </Typography>
+              <List sx={{ width: "100%" }}>
+                {teams.filter((t) => !t.deletedAt).length === 0 ? (
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ py: 2 }}
+                  >
+                    No teams found.
+                  </Typography>
+                ) : (
+                  teams
+                    .filter((t) => !t.deletedAt)
+                    .map((team) => (
+                      <Box
+                        key={team.id}
+                        sx={{
+                          p: 2,
+                          mb: 1,
+                          border: "1px solid #eee",
+                          borderRadius: 1,
+                          cursor: "pointer",
+                          "&:hover": { bgcolor: "#f5f5f5" },
+                        }}
+                        onClick={() => navigate(`/teams/${team.id}`)}
+                      >
+                        <Typography sx={{ fontWeight: 600 }}>
+                          {team.name}
+                        </Typography>
+                      </Box>
+                    ))
+                )}
+              </List>
+            </MoleskineCard>
+          </Grid>
         </Grid>
-        <Grid item xs={12} md={8}>
-          <MoleskineCard sx={{ p: 2 }}>
-            <Typography
-              variant="h6"
-              gutterBottom
-              sx={{ fontFamily: "var(--serif)" }}
+
+        {/* Edit Dialog */}
+        <Dialog open={editDialogOpen} onClose={() => setEditDialogOpen(false)}>
+          <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
+            Edit Season Details
+          </DialogTitle>
+          <DialogContent>
+            <TextField
+              autoFocus
+              margin="dense"
+              label="Season Name"
+              fullWidth
+              variant="outlined"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              sx={{ mb: 2, mt: 1 }}
+            />
+            <TextField
+              margin="dense"
+              label="Start Date"
+              type="date"
+              fullWidth
+              variant="outlined"
+              InputLabelProps={{ shrink: true }}
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              margin="dense"
+              label="End Date"
+              type="date"
+              fullWidth
+              variant="outlined"
+              InputLabelProps={{ shrink: true }}
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              select
+              label="Period Type"
+              fullWidth
+              value={periodType}
+              onChange={(e) => setPeriodType(e.target.value as any)}
+              sx={{ mb: 2 }}
             >
-              Teams in Season
+              <MenuItem value="QUARTERS">Quarters (1-4)</MenuItem>
+              <MenuItem value="HALVES">Halves (1-2)</MenuItem>
+            </TextField>
+            <Typography variant="subtitle2" gutterBottom>
+              Banner Color
             </Typography>
             <List sx={{ width: "100%" }}>
               {teams.filter((t) => !t.deletedAt).length === 0 ? (
@@ -370,33 +458,34 @@ const SeasonDetail: React.FC = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Delete Confirmation */}
-      <Dialog
-        open={deleteDialogOpen}
-        onClose={() => setDeleteDialogOpen(false)}
-      >
-        <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
-          Delete Season?
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            Are you sure you want to delete <strong>{season.name}</strong>? This
-            will mark the season and ALL associated teams, games, and stats as
-            pending deletion. You will have 24 hours to restore it before it is
-            permanently removed.
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
-          <Button
-            onClick={handleDeleteSeason}
-            color="error"
-            variant="contained"
-          >
-            Yes, Delete
-          </Button>
-        </DialogActions>
-      </Dialog>
+        {/* Delete Confirmation */}
+        <Dialog
+          open={deleteDialogOpen}
+          onClose={() => setDeleteDialogOpen(false)}
+        >
+          <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
+            Delete Season?
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              Are you sure you want to delete <strong>{season.name}</strong>?
+              This will mark the season and ALL associated teams, games, and
+              stats as pending deletion. You will have 24 hours to restore it
+              before it is permanently removed.
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions sx={{ p: 2 }}>
+            <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+            <Button
+              onClick={handleDeleteSeason}
+              color="error"
+              variant="contained"
+            >
+              Yes, Delete
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </Box>
     </Box>
     </Box>
   );
