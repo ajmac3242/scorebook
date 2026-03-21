@@ -65,6 +65,7 @@ const Teams: React.FC = () => {
     try {
       await db.open();
       const newTeam: Team = {
+        id: crypto.randomUUID(),
         name: teamName,
         seasonId: seasonIdInDialog,
         logoUrl,
