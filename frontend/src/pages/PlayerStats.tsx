@@ -33,8 +33,9 @@ import EntityBanner from "../components/EntityBanner";
 import { useSeasons } from "../hooks/useSeasons";
 import { useTeams } from "../hooks/useTeams";
 import { AVATAR_COLORS } from "../constants/colors";
-import { Warning } from "@mui/icons-material";
+import { Warning, Edit as EditIcon } from "@mui/icons-material";
 import dayjs from "dayjs";
+import IconButton from "@mui/material/IconButton";
 
 /**
  * PlayerStats page component.
@@ -201,26 +202,27 @@ const PlayerStats: React.FC = () => {
           { label: "AST", value: aggregates.assists },
         ]}
         actions={
-          <Button
-            variant="outlined"
-            size="small"
-            disabled={isDeleted}
-            onClick={() => {
-              setEditName(player?.name || "");
-              setEditColor(player?.avatarColor || "#154C56");
-              setOpenEditDialog(true);
-            }}
-            sx={{
-              color: "white",
-              borderColor: "rgba(255,255,255,0.5)",
-              "&:hover": {
-                borderColor: "white",
-                bgcolor: "rgba(255,255,255,0.1)",
-              },
-            }}
-          >
-            Edit Player
-          </Button>
+          <Stack direction="row" spacing={1} alignItems="center">
+            {!isDeleted && (
+              <IconButton
+                onClick={() => {
+                  setEditName(player?.name || "");
+                  setEditColor(player?.avatarColor || "#154C56");
+                  setOpenEditDialog(true);
+                }}
+                sx={{
+                  color: "white",
+                  bgcolor: "rgba(255,255,255,0.1)",
+                  "&:hover": {
+                    bgcolor: "rgba(255,255,255,0.2)",
+                    transform: "scale(1.1)",
+                  },
+                }}
+              >
+                <EditIcon />
+              </IconButton>
+            )}
+          </Stack>
         }
       />
 

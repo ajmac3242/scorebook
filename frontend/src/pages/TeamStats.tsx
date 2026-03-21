@@ -34,6 +34,7 @@ import {
   PersonAdd as PersonAddIcon,
   Restore,
   Warning,
+  Edit as EditIcon,
 } from "@mui/icons-material";
 import { db, TeamPlayer, Team, Season, StatEvent } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -349,29 +350,22 @@ const TeamStats: React.FC = () => {
         onSync={handleSync}
         isSyncing={isSyncing}
         actions={
-          <Stack direction="row" spacing={1}>
+          <Stack direction="row" spacing={1} alignItems="center">
             {!isDeleted ? (
               <>
-                <Button
-                  variant="outlined"
-                  size="small"
+                <IconButton
                   onClick={() => setOpenSettingsDialog(true)}
-                  sx={{ color: "white", borderColor: "rgba(255,255,255,0.5)" }}
-                >
-                  Edit Team
-                </Button>
-                <Button
-                  variant="outlined"
-                  size="small"
-                  color="error"
-                  onClick={() => setDeleteDialogOpen(true)}
                   sx={{
-                    borderColor: "rgba(255,0,0,0.5)",
-                    "&:hover": { borderColor: "error.main" },
+                    color: "white",
+                    bgcolor: "rgba(255,255,255,0.1)",
+                    "&:hover": {
+                      bgcolor: "rgba(255,255,255,0.2)",
+                      transform: "scale(1.1)",
+                    },
                   }}
                 >
-                  Delete Team
-                </Button>
+                  <EditIcon />
+                </IconButton>
               </>
             ) : isPendingDelete && !season?.deletedAt ? (
               <Button
@@ -777,11 +771,27 @@ const TeamStats: React.FC = () => {
             </Box>
           </Stack>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenSettingsDialog(false)}>Cancel</Button>
-          <Button onClick={handleUpdateTeamSettings} variant="contained">
-            Save
+        <DialogActions sx={{ justifyContent: "space-between", px: 3, pb: 3 }}>
+          <Button
+            color="error"
+            variant="outlined"
+            onClick={() => {
+              setOpenSettingsDialog(false);
+              setDeleteDialogOpen(true);
+            }}
+          >
+            Delete Team
           </Button>
+          <Box>
+            <Button onClick={() => setOpenSettingsDialog(false)}>Cancel</Button>
+            <Button
+              onClick={handleUpdateTeamSettings}
+              variant="contained"
+              sx={{ ml: 1 }}
+            >
+              Save
+            </Button>
+          </Box>
         </DialogActions>
       </Dialog>
 
