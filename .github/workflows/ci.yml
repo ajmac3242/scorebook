@@ -6,6 +6,10 @@ on:
     branches: [ main ]
     types: [ opened, synchronize, reopened ]
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: write
   pull-requests: write
@@ -19,6 +23,7 @@ jobs:
   quality-and-tests:
     name: Quality, Tests & Docs
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
         with:
@@ -145,6 +150,18 @@ jobs:
           commit_message: "chore: auto-format, JSDoc stubs, and docs update [skip ci]"
           file_pattern: "backend/src/** frontend/src/** infra/README.md docs/architecture.png"
 
+      - name: Upload Test Results on Failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-failure-logs
+          path: |
+            backend/coverage
+            frontend/coverage
+            backend/*.log
+            frontend/*.log
+          if-no-files-found: ignore
+
   # ---------------------------------------------------------------
   # Jules Enrichment: Meaningful Comments
   # Runs AFTER quality checks to enrich the auto-generated stubs
@@ -152,6 +169,7 @@ jobs:
   jules-enrich-comments:
     name: Enrich Comments with Jules
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     needs: [quality-and-tests]
     if: github.event_name == 'pull_request'
     steps:

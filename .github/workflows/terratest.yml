@@ -10,6 +10,10 @@ on:
       - 'infra/**'
       - '.github/workflows/terratest.yml'
 
+concurrency:
+  group: terratest-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   id-token: write # Required for requesting the JWT (OIDC)
   contents: read  # Required for actions/checkout
