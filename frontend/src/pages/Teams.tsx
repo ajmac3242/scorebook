@@ -7,7 +7,6 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  Stack,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -16,12 +15,13 @@ import {
   Fab,
   Grid,
   Avatar,
+  Tooltip,
 } from "@mui/material";
-import { Add as AddIcon } from "@mui/icons-material";
+import { Add as AddIcon, Groups as TeamsIcon } from "@mui/icons-material";
 import { db, type Team, type StatEvent } from "../db";
 import { syncService } from "../utils/syncService";
 import { useNavigate } from "react-router-dom";
-import { MoleskineCard, StatItem } from "../components/SharedUI";
+import { MoleskineCard, StatItem, EmptyState } from "../components/SharedUI";
 import { useSeasons } from "../hooks/useSeasons";
 import { logger } from "../utils/logger";
 import { useTeams } from "../hooks/useTeams";
@@ -169,12 +169,24 @@ const Teams: React.FC = () => {
 
       <Box sx={{ mt: 4 }}>
         {teams.length === 0 && (
-          <Typography
-            color="text.secondary"
-            sx={{ textAlign: "center", py: 8 }}
-          >
-            No teams found for the selected season.
-          </Typography>
+          <EmptyState
+            icon={<TeamsIcon sx={{ fontSize: "inherit" }} />}
+            title="No Teams Found"
+            message={
+              selectedSeasonId
+                ? "There are no teams registered for this season."
+                : "Get started by creating your first team."
+            }
+            action={
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={() => setOpen(true)}
+              >
+                Create Team
+              </Button>
+            }
+          />
         )}
         <Grid container spacing={3}>
           {teams.map((team) => {
@@ -245,6 +257,7 @@ const Teams: React.FC = () => {
                       {team.logoUrl ? (
                         <Avatar
                           src={team.logoUrl}
+                          alt={`${team.name} logo`}
                           variant="rounded"
                           sx={{
                             width: 60,
@@ -322,21 +335,25 @@ const Teams: React.FC = () => {
         </Grid>
       </Box>
 
-      <Fab
-        color="primary"
-        aria-label="add"
-        sx={{
-          position: "fixed",
-          bottom: "calc(32px + env(safe-area-inset-bottom))",
-          right: 32,
-        }}
-        onClick={() => {
-          setSeasonIdInDialog(selectedSeasonId);
-          setOpen(true);
-        }}
-      >
-        <AddIcon />
-      </Fab>
+      <Tooltip title="Add New Team" placement="left">
+        <Fab
+          color="primary"
+          aria-label="add"
+          sx={{
+            position: "fixed",
+            bottom: "calc(32px + env(safe-area-inset-bottom))",
+            right: 32,
+            transition: "transform 0.2s",
+            "&:hover": { transform: "scale(1.1) rotate(90deg)" },
+          }}
+          onClick={() => {
+            setSeasonIdInDialog(selectedSeasonId);
+            setOpen(true);
+          }}
+        >
+          <AddIcon className="bounce-in" />
+        </Fab>
+      </Tooltip>
 
       <Dialog
         open={open}
