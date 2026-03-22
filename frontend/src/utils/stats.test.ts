@@ -34,7 +34,7 @@ describe("stats utilities", () => {
     });
 
     it("handles names with special characters correctly", () => {
-        expect(getInitials("O'Neil Sanders")).toBe("OS");
+      expect(getInitials("O'Neil Sanders")).toBe("OS");
     });
   });
 
@@ -49,7 +49,7 @@ describe("stats utilities", () => {
     });
 
     it("returns the correct jersey number for a player with '0' as jersey", () => {
-        expect(getPlayerJersey("p2", teamPlayers)).toBe("0");
+      expect(getPlayerJersey("p2", teamPlayers)).toBe("0");
     });
 
     it("returns an empty string if player ID is not found", () => {
@@ -121,7 +121,12 @@ describe("stats utilities", () => {
     ];
 
     it("calculates total aggregates correctly", () => {
-      const results = calculatePlayerAggregates(players, stats, teamPlayers, "total");
+      const results = calculatePlayerAggregates(
+        players,
+        stats,
+        teamPlayers,
+        "total",
+      );
       const p1 = results.find((r) => r.id === "p1")!;
       expect(p1.points).toBe(2);
       expect(p1.makes).toBe(1);
@@ -138,7 +143,12 @@ describe("stats utilities", () => {
     });
 
     it("calculates average aggregates correctly", () => {
-      const results = calculatePlayerAggregates(players, stats, teamPlayers, "average");
+      const results = calculatePlayerAggregates(
+        players,
+        stats,
+        teamPlayers,
+        "average",
+      );
       const p1 = results.find((r) => r.id === "p1")!;
       // p1 played 2 games: g1, g2
       expect(p1.points).toBe(1); // 2 points / 2 games
@@ -154,7 +164,12 @@ describe("stats utilities", () => {
     });
 
     it("handles players with no stats", () => {
-      const results = calculatePlayerAggregates(players, [], teamPlayers, "total");
+      const results = calculatePlayerAggregates(
+        players,
+        [],
+        teamPlayers,
+        "total",
+      );
       expect(results.length).toBe(2);
       expect(results[0].points).toBe(0);
       expect(results[0].gp).toBe(0);
@@ -169,17 +184,78 @@ describe("stats utilities", () => {
     ];
     const stats: StatEvent[] = [
       // Game 1: Win (5-3)
-      { gameId: "g1", playerId: "p1", type: ACTION_TYPES.MAKE, points: 2, period: 1, timestamp: "t1" },
-      { gameId: "g1", playerId: "p1", type: ACTION_TYPES.MAKE, points: 3, period: 1, timestamp: "t2" },
-      { gameId: "g1", playerId: "OPPONENT", type: ACTION_TYPES.MAKE, points: 3, period: 1, timestamp: "t3" },
-      { gameId: "g1", playerId: "p1", type: ACTION_TYPES.REBOUND, period: 1, timestamp: "t4" },
-      { gameId: "g1", playerId: "p2", type: ACTION_TYPES.ASSIST, period: 1, timestamp: "t5" },
+      {
+        gameId: "g1",
+        playerId: "p1",
+        type: ACTION_TYPES.MAKE,
+        points: 2,
+        period: 1,
+        timestamp: "t1",
+      },
+      {
+        gameId: "g1",
+        playerId: "p1",
+        type: ACTION_TYPES.MAKE,
+        points: 3,
+        period: 1,
+        timestamp: "t2",
+      },
+      {
+        gameId: "g1",
+        playerId: "OPPONENT",
+        type: ACTION_TYPES.MAKE,
+        points: 3,
+        period: 1,
+        timestamp: "t3",
+      },
+      {
+        gameId: "g1",
+        playerId: "p1",
+        type: ACTION_TYPES.REBOUND,
+        period: 1,
+        timestamp: "t4",
+      },
+      {
+        gameId: "g1",
+        playerId: "p2",
+        type: ACTION_TYPES.ASSIST,
+        period: 1,
+        timestamp: "t5",
+      },
       // Game 2: Loss (2-4)
-      { gameId: "g2", playerId: "p1", type: ACTION_TYPES.MAKE, points: 2, period: 1, timestamp: "t6" },
-      { gameId: "g2", playerId: "OPPONENT", type: ACTION_TYPES.MAKE, points: 2, period: 1, timestamp: "t7" },
-      { gameId: "g2", playerId: "OPPONENT", type: ACTION_TYPES.MAKE, points: 2, period: 1, timestamp: "t8" },
+      {
+        gameId: "g2",
+        playerId: "p1",
+        type: ACTION_TYPES.MAKE,
+        points: 2,
+        period: 1,
+        timestamp: "t6",
+      },
+      {
+        gameId: "g2",
+        playerId: "OPPONENT",
+        type: ACTION_TYPES.MAKE,
+        points: 2,
+        period: 1,
+        timestamp: "t7",
+      },
+      {
+        gameId: "g2",
+        playerId: "OPPONENT",
+        type: ACTION_TYPES.MAKE,
+        points: 2,
+        period: 1,
+        timestamp: "t8",
+      },
       // Game 3: Incomplete, team leading (2-0)
-      { gameId: "g3", playerId: "p1", type: ACTION_TYPES.MAKE, points: 2, period: 1, timestamp: "t9" },
+      {
+        gameId: "g3",
+        playerId: "p1",
+        type: ACTION_TYPES.MAKE,
+        points: 2,
+        period: 1,
+        timestamp: "t9",
+      },
     ];
 
     it("calculates team aggregates for completed games only by default", () => {
@@ -211,12 +287,54 @@ describe("stats utilities", () => {
 
   describe("calculateGameResult", () => {
     const stats: StatEvent[] = [
-      { gameId: "g1", playerId: "p1", type: ACTION_TYPES.MAKE, points: 2, period: 1, timestamp: "t1" },
-      { gameId: "g1", playerId: "OPPONENT", type: ACTION_TYPES.MAKE, points: 3, period: 1, timestamp: "t2" },
-      { gameId: "g2", playerId: "p1", type: ACTION_TYPES.MAKE, points: 5, period: 1, timestamp: "t3" },
-      { gameId: "g2", playerId: "OPPONENT", type: ACTION_TYPES.MAKE, points: 2, period: 1, timestamp: "t4" },
-      { gameId: "g3", playerId: "p1", type: ACTION_TYPES.MAKE, points: 2, period: 1, timestamp: "t5" },
-      { gameId: "g3", playerId: "OPPONENT", type: ACTION_TYPES.MAKE, points: 2, period: 1, timestamp: "t6" },
+      {
+        gameId: "g1",
+        playerId: "p1",
+        type: ACTION_TYPES.MAKE,
+        points: 2,
+        period: 1,
+        timestamp: "t1",
+      },
+      {
+        gameId: "g1",
+        playerId: "OPPONENT",
+        type: ACTION_TYPES.MAKE,
+        points: 3,
+        period: 1,
+        timestamp: "t2",
+      },
+      {
+        gameId: "g2",
+        playerId: "p1",
+        type: ACTION_TYPES.MAKE,
+        points: 5,
+        period: 1,
+        timestamp: "t3",
+      },
+      {
+        gameId: "g2",
+        playerId: "OPPONENT",
+        type: ACTION_TYPES.MAKE,
+        points: 2,
+        period: 1,
+        timestamp: "t4",
+      },
+      {
+        gameId: "g3",
+        playerId: "p1",
+        type: ACTION_TYPES.MAKE,
+        points: 2,
+        period: 1,
+        timestamp: "t5",
+      },
+      {
+        gameId: "g3",
+        playerId: "OPPONENT",
+        type: ACTION_TYPES.MAKE,
+        points: 2,
+        period: 1,
+        timestamp: "t6",
+      },
     ];
 
     it("returns 'L' for a loss", () => {
