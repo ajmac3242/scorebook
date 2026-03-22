@@ -7,3 +7,7 @@ Action: Implement `concurrency` groups and `timeout-minutes` across all primary 
 ## 2025-05-14 - Broken Terratest Suite
 Learning: The Terratest suite in `infra/tests` is broken due to several compilation errors: unused imports (`fmt`, `random`) and calls to non-existent or deprecated `aws` module functions (e.g., `GetDynamoDBTableSchema`). Additionally, the test expectations for Lambda runtime (`nodejs20.x`) are outdated compared to the codebase (`nodejs22.x`).
 Action: Fix compilation errors in `infra/tests/terraform_test.go`, remove unused imports, and update validation logic to use current Terratest patterns. Update Lambda runtime expectations.
+
+## 2025-05-14 - Infrastructure Risk Mitigation
+Learning: Terratest currently operates against production state because it shares the S3 backend and state file defined in `infra/versions.tf`. This led to accidental destruction of production resources during a test run. Integration tests must use either a mock provider (like LocalStack) or a dedicated, ephemeral state file and workspace to ensure isolation.
+Action: Disabled automatic Terratest execution on PRs by commenting out the `pull_request` trigger. Recommended re-architecting the test suite to use a separate backend/workspace before re-enabling.
