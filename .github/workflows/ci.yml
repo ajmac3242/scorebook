@@ -36,13 +36,13 @@ jobs:
             frontend/package-lock.json
 
       # --- Backend ---
-      - name: Backend: Install & Build
+      - name: "Backend: Install & Build"
         run: |
           cd backend
           npm ci
           npm run build
 
-      - name: Backend: Format & Lint
+      - name: "Backend: Format & Lint"
         run: |
           cd backend
           npx prettier --write "src/**/*.ts"
@@ -50,25 +50,25 @@ jobs:
           # to the test and doc steps, and potentially gets fixed by the Jules auto-fixer.
           npx eslint "src/**/*.ts" --config eslint.config.mjs --fix --rule '{"jsdoc/require-jsdoc": ["warn", {"enableFixer": true, "require": {"FunctionDeclaration": true, "FunctionExpression": true, "MethodDefinition": true}}]}' || true
 
-      - name: Backend: Run Tests
+      - name: "Backend: Run Tests"
         run: |
           cd backend
           npm test
 
       # --- Frontend ---
-      - name: Frontend: Install & Build
+      - name: "Frontend: Install & Build"
         run: |
           cd frontend
           npm ci
           npm run build
 
-      - name: Frontend: Format & Lint
+      - name: "Frontend: Format & Lint"
         run: |
           cd frontend
           npx prettier --write "src/**/*.{ts,tsx}"
           npx eslint "src/**/*.{ts,tsx}" --config eslint.config.mjs --fix --rule '{"jsdoc/require-jsdoc": ["warn", {"enableFixer": true, "require": {"FunctionDeclaration": true, "FunctionExpression": true, "MethodDefinition": true}}]}' || true
 
-      - name: Frontend: Run Tests
+      - name: "Frontend: Run Tests"
         run: |
           cd frontend
           npm test
