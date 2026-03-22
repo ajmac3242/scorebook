@@ -30,26 +30,65 @@ class SyncService {
   private isSyncing = false;
 
   /**
+   * Helper to retrieve an ETag from localStorage.
+   * @param {string} type - Entity type (team, game, team_games).
+   * @param {string | number} id - Entity ID.
+   * @returns {string | null} The ETag or null.
+   * @private
+   */
+  private getETag(type: string, id: string | number): string | null {
+    return localStorage.getItem(`etag_${type}_${id}`);
+  }
+
+  /**
+   * Helper to store an ETag in localStorage.
+   * @param {string} type - Entity type (team, game, team_games).
+   * @param {string | number} id - Entity ID.
+   * @param {string | null} etag - The ETag to store.
+   * @private
+   */
+  private setETag(type: string, id: string | number, etag: string | null) {
+    if (etag) {
+      localStorage.setItem(`etag_${type}_${id}`, etag);
+    }
+  }
+
+  /**
+   * Promisified helper to get the current user session token.
+   * @returns {Promise<string | null>} The JWT token or null.
+   * @private
+   */
+  private async getSessionToken(): Promise<string | null> {
+    const user = UserPool.getCurrentUser();
+    if (!user) return null;
+
+    return new Promise((resolve) => {
+      user.getSession((err: any, session: any) => {
+        if (err || !session || !session.isValid()) {
+          resolve(null);
+        } else {
+          resolve(session.getAccessToken().getJwtToken());
+        }
+      });
+    });
+  }
+
+  /**
    * Helper function to get authorization headers for API requests.
    * @returns {Promise<Record<string, string>>} Headers object with Authorization token.
    * @private
    */
   private async getHeaders(): Promise<Record<string, string>> {
-    const user = UserPool.getCurrentUser();
-    if (!user) return { "Content-Type": "application/json" };
+    const token = await this.getSessionToken();
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
 
-    return new Promise((resolve) => {
-      user.getSession((err: any, session: any) => {
-        if (err || !session || !session.isValid()) {
-          resolve({ "Content-Type": "application/json" });
-        } else {
-          resolve({
-            Authorization: `Bearer ${session.getAccessToken().getJwtToken()}`,
-            "Content-Type": "application/json",
-          });
-        }
-      });
-    });
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    return headers;
   }
 
   /**
@@ -79,14 +118,19 @@ class SyncService {
    */
   async hasUnsyncedChanges(): Promise<boolean> {
     try {
-      const counts = await Promise.all([
-        db.seasons.where("synced").equals(0).count(),
-        db.teams.where("synced").equals(0).count(),
-        db.players.where("synced").equals(0).count(),
-        db.teamPlayers.where("synced").equals(0).count(),
-        db.games.where("synced").equals(0).count(),
-        db.stats.where("synced").equals(0).count(),
-      ]);
+      const tables: (keyof typeof db)[] = [
+        "seasons",
+        "teams",
+        "players",
+        "teamPlayers",
+        "games",
+        "stats",
+      ];
+      const counts = await Promise.all(
+        tables.map((table) =>
+          (db[table] as any).where("synced").equals(0).count(),
+        ),
+      );
       return counts.some((count) => count > 0);
     } catch (e) {
       console.error("Error checking for unsynced changes:", e);
@@ -175,7 +219,7 @@ class SyncService {
   async syncTeamRoster(teamId: string) {
     // Check if we have the team in our local database before relying on the ETag
     const localTeam = await db.teams.get(teamId as any);
-    const etag = localTeam ? localStorage.getItem(`etag_team_${teamId}`) : null;
+    const etag = localTeam ? this.getETag("team", teamId) : null;
 
     try {
       const response = await this.fetchApi(
@@ -194,9 +238,7 @@ class SyncService {
 
       if (response.ok) {
         const data: RosterSnapshot = await response.json();
-        const newEtag = response.headers.get("ETag");
-        if (newEtag) localStorage.setItem(`etag_team_${teamId}`, newEtag);
-
+        this.setETag("team", teamId, response.headers.get("ETag"));
         await this.persistRoster(teamId, data);
       }
     } catch (error) {
@@ -215,9 +257,7 @@ class SyncService {
       .equals(teamId)
       .count();
     const etag =
-      localGamesCount > 0
-        ? localStorage.getItem(`etag_team_games_${teamId}`)
-        : null;
+      localGamesCount > 0 ? this.getETag("team_games", teamId) : null;
 
     try {
       const response = await this.fetchApi(`/data/teams/${teamId}/games.json`, {
@@ -233,8 +273,7 @@ class SyncService {
 
       if (response.ok) {
         const data: { games: any[] } = await response.json();
-        const newEtag = response.headers.get("ETag");
-        if (newEtag) localStorage.setItem(`etag_team_games_${teamId}`, newEtag);
+        this.setETag("team_games", teamId, response.headers.get("ETag"));
 
         await db.transaction("rw", [db.games], async () => {
           for (const g of data.games) {
@@ -258,9 +297,7 @@ class SyncService {
   async syncGameStats(gameId: string) {
     // Check if we have the game in our local database before relying on the ETag
     const localGame = await db.games.get(gameId as any);
-    const etag = localGame?.completed
-      ? localStorage.getItem(`etag_game_${gameId}`)
-      : null;
+    const etag = localGame?.completed ? this.getETag("game", gameId) : null;
 
     try {
       const response = await this.fetchApi(`/data/games/${gameId}/stats.json`, {
@@ -276,9 +313,7 @@ class SyncService {
 
       if (response.ok) {
         const data: GameSnapshot = await response.json();
-        const newEtag = response.headers.get("ETag");
-        if (newEtag) localStorage.setItem(`etag_game_${gameId}`, newEtag);
-
+        this.setETag("game", gameId, response.headers.get("ETag"));
         await this.persistGameStats(data);
       }
     } catch (error) {
