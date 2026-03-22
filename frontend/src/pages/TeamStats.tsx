@@ -36,6 +36,7 @@ import {
   Restore,
   Warning,
   Edit as EditIcon,
+  Delete,
 } from "@mui/icons-material";
 import { db, TeamPlayer, Team, Season, StatEvent } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
