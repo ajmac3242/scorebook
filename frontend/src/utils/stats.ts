@@ -149,12 +149,15 @@ export const calculatePlayerAggregates = (
 
   // Finalize totals, percentages, and averages
   return Object.values(statsMap).map((p) => {
+    // We default gp (games played) to 1 for per-game calculations even if 0
+    // to prevent division by zero errors, though technically it should be 0.
     const gp = p.gamesPlayed.size || 1;
     p.gp = p.gamesPlayed.size;
     p.fgPct =
       p.attempts > 0 ? ((p.makes / p.attempts) * 100).toFixed(1) : "0.0";
 
     if (viewType === "average") {
+      // Calculate per-game averages if requested, rounding to 1 decimal place.
       return {
         ...p,
         points: Number((p.points / gp).toFixed(1)),
@@ -171,6 +174,9 @@ export const calculatePlayerAggregates = (
 /**
  * Calculates aggregated team statistics (PPG, RPG, etc.) and W/L record.
  *
+ * This function iterates through games, calculates results for each game
+ * using the provided event stream, and aggregates them into team-wide averages.
+ *
  * @param {any[]} games - List of games.
  * @param {StatEvent[]} stats - List of statistical events across those games.
  * @param {boolean} completedOnly - (Optional) Only include completed games, defaults to true.
@@ -181,6 +187,7 @@ export const calculateTeamAggregates = (
   stats: StatEvent[],
   completedOnly = true,
 ) => {
+  // Filter games based on completion status if requested.
   const targetGames = completedOnly
     ? games.filter((g) => g.completed === 1)
     : games;
@@ -264,6 +271,7 @@ export const calculateGameResult = (
     .filter((s) => s.playerId === "OPPONENT")
     .reduce((sum, s) => sum + (s.points || 0), 0);
 
+  // Determine game result: W (Win), L (Loss), D (Draw/Tie).
   const result = teamScore > oppScore ? "W" : teamScore < oppScore ? "L" : "D";
   return { teamScore, oppScore, result };
 };
