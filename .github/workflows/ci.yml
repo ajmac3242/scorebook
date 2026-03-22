@@ -1,0 +1,186 @@
+name: CI
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+    types: [ opened, synchronize, reopened ]
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: read
+
+jobs:
+  # ---------------------------------------------------------------
+  # Quality & Tests: Backend, Frontend, and Docs
+  # Combined into a single job to avoid race conditions on git push
+  # ---------------------------------------------------------------
+  quality-and-tests:
+    name: Quality, Tests & Docs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
+
+      # --- Backend ---
+      - name: "Backend: Install & Build"
+        run: |
+          cd backend
+          npm ci
+          npm run build
+
+      - name: "Backend: Format & Lint"
+        run: |
+          cd backend
+          npx prettier --write "src/**/*.ts"
+          # Auto-add missing JSDoc stubs. We allow this to fail so that the CI continues
+          # to the test and doc steps, and potentially gets fixed by the Jules auto-fixer.
+          npx eslint "src/**/*.ts" --config eslint.config.mjs --fix --rule '{"jsdoc/require-jsdoc": ["warn", {"enableFixer": true, "require": {"FunctionDeclaration": true, "FunctionExpression": true, "MethodDefinition": true}}]}' || true
+
+      - name: "Backend: Run Tests"
+        run: |
+          cd backend
+          npm test
+
+      # --- Frontend ---
+      - name: "Frontend: Install & Build"
+        run: |
+          cd frontend
+          npm ci
+          npm run build
+
+      - name: "Frontend: Format & Lint"
+        run: |
+          cd frontend
+          npx prettier --write "src/**/*.{ts,tsx}"
+          npx eslint "src/**/*.{ts,tsx}" --config eslint.config.mjs --fix --rule '{"jsdoc/require-jsdoc": ["warn", {"enableFixer": true, "require": {"FunctionDeclaration": true, "FunctionExpression": true, "MethodDefinition": true}}]}' || true
+
+      - name: "Frontend: Run Tests"
+        run: |
+          cd frontend
+          npm test
+
+      # --- Documentation & Diagrams ---
+      - name: Render terraform-docs
+        uses: terraform-docs/gh-actions@v1.3.0
+        with:
+          working-dir: infra
+          output-file: README.md
+          output-method: inject
+          git-push: "false" # We will commit manually to control the message
+
+      - name: Install Graphviz
+        run: sudo apt-get update -y && sudo apt-get install -y graphviz
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install diagram dependencies
+        run: pip install diagrams
+
+      - name: Generate architecture diagram
+        run: |
+          mkdir -p docs
+          cat > /tmp/gen_diagram.py << 'PYEOF'
+          from diagrams import Diagram, Cluster, Edge
+          from diagrams.aws.network import CloudFront, APIGateway
+          from diagrams.aws.storage import S3
+          from diagrams.aws.compute import Lambda
+          from diagrams.aws.database import Dynamodb
+          from diagrams.aws.security import Cognito
+          from diagrams.onprem.client import User
+
+          with Diagram(
+              "Basketball Stats Notebook - AWS Architecture",
+              filename="docs/architecture",
+              outformat="png",
+              show=False,
+              direction="TB",
+          ):
+              user = User("User / Browser")
+
+              with Cluster("Frontend"):
+                  s3_hosting = S3("Hosting\n(S3)")
+                  cf = CloudFront("Delivery\n(CloudFront)")
+
+              with Cluster("Backend"):
+                  apigw = APIGateway("API Gateway\n(v2)")
+                  fn = Lambda("API Handler\n(Lambda)")
+                  db = Dynamodb("Data Store\n(DynamoDB)")
+                  s3_data = S3("Snapshots\n(S3)")
+
+              with Cluster("Security"):
+                  cognito = Cognito("Identity\n(User Pool)")
+
+              user >> cf >> s3_hosting
+              user >> apigw
+              user >> cognito
+              apigw >> Edge(label="Auth (JWT)") >> cognito
+              apigw >> fn
+              fn >> db
+              fn >> s3_data
+              cf >> s3_data
+          PYEOF
+          python /tmp/gen_diagram.py
+
+      # --- Unified Commit ---
+      - name: Commit Auto-fixes and Docs
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: auto-format, JSDoc stubs, and docs update [skip ci]"
+          file_pattern: "backend/src/** frontend/src/** infra/README.md docs/architecture.png"
+
+  # ---------------------------------------------------------------
+  # Jules Enrichment: Meaningful Comments
+  # Runs AFTER quality checks to enrich the auto-generated stubs
+  # ---------------------------------------------------------------
+  jules-enrich-comments:
+    name: Enrich Comments with Jules
+    runs-on: ubuntu-latest
+    needs: [quality-and-tests]
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+
+      - name: Identify Changed Files
+        id: changed-files
+        run: |
+          # Find .ts and .tsx files changed in this PR compared to the target branch
+          FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -E '\.(ts|tsx)$' | grep -v '__tests__' | xargs || true)
+          echo "files=$FILES" >> $GITHUB_OUTPUT
+
+      - name: Invoke Jules to Enrich JSDoc
+        if: steps.changed-files.outputs.files != ''
+        uses: google-labs-code/jules-invoke@v1
+        with:
+          jules_api_key: ${{ secrets.JULES_API_KEY }}
+          prompt: |
+            I have automatically added JSDoc stubs to the following changed files:
+            ${{ steps.changed-files.outputs.files }}
+
+            Please review these files and replace any empty or generic JSDoc descriptions with meaningful, accurate explanations of what each function, class, and parameter does.
+            Ensure the comments follow high-quality documentation standards.
+
+            **Rules:**
+            1. Only update the JSDoc comments. Do not change code logic.
+            2. Commit your changes directly to the branch: ${{ github.head_ref }}
+            3. Use the commit message: "docs: enrich JSDoc comments with Jules [skip ci]"
+          starting_branch: ${{ github.head_ref }}

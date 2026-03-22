@@ -1,0 +1,34 @@
+name: Auto-Fix CI Failures
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+
+jobs:
+  fix-failure:
+    name: Jules Auto-Fix
+    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - name: Invoke Jules to fix failure
+        uses: google-labs-code/jules-invoke@v1
+        with:
+          jules_api_key: ${{ secrets.JULES_API_KEY }}
+          prompt: |
+            The CI workflow "${{ github.event.workflow_run.name }}" has failed.
+            **Failed Run:** ${{ github.event.workflow_run.html_url }}
+            **Branch:** ${{ github.event.workflow_run.head_branch }}
+            **Commit:** ${{ github.event.workflow_run.head_sha }}
+
+            Please:
+            1. Analyze the failure from the workflow run (logs or artifacts)
+            2. Identify the root cause (e.g., test failure, lint error, build issue)
+            3. Implement a fix
+            4. Ensure the fix passes CI and doesn't introduce regressions
+            5. Commit your fix directly to the branch: ${{ github.event.workflow_run.head_branch }}
+            6. Use the commit message: "fix: auto-fix CI failure with Jules [skip ci]"
+          starting_branch: ${{ github.event.workflow_run.head_branch }}
+          include_last_commit: true
