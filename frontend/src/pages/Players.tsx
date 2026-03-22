@@ -288,7 +288,7 @@ const Players: React.FC = () => {
         aria-label="add"
         sx={{
           position: "fixed",
-          bottom: 32,
+          bottom: "calc(32px + env(safe-area-inset-bottom))",
           right: 32,
           transition: "transform 0.2s",
           "&:hover": { transform: "scale(1.1) rotate(90deg)" },
@@ -367,8 +367,24 @@ const Players: React.FC = () => {
           setShowValidation(false);
         }}
       >
-        <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
+        <DialogTitle
+          sx={{
+            fontFamily: "var(--serif)",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
           Edit Player Details
+          {!hasAssociations && (
+            <IconButton
+              color="error"
+              onClick={() => setDeleteDialogOpen(true)}
+              size="small"
+            >
+              <Delete />
+            </IconButton>
+          )}
         </DialogTitle>
         <DialogContent>
           <TextField
@@ -411,23 +427,14 @@ const Players: React.FC = () => {
         </DialogContent>
         <DialogActions sx={{ justifyContent: "space-between", px: 3, pb: 3 }}>
           <Box>
-            {hasAssociations ? (
+            {hasAssociations && (
               <Button
                 color="warning"
                 variant="outlined"
                 startIcon={<Archive />}
                 onClick={handleArchivePlayer}
               >
-                Archive
-              </Button>
-            ) : (
-              <Button
-                color="error"
-                variant="outlined"
-                startIcon={<Delete />}
-                onClick={() => setDeleteDialogOpen(true)}
-              >
-                Delete
+                Archive Player
               </Button>
             )}
           </Box>

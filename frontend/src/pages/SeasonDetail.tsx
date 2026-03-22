@@ -282,8 +282,24 @@ const SeasonDetail: React.FC = () => {
 
         {/* Edit Dialog */}
         <Dialog open={editDialogOpen} onClose={() => setEditDialogOpen(false)}>
-          <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
+          <DialogTitle
+            sx={{
+              fontFamily: "var(--serif)",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
             Edit Season Details
+            <IconButton
+              color="error"
+              onClick={() => {
+                setEditDialogOpen(false);
+                setDeleteDialogOpen(true);
+              }}
+            >
+              <Delete />
+            </IconButton>
           </DialogTitle>
           <DialogContent>
             <TextField
@@ -345,28 +361,15 @@ const SeasonDetail: React.FC = () => {
               onChange={(e) => setPrimaryColor(e.target.value)}
             />
           </DialogContent>
-          <DialogActions sx={{ justifyContent: "space-between", px: 3, pb: 3 }}>
+          <DialogActions sx={{ px: 3, pb: 3 }}>
+            <Button onClick={() => setEditDialogOpen(false)}>Cancel</Button>
             <Button
-              color="error"
-              variant="outlined"
-              startIcon={<Delete />}
-              onClick={() => {
-                setEditDialogOpen(false);
-                setDeleteDialogOpen(true);
-              }}
+              onClick={handleUpdateSeason}
+              variant="contained"
+              sx={{ ml: 1 }}
             >
-              Delete Season
+              Save
             </Button>
-            <Box>
-              <Button onClick={() => setEditDialogOpen(false)}>Cancel</Button>
-              <Button
-                onClick={handleUpdateSeason}
-                variant="contained"
-                sx={{ ml: 1 }}
-              >
-                Save
-              </Button>
-            </Box>
           </DialogActions>
         </Dialog>
 
