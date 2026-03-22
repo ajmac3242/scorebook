@@ -178,6 +178,7 @@ const Sidebar: React.FC = () => {
               <ListItemButton
                 component={Link}
                 to={item.path}
+                aria-label={item.text}
                 onClick={() => {
                   if (isMobile) setOpen(false);
                 }}
@@ -196,6 +197,7 @@ const Sidebar: React.FC = () => {
                 }}
               >
                 <ListItemIcon
+                  className="sidebar-icon-transition"
                   sx={{
                     minWidth: 0,
                     mr: open ? 3 : "auto",
