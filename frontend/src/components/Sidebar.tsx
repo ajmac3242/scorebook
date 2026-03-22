@@ -178,6 +178,9 @@ const Sidebar: React.FC = () => {
               <ListItemButton
                 component={Link}
                 to={item.path}
+                onClick={() => {
+                  if (isMobile) setOpen(false);
+                }}
                 sx={{
                   minHeight: 48,
                   justifyContent: open ? "initial" : "center",
@@ -365,7 +368,7 @@ const Sidebar: React.FC = () => {
           onClick={toggleDrawer}
           sx={{
             position: "fixed",
-            bottom: "calc(16px + env(safe-area-inset-bottom))",
+            bottom: "calc(32px + env(safe-area-inset-bottom))",
             left: 16,
             zIndex: theme.zIndex.drawer + 1,
             bgcolor: "primary.main",

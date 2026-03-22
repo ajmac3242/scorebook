@@ -45,13 +45,16 @@ describe("Teams Component", () => {
     );
 
     expect(
-      screen.getByRole("heading", { name: /^Teams$/i, level: 4 }),
+      screen.getByRole("heading", { name: /Teams Management/i, level: 3 }),
     ).toBeInTheDocument();
 
     await selectSeason();
 
     expect(
-      await screen.findByRole("heading", { name: /^Teams$/i, level: 4 }),
+      await screen.findByRole("heading", {
+        name: /Teams Management/i,
+        level: 3,
+      }),
     ).toBeInTheDocument();
     expect(screen.getByText("Team 1")).toBeInTheDocument();
   });

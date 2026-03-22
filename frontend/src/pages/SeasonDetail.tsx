@@ -23,7 +23,12 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { MoleskineCard, PageHeader } from "../components/SharedUI";
 import { syncService } from "../utils/syncService";
 import dayjs from "dayjs";
-import { Delete, Restore, Warning, Edit as EditIcon } from "@mui/icons-material";
+import {
+  Delete,
+  Restore,
+  Warning,
+  Edit as EditIcon,
+} from "@mui/icons-material";
 import EntityBanner from "../components/EntityBanner";
 
 const SeasonDetail: React.FC = () => {
@@ -282,8 +287,24 @@ const SeasonDetail: React.FC = () => {
 
         {/* Edit Dialog */}
         <Dialog open={editDialogOpen} onClose={() => setEditDialogOpen(false)}>
-          <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
+          <DialogTitle
+            sx={{
+              fontFamily: "var(--serif)",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
             Edit Season Details
+            <IconButton
+              color="error"
+              onClick={() => {
+                setEditDialogOpen(false);
+                setDeleteDialogOpen(true);
+              }}
+            >
+              <Delete />
+            </IconButton>
           </DialogTitle>
           <DialogContent>
             <TextField
@@ -345,28 +366,15 @@ const SeasonDetail: React.FC = () => {
               onChange={(e) => setPrimaryColor(e.target.value)}
             />
           </DialogContent>
-          <DialogActions sx={{ justifyContent: "space-between", px: 3, pb: 3 }}>
+          <DialogActions sx={{ px: 3, pb: 3 }}>
+            <Button onClick={() => setEditDialogOpen(false)}>Cancel</Button>
             <Button
-              color="error"
-              variant="outlined"
-              startIcon={<Delete />}
-              onClick={() => {
-                setEditDialogOpen(false);
-                setDeleteDialogOpen(true);
-              }}
+              onClick={handleUpdateSeason}
+              variant="contained"
+              sx={{ ml: 1 }}
             >
-              Delete Season
+              Save
             </Button>
-            <Box>
-              <Button onClick={() => setEditDialogOpen(false)}>Cancel</Button>
-              <Button
-                onClick={handleUpdateSeason}
-                variant="contained"
-                sx={{ ml: 1 }}
-              >
-                Save
-              </Button>
-            </Box>
           </DialogActions>
         </Dialog>
 
@@ -380,10 +388,10 @@ const SeasonDetail: React.FC = () => {
           </DialogTitle>
           <DialogContent>
             <DialogContentText>
-              Are you sure you want to delete <strong>{season.name}</strong>? This
-              will mark the season and ALL associated teams, games, and stats as
-              pending deletion. You will have 24 hours to restore it before it is
-              permanently removed.
+              Are you sure you want to delete <strong>{season.name}</strong>?
+              This will mark the season and ALL associated teams, games, and
+              stats as pending deletion. You will have 24 hours to restore it
+              before it is permanently removed.
             </DialogContentText>
           </DialogContent>
           <DialogActions sx={{ p: 2 }}>
