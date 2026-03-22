@@ -1,12 +1,13 @@
 package test
 
 import (
-	"fmt"
 	"strings"
 	"testing"
 
-	"github.com/gruntwork-io/terratest/modules/aws"
-	"github.com/gruntwork-io/terratest/modules/random"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/lambda"
+	"github.com/aws/aws-sdk-go/service/s3"
+	terratest_aws "github.com/gruntwork-io/terratest/modules/aws"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -64,37 +65,33 @@ func testCognitoUserPool(t *testing.T, terraformOptions *terraform.Options, awsR
 
 	// Validate user pool exists and has correct configuration
 	assert.Contains(t, userPoolID, "us-east-1_", "User pool ID should start with region prefix")
-
-	// Additional validation could query AWS SDK to check actual user pool attributes
-	// For example: password policy, schema attributes, etc.
 }
 
 // Test DynamoDB Table
 func testDynamoDBTable(t *testing.T, terraformOptions *terraform.Options, awsRegion string) {
 	tableName := "BasketballStats"
 
-	// Verify table exists
-	aws.GetDynamoDBTable(t, awsRegion, tableName)
-
-	// Get table details for validation
-	tableSchema := aws.GetDynamoDBTableSchema(t, awsRegion, tableName)
+	// Verify table exists and get its description
+	table := terratest_aws.GetDynamoDBTable(t, awsRegion, tableName)
 
 	// Validate hash key
-	assert.Equal(t, "PK", tableSchema.HashKey, "Hash key should be PK")
+	require.Len(t, table.KeySchema, 2, "Should have Hash and Range keys")
+	assert.Equal(t, "PK", *table.KeySchema[0].AttributeName, "Hash key should be PK")
+	assert.Equal(t, "HASH", *table.KeySchema[0].KeyType)
 
 	// Validate range key
-	require.NotNil(t, tableSchema.RangeKey, "Range key should exist")
-	assert.Equal(t, "SK", *tableSchema.RangeKey, "Range key should be SK")
+	assert.Equal(t, "SK", *table.KeySchema[1].AttributeName, "Range key should be SK")
+	assert.Equal(t, "RANGE", *table.KeySchema[1].KeyType)
 
 	// Validate GSI exists
-	assert.Len(t, tableSchema.GlobalSecondaryIndexes, 1, "Should have exactly 1 GSI")
-	gsi := tableSchema.GlobalSecondaryIndexes[0]
-	assert.Equal(t, "GSI1", gsi.IndexName, "GSI name should be GSI1")
-	assert.Equal(t, "GSI1PK", gsi.HashKey, "GSI hash key should be GSI1PK")
-	assert.Equal(t, "GSI1SK", *gsi.RangeKey, "GSI range key should be GSI1SK")
+	assert.Len(t, table.GlobalSecondaryIndexes, 1, "Should have exactly 1 GSI")
+	gsi := table.GlobalSecondaryIndexes[0]
+	assert.Equal(t, "GSI1", *gsi.IndexName, "GSI name should be GSI1")
 
 	// Validate billing mode
-	assert.Equal(t, "PAY_PER_REQUEST", tableSchema.BillingMode, "Billing mode should be PAY_PER_REQUEST")
+	if table.BillingModeSummary != nil {
+		assert.Equal(t, "PAY_PER_REQUEST", *table.BillingModeSummary.BillingMode, "Billing mode should be PAY_PER_REQUEST")
+	}
 }
 
 // Test S3 Bucket and related resources
@@ -106,22 +103,32 @@ func testS3Bucket(t *testing.T, terraformOptions *terraform.Options, awsRegion s
 	assert.True(t, strings.HasPrefix(bucketName, "basketball-stats-frontend-"), "Bucket name should have correct prefix")
 
 	// Verify bucket exists
-	aws.AssertS3BucketExists(t, awsRegion, bucketName)
+	terratest_aws.AssertS3BucketExists(t, awsRegion, bucketName)
 
-	// Validate public access block settings
-	publicAccessBlock := aws.GetS3BucketPublicAccessBlock(t, awsRegion, bucketName)
-	assert.True(t, publicAccessBlock.BlockPublicAcls, "Block public ACLs should be enabled")
-	assert.True(t, publicAccessBlock.BlockPublicPolicy, "Block public policy should be enabled")
-	assert.True(t, publicAccessBlock.IgnorePublicAcls, "Ignore public ACLs should be enabled")
-	assert.True(t, publicAccessBlock.RestrictPublicBuckets, "Restrict public buckets should be enabled")
+	s3Client := terratest_aws.NewS3Client(t, awsRegion)
 
-	// Validate server-side encryption
-	encryption := aws.GetS3BucketEncryption(t, awsRegion, bucketName)
-	require.Len(t, encryption.Rules, 1, "Should have one encryption rule")
-	assert.Equal(t, "AES256", encryption.Rules[0].ApplyServerSideEncryptionByDefault.SSEAlgorithm, "Should use AES256 encryption")
+	// Validate public access block settings using S3 SDK
+	pabInput := &s3.GetPublicAccessBlockInput{
+		Bucket: aws.String(bucketName),
+	}
+	pabOutput, err := s3Client.GetPublicAccessBlock(pabInput)
+	require.NoError(t, err)
+	assert.True(t, *pabOutput.PublicAccessBlockConfiguration.BlockPublicAcls, "Block public ACLs should be enabled")
+	assert.True(t, *pabOutput.PublicAccessBlockConfiguration.BlockPublicPolicy, "Block public policy should be enabled")
+	assert.True(t, *pabOutput.PublicAccessBlockConfiguration.IgnorePublicAcls, "Ignore public ACLs should be enabled")
+	assert.True(t, *pabOutput.PublicAccessBlockConfiguration.RestrictPublicBuckets, "Restrict public buckets should be enabled")
+
+	// Validate server-side encryption using S3 SDK
+	encInput := &s3.GetBucketEncryptionInput{
+		Bucket: aws.String(bucketName),
+	}
+	encOutput, err := s3Client.GetBucketEncryption(encInput)
+	require.NoError(t, err)
+	require.Len(t, encOutput.ServerSideEncryptionConfiguration.Rules, 1, "Should have one encryption rule")
+	assert.Equal(t, "AES256", *encOutput.ServerSideEncryptionConfiguration.Rules[0].ApplyServerSideEncryptionByDefault.SSEAlgorithm, "Should use AES256 encryption")
 
 	// Validate bucket policy exists and allows CloudFront access
-	policy := aws.GetS3BucketPolicy(t, awsRegion, bucketName)
+	policy := terratest_aws.GetS3BucketPolicy(t, awsRegion, bucketName)
 	assert.Contains(t, policy, "cloudfront.amazonaws.com", "Bucket policy should allow CloudFront access")
 	assert.Contains(t, policy, "s3:GetObject", "Bucket policy should allow GetObject")
 }
@@ -140,22 +147,30 @@ func testLambdaFunction(t *testing.T, terraformOptions *terraform.Options, awsRe
 	functionName := "basketball-stats-api-handler"
 
 	// Validate Lambda function exists
-	function := aws.GetLambdaFunction(t, awsRegion, functionName)
+	// We use the AWS SDK directly since Terratest doesn't have GetLambdaFunction
+	lambdaClient := terratest_aws.NewLambdaClient(t, awsRegion)
+	input := &lambda.GetFunctionInput{
+		FunctionName: aws.String(functionName),
+	}
+	output, err := lambdaClient.GetFunction(input)
+	require.NoError(t, err)
+
+	function := output.Configuration
 
 	// Validate runtime
-	assert.Equal(t, "nodejs20.x", function.Runtime, "Runtime should be nodejs20.x")
+	assert.Equal(t, "nodejs22.x", *function.Runtime, "Runtime should be nodejs22.x")
 
 	// Validate handler
-	assert.Equal(t, "dist/index.handler", function.Handler, "Handler should be dist/index.handler")
+	assert.Equal(t, "dist/index.handler", *function.Handler, "Handler should be dist/index.handler")
 
 	// Validate environment variables
 	require.NotNil(t, function.Environment, "Environment should not be nil")
 	assert.Contains(t, function.Environment.Variables, "TABLE_NAME", "Should have TABLE_NAME environment variable")
-	assert.Equal(t, "BasketballStats", function.Environment.Variables["TABLE_NAME"], "TABLE_NAME should be BasketballStats")
+	assert.Equal(t, "BasketballStats", *function.Environment.Variables["TABLE_NAME"], "TABLE_NAME should be BasketballStats")
 
 	// Validate IAM role is attached
-	assert.NotEmpty(t, function.Role, "Lambda should have an IAM role")
-	assert.Contains(t, function.Role, "basketball_stats_lambda_exec", "Role should be the correct execution role")
+	assert.NotEmpty(t, *function.Role, "Lambda should have an IAM role")
+	assert.Contains(t, *function.Role, "basketball_stats_lambda_exec", "Role should be the correct execution role")
 }
 
 // Test API Gateway

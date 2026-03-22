@@ -4,11 +4,16 @@ name: Terraform Integration Tests
 # Run this before major infrastructure changes
 on:
   workflow_dispatch:
-  # Optionally run on PRs that modify infra code
-  pull_request:
-    paths:
-      - 'infra/**'
-      - '.github/workflows/terratest.yml'
+  # DISABLED: Terratest currently lacks proper isolation and can affect production resources.
+  # Re-enable only after implementing mock providers or dedicated test environments.
+  # pull_request:
+  #   paths:
+  #     - 'infra/**'
+  #     - '.github/workflows/terratest.yml'
+
+concurrency:
+  group: terratest-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   id-token: write # Required for requesting the JWT (OIDC)
