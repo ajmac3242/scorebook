@@ -18,7 +18,11 @@ describe("Security Tests", () => {
     process.env.TABLE_NAME = "TestTable";
   });
 
-  const createEvent = (method: string, path: string, body: any = null): any => ({
+  const createEvent = (
+    method: string,
+    path: string,
+    body: any = null,
+  ): any => ({
     version: "2.0",
     rawPath: path,
     requestContext: {
@@ -57,7 +61,9 @@ describe("Security Tests", () => {
 
   it("does not leak error details in 500 responses", async () => {
     // Force an error that would normally leak sensitive info
-    ddbMock.on(QueryCommand).rejects(new Error("Sensitive database connection details..."));
+    ddbMock
+      .on(QueryCommand)
+      .rejects(new Error("Sensitive database connection details..."));
 
     const event = createEvent("GET", "/seasons");
     const response: any = await handler(event);
