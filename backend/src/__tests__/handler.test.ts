@@ -222,6 +222,7 @@ describe("Lambda Handler", () => {
     const response: any = await handler(event);
 
     expect(response.statusCode).toBe(500);
+    expect(JSON.parse(response.body).message).toBe("Internal Server Error");
   });
 
   describe("Edge Cases", () => {

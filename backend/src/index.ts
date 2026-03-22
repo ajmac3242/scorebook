@@ -163,15 +163,16 @@ export const handler = async (
       if (method === "POST") {
         if (!body.playerId) return response(400, { message: "playerId required" });
 
+        const id = body.id || uuidv4();
         const cleanBody = stripLocalFields(body);
         const teamPlayerItem = {
+          ...cleanBody,
+          id,
+          teamId,
           PK: `TEAM#${teamId}`,
           SK: `PLAYER#${body.playerId}`,
           GSI1PK: `TEAM#${teamId}`,
           GSI1SK: `PLAYER#${body.playerId}`,
-          ...cleanBody,
-          id: body.id,
-          teamId,
         };
         await docClient.send(
           new PutCommand({ TableName: TABLE_NAME, Item: teamPlayerItem }),
@@ -363,13 +364,13 @@ export const handler = async (
         const timestamp = body?.timestamp || new Date().toISOString();
         const cleanBody = stripLocalFields(body);
         const item = {
+          ...cleanBody,
+          id,
+          timestamp,
           PK: `GAME#${gameId}`,
           SK: `STAT#${timestamp}#${id}`,
           GSI1PK: `GAME#${gameId}`,
           GSI1SK: `STAT#${timestamp}#${id}`,
-          ...cleanBody,
-          id,
-          timestamp,
         };
         await docClient.send(
           new PutCommand({ TableName: TABLE_NAME, Item: item }),
@@ -386,8 +387,10 @@ export const handler = async (
 
     return response(404, { message: "Route not found" });
   } catch (error: any) {
+    // Log full error for server-side debugging
     console.error("Handler Error:", error);
-    return response(500, { message: error.message });
+    // Return generic error message to prevent sensitive info leakage
+    return response(500, { message: "Internal Server Error" });
   }
 };
 
@@ -454,12 +457,12 @@ async function createItem(
   const id = data?.id || uuidv4();
   const cleanData = stripLocalFields(data);
   const item = {
+    ...cleanData,
+    id,
     PK: `${type}#${id}`,
     SK: `${skPrefix}#${id}`,
     GSI1PK: gsiPk,
     GSI1SK: `${type}#${id}`,
-    ...cleanData,
-    id,
   };
   await docClient.send(new PutCommand({ TableName: tableName, Item: item }));
   return response(201, item);
@@ -662,7 +665,7 @@ async function performHardCleanup(tableName: string) {
  * @returns {any} The cleaned object.
  */
 function stripLocalFields(data: any) {
-  const { synced, id, ...rest } = data;
+  const { synced, id, PK, SK, GSI1PK, GSI1SK, deletedAt, ...rest } = data;
   return rest;
 }
 
