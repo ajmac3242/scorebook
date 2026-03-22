@@ -326,19 +326,43 @@ const Teams: React.FC = () => {
                       value={aggregates.ppg}
                       light={contrastColor === "white"}
                     />
-                    <Typography sx={{ color: contrastColor, opacity: 0.3, alignSelf: "center" }}>|</Typography>
+                    <Typography
+                      sx={{
+                        color: contrastColor,
+                        opacity: 0.3,
+                        alignSelf: "center",
+                      }}
+                    >
+                      |
+                    </Typography>
                     <StatItem
                       label="RPG"
                       value={aggregates.rpg}
                       light={contrastColor === "white"}
                     />
-                    <Typography sx={{ color: contrastColor, opacity: 0.3, alignSelf: "center" }}>|</Typography>
+                    <Typography
+                      sx={{
+                        color: contrastColor,
+                        opacity: 0.3,
+                        alignSelf: "center",
+                      }}
+                    >
+                      |
+                    </Typography>
                     <StatItem
                       label="APG"
                       value={aggregates.apg}
                       light={contrastColor === "white"}
                     />
-                    <Typography sx={{ color: contrastColor, opacity: 0.3, alignSelf: "center" }}>|</Typography>
+                    <Typography
+                      sx={{
+                        color: contrastColor,
+                        opacity: 0.3,
+                        alignSelf: "center",
+                      }}
+                    >
+                      |
+                    </Typography>
                     <StatItem
                       label="OPPG"
                       value={aggregates.oppg}
