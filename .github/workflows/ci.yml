@@ -51,8 +51,7 @@ jobs:
         run: |
           cd backend
           npx prettier --write "src/**/*.ts"
-          # Auto-add missing JSDoc stubs. We allow this to fail so that the CI continues
-          # to the test and doc steps, and potentially gets fixed by the Jules auto-fixer.
+          # Auto-add missing JSDoc stubs.
           npx eslint "src/**/*.ts" --config eslint.config.mjs --fix --rule '{"jsdoc/require-jsdoc": ["warn", {"enableFixer": true, "require": {"FunctionDeclaration": true, "FunctionExpression": true, "MethodDefinition": true}}]}' || true
 
       - name: "Backend: Run Tests"
@@ -161,44 +160,3 @@ jobs:
             backend/*.log
             frontend/*.log
           if-no-files-found: ignore
-
-  # ---------------------------------------------------------------
-  # Jules Enrichment: Meaningful Comments
-  # Runs AFTER quality checks to enrich the auto-generated stubs
-  # ---------------------------------------------------------------
-  jules-enrich-comments:
-    name: Enrich Comments with Jules
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    needs: [quality-and-tests]
-    if: github.event_name == 'pull_request'
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref }}
-          fetch-depth: 0
-
-      - name: Identify Changed Files
-        id: changed-files
-        run: |
-          # Find .ts and .tsx files changed in this PR compared to the target branch
-          FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -E '\.(ts|tsx)$' | grep -v '__tests__' | xargs || true)
-          echo "files=$FILES" >> $GITHUB_OUTPUT
-
-      - name: Invoke Jules to Enrich JSDoc
-        if: steps.changed-files.outputs.files != ''
-        uses: google-labs-code/jules-action@main
-        with:
-          jules_api_key: ${{ secrets.JULES_API_KEY }}
-          prompt: |
-            I have automatically added JSDoc stubs to the following changed files:
-            ${{ steps.changed-files.outputs.files }}
-
-            Please review these files and replace any empty or generic JSDoc descriptions with meaningful, accurate explanations of what each function, class, and parameter does.
-            Ensure the comments follow high-quality documentation standards.
-
-            **Rules:**
-            1. Only update the JSDoc comments. Do not change code logic.
-            2. Commit your changes directly to the branch: ${{ github.head_ref }}
-            3. Use the commit message: "docs: enrich JSDoc comments with Jules [skip ci]"
-          starting_branch: ${{ github.head_ref }}
