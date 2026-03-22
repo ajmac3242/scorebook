@@ -241,7 +241,10 @@ async function handleGames(
         new QueryCommand({
           TableName: tableName,
           KeyConditionExpression: "PK = :pk AND begins_with(SK, :sk)",
-          ExpressionAttributeValues: { ":pk": Keys.game(gameId), ":sk": "STAT#" },
+          ExpressionAttributeValues: {
+            ":pk": Keys.game(gameId),
+            ":sk": "STAT#",
+          },
         }),
       );
       return ok(result.Items?.filter((i) => !i.deletedAt) || []);
@@ -259,7 +262,9 @@ async function handleGames(
         id,
         timestamp,
       };
-      await docClient.send(new PutCommand({ TableName: tableName, Item: item }));
+      await docClient.send(
+        new PutCommand({ TableName: tableName, Item: item }),
+      );
       return created(item);
     }
   }
@@ -445,7 +450,8 @@ export const handler = async (
   let body: any = {};
   if (event.body) {
     try {
-      body = typeof event.body === "string" ? JSON.parse(event.body) : event.body;
+      body =
+        typeof event.body === "string" ? JSON.parse(event.body) : event.body;
     } catch (e) {
       return badRequest("Invalid JSON body");
     }
@@ -505,9 +511,14 @@ export const handler = async (
  */
 function normalizePath(event: APIGatewayProxyEventV2): string {
   const raw =
-    event.rawPath || (event as any).path || event.requestContext?.http?.path || "/";
+    event.rawPath ||
+    (event as any).path ||
+    event.requestContext?.http?.path ||
+    "/";
   const path = raw.replace(/^\/(\$default|api)/, "");
-  return path.length > 1 && path.endsWith("/") ? path.slice(0, -1) : path || "/";
+  return path.length > 1 && path.endsWith("/")
+    ? path.slice(0, -1)
+    : path || "/";
 }
 
 /**
@@ -871,7 +882,10 @@ function response(
   };
 }
 
-/** Semantic response helpers */
+/**
+ * Semantic response helpers
+ * @param body
+ */
 const ok = (body: any) => response(200, body);
 const created = (body: any) => response(201, body);
 const badRequest = (msg: string) => response(400, { message: msg });

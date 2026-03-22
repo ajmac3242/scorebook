@@ -118,9 +118,16 @@ class SyncService {
    */
   async hasUnsyncedChanges(): Promise<boolean> {
     try {
-      const tables = [db.seasons, db.teams, db.players, db.teamPlayers, db.games, db.stats];
+      const tables = [
+        db.seasons,
+        db.teams,
+        db.players,
+        db.teamPlayers,
+        db.games,
+        db.stats,
+      ];
       const counts = await Promise.all(
-        tables.map((t) => t.where("synced").equals(0).count())
+        tables.map((t) => t.where("synced").equals(0).count()),
       );
       return counts.some((c) => c > 0);
     } catch (e) {
@@ -204,6 +211,12 @@ class SyncService {
 
   /**
    * Helper to handle ETag-based snapshot responses.
+   * @param type
+   * @param id
+   * @param url
+   * @param etag
+   * @param onSuccess
+   * @param label
    * @private
    */
   private async handleEtagResponse<T>(
@@ -258,8 +271,12 @@ class SyncService {
    * @param {string} teamId - The team ID.
    */
   async syncTeamGamesList(teamId: string) {
-    const localGamesCount = await db.games.where("teamId").equals(teamId).count();
-    const etag = localGamesCount > 0 ? this.getETag("team_games", teamId) : null;
+    const localGamesCount = await db.games
+      .where("teamId")
+      .equals(teamId)
+      .count();
+    const etag =
+      localGamesCount > 0 ? this.getETag("team_games", teamId) : null;
 
     await this.handleEtagResponse<{ games: any[] }>(
       "team_games",
