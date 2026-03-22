@@ -16,7 +16,6 @@ import {
   Stack,
   Divider,
   MenuItem,
-  Tooltip,
 } from "@mui/material";
 import { Add as AddIcon, Settings } from "@mui/icons-material";
 import { db, type Season } from "../db";
@@ -267,22 +266,20 @@ const Seasons: React.FC = () => {
             </MoleskineCard>
           </Grid>
         </Grid>
-        <Tooltip title="Add New Season" placement="left">
-          <Fab
-            color="primary"
-            aria-label="add"
-            sx={{
-              position: "fixed",
-              bottom: 32,
-              right: 32,
-              transition: "transform 0.2s",
-              "&:hover": { transform: "scale(1.1) rotate(90deg)" },
-            }}
-            onClick={() => setOpen(true)}
-          >
-          <AddIcon className="bounce-in" />
-          </Fab>
-        </Tooltip>
+        <Fab
+          color="primary"
+          aria-label="add"
+          sx={{
+            position: "fixed",
+            bottom: 32,
+            right: 32,
+            transition: "transform 0.2s",
+            "&:hover": { transform: "scale(1.1) rotate(90deg)" },
+          }}
+          onClick={() => setOpen(true)}
+        >
+          <AddIcon />
+        </Fab>
         <Dialog open={open} onClose={() => setOpen(false)}>
           <DialogTitle>New Season</DialogTitle>
           <DialogContent>

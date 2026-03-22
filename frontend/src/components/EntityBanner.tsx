@@ -66,7 +66,6 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
     >
       <IconButton
         onClick={() => (backTo ? navigate(backTo) : navigate(-1))}
-        aria-label="Go back"
         sx={{
           position: "absolute",
           top: 16,

@@ -19,7 +19,6 @@ import {
   Fab,
   Chip,
   Autocomplete,
-  Tooltip,
 } from "@mui/material";
 import {
   Add as AddIcon,
@@ -219,7 +218,6 @@ const Games: React.FC = () => {
                     {currentTeam?.logoUrl ? (
                       <Avatar
                         src={currentTeam.logoUrl}
-                        alt={`${currentTeam?.name} logo`}
                         sx={{
                           width: 32,
                           height: 32,
@@ -326,22 +324,18 @@ const Games: React.FC = () => {
       )}
 
       {selectedTeamId && (
-        <Tooltip title="Add New Game" placement="left">
-          <Fab
-            color="primary"
-            aria-label="add"
-            sx={{
-              position: "fixed",
-              bottom: "calc(32px + env(safe-area-inset-bottom))",
-              right: 32,
-              transition: "transform 0.2s",
-              "&:hover": { transform: "scale(1.1) rotate(90deg)" },
-            }}
-            onClick={() => setOpen(true)}
-          >
-            <AddIcon className="bounce-in" />
-          </Fab>
-        </Tooltip>
+        <Fab
+          color="primary"
+          aria-label="add"
+          sx={{
+            position: "fixed",
+            bottom: "calc(32px + env(safe-area-inset-bottom))",
+            right: 32,
+          }}
+          onClick={() => setOpen(true)}
+        >
+          <AddIcon />
+        </Fab>
       )}
 
       <Dialog open={open} onClose={() => setOpen(false)}>

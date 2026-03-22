@@ -17,14 +17,12 @@ import { syncService } from "../utils/syncService";
 const Login: React.FC = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const { setIsAuthenticated } = useAuth();
 
   const onSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    setIsSubmitting(true);
 
     const user = new CognitoUser({
       Username: username,
@@ -48,12 +46,10 @@ const Login: React.FC = () => {
       onFailure: (err) => {
         console.error("onFailure:", err);
         setError(err.message || JSON.stringify(err));
-        setIsSubmitting(false);
       },
       newPasswordRequired: (userAttributes, requiredAttributes) => {
         console.log("newPasswordRequired:", userAttributes, requiredAttributes);
         setError("New password required");
-        setIsSubmitting(false);
       },
     });
   };
@@ -108,9 +104,8 @@ const Login: React.FC = () => {
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
-              disabled={isSubmitting}
             >
-              {isSubmitting ? "Signing In..." : "Sign In"}
+              Sign In
             </Button>
           </Box>
         </Paper>

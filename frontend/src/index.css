@@ -113,21 +113,3 @@ p {
 .hover-grow:active {
   transform: scale(0.95);
 }
-
-@keyframes bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-4px); }
-}
-
-.bounce-in {
-  animation: bounce 2s ease-in-out infinite;
-}
-
-.sidebar-icon-transition {
-  transition: all 0.2s ease-in-out;
-}
-
-.sidebar-icon-transition:hover {
-  color: var(--palette-golden-dune);
-  transform: translateX(4px);
-}
