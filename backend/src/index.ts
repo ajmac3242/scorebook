@@ -582,7 +582,11 @@ async function snapshotTeamRoster(teamId: string, tableName: string) {
         team: teamResult.Item,
         players: (playersResult.Items || []).filter((p) => !p.deletedAt),
       };
-      await uploadSnapshot(DATA_BUCKET, `teams/${teamId}/roster.json`, snapshot);
+      await uploadSnapshot(
+        DATA_BUCKET,
+        `teams/${teamId}/roster.json`,
+        snapshot,
+      );
     }
   } catch (e) {
     console.error("Snapshot error:", e);
@@ -643,7 +647,8 @@ async function snapshotGameStats(gameId: string, tableName: string) {
     );
     if (gameResult.Item) {
       const stats = (statsResult.Items || []).filter((s) => !s.deletedAt);
-      const { teamScore, oppScore, result } = calculateGameResultFromStats(stats);
+      const { teamScore, oppScore, result } =
+        calculateGameResultFromStats(stats);
 
       const snapshot = {
         game: { ...gameResult.Item, teamScore, oppScore, result },

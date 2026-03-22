@@ -178,11 +178,14 @@ class SyncService {
     const etag = localTeam ? localStorage.getItem(`etag_team_${teamId}`) : null;
 
     try {
-      const response = await this.fetchApi(`/data/teams/${teamId}/roster.json`, {
-        headers: {
-          "If-None-Match": etag || "",
+      const response = await this.fetchApi(
+        `/data/teams/${teamId}/roster.json`,
+        {
+          headers: {
+            "If-None-Match": etag || "",
+          },
         },
-      });
+      );
 
       if (response.status === 304) {
         console.log(`Team ${teamId} is up to date.`);
