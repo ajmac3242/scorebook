@@ -327,7 +327,11 @@ const Games: React.FC = () => {
         <Fab
           color="primary"
           aria-label="add"
-          sx={{ position: "fixed", bottom: 32, right: 32 }}
+          sx={{
+            position: "fixed",
+            bottom: "calc(32px + env(safe-area-inset-bottom))",
+            right: 32,
+          }}
           onClick={() => setOpen(true)}
         >
           <AddIcon />
