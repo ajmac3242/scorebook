@@ -1,0 +1,114 @@
+
+> frontend@0.0.0 lint
+> eslint .
+
+
+/app/frontend/coverage/block-navigation.js
+  1:1  warning  Unused eslint-disable directive (no problems were reported)
+
+/app/frontend/coverage/prettify.js
+  1:1  warning  Unused eslint-disable directive (no problems were reported)
+
+/app/frontend/coverage/sorter.js
+  1:1  warning  Unused eslint-disable directive (no problems were reported)
+
+/app/frontend/src/__tests__/GameMode.test.tsx
+  21:31  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  31:17  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  62:22  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/frontend/src/__tests__/Games.test.tsx
+   51:22  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   75:22  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   97:22  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  136:22  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  161:22  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  165:17  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  183:22  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  184:22  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/frontend/src/__tests__/Login.test.tsx
+    6:23  error  'AuthenticationDetails' is defined but never used  @typescript-eslint/no-unused-vars
+   44:21  error  Unexpected any. Specify a different type           @typescript-eslint/no-explicit-any
+   71:21  error  Unexpected any. Specify a different type           @typescript-eslint/no-explicit-any
+   97:21  error  Unexpected any. Specify a different type           @typescript-eslint/no-explicit-any
+  133:21  error  Unexpected any. Specify a different type           @typescript-eslint/no-explicit-any
+  170:21  error  Unexpected any. Specify a different type           @typescript-eslint/no-explicit-any
+
+/app/frontend/src/__tests__/Players.test.tsx
+  13:22  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  30:22  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  42:24  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  89:24  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/frontend/src/__tests__/Teams.test.tsx
+   6:3   error  'within' is defined but never used        @typescript-eslint/no-unused-vars
+  22:22  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  65:22  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  73:17  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/frontend/src/components/BasketballCourt.test.tsx
+  1:18  error  'screen' is defined but never used  @typescript-eslint/no-unused-vars
+
+/app/frontend/src/context/AuthContext.test.tsx
+  36:33  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  57:33  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  73:33  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  93:33  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/frontend/src/context/AuthContext.tsx
+  93:14  error  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/app/frontend/src/pages/GameStats.tsx
+  103:9  warning  The 'playersResult' logical expression could make the dependencies of useMemo Hook (at line 104) change on every render. Move it inside the useMemo callback. Alternatively, wrap the initialization of 'playersResult' in its own useMemo() Hook  react-hooks/exhaustive-deps
+
+/app/frontend/src/pages/Seasons.tsx
+   49:9   warning  The 'seasons' logical expression could make the dependencies of useMemo Hook (at line 62) change on every render. To fix this, wrap the initialization of 'seasons' in its own useMemo() Hook                                           react-hooks/exhaustive-deps
+   49:9   warning  The 'seasons' logical expression could make the dependencies of useMemo Hook (at line 105) change on every render. To fix this, wrap the initialization of 'seasons' in its own useMemo() Hook                                          react-hooks/exhaustive-deps
+   50:9   warning  The 'allTeams' logical expression could make the dependencies of useMemo Hook (at line 62) change on every render. Move it inside the useMemo callback. Alternatively, wrap the initialization of 'allTeams' in its own useMemo() Hook  react-hooks/exhaustive-deps
+   51:9   warning  The 'allGames' logical expression could make the dependencies of useMemo Hook (at line 62) change on every render. To fix this, wrap the initialization of 'allGames' in its own useMemo() Hook                                         react-hooks/exhaustive-deps
+   51:9   warning  The 'allGames' logical expression could make the dependencies of useMemo Hook (at line 92) change on every render. To fix this, wrap the initialization of 'allGames' in its own useMemo() Hook                                         react-hooks/exhaustive-deps
+  425:64  error    Unexpected any. Specify a different type                                                                                                                                                                                                @typescript-eslint/no-explicit-any
+
+/app/frontend/src/pages/TeamStats.tsx
+  135:9  warning  The 'teamPlayers' logical expression could make the dependencies of useMemo Hook (at line 152) change on every render. To fix this, wrap the initialization of 'teamPlayers' in its own useMemo() Hook  react-hooks/exhaustive-deps
+  135:9  warning  The 'teamPlayers' logical expression could make the dependencies of useMemo Hook (at line 189) change on every render. To fix this, wrap the initialization of 'teamPlayers' in its own useMemo() Hook  react-hooks/exhaustive-deps
+  158:9  warning  The 'allStats' logical expression could make the dependencies of useMemo Hook (at line 172) change on every render. To fix this, wrap the initialization of 'allStats' in its own useMemo() Hook        react-hooks/exhaustive-deps
+  158:9  warning  The 'allStats' logical expression could make the dependencies of useMemo Hook (at line 189) change on every render. To fix this, wrap the initialization of 'allStats' in its own useMemo() Hook        react-hooks/exhaustive-deps
+
+/app/frontend/src/setupTests.ts
+    7:14  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   10:14  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   11:14  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   14:14  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   17:11  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  109:16  error  '_error' is defined but never used        @typescript-eslint/no-unused-vars
+
+/app/frontend/src/utils/logger.ts
+   6:36  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   6:51  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   9:37  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  15:37  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/frontend/src/utils/stats.ts
+  119:12  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  159:12  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  191:12  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  209:10  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  219:40  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/frontend/src/utils/syncService.ts
+   14:9   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   15:12  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   22:9   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   23:10  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   66:29  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   66:43  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  131:25  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  150:12  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  221:52  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  275:30  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  299:52  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+✖ 71 problems (58 errors, 13 warnings)
+  0 errors and 3 warnings potentially fixable with the `--fix` option.

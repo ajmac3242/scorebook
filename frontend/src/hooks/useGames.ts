@@ -1,5 +1,5 @@
 import { useLiveQuery } from "dexie-react-hooks";
-import { db, Game } from "../db";
+import { db } from "../db";
 
 /**
  * Hook to fetch games for a specific team from the local database.

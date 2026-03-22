@@ -13,22 +13,15 @@ import {
   Chip,
   FormControlLabel,
   Switch,
-  IconButton,
   Grid,
 } from "@mui/material";
 import {
   Add as AddIcon,
-  BarChart,
-  Delete,
-  Archive,
-  Restore,
   History,
-  Edit as EditIcon,
   People as PlayersIcon,
 } from "@mui/icons-material";
 import { db } from "../db";
 import { syncService } from "../utils/syncService";
-import { Link } from "react-router-dom";
 import { getInitials, calculatePlayerAggregates } from "../utils/stats";
 import { MoleskineCard, StatItem } from "../components/SharedUI";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -44,44 +37,37 @@ import { useNavigate } from "react-router-dom";
 const Players: React.FC = () => {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
-  const [editOpen, setEditOpen] = useState(false);
-  const [selectedPlayer, setSelectedPlayer] = useState<any>(null);
   const [name, setName] = useState("");
   const [avatarColor, setAvatarColor] = useState(AVATAR_COLORS[0]);
   const [showValidation, setShowValidation] = useState(false);
   const [showArchived, setShowArchived] = useState(false);
-  const [hasAssociations, setHasAssociations] = useState(false);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
   // Use live query directly to handle archived/deleted filtering
-  const players =
-    useLiveQuery(async () => {
-      const query = db.players.toCollection();
-      const all = await query.toArray();
-      return all.filter((p) => {
-        if (p.deletedAt) return false;
-        if (!showArchived && p.isArchived) return false;
-        if (
-          searchTerm &&
-          !p.name.toLowerCase().includes(searchTerm.toLowerCase())
-        )
-          return false;
-        return true;
-      });
-    }, [showArchived, searchTerm]) || [];
+  const playersResult = useLiveQuery(async () => {
+    const query = db.players.toCollection();
+    const all = await query.toArray();
+    return all.filter((p) => {
+      if (p.deletedAt) return false;
+      if (!showArchived && p.isArchived) return false;
+      if (
+        searchTerm &&
+        !p.name.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+        return false;
+      return true;
+    });
+  }, [showArchived, searchTerm]);
 
-  const allStats = useLiveQuery(() => db.stats.toArray()) || [];
+  const players = useMemo(() => playersResult || [], [playersResult]);
+
+  const allStatsResult = useLiveQuery(() => db.stats.toArray());
+  const allStats = useMemo(() => allStatsResult || [], [allStatsResult]);
 
   const playersWithStats = useMemo(() => {
-    const aggregates = calculatePlayerAggregates(
-      players,
-      allStats,
-      [],
-      "average",
-    );
-    return players.map((p) => {
-      const agg = aggregates.find((a) => a.id === p.id);
+    const aggregates = calculatePlayerAggregates(players, allStats, [], "average");
+    return players.map(p => {
+      const agg = aggregates.find(a => a.id === p.id);
       return {
         ...p,
         ppg: agg?.points || 0,
@@ -118,75 +104,12 @@ const Players: React.FC = () => {
     }
   };
 
-  const handleOpenEdit = async (player: any) => {
-    setSelectedPlayer(player);
-    setName(player.name);
-    setAvatarColor(player.avatarColor || AVATAR_COLORS[0]);
-
-    // Check for associations
-    const statsCount = await db.stats
-      .where("playerId")
-      .equals(player.id)
-      .count();
-    const teamCount = await db.teamPlayers
-      .where("playerId")
-      .equals(player.id)
-      .count();
-    setHasAssociations(statsCount > 0 || teamCount > 0);
-
-    setEditOpen(true);
-  };
-
-  const handleUpdatePlayer = async () => {
-    if (!name.trim() || !selectedPlayer) {
-      setShowValidation(true);
-      return;
-    }
-    try {
-      await db.players.update(selectedPlayer.id, {
-        name: name.trim(),
-        avatarColor,
-        synced: 0,
-      });
-      syncService.pushUpdates();
-      setEditOpen(false);
-      setSelectedPlayer(null);
-      setName("");
-      setShowValidation(false);
-    } catch (err) {
-      logger.error("Failed to update player", err);
-    }
-  };
-
-  const handleArchivePlayer = async () => {
-    if (!selectedPlayer) return;
-    try {
-      await db.players.update(selectedPlayer.id, { isArchived: 1, synced: 0 });
-      syncService.pushUpdates();
-      setEditOpen(false);
-    } catch (err) {
-      logger.error("Failed to archive player", err, { id: selectedPlayer.id });
-    }
-  };
-
   const handleRestorePlayer = async (id: string) => {
     try {
       await db.players.update(id, { isArchived: 0, synced: 0 });
       syncService.pushUpdates();
     } catch (err) {
       logger.error("Failed to restore player", err, { id });
-    }
-  };
-
-  const handleDeletePlayer = async () => {
-    if (!selectedPlayer) return;
-    try {
-      await db.players.delete(selectedPlayer.id);
-      syncService.pushUpdates();
-      setDeleteDialogOpen(false);
-      setEditOpen(false);
-    } catch (err) {
-      logger.error("Failed to delete player", err, { id: selectedPlayer.id });
     }
   };
 
@@ -245,11 +168,7 @@ const Players: React.FC = () => {
                 border: "none",
                 opacity: player.isArchived ? 0.7 : 1,
               }}
-              onClick={() =>
-                player.isArchived
-                  ? handleRestorePlayer(player.id)
-                  : navigate(`/players/${player.id}`)
-              }
+              onClick={() => (player.isArchived ? handleRestorePlayer(player.id) : navigate(`/players/${player.id}`))}
             >
               <Box sx={{ p: 3, flexGrow: 1 }}>
                 <Box
@@ -276,18 +195,8 @@ const Players: React.FC = () => {
                       <Chip
                         label="Archived"
                         size="small"
-                        sx={{
-                          bgcolor: "rgba(255,255,255,0.2)",
-                          color: "white",
-                        }}
-                        icon={
-                          <History
-                            sx={{
-                              fontSize: "12px !important",
-                              color: "white !important",
-                            }}
-                          />
-                        }
+                        sx={{ bgcolor: "rgba(255,255,255,0.2)", color: "white" }}
+                        icon={<History sx={{ fontSize: "12px !important", color: "white !important" }} />}
                       />
                     )}
                   </Box>
@@ -316,17 +225,9 @@ const Players: React.FC = () => {
                 }}
               >
                 <StatItem label="PPG" value={player.ppg} light />
-                <Typography
-                  sx={{ color: "white", opacity: 0.3, alignSelf: "center" }}
-                >
-                  |
-                </Typography>
+                <Typography sx={{ color: "white", opacity: 0.3, alignSelf: "center" }}>|</Typography>
                 <StatItem label="RPG" value={player.rpg} light />
-                <Typography
-                  sx={{ color: "white", opacity: 0.3, alignSelf: "center" }}
-                >
-                  |
-                </Typography>
+                <Typography sx={{ color: "white", opacity: 0.3, alignSelf: "center" }}>|</Typography>
                 <StatItem label="APG" value={player.apg} light />
               </Box>
             </MoleskineCard>
@@ -422,125 +323,7 @@ const Players: React.FC = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Edit Player Dialog */}
-      <Dialog
-        open={editOpen}
-        onClose={() => {
-          setEditOpen(false);
-          setShowValidation(false);
-        }}
-      >
-        <DialogTitle
-          sx={{
-            fontFamily: "var(--serif)",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          Edit Player Details
-          {!hasAssociations && (
-            <IconButton
-              color="error"
-              onClick={() => setDeleteDialogOpen(true)}
-              size="small"
-            >
-              <Delete />
-            </IconButton>
-          )}
-        </DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Player Name"
-            fullWidth
-            variant="outlined"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            sx={{ mb: 2, mt: 1 }}
-            error={showValidation && !name.trim()}
-            helperText={
-              showValidation && !name.trim() ? "Player name is required" : ""
-            }
-            required
-          />
-          <Typography variant="subtitle2" gutterBottom>
-            Avatar Color
-          </Typography>
-          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-            {AVATAR_COLORS.map((color) => (
-              <Box
-                key={color}
-                onClick={() => setAvatarColor(color)}
-                sx={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: "50%",
-                  bgcolor: color,
-                  cursor: "pointer",
-                  border: avatarColor === color ? "3px solid #000" : "none",
-                  boxSizing: "border-box",
-                  transition: "transform 0.1s",
-                  "&:hover": { transform: "scale(1.2)" },
-                }}
-              />
-            ))}
-          </Box>
-        </DialogContent>
-        <DialogActions sx={{ justifyContent: "space-between", px: 3, pb: 3 }}>
-          <Box>
-            {hasAssociations && (
-              <Button
-                color="warning"
-                variant="outlined"
-                startIcon={<Archive />}
-                onClick={handleArchivePlayer}
-              >
-                Archive Player
-              </Button>
-            )}
-          </Box>
-          <Box>
-            <Button onClick={() => setEditOpen(false)}>Cancel</Button>
-            <Button
-              onClick={handleUpdatePlayer}
-              variant="contained"
-              sx={{ ml: 1 }}
-              disabled={!name.trim()}
-            >
-              Save
-            </Button>
-          </Box>
-        </DialogActions>
-      </Dialog>
 
-      {/* Delete Confirmation Dialog */}
-      <Dialog
-        open={deleteDialogOpen}
-        onClose={() => setDeleteDialogOpen(false)}
-      >
-        <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
-          Delete Player?
-        </DialogTitle>
-        <DialogContent>
-          <Typography>
-            Are you sure you want to permanently delete{" "}
-            <strong>{selectedPlayer?.name}</strong>? This action cannot be
-            undone.
-          </Typography>
-        </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
-          <Button
-            onClick={handleDeletePlayer}
-            color="error"
-            variant="contained"
-          >
-            Yes, Delete
-          </Button>
-        </DialogActions>
-      </Dialog>
     </Box>
   );
 };

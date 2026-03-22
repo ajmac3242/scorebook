@@ -23,7 +23,7 @@ import {
   EventNote as SeasonsIcon,
   SportsBasketball as BasketballIcon,
 } from "@mui/icons-material";
-import { db, type Season } from "../db";
+import { db } from "../db";
 import { syncService } from "../utils/syncService";
 import { useLiveQuery } from "dexie-react-hooks";
 import { LocalizationProvider, StaticDatePicker } from "@mui/x-date-pickers";
@@ -56,11 +56,7 @@ const Seasons: React.FC = () => {
       .filter((s) => s.name.toLowerCase().includes(searchTerm.toLowerCase()))
       .map((s) => {
         const teamCount = allTeams.filter((t) => t.seasonId === s.id).length;
-        const gameCount = allGames.filter(
-          (g) =>
-            g.teamId &&
-            allTeams.find((t) => t.id === g.teamId && t.seasonId === s.id),
-        ).length;
+        const gameCount = allGames.filter((g) => g.teamId && allTeams.find(t => t.id === g.teamId && t.seasonId === s.id)).length;
         return { ...s, teamCount, gameCount };
       });
   }, [seasons, allTeams, allGames, searchTerm]);
@@ -111,7 +107,11 @@ const Seasons: React.FC = () => {
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Box sx={{ pb: 8 }}>
-        <EntityBanner title="Seasons" icon={<SeasonsIcon />} backTo="/" />
+        <EntityBanner
+          title="Seasons"
+          icon={<SeasonsIcon />}
+          backTo="/"
+        />
 
         <Box sx={{ mt: 4 }}>
           <TextField
@@ -197,13 +197,17 @@ const Seasons: React.FC = () => {
                     justifyContent: "space-around",
                   }}
                 >
-                  <StatItem label="TEAMS" value={season.teamCount} light />
-                  <Typography
-                    sx={{ color: "white", opacity: 0.3, alignSelf: "center" }}
-                  >
-                    |
-                  </Typography>
-                  <StatItem label="GAMES" value={season.gameCount} light />
+                  <StatItem
+                    label="TEAMS"
+                    value={season.teamCount}
+                    light
+                  />
+                  <Typography sx={{ color: "white", opacity: 0.3, alignSelf: "center" }}>|</Typography>
+                  <StatItem
+                    label="GAMES"
+                    value={season.gameCount}
+                    light
+                  />
                 </Box>
               </MoleskineCard>
             </Grid>
@@ -418,7 +422,9 @@ const Seasons: React.FC = () => {
               label="Period Type"
               fullWidth
               value={periodType}
-              onChange={(e) => setPeriodType(e.target.value as any)}
+              onChange={(e) =>
+                setPeriodType(e.target.value as "QUARTERS" | "HALVES")
+              }
               sx={{ mb: 2 }}
             >
               <MenuItem value="QUARTERS">Quarters (1-4)</MenuItem>
@@ -437,7 +443,7 @@ const Seasons: React.FC = () => {
                 borderRadius: 4,
               }}
               value={primaryColor}
-              onChange={(e) => setPrimaryColor(e.target.value)}
+              onChange={(e) => setPrimaryColor(e.currentTarget.value)}
             />
           </DialogContent>
           <DialogActions>

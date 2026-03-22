@@ -1,6 +1,8 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
+  useTheme,
+  useMediaQuery,
   Box,
   Typography,
   Grid,
@@ -38,7 +40,7 @@ import {
   Edit as EditIcon,
   Delete,
 } from "@mui/icons-material";
-import { db, TeamPlayer, Team, Season, StatEvent } from "../db";
+import { db, type TeamPlayer, type StatEvent } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
 import { STAT_ACRONYMS } from "../constants/stats";
 import {
@@ -61,6 +63,8 @@ import dayjs from "dayjs";
 const TeamStats: React.FC = () => {
   const { teamId } = useParams<{ teamId: string }>();
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const [statView, setStatView] = useState<"total" | "average">("total");
   const [openRosterDialog, setOpenRosterDialog] = useState(false);
@@ -79,7 +83,6 @@ const TeamStats: React.FC = () => {
   const [editName, setEditName] = useState("");
   const [editLogoUrl, setEditLogoUrl] = useState("");
   const [editColor, setEditColor] = useState("#154C56");
-  const [isSyncing, setIsSyncing] = useState(false);
   const [timeLeft, setTimeLeft] = useState("");
   const [sortConfig, setSortConfig] = useState<{
     key: string;
@@ -101,15 +104,6 @@ const TeamStats: React.FC = () => {
     async () => (teamId !== undefined ? await db.teams.get(teamId) : undefined),
     [teamId],
   );
-
-  // Sync edit states when team loads
-  useEffect(() => {
-    if (team) {
-      setEditName(team.name || "");
-      setEditLogoUrl(team.logoUrl || "");
-      setEditColor(team.primaryColor || "#154C56");
-    }
-  }, [team]);
 
   useEffect(() => {
     if (team?.deletedAt) {
@@ -182,12 +176,12 @@ const TeamStats: React.FC = () => {
     const stats = calculatePlayerAggregates(
       teamPlayerDetails,
       allStats as StatEvent[],
-      teamPlayers as TeamPlayer[],
+      teamPlayers,
       statView,
     );
-    return [...stats].sort((a: any, b: any) => {
-      const aValue = a[sortConfig.key];
-      const bValue = b[sortConfig.key];
+    return [...stats].sort((a, b) => {
+      const aValue = a[sortConfig.key as keyof typeof a];
+      const bValue = b[sortConfig.key as keyof typeof b];
       if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
       if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
       return 0;
@@ -343,19 +337,9 @@ const TeamStats: React.FC = () => {
         await db.games.update(g.id!, { deletedAt: undefined, synced: 0 });
       }
       syncService.pushUpdates();
-    } catch (err) {
-      console.error("Failed to restore team:", err);
+    } catch (error) {
+      console.error("Failed to restore team:", error);
     }
-  };
-
-  /**
-   * Triggers a sync of all data for the current team.
-   */
-  const handleSync = async () => {
-    if (!teamId) return;
-    setIsSyncing(true);
-    await syncService.syncAllForTeam(teamId.toString());
-    setIsSyncing(false);
   };
 
   const isDeleted = !!team?.deletedAt || !!season?.deletedAt;
@@ -542,7 +526,7 @@ const TeamStats: React.FC = () => {
               exclusive
               onChange={(_, val) => val && setStatView(val)}
               size="small"
-              fullWidth={{ xs: true, sm: false } as any}
+              fullWidth={Boolean(isMobile)}
             >
               <ToggleButton value="total">Totals</ToggleButton>
               <ToggleButton value="average">Averages</ToggleButton>
@@ -886,9 +870,10 @@ const TeamStats: React.FC = () => {
                   ? localJerseyNumbers[pId]
                   : dbRecord?.jerseyNumber || "";
 
+              const playerEntityId = player.id?.toString() || "";
               return (
                 <ListItem
-                  key={player.id}
+                  key={playerEntityId}
                   divider
                   secondaryAction={
                     <Box sx={{ display: "flex", gap: 1 }}>
@@ -966,8 +951,6 @@ const TeamStats: React.FC = () => {
  * @param root0.align
  * @param root0.hideOnMobile
  * @param root0.sortConfig
- * @param root0.sortConfig.key
- * @param root0.sortConfig.direction
  * @param root0.onSort
  */
 const SortableHeader = ({

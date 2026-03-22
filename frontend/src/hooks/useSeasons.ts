@@ -1,5 +1,5 @@
 import { useLiveQuery } from "dexie-react-hooks";
-import { db, Season } from "../db";
+import { db } from "../db";
 
 /**
  * Hook to fetch all seasons from the local database.

@@ -1,5 +1,5 @@
 import { useLiveQuery } from "dexie-react-hooks";
-import { db, Team } from "../db";
+import { db } from "../db";
 
 /**
  * Hook to fetch teams from the local database, optionally filtered by season.
