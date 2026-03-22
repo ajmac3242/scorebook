@@ -23,12 +23,14 @@ import {
 import {
   Add as AddIcon,
   SportsBasketball as BallIcon,
+  SportsBasketball as GamesIcon,
 } from "@mui/icons-material";
 import { db, type Game } from "../db";
 import { syncService } from "../utils/syncService";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useNavigate } from "react-router-dom";
-import { MoleskineCard, PageHeader } from "../components/SharedUI";
+import { MoleskineCard } from "../components/SharedUI";
+import EntityBanner from "../components/EntityBanner";
 import { calculateGameResult } from "../utils/stats";
 import { Avatar } from "@mui/material";
 
@@ -143,9 +145,13 @@ const Games: React.FC = () => {
   };
 
   return (
-    <Box>
-      <PageHeader title="Games Schedule" />
-      <Stack direction={{ xs: "column", sm: "row" }} spacing={2} sx={{ mb: 3 }}>
+    <Box sx={{ pb: 8 }}>
+      <EntityBanner
+        title="Games Schedule"
+        icon={<GamesIcon />}
+        backTo="/"
+      />
+      <Stack direction={{ xs: "column", sm: "row" }} spacing={2} sx={{ mb: 3, mt: 4 }}>
         <FormControl fullWidth variant="outlined">
           <InputLabel>Filter by Season</InputLabel>
           <Select

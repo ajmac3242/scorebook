@@ -218,7 +218,7 @@ const Teams: React.FC = () => {
             );
 
             return (
-              <Grid item xs={12} sm={6} md={4} key={team.id}>
+              <Grid item xs={12} sm={6} md={6} key={team.id}>
                 <MoleskineCard
                   sx={{
                     cursor: "pointer",
@@ -326,16 +326,19 @@ const Teams: React.FC = () => {
                       value={aggregates.ppg}
                       light={contrastColor === "white"}
                     />
+                    <Typography sx={{ color: contrastColor, opacity: 0.3, alignSelf: "center" }}>|</Typography>
                     <StatItem
                       label="RPG"
                       value={aggregates.rpg}
                       light={contrastColor === "white"}
                     />
+                    <Typography sx={{ color: contrastColor, opacity: 0.3, alignSelf: "center" }}>|</Typography>
                     <StatItem
                       label="APG"
                       value={aggregates.apg}
                       light={contrastColor === "white"}
                     />
+                    <Typography sx={{ color: contrastColor, opacity: 0.3, alignSelf: "center" }}>|</Typography>
                     <StatItem
                       label="OPPG"
                       value={aggregates.oppg}

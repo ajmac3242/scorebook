@@ -24,6 +24,7 @@ import {
   Restore,
   History,
   Edit as EditIcon,
+  People as PlayersIcon,
 } from "@mui/icons-material";
 import { db } from "../db";
 import { syncService } from "../utils/syncService";
@@ -73,14 +74,9 @@ const Players: React.FC = () => {
   const allStats = useLiveQuery(() => db.stats.toArray()) || [];
 
   const playersWithStats = useMemo(() => {
-    const aggregates = calculatePlayerAggregates(
-      players,
-      allStats,
-      [],
-      "average",
-    );
-    return players.map((p) => {
-      const agg = aggregates.find((a) => a.id === p.id);
+    const aggregates = calculatePlayerAggregates(players, allStats, [], "average");
+    return players.map(p => {
+      const agg = aggregates.find(a => a.id === p.id);
       return {
         ...p,
         ppg: agg?.points || 0,
@@ -193,6 +189,7 @@ const Players: React.FC = () => {
     <Box sx={{ pb: 8 }}>
       <EntityBanner
         title="Players"
+        icon={<PlayersIcon />}
         backTo="/"
         actions={
           <FormControlLabel
@@ -224,7 +221,7 @@ const Players: React.FC = () => {
 
       <Grid container spacing={3}>
         {playersWithStats.map((player) => (
-          <Grid item xs={12} sm={6} md={4} key={player.id}>
+          <Grid item xs={12} sm={6} md={6} key={player.id}>
             <MoleskineCard
               sx={{
                 cursor: "pointer",
@@ -243,11 +240,7 @@ const Players: React.FC = () => {
                 border: "none",
                 opacity: player.isArchived ? 0.7 : 1,
               }}
-              onClick={() =>
-                player.isArchived
-                  ? handleRestorePlayer(player.id)
-                  : navigate(`/players/${player.id}`)
-              }
+              onClick={() => (player.isArchived ? handleRestorePlayer(player.id) : navigate(`/players/${player.id}`))}
             >
               <Box sx={{ p: 3, flexGrow: 1 }}>
                 <Box
@@ -274,18 +267,8 @@ const Players: React.FC = () => {
                       <Chip
                         label="Archived"
                         size="small"
-                        sx={{
-                          bgcolor: "rgba(255,255,255,0.2)",
-                          color: "white",
-                        }}
-                        icon={
-                          <History
-                            sx={{
-                              fontSize: "12px !important",
-                              color: "white !important",
-                            }}
-                          />
-                        }
+                        sx={{ bgcolor: "rgba(255,255,255,0.2)", color: "white" }}
+                        icon={<History sx={{ fontSize: "12px !important", color: "white !important" }} />}
                       />
                     )}
                   </Box>
@@ -310,11 +293,13 @@ const Players: React.FC = () => {
                   bgcolor: "rgba(0,0,0,0.1)",
                   p: 2,
                   display: "flex",
-                  justifyContent: "space-between",
+                  justifyContent: "space-around",
                 }}
               >
                 <StatItem label="PPG" value={player.ppg} light />
+                <Typography sx={{ color: "white", opacity: 0.3, alignSelf: "center" }}>|</Typography>
                 <StatItem label="RPG" value={player.rpg} light />
+                <Typography sx={{ color: "white", opacity: 0.3, alignSelf: "center" }}>|</Typography>
                 <StatItem label="APG" value={player.apg} light />
               </Box>
             </MoleskineCard>

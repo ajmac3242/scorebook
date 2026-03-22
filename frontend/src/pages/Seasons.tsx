@@ -56,11 +56,7 @@ const Seasons: React.FC = () => {
       .filter((s) => s.name.toLowerCase().includes(searchTerm.toLowerCase()))
       .map((s) => {
         const teamCount = allTeams.filter((t) => t.seasonId === s.id).length;
-        const gameCount = allGames.filter(
-          (g) =>
-            g.teamId &&
-            allTeams.find((t) => t.id === g.teamId && t.seasonId === s.id),
-        ).length;
+        const gameCount = allGames.filter((g) => g.teamId && allTeams.find(t => t.id === g.teamId && t.seasonId === s.id)).length;
         return { ...s, teamCount, gameCount };
       });
   }, [seasons, allTeams, allGames, searchTerm]);
@@ -111,7 +107,11 @@ const Seasons: React.FC = () => {
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Box sx={{ pb: 8 }}>
-        <EntityBanner title="Seasons" icon={<SeasonsIcon />} backTo="/" />
+        <EntityBanner
+          title="Seasons"
+          icon={<SeasonsIcon />}
+          backTo="/"
+        />
 
         <Box sx={{ mt: 4 }}>
           <TextField
@@ -126,7 +126,7 @@ const Seasons: React.FC = () => {
 
         <Grid container spacing={3} sx={{ mb: 6 }}>
           {seasonsWithStats.map((season) => (
-            <Grid item xs={12} sm={6} md={4} key={season.id}>
+            <Grid item xs={12} sm={6} md={6} key={season.id}>
               <MoleskineCard
                 sx={{
                   cursor: "pointer",
@@ -197,8 +197,17 @@ const Seasons: React.FC = () => {
                     justifyContent: "space-around",
                   }}
                 >
-                  <StatItem label="TEAMS" value={season.teamCount} light />
-                  <StatItem label="GAMES" value={season.gameCount} light />
+                  <StatItem
+                    label="TEAMS"
+                    value={season.teamCount}
+                    light
+                  />
+                  <Typography sx={{ color: "white", opacity: 0.3, alignSelf: "center" }}>|</Typography>
+                  <StatItem
+                    label="GAMES"
+                    value={season.gameCount}
+                    light
+                  />
                 </Box>
               </MoleskineCard>
             </Grid>
