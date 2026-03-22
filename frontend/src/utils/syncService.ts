@@ -4,7 +4,7 @@
  * Implements push (local-to-remote) and pull (remote-to-local via API and S3 snapshots) functionality.
  */
 
-import { db } from "../db";
+import { db, Game, TeamPlayer, StatEvent } from "../db";
 import { UserPool } from "../UserPool";
 
 /**
@@ -97,10 +97,9 @@ class SyncService {
   /**
    * Helper to push all unsynced items of a specific entity type to the API.
    * @param {any} table - Dexie table.
-   * @param {string} endpoint - API endpoint or a function that returns an endpoint.
+   * @param {string | ((item: T) => string)} endpoint - API endpoint or a function that returns an endpoint.
    * @param {string} entityName - Name for logging.
-   * @param {Record<string, string>} headers - Auth headers.
-   * @param {(item: any) => Promise<void>} [onSuccess] - Optional callback after successful push.
+   * @param {(item: T) => Promise<void>} [onSuccess] - Optional callback after successful push.
    * @private
    */
   private async pushEntity<T extends { id?: string | number }>(
@@ -110,14 +109,7 @@ class SyncService {
     onSuccess?: (item: T) => Promise<void>,
   ) {
     if (!table) return;
-    const query = table.where("synced").equals(0);
-    let items;
-    try {
-      items = await (query.toArray ? query.toArray() : query);
-    } catch (e) {
-      return;
-    }
-    if (!items || !Array.isArray(items)) return;
+    const items = await table.where("synced").equals(0).toArray();
 
     for (const item of items) {
       try {
@@ -149,21 +141,21 @@ class SyncService {
       await this.pushEntity(db.seasons, "/api/seasons", "season");
       await this.pushEntity(db.teams, "/api/teams", "team");
       await this.pushEntity(db.players, "/api/players", "player");
-      await this.pushEntity(
+      await this.pushEntity<TeamPlayer>(
         db.teamPlayers,
-        (tp: any) => `/api/teams/${tp.teamId}/players`,
+        (tp) => `/api/teams/${tp.teamId}/players`,
         "teamPlayer",
       );
-      await this.pushEntity(db.games, "/api/games", "game", async (g) => {
+      await this.pushEntity<Game>(db.games, "/api/games", "game", async (g) => {
         if (g.completed) {
           await this.fetchApi(`/api/games/${g.id}/complete`, {
             method: "POST",
           });
         }
       });
-      await this.pushEntity(
+      await this.pushEntity<StatEvent>(
         db.stats,
-        (s: any) => `/api/games/${s.gameId}/stats`,
+        (s) => `/api/games/${s.gameId}/stats`,
         "stat",
       );
 
