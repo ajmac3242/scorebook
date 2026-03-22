@@ -32,12 +32,390 @@ const docClient = DynamoDBDocumentClient.from(client);
 const s3Client = new S3Client({});
 
 /**
+ * Standardized set of internal DynamoDB and metadata keys.
+ * Used for sanitizing input data and preventing mass assignment.
+ */
+const INTERNAL_KEYS = new Set([
+  "synced",
+  "id",
+  "PK",
+  "SK",
+  "GSI1PK",
+  "GSI1SK",
+  "GSI2PK",
+  "GSI2SK",
+  "deletedAt",
+]);
+
+/**
+ * Helper for generating standardized DynamoDB primary and index keys.
+ */
+const Keys = {
+  season: (id: string) => `SEASON#${id}`,
+  team: (id: string) => `TEAM#${id}`,
+  player: (id: string) => `PLAYER#${id}`,
+  game: (id: string) => `GAME#${id}`,
+  metadata: (id: string) => `METADATA#${id}`,
+  stat: (timestamp: string, id: string) => `STAT#${timestamp}#${id}`,
+};
+
+/**
  * Standardized error logger for the backend.
  * @param {string} label - Contextual label for the error.
  * @param {any} error - The error object.
  */
 function logError(label: string, error: any) {
-  console.error(`[${label}]:`, error);
+  console.error(`[ERROR] ${label}:`, error);
+}
+
+/**
+ * Handlers for Players endpoints.
+ * @param {string} method - HTTP Method.
+ * @param {string} path - Request path.
+ * @param {any} body - Parsed JSON body.
+ * @param {APIGatewayProxyEventV2} event - The full Lambda event.
+ * @param {string} tableName - DynamoDB table name.
+ * @returns {Promise<APIGatewayProxyResultV2 | null>} The response or null if not handled.
+ */
+async function handlePlayers(
+  method: string,
+  path: string,
+  body: any,
+  event: APIGatewayProxyEventV2,
+  tableName: string,
+): Promise<APIGatewayProxyResultV2 | null> {
+  if (path === "/players") {
+    if (method === "GET") return await getItems("PLAYER", "PLAYER", tableName);
+    if (method === "POST")
+      return await createItem("PLAYER", "METADATA", "PLAYER", body, tableName);
+  }
+
+  const match = path.match(/^\/players\/([^\/]+)$/);
+  if (match) {
+    const playerId = match[1];
+    if (method === "DELETE") {
+      const { archive } = event.queryStringParameters || {};
+      if (archive === "true") {
+        await docClient.send(
+          new UpdateCommand({
+            TableName: tableName,
+            Key: { PK: Keys.player(playerId), SK: Keys.metadata(playerId) },
+            UpdateExpression: "SET isArchived = :a",
+            ExpressionAttributeValues: { ":a": 1 },
+          }),
+        );
+        return ok({ message: "Player archived" });
+      }
+      return await softDeleteItem("PLAYER", "METADATA", playerId, tableName);
+    }
+    if (method === "PATCH") {
+      if (body.isArchived === 0) {
+        await docClient.send(
+          new UpdateCommand({
+            TableName: tableName,
+            Key: { PK: Keys.player(playerId), SK: Keys.metadata(playerId) },
+            UpdateExpression: "SET isArchived = :a",
+            ExpressionAttributeValues: { ":a": 0 },
+          }),
+        );
+        return ok({ message: "Player restored from archive" });
+      }
+      if (body.deletedAt === null) {
+        await docClient.send(
+          new UpdateCommand({
+            TableName: tableName,
+            Key: { PK: Keys.player(playerId), SK: Keys.metadata(playerId) },
+            UpdateExpression: "REMOVE deletedAt",
+          }),
+        );
+        return ok({ message: "Player restored" });
+      }
+    }
+  }
+  return null;
+}
+
+/**
+ * Handlers for Games endpoints.
+ * @param method
+ * @param path
+ * @param body
+ * @param event
+ * @param tableName
+ */
+async function handleGames(
+  method: string,
+  path: string,
+  body: any,
+  event: APIGatewayProxyEventV2,
+  tableName: string,
+): Promise<APIGatewayProxyResultV2 | null> {
+  if (path === "/games") {
+    if (method === "GET") {
+      const teamId = event.queryStringParameters?.teamId;
+      return await getItemsByGSI(`TEAM#${teamId}`, tableName);
+    }
+    if (method === "POST") {
+      const resp = await createItem(
+        "GAME",
+        "METADATA",
+        Keys.team(body?.teamId),
+        body,
+        tableName,
+      );
+      if (resp.statusCode === 201 && resp.body) {
+        const newItem = JSON.parse(resp.body);
+        await snapshotTeamGames(newItem.teamId, tableName);
+      }
+      return resp;
+    }
+  }
+
+  const gameDetailMatch = path.match(/^\/games\/([^\/]+)$/);
+  if (gameDetailMatch) {
+    const gameId = gameDetailMatch[1];
+    if (method === "DELETE") {
+      const getResp = await docClient.send(
+        new GetCommand({
+          TableName: tableName,
+          Key: { PK: Keys.game(gameId), SK: Keys.metadata(gameId) },
+        }),
+      );
+      const resp = await softDeleteItem("GAME", "METADATA", gameId, tableName);
+      if (resp.statusCode === 200 && getResp.Item) {
+        await snapshotTeamGames(getResp.Item.teamId, tableName);
+        await deleteGameSnapshots(gameId);
+      }
+      return resp;
+    }
+    if (method === "PATCH" && body.deletedAt === null) {
+      const getResp = await docClient.send(
+        new GetCommand({
+          TableName: tableName,
+          Key: { PK: Keys.game(gameId), SK: Keys.metadata(gameId) },
+        }),
+      );
+      await docClient.send(
+        new UpdateCommand({
+          TableName: tableName,
+          Key: { PK: Keys.game(gameId), SK: Keys.metadata(gameId) },
+          UpdateExpression: "REMOVE deletedAt",
+        }),
+      );
+      if (getResp.Item) {
+        await snapshotTeamGames(getResp.Item.teamId, tableName);
+        if (getResp.Item.completed) await snapshotGameStats(gameId, tableName);
+      }
+      return ok({ message: "Game restored" });
+    }
+  }
+
+  const gameCompleteMatch = path.match(/^\/games\/([^\/]+)\/complete$/);
+  if (gameCompleteMatch && method === "POST") {
+    const gameId = gameCompleteMatch[1];
+    const getResp = await docClient.send(
+      new GetCommand({
+        TableName: tableName,
+        Key: { PK: Keys.game(gameId), SK: Keys.metadata(gameId) },
+      }),
+    );
+    if (!getResp.Item) return notFound("Game not found");
+    await docClient.send(
+      new UpdateCommand({
+        TableName: tableName,
+        Key: { PK: Keys.game(gameId), SK: Keys.metadata(gameId) },
+        UpdateExpression: "SET completed = :c",
+        ExpressionAttributeValues: { ":c": 1 },
+      }),
+    );
+    await snapshotGameStats(gameId, tableName);
+    await snapshotTeamGames(getResp.Item.teamId, tableName);
+    return ok({ message: "Game completed" });
+  }
+
+  const gameStatsMatch = path.match(/^\/games\/([^\/]+)\/stats$/);
+  if (gameStatsMatch) {
+    const gameId = gameStatsMatch[1];
+    if (method === "GET") {
+      const result = await docClient.send(
+        new QueryCommand({
+          TableName: tableName,
+          KeyConditionExpression: "PK = :pk AND begins_with(SK, :sk)",
+          ExpressionAttributeValues: { ":pk": Keys.game(gameId), ":sk": "STAT#" },
+        }),
+      );
+      return ok(result.Items?.filter((i) => !i.deletedAt) || []);
+    }
+    if (method === "POST") {
+      const id = body?.id || uuidv4();
+      const timestamp = body?.timestamp || new Date().toISOString();
+      const cleanBody = stripLocalFields(body);
+      const item = {
+        ...cleanBody,
+        PK: Keys.game(gameId),
+        SK: Keys.stat(timestamp, id),
+        GSI1PK: Keys.game(gameId),
+        GSI1SK: Keys.stat(timestamp, id),
+        id,
+        timestamp,
+      };
+      await docClient.send(new PutCommand({ TableName: tableName, Item: item }));
+      return created(item);
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Handlers for Teams endpoints.
+ * @param {string} method - HTTP Method.
+ * @param {string} path - Request path.
+ * @param {any} body - Parsed JSON body.
+ * @param {APIGatewayProxyEventV2} event - The full Lambda event.
+ * @param {string} tableName - DynamoDB table name.
+ * @returns {Promise<APIGatewayProxyResultV2 | null>} The response or null if not handled.
+ */
+async function handleTeams(
+  method: string,
+  path: string,
+  body: any,
+  event: APIGatewayProxyEventV2,
+  tableName: string,
+): Promise<APIGatewayProxyResultV2 | null> {
+  if (path === "/teams") {
+    if (method === "GET") {
+      const seasonId = event.queryStringParameters?.seasonId;
+      return await getItemsByGSI(`SEASON#${seasonId}`, tableName);
+    }
+    if (method === "POST") {
+      if (!body || Object.keys(body).length === 0) {
+        return badRequest("Body required");
+      }
+      const resp = await createItem(
+        "TEAM",
+        "METADATA",
+        Keys.season(body?.seasonId),
+        body,
+        tableName,
+      );
+      if (resp.statusCode === 201 && resp.body) {
+        const newItem = JSON.parse(resp.body);
+        await snapshotTeamRoster(newItem.id, tableName);
+        await snapshotTeamGames(newItem.id, tableName);
+      }
+      return resp;
+    }
+  }
+
+  const teamDetailMatch = path.match(/^\/teams\/([^\/]+)$/);
+  if (teamDetailMatch) {
+    const teamId = teamDetailMatch[1];
+    if (method === "DELETE") {
+      const resp = await softDeleteItem("TEAM", "METADATA", teamId, tableName);
+      if (resp.statusCode === 200) await deleteTeamSnapshots(teamId);
+      return resp;
+    }
+    if (method === "PATCH" && body.deletedAt === null) {
+      await docClient.send(
+        new UpdateCommand({
+          TableName: tableName,
+          Key: { PK: Keys.team(teamId), SK: Keys.metadata(teamId) },
+          UpdateExpression: "REMOVE deletedAt",
+        }),
+      );
+      await snapshotTeamRoster(teamId, tableName);
+      await snapshotTeamGames(teamId, tableName);
+      return ok({ message: "Team restored" });
+    }
+  }
+
+  const teamPlayersMatch = path.match(/^\/teams\/([^\/]+)\/players$/);
+  if (teamPlayersMatch) {
+    const teamId = teamPlayersMatch[1];
+    if (method === "GET")
+      return await getItemsByGSI(`TEAM#${teamId}`, tableName);
+    if (method === "POST") {
+      if (!body.playerId) return badRequest("playerId required");
+      const cleanBody = stripLocalFields(body);
+      const teamPlayerItem = {
+        ...cleanBody,
+        PK: Keys.team(teamId),
+        SK: Keys.player(body.playerId),
+        GSI1PK: Keys.team(teamId),
+        GSI1SK: Keys.player(body.playerId),
+        id: body.id,
+        teamId,
+      };
+      await docClient.send(
+        new PutCommand({ TableName: tableName, Item: teamPlayerItem }),
+      );
+      await snapshotTeamRoster(teamId, tableName);
+      return created(teamPlayerItem);
+    }
+  }
+
+  const teamPlayerDetailMatch = path.match(
+    /^\/teams\/([^\/]+)\/players\/([^\/]+)$/,
+  );
+  if (teamPlayerDetailMatch) {
+    const teamId = teamPlayerDetailMatch[1];
+    const playerId = teamPlayerDetailMatch[2];
+    if (method === "DELETE") {
+      await docClient.send(
+        new UpdateCommand({
+          TableName: tableName,
+          Key: { PK: Keys.team(teamId), SK: Keys.player(playerId) },
+          UpdateExpression: "SET deletedAt = :d",
+          ExpressionAttributeValues: { ":d": new Date().toISOString() },
+        }),
+      );
+      await snapshotTeamRoster(teamId, tableName);
+      return ok({ message: "Player removed from team" });
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Handlers for Seasons endpoints.
+ * @param {string} method - HTTP Method.
+ * @param {string} path - Request path.
+ * @param {any} body - Parsed JSON body.
+ * @param {string} tableName - DynamoDB table name.
+ * @returns {Promise<APIGatewayProxyResultV2 | null>} The response or null if not handled.
+ */
+async function handleSeasons(
+  method: string,
+  path: string,
+  body: any,
+  tableName: string,
+): Promise<APIGatewayProxyResultV2 | null> {
+  if (path === "/seasons") {
+    if (method === "GET") return await getItems("SEASON", "SEASON", tableName);
+    if (method === "POST")
+      return await createItem("SEASON", "METADATA", "SEASON", body, tableName);
+  }
+
+  const match = path.match(/^\/seasons\/([^\/]+)$/);
+  if (match) {
+    const seasonId = match[1];
+    if (method === "DELETE") {
+      return await softDeleteItem("SEASON", "METADATA", seasonId, tableName);
+    }
+    if (method === "PATCH" && body.deletedAt === null) {
+      await docClient.send(
+        new UpdateCommand({
+          TableName: tableName,
+          Key: { PK: Keys.season(seasonId), SK: Keys.metadata(seasonId) },
+          UpdateExpression: "REMOVE deletedAt",
+        }),
+      );
+      return ok({ message: "Season restored" });
+    }
+  }
+  return null;
 }
 
 /**
@@ -67,373 +445,55 @@ export const handler = async (
   let body: any = {};
   if (event.body) {
     try {
-      body =
-        typeof event.body === "string" ? JSON.parse(event.body) : event.body;
+      body = typeof event.body === "string" ? JSON.parse(event.body) : event.body;
     } catch (e) {
-      return response(400, { message: "Invalid JSON body" });
+      return badRequest("Invalid JSON body");
     }
   }
 
   try {
     const TABLE_NAME = process.env.TABLE_NAME || "BasketballStats";
 
-    // --- Seasons Endpoints ---
-    if (path === "/seasons") {
-      if (method === "GET")
-        return await getItems("SEASON", "SEASON", TABLE_NAME);
-      if (method === "POST")
-        return await createItem(
-          "SEASON",
-          "METADATA",
-          "SEASON",
-          body,
-          TABLE_NAME,
-        );
-    }
+    const seasonsResponse = await handleSeasons(method, path, body, TABLE_NAME);
+    if (seasonsResponse) return seasonsResponse;
 
-    const seasonDetailMatch = path.match(/^\/seasons\/([^\/]+)$/);
-    if (seasonDetailMatch) {
-      const seasonId = seasonDetailMatch[1];
-      if (method === "DELETE") {
-        return await softDeleteItem("SEASON", "METADATA", seasonId, TABLE_NAME);
-      }
-      if (method === "PATCH") {
-        // Allow restoring
-        if (body.deletedAt === null) {
-          await docClient.send(
-            new UpdateCommand({
-              TableName: TABLE_NAME,
-              Key: { PK: `SEASON#${seasonId}`, SK: `METADATA#${seasonId}` },
-              UpdateExpression: "REMOVE deletedAt",
-            }),
-          );
-          return response(200, { message: "Season restored" });
-        }
-      }
-    }
-
-    // --- Teams Endpoints ---
-    if (path === "/teams") {
-      if (method === "GET") {
-        const seasonId = event.queryStringParameters?.seasonId;
-        return await getItemsByGSI(`SEASON#${seasonId}`, TABLE_NAME);
-      }
-      if (method === "POST") {
-        if (!body || Object.keys(body).length === 0) {
-          return response(400, { message: "Body required" });
-        }
-        const resp = await createItem(
-          "TEAM",
-          "METADATA",
-          `SEASON#${body?.seasonId}`,
-          body,
-          TABLE_NAME,
-        );
-        if (resp.statusCode === 201 && resp.body) {
-          const newItem = JSON.parse(resp.body);
-          // After creating a team, update relevant snapshots
-          await snapshotTeamRoster(newItem.id, TABLE_NAME);
-          await snapshotTeamGames(newItem.id, TABLE_NAME);
-        }
-        return resp;
-      }
-    }
-
-    const teamDetailMatch = path.match(/^\/teams\/([^\/]+)$/);
-    if (teamDetailMatch) {
-      const teamId = teamDetailMatch[1];
-      if (method === "DELETE") {
-        const resp = await softDeleteItem(
-          "TEAM",
-          "METADATA",
-          teamId,
-          TABLE_NAME,
-        );
-        if (resp.statusCode === 200) {
-          await deleteTeamSnapshots(teamId);
-        }
-        return resp;
-      }
-      if (method === "PATCH") {
-        if (body.deletedAt === null) {
-          await docClient.send(
-            new UpdateCommand({
-              TableName: TABLE_NAME,
-              Key: { PK: `TEAM#${teamId}`, SK: `METADATA#${teamId}` },
-              UpdateExpression: "REMOVE deletedAt",
-            }),
-          );
-          // Regenerate snapshots on restore
-          await snapshotTeamRoster(teamId, TABLE_NAME);
-          await snapshotTeamGames(teamId, TABLE_NAME);
-          return response(200, { message: "Team restored" });
-        }
-      }
-    }
-
-    // --- Team Players Endpoints (e.g., /teams/123/players) ---
-    const teamPlayersMatch = path.match(/^\/teams\/([^\/]+)\/players$/);
-    if (teamPlayersMatch) {
-      const teamId = teamPlayersMatch[1];
-      if (method === "GET")
-        return await getItemsByGSI(`TEAM#${teamId}`, TABLE_NAME);
-      if (method === "POST") {
-        if (!body.playerId)
-          return response(400, { message: "playerId required" });
-
-        const cleanBody = stripLocalFields(body);
-        const teamPlayerItem = {
-          ...cleanBody,
-          PK: `TEAM#${teamId}`,
-          SK: `PLAYER#${body.playerId}`,
-          GSI1PK: `TEAM#${teamId}`,
-          GSI1SK: `PLAYER#${body.playerId}`,
-          id: body.id,
-          teamId,
-        };
-        await docClient.send(
-          new PutCommand({ TableName: TABLE_NAME, Item: teamPlayerItem }),
-        );
-        // Update team roster snapshot after adding a player
-        await snapshotTeamRoster(teamId, TABLE_NAME);
-        return response(201, teamPlayerItem);
-      }
-    }
-
-    const teamPlayerDetailMatch = path.match(
-      /^\/teams\/([^\/]+)\/players\/([^\/]+)$/,
+    const teamsResponse = await handleTeams(
+      method,
+      path,
+      body,
+      event,
+      TABLE_NAME,
     );
-    if (teamPlayerDetailMatch) {
-      const teamId = teamPlayerDetailMatch[1];
-      const playerId = teamPlayerDetailMatch[2];
-      if (method === "DELETE") {
-        await docClient.send(
-          new UpdateCommand({
-            TableName: TABLE_NAME,
-            Key: { PK: `TEAM#${teamId}`, SK: `PLAYER#${playerId}` },
-            UpdateExpression: "SET deletedAt = :d",
-            ExpressionAttributeValues: { ":d": new Date().toISOString() },
-          }),
-        );
-        await snapshotTeamRoster(teamId, TABLE_NAME);
-        return response(200, { message: "Player removed from team" });
-      }
-    }
+    if (teamsResponse) return teamsResponse;
 
-    // --- Global Players Endpoints ---
-    if (path === "/players") {
-      if (method === "GET")
-        return await getItems("PLAYER", "PLAYER", TABLE_NAME);
-      if (method === "POST")
-        return await createItem(
-          "PLAYER",
-          "METADATA",
-          "PLAYER",
-          body,
-          TABLE_NAME,
-        );
-    }
+    const playersResponse = await handlePlayers(
+      method,
+      path,
+      body,
+      event,
+      TABLE_NAME,
+    );
+    if (playersResponse) return playersResponse;
 
-    const playerDetailMatch = path.match(/^\/players\/([^\/]+)$/);
-    if (playerDetailMatch) {
-      const playerId = playerDetailMatch[1];
-      if (method === "DELETE") {
-        // Soft delete or archive
-        const { archive } = event.queryStringParameters || {};
-        if (archive === "true") {
-          await docClient.send(
-            new UpdateCommand({
-              TableName: TABLE_NAME,
-              Key: { PK: `PLAYER#${playerId}`, SK: `METADATA#${playerId}` },
-              UpdateExpression: "SET isArchived = :a",
-              ExpressionAttributeValues: { ":a": 1 },
-            }),
-          );
-          return response(200, { message: "Player archived" });
-        } else {
-          return await softDeleteItem(
-            "PLAYER",
-            "METADATA",
-            playerId,
-            TABLE_NAME,
-          );
-        }
-      }
-      if (method === "PATCH") {
-        if (body.isArchived === 0) {
-          await docClient.send(
-            new UpdateCommand({
-              TableName: TABLE_NAME,
-              Key: { PK: `PLAYER#${playerId}`, SK: `METADATA#${playerId}` },
-              UpdateExpression: "SET isArchived = :a",
-              ExpressionAttributeValues: { ":a": 0 },
-            }),
-          );
-          return response(200, { message: "Player restored from archive" });
-        }
-        if (body.deletedAt === null) {
-          await docClient.send(
-            new UpdateCommand({
-              TableName: TABLE_NAME,
-              Key: { PK: `PLAYER#${playerId}`, SK: `METADATA#${playerId}` },
-              UpdateExpression: "REMOVE deletedAt",
-            }),
-          );
-          return response(200, { message: "Player restored" });
-        }
-      }
-    }
-
-    // --- Games Endpoints ---
-    if (path === "/games") {
-      if (method === "GET") {
-        const teamId = event.queryStringParameters?.teamId;
-        return await getItemsByGSI(`TEAM#${teamId}`, TABLE_NAME);
-      }
-      if (method === "POST") {
-        const resp = await createItem(
-          "GAME",
-          "METADATA",
-          `TEAM#${body?.teamId}`,
-          body,
-          TABLE_NAME,
-        );
-        if (resp.statusCode === 201 && resp.body) {
-          const newItem = JSON.parse(resp.body);
-          // Update the team's games snapshot after creating a new game
-          await snapshotTeamGames(newItem.teamId, TABLE_NAME);
-        }
-        return resp;
-      }
-    }
-
-    const gameDetailMatch = path.match(/^\/games\/([^\/]+)$/);
-    if (gameDetailMatch) {
-      const gameId = gameDetailMatch[1];
-      if (method === "DELETE") {
-        const getResp = await docClient.send(
-          new GetCommand({
-            TableName: TABLE_NAME,
-            Key: { PK: `GAME#${gameId}`, SK: `METADATA#${gameId}` },
-          }),
-        );
-        const resp = await softDeleteItem(
-          "GAME",
-          "METADATA",
-          gameId,
-          TABLE_NAME,
-        );
-        if (resp.statusCode === 200 && getResp.Item) {
-          await snapshotTeamGames(getResp.Item.teamId, TABLE_NAME);
-          await deleteGameSnapshots(gameId);
-        }
-        return resp;
-      }
-      if (method === "PATCH") {
-        if (body.deletedAt === null) {
-          const getResp = await docClient.send(
-            new GetCommand({
-              TableName: TABLE_NAME,
-              Key: { PK: `GAME#${gameId}`, SK: `METADATA#${gameId}` },
-            }),
-          );
-          await docClient.send(
-            new UpdateCommand({
-              TableName: TABLE_NAME,
-              Key: { PK: `GAME#${gameId}`, SK: `METADATA#${gameId}` },
-              UpdateExpression: "REMOVE deletedAt",
-            }),
-          );
-          if (getResp.Item) {
-            await snapshotTeamGames(getResp.Item.teamId, TABLE_NAME);
-            if (getResp.Item.completed)
-              await snapshotGameStats(gameId, TABLE_NAME);
-          }
-          return response(200, { message: "Game restored" });
-        }
-      }
-    }
-
-    // --- Game Completion Endpoint (e.g., /games/123/complete) ---
-    const gameCompleteMatch = path.match(/^\/games\/([^\/]+)\/complete$/);
-    if (gameCompleteMatch) {
-      const gameId = gameCompleteMatch[1];
-      if (method === "POST") {
-        // Check if game exists
-        const getResp = await docClient.send(
-          new GetCommand({
-            TableName: TABLE_NAME,
-            Key: { PK: `GAME#${gameId}`, SK: `METADATA#${gameId}` },
-          }),
-        );
-        if (!getResp.Item) return response(404, { message: "Game not found" });
-
-        // Mark game as completed in DynamoDB
-        await docClient.send(
-          new UpdateCommand({
-            TableName: TABLE_NAME,
-            Key: { PK: `GAME#${gameId}`, SK: `METADATA#${gameId}` },
-            UpdateExpression: "SET completed = :c",
-            ExpressionAttributeValues: { ":c": 1 },
-          }),
-        );
-
-        // Finalize snapshots for the completed game
-        await snapshotGameStats(gameId, TABLE_NAME);
-        await snapshotTeamGames(getResp.Item.teamId, TABLE_NAME);
-        return response(200, { message: "Game completed" });
-      }
-    }
-
-    // --- Game Stats Endpoints (e.g., /games/123/stats) ---
-    const gameStatsMatch = path.match(/^\/games\/([^\/]+)\/stats$/);
-    if (gameStatsMatch) {
-      const gameId = gameStatsMatch[1];
-      if (method === "GET") {
-        const result = await docClient.send(
-          new QueryCommand({
-            TableName: TABLE_NAME,
-            KeyConditionExpression: "PK = :pk AND begins_with(SK, :sk)",
-            ExpressionAttributeValues: {
-              ":pk": `GAME#${gameId}`,
-              ":sk": "STAT#",
-            },
-          }),
-        );
-        return response(200, result.Items?.filter((i) => !i.deletedAt) || []);
-      }
-      if (method === "POST") {
-        // Create individual stat event record
-        const id = body?.id || uuidv4();
-        const timestamp = body?.timestamp || new Date().toISOString();
-        const cleanBody = stripLocalFields(body);
-        const item = {
-          ...cleanBody,
-          PK: `GAME#${gameId}`,
-          SK: `STAT#${timestamp}#${id}`,
-          GSI1PK: `GAME#${gameId}`,
-          GSI1SK: `STAT#${timestamp}#${id}`,
-          id,
-          timestamp,
-        };
-        await docClient.send(
-          new PutCommand({ TableName: TABLE_NAME, Item: item }),
-        );
-        return response(201, item);
-      }
-    }
+    const gamesResponse = await handleGames(
+      method,
+      path,
+      body,
+      event,
+      TABLE_NAME,
+    );
+    if (gamesResponse) return gamesResponse;
 
     // --- Cleanup/Hard Delete Trigger ---
     if (path === "/cleanup" && method === "POST") {
       await performHardCleanup(TABLE_NAME);
-      return response(200, { message: "Cleanup complete" });
+      return ok({ message: "Cleanup complete" });
     }
 
-    return response(404, { message: "Route not found" });
+    return notFound("Route not found");
   } catch (error: any) {
     logError("Handler Error", error);
-    // Secure error response to prevent information leakage
-    return response(500, { message: "Internal Server Error" });
+    return serverError();
   }
 };
 
@@ -444,16 +504,10 @@ export const handler = async (
  * @returns {string} The normalized path.
  */
 function normalizePath(event: APIGatewayProxyEventV2): string {
-  const rawPath =
-    event.rawPath ||
-    (event as any).path ||
-    event.requestContext?.http?.path ||
-    "/";
-
-  let path = rawPath.replace(/^\/\$default/, "").replace(/^\/api/, "");
-  if (!path.startsWith("/")) path = "/" + path;
-  if (path.length > 1 && path.endsWith("/")) path = path.slice(0, -1);
-  return path;
+  const raw =
+    event.rawPath || (event as any).path || event.requestContext?.http?.path || "/";
+  const path = raw.replace(/^\/(\$default|api)/, "");
+  return path.length > 1 && path.endsWith("/") ? path.slice(0, -1) : path || "/";
 }
 
 /**
@@ -792,18 +846,6 @@ async function performHardCleanup(tableName: string) {
  * @returns {any} The cleaned object.
  */
 function stripLocalFields(data: any) {
-  const INTERNAL_KEYS = new Set([
-    "synced",
-    "id",
-    "PK",
-    "SK",
-    "GSI1PK",
-    "GSI1SK",
-    "GSI2PK",
-    "GSI2SK",
-    "deletedAt",
-  ]);
-
   return Object.fromEntries(
     Object.entries(data).filter(([key]) => !INTERNAL_KEYS.has(key)),
   );
@@ -824,10 +866,14 @@ function response(
 ): APIGatewayProxyStructuredResultV2 {
   return {
     statusCode,
-    headers: {
-      "Content-Type": "application/json",
-      ...headers,
-    },
+    headers: { "Content-Type": "application/json", ...headers },
     body: JSON.stringify(body),
   };
 }
+
+/** Semantic response helpers */
+const ok = (body: any) => response(200, body);
+const created = (body: any) => response(201, body);
+const badRequest = (msg: string) => response(400, { message: msg });
+const notFound = (msg: string) => response(404, { message: msg });
+const serverError = () => response(500, { message: "Internal Server Error" });

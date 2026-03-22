@@ -6,20 +6,7 @@
 
 import { ACTION_TYPES } from "../constants/stats";
 import { StatEvent, TeamPlayer } from "../db";
-
-/**
- * Rounds a number to one decimal place and returns it as a number.
- * @param {number} val - The value to round.
- * @returns {number} The rounded number.
- */
-const roundToOne = (val: number): number => Number(val.toFixed(1));
-
-/**
- * Formats a number to one decimal place and returns it as a string.
- * @param {number} val - The value to format.
- * @returns {string} The formatted string.
- */
-const formatToOne = (val: number): string => val.toFixed(1);
+import { roundToOne, formatToOne } from "./mathUtils";
 
 /**
  * Interface for aggregated player statistics.
@@ -91,21 +78,20 @@ export const getPlayerJersey = (
 function processStatEvent(p: PlayerAggregates, s: StatEvent) {
   p.gamesPlayed.add(s.gameId);
 
-  if (s.type === ACTION_TYPES.MAKE) {
-    p.points += s.points || 0;
-    p.makes += 1;
-    p.attempts += 1;
-  } else if (s.type === ACTION_TYPES.MISS) {
-    p.attempts += 1;
-  } else if (s.type === ACTION_TYPES.REBOUND) {
-    p.rebounds += 1;
-  } else if (s.type === ACTION_TYPES.ASSIST) {
-    p.assists += 1;
-  } else if (s.type === ACTION_TYPES.STEAL) {
-    p.steals += 1;
-  } else if (s.type === ACTION_TYPES.TURNOVER) {
-    p.turnovers += 1;
-  }
+  const handlers: Record<string, () => void> = {
+    [ACTION_TYPES.MAKE]: () => {
+      p.points += s.points || 0;
+      p.makes++;
+      p.attempts++;
+    },
+    [ACTION_TYPES.MISS]: () => p.attempts++,
+    [ACTION_TYPES.REBOUND]: () => p.rebounds++,
+    [ACTION_TYPES.ASSIST]: () => p.assists++,
+    [ACTION_TYPES.STEAL]: () => p.steals++,
+    [ACTION_TYPES.TURNOVER]: () => p.turnovers++,
+  };
+
+  handlers[s.type]?.();
 }
 
 /**
@@ -257,22 +243,19 @@ export const calculateTeamAggregates = (
  * @returns {object} Aggregated points, rebounds, and assists.
  */
 function aggregateStatsForGame(gameStats: StatEvent[]) {
-  let teamPoints = 0;
-  let oppPoints = 0;
-  let rebounds = 0;
-  let assists = 0;
-
-  gameStats.forEach((s) => {
-    if (s.playerId === "OPPONENT") {
-      oppPoints += s.points || 0;
-    } else {
-      teamPoints += s.points || 0;
-      if (s.type === ACTION_TYPES.REBOUND) rebounds++;
-      if (s.type === ACTION_TYPES.ASSIST) assists++;
-    }
-  });
-
-  return { teamPoints, oppPoints, rebounds, assists };
+  return gameStats.reduce(
+    (acc, s) => {
+      if (s.playerId === "OPPONENT") {
+        acc.oppPoints += s.points || 0;
+      } else {
+        acc.teamPoints += s.points || 0;
+        if (s.type === ACTION_TYPES.REBOUND) acc.rebounds++;
+        if (s.type === ACTION_TYPES.ASSIST) acc.assists++;
+      }
+      return acc;
+    },
+    { teamPoints: 0, oppPoints: 0, rebounds: 0, assists: 0 },
+  );
 }
 
 /**

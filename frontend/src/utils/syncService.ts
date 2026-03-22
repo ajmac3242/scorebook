@@ -118,20 +118,11 @@ class SyncService {
    */
   async hasUnsyncedChanges(): Promise<boolean> {
     try {
-      const tables: (keyof typeof db)[] = [
-        "seasons",
-        "teams",
-        "players",
-        "teamPlayers",
-        "games",
-        "stats",
-      ];
+      const tables = [db.seasons, db.teams, db.players, db.teamPlayers, db.games, db.stats];
       const counts = await Promise.all(
-        tables.map((table) =>
-          (db[table] as any).where("synced").equals(0).count(),
-        ),
+        tables.map((t) => t.where("synced").equals(0).count())
       );
-      return counts.some((count) => count > 0);
+      return counts.some((c) => c > 0);
     } catch (e) {
       console.error("Error checking for unsynced changes:", e);
       return false;
@@ -212,38 +203,54 @@ class SyncService {
   }
 
   /**
+   * Helper to handle ETag-based snapshot responses.
+   * @private
+   */
+  private async handleEtagResponse<T>(
+    type: string,
+    id: string | number,
+    url: string,
+    etag: string | null,
+    onSuccess: (data: T) => Promise<void>,
+    label: string,
+  ) {
+    try {
+      const response = await this.fetchApi(url, {
+        headers: { "If-None-Match": etag || "" },
+      });
+
+      if (response.status === 304) {
+        console.log(`${label} is up to date.`);
+        return;
+      }
+
+      if (response.ok) {
+        const data = await response.json();
+        this.setETag(type, id, response.headers.get("ETag"));
+        await onSuccess(data);
+      }
+    } catch (error) {
+      console.error(`Sync ${label} failed:`, error);
+    }
+  }
+
+  /**
    * Syncs the team roster using the JSON snapshot from S3.
    * Utilizes If-None-Match ETag for caching.
    * @param {string} teamId - The team ID to sync.
    */
   async syncTeamRoster(teamId: string) {
-    // Check if we have the team in our local database before relying on the ETag
     const localTeam = await db.teams.get(teamId as any);
     const etag = localTeam ? this.getETag("team", teamId) : null;
 
-    try {
-      const response = await this.fetchApi(
-        `/data/teams/${teamId}/roster.json`,
-        {
-          headers: {
-            "If-None-Match": etag || "",
-          },
-        },
-      );
-
-      if (response.status === 304) {
-        console.log(`Team ${teamId} is up to date.`);
-        return;
-      }
-
-      if (response.ok) {
-        const data: RosterSnapshot = await response.json();
-        this.setETag("team", teamId, response.headers.get("ETag"));
-        await this.persistRoster(teamId, data);
-      }
-    } catch (error) {
-      console.error("Sync team roster failed:", error);
-    }
+    await this.handleEtagResponse<RosterSnapshot>(
+      "team",
+      teamId,
+      `/data/teams/${teamId}/roster.json`,
+      etag,
+      (data) => this.persistRoster(teamId, data),
+      `Team ${teamId}`,
+    );
   }
 
   /**
@@ -251,43 +258,23 @@ class SyncService {
    * @param {string} teamId - The team ID.
    */
   async syncTeamGamesList(teamId: string) {
-    // Check if we have any games for this team before relying on the ETag
-    const localGamesCount = await db.games
-      .where("teamId")
-      .equals(teamId)
-      .count();
-    const etag =
-      localGamesCount > 0 ? this.getETag("team_games", teamId) : null;
+    const localGamesCount = await db.games.where("teamId").equals(teamId).count();
+    const etag = localGamesCount > 0 ? this.getETag("team_games", teamId) : null;
 
-    try {
-      const response = await this.fetchApi(`/data/teams/${teamId}/games.json`, {
-        headers: {
-          "If-None-Match": etag || "",
-        },
-      });
-
-      if (response.status === 304) {
-        console.log(`Games list for team ${teamId} is up to date.`);
-        return;
-      }
-
-      if (response.ok) {
-        const data: { games: any[] } = await response.json();
-        this.setETag("team_games", teamId, response.headers.get("ETag"));
-
+    await this.handleEtagResponse<{ games: any[] }>(
+      "team_games",
+      teamId,
+      `/data/teams/${teamId}/games.json`,
+      etag,
+      async (data) => {
         await db.transaction("rw", [db.games], async () => {
           for (const g of data.games) {
-            await db.games.put({
-              ...g,
-              id: g.id,
-              synced: 1,
-            });
+            await db.games.put({ ...g, id: g.id, synced: 1 });
           }
         });
-      }
-    } catch (error) {
-      console.error("Sync team games list failed:", error);
-    }
+      },
+      `Games list for team ${teamId}`,
+    );
   }
 
   /**
@@ -295,30 +282,17 @@ class SyncService {
    * @param {string} gameId - The game ID.
    */
   async syncGameStats(gameId: string) {
-    // Check if we have the game in our local database before relying on the ETag
     const localGame = await db.games.get(gameId as any);
     const etag = localGame?.completed ? this.getETag("game", gameId) : null;
 
-    try {
-      const response = await this.fetchApi(`/data/games/${gameId}/stats.json`, {
-        headers: {
-          "If-None-Match": etag || "",
-        },
-      });
-
-      if (response.status === 304) {
-        console.log(`Game ${gameId} is up to date.`);
-        return;
-      }
-
-      if (response.ok) {
-        const data: GameSnapshot = await response.json();
-        this.setETag("game", gameId, response.headers.get("ETag"));
-        await this.persistGameStats(data);
-      }
-    } catch (error) {
-      console.error("Sync game stats failed:", error);
-    }
+    await this.handleEtagResponse<GameSnapshot>(
+      "game",
+      gameId,
+      `/data/games/${gameId}/stats.json`,
+      etag,
+      (data) => this.persistGameStats(data),
+      `Game ${gameId}`,
+    );
   }
 
   /**
