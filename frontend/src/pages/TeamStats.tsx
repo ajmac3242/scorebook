@@ -86,6 +86,17 @@ const TeamStats: React.FC = () => {
     direction: "asc" | "desc";
   }>({ key: "points", direction: "desc" });
 
+  /**
+   * Updates the column sorting configuration.
+   * @param key
+   */
+  const handleSort = (key: string) => {
+    setSortConfig((prev) => ({
+      key,
+      direction: prev.key === key && prev.direction === "desc" ? "asc" : "desc",
+    }));
+  };
+
   const team = useLiveQuery(
     async () => (teamId !== undefined ? await db.teams.get(teamId) : undefined),
     [teamId],
@@ -347,53 +358,6 @@ const TeamStats: React.FC = () => {
     setIsSyncing(false);
   };
 
-  /**
-   * Updates the column sorting configuration.
-   * @param key
-   */
-  const handleSort = (key: string) => {
-    setSortConfig((prev) => ({
-      key,
-      direction: prev.key === key && prev.direction === "desc" ? "asc" : "desc",
-    }));
-  };
-
-  /**
-   * Helper component for sortable table headers.
-   * @param root0
-   * @param root0.label
-   * @param root0.sortKey
-   * @param root0.align
-   * @param root0.hideOnMobile
-   */
-  const SortableHeader = ({
-    label,
-    sortKey,
-    align = "right",
-    hideOnMobile = false,
-  }: {
-    label: string;
-    sortKey: string;
-    align?: "left" | "center" | "right";
-    hideOnMobile?: boolean;
-  }) => (
-    <TableCell
-      align={align}
-      onClick={() => handleSort(sortKey)}
-      sx={{
-        cursor: "pointer",
-        fontWeight: 700,
-        "&:hover": { color: "primary.main" },
-        whiteSpace: "nowrap",
-        display: hideOnMobile ? { xs: "none", sm: "table-cell" } : "table-cell",
-      }}
-    >
-      {label}{" "}
-      {sortConfig.key === sortKey &&
-        (sortConfig.direction === "asc" ? "↑" : "↓")}
-    </TableCell>
-  );
-
   const isDeleted = !!team?.deletedAt || !!season?.deletedAt;
   const isPendingDelete = !!team?.deletedAt;
 
@@ -599,36 +563,61 @@ const TeamStats: React.FC = () => {
                     sortKey="jerseyNumber"
                     align="left"
                     hideOnMobile
+                    sortConfig={sortConfig}
+                    onSort={handleSort}
                   />
-                  <SortableHeader label="PLAYER" sortKey="name" align="left" />
+                  <SortableHeader
+                    label="PLAYER"
+                    sortKey="name"
+                    align="left"
+                    sortConfig={sortConfig}
+                    onSort={handleSort}
+                  />
                   <SortableHeader
                     label="GP"
                     sortKey="gp"
                     align="center"
                     hideOnMobile
+                    sortConfig={sortConfig}
+                    onSort={handleSort}
                   />
                   <SortableHeader
                     label={STAT_ACRONYMS.POINTS}
                     sortKey="points"
+                    sortConfig={sortConfig}
+                    onSort={handleSort}
                   />
-                  <SortableHeader label="FG%" sortKey="fgPct" />
+                  <SortableHeader
+                    label="FG%"
+                    sortKey="fgPct"
+                    sortConfig={sortConfig}
+                    onSort={handleSort}
+                  />
                   <SortableHeader
                     label={STAT_ACRONYMS.REBOUNDS}
                     sortKey="rebounds"
+                    sortConfig={sortConfig}
+                    onSort={handleSort}
                   />
                   <SortableHeader
                     label={STAT_ACRONYMS.ASSISTS}
                     sortKey="assists"
+                    sortConfig={sortConfig}
+                    onSort={handleSort}
                   />
                   <SortableHeader
                     label={STAT_ACRONYMS.STEALS}
                     sortKey="steals"
                     hideOnMobile
+                    sortConfig={sortConfig}
+                    onSort={handleSort}
                   />
                   <SortableHeader
                     label={STAT_ACRONYMS.TURNOVERS}
                     sortKey="turnovers"
                     hideOnMobile
+                    sortConfig={sortConfig}
+                    onSort={handleSort}
                   />
                 </TableRow>
               </TableHead>
@@ -967,5 +956,47 @@ const TeamStats: React.FC = () => {
     </Box>
   );
 };
+
+/**
+ * Helper component for sortable table headers.
+ *
+ * @param root0
+ * @param root0.label
+ * @param root0.sortKey
+ * @param root0.align
+ * @param root0.hideOnMobile
+ * @param root0.sortConfig
+ * @param root0.onSort
+ */
+const SortableHeader = ({
+  label,
+  sortKey,
+  align = "right",
+  hideOnMobile = false,
+  sortConfig,
+  onSort,
+}: {
+  label: string;
+  sortKey: string;
+  align?: "left" | "center" | "right";
+  hideOnMobile?: boolean;
+  sortConfig: { key: string; direction: "asc" | "desc" };
+  onSort: (key: string) => void;
+}) => (
+  <TableCell
+    align={align}
+    onClick={() => onSort(sortKey)}
+    sx={{
+      cursor: "pointer",
+      fontWeight: 700,
+      "&:hover": { color: "primary.main" },
+      whiteSpace: "nowrap",
+      display: hideOnMobile ? { xs: "none", sm: "table-cell" } : "table-cell",
+    }}
+  >
+    {label}{" "}
+    {sortConfig.key === sortKey && (sortConfig.direction === "asc" ? "↑" : "↓")}
+  </TableCell>
+);
 
 export default TeamStats;

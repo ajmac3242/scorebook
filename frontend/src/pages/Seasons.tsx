@@ -13,11 +13,16 @@ import {
   TextField,
   Fab,
   Grid,
-  Stack,
   Divider,
   MenuItem,
+  Avatar,
 } from "@mui/material";
-import { Add as AddIcon, Settings } from "@mui/icons-material";
+import {
+  Add as AddIcon,
+  Settings,
+  EventNote as SeasonsIcon,
+  SportsBasketball as BasketballIcon,
+} from "@mui/icons-material";
 import { db, type Season } from "../db";
 import { syncService } from "../utils/syncService";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -25,7 +30,8 @@ import { LocalizationProvider, StaticDatePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs, { Dayjs } from "dayjs";
 import { useNavigate } from "react-router-dom";
-import { MoleskineCard, PageHeader } from "../components/SharedUI";
+import { MoleskineCard, StatItem } from "../components/SharedUI";
+import EntityBanner from "../components/EntityBanner";
 
 const Seasons: React.FC = () => {
   const navigate = useNavigate();
@@ -38,9 +44,22 @@ const Seasons: React.FC = () => {
   );
   const [primaryColor, setPrimaryColor] = useState("#154C56");
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(dayjs());
+  const [searchTerm, setSearchTerm] = useState("");
 
   const seasons = useLiveQuery(() => db.seasons.toArray()) || [];
+  const allTeams = useLiveQuery(() => db.teams.toArray()) || [];
   const allGames = useLiveQuery(() => db.games.toArray()) || [];
+
+  const seasonsWithStats = useMemo(() => {
+    return seasons
+      .filter((s) => !s.deletedAt)
+      .filter((s) => s.name.toLowerCase().includes(searchTerm.toLowerCase()))
+      .map((s) => {
+        const teamCount = allTeams.filter((t) => t.seasonId === s.id).length;
+        const gameCount = allGames.filter((g) => g.teamId && allTeams.find(t => t.id === g.teamId && t.seasonId === s.id)).length;
+        return { ...s, teamCount, gameCount };
+      });
+  }, [seasons, allTeams, allGames, searchTerm]);
 
   const handleAddSeason = async () => {
     try {
@@ -87,9 +106,128 @@ const Seasons: React.FC = () => {
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <Box sx={{ p: 2 }}>
-        <PageHeader title="Seasons & Events" />
-        <Grid container spacing={4}>
+      <Box sx={{ pb: 8 }}>
+        <EntityBanner
+          title="Seasons"
+          icon={<SeasonsIcon />}
+          backTo="/"
+        />
+
+        <Box sx={{ mt: 4 }}>
+          <TextField
+            fullWidth
+            variant="outlined"
+            placeholder="Filter seasons by name..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            sx={{ mb: 4, bgcolor: "white", borderRadius: 1 }}
+          />
+        </Box>
+
+        <Grid container spacing={3} sx={{ mb: 6 }}>
+          {seasonsWithStats.map((season) => (
+            <Grid item xs={12} sm={6} md={4} key={season.id}>
+              <MoleskineCard
+                sx={{
+                  cursor: "pointer",
+                  height: "100%",
+                  bgcolor: season.primaryColor || "primary.main",
+                  color: "white",
+                  transition: "transform 0.2s, box-shadow 0.2s",
+                  "&:hover": {
+                    transform: "translateY(-4px)",
+                    boxShadow: "0 8px 24px rgba(0,0,0,0.2)",
+                  },
+                  display: "flex",
+                  flexDirection: "column",
+                  p: 0,
+                  overflow: "hidden",
+                  border: "none",
+                }}
+                onClick={() => navigate(`/seasons/${season.id}`)}
+              >
+                <Box sx={{ p: 3, flexGrow: 1 }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "flex-start",
+                      mb: 3,
+                    }}
+                  >
+                    <Box>
+                      <Typography
+                        variant="h5"
+                        sx={{
+                          fontFamily: "var(--serif)",
+                          fontWeight: 700,
+                          mb: 0.5,
+                          color: "white",
+                        }}
+                      >
+                        {season.name}
+                      </Typography>
+                      <Typography
+                        variant="caption"
+                        sx={{ opacity: 0.8, color: "white" }}
+                      >
+                        {dayjs(season.startDate).format("MMM YYYY")} -{" "}
+                        {dayjs(season.endDate).format("MMM YYYY")}
+                      </Typography>
+                    </Box>
+                    <Avatar
+                      variant="rounded"
+                      sx={{
+                        width: 60,
+                        height: 60,
+                        bgcolor: "rgba(255,255,255,0.2)",
+                        color: "white",
+                      }}
+                    >
+                      <BasketballIcon sx={{ fontSize: "2rem" }} />
+                    </Avatar>
+                  </Box>
+                </Box>
+
+                <Box
+                  sx={{
+                    bgcolor: "rgba(0,0,0,0.1)",
+                    p: 2,
+                    display: "flex",
+                    justifyContent: "space-around",
+                  }}
+                >
+                  <StatItem
+                    label="TEAMS"
+                    value={season.teamCount}
+                    light
+                  />
+                  <StatItem
+                    label="GAMES"
+                    value={season.gameCount}
+                    light
+                  />
+                </Box>
+              </MoleskineCard>
+            </Grid>
+          ))}
+          {seasonsWithStats.length === 0 && (
+            <Grid item xs={12}>
+              <Typography
+                color="text.secondary"
+                sx={{ textAlign: "center", py: 8 }}
+              >
+                {searchTerm
+                  ? `No seasons matching "${searchTerm}"`
+                  : "No seasons found."}
+              </Typography>
+            </Grid>
+          )}
+        </Grid>
+
+        <Divider sx={{ my: 6 }} />
+
+        <Grid container spacing={4} sx={{ pb: 10 }}>
           <Grid item xs={12} md={6}>
             <MoleskineCard sx={{ p: { xs: 1, sm: 2 } }}>
               <Typography
@@ -226,43 +364,6 @@ const Seasons: React.FC = () => {
                   ))
                 )}
               </List>
-              <Box sx={{ mt: "auto", pt: 4 }}>
-                <Typography
-                  variant="h6"
-                  sx={{ fontFamily: "var(--serif)", mb: 2 }}
-                >
-                  All Seasons
-                </Typography>
-                <Stack spacing={1}>
-                  {seasons.map((s) => (
-                    <Box
-                      key={s.id}
-                      onClick={() => navigate(`/seasons/${s.id}`)}
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        p: 1,
-                        borderBottom: "1px dashed #D1D1D1",
-                        cursor: "pointer",
-                        opacity: s.deletedAt ? 0.5 : 1,
-                        "&:hover": { bgcolor: "rgba(0,0,0,0.02)" },
-                      }}
-                    >
-                      <Box>
-                        <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                          {s.name} {s.deletedAt && "(Pending Delete)"}
-                        </Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          {dayjs(s.startDate).format("MMM YYYY")} -{" "}
-                          {dayjs(s.endDate).format("MMM YYYY")}
-                        </Typography>
-                      </Box>
-                      <Button size="small">Details</Button>
-                    </Box>
-                  ))}
-                </Stack>
-              </Box>
             </MoleskineCard>
           </Grid>
         </Grid>
@@ -271,7 +372,7 @@ const Seasons: React.FC = () => {
           aria-label="add"
           sx={{
             position: "fixed",
-            bottom: 32,
+            bottom: "calc(32px + env(safe-area-inset-bottom))",
             right: 32,
             transition: "transform 0.2s",
             "&:hover": { transform: "scale(1.1) rotate(90deg)" },

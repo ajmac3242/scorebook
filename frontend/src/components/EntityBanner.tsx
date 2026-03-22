@@ -19,6 +19,7 @@ interface EntityBannerProps {
   subtitle?: string;
   avatarSrc?: string;
   avatarColor?: string;
+  icon?: React.ReactNode;
   backTo?: string;
   primaryColor?: string;
   stats?: Array<{ label: string; value: string | number }>;
@@ -29,8 +30,8 @@ interface EntityBannerProps {
 }
 
 /**
- * Standardized banner component for entities (Teams, Players).
- * Includes an avatar, title, subtitle, stats summary, and action buttons.
+ * Standardized banner component for entities (Teams, Players, Seasons).
+ * Includes an avatar or icon, title, subtitle, stats summary, and action buttons.
  *
  * @param {EntityBannerProps} props - Component props.
  * @returns {React.ReactElement}
@@ -40,6 +41,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
   subtitle,
   avatarSrc,
   avatarColor,
+  icon,
   backTo,
   primaryColor = "#154C56",
   stats = [],
@@ -109,6 +111,21 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                   filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.3))",
                 }}
               />
+            ) : icon ? (
+              <Avatar
+                sx={{
+                  width: { xs: 80, md: 120 },
+                  height: { xs: 80, md: 120 },
+                  bgcolor: avatarColor || "rgba(255,255,255,0.2)",
+                  border: "4px solid rgba(255,255,255,0.3)",
+                  mx: "auto",
+                  "& svg": {
+                    fontSize: { xs: "2.5rem", md: "4rem" },
+                  },
+                }}
+              >
+                {icon}
+              </Avatar>
             ) : (
               <Avatar
                 sx={{

@@ -129,15 +129,18 @@ const GameStats: React.FC = () => {
     }
   }, [game?.deletedAt]);
 
+  // Filter stats based on the selected period (Quarter/Half)
   const stats = useMemo(() => {
     if (periodFilter === "ALL") return allStats;
     return allStats.filter((s) => s.period === parseInt(periodFilter));
   }, [allStats, periodFilter]);
 
-  const playerAggregates = useMemo(
-    () => calculatePlayerAggregates(players, stats, teamPlayers),
-    [players, stats, teamPlayers],
-  );
+  const playerAggregates = useMemo(() => {
+    // Only include players who are assigned to this team
+    const teamPlayerIds = new Set(teamPlayers.map((tp) => tp.playerId));
+    const rosteredPlayers = players.filter((p) => teamPlayerIds.has(p.id!));
+    return calculatePlayerAggregates(rosteredPlayers, stats, teamPlayers);
+  }, [players, stats, teamPlayers]);
 
   const filteredStats = useMemo(() => {
     return stats.filter(
@@ -266,7 +269,6 @@ const GameStats: React.FC = () => {
         </TableHead>
         <TableBody>
           {playerAggregates
-            .filter((p) => p.attempts > 0 || p.rebounds > 0 || p.assists > 0)
             .map((row) => (
               <TableRow key={row.id}>
                 <TableCell
