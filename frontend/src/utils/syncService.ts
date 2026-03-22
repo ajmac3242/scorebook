@@ -53,6 +53,27 @@ class SyncService {
   }
 
   /**
+   * Helper function to perform a fetch with authorization headers.
+   * @param {string} url - The URL to fetch.
+   * @param {RequestInit} [options] - Fetch options.
+   * @returns {Promise<Response>} The fetch response.
+   * @private
+   */
+  private async fetchApi(
+    url: string,
+    options: RequestInit = {},
+  ): Promise<Response> {
+    const headers = await this.getHeaders();
+    return fetch(url, {
+      ...options,
+      headers: {
+        ...headers,
+        ...(options.headers || {}),
+      },
+    });
+  }
+
+  /**
    * Checks if there are any records in IndexedDB marked as unsynced (synced: 0).
    * @returns {Promise<boolean>} True if unsynced changes exist.
    */
@@ -74,6 +95,48 @@ class SyncService {
   }
 
   /**
+   * Helper to push all unsynced items of a specific entity type to the API.
+   * @param {any} table - Dexie table.
+   * @param {string} endpoint - API endpoint or a function that returns an endpoint.
+   * @param {string} entityName - Name for logging.
+   * @param {Record<string, string>} headers - Auth headers.
+   * @param {(item: any) => Promise<void>} [onSuccess] - Optional callback after successful push.
+   * @private
+   */
+  private async pushEntity<T extends { id?: string | number }>(
+    table: any,
+    endpoint: string | ((item: T) => string),
+    entityName: string,
+    onSuccess?: (item: T) => Promise<void>,
+  ) {
+    if (!table) return;
+    const query = table.where("synced").equals(0);
+    let items;
+    try {
+      items = await (query.toArray ? query.toArray() : query);
+    } catch (e) {
+      return;
+    }
+    if (!items || !Array.isArray(items)) return;
+
+    for (const item of items) {
+      try {
+        const url = typeof endpoint === "function" ? endpoint(item) : endpoint;
+        const res = await this.fetchApi(url, {
+          method: "POST",
+          body: JSON.stringify(item),
+        });
+        if (res.ok) {
+          await table.update(item.id!, { synced: 1 });
+          if (onSuccess) await onSuccess(item);
+        }
+      } catch (err) {
+        console.error(`Failed to push ${entityName} ${item.id}:`, err);
+      }
+    }
+  }
+
+  /**
    * Pushes all local, unsynced changes to the backend API.
    * Iterates through all entities and updates their synced status upon success.
    */
@@ -83,106 +146,26 @@ class SyncService {
     console.log("Starting push updates...");
 
     try {
-      const headers = await this.getHeaders();
-
-      // --- Push Seasons ---
-      const seasons = await db.seasons.where("synced").equals(0).toArray();
-      for (const s of seasons) {
-        try {
-          const res = await fetch("/api/seasons", {
+      await this.pushEntity(db.seasons, "/api/seasons", "season");
+      await this.pushEntity(db.teams, "/api/teams", "team");
+      await this.pushEntity(db.players, "/api/players", "player");
+      await this.pushEntity(
+        db.teamPlayers,
+        (tp: any) => `/api/teams/${tp.teamId}/players`,
+        "teamPlayer",
+      );
+      await this.pushEntity(db.games, "/api/games", "game", async (g) => {
+        if (g.completed) {
+          await this.fetchApi(`/api/games/${g.id}/complete`, {
             method: "POST",
-            headers,
-            body: JSON.stringify(s),
           });
-          if (res.ok) await db.seasons.update(s.id!, { synced: 1 });
-        } catch (err) {
-          console.error(`Failed to push season ${s.id}:`, err);
         }
-      }
-
-      // --- Push Teams ---
-      const teams = await db.teams.where("synced").equals(0).toArray();
-      for (const t of teams) {
-        try {
-          const res = await fetch("/api/teams", {
-            method: "POST",
-            headers,
-            body: JSON.stringify(t),
-          });
-          if (res.ok) await db.teams.update(t.id!, { synced: 1 });
-        } catch (err) {
-          console.error(`Failed to push team ${t.id}:`, err);
-        }
-      }
-
-      // --- Push Players ---
-      const players = await db.players.where("synced").equals(0).toArray();
-      for (const p of players) {
-        try {
-          const res = await fetch("/api/players", {
-            method: "POST",
-            headers,
-            body: JSON.stringify(p),
-          });
-          if (res.ok) await db.players.update(p.id!, { synced: 1 });
-        } catch (err) {
-          console.error(`Failed to push player ${p.id}:`, err);
-        }
-      }
-
-      // --- Push TeamPlayers ---
-      const tp = await db.teamPlayers.where("synced").equals(0).toArray();
-      for (const item of tp) {
-        try {
-          const res = await fetch(`/api/teams/${item.teamId}/players`, {
-            method: "POST",
-            headers,
-            body: JSON.stringify(item),
-          });
-          if (res.ok) await db.teamPlayers.update(item.id!, { synced: 1 });
-        } catch (err) {
-          console.error(`Failed to push teamPlayer ${item.id}:`, err);
-        }
-      }
-
-      // --- Push Games ---
-      const games = await db.games.where("synced").equals(0).toArray();
-      for (const g of games) {
-        try {
-          const res = await fetch("/api/games", {
-            method: "POST",
-            headers,
-            body: JSON.stringify(g),
-          });
-          if (res.ok) {
-            await db.games.update(g.id!, { synced: 1 });
-            // If game is completed, send a separate completion signal
-            if (g.completed) {
-              await fetch(`/api/games/${g.id}/complete`, {
-                method: "POST",
-                headers,
-              });
-            }
-          }
-        } catch (err) {
-          console.error(`Failed to push game ${g.id}:`, err);
-        }
-      }
-
-      // --- Push Individual Stats ---
-      const stats = await db.stats.where("synced").equals(0).toArray();
-      for (const st of stats) {
-        try {
-          const res = await fetch(`/api/games/${st.gameId}/stats`, {
-            method: "POST",
-            headers,
-            body: JSON.stringify(st),
-          });
-          if (res.ok) await db.stats.update(st.id!, { synced: 1 });
-        } catch (err) {
-          console.error(`Failed to push stat ${st.id}:`, err);
-        }
-      }
+      });
+      await this.pushEntity(
+        db.stats,
+        (s: any) => `/api/games/${s.gameId}/stats`,
+        "stat",
+      );
 
       console.log("Push updates complete.");
     } catch (e) {
@@ -203,10 +186,8 @@ class SyncService {
     const etag = localTeam ? localStorage.getItem(`etag_team_${teamId}`) : null;
 
     try {
-      const headers = await this.getHeaders();
-      const response = await fetch(`/data/teams/${teamId}/roster.json`, {
+      const response = await this.fetchApi(`/data/teams/${teamId}/roster.json`, {
         headers: {
-          ...headers,
           "If-None-Match": etag || "",
         },
       });
@@ -221,33 +202,7 @@ class SyncService {
         const newEtag = response.headers.get("ETag");
         if (newEtag) localStorage.setItem(`etag_team_${teamId}`, newEtag);
 
-        // Bulk update local database within a transaction
-        await db.transaction(
-          "rw",
-          [db.teams, db.players, db.teamPlayers],
-          async () => {
-            await db.teams.put({
-              ...data.team,
-              id: data.team.id,
-              synced: 1,
-            });
-
-            for (const p of data.players) {
-              await db.players.put({
-                id: p.id,
-                name: p.name,
-                avatarColor: p.avatarColor,
-                synced: 1,
-              });
-              await db.teamPlayers.put({
-                ...p,
-                teamId: teamId,
-                playerId: p.id,
-                synced: 1,
-              });
-            }
-          },
-        );
+        await this.persistRoster(teamId, data);
       }
     } catch (error) {
       console.error("Sync team roster failed:", error);
@@ -270,10 +225,8 @@ class SyncService {
         : null;
 
     try {
-      const headers = await this.getHeaders();
-      const response = await fetch(`/data/teams/${teamId}/games.json`, {
+      const response = await this.fetchApi(`/data/teams/${teamId}/games.json`, {
         headers: {
-          ...headers,
           "If-None-Match": etag || "",
         },
       });
@@ -315,10 +268,8 @@ class SyncService {
       : null;
 
     try {
-      const headers = await this.getHeaders();
-      const response = await fetch(`/data/games/${gameId}/stats.json`, {
+      const response = await this.fetchApi(`/data/games/${gameId}/stats.json`, {
         headers: {
-          ...headers,
           "If-None-Match": etag || "",
         },
       });
@@ -333,25 +284,69 @@ class SyncService {
         const newEtag = response.headers.get("ETag");
         if (newEtag) localStorage.setItem(`etag_game_${gameId}`, newEtag);
 
-        await db.transaction("rw", [db.games, db.stats], async () => {
-          await db.games.put({
-            ...data.game,
-            id: data.game.id,
-            synced: 1,
-          });
-
-          for (const s of data.stats) {
-            await db.stats.put({
-              ...s,
-              id: s.id,
-              synced: 1,
-            });
-          }
-        });
+        await this.persistGameStats(data);
       }
     } catch (error) {
       console.error("Sync game stats failed:", error);
     }
+  }
+
+  /**
+   * Persists roster snapshot data to local IndexedDB.
+   * @param {string} teamId
+   * @param {RosterSnapshot} data
+   * @private
+   */
+  private async persistRoster(teamId: string, data: RosterSnapshot) {
+    await db.transaction(
+      "rw",
+      [db.teams, db.players, db.teamPlayers],
+      async () => {
+        await db.teams.put({
+          ...data.team,
+          id: data.team.id,
+          synced: 1,
+        });
+
+        for (const p of data.players) {
+          await db.players.put({
+            id: p.id,
+            name: p.name,
+            avatarColor: p.avatarColor,
+            synced: 1,
+          });
+          await db.teamPlayers.put({
+            ...p,
+            teamId: teamId,
+            playerId: p.id,
+            synced: 1,
+          });
+        }
+      },
+    );
+  }
+
+  /**
+   * Persists game stats snapshot data to local IndexedDB.
+   * @param {GameSnapshot} data
+   * @private
+   */
+  private async persistGameStats(data: GameSnapshot) {
+    await db.transaction("rw", [db.games, db.stats], async () => {
+      await db.games.put({
+        ...data.game,
+        id: data.game.id,
+        synced: 1,
+      });
+
+      for (const s of data.stats) {
+        await db.stats.put({
+          ...s,
+          id: s.id,
+          synced: 1,
+        });
+      }
+    });
   }
 
   /**
@@ -384,10 +379,8 @@ class SyncService {
     console.log("Starting full pull sync...");
 
     try {
-      const headers = await this.getHeaders();
-
       // 1. Pull all Seasons
-      const seasonsRes = await fetch("/api/seasons", { headers });
+      const seasonsRes = await this.fetchApi("/api/seasons");
       if (seasonsRes.ok) {
         const seasons = await seasonsRes.json();
         await db.transaction("rw", [db.seasons], async () => {
@@ -398,9 +391,7 @@ class SyncService {
 
         // 2. Pull Teams for each season
         for (const s of seasons) {
-          const teamsRes = await fetch(`/api/teams?seasonId=${s.id}`, {
-            headers,
-          });
+          const teamsRes = await this.fetchApi(`/api/teams?seasonId=${s.id}`);
           if (teamsRes.ok) {
             const teams = await teamsRes.json();
             await db.transaction("rw", [db.teams], async () => {
@@ -419,7 +410,7 @@ class SyncService {
       }
 
       // 4. Pull all global players
-      const playersRes = await fetch("/api/players", { headers });
+      const playersRes = await this.fetchApi("/api/players");
       if (playersRes.ok) {
         const players = await playersRes.json();
         await db.transaction("rw", [db.players], async () => {

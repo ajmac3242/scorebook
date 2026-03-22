@@ -35,7 +35,9 @@ export interface PlayerAggregates {
 export const getInitials = (name: string | undefined | null): string => {
   if (!name) return "";
   return name
-    .split(" ")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
     .map((n) => n[0])
     .join("")
     .toUpperCase()
@@ -67,15 +69,18 @@ export const getPlayerJersey = (
  * @param {"total" | "average"} viewType - (Optional) Type of calculation, defaults to "total".
  * @returns {PlayerAggregates[]} Array of aggregated statistics.
  */
-export const calculatePlayerAggregates = (
+/**
+ * Initializes a map of player aggregates with default values.
+ *
+ * @param {any[]} players - List of player objects.
+ * @param {TeamPlayer[]} teamPlayers - Team roster for jersey numbers.
+ * @returns {Record<string, PlayerAggregates>} Initialized map.
+ */
+function initializeStatsMap(
   players: any[],
-  stats: StatEvent[],
-  teamPlayers: TeamPlayer[] = [],
-  viewType: "total" | "average" = "total",
-): PlayerAggregates[] => {
+  teamPlayers: TeamPlayer[],
+): Record<string, PlayerAggregates> {
   const statsMap: Record<string, PlayerAggregates> = {};
-
-  // Initialize the map with base player data
   players.forEach((p) => {
     const pId = p.id!;
     statsMap[pId] = {
@@ -96,6 +101,26 @@ export const calculatePlayerAggregates = (
       fgPct: "0.0",
     };
   });
+  return statsMap;
+}
+
+/**
+ * Calculates aggregated statistics for a list of players based on a set of events.
+ * Supports both total and per-game average calculations.
+ *
+ * @param {any[]} players - List of player objects.
+ * @param {StatEvent[]} stats - List of statistical events to process.
+ * @param {TeamPlayer[]} teamPlayers - (Optional) Team roster for jersey numbers.
+ * @param {"total" | "average"} viewType - (Optional) Type of calculation, defaults to "total".
+ * @returns {PlayerAggregates[]} Array of aggregated statistics.
+ */
+export const calculatePlayerAggregates = (
+  players: any[],
+  stats: StatEvent[],
+  teamPlayers: TeamPlayer[] = [],
+  viewType: "total" | "average" = "total",
+): PlayerAggregates[] => {
+  const statsMap = initializeStatsMap(players, teamPlayers);
 
   // Accumulate statistics from event stream
   stats.forEach((s) => {
@@ -172,24 +197,17 @@ export const calculateTeamAggregates = (
   let losses = 0;
 
   targetGameIds.forEach((gId) => {
-    let gameTeamPoints = 0;
-    let gameOppPoints = 0;
     const gameStats = relevantStats.filter((s) => s.gameId === gId);
+    const { teamPoints, oppPoints, rebounds, assists } =
+      aggregateStatsForGame(gameStats);
 
-    gameStats.forEach((s) => {
-      if (s.playerId === "OPPONENT") {
-        gameOppPoints += s.points || 0;
-      } else {
-        gameTeamPoints += s.points || 0;
-        if (s.type === ACTION_TYPES.REBOUND) totalRebounds++;
-        if (s.type === ACTION_TYPES.ASSIST) totalAssists++;
-      }
-    });
+    totalPoints += teamPoints;
+    totalOppPoints += oppPoints;
+    totalRebounds += rebounds;
+    totalAssists += assists;
 
-    totalPoints += gameTeamPoints;
-    totalOppPoints += gameOppPoints;
-    if (gameTeamPoints > gameOppPoints) wins++;
-    else if (gameTeamPoints < gameOppPoints) losses++;
+    if (teamPoints > oppPoints) wins++;
+    else if (teamPoints < oppPoints) losses++;
   });
 
   const gp = targetGames.length || 1;
@@ -202,6 +220,30 @@ export const calculateTeamAggregates = (
     totalGames: targetGames.length,
   };
 };
+
+/**
+ * Aggregates statistics for a single game.
+ * @param {StatEvent[]} gameStats - Events for the specific game.
+ * @returns {object} Aggregated points, rebounds, and assists.
+ */
+function aggregateStatsForGame(gameStats: StatEvent[]) {
+  let teamPoints = 0;
+  let oppPoints = 0;
+  let rebounds = 0;
+  let assists = 0;
+
+  gameStats.forEach((s) => {
+    if (s.playerId === "OPPONENT") {
+      oppPoints += s.points || 0;
+    } else {
+      teamPoints += s.points || 0;
+      if (s.type === ACTION_TYPES.REBOUND) rebounds++;
+      if (s.type === ACTION_TYPES.ASSIST) assists++;
+    }
+  });
+
+  return { teamPoints, oppPoints, rebounds, assists };
+}
 
 /**
  * Calculates the score and result (W, L, D) for a single game.
