@@ -146,12 +146,12 @@ const Games: React.FC = () => {
 
   return (
     <Box sx={{ pb: 8 }}>
-      <EntityBanner
-        title="Games Schedule"
-        icon={<GamesIcon />}
-        backTo="/"
-      />
-      <Stack direction={{ xs: "column", sm: "row" }} spacing={2} sx={{ mb: 3, mt: 4 }}>
+      <EntityBanner title="Games Schedule" icon={<GamesIcon />} backTo="/" />
+      <Stack
+        direction={{ xs: "column", sm: "row" }}
+        spacing={2}
+        sx={{ mb: 3, mt: 4 }}
+      >
         <FormControl fullWidth variant="outlined">
           <InputLabel>Filter by Season</InputLabel>
           <Select

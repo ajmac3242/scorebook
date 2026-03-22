@@ -74,9 +74,14 @@ const Players: React.FC = () => {
   const allStats = useLiveQuery(() => db.stats.toArray()) || [];
 
   const playersWithStats = useMemo(() => {
-    const aggregates = calculatePlayerAggregates(players, allStats, [], "average");
-    return players.map(p => {
-      const agg = aggregates.find(a => a.id === p.id);
+    const aggregates = calculatePlayerAggregates(
+      players,
+      allStats,
+      [],
+      "average",
+    );
+    return players.map((p) => {
+      const agg = aggregates.find((a) => a.id === p.id);
       return {
         ...p,
         ppg: agg?.points || 0,
@@ -240,7 +245,11 @@ const Players: React.FC = () => {
                 border: "none",
                 opacity: player.isArchived ? 0.7 : 1,
               }}
-              onClick={() => (player.isArchived ? handleRestorePlayer(player.id) : navigate(`/players/${player.id}`))}
+              onClick={() =>
+                player.isArchived
+                  ? handleRestorePlayer(player.id)
+                  : navigate(`/players/${player.id}`)
+              }
             >
               <Box sx={{ p: 3, flexGrow: 1 }}>
                 <Box
@@ -267,8 +276,18 @@ const Players: React.FC = () => {
                       <Chip
                         label="Archived"
                         size="small"
-                        sx={{ bgcolor: "rgba(255,255,255,0.2)", color: "white" }}
-                        icon={<History sx={{ fontSize: "12px !important", color: "white !important" }} />}
+                        sx={{
+                          bgcolor: "rgba(255,255,255,0.2)",
+                          color: "white",
+                        }}
+                        icon={
+                          <History
+                            sx={{
+                              fontSize: "12px !important",
+                              color: "white !important",
+                            }}
+                          />
+                        }
                       />
                     )}
                   </Box>
@@ -297,9 +316,17 @@ const Players: React.FC = () => {
                 }}
               >
                 <StatItem label="PPG" value={player.ppg} light />
-                <Typography sx={{ color: "white", opacity: 0.3, alignSelf: "center" }}>|</Typography>
+                <Typography
+                  sx={{ color: "white", opacity: 0.3, alignSelf: "center" }}
+                >
+                  |
+                </Typography>
                 <StatItem label="RPG" value={player.rpg} light />
-                <Typography sx={{ color: "white", opacity: 0.3, alignSelf: "center" }}>|</Typography>
+                <Typography
+                  sx={{ color: "white", opacity: 0.3, alignSelf: "center" }}
+                >
+                  |
+                </Typography>
                 <StatItem label="APG" value={player.apg} light />
               </Box>
             </MoleskineCard>
