@@ -8,3 +8,13 @@ Pattern:
 2. Use generic `pushEntity` and `fetchApi` patterns in sync services to handle repetitive CRUD.
 3. Decompose state initialization and inner-loop logic in stat calculators to improve readability.
 4. Enhance string utilities (`getInitials`) with robust regex-based splitting and filtering.
+
+## 2025-05-16 - Consolidation and Standardization
+Smell: Repetitive math formatting, redundant collection iterations, manual resource management (ETags, DB counts), and inconsistent error logging.
+Learning: Shared formatting utilities (`roundToOne`) significantly reduce visual noise. Declarative collection checks (mapping table names) improve maintainability over hardcoded lists. Extracting core logic from complex loops (Inner loop extraction) makes functions easier to test and reason about.
+Pattern:
+1. Implement `roundToOne`/`formatToOne` for consistent numeric display.
+2. Use single-pass `reduce` instead of multiple `filter`/`reduce` chains for score calculations.
+3. Promisify complex callback-based flows (auth sessions) to flatten async logic.
+4. Centralize resource management (ETag keys, DynamoDB key sets) to prevent string interpolation drift.
+5. Standardize backend logging with a `logError` helper for consistent observability.

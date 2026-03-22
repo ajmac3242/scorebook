@@ -32,6 +32,15 @@ const docClient = DynamoDBDocumentClient.from(client);
 const s3Client = new S3Client({});
 
 /**
+ * Standardized error logger for the backend.
+ * @param {string} label - Contextual label for the error.
+ * @param {any} error - The error object.
+ */
+function logError(label: string, error: any) {
+  console.error(`[${label}]:`, error);
+}
+
+/**
  * Main Lambda handler function.
  * Handles routing based on HTTP method and path, processes request bodies,
  * and interacts with DynamoDB and S3.
@@ -422,7 +431,7 @@ export const handler = async (
 
     return response(404, { message: "Route not found" });
   } catch (error: any) {
-    console.error("Handler Error:", error);
+    logError("Handler Error", error);
     // Secure error response to prevent information leakage
     return response(500, { message: "Internal Server Error" });
   }
@@ -590,7 +599,7 @@ async function snapshotTeamRoster(teamId: string, tableName: string) {
       );
     }
   } catch (e) {
-    console.error("Snapshot error:", e);
+    logError("Snapshot Team Roster Error", e);
   }
 }
 
@@ -617,7 +626,7 @@ async function snapshotTeamGames(teamId: string, tableName: string) {
     };
     await uploadSnapshot(DATA_BUCKET, `teams/${teamId}/games.json`, snapshot);
   } catch (e) {
-    console.error("Snapshot error:", e);
+    logError("Snapshot Team Games Error", e);
   }
 }
 
@@ -658,8 +667,23 @@ async function snapshotGameStats(gameId: string, tableName: string) {
       await uploadSnapshot(DATA_BUCKET, `games/${gameId}/stats.json`, snapshot);
     }
   } catch (e) {
-    console.error("Snapshot error:", e);
+    logError("Snapshot Game Stats Error", e);
   }
+}
+
+/**
+ * Accumulates scores for team and opponent from stat events.
+ * @param {any[]} stats - List of stat events.
+ * @returns {object} Object containing teamScore and oppScore.
+ */
+function accumulateScores(stats: any[]) {
+  let teamScore = 0;
+  let oppScore = 0;
+  stats.forEach((s: any) => {
+    if (s.playerId === "OPPONENT") oppScore += s.points || 0;
+    else teamScore += s.points || 0;
+  });
+  return { teamScore, oppScore };
 }
 
 /**
@@ -669,12 +693,7 @@ async function snapshotGameStats(gameId: string, tableName: string) {
  * @returns {object} Object containing teamScore, oppScore, and result.
  */
 function calculateGameResultFromStats(stats: any[]) {
-  let teamScore = 0;
-  let oppScore = 0;
-  stats.forEach((s: any) => {
-    if (s.playerId === "OPPONENT") oppScore += s.points || 0;
-    else teamScore += s.points || 0;
-  });
+  const { teamScore, oppScore } = accumulateScores(stats);
   const result = teamScore > oppScore ? "W" : teamScore < oppScore ? "L" : "D";
   return { teamScore, oppScore, result };
 }
@@ -718,7 +737,7 @@ async function deleteTeamSnapshots(teamId: string) {
       }),
     );
   } catch (e) {
-    console.error("Error deleting snapshots:", e);
+    logError("Delete Team Snapshots Error", e);
   }
 }
 
@@ -737,7 +756,7 @@ async function deleteGameSnapshots(gameId: string) {
       }),
     );
   } catch (e) {
-    console.error("Error deleting snapshots:", e);
+    logError("Delete Game Snapshots Error", e);
   }
 }
 
@@ -773,19 +792,21 @@ async function performHardCleanup(tableName: string) {
  * @returns {any} The cleaned object.
  */
 function stripLocalFields(data: any) {
-  const {
-    synced,
-    id,
-    PK,
-    SK,
-    GSI1PK,
-    GSI1SK,
-    GSI2PK,
-    GSI2SK,
-    deletedAt,
-    ...rest
-  } = data;
-  return rest;
+  const INTERNAL_KEYS = new Set([
+    "synced",
+    "id",
+    "PK",
+    "SK",
+    "GSI1PK",
+    "GSI1SK",
+    "GSI2PK",
+    "GSI2SK",
+    "deletedAt",
+  ]);
+
+  return Object.fromEntries(
+    Object.entries(data).filter(([key]) => !INTERNAL_KEYS.has(key)),
+  );
 }
 
 /**

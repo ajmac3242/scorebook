@@ -8,6 +8,20 @@ import { ACTION_TYPES } from "../constants/stats";
 import { StatEvent, TeamPlayer } from "../db";
 
 /**
+ * Rounds a number to one decimal place and returns it as a number.
+ * @param {number} val - The value to round.
+ * @returns {number} The rounded number.
+ */
+const roundToOne = (val: number): number => Number(val.toFixed(1));
+
+/**
+ * Formats a number to one decimal place and returns it as a string.
+ * @param {number} val - The value to format.
+ * @returns {string} The formatted string.
+ */
+const formatToOne = (val: number): string => val.toFixed(1);
+
+/**
  * Interface for aggregated player statistics.
  */
 export interface PlayerAggregates {
@@ -70,6 +84,31 @@ export const getPlayerJersey = (
  * @returns {PlayerAggregates[]} Array of aggregated statistics.
  */
 /**
+ * Updates a player's statistics based on a single statistical event.
+ * @param {PlayerAggregates} p - The player aggregate record.
+ * @param {StatEvent} s - The statistical event to process.
+ */
+function processStatEvent(p: PlayerAggregates, s: StatEvent) {
+  p.gamesPlayed.add(s.gameId);
+
+  if (s.type === ACTION_TYPES.MAKE) {
+    p.points += s.points || 0;
+    p.makes += 1;
+    p.attempts += 1;
+  } else if (s.type === ACTION_TYPES.MISS) {
+    p.attempts += 1;
+  } else if (s.type === ACTION_TYPES.REBOUND) {
+    p.rebounds += 1;
+  } else if (s.type === ACTION_TYPES.ASSIST) {
+    p.assists += 1;
+  } else if (s.type === ACTION_TYPES.STEAL) {
+    p.steals += 1;
+  } else if (s.type === ACTION_TYPES.TURNOVER) {
+    p.turnovers += 1;
+  }
+}
+
+/**
  * Initializes a map of player aggregates with default values.
  *
  * @param {any[]} players - List of player objects.
@@ -80,10 +119,9 @@ function initializeStatsMap(
   players: any[],
   teamPlayers: TeamPlayer[],
 ): Record<string, PlayerAggregates> {
-  const statsMap: Record<string, PlayerAggregates> = {};
-  players.forEach((p) => {
+  return players.reduce((acc, p) => {
     const pId = p.id!;
-    statsMap[pId] = {
+    acc[pId] = {
       id: p.id,
       name: p.name,
       avatarColor: p.avatarColor,
@@ -100,8 +138,8 @@ function initializeStatsMap(
       attempts: 0,
       fgPct: "0.0",
     };
-  });
-  return statsMap;
+    return acc;
+  }, {} as Record<string, PlayerAggregates>);
 }
 
 /**
@@ -124,26 +162,8 @@ export const calculatePlayerAggregates = (
 
   // Accumulate statistics from event stream
   stats.forEach((s) => {
-    const pId = s.playerId;
-    if (statsMap[pId]) {
-      const p = statsMap[pId];
-      p.gamesPlayed.add(s.gameId);
-
-      if (s.type === ACTION_TYPES.MAKE) {
-        p.points += s.points || 0;
-        p.makes += 1;
-        p.attempts += 1;
-      } else if (s.type === ACTION_TYPES.MISS) {
-        p.attempts += 1;
-      } else if (s.type === ACTION_TYPES.REBOUND) {
-        p.rebounds += 1;
-      } else if (s.type === ACTION_TYPES.ASSIST) {
-        p.assists += 1;
-      } else if (s.type === ACTION_TYPES.STEAL) {
-        p.steals += 1;
-      } else if (s.type === ACTION_TYPES.TURNOVER) {
-        p.turnovers += 1;
-      }
+    if (statsMap[s.playerId]) {
+      processStatEvent(statsMap[s.playerId], s);
     }
   });
 
@@ -154,17 +174,17 @@ export const calculatePlayerAggregates = (
     const gp = p.gamesPlayed.size || 1;
     p.gp = p.gamesPlayed.size;
     p.fgPct =
-      p.attempts > 0 ? ((p.makes / p.attempts) * 100).toFixed(1) : "0.0";
+      p.attempts > 0 ? formatToOne((p.makes / p.attempts) * 100) : "0.0";
 
     if (viewType === "average") {
       // Calculate per-game averages if requested, rounding to 1 decimal place.
       return {
         ...p,
-        points: Number((p.points / gp).toFixed(1)),
-        rebounds: Number((p.rebounds / gp).toFixed(1)),
-        assists: Number((p.assists / gp).toFixed(1)),
-        steals: Number((p.steals / gp).toFixed(1)),
-        turnovers: Number((p.turnovers / gp).toFixed(1)),
+        points: roundToOne(p.points / gp),
+        rebounds: roundToOne(p.rebounds / gp),
+        assists: roundToOne(p.assists / gp),
+        steals: roundToOne(p.steals / gp),
+        turnovers: roundToOne(p.turnovers / gp),
       } as any;
     }
     return p;
@@ -219,10 +239,10 @@ export const calculateTeamAggregates = (
 
   const gp = targetGames.length || 1;
   return {
-    ppg: (totalPoints / gp).toFixed(1),
-    rpg: (totalRebounds / gp).toFixed(1),
-    apg: (totalAssists / gp).toFixed(1),
-    oppg: (totalOppPoints / gp).toFixed(1),
+    ppg: formatToOne(totalPoints / gp),
+    rpg: formatToOne(totalRebounds / gp),
+    apg: formatToOne(totalAssists / gp),
+    oppg: formatToOne(totalOppPoints / gp),
     record: `${wins}-${losses}`,
     totalGames: targetGames.length,
   };
@@ -263,13 +283,19 @@ export const calculateGameResult = (
   gameId: number | string,
   stats: StatEvent[],
 ) => {
-  const gameStats = stats.filter((s) => s.gameId === gameId);
-  const teamScore = gameStats
-    .filter((s) => s.playerId !== "OPPONENT")
-    .reduce((sum, s) => sum + (s.points || 0), 0);
-  const oppScore = gameStats
-    .filter((s) => s.playerId === "OPPONENT")
-    .reduce((sum, s) => sum + (s.points || 0), 0);
+  const { teamScore, oppScore } = stats
+    .filter((s) => s.gameId === gameId)
+    .reduce(
+      (acc, s) => {
+        if (s.playerId === "OPPONENT") {
+          acc.oppScore += s.points || 0;
+        } else {
+          acc.teamScore += s.points || 0;
+        }
+        return acc;
+      },
+      { teamScore: 0, oppScore: 0 },
+    );
 
   // Determine game result: W (Win), L (Loss), D (Draw/Tie).
   const result = teamScore > oppScore ? "W" : teamScore < oppScore ? "L" : "D";
