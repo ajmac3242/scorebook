@@ -11,3 +11,10 @@ Action: Fix compilation errors in `infra/tests/terraform_test.go`, remove unused
 ## 2025-05-14 - Infrastructure Risk Mitigation
 Learning: Terratest currently operates against production state because it shares the S3 backend and state file defined in `infra/versions.tf`. This led to accidental destruction of production resources during a test run. Integration tests must use either a mock provider (like LocalStack) or a dedicated, ephemeral state file and workspace to ensure isolation.
 Action: Disabled automatic Terratest execution on PRs by commenting out the `pull_request` trigger. Recommended re-architecting the test suite to use a separate backend/workspace before re-enabling.
+
+## 2025-05-14 - targeted Hardening & Visibility
+Learning: Implementing small, surgical improvements to existing workflows (concurrency, timeouts, and artifact uploads) provides immediate value without the risk of large-scale environment migrations.
+Action:
+1. Hardened `jules-fixer.yml` with concurrency and 10m timeouts.
+2. Improved visibility in `deploy.yml` by adding artifact uploads for failed runs.
+3. Updated `terratest.yml` to use the latest major version of `setup-terraform`.

@@ -100,3 +100,14 @@ jobs:
       - name: Terraform Apply (Final)
         # Triggers null_resource.frontend_deploy to sync new build to S3 and invalidate CloudFront
         run: cd infra && terraform apply -auto-approve
+
+      - name: Upload Test Results on Failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: deploy-failure-logs
+          path: |
+            backend/*.log
+            frontend/*.log
+            infra/tfplan
+          if-no-files-found: ignore
