@@ -174,11 +174,11 @@ export const handler = async (
 
         const cleanBody = stripLocalFields(body);
         const teamPlayerItem = {
+          ...cleanBody,
           PK: `TEAM#${teamId}`,
           SK: `PLAYER#${body.playerId}`,
           GSI1PK: `TEAM#${teamId}`,
           GSI1SK: `PLAYER#${body.playerId}`,
-          ...cleanBody,
           id: body.id,
           teamId,
         };
@@ -399,11 +399,11 @@ export const handler = async (
         const timestamp = body?.timestamp || new Date().toISOString();
         const cleanBody = stripLocalFields(body);
         const item = {
+          ...cleanBody,
           PK: `GAME#${gameId}`,
           SK: `STAT#${timestamp}#${id}`,
           GSI1PK: `GAME#${gameId}`,
           GSI1SK: `STAT#${timestamp}#${id}`,
-          ...cleanBody,
           id,
           timestamp,
         };
@@ -423,7 +423,8 @@ export const handler = async (
     return response(404, { message: "Route not found" });
   } catch (error: any) {
     console.error("Handler Error:", error);
-    return response(500, { message: error.message });
+    // Secure error response to prevent information leakage
+    return response(500, { message: "Internal Server Error" });
   }
 };
 
@@ -512,11 +513,11 @@ async function createItem(
   const id = data?.id || uuidv4();
   const cleanData = stripLocalFields(data);
   const item = {
+    ...cleanData,
     PK: `${type}#${id}`,
     SK: `${skPrefix}#${id}`,
     GSI1PK: gsiPk,
     GSI1SK: `${type}#${id}`,
-    ...cleanData,
     id,
   };
   await docClient.send(new PutCommand({ TableName: tableName, Item: item }));
@@ -765,13 +766,25 @@ async function performHardCleanup(tableName: string) {
 }
 
 /**
- * Strips local-only fields from the data object before saving to DynamoDB.
+ * Strips local-only fields and internal DynamoDB keys from the data object before saving.
+ * Prevents mass assignment vulnerabilities.
  *
  * @param {any} data - The data object to clean.
  * @returns {any} The cleaned object.
  */
 function stripLocalFields(data: any) {
-  const { synced, id, ...rest } = data;
+  const {
+    synced,
+    id,
+    PK,
+    SK,
+    GSI1PK,
+    GSI1SK,
+    GSI2PK,
+    GSI2SK,
+    deletedAt,
+    ...rest
+  } = data;
   return rest;
 }
 
