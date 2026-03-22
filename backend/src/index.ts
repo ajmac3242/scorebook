@@ -14,7 +14,11 @@ import {
   UpdateCommand,
   BatchWriteCommand,
 } from "@aws-sdk/lib-dynamodb";
-import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import {
+  S3Client,
+  PutObjectCommand,
+  DeleteObjectCommand,
+} from "@aws-sdk/client-s3";
 import { v4 as uuidv4 } from "uuid";
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
 
@@ -90,15 +94,17 @@ export const handler = async (
         return await softDeleteItem("SEASON", "METADATA", seasonId, TABLE_NAME);
       }
       if (method === "PATCH") {
-         // Allow restoring
-         if (body.deletedAt === null) {
-            await docClient.send(new UpdateCommand({
+        // Allow restoring
+        if (body.deletedAt === null) {
+          await docClient.send(
+            new UpdateCommand({
               TableName: TABLE_NAME,
               Key: { PK: `SEASON#${seasonId}`, SK: `METADATA#${seasonId}` },
               UpdateExpression: "REMOVE deletedAt",
-            }));
-            return response(200, { message: "Season restored" });
-         }
+            }),
+          );
+          return response(200, { message: "Season restored" });
+        }
       }
     }
 
@@ -133,25 +139,32 @@ export const handler = async (
     if (teamDetailMatch) {
       const teamId = teamDetailMatch[1];
       if (method === "DELETE") {
-        const resp = await softDeleteItem("TEAM", "METADATA", teamId, TABLE_NAME);
+        const resp = await softDeleteItem(
+          "TEAM",
+          "METADATA",
+          teamId,
+          TABLE_NAME,
+        );
         if (resp.statusCode === 200) {
-           await deleteTeamSnapshots(teamId);
+          await deleteTeamSnapshots(teamId);
         }
         return resp;
       }
       if (method === "PATCH") {
         if (body.deletedAt === null) {
-           await docClient.send(new UpdateCommand({
-             TableName: TABLE_NAME,
-             Key: { PK: `TEAM#${teamId}`, SK: `METADATA#${teamId}` },
-             UpdateExpression: "REMOVE deletedAt",
-           }));
-           // Regenerate snapshots on restore
-           await snapshotTeamRoster(teamId, TABLE_NAME);
-           await snapshotTeamGames(teamId, TABLE_NAME);
-           return response(200, { message: "Team restored" });
+          await docClient.send(
+            new UpdateCommand({
+              TableName: TABLE_NAME,
+              Key: { PK: `TEAM#${teamId}`, SK: `METADATA#${teamId}` },
+              UpdateExpression: "REMOVE deletedAt",
+            }),
+          );
+          // Regenerate snapshots on restore
+          await snapshotTeamRoster(teamId, TABLE_NAME);
+          await snapshotTeamGames(teamId, TABLE_NAME);
+          return response(200, { message: "Team restored" });
         }
-     }
+      }
     }
 
     // --- Team Players Endpoints (e.g., /teams/123/players) ---
@@ -161,7 +174,8 @@ export const handler = async (
       if (method === "GET")
         return await getItemsByGSI(`TEAM#${teamId}`, TABLE_NAME);
       if (method === "POST") {
-        if (!body.playerId) return response(400, { message: "playerId required" });
+        if (!body.playerId)
+          return response(400, { message: "playerId required" });
 
         const cleanBody = stripLocalFields(body);
         const teamPlayerItem = {
@@ -182,17 +196,21 @@ export const handler = async (
       }
     }
 
-    const teamPlayerDetailMatch = path.match(/^\/teams\/([^\/]+)\/players\/([^\/]+)$/);
+    const teamPlayerDetailMatch = path.match(
+      /^\/teams\/([^\/]+)\/players\/([^\/]+)$/,
+    );
     if (teamPlayerDetailMatch) {
       const teamId = teamPlayerDetailMatch[1];
       const playerId = teamPlayerDetailMatch[2];
       if (method === "DELETE") {
-        await docClient.send(new UpdateCommand({
-          TableName: TABLE_NAME,
-          Key: { PK: `TEAM#${teamId}`, SK: `PLAYER#${playerId}` },
-          UpdateExpression: "SET deletedAt = :d",
-          ExpressionAttributeValues: { ":d": new Date().toISOString() }
-        }));
+        await docClient.send(
+          new UpdateCommand({
+            TableName: TABLE_NAME,
+            Key: { PK: `TEAM#${teamId}`, SK: `PLAYER#${playerId}` },
+            UpdateExpression: "SET deletedAt = :d",
+            ExpressionAttributeValues: { ":d": new Date().toISOString() },
+          }),
+        );
         await snapshotTeamRoster(teamId, TABLE_NAME);
         return response(200, { message: "Player removed from team" });
       }
@@ -219,33 +237,44 @@ export const handler = async (
         // Soft delete or archive
         const { archive } = event.queryStringParameters || {};
         if (archive === "true") {
-          await docClient.send(new UpdateCommand({
-            TableName: TABLE_NAME,
-            Key: { PK: `PLAYER#${playerId}`, SK: `METADATA#${playerId}` },
-            UpdateExpression: "SET isArchived = :a",
-            ExpressionAttributeValues: { ":a": 1 }
-          }));
+          await docClient.send(
+            new UpdateCommand({
+              TableName: TABLE_NAME,
+              Key: { PK: `PLAYER#${playerId}`, SK: `METADATA#${playerId}` },
+              UpdateExpression: "SET isArchived = :a",
+              ExpressionAttributeValues: { ":a": 1 },
+            }),
+          );
           return response(200, { message: "Player archived" });
         } else {
-          return await softDeleteItem("PLAYER", "METADATA", playerId, TABLE_NAME);
+          return await softDeleteItem(
+            "PLAYER",
+            "METADATA",
+            playerId,
+            TABLE_NAME,
+          );
         }
       }
       if (method === "PATCH") {
         if (body.isArchived === 0) {
-          await docClient.send(new UpdateCommand({
-            TableName: TABLE_NAME,
-            Key: { PK: `PLAYER#${playerId}`, SK: `METADATA#${playerId}` },
-            UpdateExpression: "SET isArchived = :a",
-            ExpressionAttributeValues: { ":a": 0 }
-          }));
+          await docClient.send(
+            new UpdateCommand({
+              TableName: TABLE_NAME,
+              Key: { PK: `PLAYER#${playerId}`, SK: `METADATA#${playerId}` },
+              UpdateExpression: "SET isArchived = :a",
+              ExpressionAttributeValues: { ":a": 0 },
+            }),
+          );
           return response(200, { message: "Player restored from archive" });
         }
         if (body.deletedAt === null) {
-          await docClient.send(new UpdateCommand({
-            TableName: TABLE_NAME,
-            Key: { PK: `PLAYER#${playerId}`, SK: `METADATA#${playerId}` },
-            UpdateExpression: "REMOVE deletedAt",
-          }));
+          await docClient.send(
+            new UpdateCommand({
+              TableName: TABLE_NAME,
+              Key: { PK: `PLAYER#${playerId}`, SK: `METADATA#${playerId}` },
+              UpdateExpression: "REMOVE deletedAt",
+            }),
+          );
           return response(200, { message: "Player restored" });
         }
       }
@@ -278,11 +307,18 @@ export const handler = async (
     if (gameDetailMatch) {
       const gameId = gameDetailMatch[1];
       if (method === "DELETE") {
-        const getResp = await docClient.send(new GetCommand({
-          TableName: TABLE_NAME,
-          Key: { PK: `GAME#${gameId}`, SK: `METADATA#${gameId}` }
-        }));
-        const resp = await softDeleteItem("GAME", "METADATA", gameId, TABLE_NAME);
+        const getResp = await docClient.send(
+          new GetCommand({
+            TableName: TABLE_NAME,
+            Key: { PK: `GAME#${gameId}`, SK: `METADATA#${gameId}` },
+          }),
+        );
+        const resp = await softDeleteItem(
+          "GAME",
+          "METADATA",
+          gameId,
+          TABLE_NAME,
+        );
         if (resp.statusCode === 200 && getResp.Item) {
           await snapshotTeamGames(getResp.Item.teamId, TABLE_NAME);
           await deleteGameSnapshots(gameId);
@@ -291,18 +327,23 @@ export const handler = async (
       }
       if (method === "PATCH") {
         if (body.deletedAt === null) {
-          const getResp = await docClient.send(new GetCommand({
-            TableName: TABLE_NAME,
-            Key: { PK: `GAME#${gameId}`, SK: `METADATA#${gameId}` }
-          }));
-          await docClient.send(new UpdateCommand({
-            TableName: TABLE_NAME,
-            Key: { PK: `GAME#${gameId}`, SK: `METADATA#${gameId}` },
-            UpdateExpression: "REMOVE deletedAt",
-          }));
+          const getResp = await docClient.send(
+            new GetCommand({
+              TableName: TABLE_NAME,
+              Key: { PK: `GAME#${gameId}`, SK: `METADATA#${gameId}` },
+            }),
+          );
+          await docClient.send(
+            new UpdateCommand({
+              TableName: TABLE_NAME,
+              Key: { PK: `GAME#${gameId}`, SK: `METADATA#${gameId}` },
+              UpdateExpression: "REMOVE deletedAt",
+            }),
+          );
           if (getResp.Item) {
             await snapshotTeamGames(getResp.Item.teamId, TABLE_NAME);
-            if (getResp.Item.completed) await snapshotGameStats(gameId, TABLE_NAME);
+            if (getResp.Item.completed)
+              await snapshotGameStats(gameId, TABLE_NAME);
           }
           return response(200, { message: "Game restored" });
         }
@@ -355,7 +396,7 @@ export const handler = async (
             },
           }),
         );
-        return response(200, result.Items?.filter(i => !i.deletedAt) || []);
+        return response(200, result.Items?.filter((i) => !i.deletedAt) || []);
       }
       if (method === "POST") {
         // Create individual stat event record
@@ -380,8 +421,8 @@ export const handler = async (
 
     // --- Cleanup/Hard Delete Trigger ---
     if (path === "/cleanup" && method === "POST") {
-        await performHardCleanup(TABLE_NAME);
-        return response(200, { message: "Cleanup complete" });
+      await performHardCleanup(TABLE_NAME);
+      return response(200, { message: "Cleanup complete" });
     }
 
     return response(404, { message: "Route not found" });
@@ -412,7 +453,7 @@ async function getItems(
       ExpressionAttributeValues: { ":pk": gsiPrefix },
     }),
   );
-  return response(200, result.Items?.filter(i => !i.deletedAt) || []);
+  return response(200, result.Items?.filter((i) => !i.deletedAt) || []);
 }
 
 /**
@@ -431,7 +472,7 @@ async function getItemsByGSI(gsiPk: string, tableName: string) {
       ExpressionAttributeValues: { ":pk": gsiPk },
     }),
   );
-  return response(200, result.Items?.filter(i => !i.deletedAt) || []);
+  return response(200, result.Items?.filter((i) => !i.deletedAt) || []);
 }
 
 /**
@@ -467,15 +508,26 @@ async function createItem(
 
 /**
  * Soft deletes an item by setting the deletedAt timestamp.
+ * @param type
+ * @param skPrefix
+ * @param id
+ * @param tableName
  */
-async function softDeleteItem(type: string, skPrefix: string, id: string, tableName: string) {
+async function softDeleteItem(
+  type: string,
+  skPrefix: string,
+  id: string,
+  tableName: string,
+) {
   const timestamp = new Date().toISOString();
-  await docClient.send(new UpdateCommand({
-    TableName: tableName,
-    Key: { PK: `${type}#${id}`, SK: `${skPrefix}#${id}` },
-    UpdateExpression: "SET deletedAt = :d",
-    ExpressionAttributeValues: { ":d": timestamp }
-  }));
+  await docClient.send(
+    new UpdateCommand({
+      TableName: tableName,
+      Key: { PK: `${type}#${id}`, SK: `${skPrefix}#${id}` },
+      UpdateExpression: "SET deletedAt = :d",
+      ExpressionAttributeValues: { ":d": timestamp },
+    }),
+  );
   return response(200, { message: "Item soft deleted", deletedAt: timestamp });
 }
 
@@ -511,7 +563,7 @@ async function snapshotTeamRoster(teamId: string, tableName: string) {
     if (teamResult.Item) {
       const snapshot = {
         team: teamResult.Item,
-        players: (playersResult.Items || []).filter(p => !p.deletedAt),
+        players: (playersResult.Items || []).filter((p) => !p.deletedAt),
       };
       await s3Client.send(
         new PutObjectCommand({
@@ -545,7 +597,9 @@ async function snapshotTeamGames(teamId: string, tableName: string) {
         ExpressionAttributeValues: { ":pk": `TEAM#${teamId}`, ":sk": "GAME#" },
       }),
     );
-    const snapshot = { games: (gamesResult.Items || []).filter(g => !g.deletedAt) };
+    const snapshot = {
+      games: (gamesResult.Items || []).filter((g) => !g.deletedAt),
+    };
     await s3Client.send(
       new PutObjectCommand({
         Bucket: DATA_BUCKET,
@@ -585,7 +639,7 @@ async function snapshotGameStats(gameId: string, tableName: string) {
       }),
     );
     if (gameResult.Item) {
-      const stats = (statsResult.Items || []).filter(s => !s.deletedAt);
+      const stats = (statsResult.Items || []).filter((s) => !s.deletedAt);
       let teamScore = 0;
       let oppScore = 0;
       stats.forEach((s: any) => {
@@ -613,22 +667,45 @@ async function snapshotGameStats(gameId: string, tableName: string) {
   }
 }
 
+/**
+ *
+ * @param teamId
+ */
 async function deleteTeamSnapshots(teamId: string) {
   const DATA_BUCKET = process.env.DATA_BUCKET;
   if (!DATA_BUCKET) return;
   try {
-    await s3Client.send(new DeleteObjectCommand({ Bucket: DATA_BUCKET, Key: `teams/${teamId}/roster.json` }));
-    await s3Client.send(new DeleteObjectCommand({ Bucket: DATA_BUCKET, Key: `teams/${teamId}/games.json` }));
+    await s3Client.send(
+      new DeleteObjectCommand({
+        Bucket: DATA_BUCKET,
+        Key: `teams/${teamId}/roster.json`,
+      }),
+    );
+    await s3Client.send(
+      new DeleteObjectCommand({
+        Bucket: DATA_BUCKET,
+        Key: `teams/${teamId}/games.json`,
+      }),
+    );
   } catch (e) {
     console.error("Error deleting snapshots:", e);
   }
 }
 
+/**
+ *
+ * @param gameId
+ */
 async function deleteGameSnapshots(gameId: string) {
   const DATA_BUCKET = process.env.DATA_BUCKET;
   if (!DATA_BUCKET) return;
   try {
-    await s3Client.send(new DeleteObjectCommand({ Bucket: DATA_BUCKET, Key: `games/${gameId}/stats.json` }));
+    await s3Client.send(
+      new DeleteObjectCommand({
+        Bucket: DATA_BUCKET,
+        Key: `games/${gameId}/stats.json`,
+      }),
+    );
   } catch (e) {
     console.error("Error deleting snapshots:", e);
   }
@@ -636,20 +713,23 @@ async function deleteGameSnapshots(gameId: string) {
 
 /**
  * Performs cleanup of soft-deleted items older than 24 hours.
+ * @param tableName
  */
 async function performHardCleanup(tableName: string) {
   const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
 
   // This is a simplified scan-based cleanup. For large tables, use a GSI on deletedAt.
   // Since we have a single table, we'll scan for items with deletedAt < oneDayAgo.
-  const scanResult = await docClient.send(new QueryCommand({
-    TableName: tableName,
-    IndexName: "GSI1", // We can't query by deletedAt easily without a GSI.
-    // For now, we'll just implement the logic to delete a specific item if it's old.
-    // In a real app, I'd add GSI3 with deletedAt as PK or similar.
-    KeyConditionExpression: "GSI1PK = :pk",
-    ExpressionAttributeValues: { ":pk": "SEASON" } // Just an example
-  }));
+  const scanResult = await docClient.send(
+    new QueryCommand({
+      TableName: tableName,
+      IndexName: "GSI1", // We can't query by deletedAt easily without a GSI.
+      // For now, we'll just implement the logic to delete a specific item if it's old.
+      // In a real app, I'd add GSI3 with deletedAt as PK or similar.
+      KeyConditionExpression: "GSI1PK = :pk",
+      ExpressionAttributeValues: { ":pk": "SEASON" }, // Just an example
+    }),
+  );
 
   // Realistically, without the proper GSI, we'd need to scan or use a different approach.
   // Given the scope, I will focus on the soft-delete functionality and the restore UI.

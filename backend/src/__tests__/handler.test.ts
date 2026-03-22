@@ -113,11 +113,9 @@ describe("Lambda Handler", () => {
     it("POST /teams/:id/players adds player and snapshots roster", async () => {
       ddbMock.on(PutCommand).resolves({});
       ddbMock.on(GetCommand).resolves({ Item: { id: "t1", name: "Team 1" } });
-      ddbMock
-        .on(QueryCommand)
-        .resolves({
-          Items: [{ id: "p1", name: "Player 1", jerseyNumber: "10" }],
-        });
+      ddbMock.on(QueryCommand).resolves({
+        Items: [{ id: "p1", name: "Player 1", jerseyNumber: "10" }],
+      });
       s3Mock.on(PutObjectCommand).resolves({});
 
       const event = createEvent("POST", "/teams/t1/players", {

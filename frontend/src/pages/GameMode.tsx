@@ -346,6 +346,10 @@ const GameMode: React.FC = () => {
 
   /**
    * Reusable component for quick-action buttons in the recording dialog.
+   * @param root0
+   * @param root0.type
+   * @param root0.label
+   * @param root0.icon
    */
   const QuickAction = ({ type, label, icon: Icon }: any) => (
     <Button

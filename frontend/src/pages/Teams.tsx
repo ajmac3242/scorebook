@@ -48,7 +48,10 @@ const Teams: React.FC = () => {
   const teams = useTeams(selectedSeasonId);
 
   // Fetch all games and stats for the visible teams to calculate aggregates
-  const teamIds = useMemo(() => teams.map((t) => t.id).filter(Boolean), [teams]);
+  const teamIds = useMemo(
+    () => teams.map((t) => t.id).filter(Boolean),
+    [teams],
+  );
 
   const allGames =
     useLiveQuery(
@@ -62,7 +65,10 @@ const Teams: React.FC = () => {
       [teamIds],
     ) || [];
 
-  const gameIds = useMemo(() => allGames.map((g) => g.id).filter(Boolean), [allGames]);
+  const gameIds = useMemo(
+    () => allGames.map((g) => g.id).filter(Boolean),
+    [allGames],
+  );
 
   const allStats =
     useLiveQuery(
@@ -78,6 +84,7 @@ const Teams: React.FC = () => {
 
   /**
    * Calculates luminance to determine if text should be white or black for a given background color.
+   * @param hexcolor
    */
   const getContrastColor = (hexcolor: string) => {
     // If no color, default to white text on theme primary

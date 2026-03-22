@@ -100,6 +100,9 @@ export class AppDatabase extends Dexie {
   games!: Table<Game>;
   stats!: Table<StatEvent>;
 
+  /**
+   *
+   */
   constructor() {
     super("BasketballStatsDB");
 

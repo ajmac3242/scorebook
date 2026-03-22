@@ -185,6 +185,8 @@ const TeamStats: React.FC = () => {
 
   /**
    * Stages a player to be added or removed from the team's roster locally.
+   * @param playerId
+   * @param currentlyIn
    */
   const stageRosterChange = (playerId: string, currentlyIn: boolean) => {
     setPendingRosterChanges((prev) => {
@@ -210,6 +212,8 @@ const TeamStats: React.FC = () => {
 
   /**
    * Updates the local staged jersey number.
+   * @param playerId
+   * @param jersey
    */
   const stageJerseyUpdate = (playerId: string, jersey: string) => {
     setLocalJerseyNumbers((prev) => ({ ...prev, [playerId]: jersey }));
@@ -345,6 +349,7 @@ const TeamStats: React.FC = () => {
 
   /**
    * Updates the column sorting configuration.
+   * @param key
    */
   const handleSort = (key: string) => {
     setSortConfig((prev) => ({
@@ -355,6 +360,11 @@ const TeamStats: React.FC = () => {
 
   /**
    * Helper component for sortable table headers.
+   * @param root0
+   * @param root0.label
+   * @param root0.sortKey
+   * @param root0.align
+   * @param root0.hideOnMobile
    */
   const SortableHeader = ({
     label,

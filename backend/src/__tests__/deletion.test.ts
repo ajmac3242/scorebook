@@ -6,7 +6,11 @@ import {
   GetCommand,
   UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
-import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import {
+  S3Client,
+  PutObjectCommand,
+  DeleteObjectCommand,
+} from "@aws-sdk/client-s3";
 import { mockClient } from "aws-sdk-client-mock";
 
 const ddbMock = mockClient(DynamoDBDocumentClient);
@@ -78,7 +82,9 @@ describe("Lambda Handler - Deletion & Archiving", () => {
 
   it("DELETE /players/:id?archive=true archives a player", async () => {
     ddbMock.on(UpdateCommand).resolves({});
-    const event = createEvent("DELETE", "/players/p1", null, { archive: "true" });
+    const event = createEvent("DELETE", "/players/p1", null, {
+      archive: "true",
+    });
     const response: any = await handler(event);
     expect(response.statusCode).toBe(200);
     const updateInput = ddbMock.call(0).args[0].input as any;
@@ -89,7 +95,7 @@ describe("Lambda Handler - Deletion & Archiving", () => {
     ddbMock.on(QueryCommand).resolves({
       Items: [
         { id: "s1", name: "Active" },
-        { id: "s2", name: "Deleted", deletedAt: "2023-01-01" }
+        { id: "s2", name: "Deleted", deletedAt: "2023-01-01" },
       ],
     });
     const event = createEvent("GET", "/seasons");
