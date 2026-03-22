@@ -20,7 +20,11 @@ import {
   DeleteObjectCommand,
 } from "@aws-sdk/client-s3";
 import { v4 as uuidv4 } from "uuid";
-import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
+import {
+  APIGatewayProxyEventV2,
+  APIGatewayProxyResultV2,
+  APIGatewayProxyStructuredResultV2,
+} from "aws-lambda";
 
 // Clients
 const client = new DynamoDBClient({});
@@ -46,16 +50,7 @@ export const handler = async (
     (event as any).httpMethod ||
     event.requestContext?.http?.method ||
     "GET";
-  let rawPath =
-    event.rawPath ||
-    (event as any).path ||
-    event.requestContext?.http?.path ||
-    "/";
-
-  // Normalize path: strip stage, strip /api prefix, ensure leading slash, remove trailing slash
-  let path = rawPath.replace(/^\/\$default/, "").replace(/^\/api/, "");
-  if (!path.startsWith("/")) path = "/" + path;
-  if (path.length > 1 && path.endsWith("/")) path = path.slice(0, -1);
+  const path = normalizePath(event);
 
   console.log("Routing:", { method, path });
 
@@ -125,7 +120,7 @@ export const handler = async (
           body,
           TABLE_NAME,
         );
-        if (resp.statusCode === 201) {
+        if (resp.statusCode === 201 && resp.body) {
           const newItem = JSON.parse(resp.body);
           // After creating a team, update relevant snapshots
           await snapshotTeamRoster(newItem.id, TABLE_NAME);
@@ -294,7 +289,7 @@ export const handler = async (
           body,
           TABLE_NAME,
         );
-        if (resp.statusCode === 201) {
+        if (resp.statusCode === 201 && resp.body) {
           const newItem = JSON.parse(resp.body);
           // Update the team's games snapshot after creating a new game
           await snapshotTeamGames(newItem.teamId, TABLE_NAME);
@@ -433,6 +428,25 @@ export const handler = async (
 };
 
 /**
+ * Normalizes the request path by removing stage and prefix information.
+ *
+ * @param {APIGatewayProxyEventV2} event - The API Gateway event.
+ * @returns {string} The normalized path.
+ */
+function normalizePath(event: APIGatewayProxyEventV2): string {
+  const rawPath =
+    event.rawPath ||
+    (event as any).path ||
+    event.requestContext?.http?.path ||
+    "/";
+
+  let path = rawPath.replace(/^\/\$default/, "").replace(/^\/api/, "");
+  if (!path.startsWith("/")) path = "/" + path;
+  if (path.length > 1 && path.endsWith("/")) path = path.slice(0, -1);
+  return path;
+}
+
+/**
  * Retrieves items from DynamoDB based on PK prefix and GSI1PK.
  *
  * @param {string} pkPrefix - The prefix for the PK.
@@ -444,7 +458,7 @@ async function getItems(
   pkPrefix: string,
   gsiPrefix: string,
   tableName: string,
-) {
+): Promise<APIGatewayProxyStructuredResultV2> {
   const result = await docClient.send(
     new QueryCommand({
       TableName: tableName,
@@ -463,7 +477,10 @@ async function getItems(
  * @param {string} tableName - The name of the DynamoDB table.
  * @returns {Promise<APIGatewayProxyResultV2>} The HTTP response with the items.
  */
-async function getItemsByGSI(gsiPk: string, tableName: string) {
+async function getItemsByGSI(
+  gsiPk: string,
+  tableName: string,
+): Promise<APIGatewayProxyStructuredResultV2> {
   const result = await docClient.send(
     new QueryCommand({
       TableName: tableName,
@@ -491,7 +508,7 @@ async function createItem(
   gsiPk: string,
   data: any,
   tableName: string,
-) {
+): Promise<APIGatewayProxyStructuredResultV2> {
   const id = data?.id || uuidv4();
   const cleanData = stripLocalFields(data);
   const item = {
@@ -518,7 +535,7 @@ async function softDeleteItem(
   skPrefix: string,
   id: string,
   tableName: string,
-) {
+): Promise<APIGatewayProxyStructuredResultV2> {
   const timestamp = new Date().toISOString();
   await docClient.send(
     new UpdateCommand({
@@ -565,13 +582,10 @@ async function snapshotTeamRoster(teamId: string, tableName: string) {
         team: teamResult.Item,
         players: (playersResult.Items || []).filter((p) => !p.deletedAt),
       };
-      await s3Client.send(
-        new PutObjectCommand({
-          Bucket: DATA_BUCKET,
-          Key: `teams/${teamId}/roster.json`,
-          Body: JSON.stringify(snapshot),
-          ContentType: "application/json",
-        }),
+      await uploadSnapshot(
+        DATA_BUCKET,
+        `teams/${teamId}/roster.json`,
+        snapshot,
       );
     }
   } catch (e) {
@@ -600,14 +614,7 @@ async function snapshotTeamGames(teamId: string, tableName: string) {
     const snapshot = {
       games: (gamesResult.Items || []).filter((g) => !g.deletedAt),
     };
-    await s3Client.send(
-      new PutObjectCommand({
-        Bucket: DATA_BUCKET,
-        Key: `teams/${teamId}/games.json`,
-        Body: JSON.stringify(snapshot),
-        ContentType: "application/json",
-      }),
-    );
+    await uploadSnapshot(DATA_BUCKET, `teams/${teamId}/games.json`, snapshot);
   } catch (e) {
     console.error("Snapshot error:", e);
   }
@@ -640,31 +647,53 @@ async function snapshotGameStats(gameId: string, tableName: string) {
     );
     if (gameResult.Item) {
       const stats = (statsResult.Items || []).filter((s) => !s.deletedAt);
-      let teamScore = 0;
-      let oppScore = 0;
-      stats.forEach((s: any) => {
-        if (s.playerId === "OPPONENT") oppScore += s.points || 0;
-        else teamScore += s.points || 0;
-      });
-      const result =
-        teamScore > oppScore ? "W" : teamScore < oppScore ? "L" : "D";
+      const { teamScore, oppScore, result } =
+        calculateGameResultFromStats(stats);
 
       const snapshot = {
         game: { ...gameResult.Item, teamScore, oppScore, result },
         stats,
       };
-      await s3Client.send(
-        new PutObjectCommand({
-          Bucket: DATA_BUCKET,
-          Key: `games/${gameId}/stats.json`,
-          Body: JSON.stringify(snapshot),
-          ContentType: "application/json",
-        }),
-      );
+      await uploadSnapshot(DATA_BUCKET, `games/${gameId}/stats.json`, snapshot);
     }
   } catch (e) {
     console.error("Snapshot error:", e);
   }
+}
+
+/**
+ * Calculates the final score and result from a list of stat events.
+ *
+ * @param {any[]} stats - List of stat events.
+ * @returns {object} Object containing teamScore, oppScore, and result.
+ */
+function calculateGameResultFromStats(stats: any[]) {
+  let teamScore = 0;
+  let oppScore = 0;
+  stats.forEach((s: any) => {
+    if (s.playerId === "OPPONENT") oppScore += s.points || 0;
+    else teamScore += s.points || 0;
+  });
+  const result = teamScore > oppScore ? "W" : teamScore < oppScore ? "L" : "D";
+  return { teamScore, oppScore, result };
+}
+
+/**
+ * Uploads a JSON snapshot to S3.
+ *
+ * @param {string} bucket - The S3 bucket name.
+ * @param {string} key - The S3 object key.
+ * @param {any} data - The data to upload as JSON.
+ */
+async function uploadSnapshot(bucket: string, key: string, data: any) {
+  await s3Client.send(
+    new PutObjectCommand({
+      Bucket: bucket,
+      Key: key,
+      Body: JSON.stringify(data),
+      ContentType: "application/json",
+    }),
+  );
 }
 
 /**
@@ -751,12 +780,20 @@ function stripLocalFields(data: any) {
  *
  * @param {number} statusCode - The HTTP status code.
  * @param {any} body - The JSON body data.
- * @returns {object} The formatted response object.
+ * @param {Record<string, string>} [headers] - Optional additional headers.
+ * @returns {APIGatewayProxyStructuredResultV2} The formatted response object.
  */
-function response(statusCode: number, body: any) {
+function response(
+  statusCode: number,
+  body: any,
+  headers: Record<string, string> = {},
+): APIGatewayProxyStructuredResultV2 {
   return {
     statusCode,
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      ...headers,
+    },
     body: JSON.stringify(body),
   };
 }
