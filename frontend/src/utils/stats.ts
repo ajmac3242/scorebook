@@ -119,27 +119,30 @@ function initializeStatsMap(
   players: any[],
   teamPlayers: TeamPlayer[],
 ): Record<string, PlayerAggregates> {
-  return players.reduce((acc, p) => {
-    const pId = p.id!;
-    acc[pId] = {
-      id: p.id,
-      name: p.name,
-      avatarColor: p.avatarColor,
-      jerseyNumber:
-        teamPlayers.find((tp) => tp.playerId === pId)?.jerseyNumber || "",
-      gamesPlayed: new Set(),
-      gp: 0,
-      points: 0,
-      rebounds: 0,
-      assists: 0,
-      steals: 0,
-      turnovers: 0,
-      makes: 0,
-      attempts: 0,
-      fgPct: "0.0",
-    };
-    return acc;
-  }, {} as Record<string, PlayerAggregates>);
+  return players.reduce(
+    (acc, p) => {
+      const pId = p.id!;
+      acc[pId] = {
+        id: p.id,
+        name: p.name,
+        avatarColor: p.avatarColor,
+        jerseyNumber:
+          teamPlayers.find((tp) => tp.playerId === pId)?.jerseyNumber || "",
+        gamesPlayed: new Set(),
+        gp: 0,
+        points: 0,
+        rebounds: 0,
+        assists: 0,
+        steals: 0,
+        turnovers: 0,
+        makes: 0,
+        attempts: 0,
+        fgPct: "0.0",
+      };
+      return acc;
+    },
+    {} as Record<string, PlayerAggregates>,
+  );
 }
 
 /**
