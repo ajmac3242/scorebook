@@ -18,67 +18,6 @@ import { ArrowBack as ArrowBackIcon } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 
 /**
- * Interface representing the props for the EmptyState component.
- */
-interface EmptyStateProps {
-  icon: React.ReactNode;
-  title: string;
-  message?: string;
-  action?: React.ReactNode;
-}
-
-/**
- * Standardized component for empty states.
- *
- * @param {EmptyStateProps} props - Component props.
- * @returns {React.ReactElement}
- */
-export const EmptyState: React.FC<EmptyStateProps> = ({
-  icon,
-  title,
-  message,
-  action,
-}) => (
-  <Box
-    sx={{
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      justifyContent: "center",
-      py: 8,
-      px: 2,
-      textAlign: "center",
-      opacity: 0.7,
-    }}
-  >
-    <Box
-      sx={{
-        fontSize: 64,
-        mb: 2,
-        color: "primary.main",
-        display: "flex",
-        animation: "empty-bounce 2s ease-in-out infinite",
-        "@keyframes empty-bounce": {
-          "0%, 100%": { transform: "translateY(0)" },
-          "50%": { transform: "translateY(-10px)" },
-        },
-      }}
-    >
-      {icon}
-    </Box>
-    <Typography variant="h5" sx={{ fontFamily: "var(--serif)", mb: 1 }}>
-      {title}
-    </Typography>
-    {message && (
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-        {message}
-      </Typography>
-    )}
-    {action}
-  </Box>
-);
-
-/**
  * Standardized card component with Moleskine-style paper effects.
  *
  * @param {PaperProps} props - MUI Paper component props.
@@ -142,7 +81,6 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
         {showBack && (
           <IconButton
             onClick={() => (backTo ? navigate(backTo) : navigate(-1))}
-            aria-label="Go back"
             sx={{
               position: "absolute",
               left: 0,

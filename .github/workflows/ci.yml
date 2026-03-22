@@ -169,7 +169,7 @@ jobs:
 
       - name: Invoke Jules to Enrich JSDoc
         if: steps.changed-files.outputs.files != ''
-        uses: google-labs-code/jules-invoke@v1
+        uses: google-labs-code/jules-action@main
         with:
           jules_api_key: ${{ secrets.JULES_API_KEY }}
           prompt: |

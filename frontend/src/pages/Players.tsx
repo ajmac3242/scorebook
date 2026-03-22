@@ -27,30 +27,15 @@ import {
   Restore,
   History,
   Edit as EditIcon,
-  Check as CheckIcon,
-  People as PlayersIcon,
 } from "@mui/icons-material";
 import { db } from "../db";
 import { syncService } from "../utils/syncService";
 import { Link } from "react-router-dom";
 import { getInitials } from "../utils/stats";
-import { MoleskineCard, PageHeader, EmptyState } from "../components/SharedUI";
+import { MoleskineCard, PageHeader } from "../components/SharedUI";
 import { useLiveQuery } from "dexie-react-hooks";
 import { logger } from "../utils/logger";
 import { AVATAR_COLORS } from "../constants/colors";
-
-/**
- * Calculates luminance to determine if text should be white or black for a given background color.
- */
-const getContrastColor = (hexcolor: string) => {
-  if (!hexcolor) return "white";
-  const hex = hexcolor.replace("#", "");
-  const r = parseInt(hex.substr(0, 2), 16);
-  const g = parseInt(hex.substr(2, 2), 16);
-  const b = parseInt(hex.substr(4, 2), 16);
-  const yiq = (r * 299 + g * 587 + b * 114) / 1000;
-  return yiq >= 128 ? "black" : "white";
-};
 
 /**
  * Players page component.
@@ -70,7 +55,7 @@ const Players: React.FC = () => {
   // Use live query directly to handle archived/deleted filtering
   const players =
     useLiveQuery(async () => {
-      const query = db.players.toCollection();
+      let query = db.players.toCollection();
       const all = await query.toArray();
       return all.filter((p) => {
         if (p.deletedAt) return false;
@@ -198,26 +183,9 @@ const Players: React.FC = () => {
       <MoleskineCard sx={{ p: 2 }}>
         <List>
           {players.length === 0 && (
-            <EmptyState
-              icon={<PlayersIcon sx={{ fontSize: "inherit" }} />}
-              title={showArchived ? "No Archived Players" : "Empty Roster"}
-              message={
-                showArchived
-                  ? "You haven't archived any players yet."
-                  : "Start building your team by adding your first player."
-              }
-              action={
-                !showArchived && (
-                  <Button
-                    variant="contained"
-                    startIcon={<AddIcon />}
-                    onClick={() => setOpen(true)}
-                  >
-                    Add Player
-                  </Button>
-                )
-              }
-            />
+            <Typography sx={{ textAlign: "center", py: 2 }}>
+              No {showArchived ? "" : "active"} players found.
+            </Typography>
           )}
           {players.map((player) => (
             <ListItem
@@ -280,7 +248,6 @@ const Players: React.FC = () => {
                     size="small"
                     component={Link}
                     to={`/players/${player.id}`}
-                    aria-label="View stats"
                     sx={{
                       transition: "transform 0.2s",
                       "&:hover": { transform: "scale(1.1)" },
@@ -295,7 +262,6 @@ const Players: React.FC = () => {
                       size="small"
                       color="success"
                       onClick={() => handleRestorePlayer(player.id!)}
-                      aria-label="Restore player"
                     >
                       <Restore />
                     </IconButton>
@@ -306,7 +272,6 @@ const Players: React.FC = () => {
                       size="small"
                       color="primary"
                       onClick={() => handleOpenEdit(player)}
-                      aria-label="Edit player"
                     >
                       <EditIcon />
                     </IconButton>
@@ -318,22 +283,20 @@ const Players: React.FC = () => {
         </List>
       </MoleskineCard>
 
-      <Tooltip title="Add New Player" placement="left">
-        <Fab
-          color="primary"
-          aria-label="add"
-          sx={{
-            position: "fixed",
-            bottom: "calc(32px + env(safe-area-inset-bottom))",
-            right: 32,
-            transition: "transform 0.2s",
-            "&:hover": { transform: "scale(1.1) rotate(90deg)" },
-          }}
-          onClick={() => setOpen(true)}
-        >
-          <AddIcon className="bounce-in" />
-        </Fab>
-      </Tooltip>
+      <Fab
+        color="primary"
+        aria-label="add"
+        sx={{
+          position: "fixed",
+          bottom: "calc(32px + env(safe-area-inset-bottom))",
+          right: 32,
+          transition: "transform 0.2s",
+          "&:hover": { transform: "scale(1.1) rotate(90deg)" },
+        }}
+        onClick={() => setOpen(true)}
+      >
+        <AddIcon />
+      </Fab>
 
       <Dialog
         open={open}
@@ -341,9 +304,8 @@ const Players: React.FC = () => {
           setOpen(false);
           setShowValidation(false);
         }}
-        aria-labelledby="add-player-dialog-title"
       >
-        <DialogTitle id="add-player-dialog-title" sx={{ fontFamily: "var(--serif)" }}>
+        <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
           Add New Player
         </DialogTitle>
         <DialogContent>
@@ -380,17 +342,8 @@ const Players: React.FC = () => {
                   boxSizing: "border-box",
                   transition: "transform 0.1s",
                   "&:hover": { transform: "scale(1.2)" },
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
                 }}
-              >
-                {avatarColor === color && (
-                  <CheckIcon
-                    sx={{ color: getContrastColor(color), fontSize: 20 }}
-                  />
-                )}
-              </Box>
+              />
             ))}
           </Box>
         </DialogContent>
@@ -413,10 +366,8 @@ const Players: React.FC = () => {
           setEditOpen(false);
           setShowValidation(false);
         }}
-        aria-labelledby="edit-player-dialog-title"
       >
         <DialogTitle
-          id="edit-player-dialog-title"
           sx={{
             fontFamily: "var(--serif)",
             display: "flex",
@@ -430,7 +381,6 @@ const Players: React.FC = () => {
               color="error"
               onClick={() => setDeleteDialogOpen(true)}
               size="small"
-              aria-label="Delete player"
             >
               <Delete />
             </IconButton>
@@ -470,17 +420,8 @@ const Players: React.FC = () => {
                   boxSizing: "border-box",
                   transition: "transform 0.1s",
                   "&:hover": { transform: "scale(1.2)" },
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
                 }}
-              >
-                {avatarColor === color && (
-                  <CheckIcon
-                    sx={{ color: getContrastColor(color), fontSize: 20 }}
-                  />
-                )}
-              </Box>
+              />
             ))}
           </Box>
         </DialogContent>
@@ -515,9 +456,8 @@ const Players: React.FC = () => {
       <Dialog
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
-        aria-labelledby="delete-player-dialog-title"
       >
-        <DialogTitle id="delete-player-dialog-title" sx={{ fontFamily: "var(--serif)" }}>
+        <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
           Delete Player?
         </DialogTitle>
         <DialogContent>

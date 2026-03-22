@@ -5,13 +5,13 @@
  */
 
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import {
   ThemeProvider,
   CssBaseline,
+  Typography,
   Container,
   Box,
-  CircularProgress,
 } from "@mui/material";
 import theme from "./theme";
 import GameMode from "./pages/GameMode";
@@ -46,7 +46,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
   if (loading) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", mt: 8 }}>
-        <CircularProgress />
+        <Typography>Loading...</Typography>
       </Box>
     );
   }

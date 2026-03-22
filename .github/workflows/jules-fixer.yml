@@ -14,7 +14,7 @@ jobs:
       actions: read
     steps:
       - name: Invoke Jules to fix failure
-        uses: google-labs-code/jules-invoke@v1
+        uses: google-labs-code/jules-action@main
         with:
           jules_api_key: ${{ secrets.JULES_API_KEY }}
           prompt: |
