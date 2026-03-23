@@ -121,10 +121,7 @@ const PlayerStats: React.FC = () => {
     return (allStats as StatEvent[]).filter((stat) => {
       if (selectedGameId !== "" && stat.gameId !== selectedGameId) return false;
       if (selectedType !== "" && stat.type !== selectedType) return false;
-      if (
-        selectedGameId === "" &&
-        !games.some((g) => g.id === stat.gameId)
-      )
+      if (selectedGameId === "" && !games.some((g) => g.id === stat.gameId))
         return false;
       return true;
     });

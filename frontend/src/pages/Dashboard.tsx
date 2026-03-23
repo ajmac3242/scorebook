@@ -22,8 +22,10 @@ import {
  */
 const Dashboard: React.FC = () => {
   // Real-time queries for total counts using Dexie hooks
-  const teams = useLiveQuery(() => db.teams.filter(t => !t.deletedAt).toArray()) || [];
-  const players = useLiveQuery(() => db.players.filter(p => !p.deletedAt).toArray()) || [];
+  const teams =
+    useLiveQuery(() => db.teams.filter((t) => !t.deletedAt).toArray()) || [];
+  const players =
+    useLiveQuery(() => db.players.filter((p) => !p.deletedAt).toArray()) || [];
 
   // Configuration for summary cards
   const summaryItems = [
