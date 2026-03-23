@@ -104,7 +104,7 @@ export class AppDatabase extends Dexie {
    *
    */
   constructor() {
-    super("BasketballStatsDB");
+    super("ScorebookDB");
 
     // Define the database schema with primary keys and indexes
     // Version 7: Add periodType to Season, isArchived to Player, period to StatEvent, and deletedAt to all main entities.

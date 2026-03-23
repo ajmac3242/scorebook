@@ -150,14 +150,28 @@ const Sidebar: React.FC = () => {
         }}
       >
         {open && (
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <BasketballIcon sx={{ color: "secondary.main" }} />
-            <Typography variant="h6" noWrap sx={{ fontFamily: "var(--serif)" }}>
-              Stats
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+            <Box
+              component="img"
+              src="/logo.svg"
+              sx={{ width: 32, height: 32 }}
+            />
+            <Typography
+              variant="h6"
+              noWrap
+              sx={{ fontFamily: "var(--serif)", color: "inherit" }}
+            >
+              Scorebook
             </Typography>
           </Box>
         )}
-        {!open && <BasketballIcon sx={{ color: "secondary.main" }} />}
+        {!open && (
+          <Box
+            component="img"
+            src="/logo.svg"
+            sx={{ width: 32, height: 32 }}
+          />
+        )}
         {open && !isMobile && (
           <IconButton onClick={toggleDrawer} sx={{ color: "inherit" }}>
             <ChevronLeftIcon />
@@ -252,7 +266,7 @@ const Sidebar: React.FC = () => {
                 }}
               >
                 {isSyncing ? (
-                  <SyncingIcon className="spin" />
+                  <BasketballIcon className="spin" />
                 ) : isOnline ? (
                   <OnlineIcon className="hover-grow" />
                 ) : (
@@ -427,7 +441,7 @@ const Sidebar: React.FC = () => {
             },
           }}
         >
-          <CloudSync className="spin" />
+          <BasketballIcon className="spin" />
           <Typography variant="caption" sx={{ fontWeight: "bold" }}>
             SYNCING DATA
           </Typography>
