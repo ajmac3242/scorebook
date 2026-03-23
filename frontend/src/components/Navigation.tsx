@@ -1,7 +1,7 @@
 /**
- * @file Sidebar.tsx
- * @description Main navigation sidebar component.
- * Handles application routing, drawer state (expanded/collapsed),
+ * @file Navigation.tsx
+ * @description Main navigation component.
+ * Handles application routing,
  * system connectivity status (online/offline), and logout with data safety checks.
  */
 
@@ -113,13 +113,12 @@ const NavItem: React.FC<{
 };
 
 /**
- * Sidebar component that provides navigation links and system status indicators.
- * Adapts to mobile screens by transforming into a bottom drawer.
- * Now functions as a Top Navigation bar on desktop.
+ * Navigation component that provides links and system status indicators.
+ * Now functions as a Top Navigation bar on desktop and a bottom floating pill on mobile.
  *
  * @returns {React.ReactElement}
  */
-const Sidebar: React.FC = () => {
+const Navigation: React.FC = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const { logout } = useAuth();
@@ -242,7 +241,15 @@ const Sidebar: React.FC = () => {
         ))}
       </Box>
 
-      <Box sx={{ display: "flex", justifyContent: "flex-end", width: "200px" }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "flex-end",
+          alignItems: "center",
+          width: "200px",
+          gap: 1,
+        }}
+      >
         <IconButton
           component={Link}
           to="/settings"
@@ -264,6 +271,17 @@ const Sidebar: React.FC = () => {
           }}
         >
           <SettingsIcon />
+        </IconButton>
+        <IconButton
+          onClick={handleLogoutClick}
+          sx={{
+            color: "error.main",
+            "&:hover": {
+              bgcolor: "rgba(166, 68, 68, 0.08)",
+            },
+          }}
+        >
+          <LogoutIcon />
         </IconButton>
       </Box>
     </Box>
@@ -369,6 +387,18 @@ const Sidebar: React.FC = () => {
               isSelected={location.pathname === item.path}
             />
           ))}
+          <IconButton
+            onClick={handleLogoutClick}
+            sx={{
+              color: "error.light",
+              ml: 0.5,
+              "&:hover": {
+                bgcolor: "rgba(255, 255, 255, 0.1)",
+              },
+            }}
+          >
+            <LogoutIcon fontSize="small" />
+          </IconButton>
         </Box>
       )}
       {logoutDialog}
@@ -376,4 +406,4 @@ const Sidebar: React.FC = () => {
   );
 };
 
-export default Sidebar;
+export default Navigation;

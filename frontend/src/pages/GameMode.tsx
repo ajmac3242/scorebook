@@ -504,7 +504,7 @@ const GameMode: React.FC = () => {
           </MoleskineCard>
         </Grid>
 
-        {/* Sidebar: Roster and Recent Actions */}
+        {/* Panel: Roster and Recent Actions */}
         <Grid item xs={12} md={4}>
           <Stack spacing={3}>
             {trackingMode === "TEAM" ? (
