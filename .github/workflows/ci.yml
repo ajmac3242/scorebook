@@ -67,6 +67,9 @@ jobs:
           npm ci
           npm run build
 
+      - name: Generate frontend build hash
+        run: find frontend/dist -type f | sort | xargs sha256sum | sha256sum | awk '{print $1}' > frontend-build-hash.txt
+
       - name: "Frontend: Format & Lint"
         run: |
           cd frontend
@@ -76,7 +79,7 @@ jobs:
       - name: "Frontend: Run Tests"
         run: |
           cd frontend
-          npm test -- --verbose
+          npm test -- --reporter=verbose
 
       # --- Documentation & Diagrams ---
       - name: Render terraform-docs
@@ -164,4 +167,5 @@ jobs:
             frontend/*.log
             infra/README.md
             docs/*.png
+            frontend-build-hash.txt
           if-no-files-found: ignore
