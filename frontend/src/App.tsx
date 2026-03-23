@@ -24,7 +24,7 @@ import Teams from "./pages/Teams";
 import TeamStats from "./pages/TeamStats";
 import Games from "./pages/Games";
 import Settings from "./pages/Settings";
-import Sidebar from "./components/Sidebar";
+import Navigation from "./components/Navigation";
 import { Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import DevAuthBypass from "./components/DevAuthBypass";
@@ -65,7 +65,7 @@ const AppContent: React.FC = () => {
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       {/* Show navigation bar only for authenticated users */}
-      {isAuthenticated && <Sidebar />}
+      {isAuthenticated && <Navigation />}
 
       <Box
         component="main"
@@ -73,10 +73,10 @@ const AppContent: React.FC = () => {
           flexGrow: 1,
           p: { xs: 1, sm: 3 },
           pt: {
-            xs: isAuthenticated ? "88px" : 2,
+            xs: isAuthenticated ? "24px" : 2,
             sm: isAuthenticated ? "104px" : 3,
           },
-          pb: { xs: isAuthenticated ? "88px" : 2, sm: 3 },
+          pb: { xs: isAuthenticated ? "112px" : 2, sm: 3 },
           width: "100%",
           overflowX: "hidden",
         }}
