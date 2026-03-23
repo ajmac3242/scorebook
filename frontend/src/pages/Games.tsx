@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   Box,
   Typography,
@@ -23,12 +23,14 @@ import {
 import {
   Add as AddIcon,
   SportsBasketball as BallIcon,
+  SportsBasketball as GamesIcon,
 } from "@mui/icons-material";
-import { db, type Game } from "../db";
+import { db } from "../db";
 import { syncService } from "../utils/syncService";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useNavigate } from "react-router-dom";
-import { MoleskineCard, PageHeader } from "../components/SharedUI";
+import { MoleskineCard } from "../components/SharedUI";
+import EntityBanner from "../components/EntityBanner";
 import { calculateGameResult } from "../utils/stats";
 import { Avatar } from "@mui/material";
 
@@ -46,8 +48,8 @@ const Games: React.FC = () => {
       try {
         await db.open();
         return await db.seasons.toArray();
-      } catch (err) {
-        console.error("Failed to fetch seasons:", err);
+      } catch (error) {
+        console.error("Failed to fetch seasons:", error);
         return [];
       }
     }) || [];
@@ -61,8 +63,8 @@ const Games: React.FC = () => {
           .where("seasonId")
           .equals(selectedSeasonId)
           .toArray();
-      } catch (err) {
-        console.error("Failed to fetch teams:", err);
+      } catch (error) {
+        console.error("Failed to fetch teams:", error);
         return [];
       }
     }, [selectedSeasonId]) || [];
@@ -79,8 +81,8 @@ const Games: React.FC = () => {
         return items.sort(
           (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
         );
-      } catch (err) {
-        console.error("Failed to fetch games:", err);
+      } catch (error) {
+        console.error("Failed to fetch games:", error);
         return [];
       }
     }, [selectedTeamId]) || [];
@@ -94,23 +96,24 @@ const Games: React.FC = () => {
           .map((g) => g.location)
           .filter(Boolean) as string[];
         return Array.from(new Set(locations)).sort();
-      } catch (err) {
+      } catch (error) {
+        console.error("Failed to fetch locations:", error);
         return [];
       }
     }) || [];
 
   const gameIds = games.map((g) => g.id).filter(Boolean);
-  const allStats =
-    useLiveQuery(
-      () =>
-        gameIds.length > 0
-          ? db.stats
-              .where("gameId")
-              .anyOf(gameIds as any[])
-              .toArray()
-          : Promise.resolve([]),
-      [gameIds],
-    ) || [];
+  const allStatsResult = useLiveQuery(
+    () =>
+      gameIds.length > 0
+        ? db.stats
+            .where("gameId")
+            .anyOf(gameIds as string[])
+            .toArray()
+        : Promise.resolve([]),
+    [gameIds],
+  );
+  const allStats = useMemo(() => allStatsResult || [], [allStatsResult]);
 
   const currentTeam = useLiveQuery(
     () =>
@@ -137,15 +140,19 @@ const Games: React.FC = () => {
       setOpponent("");
       setDate("");
       setLocation("");
-    } catch (err) {
-      console.error("Failed to add game:", err);
+    } catch (error) {
+      console.error("Failed to add game:", error);
     }
   };
 
   return (
-    <Box>
-      <PageHeader title="Games Schedule" />
-      <Stack direction={{ xs: "column", sm: "row" }} spacing={2} sx={{ mb: 3 }}>
+    <Box sx={{ pb: 8 }}>
+      <EntityBanner title="Games Schedule" icon={<GamesIcon />} backTo="/" />
+      <Stack
+        direction={{ xs: "column", sm: "row" }}
+        spacing={2}
+        sx={{ mb: 3, mt: 4 }}
+      >
         <FormControl fullWidth variant="outlined">
           <InputLabel>Filter by Season</InputLabel>
           <Select

@@ -41,21 +41,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     if (user) {
       user.getSession(
         (err: Error | null, session: CognitoUserSession | null) => {
-          if (err || !session || !session.isValid()) {
-            setIsAuthenticated(false);
-            localStorage.removeItem("isAuthenticated");
-          } else {
-            setIsAuthenticated(true);
-            // Trigger an initial full pull synchronization if a session exists
-            syncService.pullAll();
-          }
-          setLoading(false);
+          setTimeout(() => {
+            if (err || !session || !session.isValid()) {
+              setIsAuthenticated(false);
+              localStorage.removeItem("isAuthenticated");
+            } else {
+              setIsAuthenticated(true);
+              // Trigger an initial full pull synchronization if a session exists
+              syncService.pullAll();
+            }
+            setLoading(false);
+          }, 0);
         },
       );
     } else {
-      setIsAuthenticated(false);
+      setTimeout(() => {
+        setIsAuthenticated(false);
+        setLoading(false);
+      }, 0);
       localStorage.removeItem("isAuthenticated");
-      setLoading(false);
     }
   }, []);
 

@@ -7,7 +7,6 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  Stack,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -17,7 +16,7 @@ import {
   Grid,
   Avatar,
 } from "@mui/material";
-import { Add as AddIcon } from "@mui/icons-material";
+import { Add as AddIcon, Groups as TeamsIcon } from "@mui/icons-material";
 import { db, type Team, type StatEvent } from "../db";
 import { syncService } from "../utils/syncService";
 import { useNavigate } from "react-router-dom";
@@ -42,10 +41,17 @@ const Teams: React.FC = () => {
   const [logoUrl, setLogoUrl] = useState("");
   const [primaryColor, setPrimaryColor] = useState("#154C56");
   const [showValidation, setShowValidation] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   // Use shared hooks for data fetching
   const seasons = useSeasons();
   const teams = useTeams(selectedSeasonId);
+
+  const filteredTeams = useMemo(() => {
+    return teams.filter((t) =>
+      t.name.toLowerCase().includes(searchTerm.toLowerCase()),
+    );
+  }, [teams, searchTerm]);
 
   // Fetch all games and stats for the visible teams to calculate aggregates
   const teamIds = useMemo(
@@ -53,34 +59,42 @@ const Teams: React.FC = () => {
     [teams],
   );
 
-  const allGames =
-    useLiveQuery(
-      async () =>
-        teamIds.length > 0
-          ? await db.games
-              .where("teamId")
-              .anyOf(teamIds as string[])
-              .toArray()
-          : [],
-      [teamIds],
-    ) || [];
+  const allGamesQueryResult = useLiveQuery(
+    async () =>
+      teamIds.length > 0
+        ? await db.games
+            .where("teamId")
+            .anyOf(teamIds as string[])
+            .toArray()
+        : [],
+    [teamIds],
+  );
+
+  const allGames = useMemo(
+    () => allGamesQueryResult || [],
+    [allGamesQueryResult],
+  );
 
   const gameIds = useMemo(
     () => allGames.map((g) => g.id).filter(Boolean),
     [allGames],
   );
 
-  const allStats =
-    useLiveQuery(
-      async () =>
-        gameIds.length > 0
-          ? await db.stats
-              .where("gameId")
-              .anyOf(gameIds as string[])
-              .toArray()
-          : [],
-      [gameIds],
-    ) || [];
+  const allStatsQueryResult = useLiveQuery(
+    async () =>
+      gameIds.length > 0
+        ? await db.stats
+            .where("gameId")
+            .anyOf(gameIds as string[])
+            .toArray()
+        : [],
+    [gameIds],
+  );
+
+  const allStats = useMemo(
+    () => allStatsQueryResult || [],
+    [allStatsQueryResult],
+  );
 
   /**
    * Calculates luminance to determine if text should be white or black for a given background color.
@@ -130,7 +144,8 @@ const Teams: React.FC = () => {
   return (
     <Box sx={{ pb: 8 }}>
       <EntityBanner
-        title="Teams Management"
+        title="Teams"
+        icon={<TeamsIcon />}
         subtitle={
           selectedSeasonId
             ? seasons.find((s) => s.id === selectedSeasonId)?.name
@@ -169,16 +184,27 @@ const Teams: React.FC = () => {
       />
 
       <Box sx={{ mt: 4 }}>
-        {teams.length === 0 && (
+        <TextField
+          fullWidth
+          variant="outlined"
+          placeholder="Filter teams by name..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          sx={{ mb: 4, bgcolor: "white", borderRadius: 1 }}
+        />
+
+        {filteredTeams.length === 0 && (
           <Typography
             color="text.secondary"
             sx={{ textAlign: "center", py: 8 }}
           >
-            No teams found for the selected season.
+            {searchTerm
+              ? `No teams matching "${searchTerm}"`
+              : "No teams found for the selected season."}
           </Typography>
         )}
         <Grid container spacing={3}>
-          {teams.map((team) => {
+          {filteredTeams.map((team) => {
             const teamGames = allGames.filter((g) => g.teamId === team.id);
             const teamStats = allStats.filter((s) =>
               teamGames.some((g) => g.id === s.gameId),
@@ -192,7 +218,7 @@ const Teams: React.FC = () => {
             );
 
             return (
-              <Grid item xs={12} sm={6} md={4} key={team.id}>
+              <Grid item xs={12} sm={6} md={6} key={team.id}>
                 <MoleskineCard
                   sx={{
                     cursor: "pointer",
@@ -300,16 +326,43 @@ const Teams: React.FC = () => {
                       value={aggregates.ppg}
                       light={contrastColor === "white"}
                     />
+                    <Typography
+                      sx={{
+                        color: contrastColor,
+                        opacity: 0.3,
+                        alignSelf: "center",
+                      }}
+                    >
+                      |
+                    </Typography>
                     <StatItem
                       label="RPG"
                       value={aggregates.rpg}
                       light={contrastColor === "white"}
                     />
+                    <Typography
+                      sx={{
+                        color: contrastColor,
+                        opacity: 0.3,
+                        alignSelf: "center",
+                      }}
+                    >
+                      |
+                    </Typography>
                     <StatItem
                       label="APG"
                       value={aggregates.apg}
                       light={contrastColor === "white"}
                     />
+                    <Typography
+                      sx={{
+                        color: contrastColor,
+                        opacity: 0.3,
+                        alignSelf: "center",
+                      }}
+                    >
+                      |
+                    </Typography>
                     <StatItem
                       label="OPPG"
                       value={aggregates.oppg}

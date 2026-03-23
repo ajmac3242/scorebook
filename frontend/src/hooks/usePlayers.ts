@@ -1,5 +1,5 @@
 import { useLiveQuery } from "dexie-react-hooks";
-import { db, Player } from "../db";
+import { db } from "../db";
 
 /**
  * Hook to fetch all players from the local database, sorted by name.

@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import {
   Box,
   Typography,
@@ -15,8 +15,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Tab,
-  Tabs,
   Chip,
   useTheme,
   Avatar,
@@ -37,9 +35,9 @@ import {
   Warning,
 } from "@mui/icons-material";
 import BasketballCourt from "../components/BasketballCourt";
-import { db, type StatEvent } from "../db";
+import { db } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
-import { STAT_ACRONYMS, ACTION_TYPES } from "../constants/stats";
+import { ACTION_TYPES } from "../constants/stats";
 import { calculatePlayerAggregates, getPlayerJersey } from "../utils/stats";
 import { MoleskineCard, PageHeader } from "../components/SharedUI";
 import { syncService } from "../utils/syncService";
@@ -59,7 +57,6 @@ const OPPONENT_PLAYER_ID = "OPPONENT";
 
 const GameStats: React.FC = () => {
   const theme = useTheme();
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const gameId = searchParams.get("gameId") || undefined;
 
@@ -75,7 +72,7 @@ const GameStats: React.FC = () => {
   const game = useLiveQuery(
     () =>
       gameId !== undefined
-        ? db.games.get(gameId as any)
+        ? db.games.get(gameId as string)
         : Promise.resolve(undefined),
     [gameId],
   );
@@ -94,23 +91,29 @@ const GameStats: React.FC = () => {
     [team?.seasonId],
   );
 
-  const teamPlayers =
-    useLiveQuery(
-      () =>
-        game?.teamId
-          ? db.teamPlayers.where("teamId").equals(game.teamId).toArray()
-          : Promise.resolve([]),
-      [game?.teamId],
-    ) || [];
-  const players = useLiveQuery(() => db.players.toArray()) || [];
-  const allStats =
-    useLiveQuery(
-      () =>
-        gameId !== undefined
-          ? db.stats.where("gameId").equals(gameId).toArray()
-          : Promise.resolve([]),
-      [gameId],
-    ) || [];
+  const teamPlayersResult = useLiveQuery(
+    () =>
+      game?.teamId
+        ? db.teamPlayers.where("teamId").equals(game.teamId).toArray()
+        : Promise.resolve([]),
+    [game?.teamId],
+  );
+  const teamPlayers = useMemo(
+    () => teamPlayersResult || [],
+    [teamPlayersResult],
+  );
+
+  const playersResult = useLiveQuery(() => db.players.toArray()) || [];
+  const players = useMemo(() => playersResult || [], [playersResult]);
+
+  const allStatsResult = useLiveQuery(
+    () =>
+      gameId !== undefined
+        ? db.stats.where("gameId").equals(gameId).toArray()
+        : Promise.resolve([]),
+    [gameId],
+  );
+  const allStats = useMemo(() => allStatsResult || [], [allStatsResult]);
 
   useEffect(() => {
     if (game?.deletedAt) {
@@ -129,15 +132,18 @@ const GameStats: React.FC = () => {
     }
   }, [game?.deletedAt]);
 
+  // Filter stats based on the selected period (Quarter/Half)
   const stats = useMemo(() => {
     if (periodFilter === "ALL") return allStats;
     return allStats.filter((s) => s.period === parseInt(periodFilter));
   }, [allStats, periodFilter]);
 
-  const playerAggregates = useMemo(
-    () => calculatePlayerAggregates(players, stats, teamPlayers),
-    [players, stats, teamPlayers],
-  );
+  const playerAggregates = useMemo(() => {
+    // Only include players who are assigned to this team
+    const teamPlayerIds = new Set(teamPlayers.map((tp) => tp.playerId));
+    const rosteredPlayers = players.filter((p) => teamPlayerIds.has(p.id!));
+    return calculatePlayerAggregates(rosteredPlayers, stats, teamPlayers);
+  }, [players, stats, teamPlayers]);
 
   const filteredStats = useMemo(() => {
     return stats.filter(
@@ -148,28 +154,31 @@ const GameStats: React.FC = () => {
   }, [stats, selectedPlayerId, selectedType]);
 
   const scoreFlowData = useMemo(() => {
-    let teamScore = 0,
-      opponentScore = 0;
+    let tScore = 0;
+    let oScore = 0;
     const sortedStats = [...stats].sort(
       (a, b) =>
         new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
     );
-    const data = sortedStats
+    const resultArr = [{ time: "00:00", Team: 0, Opponent: 0 }];
+    sortedStats
       .filter((s) => s.type === ACTION_TYPES.MAKE)
-      .map((s) => {
-        s.playerId === OPPONENT_PLAYER_ID
-          ? (opponentScore += s.points || 0)
-          : (teamScore += s.points || 0);
-        return {
+      .forEach((s) => {
+        if (s.playerId === OPPONENT_PLAYER_ID) {
+          oScore += s.points || 0;
+        } else {
+          tScore += s.points || 0;
+        }
+        resultArr.push({
           time: new Date(s.timestamp).toLocaleTimeString([], {
             minute: "2-digit",
             second: "2-digit",
           }),
-          Team: teamScore,
-          Opponent: opponentScore,
-        };
+          Team: tScore,
+          Opponent: oScore,
+        });
       });
-    return [{ time: "00:00", Team: 0, Opponent: 0 }, ...data];
+    return resultArr;
   }, [stats]);
 
   const oppData = useMemo(() => {
@@ -265,64 +274,62 @@ const GameStats: React.FC = () => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {playerAggregates
-            .filter((p) => p.attempts > 0 || p.rebounds > 0 || p.assists > 0)
-            .map((row) => (
-              <TableRow key={row.id}>
-                <TableCell
+          {playerAggregates.map((row) => (
+            <TableRow key={row.id}>
+              <TableCell
+                sx={{
+                  fontWeight: 600,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                }}
+              >
+                <Avatar
                   sx={{
-                    fontWeight: 600,
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1,
+                    width: 24,
+                    height: 24,
+                    fontSize: "0.75rem",
+                    bgcolor: row.avatarColor,
                   }}
                 >
-                  <Avatar
-                    sx={{
-                      width: 24,
-                      height: 24,
-                      fontSize: "0.75rem",
-                      bgcolor: row.avatarColor,
-                    }}
-                  >
-                    {row.jerseyNumber}
-                  </Avatar>
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      fontWeight: 600,
-                      fontSize: { xs: "0.75rem", sm: "0.875rem" },
-                    }}
-                  >
-                    {row.name}
-                  </Typography>
-                </TableCell>
-                <TableCell align="right">{row.points}</TableCell>
-                <TableCell align="right">
-                  {row.makes}-{row.attempts}
-                </TableCell>
-                <TableCell
-                  align="right"
-                  sx={{ display: { xs: "none", sm: "table-cell" } }}
+                  {row.jerseyNumber}
+                </Avatar>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    fontWeight: 600,
+                    fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                  }}
                 >
-                  {row.fgPct}%
-                </TableCell>
-                <TableCell align="right">{row.rebounds}</TableCell>
-                <TableCell align="right">{row.assists}</TableCell>
-                <TableCell
-                  align="right"
-                  sx={{ display: { xs: "none", sm: "table-cell" } }}
-                >
-                  {row.steals}
-                </TableCell>
-                <TableCell
-                  align="right"
-                  sx={{ display: { xs: "none", sm: "table-cell" } }}
-                >
-                  {row.turnovers}
-                </TableCell>
-              </TableRow>
-            ))}
+                  {row.name}
+                </Typography>
+              </TableCell>
+              <TableCell align="right">{row.points}</TableCell>
+              <TableCell align="right">
+                {row.makes}-{row.attempts}
+              </TableCell>
+              <TableCell
+                align="right"
+                sx={{ display: { xs: "none", sm: "table-cell" } }}
+              >
+                {row.fgPct}%
+              </TableCell>
+              <TableCell align="right">{row.rebounds}</TableCell>
+              <TableCell align="right">{row.assists}</TableCell>
+              <TableCell
+                align="right"
+                sx={{ display: { xs: "none", sm: "table-cell" } }}
+              >
+                {row.steals}
+              </TableCell>
+              <TableCell
+                align="right"
+                sx={{ display: { xs: "none", sm: "table-cell" } }}
+              >
+                {row.turnovers}
+              </TableCell>
+            </TableRow>
+          ))}
           <TableRow sx={{ bgcolor: "secondary.light" }}>
             <TableCell sx={{ fontWeight: 700 }}>OPPONENT</TableCell>
             <TableCell align="right">{oppData.points}</TableCell>

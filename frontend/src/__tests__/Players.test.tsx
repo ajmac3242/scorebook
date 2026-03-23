@@ -21,7 +21,7 @@ describe("Players Component", () => {
     );
 
     expect(
-      screen.getByRole("heading", { name: /Roster Notebook/i }),
+      screen.getByRole("heading", { name: /^Players$/i, level: 3 }),
     ).toBeInTheDocument();
     expect(screen.getByText(/No active players found/i)).toBeInTheDocument();
   });
@@ -75,7 +75,9 @@ describe("Players Component", () => {
         <Players />
       </BrowserRouter>,
     );
-    expect(screen.getByText(/Roster Notebook/i)).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: /^Players$/i, level: 3 }),
+    ).toBeInTheDocument();
   });
 
   it("handles error when adding player", async () => {

@@ -46,9 +46,8 @@ import { db, type StatEvent } from "../db";
 import { syncService } from "../utils/syncService";
 import { useLiveQuery } from "dexie-react-hooks";
 import { ACTION_TYPES } from "../constants/stats";
-import { getInitials, getPlayerJersey } from "../utils/stats";
+import { getPlayerJersey } from "../utils/stats";
 import { MoleskineCard } from "../components/SharedUI";
-import { useLocation } from "react-router-dom";
 
 const OPPONENT_PLAYER_ID = "OPPONENT";
 
@@ -60,23 +59,11 @@ const OPPONENT_PLAYER_ID = "OPPONENT";
 const GameMode: React.FC = () => {
   const theme = useTheme();
   const navigate = useNavigate();
-  const location = useLocation();
   const [searchParams] = useSearchParams();
 
   // Extract game and team IDs from URL parameters
   const gameId = searchParams.get("gameId");
   const teamId = searchParams.get("teamId");
-
-  // Ensure required parameters are present, otherwise redirect
-  useEffect(() => {
-    if (!gameId || !teamId) {
-      navigate("/");
-    }
-  }, [gameId, teamId, navigate]);
-
-  if (!gameId || !teamId) {
-    return null;
-  }
 
   // Local state for recording individual actions
   const [selectedX, setSelectedX] = useState<number | null>(null);
@@ -127,7 +114,7 @@ const GameMode: React.FC = () => {
       }
     }, [teamId, teamPlayers]) || [];
 
-  const game = useLiveQuery(() => db.games.get(gameId as any), [gameId]);
+  const game = useLiveQuery(() => db.games.get(gameId as string), [gameId]);
   const team = useLiveQuery(
     () =>
       game?.teamId ? db.teams.get(game.teamId) : Promise.resolve(undefined),
@@ -144,9 +131,9 @@ const GameMode: React.FC = () => {
   // Show summary dialog automatically if game is completed
   useEffect(() => {
     if (game?.completed && !summaryDialogOpen && !endGameDialogOpen) {
-      setSummaryDialogOpen(true);
+      setTimeout(() => setSummaryDialogOpen(true), 0);
     }
-  }, [game?.completed]);
+  }, [game?.completed, summaryDialogOpen, endGameDialogOpen]);
 
   // Periodic background sync during live tracking
   useEffect(() => {
@@ -216,7 +203,7 @@ const GameMode: React.FC = () => {
   const handleEndGame = async () => {
     try {
       await db.open();
-      await db.games.update(gameId as any, { completed: 1, synced: 0 });
+      await db.games.update(gameId as string, { completed: 1, synced: 0 });
       syncService.pushUpdates();
       setEndGameDialogOpen(false);
       setSummaryDialogOpen(true);
@@ -293,7 +280,11 @@ const GameMode: React.FC = () => {
     if (isDeleted) return;
     const newOnCourt = new Set(onCourtIds);
     const isNowOnCourt = !newOnCourt.has(playerId);
-    isNowOnCourt ? newOnCourt.add(playerId) : newOnCourt.delete(playerId);
+    if (isNowOnCourt) {
+      newOnCourt.add(playerId);
+    } else {
+      newOnCourt.delete(playerId);
+    }
     setOnCourtIds(newOnCourt);
 
     try {
@@ -351,34 +342,23 @@ const GameMode: React.FC = () => {
    * @param root0.label
    * @param root0.icon
    */
-  const QuickAction = ({ type, label, icon: Icon }: any) => (
-    <Button
-      variant={statType === type ? "contained" : "outlined"}
-      color="inherit"
-      onClick={() => {
-        setStatType(type);
-        // Automatically save for non-scoring actions to improve speed
-        if (type !== ACTION_TYPES.MAKE) handleSaveStat(type);
-      }}
-      sx={{
-        flexDirection: "column",
-        py: 2,
-        minWidth: 80,
-        borderColor: "#D1D1D1",
-        backgroundColor: statType === type ? "primary.main" : "transparent",
-        color: statType === type ? "white" : "text.primary",
-      }}
-    >
-      <Icon sx={{ mb: 1 }} />
-      <Typography variant="caption">{label}</Typography>
-    </Button>
-  );
 
   const isDeleted =
     !!game?.deletedAt || !!team?.deletedAt || !!season?.deletedAt;
   const periodType = season?.periodType || "QUARTERS";
   const periodLabel = periodType === "HALVES" ? "Half" : "Quarter";
   const maxPeriod = periodType === "HALVES" ? 2 : 4;
+
+  // Ensure required parameters are present, otherwise redirect
+  useEffect(() => {
+    if (!gameId || !teamId) {
+      navigate("/");
+    }
+  }, [gameId, teamId, navigate]);
+
+  if (!gameId || !teamId) {
+    return null;
+  }
 
   const handleNextPeriod = () => {
     setPeriod((p) => {
@@ -452,7 +432,7 @@ const GameMode: React.FC = () => {
                 onChange={(_, val) => val && setTrackingMode(val)}
                 size="small"
                 disabled={isDeleted}
-                fullWidth={theme.breakpoints.down("sm") as any}
+                fullWidth={theme.breakpoints.down("sm") !== null}
                 sx={{ width: { xs: "100%", sm: "auto" } }}
               >
                 <ToggleButton value="TEAM">Our Team</ToggleButton>
@@ -746,27 +726,53 @@ const GameMode: React.FC = () => {
               mt: 1,
             }}
           >
-            <QuickAction type={ACTION_TYPES.MAKE} label="Make" icon={Check} />
-            <QuickAction type={ACTION_TYPES.MISS} label="Miss" icon={Close} />
+            <QuickAction
+              type={ACTION_TYPES.MAKE}
+              label="Make"
+              icon={Check}
+              statType={statType}
+              setStatType={setStatType}
+              onSave={handleSaveStat}
+            />
+            <QuickAction
+              type={ACTION_TYPES.MISS}
+              label="Miss"
+              icon={Close}
+              statType={statType}
+              setStatType={setStatType}
+              onSave={handleSaveStat}
+            />
             <QuickAction
               type={ACTION_TYPES.REBOUND}
               label="Rebound"
               icon={SportsBasketball}
+              statType={statType}
+              setStatType={setStatType}
+              onSave={handleSaveStat}
             />
             <QuickAction
               type={ACTION_TYPES.STEAL}
               label="Steal"
               icon={FlashOn}
+              statType={statType}
+              setStatType={setStatType}
+              onSave={handleSaveStat}
             />
             <QuickAction
               type={ACTION_TYPES.ASSIST}
               label="Assist"
               icon={PanTool}
+              statType={statType}
+              setStatType={setStatType}
+              onSave={handleSaveStat}
             />
             <QuickAction
               type={ACTION_TYPES.TURNOVER}
               label="TO"
               icon={SwapHoriz}
+              statType={statType}
+              setStatType={setStatType}
+              onSave={handleSaveStat}
             />
           </Box>
           {statType === ACTION_TYPES.MAKE && (
@@ -908,5 +914,34 @@ const GameMode: React.FC = () => {
     </Box>
   );
 };
+
+const QuickAction: React.FC<{
+  type: string;
+  label: string;
+  icon: React.ElementType;
+  statType: string | null;
+  setStatType: (type: string | null) => void;
+  onSave: (type: string) => void;
+}> = ({ type, label, icon: Icon, statType, setStatType, onSave }) => (
+  <Button
+    variant={statType === type ? "contained" : "outlined"}
+    color="inherit"
+    onClick={() => {
+      setStatType(type);
+      if (type !== ACTION_TYPES.MAKE) onSave(type);
+    }}
+    sx={{
+      flexDirection: "column",
+      py: 2,
+      minWidth: 80,
+      borderColor: "#D1D1D1",
+      backgroundColor: statType === type ? "primary.main" : "transparent",
+      color: statType === type ? "white" : "text.primary",
+    }}
+  >
+    <Icon sx={{ mb: 1 }} />
+    <Typography variant="caption">{label}</Typography>
+  </Button>
+);
 
 export default GameMode;

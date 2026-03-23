@@ -18,9 +18,9 @@ import {
   IconButton,
 } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
-import { db, type Season, type Team } from "../db";
+import { db } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
-import { MoleskineCard, PageHeader } from "../components/SharedUI";
+import { MoleskineCard } from "../components/SharedUI";
 import { syncService } from "../utils/syncService";
 import dayjs from "dayjs";
 import {
@@ -58,16 +58,6 @@ const SeasonDetail: React.FC = () => {
           .toArray(),
       [seasonId],
     ) || [];
-
-  useEffect(() => {
-    if (season) {
-      setName(season.name);
-      setStartDate(season.startDate);
-      setEndDate(season.endDate);
-      setPeriodType(season.periodType || "QUARTERS");
-      setPrimaryColor(season.primaryColor || "#154C56");
-    }
-  }, [season]);
 
   useEffect(() => {
     if (season?.deletedAt) {
@@ -173,7 +163,16 @@ const SeasonDetail: React.FC = () => {
             {!isDeleted ? (
               <>
                 <IconButton
-                  onClick={() => setEditDialogOpen(true)}
+                  onClick={() => {
+                    if (season) {
+                      setName(season.name);
+                      setStartDate(season.startDate);
+                      setEndDate(season.endDate);
+                      setPeriodType(season.periodType || "QUARTERS");
+                      setPrimaryColor(season.primaryColor || "#154C56");
+                      setEditDialogOpen(true);
+                    }
+                  }}
                   sx={{
                     color: "white",
                     bgcolor: "rgba(255,255,255,0.1)",
@@ -344,7 +343,9 @@ const SeasonDetail: React.FC = () => {
               label="Period Type"
               fullWidth
               value={periodType}
-              onChange={(e) => setPeriodType(e.target.value as any)}
+              onChange={(e) =>
+                setPeriodType(e.target.value as "QUARTERS" | "HALVES")
+              }
               sx={{ mb: 2 }}
             >
               <MenuItem value="QUARTERS">Quarters (1-4)</MenuItem>
