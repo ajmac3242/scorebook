@@ -7,8 +7,14 @@ import {
   IconButton,
   Stack,
   Button,
+  TextField,
+  InputAdornment,
 } from "@mui/material";
-import { ArrowBack as ArrowBackIcon } from "@mui/icons-material";
+import {
+  ArrowBack as ArrowBackIcon,
+  Search as SearchIcon,
+  Close as CloseIcon,
+} from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { StatItem } from "./SharedUI";
 import { getInitials } from "../utils/stats";
@@ -27,6 +33,8 @@ interface EntityBannerProps {
   onSync?: () => void;
   isSyncing?: boolean;
   jerseyNumber?: string;
+  searchTerm?: string;
+  onSearchChange?: (value: string) => void;
 }
 
 /**
@@ -49,8 +57,13 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
   onSync,
   isSyncing = false,
   jerseyNumber,
+  searchTerm,
+  onSearchChange,
 }) => {
   const navigate = useNavigate();
+  const [isSearchExpanded, setIsSearchExpanded] = React.useState(false);
+
+  const showSearch = onSearchChange !== undefined;
 
   return (
     <Box
@@ -218,10 +231,68 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
           top: 16,
           right: 16,
           display: "flex",
+          alignItems: "center",
           gap: 1,
+          zIndex: 10,
         }}
       >
-        {onSync && (
+        {showSearch && (
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              transition: "all 0.3s ease",
+              width: isSearchExpanded ? { xs: "160px", sm: "240px" } : "40px",
+              overflow: "hidden",
+              bgcolor: isSearchExpanded
+                ? "rgba(255,255,255,0.15)"
+                : "transparent",
+              borderRadius: "20px",
+              pr: isSearchExpanded ? 1 : 0,
+            }}
+          >
+            <IconButton
+              onClick={() => setIsSearchExpanded(!isSearchExpanded)}
+              sx={{ color: "white", flexShrink: 0 }}
+            >
+              {isSearchExpanded && !searchTerm ? (
+                <CloseIcon fontSize="small" />
+              ) : (
+                <SearchIcon />
+              )}
+            </IconButton>
+            {isSearchExpanded && (
+              <TextField
+                autoFocus
+                variant="standard"
+                placeholder="Search..."
+                value={searchTerm || ""}
+                onChange={(e) => onSearchChange(e.target.value)}
+                InputProps={{
+                  disableUnderline: true,
+                  sx: {
+                    color: "white",
+                    fontSize: "0.9rem",
+                    width: "100%",
+                  },
+                  endAdornment: searchTerm ? (
+                    <InputAdornment position="end">
+                      <IconButton
+                        size="small"
+                        onClick={() => onSearchChange("")}
+                        sx={{ color: "rgba(255,255,255,0.7)" }}
+                      >
+                        <CloseIcon fontSize="inherit" />
+                      </IconButton>
+                    </InputAdornment>
+                  ) : null,
+                }}
+                sx={{ width: "100%" }}
+              />
+            )}
+          </Box>
+        )}
+        {onSync && !isSearchExpanded && (
           <Button
             variant="outlined"
             size="small"
@@ -238,12 +309,13 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                 borderColor: "white",
                 bgcolor: "rgba(255,255,255,0.1)",
               },
+              display: { xs: "none", sm: "flex" },
             }}
           >
             {isSyncing ? "Syncing..." : "Sync"}
           </Button>
         )}
-        {actions}
+        {!isSearchExpanded && actions}
       </Box>
     </Box>
   );

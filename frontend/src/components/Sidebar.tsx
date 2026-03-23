@@ -26,6 +26,7 @@ import {
   DialogContentText,
   DialogActions,
   Button,
+  Stack,
 } from "@mui/material";
 import {
   Menu as MenuIcon,
@@ -39,11 +40,88 @@ import {
   SportsBasketball as BasketballIcon,
   Wifi as OnlineIcon,
   WifiOff as OfflineIcon,
+  Settings as SettingsIcon,
 } from "@mui/icons-material";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { syncService } from "../utils/syncService";
 import { Refresh as SyncingIcon, CloudSync } from "@mui/icons-material";
+
+/**
+ * Navigation item component that expands on hover or when selected.
+ * @param root0
+ * @param root0.item
+ * @param root0.isSelected
+ * @param root0.onClick
+ */
+const NavItem: React.FC<{
+  item: { text: string; icon: React.ReactNode; path: string };
+  isSelected: boolean;
+  onClick?: () => void;
+}> = ({ item, isSelected, onClick }) => {
+  const [isHovered, setIsHovered] = useState(false);
+  const expanded = isHovered || isSelected;
+
+  return (
+    <ListItemButton
+      component={Link}
+      to={item.path}
+      onClick={onClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      sx={{
+        minHeight: 40,
+        px: expanded ? 2 : 1.5,
+        borderRadius: "20px",
+        bgcolor: isSelected ? "rgba(255,255,255,0.15)" : "transparent",
+        color: isSelected ? "secondary.main" : "rgba(255,255,255,0.7)",
+        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+        mx: 0.5,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        "&:hover": {
+          bgcolor: isSelected
+            ? "rgba(255,255,255,0.2)"
+            : "rgba(255,255,255,0.1)",
+          color: "white",
+        },
+      }}
+    >
+      <ListItemIcon
+        sx={{
+          minWidth: 0,
+          mr: expanded ? 1.5 : 0,
+          justifyContent: "center",
+          color: "inherit",
+          transition: "margin 0.3s ease-in-out",
+        }}
+      >
+        {item.icon}
+      </ListItemIcon>
+      <Box
+        sx={{
+          width: expanded ? "auto" : 0,
+          maxWidth: expanded ? 200 : 0,
+          opacity: expanded ? 1 : 0,
+          overflow: "hidden",
+          transition: "all 0.3s ease-in-out",
+          whiteSpace: "nowrap",
+        }}
+      >
+        <Typography
+          variant="body2"
+          sx={{
+            fontWeight: isSelected ? 700 : 500,
+            fontFamily: "var(--serif)",
+          }}
+        >
+          {item.text}
+        </Typography>
+      </Box>
+    </ListItemButton>
+  );
+};
 
 const drawerWidth = 240;
 const collapsedDrawerWidth = 72;
@@ -51,6 +129,7 @@ const collapsedDrawerWidth = 72;
 /**
  * Sidebar component that provides navigation links and system status indicators.
  * Adapts to mobile screens by transforming into a bottom drawer.
+ * Now functions as a Top Navigation bar on desktop.
  *
  * @returns {React.ReactElement}
  */
@@ -123,9 +202,14 @@ const Sidebar: React.FC = () => {
   // Configuration for main navigation items
   const menuItems = [
     { text: "Dashboard", icon: <DashboardIcon />, path: "/" },
-    { text: "Players", icon: <PlayersIcon />, path: "/players" },
     { text: "Teams", icon: <TeamsIcon />, path: "/teams" },
+    { text: "Players", icon: <PlayersIcon />, path: "/players" },
     { text: "Games", icon: <GamesIcon />, path: "/games" },
+  ];
+
+  const mobileMenuItems = [
+    ...menuItems,
+    { text: "Settings", icon: <SettingsIcon />, path: "/settings" },
   ];
 
   const drawerContent = (
@@ -133,216 +217,92 @@ const Sidebar: React.FC = () => {
       sx={{
         height: "100%",
         display: "flex",
-        flexDirection: "column",
-        bgcolor: "primary.main",
+        flexDirection: isMobile ? "column" : "row",
+        alignItems: "center",
+        bgcolor: "primary.dark",
         color: "primary.contrastText",
+        px: { xs: 2, md: 4 },
+        width: "100%",
       }}
     >
       <Box
         sx={{
-          p: 2,
           display: "flex",
           alignItems: "center",
-          justifyContent: open ? "space-between" : "center",
-          minHeight: 64,
+          gap: 1.5,
+          p: isMobile ? 2 : 0,
+          width: isMobile ? "100%" : "200px",
+          justifyContent: isMobile ? "center" : "flex-start",
         }}
       >
-        {open && (
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-            <Box
-              component="img"
-              src="/logo.svg"
-              sx={{ width: 32, height: 32 }}
-            />
-            <Typography
-              variant="h6"
-              noWrap
-              sx={{ fontFamily: "var(--serif)", color: "inherit" }}
-            >
-              Scorebook
-            </Typography>
-          </Box>
-        )}
-        {!open && (
-          <Box component="img" src="/logo.svg" sx={{ width: 32, height: 32 }} />
-        )}
-        {open && !isMobile && (
-          <IconButton onClick={toggleDrawer} sx={{ color: "inherit" }}>
-            <ChevronLeftIcon />
-          </IconButton>
-        )}
+        <Box component="img" src="/logo.svg" sx={{ width: 32, height: 32 }} />
+        <Typography
+          variant="h6"
+          noWrap
+          sx={{ fontFamily: "var(--serif)", color: "inherit", fontWeight: 700 }}
+        >
+          Scorebook
+        </Typography>
       </Box>
 
-      <Divider sx={{ bgcolor: "rgba(255,255,255,0.1)" }} />
+      {isMobile && (
+        <Divider sx={{ width: "100%", bgcolor: "rgba(255,255,255,0.1)" }} />
+      )}
 
-      <List sx={{ flexGrow: 1, px: 1 }}>
-        {menuItems.map((item) => (
-          <ListItem
-            key={item.text}
-            disablePadding
-            sx={{ display: "block", mb: 0.5 }}
-          >
-            <Tooltip title={!open ? item.text : ""} placement="right">
+      <Box
+        sx={{
+          flexGrow: 1,
+          display: "flex",
+          flexDirection: isMobile ? "column" : "row",
+          width: isMobile ? "100%" : "auto",
+          justifyContent: "center",
+          p: isMobile ? 1 : 0,
+        }}
+      >
+        {(isMobile ? mobileMenuItems : menuItems).map((item) =>
+          isMobile ? (
+            <ListItem key={item.text} disablePadding sx={{ mb: 0.5 }}>
               <ListItemButton
                 component={Link}
                 to={item.path}
-                onClick={() => {
-                  if (isMobile) setOpen(false);
-                }}
+                onClick={() => setOpen(false)}
                 sx={{
-                  minHeight: 48,
-                  justifyContent: open ? "initial" : "center",
-                  px: 2.5,
                   borderRadius: 1,
                   bgcolor:
                     location.pathname === item.path
                       ? "rgba(255,255,255,0.1)"
                       : "transparent",
-                  "&:hover": {
-                    bgcolor: "rgba(255,255,255,0.2)",
-                  },
                 }}
               >
-                <ListItemIcon
-                  sx={{
-                    minWidth: 0,
-                    mr: open ? 3 : "auto",
-                    justifyContent: "center",
-                    color:
-                      location.pathname === item.path
-                        ? "secondary.main"
-                        : "inherit",
-                  }}
-                >
+                <ListItemIcon sx={{ color: "inherit", minWidth: 40 }}>
                   {item.icon}
                 </ListItemIcon>
-                {open && (
-                  <ListItemText primary={item.text} sx={{ opacity: 1 }} />
-                )}
+                <ListItemText primary={item.text} />
               </ListItemButton>
-            </Tooltip>
-          </ListItem>
-        ))}
-      </List>
+            </ListItem>
+          ) : (
+            <NavItem
+              key={item.text}
+              item={item}
+              isSelected={location.pathname === item.path}
+            />
+          ),
+        )}
+      </Box>
 
-      <Divider sx={{ bgcolor: "rgba(255,255,255,0.1)" }} />
-
-      <List sx={{ px: 1 }}>
-        <ListItem disablePadding sx={{ display: "block", mb: 0.5 }}>
-          <Tooltip
-            title={!open ? (isOnline ? "Online" : "Offline") : ""}
-            placement="right"
-          >
-            <ListItemButton
-              onClick={() => {
-                if (isOnline) {
-                  syncService.pushUpdates();
-                  syncService.pullAll();
-                }
-              }}
-              sx={{
-                minHeight: 48,
-                justifyContent: open ? "initial" : "center",
-                px: 2.5,
-                borderRadius: 1,
-              }}
-            >
-              <ListItemIcon
-                sx={{
-                  minWidth: 0,
-                  mr: open ? 3 : "auto",
-                  justifyContent: "center",
-                  color: isSyncing
-                    ? "secondary.main"
-                    : isOnline
-                      ? "success.light"
-                      : "error.light",
-                }}
-              >
-                {isSyncing ? (
-                  <BasketballIcon className="spin" />
-                ) : isOnline ? (
-                  <OnlineIcon className="hover-grow" />
-                ) : (
-                  <OfflineIcon className="sync-pulse" />
-                )}
-              </ListItemIcon>
-              {open && (
-                <ListItemText
-                  primary={
-                    isSyncing ? "Syncing..." : isOnline ? "Online" : "Offline"
-                  }
-                  secondary={open ? "System Status" : ""}
-                  secondaryTypographyProps={{
-                    sx: { color: "rgba(255,255,255,0.5)", fontSize: "0.7rem" },
-                  }}
-                />
-              )}
-            </ListItemButton>
-          </Tooltip>
-        </ListItem>
-        <ListItem disablePadding sx={{ display: "block", mb: 0.5 }}>
-          <ListItemButton
-            sx={{
-              minHeight: 48,
-              justifyContent: open ? "initial" : "center",
-              px: 2.5,
-              borderRadius: 1,
-            }}
-          >
-            <ListItemIcon
-              sx={{
-                minWidth: 0,
-                mr: open ? 3 : "auto",
-                justifyContent: "center",
-                color: "inherit",
-              }}
-            >
-              <PersonIcon />
-            </ListItemIcon>
-            {open && <ListItemText primary="Profile" />}
-          </ListItemButton>
-        </ListItem>
-        <ListItem disablePadding sx={{ display: "block" }}>
-          <ListItemButton
-            onClick={handleLogoutClick}
-            sx={{
-              minHeight: 48,
-              justifyContent: open ? "initial" : "center",
-              px: 2.5,
-              borderRadius: 1,
-              "&:hover": {
-                bgcolor: "error.main",
-              },
-            }}
-          >
-            <ListItemIcon
-              sx={{
-                minWidth: 0,
-                mr: open ? 3 : "auto",
-                justifyContent: "center",
-                color: "inherit",
-              }}
-            >
-              <LogoutIcon />
-            </ListItemIcon>
-            {open && <ListItemText primary="Logout" />}
-          </ListItemButton>
-        </ListItem>
-      </List>
-
-      {!open && !isMobile && (
-        <IconButton
-          onClick={toggleDrawer}
-          sx={{
-            color: "inherit",
-            alignSelf: "center",
-            mb: 2,
-            bgcolor: "rgba(255,255,255,0.05)",
-          }}
+      {!isMobile && (
+        <Box
+          sx={{ display: "flex", justifyContent: "flex-end", width: "200px" }}
         >
-          <MenuIcon />
-        </IconButton>
+          <NavItem
+            item={{
+              text: "Settings",
+              icon: <SettingsIcon />,
+              path: "/settings",
+            }}
+            isSelected={location.pathname === "/settings"}
+          />
+        </Box>
       )}
     </Box>
   );
@@ -369,54 +329,13 @@ const Sidebar: React.FC = () => {
     </Dialog>
   );
 
-  if (isMobile) {
-    return (
-      <>
-        <IconButton
-          onClick={toggleDrawer}
-          sx={{
-            position: "fixed",
-            bottom: "calc(32px + env(safe-area-inset-bottom))",
-            left: 16,
-            zIndex: theme.zIndex.drawer + 1,
-            bgcolor: "primary.main",
-            color: "white",
-            boxShadow: 4,
-            width: 56,
-            height: 56,
-            "&:hover": { bgcolor: "primary.dark", transform: "scale(1.1)" },
-          }}
-        >
-          <MenuIcon />
-        </IconButton>
-        <Drawer
-          anchor="bottom"
-          open={open}
-          onClose={toggleDrawer}
-          PaperProps={{
-            sx: {
-              borderTopLeftRadius: 24,
-              borderTopRightRadius: 24,
-              height: "auto",
-              maxHeight: "90%",
-              pb: "env(safe-area-inset-bottom)",
-            },
-          }}
-        >
-          {drawerContent}
-        </Drawer>
-        {logoutDialog}
-      </>
-    );
-  }
-
   return (
     <>
-      {isSyncing && (
+      {isSyncing && !isMobile && (
         <Box
           sx={{
             position: "fixed",
-            top: 16,
+            top: 80,
             right: 16,
             zIndex: 9999,
             display: "flex",
@@ -441,26 +360,67 @@ const Sidebar: React.FC = () => {
           </Typography>
         </Box>
       )}
-      <Drawer
-        variant="permanent"
-        open={open}
-        sx={{
-          width: open ? drawerWidth : collapsedDrawerWidth,
-          flexShrink: 0,
-          "& .MuiDrawer-paper": {
-            width: open ? drawerWidth : collapsedDrawerWidth,
-            boxSizing: "border-box",
-            transition: theme.transitions.create("width", {
-              easing: theme.transitions.easing.sharp,
-              duration: theme.transitions.duration.enteringScreen,
-            }),
-            overflowX: "hidden",
-            border: "none",
-          },
-        }}
-      >
-        {drawerContent}
-      </Drawer>
+
+      {!isMobile && (
+        <Box
+          sx={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            height: 72,
+            bgcolor: "primary.dark",
+            zIndex: theme.zIndex.appBar,
+            boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
+            display: "flex",
+            justifyContent: "center",
+          }}
+        >
+          {drawerContent}
+        </Box>
+      )}
+
+      {isMobile && (
+        <Box
+          sx={{
+            position: "fixed",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: "calc(64px + env(safe-area-inset-bottom))",
+            bgcolor: "primary.dark",
+            zIndex: theme.zIndex.appBar,
+            display: "flex",
+            justifyContent: "space-around",
+            alignItems: "center",
+            pb: "env(safe-area-inset-bottom)",
+            boxShadow: "0 -4px 20px rgba(0,0,0,0.2)",
+          }}
+        >
+          {mobileMenuItems.map((item) => (
+            <IconButton
+              key={item.text}
+              component={Link}
+              to={item.path}
+              sx={{
+                color:
+                  location.pathname === item.path
+                    ? "secondary.main"
+                    : "rgba(255,255,255,0.6)",
+                flexDirection: "column",
+                gap: 0.5,
+                borderRadius: 2,
+                "&:hover": { bgcolor: "rgba(255,255,255,0.1)" },
+              }}
+            >
+              {item.icon}
+              <Typography variant="caption" sx={{ fontSize: "0.6rem" }}>
+                {item.text}
+              </Typography>
+            </IconButton>
+          ))}
+        </Box>
+      )}
       {logoutDialog}
     </>
   );

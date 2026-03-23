@@ -151,18 +151,11 @@ const Teams: React.FC = () => {
         icon={<TeamsIcon />}
         subtitle="Manage your basketball teams"
         backTo="/"
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
       />
 
       <Box sx={{ mt: 4 }}>
-        <TextField
-          fullWidth
-          variant="outlined"
-          placeholder="Filter teams by name..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          sx={{ mb: 4, bgcolor: "white", borderRadius: 1 }}
-        />
-
         {filteredTeams.length === 0 && (
           <Typography
             color="text.secondary"

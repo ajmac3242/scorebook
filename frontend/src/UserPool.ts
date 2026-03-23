@@ -11,8 +11,8 @@ import { CognitoUserPool } from "amazon-cognito-identity-js";
  * Values are pulled from environment variables.
  */
 const poolData = {
-  UserPoolId: import.meta.env.VITE_USER_POOL_ID,
-  ClientId: import.meta.env.VITE_CLIENT_ID,
+  UserPoolId: import.meta.env.VITE_USER_POOL_ID || "us-east-1_mockpool",
+  ClientId: import.meta.env.VITE_CLIENT_ID || "mock-client-id",
 };
 
 /**
