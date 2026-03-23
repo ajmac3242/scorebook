@@ -28,6 +28,7 @@ const Settings: React.FC = () => {
   const { logout } = useAuth();
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
@@ -46,6 +47,49 @@ const Settings: React.FC = () => {
       clearInterval(interval);
     };
   }, []);
+
+  /**
+   * Handles the logout button click.
+   * If there are unsynced changes, a warning dialog is shown.
+   */
+  const handleLogoutClick = async () => {
+    const hasUnsynced = await syncService.hasUnsyncedChanges();
+    if (hasUnsynced) {
+      setLogoutDialogOpen(true);
+    } else {
+      logout();
+    }
+  };
+
+  /**
+   * Confirms and executes the logout action from the dialog.
+   */
+  const confirmLogout = () => {
+    setLogoutDialogOpen(false);
+    logout();
+  };
+
+  const logoutDialog = (
+    <Dialog open={logoutDialogOpen} onClose={() => setLogoutDialogOpen(false)}>
+      <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
+        Unsynced Changes
+      </DialogTitle>
+      <DialogContent>
+        <DialogContentText>
+          You have data that hasn't been synced to the server yet. If you logout
+          now, these changes may be lost. Are you sure you want to logout?
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions sx={{ p: 2 }}>
+        <Button onClick={() => setLogoutDialogOpen(false)} color="inherit">
+          Cancel
+        </Button>
+        <Button onClick={confirmLogout} color="error" variant="contained">
+          Logout Anyway
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
 
   return (
     <Box sx={{ pb: 8 }}>
@@ -145,13 +189,14 @@ const Settings: React.FC = () => {
             fullWidth
             size="large"
             startIcon={<LogoutIcon />}
-            onClick={logout}
+            onClick={handleLogoutClick}
             sx={{ borderRadius: 2 }}
           >
             Logout
           </Button>
         </Paper>
       </Box>
+      {logoutDialog}
     </Box>
   );
 };

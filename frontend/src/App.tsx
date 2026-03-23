@@ -22,7 +22,6 @@ import PlayerStats from "./pages/PlayerStats";
 import GameStats from "./pages/GameStats";
 import Teams from "./pages/Teams";
 import TeamStats from "./pages/TeamStats";
-import Games from "./pages/Games";
 import Settings from "./pages/Settings";
 import Navigation from "./components/Navigation";
 import { Navigate } from "react-router-dom";
@@ -142,14 +141,6 @@ const AppContent: React.FC = () => {
               element={
                 <ProtectedRoute>
                   <Teams />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/games"
-              element={
-                <ProtectedRoute>
-                  <Games />
                 </ProtectedRoute>
               }
             />

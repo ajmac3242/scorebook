@@ -8,44 +8,22 @@
 import React, { useState, useEffect } from "react";
 import {
   Box,
-  Drawer,
-  List,
-  ListItem,
   ListItemButton,
   ListItemIcon,
-  ListItemText,
   IconButton,
   Typography,
-  Divider,
-  Tooltip,
   useTheme,
   useMediaQuery,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
-  Button,
-  Stack,
 } from "@mui/material";
 import {
-  Menu as MenuIcon,
-  ChevronLeft as ChevronLeftIcon,
   Dashboard as DashboardIcon,
   People as PlayersIcon,
   Groups as TeamsIcon,
-  SportsBasketball as GamesIcon,
-  Logout as LogoutIcon,
-  Person as PersonIcon,
   SportsBasketball as BasketballIcon,
-  Wifi as OnlineIcon,
-  WifiOff as OfflineIcon,
   Settings as SettingsIcon,
 } from "@mui/icons-material";
 import { Link, useLocation } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
 import { syncService } from "../utils/syncService";
-import { Refresh as SyncingIcon, CloudSync } from "@mui/icons-material";
 
 /**
  * Navigation item component that expands on hover or when selected.
@@ -152,7 +130,6 @@ const Navigation: React.FC = () => {
     { text: "Dashboard", icon: <DashboardIcon />, path: "/" },
     { text: "Teams", icon: <TeamsIcon />, path: "/teams" },
     { text: "Players", icon: <PlayersIcon />, path: "/players" },
-    { text: "Games", icon: <GamesIcon />, path: "/games" },
   ];
 
   const mobileMenuItems = [
