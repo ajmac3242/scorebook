@@ -30,7 +30,7 @@ interface EntityBannerProps {
 }
 
 /**
- * Standardized banner component for entities (Teams, Players, Seasons).
+ * Standardized banner component for entities (Teams, Players).
  * Includes an avatar or icon, title, subtitle, stats summary, and action buttons.
  *
  * @param {EntityBannerProps} props - Component props.

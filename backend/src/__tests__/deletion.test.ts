@@ -55,22 +55,6 @@ describe("Lambda Handler - Deletion & Archiving", () => {
     isBase64Encoded: false,
   });
 
-  it("DELETE /seasons/:id soft deletes a season", async () => {
-    ddbMock.on(UpdateCommand).resolves({});
-    const event = createEvent("DELETE", "/seasons/s1");
-    const response: any = await handler(event);
-    expect(response.statusCode).toBe(200);
-    const body = JSON.parse(response.body);
-    expect(body.deletedAt).toBeDefined();
-  });
-
-  it("PATCH /seasons/:id restores a season", async () => {
-    ddbMock.on(UpdateCommand).resolves({});
-    const event = createEvent("PATCH", "/seasons/s1", { deletedAt: null });
-    const response: any = await handler(event);
-    expect(response.statusCode).toBe(200);
-  });
-
   it("DELETE /teams/:id soft deletes a team and deletes snapshots", async () => {
     ddbMock.on(UpdateCommand).resolves({});
     s3Mock.on(DeleteObjectCommand).resolves({});
@@ -91,14 +75,14 @@ describe("Lambda Handler - Deletion & Archiving", () => {
     expect(updateInput.UpdateExpression).toContain("isArchived = :a");
   });
 
-  it("GET /seasons filters out soft-deleted items", async () => {
+  it("GET /teams filters out soft-deleted items", async () => {
     ddbMock.on(QueryCommand).resolves({
       Items: [
-        { id: "s1", name: "Active" },
-        { id: "s2", name: "Deleted", deletedAt: "2023-01-01" },
+        { id: "t1", name: "Active" },
+        { id: "t2", name: "Deleted", deletedAt: "2023-01-01" },
       ],
     });
-    const event = createEvent("GET", "/seasons");
+    const event = createEvent("GET", "/teams");
     const response: any = await handler(event);
     expect(JSON.parse(response.body).length).toBe(1);
   });

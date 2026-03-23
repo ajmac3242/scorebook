@@ -83,14 +83,6 @@ const GameStats: React.FC = () => {
     [game?.teamId],
   );
 
-  const season = useLiveQuery(
-    () =>
-      team?.seasonId
-        ? db.seasons.get(team.seasonId)
-        : Promise.resolve(undefined),
-    [team?.seasonId],
-  );
-
   const teamPlayersResult = useLiveQuery(
     () =>
       game?.teamId
@@ -225,8 +217,8 @@ const GameStats: React.FC = () => {
     }
   };
 
-  const periodLabel = season?.periodType === "HALVES" ? "Half" : "Quarter";
-  const maxPeriod = season?.periodType === "HALVES" ? 2 : 4;
+  const periodLabel = team?.periodType === "HALVES" ? "Half" : "Quarter";
+  const maxPeriod = team?.periodType === "HALVES" ? 2 : 4;
   const periods = useMemo(() => {
     const p = ["ALL"];
     for (let i = 1; i <= maxPeriod; i++) p.push(i.toString());
@@ -444,8 +436,7 @@ const GameStats: React.FC = () => {
     </ResponsiveContainer>
   );
 
-  const isDeleted =
-    !!game?.deletedAt || !!team?.deletedAt || !!season?.deletedAt;
+  const isDeleted = !!game?.deletedAt || !!team?.deletedAt;
 
   return (
     <Box sx={{ pb: 4, opacity: isDeleted ? 0.7 : 1 }}>
@@ -463,7 +454,7 @@ const GameStats: React.FC = () => {
               >
                 Delete Game
               </Button>
-            ) : game?.deletedAt && !team?.deletedAt && !season?.deletedAt ? (
+            ) : game?.deletedAt && !team?.deletedAt ? (
               <Button
                 startIcon={<Restore />}
                 variant="contained"
@@ -482,7 +473,7 @@ const GameStats: React.FC = () => {
           <AlertTitle>Read Only Mode</AlertTitle>
           {game?.deletedAt
             ? `This game is scheduled for deletion in ${timeLeft}.`
-            : "The associated team or season is pending deletion."}
+            : "The associated team is pending deletion."}
         </Alert>
       )}
 

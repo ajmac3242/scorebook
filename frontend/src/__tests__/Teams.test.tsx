@@ -12,8 +12,7 @@ import { db } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
 
 describe("Teams Component", () => {
-  const mockSeasons = [{ id: "s1", name: "Season 1" }];
-  const mockTeams = [{ id: "t1", name: "Team 1", seasonId: "s1" }];
+  const mockTeams = [{ id: "t1", name: "Team 1", description: "Test Team" }];
   const mockPlayers = [{ id: "p1", name: "Player 1", avatarColor: "#4E7D5B" }];
   const mockTeamPlayers = [{ id: "tp1", teamId: "t1", playerId: "p1" }];
 
@@ -21,7 +20,6 @@ describe("Teams Component", () => {
     vi.clearAllMocks();
     (useLiveQuery as any).mockImplementation((cb) => {
       const code = cb.toString();
-      if (code.includes("seasons")) return mockSeasons;
       if (code.includes("teams")) return mockTeams;
       if (code.includes("players") && !code.includes("teamPlayers"))
         return mockPlayers;
@@ -30,14 +28,7 @@ describe("Teams Component", () => {
     });
   });
 
-  const selectSeason = async () => {
-    const comboboxes = screen.getAllByRole("combobox");
-    fireEvent.mouseDown(comboboxes[0]);
-    const option = await screen.findByRole("option", { name: "Season 1" });
-    fireEvent.click(option);
-  };
-
-  it("renders Teams page and selects season", async () => {
+  it("renders Teams page", async () => {
     render(
       <BrowserRouter>
         <Teams />
@@ -48,15 +39,8 @@ describe("Teams Component", () => {
       screen.getByRole("heading", { name: /^Teams$/i, level: 3 }),
     ).toBeInTheDocument();
 
-    await selectSeason();
-
-    expect(
-      await screen.findByRole("heading", {
-        name: /^Teams$/i,
-        level: 3,
-      }),
-    ).toBeInTheDocument();
     expect(screen.getByText("Team 1")).toBeInTheDocument();
+    expect(screen.getByText("Test Team")).toBeInTheDocument();
   });
 
   it("handles fetch errors", async () => {
@@ -64,7 +48,7 @@ describe("Teams Component", () => {
 
     (useLiveQuery as any).mockImplementation((cb) => {
       const code = cb.toString();
-      if (code.includes("seasons")) {
+      if (code.includes("teams")) {
         cb().catch(() => {});
       }
       return [];
@@ -80,7 +64,7 @@ describe("Teams Component", () => {
 
     await waitFor(() => {
       expect(consoleSpy).toHaveBeenCalledWith(
-        "Failed to fetch seasons:",
+        "Failed to fetch teams:",
         expect.any(Error),
       );
     });

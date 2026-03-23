@@ -36,38 +36,22 @@ import { Avatar } from "@mui/material";
 
 const Games: React.FC = () => {
   const navigate = useNavigate();
-  const [selectedSeasonId, setSelectedSeasonId] = useState<string>("");
   const [selectedTeamId, setSelectedTeamId] = useState<string>("");
   const [open, setOpen] = useState(false);
   const [opponent, setOpponent] = useState("");
   const [date, setDate] = useState("");
   const [location, setLocation] = useState("");
 
-  const seasons =
-    useLiveQuery(async () => {
-      try {
-        await db.open();
-        return await db.seasons.toArray();
-      } catch (error) {
-        console.error("Failed to fetch seasons:", error);
-        return [];
-      }
-    }) || [];
-
   const teams =
     useLiveQuery(async () => {
       try {
         await db.open();
-        if (!selectedSeasonId) return await db.teams.toArray();
-        return await db.teams
-          .where("seasonId")
-          .equals(selectedSeasonId)
-          .toArray();
+        return await db.teams.toArray();
       } catch (error) {
         console.error("Failed to fetch teams:", error);
         return [];
       }
-    }, [selectedSeasonId]) || [];
+    }) || [];
 
   const games =
     useLiveQuery(async () => {
@@ -153,26 +137,6 @@ const Games: React.FC = () => {
         spacing={2}
         sx={{ mb: 3, mt: 4 }}
       >
-        <FormControl fullWidth variant="outlined">
-          <InputLabel>Filter by Season</InputLabel>
-          <Select
-            value={selectedSeasonId}
-            onChange={(e) => {
-              setSelectedSeasonId(e.target.value as string);
-              setSelectedTeamId("");
-            }}
-            label="Filter by Season"
-          >
-            <MenuItem value="">
-              <em>All Seasons</em>
-            </MenuItem>
-            {seasons.map((s) => (
-              <MenuItem key={s.id} value={s.id?.toString()}>
-                {s.name}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
         <FormControl fullWidth variant="outlined">
           <InputLabel>Select Team</InputLabel>
           <Select

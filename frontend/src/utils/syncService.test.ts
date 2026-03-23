@@ -6,15 +6,6 @@ import { db } from "../db";
 vi.mock("../db", () => ({
   db: {
     transaction: vi.fn((_mode, _tables, cb) => cb()),
-    seasons: {
-      put: vi.fn(),
-      where: vi.fn().mockReturnThis(),
-      equals: vi.fn().mockReturnThis(),
-      toArray: vi.fn().mockResolvedValue([]),
-      count: vi.fn().mockResolvedValue(0),
-      update: vi.fn().mockResolvedValue(1),
-      get: vi.fn().mockResolvedValue(undefined),
-    },
     teams: {
       put: vi.fn(),
       where: vi.fn().mockReturnThis(),
@@ -154,13 +145,12 @@ describe("SyncService", () => {
 
   describe("hasUnsyncedChanges", () => {
     it("returns true if any table has unsynced items", async () => {
-      vi.mocked(db.seasons.count).mockResolvedValue(1);
+      vi.mocked(db.teams.count).mockResolvedValue(1);
       const result = await syncService.hasUnsyncedChanges();
       expect(result).toBe(true);
     });
 
     it("returns false if all tables are synced", async () => {
-      vi.mocked(db.seasons.count).mockResolvedValue(0);
       vi.mocked(db.teams.count).mockResolvedValue(0);
       vi.mocked(db.players.count).mockResolvedValue(0);
       vi.mocked(db.teamPlayers.count).mockResolvedValue(0);
@@ -173,23 +163,6 @@ describe("SyncService", () => {
   });
 
   describe("pushUpdates", () => {
-    it("pushes unsynced seasons and updates local state", async () => {
-      const mockSeason = { id: 1, name: "S1", synced: 0 };
-      vi.mocked(db.seasons.toArray).mockResolvedValue([mockSeason]);
-      fetchMock.mockResolvedValue({ ok: true });
-
-      await syncService.pushUpdates();
-
-      expect(fetchMock).toHaveBeenCalledWith(
-        "/api/seasons",
-        expect.objectContaining({
-          method: "POST",
-          body: JSON.stringify(mockSeason),
-        }),
-      );
-      expect(db.seasons.update).toHaveBeenCalledWith(1, { synced: 1 });
-    });
-
     it("handles game completion", async () => {
       const mockGame = { id: 10, completed: 1, synced: 0 };
       vi.mocked(db.games.toArray).mockResolvedValue([mockGame]);
@@ -209,7 +182,6 @@ describe("SyncService", () => {
     });
 
     it("pushes all entities", async () => {
-      vi.mocked(db.seasons.toArray).mockResolvedValue([{ id: 1, synced: 0 }]);
       vi.mocked(db.teams.toArray).mockResolvedValue([{ id: 2, synced: 0 }]);
       vi.mocked(db.players.toArray).mockResolvedValue([{ id: 3, synced: 0 }]);
       vi.mocked(db.teamPlayers.toArray).mockResolvedValue([
@@ -226,10 +198,6 @@ describe("SyncService", () => {
 
       await syncService.pushUpdates();
 
-      expect(fetchMock).toHaveBeenCalledWith(
-        "/api/seasons",
-        expect.any(Object),
-      );
       expect(fetchMock).toHaveBeenCalledWith("/api/teams", expect.any(Object));
       expect(fetchMock).toHaveBeenCalledWith(
         "/api/players",
@@ -245,7 +213,6 @@ describe("SyncService", () => {
         expect.any(Object),
       );
 
-      expect(db.seasons.update).toHaveBeenCalled();
       expect(db.teams.update).toHaveBeenCalled();
       expect(db.players.update).toHaveBeenCalled();
       expect(db.teamPlayers.update).toHaveBeenCalled();

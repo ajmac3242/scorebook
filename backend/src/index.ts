@@ -51,7 +51,6 @@ const INTERNAL_KEYS = new Set([
  * Helper for generating standardized DynamoDB primary and index keys.
  */
 const Keys = {
-  season: (id: string) => `SEASON#${id}`,
   team: (id: string) => `TEAM#${id}`,
   player: (id: string) => `PLAYER#${id}`,
   game: (id: string) => `GAME#${id}`,
@@ -290,8 +289,7 @@ async function handleTeams(
 ): Promise<APIGatewayProxyResultV2 | null> {
   if (path === "/teams") {
     if (method === "GET") {
-      const seasonId = event.queryStringParameters?.seasonId;
-      return await getItemsByGSI(`SEASON#${seasonId}`, tableName);
+      return await getItems("TEAM", "TEAM", tableName);
     }
     if (method === "POST") {
       if (!body || Object.keys(body).length === 0) {
@@ -300,7 +298,7 @@ async function handleTeams(
       const resp = await createItem(
         "TEAM",
         "METADATA",
-        Keys.season(body?.seasonId),
+        "TEAM",
         body,
         tableName,
       );
@@ -384,46 +382,6 @@ async function handleTeams(
 }
 
 /**
- * Handlers for Seasons endpoints.
- * @param {string} method - HTTP Method.
- * @param {string} path - Request path.
- * @param {any} body - Parsed JSON body.
- * @param {string} tableName - DynamoDB table name.
- * @returns {Promise<APIGatewayProxyResultV2 | null>} The response or null if not handled.
- */
-async function handleSeasons(
-  method: string,
-  path: string,
-  body: any,
-  tableName: string,
-): Promise<APIGatewayProxyResultV2 | null> {
-  if (path === "/seasons") {
-    if (method === "GET") return await getItems("SEASON", "SEASON", tableName);
-    if (method === "POST")
-      return await createItem("SEASON", "METADATA", "SEASON", body, tableName);
-  }
-
-  const match = path.match(/^\/seasons\/([^\/]+)$/);
-  if (match) {
-    const seasonId = match[1];
-    if (method === "DELETE") {
-      return await softDeleteItem("SEASON", "METADATA", seasonId, tableName);
-    }
-    if (method === "PATCH" && body.deletedAt === null) {
-      await docClient.send(
-        new UpdateCommand({
-          TableName: tableName,
-          Key: { PK: Keys.season(seasonId), SK: Keys.metadata(seasonId) },
-          UpdateExpression: "REMOVE deletedAt",
-        }),
-      );
-      return ok({ message: "Season restored" });
-    }
-  }
-  return null;
-}
-
-/**
  * Main Lambda handler function.
  * Handles routing based on HTTP method and path, processes request bodies,
  * and interacts with DynamoDB and S3.
@@ -459,9 +417,6 @@ export const handler = async (
 
   try {
     const TABLE_NAME = process.env.TABLE_NAME || "BasketballStats";
-
-    const seasonsResponse = await handleSeasons(method, path, body, TABLE_NAME);
-    if (seasonsResponse) return seasonsResponse;
 
     const teamsResponse = await handleTeams(
       method,
@@ -841,7 +796,7 @@ async function performHardCleanup(tableName: string) {
       // For now, we'll just implement the logic to delete a specific item if it's old.
       // In a real app, I'd add GSI3 with deletedAt as PK or similar.
       KeyConditionExpression: "GSI1PK = :pk",
-      ExpressionAttributeValues: { ":pk": "SEASON" }, // Just an example
+      ExpressionAttributeValues: { ":pk": "TEAM" }, // Just an example
     }),
   );
 
