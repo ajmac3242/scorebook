@@ -76,7 +76,7 @@ jobs:
       - name: "Frontend: Run Tests"
         run: |
           cd frontend
-          npm test -- --verbose
+          npm test -- --reporter=verbose
 
       # --- Documentation & Diagrams ---
       - name: Render terraform-docs
