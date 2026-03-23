@@ -59,30 +59,27 @@ const NavItem: React.FC<{
   isSelected: boolean;
   onClick?: () => void;
 }> = ({ item, isSelected, onClick }) => {
-  const [isHovered, setIsHovered] = useState(false);
-  const expanded = isHovered || isSelected;
-
   return (
     <ListItemButton
       component={Link}
       to={item.path}
       onClick={onClick}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
       sx={{
-        minHeight: 40,
-        px: expanded ? 2 : 1.5,
-        borderRadius: "20px",
+        minHeight: 44,
+        width: "auto",
+        px: isSelected ? 2 : 1.25,
+        py: 1,
+        borderRadius: "24px",
         bgcolor: isSelected ? "rgba(255,255,255,0.15)" : "transparent",
         color: isSelected ? "secondary.main" : "rgba(255,255,255,0.7)",
         transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-        mx: 0.5,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
+        flexShrink: 0,
         "&:hover": {
           bgcolor: isSelected
-            ? "rgba(255,255,255,0.2)"
+            ? "rgba(255,255,255,0.25)"
             : "rgba(255,255,255,0.1)",
           color: "white",
         },
@@ -91,40 +88,29 @@ const NavItem: React.FC<{
       <ListItemIcon
         sx={{
           minWidth: 0,
-          mr: expanded ? 1.5 : 0,
+          mr: isSelected ? 1 : 0,
           justifyContent: "center",
           color: "inherit",
-          transition: "margin 0.3s ease-in-out",
         }}
       >
         {item.icon}
       </ListItemIcon>
-      <Box
-        sx={{
-          width: expanded ? "auto" : 0,
-          maxWidth: expanded ? 200 : 0,
-          opacity: expanded ? 1 : 0,
-          overflow: "hidden",
-          transition: "all 0.3s ease-in-out",
-          whiteSpace: "nowrap",
-        }}
-      >
+      {isSelected && (
         <Typography
           variant="body2"
           sx={{
-            fontWeight: isSelected ? 700 : 500,
+            fontWeight: 700,
             fontFamily: "var(--serif)",
+            whiteSpace: "nowrap",
+            fontSize: "0.875rem",
           }}
         >
           {item.text}
         </Typography>
-      </Box>
+      )}
     </ListItemButton>
   );
 };
-
-const drawerWidth = 240;
-const collapsedDrawerWidth = 72;
 
 /**
  * Sidebar component that provides navigation links and system status indicators.
@@ -138,9 +124,7 @@ const Sidebar: React.FC = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const { logout } = useAuth();
   const location = useLocation();
-  const [open, setOpen] = useState(!isMobile);
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
-  const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [isSyncing, setIsSyncing] = useState(false);
 
   useEffect(() => {
@@ -149,15 +133,11 @@ const Sidebar: React.FC = () => {
      * Triggers immediate synchronization.
      */
     const handleOnline = () => {
-      setIsOnline(true);
       syncService.pushUpdates();
       syncService.pullAll();
     };
 
-    const handleOffline = () => setIsOnline(false);
-
     window.addEventListener("online", handleOnline);
-    window.addEventListener("offline", handleOffline);
 
     // Poll for the current synchronization status from the sync service
     const interval = setInterval(() => {
@@ -166,17 +146,9 @@ const Sidebar: React.FC = () => {
 
     return () => {
       window.removeEventListener("online", handleOnline);
-      window.removeEventListener("offline", handleOffline);
       clearInterval(interval);
     };
   }, []);
-
-  /**
-   * Toggles the expanded/collapsed state of the drawer.
-   */
-  const toggleDrawer = () => {
-    setOpen(!open);
-  };
 
   /**
    * Handles the logout button click.
@@ -212,17 +184,18 @@ const Sidebar: React.FC = () => {
     { text: "Settings", icon: <SettingsIcon />, path: "/settings" },
   ];
 
-  const drawerContent = (
+  const desktopContent = (
     <Box
       sx={{
         height: "100%",
         display: "flex",
-        flexDirection: isMobile ? "column" : "row",
+        flexDirection: "row",
         alignItems: "center",
-        bgcolor: "primary.dark",
-        color: "primary.contrastText",
-        px: { xs: 2, md: 4 },
+        color: "text.primary",
+        px: 4,
         width: "100%",
+        justifyContent: "space-between",
+        maxWidth: "1400px",
       }}
     >
       <Box
@@ -230,80 +203,69 @@ const Sidebar: React.FC = () => {
           display: "flex",
           alignItems: "center",
           gap: 1.5,
-          p: isMobile ? 2 : 0,
-          width: isMobile ? "100%" : "200px",
-          justifyContent: isMobile ? "center" : "flex-start",
+          width: "200px",
         }}
       >
         <Box component="img" src="/logo.svg" sx={{ width: 32, height: 32 }} />
         <Typography
           variant="h6"
           noWrap
-          sx={{ fontFamily: "var(--serif)", color: "inherit", fontWeight: 700 }}
+          sx={{
+            fontFamily: "var(--serif)",
+            color: "primary.dark",
+            fontWeight: 700,
+          }}
         >
           Scorebook
         </Typography>
       </Box>
 
-      {isMobile && (
-        <Divider sx={{ width: "100%", bgcolor: "rgba(255,255,255,0.1)" }} />
-      )}
-
       <Box
         sx={{
-          flexGrow: 1,
           display: "flex",
-          flexDirection: isMobile ? "column" : "row",
-          width: isMobile ? "100%" : "auto",
-          justifyContent: "center",
-          p: isMobile ? 1 : 0,
+          flexDirection: "row",
+          alignItems: "center",
+          bgcolor: "#121212",
+          borderRadius: "32px",
+          px: 0.75,
+          py: 0.5,
+          gap: 0.5,
+          boxShadow: "0 4px 20px rgba(0,0,0,0.25)",
         }}
       >
-        {(isMobile ? mobileMenuItems : menuItems).map((item) =>
-          isMobile ? (
-            <ListItem key={item.text} disablePadding sx={{ mb: 0.5 }}>
-              <ListItemButton
-                component={Link}
-                to={item.path}
-                onClick={() => setOpen(false)}
-                sx={{
-                  borderRadius: 1,
-                  bgcolor:
-                    location.pathname === item.path
-                      ? "rgba(255,255,255,0.1)"
-                      : "transparent",
-                }}
-              >
-                <ListItemIcon sx={{ color: "inherit", minWidth: 40 }}>
-                  {item.icon}
-                </ListItemIcon>
-                <ListItemText primary={item.text} />
-              </ListItemButton>
-            </ListItem>
-          ) : (
-            <NavItem
-              key={item.text}
-              item={item}
-              isSelected={location.pathname === item.path}
-            />
-          ),
-        )}
+        {menuItems.map((item) => (
+          <NavItem
+            key={item.text}
+            item={item}
+            isSelected={location.pathname === item.path}
+          />
+        ))}
       </Box>
 
-      {!isMobile && (
-        <Box
-          sx={{ display: "flex", justifyContent: "flex-end", width: "200px" }}
+      <Box sx={{ display: "flex", justifyContent: "flex-end", width: "200px" }}>
+        <IconButton
+          component={Link}
+          to="/settings"
+          sx={{
+            color:
+              location.pathname === "/settings"
+                ? "secondary.main"
+                : "primary.main",
+            bgcolor:
+              location.pathname === "/settings"
+                ? "primary.dark"
+                : "transparent",
+            "&:hover": {
+              bgcolor:
+                location.pathname === "/settings"
+                  ? "primary.dark"
+                  : "rgba(0,0,0,0.05)",
+            },
+          }}
         >
-          <NavItem
-            item={{
-              text: "Settings",
-              icon: <SettingsIcon />,
-              path: "/settings",
-            }}
-            isSelected={location.pathname === "/settings"}
-          />
-        </Box>
-      )}
+          <SettingsIcon />
+        </IconButton>
+      </Box>
     </Box>
   );
 
@@ -369,14 +331,13 @@ const Sidebar: React.FC = () => {
             left: 0,
             right: 0,
             height: 72,
-            bgcolor: "primary.dark",
+            bgcolor: "transparent",
             zIndex: theme.zIndex.appBar,
-            boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
             display: "flex",
             justifyContent: "center",
           }}
         >
-          {drawerContent}
+          {desktopContent}
         </Box>
       )}
 
@@ -384,40 +345,29 @@ const Sidebar: React.FC = () => {
         <Box
           sx={{
             position: "fixed",
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: "calc(64px + env(safe-area-inset-bottom))",
-            bgcolor: "primary.dark",
+            bottom: 24,
+            left: "50%",
+            transform: "translateX(-50%)",
+            height: 60,
+            bgcolor: "#121212",
             zIndex: theme.zIndex.appBar,
             display: "flex",
-            justifyContent: "space-around",
+            justifyContent: "center",
             alignItems: "center",
-            pb: "env(safe-area-inset-bottom)",
-            boxShadow: "0 -4px 20px rgba(0,0,0,0.2)",
+            px: 0.75,
+            borderRadius: "32px",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
+            width: "auto",
+            maxWidth: "95vw",
+            gap: 0.25,
           }}
         >
           {mobileMenuItems.map((item) => (
-            <IconButton
+            <NavItem
               key={item.text}
-              component={Link}
-              to={item.path}
-              sx={{
-                color:
-                  location.pathname === item.path
-                    ? "secondary.main"
-                    : "rgba(255,255,255,0.6)",
-                flexDirection: "column",
-                gap: 0.5,
-                borderRadius: 2,
-                "&:hover": { bgcolor: "rgba(255,255,255,0.1)" },
-              }}
-            >
-              {item.icon}
-              <Typography variant="caption" sx={{ fontSize: "0.6rem" }}>
-                {item.text}
-              </Typography>
-            </IconButton>
+              item={item}
+              isSelected={location.pathname === item.path}
+            />
           ))}
         </Box>
       )}
