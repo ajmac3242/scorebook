@@ -119,7 +119,6 @@ class SyncService {
   async hasUnsyncedChanges(): Promise<boolean> {
     try {
       const tables = [
-        db.seasons,
         db.teams,
         db.players,
         db.teamPlayers,
@@ -180,7 +179,6 @@ class SyncService {
     console.log("Starting push updates...");
 
     try {
-      await this.pushEntity(db.seasons, "/api/seasons", "season");
       await this.pushEntity(db.teams, "/api/teams", "team");
       await this.pushEntity(db.players, "/api/players", "player");
       await this.pushEntity<TeamPlayer>(
@@ -392,7 +390,7 @@ class SyncService {
 
   /**
    * Performs a full pull synchronization for the entire application.
-   * Fetches seasons, teams, rosters, and completed game stats.
+   * Fetches teams, rosters, and completed game stats.
    */
   async pullAll() {
     if (this.isSyncing) return;
@@ -400,33 +398,20 @@ class SyncService {
     console.log("Starting full pull sync...");
 
     try {
-      // 1. Pull all Seasons
-      const seasonsRes = await this.fetchApi("/api/seasons");
-      if (seasonsRes.ok) {
-        const seasons = await seasonsRes.json();
-        await db.transaction("rw", [db.seasons], async () => {
-          for (const s of seasons) {
-            await db.seasons.put({ ...s, id: s.id, synced: 1 });
+      // 1. Pull all Teams
+      const teamsRes = await this.fetchApi("/api/teams");
+      if (teamsRes.ok) {
+        const teams = await teamsRes.json();
+        await db.transaction("rw", [db.teams], async () => {
+          for (const t of teams) {
+            await db.teams.put({ ...t, id: t.id, synced: 1 });
           }
         });
 
-        // 2. Pull Teams for each season
-        for (const s of seasons) {
-          const teamsRes = await this.fetchApi(`/api/teams?seasonId=${s.id}`);
-          if (teamsRes.ok) {
-            const teams = await teamsRes.json();
-            await db.transaction("rw", [db.teams], async () => {
-              for (const t of teams) {
-                await db.teams.put({ ...t, id: t.id, synced: 1 });
-              }
-            });
-
-            // 3. Pull Team Details (Roster, Games) for each team
-            for (const t of teams) {
-              await this.syncTeamRoster(t.id);
-              await this.syncTeamGamesList(t.id);
-            }
-          }
+        // 2. Pull Team Details (Roster, Games) for each team
+        for (const t of teams) {
+          await this.syncTeamRoster(t.id);
+          await this.syncTeamGamesList(t.id);
         }
       }
 

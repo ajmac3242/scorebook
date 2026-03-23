@@ -31,7 +31,6 @@ import {
   Menu as MenuIcon,
   ChevronLeft as ChevronLeftIcon,
   Dashboard as DashboardIcon,
-  EventNote as SeasonsIcon,
   People as PlayersIcon,
   Groups as TeamsIcon,
   SportsBasketball as GamesIcon,
@@ -124,7 +123,6 @@ const Sidebar: React.FC = () => {
   // Configuration for main navigation items
   const menuItems = [
     { text: "Dashboard", icon: <DashboardIcon />, path: "/" },
-    { text: "Seasons", icon: <SeasonsIcon />, path: "/seasons" },
     { text: "Players", icon: <PlayersIcon />, path: "/players" },
     { text: "Teams", icon: <TeamsIcon />, path: "/teams" },
     { text: "Games", icon: <GamesIcon />, path: "/games" },
@@ -166,7 +164,11 @@ const Sidebar: React.FC = () => {
           </Box>
         )}
         {!open && (
-          <Box component="img" src="/logo.svg" sx={{ width: 32, height: 32 }} />
+          <Box
+            component="img"
+            src="/logo.svg"
+            sx={{ width: 32, height: 32 }}
+          />
         )}
         {open && !isMobile && (
           <IconButton onClick={toggleDrawer} sx={{ color: "inherit" }}>

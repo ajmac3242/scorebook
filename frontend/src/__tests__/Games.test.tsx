@@ -22,8 +22,7 @@ vi.mock("react-router-dom", async () => {
 });
 
 describe("Games Component", () => {
-  const mockSeasons = [{ id: "s1", name: "Season 1" }];
-  const mockTeams = [{ id: "t1", name: "Team 1", seasonId: "s1" }];
+  const mockTeams = [{ id: "t1", name: "Team 1" }];
   const mockGames = [
     {
       id: "g1",
@@ -40,7 +39,7 @@ describe("Games Component", () => {
 
   const selectTeam = async () => {
     const selects = screen.getAllByRole("combobox");
-    const teamSelect = selects[1];
+    const teamSelect = selects[0];
     fireEvent.mouseDown(teamSelect);
     const listbox = await screen.findByRole("listbox");
     const option = within(listbox).getByText("Team 1");
@@ -50,7 +49,6 @@ describe("Games Component", () => {
   it("renders Games page and selects team", async () => {
     (useLiveQuery as any).mockImplementation((cb) => {
       const code = cb.toString();
-      if (code.includes("seasons")) return mockSeasons;
       if (code.includes("teams")) return mockTeams;
       if (code.includes("games")) return [];
       return [];
@@ -71,32 +69,9 @@ describe("Games Component", () => {
     ).toBeInTheDocument();
   });
 
-  it("filters by season", async () => {
-    (useLiveQuery as any).mockImplementation((cb) => {
-      const code = cb.toString();
-      if (code.includes("seasons")) return mockSeasons;
-      if (code.includes("teams")) return mockTeams;
-      return [];
-    });
-
-    render(
-      <BrowserRouter>
-        <Games />
-      </BrowserRouter>,
-    );
-
-    const seasonSelect = screen.getAllByRole("combobox")[0];
-    fireEvent.mouseDown(seasonSelect);
-    const option = await screen.findByText("Season 1");
-    fireEvent.click(option);
-
-    expect(seasonSelect).toHaveTextContent("Season 1");
-  });
-
   it("adds a new game", async () => {
     (useLiveQuery as any).mockImplementation((cb) => {
       const code = cb.toString();
-      if (code.includes("seasons")) return mockSeasons;
       if (code.includes("teams")) return mockTeams;
       if (code.includes("games")) return [];
       return [];
@@ -135,7 +110,6 @@ describe("Games Component", () => {
   it("navigates to game tracking", async () => {
     (useLiveQuery as any).mockImplementation((cb) => {
       const code = cb.toString();
-      if (code.includes("seasons")) return mockSeasons;
       if (code.includes("teams")) return mockTeams;
       if (code.includes("games")) return mockGames;
       return [];
@@ -172,7 +146,7 @@ describe("Games Component", () => {
 
     await waitFor(() => {
       expect(consoleSpy).toHaveBeenCalledWith(
-        "Failed to fetch seasons:",
+        "Failed to fetch teams:",
         expect.any(Error),
       );
     });
@@ -183,7 +157,6 @@ describe("Games Component", () => {
     (db.games.add as any).mockRejectedValue(new Error("Add error"));
     (useLiveQuery as any).mockImplementation((cb) => {
       const code = cb.toString();
-      if (code.includes("seasons")) return mockSeasons;
       if (code.includes("teams")) return mockTeams;
       return [];
     });

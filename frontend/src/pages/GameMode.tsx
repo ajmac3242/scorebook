@@ -120,13 +120,6 @@ const GameMode: React.FC = () => {
       game?.teamId ? db.teams.get(game.teamId) : Promise.resolve(undefined),
     [game?.teamId],
   );
-  const season = useLiveQuery(
-    () =>
-      team?.seasonId
-        ? db.seasons.get(team.seasonId)
-        : Promise.resolve(undefined),
-    [team?.seasonId],
-  );
 
   // Show summary dialog automatically if game is completed
   useEffect(() => {
@@ -343,9 +336,8 @@ const GameMode: React.FC = () => {
    * @param root0.icon
    */
 
-  const isDeleted =
-    !!game?.deletedAt || !!team?.deletedAt || !!season?.deletedAt;
-  const periodType = season?.periodType || "QUARTERS";
+  const isDeleted = !!game?.deletedAt || !!team?.deletedAt;
+  const periodType = team?.periodType || "QUARTERS";
   const periodLabel = periodType === "HALVES" ? "Half" : "Quarter";
   const maxPeriod = periodType === "HALVES" ? 2 : 4;
 

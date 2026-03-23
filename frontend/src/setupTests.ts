@@ -36,25 +36,17 @@ vi.mock("amazon-cognito-identity-js", () => {
 vi.mock("./db", () => ({
   db: {
     open: vi.fn().mockResolvedValue(null),
-    seasons: {
-      toArray: vi.fn(),
-      add: vi.fn(),
-      get: vi.fn(),
-      update: vi.fn(),
-      where: vi.fn().mockReturnThis(),
-      equals: vi.fn().mockReturnThis(),
-    },
     teams: {
       where: vi.fn().mockReturnThis(),
       equals: vi.fn().mockReturnThis(),
-      toArray: vi.fn(),
+      toArray: vi.fn().mockResolvedValue([]),
       add: vi.fn(),
       get: vi.fn(),
       update: vi.fn(),
       anyOf: vi.fn().mockReturnThis(),
     },
     players: {
-      toArray: vi.fn(),
+      toArray: vi.fn().mockResolvedValue([]),
       add: vi.fn(),
       get: vi.fn(),
       update: vi.fn(),
@@ -64,7 +56,7 @@ vi.mock("./db", () => ({
       toCollection: vi.fn().mockReturnThis(),
     },
     teamPlayers: {
-      toArray: vi.fn(),
+      toArray: vi.fn().mockResolvedValue([]),
       add: vi.fn(),
       where: vi.fn().mockReturnThis(),
       equals: vi.fn().mockReturnThis(),
@@ -75,7 +67,7 @@ vi.mock("./db", () => ({
     games: {
       where: vi.fn().mockReturnThis(),
       equals: vi.fn().mockReturnThis(),
-      toArray: vi.fn(),
+      toArray: vi.fn().mockResolvedValue([]),
       add: vi.fn(),
       get: vi.fn(),
       update: vi.fn(),
@@ -85,7 +77,7 @@ vi.mock("./db", () => ({
       orderBy: vi.fn().mockReturnThis(),
       reverse: vi.fn().mockReturnThis(),
       limit: vi.fn().mockReturnThis(),
-      toArray: vi.fn(),
+      toArray: vi.fn().mockResolvedValue([]),
       add: vi.fn(),
       delete: vi.fn(),
       where: vi.fn().mockReturnThis(),

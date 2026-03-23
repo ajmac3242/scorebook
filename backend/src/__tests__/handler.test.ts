@@ -51,41 +51,13 @@ describe("Lambda Handler", () => {
     isBase64Encoded: false,
   });
 
-  describe("Seasons", () => {
-    it("GET /seasons returns items", async () => {
-      ddbMock.on(QueryCommand).resolves({
-        Items: [{ id: "1", name: "Season 1" }],
-      });
-
-      const event = createEvent("GET", "/seasons");
-      const response: any = await handler(event);
-
-      expect(response.statusCode).toBe(200);
-      expect(JSON.parse(response.body)).toEqual([
-        { id: "1", name: "Season 1" },
-      ]);
-    });
-
-    it("POST /seasons creates an item", async () => {
-      ddbMock.on(PutCommand).resolves({});
-
-      const event = createEvent("POST", "/seasons", { name: "New Season" });
-      const response: any = await handler(event);
-
-      expect(response.statusCode).toBe(201);
-      const body = JSON.parse(response.body);
-      expect(body.name).toBe("New Season");
-      expect(body.id).toBe("test-uuid");
-    });
-  });
-
   describe("Teams", () => {
-    it("GET /teams returns items for a season", async () => {
+    it("GET /teams returns items", async () => {
       ddbMock.on(QueryCommand).resolves({
         Items: [{ id: "t1", name: "Team 1" }],
       });
 
-      const event = createEvent("GET", "/teams", null, { seasonId: "s1" });
+      const event = createEvent("GET", "/teams");
       const response: any = await handler(event);
 
       expect(response.statusCode).toBe(200);
@@ -102,7 +74,6 @@ describe("Lambda Handler", () => {
 
       const event = createEvent("POST", "/teams", {
         name: "New Team",
-        seasonId: "s1",
       });
       const response: any = await handler(event);
 
@@ -216,26 +187,18 @@ describe("Lambda Handler", () => {
   it("returns 500 on error", async () => {
     ddbMock.on(QueryCommand).rejects(new Error("DDB Error"));
 
-    const event = createEvent("GET", "/seasons");
+    const event = createEvent("GET", "/players");
     const response: any = await handler(event);
 
     expect(response.statusCode).toBe(500);
   });
 
   describe("Edge Cases", () => {
-    it("POST /seasons with malformed JSON returns 400", async () => {
-      const event: any = createEvent("POST", "/seasons");
+    it("POST /players with malformed JSON returns 400", async () => {
+      const event: any = createEvent("POST", "/players");
       event.body = "invalid-json";
       const response: any = await handler(event);
       expect(response.statusCode).toBe(400);
-    });
-
-    it("GET /teams without seasonId returns empty if DDB query handles it", async () => {
-      ddbMock.on(QueryCommand).resolves({ Items: [] });
-      const event = createEvent("GET", "/teams");
-      const response: any = await handler(event);
-      expect(response.statusCode).toBe(200);
-      expect(JSON.parse(response.body)).toEqual([]);
     });
 
     it("POST /teams with null body handled gracefully", async () => {

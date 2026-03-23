@@ -30,7 +30,6 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { calculatePlayerAggregates } from "../utils/stats";
 import { MoleskineCard, StatCard } from "../components/SharedUI";
 import EntityBanner from "../components/EntityBanner";
-import { useSeasons } from "../hooks/useSeasons";
 import { useTeams } from "../hooks/useTeams";
 import { AVATAR_COLORS } from "../constants/colors";
 import { Warning, Edit as EditIcon } from "@mui/icons-material";
@@ -39,7 +38,7 @@ import IconButton from "@mui/material/IconButton";
 
 /**
  * PlayerStats page component.
- * Displays career and season-specific statistics for an individual player,
+ * Displays detailed statistics for an individual player,
  * including a shot chart and a detailed action log.
  */
 const PlayerStats: React.FC = () => {
@@ -47,11 +46,7 @@ const PlayerStats: React.FC = () => {
 
   const [searchParams] = useSearchParams();
   const teamIdParam = searchParams.get("teamId");
-  const seasonIdParam = searchParams.get("seasonId");
 
-  const [selectedSeasonId, setSelectedSeasonId] = useState<string>(
-    seasonIdParam || "",
-  );
   const [selectedGameId, setSelectedGameId] = useState<string>("");
   const [selectedType, setSelectedType] = useState<string>("");
   const [openEditDialog, setOpenEditDialog] = useState(false);
@@ -82,8 +77,7 @@ const PlayerStats: React.FC = () => {
   }, [player?.deletedAt]);
 
   // Use shared hooks
-  const seasons = useSeasons();
-  const teams = useTeams(selectedSeasonId);
+  const teams = useTeams();
 
   const teamPlayers =
     useLiveQuery(
@@ -102,13 +96,16 @@ const PlayerStats: React.FC = () => {
       const g = await db.games.get(selectedGameId);
       return g ? [g] : [];
     }
+    if (teamIdParam) {
+      return await db.games.where("teamId").equals(teamIdParam).toArray();
+    }
     if (teams.length > 0)
       return await db.games
         .where("teamId")
         .anyOf(teams.map((t) => t.id!).filter(Boolean))
         .toArray();
     return await db.games.toArray();
-  }, [selectedGameId, teams]);
+  }, [selectedGameId, teams, teamIdParam]);
   const games = useMemo(() => gamesQueryResult || [], [gamesQueryResult]);
 
   const allStatsResult = useLiveQuery(
@@ -125,14 +122,13 @@ const PlayerStats: React.FC = () => {
       if (selectedGameId !== "" && stat.gameId !== selectedGameId) return false;
       if (selectedType !== "" && stat.type !== selectedType) return false;
       if (
-        selectedSeasonId !== "" &&
         selectedGameId === "" &&
         !games.some((g) => g.id === stat.gameId)
       )
         return false;
       return true;
     });
-  }, [allStats, selectedGameId, selectedType, selectedSeasonId, games]);
+  }, [allStats, selectedGameId, selectedType, games]);
 
   /**
    * Updates player-level metadata.
@@ -288,24 +284,6 @@ const PlayerStats: React.FC = () => {
 
       <MoleskineCard sx={{ mb: 3, mt: 3 }}>
         <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
-          <FormControl fullWidth size="small">
-            <InputLabel>Season</InputLabel>
-            <Select
-              value={selectedSeasonId}
-              label="Season"
-              onChange={(e) => {
-                setSelectedSeasonId(e.target.value);
-                setSelectedGameId("");
-              }}
-            >
-              <MenuItem value="">All Seasons</MenuItem>
-              {seasons.map((s) => (
-                <MenuItem key={s.id} value={s.id!}>
-                  {s.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
           <FormControl fullWidth size="small">
             <InputLabel>Game</InputLabel>
             <Select

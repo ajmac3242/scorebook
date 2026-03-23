@@ -39,24 +39,24 @@ describe("Security Tests", () => {
 
     // Attempt to overwrite PK and SK via request body
     const malformedBody = {
-      name: "Hack Season",
+      name: "Hack Team",
       PK: "HACKED#PK",
       SK: "HACKED#SK",
       GSI1PK: "HACKED#GSI",
     };
 
-    const event = createEvent("POST", "/seasons", malformedBody);
+    const event = createEvent("POST", "/teams", malformedBody);
     await handler(event);
 
-    const putCall = ddbMock.commandCalls(PutCommand)[0];
-    const item = putCall.args[0].input.Item;
+    const putCalls = ddbMock.commandCalls(PutCommand);
+    const item = putCalls[0].args[0].input.Item;
 
     // Internal keys should NOT be what the user provided
     if (!item) throw new Error("Item not found in PutCommand");
     expect(item.PK).not.toBe("HACKED#PK");
     expect(item.SK).not.toBe("HACKED#SK");
     expect(item.GSI1PK).not.toBe("HACKED#GSI");
-    expect(item.PK).toContain("SEASON#");
+    expect(item.PK).toContain("TEAM#");
   });
 
   it("does not leak error details in 500 responses", async () => {
@@ -65,7 +65,7 @@ describe("Security Tests", () => {
       .on(QueryCommand)
       .rejects(new Error("Sensitive database connection details..."));
 
-    const event = createEvent("GET", "/seasons");
+    const event = createEvent("GET", "/players");
     const response: any = await handler(event);
 
     expect(response.statusCode).toBe(500);

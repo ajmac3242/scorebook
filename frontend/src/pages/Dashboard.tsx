@@ -1,7 +1,7 @@
 /**
  * @file Dashboard.tsx
  * @description The main overview page of the application.
- * Displays high-level counts for seasons, teams, and players stored in the local database.
+ * Displays high-level counts for teams and players stored in the local database.
  */
 
 import React from "react";
@@ -22,18 +22,11 @@ import {
  */
 const Dashboard: React.FC = () => {
   // Real-time queries for total counts using Dexie hooks
-  const seasons = useLiveQuery(() => db.seasons.toArray()) || [];
-  const teams = useLiveQuery(() => db.teams.toArray()) || [];
-  const players = useLiveQuery(() => db.players.toArray()) || [];
+  const teams = useLiveQuery(() => db.teams.filter(t => !t.deletedAt).toArray()) || [];
+  const players = useLiveQuery(() => db.players.filter(p => !p.deletedAt).toArray()) || [];
 
   // Configuration for summary cards
   const summaryItems = [
-    {
-      label: "Seasons",
-      count: seasons.length,
-      to: "/seasons",
-      icon: "📅",
-    },
     { label: "Teams", count: teams.length, to: "/teams", icon: "🏀" },
     {
       label: "Players",

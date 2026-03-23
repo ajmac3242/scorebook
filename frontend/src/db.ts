@@ -1,32 +1,19 @@
 /**
  * @file db.ts
  * @description Local-first database configuration using Dexie.js (IndexedDB).
- * Defines schemas and interfaces for seasons, teams, players, and game stats.
+ * Defines schemas and interfaces for teams, players, and game stats.
  */
 
 import Dexie, { type Table } from "dexie";
-
-/**
- * Interface representing a basketball season.
- */
-export interface Season {
-  id?: string;
-  name: string;
-  startDate: string;
-  endDate: string;
-  periodType: "QUARTERS" | "HALVES";
-  primaryColor?: string;
-  deletedAt?: string; // ISO timestamp for soft delete (24h window)
-  synced?: number; // 0 (not synced) or 1 (synced)
-}
 
 /**
  * Interface representing a basketball team.
  */
 export interface Team {
   id?: string;
-  seasonId: string;
   name: string;
+  description?: string;
+  periodType: "QUARTERS" | "HALVES";
   logoUrl?: string;
   primaryColor?: string;
   deletedAt?: string;
@@ -46,7 +33,7 @@ export interface Player {
 }
 
 /**
- * Junction table interface linking players to specific teams with season-specific data.
+ * Junction table interface linking players to specific teams.
  */
 export interface TeamPlayer {
   id?: string;
@@ -93,7 +80,6 @@ export interface StatEvent {
  * AppDatabase class extending Dexie to manage the local IndexedDB instance.
  */
 export class AppDatabase extends Dexie {
-  seasons!: Table<Season>;
   teams!: Table<Team>;
   players!: Table<Player>;
   teamPlayers!: Table<TeamPlayer>;
@@ -107,10 +93,9 @@ export class AppDatabase extends Dexie {
     super("ScorebookDB");
 
     // Define the database schema with primary keys and indexes
-    // Version 7: Add periodType to Season, isArchived to Player, period to StatEvent, and deletedAt to all main entities.
-    this.version(7).stores({
-      seasons: "id, synced, deletedAt",
-      teams: "id, seasonId, synced, deletedAt",
+    // Version 8: Remove Seasons, move periodType to Team, add description to Team.
+    this.version(8).stores({
+      teams: "id, synced, deletedAt",
       players: "id, synced, isArchived, deletedAt",
       teamPlayers: "id, [teamId+playerId], teamId, playerId, synced",
       games: "id, teamId, completed, synced, deletedAt",

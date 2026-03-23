@@ -21,7 +21,6 @@ import { db, type Team, type StatEvent } from "../db";
 import { syncService } from "../utils/syncService";
 import { useNavigate } from "react-router-dom";
 import { MoleskineCard, StatItem } from "../components/SharedUI";
-import { useSeasons } from "../hooks/useSeasons";
 import { logger } from "../utils/logger";
 import { useTeams } from "../hooks/useTeams";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -30,22 +29,23 @@ import EntityBanner from "../components/EntityBanner";
 
 /**
  * Teams page component.
- * Displays a list of teams, allows filtering by season, and provides a way to add new teams.
+ * Displays a list of teams and provides a way to add new teams.
  */
 const Teams: React.FC = () => {
   const navigate = useNavigate();
-  const [selectedSeasonId, setSelectedSeasonId] = useState<string>("");
   const [open, setOpen] = useState(false);
   const [teamName, setTeamName] = useState("");
-  const [seasonIdInDialog, setSeasonIdInDialog] = useState<string>("");
+  const [description, setDescription] = useState("");
+  const [periodType, setPeriodType] = useState<"QUARTERS" | "HALVES">(
+    "QUARTERS",
+  );
   const [logoUrl, setLogoUrl] = useState("");
   const [primaryColor, setPrimaryColor] = useState("#154C56");
   const [showValidation, setShowValidation] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
   // Use shared hooks for data fetching
-  const seasons = useSeasons();
-  const teams = useTeams(selectedSeasonId);
+  const teams = useTeams();
 
   const filteredTeams = useMemo(() => {
     return teams.filter((t) =>
@@ -115,7 +115,7 @@ const Teams: React.FC = () => {
    * Handles adding a new team to the database.
    */
   const handleAddTeam = async () => {
-    if (!seasonIdInDialog || !teamName) {
+    if (!teamName) {
       setShowValidation(true);
       return;
     }
@@ -124,7 +124,8 @@ const Teams: React.FC = () => {
       const newTeam: Team = {
         id: crypto.randomUUID(),
         name: teamName,
-        seasonId: seasonIdInDialog,
+        description,
+        periodType,
         logoUrl,
         primaryColor,
         synced: 0,
@@ -133,11 +134,13 @@ const Teams: React.FC = () => {
       syncService.pushUpdates();
       setOpen(false);
       setTeamName("");
+      setDescription("");
+      setPeriodType("QUARTERS");
       setLogoUrl("");
       setPrimaryColor("#154C56");
       setShowValidation(false);
     } catch (err) {
-      logger.error("Failed to add team", err, { teamName, seasonIdInDialog });
+      logger.error("Failed to add team", err, { teamName });
     }
   };
 
@@ -146,41 +149,8 @@ const Teams: React.FC = () => {
       <EntityBanner
         title="Teams"
         icon={<TeamsIcon />}
-        subtitle={
-          selectedSeasonId
-            ? seasons.find((s) => s.id === selectedSeasonId)?.name
-            : "All Seasons"
-        }
+        subtitle="Manage your basketball teams"
         backTo="/"
-        actions={
-          <FormControl
-            variant="outlined"
-            size="small"
-            sx={{
-              minWidth: { xs: 150, sm: 200 },
-              bgcolor: "rgba(255,255,255,0.1)",
-              borderRadius: 1,
-              "& .MuiOutlinedInput-notchedOutline": { border: "none" },
-              "& .MuiSelect-select": { color: "white" },
-              "& .MuiInputLabel-root": { color: "rgba(255,255,255,0.7)" },
-            }}
-          >
-            <InputLabel sx={{ color: "white" }}>Season</InputLabel>
-            <Select
-              value={selectedSeasonId}
-              onChange={(e) => setSelectedSeasonId(e.target.value as string)}
-              label="Season"
-              sx={{ color: "white" }}
-            >
-              <MenuItem value="">All Seasons</MenuItem>
-              {seasons.map((season) => (
-                <MenuItem key={season.id} value={season.id?.toString()}>
-                  {season.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        }
       />
 
       <Box sx={{ mt: 4 }}>
@@ -200,7 +170,7 @@ const Teams: React.FC = () => {
           >
             {searchTerm
               ? `No teams matching "${searchTerm}"`
-              : "No teams found for the selected season."}
+              : "No teams found."}
           </Typography>
         )}
         <Grid container spacing={3}>
@@ -263,10 +233,7 @@ const Teams: React.FC = () => {
                           variant="caption"
                           sx={{ opacity: 0.8, color: "inherit" }}
                         >
-                          {seasons.find(
-                            (s) =>
-                              s.id?.toString() === team.seasonId?.toString(),
-                          )?.name || "No Season"}
+                          {team.description || "No description"}
                         </Typography>
                       </Box>
                       {team.logoUrl ? (
@@ -385,7 +352,6 @@ const Teams: React.FC = () => {
           right: 32,
         }}
         onClick={() => {
-          setSeasonIdInDialog(selectedSeasonId);
           setOpen(true);
         }}
       >
@@ -403,26 +369,6 @@ const Teams: React.FC = () => {
           Add New Team
         </DialogTitle>
         <DialogContent>
-          <FormControl
-            fullWidth
-            variant="outlined"
-            sx={{ mt: 1, mb: 2 }}
-            error={showValidation && !seasonIdInDialog}
-          >
-            <InputLabel>Season</InputLabel>
-            <Select
-              value={seasonIdInDialog}
-              onChange={(e) => setSeasonIdInDialog(e.target.value as string)}
-              label="Season"
-              required
-            >
-              {seasons.map((season) => (
-                <MenuItem key={season.id} value={season.id?.toString()}>
-                  {season.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
           <TextField
             autoFocus
             margin="dense"
@@ -431,13 +377,35 @@ const Teams: React.FC = () => {
             variant="outlined"
             value={teamName}
             onChange={(e) => setTeamName(e.target.value)}
-            sx={{ mb: 2 }}
+            sx={{ mt: 1, mb: 2 }}
             error={showValidation && !teamName}
             helperText={
               showValidation && !teamName ? "Team name is required" : ""
             }
             required
           />
+          <TextField
+            margin="dense"
+            label="Description"
+            fullWidth
+            variant="outlined"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            sx={{ mb: 2 }}
+          />
+          <FormControl fullWidth variant="outlined" sx={{ mb: 2 }}>
+            <InputLabel>Period Type</InputLabel>
+            <Select
+              value={periodType}
+              onChange={(e) =>
+                setPeriodType(e.target.value as "QUARTERS" | "HALVES")
+              }
+              label="Period Type"
+            >
+              <MenuItem value="QUARTERS">Quarters</MenuItem>
+              <MenuItem value="HALVES">Halves</MenuItem>
+            </Select>
+          </FormControl>
           <TextField
             margin="dense"
             label="Logo URL (optional)"

@@ -106,6 +106,14 @@ const TeamStats: React.FC = () => {
   );
 
   useEffect(() => {
+    if (team) {
+      setEditName(team.name || "");
+      setEditLogoUrl(team.logoUrl || "");
+      setEditColor(team.primaryColor || "#154C56");
+    }
+  }, [team]);
+
+  useEffect(() => {
     if (team?.deletedAt) {
       const timer = setInterval(() => {
         const deleteTime = dayjs(team.deletedAt).add(24, "hour");
@@ -121,12 +129,6 @@ const TeamStats: React.FC = () => {
       return () => clearInterval(timer);
     }
   }, [team?.deletedAt]);
-
-  const season = useLiveQuery(
-    async () =>
-      team?.seasonId ? await db.seasons.get(team.seasonId) : undefined,
-    [team?.seasonId],
-  );
 
   // Use shared hooks
   const games = useGames(teamId);
@@ -342,14 +344,14 @@ const TeamStats: React.FC = () => {
     }
   };
 
-  const isDeleted = !!team?.deletedAt || !!season?.deletedAt;
+  const isDeleted = !!team?.deletedAt;
   const isPendingDelete = !!team?.deletedAt;
 
   return (
     <Box sx={{ pb: 4, opacity: isDeleted ? 0.7 : 1 }}>
       <EntityBanner
         title={team?.name || "Team"}
-        subtitle={`${teamAggregates.record} | ${season?.name || ""}`}
+        subtitle={`${teamAggregates.record} | ${team?.description || ""}`}
         avatarSrc={team?.logoUrl}
         avatarColor="rgba(255,255,255,0.1)"
         backTo="/teams"
@@ -378,7 +380,7 @@ const TeamStats: React.FC = () => {
                   <EditIcon />
                 </IconButton>
               </>
-            ) : isPendingDelete && !season?.deletedAt ? (
+            ) : isPendingDelete ? (
               <Button
                 variant="contained"
                 size="small"
@@ -416,14 +418,8 @@ const TeamStats: React.FC = () => {
 
       {isDeleted && (
         <Alert severity="warning" icon={<Warning />} sx={{ mb: 4, mx: 2 }}>
-          <AlertTitle>
-            {season?.deletedAt
-              ? "Season Pending Deletion"
-              : "Team Pending Deletion"}
-          </AlertTitle>
-          {season?.deletedAt
-            ? "The entire season is pending deletion. This team is in read-only mode."
-            : `This team and its games are scheduled for permanent deletion in ${timeLeft}. All data is currently read-only.`}
+          <AlertTitle>Team Pending Deletion</AlertTitle>
+          This team and its games are scheduled for permanent deletion in {timeLeft}. All data is currently read-only.
         </Alert>
       )}
 
@@ -612,9 +608,7 @@ const TeamStats: React.FC = () => {
                     hover
                     sx={{ cursor: "pointer" }}
                     onClick={() =>
-                      navigate(
-                        `/players/${row.id}?teamId=${teamId}&seasonId=${team?.seasonId}`,
-                      )
+                      navigate(`/players/${row.id}?teamId=${teamId}`)
                     }
                   >
                     <TableCell
