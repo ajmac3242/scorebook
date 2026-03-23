@@ -103,16 +103,17 @@ const Games: React.FC = () => {
     }) || [];
 
   const gameIds = games.map((g) => g.id).filter(Boolean);
-  const allStatsResult = useLiveQuery(
-    () =>
-      gameIds.length > 0
-        ? db.stats
-            .where("gameId")
-            .anyOf(gameIds as string[])
-            .toArray()
-        : Promise.resolve([]),
-    [gameIds],
-  );
+  const allStatsResult =
+    useLiveQuery(
+      () =>
+        gameIds.length > 0
+          ? db.stats
+              .where("gameId")
+              .anyOf(gameIds as string[])
+              .toArray()
+          : Promise.resolve([]),
+      [gameIds],
+    );
   const allStats = useMemo(() => allStatsResult || [], [allStatsResult]);
 
   const currentTeam = useLiveQuery(
@@ -147,12 +148,12 @@ const Games: React.FC = () => {
 
   return (
     <Box sx={{ pb: 8 }}>
-      <EntityBanner title="Games Schedule" icon={<GamesIcon />} backTo="/" />
-      <Stack
-        direction={{ xs: "column", sm: "row" }}
-        spacing={2}
-        sx={{ mb: 3, mt: 4 }}
-      >
+      <EntityBanner
+        title="Games Schedule"
+        icon={<GamesIcon />}
+        backTo="/"
+      />
+      <Stack direction={{ xs: "column", sm: "row" }} spacing={2} sx={{ mb: 3, mt: 4 }}>
         <FormControl fullWidth variant="outlined">
           <InputLabel>Filter by Season</InputLabel>
           <Select

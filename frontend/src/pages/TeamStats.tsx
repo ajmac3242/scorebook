@@ -951,8 +951,6 @@ const TeamStats: React.FC = () => {
  * @param root0.align
  * @param root0.hideOnMobile
  * @param root0.sortConfig
- * @param root0.sortConfig.key
- * @param root0.sortConfig.direction
  * @param root0.onSort
  */
 const SortableHeader = ({

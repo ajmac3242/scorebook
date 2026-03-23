@@ -98,10 +98,7 @@ const GameStats: React.FC = () => {
         : Promise.resolve([]),
     [game?.teamId],
   );
-  const teamPlayers = useMemo(
-    () => teamPlayersResult || [],
-    [teamPlayersResult],
-  );
+  const teamPlayers = useMemo(() => teamPlayersResult || [], [teamPlayersResult]);
 
   const playersResult = useLiveQuery(() => db.players.toArray()) || [];
   const players = useMemo(() => playersResult || [], [playersResult]);
@@ -274,62 +271,63 @@ const GameStats: React.FC = () => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {playerAggregates.map((row) => (
-            <TableRow key={row.id}>
-              <TableCell
-                sx={{
-                  fontWeight: 600,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1,
-                }}
-              >
-                <Avatar
-                  sx={{
-                    width: 24,
-                    height: 24,
-                    fontSize: "0.75rem",
-                    bgcolor: row.avatarColor,
-                  }}
-                >
-                  {row.jerseyNumber}
-                </Avatar>
-                <Typography
-                  variant="body2"
+          {playerAggregates
+            .map((row) => (
+              <TableRow key={row.id}>
+                <TableCell
                   sx={{
                     fontWeight: 600,
-                    fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
                   }}
                 >
-                  {row.name}
-                </Typography>
-              </TableCell>
-              <TableCell align="right">{row.points}</TableCell>
-              <TableCell align="right">
-                {row.makes}-{row.attempts}
-              </TableCell>
-              <TableCell
-                align="right"
-                sx={{ display: { xs: "none", sm: "table-cell" } }}
-              >
-                {row.fgPct}%
-              </TableCell>
-              <TableCell align="right">{row.rebounds}</TableCell>
-              <TableCell align="right">{row.assists}</TableCell>
-              <TableCell
-                align="right"
-                sx={{ display: { xs: "none", sm: "table-cell" } }}
-              >
-                {row.steals}
-              </TableCell>
-              <TableCell
-                align="right"
-                sx={{ display: { xs: "none", sm: "table-cell" } }}
-              >
-                {row.turnovers}
-              </TableCell>
-            </TableRow>
-          ))}
+                  <Avatar
+                    sx={{
+                      width: 24,
+                      height: 24,
+                      fontSize: "0.75rem",
+                      bgcolor: row.avatarColor,
+                    }}
+                  >
+                    {row.jerseyNumber}
+                  </Avatar>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontWeight: 600,
+                      fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                    }}
+                  >
+                    {row.name}
+                  </Typography>
+                </TableCell>
+                <TableCell align="right">{row.points}</TableCell>
+                <TableCell align="right">
+                  {row.makes}-{row.attempts}
+                </TableCell>
+                <TableCell
+                  align="right"
+                  sx={{ display: { xs: "none", sm: "table-cell" } }}
+                >
+                  {row.fgPct}%
+                </TableCell>
+                <TableCell align="right">{row.rebounds}</TableCell>
+                <TableCell align="right">{row.assists}</TableCell>
+                <TableCell
+                  align="right"
+                  sx={{ display: { xs: "none", sm: "table-cell" } }}
+                >
+                  {row.steals}
+                </TableCell>
+                <TableCell
+                  align="right"
+                  sx={{ display: { xs: "none", sm: "table-cell" } }}
+                >
+                  {row.turnovers}
+                </TableCell>
+              </TableRow>
+            ))}
           <TableRow sx={{ bgcolor: "secondary.light" }}>
             <TableCell sx={{ fontWeight: 700 }}>OPPONENT</TableCell>
             <TableCell align="right">{oppData.points}</TableCell>

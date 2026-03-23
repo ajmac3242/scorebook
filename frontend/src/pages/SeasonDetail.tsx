@@ -59,6 +59,7 @@ const SeasonDetail: React.FC = () => {
       [seasonId],
     ) || [];
 
+
   useEffect(() => {
     if (season?.deletedAt) {
       const timer = setInterval(() => {
