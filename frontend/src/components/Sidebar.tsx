@@ -49,6 +49,10 @@ import { Refresh as SyncingIcon, CloudSync } from "@mui/icons-material";
 
 /**
  * Navigation item component that expands on hover or when selected.
+ * @param root0
+ * @param root0.item
+ * @param root0.isSelected
+ * @param root0.onClick
  */
 const NavItem: React.FC<{
   item: { text: string; icon: React.ReactNode; path: string };
@@ -77,7 +81,9 @@ const NavItem: React.FC<{
         alignItems: "center",
         justifyContent: "center",
         "&:hover": {
-          bgcolor: isSelected ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.1)",
+          bgcolor: isSelected
+            ? "rgba(255,255,255,0.2)"
+            : "rgba(255,255,255,0.1)",
           color: "white",
         },
       }}
@@ -239,7 +245,9 @@ const Sidebar: React.FC = () => {
         </Typography>
       </Box>
 
-      {isMobile && <Divider sx={{ width: "100%", bgcolor: "rgba(255,255,255,0.1)" }} />}
+      {isMobile && (
+        <Divider sx={{ width: "100%", bgcolor: "rgba(255,255,255,0.1)" }} />
+      )}
 
       <Box
         sx={{
@@ -283,9 +291,15 @@ const Sidebar: React.FC = () => {
       </Box>
 
       {!isMobile && (
-        <Box sx={{ display: "flex", justifyContent: "flex-end", width: "200px" }}>
+        <Box
+          sx={{ display: "flex", justifyContent: "flex-end", width: "200px" }}
+        >
           <NavItem
-            item={{ text: "Settings", icon: <SettingsIcon />, path: "/settings" }}
+            item={{
+              text: "Settings",
+              icon: <SettingsIcon />,
+              path: "/settings",
+            }}
             isSelected={location.pathname === "/settings"}
           />
         </Box>
@@ -389,7 +403,10 @@ const Sidebar: React.FC = () => {
               component={Link}
               to={item.path}
               sx={{
-                color: location.pathname === item.path ? "secondary.main" : "rgba(255,255,255,0.6)",
+                color:
+                  location.pathname === item.path
+                    ? "secondary.main"
+                    : "rgba(255,255,255,0.6)",
                 flexDirection: "column",
                 gap: 0.5,
                 borderRadius: 2,
@@ -397,7 +414,9 @@ const Sidebar: React.FC = () => {
               }}
             >
               {item.icon}
-              <Typography variant="caption" sx={{ fontSize: "0.6rem" }}>{item.text}</Typography>
+              <Typography variant="caption" sx={{ fontSize: "0.6rem" }}>
+                {item.text}
+              </Typography>
             </IconButton>
           ))}
         </Box>

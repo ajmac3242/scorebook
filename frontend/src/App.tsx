@@ -72,7 +72,10 @@ const AppContent: React.FC = () => {
         sx={{
           flexGrow: 1,
           p: { xs: 1, sm: 3 },
-          pt: { xs: isAuthenticated ? "88px" : 2, sm: isAuthenticated ? "104px" : 3 },
+          pt: {
+            xs: isAuthenticated ? "88px" : 2,
+            sm: isAuthenticated ? "104px" : 3,
+          },
           pb: { xs: isAuthenticated ? "88px" : 2, sm: 3 },
           width: "100%",
           overflowX: "hidden",

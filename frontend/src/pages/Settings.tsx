@@ -90,7 +90,12 @@ const Settings: React.FC = () => {
 
           <Divider sx={{ mb: 4 }} />
 
-          <Typography variant="subtitle1" gutterBottom align="left" sx={{ fontWeight: 600 }}>
+          <Typography
+            variant="subtitle1"
+            gutterBottom
+            align="left"
+            sx={{ fontWeight: 600 }}
+          >
             System Status
           </Typography>
 
