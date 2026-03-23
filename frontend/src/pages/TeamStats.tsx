@@ -419,7 +419,8 @@ const TeamStats: React.FC = () => {
       {isDeleted && (
         <Alert severity="warning" icon={<Warning />} sx={{ mb: 4, mx: 2 }}>
           <AlertTitle>Team Pending Deletion</AlertTitle>
-          This team and its games are scheduled for permanent deletion in {timeLeft}. All data is currently read-only.
+          This team and its games are scheduled for permanent deletion in{" "}
+          {timeLeft}. All data is currently read-only.
         </Alert>
       )}
 
