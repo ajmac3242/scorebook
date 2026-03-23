@@ -166,11 +166,7 @@ const Sidebar: React.FC = () => {
           </Box>
         )}
         {!open && (
-          <Box
-            component="img"
-            src="/logo.svg"
-            sx={{ width: 32, height: 32 }}
-          />
+          <Box component="img" src="/logo.svg" sx={{ width: 32, height: 32 }} />
         )}
         {open && !isMobile && (
           <IconButton onClick={toggleDrawer} sx={{ color: "inherit" }}>
