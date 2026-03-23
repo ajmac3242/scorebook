@@ -124,6 +124,8 @@ const Players: React.FC = () => {
         title="Players"
         icon={<PlayersIcon />}
         backTo="/"
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
         actions={
           <FormControlLabel
             control={
@@ -136,21 +138,12 @@ const Players: React.FC = () => {
               />
             }
             label="Show Archived"
-            sx={{ color: "white" }}
+            sx={{ color: "white", mr: 0 }}
           />
         }
       />
 
-      <Box sx={{ mt: 4 }}>
-        <TextField
-          fullWidth
-          variant="outlined"
-          placeholder="Filter players by name..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          sx={{ mb: 4, bgcolor: "white", borderRadius: 1 }}
-        />
-      </Box>
+      <Box sx={{ mt: 4 }} />
 
       <Grid container spacing={3}>
         {playersWithStats.map((player) => (

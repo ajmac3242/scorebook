@@ -23,6 +23,7 @@ import GameStats from "./pages/GameStats";
 import Teams from "./pages/Teams";
 import TeamStats from "./pages/TeamStats";
 import Games from "./pages/Games";
+import Settings from "./pages/Settings";
 import Sidebar from "./components/Sidebar";
 import { Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
@@ -62,8 +63,8 @@ const AppContent: React.FC = () => {
   const { isAuthenticated } = useAuth();
 
   return (
-    <Box sx={{ display: "flex", minHeight: "100vh" }}>
-      {/* Show sidebar only for authenticated users */}
+    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+      {/* Show navigation bar only for authenticated users */}
       {isAuthenticated && <Sidebar />}
 
       <Box
@@ -71,9 +72,9 @@ const AppContent: React.FC = () => {
         sx={{
           flexGrow: 1,
           p: { xs: 1, sm: 3 },
-          pt: { xs: 2, sm: 3 },
-          // Adjust width to account for the sidebar if present
-          width: { sm: `calc(100% - ${isAuthenticated ? "240px" : "0px"})` },
+          pt: { xs: isAuthenticated ? "88px" : 2, sm: isAuthenticated ? "104px" : 3 },
+          pb: { xs: isAuthenticated ? "88px" : 2, sm: 3 },
+          width: "100%",
           overflowX: "hidden",
         }}
       >
@@ -90,6 +91,14 @@ const AppContent: React.FC = () => {
               element={
                 <ProtectedRoute>
                   <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                <ProtectedRoute>
+                  <Settings />
                 </ProtectedRoute>
               }
             />
