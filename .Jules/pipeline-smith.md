@@ -18,3 +18,12 @@ Action:
 1. Hardened `jules-fixer.yml` with concurrency and 10m timeouts.
 2. Improved visibility in `deploy.yml` by adding artifact uploads for failed runs.
 3. Updated `terratest.yml` to use the latest major version of `setup-terraform`.
+
+## 2025-05-15 - Workflow Efficiency & Visibility
+Learning: Ad-hoc package installations in CI (like `pip install diagrams`) bypass caching and increase execution time. Sequential `setup-node` calls in deployment workflows can be consolidated to improve speed and simplify configuration. Verbose test output is critical for debugging failures in headless environments.
+Action:
+1. Tightened job timeouts across `ci.yml` (10m) and `deploy.yml` (15m).
+2. Consolidated `setup-node` in `deploy.yml` to use multi-path caching.
+3. Implemented `pip` caching for documentation diagrams via `docs/requirements.txt`.
+4. Enabled verbose test output (`--verbose`) in CI for better visibility.
+5. Expanded artifact uploads on failure to include generated documentation and build hashes.

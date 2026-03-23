@@ -5,6 +5,7 @@ on:
   pull_request:
     branches: [ main ]
     types: [ opened, synchronize, reopened ]
+  workflow_dispatch:
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -23,7 +24,7 @@ jobs:
   quality-and-tests:
     name: Quality, Tests & Docs
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
         with:
@@ -57,7 +58,7 @@ jobs:
       - name: "Backend: Run Tests"
         run: |
           cd backend
-          npm test
+          npm test -- --verbose
 
       # --- Frontend ---
       - name: "Frontend: Install & Build"
@@ -65,6 +66,9 @@ jobs:
           cd frontend
           npm ci
           npm run build
+
+      - name: Generate frontend build hash
+        run: find frontend/dist -type f | sort | xargs sha256sum | sha256sum | awk '{print $1}' > frontend-build-hash.txt
 
       - name: "Frontend: Format & Lint"
         run: |
@@ -75,7 +79,7 @@ jobs:
       - name: "Frontend: Run Tests"
         run: |
           cd frontend
-          npm test
+          npm test -- --reporter=verbose
 
       # --- Documentation & Diagrams ---
       - name: Render terraform-docs
@@ -93,9 +97,11 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: 'docs/requirements.txt'
 
       - name: Install diagram dependencies
-        run: pip install diagrams
+        run: pip install -r docs/requirements.txt
 
       - name: Generate architecture diagram
         run: |
@@ -159,4 +165,7 @@ jobs:
             frontend/coverage
             backend/*.log
             frontend/*.log
+            infra/README.md
+            docs/*.png
+            frontend-build-hash.txt
           if-no-files-found: ignore
