@@ -295,13 +295,7 @@ async function handleTeams(
       if (!body || Object.keys(body).length === 0) {
         return badRequest("Body required");
       }
-      const resp = await createItem(
-        "TEAM",
-        "METADATA",
-        "TEAM",
-        body,
-        tableName,
-      );
+      const resp = await createItem("TEAM", "METADATA", "TEAM", body, tableName);
       if (resp.statusCode === 201 && resp.body) {
         const newItem = JSON.parse(resp.body);
         await snapshotTeamRoster(newItem.id, tableName);

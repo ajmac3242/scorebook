@@ -118,7 +118,13 @@ class SyncService {
    */
   async hasUnsyncedChanges(): Promise<boolean> {
     try {
-      const tables = [db.teams, db.players, db.teamPlayers, db.games, db.stats];
+      const tables = [
+        db.teams,
+        db.players,
+        db.teamPlayers,
+        db.games,
+        db.stats,
+      ];
       const counts = await Promise.all(
         tables.map((t) => t.where("synced").equals(0).count()),
       );
