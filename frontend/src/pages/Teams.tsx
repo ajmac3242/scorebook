@@ -98,7 +98,7 @@ const Teams: React.FC = () => {
 
   // Pre-calculate team aggregates to avoid O(N^2) filtering in the render loop.
   const teamAggregatesMap = useMemo(() => {
-    const gamesByTeam: Record<string, any[]> = {};
+    const gamesByTeam: Record<string, (typeof allGames)[0][]> = {};
     allGames.forEach((g) => {
       if (!gamesByTeam[g.teamId]) gamesByTeam[g.teamId] = [];
       gamesByTeam[g.teamId].push(g);
@@ -110,7 +110,10 @@ const Teams: React.FC = () => {
       statsByGame[s.gameId].push(s as StatEvent);
     });
 
-    const results: Record<string, any> = {};
+    const results: Record<
+      string,
+      ReturnType<typeof calculateTeamAggregates>
+    > = {};
     teams.forEach((team) => {
       const teamGames = gamesByTeam[team.id!] || [];
       const teamStats = teamGames.flatMap((g) => statsByGame[g.id!] || []);
@@ -124,7 +127,8 @@ const Teams: React.FC = () => {
 
   /**
    * Calculates luminance to determine if text should be white or black for a given background color.
-   * @param hexcolor
+   * @param {string} hexcolor - Hex color string.
+   * @returns {"white" | "black"} Contrast color.
    */
   const getContrastColor = (hexcolor: string) => {
     // If no color, default to white text on theme primary

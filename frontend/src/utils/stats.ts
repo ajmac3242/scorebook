@@ -61,16 +61,6 @@ export const getPlayerJersey = (
 };
 
 /**
- * Calculates aggregated statistics for a list of players based on a set of events.
- * Supports both total and per-game average calculations.
- *
- * @param {any[]} players - List of player objects.
- * @param {StatEvent[]} stats - List of statistical events to process.
- * @param {TeamPlayer[]} teamPlayers - (Optional) Team roster for jersey numbers.
- * @param {"total" | "average"} viewType - (Optional) Type of calculation, defaults to "total".
- * @returns {PlayerAggregates[]} Array of aggregated statistics.
- */
-/**
  * Updates a player's statistics based on a single statistical event.
  * @param {PlayerAggregates} p - The player aggregate record.
  * @param {StatEvent} s - The statistical event to process.
@@ -97,14 +87,19 @@ function processStatEvent(p: PlayerAggregates, s: StatEvent) {
 /**
  * Initializes a map of player aggregates with default values.
  *
- * @param {any[]} players - List of player objects.
+ * @param {Record<string, any>[]} players - List of player objects.
  * @param {TeamPlayer[]} teamPlayers - Team roster for jersey numbers.
  * @returns {Record<string, PlayerAggregates>} Initialized map.
  */
 function initializeStatsMap(
-  players: any[],
+  players: Record<string, any>[],
   teamPlayers: TeamPlayer[],
 ): Record<string, PlayerAggregates> {
+  // Optimization: Pre-map jersey numbers by playerId to avoid O(P * TP) complexity.
+  const jerseyMap = new Map(
+    teamPlayers.map((tp) => [tp.playerId, tp.jerseyNumber]),
+  );
+
   return players.reduce(
     (acc, p) => {
       const pId = p.id!;
@@ -112,8 +107,7 @@ function initializeStatsMap(
         id: p.id,
         name: p.name,
         avatarColor: p.avatarColor,
-        jerseyNumber:
-          teamPlayers.find((tp) => tp.playerId === pId)?.jerseyNumber || "",
+        jerseyNumber: jerseyMap.get(pId) || "",
         gamesPlayed: new Set(),
         gp: 0,
         points: 0,
@@ -135,14 +129,14 @@ function initializeStatsMap(
  * Calculates aggregated statistics for a list of players based on a set of events.
  * Supports both total and per-game average calculations.
  *
- * @param {any[]} players - List of player objects.
+ * @param {Record<string, any>[]} players - List of player objects.
  * @param {StatEvent[]} stats - List of statistical events to process.
  * @param {TeamPlayer[]} teamPlayers - (Optional) Team roster for jersey numbers.
  * @param {"total" | "average"} viewType - (Optional) Type of calculation, defaults to "total".
  * @returns {PlayerAggregates[]} Array of aggregated statistics.
  */
 export const calculatePlayerAggregates = (
-  players: any[],
+  players: Record<string, any>[],
   stats: StatEvent[],
   teamPlayers: TeamPlayer[] = [],
   viewType: "total" | "average" = "total",
@@ -174,7 +168,7 @@ export const calculatePlayerAggregates = (
         assists: roundToOne(p.assists / gp),
         steals: roundToOne(p.steals / gp),
         turnovers: roundToOne(p.turnovers / gp),
-      } as any;
+      } as unknown as PlayerAggregates;
     }
     return p;
   });
@@ -186,13 +180,13 @@ export const calculatePlayerAggregates = (
  * This function iterates through games, calculates results for each game
  * using the provided event stream, and aggregates them into team-wide averages.
  *
- * @param {any[]} games - List of games.
+ * @param {Record<string, any>[]} games - List of games.
  * @param {StatEvent[]} stats - List of statistical events across those games.
  * @param {boolean} completedOnly - (Optional) Only include completed games, defaults to true.
- * @returns {object} Team level aggregates.
+ * @returns {Record<string, any>} Team level aggregates.
  */
 export const calculateTeamAggregates = (
-  games: any[],
+  games: Record<string, any>[],
   stats: StatEvent[],
   completedOnly = true,
 ) => {
@@ -202,7 +196,7 @@ export const calculateTeamAggregates = (
     : games;
   const targetGameIds = targetGames.map((g) => g.id);
   const relevantStats = stats.filter((s) =>
-    targetGameIds.includes(s.gameId as any),
+    targetGameIds.includes(s.gameId as string),
   );
 
   let totalPoints = 0;
@@ -212,8 +206,15 @@ export const calculateTeamAggregates = (
   let wins = 0;
   let losses = 0;
 
+  // Optimization: Pre-group statistics by gameId to avoid O(G * S) complexity.
+  const statsByGame: Record<string, StatEvent[]> = {};
+  relevantStats.forEach((s) => {
+    if (!statsByGame[s.gameId]) statsByGame[s.gameId] = [];
+    statsByGame[s.gameId].push(s);
+  });
+
   targetGameIds.forEach((gId) => {
-    const gameStats = relevantStats.filter((s) => s.gameId === gId);
+    const gameStats = statsByGame[gId] || [];
     const { teamPoints, oppPoints, rebounds, assists } =
       aggregateStatsForGame(gameStats);
 
