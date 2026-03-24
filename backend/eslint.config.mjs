@@ -5,7 +5,7 @@ import jsdocPlugin from "eslint-plugin-jsdoc";
 export default [
   {
     files: ["src/**/*.ts"],
-    ignores: ["src/__tests__/**"],
+    ignores: ["src/__tests__/**", "src/index.d.ts"],
     languageOptions: {
       parser: tsParser,
       parserOptions: { project: "./tsconfig.json" }

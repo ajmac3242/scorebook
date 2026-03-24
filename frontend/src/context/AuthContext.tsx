@@ -29,7 +29,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
  * @param {React.ReactNode} props.children - Child components.
  * @returns {React.ReactElement}
  */
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -38,8 +38,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     // Mock authentication for preview/testing environments
     if (localStorage.getItem("isAuthenticated") === "true") {
-      setIsAuthenticated(true);
-      setLoading(false);
+      setTimeout(() => {
+        setIsAuthenticated(true);
+        setLoading(false);
+      }, 0);
       return;
     }
 
@@ -97,10 +99,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
  * @returns {AuthContextType}
  * @throws {Error} if used outside of an AuthProvider.
  */
-export const useAuth = () => {
+const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
     throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };
+
+export { AuthProvider, useAuth };

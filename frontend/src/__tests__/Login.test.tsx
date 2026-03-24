@@ -3,14 +3,14 @@ import Login from "../pages/Login";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "../context/AuthContext";
-import { CognitoUser, AuthenticationDetails } from "amazon-cognito-identity-js";
+import { CognitoUser } from "amazon-cognito-identity-js";
 
 // Mock useNavigate
 const mockNavigate = vi.fn();
 vi.mock("react-router-dom", async () => {
   const actual = await vi.importActual("react-router-dom");
   return {
-    ...actual,
+    ...(actual as Record<string, any>),
     useNavigate: () => mockNavigate,
   };
 });
@@ -36,12 +36,12 @@ describe("Login Component", () => {
   });
 
   it("handles successful login", async () => {
-    const authenticateUserMock = vi.fn((authDetails, callbacks) => {
+    const authenticateUserMock = vi.fn((_authDetails, callbacks) => {
       callbacks.onSuccess({
         getAccessToken: () => ({ getJwtToken: () => "token" }),
       });
     });
-    (CognitoUser as any).mockImplementation(function () {
+    (CognitoUser as unknown as Record<string, any>).mockImplementation(function (this: Record<string, any>) {
       this.authenticateUser = authenticateUserMock;
     });
     render(
@@ -65,10 +65,10 @@ describe("Login Component", () => {
   });
 
   it("handles login failure", async () => {
-    const authenticateUserMock = vi.fn((authDetails, callbacks) => {
+    const authenticateUserMock = vi.fn((_authDetails, callbacks) => {
       callbacks.onFailure({ message: "Invalid credentials" });
     });
-    (CognitoUser as any).mockImplementation(function () {
+    (CognitoUser as unknown as Record<string, any>).mockImplementation(function (this: Record<string, any>) {
       this.authenticateUser = authenticateUserMock;
     });
     render(
@@ -91,10 +91,10 @@ describe("Login Component", () => {
   });
 
   it("handles new password required", async () => {
-    const authenticateUserMock = vi.fn((authDetails, callbacks) => {
+    const authenticateUserMock = vi.fn((_authDetails, callbacks) => {
       callbacks.newPasswordRequired({}, {});
     });
-    (CognitoUser as any).mockImplementation(function () {
+    (CognitoUser as unknown as Record<string, any>).mockImplementation(function (this: Record<string, any>) {
       this.authenticateUser = authenticateUserMock;
     });
     render(
@@ -130,7 +130,7 @@ describe("Login Component", () => {
         getAccessToken: () => ({ getJwtToken: () => "token" }),
       });
     });
-    (CognitoUser as any).mockImplementation(function () {
+    (CognitoUser as unknown as Record<string, any>).mockImplementation(function (this: Record<string, any>) {
       this.authenticateUser = authenticateUserMock;
     });
     // Ensure we use the mock from setupTests which has getPassword
@@ -162,12 +162,12 @@ describe("Login Component", () => {
   });
 
   it("accepts and submits passwords containing ! without error", async () => {
-    const authenticateUserMock = vi.fn((authDetails, callbacks) => {
+    const authenticateUserMock = vi.fn((_authDetails, callbacks) => {
       callbacks.onSuccess({
         getAccessToken: () => ({ getJwtToken: () => "token" }),
       });
     });
-    (CognitoUser as any).mockImplementation(function () {
+    (CognitoUser as unknown as Record<string, any>).mockImplementation(function (this: Record<string, any>) {
       this.authenticateUser = authenticateUserMock;
     });
 

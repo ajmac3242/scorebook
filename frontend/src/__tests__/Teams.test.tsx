@@ -1,9 +1,7 @@
 import {
   render,
   screen,
-  fireEvent,
   waitFor,
-  within,
 } from "@testing-library/react";
 import Teams from "../pages/Teams";
 import { describe, it, expect, vi, beforeEach } from "vitest";
@@ -18,7 +16,7 @@ describe("Teams Component", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    (useLiveQuery as any).mockImplementation((cb) => {
+    (useLiveQuery as Record<string, any>).mockImplementation((cb: () => any) => {
       const code = cb.toString();
       if (code.includes("teams")) return mockTeams;
       if (code.includes("players") && !code.includes("teamPlayers"))
@@ -46,7 +44,7 @@ describe("Teams Component", () => {
   it("handles fetch errors", async () => {
     const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
-    (useLiveQuery as any).mockImplementation((cb) => {
+    (useLiveQuery as Record<string, any>).mockImplementation((cb: () => any) => {
       const code = cb.toString();
       if (code.includes("teams")) {
         cb().catch(() => {});
@@ -54,7 +52,7 @@ describe("Teams Component", () => {
       return [];
     });
 
-    (db.open as any).mockRejectedValue(new Error("Fetch Error"));
+    (db.open as Record<string, any>).mockRejectedValue(new Error("Fetch Error"));
 
     render(
       <BrowserRouter>

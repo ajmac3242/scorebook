@@ -18,7 +18,7 @@ const theme = createTheme();
 
 // Mock BasketballCourt to avoid coordinate calculation issues in JSDOM
 vi.mock("../components/BasketballCourt", () => ({
-  default: ({ onCoordClick }: any) => (
+  default: ({ onCoordClick }: { onCoordClick: (x: number, y: number) => void }) => (
     <div data-testid="basketball-court" onClick={() => onCoordClick(50, 50)}>
       Mock Basketball Court
     </div>
@@ -28,7 +28,7 @@ vi.mock("../components/BasketballCourt", () => ({
 // Mock useNavigate and useSearchParams
 const mockNavigate = vi.fn();
 vi.mock("react-router-dom", async (importOriginal) => {
-  const actual: any = await importOriginal();
+  const actual: Record<string, any> = await importOriginal();
   return {
     ...actual,
     useNavigate: () => mockNavigate,
@@ -59,7 +59,7 @@ describe("GameMode Component", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    (useLiveQuery as any).mockImplementation((cb) => {
+    (useLiveQuery as Record<string, any>).mockImplementation((cb: () => any) => {
       const code = cb.toString();
       if (code.includes("db.stats")) return mockStats;
       if (code.includes("db.games.get"))

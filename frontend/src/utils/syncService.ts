@@ -11,16 +11,16 @@ import { UserPool } from "../UserPool";
  * Interface representing the team roster snapshot structure from S3.
  */
 interface RosterSnapshot {
-  team: any;
-  players: any[];
+  team: Record<string, unknown>;
+  players: Record<string, unknown>[];
 }
 
 /**
  * Interface representing the game stats snapshot structure from S3.
  */
 interface GameSnapshot {
-  game: any;
-  stats: any[];
+  game: Record<string, unknown>;
+  stats: Record<string, unknown>[];
 }
 
 /**
@@ -63,7 +63,7 @@ class SyncService {
     if (!user) return null;
 
     return new Promise((resolve) => {
-      user.getSession((err: any, session: any) => {
+      user.getSession((err: Error | null, session: any) => {
         if (err || !session || !session.isValid()) {
           resolve(null);
         } else {
@@ -131,14 +131,14 @@ class SyncService {
 
   /**
    * Helper to push all unsynced items of a specific entity type to the API.
-   * @param {any} table - Dexie table.
+   * @param {Record<string, any>} table - Dexie table.
    * @param {string | ((item: T) => string)} endpoint - API endpoint or a function that returns an endpoint.
    * @param {string} entityName - Name for logging.
    * @param {(item: T) => Promise<void>} [onSuccess] - Optional callback after successful push.
    * @private
    */
   private async pushEntity<T extends { id?: string | number }>(
-    table: any,
+    table: Record<string, any>,
     endpoint: string | ((item: T) => string),
     entityName: string,
     onSuccess?: (item: T) => Promise<void>,
@@ -203,12 +203,12 @@ class SyncService {
 
   /**
    * Helper to handle ETag-based snapshot responses.
-   * @param type
-   * @param id
-   * @param url
-   * @param etag
-   * @param onSuccess
-   * @param label
+   * @param {string} type - Entity type.
+   * @param {string | number} id - Entity ID.
+   * @param {string} url - API URL.
+   * @param {string | null} etag - Cached ETag.
+   * @param {(data: T) => Promise<void>} onSuccess - Success callback.
+   * @param {string} label - Log label.
    * @private
    */
   private async handleEtagResponse<T>(
@@ -270,7 +270,7 @@ class SyncService {
     const etag =
       localGamesCount > 0 ? this.getETag("team_games", teamId) : null;
 
-    await this.handleEtagResponse<{ games: any[] }>(
+    await this.handleEtagResponse<{ games: Record<string, unknown>[] }>(
       "team_games",
       teamId,
       `/data/teams/${teamId}/games.json`,
@@ -278,7 +278,7 @@ class SyncService {
       async (data) => {
         await db.transaction("rw", [db.games], async () => {
           for (const g of data.games) {
-            await db.games.put({ ...g, id: g.id, synced: 1 });
+            await db.games.put({ ...g, id: g.id as string, synced: 1 });
           }
         });
       },
@@ -306,8 +306,8 @@ class SyncService {
 
   /**
    * Persists roster snapshot data to local IndexedDB.
-   * @param {string} teamId
-   * @param {RosterSnapshot} data
+   * @param {string} teamId - Team ID.
+   * @param {RosterSnapshot} data - Snapshot data.
    * @private
    */
   private async persistRoster(teamId: string, data: RosterSnapshot) {
@@ -317,21 +317,21 @@ class SyncService {
       async () => {
         await db.teams.put({
           ...data.team,
-          id: data.team.id,
+          id: data.team.id as string,
           synced: 1,
         });
 
         for (const p of data.players) {
           await db.players.put({
-            id: p.id,
-            name: p.name,
-            avatarColor: p.avatarColor,
+            id: p.id as string,
+            name: p.name as string,
+            avatarColor: p.avatarColor as string,
             synced: 1,
           });
           await db.teamPlayers.put({
             ...p,
             teamId: teamId,
-            playerId: p.id,
+            playerId: p.id as string,
             synced: 1,
           });
         }
@@ -341,21 +341,21 @@ class SyncService {
 
   /**
    * Persists game stats snapshot data to local IndexedDB.
-   * @param {GameSnapshot} data
+   * @param {GameSnapshot} data - Snapshot data.
    * @private
    */
   private async persistGameStats(data: GameSnapshot) {
     await db.transaction("rw", [db.games, db.stats], async () => {
       await db.games.put({
         ...data.game,
-        id: data.game.id,
+        id: data.game.id as string,
         synced: 1,
       });
 
       for (const s of data.stats) {
         await db.stats.put({
           ...s,
-          id: s.id,
+          id: s.id as string,
           synced: 1,
         });
       }
