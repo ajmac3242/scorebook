@@ -212,16 +212,6 @@ const Navigation: React.FC = () => {
               minWidth: isMobile ? "40px" : "200px",
             }}
           >
-            <Box
-              component="img"
-              src="/logo.svg"
-              sx={{
-                width: isMobile ? 32 : 36,
-                height: isMobile ? 32 : 36,
-                filter:
-                  "brightness(0) saturate(100%) invert(13%) sepia(50%) saturate(1915%) hue-rotate(174deg) brightness(95%) contrast(104%)", // Navy Blue logo (#023246)
-              }}
-            />
             {!isMobile && (
               <Typography
                 variant="h6"
