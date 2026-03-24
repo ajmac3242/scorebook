@@ -4,11 +4,11 @@ import { vi } from "vitest";
 // Mock Cognito
 vi.mock("amazon-cognito-identity-js", () => {
   const CognitoUserPool = vi.fn().mockImplementation(function (this: unknown) {
-    (this as any).getCurrentUser = vi.fn();
+    (this as Record<string, unknown>).getCurrentUser = vi.fn();
   });
   const CognitoUser = vi.fn().mockImplementation(function (this: unknown) {
-    (this as any).authenticateUser = vi.fn();
-    (this as any).getSession = vi.fn((callback) => {
+    (this as Record<string, unknown>).authenticateUser = vi.fn();
+    (this as Record<string, unknown>).getSession = vi.fn((callback) => {
       callback(null, {
         isValid: () => true,
         getAccessToken: () => ({
@@ -16,10 +16,10 @@ vi.mock("amazon-cognito-identity-js", () => {
         }),
       });
     });
-    (this as any).signOut = vi.fn();
+    (this as Record<string, unknown>).signOut = vi.fn();
   });
   const AuthenticationDetails = vi.fn().mockImplementation(function (
-    this: any,
+    this: Record<string, unknown>,
     data: {
       Username: string;
       Password: string;
@@ -113,7 +113,7 @@ vi.mock("dexie-react-hooks", () => ({
           return undefined; // Or some meaningful default
         }
         return res;
-      } catch (_error) {
+      } catch {
         return undefined;
       }
     }

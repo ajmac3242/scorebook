@@ -3,16 +3,16 @@
  * Currently logs to console, but can be extended to an external service.
  */
 export const logger = {
-  error: (message: string, error?: any, context?: any) => {
+  error: (message: string, error?: unknown, context?: unknown) => {
     console.error(`[ERROR] ${message}`, error, context);
   },
-  warn: (message: string, context?: any) => {
+  warn: (message: string, context?: unknown) => {
     console.warn(`[WARN] ${message}`, {
       context,
       timestamp: new Date().toISOString(),
     });
   },
-  info: (message: string, context?: any) => {
+  info: (message: string, context?: unknown) => {
     console.info(`[INFO] ${message}`, {
       context,
       timestamp: new Date().toISOString(),

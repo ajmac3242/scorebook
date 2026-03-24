@@ -10,7 +10,7 @@ describe("Players Component", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    (useLiveQuery as any).mockReturnValue([]);
+    (useLiveQuery as Record<string, any>).mockReturnValue([]);
   });
 
   it("renders Players page and empty state", async () => {
@@ -27,7 +27,7 @@ describe("Players Component", () => {
   });
 
   it("renders list of players", async () => {
-    (useLiveQuery as any).mockReturnValue(mockPlayers);
+    (useLiveQuery as Record<string, any>).mockReturnValue(mockPlayers);
 
     render(
       <BrowserRouter>
@@ -39,7 +39,7 @@ describe("Players Component", () => {
   });
 
   it("adds a new player", async () => {
-    (db.players.add as any).mockResolvedValue(1);
+    (db.players.add as Record<string, any>).mockResolvedValue(1);
 
     render(
       <BrowserRouter>
@@ -86,7 +86,9 @@ describe("Players Component", () => {
     const loggerSpy = vi
       .spyOn(logger.logger, "error")
       .mockImplementation(() => {});
-    (db.players.add as any).mockRejectedValue(new Error("Add error"));
+    (db.players.add as Record<string, any>).mockRejectedValue(
+      new Error("Add error"),
+    );
 
     render(
       <BrowserRouter>

@@ -98,7 +98,7 @@ const TeamStats: React.FC = () => {
 
   /**
    * Updates the column sorting configuration.
-   * @param key
+   * @param {string} key - Column key to sort by.
    */
   const handleSort = (key: string) => {
     setSortConfig((prev) => ({
@@ -118,6 +118,7 @@ const TeamStats: React.FC = () => {
       setEditLogoUrl(team.logoUrl || "");
       setEditColor(team.primaryColor || "#154C56");
     }
+    // We only want to sync from DB when the team object itself changes (e.g. initial load)
   }, [team]);
 
   useEffect(() => {
@@ -141,17 +142,20 @@ const TeamStats: React.FC = () => {
   const games = useGames(teamId);
   const allPlayers = usePlayers();
 
-  const teamPlayers =
-    useLiveQuery(
-      async () =>
-        teamId !== undefined
-          ? await db.teamPlayers
-              .where("teamId")
-              .equals(teamId.toString())
-              .toArray()
-          : [],
-      [teamId],
-    ) || [];
+  const teamPlayersResult = useLiveQuery(
+    async () =>
+      teamId !== undefined
+        ? await db.teamPlayers
+            .where("teamId")
+            .equals(teamId.toString())
+            .toArray()
+        : [],
+    [teamId],
+  );
+  const teamPlayers = useMemo(
+    () => teamPlayersResult || [],
+    [teamPlayersResult],
+  );
 
   const allRecentLocations =
     useLiveQuery(async () => {
@@ -179,17 +183,17 @@ const TeamStats: React.FC = () => {
     () => games.map((g) => g.id).filter(Boolean),
     [games],
   );
-  const allStats =
-    useLiveQuery(
-      async () =>
-        gameIds.length > 0
-          ? await db.stats
-              .where("gameId")
-              .anyOf(gameIds as string[])
-              .toArray()
-          : [],
-      [gameIds],
-    ) || [];
+  const allStatsResult = useLiveQuery(
+    async () =>
+      gameIds.length > 0
+        ? await db.stats
+            .where("gameId")
+            .anyOf(gameIds as string[])
+            .toArray()
+        : [],
+    [gameIds],
+  );
+  const allStats = useMemo(() => allStatsResult || [], [allStatsResult]);
 
   const teamAggregates = useMemo(
     () => calculateTeamAggregates(games, allStats as StatEvent[]),
@@ -204,8 +208,8 @@ const TeamStats: React.FC = () => {
       statView,
     );
     return [...stats].sort((a, b) => {
-      const aValue = a[sortConfig.key as keyof typeof a];
-      const bValue = b[sortConfig.key as keyof typeof b];
+      const aValue = a[sortConfig.key as keyof typeof a] as number | string;
+      const bValue = b[sortConfig.key as keyof typeof b] as number | string;
       if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
       if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
       return 0;
@@ -214,8 +218,8 @@ const TeamStats: React.FC = () => {
 
   /**
    * Stages a player to be added or removed from the team's roster locally.
-   * @param playerId
-   * @param currentlyIn
+   * @param {string} playerId - Player ID.
+   * @param {boolean} currentlyIn - Whether the player is currently in roster.
    */
   const stageRosterChange = (playerId: string, currentlyIn: boolean) => {
     setPendingRosterChanges((prev) => {
@@ -241,8 +245,8 @@ const TeamStats: React.FC = () => {
 
   /**
    * Updates the local staged jersey number.
-   * @param playerId
-   * @param jersey
+   * @param {string} playerId - Player ID.
+   * @param {string} jersey - Jersey number.
    */
   const stageJerseyUpdate = (playerId: string, jersey: string) => {
     setLocalJerseyNumbers((prev) => ({ ...prev, [playerId]: jersey }));
@@ -1046,15 +1050,16 @@ const TeamStats: React.FC = () => {
 /**
  * Helper component for sortable table headers.
  *
- * @param root0
- * @param root0.label
- * @param root0.sortKey
- * @param root0.align
- * @param root0.hideOnMobile
- * @param root0.sortConfig
- * @param root0.sortConfig.key
- * @param root0.sortConfig.direction
- * @param root0.onSort
+ * @param {object} root0 - Component props.
+ * @param {string} root0.label - Header label.
+ * @param {string} root0.sortKey - Key to sort by.
+ * @param {"left" | "center" | "right"} root0.align - Text alignment.
+ * @param {boolean} root0.hideOnMobile - Whether to hide on mobile.
+ * @param {object} root0.sortConfig - Current sort configuration.
+ * @param {string} root0.sortConfig.key - Sort key.
+ * @param {"asc" | "desc"} root0.sortConfig.direction - Sort direction.
+ * @param {(key: string) => void} root0.onSort - Sort handler.
+ * @returns {React.ReactElement}
  */
 const SortableHeader = ({
   label,

@@ -55,6 +55,10 @@ import {
 
 const OPPONENT_PLAYER_ID = "OPPONENT";
 
+/**
+ * GameStats page component.
+ * Displays detailed box score, shot charts, and score flow for a specific game.
+ */
 const GameStats: React.FC = () => {
   const theme = useTheme();
   const [searchParams] = useSearchParams();
@@ -96,7 +100,7 @@ const GameStats: React.FC = () => {
   );
 
   const playersResult = useLiveQuery(() => db.players.toArray()) || [];
-  const players = useMemo(() => playersResult || [], [playersResult]);
+  const players = useMemo(() => playersResult, [playersResult]);
 
   const allStatsResult = useLiveQuery(
     () =>
@@ -399,7 +403,7 @@ const GameStats: React.FC = () => {
           id: s.id,
           x: s.locationX || 0,
           y: s.locationY || 0,
-          type: s.type,
+          type: s.type as "MAKE" | "MISS",
           label:
             s.playerId !== OPPONENT_PLAYER_ID
               ? getPlayerJersey(s.playerId, teamPlayers)
