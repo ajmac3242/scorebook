@@ -24,9 +24,9 @@ export default [
     rules: {
       ...reactHooks.configs.recommended.rules,
       "react-refresh/only-export-components": "off",
-      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-explicit-any": "error",
       "react-hooks/set-state-in-effect": "off",
-      "react-hooks/exhaustive-deps": "off",
+      "no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
       // JSDoc enforcement for frontend components and functions
       "jsdoc/require-jsdoc": "off",
       "jsdoc/require-description": "off",

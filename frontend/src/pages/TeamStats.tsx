@@ -1074,7 +1074,7 @@ const SortableHeader = ({
   align?: "left" | "center" | "right";
   hideOnMobile?: boolean;
   sortConfig: { key: string; direction: "asc" | "desc" };
-  onSort: (key: string) => void;
+  onSort: (_key: string) => void;
 }) => (
   <TableCell
     align={align}

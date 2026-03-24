@@ -99,8 +99,8 @@ const GameStats: React.FC = () => {
     [teamPlayersResult],
   );
 
-  const playersResult = useLiveQuery(() => db.players.toArray()) || [];
-  const players = useMemo(() => playersResult, [playersResult]);
+  const playersResult = useLiveQuery(() => db.players.toArray());
+  const players = useMemo(() => playersResult || [], [playersResult]);
 
   const allStatsResult = useLiveQuery(
     () =>

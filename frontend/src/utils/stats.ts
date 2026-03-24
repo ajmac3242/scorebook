@@ -5,7 +5,7 @@
  */
 
 import { ACTION_TYPES } from "../constants/stats";
-import { StatEvent, TeamPlayer } from "../db";
+import { StatEvent, TeamPlayer, Player, Game } from "../db";
 import { roundToOne, formatToOne } from "./mathUtils";
 
 /**
@@ -92,7 +92,7 @@ function processStatEvent(p: PlayerAggregates, s: StatEvent) {
  * @returns {Record<string, PlayerAggregates>} Initialized map.
  */
 function initializeStatsMap(
-  players: Record<string, any>[],
+  players: Player[],
   teamPlayers: TeamPlayer[],
 ): Record<string, PlayerAggregates> {
   // Optimization: Pre-map jersey numbers by playerId to avoid O(P * TP) complexity.
@@ -136,7 +136,7 @@ function initializeStatsMap(
  * @returns {PlayerAggregates[]} Array of aggregated statistics.
  */
 export const calculatePlayerAggregates = (
-  players: Record<string, any>[],
+  players: Player[],
   stats: StatEvent[],
   teamPlayers: TeamPlayer[] = [],
   viewType: "total" | "average" = "total",
@@ -183,10 +183,10 @@ export const calculatePlayerAggregates = (
  * @param {Record<string, any>[]} games - List of games.
  * @param {StatEvent[]} stats - List of statistical events across those games.
  * @param {boolean} completedOnly - (Optional) Only include completed games, defaults to true.
- * @returns {Record<string, any>} Team level aggregates.
+ * @returns {Record<string, unknown>} Team level aggregates.
  */
 export const calculateTeamAggregates = (
-  games: Record<string, any>[],
+  games: Game[],
   stats: StatEvent[],
   completedOnly = true,
 ) => {
