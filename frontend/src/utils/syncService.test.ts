@@ -110,6 +110,7 @@ describe("SyncService", () => {
     fetchMock.mockResolvedValue({
       status: 304,
       ok: false,
+      headers: new Headers(),
     });
 
     await syncService.syncTeamRoster("t1");
@@ -131,6 +132,7 @@ describe("SyncService", () => {
       ok: true,
       status: 200,
       json: () => Promise.resolve({ team: { id: "t1" }, players: [] }),
+      headers: new Headers(),
     });
 
     await syncService.syncTeamRoster("t1");
@@ -166,7 +168,8 @@ describe("SyncService", () => {
     it("handles game completion", async () => {
       const mockGame = { id: 10, completed: 1, synced: 0 };
       vi.mocked(db.games.toArray).mockResolvedValue([mockGame]);
-      fetchMock.mockResolvedValue({ ok: true });
+      fetchMock.mockResolvedValue({ ok: true, headers: new Headers() });
+      fetchMock.mockResolvedValue({ ok: true, headers: new Headers() });
 
       await syncService.pushUpdates();
 

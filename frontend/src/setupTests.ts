@@ -9,7 +9,12 @@ vi.mock("amazon-cognito-identity-js", () => {
   const CognitoUser = vi.fn().mockImplementation(function (this: unknown) {
     (this as any).authenticateUser = vi.fn();
     (this as any).getSession = vi.fn((callback) => {
-      callback(null, { isValid: () => true });
+      callback(null, {
+        isValid: () => true,
+        getAccessToken: () => ({
+          getJwtToken: () => "mock-token",
+        }),
+      });
     });
     (this as any).signOut = vi.fn();
   });
@@ -87,6 +92,16 @@ vi.mock("./db", () => ({
     transaction: vi.fn((_mode, _tables, callback) => callback()),
   },
 }));
+
+// Mock fetch globally to prevent ERR_INVALID_URL for relative paths in tests
+vi.stubGlobal(
+  "fetch",
+  vi.fn().mockResolvedValue({
+    ok: true,
+    json: () => Promise.resolve([]),
+    headers: new Headers(),
+  }),
+);
 
 // Mock dexie-react-hooks
 vi.mock("dexie-react-hooks", () => ({

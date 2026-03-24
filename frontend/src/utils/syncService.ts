@@ -231,7 +231,7 @@ class SyncService {
 
       if (response.ok) {
         const data = await response.json();
-        this.setETag(type, id, response.headers.get("ETag"));
+        this.setETag(type, id, response.headers?.get("ETag"));
         await onSuccess(data);
       }
     } catch (error) {
