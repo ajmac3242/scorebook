@@ -139,7 +139,7 @@ class SyncService {
    * @param {(item: T) => Promise<void>} [onSuccess] - Optional callback after successful push.
    * @private
    */
-  private async pushEntity<T extends { id?: string | number }>(
+  private async pushEntity<T extends { id?: string | number; synced?: number }>(
     table: Table<T, unknown>,
     endpoint: string | ((_item: T) => string),
     entityName: string,
@@ -156,7 +156,8 @@ class SyncService {
           body: JSON.stringify(item),
         });
         if (res.ok) {
-          await table.update(item.id!, { synced: 1 });
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          await table.update(item.id!, { synced: 1 } as any);
           if (onSuccess) await onSuccess(item);
         }
       } catch (err) {
