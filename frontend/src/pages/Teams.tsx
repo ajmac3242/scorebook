@@ -96,6 +96,32 @@ const Teams: React.FC = () => {
     [allStatsQueryResult],
   );
 
+  // Pre-calculate team aggregates to avoid O(N^2) filtering in the render loop.
+  const teamAggregatesMap = useMemo(() => {
+    const gamesByTeam: Record<string, any[]> = {};
+    allGames.forEach((g) => {
+      if (!gamesByTeam[g.teamId]) gamesByTeam[g.teamId] = [];
+      gamesByTeam[g.teamId].push(g);
+    });
+
+    const statsByGame: Record<string, StatEvent[]> = {};
+    allStats.forEach((s) => {
+      if (!statsByGame[s.gameId]) statsByGame[s.gameId] = [];
+      statsByGame[s.gameId].push(s as StatEvent);
+    });
+
+    const results: Record<string, any> = {};
+    teams.forEach((team) => {
+      const teamGames = gamesByTeam[team.id!] || [];
+      const teamStats = teamGames.flatMap((g) => statsByGame[g.id!] || []);
+      results[team.id!] = calculateTeamAggregates(
+        teamGames,
+        teamStats as StatEvent[],
+      );
+    });
+    return results;
+  }, [teams, allGames, allStats]);
+
   /**
    * Calculates luminance to determine if text should be white or black for a given background color.
    * @param hexcolor
@@ -168,14 +194,13 @@ const Teams: React.FC = () => {
         )}
         <Grid container spacing={3}>
           {filteredTeams.map((team) => {
-            const teamGames = allGames.filter((g) => g.teamId === team.id);
-            const teamStats = allStats.filter((s) =>
-              teamGames.some((g) => g.id === s.gameId),
-            );
-            const aggregates = calculateTeamAggregates(
-              teamGames,
-              teamStats as StatEvent[],
-            );
+            const aggregates = teamAggregatesMap[team.id!] || {
+              record: "0-0",
+              ppg: "0.0",
+              rpg: "0.0",
+              apg: "0.0",
+              oppg: "0.0",
+            };
             const contrastColor = getContrastColor(
               team.primaryColor || "#154C56",
             );
