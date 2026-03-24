@@ -173,7 +173,11 @@ describe("Lambda Handler", () => {
       const response: any = await handler(event);
       expect(response.statusCode).toBe(201);
       const body = JSON.parse(response.body);
-      expect(body.GSI1PK).toBe("GAME#g1");
+      expect(body.id).toBe("st1");
+      expect(body.type).toBe("MAKE");
+      // Internal keys should be redacted
+      expect(body.GSI1PK).toBeUndefined();
+      expect(body.PK).toBeUndefined();
     });
   });
 

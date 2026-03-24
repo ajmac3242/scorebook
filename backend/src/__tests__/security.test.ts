@@ -73,4 +73,46 @@ describe("Security Tests", () => {
     expect(body.message).toBe("Internal Server Error");
     expect(body.message).not.toContain("Sensitive database connection details");
   });
+
+  it("removes internal DynamoDB keys (PK, SK, GSI) from API responses", async () => {
+    ddbMock.on(QueryCommand).resolves({
+      Items: [
+        {
+          id: "test-id",
+          name: "Test Team",
+          PK: "TEAM#test-id",
+          SK: "METADATA#test-id",
+          GSI1PK: "TEAM",
+          synced: 1,
+        },
+      ],
+    });
+
+    const event = createEvent("GET", "/teams");
+    const response: any = await handler(event);
+
+    expect(response.statusCode).toBe(200);
+    const body = JSON.parse(response.body);
+    const item = body[0];
+
+    expect(item.id).toBe("test-id");
+    expect(item.name).toBe("Test Team");
+    expect(item.PK).toBeUndefined();
+    expect(item.SK).toBeUndefined();
+    expect(item.GSI1PK).toBeUndefined();
+    expect(item.synced).toBeUndefined();
+  });
+
+  it("validates input length for entity names (max 100 chars)", async () => {
+    const longNameBody = {
+      name: "A".repeat(101),
+    };
+
+    const event = createEvent("POST", "/teams", longNameBody);
+    const response: any = await handler(event);
+
+    expect(response.statusCode).toBe(400);
+    const body = JSON.parse(response.body);
+    expect(body.message).toContain("Team name is required and must be under 100 characters");
+  });
 });
