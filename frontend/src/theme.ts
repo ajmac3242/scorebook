@@ -80,6 +80,8 @@ const theme = createTheme({
           --palette-warm-gray: #D4D4CE;
           --palette-off-white: #F6F6F6;
           --palette-navy-blue: #023246;
+          --palette-golden-dune: #D99E32;
+          --palette-midnight: #023246;
           --serif: "EB Garamond", serif;
           --sans: system-ui, -apple-system, sans-serif;
         }

@@ -41,6 +41,7 @@ import {
   Edit as EditIcon,
   Delete,
   Add as AddIcon,
+  Close as CloseIcon,
 } from "@mui/icons-material";
 import { db, type TeamPlayer, type StatEvent } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -93,6 +94,7 @@ const TeamStats: React.FC = () => {
 
   const [openAddGame, setOpenAddGame] = useState(false);
   const [newOpponent, setNewOpponent] = useState("");
+  const [newOpponentLogoUrl, setNewOpponentLogoUrl] = useState("");
   const [newDate, setNewDate] = useState("");
   const [newLocation, setNewLocation] = useState("");
 
@@ -378,6 +380,7 @@ const TeamStats: React.FC = () => {
         id: crypto.randomUUID(),
         teamId: teamId.toString(),
         opponent: newOpponent,
+        opponentLogoUrl: newOpponentLogoUrl,
         date: newDate,
         location: newLocation,
         synced: 0,
@@ -385,6 +388,7 @@ const TeamStats: React.FC = () => {
       syncService.pushUpdates();
       setOpenAddGame(false);
       setNewOpponent("");
+      setNewOpponentLogoUrl("");
       setNewDate("");
       setNewLocation("");
     } catch (error) {
@@ -480,33 +484,36 @@ const TeamStats: React.FC = () => {
               justifyContent: "space-between",
               mb: 2,
               alignItems: "center",
-              flexWrap: "wrap",
-              gap: 2,
             }}
           >
             <Typography variant="h5" sx={{ fontFamily: "var(--serif)" }}>
               Schedule
             </Typography>
-            <Stack direction="row" spacing={2} alignItems="center">
-              <Button
-                variant="contained"
-                size="small"
-                startIcon={<AddIcon />}
-                disabled={isDeleted}
-                onClick={() => setOpenAddGame(true)}
-              >
-                Create Game
-              </Button>
-              <ToggleButtonGroup
-                value={scheduleView}
-                exclusive
-                onChange={(_, val) => val && setScheduleView(val)}
-                size="small"
-              >
-                <ToggleButton value="upcoming">Upcoming</ToggleButton>
-                <ToggleButton value="all">All Games</ToggleButton>
-              </ToggleButtonGroup>
-            </Stack>
+            <Button
+              variant="contained"
+              size="small"
+              startIcon={<AddIcon />}
+              disabled={isDeleted}
+              onClick={() => setOpenAddGame(true)}
+              sx={{
+                bgcolor: "var(--palette-golden-dune)",
+                color: "var(--palette-midnight)",
+              }}
+            >
+              Create Game
+            </Button>
+          </Box>
+          <Box sx={{ mb: 3 }}>
+            <ToggleButtonGroup
+              value={scheduleView}
+              exclusive
+              onChange={(_, val) => val && setScheduleView(val)}
+              size="small"
+              fullWidth={Boolean(isMobile)}
+            >
+              <ToggleButton value="upcoming">Upcoming</ToggleButton>
+              <ToggleButton value="all">All Games</ToggleButton>
+            </ToggleButtonGroup>
           </Box>
           <Stack spacing={2}>
             {games
@@ -532,14 +539,28 @@ const TeamStats: React.FC = () => {
                   }}
                   onClick={() => navigate(`/game/stats?gameId=${game.id}`)}
                 >
-                  <Box>
-                    <Typography variant="caption" color="text.secondary">
-                      {new Date(game.date).toLocaleDateString()} @{" "}
-                      {game.location}
-                    </Typography>
-                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                      vs {game.opponent}
-                    </Typography>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                    {game.opponentLogoUrl && (
+                      <Box
+                        component="img"
+                        src={game.opponentLogoUrl}
+                        sx={{
+                          width: 40,
+                          height: 40,
+                          objectFit: "contain",
+                          borderRadius: "4px",
+                        }}
+                      />
+                    )}
+                    <Box>
+                      <Typography variant="caption" color="text.secondary">
+                        {new Date(game.date).toLocaleDateString()} @{" "}
+                        {game.location}
+                      </Typography>
+                      <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                        vs {game.opponent}
+                      </Typography>
+                    </Box>
                   </Box>
                   <Box sx={{ textAlign: "right" }}>
                     {game.completed ? (
@@ -931,28 +952,50 @@ const TeamStats: React.FC = () => {
                 <ListItem
                   key={playerEntityId}
                   divider
+                  sx={{
+                    px: { xs: 1, sm: 2 },
+                  }}
                   secondaryAction={
-                    <Box sx={{ display: "flex", gap: 1 }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: { xs: 0.5, sm: 1 },
+                      }}
+                    >
                       {isIn && (
                         <TextField
                           size="small"
                           label="#"
                           type="number"
                           slotProps={{ htmlInput: { min: 0, max: 99 } }}
-                          sx={{ width: 60 }}
+                          sx={{ width: { xs: 45, sm: 60 } }}
                           value={jersey}
                           onChange={(e) =>
                             stageJerseyUpdate(pId, e.target.value)
                           }
                         />
                       )}
-                      <Button
-                        variant={isIn ? "outlined" : "contained"}
-                        color={isIn ? "error" : "primary"}
-                        onClick={() => stageRosterChange(pId, !!dbRecord)}
-                      >
-                        {isIn ? "Remove" : "Add"}
-                      </Button>
+                      {isIn ? (
+                        <IconButton
+                          edge="end"
+                          aria-label="remove"
+                          onClick={() => stageRosterChange(pId, !!dbRecord)}
+                          color="error"
+                          size="small"
+                        >
+                          <CloseIcon fontSize="small" />
+                        </IconButton>
+                      ) : (
+                        <Button
+                          variant="contained"
+                          size="small"
+                          onClick={() => stageRosterChange(pId, !!dbRecord)}
+                          sx={{ minWidth: { xs: 45, sm: 64 } }}
+                        >
+                          Add
+                        </Button>
+                      )}
                     </Box>
                   }
                 >
@@ -986,6 +1029,14 @@ const TeamStats: React.FC = () => {
             variant="outlined"
             value={newOpponent}
             onChange={(e) => setNewOpponent(e.target.value)}
+          />
+          <TextField
+            margin="dense"
+            label="Opponent Logo URL"
+            fullWidth
+            variant="outlined"
+            value={newOpponentLogoUrl}
+            onChange={(e) => setNewOpponentLogoUrl(e.target.value)}
           />
           <TextField
             margin="dense"

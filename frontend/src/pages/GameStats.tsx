@@ -27,19 +27,25 @@ import {
   Alert,
   AlertTitle,
   DialogContentText,
+  TextField,
+  ToggleButton,
+  ToggleButtonGroup,
+  useMediaQuery,
 } from "@mui/material";
 import {
   OpenInFull as ExpandIcon,
   Delete,
   Restore,
   Warning,
+  Edit as EditIcon,
 } from "@mui/icons-material";
 import BasketballCourt from "../components/BasketballCourt";
 import { db } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
 import { ACTION_TYPES } from "../constants/stats";
 import { calculatePlayerAggregates, getPlayerJersey } from "../utils/stats";
-import { MoleskineCard, PageHeader } from "../components/SharedUI";
+import { MoleskineCard } from "../components/SharedUI";
+import EntityBanner from "../components/EntityBanner";
 import { syncService } from "../utils/syncService";
 import dayjs from "dayjs";
 import {
@@ -61,6 +67,7 @@ const OPPONENT_PLAYER_ID = "OPPONENT";
  */
 const GameStats: React.FC = () => {
   const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [searchParams] = useSearchParams();
   const gameId = searchParams.get("gameId") || undefined;
 
@@ -72,6 +79,12 @@ const GameStats: React.FC = () => {
   const [periodFilter, setPeriodFilter] = useState<string>("ALL");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [timeLeft, setTimeLeft] = useState("");
+
+  const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [editOpponent, setEditOpponent] = useState("");
+  const [editDate, setEditDate] = useState("");
+  const [editLocation, setEditLocation] = useState("");
+  const [editOpponentLogoUrl, setEditOpponentLogoUrl] = useState("");
 
   const game = useLiveQuery(
     () =>
@@ -101,6 +114,15 @@ const GameStats: React.FC = () => {
 
   const playersResult = useLiveQuery(() => db.players.toArray());
   const players = useMemo(() => playersResult || [], [playersResult]);
+
+  useEffect(() => {
+    if (game) {
+      setEditOpponent(game.opponent || "");
+      setEditDate(game.date || "");
+      setEditLocation(game.location || "");
+      setEditOpponentLogoUrl(game.opponentLogoUrl || "");
+    }
+  }, [game]);
 
   const allStatsResult = useLiveQuery(
     () =>
@@ -218,6 +240,23 @@ const GameStats: React.FC = () => {
       syncService.pushUpdates();
     } catch (err) {
       console.error("Failed to restore game:", err);
+    }
+  };
+
+  const handleUpdateGame = async () => {
+    if (!gameId) return;
+    try {
+      await db.games.update(gameId, {
+        opponent: editOpponent,
+        date: editDate,
+        location: editLocation,
+        opponentLogoUrl: editOpponentLogoUrl,
+        synced: 0,
+      });
+      syncService.pushUpdates();
+      setOpenEditDialog(false);
+    } catch (err) {
+      console.error("Failed to update game:", err);
     }
   };
 
@@ -444,20 +483,29 @@ const GameStats: React.FC = () => {
 
   return (
     <Box sx={{ pb: 4, opacity: isDeleted ? 0.7 : 1 }}>
-      <PageHeader
+      <EntityBanner
         title={game?.opponent ? `vs ${game.opponent}` : "Game Stats"}
         subtitle={`${game?.date || ""} | ${game?.location || ""}`}
-        showBack
+        avatarSrc={game?.opponentLogoUrl}
+        avatarColor="rgba(255,255,255,0.1)"
+        backTo={game?.teamId ? `/teams/${game.teamId}` : "/teams"}
+        primaryColor={team?.primaryColor}
         actions={
-          <Stack direction="row" spacing={1} justifyContent="center">
+          <Stack direction="row" spacing={1} alignItems="center">
             {!isDeleted ? (
-              <Button
-                startIcon={<Delete />}
-                color="error"
-                onClick={() => setDeleteDialogOpen(true)}
+              <IconButton
+                onClick={() => setOpenEditDialog(true)}
+                sx={{
+                  color: "white",
+                  bgcolor: "rgba(255,255,255,0.1)",
+                  "&:hover": {
+                    bgcolor: "rgba(255,255,255,0.2)",
+                    transform: "scale(1.1)",
+                  },
+                }}
               >
-                Delete Game
-              </Button>
+                <EditIcon />
+              </IconButton>
             ) : game?.deletedAt && !team?.deletedAt ? (
               <Button
                 startIcon={<Restore />}
@@ -473,7 +521,7 @@ const GameStats: React.FC = () => {
       />
 
       {isDeleted && (
-        <Alert severity="warning" icon={<Warning />} sx={{ mb: 4 }}>
+        <Alert severity="warning" icon={<Warning />} sx={{ mb: 4, mt: 3 }}>
           <AlertTitle>Read Only Mode</AlertTitle>
           {game?.deletedAt
             ? `This game is scheduled for deletion in ${timeLeft}.`
@@ -484,21 +532,22 @@ const GameStats: React.FC = () => {
       <Box
         sx={{
           mb: 4,
-          display: "flex",
-          gap: 1,
-          flexWrap: "wrap",
-          justifyContent: "center",
+          mt: 3,
         }}
       >
-        {periods.map((p) => (
-          <Chip
-            key={p}
-            label={p === "ALL" ? "Full Game" : `${periodLabel} ${p}`}
-            onClick={() => setPeriodFilter(p)}
-            color={periodFilter === p ? "primary" : "default"}
-            variant={periodFilter === p ? "filled" : "outlined"}
-          />
-        ))}
+        <ToggleButtonGroup
+          value={periodFilter}
+          exclusive
+          onChange={(_, val) => val && setPeriodFilter(val)}
+          size="small"
+          fullWidth={Boolean(isMobile)}
+        >
+          {periods.map((p) => (
+            <ToggleButton key={p} value={p}>
+              {p === "ALL" ? "Full Game" : `${periodLabel} ${p}`}
+            </ToggleButton>
+          ))}
+        </ToggleButtonGroup>
       </Box>
 
       <Grid container spacing={3}>
@@ -611,6 +660,69 @@ const GameStats: React.FC = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setExpandedSection(null)}>Close</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={openEditDialog}
+        onClose={() => setOpenEditDialog(false)}
+        fullWidth
+        maxWidth="xs"
+      >
+        <DialogTitle
+          sx={{
+            fontFamily: "var(--serif)",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          Edit Game Details
+          <IconButton
+            color="error"
+            onClick={() => {
+              setOpenEditDialog(false);
+              setDeleteDialogOpen(true);
+            }}
+          >
+            <Delete />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent>
+          <Stack spacing={3} sx={{ mt: 1 }}>
+            <TextField
+              fullWidth
+              label="Opponent"
+              value={editOpponent}
+              onChange={(e) => setEditOpponent(e.target.value)}
+            />
+            <TextField
+              fullWidth
+              label="Opponent Logo URL"
+              value={editOpponentLogoUrl}
+              onChange={(e) => setEditOpponentLogoUrl(e.target.value)}
+            />
+            <TextField
+              fullWidth
+              label="Date"
+              type="date"
+              InputLabelProps={{ shrink: true }}
+              value={editDate}
+              onChange={(e) => setEditDate(e.target.value)}
+            />
+            <TextField
+              fullWidth
+              label="Location"
+              value={editLocation}
+              onChange={(e) => setEditLocation(e.target.value)}
+            />
+          </Stack>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 3 }}>
+          <Button onClick={() => setOpenEditDialog(false)}>Cancel</Button>
+          <Button onClick={handleUpdateGame} variant="contained" sx={{ ml: 1 }}>
+            Save
+          </Button>
         </DialogActions>
       </Dialog>
 
