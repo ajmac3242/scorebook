@@ -31,7 +31,12 @@ describe("AuthContext", () => {
 
   it("sets authenticated to true if user session is valid", async () => {
     const mockUser = {
-      getSession: vi.fn((callback) => callback(null, { isValid: () => true })),
+      getSession: vi.fn((callback) =>
+        callback(null, {
+          isValid: () => true,
+          getAccessToken: () => ({ getJwtToken: () => "mock-token" }),
+        }),
+      ),
     };
     (UserPool.getCurrentUser as any).mockReturnValue(mockUser);
 
@@ -87,7 +92,12 @@ describe("AuthContext", () => {
 
   it("handles logout", async () => {
     const mockUser = {
-      getSession: vi.fn((callback) => callback(null, { isValid: () => true })),
+      getSession: vi.fn((callback) =>
+        callback(null, {
+          isValid: () => true,
+          getAccessToken: () => ({ getJwtToken: () => "mock-token" }),
+        }),
+      ),
       signOut: vi.fn(),
     };
     (UserPool.getCurrentUser as any).mockReturnValue(mockUser);
