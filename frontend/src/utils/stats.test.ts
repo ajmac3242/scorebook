@@ -178,9 +178,30 @@ describe("stats utilities", () => {
 
   describe("calculateTeamAggregates", () => {
     const games: Game[] = [
-      { id: "g1", completed: 1, teamId: "t1", opponent: "Opp", date: "2023-01-01", location: "Home" },
-      { id: "g2", completed: 1, teamId: "t1", opponent: "Opp", date: "2023-01-02", location: "Home" },
-      { id: "g3", completed: 0, teamId: "t1", opponent: "Opp", date: "2023-01-03", location: "Home" },
+      {
+        id: "g1",
+        completed: 1,
+        teamId: "t1",
+        opponent: "Opp",
+        date: "2023-01-01",
+        location: "Home",
+      },
+      {
+        id: "g2",
+        completed: 1,
+        teamId: "t1",
+        opponent: "Opp",
+        date: "2023-01-02",
+        location: "Home",
+      },
+      {
+        id: "g3",
+        completed: 0,
+        teamId: "t1",
+        opponent: "Opp",
+        date: "2023-01-03",
+        location: "Home",
+      },
     ];
     const stats: StatEvent[] = [
       // Game 1: Win (5-3)

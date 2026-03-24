@@ -65,13 +65,15 @@ class SyncService {
     if (!user) return null;
 
     return new Promise((resolve) => {
-      user.getSession((err: Error | null, session: CognitoUserSession | null) => {
-        if (err || !session || !session.isValid()) {
-          resolve(null);
-        } else {
-          resolve(session.getAccessToken().getJwtToken());
-        }
-      });
+      user.getSession(
+        (err: Error | null, session: CognitoUserSession | null) => {
+          if (err || !session || !session.isValid()) {
+            resolve(null);
+          } else {
+            resolve(session.getAccessToken().getJwtToken());
+          }
+        },
+      );
     });
   }
 

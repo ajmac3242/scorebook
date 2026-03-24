@@ -38,9 +38,7 @@ describe("AuthContext", () => {
         }),
       ),
     };
-    (UserPool.getCurrentUser as Mock).mockReturnValue(
-      mockUser,
-    );
+    (UserPool.getCurrentUser as Mock).mockReturnValue(mockUser);
 
     render(
       <AuthProvider>
@@ -61,9 +59,7 @@ describe("AuthContext", () => {
         callback(new Error("Session error"), null),
       ),
     };
-    (UserPool.getCurrentUser as Mock).mockReturnValue(
-      mockUser,
-    );
+    (UserPool.getCurrentUser as Mock).mockReturnValue(mockUser);
 
     render(
       <AuthProvider>
@@ -79,9 +75,7 @@ describe("AuthContext", () => {
   });
 
   it("sets authenticated to false if no user exists", async () => {
-    (UserPool.getCurrentUser as Mock).mockReturnValue(
-      null,
-    );
+    (UserPool.getCurrentUser as Mock).mockReturnValue(null);
 
     render(
       <AuthProvider>
@@ -106,9 +100,7 @@ describe("AuthContext", () => {
       ),
       signOut: vi.fn(),
     };
-    (UserPool.getCurrentUser as Mock).mockReturnValue(
-      mockUser,
-    );
+    (UserPool.getCurrentUser as Mock).mockReturnValue(mockUser);
 
     render(
       <AuthProvider>
