@@ -32,6 +32,7 @@ import {
   AlertTitle,
   DialogContentText,
   IconButton,
+  Autocomplete,
 } from "@mui/material";
 import {
   PersonAdd as PersonAddIcon,
@@ -39,6 +40,7 @@ import {
   Warning,
   Edit as EditIcon,
   Delete,
+  Add as AddIcon,
 } from "@mui/icons-material";
 import { db, type TeamPlayer, type StatEvent } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -88,6 +90,11 @@ const TeamStats: React.FC = () => {
     key: string;
     direction: "asc" | "desc";
   }>({ key: "points", direction: "desc" });
+
+  const [openAddGame, setOpenAddGame] = useState(false);
+  const [newOpponent, setNewOpponent] = useState("");
+  const [newDate, setNewDate] = useState("");
+  const [newLocation, setNewLocation] = useState("");
 
   /**
    * Updates the column sorting configuration.
@@ -145,6 +152,21 @@ const TeamStats: React.FC = () => {
           : [],
       [teamId],
     ) || [];
+
+  const allRecentLocations =
+    useLiveQuery(async () => {
+      try {
+        await db.open();
+        const items = await db.games.toArray();
+        const locations = items
+          .map((g) => g.location)
+          .filter(Boolean) as string[];
+        return Array.from(new Set(locations)).sort();
+      } catch (error) {
+        console.error("Failed to fetch locations:", error);
+        return [];
+      }
+    }) || [];
 
   const teamPlayerDetails = useMemo(() => {
     const playerIds = teamPlayers.map((tp: TeamPlayer) =>
@@ -344,6 +366,28 @@ const TeamStats: React.FC = () => {
     }
   };
 
+  const handleAddGame = async () => {
+    if (!teamId) return;
+    try {
+      await db.open();
+      await db.games.add({
+        id: crypto.randomUUID(),
+        teamId: teamId.toString(),
+        opponent: newOpponent,
+        date: newDate,
+        location: newLocation,
+        synced: 0,
+      });
+      syncService.pushUpdates();
+      setOpenAddGame(false);
+      setNewOpponent("");
+      setNewDate("");
+      setNewLocation("");
+    } catch (error) {
+      console.error("Failed to add game:", error);
+    }
+  };
+
   const isDeleted = !!team?.deletedAt;
   const isPendingDelete = !!team?.deletedAt;
 
@@ -432,20 +476,33 @@ const TeamStats: React.FC = () => {
               justifyContent: "space-between",
               mb: 2,
               alignItems: "center",
+              flexWrap: "wrap",
+              gap: 2,
             }}
           >
             <Typography variant="h5" sx={{ fontFamily: "var(--serif)" }}>
               Schedule
             </Typography>
-            <ToggleButtonGroup
-              value={scheduleView}
-              exclusive
-              onChange={(_, val) => val && setScheduleView(val)}
-              size="small"
-            >
-              <ToggleButton value="upcoming">Upcoming</ToggleButton>
-              <ToggleButton value="all">All Games</ToggleButton>
-            </ToggleButtonGroup>
+            <Stack direction="row" spacing={2} alignItems="center">
+              <Button
+                variant="contained"
+                size="small"
+                startIcon={<AddIcon />}
+                disabled={isDeleted}
+                onClick={() => setOpenAddGame(true)}
+              >
+                Create Game
+              </Button>
+              <ToggleButtonGroup
+                value={scheduleView}
+                exclusive
+                onChange={(_, val) => val && setScheduleView(val)}
+                size="small"
+              >
+                <ToggleButton value="upcoming">Upcoming</ToggleButton>
+                <ToggleButton value="all">All Games</ToggleButton>
+              </ToggleButtonGroup>
+            </Stack>
           </Box>
           <Stack spacing={2}>
             {games
@@ -908,6 +965,55 @@ const TeamStats: React.FC = () => {
           <Button onClick={handleCancelRoster}>Cancel</Button>
           <Button onClick={handleSaveRoster} variant="contained">
             Save Changes
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={openAddGame} onClose={() => setOpenAddGame(false)}>
+        <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
+          Add New Game
+        </DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Opponent"
+            fullWidth
+            variant="outlined"
+            value={newOpponent}
+            onChange={(e) => setNewOpponent(e.target.value)}
+          />
+          <TextField
+            margin="dense"
+            label="Date"
+            type="date"
+            fullWidth
+            variant="outlined"
+            InputLabelProps={{ shrink: true }}
+            value={newDate}
+            onChange={(e) => setNewDate(e.target.value)}
+          />
+          <Autocomplete
+            freeSolo
+            options={allRecentLocations}
+            value={newLocation}
+            onInputChange={(_, newValue) => setNewLocation(newValue)}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                margin="dense"
+                label="Location"
+                fullWidth
+                variant="outlined"
+              />
+            )}
+            sx={{ mt: 1 }}
+          />
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={() => setOpenAddGame(false)}>Cancel</Button>
+          <Button onClick={handleAddGame} variant="contained">
+            Add Game
           </Button>
         </DialogActions>
       </Dialog>

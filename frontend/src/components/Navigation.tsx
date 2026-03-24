@@ -8,44 +8,22 @@
 import React, { useState, useEffect } from "react";
 import {
   Box,
-  Drawer,
-  List,
-  ListItem,
   ListItemButton,
   ListItemIcon,
-  ListItemText,
   IconButton,
   Typography,
-  Divider,
-  Tooltip,
   useTheme,
   useMediaQuery,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
-  Button,
-  Stack,
 } from "@mui/material";
 import {
-  Menu as MenuIcon,
-  ChevronLeft as ChevronLeftIcon,
   Dashboard as DashboardIcon,
   People as PlayersIcon,
   Groups as TeamsIcon,
-  SportsBasketball as GamesIcon,
-  Logout as LogoutIcon,
-  Person as PersonIcon,
   SportsBasketball as BasketballIcon,
-  Wifi as OnlineIcon,
-  WifiOff as OfflineIcon,
   Settings as SettingsIcon,
 } from "@mui/icons-material";
 import { Link, useLocation } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
 import { syncService } from "../utils/syncService";
-import { Refresh as SyncingIcon, CloudSync } from "@mui/icons-material";
 
 /**
  * Navigation item component that expands on hover or when selected.
@@ -121,9 +99,7 @@ const NavItem: React.FC<{
 const Navigation: React.FC = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const { logout } = useAuth();
   const location = useLocation();
-  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
 
   useEffect(() => {
@@ -149,33 +125,11 @@ const Navigation: React.FC = () => {
     };
   }, []);
 
-  /**
-   * Handles the logout button click.
-   * If there are unsynced changes, a warning dialog is shown.
-   */
-  const handleLogoutClick = async () => {
-    const hasUnsynced = await syncService.hasUnsyncedChanges();
-    if (hasUnsynced) {
-      setLogoutDialogOpen(true);
-    } else {
-      logout();
-    }
-  };
-
-  /**
-   * Confirms and executes the logout action from the dialog.
-   */
-  const confirmLogout = () => {
-    setLogoutDialogOpen(false);
-    logout();
-  };
-
   // Configuration for main navigation items
   const menuItems = [
     { text: "Dashboard", icon: <DashboardIcon />, path: "/" },
     { text: "Teams", icon: <TeamsIcon />, path: "/teams" },
     { text: "Players", icon: <PlayersIcon />, path: "/players" },
-    { text: "Games", icon: <GamesIcon />, path: "/games" },
   ];
 
   const mobileMenuItems = [
@@ -224,7 +178,7 @@ const Navigation: React.FC = () => {
           display: "flex",
           flexDirection: "row",
           alignItems: "center",
-          bgcolor: "#121212",
+          bgcolor: "primary.main",
           borderRadius: "32px",
           px: 0.75,
           py: 0.5,
@@ -247,7 +201,6 @@ const Navigation: React.FC = () => {
           justifyContent: "flex-end",
           alignItems: "center",
           width: "200px",
-          gap: 1,
         }}
       >
         <IconButton
@@ -272,41 +225,8 @@ const Navigation: React.FC = () => {
         >
           <SettingsIcon />
         </IconButton>
-        <IconButton
-          onClick={handleLogoutClick}
-          sx={{
-            color: "error.main",
-            "&:hover": {
-              bgcolor: "rgba(166, 68, 68, 0.08)",
-            },
-          }}
-        >
-          <LogoutIcon />
-        </IconButton>
       </Box>
     </Box>
-  );
-
-  const logoutDialog = (
-    <Dialog open={logoutDialogOpen} onClose={() => setLogoutDialogOpen(false)}>
-      <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
-        Unsynced Changes
-      </DialogTitle>
-      <DialogContent>
-        <DialogContentText>
-          You have data that hasn't been synced to the server yet. If you logout
-          now, these changes may be lost. Are you sure you want to logout?
-        </DialogContentText>
-      </DialogContent>
-      <DialogActions sx={{ p: 2 }}>
-        <Button onClick={() => setLogoutDialogOpen(false)} color="inherit">
-          Cancel
-        </Button>
-        <Button onClick={confirmLogout} color="error" variant="contained">
-          Logout Anyway
-        </Button>
-      </DialogActions>
-    </Dialog>
   );
 
   return (
@@ -360,48 +280,71 @@ const Navigation: React.FC = () => {
       )}
 
       {isMobile && (
-        <Box
-          sx={{
-            position: "fixed",
-            bottom: 24,
-            left: "50%",
-            transform: "translateX(-50%)",
-            height: 60,
-            bgcolor: "#121212",
-            zIndex: theme.zIndex.appBar,
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            px: 0.75,
-            borderRadius: "32px",
-            boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
-            width: "auto",
-            maxWidth: "95vw",
-            gap: 0.25,
-          }}
-        >
-          {mobileMenuItems.map((item) => (
-            <NavItem
-              key={item.text}
-              item={item}
-              isSelected={location.pathname === item.path}
-            />
-          ))}
-          <IconButton
-            onClick={handleLogoutClick}
+        <>
+          {/* Mobile Top Branding */}
+          <Box
             sx={{
-              color: "error.light",
-              ml: 0.5,
-              "&:hover": {
-                bgcolor: "rgba(255, 255, 255, 0.1)",
-              },
+              position: "fixed",
+              top: 0,
+              left: 0,
+              right: 0,
+              height: 56,
+              bgcolor: "transparent",
+              zIndex: theme.zIndex.appBar,
+              display: "flex",
+              alignItems: "center",
+              px: 2,
             }}
           >
-            <LogoutIcon fontSize="small" />
-          </IconButton>
-        </Box>
+            <Box
+              component="img"
+              src="/logo.svg"
+              sx={{ width: 28, height: 28, mr: 1 }}
+            />
+            <Typography
+              variant="h6"
+              sx={{
+                fontFamily: "var(--serif)",
+                color: "primary.dark",
+                fontWeight: 700,
+                fontSize: "1.1rem",
+              }}
+            >
+              Scorebook
+            </Typography>
+          </Box>
+
+          {/* Mobile Bottom Navigation Pill */}
+          <Box
+            sx={{
+              position: "fixed",
+              bottom: 24,
+              left: "50%",
+              transform: "translateX(-50%)",
+              height: 60,
+              bgcolor: "primary.main",
+              zIndex: theme.zIndex.appBar,
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              px: 0.75,
+              borderRadius: "32px",
+              boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
+              width: "auto",
+              maxWidth: "95vw",
+              gap: 0.25,
+            }}
+          >
+            {mobileMenuItems.map((item) => (
+              <NavItem
+                key={item.text}
+                item={item}
+                isSelected={location.pathname === item.path}
+              />
+            ))}
+          </Box>
+        </>
       )}
-      {logoutDialog}
     </>
   );
 };
