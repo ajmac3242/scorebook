@@ -4,22 +4,11 @@
  * Manages the global authentication status and triggers initial synchronization.
  */
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { CognitoUserSession } from "amazon-cognito-identity-js";
 import { UserPool } from "../UserPool";
 import { syncService } from "../utils/syncService";
-
-/**
- * Interface representing the structure of the authentication context.
- */
-interface AuthContextType {
-  isAuthenticated: boolean;
-  loading: boolean;
-  setIsAuthenticated: (value: boolean) => void;
-  logout: () => void;
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+import { AuthContext } from "./AuthContextTypes";
 
 /**
  * AuthProvider component that wraps the application and provides auth state.
@@ -32,41 +21,50 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return localStorage.getItem("isAuthenticated") === "true";
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Mock authentication for preview/testing environments
-    if (localStorage.getItem("isAuthenticated") === "true") {
-      setIsAuthenticated(true);
-      setLoading(false);
-      return;
-    }
+    // If already authenticated via localStorage, we still want to verify session
+    // but we can skip the immediate redirect if any.
 
     // Check for an existing Cognito user session on component mount
     const user = UserPool.getCurrentUser();
     if (user) {
       user.getSession(
         (err: Error | null, session: CognitoUserSession | null) => {
-          setTimeout(() => {
-            if (err || !session || !session.isValid()) {
-              setIsAuthenticated(false);
-              localStorage.removeItem("isAuthenticated");
-            } else {
-              setIsAuthenticated(true);
-              // Trigger an initial full pull synchronization if a session exists
-              syncService.pullAll();
-            }
-            setLoading(false);
-          }, 0);
+          const isValid = !err && session && session.isValid();
+
+          if (!isValid) {
+            setIsAuthenticated((prev) => {
+              if (prev) {
+                localStorage.removeItem("isAuthenticated");
+                return false;
+              }
+              return prev;
+            });
+          } else {
+            setIsAuthenticated(true);
+            localStorage.setItem("isAuthenticated", "true");
+            // Trigger an initial full pull synchronization if a session exists
+            syncService.pullAll();
+          }
+          setLoading(false);
         },
       );
     } else {
       setTimeout(() => {
-        setIsAuthenticated(false);
+        setIsAuthenticated((prev) => {
+          if (prev) {
+            localStorage.removeItem("isAuthenticated");
+            return false;
+          }
+          return prev;
+        });
         setLoading(false);
       }, 0);
-      localStorage.removeItem("isAuthenticated");
     }
   }, []);
 
@@ -92,15 +90,3 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   );
 };
 
-/**
- * Hook to access authentication context.
- * @returns {AuthContextType}
- * @throws {Error} if used outside of an AuthProvider.
- */
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
-};

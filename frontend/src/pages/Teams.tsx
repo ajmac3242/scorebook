@@ -98,7 +98,7 @@ const Teams: React.FC = () => {
 
   // Pre-calculate team aggregates to avoid O(N^2) filtering in the render loop.
   const teamAggregatesMap = useMemo(() => {
-    const gamesByTeam: Record<string, any[]> = {};
+    const gamesByTeam: Record<string, typeof allGames> = {};
     allGames.forEach((g) => {
       if (!gamesByTeam[g.teamId]) gamesByTeam[g.teamId] = [];
       gamesByTeam[g.teamId].push(g);
@@ -110,7 +110,8 @@ const Teams: React.FC = () => {
       statsByGame[s.gameId].push(s as StatEvent);
     });
 
-    const results: Record<string, any> = {};
+    const results: Record<string, ReturnType<typeof calculateTeamAggregates>> =
+      {};
     teams.forEach((team) => {
       const teamGames = gamesByTeam[team.id!] || [];
       const teamStats = teamGames.flatMap((g) => statsByGame[g.id!] || []);

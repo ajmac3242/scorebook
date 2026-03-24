@@ -30,7 +30,6 @@ import {
   Chip,
   Alert,
   AlertTitle,
-  DialogContentText,
   IconButton,
   Autocomplete,
 } from "@mui/material";
@@ -39,10 +38,9 @@ import {
   Restore,
   Warning,
   Edit as EditIcon,
-  Delete,
   Add as AddIcon,
 } from "@mui/icons-material";
-import { db, type TeamPlayer, type StatEvent } from "../db";
+import { db, type TeamPlayer, type StatEvent, Team } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
 import { STAT_ACRONYMS } from "../constants/stats";
 import {
@@ -55,6 +53,7 @@ import { syncService } from "../utils/syncService";
 import EntityBanner from "../components/EntityBanner";
 import { useGames } from "../hooks/useGames";
 import { usePlayers } from "../hooks/usePlayers";
+import { TeamSettingsDialog } from "../components/TeamSettingsDialog";
 import dayjs from "dayjs";
 
 /**
@@ -81,10 +80,6 @@ const TeamStats: React.FC = () => {
     "upcoming",
   );
   const [openSettingsDialog, setOpenSettingsDialog] = useState(false);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [editName, setEditName] = useState("");
-  const [editLogoUrl, setEditLogoUrl] = useState("");
-  const [editColor, setEditColor] = useState("#154C56");
   const [timeLeft, setTimeLeft] = useState("");
   const [sortConfig, setSortConfig] = useState<{
     key: string;
@@ -111,14 +106,6 @@ const TeamStats: React.FC = () => {
     async () => (teamId !== undefined ? await db.teams.get(teamId) : undefined),
     [teamId],
   );
-
-  useEffect(() => {
-    if (team) {
-      setEditName(team.name || "");
-      setEditLogoUrl(team.logoUrl || "");
-      setEditColor(team.primaryColor || "#154C56");
-    }
-  }, [team]);
 
   useEffect(() => {
     if (team?.deletedAt) {
@@ -318,15 +305,12 @@ const TeamStats: React.FC = () => {
   /**
    * Updates team-level metadata.
    */
-  const handleUpdateTeamSettings = async () => {
+  const handleUpdateTeamSettings = async (updatedFields: Partial<Team>) => {
     if (!teamId) return;
     await db.teams.update(teamId, {
-      name: editName,
-      logoUrl: editLogoUrl,
-      primaryColor: editColor,
+      ...updatedFields,
       synced: 0,
     });
-    setOpenSettingsDialog(false);
   };
 
   const handleDeleteTeam = async () => {
@@ -343,7 +327,6 @@ const TeamStats: React.FC = () => {
         await db.games.update(g.id!, { deletedAt, synced: 0 });
       }
       syncService.pushUpdates();
-      setDeleteDialogOpen(false);
     } catch (err) {
       console.error("Failed to delete team:", err);
     }
@@ -822,77 +805,15 @@ const TeamStats: React.FC = () => {
         </Box>
       )}
 
-      <Dialog
-        open={openSettingsDialog}
-        onClose={() => setOpenSettingsDialog(false)}
-        fullWidth
-        maxWidth="xs"
-      >
-        <DialogTitle
-          sx={{
-            fontFamily: "var(--serif)",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          Edit Team Details
-          <IconButton
-            color="error"
-            onClick={() => {
-              setOpenSettingsDialog(false);
-              setDeleteDialogOpen(true);
-            }}
-          >
-            <Delete />
-          </IconButton>
-        </DialogTitle>
-        <DialogContent>
-          <Stack spacing={3} sx={{ mt: 1 }}>
-            <TextField
-              fullWidth
-              label="Team Name"
-              value={editName}
-              onChange={(e) => setEditName(e.target.value)}
-            />
-            <TextField
-              fullWidth
-              label="Logo URL"
-              value={editLogoUrl}
-              onChange={(e) => setEditLogoUrl(e.target.value)}
-            />
-            <Box>
-              <Typography variant="caption">Primary Color</Typography>
-              <input
-                type="color"
-                style={{
-                  display: "block",
-                  width: "100%",
-                  height: 48,
-                  marginTop: 8,
-                  padding: "2px",
-                  border: "1px solid #D1D1D1",
-                  borderRadius: 8,
-                  cursor: "pointer",
-                  backgroundColor: "white",
-                }}
-                value={editColor}
-                onChange={(e) => setEditColor(e.target.value)}
-              />
-            </Box>
-          </Stack>
-        </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 3 }}>
-          <Button onClick={() => setOpenSettingsDialog(false)}>Cancel</Button>
-          <Button
-            onClick={handleUpdateTeamSettings}
-            variant="contained"
-            sx={{ ml: 1 }}
-          >
-            Save
-          </Button>
-        </DialogActions>
-      </Dialog>
+      {team && (
+        <TeamSettingsDialog
+          open={openSettingsDialog}
+          onClose={() => setOpenSettingsDialog(false)}
+          team={team}
+          onSave={handleUpdateTeamSettings}
+          onDelete={handleDeleteTeam}
+        />
+      )}
 
       <Dialog
         open={openRosterDialog}
@@ -1018,27 +939,6 @@ const TeamStats: React.FC = () => {
         </DialogActions>
       </Dialog>
 
-      <Dialog
-        open={deleteDialogOpen}
-        onClose={() => setDeleteDialogOpen(false)}
-      >
-        <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
-          Delete Team?
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            Are you sure you want to delete <strong>{team?.name}</strong>? This
-            will mark the team and ALL its associated games as pending deletion.
-            You will have 24 hours to restore it.
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
-          <Button onClick={handleDeleteTeam} color="error" variant="contained">
-            Yes, Delete
-          </Button>
-        </DialogActions>
-      </Dialog>
     </Box>
   );
 };

@@ -12,7 +12,6 @@ import {
   QueryCommand,
   GetCommand,
   UpdateCommand,
-  BatchWriteCommand,
 } from "@aws-sdk/lib-dynamodb";
 import {
   S3Client,
@@ -25,6 +24,56 @@ import {
   APIGatewayProxyResultV2,
   APIGatewayProxyStructuredResultV2,
 } from "aws-lambda";
+
+/**
+ * Interface representing a Basketball Team.
+ */
+interface Team {
+  id: string;
+  name: string;
+  logoUrl?: string;
+  primaryColor?: string;
+  description?: string;
+  periodType?: "QUARTERS" | "HALVES";
+  deletedAt?: string;
+}
+
+/**
+ * Interface representing a Basketball Player.
+ */
+interface Player {
+  id: string;
+  name: string;
+  avatarColor?: string;
+  isArchived?: number;
+  deletedAt?: string;
+}
+
+/**
+ * Interface representing a Game.
+ */
+interface Game {
+  id: string;
+  teamId: string;
+  opponent: string;
+  date: string;
+  location: string;
+  completed?: number;
+  deletedAt?: string;
+}
+
+/**
+ * Interface representing a Statistical Event.
+ */
+interface StatEvent {
+  id: string;
+  gameId: string;
+  playerId: string;
+  type: string;
+  points?: number;
+  timestamp: string;
+  deletedAt?: string;
+}
 
 // Clients
 const client = new DynamoDBClient({});
@@ -61,9 +110,9 @@ const Keys = {
 /**
  * Standardized error logger for the backend.
  * @param {string} label - Contextual label for the error.
- * @param {any} error - The error object.
+ * @param {unknown} error - The error object.
  */
-function logError(label: string, error: any) {
+function logError(label: string, error: unknown) {
   console.error(`[ERROR] ${label}:`, error);
 }
 
@@ -71,7 +120,7 @@ function logError(label: string, error: any) {
  * Handlers for Players endpoints.
  * @param {string} method - HTTP Method.
  * @param {string} path - Request path.
- * @param {any} body - Parsed JSON body.
+ * @param {Partial<Player>} body - Parsed JSON body.
  * @param {APIGatewayProxyEventV2} event - The full Lambda event.
  * @param {string} tableName - DynamoDB table name.
  * @returns {Promise<APIGatewayProxyResultV2 | null>} The response or null if not handled.
@@ -79,14 +128,20 @@ function logError(label: string, error: any) {
 async function handlePlayers(
   method: string,
   path: string,
-  body: any,
+  body: Partial<Player>,
   event: APIGatewayProxyEventV2,
   tableName: string,
 ): Promise<APIGatewayProxyResultV2 | null> {
   if (path === "/players") {
     if (method === "GET") return await getItems("PLAYER", "PLAYER", tableName);
     if (method === "POST")
-      return await createItem("PLAYER", "METADATA", "PLAYER", body, tableName);
+      return await createItem(
+        "PLAYER",
+        "METADATA",
+        "PLAYER",
+        body as Record<string, unknown>,
+        tableName,
+      );
   }
 
   const match = path.match(/^\/players\/([^\/]+)$/);
@@ -136,16 +191,17 @@ async function handlePlayers(
 
 /**
  * Handlers for Games endpoints.
- * @param method
- * @param path
- * @param body
- * @param event
- * @param tableName
+ * @param {string} method - HTTP Method.
+ * @param {string} path - Request path.
+ * @param {Record<string, unknown>} body - Parsed JSON body.
+ * @param {APIGatewayProxyEventV2} event - The full Lambda event.
+ * @param {string} tableName - DynamoDB table name.
+ * @returns {Promise<APIGatewayProxyResultV2 | null>} The response or null if not handled.
  */
 async function handleGames(
   method: string,
   path: string,
-  body: any,
+  body: Record<string, unknown>,
   event: APIGatewayProxyEventV2,
   tableName: string,
 ): Promise<APIGatewayProxyResultV2 | null> {
@@ -158,7 +214,7 @@ async function handleGames(
       const resp = await createItem(
         "GAME",
         "METADATA",
-        Keys.team(body?.teamId),
+        Keys.team(body.teamId as string),
         body,
         tableName,
       );
@@ -249,8 +305,8 @@ async function handleGames(
       return ok(result.Items?.filter((i) => !i.deletedAt) || []);
     }
     if (method === "POST") {
-      const id = body?.id || uuidv4();
-      const timestamp = body?.timestamp || new Date().toISOString();
+      const id = (body.id as string) || uuidv4();
+      const timestamp = (body.timestamp as string) || new Date().toISOString();
       const cleanBody = stripLocalFields(body);
       const item = {
         ...cleanBody,
@@ -275,7 +331,7 @@ async function handleGames(
  * Handlers for Teams endpoints.
  * @param {string} method - HTTP Method.
  * @param {string} path - Request path.
- * @param {any} body - Parsed JSON body.
+ * @param {Record<string, unknown>} body - Parsed JSON body.
  * @param {APIGatewayProxyEventV2} event - The full Lambda event.
  * @param {string} tableName - DynamoDB table name.
  * @returns {Promise<APIGatewayProxyResultV2 | null>} The response or null if not handled.
@@ -283,7 +339,7 @@ async function handleGames(
 async function handleTeams(
   method: string,
   path: string,
-  body: any,
+  body: Record<string, unknown>,
   event: APIGatewayProxyEventV2,
   tableName: string,
 ): Promise<APIGatewayProxyResultV2 | null> {
@@ -344,10 +400,10 @@ async function handleTeams(
       const teamPlayerItem = {
         ...cleanBody,
         PK: Keys.team(teamId),
-        SK: Keys.player(body.playerId),
+        SK: Keys.player(body.playerId as string),
         GSI1PK: Keys.team(teamId),
-        GSI1SK: Keys.player(body.playerId),
-        id: body.id,
+        GSI1SK: Keys.player(body.playerId as string),
+        id: body.id as string,
         teamId,
       };
       await docClient.send(
@@ -396,8 +452,10 @@ export const handler = async (
 
   // Extract HTTP method and path with normalization for different event formats
   const method =
-    (event as any).method ||
-    (event as any).httpMethod ||
+    (event as APIGatewayProxyEventV2 & { method?: string; httpMethod?: string })
+      .method ||
+    (event as APIGatewayProxyEventV2 & { method?: string; httpMethod?: string })
+      .httpMethod ||
     event.requestContext?.http?.method ||
     "GET";
   const path = normalizePath(event);
@@ -405,7 +463,7 @@ export const handler = async (
   console.log("Routing:", { method, path });
 
   // Parse JSON body if present
-  let body: any = {};
+  let body: Record<string, unknown> = {};
   if (event.body) {
     try {
       body =
@@ -430,7 +488,7 @@ export const handler = async (
     const playersResponse = await handlePlayers(
       method,
       path,
-      body,
+      body as Partial<Player>,
       event,
       TABLE_NAME,
     );
@@ -452,7 +510,7 @@ export const handler = async (
     }
 
     return notFound("Route not found");
-  } catch (error: any) {
+  } catch (error: unknown) {
     logError("Handler Error", error);
     return serverError();
   }
@@ -467,7 +525,7 @@ export const handler = async (
 function normalizePath(event: APIGatewayProxyEventV2): string {
   const raw =
     event.rawPath ||
-    (event as any).path ||
+    (event as APIGatewayProxyEventV2 & { path?: string }).path ||
     event.requestContext?.http?.path ||
     "/";
   const path = raw.replace(/^\/(\$default|api)/, "");
@@ -482,7 +540,7 @@ function normalizePath(event: APIGatewayProxyEventV2): string {
  * @param {string} pkPrefix - The prefix for the PK.
  * @param {string} gsiPrefix - The prefix for the GSI1PK.
  * @param {string} tableName - The name of the DynamoDB table.
- * @returns {Promise<APIGatewayProxyResultV2>} The HTTP response with the items.
+ * @returns {Promise<APIGatewayProxyStructuredResultV2>} The HTTP response with the items.
  */
 async function getItems(
   pkPrefix: string,
@@ -505,7 +563,7 @@ async function getItems(
  *
  * @param {string} gsiPk - The GSI1PK value.
  * @param {string} tableName - The name of the DynamoDB table.
- * @returns {Promise<APIGatewayProxyResultV2>} The HTTP response with the items.
+ * @returns {Promise<APIGatewayProxyStructuredResultV2>} The HTTP response with the items.
  */
 async function getItemsByGSI(
   gsiPk: string,
@@ -528,18 +586,18 @@ async function getItemsByGSI(
  * @param {string} type - The item type (e.g., SEASON, TEAM).
  * @param {string} skPrefix - The prefix for the SK.
  * @param {string} gsiPk - The GSI1PK value.
- * @param {any} data - The item data.
+ * @param {Record<string, unknown>} data - The item data.
  * @param {string} tableName - The name of the DynamoDB table.
- * @returns {Promise<APIGatewayProxyResultV2>} The HTTP response with the created item.
+ * @returns {Promise<APIGatewayProxyStructuredResultV2>} The HTTP response with the created item.
  */
 async function createItem(
   type: string,
   skPrefix: string,
   gsiPk: string,
-  data: any,
+  data: Record<string, unknown>,
   tableName: string,
 ): Promise<APIGatewayProxyStructuredResultV2> {
-  const id = data?.id || uuidv4();
+  const id = (data?.id as string) || uuidv4();
   const cleanData = stripLocalFields(data);
   const item = {
     ...cleanData,
@@ -555,10 +613,11 @@ async function createItem(
 
 /**
  * Soft deletes an item by setting the deletedAt timestamp.
- * @param type
- * @param skPrefix
- * @param id
- * @param tableName
+ * @param {string} type - The entity type.
+ * @param {string} skPrefix - The SK prefix.
+ * @param {string} id - The item ID.
+ * @param {string} tableName - The DynamoDB table name.
+ * @returns {Promise<APIGatewayProxyStructuredResultV2>} The API response.
  */
 async function softDeleteItem(
   type: string,
@@ -676,7 +735,9 @@ async function snapshotGameStats(gameId: string, tableName: string) {
       }),
     );
     if (gameResult.Item) {
-      const stats = (statsResult.Items || []).filter((s) => !s.deletedAt);
+      const stats = (statsResult.Items as StatEvent[]).filter(
+        (s) => !s.deletedAt,
+      );
       const { teamScore, oppScore, result } =
         calculateGameResultFromStats(stats);
 
@@ -693,13 +754,13 @@ async function snapshotGameStats(gameId: string, tableName: string) {
 
 /**
  * Accumulates scores for team and opponent from stat events.
- * @param {any[]} stats - List of stat events.
+ * @param {StatEvent[]} stats - List of stat events.
  * @returns {object} Object containing teamScore and oppScore.
  */
-function accumulateScores(stats: any[]) {
+function accumulateScores(stats: StatEvent[]) {
   let teamScore = 0;
   let oppScore = 0;
-  stats.forEach((s: any) => {
+  stats.forEach((s) => {
     if (s.playerId === "OPPONENT") oppScore += s.points || 0;
     else teamScore += s.points || 0;
   });
@@ -709,10 +770,10 @@ function accumulateScores(stats: any[]) {
 /**
  * Calculates the final score and result from a list of stat events.
  *
- * @param {any[]} stats - List of stat events.
+ * @param {StatEvent[]} stats - List of stat events.
  * @returns {object} Object containing teamScore, oppScore, and result.
  */
-function calculateGameResultFromStats(stats: any[]) {
+function calculateGameResultFromStats(stats: StatEvent[]) {
   const { teamScore, oppScore } = accumulateScores(stats);
   const result = teamScore > oppScore ? "W" : teamScore < oppScore ? "L" : "D";
   return { teamScore, oppScore, result };
@@ -723,9 +784,9 @@ function calculateGameResultFromStats(stats: any[]) {
  *
  * @param {string} bucket - The S3 bucket name.
  * @param {string} key - The S3 object key.
- * @param {any} data - The data to upload as JSON.
+ * @param {unknown} data - The data to upload as JSON.
  */
-async function uploadSnapshot(bucket: string, key: string, data: any) {
+async function uploadSnapshot(bucket: string, key: string, data: unknown) {
   await s3Client.send(
     new PutObjectCommand({
       Bucket: bucket,
@@ -737,8 +798,8 @@ async function uploadSnapshot(bucket: string, key: string, data: any) {
 }
 
 /**
- *
- * @param teamId
+ * Deletes S3 snapshots for a team.
+ * @param {string} teamId - The team ID.
  */
 async function deleteTeamSnapshots(teamId: string) {
   const DATA_BUCKET = process.env.DATA_BUCKET;
@@ -762,8 +823,8 @@ async function deleteTeamSnapshots(teamId: string) {
 }
 
 /**
- *
- * @param gameId
+ * Deletes S3 snapshots for a game.
+ * @param {string} gameId - The game ID.
  */
 async function deleteGameSnapshots(gameId: string) {
   const DATA_BUCKET = process.env.DATA_BUCKET;
@@ -782,7 +843,7 @@ async function deleteGameSnapshots(gameId: string) {
 
 /**
  * Performs cleanup of soft-deleted items older than 24 hours.
- * @param tableName
+ * @param {string} tableName - The DynamoDB table name.
  */
 async function performHardCleanup(tableName: string) {
   const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
@@ -808,10 +869,10 @@ async function performHardCleanup(tableName: string) {
  * Strips local-only fields and internal DynamoDB keys from the data object before saving.
  * Prevents mass assignment vulnerabilities.
  *
- * @param {any} data - The data object to clean.
- * @returns {any} The cleaned object.
+ * @param {Record<string, unknown>} data - The data object to clean.
+ * @returns {Record<string, unknown>} The cleaned object.
  */
-function stripLocalFields(data: any) {
+function stripLocalFields(data: Record<string, unknown>) {
   return Object.fromEntries(
     Object.entries(data).filter(([key]) => !INTERNAL_KEYS.has(key)),
   );
@@ -821,13 +882,13 @@ function stripLocalFields(data: any) {
  * Formats a standardized JSON response.
  *
  * @param {number} statusCode - The HTTP status code.
- * @param {any} body - The JSON body data.
+ * @param {unknown} body - The JSON body data.
  * @param {Record<string, string>} [headers] - Optional additional headers.
  * @returns {APIGatewayProxyStructuredResultV2} The formatted response object.
  */
 function response(
   statusCode: number,
-  body: any,
+  body: unknown,
   headers: Record<string, string> = {},
 ): APIGatewayProxyStructuredResultV2 {
   return {
@@ -838,11 +899,36 @@ function response(
 }
 
 /**
- * Semantic response helpers
- * @param body
+ * Returns a 200 OK response.
+ * @param {unknown} body - Response body.
+ * @returns {APIGatewayProxyStructuredResultV2} The API response.
  */
-const ok = (body: any) => response(200, body);
-const created = (body: any) => response(201, body);
-const badRequest = (msg: string) => response(400, { message: msg });
-const notFound = (msg: string) => response(404, { message: msg });
-const serverError = () => response(500, { message: "Internal Server Error" });
+const ok = (body: unknown): APIGatewayProxyStructuredResultV2 =>
+  response(200, body);
+/**
+ * Returns a 201 Created response.
+ * @param {unknown} body - Response body.
+ * @returns {APIGatewayProxyStructuredResultV2} The API response.
+ */
+const created = (body: unknown): APIGatewayProxyStructuredResultV2 =>
+  response(201, body);
+/**
+ * Returns a 400 Bad Request response.
+ * @param {string} msg - Error message.
+ * @returns {APIGatewayProxyStructuredResultV2} The API response.
+ */
+const badRequest = (msg: string): APIGatewayProxyStructuredResultV2 =>
+  response(400, { message: msg });
+/**
+ * Returns a 404 Not Found response.
+ * @param {string} msg - Error message.
+ * @returns {APIGatewayProxyStructuredResultV2} The API response.
+ */
+const notFound = (msg: string): APIGatewayProxyStructuredResultV2 =>
+  response(404, { message: msg });
+/**
+ * Returns a 500 Internal Server Error response.
+ * @returns {APIGatewayProxyStructuredResultV2} The API response.
+ */
+const serverError = (): APIGatewayProxyStructuredResultV2 =>
+  response(500, { message: "Internal Server Error" });

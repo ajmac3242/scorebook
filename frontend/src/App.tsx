@@ -25,7 +25,8 @@ import TeamStats from "./pages/TeamStats";
 import Settings from "./pages/Settings";
 import Navigation from "./components/Navigation";
 import { Navigate } from "react-router-dom";
-import { AuthProvider, useAuth } from "./context/AuthContext";
+import { AuthProvider } from "./context/AuthContext";
+import { useAuth } from "./hooks/useAuth";
 import DevAuthBypass from "./components/DevAuthBypass";
 
 /**

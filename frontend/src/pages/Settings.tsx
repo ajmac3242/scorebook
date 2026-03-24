@@ -21,7 +21,7 @@ import {
   Refresh as SyncingIcon,
   Settings as SettingsIcon,
 } from "@mui/icons-material";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../hooks/useAuth";
 import { syncService } from "../utils/syncService";
 import EntityBanner from "../components/EntityBanner";
 

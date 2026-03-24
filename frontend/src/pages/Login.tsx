@@ -11,7 +11,7 @@ import {
   Alert,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../hooks/useAuth";
 import { syncService } from "../utils/syncService";
 
 const Login: React.FC = () => {

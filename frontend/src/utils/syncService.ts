@@ -4,6 +4,7 @@
  * Implements push (local-to-remote) and pull (remote-to-local via API and S3 snapshots) functionality.
  */
 
+import { type Table } from "dexie";
 import { db, Game, TeamPlayer, StatEvent } from "../db";
 import { UserPool } from "../UserPool";
 
@@ -11,16 +12,16 @@ import { UserPool } from "../UserPool";
  * Interface representing the team roster snapshot structure from S3.
  */
 interface RosterSnapshot {
-  team: any;
-  players: any[];
+  team: Record<string, unknown>;
+  players: Record<string, unknown>[];
 }
 
 /**
  * Interface representing the game stats snapshot structure from S3.
  */
 interface GameSnapshot {
-  game: any;
-  stats: any[];
+  game: Record<string, unknown>;
+  stats: StatEvent[];
 }
 
 /**
@@ -63,13 +64,21 @@ class SyncService {
     if (!user) return null;
 
     return new Promise((resolve) => {
-      user.getSession((err: any, session: any) => {
-        if (err || !session || !session.isValid()) {
-          resolve(null);
-        } else {
-          resolve(session.getAccessToken().getJwtToken());
-        }
-      });
+      user.getSession(
+        (
+          err: Error | null,
+          session: {
+            isValid: () => boolean;
+            getAccessToken: () => { getJwtToken: () => string };
+          } | null,
+        ) => {
+          if (err || !session || !session.isValid()) {
+            resolve(null);
+          } else {
+            resolve(session.getAccessToken().getJwtToken());
+          }
+        },
+      );
     });
   }
 
@@ -138,7 +147,7 @@ class SyncService {
    * @private
    */
   private async pushEntity<T extends { id?: string | number }>(
-    table: any,
+    table: Table<T, any>,
     endpoint: string | ((item: T) => string),
     entityName: string,
     onSuccess?: (item: T) => Promise<void>,
@@ -245,7 +254,7 @@ class SyncService {
    * @param {string} teamId - The team ID to sync.
    */
   async syncTeamRoster(teamId: string) {
-    const localTeam = await db.teams.get(teamId as any);
+    const localTeam = await db.teams.get(teamId);
     const etag = localTeam ? this.getETag("team", teamId) : null;
 
     await this.handleEtagResponse<RosterSnapshot>(
@@ -270,7 +279,7 @@ class SyncService {
     const etag =
       localGamesCount > 0 ? this.getETag("team_games", teamId) : null;
 
-    await this.handleEtagResponse<{ games: any[] }>(
+    await this.handleEtagResponse<{ games: Game[] }>(
       "team_games",
       teamId,
       `/data/teams/${teamId}/games.json`,
@@ -291,7 +300,7 @@ class SyncService {
    * @param {string} gameId - The game ID.
    */
   async syncGameStats(gameId: string) {
-    const localGame = await db.games.get(gameId as any);
+    const localGame = await db.games.get(gameId);
     const etag = localGame?.completed ? this.getETag("game", gameId) : null;
 
     await this.handleEtagResponse<GameSnapshot>(
@@ -316,22 +325,22 @@ class SyncService {
       [db.teams, db.players, db.teamPlayers],
       async () => {
         await db.teams.put({
-          ...data.team,
-          id: data.team.id,
+          ...(data.team as Record<string, unknown>),
+          id: data.team.id as string,
           synced: 1,
         });
 
         for (const p of data.players) {
           await db.players.put({
-            id: p.id,
-            name: p.name,
-            avatarColor: p.avatarColor,
+            id: p.id as string,
+            name: p.name as string,
+            avatarColor: p.avatarColor as string,
             synced: 1,
           });
           await db.teamPlayers.put({
-            ...p,
+            ...(p as Record<string, unknown>),
             teamId: teamId,
-            playerId: p.id,
+            playerId: p.id as string,
             synced: 1,
           });
         }
@@ -347,8 +356,8 @@ class SyncService {
   private async persistGameStats(data: GameSnapshot) {
     await db.transaction("rw", [db.games, db.stats], async () => {
       await db.games.put({
-        ...data.game,
-        id: data.game.id,
+        ...(data.game as Record<string, unknown>),
+        id: data.game.id as string,
         synced: 1,
       });
 
