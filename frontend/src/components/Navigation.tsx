@@ -10,10 +10,10 @@ import {
   Box,
   ListItemButton,
   ListItemIcon,
-  IconButton,
   Typography,
   useTheme,
   useMediaQuery,
+  alpha,
 } from "@mui/material";
 import {
   Dashboard as DashboardIcon,
@@ -37,19 +37,25 @@ const NavItem: React.FC<{
   isSelected: boolean;
   onClick?: () => void;
 }> = ({ item, isSelected, onClick }) => {
+  const theme = useTheme();
+
   return (
     <ListItemButton
       component={Link}
       to={item.path}
       onClick={onClick}
       sx={{
-        minHeight: 44,
+        minHeight: 40,
         width: "auto",
         px: isSelected ? 2 : 1.25,
-        py: 1,
-        borderRadius: "24px",
-        bgcolor: isSelected ? "rgba(255,255,255,0.15)" : "transparent",
-        color: isSelected ? "secondary.main" : "rgba(255,255,255,0.7)",
+        py: 0.75,
+        borderRadius: "20px",
+        bgcolor: isSelected
+          ? alpha(theme.palette.primary.light, 0.2)
+          : "transparent",
+        color: isSelected
+          ? "white"
+          : alpha(theme.palette.primary.contrastText, 0.6),
         transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
         display: "flex",
         alignItems: "center",
@@ -57,8 +63,8 @@ const NavItem: React.FC<{
         flexShrink: 0,
         "&:hover": {
           bgcolor: isSelected
-            ? "rgba(255,255,255,0.25)"
-            : "rgba(255,255,255,0.1)",
+            ? alpha(theme.palette.primary.light, 0.3)
+            : alpha(theme.palette.primary.light, 0.1),
           color: "white",
         },
       }}
@@ -69,6 +75,9 @@ const NavItem: React.FC<{
           mr: isSelected ? 1 : 0,
           justifyContent: "center",
           color: "inherit",
+          "& svg": {
+            fontSize: "1.25rem",
+          },
         }}
       >
         {item.icon}
@@ -80,7 +89,7 @@ const NavItem: React.FC<{
             fontWeight: 700,
             fontFamily: "var(--serif)",
             whiteSpace: "nowrap",
-            fontSize: "0.875rem",
+            fontSize: "0.85rem",
           }}
         >
           {item.text}
@@ -92,7 +101,7 @@ const NavItem: React.FC<{
 
 /**
  * Navigation component that provides links and system status indicators.
- * Now functions as a Top Navigation bar on desktop and a bottom floating pill on mobile.
+ * Functions as a unified top navigation bar with a blurred background.
  *
  * @returns {React.ReactElement}
  */
@@ -130,108 +139,12 @@ const Navigation: React.FC = () => {
     { text: "Dashboard", icon: <DashboardIcon />, path: "/" },
     { text: "Teams", icon: <TeamsIcon />, path: "/teams" },
     { text: "Players", icon: <PlayersIcon />, path: "/players" },
-  ];
-
-  const mobileMenuItems = [
-    ...menuItems,
     { text: "Settings", icon: <SettingsIcon />, path: "/settings" },
   ];
 
-  const desktopContent = (
-    <Box
-      sx={{
-        height: "100%",
-        display: "flex",
-        flexDirection: "row",
-        alignItems: "center",
-        color: "text.primary",
-        px: 4,
-        width: "100%",
-        justifyContent: "space-between",
-        maxWidth: "1400px",
-      }}
-    >
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          gap: 1.5,
-          width: "200px",
-        }}
-      >
-        <Box component="img" src="/logo.svg" sx={{ width: 32, height: 32 }} />
-        <Typography
-          variant="h6"
-          noWrap
-          sx={{
-            fontFamily: "var(--serif)",
-            color: "primary.dark",
-            fontWeight: 700,
-          }}
-        >
-          Scorebook
-        </Typography>
-      </Box>
-
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "row",
-          alignItems: "center",
-          bgcolor: "primary.main",
-          borderRadius: "32px",
-          px: 0.75,
-          py: 0.5,
-          gap: 0.5,
-          boxShadow: "0 4px 20px rgba(0,0,0,0.25)",
-        }}
-      >
-        {menuItems.map((item) => (
-          <NavItem
-            key={item.text}
-            item={item}
-            isSelected={location.pathname === item.path}
-          />
-        ))}
-      </Box>
-
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "flex-end",
-          alignItems: "center",
-          width: "200px",
-        }}
-      >
-        <IconButton
-          component={Link}
-          to="/settings"
-          sx={{
-            color:
-              location.pathname === "/settings"
-                ? "secondary.main"
-                : "primary.main",
-            bgcolor:
-              location.pathname === "/settings"
-                ? "primary.dark"
-                : "transparent",
-            "&:hover": {
-              bgcolor:
-                location.pathname === "/settings"
-                  ? "primary.dark"
-                  : "rgba(0,0,0,0.05)",
-            },
-          }}
-        >
-          <SettingsIcon />
-        </IconButton>
-      </Box>
-    </Box>
-  );
-
   return (
     <>
-      {isSyncing && !isMobile && (
+      {isSyncing && (
         <Box
           sx={{
             position: "fixed",
@@ -241,8 +154,8 @@ const Navigation: React.FC = () => {
             display: "flex",
             alignItems: "center",
             gap: 1,
-            bgcolor: "secondary.main",
-            color: "secondary.contrastText",
+            bgcolor: "primary.main",
+            color: "primary.contrastText",
             px: 2,
             py: 1,
             borderRadius: 20,
@@ -261,90 +174,122 @@ const Navigation: React.FC = () => {
         </Box>
       )}
 
-      {!isMobile && (
+      <Box
+        sx={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          height: isMobile ? 64 : 80,
+          bgcolor: alpha(theme.palette.secondary.main, 0.7),
+          backdropFilter: "blur(12px)",
+          WebkitBackdropFilter: "blur(12px)",
+          borderBottom: `1px solid ${alpha(theme.palette.secondary.dark, 0.2)}`,
+          zIndex: theme.zIndex.appBar,
+          display: "flex",
+          alignItems: "center",
+          px: isMobile ? 1.5 : 4,
+        }}
+      >
         <Box
           sx={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            height: 72,
-            bgcolor: "transparent",
-            zIndex: theme.zIndex.appBar,
             display: "flex",
-            justifyContent: "center",
+            flexDirection: "row",
+            alignItems: "center",
+            width: "100%",
+            justifyContent: "space-between",
+            maxWidth: "1400px",
+            margin: "0 auto",
+            position: "relative",
           }}
         >
-          {desktopContent}
-        </Box>
-      )}
-
-      {isMobile && (
-        <>
-          {/* Mobile Top Branding */}
+          {/* Logo Section */}
           <Box
             sx={{
-              position: "fixed",
-              top: 0,
-              left: 0,
-              right: 0,
-              height: 56,
-              bgcolor: "transparent",
-              zIndex: theme.zIndex.appBar,
               display: "flex",
               alignItems: "center",
-              px: 2,
+              gap: 1.5,
+              minWidth: isMobile ? "40px" : "200px",
             }}
           >
             <Box
               component="img"
               src="/logo.svg"
-              sx={{ width: 28, height: 28, mr: 1 }}
-            />
-            <Typography
-              variant="h6"
               sx={{
-                fontFamily: "var(--serif)",
-                color: "primary.dark",
-                fontWeight: 700,
-                fontSize: "1.1rem",
+                width: isMobile ? 32 : 36,
+                height: isMobile ? 32 : 36,
+                filter:
+                  "brightness(0) saturate(100%) invert(13%) sepia(50%) saturate(1915%) hue-rotate(174deg) brightness(95%) contrast(104%)", // Navy Blue logo (#023246)
               }}
-            >
-              Scorebook
-            </Typography>
+            />
+            {!isMobile && (
+              <Typography
+                variant="h6"
+                noWrap
+                sx={{
+                  fontFamily: "var(--serif)",
+                  color: "primary.dark",
+                  fontWeight: 800,
+                  fontSize: "1.25rem",
+                  letterSpacing: "0.02em",
+                }}
+              >
+                Scorebook
+              </Typography>
+            )}
           </Box>
 
-          {/* Mobile Bottom Navigation Pill */}
+          {/* Central Navigation Pill Container */}
           <Box
             sx={{
-              position: "fixed",
-              bottom: 24,
-              left: "50%",
-              transform: "translateX(-50%)",
-              height: 60,
-              bgcolor: "primary.main",
-              zIndex: theme.zIndex.appBar,
+              position: isMobile ? "static" : "absolute",
+              left: isMobile ? "auto" : "50%",
+              transform: isMobile ? "none" : "translateX(-50%)",
+              flexGrow: isMobile ? 1 : 0,
               display: "flex",
               justifyContent: "center",
-              alignItems: "center",
-              px: 0.75,
-              borderRadius: "32px",
-              boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
-              width: "auto",
-              maxWidth: "95vw",
-              gap: 0.25,
+              ml: isMobile ? 1 : 0,
             }}
           >
-            {mobileMenuItems.map((item) => (
-              <NavItem
-                key={item.text}
-                item={item}
-                isSelected={location.pathname === item.path}
-              />
-            ))}
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                bgcolor: theme.palette.primary.dark,
+                borderRadius: "32px",
+                px: 0.75,
+                py: 0.5,
+                gap: 0.25,
+                boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
+                border: `1px solid ${alpha(theme.palette.primary.light, 0.2)}`,
+                width: isMobile ? "100%" : "auto",
+                justifyContent: isMobile ? "space-between" : "center",
+                maxWidth: isMobile ? "320px" : "none",
+              }}
+            >
+              {menuItems.map((item) => (
+                <NavItem
+                  key={item.text}
+                  item={item}
+                  isSelected={location.pathname === item.path}
+                />
+              ))}
+            </Box>
           </Box>
-        </>
-      )}
+
+          {/* Spacer Section to maintain space for the absolute pill on desktop */}
+          {!isMobile && (
+            <Box
+              sx={{
+                width: "200px",
+                display: "flex",
+                justifyContent: "flex-end",
+              }}
+            />
+          )}
+        </Box>
+      </Box>
     </>
   );
 };
