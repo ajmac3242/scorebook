@@ -83,9 +83,19 @@ async function handlePlayers(
   tableName: string,
 ): Promise<APIGatewayProxyResultV2 | null> {
   if (path === "/players") {
-    if (method === "GET") return await getItems(tableName, "PLAYER");
-    if (method === "POST")
+    if (method === "GET") return await getItems("PLAYER", "PLAYER", tableName);
+    if (method === "POST") {
+      if (
+        !body?.name ||
+        typeof body.name !== "string" ||
+        body.name.length > 100
+      ) {
+        return badRequest(
+          "Player name is required and must be under 100 characters",
+        );
+      }
       return await createItem("PLAYER", "METADATA", "PLAYER", body, tableName);
+    }
   }
 
   const match = path.match(/^\/players\/([^\/]+)$/);
@@ -155,10 +165,20 @@ async function handleGames(
       return await getItemsByGSI(`TEAM#${teamId}`, tableName);
     }
     if (method === "POST") {
+      if (!body?.teamId) return badRequest("teamId is required");
+      if (
+        !body?.opponent ||
+        typeof body.opponent !== "string" ||
+        body.opponent.length > 100
+      ) {
+        return badRequest(
+          "Opponent name is required and must be under 100 characters",
+        );
+      }
       const resp = await createItem(
         "GAME",
         "METADATA",
-        Keys.team((body?.teamId as string) || ""),
+        Keys.team(body.teamId),
         body,
         tableName,
       );
@@ -249,8 +269,9 @@ async function handleGames(
       return ok(result.Items?.filter((i) => !i.deletedAt) || []);
     }
     if (method === "POST") {
-      const id = (body?.id as string) || uuidv4();
-      const timestamp = (body?.timestamp as string) || new Date().toISOString();
+      if (!body?.type) return badRequest("Stat type is required");
+      const id = body?.id || uuidv4();
+      const timestamp = body?.timestamp || new Date().toISOString();
       const cleanBody = stripLocalFields(body);
       const item = {
         ...cleanBody,
@@ -292,8 +313,14 @@ async function handleTeams(
       return await getItems(tableName, "TEAM");
     }
     if (method === "POST") {
-      if (!body || Object.keys(body).length === 0) {
-        return badRequest("Body required");
+      if (
+        !body?.name ||
+        typeof body.name !== "string" ||
+        body.name.length > 100
+      ) {
+        return badRequest(
+          "Team name is required and must be under 100 characters",
+        );
       }
       const resp = await createItem(
         "TEAM",
@@ -382,6 +409,25 @@ async function handleTeams(
 }
 
 /**
+ * Redacts sensitive information from the Lambda event before logging.
+ * Prevents JWT tokens and other secrets from being exposed in CloudWatch.
+ *
+ * @param {APIGatewayProxyEventV2} event - The raw Lambda event.
+ * @returns {any} A sanitized copy of the event.
+ */
+function maskEvent(event: APIGatewayProxyEventV2): any {
+  const masked = JSON.parse(JSON.stringify(event));
+  if (masked.headers) {
+    for (const key of Object.keys(masked.headers)) {
+      if (key.toLowerCase() === "authorization") {
+        masked.headers[key] = "[REDACTED]";
+      }
+    }
+  }
+  return masked;
+}
+
+/**
  * Main Lambda handler function.
  * Handles routing based on HTTP method and path, processes request bodies,
  * and interacts with DynamoDB and S3.
@@ -392,7 +438,7 @@ async function handleTeams(
 export const handler = async (
   event: APIGatewayProxyEventV2,
 ): Promise<APIGatewayProxyResultV2> => {
-  console.log("Event:", JSON.stringify(event));
+  console.log("Event:", JSON.stringify(maskEvent(event)));
 
   // Extract HTTP method and path with normalization for different event formats
   const method =
@@ -735,7 +781,7 @@ async function uploadSnapshot(bucket: string, key: string, data: unknown) {
     new PutObjectCommand({
       Bucket: bucket,
       Key: key,
-      Body: JSON.stringify(data),
+      Body: JSON.stringify(sanitizeOutput(data)),
       ContentType: "application/json",
     }),
   );
@@ -818,10 +864,32 @@ async function performHardCleanup(tableName: string) {
  * @param {Record<string, unknown>} data - The data object to clean.
  * @returns {Record<string, unknown>} The cleaned object.
  */
-function stripLocalFields(data: Record<string, unknown>) {
+function stripLocalFields(data: any) {
+  if (!data || typeof data !== "object") return data;
   return Object.fromEntries(
     Object.entries(data).filter(([key]) => !INTERNAL_KEYS.has(key)),
   );
+}
+
+/**
+ * Redacts internal metadata keys from outgoing data for API responses and S3 snapshots.
+ * Recursively cleans objects and arrays while preserving the 'id' field for frontend consumption.
+ *
+ * @param {any} data - The data object or array to sanitize.
+ * @returns {any} The sanitized data.
+ */
+function sanitizeOutput(data: any): any {
+  if (Array.isArray(data)) {
+    return data.map(sanitizeOutput);
+  }
+  if (data !== null && typeof data === "object") {
+    return Object.fromEntries(
+      Object.entries(data)
+        .filter(([key]) => !INTERNAL_KEYS.has(key) || key === "id")
+        .map(([key, value]) => [key, sanitizeOutput(value)]),
+    );
+  }
+  return data;
 }
 
 /**
@@ -840,7 +908,7 @@ function response(
   return {
     statusCode,
     headers: { "Content-Type": "application/json", ...headers },
-    body: JSON.stringify(body),
+    body: JSON.stringify(sanitizeOutput(body)),
   };
 }
 
