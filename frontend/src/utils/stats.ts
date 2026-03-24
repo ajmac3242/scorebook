@@ -106,7 +106,9 @@ function initializeStatsMap(
   teamPlayers: TeamPlayer[],
 ): Record<string, PlayerAggregates> {
   // Optimization: Pre-map jersey numbers by playerId to avoid O(P * TP) complexity.
-  const jerseyMap = new Map(teamPlayers.map((tp) => [tp.playerId, tp.jerseyNumber]));
+  const jerseyMap = new Map(
+    teamPlayers.map((tp) => [tp.playerId, tp.jerseyNumber]),
+  );
 
   return players.reduce(
     (acc, p) => {
