@@ -105,6 +105,9 @@ function initializeStatsMap(
   players: any[],
   teamPlayers: TeamPlayer[],
 ): Record<string, PlayerAggregates> {
+  // Optimization: Pre-map jersey numbers by playerId to avoid O(P * TP) complexity.
+  const jerseyMap = new Map(teamPlayers.map((tp) => [tp.playerId, tp.jerseyNumber]));
+
   return players.reduce(
     (acc, p) => {
       const pId = p.id!;
@@ -112,8 +115,7 @@ function initializeStatsMap(
         id: p.id,
         name: p.name,
         avatarColor: p.avatarColor,
-        jerseyNumber:
-          teamPlayers.find((tp) => tp.playerId === pId)?.jerseyNumber || "",
+        jerseyNumber: jerseyMap.get(pId) || "",
         gamesPlayed: new Set(),
         gp: 0,
         points: 0,
@@ -212,8 +214,15 @@ export const calculateTeamAggregates = (
   let wins = 0;
   let losses = 0;
 
+  // Optimization: Pre-group statistics by gameId to avoid O(G * S) complexity.
+  const statsByGame: Record<string, StatEvent[]> = {};
+  relevantStats.forEach((s) => {
+    if (!statsByGame[s.gameId]) statsByGame[s.gameId] = [];
+    statsByGame[s.gameId].push(s);
+  });
+
   targetGameIds.forEach((gId) => {
-    const gameStats = relevantStats.filter((s) => s.gameId === gId);
+    const gameStats = statsByGame[gId] || [];
     const { teamPoints, oppPoints, rebounds, assists } =
       aggregateStatsForGame(gameStats);
 
