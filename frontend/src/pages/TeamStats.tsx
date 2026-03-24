@@ -114,13 +114,12 @@ const TeamStats: React.FC = () => {
 
   useEffect(() => {
     if (team) {
-      if (editName !== (team.name || "")) setEditName(team.name || "");
-      if (editLogoUrl !== (team.logoUrl || ""))
-        setEditLogoUrl(team.logoUrl || "");
-      if (editColor !== (team.primaryColor || "#154C56"))
-        setEditColor(team.primaryColor || "#154C56");
+      setEditName(team.name || "");
+      setEditLogoUrl(team.logoUrl || "");
+      setEditColor(team.primaryColor || "#154C56");
     }
-  }, [team, editName, editLogoUrl, editColor]);
+    // We only want to sync from DB when the team object itself changes (e.g. initial load)
+  }, [team]);
 
   useEffect(() => {
     if (team?.deletedAt) {

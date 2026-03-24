@@ -27,6 +27,7 @@ export default [
       "@typescript-eslint/no-explicit-any": "off",
       "react-hooks/set-state-in-effect": "off",
       "react-hooks/exhaustive-deps": "off",
+      // JSDoc enforcement for frontend components and functions
       "jsdoc/require-jsdoc": "off",
       "jsdoc/require-description": "off",
       "jsdoc/require-param": "off",

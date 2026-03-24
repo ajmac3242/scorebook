@@ -4,7 +4,7 @@
  * Implements push (local-to-remote) and pull (remote-to-local via API and S3 snapshots) functionality.
  */
 
-import { db, Game, TeamPlayer, StatEvent } from "../db";
+import { db, Game, TeamPlayer, StatEvent, Team } from "../db";
 import { UserPool } from "../UserPool";
 
 /**
@@ -278,7 +278,7 @@ class SyncService {
       async (data) => {
         await db.transaction("rw", [db.games], async () => {
           for (const g of data.games) {
-            await db.games.put({ ...g, id: g.id as string, synced: 1 });
+            await db.games.put({ ...g, id: g.id as string, synced: 1 } as Game);
           }
         });
       },
@@ -319,7 +319,7 @@ class SyncService {
           ...data.team,
           id: data.team.id as string,
           synced: 1,
-        });
+        } as Team);
 
         for (const p of data.players) {
           await db.players.put({
@@ -333,7 +333,7 @@ class SyncService {
             teamId: teamId,
             playerId: p.id as string,
             synced: 1,
-          });
+          } as TeamPlayer);
         }
       },
     );
@@ -350,14 +350,14 @@ class SyncService {
         ...data.game,
         id: data.game.id as string,
         synced: 1,
-      });
+      } as Game);
 
       for (const s of data.stats) {
         await db.stats.put({
           ...s,
           id: s.id as string,
           synced: 1,
-        });
+        } as StatEvent);
       }
     });
   }

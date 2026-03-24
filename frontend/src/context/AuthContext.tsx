@@ -38,10 +38,8 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     // Mock authentication for preview/testing environments
     if (localStorage.getItem("isAuthenticated") === "true") {
-      setTimeout(() => {
-        setIsAuthenticated(true);
-        setLoading(false);
-      }, 0);
+      setIsAuthenticated(true);
+      setLoading(false);
       return;
     }
 
