@@ -27,10 +27,6 @@ import { syncService } from "../utils/syncService";
 
 /**
  * Navigation item component that expands on hover or when selected.
- * @param root0
- * @param root0.item
- * @param root0.isSelected
- * @param root0.onClick
  */
 const NavItem: React.FC<{
   item: { text: string; icon: React.ReactNode; path: string };
@@ -50,12 +46,8 @@ const NavItem: React.FC<{
         px: isSelected ? 2 : 1.25,
         py: 0.75,
         borderRadius: "20px",
-        bgcolor: isSelected
-          ? alpha(theme.palette.primary.main, 0.15)
-          : "transparent",
-        color: isSelected
-          ? theme.palette.primary.dark
-          : alpha(theme.palette.primary.dark, 0.5),
+        bgcolor: isSelected ? alpha(theme.palette.primary.light, 0.2) : "transparent",
+        color: isSelected ? "white" : alpha(theme.palette.primary.contrastText, 0.6),
         transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
         display: "flex",
         alignItems: "center",
@@ -63,9 +55,9 @@ const NavItem: React.FC<{
         flexShrink: 0,
         "&:hover": {
           bgcolor: isSelected
-            ? alpha(theme.palette.primary.main, 0.25)
-            : alpha(theme.palette.primary.main, 0.05),
-          color: theme.palette.primary.dark,
+            ? alpha(theme.palette.primary.light, 0.3)
+            : alpha(theme.palette.primary.light, 0.1),
+          color: "white",
         },
       }}
     >
@@ -154,8 +146,8 @@ const Navigation: React.FC = () => {
             display: "flex",
             alignItems: "center",
             gap: 1,
-            bgcolor: "secondary.main",
-            color: "secondary.contrastText",
+            bgcolor: "primary.main",
+            color: "primary.contrastText",
             px: 2,
             py: 1,
             borderRadius: 20,
@@ -181,10 +173,10 @@ const Navigation: React.FC = () => {
           left: 0,
           right: 0,
           height: isMobile ? 64 : 80,
-          bgcolor: alpha(theme.palette.primary.main, 0.8),
+          bgcolor: alpha(theme.palette.secondary.main, 0.7),
           backdropFilter: "blur(12px)",
           WebkitBackdropFilter: "blur(12px)",
-          borderBottom: `1px solid ${alpha(theme.palette.primary.light, 0.3)}`,
+          borderBottom: `1px solid ${alpha(theme.palette.secondary.dark, 0.2)}`,
           zIndex: theme.zIndex.appBar,
           display: "flex",
           alignItems: "center",
@@ -218,7 +210,7 @@ const Navigation: React.FC = () => {
               sx={{
                 width: isMobile ? 32 : 36,
                 height: isMobile ? 32 : 36,
-                filter: "brightness(0) invert(1)", // Make logo white on dark background
+                filter: "brightness(0) saturate(100%) invert(13%) sepia(50%) saturate(1915%) hue-rotate(174deg) brightness(95%) contrast(104%)", // Navy Blue logo (#023246)
               }}
             />
             {!isMobile && (
@@ -227,7 +219,7 @@ const Navigation: React.FC = () => {
                 noWrap
                 sx={{
                   fontFamily: "var(--serif)",
-                  color: "white",
+                  color: "primary.dark",
                   fontWeight: 800,
                   fontSize: "1.25rem",
                   letterSpacing: "0.02em",
@@ -255,13 +247,13 @@ const Navigation: React.FC = () => {
                 display: "flex",
                 flexDirection: "row",
                 alignItems: "center",
-                bgcolor: theme.palette.secondary.main,
+                bgcolor: theme.palette.primary.dark,
                 borderRadius: "32px",
                 px: 0.75,
                 py: 0.5,
                 gap: 0.25,
                 boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
-                border: `1px solid ${alpha(theme.palette.secondary.light, 0.5)}`,
+                border: `1px solid ${alpha(theme.palette.primary.light, 0.2)}`,
                 width: isMobile ? "100%" : "auto",
                 justifyContent: isMobile ? "space-between" : "center",
                 maxWidth: isMobile ? "320px" : "none",

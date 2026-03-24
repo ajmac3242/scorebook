@@ -3,16 +3,16 @@ import { createTheme } from "@mui/material/styles";
 const theme = createTheme({
   palette: {
     primary: {
-      main: "#154C56", // Deep Ocean
-      light: "#3D7A86",
-      dark: "#0D3138",
+      main: "#287094", // Medium Blue
+      light: "#5A9BBD",
+      dark: "#023246", // Navy Blue
       contrastText: "#FFFFFF",
     },
     secondary: {
-      main: "#D9B382", // Golden Dune
-      light: "#E6CCAA",
-      dark: "#B88E56",
-      contrastText: "#1F2D33",
+      main: "#D4D4CE", // Warm Gray
+      light: "#F6F6F6", // Off White
+      dark: "#A8A8A0",
+      contrastText: "#023246",
     },
     success: {
       main: "#4E7D5B", // Sage Green
@@ -27,32 +27,32 @@ const theme = createTheme({
       main: "#5A7381", // Blue Ash
     },
     background: {
-      default: "#F5F5F5", // Light Grey
+      default: "#F6F6F6", // Off White from palette
       paper: "#FFFFFF",
     },
     text: {
-      primary: "#1F2D33", // Midnight
+      primary: "#023246", // Navy Blue for text
       secondary: "#5A7381", // Blue Ash
     },
   },
   typography: {
     fontFamily: '"EB Garamond", "Playfair Display", "Georgia", serif',
-    h1: { fontWeight: 600, color: "#1F2D33" },
-    h2: { fontWeight: 600, color: "#1F2D33" },
-    h3: { fontWeight: 600, color: "#1F2D33" },
+    h1: { fontWeight: 600, color: "#023246" },
+    h2: { fontWeight: 600, color: "#023246" },
+    h3: { fontWeight: 600, color: "#023246" },
     h4: {
       fontWeight: 500,
-      color: "#1F2D33",
+      color: "#023246",
       fontFamily: "system-ui, sans-serif",
     },
     h5: {
       fontWeight: 500,
-      color: "#1F2D33",
+      color: "#023246",
       fontFamily: "system-ui, sans-serif",
     },
     h6: {
       fontWeight: 500,
-      color: "#1F2D33",
+      color: "#023246",
       fontFamily: "system-ui, sans-serif",
     },
     button: {
@@ -76,20 +76,16 @@ const theme = createTheme({
         @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&display=swap');
 
         :root {
-          --palette-deep-ocean: #154C56;
-          --palette-golden-dune: #D9B382;
-          --palette-midnight: #1F2D33;
-          --palette-light-grey: #F5F5F5;
-          --palette-sage-green: #4E7D5B;
-          --palette-muted-red: #A64444;
-          --palette-ochre: #D99E32;
-          --palette-blue-ash: #5A7381;
+          --palette-medium-blue: #287094;
+          --palette-warm-gray: #D4D4CE;
+          --palette-off-white: #F6F6F6;
+          --palette-navy-blue: #023246;
           --serif: "EB Garamond", serif;
           --sans: system-ui, -apple-system, sans-serif;
         }
 
         body {
-          background-color: var(--palette-light-grey);
+          background-color: var(--palette-off-white);
           background-image: radial-gradient(#D1D1D1 0.5px, transparent 0.5px);
           background-size: 24px 24px;
           background-attachment: fixed;
@@ -153,7 +149,7 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           backgroundColor: "#FFFFFF",
-          color: "#1F2D33",
+          color: "#023246",
           boxShadow: "0px 1px 3px rgba(0,0,0,0.1)",
         },
       },
