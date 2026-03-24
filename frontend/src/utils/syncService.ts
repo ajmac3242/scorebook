@@ -6,6 +6,8 @@
 
 import { db, Game, TeamPlayer, StatEvent, Team } from "../db";
 import { UserPool } from "../UserPool";
+import { CognitoUserSession } from "amazon-cognito-identity-js";
+import { type Table } from "dexie";
 
 /**
  * Interface representing the team roster snapshot structure from S3.
@@ -63,7 +65,7 @@ class SyncService {
     if (!user) return null;
 
     return new Promise((resolve) => {
-      user.getSession((err: Error | null, session: any) => {
+      user.getSession((err: Error | null, session: CognitoUserSession | null) => {
         if (err || !session || !session.isValid()) {
           resolve(null);
         } else {
@@ -138,10 +140,10 @@ class SyncService {
    * @private
    */
   private async pushEntity<T extends { id?: string | number }>(
-    table: Record<string, any>,
-    endpoint: string | ((item: T) => string),
+    table: Table<T, unknown>,
+    endpoint: string | ((_item: T) => string),
     entityName: string,
-    onSuccess?: (item: T) => Promise<void>,
+    onSuccess?: (_item: T) => Promise<void>,
   ) {
     if (!table) return;
     const items = await table.where("synced").equals(0).toArray();
@@ -216,7 +218,7 @@ class SyncService {
     id: string | number,
     url: string,
     etag: string | null,
-    onSuccess: (data: T) => Promise<void>,
+    onSuccess: (_data: T) => Promise<void>,
     label: string,
   ) {
     try {
@@ -245,7 +247,7 @@ class SyncService {
    * @param {string} teamId - The team ID to sync.
    */
   async syncTeamRoster(teamId: string) {
-    const localTeam = await db.teams.get(teamId as any);
+    const localTeam = await db.teams.get(teamId);
     const etag = localTeam ? this.getETag("team", teamId) : null;
 
     await this.handleEtagResponse<RosterSnapshot>(
@@ -291,7 +293,7 @@ class SyncService {
    * @param {string} gameId - The game ID.
    */
   async syncGameStats(gameId: string) {
-    const localGame = await db.games.get(gameId as any);
+    const localGame = await db.games.get(gameId);
     const etag = localGame?.completed ? this.getETag("game", gameId) : null;
 
     await this.handleEtagResponse<GameSnapshot>(

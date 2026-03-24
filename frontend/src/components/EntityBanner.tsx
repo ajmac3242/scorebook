@@ -34,7 +34,7 @@ interface EntityBannerProps {
   isSyncing?: boolean;
   jerseyNumber?: string;
   searchTerm?: string;
-  onSearchChange?: (value: string) => void;
+  onSearchChange?: (_value: string) => void;
 }
 
 /**

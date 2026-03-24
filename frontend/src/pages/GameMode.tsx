@@ -912,8 +912,8 @@ const QuickAction: React.FC<{
   label: string;
   icon: React.ElementType;
   statType: string | null;
-  setStatType: (type: string | null) => void;
-  onSave: (type: string) => void;
+  setStatType: (_type: string | null) => void;
+  onSave: (_type: string) => void;
 }> = ({ type, label, icon: Icon, statType, setStatType, onSave }) => (
   <Button
     variant={statType === type ? "contained" : "outlined"}

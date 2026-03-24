@@ -15,7 +15,7 @@ import { syncService } from "../utils/syncService";
 interface AuthContextType {
   isAuthenticated: boolean;
   loading: boolean;
-  setIsAuthenticated: (value: boolean) => void;
+  setIsAuthenticated: (_value: boolean) => void;
   logout: () => void;
 }
 

@@ -83,7 +83,7 @@ async function handlePlayers(
   tableName: string,
 ): Promise<APIGatewayProxyResultV2 | null> {
   if (path === "/players") {
-    if (method === "GET") return await getItems("PLAYER", "PLAYER", tableName);
+    if (method === "GET") return await getItems(tableName, "PLAYER");
     if (method === "POST") {
       if (
         !body?.name ||
@@ -178,7 +178,7 @@ async function handleGames(
       const resp = await createItem(
         "GAME",
         "METADATA",
-        Keys.team(body.teamId),
+        Keys.team(body.teamId as string),
         body,
         tableName,
       );
@@ -270,15 +270,15 @@ async function handleGames(
     }
     if (method === "POST") {
       if (!body?.type) return badRequest("Stat type is required");
-      const id = body?.id || uuidv4();
-      const timestamp = body?.timestamp || new Date().toISOString();
+      const id = (body?.id as string) || uuidv4();
+      const timestamp = (body?.timestamp as string) || new Date().toISOString();
       const cleanBody = stripLocalFields(body);
       const item = {
-        ...cleanBody,
+        ...(cleanBody as Record<string, unknown>),
         PK: Keys.game(gameId),
-        SK: Keys.stat(timestamp, id),
+        SK: Keys.stat(timestamp as string, id as string),
         GSI1PK: Keys.game(gameId),
-        GSI1SK: Keys.stat(timestamp, id),
+        GSI1SK: Keys.stat(timestamp as string, id as string),
         id,
         timestamp,
       };
@@ -369,7 +369,7 @@ async function handleTeams(
       if (!body.playerId) return badRequest("playerId required");
       const cleanBody = stripLocalFields(body);
       const teamPlayerItem = {
-        ...cleanBody,
+        ...(cleanBody as Record<string, unknown>),
         PK: Keys.team(teamId),
         SK: Keys.player(body.playerId as string),
         GSI1PK: Keys.team(teamId),
@@ -413,9 +413,9 @@ async function handleTeams(
  * Prevents JWT tokens and other secrets from being exposed in CloudWatch.
  *
  * @param {APIGatewayProxyEventV2} event - The raw Lambda event.
- * @returns {any} A sanitized copy of the event.
+ * @returns {unknown} A sanitized copy of the event.
  */
-function maskEvent(event: APIGatewayProxyEventV2): any {
+function maskEvent(event: APIGatewayProxyEventV2): unknown {
   const masked = JSON.parse(JSON.stringify(event));
   if (masked.headers) {
     for (const key of Object.keys(masked.headers)) {
@@ -586,7 +586,7 @@ async function createItem(
   const id = (data?.id as string) || uuidv4();
   const cleanData = stripLocalFields(data);
   const item = {
-    ...cleanData,
+    ...(cleanData as Record<string, unknown>),
     PK: `${type}#${id}`,
     SK: `${skPrefix}#${id}`,
     GSI1PK: gsiPk,
@@ -864,10 +864,14 @@ async function performHardCleanup(tableName: string) {
  * @param {Record<string, unknown>} data - The data object to clean.
  * @returns {Record<string, unknown>} The cleaned object.
  */
-function stripLocalFields(data: any) {
-  if (!data || typeof data !== "object") return data;
+function stripLocalFields(data: unknown): Record<string, unknown> {
+  if (!data || typeof data !== "object" || data === null) {
+    return {};
+  }
   return Object.fromEntries(
-    Object.entries(data).filter(([key]) => !INTERNAL_KEYS.has(key)),
+    Object.entries(data as Record<string, unknown>).filter(
+      ([key]) => !INTERNAL_KEYS.has(key),
+    ),
   );
 }
 
@@ -875,10 +879,10 @@ function stripLocalFields(data: any) {
  * Redacts internal metadata keys from outgoing data for API responses and S3 snapshots.
  * Recursively cleans objects and arrays while preserving the 'id' field for frontend consumption.
  *
- * @param {any} data - The data object or array to sanitize.
- * @returns {any} The sanitized data.
+ * @param {unknown} data - The data object or array to sanitize.
+ * @returns {unknown} The sanitized data.
  */
-function sanitizeOutput(data: any): any {
+function sanitizeOutput(data: unknown): unknown {
   if (Array.isArray(data)) {
     return data.map(sanitizeOutput);
   }

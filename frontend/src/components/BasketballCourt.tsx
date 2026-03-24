@@ -12,8 +12,8 @@ interface Marker {
 }
 
 const BasketballCourt: React.FC<{
-  onCoordClick?: (x: number, y: number) => void;
-  onMarkerClick?: (marker: Marker) => void;
+  onCoordClick?: (_x: number, _y: number) => void;
+  onMarkerClick?: (_marker: Marker) => void;
   markers?: Marker[];
 }> = ({ onCoordClick, onMarkerClick, markers = [] }) => {
   const handleCourtClick = (e: React.MouseEvent<SVGSVGElement>) => {
