@@ -183,17 +183,16 @@ const TeamStats: React.FC = () => {
     () => games.map((g) => g.id).filter(Boolean),
     [games],
   );
-  const allStatsResult =
-    useLiveQuery(
-      async () =>
-        gameIds.length > 0
-          ? await db.stats
-              .where("gameId")
-              .anyOf(gameIds as string[])
-              .toArray()
-          : [],
-      [gameIds],
-    );
+  const allStatsResult = useLiveQuery(
+    async () =>
+      gameIds.length > 0
+        ? await db.stats
+            .where("gameId")
+            .anyOf(gameIds as string[])
+            .toArray()
+        : [],
+    [gameIds],
+  );
   const allStats = useMemo(() => allStatsResult || [], [allStatsResult]);
 
   const teamAggregates = useMemo(

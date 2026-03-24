@@ -680,8 +680,9 @@ async function snapshotGameStats(gameId: string, tableName: string) {
     );
     if (gameResult.Item) {
       const stats = (statsResult.Items || []).filter((s) => !s.deletedAt);
-      const { teamScore, oppScore, result } =
-        calculateGameResultFromStats(stats as Record<string, unknown>[]);
+      const { teamScore, oppScore, result } = calculateGameResultFromStats(
+        stats as Record<string, unknown>[],
+      );
 
       const snapshot = {
         game: { ...gameResult.Item, teamScore, oppScore, result },

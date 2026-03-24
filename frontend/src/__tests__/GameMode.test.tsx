@@ -18,7 +18,11 @@ const theme = createTheme();
 
 // Mock BasketballCourt to avoid coordinate calculation issues in JSDOM
 vi.mock("../components/BasketballCourt", () => ({
-  default: ({ onCoordClick }: { onCoordClick: (x: number, y: number) => void }) => (
+  default: ({
+    onCoordClick,
+  }: {
+    onCoordClick: (x: number, y: number) => void;
+  }) => (
     <div data-testid="basketball-court" onClick={() => onCoordClick(50, 50)}>
       Mock Basketball Court
     </div>
@@ -59,19 +63,21 @@ describe("GameMode Component", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    (useLiveQuery as Record<string, any>).mockImplementation((cb: () => any) => {
-      const code = cb.toString();
-      if (code.includes("db.stats")) return mockStats;
-      if (code.includes("db.games.get"))
-        return {
-          id: "g1",
-          opponent: "Test Opponent",
-          date: "2023-01-01",
-        };
-      if (code.includes("db.players")) return mockPlayers;
-      if (code.includes("db.teamPlayers")) return mockTeamPlayers;
-      return [];
-    });
+    (useLiveQuery as Record<string, any>).mockImplementation(
+      (cb: () => any) => {
+        const code = cb.toString();
+        if (code.includes("db.stats")) return mockStats;
+        if (code.includes("db.games.get"))
+          return {
+            id: "g1",
+            opponent: "Test Opponent",
+            date: "2023-01-01",
+          };
+        if (code.includes("db.players")) return mockPlayers;
+        if (code.includes("db.teamPlayers")) return mockTeamPlayers;
+        return [];
+      },
+    );
   });
 
   const renderComponent = () =>

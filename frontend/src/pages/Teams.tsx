@@ -110,8 +110,10 @@ const Teams: React.FC = () => {
       statsByGame[s.gameId].push(s as StatEvent);
     });
 
-    const results: Record<string, ReturnType<typeof calculateTeamAggregates>> =
-      {};
+    const results: Record<
+      string,
+      ReturnType<typeof calculateTeamAggregates>
+    > = {};
     teams.forEach((team) => {
       const teamGames = gamesByTeam[team.id!] || [];
       const teamStats = teamGames.flatMap((g) => statsByGame[g.id!] || []);

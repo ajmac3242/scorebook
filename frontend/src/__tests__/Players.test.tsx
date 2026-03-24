@@ -86,7 +86,9 @@ describe("Players Component", () => {
     const loggerSpy = vi
       .spyOn(logger.logger, "error")
       .mockImplementation(() => {});
-    (db.players.add as Record<string, any>).mockRejectedValue(new Error("Add error"));
+    (db.players.add as Record<string, any>).mockRejectedValue(
+      new Error("Add error"),
+    );
 
     render(
       <BrowserRouter>

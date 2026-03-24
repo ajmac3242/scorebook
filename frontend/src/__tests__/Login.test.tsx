@@ -41,9 +41,11 @@ describe("Login Component", () => {
         getAccessToken: () => ({ getJwtToken: () => "token" }),
       });
     });
-    (CognitoUser as unknown as Record<string, any>).mockImplementation(function (this: Record<string, any>) {
-      this.authenticateUser = authenticateUserMock;
-    });
+    (CognitoUser as unknown as Record<string, any>).mockImplementation(
+      function (this: Record<string, any>) {
+        this.authenticateUser = authenticateUserMock;
+      },
+    );
     render(
       <BrowserRouter>
         <AuthProvider>
@@ -68,9 +70,11 @@ describe("Login Component", () => {
     const authenticateUserMock = vi.fn((_authDetails, callbacks) => {
       callbacks.onFailure({ message: "Invalid credentials" });
     });
-    (CognitoUser as unknown as Record<string, any>).mockImplementation(function (this: Record<string, any>) {
-      this.authenticateUser = authenticateUserMock;
-    });
+    (CognitoUser as unknown as Record<string, any>).mockImplementation(
+      function (this: Record<string, any>) {
+        this.authenticateUser = authenticateUserMock;
+      },
+    );
     render(
       <BrowserRouter>
         <AuthProvider>
@@ -94,9 +98,11 @@ describe("Login Component", () => {
     const authenticateUserMock = vi.fn((_authDetails, callbacks) => {
       callbacks.newPasswordRequired({}, {});
     });
-    (CognitoUser as unknown as Record<string, any>).mockImplementation(function (this: Record<string, any>) {
-      this.authenticateUser = authenticateUserMock;
-    });
+    (CognitoUser as unknown as Record<string, any>).mockImplementation(
+      function (this: Record<string, any>) {
+        this.authenticateUser = authenticateUserMock;
+      },
+    );
     render(
       <BrowserRouter>
         <AuthProvider>
@@ -130,9 +136,11 @@ describe("Login Component", () => {
         getAccessToken: () => ({ getJwtToken: () => "token" }),
       });
     });
-    (CognitoUser as unknown as Record<string, any>).mockImplementation(function (this: Record<string, any>) {
-      this.authenticateUser = authenticateUserMock;
-    });
+    (CognitoUser as unknown as Record<string, any>).mockImplementation(
+      function (this: Record<string, any>) {
+        this.authenticateUser = authenticateUserMock;
+      },
+    );
     // Ensure we use the mock from setupTests which has getPassword
     // (AuthenticationDetails as any).mockRestore?.();
 
@@ -167,9 +175,11 @@ describe("Login Component", () => {
         getAccessToken: () => ({ getJwtToken: () => "token" }),
       });
     });
-    (CognitoUser as unknown as Record<string, any>).mockImplementation(function (this: Record<string, any>) {
-      this.authenticateUser = authenticateUserMock;
-    });
+    (CognitoUser as unknown as Record<string, any>).mockImplementation(
+      function (this: Record<string, any>) {
+        this.authenticateUser = authenticateUserMock;
+      },
+    );
 
     render(
       <BrowserRouter>
