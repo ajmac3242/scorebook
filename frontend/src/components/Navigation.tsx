@@ -27,6 +27,10 @@ import { syncService } from "../utils/syncService";
 
 /**
  * Navigation item component that expands on hover or when selected.
+ * @param root0
+ * @param root0.item
+ * @param root0.isSelected
+ * @param root0.onClick
  */
 const NavItem: React.FC<{
   item: { text: string; icon: React.ReactNode; path: string };
@@ -46,8 +50,12 @@ const NavItem: React.FC<{
         px: isSelected ? 2 : 1.25,
         py: 0.75,
         borderRadius: "20px",
-        bgcolor: isSelected ? alpha(theme.palette.primary.main, 0.15) : "transparent",
-        color: isSelected ? theme.palette.primary.dark : alpha(theme.palette.primary.dark, 0.5),
+        bgcolor: isSelected
+          ? alpha(theme.palette.primary.main, 0.15)
+          : "transparent",
+        color: isSelected
+          ? theme.palette.primary.dark
+          : alpha(theme.palette.primary.dark, 0.5),
         transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
         display: "flex",
         alignItems: "center",
