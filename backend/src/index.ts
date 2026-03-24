@@ -86,8 +86,14 @@ async function handlePlayers(
   if (path === "/players") {
     if (method === "GET") return await getItems("PLAYER", "PLAYER", tableName);
     if (method === "POST") {
-      if (!body?.name || typeof body.name !== "string" || body.name.length > 100) {
-        return badRequest("Player name is required and must be under 100 characters");
+      if (
+        !body?.name ||
+        typeof body.name !== "string" ||
+        body.name.length > 100
+      ) {
+        return badRequest(
+          "Player name is required and must be under 100 characters",
+        );
       }
       return await createItem("PLAYER", "METADATA", "PLAYER", body, tableName);
     }
@@ -160,8 +166,14 @@ async function handleGames(
     }
     if (method === "POST") {
       if (!body?.teamId) return badRequest("teamId is required");
-      if (!body?.opponent || typeof body.opponent !== "string" || body.opponent.length > 100) {
-        return badRequest("Opponent name is required and must be under 100 characters");
+      if (
+        !body?.opponent ||
+        typeof body.opponent !== "string" ||
+        body.opponent.length > 100
+      ) {
+        return badRequest(
+          "Opponent name is required and must be under 100 characters",
+        );
       }
       const resp = await createItem(
         "GAME",
@@ -301,8 +313,14 @@ async function handleTeams(
       return await getItems("TEAM", "TEAM", tableName);
     }
     if (method === "POST") {
-      if (!body?.name || typeof body.name !== "string" || body.name.length > 100) {
-        return badRequest("Team name is required and must be under 100 characters");
+      if (
+        !body?.name ||
+        typeof body.name !== "string" ||
+        body.name.length > 100
+      ) {
+        return badRequest(
+          "Team name is required and must be under 100 characters",
+        );
       }
       const resp = await createItem(
         "TEAM",

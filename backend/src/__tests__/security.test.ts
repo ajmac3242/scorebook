@@ -113,6 +113,8 @@ describe("Security Tests", () => {
 
     expect(response.statusCode).toBe(400);
     const body = JSON.parse(response.body);
-    expect(body.message).toContain("Team name is required and must be under 100 characters");
+    expect(body.message).toContain(
+      "Team name is required and must be under 100 characters",
+    );
   });
 });
