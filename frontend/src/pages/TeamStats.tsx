@@ -57,6 +57,7 @@ import EntityBanner from "../components/EntityBanner";
 import { useGames } from "../hooks/useGames";
 import { usePlayers } from "../hooks/usePlayers";
 import dayjs from "dayjs";
+import SortableHeader from "../components/SortableHeader";
 
 /**
  * TeamStats page component.
@@ -96,6 +97,7 @@ const TeamStats: React.FC = () => {
   const [newOpponent, setNewOpponent] = useState("");
   const [newOpponentLogoUrl, setNewOpponentLogoUrl] = useState("");
   const [newDate, setNewDate] = useState("");
+  const [newTime, setNewTime] = useState("");
   const [newLocation, setNewLocation] = useState("");
 
   /**
@@ -383,6 +385,7 @@ const TeamStats: React.FC = () => {
         opponent: newOpponent,
         opponentLogoUrl: newOpponentLogoUrl,
         date: newDate,
+        time: newTime,
         location: newLocation,
         synced: 0,
       });
@@ -391,6 +394,7 @@ const TeamStats: React.FC = () => {
       setNewOpponent("");
       setNewOpponentLogoUrl("");
       setNewDate("");
+      setNewTime("");
       setNewLocation("");
     } catch (error) {
       console.error("Failed to add game:", error);
@@ -555,8 +559,8 @@ const TeamStats: React.FC = () => {
                     )}
                     <Box>
                       <Typography variant="caption" color="text.secondary">
-                        {new Date(game.date).toLocaleDateString()} @{" "}
-                        {game.location}
+                        {dayjs(game.date).format("MM-DD-YYYY")}{" "}
+                        {game.time || ""} @ {game.location}
                       </Typography>
                       <Typography variant="h6" sx={{ fontWeight: 600 }}>
                         vs {game.opponent}
@@ -1049,6 +1053,16 @@ const TeamStats: React.FC = () => {
             value={newDate}
             onChange={(e) => setNewDate(e.target.value)}
           />
+          <TextField
+            margin="dense"
+            label="Time"
+            type="time"
+            fullWidth
+            variant="outlined"
+            InputLabelProps={{ shrink: true }}
+            value={newTime}
+            onChange={(e) => setNewTime(e.target.value)}
+          />
           <Autocomplete
             freeSolo
             options={allRecentLocations}
@@ -1098,50 +1112,5 @@ const TeamStats: React.FC = () => {
     </Box>
   );
 };
-
-/**
- * Helper component for sortable table headers.
- *
- * @param {object} root0 - Component props.
- * @param {string} root0.label - Header label.
- * @param {string} root0.sortKey - Key to sort by.
- * @param {"left" | "center" | "right"} root0.align - Text alignment.
- * @param {boolean} root0.hideOnMobile - Whether to hide on mobile.
- * @param {object} root0.sortConfig - Current sort configuration.
- * @param {string} root0.sortConfig.key - Sort key.
- * @param {"asc" | "desc"} root0.sortConfig.direction - Sort direction.
- * @param {(key: string) => void} root0.onSort - Sort handler.
- * @returns {React.ReactElement}
- */
-const SortableHeader = ({
-  label,
-  sortKey,
-  align = "right",
-  hideOnMobile = false,
-  sortConfig,
-  onSort,
-}: {
-  label: string;
-  sortKey: string;
-  align?: "left" | "center" | "right";
-  hideOnMobile?: boolean;
-  sortConfig: { key: string; direction: "asc" | "desc" };
-  onSort: (_key: string) => void;
-}) => (
-  <TableCell
-    align={align}
-    onClick={() => onSort(sortKey)}
-    sx={{
-      cursor: "pointer",
-      fontWeight: 700,
-      "&:hover": { color: "primary.main" },
-      whiteSpace: "nowrap",
-      display: hideOnMobile ? { xs: "none", sm: "table-cell" } : "table-cell",
-    }}
-  >
-    {label}{" "}
-    {sortConfig.key === sortKey && (sortConfig.direction === "asc" ? "↑" : "↓")}
-  </TableCell>
-);
 
 export default TeamStats;

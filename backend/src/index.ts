@@ -188,6 +188,7 @@ async function handleGames(
       if (resp.statusCode === 201 && resp.body) {
         const newItem = JSON.parse(resp.body);
         await snapshotTeamGames(newItem.teamId, tableName);
+        if (newItem.completed) await snapshotGameStats(newItem.id, tableName);
       }
       return resp;
     }

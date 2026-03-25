@@ -47,6 +47,7 @@ import { MoleskineCard } from "../components/SharedUI";
 import EntityBanner from "../components/EntityBanner";
 import { syncService } from "../utils/syncService";
 import dayjs from "dayjs";
+import SortableHeader from "../components/SortableHeader";
 import {
   LineChart,
   Line,
@@ -79,11 +80,28 @@ const GameStats: React.FC = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [timeLeft, setTimeLeft] = useState("");
 
+  const [sortConfig, setSortConfig] = useState<{
+    key: string;
+    direction: "asc" | "desc";
+  }>({ key: "points", direction: "desc" });
+
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [editOpponent, setEditOpponent] = useState("");
   const [editDate, setEditDate] = useState("");
+  const [editTime, setEditTime] = useState("");
   const [editLocation, setEditLocation] = useState("");
   const [editOpponentLogoUrl, setEditOpponentLogoUrl] = useState("");
+
+  /**
+   * Updates the column sorting configuration.
+   * @param {string} key - Column key to sort by.
+   */
+  const handleSort = (key: string) => {
+    setSortConfig((prev) => ({
+      key,
+      direction: prev.key === key && prev.direction === "desc" ? "asc" : "desc",
+    }));
+  };
 
   const game = useLiveQuery(
     () =>
@@ -118,6 +136,7 @@ const GameStats: React.FC = () => {
     if (game) {
       setEditOpponent(game.opponent || "");
       setEditDate(game.date || "");
+      setEditTime(game.time || "");
       setEditLocation(game.location || "");
       setEditOpponentLogoUrl(game.opponentLogoUrl || "");
     }
@@ -159,8 +178,20 @@ const GameStats: React.FC = () => {
     // Only include players who are assigned to this team
     const teamPlayerIds = new Set(teamPlayers.map((tp) => tp.playerId));
     const rosteredPlayers = players.filter((p) => teamPlayerIds.has(p.id!));
-    return calculatePlayerAggregates(rosteredPlayers, stats, teamPlayers);
-  }, [players, stats, teamPlayers]);
+    const aggregates = calculatePlayerAggregates(
+      rosteredPlayers,
+      stats,
+      teamPlayers,
+    );
+
+    return [...aggregates].sort((a, b) => {
+      const aValue = a[sortConfig.key as keyof typeof a] as number | string;
+      const bValue = b[sortConfig.key as keyof typeof b] as number | string;
+      if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
+      if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
+      return 0;
+    });
+  }, [players, stats, teamPlayers, sortConfig]);
 
   const filteredStats = useMemo(() => {
     return stats.filter(
@@ -247,6 +278,7 @@ const GameStats: React.FC = () => {
       await db.games.update(gameId, {
         opponent: editOpponent,
         date: editDate,
+        time: editTime,
         location: editLocation,
         opponentLogoUrl: editOpponentLogoUrl,
         synced: 0,
@@ -281,29 +313,58 @@ const GameStats: React.FC = () => {
       <Table size="small">
         <TableHead>
           <TableRow sx={{ bgcolor: "rgba(0,0,0,0.02)" }}>
-            <TableCell sx={{ minWidth: 100 }}>PLAYER</TableCell>
-            <TableCell align="right">PTS</TableCell>
-            <TableCell align="right">FG</TableCell>
-            <TableCell
-              align="right"
-              sx={{ display: { xs: "none", sm: "table-cell" } }}
-            >
-              FG%
-            </TableCell>
-            <TableCell align="right">REB</TableCell>
-            <TableCell align="right">AST</TableCell>
-            <TableCell
-              align="right"
-              sx={{ display: { xs: "none", sm: "table-cell" } }}
-            >
-              STL
-            </TableCell>
-            <TableCell
-              align="right"
-              sx={{ display: { xs: "none", sm: "table-cell" } }}
-            >
-              TO
-            </TableCell>
+            <SortableHeader
+              label="PLAYER"
+              sortKey="name"
+              align="left"
+              sortConfig={sortConfig}
+              onSort={handleSort}
+            />
+            <SortableHeader
+              label="PTS"
+              sortKey="points"
+              sortConfig={sortConfig}
+              onSort={handleSort}
+            />
+            <SortableHeader
+              label="FG"
+              sortKey="makes"
+              sortConfig={sortConfig}
+              onSort={handleSort}
+            />
+            <SortableHeader
+              label="FG%"
+              sortKey="fgPct"
+              hideOnMobile
+              sortConfig={sortConfig}
+              onSort={handleSort}
+            />
+            <SortableHeader
+              label="REB"
+              sortKey="rebounds"
+              sortConfig={sortConfig}
+              onSort={handleSort}
+            />
+            <SortableHeader
+              label="AST"
+              sortKey="assists"
+              sortConfig={sortConfig}
+              onSort={handleSort}
+            />
+            <SortableHeader
+              label="STL"
+              sortKey="steals"
+              hideOnMobile
+              sortConfig={sortConfig}
+              onSort={handleSort}
+            />
+            <SortableHeader
+              label="TO"
+              sortKey="turnovers"
+              hideOnMobile
+              sortConfig={sortConfig}
+              onSort={handleSort}
+            />
           </TableRow>
         </TableHead>
         <TableBody>
@@ -483,7 +544,7 @@ const GameStats: React.FC = () => {
     <Box sx={{ pb: 4, opacity: isDeleted ? 0.7 : 1 }}>
       <EntityBanner
         title={game?.opponent ? `vs ${game.opponent}` : "Game Stats"}
-        subtitle={`${game?.date || ""} | ${game?.location || ""}`}
+        subtitle={`${game?.date ? dayjs(game.date).format("MM-DD-YYYY") : ""} ${game?.time || ""} | ${game?.location || ""}`}
         avatarSrc={game?.opponentLogoUrl}
         avatarColor="rgba(255,255,255,0.1)"
         backTo={game?.teamId ? `/teams/${game.teamId}` : "/teams"}
@@ -707,6 +768,14 @@ const GameStats: React.FC = () => {
               InputLabelProps={{ shrink: true }}
               value={editDate}
               onChange={(e) => setEditDate(e.target.value)}
+            />
+            <TextField
+              fullWidth
+              label="Time"
+              type="time"
+              InputLabelProps={{ shrink: true }}
+              value={editTime}
+              onChange={(e) => setEditTime(e.target.value)}
             />
             <TextField
               fullWidth

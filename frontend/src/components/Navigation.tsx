@@ -232,13 +232,12 @@ const Navigation: React.FC = () => {
           {/* Central Navigation Pill Container */}
           <Box
             sx={{
-              position: isMobile ? "static" : "absolute",
-              left: isMobile ? "auto" : "50%",
-              transform: isMobile ? "none" : "translateX(-50%)",
-              flexGrow: isMobile ? 1 : 0,
+              position: "absolute",
+              left: "50%",
+              transform: "translateX(-50%)",
               display: "flex",
               justifyContent: "center",
-              ml: isMobile ? 1 : 0,
+              zIndex: 1,
             }}
           >
             <Box
