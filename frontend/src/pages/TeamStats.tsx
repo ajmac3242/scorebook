@@ -179,9 +179,7 @@ const TeamStats: React.FC = () => {
     const playerIdSet = new Set(
       teamPlayers.map((tp: TeamPlayer) => tp.playerId.toString()),
     );
-    return allPlayers.filter((p) =>
-      playerIdSet.has(p.id?.toString() || ""),
-    );
+    return allPlayers.filter((p) => playerIdSet.has(p.id?.toString() || ""));
   }, [allPlayers, teamPlayers]);
 
   const gameIds = useMemo(
