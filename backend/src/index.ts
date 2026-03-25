@@ -86,7 +86,11 @@ async function handlePlayers(
     if (method === "GET") return await getItems(tableName, "PLAYER");
     if (method !== "POST") return null;
 
-    if (!body?.name || typeof body.name !== "string" || body.name.length > 100) {
+    if (
+      !body?.name ||
+      typeof body.name !== "string" ||
+      body.name.length > 100
+    ) {
       return badRequest(
         "Player name is required and must be under 100 characters",
       );
