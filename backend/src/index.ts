@@ -84,62 +84,61 @@ async function handlePlayers(
 ): Promise<APIGatewayProxyResultV2 | null> {
   if (path === "/players") {
     if (method === "GET") return await getItems(tableName, "PLAYER");
-    if (method === "POST") {
-      if (
-        !body?.name ||
-        typeof body.name !== "string" ||
-        body.name.length > 100
-      ) {
-        return badRequest(
-          "Player name is required and must be under 100 characters",
-        );
-      }
-      return await createItem("PLAYER", "METADATA", "PLAYER", body, tableName);
+    if (method !== "POST") return null;
+
+    if (!body?.name || typeof body.name !== "string" || body.name.length > 100) {
+      return badRequest(
+        "Player name is required and must be under 100 characters",
+      );
     }
+    return await createItem("PLAYER", "METADATA", "PLAYER", body, tableName);
   }
 
   const match = path.match(/^\/players\/([^\/]+)$/);
-  if (match) {
-    const playerId = match[1];
-    if (method === "DELETE") {
-      const { archive } = event.queryStringParameters || {};
-      if (archive === "true") {
-        await docClient.send(
-          new UpdateCommand({
-            TableName: tableName,
-            Key: { PK: Keys.player(playerId), SK: Keys.metadata(playerId) },
-            UpdateExpression: "SET isArchived = :a",
-            ExpressionAttributeValues: { ":a": 1 },
-          }),
-        );
-        return ok({ message: "Player archived" });
-      }
-      return await softDeleteItem("PLAYER", "METADATA", playerId, tableName);
+  if (!match) return null;
+
+  const playerId = match[1];
+  if (method === "DELETE") {
+    const { archive } = event.queryStringParameters || {};
+    if (archive === "true") {
+      await docClient.send(
+        new UpdateCommand({
+          TableName: tableName,
+          Key: { PK: Keys.player(playerId), SK: Keys.metadata(playerId) },
+          UpdateExpression: "SET isArchived = :a",
+          ExpressionAttributeValues: { ":a": 1 },
+        }),
+      );
+      return ok({ message: "Player archived" });
     }
-    if (method === "PATCH") {
-      if (body.isArchived === 0) {
-        await docClient.send(
-          new UpdateCommand({
-            TableName: tableName,
-            Key: { PK: Keys.player(playerId), SK: Keys.metadata(playerId) },
-            UpdateExpression: "SET isArchived = :a",
-            ExpressionAttributeValues: { ":a": 0 },
-          }),
-        );
-        return ok({ message: "Player restored from archive" });
-      }
-      if (body.deletedAt === null) {
-        await docClient.send(
-          new UpdateCommand({
-            TableName: tableName,
-            Key: { PK: Keys.player(playerId), SK: Keys.metadata(playerId) },
-            UpdateExpression: "REMOVE deletedAt",
-          }),
-        );
-        return ok({ message: "Player restored" });
-      }
-    }
+    return await softDeleteItem("PLAYER", "METADATA", playerId, tableName);
   }
+
+  if (method !== "PATCH") return null;
+
+  if (body.isArchived === 0) {
+    await docClient.send(
+      new UpdateCommand({
+        TableName: tableName,
+        Key: { PK: Keys.player(playerId), SK: Keys.metadata(playerId) },
+        UpdateExpression: "SET isArchived = :a",
+        ExpressionAttributeValues: { ":a": 0 },
+      }),
+    );
+    return ok({ message: "Player restored from archive" });
+  }
+
+  if (body.deletedAt === null) {
+    await docClient.send(
+      new UpdateCommand({
+        TableName: tableName,
+        Key: { PK: Keys.player(playerId), SK: Keys.metadata(playerId) },
+        UpdateExpression: "REMOVE deletedAt",
+      }),
+    );
+    return ok({ message: "Player restored" });
+  }
+
   return null;
 }
 
@@ -435,37 +434,70 @@ function maskEvent(event: APIGatewayProxyEventV2): unknown {
  * @param {APIGatewayProxyEventV2} event - The API Gateway event object.
  * @returns {Promise<APIGatewayProxyResultV2>} The HTTP response.
  */
-export const handler = async (
-  event: APIGatewayProxyEventV2,
-): Promise<APIGatewayProxyResultV2> => {
-  console.log("Event:", JSON.stringify(maskEvent(event)));
-
-  // Extract HTTP method and path with normalization for different event formats
+/**
+ * Extracts HTTP method and path from various event formats.
+ * @param {APIGatewayProxyEventV2} event - Lambda event.
+ * @returns {{method: string, path: string}} Normalized metadata.
+ */
+function extractRequestMetadata(event: APIGatewayProxyEventV2) {
   const method =
     (event as unknown as Record<string, unknown>).method ||
     (event as unknown as Record<string, unknown>).httpMethod ||
     event.requestContext?.http?.method ||
     "GET";
-  const path = normalizePath(event);
+  return { method: method as string, path: normalizePath(event) };
+}
 
+/**
+ * Parses the request body as JSON.
+ * @param {string | undefined} body - Raw body string.
+ * @returns {Record<string, unknown>} Parsed body.
+ * @throws {Error} If JSON is invalid.
+ */
+function parseBody(body: string | undefined): Record<string, unknown> {
+  if (!body) return {};
+  return typeof body === "string" ? JSON.parse(body) : body;
+}
+
+/**
+ * Handler for cleanup-related endpoints.
+ * @param {string} method - HTTP method.
+ * @param {string} path - Request path.
+ * @param {string} tableName - DynamoDB table name.
+ * @returns {Promise<APIGatewayProxyResultV2 | null>} Response.
+ */
+async function handleCleanup(
+  method: string,
+  path: string,
+  tableName: string,
+): Promise<APIGatewayProxyResultV2 | null> {
+  if (path === "/cleanup" && method === "POST") {
+    await performHardCleanup(tableName);
+    return ok({ message: "Cleanup complete" });
+  }
+  return null;
+}
+
+export const handler = async (
+  event: APIGatewayProxyEventV2,
+): Promise<APIGatewayProxyResultV2> => {
+  console.log("Event:", JSON.stringify(maskEvent(event)));
+
+  const { method, path } = extractRequestMetadata(event);
   console.log("Routing:", { method, path });
 
-  // Parse JSON body if present
   let body: Record<string, unknown> = {};
-  if (event.body) {
-    try {
-      body =
-        typeof event.body === "string" ? JSON.parse(event.body) : event.body;
-    } catch (e) {
-      return badRequest("Invalid JSON body");
-    }
+  try {
+    body = parseBody(event.body);
+  } catch (e) {
+    return badRequest("Invalid JSON body");
   }
 
   try {
     const TABLE_NAME = process.env.TABLE_NAME || "BasketballStats";
 
     const teamsResponse = await handleTeams(
-      method as string,
+      method,
       path,
       body,
       event,
@@ -474,7 +506,7 @@ export const handler = async (
     if (teamsResponse) return teamsResponse;
 
     const playersResponse = await handlePlayers(
-      method as string,
+      method,
       path,
       body,
       event,
@@ -483,7 +515,7 @@ export const handler = async (
     if (playersResponse) return playersResponse;
 
     const gamesResponse = await handleGames(
-      method as string,
+      method,
       path,
       body,
       event,
@@ -491,11 +523,8 @@ export const handler = async (
     );
     if (gamesResponse) return gamesResponse;
 
-    // --- Cleanup/Hard Delete Trigger ---
-    if (path === "/cleanup" && method === "POST") {
-      await performHardCleanup(TABLE_NAME);
-      return ok({ message: "Cleanup complete" });
-    }
+    const cleanupResponse = await handleCleanup(method, path, TABLE_NAME);
+    if (cleanupResponse) return cleanupResponse;
 
     return notFound("Route not found");
   } catch (error: unknown) {
@@ -541,7 +570,7 @@ async function getItems(
       ExpressionAttributeValues: { ":pk": gsiPrefix },
     }),
   );
-  return response(200, result.Items?.filter((i) => !i.deletedAt) || []);
+  return ok(result.Items?.filter((i) => !i.deletedAt) || []);
 }
 
 /**
@@ -563,7 +592,7 @@ async function getItemsByGSI(
       ExpressionAttributeValues: { ":pk": gsiPk },
     }),
   );
-  return response(200, result.Items?.filter((i) => !i.deletedAt) || []);
+  return ok(result.Items?.filter((i) => !i.deletedAt) || []);
 }
 
 /**
@@ -594,7 +623,7 @@ async function createItem(
     id,
   };
   await docClient.send(new PutCommand({ TableName: tableName, Item: item }));
-  return response(201, item);
+  return created(item);
 }
 
 /**
@@ -621,7 +650,39 @@ async function softDeleteItem(
       ExpressionAttributeValues: { ":d": timestamp },
     }),
   );
-  return response(200, { message: "Item soft deleted", deletedAt: timestamp });
+  return ok({ message: "Item soft deleted", deletedAt: timestamp });
+}
+
+/**
+ * Generates and uploads a team roster snapshot JSON to S3.
+ *
+ * @param {string} teamId - The team ID.
+ * @param {string} tableName - The name of the DynamoDB table.
+ * @returns {Promise<void>}
+ */
+/**
+ * Executes snapshot logic with error handling and environment variable validation.
+ * @param {string} label - Contextual label for error logging.
+ * @param {Function} fn - The snapshot function to execute.
+ * @returns {Promise<void>}
+ */
+/**
+ * Executes snapshot logic with error handling and environment variable validation.
+ * @param {string} label - Contextual label for error logging.
+ * @param {Function} fn - The snapshot function to execute.
+ * @returns {Promise<void>}
+ */
+async function withDataBucket(
+  label: string,
+  fn: (bucket: string) => Promise<void>,
+) {
+  const bucket = process.env.DATA_BUCKET;
+  if (!bucket) return;
+  try {
+    await fn(bucket);
+  } catch (e) {
+    logError(label, e);
+  }
 }
 
 /**
@@ -632,16 +693,14 @@ async function softDeleteItem(
  * @returns {Promise<void>}
  */
 async function snapshotTeamRoster(teamId: string, tableName: string) {
-  const DATA_BUCKET = process.env.DATA_BUCKET;
-  if (!DATA_BUCKET) return;
-  try {
+  await withDataBucket("Snapshot Team Roster Error", async (bucket) => {
     const teamResult = await docClient.send(
       new GetCommand({
         TableName: tableName,
         Key: { PK: `TEAM#${teamId}`, SK: `METADATA#${teamId}` },
       }),
     );
-    if (teamResult.Item?.deletedAt) return; // Don't snapshot deleted teams
+    if (teamResult.Item?.deletedAt) return;
 
     const playersResult = await docClient.send(
       new QueryCommand({
@@ -659,15 +718,9 @@ async function snapshotTeamRoster(teamId: string, tableName: string) {
         team: teamResult.Item,
         players: (playersResult.Items || []).filter((p) => !p.deletedAt),
       };
-      await uploadSnapshot(
-        DATA_BUCKET,
-        `teams/${teamId}/roster.json`,
-        snapshot,
-      );
+      await uploadSnapshot(bucket, `teams/${teamId}/roster.json`, snapshot);
     }
-  } catch (e) {
-    logError("Snapshot Team Roster Error", e);
-  }
+  });
 }
 
 /**
@@ -678,9 +731,7 @@ async function snapshotTeamRoster(teamId: string, tableName: string) {
  * @returns {Promise<void>}
  */
 async function snapshotTeamGames(teamId: string, tableName: string) {
-  const DATA_BUCKET = process.env.DATA_BUCKET;
-  if (!DATA_BUCKET) return;
-  try {
+  await withDataBucket("Snapshot Team Games Error", async (bucket) => {
     const gamesResult = await docClient.send(
       new QueryCommand({
         TableName: tableName,
@@ -692,10 +743,8 @@ async function snapshotTeamGames(teamId: string, tableName: string) {
     const snapshot = {
       games: (gamesResult.Items || []).filter((g) => !g.deletedAt),
     };
-    await uploadSnapshot(DATA_BUCKET, `teams/${teamId}/games.json`, snapshot);
-  } catch (e) {
-    logError("Snapshot Team Games Error", e);
-  }
+    await uploadSnapshot(bucket, `teams/${teamId}/games.json`, snapshot);
+  });
 }
 
 /**
@@ -706,16 +755,14 @@ async function snapshotTeamGames(teamId: string, tableName: string) {
  * @returns {Promise<void>}
  */
 async function snapshotGameStats(gameId: string, tableName: string) {
-  const DATA_BUCKET = process.env.DATA_BUCKET;
-  if (!DATA_BUCKET) return;
-  try {
+  await withDataBucket("Snapshot Game Stats Error", async (bucket) => {
     const gameResult = await docClient.send(
       new GetCommand({
         TableName: tableName,
         Key: { PK: `GAME#${gameId}`, SK: `METADATA#${gameId}` },
       }),
     );
-    if (gameResult.Item?.deletedAt) return; // Don't snapshot deleted games
+    if (gameResult.Item?.deletedAt) return;
 
     const statsResult = await docClient.send(
       new QueryCommand({
@@ -734,11 +781,9 @@ async function snapshotGameStats(gameId: string, tableName: string) {
         game: { ...gameResult.Item, teamScore, oppScore, result },
         stats,
       };
-      await uploadSnapshot(DATA_BUCKET, `games/${gameId}/stats.json`, snapshot);
+      await uploadSnapshot(bucket, `games/${gameId}/stats.json`, snapshot);
     }
-  } catch (e) {
-    logError("Snapshot Game Stats Error", e);
-  }
+  });
 }
 
 /**
@@ -757,6 +802,18 @@ function accumulateScores(stats: Record<string, unknown>[]) {
 }
 
 /**
+ * Determines the game result (W, L, or D) based on team and opponent scores.
+ * @param {number} teamScore - Points scored by the team.
+ * @param {number} oppScore - Points scored by the opponent.
+ * @returns {"W" | "L" | "D"} Result indicator.
+ */
+function determineResult(teamScore: number, oppScore: number): "W" | "L" | "D" {
+  if (teamScore > oppScore) return "W";
+  if (teamScore < oppScore) return "L";
+  return "D";
+}
+
+/**
  * Calculates the final score and result from a list of stat events.
  *
  * @param {Record<string, unknown>[]} stats - List of stat events.
@@ -764,7 +821,7 @@ function accumulateScores(stats: Record<string, unknown>[]) {
  */
 function calculateGameResultFromStats(stats: Record<string, unknown>[]) {
   const { teamScore, oppScore } = accumulateScores(stats);
-  const result = teamScore > oppScore ? "W" : teamScore < oppScore ? "L" : "D";
+  const result = determineResult(teamScore, oppScore);
   return { teamScore, oppScore, result };
 }
 

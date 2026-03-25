@@ -16,3 +16,18 @@ export const roundToOne = (val: number): number => Number(val.toFixed(1));
  * @returns {string} The formatted string.
  */
 export const formatToOne = (val: number): string => val.toFixed(1);
+
+/**
+ * Determines the game result (W, L, or D) based on team and opponent scores.
+ * @param {number} teamScore - Points scored by the team.
+ * @param {number} oppScore - Points scored by the opponent.
+ * @returns {"W" | "L" | "D"} Result indicator.
+ */
+export const determineResult = (
+  teamScore: number,
+  oppScore: number,
+): "W" | "L" | "D" => {
+  if (teamScore > oppScore) return "W";
+  if (teamScore < oppScore) return "L";
+  return "D";
+};

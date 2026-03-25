@@ -6,7 +6,7 @@
 
 import { ACTION_TYPES } from "../constants/stats";
 import { StatEvent, TeamPlayer, Player, Game } from "../db";
-import { roundToOne, formatToOne } from "./mathUtils";
+import { roundToOne, formatToOne, determineResult } from "./mathUtils";
 
 /**
  * Interface for aggregated player statistics.
@@ -68,20 +68,30 @@ export const getPlayerJersey = (
 function processStatEvent(p: PlayerAggregates, s: StatEvent) {
   p.gamesPlayed.add(s.gameId);
 
-  const handlers: Record<string, () => void> = {
-    [ACTION_TYPES.MAKE]: () => {
+  switch (s.type) {
+    case ACTION_TYPES.MAKE:
       p.points += s.points || 0;
       p.makes++;
       p.attempts++;
-    },
-    [ACTION_TYPES.MISS]: () => p.attempts++,
-    [ACTION_TYPES.REBOUND]: () => p.rebounds++,
-    [ACTION_TYPES.ASSIST]: () => p.assists++,
-    [ACTION_TYPES.STEAL]: () => p.steals++,
-    [ACTION_TYPES.TURNOVER]: () => p.turnovers++,
-  };
-
-  handlers[s.type]?.();
+      break;
+    case ACTION_TYPES.MISS:
+      p.attempts++;
+      break;
+    case ACTION_TYPES.REBOUND:
+      p.rebounds++;
+      break;
+    case ACTION_TYPES.ASSIST:
+      p.assists++;
+      break;
+    case ACTION_TYPES.STEAL:
+      p.steals++;
+      break;
+    case ACTION_TYPES.TURNOVER:
+      p.turnovers++;
+      break;
+    default:
+      break;
+  }
 }
 
 /**
@@ -161,14 +171,15 @@ export const calculatePlayerAggregates = (
 
     if (viewType === "average") {
       // Calculate per-game averages if requested, rounding to 1 decimal place.
-      return {
+      const averaged: PlayerAggregates = {
         ...p,
         points: roundToOne(p.points / gp),
         rebounds: roundToOne(p.rebounds / gp),
         assists: roundToOne(p.assists / gp),
         steals: roundToOne(p.steals / gp),
         turnovers: roundToOne(p.turnovers / gp),
-      } as unknown as PlayerAggregates;
+      };
+      return averaged;
     }
     return p;
   });
@@ -207,11 +218,14 @@ export const calculateTeamAggregates = (
   let losses = 0;
 
   // Optimization: Pre-group statistics by gameId to avoid O(G * S) complexity.
-  const statsByGame: Record<string, StatEvent[]> = {};
-  relevantStats.forEach((s) => {
-    if (!statsByGame[s.gameId]) statsByGame[s.gameId] = [];
-    statsByGame[s.gameId].push(s);
-  });
+  const statsByGame = relevantStats.reduce(
+    (acc, s) => {
+      if (!acc[s.gameId]) acc[s.gameId] = [];
+      acc[s.gameId].push(s);
+      return acc;
+    },
+    {} as Record<string | number, StatEvent[]>,
+  );
 
   targetGameIds.forEach((gId) => {
     const gameStats = statsByGame[gId] || [];
@@ -223,8 +237,9 @@ export const calculateTeamAggregates = (
     totalRebounds += rebounds;
     totalAssists += assists;
 
-    if (teamPoints > oppPoints) wins++;
-    else if (teamPoints < oppPoints) losses++;
+    const res = determineResult(teamPoints, oppPoints);
+    if (res === "W") wins++;
+    else if (res === "L") losses++;
   });
 
   const gp = targetGames.length || 1;
@@ -285,6 +300,6 @@ export const calculateGameResult = (
     );
 
   // Determine game result: W (Win), L (Loss), D (Draw/Tie).
-  const result = teamScore > oppScore ? "W" : teamScore < oppScore ? "L" : "D";
+  const result = determineResult(teamScore, oppScore);
   return { teamScore, oppScore, result };
 };
