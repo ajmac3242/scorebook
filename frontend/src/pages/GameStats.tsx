@@ -15,7 +15,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Chip,
   useTheme,
   Avatar,
   IconButton,
