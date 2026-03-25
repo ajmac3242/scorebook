@@ -175,10 +175,13 @@ const TeamStats: React.FC = () => {
     }) || [];
 
   const teamPlayerDetails = useMemo(() => {
-    const playerIds = teamPlayers.map((tp: TeamPlayer) =>
-      tp.playerId.toString(),
+    // Convert playerIds to a Set for O(1) lookup
+    const playerIdSet = new Set(
+      teamPlayers.map((tp: TeamPlayer) => tp.playerId.toString()),
     );
-    return allPlayers.filter((p) => playerIds.includes(p.id?.toString() || ""));
+    return allPlayers.filter((p) =>
+      playerIdSet.has(p.id?.toString() || ""),
+    );
   }, [allPlayers, teamPlayers]);
 
   const gameIds = useMemo(

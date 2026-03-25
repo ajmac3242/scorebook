@@ -27,6 +27,29 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { calculateTeamAggregates, getInitials } from "../utils/stats";
 import EntityBanner from "../components/EntityBanner";
 
+const contrastColorCache: Record<string, "white" | "black"> = {};
+
+/**
+ * Calculates luminance to determine if text should be white or black for a given background color.
+ * Memoized to avoid redundant calculations in list renders.
+ * @param {string} hexcolor - Hex color string.
+ * @returns {"white" | "black"} Contrast color.
+ */
+const getContrastColor = (hexcolor: string) => {
+  if (!hexcolor) return "white";
+  if (contrastColorCache[hexcolor]) return contrastColorCache[hexcolor];
+
+  const hex = hexcolor.replace("#", "");
+  const r = parseInt(hex.substr(0, 2), 16);
+  const g = parseInt(hex.substr(2, 2), 16);
+  const b = parseInt(hex.substr(4, 2), 16);
+  const yiq = (r * 299 + g * 587 + b * 114) / 1000;
+  const result = yiq >= 128 ? "black" : "white";
+
+  contrastColorCache[hexcolor] = result;
+  return result;
+};
+
 /**
  * Teams page component.
  * Displays a list of teams and provides a way to add new teams.
@@ -124,22 +147,6 @@ const Teams: React.FC = () => {
     });
     return results;
   }, [teams, allGames, allStats]);
-
-  /**
-   * Calculates luminance to determine if text should be white or black for a given background color.
-   * @param {string} hexcolor - Hex color string.
-   * @returns {"white" | "black"} Contrast color.
-   */
-  const getContrastColor = (hexcolor: string) => {
-    // If no color, default to white text on theme primary
-    if (!hexcolor) return "white";
-    const hex = hexcolor.replace("#", "");
-    const r = parseInt(hex.substr(0, 2), 16);
-    const g = parseInt(hex.substr(2, 2), 16);
-    const b = parseInt(hex.substr(4, 2), 16);
-    const yiq = (r * 299 + g * 587 + b * 114) / 1000;
-    return yiq >= 128 ? "black" : "white";
-  };
 
   /**
    * Handles adding a new team to the database.

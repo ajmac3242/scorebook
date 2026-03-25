@@ -71,8 +71,11 @@ const Players: React.FC = () => {
       [],
       "average",
     );
+    // Create a map for O(1) lookup to improve from O(P^2)
+    const aggMap = new Map(aggregates.map((a) => [a.id, a]));
+
     return players.map((p) => {
-      const agg = aggregates.find((a) => a.id === p.id);
+      const agg = aggMap.get(p.id!);
       return {
         ...p,
         ppg: agg?.points || 0,

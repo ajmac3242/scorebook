@@ -195,8 +195,9 @@ export const calculateTeamAggregates = (
     ? games.filter((g) => g.completed === 1)
     : games;
   const targetGameIds = targetGames.map((g) => g.id);
+  const targetGameIdSet = new Set(targetGameIds);
   const relevantStats = stats.filter((s) =>
-    targetGameIds.includes(s.gameId as string),
+    targetGameIdSet.has(s.gameId as string),
   );
 
   let totalPoints = 0;
@@ -244,19 +245,18 @@ export const calculateTeamAggregates = (
  * @returns {object} Aggregated points, rebounds, and assists.
  */
 function aggregateStatsForGame(gameStats: StatEvent[]) {
-  return gameStats.reduce(
-    (acc, s) => {
-      if (s.playerId === "OPPONENT") {
-        acc.oppPoints += s.points || 0;
-      } else {
-        acc.teamPoints += s.points || 0;
-        if (s.type === ACTION_TYPES.REBOUND) acc.rebounds++;
-        if (s.type === ACTION_TYPES.ASSIST) acc.assists++;
-      }
-      return acc;
-    },
-    { teamPoints: 0, oppPoints: 0, rebounds: 0, assists: 0 },
-  );
+  // Replace reduce with for...of to minimize per-iteration overhead in hot paths
+  const acc = { teamPoints: 0, oppPoints: 0, rebounds: 0, assists: 0 };
+  for (const s of gameStats) {
+    if (s.playerId === "OPPONENT") {
+      acc.oppPoints += s.points || 0;
+    } else {
+      acc.teamPoints += s.points || 0;
+      if (s.type === ACTION_TYPES.REBOUND) acc.rebounds++;
+      if (s.type === ACTION_TYPES.ASSIST) acc.assists++;
+    }
+  }
+  return acc;
 }
 
 /**
@@ -270,19 +270,20 @@ export const calculateGameResult = (
   gameId: number | string,
   stats: StatEvent[],
 ) => {
-  const { teamScore, oppScore } = stats
-    .filter((s) => s.gameId === gameId)
-    .reduce(
-      (acc, s) => {
+  // Combine filter and reduce into a single pass
+  const { teamScore, oppScore } = stats.reduce(
+    (acc, s) => {
+      if (s.gameId === gameId) {
         if (s.playerId === "OPPONENT") {
           acc.oppScore += s.points || 0;
         } else {
           acc.teamScore += s.points || 0;
         }
-        return acc;
-      },
-      { teamScore: 0, oppScore: 0 },
-    );
+      }
+      return acc;
+    },
+    { teamScore: 0, oppScore: 0 },
+  );
 
   // Determine game result: W (Win), L (Loss), D (Draw/Tie).
   const result = teamScore > oppScore ? "W" : teamScore < oppScore ? "L" : "D";

@@ -7,3 +7,11 @@ Action: Always check render loops for heavy filtering or repeated utility calls.
 ## 2025-05-15 - Linearized Stat Aggregation Utilities
 Learning: Algorithmic complexity in utility functions (`calculateTeamAggregates`, `initializeStatsMap`) often hidden by simple-looking `.filter()` or `.find()` calls inside loops. Pre-grouping data into Maps/Objects converts $O(N \cdot M)$ complexity into $O(N + M)$, which scales significantly better as the dataset (players, games, stats) grows.
 Action: Audit utility functions for nested array methods. Replace nested searching/filtering with Map-based lookups or pre-grouped data structures to ensure linear performance.
+
+## 2026-03-25 - Efficient Data Sanitization and Redaction
+Learning: Deep cloning large objects (like Lambda events) just for redacting a few keys is extremely expensive. Shallow cloning the root and specifically the targeted child objects (like `headers`) provides the same safety at a fraction of the cost. Additionally, replaces declarative pipelines (`Object.entries().filter().map().fromEntries()`) with simple loops in recursion significantly reduces intermediate memory allocations and GC pressure.
+Action: Prefer targeted shallow clones over deep clones for redaction. Use simple loops for performance-critical data sanitization to minimize memory overhead.
+
+## 2026-03-25 - Lexicographical Sorting and Memoization
+Learning: Converting ISO timestamp strings to `Date` objects repeatedly during a sort operation adds unnecessary overhead, as ISO strings are lexicographically sortable. Also, redundant calculations in render loops (like color luminance) should be memoized at the module level or with `useMemo` to keep frames smooth.
+Action: Use direct string comparison for ISO dates in sort functions. Memoize expensive UI logic (color parsing, heavy math) to prevent redundant work on every render.
