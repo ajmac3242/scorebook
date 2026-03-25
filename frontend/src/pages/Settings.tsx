@@ -24,6 +24,7 @@ import {
 import { useAuth } from "../context/AuthContext";
 import { syncService } from "../utils/syncService";
 import EntityBanner from "../components/EntityBanner";
+import { db } from "../db";
 
 /**
  * Settings page component.
