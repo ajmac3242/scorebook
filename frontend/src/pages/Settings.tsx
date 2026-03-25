@@ -69,8 +69,13 @@ const Settings: React.FC = () => {
   /**
    * Confirms and executes the logout action from the dialog.
    */
-  const confirmLogout = () => {
+  const confirmLogout = async () => {
     setLogoutDialogOpen(false);
+    try {
+      await db.delete();
+    } catch (err) {
+      console.error("Failed to delete local database:", err);
+    }
     logout();
   };
 

@@ -54,6 +54,7 @@ export interface Game {
   opponent: string;
   opponentLogoUrl?: string;
   date: string;
+  time?: string;
   location: string;
   completed?: number; // 0 (incomplete) or 1 (completed)
   deletedAt?: string;
@@ -94,8 +95,8 @@ export class AppDatabase extends Dexie {
     super("ScorebookDB");
 
     // Define the database schema with primary keys and indexes
-    // Version 9: Add opponentLogoUrl to Game.
-    this.version(9).stores({
+    // Version 10: Add time to Game.
+    this.version(10).stores({
       teams: "id, synced, deletedAt",
       players: "id, synced, isArchived, deletedAt",
       teamPlayers: "id, [teamId+playerId], teamId, playerId, synced",
