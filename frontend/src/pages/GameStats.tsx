@@ -173,9 +173,8 @@ const GameStats: React.FC = () => {
   const scoreFlowData = useMemo(() => {
     let tScore = 0;
     let oScore = 0;
-    const sortedStats = [...stats].sort(
-      (a, b) =>
-        new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
+    const sortedStats = [...stats].sort((a, b) =>
+      a.timestamp.localeCompare(b.timestamp),
     );
     const resultArr = [{ time: "00:00", Team: 0, Opponent: 0 }];
     sortedStats

@@ -166,13 +166,19 @@ const GameMode: React.FC = () => {
       }
     }, [gameId]) || [];
 
-  // Derived scores
-  const currentScore = gameStats
-    .filter((s) => s.playerId !== OPPONENT_PLAYER_ID && !s.deletedAt)
-    .reduce((sum, s) => sum + (s.points || 0), 0);
-  const opponentScore = gameStats
-    .filter((s) => s.playerId === OPPONENT_PLAYER_ID && !s.deletedAt)
-    .reduce((sum, s) => sum + (s.points || 0), 0);
+  // Derived scores - consolidated into a single pass to improve efficiency
+  const { currentScore, opponentScore } = gameStats.reduce(
+    (acc, s) => {
+      if (s.deletedAt) return acc;
+      if (s.playerId === OPPONENT_PLAYER_ID) {
+        acc.opponentScore += s.points || 0;
+      } else {
+        acc.currentScore += s.points || 0;
+      }
+      return acc;
+    },
+    { currentScore: 0, opponentScore: 0 },
+  );
 
   /**
    * Undoes the most recent statistical action.

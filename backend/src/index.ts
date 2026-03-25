@@ -419,13 +419,17 @@ async function handleTeams(
  * @returns {unknown} A sanitized copy of the event.
  */
 function maskEvent(event: APIGatewayProxyEventV2): unknown {
-  const masked = JSON.parse(JSON.stringify(event));
+  // Use shallow clone instead of expensive JSON.parse/stringify
+  const masked = { ...event };
   if (masked.headers) {
-    for (const key of Object.keys(masked.headers)) {
+    // Shallow clone headers object for redaction
+    const redactedHeaders = { ...masked.headers };
+    for (const key of Object.keys(redactedHeaders)) {
       if (key.toLowerCase() === "authorization") {
-        masked.headers[key] = "[REDACTED]";
+        redactedHeaders[key] = "[REDACTED]";
       }
     }
+    masked.headers = redactedHeaders;
   }
   return masked;
 }
@@ -948,11 +952,13 @@ function sanitizeOutput(data: unknown): unknown {
     return data.map(sanitizeOutput);
   }
   if (data !== null && typeof data === "object") {
-    return Object.fromEntries(
-      Object.entries(data)
-        .filter(([key]) => !INTERNAL_KEYS.has(key) || key === "id")
-        .map(([key, value]) => [key, sanitizeOutput(value)]),
-    );
+    const sanitized: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(data)) {
+      if (!INTERNAL_KEYS.has(key) || key === "id") {
+        sanitized[key] = sanitizeOutput(value);
+      }
+    }
+    return sanitized;
   }
   return data;
 }
