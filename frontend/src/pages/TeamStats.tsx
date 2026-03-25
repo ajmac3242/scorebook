@@ -559,8 +559,8 @@ const TeamStats: React.FC = () => {
                     )}
                     <Box>
                       <Typography variant="caption" color="text.secondary">
-                        {dayjs(game.date).format("MM-DD-YYYY")} {game.time || ""} @{" "}
-                        {game.location}
+                        {dayjs(game.date).format("MM-DD-YYYY")}{" "}
+                        {game.time || ""} @ {game.location}
                       </Typography>
                       <Typography variant="h6" sx={{ fontWeight: 600 }}>
                         vs {game.opponent}
@@ -1112,6 +1112,5 @@ const TeamStats: React.FC = () => {
     </Box>
   );
 };
-
 
 export default TeamStats;

@@ -817,5 +817,4 @@ const GameStats: React.FC = () => {
   );
 };
 
-
 export default GameStats;
