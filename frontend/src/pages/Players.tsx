@@ -52,10 +52,7 @@ const Players: React.FC = () => {
     return all.filter((p) => {
       if (p.deletedAt) return false;
       if (!showArchived && p.isArchived) return false;
-      if (
-        normalizedSearch &&
-        !p.name.toLowerCase().includes(normalizedSearch)
-      )
+      if (normalizedSearch && !p.name.toLowerCase().includes(normalizedSearch))
         return false;
       return true;
     });
