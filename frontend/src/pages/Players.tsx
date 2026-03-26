@@ -148,7 +148,7 @@ const Players: React.FC = () => {
         <Alert
           onClose={() => setSnackbar({ ...snackbar, open: false })}
           severity={snackbar.severity}
-          variant="contained"
+          variant="filled"
           sx={{ width: "100%" }}
         >
           {snackbar.message}
