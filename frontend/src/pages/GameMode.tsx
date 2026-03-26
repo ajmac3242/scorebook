@@ -5,7 +5,7 @@
  * on an interactive court, manage active lineups, and track opponent scoring.
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import {
   Box,
@@ -92,27 +92,33 @@ const GameMode: React.FC = () => {
   const [trackingMode, setTrackingMode] = useState<"TEAM" | "OPPONENT">("TEAM");
 
   // Fetch roster data for the current team
-  const teamPlayers =
-    useLiveQuery(
-      () =>
-        teamId
-          ? db.teamPlayers.where("teamId").equals(teamId.toString()).toArray()
-          : Promise.resolve([]),
-      [teamId],
-    ) || [];
+  const teamPlayersQueryResult = useLiveQuery(
+    () =>
+      teamId
+        ? db.teamPlayers.where("teamId").equals(teamId.toString()).toArray()
+        : Promise.resolve([]),
+    [teamId],
+  );
+  const teamPlayers = useMemo(
+    () => teamPlayersQueryResult || [],
+    [teamPlayersQueryResult],
+  );
 
-  const players =
-    useLiveQuery(async () => {
-      try {
-        await db.open();
-        if (!teamId) return [];
-        const playerIds = teamPlayers.map((t) => t.playerId.toString());
-        return await db.players.where("id").anyOf(playerIds).toArray();
-      } catch (err) {
-        console.error("Failed to fetch players:", err);
-        return [];
-      }
-    }, [teamId, teamPlayers]) || [];
+  const playersQueryResult = useLiveQuery(async () => {
+    try {
+      await db.open();
+      if (!teamId) return [];
+      const playerIds = teamPlayers.map((t) => t.playerId.toString());
+      return await db.players.where("id").anyOf(playerIds).toArray();
+    } catch (err) {
+      console.error("Failed to fetch players:", err);
+      return [];
+    }
+  }, [teamId, teamPlayers]);
+  const players = useMemo(
+    () => playersQueryResult || [],
+    [playersQueryResult],
+  );
 
   const game = useLiveQuery(() => db.games.get(gameId as string), [gameId]);
   const team = useLiveQuery(
@@ -142,11 +148,9 @@ const GameMode: React.FC = () => {
       try {
         await db.open();
         const stats = await db.stats.where("gameId").equals(gameId).toArray();
+        // Performance: Use direct string comparison for ISO timestamps instead of Date objects
         return stats
-          .sort(
-            (a, b) =>
-              new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
-          )
+          .sort((a, b) => b.timestamp.localeCompare(a.timestamp))
           .slice(0, 10);
       } catch (err) {
         console.error("Failed to fetch recent stats:", err);
@@ -155,30 +159,66 @@ const GameMode: React.FC = () => {
     }, [gameId]) || [];
 
   // Fetch all game stats for score calculation and court markers
-  const gameStats =
-    useLiveQuery(async () => {
-      try {
-        await db.open();
-        return await db.stats.where("gameId").equals(gameId).toArray();
-      } catch (err) {
-        console.error("Failed to fetch game stats:", err);
-        return [];
-      }
-    }, [gameId]) || [];
+  const gameStatsQueryResult = useLiveQuery(async () => {
+    try {
+      await db.open();
+      return await db.stats.where("gameId").equals(gameId).toArray();
+    } catch (err) {
+      console.error("Failed to fetch game stats:", err);
+      return [];
+    }
+  }, [gameId]);
+  const gameStats = useMemo(
+    () => gameStatsQueryResult || [],
+    [gameStatsQueryResult],
+  );
 
   // Derived scores - consolidated into a single pass to improve efficiency
-  const { currentScore, opponentScore } = gameStats.reduce(
-    (acc, s) => {
-      if (s.deletedAt) return acc;
-      if (s.playerId === OPPONENT_PLAYER_ID) {
-        acc.opponentScore += s.points || 0;
-      } else {
-        acc.currentScore += s.points || 0;
-      }
-      return acc;
-    },
-    { currentScore: 0, opponentScore: 0 },
-  );
+  // Memoized to prevent recalculation on every render
+  const { currentScore, opponentScore } = useMemo(() => {
+    return gameStats.reduce(
+      (acc, s) => {
+        if (s.deletedAt) return acc;
+        if (s.playerId === OPPONENT_PLAYER_ID) {
+          acc.opponentScore += s.points || 0;
+        } else {
+          acc.currentScore += s.points || 0;
+        }
+        return acc;
+      },
+      { currentScore: 0, opponentScore: 0 },
+    );
+  }, [gameStats]);
+
+  const markers = useMemo(() => {
+    // Performance: Pre-calculate jersey map for O(1) lookups in the map loop
+    const jerseyMap = new Map(
+      teamPlayers.map((tp) => [tp.playerId, tp.jerseyNumber]),
+    );
+
+    return gameStats
+      .filter(
+        (s) =>
+          !s.deletedAt &&
+          (markerFilter === "ALL" || s.type === markerFilter) &&
+          s.type !== ACTION_TYPES.SUB_IN &&
+          s.type !== ACTION_TYPES.SUB_OUT,
+      )
+      .map((s) => ({
+        id: s.id,
+        x: s.locationX || 0,
+        y: s.locationY || 0,
+        type: s.type,
+        label:
+          s.playerId !== OPPONENT_PLAYER_ID
+            ? jerseyMap.get(s.playerId) || ""
+            : undefined,
+        color:
+          s.playerId === OPPONENT_PLAYER_ID
+            ? theme.palette.secondary.main
+            : undefined,
+      }));
+  }, [gameStats, markerFilter, teamPlayers, theme.palette.secondary.main]);
 
   /**
    * Undoes the most recent statistical action.
@@ -484,28 +524,7 @@ const GameMode: React.FC = () => {
 
             <BasketballCourt
               onCoordClick={handleCourtClick}
-              markers={gameStats
-                .filter(
-                  (s) =>
-                    !s.deletedAt &&
-                    (markerFilter === "ALL" || s.type === markerFilter) &&
-                    s.type !== ACTION_TYPES.SUB_IN &&
-                    s.type !== ACTION_TYPES.SUB_OUT,
-                )
-                .map((s) => ({
-                  id: s.id,
-                  x: s.locationX || 0,
-                  y: s.locationY || 0,
-                  type: s.type,
-                  label:
-                    s.playerId !== OPPONENT_PLAYER_ID
-                      ? getPlayerJersey(s.playerId, teamPlayers)
-                      : undefined,
-                  color:
-                    s.playerId === OPPONENT_PLAYER_ID
-                      ? theme.palette.secondary.main
-                      : undefined,
-                }))}
+              markers={markers}
             />
           </MoleskineCard>
         </Grid>

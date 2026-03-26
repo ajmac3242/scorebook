@@ -47,12 +47,14 @@ const Players: React.FC = () => {
   const playersResult = useLiveQuery(async () => {
     const query = db.players.toCollection();
     const all = await query.toArray();
+    // Performance: Normalize search term once outside the loop
+    const normalizedSearch = searchTerm.toLowerCase();
     return all.filter((p) => {
       if (p.deletedAt) return false;
       if (!showArchived && p.isArchived) return false;
       if (
-        searchTerm &&
-        !p.name.toLowerCase().includes(searchTerm.toLowerCase())
+        normalizedSearch &&
+        !p.name.toLowerCase().includes(normalizedSearch)
       )
         return false;
       return true;

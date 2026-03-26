@@ -118,11 +118,13 @@ const PlayerStats: React.FC = () => {
   const allStats = useMemo(() => allStatsResult || [], [allStatsResult]);
 
   const filteredStats = useMemo(() => {
+    // Performance: Use a Set for O(1) game lookup instead of O(N) .some()
+    const gameIdSet = new Set(games.map((g) => g.id));
+
     return (allStats as StatEvent[]).filter((stat) => {
       if (selectedGameId !== "" && stat.gameId !== selectedGameId) return false;
       if (selectedType !== "" && stat.type !== selectedType) return false;
-      if (selectedGameId === "" && !games.some((g) => g.id === stat.gameId))
-        return false;
+      if (selectedGameId === "" && !gameIdSet.has(stat.gameId)) return false;
       return true;
     });
   }, [allStats, selectedGameId, selectedType, games]);

@@ -35,14 +35,14 @@ export interface PlayerAggregates {
  */
 export const getInitials = (name: string | undefined | null): string => {
   if (!name) return "";
-  return name
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean)
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
+  const parts = name.trim().split(/\s+/);
+  let initials = "";
+  for (let i = 0; i < parts.length && i < 2; i++) {
+    if (parts[i]) {
+      initials += parts[i][0].toUpperCase();
+    }
+  }
+  return initials;
 };
 
 /**

@@ -15,3 +15,13 @@ Action: Prefer targeted shallow clones over deep clones for redaction. Use simpl
 ## 2026-03-25 - Lexicographical Sorting and Memoization
 Learning: Converting ISO timestamp strings to `Date` objects repeatedly during a sort operation adds unnecessary overhead, as ISO strings are lexicographically sortable. Also, redundant calculations in render loops (like color luminance) should be memoized at the module level or with `useMemo` to keep frames smooth.
 Action: Use direct string comparison for ISO dates in sort functions. Memoize expensive UI logic (color parsing, heavy math) to prevent redundant work on every render.
+
+## 2026-03-25 - High-Impact Frontend and Backend Performance Pass
+Learning: Redundant data transformations and inefficient search patterns (e.g., (N)$ lookups inside loops) significantly degrade performance as datasets grow. Using Dexie's `.count()` avoids memory overhead for simple tallies. Memoizing derived state in React prevents expensive recalculations on every frame. On the backend, replacing declarative pipelines with simple `for...in` loops reduces memory allocations and improves response serialization speed. Direct string comparison for ISO timestamps avoids the cost of `Date` object instantiation during sorts.
+Action:
+- Use `db.table.count()` for record counts.
+- Wrap complex reductions and filters in `useMemo`.
+- Replace `.find()` or `.some()` in loops with `Map` or `Set` lookups for (1)$ performance.
+- Normalize search terms once outside filter loops.
+- Use `for...in` loops for performance-critical object sanitization.
+- Sort ISO strings directly without converting to `Date`.

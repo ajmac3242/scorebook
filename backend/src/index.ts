@@ -934,11 +934,16 @@ function stripLocalFields(data: unknown): Record<string, unknown> {
   if (!data || typeof data !== "object" || data === null) {
     return {};
   }
-  return Object.fromEntries(
-    Object.entries(data as Record<string, unknown>).filter(
-      ([key]) => !INTERNAL_KEYS.has(key),
-    ),
-  );
+  const result: Record<string, unknown> = {};
+  for (const key in data as Record<string, unknown>) {
+    if (
+      Object.prototype.hasOwnProperty.call(data, key) &&
+      !INTERNAL_KEYS.has(key)
+    ) {
+      result[key] = (data as Record<string, unknown>)[key];
+    }
+  }
+  return result;
 }
 
 /**
@@ -954,9 +959,12 @@ function sanitizeOutput(data: unknown): unknown {
   }
   if (data !== null && typeof data === "object") {
     const sanitized: Record<string, unknown> = {};
-    for (const [key, value] of Object.entries(data)) {
-      if (!INTERNAL_KEYS.has(key) || key === "id") {
-        sanitized[key] = sanitizeOutput(value);
+    for (const key in data as Record<string, unknown>) {
+      if (
+        Object.prototype.hasOwnProperty.call(data, key) &&
+        (!INTERNAL_KEYS.has(key) || key === "id")
+      ) {
+        sanitized[key] = sanitizeOutput((data as Record<string, unknown>)[key]);
       }
     }
     return sanitized;
