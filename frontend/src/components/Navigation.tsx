@@ -44,6 +44,7 @@ const NavItem: React.FC<{
       component={Link}
       to={item.path}
       onClick={onClick}
+      aria-label={`Navigate to ${item.text}`}
       sx={{
         minHeight: 40,
         width: "auto",

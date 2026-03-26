@@ -33,6 +33,7 @@ import {
   DialogContentText,
   IconButton,
   Autocomplete,
+  Tooltip,
 } from "@mui/material";
 import {
   PersonAdd as PersonAddIcon,
@@ -99,6 +100,7 @@ const TeamStats: React.FC = () => {
   const [newDate, setNewDate] = useState("");
   const [newTime, setNewTime] = useState("");
   const [newLocation, setNewLocation] = useState("");
+  const [isSubmittingGame, setIsSubmittingGame] = useState(false);
 
   /**
    * Updates the column sorting configuration.
@@ -376,7 +378,8 @@ const TeamStats: React.FC = () => {
   };
 
   const handleAddGame = async () => {
-    if (!teamId) return;
+    if (!teamId || !newOpponent.trim()) return;
+    setIsSubmittingGame(true);
     try {
       await db.open();
       await db.games.add({
@@ -398,6 +401,8 @@ const TeamStats: React.FC = () => {
       setNewLocation("");
     } catch (error) {
       console.error("Failed to add game:", error);
+    } finally {
+      setIsSubmittingGame(false);
     }
   };
 
@@ -423,19 +428,22 @@ const TeamStats: React.FC = () => {
           <Stack direction="row" spacing={1} alignItems="center">
             {!isDeleted ? (
               <>
-                <IconButton
-                  onClick={() => setOpenSettingsDialog(true)}
-                  sx={{
-                    color: "white",
-                    bgcolor: "rgba(255,255,255,0.1)",
-                    "&:hover": {
-                      bgcolor: "rgba(255,255,255,0.2)",
-                      transform: "scale(1.1)",
-                    },
-                  }}
-                >
-                  <EditIcon />
-                </IconButton>
+                <Tooltip title="Edit Team">
+                  <IconButton
+                    aria-label="edit team"
+                    onClick={() => setOpenSettingsDialog(true)}
+                    sx={{
+                      color: "white",
+                      bgcolor: "rgba(255,255,255,0.1)",
+                      "&:hover": {
+                        bgcolor: "rgba(255,255,255,0.2)",
+                        transform: "scale(1.1)",
+                      },
+                    }}
+                  >
+                    <EditIcon />
+                  </IconButton>
+                </Tooltip>
               </>
             ) : isPendingDelete ? (
               <Button
@@ -648,30 +656,35 @@ const TeamStats: React.FC = () => {
                     hideOnMobile
                     sortConfig={sortConfig}
                     onSort={handleSort}
+                    tooltip="Games Played"
                   />
                   <SortableHeader
                     label={STAT_ACRONYMS.POINTS}
                     sortKey="points"
                     sortConfig={sortConfig}
                     onSort={handleSort}
+                    tooltip="Points"
                   />
                   <SortableHeader
                     label="FG%"
                     sortKey="fgPct"
                     sortConfig={sortConfig}
                     onSort={handleSort}
+                    tooltip="Field Goal Percentage"
                   />
                   <SortableHeader
                     label={STAT_ACRONYMS.REBOUNDS}
                     sortKey="rebounds"
                     sortConfig={sortConfig}
                     onSort={handleSort}
+                    tooltip="Rebounds"
                   />
                   <SortableHeader
                     label={STAT_ACRONYMS.ASSISTS}
                     sortKey="assists"
                     sortConfig={sortConfig}
                     onSort={handleSort}
+                    tooltip="Assists"
                   />
                   <SortableHeader
                     label={STAT_ACRONYMS.STEALS}
@@ -679,6 +692,7 @@ const TeamStats: React.FC = () => {
                     hideOnMobile
                     sortConfig={sortConfig}
                     onSort={handleSort}
+                    tooltip="Steals"
                   />
                   <SortableHeader
                     label={STAT_ACRONYMS.TURNOVERS}
@@ -686,6 +700,7 @@ const TeamStats: React.FC = () => {
                     hideOnMobile
                     sortConfig={sortConfig}
                     onSort={handleSort}
+                    tooltip="Turnovers"
                   />
                 </TableRow>
               </TableHead>
@@ -867,15 +882,18 @@ const TeamStats: React.FC = () => {
           }}
         >
           Edit Team Details
-          <IconButton
-            color="error"
-            onClick={() => {
-              setOpenSettingsDialog(false);
-              setDeleteDialogOpen(true);
-            }}
-          >
-            <Delete />
-          </IconButton>
+          <Tooltip title="Delete Team">
+            <IconButton
+              aria-label="delete team"
+              color="error"
+              onClick={() => {
+                setOpenSettingsDialog(false);
+                setDeleteDialogOpen(true);
+              }}
+            >
+              <Delete />
+            </IconButton>
+          </Tooltip>
         </DialogTitle>
         <DialogContent>
           <Stack spacing={3} sx={{ mt: 1 }}>
@@ -1034,6 +1052,12 @@ const TeamStats: React.FC = () => {
             variant="outlined"
             value={newOpponent}
             onChange={(e) => setNewOpponent(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && newOpponent.trim()) {
+                handleAddGame();
+              }
+            }}
+            disabled={isSubmittingGame}
           />
           <TextField
             margin="dense"
@@ -1042,6 +1066,12 @@ const TeamStats: React.FC = () => {
             variant="outlined"
             value={newOpponentLogoUrl}
             onChange={(e) => setNewOpponentLogoUrl(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && newOpponent.trim()) {
+                handleAddGame();
+              }
+            }}
+            disabled={isSubmittingGame}
           />
           <TextField
             margin="dense"
@@ -1052,6 +1082,12 @@ const TeamStats: React.FC = () => {
             InputLabelProps={{ shrink: true }}
             value={newDate}
             onChange={(e) => setNewDate(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && newOpponent.trim()) {
+                handleAddGame();
+              }
+            }}
+            disabled={isSubmittingGame}
           />
           <TextField
             margin="dense"
@@ -1062,12 +1098,19 @@ const TeamStats: React.FC = () => {
             InputLabelProps={{ shrink: true }}
             value={newTime}
             onChange={(e) => setNewTime(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && newOpponent.trim()) {
+                handleAddGame();
+              }
+            }}
+            disabled={isSubmittingGame}
           />
           <Autocomplete
             freeSolo
             options={allRecentLocations}
             value={newLocation}
             onInputChange={(_, newValue) => setNewLocation(newValue)}
+            disabled={isSubmittingGame}
             renderInput={(params) => (
               <TextField
                 {...params}
@@ -1075,15 +1118,29 @@ const TeamStats: React.FC = () => {
                 label="Location"
                 fullWidth
                 variant="outlined"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && newOpponent.trim()) {
+                    handleAddGame();
+                  }
+                }}
               />
             )}
             sx={{ mt: 1 }}
           />
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setOpenAddGame(false)}>Cancel</Button>
-          <Button onClick={handleAddGame} variant="contained">
-            Add Game
+          <Button
+            onClick={() => setOpenAddGame(false)}
+            disabled={isSubmittingGame}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleAddGame}
+            variant="contained"
+            disabled={!newOpponent.trim() || isSubmittingGame}
+          >
+            {isSubmittingGame ? "Adding..." : "Add Game"}
           </Button>
         </DialogActions>
       </Dialog>

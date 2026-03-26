@@ -14,6 +14,8 @@ import {
   FormControlLabel,
   Switch,
   Grid,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import {
   Add as AddIcon,
@@ -42,6 +44,12 @@ const Players: React.FC = () => {
   const [showValidation, setShowValidation] = useState(false);
   const [showArchived, setShowArchived] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity: "success" | "error";
+  }>({ open: false, message: "", severity: "success" });
 
   // Use live query directly to handle archived/deleted filtering
   const playersResult = useLiveQuery(async () => {
@@ -92,6 +100,7 @@ const Players: React.FC = () => {
       setShowValidation(true);
       return;
     }
+    setIsSubmitting(true);
     try {
       await db.open();
       await db.players.add({
@@ -106,8 +115,15 @@ const Players: React.FC = () => {
       setName("");
       setAvatarColor(AVATAR_COLORS[0]);
       setShowValidation(false);
+      setSnackbar({
+        open: true,
+        message: "Player added successfully!",
+        severity: "success",
+      });
     } catch (err) {
       logger.error("Failed to add player", err, { name });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -122,6 +138,21 @@ const Players: React.FC = () => {
 
   return (
     <Box sx={{ pb: 8 }}>
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity}
+          variant="filled"
+          sx={{ width: "100%" }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
       <EntityBanner
         title="Players"
         icon={<PlayersIcon />}
@@ -257,14 +288,34 @@ const Players: React.FC = () => {
         ))}
         {playersWithStats.length === 0 && (
           <Grid item xs={12}>
-            <Typography
-              color="text.secondary"
-              sx={{ textAlign: "center", py: 8 }}
+            <Box
+              sx={{
+                textAlign: "center",
+                py: 12,
+                bgcolor: "rgba(0,0,0,0.02)",
+                borderRadius: 4,
+                border: "2px dashed rgba(0,0,0,0.1)",
+              }}
             >
-              {searchTerm
-                ? `No players matching "${searchTerm}"`
-                : `No ${showArchived ? "" : "active"} players found.`}
-            </Typography>
+              <PlayersIcon
+                sx={{
+                  fontSize: 64,
+                  color: "text.secondary",
+                  opacity: 0.2,
+                  mb: 2,
+                }}
+              />
+              <Typography variant="h6" color="text.secondary" gutterBottom>
+                {searchTerm
+                  ? `No players matching "${searchTerm}"`
+                  : `No ${showArchived ? "" : "active"} players found.`}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                {searchTerm
+                  ? "Try adjusting your search terms"
+                  : "Start by adding players to your roster"}
+              </Typography>
+            </Box>
           </Grid>
         )}
       </Grid>
@@ -303,12 +354,18 @@ const Players: React.FC = () => {
             variant="outlined"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && name.trim()) {
+                handleAddPlayer();
+              }
+            }}
             sx={{ mb: 2, mt: 1 }}
             error={showValidation && !name.trim()}
             helperText={
               showValidation && !name.trim() ? "Player name is required" : ""
             }
             required
+            disabled={isSubmitting}
           />
           <Typography variant="subtitle2" gutterBottom>
             Avatar Color
@@ -334,13 +391,15 @@ const Players: React.FC = () => {
           </Box>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setOpen(false)}>Cancel</Button>
+          <Button onClick={() => setOpen(false)} disabled={isSubmitting}>
+            Cancel
+          </Button>
           <Button
             onClick={handleAddPlayer}
             variant="contained"
-            disabled={!name}
+            disabled={!name.trim() || isSubmitting}
           >
-            Add Player
+            {isSubmitting ? "Adding..." : "Add Player"}
           </Button>
         </DialogActions>
       </Dialog>

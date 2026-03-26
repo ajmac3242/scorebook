@@ -9,6 +9,7 @@ import {
   Button,
   TextField,
   InputAdornment,
+  Tooltip,
 } from "@mui/material";
 import {
   ArrowBack as ArrowBackIcon,
@@ -79,22 +80,25 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
         transition: "background-color 0.3s ease",
       }}
     >
-      <IconButton
-        onClick={() => (backTo ? navigate(backTo) : navigate(-1))}
-        sx={{
-          position: "absolute",
-          top: 16,
-          left: 16,
-          color: "white",
-          bgcolor: "rgba(255,255,255,0.1)",
-          "&:hover": {
-            bgcolor: "rgba(255,255,255,0.2)",
-            transform: "scale(1.1)",
-          },
-        }}
-      >
-        <ArrowBackIcon />
-      </IconButton>
+      <Tooltip title="Go Back">
+        <IconButton
+          aria-label="go back"
+          onClick={() => (backTo ? navigate(backTo) : navigate(-1))}
+          sx={{
+            position: "absolute",
+            top: 16,
+            left: 16,
+            color: "white",
+            bgcolor: "rgba(255,255,255,0.1)",
+            "&:hover": {
+              bgcolor: "rgba(255,255,255,0.2)",
+              transform: "scale(1.1)",
+            },
+          }}
+        >
+          <ArrowBackIcon />
+        </IconButton>
+      </Tooltip>
 
       <Grid
         container
@@ -251,16 +255,19 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
               pr: isSearchExpanded ? 1 : 0,
             }}
           >
-            <IconButton
-              onClick={() => setIsSearchExpanded(!isSearchExpanded)}
-              sx={{ color: "white", flexShrink: 0 }}
-            >
-              {isSearchExpanded && !searchTerm ? (
-                <CloseIcon fontSize="small" />
-              ) : (
-                <SearchIcon />
-              )}
-            </IconButton>
+            <Tooltip title={isSearchExpanded ? "Close search" : "Search"}>
+              <IconButton
+                aria-label={isSearchExpanded ? "close search" : "search"}
+                onClick={() => setIsSearchExpanded(!isSearchExpanded)}
+                sx={{ color: "white", flexShrink: 0 }}
+              >
+                {isSearchExpanded && !searchTerm ? (
+                  <CloseIcon fontSize="small" />
+                ) : (
+                  <SearchIcon />
+                )}
+              </IconButton>
+            </Tooltip>
             {isSearchExpanded && (
               <TextField
                 autoFocus
@@ -277,13 +284,16 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                   },
                   endAdornment: searchTerm ? (
                     <InputAdornment position="end">
-                      <IconButton
-                        size="small"
-                        onClick={() => onSearchChange("")}
-                        sx={{ color: "rgba(255,255,255,0.7)" }}
-                      >
-                        <CloseIcon fontSize="inherit" />
-                      </IconButton>
+                      <Tooltip title="Clear search">
+                        <IconButton
+                          aria-label="clear search"
+                          size="small"
+                          onClick={() => onSearchChange("")}
+                          sx={{ color: "rgba(255,255,255,0.7)" }}
+                        >
+                          <CloseIcon fontSize="inherit" />
+                        </IconButton>
+                      </Tooltip>
                     </InputAdornment>
                   ) : null,
                 }}
@@ -293,27 +303,31 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
           </Box>
         )}
         {onSync && !isSearchExpanded && (
-          <Button
-            variant="outlined"
-            size="small"
-            startIcon={
-              isSyncing ? <RefreshIcon className="spin" /> : <RefreshIcon />
-            }
-            onClick={onSync}
-            disabled={isSyncing}
-            className="hover-grow"
-            sx={{
-              color: "white",
-              borderColor: "rgba(255,255,255,0.5)",
-              "&:hover": {
-                borderColor: "white",
-                bgcolor: "rgba(255,255,255,0.1)",
-              },
-              display: { xs: "none", sm: "flex" },
-            }}
-          >
-            {isSyncing ? "Syncing..." : "Sync"}
-          </Button>
+          <Tooltip title={isSyncing ? "Synchronizing data..." : "Sync data"}>
+            <span>
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={
+                  isSyncing ? <RefreshIcon className="spin" /> : <RefreshIcon />
+                }
+                onClick={onSync}
+                disabled={isSyncing}
+                className="hover-grow"
+                sx={{
+                  color: "white",
+                  borderColor: "rgba(255,255,255,0.5)",
+                  "&:hover": {
+                    borderColor: "white",
+                    bgcolor: "rgba(255,255,255,0.1)",
+                  },
+                  display: { xs: "none", sm: "flex" },
+                }}
+              >
+                {isSyncing ? "Syncing..." : "Sync"}
+              </Button>
+            </span>
+          </Tooltip>
         )}
         {!isSearchExpanded && actions}
       </Box>
