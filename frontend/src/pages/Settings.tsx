@@ -20,6 +20,7 @@ import {
   WifiOff as OfflineIcon,
   Refresh as SyncingIcon,
   Settings as SettingsIcon,
+  Warning as WarningIcon,
 } from "@mui/icons-material";
 import { useAuth } from "../context/AuthContext";
 import { syncService } from "../utils/syncService";
@@ -81,8 +82,22 @@ const Settings: React.FC = () => {
   };
 
   const logoutDialog = (
-    <Dialog open={logoutDialogOpen} onClose={() => setLogoutDialogOpen(false)}>
-      <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
+    <Dialog
+      open={logoutDialogOpen}
+      onClose={() => setLogoutDialogOpen(false)}
+      maxWidth="xs"
+      fullWidth
+    >
+      <DialogTitle
+        sx={{
+          fontFamily: "var(--serif)",
+          display: "flex",
+          alignItems: "center",
+          gap: 1.5,
+          color: "error.main",
+        }}
+      >
+        <WarningIcon color="error" />
         Unsynced Changes
       </DialogTitle>
       <DialogContent>
@@ -91,7 +106,7 @@ const Settings: React.FC = () => {
           now, these changes may be lost. Are you sure you want to logout?
         </DialogContentText>
       </DialogContent>
-      <DialogActions sx={{ p: 2 }}>
+      <DialogActions sx={{ p: 2, px: 3, pb: 3 }}>
         <Button onClick={() => setLogoutDialogOpen(false)} color="inherit">
           Cancel
         </Button>

@@ -15,6 +15,8 @@ import {
   Fab,
   Grid,
   Avatar,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import { Add as AddIcon, Groups as TeamsIcon } from "@mui/icons-material";
 import { db, type Team, type StatEvent } from "../db";
@@ -66,6 +68,12 @@ const Teams: React.FC = () => {
   const [primaryColor, setPrimaryColor] = useState("#154C56");
   const [showValidation, setShowValidation] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity: "success" | "error";
+  }>({ open: false, message: "", severity: "success" });
 
   // Use shared hooks for data fetching
   const teams = useTeams();
@@ -152,10 +160,11 @@ const Teams: React.FC = () => {
    * Handles adding a new team to the database.
    */
   const handleAddTeam = async () => {
-    if (!teamName) {
+    if (!teamName.trim()) {
       setShowValidation(true);
       return;
     }
+    setIsSubmitting(true);
     try {
       await db.open();
       const newTeam: Team = {
@@ -176,13 +185,35 @@ const Teams: React.FC = () => {
       setLogoUrl("");
       setPrimaryColor("#154C56");
       setShowValidation(false);
+      setSnackbar({
+        open: true,
+        message: "Team created successfully!",
+        severity: "success",
+      });
     } catch (err) {
       logger.error("Failed to add team", err, { teamName });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
     <Box sx={{ pb: 8 }}>
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity}
+          variant="contained"
+          sx={{ width: "100%" }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
       <EntityBanner
         title="Teams"
         icon={<TeamsIcon />}
@@ -194,14 +225,29 @@ const Teams: React.FC = () => {
 
       <Box sx={{ mt: 4 }}>
         {filteredTeams.length === 0 && (
-          <Typography
-            color="text.secondary"
-            sx={{ textAlign: "center", py: 8 }}
+          <Box
+            sx={{
+              textAlign: "center",
+              py: 12,
+              bgcolor: "rgba(0,0,0,0.02)",
+              borderRadius: 4,
+              border: "2px dashed rgba(0,0,0,0.1)",
+            }}
           >
-            {searchTerm
-              ? `No teams matching "${searchTerm}"`
-              : "No teams found."}
-          </Typography>
+            <TeamsIcon
+              sx={{ fontSize: 64, color: "text.secondary", opacity: 0.2, mb: 2 }}
+            />
+            <Typography variant="h6" color="text.secondary" gutterBottom>
+              {searchTerm
+                ? `No teams matching "${searchTerm}"`
+                : "Your Notebook is Empty"}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {searchTerm
+                ? "Try adjusting your search terms"
+                : "Start by adding your first basketball team"}
+            </Typography>
+          </Box>
         )}
         <Grid container spacing={3}>
           {filteredTeams.map((team) => {
@@ -406,12 +452,18 @@ const Teams: React.FC = () => {
             variant="outlined"
             value={teamName}
             onChange={(e) => setTeamName(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && teamName.trim()) {
+                handleAddTeam();
+              }
+            }}
             sx={{ mt: 1, mb: 2 }}
-            error={showValidation && !teamName}
+            error={showValidation && !teamName.trim()}
             helperText={
-              showValidation && !teamName ? "Team name is required" : ""
+              showValidation && !teamName.trim() ? "Team name is required" : ""
             }
             required
+            disabled={isSubmitting}
           />
           <TextField
             margin="dense"
@@ -420,9 +472,20 @@ const Teams: React.FC = () => {
             variant="outlined"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && teamName.trim()) {
+                handleAddTeam();
+              }
+            }}
             sx={{ mb: 2 }}
+            disabled={isSubmitting}
           />
-          <FormControl fullWidth variant="outlined" sx={{ mb: 2 }}>
+          <FormControl
+            fullWidth
+            variant="outlined"
+            sx={{ mb: 2 }}
+            disabled={isSubmitting}
+          >
             <InputLabel>Period Type</InputLabel>
             <Select
               value={periodType}
@@ -442,7 +505,13 @@ const Teams: React.FC = () => {
             variant="outlined"
             value={logoUrl}
             onChange={(e) => setLogoUrl(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && teamName.trim()) {
+                handleAddTeam();
+              }
+            }}
             sx={{ mb: 2 }}
+            disabled={isSubmitting}
           />
           <Typography variant="subtitle2" gutterBottom>
             Primary Color
@@ -463,14 +532,16 @@ const Teams: React.FC = () => {
             onChange={(e) => setPrimaryColor(e.target.value)}
           />
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpen(false)}>Cancel</Button>
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={() => setOpen(false)} disabled={isSubmitting}>
+            Cancel
+          </Button>
           <Button
             onClick={handleAddTeam}
             variant="contained"
-            disabled={!teamName}
+            disabled={!teamName.trim() || isSubmitting}
           >
-            Add
+            {isSubmitting ? "Adding..." : "Add"}
           </Button>
         </DialogActions>
       </Dialog>

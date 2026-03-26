@@ -325,12 +325,14 @@ const GameStats: React.FC = () => {
               sortKey="points"
               sortConfig={sortConfig}
               onSort={handleSort}
+              tooltip="Points"
             />
             <SortableHeader
               label="FG"
               sortKey="makes"
               sortConfig={sortConfig}
               onSort={handleSort}
+              tooltip="Field Goals Made-Attempted"
             />
             <SortableHeader
               label="FG%"
@@ -338,18 +340,21 @@ const GameStats: React.FC = () => {
               hideOnMobile
               sortConfig={sortConfig}
               onSort={handleSort}
+              tooltip="Field Goal Percentage"
             />
             <SortableHeader
               label="REB"
               sortKey="rebounds"
               sortConfig={sortConfig}
               onSort={handleSort}
+              tooltip="Rebounds"
             />
             <SortableHeader
               label="AST"
               sortKey="assists"
               sortConfig={sortConfig}
               onSort={handleSort}
+              tooltip="Assists"
             />
             <SortableHeader
               label="STL"
@@ -357,6 +362,7 @@ const GameStats: React.FC = () => {
               hideOnMobile
               sortConfig={sortConfig}
               onSort={handleSort}
+              tooltip="Steals"
             />
             <SortableHeader
               label="TO"
@@ -364,6 +370,7 @@ const GameStats: React.FC = () => {
               hideOnMobile
               sortConfig={sortConfig}
               onSort={handleSort}
+              tooltip="Turnovers"
             />
           </TableRow>
         </TableHead>
