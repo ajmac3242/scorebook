@@ -71,9 +71,9 @@ const Teams: React.FC = () => {
   const teams = useTeams();
 
   const filteredTeams = useMemo(() => {
-    return teams.filter((t) =>
-      t.name.toLowerCase().includes(searchTerm.toLowerCase()),
-    );
+    // Performance: Normalize search term once outside the loop
+    const normalizedSearch = searchTerm.toLowerCase();
+    return teams.filter((t) => t.name.toLowerCase().includes(normalizedSearch));
   }, [teams, searchTerm]);
 
   // Fetch all games and stats for the visible teams to calculate aggregates
