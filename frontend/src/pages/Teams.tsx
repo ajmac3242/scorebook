@@ -235,7 +235,12 @@ const Teams: React.FC = () => {
             }}
           >
             <TeamsIcon
-              sx={{ fontSize: 64, color: "text.secondary", opacity: 0.2, mb: 2 }}
+              sx={{
+                fontSize: 64,
+                color: "text.secondary",
+                opacity: 0.2,
+                mb: 2,
+              }}
             />
             <Typography variant="h6" color="text.secondary" gutterBottom>
               {searchTerm

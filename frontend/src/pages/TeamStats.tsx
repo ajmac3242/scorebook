@@ -1129,7 +1129,10 @@ const TeamStats: React.FC = () => {
           />
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setOpenAddGame(false)} disabled={isSubmittingGame}>
+          <Button
+            onClick={() => setOpenAddGame(false)}
+            disabled={isSubmittingGame}
+          >
             Cancel
           </Button>
           <Button
