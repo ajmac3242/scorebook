@@ -219,11 +219,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
             >
               {stats.map((stat, index) => (
                 <React.Fragment key={stat.label}>
-                  <StatItem
-                    label={stat.label}
-                    value={stat.value}
-                    light
-                  />
+                  <StatItem label={stat.label} value={stat.value} light />
                   {index < stats.length - 1 && (
                     <Typography
                       sx={{

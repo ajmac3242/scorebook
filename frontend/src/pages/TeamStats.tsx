@@ -847,11 +847,13 @@ const TeamStats: React.FC = () => {
               .sort((a, b) => {
                 const aJersey =
                   teamPlayers.find(
-                    (t: TeamPlayer) => t.playerId.toString() === a.id?.toString(),
+                    (t: TeamPlayer) =>
+                      t.playerId.toString() === a.id?.toString(),
                   )?.jerseyNumber || "";
                 const bJersey =
                   teamPlayers.find(
-                    (t: TeamPlayer) => t.playerId.toString() === b.id?.toString(),
+                    (t: TeamPlayer) =>
+                      t.playerId.toString() === b.id?.toString(),
                   )?.jerseyNumber || "";
                 // Basketball sorting: 00, 0, then numeric 1-99. Empty/dash at the end.
                 if (aJersey === bJersey) return 0;
@@ -866,43 +868,45 @@ const TeamStats: React.FC = () => {
                 return aNum - bNum;
               })
               .map((player) => (
-              <Grid item xs={12} sm={6} md={4} key={player.id}>
-                <MoleskineCard
-                  onClick={() => navigate(`/players/${player.id}?teamId=${teamId}`)}
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 2,
-                    transition: "transform 0.2s",
-                    cursor: "pointer",
-                    "&:hover": {
-                      transform: "translateY(-4px)",
-                      bgcolor: "rgba(0,0,0,0.02)",
-                    },
-                  }}
-                >
-                  <Typography
-                    variant="h4"
+                <Grid item xs={12} sm={6} md={4} key={player.id}>
+                  <MoleskineCard
+                    onClick={() =>
+                      navigate(`/players/${player.id}?teamId=${teamId}`)
+                    }
                     sx={{
-                      fontWeight: 700,
-                      color: "text.secondary",
-                      minWidth: 40,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 2,
+                      transition: "transform 0.2s",
+                      cursor: "pointer",
+                      "&:hover": {
+                        transform: "translateY(-4px)",
+                        bgcolor: "rgba(0,0,0,0.02)",
+                      },
                     }}
                   >
-                    {teamPlayers.find(
-                      (t: TeamPlayer) =>
-                        t.playerId.toString() === player.id?.toString(),
-                    )?.jerseyNumber || "-"}
-                  </Typography>
-                  <Avatar sx={{ bgcolor: player.avatarColor }}>
-                    {getInitials(player.name)}
-                  </Avatar>
-                  <Typography sx={{ fontWeight: 600 }}>
-                    {player.name}
-                  </Typography>
-                </MoleskineCard>
-              </Grid>
-            ))}
+                    <Typography
+                      variant="h4"
+                      sx={{
+                        fontWeight: 700,
+                        color: "text.secondary",
+                        minWidth: 40,
+                      }}
+                    >
+                      {teamPlayers.find(
+                        (t: TeamPlayer) =>
+                          t.playerId.toString() === player.id?.toString(),
+                      )?.jerseyNumber || "-"}
+                    </Typography>
+                    <Avatar sx={{ bgcolor: player.avatarColor }}>
+                      {getInitials(player.name)}
+                    </Avatar>
+                    <Typography sx={{ fontWeight: 600 }}>
+                      {player.name}
+                    </Typography>
+                  </MoleskineCard>
+                </Grid>
+              ))}
           </Grid>
         </Box>
       )}
@@ -1014,83 +1018,83 @@ const TeamStats: React.FC = () => {
                 p.name.toLowerCase().includes(rosterSearchTerm.toLowerCase()),
               )
               .map((player) => {
-              const pId = player.id!.toString();
-              const dbRecord = teamPlayers.find(
-                (t: TeamPlayer) => t.playerId.toString() === pId,
-              );
-              const stagedChange = pendingRosterChanges[pId];
+                const pId = player.id!.toString();
+                const dbRecord = teamPlayers.find(
+                  (t: TeamPlayer) => t.playerId.toString() === pId,
+                );
+                const stagedChange = pendingRosterChanges[pId];
 
-              // Is currently considered "in" the roster in the UI
-              let isIn = !!dbRecord;
-              if (stagedChange?.action === "add") isIn = true;
-              if (stagedChange?.action === "remove") isIn = false;
+                // Is currently considered "in" the roster in the UI
+                let isIn = !!dbRecord;
+                if (stagedChange?.action === "add") isIn = true;
+                if (stagedChange?.action === "remove") isIn = false;
 
-              const jersey =
-                localJerseyNumbers[pId] !== undefined
-                  ? localJerseyNumbers[pId]
-                  : dbRecord?.jerseyNumber || "";
+                const jersey =
+                  localJerseyNumbers[pId] !== undefined
+                    ? localJerseyNumbers[pId]
+                    : dbRecord?.jerseyNumber || "";
 
-              const playerEntityId = player.id?.toString() || "";
-              return (
-                <ListItem
-                  key={playerEntityId}
-                  divider
-                  sx={{
-                    px: { xs: 1, sm: 2 },
-                  }}
-                  secondaryAction={
-                    <Box
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: { xs: 0.5, sm: 1 },
-                      }}
-                    >
-                      {isIn && (
-                        <TextField
-                          size="small"
-                          label="#"
-                          inputProps={{ maxLength: 2 }}
-                          sx={{ width: { xs: 60, sm: 80 } }}
-                          value={jersey}
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            if (val === "" || /^\d{1,2}$/.test(val)) {
-                              stageJerseyUpdate(pId, val);
-                            }
-                          }}
-                        />
-                      )}
-                      {isIn ? (
-                        <IconButton
-                          edge="end"
-                          aria-label="remove"
-                          onClick={() => stageRosterChange(pId, true)}
-                          color="error"
-                          size="small"
-                        >
-                          <CloseIcon fontSize="small" />
-                        </IconButton>
-                      ) : (
-                        <Button
-                          variant="contained"
-                          size="small"
-                          onClick={() => stageRosterChange(pId, false)}
-                          sx={{ minWidth: { xs: 45, sm: 64 } }}
-                        >
-                          Add
-                        </Button>
-                      )}
-                    </Box>
-                  }
-                >
-                  <Avatar sx={{ bgcolor: player.avatarColor, mr: 2 }}>
-                    {getInitials(player.name)}
-                  </Avatar>
-                  <ListItemText primary={player.name} />
-                </ListItem>
-              );
-            })}
+                const playerEntityId = player.id?.toString() || "";
+                return (
+                  <ListItem
+                    key={playerEntityId}
+                    divider
+                    sx={{
+                      px: { xs: 1, sm: 2 },
+                    }}
+                    secondaryAction={
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: { xs: 0.5, sm: 1 },
+                        }}
+                      >
+                        {isIn && (
+                          <TextField
+                            size="small"
+                            label="#"
+                            inputProps={{ maxLength: 2 }}
+                            sx={{ width: { xs: 60, sm: 80 } }}
+                            value={jersey}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              if (val === "" || /^\d{1,2}$/.test(val)) {
+                                stageJerseyUpdate(pId, val);
+                              }
+                            }}
+                          />
+                        )}
+                        {isIn ? (
+                          <IconButton
+                            edge="end"
+                            aria-label="remove"
+                            onClick={() => stageRosterChange(pId, true)}
+                            color="error"
+                            size="small"
+                          >
+                            <CloseIcon fontSize="small" />
+                          </IconButton>
+                        ) : (
+                          <Button
+                            variant="contained"
+                            size="small"
+                            onClick={() => stageRosterChange(pId, false)}
+                            sx={{ minWidth: { xs: 45, sm: 64 } }}
+                          >
+                            Add
+                          </Button>
+                        )}
+                      </Box>
+                    }
+                  >
+                    <Avatar sx={{ bgcolor: player.avatarColor, mr: 2 }}>
+                      {getInitials(player.name)}
+                    </Avatar>
+                    <ListItemText primary={player.name} />
+                  </ListItem>
+                );
+              })}
           </List>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
