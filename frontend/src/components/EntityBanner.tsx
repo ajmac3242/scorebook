@@ -217,13 +217,26 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
               spacing={{ xs: 2, sm: 4 }}
               justifyContent={{ xs: "center", sm: "flex-start" }}
             >
-              {stats.map((stat) => (
-                <StatItem
-                  key={stat.label}
-                  label={stat.label}
-                  value={stat.value}
-                  light
-                />
+              {stats.map((stat, index) => (
+                <React.Fragment key={stat.label}>
+                  <StatItem
+                    label={stat.label}
+                    value={stat.value}
+                    light
+                  />
+                  {index < stats.length - 1 && (
+                    <Typography
+                      sx={{
+                        opacity: 0.3,
+                        alignSelf: "center",
+                        color: "white",
+                        fontSize: { xs: "1.5rem", sm: "2rem" },
+                      }}
+                    >
+                      |
+                    </Typography>
+                  )}
+                </React.Fragment>
               ))}
             </Stack>
           </Grid>

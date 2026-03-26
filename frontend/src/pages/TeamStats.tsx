@@ -43,6 +43,7 @@ import {
   Delete,
   Add as AddIcon,
   Close as CloseIcon,
+  Search as SearchIcon,
 } from "@mui/icons-material";
 import { db, type TeamPlayer, type StatEvent } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -101,6 +102,7 @@ const TeamStats: React.FC = () => {
   const [newTime, setNewTime] = useState("");
   const [newLocation, setNewLocation] = useState("");
   const [isSubmittingGame, setIsSubmittingGame] = useState(false);
+  const [rosterSearchTerm, setRosterSearchTerm] = useState("");
 
   /**
    * Updates the column sorting configuration.
@@ -229,20 +231,29 @@ const TeamStats: React.FC = () => {
    * @param {boolean} currentlyIn - Whether the player is currently in roster.
    */
   const stageRosterChange = (playerId: string, currentlyIn: boolean) => {
+    const dbRecord = teamPlayers.find(
+      (t: TeamPlayer) => t.playerId.toString() === playerId,
+    );
+    const isAlreadyInDb = !!dbRecord;
+
     setPendingRosterChanges((prev) => {
       const next = { ...prev };
       if (currentlyIn) {
-        // Was in, so we stage removal
-        if (next[playerId]?.action === "add") {
-          delete next[playerId]; // Cancelled out addition
-        } else {
+        // Currently "In" the UI roster, so we want to "Remove" it
+        if (isAlreadyInDb) {
+          // It's in the DB, so we stage it for removal
           next[playerId] = { action: "remove" };
+        } else {
+          // It's not in the DB, it was just staged for addition, so we just un-stage it
+          delete next[playerId];
         }
       } else {
-        // Was out, so we stage addition
-        if (next[playerId]?.action === "remove") {
-          delete next[playerId]; // Cancelled out removal
+        // Currently "Out" of the UI roster, so we want to "Add" it
+        if (isAlreadyInDb) {
+          // It's in the DB but was staged for removal, so we un-stage the removal
+          delete next[playerId];
         } else {
+          // It's not in the DB, so we stage it for addition
           next[playerId] = { action: "add" };
         }
       }
@@ -324,6 +335,7 @@ const TeamStats: React.FC = () => {
     setOpenRosterDialog(false);
     setPendingRosterChanges({});
     setLocalJerseyNumbers({});
+    setRosterSearchTerm("");
   };
 
   /**
@@ -536,10 +548,11 @@ const TeamStats: React.FC = () => {
                     (!g.completed && new Date(g.date) >= new Date())) &&
                   !g.deletedAt,
               )
-              .sort(
-                (a, b) =>
-                  new Date(b.date).getTime() - new Date(a.date).getTime(),
-              )
+              .sort((a, b) => {
+                const dateTimeA = a.date + (a.time || "00:00");
+                const dateTimeB = b.date + (b.time || "00:00");
+                return dateTimeA.localeCompare(dateTimeB);
+              })
               .map((game) => (
                 <MoleskineCard
                   key={game.id}
@@ -830,15 +843,42 @@ const TeamStats: React.FC = () => {
             </Button>
           </Box>
           <Grid container spacing={2}>
-            {teamPlayerDetails.map((player) => (
+            {[...teamPlayerDetails]
+              .sort((a, b) => {
+                const aJersey =
+                  teamPlayers.find(
+                    (t: TeamPlayer) => t.playerId.toString() === a.id?.toString(),
+                  )?.jerseyNumber || "";
+                const bJersey =
+                  teamPlayers.find(
+                    (t: TeamPlayer) => t.playerId.toString() === b.id?.toString(),
+                  )?.jerseyNumber || "";
+                // Basketball sorting: 00, 0, then numeric 1-99. Empty/dash at the end.
+                if (aJersey === bJersey) return 0;
+                if (!aJersey) return 1;
+                if (!bJersey) return -1;
+                // Treat '00' as a special value that comes first, or just use numeric value
+                const aNum = parseInt(aJersey, 10);
+                const bNum = parseInt(bJersey, 10);
+                if (aNum === bNum) {
+                  return aJersey.length - bJersey.length; // '00' vs '0'
+                }
+                return aNum - bNum;
+              })
+              .map((player) => (
               <Grid item xs={12} sm={6} md={4} key={player.id}>
                 <MoleskineCard
+                  onClick={() => navigate(`/players/${player.id}?teamId=${teamId}`)}
                   sx={{
                     display: "flex",
                     alignItems: "center",
                     gap: 2,
                     transition: "transform 0.2s",
-                    "&:hover": { transform: "translateY(-4px)" },
+                    cursor: "pointer",
+                    "&:hover": {
+                      transform: "translateY(-4px)",
+                      bgcolor: "rgba(0,0,0,0.02)",
+                    },
                   }}
                 >
                   <Typography
@@ -952,8 +992,28 @@ const TeamStats: React.FC = () => {
           Manage Team Roster
         </DialogTitle>
         <DialogContent>
+          <TextField
+            fullWidth
+            size="small"
+            placeholder="Search players..."
+            value={rosterSearchTerm}
+            onChange={(e) => setRosterSearchTerm(e.target.value)}
+            sx={{ mb: 2, mt: 1 }}
+            InputProps={{
+              startAdornment: (
+                <SearchIcon
+                  fontSize="small"
+                  sx={{ color: "text.secondary", mr: 1 }}
+                />
+              ),
+            }}
+          />
           <List>
-            {allPlayers.map((player) => {
+            {allPlayers
+              .filter((p) =>
+                p.name.toLowerCase().includes(rosterSearchTerm.toLowerCase()),
+              )
+              .map((player) => {
               const pId = player.id!.toString();
               const dbRecord = teamPlayers.find(
                 (t: TeamPlayer) => t.playerId.toString() === pId,
@@ -990,20 +1050,22 @@ const TeamStats: React.FC = () => {
                         <TextField
                           size="small"
                           label="#"
-                          type="number"
-                          slotProps={{ htmlInput: { min: 0, max: 99 } }}
-                          sx={{ width: { xs: 45, sm: 60 } }}
+                          inputProps={{ maxLength: 2 }}
+                          sx={{ width: { xs: 60, sm: 80 } }}
                           value={jersey}
-                          onChange={(e) =>
-                            stageJerseyUpdate(pId, e.target.value)
-                          }
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            if (val === "" || /^\d{1,2}$/.test(val)) {
+                              stageJerseyUpdate(pId, val);
+                            }
+                          }}
                         />
                       )}
                       {isIn ? (
                         <IconButton
                           edge="end"
                           aria-label="remove"
-                          onClick={() => stageRosterChange(pId, !!dbRecord)}
+                          onClick={() => stageRosterChange(pId, true)}
                           color="error"
                           size="small"
                         >
@@ -1013,7 +1075,7 @@ const TeamStats: React.FC = () => {
                         <Button
                           variant="contained"
                           size="small"
-                          onClick={() => stageRosterChange(pId, !!dbRecord)}
+                          onClick={() => stageRosterChange(pId, false)}
                           sx={{ minWidth: { xs: 45, sm: 64 } }}
                         >
                           Add
