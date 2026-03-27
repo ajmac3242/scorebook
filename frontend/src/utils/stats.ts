@@ -35,11 +35,15 @@ export interface PlayerAggregates {
  */
 export const getInitials = (name: string | undefined | null): string => {
   if (!name) return "";
-  const parts = name.trim().split(/\s+/);
-  let initials = "";
-  for (let i = 0; i < parts.length && i < 2; i++) {
-    if (parts[i]) {
-      initials += parts[i][0].toUpperCase();
+  // Optimization: Use a simple loop to extract initials instead of split() and regex,
+  // reducing array allocations and string processing overhead.
+  const trimmed = name.trim();
+  if (!trimmed) return "";
+  let initials = trimmed[0].toUpperCase();
+  for (let i = 1; i < trimmed.length; i++) {
+    if (trimmed[i - 1] === " " && trimmed[i] !== " ") {
+      initials += trimmed[i].toUpperCase();
+      if (initials.length >= 2) break;
     }
   }
   return initials;
@@ -106,33 +110,35 @@ function initializeStatsMap(
   teamPlayers: TeamPlayer[],
 ): Record<string, PlayerAggregates> {
   // Optimization: Pre-map jersey numbers by playerId to avoid O(P * TP) complexity.
-  const jerseyMap = new Map(
-    teamPlayers.map((tp) => [tp.playerId, tp.jerseyNumber]),
-  );
+  const jerseyMap = new Map();
+  for (let i = 0; i < teamPlayers.length; i++) {
+    jerseyMap.set(teamPlayers[i].playerId, teamPlayers[i].jerseyNumber);
+  }
 
-  return players.reduce(
-    (acc, p) => {
-      const pId = p.id!;
-      acc[pId] = {
-        id: p.id,
-        name: p.name,
-        avatarColor: p.avatarColor,
-        jerseyNumber: jerseyMap.get(pId) || "",
-        gamesPlayed: new Set(),
-        gp: 0,
-        points: 0,
-        rebounds: 0,
-        assists: 0,
-        steals: 0,
-        turnovers: 0,
-        makes: 0,
-        attempts: 0,
-        fgPct: "0.0",
-      };
-      return acc;
-    },
-    {} as Record<string, PlayerAggregates>,
-  );
+  // Optimization: Use a for loop instead of reduce() to avoid function call overhead
+  // and repeated object spread/mutation during initialization.
+  const acc: Record<string, PlayerAggregates> = {};
+  for (let i = 0; i < players.length; i++) {
+    const p = players[i];
+    const pId = p.id!;
+    acc[pId] = {
+      id: p.id,
+      name: p.name,
+      avatarColor: p.avatarColor,
+      jerseyNumber: jerseyMap.get(pId) || "",
+      gamesPlayed: new Set(),
+      gp: 0,
+      points: 0,
+      rebounds: 0,
+      assists: 0,
+      steals: 0,
+      turnovers: 0,
+      makes: 0,
+      attempts: 0,
+      fgPct: "0.0",
+    };
+  }
+  return acc;
 }
 
 /**
@@ -201,56 +207,59 @@ export const calculateTeamAggregates = (
   stats: StatEvent[],
   completedOnly = true,
 ) => {
-  // Filter games based on completion status if requested.
-  const targetGames = completedOnly
-    ? games.filter((g) => g.completed === 1)
-    : games;
-  const targetGameIds = targetGames.map((g) => g.id);
-  const targetGameIdSet = new Set(targetGameIds);
-  const relevantStats = stats.filter((s) =>
-    targetGameIdSet.has(s.gameId as string),
-  );
+  // Optimization: Pre-filter and collect game IDs in a single pass.
+  const targetGameIds = new Set<string>();
+  let targetCount = 0;
+  for (let i = 0; i < games.length; i++) {
+    if (!completedOnly || games[i].completed === 1) {
+      targetGameIds.add(games[i].id!);
+      targetCount++;
+    }
+  }
 
+  // Optimization: Aggregate all stats in a single pass without intermediate grouping.
+  // Use a map to track per-game totals for record calculation.
+  const gameTotals: Record<string, { team: number; opp: number }> = {};
   let totalPoints = 0;
   let totalRebounds = 0;
   let totalAssists = 0;
   let totalOppPoints = 0;
+
+  for (let i = 0; i < stats.length; i++) {
+    const s = stats[i];
+    if (targetGameIds.has(s.gameId)) {
+      if (!gameTotals[s.gameId]) gameTotals[s.gameId] = { team: 0, opp: 0 };
+
+      if (s.playerId === "OPPONENT") {
+        const pts = s.points || 0;
+        totalOppPoints += pts;
+        gameTotals[s.gameId].opp += pts;
+      } else {
+        const pts = s.points || 0;
+        totalPoints += pts;
+        gameTotals[s.gameId].team += pts;
+        if (s.type === ACTION_TYPES.REBOUND) totalRebounds++;
+        else if (s.type === ACTION_TYPES.ASSIST) totalAssists++;
+      }
+    }
+  }
+
   let wins = 0;
   let losses = 0;
+  for (const gId in gameTotals) {
+    const { team, opp } = gameTotals[gId];
+    if (team > opp) wins++;
+    else if (team < opp) losses++;
+  }
 
-  // Optimization: Pre-group statistics by gameId to avoid O(G * S) complexity.
-  const statsByGame = relevantStats.reduce(
-    (acc, s) => {
-      if (!acc[s.gameId]) acc[s.gameId] = [];
-      acc[s.gameId].push(s);
-      return acc;
-    },
-    {} as Record<string | number, StatEvent[]>,
-  );
-
-  targetGameIds.forEach((gId) => {
-    const gameStats = statsByGame[gId] || [];
-    const { teamPoints, oppPoints, rebounds, assists } =
-      aggregateStatsForGame(gameStats);
-
-    totalPoints += teamPoints;
-    totalOppPoints += oppPoints;
-    totalRebounds += rebounds;
-    totalAssists += assists;
-
-    const res = determineResult(teamPoints, oppPoints);
-    if (res === "W") wins++;
-    else if (res === "L") losses++;
-  });
-
-  const gp = targetGames.length || 1;
+  const gp = targetCount || 1;
   return {
     ppg: formatToOne(totalPoints / gp),
     rpg: formatToOne(totalRebounds / gp),
     apg: formatToOne(totalAssists / gp),
     oppg: formatToOne(totalOppPoints / gp),
     record: `${wins}-${losses}`,
-    totalGames: targetGames.length,
+    totalGames: targetCount,
   };
 };
 

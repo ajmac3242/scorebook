@@ -130,29 +130,38 @@ const Teams: React.FC = () => {
   // Pre-calculate team aggregates to avoid O(N^2) filtering in the render loop.
   const teamAggregatesMap = useMemo(() => {
     const gamesByTeam: Record<string, (typeof allGames)[0][]> = {};
-    allGames.forEach((g) => {
+    for (let i = 0; i < allGames.length; i++) {
+      const g = allGames[i];
       if (!gamesByTeam[g.teamId]) gamesByTeam[g.teamId] = [];
       gamesByTeam[g.teamId].push(g);
-    });
+    }
 
     const statsByGame: Record<string, StatEvent[]> = {};
-    allStats.forEach((s) => {
+    for (let i = 0; i < allStats.length; i++) {
+      const s = allStats[i] as StatEvent;
       if (!statsByGame[s.gameId]) statsByGame[s.gameId] = [];
-      statsByGame[s.gameId].push(s as StatEvent);
-    });
+      statsByGame[s.gameId].push(s);
+    }
 
     const results: Record<
       string,
       ReturnType<typeof calculateTeamAggregates>
     > = {};
-    teams.forEach((team) => {
+    for (let i = 0; i < teams.length; i++) {
+      const team = teams[i];
       const teamGames = gamesByTeam[team.id!] || [];
-      const teamStats = teamGames.flatMap((g) => statsByGame[g.id!] || []);
-      results[team.id!] = calculateTeamAggregates(
-        teamGames,
-        teamStats as StatEvent[],
-      );
-    });
+      // Optimization: Manually collect stats for the team to avoid creating intermediate arrays with flatMap.
+      const teamStats: StatEvent[] = [];
+      for (let j = 0; j < teamGames.length; j++) {
+        const gStats = statsByGame[teamGames[j].id!];
+        if (gStats) {
+          for (let k = 0; k < gStats.length; k++) {
+            teamStats.push(gStats[k]);
+          }
+        }
+      }
+      results[team.id!] = calculateTeamAggregates(teamGames, teamStats);
+    }
     return results;
   }, [teams, allGames, allStats]);
 
