@@ -425,8 +425,12 @@ function maskEvent(event: APIGatewayProxyEventV2): unknown {
   if (masked.headers) {
     // Shallow clone headers object for redaction
     const redactedHeaders = { ...masked.headers };
-    for (const key of Object.keys(redactedHeaders)) {
-      if (key.toLowerCase() === "authorization") {
+    // Optimization: Use for...in instead of Object.keys().forEach() to avoid creating an intermediate array.
+    for (const key in redactedHeaders) {
+      if (
+        Object.prototype.hasOwnProperty.call(redactedHeaders, key) &&
+        key.toLowerCase() === "authorization"
+      ) {
         redactedHeaders[key] = "[REDACTED]";
       }
     }
@@ -549,15 +553,24 @@ export const handler = async (
  * @returns {string} The normalized path.
  */
 function normalizePath(event: APIGatewayProxyEventV2): string {
-  const raw =
-    event.rawPath ||
+  const raw = (event.rawPath ||
     (event as unknown as Record<string, unknown>).path ||
     event.requestContext?.http?.path ||
-    "/";
-  const path = (raw as string).replace(/^\/(\$default|api)/, "");
-  return path.length > 1 && path.endsWith("/")
-    ? path.slice(0, -1)
-    : path || "/";
+    "/") as string;
+
+  // Optimization: Use startsWith and slice instead of regex for path normalization in hot request path.
+  let path = raw;
+  if (path.startsWith("/$default")) {
+    path = path.slice(9);
+  } else if (path.startsWith("/api")) {
+    path = path.slice(4);
+  }
+
+  if (path.length > 1 && path.endsWith("/")) {
+    path = path.slice(0, -1);
+  }
+
+  return path || "/";
 }
 
 /**

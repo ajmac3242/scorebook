@@ -170,10 +170,12 @@ const TeamStats: React.FC = () => {
       try {
         await db.open();
         const items = await db.games.toArray();
-        const locations = items
-          .map((g) => g.location)
-          .filter(Boolean) as string[];
-        return Array.from(new Set(locations)).sort();
+        // Optimization: Use a single forEach pass with a Set to avoid multiple intermediate arrays.
+        const locationSet = new Set<string>();
+        for (const g of items) {
+          if (g.location) locationSet.add(g.location);
+        }
+        return Array.from(locationSet).sort();
       } catch (error) {
         console.error("Failed to fetch locations:", error);
         return [];
@@ -843,70 +845,66 @@ const TeamStats: React.FC = () => {
             </Button>
           </Box>
           <Grid container spacing={2}>
-            {[...teamPlayerDetails]
-              .sort((a, b) => {
-                const aJersey =
-                  teamPlayers.find(
-                    (t: TeamPlayer) =>
-                      t.playerId.toString() === a.id?.toString(),
-                  )?.jerseyNumber || "";
-                const bJersey =
-                  teamPlayers.find(
-                    (t: TeamPlayer) =>
-                      t.playerId.toString() === b.id?.toString(),
-                  )?.jerseyNumber || "";
-                // Basketball sorting: 00, 0, then numeric 1-99. Empty/dash at the end.
-                if (aJersey === bJersey) return 0;
-                if (!aJersey) return 1;
-                if (!bJersey) return -1;
-                // Treat '00' as a special value that comes first, or just use numeric value
-                const aNum = parseInt(aJersey, 10);
-                const bNum = parseInt(bJersey, 10);
-                if (aNum === bNum) {
-                  return aJersey.length - bJersey.length; // '00' vs '0'
-                }
-                return aNum - bNum;
-              })
-              .map((player) => (
-                <Grid item xs={12} sm={6} md={4} key={player.id}>
-                  <MoleskineCard
-                    onClick={() =>
-                      navigate(`/players/${player.id}?teamId=${teamId}`)
-                    }
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 2,
-                      transition: "transform 0.2s",
-                      cursor: "pointer",
-                      "&:hover": {
-                        transform: "translateY(-4px)",
-                        bgcolor: "rgba(0,0,0,0.02)",
-                      },
-                    }}
-                  >
-                    <Typography
-                      variant="h4"
+            {(() => {
+              // Optimization: Pre-calculate jersey numbers in a Map to avoid O(N) lookups in the sort.
+              const jerseyMap = new Map(
+                teamPlayers.map((tp) => [tp.playerId, tp.jerseyNumber || ""]),
+              );
+
+              return [...teamPlayerDetails]
+                .sort((a, b) => {
+                  const aJersey = jerseyMap.get(a.id!) || "";
+                  const bJersey = jerseyMap.get(b.id!) || "";
+                  // Basketball sorting: 00, 0, then numeric 1-99. Empty/dash at the end.
+                  if (aJersey === bJersey) return 0;
+                  if (!aJersey) return 1;
+                  if (!bJersey) return -1;
+                  // Treat '00' as a special value that comes first, or just use numeric value
+                  const aNum = parseInt(aJersey, 10);
+                  const bNum = parseInt(bJersey, 10);
+                  if (aNum === bNum) {
+                    return aJersey.length - bJersey.length; // '00' vs '0'
+                  }
+                  return aNum - bNum;
+                })
+                .map((player) => (
+                  <Grid item xs={12} sm={6} md={4} key={player.id}>
+                    <MoleskineCard
+                      onClick={() =>
+                        navigate(`/players/${player.id}?teamId=${teamId}`)
+                      }
                       sx={{
-                        fontWeight: 700,
-                        color: "text.secondary",
-                        minWidth: 40,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 2,
+                        transition: "transform 0.2s",
+                        cursor: "pointer",
+                        "&:hover": {
+                          transform: "translateY(-4px)",
+                          bgcolor: "rgba(0,0,0,0.02)",
+                        },
                       }}
                     >
-                      {teamPlayers.find(
-                        (t: TeamPlayer) =>
-                          t.playerId.toString() === player.id?.toString(),
-                      )?.jerseyNumber || "-"}
-                    </Typography>
-                    <Avatar sx={{ bgcolor: player.avatarColor }}>
-                      {getInitials(player.name)}
-                    </Avatar>
-                    <Typography sx={{ fontWeight: 600 }}>
-                      {player.name}
-                    </Typography>
-                  </MoleskineCard>
-                </Grid>
-              ))}
+                      <Typography
+                        variant="h4"
+                        sx={{
+                          fontWeight: 700,
+                          color: "text.secondary",
+                          minWidth: 40,
+                        }}
+                      >
+                        {jerseyMap.get(player.id!) || "-"}
+                      </Typography>
+                      <Avatar sx={{ bgcolor: player.avatarColor }}>
+                        {getInitials(player.name)}
+                      </Avatar>
+                      <Typography sx={{ fontWeight: 600 }}>
+                        {player.name}
+                      </Typography>
+                    </MoleskineCard>
+                  </Grid>
+                ));
+            })()}
           </Grid>
         </Box>
       )}

@@ -188,33 +188,36 @@ const GameMode: React.FC = () => {
   }, [gameStats]);
 
   const markers = useMemo(() => {
-    // Performance: Pre-calculate jersey map for O(1) lookups in the map loop
+    // Performance: Pre-calculate jersey map for O(1) lookups in the loop
     const jerseyMap = new Map(
       teamPlayers.map((tp) => [tp.playerId, tp.jerseyNumber]),
     );
 
-    return gameStats
-      .filter(
-        (s) =>
-          !s.deletedAt &&
-          (markerFilter === "ALL" || s.type === markerFilter) &&
-          s.type !== ACTION_TYPES.SUB_IN &&
-          s.type !== ACTION_TYPES.SUB_OUT,
-      )
-      .map((s) => ({
-        id: s.id,
-        x: s.locationX || 0,
-        y: s.locationY || 0,
-        type: s.type,
-        label:
-          s.playerId !== OPPONENT_PLAYER_ID
-            ? jerseyMap.get(s.playerId) || ""
-            : undefined,
-        color:
-          s.playerId === OPPONENT_PLAYER_ID
-            ? theme.palette.secondary.main
-            : undefined,
-      }));
+    // Performance: Use a single reduce pass instead of filter().map() to halve iterations.
+    return gameStats.reduce((acc, s) => {
+      if (
+        !s.deletedAt &&
+        (markerFilter === "ALL" || s.type === markerFilter) &&
+        s.type !== ACTION_TYPES.SUB_IN &&
+        s.type !== ACTION_TYPES.SUB_OUT
+      ) {
+        acc.push({
+          id: s.id,
+          x: s.locationX || 0,
+          y: s.locationY || 0,
+          type: s.type,
+          label:
+            s.playerId !== OPPONENT_PLAYER_ID
+              ? jerseyMap.get(s.playerId) || ""
+              : undefined,
+          color:
+            s.playerId === OPPONENT_PLAYER_ID
+              ? theme.palette.secondary.main
+              : undefined,
+        });
+      }
+      return acc;
+    }, [] as any[]);
   }, [gameStats, markerFilter, teamPlayers, theme.palette.secondary.main]);
 
   /**

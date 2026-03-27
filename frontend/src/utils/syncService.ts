@@ -123,10 +123,13 @@ class SyncService {
   async hasUnsyncedChanges(): Promise<boolean> {
     try {
       const tables = [db.teams, db.players, db.teamPlayers, db.games, db.stats];
-      const counts = await Promise.all(
-        tables.map((t) => t.where("synced").equals(0).count()),
-      );
-      return counts.some((c) => c > 0);
+      // Optimization: Check tables sequentially and return early if any unsynced items are found.
+      // Use .limit(1).count() to avoid scanning all records when only existence is needed.
+      for (const table of tables) {
+        const count = await table.where("synced").equals(0).limit(1).count();
+        if (count > 0) return true;
+      }
+      return false;
     } catch (e) {
       console.error("Error checking for unsynced changes:", e);
       return false;
