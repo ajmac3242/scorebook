@@ -553,11 +553,10 @@ export const handler = async (
  * @returns {string} The normalized path.
  */
 function normalizePath(event: APIGatewayProxyEventV2): string {
-  const raw =
-    (event.rawPath ||
-      (event as unknown as Record<string, unknown>).path ||
-      event.requestContext?.http?.path ||
-      "/") as string;
+  const raw = (event.rawPath ||
+    (event as unknown as Record<string, unknown>).path ||
+    event.requestContext?.http?.path ||
+    "/") as string;
 
   // Optimization: Use startsWith and slice instead of regex for path normalization in hot request path.
   let path = raw;
