@@ -324,7 +324,8 @@ async function handleGames(
       }
       if (body.playerId !== undefined && !validateId(body.playerId)) {
         // Special case: 'OPPONENT' is allowed
-        if (body.playerId !== "OPPONENT") return badRequest("Invalid player ID");
+        if (body.playerId !== "OPPONENT")
+          return badRequest("Invalid player ID");
       }
       const id = (body?.id as string) || uuidv4();
       const timestamp = (body?.timestamp as string) || new Date().toISOString();
