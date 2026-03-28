@@ -265,26 +265,6 @@ export const calculateTeamAggregates = (
 };
 
 /**
- * Aggregates statistics for a single game.
- * @param {StatEvent[]} gameStats - Events for the specific game.
- * @returns {object} Aggregated points, rebounds, and assists.
- */
-function aggregateStatsForGame(gameStats: StatEvent[]) {
-  // Replace reduce with for...of to minimize per-iteration overhead in hot paths
-  const acc = { teamPoints: 0, oppPoints: 0, rebounds: 0, assists: 0 };
-  for (const s of gameStats) {
-    if (s.playerId === "OPPONENT") {
-      acc.oppPoints += s.points || 0;
-    } else {
-      acc.teamPoints += s.points || 0;
-      if (s.type === ACTION_TYPES.REBOUND) acc.rebounds++;
-      if (s.type === ACTION_TYPES.ASSIST) acc.assists++;
-    }
-  }
-  return acc;
-}
-
-/**
  * Calculates the score and result (W, L, D) for a single game.
  *
  * @param {number | string} gameId - The game ID.
