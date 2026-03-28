@@ -816,10 +816,11 @@ async function snapshotGameStats(gameId: string, tableName: string) {
 function accumulateScores(stats: Record<string, unknown>[]) {
   let teamScore = 0;
   let oppScore = 0;
-  stats.forEach((s: Record<string, unknown>) => {
+  for (let i = 0; i < stats.length; i++) {
+    const s = stats[i];
     if (s.playerId === "OPPONENT") oppScore += (s.points as number) || 0;
     else teamScore += (s.points as number) || 0;
-  });
+  }
   return { teamScore, oppScore };
 }
 

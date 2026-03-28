@@ -173,35 +173,36 @@ const GameMode: React.FC = () => {
   // Derived scores - consolidated into a single pass to improve efficiency
   // Memoized to prevent recalculation on every render
   const { currentScore, opponentScore } = useMemo(() => {
-    return gameStats.reduce(
-      (acc, s) => {
-        if (s.deletedAt) return acc;
-        if (s.playerId === OPPONENT_PLAYER_ID) {
-          acc.opponentScore += s.points || 0;
-        } else {
-          acc.currentScore += s.points || 0;
-        }
-        return acc;
-      },
-      { currentScore: 0, opponentScore: 0 },
-    );
+    let curScore = 0;
+    let oppScore = 0;
+    for (let i = 0; i < gameStats.length; i++) {
+      const s = gameStats[i];
+      if (s.deletedAt) continue;
+      if (s.playerId === OPPONENT_PLAYER_ID) {
+        oppScore += s.points || 0;
+      } else {
+        curScore += s.points || 0;
+      }
+    }
+    return { currentScore: curScore, opponentScore: oppScore };
   }, [gameStats]);
 
-  const markers = useMemo(() => {
-    // Performance: Pre-calculate jersey map for O(1) lookups in the loop
-    const jerseyMap = new Map(
-      teamPlayers.map((tp) => [tp.playerId, tp.jerseyNumber]),
-    );
+  const jerseyMap = useMemo(
+    () => new Map(teamPlayers.map((tp) => [tp.playerId, tp.jerseyNumber])),
+    [teamPlayers],
+  );
 
-    // Performance: Use a single reduce pass instead of filter().map() to halve iterations.
-    return gameStats.reduce((acc, s) => {
+  const markers = useMemo(() => {
+    const res = [];
+    for (let i = 0; i < gameStats.length; i++) {
+      const s = gameStats[i];
       if (
         !s.deletedAt &&
         (markerFilter === "ALL" || s.type === markerFilter) &&
         s.type !== ACTION_TYPES.SUB_IN &&
         s.type !== ACTION_TYPES.SUB_OUT
       ) {
-        acc.push({
+        res.push({
           id: s.id,
           x: s.locationX || 0,
           y: s.locationY || 0,
@@ -216,9 +217,9 @@ const GameMode: React.FC = () => {
               : undefined,
         });
       }
-      return acc;
-    }, [] as any[]);
-  }, [gameStats, markerFilter, teamPlayers, theme.palette.secondary.main]);
+    }
+    return res;
+  }, [gameStats, markerFilter, jerseyMap, theme.palette.secondary.main]);
 
   /**
    * Undoes the most recent statistical action.

@@ -211,21 +211,26 @@ const TeamStats: React.FC = () => {
     [games, allStats],
   );
 
+  const aggregatedStats = useMemo(
+    () =>
+      calculatePlayerAggregates(
+        teamPlayerDetails,
+        allStats as StatEvent[],
+        teamPlayers,
+        statView,
+      ),
+    [teamPlayerDetails, allStats, teamPlayers, statView],
+  );
+
   const playerStats = useMemo(() => {
-    const stats = calculatePlayerAggregates(
-      teamPlayerDetails,
-      allStats as StatEvent[],
-      teamPlayers,
-      statView,
-    );
-    return [...stats].sort((a, b) => {
+    return [...aggregatedStats].sort((a, b) => {
       const aValue = a[sortConfig.key as keyof typeof a] as number | string;
       const bValue = b[sortConfig.key as keyof typeof b] as number | string;
       if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
       if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
       return 0;
     });
-  }, [teamPlayerDetails, allStats, teamPlayers, statView, sortConfig]);
+  }, [aggregatedStats, sortConfig]);
 
   /**
    * Stages a player to be added or removed from the team's roster locally.
