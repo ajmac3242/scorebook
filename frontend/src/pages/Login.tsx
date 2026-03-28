@@ -35,7 +35,8 @@ const Login: React.FC = () => {
     });
 
     user.authenticateUser(authDetails, {
-      onSuccess: (_data) => {
+      onSuccess: (data) => {
+        console.log("onSuccess:", data);
         setIsAuthenticated(true);
         localStorage.setItem("isAuthenticated", "true");
         // Trigger a full pull sync immediately after login

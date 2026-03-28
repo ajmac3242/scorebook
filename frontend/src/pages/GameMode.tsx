@@ -192,23 +192,17 @@ const GameMode: React.FC = () => {
     [teamPlayers],
   );
 
-    // Performance: Use a single reduce pass instead of filter().map() to halve iterations.
-    const result: {
-      id?: string;
-      x: number;
-      y: number;
-      type: string;
-      label?: string;
-      color?: string;
-    }[] = [];
-    for (const s of gameStats) {
+  const markers = useMemo(() => {
+    const res = [];
+    for (let i = 0; i < gameStats.length; i++) {
+      const s = gameStats[i];
       if (
         !s.deletedAt &&
         (markerFilter === "ALL" || s.type === markerFilter) &&
         s.type !== ACTION_TYPES.SUB_IN &&
         s.type !== ACTION_TYPES.SUB_OUT
       ) {
-        result.push({
+        res.push({
           id: s.id,
           x: s.locationX || 0,
           y: s.locationY || 0,
@@ -224,8 +218,8 @@ const GameMode: React.FC = () => {
         });
       }
     }
-    return result;
-  }, [gameStats, markerFilter, teamPlayers, theme.palette.secondary.main]);
+    return res;
+  }, [gameStats, markerFilter, jerseyMap, theme.palette.secondary.main]);
 
   /**
    * Undoes the most recent statistical action.
