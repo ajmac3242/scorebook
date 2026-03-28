@@ -264,7 +264,6 @@ export const calculateTeamAggregates = (
   };
 };
 
-
 /**
  * Calculates the score and result (W, L, D) for a single game.
  *
