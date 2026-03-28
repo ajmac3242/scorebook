@@ -194,14 +194,22 @@ const GameMode: React.FC = () => {
     );
 
     // Performance: Use a single reduce pass instead of filter().map() to halve iterations.
-    return gameStats.reduce((acc, s) => {
+    const result: {
+      id?: string;
+      x: number;
+      y: number;
+      type: string;
+      label?: string;
+      color?: string;
+    }[] = [];
+    for (const s of gameStats) {
       if (
         !s.deletedAt &&
         (markerFilter === "ALL" || s.type === markerFilter) &&
         s.type !== ACTION_TYPES.SUB_IN &&
         s.type !== ACTION_TYPES.SUB_OUT
       ) {
-        acc.push({
+        result.push({
           id: s.id,
           x: s.locationX || 0,
           y: s.locationY || 0,
@@ -216,8 +224,8 @@ const GameMode: React.FC = () => {
               : undefined,
         });
       }
-      return acc;
-    }, [] as any[]);
+    }
+    return result;
   }, [gameStats, markerFilter, teamPlayers, theme.palette.secondary.main]);
 
   /**
