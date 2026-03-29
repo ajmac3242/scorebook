@@ -1054,7 +1054,9 @@ const GameMode: React.FC = () => {
                   .map((p) => (
                     <Button
                       key={p.id}
-                      variant={subOutPlayerId === p.id ? "contained" : "outlined"}
+                      variant={
+                        subOutPlayerId === p.id ? "contained" : "outlined"
+                      }
                       onClick={() => setSubOutPlayerId(p.id!)}
                       fullWidth
                       sx={{ justifyContent: "flex-start" }}
@@ -1087,7 +1089,9 @@ const GameMode: React.FC = () => {
                   .map((p) => (
                     <Button
                       key={p.id}
-                      variant={subInPlayerId === p.id ? "contained" : "outlined"}
+                      variant={
+                        subInPlayerId === p.id ? "contained" : "outlined"
+                      }
                       onClick={() => setSubInPlayerId(p.id!)}
                       fullWidth
                       sx={{ justifyContent: "flex-start" }}
