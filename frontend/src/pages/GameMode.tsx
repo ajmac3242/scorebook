@@ -25,6 +25,7 @@ import {
   ToggleButton,
   ToggleButtonGroup,
   Alert,
+  Tooltip,
 } from "@mui/material";
 import {
   AddCircleOutline,
@@ -88,6 +89,9 @@ const GameMode: React.FC = () => {
 
   // Roster and lineup state
   const [onCourtIds, setOnCourtIds] = useState<Set<string>>(new Set());
+  const [subDialogOpen, setSubDialogOpen] = useState(false);
+  const [subOutPlayerId, setSubOutPlayerId] = useState<string | null>(null);
+  const [subInPlayerId, setSubInPlayerId] = useState<string | null>(null);
   const [period, setPeriod] = useState<number>(1);
   const [trackingMode, setTrackingMode] = useState<"TEAM" | "OPPONENT">("TEAM");
 
@@ -116,6 +120,19 @@ const GameMode: React.FC = () => {
     }
   }, [teamId, teamPlayers]);
   const players = useMemo(() => playersQueryResult || [], [playersQueryResult]);
+
+  /**
+   * 🏀 CoachBoard: sortedPlayers
+   * Why: Performance optimization and better game-state visibility.
+   * Notes: Memoizes the roster to sort on-court players to the top, reducing scan time for the scorekeeper.
+   */
+  const sortedPlayers = useMemo(() => {
+    return [...players].sort((a, b) => {
+      const aOn = onCourtIds.has(a.id!) ? 1 : 0;
+      const bOn = onCourtIds.has(b.id!) ? 1 : 0;
+      return bOn - aOn; // On court players first
+    });
+  }, [players, onCourtIds]);
 
   const game = useLiveQuery(() => db.games.get(gameId as string), [gameId]);
   const team = useLiveQuery(
@@ -356,6 +373,53 @@ const GameMode: React.FC = () => {
   };
 
   /**
+   * 🏀 CoachBoard: handleQuickSub
+   * Why: Allows scorekeepers to swap players in/out in one action during live play.
+   * Notes: Records both SUB_OUT and SUB_IN events to maintain accurate play-by-play.
+   */
+  const handleQuickSub = async () => {
+    if (!subOutPlayerId || !subInPlayerId || !gameId || isDeleted) return;
+
+    try {
+      await db.open();
+      const timestamp = new Date().toISOString();
+
+      // Record SUB_OUT for outgoing player
+      await db.stats.add({
+        id: crypto.randomUUID(),
+        gameId: gameId,
+        playerId: subOutPlayerId,
+        type: ACTION_TYPES.SUB_OUT,
+        period,
+        timestamp,
+        synced: 0,
+      });
+
+      // Record SUB_IN for incoming player
+      await db.stats.add({
+        id: crypto.randomUUID(),
+        gameId: gameId,
+        playerId: subInPlayerId,
+        type: ACTION_TYPES.SUB_IN,
+        period,
+        timestamp,
+        synced: 0,
+      });
+
+      const newOnCourt = new Set(onCourtIds);
+      newOnCourt.delete(subOutPlayerId);
+      newOnCourt.add(subInPlayerId);
+      setOnCourtIds(newOnCourt);
+
+      setSubDialogOpen(false);
+      setSubOutPlayerId(null);
+      setSubInPlayerId(null);
+    } catch (err) {
+      console.error("Failed to record quick sub:", err);
+    }
+  };
+
+  /**
    * Deletes a specific statistical event.
    */
   const handleDeleteStat = async () => {
@@ -508,6 +572,18 @@ const GameMode: React.FC = () => {
               >
                 Undo
               </Button>
+              <Tooltip title="Quick Substitution">
+                <Button
+                  size="small"
+                  variant="outlined"
+                  startIcon={<SwapHoriz />}
+                  onClick={() => setSubDialogOpen(true)}
+                  disabled={isDeleted}
+                  aria-label="quick substitution"
+                >
+                  Quick Sub
+                </Button>
+              </Tooltip>
               {/* Markers filtering chips */}
               <Box
                 sx={{
@@ -563,7 +639,7 @@ const GameMode: React.FC = () => {
                     gap: 1,
                   }}
                 >
-                  {players.map((p) => (
+                  {sortedPlayers.map((p) => (
                     <Box
                       key={p.id}
                       sx={{
@@ -627,6 +703,19 @@ const GameMode: React.FC = () => {
                           }}
                         >
                           {p.name}
+                          {onCourtIds.has(p.id!) && (
+                            <Chip
+                              label="ON COURT"
+                              size="small"
+                              color="primary"
+                              sx={{
+                                height: 16,
+                                fontSize: "0.55rem",
+                                ml: 0.5,
+                                fontWeight: "bold",
+                              }}
+                            />
+                          )}
                           {playerFouls[p.id!] > 0 && (
                             <Box
                               component="span"
@@ -939,6 +1028,101 @@ const GameMode: React.FC = () => {
             }}
           >
             View Box Score
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Quick Substitution Dialog */}
+      <Dialog
+        open={subDialogOpen}
+        onClose={() => setSubDialogOpen(false)}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
+          Quick Substitution
+        </DialogTitle>
+        <DialogContent>
+          <Grid container spacing={2} sx={{ mt: 1 }}>
+            <Grid item xs={6}>
+              <Typography variant="subtitle2" gutterBottom align="center">
+                ON COURT (OUT)
+              </Typography>
+              <Stack spacing={1}>
+                {players
+                  .filter((p) => onCourtIds.has(p.id!))
+                  .map((p) => (
+                    <Button
+                      key={p.id}
+                      variant={subOutPlayerId === p.id ? "contained" : "outlined"}
+                      onClick={() => setSubOutPlayerId(p.id!)}
+                      fullWidth
+                      sx={{ justifyContent: "flex-start" }}
+                    >
+                      <Avatar
+                        sx={{
+                          width: 24,
+                          height: 24,
+                          fontSize: "0.75rem",
+                          mr: 1,
+                          bgcolor: p.avatarColor || "grey.500",
+                        }}
+                      >
+                        {getPlayerJersey(p.id, teamPlayers)}
+                      </Avatar>
+                      <Typography variant="body2" noWrap>
+                        {p.name}
+                      </Typography>
+                    </Button>
+                  ))}
+              </Stack>
+            </Grid>
+            <Grid item xs={6}>
+              <Typography variant="subtitle2" gutterBottom align="center">
+                BENCH (IN)
+              </Typography>
+              <Stack spacing={1}>
+                {players
+                  .filter((p) => !onCourtIds.has(p.id!))
+                  .map((p) => (
+                    <Button
+                      key={p.id}
+                      variant={subInPlayerId === p.id ? "contained" : "outlined"}
+                      onClick={() => setSubInPlayerId(p.id!)}
+                      fullWidth
+                      sx={{ justifyContent: "flex-start" }}
+                    >
+                      <Avatar
+                        sx={{
+                          width: 24,
+                          height: 24,
+                          fontSize: "0.75rem",
+                          mr: 1,
+                          bgcolor: p.avatarColor || "grey.500",
+                        }}
+                      >
+                        {getPlayerJersey(p.id, teamPlayers)}
+                      </Avatar>
+                      <Typography variant="body2" noWrap>
+                        {p.name}
+                      </Typography>
+                    </Button>
+                  ))}
+              </Stack>
+            </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={() => setSubDialogOpen(false)} color="inherit">
+            Cancel
+          </Button>
+          <Button
+            onClick={handleQuickSub}
+            variant="contained"
+            disabled={!subOutPlayerId || !subInPlayerId}
+            startIcon={<SwapHoriz />}
+          >
+            Swap
           </Button>
         </DialogActions>
       </Dialog>
