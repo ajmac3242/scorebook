@@ -243,6 +243,7 @@ const GameStats: React.FC = () => {
       steals: oppStats.filter((s) => s.type === ACTION_TYPES.STEAL).length,
       turnovers: oppStats.filter((s) => s.type === ACTION_TYPES.TURNOVER)
         .length,
+      fouls: oppStats.filter((s) => s.type === ACTION_TYPES.FOUL).length,
     };
   }, [stats]);
 
@@ -370,6 +371,13 @@ const GameStats: React.FC = () => {
               onSort={handleSort}
               tooltip="Turnovers"
             />
+            <SortableHeader
+              label="PF"
+              sortKey="fouls"
+              sortConfig={sortConfig}
+              onSort={handleSort}
+              tooltip="Personal Fouls"
+            />
           </TableRow>
         </TableHead>
         <TableBody>
@@ -427,6 +435,7 @@ const GameStats: React.FC = () => {
               >
                 {row.turnovers}
               </TableCell>
+              <TableCell align="right">{row.fouls}</TableCell>
             </TableRow>
           ))}
           <TableRow sx={{ bgcolor: "secondary.light" }}>
@@ -455,6 +464,7 @@ const GameStats: React.FC = () => {
             >
               {oppData.turnovers}
             </TableCell>
+            <TableCell align="right">{oppData.fouls}</TableCell>
           </TableRow>
         </TableBody>
       </Table>

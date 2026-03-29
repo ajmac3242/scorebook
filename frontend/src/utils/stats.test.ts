@@ -118,6 +118,13 @@ describe("stats utilities", () => {
         period: 1,
         timestamp: "2023-01-02T10:01:00Z",
       },
+      {
+        gameId: "g2",
+        playerId: "p1",
+        type: ACTION_TYPES.FOUL,
+        period: 1,
+        timestamp: "2023-01-02T10:02:00Z",
+      },
     ];
 
     it("calculates total aggregates correctly", () => {
@@ -135,6 +142,7 @@ describe("stats utilities", () => {
       expect(p1.rebounds).toBe(1);
       expect(p1.steals).toBe(1);
       expect(p1.turnovers).toBe(1);
+      expect(p1.fouls).toBe(1);
       expect(p1.gp).toBe(2);
 
       const p2 = results.find((r) => r.id === "p2")!;
@@ -155,6 +163,7 @@ describe("stats utilities", () => {
       expect(p1.rebounds).toBe(0.5); // 1 reb / 2 games
       expect(p1.steals).toBe(0.5);
       expect(p1.turnovers).toBe(0.5);
+      expect(p1.fouls).toBe(0.5);
       expect(p1.gp).toBe(2);
 
       const p2 = results.find((r) => r.id === "p2")!;
