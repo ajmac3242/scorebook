@@ -103,6 +103,38 @@ describe("Security Tests", () => {
     expect(item.synced).toBeUndefined();
   });
 
+  it("recursively removes internal keys from nested objects and arrays", async () => {
+    ddbMock.on(QueryCommand).resolves({
+      Items: [
+        {
+          id: "team-1",
+          PK: "TEAM#team-1",
+          players: [
+            { id: "p1", PK: "PLAYER#p1", SK: "METADATA#p1" },
+            { id: "p2", PK: "PLAYER#p2" },
+          ],
+          metadata: {
+            created: "2023-01-01",
+            SK: "INTERNAL_SK",
+          },
+        },
+      ],
+    });
+
+    const event = createEvent("GET", "/teams");
+    const response: any = await handler(event);
+    const body = JSON.parse(response.body);
+    const team = body[0];
+
+    expect(team.PK).toBeUndefined();
+    expect(team.players[0].PK).toBeUndefined();
+    expect(team.players[0].SK).toBeUndefined();
+    expect(team.players[1].PK).toBeUndefined();
+    expect(team.metadata.SK).toBeUndefined();
+    expect(team.id).toBe("team-1");
+    expect(team.players[0].id).toBe("p1");
+  });
+
   it("validates input length for entity names (max 100 chars)", async () => {
     const longNameBody = {
       name: "A".repeat(101),

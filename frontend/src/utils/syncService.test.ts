@@ -227,5 +227,41 @@ describe("SyncService", () => {
       expect(db.games.update).toHaveBeenCalled();
       expect(db.stats.update).toHaveBeenCalled();
     });
+
+    it("logs an error and continues if the API returns 500", async () => {
+      // Ensure other tables return empty
+      vi.mocked(db.teamPlayers.toArray).mockResolvedValue([]);
+      vi.mocked(db.games.toArray).mockResolvedValue([]);
+      vi.mocked(db.stats.toArray).mockResolvedValue([]);
+
+      vi.mocked(db.teams.toArray).mockResolvedValue([{ id: "t1", synced: 0 }]);
+      vi.mocked(db.players.toArray).mockResolvedValue([
+        { id: "p1", synced: 0 },
+      ]);
+
+      const consoleErrorSpy = vi
+        .spyOn(console, "error")
+        .mockImplementation(() => {});
+
+      // Fail first push, succeed second
+      fetchMock
+        .mockResolvedValueOnce({ ok: false, status: 500 })
+        .mockResolvedValueOnce({ ok: true, status: 201 });
+
+      await syncService.pushUpdates();
+
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to push team t1"),
+        500,
+      );
+
+      // Team update should NOT have been called due to 500
+      expect(db.teams.update).not.toHaveBeenCalled();
+      // Player update SHOULD have been called due to successful second push
+      expect(db.players.update).toHaveBeenCalledWith("p1", { synced: 1 });
+
+      consoleErrorSpy.mockRestore();
+    });
   });
 });

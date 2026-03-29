@@ -95,7 +95,11 @@ export class AppDatabase extends Dexie {
     super("ScorebookDB");
 
     // Define the database schema with primary keys and indexes
-    // Version 10: Add time to Game.
+    //
+    // SCHEMA EVOLUTION:
+    // v1-v8:  Initial schema for teams, players, team_players, games, and stats.
+    // v9:     Added 'opponentLogoUrl' to the Game table.
+    // v10:    Added optional 'time' field to the Game table to support game scheduling.
     this.version(10).stores({
       teams: "id, synced, deletedAt",
       players: "id, synced, isArchived, deletedAt",
