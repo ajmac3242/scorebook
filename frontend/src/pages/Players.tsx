@@ -78,9 +78,14 @@ const Players: React.FC = () => {
       [],
       "average",
     );
-    // Create a map for O(1) lookup to improve from O(P^2)
-    const aggMap = new Map(aggregates.map((a) => [a.id, a]));
+    // Optimization: Create the map in a single pass using a for loop to avoid intermediate array allocation from map().
+    const aggMap = new Map();
+    for (let i = 0; i < aggregates.length; i++) {
+      const a = aggregates[i];
+      aggMap.set(a.id, a);
+    }
 
+    // Optimization: Use a standard map call to merge player data with their aggregates.
     return players.map((p) => {
       const agg = aggMap.get(p.id!);
       return {

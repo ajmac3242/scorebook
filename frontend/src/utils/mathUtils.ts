@@ -8,7 +8,7 @@
  * @param {number} val - The value to round.
  * @returns {number} The rounded number.
  */
-export const roundToOne = (val: number): number => Number(val.toFixed(1));
+export const roundToOne = (val: number): number => Math.round(val * 10) / 10;
 
 /**
  * Formats a number to one decimal place and returns it as a string.

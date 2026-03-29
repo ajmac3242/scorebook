@@ -174,24 +174,22 @@ const GameStats: React.FC = () => {
     return allStats.filter((s) => s.period === parseInt(periodFilter));
   }, [allStats, periodFilter]);
 
-  const playerAggregates = useMemo(() => {
+  const aggregatedStats = useMemo(() => {
     // Only include players who are assigned to this team
     const teamPlayerIds = new Set(teamPlayers.map((tp) => tp.playerId));
     const rosteredPlayers = players.filter((p) => teamPlayerIds.has(p.id!));
-    const aggregates = calculatePlayerAggregates(
-      rosteredPlayers,
-      stats,
-      teamPlayers,
-    );
+    return calculatePlayerAggregates(rosteredPlayers, stats, teamPlayers);
+  }, [players, stats, teamPlayers]);
 
-    return [...aggregates].sort((a, b) => {
+  const playerAggregates = useMemo(() => {
+    return [...aggregatedStats].sort((a, b) => {
       const aValue = a[sortConfig.key as keyof typeof a] as number | string;
       const bValue = b[sortConfig.key as keyof typeof b] as number | string;
       if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
       if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
       return 0;
     });
-  }, [players, stats, teamPlayers, sortConfig]);
+  }, [aggregatedStats, sortConfig]);
 
   const filteredStats = useMemo(() => {
     return stats.filter(

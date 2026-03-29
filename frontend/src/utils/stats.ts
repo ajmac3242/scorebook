@@ -160,11 +160,12 @@ export const calculatePlayerAggregates = (
   const statsMap = initializeStatsMap(players, teamPlayers);
 
   // Accumulate statistics from event stream
-  stats.forEach((s) => {
+  for (let i = 0; i < stats.length; i++) {
+    const s = stats[i];
     if (statsMap[s.playerId]) {
       processStatEvent(statsMap[s.playerId], s);
     }
-  });
+  }
 
   // Finalize totals, percentages, and averages
   return Object.values(statsMap).map((p) => {
@@ -275,19 +276,18 @@ export const calculateGameResult = (
   stats: StatEvent[],
 ) => {
   // Combine filter and reduce into a single pass
-  const { teamScore, oppScore } = stats.reduce(
-    (acc, s) => {
-      if (s.gameId === gameId) {
-        if (s.playerId === "OPPONENT") {
-          acc.oppScore += s.points || 0;
-        } else {
-          acc.teamScore += s.points || 0;
-        }
+  let teamScore = 0;
+  let oppScore = 0;
+  for (let i = 0; i < stats.length; i++) {
+    const s = stats[i];
+    if (s.gameId === gameId) {
+      if (s.playerId === "OPPONENT") {
+        oppScore += s.points || 0;
+      } else {
+        teamScore += s.points || 0;
       }
-      return acc;
-    },
-    { teamScore: 0, oppScore: 0 },
-  );
+    }
+  }
 
   // Determine game result: W (Win), L (Loss), D (Draw/Tie).
   const result = determineResult(teamScore, oppScore);

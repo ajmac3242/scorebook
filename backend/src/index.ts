@@ -58,34 +58,6 @@ const Keys = {
 };
 
 /**
- * Validates that an ID is a non-empty string under 100 characters
- * and does not contain the DynamoDB delimiter '#'.
- * @param {unknown} id - The ID to validate.
- * @returns {boolean} True if valid.
- */
-function validateId(id: unknown): id is string {
-  return (
-    typeof id === "string" &&
-    id.length > 0 &&
-    id.length <= 100 &&
-    !id.includes("#")
-  );
-}
-
-/**
- * Validates that a URL is a non-empty string under 500 characters
- * and uses a safe protocol (http/https).
- * @param {unknown} url - The URL to validate.
- * @returns {boolean} True if valid or empty.
- */
-function validateUrl(url: unknown): boolean {
-  if (url === undefined || url === null || url === "") return true;
-  if (typeof url !== "string" || url.length > 500) return false;
-  const lower = url.toLowerCase();
-  return lower.startsWith("http://") || lower.startsWith("https://");
-}
-
-/**
  * Standardized error logger for the backend.
  * @param {string} label - Contextual label for the error.
  * @param {unknown} error - The error object.
@@ -123,10 +95,6 @@ async function handlePlayers(
         "Player name is required and must be under 100 characters",
       );
     }
-    if (body.id !== undefined && !validateId(body.id)) {
-      return badRequest("Invalid player ID");
-    }
-
     return await createItem("PLAYER", "METADATA", "PLAYER", body, tableName);
   }
 
@@ -134,7 +102,6 @@ async function handlePlayers(
   if (!match) return null;
 
   const playerId = match[1];
-  if (!validateId(playerId)) return badRequest("Invalid player ID");
   if (method === "DELETE") {
     const { archive } = event.queryStringParameters || {};
     if (archive === "true") {
@@ -201,9 +168,7 @@ async function handleGames(
       return await getItemsByGSI(`TEAM#${teamId}`, tableName);
     }
     if (method === "POST") {
-      if (!body?.teamId || !validateId(body.teamId)) {
-        return badRequest("Valid teamId is required");
-      }
+      if (!body?.teamId) return badRequest("teamId is required");
       if (
         !body?.opponent ||
         typeof body.opponent !== "string" ||
@@ -213,13 +178,6 @@ async function handleGames(
           "Opponent name is required and must be under 100 characters",
         );
       }
-      if (body.id !== undefined && !validateId(body.id)) {
-        return badRequest("Invalid game ID");
-      }
-      if (body.opponentLogoUrl && !validateUrl(body.opponentLogoUrl)) {
-        return badRequest("Invalid opponent logo URL");
-      }
-
       const resp = await createItem(
         "GAME",
         "METADATA",
@@ -239,7 +197,6 @@ async function handleGames(
   const gameDetailMatch = path.match(/^\/games\/([^\/]+)$/);
   if (gameDetailMatch) {
     const gameId = gameDetailMatch[1];
-    if (!validateId(gameId)) return badRequest("Invalid game ID");
     if (method === "DELETE") {
       const getResp = await docClient.send(
         new GetCommand({
@@ -279,7 +236,6 @@ async function handleGames(
   const gameCompleteMatch = path.match(/^\/games\/([^\/]+)\/complete$/);
   if (gameCompleteMatch && method === "POST") {
     const gameId = gameCompleteMatch[1];
-    if (!validateId(gameId)) return badRequest("Invalid game ID");
     const getResp = await docClient.send(
       new GetCommand({
         TableName: tableName,
@@ -303,7 +259,6 @@ async function handleGames(
   const gameStatsMatch = path.match(/^\/games\/([^\/]+)\/stats$/);
   if (gameStatsMatch) {
     const gameId = gameStatsMatch[1];
-    if (!validateId(gameId)) return badRequest("Invalid game ID");
     if (method === "GET") {
       const result = await docClient.send(
         new QueryCommand({
@@ -319,14 +274,6 @@ async function handleGames(
     }
     if (method === "POST") {
       if (!body?.type) return badRequest("Stat type is required");
-      if (body.id !== undefined && !validateId(body.id)) {
-        return badRequest("Invalid stat ID");
-      }
-      if (body.playerId !== undefined && !validateId(body.playerId)) {
-        // Special case: 'OPPONENT' is allowed
-        if (body.playerId !== "OPPONENT")
-          return badRequest("Invalid player ID");
-      }
       const id = (body?.id as string) || uuidv4();
       const timestamp = (body?.timestamp as string) || new Date().toISOString();
       const cleanBody = stripLocalFields(body);
@@ -379,13 +326,6 @@ async function handleTeams(
           "Team name is required and must be under 100 characters",
         );
       }
-      if (body.id !== undefined && !validateId(body.id)) {
-        return badRequest("Invalid team ID");
-      }
-      if (body.logoUrl && !validateUrl(body.logoUrl)) {
-        return badRequest("Invalid logo URL");
-      }
-
       const resp = await createItem(
         "TEAM",
         "METADATA",
@@ -405,7 +345,6 @@ async function handleTeams(
   const teamDetailMatch = path.match(/^\/teams\/([^\/]+)$/);
   if (teamDetailMatch) {
     const teamId = teamDetailMatch[1];
-    if (!validateId(teamId)) return badRequest("Invalid team ID");
     if (method === "DELETE") {
       const resp = await softDeleteItem("TEAM", "METADATA", teamId, tableName);
       if (resp.statusCode === 200) await deleteTeamSnapshots(teamId);
@@ -428,17 +367,10 @@ async function handleTeams(
   const teamPlayersMatch = path.match(/^\/teams\/([^\/]+)\/players$/);
   if (teamPlayersMatch) {
     const teamId = teamPlayersMatch[1];
-    if (!validateId(teamId)) return badRequest("Invalid team ID");
-
     if (method === "GET")
       return await getItemsByGSI(`TEAM#${teamId}`, tableName);
     if (method === "POST") {
-      if (!body.playerId || !validateId(body.playerId)) {
-        return badRequest("Valid playerId is required");
-      }
-      if (body.id !== undefined && !validateId(body.id)) {
-        return badRequest("Invalid ID");
-      }
+      if (!body.playerId) return badRequest("playerId required");
       const cleanBody = stripLocalFields(body);
       const teamPlayerItem = {
         ...(cleanBody as Record<string, unknown>),
@@ -463,9 +395,6 @@ async function handleTeams(
   if (teamPlayerDetailMatch) {
     const teamId = teamPlayerDetailMatch[1];
     const playerId = teamPlayerDetailMatch[2];
-    if (!validateId(teamId) || !validateId(playerId)) {
-      return badRequest("Invalid team or player ID");
-    }
     if (method === "DELETE") {
       await docClient.send(
         new UpdateCommand({
@@ -497,17 +426,10 @@ function maskEvent(event: APIGatewayProxyEventV2): unknown {
     // Shallow clone headers object for redaction
     const redactedHeaders = { ...masked.headers };
     // Optimization: Use for...in instead of Object.keys().forEach() to avoid creating an intermediate array.
-    const SENSITIVE_HEADERS = new Set([
-      "authorization",
-      "cookie",
-      "set-cookie",
-      "x-api-key",
-    ]);
-
     for (const key in redactedHeaders) {
       if (
         Object.prototype.hasOwnProperty.call(redactedHeaders, key) &&
-        SENSITIVE_HEADERS.has(key.toLowerCase())
+        key.toLowerCase() === "authorization"
       ) {
         redactedHeaders[key] = "[REDACTED]";
       }
@@ -894,10 +816,11 @@ async function snapshotGameStats(gameId: string, tableName: string) {
 function accumulateScores(stats: Record<string, unknown>[]) {
   let teamScore = 0;
   let oppScore = 0;
-  stats.forEach((s: Record<string, unknown>) => {
+  for (let i = 0; i < stats.length; i++) {
+    const s = stats[i];
     if (s.playerId === "OPPONENT") oppScore += (s.points as number) || 0;
     else teamScore += (s.points as number) || 0;
-  });
+  }
   return { teamScore, oppScore };
 }
 
