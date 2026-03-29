@@ -235,9 +235,13 @@ describe("SyncService", () => {
       vi.mocked(db.stats.toArray).mockResolvedValue([]);
 
       vi.mocked(db.teams.toArray).mockResolvedValue([{ id: "t1", synced: 0 }]);
-      vi.mocked(db.players.toArray).mockResolvedValue([{ id: "p1", synced: 0 }]);
+      vi.mocked(db.players.toArray).mockResolvedValue([
+        { id: "p1", synced: 0 },
+      ]);
 
-      const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+      const consoleErrorSpy = vi
+        .spyOn(console, "error")
+        .mockImplementation(() => {});
 
       // Fail first push, succeed second
       fetchMock
@@ -249,7 +253,7 @@ describe("SyncService", () => {
       expect(fetchMock).toHaveBeenCalledTimes(2);
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         expect.stringContaining("Failed to push team t1"),
-        500
+        500,
       );
 
       // Team update should NOT have been called due to 500
