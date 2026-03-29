@@ -939,7 +939,10 @@ async function performHardCleanup(tableName: string) {
 
 /**
  * Strips local-only fields and internal DynamoDB keys from the data object before saving.
- * Prevents mass assignment vulnerabilities.
+ *
+ * WHY: This is a defense-in-depth measure to prevent mass assignment vulnerabilities.
+ * It ensures that even if a malicious user provides internal DynamoDB keys (like PK/SK)
+ * in the request body, those keys are stripped before the object is persisted.
  *
  * @param {Record<string, unknown>} data - The data object to clean.
  * @returns {Record<string, unknown>} The cleaned object.
@@ -963,6 +966,9 @@ function stripLocalFields(data: unknown): Record<string, unknown> {
 /**
  * Redacts internal metadata keys from outgoing data for API responses and S3 snapshots.
  * Recursively cleans objects and arrays while preserving the 'id' field for frontend consumption.
+ *
+ * WHY: This prevents leaking infrastructure implementation details (DynamoDB key structure)
+ * to the client, while still allowing the frontend to identify entities via their UUID 'id'.
  *
  * @param {unknown} data - The data object or array to sanitize.
  * @returns {unknown} The sanitized data.

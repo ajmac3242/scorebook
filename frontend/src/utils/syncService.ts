@@ -27,6 +27,13 @@ interface GameSnapshot {
 
 /**
  * Service class for handling all data synchronization tasks.
+ *
+ * WHY: This service implements an "Offline-First" architecture.
+ * 1. Data is always written to IndexedDB first (via Dexie).
+ * 2. 'pushUpdates' asynchronously sends local changes to the API.
+ * 3. 'pullAll' and 'sync*' methods retrieve data using a hybrid API/S3 strategy.
+ * 4. ETag-based caching (via If-None-Match) is used for S3 snapshots to minimize
+ *    bandwidth and processing of large datasets (like rosters and game stats).
  */
 class SyncService {
   private isSyncing = false;
@@ -164,6 +171,8 @@ class SyncService {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           await table.update(item.id!, { synced: 1 } as any);
           if (onSuccess) await onSuccess(item);
+        } else {
+          console.error(`Failed to push ${entityName} ${item.id}:`, res.status);
         }
       } catch (err) {
         console.error(`Failed to push ${entityName} ${item.id}:`, err);
@@ -233,6 +242,8 @@ class SyncService {
       });
 
       if (response.status === 304) {
+        // WHY: 304 Not Modified indicates our local ETag matches the server's,
+        // so we don't need to re-download or re-persist the same data.
         console.log(`${label} is up to date.`);
         return;
       }

@@ -36,6 +36,16 @@ describe("stats utilities", () => {
     it("handles names with special characters correctly", () => {
       expect(getInitials("O'Neil Sanders")).toBe("OS");
     });
+
+    it("handles single character names", () => {
+      expect(getInitials("A B")).toBe("AB");
+      expect(getInitials("A")).toBe("A");
+    });
+
+    it("handles multiple spaces", () => {
+      expect(getInitials("John    Doe")).toBe("JD");
+      expect(getInitials("   John   Doe   ")).toBe("JD");
+    });
   });
 
   describe("getPlayerJersey", () => {
@@ -183,6 +193,11 @@ describe("stats utilities", () => {
       expect(results[0].points).toBe(0);
       expect(results[0].gp).toBe(0);
     });
+
+    it("returns '0.0' for fgPct when attempts are 0", () => {
+      const results = calculatePlayerAggregates(players, [], [], "total");
+      expect(results[0].fgPct).toBe("0.0");
+    });
   });
 
   describe("calculateTeamAggregates", () => {
@@ -312,6 +327,18 @@ describe("stats utilities", () => {
       expect(results.oppg).toBe("2.3");
       expect(results.record).toBe("2-1");
       expect(results.totalGames).toBe(3);
+    });
+
+    it("handles empty games or stats", () => {
+      const res1 = calculateTeamAggregates([], []);
+      expect(res1.totalGames).toBe(0);
+      expect(res1.ppg).toBe("0.0");
+      expect(res1.record).toBe("0-0");
+
+      const res2 = calculateTeamAggregates(games, []);
+      expect(res2.totalGames).toBe(2);
+      expect(res2.ppg).toBe("0.0");
+      expect(res2.record).toBe("0-0");
     });
   });
 

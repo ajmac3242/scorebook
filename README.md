@@ -36,6 +36,11 @@ To optimize read performance and reduce DynamoDB costs:
 - These snapshots are uploaded to an S3 bucket.
 - The frontend pulls these snapshots for large data sets (like full game stats), utilizing browser caching and S3's global scale.
 
+## Performance & Scalability
+- **ETag Caching**: The application utilizes ETag-based caching (via `If-None-Match` headers) when pulling S3 snapshots. This ensures that the frontend only downloads data if it has changed since the last sync, significantly reducing data usage and processing time.
+- **Efficient Aggregations**: Statistics are aggregated on-the-fly in the frontend using optimized `for` loops and `Map` objects, ensuring that complex calculations (like PPG, RPG, APG) remain fast even as the number of recorded events grows.
+- **Reduced Backend Load**: By serving historical game stats and rosters directly from S3, the application offloads significant read traffic from DynamoDB, leading to lower costs and improved scalability.
+
 ## Setup Instructions
 
 ### Frontend
