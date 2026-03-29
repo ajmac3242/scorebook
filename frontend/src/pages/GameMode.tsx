@@ -187,6 +187,17 @@ const GameMode: React.FC = () => {
     return { currentScore: curScore, opponentScore: oppScore };
   }, [gameStats]);
 
+  const playerFouls = useMemo(() => {
+    const fouls: Record<string, number> = {};
+    for (let i = 0; i < gameStats.length; i++) {
+      const s = gameStats[i];
+      if (!s.deletedAt && s.type === ACTION_TYPES.FOUL) {
+        fouls[s.playerId] = (fouls[s.playerId] || 0) + 1;
+      }
+    }
+    return fouls;
+  }, [gameStats]);
+
   const jerseyMap = useMemo(
     () => new Map(teamPlayers.map((tp) => [tp.playerId, tp.jerseyNumber])),
     [teamPlayers],
@@ -616,6 +627,23 @@ const GameMode: React.FC = () => {
                           }}
                         >
                           {p.name}
+                          {playerFouls[p.id!] > 0 && (
+                            <Box
+                              component="span"
+                              sx={{
+                                ml: 0.5,
+                                color:
+                                  playerFouls[p.id!] >= 5
+                                    ? "error.main"
+                                    : playerFouls[p.id!] === 4
+                                      ? "warning.main"
+                                      : "inherit",
+                                fontWeight: "bold",
+                              }}
+                            >
+                              ({playerFouls[p.id!]})
+                            </Box>
+                          )}
                         </Typography>
                       </Button>
                       <IconButton
@@ -788,6 +816,14 @@ const GameMode: React.FC = () => {
               type={ACTION_TYPES.TURNOVER}
               label="TO"
               icon={SwapHoriz}
+              statType={statType}
+              setStatType={setStatType}
+              onSave={handleSaveStat}
+            />
+            <QuickAction
+              type={ACTION_TYPES.FOUL}
+              label="Foul"
+              icon={Warning}
               statType={statType}
               setStatType={setStatType}
               onSave={handleSaveStat}

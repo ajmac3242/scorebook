@@ -26,6 +26,7 @@ export interface PlayerAggregates {
   makes: number;
   attempts: number;
   fgPct: string;
+  fouls: number;
 }
 
 /**
@@ -93,6 +94,9 @@ function processStatEvent(p: PlayerAggregates, s: StatEvent) {
     case ACTION_TYPES.TURNOVER:
       p.turnovers++;
       break;
+    case ACTION_TYPES.FOUL:
+      p.fouls++;
+      break;
     default:
       break;
   }
@@ -136,6 +140,7 @@ function initializeStatsMap(
       makes: 0,
       attempts: 0,
       fgPct: "0.0",
+      fouls: 0,
     };
   }
   return acc;
@@ -185,6 +190,7 @@ export const calculatePlayerAggregates = (
         assists: roundToOne(p.assists / gp),
         steals: roundToOne(p.steals / gp),
         turnovers: roundToOne(p.turnovers / gp),
+        fouls: roundToOne(p.fouls / gp),
       };
       return averaged;
     }
