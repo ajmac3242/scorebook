@@ -183,11 +183,20 @@ const TeamStats: React.FC = () => {
     }) || [];
 
   const teamPlayerDetails = useMemo(() => {
-    // Convert playerIds to a Set for O(1) lookup
-    const playerIdSet = new Set(
-      teamPlayers.map((tp: TeamPlayer) => tp.playerId.toString()),
-    );
-    return allPlayers.filter((p) => playerIdSet.has(p.id?.toString() || ""));
+    // Optimization: Use a single for loop and a Set for O(1) lookups to avoid intermediate array allocations.
+    const playerIdSet = new Set();
+    for (let i = 0; i < teamPlayers.length; i++) {
+      playerIdSet.add(teamPlayers[i].playerId.toString());
+    }
+
+    const details = [];
+    for (let i = 0; i < allPlayers.length; i++) {
+      const p = allPlayers[i];
+      if (playerIdSet.has(p.id?.toString() || "")) {
+        details.push(p);
+      }
+    }
+    return details;
   }, [allPlayers, teamPlayers]);
 
   const gameIds = useMemo(
@@ -306,11 +315,16 @@ const TeamStats: React.FC = () => {
       }
 
       // 2. Process remaining jersey updates for players already in the roster
-      const existingPlayerIds = teamPlayers.map((tp) => tp.playerId.toString());
+      // Optimization: Use a Set for O(1) existence checks.
+      const existingPlayerIds = new Set();
+      for (let i = 0; i < teamPlayers.length; i++) {
+        existingPlayerIds.add(teamPlayers[i].playerId.toString());
+      }
+
       for (const [pId, jersey] of Object.entries(localJerseyNumbers)) {
         // Only if they are in roster and not staged for removal
         if (
-          existingPlayerIds.includes(pId) &&
+          existingPlayerIds.has(pId) &&
           pendingRosterChanges[pId]?.action !== "remove"
         ) {
           const record = await db.teamPlayers
@@ -1016,88 +1030,96 @@ const TeamStats: React.FC = () => {
             }}
           />
           <List>
-            {allPlayers
-              .filter((p) =>
-                p.name.toLowerCase().includes(rosterSearchTerm.toLowerCase()),
-              )
-              .map((player) => {
-                const pId = player.id!.toString();
-                const dbRecord = teamPlayers.find(
-                  (t: TeamPlayer) => t.playerId.toString() === pId,
+            {(() => {
+              // Optimization: Normalize search term and pre-calculate team player map for O(1) lookups.
+              const normalizedSearch = rosterSearchTerm.toLowerCase();
+              const teamPlayerMap = new Map();
+              for (let i = 0; i < teamPlayers.length; i++) {
+                teamPlayerMap.set(
+                  teamPlayers[i].playerId.toString(),
+                  teamPlayers[i],
                 );
-                const stagedChange = pendingRosterChanges[pId];
+              }
 
-                // Is currently considered "in" the roster in the UI
-                let isIn = !!dbRecord;
-                if (stagedChange?.action === "add") isIn = true;
-                if (stagedChange?.action === "remove") isIn = false;
+              return allPlayers
+                .filter((p) => p.name.toLowerCase().includes(normalizedSearch))
+                .map((player) => {
+                  const pId = player.id!.toString();
+                  const dbRecord = teamPlayerMap.get(pId);
+                  const stagedChange = pendingRosterChanges[pId];
 
-                const jersey =
-                  localJerseyNumbers[pId] !== undefined
-                    ? localJerseyNumbers[pId]
-                    : dbRecord?.jerseyNumber || "";
+                  // Is currently considered "in" the roster in the UI
+                  let isIn = !!dbRecord;
+                  if (stagedChange?.action === "add") isIn = true;
+                  if (stagedChange?.action === "remove") isIn = false;
 
-                const playerEntityId = player.id?.toString() || "";
-                return (
-                  <ListItem
-                    key={playerEntityId}
-                    divider
-                    sx={{
-                      px: { xs: 1, sm: 2 },
-                    }}
-                    secondaryAction={
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: { xs: 0.5, sm: 1 },
-                        }}
-                      >
-                        {isIn && (
-                          <TextField
-                            size="small"
-                            label="#"
-                            inputProps={{ maxLength: 2 }}
-                            sx={{ width: { xs: 60, sm: 80 } }}
-                            value={jersey}
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              if (val === "" || /^\d{1,2}$/.test(val)) {
-                                stageJerseyUpdate(pId, val);
-                              }
-                            }}
-                          />
-                        )}
-                        {isIn ? (
-                          <IconButton
-                            edge="end"
-                            aria-label="remove"
-                            onClick={() => stageRosterChange(pId, true)}
-                            color="error"
-                            size="small"
-                          >
-                            <CloseIcon fontSize="small" />
-                          </IconButton>
-                        ) : (
-                          <Button
-                            variant="contained"
-                            size="small"
-                            onClick={() => stageRosterChange(pId, false)}
-                            sx={{ minWidth: { xs: 45, sm: 64 } }}
-                          >
-                            Add
-                          </Button>
-                        )}
-                      </Box>
-                    }
-                  >
-                    <Avatar sx={{ bgcolor: player.avatarColor, mr: 2 }}>
-                      {getInitials(player.name)}
-                    </Avatar>
-                    <ListItemText primary={player.name} />
-                  </ListItem>
-                );
-              })}
+                  const jersey =
+                    localJerseyNumbers[pId] !== undefined
+                      ? localJerseyNumbers[pId]
+                      : dbRecord?.jerseyNumber || "";
+
+                  const playerEntityId = player.id?.toString() || "";
+                  return (
+                    <ListItem
+                      key={playerEntityId}
+                      divider
+                      sx={{
+                        px: { xs: 1, sm: 2 },
+                      }}
+                      secondaryAction={
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: { xs: 0.5, sm: 1 },
+                          }}
+                        >
+                          {isIn && (
+                            <TextField
+                              size="small"
+                              label="#"
+                              inputProps={{ maxLength: 2 }}
+                              sx={{ width: { xs: 60, sm: 80 } }}
+                              value={jersey}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                if (val === "" || /^\d{1,2}$/.test(val)) {
+                                  stageJerseyUpdate(pId, val);
+                                }
+                              }}
+                            />
+                          )}
+                          {isIn ? (
+                            <IconButton
+                              edge="end"
+                              aria-label="remove"
+                              onClick={() => stageRosterChange(pId, true)}
+                              color="error"
+                              size="small"
+                            >
+                              <CloseIcon fontSize="small" />
+                            </IconButton>
+                          ) : (
+                            <Button
+                              variant="contained"
+                              size="small"
+                              onClick={() => stageRosterChange(pId, false)}
+                              sx={{ minWidth: { xs: 45, sm: 64 } }}
+                            >
+                              Add
+                            </Button>
+                          )}
+                        </Box>
+                      }
+                    >
+                      <Avatar sx={{ bgcolor: player.avatarColor, mr: 2 }}>
+                        {getInitials(player.name)}
+                      </Avatar>
+                      <ListItemText primary={player.name} />
+                    </ListItem>
+                  );
+                });
+            })()}
           </List>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>

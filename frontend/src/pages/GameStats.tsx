@@ -192,58 +192,103 @@ const GameStats: React.FC = () => {
   }, [aggregatedStats, sortConfig]);
 
   const filteredStats = useMemo(() => {
-    return stats.filter(
-      (s) =>
-        (selectedPlayerId === "ALL" || s.playerId === selectedPlayerId) &&
-        (selectedType === "ALL" || s.type === selectedType),
-    );
+    // Optimization: Use a standard for loop to reduce function call overhead on large datasets.
+    const filtered = [];
+    for (let i = 0; i < stats.length; i++) {
+      const s = stats[i];
+      const playerMatch =
+        selectedPlayerId === "ALL" || s.playerId === selectedPlayerId;
+      const typeMatch = selectedType === "ALL" || s.type === selectedType;
+      if (playerMatch && typeMatch) {
+        filtered.push(s);
+      }
+    }
+    return filtered;
   }, [stats, selectedPlayerId, selectedType]);
 
   const scoreFlowData = useMemo(() => {
+    // Optimization: Use a single for loop and cache Intl.DateTimeFormat for performance.
     let tScore = 0;
     let oScore = 0;
     const sortedStats = [...stats].sort((a, b) =>
       a.timestamp.localeCompare(b.timestamp),
     );
     const resultArr = [{ time: "00:00", Team: 0, Opponent: 0 }];
-    sortedStats
-      .filter((s) => s.type === ACTION_TYPES.MAKE)
-      .forEach((s) => {
+    const timeFormatter = new Intl.DateTimeFormat([], {
+      minute: "2-digit",
+      second: "2-digit",
+    });
+
+    for (let i = 0; i < sortedStats.length; i++) {
+      const s = sortedStats[i];
+      if (s.type === ACTION_TYPES.MAKE) {
         if (s.playerId === OPPONENT_PLAYER_ID) {
           oScore += s.points || 0;
         } else {
           tScore += s.points || 0;
         }
         resultArr.push({
-          time: new Date(s.timestamp).toLocaleTimeString([], {
-            minute: "2-digit",
-            second: "2-digit",
-          }),
+          time: timeFormatter.format(new Date(s.timestamp)),
           Team: tScore,
           Opponent: oScore,
         });
-      });
+      }
+    }
     return resultArr;
   }, [stats]);
 
   const oppData = useMemo(() => {
-    const oppStats = stats.filter((s) => s.playerId === OPPONENT_PLAYER_ID);
-    const makes = oppStats.filter((s) => s.type === ACTION_TYPES.MAKE);
-    const attempts =
-      makes.length +
-      oppStats.filter((s) => s.type === ACTION_TYPES.MISS).length;
+    // Optimization: Consolidate multiple filter/reduce passes into a single-pass for loop.
+    let points = 0;
+    let makes = 0;
+    let misses = 0;
+    let rebounds = 0;
+    let assists = 0;
+    let steals = 0;
+    let turnovers = 0;
+    let fouls = 0;
+
+    for (let i = 0; i < stats.length; i++) {
+      const s = stats[i];
+      if (s.playerId === OPPONENT_PLAYER_ID) {
+        switch (s.type) {
+          case ACTION_TYPES.MAKE:
+            points += s.points || 0;
+            makes++;
+            break;
+          case ACTION_TYPES.MISS:
+            misses++;
+            break;
+          case ACTION_TYPES.REBOUND:
+            rebounds++;
+            break;
+          case ACTION_TYPES.ASSIST:
+            assists++;
+            break;
+          case ACTION_TYPES.STEAL:
+            steals++;
+            break;
+          case ACTION_TYPES.TURNOVER:
+            turnovers++;
+            break;
+          case ACTION_TYPES.FOUL:
+            fouls++;
+            break;
+        }
+      }
+    }
+
+    const attempts = makes + misses;
     return {
-      points: makes.reduce((sum, s) => sum + (s.points || 0), 0),
-      makes: makes.length,
+      points,
+      makes,
       attempts,
-      fgPct:
-        attempts > 0 ? ((makes.length / attempts) * 100).toFixed(1) : "0.0",
-      rebounds: oppStats.filter((s) => s.type === ACTION_TYPES.REBOUND).length,
-      assists: oppStats.filter((s) => s.type === ACTION_TYPES.ASSIST).length,
-      steals: oppStats.filter((s) => s.type === ACTION_TYPES.STEAL).length,
-      turnovers: oppStats.filter((s) => s.type === ACTION_TYPES.TURNOVER)
-        .length,
-      fouls: oppStats.filter((s) => s.type === ACTION_TYPES.FOUL).length,
+      fgPct: attempts > 0 ? ((makes / attempts) * 100).toFixed(1) : "0.0",
+      rebounds,
+      assists,
+      steals,
+      turnovers,
+      fouls,
     };
   }, [stats]);
 
@@ -292,13 +337,27 @@ const GameStats: React.FC = () => {
   const periodLabel = team?.periodType === "HALVES" ? "Half" : "Quarter";
   const maxPeriod = team?.periodType === "HALVES" ? 2 : 4;
   const periods = useMemo(() => {
+    // Optimization: Use a Set and a single pass to identify OT periods, avoiding multiple intermediate arrays and traversals.
     const p = ["ALL"];
-    for (let i = 1; i <= maxPeriod; i++) p.push(i.toString());
-    // Check for OT
-    const otPeriods = Array.from(new Set(allStats.map((s) => s.period)))
-      .filter((periodNum) => periodNum > maxPeriod)
-      .sort((a, b) => a - b);
-    otPeriods.forEach((periodNum) => p.push(periodNum.toString()));
+    for (let i = 1; i <= maxPeriod; i++) {
+      p.push(i.toString());
+    }
+
+    const otSet = new Set<number>();
+    for (let i = 0; i < allStats.length; i++) {
+      const period = allStats[i].period;
+      if (period > maxPeriod) {
+        otSet.add(period);
+      }
+    }
+
+    if (otSet.size > 0) {
+      const otPeriods = Array.from(otSet).sort((a, b) => a - b);
+      for (let i = 0; i < otPeriods.length; i++) {
+        p.push(otPeriods[i].toString());
+      }
+    }
+
     return p;
   }, [maxPeriod, allStats]);
 

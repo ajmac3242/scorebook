@@ -37,6 +37,41 @@ interface GameSnapshot {
  */
 class SyncService {
   private isSyncing = false;
+  private listeners: ((_status: boolean) => void)[] = [];
+
+  /**
+   * Subscribes to synchronization status changes.
+   * @param {(_status: boolean) => void} callback - The callback function.
+   * @returns {() => void} Unsubscribe function.
+   */
+  subscribe(callback: (_status: boolean) => void) {
+    this.listeners.push(callback);
+    return () => {
+      this.listeners = this.listeners.filter((l) => l !== callback);
+    };
+  }
+
+  /**
+   * Notifies all subscribers of a status change.
+   * @private
+   */
+  private notify() {
+    for (let i = 0; i < this.listeners.length; i++) {
+      this.listeners[i](this.isSyncing);
+    }
+  }
+
+  /**
+   * Sets the synchronization status and notifies listeners.
+   * @param {boolean} status - New sync status.
+   * @private
+   */
+  private setSyncing(status: boolean) {
+    if (this.isSyncing !== status) {
+      this.isSyncing = status;
+      this.notify();
+    }
+  }
 
   /**
    * Helper to retrieve an ETag from localStorage.
@@ -186,7 +221,7 @@ class SyncService {
    */
   async pushUpdates() {
     if (this.isSyncing) return;
-    this.isSyncing = true;
+    this.setSyncing(true);
     console.log("Starting push updates...");
 
     try {
@@ -214,7 +249,7 @@ class SyncService {
     } catch (e) {
       console.error("Push updates failed:", e);
     } finally {
-      this.isSyncing = false;
+      this.setSyncing(false);
     }
   }
 
@@ -407,7 +442,7 @@ class SyncService {
    */
   async pullAll() {
     if (this.isSyncing) return;
-    this.isSyncing = true;
+    this.setSyncing(true);
     console.log("Starting full pull sync...");
 
     try {
@@ -452,7 +487,7 @@ class SyncService {
     } catch (e) {
       console.error("Full pull sync failed:", e);
     } finally {
-      this.isSyncing = false;
+      this.setSyncing(false);
     }
   }
 
