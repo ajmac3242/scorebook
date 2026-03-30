@@ -196,7 +196,8 @@ const GameStats: React.FC = () => {
     const filtered = [];
     for (let i = 0; i < stats.length; i++) {
       const s = stats[i];
-      const playerMatch = selectedPlayerId === "ALL" || s.playerId === selectedPlayerId;
+      const playerMatch =
+        selectedPlayerId === "ALL" || s.playerId === selectedPlayerId;
       const typeMatch = selectedType === "ALL" || s.type === selectedType;
       if (playerMatch && typeMatch) {
         filtered.push(s);
@@ -282,8 +283,7 @@ const GameStats: React.FC = () => {
       points,
       makes,
       attempts,
-      fgPct:
-        attempts > 0 ? ((makes / attempts) * 100).toFixed(1) : "0.0",
+      fgPct: attempts > 0 ? ((makes / attempts) * 100).toFixed(1) : "0.0",
       rebounds,
       assists,
       steals,

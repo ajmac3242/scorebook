@@ -1046,79 +1046,79 @@ const TeamStats: React.FC = () => {
                 .map((player) => {
                   const pId = player.id!.toString();
                   const dbRecord = teamPlayerMap.get(pId);
-                const stagedChange = pendingRosterChanges[pId];
+                  const stagedChange = pendingRosterChanges[pId];
 
-                // Is currently considered "in" the roster in the UI
-                let isIn = !!dbRecord;
-                if (stagedChange?.action === "add") isIn = true;
-                if (stagedChange?.action === "remove") isIn = false;
+                  // Is currently considered "in" the roster in the UI
+                  let isIn = !!dbRecord;
+                  if (stagedChange?.action === "add") isIn = true;
+                  if (stagedChange?.action === "remove") isIn = false;
 
-                const jersey =
-                  localJerseyNumbers[pId] !== undefined
-                    ? localJerseyNumbers[pId]
-                    : dbRecord?.jerseyNumber || "";
+                  const jersey =
+                    localJerseyNumbers[pId] !== undefined
+                      ? localJerseyNumbers[pId]
+                      : dbRecord?.jerseyNumber || "";
 
-                const playerEntityId = player.id?.toString() || "";
-                return (
-                  <ListItem
-                    key={playerEntityId}
-                    divider
-                    sx={{
-                      px: { xs: 1, sm: 2 },
-                    }}
-                    secondaryAction={
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: { xs: 0.5, sm: 1 },
-                        }}
-                      >
-                        {isIn && (
-                          <TextField
-                            size="small"
-                            label="#"
-                            inputProps={{ maxLength: 2 }}
-                            sx={{ width: { xs: 60, sm: 80 } }}
-                            value={jersey}
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              if (val === "" || /^\d{1,2}$/.test(val)) {
-                                stageJerseyUpdate(pId, val);
-                              }
-                            }}
-                          />
-                        )}
-                        {isIn ? (
-                          <IconButton
-                            edge="end"
-                            aria-label="remove"
-                            onClick={() => stageRosterChange(pId, true)}
-                            color="error"
-                            size="small"
-                          >
-                            <CloseIcon fontSize="small" />
-                          </IconButton>
-                        ) : (
-                          <Button
-                            variant="contained"
-                            size="small"
-                            onClick={() => stageRosterChange(pId, false)}
-                            sx={{ minWidth: { xs: 45, sm: 64 } }}
-                          >
-                            Add
-                          </Button>
-                        )}
-                      </Box>
-                    }
-                  >
-                    <Avatar sx={{ bgcolor: player.avatarColor, mr: 2 }}>
-                      {getInitials(player.name)}
-                    </Avatar>
-                    <ListItemText primary={player.name} />
-                  </ListItem>
-                );
-              });
+                  const playerEntityId = player.id?.toString() || "";
+                  return (
+                    <ListItem
+                      key={playerEntityId}
+                      divider
+                      sx={{
+                        px: { xs: 1, sm: 2 },
+                      }}
+                      secondaryAction={
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: { xs: 0.5, sm: 1 },
+                          }}
+                        >
+                          {isIn && (
+                            <TextField
+                              size="small"
+                              label="#"
+                              inputProps={{ maxLength: 2 }}
+                              sx={{ width: { xs: 60, sm: 80 } }}
+                              value={jersey}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                if (val === "" || /^\d{1,2}$/.test(val)) {
+                                  stageJerseyUpdate(pId, val);
+                                }
+                              }}
+                            />
+                          )}
+                          {isIn ? (
+                            <IconButton
+                              edge="end"
+                              aria-label="remove"
+                              onClick={() => stageRosterChange(pId, true)}
+                              color="error"
+                              size="small"
+                            >
+                              <CloseIcon fontSize="small" />
+                            </IconButton>
+                          ) : (
+                            <Button
+                              variant="contained"
+                              size="small"
+                              onClick={() => stageRosterChange(pId, false)}
+                              sx={{ minWidth: { xs: 45, sm: 64 } }}
+                            >
+                              Add
+                            </Button>
+                          )}
+                        </Box>
+                      }
+                    >
+                      <Avatar sx={{ bgcolor: player.avatarColor, mr: 2 }}>
+                        {getInitials(player.name)}
+                      </Avatar>
+                      <ListItemText primary={player.name} />
+                    </ListItem>
+                  );
+                });
             })()}
           </List>
         </DialogContent>
