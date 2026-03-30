@@ -124,14 +124,14 @@ const Navigation: React.FC = () => {
 
     window.addEventListener("online", handleOnline);
 
-    // Poll for the current synchronization status from the sync service
-    const interval = setInterval(() => {
-      setIsSyncing(syncService.getSyncingStatus());
-    }, 1000);
+    // Optimization: Use a listener pattern instead of polling for synchronization status.
+    const unsubscribe = syncService.subscribe((status) => {
+      setIsSyncing(status);
+    });
 
     return () => {
       window.removeEventListener("online", handleOnline);
-      clearInterval(interval);
+      unsubscribe();
     };
   }, []);
 

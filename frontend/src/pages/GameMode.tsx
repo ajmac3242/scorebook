@@ -691,7 +691,7 @@ const GameMode: React.FC = () => {
                             bgcolor: p.avatarColor || "grey.500",
                           }}
                         >
-                          {getPlayerJersey(p.id, teamPlayers)}
+                          {jerseyMap.get(p.id!) || ""}
                         </Avatar>
                         <Typography
                           variant="caption"
@@ -1070,7 +1070,7 @@ const GameMode: React.FC = () => {
                           bgcolor: p.avatarColor || "grey.500",
                         }}
                       >
-                        {getPlayerJersey(p.id, teamPlayers)}
+                        {jerseyMap.get(p.id!) || ""}
                       </Avatar>
                       <Typography variant="body2" noWrap>
                         {p.name}
@@ -1105,7 +1105,7 @@ const GameMode: React.FC = () => {
                           bgcolor: p.avatarColor || "grey.500",
                         }}
                       >
-                        {getPlayerJersey(p.id, teamPlayers)}
+                        {jerseyMap.get(p.id!) || ""}
                       </Avatar>
                       <Typography variant="body2" noWrap>
                         {p.name}

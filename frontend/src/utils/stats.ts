@@ -173,29 +173,35 @@ export const calculatePlayerAggregates = (
   }
 
   // Finalize totals, percentages, and averages
-  return Object.values(statsMap).map((p) => {
-    // We default gp (games played) to 1 for per-game calculations even if 0
-    // to prevent division by zero errors, though technically it should be 0.
-    const gp = p.gamesPlayed.size || 1;
-    p.gp = p.gamesPlayed.size;
-    p.fgPct =
-      p.attempts > 0 ? formatToOne((p.makes / p.attempts) * 100) : "0.0";
+  // Optimization: Use a for...in loop instead of Object.values().map() to avoid intermediate array allocations.
+  const result: PlayerAggregates[] = [];
+  for (const key in statsMap) {
+    if (Object.prototype.hasOwnProperty.call(statsMap, key)) {
+      const p = statsMap[key];
+      // We default gp (games played) to 1 for per-game calculations even if 0
+      // to prevent division by zero errors, though technically it should be 0.
+      const gp = p.gamesPlayed.size || 1;
+      p.gp = p.gamesPlayed.size;
+      p.fgPct =
+        p.attempts > 0 ? formatToOne((p.makes / p.attempts) * 100) : "0.0";
 
-    if (viewType === "average") {
-      // Calculate per-game averages if requested, rounding to 1 decimal place.
-      const averaged: PlayerAggregates = {
-        ...p,
-        points: roundToOne(p.points / gp),
-        rebounds: roundToOne(p.rebounds / gp),
-        assists: roundToOne(p.assists / gp),
-        steals: roundToOne(p.steals / gp),
-        turnovers: roundToOne(p.turnovers / gp),
-        fouls: roundToOne(p.fouls / gp),
-      };
-      return averaged;
+      if (viewType === "average") {
+        // Calculate per-game averages if requested, rounding to 1 decimal place.
+        result.push({
+          ...p,
+          points: roundToOne(p.points / gp),
+          rebounds: roundToOne(p.rebounds / gp),
+          assists: roundToOne(p.assists / gp),
+          steals: roundToOne(p.steals / gp),
+          turnovers: roundToOne(p.turnovers / gp),
+          fouls: roundToOne(p.fouls / gp),
+        });
+      } else {
+        result.push(p);
+      }
     }
-    return p;
-  });
+  }
+  return result;
 };
 
 /**
