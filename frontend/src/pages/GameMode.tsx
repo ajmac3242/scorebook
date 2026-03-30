@@ -215,6 +215,62 @@ const GameMode: React.FC = () => {
     return fouls;
   }, [gameStats]);
 
+  /**
+   * 🏀 CoachBoard: teamFoulStats
+   * Why: Tracks team fouls per period/half to signal bonus status.
+   * Notes: Cumulative in halves (2nd half + OT), resets per quarter in quarters mode.
+   */
+  const teamFoulStats = useMemo(() => {
+    let teamFouls = 0;
+    let oppFouls = 0;
+    const pType = team?.periodType || "QUARTERS";
+
+    for (let i = 0; i < gameStats.length; i++) {
+      const s = gameStats[i];
+      if (s.deletedAt || s.type !== ACTION_TYPES.FOUL) continue;
+
+      const isCurrentPeriodFoul =
+        pType === "QUARTERS"
+          ? s.period === period
+          : period === 1
+            ? s.period === 1
+            : s.period >= 2;
+
+      if (isCurrentPeriodFoul) {
+        if (s.playerId === OPPONENT_PLAYER_ID) {
+          oppFouls++;
+        } else {
+          teamFouls++;
+        }
+      }
+    }
+
+    const getBonusStatus = (fouls: number) => {
+      if (pType === "QUARTERS") {
+        if (fouls >= 5) return { label: " (B)", color: "error.main" };
+        if (fouls === 4) return { label: "", color: "warning.main" };
+        return { label: "", color: "default" };
+      } else {
+        if (fouls >= 10) return { label: " (DB)", color: "error.main" };
+        if (fouls >= 7) return { label: " (B)", color: "error.main" };
+        if (fouls === 6) return { label: "", color: "warning.main" };
+        return { label: "", color: "default" };
+      }
+    };
+
+    const teamBonus = getBonusStatus(teamFouls);
+    const oppBonus = getBonusStatus(oppFouls);
+
+    return {
+      teamFouls,
+      oppFouls,
+      teamBonusLabel: teamBonus.label,
+      teamBonusColor: teamBonus.color,
+      oppBonusLabel: oppBonus.label,
+      oppBonusColor: oppBonus.color,
+    };
+  }, [gameStats, period, team?.periodType]);
+
   const jerseyMap = useMemo(
     () => new Map(teamPlayers.map((tp) => [tp.playerId, tp.jerseyNumber])),
     [teamPlayers],
@@ -521,6 +577,36 @@ const GameMode: React.FC = () => {
                     label={`OPP: ${opponentScore}`}
                     color="secondary"
                     sx={{ fontWeight: "bold" }}
+                  />
+                  <Chip
+                    label={`TF: ${teamFoulStats.teamFouls}${teamFoulStats.teamBonusLabel}`}
+                    variant="outlined"
+                    sx={{
+                      fontWeight: "bold",
+                      color:
+                        teamFoulStats.teamBonusColor === "default"
+                          ? "inherit"
+                          : (teamFoulStats.teamBonusColor as string),
+                      borderColor:
+                        teamFoulStats.teamBonusColor === "default"
+                          ? "divider"
+                          : (teamFoulStats.teamBonusColor as string),
+                    }}
+                  />
+                  <Chip
+                    label={`OF: ${teamFoulStats.oppFouls}${teamFoulStats.oppBonusLabel}`}
+                    variant="outlined"
+                    sx={{
+                      fontWeight: "bold",
+                      color:
+                        teamFoulStats.oppBonusColor === "default"
+                          ? "inherit"
+                          : (teamFoulStats.oppBonusColor as string),
+                      borderColor:
+                        teamFoulStats.oppBonusColor === "default"
+                          ? "divider"
+                          : (teamFoulStats.oppBonusColor as string),
+                    }}
                   />
                   <Chip
                     label={`${periodLabel}: ${period > maxPeriod ? `OT ${period - maxPeriod}` : period}`}
