@@ -23,23 +23,30 @@ jobs:
     if: ${{ (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    strategy:
+      fail-fast: true
     steps:
       - uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
 
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
+          cache: pnpm
           cache-dependency-path: |
-            backend/package-lock.json
-            frontend/package-lock.json
+            backend/pnpm-lock.yaml
+            frontend/pnpm-lock.yaml
 
       - name: Build Backend
         run: |
           cd backend
-          npm ci
-          npm run build
-          npm prune --production
+          pnpm install --frozen-lockfile
+          pnpm run build
+          pnpm prune --production
           zip -r ../lambda.zip dist node_modules package.json
 
       - name: Configure AWS Credentials
@@ -82,8 +89,8 @@ jobs:
         # Bakes live Cognito IDs and API endpoint into the React build
         run: |
           cd frontend
-          npm ci
-          npm run build
+          pnpm install --frozen-lockfile
+          pnpm run build
         env:
           VITE_USER_POOL_ID: ${{ env.VITE_USER_POOL_ID }}
           VITE_CLIENT_ID: ${{ env.VITE_CLIENT_ID }}

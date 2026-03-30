@@ -27,3 +27,12 @@ Action:
 3. Implemented `pip` caching for documentation diagrams via `docs/requirements.txt`.
 4. Enabled verbose test output (`--verbose`) in CI for better visibility.
 5. Expanded artifact uploads on failure to include generated documentation and build hashes.
+
+## 2025-05-15 - PNPM Migration and Pipeline Hardening
+Learning: The codebase uses `pnpm` but CI was using `npm`, leading to sub-optimal caching and potential version drift. Native `pnpm` caching in `setup-node@v4` is significantly faster than standard `npm` caching. Mandatory best practices like `concurrency` and `artifact upload` on failure are essential for a robust CI/CD pipeline.
+Action:
+1. Migrated `ci.yml`, `deploy.yml`, and `terratest.yml` to use `pnpm/action-setup@v3`.
+2. Updated `setup-node` to use `cache: pnpm` pointing to multiple lockfiles.
+3. Added artifact uploads on failure for the `terratest.yml` workflow.
+4. Ensured all sub-directories (`backend/`, `frontend/`) consistently use `pnpm install --frozen-lockfile`.
+5. Hardened workflows with `strategy: fail-fast` and tightened timeouts.

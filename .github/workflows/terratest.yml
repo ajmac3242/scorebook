@@ -23,11 +23,16 @@ jobs:
   terratest:
     name: Run Terratest Suite
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 10
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
 
       - name: Setup Go
         uses: actions/setup-go@v5
@@ -51,9 +56,8 @@ jobs:
       - name: Build backend for Lambda test
         run: |
           cd backend
-          npm install --production
-          npm install --save-dev typescript @types/node
-          npm run build
+          pnpm install --frozen-lockfile
+          pnpm run build
           zip -r ../infra/lambda.zip dist node_modules
 
       - name: Initialize Go module and download dependencies
@@ -66,7 +70,7 @@ jobs:
         working-directory: infra/tests
         run: |
           # Run tests with verbose output
-          go test -v -timeout 60m
+          go test -v -timeout 8m
         env:
           AWS_DEFAULT_REGION: us-east-1
 
@@ -76,3 +80,14 @@ jobs:
         run: |
           # Attempt to destroy any partially created resources
           terraform destroy -auto-approve || true
+
+      - name: Upload Test Results on Failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: terratest-failure-logs
+          path: |
+            infra/tests/*.log
+            infra/*.zip
+            infra/.terraform.lock.hcl
+          if-no-files-found: ignore
