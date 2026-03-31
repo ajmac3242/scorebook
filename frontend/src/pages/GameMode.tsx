@@ -295,6 +295,33 @@ const GameMode: React.FC = () => {
     };
   }, [gameStats, period, team?.periodType]);
 
+  /**
+   * 🏀 CoachBoard: timeoutStats
+   * Why: Tracks timeouts used by each team.
+   * Notes: Standardizes on 5 timeouts per game for initial implementation.
+   */
+  const timeoutStats = useMemo(() => {
+    let teamTimeouts = 0;
+    let oppTimeouts = 0;
+    const MAX_TIMEOUTS = 5;
+
+    for (let i = 0; i < gameStats.length; i++) {
+      const s = gameStats[i];
+      if (s.deletedAt || s.type !== ACTION_TYPES.TIMEOUT) continue;
+
+      if (s.playerId === OPPONENT_PLAYER_ID) {
+        oppTimeouts++;
+      } else {
+        teamTimeouts++;
+      }
+    }
+
+    return {
+      teamTOL: Math.max(0, MAX_TIMEOUTS - teamTimeouts),
+      oppTOL: Math.max(0, MAX_TIMEOUTS - oppTimeouts),
+    };
+  }, [gameStats]);
+
   const jerseyMap = useMemo(
     () =>
       new Map<string, string | undefined>(
@@ -534,6 +561,30 @@ const GameMode: React.FC = () => {
     });
   };
 
+  /**
+   * 🏀 CoachBoard: handleTimeout
+   * Why: Quick recording of a timeout for the current team.
+   * Notes: Records a TIMEOUT event tied to either Our Team or Opponent.
+   */
+  const handleTimeout = async () => {
+    if (!gameId || isDeleted) return;
+    try {
+      await db.open();
+      await db.stats.add({
+        id: crypto.randomUUID(),
+        gameId: gameId,
+        playerId:
+          trackingMode === "OPPONENT" ? OPPONENT_PLAYER_ID : "TEAM_TIMEOUT",
+        type: ACTION_TYPES.TIMEOUT,
+        period,
+        timestamp: new Date().toISOString(),
+        synced: 0,
+      });
+    } catch (err) {
+      console.error("Failed to record timeout:", err);
+    }
+  };
+
   return (
     <Box sx={{ pb: 4, opacity: isDeleted ? 0.7 : 1 }}>
       {isDeleted && (
@@ -606,6 +657,11 @@ const GameMode: React.FC = () => {
                     }}
                   />
                   <Chip
+                    label={`TOL: ${timeoutStats.teamTOL} | ${timeoutStats.oppTOL}`}
+                    variant="outlined"
+                    sx={{ fontWeight: "bold" }}
+                  />
+                  <Chip
                     label={`${periodLabel}: ${period > maxPeriod ? `OT ${period - maxPeriod}` : period}`}
                     onClick={isDeleted ? undefined : handleNextPeriod}
                     variant="outlined"
@@ -667,6 +723,15 @@ const GameMode: React.FC = () => {
                   Quick Sub
                 </Button>
               </Tooltip>
+              <Button
+                size="small"
+                variant="outlined"
+                startIcon={<History />}
+                onClick={handleTimeout}
+                disabled={isDeleted}
+              >
+                Timeout
+              </Button>
               {/* Markers filtering chips */}
               <Box
                 sx={{
@@ -985,8 +1050,10 @@ const GameMode: React.FC = () => {
                           <strong>
                             {s.playerId === OPPONENT_PLAYER_ID
                               ? "Opponent"
-                              : players?.find((p) => p.id === s.playerId)
-                                  ?.name || "Unknown"}
+                              : s.playerId === "TEAM_TIMEOUT"
+                                ? "Our Team"
+                                : players?.find((p) => p.id === s.playerId)
+                                    ?.name || "Unknown"}
                           </strong>
                           : {s.type}
                         </Typography>
