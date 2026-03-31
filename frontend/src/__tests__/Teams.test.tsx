@@ -4,6 +4,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { BrowserRouter } from "react-router-dom";
 import { db } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
+import { logger } from "../utils/logger";
 
 describe("Teams Component", () => {
   const mockTeams = [{ id: "t1", name: "Team 1", description: "Test Team" }];
@@ -40,7 +41,7 @@ describe("Teams Component", () => {
   });
 
   it("handles fetch errors", async () => {
-    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const loggerSpy = vi.spyOn(logger, "error").mockImplementation(() => {});
 
     (useLiveQuery as Record<string, any>).mockImplementation(
       (cb: () => any) => {
@@ -63,8 +64,8 @@ describe("Teams Component", () => {
     );
 
     await waitFor(() => {
-      expect(consoleSpy).toHaveBeenCalledWith(
-        "Failed to fetch teams:",
+      expect(loggerSpy).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to fetch teams:"),
         expect.any(Error),
       );
     });
