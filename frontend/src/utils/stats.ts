@@ -105,7 +105,7 @@ function processStatEvent(p: PlayerAggregates, s: StatEvent) {
 /**
  * Initializes a map of player aggregates with default values.
  *
- * @param {Record<string, any>[]} players - List of player objects.
+ * @param {Player[]} players - List of player objects.
  * @param {TeamPlayer[]} teamPlayers - Team roster for jersey numbers.
  * @returns {Record<string, PlayerAggregates>} Initialized map.
  */
@@ -114,7 +114,7 @@ function initializeStatsMap(
   teamPlayers: TeamPlayer[],
 ): Record<string, PlayerAggregates> {
   // Optimization: Pre-map jersey numbers by playerId to avoid O(P * TP) complexity.
-  const jerseyMap = new Map();
+  const jerseyMap = new Map<string, string | undefined>();
   for (let i = 0; i < teamPlayers.length; i++) {
     jerseyMap.set(teamPlayers[i].playerId, teamPlayers[i].jerseyNumber);
   }
@@ -150,7 +150,7 @@ function initializeStatsMap(
  * Calculates aggregated statistics for a list of players based on a set of events.
  * Supports both total and per-game average calculations.
  *
- * @param {Record<string, any>[]} players - List of player objects.
+ * @param {Player[]} players - List of player objects.
  * @param {StatEvent[]} stats - List of statistical events to process.
  * @param {TeamPlayer[]} teamPlayers - (Optional) Team roster for jersey numbers.
  * @param {"total" | "average"} viewType - (Optional) Type of calculation, defaults to "total".
@@ -182,7 +182,8 @@ export const calculatePlayerAggregates = (
     // to prevent division by zero errors, though technically it should be 0.
     const gp = p.gamesPlayed.size || 1;
     p.gp = p.gamesPlayed.size;
-    p.fgPct = p.attempts > 0 ? formatToOne((p.makes / p.attempts) * 100) : "0.0";
+    p.fgPct =
+      p.attempts > 0 ? formatToOne((p.makes / p.attempts) * 100) : "0.0";
 
     if (viewType === "average") {
       // Optimization: Update numeric fields directly to avoid object spread overhead and memory churn.
@@ -204,7 +205,7 @@ export const calculatePlayerAggregates = (
  * This function iterates through games, calculates results for each game
  * using the provided event stream, and aggregates them into team-wide averages.
  *
- * @param {Record<string, any>[]} games - List of games.
+ * @param {Game[]} games - List of games.
  * @param {StatEvent[]} stats - List of statistical events across those games.
  * @param {boolean} completedOnly - (Optional) Only include completed games, defaults to true.
  * @returns {Record<string, unknown>} Team level aggregates.

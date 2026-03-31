@@ -42,7 +42,7 @@ import BasketballCourt from "../components/BasketballCourt";
 import { db } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
 import { ACTION_TYPES } from "../constants/stats";
-import { calculatePlayerAggregates, getPlayerJersey } from "../utils/stats";
+import { calculatePlayerAggregates } from "../utils/stats";
 import { MoleskineCard } from "../components/SharedUI";
 import EntityBanner from "../components/EntityBanner";
 import { syncService } from "../utils/syncService";

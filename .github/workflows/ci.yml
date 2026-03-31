@@ -81,7 +81,7 @@ jobs:
         run: |
           cd frontend
           pnpm exec prettier --write "src/**/*.{ts,tsx}"
-          pnpm exec eslint "src/**/*.{ts,tsx}" --config eslint.config.mjs --fix --rule '{"jsdoc/require-jsdoc": ["warn", {"enableFixer": true, "require": {"FunctionDeclaration": true, "FunctionExpression": true, "MethodDefinition": true}}]}' || true
+          pnpm exec eslint "src/**/*.{ts,tsx}" --config eslint.config.js --fix --rule '{"jsdoc/require-jsdoc": ["warn", {"enableFixer": true, "require": {"FunctionDeclaration": true, "FunctionExpression": true, "MethodDefinition": true}}]}' || true
 
       - name: "Frontend: Run Tests"
         run: |

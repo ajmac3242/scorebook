@@ -8,6 +8,7 @@ import { db, Game, TeamPlayer, StatEvent, Team } from "../db";
 import { UserPool } from "../UserPool";
 import { CognitoUserSession } from "amazon-cognito-identity-js";
 import { type Table } from "dexie";
+import { logger } from "./logger";
 
 /**
  * Interface representing the team roster snapshot structure from S3.
@@ -173,7 +174,7 @@ class SyncService {
       }
       return false;
     } catch (e) {
-      console.error("Error checking for unsynced changes:", e);
+      logger.error("Error checking for unsynced changes:", e);
       return false;
     }
   }
@@ -207,10 +208,10 @@ class SyncService {
           await table.update(item.id!, { synced: 1 } as any);
           if (onSuccess) await onSuccess(item);
         } else {
-          console.error(`Failed to push ${entityName} ${item.id}:`, res.status);
+          logger.error(`Failed to push ${entityName} ${item.id}:`, res.status);
         }
       } catch (err) {
-        console.error(`Failed to push ${entityName} ${item.id}:`, err);
+        logger.error(`Failed to push ${entityName} ${item.id}:`, err);
       }
     }
   }
@@ -222,7 +223,7 @@ class SyncService {
   async pushUpdates() {
     if (this.isSyncing) return;
     this.setSyncing(true);
-    console.log("Starting push updates...");
+    logger.info("Starting push updates...");
 
     try {
       await this.pushEntity(db.teams, "/api/teams", "team");
@@ -245,9 +246,9 @@ class SyncService {
         "stat",
       );
 
-      console.log("Push updates complete.");
+      logger.info("Push updates complete.");
     } catch (e) {
-      console.error("Push updates failed:", e);
+      logger.error("Push updates failed:", e);
     } finally {
       this.setSyncing(false);
     }
@@ -279,7 +280,7 @@ class SyncService {
       if (response.status === 304) {
         // WHY: 304 Not Modified indicates our local ETag matches the server's,
         // so we don't need to re-download or re-persist the same data.
-        console.log(`${label} is up to date.`);
+        logger.info(`${label} is up to date.`);
         return;
       }
 
@@ -289,7 +290,7 @@ class SyncService {
         await onSuccess(data);
       }
     } catch (error) {
-      console.error(`Sync ${label} failed:`, error);
+      logger.error(`Sync ${label} failed:`, error);
     }
   }
 
@@ -443,7 +444,7 @@ class SyncService {
   async pullAll() {
     if (this.isSyncing) return;
     this.setSyncing(true);
-    console.log("Starting full pull sync...");
+    logger.info("Starting full pull sync...");
 
     try {
       // 1. Pull all Teams
@@ -483,9 +484,9 @@ class SyncService {
         await this.syncGameStats(g.id!.toString());
       }
 
-      console.log("Full pull sync complete.");
+      logger.info("Full pull sync complete.");
     } catch (e) {
-      console.error("Full pull sync failed:", e);
+      logger.error("Full pull sync failed:", e);
     } finally {
       this.setSyncing(false);
     }
