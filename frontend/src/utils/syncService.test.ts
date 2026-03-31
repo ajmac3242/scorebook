@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { syncService } from "./syncService";
 import { db } from "../db";
+import { logger } from "./logger";
 
 // Mock Dexie
 vi.mock("../db", () => ({
@@ -239,8 +240,8 @@ describe("SyncService", () => {
         { id: "p1", synced: 0 },
       ]);
 
-      const consoleErrorSpy = vi
-        .spyOn(console, "error")
+      const loggerErrorSpy = vi
+        .spyOn(logger, "error")
         .mockImplementation(() => {});
 
       // Fail first push, succeed second
@@ -251,7 +252,7 @@ describe("SyncService", () => {
       await syncService.pushUpdates();
 
       expect(fetchMock).toHaveBeenCalledTimes(2);
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
+      expect(loggerErrorSpy).toHaveBeenCalledWith(
         expect.stringContaining("Failed to push team t1"),
         500,
       );
@@ -261,7 +262,7 @@ describe("SyncService", () => {
       // Player update SHOULD have been called due to successful second push
       expect(db.players.update).toHaveBeenCalledWith("p1", { synced: 1 });
 
-      consoleErrorSpy.mockRestore();
+      loggerErrorSpy.mockRestore();
     });
   });
 });

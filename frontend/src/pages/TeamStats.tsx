@@ -617,58 +617,58 @@ const TeamStats: React.FC = () => {
           <Stack spacing={2}>
             {filteredSchedule.map((game) => (
               <MoleskineCard
-                  key={game.id}
-                  sx={{
-                    cursor: "pointer",
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    "&:hover": { bgcolor: "rgba(0,0,0,0.02)" },
-                  }}
-                  onClick={() => navigate(`/game/stats?gameId=${game.id}`)}
-                >
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                    {game.opponentLogoUrl && (
-                      <Box
-                        component="img"
-                        src={game.opponentLogoUrl}
-                        sx={{
-                          width: 40,
-                          height: 40,
-                          objectFit: "contain",
-                          borderRadius: "4px",
-                        }}
-                      />
-                    )}
-                    <Box>
-                      <Typography variant="caption" color="text.secondary">
-                        {dayjs(game.date).format("MM-DD-YYYY")}{" "}
-                        {game.time || ""} @ {game.location}
-                      </Typography>
-                      <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                        vs {game.opponent}
-                      </Typography>
-                    </Box>
+                key={game.id}
+                sx={{
+                  cursor: "pointer",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  "&:hover": { bgcolor: "rgba(0,0,0,0.02)" },
+                }}
+                onClick={() => navigate(`/game/stats?gameId=${game.id}`)}
+              >
+                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                  {game.opponentLogoUrl && (
+                    <Box
+                      component="img"
+                      src={game.opponentLogoUrl}
+                      sx={{
+                        width: 40,
+                        height: 40,
+                        objectFit: "contain",
+                        borderRadius: "4px",
+                      }}
+                    />
+                  )}
+                  <Box>
+                    <Typography variant="caption" color="text.secondary">
+                      {dayjs(game.date).format("MM-DD-YYYY")} {game.time || ""}{" "}
+                      @ {game.location}
+                    </Typography>
+                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                      vs {game.opponent}
+                    </Typography>
                   </Box>
-                  <Box sx={{ textAlign: "right" }}>
-                    {game.completed ? (
-                      <Chip label="Final" size="small" />
-                    ) : (
-                      <Button
-                        variant="contained"
-                        size="small"
-                        disabled={isDeleted}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/game?gameId=${game.id}&teamId=${teamId}`);
-                        }}
-                      >
-                        Track
-                      </Button>
-                    )}
-                  </Box>
-                </MoleskineCard>
-              ))}
+                </Box>
+                <Box sx={{ textAlign: "right" }}>
+                  {game.completed ? (
+                    <Chip label="Final" size="small" />
+                  ) : (
+                    <Button
+                      variant="contained"
+                      size="small"
+                      disabled={isDeleted}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/game?gameId=${game.id}&teamId=${teamId}`);
+                      }}
+                    >
+                      Track
+                    </Button>
+                  )}
+                </Box>
+              </MoleskineCard>
+            ))}
           </Stack>
         </Box>
       )}

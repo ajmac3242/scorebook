@@ -1,5 +1,6 @@
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "../db";
+import { logger } from "../utils/logger";
 
 /**
  * Hook to fetch teams from the local database.
@@ -12,7 +13,7 @@ export const useTeams = () => {
         await db.open();
         return await db.teams.toArray();
       } catch (err) {
-        console.error("Failed to fetch teams:", err);
+        logger.error("Failed to fetch teams:", err);
         return [];
       }
     }) || []

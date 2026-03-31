@@ -13,6 +13,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { syncService } from "../utils/syncService";
+import { logger } from "../utils/logger";
 
 const Login: React.FC = () => {
   const [username, setUsername] = useState("");
@@ -35,8 +36,7 @@ const Login: React.FC = () => {
     });
 
     user.authenticateUser(authDetails, {
-      onSuccess: (data) => {
-        console.log("onSuccess:", data);
+      onSuccess: () => {
         setIsAuthenticated(true);
         localStorage.setItem("isAuthenticated", "true");
         // Trigger a full pull sync immediately after login
@@ -44,11 +44,10 @@ const Login: React.FC = () => {
         navigate("/");
       },
       onFailure: (err) => {
-        console.error("onFailure:", err);
+        logger.error("Authentication failed", err);
         setError(err.message || JSON.stringify(err));
       },
-      newPasswordRequired: (userAttributes, requiredAttributes) => {
-        console.log("newPasswordRequired:", userAttributes, requiredAttributes);
+      newPasswordRequired: () => {
         setError("New password required");
       },
     });
