@@ -39,6 +39,7 @@ export const ACTION_TYPES = {
   TURNOVER: "TURNOVER",
   BLOCK: "BLOCK",
   FOUL: "FOUL",
+  TIMEOUT: "TIMEOUT",
   SUB_IN: "SUB_IN",
   SUB_OUT: "SUB_OUT",
 };
