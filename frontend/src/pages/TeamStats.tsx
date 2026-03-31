@@ -488,7 +488,7 @@ const TeamStats: React.FC = () => {
   }, [teamPlayerDetails, teamPlayers]);
 
   const sortedRosterJerseyMap = useMemo(() => {
-    const jerseyMap = new Map();
+    const jerseyMap = new Map<string, string>();
     for (let i = 0; i < teamPlayers.length; i++) {
       jerseyMap.set(teamPlayers[i].playerId, teamPlayers[i].jerseyNumber || "");
     }
@@ -1052,7 +1052,7 @@ const TeamStats: React.FC = () => {
               // Optimization: Normalize search term once outside the loop.
               const search = rosterSearchTerm.toLowerCase();
               // Optimization: Pre-calculate team player map for O(1) lookups during iteration.
-              const teamPlayerMap = new Map();
+              const teamPlayerMap = new Map<string, TeamPlayer>();
               for (let i = 0; i < teamPlayers.length; i++) {
                 const tp = teamPlayers[i];
                 teamPlayerMap.set(tp.playerId.toString(), tp);

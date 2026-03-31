@@ -119,7 +119,7 @@ const PlayerStats: React.FC = () => {
 
   // Optimization: Extract gameIdSet into its own useMemo to prevent redundant creations within filteredStats.
   const gameIdSet = useMemo(() => {
-    const set = new Set();
+    const set = new Set<string | undefined>();
     for (let i = 0; i < games.length; i++) {
       set.add(games[i].id);
     }
