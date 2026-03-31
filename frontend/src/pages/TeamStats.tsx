@@ -866,7 +866,7 @@ const TeamStats: React.FC = () => {
           <Grid container spacing={2}>
             {(() => {
               // Optimization: Pre-calculate jersey numbers in a Map to avoid O(N) lookups in the sort.
-              const jerseyMap = new Map(
+              const jerseyMap = new Map<string, string>(
                 teamPlayers.map((tp) => [tp.playerId, tp.jerseyNumber || ""]),
               );
 
@@ -1033,7 +1033,7 @@ const TeamStats: React.FC = () => {
             {(() => {
               // Optimization: Normalize search term and pre-calculate team player map for O(1) lookups.
               const normalizedSearch = rosterSearchTerm.toLowerCase();
-              const teamPlayerMap = new Map();
+              const teamPlayerMap = new Map<string, TeamPlayer>();
               for (let i = 0; i < teamPlayers.length; i++) {
                 teamPlayerMap.set(
                   teamPlayers[i].playerId.toString(),
