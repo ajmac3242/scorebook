@@ -206,21 +206,23 @@ const GameStats: React.FC = () => {
     return filtered;
   }, [stats, selectedPlayerId, selectedType]);
 
+  // Optimization: Memoize the sorted statistics used for the score flow chart to avoid redundant sorting.
+  const scoreFlowSortedStats = useMemo(() => {
+    return [...stats].sort((a, b) => a.timestamp.localeCompare(b.timestamp));
+  }, [stats]);
+
   const scoreFlowData = useMemo(() => {
     // Optimization: Use a single for loop and cache Intl.DateTimeFormat for performance.
     let tScore = 0;
     let oScore = 0;
-    const sortedStats = [...stats].sort((a, b) =>
-      a.timestamp.localeCompare(b.timestamp),
-    );
     const resultArr = [{ time: "00:00", Team: 0, Opponent: 0 }];
     const timeFormatter = new Intl.DateTimeFormat([], {
       minute: "2-digit",
       second: "2-digit",
     });
 
-    for (let i = 0; i < sortedStats.length; i++) {
-      const s = sortedStats[i];
+    for (let i = 0; i < scoreFlowSortedStats.length; i++) {
+      const s = scoreFlowSortedStats[i];
       if (s.type === ACTION_TYPES.MAKE) {
         if (s.playerId === OPPONENT_PLAYER_ID) {
           oScore += s.points || 0;
@@ -235,7 +237,7 @@ const GameStats: React.FC = () => {
       }
     }
     return resultArr;
-  }, [stats]);
+  }, [scoreFlowSortedStats]);
 
   const oppData = useMemo(() => {
     // Optimization: Consolidate multiple filter/reduce passes into a single-pass for loop.
@@ -567,21 +569,40 @@ const GameStats: React.FC = () => {
     </Box>
   );
 
-  const shotChartCourt = (
-    <BasketballCourt
-      markers={filteredStats
-        .filter((s) => s.type === "MAKE" || s.type === "MISS")
-        .map((s) => ({
+  // Optimization: Pre-calculate jerseyMap to avoid O(P) lookup for every marker in the render loop.
+  const shotChartJerseyMap = useMemo(() => {
+    const map = new Map<string, string>();
+    for (let i = 0; i < teamPlayers.length; i++) {
+      map.set(teamPlayers[i].playerId, teamPlayers[i].jerseyNumber || "");
+    }
+    return map;
+  }, [teamPlayers]);
+
+  const shotChartMarkers = useMemo(() => {
+    // Optimization: Use a single-pass for loop instead of .filter().map().
+    const result = [];
+    for (let i = 0; i < filteredStats.length; i++) {
+      const s = filteredStats[i];
+      if (s.type === "MAKE" || s.type === "MISS") {
+        result.push({
           id: s.id,
           x: s.locationX || 0,
           y: s.locationY || 0,
           type: s.type as "MAKE" | "MISS",
           label:
             s.playerId !== OPPONENT_PLAYER_ID
-              ? getPlayerJersey(s.playerId, teamPlayers)
+              ? shotChartJerseyMap.get(s.playerId)
               : undefined,
           playerId: s.playerId,
-        }))}
+        });
+      }
+    }
+    return result;
+  }, [filteredStats, shotChartJerseyMap]);
+
+  const shotChartCourt = (
+    <BasketballCourt
+      markers={shotChartMarkers}
       onMarkerClick={(m) => setSelectedPlayerId(m.playerId || "ALL")}
     />
   );

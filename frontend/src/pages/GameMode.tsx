@@ -272,7 +272,10 @@ const GameMode: React.FC = () => {
   }, [gameStats, period, team?.periodType]);
 
   const jerseyMap = useMemo(
-    () => new Map(teamPlayers.map((tp) => [tp.playerId, tp.jerseyNumber])),
+    () =>
+      new Map<string, string | undefined>(
+        teamPlayers.map((tp) => [tp.playerId, tp.jerseyNumber]),
+      ),
     [teamPlayers],
   );
 
