@@ -116,7 +116,9 @@ const GameMode: React.FC = () => {
 
   useEffect(() => {
     const currentOnCourt = new Set<string>();
-    const sortedStats = [...gameStats].sort((a, b) => a.timestamp.localeCompare(b.timestamp));
+    const sortedStats = [...gameStats].sort((a, b) =>
+      a.timestamp.localeCompare(b.timestamp),
+    );
     for (const s of sortedStats) {
       if (s.type === ACTION_TYPES.SUB_IN) {
         currentOnCourt.add(s.playerId);
@@ -208,7 +210,6 @@ const GameMode: React.FC = () => {
         return [];
       }
     }, [gameId]) || [];
-
 
   // Derived scores - consolidated into a single pass to improve efficiency
   // Memoized to prevent recalculation on every render
@@ -790,39 +791,141 @@ const GameMode: React.FC = () => {
                     <Table size="small">
                       <TableHead>
                         <TableRow sx={{ bgcolor: "rgba(0,0,0,0.02)" }}>
-                          <TableCell sx={{ fontSize: "0.65rem", fontWeight: 700, px: 1 }}>PLAYER</TableCell>
-                          <TableCell align="right" sx={{ fontSize: "0.65rem", fontWeight: 700, px: 0.5 }}>PTS</TableCell>
-                          <TableCell align="right" sx={{ fontSize: "0.65rem", fontWeight: 700, px: 0.5 }}>REB</TableCell>
-                          <TableCell align="right" sx={{ fontSize: "0.65rem", fontWeight: 700, px: 0.5 }}>AST</TableCell>
-                          <TableCell align="right" sx={{ fontSize: "0.65rem", fontWeight: 700, px: 0.5 }}>STL</TableCell>
-                          <TableCell align="right" sx={{ fontSize: "0.65rem", fontWeight: 700, px: 0.5 }}>TO</TableCell>
-                          <TableCell align="right" sx={{ fontSize: "0.65rem", fontWeight: 700, px: 1 }}>PF</TableCell>
+                          <TableCell
+                            sx={{ fontSize: "0.65rem", fontWeight: 700, px: 1 }}
+                          >
+                            PLAYER
+                          </TableCell>
+                          <TableCell
+                            align="right"
+                            sx={{
+                              fontSize: "0.65rem",
+                              fontWeight: 700,
+                              px: 0.5,
+                            }}
+                          >
+                            PTS
+                          </TableCell>
+                          <TableCell
+                            align="right"
+                            sx={{
+                              fontSize: "0.65rem",
+                              fontWeight: 700,
+                              px: 0.5,
+                            }}
+                          >
+                            REB
+                          </TableCell>
+                          <TableCell
+                            align="right"
+                            sx={{
+                              fontSize: "0.65rem",
+                              fontWeight: 700,
+                              px: 0.5,
+                            }}
+                          >
+                            AST
+                          </TableCell>
+                          <TableCell
+                            align="right"
+                            sx={{
+                              fontSize: "0.65rem",
+                              fontWeight: 700,
+                              px: 0.5,
+                            }}
+                          >
+                            STL
+                          </TableCell>
+                          <TableCell
+                            align="right"
+                            sx={{
+                              fontSize: "0.65rem",
+                              fontWeight: 700,
+                              px: 0.5,
+                            }}
+                          >
+                            TO
+                          </TableCell>
+                          <TableCell
+                            align="right"
+                            sx={{ fontSize: "0.65rem", fontWeight: 700, px: 1 }}
+                          >
+                            PF
+                          </TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
                         {statsGridData.map((row) => (
                           <TableRow key={row.id}>
                             <TableCell sx={{ py: 1, px: 1 }}>
-                              <Typography variant="caption" sx={{ fontWeight: 600, display: "block", lineHeight: 1.1 }}>
+                              <Typography
+                                variant="caption"
+                                sx={{
+                                  fontWeight: 600,
+                                  display: "block",
+                                  lineHeight: 1.1,
+                                }}
+                              >
                                 #{row.jerseyNumber}
                               </Typography>
-                              <Typography variant="caption" sx={{ fontSize: "0.65rem", display: "block", color: "text.secondary", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "60px" }}>
+                              <Typography
+                                variant="caption"
+                                sx={{
+                                  fontSize: "0.65rem",
+                                  display: "block",
+                                  color: "text.secondary",
+                                  whiteSpace: "nowrap",
+                                  overflow: "hidden",
+                                  textOverflow: "ellipsis",
+                                  maxWidth: "60px",
+                                }}
+                              >
                                 {row.name.split(" ")[0]}
                               </Typography>
                             </TableCell>
-                            <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>{row.points}</TableCell>
-                            <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>{row.rebounds}</TableCell>
-                            <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>{row.assists}</TableCell>
-                            <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>{row.steals}</TableCell>
-                            <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>{row.turnovers}</TableCell>
+                            <TableCell
+                              align="right"
+                              sx={{ px: 0.5, fontSize: "0.75rem" }}
+                            >
+                              {row.points}
+                            </TableCell>
+                            <TableCell
+                              align="right"
+                              sx={{ px: 0.5, fontSize: "0.75rem" }}
+                            >
+                              {row.rebounds}
+                            </TableCell>
+                            <TableCell
+                              align="right"
+                              sx={{ px: 0.5, fontSize: "0.75rem" }}
+                            >
+                              {row.assists}
+                            </TableCell>
+                            <TableCell
+                              align="right"
+                              sx={{ px: 0.5, fontSize: "0.75rem" }}
+                            >
+                              {row.steals}
+                            </TableCell>
+                            <TableCell
+                              align="right"
+                              sx={{ px: 0.5, fontSize: "0.75rem" }}
+                            >
+                              {row.turnovers}
+                            </TableCell>
                             <TableCell
                               align="right"
                               sx={{
                                 px: 1,
                                 fontSize: "0.75rem",
                                 fontWeight: row.fouls >= 4 ? 700 : 400,
-                                bgcolor: row.fouls >= 5 ? "error.main" : row.fouls === 4 ? "warning.main" : "transparent",
-                                color: row.fouls >= 4 ? "white" : "inherit"
+                                bgcolor:
+                                  row.fouls >= 5
+                                    ? "error.main"
+                                    : row.fouls === 4
+                                      ? "warning.main"
+                                      : "transparent",
+                                color: row.fouls >= 4 ? "white" : "inherit",
                               }}
                             >
                               {row.fouls}
@@ -1207,38 +1310,45 @@ const GameMode: React.FC = () => {
                     </Button>
                   ))}
                 {/* Placeholder "Empty" slots to reach 5 total */}
-                {Array.from({ length: Math.max(0, 5 - onCourtIds.size) }).map((_, i) => {
-                  const emptyId = `EMPTY-${i}`;
-                  return (
-                    <Button
-                      key={emptyId}
-                      variant={subOutPlayerId === emptyId ? "contained" : "outlined"}
-                      onClick={() => setSubOutPlayerId(emptyId)}
-                      fullWidth
-                      sx={{
-                        justifyContent: "flex-start",
-                        borderStyle: "dashed",
-                        color: "text.secondary",
-                        bgcolor: subOutPlayerId === emptyId ? "rgba(0,0,0,0.05)" : "transparent"
-                      }}
-                    >
-                      <Avatar
+                {Array.from({ length: Math.max(0, 5 - onCourtIds.size) }).map(
+                  (_, i) => {
+                    const emptyId = `EMPTY-${i}`;
+                    return (
+                      <Button
+                        key={emptyId}
+                        variant={
+                          subOutPlayerId === emptyId ? "contained" : "outlined"
+                        }
+                        onClick={() => setSubOutPlayerId(emptyId)}
+                        fullWidth
                         sx={{
-                          width: 24,
-                          height: 24,
-                          fontSize: "0.75rem",
-                          mr: 1,
-                          bgcolor: "transparent",
-                          border: "1px dashed #bdbdbd",
-                          color: "#bdbdbd"
+                          justifyContent: "flex-start",
+                          borderStyle: "dashed",
+                          color: "text.secondary",
+                          bgcolor:
+                            subOutPlayerId === emptyId
+                              ? "rgba(0,0,0,0.05)"
+                              : "transparent",
                         }}
                       >
-                        ?
-                      </Avatar>
-                      <Typography variant="body2">Empty</Typography>
-                    </Button>
-                  );
-                })}
+                        <Avatar
+                          sx={{
+                            width: 24,
+                            height: 24,
+                            fontSize: "0.75rem",
+                            mr: 1,
+                            bgcolor: "transparent",
+                            border: "1px dashed #bdbdbd",
+                            color: "#bdbdbd",
+                          }}
+                        >
+                          ?
+                        </Avatar>
+                        <Typography variant="body2">Empty</Typography>
+                      </Button>
+                    );
+                  },
+                )}
               </Stack>
             </Grid>
             <Grid item xs={6}>
