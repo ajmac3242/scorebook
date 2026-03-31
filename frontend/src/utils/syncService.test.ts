@@ -84,7 +84,7 @@ describe("SyncService", () => {
   it("syncTeamRoster fetches and updates local DB", async () => {
     const mockData = {
       team: { id: "t1", name: "Team 1" },
-      players: [{ id: "p1", name: "Player 1", jerseyNumber: "10" }],
+      players: [{ playerId: "p1", name: "Player 1", jerseyNumber: "10" }],
     };
 
     fetchMock.mockResolvedValue({

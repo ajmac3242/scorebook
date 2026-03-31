@@ -35,6 +35,7 @@ const Settings: React.FC = () => {
   const { logout } = useAuth();
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [hasUnsynced, setHasUnsynced] = useState(false);
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
 
   useEffect(() => {
@@ -44,13 +45,23 @@ const Settings: React.FC = () => {
     window.addEventListener("online", handleOnline);
     window.addEventListener("offline", handleOffline);
 
+    // Initial check
+    syncService.hasUnsyncedChanges().then(setHasUnsynced);
+
+    const unsubscribe = syncService.subscribe((status) => {
+      setIsSyncing(status);
+      // Re-check unsynced status when sync state changes
+      syncService.hasUnsyncedChanges().then(setHasUnsynced);
+    });
+
     const interval = setInterval(() => {
-      setIsSyncing(syncService.getSyncingStatus());
-    }, 1000);
+      syncService.hasUnsyncedChanges().then(setHasUnsynced);
+    }, 3000);
 
     return () => {
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
+      unsubscribe();
       clearInterval(interval);
     };
   }, []);
@@ -74,9 +85,22 @@ const Settings: React.FC = () => {
   const confirmLogout = async () => {
     setLogoutDialogOpen(false);
     try {
+      // 1. Clear local database
       await db.delete();
+
+      // 2. Clear ETags from localStorage to ensure a fresh sync upon re-login
+      const keysToRemove = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key?.startsWith("etag_")) {
+          keysToRemove.push(key);
+        }
+      }
+      for (const key of keysToRemove) {
+        localStorage.removeItem(key);
+      }
     } catch (err) {
-      console.error("Failed to delete local database:", err);
+      console.error("Failed to clean up local state during logout:", err);
     }
     logout();
   };
@@ -201,9 +225,25 @@ const Settings: React.FC = () => {
             >
               <Typography variant="body2">Synchronization Status</Typography>
               <Chip
-                icon={<SyncingIcon className={isSyncing ? "spin" : ""} />}
-                label={isSyncing ? "Syncing..." : "Up to date"}
-                color={isSyncing ? "secondary" : "default"}
+                icon={
+                  isSyncing ? (
+                    <SyncingIcon className="spin" />
+                  ) : hasUnsynced ? (
+                    <WarningIcon />
+                  ) : (
+                    <SyncingIcon />
+                  )
+                }
+                label={
+                  isSyncing
+                    ? "Syncing..."
+                    : hasUnsynced
+                      ? "Unsynced changes"
+                      : "Up to date"
+                }
+                color={
+                  isSyncing ? "secondary" : hasUnsynced ? "warning" : "default"
+                }
                 size="small"
               />
             </Box>

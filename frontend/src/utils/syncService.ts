@@ -378,7 +378,7 @@ class SyncService {
 
         for (const p of data.players) {
           await db.players.put({
-            id: p.id as string,
+            id: p.playerId as string,
             name: p.name as string,
             avatarColor: p.avatarColor as string,
             synced: 1,
@@ -386,7 +386,7 @@ class SyncService {
           await db.teamPlayers.put({
             ...p,
             teamId: teamId,
-            playerId: p.id as string,
+            playerId: p.playerId as string,
             synced: 1,
           } as TeamPlayer);
         }
