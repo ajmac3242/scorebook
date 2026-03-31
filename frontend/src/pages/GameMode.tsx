@@ -42,11 +42,21 @@ import {
   FlashOn,
   Warning,
 } from "@mui/icons-material";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+} from "@mui/material";
 import BasketballCourt from "../components/BasketballCourt";
 import { db, type StatEvent } from "../db";
 import { syncService } from "../utils/syncService";
 import { useLiveQuery } from "dexie-react-hooks";
 import { ACTION_TYPES } from "../constants/stats";
+import { calculatePlayerAggregates } from "../utils/stats";
 import { MoleskineCard } from "../components/SharedUI";
 
 const OPPONENT_PLAYER_ID = "OPPONENT";
@@ -88,6 +98,34 @@ const GameMode: React.FC = () => {
 
   // Roster and lineup state
   const [onCourtIds, setOnCourtIds] = useState<Set<string>>(new Set());
+
+  // Derived onCourtIds from StatEvents to stay in sync with history
+  const gameStatsQueryResult = useLiveQuery(async () => {
+    try {
+      await db.open();
+      return await db.stats.where("gameId").equals(gameId).toArray();
+    } catch (err) {
+      console.error("Failed to fetch game stats:", err);
+      return [];
+    }
+  }, [gameId]);
+  const gameStats = useMemo(
+    () => gameStatsQueryResult || [],
+    [gameStatsQueryResult],
+  );
+
+  useEffect(() => {
+    const currentOnCourt = new Set<string>();
+    const sortedStats = [...gameStats].sort((a, b) => a.timestamp.localeCompare(b.timestamp));
+    for (const s of sortedStats) {
+      if (s.type === ACTION_TYPES.SUB_IN) {
+        currentOnCourt.add(s.playerId);
+      } else if (s.type === ACTION_TYPES.SUB_OUT) {
+        currentOnCourt.delete(s.playerId);
+      }
+    }
+    setOnCourtIds(currentOnCourt);
+  }, [gameStats]);
   const [subDialogOpen, setSubDialogOpen] = useState(false);
   const [subOutPlayerId, setSubOutPlayerId] = useState<string | null>(null);
   const [subInPlayerId, setSubInPlayerId] = useState<string | null>(null);
@@ -171,20 +209,6 @@ const GameMode: React.FC = () => {
       }
     }, [gameId]) || [];
 
-  // Fetch all game stats for score calculation and court markers
-  const gameStatsQueryResult = useLiveQuery(async () => {
-    try {
-      await db.open();
-      return await db.stats.where("gameId").equals(gameId).toArray();
-    } catch (err) {
-      console.error("Failed to fetch game stats:", err);
-      return [];
-    }
-  }, [gameId]);
-  const gameStats = useMemo(
-    () => gameStatsQueryResult || [],
-    [gameStatsQueryResult],
-  );
 
   // Derived scores - consolidated into a single pass to improve efficiency
   // Memoized to prevent recalculation on every render
@@ -278,6 +302,10 @@ const GameMode: React.FC = () => {
     [teamPlayers],
   );
 
+  const statsGridData = useMemo(() => {
+    return calculatePlayerAggregates(players, gameStats, teamPlayers);
+  }, [players, gameStats, teamPlayers]);
+
   const markers = useMemo(() => {
     const res = [];
     for (let i = 0; i < gameStats.length; i++) {
@@ -350,6 +378,8 @@ const GameMode: React.FC = () => {
     // Auto-select opponent if in opponent tracking mode
     if (trackingMode === "OPPONENT") {
       setSelectedPlayerId(OPPONENT_PLAYER_ID);
+    } else {
+      setSelectedPlayerId(null);
     }
     setDialogOpen(true);
   };
@@ -398,60 +428,29 @@ const GameMode: React.FC = () => {
   };
 
   /**
-   * Toggles a player into or out of the active lineup.
-   * Records a SUB_IN or SUB_OUT event.
-   * @param {string} playerId - The player ID.
-   */
-  const toggleOnCourt = async (playerId: string) => {
-    if (isDeleted) return;
-    const newOnCourt = new Set(onCourtIds);
-    const isNowOnCourt = !newOnCourt.has(playerId);
-    if (isNowOnCourt) {
-      newOnCourt.add(playerId);
-    } else {
-      newOnCourt.delete(playerId);
-    }
-    setOnCourtIds(newOnCourt);
-
-    try {
-      if (!gameId) return;
-      await db.open();
-      await db.stats.add({
-        id: crypto.randomUUID(),
-        gameId: gameId,
-        playerId: playerId,
-        type: isNowOnCourt ? ACTION_TYPES.SUB_IN : ACTION_TYPES.SUB_OUT,
-        period,
-        timestamp: new Date().toISOString(),
-        synced: 0,
-      });
-    } catch (err) {
-      console.error("Failed to record sub event:", err);
-    }
-  };
-
-  /**
    * 🏀 CoachBoard: handleQuickSub
    * Why: Allows scorekeepers to swap players in/out in one action during live play.
    * Notes: Records both SUB_OUT and SUB_IN events to maintain accurate play-by-play.
    */
   const handleQuickSub = async () => {
-    if (!subOutPlayerId || !subInPlayerId || !gameId || isDeleted) return;
+    if (!subInPlayerId || !gameId || isDeleted) return;
 
     try {
       await db.open();
       const timestamp = new Date().toISOString();
 
-      // Record SUB_OUT for outgoing player
-      await db.stats.add({
-        id: crypto.randomUUID(),
-        gameId: gameId,
-        playerId: subOutPlayerId,
-        type: ACTION_TYPES.SUB_OUT,
-        period,
-        timestamp,
-        synced: 0,
-      });
+      // Record SUB_OUT for outgoing player if not an "Empty" slot
+      if (subOutPlayerId && !subOutPlayerId.startsWith("EMPTY")) {
+        await db.stats.add({
+          id: crypto.randomUUID(),
+          gameId: gameId,
+          playerId: subOutPlayerId,
+          type: ACTION_TYPES.SUB_OUT,
+          period,
+          timestamp,
+          synced: 0,
+        });
+      }
 
       // Record SUB_IN for incoming player
       await db.stats.add({
@@ -463,11 +462,6 @@ const GameMode: React.FC = () => {
         timestamp,
         synced: 0,
       });
-
-      const newOnCourt = new Set(onCourtIds);
-      newOnCourt.delete(subOutPlayerId);
-      newOnCourt.add(subInPlayerId);
-      setOnCourtIds(newOnCourt);
 
       setSubDialogOpen(false);
       setSubOutPlayerId(null);
@@ -709,137 +703,137 @@ const GameMode: React.FC = () => {
         <Grid item xs={12} md={4}>
           <Stack spacing={3}>
             {trackingMode === "TEAM" ? (
-              <MoleskineCard>
-                <Typography
-                  variant="subtitle2"
-                  gutterBottom
-                  sx={{ fontWeight: 600 }}
-                >
-                  Team Roster
-                </Typography>
-                <Box
-                  sx={{
-                    display: "grid",
-                    gridTemplateColumns: {
-                      xs: "repeat(auto-fill, minmax(140px, 1fr))",
-                      sm: "1fr",
-                    },
-                    gap: 1,
-                  }}
-                >
-                  {sortedPlayers.map((p) => (
-                    <Box
-                      key={p.id}
-                      sx={{
-                        display: "flex",
-                        gap: 0.5,
-                        alignItems: "center",
-                      }}
-                    >
-                      <Button
-                        fullWidth
-                        disabled={isDeleted}
-                        variant={
-                          selectedPlayerId === p.id ? "contained" : "outlined"
-                        }
-                        onClick={() => setSelectedPlayerId(p.id ?? null)}
-                        sx={{
-                          justifyContent: "flex-start",
-                          px: 1,
-                          bgcolor:
-                            selectedPlayerId === p.id
-                              ? "primary.main"
-                              : "transparent",
-                          color:
-                            selectedPlayerId === p.id
-                              ? "white"
-                              : "text.primary",
-                          transform:
-                            selectedPlayerId === p.id
-                              ? "scale(1.02)"
-                              : "scale(1)",
-                          boxShadow:
-                            selectedPlayerId === p.id
-                              ? "0 4px 12px rgba(0,0,0,0.2)"
-                              : "none",
-                          transition: "all 0.1s ease",
-                          borderWidth: "1.5px",
-                          "&:hover": {
-                            borderWidth: "1.5px",
-                            transform: "scale(1.02)",
-                          },
-                        }}
-                      >
-                        <Avatar
+              <>
+                <MoleskineCard>
+                  <Typography
+                    variant="subtitle2"
+                    gutterBottom
+                    sx={{ fontWeight: 600 }}
+                  >
+                    Live Lineup
+                  </Typography>
+                  <Box
+                    sx={{
+                      display: "grid",
+                      gridTemplateColumns: "1fr",
+                      gap: 1,
+                    }}
+                  >
+                    {players
+                      .filter((p) => onCourtIds.has(p.id!))
+                      .map((p) => (
+                        <Box
+                          key={p.id}
                           sx={{
-                            width: 20,
-                            height: 20,
-                            fontSize: "0.65rem",
-                            mr: 0.5,
-                            bgcolor: p.avatarColor || "grey.500",
+                            display: "flex",
+                            gap: 0.5,
+                            alignItems: "center",
                           }}
                         >
-                          {jerseyMap.get(p.id!) || ""}
-                        </Avatar>
-                        <Typography
-                          variant="caption"
-                          sx={{
-                            fontWeight: 600,
-                            whiteSpace: "nowrap",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                          }}
-                        >
-                          {p.name}
-                          {onCourtIds.has(p.id!) && (
-                            <Chip
-                              label="ON COURT"
-                              size="small"
-                              color="primary"
+                          <Button
+                            fullWidth
+                            disabled={true}
+                            variant="contained"
+                            sx={{
+                              justifyContent: "flex-start",
+                              px: 1,
+                              bgcolor: "primary.main",
+                              color: "white",
+                              borderWidth: "1.5px",
+                              "&.Mui-disabled": {
+                                bgcolor: "primary.main",
+                                color: "white",
+                              },
+                            }}
+                          >
+                            <Avatar
                               sx={{
-                                height: 16,
-                                fontSize: "0.55rem",
-                                ml: 0.5,
-                                fontWeight: "bold",
-                              }}
-                            />
-                          )}
-                          {playerFouls[p.id!] > 0 && (
-                            <Box
-                              component="span"
-                              sx={{
-                                ml: 0.5,
-                                color:
-                                  playerFouls[p.id!] >= 5
-                                    ? "error.main"
-                                    : playerFouls[p.id!] === 4
-                                      ? "warning.main"
-                                      : "inherit",
-                                fontWeight: "bold",
+                                width: 20,
+                                height: 20,
+                                fontSize: "0.65rem",
+                                mr: 0.5,
+                                bgcolor: p.avatarColor || "grey.500",
                               }}
                             >
-                              ({playerFouls[p.id!]})
-                            </Box>
-                          )}
-                        </Typography>
-                      </Button>
-                      <IconButton
-                        size="small"
-                        disabled={isDeleted}
-                        onClick={() => toggleOnCourt(p.id!)}
-                        color={onCourtIds.has(p.id!) ? "primary" : "default"}
-                        sx={{ p: 0.5 }}
-                      >
-                        {onCourtIds.has(p.id!) ? (
-                          <RemoveCircleOutline fontSize="small" />
-                        ) : (
-                          <AddCircleOutline fontSize="small" />
-                        )}
-                      </IconButton>
-                    </Box>
-                  ))}
-                </Box>
-              </MoleskineCard>
+                              {jerseyMap.get(p.id!) || ""}
+                            </Avatar>
+                            <Typography
+                              variant="caption"
+                              sx={{
+                                fontWeight: 600,
+                                whiteSpace: "nowrap",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                              }}
+                            >
+                              {p.name}
+                            </Typography>
+                          </Button>
+                        </Box>
+                      ))}
+                    {onCourtIds.size === 0 && (
+                      <Typography variant="body2" color="text.secondary">
+                        No players on court. Use Quick Sub to add players.
+                      </Typography>
+                    )}
+                  </Box>
+                </MoleskineCard>
+
+                <MoleskineCard sx={{ p: 0, overflow: "hidden" }}>
+                  <Typography
+                    variant="subtitle2"
+                    sx={{ fontWeight: 600, p: 2, pb: 1 }}
+                  >
+                    Player Stats
+                  </Typography>
+                  <TableContainer component={Box}>
+                    <Table size="small">
+                      <TableHead>
+                        <TableRow sx={{ bgcolor: "rgba(0,0,0,0.02)" }}>
+                          <TableCell sx={{ fontSize: "0.65rem", fontWeight: 700, px: 1 }}>PLAYER</TableCell>
+                          <TableCell align="right" sx={{ fontSize: "0.65rem", fontWeight: 700, px: 0.5 }}>PTS</TableCell>
+                          <TableCell align="right" sx={{ fontSize: "0.65rem", fontWeight: 700, px: 0.5 }}>REB</TableCell>
+                          <TableCell align="right" sx={{ fontSize: "0.65rem", fontWeight: 700, px: 0.5 }}>AST</TableCell>
+                          <TableCell align="right" sx={{ fontSize: "0.65rem", fontWeight: 700, px: 0.5 }}>STL</TableCell>
+                          <TableCell align="right" sx={{ fontSize: "0.65rem", fontWeight: 700, px: 0.5 }}>TO</TableCell>
+                          <TableCell align="right" sx={{ fontSize: "0.65rem", fontWeight: 700, px: 1 }}>PF</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {statsGridData.map((row) => (
+                          <TableRow key={row.id}>
+                            <TableCell sx={{ py: 1, px: 1 }}>
+                              <Typography variant="caption" sx={{ fontWeight: 600, display: "block", lineHeight: 1.1 }}>
+                                #{row.jerseyNumber}
+                              </Typography>
+                              <Typography variant="caption" sx={{ fontSize: "0.65rem", display: "block", color: "text.secondary", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "60px" }}>
+                                {row.name.split(" ")[0]}
+                              </Typography>
+                            </TableCell>
+                            <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>{row.points}</TableCell>
+                            <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>{row.rebounds}</TableCell>
+                            <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>{row.assists}</TableCell>
+                            <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>{row.steals}</TableCell>
+                            <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>{row.turnovers}</TableCell>
+                            <TableCell
+                              align="right"
+                              sx={{
+                                px: 1,
+                                fontSize: "0.75rem",
+                                fontWeight: row.fouls >= 4 ? 700 : 400,
+                                bgcolor: row.fouls >= 5 ? "error.main" : row.fouls === 4 ? "warning.main" : "transparent",
+                                color: row.fouls >= 4 ? "white" : "inherit"
+                              }}
+                            >
+                              {row.fouls}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </MoleskineCard>
+              </>
             ) : (
               <MoleskineCard
                 sx={{
@@ -941,6 +935,59 @@ const GameMode: React.FC = () => {
           </Typography>
         </DialogTitle>
         <DialogContent>
+          {trackingMode === "TEAM" && !isEditing && (
+            <Box sx={{ mb: 3 }}>
+              <Typography
+                variant="caption"
+                gutterBottom
+                sx={{ display: "block", mb: 1, fontWeight: 600 }}
+              >
+                Select Player
+              </Typography>
+              <Box
+                sx={{
+                  display: "flex",
+                  gap: 1,
+                  overflowX: "auto",
+                  pb: 1,
+                  "&::-webkit-scrollbar": { height: 4 },
+                }}
+              >
+                {players
+                  .filter((p) => onCourtIds.has(p.id!))
+                  .map((p) => (
+                    <Button
+                      key={p.id}
+                      variant={
+                        selectedPlayerId === p.id ? "contained" : "outlined"
+                      }
+                      onClick={() => setSelectedPlayerId(p.id!)}
+                      sx={{
+                        minWidth: 80,
+                        flexShrink: 0,
+                        flexDirection: "column",
+                        py: 1,
+                      }}
+                    >
+                      <Avatar
+                        sx={{
+                          width: 24,
+                          height: 24,
+                          fontSize: "0.75rem",
+                          mb: 0.5,
+                          bgcolor: p.avatarColor || "grey.500",
+                        }}
+                      >
+                        {jerseyMap.get(p.id!) || ""}
+                      </Avatar>
+                      <Typography variant="caption" sx={{ fontSize: "0.6rem" }}>
+                        {p.name.split(" ")[0]}
+                      </Typography>
+                    </Button>
+                  ))}
+              </Box>
+            </Box>
+          )}
           <Box
             sx={{
               display: "grid",
@@ -955,7 +1002,6 @@ const GameMode: React.FC = () => {
               icon={Check}
               statType={statType}
               setStatType={setStatType}
-              onSave={handleSaveStat}
             />
             <QuickAction
               type={ACTION_TYPES.MISS}
@@ -963,7 +1009,6 @@ const GameMode: React.FC = () => {
               icon={Close}
               statType={statType}
               setStatType={setStatType}
-              onSave={handleSaveStat}
             />
             <QuickAction
               type={ACTION_TYPES.REBOUND}
@@ -971,7 +1016,6 @@ const GameMode: React.FC = () => {
               icon={SportsBasketball}
               statType={statType}
               setStatType={setStatType}
-              onSave={handleSaveStat}
             />
             <QuickAction
               type={ACTION_TYPES.STEAL}
@@ -979,7 +1023,6 @@ const GameMode: React.FC = () => {
               icon={FlashOn}
               statType={statType}
               setStatType={setStatType}
-              onSave={handleSaveStat}
             />
             <QuickAction
               type={ACTION_TYPES.ASSIST}
@@ -987,15 +1030,13 @@ const GameMode: React.FC = () => {
               icon={PanTool}
               statType={statType}
               setStatType={setStatType}
-              onSave={handleSaveStat}
             />
             <QuickAction
               type={ACTION_TYPES.TURNOVER}
-              label="TO"
+              label="Turnover"
               icon={SwapHoriz}
               statType={statType}
               setStatType={setStatType}
-              onSave={handleSaveStat}
             />
             <QuickAction
               type={ACTION_TYPES.FOUL}
@@ -1003,7 +1044,6 @@ const GameMode: React.FC = () => {
               icon={Warning}
               statType={statType}
               setStatType={setStatType}
-              onSave={handleSaveStat}
             />
           </Box>
           {statType === ACTION_TYPES.MAKE && (
@@ -1134,9 +1174,10 @@ const GameMode: React.FC = () => {
           <Grid container spacing={2} sx={{ mt: 1 }}>
             <Grid item xs={6}>
               <Typography variant="subtitle2" gutterBottom align="center">
-                ON COURT (OUT)
+                ON COURT
               </Typography>
               <Stack spacing={1}>
+                {/* Active players */}
                 {players
                   .filter((p) => onCourtIds.has(p.id!))
                   .map((p) => (
@@ -1165,11 +1206,44 @@ const GameMode: React.FC = () => {
                       </Typography>
                     </Button>
                   ))}
+                {/* Placeholder "Empty" slots to reach 5 total */}
+                {Array.from({ length: Math.max(0, 5 - onCourtIds.size) }).map((_, i) => {
+                  const emptyId = `EMPTY-${i}`;
+                  return (
+                    <Button
+                      key={emptyId}
+                      variant={subOutPlayerId === emptyId ? "contained" : "outlined"}
+                      onClick={() => setSubOutPlayerId(emptyId)}
+                      fullWidth
+                      sx={{
+                        justifyContent: "flex-start",
+                        borderStyle: "dashed",
+                        color: "text.secondary",
+                        bgcolor: subOutPlayerId === emptyId ? "rgba(0,0,0,0.05)" : "transparent"
+                      }}
+                    >
+                      <Avatar
+                        sx={{
+                          width: 24,
+                          height: 24,
+                          fontSize: "0.75rem",
+                          mr: 1,
+                          bgcolor: "transparent",
+                          border: "1px dashed #bdbdbd",
+                          color: "#bdbdbd"
+                        }}
+                      >
+                        ?
+                      </Avatar>
+                      <Typography variant="body2">Empty</Typography>
+                    </Button>
+                  );
+                })}
               </Stack>
             </Grid>
             <Grid item xs={6}>
               <Typography variant="subtitle2" gutterBottom align="center">
-                BENCH (IN)
+                BENCH
               </Typography>
               <Stack spacing={1}>
                 {players
@@ -1211,10 +1285,10 @@ const GameMode: React.FC = () => {
           <Button
             onClick={handleQuickSub}
             variant="contained"
-            disabled={!subOutPlayerId || !subInPlayerId}
+            disabled={!subInPlayerId || !subOutPlayerId}
             startIcon={<SwapHoriz />}
           >
-            Swap
+            Sub In
           </Button>
         </DialogActions>
       </Dialog>
@@ -1251,14 +1325,12 @@ const QuickAction: React.FC<{
   icon: React.ElementType;
   statType: string | null;
   setStatType: (_type: string | null) => void;
-  onSave: (_type: string) => void;
-}> = ({ type, label, icon: Icon, statType, setStatType, onSave }) => (
+}> = ({ type, label, icon: Icon, statType, setStatType }) => (
   <Button
     variant={statType === type ? "contained" : "outlined"}
     color="inherit"
     onClick={() => {
       setStatType(type);
-      if (type !== ACTION_TYPES.MAKE) onSave(type);
     }}
     sx={{
       flexDirection: "column",
