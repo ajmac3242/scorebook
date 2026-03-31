@@ -1,9 +1,4 @@
-import {
-  render,
-  screen,
-  fireEvent,
-  waitFor,
-} from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import GameMode from "../pages/GameMode";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { BrowserRouter } from "react-router-dom";
@@ -133,10 +128,28 @@ describe("GameMode Timeouts", () => {
   it("calculates TOL correctly when timeouts are present", async () => {
     // Override mockStats to include some timeouts
     const statsWithTimeouts = [
-        ...mockStats,
-        { id: "t1", gameId: "g1", playerId: "TEAM_TIMEOUT", type: ACTION_TYPES.TIMEOUT, timestamp: new Date().toISOString() },
-        { id: "t2", gameId: "g1", playerId: "OPPONENT", type: ACTION_TYPES.TIMEOUT, timestamp: new Date().toISOString() },
-        { id: "t3", gameId: "g1", playerId: "OPPONENT", type: ACTION_TYPES.TIMEOUT, timestamp: new Date().toISOString() },
+      ...mockStats,
+      {
+        id: "t1",
+        gameId: "g1",
+        playerId: "TEAM_TIMEOUT",
+        type: ACTION_TYPES.TIMEOUT,
+        timestamp: new Date().toISOString(),
+      },
+      {
+        id: "t2",
+        gameId: "g1",
+        playerId: "OPPONENT",
+        type: ACTION_TYPES.TIMEOUT,
+        timestamp: new Date().toISOString(),
+      },
+      {
+        id: "t3",
+        gameId: "g1",
+        playerId: "OPPONENT",
+        type: ACTION_TYPES.TIMEOUT,
+        timestamp: new Date().toISOString(),
+      },
     ];
 
     (useLiveQuery as Record<string, any>).mockImplementation(
