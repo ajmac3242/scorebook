@@ -173,33 +173,27 @@ export const calculatePlayerAggregates = (
   }
 
   // Finalize totals, percentages, and averages
-  // Optimization: Use a for...in loop instead of Object.values().map() to avoid intermediate array allocations.
+  // Optimization: Use a standard for loop over keys to improve iteration speed and avoid O(N) Object.values().
+  const keys = Object.keys(statsMap);
   const result: PlayerAggregates[] = [];
-  for (const key in statsMap) {
-    if (Object.prototype.hasOwnProperty.call(statsMap, key)) {
-      const p = statsMap[key];
-      // We default gp (games played) to 1 for per-game calculations even if 0
-      // to prevent division by zero errors, though technically it should be 0.
-      const gp = p.gamesPlayed.size || 1;
-      p.gp = p.gamesPlayed.size;
-      p.fgPct =
-        p.attempts > 0 ? formatToOne((p.makes / p.attempts) * 100) : "0.0";
+  for (let i = 0; i < keys.length; i++) {
+    const p = statsMap[keys[i]];
+    // We default gp (games played) to 1 for per-game calculations even if 0
+    // to prevent division by zero errors, though technically it should be 0.
+    const gp = p.gamesPlayed.size || 1;
+    p.gp = p.gamesPlayed.size;
+    p.fgPct = p.attempts > 0 ? formatToOne((p.makes / p.attempts) * 100) : "0.0";
 
-      if (viewType === "average") {
-        // Calculate per-game averages if requested, rounding to 1 decimal place.
-        result.push({
-          ...p,
-          points: roundToOne(p.points / gp),
-          rebounds: roundToOne(p.rebounds / gp),
-          assists: roundToOne(p.assists / gp),
-          steals: roundToOne(p.steals / gp),
-          turnovers: roundToOne(p.turnovers / gp),
-          fouls: roundToOne(p.fouls / gp),
-        });
-      } else {
-        result.push(p);
-      }
+    if (viewType === "average") {
+      // Optimization: Update numeric fields directly to avoid object spread overhead and memory churn.
+      p.points = roundToOne(p.points / gp);
+      p.rebounds = roundToOne(p.rebounds / gp);
+      p.assists = roundToOne(p.assists / gp);
+      p.steals = roundToOne(p.steals / gp);
+      p.turnovers = roundToOne(p.turnovers / gp);
+      p.fouls = roundToOne(p.fouls / gp);
     }
+    result.push(p);
   }
   return result;
 };

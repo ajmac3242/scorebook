@@ -117,17 +117,28 @@ const PlayerStats: React.FC = () => {
   );
   const allStats = useMemo(() => allStatsResult || [], [allStatsResult]);
 
-  const filteredStats = useMemo(() => {
-    // Performance: Use a Set for O(1) game lookup instead of O(N) .some()
-    const gameIdSet = new Set(games.map((g) => g.id));
+  // Optimization: Extract gameIdSet into its own useMemo to prevent redundant creations within filteredStats.
+  const gameIdSet = useMemo(() => {
+    const set = new Set();
+    for (let i = 0; i < games.length; i++) {
+      set.add(games[i].id);
+    }
+    return set;
+  }, [games]);
 
-    return (allStats as StatEvent[]).filter((stat) => {
-      if (selectedGameId !== "" && stat.gameId !== selectedGameId) return false;
-      if (selectedType !== "" && stat.type !== selectedType) return false;
-      if (selectedGameId === "" && !gameIdSet.has(stat.gameId)) return false;
-      return true;
-    });
-  }, [allStats, selectedGameId, selectedType, games]);
+  const filteredStats = useMemo(() => {
+    const stats = allStats as StatEvent[];
+    // Optimization: Use a standard for loop instead of .filter() to reduce function call overhead and improve performance.
+    const result = [];
+    for (let i = 0; i < stats.length; i++) {
+      const stat = stats[i];
+      if (selectedGameId !== "" && stat.gameId !== selectedGameId) continue;
+      if (selectedType !== "" && stat.type !== selectedType) continue;
+      if (selectedGameId === "" && !gameIdSet.has(stat.gameId)) continue;
+      result.push(stat);
+    }
+    return result;
+  }, [allStats, selectedGameId, selectedType, gameIdSet]);
 
   /**
    * Updates player-level metadata.

@@ -442,6 +442,59 @@ const TeamStats: React.FC = () => {
   const isDeleted = !!team?.deletedAt;
   const isPendingDelete = !!team?.deletedAt;
 
+  const filteredSchedule = useMemo(() => {
+    // Optimization: Pre-calculate current date once for the filter loop.
+    const now = new Date();
+    const result = [];
+    for (let i = 0; i < games.length; i++) {
+      const g = games[i];
+      const isUpcomingMatch =
+        scheduleView === "all" || (!g.completed && new Date(g.date) >= now);
+      if (isUpcomingMatch && !g.deletedAt) {
+        result.push(g);
+      }
+    }
+
+    // Optimization: Standardize sorting within the useMemo to avoid re-sorting during render.
+    return result.sort((a, b) => {
+      const dateTimeA = a.date + (a.time || "00:00");
+      const dateTimeB = b.date + (b.time || "00:00");
+      return dateTimeA.localeCompare(dateTimeB);
+    });
+  }, [games, scheduleView]);
+
+  const sortedRoster = useMemo(() => {
+    // Optimization: Pre-calculate jersey numbers in a Map to avoid O(N) lookups in the sort.
+    const jerseyMap = new Map();
+    for (let i = 0; i < teamPlayers.length; i++) {
+      jerseyMap.set(teamPlayers[i].playerId, teamPlayers[i].jerseyNumber || "");
+    }
+
+    return [...teamPlayerDetails].sort((a, b) => {
+      const aJersey = jerseyMap.get(a.id!) || "";
+      const bJersey = jerseyMap.get(b.id!) || "";
+      // Basketball sorting: 00, 0, then numeric 1-99. Empty/dash at the end.
+      if (aJersey === bJersey) return 0;
+      if (!aJersey) return 1;
+      if (!bJersey) return -1;
+      // Treat '00' as a special value that comes first, or just use numeric value
+      const aNum = parseInt(aJersey, 10);
+      const bNum = parseInt(bJersey, 10);
+      if (aNum === bNum) {
+        return aJersey.length - bJersey.length; // '00' vs '0'
+      }
+      return aNum - bNum;
+    });
+  }, [teamPlayerDetails, teamPlayers]);
+
+  const sortedRosterJerseyMap = useMemo(() => {
+    const jerseyMap = new Map();
+    for (let i = 0; i < teamPlayers.length; i++) {
+      jerseyMap.set(teamPlayers[i].playerId, teamPlayers[i].jerseyNumber || "");
+    }
+    return jerseyMap;
+  }, [teamPlayers]);
+
   return (
     <Box sx={{ pb: 4, opacity: isDeleted ? 0.7 : 1 }}>
       <EntityBanner
@@ -562,20 +615,8 @@ const TeamStats: React.FC = () => {
             </ToggleButtonGroup>
           </Box>
           <Stack spacing={2}>
-            {games
-              .filter(
-                (g) =>
-                  (scheduleView === "all" ||
-                    (!g.completed && new Date(g.date) >= new Date())) &&
-                  !g.deletedAt,
-              )
-              .sort((a, b) => {
-                const dateTimeA = a.date + (a.time || "00:00");
-                const dateTimeB = b.date + (b.time || "00:00");
-                return dateTimeA.localeCompare(dateTimeB);
-              })
-              .map((game) => (
-                <MoleskineCard
+            {filteredSchedule.map((game) => (
+              <MoleskineCard
                   key={game.id}
                   sx={{
                     cursor: "pointer",
@@ -864,66 +905,43 @@ const TeamStats: React.FC = () => {
             </Button>
           </Box>
           <Grid container spacing={2}>
-            {(() => {
-              // Optimization: Pre-calculate jersey numbers in a Map to avoid O(N) lookups in the sort.
-              const jerseyMap = new Map(
-                teamPlayers.map((tp) => [tp.playerId, tp.jerseyNumber || ""]),
-              );
-
-              return [...teamPlayerDetails]
-                .sort((a, b) => {
-                  const aJersey = jerseyMap.get(a.id!) || "";
-                  const bJersey = jerseyMap.get(b.id!) || "";
-                  // Basketball sorting: 00, 0, then numeric 1-99. Empty/dash at the end.
-                  if (aJersey === bJersey) return 0;
-                  if (!aJersey) return 1;
-                  if (!bJersey) return -1;
-                  // Treat '00' as a special value that comes first, or just use numeric value
-                  const aNum = parseInt(aJersey, 10);
-                  const bNum = parseInt(bJersey, 10);
-                  if (aNum === bNum) {
-                    return aJersey.length - bJersey.length; // '00' vs '0'
+            {sortedRoster.map((player) => (
+              <Grid item xs={12} sm={6} md={4} key={player.id}>
+                <MoleskineCard
+                  onClick={() =>
+                    navigate(`/players/${player.id}?teamId=${teamId}`)
                   }
-                  return aNum - bNum;
-                })
-                .map((player) => (
-                  <Grid item xs={12} sm={6} md={4} key={player.id}>
-                    <MoleskineCard
-                      onClick={() =>
-                        navigate(`/players/${player.id}?teamId=${teamId}`)
-                      }
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 2,
-                        transition: "transform 0.2s",
-                        cursor: "pointer",
-                        "&:hover": {
-                          transform: "translateY(-4px)",
-                          bgcolor: "rgba(0,0,0,0.02)",
-                        },
-                      }}
-                    >
-                      <Typography
-                        variant="h4"
-                        sx={{
-                          fontWeight: 700,
-                          color: "text.secondary",
-                          minWidth: 40,
-                        }}
-                      >
-                        {jerseyMap.get(player.id!) || "-"}
-                      </Typography>
-                      <Avatar sx={{ bgcolor: player.avatarColor }}>
-                        {getInitials(player.name)}
-                      </Avatar>
-                      <Typography sx={{ fontWeight: 600 }}>
-                        {player.name}
-                      </Typography>
-                    </MoleskineCard>
-                  </Grid>
-                ));
-            })()}
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 2,
+                    transition: "transform 0.2s",
+                    cursor: "pointer",
+                    "&:hover": {
+                      transform: "translateY(-4px)",
+                      bgcolor: "rgba(0,0,0,0.02)",
+                    },
+                  }}
+                >
+                  <Typography
+                    variant="h4"
+                    sx={{
+                      fontWeight: 700,
+                      color: "text.secondary",
+                      minWidth: 40,
+                    }}
+                  >
+                    {sortedRosterJerseyMap.get(player.id!) || "-"}
+                  </Typography>
+                  <Avatar sx={{ bgcolor: player.avatarColor }}>
+                    {getInitials(player.name)}
+                  </Avatar>
+                  <Typography sx={{ fontWeight: 600 }}>
+                    {player.name}
+                  </Typography>
+                </MoleskineCard>
+              </Grid>
+            ))}
           </Grid>
         </Box>
       )}
@@ -1031,19 +1049,19 @@ const TeamStats: React.FC = () => {
           />
           <List>
             {(() => {
-              // Optimization: Normalize search term and pre-calculate team player map for O(1) lookups.
-              const normalizedSearch = rosterSearchTerm.toLowerCase();
+              // Optimization: Normalize search term once outside the loop.
+              const search = rosterSearchTerm.toLowerCase();
+              // Optimization: Pre-calculate team player map for O(1) lookups during iteration.
               const teamPlayerMap = new Map();
               for (let i = 0; i < teamPlayers.length; i++) {
-                teamPlayerMap.set(
-                  teamPlayers[i].playerId.toString(),
-                  teamPlayers[i],
-                );
+                const tp = teamPlayers[i];
+                teamPlayerMap.set(tp.playerId.toString(), tp);
               }
 
-              return allPlayers
-                .filter((p) => p.name.toLowerCase().includes(normalizedSearch))
-                .map((player) => {
+              const result = [];
+              for (let i = 0; i < allPlayers.length; i++) {
+                const player = allPlayers[i];
+                if (player.name.toLowerCase().includes(search)) {
                   const pId = player.id!.toString();
                   const dbRecord = teamPlayerMap.get(pId);
                   const stagedChange = pendingRosterChanges[pId];
@@ -1059,7 +1077,7 @@ const TeamStats: React.FC = () => {
                       : dbRecord?.jerseyNumber || "";
 
                   const playerEntityId = player.id?.toString() || "";
-                  return (
+                  result.push(
                     <ListItem
                       key={playerEntityId}
                       divider
@@ -1116,9 +1134,11 @@ const TeamStats: React.FC = () => {
                         {getInitials(player.name)}
                       </Avatar>
                       <ListItemText primary={player.name} />
-                    </ListItem>
+                    </ListItem>,
                   );
-                });
+                }
+              }
+              return result;
             })()}
           </List>
         </DialogContent>
