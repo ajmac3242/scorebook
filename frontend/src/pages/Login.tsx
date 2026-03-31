@@ -35,8 +35,7 @@ const Login: React.FC = () => {
     });
 
     user.authenticateUser(authDetails, {
-      onSuccess: (data) => {
-        console.log("onSuccess:", data);
+      onSuccess: () => {
         setIsAuthenticated(true);
         localStorage.setItem("isAuthenticated", "true");
         // Trigger a full pull sync immediately after login
@@ -47,8 +46,7 @@ const Login: React.FC = () => {
         console.error("onFailure:", err);
         setError(err.message || JSON.stringify(err));
       },
-      newPasswordRequired: (userAttributes, requiredAttributes) => {
-        console.log("newPasswordRequired:", userAttributes, requiredAttributes);
+      newPasswordRequired: () => {
         setError("New password required");
       },
     });

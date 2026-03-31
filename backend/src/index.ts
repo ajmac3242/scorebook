@@ -370,7 +370,7 @@ async function handleTeams(
     if (method === "GET")
       return await getItemsByGSI(`TEAM#${teamId}`, tableName);
     if (method === "POST") {
-      if (!body.playerId) return badRequest("playerId required");
+      if (!body.playerId) return badRequest("playerId is required");
       const cleanBody = stripLocalFields(body);
       const teamPlayerItem = {
         ...(cleanBody as Record<string, unknown>),
@@ -450,7 +450,7 @@ function maskEvent(event: APIGatewayProxyEventV2): unknown {
 /**
  * Extracts HTTP method and path from various event formats.
  * @param {APIGatewayProxyEventV2} event - Lambda event.
- * @returns {{method: string, path: string}} Normalized metadata.
+ * @returns {{method: string, path: string}} Normalized metadata containing HTTP method and path.
  */
 function extractRequestMetadata(event: APIGatewayProxyEventV2) {
   const method =
@@ -675,19 +675,6 @@ async function softDeleteItem(
   return ok({ message: "Item soft deleted", deletedAt: timestamp });
 }
 
-/**
- * Generates and uploads a team roster snapshot JSON to S3.
- *
- * @param {string} teamId - The team ID.
- * @param {string} tableName - The name of the DynamoDB table.
- * @returns {Promise<void>}
- */
-/**
- * Executes snapshot logic with error handling and environment variable validation.
- * @param {string} label - Contextual label for error logging.
- * @param {Function} fn - The snapshot function to execute.
- * @returns {Promise<void>}
- */
 /**
  * Executes snapshot logic with error handling and environment variable validation.
  * @param {string} label - Contextual label for error logging.

@@ -4,8 +4,10 @@ import jsdocPlugin from "eslint-plugin-jsdoc";
 
 export default [
   {
+    ignores: ["src/index.d.ts"]
+  },
+  {
     files: ["src/**/*.ts"],
-    ignores: ["src/__tests__/**", "src/index.d.ts"],
     languageOptions: {
       parser: tsParser,
       parserOptions: { project: "./tsconfig.json" }
@@ -37,6 +39,12 @@ export default [
       "jsdoc/check-param-names": "warn",
       // General TS rules
       "@typescript-eslint/no-explicit-any": "warn"
+    }
+  },
+  {
+    files: ["src/__tests__/**/*.ts"],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off"
     }
   }
 ];

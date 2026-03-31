@@ -47,7 +47,6 @@ import { db, type StatEvent } from "../db";
 import { syncService } from "../utils/syncService";
 import { useLiveQuery } from "dexie-react-hooks";
 import { ACTION_TYPES } from "../constants/stats";
-import { getPlayerJersey } from "../utils/stats";
 import { MoleskineCard } from "../components/SharedUI";
 
 const OPPONENT_PLAYER_ID = "OPPONENT";
@@ -655,6 +654,7 @@ const GameMode: React.FC = () => {
                 startIcon={<UndoIcon />}
                 onClick={handleUndo}
                 disabled={recentStats.length === 0 || isDeleted}
+                aria-label="undo"
               >
                 Undo
               </Button>
