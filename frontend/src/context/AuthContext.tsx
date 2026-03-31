@@ -40,6 +40,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     if (localStorage.getItem("isAuthenticated") === "true") {
       setIsAuthenticated(true);
       setLoading(false);
+      syncService.pullAll();
       return;
     }
 
