@@ -208,7 +208,12 @@ class SyncService {
           await table.update(item.id!, { synced: 1 } as any);
           if (onSuccess) await onSuccess(item);
         } else {
-          logger.error(`Failed to push ${entityName} ${item.id}:`, res.status);
+          const errorBody = await res.text();
+          logger.error(
+            `Failed to push ${entityName} ${item.id}: Status ${res.status}`,
+            undefined,
+            { errorBody },
+          );
         }
       } catch (err) {
         logger.error(`Failed to push ${entityName} ${item.id}:`, err);

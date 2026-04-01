@@ -246,15 +246,20 @@ describe("SyncService", () => {
 
       // Fail first push, succeed second
       fetchMock
-        .mockResolvedValueOnce({ ok: false, status: 500 })
+        .mockResolvedValueOnce({
+          ok: false,
+          status: 500,
+          text: () => Promise.resolve("Internal Error Details"),
+        })
         .mockResolvedValueOnce({ ok: true, status: 201 });
 
       await syncService.pushUpdates();
 
       expect(fetchMock).toHaveBeenCalledTimes(2);
       expect(loggerErrorSpy).toHaveBeenCalledWith(
-        expect.stringContaining("Failed to push team t1"),
-        500,
+        expect.stringContaining("Failed to push team t1: Status 500"),
+        undefined,
+        { errorBody: "Internal Error Details" },
       );
 
       // Team update should NOT have been called due to 500
