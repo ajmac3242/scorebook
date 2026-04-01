@@ -28,8 +28,6 @@ import {
   Tooltip,
 } from "@mui/material";
 import {
-  AddCircleOutline,
-  RemoveCircleOutline,
   Undo as UndoIcon,
   History,
   Check,
@@ -49,11 +47,11 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
 } from "@mui/material";
 import BasketballCourt from "../components/BasketballCourt";
 import { db, type StatEvent } from "../db";
 import { syncService } from "../utils/syncService";
+import { logger } from "../utils/logger";
 import { useLiveQuery } from "dexie-react-hooks";
 import { ACTION_TYPES } from "../constants/stats";
 import { calculatePlayerAggregates } from "../utils/stats";
@@ -105,7 +103,7 @@ const GameMode: React.FC = () => {
       await db.open();
       return await db.stats.where("gameId").equals(gameId).toArray();
     } catch (err) {
-      console.error("Failed to fetch game stats:", err);
+      logger.error("Failed to fetch game stats:", err);
       return [];
     }
   }, [gameId]);
@@ -154,24 +152,11 @@ const GameMode: React.FC = () => {
       const playerIds = teamPlayers.map((t) => t.playerId.toString());
       return await db.players.where("id").anyOf(playerIds).toArray();
     } catch (err) {
-      console.error("Failed to fetch players:", err);
+      logger.error("Failed to fetch players:", err);
       return [];
     }
   }, [teamId, teamPlayers]);
   const players = useMemo(() => playersQueryResult || [], [playersQueryResult]);
-
-  /**
-   * 🏀 CoachBoard: sortedPlayers
-   * Why: Performance optimization and better game-state visibility.
-   * Notes: Memoizes the roster to sort on-court players to the top, reducing scan time for the scorekeeper.
-   */
-  const sortedPlayers = useMemo(() => {
-    return [...players].sort((a, b) => {
-      const aOn = onCourtIds.has(a.id!) ? 1 : 0;
-      const bOn = onCourtIds.has(b.id!) ? 1 : 0;
-      return bOn - aOn; // On court players first
-    });
-  }, [players, onCourtIds]);
 
   const game = useLiveQuery(() => db.games.get(gameId as string), [gameId]);
   const team = useLiveQuery(
@@ -206,7 +191,7 @@ const GameMode: React.FC = () => {
           .sort((a, b) => b.timestamp.localeCompare(a.timestamp))
           .slice(0, 10);
       } catch (err) {
-        console.error("Failed to fetch recent stats:", err);
+        logger.error("Failed to fetch recent stats:", err);
         return [];
       }
     }, [gameId]) || [];
@@ -226,17 +211,6 @@ const GameMode: React.FC = () => {
       }
     }
     return { currentScore: curScore, opponentScore: oppScore };
-  }, [gameStats]);
-
-  const playerFouls = useMemo(() => {
-    const fouls: Record<string, number> = {};
-    for (let i = 0; i < gameStats.length; i++) {
-      const s = gameStats[i];
-      if (!s.deletedAt && s.type === ACTION_TYPES.FOUL) {
-        fouls[s.playerId] = (fouls[s.playerId] || 0) + 1;
-      }
-    }
-    return fouls;
   }, [gameStats]);
 
   /**
@@ -376,9 +350,9 @@ const GameMode: React.FC = () => {
           deletedAt: new Date().toISOString(),
           synced: 0,
         });
-        syncService.pushUpdates();
+        await syncService.pushUpdates();
       } catch (err) {
-        console.error("Failed to undo stat:", err);
+        logger.error("Failed to undo stat:", err);
       }
     }
   };
@@ -390,11 +364,11 @@ const GameMode: React.FC = () => {
     try {
       await db.open();
       await db.games.update(gameId as string, { completed: 1, synced: 0 });
-      syncService.pushUpdates();
+      await syncService.pushUpdates();
       setEndGameDialogOpen(false);
       setSummaryDialogOpen(true);
     } catch (err) {
-      console.error("Failed to end game:", err);
+      logger.error("Failed to end game:", err);
     }
   };
 
@@ -434,7 +408,7 @@ const GameMode: React.FC = () => {
           points: typeToSave === ACTION_TYPES.MAKE ? points : 0,
           synced: 0,
         });
-        syncService.pushUpdates();
+        await syncService.pushUpdates();
       } else {
         const newStat: StatEvent = {
           id: crypto.randomUUID(),
@@ -449,9 +423,10 @@ const GameMode: React.FC = () => {
           synced: 0,
         };
         await db.stats.add(newStat);
+        await syncService.pushUpdates();
       }
     } catch (err) {
-      console.error("Failed to save stat:", err);
+      logger.error("Failed to save stat:", err);
     }
     // Reset state after save
     setDialogOpen(false);
@@ -500,8 +475,9 @@ const GameMode: React.FC = () => {
       setSubDialogOpen(false);
       setSubOutPlayerId(null);
       setSubInPlayerId(null);
+      await syncService.pushUpdates();
     } catch (err) {
-      console.error("Failed to record quick sub:", err);
+      logger.error("Failed to record quick sub:", err);
     }
   };
 
@@ -516,11 +492,11 @@ const GameMode: React.FC = () => {
         deletedAt: new Date().toISOString(),
         synced: 0,
       });
-      syncService.pushUpdates();
+      await syncService.pushUpdates();
       setDeleteDialogOpen(false);
       setStatToDelete(null);
     } catch (err) {
-      console.error("Failed to delete stat:", err);
+      logger.error("Failed to delete stat:", err);
     }
   };
 
@@ -590,9 +566,9 @@ const GameMode: React.FC = () => {
         timestamp: new Date().toISOString(),
         synced: 0,
       });
-      syncService.pushUpdates();
+      await syncService.pushUpdates();
     } catch (err) {
-      console.error("Failed to record timeout:", err);
+      logger.error("Failed to record timeout:", err);
     }
   };
 

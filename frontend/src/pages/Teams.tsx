@@ -186,7 +186,7 @@ const Teams: React.FC = () => {
         synced: 0,
       };
       await db.teams.add(newTeam);
-      syncService.pushUpdates();
+      await syncService.pushUpdates();
       setOpen(false);
       setTeamName("");
       setDescription("");
