@@ -55,6 +55,7 @@ import {
 } from "../utils/stats";
 import { MoleskineCard } from "../components/SharedUI";
 import { syncService } from "../utils/syncService";
+import { logger } from "../utils/logger";
 import EntityBanner from "../components/EntityBanner";
 import { useGames } from "../hooks/useGames";
 import { usePlayers } from "../hooks/usePlayers";
