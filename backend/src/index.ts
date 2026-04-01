@@ -62,7 +62,14 @@ const Keys = {
  * @param {unknown} error - The error object.
  */
 function logError(label: string, error: unknown) {
-  console.error(`[ERROR] ${label}:`, error);
+  if (error instanceof Error) {
+    console.error(`[ERROR] ${label}: ${error.message}`, error.stack);
+  } else {
+    console.error(
+      `[ERROR] ${label}:`,
+      typeof error === "object" ? JSON.stringify(error, null, 2) : error,
+    );
+  }
 }
 
 /**
