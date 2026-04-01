@@ -49,8 +49,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  type SxProps,
-  type Theme,
 } from "@mui/material";
 import BasketballCourt from "../components/BasketballCourt";
 import { db, type StatEvent, type Player } from "../db";
@@ -63,6 +61,24 @@ import {
   type PlayerAggregates,
 } from "../utils/stats";
 import { MoleskineCard } from "../components/SharedUI";
+
+/**
+ * Determines bonus status labels and colors based on foul counts and period type.
+ * @param fouls - Current foul count.
+ * @param periodType - 'QUARTERS' or 'HALVES'.
+ */
+const getBonusStatus = (fouls: number, periodType: string) => {
+  if (periodType === "QUARTERS") {
+    if (fouls >= 5) return { label: " (B)", color: "error.main" };
+    if (fouls === 4) return { label: "", color: "warning.main" };
+    return { label: "", color: "default" };
+  } else {
+    if (fouls >= 10) return { label: " (DB)", color: "error.main" };
+    if (fouls >= 7) return { label: " (B)", color: "error.main" };
+    if (fouls === 6) return { label: "", color: "warning.main" };
+    return { label: "", color: "default" };
+  }
+};
 
 /**
  * GameMode page component.
@@ -99,10 +115,7 @@ const GameMode: React.FC = () => {
   const [endGameDialogOpen, setEndGameDialogOpen] = useState(false);
   const [summaryDialogOpen, setSummaryDialogOpen] = useState(false);
 
-  // Roster and lineup state
-  const [onCourtIds, setOnCourtIds] = useState<Set<string>>(new Set());
-
-  // Derived onCourtIds from StatEvents to stay in sync with history
+  // Derived data from StatEvents
   const gameStatsQueryResult = useLiveQuery(async () => {
     try {
       await db.open();
@@ -116,21 +129,6 @@ const GameMode: React.FC = () => {
     () => gameStatsQueryResult || [],
     [gameStatsQueryResult],
   );
-
-  useEffect(() => {
-    const currentOnCourt = new Set<string>();
-    const sortedStats = [...gameStats].sort((a, b) =>
-      a.timestamp.localeCompare(b.timestamp),
-    );
-    for (const s of sortedStats) {
-      if (s.type === ACTION_TYPES.SUB_IN) {
-        currentOnCourt.add(s.playerId);
-      } else if (s.type === ACTION_TYPES.SUB_OUT) {
-        currentOnCourt.delete(s.playerId);
-      }
-    }
-    setOnCourtIds(currentOnCourt);
-  }, [gameStats]);
   const [subDialogOpen, setSubDialogOpen] = useState(false);
   const [subOutPlayerId, setSubOutPlayerId] = useState<string | null>(null);
   const [subInPlayerId, setSubInPlayerId] = useState<string | null>(null);
@@ -185,122 +183,102 @@ const GameMode: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Fetch recent actions for the history sidebar
-  const recentStats =
-    useLiveQuery(async () => {
-      try {
-        await db.open();
-        const stats = await db.stats.where("gameId").equals(gameId).toArray();
-        // Performance: Use direct string comparison for ISO timestamps instead of Date objects
-        return stats
-          .sort((a, b) => b.timestamp.localeCompare(a.timestamp))
-          .slice(0, 10);
-      } catch (err) {
-        logger.error("Failed to fetch recent stats:", err);
-        return [];
-      }
-    }, [gameId]) || [];
+  /**
+   * ⚡ Bolt: Consolidate statistical derivations.
+   * Performance: Sort gameStats once and perform a single-pass derivation for
+   * scores, fouls, timeouts, possession, lineups, and recent history.
+   * This reduces database queries and minimizes redundant array traversals.
+   */
+  const gameData = useMemo(() => {
+    const sorted = [...gameStats].sort((a, b) =>
+      a.timestamp.localeCompare(b.timestamp),
+    );
 
-  // Derived scores - consolidated into a single pass to improve efficiency
-  // Memoized to prevent recalculation on every render
-  const { currentScore, opponentScore } = useMemo(() => {
     let curScore = 0;
     let oppScore = 0;
-    for (let i = 0; i < gameStats.length; i++) {
-      const s = gameStats[i];
+    let teamFouls = 0;
+    let oppFouls = 0;
+    let teamTimeouts = 0;
+    let oppTimeouts = 0;
+    let posState = null;
+    const onCourt = new Set<string>();
+    const pType = team?.periodType || "QUARTERS";
+
+    for (let i = 0; i < sorted.length; i++) {
+      const s = sorted[i];
       if (s.deletedAt) continue;
+
+      // Score
       if (s.playerId === SPECIAL_PLAYER_IDS.OPPONENT) {
         oppScore += s.points || 0;
       } else {
         curScore += s.points || 0;
       }
-    }
-    return { currentScore: curScore, opponentScore: oppScore };
-  }, [gameStats]);
 
-  /**
-   * 🏀 CoachBoard: teamFoulStats
-   * Why: Tracks team fouls per period/half to signal bonus status.
-   * Notes: Cumulative in halves (2nd half + OT), resets per quarter in quarters mode.
-   */
-  const teamFoulStats = useMemo(() => {
-    let teamFouls = 0;
-    let oppFouls = 0;
-    const pType = team?.periodType || "QUARTERS";
+      // Fouls (Period-aware)
+      if (s.type === ACTION_TYPES.FOUL) {
+        const isCurrentPeriodFoul =
+          pType === "QUARTERS"
+            ? s.period === period
+            : period === 1
+              ? s.period === 1
+              : s.period >= 2;
 
-    for (let i = 0; i < gameStats.length; i++) {
-      const s = gameStats[i];
-      if (s.deletedAt || s.type !== ACTION_TYPES.FOUL) continue;
-
-      const isCurrentPeriodFoul =
-        pType === "QUARTERS"
-          ? s.period === period
-          : period === 1
-            ? s.period === 1
-            : s.period >= 2;
-
-      if (isCurrentPeriodFoul) {
-        if (s.playerId === SPECIAL_PLAYER_IDS.OPPONENT) {
-          oppFouls++;
-        } else {
-          teamFouls++;
+        if (isCurrentPeriodFoul) {
+          if (s.playerId === SPECIAL_PLAYER_IDS.OPPONENT) {
+            oppFouls++;
+          } else {
+            teamFouls++;
+          }
         }
+      }
+
+      // Timeouts
+      if (s.type === ACTION_TYPES.TIMEOUT) {
+        if (s.playerId === SPECIAL_PLAYER_IDS.OPPONENT) {
+          oppTimeouts++;
+        } else {
+          teamTimeouts++;
+        }
+      }
+
+      // Possession
+      if (s.type === ACTION_TYPES.POSSESSION) {
+        posState = s.playerId;
+      }
+
+      // Lineup
+      if (s.type === ACTION_TYPES.SUB_IN) {
+        onCourt.add(s.playerId);
+      } else if (s.type === ACTION_TYPES.SUB_OUT) {
+        onCourt.delete(s.playerId);
       }
     }
 
+    const MAX_TIMEOUTS = 5;
     const teamBonus = getBonusStatus(teamFouls, pType);
     const oppBonus = getBonusStatus(oppFouls, pType);
 
     return {
-      teamFouls,
-      oppFouls,
-      teamBonusLabel: teamBonus.label,
-      teamBonusColor: teamBonus.color,
-      oppBonusLabel: oppBonus.label,
-      oppBonusColor: oppBonus.color,
+      currentScore: curScore,
+      opponentScore: oppScore,
+      teamFoulStats: {
+        teamFouls,
+        oppFouls,
+        teamBonusLabel: teamBonus.label,
+        teamBonusColor: teamBonus.color,
+        oppBonusLabel: oppBonus.label,
+        oppBonusColor: oppBonus.color,
+      },
+      timeoutStats: {
+        teamTOL: Math.max(0, MAX_TIMEOUTS - teamTimeouts),
+        oppTOL: Math.max(0, MAX_TIMEOUTS - oppTimeouts),
+      },
+      possessionState: posState,
+      onCourtIds: onCourt,
+      recentStats: [...sorted].reverse().slice(0, 10),
     };
   }, [gameStats, period, team?.periodType]);
-
-  /**
-   * 🏀 CoachBoard: timeoutStats
-   * Why: Tracks timeouts used by each team.
-   * Notes: Standardizes on 5 timeouts per game for initial implementation.
-   */
-  const timeoutStats = useMemo(() => {
-    let teamTimeouts = 0;
-    let oppTimeouts = 0;
-    const MAX_TIMEOUTS = 5;
-
-    for (let i = 0; i < gameStats.length; i++) {
-      const s = gameStats[i];
-      if (s.deletedAt || s.type !== ACTION_TYPES.TIMEOUT) continue;
-
-      if (s.playerId === SPECIAL_PLAYER_IDS.OPPONENT) {
-        oppTimeouts++;
-      } else {
-        teamTimeouts++;
-      }
-    }
-
-    return {
-      teamTOL: Math.max(0, MAX_TIMEOUTS - teamTimeouts),
-      oppTOL: Math.max(0, MAX_TIMEOUTS - oppTimeouts),
-    };
-  }, [gameStats]);
-
-  /**
-   * 🏀 CoachBoard: possessionState
-   * Why: Tracks which team currently holds the possession arrow.
-   * Notes: Derived from the latest POSSESSION event.
-   */
-  const possessionState = useMemo(() => {
-    const sortedStats = [...gameStats]
-      .filter((s) => !s.deletedAt && s.type === ACTION_TYPES.POSSESSION)
-      .sort((a, b) => a.timestamp.localeCompare(b.timestamp));
-
-    if (sortedStats.length === 0) return null;
-    return sortedStats[sortedStats.length - 1].playerId;
-  }, [gameStats]);
 
   const jerseyMap = useMemo(
     () =>
@@ -347,8 +325,8 @@ const GameMode: React.FC = () => {
    * Undoes the most recent statistical action.
    */
   const handleUndo = async () => {
-    if (recentStats.length === 0) return;
-    const lastStat = recentStats[0];
+    if (gameData.recentStats.length === 0) return;
+    const lastStat = gameData.recentStats[0];
     if (lastStat.id) {
       try {
         await db.open();
@@ -636,43 +614,43 @@ const GameMode: React.FC = () => {
                   sx={{ mt: 1, flexWrap: "wrap", gap: 1 }}
                 >
                   <ScoreboardChip
-                    label={`TEAM: ${currentScore}`}
+                    label={`TEAM: ${gameData.currentScore}`}
                     color="primary"
                   />
                   <ScoreboardChip
-                    label={`OPP: ${opponentScore}`}
+                    label={`OPP: ${gameData.opponentScore}`}
                     color="secondary"
                   />
                   <ScoreboardChip
-                    label={`TF: ${teamFoulStats.teamFouls}${teamFoulStats.teamBonusLabel}`}
+                    label={`TF: ${gameData.teamFoulStats.teamFouls}${gameData.teamFoulStats.teamBonusLabel}`}
                     variant="outlined"
                     sx={{
                       color:
-                        teamFoulStats.teamBonusColor === "default"
+                        gameData.teamFoulStats.teamBonusColor === "default"
                           ? "inherit"
-                          : (teamFoulStats.teamBonusColor as string),
+                          : (gameData.teamFoulStats.teamBonusColor as string),
                       borderColor:
-                        teamFoulStats.teamBonusColor === "default"
+                        gameData.teamFoulStats.teamBonusColor === "default"
                           ? "divider"
-                          : (teamFoulStats.teamBonusColor as string),
+                          : (gameData.teamFoulStats.teamBonusColor as string),
                     }}
                   />
                   <ScoreboardChip
-                    label={`OF: ${teamFoulStats.oppFouls}${teamFoulStats.oppBonusLabel}`}
+                    label={`OF: ${gameData.teamFoulStats.oppFouls}${gameData.teamFoulStats.oppBonusLabel}`}
                     variant="outlined"
                     sx={{
                       color:
-                        teamFoulStats.oppBonusColor === "default"
+                        gameData.teamFoulStats.oppBonusColor === "default"
                           ? "inherit"
-                          : (teamFoulStats.oppBonusColor as string),
+                          : (gameData.teamFoulStats.oppBonusColor as string),
                       borderColor:
-                        teamFoulStats.oppBonusColor === "default"
+                        gameData.teamFoulStats.oppBonusColor === "default"
                           ? "divider"
-                          : (teamFoulStats.oppBonusColor as string),
+                          : (gameData.teamFoulStats.oppBonusColor as string),
                     }}
                   />
                   <ScoreboardChip
-                    label={`TOL: ${timeoutStats.teamTOL} | ${timeoutStats.oppTOL}`}
+                    label={`TOL: ${gameData.timeoutStats.teamTOL} | ${gameData.timeoutStats.oppTOL}`}
                     variant="outlined"
                   />
                   <Box
@@ -693,19 +671,21 @@ const GameMode: React.FC = () => {
                         handleTogglePossession(SPECIAL_PLAYER_IDS.OUR_TEAM)
                       }
                       color={
-                        possessionState === SPECIAL_PLAYER_IDS.OUR_TEAM
+                        gameData.possessionState === SPECIAL_PLAYER_IDS.OUR_TEAM
                           ? "primary"
                           : "default"
                       }
                       sx={{
                         p: 0.5,
                         bgcolor:
-                          possessionState === SPECIAL_PLAYER_IDS.OUR_TEAM
+                          gameData.possessionState ===
+                          SPECIAL_PLAYER_IDS.OUR_TEAM
                             ? "primary.light"
                             : "transparent",
                         "&:hover": {
                           bgcolor:
-                            possessionState === SPECIAL_PLAYER_IDS.OUR_TEAM
+                            gameData.possessionState ===
+                            SPECIAL_PLAYER_IDS.OUR_TEAM
                               ? "primary.light"
                               : "action.hover",
                         },
@@ -726,19 +706,21 @@ const GameMode: React.FC = () => {
                         handleTogglePossession(SPECIAL_PLAYER_IDS.OPPONENT)
                       }
                       color={
-                        possessionState === SPECIAL_PLAYER_IDS.OPPONENT
+                        gameData.possessionState === SPECIAL_PLAYER_IDS.OPPONENT
                           ? "secondary"
                           : "default"
                       }
                       sx={{
                         p: 0.5,
                         bgcolor:
-                          possessionState === SPECIAL_PLAYER_IDS.OPPONENT
+                          gameData.possessionState ===
+                          SPECIAL_PLAYER_IDS.OPPONENT
                             ? "secondary.light"
                             : "transparent",
                         "&:hover": {
                           bgcolor:
-                            possessionState === SPECIAL_PLAYER_IDS.OPPONENT
+                            gameData.possessionState ===
+                            SPECIAL_PLAYER_IDS.OPPONENT
                               ? "secondary.light"
                               : "action.hover",
                         },
@@ -793,7 +775,7 @@ const GameMode: React.FC = () => {
                 variant="outlined"
                 startIcon={<UndoIcon />}
                 onClick={handleUndo}
-                disabled={recentStats.length === 0 || isDeleted}
+                disabled={gameData.recentStats.length === 0 || isDeleted}
               >
                 Undo
               </Button>
@@ -872,7 +854,7 @@ const GameMode: React.FC = () => {
                     }}
                   >
                     {players
-                      .filter((p) => onCourtIds.has(p.id!))
+                      .filter((p) => gameData.onCourtIds.has(p.id!))
                       .map((p) => (
                         <Box
                           key={p.id}
@@ -923,7 +905,7 @@ const GameMode: React.FC = () => {
                           </Button>
                         </Box>
                       ))}
-                    {onCourtIds.size === 0 && (
+                    {gameData.onCourtIds.size === 0 && (
                       <Typography variant="body2" color="text.secondary">
                         No players on court. Use Quick Sub to add players.
                       </Typography>
@@ -1044,7 +1026,7 @@ const GameMode: React.FC = () => {
                 <History sx={{ fontSize: 18, mr: 1 }} /> Recent Actions
               </Typography>
               <Stack spacing={1}>
-                {recentStats
+                {gameData.recentStats
                   .filter((s) => !s.deletedAt)
                   .map((s) => (
                     <RecentActionItem
@@ -1102,7 +1084,7 @@ const GameMode: React.FC = () => {
                 }}
               >
                 {players
-                  .filter((p) => onCourtIds.has(p.id!))
+                  .filter((p) => gameData.onCourtIds.has(p.id!))
                   .map((p) => (
                     <Button
                       key={p.id}
@@ -1265,18 +1247,20 @@ const GameMode: React.FC = () => {
         <DialogContent>
           <Box sx={{ textAlign: "center", py: 2 }}>
             <Typography variant="h3" sx={{ fontWeight: 700, mb: 1 }}>
-              {currentScore} - {opponentScore}
+              {gameData.currentScore} - {gameData.opponentScore}
             </Typography>
             <Typography
               variant="h5"
               color={
-                currentScore > opponentScore ? "success.main" : "error.main"
+                gameData.currentScore > gameData.opponentScore
+                  ? "success.main"
+                  : "error.main"
               }
               sx={{ fontWeight: 600, mb: 3 }}
             >
-              {currentScore > opponentScore
+              {gameData.currentScore > gameData.opponentScore
                 ? "WIN"
-                : currentScore < opponentScore
+                : gameData.currentScore < gameData.opponentScore
                   ? "LOSS"
                   : "DRAW"}
             </Typography>
@@ -1327,7 +1311,7 @@ const GameMode: React.FC = () => {
               <Stack spacing={1}>
                 {/* Active players */}
                 {players
-                  .filter((p) => onCourtIds.has(p.id!))
+                  .filter((p) => gameData.onCourtIds.has(p.id!))
                   .map((p) => (
                     <Button
                       key={p.id}
@@ -1355,45 +1339,45 @@ const GameMode: React.FC = () => {
                     </Button>
                   ))}
                 {/* Placeholder "Empty" slots to reach 5 total */}
-                {Array.from({ length: Math.max(0, 5 - onCourtIds.size) }).map(
-                  (_, i) => {
-                    const emptyId = `EMPTY-${i}`;
-                    return (
-                      <Button
-                        key={emptyId}
-                        variant={
-                          subOutPlayerId === emptyId ? "contained" : "outlined"
-                        }
-                        onClick={() => setSubOutPlayerId(emptyId)}
-                        fullWidth
+                {Array.from({
+                  length: Math.max(0, 5 - gameData.onCourtIds.size),
+                }).map((_, i) => {
+                  const emptyId = `EMPTY-${i}`;
+                  return (
+                    <Button
+                      key={emptyId}
+                      variant={
+                        subOutPlayerId === emptyId ? "contained" : "outlined"
+                      }
+                      onClick={() => setSubOutPlayerId(emptyId)}
+                      fullWidth
+                      sx={{
+                        justifyContent: "flex-start",
+                        borderStyle: "dashed",
+                        color: "text.secondary",
+                        bgcolor:
+                          subOutPlayerId === emptyId
+                            ? "rgba(0,0,0,0.05)"
+                            : "transparent",
+                      }}
+                    >
+                      <Avatar
                         sx={{
-                          justifyContent: "flex-start",
-                          borderStyle: "dashed",
-                          color: "text.secondary",
-                          bgcolor:
-                            subOutPlayerId === emptyId
-                              ? "rgba(0,0,0,0.05)"
-                              : "transparent",
+                          width: 24,
+                          height: 24,
+                          fontSize: "0.75rem",
+                          mr: 1,
+                          bgcolor: "transparent",
+                          border: "1px dashed #bdbdbd",
+                          color: "#bdbdbd",
                         }}
                       >
-                        <Avatar
-                          sx={{
-                            width: 24,
-                            height: 24,
-                            fontSize: "0.75rem",
-                            mr: 1,
-                            bgcolor: "transparent",
-                            border: "1px dashed #bdbdbd",
-                            color: "#bdbdbd",
-                          }}
-                        >
-                          ?
-                        </Avatar>
-                        <Typography variant="body2">Empty</Typography>
-                      </Button>
-                    );
-                  },
-                )}
+                        ?
+                      </Avatar>
+                      <Typography variant="body2">Empty</Typography>
+                    </Button>
+                  );
+                })}
               </Stack>
             </Grid>
             <Grid item xs={6}>
@@ -1402,7 +1386,7 @@ const GameMode: React.FC = () => {
               </Typography>
               <Stack spacing={1}>
                 {players
-                  .filter((p) => !onCourtIds.has(p.id!))
+                  .filter((p) => !gameData.onCourtIds.has(p.id!))
                   .map((p) => (
                     <Button
                       key={p.id}
@@ -1481,7 +1465,7 @@ const ScoreboardChip: React.FC<{
   label: string;
   color?: "primary" | "secondary" | "warning" | "error" | "default";
   variant?: "filled" | "outlined";
-  sx?: any;
+  sx?: object;
   onClick?: () => void;
 }> = ({ label, color = "default", variant = "filled", sx, onClick }) => (
   <Chip
@@ -1562,24 +1546,6 @@ const PlayerStatRow: React.FC<{
 );
 
 /**
- * Determines bonus status labels and colors based on foul counts and period type.
- * @param fouls - Current foul count.
- * @param periodType - 'QUARTERS' or 'HALVES'.
- */
-const getBonusStatus = (fouls: number, periodType: string) => {
-  if (periodType === "QUARTERS") {
-    if (fouls >= 5) return { label: " (B)", color: "error.main" };
-    if (fouls === 4) return { label: "", color: "warning.main" };
-    return { label: "", color: "default" };
-  } else {
-    if (fouls >= 10) return { label: " (DB)", color: "error.main" };
-    if (fouls >= 7) return { label: " (B)", color: "error.main" };
-    if (fouls === 6) return { label: "", color: "warning.main" };
-    return { label: "", color: "default" };
-  }
-};
-
-/**
  * Sub-component for displaying a single item in the recent actions history.
  */
 const RecentActionItem: React.FC<{
@@ -1587,8 +1553,8 @@ const RecentActionItem: React.FC<{
   players: Player[];
   periodLabel: string;
   isDeleted: boolean;
-  onEdit: (s: StatEvent) => void;
-  onDelete: (id: string) => void;
+  onEdit: (_s: StatEvent) => void;
+  onDelete: (_id: string) => void;
 }> = ({ stat: s, players, periodLabel, isDeleted, onEdit, onDelete }) => (
   <Box
     sx={{

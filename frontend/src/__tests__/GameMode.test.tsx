@@ -42,6 +42,7 @@ vi.mock("react-router-dom", async (importOriginal) => {
 
 describe("GameMode Component", () => {
   const mockPlayers = [{ id: "p1", name: "Player 1", avatarColor: "#4E7D5B" }];
+  const now = new Date();
   const mockStats = [
     {
       id: "s1",
@@ -49,14 +50,14 @@ describe("GameMode Component", () => {
       playerId: "p1",
       type: ACTION_TYPES.MAKE,
       points: 2,
-      timestamp: new Date().toISOString(),
+      timestamp: now.toISOString(),
     },
     {
       id: "s2",
       gameId: "g1",
       playerId: "p1",
       type: ACTION_TYPES.SUB_IN,
-      timestamp: new Date().toISOString(),
+      timestamp: new Date(now.getTime() - 1000).toISOString(),
     },
   ];
   const mockTeamPlayers = [
