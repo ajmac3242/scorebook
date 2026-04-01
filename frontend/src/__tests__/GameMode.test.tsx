@@ -49,7 +49,7 @@ describe("GameMode Component", () => {
       playerId: "p1",
       type: ACTION_TYPES.MAKE,
       points: 2,
-      timestamp: new Date().toISOString(),
+      timestamp: new Date(Date.now() + 1000).toISOString(),
     },
     {
       id: "s2",
