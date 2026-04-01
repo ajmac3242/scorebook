@@ -1342,43 +1342,42 @@ const GameMode: React.FC = () => {
                 {Array.from({
                   length: Math.max(0, 5 - gameData.onCourtIds.size),
                 }).map((_, i) => {
-                    const emptyId = `EMPTY-${i}`;
-                    return (
-                      <Button
-                        key={emptyId}
-                        variant={
-                          subOutPlayerId === emptyId ? "contained" : "outlined"
-                        }
-                        onClick={() => setSubOutPlayerId(emptyId)}
-                        fullWidth
+                  const emptyId = `EMPTY-${i}`;
+                  return (
+                    <Button
+                      key={emptyId}
+                      variant={
+                        subOutPlayerId === emptyId ? "contained" : "outlined"
+                      }
+                      onClick={() => setSubOutPlayerId(emptyId)}
+                      fullWidth
+                      sx={{
+                        justifyContent: "flex-start",
+                        borderStyle: "dashed",
+                        color: "text.secondary",
+                        bgcolor:
+                          subOutPlayerId === emptyId
+                            ? "rgba(0,0,0,0.05)"
+                            : "transparent",
+                      }}
+                    >
+                      <Avatar
                         sx={{
-                          justifyContent: "flex-start",
-                          borderStyle: "dashed",
-                          color: "text.secondary",
-                          bgcolor:
-                            subOutPlayerId === emptyId
-                              ? "rgba(0,0,0,0.05)"
-                              : "transparent",
+                          width: 24,
+                          height: 24,
+                          fontSize: "0.75rem",
+                          mr: 1,
+                          bgcolor: "transparent",
+                          border: "1px dashed #bdbdbd",
+                          color: "#bdbdbd",
                         }}
                       >
-                        <Avatar
-                          sx={{
-                            width: 24,
-                            height: 24,
-                            fontSize: "0.75rem",
-                            mr: 1,
-                            bgcolor: "transparent",
-                            border: "1px dashed #bdbdbd",
-                            color: "#bdbdbd",
-                          }}
-                        >
-                          ?
-                        </Avatar>
-                        <Typography variant="body2">Empty</Typography>
-                      </Button>
-                    );
-                  },
-                )}
+                        ?
+                      </Avatar>
+                      <Typography variant="body2">Empty</Typography>
+                    </Button>
+                  );
+                })}
               </Stack>
             </Grid>
             <Grid item xs={6}>
