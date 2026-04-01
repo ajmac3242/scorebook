@@ -565,17 +565,11 @@ function normalizePath(event: APIGatewayProxyEventV2): string {
     event.requestContext?.http?.path ||
     "/") as string;
 
-  // Optimization: Use startsWith and slice instead of regex for path normalization in hot request path.
   let path = raw;
-  if (path.startsWith("/$default")) {
-    path = path.slice(9);
-  } else if (path.startsWith("/api")) {
-    path = path.slice(4);
-  }
+  if (path.startsWith("/$default")) path = path.slice(9);
+  else if (path.startsWith("/api")) path = path.slice(4);
 
-  if (path.length > 1 && path.endsWith("/")) {
-    path = path.slice(0, -1);
-  }
+  if (path.length > 1 && path.endsWith("/")) path = path.slice(0, -1);
 
   return path || "/";
 }
@@ -684,15 +678,8 @@ async function softDeleteItem(
 
 /**
  * Generates and uploads a team roster snapshot JSON to S3.
- *
  * @param {string} teamId - The team ID.
  * @param {string} tableName - The name of the DynamoDB table.
- * @returns {Promise<void>}
- */
-/**
- * Executes snapshot logic with error handling and environment variable validation.
- * @param {string} label - Contextual label for error logging.
- * @param {Function} fn - The snapshot function to execute.
  * @returns {Promise<void>}
  */
 /**
@@ -729,7 +716,7 @@ async function snapshotTeamRoster(teamId: string, tableName: string) {
         Key: { PK: `TEAM#${teamId}`, SK: `METADATA#${teamId}` },
       }),
     );
-    if (teamResult.Item?.deletedAt) return;
+    if (!teamResult?.Item || teamResult.Item.deletedAt) return;
 
     const playersResult = await docClient.send(
       new QueryCommand({
@@ -742,13 +729,12 @@ async function snapshotTeamRoster(teamId: string, tableName: string) {
         },
       }),
     );
-    if (teamResult.Item) {
-      const snapshot = {
-        team: teamResult.Item,
-        players: (playersResult.Items || []).filter((p) => !p.deletedAt),
-      };
-      await uploadSnapshot(bucket, `teams/${teamId}/roster.json`, snapshot);
-    }
+
+    const snapshot = {
+      team: teamResult.Item,
+      players: (playersResult.Items || []).filter((p) => !p.deletedAt),
+    };
+    await uploadSnapshot(bucket, `teams/${teamId}/roster.json`, snapshot);
   });
 }
 
@@ -791,7 +777,7 @@ async function snapshotGameStats(gameId: string, tableName: string) {
         Key: { PK: `GAME#${gameId}`, SK: `METADATA#${gameId}` },
       }),
     );
-    if (!gameResult.Item || gameResult.Item.deletedAt) return;
+    if (!gameResult?.Item || gameResult.Item.deletedAt) return;
 
     const statsResult = await docClient.send(
       new QueryCommand({
@@ -800,18 +786,17 @@ async function snapshotGameStats(gameId: string, tableName: string) {
         ExpressionAttributeValues: { ":pk": `GAME#${gameId}`, ":sk": "STAT#" },
       }),
     );
-    if (gameResult.Item) {
-      const stats = (statsResult.Items || []).filter((s) => !s.deletedAt);
-      const { teamScore, oppScore, result } = calculateGameResultFromStats(
-        stats as Record<string, unknown>[],
-      );
 
-      const snapshot = {
-        game: { ...gameResult.Item, teamScore, oppScore, result },
-        stats,
-      };
-      await uploadSnapshot(bucket, `games/${gameId}/stats.json`, snapshot);
-    }
+    const stats = (statsResult.Items || []).filter((s) => !s.deletedAt);
+    const { teamScore, oppScore, result } = calculateGameResultFromStats(
+      stats as Record<string, unknown>[],
+    );
+
+    const snapshot = {
+      game: { ...gameResult.Item, teamScore, oppScore, result },
+      stats,
+    };
+    await uploadSnapshot(bucket, `games/${gameId}/stats.json`, snapshot);
   });
 }
 

@@ -4,7 +4,7 @@
  * Processes StatEvent records into player and team level aggregates.
  */
 
-import { ACTION_TYPES } from "../constants/stats";
+import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../constants/stats";
 import { StatEvent, TeamPlayer, Player, Game } from "../db";
 import { roundToOne, formatToOne, determineResult } from "./mathUtils";
 
@@ -235,20 +235,19 @@ export const calculateTeamAggregates = (
 
   for (let i = 0; i < stats.length; i++) {
     const s = stats[i];
-    if (targetGameIds.has(s.gameId)) {
-      if (!gameTotals[s.gameId]) gameTotals[s.gameId] = { team: 0, opp: 0 };
+    if (!targetGameIds.has(s.gameId)) continue;
 
-      if (s.playerId === "OPPONENT") {
-        const pts = s.points || 0;
-        totalOppPoints += pts;
-        gameTotals[s.gameId].opp += pts;
-      } else {
-        const pts = s.points || 0;
-        totalPoints += pts;
-        gameTotals[s.gameId].team += pts;
-        if (s.type === ACTION_TYPES.REBOUND) totalRebounds++;
-        else if (s.type === ACTION_TYPES.ASSIST) totalAssists++;
-      }
+    if (!gameTotals[s.gameId]) gameTotals[s.gameId] = { team: 0, opp: 0 };
+
+    const pts = s.points || 0;
+    if (s.playerId === SPECIAL_PLAYER_IDS.OPPONENT) {
+      totalOppPoints += pts;
+      gameTotals[s.gameId].opp += pts;
+    } else {
+      totalPoints += pts;
+      gameTotals[s.gameId].team += pts;
+      if (s.type === ACTION_TYPES.REBOUND) totalRebounds++;
+      else if (s.type === ACTION_TYPES.ASSIST) totalAssists++;
     }
   }
 
@@ -288,7 +287,7 @@ export const calculateGameResult = (
   for (let i = 0; i < stats.length; i++) {
     const s = stats[i];
     if (s.gameId === gameId) {
-      if (s.playerId === "OPPONENT") {
+      if (s.playerId === SPECIAL_PLAYER_IDS.OPPONENT) {
         oppScore += s.points || 0;
       } else {
         teamScore += s.points || 0;

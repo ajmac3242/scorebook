@@ -47,17 +47,20 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  type SxProps,
+  type Theme,
 } from "@mui/material";
 import BasketballCourt from "../components/BasketballCourt";
-import { db, type StatEvent } from "../db";
+import { db, type StatEvent, type Player } from "../db";
 import { syncService } from "../utils/syncService";
 import { logger } from "../utils/logger";
 import { useLiveQuery } from "dexie-react-hooks";
-import { ACTION_TYPES } from "../constants/stats";
-import { calculatePlayerAggregates } from "../utils/stats";
+import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../constants/stats";
+import {
+  calculatePlayerAggregates,
+  type PlayerAggregates,
+} from "../utils/stats";
 import { MoleskineCard } from "../components/SharedUI";
-
-const OPPONENT_PLAYER_ID = "OPPONENT";
 
 /**
  * GameMode page component.
@@ -204,7 +207,7 @@ const GameMode: React.FC = () => {
     for (let i = 0; i < gameStats.length; i++) {
       const s = gameStats[i];
       if (s.deletedAt) continue;
-      if (s.playerId === OPPONENT_PLAYER_ID) {
+      if (s.playerId === SPECIAL_PLAYER_IDS.OPPONENT) {
         oppScore += s.points || 0;
       } else {
         curScore += s.points || 0;
@@ -235,7 +238,7 @@ const GameMode: React.FC = () => {
             : s.period >= 2;
 
       if (isCurrentPeriodFoul) {
-        if (s.playerId === OPPONENT_PLAYER_ID) {
+        if (s.playerId === SPECIAL_PLAYER_IDS.OPPONENT) {
           oppFouls++;
         } else {
           teamFouls++;
@@ -243,21 +246,8 @@ const GameMode: React.FC = () => {
       }
     }
 
-    const getBonusStatus = (fouls: number) => {
-      if (pType === "QUARTERS") {
-        if (fouls >= 5) return { label: " (B)", color: "error.main" };
-        if (fouls === 4) return { label: "", color: "warning.main" };
-        return { label: "", color: "default" };
-      } else {
-        if (fouls >= 10) return { label: " (DB)", color: "error.main" };
-        if (fouls >= 7) return { label: " (B)", color: "error.main" };
-        if (fouls === 6) return { label: "", color: "warning.main" };
-        return { label: "", color: "default" };
-      }
-    };
-
-    const teamBonus = getBonusStatus(teamFouls);
-    const oppBonus = getBonusStatus(oppFouls);
+    const teamBonus = getBonusStatus(teamFouls, pType);
+    const oppBonus = getBonusStatus(oppFouls, pType);
 
     return {
       teamFouls,
@@ -283,7 +273,7 @@ const GameMode: React.FC = () => {
       const s = gameStats[i];
       if (s.deletedAt || s.type !== ACTION_TYPES.TIMEOUT) continue;
 
-      if (s.playerId === OPPONENT_PLAYER_ID) {
+      if (s.playerId === SPECIAL_PLAYER_IDS.OPPONENT) {
         oppTimeouts++;
       } else {
         teamTimeouts++;
@@ -324,11 +314,11 @@ const GameMode: React.FC = () => {
           y: s.locationY || 0,
           type: s.type,
           label:
-            s.playerId !== OPPONENT_PLAYER_ID
+            s.playerId !== SPECIAL_PLAYER_IDS.OPPONENT
               ? jerseyMap.get(s.playerId) || ""
               : undefined,
           color:
-            s.playerId === OPPONENT_PLAYER_ID
+            s.playerId === SPECIAL_PLAYER_IDS.OPPONENT
               ? theme.palette.secondary.main
               : undefined,
         });
@@ -383,7 +373,7 @@ const GameMode: React.FC = () => {
     setSelectedY(y);
     // Auto-select opponent if in opponent tracking mode
     if (trackingMode === "OPPONENT") {
-      setSelectedPlayerId(OPPONENT_PLAYER_ID);
+      setSelectedPlayerId(SPECIAL_PLAYER_IDS.OPPONENT);
     } else {
       setSelectedPlayerId(null);
     }
@@ -560,7 +550,9 @@ const GameMode: React.FC = () => {
         id: crypto.randomUUID(),
         gameId: gameId,
         playerId:
-          trackingMode === "OPPONENT" ? OPPONENT_PLAYER_ID : "TEAM_TIMEOUT",
+          trackingMode === "OPPONENT"
+            ? SPECIAL_PLAYER_IDS.OPPONENT
+            : SPECIAL_PLAYER_IDS.TEAM_TIMEOUT,
         type: ACTION_TYPES.TIMEOUT,
         period,
         timestamp: new Date().toISOString(),
@@ -603,21 +595,18 @@ const GameMode: React.FC = () => {
                   spacing={1}
                   sx={{ mt: 1, flexWrap: "wrap", gap: 1 }}
                 >
-                  <Chip
+                  <ScoreboardChip
                     label={`TEAM: ${currentScore}`}
                     color="primary"
-                    sx={{ fontWeight: "bold" }}
                   />
-                  <Chip
+                  <ScoreboardChip
                     label={`OPP: ${opponentScore}`}
                     color="secondary"
-                    sx={{ fontWeight: "bold" }}
                   />
-                  <Chip
+                  <ScoreboardChip
                     label={`TF: ${teamFoulStats.teamFouls}${teamFoulStats.teamBonusLabel}`}
                     variant="outlined"
                     sx={{
-                      fontWeight: "bold",
                       color:
                         teamFoulStats.teamBonusColor === "default"
                           ? "inherit"
@@ -628,11 +617,10 @@ const GameMode: React.FC = () => {
                           : (teamFoulStats.teamBonusColor as string),
                     }}
                   />
-                  <Chip
+                  <ScoreboardChip
                     label={`OF: ${teamFoulStats.oppFouls}${teamFoulStats.oppBonusLabel}`}
                     variant="outlined"
                     sx={{
-                      fontWeight: "bold",
                       color:
                         teamFoulStats.oppBonusColor === "default"
                           ? "inherit"
@@ -643,12 +631,11 @@ const GameMode: React.FC = () => {
                           : (teamFoulStats.oppBonusColor as string),
                     }}
                   />
-                  <Chip
+                  <ScoreboardChip
                     label={`TOL: ${timeoutStats.teamTOL} | ${timeoutStats.oppTOL}`}
                     variant="outlined"
-                    sx={{ fontWeight: "bold" }}
                   />
-                  <Chip
+                  <ScoreboardChip
                     label={`${periodLabel}: ${period > maxPeriod ? `OT ${period - maxPeriod}` : period}`}
                     onClick={isDeleted ? undefined : handleNextPeriod}
                     variant="outlined"
@@ -908,81 +895,7 @@ const GameMode: React.FC = () => {
                       </TableHead>
                       <TableBody>
                         {statsGridData.map((row) => (
-                          <TableRow key={row.id}>
-                            <TableCell sx={{ py: 1, px: 1 }}>
-                              <Typography
-                                variant="caption"
-                                sx={{
-                                  fontWeight: 600,
-                                  display: "block",
-                                  lineHeight: 1.1,
-                                }}
-                              >
-                                #{row.jerseyNumber}
-                              </Typography>
-                              <Typography
-                                variant="caption"
-                                sx={{
-                                  fontSize: "0.65rem",
-                                  display: "block",
-                                  color: "text.secondary",
-                                  whiteSpace: "nowrap",
-                                  overflow: "hidden",
-                                  textOverflow: "ellipsis",
-                                  maxWidth: "60px",
-                                }}
-                              >
-                                {row.name.split(" ")[0]}
-                              </Typography>
-                            </TableCell>
-                            <TableCell
-                              align="right"
-                              sx={{ px: 0.5, fontSize: "0.75rem" }}
-                            >
-                              {row.points}
-                            </TableCell>
-                            <TableCell
-                              align="right"
-                              sx={{ px: 0.5, fontSize: "0.75rem" }}
-                            >
-                              {row.rebounds}
-                            </TableCell>
-                            <TableCell
-                              align="right"
-                              sx={{ px: 0.5, fontSize: "0.75rem" }}
-                            >
-                              {row.assists}
-                            </TableCell>
-                            <TableCell
-                              align="right"
-                              sx={{ px: 0.5, fontSize: "0.75rem" }}
-                            >
-                              {row.steals}
-                            </TableCell>
-                            <TableCell
-                              align="right"
-                              sx={{ px: 0.5, fontSize: "0.75rem" }}
-                            >
-                              {row.turnovers}
-                            </TableCell>
-                            <TableCell
-                              align="right"
-                              sx={{
-                                px: 1,
-                                fontSize: "0.75rem",
-                                fontWeight: row.fouls >= 4 ? 700 : 400,
-                                bgcolor:
-                                  row.fouls >= 5
-                                    ? "error.main"
-                                    : row.fouls === 4
-                                      ? "warning.main"
-                                      : "transparent",
-                                color: row.fouls >= 4 ? "white" : "inherit",
-                              }}
-                            >
-                              {row.fouls}
-                            </TableCell>
-                          </TableRow>
+                          <PlayerStatRow key={row.id} row={row} />
                         ))}
                       </TableBody>
                     </Table>
@@ -1022,52 +935,18 @@ const GameMode: React.FC = () => {
                 {recentStats
                   .filter((s) => !s.deletedAt)
                   .map((s) => (
-                    <Box
+                    <RecentActionItem
                       key={s.id}
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        py: 0.5,
-                        borderBottom: "1px solid #F0F0F0",
+                      stat={s}
+                      players={players}
+                      periodLabel={periodLabel}
+                      isDeleted={isDeleted}
+                      onEdit={openEditDialog}
+                      onDelete={(id) => {
+                        setStatToDelete(id);
+                        setDeleteDialogOpen(true);
                       }}
-                    >
-                      <Box>
-                        <Typography variant="body2">
-                          <strong>
-                            {s.playerId === OPPONENT_PLAYER_ID
-                              ? "Opponent"
-                              : s.playerId === "TEAM_TIMEOUT"
-                                ? "Our Team"
-                                : players?.find((p) => p.id === s.playerId)
-                                    ?.name || "Unknown"}
-                          </strong>
-                          : {s.type}
-                        </Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          {periodLabel} {s.period || 1}
-                        </Typography>
-                      </Box>
-                      <Box>
-                        <IconButton
-                          size="small"
-                          disabled={isDeleted}
-                          onClick={() => openEditDialog(s)}
-                        >
-                          <Edit fontSize="small" />
-                        </IconButton>
-                        <IconButton
-                          size="small"
-                          disabled={isDeleted}
-                          onClick={() => {
-                            setStatToDelete(s.id ?? null);
-                            setDeleteDialogOpen(true);
-                          }}
-                        >
-                          <Delete fontSize="small" />
-                        </IconButton>
-                      </Box>
-                    </Box>
+                    />
                   ))}
               </Stack>
             </MoleskineCard>
@@ -1085,7 +964,7 @@ const GameMode: React.FC = () => {
         <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
           {isEditing ? "Edit Action" : "Record Action"}
           <Typography variant="body2" color="text.secondary">
-            {selectedPlayerId === OPPONENT_PLAYER_ID
+            {selectedPlayerId === SPECIAL_PLAYER_IDS.OPPONENT
               ? "Opponent"
               : players?.find((p) => p.id === selectedPlayerId)?.name ||
                 "Select Player"}
@@ -1482,6 +1361,161 @@ const GameMode: React.FC = () => {
     </Box>
   );
 };
+
+/**
+ * Sub-component for displaying a chip in the scoreboard.
+ */
+const ScoreboardChip: React.FC<{
+  label: string;
+  color?: "primary" | "secondary" | "warning" | "error" | "default";
+  variant?: "filled" | "outlined";
+  sx?: any;
+  onClick?: () => void;
+}> = ({ label, color = "default", variant = "filled", sx, onClick }) => (
+  <Chip
+    label={label}
+    color={color}
+    variant={variant}
+    onClick={onClick}
+    sx={{ fontWeight: "bold", ...sx }}
+  />
+);
+
+/**
+ * Sub-component for displaying a player's statistical row in the table.
+ */
+const PlayerStatRow: React.FC<{
+  row: PlayerAggregates;
+}> = ({ row }) => (
+  <TableRow>
+    <TableCell sx={{ py: 1, px: 1 }}>
+      <Typography
+        variant="caption"
+        sx={{
+          fontWeight: 600,
+          display: "block",
+          lineHeight: 1.1,
+        }}
+      >
+        #{row.jerseyNumber}
+      </Typography>
+      <Typography
+        variant="caption"
+        sx={{
+          fontSize: "0.65rem",
+          display: "block",
+          color: "text.secondary",
+          whiteSpace: "nowrap",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          maxWidth: "60px",
+        }}
+      >
+        {row.name.split(" ")[0]}
+      </Typography>
+    </TableCell>
+    <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
+      {row.points}
+    </TableCell>
+    <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
+      {row.rebounds}
+    </TableCell>
+    <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
+      {row.assists}
+    </TableCell>
+    <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
+      {row.steals}
+    </TableCell>
+    <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
+      {row.turnovers}
+    </TableCell>
+    <TableCell
+      align="right"
+      sx={{
+        px: 1,
+        fontSize: "0.75rem",
+        fontWeight: row.fouls >= 4 ? 700 : 400,
+        bgcolor:
+          row.fouls >= 5
+            ? "error.main"
+            : row.fouls === 4
+              ? "warning.main"
+              : "transparent",
+        color: row.fouls >= 4 ? "white" : "inherit",
+      }}
+    >
+      {row.fouls}
+    </TableCell>
+  </TableRow>
+);
+
+/**
+ * Determines bonus status labels and colors based on foul counts and period type.
+ * @param fouls - Current foul count.
+ * @param periodType - 'QUARTERS' or 'HALVES'.
+ */
+const getBonusStatus = (fouls: number, periodType: string) => {
+  if (periodType === "QUARTERS") {
+    if (fouls >= 5) return { label: " (B)", color: "error.main" };
+    if (fouls === 4) return { label: "", color: "warning.main" };
+    return { label: "", color: "default" };
+  } else {
+    if (fouls >= 10) return { label: " (DB)", color: "error.main" };
+    if (fouls >= 7) return { label: " (B)", color: "error.main" };
+    if (fouls === 6) return { label: "", color: "warning.main" };
+    return { label: "", color: "default" };
+  }
+};
+
+/**
+ * Sub-component for displaying a single item in the recent actions history.
+ */
+const RecentActionItem: React.FC<{
+  stat: StatEvent;
+  players: Player[];
+  periodLabel: string;
+  isDeleted: boolean;
+  onEdit: (s: StatEvent) => void;
+  onDelete: (id: string) => void;
+}> = ({ stat: s, players, periodLabel, isDeleted, onEdit, onDelete }) => (
+  <Box
+    sx={{
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      py: 0.5,
+      borderBottom: "1px solid #F0F0F0",
+    }}
+  >
+    <Box>
+      <Typography variant="body2">
+        <strong>
+          {s.playerId === SPECIAL_PLAYER_IDS.OPPONENT
+            ? "Opponent"
+            : s.playerId === SPECIAL_PLAYER_IDS.TEAM_TIMEOUT
+              ? "Our Team"
+              : players?.find((p) => p.id === s.playerId)?.name || "Unknown"}
+        </strong>
+        : {s.type}
+      </Typography>
+      <Typography variant="caption" color="text.secondary">
+        {periodLabel} {s.period || 1}
+      </Typography>
+    </Box>
+    <Box>
+      <IconButton size="small" disabled={isDeleted} onClick={() => onEdit(s)}>
+        <Edit fontSize="small" />
+      </IconButton>
+      <IconButton
+        size="small"
+        disabled={isDeleted}
+        onClick={() => onDelete(s.id!)}
+      >
+        <Delete fontSize="small" />
+      </IconButton>
+    </Box>
+  </Box>
+);
 
 const QuickAction: React.FC<{
   type: string;

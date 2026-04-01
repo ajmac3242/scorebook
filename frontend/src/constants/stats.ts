@@ -43,3 +43,11 @@ export const ACTION_TYPES = {
   SUB_IN: "SUB_IN",
   SUB_OUT: "SUB_OUT",
 };
+
+/**
+ * Standardized IDs for special players.
+ */
+export const SPECIAL_PLAYER_IDS = {
+  OPPONENT: "OPPONENT",
+  TEAM_TIMEOUT: "TEAM_TIMEOUT",
+};
