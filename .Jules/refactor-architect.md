@@ -18,3 +18,12 @@ Pattern:
 3. Promisify complex callback-based flows (auth sessions) to flatten async logic.
 4. Centralize resource management (ETag keys, DynamoDB key sets) to prevent string interpolation drift.
 5. Standardize backend logging with a `logError` helper for consistent observability.
+
+## 2026-04-01 - Component Decomposition and Constant Standardization
+Smell: Monolithic UI components with deeply nested JSX; magic strings for 'special' entity IDs; repetitive logic in stat aggregation.
+Learning: Extracting repetitive UI sub-trees into local functional components drastically improves the "scannability" of complex pages like GameMode. Centralizing special IDs prevents reference drift between the data layer and UI.
+Pattern:
+1. Decompose large React components into focused sub-components (`PlayerStatRow`, `RecentActionItem`) to improve maintainability of complex tracking interfaces.
+2. Standardize 'magic' strings into shared constants (`SPECIAL_PLAYER_IDS`) for special entities like 'OPPONENT' and 'TEAM_TIMEOUT'.
+3. Use early returns and defensive checks (`!result?.Item`) to flatten deeply nested backend logic and prevent runtime crashes.
+4. Extract pure business logic (`getBonusStatus`) from stateful hooks to improve testability and clarity.
