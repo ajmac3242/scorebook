@@ -47,6 +47,7 @@ jobs:
           pnpm install --frozen-lockfile
           pnpm run build
           pnpm install --prod --shamefully-hoist
+          node scripts/verify-build.cjs
           zip -r ../lambda.zip dist node_modules package.json
 
       - name: Configure AWS Credentials
