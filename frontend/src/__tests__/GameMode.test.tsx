@@ -11,7 +11,7 @@ import { BrowserRouter } from "react-router-dom";
 import { db } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
 import React from "react";
-import { ACTION_TYPES } from "../constants/stats";
+import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../constants/stats";
 import { ThemeProvider, createTheme } from "@mui/material";
 
 const theme = createTheme();
@@ -202,5 +202,50 @@ describe("GameMode Component", () => {
     // Actually, let's just verify the dialog components.
     expect(screen.getByText("ON COURT")).toBeInTheDocument();
     expect(screen.getByText("BENCH")).toBeInTheDocument();
+  });
+
+  it("toggles the possession arrow", async () => {
+    renderComponent();
+
+    // The component initially has no possession (based on empty mock stats for possession)
+    // Find the toggle buttons. There are two, one for Our Team (pointing back) and one for Opponent (pointing forward).
+    // We can find them by the icon names or aria-label if we added them, but they use ArrowBack/ArrowForward icons.
+    // Let's use the IconButton role and check for the first and second.
+
+    const buttons = screen.getAllByRole("button");
+    // "Our Team" possession button is the one with ArrowBack
+    const ourPossBtn = buttons.find((b) =>
+      b.querySelector('svg[data-testid="ArrowBackIcon"]'),
+    );
+    const oppPossBtn = buttons.find((b) =>
+      b.querySelector('svg[data-testid="ArrowForwardIcon"]'),
+    );
+
+    expect(ourPossBtn).toBeDefined();
+    expect(oppPossBtn).toBeDefined();
+
+    // Click Our Team possession
+    fireEvent.click(ourPossBtn!);
+
+    await waitFor(() => {
+      expect(db.stats.add).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: ACTION_TYPES.POSSESSION,
+          playerId: SPECIAL_PLAYER_IDS.OUR_TEAM,
+        }),
+      );
+    });
+
+    // Click Opponent possession
+    fireEvent.click(oppPossBtn!);
+
+    await waitFor(() => {
+      expect(db.stats.add).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: ACTION_TYPES.POSSESSION,
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+        }),
+      );
+    });
   });
 });

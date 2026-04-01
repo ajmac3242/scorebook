@@ -39,6 +39,8 @@ import {
   Delete,
   FlashOn,
   Warning,
+  ArrowForward,
+  ArrowBack,
 } from "@mui/icons-material";
 import {
   Table,
@@ -284,6 +286,20 @@ const GameMode: React.FC = () => {
       teamTOL: Math.max(0, MAX_TIMEOUTS - teamTimeouts),
       oppTOL: Math.max(0, MAX_TIMEOUTS - oppTimeouts),
     };
+  }, [gameStats]);
+
+  /**
+   * 🏀 CoachBoard: possessionState
+   * Why: Tracks which team currently holds the possession arrow.
+   * Notes: Derived from the latest POSSESSION event.
+   */
+  const possessionState = useMemo(() => {
+    const sortedStats = [...gameStats]
+      .filter((s) => !s.deletedAt && s.type === ACTION_TYPES.POSSESSION)
+      .sort((a, b) => a.timestamp.localeCompare(b.timestamp));
+
+    if (sortedStats.length === 0) return null;
+    return sortedStats[sortedStats.length - 1].playerId;
   }, [gameStats]);
 
   const jerseyMap = useMemo(
@@ -564,6 +580,30 @@ const GameMode: React.FC = () => {
     }
   };
 
+  /**
+   * 🏀 CoachBoard: handleTogglePossession
+   * Why: Quick toggle for the possession arrow.
+   * Notes: Records a POSSESSION event for the specified team.
+   */
+  const handleTogglePossession = async (targetTeam: string) => {
+    if (!gameId || isDeleted) return;
+    try {
+      await db.open();
+      await db.stats.add({
+        id: crypto.randomUUID(),
+        gameId: gameId,
+        playerId: targetTeam,
+        type: ACTION_TYPES.POSSESSION,
+        period,
+        timestamp: new Date().toISOString(),
+        synced: 0,
+      });
+      await syncService.pushUpdates();
+    } catch (err) {
+      logger.error("Failed to toggle possession:", err);
+    }
+  };
+
   return (
     <Box sx={{ pb: 4, opacity: isDeleted ? 0.7 : 1 }}>
       {isDeleted && (
@@ -635,6 +675,78 @@ const GameMode: React.FC = () => {
                     label={`TOL: ${timeoutStats.teamTOL} | ${timeoutStats.oppTOL}`}
                     variant="outlined"
                   />
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      bgcolor: "background.paper",
+                      borderRadius: 1,
+                      border: "1px solid",
+                      borderColor: "divider",
+                      px: 0.5,
+                    }}
+                  >
+                    <IconButton
+                      size="small"
+                      disabled={isDeleted}
+                      onClick={() =>
+                        handleTogglePossession(SPECIAL_PLAYER_IDS.OUR_TEAM)
+                      }
+                      color={
+                        possessionState === SPECIAL_PLAYER_IDS.OUR_TEAM
+                          ? "primary"
+                          : "default"
+                      }
+                      sx={{
+                        p: 0.5,
+                        bgcolor:
+                          possessionState === SPECIAL_PLAYER_IDS.OUR_TEAM
+                            ? "primary.light"
+                            : "transparent",
+                        "&:hover": {
+                          bgcolor:
+                            possessionState === SPECIAL_PLAYER_IDS.OUR_TEAM
+                              ? "primary.light"
+                              : "action.hover",
+                        },
+                      }}
+                    >
+                      <ArrowBack fontSize="small" />
+                    </IconButton>
+                    <Typography
+                      variant="caption"
+                      sx={{ fontWeight: "bold", mx: 0.5, fontSize: "0.65rem" }}
+                    >
+                      POSS
+                    </Typography>
+                    <IconButton
+                      size="small"
+                      disabled={isDeleted}
+                      onClick={() =>
+                        handleTogglePossession(SPECIAL_PLAYER_IDS.OPPONENT)
+                      }
+                      color={
+                        possessionState === SPECIAL_PLAYER_IDS.OPPONENT
+                          ? "secondary"
+                          : "default"
+                      }
+                      sx={{
+                        p: 0.5,
+                        bgcolor:
+                          possessionState === SPECIAL_PLAYER_IDS.OPPONENT
+                            ? "secondary.light"
+                            : "transparent",
+                        "&:hover": {
+                          bgcolor:
+                            possessionState === SPECIAL_PLAYER_IDS.OPPONENT
+                              ? "secondary.light"
+                              : "action.hover",
+                        },
+                      }}
+                    >
+                      <ArrowForward fontSize="small" />
+                    </IconButton>
+                  </Box>
                   <ScoreboardChip
                     label={`${periodLabel}: ${period > maxPeriod ? `OT ${period - maxPeriod}` : period}`}
                     onClick={isDeleted ? undefined : handleNextPeriod}
@@ -1492,7 +1604,8 @@ const RecentActionItem: React.FC<{
         <strong>
           {s.playerId === SPECIAL_PLAYER_IDS.OPPONENT
             ? "Opponent"
-            : s.playerId === SPECIAL_PLAYER_IDS.TEAM_TIMEOUT
+            : s.playerId === SPECIAL_PLAYER_IDS.TEAM_TIMEOUT ||
+                s.playerId === SPECIAL_PLAYER_IDS.OUR_TEAM
               ? "Our Team"
               : players?.find((p) => p.id === s.playerId)?.name || "Unknown"}
         </strong>
