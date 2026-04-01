@@ -149,7 +149,12 @@ describe("GameMode Component", () => {
     fireEvent.click(undoBtn);
 
     await waitFor(() => {
-      expect(db.stats.delete).toHaveBeenCalledWith("s1");
+      expect(db.stats.update).toHaveBeenCalledWith(
+        "s1",
+        expect.objectContaining({
+          synced: 0,
+        }),
+      );
     });
   });
 

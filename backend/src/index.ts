@@ -43,7 +43,6 @@ const INTERNAL_KEYS = new Set([
   "GSI1SK",
   "GSI2PK",
   "GSI2SK",
-  "deletedAt",
 ]);
 
 /**
@@ -289,6 +288,7 @@ async function handleGames(
       await docClient.send(
         new PutCommand({ TableName: tableName, Item: item }),
       );
+      await snapshotGameStats(gameId, tableName);
       return created(item);
     }
   }
@@ -784,7 +784,7 @@ async function snapshotGameStats(gameId: string, tableName: string) {
         Key: { PK: `GAME#${gameId}`, SK: `METADATA#${gameId}` },
       }),
     );
-    if (gameResult.Item?.deletedAt) return;
+    if (!gameResult.Item || gameResult.Item.deletedAt) return;
 
     const statsResult = await docClient.send(
       new QueryCommand({
