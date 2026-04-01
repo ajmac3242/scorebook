@@ -158,7 +158,6 @@ const GameMode: React.FC = () => {
   }, [teamId, teamPlayers]);
   const players = useMemo(() => playersQueryResult || [], [playersQueryResult]);
 
-
   const game = useLiveQuery(() => db.games.get(gameId as string), [gameId]);
   const team = useLiveQuery(
     () =>
