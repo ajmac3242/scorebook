@@ -5,10 +5,7 @@ jest.mock("uuid", () => ({
   v4: jest.fn(() => "test-uuid"),
 }));
 
-import {
-  DynamoDBDocumentClient,
-  QueryCommand,
-} from "@aws-sdk/lib-dynamodb";
+import { DynamoDBDocumentClient, QueryCommand } from "@aws-sdk/lib-dynamodb";
 
 const ddbMock = mockClient(DynamoDBDocumentClient);
 
@@ -25,10 +22,7 @@ describe("Error Reporting Tests", () => {
     consoleSpy.mockRestore();
   });
 
-  const createEvent = (
-    method: string,
-    path: string,
-  ): any => ({
+  const createEvent = (method: string, path: string): any => ({
     version: "2.0",
     rawPath: path,
     requestContext: {
