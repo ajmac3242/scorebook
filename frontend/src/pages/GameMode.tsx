@@ -372,7 +372,11 @@ const GameMode: React.FC = () => {
     if (lastStat.id) {
       try {
         await db.open();
-        await db.stats.delete(lastStat.id);
+        await db.stats.update(lastStat.id, {
+          deletedAt: new Date().toISOString(),
+          synced: 0,
+        });
+        syncService.pushUpdates();
       } catch (err) {
         console.error("Failed to undo stat:", err);
       }
@@ -428,7 +432,9 @@ const GameMode: React.FC = () => {
           playerId: selectedPlayerId!,
           type: typeToSave,
           points: typeToSave === ACTION_TYPES.MAKE ? points : 0,
+          synced: 0,
         });
+        syncService.pushUpdates();
       } else {
         const newStat: StatEvent = {
           id: crypto.randomUUID(),
@@ -506,7 +512,11 @@ const GameMode: React.FC = () => {
     if (!statToDelete) return;
     try {
       await db.open();
-      await db.stats.delete(statToDelete);
+      await db.stats.update(statToDelete, {
+        deletedAt: new Date().toISOString(),
+        synced: 0,
+      });
+      syncService.pushUpdates();
       setDeleteDialogOpen(false);
       setStatToDelete(null);
     } catch (err) {
@@ -580,6 +590,7 @@ const GameMode: React.FC = () => {
         timestamp: new Date().toISOString(),
         synced: 0,
       });
+      syncService.pushUpdates();
     } catch (err) {
       console.error("Failed to record timeout:", err);
     }

@@ -370,6 +370,7 @@ const TeamStats: React.FC = () => {
       primaryColor: editColor,
       synced: 0,
     });
+    syncService.pushUpdates();
     setOpenSettingsDialog(false);
   };
 

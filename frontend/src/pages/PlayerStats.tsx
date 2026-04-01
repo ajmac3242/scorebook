@@ -150,6 +150,7 @@ const PlayerStats: React.FC = () => {
       avatarColor: editColor,
       synced: 0,
     });
+    syncService.pushUpdates();
     setOpenEditDialog(false);
   };
 
