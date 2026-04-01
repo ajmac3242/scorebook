@@ -11,3 +11,7 @@ Action: Use numeric rounding operations for performance-sensitive math utilities
 
 Learning: Extracting stable sub-computations (like a `jerseyMap`) into their own `useMemo` hooks prevents them from being re-created when other dependencies of a larger `useMemo` change, reducing memory churn.
 Action: Break down complex `useMemo` hooks into smaller, more granular hooks based on dependency stability.
+
+2026-04-01 - [Consolidated derivations in GameMode]
+Learning: Consolidating multiple `useMemo`, `useState`, and `useEffect` hooks that iterate over the same data (e.g., `gameStats`) into a single-pass `useMemo` significantly reduces CPU overhead and prevents unnecessary re-render cycles in high-frequency UI paths.
+Action: Identify 'hot path' components with multiple redundant data traversals and consolidate them into a single, efficient loop.
