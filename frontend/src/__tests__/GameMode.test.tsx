@@ -214,11 +214,11 @@ describe("GameMode Component", () => {
 
     const buttons = screen.getAllByRole("button");
     // "Our Team" possession button is the one with ArrowBack
-    const ourPossBtn = buttons.find(
-      (b) => b.querySelector('svg[data-testid="ArrowBackIcon"]'),
+    const ourPossBtn = buttons.find((b) =>
+      b.querySelector('svg[data-testid="ArrowBackIcon"]'),
     );
-    const oppPossBtn = buttons.find(
-      (b) => b.querySelector('svg[data-testid="ArrowForwardIcon"]'),
+    const oppPossBtn = buttons.find((b) =>
+      b.querySelector('svg[data-testid="ArrowForwardIcon"]'),
     );
 
     expect(ourPossBtn).toBeDefined();
