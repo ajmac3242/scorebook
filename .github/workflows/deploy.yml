@@ -46,7 +46,7 @@ jobs:
           cd backend
           pnpm install --frozen-lockfile
           pnpm run build
-          pnpm prune --production
+          pnpm install --prod --shamefully-hoist
           zip -r ../lambda.zip dist node_modules package.json
 
       - name: Configure AWS Credentials
