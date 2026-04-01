@@ -46,6 +46,7 @@ import { calculatePlayerAggregates } from "../utils/stats";
 import { MoleskineCard } from "../components/SharedUI";
 import EntityBanner from "../components/EntityBanner";
 import { syncService } from "../utils/syncService";
+import { logger } from "../utils/logger";
 import dayjs from "dayjs";
 import SortableHeader from "../components/SortableHeader";
 import {
@@ -301,10 +302,10 @@ const GameStats: React.FC = () => {
         deletedAt: new Date().toISOString(),
         synced: 0,
       });
-      syncService.pushUpdates();
+      await syncService.pushUpdates();
       setDeleteDialogOpen(false);
     } catch (err) {
-      console.error("Failed to delete game:", err);
+      logger.error("Failed to delete game:", err);
     }
   };
 
@@ -312,9 +313,9 @@ const GameStats: React.FC = () => {
     if (!gameId || !game) return;
     try {
       await db.games.update(game.id!, { deletedAt: undefined, synced: 0 });
-      syncService.pushUpdates();
+      await syncService.pushUpdates();
     } catch (err) {
-      console.error("Failed to restore game:", err);
+      logger.error("Failed to restore game:", err);
     }
   };
 
@@ -329,10 +330,10 @@ const GameStats: React.FC = () => {
         opponentLogoUrl: editOpponentLogoUrl,
         synced: 0,
       });
-      syncService.pushUpdates();
+      await syncService.pushUpdates();
       setOpenEditDialog(false);
     } catch (err) {
-      console.error("Failed to update game:", err);
+      logger.error("Failed to update game:", err);
     }
   };
 

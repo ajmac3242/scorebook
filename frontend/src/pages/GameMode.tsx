@@ -54,6 +54,7 @@ import {
 import BasketballCourt from "../components/BasketballCourt";
 import { db, type StatEvent } from "../db";
 import { syncService } from "../utils/syncService";
+import { logger } from "../utils/logger";
 import { useLiveQuery } from "dexie-react-hooks";
 import { ACTION_TYPES } from "../constants/stats";
 import { calculatePlayerAggregates } from "../utils/stats";
@@ -105,7 +106,7 @@ const GameMode: React.FC = () => {
       await db.open();
       return await db.stats.where("gameId").equals(gameId).toArray();
     } catch (err) {
-      console.error("Failed to fetch game stats:", err);
+      logger.error("Failed to fetch game stats:", err);
       return [];
     }
   }, [gameId]);
@@ -154,7 +155,7 @@ const GameMode: React.FC = () => {
       const playerIds = teamPlayers.map((t) => t.playerId.toString());
       return await db.players.where("id").anyOf(playerIds).toArray();
     } catch (err) {
-      console.error("Failed to fetch players:", err);
+      logger.error("Failed to fetch players:", err);
       return [];
     }
   }, [teamId, teamPlayers]);
@@ -206,7 +207,7 @@ const GameMode: React.FC = () => {
           .sort((a, b) => b.timestamp.localeCompare(a.timestamp))
           .slice(0, 10);
       } catch (err) {
-        console.error("Failed to fetch recent stats:", err);
+        logger.error("Failed to fetch recent stats:", err);
         return [];
       }
     }, [gameId]) || [];
@@ -376,9 +377,9 @@ const GameMode: React.FC = () => {
           deletedAt: new Date().toISOString(),
           synced: 0,
         });
-        syncService.pushUpdates();
+        await syncService.pushUpdates();
       } catch (err) {
-        console.error("Failed to undo stat:", err);
+        logger.error("Failed to undo stat:", err);
       }
     }
   };
@@ -390,11 +391,11 @@ const GameMode: React.FC = () => {
     try {
       await db.open();
       await db.games.update(gameId as string, { completed: 1, synced: 0 });
-      syncService.pushUpdates();
+      await syncService.pushUpdates();
       setEndGameDialogOpen(false);
       setSummaryDialogOpen(true);
     } catch (err) {
-      console.error("Failed to end game:", err);
+      logger.error("Failed to end game:", err);
     }
   };
 
@@ -434,7 +435,7 @@ const GameMode: React.FC = () => {
           points: typeToSave === ACTION_TYPES.MAKE ? points : 0,
           synced: 0,
         });
-        syncService.pushUpdates();
+        await syncService.pushUpdates();
       } else {
         const newStat: StatEvent = {
           id: crypto.randomUUID(),
@@ -449,9 +450,10 @@ const GameMode: React.FC = () => {
           synced: 0,
         };
         await db.stats.add(newStat);
+        await syncService.pushUpdates();
       }
     } catch (err) {
-      console.error("Failed to save stat:", err);
+      logger.error("Failed to save stat:", err);
     }
     // Reset state after save
     setDialogOpen(false);
@@ -500,8 +502,9 @@ const GameMode: React.FC = () => {
       setSubDialogOpen(false);
       setSubOutPlayerId(null);
       setSubInPlayerId(null);
+      await syncService.pushUpdates();
     } catch (err) {
-      console.error("Failed to record quick sub:", err);
+      logger.error("Failed to record quick sub:", err);
     }
   };
 
@@ -516,11 +519,11 @@ const GameMode: React.FC = () => {
         deletedAt: new Date().toISOString(),
         synced: 0,
       });
-      syncService.pushUpdates();
+      await syncService.pushUpdates();
       setDeleteDialogOpen(false);
       setStatToDelete(null);
     } catch (err) {
-      console.error("Failed to delete stat:", err);
+      logger.error("Failed to delete stat:", err);
     }
   };
 
@@ -590,9 +593,9 @@ const GameMode: React.FC = () => {
         timestamp: new Date().toISOString(),
         synced: 0,
       });
-      syncService.pushUpdates();
+      await syncService.pushUpdates();
     } catch (err) {
-      console.error("Failed to record timeout:", err);
+      logger.error("Failed to record timeout:", err);
     }
   };
 

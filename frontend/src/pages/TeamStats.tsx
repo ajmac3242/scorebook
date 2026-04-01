@@ -177,7 +177,7 @@ const TeamStats: React.FC = () => {
         }
         return Array.from(locationSet).sort();
       } catch (error) {
-        console.error("Failed to fetch locations:", error);
+        logger.error("Failed to fetch locations:", error);
         return [];
       }
     }) || [];
@@ -340,12 +340,12 @@ const TeamStats: React.FC = () => {
         }
       }
 
-      syncService.pushUpdates();
+      await syncService.pushUpdates();
       setOpenRosterDialog(false);
       setPendingRosterChanges({});
       setLocalJerseyNumbers({});
     } catch (err) {
-      console.error("Failed to save roster changes:", err);
+      logger.error("Failed to save roster changes:", err);
     }
   };
 
@@ -370,7 +370,7 @@ const TeamStats: React.FC = () => {
       primaryColor: editColor,
       synced: 0,
     });
-    syncService.pushUpdates();
+    await syncService.pushUpdates();
     setOpenSettingsDialog(false);
   };
 
@@ -387,10 +387,10 @@ const TeamStats: React.FC = () => {
       for (const g of teamGames) {
         await db.games.update(g.id!, { deletedAt, synced: 0 });
       }
-      syncService.pushUpdates();
+      await syncService.pushUpdates();
       setDeleteDialogOpen(false);
     } catch (err) {
-      console.error("Failed to delete team:", err);
+      logger.error("Failed to delete team:", err);
     }
   };
 
@@ -405,9 +405,9 @@ const TeamStats: React.FC = () => {
       for (const g of teamGames) {
         await db.games.update(g.id!, { deletedAt: undefined, synced: 0 });
       }
-      syncService.pushUpdates();
+      await syncService.pushUpdates();
     } catch (error) {
-      console.error("Failed to restore team:", error);
+      logger.error("Failed to restore team:", error);
     }
   };
 
@@ -426,7 +426,7 @@ const TeamStats: React.FC = () => {
         location: newLocation,
         synced: 0,
       });
-      syncService.pushUpdates();
+      await syncService.pushUpdates();
       setOpenAddGame(false);
       setNewOpponent("");
       setNewOpponentLogoUrl("");
@@ -434,7 +434,7 @@ const TeamStats: React.FC = () => {
       setNewTime("");
       setNewLocation("");
     } catch (error) {
-      console.error("Failed to add game:", error);
+      logger.error("Failed to add game:", error);
     } finally {
       setIsSubmittingGame(false);
     }

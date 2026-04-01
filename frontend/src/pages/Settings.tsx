@@ -21,9 +21,12 @@ import {
   Refresh as SyncingIcon,
   Settings as SettingsIcon,
   Warning as WarningIcon,
+  ContentCopy as CopyIcon,
+  DeleteOutline as ClearIcon,
 } from "@mui/icons-material";
 import { useAuth } from "../context/AuthContext";
 import { syncService } from "../utils/syncService";
+import { logger, type LogEntry } from "../utils/logger";
 import EntityBanner from "../components/EntityBanner";
 import { db } from "../db";
 
@@ -37,6 +40,7 @@ const Settings: React.FC = () => {
   const [isSyncing, setIsSyncing] = useState(false);
   const [hasUnsynced, setHasUnsynced] = useState(false);
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
+  const [logs, setLogs] = useState<LogEntry[]>(logger.getLogs());
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
@@ -54,6 +58,10 @@ const Settings: React.FC = () => {
       syncService.hasUnsyncedChanges().then(setHasUnsynced);
     });
 
+    const unsubscribeLogs = logger.subscribe(() => {
+      setLogs(logger.getLogs());
+    });
+
     const interval = setInterval(() => {
       syncService.hasUnsyncedChanges().then(setHasUnsynced);
     }, 3000);
@@ -62,6 +70,7 @@ const Settings: React.FC = () => {
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
       unsubscribe();
+      unsubscribeLogs();
       clearInterval(interval);
     };
   }, []);
@@ -100,9 +109,32 @@ const Settings: React.FC = () => {
         localStorage.removeItem(key);
       }
     } catch (err) {
-      console.error("Failed to clean up local state during logout:", err);
+      logger.error("Failed to clean up local state during logout:", err);
     }
     logout();
+  };
+
+  /**
+   * Copies the current logs to the clipboard.
+   */
+  const copyLogsToClipboard = () => {
+    const logString = logs
+      .map(
+        (l) =>
+          `[${l.timestamp}] [${l.level.toUpperCase()}] ${l.message}${
+            l.error ? `\nError: ${JSON.stringify(l.error)}` : ""
+          }${l.context ? `\nContext: ${JSON.stringify(l.context)}` : ""}`,
+      )
+      .join("\n\n");
+    navigator.clipboard.writeText(logString);
+  };
+
+  /**
+   * Clears all stored logs.
+   */
+  const handleClearLogs = () => {
+    logger.clearLogs();
+    setLogs([]);
   };
 
   const logoutDialog = (
@@ -256,10 +288,115 @@ const Settings: React.FC = () => {
             size="large"
             startIcon={<LogoutIcon />}
             onClick={handleLogoutClick}
-            sx={{ borderRadius: 2 }}
+            sx={{ borderRadius: 2, mb: 4 }}
           >
             Logout
           </Button>
+
+          <Divider sx={{ mb: 4 }} />
+
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              mb: 2,
+            }}
+          >
+            <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+              System Logs
+            </Typography>
+            <Stack direction="row" spacing={1}>
+              <Button
+                size="small"
+                startIcon={<CopyIcon />}
+                onClick={copyLogsToClipboard}
+                disabled={logs.length === 0}
+              >
+                Copy
+              </Button>
+              <Button
+                size="small"
+                startIcon={<ClearIcon />}
+                onClick={handleClearLogs}
+                disabled={logs.length === 0}
+                color="error"
+              >
+                Clear
+              </Button>
+            </Stack>
+          </Box>
+
+          <Paper
+            elevation={0}
+            sx={{
+              bgcolor: "background.default",
+              borderRadius: 2,
+              p: 2,
+              maxHeight: 300,
+              overflowY: "auto",
+              textAlign: "left",
+              border: "1px solid rgba(0,0,0,0.05)",
+            }}
+          >
+            {logs.length === 0 ? (
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ textAlign: "center", fontStyle: "italic", py: 2 }}
+              >
+                No logs recorded yet.
+              </Typography>
+            ) : (
+              <Stack spacing={1.5}>
+                {[...logs].reverse().map((log, index) => (
+                  <Box key={index}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "baseline",
+                        gap: 1,
+                        mb: 0.5,
+                      }}
+                    >
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          fontWeight: "bold",
+                          color:
+                            log.level === "error"
+                              ? "error.main"
+                              : log.level === "warn"
+                                ? "warning.main"
+                                : "text.secondary",
+                          textTransform: "uppercase",
+                        }}
+                      >
+                        {log.level}
+                      </Typography>
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        sx={{ fontSize: "0.7rem" }}
+                      >
+                        {new Date(log.timestamp).toLocaleTimeString()}
+                      </Typography>
+                    </Box>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        fontFamily: "monospace",
+                        fontSize: "0.8rem",
+                        wordBreak: "break-all",
+                      }}
+                    >
+                      {log.message}
+                    </Typography>
+                  </Box>
+                ))}
+              </Stack>
+            )}
+          </Paper>
         </Paper>
       </Box>
       {logoutDialog}

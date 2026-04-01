@@ -117,9 +117,9 @@ const Navigation: React.FC = () => {
      * Handles the browser coming back online.
      * Triggers immediate synchronization.
      */
-    const handleOnline = () => {
-      syncService.pushUpdates();
-      syncService.pullAll();
+    const handleOnline = async () => {
+      await syncService.pushUpdates();
+      await syncService.pullAll();
     };
 
     window.addEventListener("online", handleOnline);

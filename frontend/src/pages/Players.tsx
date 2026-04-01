@@ -115,7 +115,7 @@ const Players: React.FC = () => {
         isArchived: 0,
         synced: 0,
       });
-      syncService.pushUpdates();
+      await syncService.pushUpdates();
       setOpen(false);
       setName("");
       setAvatarColor(AVATAR_COLORS[0]);
@@ -135,7 +135,7 @@ const Players: React.FC = () => {
   const handleRestorePlayer = async (id: string) => {
     try {
       await db.players.update(id, { isArchived: 0, synced: 0 });
-      syncService.pushUpdates();
+      await syncService.pushUpdates();
     } catch (err) {
       logger.error("Failed to restore player", err, { id });
     }
