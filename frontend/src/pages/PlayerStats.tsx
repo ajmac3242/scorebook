@@ -27,7 +27,6 @@ import {
 import BasketballCourt from "../components/BasketballCourt";
 import { db, type StatEvent } from "../db";
 import { syncService } from "../utils/syncService";
-import { logger } from "../utils/logger";
 import { useLiveQuery } from "dexie-react-hooks";
 import { calculatePlayerAggregates } from "../utils/stats";
 import { MoleskineCard, StatCard } from "../components/SharedUI";

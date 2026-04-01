@@ -38,7 +38,10 @@ describe("logger", () => {
     expect(logs[0]).toMatchObject({
       level: "error",
       message: "Test error message",
-      error: error,
+      error: {
+        message: "Sample error",
+        name: "Error",
+      },
       context: { extra: "data" },
     });
   });

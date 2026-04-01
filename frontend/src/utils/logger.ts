@@ -16,7 +16,7 @@ export interface LogEntry {
 
 const MAX_LOGS = 50;
 let logs: LogEntry[] = [];
-const listeners: ((log: LogEntry) => void)[] = [];
+const listeners: ((_log: LogEntry) => void)[] = [];
 
 /**
  * Appends a log entry to the in-memory log storage and notifies listeners.
@@ -94,10 +94,10 @@ export const logger = {
 
   /**
    * Subscribes to new log entries.
-   * @param {(log: LogEntry) => void} listener - The callback function.
+   * @param {(_log: LogEntry) => void} listener - The callback function.
    * @returns {() => void} Unsubscribe function.
    */
-  subscribe: (listener: (log: LogEntry) => void) => {
+  subscribe: (listener: (_log: LogEntry) => void) => {
     listeners.push(listener);
     return () => {
       const index = listeners.indexOf(listener);

@@ -28,8 +28,6 @@ import {
   Tooltip,
 } from "@mui/material";
 import {
-  AddCircleOutline,
-  RemoveCircleOutline,
   Undo as UndoIcon,
   History,
   Check,
@@ -49,7 +47,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
 } from "@mui/material";
 import BasketballCourt from "../components/BasketballCourt";
 import { db, type StatEvent } from "../db";
@@ -161,18 +158,6 @@ const GameMode: React.FC = () => {
   }, [teamId, teamPlayers]);
   const players = useMemo(() => playersQueryResult || [], [playersQueryResult]);
 
-  /**
-   * 🏀 CoachBoard: sortedPlayers
-   * Why: Performance optimization and better game-state visibility.
-   * Notes: Memoizes the roster to sort on-court players to the top, reducing scan time for the scorekeeper.
-   */
-  const sortedPlayers = useMemo(() => {
-    return [...players].sort((a, b) => {
-      const aOn = onCourtIds.has(a.id!) ? 1 : 0;
-      const bOn = onCourtIds.has(b.id!) ? 1 : 0;
-      return bOn - aOn; // On court players first
-    });
-  }, [players, onCourtIds]);
 
   const game = useLiveQuery(() => db.games.get(gameId as string), [gameId]);
   const team = useLiveQuery(
@@ -227,17 +212,6 @@ const GameMode: React.FC = () => {
       }
     }
     return { currentScore: curScore, opponentScore: oppScore };
-  }, [gameStats]);
-
-  const playerFouls = useMemo(() => {
-    const fouls: Record<string, number> = {};
-    for (let i = 0; i < gameStats.length; i++) {
-      const s = gameStats[i];
-      if (!s.deletedAt && s.type === ACTION_TYPES.FOUL) {
-        fouls[s.playerId] = (fouls[s.playerId] || 0) + 1;
-      }
-    }
-    return fouls;
   }, [gameStats]);
 
   /**
