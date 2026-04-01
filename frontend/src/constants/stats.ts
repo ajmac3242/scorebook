@@ -42,6 +42,7 @@ export const ACTION_TYPES = {
   TIMEOUT: "TIMEOUT",
   SUB_IN: "SUB_IN",
   SUB_OUT: "SUB_OUT",
+  POSSESSION: "POSSESSION",
 };
 
 /**
@@ -50,4 +51,5 @@ export const ACTION_TYPES = {
 export const SPECIAL_PLAYER_IDS = {
   OPPONENT: "OPPONENT",
   TEAM_TIMEOUT: "TEAM_TIMEOUT",
+  OUR_TEAM: "OUR_TEAM",
 };
