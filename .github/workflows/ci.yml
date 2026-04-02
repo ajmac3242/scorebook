@@ -95,7 +95,7 @@ jobs:
           working-dir: infra
           output-file: README.md
           output-method: inject
-          git-push: "false" # We will commit manually to control the message
+          git-push: "false"
 
       - name: Install Graphviz
         run: sudo apt-get update -y && sudo apt-get install -y graphviz
@@ -176,3 +176,26 @@ jobs:
             docs/*.png
             frontend-build-hash.txt
           if-no-files-found: ignore
+
+  # ---------------------------------------------------------------
+  # Auto-Merge: Only runs if quality-and-tests passes
+  # No branch protection needed — the `needs` gate is sufficient
+  # ---------------------------------------------------------------
+  auto-merge:
+    name: Auto-Merge PR
+    runs-on: ubuntu-latest
+    needs: quality-and-tests
+    if: github.event_name == 'pull_request'
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Merge PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr merge "${{ github.event.pull_request.number }}" \
+            --repo "${{ github.repository }}" \
+            --squash \
+            --delete-branch \
+            --subject "chore: merge ${{ github.head_ref }} into main [skip ci]"
