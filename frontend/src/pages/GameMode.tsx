@@ -513,7 +513,8 @@ const GameMode: React.FC = () => {
       }
 
       const isAOnCourt =
-        draftOnCourtIds.has(selectedSwapId) || selectedSwapId.startsWith("EMPTY");
+        draftOnCourtIds.has(selectedSwapId) ||
+        selectedSwapId.startsWith("EMPTY");
       const isBOnCourt = draftOnCourtIds.has(id) || id.startsWith("EMPTY");
 
       // Perform swap only if they are in different groups
@@ -522,7 +523,8 @@ const GameMode: React.FC = () => {
           const next = new Set(prev);
           if (isAOnCourt) {
             // A is on court, B is on bench
-            if (!selectedSwapId.startsWith("EMPTY")) next.delete(selectedSwapId);
+            if (!selectedSwapId.startsWith("EMPTY"))
+              next.delete(selectedSwapId);
             if (!id.startsWith("EMPTY")) next.add(id);
           } else {
             // A is on bench, B is on court
