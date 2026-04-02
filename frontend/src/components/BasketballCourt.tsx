@@ -192,6 +192,9 @@ const BasketballCourt: React.FC<{
                 e.stopPropagation();
                 if (onMarkerClick) onMarkerClick(marker);
               }}
+              role="button"
+              aria-label={`${marker.type} marker${marker.label ? ` for player ${marker.label}` : ""}`}
+              style={{ cursor: "pointer" }}
             >
               <circle
                 className={isLatest ? "latest-marker" : "court-marker"}
