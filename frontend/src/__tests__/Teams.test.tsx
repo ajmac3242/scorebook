@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import Teams from "../pages/Teams";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { BrowserRouter } from "react-router-dom";
@@ -67,6 +67,31 @@ describe("Teams Component", () => {
       expect(loggerSpy).toHaveBeenCalledWith(
         expect.stringContaining("Failed to fetch teams:"),
         expect.any(Error),
+      );
+    });
+  });
+
+  it("handles error when adding team", async () => {
+    const loggerSpy = vi.spyOn(logger, "error").mockImplementation(() => {});
+    (db.teams.add as any).mockRejectedValue(new Error("Add team error"));
+
+    render(
+      <BrowserRouter>
+        <Teams />
+      </BrowserRouter>,
+    );
+
+    fireEvent.click(screen.getByLabelText(/add/i));
+    fireEvent.change(screen.getByLabelText(/Team Name/i), {
+      target: { value: "Error Team" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /Add/i }));
+
+    await waitFor(() => {
+      expect(loggerSpy).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to add team"),
+        expect.any(Error),
+        expect.any(Object),
       );
     });
   });

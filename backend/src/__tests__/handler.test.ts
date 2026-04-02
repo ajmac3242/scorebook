@@ -210,5 +210,68 @@ describe("Lambda Handler", () => {
       const response: any = await handler(event);
       expect(response.statusCode).toBe(400);
     });
+
+    it("POST /teams with missing name returns 400", async () => {
+      const event = createEvent("POST", "/teams", {
+        description: "Missing name",
+      });
+      const response: any = await handler(event);
+      expect(response.statusCode).toBe(400);
+    });
+
+    it("POST /games with missing teamId returns 400", async () => {
+      const event = createEvent("POST", "/games", { opponent: "Opp" });
+      const response: any = await handler(event);
+      expect(response.statusCode).toBe(400);
+    });
+  });
+
+  describe("Restoration and Cleanup", () => {
+    it("PATCH /teams/:id restores a deleted team", async () => {
+      ddbMock.on(UpdateCommand).resolves({});
+      s3Mock.on(PutObjectCommand).resolves({});
+      // Mock the snapshots triggered by restore
+      ddbMock.on(GetCommand).resolves({ Item: { id: "t1", name: "Team 1" } });
+      ddbMock.on(QueryCommand).resolves({ Items: [] });
+
+      const event = createEvent("PATCH", "/teams/t1", { deletedAt: null });
+      const response: any = await handler(event);
+
+      expect(response.statusCode).toBe(200);
+      expect(
+        ddbMock.calls().some((c) => c.args[0] instanceof UpdateCommand),
+      ).toBe(true);
+      expect(s3Mock.calls().length).toBeGreaterThan(0);
+    });
+
+    it("PATCH /players/:id restores a deleted player", async () => {
+      ddbMock.on(UpdateCommand).resolves({});
+      const event = createEvent("PATCH", "/players/p1", { deletedAt: null });
+      const response: any = await handler(event);
+      expect(response.statusCode).toBe(200);
+    });
+
+    it("PATCH /games/:id restores a deleted game", async () => {
+      ddbMock.on(UpdateCommand).resolves({});
+      ddbMock
+        .on(GetCommand)
+        .resolves({ Item: { id: "g1", teamId: "t1", completed: 1 } });
+      s3Mock.on(PutObjectCommand).resolves({});
+      ddbMock.on(QueryCommand).resolves({ Items: [] });
+
+      const event = createEvent("PATCH", "/games/g1", { deletedAt: null });
+      const response: any = await handler(event);
+
+      expect(response.statusCode).toBe(200);
+      expect(s3Mock.calls().length).toBeGreaterThan(0);
+    });
+
+    it("POST /cleanup performs cleanup", async () => {
+      ddbMock.on(QueryCommand).resolves({ Items: [] });
+      const event = createEvent("POST", "/cleanup");
+      const response: any = await handler(event);
+      expect(response.statusCode).toBe(200);
+      expect(JSON.parse(response.body).message).toBe("Cleanup complete");
+    });
   });
 });
