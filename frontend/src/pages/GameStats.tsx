@@ -192,9 +192,22 @@ const GameStats: React.FC = () => {
     });
   }, [aggregatedStats, sortConfig]);
 
-  const filteredStats = useMemo(() => {
-    // Optimization: Use a standard for loop to reduce function call overhead on large datasets.
+  // Optimization: Pre-calculate jerseyMap to avoid O(P) lookup for every marker in the render loop.
+  const shotChartJerseyMap = useMemo(() => {
+    const map = new Map<string, string>();
+    for (let i = 0; i < teamPlayers.length; i++) {
+      map.set(teamPlayers[i].playerId, teamPlayers[i].jerseyNumber || "");
+    }
+    return map;
+  }, [teamPlayers]);
+
+  /**
+   * ⚡ Bolt: Consolidate statistical loops.
+   * Performance: Merge filteredStats and shotChartMarkers into a single optimized pass.
+   */
+  const derivedStats = useMemo(() => {
     const filtered = [];
+    const markers = [];
     for (let i = 0; i < stats.length; i++) {
       const s = stats[i];
       const playerMatch =
@@ -202,10 +215,25 @@ const GameStats: React.FC = () => {
       const typeMatch = selectedType === "ALL" || s.type === selectedType;
       if (playerMatch && typeMatch) {
         filtered.push(s);
+        if (s.type === "MAKE" || s.type === "MISS") {
+          markers.push({
+            id: s.id,
+            x: s.locationX || 0,
+            y: s.locationY || 0,
+            type: s.type as "MAKE" | "MISS",
+            label:
+              s.playerId !== OPPONENT_PLAYER_ID
+                ? shotChartJerseyMap.get(s.playerId)
+                : undefined,
+            playerId: s.playerId,
+          });
+        }
       }
     }
-    return filtered;
-  }, [stats, selectedPlayerId, selectedType]);
+    return { filtered, markers };
+  }, [stats, selectedPlayerId, selectedType, shotChartJerseyMap]);
+
+  const shotChartMarkers = derivedStats.markers;
 
   // Optimization: Memoize the sorted statistics used for the score flow chart to avoid redundant sorting.
   const scoreFlowSortedStats = useMemo(() => {
@@ -570,36 +598,7 @@ const GameStats: React.FC = () => {
     </Box>
   );
 
-  // Optimization: Pre-calculate jerseyMap to avoid O(P) lookup for every marker in the render loop.
-  const shotChartJerseyMap = useMemo(() => {
-    const map = new Map<string, string>();
-    for (let i = 0; i < teamPlayers.length; i++) {
-      map.set(teamPlayers[i].playerId, teamPlayers[i].jerseyNumber || "");
-    }
-    return map;
-  }, [teamPlayers]);
 
-  const shotChartMarkers = useMemo(() => {
-    // Optimization: Use a single-pass for loop instead of .filter().map().
-    const result = [];
-    for (let i = 0; i < filteredStats.length; i++) {
-      const s = filteredStats[i];
-      if (s.type === "MAKE" || s.type === "MISS") {
-        result.push({
-          id: s.id,
-          x: s.locationX || 0,
-          y: s.locationY || 0,
-          type: s.type as "MAKE" | "MISS",
-          label:
-            s.playerId !== OPPONENT_PLAYER_ID
-              ? shotChartJerseyMap.get(s.playerId)
-              : undefined,
-          playerId: s.playerId,
-        });
-      }
-    }
-    return result;
-  }, [filteredStats, shotChartJerseyMap]);
 
   const shotChartCourt = (
     <BasketballCourt

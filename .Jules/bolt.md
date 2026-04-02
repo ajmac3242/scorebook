@@ -15,3 +15,7 @@ Action: Break down complex `useMemo` hooks into smaller, more granular hooks bas
 2026-04-01 - [Consolidated derivations in GameMode]
 Learning: Consolidating multiple `useMemo`, `useState`, and `useEffect` hooks that iterate over the same data (e.g., `gameStats`) into a single-pass `useMemo` significantly reduces CPU overhead and prevents unnecessary re-render cycles in high-frequency UI paths.
 Action: Identify 'hot path' components with multiple redundant data traversals and consolidate them into a single, efficient loop.
+
+## 2026-04-02 - Frontend Performance Optimization
+Learning: Consolidating multiple statistical derivations into a single pass over a sorted event stream significantly reduces array traversals and redundant database queries in hot-path components like GameMode.tsx and GameStats.tsx. Memoizing frequent sub-components and stabilizing event handlers with useCallback prevents unnecessary re-renders during high-pressure live tracking.
+Action: Always look for opportunities to merge useMemo loops and move static configuration (like styles or formatters) outside component render paths.
