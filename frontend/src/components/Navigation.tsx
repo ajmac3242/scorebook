@@ -45,7 +45,6 @@ const NavItem: React.FC<{
       to={item.path}
       onClick={onClick}
       aria-label={`Navigate to ${item.text}`}
-      aria-current={isSelected ? "page" : undefined}
       sx={{
         minHeight: 40,
         width: "auto",
