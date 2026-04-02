@@ -5,8 +5,9 @@
  */
 
 import React from "react";
-import { Typography, Box, Grid, Button } from "@mui/material";
+import { Typography, Box, Grid, Button, Stack } from "@mui/material";
 import { Link } from "react-router-dom";
+import { Add as AddIcon } from "@mui/icons-material";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "../db";
 import {
@@ -41,6 +42,39 @@ const Dashboard: React.FC = () => {
   return (
     <Box>
       <PageHeader title="Notebook Overview" />
+
+      {teamsCount === 0 && (
+        <MoleskineCard sx={{ p: { xs: 4, sm: 8 }, mb: 4, textAlign: "center" }}>
+          <Typography
+            variant="h4"
+            sx={{ fontFamily: "var(--serif)", mb: 2, fontWeight: 700 }}
+          >
+            Welcome to Scorebook!
+          </Typography>
+          <Typography
+            variant="body1"
+            color="text.secondary"
+            sx={{ mb: 4, maxWidth: 600, mx: "auto" }}
+          >
+            Your digital basketball coaching notebook is empty. Start by
+            creating your first team to begin tracking live games and
+            statistics.
+          </Typography>
+          <Stack direction="row" spacing={2} justifyContent="center">
+            <Button
+              component={Link}
+              to="/teams"
+              variant="contained"
+              size="large"
+              startIcon={<AddIcon />}
+              sx={{ px: 4, py: 1.5, borderRadius: 2 }}
+            >
+              Create Your First Team
+            </Button>
+          </Stack>
+        </MoleskineCard>
+      )}
+
       <Grid container spacing={3}>
         {summaryItems.map((item) => (
           <Grid item xs={12} sm={6} md={4} key={item.label}>

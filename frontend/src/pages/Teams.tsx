@@ -17,6 +17,7 @@ import {
   Avatar,
   Snackbar,
   Alert,
+  Tooltip,
 } from "@mui/material";
 import { Add as AddIcon, Groups as TeamsIcon } from "@mui/icons-material";
 import { db, type Team, type StatEvent } from "../db";
@@ -256,11 +257,21 @@ const Teams: React.FC = () => {
                 ? `No teams matching "${searchTerm}"`
                 : "Your Notebook is Empty"}
             </Typography>
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
               {searchTerm
                 ? "Try adjusting your search terms"
                 : "Start by adding your first basketball team"}
             </Typography>
+            {!searchTerm && (
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={() => setOpen(true)}
+                sx={{ borderRadius: 2 }}
+              >
+                Create Team Now
+              </Button>
+            )}
           </Box>
         )}
         <Grid container spacing={3}>
@@ -432,20 +443,22 @@ const Teams: React.FC = () => {
         </Grid>
       </Box>
 
-      <Fab
-        color="primary"
-        aria-label="add"
-        sx={{
-          position: "fixed",
-          bottom: "calc(32px + env(safe-area-inset-bottom))",
-          right: 32,
-        }}
-        onClick={() => {
-          setOpen(true);
-        }}
-      >
-        <AddIcon />
-      </Fab>
+      <Tooltip title="Add New Team">
+        <Fab
+          color="primary"
+          aria-label="add new team"
+          sx={{
+            position: "fixed",
+            bottom: "calc(32px + env(safe-area-inset-bottom))",
+            right: 32,
+          }}
+          onClick={() => {
+            setOpen(true);
+          }}
+        >
+          <AddIcon />
+        </Fab>
+      </Tooltip>
 
       <Dialog
         open={open}
@@ -527,10 +540,16 @@ const Teams: React.FC = () => {
             sx={{ mb: 2 }}
             disabled={isSubmitting}
           />
-          <Typography variant="subtitle2" gutterBottom>
+          <Typography
+            variant="subtitle2"
+            gutterBottom
+            component="label"
+            htmlFor="primary-color-input"
+          >
             Primary Color
           </Typography>
           <input
+            id="primary-color-input"
             type="color"
             style={{
               display: "block",

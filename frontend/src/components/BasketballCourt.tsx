@@ -202,6 +202,7 @@ const BasketballCourt: React.FC<{
                 fillOpacity={isLatest ? "1" : "0.8"}
                 stroke={color}
                 strokeWidth={isLatest ? "2" : "1"}
+                aria-label={`${marker.type} by ${marker.label ? `#${marker.label}` : "Opponent"}`}
               />
               {marker.label && (
                 <text
