@@ -249,4 +249,31 @@ describe("GameMode Component", () => {
       );
     });
   });
+
+  it("opens substitution dialog when clicking a player in Live Lineup", async () => {
+    renderComponent();
+
+    // Find the player in the Live Lineup sidebar
+    // They are rendered as buttons with the player's name
+    const liveLineupHeading = await screen.findByText("Live Lineup");
+    const sidebar = liveLineupHeading.parentElement!;
+    const playerBtn = await within(sidebar).findByRole("button", {
+      name: /Player 1/i,
+    });
+
+    // Click the player button
+    fireEvent.click(playerBtn);
+
+    // Substitution dialog should open
+    await waitFor(() => {
+      expect(screen.getByText("Quick Substitution")).toBeInTheDocument();
+    });
+
+    // Player 1 should be pre-selected in the ON COURT section (variant="contained")
+    const onCourtSection = screen.getByText("ON COURT").parentElement!;
+    const selectedPlayer = await within(onCourtSection).findByRole("button", {
+      name: /Player 1/i,
+    });
+    expect(selectedPlayer).toHaveClass("MuiButton-contained");
+  });
 });

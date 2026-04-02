@@ -878,56 +878,85 @@ const GameMode: React.FC = () => {
                   >
                     {players
                       .filter((p) => gameData.onCourtIds.has(p.id!))
-                      .map((p) => (
-                        <Box
-                          key={p.id}
-                          sx={{
-                            display: "flex",
-                            gap: 0.5,
-                            alignItems: "center",
-                          }}
-                        >
-                          <Button
-                            fullWidth
-                            disabled={true}
-                            variant="contained"
+                      .map((p) => {
+                        const playerStats = statsGridData.find(
+                          (s) => s.id === p.id,
+                        );
+                        const isFoulTrouble = (playerStats?.fouls || 0) >= 4;
+
+                        return (
+                          <Box
+                            key={p.id}
                             sx={{
-                              justifyContent: "flex-start",
-                              px: 1,
-                              bgcolor: "primary.main",
-                              color: "white",
-                              borderWidth: "1.5px",
-                              "&.Mui-disabled": {
-                                bgcolor: "primary.main",
-                                color: "white",
-                              },
+                              display: "flex",
+                              gap: 0.5,
+                              alignItems: "center",
                             }}
                           >
-                            <Avatar
+                            <Button
+                              fullWidth
+                              disabled={isDeleted}
+                              variant="contained"
+                              onClick={() => {
+                                setSubOutPlayerId(p.id!);
+                                setSubDialogOpen(true);
+                              }}
                               sx={{
-                                width: 20,
-                                height: 20,
-                                fontSize: "0.65rem",
-                                mr: 0.5,
-                                bgcolor: p.avatarColor || "grey.500",
+                                justifyContent: "flex-start",
+                                px: 1,
+                                bgcolor: "primary.main",
+                                color: "white",
+                                borderWidth: "1.5px",
+                                "&:hover": {
+                                  bgcolor: "primary.dark",
+                                },
                               }}
                             >
-                              {jerseyMap.get(p.id!) || ""}
-                            </Avatar>
-                            <Typography
-                              variant="caption"
-                              sx={{
-                                fontWeight: 600,
-                                whiteSpace: "nowrap",
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                              }}
-                            >
-                              {p.name}
-                            </Typography>
-                          </Button>
-                        </Box>
-                      ))}
+                              <Avatar
+                                sx={{
+                                  width: 20,
+                                  height: 20,
+                                  fontSize: "0.65rem",
+                                  mr: 0.5,
+                                  bgcolor: p.avatarColor || "grey.500",
+                                }}
+                              >
+                                {jerseyMap.get(p.id!) || ""}
+                              </Avatar>
+                              <Typography
+                                variant="caption"
+                                sx={{
+                                  fontWeight: 600,
+                                  whiteSpace: "nowrap",
+                                  overflow: "hidden",
+                                  textOverflow: "ellipsis",
+                                  flex: 1,
+                                }}
+                              >
+                                {p.name}
+                              </Typography>
+                              {playerStats && (
+                                <Typography
+                                  variant="caption"
+                                  sx={{
+                                    fontSize: "0.6rem",
+                                    bgcolor: isFoulTrouble
+                                      ? "error.dark"
+                                      : "rgba(0,0,0,0.2)",
+                                    px: 0.5,
+                                    borderRadius: 0.5,
+                                    ml: 0.5,
+                                    color: "white",
+                                    fontWeight: isFoulTrouble ? 800 : 400,
+                                  }}
+                                >
+                                  {playerStats.fouls}F
+                                </Typography>
+                              )}
+                            </Button>
+                          </Box>
+                        );
+                      })}
                     {gameData.onCourtIds.size === 0 && (
                       <Typography variant="body2" color="text.secondary">
                         No players on court. Use Quick Sub to add players.
@@ -1335,32 +1364,51 @@ const GameMode: React.FC = () => {
                 {/* Active players */}
                 {players
                   .filter((p) => gameData.onCourtIds.has(p.id!))
-                  .map((p) => (
-                    <Button
-                      key={p.id}
-                      variant={
-                        subOutPlayerId === p.id ? "contained" : "outlined"
-                      }
-                      onClick={() => setSubOutPlayerId(p.id!)}
-                      fullWidth
-                      sx={{ justifyContent: "flex-start" }}
-                    >
-                      <Avatar
-                        sx={{
-                          width: 24,
-                          height: 24,
-                          fontSize: "0.75rem",
-                          mr: 1,
-                          bgcolor: p.avatarColor || "grey.500",
-                        }}
+                  .map((p) => {
+                    const playerStats = statsGridData.find(
+                      (s) => s.id === p.id,
+                    );
+                    const isFoulTrouble = (playerStats?.fouls || 0) >= 4;
+
+                    return (
+                      <Button
+                        key={p.id}
+                        variant={
+                          subOutPlayerId === p.id ? "contained" : "outlined"
+                        }
+                        onClick={() => setSubOutPlayerId(p.id!)}
+                        fullWidth
+                        sx={{ justifyContent: "flex-start" }}
                       >
-                        {jerseyMap.get(p.id!) || ""}
-                      </Avatar>
-                      <Typography variant="body2" noWrap>
-                        {p.name}
-                      </Typography>
-                    </Button>
-                  ))}
+                        <Avatar
+                          sx={{
+                            width: 24,
+                            height: 24,
+                            fontSize: "0.75rem",
+                            mr: 1,
+                            bgcolor: p.avatarColor || "grey.500",
+                          }}
+                        >
+                          {jerseyMap.get(p.id!) || ""}
+                        </Avatar>
+                        <Typography variant="body2" noWrap sx={{ flex: 1 }}>
+                          {p.name}
+                        </Typography>
+                        {playerStats && (
+                          <Typography
+                            variant="caption"
+                            sx={{
+                              fontSize: "0.7rem",
+                              color: isFoulTrouble ? "error.main" : "inherit",
+                              fontWeight: isFoulTrouble ? 700 : 400,
+                            }}
+                          >
+                            {playerStats.fouls}F
+                          </Typography>
+                        )}
+                      </Button>
+                    );
+                  })}
                 {/* Placeholder "Empty" slots to reach 5 total */}
                 {Array.from({
                   length: Math.max(0, 5 - gameData.onCourtIds.size),
@@ -1410,32 +1458,51 @@ const GameMode: React.FC = () => {
               <Stack spacing={1}>
                 {players
                   .filter((p) => !gameData.onCourtIds.has(p.id!))
-                  .map((p) => (
-                    <Button
-                      key={p.id}
-                      variant={
-                        subInPlayerId === p.id ? "contained" : "outlined"
-                      }
-                      onClick={() => setSubInPlayerId(p.id!)}
-                      fullWidth
-                      sx={{ justifyContent: "flex-start" }}
-                    >
-                      <Avatar
-                        sx={{
-                          width: 24,
-                          height: 24,
-                          fontSize: "0.75rem",
-                          mr: 1,
-                          bgcolor: p.avatarColor || "grey.500",
-                        }}
+                  .map((p) => {
+                    const playerStats = statsGridData.find(
+                      (s) => s.id === p.id,
+                    );
+                    const isFoulTrouble = (playerStats?.fouls || 0) >= 4;
+
+                    return (
+                      <Button
+                        key={p.id}
+                        variant={
+                          subInPlayerId === p.id ? "contained" : "outlined"
+                        }
+                        onClick={() => setSubInPlayerId(p.id!)}
+                        fullWidth
+                        sx={{ justifyContent: "flex-start" }}
                       >
-                        {jerseyMap.get(p.id!) || ""}
-                      </Avatar>
-                      <Typography variant="body2" noWrap>
-                        {p.name}
-                      </Typography>
-                    </Button>
-                  ))}
+                        <Avatar
+                          sx={{
+                            width: 24,
+                            height: 24,
+                            fontSize: "0.75rem",
+                            mr: 1,
+                            bgcolor: p.avatarColor || "grey.500",
+                          }}
+                        >
+                          {jerseyMap.get(p.id!) || ""}
+                        </Avatar>
+                        <Typography variant="body2" noWrap sx={{ flex: 1 }}>
+                          {p.name}
+                        </Typography>
+                        {playerStats && (
+                          <Typography
+                            variant="caption"
+                            sx={{
+                              fontSize: "0.7rem",
+                              color: isFoulTrouble ? "error.main" : "inherit",
+                              fontWeight: isFoulTrouble ? 700 : 400,
+                            }}
+                          >
+                            {playerStats.fouls}F
+                          </Typography>
+                        )}
+                      </Button>
+                    );
+                  })}
               </Stack>
             </Grid>
           </Grid>
