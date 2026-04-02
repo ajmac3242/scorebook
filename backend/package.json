@@ -31,8 +31,8 @@
       ]
     },
     "testMatch": [
-      "**/__tests__/**/*.ts",
-      "**/*.test.ts"
+      "<rootDir>/src/**/__tests__/**/*.[jt]s?(x)",
+      "<rootDir>/src/**/*.test.[jt]s?(x)"
     ]
   },
   "devDependencies": {

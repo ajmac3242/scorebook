@@ -270,4 +270,48 @@ describe("SyncService", () => {
       loggerErrorSpy.mockRestore();
     });
   });
+
+  describe("syncAllForTeam", () => {
+    it("calls sub-sync methods in order", async () => {
+      const syncTeamRosterSpy = vi.spyOn(syncService, "syncTeamRoster").mockResolvedValue(undefined);
+      const syncTeamGamesListSpy = vi.spyOn(syncService, "syncTeamGamesList").mockResolvedValue(undefined);
+      const syncGameStatsSpy = vi.spyOn(syncService, "syncGameStats").mockResolvedValue(undefined);
+
+      vi.mocked(db.games.toArray).mockResolvedValue([
+        { id: "g1", completed: 1 },
+        { id: "g2", completed: 0 },
+      ] as any);
+
+      await syncService.syncAllForTeam("t1");
+
+      expect(syncTeamRosterSpy).toHaveBeenCalledWith("t1");
+      expect(syncTeamGamesListSpy).toHaveBeenCalledWith("t1");
+      expect(syncGameStatsSpy).toHaveBeenCalledWith("g1");
+      expect(syncGameStatsSpy).not.toHaveBeenCalledWith("g2");
+    });
+  });
+
+  describe("pullAll", () => {
+    it("fetches and persists all entities", async () => {
+      const syncTeamRosterSpy = vi.spyOn(syncService, "syncTeamRoster").mockResolvedValue(undefined);
+      const syncTeamGamesListSpy = vi.spyOn(syncService, "syncTeamGamesList").mockResolvedValue(undefined);
+      const syncGameStatsSpy = vi.spyOn(syncService, "syncGameStats").mockResolvedValue(undefined);
+
+      fetchMock
+        .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve([{ id: "t1" }]) }) // /api/teams
+        .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve([{ id: "p1" }]) }); // /api/players
+
+      vi.mocked(db.games.toArray).mockResolvedValue([{ id: "g1", completed: 1 }] as any);
+
+      await syncService.pullAll();
+
+      expect(fetchMock).toHaveBeenCalledWith("/api/teams", expect.any(Object));
+      expect(fetchMock).toHaveBeenCalledWith("/api/players", expect.any(Object));
+      expect(db.teams.put).toHaveBeenCalledWith(expect.objectContaining({ id: "t1" }));
+      expect(db.players.put).toHaveBeenCalledWith(expect.objectContaining({ id: "p1" }));
+      expect(syncTeamRosterSpy).toHaveBeenCalledWith("t1");
+      expect(syncTeamGamesListSpy).toHaveBeenCalledWith("t1");
+      expect(syncGameStatsSpy).toHaveBeenCalledWith("g1");
+    });
+  });
 });
