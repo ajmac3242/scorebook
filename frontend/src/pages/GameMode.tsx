@@ -168,7 +168,7 @@ const GameMode: React.FC = () => {
     [game?.teamId],
   );
 
-  const isDeleted = !!game?.deletedAt || !!team?.deletedAt;
+  const isReadOnly = !!game?.deletedAt || !!team?.deletedAt;
   const periodType = team?.periodType || "QUARTERS";
   const periodLabel = periodType === "HALVES" ? "Half" : "Quarter";
   const maxPeriod = periodType === "HALVES" ? 2 : 4;
@@ -376,7 +376,7 @@ const GameMode: React.FC = () => {
    */
   const handleCourtClick = useCallback(
     (x: number, y: number) => {
-      if (isDeleted) return;
+      if (isReadOnly) return;
       setSelectedX(x);
       setSelectedY(y);
       // Auto-select opponent if in opponent tracking mode
@@ -387,7 +387,7 @@ const GameMode: React.FC = () => {
       }
       setDialogOpen(true);
     },
-    [isDeleted, trackingMode],
+    [isReadOnly, trackingMode],
   );
 
   /**
@@ -456,7 +456,7 @@ const GameMode: React.FC = () => {
    * Notes: Records both SUB_OUT and SUB_IN events to maintain accurate play-by-play.
    */
   const handleQuickSub = useCallback(async () => {
-    if (!subInPlayerId || !gameId || isDeleted) return;
+    if (!subInPlayerId || !gameId || isReadOnly) return;
 
     try {
       await db.open();
@@ -493,7 +493,7 @@ const GameMode: React.FC = () => {
     } catch (err) {
       logger.error("Failed to record quick sub:", err);
     }
-  }, [subInPlayerId, gameId, isDeleted, subOutPlayerId, period]);
+  }, [subInPlayerId, gameId, isReadOnly, subOutPlayerId, period]);
 
   /**
    * Deletes a specific statistical event.
@@ -520,7 +520,7 @@ const GameMode: React.FC = () => {
    */
   const openEditDialog = useCallback(
     (stat: StatEvent) => {
-      if (isDeleted) return;
+      if (isReadOnly) return;
       setEditingStatId(stat.id ?? null);
       setSelectedPlayerId(stat.playerId as string);
       setStatType(stat.type);
@@ -530,7 +530,7 @@ const GameMode: React.FC = () => {
       setIsEditing(true);
       setDialogOpen(true);
     },
-    [isDeleted],
+    [isReadOnly],
   );
 
   /**
@@ -561,7 +561,7 @@ const GameMode: React.FC = () => {
    * Notes: Records a TIMEOUT event tied to either Our Team or Opponent.
    */
   const handleTimeout = useCallback(async () => {
-    if (!gameId || isDeleted) return;
+    if (!gameId || isReadOnly) return;
     try {
       await db.open();
       await db.stats.add({
@@ -580,7 +580,7 @@ const GameMode: React.FC = () => {
     } catch (err) {
       logger.error("Failed to record timeout:", err);
     }
-  }, [gameId, isDeleted, trackingMode, period]);
+  }, [gameId, isReadOnly, trackingMode, period]);
 
   /**
    * 🏀 CoachBoard: handleTogglePossession
@@ -589,7 +589,7 @@ const GameMode: React.FC = () => {
    */
   const handleTogglePossession = useCallback(
     async (targetTeam: string) => {
-      if (!gameId || isDeleted) return;
+      if (!gameId || isReadOnly) return;
       try {
         await db.open();
         await db.stats.add({
@@ -606,7 +606,7 @@ const GameMode: React.FC = () => {
         logger.error("Failed to toggle possession:", err);
       }
     },
-    [gameId, isDeleted, period],
+    [gameId, isReadOnly, period],
   );
 
   if (!gameId || !teamId) {
@@ -614,8 +614,8 @@ const GameMode: React.FC = () => {
   }
 
   return (
-    <Box sx={{ pb: 4, opacity: isDeleted ? 0.7 : 1 }}>
-      {isDeleted && (
+    <Box sx={{ pb: 4, opacity: isReadOnly ? 0.7 : 1 }}>
+      {isReadOnly && (
         <Alert severity="warning" icon={<Warning />} sx={{ mb: 2 }}>
           This game is in read-only mode because it or its parent is pending
           deletion.
@@ -697,7 +697,7 @@ const GameMode: React.FC = () => {
                   >
                     <IconButton
                       size="small"
-                      disabled={isDeleted}
+                      disabled={isReadOnly}
                       onClick={() =>
                         handleTogglePossession(SPECIAL_PLAYER_IDS.OUR_TEAM)
                       }
@@ -732,7 +732,7 @@ const GameMode: React.FC = () => {
                     </Typography>
                     <IconButton
                       size="small"
-                      disabled={isDeleted}
+                      disabled={isReadOnly}
                       onClick={() =>
                         handleTogglePossession(SPECIAL_PLAYER_IDS.OPPONENT)
                       }
@@ -762,11 +762,11 @@ const GameMode: React.FC = () => {
                   </Box>
                   <ScoreboardChip
                     label={`${periodLabel}: ${period > maxPeriod ? `OT ${period - maxPeriod}` : period}`}
-                    onClick={isDeleted ? undefined : handleNextPeriod}
+                    onClick={isReadOnly ? undefined : handleNextPeriod}
                     variant="outlined"
                     color={period > maxPeriod ? "warning" : "default"}
                   />
-                  {!game?.completed && !isDeleted && (
+                  {!game?.completed && !isReadOnly && (
                     <Button
                       size="small"
                       variant="contained"
@@ -783,7 +783,7 @@ const GameMode: React.FC = () => {
                 exclusive
                 onChange={(_, val) => val && setTrackingMode(val)}
                 size="small"
-                disabled={isDeleted}
+                disabled={isReadOnly}
                 fullWidth={theme.breakpoints.down("sm") !== null}
                 sx={{ width: { xs: "100%", sm: "auto" } }}
               >
@@ -806,7 +806,7 @@ const GameMode: React.FC = () => {
                 variant="outlined"
                 startIcon={<UndoIcon />}
                 onClick={handleUndo}
-                disabled={gameData.recentStats.length === 0 || isDeleted}
+                disabled={gameData.recentStats.length === 0 || isReadOnly}
               >
                 Undo
               </Button>
@@ -816,7 +816,7 @@ const GameMode: React.FC = () => {
                   variant="outlined"
                   startIcon={<SwapHoriz />}
                   onClick={() => setSubDialogOpen(true)}
-                  disabled={isDeleted}
+                  disabled={isReadOnly}
                   aria-label="quick substitution"
                 >
                   Quick Sub
@@ -827,7 +827,7 @@ const GameMode: React.FC = () => {
                 variant="outlined"
                 startIcon={<History />}
                 onClick={handleTimeout}
-                disabled={isDeleted}
+                disabled={isReadOnly}
               >
                 Timeout
               </Button>
@@ -884,6 +884,7 @@ const GameMode: React.FC = () => {
                       gap: 1,
                     }}
                   >
+                    {/* 🏀 CoachBoard: Display exactly 5 slots in Live Lineup for rotation visibility */}
                     {players
                       .filter((p) => gameData.onCourtIds.has(p.id!))
                       .map((p) => {
@@ -904,8 +905,12 @@ const GameMode: React.FC = () => {
                           >
                             <Button
                               fullWidth
-                              disabled={true}
+                              disabled={isReadOnly}
                               variant="contained"
+                              onClick={() => {
+                                setSubOutPlayerId(p.id!);
+                                setSubDialogOpen(true);
+                              }}
                               sx={{
                                 justifyContent: "flex-start",
                                 px: 1,
@@ -937,26 +942,101 @@ const GameMode: React.FC = () => {
                               >
                                 {jerseyMap.get(p.id!) || ""}
                               </Avatar>
-                              <Typography
-                                variant="caption"
+                              <Box
                                 sx={{
-                                  fontWeight: 600,
-                                  whiteSpace: "nowrap",
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  alignItems: "flex-start",
                                   overflow: "hidden",
-                                  textOverflow: "ellipsis",
                                 }}
                               >
-                                {p.name} ({pts}p, {pf}f)
-                              </Typography>
+                                <Typography
+                                  variant="caption"
+                                  sx={{
+                                    fontWeight: 700,
+                                    whiteSpace: "nowrap",
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
+                                    fontSize: "0.65rem",
+                                    lineHeight: 1.1,
+                                  }}
+                                >
+                                  {p.name}
+                                </Typography>
+                                <Typography
+                                  variant="caption"
+                                  sx={{ fontSize: "0.6rem", opacity: 0.9 }}
+                                >
+                                  {pts} pts |
+                                  <Box
+                                    component="span"
+                                    sx={{
+                                      ml: 0.5,
+                                      px: 0.5,
+                                      borderRadius: 0.5,
+                                      bgcolor: isFouledOut
+                                        ? "#d32f2f"
+                                        : isFoulTrouble
+                                          ? "#ed6c02"
+                                          : "transparent",
+                                      fontWeight:
+                                        isFouledOut || isFoulTrouble
+                                          ? 900
+                                          : 400,
+                                      border:
+                                        isFouledOut || isFoulTrouble
+                                          ? "1px solid white"
+                                          : "none",
+                                    }}
+                                  >
+                                    {pf} foul{pf !== 1 ? "s" : ""}
+                                  </Box>
+                                  {isFouledOut && " - OUT"}
+                                </Typography>
+                              </Box>
                             </Button>
                           </Box>
                         );
                       })}
-                    {gameData.onCourtIds.size === 0 && (
-                      <Typography variant="body2" color="text.secondary">
-                        No players on court. Use Quick Sub to add players.
-                      </Typography>
-                    )}
+                    {/* Placeholder "Empty" slots to reach 5 total */}
+                    {Array.from({
+                      length: Math.max(0, 5 - gameData.onCourtIds.size),
+                    }).map((_, i) => {
+                      const emptyId = `EMPTY-${i}`;
+                      return (
+                        <Button
+                          key={emptyId}
+                          variant="outlined"
+                          disabled={isReadOnly}
+                          onClick={() => {
+                            setSubOutPlayerId(emptyId);
+                            setSubDialogOpen(true);
+                          }}
+                          fullWidth
+                          sx={{
+                            justifyContent: "flex-start",
+                            borderStyle: "dashed",
+                            color: "text.secondary",
+                            px: 1,
+                          }}
+                        >
+                          <Avatar
+                            sx={{
+                              width: 20,
+                              height: 20,
+                              fontSize: "0.65rem",
+                              mr: 0.5,
+                              bgcolor: "transparent",
+                              border: "1px dashed #bdbdbd",
+                              color: "#bdbdbd",
+                            }}
+                          >
+                            ?
+                          </Avatar>
+                          <Typography variant="caption">Empty</Typography>
+                        </Button>
+                      );
+                    })}
                   </Box>
                 </MoleskineCard>
 
@@ -1081,7 +1161,7 @@ const GameMode: React.FC = () => {
                       stat={s}
                       players={players}
                       periodLabel={periodLabel}
-                      isDeleted={isDeleted}
+                      isReadOnly={isReadOnly}
                       onEdit={openEditDialog}
                       onDelete={(id) => {
                         setStatToDelete(id);
@@ -1648,10 +1728,10 @@ const RecentActionItem: React.FC<{
   stat: StatEvent;
   players: Player[];
   periodLabel: string;
-  isDeleted: boolean;
+  isReadOnly: boolean;
   onEdit: (_s: StatEvent) => void;
   onDelete: (_id: string) => void;
-}> = ({ stat: s, players, periodLabel, isDeleted, onEdit, onDelete }) => (
+}> = ({ stat: s, players, periodLabel, isReadOnly, onEdit, onDelete }) => (
   <Box
     sx={{
       display: "flex",
@@ -1678,12 +1758,12 @@ const RecentActionItem: React.FC<{
       </Typography>
     </Box>
     <Box>
-      <IconButton size="small" disabled={isDeleted} onClick={() => onEdit(s)}>
+      <IconButton size="small" disabled={isReadOnly} onClick={() => onEdit(s)}>
         <Edit fontSize="small" />
       </IconButton>
       <IconButton
         size="small"
-        disabled={isDeleted}
+        disabled={isReadOnly}
         onClick={() => onDelete(s.id!)}
       >
         <Delete fontSize="small" />
