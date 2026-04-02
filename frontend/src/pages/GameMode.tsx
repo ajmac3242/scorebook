@@ -49,6 +49,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  TableSortLabel,
 } from "@mui/material";
 import BasketballCourt from "../components/BasketballCourt";
 import { db, type StatEvent, type Player } from "../db";
@@ -102,6 +103,11 @@ const GameMode: React.FC = () => {
   const [statType, setStatType] = useState<string | null>(null);
   const [points, setPoints] = useState<number>(2);
 
+  const [sortConfig, setSortConfig] = useState<{
+    key: keyof PlayerAggregates;
+    direction: "asc" | "desc";
+  }>({ key: "jerseyNumber", direction: "asc" });
+
   // Filter for displaying court markers
   const [markerFilter, setMarkerFilter] = useState<string>("ALL");
 
@@ -132,6 +138,13 @@ const GameMode: React.FC = () => {
   const [subDialogOpen, setSubDialogOpen] = useState(false);
   const [subOutPlayerId, setSubOutPlayerId] = useState<string | null>(null);
   const [subInPlayerId, setSubInPlayerId] = useState<string | null>(null);
+
+  // Quick sub draft state
+  const [draftOnCourtIds, setDraftOnCourtIds] = useState<Set<string>>(
+    new Set(),
+  );
+  const [selectedSwapId, setSelectedSwapId] = useState<string | null>(null);
+
   const [period, setPeriod] = useState<number>(1);
   const [trackingMode, setTrackingMode] = useState<"TEAM" | "OPPONENT">("TEAM");
 
@@ -285,6 +298,14 @@ const GameMode: React.FC = () => {
     };
   }, [gameStats, period, team?.periodType]);
 
+  // Initialize draft state when dialog opens
+  useEffect(() => {
+    if (subDialogOpen) {
+      setDraftOnCourtIds(new Set(gameData.onCourtIds));
+      setSelectedSwapId(null);
+    }
+  }, [subDialogOpen, gameData.onCourtIds]);
+
   const jerseyMap = useMemo(
     () =>
       new Map<string, string | undefined>(
@@ -296,6 +317,26 @@ const GameMode: React.FC = () => {
   const statsGridData = useMemo(() => {
     return calculatePlayerAggregates(players, gameStats, teamPlayers);
   }, [players, gameStats, teamPlayers]);
+
+  const sortedStatsGridData = useMemo(() => {
+    return [...statsGridData].sort((a, b) => {
+      const { key, direction } = sortConfig;
+      let valA = a[key];
+      let valB = b[key];
+
+      // Handle strings (name, jerseyNumber)
+      if (typeof valA === "string" && typeof valB === "string") {
+        return direction === "asc"
+          ? valA.localeCompare(valB)
+          : valB.localeCompare(valA);
+      }
+
+      // Handle numbers
+      valA = (valA as number) || 0;
+      valB = (valB as number) || 0;
+      return direction === "asc" ? valA - valB : valB - valA;
+    });
+  }, [statsGridData, sortConfig]);
 
   const statsMap = useMemo(() => {
     const map = new Map<string, PlayerAggregates>();
@@ -455,19 +496,75 @@ const GameMode: React.FC = () => {
    * Why: Allows scorekeepers to swap players in/out in one action during live play.
    * Notes: Records both SUB_OUT and SUB_IN events to maintain accurate play-by-play.
    */
+  /**
+   * 🏀 CoachBoard: handleSwapClick
+   * Why: Implements visual-only swapping in the Quick Sub dialog.
+   */
+  const handleSwapClick = useCallback(
+    (id: string) => {
+      if (!selectedSwapId) {
+        setSelectedSwapId(id);
+        return;
+      }
+
+      if (selectedSwapId === id) {
+        setSelectedSwapId(null);
+        return;
+      }
+
+      const isAOnCourt =
+        draftOnCourtIds.has(selectedSwapId) || selectedSwapId.startsWith("EMPTY");
+      const isBOnCourt = draftOnCourtIds.has(id) || id.startsWith("EMPTY");
+
+      // Perform swap only if they are in different groups
+      if (isAOnCourt !== isBOnCourt) {
+        setDraftOnCourtIds((prev) => {
+          const next = new Set(prev);
+          if (isAOnCourt) {
+            // A is on court, B is on bench
+            if (!selectedSwapId.startsWith("EMPTY")) next.delete(selectedSwapId);
+            if (!id.startsWith("EMPTY")) next.add(id);
+          } else {
+            // A is on bench, B is on court
+            if (!id.startsWith("EMPTY")) next.delete(id);
+            if (!selectedSwapId.startsWith("EMPTY")) next.add(selectedSwapId);
+          }
+          return next;
+        });
+        setSelectedSwapId(null);
+      } else {
+        // Same group, update selection
+        setSelectedSwapId(id);
+      }
+    },
+    [selectedSwapId, draftOnCourtIds],
+  );
+
   const handleQuickSub = useCallback(async () => {
-    if (!subInPlayerId || !gameId || isReadOnly) return;
+    if (!gameId || isReadOnly) return;
 
     try {
       await db.open();
       const timestamp = new Date().toISOString();
 
-      // Record SUB_OUT for outgoing player if not an "Empty" slot
-      if (subOutPlayerId && !subOutPlayerId.startsWith("EMPTY")) {
+      const originalOnCourt = gameData.onCourtIds;
+      const finalOnCourt = draftOnCourtIds;
+
+      // Players who were on court but are no longer in the draft lineup
+      const toSubOut = Array.from(originalOnCourt).filter(
+        (id) => !finalOnCourt.has(id),
+      );
+      // Players who were NOT on court but are now in the draft lineup
+      const toSubIn = Array.from(finalOnCourt).filter(
+        (id) => !originalOnCourt.has(id) && !id.startsWith("EMPTY"),
+      );
+
+      // Record SUB_OUT events
+      for (const pId of toSubOut) {
         await db.stats.add({
           id: crypto.randomUUID(),
           gameId: gameId,
-          playerId: subOutPlayerId,
+          playerId: pId,
           type: ACTION_TYPES.SUB_OUT,
           period,
           timestamp,
@@ -475,25 +572,25 @@ const GameMode: React.FC = () => {
         });
       }
 
-      // Record SUB_IN for incoming player
-      await db.stats.add({
-        id: crypto.randomUUID(),
-        gameId: gameId,
-        playerId: subInPlayerId,
-        type: ACTION_TYPES.SUB_IN,
-        period,
-        timestamp,
-        synced: 0,
-      });
+      // Record SUB_IN events
+      for (const pId of toSubIn) {
+        await db.stats.add({
+          id: crypto.randomUUID(),
+          gameId: gameId,
+          playerId: pId,
+          type: ACTION_TYPES.SUB_IN,
+          period,
+          timestamp,
+          synced: 0,
+        });
+      }
 
       setSubDialogOpen(false);
-      setSubOutPlayerId(null);
-      setSubInPlayerId(null);
       await syncService.pushUpdates();
     } catch (err) {
       logger.error("Failed to record quick sub:", err);
     }
-  }, [subInPlayerId, gameId, isReadOnly, subOutPlayerId, period]);
+  }, [gameId, isReadOnly, gameData.onCourtIds, draftOnCourtIds, period]);
 
   /**
    * Deletes a specific statistical event.
@@ -645,15 +742,15 @@ const GameMode: React.FC = () => {
                   sx={{ mt: 1, flexWrap: "wrap", gap: 1 }}
                 >
                   <ScoreboardChip
-                    label={`TEAM: ${gameData.currentScore}`}
+                    label={`${team?.name || "TEAM"}: ${gameData.currentScore}`}
                     color="primary"
                   />
                   <ScoreboardChip
-                    label={`OPP: ${gameData.opponentScore}`}
+                    label={`${game?.opponent || "OPP"}: ${gameData.opponentScore}`}
                     color="secondary"
                   />
                   <ScoreboardChip
-                    label={`TF: ${gameData.teamFoulStats.teamFouls}${gameData.teamFoulStats.teamBonusLabel}`}
+                    label={`${team?.name || "TF"}: ${gameData.teamFoulStats.teamFouls}${gameData.teamFoulStats.teamBonusLabel}`}
                     variant="outlined"
                     sx={{
                       color:
@@ -667,7 +764,7 @@ const GameMode: React.FC = () => {
                     }}
                   />
                   <ScoreboardChip
-                    label={`OF: ${gameData.teamFoulStats.oppFouls}${gameData.teamFoulStats.oppBonusLabel}`}
+                    label={`${game?.opponent || "OF"}: ${gameData.teamFoulStats.oppFouls}${gameData.teamFoulStats.oppBonusLabel}`}
                     variant="outlined"
                     sx={{
                       color:
@@ -787,8 +884,12 @@ const GameMode: React.FC = () => {
                 fullWidth={theme.breakpoints.down("sm") !== null}
                 sx={{ width: { xs: "100%", sm: "auto" } }}
               >
-                <ToggleButton value="TEAM">Our Team</ToggleButton>
-                <ToggleButton value="OPPONENT">Opponent</ToggleButton>
+                <ToggleButton value="TEAM">
+                  {team?.name || "Our Team"}
+                </ToggleButton>
+                <ToggleButton value="OPPONENT">
+                  {game?.opponent || "Opponent"}
+                </ToggleButton>
               </ToggleButtonGroup>
             </Box>
 
@@ -1054,7 +1155,26 @@ const GameMode: React.FC = () => {
                           <TableCell
                             sx={{ fontSize: "0.65rem", fontWeight: 700, px: 1 }}
                           >
-                            PLAYER
+                            <TableSortLabel
+                              active={sortConfig.key === "jerseyNumber"}
+                              direction={
+                                sortConfig.key === "jerseyNumber"
+                                  ? sortConfig.direction
+                                  : "asc"
+                              }
+                              onClick={() => {
+                                setSortConfig((prev) => ({
+                                  key: "jerseyNumber",
+                                  direction:
+                                    prev.key === "jerseyNumber" &&
+                                    prev.direction === "asc"
+                                      ? "desc"
+                                      : "asc",
+                                }));
+                              }}
+                            >
+                              PLAYER
+                            </TableSortLabel>
                           </TableCell>
                           <TableCell
                             align="right"
@@ -1064,7 +1184,26 @@ const GameMode: React.FC = () => {
                               px: 0.5,
                             }}
                           >
-                            PTS
+                            <TableSortLabel
+                              active={sortConfig.key === "points"}
+                              direction={
+                                sortConfig.key === "points"
+                                  ? sortConfig.direction
+                                  : "asc"
+                              }
+                              onClick={() => {
+                                setSortConfig((prev) => ({
+                                  key: "points",
+                                  direction:
+                                    prev.key === "points" &&
+                                    prev.direction === "asc"
+                                      ? "desc"
+                                      : "asc",
+                                }));
+                              }}
+                            >
+                              PTS
+                            </TableSortLabel>
                           </TableCell>
                           <TableCell
                             align="right"
@@ -1074,7 +1213,26 @@ const GameMode: React.FC = () => {
                               px: 0.5,
                             }}
                           >
-                            REB
+                            <TableSortLabel
+                              active={sortConfig.key === "rebounds"}
+                              direction={
+                                sortConfig.key === "rebounds"
+                                  ? sortConfig.direction
+                                  : "asc"
+                              }
+                              onClick={() => {
+                                setSortConfig((prev) => ({
+                                  key: "rebounds",
+                                  direction:
+                                    prev.key === "rebounds" &&
+                                    prev.direction === "asc"
+                                      ? "desc"
+                                      : "asc",
+                                }));
+                              }}
+                            >
+                              REB
+                            </TableSortLabel>
                           </TableCell>
                           <TableCell
                             align="right"
@@ -1084,7 +1242,26 @@ const GameMode: React.FC = () => {
                               px: 0.5,
                             }}
                           >
-                            AST
+                            <TableSortLabel
+                              active={sortConfig.key === "assists"}
+                              direction={
+                                sortConfig.key === "assists"
+                                  ? sortConfig.direction
+                                  : "asc"
+                              }
+                              onClick={() => {
+                                setSortConfig((prev) => ({
+                                  key: "assists",
+                                  direction:
+                                    prev.key === "assists" &&
+                                    prev.direction === "asc"
+                                      ? "desc"
+                                      : "asc",
+                                }));
+                              }}
+                            >
+                              AST
+                            </TableSortLabel>
                           </TableCell>
                           <TableCell
                             align="right"
@@ -1094,7 +1271,26 @@ const GameMode: React.FC = () => {
                               px: 0.5,
                             }}
                           >
-                            STL
+                            <TableSortLabel
+                              active={sortConfig.key === "steals"}
+                              direction={
+                                sortConfig.key === "steals"
+                                  ? sortConfig.direction
+                                  : "asc"
+                              }
+                              onClick={() => {
+                                setSortConfig((prev) => ({
+                                  key: "steals",
+                                  direction:
+                                    prev.key === "steals" &&
+                                    prev.direction === "asc"
+                                      ? "desc"
+                                      : "asc",
+                                }));
+                              }}
+                            >
+                              STL
+                            </TableSortLabel>
                           </TableCell>
                           <TableCell
                             align="right"
@@ -1104,18 +1300,56 @@ const GameMode: React.FC = () => {
                               px: 0.5,
                             }}
                           >
-                            TO
+                            <TableSortLabel
+                              active={sortConfig.key === "turnovers"}
+                              direction={
+                                sortConfig.key === "turnovers"
+                                  ? sortConfig.direction
+                                  : "asc"
+                              }
+                              onClick={() => {
+                                setSortConfig((prev) => ({
+                                  key: "turnovers",
+                                  direction:
+                                    prev.key === "turnovers" &&
+                                    prev.direction === "asc"
+                                      ? "desc"
+                                      : "asc",
+                                }));
+                              }}
+                            >
+                              TO
+                            </TableSortLabel>
                           </TableCell>
                           <TableCell
                             align="right"
                             sx={{ fontSize: "0.65rem", fontWeight: 700, px: 1 }}
                           >
-                            PF
+                            <TableSortLabel
+                              active={sortConfig.key === "fouls"}
+                              direction={
+                                sortConfig.key === "fouls"
+                                  ? sortConfig.direction
+                                  : "asc"
+                              }
+                              onClick={() => {
+                                setSortConfig((prev) => ({
+                                  key: "fouls",
+                                  direction:
+                                    prev.key === "fouls" &&
+                                    prev.direction === "asc"
+                                      ? "desc"
+                                      : "asc",
+                                }));
+                              }}
+                            >
+                              PF
+                            </TableSortLabel>
                           </TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
-                        {statsGridData.map((row) => (
+                        {sortedStatsGridData.map((row) => (
                           <PlayerStatRow key={row.id} row={row} />
                         ))}
                       </TableBody>
@@ -1135,11 +1369,11 @@ const GameMode: React.FC = () => {
                   gutterBottom
                   sx={{ fontWeight: 600 }}
                 >
-                  Opponent Tracking
+                  {game?.opponent || "Opponent"} Tracking
                 </Typography>
                 <Typography variant="body2">
-                  Stats recorded in this mode will be assigned to the "Opponent"
-                  player.
+                  Stats recorded in this mode will be assigned to the "
+                  {game?.opponent || "Opponent"}" player.
                 </Typography>
               </MoleskineCard>
             )}
@@ -1162,6 +1396,8 @@ const GameMode: React.FC = () => {
                       players={players}
                       periodLabel={periodLabel}
                       isReadOnly={isReadOnly}
+                      teamName={team?.name}
+                      opponentName={game?.opponent}
                       onEdit={openEditDialog}
                       onDelete={(id) => {
                         setStatToDelete(id);
@@ -1186,7 +1422,7 @@ const GameMode: React.FC = () => {
           {isEditing ? "Edit Action" : "Record Action"}
           <Typography variant="body2" color="text.secondary">
             {selectedPlayerId === SPECIAL_PLAYER_IDS.OPPONENT
-              ? "Opponent"
+              ? game?.opponent || "Opponent"
               : players?.find((p) => p.id === selectedPlayerId)?.name ||
                 "Select Player"}
           </Typography>
@@ -1438,7 +1674,7 @@ const GameMode: React.FC = () => {
               <Stack spacing={1}>
                 {/* Active players */}
                 {players
-                  .filter((p) => gameData.onCourtIds.has(p.id!))
+                  .filter((p) => draftOnCourtIds.has(p.id!))
                   .map((p) => {
                     const s = statsMap.get(p.id!);
                     const pts = s?.points || 0;
@@ -1450,9 +1686,9 @@ const GameMode: React.FC = () => {
                       <Button
                         key={p.id}
                         variant={
-                          subOutPlayerId === p.id ? "contained" : "outlined"
+                          selectedSwapId === p.id ? "contained" : "outlined"
                         }
-                        onClick={() => setSubOutPlayerId(p.id!)}
+                        onClick={() => handleSwapClick(p.id!)}
                         fullWidth
                         sx={{
                           justifyContent: "flex-start",
@@ -1463,7 +1699,7 @@ const GameMode: React.FC = () => {
                               : "divider",
                           color: isFouledOut ? "error.main" : "text.primary",
                           bgcolor:
-                            subOutPlayerId === p.id
+                            selectedSwapId === p.id
                               ? isFouledOut
                                 ? "error.light"
                                 : isFoulTrouble
@@ -1491,23 +1727,23 @@ const GameMode: React.FC = () => {
                   })}
                 {/* Placeholder "Empty" slots to reach 5 total */}
                 {Array.from({
-                  length: Math.max(0, 5 - gameData.onCourtIds.size),
+                  length: Math.max(0, 5 - draftOnCourtIds.size),
                 }).map((_, i) => {
                   const emptyId = `EMPTY-${i}`;
                   return (
                     <Button
                       key={emptyId}
                       variant={
-                        subOutPlayerId === emptyId ? "contained" : "outlined"
+                        selectedSwapId === emptyId ? "contained" : "outlined"
                       }
-                      onClick={() => setSubOutPlayerId(emptyId)}
+                      onClick={() => handleSwapClick(emptyId)}
                       fullWidth
                       sx={{
                         justifyContent: "flex-start",
                         borderStyle: "dashed",
                         color: "text.secondary",
                         bgcolor:
-                          subOutPlayerId === emptyId
+                          selectedSwapId === emptyId
                             ? "rgba(0,0,0,0.05)"
                             : "transparent",
                       }}
@@ -1537,7 +1773,7 @@ const GameMode: React.FC = () => {
               </Typography>
               <Stack spacing={1}>
                 {players
-                  .filter((p) => !gameData.onCourtIds.has(p.id!))
+                  .filter((p) => !draftOnCourtIds.has(p.id!))
                   .map((p) => {
                     const s = statsMap.get(p.id!);
                     const pts = s?.points || 0;
@@ -1549,9 +1785,9 @@ const GameMode: React.FC = () => {
                       <Button
                         key={p.id}
                         variant={
-                          subInPlayerId === p.id ? "contained" : "outlined"
+                          selectedSwapId === p.id ? "contained" : "outlined"
                         }
-                        onClick={() => setSubInPlayerId(p.id!)}
+                        onClick={() => handleSwapClick(p.id!)}
                         fullWidth
                         sx={{
                           justifyContent: "flex-start",
@@ -1563,7 +1799,7 @@ const GameMode: React.FC = () => {
                           color: isFouledOut ? "error.main" : "text.primary",
                           opacity: isFouledOut ? 0.6 : 1,
                           bgcolor:
-                            subInPlayerId === p.id
+                            selectedSwapId === p.id
                               ? isFouledOut
                                 ? "error.light"
                                 : isFoulTrouble
@@ -1600,7 +1836,6 @@ const GameMode: React.FC = () => {
           <Button
             onClick={handleQuickSub}
             variant="contained"
-            disabled={!subInPlayerId || !subOutPlayerId}
             startIcon={<SwapHoriz />}
           >
             Sub In
@@ -1729,9 +1964,20 @@ const RecentActionItem: React.FC<{
   players: Player[];
   periodLabel: string;
   isReadOnly: boolean;
+  teamName?: string;
+  opponentName?: string;
   onEdit: (_s: StatEvent) => void;
   onDelete: (_id: string) => void;
-}> = ({ stat: s, players, periodLabel, isReadOnly, onEdit, onDelete }) => (
+}> = ({
+  stat: s,
+  players,
+  periodLabel,
+  isReadOnly,
+  teamName,
+  opponentName,
+  onEdit,
+  onDelete,
+}) => (
   <Box
     sx={{
       display: "flex",
@@ -1745,10 +1991,10 @@ const RecentActionItem: React.FC<{
       <Typography variant="body2">
         <strong>
           {s.playerId === SPECIAL_PLAYER_IDS.OPPONENT
-            ? "Opponent"
+            ? opponentName || "Opponent"
             : s.playerId === SPECIAL_PLAYER_IDS.TEAM_TIMEOUT ||
                 s.playerId === SPECIAL_PLAYER_IDS.OUR_TEAM
-              ? "Our Team"
+              ? teamName || "Our Team"
               : players?.find((p) => p.id === s.playerId)?.name || "Unknown"}
         </strong>
         : {s.type}
