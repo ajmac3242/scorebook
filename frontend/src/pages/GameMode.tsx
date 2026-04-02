@@ -942,7 +942,14 @@ const GameMode: React.FC = () => {
                               >
                                 {jerseyMap.get(p.id!) || ""}
                               </Avatar>
-                              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', overflow: 'hidden' }}>
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  alignItems: "flex-start",
+                                  overflow: "hidden",
+                                }}
+                              >
                                 <Typography
                                   variant="caption"
                                   sx={{
@@ -950,23 +957,39 @@ const GameMode: React.FC = () => {
                                     whiteSpace: "nowrap",
                                     overflow: "hidden",
                                     textOverflow: "ellipsis",
-                                    fontSize: '0.65rem',
-                                    lineHeight: 1.1
+                                    fontSize: "0.65rem",
+                                    lineHeight: 1.1,
                                   }}
                                 >
                                   {p.name}
                                 </Typography>
-                                <Typography variant="caption" sx={{ fontSize: '0.6rem', opacity: 0.9 }}>
+                                <Typography
+                                  variant="caption"
+                                  sx={{ fontSize: "0.6rem", opacity: 0.9 }}
+                                >
                                   {pts} pts |
-                                  <Box component="span" sx={{
-                                    ml: 0.5,
-                                    px: 0.5,
-                                    borderRadius: 0.5,
-                                    bgcolor: isFouledOut ? '#d32f2f' : isFoulTrouble ? '#ed6c02' : 'transparent',
-                                    fontWeight: (isFouledOut || isFoulTrouble) ? 900 : 400,
-                                    border: (isFouledOut || isFoulTrouble) ? '1px solid white' : 'none'
-                                  }}>
-                                    {pf} foul{pf !== 1 ? 's' : ''}
+                                  <Box
+                                    component="span"
+                                    sx={{
+                                      ml: 0.5,
+                                      px: 0.5,
+                                      borderRadius: 0.5,
+                                      bgcolor: isFouledOut
+                                        ? "#d32f2f"
+                                        : isFoulTrouble
+                                          ? "#ed6c02"
+                                          : "transparent",
+                                      fontWeight:
+                                        isFouledOut || isFoulTrouble
+                                          ? 900
+                                          : 400,
+                                      border:
+                                        isFouledOut || isFoulTrouble
+                                          ? "1px solid white"
+                                          : "none",
+                                    }}
+                                  >
+                                    {pf} foul{pf !== 1 ? "s" : ""}
                                   </Box>
                                   {isFouledOut && " - OUT"}
                                 </Typography>
@@ -1138,7 +1161,7 @@ const GameMode: React.FC = () => {
                       stat={s}
                       players={players}
                       periodLabel={periodLabel}
-                          isReadOnly={isReadOnly}
+                      isReadOnly={isReadOnly}
                       onEdit={openEditDialog}
                       onDelete={(id) => {
                         setStatToDelete(id);
