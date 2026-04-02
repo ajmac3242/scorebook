@@ -527,11 +527,20 @@ const Teams: React.FC = () => {
             sx={{ mb: 2 }}
             disabled={isSubmitting}
           />
-          <Typography variant="subtitle2" gutterBottom>
+          <Typography
+            id="primary-color-label"
+            variant="subtitle2"
+            gutterBottom
+            component="label"
+            htmlFor="primary-color-input"
+            sx={{ display: "block" }}
+          >
             Primary Color
           </Typography>
           <input
+            id="primary-color-input"
             type="color"
+            aria-labelledby="primary-color-label"
             style={{
               display: "block",
               width: "100%",

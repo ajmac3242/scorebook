@@ -13,6 +13,8 @@ import {
   DialogContent,
   DialogContentText,
   DialogActions,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import {
   Logout as LogoutIcon,
@@ -40,7 +42,13 @@ const Settings: React.FC = () => {
   const [isSyncing, setIsSyncing] = useState(false);
   const [hasUnsynced, setHasUnsynced] = useState(false);
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
+  const [clearLogsDialogOpen, setClearLogsDialogOpen] = useState(false);
   const [logs, setLogs] = useState<LogEntry[]>(logger.getLogs());
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity: "success" | "error";
+  }>({ open: false, message: "", severity: "success" });
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
@@ -127,6 +135,11 @@ const Settings: React.FC = () => {
       )
       .join("\n\n");
     navigator.clipboard.writeText(logString);
+    setSnackbar({
+      open: true,
+      message: "Logs copied to clipboard",
+      severity: "success",
+    });
   };
 
   /**
@@ -135,6 +148,12 @@ const Settings: React.FC = () => {
   const handleClearLogs = () => {
     logger.clearLogs();
     setLogs([]);
+    setClearLogsDialogOpen(false);
+    setSnackbar({
+      open: true,
+      message: "Logs cleared",
+      severity: "success",
+    });
   };
 
   const logoutDialog = (
@@ -175,6 +194,21 @@ const Settings: React.FC = () => {
 
   return (
     <Box sx={{ pb: 8 }}>
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity}
+          variant="filled"
+          sx={{ width: "100%" }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
       <EntityBanner
         title="Settings"
         icon={<SettingsIcon />}
@@ -318,7 +352,7 @@ const Settings: React.FC = () => {
               <Button
                 size="small"
                 startIcon={<ClearIcon />}
-                onClick={handleClearLogs}
+                onClick={() => setClearLogsDialogOpen(true)}
                 disabled={logs.length === 0}
                 color="error"
               >
@@ -400,6 +434,30 @@ const Settings: React.FC = () => {
         </Paper>
       </Box>
       {logoutDialog}
+      <Dialog
+        open={clearLogsDialogOpen}
+        onClose={() => setClearLogsDialogOpen(false)}
+        maxWidth="xs"
+        fullWidth
+      >
+        <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
+          Clear System Logs?
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to clear all system logs? This action cannot
+            be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{ p: 2, px: 3, pb: 3 }}>
+          <Button onClick={() => setClearLogsDialogOpen(false)} color="inherit">
+            Cancel
+          </Button>
+          <Button onClick={handleClearLogs} color="error" variant="contained">
+            Clear Logs
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
