@@ -297,6 +297,14 @@ const GameMode: React.FC = () => {
     return calculatePlayerAggregates(players, gameStats, teamPlayers);
   }, [players, gameStats, teamPlayers]);
 
+  const statsMap = useMemo(() => {
+    const map = new Map<string, PlayerAggregates>();
+    for (let i = 0; i < statsGridData.length; i++) {
+      map.set(statsGridData[i].id.toString(), statsGridData[i]);
+    }
+    return map;
+  }, [statsGridData]);
+
   const markers = useMemo(() => {
     const res = [];
     for (let i = 0; i < gameStats.length; i++) {
@@ -878,56 +886,72 @@ const GameMode: React.FC = () => {
                   >
                     {players
                       .filter((p) => gameData.onCourtIds.has(p.id!))
-                      .map((p) => (
-                        <Box
-                          key={p.id}
-                          sx={{
-                            display: "flex",
-                            gap: 0.5,
-                            alignItems: "center",
-                          }}
-                        >
-                          <Button
-                            fullWidth
-                            disabled={true}
-                            variant="contained"
+                      .map((p) => {
+                        const s = statsMap.get(p.id!);
+                        const pts = s?.points || 0;
+                        const pf = s?.fouls || 0;
+                        const isFoulTrouble = pf === 4;
+                        const isFouledOut = pf >= 5;
+
+                        return (
+                          <Box
+                            key={p.id}
                             sx={{
-                              justifyContent: "flex-start",
-                              px: 1,
-                              bgcolor: "primary.main",
-                              color: "white",
-                              borderWidth: "1.5px",
-                              "&.Mui-disabled": {
-                                bgcolor: "primary.main",
-                                color: "white",
-                              },
+                              display: "flex",
+                              gap: 0.5,
+                              alignItems: "center",
                             }}
                           >
-                            <Avatar
+                            <Button
+                              fullWidth
+                              disabled={true}
+                              variant="contained"
                               sx={{
-                                width: 20,
-                                height: 20,
-                                fontSize: "0.65rem",
-                                mr: 0.5,
-                                bgcolor: p.avatarColor || "grey.500",
+                                justifyContent: "flex-start",
+                                px: 1,
+                                bgcolor: isFouledOut
+                                  ? "error.main"
+                                  : isFoulTrouble
+                                    ? "warning.main"
+                                    : "primary.main",
+                                color: "white",
+                                borderWidth: "1.5px",
+                                "&.Mui-disabled": {
+                                  bgcolor: isFouledOut
+                                    ? "error.main"
+                                    : isFoulTrouble
+                                      ? "warning.main"
+                                      : "primary.main",
+                                  color: "white",
+                                },
                               }}
                             >
-                              {jerseyMap.get(p.id!) || ""}
-                            </Avatar>
-                            <Typography
-                              variant="caption"
-                              sx={{
-                                fontWeight: 600,
-                                whiteSpace: "nowrap",
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                              }}
-                            >
-                              {p.name}
-                            </Typography>
-                          </Button>
-                        </Box>
-                      ))}
+                              <Avatar
+                                sx={{
+                                  width: 20,
+                                  height: 20,
+                                  fontSize: "0.65rem",
+                                  mr: 0.5,
+                                  bgcolor: p.avatarColor || "grey.500",
+                                }}
+                              >
+                                {jerseyMap.get(p.id!) || ""}
+                              </Avatar>
+                              <Typography
+                                variant="caption"
+                                sx={{
+                                  fontWeight: 600,
+                                  whiteSpace: "nowrap",
+                                  overflow: "hidden",
+                                  textOverflow: "ellipsis",
+                                }}
+                              >
+                                {p.name} ({pts}p, {pf}f)
+                              </Typography>
+                            </Button>
+                          </Box>
+                        );
+                      })}
                     {gameData.onCourtIds.size === 0 && (
                       <Typography variant="body2" color="text.secondary">
                         No players on court. Use Quick Sub to add players.
@@ -1335,32 +1359,56 @@ const GameMode: React.FC = () => {
                 {/* Active players */}
                 {players
                   .filter((p) => gameData.onCourtIds.has(p.id!))
-                  .map((p) => (
-                    <Button
-                      key={p.id}
-                      variant={
-                        subOutPlayerId === p.id ? "contained" : "outlined"
-                      }
-                      onClick={() => setSubOutPlayerId(p.id!)}
-                      fullWidth
-                      sx={{ justifyContent: "flex-start" }}
-                    >
-                      <Avatar
+                  .map((p) => {
+                    const s = statsMap.get(p.id!);
+                    const pts = s?.points || 0;
+                    const pf = s?.fouls || 0;
+                    const isFoulTrouble = pf === 4;
+                    const isFouledOut = pf >= 5;
+
+                    return (
+                      <Button
+                        key={p.id}
+                        variant={
+                          subOutPlayerId === p.id ? "contained" : "outlined"
+                        }
+                        onClick={() => setSubOutPlayerId(p.id!)}
+                        fullWidth
                         sx={{
-                          width: 24,
-                          height: 24,
-                          fontSize: "0.75rem",
-                          mr: 1,
-                          bgcolor: p.avatarColor || "grey.500",
+                          justifyContent: "flex-start",
+                          borderColor: isFouledOut
+                            ? "error.main"
+                            : isFoulTrouble
+                              ? "warning.main"
+                              : "divider",
+                          color: isFouledOut ? "error.main" : "text.primary",
+                          bgcolor:
+                            subOutPlayerId === p.id
+                              ? isFouledOut
+                                ? "error.light"
+                                : isFoulTrouble
+                                  ? "warning.light"
+                                  : "primary.main"
+                              : "transparent",
                         }}
                       >
-                        {jerseyMap.get(p.id!) || ""}
-                      </Avatar>
-                      <Typography variant="body2" noWrap>
-                        {p.name}
-                      </Typography>
-                    </Button>
-                  ))}
+                        <Avatar
+                          sx={{
+                            width: 24,
+                            height: 24,
+                            fontSize: "0.75rem",
+                            mr: 1,
+                            bgcolor: p.avatarColor || "grey.500",
+                          }}
+                        >
+                          {jerseyMap.get(p.id!) || ""}
+                        </Avatar>
+                        <Typography variant="body2" noWrap>
+                          {p.name} ({pts}p, {pf}f){isFouledOut && " - OUT"}
+                        </Typography>
+                      </Button>
+                    );
+                  })}
                 {/* Placeholder "Empty" slots to reach 5 total */}
                 {Array.from({
                   length: Math.max(0, 5 - gameData.onCourtIds.size),
@@ -1410,32 +1458,57 @@ const GameMode: React.FC = () => {
               <Stack spacing={1}>
                 {players
                   .filter((p) => !gameData.onCourtIds.has(p.id!))
-                  .map((p) => (
-                    <Button
-                      key={p.id}
-                      variant={
-                        subInPlayerId === p.id ? "contained" : "outlined"
-                      }
-                      onClick={() => setSubInPlayerId(p.id!)}
-                      fullWidth
-                      sx={{ justifyContent: "flex-start" }}
-                    >
-                      <Avatar
+                  .map((p) => {
+                    const s = statsMap.get(p.id!);
+                    const pts = s?.points || 0;
+                    const pf = s?.fouls || 0;
+                    const isFoulTrouble = pf === 4;
+                    const isFouledOut = pf >= 5;
+
+                    return (
+                      <Button
+                        key={p.id}
+                        variant={
+                          subInPlayerId === p.id ? "contained" : "outlined"
+                        }
+                        onClick={() => setSubInPlayerId(p.id!)}
+                        fullWidth
                         sx={{
-                          width: 24,
-                          height: 24,
-                          fontSize: "0.75rem",
-                          mr: 1,
-                          bgcolor: p.avatarColor || "grey.500",
+                          justifyContent: "flex-start",
+                          borderColor: isFouledOut
+                            ? "error.main"
+                            : isFoulTrouble
+                              ? "warning.main"
+                              : "divider",
+                          color: isFouledOut ? "error.main" : "text.primary",
+                          opacity: isFouledOut ? 0.6 : 1,
+                          bgcolor:
+                            subInPlayerId === p.id
+                              ? isFouledOut
+                                ? "error.light"
+                                : isFoulTrouble
+                                  ? "warning.light"
+                                  : "primary.main"
+                              : "transparent",
                         }}
                       >
-                        {jerseyMap.get(p.id!) || ""}
-                      </Avatar>
-                      <Typography variant="body2" noWrap>
-                        {p.name}
-                      </Typography>
-                    </Button>
-                  ))}
+                        <Avatar
+                          sx={{
+                            width: 24,
+                            height: 24,
+                            fontSize: "0.75rem",
+                            mr: 1,
+                            bgcolor: p.avatarColor || "grey.500",
+                          }}
+                        >
+                          {jerseyMap.get(p.id!) || ""}
+                        </Avatar>
+                        <Typography variant="body2" noWrap>
+                          {p.name} ({pts}p, {pf}f){isFouledOut && " - OUT"}
+                        </Typography>
+                      </Button>
+                    );
+                  })}
               </Stack>
             </Grid>
           </Grid>
