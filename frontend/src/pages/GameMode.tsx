@@ -26,7 +26,6 @@ import {
   ToggleButtonGroup,
   Alert,
   Tooltip,
-  Snackbar,
 } from "@mui/material";
 import {
   Undo as UndoIcon,
@@ -115,11 +114,6 @@ const GameMode: React.FC = () => {
   // Game lifecycle state
   const [endGameDialogOpen, setEndGameDialogOpen] = useState(false);
   const [summaryDialogOpen, setSummaryDialogOpen] = useState(false);
-  const [snackbar, setSnackbar] = useState<{
-    open: boolean;
-    message: string;
-    severity: "success" | "error";
-  }>({ open: false, message: "", severity: "success" });
 
   // Derived data from StatEvents
   const gameStatsQueryResult = useLiveQuery(async () => {
@@ -185,6 +179,14 @@ const GameMode: React.FC = () => {
       setTimeout(() => setSummaryDialogOpen(true), 0);
     }
   }, [game?.completed, summaryDialogOpen, endGameDialogOpen]);
+
+  // Periodic background sync during live tracking
+  useEffect(() => {
+    const interval = setInterval(() => {
+      syncService.pushUpdates();
+    }, 60000); // 1 minute
+    return () => clearInterval(interval);
+  }, []);
 
   /**
    * ⚡ Bolt: Consolidate statistical derivations.
@@ -327,49 +329,22 @@ const GameMode: React.FC = () => {
   /**
    * Undoes the most recent statistical action.
    */
-  const handleUndo = React.useCallback(async () => {
+  const handleUndo = useCallback(async () => {
     if (gameData.recentStats.length === 0) return;
     const lastStat = gameData.recentStats[0];
     if (lastStat.id) {
       try {
         await db.open();
         await db.stats.update(lastStat.id, {
-          deletedAt: new Date().toyISOString(),
+          deletedAt: new Date().toISOString(),
           synced: 0,
         });
         await syncService.pushUpdates();
-        setSnackbar({
-          open: true,
-          message: `Undone: ${lastStat.type}`,
-          severity: "success",
-        });
       } catch (err) {
         logger.error("Failed to undo stat:", err);
       }
     }
   }, [gameData.recentStats]);
-
-  // Keyboard shortcuts and periodic background sync during live tracking
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Ctrl+Z or Cmd+Z for Undo
-      if ((e.ctrlKey || e.metaKey) && e.key === "z") {
-        e.preventDefault();
-        handleUndo();
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-
-    const interval = setInterval(() => {
-      syncService.pushUpdates();
-    }, 60000); // 1 minute
-
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-      clearInterval(interval);
-    };
-  }, [gameData.recentStats, handleUndo]);
 
   /**
    * Finalizes the game, marking it as completed and triggering a sync.
@@ -633,21 +608,6 @@ const GameMode: React.FC = () => {
 
   return (
     <Box sx={{ pb: 4, opacity: isDeleted ? 0.7 : 1 }}>
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={3000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-      >
-        <Alert
-          onClose={() => setSnackbar({ ...snackbar, open: false })}
-          severity={snackbar.severity}
-          variant="filled"
-          sx={{ width: "100%" }}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
       {isDeleted && (
         <Alert severity="warning" icon={<Warning />} sx={{ mb: 2 }}>
           This game is in read-only mode because it or its parent is pending
@@ -685,44 +645,38 @@ const GameMode: React.FC = () => {
                     label={`OPP: ${gameData.opponentScore}`}
                     color="secondary"
                   />
-                  <Tooltip title="Team Fouls">
-                    <ScoreboardChip
-                      label={`TF: ${gameData.teamFoulStats.teamFouls}${gameData.teamFoulStats.teamBonusLabel}`}
-                      variant="outlined"
-                      sx={{
-                        color:
-                          gameData.teamFoulStats.teamBonusColor === "default"
-                            ? "inherit"
-                            : (gameData.teamFoulStats.teamBonusColor as string),
-                        borderColor:
-                          gameData.teamFoulStats.teamBonusColor === "default"
-                            ? "divider"
-                            : (gameData.teamFoulStats.teamBonusColor as string),
-                      }}
-                    />
-                  </Tooltip>
-                  <Tooltip title="Opponent Fouls">
-                    <ScoreboardChip
-                      label={`OF: ${gameData.teamFoulStats.oppFouls}${gameData.teamFoulStats.oppBonusLabel}`}
-                      variant="outlined"
-                      sx={{
-                        color:
-                          gameData.teamFoulStats.oppBonusColor === "default"
-                            ? "inherit"
-                            : (gameData.teamFoulStats.oppBonusColor as string),
-                        borderColor:
-                          gameData.teamFoulStats.oppBonusColor === "default"
-                            ? "divider"
-                            : (gameData.teamFoulStats.oppBonusColor as string),
-                      }}
-                    />
-                  </Tooltip>
-                  <Tooltip title="Timeouts Left (Team | Opponent)">
-                    <ScoreboardChip
-                      label={`TOL: ${gameData.timeoutStats.teamTOL} | ${gameData.timeoutStats.oppTOL}`}
-                      variant="outlined"
-                    />
-                  </Tooltip>
+                  <ScoreboardChip
+                    label={`TF: ${gameData.teamFoulStats.teamFouls}${gameData.teamFoulStats.teamBonusLabel}`}
+                    variant="outlined"
+                    sx={{
+                      color:
+                        gameData.teamFoulStats.teamBonusColor === "default"
+                          ? "inherit"
+                          : (gameData.teamFoulStats.teamBonusColor as string),
+                      borderColor:
+                        gameData.teamFoulStats.teamBonusColor === "default"
+                          ? "divider"
+                          : (gameData.teamFoulStats.teamBonusColor as string),
+                    }}
+                  />
+                  <ScoreboardChip
+                    label={`OF: ${gameData.teamFoulStats.oppFouls}${gameData.teamFoulStats.oppBonusLabel}`}
+                    variant="outlined"
+                    sx={{
+                      color:
+                        gameData.teamFoulStats.oppBonusColor === "default"
+                          ? "inherit"
+                          : (gameData.teamFoulStats.oppBonusColor as string),
+                      borderColor:
+                        gameData.teamFoulStats.oppBonusColor === "default"
+                          ? "divider"
+                          : (gameData.teamFoulStats.oppBonusColor as string),
+                    }}
+                  />
+                  <ScoreboardChip
+                    label={`TOL: ${gameData.timeoutStats.teamTOL} | ${gameData.timeoutStats.oppTOL}`}
+                    variant="outlined"
+                  />
                   <Box
                     sx={{
                       display: "flex",
@@ -734,76 +688,70 @@ const GameMode: React.FC = () => {
                       px: 0.5,
                     }}
                   >
-                    <Tooltip title="Possession: Our Team">
-                      <IconButton
-                        size="small"
-                        disabled={isDeleted}
-                        onClick={() =>
-                          handleTogglePossession(SPECIAL_PLAYER_IDS.OUR_TEAM)
-                        }
-                        color={
+                    <IconButton
+                      size="small"
+                      disabled={isDeleted}
+                      onClick={() =>
+                        handleTogglePossession(SPECIAL_PLAYER_IDS.OUR_TEAM)
+                      }
+                      color={
+                        gameData.possessionState === SPECIAL_PLAYER_IDS.OUR_TEAM
+                          ? "primary"
+                          : "default"
+                      }
+                      sx={{
+                        p: 0.5,
+                        bgcolor:
                           gameData.possessionState ===
                           SPECIAL_PLAYER_IDS.OUR_TEAM
-                            ? "primary"
-                            : "default"
-                        }
-                        sx={{
-                          p: 0.5,
+                            ? "primary.light"
+                            : "transparent",
+                        "&:hover": {
                           bgcolor:
                             gameData.possessionState ===
                             SPECIAL_PLAYER_IDS.OUR_TEAM
                               ? "primary.light"
-                              : "transparent",
-                          "&:hover": {
-                            bgcolor:
-                              gameData.possessionState ===
-                              SPECIAL_PLAYER_IDS.OUR_TEAM
-                                ? "primary.light"
-                                : "action.hover",
-                          },
-                        }}
-                      >
-                        <ArrowBack fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
+                              : "action.hover",
+                        },
+                      }}
+                    >
+                      <ArrowBack fontSize="small" />
+                    </IconButton>
                     <Typography
                       variant="caption"
                       sx={{ fontWeight: "bold", mx: 0.5, fontSize: "0.65rem" }}
                     >
                       POSS
                     </Typography>
-                    <Tooltip title="Possession: Opponent">
-                      <IconButton
-                        size="small"
-                        disabled={isDeleted}
-                        onClick={() =>
-                          handleTogglePossession(SPECIAL_PLAYER_IDS.OPPONENT)
-                        }
-                        color={
+                    <IconButton
+                      size="small"
+                      disabled={isDeleted}
+                      onClick={() =>
+                        handleTogglePossession(SPECIAL_PLAYER_IDS.OPPONENT)
+                      }
+                      color={
+                        gameData.possessionState === SPECIAL_PLAYER_IDS.OPPONENT
+                          ? "secondary"
+                          : "default"
+                      }
+                      sx={{
+                        p: 0.5,
+                        bgcolor:
                           gameData.possessionState ===
                           SPECIAL_PLAYER_IDS.OPPONENT
-                            ? "secondary"
-                            : "default"
-                        }
-                        sx={{
-                          p: 0.5,
+                            ? "secondary.light"
+                            : "transparent",
+                        "&:hover": {
                           bgcolor:
                             gameData.possessionState ===
                             SPECIAL_PLAYER_IDS.OPPONENT
                               ? "secondary.light"
-                              : "transparent",
-                          "&:hover": {
-                            bgcolor:
-                              gameData.possessionState ===
-                              SPECIAL_PLAYER_IDS.OPPONENT
-                                ? "secondary.light"
-                                : "action.hover",
-                          },
-                        }}
-                      >
-                        <ArrowForward fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
+                              : "action.hover",
+                        },
+                      }}
+                    >
+                      <ArrowForward fontSize="small" />
+                    </IconButton>
                   </Box>
                   <ScoreboardChip
                     label={`${periodLabel}: ${period > maxPeriod ? `OT ${period - maxPeriod}` : period}`}
@@ -832,12 +780,8 @@ const GameMode: React.FC = () => {
                 fullWidth={theme.breakpoints.down("sm") !== null}
                 sx={{ width: { xs: "100%", sm: "auto" } }}
               >
-                <ToggleButton value="TEAM" aria-label="Our Team mode">
-                  Our Team
-                </ToggleButton>
-                <ToggleButton value="OPPONENT" aria-label="Opponent mode">
-                  Opponent
-                </ToggleButton>
+                <ToggleButton value="TEAM">Our Team</ToggleButton>
+                <ToggleButton value="OPPONENT">Opponent</ToggleButton>
               </ToggleButtonGroup>
             </Box>
 
@@ -1662,26 +1606,16 @@ const RecentActionItem: React.FC<{
       </Typography>
     </Box>
     <Box>
-      <Tooltip title="Edit Action">
-        <IconButton
-          size="small"
-          disabled={isDeleted}
-          onClick={() => onEdit(s)}
-          aria-label={`Edit ${s.type} action`}
-        >
-          <Edit fontSize="small" />
-        </IconButton>
-      </Tooltip>
-      <Tooltip title="Delete Action">
-        <IconButton
-          size="small"
-          disabled={isDeleted}
-          onClick={() => onDelete(s.id!)}
-          aria-label={`Delete ${s.type} action`}
-        >
-          <Delete fontSize="small" />
-        </IconButton>
-      </Tooltip>
+      <IconButton size="small" disabled={isDeleted} onClick={() => onEdit(s)}>
+        <Edit fontSize="small" />
+      </IconButton>
+      <IconButton
+        size="small"
+        disabled={isDeleted}
+        onClick={() => onDelete(s.id!)}
+      >
+        <Delete fontSize="small" />
+      </IconButton>
     </Box>
   </Box>
 );
