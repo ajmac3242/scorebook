@@ -109,8 +109,10 @@ describe("GameMode Timeouts", () => {
     renderComponent();
 
     // Switch to Opponent tracking mode
-    const oppModeBtn = screen.getByRole("button", { name: /Opponent/i });
-    fireEvent.click(oppModeBtn);
+    const oppModeBtn = screen
+      .getAllByRole("button", { name: /Opponent/i })
+      .find((el) => el instanceof HTMLButtonElement && el.value === "OPPONENT");
+    fireEvent.click(oppModeBtn!);
 
     const timeoutBtn = await screen.findByRole("button", { name: /timeout/i });
     fireEvent.click(timeoutBtn);

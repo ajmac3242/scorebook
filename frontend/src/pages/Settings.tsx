@@ -13,6 +13,8 @@ import {
   DialogContent,
   DialogContentText,
   DialogActions,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import {
   Logout as LogoutIcon,
@@ -41,6 +43,11 @@ const Settings: React.FC = () => {
   const [hasUnsynced, setHasUnsynced] = useState(false);
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   const [logs, setLogs] = useState<LogEntry[]>(logger.getLogs());
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity: "success" | "error";
+  }>({ open: false, message: "", severity: "success" });
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
@@ -127,6 +134,11 @@ const Settings: React.FC = () => {
       )
       .join("\n\n");
     navigator.clipboard.writeText(logString);
+    setSnackbar({
+      open: true,
+      message: "Logs copied to clipboard",
+      severity: "success",
+    });
   };
 
   /**
@@ -135,6 +147,11 @@ const Settings: React.FC = () => {
   const handleClearLogs = () => {
     logger.clearLogs();
     setLogs([]);
+    setSnackbar({
+      open: true,
+      message: "System logs cleared",
+      severity: "success",
+    });
   };
 
   const logoutDialog = (
@@ -175,6 +192,21 @@ const Settings: React.FC = () => {
 
   return (
     <Box sx={{ pb: 8 }}>
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity}
+          variant="filled"
+          sx={{ width: "100%" }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
       <EntityBanner
         title="Settings"
         icon={<SettingsIcon />}

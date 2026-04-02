@@ -16,6 +16,7 @@ import {
   Grid,
   Snackbar,
   Alert,
+  Tooltip,
 } from "@mui/material";
 import {
   Add as AddIcon,
@@ -315,30 +316,42 @@ const Players: React.FC = () => {
                   ? `No players matching "${searchTerm}"`
                   : `No ${showArchived ? "" : "active"} players found.`}
               </Typography>
-              <Typography variant="body2" color="text.secondary">
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
                 {searchTerm
                   ? "Try adjusting your search terms"
                   : "Start by adding players to your roster"}
               </Typography>
+              {!searchTerm && (
+                <Button
+                  variant="contained"
+                  startIcon={<AddIcon />}
+                  onClick={() => setOpen(true)}
+                  sx={{ borderRadius: 2 }}
+                >
+                  Add Your First Player
+                </Button>
+              )}
             </Box>
           </Grid>
         )}
       </Grid>
 
-      <Fab
-        color="primary"
-        aria-label="add"
-        sx={{
-          position: "fixed",
-          bottom: "calc(32px + env(safe-area-inset-bottom))",
-          right: 32,
-          transition: "transform 0.2s",
-          "&:hover": { transform: "scale(1.1) rotate(90deg)" },
-        }}
-        onClick={() => setOpen(true)}
-      >
-        <AddIcon />
-      </Fab>
+      <Tooltip title="Add New Player">
+        <Fab
+          color="primary"
+          aria-label="add new player"
+          sx={{
+            position: "fixed",
+            bottom: "calc(32px + env(safe-area-inset-bottom))",
+            right: 32,
+            transition: "transform 0.2s",
+            "&:hover": { transform: "scale(1.1) rotate(90deg)" },
+          }}
+          onClick={() => setOpen(true)}
+        >
+          <AddIcon />
+        </Fab>
+      </Tooltip>
 
       <Dialog
         open={open}

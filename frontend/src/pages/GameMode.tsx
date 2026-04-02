@@ -136,8 +136,7 @@ const GameMode: React.FC = () => {
     [gameStatsQueryResult],
   );
   const [subDialogOpen, setSubDialogOpen] = useState(false);
-  const [subOutPlayerId, setSubOutPlayerId] = useState<string | null>(null);
-  const [subInPlayerId, setSubInPlayerId] = useState<string | null>(null);
+  const [, setSubOutPlayerId] = useState<string | null>(null);
 
   // Quick sub draft state
   const [draftOnCourtIds, setDraftOnCourtIds] = useState<Set<string>>(
@@ -794,70 +793,78 @@ const GameMode: React.FC = () => {
                       px: 0.5,
                     }}
                   >
-                    <IconButton
-                      size="small"
-                      disabled={isReadOnly}
-                      onClick={() =>
-                        handleTogglePossession(SPECIAL_PLAYER_IDS.OUR_TEAM)
-                      }
-                      color={
-                        gameData.possessionState === SPECIAL_PLAYER_IDS.OUR_TEAM
-                          ? "primary"
-                          : "default"
-                      }
-                      sx={{
-                        p: 0.5,
-                        bgcolor:
+                    <Tooltip title="Set Possession to Our Team">
+                      <IconButton
+                        size="small"
+                        disabled={isReadOnly}
+                        onClick={() =>
+                          handleTogglePossession(SPECIAL_PLAYER_IDS.OUR_TEAM)
+                        }
+                        color={
                           gameData.possessionState ===
                           SPECIAL_PLAYER_IDS.OUR_TEAM
-                            ? "primary.light"
-                            : "transparent",
-                        "&:hover": {
+                            ? "primary"
+                            : "default"
+                        }
+                        aria-label="set possession to our team"
+                        sx={{
+                          p: 0.5,
                           bgcolor:
                             gameData.possessionState ===
                             SPECIAL_PLAYER_IDS.OUR_TEAM
                               ? "primary.light"
-                              : "action.hover",
-                        },
-                      }}
-                    >
-                      <ArrowBack fontSize="small" />
-                    </IconButton>
+                              : "transparent",
+                          "&:hover": {
+                            bgcolor:
+                              gameData.possessionState ===
+                              SPECIAL_PLAYER_IDS.OUR_TEAM
+                                ? "primary.light"
+                                : "action.hover",
+                          },
+                        }}
+                      >
+                        <ArrowBack fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
                     <Typography
                       variant="caption"
                       sx={{ fontWeight: "bold", mx: 0.5, fontSize: "0.65rem" }}
                     >
                       POSS
                     </Typography>
-                    <IconButton
-                      size="small"
-                      disabled={isReadOnly}
-                      onClick={() =>
-                        handleTogglePossession(SPECIAL_PLAYER_IDS.OPPONENT)
-                      }
-                      color={
-                        gameData.possessionState === SPECIAL_PLAYER_IDS.OPPONENT
-                          ? "secondary"
-                          : "default"
-                      }
-                      sx={{
-                        p: 0.5,
-                        bgcolor:
+                    <Tooltip title="Set Possession to Opponent">
+                      <IconButton
+                        size="small"
+                        disabled={isReadOnly}
+                        onClick={() =>
+                          handleTogglePossession(SPECIAL_PLAYER_IDS.OPPONENT)
+                        }
+                        color={
                           gameData.possessionState ===
                           SPECIAL_PLAYER_IDS.OPPONENT
-                            ? "secondary.light"
-                            : "transparent",
-                        "&:hover": {
+                            ? "secondary"
+                            : "default"
+                        }
+                        aria-label="set possession to opponent"
+                        sx={{
+                          p: 0.5,
                           bgcolor:
                             gameData.possessionState ===
                             SPECIAL_PLAYER_IDS.OPPONENT
                               ? "secondary.light"
-                              : "action.hover",
-                        },
-                      }}
-                    >
-                      <ArrowForward fontSize="small" />
-                    </IconButton>
+                              : "transparent",
+                          "&:hover": {
+                            bgcolor:
+                              gameData.possessionState ===
+                              SPECIAL_PLAYER_IDS.OPPONENT
+                                ? "secondary.light"
+                                : "action.hover",
+                          },
+                        }}
+                      >
+                        <ArrowForward fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
                   </Box>
                   <ScoreboardChip
                     label={`${periodLabel}: ${period > maxPeriod ? `OT ${period - maxPeriod}` : period}`}
@@ -904,36 +911,46 @@ const GameMode: React.FC = () => {
                 alignItems: "center",
               }}
             >
-              <Button
-                size="small"
-                variant="outlined"
-                startIcon={<UndoIcon />}
-                onClick={handleUndo}
-                disabled={gameData.recentStats.length === 0 || isReadOnly}
-              >
-                Undo
-              </Button>
-              <Tooltip title="Quick Substitution">
-                <Button
-                  size="small"
-                  variant="outlined"
-                  startIcon={<SwapHoriz />}
-                  onClick={() => setSubDialogOpen(true)}
-                  disabled={isReadOnly}
-                  aria-label="quick substitution"
-                >
-                  Quick Sub
-                </Button>
+              <Tooltip title="Undo last action">
+                <span>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    startIcon={<UndoIcon />}
+                    onClick={handleUndo}
+                    disabled={gameData.recentStats.length === 0 || isReadOnly}
+                  >
+                    Undo
+                  </Button>
+                </span>
               </Tooltip>
-              <Button
-                size="small"
-                variant="outlined"
-                startIcon={<History />}
-                onClick={handleTimeout}
-                disabled={isReadOnly}
-              >
-                Timeout
-              </Button>
+              <Tooltip title="Quick Substitution">
+                <span>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    startIcon={<SwapHoriz />}
+                    onClick={() => setSubDialogOpen(true)}
+                    disabled={isReadOnly}
+                    aria-label="quick substitution"
+                  >
+                    Quick Sub
+                  </Button>
+                </span>
+              </Tooltip>
+              <Tooltip title="Record Team Timeout">
+                <span>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    startIcon={<History />}
+                    onClick={handleTimeout}
+                    disabled={isReadOnly}
+                  >
+                    Timeout
+                  </Button>
+                </span>
+              </Tooltip>
               {/* Markers filtering chips */}
               <Box
                 sx={{
@@ -2006,16 +2023,26 @@ const RecentActionItem: React.FC<{
       </Typography>
     </Box>
     <Box>
-      <IconButton size="small" disabled={isReadOnly} onClick={() => onEdit(s)}>
-        <Edit fontSize="small" />
-      </IconButton>
-      <IconButton
-        size="small"
-        disabled={isReadOnly}
-        onClick={() => onDelete(s.id!)}
-      >
-        <Delete fontSize="small" />
-      </IconButton>
+      <Tooltip title="Edit action">
+        <IconButton
+          size="small"
+          disabled={isReadOnly}
+          onClick={() => onEdit(s)}
+          aria-label="edit action"
+        >
+          <Edit fontSize="small" />
+        </IconButton>
+      </Tooltip>
+      <Tooltip title="Delete action">
+        <IconButton
+          size="small"
+          disabled={isReadOnly}
+          onClick={() => onDelete(s.id!)}
+          aria-label="delete action"
+        >
+          <Delete fontSize="small" />
+        </IconButton>
+      </Tooltip>
     </Box>
   </Box>
 );
