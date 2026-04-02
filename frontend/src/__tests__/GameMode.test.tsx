@@ -186,6 +186,40 @@ describe("GameMode Component", () => {
     });
   });
 
+  it("renders 5 slots in Live Lineup (1 occupied, 4 empty)", async () => {
+    renderComponent();
+
+    const sidebar = await screen.findByText("Live Lineup");
+    const container = sidebar.parentElement!;
+
+    // 1 occupied slot
+    expect(within(container).getByText(/Player 1/i)).toBeInTheDocument();
+    // 4 empty slots
+    const emptySlots = within(container).getAllByText("Empty");
+    expect(emptySlots).toHaveLength(4);
+  });
+
+  it("tapping a sidebar slot opens Quick Sub dialog", async () => {
+    renderComponent();
+
+    // Tap occupied slot
+    const playerBtn = await screen.findByRole("button", { name: /Player 1/i });
+    fireEvent.click(playerBtn);
+
+    await waitFor(() => {
+      expect(screen.getByText("Quick Substitution")).toBeInTheDocument();
+    });
+
+    // Tap an empty slot
+    fireEvent.click(screen.getByText("Cancel")); // Close first
+    const emptySlots = await screen.findAllByText("Empty");
+    fireEvent.click(emptySlots[0]);
+
+    await waitFor(() => {
+      expect(screen.getByText("Quick Substitution")).toBeInTheDocument();
+    });
+  });
+
   it("handles quick sub in (to empty slot)", async () => {
     renderComponent();
 
