@@ -598,8 +598,6 @@ const GameStats: React.FC = () => {
     </Box>
   );
 
-
-
   const shotChartCourt = (
     <BasketballCourt
       markers={shotChartMarkers}

@@ -533,7 +533,6 @@ const GameMode: React.FC = () => {
    * @param root0.icon
    */
 
-
   // Ensure required parameters are present, otherwise redirect
   useEffect(() => {
     if (!gameId || !teamId) {
