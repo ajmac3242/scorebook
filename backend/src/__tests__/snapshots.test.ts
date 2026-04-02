@@ -1,4 +1,3 @@
-
 import {
   DynamoDBDocumentClient,
   GetCommand,
@@ -26,7 +25,11 @@ describe("Snapshot Generation Logic", () => {
     process.env.DATA_BUCKET = "TestDataBucket";
   });
 
-  const createEvent = (method: string, path: string, body: any = null): any => ({
+  const createEvent = (
+    method: string,
+    path: string,
+    body: any = null,
+  ): any => ({
     version: "2.0",
     rawPath: path,
     requestContext: { http: { method, path } },
@@ -36,12 +39,12 @@ describe("Snapshot Generation Logic", () => {
   it("generates correct team roster snapshot content", async () => {
     ddbMock.on(PutCommand).resolves({});
     ddbMock.on(GetCommand).resolves({
-      Item: { id: "t1", name: "Team 1", PK: "TEAM#t1", SK: "METADATA#t1" }
+      Item: { id: "t1", name: "Team 1", PK: "TEAM#t1", SK: "METADATA#t1" },
     });
     ddbMock.on(QueryCommand).resolves({
       Items: [
-        { id: "p1", name: "Player 1", GSI1PK: "TEAM#t1", GSI1SK: "PLAYER#p1" }
-      ]
+        { id: "p1", name: "Player 1", GSI1PK: "TEAM#t1", GSI1SK: "PLAYER#p1" },
+      ],
     });
     s3Mock.on(PutObjectCommand).resolves({});
 
@@ -49,7 +52,9 @@ describe("Snapshot Generation Logic", () => {
     await handler(event);
 
     const s3Calls = s3Mock.commandCalls(PutObjectCommand);
-    const rosterCall = s3Calls.find(c => (c.args[0].input as any).Key === "teams/t1/roster.json");
+    const rosterCall = s3Calls.find(
+      (c) => (c.args[0].input as any).Key === "teams/t1/roster.json",
+    );
 
     expect(rosterCall).toBeDefined();
     const body = JSON.parse((rosterCall!.args[0].input as any).Body);
@@ -63,14 +68,20 @@ describe("Snapshot Generation Logic", () => {
   it("generates correct game stats snapshot with calculated results", async () => {
     ddbMock.on(UpdateCommand).resolves({});
     ddbMock.on(GetCommand).resolves({
-      Item: { id: "g1", teamId: "t1", opponent: "Opponent", PK: "GAME#g1", SK: "METADATA#g1" }
+      Item: {
+        id: "g1",
+        teamId: "t1",
+        opponent: "Opponent",
+        PK: "GAME#g1",
+        SK: "METADATA#g1",
+      },
     });
     ddbMock.on(QueryCommand).resolves({
       Items: [
         { playerId: "p1", points: 2, type: "MAKE", SK: "STAT#1" },
         { playerId: "p1", points: 3, type: "MAKE", SK: "STAT#2" },
         { playerId: "OPPONENT", points: 2, type: "MAKE", SK: "STAT#3" },
-      ]
+      ],
     });
     s3Mock.on(PutObjectCommand).resolves({});
 
@@ -78,7 +89,9 @@ describe("Snapshot Generation Logic", () => {
     await handler(event);
 
     const s3Calls = s3Mock.commandCalls(PutObjectCommand);
-    const statsCall = s3Calls.find(c => (c.args[0].input as any).Key === "games/g1/stats.json");
+    const statsCall = s3Calls.find(
+      (c) => (c.args[0].input as any).Key === "games/g1/stats.json",
+    );
 
     expect(statsCall).toBeDefined();
     const body = JSON.parse((statsCall!.args[0].input as any).Body);
@@ -94,7 +107,7 @@ describe("Snapshot Generation Logic", () => {
   it("handles empty stats in game snapshot", async () => {
     ddbMock.on(UpdateCommand).resolves({});
     ddbMock.on(GetCommand).resolves({
-      Item: { id: "g1", teamId: "t1", opponent: "Opponent" }
+      Item: { id: "g1", teamId: "t1", opponent: "Opponent" },
     });
     ddbMock.on(QueryCommand).resolves({ Items: [] });
     s3Mock.on(PutObjectCommand).resolves({});
@@ -103,7 +116,9 @@ describe("Snapshot Generation Logic", () => {
     await handler(event);
 
     const s3Calls = s3Mock.commandCalls(PutObjectCommand);
-    const statsCall = s3Calls.find(c => (c.args[0].input as any).Key === "games/g1/stats.json");
+    const statsCall = s3Calls.find(
+      (c) => (c.args[0].input as any).Key === "games/g1/stats.json",
+    );
     const body = JSON.parse((statsCall!.args[0].input as any).Body);
 
     expect(body.game.teamScore).toBe(0);

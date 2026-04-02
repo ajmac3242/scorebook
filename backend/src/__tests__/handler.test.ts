@@ -212,7 +212,9 @@ describe("Lambda Handler", () => {
     });
 
     it("POST /teams with missing name returns 400", async () => {
-      const event = createEvent("POST", "/teams", { description: "Missing name" });
+      const event = createEvent("POST", "/teams", {
+        description: "Missing name",
+      });
       const response: any = await handler(event);
       expect(response.statusCode).toBe(400);
     });
@@ -236,7 +238,9 @@ describe("Lambda Handler", () => {
       const response: any = await handler(event);
 
       expect(response.statusCode).toBe(200);
-      expect(ddbMock.calls().some(c => c.args[0] instanceof UpdateCommand)).toBe(true);
+      expect(
+        ddbMock.calls().some((c) => c.args[0] instanceof UpdateCommand),
+      ).toBe(true);
       expect(s3Mock.calls().length).toBeGreaterThan(0);
     });
 
@@ -249,7 +253,9 @@ describe("Lambda Handler", () => {
 
     it("PATCH /games/:id restores a deleted game", async () => {
       ddbMock.on(UpdateCommand).resolves({});
-      ddbMock.on(GetCommand).resolves({ Item: { id: "g1", teamId: "t1", completed: 1 } });
+      ddbMock
+        .on(GetCommand)
+        .resolves({ Item: { id: "g1", teamId: "t1", completed: 1 } });
       s3Mock.on(PutObjectCommand).resolves({});
       ddbMock.on(QueryCommand).resolves({ Items: [] });
 

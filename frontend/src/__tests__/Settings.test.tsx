@@ -76,7 +76,9 @@ describe("Settings Component", () => {
     const logoutBtn = screen.getByRole("button", { name: /logout/i });
     fireEvent.click(logoutBtn);
 
-    const confirmBtn = await screen.findByRole("button", { name: /Logout Anyway/i });
+    const confirmBtn = await screen.findByRole("button", {
+      name: /Logout Anyway/i,
+    });
     fireEvent.click(confirmBtn);
 
     await waitFor(() => {
