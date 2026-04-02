@@ -1,14 +1,10 @@
 name: Deploy Basketball Stats
 on:
-  workflow_run:
-    workflows: ["CI"]
-    branches: [main]
-    types: [completed]
-  workflow_dispatch:
+  workflow_dispatch:  # Now called explicitly by CI, or manually
 
 concurrency:
   group: deploy-${{ github.ref }}
-  cancel-in-progress: false # We usually don't want to cancel deployments in progress to avoid half-baked states
+  cancel-in-progress: false
 
 permissions:
   id-token: write
