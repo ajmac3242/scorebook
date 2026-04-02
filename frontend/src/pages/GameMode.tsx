@@ -181,7 +181,6 @@ const GameMode: React.FC = () => {
     }
   }, [game?.completed, summaryDialogOpen, endGameDialogOpen]);
 
-
   /**
    * ⚡ Bolt: Consolidate statistical derivations.
    * Performance: Sort gameStats once and perform a single-pass derivation for
