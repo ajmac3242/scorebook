@@ -156,6 +156,7 @@ interface ScoreboardProps {
         name?: string;
         logoUrl?: string;
         periodType?: string;
+        fouls?: number;
         deletedAt?: string;
       }
     | null
