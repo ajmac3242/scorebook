@@ -11,34 +11,71 @@ interface Marker {
   playerId?: string | number;
 }
 
-const BasketballCourt: React.FC<{
+const COURT_STYLES = `
+  @keyframes marker-appear {
+    0% { transform: scale(0); opacity: 0; }
+    70% { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(1); opacity: 0.8; }
+  }
+  .court-marker {
+    animation: marker-appear 0.3s ease-out forwards;
+    transform-origin: center;
+    transform-box: fill-box;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  .court-marker:hover {
+    transform: scale(1.5);
+    opacity: 1 !important;
+  }
+  .latest-marker {
+    animation: marker-appear 0.3s ease-out forwards, pulse 2s infinite 0.3s;
+    opacity: 1 !important;
+    cursor: pointer;
+  }
+  @keyframes pulse {
+    0% { r: 6; stroke-width: 1; }
+    50% { r: 8; stroke-width: 3; }
+    100% { r: 6; stroke-width: 1; }
+  }
+`;
+
+/**
+ * BasketballCourt component.
+ * Displays an interactive court with shot markers.
+ * Optimized with React.memo to prevent redundant re-renders.
+ */
+interface BasketballCourtProps {
   onCoordClick?: (_x: number, _y: number) => void;
   onMarkerClick?: (_marker: Marker) => void;
   markers?: Marker[];
-}> = ({ onCoordClick, onMarkerClick, markers = [] }) => {
-  const handleCourtClick = (e: React.MouseEvent<SVGSVGElement>) => {
-    // Only trigger if we clicked the background or court lines, not a marker
-    if ((e.target as SVGElement).tagName !== "circle" && onCoordClick) {
-      const svg = e.currentTarget;
-      const rect = svg.getBoundingClientRect();
-      const x = ((e.clientX - rect.left) / rect.width) * 100;
-      const y = ((e.clientY - rect.top) / rect.height) * 100;
-      onCoordClick(x, y);
-    }
-  };
+}
 
-  const charcoal = "#2D2D2D";
-  const strokeWidth = 2;
+const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
+  ({ onCoordClick, onMarkerClick, markers = [] }) => {
+    const handleCourtClick = (e: React.MouseEvent<SVGSVGElement>) => {
+      // Only trigger if we clicked the background or court lines, not a marker
+      if ((e.target as SVGElement).tagName !== "circle" && onCoordClick) {
+        const svg = e.currentTarget;
+        const rect = svg.getBoundingClientRect();
+        const x = ((e.clientX - rect.left) / rect.width) * 100;
+        const y = ((e.clientY - rect.top) / rect.height) * 100;
+        onCoordClick(x, y);
+      }
+    };
 
-  return (
-    <Box
-      sx={{
-        width: "100%",
-        aspectRatio: "50 / 47",
-        position: "relative",
-        bgcolor: "#FFFDF5",
-      }}
-    >
+    const charcoal = "#2D2D2D";
+    const strokeWidth = 2;
+
+    return (
+      <Box
+        sx={{
+          width: "100%",
+          aspectRatio: "50 / 47",
+          position: "relative",
+          bgcolor: "#FFFDF5",
+        }}
+      >
       <svg
         viewBox="0 0 500 470"
         onClick={handleCourtClick}
@@ -140,36 +177,7 @@ const BasketballCourt: React.FC<{
         />
 
         {/* Markers / Heatmap Points */}
-        <style>
-          {`
-            @keyframes marker-appear {
-              0% { transform: scale(0); opacity: 0; }
-              70% { transform: scale(1.2); opacity: 1; }
-              100% { transform: scale(1); opacity: 0.8; }
-            }
-            .court-marker {
-              animation: marker-appear 0.3s ease-out forwards;
-              transform-origin: center;
-              transform-box: fill-box;
-              cursor: pointer;
-              transition: transform 0.2s;
-            }
-            .court-marker:hover {
-              transform: scale(1.5);
-              opacity: 1 !important;
-            }
-            .latest-marker {
-              animation: marker-appear 0.3s ease-out forwards, pulse 2s infinite 0.3s;
-              opacity: 1 !important;
-              cursor: pointer;
-            }
-            @keyframes pulse {
-              0% { r: 6; stroke-width: 1; }
-              50% { r: 8; stroke-width: 3; }
-              100% { r: 6; stroke-width: 1; }
-            }
-          `}
-        </style>
+        <style>{COURT_STYLES}</style>
         {markers.map((marker, index) => {
           const isLatest = index === markers.length - 1;
           let color = marker.color || "#2D2D2D";
@@ -221,7 +229,8 @@ const BasketballCourt: React.FC<{
         })}
       </svg>
     </Box>
-  );
-};
+    );
+  },
+);
 
 export default BasketballCourt;
