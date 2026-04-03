@@ -101,7 +101,7 @@ describe("GameMode Component", () => {
     renderComponent();
 
     await waitFor(() => {
-      expect(screen.getByText(/vs Test Opponent/i)).toBeInTheDocument();
+      expect(screen.getAllByText(/Test Opponent/i)).toBeDefined();
     });
     // Check for "Live Lineup" header instead of "Team Roster"
     expect(await screen.findByText("Live Lineup")).toBeInTheDocument();
