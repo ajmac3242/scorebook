@@ -70,15 +70,530 @@ import { MoleskineCard } from "../components/SharedUI";
  */
 const getBonusStatus = (fouls: number, periodType: string) => {
   if (periodType === "QUARTERS") {
-    if (fouls >= 5) return { label: " (B)", color: "error.main" };
-    if (fouls === 4) return { label: "", color: "warning.main" };
-    return { label: "", color: "default" };
+    if (fouls >= 5)
+      return {
+        label: "BONUS",
+        isBonus: true,
+        isDouble: false,
+        color: "error.main",
+      };
+    if (fouls === 4)
+      return {
+        label: "",
+        isBonus: false,
+        isDouble: false,
+        color: "warning.main",
+      };
+    return { label: "", isBonus: false, isDouble: false, color: "default" };
   } else {
-    if (fouls >= 10) return { label: " (DB)", color: "error.main" };
-    if (fouls >= 7) return { label: " (B)", color: "error.main" };
-    if (fouls === 6) return { label: "", color: "warning.main" };
-    return { label: "", color: "default" };
+    if (fouls >= 10)
+      return {
+        label: "BONUS",
+        isBonus: true,
+        isDouble: true,
+        color: "error.main",
+      };
+    if (fouls >= 7)
+      return {
+        label: "BONUS",
+        isBonus: true,
+        isDouble: false,
+        color: "error.main",
+      };
+    if (fouls === 6)
+      return {
+        label: "",
+        isBonus: false,
+        isDouble: false,
+        color: "warning.main",
+      };
+    return { label: "", isBonus: false, isDouble: false, color: "default" };
   }
+};
+
+/**
+ * Visual indicator for timeouts left using dots.
+ */
+const TimeoutDots: React.FC<{
+  count: number;
+  total?: number;
+  color?: string;
+  "data-testid"?: string;
+}> = ({ count, total = 5, color = "white", "data-testid": testId }) => (
+  <Stack direction="row" spacing={0.5} alignItems="center" data-testid={testId}>
+    {Array.from({ length: total }).map((_, i) => (
+      <Box
+        key={i}
+        data-testid={i < count ? "timeout-dot-active" : "timeout-dot-inactive"}
+        sx={{
+          width: 6,
+          height: 6,
+          borderRadius: "50%",
+          bgcolor: i < count ? color : "rgba(255,255,255,0.2)",
+          boxShadow: i < count ? `0 0 4px ${color}` : "none",
+        }}
+      />
+    ))}
+  </Stack>
+);
+
+/**
+ * Redesigned TV-style scoreboard header.
+ */
+interface ScoreboardProps {
+  game:
+    | {
+        opponent?: string;
+        opponentLogoUrl?: string;
+        completed?: number;
+        deletedAt?: string;
+      }
+    | null
+    | undefined;
+  team:
+    | {
+        name?: string;
+        logoUrl?: string;
+        periodType?: string;
+        deletedAt?: string;
+      }
+    | null
+    | undefined;
+  gameData: {
+    currentScore: number;
+    opponentScore: number;
+    teamFoulStats: {
+      teamFouls: number;
+      oppFouls: number;
+      teamBonusLabel: string;
+      teamIsDouble: boolean;
+      teamBonusColor: string;
+      oppBonusLabel: string;
+      oppIsDouble: boolean;
+      oppBonusColor: string;
+    };
+    timeoutStats: {
+      teamTOL: number;
+      oppTOL: number;
+    };
+    possessionState: string | null;
+  };
+  period: number;
+  periodLabel: string;
+  maxPeriod: number;
+}
+
+const Scoreboard: React.FC<ScoreboardProps> = ({
+  game,
+  team,
+  gameData,
+  period,
+  periodLabel,
+  maxPeriod,
+}) => {
+  const theme = useTheme();
+
+  const renderTeamInfo = (
+    name: string,
+    logoUrl?: string,
+    isOpponent?: boolean,
+  ) => (
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: isOpponent ? "flex-end" : "flex-start",
+        width: { xs: "30%", sm: "35%" },
+      }}
+    >
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: 1.5,
+          flexDirection: isOpponent ? "row-reverse" : "row",
+          mb: 0.5,
+        }}
+      >
+        <Avatar
+          src={logoUrl}
+          sx={{
+            width: { xs: 32, sm: 48 },
+            height: { xs: 32, sm: 48 },
+            bgcolor: isOpponent ? "secondary.main" : "primary.main",
+            border: "2px solid rgba(255,255,255,0.1)",
+          }}
+        >
+          {name.charAt(0)}
+        </Avatar>
+        <Typography
+          variant="h6"
+          sx={{
+            color: "white",
+            fontWeight: 700,
+            fontSize: { xs: "0.75rem", sm: "1.1rem" },
+            textTransform: "uppercase",
+            letterSpacing: 1,
+            display: { xs: "none", sm: "block" },
+          }}
+        >
+          {name}
+        </Typography>
+      </Box>
+      <Typography
+        variant="caption"
+        sx={{
+          color: "white",
+          fontWeight: 700,
+          fontSize: "0.6rem",
+          display: { xs: "block", sm: "none" },
+          textAlign: isOpponent ? "right" : "left",
+          width: "100%",
+          mb: 0.5,
+        }}
+      >
+        {name}
+      </Typography>
+
+      <Stack
+        direction={isOpponent ? "row-reverse" : "row"}
+        spacing={1.5}
+        alignItems="center"
+        sx={{ mt: 0.5 }}
+      >
+        <TimeoutDots
+          count={
+            isOpponent
+              ? gameData.timeoutStats.oppTOL
+              : gameData.timeoutStats.teamTOL
+          }
+          data-testid={isOpponent ? "opp-timeout-dots" : "team-timeout-dots"}
+        />
+        {(isOpponent
+          ? gameData.teamFoulStats.oppBonusLabel
+          : gameData.teamFoulStats.teamBonusLabel) && (
+          <Typography
+            variant="caption"
+            sx={{
+              color: "#FFD700",
+              fontWeight: 900,
+              fontSize: "0.65rem",
+              letterSpacing: 0.5,
+            }}
+          >
+            BONUS
+            {isOpponent
+              ? gameData.teamFoulStats.oppIsDouble && <sup>2</sup>
+              : gameData.teamFoulStats.teamIsDouble && <sup>2</sup>}
+          </Typography>
+        )}
+      </Stack>
+    </Box>
+  );
+
+  return (
+    <Box
+      sx={{
+        background: "linear-gradient(180deg, #1a1a1a 0%, #000000 100%)",
+        borderRadius: 2,
+        p: { xs: 1.5, sm: 2.5 },
+        mb: 3,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
+        border: "1px solid rgba(255,255,255,0.1)",
+        position: "relative",
+        overflow: "hidden",
+      }}
+    >
+      {/* Decorative accent */}
+      <Box
+        sx={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          height: "2px",
+          background: `linear-gradient(90deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
+          opacity: 0.5,
+        }}
+      />
+
+      {renderTeamInfo(team?.name || "TEAM", team?.logoUrl)}
+
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          flex: 1,
+        }}
+      >
+        <Box
+          sx={{ display: "flex", alignItems: "center", gap: { xs: 2, sm: 4 } }}
+        >
+          <Typography
+            sx={{
+              color: "white",
+              fontSize: { xs: "1.75rem", sm: "3rem" },
+              fontWeight: 800,
+              fontFamily: "'Courier New', monospace",
+              lineHeight: 1,
+            }}
+          >
+            {gameData.currentScore}
+          </Typography>
+
+          <Box sx={{ textAlign: "center", minWidth: { xs: 60, sm: 100 } }}>
+            <Typography
+              variant="caption"
+              sx={{
+                color: "rgba(255,255,255,0.6)",
+                textTransform: "uppercase",
+                fontWeight: 700,
+                fontSize: { xs: "0.6rem", sm: "0.75rem" },
+                letterSpacing: 2,
+                display: "block",
+                mb: 0.5,
+              }}
+            >
+              {period > maxPeriod
+                ? `OT ${period - maxPeriod}`
+                : `${periodLabel} ${period}`}
+            </Typography>
+            <Stack direction="row" spacing={2} justifyContent="center">
+              <ArrowBack
+                sx={{
+                  fontSize: { xs: 16, sm: 20 },
+                  color:
+                    gameData.possessionState === SPECIAL_PLAYER_IDS.OUR_TEAM
+                      ? "primary.light"
+                      : "rgba(255,255,255,0.1)",
+                  filter:
+                    gameData.possessionState === SPECIAL_PLAYER_IDS.OUR_TEAM
+                      ? "drop-shadow(0 0 4px #5A9BBD)"
+                      : "none",
+                }}
+              />
+              <ArrowForward
+                sx={{
+                  fontSize: { xs: 16, sm: 20 },
+                  color:
+                    gameData.possessionState === SPECIAL_PLAYER_IDS.OPPONENT
+                      ? "secondary.light"
+                      : "rgba(255,255,255,0.1)",
+                  filter:
+                    gameData.possessionState === SPECIAL_PLAYER_IDS.OPPONENT
+                      ? "drop-shadow(0 0 4px #F6F6F6)"
+                      : "none",
+                }}
+              />
+            </Stack>
+          </Box>
+
+          <Typography
+            sx={{
+              color: "white",
+              fontSize: { xs: "1.75rem", sm: "3rem" },
+              fontWeight: 800,
+              fontFamily: "'Courier New', monospace",
+              lineHeight: 1,
+            }}
+          >
+            {gameData.opponentScore}
+          </Typography>
+        </Box>
+      </Box>
+
+      {renderTeamInfo(
+        game?.opponent || "OPPONENT",
+        game?.opponentLogoUrl,
+        true,
+      )}
+    </Box>
+  );
+};
+
+/**
+ * Interactive controls for game state management.
+ */
+const ActionControls: React.FC<{
+  isReadOnly: boolean;
+  onUndo: () => void;
+  onQuickSub: () => void;
+  onTimeout: () => void;
+  onNextPeriod: () => void;
+  onTogglePossession: (_target: string) => void;
+  possessionState: string | null;
+  recentStatsLength: number;
+  onEndGame: () => void;
+  isGameCompleted: boolean;
+}> = ({
+  isReadOnly,
+  onUndo,
+  onQuickSub,
+  onTimeout,
+  onNextPeriod,
+  onTogglePossession,
+  possessionState,
+  recentStatsLength,
+  onEndGame,
+  isGameCompleted,
+}) => {
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        gap: 1,
+        flexWrap: "wrap",
+        alignItems: "center",
+      }}
+    >
+      <Tooltip title="Change Period">
+        <span>
+          <Button
+            size="small"
+            variant="outlined"
+            startIcon={<History />}
+            onClick={onNextPeriod}
+            disabled={isReadOnly}
+          >
+            Period
+          </Button>
+        </span>
+      </Tooltip>
+
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          bgcolor: "background.paper",
+          borderRadius: 1,
+          border: "1px solid",
+          borderColor: "divider",
+          px: 0.5,
+        }}
+      >
+        <Tooltip title="Set Possession to Our Team">
+          <IconButton
+            size="small"
+            disabled={isReadOnly}
+            onClick={() => onTogglePossession(SPECIAL_PLAYER_IDS.OUR_TEAM)}
+            color={
+              possessionState === SPECIAL_PLAYER_IDS.OUR_TEAM
+                ? "primary"
+                : "default"
+            }
+            aria-label="set possession to our team"
+            sx={{
+              p: 0.5,
+              bgcolor:
+                possessionState === SPECIAL_PLAYER_IDS.OUR_TEAM
+                  ? "primary.light"
+                  : "transparent",
+              "&:hover": {
+                bgcolor:
+                  possessionState === SPECIAL_PLAYER_IDS.OUR_TEAM
+                    ? "primary.light"
+                    : "action.hover",
+              },
+            }}
+          >
+            <ArrowBack fontSize="small" />
+          </IconButton>
+        </Tooltip>
+        <Typography
+          variant="caption"
+          sx={{ fontWeight: "bold", mx: 0.5, fontSize: "0.65rem" }}
+        >
+          POSS
+        </Typography>
+        <Tooltip title="Set Possession to Opponent">
+          <IconButton
+            size="small"
+            disabled={isReadOnly}
+            onClick={() => onTogglePossession(SPECIAL_PLAYER_IDS.OPPONENT)}
+            color={
+              possessionState === SPECIAL_PLAYER_IDS.OPPONENT
+                ? "secondary"
+                : "default"
+            }
+            aria-label="set possession to opponent"
+            sx={{
+              p: 0.5,
+              bgcolor:
+                possessionState === SPECIAL_PLAYER_IDS.OPPONENT
+                  ? "secondary.light"
+                  : "transparent",
+              "&:hover": {
+                bgcolor:
+                  possessionState === SPECIAL_PLAYER_IDS.OPPONENT
+                    ? "secondary.light"
+                    : "action.hover",
+              },
+            }}
+          >
+            <ArrowForward fontSize="small" />
+          </IconButton>
+        </Tooltip>
+      </Box>
+
+      <Tooltip title="Quick Substitution">
+        <span>
+          <Button
+            size="small"
+            variant="outlined"
+            startIcon={<SwapHoriz />}
+            onClick={onQuickSub}
+            disabled={isReadOnly}
+            aria-label="quick substitution"
+          >
+            Sub
+          </Button>
+        </span>
+      </Tooltip>
+
+      <Tooltip title="Record Team Timeout">
+        <span>
+          <Button
+            size="small"
+            variant="outlined"
+            startIcon={<History />}
+            onClick={onTimeout}
+            disabled={isReadOnly}
+          >
+            Timeout
+          </Button>
+        </span>
+      </Tooltip>
+
+      <Tooltip title="Undo last action">
+        <span>
+          <Button
+            size="small"
+            variant="outlined"
+            startIcon={<UndoIcon />}
+            onClick={onUndo}
+            disabled={recentStatsLength === 0 || isReadOnly}
+          >
+            Undo
+          </Button>
+        </span>
+      </Tooltip>
+
+      {!isGameCompleted && !isReadOnly && (
+        <Button
+          size="small"
+          variant="contained"
+          color="error"
+          onClick={onEndGame}
+        >
+          End Game
+        </Button>
+      )}
+    </Box>
+  );
 };
 
 /**
@@ -283,8 +798,10 @@ const GameMode: React.FC = () => {
         teamFouls,
         oppFouls,
         teamBonusLabel: teamBonus.label,
+        teamIsDouble: teamBonus.isDouble,
         teamBonusColor: teamBonus.color,
         oppBonusLabel: oppBonus.label,
+        oppIsDouble: oppBonus.isDouble,
         oppBonusColor: oppBonus.color,
       },
       timeoutStats: {
@@ -722,10 +1239,19 @@ const GameMode: React.FC = () => {
       <Grid container spacing={3}>
         {/* Main Content Area: Scoreboard and Court */}
         <Grid item xs={12} md={8}>
+          <Scoreboard
+            game={game}
+            team={team}
+            gameData={gameData}
+            period={period}
+            periodLabel={periodLabel}
+            maxPeriod={maxPeriod}
+          />
+
           <MoleskineCard>
             <Box
               sx={{
-                mb: 2,
+                mb: 3,
                 display: "flex",
                 flexDirection: { xs: "column", sm: "row" },
                 justifyContent: "space-between",
@@ -733,157 +1259,19 @@ const GameMode: React.FC = () => {
                 gap: 2,
               }}
             >
-              <Box sx={{ width: { xs: "100%", sm: "auto" } }}>
-                <Typography variant="h6" sx={{ fontFamily: "var(--serif)" }}>
-                  {game?.opponent ? `vs ${game.opponent}` : "Live Tracker"}
-                </Typography>
-                <Stack
-                  direction="row"
-                  spacing={1}
-                  sx={{ mt: 1, flexWrap: "wrap", gap: 1 }}
-                >
-                  <ScoreboardChip
-                    label={`${team?.name || "TEAM"}: ${gameData.currentScore}`}
-                    color="primary"
-                  />
-                  <ScoreboardChip
-                    label={`${game?.opponent || "OPP"}: ${gameData.opponentScore}`}
-                    color="secondary"
-                  />
-                  <ScoreboardChip
-                    label={`${team?.name || "TF"}: ${gameData.teamFoulStats.teamFouls}${gameData.teamFoulStats.teamBonusLabel}`}
-                    variant="outlined"
-                    sx={{
-                      color:
-                        gameData.teamFoulStats.teamBonusColor === "default"
-                          ? "inherit"
-                          : (gameData.teamFoulStats.teamBonusColor as string),
-                      borderColor:
-                        gameData.teamFoulStats.teamBonusColor === "default"
-                          ? "divider"
-                          : (gameData.teamFoulStats.teamBonusColor as string),
-                    }}
-                  />
-                  <ScoreboardChip
-                    label={`${game?.opponent || "OF"}: ${gameData.teamFoulStats.oppFouls}${gameData.teamFoulStats.oppBonusLabel}`}
-                    variant="outlined"
-                    sx={{
-                      color:
-                        gameData.teamFoulStats.oppBonusColor === "default"
-                          ? "inherit"
-                          : (gameData.teamFoulStats.oppBonusColor as string),
-                      borderColor:
-                        gameData.teamFoulStats.oppBonusColor === "default"
-                          ? "divider"
-                          : (gameData.teamFoulStats.oppBonusColor as string),
-                    }}
-                  />
-                  <ScoreboardChip
-                    label={`TOL: ${gameData.timeoutStats.teamTOL} | ${gameData.timeoutStats.oppTOL}`}
-                    variant="outlined"
-                  />
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      bgcolor: "background.paper",
-                      borderRadius: 1,
-                      border: "1px solid",
-                      borderColor: "divider",
-                      px: 0.5,
-                    }}
-                  >
-                    <Tooltip title="Set Possession to Our Team">
-                      <IconButton
-                        size="small"
-                        disabled={isReadOnly}
-                        onClick={() =>
-                          handleTogglePossession(SPECIAL_PLAYER_IDS.OUR_TEAM)
-                        }
-                        color={
-                          gameData.possessionState ===
-                          SPECIAL_PLAYER_IDS.OUR_TEAM
-                            ? "primary"
-                            : "default"
-                        }
-                        aria-label="set possession to our team"
-                        sx={{
-                          p: 0.5,
-                          bgcolor:
-                            gameData.possessionState ===
-                            SPECIAL_PLAYER_IDS.OUR_TEAM
-                              ? "primary.light"
-                              : "transparent",
-                          "&:hover": {
-                            bgcolor:
-                              gameData.possessionState ===
-                              SPECIAL_PLAYER_IDS.OUR_TEAM
-                                ? "primary.light"
-                                : "action.hover",
-                          },
-                        }}
-                      >
-                        <ArrowBack fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
-                    <Typography
-                      variant="caption"
-                      sx={{ fontWeight: "bold", mx: 0.5, fontSize: "0.65rem" }}
-                    >
-                      POSS
-                    </Typography>
-                    <Tooltip title="Set Possession to Opponent">
-                      <IconButton
-                        size="small"
-                        disabled={isReadOnly}
-                        onClick={() =>
-                          handleTogglePossession(SPECIAL_PLAYER_IDS.OPPONENT)
-                        }
-                        color={
-                          gameData.possessionState ===
-                          SPECIAL_PLAYER_IDS.OPPONENT
-                            ? "secondary"
-                            : "default"
-                        }
-                        aria-label="set possession to opponent"
-                        sx={{
-                          p: 0.5,
-                          bgcolor:
-                            gameData.possessionState ===
-                            SPECIAL_PLAYER_IDS.OPPONENT
-                              ? "secondary.light"
-                              : "transparent",
-                          "&:hover": {
-                            bgcolor:
-                              gameData.possessionState ===
-                              SPECIAL_PLAYER_IDS.OPPONENT
-                                ? "secondary.light"
-                                : "action.hover",
-                          },
-                        }}
-                      >
-                        <ArrowForward fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
-                  </Box>
-                  <ScoreboardChip
-                    label={`${periodLabel}: ${period > maxPeriod ? `OT ${period - maxPeriod}` : period}`}
-                    onClick={isReadOnly ? undefined : handleNextPeriod}
-                    variant="outlined"
-                    color={period > maxPeriod ? "warning" : "default"}
-                  />
-                  {!game?.completed && !isReadOnly && (
-                    <Button
-                      size="small"
-                      variant="contained"
-                      color="error"
-                      onClick={() => setEndGameDialogOpen(true)}
-                    >
-                      End Game
-                    </Button>
-                  )}
-                </Stack>
-              </Box>
+              <ActionControls
+                isReadOnly={isReadOnly}
+                onUndo={handleUndo}
+                onQuickSub={() => setSubDialogOpen(true)}
+                onTimeout={handleTimeout}
+                onNextPeriod={handleNextPeriod}
+                onTogglePossession={handleTogglePossession}
+                possessionState={gameData.possessionState}
+                recentStatsLength={gameData.recentStats.length}
+                onEndGame={() => setEndGameDialogOpen(true)}
+                isGameCompleted={!!game?.completed}
+              />
+
               <ToggleButtonGroup
                 value={trackingMode}
                 exclusive
@@ -911,46 +1299,6 @@ const GameMode: React.FC = () => {
                 alignItems: "center",
               }}
             >
-              <Tooltip title="Undo last action">
-                <span>
-                  <Button
-                    size="small"
-                    variant="outlined"
-                    startIcon={<UndoIcon />}
-                    onClick={handleUndo}
-                    disabled={gameData.recentStats.length === 0 || isReadOnly}
-                  >
-                    Undo
-                  </Button>
-                </span>
-              </Tooltip>
-              <Tooltip title="Quick Substitution">
-                <span>
-                  <Button
-                    size="small"
-                    variant="outlined"
-                    startIcon={<SwapHoriz />}
-                    onClick={() => setSubDialogOpen(true)}
-                    disabled={isReadOnly}
-                    aria-label="quick substitution"
-                  >
-                    Quick Sub
-                  </Button>
-                </span>
-              </Tooltip>
-              <Tooltip title="Record Team Timeout">
-                <span>
-                  <Button
-                    size="small"
-                    variant="outlined"
-                    startIcon={<History />}
-                    onClick={handleTimeout}
-                    disabled={isReadOnly}
-                  >
-                    Timeout
-                  </Button>
-                </span>
-              </Tooltip>
               {/* Markers filtering chips */}
               <Box
                 sx={{
