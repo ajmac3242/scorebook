@@ -2207,11 +2207,34 @@ const GameMode: React.FC = () => {
 };
 
 /**
+ * Sub-component for displaying a chip in the scoreboard.
+ * Optimized with React.memo for high-frequency score updates.
+ */
+const ScoreboardChip: React.FC<{
+  label: string;
+  color?: "primary" | "secondary" | "warning" | "error" | "default";
+  variant?: "filled" | "outlined";
+  sx?: object;
+  onClick?: () => void;
+}> = React.memo(
+  ({ label, color = "default", variant = "filled", sx, onClick }) => (
+    <Chip
+      label={label}
+      color={color}
+      variant={variant}
+      onClick={onClick}
+      sx={{ fontWeight: "bold", ...sx }}
+    />
+  ),
+);
+
+/**
  * Sub-component for displaying a player's statistical row in the table.
+ * Optimized with React.memo to skip redundant virtual DOM diffing.
  */
 const PlayerStatRow: React.FC<{
   row: PlayerAggregates;
-}> = ({ row }) => (
+}> = React.memo(({ row }) => (
   <TableRow>
     <TableCell sx={{ py: 1, px: 1 }}>
       <Typography
@@ -2272,10 +2295,11 @@ const PlayerStatRow: React.FC<{
       {row.fouls}
     </TableCell>
   </TableRow>
-);
+));
 
 /**
  * Sub-component for displaying a single item in the recent actions history.
+ * Optimized with React.memo to prevent unnecessary re-renders of stable history items.
  */
 const RecentActionItem: React.FC<{
   stat: StatEvent;
@@ -2286,73 +2310,79 @@ const RecentActionItem: React.FC<{
   opponentName?: string;
   onEdit: (_s: StatEvent) => void;
   onDelete: (_id: string) => void;
-}> = ({
-  stat: s,
-  players,
-  periodLabel,
-  isReadOnly,
-  teamName,
-  opponentName,
-  onEdit,
-  onDelete,
-}) => (
-  <Box
-    sx={{
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "center",
-      py: 0.5,
-      borderBottom: "1px solid #F0F0F0",
-    }}
-  >
-    <Box>
-      <Typography variant="body2">
-        <strong>
-          {s.playerId === SPECIAL_PLAYER_IDS.OPPONENT
-            ? opponentName || "Opponent"
-            : s.playerId === SPECIAL_PLAYER_IDS.TEAM_TIMEOUT ||
-                s.playerId === SPECIAL_PLAYER_IDS.OUR_TEAM
-              ? teamName || "Our Team"
-              : players?.find((p) => p.id === s.playerId)?.name || "Unknown"}
-        </strong>
-        : {s.type}
-      </Typography>
-      <Typography variant="caption" color="text.secondary">
-        {periodLabel} {s.period || 1}
-      </Typography>
+}> = React.memo(
+  ({
+    stat: s,
+    players,
+    periodLabel,
+    isReadOnly,
+    teamName,
+    opponentName,
+    onEdit,
+    onDelete,
+  }) => (
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        py: 0.5,
+        borderBottom: "1px solid #F0F0F0",
+      }}
+    >
+      <Box>
+        <Typography variant="body2">
+          <strong>
+            {s.playerId === SPECIAL_PLAYER_IDS.OPPONENT
+              ? opponentName || "Opponent"
+              : s.playerId === SPECIAL_PLAYER_IDS.TEAM_TIMEOUT ||
+                  s.playerId === SPECIAL_PLAYER_IDS.OUR_TEAM
+                ? teamName || "Our Team"
+                : players?.find((p) => p.id === s.playerId)?.name || "Unknown"}
+          </strong>
+          : {s.type}
+        </Typography>
+        <Typography variant="caption" color="text.secondary">
+          {periodLabel} {s.period || 1}
+        </Typography>
+      </Box>
+      <Box>
+        <Tooltip title="Edit action">
+          <IconButton
+            size="small"
+            disabled={isReadOnly}
+            onClick={() => onEdit(s)}
+            aria-label="edit action"
+          >
+            <Edit fontSize="small" />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title="Delete action">
+          <IconButton
+            size="small"
+            disabled={isReadOnly}
+            onClick={() => onDelete(s.id!)}
+            aria-label="delete action"
+          >
+            <Delete fontSize="small" />
+          </IconButton>
+        </Tooltip>
+      </Box>
     </Box>
-    <Box>
-      <Tooltip title="Edit action">
-        <IconButton
-          size="small"
-          disabled={isReadOnly}
-          onClick={() => onEdit(s)}
-          aria-label="edit action"
-        >
-          <Edit fontSize="small" />
-        </IconButton>
-      </Tooltip>
-      <Tooltip title="Delete action">
-        <IconButton
-          size="small"
-          disabled={isReadOnly}
-          onClick={() => onDelete(s.id!)}
-          aria-label="delete action"
-        >
-          <Delete fontSize="small" />
-        </IconButton>
-      </Tooltip>
-    </Box>
-  </Box>
+  ),
 );
 
+/**
+ * QuickAction component for recording stats.
+ * Optimized with React.memo to stabilize the recording dialog's UI.
+ */
 const QuickAction: React.FC<{
   type: string;
   label: string;
   icon: React.ElementType;
   statType: string | null;
   setStatType: (_type: string | null) => void;
-}> = ({ type, label, icon: Icon, statType, setStatType }) => (
+}> = React.memo(({ type, label, icon: Icon, statType, setStatType }) => (
   <Button
     variant={statType === type ? "contained" : "outlined"}
     color="inherit"
@@ -2371,6 +2401,6 @@ const QuickAction: React.FC<{
     <Icon sx={{ mb: 1 }} />
     <Typography variant="caption">{label}</Typography>
   </Button>
-);
+));
 
 export default GameMode;
