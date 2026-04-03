@@ -16,6 +16,7 @@ export interface Team {
   periodType: "QUARTERS" | "HALVES";
   logoUrl?: string;
   primaryColor?: string;
+  fouls?: number;
   deletedAt?: string;
   synced?: number;
 }
@@ -100,7 +101,8 @@ export class AppDatabase extends Dexie {
     // v1-v8:  Initial schema for teams, players, team_players, games, and stats.
     // v9:     Added 'opponentLogoUrl' to the Game table.
     // v10:    Added optional 'time' field to the Game table to support game scheduling.
-    this.version(10).stores({
+    // v11:    Added 'fouls' to Team for configurable timeouts.
+    this.version(11).stores({
       teams: "id, synced, deletedAt",
       players: "id, synced, isArchived, deletedAt",
       teamPlayers: "id, [teamId+playerId], teamId, playerId, synced",

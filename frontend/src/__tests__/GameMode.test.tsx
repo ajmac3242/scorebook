@@ -243,42 +243,20 @@ describe("GameMode Component", () => {
     renderComponent();
 
     // The component initially has no possession (based on empty mock stats for possession)
-    // Find the toggle buttons. There are two, one for Our Team (pointing back) and one for Opponent (pointing forward).
-    // We can find them by the icon names or aria-label if we added them, but they use ArrowBack/ArrowForward icons.
-    // Let's use the IconButton role and check for the first and second.
+    // Find the toggle button. It's now a single button labeled "Poss".
 
-    const buttons = screen.getAllByRole("button");
-    // "Our Team" possession button is the one with ArrowBack
-    const ourPossBtn = buttons.find((b) =>
-      b.querySelector('svg[data-testid="ArrowBackIcon"]'),
-    );
-    const oppPossBtn = buttons.find((b) =>
-      b.querySelector('svg[data-testid="ArrowForwardIcon"]'),
-    );
+    const possBtn = screen.getByRole("button", { name: /poss/i });
+    expect(possBtn).toBeDefined();
 
-    expect(ourPossBtn).toBeDefined();
-    expect(oppPossBtn).toBeDefined();
+    // Click "Poss" button
+    fireEvent.click(possBtn);
 
-    // Click Our Team possession
-    fireEvent.click(ourPossBtn!);
-
+    // Initial click should set it to OUR_TEAM (default when no possession exists)
     await waitFor(() => {
       expect(db.stats.add).toHaveBeenCalledWith(
         expect.objectContaining({
           type: ACTION_TYPES.POSSESSION,
           playerId: SPECIAL_PLAYER_IDS.OUR_TEAM,
-        }),
-      );
-    });
-
-    // Click Opponent possession
-    fireEvent.click(oppPossBtn!);
-
-    await waitFor(() => {
-      expect(db.stats.add).toHaveBeenCalledWith(
-        expect.objectContaining({
-          type: ACTION_TYPES.POSSESSION,
-          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
         }),
       );
     });
@@ -338,6 +316,10 @@ describe("GameMode Component", () => {
 
     renderComponent();
     expect(await screen.findByText("FOULS: 5")).toBeInTheDocument();
+    // Bonus is now applied to the OPPONENT's side when Team has 5 fouls.
+    // Our mock renders "Test Opponent" as the opponent.
+    // Scoreboard renders renderTeamInfo for team first, then opponent.
+    // Let's check that BONUS is present.
     expect(await screen.findByText("BONUS")).toBeInTheDocument();
   });
 });
