@@ -89,15 +89,22 @@ const getBonusStatus = (fouls: number, periodType: string) => {
 /**
  * Visual indicator for timeouts left using dots.
  */
-const TimeoutDots: React.FC<{ count: number; total?: number; color?: string }> = ({
-  count,
-  total = 5,
-  color = "white",
-}) => (
-  <Stack direction="row" spacing={0.5} alignItems="center">
+const TimeoutDots: React.FC<{
+  count: number;
+  total?: number;
+  color?: string;
+  "data-testid"?: string;
+}> = ({ count, total = 5, color = "white", "data-testid": testId }) => (
+  <Stack
+    direction="row"
+    spacing={0.5}
+    alignItems="center"
+    data-testid={testId}
+  >
     {Array.from({ length: total }).map((_, i) => (
       <Box
         key={i}
+          data-testid={i < count ? "timeout-dot-active" : "timeout-dot-inactive"}
         sx={{
           width: 6,
           height: 6,
@@ -113,14 +120,51 @@ const TimeoutDots: React.FC<{ count: number; total?: number; color?: string }> =
 /**
  * Redesigned TV-style scoreboard header.
  */
-const Scoreboard: React.FC<{
-  game: any;
-  team: any;
-  gameData: any;
+interface ScoreboardProps {
+  game: {
+    opponent?: string;
+    opponentLogoUrl?: string;
+    completed?: number;
+    deletedAt?: string;
+  } | null | undefined;
+  team: {
+    name?: string;
+    logoUrl?: string;
+    periodType?: string;
+    deletedAt?: string;
+  } | null | undefined;
+  gameData: {
+    currentScore: number;
+    opponentScore: number;
+    teamFoulStats: {
+      teamFouls: number;
+      oppFouls: number;
+      teamBonusLabel: string;
+      teamIsDouble: boolean;
+      teamBonusColor: string;
+      oppBonusLabel: string;
+      oppIsDouble: boolean;
+      oppBonusColor: string;
+    };
+    timeoutStats: {
+      teamTOL: number;
+      oppTOL: number;
+    };
+    possessionState: string | null;
+  };
   period: number;
   periodLabel: string;
   maxPeriod: number;
-}> = ({ game, team, gameData, period, periodLabel, maxPeriod }) => {
+}
+
+const Scoreboard: React.FC<ScoreboardProps> = ({
+  game,
+  team,
+  gameData,
+  period,
+  periodLabel,
+  maxPeriod,
+}) => {
   const theme = useTheme();
 
   const renderTeamInfo = (
@@ -197,6 +241,7 @@ const Scoreboard: React.FC<{
               ? gameData.timeoutStats.oppTOL
               : gameData.timeoutStats.teamTOL
           }
+          data-testid={isOpponent ? "opp-timeout-dots" : "team-timeout-dots"}
         />
         {(isOpponent
           ? gameData.teamFoulStats.oppBonusLabel
@@ -349,7 +394,7 @@ const ActionControls: React.FC<{
   onQuickSub: () => void;
   onTimeout: () => void;
   onNextPeriod: () => void;
-  onTogglePossession: (target: string) => void;
+  onTogglePossession: (_target: string) => void;
   possessionState: string | null;
   recentStatsLength: number;
   onEndGame: () => void;
@@ -2160,25 +2205,6 @@ const GameMode: React.FC = () => {
     </Box>
   );
 };
-
-/**
- * Sub-component for displaying a chip in the scoreboard.
- */
-const ScoreboardChip: React.FC<{
-  label: string;
-  color?: "primary" | "secondary" | "warning" | "error" | "default";
-  variant?: "filled" | "outlined";
-  sx?: object;
-  onClick?: () => void;
-}> = ({ label, color = "default", variant = "filled", sx, onClick }) => (
-  <Chip
-    label={label}
-    color={color}
-    variant={variant}
-    onClick={onClick}
-    sx={{ fontWeight: "bold", ...sx }}
-  />
-);
 
 /**
  * Sub-component for displaying a player's statistical row in the table.

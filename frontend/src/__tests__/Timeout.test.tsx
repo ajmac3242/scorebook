@@ -82,10 +82,18 @@ describe("GameMode Timeouts", () => {
       </ThemeProvider>,
     );
 
-  it("displays initial timeouts correctly (5-5)", async () => {
+  it("displays initial timeouts correctly (5 dots for each team)", async () => {
     renderComponent();
     await waitFor(() => {
-      expect(screen.getByText("TOL: 5 | 5")).toBeInTheDocument();
+      // Each TimeoutDots component has 5 dots. With 2 teams, total 10 dots.
+      const teamDots = screen.getByTestId("team-timeout-dots");
+      const oppDots = screen.getByTestId("opp-timeout-dots");
+
+      const teamActive = teamDots.querySelectorAll("[data-testid=\"timeout-dot-active\"]").length;
+      const oppActive = oppDots.querySelectorAll("[data-testid=\"timeout-dot-active\"]").length;
+
+      expect(teamActive).toBe(5);
+      expect(oppActive).toBe(5);
     });
   });
 
@@ -173,8 +181,15 @@ describe("GameMode Timeouts", () => {
     renderComponent();
 
     await waitFor(() => {
-      // 5 - 1 = 4 for Team, 5 - 2 = 3 for Opponent
-      expect(screen.getByText("TOL: 4 | 3")).toBeInTheDocument();
+      // 5 - 1 = 4 active dots for Team, 5 - 2 = 3 active dots for Opponent
+      const teamDots = screen.getByTestId("team-timeout-dots");
+      const oppDots = screen.getByTestId("opp-timeout-dots");
+
+      const teamActive = teamDots.querySelectorAll("[data-testid=\"timeout-dot-active\"]").length;
+      const oppActive = oppDots.querySelectorAll("[data-testid=\"timeout-dot-active\"]").length;
+
+      expect(teamActive).toBe(4);
+      expect(oppActive).toBe(3);
     });
   });
 });
