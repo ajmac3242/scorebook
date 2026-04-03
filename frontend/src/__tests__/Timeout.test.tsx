@@ -89,8 +89,12 @@ describe("GameMode Timeouts", () => {
       const teamDots = screen.getByTestId("team-timeout-dots");
       const oppDots = screen.getByTestId("opp-timeout-dots");
 
-      const teamActive = teamDots.querySelectorAll("[data-testid=\"timeout-dot-active\"]").length;
-      const oppActive = oppDots.querySelectorAll("[data-testid=\"timeout-dot-active\"]").length;
+      const teamActive = teamDots.querySelectorAll(
+        '[data-testid="timeout-dot-active"]',
+      ).length;
+      const oppActive = oppDots.querySelectorAll(
+        '[data-testid="timeout-dot-active"]',
+      ).length;
 
       expect(teamActive).toBe(5);
       expect(oppActive).toBe(5);
@@ -185,8 +189,12 @@ describe("GameMode Timeouts", () => {
       const teamDots = screen.getByTestId("team-timeout-dots");
       const oppDots = screen.getByTestId("opp-timeout-dots");
 
-      const teamActive = teamDots.querySelectorAll("[data-testid=\"timeout-dot-active\"]").length;
-      const oppActive = oppDots.querySelectorAll("[data-testid=\"timeout-dot-active\"]").length;
+      const teamActive = teamDots.querySelectorAll(
+        '[data-testid="timeout-dot-active"]',
+      ).length;
+      const oppActive = oppDots.querySelectorAll(
+        '[data-testid="timeout-dot-active"]',
+      ).length;
 
       expect(teamActive).toBe(4);
       expect(oppActive).toBe(3);

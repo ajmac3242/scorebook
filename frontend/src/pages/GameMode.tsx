@@ -71,17 +71,42 @@ import { MoleskineCard } from "../components/SharedUI";
 const getBonusStatus = (fouls: number, periodType: string) => {
   if (periodType === "QUARTERS") {
     if (fouls >= 5)
-      return { label: "BONUS", isBonus: true, isDouble: false, color: "error.main" };
+      return {
+        label: "BONUS",
+        isBonus: true,
+        isDouble: false,
+        color: "error.main",
+      };
     if (fouls === 4)
-      return { label: "", isBonus: false, isDouble: false, color: "warning.main" };
+      return {
+        label: "",
+        isBonus: false,
+        isDouble: false,
+        color: "warning.main",
+      };
     return { label: "", isBonus: false, isDouble: false, color: "default" };
   } else {
     if (fouls >= 10)
-      return { label: "BONUS", isBonus: true, isDouble: true, color: "error.main" };
+      return {
+        label: "BONUS",
+        isBonus: true,
+        isDouble: true,
+        color: "error.main",
+      };
     if (fouls >= 7)
-      return { label: "BONUS", isBonus: true, isDouble: false, color: "error.main" };
+      return {
+        label: "BONUS",
+        isBonus: true,
+        isDouble: false,
+        color: "error.main",
+      };
     if (fouls === 6)
-      return { label: "", isBonus: false, isDouble: false, color: "warning.main" };
+      return {
+        label: "",
+        isBonus: false,
+        isDouble: false,
+        color: "warning.main",
+      };
     return { label: "", isBonus: false, isDouble: false, color: "default" };
   }
 };
@@ -95,16 +120,11 @@ const TimeoutDots: React.FC<{
   color?: string;
   "data-testid"?: string;
 }> = ({ count, total = 5, color = "white", "data-testid": testId }) => (
-  <Stack
-    direction="row"
-    spacing={0.5}
-    alignItems="center"
-    data-testid={testId}
-  >
+  <Stack direction="row" spacing={0.5} alignItems="center" data-testid={testId}>
     {Array.from({ length: total }).map((_, i) => (
       <Box
         key={i}
-          data-testid={i < count ? "timeout-dot-active" : "timeout-dot-inactive"}
+        data-testid={i < count ? "timeout-dot-active" : "timeout-dot-inactive"}
         sx={{
           width: 6,
           height: 6,
@@ -121,18 +141,24 @@ const TimeoutDots: React.FC<{
  * Redesigned TV-style scoreboard header.
  */
 interface ScoreboardProps {
-  game: {
-    opponent?: string;
-    opponentLogoUrl?: string;
-    completed?: number;
-    deletedAt?: string;
-  } | null | undefined;
-  team: {
-    name?: string;
-    logoUrl?: string;
-    periodType?: string;
-    deletedAt?: string;
-  } | null | undefined;
+  game:
+    | {
+        opponent?: string;
+        opponentLogoUrl?: string;
+        completed?: number;
+        deletedAt?: string;
+      }
+    | null
+    | undefined;
+  team:
+    | {
+        name?: string;
+        logoUrl?: string;
+        periodType?: string;
+        deletedAt?: string;
+      }
+    | null
+    | undefined;
   gameData: {
     currentScore: number;
     opponentScore: number;
@@ -304,7 +330,9 @@ const Scoreboard: React.FC<ScoreboardProps> = ({
           flex: 1,
         }}
       >
-        <Box sx={{ display: "flex", alignItems: "center", gap: { xs: 2, sm: 4 } }}>
+        <Box
+          sx={{ display: "flex", alignItems: "center", gap: { xs: 2, sm: 4 } }}
+        >
           <Typography
             sx={{
               color: "white",
@@ -330,7 +358,9 @@ const Scoreboard: React.FC<ScoreboardProps> = ({
                 mb: 0.5,
               }}
             >
-              {period > maxPeriod ? `OT ${period - maxPeriod}` : `${periodLabel} ${period}`}
+              {period > maxPeriod
+                ? `OT ${period - maxPeriod}`
+                : `${periodLabel} ${period}`}
             </Typography>
             <Stack direction="row" spacing={2} justifyContent="center">
               <ArrowBack
