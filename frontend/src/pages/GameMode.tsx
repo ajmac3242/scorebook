@@ -41,6 +41,7 @@ import {
   Warning,
   ArrowForward,
   ArrowBack,
+  Groups,
 } from "@mui/icons-material";
 import {
   Table,
@@ -267,10 +268,19 @@ const Scoreboard: React.FC<ScoreboardProps> = ({
               ? gameData.timeoutStats.oppTOL
               : gameData.timeoutStats.teamTOL
           }
+          total={team?.fouls || 3}
           data-testid={isOpponent ? "opp-timeout-dots" : "team-timeout-dots"}
         />
-        {/* 🏀 CoachBoard: Team Foul Indicator
-            Why: Provides critical "foul to give" or "bonus" visibility for coaching decisions. */}
+      </Stack>
+
+      {/* 🏀 CoachBoard: Team Foul Indicator
+          Why: Provides critical "foul to give" or "bonus" visibility for coaching decisions. */}
+      <Stack
+        direction={isOpponent ? "row-reverse" : "row"}
+        spacing={1}
+        alignItems="center"
+        sx={{ mt: 0.5 }}
+      >
         <Typography
           variant="caption"
           sx={{
@@ -291,7 +301,8 @@ const Scoreboard: React.FC<ScoreboardProps> = ({
             ? gameData.teamFoulStats.oppFouls
             : gameData.teamFoulStats.teamFouls}
         </Typography>
-        {(isOpponent
+        {/* Bonus label applied to the team currently in bonus (caused by opposite team's fouls) */}
+        {(!isOpponent
           ? gameData.teamFoulStats.oppBonusLabel
           : gameData.teamFoulStats.teamBonusLabel) && (
           <Typography
@@ -304,7 +315,7 @@ const Scoreboard: React.FC<ScoreboardProps> = ({
             }}
           >
             BONUS
-            {isOpponent
+            {!isOpponent
               ? gameData.teamFoulStats.oppIsDouble && <sup>2</sup>
               : gameData.teamFoulStats.teamIsDouble && <sup>2</sup>}
           </Typography>
@@ -446,7 +457,7 @@ const ActionControls: React.FC<{
   onQuickSub: () => void;
   onTimeout: () => void;
   onNextPeriod: () => void;
-  onTogglePossession: (_target: string) => void;
+  onTogglePossession: () => void;
   possessionState: string | null;
   recentStatsLength: number;
   onEndGame: () => void;
@@ -486,87 +497,28 @@ const ActionControls: React.FC<{
         </span>
       </Tooltip>
 
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          bgcolor: "background.paper",
-          borderRadius: 1,
-          border: "1px solid",
-          borderColor: "divider",
-          px: 0.5,
-        }}
-      >
-        <Tooltip title="Set Possession to Our Team">
-          <IconButton
+      <Tooltip title="Toggle Possession">
+        <span>
+          <Button
             size="small"
+            variant="outlined"
+            startIcon={<SwapHoriz />}
+            onClick={onTogglePossession}
             disabled={isReadOnly}
-            onClick={() => onTogglePossession(SPECIAL_PLAYER_IDS.OUR_TEAM)}
-            color={
-              possessionState === SPECIAL_PLAYER_IDS.OUR_TEAM
-                ? "primary"
-                : "default"
-            }
-            aria-label="set possession to our team"
-            sx={{
-              p: 0.5,
-              bgcolor:
-                possessionState === SPECIAL_PLAYER_IDS.OUR_TEAM
-                  ? "primary.light"
-                  : "transparent",
-              "&:hover": {
-                bgcolor:
-                  possessionState === SPECIAL_PLAYER_IDS.OUR_TEAM
-                    ? "primary.light"
-                    : "action.hover",
-              },
-            }}
+            aria-label="toggle possession"
+            color={possessionState ? "primary" : "inherit"}
           >
-            <ArrowBack fontSize="small" />
-          </IconButton>
-        </Tooltip>
-        <Typography
-          variant="caption"
-          sx={{ fontWeight: "bold", mx: 0.5, fontSize: "0.65rem" }}
-        >
-          POSS
-        </Typography>
-        <Tooltip title="Set Possession to Opponent">
-          <IconButton
-            size="small"
-            disabled={isReadOnly}
-            onClick={() => onTogglePossession(SPECIAL_PLAYER_IDS.OPPONENT)}
-            color={
-              possessionState === SPECIAL_PLAYER_IDS.OPPONENT
-                ? "secondary"
-                : "default"
-            }
-            aria-label="set possession to opponent"
-            sx={{
-              p: 0.5,
-              bgcolor:
-                possessionState === SPECIAL_PLAYER_IDS.OPPONENT
-                  ? "secondary.light"
-                  : "transparent",
-              "&:hover": {
-                bgcolor:
-                  possessionState === SPECIAL_PLAYER_IDS.OPPONENT
-                    ? "secondary.light"
-                    : "action.hover",
-              },
-            }}
-          >
-            <ArrowForward fontSize="small" />
-          </IconButton>
-        </Tooltip>
-      </Box>
+            Poss
+          </Button>
+        </span>
+      </Tooltip>
 
       <Tooltip title="Quick Substitution">
         <span>
           <Button
             size="small"
             variant="outlined"
-            startIcon={<SwapHoriz />}
+            startIcon={<Groups />}
             onClick={onQuickSub}
             disabled={isReadOnly}
             aria-label="quick substitution"
@@ -809,7 +761,7 @@ const GameMode: React.FC = () => {
       }
     }
 
-    const MAX_TIMEOUTS = 5;
+    const MAX_TIMEOUTS = team?.fouls || 3;
     const teamBonus = getBonusStatus(teamFouls, pType);
     const oppBonus = getBonusStatus(oppFouls, pType);
 
@@ -892,7 +844,9 @@ const GameMode: React.FC = () => {
         !s.deletedAt &&
         (markerFilter === "ALL" || s.type === markerFilter) &&
         s.type !== ACTION_TYPES.SUB_IN &&
-        s.type !== ACTION_TYPES.SUB_OUT
+        s.type !== ACTION_TYPES.SUB_OUT &&
+        s.type !== ACTION_TYPES.POSSESSION &&
+        s.type !== ACTION_TYPES.TIMEOUT
       ) {
         res.push({
           id: s.id,
@@ -1224,16 +1178,22 @@ const GameMode: React.FC = () => {
    * Why: Quick toggle for the possession arrow.
    * Notes: Records a POSSESSION event for the specified team.
    */
-  const handleTogglePossession = useCallback(
-    async (targetTeam: string) => {
-      if (!gameId || isReadOnly) return;
-      try {
-        await db.open();
-        await db.stats.add({
-          id: crypto.randomUUID(),
-          gameId: gameId,
-          playerId: targetTeam,
-          type: ACTION_TYPES.POSSESSION,
+  const handleTogglePossession = useCallback(async () => {
+    if (!gameId || isReadOnly) return;
+
+    // Toggle between OUR_TEAM and OPPONENT. Default to OUR_TEAM if no possession set.
+    const targetTeam =
+      gameData.possessionState === SPECIAL_PLAYER_IDS.OUR_TEAM
+        ? SPECIAL_PLAYER_IDS.OPPONENT
+        : SPECIAL_PLAYER_IDS.OUR_TEAM;
+
+    try {
+      await db.open();
+      await db.stats.add({
+        id: crypto.randomUUID(),
+        gameId: gameId,
+        playerId: targetTeam,
+        type: ACTION_TYPES.POSSESSION,
           period,
           timestamp: new Date().toISOString(),
           synced: 0,
@@ -1243,7 +1203,7 @@ const GameMode: React.FC = () => {
         logger.error("Failed to toggle possession:", err);
       }
     },
-    [gameId, isReadOnly, period],
+    [gameId, isReadOnly, period, gameData.possessionState],
   );
 
   if (!gameId || !teamId) {
@@ -1287,7 +1247,7 @@ const GameMode: React.FC = () => {
                 onQuickSub={() => setSubDialogOpen(true)}
                 onTimeout={handleTimeout}
                 onNextPeriod={handleNextPeriod}
-                onTogglePossession={handleTogglePossession}
+                onTogglePossession={() => handleTogglePossession()}
                 possessionState={gameData.possessionState}
                 recentStatsLength={gameData.recentStats.length}
                 onEndGame={() => setEndGameDialogOpen(true)}

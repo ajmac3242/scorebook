@@ -71,6 +71,39 @@ describe("Teams Component", () => {
     });
   });
 
+
+  it("adds a new team with fouls setting", async () => {
+    (db.teams.add as any).mockResolvedValue({});
+    render(
+      <BrowserRouter>
+        <Teams />
+      </BrowserRouter>,
+    );
+
+    // Open dialog
+    fireEvent.click(screen.getByLabelText(/add new team/i));
+
+    // Fill form
+    fireEvent.change(screen.getByLabelText(/Team Name/i), {
+      target: { value: "New Team" },
+    });
+    fireEvent.change(screen.getByLabelText(/Fouls/i), {
+      target: { value: "5" },
+    });
+
+    // Submit
+    fireEvent.click(screen.getByRole("button", { name: /^Add$/ }));
+
+    await waitFor(() => {
+      expect(db.teams.add).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: "New Team",
+          fouls: 5,
+        }),
+      );
+    });
+  });
+
   it("handles error when adding team", async () => {
     const loggerSpy = vi.spyOn(logger, "error").mockImplementation(() => {});
     (db.teams.add as any).mockRejectedValue(new Error("Add team error"));

@@ -94,6 +94,11 @@ vi.mock("./db", () => ({
   },
 }));
 
+// Mock crypto for randomUUID
+vi.stubGlobal("crypto", {
+  randomUUID: () => "test-uuid-" + Math.random(),
+});
+
 // Mock fetch globally to prevent ERR_INVALID_URL for relative paths in tests
 vi.stubGlobal(
   "fetch",

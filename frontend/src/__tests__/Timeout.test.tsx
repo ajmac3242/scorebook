@@ -82,10 +82,10 @@ describe("GameMode Timeouts", () => {
       </ThemeProvider>,
     );
 
-  it("displays initial timeouts correctly (5 dots for each team)", async () => {
+  it("displays initial timeouts correctly (3 dots for each team by default)", async () => {
     renderComponent();
     await waitFor(() => {
-      // Each TimeoutDots component has 5 dots. With 2 teams, total 10 dots.
+      // Each TimeoutDots component has 3 dots by default now.
       const teamDots = screen.getByTestId("team-timeout-dots");
       const oppDots = screen.getByTestId("opp-timeout-dots");
 
@@ -96,8 +96,8 @@ describe("GameMode Timeouts", () => {
         '[data-testid="timeout-dot-active"]',
       ).length;
 
-      expect(teamActive).toBe(5);
-      expect(oppActive).toBe(5);
+      expect(teamActive).toBe(3);
+      expect(oppActive).toBe(3);
     });
   });
 
@@ -185,7 +185,7 @@ describe("GameMode Timeouts", () => {
     renderComponent();
 
     await waitFor(() => {
-      // 5 - 1 = 4 active dots for Team, 5 - 2 = 3 active dots for Opponent
+      // 3 - 1 = 2 active dots for Team, 3 - 2 = 1 active dots for Opponent
       const teamDots = screen.getByTestId("team-timeout-dots");
       const oppDots = screen.getByTestId("opp-timeout-dots");
 
@@ -196,8 +196,8 @@ describe("GameMode Timeouts", () => {
         '[data-testid="timeout-dot-active"]',
       ).length;
 
-      expect(teamActive).toBe(4);
-      expect(oppActive).toBe(3);
+      expect(teamActive).toBe(2);
+      expect(oppActive).toBe(1);
     });
   });
 });

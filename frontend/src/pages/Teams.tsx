@@ -67,6 +67,7 @@ const Teams: React.FC = () => {
   );
   const [logoUrl, setLogoUrl] = useState("");
   const [primaryColor, setPrimaryColor] = useState("#154C56");
+  const [fouls, setFouls] = useState<number>(3);
   const [showValidation, setShowValidation] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -184,6 +185,7 @@ const Teams: React.FC = () => {
         periodType,
         logoUrl,
         primaryColor,
+        fouls,
         synced: 0,
       };
       await db.teams.add(newTeam);
@@ -194,6 +196,7 @@ const Teams: React.FC = () => {
       setPeriodType("QUARTERS");
       setLogoUrl("");
       setPrimaryColor("#154C56");
+      setFouls(3);
       setShowValidation(false);
       setSnackbar({
         open: true,
@@ -539,6 +542,19 @@ const Teams: React.FC = () => {
             }}
             sx={{ mb: 2 }}
             disabled={isSubmitting}
+          />
+          <TextField
+            margin="dense"
+            label="Fouls"
+            type="number"
+            fullWidth
+            variant="outlined"
+            value={fouls}
+            onChange={(e) => setFouls(parseInt(e.target.value) || 0)}
+            sx={{ mb: 2 }}
+            disabled={isSubmitting}
+            inputProps={{ min: 0 }}
+            helperText="Default number of timeouts/fouls for this team"
           />
           <Typography
             variant="subtitle2"
