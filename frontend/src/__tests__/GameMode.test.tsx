@@ -290,11 +290,18 @@ describe("GameMode Component", () => {
         const code = cb.toString();
         if (code.includes("db.stats")) {
           return Array.from({ length: 4 }).map((_, i) => ({
-            id: `f${i}`, gameId: "g1", playerId: "p1", type: ACTION_TYPES.FOUL, period: 1, timestamp: `2023-01-01T00:00:0${i}Z`
+            id: `f${i}`,
+            gameId: "g1",
+            playerId: "p1",
+            type: ACTION_TYPES.FOUL,
+            period: 1,
+            timestamp: `2023-01-01T00:00:0${i}Z`,
           }));
         }
-        if (code.includes("db.games.get")) return { id: "g1", opponent: "Opp", teamId: "t1" };
-        if (code.includes("db.teams.get")) return { id: "t1", periodType: "QUARTERS" };
+        if (code.includes("db.games.get"))
+          return { id: "g1", opponent: "Opp", teamId: "t1" };
+        if (code.includes("db.teams.get"))
+          return { id: "t1", periodType: "QUARTERS" };
         if (code.includes("db.players")) return mockPlayers;
         if (code.includes("db.teamPlayers")) return mockTeamPlayers;
         return [];
@@ -311,11 +318,18 @@ describe("GameMode Component", () => {
         const code = cb.toString();
         if (code.includes("db.stats")) {
           return Array.from({ length: 5 }).map((_, i) => ({
-            id: `f${i}`, gameId: "g1", playerId: "p1", type: ACTION_TYPES.FOUL, period: 1, timestamp: `2023-01-01T00:00:0${i}Z`
+            id: `f${i}`,
+            gameId: "g1",
+            playerId: "p1",
+            type: ACTION_TYPES.FOUL,
+            period: 1,
+            timestamp: `2023-01-01T00:00:0${i}Z`,
           }));
         }
-        if (code.includes("db.games.get")) return { id: "g1", opponent: "Opp", teamId: "t1" };
-        if (code.includes("db.teams.get")) return { id: "t1", periodType: "QUARTERS" };
+        if (code.includes("db.games.get"))
+          return { id: "g1", opponent: "Opp", teamId: "t1" };
+        if (code.includes("db.teams.get"))
+          return { id: "t1", periodType: "QUARTERS" };
         if (code.includes("db.players")) return mockPlayers;
         if (code.includes("db.teamPlayers")) return mockTeamPlayers;
         return [];

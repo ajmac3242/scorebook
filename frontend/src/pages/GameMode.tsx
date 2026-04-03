@@ -278,13 +278,18 @@ const Scoreboard: React.FC<ScoreboardProps> = ({
               const foulColor = isOpponent
                 ? gameData.teamFoulStats.oppBonusColor
                 : gameData.teamFoulStats.teamBonusColor;
-              return foulColor === "default" ? "rgba(255,255,255,0.7)" : foulColor;
+              return foulColor === "default"
+                ? "rgba(255,255,255,0.7)"
+                : foulColor;
             })(),
             fontWeight: 800,
             fontSize: "0.7rem",
           }}
         >
-          FOULS: {isOpponent ? gameData.teamFoulStats.oppFouls : gameData.teamFoulStats.teamFouls}
+          FOULS:{" "}
+          {isOpponent
+            ? gameData.teamFoulStats.oppFouls
+            : gameData.teamFoulStats.teamFouls}
         </Typography>
         {(isOpponent
           ? gameData.teamFoulStats.oppBonusLabel
