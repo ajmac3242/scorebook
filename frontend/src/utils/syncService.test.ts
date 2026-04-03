@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { syncService } from "./syncService";
-import { db } from "../db";
+import { db, type Game } from "../db";
 import { logger } from "./logger";
 
 // Mock Dexie
@@ -284,9 +284,23 @@ describe("SyncService", () => {
         .mockResolvedValue(undefined);
 
       vi.mocked(db.games.toArray).mockResolvedValue([
-        { id: "g1", completed: 1 },
-        { id: "g2", completed: 0 },
-      ] as any);
+        {
+          id: "g1",
+          completed: 1,
+          teamId: "t1",
+          opponent: "Opponent",
+          date: "2023-01-01",
+          location: "Home",
+        },
+        {
+          id: "g2",
+          completed: 0,
+          teamId: "t1",
+          opponent: "Opponent",
+          date: "2023-01-02",
+          location: "Home",
+        },
+      ] as Game[]);
 
       await syncService.syncAllForTeam("t1");
 
@@ -320,8 +334,15 @@ describe("SyncService", () => {
         }); // /api/players
 
       vi.mocked(db.games.toArray).mockResolvedValue([
-        { id: "g1", completed: 1 },
-      ] as any);
+        {
+          id: "g1",
+          completed: 1,
+          teamId: "t1",
+          opponent: "Opponent",
+          date: "2023-01-01",
+          location: "Home",
+        },
+      ] as Game[]);
 
       await syncService.pullAll();
 
