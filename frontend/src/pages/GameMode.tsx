@@ -280,7 +280,7 @@ const Scoreboard: React.FC<ScoreboardProps> = ({
         direction={isOpponent ? "row-reverse" : "row"}
         spacing={1}
         alignItems="center"
-        sx={{ mt: 0.5 }}
+        sx={{ mt: 0.5, flexWrap: "nowrap" }}
       >
         <Typography
           variant="caption"
@@ -295,6 +295,7 @@ const Scoreboard: React.FC<ScoreboardProps> = ({
             })(),
             fontWeight: 800,
             fontSize: "0.7rem",
+            whiteSpace: "nowrap",
           }}
         >
           FOULS:{" "}
@@ -313,6 +314,7 @@ const Scoreboard: React.FC<ScoreboardProps> = ({
               fontWeight: 900,
               fontSize: "0.65rem",
               letterSpacing: 0.5,
+              whiteSpace: "nowrap",
             }}
           >
             BONUS
@@ -333,7 +335,7 @@ const Scoreboard: React.FC<ScoreboardProps> = ({
         p: { xs: 1.5, sm: 2.5 },
         mb: 3,
         display: "flex",
-        alignItems: "center",
+        alignItems: "flex-start",
         justifyContent: "space-between",
         boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
         border: "1px solid rgba(255,255,255,0.1)",
@@ -2068,7 +2070,8 @@ const GameMode: React.FC = () => {
                           {jerseyMap.get(p.id!) || ""}
                         </Avatar>
                         <Typography variant="body2" noWrap>
-                          {p.name} ({pts}p, {pf}f){isFouledOut && " - OUT"}
+                          #{jerseyMap.get(p.id!) || ""} {p.name}
+                          {isFouledOut && " - OUT"}
                         </Typography>
                       </Button>
                     );
@@ -2168,7 +2171,8 @@ const GameMode: React.FC = () => {
                           {jerseyMap.get(p.id!) || ""}
                         </Avatar>
                         <Typography variant="body2" noWrap>
-                          {p.name} ({pts}p, {pf}f){isFouledOut && " - OUT"}
+                          #{jerseyMap.get(p.id!) || ""} {p.name}
+                          {isFouledOut && " - OUT"}
                         </Typography>
                       </Button>
                     );
