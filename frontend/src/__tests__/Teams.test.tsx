@@ -71,8 +71,6 @@ describe("Teams Component", () => {
     });
   });
 
-
-
   it("handles error when adding team", async () => {
     const loggerSpy = vi.spyOn(logger, "error").mockImplementation(() => {});
     (db.teams.add as any).mockRejectedValue(new Error("Add team error"));

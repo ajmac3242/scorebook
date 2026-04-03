@@ -1195,17 +1195,15 @@ const GameMode: React.FC = () => {
         gameId: gameId,
         playerId: targetTeam,
         type: ACTION_TYPES.POSSESSION,
-          period,
-          timestamp: new Date().toISOString(),
-          synced: 0,
-        });
-        await syncService.pushUpdates();
-      } catch (err) {
-        logger.error("Failed to toggle possession:", err);
-      }
-    },
-    [gameId, isReadOnly, period, gameData.possessionState],
-  );
+        period,
+        timestamp: new Date().toISOString(),
+        synced: 0,
+      });
+      await syncService.pushUpdates();
+    } catch (err) {
+      logger.error("Failed to toggle possession:", err);
+    }
+  }, [gameId, isReadOnly, period, gameData.possessionState]);
 
   if (!gameId || !teamId) {
     return null;
