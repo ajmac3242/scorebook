@@ -185,14 +185,14 @@ interface ScoreboardProps {
   maxPeriod: number;
 }
 
-const Scoreboard: React.FC<ScoreboardProps> = ({
+const Scoreboard = React.memo(({
   game,
   team,
   gameData,
   period,
   periodLabel,
   maxPeriod,
-}) => {
+}: ScoreboardProps) => {
   const theme = useTheme();
 
   const renderTeamInfo = (
@@ -449,12 +449,12 @@ const Scoreboard: React.FC<ScoreboardProps> = ({
       )}
     </Box>
   );
-};
+});
 
 /**
  * Interactive controls for game state management.
  */
-const ActionControls: React.FC<{
+interface ActionControlsProps {
   isReadOnly: boolean;
   onUndo: () => void;
   onQuickSub: () => void;
@@ -465,7 +465,9 @@ const ActionControls: React.FC<{
   recentStatsLength: number;
   onEndGame: () => void;
   isGameCompleted: boolean;
-}> = ({
+}
+
+const ActionControls = React.memo(({
   isReadOnly,
   onUndo,
   onQuickSub,
@@ -476,7 +478,7 @@ const ActionControls: React.FC<{
   recentStatsLength,
   onEndGame,
   isGameCompleted,
-}) => {
+}: ActionControlsProps) => {
   return (
     <Box
       sx={{
@@ -571,7 +573,7 @@ const ActionControls: React.FC<{
       )}
     </Box>
   );
-};
+});
 
 /**
  * GameMode page component.
@@ -787,7 +789,7 @@ const GameMode: React.FC = () => {
       },
       possessionState: posState,
       onCourtIds: onCourt,
-      recentStats: [...sorted].reverse().slice(0, 10),
+      recentStats: sorted.slice(-10).reverse(),
     };
   }, [gameStats, period, team?.periodType]);
 
@@ -799,13 +801,13 @@ const GameMode: React.FC = () => {
     }
   }, [subDialogOpen, gameData.onCourtIds]);
 
-  const jerseyMap = useMemo(
-    () =>
-      new Map<string, string | undefined>(
-        teamPlayers.map((tp) => [tp.playerId, tp.jerseyNumber]),
-      ),
-    [teamPlayers],
-  );
+  const jerseyMap = useMemo(() => {
+    const map = new Map<string, string | undefined>();
+    for (let i = 0; i < teamPlayers.length; i++) {
+      map.set(teamPlayers[i].playerId, teamPlayers[i].jerseyNumber);
+    }
+    return map;
+  }, [teamPlayers]);
 
   const statsGridData = useMemo(() => {
     return calculatePlayerAggregates(players, gameStats, teamPlayers);
