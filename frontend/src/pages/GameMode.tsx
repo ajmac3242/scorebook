@@ -1781,10 +1781,15 @@ const GameMode: React.FC = () => {
         <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
           {isEditing ? "Edit Action" : "Record Action"}
           <Typography variant="body2" color="text.secondary">
-            {selectedPlayerId === SPECIAL_PLAYER_IDS.OPPONENT
-              ? game?.opponent || "Opponent"
-              : players?.find((p) => p.id === selectedPlayerId)?.name ||
-                "Select Player"}
+            {(() => {
+              if (selectedPlayerId === SPECIAL_PLAYER_IDS.OPPONENT) {
+                return game?.opponent || "Opponent";
+              }
+              const p = players?.find((p) => p.id === selectedPlayerId);
+              if (!p) return "Select Player";
+              const s = statsMap.get(p.id!);
+              return `${p.name} (${s?.points || 0} pts | ${s?.fouls || 0} pf)`;
+            })()}
           </Typography>
         </DialogTitle>
         <DialogContent>
@@ -1808,36 +1813,71 @@ const GameMode: React.FC = () => {
               >
                 {players
                   .filter((p) => gameData.onCourtIds.has(p.id!))
-                  .map((p) => (
-                    <Button
-                      key={p.id}
-                      variant={
-                        selectedPlayerId === p.id ? "contained" : "outlined"
-                      }
-                      onClick={() => setSelectedPlayerId(p.id!)}
-                      sx={{
-                        minWidth: 80,
-                        flexShrink: 0,
-                        flexDirection: "column",
-                        py: 1,
-                      }}
-                    >
-                      <Avatar
+                  .map((p) => {
+                    const s = statsMap.get(p.id!);
+                    const pf = s?.fouls || 0;
+                    const isFoulTrouble = pf === 4;
+                    const isFouledOut = pf >= 5;
+
+                    return (
+                      <Button
+                        key={p.id}
+                        variant={
+                          selectedPlayerId === p.id ? "contained" : "outlined"
+                        }
+                        onClick={() => setSelectedPlayerId(p.id!)}
                         sx={{
-                          width: 24,
-                          height: 24,
-                          fontSize: "0.75rem",
-                          mb: 0.5,
-                          bgcolor: p.avatarColor || "grey.500",
+                          minWidth: 80,
+                          flexShrink: 0,
+                          flexDirection: "column",
+                          py: 1,
+                          borderColor: isFouledOut
+                            ? "error.main"
+                            : isFoulTrouble
+                              ? "warning.main"
+                              : "divider",
+                          color:
+                            selectedPlayerId === p.id
+                              ? "white"
+                              : isFouledOut
+                                ? "error.main"
+                                : "text.primary",
                         }}
                       >
-                        {jerseyMap.get(p.id!) || ""}
-                      </Avatar>
-                      <Typography variant="caption" sx={{ fontSize: "0.6rem" }}>
-                        {p.name.split(" ")[0]}
-                      </Typography>
-                    </Button>
-                  ))}
+                        <Avatar
+                          sx={{
+                            width: 24,
+                            height: 24,
+                            fontSize: "0.75rem",
+                            mb: 0.5,
+                            bgcolor: p.avatarColor || "grey.500",
+                          }}
+                        >
+                          {jerseyMap.get(p.id!) || ""}
+                        </Avatar>
+                        <Typography
+                          variant="caption"
+                          sx={{ fontSize: "0.6rem" }}
+                        >
+                          {p.name.split(" ")[0]}
+                        </Typography>
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            fontSize: "0.55rem",
+                            fontWeight: 700,
+                            color: isFouledOut
+                              ? "error.main"
+                              : isFoulTrouble
+                                ? "warning.main"
+                                : "inherit",
+                          }}
+                        >
+                          PF: {pf}
+                        </Typography>
+                      </Button>
+                    );
+                  })}
               </Box>
             </Box>
           )}
@@ -1891,13 +1931,62 @@ const GameMode: React.FC = () => {
               statType={statType}
               setStatType={setStatType}
             />
-            <QuickAction
-              type={ACTION_TYPES.FOUL}
-              label="Foul"
-              icon={Warning}
-              statType={statType}
-              setStatType={setStatType}
-            />
+            <Box>
+              <QuickAction
+                type={ACTION_TYPES.FOUL}
+                label="Foul"
+                icon={Warning}
+                statType={statType}
+                setStatType={setStatType}
+              />
+              {(() => {
+                const fouls =
+                  trackingMode === "TEAM"
+                    ? gameData.teamFoulStats.teamFouls
+                    : gameData.teamFoulStats.oppFouls;
+
+                // 🏀 CoachBoard: Dynamic Bonus Context
+                // Why: Alerts the scorekeeper if the next foul leads to free throws.
+                // Note: Bonus context depends on the *current* team's fouls (trackingMode).
+                const foulsRequiredForBonus = periodType === "QUARTERS" ? 5 : 7;
+                const foulsForWarning = foulsRequiredForBonus - 1;
+
+                if (fouls >= foulsRequiredForBonus) {
+                  return (
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        display: "block",
+                        textAlign: "center",
+                        color: "error.main",
+                        fontWeight: 900,
+                        fontSize: "0.55rem",
+                        mt: 0.5,
+                      }}
+                    >
+                      IN BONUS
+                    </Typography>
+                  );
+                } else if (fouls === foulsForWarning) {
+                  return (
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        display: "block",
+                        textAlign: "center",
+                        color: "warning.main",
+                        fontWeight: 700,
+                        fontSize: "0.55rem",
+                        mt: 0.5,
+                      }}
+                    >
+                      NEXT: BONUS
+                    </Typography>
+                  );
+                }
+                return null;
+              })()}
+            </Box>
           </Box>
           {statType === ACTION_TYPES.MAKE && (
             <Box sx={{ mt: 3 }}>
