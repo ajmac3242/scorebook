@@ -3,6 +3,7 @@ import {
   DynamoDBDocumentClient,
   PutCommand,
   QueryCommand,
+  UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { mockClient } from "aws-sdk-client-mock";
 
@@ -148,5 +149,19 @@ describe("Security Tests", () => {
     expect(body.message).toContain(
       "Team name is required and must be under 100 characters",
     );
+  });
+
+  it("returns 404 when a conditional update fails (ghost item protection)", async () => {
+    const error = new Error("Conditional check failed");
+    error.name = "ConditionalCheckFailedException";
+    // @ts-ignore - Mocking a DynamoDB error
+    ddbMock.on(UpdateCommand).rejects(error);
+
+    const event = createEvent("DELETE", "/players/p1");
+    const response: any = await handler(event);
+
+    expect(response.statusCode).toBe(404);
+    const body = JSON.parse(response.body);
+    expect(body.message).toBe("Item not found");
   });
 });
