@@ -19,3 +19,10 @@ Action: Identify 'hot path' components with multiple redundant data traversals a
 ## 2026-04-02 - Frontend Performance Optimization
 Learning: Consolidating multiple statistical derivations into a single pass over a sorted event stream significantly reduces array traversals and redundant database queries in hot-path components like GameMode.tsx and GameStats.tsx. Memoizing frequent sub-components and stabilizing event handlers with useCallback prevents unnecessary re-renders during high-pressure live tracking.
 Action: Always look for opportunities to merge useMemo loops and move static configuration (like styles or formatters) outside component render paths.
+
+## 2026-04-04 - GameMode Hot-path and Component Optimization
+Learning: Refactoring 'recent items' slicing to use `slice(-N).reverse()` instead of `[...arr].reverse().slice(0, N)` avoids an O(N) full array copy and reversal, providing significant efficiency gains as the event stream grows. Using standard `for` loops for Map initialization avoids intermediate array allocations common with `.map()`.
+Action: Use `slice(-N)` for tail-extraction from sorted arrays and prefer `for` loops in high-frequency `useMemo` blocks to reduce garbage collection pressure.
+
+Learning: When memoizing complex functional components, omitting the `React.FC` type and instead typing the props directly in the function arguments ensures compatibility with `React.memo` and prevents TypeScript errors related to `MemoExoticComponent` vs `FunctionComponent`.
+Action: Prefer direct prop typing over `React.FC` for components intended for memoization.
