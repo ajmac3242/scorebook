@@ -117,6 +117,7 @@ async function handlePlayers(
           Key: { PK: Keys.player(playerId), SK: Keys.metadata(playerId) },
           UpdateExpression: "SET isArchived = :a",
           ExpressionAttributeValues: { ":a": 1 },
+          ConditionExpression: "attribute_exists(PK)",
         }),
       );
       return ok({ message: "Player archived" });
@@ -133,6 +134,7 @@ async function handlePlayers(
         Key: { PK: Keys.player(playerId), SK: Keys.metadata(playerId) },
         UpdateExpression: "SET isArchived = :a",
         ExpressionAttributeValues: { ":a": 0 },
+        ConditionExpression: "attribute_exists(PK)",
       }),
     );
     return ok({ message: "Player restored from archive" });
@@ -144,6 +146,7 @@ async function handlePlayers(
         TableName: tableName,
         Key: { PK: Keys.player(playerId), SK: Keys.metadata(playerId) },
         UpdateExpression: "REMOVE deletedAt",
+        ConditionExpression: "attribute_exists(PK)",
       }),
     );
     return ok({ message: "Player restored" });
@@ -229,6 +232,7 @@ async function handleGames(
           TableName: tableName,
           Key: { PK: Keys.game(gameId), SK: Keys.metadata(gameId) },
           UpdateExpression: "REMOVE deletedAt",
+          ConditionExpression: "attribute_exists(PK)",
         }),
       );
       if (getResp.Item) {
@@ -255,6 +259,7 @@ async function handleGames(
         Key: { PK: Keys.game(gameId), SK: Keys.metadata(gameId) },
         UpdateExpression: "SET completed = :c",
         ExpressionAttributeValues: { ":c": 1 },
+        ConditionExpression: "attribute_exists(PK)",
       }),
     );
     await snapshotGameStats(gameId, tableName);
@@ -363,6 +368,7 @@ async function handleTeams(
           TableName: tableName,
           Key: { PK: Keys.team(teamId), SK: Keys.metadata(teamId) },
           UpdateExpression: "REMOVE deletedAt",
+          ConditionExpression: "attribute_exists(PK)",
         }),
       );
       await snapshotTeamRoster(teamId, tableName);
@@ -409,6 +415,7 @@ async function handleTeams(
           Key: { PK: Keys.team(teamId), SK: Keys.player(playerId) },
           UpdateExpression: "SET deletedAt = :d",
           ExpressionAttributeValues: { ":d": new Date().toISOString() },
+          ConditionExpression: "attribute_exists(PK)",
         }),
       );
       await snapshotTeamRoster(teamId, tableName);
@@ -548,6 +555,12 @@ export const handler = async (
 
     return notFound("Route not found");
   } catch (error: unknown) {
+    if (
+      error instanceof Error &&
+      error.name === "ConditionalCheckFailedException"
+    ) {
+      return notFound("Item not found");
+    }
     logError("Handler Error", error);
     return serverError();
   }
@@ -671,6 +684,7 @@ async function softDeleteItem(
       Key: { PK: `${type}#${id}`, SK: `${skPrefix}#${id}` },
       UpdateExpression: "SET deletedAt = :d",
       ExpressionAttributeValues: { ":d": timestamp },
+      ConditionExpression: "attribute_exists(PK)",
     }),
   );
   return ok({ message: "Item soft deleted", deletedAt: timestamp });
