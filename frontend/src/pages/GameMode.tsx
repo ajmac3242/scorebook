@@ -1855,7 +1855,10 @@ const GameMode: React.FC = () => {
                         >
                           {jerseyMap.get(p.id!) || ""}
                         </Avatar>
-                        <Typography variant="caption" sx={{ fontSize: "0.6rem" }}>
+                        <Typography
+                          variant="caption"
+                          sx={{ fontSize: "0.6rem" }}
+                        >
                           {p.name.split(" ")[0]}
                         </Typography>
                         <Typography
