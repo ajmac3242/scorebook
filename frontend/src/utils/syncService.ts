@@ -337,9 +337,10 @@ class SyncService {
       etag,
       async (data) => {
         await db.transaction("rw", [db.games], async () => {
-          for (const g of data.games) {
-            await db.games.put({ ...g, id: g.id as string, synced: 1 } as Game);
-          }
+          const gamesToPut = data.games.map(
+            (g) => ({ ...g, id: g.id as string, synced: 1 }) as Game,
+          );
+          await db.games.bulkPut(gamesToPut);
         });
       },
       `Games list for team ${teamId}`,
@@ -381,20 +382,24 @@ class SyncService {
           synced: 1,
         } as Team);
 
-        for (const p of data.players) {
-          await db.players.put({
-            id: p.playerId as string,
-            name: p.name as string,
-            avatarColor: p.avatarColor as string,
-            synced: 1,
-          });
-          await db.teamPlayers.put({
-            ...p,
-            teamId: teamId,
-            playerId: p.playerId as string,
-            synced: 1,
-          } as TeamPlayer);
-        }
+        const playersToPut = data.players.map((p) => ({
+          id: p.playerId as string,
+          name: p.name as string,
+          avatarColor: p.avatarColor as string,
+          synced: 1,
+        }));
+        await db.players.bulkPut(playersToPut);
+
+        const teamPlayersToPut = data.players.map(
+          (p) =>
+            ({
+              ...p,
+              teamId: teamId,
+              playerId: p.playerId as string,
+              synced: 1,
+            }) as TeamPlayer,
+        );
+        await db.teamPlayers.bulkPut(teamPlayersToPut);
       },
     );
   }
@@ -412,13 +417,15 @@ class SyncService {
         synced: 1,
       } as Game);
 
-      for (const s of data.stats) {
-        await db.stats.put({
-          ...s,
-          id: s.id as string,
-          synced: 1,
-        } as StatEvent);
-      }
+      const statsToPut = data.stats.map(
+        (s) =>
+          ({
+            ...s,
+            id: s.id as string,
+            synced: 1,
+          }) as StatEvent,
+      );
+      await db.stats.bulkPut(statsToPut);
     });
   }
 
@@ -435,11 +442,10 @@ class SyncService {
 
     // Sync stats for each completed game
     const games = await db.games.where("teamId").equals(teamId).toArray();
-    for (const game of games) {
-      if (game.completed) {
-        await this.syncGameStats(game.id!.toString());
-      }
-    }
+    const gameStatsPromises = games
+      .filter((game) => game.completed)
+      .map((game) => this.syncGameStats(game.id!.toString()));
+    await Promise.all(gameStatsPromises);
   }
 
   /**
@@ -457,16 +463,20 @@ class SyncService {
       if (teamsRes.ok) {
         const teams = await teamsRes.json();
         await db.transaction("rw", [db.teams], async () => {
-          for (const t of teams) {
-            await db.teams.put({ ...t, id: t.id, synced: 1 });
-          }
+          const teamsToPut = teams.map((t: Team) => ({
+            ...t,
+            id: t.id,
+            synced: 1,
+          }));
+          await db.teams.bulkPut(teamsToPut);
         });
 
-        // 2. Pull Team Details (Roster, Games) for each team
-        for (const t of teams) {
-          await this.syncTeamRoster(t.id);
-          await this.syncTeamGamesList(t.id);
-        }
+        // 2. Pull Team Details (Roster, Games) for each team in parallel
+        const teamPromises = teams.flatMap((t: Team) => [
+          this.syncTeamRoster(t.id!),
+          this.syncTeamGamesList(t.id!),
+        ]);
+        await Promise.all(teamPromises);
       }
 
       // 4. Pull all global players
@@ -474,20 +484,24 @@ class SyncService {
       if (playersRes.ok) {
         const players = await playersRes.json();
         await db.transaction("rw", [db.players], async () => {
-          for (const p of players) {
-            await db.players.put({ ...p, id: p.id, synced: 1 });
-          }
+          const playersToPut = players.map((p: Player) => ({
+            ...p,
+            id: p.id,
+            synced: 1,
+          }));
+          await db.players.bulkPut(playersToPut);
         });
       }
 
-      // 5. Pull stats for all completed games discovered
+      // 5. Pull stats for all completed games discovered in parallel
       const completedGames = await db.games
         .where("completed")
         .equals(1)
         .toArray();
-      for (const g of completedGames) {
-        await this.syncGameStats(g.id!.toString());
-      }
+      const completedGamePromises = completedGames.map((g) =>
+        this.syncGameStats(g.id!.toString()),
+      );
+      await Promise.all(completedGamePromises);
 
       logger.info("Full pull sync complete.");
     } catch (e) {

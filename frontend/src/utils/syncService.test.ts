@@ -9,6 +9,7 @@ vi.mock("../db", () => ({
     transaction: vi.fn((_mode, _tables, cb) => cb()),
     teams: {
       put: vi.fn(),
+      bulkPut: vi.fn(),
       where: vi.fn().mockReturnThis(),
       equals: vi.fn().mockReturnThis(),
       limit: vi.fn().mockReturnThis(),
@@ -19,6 +20,7 @@ vi.mock("../db", () => ({
     },
     players: {
       put: vi.fn(),
+      bulkPut: vi.fn(),
       where: vi.fn().mockReturnThis(),
       equals: vi.fn().mockReturnThis(),
       limit: vi.fn().mockReturnThis(),
@@ -29,6 +31,7 @@ vi.mock("../db", () => ({
     },
     teamPlayers: {
       put: vi.fn(),
+      bulkPut: vi.fn(),
       where: vi.fn().mockReturnThis(),
       equals: vi.fn().mockReturnThis(),
       limit: vi.fn().mockReturnThis(),
@@ -39,6 +42,7 @@ vi.mock("../db", () => ({
     },
     games: {
       put: vi.fn(),
+      bulkPut: vi.fn(),
       where: vi.fn().mockReturnThis(),
       equals: vi.fn().mockReturnThis(),
       limit: vi.fn().mockReturnThis(),
@@ -48,6 +52,7 @@ vi.mock("../db", () => ({
     },
     stats: {
       put: vi.fn(),
+      bulkPut: vi.fn(),
       where: vi.fn().mockReturnThis(),
       equals: vi.fn().mockReturnThis(),
       limit: vi.fn().mockReturnThis(),
@@ -103,8 +108,8 @@ describe("SyncService", () => {
     expect(db.teams.put).toHaveBeenCalledWith(
       expect.objectContaining({ id: "t1", synced: 1 }),
     );
-    expect(db.players.put).toHaveBeenCalledWith(
-      expect.objectContaining({ id: "p1", synced: 1 }),
+    expect(db.players.bulkPut).toHaveBeenCalledWith(
+      expect.arrayContaining([expect.objectContaining({ id: "p1", synced: 1 })]),
     );
     expect(localStorage.getItem("etag_team_t1")).toBe("etag-1");
   });
@@ -351,11 +356,11 @@ describe("SyncService", () => {
         "/api/players",
         expect.any(Object),
       );
-      expect(db.teams.put).toHaveBeenCalledWith(
-        expect.objectContaining({ id: "t1" }),
+      expect(db.teams.bulkPut).toHaveBeenCalledWith(
+        expect.arrayContaining([expect.objectContaining({ id: "t1" })]),
       );
-      expect(db.players.put).toHaveBeenCalledWith(
-        expect.objectContaining({ id: "p1" }),
+      expect(db.players.bulkPut).toHaveBeenCalledWith(
+        expect.arrayContaining([expect.objectContaining({ id: "p1" })]),
       );
       expect(syncTeamRosterSpy).toHaveBeenCalledWith("t1");
       expect(syncTeamGamesListSpy).toHaveBeenCalledWith("t1");
