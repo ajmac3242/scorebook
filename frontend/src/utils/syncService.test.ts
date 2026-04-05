@@ -109,7 +109,9 @@ describe("SyncService", () => {
       expect.objectContaining({ id: "t1", synced: 1 }),
     );
     expect(db.players.bulkPut).toHaveBeenCalledWith(
-      expect.arrayContaining([expect.objectContaining({ id: "p1", synced: 1 })]),
+      expect.arrayContaining([
+        expect.objectContaining({ id: "p1", synced: 1 }),
+      ]),
     );
     expect(localStorage.getItem("etag_team_t1")).toBe("etag-1");
   });
