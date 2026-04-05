@@ -26,3 +26,7 @@ Action: Use `slice(-N)` for tail-extraction from sorted arrays and prefer `for` 
 
 Learning: When memoizing complex functional components, omitting the `React.FC` type and instead typing the props directly in the function arguments ensures compatibility with `React.memo` and prevents TypeScript errors related to `MemoExoticComponent` vs `FunctionComponent`.
 Action: Prefer direct prop typing over `React.FC` for components intended for memoization.
+
+## 2026-04-05 - Sync Service Optimization
+Learning: Batching database operations with `bulkPut()` and parallelizing independent network requests using `Promise.all()` drastically reduces synchronization time and transaction overhead in local-first architectures. Updating global test mocks to include new performance-oriented methods (like `bulkPut`) is essential to prevent 'not a function' regressions in the CI pipeline.
+Action: Always use `bulkPut()` for iterative writes in sync paths and parallelize independent asynchronous operations to maximize throughput. Ensure test mocks stay in sync with API changes.
