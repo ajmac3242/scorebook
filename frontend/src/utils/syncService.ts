@@ -4,7 +4,7 @@
  * Implements push (local-to-remote) and pull (remote-to-local via API and S3 snapshots) functionality.
  */
 
-import { db, Game, TeamPlayer, StatEvent, Team } from "../db";
+import { db, Game, TeamPlayer, StatEvent, Team, Player } from "../db";
 import { UserPool } from "../UserPool";
 import { CognitoUserSession } from "amazon-cognito-identity-js";
 import { type Table } from "dexie";
