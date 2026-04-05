@@ -14,3 +14,8 @@ Pattern: Use `isMobile` media queries to transition from a fixed top bar (with l
 Issue: Core utilities and security logic lacked deep "WHY" documentation and some edge-case test coverage.
 Learning: Strengthening the "WHY" behind security logic (like `sanitizeOutput`) makes it safer for future developers to modify without accidentally introducing leaks. Unit testing small math utilities provides a solid foundation for more complex stats calculations.
 Pattern: Every utility file should have a corresponding `.test.ts` file, and security-critical functions must explicitly document their purpose in defense-in-depth.
+
+## 2026-04-05 - Event Masking Security & Performance
+Issue: The `maskEvent` function in the backend lacked explicit documentation regarding its "WHY" (performance-security tradeoff of shallow cloning) and had no test coverage for case-insensitive header redaction.
+Learning: Strengthening the documentation for security-critical utilities prevents future developers from accidentally removing necessary optimizations (like shallow cloning) or security checks (case-insensitivity). Using a Jest spy to verify log output is a reliable way to test internal masking logic that is otherwise hard to reach.
+Pattern: Security utilities that redact or sanitize data must be tested against varying inputs (e.g., character casing) to ensure compliance with standards like RFC 9110. Original objects must always be checked for non-mutation after a "sanitization" pass to verify cloning logic.

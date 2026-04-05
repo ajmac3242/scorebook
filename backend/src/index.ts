@@ -428,18 +428,25 @@ async function handleTeams(
 
 /**
  * Redacts sensitive information from the Lambda event before logging.
- * Prevents JWT tokens and other secrets from being exposed in CloudWatch.
+ *
+ * WHY: This is a security-critical function that prevents JWT tokens and other
+ * secrets (like the "Authorization" header) from being leaked into CloudWatch logs.
+ * We use a shallow clone approach for performance, as logging happens on every
+ * request. Shallow cloning the root event and then the headers object allows us
+ * to safely redact values without mutating the original event used by the handler,
+ * avoiding the overhead of a full deep clone or recursive traversal.
+ *
+ * NOTE: We check for 'authorization' in a case-insensitive manner (key.toLowerCase())
+ * because HTTP header keys are case-insensitive according to RFC 9110, and
+ * different clients or proxies may use varying casings.
  *
  * @param {APIGatewayProxyEventV2} event - The raw Lambda event.
  * @returns {unknown} A sanitized copy of the event.
  */
 function maskEvent(event: APIGatewayProxyEventV2): unknown {
-  // Use shallow clone instead of expensive JSON.parse/stringify
   const masked = { ...event };
   if (masked.headers) {
-    // Shallow clone headers object for redaction
     const redactedHeaders = { ...masked.headers };
-    // Optimization: Use for...in instead of Object.keys().forEach() to avoid creating an intermediate array.
     for (const key in redactedHeaders) {
       if (
         Object.prototype.hasOwnProperty.call(redactedHeaders, key) &&
