@@ -178,8 +178,8 @@ describe("Security Tests", () => {
 
     await handler(event);
 
-    const logCall = consoleSpy.mock.calls.find(
-      (call) => call.some(arg => typeof arg === 'string' && arg.includes("[REDACTED]"))
+    const logCall = consoleSpy.mock.calls.find((call) =>
+      call.some((arg) => typeof arg === "string" && arg.includes("[REDACTED]")),
     );
     expect(logCall).toBeDefined();
 
