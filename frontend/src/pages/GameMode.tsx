@@ -682,6 +682,14 @@ const GameMode: React.FC = () => {
     [game?.teamId],
   );
 
+  // 🏀 CoachBoard: Persistent Period Tracking
+  // Why: Ensures the game period doesn't reset on page refresh, preserving team foul counts.
+  useEffect(() => {
+    if (game?.currentPeriod && game.currentPeriod !== period) {
+      setPeriod(game.currentPeriod);
+    }
+  }, [game?.currentPeriod]);
+
   const isReadOnly = !!game?.deletedAt || !!team?.deletedAt;
   const periodType = team?.periodType || "QUARTERS";
   const periodLabel = periodType === "HALVES" ? "Half" : "Quarter";
@@ -1152,12 +1160,23 @@ const GameMode: React.FC = () => {
     }
   }, [gameId, teamId, navigate]);
 
-  const handleNextPeriod = useCallback(() => {
-    setPeriod((p) => {
-      // Allow going up to 10 (arbitrary max for OT)
-      return p < 10 ? p + 1 : 1;
-    });
-  }, []);
+  const handleNextPeriod = useCallback(async () => {
+    const nextPeriod = period < 10 ? period + 1 : 1;
+    setPeriod(nextPeriod);
+
+    if (gameId) {
+      try {
+        await db.open();
+        await db.games.update(gameId, {
+          currentPeriod: nextPeriod,
+          synced: 0,
+        });
+        await syncService.pushUpdates();
+      } catch (err) {
+        logger.error("Failed to update game period:", err);
+      }
+    }
+  }, [gameId, period]);
 
   /**
    * 🏀 CoachBoard: handleTimeout
