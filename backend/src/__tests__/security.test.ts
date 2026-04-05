@@ -164,4 +164,33 @@ describe("Security Tests", () => {
     const body = JSON.parse(response.body);
     expect(body.message).toBe("Item not found");
   });
+
+  it("redacts 'Authorization' headers regardless of casing in CloudWatch logs", async () => {
+    ddbMock.on(QueryCommand).resolves({ Items: [] });
+    const consoleSpy = jest.spyOn(console, "log").mockImplementation();
+
+    const event = createEvent("GET", "/teams");
+    event.headers = {
+      Authorization: "Bearer secret-token-1",
+      authorization: "Bearer secret-token-2",
+      "X-Custom-Auth": "secret-token-3",
+    };
+
+    await handler(event);
+
+    const logCall = consoleSpy.mock.calls.find((call) =>
+      call.some((arg) => typeof arg === "string" && arg.includes("[REDACTED]")),
+    );
+    expect(logCall).toBeDefined();
+
+    const logString = logCall!.join(" ");
+    expect(logString).toContain('"Authorization":"[REDACTED]"');
+    expect(logString).toContain('"authorization":"[REDACTED]"');
+    expect(logString).toContain('"X-Custom-Auth":"secret-token-3"');
+
+    // Ensure the original event was NOT mutated (shallow clone verification)
+    expect(event.headers.Authorization).toBe("Bearer secret-token-1");
+
+    consoleSpy.mockRestore();
+  });
 });
