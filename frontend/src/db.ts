@@ -58,6 +58,7 @@ export interface Game {
   time?: string;
   location: string;
   completed?: number; // 0 (incomplete) or 1 (completed)
+  currentPeriod?: number;
   deletedAt?: string;
   synced?: number;
 }
@@ -102,7 +103,8 @@ export class AppDatabase extends Dexie {
     // v9:     Added 'opponentLogoUrl' to the Game table.
     // v10:    Added optional 'time' field to the Game table to support game scheduling.
     // v11:    Added 'fouls' to Team for configurable timeouts.
-    this.version(11).stores({
+    // v12:    Added 'currentPeriod' to Game.
+    this.version(12).stores({
       teams: "id, synced, deletedAt",
       players: "id, synced, isArchived, deletedAt",
       teamPlayers: "id, [teamId+playerId], teamId, playerId, synced",
