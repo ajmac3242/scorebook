@@ -30,3 +30,10 @@ Action: Prefer direct prop typing over `React.FC` for components intended for me
 ## 2026-04-05 - Sync Service Optimization
 Learning: Batching database operations with `bulkPut()` and parallelizing independent network requests using `Promise.all()` drastically reduces synchronization time and transaction overhead in local-first architectures. Updating global test mocks to include new performance-oriented methods (like `bulkPut`) is essential to prevent 'not a function' regressions in the CI pipeline.
 Action: Always use `bulkPut()` for iterative writes in sync paths and parallelize independent asynchronous operations to maximize throughput. Ensure test mocks stay in sync with API changes.
+
+## 2026-04-06 - Advanced Performance Patterns
+Learning: Parallelizing independent IndexedDB table checks using `Promise.all()` instead of sequential awaits (as seen in `hasUnsyncedChanges`) reduces total latency by shifting from O(Sum(Latencies)) to O(Max(Latency)).
+Action: Always use `Promise.all()` for independent asynchronous data checks.
+
+Learning: In high-frequency data transformation paths (like `calculatePlayerAggregates`), using a `Map` instead of a plain object for dynamic key-value storage and iterating via `statsMap.values()` provides more consistent O(1) performance and avoids the O(N) overhead and intermediate array allocation of `Object.keys()`.
+Action: Prioritize `Map` for dynamic aggregations and use direct value iteration where possible.
