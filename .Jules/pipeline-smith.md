@@ -36,3 +36,7 @@ Action:
 3. Added artifact uploads on failure for the `terratest.yml` workflow.
 4. Ensured all sub-directories (`backend/`, `frontend/`) consistently use `pnpm install --frozen-lockfile`.
 5. Hardened workflows with `strategy: fail-fast` and tightened timeouts.
+
+## 2026-04-06 - Pipeline Optimization & Selective Execution
+Learning: In a monorepo with separate lockfiles, `actions/setup-node@v4` requires an explicit `cache-dependency-path` listing all lockfiles to enable effective pnpm caching. Implementing `dorny/paths-filter` significantly reduces CI duration by skipping irrelevant jobs (e.g., frontend tests when only backend changed). Reliability is improved by adding retry logic to transient system-level steps like `apt-get install`.
+Action: Consistently apply `cancel-in-progress: true` to all concurrency groups and set conservative `timeout-minutes` (10m) to optimize runner utilization and prevent hanging jobs.
