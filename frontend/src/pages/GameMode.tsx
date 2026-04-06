@@ -638,7 +638,7 @@ const GameMode: React.FC = () => {
     [gameStatsQueryResult],
   );
   const [subDialogOpen, setSubDialogOpen] = useState(false);
-  const [, setSubOutPlayerId] = useState<string | null>(null);
+  const [subOutPlayerId, setSubOutPlayerId] = useState<string | null>(null);
 
   // Quick sub draft state
   const [draftOnCourtIds, setDraftOnCourtIds] = useState<Set<string>>(
@@ -813,9 +813,9 @@ const GameMode: React.FC = () => {
   useEffect(() => {
     if (subDialogOpen) {
       setDraftOnCourtIds(new Set(gameData.onCourtIds));
-      setSelectedSwapId(null);
+      setSelectedSwapId(subOutPlayerId);
     }
-  }, [subDialogOpen, gameData.onCourtIds]);
+  }, [subDialogOpen, gameData.onCourtIds, subOutPlayerId]);
 
   const jerseyMap = useMemo(() => {
     const map = new Map<string, string | undefined>();
