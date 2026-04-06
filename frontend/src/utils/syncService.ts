@@ -166,13 +166,12 @@ class SyncService {
   async hasUnsyncedChanges(): Promise<boolean> {
     try {
       const tables = [db.teams, db.players, db.teamPlayers, db.games, db.stats];
-      // Optimization: Check tables sequentially and return early if any unsynced items are found.
-      // Use .limit(1).count() to avoid scanning all records when only existence is needed.
-      for (const table of tables) {
-        const count = await table.where("synced").equals(0).limit(1).count();
-        if (count > 0) return true;
-      }
-      return false;
+      // ⚡ Bolt: Parallelize independent database checks to reduce total sync-check latency.
+      // Launching all table counts simultaneously is faster than sequential awaits.
+      const counts = await Promise.all(
+        tables.map((table) => table.where("synced").equals(0).limit(1).count()),
+      );
+      return counts.some((count) => count > 0);
     } catch (e) {
       logger.error("Error checking for unsynced changes:", e);
       return false;

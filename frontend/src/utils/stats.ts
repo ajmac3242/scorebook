@@ -112,20 +112,21 @@ function processStatEvent(p: PlayerAggregates, s: StatEvent) {
 function initializeStatsMap(
   players: Player[],
   teamPlayers: TeamPlayer[],
-): Record<string, PlayerAggregates> {
+): Map<string, PlayerAggregates> {
   // Optimization: Pre-map jersey numbers by playerId to avoid O(P * TP) complexity.
   const jerseyMap = new Map<string, string | undefined>();
   for (let i = 0; i < teamPlayers.length; i++) {
     jerseyMap.set(teamPlayers[i].playerId, teamPlayers[i].jerseyNumber);
   }
 
-  // Optimization: Use a for loop instead of reduce() to avoid function call overhead
-  // and repeated object spread/mutation during initialization.
-  const acc: Record<string, PlayerAggregates> = {};
+  // ⚡ Bolt: Use a Map instead of a Record for stats aggregation.
+  // Maps provide more consistent O(1) performance for lookups and insertions
+  // of dynamic keys and avoid overhead when iterating via .values().
+  const acc = new Map<string, PlayerAggregates>();
   for (let i = 0; i < players.length; i++) {
     const p = players[i];
-    const pId = p.id!;
-    acc[pId] = {
+    const pId = p.id!.toString();
+    acc.set(pId, {
       id: p.id,
       name: p.name,
       avatarColor: p.avatarColor,
@@ -141,7 +142,7 @@ function initializeStatsMap(
       attempts: 0,
       fgPct: "0.0",
       fouls: 0,
-    };
+    });
   }
   return acc;
 }
@@ -167,17 +168,16 @@ export const calculatePlayerAggregates = (
   // Accumulate statistics from event stream
   for (let i = 0; i < stats.length; i++) {
     const s = stats[i];
-    if (statsMap[s.playerId]) {
-      processStatEvent(statsMap[s.playerId], s);
+    const p = statsMap.get(s.playerId);
+    if (p) {
+      processStatEvent(p, s);
     }
   }
 
   // Finalize totals, percentages, and averages
-  // Optimization: Use a standard for loop over keys to improve iteration speed and avoid O(N) Object.values().
-  const keys = Object.keys(statsMap);
+  // ⚡ Bolt: Iterate over map values directly to skip O(N) key extraction and O(1) lookups.
   const result: PlayerAggregates[] = [];
-  for (let i = 0; i < keys.length; i++) {
-    const p = statsMap[keys[i]];
+  for (const p of statsMap.values()) {
     // We default gp (games played) to 1 for per-game calculations even if 0
     // to prevent division by zero errors, though technically it should be 0.
     const gp = p.gamesPlayed.size || 1;
