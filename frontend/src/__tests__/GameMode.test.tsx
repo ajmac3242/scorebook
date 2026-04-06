@@ -210,6 +210,16 @@ describe("GameMode Component", () => {
       expect(screen.getByText("Quick Substitution")).toBeInTheDocument();
     });
 
+    // 🏀 CoachBoard: Verify pre-selection
+    // The button for Player 1 should be 'contained' (selected)
+    await waitFor(() => {
+      const dialog = screen.getByRole("dialog");
+      const buttons = within(dialog).getAllByRole("button");
+      const p1Button = buttons.find((b) => b.textContent?.includes("Player 1"));
+      if (!p1Button) throw new Error("Player 1 button not found");
+      expect(p1Button).toHaveClass("MuiButton-contained");
+    });
+
     // Tap an empty slot
     fireEvent.click(screen.getByText("Cancel")); // Close first
     const emptySlots = await screen.findAllByText("Empty");
@@ -217,6 +227,15 @@ describe("GameMode Component", () => {
 
     await waitFor(() => {
       expect(screen.getByText("Quick Substitution")).toBeInTheDocument();
+    });
+
+    // 🏀 CoachBoard: Verify pre-selection for empty slot
+    await waitFor(() => {
+      const dialog = screen.getByRole("dialog");
+      const buttons = within(dialog).getAllByRole("button");
+      const emptyButton = buttons.find((b) => b.textContent?.includes("Empty"));
+      if (!emptyButton) throw new Error("Empty button not found");
+      expect(emptyButton).toHaveClass("MuiButton-contained");
     });
   });
 
