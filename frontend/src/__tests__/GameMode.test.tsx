@@ -23,7 +23,14 @@ vi.mock("../components/BasketballCourt", () => ({
   }: {
     onCoordClick: (x: number, y: number) => void;
   }) => (
-    <div data-testid="basketball-court" onClick={() => onCoordClick(50, 50)}>
+    <div
+      data-testid="basketball-court"
+      onClick={(e) => {
+        const x = Number(e.currentTarget.getAttribute("data-x") || 50);
+        const y = Number(e.currentTarget.getAttribute("data-y") || 50);
+        onCoordClick(x, y);
+      }}
+    >
       Mock Basketball Court
     </div>
   ),
@@ -340,5 +347,47 @@ describe("GameMode Component", () => {
     // Scoreboard renders renderTeamInfo for team first, then opponent.
     // Let's check that BONUS is present.
     expect(await screen.findByText("BONUS")).toBeInTheDocument();
+  });
+
+  it("automatically detects 3pt shot value in the corner", async () => {
+    renderComponent();
+
+    const court = screen.getByTestId("basketball-court");
+    // Corner 3: x=5, y=5 -> SVG X=25, Y=23.5 (X <= 30, Y <= 140)
+    court.setAttribute("data-x", "5");
+    court.setAttribute("data-y", "5");
+    fireEvent.click(court);
+
+    await waitFor(() => {
+      expect(screen.getByText(/Record Action/i)).toBeInTheDocument();
+    });
+
+    // Select "Make"
+    fireEvent.click(screen.getByRole("button", { name: /Make/i }));
+
+    // Points should default to 3
+    const threeBtn = screen.getByRole("button", { name: "3" });
+    expect(threeBtn).toHaveClass("MuiButton-contained");
+  });
+
+  it("automatically detects 2pt shot value in the paint", async () => {
+    renderComponent();
+
+    const court = screen.getByTestId("basketball-court");
+    // Paint: x=50, y=10 -> SVG X=250, Y=47 (Center)
+    court.setAttribute("data-x", "50");
+    court.setAttribute("data-y", "10");
+    fireEvent.click(court);
+
+    await waitFor(() => {
+      expect(screen.getByText(/Record Action/i)).toBeInTheDocument();
+    });
+
+    // Select "Make"
+    fireEvent.click(screen.getByRole("button", { name: /Make/i }));
+
+    // Points should default to 2
+    const twoBtn = screen.getByRole("button", { name: "2" });
+    expect(twoBtn).toHaveClass("MuiButton-contained");
   });
 });
