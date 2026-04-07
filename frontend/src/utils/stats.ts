@@ -9,6 +9,18 @@ import { StatEvent, TeamPlayer, Player, Game } from "../db";
 import { roundToOne, formatToOne, determineResult } from "./mathUtils";
 
 /**
+ * Interface for aggregated team statistics.
+ */
+export interface TeamAggregates {
+  ppg: string;
+  rpg: string;
+  apg: string;
+  oppg: string;
+  record: string;
+  totalGames: number;
+}
+
+/**
  * Interface for aggregated player statistics.
  */
 export interface PlayerAggregates {
@@ -214,7 +226,7 @@ export const calculateTeamAggregates = (
   games: Game[],
   stats: StatEvent[],
   completedOnly = true,
-) => {
+): TeamAggregates => {
   // Optimization: Pre-filter and collect game IDs in a single pass.
   const targetGameIds = new Set<string>();
   let targetCount = 0;

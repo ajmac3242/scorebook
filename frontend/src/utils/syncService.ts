@@ -203,8 +203,7 @@ class SyncService {
           body: JSON.stringify(item),
         });
         if (res.ok) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          await table.update(item.id!, { synced: 1 } as any);
+          await table.update(item.id!, { synced: 1 } as Partial<T>);
           if (onSuccess) await onSuccess(item);
         } else {
           const errorBody = await res.text();
