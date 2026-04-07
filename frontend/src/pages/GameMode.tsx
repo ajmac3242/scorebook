@@ -1369,6 +1369,7 @@ const GameMode: React.FC = () => {
                       .filter((p) => gameData.onCourtIds.has(p.id!))
                       .map((p) => {
                         const s = statsMap.get(p.id!);
+                        const pts = s?.points || 0;
                         const pf = s?.fouls || 0;
                         const isFoulTrouble = pf === 4;
                         const isFouledOut = pf >= 5;
