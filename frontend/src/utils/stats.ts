@@ -178,10 +178,12 @@ export const calculatePlayerAggregates = (
   // ⚡ Bolt: Iterate over map values directly to skip O(N) key extraction and O(1) lookups.
   const result: PlayerAggregates[] = [];
   for (const p of statsMap.values()) {
+    // ⚡ Bolt: Cache set size to avoid redundant property access/getter calls.
+    const actualGp = p.gamesPlayed.size;
     // We default gp (games played) to 1 for per-game calculations even if 0
     // to prevent division by zero errors, though technically it should be 0.
-    const gp = p.gamesPlayed.size || 1;
-    p.gp = p.gamesPlayed.size;
+    const gp = actualGp || 1;
+    p.gp = actualGp;
     p.fgPct =
       p.attempts > 0 ? formatToOne((p.makes / p.attempts) * 100) : "0.0";
 
@@ -215,19 +217,19 @@ export const calculateTeamAggregates = (
   stats: StatEvent[],
   completedOnly = true,
 ) => {
-  // Optimization: Pre-filter and collect game IDs in a single pass.
-  const targetGameIds = new Set<string>();
+  // ⚡ Bolt: Use a single Map to track target games and their totals.
+  // Pre-populating the Map avoids redundant Set lookups and conditional checks in the hot loop.
+  const gameTotals = new Map<string, { team: number; opp: number }>();
   let targetCount = 0;
   for (let i = 0; i < games.length; i++) {
-    if (!completedOnly || games[i].completed === 1) {
-      targetGameIds.add(games[i].id!);
+    const g = games[i];
+    if (!completedOnly || g.completed === 1) {
+      gameTotals.set(g.id!, { team: 0, opp: 0 });
       targetCount++;
     }
   }
 
   // Optimization: Aggregate all stats in a single pass without intermediate grouping.
-  // Use a map to track per-game totals for record calculation.
-  const gameTotals: Record<string, { team: number; opp: number }> = {};
   let totalPoints = 0;
   let totalRebounds = 0;
   let totalAssists = 0;
@@ -235,17 +237,16 @@ export const calculateTeamAggregates = (
 
   for (let i = 0; i < stats.length; i++) {
     const s = stats[i];
-    if (!targetGameIds.has(s.gameId)) continue;
-
-    if (!gameTotals[s.gameId]) gameTotals[s.gameId] = { team: 0, opp: 0 };
+    const totals = gameTotals.get(s.gameId);
+    if (!totals) continue;
 
     const pts = s.points || 0;
     if (s.playerId === SPECIAL_PLAYER_IDS.OPPONENT) {
       totalOppPoints += pts;
-      gameTotals[s.gameId].opp += pts;
+      totals.opp += pts;
     } else {
       totalPoints += pts;
-      gameTotals[s.gameId].team += pts;
+      totals.team += pts;
       if (s.type === ACTION_TYPES.REBOUND) totalRebounds++;
       else if (s.type === ACTION_TYPES.ASSIST) totalAssists++;
     }
@@ -253,8 +254,11 @@ export const calculateTeamAggregates = (
 
   let wins = 0;
   let losses = 0;
-  for (const gId in gameTotals) {
-    const { team, opp } = gameTotals[gId];
+  // ⚡ Bolt: Iterate over map values directly to skip key extraction overhead.
+  for (const totals of gameTotals.values()) {
+    const { team, opp } = totals;
+    // Only count games that have actually had stats recorded (scores > 0)
+    if (team === 0 && opp === 0) continue;
     if (team > opp) wins++;
     else if (team < opp) losses++;
   }

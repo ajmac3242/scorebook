@@ -688,7 +688,7 @@ const GameMode: React.FC = () => {
     if (game?.currentPeriod && game.currentPeriod !== period) {
       setPeriod(game.currentPeriod);
     }
-  }, [game?.currentPeriod]);
+  }, [game?.currentPeriod, period]);
 
   const isReadOnly = !!game?.deletedAt || !!team?.deletedAt;
   const periodType = team?.periodType || "QUARTERS";
@@ -807,7 +807,7 @@ const GameMode: React.FC = () => {
       onCourtIds: onCourt,
       recentStats: sorted.slice(-10).reverse(),
     };
-  }, [gameStats, period, team?.periodType]);
+  }, [gameStats, period, team?.periodType, team?.fouls]);
 
   // Initialize draft state when dialog opens
   useEffect(() => {
@@ -1369,7 +1369,6 @@ const GameMode: React.FC = () => {
                       .filter((p) => gameData.onCourtIds.has(p.id!))
                       .map((p) => {
                         const s = statsMap.get(p.id!);
-                        const pts = s?.points || 0;
                         const pf = s?.fouls || 0;
                         const isFoulTrouble = pf === 4;
                         const isFouledOut = pf >= 5;
@@ -2145,7 +2144,6 @@ const GameMode: React.FC = () => {
                   .filter((p) => draftOnCourtIds.has(p.id!))
                   .map((p) => {
                     const s = statsMap.get(p.id!);
-                    const pts = s?.points || 0;
                     const pf = s?.fouls || 0;
                     const isFoulTrouble = pf === 4;
                     const isFouledOut = pf >= 5;
@@ -2245,7 +2243,6 @@ const GameMode: React.FC = () => {
                   .filter((p) => !draftOnCourtIds.has(p.id!))
                   .map((p) => {
                     const s = statsMap.get(p.id!);
-                    const pts = s?.points || 0;
                     const pf = s?.fouls || 0;
                     const isFoulTrouble = pf === 4;
                     const isFouledOut = pf >= 5;
@@ -2339,27 +2336,6 @@ const GameMode: React.FC = () => {
   );
 };
 
-/**
- * Sub-component for displaying a chip in the scoreboard.
- * Optimized with React.memo for high-frequency score updates.
- */
-const ScoreboardChip: React.FC<{
-  label: string;
-  color?: "primary" | "secondary" | "warning" | "error" | "default";
-  variant?: "filled" | "outlined";
-  sx?: object;
-  onClick?: () => void;
-}> = React.memo(
-  ({ label, color = "default", variant = "filled", sx, onClick }) => (
-    <Chip
-      label={label}
-      color={color}
-      variant={variant}
-      onClick={onClick}
-      sx={{ fontWeight: "bold", ...sx }}
-    />
-  ),
-);
 
 /**
  * Sub-component for displaying a player's statistical row in the table.
