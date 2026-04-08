@@ -313,3 +313,46 @@ export const calculateGameResult = (
   const result = determineResult(teamScore, oppScore);
   return { teamScore, oppScore, result };
 };
+
+/**
+ * 🏀 CoachBoard: calculatePlayerStreaks
+ * Why: Identifies players who are "Hot" (last 3 shots made) or "Cold" (last 3 shots missed)
+ * to assist with rotation and play-calling decisions.
+ */
+export type StreakStatus = "HOT" | "COLD" | null;
+
+export const calculatePlayerStreaks = (
+  stats: StatEvent[],
+): Map<string, StreakStatus> => {
+  const sorted = [...stats].sort((a, b) =>
+    a.timestamp.localeCompare(b.timestamp),
+  );
+  const playerShots = new Map<string, string[]>();
+
+  for (let i = 0; i < sorted.length; i++) {
+    const s = sorted[i];
+    if (s.deletedAt) continue;
+    if (s.type === ACTION_TYPES.MAKE || s.type === ACTION_TYPES.MISS) {
+      const shots = playerShots.get(s.playerId) || [];
+      shots.push(s.type);
+      if (shots.length > 3) shots.shift();
+      playerShots.set(s.playerId, shots);
+    }
+  }
+
+  const streaks = new Map<string, StreakStatus>();
+  for (const [playerId, shots] of playerShots.entries()) {
+    if (shots.length < 3) {
+      streaks.set(playerId, null);
+      continue;
+    }
+    const allMakes = shots.every((t) => t === ACTION_TYPES.MAKE);
+    const allMisses = shots.every((t) => t === ACTION_TYPES.MISS);
+
+    if (allMakes) streaks.set(playerId, "HOT");
+    else if (allMisses) streaks.set(playerId, "COLD");
+    else streaks.set(playerId, null);
+  }
+
+  return streaks;
+};
