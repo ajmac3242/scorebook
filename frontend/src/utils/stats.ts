@@ -227,19 +227,19 @@ export const calculateTeamAggregates = (
   stats: StatEvent[],
   completedOnly = true,
 ): TeamAggregates => {
-  // Optimization: Pre-filter and collect game IDs in a single pass.
-  const targetGameIds = new Set<string>();
+  // ⚡ Bolt: Pre-populate the Map with target game IDs in a single pass.
+  // This eliminates the need for a separate Set and allows us to skip
+  // existence checks inside the high-frequency stats loop.
+  const gameTotals = new Map<string, { team: number; opp: number }>();
   let targetCount = 0;
   for (let i = 0; i < games.length; i++) {
     if (!completedOnly || games[i].completed === 1) {
-      targetGameIds.add(games[i].id!);
+      gameTotals.set(games[i].id!, { team: 0, opp: 0 });
       targetCount++;
     }
   }
 
   // Optimization: Aggregate all stats in a single pass without intermediate grouping.
-  // Use a map to track per-game totals for record calculation.
-  const gameTotals: Record<string, { team: number; opp: number }> = {};
   let totalPoints = 0;
   let totalRebounds = 0;
   let totalAssists = 0;
@@ -247,17 +247,17 @@ export const calculateTeamAggregates = (
 
   for (let i = 0; i < stats.length; i++) {
     const s = stats[i];
-    if (!targetGameIds.has(s.gameId)) continue;
-
-    if (!gameTotals[s.gameId]) gameTotals[s.gameId] = { team: 0, opp: 0 };
+    const totals = gameTotals.get(s.gameId);
+    // If the game isn't in our target map, skip it.
+    if (!totals) continue;
 
     const pts = s.points || 0;
     if (s.playerId === SPECIAL_PLAYER_IDS.OPPONENT) {
       totalOppPoints += pts;
-      gameTotals[s.gameId].opp += pts;
+      totals.opp += pts;
     } else {
       totalPoints += pts;
-      gameTotals[s.gameId].team += pts;
+      totals.team += pts;
       if (s.type === ACTION_TYPES.REBOUND) totalRebounds++;
       else if (s.type === ACTION_TYPES.ASSIST) totalAssists++;
     }
@@ -265,8 +265,10 @@ export const calculateTeamAggregates = (
 
   let wins = 0;
   let losses = 0;
-  for (const gId in gameTotals) {
-    const { team, opp } = gameTotals[gId];
+  // ⚡ Bolt: Iterate over map values directly to skip O(N) key extraction and property lookup overhead.
+  for (const { team, opp } of gameTotals.values()) {
+    // Only count games that actually have recorded scores.
+    if (team === 0 && opp === 0) continue;
     if (team > opp) wins++;
     else if (team < opp) losses++;
   }
