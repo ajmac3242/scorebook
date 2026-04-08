@@ -1795,7 +1795,10 @@ const GameMode: React.FC = () => {
                           <PlayerStatRow
                             key={row.id}
                             row={row}
-                            streak={gameData.playerStreaks.get(row.id.toString()) || null}
+                            streak={
+                              gameData.playerStreaks.get(row.id.toString()) ||
+                              null
+                            }
                           />
                         ))}
                       </TableBody>
