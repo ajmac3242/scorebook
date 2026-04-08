@@ -53,6 +53,7 @@ import {
   TableSortLabel,
 } from "@mui/material";
 import BasketballCourt from "../components/BasketballCourt";
+import TimeoutDots from "../components/TimeoutDots";
 import { db, type StatEvent, type Player } from "../db";
 import { syncService } from "../utils/syncService";
 import { logger } from "../utils/logger";
@@ -60,6 +61,7 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../constants/stats";
 import {
   calculatePlayerAggregates,
+  isEventInPeriod,
   type PlayerAggregates,
 } from "../utils/stats";
 import { MoleskineCard } from "../components/SharedUI";
@@ -71,45 +73,51 @@ import { MoleskineCard } from "../components/SharedUI";
  */
 const getBonusStatus = (fouls: number, periodType: string) => {
   if (periodType === "QUARTERS") {
-    if (fouls >= 5)
+    if (fouls >= 5) {
       return {
         label: "BONUS",
         isBonus: true,
         isDouble: false,
         color: "error.main",
       };
-    if (fouls === 4)
+    }
+    if (fouls === 4) {
       return {
         label: "",
         isBonus: false,
         isDouble: false,
         color: "warning.main",
       };
-    return { label: "", isBonus: false, isDouble: false, color: "default" };
-  } else {
-    if (fouls >= 10)
-      return {
-        label: "BONUS",
-        isBonus: true,
-        isDouble: true,
-        color: "error.main",
-      };
-    if (fouls >= 7)
-      return {
-        label: "BONUS",
-        isBonus: true,
-        isDouble: false,
-        color: "error.main",
-      };
-    if (fouls === 6)
-      return {
-        label: "",
-        isBonus: false,
-        isDouble: false,
-        color: "warning.main",
-      };
+    }
     return { label: "", isBonus: false, isDouble: false, color: "default" };
   }
+
+  // HALVES logic
+  if (fouls >= 10) {
+    return {
+      label: "BONUS",
+      isBonus: true,
+      isDouble: true,
+      color: "error.main",
+    };
+  }
+  if (fouls >= 7) {
+    return {
+      label: "BONUS",
+      isBonus: true,
+      isDouble: false,
+      color: "error.main",
+    };
+  }
+  if (fouls === 6) {
+    return {
+      label: "",
+      isBonus: false,
+      isDouble: false,
+      color: "warning.main",
+    };
+  }
+  return { label: "", isBonus: false, isDouble: false, color: "default" };
 };
 
 /**
@@ -134,32 +142,6 @@ const getShotValue = (x: number, y: number): number => {
 
   return 2;
 };
-
-/**
- * Visual indicator for timeouts left using dots.
- */
-const TimeoutDots: React.FC<{
-  count: number;
-  total?: number;
-  color?: string;
-  "data-testid"?: string;
-}> = ({ count, total = 5, color = "white", "data-testid": testId }) => (
-  <Stack direction="row" spacing={0.5} alignItems="center" data-testid={testId}>
-    {Array.from({ length: total }).map((_, i) => (
-      <Box
-        key={i}
-        data-testid={i < count ? "timeout-dot-active" : "timeout-dot-inactive"}
-        sx={{
-          width: 6,
-          height: 6,
-          borderRadius: "50%",
-          bgcolor: i < count ? color : "rgba(255,255,255,0.2)",
-          boxShadow: i < count ? `0 0 4px ${color}` : "none",
-        }}
-      />
-    ))}
-  </Stack>
-);
 
 /**
  * Redesigned TV-style scoreboard header.
@@ -767,14 +749,7 @@ const GameMode: React.FC = () => {
 
       // Fouls (Period-aware)
       if (s.type === ACTION_TYPES.FOUL) {
-        const isCurrentPeriodFoul =
-          pType === "QUARTERS"
-            ? s.period === period
-            : period === 1
-              ? s.period === 1
-              : s.period >= 2;
-
-        if (isCurrentPeriodFoul) {
+        if (isEventInPeriod(s.period, period, pType)) {
           if (s.playerId === SPECIAL_PLAYER_IDS.OPPONENT) {
             oppFouls++;
           } else {
@@ -2444,11 +2419,11 @@ const RecentActionItem: React.FC<{
   isReadOnly: boolean;
   teamName?: string;
   opponentName?: string;
-  onEdit: (_s: StatEvent) => void;
+  onEdit: (_stat: StatEvent) => void;
   onDelete: (_id: string) => void;
 }> = React.memo(
   ({
-    stat: s,
+    stat,
     players,
     periodLabel,
     isReadOnly,
@@ -2469,17 +2444,18 @@ const RecentActionItem: React.FC<{
       <Box>
         <Typography variant="body2">
           <strong>
-            {s.playerId === SPECIAL_PLAYER_IDS.OPPONENT
+            {stat.playerId === SPECIAL_PLAYER_IDS.OPPONENT
               ? opponentName || "Opponent"
-              : s.playerId === SPECIAL_PLAYER_IDS.TEAM_TIMEOUT ||
-                  s.playerId === SPECIAL_PLAYER_IDS.OUR_TEAM
+              : stat.playerId === SPECIAL_PLAYER_IDS.TEAM_TIMEOUT ||
+                  stat.playerId === SPECIAL_PLAYER_IDS.OUR_TEAM
                 ? teamName || "Our Team"
-                : players?.find((p) => p.id === s.playerId)?.name || "Unknown"}
+                : players?.find((p) => p.id === stat.playerId)?.name ||
+                  "Unknown"}
           </strong>
-          : {s.type}
+          : {stat.type}
         </Typography>
         <Typography variant="caption" color="text.secondary">
-          {periodLabel} {s.period || 1}
+          {periodLabel} {stat.period || 1}
         </Typography>
       </Box>
       <Box>
@@ -2487,7 +2463,7 @@ const RecentActionItem: React.FC<{
           <IconButton
             size="small"
             disabled={isReadOnly}
-            onClick={() => onEdit(s)}
+            onClick={() => onEdit(stat)}
             aria-label="edit action"
           >
             <Edit fontSize="small" />
@@ -2497,7 +2473,7 @@ const RecentActionItem: React.FC<{
           <IconButton
             size="small"
             disabled={isReadOnly}
-            onClick={() => onDelete(s.id!)}
+            onClick={() => onDelete(stat.id!)}
             aria-label="delete action"
           >
             <Delete fontSize="small" />

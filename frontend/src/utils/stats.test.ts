@@ -4,6 +4,9 @@ import {
   getPlayerJersey,
   calculatePlayerAggregates,
   calculateTeamAggregates,
+  calculateOpponentAggregates,
+  calculateScoreFlow,
+  isEventInPeriod,
   calculateGameResult,
 } from "./stats";
 import { TeamPlayer, StatEvent, Game } from "../db";
@@ -339,6 +342,89 @@ describe("stats utilities", () => {
       expect(res2.totalGames).toBe(2);
       expect(res2.ppg).toBe("0.0");
       expect(res2.record).toBe("0-0");
+    });
+  });
+
+  describe("calculateOpponentAggregates", () => {
+    it("calculates opponent stats correctly", () => {
+      const stats: StatEvent[] = [
+        {
+          gameId: "g1",
+          playerId: "OPPONENT",
+          type: ACTION_TYPES.MAKE,
+          points: 3,
+          period: 1,
+          timestamp: "t1",
+        },
+        {
+          gameId: "g1",
+          playerId: "OPPONENT",
+          type: ACTION_TYPES.MISS,
+          period: 1,
+          timestamp: "t2",
+        },
+        {
+          gameId: "g1",
+          playerId: "OPPONENT",
+          type: ACTION_TYPES.REBOUND,
+          period: 1,
+          timestamp: "t3",
+        },
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          period: 1,
+          timestamp: "t4",
+        },
+      ];
+      const results = calculateOpponentAggregates(stats);
+      expect(results.points).toBe(3);
+      expect(results.makes).toBe(1);
+      expect(results.attempts).toBe(2);
+      expect(results.rebounds).toBe(1);
+    });
+  });
+
+  describe("calculateScoreFlow", () => {
+    it("generates score flow data correctly", () => {
+      const stats: StatEvent[] = [
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          period: 1,
+          timestamp: "2023-01-01T10:00:00Z",
+        },
+        {
+          gameId: "g1",
+          playerId: "OPPONENT",
+          type: ACTION_TYPES.MAKE,
+          points: 3,
+          period: 1,
+          timestamp: "2023-01-01T10:05:00Z",
+        },
+      ];
+      const results = calculateScoreFlow(stats);
+      expect(results.length).toBe(3);
+      expect(results[1]).toEqual({ time: "00:00", Team: 2, Opponent: 0 });
+      expect(results[2]).toEqual({ time: "05:00", Team: 2, Opponent: 3 });
+    });
+  });
+
+  describe("isEventInPeriod", () => {
+    it("handles QUARTERS logic", () => {
+      expect(isEventInPeriod(1, 1, "QUARTERS")).toBe(true);
+      expect(isEventInPeriod(2, 1, "QUARTERS")).toBe(false);
+    });
+
+    it("handles HALVES logic", () => {
+      expect(isEventInPeriod(1, 1, "HALVES")).toBe(true);
+      expect(isEventInPeriod(2, 1, "HALVES")).toBe(false);
+      expect(isEventInPeriod(2, 2, "HALVES")).toBe(true);
+      expect(isEventInPeriod(3, 2, "HALVES")).toBe(true);
     });
   });
 

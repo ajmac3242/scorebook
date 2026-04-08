@@ -79,35 +79,35 @@ export const getPlayerJersey = (
 
 /**
  * Updates a player's statistics based on a single statistical event.
- * @param {PlayerAggregates} p - The player aggregate record.
- * @param {StatEvent} s - The statistical event to process.
+ * @param {PlayerAggregates} player - The player aggregate record.
+ * @param {StatEvent} stat - The statistical event to process.
  */
-function processStatEvent(p: PlayerAggregates, s: StatEvent) {
-  p.gamesPlayed.add(s.gameId);
+function processStatEvent(player: PlayerAggregates, stat: StatEvent) {
+  player.gamesPlayed.add(stat.gameId);
 
-  switch (s.type) {
+  switch (stat.type) {
     case ACTION_TYPES.MAKE:
-      p.points += s.points || 0;
-      p.makes++;
-      p.attempts++;
+      player.points += stat.points || 0;
+      player.makes++;
+      player.attempts++;
       break;
     case ACTION_TYPES.MISS:
-      p.attempts++;
+      player.attempts++;
       break;
     case ACTION_TYPES.REBOUND:
-      p.rebounds++;
+      player.rebounds++;
       break;
     case ACTION_TYPES.ASSIST:
-      p.assists++;
+      player.assists++;
       break;
     case ACTION_TYPES.STEAL:
-      p.steals++;
+      player.steals++;
       break;
     case ACTION_TYPES.TURNOVER:
-      p.turnovers++;
+      player.turnovers++;
       break;
     case ACTION_TYPES.FOUL:
-      p.fouls++;
+      player.fouls++;
       break;
     default:
       break;
@@ -134,15 +134,15 @@ function initializeStatsMap(
   // ⚡ Bolt: Use a Map instead of a Record for stats aggregation.
   // Maps provide more consistent O(1) performance for lookups and insertions
   // of dynamic keys and avoid overhead when iterating via .values().
-  const acc = new Map<string, PlayerAggregates>();
+  const statsMap = new Map<string, PlayerAggregates>();
   for (let i = 0; i < players.length; i++) {
-    const p = players[i];
-    const pId = p.id!.toString();
-    acc.set(pId, {
-      id: p.id,
-      name: p.name,
-      avatarColor: p.avatarColor,
-      jerseyNumber: jerseyMap.get(pId) || "",
+    const player = players[i];
+    const playerId = player.id!.toString();
+    statsMap.set(playerId, {
+      id: player.id,
+      name: player.name,
+      avatarColor: player.avatarColor,
+      jerseyNumber: jerseyMap.get(playerId) || "",
       gamesPlayed: new Set(),
       gp: 0,
       points: 0,
@@ -156,7 +156,7 @@ function initializeStatsMap(
       fouls: 0,
     });
   }
-  return acc;
+  return statsMap;
 }
 
 /**
@@ -179,34 +179,36 @@ export const calculatePlayerAggregates = (
 
   // Accumulate statistics from event stream
   for (let i = 0; i < stats.length; i++) {
-    const s = stats[i];
-    const p = statsMap.get(s.playerId);
-    if (p) {
-      processStatEvent(p, s);
+    const stat = stats[i];
+    const player = statsMap.get(stat.playerId);
+    if (player) {
+      processStatEvent(player, stat);
     }
   }
 
   // Finalize totals, percentages, and averages
   // ⚡ Bolt: Iterate over map values directly to skip O(N) key extraction and O(1) lookups.
   const result: PlayerAggregates[] = [];
-  for (const p of statsMap.values()) {
+  for (const player of statsMap.values()) {
     // We default gp (games played) to 1 for per-game calculations even if 0
     // to prevent division by zero errors, though technically it should be 0.
-    const gp = p.gamesPlayed.size || 1;
-    p.gp = p.gamesPlayed.size;
-    p.fgPct =
-      p.attempts > 0 ? formatToOne((p.makes / p.attempts) * 100) : "0.0";
+    const gp = player.gamesPlayed.size || 1;
+    player.gp = player.gamesPlayed.size;
+    player.fgPct =
+      player.attempts > 0
+        ? formatToOne((player.makes / player.attempts) * 100)
+        : "0.0";
 
     if (viewType === "average") {
       // Optimization: Update numeric fields directly to avoid object spread overhead and memory churn.
-      p.points = roundToOne(p.points / gp);
-      p.rebounds = roundToOne(p.rebounds / gp);
-      p.assists = roundToOne(p.assists / gp);
-      p.steals = roundToOne(p.steals / gp);
-      p.turnovers = roundToOne(p.turnovers / gp);
-      p.fouls = roundToOne(p.fouls / gp);
+      player.points = roundToOne(player.points / gp);
+      player.rebounds = roundToOne(player.rebounds / gp);
+      player.assists = roundToOne(player.assists / gp);
+      player.steals = roundToOne(player.steals / gp);
+      player.turnovers = roundToOne(player.turnovers / gp);
+      player.fouls = roundToOne(player.fouls / gp);
     }
-    result.push(p);
+    result.push(player);
   }
   return result;
 };
@@ -246,20 +248,26 @@ export const calculateTeamAggregates = (
   let totalOppPoints = 0;
 
   for (let i = 0; i < stats.length; i++) {
-    const s = stats[i];
-    if (!targetGameIds.has(s.gameId)) continue;
+    const stat = stats[i];
+    const { gameId, playerId, type, points: eventPoints } = stat;
 
-    if (!gameTotals[s.gameId]) gameTotals[s.gameId] = { team: 0, opp: 0 };
+    if (!targetGameIds.has(gameId)) continue;
 
-    const pts = s.points || 0;
-    if (s.playerId === SPECIAL_PLAYER_IDS.OPPONENT) {
-      totalOppPoints += pts;
-      gameTotals[s.gameId].opp += pts;
+    if (!gameTotals[gameId]) {
+      gameTotals[gameId] = { team: 0, opp: 0 };
+    }
+
+    const pointsValue = eventPoints || 0;
+
+    if (playerId === SPECIAL_PLAYER_IDS.OPPONENT) {
+      totalOppPoints += pointsValue;
+      gameTotals[gameId].opp += pointsValue;
     } else {
-      totalPoints += pts;
-      gameTotals[s.gameId].team += pts;
-      if (s.type === ACTION_TYPES.REBOUND) totalRebounds++;
-      else if (s.type === ACTION_TYPES.ASSIST) totalAssists++;
+      totalPoints += pointsValue;
+      gameTotals[gameId].team += pointsValue;
+
+      if (type === ACTION_TYPES.REBOUND) totalRebounds++;
+      else if (type === ACTION_TYPES.ASSIST) totalAssists++;
     }
   }
 
@@ -283,6 +291,120 @@ export const calculateTeamAggregates = (
 };
 
 /**
+ * Calculates aggregated statistics for the opponent in a single game.
+ *
+ * @param {StatEvent[]} stats - List of statistical events for the game.
+ * @returns {object} Opponent statistical summary.
+ */
+export const calculateOpponentAggregates = (stats: StatEvent[]) => {
+  let points = 0;
+  let makes = 0;
+  let misses = 0;
+  let rebounds = 0;
+  let assists = 0;
+  let steals = 0;
+  let turnovers = 0;
+  let fouls = 0;
+
+  for (let i = 0; i < stats.length; i++) {
+    const stat = stats[i];
+    if (stat.playerId === SPECIAL_PLAYER_IDS.OPPONENT) {
+      switch (stat.type) {
+        case ACTION_TYPES.MAKE:
+          points += stat.points || 0;
+          makes++;
+          break;
+        case ACTION_TYPES.MISS:
+          misses++;
+          break;
+        case ACTION_TYPES.REBOUND:
+          rebounds++;
+          break;
+        case ACTION_TYPES.ASSIST:
+          assists++;
+          break;
+        case ACTION_TYPES.STEAL:
+          steals++;
+          break;
+        case ACTION_TYPES.TURNOVER:
+          turnovers++;
+          break;
+        case ACTION_TYPES.FOUL:
+          fouls++;
+          break;
+      }
+    }
+  }
+
+  const attempts = makes + misses;
+  return {
+    points,
+    makes,
+    attempts,
+    fgPct: attempts > 0 ? ((makes / attempts) * 100).toFixed(1) : "0.0",
+    rebounds,
+    assists,
+    steals,
+    turnovers,
+    fouls,
+  };
+};
+
+/**
+ * Calculates the score flow data for a game based on chronological events.
+ *
+ * @param {StatEvent[]} stats - Chronological list of statistical events.
+ * @returns {object[]} Array of data points for score flow visualization.
+ */
+export const calculateScoreFlow = (stats: StatEvent[]) => {
+  let teamScore = 0;
+  let oppScore = 0;
+  const result = [{ time: "00:00", Team: 0, Opponent: 0 }];
+  const timeFormatter = new Intl.DateTimeFormat([], {
+    minute: "2-digit",
+    second: "2-digit",
+  });
+
+  for (let i = 0; i < stats.length; i++) {
+    const stat = stats[i];
+    if (stat.type === ACTION_TYPES.MAKE) {
+      if (stat.playerId === SPECIAL_PLAYER_IDS.OPPONENT) {
+        oppScore += stat.points || 0;
+      } else {
+        teamScore += stat.points || 0;
+      }
+      result.push({
+        time: timeFormatter.format(new Date(stat.timestamp)),
+        Team: teamScore,
+        Opponent: oppScore,
+      });
+    }
+  }
+  return result;
+};
+
+/**
+ * Determines if a statistical event occurred within the specified game period.
+ * Handles different logic for QUARTERS vs HALVES.
+ *
+ * @param {number} eventPeriod - The period recorded on the event.
+ * @param {number} currentPeriod - The current game period being viewed.
+ * @param {string} periodType - 'QUARTERS' or 'HALVES'.
+ * @returns {boolean} True if the event belongs to the current period context.
+ */
+export const isEventInPeriod = (
+  eventPeriod: number,
+  currentPeriod: number,
+  periodType: string,
+): boolean => {
+  if (periodType === "QUARTERS") {
+    return eventPeriod === currentPeriod;
+  }
+  // HALVES: Period 1 is first half, Period >= 2 are second half/OT
+  return currentPeriod === 1 ? eventPeriod === 1 : eventPeriod >= 2;
+};
+
+/**
  * Calculates the score and result (W, L, D) for a single game.
  *
  * @param {number | string} gameId - The game ID.
@@ -297,12 +419,12 @@ export const calculateGameResult = (
   let teamScore = 0;
   let oppScore = 0;
   for (let i = 0; i < stats.length; i++) {
-    const s = stats[i];
-    if (s.gameId === gameId) {
-      if (s.playerId === SPECIAL_PLAYER_IDS.OPPONENT) {
-        oppScore += s.points || 0;
+    const stat = stats[i];
+    if (stat.gameId === gameId) {
+      if (stat.playerId === SPECIAL_PLAYER_IDS.OPPONENT) {
+        oppScore += stat.points || 0;
       } else {
-        teamScore += s.points || 0;
+        teamScore += stat.points || 0;
       }
     }
   }
