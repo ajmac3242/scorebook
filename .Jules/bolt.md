@@ -37,3 +37,7 @@ Action: Always use `Promise.all()` for independent asynchronous data checks.
 
 Learning: In high-frequency data transformation paths (like `calculatePlayerAggregates`), using a `Map` instead of a plain object for dynamic key-value storage and iterating via `statsMap.values()` provides more consistent O(1) performance and avoids the O(N) overhead and intermediate array allocation of `Object.keys()`.
 Action: Prioritize `Map` for dynamic aggregations and use direct value iteration where possible.
+
+## 2026-04-07 - Sorting Optimization with Direct Comparison
+Learning: Replacing `localeCompare` with direct relational operators (`<`, `>`) for string and ISO timestamp sorting in hot paths (UI sorting and data aggregation) provides a measurable performance boost. `localeCompare` is significantly more expensive due to locale-sensitive logic which is unnecessary for many standard data types.
+Action: Use direct comparison operators for sorting ISO timestamps and simple strings in frequently executed `useMemo` hooks and data processing utilities.

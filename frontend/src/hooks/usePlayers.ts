@@ -12,7 +12,14 @@ export const usePlayers = () => {
       try {
         await db.open();
         const items = await db.players.toArray();
-        return items.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+        // ⚡ Bolt: Use direct comparison instead of localeCompare for faster sorting.
+        return items.sort((a, b) => {
+          const nameA = a.name || "";
+          const nameB = b.name || "";
+          if (nameA < nameB) return -1;
+          if (nameA > nameB) return 1;
+          return 0;
+        });
       } catch (err) {
         logger.error("Failed to fetch players:", err);
         return [];

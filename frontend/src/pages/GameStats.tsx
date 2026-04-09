@@ -239,7 +239,12 @@ const GameStats: React.FC = () => {
 
   // Optimization: Memoize the sorted statistics used for the score flow chart to avoid redundant sorting.
   const scoreFlowSortedStats = useMemo(() => {
-    return [...stats].sort((a, b) => a.timestamp.localeCompare(b.timestamp));
+    // ⚡ Bolt: Use direct comparison for ISO timestamps instead of localeCompare for hot paths.
+    return [...stats].sort((a, b) => {
+      if (a.timestamp < b.timestamp) return -1;
+      if (a.timestamp > b.timestamp) return 1;
+      return 0;
+    });
   }, [stats]);
 
   const scoreFlowData = useMemo(() => {
