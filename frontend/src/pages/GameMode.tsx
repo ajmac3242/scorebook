@@ -62,6 +62,7 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../constants/stats";
 import {
   calculatePlayerAggregates,
+  calculatePlayerStreaks,
   isEventInPeriod,
   type PlayerAggregates,
 } from "../utils/stats";
@@ -886,6 +887,12 @@ const GameMode: React.FC = () => {
     return map;
   }, [statsGridData]);
 
+  // 🏀 CoachBoard: Hot/Cold Streaks
+  // Why: Provides immediate coaching visibility into recent player performance trends.
+  const playerStreaks = useMemo(() => {
+    return calculatePlayerStreaks(gameStats);
+  }, [gameStats]);
+
   const markers = useMemo(() => {
     const res = [];
     for (let i = 0; i < gameStats.length; i++) {
@@ -1458,6 +1465,7 @@ const GameMode: React.FC = () => {
                       .filter((p) => gameData.onCourtIds.has(p.id!))
                       .map((p) => {
                         const s = statsMap.get(p.id!);
+                        const streak = playerStreaks.get(p.id!);
                         const pts = s?.points || 0;
                         const pf = s?.fouls || 0;
                         const isFoulTrouble = pf === 4;
@@ -1531,6 +1539,26 @@ const GameMode: React.FC = () => {
                                   }}
                                 >
                                   {p.name}
+                                  {streak === "HOT" && (
+                                    <Tooltip title="Hot Streak (3+ makes)">
+                                      <Box
+                                        component="span"
+                                        sx={{ ml: 0.5, fontSize: "0.8rem" }}
+                                      >
+                                        🔥
+                                      </Box>
+                                    </Tooltip>
+                                  )}
+                                  {streak === "COLD" && (
+                                    <Tooltip title="Cold Streak (3+ misses)">
+                                      <Box
+                                        component="span"
+                                        sx={{ ml: 0.5, fontSize: "0.8rem" }}
+                                      >
+                                        ❄️
+                                      </Box>
+                                    </Tooltip>
+                                  )}
                                 </Typography>
                                 <Typography
                                   variant="caption"
@@ -1818,7 +1846,11 @@ const GameMode: React.FC = () => {
                       </TableHead>
                       <TableBody>
                         {sortedStatsGridData.map((row) => (
-                          <PlayerStatRow key={row.id} row={row} />
+                          <PlayerStatRow
+                            key={row.id}
+                            row={row}
+                            streak={playerStreaks.get(row.id.toString())}
+                          />
                         ))}
                       </TableBody>
                     </Table>
@@ -2492,7 +2524,8 @@ const GameMode: React.FC = () => {
  */
 const PlayerStatRow: React.FC<{
   row: PlayerAggregates;
-}> = React.memo(({ row }) => (
+  streak: "HOT" | "COLD" | null | undefined;
+}> = React.memo(({ row, streak }) => (
   <TableRow>
     <TableCell sx={{ py: 1, px: 1 }}>
       <Typography
@@ -2518,6 +2551,20 @@ const PlayerStatRow: React.FC<{
         }}
       >
         {row.name.split(" ")[0]}
+        {streak === "HOT" && (
+          <Tooltip title="Hot Streak (3+ makes)">
+            <Box component="span" sx={{ ml: 0.2 }}>
+              🔥
+            </Box>
+          </Tooltip>
+        )}
+        {streak === "COLD" && (
+          <Tooltip title="Cold Streak (3+ misses)">
+            <Box component="span" sx={{ ml: 0.2 }}>
+              ❄️
+            </Box>
+          </Tooltip>
+        )}
       </Typography>
     </TableCell>
     <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
