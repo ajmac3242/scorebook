@@ -53,6 +53,7 @@ import {
   TableSortLabel,
 } from "@mui/material";
 import BasketballCourt from "../components/BasketballCourt";
+import TimeoutDots from "../components/TimeoutDots";
 import { db, type StatEvent, type Player } from "../db";
 import { syncService } from "../utils/syncService";
 import { logger } from "../utils/logger";
@@ -60,9 +61,8 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../constants/stats";
 import {
   calculatePlayerAggregates,
+  isEventInPeriod,
   type PlayerAggregates,
-  calculatePlayerStreaks,
-  type StreakStatus,
 } from "../utils/stats";
 import { MoleskineCard } from "../components/SharedUI";
 
@@ -73,45 +73,51 @@ import { MoleskineCard } from "../components/SharedUI";
  */
 const getBonusStatus = (fouls: number, periodType: string) => {
   if (periodType === "QUARTERS") {
-    if (fouls >= 5)
+    if (fouls >= 5) {
       return {
         label: "BONUS",
         isBonus: true,
         isDouble: false,
         color: "error.main",
       };
-    if (fouls === 4)
+    }
+    if (fouls === 4) {
       return {
         label: "",
         isBonus: false,
         isDouble: false,
         color: "warning.main",
       };
-    return { label: "", isBonus: false, isDouble: false, color: "default" };
-  } else {
-    if (fouls >= 10)
-      return {
-        label: "BONUS",
-        isBonus: true,
-        isDouble: true,
-        color: "error.main",
-      };
-    if (fouls >= 7)
-      return {
-        label: "BONUS",
-        isBonus: true,
-        isDouble: false,
-        color: "error.main",
-      };
-    if (fouls === 6)
-      return {
-        label: "",
-        isBonus: false,
-        isDouble: false,
-        color: "warning.main",
-      };
+    }
     return { label: "", isBonus: false, isDouble: false, color: "default" };
   }
+
+  // HALVES logic
+  if (fouls >= 10) {
+    return {
+      label: "BONUS",
+      isBonus: true,
+      isDouble: true,
+      color: "error.main",
+    };
+  }
+  if (fouls >= 7) {
+    return {
+      label: "BONUS",
+      isBonus: true,
+      isDouble: false,
+      color: "error.main",
+    };
+  }
+  if (fouls === 6) {
+    return {
+      label: "",
+      isBonus: false,
+      isDouble: false,
+      color: "warning.main",
+    };
+  }
+  return { label: "", isBonus: false, isDouble: false, color: "default" };
 };
 
 /**
@@ -136,32 +142,6 @@ const getShotValue = (x: number, y: number): number => {
 
   return 2;
 };
-
-/**
- * Visual indicator for timeouts left using dots.
- */
-const TimeoutDots: React.FC<{
-  count: number;
-  total?: number;
-  color?: string;
-  "data-testid"?: string;
-}> = ({ count, total = 5, color = "white", "data-testid": testId }) => (
-  <Stack direction="row" spacing={0.5} alignItems="center" data-testid={testId}>
-    {Array.from({ length: total }).map((_, i) => (
-      <Box
-        key={i}
-        data-testid={i < count ? "timeout-dot-active" : "timeout-dot-inactive"}
-        sx={{
-          width: 6,
-          height: 6,
-          borderRadius: "50%",
-          bgcolor: i < count ? color : "rgba(255,255,255,0.2)",
-          boxShadow: i < count ? `0 0 4px ${color}` : "none",
-        }}
-      />
-    ))}
-  </Stack>
-);
 
 /**
  * Redesigned TV-style scoreboard header.
@@ -769,14 +749,7 @@ const GameMode: React.FC = () => {
 
       // Fouls (Period-aware)
       if (s.type === ACTION_TYPES.FOUL) {
-        const isCurrentPeriodFoul =
-          pType === "QUARTERS"
-            ? s.period === period
-            : period === 1
-              ? s.period === 1
-              : s.period >= 2;
-
-        if (isCurrentPeriodFoul) {
+        if (isEventInPeriod(s.period, period, pType)) {
           if (s.playerId === SPECIAL_PLAYER_IDS.OPPONENT) {
             oppFouls++;
           } else {
@@ -811,10 +784,6 @@ const GameMode: React.FC = () => {
     const teamBonus = getBonusStatus(teamFouls, pType);
     const oppBonus = getBonusStatus(oppFouls, pType);
 
-    // 🏀 CoachBoard: Hot/Cold Streaks
-    // Why: Calculates if a player is "Hot" (last 3 shots made) or "Cold" (last 3 shots missed).
-    const playerStreaks = calculatePlayerStreaks(gameStats);
-
     return {
       currentScore: curScore,
       opponentScore: oppScore,
@@ -835,7 +804,6 @@ const GameMode: React.FC = () => {
       possessionState: posState,
       onCourtIds: onCourt,
       recentStats: sorted.slice(-10).reverse(),
-      playerStreaks,
     };
   }, [gameStats, period, team?.periodType, team?.fouls]);
 
@@ -1407,7 +1375,6 @@ const GameMode: React.FC = () => {
                         const pf = s?.fouls || 0;
                         const isFoulTrouble = pf === 4;
                         const isFouledOut = pf >= 5;
-                        const streak = gameData.playerStreaks.get(p.id!);
 
                         return (
                           <Box
@@ -1465,47 +1432,19 @@ const GameMode: React.FC = () => {
                                   overflow: "hidden",
                                 }}
                               >
-                                <Box
+                                <Typography
+                                  variant="caption"
                                   sx={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: 0.5,
+                                    fontWeight: 700,
+                                    whiteSpace: "nowrap",
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
+                                    fontSize: "0.65rem",
+                                    lineHeight: 1.1,
                                   }}
                                 >
-                                  <Typography
-                                    variant="caption"
-                                    sx={{
-                                      fontWeight: 700,
-                                      whiteSpace: "nowrap",
-                                      overflow: "hidden",
-                                      textOverflow: "ellipsis",
-                                      fontSize: "0.65rem",
-                                      lineHeight: 1.1,
-                                    }}
-                                  >
-                                    {p.name}
-                                  </Typography>
-                                  {streak === "HOT" && (
-                                    <Tooltip title="Hot: Last 3 shots made">
-                                      <Typography
-                                        variant="caption"
-                                        sx={{ fontSize: "0.7rem" }}
-                                      >
-                                        🔥
-                                      </Typography>
-                                    </Tooltip>
-                                  )}
-                                  {streak === "COLD" && (
-                                    <Tooltip title="Cold: Last 3 shots missed">
-                                      <Typography
-                                        variant="caption"
-                                        sx={{ fontSize: "0.7rem" }}
-                                      >
-                                        ❄️
-                                      </Typography>
-                                    </Tooltip>
-                                  )}
-                                </Box>
+                                  {p.name}
+                                </Typography>
                                 <Typography
                                   variant="caption"
                                   sx={{ fontSize: "0.6rem", opacity: 0.9 }}
@@ -1792,14 +1731,7 @@ const GameMode: React.FC = () => {
                       </TableHead>
                       <TableBody>
                         {sortedStatsGridData.map((row) => (
-                          <PlayerStatRow
-                            key={row.id}
-                            row={row}
-                            streak={
-                              gameData.playerStreaks.get(row.id.toString()) ||
-                              null
-                            }
-                          />
+                          <PlayerStatRow key={row.id} row={row} />
                         ))}
                       </TableBody>
                     </Table>
@@ -2413,36 +2345,19 @@ const GameMode: React.FC = () => {
  */
 const PlayerStatRow: React.FC<{
   row: PlayerAggregates;
-  streak: StreakStatus;
-}> = React.memo(({ row, streak }) => (
+}> = React.memo(({ row }) => (
   <TableRow>
     <TableCell sx={{ py: 1, px: 1 }}>
-      <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-        <Typography
-          variant="caption"
-          sx={{
-            fontWeight: 600,
-            display: "block",
-            lineHeight: 1.1,
-          }}
-        >
-          #{row.jerseyNumber}
-        </Typography>
-        {streak === "HOT" && (
-          <Tooltip title="Hot: Last 3 shots made">
-            <Typography variant="caption" sx={{ fontSize: "0.75rem" }}>
-              🔥
-            </Typography>
-          </Tooltip>
-        )}
-        {streak === "COLD" && (
-          <Tooltip title="Cold: Last 3 shots missed">
-            <Typography variant="caption" sx={{ fontSize: "0.75rem" }}>
-              ❄️
-            </Typography>
-          </Tooltip>
-        )}
-      </Box>
+      <Typography
+        variant="caption"
+        sx={{
+          fontWeight: 600,
+          display: "block",
+          lineHeight: 1.1,
+        }}
+      >
+        #{row.jerseyNumber}
+      </Typography>
       <Typography
         variant="caption"
         sx={{
@@ -2504,11 +2419,11 @@ const RecentActionItem: React.FC<{
   isReadOnly: boolean;
   teamName?: string;
   opponentName?: string;
-  onEdit: (_s: StatEvent) => void;
+  onEdit: (_stat: StatEvent) => void;
   onDelete: (_id: string) => void;
 }> = React.memo(
   ({
-    stat: s,
+    stat,
     players,
     periodLabel,
     isReadOnly,
@@ -2529,17 +2444,18 @@ const RecentActionItem: React.FC<{
       <Box>
         <Typography variant="body2">
           <strong>
-            {s.playerId === SPECIAL_PLAYER_IDS.OPPONENT
+            {stat.playerId === SPECIAL_PLAYER_IDS.OPPONENT
               ? opponentName || "Opponent"
-              : s.playerId === SPECIAL_PLAYER_IDS.TEAM_TIMEOUT ||
-                  s.playerId === SPECIAL_PLAYER_IDS.OUR_TEAM
+              : stat.playerId === SPECIAL_PLAYER_IDS.TEAM_TIMEOUT ||
+                  stat.playerId === SPECIAL_PLAYER_IDS.OUR_TEAM
                 ? teamName || "Our Team"
-                : players?.find((p) => p.id === s.playerId)?.name || "Unknown"}
+                : players?.find((p) => p.id === stat.playerId)?.name ||
+                  "Unknown"}
           </strong>
-          : {s.type}
+          : {stat.type}
         </Typography>
         <Typography variant="caption" color="text.secondary">
-          {periodLabel} {s.period || 1}
+          {periodLabel} {stat.period || 1}
         </Typography>
       </Box>
       <Box>
@@ -2547,7 +2463,7 @@ const RecentActionItem: React.FC<{
           <IconButton
             size="small"
             disabled={isReadOnly}
-            onClick={() => onEdit(s)}
+            onClick={() => onEdit(stat)}
             aria-label="edit action"
           >
             <Edit fontSize="small" />
@@ -2557,7 +2473,7 @@ const RecentActionItem: React.FC<{
           <IconButton
             size="small"
             disabled={isReadOnly}
-            onClick={() => onDelete(s.id!)}
+            onClick={() => onDelete(stat.id!)}
             aria-label="delete action"
           >
             <Delete fontSize="small" />
