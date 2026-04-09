@@ -17,7 +17,14 @@ const TimeoutDots: React.FC<TimeoutDotsProps> = ({
   color = "white",
   "data-testid": testId,
 }) => (
-  <Stack direction="row" spacing={0.5} alignItems="center" data-testid={testId}>
+  <Stack
+    direction="row"
+    spacing={0.5}
+    alignItems="center"
+    data-testid={testId}
+    role="img"
+    aria-label={`${count} timeouts remaining`}
+  >
     {Array.from({ length: total }).map((_, i) => (
       <Box
         key={i}

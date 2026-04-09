@@ -15,3 +15,7 @@ Action: Add Enter-key support to all creation dialogs.
 ## 2026-04-02 - UX Guidance and Accessibility Polish
 Learning: Empty dashboards are a major friction point for new users. Direct CTAs like "Create Your First Team" in a prominent Welcome card significantly improve onboarding. Adding aria-label to SVG markers and Tooltips to all game actions makes the core scorekeeping experience more robust and professional.
 Action: Implement prominent "Get Started" CTAs for empty landing pages. Ensure every icon-only button in the hot path has both a Tooltip and a unique ARIA label.
+
+## 2026-04-09 - Feedback Loops and ARIA state
+Learning: Centralized feedback via Snackbars is essential for a "live" tracking experience where actions happen quickly. Adding aria-pressed to toggle buttons in recording dialogs and role="img" with dynamic labels to visual-only indicators (dots/icons) ensures the game state is fully perceivable by all users.
+Action: Implement Snackbar feedback for all CRUD operations in fast-paced interfaces. Ensure every toggle-style button correctly communicates its state via ARIA.
