@@ -433,3 +433,62 @@ export const calculateGameResult = (
   const result = determineResult(teamScore, oppScore);
   return { teamScore, oppScore, result };
 };
+
+/**
+ * 🏀 CoachBoard: calculatePlayerStreaks
+ * Why: Identifies players with scoring momentum (Hot/Cold) to assist with rotation decisions.
+ * "Hot" is defined as 3+ consecutive field goal makes.
+ * "Cold" is defined as 3+ consecutive field goal misses.
+ *
+ * @param {StatEvent[]} stats - Chronological list of statistical events for the game.
+ * @returns {Map<string, 'HOT' | 'COLD' | null>} Map of player IDs to their current streak status.
+ */
+export const calculatePlayerStreaks = (
+  stats: StatEvent[],
+): Map<string, "HOT" | "COLD" | null> => {
+  // ⚡ Bolt: Use a single pass to track streaks for all players.
+  // We only care about MAKE and MISS actions for field goals (points > 0 or MISS).
+  const playerStreaks = new Map<string, ("MAKE" | "MISS")[]>();
+  const sorted = [...stats].sort((a, b) => {
+    if (a.timestamp < b.timestamp) return -1;
+    if (a.timestamp > b.timestamp) return 1;
+    return 0;
+  });
+
+  for (let i = 0; i < sorted.length; i++) {
+    const s = sorted[i];
+    if (s.deletedAt) continue;
+
+    // We only track streaks for field goal attempts
+    if (s.type === ACTION_TYPES.MAKE || s.type === ACTION_TYPES.MISS) {
+      // Skip free throws (points === 1) for field goal streaks
+      if (s.type === ACTION_TYPES.MAKE && s.points === 1) continue;
+
+      const pId = s.playerId;
+      if (!playerStreaks.has(pId)) {
+        playerStreaks.set(pId, []);
+      }
+      const history = playerStreaks.get(pId)!;
+      history.push(s.type === ACTION_TYPES.MAKE ? "MAKE" : "MISS");
+    }
+  }
+
+  const result = new Map<string, "HOT" | "COLD" | null>();
+  for (const [pId, history] of playerStreaks.entries()) {
+    if (history.length < 3) {
+      result.set(pId, null);
+      continue;
+    }
+
+    const lastThree = history.slice(-3);
+    if (lastThree.every((h) => h === "MAKE")) {
+      result.set(pId, "HOT");
+    } else if (lastThree.every((h) => h === "MISS")) {
+      result.set(pId, "COLD");
+    } else {
+      result.set(pId, null);
+    }
+  }
+
+  return result;
+};
