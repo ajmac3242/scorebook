@@ -742,9 +742,13 @@ const GameMode: React.FC = () => {
    * This reduces database queries and minimizes redundant array traversals.
    */
   const gameData = useMemo(() => {
-    const sorted = [...gameStats].sort((a, b) =>
-      a.timestamp.localeCompare(b.timestamp),
-    );
+    // ⚡ Bolt: Use direct comparison for ISO timestamps instead of localeCompare.
+    // Relational operators (<, >) are significantly faster for string comparison in hot paths.
+    const sorted = [...gameStats].sort((a, b) => {
+      if (a.timestamp < b.timestamp) return -1;
+      if (a.timestamp > b.timestamp) return 1;
+      return 0;
+    });
 
     let curScore = 0;
     let oppScore = 0;
@@ -855,9 +859,16 @@ const GameMode: React.FC = () => {
 
       // Handle strings (name, jerseyNumber)
       if (typeof valA === "string" && typeof valB === "string") {
-        return direction === "asc"
-          ? valA.localeCompare(valB)
-          : valB.localeCompare(valA);
+        // ⚡ Bolt: Use direct comparison instead of localeCompare for better performance in UI sorting.
+        if (direction === "asc") {
+          if (valA < valB) return -1;
+          if (valA > valB) return 1;
+          return 0;
+        } else {
+          if (valB < valA) return -1;
+          if (valB > valA) return 1;
+          return 0;
+        }
       }
 
       // Handle numbers

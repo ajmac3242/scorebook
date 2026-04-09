@@ -459,9 +459,12 @@ const TeamStats: React.FC = () => {
 
     // Optimization: Standardize sorting within the useMemo to avoid re-sorting during render.
     return result.sort((a, b) => {
+      // ⚡ Bolt: Use direct comparison instead of localeCompare for better performance.
       const dateTimeA = a.date + (a.time || "00:00");
       const dateTimeB = b.date + (b.time || "00:00");
-      return dateTimeA.localeCompare(dateTimeB);
+      if (dateTimeA < dateTimeB) return -1;
+      if (dateTimeA > dateTimeB) return 1;
+      return 0;
     });
   }, [games, scheduleView]);
 
