@@ -26,6 +26,7 @@ import {
   ToggleButtonGroup,
   Alert,
   Tooltip,
+  Snackbar,
 } from "@mui/material";
 import {
   Undo as UndoIcon,
@@ -380,6 +381,7 @@ const Scoreboard = React.memo(
             }}
           >
             <Typography
+              aria-label={`${team?.name || "Team"} score: ${gameData.currentScore}`}
               sx={{
                 color: "white",
                 fontSize: { xs: "1.75rem", sm: "3rem" },
@@ -410,6 +412,7 @@ const Scoreboard = React.memo(
               </Typography>
               <Stack direction="row" spacing={2} justifyContent="center">
                 <ArrowBack
+                  aria-label={`${team?.name || "Team"} possession`}
                   sx={{
                     fontSize: { xs: 16, sm: 20 },
                     color:
@@ -420,9 +423,14 @@ const Scoreboard = React.memo(
                       gameData.possessionState === SPECIAL_PLAYER_IDS.OUR_TEAM
                         ? "drop-shadow(0 0 4px #5A9BBD)"
                         : "none",
+                    opacity:
+                      gameData.possessionState === SPECIAL_PLAYER_IDS.OUR_TEAM
+                        ? 1
+                        : 0.2,
                   }}
                 />
                 <ArrowForward
+                  aria-label={`${game?.opponent || "Opponent"} possession`}
                   sx={{
                     fontSize: { xs: 16, sm: 20 },
                     color:
@@ -433,12 +441,17 @@ const Scoreboard = React.memo(
                       gameData.possessionState === SPECIAL_PLAYER_IDS.OPPONENT
                         ? "drop-shadow(0 0 4px #F6F6F6)"
                         : "none",
+                    opacity:
+                      gameData.possessionState === SPECIAL_PLAYER_IDS.OPPONENT
+                        ? 1
+                        : 0.2,
                   }}
                 />
               </Stack>
             </Box>
 
             <Typography
+              aria-label={`${game?.opponent || "Opponent"} score: ${gameData.opponentScore}`}
               sx={{
                 color: "white",
                 fontSize: { xs: "1.75rem", sm: "3rem" },
@@ -627,6 +640,13 @@ const GameMode: React.FC = () => {
   // Game lifecycle state
   const [endGameDialogOpen, setEndGameDialogOpen] = useState(false);
   const [summaryDialogOpen, setSummaryDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isEnding, setIsEnding] = useState(false);
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity: "success" | "error";
+  }>({ open: false, message: "", severity: "success" });
 
   // Derived data from StatEvents
   const gameStatsQueryResult = useLiveQuery(async () => {
@@ -900,8 +920,18 @@ const GameMode: React.FC = () => {
           synced: 0,
         });
         await syncService.pushUpdates();
+        setSnackbar({
+          open: true,
+          message: "Action undone",
+          severity: "success",
+        });
       } catch (err) {
         logger.error("Failed to undo stat:", err);
+        setSnackbar({
+          open: true,
+          message: "Failed to undo action",
+          severity: "error",
+        });
       }
     }
   }, [gameData.recentStats]);
@@ -910,14 +940,27 @@ const GameMode: React.FC = () => {
    * Finalizes the game, marking it as completed and triggering a sync.
    */
   const handleEndGame = useCallback(async () => {
+    setIsEnding(true);
     try {
       await db.open();
       await db.games.update(gameId as string, { completed: 1, synced: 0 });
       await syncService.pushUpdates();
       setEndGameDialogOpen(false);
       setSummaryDialogOpen(true);
+      setSnackbar({
+        open: true,
+        message: "Game finalized successfully!",
+        severity: "success",
+      });
     } catch (err) {
       logger.error("Failed to end game:", err);
+      setSnackbar({
+        open: true,
+        message: "Failed to finalize game",
+        severity: "error",
+      });
+    } finally {
+      setIsEnding(false);
     }
   }, [gameId]);
 
@@ -982,8 +1025,18 @@ const GameMode: React.FC = () => {
           await db.stats.add(newStat);
           await syncService.pushUpdates();
         }
+        setSnackbar({
+          open: true,
+          message: isEditing ? "Action updated" : "Action recorded",
+          severity: "success",
+        });
       } catch (err) {
         logger.error("Failed to save stat:", err);
+        setSnackbar({
+          open: true,
+          message: "Failed to save action",
+          severity: "error",
+        });
       }
       // Reset state after save
       setDialogOpen(false);
@@ -1104,8 +1157,18 @@ const GameMode: React.FC = () => {
 
       setSubDialogOpen(false);
       await syncService.pushUpdates();
+      setSnackbar({
+        open: true,
+        message: "Substitution recorded",
+        severity: "success",
+      });
     } catch (err) {
       logger.error("Failed to record quick sub:", err);
+      setSnackbar({
+        open: true,
+        message: "Failed to record substitution",
+        severity: "error",
+      });
     }
   }, [gameId, isReadOnly, gameData.onCourtIds, draftOnCourtIds, period]);
 
@@ -1114,6 +1177,7 @@ const GameMode: React.FC = () => {
    */
   const handleDeleteStat = useCallback(async () => {
     if (!statToDelete) return;
+    setIsDeleting(true);
     try {
       await db.open();
       await db.stats.update(statToDelete, {
@@ -1123,8 +1187,20 @@ const GameMode: React.FC = () => {
       await syncService.pushUpdates();
       setDeleteDialogOpen(false);
       setStatToDelete(null);
+      setSnackbar({
+        open: true,
+        message: "Action deleted successfully!",
+        severity: "success",
+      });
     } catch (err) {
       logger.error("Failed to delete stat:", err);
+      setSnackbar({
+        open: true,
+        message: "Failed to delete action",
+        severity: "error",
+      });
+    } finally {
+      setIsDeleting(false);
     }
   }, [statToDelete]);
 
@@ -1768,24 +1844,40 @@ const GameMode: React.FC = () => {
                 <History sx={{ fontSize: 18, mr: 1 }} /> Recent Actions
               </Typography>
               <Stack spacing={1}>
-                {gameData.recentStats
-                  .filter((s) => !s.deletedAt)
-                  .map((s) => (
-                    <RecentActionItem
-                      key={s.id}
-                      stat={s}
-                      players={players}
-                      periodLabel={periodLabel}
-                      isReadOnly={isReadOnly}
-                      teamName={team?.name}
-                      opponentName={game?.opponent}
-                      onEdit={openEditDialog}
-                      onDelete={(id) => {
-                        setStatToDelete(id);
-                        setDeleteDialogOpen(true);
-                      }}
-                    />
-                  ))}
+                {gameData.recentStats.filter((s) => !s.deletedAt).length ===
+                0 ? (
+                  <Box
+                    sx={{
+                      py: 4,
+                      textAlign: "center",
+                      border: "1px dashed #D1D1D1",
+                      borderRadius: 1,
+                    }}
+                  >
+                    <Typography variant="caption" color="text.secondary">
+                      No actions recorded yet
+                    </Typography>
+                  </Box>
+                ) : (
+                  gameData.recentStats
+                    .filter((s) => !s.deletedAt)
+                    .map((s) => (
+                      <RecentActionItem
+                        key={s.id}
+                        stat={s}
+                        players={players}
+                        periodLabel={periodLabel}
+                        isReadOnly={isReadOnly}
+                        teamName={team?.name}
+                        opponentName={game?.opponent}
+                        onEdit={openEditDialog}
+                        onDelete={(id) => {
+                          setStatToDelete(id);
+                          setDeleteDialogOpen(true);
+                        }}
+                      />
+                    ))
+                )}
               </Stack>
             </MoleskineCard>
           </Stack>
@@ -2051,6 +2143,11 @@ const GameMode: React.FC = () => {
       <Dialog
         open={endGameDialogOpen}
         onClose={() => setEndGameDialogOpen(false)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && !isEnding) {
+            handleEndGame();
+          }
+        }}
       >
         <DialogTitle sx={{ fontFamily: "var(--serif)" }}>End Game?</DialogTitle>
         <DialogContent>
@@ -2060,11 +2157,20 @@ const GameMode: React.FC = () => {
           </DialogContentText>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setEndGameDialogOpen(false)} color="inherit">
+          <Button
+            onClick={() => setEndGameDialogOpen(false)}
+            color="inherit"
+            disabled={isEnding}
+          >
             No, Continue
           </Button>
-          <Button onClick={handleEndGame} color="error" variant="contained">
-            Yes, Finish Game
+          <Button
+            onClick={handleEndGame}
+            color="error"
+            variant="contained"
+            disabled={isEnding}
+          >
+            {isEnding ? "Ending..." : "Yes, Finish Game"}
           </Button>
         </DialogActions>
       </Dialog>
@@ -2317,6 +2423,11 @@ const GameMode: React.FC = () => {
       <Dialog
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && !isDeleting) {
+            handleDeleteStat();
+          }
+        }}
       >
         <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
           Confirm Delete
@@ -2327,14 +2438,39 @@ const GameMode: React.FC = () => {
           </DialogContentText>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setDeleteDialogOpen(false)} color="inherit">
+          <Button
+            onClick={() => setDeleteDialogOpen(false)}
+            color="inherit"
+            disabled={isDeleting}
+          >
             Cancel
           </Button>
-          <Button onClick={handleDeleteStat} color="error" variant="contained">
-            Delete
+          <Button
+            onClick={handleDeleteStat}
+            color="error"
+            variant="contained"
+            disabled={isDeleting}
+          >
+            {isDeleting ? "Deleting..." : "Delete"}
           </Button>
         </DialogActions>
       </Dialog>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity}
+          variant="filled"
+          sx={{ width: "100%" }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };
@@ -2498,6 +2634,7 @@ const QuickAction: React.FC<{
   <Button
     variant={statType === type ? "contained" : "outlined"}
     color="inherit"
+    aria-pressed={statType === type}
     onClick={() => {
       setStatType(type);
     }}
