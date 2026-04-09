@@ -229,19 +229,19 @@ export const calculateTeamAggregates = (
   stats: StatEvent[],
   completedOnly = true,
 ): TeamAggregates => {
-  // ⚡ Bolt: Pre-populate the Map with target game IDs in a single pass.
-  // This eliminates the need for a separate Set and allows us to skip
-  // existence checks inside the high-frequency stats loop.
-  const gameTotals = new Map<string, { team: number; opp: number }>();
+  // Optimization: Pre-filter and collect game IDs in a single pass.
+  const targetGameIds = new Set<string>();
   let targetCount = 0;
   for (let i = 0; i < games.length; i++) {
     if (!completedOnly || games[i].completed === 1) {
-      gameTotals.set(games[i].id!, { team: 0, opp: 0 });
+      targetGameIds.add(games[i].id!);
       targetCount++;
     }
   }
 
   // Optimization: Aggregate all stats in a single pass without intermediate grouping.
+  // Use a map to track per-game totals for record calculation.
+  const gameTotals: Record<string, { team: number; opp: number }> = {};
   let totalPoints = 0;
   let totalRebounds = 0;
   let totalAssists = 0;
@@ -273,10 +273,8 @@ export const calculateTeamAggregates = (
 
   let wins = 0;
   let losses = 0;
-  // ⚡ Bolt: Iterate over map values directly to skip O(N) key extraction and property lookup overhead.
-  for (const { team, opp } of gameTotals.values()) {
-    // Only count games that actually have recorded scores.
-    if (team === 0 && opp === 0) continue;
+  for (const gId in gameTotals) {
+    const { team, opp } = gameTotals[gId];
     if (team > opp) wins++;
     else if (team < opp) losses++;
   }
@@ -434,47 +432,4 @@ export const calculateGameResult = (
   // Determine game result: W (Win), L (Loss), D (Draw/Tie).
   const result = determineResult(teamScore, oppScore);
   return { teamScore, oppScore, result };
-};
-
-/**
- * 🏀 CoachBoard: calculatePlayerStreaks
- * Why: Identifies players who are "Hot" (last 3 shots made) or "Cold" (last 3 shots missed)
- * to assist with rotation and play-calling decisions.
- */
-export type StreakStatus = "HOT" | "COLD" | null;
-
-export const calculatePlayerStreaks = (
-  stats: StatEvent[],
-): Map<string, StreakStatus> => {
-  const sorted = [...stats].sort((a, b) =>
-    a.timestamp.localeCompare(b.timestamp),
-  );
-  const playerShots = new Map<string, string[]>();
-
-  for (let i = 0; i < sorted.length; i++) {
-    const s = sorted[i];
-    if (s.deletedAt) continue;
-    if (s.type === ACTION_TYPES.MAKE || s.type === ACTION_TYPES.MISS) {
-      const shots = playerShots.get(s.playerId) || [];
-      shots.push(s.type);
-      if (shots.length > 3) shots.shift();
-      playerShots.set(s.playerId, shots);
-    }
-  }
-
-  const streaks = new Map<string, StreakStatus>();
-  for (const [playerId, shots] of playerShots.entries()) {
-    if (shots.length < 3) {
-      streaks.set(playerId, null);
-      continue;
-    }
-    const allMakes = shots.every((t) => t === ACTION_TYPES.MAKE);
-    const allMisses = shots.every((t) => t === ACTION_TYPES.MISS);
-
-    if (allMakes) streaks.set(playerId, "HOT");
-    else if (allMisses) streaks.set(playerId, "COLD");
-    else streaks.set(playerId, null);
-  }
-
-  return streaks;
 };
