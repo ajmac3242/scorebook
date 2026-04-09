@@ -37,3 +37,7 @@ Action: Always use `Promise.all()` for independent asynchronous data checks.
 
 Learning: In high-frequency data transformation paths (like `calculatePlayerAggregates`), using a `Map` instead of a plain object for dynamic key-value storage and iterating via `statsMap.values()` provides more consistent O(1) performance and avoids the O(N) overhead and intermediate array allocation of `Object.keys()`.
 Action: Prioritize `Map` for dynamic aggregations and use direct value iteration where possible.
+
+## 2026-04-08 - Optimized Team Stats Aggregation
+Learning: Pre-populating a `Map` with target identifiers before iterating over a large event stream (e.g., in `calculateTeamAggregates`) eliminates the need for redundant `Set` lookups or existence checks (`if (!map.has(id))`) inside the hot path. Iterating over `map.values()` for finalization further reduces overhead compared to `for...in` loops.
+Action: Always pre-populate target Maps when the key space is known in advance to maximize throughput in high-frequency loops.

@@ -63,6 +63,8 @@ import {
   calculatePlayerAggregates,
   isEventInPeriod,
   type PlayerAggregates,
+  calculatePlayerStreaks,
+  type StreakStatus,
 } from "../utils/stats";
 import { MoleskineCard } from "../components/SharedUI";
 
@@ -784,6 +786,10 @@ const GameMode: React.FC = () => {
     const teamBonus = getBonusStatus(teamFouls, pType);
     const oppBonus = getBonusStatus(oppFouls, pType);
 
+    // 🏀 CoachBoard: Hot/Cold Streaks
+    // Why: Calculates if a player is "Hot" (last 3 shots made) or "Cold" (last 3 shots missed).
+    const playerStreaks = calculatePlayerStreaks(gameStats);
+
     return {
       currentScore: curScore,
       opponentScore: oppScore,
@@ -804,6 +810,7 @@ const GameMode: React.FC = () => {
       possessionState: posState,
       onCourtIds: onCourt,
       recentStats: sorted.slice(-10).reverse(),
+      playerStreaks,
     };
   }, [gameStats, period, team?.periodType, team?.fouls]);
 
@@ -1375,6 +1382,7 @@ const GameMode: React.FC = () => {
                         const pf = s?.fouls || 0;
                         const isFoulTrouble = pf === 4;
                         const isFouledOut = pf >= 5;
+                        const streak = gameData.playerStreaks.get(p.id!);
 
                         return (
                           <Box
@@ -1432,19 +1440,47 @@ const GameMode: React.FC = () => {
                                   overflow: "hidden",
                                 }}
                               >
-                                <Typography
-                                  variant="caption"
+                                <Box
                                   sx={{
-                                    fontWeight: 700,
-                                    whiteSpace: "nowrap",
-                                    overflow: "hidden",
-                                    textOverflow: "ellipsis",
-                                    fontSize: "0.65rem",
-                                    lineHeight: 1.1,
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 0.5,
                                   }}
                                 >
-                                  {p.name}
-                                </Typography>
+                                  <Typography
+                                    variant="caption"
+                                    sx={{
+                                      fontWeight: 700,
+                                      whiteSpace: "nowrap",
+                                      overflow: "hidden",
+                                      textOverflow: "ellipsis",
+                                      fontSize: "0.65rem",
+                                      lineHeight: 1.1,
+                                    }}
+                                  >
+                                    {p.name}
+                                  </Typography>
+                                  {streak === "HOT" && (
+                                    <Tooltip title="Hot: Last 3 shots made">
+                                      <Typography
+                                        variant="caption"
+                                        sx={{ fontSize: "0.7rem" }}
+                                      >
+                                        🔥
+                                      </Typography>
+                                    </Tooltip>
+                                  )}
+                                  {streak === "COLD" && (
+                                    <Tooltip title="Cold: Last 3 shots missed">
+                                      <Typography
+                                        variant="caption"
+                                        sx={{ fontSize: "0.7rem" }}
+                                      >
+                                        ❄️
+                                      </Typography>
+                                    </Tooltip>
+                                  )}
+                                </Box>
                                 <Typography
                                   variant="caption"
                                   sx={{ fontSize: "0.6rem", opacity: 0.9 }}
@@ -1731,7 +1767,14 @@ const GameMode: React.FC = () => {
                       </TableHead>
                       <TableBody>
                         {sortedStatsGridData.map((row) => (
-                          <PlayerStatRow key={row.id} row={row} />
+                          <PlayerStatRow
+                            key={row.id}
+                            row={row}
+                            streak={
+                              gameData.playerStreaks.get(row.id.toString()) ||
+                              null
+                            }
+                          />
                         ))}
                       </TableBody>
                     </Table>
@@ -2345,19 +2388,36 @@ const GameMode: React.FC = () => {
  */
 const PlayerStatRow: React.FC<{
   row: PlayerAggregates;
-}> = React.memo(({ row }) => (
+  streak: StreakStatus;
+}> = React.memo(({ row, streak }) => (
   <TableRow>
     <TableCell sx={{ py: 1, px: 1 }}>
-      <Typography
-        variant="caption"
-        sx={{
-          fontWeight: 600,
-          display: "block",
-          lineHeight: 1.1,
-        }}
-      >
-        #{row.jerseyNumber}
-      </Typography>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+        <Typography
+          variant="caption"
+          sx={{
+            fontWeight: 600,
+            display: "block",
+            lineHeight: 1.1,
+          }}
+        >
+          #{row.jerseyNumber}
+        </Typography>
+        {streak === "HOT" && (
+          <Tooltip title="Hot: Last 3 shots made">
+            <Typography variant="caption" sx={{ fontSize: "0.75rem" }}>
+              🔥
+            </Typography>
+          </Tooltip>
+        )}
+        {streak === "COLD" && (
+          <Tooltip title="Cold: Last 3 shots missed">
+            <Typography variant="caption" sx={{ fontSize: "0.75rem" }}>
+              ❄️
+            </Typography>
+          </Tooltip>
+        )}
+      </Box>
       <Typography
         variant="caption"
         sx={{
