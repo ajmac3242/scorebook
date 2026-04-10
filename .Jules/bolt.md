@@ -41,3 +41,7 @@ Action: Prioritize `Map` for dynamic aggregations and use direct value iteration
 ## 2026-04-07 - Sorting Optimization with Direct Comparison
 Learning: Replacing `localeCompare` with direct relational operators (`<`, `>`) for string and ISO timestamp sorting in hot paths (UI sorting and data aggregation) provides a measurable performance boost. `localeCompare` is significantly more expensive due to locale-sensitive logic which is unnecessary for many standard data types.
 Action: Use direct comparison operators for sorting ISO timestamps and simple strings in frequently executed `useMemo` hooks and data processing utilities.
+
+## 2026-04-08 - Fixed-buffer streaks and Centralized Sorting
+Learning: Tracking streaks or rolling metrics using a fixed-size buffer (e.g., keeping only the last 3 items) instead of growing arrays for each entity significantly reduces memory churn and GC pressure. Centralizing data sorting into a single `useMemo` and passing an `isSorted` hint to downstream utilities eliminates redundant O(N log N) operations across the derivation pipeline.
+Action: Use rolling buffers for streak-like logic and centralize expensive data preparation (like sorting) when used by multiple consumers.
