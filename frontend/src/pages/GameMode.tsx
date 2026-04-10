@@ -190,6 +190,8 @@ interface ScoreboardProps {
   period: number;
   periodLabel: string;
   maxPeriod: number;
+  onQuickAction?: (_type: string, _points?: number) => void;
+  isReadOnly: boolean;
 }
 
 const Scoreboard = React.memo(
@@ -200,6 +202,8 @@ const Scoreboard = React.memo(
     period,
     periodLabel,
     maxPeriod,
+    onQuickAction,
+    isReadOnly,
   }: ScoreboardProps) => {
     const theme = useTheme();
 
@@ -332,6 +336,55 @@ const Scoreboard = React.memo(
             </Typography>
           )}
         </Stack>
+
+        {/* 🏀 CoachBoard: Opponent Quick-Action Buttons
+          Why: Allows scorekeepers to record opponent scores and fouls with a single tap,
+          avoiding the need to switch tracking modes during high-pressure live play. */}
+        {isOpponent && !isReadOnly && (
+          <Stack direction="row" spacing={0.5} sx={{ mt: 1 }}>
+            {[1, 2, 3].map((pts) => (
+              <Button
+                key={pts}
+                size="small"
+                variant="outlined"
+                color="secondary"
+                onClick={() =>
+                  onQuickAction && onQuickAction(ACTION_TYPES.MAKE, pts)
+                }
+                sx={{
+                  minWidth: 0,
+                  px: 0.8,
+                  py: 0.2,
+                  fontSize: "0.65rem",
+                  fontWeight: 800,
+                  borderColor: "rgba(255,255,255,0.3)",
+                  color: "white",
+                  "&:hover": { borderColor: "white" },
+                }}
+              >
+                +{pts}
+              </Button>
+            ))}
+            <Button
+              size="small"
+              variant="outlined"
+              color="error"
+              onClick={() => onQuickAction && onQuickAction(ACTION_TYPES.FOUL)}
+              sx={{
+                minWidth: 0,
+                px: 0.8,
+                py: 0.2,
+                fontSize: "0.65rem",
+                fontWeight: 800,
+                borderColor: "rgba(255,255,255,0.3)",
+                color: theme.palette.error.light,
+                "&:hover": { borderColor: "white" },
+              }}
+            >
+              F
+            </Button>
+          </Stack>
+        )}
       </Box>
     );
 
@@ -1313,6 +1366,47 @@ const GameMode: React.FC = () => {
    * Why: Quick toggle for the possession arrow.
    * Notes: Records a POSSESSION event for the specified team.
    */
+  /**
+   * 🏀 CoachBoard: handleQuickOpponentAction
+   * Why: Fast recording of opponent statistical events from the scoreboard.
+   * Note: Uses default rim coordinates (50, 10) for recorded shot events.
+   */
+  const handleQuickOpponentAction = useCallback(
+    async (type: string, pts: number = 0) => {
+      if (!gameId || isReadOnly) return;
+
+      try {
+        await db.open();
+        await db.stats.add({
+          id: crypto.randomUUID(),
+          gameId: gameId,
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: type,
+          points: pts,
+          locationX: 50,
+          locationY: 10,
+          period,
+          timestamp: new Date().toISOString(),
+          synced: 0,
+        });
+        await syncService.pushUpdates();
+        setSnackbar({
+          open: true,
+          message: "Opponent action recorded",
+          severity: "success",
+        });
+      } catch (err) {
+        logger.error("Failed to record quick opponent action:", err);
+        setSnackbar({
+          open: true,
+          message: "Failed to record action",
+          severity: "error",
+        });
+      }
+    },
+    [gameId, isReadOnly, period],
+  );
+
   const handleTogglePossession = useCallback(async () => {
     if (!gameId || isReadOnly) return;
 
@@ -1361,6 +1455,8 @@ const GameMode: React.FC = () => {
             period={period}
             periodLabel={periodLabel}
             maxPeriod={maxPeriod}
+            onQuickAction={handleQuickOpponentAction}
+            isReadOnly={isReadOnly}
           />
 
           <MoleskineCard>
