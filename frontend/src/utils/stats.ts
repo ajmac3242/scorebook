@@ -180,6 +180,9 @@ export const calculatePlayerAggregates = (
   // Accumulate statistics from event stream
   for (let i = 0; i < stats.length; i++) {
     const stat = stats[i];
+    // ⚡ Bolt: Skip deleted events to ensure accuracy and reduce unnecessary processing.
+    if (stat.deletedAt) continue;
+
     const player = statsMap.get(stat.playerId);
     if (player) {
       processStatEvent(player, stat);
@@ -249,6 +252,9 @@ export const calculateTeamAggregates = (
 
   for (let i = 0; i < stats.length; i++) {
     const stat = stats[i];
+    // ⚡ Bolt: Skip deleted events to ensure accuracy and reduce unnecessary processing.
+    if (stat.deletedAt) continue;
+
     const { gameId, playerId, type, points: eventPoints } = stat;
 
     if (!targetGameIds.has(gameId)) continue;
@@ -308,6 +314,9 @@ export const calculateOpponentAggregates = (stats: StatEvent[]) => {
 
   for (let i = 0; i < stats.length; i++) {
     const stat = stats[i];
+    // ⚡ Bolt: Skip deleted events to ensure accuracy and reduce unnecessary processing.
+    if (stat.deletedAt) continue;
+
     if (stat.playerId === SPECIAL_PLAYER_IDS.OPPONENT) {
       switch (stat.type) {
         case ACTION_TYPES.MAKE:
@@ -367,6 +376,9 @@ export const calculateScoreFlow = (stats: StatEvent[]) => {
 
   for (let i = 0; i < stats.length; i++) {
     const stat = stats[i];
+    // ⚡ Bolt: Skip deleted events to ensure accuracy and reduce unnecessary processing.
+    if (stat.deletedAt) continue;
+
     if (stat.type === ACTION_TYPES.MAKE) {
       if (stat.playerId === SPECIAL_PLAYER_IDS.OPPONENT) {
         oppScore += stat.points || 0;
@@ -420,6 +432,9 @@ export const calculateGameResult = (
   let oppScore = 0;
   for (let i = 0; i < stats.length; i++) {
     const stat = stats[i];
+    // ⚡ Bolt: Skip deleted events to ensure accuracy and reduce unnecessary processing.
+    if (stat.deletedAt) continue;
+
     if (stat.gameId === gameId) {
       if (stat.playerId === SPECIAL_PLAYER_IDS.OPPONENT) {
         oppScore += stat.points || 0;
@@ -445,15 +460,20 @@ export const calculateGameResult = (
  */
 export const calculatePlayerStreaks = (
   stats: StatEvent[],
+  options: { isSorted?: boolean } = {},
 ): Map<string, "HOT" | "COLD" | null> => {
-  // ⚡ Bolt: Use a single pass to track streaks for all players.
-  // We only care about MAKE and MISS actions for field goals (points > 0 or MISS).
+  // ⚡ Bolt: Track streaks for all players in a single pass.
+  // Optimization: Track only the last three actions per player using a fixed-size buffer
+  // to reduce memory churn and avoid large array allocations for long games.
   const playerStreaks = new Map<string, ("MAKE" | "MISS")[]>();
-  const sorted = [...stats].sort((a, b) => {
-    if (a.timestamp < b.timestamp) return -1;
-    if (a.timestamp > b.timestamp) return 1;
-    return 0;
-  });
+
+  const sorted = options.isSorted
+    ? stats
+    : [...stats].sort((a, b) => {
+        if (a.timestamp < b.timestamp) return -1;
+        if (a.timestamp > b.timestamp) return 1;
+        return 0;
+      });
 
   for (let i = 0; i < sorted.length; i++) {
     const s = sorted[i];
@@ -465,11 +485,16 @@ export const calculatePlayerStreaks = (
       if (s.type === ACTION_TYPES.MAKE && s.points === 1) continue;
 
       const pId = s.playerId;
-      if (!playerStreaks.has(pId)) {
-        playerStreaks.set(pId, []);
+      let history = playerStreaks.get(pId);
+      if (!history) {
+        history = [];
+        playerStreaks.set(pId, history);
       }
-      const history = playerStreaks.get(pId)!;
+
       history.push(s.type === ACTION_TYPES.MAKE ? "MAKE" : "MISS");
+      if (history.length > 3) {
+        history.shift(); // Keep only last 3 to minimize memory overhead
+      }
     }
   }
 
@@ -480,10 +505,18 @@ export const calculatePlayerStreaks = (
       continue;
     }
 
-    const lastThree = history.slice(-3);
-    if (lastThree.every((h) => h === "MAKE")) {
+    // Direct index access is faster than .every() or .slice()
+    if (
+      history[0] === "MAKE" &&
+      history[1] === "MAKE" &&
+      history[2] === "MAKE"
+    ) {
       result.set(pId, "HOT");
-    } else if (lastThree.every((h) => h === "MISS")) {
+    } else if (
+      history[0] === "MISS" &&
+      history[1] === "MISS" &&
+      history[2] === "MISS"
+    ) {
       result.set(pId, "COLD");
     } else {
       result.set(pId, null);

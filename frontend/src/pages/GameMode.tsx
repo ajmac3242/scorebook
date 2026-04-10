@@ -737,20 +737,26 @@ const GameMode: React.FC = () => {
   }, []);
 
   /**
-   * ⚡ Bolt: Consolidate statistical derivations.
-   * Performance: Sort gameStats once and perform a single-pass derivation for
-   * scores, fouls, timeouts, possession, lineups, and recent history.
-   * This reduces database queries and minimizes redundant array traversals.
+   * ⚡ Bolt: Centralized sorting of game events.
+   * Performance: Sorting once in a dedicated useMemo prevents redundant
+   * O(N log N) operations across multiple statistical derivations.
    */
-  const gameData = useMemo(() => {
+  const sortedGameStats = useMemo(() => {
     // ⚡ Bolt: Use direct comparison for ISO timestamps instead of localeCompare.
     // Relational operators (<, >) are significantly faster for string comparison in hot paths.
-    const sorted = [...gameStats].sort((a, b) => {
+    return [...gameStats].sort((a, b) => {
       if (a.timestamp < b.timestamp) return -1;
       if (a.timestamp > b.timestamp) return 1;
       return 0;
     });
+  }, [gameStats]);
 
+  /**
+   * ⚡ Bolt: Consolidate statistical derivations.
+   * Performance: Use the pre-sorted event stream for single-pass derivation of
+   * scores, fouls, timeouts, possession, lineups, and recent history.
+   */
+  const gameData = useMemo(() => {
     let curScore = 0;
     let oppScore = 0;
     let teamFouls = 0;
@@ -761,8 +767,8 @@ const GameMode: React.FC = () => {
     const onCourt = new Set<string>();
     const pType = team?.periodType || "QUARTERS";
 
-    for (let i = 0; i < sorted.length; i++) {
-      const s = sorted[i];
+    for (let i = 0; i < sortedGameStats.length; i++) {
+      const s = sortedGameStats[i];
       if (s.deletedAt) continue;
 
       // Score
@@ -828,9 +834,9 @@ const GameMode: React.FC = () => {
       },
       possessionState: posState,
       onCourtIds: onCourt,
-      recentStats: sorted.slice(-10).reverse(),
+      recentStats: sortedGameStats.slice(-10).reverse(),
     };
-  }, [gameStats, period, team?.periodType, team?.fouls]);
+  }, [sortedGameStats, period, team?.periodType, team?.fouls]);
 
   // Initialize draft state when dialog opens
   useEffect(() => {
@@ -890,8 +896,9 @@ const GameMode: React.FC = () => {
   // 🏀 CoachBoard: Hot/Cold Streaks
   // Why: Provides immediate coaching visibility into recent player performance trends.
   const playerStreaks = useMemo(() => {
-    return calculatePlayerStreaks(gameStats);
-  }, [gameStats]);
+    // ⚡ Bolt: Pass the pre-sorted event stream to avoid redundant sorting within the utility.
+    return calculatePlayerStreaks(sortedGameStats, { isSorted: true });
+  }, [sortedGameStats]);
 
   const markers = useMemo(() => {
     const res = [];
