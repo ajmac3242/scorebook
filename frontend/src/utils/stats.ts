@@ -243,8 +243,13 @@ export const calculateTeamAggregates = (
   }
 
   // Optimization: Aggregate all stats in a single pass without intermediate grouping.
-  // Use a map to track per-game totals for record calculation.
-  const gameTotals: Record<string, { team: number; opp: number }> = {};
+  // ⚡ Bolt: Use a Map for game totals to improve lookup performance and avoid object overhead.
+  const gameTotals = new Map<string, { team: number; opp: number }>();
+  // Pre-populate Map with targeted game IDs to eliminate conditional checks in the hot loop.
+  for (const gId of targetGameIds) {
+    gameTotals.set(gId, { team: 0, opp: 0 });
+  }
+
   let totalPoints = 0;
   let totalRebounds = 0;
   let totalAssists = 0;
@@ -257,20 +262,17 @@ export const calculateTeamAggregates = (
 
     const { gameId, playerId, type, points: eventPoints } = stat;
 
-    if (!targetGameIds.has(gameId)) continue;
-
-    if (!gameTotals[gameId]) {
-      gameTotals[gameId] = { team: 0, opp: 0 };
-    }
+    const totals = gameTotals.get(gameId);
+    if (!totals) continue;
 
     const pointsValue = eventPoints || 0;
 
     if (playerId === SPECIAL_PLAYER_IDS.OPPONENT) {
       totalOppPoints += pointsValue;
-      gameTotals[gameId].opp += pointsValue;
+      totals.opp += pointsValue;
     } else {
       totalPoints += pointsValue;
-      gameTotals[gameId].team += pointsValue;
+      totals.team += pointsValue;
 
       if (type === ACTION_TYPES.REBOUND) totalRebounds++;
       else if (type === ACTION_TYPES.ASSIST) totalAssists++;
@@ -279,10 +281,10 @@ export const calculateTeamAggregates = (
 
   let wins = 0;
   let losses = 0;
-  for (const gId in gameTotals) {
-    const { team, opp } = gameTotals[gId];
-    if (team > opp) wins++;
-    else if (team < opp) losses++;
+  // ⚡ Bolt: Iterate over map values directly to improve iteration performance.
+  for (const totals of gameTotals.values()) {
+    if (totals.team > totals.opp) wins++;
+    else if (totals.team < totals.opp) losses++;
   }
 
   const gp = targetCount || 1;
@@ -369,10 +371,6 @@ export const calculateScoreFlow = (stats: StatEvent[]) => {
   let teamScore = 0;
   let oppScore = 0;
   const result = [{ time: "00:00", Team: 0, Opponent: 0 }];
-  const timeFormatter = new Intl.DateTimeFormat([], {
-    minute: "2-digit",
-    second: "2-digit",
-  });
 
   for (let i = 0; i < stats.length; i++) {
     const stat = stats[i];
@@ -385,8 +383,10 @@ export const calculateScoreFlow = (stats: StatEvent[]) => {
       } else {
         teamScore += stat.points || 0;
       }
+      // ⚡ Bolt: Use high-performance string slicing instead of Intl.DateTimeFormat
+      // to extract "mm:ss" from ISO timestamps, reducing CPU and memory overhead.
       result.push({
-        time: timeFormatter.format(new Date(stat.timestamp)),
+        time: stat.timestamp.slice(14, 19),
         Team: teamScore,
         Opponent: oppScore,
       });
