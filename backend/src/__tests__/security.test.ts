@@ -193,4 +193,97 @@ describe("Security Tests", () => {
 
     consoleSpy.mockRestore();
   });
+
+  it("redacts 'Cookie' and 'X-Api-Key' headers in CloudWatch logs", async () => {
+    ddbMock.on(QueryCommand).resolves({ Items: [] });
+    const consoleSpy = jest.spyOn(console, "log").mockImplementation();
+
+    const event = createEvent("GET", "/teams");
+    event.headers = {
+      Cookie: "session=secret",
+      "X-Api-Key": "secret-api-key",
+    };
+
+    await handler(event);
+
+    const logCall = consoleSpy.mock.calls.find((call) =>
+      call.some((arg) => typeof arg === "string" && arg.includes("[REDACTED]")),
+    );
+    expect(logCall).toBeDefined();
+
+    const logString = logCall!.join(" ");
+    expect(logString).toContain('"Cookie":"[REDACTED]"');
+    expect(logString).toContain('"X-Api-Key":"[REDACTED]"');
+
+    consoleSpy.mockRestore();
+  });
+
+  it("includes required security headers in all responses", async () => {
+    ddbMock.on(QueryCommand).resolves({ Items: [] });
+    const event = createEvent("GET", "/teams");
+    const response: any = await handler(event);
+
+    expect(response.headers).toMatchObject({
+      "X-Content-Type-Options": "nosniff",
+      "X-Frame-Options": "DENY",
+      "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+      "Content-Security-Policy":
+        "default-src 'none'; frame-ancestors 'none'; sandbox",
+      "Referrer-Policy": "no-referrer",
+    });
+  });
+
+  it("protects /cleanup endpoint with ADMIN_API_KEY", async () => {
+    process.env.ADMIN_API_KEY = "super-secret-admin-key";
+    ddbMock.on(QueryCommand).resolves({ Items: [] });
+
+    // Test unauthorized (missing key)
+    const event1 = createEvent("POST", "/cleanup");
+    const resp1: any = await handler(event1);
+    expect(resp1.statusCode).toBe(403);
+
+    // Test unauthorized (wrong key)
+    const event2 = createEvent("POST", "/cleanup");
+    event2.headers = { "x-api-key": "wrong-key" };
+    const resp2: any = await handler(event2);
+    expect(resp2.statusCode).toBe(403);
+
+    // Test authorized
+    const event3 = createEvent("POST", "/cleanup");
+    event3.headers = { "x-api-key": "super-secret-admin-key" };
+    const resp3: any = await handler(event3);
+    expect(resp3.statusCode).toBe(200);
+  });
+
+  it("validates stat points are between 0 and 3", async () => {
+    ddbMock.on(PutCommand).resolves({});
+
+    const event = createEvent("POST", "/games/g1/stats", {
+      type: "MAKE",
+      points: 4, // Invalid
+    });
+    const response: any = await handler(event);
+    expect(response.statusCode).toBe(400);
+    expect(JSON.parse(response.body).message).toContain("Points must be a number between 0 and 3");
+  });
+
+  it("validates stat type length", async () => {
+    const event = createEvent("POST", "/games/g1/stats", {
+      type: "A".repeat(51),
+      points: 2,
+    });
+    const response: any = await handler(event);
+    expect(response.statusCode).toBe(400);
+    expect(JSON.parse(response.body).message).toContain("Stat type is required and must be under 50 characters");
+  });
+
+  it("validates game teamId length", async () => {
+    const event = createEvent("POST", "/games", {
+      teamId: "A".repeat(101),
+      opponent: "Opp",
+    });
+    const response: any = await handler(event);
+    expect(response.statusCode).toBe(400);
+    expect(JSON.parse(response.body).message).toContain("teamId is required and must be under 100 characters");
+  });
 });

@@ -46,6 +46,16 @@ const INTERNAL_KEYS = new Set([
 ]);
 
 /**
+ * Set of headers that should be redacted from logs for security.
+ */
+const REDACTED_HEADERS = new Set([
+  "authorization",
+  "cookie",
+  "set-cookie",
+  "x-api-key",
+]);
+
+/**
  * Helper for generating standardized DynamoDB primary and index keys.
  */
 const Keys = {
@@ -177,7 +187,13 @@ async function handleGames(
       return await getItemsByGSI(`TEAM#${teamId}`, tableName);
     }
     if (method === "POST") {
-      if (!body?.teamId) return badRequest("teamId is required");
+      if (
+        !body?.teamId ||
+        typeof body.teamId !== "string" ||
+        body.teamId.length > 100
+      ) {
+        return badRequest("teamId is required and must be under 100 characters");
+      }
       if (
         !body?.opponent ||
         typeof body.opponent !== "string" ||
@@ -284,7 +300,19 @@ async function handleGames(
       return ok(result.Items?.filter((i) => !i.deletedAt) || []);
     }
     if (method === "POST") {
-      if (!body?.type) return badRequest("Stat type is required");
+      if (
+        !body?.type ||
+        typeof body.type !== "string" ||
+        body.type.length > 50
+      ) {
+        return badRequest("Stat type is required and must be under 50 characters");
+      }
+      if (
+        body.points !== undefined &&
+        (typeof body.points !== "number" || body.points < 0 || body.points > 3)
+      ) {
+        return badRequest("Points must be a number between 0 and 3");
+      }
       const id = (body?.id as string) || uuidv4();
       const timestamp = (body?.timestamp as string) || new Date().toISOString();
       const cleanBody = stripLocalFields(body);
@@ -450,7 +478,7 @@ function maskEvent(event: APIGatewayProxyEventV2): unknown {
     for (const key in redactedHeaders) {
       if (
         Object.prototype.hasOwnProperty.call(redactedHeaders, key) &&
-        key.toLowerCase() === "authorization"
+        REDACTED_HEADERS.has(key.toLowerCase())
       ) {
         redactedHeaders[key] = "[REDACTED]";
       }
@@ -504,8 +532,17 @@ async function handleCleanup(
   method: string,
   path: string,
   tableName: string,
+  event: APIGatewayProxyEventV2,
 ): Promise<APIGatewayProxyResultV2 | null> {
   if (path === "/cleanup" && method === "POST") {
+    const adminApiKey = process.env.ADMIN_API_KEY;
+    const requestApiKey =
+      event.headers?.["x-api-key"] || event.headers?.["X-Api-Key"];
+
+    if (!adminApiKey || requestApiKey !== adminApiKey) {
+      return response(403, { message: "Unauthorized cleanup request" });
+    }
+
     await performHardCleanup(tableName);
     return ok({ message: "Cleanup complete" });
   }
@@ -557,7 +594,12 @@ export const handler = async (
     );
     if (gamesResponse) return gamesResponse;
 
-    const cleanupResponse = await handleCleanup(method, path, TABLE_NAME);
+    const cleanupResponse = await handleCleanup(
+      method,
+      path,
+      TABLE_NAME,
+      event,
+    );
     if (cleanupResponse) return cleanupResponse;
 
     return notFound("Route not found");
@@ -1020,7 +1062,16 @@ function response(
 ): APIGatewayProxyStructuredResultV2 {
   return {
     statusCode,
-    headers: { "Content-Type": "application/json", ...headers },
+    headers: {
+      "Content-Type": "application/json",
+      "X-Content-Type-Options": "nosniff",
+      "X-Frame-Options": "DENY",
+      "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+      "Content-Security-Policy":
+        "default-src 'none'; frame-ancestors 'none'; sandbox",
+      "Referrer-Policy": "no-referrer",
+      ...headers,
+    },
     body: JSON.stringify(sanitizeOutput(body)),
   };
 }
