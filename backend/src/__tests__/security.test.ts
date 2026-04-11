@@ -264,7 +264,9 @@ describe("Security Tests", () => {
     });
     const response: any = await handler(event);
     expect(response.statusCode).toBe(400);
-    expect(JSON.parse(response.body).message).toContain("Points must be a number between 0 and 3");
+    expect(JSON.parse(response.body).message).toContain(
+      "Points must be a number between 0 and 3",
+    );
   });
 
   it("validates stat type length", async () => {
@@ -274,7 +276,9 @@ describe("Security Tests", () => {
     });
     const response: any = await handler(event);
     expect(response.statusCode).toBe(400);
-    expect(JSON.parse(response.body).message).toContain("Stat type is required and must be under 50 characters");
+    expect(JSON.parse(response.body).message).toContain(
+      "Stat type is required and must be under 50 characters",
+    );
   });
 
   it("validates game teamId length", async () => {
@@ -284,6 +288,8 @@ describe("Security Tests", () => {
     });
     const response: any = await handler(event);
     expect(response.statusCode).toBe(400);
-    expect(JSON.parse(response.body).message).toContain("teamId is required and must be under 100 characters");
+    expect(JSON.parse(response.body).message).toContain(
+      "teamId is required and must be under 100 characters",
+    );
   });
 });

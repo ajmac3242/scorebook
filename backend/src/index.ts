@@ -192,7 +192,9 @@ async function handleGames(
         typeof body.teamId !== "string" ||
         body.teamId.length > 100
       ) {
-        return badRequest("teamId is required and must be under 100 characters");
+        return badRequest(
+          "teamId is required and must be under 100 characters",
+        );
       }
       if (
         !body?.opponent ||
@@ -305,7 +307,9 @@ async function handleGames(
         typeof body.type !== "string" ||
         body.type.length > 50
       ) {
-        return badRequest("Stat type is required and must be under 50 characters");
+        return badRequest(
+          "Stat type is required and must be under 50 characters",
+        );
       }
       if (
         body.points !== undefined &&
@@ -526,6 +530,7 @@ function parseBody(body: string | undefined): Record<string, unknown> {
  * @param {string} method - HTTP method.
  * @param {string} path - Request path.
  * @param {string} tableName - DynamoDB table name.
+ * @param event
  * @returns {Promise<APIGatewayProxyResultV2 | null>} Response.
  */
 async function handleCleanup(
