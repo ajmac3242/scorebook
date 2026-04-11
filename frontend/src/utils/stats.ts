@@ -35,6 +35,9 @@ export interface PlayerAggregates {
   assists: number;
   steals: number;
   turnovers: number;
+  blocks: number;
+  offRebounds: number;
+  defRebounds: number;
   makes: number;
   attempts: number;
   fgPct: string;
@@ -97,6 +100,17 @@ function processStatEvent(player: PlayerAggregates, stat: StatEvent) {
     case ACTION_TYPES.REBOUND:
       player.rebounds++;
       break;
+    case ACTION_TYPES.OFF_REBOUND:
+      player.offRebounds++;
+      player.rebounds++;
+      break;
+    case ACTION_TYPES.DEF_REBOUND:
+      player.defRebounds++;
+      player.rebounds++;
+      break;
+    case ACTION_TYPES.BLOCK:
+      player.blocks++;
+      break;
     case ACTION_TYPES.ASSIST:
       player.assists++;
       break;
@@ -150,6 +164,9 @@ function initializeStatsMap(
       assists: 0,
       steals: 0,
       turnovers: 0,
+      blocks: 0,
+      offRebounds: 0,
+      defRebounds: 0,
       makes: 0,
       attempts: 0,
       fgPct: "0.0",
@@ -209,6 +226,9 @@ export const calculatePlayerAggregates = (
       player.assists = roundToOne(player.assists / gp);
       player.steals = roundToOne(player.steals / gp);
       player.turnovers = roundToOne(player.turnovers / gp);
+      player.blocks = roundToOne(player.blocks / gp);
+      player.offRebounds = roundToOne(player.offRebounds / gp);
+      player.defRebounds = roundToOne(player.defRebounds / gp);
       player.fouls = roundToOne(player.fouls / gp);
     }
     result.push(player);
@@ -252,7 +272,10 @@ export const calculateTeamAggregates = (
 
   let totalPoints = 0;
   let totalRebounds = 0;
+  let totalOffRebounds = 0;
+  let totalDefRebounds = 0;
   let totalAssists = 0;
+  let totalBlocks = 0;
   let totalOppPoints = 0;
 
   for (let i = 0; i < stats.length; i++) {
@@ -274,8 +297,19 @@ export const calculateTeamAggregates = (
       totalPoints += pointsValue;
       totals.team += pointsValue;
 
-      if (type === ACTION_TYPES.REBOUND) totalRebounds++;
-      else if (type === ACTION_TYPES.ASSIST) totalAssists++;
+      if (type === ACTION_TYPES.REBOUND) {
+        totalRebounds++;
+      } else if (type === ACTION_TYPES.OFF_REBOUND) {
+        totalOffRebounds++;
+        totalRebounds++;
+      } else if (type === ACTION_TYPES.DEF_REBOUND) {
+        totalDefRebounds++;
+        totalRebounds++;
+      } else if (type === ACTION_TYPES.ASSIST) {
+        totalAssists++;
+      } else if (type === ACTION_TYPES.BLOCK) {
+        totalBlocks++;
+      }
     }
   }
 
@@ -309,7 +343,10 @@ export const calculateOpponentAggregates = (stats: StatEvent[]) => {
   let makes = 0;
   let misses = 0;
   let rebounds = 0;
+  let offRebounds = 0;
+  let defRebounds = 0;
   let assists = 0;
+  let blocks = 0;
   let steals = 0;
   let turnovers = 0;
   let fouls = 0;
@@ -331,8 +368,19 @@ export const calculateOpponentAggregates = (stats: StatEvent[]) => {
         case ACTION_TYPES.REBOUND:
           rebounds++;
           break;
+        case ACTION_TYPES.OFF_REBOUND:
+          offRebounds++;
+          rebounds++;
+          break;
+        case ACTION_TYPES.DEF_REBOUND:
+          defRebounds++;
+          rebounds++;
+          break;
         case ACTION_TYPES.ASSIST:
           assists++;
+          break;
+        case ACTION_TYPES.BLOCK:
+          blocks++;
           break;
         case ACTION_TYPES.STEAL:
           steals++;
@@ -354,7 +402,10 @@ export const calculateOpponentAggregates = (stats: StatEvent[]) => {
     attempts,
     fgPct: attempts > 0 ? ((makes / attempts) * 100).toFixed(1) : "0.0",
     rebounds,
+    offRebounds,
+    defRebounds,
     assists,
+    blocks,
     steals,
     turnovers,
     fouls,

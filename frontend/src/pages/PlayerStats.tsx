@@ -167,6 +167,9 @@ const PlayerStats: React.FC = () => {
         assists: 0,
         steals: 0,
         turnovers: 0,
+        blocks: 0,
+        offRebounds: 0,
+        defRebounds: 0,
         fgPct: "0.0",
         makes: 0,
         attempts: 0,
@@ -321,9 +324,12 @@ const PlayerStats: React.FC = () => {
               <MenuItem value="">All Actions</MenuItem>
               <MenuItem value="MAKE">Makes</MenuItem>
               <MenuItem value="MISS">Misses</MenuItem>
-              <MenuItem value="REBOUND">Rebounds</MenuItem>
+              <MenuItem value="REBOUND">Total Rebounds</MenuItem>
+              <MenuItem value="OFF_REBOUND">Off. Rebounds</MenuItem>
+              <MenuItem value="DEF_REBOUND">Def. Rebounds</MenuItem>
               <MenuItem value="ASSIST">Assists</MenuItem>
               <MenuItem value="STEAL">Steals</MenuItem>
+              <MenuItem value="BLOCK">Blocks</MenuItem>
               <MenuItem value="TURNOVER">Turnovers</MenuItem>
             </Select>
           </FormControl>
@@ -345,7 +351,12 @@ const PlayerStats: React.FC = () => {
               <StatCard label="REB" value={aggregates.rebounds} />
               <StatCard label="AST" value={aggregates.assists} />
               <StatCard label="STL" value={aggregates.steals} />
+              <StatCard label="BLK" value={aggregates.blocks} />
               <StatCard label="TO" value={aggregates.turnovers} />
+              <StatCard
+                label="OREB/DREB"
+                value={`${aggregates.offRebounds}/${aggregates.defRebounds}`}
+              />
             </Box>
           </Stack>
         </Grid>

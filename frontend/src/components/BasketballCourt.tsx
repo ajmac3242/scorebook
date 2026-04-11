@@ -69,6 +69,7 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
 
     return (
       <Box
+        data-testid="basketball-court"
         sx={{
           width: "100%",
           aspectRatio: "50 / 47",
