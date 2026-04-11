@@ -959,7 +959,11 @@ const GameMode: React.FC = () => {
       const s = gameStats[i];
       if (
         !s.deletedAt &&
-        (markerFilter === "ALL" || s.type === markerFilter) &&
+        (markerFilter === "ALL" ||
+          s.type === markerFilter ||
+          (markerFilter === "REBOUND" &&
+            (s.type === ACTION_TYPES.OFF_REBOUND ||
+              s.type === ACTION_TYPES.DEF_REBOUND))) &&
         s.type !== ACTION_TYPES.SUB_IN &&
         s.type !== ACTION_TYPES.SUB_OUT &&
         s.type !== ACTION_TYPES.POSSESSION &&
@@ -1521,7 +1525,7 @@ const GameMode: React.FC = () => {
                   "&::-webkit-scrollbar": { display: "none" },
                 }}
               >
-                {["ALL", "MAKE", "MISS", "REBOUND", "ASSIST", "STEAL"].map(
+        {["ALL", "MAKE", "MISS", "REBOUND", "ASSIST", "STEAL", "BLOCK"].map(
                   (type) => (
                     <Chip
                       key={type}
@@ -1900,6 +1904,35 @@ const GameMode: React.FC = () => {
                             }}
                           >
                             <TableSortLabel
+                              active={sortConfig.key === "blocks"}
+                              direction={
+                                sortConfig.key === "blocks"
+                                  ? sortConfig.direction
+                                  : "asc"
+                              }
+                              onClick={() => {
+                                setSortConfig((prev) => ({
+                                  key: "blocks",
+                                  direction:
+                                    prev.key === "blocks" &&
+                                    prev.direction === "asc"
+                                      ? "desc"
+                                      : "asc",
+                                }));
+                              }}
+                            >
+                              BLK
+                            </TableSortLabel>
+                          </TableCell>
+                          <TableCell
+                            align="right"
+                            sx={{
+                              fontSize: "0.65rem",
+                              fontWeight: 700,
+                              px: 0.5,
+                            }}
+                          >
+                            <TableSortLabel
                               active={sortConfig.key === "turnovers"}
                               direction={
                                 sortConfig.key === "turnovers"
@@ -1957,6 +1990,7 @@ const GameMode: React.FC = () => {
                             rebounds={row.rebounds}
                             assists={row.assists}
                             steals={row.steals}
+                            blocks={row.blocks}
                             turnovers={row.turnovers}
                             fouls={row.fouls}
                             streak={playerStreaks.get(row.id.toString())}
@@ -2170,9 +2204,31 @@ const GameMode: React.FC = () => {
               setStatType={setStatType}
             />
             <QuickAction
-              type={ACTION_TYPES.REBOUND}
-              label="Rebound"
+              type={ACTION_TYPES.ASSIST}
+              label="Assist"
+              icon={PanTool}
+              statType={statType}
+              setStatType={setStatType}
+            />
+            {/* 🏀 CoachBoard: Offensive vs. Defensive Rebounds */}
+            <QuickAction
+              type={ACTION_TYPES.OFF_REBOUND}
+              label="Off Reb"
               icon={SportsBasketball}
+              statType={statType}
+              setStatType={setStatType}
+            />
+            <QuickAction
+              type={ACTION_TYPES.DEF_REBOUND}
+              label="Def Reb"
+              icon={SportsBasketball}
+              statType={statType}
+              setStatType={setStatType}
+            />
+            <QuickAction
+              type={ACTION_TYPES.TURNOVER}
+              label="Turnover"
+              icon={SwapHoriz}
               statType={statType}
               setStatType={setStatType}
             />
@@ -2183,17 +2239,11 @@ const GameMode: React.FC = () => {
               statType={statType}
               setStatType={setStatType}
             />
+            {/* 🏀 CoachBoard: Added Block action */}
             <QuickAction
-              type={ACTION_TYPES.ASSIST}
-              label="Assist"
-              icon={PanTool}
-              statType={statType}
-              setStatType={setStatType}
-            />
-            <QuickAction
-              type={ACTION_TYPES.TURNOVER}
-              label="Turnover"
-              icon={SwapHoriz}
+              type={ACTION_TYPES.BLOCK}
+              label="Block"
+              icon={ArrowBack}
               statType={statType}
               setStatType={setStatType}
             />
@@ -2642,6 +2692,7 @@ interface PlayerStatRowProps {
   rebounds: number;
   assists: number;
   steals: number;
+  blocks: number;
   turnovers: number;
   fouls: number;
   streak: "HOT" | "COLD" | null | undefined;
@@ -2655,6 +2706,7 @@ const PlayerStatRow: React.FC<PlayerStatRowProps> = React.memo(
     rebounds,
     assists,
     steals,
+    blocks,
     turnovers,
     fouls,
     streak,
@@ -2711,6 +2763,9 @@ const PlayerStatRow: React.FC<PlayerStatRowProps> = React.memo(
       </TableCell>
       <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
         {steals}
+      </TableCell>
+      <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
+        {blocks}
       </TableCell>
       <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
         {turnovers}

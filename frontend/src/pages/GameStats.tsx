@@ -355,11 +355,27 @@ const GameStats: React.FC = () => {
               tooltip="Field Goal Percentage"
             />
             <SortableHeader
+              label="OREB"
+              sortKey="offRebounds"
+              hideOnMobile
+              sortConfig={sortConfig}
+              onSort={handleSort}
+              tooltip="Offensive Rebounds"
+            />
+            <SortableHeader
+              label="DREB"
+              sortKey="defRebounds"
+              hideOnMobile
+              sortConfig={sortConfig}
+              onSort={handleSort}
+              tooltip="Defensive Rebounds"
+            />
+            <SortableHeader
               label="REB"
               sortKey="rebounds"
               sortConfig={sortConfig}
               onSort={handleSort}
-              tooltip="Rebounds"
+              tooltip="Total Rebounds"
             />
             <SortableHeader
               label="AST"
@@ -375,6 +391,14 @@ const GameStats: React.FC = () => {
               sortConfig={sortConfig}
               onSort={handleSort}
               tooltip="Steals"
+            />
+            <SortableHeader
+              label="BLK"
+              sortKey="blocks"
+              hideOnMobile
+              sortConfig={sortConfig}
+              onSort={handleSort}
+              tooltip="Blocks"
             />
             <SortableHeader
               label="TO"
@@ -434,6 +458,18 @@ const GameStats: React.FC = () => {
               >
                 {row.fgPct}%
               </TableCell>
+              <TableCell
+                align="right"
+                sx={{ display: { xs: "none", sm: "table-cell" } }}
+              >
+                {row.offRebounds}
+              </TableCell>
+              <TableCell
+                align="right"
+                sx={{ display: { xs: "none", sm: "table-cell" } }}
+              >
+                {row.defRebounds}
+              </TableCell>
               <TableCell align="right">{row.rebounds}</TableCell>
               <TableCell align="right">{row.assists}</TableCell>
               <TableCell
@@ -441,6 +477,12 @@ const GameStats: React.FC = () => {
                 sx={{ display: { xs: "none", sm: "table-cell" } }}
               >
                 {row.steals}
+              </TableCell>
+              <TableCell
+                align="right"
+                sx={{ display: { xs: "none", sm: "table-cell" } }}
+              >
+                {row.blocks}
               </TableCell>
               <TableCell
                 align="right"
@@ -463,6 +505,18 @@ const GameStats: React.FC = () => {
             >
               {oppData.fgPct}%
             </TableCell>
+            <TableCell
+              align="right"
+              sx={{ display: { xs: "none", sm: "table-cell" } }}
+            >
+              {oppData.offRebounds}
+            </TableCell>
+            <TableCell
+              align="right"
+              sx={{ display: { xs: "none", sm: "table-cell" } }}
+            >
+              {oppData.defRebounds}
+            </TableCell>
             <TableCell align="right">{oppData.rebounds}</TableCell>
             <TableCell align="right">{oppData.assists}</TableCell>
             <TableCell
@@ -470,6 +524,12 @@ const GameStats: React.FC = () => {
               sx={{ display: { xs: "none", sm: "table-cell" } }}
             >
               {oppData.steals}
+            </TableCell>
+            <TableCell
+              align="right"
+              sx={{ display: { xs: "none", sm: "table-cell" } }}
+            >
+              {oppData.blocks}
             </TableCell>
             <TableCell
               align="right"
