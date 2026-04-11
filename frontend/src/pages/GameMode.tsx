@@ -1525,18 +1525,24 @@ const GameMode: React.FC = () => {
                   "&::-webkit-scrollbar": { display: "none" },
                 }}
               >
-        {["ALL", "MAKE", "MISS", "REBOUND", "ASSIST", "STEAL", "BLOCK"].map(
-                  (type) => (
-                    <Chip
-                      key={type}
-                      label={type}
-                      onClick={() => setMarkerFilter(type)}
-                      variant={markerFilter === type ? "filled" : "outlined"}
-                      size="small"
-                      color={markerFilter === type ? "primary" : "default"}
-                    />
-                  ),
-                )}
+                {[
+                  "ALL",
+                  "MAKE",
+                  "MISS",
+                  "REBOUND",
+                  "ASSIST",
+                  "STEAL",
+                  "BLOCK",
+                ].map((type) => (
+                  <Chip
+                    key={type}
+                    label={type}
+                    onClick={() => setMarkerFilter(type)}
+                    variant={markerFilter === type ? "filled" : "outlined"}
+                    size="small"
+                    color={markerFilter === type ? "primary" : "default"}
+                  />
+                ))}
               </Box>
             </Box>
 
