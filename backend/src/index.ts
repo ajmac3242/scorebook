@@ -601,7 +601,11 @@ async function handleCleanup(
       }
     }
 
-    if (!adminApiKey || !requestApiKey || !safeCompare(requestApiKey, adminApiKey)) {
+    if (
+      !adminApiKey ||
+      !requestApiKey ||
+      !safeCompare(requestApiKey, adminApiKey)
+    ) {
       return response(403, { message: "Unauthorized cleanup request" });
     }
 
@@ -624,7 +628,9 @@ export const handler = async (
     const contentType =
       event.headers?.["content-type"] || event.headers?.["Content-Type"];
     if (!contentType?.toLowerCase().includes("application/json")) {
-      return response(415, { message: "Unsupported Media Type: application/json required" });
+      return response(415, {
+        message: "Unsupported Media Type: application/json required",
+      });
     }
   }
 

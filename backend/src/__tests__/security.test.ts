@@ -309,7 +309,9 @@ describe("Security Tests", () => {
     event.headers = { "content-type": "application/json" };
     const response: any = await handler(event);
     expect(response.statusCode).toBe(400);
-    expect(JSON.parse(response.body).message).toContain("Invalid stat id format");
+    expect(JSON.parse(response.body).message).toContain(
+      "Invalid stat id format",
+    );
   });
 
   it("validates stat timestamp format (ISO)", async () => {
@@ -333,7 +335,9 @@ describe("Security Tests", () => {
     event.headers = { "content-type": "application/json" };
     const response: any = await handler(event);
     expect(response.statusCode).toBe(400);
-    expect(JSON.parse(response.body).message).toBe("playerId required as string");
+    expect(JSON.parse(response.body).message).toBe(
+      "playerId required as string",
+    );
   });
 
   it("validates game teamId length", async () => {
