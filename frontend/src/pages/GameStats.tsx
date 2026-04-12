@@ -178,9 +178,20 @@ const GameStats: React.FC = () => {
   }, [allStats, periodFilter]);
 
   const aggregatedStats = useMemo(() => {
-    // Only include players who are assigned to this team
-    const teamPlayerIds = new Set(teamPlayers.map((tp) => tp.playerId));
-    const rosteredPlayers = players.filter((p) => teamPlayerIds.has(p.id!));
+    // ⚡ Bolt: Use a single pass with a Set for O(1) roster filtering.
+    // This avoids redundant array allocations and improves performance for large rosters.
+    const teamPlayerIds = new Set<string | number>();
+    for (let i = 0; i < teamPlayers.length; i++) {
+      teamPlayerIds.add(teamPlayers[i].playerId);
+    }
+
+    const rosteredPlayers = [];
+    for (let i = 0; i < players.length; i++) {
+      const p = players[i];
+      if (teamPlayerIds.has(p.id!)) {
+        rosteredPlayers.push(p);
+      }
+    }
     return calculatePlayerAggregates(rosteredPlayers, stats, teamPlayers);
   }, [players, stats, teamPlayers]);
 
@@ -300,19 +311,23 @@ const GameStats: React.FC = () => {
   const periodLabel = team?.periodType === "HALVES" ? "Half" : "Quarter";
   const maxPeriod = team?.periodType === "HALVES" ? 2 : 4;
   const periods = useMemo(() => {
+    // ⚡ Bolt: Extract unique OT periods in a single optimized pass.
+    // This replaces a heavy filter/map/Set chain with a simple, high-performance loop.
     const list = ["ALL"];
     for (let i = 1; i <= maxPeriod; i++) list.push(i.toString());
 
-    // Extract unique OT periods
-    const otPeriods = Array.from(
-      new Set(
-        allStats
-          .filter((s) => s.period > maxPeriod)
-          .map((s) => s.period.toString()),
-      ),
-    ).sort((a, b) => parseInt(a) - parseInt(b));
+    const otPeriodsSet = new Set<number>();
+    for (let i = 0; i < allStats.length; i++) {
+      const p = allStats[i].period;
+      if (p > maxPeriod) otPeriodsSet.add(p);
+    }
 
-    return [...list, ...otPeriods];
+    const otPeriods = Array.from(otPeriodsSet).sort((a, b) => a - b);
+    for (let i = 0; i < otPeriods.length; i++) {
+      list.push(otPeriods[i].toString());
+    }
+
+    return list;
   }, [maxPeriod, allStats]);
 
   const boxScoreTable = (
