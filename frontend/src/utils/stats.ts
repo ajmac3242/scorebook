@@ -283,8 +283,9 @@ export const calculateTeamAggregates = (
   const targetGameIds = new Set<string>();
   let targetCount = 0;
   for (let i = 0; i < games.length; i++) {
-    if (!completedOnly || games[i].completed === 1) {
-      targetGameIds.add(games[i].id!);
+    const g = games[i];
+    if (!completedOnly || g.completed === 1) {
+      gameTotals.set(g.id!, { team: 0, opp: 0 });
       targetCount++;
     }
   }
