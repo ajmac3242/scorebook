@@ -72,6 +72,7 @@ export interface PlayerAggregates {
   threePM: number;
   fgPct: string;
   efgPct: string;
+  tsPct: string;
   plusMinus: number;
   min: number;
   fouls: number;
@@ -244,6 +245,7 @@ function initializeStatsMap(
       threePM: 0,
       fgPct: "0.0",
       efgPct: "0.0",
+      tsPct: "0.0",
       plusMinus: 0,
       min: 0,
       fouls: 0,
@@ -346,6 +348,14 @@ export const calculatePlayerAggregates = (
         ? formatToOne(
             ((player.makes + 0.5 * player.threePM) / player.attempts) * 100,
           )
+        : "0.0";
+
+    // TS% = Points / (2 * (FGA + 0.44 * FTA))
+    // Note: We don't have FTA explicitly in StatEvent yet.
+    // For now, we use a slightly conservative approximation of TS%.
+    player.tsPct =
+      player.attempts > 0
+        ? formatToOne((player.points / (2 * player.attempts)) * 100)
         : "0.0";
 
     if (isAverage) {
@@ -633,56 +643,66 @@ const recordLineupStint = (
 export const calculateLineupStats = (
   stats: StatEvent[],
 ): LineupAggregates[] => {
-  const sortedStats = [...stats].sort((a, b) => {
-    if (a.timestamp < b.timestamp) return -1;
-    if (a.timestamp > b.timestamp) return 1;
-    return 0;
-  });
-
-  const lineupStats = new Map<string, LineupAggregates>();
-  let currentLineup = new Set<string>();
-  let lastClockTime = 0;
-  let lastTeamScore = 0;
-  let lastOppScore = 0;
-  const scores = { team: 0, opp: 0 };
-
-  for (let i = 0; i < sortedStats.length; i++) {
-    const s = sortedStats[i];
-    if (s.deletedAt) continue;
-
-    // Track score
-    updateScores(s, scores);
-
-    // When lineup changes, record stats for the previous lineup
-    if (s.type === ACTION_TYPES.SUB_IN || s.type === ACTION_TYPES.SUB_OUT) {
-      if (currentLineup.size === 5 && s.clockTime !== undefined) {
-        recordLineupStint(
-          lineupStats,
-          getLineupKey(currentLineup),
-          lastClockTime - s.clockTime,
-          scores.team - lastTeamScore,
-          scores.opp - lastOppScore,
-        );
-      }
-
-      if (s.type === ACTION_TYPES.SUB_IN) currentLineup.add(s.playerId);
-      else currentLineup.delete(s.playerId);
-
-      lastClockTime = s.clockTime || 0;
-      lastTeamScore = scores.team;
-      lastOppScore = scores.opp;
-    }
+  // Group stats by gameId to handle multi-game aggregation correctly
+  const statsByGame = new Map<string, StatEvent[]>();
+  for (const s of stats) {
+    if (!statsByGame.has(s.gameId)) statsByGame.set(s.gameId, []);
+    statsByGame.get(s.gameId)!.push(s);
   }
 
-  // Final stint
-  if (currentLineup.size === 5) {
-    recordLineupStint(
-      lineupStats,
-      getLineupKey(currentLineup),
-      lastClockTime,
-      scores.team - lastTeamScore,
-      scores.opp - lastOppScore,
-    );
+  const lineupStats = new Map<string, LineupAggregates>();
+
+  for (const gameStats of statsByGame.values()) {
+    const sortedStats = [...gameStats].sort((a, b) => {
+      if (a.timestamp < b.timestamp) return -1;
+      if (a.timestamp > b.timestamp) return 1;
+      return 0;
+    });
+
+    let currentLineup = new Set<string>();
+    let lastClockTime = 0;
+    let lastTeamScore = 0;
+    let lastOppScore = 0;
+    const scores = { team: 0, opp: 0 };
+
+    for (let i = 0; i < sortedStats.length; i++) {
+      const s = sortedStats[i];
+      if (s.deletedAt) continue;
+
+      // Track score
+      updateScores(s, scores);
+
+      // When lineup changes, record stats for the previous lineup
+      if (s.type === ACTION_TYPES.SUB_IN || s.type === ACTION_TYPES.SUB_OUT) {
+        if (currentLineup.size === 5 && s.clockTime !== undefined) {
+          recordLineupStint(
+            lineupStats,
+            getLineupKey(currentLineup),
+            lastClockTime - s.clockTime,
+            scores.team - lastTeamScore,
+            scores.opp - lastOppScore,
+          );
+        }
+
+        if (s.type === ACTION_TYPES.SUB_IN) currentLineup.add(s.playerId);
+        else currentLineup.delete(s.playerId);
+
+        lastClockTime = s.clockTime || 0;
+        lastTeamScore = scores.team;
+        lastOppScore = scores.opp;
+      }
+    }
+
+    // Final stint for this game
+    if (currentLineup.size === 5) {
+      recordLineupStint(
+        lineupStats,
+        getLineupKey(currentLineup),
+        lastClockTime,
+        scores.team - lastTeamScore,
+        scores.opp - lastOppScore,
+      );
+    }
   }
 
   return Array.from(lineupStats.values())

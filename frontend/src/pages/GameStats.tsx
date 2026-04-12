@@ -39,6 +39,7 @@ import {
   Edit as EditIcon,
 } from "@mui/icons-material";
 import BasketballCourt from "../components/BasketballCourt";
+import { getShotZone } from "../utils/shotZones";
 import { db } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
 import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../constants/stats";
@@ -53,6 +54,8 @@ import EntityBanner from "../components/EntityBanner";
 import { syncService } from "../utils/syncService";
 import { logger } from "../utils/logger";
 import dayjs from "dayjs";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 import SortableHeader from "../components/SortableHeader";
 import {
   LineChart,
@@ -81,6 +84,9 @@ const GameStats: React.FC = () => {
   );
   const [selectedType, setSelectedType] = useState<string>("ALL");
   const [periodFilter, setPeriodFilter] = useState<string>("ALL");
+  const [shotChartView, setShotChartView] = useState<"markers" | "heatmap">(
+    "markers",
+  );
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [timeLeft, setTimeLeft] = useState("");
 
@@ -90,6 +96,7 @@ const GameStats: React.FC = () => {
   }>({ key: "points", direction: "desc" });
 
   const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const [editOpponent, setEditOpponent] = useState("");
   const [editDate, setEditDate] = useState("");
   const [editTime, setEditTime] = useState("");
@@ -249,6 +256,23 @@ const GameStats: React.FC = () => {
 
   const shotChartMarkers = derivedStats.markers;
 
+  const heatmapData = useMemo(() => {
+    const data: Record<string, { makes: number; attempts: number }> = {};
+    for (let i = 0; i < stats.length; i++) {
+      const s = stats[i];
+      if (s.type !== ACTION_TYPES.MAKE && s.type !== ACTION_TYPES.MISS)
+        continue;
+      if (selectedPlayerId !== "ALL" && s.playerId !== selectedPlayerId)
+        continue;
+
+      const zone = getShotZone(s.locationX || 0, s.locationY || 0);
+      if (!data[zone]) data[zone] = { makes: 0, attempts: 0 };
+      data[zone].attempts++;
+      if (s.type === ACTION_TYPES.MAKE) data[zone].makes++;
+    }
+    return data;
+  }, [stats, selectedPlayerId]);
+
   // Optimization: Memoize the sorted statistics used for the score flow chart to avoid redundant sorting.
   const scoreFlowSortedStats = useMemo(() => {
     // ⚡ Bolt: Use direct comparison for ISO timestamps instead of localeCompare for hot paths.
@@ -310,6 +334,31 @@ const GameStats: React.FC = () => {
       setOpenEditDialog(false);
     } catch (err) {
       logger.error("Failed to update game:", err);
+    }
+  };
+
+  const handleExportPDF = async () => {
+    setIsExporting(true);
+    const element = document.getElementById("game-stats-container");
+    if (!element) return;
+
+    try {
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+      });
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+      pdf.save(`BoxScore_${team?.name}_vs_${game?.opponent}_${game?.date}.pdf`);
+    } catch (err) {
+      logger.error("Failed to export PDF:", err);
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -606,9 +655,23 @@ const GameStats: React.FC = () => {
 
   const shotChartFilters = (
     <Box sx={{ mb: 2 }}>
-      <Typography variant="subtitle2" gutterBottom>
-        Filters
-      </Typography>
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="center"
+        mb={1}
+      >
+        <Typography variant="subtitle2">Filters</Typography>
+        <ToggleButtonGroup
+          value={shotChartView}
+          exclusive
+          onChange={(_, val) => val && setShotChartView(val)}
+          size="small"
+        >
+          <ToggleButton value="markers">Markers</ToggleButton>
+          <ToggleButton value="heatmap">Heatmap</ToggleButton>
+        </ToggleButtonGroup>
+      </Stack>
       <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
         <FormControl fullWidth size="small">
           <InputLabel>Player</InputLabel>
@@ -643,7 +706,8 @@ const GameStats: React.FC = () => {
 
   const shotChartCourt = (
     <BasketballCourt
-      markers={shotChartMarkers}
+      markers={shotChartView === "markers" ? shotChartMarkers : []}
+      heatmapData={shotChartView === "heatmap" ? heatmapData : undefined}
       onMarkerClick={(m) => setSelectedPlayerId(m.playerId || "ALL")}
     />
   );
@@ -727,7 +791,10 @@ const GameStats: React.FC = () => {
   const isDeleted = !!game?.deletedAt || !!team?.deletedAt;
 
   return (
-    <Box sx={{ pb: 4, opacity: isDeleted ? 0.7 : 1 }}>
+    <Box
+      id="game-stats-container"
+      sx={{ pb: 4, opacity: isDeleted ? 0.7 : 1, bgcolor: "white" }}
+    >
       <EntityBanner
         title={game?.opponent ? `vs ${game.opponent}` : "Game Stats"}
         subtitle={`${game?.date ? dayjs(game.date).format("MM-DD-YYYY") : ""} ${game?.time || ""} | ${game?.location || ""}`}
@@ -737,6 +804,17 @@ const GameStats: React.FC = () => {
         primaryColor={team?.primaryColor}
         actions={
           <Stack direction="row" spacing={1} alignItems="center">
+            {!isDeleted && (
+              <Button
+                variant="contained"
+                size="small"
+                onClick={handleExportPDF}
+                disabled={isExporting}
+                sx={{ bgcolor: "rgba(255,255,255,0.2)", color: "white" }}
+              >
+                {isExporting ? "Exporting..." : "Export PDF"}
+              </Button>
+            )}
             {!isDeleted ? (
               <IconButton
                 onClick={() => setOpenEditDialog(true)}

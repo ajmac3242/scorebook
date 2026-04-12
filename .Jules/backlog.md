@@ -35,9 +35,9 @@
 **Why:** Coaches need to share results with players, parents, and local media. A professional, branded export format is a major "quality of life" improvement.
 **What:** Add an "Export" button to the `GameStats` page. Generate a clean, high-resolution PDF or Image of the box score, including the shot chart and team totals.
 **Acceptance Criteria:**
-- [ ] One-click generation of a box score PDF.
-- [ ] PDF includes Team names, final score, player table, and shot chart.
-- [ ] Layout is optimized for mobile sharing (A4 or social media aspect ratio).
+- [x] One-click generation of a box score PDF.
+- [x] PDF includes Team names, final score, player table, and shot chart.
+- [x] Layout is optimized for mobile sharing (A4 or social media aspect ratio).
 
 ## Shot Zone Heatmaps
 **Priority:** MEDIUM
@@ -45,6 +45,6 @@
 **Why:** A simple scatter plot of makes/misses can get cluttered. Heatmaps provide immediate visual feedback on where the team is most efficient and where they are settling for bad shots.
 **What:** Enhance the `BasketballCourt` component to support a heatmap overlay. Use color density (red for high efficiency, blue for low) to visualize FG% across different zones of the court.
 **Acceptance Criteria:**
-- [ ] Toggleable "Heatmap" mode on the `GameStats` and `PlayerStats` court views.
-- [ ] Zones are calculated dynamically based on the current filter (All, Player, or Team).
-- [ ] Uses a color gradient to represent scoring density or efficiency.
+- [x] Toggleable "Heatmap" mode on the `GameStats` and `PlayerStats` court views.
+- [x] Zones are calculated dynamically based on the current filter (All, Player, or Team).
+- [x] Uses a color gradient to represent scoring density or efficiency.
