@@ -23,8 +23,11 @@ import {
   TextField,
   Alert,
   AlertTitle,
+  ToggleButton,
+  ToggleButtonGroup,
 } from "@mui/material";
 import BasketballCourt from "../components/BasketballCourt";
+import { getShotZone } from "../utils/shotZones";
 import { db, type StatEvent } from "../db";
 import { syncService } from "../utils/syncService";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -50,6 +53,9 @@ const PlayerStats: React.FC = () => {
 
   const [selectedGameId, setSelectedGameId] = useState<string>("");
   const [selectedType, setSelectedType] = useState<string>("");
+  const [shotChartView, setShotChartView] = useState<"markers" | "heatmap">(
+    "markers",
+  );
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [editName, setEditName] = useState("");
   const [editColor, setEditColor] = useState("");
@@ -154,6 +160,20 @@ const PlayerStats: React.FC = () => {
     await syncService.pushUpdates();
     setOpenEditDialog(false);
   };
+
+  const heatmapData = useMemo(() => {
+    const data: Record<string, { makes: number; attempts: number }> = {};
+    for (let i = 0; i < filteredStats.length; i++) {
+      const s = filteredStats[i];
+      if (s.type !== "MAKE" && s.type !== "MISS") continue;
+
+      const zone = getShotZone(s.locationX || 0, s.locationY || 0);
+      if (!data[zone]) data[zone] = { makes: 0, attempts: 0 };
+      data[zone].attempts++;
+      if (s.type === "MAKE") data[zone].makes++;
+    }
+    return data;
+  }, [filteredStats]);
 
   const aggregates = useMemo(() => {
     const res = calculatePlayerAggregates(
@@ -302,6 +322,23 @@ const PlayerStats: React.FC = () => {
       </Dialog>
 
       <MoleskineCard sx={{ mb: 3, mt: 3 }}>
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+          mb={2}
+        >
+          <Typography variant="subtitle2">Filters</Typography>
+          <ToggleButtonGroup
+            value={shotChartView}
+            exclusive
+            onChange={(_, val) => val && setShotChartView(val)}
+            size="small"
+          >
+            <ToggleButton value="markers">Markers</ToggleButton>
+            <ToggleButton value="heatmap">Heatmap</ToggleButton>
+          </ToggleButtonGroup>
+        </Stack>
         <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
           <FormControl fullWidth size="small">
             <InputLabel>Game</InputLabel>
@@ -377,12 +414,19 @@ const PlayerStats: React.FC = () => {
         <Grid item xs={12} md={8}>
           <MoleskineCard sx={{ p: 1 }}>
             <BasketballCourt
-              markers={filteredStats.map((s) => ({
-                id: s.id,
-                x: s.locationX || 0,
-                y: s.locationY || 0,
-                type: s.type,
-              }))}
+              markers={
+                shotChartView === "markers"
+                  ? filteredStats.map((s) => ({
+                      id: s.id,
+                      x: s.locationX || 0,
+                      y: s.locationY || 0,
+                      type: s.type,
+                    }))
+                  : []
+              }
+              heatmapData={
+                shotChartView === "heatmap" ? heatmapData : undefined
+              }
             />
           </MoleskineCard>
         </Grid>

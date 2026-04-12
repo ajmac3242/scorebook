@@ -51,6 +51,7 @@ import { STAT_ACRONYMS } from "../constants/stats";
 import {
   calculatePlayerAggregates,
   calculateTeamAggregates,
+  calculateLineupStats,
   getInitials,
 } from "../utils/stats";
 import { MoleskineCard } from "../components/SharedUI";
@@ -230,6 +231,11 @@ const TeamStats: React.FC = () => {
         statView,
       ),
     [teamPlayerDetails, allStats, teamPlayers, statView],
+  );
+
+  const lineupStats = useMemo(
+    () => calculateLineupStats(allStats as StatEvent[]),
+    [allStats],
   );
 
   const playerStats = useMemo(() => {
@@ -573,6 +579,7 @@ const TeamStats: React.FC = () => {
         >
           <Tab label="Schedule" sx={{ fontWeight: 600 }} />
           <Tab label="Team Stats" sx={{ fontWeight: 600 }} />
+          <Tab label="Lineups" sx={{ fontWeight: 600 }} />
           <Tab label="Roster" sx={{ fontWeight: 600 }} />
         </Tabs>
       </Box>
@@ -928,6 +935,63 @@ const TeamStats: React.FC = () => {
       )}
 
       {tabValue === 2 && (
+        <Box>
+          <Typography variant="h5" sx={{ fontFamily: "var(--serif)", mb: 3 }}>
+            Lineup Efficiency
+          </Typography>
+          <TableContainer component={MoleskineCard}>
+            <Table size="small">
+              <TableHead>
+                <TableRow sx={{ bgcolor: "rgba(0,0,0,0.02)" }}>
+                  <TableCell sx={{ fontWeight: 700 }}>Lineup</TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 700 }}>
+                    MIN
+                  </TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 700 }}>
+                    PTS FOR
+                  </TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 700 }}>
+                    PTS AGN
+                  </TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 700 }}>
+                    +/-
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {lineupStats.map((row, idx) => (
+                  <TableRow key={idx}>
+                    <TableCell>
+                      <Stack direction="row" spacing={0.5}>
+                        {row.lineup.map((pId) => (
+                          <Avatar
+                            key={pId}
+                            sx={{ width: 24, height: 24, fontSize: "0.65rem" }}
+                          >
+                            {localJerseyNumbers[pId] ||
+                              sortedRosterJerseyMap.get(pId) ||
+                              "??"}
+                          </Avatar>
+                        ))}
+                      </Stack>
+                    </TableCell>
+                    <TableCell align="right">
+                      {(row.seconds / 60).toFixed(1)}
+                    </TableCell>
+                    <TableCell align="right">{row.pointsFor}</TableCell>
+                    <TableCell align="right">{row.pointsAgainst}</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 700 }}>
+                      {row.netRating > 0 ? `+${row.netRating}` : row.netRating}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Box>
+      )}
+
+      {tabValue === 3 && (
         <Box>
           <Box
             sx={{
