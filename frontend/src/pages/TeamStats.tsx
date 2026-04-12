@@ -744,6 +744,13 @@ const TeamStats: React.FC = () => {
                     tooltip="Games Played"
                   />
                   <SortableHeader
+                    label="MIN"
+                    sortKey="min"
+                    sortConfig={sortConfig}
+                    onSort={handleSort}
+                    tooltip="Minutes Played"
+                  />
+                  <SortableHeader
                     label={STAT_ACRONYMS.POINTS}
                     sortKey="points"
                     sortConfig={sortConfig}
@@ -756,6 +763,13 @@ const TeamStats: React.FC = () => {
                     sortConfig={sortConfig}
                     onSort={handleSort}
                     tooltip="Field Goal Percentage"
+                  />
+                  <SortableHeader
+                    label="eFG%"
+                    sortKey="efgPct"
+                    sortConfig={sortConfig}
+                    onSort={handleSort}
+                    tooltip="Effective Field Goal Percentage"
                   />
                   <SortableHeader
                     label={STAT_ACRONYMS.REBOUNDS}
@@ -786,6 +800,13 @@ const TeamStats: React.FC = () => {
                     sortConfig={sortConfig}
                     onSort={handleSort}
                     tooltip="Turnovers"
+                  />
+                  <SortableHeader
+                    label="+/-"
+                    sortKey="plusMinus"
+                    sortConfig={sortConfig}
+                    onSort={handleSort}
+                    tooltip="Plus/Minus"
                   />
                 </TableRow>
               </TableHead>
@@ -843,6 +864,12 @@ const TeamStats: React.FC = () => {
                     </TableCell>
                     <TableCell
                       align="right"
+                      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+                    >
+                      {row.min}
+                    </TableCell>
+                    <TableCell
+                      align="right"
                       sx={{
                         fontWeight: 700,
                         fontSize: { xs: "0.75rem", sm: "0.875rem" },
@@ -855,6 +882,12 @@ const TeamStats: React.FC = () => {
                       sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
                     >
                       {row.fgPct}%
+                    </TableCell>
+                    <TableCell
+                      align="right"
+                      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+                    >
+                      {row.efgPct}%
                     </TableCell>
                     <TableCell
                       align="right"
@@ -879,6 +912,12 @@ const TeamStats: React.FC = () => {
                       sx={{ display: { xs: "none", sm: "table-cell" } }}
                     >
                       {row.turnovers}
+                    </TableCell>
+                    <TableCell
+                      align="right"
+                      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+                    >
+                      {row.plusMinus > 0 ? `+${row.plusMinus}` : row.plusMinus}
                     </TableCell>
                   </TableRow>
                 ))}

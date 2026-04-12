@@ -46,6 +46,7 @@ import {
   calculatePlayerAggregates,
   calculateOpponentAggregates,
   calculateScoreFlow,
+  calculateLineupStats,
 } from "../utils/stats";
 import { MoleskineCard } from "../components/SharedUI";
 import EntityBanner from "../components/EntityBanner";
@@ -266,6 +267,10 @@ const GameStats: React.FC = () => {
     return calculateOpponentAggregates(stats);
   }, [stats]);
 
+  const lineupStats = useMemo(() => {
+    return calculateLineupStats(stats);
+  }, [stats]);
+
   const handleDeleteGame = async () => {
     if (!gameId || !game) return;
     try {
@@ -348,6 +353,13 @@ const GameStats: React.FC = () => {
               onSort={handleSort}
             />
             <SortableHeader
+              label="MIN"
+              sortKey="min"
+              sortConfig={sortConfig}
+              onSort={handleSort}
+              tooltip="Minutes Played"
+            />
+            <SortableHeader
               label="PTS"
               sortKey="points"
               sortConfig={sortConfig}
@@ -368,6 +380,14 @@ const GameStats: React.FC = () => {
               sortConfig={sortConfig}
               onSort={handleSort}
               tooltip="Field Goal Percentage"
+            />
+            <SortableHeader
+              label="eFG%"
+              sortKey="efgPct"
+              hideOnMobile
+              sortConfig={sortConfig}
+              onSort={handleSort}
+              tooltip="Effective Field Goal Percentage"
             />
             <SortableHeader
               label="OREB"
@@ -430,6 +450,13 @@ const GameStats: React.FC = () => {
               onSort={handleSort}
               tooltip="Personal Fouls"
             />
+            <SortableHeader
+              label="+/-"
+              sortKey="plusMinus"
+              sortConfig={sortConfig}
+              onSort={handleSort}
+              tooltip="Plus/Minus"
+            />
           </TableRow>
         </TableHead>
         <TableBody>
@@ -463,6 +490,7 @@ const GameStats: React.FC = () => {
                   {row.name}
                 </Typography>
               </TableCell>
+              <TableCell align="right">{row.min}</TableCell>
               <TableCell align="right">{row.points}</TableCell>
               <TableCell align="right">
                 {row.makes}-{row.attempts}
@@ -472,6 +500,12 @@ const GameStats: React.FC = () => {
                 sx={{ display: { xs: "none", sm: "table-cell" } }}
               >
                 {row.fgPct}%
+              </TableCell>
+              <TableCell
+                align="right"
+                sx={{ display: { xs: "none", sm: "table-cell" } }}
+              >
+                {row.efgPct}%
               </TableCell>
               <TableCell
                 align="right"
@@ -506,10 +540,14 @@ const GameStats: React.FC = () => {
                 {row.turnovers}
               </TableCell>
               <TableCell align="right">{row.fouls}</TableCell>
+              <TableCell align="right">
+                {row.plusMinus > 0 ? `+${row.plusMinus}` : row.plusMinus}
+              </TableCell>
             </TableRow>
           ))}
           <TableRow sx={{ bgcolor: "secondary.light" }}>
             <TableCell sx={{ fontWeight: 700 }}>OPPONENT</TableCell>
+            <TableCell align="right">-</TableCell>
             <TableCell align="right">{oppData.points}</TableCell>
             <TableCell align="right">
               {oppData.makes}-{oppData.attempts}
@@ -519,6 +557,12 @@ const GameStats: React.FC = () => {
               sx={{ display: { xs: "none", sm: "table-cell" } }}
             >
               {oppData.fgPct}%
+            </TableCell>
+            <TableCell
+              align="right"
+              sx={{ display: { xs: "none", sm: "table-cell" } }}
+            >
+              -
             </TableCell>
             <TableCell
               align="right"
@@ -553,6 +597,7 @@ const GameStats: React.FC = () => {
               {oppData.turnovers}
             </TableCell>
             <TableCell align="right">{oppData.fouls}</TableCell>
+            <TableCell align="right">-</TableCell>
           </TableRow>
         </TableBody>
       </Table>
@@ -627,6 +672,43 @@ const GameStats: React.FC = () => {
         />
       </LineChart>
     </ResponsiveContainer>
+  );
+
+  const lineupTable = (
+    <TableContainer component={Box}>
+      <Table size="small">
+        <TableHead>
+          <TableRow sx={{ bgcolor: "rgba(0,0,0,0.02)" }}>
+            <TableCell sx={{ fontWeight: 700 }}>Lineup</TableCell>
+            <TableCell align="right" sx={{ fontWeight: 700 }}>MIN</TableCell>
+            <TableCell align="right" sx={{ fontWeight: 700 }}>PTS FOR</TableCell>
+            <TableCell align="right" sx={{ fontWeight: 700 }}>PTS AGN</TableCell>
+            <TableCell align="right" sx={{ fontWeight: 700 }}>+/-</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {lineupStats.map((row, idx) => (
+            <TableRow key={idx}>
+              <TableCell>
+                <Stack direction="row" spacing={0.5}>
+                  {row.lineup.map(pId => (
+                    <Avatar key={pId} sx={{ width: 24, height: 24, fontSize: '0.65rem' }}>
+                      {shotChartJerseyMap.get(pId) || '??'}
+                    </Avatar>
+                  ))}
+                </Stack>
+              </TableCell>
+              <TableCell align="right">{(row.seconds / 60).toFixed(1)}</TableCell>
+              <TableCell align="right">{row.pointsFor}</TableCell>
+              <TableCell align="right">{row.pointsAgainst}</TableCell>
+              <TableCell align="right" sx={{ fontWeight: 700 }}>
+                {row.netRating > 0 ? `+${row.netRating}` : row.netRating}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
   );
 
   const isDeleted = !!game?.deletedAt || !!team?.deletedAt;
@@ -770,6 +852,28 @@ const GameStats: React.FC = () => {
             <Box sx={{ height: 400 }}>{scoreFlowChart}</Box>
           </MoleskineCard>
         </Grid>
+
+        {/* Lineups Card */}
+        <Grid item xs={12}>
+          <MoleskineCard>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                mb: 2,
+              }}
+            >
+              <Typography variant="h6" sx={{ fontFamily: "var(--serif)" }}>
+                Lineup Efficiency
+              </Typography>
+              <IconButton onClick={() => setExpandedSection("lineups")}>
+                <ExpandIcon />
+              </IconButton>
+            </Box>
+            {lineupTable}
+          </MoleskineCard>
+        </Grid>
       </Grid>
 
       {/* Expanded Section Dialog */}
@@ -790,6 +894,7 @@ const GameStats: React.FC = () => {
           {expandedSection === "boxScore" && "Box Score"}
           {expandedSection === "shotChart" && "Shot Chart"}
           {expandedSection === "scoreFlow" && "Score Flow"}
+          {expandedSection === "lineups" && "Lineup Efficiency"}
           <IconButton onClick={() => setExpandedSection(null)}>
             <ExpandIcon sx={{ transform: "rotate(180deg)" }} />
           </IconButton>
@@ -807,6 +912,7 @@ const GameStats: React.FC = () => {
           {expandedSection === "scoreFlow" && (
             <Box sx={{ height: 500 }}>{scoreFlowChart}</Box>
           )}
+          {expandedSection === "lineups" && lineupTable}
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setExpandedSection(null)}>Close</Button>

@@ -36,6 +36,8 @@ export interface OpponentAggregates {
   steals: number;
   turnovers: number;
   fouls: number;
+  min: number; // in seconds
+  plusMinus: number;
 }
 
 /**
@@ -67,7 +69,11 @@ export interface PlayerAggregates {
   defRebounds: number;
   makes: number;
   attempts: number;
+  threePM: number;
   fgPct: string;
+  efgPct: string;
+  plusMinus: number;
+  min: number;
   fouls: number;
 }
 
@@ -120,6 +126,7 @@ function processStatEvent(player: PlayerAggregates, stat: StatEvent) {
       player.points += stat.points || 0;
       player.makes++;
       player.attempts++;
+      if (stat.points === 3) player.threePM++;
       break;
     case ACTION_TYPES.MISS:
       player.attempts++;
@@ -196,7 +203,11 @@ function initializeStatsMap(
       defRebounds: 0,
       makes: 0,
       attempts: 0,
+      threePM: 0,
       fgPct: "0.0",
+      efgPct: "0.0",
+      plusMinus: 0,
+      min: 0,
       fouls: 0,
     });
   }
@@ -221,20 +232,65 @@ export const calculatePlayerAggregates = (
 ): PlayerAggregates[] => {
   const statsMap = initializeStatsMap(players, teamPlayers);
 
+  // Track player stints for MIN and plus-minus
+  const activeStints = new Map<string, { startClock: number; startScoreDiff: number }>();
+  // ⚡ Bolt: Use pre-sorted stats or sort them if needed.
+  const sortedStats = [...stats].sort((a, b) => {
+    if (a.timestamp < b.timestamp) return -1;
+    if (a.timestamp > b.timestamp) return 1;
+    return 0;
+  });
+
+  let teamScore = 0;
+  let oppScore = 0;
+
   // Accumulate statistics from event stream
-  for (let i = 0; i < stats.length; i++) {
-    const stat = stats[i];
-    // ⚡ Bolt: Skip deleted events to ensure accuracy and reduce unnecessary processing.
+  for (let i = 0; i < sortedStats.length; i++) {
+    const stat = sortedStats[i];
     if (stat.deletedAt) continue;
 
-    const player = statsMap.get(stat.playerId);
+    const { playerId, type, points: pts, clockTime } = stat;
+
+    // Update global score
+    if (type === ACTION_TYPES.MAKE) {
+      if (playerId === SPECIAL_PLAYER_IDS.OPPONENT) {
+        oppScore += pts || 0;
+      } else {
+        teamScore += pts || 0;
+      }
+    }
+
+    const player = statsMap.get(playerId);
     if (player) {
       processStatEvent(player, stat);
+    }
+
+    // Handle Sub-In/Sub-Out for MIN and Plus-Minus
+    if (type === ACTION_TYPES.SUB_IN && clockTime !== undefined) {
+      activeStints.set(playerId, { startClock: clockTime, startScoreDiff: teamScore - oppScore });
+    } else if (type === ACTION_TYPES.SUB_OUT && clockTime !== undefined) {
+      const stint = activeStints.get(playerId);
+      if (stint) {
+        const playerAgg = statsMap.get(playerId);
+        if (playerAgg) {
+          playerAgg.min += (stint.startClock - clockTime);
+          playerAgg.plusMinus += (teamScore - oppScore) - stint.startScoreDiff;
+        }
+        activeStints.delete(playerId);
+      }
+    }
+  }
+
+  // Handle players still on court at end of game
+  for (const [pId, stint] of activeStints.entries()) {
+    const playerAgg = statsMap.get(pId);
+    if (playerAgg) {
+      playerAgg.min += stint.startClock; // Assuming game ends at 0:00
+      playerAgg.plusMinus += (teamScore - oppScore) - stint.startScoreDiff;
     }
   }
 
   // Finalize totals, percentages, and averages
-  // ⚡ Bolt: Iterate over map values once and reduce redundant property access.
   const result: PlayerAggregates[] = [];
   const isAverage = viewType === "average";
   for (const player of statsMap.values()) {
@@ -246,8 +302,13 @@ export const calculatePlayerAggregates = (
         ? formatToOne((player.makes / player.attempts) * 100)
         : "0.0";
 
+    // eFG% = (FGM + 0.5 * 3PM) / FGA
+    player.efgPct =
+      player.attempts > 0
+        ? formatToOne(((player.makes + 0.5 * player.threePM) / player.attempts) * 100)
+        : "0.0";
+
     if (isAverage) {
-      // Optimization: Cache property values to minimize redundant lookups in the hot finalization loop.
       player.points = roundToOne(player.points / gp);
       player.rebounds = roundToOne(player.rebounds / gp);
       player.assists = roundToOne(player.assists / gp);
@@ -257,6 +318,10 @@ export const calculatePlayerAggregates = (
       player.offRebounds = roundToOne(player.offRebounds / gp);
       player.defRebounds = roundToOne(player.defRebounds / gp);
       player.fouls = roundToOne(player.fouls / gp);
+      player.min = roundToOne(player.min / (60 * gp)); // Convert to avg mins
+      player.plusMinus = roundToOne(player.plusMinus / gp);
+    } else {
+      player.min = roundToOne(player.min / 60); // Total mins
     }
     result.push(player);
   }
@@ -279,23 +344,18 @@ export const calculateTeamAggregates = (
   stats: StatEvent[],
   completedOnly = true,
 ): TeamAggregates => {
-  // Optimization: Pre-filter and collect game IDs in a single pass.
-  const targetGameIds = new Set<string>();
+  // Optimization: Aggregate all stats in a single pass without intermediate grouping.
+  // ⚡ Bolt: Use a Map for game totals to improve lookup performance and avoid object overhead.
+  const gameTotals = new Map<string, { team: number; opp: number }>();
   let targetCount = 0;
+
+  // Pre-populate Map with targeted game IDs to eliminate conditional checks in the hot loop.
   for (let i = 0; i < games.length; i++) {
     const g = games[i];
     if (!completedOnly || g.completed === 1) {
       gameTotals.set(g.id!, { team: 0, opp: 0 });
       targetCount++;
     }
-  }
-
-  // Optimization: Aggregate all stats in a single pass without intermediate grouping.
-  // ⚡ Bolt: Use a Map for game totals to improve lookup performance and avoid object overhead.
-  const gameTotals = new Map<string, { team: number; opp: number }>();
-  // Pre-populate Map with targeted game IDs to eliminate conditional checks in the hot loop.
-  for (const gId of targetGameIds) {
-    gameTotals.set(gId, { team: 0, opp: 0 });
   }
 
   let totalPoints = 0;
@@ -432,6 +492,8 @@ export const calculateOpponentAggregates = (
     steals,
     turnovers,
     fouls,
+    min: 0,
+    plusMinus: 0,
   };
 };
 
@@ -532,6 +594,99 @@ export const calculateGameResult = (
  * @param {StatEvent[]} stats - Chronological list of statistical events for the game.
  * @returns {Map<string, 'HOT' | 'COLD' | null>} Map of player IDs to their current streak status.
  */
+/**
+ * 🏀 CoachBoard: calculateLineupStats
+ * Why: Identifies the most effective 5-player combinations.
+ */
+export interface LineupAggregates {
+  lineup: string[]; // Player IDs
+  pointsFor: number;
+  pointsAgainst: number;
+  netRating: number;
+  seconds: number;
+}
+
+export const calculateLineupStats = (
+  stats: StatEvent[],
+): LineupAggregates[] => {
+  const sortedStats = [...stats].sort((a, b) => {
+    if (a.timestamp < b.timestamp) return -1;
+    if (a.timestamp > b.timestamp) return 1;
+    return 0;
+  });
+
+  const lineupStats = new Map<string, LineupAggregates>();
+  let currentLineup = new Set<string>();
+  let lastClockTime = 0;
+  let lastTeamScore = 0;
+  let lastOppScore = 0;
+  let teamScore = 0;
+  let oppScore = 0;
+
+  for (let i = 0; i < sortedStats.length; i++) {
+    const s = sortedStats[i];
+    if (s.deletedAt) continue;
+
+    // Track score
+    if (s.type === ACTION_TYPES.MAKE) {
+      if (s.playerId === SPECIAL_PLAYER_IDS.OPPONENT) oppScore += s.points || 0;
+      else teamScore += s.points || 0;
+    }
+
+    // When lineup changes, record stats for the previous lineup
+    if (s.type === ACTION_TYPES.SUB_IN || s.type === ACTION_TYPES.SUB_OUT) {
+      if (currentLineup.size === 5 && s.clockTime !== undefined) {
+        const lineupKey = Array.from(currentLineup).sort().join(",");
+        let agg = lineupStats.get(lineupKey);
+        if (!agg) {
+          agg = {
+            lineup: Array.from(currentLineup).sort(),
+            pointsFor: 0,
+            pointsAgainst: 0,
+            netRating: 0,
+            seconds: 0,
+          };
+          lineupStats.set(lineupKey, agg);
+        }
+        agg.seconds += (lastClockTime - s.clockTime);
+        agg.pointsFor += (teamScore - lastTeamScore);
+        agg.pointsAgainst += (oppScore - lastOppScore);
+      }
+
+      if (s.type === ACTION_TYPES.SUB_IN) currentLineup.add(s.playerId);
+      else currentLineup.delete(s.playerId);
+
+      lastClockTime = s.clockTime || 0;
+      lastTeamScore = teamScore;
+      lastOppScore = oppScore;
+    }
+  }
+
+  // Final stint
+  if (currentLineup.size === 5) {
+    const lineupKey = Array.from(currentLineup).sort().join(",");
+    let agg = lineupStats.get(lineupKey);
+    if (!agg) {
+      agg = {
+        lineup: Array.from(currentLineup).sort(),
+        pointsFor: 0,
+        pointsAgainst: 0,
+        netRating: 0,
+        seconds: 0,
+      };
+      lineupStats.set(lineupKey, agg);
+    }
+    agg.seconds += lastClockTime;
+    agg.pointsFor += (teamScore - lastTeamScore);
+    agg.pointsAgainst += (oppScore - lastOppScore);
+  }
+
+  return Array.from(lineupStats.values()).map(agg => ({
+    ...agg,
+    netRating: agg.pointsFor - agg.pointsAgainst
+  })).sort((a, b) => b.netRating - a.netRating);
+};
+
 export const calculatePlayerStreaks = (
   stats: StatEvent[],
   options: { isSorted?: boolean } = {},

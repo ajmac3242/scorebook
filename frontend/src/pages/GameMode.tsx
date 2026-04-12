@@ -43,6 +43,8 @@ import {
   ArrowForward,
   ArrowBack,
   Groups,
+  PlayArrow,
+  Pause,
 } from "@mui/icons-material";
 import {
   Table,
@@ -204,8 +206,21 @@ const Scoreboard = React.memo(
     maxPeriod,
     onQuickAction,
     isReadOnly,
-  }: ScoreboardProps) => {
+    clockSeconds,
+    onToggleClock,
+    isClockRunning,
+  }: ScoreboardProps & {
+    clockSeconds: number;
+    onToggleClock: () => void;
+    isClockRunning: boolean;
+  }) => {
     const theme = useTheme();
+
+    const formatClock = (totalSeconds: number) => {
+      const mins = Math.floor(totalSeconds / 60);
+      const secs = totalSeconds % 60;
+      return `${mins}:${secs.toString().padStart(2, "0")}`;
+    };
 
     const renderTeamInfo = (
       name: string,
@@ -487,7 +502,7 @@ const Scoreboard = React.memo(
               {gameData.currentScore}
             </Typography>
 
-            <Box sx={{ textAlign: "center", minWidth: { xs: 60, sm: 100 } }}>
+            <Box sx={{ textAlign: "center", minWidth: { xs: 100, sm: 150 } }}>
               <Typography
                 variant="caption"
                 sx={{
@@ -504,6 +519,50 @@ const Scoreboard = React.memo(
                   ? `OT ${period - maxPeriod}`
                   : `${periodLabel} ${period}`}
               </Typography>
+
+              {/* Game Clock */}
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 1,
+                  mb: 1,
+                }}
+              >
+                <Typography
+                  sx={{
+                    color: "white",
+                    fontSize: { xs: "1.2rem", sm: "1.8rem" },
+                    fontWeight: 700,
+                    fontFamily: "'Courier New', monospace",
+                    minWidth: "4.5ch",
+                  }}
+                >
+                  {formatClock(clockSeconds)}
+                </Typography>
+                {!isReadOnly && (
+                  <IconButton
+                    size="small"
+                    onClick={onToggleClock}
+                    aria-label={isClockRunning ? "Pause Clock" : "Start Clock"}
+                    sx={{
+                      color: isClockRunning
+                        ? theme.palette.warning.main
+                        : theme.palette.success.main,
+                      bgcolor: "rgba(255,255,255,0.05)",
+                      p: 0.5,
+                    }}
+                  >
+                    {isClockRunning ? (
+                      <Pause fontSize="small" />
+                    ) : (
+                      <PlayArrow fontSize="small" />
+                    )}
+                  </IconButton>
+                )}
+              </Box>
+
               <Stack direction="row" spacing={2} justifyContent="center">
                 <ArrowBack
                   aria-label={`${team?.name || "Team"} possession`}
@@ -717,6 +776,9 @@ const GameMode: React.FC = () => {
   const [statType, setStatType] = useState<string | null>(null);
   const [points, setPoints] = useState<number>(2);
 
+  const [clockSeconds, setClockSeconds] = useState<number>(0);
+  const [isClockRunning, setIsClockRunning] = useState(false);
+
   const [sortConfig, setSortConfig] = useState<{
     key: keyof PlayerAggregates;
     direction: "asc" | "desc";
@@ -801,13 +863,42 @@ const GameMode: React.FC = () => {
     [game?.teamId],
   );
 
-  // 🏀 CoachBoard: Persistent Period Tracking
-  // Why: Ensures the game period doesn't reset on page refresh, preserving team foul counts.
+  // 🏀 CoachBoard: Persistent Period & Clock Tracking
+  // Why: Ensures the game period and clock don't reset on page refresh.
   useEffect(() => {
     if (game?.currentPeriod && game.currentPeriod !== period) {
       setPeriod(game.currentPeriod);
     }
-  }, [game?.currentPeriod, period]);
+    if (game?.clockTime !== undefined && !isClockRunning) {
+      setClockSeconds(game.clockTime);
+    } else if (game?.clockTime === undefined && clockSeconds === 0) {
+      // Default to periodLength if set, otherwise 10 mins (600s)
+      setClockSeconds(game?.periodLength ? game.periodLength * 60 : 600);
+    }
+  }, [game?.currentPeriod, game?.clockTime, game?.periodLength, period, isClockRunning, clockSeconds]);
+
+  // Clock Countdown logic
+  useEffect(() => {
+    let interval: ReturnType<typeof setInterval>;
+    if (isClockRunning && clockSeconds > 0) {
+      interval = setInterval(() => {
+        setClockSeconds((prev) => Math.max(0, prev - 1));
+      }, 1000);
+    } else if (clockSeconds === 0) {
+      setIsClockRunning(false);
+    }
+    return () => clearInterval(interval);
+  }, [isClockRunning, clockSeconds]);
+
+  // Auto-sync clock to DB every 5 seconds if running
+  useEffect(() => {
+    if (isClockRunning && gameId) {
+      const syncInterval = setInterval(async () => {
+        await db.games.update(gameId, { clockTime: clockSeconds, synced: 0 });
+      }, 5000);
+      return () => clearInterval(syncInterval);
+    }
+  }, [isClockRunning, gameId, clockSeconds]);
 
   const isReadOnly = !!game?.deletedAt || !!team?.deletedAt;
   const periodType = team?.periodType || "QUARTERS";
@@ -1141,6 +1232,7 @@ const GameMode: React.FC = () => {
             locationX: selectedX || 0,
             locationY: selectedY || 0,
             period,
+            clockTime: clockSeconds,
             timestamp: new Date().toISOString(),
             synced: 0,
           };
@@ -1259,6 +1351,7 @@ const GameMode: React.FC = () => {
           playerId: pId,
           type: ACTION_TYPES.SUB_OUT,
           period,
+          clockTime: clockSeconds,
           timestamp,
           synced: 0,
         });
@@ -1272,6 +1365,7 @@ const GameMode: React.FC = () => {
           playerId: pId,
           type: ACTION_TYPES.SUB_IN,
           period,
+          clockTime: clockSeconds,
           timestamp,
           synced: 0,
         });
@@ -1364,11 +1458,18 @@ const GameMode: React.FC = () => {
     const nextPeriod = period < 10 ? period + 1 : 1;
     setPeriod(nextPeriod);
 
+    // Reset clock for next period
+    const defaultMins = periodType === "QUARTERS" ? 10 : 20;
+    const nextSeconds = defaultMins * 60;
+    setClockSeconds(nextSeconds);
+    setIsClockRunning(false);
+
     if (gameId) {
       try {
         await db.open();
         await db.games.update(gameId, {
           currentPeriod: nextPeriod,
+          clockTime: nextSeconds,
           synced: 0,
         });
         await syncService.pushUpdates();
@@ -1376,7 +1477,7 @@ const GameMode: React.FC = () => {
         logger.error("Failed to update game period:", err);
       }
     }
-  }, [gameId, period]);
+  }, [gameId, period, periodType]);
 
   /**
    * 🏀 CoachBoard: handleTimeout
@@ -1396,6 +1497,7 @@ const GameMode: React.FC = () => {
             : SPECIAL_PLAYER_IDS.TEAM_TIMEOUT,
         type: ACTION_TYPES.TIMEOUT,
         period,
+        clockTime: clockSeconds,
         timestamp: new Date().toISOString(),
         synced: 0,
       });
@@ -1430,6 +1532,7 @@ const GameMode: React.FC = () => {
           locationX: 50,
           locationY: 10,
           period,
+          clockTime: clockSeconds,
           timestamp: new Date().toISOString(),
           synced: 0,
         });
@@ -1468,6 +1571,7 @@ const GameMode: React.FC = () => {
         playerId: targetTeam,
         type: ACTION_TYPES.POSSESSION,
         period,
+        clockTime: clockSeconds,
         timestamp: new Date().toISOString(),
         synced: 0,
       });
@@ -1501,6 +1605,15 @@ const GameMode: React.FC = () => {
             maxPeriod={maxPeriod}
             onQuickAction={handleQuickOpponentAction}
             isReadOnly={isReadOnly}
+            clockSeconds={clockSeconds}
+            isClockRunning={isClockRunning}
+            onToggleClock={() => {
+              const nextRunning = !isClockRunning;
+              setIsClockRunning(nextRunning);
+              if (gameId) {
+                db.games.update(gameId, { clockTime: clockSeconds, synced: 0 });
+              }
+            }}
           />
 
           <MoleskineCard>
@@ -1834,6 +1947,35 @@ const GameMode: React.FC = () => {
                             }}
                           >
                             <TableSortLabel
+                              active={sortConfig.key === "min"}
+                              direction={
+                                sortConfig.key === "min"
+                                  ? sortConfig.direction
+                                  : "asc"
+                              }
+                              onClick={() => {
+                                setSortConfig((prev) => ({
+                                  key: "min",
+                                  direction:
+                                    prev.key === "min" &&
+                                    prev.direction === "asc"
+                                      ? "desc"
+                                      : "asc",
+                                }));
+                              }}
+                            >
+                              MIN
+                            </TableSortLabel>
+                          </TableCell>
+                          <TableCell
+                            align="right"
+                            sx={{
+                              fontSize: "0.65rem",
+                              fontWeight: 700,
+                              px: 0.5,
+                            }}
+                          >
+                            <TableSortLabel
                               active={sortConfig.key === "points"}
                               direction={
                                 sortConfig.key === "points"
@@ -2024,6 +2166,31 @@ const GameMode: React.FC = () => {
                               PF
                             </TableSortLabel>
                           </TableCell>
+                          <TableCell
+                            align="right"
+                            sx={{ fontSize: "0.65rem", fontWeight: 700, px: 1 }}
+                          >
+                            <TableSortLabel
+                              active={sortConfig.key === "plusMinus"}
+                              direction={
+                                sortConfig.key === "plusMinus"
+                                  ? sortConfig.direction
+                                  : "asc"
+                              }
+                              onClick={() => {
+                                setSortConfig((prev) => ({
+                                  key: "plusMinus",
+                                  direction:
+                                    prev.key === "plusMinus" &&
+                                    prev.direction === "asc"
+                                      ? "desc"
+                                      : "asc",
+                                }));
+                              }}
+                            >
+                              +/-
+                            </TableSortLabel>
+                          </TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
@@ -2032,6 +2199,7 @@ const GameMode: React.FC = () => {
                             key={row.id}
                             jerseyNumber={row.jerseyNumber?.toString() ?? ""}
                             name={row.name}
+                            min={row.min}
                             points={row.points}
                             rebounds={row.rebounds}
                             assists={row.assists}
@@ -2039,6 +2207,7 @@ const GameMode: React.FC = () => {
                             blocks={row.blocks}
                             turnovers={row.turnovers}
                             fouls={row.fouls}
+                            plusMinus={row.plusMinus}
                             streak={playerStreaks.get(row.id.toString())}
                           />
                         ))}
@@ -2734,6 +2903,7 @@ const GameMode: React.FC = () => {
 interface PlayerStatRowProps {
   jerseyNumber: string;
   name: string;
+  min: number;
   points: number;
   rebounds: number;
   assists: number;
@@ -2741,6 +2911,7 @@ interface PlayerStatRowProps {
   blocks: number;
   turnovers: number;
   fouls: number;
+  plusMinus: number;
   streak: "HOT" | "COLD" | null | undefined;
 }
 
@@ -2748,6 +2919,7 @@ const PlayerStatRow: React.FC<PlayerStatRowProps> = React.memo(
   ({
     jerseyNumber,
     name,
+    min,
     points,
     rebounds,
     assists,
@@ -2755,6 +2927,7 @@ const PlayerStatRow: React.FC<PlayerStatRowProps> = React.memo(
     blocks,
     turnovers,
     fouls,
+    plusMinus,
     streak,
   }) => (
     <TableRow>
@@ -2799,6 +2972,9 @@ const PlayerStatRow: React.FC<PlayerStatRowProps> = React.memo(
         </Typography>
       </TableCell>
       <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
+        {min}
+      </TableCell>
+      <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
         {points}
       </TableCell>
       <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
@@ -2833,6 +3009,9 @@ const PlayerStatRow: React.FC<PlayerStatRowProps> = React.memo(
       >
         {fouls}
       </TableCell>
+      <TableCell align="right" sx={{ px: 1, fontSize: "0.75rem" }}>
+        {plusMinus > 0 ? `+${plusMinus}` : plusMinus}
+      </TableCell>
     </TableRow>
   ),
 );
@@ -2860,57 +3039,66 @@ const RecentActionItem: React.FC<{
     opponentName,
     onEdit,
     onDelete,
-  }) => (
-    <Box
-      sx={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        py: 0.5,
-        borderBottom: "1px solid #F0F0F0",
-      }}
-    >
-      <Box>
-        <Typography variant="body2">
-          <strong>
-            {stat.playerId === SPECIAL_PLAYER_IDS.OPPONENT
-              ? opponentName || "Opponent"
-              : stat.playerId === SPECIAL_PLAYER_IDS.TEAM_TIMEOUT ||
-                  stat.playerId === SPECIAL_PLAYER_IDS.OUR_TEAM
-                ? teamName || "Our Team"
-                : players?.find((p) => p.id === stat.playerId)?.name ||
-                  "Unknown"}
-          </strong>
-          : {stat.type}
-        </Typography>
-        <Typography variant="caption" color="text.secondary">
-          {periodLabel} {stat.period || 1}
-        </Typography>
+  }) => {
+    const formatClock = (totalSeconds: number) => {
+      const mins = Math.floor(totalSeconds / 60);
+      const secs = totalSeconds % 60;
+      return `${mins}:${secs.toString().padStart(2, "0")}`;
+    };
+
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          py: 0.5,
+          borderBottom: "1px solid #F0F0F0",
+        }}
+      >
+        <Box>
+          <Typography variant="body2">
+            <strong>
+              {stat.playerId === SPECIAL_PLAYER_IDS.OPPONENT
+                ? opponentName || "Opponent"
+                : stat.playerId === SPECIAL_PLAYER_IDS.TEAM_TIMEOUT ||
+                    stat.playerId === SPECIAL_PLAYER_IDS.OUR_TEAM
+                  ? teamName || "Our Team"
+                  : players?.find((p) => p.id === stat.playerId)?.name ||
+                    "Unknown"}
+            </strong>
+            : {stat.type}
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            {periodLabel} {stat.period || 1}
+            {stat.clockTime !== undefined && ` @ ${formatClock(stat.clockTime)}`}
+          </Typography>
+        </Box>
+        <Box>
+          <Tooltip title="Edit action">
+            <IconButton
+              size="small"
+              disabled={isReadOnly}
+              onClick={() => onEdit(stat)}
+              aria-label="edit action"
+            >
+              <Edit fontSize="small" />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Delete action">
+            <IconButton
+              size="small"
+              disabled={isReadOnly}
+              onClick={() => onDelete(stat.id!)}
+              aria-label="delete action"
+            >
+              <Delete fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        </Box>
       </Box>
-      <Box>
-        <Tooltip title="Edit action">
-          <IconButton
-            size="small"
-            disabled={isReadOnly}
-            onClick={() => onEdit(stat)}
-            aria-label="edit action"
-          >
-            <Edit fontSize="small" />
-          </IconButton>
-        </Tooltip>
-        <Tooltip title="Delete action">
-          <IconButton
-            size="small"
-            disabled={isReadOnly}
-            onClick={() => onDelete(stat.id!)}
-            aria-label="delete action"
-          >
-            <Delete fontSize="small" />
-          </IconButton>
-        </Tooltip>
-      </Box>
-    </Box>
-  ),
+    );
+  },
 );
 
 /**

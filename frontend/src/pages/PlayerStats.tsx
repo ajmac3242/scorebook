@@ -171,6 +171,9 @@ const PlayerStats: React.FC = () => {
         offRebounds: 0,
         defRebounds: 0,
         fgPct: "0.0",
+        efgPct: "0.0",
+        plusMinus: 0,
+        min: 0,
         makes: 0,
         attempts: 0,
       }
@@ -206,10 +209,11 @@ const PlayerStats: React.FC = () => {
         primaryColor={player?.avatarColor}
         jerseyNumber={getJerseyNumber()}
         stats={[
+          { label: "MIN", value: aggregates.min },
           { label: "PTS", value: aggregates.points },
           { label: "FG%", value: `${aggregates.fgPct}%` },
-          { label: "REB", value: aggregates.rebounds },
-          { label: "AST", value: aggregates.assists },
+          { label: "eFG%", value: `${aggregates.efgPct}%` },
+          { label: "+/-", value: aggregates.plusMinus },
         ]}
         actions={
           <Stack direction="row" spacing={1} alignItems="center">
@@ -339,15 +343,18 @@ const PlayerStats: React.FC = () => {
       <Grid container spacing={3}>
         <Grid item xs={12} md={4}>
           <Stack spacing={2}>
+            <StatCard label="Total Minutes" value={aggregates.min} />
             <StatCard label="Total Points" value={aggregates.points} />
             <Box
               sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2 }}
             >
               <StatCard label="FG%" value={`${aggregates.fgPct}%`} />
+              <StatCard label="eFG%" value={`${aggregates.efgPct}%`} />
               <StatCard
                 label="FG"
                 value={`${aggregates.makes}/${aggregates.attempts}`}
               />
+              <StatCard label="+/-" value={aggregates.plusMinus > 0 ? `+${aggregates.plusMinus}` : aggregates.plusMinus} />
               <StatCard label="REB" value={aggregates.rebounds} />
               <StatCard label="AST" value={aggregates.assists} />
               <StatCard label="STL" value={aggregates.steals} />
@@ -390,6 +397,9 @@ const PlayerStats: React.FC = () => {
                     Game
                   </TableCell>
                   <TableCell sx={{ fontWeight: 700, p: { xs: 1, sm: 2 } }}>
+                    Clock
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: 700, p: { xs: 1, sm: 2 } }}>
                     Action
                   </TableCell>
                   <TableCell
@@ -406,10 +416,18 @@ const PlayerStats: React.FC = () => {
                   .reverse()
                   .map((stat) => {
                     const g = games.find((g) => g.id === stat.gameId);
+                    const formatClock = (totalSeconds: number) => {
+                      const mins = Math.floor(totalSeconds / 60);
+                      const secs = totalSeconds % 60;
+                      return `${mins}:${secs.toString().padStart(2, "0")}`;
+                    };
                     return (
                       <TableRow key={stat.id} hover>
                         <TableCell sx={{ p: { xs: 1, sm: 2 } }}>
                           P{stat.period || 1}
+                        </TableCell>
+                        <TableCell sx={{ p: { xs: 1, sm: 2 } }}>
+                          {stat.clockTime !== undefined ? formatClock(stat.clockTime) : "-"}
                         </TableCell>
                         <TableCell sx={{ p: { xs: 1, sm: 2 } }}>
                           <Typography

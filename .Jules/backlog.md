@@ -4,10 +4,10 @@
 **Why:** Tracking minutes played is essential for managing rotations and calculating per-minute efficiency. A synchronized game clock ensures statistical events are timestamped accurately within the flow of the game.
 **What:** Implement a configurable game clock (10/12/20 min periods) in `GameMode.tsx` with start/stop functionality. Automatically calculate and store "Minutes Played" for every player based on SUB_IN and SUB_OUT events linked to clock time.
 **Acceptance Criteria:**
-- [ ] Clock can be started, paused, and reset.
-- [ ] Period length is configurable based on team settings.
-- [ ] SUB_IN/SUB_OUT events record the exact game clock time.
-- [ ] Box score displays "MIN" for each player with 100% accuracy.
+- [x] Clock can be started, paused, and reset.
+- [x] Period length is configurable based on team settings.
+- [x] SUB_IN/SUB_OUT events record the exact game clock time.
+- [x] Box score displays "MIN" for each player with 100% accuracy.
 
 ## Advanced Analytics (+/- and eFG%)
 **Priority:** HIGH
@@ -15,9 +15,9 @@
 **Why:** Raw points don't tell the whole story. Plus/Minus (+/-) measures a player's impact on the score while on the court, and Effective Field Goal Percentage (eFG%) accounts for the added value of 3-pointers.
 **What:** Update the statistical aggregation logic in `stats.ts` to calculate `plusMinus` and `eFG%`. Display these metrics in the `GameStats` box score and `PlayerStats` profiles.
 **Acceptance Criteria:**
-- [ ] Plus/Minus is calculated correctly based on team vs. opponent scoring during a player's active stints.
-- [ ] eFG% is calculated using the formula: (FGM + 0.5 * 3PM) / FGA.
-- [ ] Metrics are sortable in the box score table.
+- [x] Plus/Minus is calculated correctly based on team vs. opponent scoring during a player's active stints.
+- [x] eFG% is calculated using the formula: (FGM + 0.5 * 3PM) / FGA.
+- [x] Metrics are sortable in the box score table.
 
 ## Lineup Efficiency Tracker
 **Priority:** MEDIUM
@@ -25,9 +25,9 @@
 **Why:** Coaches need to know which combinations of 5 players are most effective. Tracking lineup-specific stats identifies the "death lineups" and the ones that are struggling.
 **What:** Implement a utility to group statistical events by the specific 5-player lineup on the floor. Create a new "Lineups" tab in `TeamStats` or `GameStats` showing Net Rating, eFG%, and Turnover Rate for each combination.
 **Acceptance Criteria:**
-- [ ] System identifies unique 5-man lineups used during a game.
-- [ ] Calculates Points For and Points Against for each lineup.
-- [ ] Visualizes lineup performance in a dedicated table.
+- [x] System identifies unique 5-man lineups used during a game.
+- [x] Calculates Points For and Points Against for each lineup.
+- [x] Visualizes lineup performance in a dedicated table.
 
 ## PDF/Digital Box Score Export
 **Priority:** MEDIUM
