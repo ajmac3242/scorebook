@@ -272,10 +272,7 @@ export const calculateTeamAggregates = (
 
   let totalPoints = 0;
   let totalRebounds = 0;
-  let totalOffRebounds = 0;
-  let totalDefRebounds = 0;
   let totalAssists = 0;
-  let totalBlocks = 0;
   let totalOppPoints = 0;
 
   for (let i = 0; i < stats.length; i++) {
@@ -297,13 +294,11 @@ export const calculateTeamAggregates = (
       totalPoints += pointsValue;
       totals.team += pointsValue;
 
-      if (type === ACTION_TYPES.REBOUND) {
-        totalRebounds++;
-      } else if (type === ACTION_TYPES.OFF_REBOUND) {
-        totalOffRebounds++;
-        totalRebounds++;
-      } else if (type === ACTION_TYPES.DEF_REBOUND) {
-        totalDefRebounds++;
+      if (
+        type === ACTION_TYPES.REBOUND ||
+        type === ACTION_TYPES.OFF_REBOUND ||
+        type === ACTION_TYPES.DEF_REBOUND
+      ) {
         totalRebounds++;
       } else if (type === ACTION_TYPES.ASSIST) {
         totalAssists++;

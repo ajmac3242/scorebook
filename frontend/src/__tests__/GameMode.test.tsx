@@ -447,5 +447,31 @@ describe("GameMode Component", () => {
         }),
       );
     });
+
+    // Find and click the "REB" quick action button
+    const rebBtn = within(oppContainer).getByRole("button", { name: "REB" });
+    fireEvent.click(rebBtn);
+
+    await waitFor(() => {
+      expect(db.stats.add).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: ACTION_TYPES.REBOUND,
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+        }),
+      );
+    });
+
+    // Find and click the "TO" quick action button
+    const toBtn = within(oppContainer).getByRole("button", { name: "TO" });
+    fireEvent.click(toBtn);
+
+    await waitFor(() => {
+      expect(db.stats.add).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: ACTION_TYPES.TURNOVER,
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+        }),
+      );
+    });
   });
 });
