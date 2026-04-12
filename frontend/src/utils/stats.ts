@@ -9,6 +9,45 @@ import { StatEvent, TeamPlayer, Player, Game } from "../db";
 import { roundToOne, formatToOne, determineResult } from "./mathUtils";
 
 /**
+ * Interface for aggregated team statistics.
+ */
+export interface TeamAggregates {
+  ppg: string;
+  rpg: string;
+  apg: string;
+  oppg: string;
+  record: string;
+  totalGames: number;
+}
+
+/**
+ * Interface for opponent statistics.
+ */
+export interface OpponentAggregates {
+  points: number;
+  makes: number;
+  attempts: number;
+  fgPct: string;
+  rebounds: number;
+  offRebounds: number;
+  defRebounds: number;
+  assists: number;
+  blocks: number;
+  steals: number;
+  turnovers: number;
+  fouls: number;
+}
+
+/**
+ * Interface for score flow data points.
+ */
+export interface ScoreFlowPoint {
+  time: string;
+  Team: number;
+  Opponent: number;
+}
+
+/**
  * Interface for aggregated player statistics.
  */
 export interface PlayerAggregates {
@@ -23,6 +62,9 @@ export interface PlayerAggregates {
   assists: number;
   steals: number;
   turnovers: number;
+  blocks: number;
+  offRebounds: number;
+  defRebounds: number;
   makes: number;
   attempts: number;
   fgPct: string;
@@ -52,50 +94,61 @@ export const getInitials = (name: string | undefined | null): string => {
 
 /**
  * Retrieves the jersey number for a player from the team roster.
- * @param {number | string | undefined} pId - The player ID.
+ * @param {number | string | undefined} playerId - The player ID.
  * @param {TeamPlayer[]} teamPlayers - The team-player junction records.
  * @returns {string} The jersey number or an empty string.
  */
 export const getPlayerJersey = (
-  pId: number | string | undefined,
+  playerId: number | string | undefined,
   teamPlayers: TeamPlayer[],
 ): string => {
-  if (!pId) return "";
-  const tp = teamPlayers.find((t) => t.playerId === pId);
-  return tp?.jerseyNumber || "";
+  if (!playerId) return "";
+  const tp = teamPlayers.find((t) => t.playerId === playerId);
+  return tp?.jerseyNumber ?? "";
 };
 
 /**
  * Updates a player's statistics based on a single statistical event.
- * @param {PlayerAggregates} p - The player aggregate record.
- * @param {StatEvent} s - The statistical event to process.
+ * @param {PlayerAggregates} player - The player aggregate record.
+ * @param {StatEvent} stat - The statistical event to process.
  */
-function processStatEvent(p: PlayerAggregates, s: StatEvent) {
-  p.gamesPlayed.add(s.gameId);
+function processStatEvent(player: PlayerAggregates, stat: StatEvent) {
+  player.gamesPlayed.add(stat.gameId);
 
-  switch (s.type) {
+  switch (stat.type) {
     case ACTION_TYPES.MAKE:
-      p.points += s.points || 0;
-      p.makes++;
-      p.attempts++;
+      player.points += stat.points || 0;
+      player.makes++;
+      player.attempts++;
       break;
     case ACTION_TYPES.MISS:
-      p.attempts++;
+      player.attempts++;
       break;
     case ACTION_TYPES.REBOUND:
-      p.rebounds++;
+      player.rebounds++;
+      break;
+    case ACTION_TYPES.OFF_REBOUND:
+      player.offRebounds++;
+      player.rebounds++;
+      break;
+    case ACTION_TYPES.DEF_REBOUND:
+      player.defRebounds++;
+      player.rebounds++;
+      break;
+    case ACTION_TYPES.BLOCK:
+      player.blocks++;
       break;
     case ACTION_TYPES.ASSIST:
-      p.assists++;
+      player.assists++;
       break;
     case ACTION_TYPES.STEAL:
-      p.steals++;
+      player.steals++;
       break;
     case ACTION_TYPES.TURNOVER:
-      p.turnovers++;
+      player.turnovers++;
       break;
     case ACTION_TYPES.FOUL:
-      p.fouls++;
+      player.fouls++;
       break;
     default:
       break;
@@ -122,15 +175,15 @@ function initializeStatsMap(
   // ⚡ Bolt: Use a Map instead of a Record for stats aggregation.
   // Maps provide more consistent O(1) performance for lookups and insertions
   // of dynamic keys and avoid overhead when iterating via .values().
-  const acc = new Map<string, PlayerAggregates>();
+  const statsMap = new Map<string, PlayerAggregates>();
   for (let i = 0; i < players.length; i++) {
-    const p = players[i];
-    const pId = p.id!.toString();
-    acc.set(pId, {
-      id: p.id,
-      name: p.name,
-      avatarColor: p.avatarColor,
-      jerseyNumber: jerseyMap.get(pId) || "",
+    const player = players[i];
+    const playerId = player.id!.toString();
+    statsMap.set(playerId, {
+      id: player.id,
+      name: player.name,
+      avatarColor: player.avatarColor,
+      jerseyNumber: jerseyMap.get(playerId) ?? "",
       gamesPlayed: new Set(),
       gp: 0,
       points: 0,
@@ -138,13 +191,16 @@ function initializeStatsMap(
       assists: 0,
       steals: 0,
       turnovers: 0,
+      blocks: 0,
+      offRebounds: 0,
+      defRebounds: 0,
       makes: 0,
       attempts: 0,
       fgPct: "0.0",
       fouls: 0,
     });
   }
-  return acc;
+  return statsMap;
 }
 
 /**
@@ -167,36 +223,42 @@ export const calculatePlayerAggregates = (
 
   // Accumulate statistics from event stream
   for (let i = 0; i < stats.length; i++) {
-    const s = stats[i];
-    const p = statsMap.get(s.playerId);
-    if (p) {
-      processStatEvent(p, s);
+    const stat = stats[i];
+    // ⚡ Bolt: Skip deleted events to ensure accuracy and reduce unnecessary processing.
+    if (stat.deletedAt) continue;
+
+    const player = statsMap.get(stat.playerId);
+    if (player) {
+      processStatEvent(player, stat);
     }
   }
 
   // Finalize totals, percentages, and averages
-  // ⚡ Bolt: Iterate over map values directly to skip O(N) key extraction and O(1) lookups.
+  // ⚡ Bolt: Iterate over map values once and reduce redundant property access.
   const result: PlayerAggregates[] = [];
-  for (const p of statsMap.values()) {
-    // ⚡ Bolt: Cache set size to avoid redundant property access/getter calls.
-    const actualGp = p.gamesPlayed.size;
-    // We default gp (games played) to 1 for per-game calculations even if 0
-    // to prevent division by zero errors, though technically it should be 0.
-    const gp = actualGp || 1;
-    p.gp = actualGp;
-    p.fgPct =
-      p.attempts > 0 ? formatToOne((p.makes / p.attempts) * 100) : "0.0";
+  const isAverage = viewType === "average";
+  for (const player of statsMap.values()) {
+    const gpActual = player.gamesPlayed.size;
+    const gp = gpActual || 1;
+    player.gp = gpActual;
+    player.fgPct =
+      player.attempts > 0
+        ? formatToOne((player.makes / player.attempts) * 100)
+        : "0.0";
 
-    if (viewType === "average") {
-      // Optimization: Update numeric fields directly to avoid object spread overhead and memory churn.
-      p.points = roundToOne(p.points / gp);
-      p.rebounds = roundToOne(p.rebounds / gp);
-      p.assists = roundToOne(p.assists / gp);
-      p.steals = roundToOne(p.steals / gp);
-      p.turnovers = roundToOne(p.turnovers / gp);
-      p.fouls = roundToOne(p.fouls / gp);
+    if (isAverage) {
+      // Optimization: Cache property values to minimize redundant lookups in the hot finalization loop.
+      player.points = roundToOne(player.points / gp);
+      player.rebounds = roundToOne(player.rebounds / gp);
+      player.assists = roundToOne(player.assists / gp);
+      player.steals = roundToOne(player.steals / gp);
+      player.turnovers = roundToOne(player.turnovers / gp);
+      player.blocks = roundToOne(player.blocks / gp);
+      player.offRebounds = roundToOne(player.offRebounds / gp);
+      player.defRebounds = roundToOne(player.defRebounds / gp);
+      player.fouls = roundToOne(player.fouls / gp);
     }
-    result.push(p);
+    result.push(player);
   }
   return result;
 };
@@ -216,10 +278,9 @@ export const calculateTeamAggregates = (
   games: Game[],
   stats: StatEvent[],
   completedOnly = true,
-) => {
-  // ⚡ Bolt: Use a single Map to track target games and their totals.
-  // Pre-populating the Map avoids redundant Set lookups and conditional checks in the hot loop.
-  const gameTotals = new Map<string, { team: number; opp: number }>();
+): TeamAggregates => {
+  // Optimization: Pre-filter and collect game IDs in a single pass.
+  const targetGameIds = new Set<string>();
   let targetCount = 0;
   for (let i = 0; i < games.length; i++) {
     const g = games[i];
@@ -230,37 +291,55 @@ export const calculateTeamAggregates = (
   }
 
   // Optimization: Aggregate all stats in a single pass without intermediate grouping.
+  // ⚡ Bolt: Use a Map for game totals to improve lookup performance and avoid object overhead.
+  const gameTotals = new Map<string, { team: number; opp: number }>();
+  // Pre-populate Map with targeted game IDs to eliminate conditional checks in the hot loop.
+  for (const gId of targetGameIds) {
+    gameTotals.set(gId, { team: 0, opp: 0 });
+  }
+
   let totalPoints = 0;
   let totalRebounds = 0;
   let totalAssists = 0;
   let totalOppPoints = 0;
 
   for (let i = 0; i < stats.length; i++) {
-    const s = stats[i];
-    const totals = gameTotals.get(s.gameId);
+    const stat = stats[i];
+    // ⚡ Bolt: Skip deleted events to ensure accuracy and reduce unnecessary processing.
+    if (stat.deletedAt) continue;
+
+    const { gameId, playerId, type, points: eventPoints } = stat;
+
+    const totals = gameTotals.get(gameId);
     if (!totals) continue;
 
-    const pts = s.points || 0;
-    if (s.playerId === SPECIAL_PLAYER_IDS.OPPONENT) {
-      totalOppPoints += pts;
-      totals.opp += pts;
+    const pointsValue = eventPoints || 0;
+
+    if (playerId === SPECIAL_PLAYER_IDS.OPPONENT) {
+      totalOppPoints += pointsValue;
+      totals.opp += pointsValue;
     } else {
-      totalPoints += pts;
-      totals.team += pts;
-      if (s.type === ACTION_TYPES.REBOUND) totalRebounds++;
-      else if (s.type === ACTION_TYPES.ASSIST) totalAssists++;
+      totalPoints += pointsValue;
+      totals.team += pointsValue;
+
+      if (type === ACTION_TYPES.REBOUND) {
+        totalRebounds++;
+      } else if (type === ACTION_TYPES.OFF_REBOUND) {
+        totalRebounds++;
+      } else if (type === ACTION_TYPES.DEF_REBOUND) {
+        totalRebounds++;
+      } else if (type === ACTION_TYPES.ASSIST) {
+        totalAssists++;
+      }
     }
   }
 
   let wins = 0;
   let losses = 0;
-  // ⚡ Bolt: Iterate over map values directly to skip key extraction overhead.
+  // ⚡ Bolt: Iterate over map values directly to improve iteration performance.
   for (const totals of gameTotals.values()) {
-    const { team, opp } = totals;
-    // Only count games that have actually had stats recorded (scores > 0)
-    if (team === 0 && opp === 0) continue;
-    if (team > opp) wins++;
-    else if (team < opp) losses++;
+    if (totals.team > totals.opp) wins++;
+    else if (totals.team < totals.opp) losses++;
   }
 
   const gp = targetCount || 1;
@@ -272,6 +351,143 @@ export const calculateTeamAggregates = (
     record: `${wins}-${losses}`,
     totalGames: targetCount,
   };
+};
+
+/**
+ * Calculates aggregated statistics for the opponent in a single game.
+ *
+ * @param {StatEvent[]} stats - List of statistical events for the game.
+ * @returns {OpponentAggregates} Opponent statistical summary.
+ */
+export const calculateOpponentAggregates = (
+  stats: StatEvent[],
+): OpponentAggregates => {
+  let points = 0;
+  let makes = 0;
+  let misses = 0;
+  let rebounds = 0;
+  let offRebounds = 0;
+  let defRebounds = 0;
+  let assists = 0;
+  let blocks = 0;
+  let steals = 0;
+  let turnovers = 0;
+  let fouls = 0;
+
+  for (let i = 0; i < stats.length; i++) {
+    const stat = stats[i];
+    // ⚡ Bolt: Skip deleted events to ensure accuracy and reduce unnecessary processing.
+    if (stat.deletedAt) continue;
+
+    if (stat.playerId === SPECIAL_PLAYER_IDS.OPPONENT) {
+      switch (stat.type) {
+        case ACTION_TYPES.MAKE:
+          points += stat.points || 0;
+          makes++;
+          break;
+        case ACTION_TYPES.MISS:
+          misses++;
+          break;
+        case ACTION_TYPES.REBOUND:
+          rebounds++;
+          break;
+        case ACTION_TYPES.OFF_REBOUND:
+          offRebounds++;
+          rebounds++;
+          break;
+        case ACTION_TYPES.DEF_REBOUND:
+          defRebounds++;
+          rebounds++;
+          break;
+        case ACTION_TYPES.ASSIST:
+          assists++;
+          break;
+        case ACTION_TYPES.BLOCK:
+          blocks++;
+          break;
+        case ACTION_TYPES.STEAL:
+          steals++;
+          break;
+        case ACTION_TYPES.TURNOVER:
+          turnovers++;
+          break;
+        case ACTION_TYPES.FOUL:
+          fouls++;
+          break;
+      }
+    }
+  }
+
+  const attempts = makes + misses;
+  return {
+    points,
+    makes,
+    attempts,
+    fgPct: attempts > 0 ? ((makes / attempts) * 100).toFixed(1) : "0.0",
+    rebounds,
+    offRebounds,
+    defRebounds,
+    assists,
+    blocks,
+    steals,
+    turnovers,
+    fouls,
+  };
+};
+
+/**
+ * Calculates the score flow data for a game based on chronological events.
+ *
+ * @param {StatEvent[]} stats - Chronological list of statistical events.
+ * @returns {ScoreFlowPoint[]} Array of data points for score flow visualization.
+ */
+export const calculateScoreFlow = (stats: StatEvent[]): ScoreFlowPoint[] => {
+  let teamScore = 0;
+  let oppScore = 0;
+  const result = [{ time: "00:00", Team: 0, Opponent: 0 }];
+
+  for (let i = 0; i < stats.length; i++) {
+    const stat = stats[i];
+    // ⚡ Bolt: Skip deleted events to ensure accuracy and reduce unnecessary processing.
+    if (stat.deletedAt) continue;
+
+    if (stat.type === ACTION_TYPES.MAKE) {
+      if (stat.playerId === SPECIAL_PLAYER_IDS.OPPONENT) {
+        oppScore += stat.points || 0;
+      } else {
+        teamScore += stat.points || 0;
+      }
+      // ⚡ Bolt: Use high-performance string slicing instead of Intl.DateTimeFormat
+      // to extract "mm:ss" from ISO timestamps, reducing CPU and memory overhead.
+      result.push({
+        time: stat.timestamp.slice(14, 19),
+        Team: teamScore,
+        Opponent: oppScore,
+      });
+    }
+  }
+  return result;
+};
+
+/**
+ * Determines if a statistical event occurred within the specified game period.
+ * Handles different logic for QUARTERS vs HALVES.
+ *
+ * @param {number} eventPeriod - The period recorded on the event.
+ * @param {number} currentPeriod - The current game period being viewed.
+ * @param {string} periodType - 'QUARTERS' or 'HALVES'.
+ * @returns {boolean} True if the event belongs to the current period context.
+ */
+export const isEventInPeriod = (
+  eventPeriod: number,
+  currentPeriod: number,
+  periodType: string,
+): boolean => {
+  if (periodType === "QUARTERS") {
+    return eventPeriod === currentPeriod;
+  }
+  // HALVES: Period 1 is first half, Period >= 2 are second half/OT
+  return currentPeriod === 1 ? eventPeriod === 1 : eventPeriod >= 2;
 };
 
 /**
@@ -289,12 +505,15 @@ export const calculateGameResult = (
   let teamScore = 0;
   let oppScore = 0;
   for (let i = 0; i < stats.length; i++) {
-    const s = stats[i];
-    if (s.gameId === gameId) {
-      if (s.playerId === SPECIAL_PLAYER_IDS.OPPONENT) {
-        oppScore += s.points || 0;
+    const stat = stats[i];
+    // ⚡ Bolt: Skip deleted events to ensure accuracy and reduce unnecessary processing.
+    if (stat.deletedAt) continue;
+
+    if (stat.gameId === gameId) {
+      if (stat.playerId === SPECIAL_PLAYER_IDS.OPPONENT) {
+        oppScore += stat.points || 0;
       } else {
-        teamScore += s.points || 0;
+        teamScore += stat.points || 0;
       }
     }
   }
@@ -302,4 +521,81 @@ export const calculateGameResult = (
   // Determine game result: W (Win), L (Loss), D (Draw/Tie).
   const result = determineResult(teamScore, oppScore);
   return { teamScore, oppScore, result };
+};
+
+/**
+ * 🏀 CoachBoard: calculatePlayerStreaks
+ * Why: Identifies players with scoring momentum (Hot/Cold) to assist with rotation decisions.
+ * "Hot" is defined as 3+ consecutive field goal makes.
+ * "Cold" is defined as 3+ consecutive field goal misses.
+ *
+ * @param {StatEvent[]} stats - Chronological list of statistical events for the game.
+ * @returns {Map<string, 'HOT' | 'COLD' | null>} Map of player IDs to their current streak status.
+ */
+export const calculatePlayerStreaks = (
+  stats: StatEvent[],
+  options: { isSorted?: boolean } = {},
+): Map<string, "HOT" | "COLD" | null> => {
+  // ⚡ Bolt: Track streaks for all players in a single pass.
+  // Optimization: Track only the last three actions per player using a fixed-size buffer
+  // to reduce memory churn and avoid large array allocations for long games.
+  const playerStreaks = new Map<string, ("MAKE" | "MISS")[]>();
+
+  const sorted = options.isSorted
+    ? stats
+    : [...stats].sort((a, b) => {
+        if (a.timestamp < b.timestamp) return -1;
+        if (a.timestamp > b.timestamp) return 1;
+        return 0;
+      });
+
+  for (let i = 0; i < sorted.length; i++) {
+    const s = sorted[i];
+    if (s.deletedAt) continue;
+
+    // We only track streaks for field goal attempts
+    if (s.type === ACTION_TYPES.MAKE || s.type === ACTION_TYPES.MISS) {
+      // Skip free throws (points === 1) for field goal streaks
+      if (s.type === ACTION_TYPES.MAKE && s.points === 1) continue;
+
+      const pId = s.playerId;
+      let history = playerStreaks.get(pId);
+      if (!history) {
+        history = [];
+        playerStreaks.set(pId, history);
+      }
+
+      history.push(s.type === ACTION_TYPES.MAKE ? "MAKE" : "MISS");
+      if (history.length > 3) {
+        history.shift(); // Keep only last 3 to minimize memory overhead
+      }
+    }
+  }
+
+  const result = new Map<string, "HOT" | "COLD" | null>();
+  for (const [pId, history] of playerStreaks.entries()) {
+    if (history.length < 3) {
+      result.set(pId, null);
+      continue;
+    }
+
+    // Direct index access is faster than .every() or .slice()
+    if (
+      history[0] === "MAKE" &&
+      history[1] === "MAKE" &&
+      history[2] === "MAKE"
+    ) {
+      result.set(pId, "HOT");
+    } else if (
+      history[0] === "MISS" &&
+      history[1] === "MISS" &&
+      history[2] === "MISS"
+    ) {
+      result.set(pId, "COLD");
+    } else {
+      result.set(pId, null);
+    }
+  }
+
+  return result;
 };

@@ -4,7 +4,11 @@ import {
   getPlayerJersey,
   calculatePlayerAggregates,
   calculateTeamAggregates,
+  calculateOpponentAggregates,
+  calculateScoreFlow,
+  isEventInPeriod,
   calculateGameResult,
+  calculatePlayerStreaks,
 } from "./stats";
 import { TeamPlayer, StatEvent, Game } from "../db";
 import { ACTION_TYPES } from "../constants/stats";
@@ -342,6 +346,89 @@ describe("stats utilities", () => {
     });
   });
 
+  describe("calculateOpponentAggregates", () => {
+    it("calculates opponent stats correctly", () => {
+      const stats: StatEvent[] = [
+        {
+          gameId: "g1",
+          playerId: "OPPONENT",
+          type: ACTION_TYPES.MAKE,
+          points: 3,
+          period: 1,
+          timestamp: "t1",
+        },
+        {
+          gameId: "g1",
+          playerId: "OPPONENT",
+          type: ACTION_TYPES.MISS,
+          period: 1,
+          timestamp: "t2",
+        },
+        {
+          gameId: "g1",
+          playerId: "OPPONENT",
+          type: ACTION_TYPES.REBOUND,
+          period: 1,
+          timestamp: "t3",
+        },
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          period: 1,
+          timestamp: "t4",
+        },
+      ];
+      const results = calculateOpponentAggregates(stats);
+      expect(results.points).toBe(3);
+      expect(results.makes).toBe(1);
+      expect(results.attempts).toBe(2);
+      expect(results.rebounds).toBe(1);
+    });
+  });
+
+  describe("calculateScoreFlow", () => {
+    it("generates score flow data correctly", () => {
+      const stats: StatEvent[] = [
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          period: 1,
+          timestamp: "2023-01-01T10:00:00Z",
+        },
+        {
+          gameId: "g1",
+          playerId: "OPPONENT",
+          type: ACTION_TYPES.MAKE,
+          points: 3,
+          period: 1,
+          timestamp: "2023-01-01T10:05:00Z",
+        },
+      ];
+      const results = calculateScoreFlow(stats);
+      expect(results.length).toBe(3);
+      expect(results[1]).toEqual({ time: "00:00", Team: 2, Opponent: 0 });
+      expect(results[2]).toEqual({ time: "05:00", Team: 2, Opponent: 3 });
+    });
+  });
+
+  describe("isEventInPeriod", () => {
+    it("handles QUARTERS logic", () => {
+      expect(isEventInPeriod(1, 1, "QUARTERS")).toBe(true);
+      expect(isEventInPeriod(2, 1, "QUARTERS")).toBe(false);
+    });
+
+    it("handles HALVES logic", () => {
+      expect(isEventInPeriod(1, 1, "HALVES")).toBe(true);
+      expect(isEventInPeriod(2, 1, "HALVES")).toBe(false);
+      expect(isEventInPeriod(2, 2, "HALVES")).toBe(true);
+      expect(isEventInPeriod(3, 2, "HALVES")).toBe(true);
+    });
+  });
+
   describe("calculateGameResult", () => {
     const stats: StatEvent[] = [
       {
@@ -413,6 +500,234 @@ describe("stats utilities", () => {
       expect(res.teamScore).toBe(2);
       expect(res.oppScore).toBe(2);
       expect(res.result).toBe("D");
+    });
+  });
+
+  describe("calculatePlayerStreaks", () => {
+    it("identifies a HOT streak (3 consecutive makes)", () => {
+      const stats: StatEvent[] = [
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "2023-01-01T10:00:00Z",
+          period: 1,
+        },
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 3,
+          timestamp: "2023-01-01T10:01:00Z",
+          period: 1,
+        },
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "2023-01-01T10:02:00Z",
+          period: 1,
+        },
+      ];
+      const result = calculatePlayerStreaks(stats);
+      expect(result.get("p1")).toBe("HOT");
+    });
+
+    it("identifies a COLD streak (3 consecutive misses)", () => {
+      const stats: StatEvent[] = [
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MISS,
+          timestamp: "2023-01-01T10:00:00Z",
+          period: 1,
+        },
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MISS,
+          timestamp: "2023-01-01T10:01:00Z",
+          period: 1,
+        },
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MISS,
+          timestamp: "2023-01-01T10:02:00Z",
+          period: 1,
+        },
+      ];
+      const result = calculatePlayerStreaks(stats);
+      expect(result.get("p1")).toBe("COLD");
+    });
+
+    it("returns null for fewer than 3 attempts", () => {
+      const stats: StatEvent[] = [
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "2023-01-01T10:00:00Z",
+          period: 1,
+        },
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "2023-01-01T10:01:00Z",
+          period: 1,
+        },
+      ];
+      const result = calculatePlayerStreaks(stats);
+      expect(result.get("p1")).toBe(null);
+    });
+
+    it("handles mixed streaks (resets to null if interrupted)", () => {
+      const stats: StatEvent[] = [
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "1",
+          period: 1,
+        },
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "2",
+          period: 1,
+        },
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MISS,
+          timestamp: "3",
+          period: 1,
+        },
+      ];
+      const result = calculatePlayerStreaks(stats);
+      expect(result.get("p1")).toBe(null);
+    });
+
+    it("ignores non-scoring actions (rebounds, assists)", () => {
+      const stats: StatEvent[] = [
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "1",
+          period: 1,
+        },
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.REBOUND,
+          timestamp: "2",
+          period: 1,
+        },
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "3",
+          period: 1,
+        },
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.ASSIST,
+          timestamp: "4",
+          period: 1,
+        },
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "5",
+          period: 1,
+        },
+      ];
+      const result = calculatePlayerStreaks(stats);
+      expect(result.get("p1")).toBe("HOT");
+    });
+
+    it("ignores free throws (points === 1)", () => {
+      const stats: StatEvent[] = [
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "1",
+          period: 1,
+        },
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "2",
+          period: 1,
+        },
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 1,
+          timestamp: "3",
+          period: 1,
+        }, // FT, should not count towards Hot streak
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MISS,
+          timestamp: "4",
+          period: 1,
+        }, // Miss, interrupts streak
+      ];
+      const result = calculatePlayerStreaks(stats);
+      expect(result.get("p1")).toBe(null);
+    });
+
+    it("properly handles chronological order even if stats are unsorted", () => {
+      const stats: StatEvent[] = [
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "3",
+          period: 1,
+        },
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "1",
+          period: 1,
+        },
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "2",
+          period: 1,
+        },
+      ];
+      const result = calculatePlayerStreaks(stats);
+      expect(result.get("p1")).toBe("HOT");
     });
   });
 });

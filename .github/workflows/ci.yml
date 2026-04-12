@@ -48,7 +48,7 @@ jobs:
 
       - name: Install pnpm
         if: steps.filter.outputs.backend == 'true' || steps.filter.outputs.frontend == 'true'
-        uses: pnpm/action-setup@v3
+        uses: pnpm/action-setup@v4
         with:
           version: 9
 
@@ -65,32 +65,43 @@ jobs:
       # --- Backend ---
       - name: "Backend: Install & Build"
         if: steps.filter.outputs.backend == 'true'
+        timeout-minutes: 5
         run: |
+          echo "::group::Backend Build"
           cd backend
           pnpm install --frozen-lockfile
           pnpm run build
+          echo "::endgroup::"
 
       - name: "Backend: Format & Lint"
         if: steps.filter.outputs.backend == 'true'
         run: |
+          echo "::group::Backend Lint"
           cd backend
           pnpm exec prettier --write "src/**/*.ts"
           # Auto-add missing JSDoc stubs.
           pnpm exec eslint "src/**/*.ts" --config eslint.config.mjs --fix --rule '{"jsdoc/require-jsdoc": ["warn", {"enableFixer": true, "require": {"FunctionDeclaration": true, "FunctionExpression": true, "MethodDefinition": true}}]}' || true
+          echo "::endgroup::"
 
       - name: "Backend: Run Tests"
         if: steps.filter.outputs.backend == 'true'
+        timeout-minutes: 5
         run: |
+          echo "::group::Backend Tests"
           cd backend
           pnpm test -- --verbose
+          echo "::endgroup::"
 
       # --- Frontend ---
       - name: "Frontend: Install & Build"
         if: steps.filter.outputs.frontend == 'true'
+        timeout-minutes: 5
         run: |
+          echo "::group::Frontend Build"
           cd frontend
           pnpm install --frozen-lockfile
           pnpm run build
+          echo "::endgroup::"
 
       - name: Generate frontend build hash
         if: steps.filter.outputs.frontend == 'true'
@@ -99,15 +110,30 @@ jobs:
       - name: "Frontend: Format & Lint"
         if: steps.filter.outputs.frontend == 'true'
         run: |
+          echo "::group::Frontend Lint"
           cd frontend
           pnpm exec prettier --write "src/**/*.{ts,tsx}"
           pnpm exec eslint "src/**/*.{ts,tsx}" --config eslint.config.js --fix --rule '{"jsdoc/require-jsdoc": ["warn", {"enableFixer": true, "require": {"FunctionDeclaration": true, "FunctionExpression": true, "MethodDefinition": true}}]}' || true
+          echo "::endgroup::"
 
       - name: "Frontend: Run Tests"
         if: steps.filter.outputs.frontend == 'true'
+        timeout-minutes: 5
         run: |
+          echo "::group::Frontend Tests"
           cd frontend
           pnpm test -- --reporter=verbose
+          echo "::endgroup::"
+
+      - name: Job Summary
+        if: always()
+        run: |
+          echo "### CI Run Summary 🚀" >> $GITHUB_STEP_SUMMARY
+          echo "- **Backend:** ${{ steps.filter.outputs.backend == 'true' && '✅ Changed' || 'ℹ️ Unchanged' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Frontend:** ${{ steps.filter.outputs.frontend == 'true' && '✅ Changed' || 'ℹ️ Unchanged' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Docs:** ${{ steps.filter.outputs.docs == 'true' && '✅ Changed' || 'ℹ️ Unchanged' }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Status: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
 
       # --- Documentation & Diagrams ---
       - name: Render terraform-docs

@@ -41,8 +41,12 @@ import {
 import BasketballCourt from "../components/BasketballCourt";
 import { db } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
-import { ACTION_TYPES } from "../constants/stats";
-import { calculatePlayerAggregates } from "../utils/stats";
+import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../constants/stats";
+import {
+  calculatePlayerAggregates,
+  calculateOpponentAggregates,
+  calculateScoreFlow,
+} from "../utils/stats";
 import { MoleskineCard } from "../components/SharedUI";
 import EntityBanner from "../components/EntityBanner";
 import { syncService } from "../utils/syncService";
@@ -59,8 +63,6 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
-
-const OPPONENT_PLAYER_ID = "OPPONENT";
 
 /**
  * GameStats page component.
@@ -176,9 +178,20 @@ const GameStats: React.FC = () => {
   }, [allStats, periodFilter]);
 
   const aggregatedStats = useMemo(() => {
-    // Only include players who are assigned to this team
-    const teamPlayerIds = new Set(teamPlayers.map((tp) => tp.playerId));
-    const rosteredPlayers = players.filter((p) => teamPlayerIds.has(p.id!));
+    // ⚡ Bolt: Use a single pass with a Set for O(1) roster filtering.
+    // This avoids redundant array allocations and improves performance for large rosters.
+    const teamPlayerIds = new Set<string | number>();
+    for (let i = 0; i < teamPlayers.length; i++) {
+      teamPlayerIds.add(teamPlayers[i].playerId);
+    }
+
+    const rosteredPlayers = [];
+    for (let i = 0; i < players.length; i++) {
+      const p = players[i];
+      if (teamPlayerIds.has(p.id!)) {
+        rosteredPlayers.push(p);
+      }
+    }
     return calculatePlayerAggregates(rosteredPlayers, stats, teamPlayers);
   }, [players, stats, teamPlayers]);
 
@@ -215,14 +228,14 @@ const GameStats: React.FC = () => {
       const typeMatch = selectedType === "ALL" || s.type === selectedType;
       if (playerMatch && typeMatch) {
         filtered.push(s);
-        if (s.type === "MAKE" || s.type === "MISS") {
+        if (s.type === ACTION_TYPES.MAKE || s.type === ACTION_TYPES.MISS) {
           markers.push({
             id: s.id,
             x: s.locationX || 0,
             y: s.locationY || 0,
             type: s.type as "MAKE" | "MISS",
             label:
-              s.playerId !== OPPONENT_PLAYER_ID
+              s.playerId !== SPECIAL_PLAYER_IDS.OPPONENT
                 ? shotChartJerseyMap.get(s.playerId)
                 : undefined,
             playerId: s.playerId,
@@ -237,90 +250,20 @@ const GameStats: React.FC = () => {
 
   // Optimization: Memoize the sorted statistics used for the score flow chart to avoid redundant sorting.
   const scoreFlowSortedStats = useMemo(() => {
-    return [...stats].sort((a, b) => a.timestamp.localeCompare(b.timestamp));
+    // ⚡ Bolt: Use direct comparison for ISO timestamps instead of localeCompare for hot paths.
+    return [...stats].sort((a, b) => {
+      if (a.timestamp < b.timestamp) return -1;
+      if (a.timestamp > b.timestamp) return 1;
+      return 0;
+    });
   }, [stats]);
 
   const scoreFlowData = useMemo(() => {
-    // Optimization: Use a single for loop and cache Intl.DateTimeFormat for performance.
-    let tScore = 0;
-    let oScore = 0;
-    const resultArr = [{ time: "00:00", Team: 0, Opponent: 0 }];
-    const timeFormatter = new Intl.DateTimeFormat([], {
-      minute: "2-digit",
-      second: "2-digit",
-    });
-
-    for (let i = 0; i < scoreFlowSortedStats.length; i++) {
-      const s = scoreFlowSortedStats[i];
-      if (s.type === ACTION_TYPES.MAKE) {
-        if (s.playerId === OPPONENT_PLAYER_ID) {
-          oScore += s.points || 0;
-        } else {
-          tScore += s.points || 0;
-        }
-        resultArr.push({
-          time: timeFormatter.format(new Date(s.timestamp)),
-          Team: tScore,
-          Opponent: oScore,
-        });
-      }
-    }
-    return resultArr;
+    return calculateScoreFlow(scoreFlowSortedStats);
   }, [scoreFlowSortedStats]);
 
   const oppData = useMemo(() => {
-    // Optimization: Consolidate multiple filter/reduce passes into a single-pass for loop.
-    let points = 0;
-    let makes = 0;
-    let misses = 0;
-    let rebounds = 0;
-    let assists = 0;
-    let steals = 0;
-    let turnovers = 0;
-    let fouls = 0;
-
-    for (let i = 0; i < stats.length; i++) {
-      const s = stats[i];
-      if (s.playerId === OPPONENT_PLAYER_ID) {
-        switch (s.type) {
-          case ACTION_TYPES.MAKE:
-            points += s.points || 0;
-            makes++;
-            break;
-          case ACTION_TYPES.MISS:
-            misses++;
-            break;
-          case ACTION_TYPES.REBOUND:
-            rebounds++;
-            break;
-          case ACTION_TYPES.ASSIST:
-            assists++;
-            break;
-          case ACTION_TYPES.STEAL:
-            steals++;
-            break;
-          case ACTION_TYPES.TURNOVER:
-            turnovers++;
-            break;
-          case ACTION_TYPES.FOUL:
-            fouls++;
-            break;
-        }
-      }
-    }
-
-    const attempts = makes + misses;
-    return {
-      points,
-      makes,
-      attempts,
-      fgPct: attempts > 0 ? ((makes / attempts) * 100).toFixed(1) : "0.0",
-      rebounds,
-      assists,
-      steals,
-      turnovers,
-      fouls,
-    };
+    return calculateOpponentAggregates(stats);
   }, [stats]);
 
   const handleDeleteGame = async () => {
@@ -368,28 +311,23 @@ const GameStats: React.FC = () => {
   const periodLabel = team?.periodType === "HALVES" ? "Half" : "Quarter";
   const maxPeriod = team?.periodType === "HALVES" ? 2 : 4;
   const periods = useMemo(() => {
-    // Optimization: Use a Set and a single pass to identify OT periods, avoiding multiple intermediate arrays and traversals.
-    const p = ["ALL"];
-    for (let i = 1; i <= maxPeriod; i++) {
-      p.push(i.toString());
-    }
+    // ⚡ Bolt: Extract unique OT periods in a single optimized pass.
+    // This replaces a heavy filter/map/Set chain with a simple, high-performance loop.
+    const list = ["ALL"];
+    for (let i = 1; i <= maxPeriod; i++) list.push(i.toString());
 
-    const otSet = new Set<number>();
+    const otPeriodsSet = new Set<number>();
     for (let i = 0; i < allStats.length; i++) {
-      const period = allStats[i].period;
-      if (period > maxPeriod) {
-        otSet.add(period);
-      }
+      const p = allStats[i].period;
+      if (p > maxPeriod) otPeriodsSet.add(p);
     }
 
-    if (otSet.size > 0) {
-      const otPeriods = Array.from(otSet).sort((a, b) => a - b);
-      for (let i = 0; i < otPeriods.length; i++) {
-        p.push(otPeriods[i].toString());
-      }
+    const otPeriods = Array.from(otPeriodsSet).sort((a, b) => a - b);
+    for (let i = 0; i < otPeriods.length; i++) {
+      list.push(otPeriods[i].toString());
     }
 
-    return p;
+    return list;
   }, [maxPeriod, allStats]);
 
   const boxScoreTable = (
@@ -432,11 +370,27 @@ const GameStats: React.FC = () => {
               tooltip="Field Goal Percentage"
             />
             <SortableHeader
+              label="OREB"
+              sortKey="offRebounds"
+              hideOnMobile
+              sortConfig={sortConfig}
+              onSort={handleSort}
+              tooltip="Offensive Rebounds"
+            />
+            <SortableHeader
+              label="DREB"
+              sortKey="defRebounds"
+              hideOnMobile
+              sortConfig={sortConfig}
+              onSort={handleSort}
+              tooltip="Defensive Rebounds"
+            />
+            <SortableHeader
               label="REB"
               sortKey="rebounds"
               sortConfig={sortConfig}
               onSort={handleSort}
-              tooltip="Rebounds"
+              tooltip="Total Rebounds"
             />
             <SortableHeader
               label="AST"
@@ -452,6 +406,14 @@ const GameStats: React.FC = () => {
               sortConfig={sortConfig}
               onSort={handleSort}
               tooltip="Steals"
+            />
+            <SortableHeader
+              label="BLK"
+              sortKey="blocks"
+              hideOnMobile
+              sortConfig={sortConfig}
+              onSort={handleSort}
+              tooltip="Blocks"
             />
             <SortableHeader
               label="TO"
@@ -511,6 +473,18 @@ const GameStats: React.FC = () => {
               >
                 {row.fgPct}%
               </TableCell>
+              <TableCell
+                align="right"
+                sx={{ display: { xs: "none", sm: "table-cell" } }}
+              >
+                {row.offRebounds}
+              </TableCell>
+              <TableCell
+                align="right"
+                sx={{ display: { xs: "none", sm: "table-cell" } }}
+              >
+                {row.defRebounds}
+              </TableCell>
               <TableCell align="right">{row.rebounds}</TableCell>
               <TableCell align="right">{row.assists}</TableCell>
               <TableCell
@@ -518,6 +492,12 @@ const GameStats: React.FC = () => {
                 sx={{ display: { xs: "none", sm: "table-cell" } }}
               >
                 {row.steals}
+              </TableCell>
+              <TableCell
+                align="right"
+                sx={{ display: { xs: "none", sm: "table-cell" } }}
+              >
+                {row.blocks}
               </TableCell>
               <TableCell
                 align="right"
@@ -540,6 +520,18 @@ const GameStats: React.FC = () => {
             >
               {oppData.fgPct}%
             </TableCell>
+            <TableCell
+              align="right"
+              sx={{ display: { xs: "none", sm: "table-cell" } }}
+            >
+              {oppData.offRebounds}
+            </TableCell>
+            <TableCell
+              align="right"
+              sx={{ display: { xs: "none", sm: "table-cell" } }}
+            >
+              {oppData.defRebounds}
+            </TableCell>
             <TableCell align="right">{oppData.rebounds}</TableCell>
             <TableCell align="right">{oppData.assists}</TableCell>
             <TableCell
@@ -547,6 +539,12 @@ const GameStats: React.FC = () => {
               sx={{ display: { xs: "none", sm: "table-cell" } }}
             >
               {oppData.steals}
+            </TableCell>
+            <TableCell
+              align="right"
+              sx={{ display: { xs: "none", sm: "table-cell" } }}
+            >
+              {oppData.blocks}
             </TableCell>
             <TableCell
               align="right"
@@ -590,8 +588,8 @@ const GameStats: React.FC = () => {
             onChange={(e) => setSelectedType(e.target.value)}
           >
             <MenuItem value="ALL">All Shots</MenuItem>
-            <MenuItem value="MAKE">Makes</MenuItem>
-            <MenuItem value="MISS">Misses</MenuItem>
+            <MenuItem value={ACTION_TYPES.MAKE}>Makes</MenuItem>
+            <MenuItem value={ACTION_TYPES.MISS}>Misses</MenuItem>
           </Select>
         </FormControl>
       </Stack>

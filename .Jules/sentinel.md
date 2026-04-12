@@ -7,3 +7,8 @@
 **Vulnerability:** The backend was vulnerable to "ghost item" creation where `UpdateCommand` calls for soft deletes, restores, or status changes would create a new, mostly empty item if the targeted record did not already exist.
 **Learning:** DynamoDB's `UpdateItem` (and `UpdateCommand`) defaults to an "upsert" behavior unless a `ConditionExpression` is explicitly provided.
 **Prevention:** Always include `ConditionExpression: "attribute_exists(PK)"` (or another existence check) for any `UpdateCommand` that is intended to modify an existing resource rather than creating one.
+
+## 2026-04-10 - [Unprotected Admin Endpoints and Missing Security Headers]
+**Vulnerability:** The `/cleanup` administrative endpoint was entirely unauthenticated, allowing arbitrary clients to trigger destructive data cleanup processes. Additionally, the API lacked fundamental security headers (CSP, HSTS, X-Frame-Options), leaving it vulnerable to common web-based attacks and information leakage via logs.
+**Learning:** Defense-in-depth requires securing even "internal" or "utility" endpoints and ensuring all responses communicate security constraints to the browser. Case-insensitive header redaction is critical for preventing credential leakage in multi-client environments.
+**Prevention:** Always implement authentication/authorization for destructive endpoints using secure secrets (e.g., API keys in ENV). Centralize response generation to include mandatory security headers and use exhaustive, case-insensitive log masking for all potentially sensitive headers.

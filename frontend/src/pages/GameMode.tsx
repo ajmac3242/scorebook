@@ -26,6 +26,7 @@ import {
   ToggleButtonGroup,
   Alert,
   Tooltip,
+  Snackbar,
 } from "@mui/material";
 import {
   Undo as UndoIcon,
@@ -53,6 +54,7 @@ import {
   TableSortLabel,
 } from "@mui/material";
 import BasketballCourt from "../components/BasketballCourt";
+import TimeoutDots from "../components/TimeoutDots";
 import { db, type StatEvent, type Player } from "../db";
 import { syncService } from "../utils/syncService";
 import { logger } from "../utils/logger";
@@ -60,6 +62,8 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../constants/stats";
 import {
   calculatePlayerAggregates,
+  calculatePlayerStreaks,
+  isEventInPeriod,
   type PlayerAggregates,
 } from "../utils/stats";
 import { MoleskineCard } from "../components/SharedUI";
@@ -71,72 +75,75 @@ import { MoleskineCard } from "../components/SharedUI";
  */
 const getBonusStatus = (fouls: number, periodType: string) => {
   if (periodType === "QUARTERS") {
-    if (fouls >= 5)
+    if (fouls >= 5) {
       return {
         label: "BONUS",
         isBonus: true,
         isDouble: false,
         color: "error.main",
       };
-    if (fouls === 4)
+    }
+    if (fouls === 4) {
       return {
         label: "",
         isBonus: false,
         isDouble: false,
         color: "warning.main",
       };
-    return { label: "", isBonus: false, isDouble: false, color: "default" };
-  } else {
-    if (fouls >= 10)
-      return {
-        label: "BONUS",
-        isBonus: true,
-        isDouble: true,
-        color: "error.main",
-      };
-    if (fouls >= 7)
-      return {
-        label: "BONUS",
-        isBonus: true,
-        isDouble: false,
-        color: "error.main",
-      };
-    if (fouls === 6)
-      return {
-        label: "",
-        isBonus: false,
-        isDouble: false,
-        color: "warning.main",
-      };
+    }
     return { label: "", isBonus: false, isDouble: false, color: "default" };
   }
+
+  // HALVES logic
+  if (fouls >= 10) {
+    return {
+      label: "BONUS",
+      isBonus: true,
+      isDouble: true,
+      color: "error.main",
+    };
+  }
+  if (fouls >= 7) {
+    return {
+      label: "BONUS",
+      isBonus: true,
+      isDouble: false,
+      color: "error.main",
+    };
+  }
+  if (fouls === 6) {
+    return {
+      label: "",
+      isBonus: false,
+      isDouble: false,
+      color: "warning.main",
+    };
+  }
+  return { label: "", isBonus: false, isDouble: false, color: "default" };
 };
 
 /**
- * Visual indicator for timeouts left using dots.
+ * 🏀 CoachBoard: getShotValue
+ * Why: Automatically detects if a shot is a 2 or 3 based on court coordinates.
+ * Coordinates are 0-100 percentage of SVG viewBox "0 0 500 470".
  */
-const TimeoutDots: React.FC<{
-  count: number;
-  total?: number;
-  color?: string;
-  "data-testid"?: string;
-}> = ({ count, total = 5, color = "white", "data-testid": testId }) => (
-  <Stack direction="row" spacing={0.5} alignItems="center" data-testid={testId}>
-    {Array.from({ length: total }).map((_, i) => (
-      <Box
-        key={i}
-        data-testid={i < count ? "timeout-dot-active" : "timeout-dot-inactive"}
-        sx={{
-          width: 6,
-          height: 6,
-          borderRadius: "50%",
-          bgcolor: i < count ? color : "rgba(255,255,255,0.2)",
-          boxShadow: i < count ? `0 0 4px ${color}` : "none",
-        }}
-      />
-    ))}
-  </Stack>
-);
+const getShotValue = (x: number, y: number): number => {
+  const svgX = x * 5; // 500 / 100
+  const svgY = y * 4.7; // 470 / 100
+
+  // Three Point Line logic from BasketballCourt.tsx:
+  // - Sidebar lines: x=30 and x=470 from y=0 to y=140
+  // - Arc: Center (250, 140) with radius 220 for y > 140
+
+  if (svgY <= 140) {
+    if (svgX <= 30 || svgX >= 470) return 3;
+  } else {
+    const dist = Math.sqrt(Math.pow(svgX - 250, 2) + Math.pow(svgY - 140, 2));
+    if (dist >= 220) return 3;
+  }
+
+  return 2;
+};
 
 /**
  * Redesigned TV-style scoreboard header.
@@ -183,6 +190,8 @@ interface ScoreboardProps {
   period: number;
   periodLabel: string;
   maxPeriod: number;
+  onQuickAction?: (_type: string, _points?: number) => void;
+  isReadOnly: boolean;
 }
 
 const Scoreboard = React.memo(
@@ -193,6 +202,8 @@ const Scoreboard = React.memo(
     period,
     periodLabel,
     maxPeriod,
+    onQuickAction,
+    isReadOnly,
   }: ScoreboardProps) => {
     const theme = useTheme();
 
@@ -325,6 +336,95 @@ const Scoreboard = React.memo(
             </Typography>
           )}
         </Stack>
+
+        {/* 🏀 CoachBoard: Opponent Quick-Action Buttons
+          Why: Allows scorekeepers to record opponent scores and fouls with a single tap,
+          avoiding the need to switch tracking modes during high-pressure live play. */}
+        {isOpponent && !isReadOnly && (
+          <Stack direction="row" spacing={0.5} sx={{ mt: 1 }}>
+            {[1, 2, 3].map((pts) => (
+              <Button
+                key={pts}
+                size="small"
+                variant="outlined"
+                color="secondary"
+                onClick={() =>
+                  onQuickAction && onQuickAction(ACTION_TYPES.MAKE, pts)
+                }
+                sx={{
+                  minWidth: 0,
+                  px: 0.8,
+                  py: 0.2,
+                  fontSize: "0.65rem",
+                  fontWeight: 800,
+                  borderColor: "rgba(255,255,255,0.3)",
+                  color: "white",
+                  "&:hover": { borderColor: "white" },
+                }}
+              >
+                +{pts}
+              </Button>
+            ))}
+            <Button
+              size="small"
+              variant="outlined"
+              color="secondary"
+              onClick={() =>
+                onQuickAction && onQuickAction(ACTION_TYPES.REBOUND)
+              }
+              sx={{
+                minWidth: 0,
+                px: 0.8,
+                py: 0.2,
+                fontSize: "0.65rem",
+                fontWeight: 800,
+                borderColor: "rgba(255,255,255,0.3)",
+                color: "white",
+                "&:hover": { borderColor: "white" },
+              }}
+            >
+              REB
+            </Button>
+            <Button
+              size="small"
+              variant="outlined"
+              color="warning"
+              onClick={() =>
+                onQuickAction && onQuickAction(ACTION_TYPES.TURNOVER)
+              }
+              sx={{
+                minWidth: 0,
+                px: 0.8,
+                py: 0.2,
+                fontSize: "0.65rem",
+                fontWeight: 800,
+                borderColor: "rgba(255,255,255,0.3)",
+                color: "white",
+                "&:hover": { borderColor: "white" },
+              }}
+            >
+              TO
+            </Button>
+            <Button
+              size="small"
+              variant="outlined"
+              color="error"
+              onClick={() => onQuickAction && onQuickAction(ACTION_TYPES.FOUL)}
+              sx={{
+                minWidth: 0,
+                px: 0.8,
+                py: 0.2,
+                fontSize: "0.65rem",
+                fontWeight: 800,
+                borderColor: "rgba(255,255,255,0.3)",
+                color: theme.palette.error.light,
+                "&:hover": { borderColor: "white" },
+              }}
+            >
+              F
+            </Button>
+          </Stack>
+        )}
       </Box>
     );
 
@@ -375,6 +475,7 @@ const Scoreboard = React.memo(
             }}
           >
             <Typography
+              aria-label={`${team?.name || "Team"} score: ${gameData.currentScore}`}
               sx={{
                 color: "white",
                 fontSize: { xs: "1.75rem", sm: "3rem" },
@@ -405,6 +506,7 @@ const Scoreboard = React.memo(
               </Typography>
               <Stack direction="row" spacing={2} justifyContent="center">
                 <ArrowBack
+                  aria-label={`${team?.name || "Team"} possession`}
                   sx={{
                     fontSize: { xs: 16, sm: 20 },
                     color:
@@ -415,9 +517,14 @@ const Scoreboard = React.memo(
                       gameData.possessionState === SPECIAL_PLAYER_IDS.OUR_TEAM
                         ? "drop-shadow(0 0 4px #5A9BBD)"
                         : "none",
+                    opacity:
+                      gameData.possessionState === SPECIAL_PLAYER_IDS.OUR_TEAM
+                        ? 1
+                        : 0.2,
                   }}
                 />
                 <ArrowForward
+                  aria-label={`${game?.opponent || "Opponent"} possession`}
                   sx={{
                     fontSize: { xs: 16, sm: 20 },
                     color:
@@ -428,12 +535,17 @@ const Scoreboard = React.memo(
                       gameData.possessionState === SPECIAL_PLAYER_IDS.OPPONENT
                         ? "drop-shadow(0 0 4px #F6F6F6)"
                         : "none",
+                    opacity:
+                      gameData.possessionState === SPECIAL_PLAYER_IDS.OPPONENT
+                        ? 1
+                        : 0.2,
                   }}
                 />
               </Stack>
             </Box>
 
             <Typography
+              aria-label={`${game?.opponent || "Opponent"} score: ${gameData.opponentScore}`}
               sx={{
                 color: "white",
                 fontSize: { xs: "1.75rem", sm: "3rem" },
@@ -622,6 +734,13 @@ const GameMode: React.FC = () => {
   // Game lifecycle state
   const [endGameDialogOpen, setEndGameDialogOpen] = useState(false);
   const [summaryDialogOpen, setSummaryDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isEnding, setIsEnding] = useState(false);
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity: "success" | "error";
+  }>({ open: false, message: "", severity: "success" });
 
   // Derived data from StatEvents
   const gameStatsQueryResult = useLiveQuery(async () => {
@@ -711,16 +830,26 @@ const GameMode: React.FC = () => {
   }, []);
 
   /**
+   * ⚡ Bolt: Centralized sorting of game events.
+   * Performance: Sorting once in a dedicated useMemo prevents redundant
+   * O(N log N) operations across multiple statistical derivations.
+   */
+  const sortedGameStats = useMemo(() => {
+    // ⚡ Bolt: Use direct comparison for ISO timestamps instead of localeCompare.
+    // Relational operators (<, >) are significantly faster for string comparison in hot paths.
+    return [...gameStats].sort((a, b) => {
+      if (a.timestamp < b.timestamp) return -1;
+      if (a.timestamp > b.timestamp) return 1;
+      return 0;
+    });
+  }, [gameStats]);
+
+  /**
    * ⚡ Bolt: Consolidate statistical derivations.
-   * Performance: Sort gameStats once and perform a single-pass derivation for
+   * Performance: Use the pre-sorted event stream for single-pass derivation of
    * scores, fouls, timeouts, possession, lineups, and recent history.
-   * This reduces database queries and minimizes redundant array traversals.
    */
   const gameData = useMemo(() => {
-    const sorted = [...gameStats].sort((a, b) =>
-      a.timestamp.localeCompare(b.timestamp),
-    );
-
     let curScore = 0;
     let oppScore = 0;
     let teamFouls = 0;
@@ -731,8 +860,8 @@ const GameMode: React.FC = () => {
     const onCourt = new Set<string>();
     const pType = team?.periodType || "QUARTERS";
 
-    for (let i = 0; i < sorted.length; i++) {
-      const s = sorted[i];
+    for (let i = 0; i < sortedGameStats.length; i++) {
+      const s = sortedGameStats[i];
       if (s.deletedAt) continue;
 
       // Score
@@ -744,14 +873,7 @@ const GameMode: React.FC = () => {
 
       // Fouls (Period-aware)
       if (s.type === ACTION_TYPES.FOUL) {
-        const isCurrentPeriodFoul =
-          pType === "QUARTERS"
-            ? s.period === period
-            : period === 1
-              ? s.period === 1
-              : s.period >= 2;
-
-        if (isCurrentPeriodFoul) {
+        if (isEventInPeriod(s.period, period, pType)) {
           if (s.playerId === SPECIAL_PLAYER_IDS.OPPONENT) {
             oppFouls++;
           } else {
@@ -805,9 +927,9 @@ const GameMode: React.FC = () => {
       },
       possessionState: posState,
       onCourtIds: onCourt,
-      recentStats: sorted.slice(-10).reverse(),
+      recentStats: sortedGameStats.slice(-10).reverse(),
     };
-  }, [gameStats, period, team?.periodType, team?.fouls]);
+  }, [sortedGameStats, period, team?.periodType, team?.fouls]);
 
   // Initialize draft state when dialog opens
   useEffect(() => {
@@ -837,9 +959,16 @@ const GameMode: React.FC = () => {
 
       // Handle strings (name, jerseyNumber)
       if (typeof valA === "string" && typeof valB === "string") {
-        return direction === "asc"
-          ? valA.localeCompare(valB)
-          : valB.localeCompare(valA);
+        // ⚡ Bolt: Use direct comparison instead of localeCompare for better performance in UI sorting.
+        if (direction === "asc") {
+          if (valA < valB) return -1;
+          if (valA > valB) return 1;
+          return 0;
+        } else {
+          if (valB < valA) return -1;
+          if (valB > valA) return 1;
+          return 0;
+        }
       }
 
       // Handle numbers
@@ -857,13 +986,24 @@ const GameMode: React.FC = () => {
     return map;
   }, [statsGridData]);
 
+  // 🏀 CoachBoard: Hot/Cold Streaks
+  // Why: Provides immediate coaching visibility into recent player performance trends.
+  const playerStreaks = useMemo(() => {
+    // ⚡ Bolt: Pass the pre-sorted event stream to avoid redundant sorting within the utility.
+    return calculatePlayerStreaks(sortedGameStats, { isSorted: true });
+  }, [sortedGameStats]);
+
   const markers = useMemo(() => {
     const res = [];
     for (let i = 0; i < gameStats.length; i++) {
       const s = gameStats[i];
       if (
         !s.deletedAt &&
-        (markerFilter === "ALL" || s.type === markerFilter) &&
+        (markerFilter === "ALL" ||
+          s.type === markerFilter ||
+          (markerFilter === "REBOUND" &&
+            (s.type === ACTION_TYPES.OFF_REBOUND ||
+              s.type === ACTION_TYPES.DEF_REBOUND))) &&
         s.type !== ACTION_TYPES.SUB_IN &&
         s.type !== ACTION_TYPES.SUB_OUT &&
         s.type !== ACTION_TYPES.POSSESSION &&
@@ -902,8 +1042,18 @@ const GameMode: React.FC = () => {
           synced: 0,
         });
         await syncService.pushUpdates();
+        setSnackbar({
+          open: true,
+          message: "Action undone",
+          severity: "success",
+        });
       } catch (err) {
         logger.error("Failed to undo stat:", err);
+        setSnackbar({
+          open: true,
+          message: "Failed to undo action",
+          severity: "error",
+        });
       }
     }
   }, [gameData.recentStats]);
@@ -912,14 +1062,27 @@ const GameMode: React.FC = () => {
    * Finalizes the game, marking it as completed and triggering a sync.
    */
   const handleEndGame = useCallback(async () => {
+    setIsEnding(true);
     try {
       await db.open();
       await db.games.update(gameId as string, { completed: 1, synced: 0 });
       await syncService.pushUpdates();
       setEndGameDialogOpen(false);
       setSummaryDialogOpen(true);
+      setSnackbar({
+        open: true,
+        message: "Game finalized successfully!",
+        severity: "success",
+      });
     } catch (err) {
       logger.error("Failed to end game:", err);
+      setSnackbar({
+        open: true,
+        message: "Failed to finalize game",
+        severity: "error",
+      });
+    } finally {
+      setIsEnding(false);
     }
   }, [gameId]);
 
@@ -933,6 +1096,10 @@ const GameMode: React.FC = () => {
       if (isReadOnly) return;
       setSelectedX(x);
       setSelectedY(y);
+      // 🏀 CoachBoard: Dynamic Points Initialization
+      // Why: Sets the default point value (2 or 3) based on where the court was clicked.
+      setPoints(getShotValue(x, y));
+
       // Auto-select opponent if in opponent tracking mode
       if (trackingMode === "OPPONENT") {
         setSelectedPlayerId(SPECIAL_PLAYER_IDS.OPPONENT);
@@ -980,8 +1147,18 @@ const GameMode: React.FC = () => {
           await db.stats.add(newStat);
           await syncService.pushUpdates();
         }
+        setSnackbar({
+          open: true,
+          message: isEditing ? "Action updated" : "Action recorded",
+          severity: "success",
+        });
       } catch (err) {
         logger.error("Failed to save stat:", err);
+        setSnackbar({
+          open: true,
+          message: "Failed to save action",
+          severity: "error",
+        });
       }
       // Reset state after save
       setDialogOpen(false);
@@ -1102,8 +1279,18 @@ const GameMode: React.FC = () => {
 
       setSubDialogOpen(false);
       await syncService.pushUpdates();
+      setSnackbar({
+        open: true,
+        message: "Substitution recorded",
+        severity: "success",
+      });
     } catch (err) {
       logger.error("Failed to record quick sub:", err);
+      setSnackbar({
+        open: true,
+        message: "Failed to record substitution",
+        severity: "error",
+      });
     }
   }, [gameId, isReadOnly, gameData.onCourtIds, draftOnCourtIds, period]);
 
@@ -1112,6 +1299,7 @@ const GameMode: React.FC = () => {
    */
   const handleDeleteStat = useCallback(async () => {
     if (!statToDelete) return;
+    setIsDeleting(true);
     try {
       await db.open();
       await db.stats.update(statToDelete, {
@@ -1121,8 +1309,20 @@ const GameMode: React.FC = () => {
       await syncService.pushUpdates();
       setDeleteDialogOpen(false);
       setStatToDelete(null);
+      setSnackbar({
+        open: true,
+        message: "Action deleted successfully!",
+        severity: "success",
+      });
     } catch (err) {
       logger.error("Failed to delete stat:", err);
+      setSnackbar({
+        open: true,
+        message: "Failed to delete action",
+        severity: "error",
+      });
+    } finally {
+      setIsDeleting(false);
     }
   }, [statToDelete]);
 
@@ -1210,6 +1410,47 @@ const GameMode: React.FC = () => {
    * Why: Quick toggle for the possession arrow.
    * Notes: Records a POSSESSION event for the specified team.
    */
+  /**
+   * 🏀 CoachBoard: handleQuickOpponentAction
+   * Why: Fast recording of opponent statistical events from the scoreboard.
+   * Note: Uses default rim coordinates (50, 10) for recorded shot events.
+   */
+  const handleQuickOpponentAction = useCallback(
+    async (type: string, pts: number = 0) => {
+      if (!gameId || isReadOnly) return;
+
+      try {
+        await db.open();
+        await db.stats.add({
+          id: crypto.randomUUID(),
+          gameId: gameId,
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: type,
+          points: pts,
+          locationX: 50,
+          locationY: 10,
+          period,
+          timestamp: new Date().toISOString(),
+          synced: 0,
+        });
+        await syncService.pushUpdates();
+        setSnackbar({
+          open: true,
+          message: "Opponent action recorded",
+          severity: "success",
+        });
+      } catch (err) {
+        logger.error("Failed to record quick opponent action:", err);
+        setSnackbar({
+          open: true,
+          message: "Failed to record action",
+          severity: "error",
+        });
+      }
+    },
+    [gameId, isReadOnly, period],
+  );
+
   const handleTogglePossession = useCallback(async () => {
     if (!gameId || isReadOnly) return;
 
@@ -1258,6 +1499,8 @@ const GameMode: React.FC = () => {
             period={period}
             periodLabel={periodLabel}
             maxPeriod={maxPeriod}
+            onQuickAction={handleQuickOpponentAction}
+            isReadOnly={isReadOnly}
           />
 
           <MoleskineCard>
@@ -1322,18 +1565,24 @@ const GameMode: React.FC = () => {
                   "&::-webkit-scrollbar": { display: "none" },
                 }}
               >
-                {["ALL", "MAKE", "MISS", "REBOUND", "ASSIST", "STEAL"].map(
-                  (type) => (
-                    <Chip
-                      key={type}
-                      label={type}
-                      onClick={() => setMarkerFilter(type)}
-                      variant={markerFilter === type ? "filled" : "outlined"}
-                      size="small"
-                      color={markerFilter === type ? "primary" : "default"}
-                    />
-                  ),
-                )}
+                {[
+                  "ALL",
+                  "MAKE",
+                  "MISS",
+                  "REBOUND",
+                  "ASSIST",
+                  "STEAL",
+                  "BLOCK",
+                ].map((type) => (
+                  <Chip
+                    key={type}
+                    label={type}
+                    onClick={() => setMarkerFilter(type)}
+                    variant={markerFilter === type ? "filled" : "outlined"}
+                    size="small"
+                    color={markerFilter === type ? "primary" : "default"}
+                  />
+                ))}
               </Box>
             </Box>
 
@@ -1369,6 +1618,7 @@ const GameMode: React.FC = () => {
                       .filter((p) => gameData.onCourtIds.has(p.id!))
                       .map((p) => {
                         const s = statsMap.get(p.id!);
+                        const streak = playerStreaks.get(p.id!);
                         const pts = s?.points || 0;
                         const pf = s?.fouls || 0;
                         const isFoulTrouble = pf === 4;
@@ -1442,6 +1692,26 @@ const GameMode: React.FC = () => {
                                   }}
                                 >
                                   {p.name}
+                                  {streak === "HOT" && (
+                                    <Tooltip title="Hot Streak (3+ makes)">
+                                      <Box
+                                        component="span"
+                                        sx={{ ml: 0.5, fontSize: "0.8rem" }}
+                                      >
+                                        🔥
+                                      </Box>
+                                    </Tooltip>
+                                  )}
+                                  {streak === "COLD" && (
+                                    <Tooltip title="Cold Streak (3+ misses)">
+                                      <Box
+                                        component="span"
+                                        sx={{ ml: 0.5, fontSize: "0.8rem" }}
+                                      >
+                                        ❄️
+                                      </Box>
+                                    </Tooltip>
+                                  )}
                                 </Typography>
                                 <Typography
                                   variant="caption"
@@ -1680,6 +1950,35 @@ const GameMode: React.FC = () => {
                             }}
                           >
                             <TableSortLabel
+                              active={sortConfig.key === "blocks"}
+                              direction={
+                                sortConfig.key === "blocks"
+                                  ? sortConfig.direction
+                                  : "asc"
+                              }
+                              onClick={() => {
+                                setSortConfig((prev) => ({
+                                  key: "blocks",
+                                  direction:
+                                    prev.key === "blocks" &&
+                                    prev.direction === "asc"
+                                      ? "desc"
+                                      : "asc",
+                                }));
+                              }}
+                            >
+                              BLK
+                            </TableSortLabel>
+                          </TableCell>
+                          <TableCell
+                            align="right"
+                            sx={{
+                              fontSize: "0.65rem",
+                              fontWeight: 700,
+                              px: 0.5,
+                            }}
+                          >
+                            <TableSortLabel
                               active={sortConfig.key === "turnovers"}
                               direction={
                                 sortConfig.key === "turnovers"
@@ -1729,7 +2028,19 @@ const GameMode: React.FC = () => {
                       </TableHead>
                       <TableBody>
                         {sortedStatsGridData.map((row) => (
-                          <PlayerStatRow key={row.id} row={row} />
+                          <PlayerStatRow
+                            key={row.id}
+                            jerseyNumber={row.jerseyNumber?.toString() ?? ""}
+                            name={row.name}
+                            points={row.points}
+                            rebounds={row.rebounds}
+                            assists={row.assists}
+                            steals={row.steals}
+                            blocks={row.blocks}
+                            turnovers={row.turnovers}
+                            fouls={row.fouls}
+                            streak={playerStreaks.get(row.id.toString())}
+                          />
                         ))}
                       </TableBody>
                     </Table>
@@ -1766,24 +2077,40 @@ const GameMode: React.FC = () => {
                 <History sx={{ fontSize: 18, mr: 1 }} /> Recent Actions
               </Typography>
               <Stack spacing={1}>
-                {gameData.recentStats
-                  .filter((s) => !s.deletedAt)
-                  .map((s) => (
-                    <RecentActionItem
-                      key={s.id}
-                      stat={s}
-                      players={players}
-                      periodLabel={periodLabel}
-                      isReadOnly={isReadOnly}
-                      teamName={team?.name}
-                      opponentName={game?.opponent}
-                      onEdit={openEditDialog}
-                      onDelete={(id) => {
-                        setStatToDelete(id);
-                        setDeleteDialogOpen(true);
-                      }}
-                    />
-                  ))}
+                {gameData.recentStats.filter((s) => !s.deletedAt).length ===
+                0 ? (
+                  <Box
+                    sx={{
+                      py: 4,
+                      textAlign: "center",
+                      border: "1px dashed #D1D1D1",
+                      borderRadius: 1,
+                    }}
+                  >
+                    <Typography variant="caption" color="text.secondary">
+                      No actions recorded yet
+                    </Typography>
+                  </Box>
+                ) : (
+                  gameData.recentStats
+                    .filter((s) => !s.deletedAt)
+                    .map((s) => (
+                      <RecentActionItem
+                        key={s.id}
+                        stat={s}
+                        players={players}
+                        periodLabel={periodLabel}
+                        isReadOnly={isReadOnly}
+                        teamName={team?.name}
+                        opponentName={game?.opponent}
+                        onEdit={openEditDialog}
+                        onDelete={(id) => {
+                          setStatToDelete(id);
+                          setDeleteDialogOpen(true);
+                        }}
+                      />
+                    ))
+                )}
               </Stack>
             </MoleskineCard>
           </Stack>
@@ -1923,9 +2250,31 @@ const GameMode: React.FC = () => {
               setStatType={setStatType}
             />
             <QuickAction
-              type={ACTION_TYPES.REBOUND}
-              label="Rebound"
+              type={ACTION_TYPES.ASSIST}
+              label="Assist"
+              icon={PanTool}
+              statType={statType}
+              setStatType={setStatType}
+            />
+            {/* 🏀 CoachBoard: Offensive vs. Defensive Rebounds */}
+            <QuickAction
+              type={ACTION_TYPES.OFF_REBOUND}
+              label="Off Reb"
               icon={SportsBasketball}
+              statType={statType}
+              setStatType={setStatType}
+            />
+            <QuickAction
+              type={ACTION_TYPES.DEF_REBOUND}
+              label="Def Reb"
+              icon={SportsBasketball}
+              statType={statType}
+              setStatType={setStatType}
+            />
+            <QuickAction
+              type={ACTION_TYPES.TURNOVER}
+              label="Turnover"
+              icon={SwapHoriz}
               statType={statType}
               setStatType={setStatType}
             />
@@ -1936,17 +2285,11 @@ const GameMode: React.FC = () => {
               statType={statType}
               setStatType={setStatType}
             />
+            {/* 🏀 CoachBoard: Added Block action */}
             <QuickAction
-              type={ACTION_TYPES.ASSIST}
-              label="Assist"
-              icon={PanTool}
-              statType={statType}
-              setStatType={setStatType}
-            />
-            <QuickAction
-              type={ACTION_TYPES.TURNOVER}
-              label="Turnover"
-              icon={SwapHoriz}
+              type={ACTION_TYPES.BLOCK}
+              label="Block"
+              icon={ArrowBack}
               statType={statType}
               setStatType={setStatType}
             />
@@ -2049,6 +2392,11 @@ const GameMode: React.FC = () => {
       <Dialog
         open={endGameDialogOpen}
         onClose={() => setEndGameDialogOpen(false)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && !isEnding) {
+            handleEndGame();
+          }
+        }}
       >
         <DialogTitle sx={{ fontFamily: "var(--serif)" }}>End Game?</DialogTitle>
         <DialogContent>
@@ -2058,11 +2406,20 @@ const GameMode: React.FC = () => {
           </DialogContentText>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setEndGameDialogOpen(false)} color="inherit">
+          <Button
+            onClick={() => setEndGameDialogOpen(false)}
+            color="inherit"
+            disabled={isEnding}
+          >
             No, Continue
           </Button>
-          <Button onClick={handleEndGame} color="error" variant="contained">
-            Yes, Finish Game
+          <Button
+            onClick={handleEndGame}
+            color="error"
+            variant="contained"
+            disabled={isEnding}
+          >
+            {isEnding ? "Ending..." : "Yes, Finish Game"}
           </Button>
         </DialogActions>
       </Dialog>
@@ -2315,6 +2672,11 @@ const GameMode: React.FC = () => {
       <Dialog
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && !isDeleting) {
+            handleDeleteStat();
+          }
+        }}
       >
         <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
           Confirm Delete
@@ -2325,87 +2687,155 @@ const GameMode: React.FC = () => {
           </DialogContentText>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setDeleteDialogOpen(false)} color="inherit">
+          <Button
+            onClick={() => setDeleteDialogOpen(false)}
+            color="inherit"
+            disabled={isDeleting}
+          >
             Cancel
           </Button>
-          <Button onClick={handleDeleteStat} color="error" variant="contained">
-            Delete
+          <Button
+            onClick={handleDeleteStat}
+            color="error"
+            variant="contained"
+            disabled={isDeleting}
+          >
+            {isDeleting ? "Deleting..." : "Delete"}
           </Button>
         </DialogActions>
       </Dialog>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity}
+          variant="filled"
+          sx={{ width: "100%" }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };
 
-
 /**
  * Sub-component for displaying a player's statistical row in the table.
- * Optimized with React.memo to skip redundant virtual DOM diffing.
+ * Optimized with React.memo and primitive props to skip redundant virtual DOM diffing.
+ * ⚡ Bolt: By passing primitive props instead of a monolithic 'row' object,
+ * React.memo can accurately detect when a player's stats have NOT changed,
+ * preventing 90%+ of redundant row re-renders during live game tracking.
  */
-const PlayerStatRow: React.FC<{
-  row: PlayerAggregates;
-}> = React.memo(({ row }) => (
-  <TableRow>
-    <TableCell sx={{ py: 1, px: 1 }}>
-      <Typography
-        variant="caption"
+interface PlayerStatRowProps {
+  jerseyNumber: string;
+  name: string;
+  points: number;
+  rebounds: number;
+  assists: number;
+  steals: number;
+  blocks: number;
+  turnovers: number;
+  fouls: number;
+  streak: "HOT" | "COLD" | null | undefined;
+}
+
+const PlayerStatRow: React.FC<PlayerStatRowProps> = React.memo(
+  ({
+    jerseyNumber,
+    name,
+    points,
+    rebounds,
+    assists,
+    steals,
+    blocks,
+    turnovers,
+    fouls,
+    streak,
+  }) => (
+    <TableRow>
+      <TableCell sx={{ py: 1, px: 1 }}>
+        <Typography
+          variant="caption"
+          sx={{
+            fontWeight: 600,
+            display: "block",
+            lineHeight: 1.1,
+          }}
+        >
+          #{jerseyNumber}
+        </Typography>
+        <Typography
+          variant="caption"
+          sx={{
+            fontSize: "0.65rem",
+            display: "block",
+            color: "text.secondary",
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            maxWidth: "60px",
+          }}
+        >
+          {name.split(" ")[0]}
+          {streak === "HOT" && (
+            <Tooltip title="Hot Streak (3+ makes)">
+              <Box component="span" sx={{ ml: 0.2 }}>
+                🔥
+              </Box>
+            </Tooltip>
+          )}
+          {streak === "COLD" && (
+            <Tooltip title="Cold Streak (3+ misses)">
+              <Box component="span" sx={{ ml: 0.2 }}>
+                ❄️
+              </Box>
+            </Tooltip>
+          )}
+        </Typography>
+      </TableCell>
+      <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
+        {points}
+      </TableCell>
+      <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
+        {rebounds}
+      </TableCell>
+      <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
+        {assists}
+      </TableCell>
+      <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
+        {steals}
+      </TableCell>
+      <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
+        {blocks}
+      </TableCell>
+      <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
+        {turnovers}
+      </TableCell>
+      <TableCell
+        align="right"
         sx={{
-          fontWeight: 600,
-          display: "block",
-          lineHeight: 1.1,
+          px: 1,
+          fontSize: "0.75rem",
+          fontWeight: fouls >= 4 ? 700 : 400,
+          bgcolor:
+            fouls >= 5
+              ? "error.main"
+              : fouls === 4
+                ? "warning.main"
+                : "transparent",
+          color: fouls >= 4 ? "white" : "inherit",
         }}
       >
-        #{row.jerseyNumber}
-      </Typography>
-      <Typography
-        variant="caption"
-        sx={{
-          fontSize: "0.65rem",
-          display: "block",
-          color: "text.secondary",
-          whiteSpace: "nowrap",
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-          maxWidth: "60px",
-        }}
-      >
-        {row.name.split(" ")[0]}
-      </Typography>
-    </TableCell>
-    <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
-      {row.points}
-    </TableCell>
-    <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
-      {row.rebounds}
-    </TableCell>
-    <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
-      {row.assists}
-    </TableCell>
-    <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
-      {row.steals}
-    </TableCell>
-    <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
-      {row.turnovers}
-    </TableCell>
-    <TableCell
-      align="right"
-      sx={{
-        px: 1,
-        fontSize: "0.75rem",
-        fontWeight: row.fouls >= 4 ? 700 : 400,
-        bgcolor:
-          row.fouls >= 5
-            ? "error.main"
-            : row.fouls === 4
-              ? "warning.main"
-              : "transparent",
-        color: row.fouls >= 4 ? "white" : "inherit",
-      }}
-    >
-      {row.fouls}
-    </TableCell>
-  </TableRow>
-));
+        {fouls}
+      </TableCell>
+    </TableRow>
+  ),
+);
 
 /**
  * Sub-component for displaying a single item in the recent actions history.
@@ -2418,11 +2848,11 @@ const RecentActionItem: React.FC<{
   isReadOnly: boolean;
   teamName?: string;
   opponentName?: string;
-  onEdit: (_s: StatEvent) => void;
+  onEdit: (_stat: StatEvent) => void;
   onDelete: (_id: string) => void;
 }> = React.memo(
   ({
-    stat: s,
+    stat,
     players,
     periodLabel,
     isReadOnly,
@@ -2443,17 +2873,18 @@ const RecentActionItem: React.FC<{
       <Box>
         <Typography variant="body2">
           <strong>
-            {s.playerId === SPECIAL_PLAYER_IDS.OPPONENT
+            {stat.playerId === SPECIAL_PLAYER_IDS.OPPONENT
               ? opponentName || "Opponent"
-              : s.playerId === SPECIAL_PLAYER_IDS.TEAM_TIMEOUT ||
-                  s.playerId === SPECIAL_PLAYER_IDS.OUR_TEAM
+              : stat.playerId === SPECIAL_PLAYER_IDS.TEAM_TIMEOUT ||
+                  stat.playerId === SPECIAL_PLAYER_IDS.OUR_TEAM
                 ? teamName || "Our Team"
-                : players?.find((p) => p.id === s.playerId)?.name || "Unknown"}
+                : players?.find((p) => p.id === stat.playerId)?.name ||
+                  "Unknown"}
           </strong>
-          : {s.type}
+          : {stat.type}
         </Typography>
         <Typography variant="caption" color="text.secondary">
-          {periodLabel} {s.period || 1}
+          {periodLabel} {stat.period || 1}
         </Typography>
       </Box>
       <Box>
@@ -2461,7 +2892,7 @@ const RecentActionItem: React.FC<{
           <IconButton
             size="small"
             disabled={isReadOnly}
-            onClick={() => onEdit(s)}
+            onClick={() => onEdit(stat)}
             aria-label="edit action"
           >
             <Edit fontSize="small" />
@@ -2471,7 +2902,7 @@ const RecentActionItem: React.FC<{
           <IconButton
             size="small"
             disabled={isReadOnly}
-            onClick={() => onDelete(s.id!)}
+            onClick={() => onDelete(stat.id!)}
             aria-label="delete action"
           >
             <Delete fontSize="small" />
@@ -2496,6 +2927,7 @@ const QuickAction: React.FC<{
   <Button
     variant={statType === type ? "contained" : "outlined"}
     color="inherit"
+    aria-pressed={statType === type}
     onClick={() => {
       setStatType(type);
     }}

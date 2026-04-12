@@ -13,3 +13,7 @@ Action: Enforce specific entity types in JSDoc and always provide type arguments
 ## 2026-04-03 - [Linting / formatting improvement]
 Learning: ESLint warnings in the `backend/coverage/` directory were causing noise in reports. Automated project-wide formatting (Prettier) can inadvertently touch machine-generated files like `pnpm-lock.yaml` and `coverage/`, which creates massive PR noise and potential issues.
 Action: Always add `coverage/` to ESLint and Prettier ignore lists. Use targeted formatting (e.g., `prettier --write <file>`) instead of project-wide runs to keep PRs small and atomic.
+
+## 2026-04-12 - Elite Code Hygiene Improvements
+Learning: Redundant JSDoc blocks often accumulate when refactoring large files like `backend/src/index.ts`. Nullish coalescing (`??`) is preferred over logical OR (`||`) for jersey numbers to avoid treating "0" as a missing value.
+Action: Periodically scan for "orphan" JSDoc blocks and enforce `??` for numeric string properties.

@@ -23,7 +23,14 @@ vi.mock("../components/BasketballCourt", () => ({
   }: {
     onCoordClick: (x: number, y: number) => void;
   }) => (
-    <div data-testid="basketball-court" onClick={() => onCoordClick(50, 50)}>
+    <div
+      data-testid="basketball-court"
+      onClick={(e) => {
+        const x = Number(e.currentTarget.getAttribute("data-x") || 50);
+        const y = Number(e.currentTarget.getAttribute("data-y") || 50);
+        onCoordClick(x, y);
+      }}
+    >
       Mock Basketball Court
     </div>
   ),
@@ -340,5 +347,131 @@ describe("GameMode Component", () => {
     // Scoreboard renders renderTeamInfo for team first, then opponent.
     // Let's check that BONUS is present.
     expect(await screen.findByText("BONUS")).toBeInTheDocument();
+  });
+
+  it("automatically detects 3pt shot value in the corner", async () => {
+    renderComponent();
+
+    const court = screen.getByTestId("basketball-court");
+    // Corner 3: x=5, y=5 -> SVG X=25, Y=23.5 (X <= 30, Y <= 140)
+    court.setAttribute("data-x", "5");
+    court.setAttribute("data-y", "5");
+    fireEvent.click(court);
+
+    await waitFor(() => {
+      expect(screen.getByText(/Record Action/i)).toBeInTheDocument();
+    });
+
+    // Select "Make"
+    fireEvent.click(screen.getByRole("button", { name: /Make/i }));
+
+    // Points should default to 3
+    const threeBtn = screen.getByRole("button", { name: "3" });
+    expect(threeBtn).toHaveClass("MuiButton-contained");
+  });
+
+  it("automatically detects 2pt shot value in the paint", async () => {
+    renderComponent();
+
+    const court = screen.getByTestId("basketball-court");
+    // Paint: x=50, y=10 -> SVG X=250, Y=47 (Center)
+    court.setAttribute("data-x", "50");
+    court.setAttribute("data-y", "10");
+    fireEvent.click(court);
+
+    await waitFor(() => {
+      expect(screen.getByText(/Record Action/i)).toBeInTheDocument();
+    });
+
+    // Select "Make"
+    fireEvent.click(screen.getByRole("button", { name: /Make/i }));
+
+    // Points should default to 2
+    const twoBtn = screen.getByRole("button", { name: "2" });
+    expect(twoBtn).toHaveClass("MuiButton-contained");
+  });
+
+  it("🏀 CoachBoard: records opponent quick actions from the scoreboard", async () => {
+    (useLiveQuery as Record<string, any>).mockImplementation(
+      (cb: () => any) => {
+        const code = cb.toString();
+        if (code.includes("db.stats")) return mockStats;
+        if (code.includes("db.games.get"))
+          return {
+            id: "g1",
+            opponent: "Test Opponent",
+            date: "2023-01-01",
+          };
+        if (code.includes("db.teams.get")) return { id: "t1" };
+        if (code.includes("db.players")) return mockPlayers;
+        if (code.includes("db.teamPlayers")) return mockTeamPlayers;
+        return [];
+      },
+    );
+
+    renderComponent();
+
+    // Find the opponent side of the scoreboard
+    // Based on our mock, the opponent name is "Test Opponent"
+    const oppHeader = await screen.findAllByText(/Test Opponent/i);
+    // Scoreboard structure:
+    // renderTeamInfo -> Box (column) -> Box (row with Avatar and Typography)
+    // The parent of the Typography is a Box, and the grandparent is the column Box.
+    const oppContainer = oppHeader[0].parentElement!.parentElement!;
+
+    // Find the "+2" quick action button for the opponent
+    const plusTwoBtn = within(oppContainer).getByRole("button", { name: "+2" });
+    fireEvent.click(plusTwoBtn);
+
+    await waitFor(() => {
+      expect(db.stats.add).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: ACTION_TYPES.MAKE,
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          points: 2,
+          locationX: 50,
+          locationY: 10,
+        }),
+      );
+    });
+
+    // Find and click the "F" (Foul) quick action button
+    const foulBtn = within(oppContainer).getByRole("button", { name: "F" });
+    fireEvent.click(foulBtn);
+
+    await waitFor(() => {
+      expect(db.stats.add).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: ACTION_TYPES.FOUL,
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+        }),
+      );
+    });
+
+    // Find and click the "REB" quick action button
+    const rebBtn = within(oppContainer).getByRole("button", { name: "REB" });
+    fireEvent.click(rebBtn);
+
+    await waitFor(() => {
+      expect(db.stats.add).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: ACTION_TYPES.REBOUND,
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+        }),
+      );
+    });
+
+    // Find and click the "TO" quick action button
+    const toBtn = within(oppContainer).getByRole("button", { name: "TO" });
+    fireEvent.click(toBtn);
+
+    await waitFor(() => {
+      expect(db.stats.add).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: ACTION_TYPES.TURNOVER,
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+        }),
+      );
+    });
   });
 });
