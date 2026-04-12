@@ -680,10 +680,18 @@ const GameStats: React.FC = () => {
         <TableHead>
           <TableRow sx={{ bgcolor: "rgba(0,0,0,0.02)" }}>
             <TableCell sx={{ fontWeight: 700 }}>Lineup</TableCell>
-            <TableCell align="right" sx={{ fontWeight: 700 }}>MIN</TableCell>
-            <TableCell align="right" sx={{ fontWeight: 700 }}>PTS FOR</TableCell>
-            <TableCell align="right" sx={{ fontWeight: 700 }}>PTS AGN</TableCell>
-            <TableCell align="right" sx={{ fontWeight: 700 }}>+/-</TableCell>
+            <TableCell align="right" sx={{ fontWeight: 700 }}>
+              MIN
+            </TableCell>
+            <TableCell align="right" sx={{ fontWeight: 700 }}>
+              PTS FOR
+            </TableCell>
+            <TableCell align="right" sx={{ fontWeight: 700 }}>
+              PTS AGN
+            </TableCell>
+            <TableCell align="right" sx={{ fontWeight: 700 }}>
+              +/-
+            </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -691,14 +699,19 @@ const GameStats: React.FC = () => {
             <TableRow key={idx}>
               <TableCell>
                 <Stack direction="row" spacing={0.5}>
-                  {row.lineup.map(pId => (
-                    <Avatar key={pId} sx={{ width: 24, height: 24, fontSize: '0.65rem' }}>
-                      {shotChartJerseyMap.get(pId) || '??'}
+                  {row.lineup.map((pId) => (
+                    <Avatar
+                      key={pId}
+                      sx={{ width: 24, height: 24, fontSize: "0.65rem" }}
+                    >
+                      {shotChartJerseyMap.get(pId) || "??"}
                     </Avatar>
                   ))}
                 </Stack>
               </TableCell>
-              <TableCell align="right">{(row.seconds / 60).toFixed(1)}</TableCell>
+              <TableCell align="right">
+                {(row.seconds / 60).toFixed(1)}
+              </TableCell>
               <TableCell align="right">{row.pointsFor}</TableCell>
               <TableCell align="right">{row.pointsAgainst}</TableCell>
               <TableCell align="right" sx={{ fontWeight: 700 }}>

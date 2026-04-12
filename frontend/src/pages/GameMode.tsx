@@ -875,7 +875,14 @@ const GameMode: React.FC = () => {
       // Default to periodLength if set, otherwise 10 mins (600s)
       setClockSeconds(game?.periodLength ? game.periodLength * 60 : 600);
     }
-  }, [game?.currentPeriod, game?.clockTime, game?.periodLength, period, isClockRunning, clockSeconds]);
+  }, [
+    game?.currentPeriod,
+    game?.clockTime,
+    game?.periodLength,
+    period,
+    isClockRunning,
+    clockSeconds,
+  ]);
 
   // Clock Countdown logic
   useEffect(() => {
@@ -3071,7 +3078,8 @@ const RecentActionItem: React.FC<{
           </Typography>
           <Typography variant="caption" color="text.secondary">
             {periodLabel} {stat.period || 1}
-            {stat.clockTime !== undefined && ` @ ${formatClock(stat.clockTime)}`}
+            {stat.clockTime !== undefined &&
+              ` @ ${formatClock(stat.clockTime)}`}
           </Typography>
         </Box>
         <Box>

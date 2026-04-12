@@ -233,7 +233,10 @@ export const calculatePlayerAggregates = (
   const statsMap = initializeStatsMap(players, teamPlayers);
 
   // Track player stints for MIN and plus-minus
-  const activeStints = new Map<string, { startClock: number; startScoreDiff: number }>();
+  const activeStints = new Map<
+    string,
+    { startClock: number; startScoreDiff: number }
+  >();
   // ⚡ Bolt: Use pre-sorted stats or sort them if needed.
   const sortedStats = [...stats].sort((a, b) => {
     if (a.timestamp < b.timestamp) return -1;
@@ -267,14 +270,17 @@ export const calculatePlayerAggregates = (
 
     // Handle Sub-In/Sub-Out for MIN and Plus-Minus
     if (type === ACTION_TYPES.SUB_IN && clockTime !== undefined) {
-      activeStints.set(playerId, { startClock: clockTime, startScoreDiff: teamScore - oppScore });
+      activeStints.set(playerId, {
+        startClock: clockTime,
+        startScoreDiff: teamScore - oppScore,
+      });
     } else if (type === ACTION_TYPES.SUB_OUT && clockTime !== undefined) {
       const stint = activeStints.get(playerId);
       if (stint) {
         const playerAgg = statsMap.get(playerId);
         if (playerAgg) {
-          playerAgg.min += (stint.startClock - clockTime);
-          playerAgg.plusMinus += (teamScore - oppScore) - stint.startScoreDiff;
+          playerAgg.min += stint.startClock - clockTime;
+          playerAgg.plusMinus += teamScore - oppScore - stint.startScoreDiff;
         }
         activeStints.delete(playerId);
       }
@@ -286,7 +292,7 @@ export const calculatePlayerAggregates = (
     const playerAgg = statsMap.get(pId);
     if (playerAgg) {
       playerAgg.min += stint.startClock; // Assuming game ends at 0:00
-      playerAgg.plusMinus += (teamScore - oppScore) - stint.startScoreDiff;
+      playerAgg.plusMinus += teamScore - oppScore - stint.startScoreDiff;
     }
   }
 
@@ -305,7 +311,9 @@ export const calculatePlayerAggregates = (
     // eFG% = (FGM + 0.5 * 3PM) / FGA
     player.efgPct =
       player.attempts > 0
-        ? formatToOne(((player.makes + 0.5 * player.threePM) / player.attempts) * 100)
+        ? formatToOne(
+            ((player.makes + 0.5 * player.threePM) / player.attempts) * 100,
+          )
         : "0.0";
 
     if (isAverage) {
@@ -648,9 +656,9 @@ export const calculateLineupStats = (
           };
           lineupStats.set(lineupKey, agg);
         }
-        agg.seconds += (lastClockTime - s.clockTime);
-        agg.pointsFor += (teamScore - lastTeamScore);
-        agg.pointsAgainst += (oppScore - lastOppScore);
+        agg.seconds += lastClockTime - s.clockTime;
+        agg.pointsFor += teamScore - lastTeamScore;
+        agg.pointsAgainst += oppScore - lastOppScore;
       }
 
       if (s.type === ACTION_TYPES.SUB_IN) currentLineup.add(s.playerId);
@@ -677,14 +685,16 @@ export const calculateLineupStats = (
       lineupStats.set(lineupKey, agg);
     }
     agg.seconds += lastClockTime;
-    agg.pointsFor += (teamScore - lastTeamScore);
-    agg.pointsAgainst += (oppScore - lastOppScore);
+    agg.pointsFor += teamScore - lastTeamScore;
+    agg.pointsAgainst += oppScore - lastOppScore;
   }
 
-  return Array.from(lineupStats.values()).map(agg => ({
-    ...agg,
-    netRating: agg.pointsFor - agg.pointsAgainst
-  })).sort((a, b) => b.netRating - a.netRating);
+  return Array.from(lineupStats.values())
+    .map((agg) => ({
+      ...agg,
+      netRating: agg.pointsFor - agg.pointsAgainst,
+    }))
+    .sort((a, b) => b.netRating - a.netRating);
 };
 
 export const calculatePlayerStreaks = (

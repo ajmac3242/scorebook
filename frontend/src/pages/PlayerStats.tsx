@@ -354,7 +354,14 @@ const PlayerStats: React.FC = () => {
                 label="FG"
                 value={`${aggregates.makes}/${aggregates.attempts}`}
               />
-              <StatCard label="+/-" value={aggregates.plusMinus > 0 ? `+${aggregates.plusMinus}` : aggregates.plusMinus} />
+              <StatCard
+                label="+/-"
+                value={
+                  aggregates.plusMinus > 0
+                    ? `+${aggregates.plusMinus}`
+                    : aggregates.plusMinus
+                }
+              />
               <StatCard label="REB" value={aggregates.rebounds} />
               <StatCard label="AST" value={aggregates.assists} />
               <StatCard label="STL" value={aggregates.steals} />
@@ -427,7 +434,9 @@ const PlayerStats: React.FC = () => {
                           P{stat.period || 1}
                         </TableCell>
                         <TableCell sx={{ p: { xs: 1, sm: 2 } }}>
-                          {stat.clockTime !== undefined ? formatClock(stat.clockTime) : "-"}
+                          {stat.clockTime !== undefined
+                            ? formatClock(stat.clockTime)
+                            : "-"}
                         </TableCell>
                         <TableCell sx={{ p: { xs: 1, sm: 2 } }}>
                           <Typography

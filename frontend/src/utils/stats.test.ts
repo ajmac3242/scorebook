@@ -207,10 +207,38 @@ describe("stats utilities", () => {
     it("calculates MIN and plus/minus correctly", () => {
       const players = [{ id: "p1", name: "Player 1" }];
       const stats: StatEvent[] = [
-        { gameId: "g1", playerId: "p1", type: ACTION_TYPES.SUB_IN, clockTime: 600, period: 1, timestamp: "2023-01-01T10:00:00Z" },
-        { gameId: "g1", playerId: "OPPONENT", type: ACTION_TYPES.MAKE, points: 2, period: 1, timestamp: "2023-01-01T10:01:00Z" },
-        { gameId: "g1", playerId: "p1", type: ACTION_TYPES.MAKE, points: 3, period: 1, timestamp: "2023-01-01T10:02:00Z" },
-        { gameId: "g1", playerId: "p1", type: ACTION_TYPES.SUB_OUT, clockTime: 300, period: 1, timestamp: "2023-01-01T10:03:00Z" },
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          period: 1,
+          timestamp: "2023-01-01T10:00:00Z",
+        },
+        {
+          gameId: "g1",
+          playerId: "OPPONENT",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          period: 1,
+          timestamp: "2023-01-01T10:01:00Z",
+        },
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 3,
+          period: 1,
+          timestamp: "2023-01-01T10:02:00Z",
+        },
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.SUB_OUT,
+          clockTime: 300,
+          period: 1,
+          timestamp: "2023-01-01T10:03:00Z",
+        },
       ];
       const results = calculatePlayerAggregates(players, stats);
       const p1 = results[0];
@@ -223,13 +251,62 @@ describe("stats utilities", () => {
   describe("calculateLineupStats", () => {
     it("calculates lineup efficiency correctly", () => {
       const stats: StatEvent[] = [
-        { gameId: "g1", playerId: "p1", type: ACTION_TYPES.SUB_IN, clockTime: 600, period: 1, timestamp: "1" },
-        { gameId: "g1", playerId: "p2", type: ACTION_TYPES.SUB_IN, clockTime: 600, period: 1, timestamp: "2" },
-        { gameId: "g1", playerId: "p3", type: ACTION_TYPES.SUB_IN, clockTime: 600, period: 1, timestamp: "3" },
-        { gameId: "g1", playerId: "p4", type: ACTION_TYPES.SUB_IN, clockTime: 600, period: 1, timestamp: "4" },
-        { gameId: "g1", playerId: "p5", type: ACTION_TYPES.SUB_IN, clockTime: 600, period: 1, timestamp: "5" },
-        { gameId: "g1", playerId: "p1", type: ACTION_TYPES.MAKE, points: 2, period: 1, timestamp: "6" },
-        { gameId: "g1", playerId: "p1", type: ACTION_TYPES.SUB_OUT, clockTime: 300, period: 1, timestamp: "7" },
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          period: 1,
+          timestamp: "1",
+        },
+        {
+          gameId: "g1",
+          playerId: "p2",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          period: 1,
+          timestamp: "2",
+        },
+        {
+          gameId: "g1",
+          playerId: "p3",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          period: 1,
+          timestamp: "3",
+        },
+        {
+          gameId: "g1",
+          playerId: "p4",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          period: 1,
+          timestamp: "4",
+        },
+        {
+          gameId: "g1",
+          playerId: "p5",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          period: 1,
+          timestamp: "5",
+        },
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          period: 1,
+          timestamp: "6",
+        },
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.SUB_OUT,
+          clockTime: 300,
+          period: 1,
+          timestamp: "7",
+        },
       ];
       const results = calculateLineupStats(stats);
       expect(results.length).toBe(1);
