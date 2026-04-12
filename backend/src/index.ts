@@ -25,6 +25,15 @@ import {
   APIGatewayProxyResultV2,
   APIGatewayProxyStructuredResultV2,
 } from "aws-lambda";
+import {
+  ok,
+  created,
+  badRequest,
+  notFound,
+  serverError,
+  response,
+  sanitizeOutput,
+} from "./responses";
 
 // Clients
 const client = new DynamoDBClient({});
@@ -230,11 +239,10 @@ async function handleGames(
         body,
         tableName,
       );
-      if (resp.statusCode === 201 && resp.body) {
-        const newItem = JSON.parse(resp.body);
-        await snapshotTeamGames(newItem.teamId, tableName);
-        if (newItem.completed) await snapshotGameStats(newItem.id, tableName);
-      }
+      if (resp.statusCode !== 201 || !resp.body) return resp;
+      const newItem = JSON.parse(resp.body);
+      await snapshotTeamGames(newItem.teamId, tableName);
+      if (newItem.completed) await snapshotGameStats(newItem.id, tableName);
       return resp;
     }
   }
@@ -410,11 +418,10 @@ async function handleTeams(
         body,
         tableName,
       );
-      if (resp.statusCode === 201 && resp.body) {
-        const newItem = JSON.parse(resp.body);
-        await snapshotTeamRoster(newItem.id, tableName);
-        await snapshotTeamGames(newItem.id, tableName);
-      }
+      if (resp.statusCode !== 201 || !resp.body) return resp;
+      const newItem = JSON.parse(resp.body);
+      await snapshotTeamRoster(newItem.id, tableName);
+      await snapshotTeamGames(newItem.id, tableName);
       return resp;
     }
   }
@@ -584,8 +591,9 @@ function safeCompare(a: string, b: string): boolean {
 async function handleCleanup(
   method: string,
   path: string,
-  tableName: string,
+  _body: Record<string, unknown>,
   event: APIGatewayProxyEventV2,
+  tableName: string,
 ): Promise<APIGatewayProxyResultV2 | null> {
   if (path === "/cleanup" && method === "POST") {
     const adminApiKey = process.env.ADMIN_API_KEY;
@@ -644,42 +652,13 @@ export const handler = async (
   try {
     const TABLE_NAME = process.env.TABLE_NAME || "BasketballStats";
 
-    const teamsResponse = await handleTeams(
-      method,
-      path,
-      body,
-      event,
-      TABLE_NAME,
-    );
-    if (teamsResponse) return teamsResponse;
+    const res =
+      (await handleTeams(method, path, body, event, TABLE_NAME)) ||
+      (await handlePlayers(method, path, body, event, TABLE_NAME)) ||
+      (await handleGames(method, path, body, event, TABLE_NAME)) ||
+      (await handleCleanup(method, path, body, event, TABLE_NAME));
 
-    const playersResponse = await handlePlayers(
-      method,
-      path,
-      body,
-      event,
-      TABLE_NAME,
-    );
-    if (playersResponse) return playersResponse;
-
-    const gamesResponse = await handleGames(
-      method,
-      path,
-      body,
-      event,
-      TABLE_NAME,
-    );
-    if (gamesResponse) return gamesResponse;
-
-    const cleanupResponse = await handleCleanup(
-      method,
-      path,
-      TABLE_NAME,
-      event,
-    );
-    if (cleanupResponse) return cleanupResponse;
-
-    return notFound("Route not found");
+    return res || notFound("Route not found");
   } catch (error: unknown) {
     if (
       error instanceof Error &&
@@ -1089,93 +1068,3 @@ function stripLocalFields(data: unknown): Record<string, unknown> {
   return result;
 }
 
-/**
- * Redacts internal metadata keys from outgoing data for API responses and S3 snapshots.
- * Recursively cleans objects and arrays while preserving the 'id' field for frontend consumption.
- *
- * WHY: This prevents leaking infrastructure implementation details (DynamoDB key structure)
- * to the client, while still allowing the frontend to identify entities via their UUID 'id'.
- *
- * @param {unknown} data - The data object or array to sanitize.
- * @returns {unknown} The sanitized data.
- */
-function sanitizeOutput(data: unknown): unknown {
-  if (Array.isArray(data)) {
-    return data.map(sanitizeOutput);
-  }
-  if (data !== null && typeof data === "object") {
-    const sanitized: Record<string, unknown> = {};
-    for (const key in data as Record<string, unknown>) {
-      if (
-        Object.prototype.hasOwnProperty.call(data, key) &&
-        (!INTERNAL_KEYS.has(key) || key === "id")
-      ) {
-        sanitized[key] = sanitizeOutput((data as Record<string, unknown>)[key]);
-      }
-    }
-    return sanitized;
-  }
-  return data;
-}
-
-/**
- * Formats a standardized JSON response.
- *
- * @param {number} statusCode - The HTTP status code.
- * @param {unknown} body - The JSON body data.
- * @param {Record<string, string>} [headers] - Optional additional headers.
- * @returns {APIGatewayProxyStructuredResultV2} The formatted response object.
- */
-function response(
-  statusCode: number,
-  body: unknown,
-  headers: Record<string, string> = {},
-): APIGatewayProxyStructuredResultV2 {
-  return {
-    statusCode,
-    headers: {
-      "Content-Type": "application/json",
-      "X-Content-Type-Options": "nosniff",
-      "X-Frame-Options": "DENY",
-      "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
-      "Content-Security-Policy":
-        "default-src 'none'; frame-ancestors 'none'; sandbox",
-      "Referrer-Policy": "no-referrer",
-      "Permissions-Policy": "interest-cohort=()",
-      "X-XSS-Protection": "0",
-      "X-Permitted-Cross-Domain-Policies": "none",
-      ...headers,
-    },
-    body: JSON.stringify(sanitizeOutput(body)),
-  };
-}
-
-/**
- * Semantic response helpers.
- * @param {unknown} body - Response body.
- * @returns {APIGatewayProxyStructuredResultV2} Response.
- */
-const ok = (body: unknown) => response(200, body);
-/**
- * Semantic response helpers.
- * @param {unknown} body - Response body.
- * @returns {APIGatewayProxyStructuredResultV2} Response.
- */
-const created = (body: unknown) => response(201, body);
-/**
- * Semantic response helpers.
- * @param {string} msg - Error message.
- * @returns {APIGatewayProxyStructuredResultV2} Response.
- */
-const badRequest = (msg: string) => response(400, { message: msg });
-/**
- * Semantic response helpers.
- * @param {string} msg - Error message.
- * @returns {APIGatewayProxyStructuredResultV2} Response.
- */
-const notFound = (msg: string) => response(404, { message: msg });
-/**
- * Semantic response helpers.
- * @returns {APIGatewayProxyStructuredResultV2} Response.
- */
-const serverError = () => response(500, { message: "Internal Server Error" });

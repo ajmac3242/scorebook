@@ -164,12 +164,19 @@ class SyncService {
    * @returns {Promise<boolean>} True if unsynced changes exist.
    */
   async hasUnsyncedChanges(): Promise<boolean> {
+    const tableNames: (keyof typeof db)[] = [
+      "teams",
+      "players",
+      "teamPlayers",
+      "games",
+      "stats",
+    ];
+
     try {
-      const tables = [db.teams, db.players, db.teamPlayers, db.games, db.stats];
-      // ⚡ Bolt: Parallelize independent database checks to reduce total sync-check latency.
-      // Launching all table counts simultaneously is faster than sequential awaits.
       const counts = await Promise.all(
-        tables.map((table) => table.where("synced").equals(0).limit(1).count()),
+        tableNames.map((name) =>
+          (db[name] as Table).where("synced").equals(0).limit(1).count(),
+        ),
       );
       return counts.some((count) => count > 0);
     } catch (e) {
