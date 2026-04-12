@@ -21,6 +21,33 @@ export interface TeamAggregates {
 }
 
 /**
+ * Interface for opponent statistics.
+ */
+export interface OpponentAggregates {
+  points: number;
+  makes: number;
+  attempts: number;
+  fgPct: string;
+  rebounds: number;
+  offRebounds: number;
+  defRebounds: number;
+  assists: number;
+  blocks: number;
+  steals: number;
+  turnovers: number;
+  fouls: number;
+}
+
+/**
+ * Interface for score flow data points.
+ */
+export interface ScoreFlowPoint {
+  time: string;
+  Team: number;
+  Opponent: number;
+}
+
+/**
  * Interface for aggregated player statistics.
  */
 export interface PlayerAggregates {
@@ -67,17 +94,17 @@ export const getInitials = (name: string | undefined | null): string => {
 
 /**
  * Retrieves the jersey number for a player from the team roster.
- * @param {number | string | undefined} pId - The player ID.
+ * @param {number | string | undefined} playerId - The player ID.
  * @param {TeamPlayer[]} teamPlayers - The team-player junction records.
  * @returns {string} The jersey number or an empty string.
  */
 export const getPlayerJersey = (
-  pId: number | string | undefined,
+  playerId: number | string | undefined,
   teamPlayers: TeamPlayer[],
 ): string => {
-  if (!pId) return "";
-  const tp = teamPlayers.find((t) => t.playerId === pId);
-  return tp?.jerseyNumber || "";
+  if (!playerId) return "";
+  const tp = teamPlayers.find((t) => t.playerId === playerId);
+  return tp?.jerseyNumber ?? "";
 };
 
 /**
@@ -156,7 +183,7 @@ function initializeStatsMap(
       id: player.id,
       name: player.name,
       avatarColor: player.avatarColor,
-      jerseyNumber: jerseyMap.get(playerId) || "",
+      jerseyNumber: jerseyMap.get(playerId) ?? "",
       gamesPlayed: new Set(),
       gp: 0,
       points: 0,
@@ -272,10 +299,7 @@ export const calculateTeamAggregates = (
 
   let totalPoints = 0;
   let totalRebounds = 0;
-  let totalOffRebounds = 0;
-  let totalDefRebounds = 0;
   let totalAssists = 0;
-  let totalBlocks = 0;
   let totalOppPoints = 0;
 
   for (let i = 0; i < stats.length; i++) {
@@ -300,15 +324,11 @@ export const calculateTeamAggregates = (
       if (type === ACTION_TYPES.REBOUND) {
         totalRebounds++;
       } else if (type === ACTION_TYPES.OFF_REBOUND) {
-        totalOffRebounds++;
         totalRebounds++;
       } else if (type === ACTION_TYPES.DEF_REBOUND) {
-        totalDefRebounds++;
         totalRebounds++;
       } else if (type === ACTION_TYPES.ASSIST) {
         totalAssists++;
-      } else if (type === ACTION_TYPES.BLOCK) {
-        totalBlocks++;
       }
     }
   }
@@ -336,9 +356,11 @@ export const calculateTeamAggregates = (
  * Calculates aggregated statistics for the opponent in a single game.
  *
  * @param {StatEvent[]} stats - List of statistical events for the game.
- * @returns {object} Opponent statistical summary.
+ * @returns {OpponentAggregates} Opponent statistical summary.
  */
-export const calculateOpponentAggregates = (stats: StatEvent[]) => {
+export const calculateOpponentAggregates = (
+  stats: StatEvent[],
+): OpponentAggregates => {
   let points = 0;
   let makes = 0;
   let misses = 0;
@@ -416,9 +438,9 @@ export const calculateOpponentAggregates = (stats: StatEvent[]) => {
  * Calculates the score flow data for a game based on chronological events.
  *
  * @param {StatEvent[]} stats - Chronological list of statistical events.
- * @returns {object[]} Array of data points for score flow visualization.
+ * @returns {ScoreFlowPoint[]} Array of data points for score flow visualization.
  */
-export const calculateScoreFlow = (stats: StatEvent[]) => {
+export const calculateScoreFlow = (stats: StatEvent[]): ScoreFlowPoint[] => {
   let teamScore = 0;
   let oppScore = 0;
   const result = [{ time: "00:00", Team: 0, Opponent: 0 }];
