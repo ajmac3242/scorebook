@@ -530,7 +530,7 @@ function parseBody(body: string | undefined): Record<string, unknown> {
  * @param {string} method - HTTP method.
  * @param {string} path - Request path.
  * @param {string} tableName - DynamoDB table name.
- * @param event
+ * @param {APIGatewayProxyEventV2} event - The full Lambda event.
  * @returns {Promise<APIGatewayProxyResultV2 | null>} Response.
  */
 async function handleCleanup(
@@ -744,12 +744,6 @@ async function softDeleteItem(
   return ok({ message: "Item soft deleted", deletedAt: timestamp });
 }
 
-/**
- * Generates and uploads a team roster snapshot JSON to S3.
- * @param {string} teamId - The team ID.
- * @param {string} tableName - The name of the DynamoDB table.
- * @returns {Promise<void>}
- */
 /**
  * Executes snapshot logic with error handling and environment variable validation.
  * @param {string} label - Contextual label for error logging.
