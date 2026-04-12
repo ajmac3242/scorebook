@@ -570,6 +570,7 @@ function safeCompare(a: string, b: string): boolean {
  * Handler for cleanup-related endpoints.
  * @param {string} method - HTTP method.
  * @param {string} path - Request path.
+ * @param _body
  * @param {string} tableName - DynamoDB table name.
  * @param {APIGatewayProxyEventV2} event - The full Lambda event.
  * @returns {Promise<APIGatewayProxyResultV2 | null>} Response.
@@ -1053,4 +1054,3 @@ function stripLocalFields(data: unknown): Record<string, unknown> {
   }
   return result;
 }
-

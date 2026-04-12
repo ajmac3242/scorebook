@@ -486,7 +486,8 @@ export const calculateOpponentAggregates = (
 
   return {
     ...agg,
-    fgPct: agg.attempts > 0 ? ((agg.makes / agg.attempts) * 100).toFixed(1) : "0.0",
+    fgPct:
+      agg.attempts > 0 ? ((agg.makes / agg.attempts) * 100).toFixed(1) : "0.0",
     min: 0,
     plusMinus: 0,
   };
