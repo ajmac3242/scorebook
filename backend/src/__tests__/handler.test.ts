@@ -34,6 +34,9 @@ describe("Lambda Handler", () => {
     version: "2.0",
     routeKey: "$default",
     rawPath: path,
+    headers: ["POST", "PUT", "PATCH"].includes(method)
+      ? { "content-type": "application/json" }
+      : {},
     requestContext: {
       http: {
         method,
@@ -167,14 +170,14 @@ describe("Lambda Handler", () => {
     it("POST /games/:id/stats records a stat", async () => {
       ddbMock.on(PutCommand).resolves({});
       const event = createEvent("POST", "/games/g1/stats", {
-        id: "st1",
+        id: "277e909a-6536-4d2d-937e-f608759556f8",
         type: "MAKE",
         points: 2,
       });
       const response: any = await handler(event);
       expect(response.statusCode).toBe(201);
       const body = JSON.parse(response.body);
-      expect(body.id).toBe("st1");
+      expect(body.id).toBe("277e909a-6536-4d2d-937e-f608759556f8");
       expect(body.type).toBe("MAKE");
       // Internal keys should be redacted
       expect(body.GSI1PK).toBeUndefined();

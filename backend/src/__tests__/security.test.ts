@@ -47,6 +47,7 @@ describe("Security Tests", () => {
     };
 
     const event = createEvent("POST", "/teams", malformedBody);
+    event.headers = { "content-type": "application/json" };
     await handler(event);
 
     const putCalls = ddbMock.commandCalls(PutCommand);
@@ -142,6 +143,7 @@ describe("Security Tests", () => {
     };
 
     const event = createEvent("POST", "/teams", longNameBody);
+    event.headers = { "content-type": "application/json" };
     const response: any = await handler(event);
 
     expect(response.statusCode).toBe(400);
@@ -230,10 +232,13 @@ describe("Security Tests", () => {
       "Content-Security-Policy":
         "default-src 'none'; frame-ancestors 'none'; sandbox",
       "Referrer-Policy": "no-referrer",
+      "Permissions-Policy": "interest-cohort=()",
+      "X-XSS-Protection": "0",
+      "X-Permitted-Cross-Domain-Policies": "none",
     });
   });
 
-  it("protects /cleanup endpoint with ADMIN_API_KEY", async () => {
+  it("protects /cleanup endpoint with ADMIN_API_KEY and case-insensitive headers", async () => {
     process.env.ADMIN_API_KEY = "super-secret-admin-key";
     ddbMock.on(QueryCommand).resolves({ Items: [] });
 
@@ -248,11 +253,24 @@ describe("Security Tests", () => {
     const resp2: any = await handler(event2);
     expect(resp2.statusCode).toBe(403);
 
-    // Test authorized
+    // Test authorized (exact match)
     const event3 = createEvent("POST", "/cleanup");
     event3.headers = { "x-api-key": "super-secret-admin-key" };
     const resp3: any = await handler(event3);
     expect(resp3.statusCode).toBe(200);
+
+    // Test authorized (case-insensitive header)
+    const event4 = createEvent("POST", "/cleanup");
+    event4.headers = { "X-API-KEY": "super-secret-admin-key" };
+    const resp4: any = await handler(event4);
+    expect(resp4.statusCode).toBe(200);
+  });
+
+  it("enforces application/json Content-Type for POST requests", async () => {
+    const event = createEvent("POST", "/teams", { name: "Team A" });
+    event.headers = { "content-type": "text/plain" };
+    const response: any = await handler(event);
+    expect(response.statusCode).toBe(415);
   });
 
   it("validates stat points are between 0 and 3", async () => {
@@ -262,6 +280,7 @@ describe("Security Tests", () => {
       type: "MAKE",
       points: 4, // Invalid
     });
+    event.headers = { "content-type": "application/json" };
     const response: any = await handler(event);
     expect(response.statusCode).toBe(400);
     expect(JSON.parse(response.body).message).toContain(
@@ -269,16 +288,52 @@ describe("Security Tests", () => {
     );
   });
 
-  it("validates stat type length", async () => {
+  it("validates stat type against valid actions", async () => {
     const event = createEvent("POST", "/games/g1/stats", {
-      type: "A".repeat(51),
+      type: "INVALID_ACTION",
       points: 2,
     });
+    event.headers = { "content-type": "application/json" };
     const response: any = await handler(event);
     expect(response.statusCode).toBe(400);
     expect(JSON.parse(response.body).message).toContain(
-      "Stat type is required and must be under 50 characters",
+      "Valid stat type is required",
     );
+  });
+
+  it("validates stat id format (UUID)", async () => {
+    const event = createEvent("POST", "/games/g1/stats", {
+      type: "MAKE",
+      id: "not-a-uuid",
+    });
+    event.headers = { "content-type": "application/json" };
+    const response: any = await handler(event);
+    expect(response.statusCode).toBe(400);
+    expect(JSON.parse(response.body).message).toContain("Invalid stat id format");
+  });
+
+  it("validates stat timestamp format (ISO)", async () => {
+    const event = createEvent("POST", "/games/g1/stats", {
+      id: "277e909a-6536-4d2d-937e-f608759556f8",
+      type: "MAKE",
+      timestamp: "2023-01-01", // Missing time part
+    });
+    event.headers = { "content-type": "application/json" };
+    const response: any = await handler(event);
+    expect(response.statusCode).toBe(400);
+    expect(JSON.parse(response.body).message).toContain(
+      "Invalid timestamp format",
+    );
+  });
+
+  it("validates team playerId is a string", async () => {
+    const event = createEvent("POST", "/teams/t1/players", {
+      playerId: 123,
+    });
+    event.headers = { "content-type": "application/json" };
+    const response: any = await handler(event);
+    expect(response.statusCode).toBe(400);
+    expect(JSON.parse(response.body).message).toBe("playerId required as string");
   });
 
   it("validates game teamId length", async () => {
@@ -286,6 +341,7 @@ describe("Security Tests", () => {
       teamId: "A".repeat(101),
       opponent: "Opp",
     });
+    event.headers = { "content-type": "application/json" };
     const response: any = await handler(event);
     expect(response.statusCode).toBe(400);
     expect(JSON.parse(response.body).message).toContain(

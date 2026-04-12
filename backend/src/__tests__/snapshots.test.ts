@@ -32,6 +32,9 @@ describe("Snapshot Generation Logic", () => {
   ): any => ({
     version: "2.0",
     rawPath: path,
+    headers: ["POST", "PUT", "PATCH"].includes(method)
+      ? { "content-type": "application/json" }
+      : {},
     requestContext: { http: { method, path } },
     body: body ? JSON.stringify(body) : null,
   });

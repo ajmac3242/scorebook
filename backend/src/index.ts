@@ -19,6 +19,7 @@ import {
   DeleteObjectCommand,
 } from "@aws-sdk/client-s3";
 import { v4 as uuidv4 } from "uuid";
+import crypto from "node:crypto";
 import {
   APIGatewayProxyEventV2,
   APIGatewayProxyResultV2,
@@ -56,8 +57,25 @@ const REDACTED_HEADERS = new Set([
 ]);
 
 /**
- * Helper for generating standardized DynamoDB primary and index keys.
+ * Valid basketball action types for stat event validation.
  */
+const VALID_ACTION_TYPES = new Set([
+  "MAKE",
+  "MISS",
+  "REBOUND",
+  "OFF_REBOUND",
+  "DEF_REBOUND",
+  "ASSIST",
+  "STEAL",
+  "TURNOVER",
+  "BLOCK",
+  "FOUL",
+  "TIMEOUT",
+  "SUB_IN",
+  "SUB_OUT",
+  "POSSESSION",
+]);
+
 const Keys = {
   team: (id: string) => `TEAM#${id}`,
   player: (id: string) => `PLAYER#${id}`,
@@ -305,11 +323,9 @@ async function handleGames(
       if (
         !body?.type ||
         typeof body.type !== "string" ||
-        body.type.length > 50
+        !VALID_ACTION_TYPES.has(body.type)
       ) {
-        return badRequest(
-          "Stat type is required and must be under 50 characters",
-        );
+        return badRequest("Valid stat type is required");
       }
       if (
         body.points !== undefined &&
@@ -317,8 +333,25 @@ async function handleGames(
       ) {
         return badRequest("Points must be a number between 0 and 3");
       }
+
       const id = (body?.id as string) || uuidv4();
+      if (
+        typeof id !== "string" ||
+        !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+          id,
+        )
+      ) {
+        return badRequest("Invalid stat id format");
+      }
+
       const timestamp = (body?.timestamp as string) || new Date().toISOString();
+      if (
+        typeof timestamp !== "string" ||
+        !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(timestamp)
+      ) {
+        return badRequest("Invalid timestamp format");
+      }
+
       const cleanBody = stripLocalFields(body);
       const item = {
         ...(cleanBody as Record<string, unknown>),
@@ -415,7 +448,9 @@ async function handleTeams(
     if (method === "GET")
       return await getItemsByGSI(`TEAM#${teamId}`, tableName);
     if (method === "POST") {
-      if (!body.playerId) return badRequest("playerId required");
+      if (!body.playerId || typeof body.playerId !== "string") {
+        return badRequest("playerId required as string");
+      }
       const cleanBody = stripLocalFields(body);
       const teamPlayerItem = {
         ...(cleanBody as Record<string, unknown>),
@@ -526,6 +561,19 @@ function parseBody(body: string | undefined): Record<string, unknown> {
 }
 
 /**
+ * Timing-safe string comparison to prevent timing attacks on sensitive keys.
+ * Uses SHA-256 hashing to ensure both buffers are the same length for crypto.timingSafeEqual.
+ * @param {string} a - First string.
+ * @param {string} b - Second string.
+ * @returns {boolean} True if strings are equal.
+ */
+function safeCompare(a: string, b: string): boolean {
+  const hashA = crypto.createHash("sha256").update(a).digest();
+  const hashB = crypto.createHash("sha256").update(b).digest();
+  return crypto.timingSafeEqual(hashA, hashB);
+}
+
+/**
  * Handler for cleanup-related endpoints.
  * @param {string} method - HTTP method.
  * @param {string} path - Request path.
@@ -541,10 +589,19 @@ async function handleCleanup(
 ): Promise<APIGatewayProxyResultV2 | null> {
   if (path === "/cleanup" && method === "POST") {
     const adminApiKey = process.env.ADMIN_API_KEY;
-    const requestApiKey =
-      event.headers?.["x-api-key"] || event.headers?.["X-Api-Key"];
 
-    if (!adminApiKey || requestApiKey !== adminApiKey) {
+    // Case-insensitive retrieval of the API key from headers
+    let requestApiKey = "";
+    if (event.headers) {
+      for (const key in event.headers) {
+        if (key.toLowerCase() === "x-api-key") {
+          requestApiKey = event.headers[key] || "";
+          break;
+        }
+      }
+    }
+
+    if (!adminApiKey || !requestApiKey || !safeCompare(requestApiKey, adminApiKey)) {
       return response(403, { message: "Unauthorized cleanup request" });
     }
 
@@ -561,6 +618,15 @@ export const handler = async (
 
   const { method, path } = extractRequestMetadata(event);
   console.log("Routing:", { method, path });
+
+  // Enforce Content-Type for write requests with a body
+  if (["POST", "PUT", "PATCH"].includes(method) && event.body) {
+    const contentType =
+      event.headers?.["content-type"] || event.headers?.["Content-Type"];
+    if (!contentType?.toLowerCase().includes("application/json")) {
+      return response(415, { message: "Unsupported Media Type: application/json required" });
+    }
+  }
 
   let body: Record<string, unknown> = {};
   try {
@@ -1069,6 +1135,9 @@ function response(
       "Content-Security-Policy":
         "default-src 'none'; frame-ancestors 'none'; sandbox",
       "Referrer-Policy": "no-referrer",
+      "Permissions-Policy": "interest-cohort=()",
+      "X-XSS-Protection": "0",
+      "X-Permitted-Cross-Domain-Policies": "none",
       ...headers,
     },
     body: JSON.stringify(sanitizeOutput(body)),
