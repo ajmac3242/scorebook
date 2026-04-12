@@ -33,27 +33,13 @@ import {
   serverError,
   response,
   sanitizeOutput,
-} from "./responses";
+  INTERNAL_KEYS,
+} from "./responses.js";
 
 // Clients
 const client = new DynamoDBClient({});
 const docClient = DynamoDBDocumentClient.from(client);
 const s3Client = new S3Client({});
-
-/**
- * Standardized set of internal DynamoDB and metadata keys.
- * Used for sanitizing input data and preventing mass assignment.
- */
-const INTERNAL_KEYS = new Set([
-  "synced",
-  "id",
-  "PK",
-  "SK",
-  "GSI1PK",
-  "GSI1SK",
-  "GSI2PK",
-  "GSI2SK",
-]);
 
 /**
  * Set of headers that should be redacted from logs for security.

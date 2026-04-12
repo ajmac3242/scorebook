@@ -27,21 +27,3 @@ Pattern:
 2. Standardize 'magic' strings into shared constants (`SPECIAL_PLAYER_IDS`) for special entities like 'OPPONENT' and 'TEAM_TIMEOUT'.
 3. Use early returns and defensive checks (`!result?.Item`) to flatten deeply nested backend logic and prevent runtime crashes.
 4. Extract pure business logic (`getBonusStatus`) from stateful hooks to improve testability and clarity.
-
-## 2026-04-12 - Code Structure and DRY Pass
-Smell: Redundant score accumulation and stat counter logic across multiple utility functions; monolithic backend handler with nested routing; cluttered UI components with inline complex logic.
-Learning: Centralizing shared domain logic (like score updates and stat increments) into small, pure helpers significantly reduces duplication and the risk of calculation drift. Moving infrastructure concerns (response formatting, security headers) to dedicated modules cleans up the core business logic.
-Pattern:
-1. Extract shared state transition logic (, ) from aggregation loops.
-2. Use early returns and delegation chains to flatten complex routing and conditional blocks.
-3. Replace manual loops with idiomatic language features (, , ) to improve readability without sacrificing performance for typical data sizes.
-4. Decompose large calculation functions () into smaller, focused helpers with clear responsibilities.
-
-## 2026-04-12 - Code Structure and DRY Pass
-Smell: Redundant score accumulation and stat counter logic across multiple utility functions; monolithic backend handler with nested routing; cluttered UI components with inline complex logic.
-Learning: Centralizing shared domain logic (like score updates and stat increments) into small, pure helpers significantly reduces duplication and the risk of calculation drift. Moving infrastructure concerns (response formatting, security headers) to dedicated modules cleans up the core business logic.
-Pattern:
-1. Extract shared state transition logic (`updateScores`, `applyActionToAggregate`) from aggregation loops.
-2. Use early returns and delegation chains to flatten complex routing and conditional blocks.
-3. Replace manual loops with idiomatic language features (`split`, `filter`, `map`) to improve readability without sacrificing performance for typical data sizes.
-4. Decompose large calculation functions (`calculateLineupStats`) into smaller, focused helpers with clear responsibilities.

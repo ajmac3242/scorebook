@@ -8,7 +8,7 @@ import { APIGatewayProxyStructuredResultV2 } from "aws-lambda";
 /**
  * Internal keys to redact from outgoing data.
  */
-const INTERNAL_KEYS = new Set([
+export const INTERNAL_KEYS = new Set([
   "synced",
   "PK",
   "SK",
