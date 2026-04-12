@@ -50,6 +50,16 @@ export interface ScoreFlowPoint {
 }
 
 /**
+ * Interface for bonus status.
+ */
+export interface BonusStatus {
+  label: string;
+  isBonus: boolean;
+  isDouble: boolean;
+  color: string;
+}
+
+/**
  * Interface for aggregated player statistics.
  */
 export interface PlayerAggregates {
@@ -110,6 +120,63 @@ export const getPlayerJersey = (
 };
 
 /**
+ * Determines bonus status labels and colors based on foul counts and period type.
+ * @param fouls - Current foul count.
+ * @param periodType - 'QUARTERS' or 'HALVES'.
+ */
+export const getBonusStatus = (
+  fouls: number,
+  periodType: string,
+): BonusStatus => {
+  if (periodType === "QUARTERS") {
+    if (fouls >= 5) {
+      return {
+        label: "BONUS",
+        isBonus: true,
+        isDouble: false,
+        color: "error.main",
+      };
+    }
+    if (fouls === 4) {
+      return {
+        label: "",
+        isBonus: false,
+        isDouble: false,
+        color: "warning.main",
+      };
+    }
+    return { label: "", isBonus: false, isDouble: false, color: "default" };
+  }
+
+  // HALVES logic
+  if (fouls >= 10) {
+    return {
+      label: "BONUS",
+      isBonus: true,
+      isDouble: true,
+      color: "error.main",
+    };
+  }
+  if (fouls >= 7) {
+    return {
+      label: "BONUS",
+      isBonus: true,
+      isDouble: false,
+      color: "error.main",
+    };
+  }
+  if (fouls === 6) {
+    return {
+      label: "",
+      isBonus: false,
+      isDouble: false,
+      color: "warning.main",
+    };
+  }
+  return { label: "", isBonus: false, isDouble: false, color: "default" };
+};
+
+/**
  * Updates team and opponent scores based on a statistical event.
  * @param {StatEvent} stat - The event to process.
  * @param {{ team: number; opp: number }} scores - Current scores.
@@ -155,8 +222,12 @@ export const applyActionToAggregate = (agg: BaseStats, stat: StatEvent) => {
   switch (stat.type) {
     case ACTION_TYPES.MAKE:
       agg.points += stat.points || 0;
-      agg.makes++;
-      agg.attempts++;
+      // 🏀 CoachBoard: Field Goal Tracking
+      // Why: Free throws (1pt) should not be counted as FGM or FGA.
+      if (stat.points !== 1) {
+        agg.makes++;
+        agg.attempts++;
+      }
       if (stat.points === 3 && agg.threePM !== undefined) agg.threePM++;
       break;
     case ACTION_TYPES.MISS:
@@ -285,13 +356,34 @@ export const calculatePlayerAggregates = (
   });
 
   const scores = { team: 0, opp: 0 };
+  let currentPeriod = 1;
 
   // Accumulate statistics from event stream
   for (let i = 0; i < sortedStats.length; i++) {
     const stat = sortedStats[i];
     if (stat.deletedAt) continue;
 
-    const { playerId, type, clockTime } = stat;
+    const { playerId, type, clockTime, period } = stat;
+
+    // 🏀 CoachBoard: Handle period transitions for active stints
+    // Why: Ensures minutes played and plus-minus are calculated correctly
+    // even if a player stays on the court across period boundaries.
+    if (period && period > currentPeriod) {
+      for (const [pId, stint] of activeStints.entries()) {
+        const playerAgg = statsMap.get(pId);
+        if (playerAgg) {
+          // Finish stint for the previous period (assumed to end at 0:00)
+          playerAgg.min += stint.startClock;
+          playerAgg.plusMinus +=
+            scores.team - scores.opp - stint.startScoreDiff;
+
+          // Start new stint for the current period (assumed to start at 10 mins)
+          stint.startClock = 600;
+          stint.startScoreDiff = scores.team - scores.opp;
+        }
+      }
+      currentPeriod = period;
+    }
 
     // Update global score
     updateScores(stat, scores);
@@ -660,14 +752,32 @@ export const calculateLineupStats = (
     });
 
     let currentLineup = new Set<string>();
-    let lastClockTime = 0;
+    let lastClockTime = 600; // Default to start of P1
     let lastTeamScore = 0;
     let lastOppScore = 0;
+    let currentPeriod = 1;
     const scores = { team: 0, opp: 0 };
 
     for (let i = 0; i < sortedStats.length; i++) {
       const s = sortedStats[i];
       if (s.deletedAt) continue;
+
+      // Handle period transition
+      if (s.period > currentPeriod) {
+        if (currentLineup.size === 5) {
+          recordLineupStint(
+            lineupStats,
+            getLineupKey(currentLineup),
+            lastClockTime, // Time remaining in previous period
+            scores.team - lastTeamScore,
+            scores.opp - lastOppScore,
+          );
+        }
+        lastClockTime = 600; // Reset for new period
+        lastTeamScore = scores.team;
+        lastOppScore = scores.opp;
+        currentPeriod = s.period;
+      }
 
       // Track score
       updateScores(s, scores);

@@ -66,63 +66,10 @@ import {
   calculatePlayerAggregates,
   calculatePlayerStreaks,
   isEventInPeriod,
+  getBonusStatus,
   type PlayerAggregates,
 } from "../utils/stats";
 import { MoleskineCard } from "../components/SharedUI";
-
-/**
- * Determines bonus status labels and colors based on foul counts and period type.
- * @param fouls - Current foul count.
- * @param periodType - 'QUARTERS' or 'HALVES'.
- */
-const getBonusStatus = (fouls: number, periodType: string) => {
-  if (periodType === "QUARTERS") {
-    if (fouls >= 5) {
-      return {
-        label: "BONUS",
-        isBonus: true,
-        isDouble: false,
-        color: "error.main",
-      };
-    }
-    if (fouls === 4) {
-      return {
-        label: "",
-        isBonus: false,
-        isDouble: false,
-        color: "warning.main",
-      };
-    }
-    return { label: "", isBonus: false, isDouble: false, color: "default" };
-  }
-
-  // HALVES logic
-  if (fouls >= 10) {
-    return {
-      label: "BONUS",
-      isBonus: true,
-      isDouble: true,
-      color: "error.main",
-    };
-  }
-  if (fouls >= 7) {
-    return {
-      label: "BONUS",
-      isBonus: true,
-      isDouble: false,
-      color: "error.main",
-    };
-  }
-  if (fouls === 6) {
-    return {
-      label: "",
-      isBonus: false,
-      isDouble: false,
-      color: "warning.main",
-    };
-  }
-  return { label: "", isBonus: false, isDouble: false, color: "default" };
-};
 
 /**
  * 🏀 CoachBoard: getShotValue
