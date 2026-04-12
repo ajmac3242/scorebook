@@ -59,6 +59,8 @@ export interface Game {
   location: string;
   completed?: number; // 0 (incomplete) or 1 (completed)
   currentPeriod?: number;
+  clockTime?: number; // Current seconds remaining in period
+  periodLength?: number; // Configured length in minutes
   deletedAt?: string;
   synced?: number;
 }
@@ -75,6 +77,7 @@ export interface StatEvent {
   locationX?: number;
   locationY?: number;
   period: number; // 1, 2, 3, 4 for Quarters; 1, 2 for Halves; 5+ or 3+ for OT
+  clockTime?: number; // Seconds remaining in the period when event occurred
   timestamp: string;
   deletedAt?: string;
   synced?: number;
@@ -104,7 +107,8 @@ export class AppDatabase extends Dexie {
     // v10:    Added optional 'time' field to the Game table to support game scheduling.
     // v11:    Added 'fouls' to Team for configurable timeouts.
     // v12:    Added 'currentPeriod' to Game.
-    this.version(12).stores({
+    // v13:    Added 'clockTime' and 'periodLength' to Game, and 'clockTime' to StatEvent.
+    this.version(13).stores({
       teams: "id, synced, deletedAt",
       players: "id, synced, isArchived, deletedAt",
       teamPlayers: "id, [teamId+playerId], teamId, playerId, synced",
