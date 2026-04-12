@@ -10,6 +10,7 @@ import {
   calculateGameResult,
   calculatePlayerStreaks,
   calculateLineupStats,
+  getBonusStatus,
 } from "./stats";
 import { TeamPlayer, StatEvent, Game } from "../db";
 import { ACTION_TYPES } from "../constants/stats";
@@ -840,6 +841,58 @@ describe("stats utilities", () => {
       ];
       const result = calculatePlayerStreaks(stats);
       expect(result.get("p1")).toBe("HOT");
+    });
+  });
+
+  describe("getBonusStatus", () => {
+    describe("QUARTERS", () => {
+      it("returns default for 0-3 fouls", () => {
+        const res = getBonusStatus(3, "QUARTERS");
+        expect(res.isBonus).toBe(false);
+        expect(res.color).toBe("default");
+      });
+
+      it("returns warning for 4 fouls", () => {
+        const res = getBonusStatus(4, "QUARTERS");
+        expect(res.isBonus).toBe(false);
+        expect(res.color).toBe("warning.main");
+      });
+
+      it("returns bonus for 5+ fouls", () => {
+        const res = getBonusStatus(5, "QUARTERS");
+        expect(res.isBonus).toBe(true);
+        expect(res.isDouble).toBe(false);
+        expect(res.label).toBe("BONUS");
+        expect(res.color).toBe("error.main");
+      });
+    });
+
+    describe("HALVES", () => {
+      it("returns default for 0-5 fouls", () => {
+        const res = getBonusStatus(5, "HALVES");
+        expect(res.isBonus).toBe(false);
+        expect(res.color).toBe("default");
+      });
+
+      it("returns warning for 6 fouls", () => {
+        const res = getBonusStatus(6, "HALVES");
+        expect(res.isBonus).toBe(false);
+        expect(res.color).toBe("warning.main");
+      });
+
+      it("returns single bonus for 7-9 fouls", () => {
+        const res = getBonusStatus(7, "HALVES");
+        expect(res.isBonus).toBe(true);
+        expect(res.isDouble).toBe(false);
+        expect(res.color).toBe("error.main");
+      });
+
+      it("returns double bonus for 10+ fouls", () => {
+        const res = getBonusStatus(10, "HALVES");
+        expect(res.isBonus).toBe(true);
+        expect(res.isDouble).toBe(true);
+        expect(res.color).toBe("error.main");
+      });
     });
   });
 });
