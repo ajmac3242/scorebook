@@ -222,6 +222,13 @@ const Scoreboard = React.memo(
       return `${mins}:${secs.toString().padStart(2, "0")}`;
     };
 
+    const getFoulColor = (isOpp: boolean) => {
+      const foulColor = isOpp
+        ? gameData.teamFoulStats.oppBonusColor
+        : gameData.teamFoulStats.teamBonusColor;
+      return foulColor === "default" ? "rgba(255,255,255,0.7)" : foulColor;
+    };
+
     const renderTeamInfo = (
       name: string,
       logoUrl?: string,
@@ -312,14 +319,7 @@ const Scoreboard = React.memo(
           <Typography
             variant="caption"
             sx={{
-              color: (() => {
-                const foulColor = isOpponent
-                  ? gameData.teamFoulStats.oppBonusColor
-                  : gameData.teamFoulStats.teamBonusColor;
-                return foulColor === "default"
-                  ? "rgba(255,255,255,0.7)"
-                  : foulColor;
-              })(),
+              color: getFoulColor(!!isOpponent),
               fontWeight: 800,
               fontSize: "0.7rem",
               whiteSpace: "nowrap",
