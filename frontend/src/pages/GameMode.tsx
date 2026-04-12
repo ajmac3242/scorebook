@@ -368,6 +368,46 @@ const Scoreboard = React.memo(
             <Button
               size="small"
               variant="outlined"
+              color="secondary"
+              onClick={() =>
+                onQuickAction && onQuickAction(ACTION_TYPES.REBOUND)
+              }
+              sx={{
+                minWidth: 0,
+                px: 0.8,
+                py: 0.2,
+                fontSize: "0.65rem",
+                fontWeight: 800,
+                borderColor: "rgba(255,255,255,0.3)",
+                color: "white",
+                "&:hover": { borderColor: "white" },
+              }}
+            >
+              REB
+            </Button>
+            <Button
+              size="small"
+              variant="outlined"
+              color="warning"
+              onClick={() =>
+                onQuickAction && onQuickAction(ACTION_TYPES.TURNOVER)
+              }
+              sx={{
+                minWidth: 0,
+                px: 0.8,
+                py: 0.2,
+                fontSize: "0.65rem",
+                fontWeight: 800,
+                borderColor: "rgba(255,255,255,0.3)",
+                color: "white",
+                "&:hover": { borderColor: "white" },
+              }}
+            >
+              TO
+            </Button>
+            <Button
+              size="small"
+              variant="outlined"
               color="error"
               onClick={() => onQuickAction && onQuickAction(ACTION_TYPES.FOUL)}
               sx={{
