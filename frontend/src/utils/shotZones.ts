@@ -27,7 +27,9 @@ export const getShotZone = (x: number, y: number): ShotZone => {
 
   const rimX = 250;
   const rimY = 47;
-  const distToRim = Math.sqrt(Math.pow(svgX - rimX, 2) + Math.pow(svgY - rimY, 2));
+  const distToRim = Math.sqrt(
+    Math.pow(svgX - rimX, 2) + Math.pow(svgY - rimY, 2),
+  );
 
   // 1. Restricted Area (Approx radius 40)
   if (distToRim <= 45) return "RA";
@@ -40,7 +42,9 @@ export const getShotZone = (x: number, y: number): ShotZone => {
   if (svgY <= 140) {
     if (svgX <= 30 || svgX >= 470) isThree = true;
   } else {
-    const distToThreeCenter = Math.sqrt(Math.pow(svgX - 250, 2) + Math.pow(svgY - 140, 2));
+    const distToThreeCenter = Math.sqrt(
+      Math.pow(svgX - 250, 2) + Math.pow(svgY - 140, 2),
+    );
     if (distToThreeCenter >= 220) isThree = true;
   }
 

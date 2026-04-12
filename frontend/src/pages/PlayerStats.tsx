@@ -424,7 +424,9 @@ const PlayerStats: React.FC = () => {
                     }))
                   : []
               }
-              heatmapData={shotChartView === "heatmap" ? heatmapData : undefined}
+              heatmapData={
+                shotChartView === "heatmap" ? heatmapData : undefined
+              }
             />
           </MoleskineCard>
         </Grid>

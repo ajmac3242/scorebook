@@ -110,40 +110,123 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
             <g opacity="0.4" style={{ pointerEvents: "none" }}>
               {/* 3PT ABOVE THE BREAK */}
               {heatmapData["3PT_CENTER"]?.attempts > 0 && (
-                <path d="M 100 295 A 220 220 0 0 0 400 295 L 400 470 L 100 470 Z" fill={getHeatmapColor((heatmapData["3PT_CENTER"].makes / heatmapData["3PT_CENTER"].attempts) * 100)} />
+                <path
+                  d="M 100 295 A 220 220 0 0 0 400 295 L 400 470 L 100 470 Z"
+                  fill={getHeatmapColor(
+                    (heatmapData["3PT_CENTER"].makes /
+                      heatmapData["3PT_CENTER"].attempts) *
+                      100,
+                  )}
+                />
               )}
               {heatmapData["3PT_LEFT"]?.attempts > 0 && (
-                <path d="M 0 140 L 30 140 A 220 220 0 0 0 100 295 L 0 470 Z" fill={getHeatmapColor((heatmapData["3PT_LEFT"].makes / heatmapData["3PT_LEFT"].attempts) * 100)} />
+                <path
+                  d="M 0 140 L 30 140 A 220 220 0 0 0 100 295 L 0 470 Z"
+                  fill={getHeatmapColor(
+                    (heatmapData["3PT_LEFT"].makes /
+                      heatmapData["3PT_LEFT"].attempts) *
+                      100,
+                  )}
+                />
               )}
               {heatmapData["3PT_RIGHT"]?.attempts > 0 && (
-                <path d="M 500 140 L 470 140 A 220 220 0 0 1 400 295 L 500 470 Z" fill={getHeatmapColor((heatmapData["3PT_RIGHT"].makes / heatmapData["3PT_RIGHT"].attempts) * 100)} />
+                <path
+                  d="M 500 140 L 470 140 A 220 220 0 0 1 400 295 L 500 470 Z"
+                  fill={getHeatmapColor(
+                    (heatmapData["3PT_RIGHT"].makes /
+                      heatmapData["3PT_RIGHT"].attempts) *
+                      100,
+                  )}
+                />
               )}
 
               {/* CORNER 3s */}
               {heatmapData["3PT_LEFT_CORNER"]?.attempts > 0 && (
-                <rect x="0" y="0" width="30" height="140" fill={getHeatmapColor((heatmapData["3PT_LEFT_CORNER"].makes / heatmapData["3PT_LEFT_CORNER"].attempts) * 100)} />
+                <rect
+                  x="0"
+                  y="0"
+                  width="30"
+                  height="140"
+                  fill={getHeatmapColor(
+                    (heatmapData["3PT_LEFT_CORNER"].makes /
+                      heatmapData["3PT_LEFT_CORNER"].attempts) *
+                      100,
+                  )}
+                />
               )}
               {heatmapData["3PT_RIGHT_CORNER"]?.attempts > 0 && (
-                <rect x="470" y="0" width="30" height="140" fill={getHeatmapColor((heatmapData["3PT_RIGHT_CORNER"].makes / heatmapData["3PT_RIGHT_CORNER"].attempts) * 100)} />
+                <rect
+                  x="470"
+                  y="0"
+                  width="30"
+                  height="140"
+                  fill={getHeatmapColor(
+                    (heatmapData["3PT_RIGHT_CORNER"].makes /
+                      heatmapData["3PT_RIGHT_CORNER"].attempts) *
+                      100,
+                  )}
+                />
               )}
 
               {/* MID RANGE */}
               {heatmapData["MID_LEFT"]?.attempts > 0 && (
-                <path d="M 30 0 L 170 0 L 170 190 L 86 190 A 220 220 0 0 1 30 140 Z" fill={getHeatmapColor((heatmapData["MID_LEFT"].makes / heatmapData["MID_LEFT"].attempts) * 100)} />
+                <path
+                  d="M 30 0 L 170 0 L 170 190 L 86 190 A 220 220 0 0 1 30 140 Z"
+                  fill={getHeatmapColor(
+                    (heatmapData["MID_LEFT"].makes /
+                      heatmapData["MID_LEFT"].attempts) *
+                      100,
+                  )}
+                />
               )}
               {heatmapData["MID_RIGHT"]?.attempts > 0 && (
-                <path d="M 330 0 L 470 0 L 470 140 A 220 220 0 0 0 414 190 L 330 190 Z" fill={getHeatmapColor((heatmapData["MID_RIGHT"].makes / heatmapData["MID_RIGHT"].attempts) * 100)} />
+                <path
+                  d="M 330 0 L 470 0 L 470 140 A 220 220 0 0 0 414 190 L 330 190 Z"
+                  fill={getHeatmapColor(
+                    (heatmapData["MID_RIGHT"].makes /
+                      heatmapData["MID_RIGHT"].attempts) *
+                      100,
+                  )}
+                />
               )}
               {heatmapData["MID_CENTER"]?.attempts > 0 && (
-                <rect x="170" y="190" width="160" height="100" fill={getHeatmapColor((heatmapData["MID_CENTER"].makes / heatmapData["MID_CENTER"].attempts) * 100)} />
+                <rect
+                  x="170"
+                  y="190"
+                  width="160"
+                  height="100"
+                  fill={getHeatmapColor(
+                    (heatmapData["MID_CENTER"].makes /
+                      heatmapData["MID_CENTER"].attempts) *
+                      100,
+                  )}
+                />
               )}
 
               {/* PAINT & RA */}
               {heatmapData["PAINT"]?.attempts > 0 && (
-                <rect x="170" y="0" width="160" height="190" fill={getHeatmapColor((heatmapData["PAINT"].makes / heatmapData["PAINT"].attempts) * 100)} />
+                <rect
+                  x="170"
+                  y="0"
+                  width="160"
+                  height="190"
+                  fill={getHeatmapColor(
+                    (heatmapData["PAINT"].makes /
+                      heatmapData["PAINT"].attempts) *
+                      100,
+                  )}
+                />
               )}
               {heatmapData["RA"]?.attempts > 0 && (
-                <circle cx="250" cy="47" r="45" fill={getHeatmapColor((heatmapData["RA"].makes / heatmapData["RA"].attempts) * 100)} />
+                <circle
+                  cx="250"
+                  cy="47"
+                  r="45"
+                  fill={getHeatmapColor(
+                    (heatmapData["RA"].makes / heatmapData["RA"].attempts) *
+                      100,
+                  )}
+                />
               )}
             </g>
           )}
