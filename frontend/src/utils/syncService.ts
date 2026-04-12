@@ -195,27 +195,48 @@ class SyncService {
     if (!table) return;
     const items = await table.where("synced").equals(0).toArray();
 
-    for (const item of items) {
-      try {
-        const url = typeof endpoint === "function" ? endpoint(item) : endpoint;
-        const res = await this.fetchApi(url, {
-          method: "POST",
-          body: JSON.stringify(item),
+    // ⚡ Bolt: Process items in concurrent chunks to improve throughput.
+    // Sequential pushing is slow for large datasets (e.g. game stats).
+    const CHUNK_SIZE = 5;
+    for (let i = 0; i < items.length; i += CHUNK_SIZE) {
+      const chunk = items.slice(i, i + CHUNK_SIZE);
+      const successIds: (string | number)[] = [];
+
+      await Promise.all(
+        chunk.map(async (item) => {
+          try {
+            const url =
+              typeof endpoint === "function" ? endpoint(item) : endpoint;
+            const res = await this.fetchApi(url, {
+              method: "POST",
+              body: JSON.stringify(item),
+            });
+            if (res.ok) {
+              successIds.push(item.id!);
+              if (onSuccess) await onSuccess(item);
+            } else {
+              const errorBody = await res.text();
+              logger.error(
+                `Failed to push ${entityName} ${item.id}: Status ${res.status}`,
+                undefined,
+                { errorBody },
+              );
+            }
+          } catch (err) {
+            logger.error(`Failed to push ${entityName} ${item.id}:`, err);
+          }
+        }),
+      );
+
+      // ⚡ Bolt: Batch database updates in a single transaction for efficiency.
+      // Reducing transaction overhead significantly improves performance on low-end devices.
+      if (successIds.length > 0) {
+        await db.transaction("rw", table, async () => {
+          for (let j = 0; j < successIds.length; j++) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            await table.update(successIds[j], { synced: 1 } as any);
+          }
         });
-        if (res.ok) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          await table.update(item.id!, { synced: 1 } as any);
-          if (onSuccess) await onSuccess(item);
-        } else {
-          const errorBody = await res.text();
-          logger.error(
-            `Failed to push ${entityName} ${item.id}: Status ${res.status}`,
-            undefined,
-            { errorBody },
-          );
-        }
-      } catch (err) {
-        logger.error(`Failed to push ${entityName} ${item.id}:`, err);
       }
     }
   }
@@ -433,11 +454,11 @@ class SyncService {
    * @param {string} teamId - The team ID.
    */
   async syncAllForTeam(teamId: string) {
-    // Sync Roster
-    await this.syncTeamRoster(teamId);
-
-    // Sync Games list to discover new games
-    await this.syncTeamGamesList(teamId);
+    // ⚡ Bolt: Parallelize independent team-level sync operations to reduce total latency.
+    await Promise.all([
+      this.syncTeamRoster(teamId),
+      this.syncTeamGamesList(teamId),
+    ]);
 
     // Sync stats for each completed game
     const games = await db.games.where("teamId").equals(teamId).toArray();
@@ -457,8 +478,13 @@ class SyncService {
     logger.info("Starting full pull sync...");
 
     try {
-      // 1. Pull all Teams
-      const teamsRes = await this.fetchApi("/api/teams");
+      // ⚡ Bolt: Fetch global entities in parallel to maximize network utilization.
+      const [teamsRes, playersRes] = await Promise.all([
+        this.fetchApi("/api/teams"),
+        this.fetchApi("/api/players"),
+      ]);
+
+      // 1. Process Teams
       if (teamsRes.ok) {
         const teams = await teamsRes.json();
         await db.transaction("rw", [db.teams], async () => {
@@ -478,8 +504,7 @@ class SyncService {
         await Promise.all(teamPromises);
       }
 
-      // 4. Pull all global players
-      const playersRes = await this.fetchApi("/api/players");
+      // 4. Process all global players
       if (playersRes.ok) {
         const players = await playersRes.json();
         await db.transaction("rw", [db.players], async () => {

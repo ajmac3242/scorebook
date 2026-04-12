@@ -12,7 +12,7 @@ export const usePlayers = () => {
       try {
         await db.open();
         const items = await db.players.toArray();
-        // ⚡ Bolt: Use direct comparison instead of localeCompare for faster sorting.
+        // ⚡ Bolt: Use direct comparison instead of localeCompare for significantly faster sorting in hot paths.
         return items.sort((a, b) => {
           const nameA = a.name || "";
           const nameB = b.name || "";

@@ -25,7 +25,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v3
+        uses: pnpm/action-setup@v4
         with:
           version: 9
 
@@ -38,13 +38,16 @@ jobs:
             frontend/pnpm-lock.yaml
 
       - name: Build Backend
+        timeout-minutes: 5
         run: |
+          echo "::group::Backend Build"
           cd backend
           pnpm install --frozen-lockfile
           pnpm run build
           pnpm install --prod --shamefully-hoist
           node scripts/verify-build.cjs
           zip -r ../lambda.zip dist node_modules package.json
+          echo "::endgroup::"
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -58,7 +61,10 @@ jobs:
           terraform_wrapper: false
 
       - name: Terraform Init
-        run: cd infra && terraform init
+        run: |
+          echo "::group::Terraform Init"
+          cd infra && terraform init
+          echo "::endgroup::"
 
       - name: Force Unlock Stale Terraform State
         run: |
@@ -68,11 +74,18 @@ jobs:
             --region us-east-1 || true
 
       - name: Terraform Plan
-        run: cd infra && terraform plan -out=tfplan
+        run: |
+          echo "::group::Terraform Plan"
+          cd infra && terraform plan -out=tfplan
+          echo "::endgroup::"
 
       - name: Terraform Apply (Initial)
+        timeout-minutes: 5
         # Create/Update infrastructure (Cognito, Lambda, API Gateway, etc.)
-        run: cd infra && terraform apply -auto-approve tfplan
+        run: |
+          echo "::group::Terraform Apply (Initial)"
+          cd infra && terraform apply -auto-approve tfplan
+          echo "::endgroup::"
 
       - name: Get Terraform Outputs
         id: tf_outputs
@@ -83,11 +96,14 @@ jobs:
           echo "VITE_API_ENDPOINT=$(terraform output -raw api_endpoint)" >> $GITHUB_ENV
 
       - name: Build Frontend
+        timeout-minutes: 5
         # Bakes live Cognito IDs and API endpoint into the React build
         run: |
+          echo "::group::Frontend Build"
           cd frontend
           pnpm install --frozen-lockfile
           pnpm run build
+          echo "::endgroup::"
         env:
           VITE_USER_POOL_ID: ${{ env.VITE_USER_POOL_ID }}
           VITE_CLIENT_ID: ${{ env.VITE_CLIENT_ID }}

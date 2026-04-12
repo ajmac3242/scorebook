@@ -469,27 +469,32 @@ const TeamStats: React.FC = () => {
   }, [games, scheduleView]);
 
   const sortedRoster = useMemo(() => {
-    // Optimization: Pre-calculate jersey numbers in a Map to avoid O(N) lookups in the sort.
-    const jerseyMap = new Map();
+    // ⚡ Bolt: Pre-calculate numeric sort keys in a single pass to optimize sorting.
+    // This avoids repeated parseInt and complex branching inside the hot sort comparison loop.
+    const getSortKey = (jersey: string): number => {
+      if (!jersey) return 1000; // Empty jerseys go to the end
+      if (jersey === "00") return -1; // '00' comes first in basketball
+      const num = parseInt(jersey, 10);
+      return isNaN(num) ? 999 : num;
+    };
+
+    // Optimization: Use a Map for O(1) jersey lookup during sort key generation.
+    const jerseyMap = new Map<string | number, string>();
     for (let i = 0; i < teamPlayers.length; i++) {
-      jerseyMap.set(teamPlayers[i].playerId, teamPlayers[i].jerseyNumber || "");
+      const tp = teamPlayers[i];
+      jerseyMap.set(tp.playerId, tp.jerseyNumber || "");
     }
 
-    return [...teamPlayerDetails].sort((a, b) => {
-      const aJersey = jerseyMap.get(a.id!) || "";
-      const bJersey = jerseyMap.get(b.id!) || "";
-      // Basketball sorting: 00, 0, then numeric 1-99. Empty/dash at the end.
-      if (aJersey === bJersey) return 0;
-      if (!aJersey) return 1;
-      if (!bJersey) return -1;
-      // Treat '00' as a special value that comes first, or just use numeric value
-      const aNum = parseInt(aJersey, 10);
-      const bNum = parseInt(bJersey, 10);
-      if (aNum === bNum) {
-        return aJersey.length - bJersey.length; // '00' vs '0'
-      }
-      return aNum - bNum;
-    });
+    const rosterWithKeys = [];
+    for (let i = 0; i < teamPlayerDetails.length; i++) {
+      const p = teamPlayerDetails[i];
+      const jersey = jerseyMap.get(p.id!) || "";
+      rosterWithKeys.push({ player: p, sortKey: getSortKey(jersey) });
+    }
+
+    return rosterWithKeys
+      .sort((a, b) => a.sortKey - b.sortKey)
+      .map((item) => item.player);
   }, [teamPlayerDetails, teamPlayers]);
 
   const sortedRosterJerseyMap = useMemo(() => {
