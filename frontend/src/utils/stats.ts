@@ -207,20 +207,20 @@ export const calculatePlayerAggregates = (
   }
 
   // Finalize totals, percentages, and averages
-  // ⚡ Bolt: Iterate over map values directly to skip O(N) key extraction and O(1) lookups.
+  // ⚡ Bolt: Iterate over map values once and reduce redundant property access.
   const result: PlayerAggregates[] = [];
+  const isAverage = viewType === "average";
   for (const player of statsMap.values()) {
-    // We default gp (games played) to 1 for per-game calculations even if 0
-    // to prevent division by zero errors, though technically it should be 0.
-    const gp = player.gamesPlayed.size || 1;
-    player.gp = player.gamesPlayed.size;
+    const gpActual = player.gamesPlayed.size;
+    const gp = gpActual || 1;
+    player.gp = gpActual;
     player.fgPct =
       player.attempts > 0
         ? formatToOne((player.makes / player.attempts) * 100)
         : "0.0";
 
-    if (viewType === "average") {
-      // Optimization: Update numeric fields directly to avoid object spread overhead and memory churn.
+    if (isAverage) {
+      // Optimization: Cache property values to minimize redundant lookups in the hot finalization loop.
       player.points = roundToOne(player.points / gp);
       player.rebounds = roundToOne(player.rebounds / gp);
       player.assists = roundToOne(player.assists / gp);
