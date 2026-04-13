@@ -127,33 +127,38 @@ async function handlePlayers(
   event: APIGatewayProxyEventV2,
   tableName: string,
 ): Promise<APIGatewayProxyResultV2 | null> {
+  // Collection endpoints: /players
   if (path === "/players") {
     if (method === "GET") return await getItems(tableName, "PLAYER");
-    if (method !== "POST") return null;
-
-    if (
-      !body?.name ||
-      typeof body.name !== "string" ||
-      body.name.length > 100
-    ) {
-      return badRequest(
-        "Player name is required and must be under 100 characters",
-      );
+    if (method === "POST") {
+      if (
+        !body?.name ||
+        typeof body.name !== "string" ||
+        body.name.length > 100
+      ) {
+        return badRequest(
+          "Player name is required and must be under 100 characters",
+        );
+      }
+      return await createItem("PLAYER", "METADATA", "PLAYER", body, tableName);
     }
-    return await createItem("PLAYER", "METADATA", "PLAYER", body, tableName);
+    return null;
   }
 
+  // Member endpoints: /players/{playerId}
   const match = path.match(/^\/players\/([^\/]+)$/);
   if (!match) return null;
 
   const playerId = match[1];
+  const playerKey = { PK: Keys.player(playerId), SK: Keys.metadata(playerId) };
+
   if (method === "DELETE") {
     const { archive } = event.queryStringParameters || {};
     if (archive === "true") {
       await docClient.send(
         new UpdateCommand({
           TableName: tableName,
-          Key: { PK: Keys.player(playerId), SK: Keys.metadata(playerId) },
+          Key: playerKey,
           UpdateExpression: "SET isArchived = :a",
           ExpressionAttributeValues: { ":a": 1 },
           ConditionExpression: "attribute_exists(PK)",
@@ -164,31 +169,31 @@ async function handlePlayers(
     return await softDeleteItem("PLAYER", "METADATA", playerId, tableName);
   }
 
-  if (method !== "PATCH") return null;
+  if (method === "PATCH") {
+    if (body.isArchived === 0) {
+      await docClient.send(
+        new UpdateCommand({
+          TableName: tableName,
+          Key: playerKey,
+          UpdateExpression: "SET isArchived = :a",
+          ExpressionAttributeValues: { ":a": 0 },
+          ConditionExpression: "attribute_exists(PK)",
+        }),
+      );
+      return ok({ message: "Player restored from archive" });
+    }
 
-  if (body.isArchived === 0) {
-    await docClient.send(
-      new UpdateCommand({
-        TableName: tableName,
-        Key: { PK: Keys.player(playerId), SK: Keys.metadata(playerId) },
-        UpdateExpression: "SET isArchived = :a",
-        ExpressionAttributeValues: { ":a": 0 },
-        ConditionExpression: "attribute_exists(PK)",
-      }),
-    );
-    return ok({ message: "Player restored from archive" });
-  }
-
-  if (body.deletedAt === null) {
-    await docClient.send(
-      new UpdateCommand({
-        TableName: tableName,
-        Key: { PK: Keys.player(playerId), SK: Keys.metadata(playerId) },
-        UpdateExpression: "REMOVE deletedAt",
-        ConditionExpression: "attribute_exists(PK)",
-      }),
-    );
-    return ok({ message: "Player restored" });
+    if (body.deletedAt === null) {
+      await docClient.send(
+        new UpdateCommand({
+          TableName: tableName,
+          Key: playerKey,
+          UpdateExpression: "REMOVE deletedAt",
+          ConditionExpression: "attribute_exists(PK)",
+        }),
+      );
+      return ok({ message: "Player restored" });
+    }
   }
 
   return null;
@@ -825,7 +830,7 @@ async function snapshotTeamRoster(teamId: string, tableName: string) {
     const teamResult = await docClient.send(
       new GetCommand({
         TableName: tableName,
-        Key: { PK: `TEAM#${teamId}`, SK: `METADATA#${teamId}` },
+        Key: { PK: Keys.team(teamId), SK: Keys.metadata(teamId) },
       }),
     );
     if (!teamResult?.Item || teamResult.Item.deletedAt) return;
@@ -836,7 +841,7 @@ async function snapshotTeamRoster(teamId: string, tableName: string) {
         IndexName: "GSI1",
         KeyConditionExpression: "GSI1PK = :pk AND begins_with(GSI1SK, :sk)",
         ExpressionAttributeValues: {
-          ":pk": `TEAM#${teamId}`,
+          ":pk": Keys.team(teamId),
           ":sk": "PLAYER#",
         },
       }),
@@ -864,7 +869,7 @@ async function snapshotTeamGames(teamId: string, tableName: string) {
         TableName: tableName,
         IndexName: "GSI1",
         KeyConditionExpression: "GSI1PK = :pk AND begins_with(GSI1SK, :sk)",
-        ExpressionAttributeValues: { ":pk": `TEAM#${teamId}`, ":sk": "GAME#" },
+        ExpressionAttributeValues: { ":pk": Keys.team(teamId), ":sk": "GAME#" },
       }),
     );
     const snapshot = {
@@ -886,7 +891,7 @@ async function snapshotGameStats(gameId: string, tableName: string) {
     const gameResult = await docClient.send(
       new GetCommand({
         TableName: tableName,
-        Key: { PK: `GAME#${gameId}`, SK: `METADATA#${gameId}` },
+        Key: { PK: Keys.game(gameId), SK: Keys.metadata(gameId) },
       }),
     );
     if (!gameResult?.Item || gameResult.Item.deletedAt) return;
