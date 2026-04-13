@@ -71,6 +71,22 @@ const VALID_ACTION_TYPES = new Set([
   "POSSESSION",
 ]);
 
+/**
+ * Regex for validating UUID v4 format.
+ * Prevents path traversal and other injection attacks via IDs.
+ */
+const UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * Validates if a string is a valid UUID v4.
+ * @param {unknown} id - The ID to validate.
+ * @returns {boolean} True if it's a valid UUID string.
+ */
+function isValidUuid(id: unknown): id is string {
+  return typeof id === "string" && UUID_REGEX.test(id);
+}
+
 const Keys = {
   team: (id: string) => `TEAM#${id}`,
   player: (id: string) => `PLAYER#${id}`,
@@ -200,14 +216,8 @@ async function handleGames(
       return await getItemsByGSI(`TEAM#${teamId}`, tableName);
     }
     if (method === "POST") {
-      if (
-        !body?.teamId ||
-        typeof body.teamId !== "string" ||
-        body.teamId.length > 100
-      ) {
-        return badRequest(
-          "teamId is required and must be under 100 characters",
-        );
+      if (!isValidUuid(body?.teamId)) {
+        return badRequest("Valid teamId (UUID) is required");
       }
       if (
         !body?.opponent ||
@@ -329,13 +339,8 @@ async function handleGames(
       }
 
       const id = (body?.id as string) || uuidv4();
-      if (
-        typeof id !== "string" ||
-        !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-          id,
-        )
-      ) {
-        return badRequest("Invalid stat id format");
+      if (!isValidUuid(id)) {
+        return badRequest("Invalid stat id format (UUID required)");
       }
 
       const timestamp = (body?.timestamp as string) || new Date().toISOString();
@@ -441,8 +446,8 @@ async function handleTeams(
     if (method === "GET")
       return await getItemsByGSI(`TEAM#${teamId}`, tableName);
     if (method === "POST") {
-      if (!body.playerId || typeof body.playerId !== "string") {
-        return badRequest("playerId required as string");
+      if (!isValidUuid(body.playerId)) {
+        return badRequest("Valid playerId (UUID) is required");
       }
       const cleanBody = stripLocalFields(body);
       const teamPlayerItem = {
@@ -743,6 +748,11 @@ async function createItem(
   tableName: string,
 ): Promise<APIGatewayProxyStructuredResultV2> {
   const id = (data?.id as string) || uuidv4();
+  if (!isValidUuid(id)) {
+    return badRequest(
+      `Invalid ${type.toLowerCase()} id format (UUID required)`,
+    );
+  }
   const cleanData = stripLocalFields(data);
   const item = {
     ...(cleanData as Record<string, unknown>),

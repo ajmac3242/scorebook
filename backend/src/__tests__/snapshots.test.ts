@@ -12,7 +12,7 @@ const ddbMock = mockClient(DynamoDBDocumentClient);
 const s3Mock = mockClient(S3Client);
 
 jest.mock("uuid", () => ({
-  v4: jest.fn(() => "test-uuid"),
+  v4: jest.fn(() => "277e909a-6536-4d2d-937e-f608759556f8"),
 }));
 
 import { handler } from "../index.js";
@@ -40,28 +40,39 @@ describe("Snapshot Generation Logic", () => {
   });
 
   it("generates correct team roster snapshot content", async () => {
+    const teamId = "277e909a-6536-4d2d-937e-f608759556fb";
     ddbMock.on(PutCommand).resolves({});
     ddbMock.on(GetCommand).resolves({
-      Item: { id: "t1", name: "Team 1", PK: "TEAM#t1", SK: "METADATA#t1" },
+      Item: {
+        id: teamId,
+        name: "Team 1",
+        PK: `TEAM#${teamId}`,
+        SK: `METADATA#${teamId}`,
+      },
     });
     ddbMock.on(QueryCommand).resolves({
       Items: [
-        { id: "p1", name: "Player 1", GSI1PK: "TEAM#t1", GSI1SK: "PLAYER#p1" },
+        {
+          id: "p1",
+          name: "Player 1",
+          GSI1PK: `TEAM#${teamId}`,
+          GSI1SK: "PLAYER#p1",
+        },
       ],
     });
     s3Mock.on(PutObjectCommand).resolves({});
 
-    const event = createEvent("POST", "/teams", { id: "t1", name: "Team 1" });
+    const event = createEvent("POST", "/teams", { id: teamId, name: "Team 1" });
     await handler(event);
 
     const s3Calls = s3Mock.commandCalls(PutObjectCommand);
     const rosterCall = s3Calls.find(
-      (c) => (c.args[0].input as any).Key === "teams/t1/roster.json",
+      (c) => (c.args[0].input as any).Key === `teams/${teamId}/roster.json`,
     );
 
     expect(rosterCall).toBeDefined();
     const body = JSON.parse((rosterCall!.args[0].input as any).Body);
-    expect(body.team.id).toBe("t1");
+    expect(body.team.id).toBe(teamId);
     expect(body.players).toHaveLength(1);
     expect(body.players[0].name).toBe("Player 1");
     expect(body.team.PK).toBeUndefined();

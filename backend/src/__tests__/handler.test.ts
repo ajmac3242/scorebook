@@ -13,7 +13,7 @@ const ddbMock = mockClient(DynamoDBDocumentClient);
 const s3Mock = mockClient(S3Client);
 
 jest.mock("uuid", () => ({
-  v4: jest.fn(() => "test-uuid"),
+  v4: jest.fn(() => "277e909a-6536-4d2d-937e-f608759556f8"),
 }));
 
 describe("Lambda Handler", () => {
@@ -94,7 +94,7 @@ describe("Lambda Handler", () => {
       s3Mock.on(PutObjectCommand).resolves({});
 
       const event = createEvent("POST", "/teams/t1/players", {
-        playerId: "p1",
+        playerId: "277e909a-6536-4d2d-937e-f608759556f9",
         name: "Player 1",
         jerseyNumber: "10",
       });
@@ -142,7 +142,7 @@ describe("Lambda Handler", () => {
       ddbMock.on(QueryCommand).resolves({ Items: [] });
       s3Mock.on(PutObjectCommand).resolves({});
       const event = createEvent("POST", "/games", {
-        teamId: "t1",
+        teamId: "277e909a-6536-4d2d-937e-f608759556fa",
         opponent: "Opp",
       });
       const response: any = await handler(event);
