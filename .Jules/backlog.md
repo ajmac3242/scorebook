@@ -8,6 +8,7 @@
 - [x] Period length is configurable based on team settings.
 - [x] SUB_IN/SUB_OUT events record the exact game clock time.
 - [x] Box score displays "MIN" for each player with 100% accuracy.
+- [x] Added clock reset functionality for game management.
 
 ## Advanced Analytics (+/- and eFG%)
 **Priority:** HIGH

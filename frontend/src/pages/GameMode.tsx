@@ -45,6 +45,7 @@ import {
   Groups,
   PlayArrow,
   Pause,
+  RestartAlt,
 } from "@mui/icons-material";
 import {
   Table,
@@ -155,10 +156,12 @@ const Scoreboard = React.memo(
     isReadOnly,
     clockSeconds,
     onToggleClock,
+    onResetClock,
     isClockRunning,
   }: ScoreboardProps & {
     clockSeconds: number;
     onToggleClock: () => void;
+    onResetClock: () => void;
     isClockRunning: boolean;
   }) => {
     const theme = useTheme();
@@ -510,6 +513,21 @@ const Scoreboard = React.memo(
                     ) : (
                       <PlayArrow fontSize="small" />
                     )}
+                  </IconButton>
+                )}
+                {!isReadOnly && (
+                  <IconButton
+                    size="small"
+                    onClick={onResetClock}
+                    aria-label="Reset Clock"
+                    sx={{
+                      color: "rgba(255,255,255,0.4)",
+                      bgcolor: "rgba(255,255,255,0.05)",
+                      p: 0.5,
+                      "&:hover": { color: "white" },
+                    }}
+                  >
+                    <RestartAlt fontSize="small" />
                   </IconButton>
                 )}
               </Box>
@@ -1228,6 +1246,7 @@ const GameMode: React.FC = () => {
       selectedY,
       period,
       trackingMode,
+      clockSeconds,
     ],
   );
 
@@ -1344,7 +1363,14 @@ const GameMode: React.FC = () => {
         severity: "error",
       });
     }
-  }, [gameId, isReadOnly, gameData.onCourtIds, draftOnCourtIds, period]);
+  }, [
+    gameId,
+    isReadOnly,
+    gameData.onCourtIds,
+    draftOnCourtIds,
+    period,
+    clockSeconds,
+  ]);
 
   /**
    * Deletes a specific statistical event.
@@ -1412,6 +1438,22 @@ const GameMode: React.FC = () => {
     }
   }, [gameId, teamId, navigate]);
 
+  const handleResetClock = useCallback(async () => {
+    if (!gameId || isReadOnly) return;
+    const defaultMins = periodType === "QUARTERS" ? 10 : 20;
+    const resetSeconds = defaultMins * 60;
+    setClockSeconds(resetSeconds);
+    setIsClockRunning(false);
+
+    try {
+      await db.open();
+      await db.games.update(gameId, { clockTime: resetSeconds, synced: 0 });
+      await syncService.pushUpdates();
+    } catch (err) {
+      logger.error("Failed to reset clock:", err);
+    }
+  }, [gameId, isReadOnly, periodType]);
+
   const handleNextPeriod = useCallback(async () => {
     const nextPeriod = period < 10 ? period + 1 : 1;
     setPeriod(nextPeriod);
@@ -1463,7 +1505,7 @@ const GameMode: React.FC = () => {
     } catch (err) {
       logger.error("Failed to record timeout:", err);
     }
-  }, [gameId, isReadOnly, trackingMode, period]);
+  }, [gameId, isReadOnly, trackingMode, period, clockSeconds]);
 
   /**
    * 🏀 CoachBoard: handleTogglePossession
@@ -1509,7 +1551,7 @@ const GameMode: React.FC = () => {
         });
       }
     },
-    [gameId, isReadOnly, period],
+    [gameId, isReadOnly, period, clockSeconds],
   );
 
   const handleTogglePossession = useCallback(async () => {
@@ -1537,7 +1579,7 @@ const GameMode: React.FC = () => {
     } catch (err) {
       logger.error("Failed to toggle possession:", err);
     }
-  }, [gameId, isReadOnly, period, gameData.possessionState]);
+  }, [gameId, isReadOnly, period, gameData.possessionState, clockSeconds]);
 
   if (!gameId || !teamId) {
     return null;
@@ -1572,6 +1614,7 @@ const GameMode: React.FC = () => {
                 db.games.update(gameId, { clockTime: clockSeconds, synced: 0 });
               }
             }}
+            onResetClock={handleResetClock}
           />
 
           <MoleskineCard>
@@ -3034,6 +3077,39 @@ const RecentActionItem: React.FC<{
           ? teamName || "Our Team"
           : players?.find((p) => p.id === stat.playerId)?.name || "Unknown";
 
+    const getActionIcon = (type: string) => {
+      const iconSx = { fontSize: 16, mr: 1, verticalAlign: "middle" };
+      switch (type) {
+        case ACTION_TYPES.MAKE:
+          return <Check sx={{ ...iconSx, color: "success.main" }} />;
+        case ACTION_TYPES.MISS:
+          return <Close sx={{ ...iconSx, color: "error.main" }} />;
+        case ACTION_TYPES.REBOUND:
+        case ACTION_TYPES.OFF_REBOUND:
+        case ACTION_TYPES.DEF_REBOUND:
+          return <SportsBasketball sx={{ ...iconSx, color: "primary.main" }} />;
+        case ACTION_TYPES.ASSIST:
+          return <PanTool sx={{ ...iconSx, color: "info.main" }} />;
+        case ACTION_TYPES.STEAL:
+          return <FlashOn sx={{ ...iconSx, color: "warning.main" }} />;
+        case ACTION_TYPES.TURNOVER:
+          return <SwapHoriz sx={{ ...iconSx, color: "warning.dark" }} />;
+        case ACTION_TYPES.BLOCK:
+          return <ArrowBack sx={{ ...iconSx, color: "secondary.main" }} />;
+        case ACTION_TYPES.FOUL:
+          return <Warning sx={{ ...iconSx, color: "error.light" }} />;
+        case ACTION_TYPES.TIMEOUT:
+          return <History sx={{ ...iconSx, color: "text.secondary" }} />;
+        case ACTION_TYPES.SUB_IN:
+        case ACTION_TYPES.SUB_OUT:
+          return <Groups sx={{ ...iconSx, color: "text.secondary" }} />;
+        case ACTION_TYPES.POSSESSION:
+          return <SwapHoriz sx={{ ...iconSx, color: "primary.light" }} />;
+        default:
+          return null;
+      }
+    };
+
     return (
       <Box
         sx={{
@@ -3044,15 +3120,20 @@ const RecentActionItem: React.FC<{
           borderBottom: "1px solid #F0F0F0",
         }}
       >
-        <Box>
-          <Typography variant="body2">
-            <strong>{playerName}</strong>: {stat.type}
-          </Typography>
-          <Typography variant="caption" color="text.secondary">
-            {periodLabel} {stat.period || 1}
-            {stat.clockTime !== undefined &&
-              ` @ ${formatClock(stat.clockTime)}`}
-          </Typography>
+        <Box sx={{ display: "flex", alignItems: "center" }}>
+          <Box sx={{ minWidth: 24, display: "flex", justifyContent: "center" }}>
+            {getActionIcon(stat.type)}
+          </Box>
+          <Box>
+            <Typography variant="body2">
+              <strong>{playerName}</strong>: {stat.type}
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              {periodLabel} {stat.period || 1}
+              {stat.clockTime !== undefined &&
+                ` @ ${formatClock(stat.clockTime)}`}
+            </Typography>
+          </Box>
         </Box>
         <Box>
           <Tooltip title={`Edit ${stat.type} for ${playerName}`}>
