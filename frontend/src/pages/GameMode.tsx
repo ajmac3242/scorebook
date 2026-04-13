@@ -1018,9 +1018,18 @@ const GameMode: React.FC = () => {
       "total",
       {
         isSorted: true,
+        periodLength: game?.periodLength,
+        liveContext: { clockTime: clockSeconds, period },
       },
     );
-  }, [players, sortedGameStats, teamPlayers]);
+  }, [
+    players,
+    sortedGameStats,
+    teamPlayers,
+    game?.periodLength,
+    clockSeconds,
+    period,
+  ]);
 
   const sortedStatsGridData = useMemo(() => {
     return [...statsGridData].sort((a, b) => {

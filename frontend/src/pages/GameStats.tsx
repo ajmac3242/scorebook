@@ -215,9 +215,19 @@ const GameStats: React.FC = () => {
       scoreFlowSortedStats,
       teamPlayers,
       "total",
-      { isSorted: true },
+      {
+        isSorted: true,
+        periodLength: game?.periodLength,
+        liveContext:
+          game && !game.completed
+            ? {
+                clockTime: game.clockTime || 0,
+                period: game.currentPeriod || 1,
+              }
+            : undefined,
+      },
     );
-  }, [players, scoreFlowSortedStats, teamPlayers]);
+  }, [players, scoreFlowSortedStats, teamPlayers, game]);
 
   const playerAggregates = useMemo(() => {
     return [...aggregatedStats].sort((a, b) => {
@@ -298,8 +308,15 @@ const GameStats: React.FC = () => {
   }, [stats]);
 
   const lineupStats = useMemo(() => {
-    return calculateLineupStats(scoreFlowSortedStats, { isSorted: true });
-  }, [scoreFlowSortedStats]);
+    return calculateLineupStats(scoreFlowSortedStats, {
+      isSorted: true,
+      periodLength: game?.periodLength,
+      liveContext:
+        game && !game.completed
+          ? { clockTime: game.clockTime || 0, period: game.currentPeriod || 1 }
+          : undefined,
+    });
+  }, [scoreFlowSortedStats, game]);
 
   const handleDeleteGame = async () => {
     if (!gameId || !game) return;
