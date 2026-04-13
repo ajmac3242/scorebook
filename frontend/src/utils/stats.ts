@@ -582,15 +582,14 @@ export const calculateTeamAggregates = (
 
 /**
  * Calculates aggregated statistics for the opponent in a single game.
- * Supports individual opponent tracking if player IDs are prefixed with 'OPP-'.
  *
  * @param {StatEvent[]} stats - List of statistical events for the game.
- * @returns {{ summary: OpponentAggregates, players: PlayerAggregates[] }} Opponent statistical summary.
+ * @returns {OpponentAggregates} Opponent statistical summary.
  */
 export const calculateOpponentAggregates = (
   stats: StatEvent[],
-): { summary: OpponentAggregates; players: PlayerAggregates[] } => {
-  const summaryAgg = {
+): OpponentAggregates => {
+  const agg = {
     points: 0,
     makes: 0,
     attempts: 0,
@@ -604,67 +603,19 @@ export const calculateOpponentAggregates = (
     fouls: 0,
   };
 
-  const playerMap = new Map<string, PlayerAggregates>();
-
   for (let i = 0; i < stats.length; i++) {
     const stat = stats[i];
-    if (stat.deletedAt) continue;
+    if (stat.deletedAt || stat.playerId !== SPECIAL_PLAYER_IDS.OPPONENT)
+      continue;
 
-    if (
-      stat.playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
-      stat.playerId.startsWith("OPP-")
-    ) {
-      applyActionToAggregate(summaryAgg, stat);
-
-      if (stat.playerId.startsWith("OPP-")) {
-        let pAgg = playerMap.get(stat.playerId);
-        if (!pAgg) {
-          pAgg = {
-            id: stat.playerId,
-            name: `Opponent #${stat.playerId.replace("OPP-", "")}`,
-            gp: 1,
-            gamesPlayed: new Set([stat.gameId]),
-            points: 0,
-            makes: 0,
-            attempts: 0,
-            rebounds: 0,
-            offRebounds: 0,
-            defRebounds: 0,
-            assists: 0,
-            steals: 0,
-            turnovers: 0,
-            blocks: 0,
-            fouls: 0,
-            min: 0,
-            plusMinus: 0,
-            threePM: 0,
-            fgPct: "0.0",
-            efgPct: "0.0",
-            tsPct: "0.0",
-          };
-          playerMap.set(stat.playerId, pAgg);
-        }
-        applyActionToAggregate(pAgg, stat);
-      }
-    }
+    applyActionToAggregate(agg, stat);
   }
 
-  const players = Array.from(playerMap.values()).map((p) => ({
-    ...p,
-    fgPct: p.attempts > 0 ? formatToOne((p.makes / p.attempts) * 100) : "0.0",
-  }));
-
   return {
-    summary: {
-      ...summaryAgg,
-      fgPct:
-        summaryAgg.attempts > 0
-          ? ((summaryAgg.makes / summaryAgg.attempts) * 100).toFixed(1)
-          : "0.0",
-      min: 0,
-      plusMinus: 0,
-    },
-    players,
+    ...agg,
+    fgPct: agg.attempts > 0 ? formatToOne((agg.makes / agg.attempts) * 100) : "0.0",
+    min: 0,
+    plusMinus: 0,
   };
 };
 

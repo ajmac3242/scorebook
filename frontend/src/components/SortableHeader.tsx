@@ -27,13 +27,6 @@ const SortableHeader: React.FC<SortableHeaderProps> = ({
     <TableCell
       align={align}
       onClick={() => onSort(sortKey)}
-      aria-sort={
-        sortConfig.key === sortKey
-          ? sortConfig.direction === "asc"
-            ? "ascending"
-            : "descending"
-          : "none"
-      }
       sx={{
         cursor: "pointer",
         fontWeight: 700,

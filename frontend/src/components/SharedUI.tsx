@@ -13,7 +13,6 @@ import {
   IconButton,
   Card,
   CardContent,
-  Tooltip,
 } from "@mui/material";
 import { ArrowBack as ArrowBackIcon } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
@@ -80,23 +79,21 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
         }}
       >
         {showBack && (
-          <Tooltip title="Go Back">
-            <IconButton
-              onClick={() => (backTo ? navigate(backTo) : navigate(-1))}
-              aria-label="Go back"
-              sx={{
-                position: "absolute",
-                left: 0,
-                color: "text.primary",
-                "&:hover": {
-                  transform: "scale(1.1)",
-                  transition: "transform 0.2s",
-                },
-              }}
-            >
-              <ArrowBackIcon />
-            </IconButton>
-          </Tooltip>
+          <IconButton
+            onClick={() => (backTo ? navigate(backTo) : navigate(-1))}
+            aria-label="Go back"
+            sx={{
+              position: "absolute",
+              left: 0,
+              color: "text.primary",
+              "&:hover": {
+                transform: "scale(1.1)",
+                transition: "transform 0.2s",
+              },
+            }}
+          >
+            <ArrowBackIcon />
+          </IconButton>
         )}
         <Box sx={{ textAlign: "center" }}>
           <Typography

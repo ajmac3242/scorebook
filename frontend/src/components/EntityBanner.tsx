@@ -282,7 +282,6 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                 autoFocus
                 variant="standard"
                 placeholder="Search..."
-                aria-label={`Search ${title}`}
                 value={searchTerm || ""}
                 onChange={(e) => onSearchChange(e.target.value)}
                 InputProps={{

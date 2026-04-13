@@ -27,7 +27,6 @@ import {
   Alert,
   Tooltip,
   Snackbar,
-  TextField,
 } from "@mui/material";
 import {
   Undo as UndoIcon,
@@ -47,7 +46,6 @@ import {
   PlayArrow,
   Pause,
   RestartAlt,
-  PersonAdd,
 } from "@mui/icons-material";
 import {
   Table,
@@ -443,7 +441,6 @@ const Scoreboard = React.memo(
           >
             <Typography
               aria-label={`${team?.name || "Team"} score: ${gameData.currentScore}`}
-              aria-live="polite"
               sx={{
                 color: "white",
                 fontSize: { xs: "1.75rem", sm: "3rem" },
@@ -573,7 +570,6 @@ const Scoreboard = React.memo(
 
             <Typography
               aria-label={`${game?.opponent || "Opponent"} score: ${gameData.opponentScore}`}
-              aria-live="polite"
               sx={{
                 color: "white",
                 fontSize: { xs: "1.75rem", sm: "3rem" },
@@ -744,9 +740,6 @@ const GameMode: React.FC = () => {
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
   const [statType, setStatType] = useState<string | null>(null);
   const [points, setPoints] = useState<number>(2);
-
-  const [oppRosterDialogOpen, setOppRosterDialogOpen] = useState(false);
-  const [newOppJersey, setNewOppJersey] = useState("");
 
   const [clockSeconds, setClockSeconds] = useState<number>(0);
   const [isClockRunning, setIsClockRunning] = useState(false);
@@ -928,7 +921,6 @@ const GameMode: React.FC = () => {
     let oppTimeouts = 0;
     let posState = null;
     const onCourt = new Set<string>();
-    const stintStarts = new Map<string, number>();
     const pType = team?.periodType || "QUARTERS";
 
     for (let i = 0; i < sortedGameStats.length; i++) {
@@ -970,48 +962,14 @@ const GameMode: React.FC = () => {
       // Lineup
       if (s.type === ACTION_TYPES.SUB_IN) {
         onCourt.add(s.playerId);
-        stintStarts.set(s.playerId, s.clockTime ?? 600);
       } else if (s.type === ACTION_TYPES.SUB_OUT) {
         onCourt.delete(s.playerId);
-        stintStarts.delete(s.playerId);
       }
     }
 
     const MAX_TIMEOUTS = team?.fouls || 3;
     const teamBonus = getBonusStatus(teamFouls, pType);
     const oppBonus = getBonusStatus(oppFouls, pType);
-
-    // 🏀 CoachBoard: Foul Watch logic
-    // Why: Identifies players at risk of fouling out based on current game period.
-    const foulsToWatch = [];
-    const currentAggs = calculatePlayerAggregates(
-      players,
-      sortedGameStats,
-      teamPlayers,
-      "total",
-      { isSorted: true },
-    );
-
-    const mPeriod = team?.periodType === "HALVES" ? 2 : 4;
-
-    for (const stats of currentAggs) {
-      const pf = stats.fouls;
-      let shouldAlert = false;
-      if (pf >= 5) continue;
-
-      if (period <= mPeriod / 2 && pf >= 2) shouldAlert = true;
-      else if (period === 3 && pf >= 3) shouldAlert = true;
-      else if (period >= 4 && pf >= 4) shouldAlert = true;
-
-      if (shouldAlert) {
-        foulsToWatch.push({
-          id: stats.id.toString(),
-          name: stats.name,
-          jersey: stats.jerseyNumber,
-          fouls: pf,
-        });
-      }
-    }
 
     return {
       currentScore: curScore,
@@ -1032,18 +990,9 @@ const GameMode: React.FC = () => {
       },
       possessionState: posState,
       onCourtIds: onCourt,
-      stintStartTimes: stintStarts,
-      foulWatchList: foulsToWatch,
       recentStats: sortedGameStats.slice(-10).reverse(),
     };
-  }, [
-    sortedGameStats,
-    period,
-    team?.periodType,
-    team?.fouls,
-    players,
-    teamPlayers,
-  ]);
+  }, [sortedGameStats, period, team?.periodType, team?.fouls]);
 
   // Initialize draft state when dialog opens
   useEffect(() => {
@@ -1240,21 +1189,14 @@ const GameMode: React.FC = () => {
   const handleSaveStat = useCallback(
     async (currentType?: string) => {
       const typeToSave = currentType || statType;
-      // 🏀 CoachBoard: Handle Opponent identification
-      // Why: If no specific opponent jersey is selected, default to the generic OPPONENT ID.
-      let finalPlayerId = selectedPlayerId;
-      if (trackingMode === "OPPONENT" && !finalPlayerId) {
-        finalPlayerId = SPECIAL_PLAYER_IDS.OPPONENT;
-      }
-
-      if (!finalPlayerId || !typeToSave) return;
+      if (!selectedPlayerId || !typeToSave) return;
 
       try {
         if (!gameId) return;
         await db.open();
         if (isEditing && editingStatId) {
           await db.stats.update(editingStatId, {
-            playerId: finalPlayerId!,
+            playerId: selectedPlayerId!,
             type: typeToSave,
             points: typeToSave === ACTION_TYPES.MAKE ? points : 0,
             synced: 0,
@@ -1264,7 +1206,7 @@ const GameMode: React.FC = () => {
           const newStat: StatEvent = {
             id: crypto.randomUUID(),
             gameId: gameId,
-            playerId: finalPlayerId!,
+            playerId: selectedPlayerId!,
             type: typeToSave,
             points: typeToSave === ACTION_TYPES.MAKE ? points : 0,
             locationX: selectedX || 0,
@@ -1310,38 +1252,6 @@ const GameMode: React.FC = () => {
       trackingMode,
       clockSeconds,
     ],
-  );
-
-  const handleAddOpponentJersey = useCallback(async () => {
-    if (!gameId || !newOppJersey) return;
-    try {
-      const currentRoster = game?.opponentRoster || [];
-      if (currentRoster.includes(newOppJersey)) return;
-
-      await db.games.update(gameId, {
-        opponentRoster: [...currentRoster, newOppJersey],
-        synced: 0,
-      });
-      setNewOppJersey("");
-    } catch (err) {
-      logger.error("Failed to add opponent jersey:", err);
-    }
-  }, [gameId, game?.opponentRoster, newOppJersey]);
-
-  const handleRemoveOpponentJersey = useCallback(
-    async (jersey: string) => {
-      if (!gameId) return;
-      try {
-        const currentRoster = game?.opponentRoster || [];
-        await db.games.update(gameId, {
-          opponentRoster: currentRoster.filter((j) => j !== jersey),
-          synced: 0,
-        });
-      } catch (err) {
-        logger.error("Failed to remove opponent jersey:", err);
-      }
-    },
-    [gameId, game?.opponentRoster],
   );
 
   /**
@@ -1782,8 +1692,6 @@ const GameMode: React.FC = () => {
                     variant={markerFilter === type ? "filled" : "outlined"}
                     size="small"
                     color={markerFilter === type ? "primary" : "default"}
-                    aria-label={`Filter markers by ${type.toLowerCase()}`}
-                    aria-pressed={markerFilter === type}
                   />
                 ))}
               </Box>
@@ -1827,25 +1735,6 @@ const GameMode: React.FC = () => {
                         const isFoulTrouble = pf === 4;
                         const isFouledOut = pf >= 5;
 
-                        // 🏀 CoachBoard: Fatigue Monitor (T-MIN)
-                        // Why: Displays time-in-stint with color coding (Green -> Yellow -> Red)
-                        const stintStart =
-                          gameData.stintStartTimes.get(p.id!) ??
-                          (game?.periodLength ? game.periodLength * 60 : 600);
-                        const secondsInStint = Math.max(
-                          0,
-                          stintStart - clockSeconds,
-                        );
-                        const minsInStint = Math.floor(secondsInStint / 60);
-                        const secsInStint = secondsInStint % 60;
-                        const tMinLabel = `${minsInStint}:${secsInStint.toString().padStart(2, "0")}`;
-
-                        const getFatigueColor = () => {
-                          if (minsInStint >= 6) return "#f44336"; // Red
-                          if (minsInStint >= 4) return "#ff9800"; // Orange/Yellow
-                          return "#4caf50"; // Green
-                        };
-
                         return (
                           <Box
                             key={p.id}
@@ -1859,7 +1748,6 @@ const GameMode: React.FC = () => {
                               fullWidth
                               disabled={isReadOnly}
                               variant="contained"
-                              aria-label={`Substitute ${p.name}`}
                               onClick={() => {
                                 setSubOutPlayerId(p.id!);
                                 setSubDialogOpen(true);
@@ -1940,16 +1828,6 @@ const GameMode: React.FC = () => {
                                   variant="caption"
                                   sx={{ fontSize: "0.6rem", opacity: 0.9 }}
                                 >
-                                  <Box
-                                    component="span"
-                                    sx={{
-                                      color: getFatigueColor(),
-                                      fontWeight: 800,
-                                      mr: 0.5,
-                                    }}
-                                  >
-                                    [{tMinLabel}]
-                                  </Box>
                                   {pts} pts |
                                   <Box
                                     component="span"
@@ -2024,50 +1902,6 @@ const GameMode: React.FC = () => {
                   </Box>
                 </MoleskineCard>
 
-                {gameData.foulWatchList.length > 0 && (
-                  <MoleskineCard
-                    sx={{
-                      border: `2px solid ${theme.palette.error.main}`,
-                      animation: "pulse 2s infinite",
-                      "@keyframes pulse": {
-                        "0%": { boxShadow: "0 0 0 0 rgba(211, 47, 47, 0.4)" },
-                        "70%": { boxShadow: "0 0 0 10px rgba(211, 47, 47, 0)" },
-                        "100%": { boxShadow: "0 0 0 0 rgba(211, 47, 47, 0)" },
-                      },
-                    }}
-                  >
-                    <Typography
-                      variant="subtitle2"
-                      color="error"
-                      sx={{
-                        fontWeight: 800,
-                        mb: 1,
-                        display: "flex",
-                        alignItems: "center",
-                      }}
-                    >
-                      <Warning sx={{ fontSize: 18, mr: 1 }} /> FOUL WATCH
-                    </Typography>
-                    <Stack spacing={1}>
-                      {gameData.foulWatchList.map((p) => (
-                        <Alert
-                          key={p.id}
-                          severity="error"
-                          variant="outlined"
-                          sx={{ py: 0, px: 1, "& .MuiAlert-icon": { mr: 1 } }}
-                        >
-                          <Typography
-                            variant="caption"
-                            sx={{ fontWeight: 700 }}
-                          >
-                            #{p.jersey} {p.name} - {p.fouls} PF
-                          </Typography>
-                        </Alert>
-                      ))}
-                    </Stack>
-                  </MoleskineCard>
-                )}
-
                 <MoleskineCard sx={{ p: 0, overflow: "hidden" }}>
                   <Typography
                     variant="subtitle2"
@@ -2091,7 +1925,11 @@ const GameMode: React.FC = () => {
                               { key: "turnovers", label: "TO" },
                               { key: "fouls", label: "PF", px: 1 },
                               { key: "plusMinus", label: "+/-", px: 1 },
-                            ] as const
+                            ] as {
+                              key: keyof PlayerAggregates;
+                              label: string;
+                              px?: number;
+                            }[]
                           ).map((col) => (
                             <TableCell
                               key={col.key}
@@ -2158,45 +1996,17 @@ const GameMode: React.FC = () => {
                   color: "secondary.contrastText",
                 }}
               >
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    mb: 1,
-                  }}
+                <Typography
+                  variant="subtitle2"
+                  gutterBottom
+                  sx={{ fontWeight: 600 }}
                 >
-                  <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                    {game?.opponent || "Opponent"} Roster
-                  </Typography>
-                  <IconButton
-                    size="small"
-                    onClick={() => setOppRosterDialogOpen(true)}
-                    sx={{ color: "inherit" }}
-                    aria-label={`${game?.opponent || "Opponent"} Roster Management`}
-                  >
-                    <PersonAdd fontSize="small" />
-                  </IconButton>
-                </Box>
-                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                  {game?.opponentRoster?.length ? (
-                    game.opponentRoster.map((jersey) => (
-                      <Chip
-                        key={jersey}
-                        label={`#${jersey}`}
-                        size="small"
-                        onDelete={() => handleRemoveOpponentJersey(jersey)}
-                        sx={{
-                          bgcolor: "rgba(255,255,255,0.2)",
-                          color: "white",
-                          "& .MuiChip-deleteIcon": { color: "white" },
-                        }}
-                      />
-                    ))
-                  ) : (
-                    <Typography variant="caption">No players added</Typography>
-                  )}
-                </Box>
+                  {game?.opponent || "Opponent"} Tracking
+                </Typography>
+                <Typography variant="body2">
+                  Stats recorded in this mode will be assigned to the "
+                  {game?.opponent || "Opponent"}" player.
+                </Typography>
               </MoleskineCard>
             )}
 
@@ -2213,30 +2023,14 @@ const GameMode: React.FC = () => {
                 0 ? (
                   <Box
                     sx={{
-                      py: 6,
+                      py: 4,
                       textAlign: "center",
                       border: "1px dashed #D1D1D1",
                       borderRadius: 1,
-                      bgcolor: "rgba(0,0,0,0.01)",
                     }}
                   >
-                    <History
-                      sx={{
-                        fontSize: 40,
-                        color: "text.secondary",
-                        opacity: 0.2,
-                        mb: 1,
-                      }}
-                    />
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{ fontWeight: 500 }}
-                    >
-                      Your notebook is empty.
-                    </Typography>
                     <Typography variant="caption" color="text.secondary">
-                      Record actions on the court to see them here.
+                      No actions recorded yet
                     </Typography>
                   </Box>
                 ) : (
@@ -2284,9 +2078,6 @@ const GameMode: React.FC = () => {
               if (selectedPlayerId === SPECIAL_PLAYER_IDS.OPPONENT) {
                 return game?.opponent || "Opponent";
               }
-              if (selectedPlayerId?.startsWith("OPP-")) {
-                return `${game?.opponent || "Opponent"} #${selectedPlayerId.replace("OPP-", "")}`;
-              }
               const p = players?.find((p) => p.id === selectedPlayerId);
               if (!p) return "Select Player";
               const s = statsMap.get(p.id!);
@@ -2295,54 +2086,6 @@ const GameMode: React.FC = () => {
           </Typography>
         </DialogTitle>
         <DialogContent>
-          {trackingMode === "OPPONENT" && !isEditing && (
-            <Box sx={{ mb: 3 }}>
-              <Typography
-                variant="caption"
-                gutterBottom
-                sx={{ display: "block", mb: 1, fontWeight: 600 }}
-              >
-                Select Opponent Player
-              </Typography>
-              <Box
-                sx={{
-                  display: "flex",
-                  gap: 1,
-                  overflowX: "auto",
-                  pb: 1,
-                  "&::-webkit-scrollbar": { height: 4 },
-                }}
-              >
-                <Button
-                  variant={
-                    selectedPlayerId === SPECIAL_PLAYER_IDS.OPPONENT
-                      ? "contained"
-                      : "outlined"
-                  }
-                  onClick={() =>
-                    setSelectedPlayerId(SPECIAL_PLAYER_IDS.OPPONENT)
-                  }
-                  sx={{ minWidth: 60, flexShrink: 0 }}
-                >
-                  TEAM
-                </Button>
-                {game?.opponentRoster?.map((jersey) => (
-                  <Button
-                    key={jersey}
-                    variant={
-                      selectedPlayerId === `OPP-${jersey}`
-                        ? "contained"
-                        : "outlined"
-                    }
-                    onClick={() => setSelectedPlayerId(`OPP-${jersey}`)}
-                    sx={{ minWidth: 60, flexShrink: 0 }}
-                  >
-                    #{jersey}
-                  </Button>
-                ))}
-              </Box>
-            </Box>
-          )}
           {trackingMode === "TEAM" && !isEditing && (
             <Box sx={{ mb: 3 }}>
               <Typography
@@ -2911,40 +2654,6 @@ const GameMode: React.FC = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Opponent Roster Management Dialog */}
-      <Dialog
-        open={oppRosterDialogOpen}
-        onClose={() => setOppRosterDialogOpen(false)}
-      >
-        <DialogTitle>Manage Opponent Roster</DialogTitle>
-        <DialogContent>
-          <Box sx={{ display: "flex", gap: 1, mt: 1, mb: 2 }}>
-            <TextField
-              size="small"
-              label="Jersey #"
-              value={newOppJersey}
-              onChange={(e) => setNewOppJersey(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleAddOpponentJersey()}
-            />
-            <Button variant="contained" onClick={handleAddOpponentJersey}>
-              Add
-            </Button>
-          </Box>
-          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-            {game?.opponentRoster?.map((jersey) => (
-              <Chip
-                key={jersey}
-                label={`#${jersey}`}
-                onDelete={() => handleRemoveOpponentJersey(jersey)}
-              />
-            ))}
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOppRosterDialogOpen(false)}>Close</Button>
-        </DialogActions>
-      </Dialog>
-
       <Snackbar
         open={snackbar.open}
         autoHideDuration={4000}
@@ -3061,7 +2770,7 @@ const RecentActionItem: React.FC<{
               size="small"
               disabled={isReadOnly}
               onClick={() => onEdit(stat)}
-              aria-label={`Edit ${stat.type} for ${playerName}`}
+              aria-label={`edit ${stat.type} for ${playerName}`}
             >
               <Edit fontSize="small" />
             </IconButton>
@@ -3071,7 +2780,7 @@ const RecentActionItem: React.FC<{
               size="small"
               disabled={isReadOnly}
               onClick={() => onDelete(stat.id!)}
-              aria-label={`Delete ${stat.type} for ${playerName}`}
+              aria-label={`delete ${stat.type} for ${playerName}`}
             >
               <Delete fontSize="small" />
             </IconButton>
