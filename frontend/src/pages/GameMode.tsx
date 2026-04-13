@@ -1022,7 +1022,14 @@ const GameMode: React.FC = () => {
         liveContext: { clockTime: clockSeconds, period },
       },
     );
-  }, [players, sortedGameStats, teamPlayers, game?.periodLength, clockSeconds, period]);
+  }, [
+    players,
+    sortedGameStats,
+    teamPlayers,
+    game?.periodLength,
+    clockSeconds,
+    period,
+  ]);
 
   const sortedStatsGridData = useMemo(() => {
     return [...statsGridData].sort((a, b) => {

@@ -485,7 +485,9 @@ export const calculatePlayerAggregates = (
       // Why: If we have liveContext, stint ends at current clockTime.
       // Otherwise, assume they played until the buzzer (0:00).
       const endClock =
-        liveCtx && stint.lastGameId === stats[0]?.gameId ? liveCtx.clockTime : 0;
+        liveCtx && stint.lastGameId === stats[0]?.gameId
+          ? liveCtx.clockTime
+          : 0;
       playerAgg.min += Math.max(0, stint.startClock - endClock);
       playerAgg.plusMinus += scores.team - scores.opp - stint.startScoreDiff;
     }
@@ -515,7 +517,9 @@ export const calculatePlayerAggregates = (
     const fta = player.fta || 0;
     player.tsPct =
       player.attempts > 0 || fta > 0
-        ? formatToOne((player.points / (2 * (player.attempts + 0.44 * fta))) * 100)
+        ? formatToOne(
+            (player.points / (2 * (player.attempts + 0.44 * fta))) * 100,
+          )
         : "0.0";
 
     if (isAverage) {

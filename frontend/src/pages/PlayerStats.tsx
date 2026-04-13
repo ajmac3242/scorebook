@@ -176,7 +176,9 @@ const PlayerStats: React.FC = () => {
   }, [filteredStats]);
 
   const aggregates = useMemo(() => {
-    const activeGame = games.find((g) => g.id === selectedGameId && !g.completed);
+    const activeGame = games.find(
+      (g) => g.id === selectedGameId && !g.completed,
+    );
     const res = calculatePlayerAggregates(
       [player].filter((p): p is NonNullable<typeof p> => p !== undefined),
       filteredStats,

@@ -40,43 +40,43 @@ describe("Scout Discovery Tests", () => {
 
   describe("Issue: Broken TS% Calculation", () => {
     it("should calculate a reasonable TS% and not exceed 100% easily", () => {
-        const players = [{ id: "p1", name: "Player 1" }];
-        const stats: StatEvent[] = [
-          {
-            gameId: "g1",
-            playerId: "p1",
-            type: ACTION_TYPES.MAKE,
-            points: 2,
-            period: 1,
-            timestamp: "1",
-          },
-          {
-            gameId: "g1",
-            playerId: "p1",
-            type: ACTION_TYPES.MAKE,
-            points: 1,
-            period: 1,
-            timestamp: "2",
-          },
-          {
-            gameId: "g1",
-            playerId: "p1",
-            type: ACTION_TYPES.MAKE,
-            points: 1,
-            period: 1,
-            timestamp: "3",
-          },
-        ];
+      const players = [{ id: "p1", name: "Player 1" }];
+      const stats: StatEvent[] = [
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          period: 1,
+          timestamp: "1",
+        },
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 1,
+          period: 1,
+          timestamp: "2",
+        },
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 1,
+          period: 1,
+          timestamp: "3",
+        },
+      ];
 
-        const results = calculatePlayerAggregates(players, stats);
-        const p1 = results[0];
+      const results = calculatePlayerAggregates(players, stats);
+      const p1 = results[0];
 
-        // Points = 4. FGA = 1. FTA = 2.
-        // Formula: Points / (2 * (FGA + 0.44 * FTA))
-        // 4 / (2 * (1 + 0.44 * 2)) = 4 / (2 * 1.88) = 4 / 3.76 = 106.3%
-        // Wait, 106% is possible in basketball (e.g. all 3s or lots of FTs on few shots).
-        // But before it was 200%. Now it should be around 106.4.
-        expect(Number(p1.tsPct)).toBe(106.4);
-      });
+      // Points = 4. FGA = 1. FTA = 2.
+      // Formula: Points / (2 * (FGA + 0.44 * FTA))
+      // 4 / (2 * (1 + 0.44 * 2)) = 4 / (2 * 1.88) = 4 / 3.76 = 106.3%
+      // Wait, 106% is possible in basketball (e.g. all 3s or lots of FTs on few shots).
+      // But before it was 200%. Now it should be around 106.4.
+      expect(Number(p1.tsPct)).toBe(106.4);
+    });
   });
 });

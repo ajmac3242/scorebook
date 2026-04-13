@@ -220,7 +220,10 @@ const GameStats: React.FC = () => {
         periodLength: game?.periodLength,
         liveContext:
           game && !game.completed
-            ? { clockTime: game.clockTime || 0, period: game.currentPeriod || 1 }
+            ? {
+                clockTime: game.clockTime || 0,
+                period: game.currentPeriod || 1,
+              }
             : undefined,
       },
     );
