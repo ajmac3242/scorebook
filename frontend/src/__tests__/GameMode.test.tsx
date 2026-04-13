@@ -123,20 +123,22 @@ describe("GameMode Component", () => {
 
     // Action dialog should open
     await waitFor(() => {
-      expect(screen.getByText(/Record Action/i)).toBeInTheDocument();
+      expect(screen.getByRole("dialog")).toBeInTheDocument();
     });
 
     // Select Player 1 (which is on court in our mock)
-    // The button name might be just "Player" if jersey number is missing or "23Player"
-    const playerBtn = screen.getByRole("button", { name: /Player/i });
+    const dialog = screen.getByRole("dialog");
+    const playerBtn = await within(dialog).findByRole("button", {
+      name: "Player 1",
+    });
     fireEvent.click(playerBtn);
 
     // Select "Make"
-    const makeBtn = screen.getByRole("button", { name: /Make/i });
+    const makeBtn = within(screen.getByRole("dialog")).getByText("Make");
     fireEvent.click(makeBtn);
 
     // Click Save
-    const saveBtn = screen.getByRole("button", { name: /Save/i });
+    const saveBtn = within(screen.getByRole("dialog")).getByText("Save");
     fireEvent.click(saveBtn);
 
     await waitFor(() => {
@@ -171,17 +173,21 @@ describe("GameMode Component", () => {
 
     fireEvent.click(screen.getByTestId("basketball-court"));
     await waitFor(() => {
-      expect(screen.getByText(/Record Action/i)).toBeInTheDocument();
+      expect(screen.getByRole("dialog")).toBeInTheDocument();
     });
 
     // Select Player 1
-    fireEvent.click(screen.getByRole("button", { name: /Player/i }));
+    const dialogF = screen.getByRole("dialog");
+    const playerBtnF = await within(dialogF).findByRole("button", {
+      name: "Player 1",
+    });
+    fireEvent.click(playerBtnF);
 
     // Select "Foul"
-    fireEvent.click(screen.getByRole("button", { name: /Foul/i }));
+    fireEvent.click(within(screen.getByRole("dialog")).getByText("Foul"));
 
     // Click Save
-    fireEvent.click(screen.getByRole("button", { name: /Save/i }));
+    fireEvent.click(within(screen.getByRole("dialog")).getByText("Save"));
 
     await waitFor(() => {
       expect(db.stats.add).toHaveBeenCalledWith(
@@ -200,9 +206,9 @@ describe("GameMode Component", () => {
     const container = sidebar.parentElement!;
 
     // 1 occupied slot
-    expect(within(container).getByText(/Player 1/i)).toBeInTheDocument();
+    expect(await within(container).findByText(/Player 1/i)).toBeInTheDocument();
     // 4 empty slots
-    const emptySlots = within(container).getAllByText("Empty");
+    const emptySlots = within(container).getAllByLabelText(/Empty lineup slot/i);
     expect(emptySlots).toHaveLength(4);
   });
 
@@ -210,8 +216,10 @@ describe("GameMode Component", () => {
     renderComponent();
 
     // Tap occupied slot
-    const playerBtn = await screen.findByRole("button", { name: /Player 1/i });
-    fireEvent.click(playerBtn);
+    const sidebar = await screen.findByText("Live Lineup");
+    const sidebarContainer = sidebar.parentElement!;
+    const playerBtnS = await within(sidebarContainer).findByText(/Player 1/i);
+    fireEvent.click(playerBtnS);
 
     await waitFor(() => {
       expect(screen.getByText("Quick Substitution")).toBeInTheDocument();
@@ -229,7 +237,7 @@ describe("GameMode Component", () => {
 
     // Tap an empty slot
     fireEvent.click(screen.getByText("Cancel")); // Close first
-    const emptySlots = await screen.findAllByText("Empty");
+    const emptySlots = await screen.findAllByLabelText(/Empty lineup slot/i);
     fireEvent.click(emptySlots[0]);
 
     await waitFor(() => {
@@ -240,7 +248,7 @@ describe("GameMode Component", () => {
     await waitFor(() => {
       const dialog = screen.getByRole("dialog");
       const buttons = within(dialog).getAllByRole("button");
-      const emptyButton = buttons.find((b) => b.textContent?.includes("Empty"));
+      const emptyButton = buttons.find((b) => b.getAttribute("aria-label")?.includes("Empty lineup slot"));
       if (!emptyButton) throw new Error("Empty button not found");
       expect(emptyButton).toHaveClass("MuiButton-contained");
     });
@@ -359,11 +367,11 @@ describe("GameMode Component", () => {
     fireEvent.click(court);
 
     await waitFor(() => {
-      expect(screen.getByText(/Record Action/i)).toBeInTheDocument();
+      expect(screen.getByRole("dialog")).toBeInTheDocument();
     });
 
     // Select "Make"
-    fireEvent.click(screen.getByRole("button", { name: /Make/i }));
+    fireEvent.click(within(screen.getByRole("dialog")).getByText("Make"));
 
     // Points should default to 3
     const threeBtn = screen.getByRole("button", { name: "3" });
@@ -380,11 +388,11 @@ describe("GameMode Component", () => {
     fireEvent.click(court);
 
     await waitFor(() => {
-      expect(screen.getByText(/Record Action/i)).toBeInTheDocument();
+      expect(screen.getByRole("dialog")).toBeInTheDocument();
     });
 
     // Select "Make"
-    fireEvent.click(screen.getByRole("button", { name: /Make/i }));
+    fireEvent.click(within(screen.getByRole("dialog")).getByText("Make"));
 
     // Points should default to 2
     const twoBtn = screen.getByRole("button", { name: "2" });
@@ -420,7 +428,7 @@ describe("GameMode Component", () => {
     const oppContainer = oppHeader[0].parentElement!.parentElement!;
 
     // Find the "+2" quick action button for the opponent
-    const plusTwoBtn = within(oppContainer).getByRole("button", { name: "+2" });
+    const plusTwoBtn = within(oppContainer).getByRole("button", { name: "Record opponent +2 points" });
     fireEvent.click(plusTwoBtn);
 
     await waitFor(() => {
@@ -436,7 +444,7 @@ describe("GameMode Component", () => {
     });
 
     // Find and click the "F" (Foul) quick action button
-    const foulBtn = within(oppContainer).getByRole("button", { name: "F" });
+    const foulBtn = within(oppContainer).getByRole("button", { name: "Record opponent foul" });
     fireEvent.click(foulBtn);
 
     await waitFor(() => {
@@ -449,7 +457,7 @@ describe("GameMode Component", () => {
     });
 
     // Find and click the "REB" quick action button
-    const rebBtn = within(oppContainer).getByRole("button", { name: "REB" });
+    const rebBtn = within(oppContainer).getByRole("button", { name: "Record opponent rebound" });
     fireEvent.click(rebBtn);
 
     await waitFor(() => {
@@ -462,7 +470,7 @@ describe("GameMode Component", () => {
     });
 
     // Find and click the "TO" quick action button
-    const toBtn = within(oppContainer).getByRole("button", { name: "TO" });
+    const toBtn = within(oppContainer).getByRole("button", { name: "Record opponent turnover" });
     fireEvent.click(toBtn);
 
     await waitFor(() => {

@@ -454,6 +454,8 @@ const Teams: React.FC = () => {
             position: "fixed",
             bottom: "calc(32px + env(safe-area-inset-bottom))",
             right: 32,
+            transition: "transform 0.2s",
+            "&:hover": { transform: "scale(1.1) rotate(90deg)" },
           }}
           onClick={() => {
             setOpen(true);
