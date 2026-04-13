@@ -572,9 +572,9 @@ function safeCompare(a: string, b: string): boolean {
  * Handler for cleanup-related endpoints.
  * @param {string} method - HTTP method.
  * @param {string} path - Request path.
- * @param _body
- * @param {string} tableName - DynamoDB table name.
+ * @param {Record<string, unknown>} _body - Parsed JSON body (unused).
  * @param {APIGatewayProxyEventV2} event - The full Lambda event.
+ * @param {string} tableName - DynamoDB table name.
  * @returns {Promise<APIGatewayProxyResultV2 | null>} Response.
  */
 async function handleCleanup(

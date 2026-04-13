@@ -1091,7 +1091,7 @@ const GameMode: React.FC = () => {
           type: s.type,
           label:
             s.playerId !== SPECIAL_PLAYER_IDS.OPPONENT
-              ? jerseyMap.get(s.playerId) || ""
+              ? (jerseyMap.get(s.playerId) ?? "")
               : undefined,
           color:
             s.playerId === SPECIAL_PLAYER_IDS.OPPONENT
@@ -1793,7 +1793,7 @@ const GameMode: React.FC = () => {
                                   bgcolor: p.avatarColor || "grey.500",
                                 }}
                               >
-                                {jerseyMap.get(p.id!) || ""}
+                                {jerseyMap.get(p.id!) ?? ""}
                               </Avatar>
                               <Box
                                 sx={{
@@ -2385,7 +2385,7 @@ const GameMode: React.FC = () => {
                             bgcolor: p.avatarColor || "grey.500",
                           }}
                         >
-                          {jerseyMap.get(p.id!) || ""}
+                          {jerseyMap.get(p.id!) ?? ""}
                         </Avatar>
                         <Typography
                           variant="caption"
@@ -2727,10 +2727,10 @@ const GameMode: React.FC = () => {
                             bgcolor: p.avatarColor || "grey.500",
                           }}
                         >
-                          {jerseyMap.get(p.id!) || ""}
+                          {jerseyMap.get(p.id!) ?? ""}
                         </Avatar>
                         <Typography variant="body2" noWrap>
-                          #{jerseyMap.get(p.id!) || ""} {p.name}
+                          #{jerseyMap.get(p.id!) ?? ""} {p.name}
                           {isFouledOut && " - OUT"}
                         </Typography>
                       </Button>
@@ -2828,10 +2828,10 @@ const GameMode: React.FC = () => {
                             bgcolor: p.avatarColor || "grey.500",
                           }}
                         >
-                          {jerseyMap.get(p.id!) || ""}
+                          {jerseyMap.get(p.id!) ?? ""}
                         </Avatar>
                         <Typography variant="body2" noWrap>
-                          #{jerseyMap.get(p.id!) || ""} {p.name}
+                          #{jerseyMap.get(p.id!) ?? ""} {p.name}
                           {isFouledOut && " - OUT"}
                         </Typography>
                       </Button>
