@@ -176,9 +176,21 @@ const PlayerStats: React.FC = () => {
   }, [filteredStats]);
 
   const aggregates = useMemo(() => {
+    const activeGame = games.find((g) => g.id === selectedGameId && !g.completed);
     const res = calculatePlayerAggregates(
       [player].filter((p): p is NonNullable<typeof p> => p !== undefined),
       filteredStats,
+      [],
+      "total",
+      {
+        periodLength: activeGame?.periodLength,
+        liveContext: activeGame
+          ? {
+              clockTime: activeGame.clockTime || 0,
+              period: activeGame.currentPeriod || 1,
+            }
+          : undefined,
+      },
     );
     return (
       res[0] || {
