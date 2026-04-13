@@ -208,7 +208,7 @@ const PlayerStats: React.FC = () => {
       const tp = teamPlayers.find(
         (t) => t.teamId.toString() === teamIdParam.toString(),
       );
-      return tp?.jerseyNumber || "";
+      return tp?.jerseyNumber ?? "";
     }
     return "";
   };

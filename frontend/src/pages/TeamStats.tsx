@@ -310,7 +310,7 @@ const TeamStats: React.FC = () => {
             playerId: pId,
             name: player?.name,
             avatarColor: player?.avatarColor,
-            jerseyNumber: localJerseyNumbers[pId] || "",
+            jerseyNumber: localJerseyNumbers[pId] ?? "",
             synced: 0,
           });
         } else if (change.action === "remove") {
@@ -488,13 +488,13 @@ const TeamStats: React.FC = () => {
     const jerseyMap = new Map<string | number, string>();
     for (let i = 0; i < teamPlayers.length; i++) {
       const tp = teamPlayers[i];
-      jerseyMap.set(tp.playerId, tp.jerseyNumber || "");
+      jerseyMap.set(tp.playerId, tp.jerseyNumber ?? "");
     }
 
     const rosterWithKeys = [];
     for (let i = 0; i < teamPlayerDetails.length; i++) {
       const p = teamPlayerDetails[i];
-      const jersey = jerseyMap.get(p.id!) || "";
+      const jersey = jerseyMap.get(p.id!) ?? "";
       rosterWithKeys.push({ player: p, sortKey: getSortKey(jersey) });
     }
 
@@ -506,7 +506,7 @@ const TeamStats: React.FC = () => {
   const sortedRosterJerseyMap = useMemo(() => {
     const jerseyMap = new Map<string, string>();
     for (let i = 0; i < teamPlayers.length; i++) {
-      jerseyMap.set(teamPlayers[i].playerId, teamPlayers[i].jerseyNumber || "");
+      jerseyMap.set(teamPlayers[i].playerId, teamPlayers[i].jerseyNumber ?? "");
     }
     return jerseyMap;
   }, [teamPlayers]);
@@ -833,7 +833,7 @@ const TeamStats: React.FC = () => {
                         display: { xs: "none", sm: "table-cell" },
                       }}
                     >
-                      {row.jerseyNumber || "-"}
+                      {row.jerseyNumber ?? "-"}
                     </TableCell>
                     <TableCell>
                       <Box
@@ -1187,7 +1187,7 @@ const TeamStats: React.FC = () => {
                   const jersey =
                     localJerseyNumbers[pId] !== undefined
                       ? localJerseyNumbers[pId]
-                      : dbRecord?.jerseyNumber || "";
+                      : dbRecord?.jerseyNumber ?? "";
 
                   const playerEntityId = player.id?.toString() || "";
                   result.push(

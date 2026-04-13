@@ -84,7 +84,8 @@ export function response(
 
 /**
  * Semantic response helpers.
- * @param body
+ * @param {unknown} body - The response body.
+ * @returns {APIGatewayProxyStructuredResultV2} The formatted response.
  */
 export const ok = (body: unknown) => response(200, body);
 export const created = (body: unknown) => response(201, body);

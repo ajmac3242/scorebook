@@ -233,7 +233,7 @@ const GameStats: React.FC = () => {
   const shotChartJerseyMap = useMemo(() => {
     const map = new Map<string, string>();
     for (let i = 0; i < teamPlayers.length; i++) {
-      map.set(teamPlayers[i].playerId, teamPlayers[i].jerseyNumber || "");
+      map.set(teamPlayers[i].playerId, teamPlayers[i].jerseyNumber ?? "");
     }
     return map;
   }, [teamPlayers]);
