@@ -57,23 +57,29 @@ jobs:
           audience: sts.amazonaws.com
 
       - uses: hashicorp/setup-terraform@v3
+        timeout-minutes: 5
         with:
           terraform_wrapper: false
 
       - name: Terraform Init
+        timeout-minutes: 5
         run: |
           echo "::group::Terraform Init"
           cd infra && terraform init
           echo "::endgroup::"
 
       - name: Force Unlock Stale Terraform State
+        timeout-minutes: 5
         run: |
+          echo "::group::Force Unlock Stale Terraform State"
           aws dynamodb delete-item \
             --table-name basketball-stats-terraform-lock \
             --key '{"LockID": {"S": "basketball-stats-terraform-state-269555264437/terraform.tfstate"}}' \
             --region us-east-1 || true
+          echo "::endgroup::"
 
       - name: Terraform Plan
+        timeout-minutes: 5
         run: |
           echo "::group::Terraform Plan"
           cd infra && terraform plan -out=tfplan
@@ -89,11 +95,14 @@ jobs:
 
       - name: Get Terraform Outputs
         id: tf_outputs
+        timeout-minutes: 5
         run: |
+          echo "::group::Get Terraform Outputs"
           cd infra
           echo "VITE_USER_POOL_ID=$(terraform output -raw cognito_user_pool_id)" >> $GITHUB_ENV
           echo "VITE_CLIENT_ID=$(terraform output -raw cognito_client_id)" >> $GITHUB_ENV
           echo "VITE_API_ENDPOINT=$(terraform output -raw api_endpoint)" >> $GITHUB_ENV
+          echo "::endgroup::"
 
       - name: Build Frontend
         timeout-minutes: 5
@@ -113,8 +122,12 @@ jobs:
         run: find frontend/dist -type f | sort | xargs sha256sum | sha256sum | awk '{print $1}' > frontend-build-hash.txt
 
       - name: Terraform Apply (Final)
+        timeout-minutes: 5
         # Triggers null_resource.frontend_deploy to sync new build to S3 and invalidate CloudFront
-        run: cd infra && terraform apply -auto-approve
+        run: |
+          echo "::group::Terraform Apply (Final)"
+          cd infra && terraform apply -auto-approve
+          echo "::endgroup::"
 
       - name: Upload Test Results on Failure
         if: failure()
