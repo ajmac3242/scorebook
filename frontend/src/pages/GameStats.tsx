@@ -549,7 +549,10 @@ const GameStats: React.FC = () => {
                     bgcolor: row.avatarColor || "grey.500",
                   }}
                 >
-                  {row.jerseyNumber || (row.id?.toString().startsWith("OPP-") ? row.id.replace("OPP-", "") : "")}
+                  {row.jerseyNumber ||
+                    (row.id?.toString().startsWith("OPP-")
+                      ? row.id.replace("OPP-", "")
+                      : "")}
                 </Avatar>
                 <Typography
                   variant="body2"
@@ -1037,7 +1040,8 @@ const GameStats: React.FC = () => {
             alignItems: "center",
           }}
         >
-          {expandedSection === "boxScore" && `${team?.name || "Team"} Box Score`}
+          {expandedSection === "boxScore" &&
+            `${team?.name || "Team"} Box Score`}
           {expandedSection === "oppBoxScore" &&
             `${game?.opponent || "Opponent"} Box Score`}
           {expandedSection === "shotChart" && "Shot Chart"}

@@ -1038,7 +1038,14 @@ const GameMode: React.FC = () => {
       foulWatchList: foulsToWatch,
       recentStats: sortedGameStats.slice(-10).reverse(),
     };
-  }, [sortedGameStats, period, team?.periodType, team?.fouls, players, teamPlayers]);
+  }, [
+    sortedGameStats,
+    period,
+    team?.periodType,
+    team?.fouls,
+    players,
+    teamPlayers,
+  ]);
 
   // Initialize draft state when dialog opens
   useEffect(() => {
@@ -1833,7 +1840,10 @@ const GameMode: React.FC = () => {
                         const stintStart =
                           gameData.stintStartTimes.get(p.id!) ??
                           (game?.periodLength ? game.periodLength * 60 : 600);
-                        const secondsInStint = Math.max(0, stintStart - clockSeconds);
+                        const secondsInStint = Math.max(
+                          0,
+                          stintStart - clockSeconds,
+                        );
                         const minsInStint = Math.floor(secondsInStint / 60);
                         const secsInStint = secondsInStint % 60;
                         const tMinLabel = `${minsInStint}:${secsInStint.toString().padStart(2, "0")}`;
@@ -2053,7 +2063,10 @@ const GameMode: React.FC = () => {
                           variant="outlined"
                           sx={{ py: 0, px: 1, "& .MuiAlert-icon": { mr: 1 } }}
                         >
-                          <Typography variant="caption" sx={{ fontWeight: 700 }}>
+                          <Typography
+                            variant="caption"
+                            sx={{ fontWeight: 700 }}
+                          >
                             #{p.jersey} {p.name} - {p.fouls} PF
                           </Typography>
                         </Alert>
