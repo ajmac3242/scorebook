@@ -185,6 +185,16 @@ const GameStats: React.FC = () => {
     return allStats.filter((s) => s.period === parseInt(periodFilter));
   }, [allStats, periodFilter]);
 
+  // Optimization: Memoize the sorted statistics used for the score flow chart to avoid redundant sorting.
+  const scoreFlowSortedStats = useMemo(() => {
+    // ⚡ Bolt: Use direct comparison for ISO timestamps instead of localeCompare for hot paths.
+    return [...stats].sort((a, b) => {
+      if (a.timestamp < b.timestamp) return -1;
+      if (a.timestamp > b.timestamp) return 1;
+      return 0;
+    });
+  }, [stats]);
+
   const aggregatedStats = useMemo(() => {
     // ⚡ Bolt: Use a single pass with a Set for O(1) roster filtering.
     // This avoids redundant array allocations and improves performance for large rosters.
@@ -200,8 +210,14 @@ const GameStats: React.FC = () => {
         rosteredPlayers.push(p);
       }
     }
-    return calculatePlayerAggregates(rosteredPlayers, stats, teamPlayers);
-  }, [players, stats, teamPlayers]);
+    return calculatePlayerAggregates(
+      rosteredPlayers,
+      scoreFlowSortedStats,
+      teamPlayers,
+      "total",
+      { isSorted: true },
+    );
+  }, [players, scoreFlowSortedStats, teamPlayers]);
 
   const playerAggregates = useMemo(() => {
     return [...aggregatedStats].sort((a, b) => {
@@ -273,16 +289,6 @@ const GameStats: React.FC = () => {
     return data;
   }, [stats, selectedPlayerId]);
 
-  // Optimization: Memoize the sorted statistics used for the score flow chart to avoid redundant sorting.
-  const scoreFlowSortedStats = useMemo(() => {
-    // ⚡ Bolt: Use direct comparison for ISO timestamps instead of localeCompare for hot paths.
-    return [...stats].sort((a, b) => {
-      if (a.timestamp < b.timestamp) return -1;
-      if (a.timestamp > b.timestamp) return 1;
-      return 0;
-    });
-  }, [stats]);
-
   const scoreFlowData = useMemo(() => {
     return calculateScoreFlow(scoreFlowSortedStats);
   }, [scoreFlowSortedStats]);
@@ -292,8 +298,8 @@ const GameStats: React.FC = () => {
   }, [stats]);
 
   const lineupStats = useMemo(() => {
-    return calculateLineupStats(stats);
-  }, [stats]);
+    return calculateLineupStats(scoreFlowSortedStats, { isSorted: true });
+  }, [scoreFlowSortedStats]);
 
   const handleDeleteGame = async () => {
     if (!gameId || !game) return;
