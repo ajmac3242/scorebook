@@ -67,6 +67,7 @@ export function response(
     statusCode,
     headers: {
       "Content-Type": "application/json",
+      "Cache-Control": "no-store, max-age=0, must-revalidate",
       "X-Content-Type-Options": "nosniff",
       "X-Frame-Options": "DENY",
       "Strict-Transport-Security": "max-age=31536000; includeSubDomains",

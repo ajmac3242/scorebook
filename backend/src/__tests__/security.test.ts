@@ -40,6 +40,7 @@ describe("Security Tests", () => {
 
     // Attempt to overwrite PK and SK via request body
     const malformedBody = {
+      id: "277e909a-6536-4d2d-937e-f608759556fb",
       name: "Hack Team",
       PK: "HACKED#PK",
       SK: "HACKED#SK",
@@ -226,6 +227,7 @@ describe("Security Tests", () => {
     const response: any = await handler(event);
 
     expect(response.headers).toMatchObject({
+      "Cache-Control": "no-store, max-age=0, must-revalidate",
       "X-Content-Type-Options": "nosniff",
       "X-Frame-Options": "DENY",
       "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
@@ -236,6 +238,47 @@ describe("Security Tests", () => {
       "X-XSS-Protection": "0",
       "X-Permitted-Cross-Domain-Policies": "none",
     });
+  });
+
+  it("prevents path traversal and invalid ID formats in createItem", async () => {
+    const maliciousBody = {
+      id: "../../../malicious",
+      name: "Evil Team",
+    };
+
+    const event = createEvent("POST", "/teams", maliciousBody);
+    event.headers = { "content-type": "application/json" };
+    const response: any = await handler(event);
+
+    expect(response.statusCode).toBe(400);
+    expect(JSON.parse(response.body).message).toContain("UUID required");
+  });
+
+  it("validates teamId is a UUID in handleGames", async () => {
+    const event = createEvent("POST", "/games", {
+      teamId: "not-a-uuid",
+      opponent: "Opp",
+    });
+    event.headers = { "content-type": "application/json" };
+    const response: any = await handler(event);
+
+    expect(response.statusCode).toBe(400);
+    expect(JSON.parse(response.body).message).toBe(
+      "Valid teamId (UUID) is required",
+    );
+  });
+
+  it("validates playerId is a UUID in handleTeams", async () => {
+    const event = createEvent("POST", "/teams/t1/players", {
+      playerId: "not-a-uuid",
+    });
+    event.headers = { "content-type": "application/json" };
+    const response: any = await handler(event);
+
+    expect(response.statusCode).toBe(400);
+    expect(JSON.parse(response.body).message).toBe(
+      "Valid playerId (UUID) is required",
+    );
   });
 
   it("protects /cleanup endpoint with ADMIN_API_KEY and case-insensitive headers", async () => {
@@ -328,30 +371,6 @@ describe("Security Tests", () => {
     );
   });
 
-  it("validates team playerId is a string", async () => {
-    const event = createEvent("POST", "/teams/t1/players", {
-      playerId: 123,
-    });
-    event.headers = { "content-type": "application/json" };
-    const response: any = await handler(event);
-    expect(response.statusCode).toBe(400);
-    expect(JSON.parse(response.body).message).toBe(
-      "playerId required as string",
-    );
-  });
-
-  it("validates game teamId length", async () => {
-    const event = createEvent("POST", "/games", {
-      teamId: "A".repeat(101),
-      opponent: "Opp",
-    });
-    event.headers = { "content-type": "application/json" };
-    const response: any = await handler(event);
-    expect(response.statusCode).toBe(400);
-    expect(JSON.parse(response.body).message).toContain(
-      "teamId is required and must be under 100 characters",
-    );
-  });
 
   it("protects /cleanup with timing-safe comparison (safeCompare) for various key lengths", async () => {
     process.env.ADMIN_API_KEY = "secret";

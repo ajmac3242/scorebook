@@ -12,3 +12,8 @@
 **Vulnerability:** The `/cleanup` administrative endpoint was entirely unauthenticated, allowing arbitrary clients to trigger destructive data cleanup processes. Additionally, the API lacked fundamental security headers (CSP, HSTS, X-Frame-Options), leaving it vulnerable to common web-based attacks and information leakage via logs.
 **Learning:** Defense-in-depth requires securing even "internal" or "utility" endpoints and ensuring all responses communicate security constraints to the browser. Case-insensitive header redaction is critical for preventing credential leakage in multi-client environments.
 **Prevention:** Always implement authentication/authorization for destructive endpoints using secure secrets (e.g., API keys in ENV). Centralize response generation to include mandatory security headers and use exhaustive, case-insensitive log masking for all potentially sensitive headers.
+
+## 2026-04-12 - [Path Traversal via Unvalidated Resource IDs]
+**Vulnerability:** Resource identifiers (Team IDs, Player IDs, etc.) were accepted from clients as arbitrary strings and used directly to construct S3 keys for data snapshots (e.g., `teams/${id}/roster.json`). This allowed path traversal attacks where a malicious ID like `../../../secret` could target unintended S3 locations.
+**Learning:** Even when using UUIDs on the frontend, the backend must never trust client-provided identifiers used in file system or object storage paths.
+**Prevention:** Enforce strict UUID v4 format validation on all client-provided IDs at the API entry point. Centralize this validation to ensure consistency across all handlers. Additionally, use no-store cache headers for sensitive JSON responses to prevent data leakage in shared environments.
