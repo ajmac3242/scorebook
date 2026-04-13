@@ -205,6 +205,13 @@ describe("stats utilities", () => {
       expect(results[0].fgPct).toBe("0.0");
     });
 
+    it("handles average calculation when a player has 0 games played (division-by-zero protection)", () => {
+      const results = calculatePlayerAggregates(players, [], [], "average");
+      // Results should be 0, not NaN or Infinity
+      expect(results[0].points).toBe(0);
+      expect(results[0].gp).toBe(0);
+    });
+
     it("calculates MIN and plus/minus correctly", () => {
       const players = [{ id: "p1", name: "Player 1" }];
       const stats: StatEvent[] = [
@@ -314,6 +321,79 @@ describe("stats utilities", () => {
       expect(results[0].pointsFor).toBe(2);
       expect(results[0].seconds).toBe(300);
       expect(results[0].netRating).toBe(2);
+    });
+
+    it("handles period transitions correctly (closing and restarting stints)", () => {
+      const stats: StatEvent[] = [
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          period: 1,
+          timestamp: "1",
+        },
+        {
+          gameId: "g1",
+          playerId: "p2",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          period: 1,
+          timestamp: "2",
+        },
+        {
+          gameId: "g1",
+          playerId: "p3",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          period: 1,
+          timestamp: "3",
+        },
+        {
+          gameId: "g1",
+          playerId: "p4",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          period: 1,
+          timestamp: "4",
+        },
+        {
+          gameId: "g1",
+          playerId: "p5",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          period: 1,
+          timestamp: "5",
+        },
+        // Score 2 points in P1
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          period: 1,
+          timestamp: "6",
+        },
+        // Transition to P2 - active lineup should be recorded for remaining P1 time (600s)
+        {
+          gameId: "g1",
+          playerId: "OPPONENT",
+          type: ACTION_TYPES.MAKE,
+          points: 3,
+          period: 2,
+          timestamp: "7",
+        },
+      ];
+      const results = calculateLineupStats(stats);
+      expect(results.length).toBe(1);
+      // P1: 2 pts for, 0 against, 600 seconds
+      // P2: 0 pts for (the 3 pts against happened AT the transition or in P2)
+      // Actually, the logic records P1 stint when it sees P2 event.
+      // Then it starts a new stint for P2.
+      // The 3 pts against in P2 will be recorded in the final stint (end of game).
+      expect(results[0].pointsFor).toBe(2);
+      expect(results[0].pointsAgainst).toBe(3);
+      expect(results[0].seconds).toBe(1200); // 600 (P1) + 600 (P2)
     });
   });
 

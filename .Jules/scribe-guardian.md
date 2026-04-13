@@ -19,3 +19,8 @@ Pattern: Every utility file should have a corresponding `.test.ts` file, and sec
 Issue: The `maskEvent` function in the backend lacked explicit documentation regarding its "WHY" (performance-security tradeoff of shallow cloning) and had no test coverage for case-insensitive header redaction.
 Learning: Strengthening the documentation for security-critical utilities prevents future developers from accidentally removing necessary optimizations (like shallow cloning) or security checks (case-insensitivity). Using a Jest spy to verify log output is a reliable way to test internal masking logic that is otherwise hard to reach.
 Pattern: Security utilities that redact or sanitize data must be tested against varying inputs (e.g., character casing) to ensure compliance with standards like RFC 9110. Original objects must always be checked for non-mutation after a "sanitization" pass to verify cloning logic.
+
+## 2026-04-12 - Critical Logic & Documentation
+Issue: Complex basketball rules (bonus fouls, streaks) and infrastructure patterns (concurrency, DB sanitization) were implemented but lacked explanatory context and edge-case testing.
+Learning: Documenting the "WHY" for specific thresholds (like 3-shot streaks or CHUNK_SIZE=5) and foul rules (NCAA vs NBA) preserves business knowledge. Adding tests for period transitions in lineup tracking protects against regression in temporal logic, which is the most common source of stats inaccuracies.
+Pattern: For temporal data processing (like game clocks), always add tests that span period/game boundaries. Documentation for security-critical functions should explicitly mention "Defense-in-Depth" or "Performance-Security Tradeoffs" to guide future auditors.

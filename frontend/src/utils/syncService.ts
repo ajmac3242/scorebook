@@ -187,6 +187,18 @@ class SyncService {
 
   /**
    * Helper to push all unsynced items of a specific entity type to the API.
+   *
+   * WHY: This function handles the "Offline-to-Online" transition by uploading local changes.
+   *
+   * CONCURRENCY & THROUGHPUT:
+   * We process items in concurrent chunks (CHUNK_SIZE = 5). This provides a balance
+   * between high throughput (faster than one-by-one) and server safety (not
+   * overwhelming the Lambda backend or DynamoDB with hundreds of simultaneous requests).
+   *
+   * TRANSACTION SAFETY:
+   * Only after a chunk of items is successfully acknowledged by the API do we
+   * update their 'synced' status in IndexedDB using a single batched transaction.
+   *
    * @param {Record<string, any>} table - Dexie table.
    * @param {string | ((item: T) => string)} endpoint - API endpoint or a function that returns an endpoint.
    * @param {string} entityName - Name for logging.

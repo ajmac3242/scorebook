@@ -20,6 +20,12 @@ describe("mathUtils", () => {
       expect(roundToOne(-10.55)).toBe(-10.5);
       expect(roundToOne(-10.56)).toBe(-10.6);
     });
+
+    it("handles extremely small floating point values", () => {
+      expect(roundToOne(0.000001)).toBe(0);
+      expect(roundToOne(0.04)).toBe(0);
+      expect(roundToOne(0.051)).toBe(0.1);
+    });
   });
 
   describe("formatToOne", () => {

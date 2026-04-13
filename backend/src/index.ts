@@ -491,6 +491,8 @@ async function handleTeams(
  *
  * WHY: This is a security-critical function that prevents JWT tokens and other
  * secrets (like the "Authorization" header) from being leaked into CloudWatch logs.
+ *
+ * PERFORMANCE & SECURITY TRADEOFF:
  * We use a shallow clone approach for performance, as logging happens on every
  * request. Shallow cloning the root event and then the headers object allows us
  * to safely redact values without mutating the original event used by the handler,
