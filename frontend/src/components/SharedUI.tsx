@@ -85,17 +85,17 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
               onClick={() => (backTo ? navigate(backTo) : navigate(-1))}
               aria-label="Go back"
               sx={{
-              position: "absolute",
-              left: 0,
-              color: "text.primary",
-              "&:hover": {
-                transform: "scale(1.1)",
-                transition: "transform 0.2s",
-              },
-            }}
-          >
-            <ArrowBackIcon />
-          </IconButton>
+                position: "absolute",
+                left: 0,
+                color: "text.primary",
+                "&:hover": {
+                  transform: "scale(1.1)",
+                  transition: "transform 0.2s",
+                },
+              }}
+            >
+              <ArrowBackIcon />
+            </IconButton>
           </Tooltip>
         )}
         <Box sx={{ textAlign: "center" }}>
