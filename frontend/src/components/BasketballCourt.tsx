@@ -336,6 +336,17 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
                   e.stopPropagation();
                   if (onMarkerClick) onMarkerClick(marker);
                 }}
+                onKeyDown={(e) => {
+                  if ((e.key === "Enter" || e.key === " ") && onMarkerClick) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onMarkerClick(marker);
+                  }
+                }}
+                role="button"
+                tabIndex={0}
+                aria-label={`${marker.type} by ${marker.label ? `#${marker.label}` : "Opponent"}`}
+                style={{ cursor: onMarkerClick ? "pointer" : "default" }}
               >
                 <circle
                   className={isLatest ? "latest-marker" : "court-marker"}
@@ -346,7 +357,6 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
                   fillOpacity={isLatest ? "1" : "0.8"}
                   stroke={color}
                   strokeWidth={isLatest ? "2" : "1"}
-                  aria-label={`${marker.type} by ${marker.label ? `#${marker.label}` : "Opponent"}`}
                 />
                 {marker.label && (
                   <text
@@ -355,6 +365,7 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
                     fontSize="12"
                     textAnchor="middle"
                     fill={charcoal}
+                    aria-hidden="true"
                     style={{ pointerEvents: "none", fontWeight: "bold" }}
                   >
                     {marker.label}

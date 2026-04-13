@@ -18,6 +18,7 @@ import {
   useTheme,
   Avatar,
   IconButton,
+  Tooltip as MuiTooltip,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -895,9 +896,14 @@ const GameStats: React.FC = () => {
                 Box Score{" "}
                 {periodFilter !== "ALL" && `(${periodLabel} ${periodFilter})`}
               </Typography>
-              <IconButton onClick={() => setExpandedSection("boxScore")}>
-                <ExpandIcon />
-              </IconButton>
+              <MuiTooltip title="Expand Box Score">
+                <IconButton
+                  onClick={() => setExpandedSection("boxScore")}
+                  aria-label="Expand Box Score"
+                >
+                  <ExpandIcon />
+                </IconButton>
+              </MuiTooltip>
             </Box>
             {boxScoreTable}
           </MoleskineCard>
@@ -918,9 +924,14 @@ const GameStats: React.FC = () => {
                 Shot Chart{" "}
                 {periodFilter !== "ALL" && `(${periodLabel} ${periodFilter})`}
               </Typography>
-              <IconButton onClick={() => setExpandedSection("shotChart")}>
-                <ExpandIcon />
-              </IconButton>
+              <MuiTooltip title="Expand Shot Chart">
+                <IconButton
+                  onClick={() => setExpandedSection("shotChart")}
+                  aria-label="Expand Shot Chart"
+                >
+                  <ExpandIcon />
+                </IconButton>
+              </MuiTooltip>
             </Box>
             {shotChartFilters}
             <Box sx={{ p: 1 }}>{shotChartCourt}</Box>
@@ -942,9 +953,14 @@ const GameStats: React.FC = () => {
                 Score Flow{" "}
                 {periodFilter !== "ALL" && `(${periodLabel} ${periodFilter})`}
               </Typography>
-              <IconButton onClick={() => setExpandedSection("scoreFlow")}>
-                <ExpandIcon />
-              </IconButton>
+              <MuiTooltip title="Expand Score Flow">
+                <IconButton
+                  onClick={() => setExpandedSection("scoreFlow")}
+                  aria-label="Expand Score Flow"
+                >
+                  <ExpandIcon />
+                </IconButton>
+              </MuiTooltip>
             </Box>
             <Box sx={{ height: 400 }}>{scoreFlowChart}</Box>
           </MoleskineCard>
@@ -964,9 +980,14 @@ const GameStats: React.FC = () => {
               <Typography variant="h6" sx={{ fontFamily: "var(--serif)" }}>
                 Lineup Efficiency
               </Typography>
-              <IconButton onClick={() => setExpandedSection("lineups")}>
-                <ExpandIcon />
-              </IconButton>
+              <MuiTooltip title="Expand Lineup Efficiency">
+                <IconButton
+                  onClick={() => setExpandedSection("lineups")}
+                  aria-label="Expand Lineup Efficiency"
+                >
+                  <ExpandIcon />
+                </IconButton>
+              </MuiTooltip>
             </Box>
             {lineupTable}
           </MoleskineCard>
@@ -992,9 +1013,14 @@ const GameStats: React.FC = () => {
           {expandedSection === "shotChart" && "Shot Chart"}
           {expandedSection === "scoreFlow" && "Score Flow"}
           {expandedSection === "lineups" && "Lineup Efficiency"}
-          <IconButton onClick={() => setExpandedSection(null)}>
-            <ExpandIcon sx={{ transform: "rotate(180deg)" }} />
-          </IconButton>
+          <MuiTooltip title="Close Expanded View">
+            <IconButton
+              onClick={() => setExpandedSection(null)}
+              aria-label="Close Expanded View"
+            >
+              <ExpandIcon sx={{ transform: "rotate(180deg)" }} />
+            </IconButton>
+          </MuiTooltip>
         </DialogTitle>
         <DialogContent>
           {expandedSection === "boxScore" && boxScoreTable}
