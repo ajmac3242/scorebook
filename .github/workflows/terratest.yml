@@ -70,8 +70,10 @@ jobs:
         timeout-minutes: 10
         working-directory: infra/tests
         run: |
+          echo "::group::Run Terratest"
           # Run tests with verbose output
           go test -v -timeout 8m
+          echo "::endgroup::"
         env:
           AWS_DEFAULT_REGION: us-east-1
 
