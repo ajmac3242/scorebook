@@ -208,7 +208,8 @@ describe("GameMode Component", () => {
     // 1 occupied slot
     expect(await within(container).findByText(/Player 1/i)).toBeInTheDocument();
     // 4 empty slots
-    const emptySlots = within(container).getAllByLabelText(/Empty lineup slot/i);
+    const emptySlots =
+      within(container).getAllByLabelText(/Empty lineup slot/i);
     expect(emptySlots).toHaveLength(4);
   });
 
@@ -248,7 +249,9 @@ describe("GameMode Component", () => {
     await waitFor(() => {
       const dialog = screen.getByRole("dialog");
       const buttons = within(dialog).getAllByRole("button");
-      const emptyButton = buttons.find((b) => b.getAttribute("aria-label")?.includes("Empty lineup slot"));
+      const emptyButton = buttons.find((b) =>
+        b.getAttribute("aria-label")?.includes("Empty lineup slot"),
+      );
       if (!emptyButton) throw new Error("Empty button not found");
       expect(emptyButton).toHaveClass("MuiButton-contained");
     });
@@ -428,7 +431,9 @@ describe("GameMode Component", () => {
     const oppContainer = oppHeader[0].parentElement!.parentElement!;
 
     // Find the "+2" quick action button for the opponent
-    const plusTwoBtn = within(oppContainer).getByRole("button", { name: "Record opponent +2 points" });
+    const plusTwoBtn = within(oppContainer).getByRole("button", {
+      name: "Record opponent +2 points",
+    });
     fireEvent.click(plusTwoBtn);
 
     await waitFor(() => {
@@ -444,7 +449,9 @@ describe("GameMode Component", () => {
     });
 
     // Find and click the "F" (Foul) quick action button
-    const foulBtn = within(oppContainer).getByRole("button", { name: "Record opponent foul" });
+    const foulBtn = within(oppContainer).getByRole("button", {
+      name: "Record opponent foul",
+    });
     fireEvent.click(foulBtn);
 
     await waitFor(() => {
@@ -457,7 +464,9 @@ describe("GameMode Component", () => {
     });
 
     // Find and click the "REB" quick action button
-    const rebBtn = within(oppContainer).getByRole("button", { name: "Record opponent rebound" });
+    const rebBtn = within(oppContainer).getByRole("button", {
+      name: "Record opponent rebound",
+    });
     fireEvent.click(rebBtn);
 
     await waitFor(() => {
@@ -470,7 +479,9 @@ describe("GameMode Component", () => {
     });
 
     // Find and click the "TO" quick action button
-    const toBtn = within(oppContainer).getByRole("button", { name: "Record opponent turnover" });
+    const toBtn = within(oppContainer).getByRole("button", {
+      name: "Record opponent turnover",
+    });
     fireEvent.click(toBtn);
 
     await waitFor(() => {
