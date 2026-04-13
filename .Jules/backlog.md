@@ -49,3 +49,53 @@
 - [x] Toggleable "Heatmap" mode on the `GameStats` and `PlayerStats` court views.
 - [x] Zones are calculated dynamically based on the current filter (All, Player, or Team).
 - [x] Uses a color gradient to represent scoring density or efficiency.
+
+## Individual Opponent Tracking
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Coaches need to identify which specific opponent is the primary threat. Aggregating all opponent stats into one "OPPONENT" entity prevents tactical adjustments like "who needs to be double-teamed."
+**What:** Allow scorekeepers to create "Quick Opponents" (e.g., Opp #12, Opp #5) on the fly during Game Mode. Statistical events can then be assigned to these specific IDs to generate an opponent box score.
+**Acceptance Criteria:**
+- [ ] Interface to quickly add 1-5 specific opponent jerseys in `GameMode.tsx`.
+- [ ] Stat recording dialog allows selecting between "Our Team" and specific "Opponent" players.
+- [ ] Game Stats page displays a secondary box score for the opponent.
+
+## Live Stint & Fatigue Monitor
+**Priority:** MEDIUM
+**Type:** UX
+**Why:** Managing player energy is a core coaching responsibility. A player who has played 8 consecutive minutes is significantly less effective than one who just checked in, even if their total minutes are equal.
+**What:** Add a "Current Stint" timer next to active players in the Live Lineup. The timer resets on SUB_IN and turns red/orange when a player exceeds a configurable fatigue threshold (e.g., 6 minutes).
+**Acceptance Criteria:**
+- [ ] Live Lineup display shows "T-MIN" (Time in stint) for all 5 players on court.
+- [ ] Timer color shifts from green -> yellow -> red based on stint duration.
+- [ ] Total minutes (MIN) continues to track cumulative game time.
+
+## Foul Strategy Dashboard
+**Priority:** MEDIUM
+**Type:** Feature
+**Why:** Losing a star player to "foul out" in the 4th quarter often decides games. Coaches need proactive warnings to pull players in foul trouble before the critical 5th foul.
+**What:** Create a "Foul Watch" section in `GameMode.tsx` that highlights players with high "Fouls per Minute." Suggest substitutions for players with 2 fouls in the 1st half or 4 fouls in the 3rd quarter.
+**Acceptance Criteria:**
+- [ ] "Foul Watch" alert appears when a player hits a specific foul/period threshold.
+- [ ] Substitution dialog suggests bench players with 0-1 fouls as replacements.
+- [ ] Visual indicator (pulsing border) on player avatars in foul trouble.
+
+## Free Throw "Trip to the Line" Mode
+**Priority:** MEDIUM
+**Type:** UX
+**Why:** Recording free throws one-by-one (Select Player -> Make/Miss -> Save -> Repeat) is the most common cause of scorekeepers falling behind the live action.
+**What:** Implement a "Free Throw Trip" interface. When a shooting foul is recorded, open a dedicated screen to quickly tap the result of 1, 2, or 3 shots in sequence.
+**Acceptance Criteria:**
+- [ ] One-tap recording for common trips (e.g., "1 of 2", "2 of 2").
+- [ ] Automatic timestamping of all FT events in the trip to the current clock time.
+- [ ] Reduces the total number of taps to record a 2-shot foul from 6+ to 3.
+
+## Real-time Efficiency (Points Per Possession)
+**Priority:** MEDIUM
+**Type:** Enhancement
+**Why:** Scoring totals can be misleading if the game pace is extremely fast or slow. Points Per Possession (PPP) provides an objective measure of how well the offense is actually executing.
+**What:** Calculate "Possessions" in real-time based on the existing POSSESSION and TURNOVER events. Display "Live PPP" for the last 5 possessions in the scoreboard area.
+**Acceptance Criteria:**
+- [ ] Possessions are calculated as: FGA + 0.44 * FTA + TO - ORB.
+- [ ] Scoreboard shows a small "PPP" metric for both teams.
+- [ ] Lineup Efficiency table includes PPP and Defensive PPP (Opponent PPP).
