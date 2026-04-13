@@ -86,6 +86,8 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
       >
         <svg
           viewBox="0 0 500 470"
+          role="img"
+          aria-label="Interactive basketball court map"
           onClick={handleCourtClick}
           style={{
             width: "100%",

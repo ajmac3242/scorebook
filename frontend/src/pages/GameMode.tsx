@@ -310,6 +310,7 @@ const Scoreboard = React.memo(
                 size="small"
                 variant="outlined"
                 color="secondary"
+                aria-label={`Record opponent +${pts} points`}
                 onClick={() =>
                   onQuickAction && onQuickAction(ACTION_TYPES.MAKE, pts)
                 }
@@ -331,6 +332,7 @@ const Scoreboard = React.memo(
               size="small"
               variant="outlined"
               color="secondary"
+              aria-label="Record opponent rebound"
               onClick={() =>
                 onQuickAction && onQuickAction(ACTION_TYPES.REBOUND)
               }
@@ -351,6 +353,7 @@ const Scoreboard = React.memo(
               size="small"
               variant="outlined"
               color="warning"
+              aria-label="Record opponent turnover"
               onClick={() =>
                 onQuickAction && onQuickAction(ACTION_TYPES.TURNOVER)
               }
@@ -371,6 +374,7 @@ const Scoreboard = React.memo(
               size="small"
               variant="outlined"
               color="error"
+              aria-label="Record opponent foul"
               onClick={() => onQuickAction && onQuickAction(ACTION_TYPES.FOUL)}
               sx={{
                 minWidth: 0,
@@ -1597,6 +1601,7 @@ const GameMode: React.FC = () => {
               <ToggleButtonGroup
                 value={trackingMode}
                 exclusive
+                aria-label="Tracking Mode"
                 onChange={(_, val) => val && setTrackingMode(val)}
                 size="small"
                 disabled={isReadOnly}
@@ -1825,6 +1830,7 @@ const GameMode: React.FC = () => {
                           key={emptyId}
                           variant="outlined"
                           disabled={isReadOnly}
+                          aria-label="Empty lineup slot, click to assign player"
                           onClick={() => {
                             setSubOutPlayerId(emptyId);
                             setSubDialogOpen(true);
@@ -2246,10 +2252,15 @@ const GameMode: React.FC = () => {
         onClose={() => setDialogOpen(false)}
         fullWidth
         maxWidth="xs"
+        aria-describedby="stat-dialog-player-info"
       >
         <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
           {isEditing ? "Edit Action" : "Record Action"}
-          <Typography variant="body2" color="text.secondary">
+          <Typography
+            id="stat-dialog-player-info"
+            variant="body2"
+            color="text.secondary"
+          >
             {(() => {
               if (selectedPlayerId === SPECIAL_PLAYER_IDS.OPPONENT) {
                 return game?.opponent || "Opponent";
@@ -2294,6 +2305,7 @@ const GameMode: React.FC = () => {
                         variant={
                           selectedPlayerId === p.id ? "contained" : "outlined"
                         }
+                        aria-label={p.name}
                         onClick={() => setSelectedPlayerId(p.id!)}
                         sx={{
                           minWidth: 80,
@@ -2684,6 +2696,7 @@ const GameMode: React.FC = () => {
                       variant={
                         selectedSwapId === emptyId ? "contained" : "outlined"
                       }
+                      aria-label="Empty lineup slot, click to swap with bench player"
                       onClick={() => handleSwapClick(emptyId)}
                       fullWidth
                       sx={{
@@ -2963,7 +2976,20 @@ const PlayerStatRow: React.FC<PlayerStatRowProps> = React.memo(
       >
         {fouls}
       </TableCell>
-      <TableCell align="right" sx={{ px: 1, fontSize: "0.75rem" }}>
+      <TableCell
+        align="right"
+        sx={{
+          px: 1,
+          fontSize: "0.75rem",
+          color:
+            plusMinus > 0
+              ? "success.main"
+              : plusMinus < 0
+                ? "error.main"
+                : "inherit",
+          fontWeight: plusMinus !== 0 ? 600 : 400,
+        }}
+      >
         {plusMinus > 0 ? `+${plusMinus}` : plusMinus}
       </TableCell>
     </TableRow>
@@ -3000,6 +3026,14 @@ const RecentActionItem: React.FC<{
       return `${mins}:${secs.toString().padStart(2, "0")}`;
     };
 
+    const playerName =
+      stat.playerId === SPECIAL_PLAYER_IDS.OPPONENT
+        ? opponentName || "Opponent"
+        : stat.playerId === SPECIAL_PLAYER_IDS.TEAM_TIMEOUT ||
+            stat.playerId === SPECIAL_PLAYER_IDS.OUR_TEAM
+          ? teamName || "Our Team"
+          : players?.find((p) => p.id === stat.playerId)?.name || "Unknown";
+
     return (
       <Box
         sx={{
@@ -3012,16 +3046,7 @@ const RecentActionItem: React.FC<{
       >
         <Box>
           <Typography variant="body2">
-            <strong>
-              {stat.playerId === SPECIAL_PLAYER_IDS.OPPONENT
-                ? opponentName || "Opponent"
-                : stat.playerId === SPECIAL_PLAYER_IDS.TEAM_TIMEOUT ||
-                    stat.playerId === SPECIAL_PLAYER_IDS.OUR_TEAM
-                  ? teamName || "Our Team"
-                  : players?.find((p) => p.id === stat.playerId)?.name ||
-                    "Unknown"}
-            </strong>
-            : {stat.type}
+            <strong>{playerName}</strong>: {stat.type}
           </Typography>
           <Typography variant="caption" color="text.secondary">
             {periodLabel} {stat.period || 1}
@@ -3030,22 +3055,22 @@ const RecentActionItem: React.FC<{
           </Typography>
         </Box>
         <Box>
-          <Tooltip title="Edit action">
+          <Tooltip title={`Edit ${stat.type} for ${playerName}`}>
             <IconButton
               size="small"
               disabled={isReadOnly}
               onClick={() => onEdit(stat)}
-              aria-label="edit action"
+              aria-label={`edit ${stat.type} for ${playerName}`}
             >
               <Edit fontSize="small" />
             </IconButton>
           </Tooltip>
-          <Tooltip title="Delete action">
+          <Tooltip title={`Delete ${stat.type} for ${playerName}`}>
             <IconButton
               size="small"
               disabled={isReadOnly}
               onClick={() => onDelete(stat.id!)}
-              aria-label="delete action"
+              aria-label={`delete ${stat.type} for ${playerName}`}
             >
               <Delete fontSize="small" />
             </IconButton>
