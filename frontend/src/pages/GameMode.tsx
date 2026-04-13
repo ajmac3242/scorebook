@@ -1015,9 +1015,15 @@ const GameMode: React.FC = () => {
   }, [teamPlayers]);
 
   const statsGridData = useMemo(() => {
-    return calculatePlayerAggregates(players, sortedGameStats, teamPlayers, "total", {
-      isSorted: true,
-    });
+    return calculatePlayerAggregates(
+      players,
+      sortedGameStats,
+      teamPlayers,
+      "total",
+      {
+        isSorted: true,
+      },
+    );
   }, [players, sortedGameStats, teamPlayers]);
 
   const sortedStatsGridData = useMemo(() => {
