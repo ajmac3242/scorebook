@@ -574,10 +574,10 @@ describe("stats utilities", () => {
         },
       ];
       const results = calculateOpponentAggregates(stats);
-      expect(results.points).toBe(3);
-      expect(results.makes).toBe(1);
-      expect(results.attempts).toBe(2);
-      expect(results.rebounds).toBe(1);
+      expect(results.summary.points).toBe(3);
+      expect(results.summary.makes).toBe(1);
+      expect(results.summary.attempts).toBe(2);
+      expect(results.summary.rebounds).toBe(1);
     });
   });
 

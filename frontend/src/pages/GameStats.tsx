@@ -298,6 +298,16 @@ const GameStats: React.FC = () => {
     return calculateOpponentAggregates(stats);
   }, [stats]);
 
+  const sortedOpponentPlayers = useMemo(() => {
+    return [...oppData.players].sort((a, b) => {
+      const aValue = a[sortConfig.key as keyof typeof a] as number | string;
+      const bValue = b[sortConfig.key as keyof typeof b] as number | string;
+      if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
+      if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
+      return 0;
+    });
+  }, [oppData.players, sortConfig]);
+
   const lineupStats = useMemo(() => {
     return calculateLineupStats(scoreFlowSortedStats, { isSorted: true });
   }, [scoreFlowSortedStats]);
@@ -391,7 +401,13 @@ const GameStats: React.FC = () => {
     return list;
   }, [maxPeriod, allStats]);
 
-  const boxScoreTable = (
+  const BoxScoreTable = ({
+    aggregates,
+    summaryRow,
+  }: {
+    aggregates: any[];
+    summaryRow?: any;
+  }) => (
     <TableContainer
       sx={{
         mx: { xs: -2, sm: 0 },
@@ -516,7 +532,7 @@ const GameStats: React.FC = () => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {playerAggregates.map((row) => (
+          {aggregates.map((row) => (
             <TableRow key={row.id}>
               <TableCell
                 sx={{
@@ -531,10 +547,13 @@ const GameStats: React.FC = () => {
                     width: 24,
                     height: 24,
                     fontSize: "0.75rem",
-                    bgcolor: row.avatarColor,
+                    bgcolor: row.avatarColor || "grey.500",
                   }}
                 >
-                  {row.jerseyNumber}
+                  {row.jerseyNumber ||
+                    (row.id?.toString().startsWith("OPP-")
+                      ? row.id.replace("OPP-", "")
+                      : "")}
                 </Avatar>
                 <Typography
                   variant="body2"
@@ -601,60 +620,62 @@ const GameStats: React.FC = () => {
               </TableCell>
             </TableRow>
           ))}
-          <TableRow sx={{ bgcolor: "secondary.light" }}>
-            <TableCell sx={{ fontWeight: 700 }}>OPPONENT</TableCell>
-            <TableCell align="right">-</TableCell>
-            <TableCell align="right">{oppData.points}</TableCell>
-            <TableCell align="right">
-              {oppData.makes}-{oppData.attempts}
-            </TableCell>
-            <TableCell
-              align="right"
-              sx={{ display: { xs: "none", sm: "table-cell" } }}
-            >
-              {oppData.fgPct}%
-            </TableCell>
-            <TableCell
-              align="right"
-              sx={{ display: { xs: "none", sm: "table-cell" } }}
-            >
-              -
-            </TableCell>
-            <TableCell
-              align="right"
-              sx={{ display: { xs: "none", sm: "table-cell" } }}
-            >
-              {oppData.offRebounds}
-            </TableCell>
-            <TableCell
-              align="right"
-              sx={{ display: { xs: "none", sm: "table-cell" } }}
-            >
-              {oppData.defRebounds}
-            </TableCell>
-            <TableCell align="right">{oppData.rebounds}</TableCell>
-            <TableCell align="right">{oppData.assists}</TableCell>
-            <TableCell
-              align="right"
-              sx={{ display: { xs: "none", sm: "table-cell" } }}
-            >
-              {oppData.steals}
-            </TableCell>
-            <TableCell
-              align="right"
-              sx={{ display: { xs: "none", sm: "table-cell" } }}
-            >
-              {oppData.blocks}
-            </TableCell>
-            <TableCell
-              align="right"
-              sx={{ display: { xs: "none", sm: "table-cell" } }}
-            >
-              {oppData.turnovers}
-            </TableCell>
-            <TableCell align="right">{oppData.fouls}</TableCell>
-            <TableCell align="right">-</TableCell>
-          </TableRow>
+          {summaryRow && (
+            <TableRow sx={{ bgcolor: "secondary.light" }}>
+              <TableCell sx={{ fontWeight: 700 }}>{summaryRow.label}</TableCell>
+              <TableCell align="right">-</TableCell>
+              <TableCell align="right">{summaryRow.data.points}</TableCell>
+              <TableCell align="right">
+                {summaryRow.data.makes}-{summaryRow.data.attempts}
+              </TableCell>
+              <TableCell
+                align="right"
+                sx={{ display: { xs: "none", sm: "table-cell" } }}
+              >
+                {summaryRow.data.fgPct}%
+              </TableCell>
+              <TableCell
+                align="right"
+                sx={{ display: { xs: "none", sm: "table-cell" } }}
+              >
+                -
+              </TableCell>
+              <TableCell
+                align="right"
+                sx={{ display: { xs: "none", sm: "table-cell" } }}
+              >
+                {summaryRow.data.offRebounds}
+              </TableCell>
+              <TableCell
+                align="right"
+                sx={{ display: { xs: "none", sm: "table-cell" } }}
+              >
+                {summaryRow.data.defRebounds}
+              </TableCell>
+              <TableCell align="right">{summaryRow.data.rebounds}</TableCell>
+              <TableCell align="right">{summaryRow.data.assists}</TableCell>
+              <TableCell
+                align="right"
+                sx={{ display: { xs: "none", sm: "table-cell" } }}
+              >
+                {summaryRow.data.steals}
+              </TableCell>
+              <TableCell
+                align="right"
+                sx={{ display: { xs: "none", sm: "table-cell" } }}
+              >
+                {summaryRow.data.blocks}
+              </TableCell>
+              <TableCell
+                align="right"
+                sx={{ display: { xs: "none", sm: "table-cell" } }}
+              >
+                {summaryRow.data.turnovers}
+              </TableCell>
+              <TableCell align="right">{summaryRow.data.fouls}</TableCell>
+              <TableCell align="right">-</TableCell>
+            </TableRow>
+          )}
         </TableBody>
       </Table>
     </TableContainer>
@@ -893,7 +914,7 @@ const GameStats: React.FC = () => {
               }}
             >
               <Typography variant="h6" sx={{ fontFamily: "var(--serif)" }}>
-                Box Score{" "}
+                {team?.name || "Team"} Box Score{" "}
                 {periodFilter !== "ALL" && `(${periodLabel} ${periodFilter})`}
               </Typography>
               <MuiTooltip title="Expand Box Score">
@@ -905,9 +926,40 @@ const GameStats: React.FC = () => {
                 </IconButton>
               </MuiTooltip>
             </Box>
-            {boxScoreTable}
+            <BoxScoreTable
+              aggregates={playerAggregates}
+              summaryRow={{ label: "TEAM TOTAL", data: oppData.summary }}
+            />
           </MoleskineCard>
         </Grid>
+
+        {/* Opponent Box Score Card */}
+        {oppData.players.length > 0 && (
+          <Grid item xs={12}>
+            <MoleskineCard>
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  mb: 2,
+                }}
+              >
+                <Typography variant="h6" sx={{ fontFamily: "var(--serif)" }}>
+                  {game?.opponent || "Opponent"} Box Score{" "}
+                  {periodFilter !== "ALL" && `(${periodLabel} ${periodFilter})`}
+                </Typography>
+                <IconButton onClick={() => setExpandedSection("oppBoxScore")}>
+                  <ExpandIcon />
+                </IconButton>
+              </Box>
+              <BoxScoreTable
+                aggregates={sortedOpponentPlayers}
+                summaryRow={{ label: "OPPONENT TOTAL", data: oppData.summary }}
+              />
+            </MoleskineCard>
+          </Grid>
+        )}
 
         {/* Shot Chart Card */}
         <Grid item xs={12} md={6}>
@@ -1009,7 +1061,10 @@ const GameStats: React.FC = () => {
             alignItems: "center",
           }}
         >
-          {expandedSection === "boxScore" && "Box Score"}
+          {expandedSection === "boxScore" &&
+            `${team?.name || "Team"} Box Score`}
+          {expandedSection === "oppBoxScore" &&
+            `${game?.opponent || "Opponent"} Box Score`}
           {expandedSection === "shotChart" && "Shot Chart"}
           {expandedSection === "scoreFlow" && "Score Flow"}
           {expandedSection === "lineups" && "Lineup Efficiency"}
@@ -1023,7 +1078,18 @@ const GameStats: React.FC = () => {
           </MuiTooltip>
         </DialogTitle>
         <DialogContent>
-          {expandedSection === "boxScore" && boxScoreTable}
+          {expandedSection === "boxScore" && (
+            <BoxScoreTable
+              aggregates={playerAggregates}
+              summaryRow={{ label: "TEAM TOTAL", data: oppData.summary }}
+            />
+          )}
+          {expandedSection === "oppBoxScore" && (
+            <BoxScoreTable
+              aggregates={sortedOpponentPlayers}
+              summaryRow={{ label: "OPPONENT TOTAL", data: oppData.summary }}
+            />
+          )}
           {expandedSection === "shotChart" && (
             <>
               {shotChartFilters}
