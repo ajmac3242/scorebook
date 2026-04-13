@@ -749,7 +749,9 @@ async function createItem(
 ): Promise<APIGatewayProxyStructuredResultV2> {
   const id = (data?.id as string) || uuidv4();
   if (!isValidUuid(id)) {
-    return badRequest(`Invalid ${type.toLowerCase()} id format (UUID required)`);
+    return badRequest(
+      `Invalid ${type.toLowerCase()} id format (UUID required)`,
+    );
   }
   const cleanData = stripLocalFields(data);
   const item = {

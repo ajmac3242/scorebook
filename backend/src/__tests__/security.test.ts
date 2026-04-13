@@ -371,7 +371,6 @@ describe("Security Tests", () => {
     );
   });
 
-
   it("protects /cleanup with timing-safe comparison (safeCompare) for various key lengths", async () => {
     process.env.ADMIN_API_KEY = "secret";
     ddbMock.on(QueryCommand).resolves({ Items: [] });
