@@ -445,6 +445,7 @@ const Scoreboard = React.memo(
           >
             <Typography
               aria-label={`${team?.name || "Team"} score: ${gameData.currentScore}`}
+              aria-live="polite"
               sx={{
                 color: "white",
                 fontSize: { xs: "1.75rem", sm: "3rem" },
@@ -574,6 +575,7 @@ const Scoreboard = React.memo(
 
             <Typography
               aria-label={`${game?.opponent || "Opponent"} score: ${gameData.opponentScore}`}
+              aria-live="polite"
               sx={{
                 color: "white",
                 fontSize: { xs: "1.75rem", sm: "3rem" },
@@ -1704,6 +1706,8 @@ const GameMode: React.FC = () => {
                     variant={markerFilter === type ? "filled" : "outlined"}
                     size="small"
                     color={markerFilter === type ? "primary" : "default"}
+                    aria-label={`Filter markers by ${type.toLowerCase()}`}
+                    aria-pressed={markerFilter === type}
                   />
                 ))}
               </Box>
@@ -1760,6 +1764,7 @@ const GameMode: React.FC = () => {
                               fullWidth
                               disabled={isReadOnly}
                               variant="contained"
+                              aria-label={`Substitute ${p.name}`}
                               onClick={() => {
                                 setSubOutPlayerId(p.id!);
                                 setSubDialogOpen(true);
@@ -2261,14 +2266,30 @@ const GameMode: React.FC = () => {
                 0 ? (
                   <Box
                     sx={{
-                      py: 4,
+                      py: 6,
                       textAlign: "center",
                       border: "1px dashed #D1D1D1",
                       borderRadius: 1,
+                      bgcolor: "rgba(0,0,0,0.01)",
                     }}
                   >
+                    <History
+                      sx={{
+                        fontSize: 40,
+                        color: "text.secondary",
+                        opacity: 0.2,
+                        mb: 1,
+                      }}
+                    />
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{ fontWeight: 500 }}
+                    >
+                      Your notebook is empty.
+                    </Typography>
                     <Typography variant="caption" color="text.secondary">
-                      No actions recorded yet
+                      Record actions on the court to see them here.
                     </Typography>
                   </Box>
                 ) : (
@@ -3149,7 +3170,7 @@ const RecentActionItem: React.FC<{
               size="small"
               disabled={isReadOnly}
               onClick={() => onEdit(stat)}
-              aria-label={`edit ${stat.type} for ${playerName}`}
+              aria-label={`Edit ${stat.type} for ${playerName}`}
             >
               <Edit fontSize="small" />
             </IconButton>
@@ -3159,7 +3180,7 @@ const RecentActionItem: React.FC<{
               size="small"
               disabled={isReadOnly}
               onClick={() => onDelete(stat.id!)}
-              aria-label={`delete ${stat.type} for ${playerName}`}
+              aria-label={`Delete ${stat.type} for ${playerName}`}
             >
               <Delete fontSize="small" />
             </IconButton>
