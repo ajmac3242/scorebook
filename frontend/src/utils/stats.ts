@@ -613,7 +613,8 @@ export const calculateOpponentAggregates = (
 
   return {
     ...agg,
-    fgPct: agg.attempts > 0 ? formatToOne((agg.makes / agg.attempts) * 100) : "0.0",
+    fgPct:
+      agg.attempts > 0 ? formatToOne((agg.makes / agg.attempts) * 100) : "0.0",
     min: 0,
     plusMinus: 0,
   };

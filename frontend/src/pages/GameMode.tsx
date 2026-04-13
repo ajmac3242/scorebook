@@ -2673,7 +2673,6 @@ const GameMode: React.FC = () => {
   );
 };
 
-
 /**
  * Sub-component for displaying a single item in the recent actions history.
  * Optimized with React.memo to prevent unnecessary re-renders of stable history items.
