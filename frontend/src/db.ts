@@ -61,6 +61,7 @@ export interface Game {
   currentPeriod?: number;
   clockTime?: number; // Current seconds remaining in period
   periodLength?: number; // Configured length in minutes
+  opponentRoster?: string[]; // Array of opponent jersey numbers
   deletedAt?: string;
   synced?: number;
 }
@@ -108,7 +109,8 @@ export class AppDatabase extends Dexie {
     // v11:    Added 'fouls' to Team for configurable timeouts.
     // v12:    Added 'currentPeriod' to Game.
     // v13:    Added 'clockTime' and 'periodLength' to Game, and 'clockTime' to StatEvent.
-    this.version(13).stores({
+    // v14:    Added 'opponentRoster' to Game.
+    this.version(14).stores({
       teams: "id, synced, deletedAt",
       players: "id, synced, isArchived, deletedAt",
       teamPlayers: "id, [teamId+playerId], teamId, playerId, synced",
@@ -122,3 +124,8 @@ export class AppDatabase extends Dexie {
  * Exported database instance.
  */
 export const db = new AppDatabase();
+
+// Export db to window for playwright verification
+if (typeof window !== "undefined") {
+  (window as any).db = db;
+}
