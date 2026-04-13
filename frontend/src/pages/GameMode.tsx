@@ -1091,7 +1091,7 @@ const GameMode: React.FC = () => {
           type: s.type,
           label:
             s.playerId !== SPECIAL_PLAYER_IDS.OPPONENT
-              ? jerseyMap.get(s.playerId) ?? ""
+              ? (jerseyMap.get(s.playerId) ?? "")
               : undefined,
           color:
             s.playerId === SPECIAL_PLAYER_IDS.OPPONENT

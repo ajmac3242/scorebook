@@ -1187,7 +1187,7 @@ const TeamStats: React.FC = () => {
                   const jersey =
                     localJerseyNumbers[pId] !== undefined
                       ? localJerseyNumbers[pId]
-                      : dbRecord?.jerseyNumber ?? "";
+                      : (dbRecord?.jerseyNumber ?? "");
 
                   const playerEntityId = player.id?.toString() || "";
                   result.push(
