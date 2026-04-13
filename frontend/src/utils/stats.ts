@@ -852,7 +852,8 @@ export const calculateLineupStats = (
  * - Exclusions: Free throws are excluded to focus on field goal flow.
  *
  * @param stats - Chronological list of statistical events for the game.
- * @param options - Optimization flags (e.g., skip sorting if data is already ordered).
+ * @param options - Optimization flags.
+ * @param options.isSorted - Skip sorting if data is already ordered.
  * @returns Map of player IDs to their current streak status ('HOT', 'COLD', or null).
  */
 export const calculatePlayerStreaks = (
