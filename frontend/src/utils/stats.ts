@@ -6,7 +6,25 @@
 
 import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../constants/stats";
 import { StatEvent, TeamPlayer, Player, Game } from "../db";
-import { roundToOne, formatToOne, determineResult } from "./mathUtils";
+import {
+  roundToOne,
+  formatToOne,
+  determineResult,
+  formatTimestampToTime,
+} from "./mathUtils";
+
+/**
+ * Standardized sorting for statistical events based on timestamp.
+ * @param {StatEvent[]} stats - The list of events to sort.
+ * @returns {StatEvent[]} A new sorted array of events.
+ */
+export const sortStats = (stats: StatEvent[]): StatEvent[] => {
+  return [...stats].sort((a, b) => {
+    if (a.timestamp < b.timestamp) return -1;
+    if (a.timestamp > b.timestamp) return 1;
+    return 0;
+  });
+};
 
 /**
  * Interface for aggregated team statistics.
@@ -357,13 +375,7 @@ export const calculatePlayerAggregates = (
     { startClock: number; startScoreDiff: number }
   >();
   // ⚡ Bolt: Use pre-sorted stats or sort them if needed.
-  const sortedStats = options.isSorted
-    ? stats
-    : [...stats].sort((a, b) => {
-        if (a.timestamp < b.timestamp) return -1;
-        if (a.timestamp > b.timestamp) return 1;
-        return 0;
-      });
+  const sortedStats = options.isSorted ? stats : sortStats(stats);
 
   const scores = { team: 0, opp: 0 };
   let currentPeriod = 1;
@@ -524,32 +536,26 @@ export const calculateTeamAggregates = (
 
   for (let i = 0; i < stats.length; i++) {
     const stat = stats[i];
-    // ⚡ Bolt: Skip deleted events to ensure accuracy and reduce unnecessary processing.
     if (stat.deletedAt) continue;
 
-    const { gameId, playerId, type } = stat;
-
-    const totals = gameTotals.get(gameId);
+    const totals = gameTotals.get(stat.gameId);
     if (!totals) continue;
 
-    // ⚡ Bolt: Inline updateScores and consolidate checks for better loop performance.
-    if (type === ACTION_TYPES.MAKE) {
-      const pts = stat.points || 0;
-      if (playerId === SPECIAL_PLAYER_IDS.OPPONENT) {
-        totals.opp += pts;
-        totalOppPoints += pts;
-      } else {
-        totals.team += pts;
-        totalPoints += pts;
-      }
-    } else if (playerId !== SPECIAL_PLAYER_IDS.OPPONENT) {
+    const isOpponent = stat.playerId === SPECIAL_PLAYER_IDS.OPPONENT;
+    const pts = stat.type === ACTION_TYPES.MAKE ? stat.points || 0 : 0;
+    updateScores(stat, totals);
+
+    if (isOpponent) {
+      totalOppPoints += pts;
+    } else {
+      totalPoints += pts;
       if (
-        type === ACTION_TYPES.REBOUND ||
-        type === ACTION_TYPES.OFF_REBOUND ||
-        type === ACTION_TYPES.DEF_REBOUND
+        stat.type === ACTION_TYPES.REBOUND ||
+        stat.type === ACTION_TYPES.OFF_REBOUND ||
+        stat.type === ACTION_TYPES.DEF_REBOUND
       ) {
         totalRebounds++;
-      } else if (type === ACTION_TYPES.ASSIST) {
+      } else if (stat.type === ACTION_TYPES.ASSIST) {
         totalAssists++;
       }
     }
@@ -599,18 +605,15 @@ export const calculateOpponentAggregates = (
 
   for (let i = 0; i < stats.length; i++) {
     const stat = stats[i];
-    // ⚡ Bolt: Skip deleted events to ensure accuracy and reduce unnecessary processing.
-    if (stat.deletedAt) continue;
+    if (stat.deletedAt || stat.playerId !== SPECIAL_PLAYER_IDS.OPPONENT)
+      continue;
 
-    if (stat.playerId === SPECIAL_PLAYER_IDS.OPPONENT) {
-      applyActionToAggregate(agg, stat);
-    }
+    applyActionToAggregate(agg, stat);
   }
 
   return {
     ...agg,
-    fgPct:
-      agg.attempts > 0 ? ((agg.makes / agg.attempts) * 100).toFixed(1) : "0.0",
+    fgPct: agg.attempts > 0 ? formatToOne((agg.makes / agg.attempts) * 100) : "0.0",
     min: 0,
     plusMinus: 0,
   };
@@ -643,7 +646,7 @@ export const calculateScoreFlow = (stats: StatEvent[]): ScoreFlowPoint[] => {
     // ⚡ Bolt: Use high-performance string slicing instead of Intl.DateTimeFormat
     // to extract "mm:ss" from ISO timestamps, reducing CPU and memory overhead.
     result.push({
-      time: stat.timestamp.slice(14, 19),
+      time: formatTimestampToTime(stat.timestamp),
       Team: scores.team,
       Opponent: scores.opp,
     });
@@ -782,13 +785,7 @@ export const calculateLineupStats = (
   const lineupStats = new Map<string, LineupAggregates>();
 
   for (const gameStats of statsByGame.values()) {
-    const sortedStats = options.isSorted
-      ? gameStats
-      : [...gameStats].sort((a, b) => {
-          if (a.timestamp < b.timestamp) return -1;
-          if (a.timestamp > b.timestamp) return 1;
-          return 0;
-        });
+    const sortedStats = options.isSorted ? gameStats : sortStats(gameStats);
 
     let currentLineup = new Set<string>();
     let lastClockTime = 600; // Default to start of P1
@@ -888,13 +885,7 @@ export const calculatePlayerStreaks = (
   // to reduce memory churn and avoid large array allocations for long games.
   const playerStreaks = new Map<string, ("MAKE" | "MISS")[]>();
 
-  const sorted = options.isSorted
-    ? stats
-    : [...stats].sort((a, b) => {
-        if (a.timestamp < b.timestamp) return -1;
-        if (a.timestamp > b.timestamp) return 1;
-        return 0;
-      });
+  const sorted = options.isSorted ? stats : sortStats(stats);
 
   for (let i = 0; i < sorted.length; i++) {
     const s = sorted[i];

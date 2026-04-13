@@ -31,3 +31,23 @@ export const determineResult = (
   if (teamScore < oppScore) return "L";
   return "D";
 };
+
+/**
+ * Formats a total number of seconds into a mm:ss clock string.
+ * @param {number} totalSeconds - The total seconds.
+ * @returns {string} The formatted clock string (e.g., "10:00").
+ */
+export const formatClock = (totalSeconds: number): string => {
+  const mins = Math.floor(totalSeconds / 60);
+  const secs = totalSeconds % 60;
+  return `${mins}:${secs.toString().padStart(2, "0")}`;
+};
+
+/**
+ * Formats an ISO timestamp string to a mm:ss time string.
+ * @param {string} timestamp - ISO timestamp (e.g. "2023-01-01T12:00:30.000Z").
+ * @returns {string} The formatted time string (e.g. "00:30").
+ */
+export const formatTimestampToTime = (timestamp: string): string => {
+  return timestamp.slice(14, 19);
+};

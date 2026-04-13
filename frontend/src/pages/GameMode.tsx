@@ -58,6 +58,7 @@ import {
 } from "@mui/material";
 import BasketballCourt from "../components/BasketballCourt";
 import TimeoutDots from "../components/TimeoutDots";
+import { PlayerStatRow } from "../components/PlayerStatRow";
 import { db, type StatEvent, type Player } from "../db";
 import { syncService } from "../utils/syncService";
 import { logger } from "../utils/logger";
@@ -70,6 +71,7 @@ import {
   getBonusStatus,
   type PlayerAggregates,
 } from "../utils/stats";
+import { formatClock } from "../utils/mathUtils";
 import { MoleskineCard } from "../components/SharedUI";
 
 /**
@@ -165,12 +167,6 @@ const Scoreboard = React.memo(
     isClockRunning: boolean;
   }) => {
     const theme = useTheme();
-
-    const formatClock = (totalSeconds: number) => {
-      const mins = Math.floor(totalSeconds / 60);
-      const secs = totalSeconds % 60;
-      return `${mins}:${secs.toString().padStart(2, "0")}`;
-    };
 
     const getFoulColor = (isOpp: boolean) => {
       const foulColor = isOpp
@@ -1269,13 +1265,9 @@ const GameMode: React.FC = () => {
    */
   const handleSwapClick = useCallback(
     (id: string) => {
-      if (!selectedSwapId) {
-        setSelectedSwapId(id);
-        return;
-      }
-
-      if (selectedSwapId === id) {
-        setSelectedSwapId(null);
+      // Early return for deselect or initial select
+      if (!selectedSwapId || selectedSwapId === id) {
+        setSelectedSwapId(selectedSwapId === id ? null : id);
         return;
       }
 
@@ -1284,27 +1276,23 @@ const GameMode: React.FC = () => {
         selectedSwapId.startsWith("EMPTY");
       const isBOnCourt = draftOnCourtIds.has(id) || id.startsWith("EMPTY");
 
-      // Perform swap only if they are in different groups
-      if (isAOnCourt !== isBOnCourt) {
-        setDraftOnCourtIds((prev) => {
-          const next = new Set(prev);
-          if (isAOnCourt) {
-            // A is on court, B is on bench
-            if (!selectedSwapId.startsWith("EMPTY"))
-              next.delete(selectedSwapId);
-            if (!id.startsWith("EMPTY")) next.add(id);
-          } else {
-            // A is on bench, B is on court
-            if (!id.startsWith("EMPTY")) next.delete(id);
-            if (!selectedSwapId.startsWith("EMPTY")) next.add(selectedSwapId);
-          }
-          return next;
-        });
-        setSelectedSwapId(null);
-      } else {
-        // Same group, update selection
+      // Update selection if both in same group (bench/court), otherwise perform swap
+      if (isAOnCourt === isBOnCourt) {
         setSelectedSwapId(id);
+        return;
       }
+
+      setDraftOnCourtIds((prev) => {
+        const next = new Set(prev);
+        const [onCourt, bench] = isAOnCourt
+          ? [selectedSwapId, id]
+          : [id, selectedSwapId];
+
+        if (!onCourt.startsWith("EMPTY")) next.delete(onCourt);
+        if (!bench.startsWith("EMPTY")) next.add(bench);
+        return next;
+      });
+      setSelectedSwapId(null);
     },
     [selectedSwapId, draftOnCourtIds],
   );
@@ -1925,283 +1913,53 @@ const GameMode: React.FC = () => {
                     <Table size="small">
                       <TableHead>
                         <TableRow sx={{ bgcolor: "rgba(0,0,0,0.02)" }}>
-                          <TableCell
-                            sx={{ fontSize: "0.65rem", fontWeight: 700, px: 1 }}
-                          >
-                            <TableSortLabel
-                              active={sortConfig.key === "jerseyNumber"}
-                              direction={
-                                sortConfig.key === "jerseyNumber"
-                                  ? sortConfig.direction
-                                  : "asc"
+                          {(
+                            [
+                              { key: "jerseyNumber", label: "PLAYER", px: 1 },
+                              { key: "min", label: "MIN" },
+                              { key: "points", label: "PTS" },
+                              { key: "rebounds", label: "REB" },
+                              { key: "assists", label: "AST" },
+                              { key: "steals", label: "STL" },
+                              { key: "blocks", label: "BLK" },
+                              { key: "turnovers", label: "TO" },
+                              { key: "fouls", label: "PF", px: 1 },
+                              { key: "plusMinus", label: "+/-", px: 1 },
+                            ] as const
+                          ).map((col) => (
+                            <TableCell
+                              key={col.key}
+                              align={
+                                col.key === "jerseyNumber" ? "left" : "right"
                               }
-                              onClick={() => {
-                                setSortConfig((prev) => ({
-                                  key: "jerseyNumber",
-                                  direction:
-                                    prev.key === "jerseyNumber" &&
-                                    prev.direction === "asc"
-                                      ? "desc"
-                                      : "asc",
-                                }));
+                              sx={{
+                                fontSize: "0.65rem",
+                                fontWeight: 700,
+                                px: col.px ?? 0.5,
                               }}
                             >
-                              PLAYER
-                            </TableSortLabel>
-                          </TableCell>
-                          <TableCell
-                            align="right"
-                            sx={{
-                              fontSize: "0.65rem",
-                              fontWeight: 700,
-                              px: 0.5,
-                            }}
-                          >
-                            <TableSortLabel
-                              active={sortConfig.key === "min"}
-                              direction={
-                                sortConfig.key === "min"
-                                  ? sortConfig.direction
-                                  : "asc"
-                              }
-                              onClick={() => {
-                                setSortConfig((prev) => ({
-                                  key: "min",
-                                  direction:
-                                    prev.key === "min" &&
-                                    prev.direction === "asc"
-                                      ? "desc"
-                                      : "asc",
-                                }));
-                              }}
-                            >
-                              MIN
-                            </TableSortLabel>
-                          </TableCell>
-                          <TableCell
-                            align="right"
-                            sx={{
-                              fontSize: "0.65rem",
-                              fontWeight: 700,
-                              px: 0.5,
-                            }}
-                          >
-                            <TableSortLabel
-                              active={sortConfig.key === "points"}
-                              direction={
-                                sortConfig.key === "points"
-                                  ? sortConfig.direction
-                                  : "asc"
-                              }
-                              onClick={() => {
-                                setSortConfig((prev) => ({
-                                  key: "points",
-                                  direction:
-                                    prev.key === "points" &&
-                                    prev.direction === "asc"
-                                      ? "desc"
-                                      : "asc",
-                                }));
-                              }}
-                            >
-                              PTS
-                            </TableSortLabel>
-                          </TableCell>
-                          <TableCell
-                            align="right"
-                            sx={{
-                              fontSize: "0.65rem",
-                              fontWeight: 700,
-                              px: 0.5,
-                            }}
-                          >
-                            <TableSortLabel
-                              active={sortConfig.key === "rebounds"}
-                              direction={
-                                sortConfig.key === "rebounds"
-                                  ? sortConfig.direction
-                                  : "asc"
-                              }
-                              onClick={() => {
-                                setSortConfig((prev) => ({
-                                  key: "rebounds",
-                                  direction:
-                                    prev.key === "rebounds" &&
-                                    prev.direction === "asc"
-                                      ? "desc"
-                                      : "asc",
-                                }));
-                              }}
-                            >
-                              REB
-                            </TableSortLabel>
-                          </TableCell>
-                          <TableCell
-                            align="right"
-                            sx={{
-                              fontSize: "0.65rem",
-                              fontWeight: 700,
-                              px: 0.5,
-                            }}
-                          >
-                            <TableSortLabel
-                              active={sortConfig.key === "assists"}
-                              direction={
-                                sortConfig.key === "assists"
-                                  ? sortConfig.direction
-                                  : "asc"
-                              }
-                              onClick={() => {
-                                setSortConfig((prev) => ({
-                                  key: "assists",
-                                  direction:
-                                    prev.key === "assists" &&
-                                    prev.direction === "asc"
-                                      ? "desc"
-                                      : "asc",
-                                }));
-                              }}
-                            >
-                              AST
-                            </TableSortLabel>
-                          </TableCell>
-                          <TableCell
-                            align="right"
-                            sx={{
-                              fontSize: "0.65rem",
-                              fontWeight: 700,
-                              px: 0.5,
-                            }}
-                          >
-                            <TableSortLabel
-                              active={sortConfig.key === "steals"}
-                              direction={
-                                sortConfig.key === "steals"
-                                  ? sortConfig.direction
-                                  : "asc"
-                              }
-                              onClick={() => {
-                                setSortConfig((prev) => ({
-                                  key: "steals",
-                                  direction:
-                                    prev.key === "steals" &&
-                                    prev.direction === "asc"
-                                      ? "desc"
-                                      : "asc",
-                                }));
-                              }}
-                            >
-                              STL
-                            </TableSortLabel>
-                          </TableCell>
-                          <TableCell
-                            align="right"
-                            sx={{
-                              fontSize: "0.65rem",
-                              fontWeight: 700,
-                              px: 0.5,
-                            }}
-                          >
-                            <TableSortLabel
-                              active={sortConfig.key === "blocks"}
-                              direction={
-                                sortConfig.key === "blocks"
-                                  ? sortConfig.direction
-                                  : "asc"
-                              }
-                              onClick={() => {
-                                setSortConfig((prev) => ({
-                                  key: "blocks",
-                                  direction:
-                                    prev.key === "blocks" &&
-                                    prev.direction === "asc"
-                                      ? "desc"
-                                      : "asc",
-                                }));
-                              }}
-                            >
-                              BLK
-                            </TableSortLabel>
-                          </TableCell>
-                          <TableCell
-                            align="right"
-                            sx={{
-                              fontSize: "0.65rem",
-                              fontWeight: 700,
-                              px: 0.5,
-                            }}
-                          >
-                            <TableSortLabel
-                              active={sortConfig.key === "turnovers"}
-                              direction={
-                                sortConfig.key === "turnovers"
-                                  ? sortConfig.direction
-                                  : "asc"
-                              }
-                              onClick={() => {
-                                setSortConfig((prev) => ({
-                                  key: "turnovers",
-                                  direction:
-                                    prev.key === "turnovers" &&
-                                    prev.direction === "asc"
-                                      ? "desc"
-                                      : "asc",
-                                }));
-                              }}
-                            >
-                              TO
-                            </TableSortLabel>
-                          </TableCell>
-                          <TableCell
-                            align="right"
-                            sx={{ fontSize: "0.65rem", fontWeight: 700, px: 1 }}
-                          >
-                            <TableSortLabel
-                              active={sortConfig.key === "fouls"}
-                              direction={
-                                sortConfig.key === "fouls"
-                                  ? sortConfig.direction
-                                  : "asc"
-                              }
-                              onClick={() => {
-                                setSortConfig((prev) => ({
-                                  key: "fouls",
-                                  direction:
-                                    prev.key === "fouls" &&
-                                    prev.direction === "asc"
-                                      ? "desc"
-                                      : "asc",
-                                }));
-                              }}
-                            >
-                              PF
-                            </TableSortLabel>
-                          </TableCell>
-                          <TableCell
-                            align="right"
-                            sx={{ fontSize: "0.65rem", fontWeight: 700, px: 1 }}
-                          >
-                            <TableSortLabel
-                              active={sortConfig.key === "plusMinus"}
-                              direction={
-                                sortConfig.key === "plusMinus"
-                                  ? sortConfig.direction
-                                  : "asc"
-                              }
-                              onClick={() => {
-                                setSortConfig((prev) => ({
-                                  key: "plusMinus",
-                                  direction:
-                                    prev.key === "plusMinus" &&
-                                    prev.direction === "asc"
-                                      ? "desc"
-                                      : "asc",
-                                }));
-                              }}
-                            >
-                              +/-
-                            </TableSortLabel>
-                          </TableCell>
+                              <TableSortLabel
+                                active={sortConfig.key === col.key}
+                                direction={
+                                  sortConfig.key === col.key
+                                    ? sortConfig.direction
+                                    : "asc"
+                                }
+                                onClick={() => {
+                                  setSortConfig((prev) => ({
+                                    key: col.key,
+                                    direction:
+                                      prev.key === col.key &&
+                                      prev.direction === "asc"
+                                        ? "desc"
+                                        : "asc",
+                                  }));
+                                }}
+                              >
+                                {col.label}
+                              </TableSortLabel>
+                            </TableCell>
+                          ))}
                         </TableRow>
                       </TableHead>
                       <TableBody>
@@ -2911,141 +2669,6 @@ const GameMode: React.FC = () => {
   );
 };
 
-/**
- * Sub-component for displaying a player's statistical row in the table.
- * Optimized with React.memo and primitive props to skip redundant virtual DOM diffing.
- * ⚡ Bolt: By passing primitive props instead of a monolithic 'row' object,
- * React.memo can accurately detect when a player's stats have NOT changed,
- * preventing 90%+ of redundant row re-renders during live game tracking.
- */
-interface PlayerStatRowProps {
-  jerseyNumber: string;
-  name: string;
-  min: number;
-  points: number;
-  rebounds: number;
-  assists: number;
-  steals: number;
-  blocks: number;
-  turnovers: number;
-  fouls: number;
-  plusMinus: number;
-  streak: "HOT" | "COLD" | null | undefined;
-}
-
-const PlayerStatRow: React.FC<PlayerStatRowProps> = React.memo(
-  ({
-    jerseyNumber,
-    name,
-    min,
-    points,
-    rebounds,
-    assists,
-    steals,
-    blocks,
-    turnovers,
-    fouls,
-    plusMinus,
-    streak,
-  }) => (
-    <TableRow>
-      <TableCell sx={{ py: 1, px: 1 }}>
-        <Typography
-          variant="caption"
-          sx={{
-            fontWeight: 600,
-            display: "block",
-            lineHeight: 1.1,
-          }}
-        >
-          #{jerseyNumber}
-        </Typography>
-        <Typography
-          variant="caption"
-          sx={{
-            fontSize: "0.65rem",
-            display: "block",
-            color: "text.secondary",
-            whiteSpace: "nowrap",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            maxWidth: "60px",
-          }}
-        >
-          {name.split(" ")[0]}
-          {streak === "HOT" && (
-            <Tooltip title="Hot Streak (3+ makes)">
-              <Box component="span" sx={{ ml: 0.2 }}>
-                🔥
-              </Box>
-            </Tooltip>
-          )}
-          {streak === "COLD" && (
-            <Tooltip title="Cold Streak (3+ misses)">
-              <Box component="span" sx={{ ml: 0.2 }}>
-                ❄️
-              </Box>
-            </Tooltip>
-          )}
-        </Typography>
-      </TableCell>
-      <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
-        {min}
-      </TableCell>
-      <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
-        {points}
-      </TableCell>
-      <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
-        {rebounds}
-      </TableCell>
-      <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
-        {assists}
-      </TableCell>
-      <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
-        {steals}
-      </TableCell>
-      <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
-        {blocks}
-      </TableCell>
-      <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
-        {turnovers}
-      </TableCell>
-      <TableCell
-        align="right"
-        sx={{
-          px: 1,
-          fontSize: "0.75rem",
-          fontWeight: fouls >= 4 ? 700 : 400,
-          bgcolor:
-            fouls >= 5
-              ? "error.main"
-              : fouls === 4
-                ? "warning.main"
-                : "transparent",
-          color: fouls >= 4 ? "white" : "inherit",
-        }}
-      >
-        {fouls}
-      </TableCell>
-      <TableCell
-        align="right"
-        sx={{
-          px: 1,
-          fontSize: "0.75rem",
-          color:
-            plusMinus > 0
-              ? "success.main"
-              : plusMinus < 0
-                ? "error.main"
-                : "inherit",
-          fontWeight: plusMinus !== 0 ? 600 : 400,
-        }}
-      >
-        {plusMinus > 0 ? `+${plusMinus}` : plusMinus}
-      </TableCell>
-    </TableRow>
-  ),
-);
 
 /**
  * Sub-component for displaying a single item in the recent actions history.
@@ -3071,12 +2694,6 @@ const RecentActionItem: React.FC<{
     onEdit,
     onDelete,
   }) => {
-    const formatClock = (totalSeconds: number) => {
-      const mins = Math.floor(totalSeconds / 60);
-      const secs = totalSeconds % 60;
-      return `${mins}:${secs.toString().padStart(2, "0")}`;
-    };
-
     const playerName =
       stat.playerId === SPECIAL_PLAYER_IDS.OPPONENT
         ? opponentName || "Opponent"
