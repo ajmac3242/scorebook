@@ -121,8 +121,15 @@ export const getPlayerJersey = (
 
 /**
  * Determines bonus status labels and colors based on foul counts and period type.
- * @param fouls - Current foul count.
- * @param periodType - 'QUARTERS' or 'HALVES'.
+ *
+ * WHY: Basketball foul rules vary by competition format:
+ * - QUARTERS (e.g. NBA/FIBA): Team enters the "Bonus" on the 5th foul of the quarter.
+ *   The 4th foul is a warning state (often triggers UI changes like orange color).
+ * - HALVES (e.g. NCAA): Team enters "1-and-1" bonus on the 7th foul and "Double Bonus"
+ *   on the 10th foul. The 6th foul is the warning state.
+ *
+ * @param fouls - Current foul count for the period.
+ * @param periodType - The game format ('QUARTERS' or 'HALVES').
  */
 export const getBonusStatus = (
   fouls: number,
@@ -683,7 +690,16 @@ export const calculateGameResult = (
  */
 /**
  * 🏀 CoachBoard: calculateLineupStats
- * Why: Identifies the most effective 5-player combinations.
+ *
+ * WHY: Lineup efficiency (Plus/Minus for 5-player units) is a critical coaching metric
+ * for determining which player combinations work best together.
+ *
+ * This function handles several complex edge cases:
+ * 1. MULTI-GAME: Correctly isolates stints by gameId to prevent cross-game time bleeding.
+ * 2. PERIOD TRANSITIONS: Closes active stints at 0:00 of the current period and
+ *    re-opens them at the start (default 600s) of the next period if no sub occurred.
+ * 3. SUB TRACKING: Uses a Set to track the active 5-man unit and records a "stint"
+ *    every time a substitution or period end occurs.
  */
 export interface LineupAggregates {
   lineup: string[]; // Player IDs
@@ -823,6 +839,22 @@ export const calculateLineupStats = (
     .sort((a, b) => b.netRating - a.netRating);
 };
 
+/**
+ * 🏀 CoachBoard: calculatePlayerStreaks
+ *
+ * WHY: Momentum is a key factor in basketball. Identifying players who are "Hot" (scoring)
+ * or "Cold" (struggling) helps coaches make better rotation and play-calling decisions.
+ *
+ * LOGIC:
+ * - HOT (🔥): Triggered by 3 consecutive field goal makes.
+ * - COLD (❄️): Triggered by 3 consecutive field goal misses.
+ * - Interruptions: Any Miss resets a Hot streak; any Make resets a Cold streak.
+ * - Exclusions: Free throws are excluded to focus on field goal flow.
+ *
+ * @param stats - Chronological list of statistical events for the game.
+ * @param options - Optimization flags (e.g., skip sorting if data is already ordered).
+ * @returns Map of player IDs to their current streak status ('HOT', 'COLD', or null).
+ */
 export const calculatePlayerStreaks = (
   stats: StatEvent[],
   options: { isSorted?: boolean } = {},

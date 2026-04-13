@@ -352,4 +352,27 @@ describe("Security Tests", () => {
       "teamId is required and must be under 100 characters",
     );
   });
+
+  it("protects /cleanup with timing-safe comparison (safeCompare) for various key lengths", async () => {
+    process.env.ADMIN_API_KEY = "secret";
+    ddbMock.on(QueryCommand).resolves({ Items: [] });
+
+    // Matching key
+    const event1 = createEvent("POST", "/cleanup");
+    event1.headers = { "x-api-key": "secret" };
+    const resp1: any = await handler(event1);
+    expect(resp1.statusCode).toBe(200);
+
+    // Non-matching, shorter key
+    const event2 = createEvent("POST", "/cleanup");
+    event2.headers = { "x-api-key": "sec" };
+    const resp2: any = await handler(event2);
+    expect(resp2.statusCode).toBe(403);
+
+    // Non-matching, longer key
+    const event3 = createEvent("POST", "/cleanup");
+    event3.headers = { "x-api-key": "secret-too-long" };
+    const resp3: any = await handler(event3);
+    expect(resp3.statusCode).toBe(403);
+  });
 });

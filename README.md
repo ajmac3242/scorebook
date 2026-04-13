@@ -62,5 +62,7 @@ To optimize read performance and reduce DynamoDB costs:
 - **Real-time Game Tracking**: Easy-to-use interface for logging shots, misses, rebounds, and more.
 - **Shot Charts**: Visual representation of shot locations on a virtual court.
 - **Detailed Analytics**: Automatic calculation of PPG, RPG, APG, and FG% for individuals and teams.
+- **Lineup Efficiency Tracking**: Analyze the performance (Plus/Minus) of specific 5-player combinations to optimize rotations.
+- **Hot/Cold Streak Indicators**: Visual cues (🔥/❄️) help coaches identify players with scoring momentum in real-time.
 - **Secure Data**: User data is isolated and encrypted, with local database cleanup on logout.
 - **Synchronization**: Automatic syncing across devices when connectivity is restored.

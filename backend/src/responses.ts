@@ -22,8 +22,11 @@ export const INTERNAL_KEYS = new Set([
  * Redacts internal metadata keys from outgoing data for API responses and S3 snapshots.
  * Recursively cleans objects and arrays while preserving the 'id' field for frontend consumption.
  *
- * WHY: This prevents leaking infrastructure implementation details (DynamoDB key structure)
- * to the client, while still allowing the frontend to identify entities via their UUID 'id'.
+ * WHY: This is a critical security layer that prevents leaking infrastructure
+ * implementation details (specifically DynamoDB Partition and Sort Key structures)
+ * to the client. Hiding internal keys (PK, SK, GSI) reduces the attack surface by
+ * not exposing the underlying database schema and prevents clients from relying
+ * on internal metadata that might change.
  *
  * @param {unknown} data - The data object or array to sanitize.
  * @returns {unknown} The sanitized data.
