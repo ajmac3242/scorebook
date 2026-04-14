@@ -390,14 +390,38 @@ const Scoreboard = React.memo(
 
             <Stack direction="row" spacing={0.5}>
               {[1, 2, 3].map((pts) => (
+                <Tooltip key={pts} title={`Record opponent +${pts} points`}>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    color="secondary"
+                    aria-label={`Record opponent +${pts} points`}
+                    onClick={() =>
+                      onQuickAction && onQuickAction(ACTION_TYPES.MAKE, pts)
+                    }
+                    sx={{
+                      minWidth: 0,
+                      px: 0.8,
+                      py: 0.2,
+                      fontSize: "0.65rem",
+                      fontWeight: 800,
+                      borderColor: "rgba(255,255,255,0.3)",
+                      color: "white",
+                      "&:hover": { borderColor: "white" },
+                    }}
+                  >
+                    +{pts}
+                  </Button>
+                </Tooltip>
+              ))}
+              <Tooltip title="Record opponent rebound">
                 <Button
-                  key={pts}
                   size="small"
                   variant="outlined"
                   color="secondary"
-                  aria-label={`Record opponent +${pts} points`}
+                  aria-label="Record opponent rebound"
                   onClick={() =>
-                    onQuickAction && onQuickAction(ACTION_TYPES.MAKE, pts)
+                    onQuickAction && onQuickAction(ACTION_TYPES.REBOUND)
                   }
                   sx={{
                     minWidth: 0,
@@ -410,72 +434,55 @@ const Scoreboard = React.memo(
                     "&:hover": { borderColor: "white" },
                   }}
                 >
-                  +{pts}
+                  REB
                 </Button>
-              ))}
-              <Button
-                size="small"
-                variant="outlined"
-                color="secondary"
-                aria-label="Record opponent rebound"
-                onClick={() =>
-                  onQuickAction && onQuickAction(ACTION_TYPES.REBOUND)
-                }
-                sx={{
-                  minWidth: 0,
-                  px: 0.8,
-                  py: 0.2,
-                  fontSize: "0.65rem",
-                  fontWeight: 800,
-                  borderColor: "rgba(255,255,255,0.3)",
-                  color: "white",
-                  "&:hover": { borderColor: "white" },
-                }}
-              >
-                REB
-              </Button>
-              <Button
-                size="small"
-                variant="outlined"
-                color="warning"
-                aria-label="Record opponent turnover"
-                onClick={() =>
-                  onQuickAction && onQuickAction(ACTION_TYPES.TURNOVER)
-                }
-                sx={{
-                  minWidth: 0,
-                  px: 0.8,
-                  py: 0.2,
-                  fontSize: "0.65rem",
-                  fontWeight: 800,
-                  borderColor: "rgba(255,255,255,0.3)",
-                  color: "white",
-                  "&:hover": { borderColor: "white" },
-                }}
-              >
-                TO
-              </Button>
-              <Button
-                size="small"
-                variant="outlined"
-                color="error"
-                aria-label="Record opponent foul"
-                onClick={() =>
-                  onQuickAction && onQuickAction(ACTION_TYPES.FOUL)
-                }
-                sx={{
-                  minWidth: 0,
-                  px: 0.8,
-                  py: 0.2,
-                  fontSize: "0.65rem",
-                  fontWeight: 800,
-                  borderColor: "rgba(255,255,255,0.3)",
-                  color: theme.palette.error.light,
-                  "&:hover": { borderColor: "white" },
-                }}
-              >
-                F
-              </Button>
+              </Tooltip>
+              <Tooltip title="Record opponent turnover">
+                <Button
+                  size="small"
+                  variant="outlined"
+                  color="warning"
+                  aria-label="Record opponent turnover"
+                  onClick={() =>
+                    onQuickAction && onQuickAction(ACTION_TYPES.TURNOVER)
+                  }
+                  sx={{
+                    minWidth: 0,
+                    px: 0.8,
+                    py: 0.2,
+                    fontSize: "0.65rem",
+                    fontWeight: 800,
+                    borderColor: "rgba(255,255,255,0.3)",
+                    color: "white",
+                    "&:hover": { borderColor: "white" },
+                  }}
+                >
+                  TO
+                </Button>
+              </Tooltip>
+              <Tooltip title="Record opponent foul">
+                <Button
+                  size="small"
+                  variant="outlined"
+                  color="error"
+                  aria-label="Record opponent foul"
+                  onClick={() =>
+                    onQuickAction && onQuickAction(ACTION_TYPES.FOUL)
+                  }
+                  sx={{
+                    minWidth: 0,
+                    px: 0.8,
+                    py: 0.2,
+                    fontSize: "0.65rem",
+                    fontWeight: 800,
+                    borderColor: "rgba(255,255,255,0.3)",
+                    color: theme.palette.error.light,
+                    "&:hover": { borderColor: "white" },
+                  }}
+                >
+                  F
+                </Button>
+              </Tooltip>
             </Stack>
           </Stack>
         )}
@@ -3001,25 +3008,27 @@ const QuickAction: React.FC<{
   statType: string | null;
   setStatType: (_type: string | null) => void;
 }> = React.memo(({ type, label, icon: Icon, statType, setStatType }) => (
-  <Button
-    variant={statType === type ? "contained" : "outlined"}
-    color="inherit"
-    aria-pressed={statType === type}
-    onClick={() => {
-      setStatType(type);
-    }}
-    sx={{
-      flexDirection: "column",
-      py: 2,
-      minWidth: 80,
-      borderColor: "#D1D1D1",
-      backgroundColor: statType === type ? "primary.main" : "transparent",
-      color: statType === type ? "white" : "text.primary",
-    }}
-  >
-    <Icon sx={{ mb: 1 }} />
-    <Typography variant="caption">{label}</Typography>
-  </Button>
+  <Tooltip title={label}>
+    <Button
+      variant={statType === type ? "contained" : "outlined"}
+      color="inherit"
+      aria-pressed={statType === type}
+      onClick={() => {
+        setStatType(type);
+      }}
+      sx={{
+        flexDirection: "column",
+        py: 2,
+        minWidth: 80,
+        borderColor: "#D1D1D1",
+        backgroundColor: statType === type ? "primary.main" : "transparent",
+        color: statType === type ? "white" : "text.primary",
+      }}
+    >
+      <Icon sx={{ mb: 1 }} />
+      <Typography variant="caption">{label}</Typography>
+    </Button>
+  </Tooltip>
 ));
 
 export default GameMode;

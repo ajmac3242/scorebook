@@ -170,7 +170,7 @@ const Navigation: React.FC = () => {
             },
           }}
         >
-          <BasketballIcon className="spin" />
+          <BasketballIcon className="spin" aria-hidden="true" />
           <Typography variant="caption" sx={{ fontWeight: "bold" }}>
             SYNCING DATA
           </Typography>

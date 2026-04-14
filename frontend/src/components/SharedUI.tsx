@@ -141,16 +141,22 @@ interface StatItemProps {
  * @returns {React.ReactElement}
  */
 export const StatItem: React.FC<StatItemProps> = ({ label, value, light }) => (
-  <Box sx={{ textAlign: "center" }}>
+  <Box
+    sx={{ textAlign: "center" }}
+    role="img"
+    aria-label={`${label}: ${value}`}
+  >
     <Typography
       variant="caption"
       sx={{ opacity: 0.8, color: light ? "white" : "text.secondary" }}
+      aria-hidden="true"
     >
       {label}
     </Typography>
     <Typography
       variant="h4"
       sx={{ fontWeight: 700, color: light ? "white" : "text.primary" }}
+      aria-hidden="true"
     >
       {typeof value === "number" ? <AnimatedNumber value={value} /> : value}
     </Typography>

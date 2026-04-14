@@ -254,6 +254,14 @@ const Dashboard: React.FC = () => {
                         "&:hover": { bgcolor: "rgba(0,0,0,0.04)" },
                       }}
                       onClick={() => navigate(`/game/stats?gameId=${game.id}`)}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          navigate(`/game/stats?gameId=${game.id}`);
+                        }
+                      }}
+                      aria-label={`Upcoming game vs ${game.opponent} on ${dayjs(game.date).format("MMM D, YYYY")}`}
                     >
                       <Typography
                         variant="caption"

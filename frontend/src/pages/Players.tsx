@@ -393,16 +393,29 @@ const Players: React.FC = () => {
               <Box
                 key={color}
                 onClick={() => setAvatarColor(color)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    setAvatarColor(color);
+                  }
+                }}
+                role="button"
+                tabIndex={0}
+                aria-label={`Select ${color} as avatar color`}
+                aria-pressed={avatarColor === color}
                 sx={{
                   width: 32,
                   height: 32,
                   borderRadius: "50%",
                   bgcolor: color,
                   cursor: "pointer",
-                  border: avatarColor === color ? "3px solid #000" : "none",
+                  border: avatarColor === color ? "3px solid #000" : "1px solid rgba(0,0,0,0.1)",
                   boxSizing: "border-box",
-                  transition: "transform 0.1s",
+                  transition: "all 0.1s",
                   "&:hover": { transform: "scale(1.2)" },
+                  "&:focus-visible": {
+                    outline: "2px solid #000",
+                    outlineOffset: "2px",
+                  },
                 }}
               />
             ))}

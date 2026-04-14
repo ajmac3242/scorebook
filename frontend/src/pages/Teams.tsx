@@ -386,6 +386,11 @@ const Teams: React.FC = () => {
                               )
                             }
                             sx={{ color: "inherit", p: 0.5 }}
+                            aria-label={
+                              team.isFavorite
+                                ? `Remove ${team.name} from favorites`
+                                : `Mark ${team.name} as favorite`
+                            }
                           >
                             {team.isFavorite ? (
                               <StarIcon sx={{ color: "#FFD700" }} />

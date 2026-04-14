@@ -917,7 +917,10 @@ const GameStats: React.FC = () => {
                 Box Score{" "}
                 {periodFilter !== "ALL" && `(${periodLabel} ${periodFilter})`}
               </Typography>
-              <IconButton onClick={() => setExpandedSection("boxScore")}>
+              <IconButton
+                onClick={() => setExpandedSection("boxScore")}
+                aria-label="Expand Box Score section"
+              >
                 <ExpandIcon />
               </IconButton>
             </Box>
@@ -940,7 +943,10 @@ const GameStats: React.FC = () => {
                 Shot Chart{" "}
                 {periodFilter !== "ALL" && `(${periodLabel} ${periodFilter})`}
               </Typography>
-              <IconButton onClick={() => setExpandedSection("shotChart")}>
+              <IconButton
+                onClick={() => setExpandedSection("shotChart")}
+                aria-label="Expand Shot Chart section"
+              >
                 <ExpandIcon />
               </IconButton>
             </Box>
@@ -964,7 +970,10 @@ const GameStats: React.FC = () => {
                 Score Flow{" "}
                 {periodFilter !== "ALL" && `(${periodLabel} ${periodFilter})`}
               </Typography>
-              <IconButton onClick={() => setExpandedSection("scoreFlow")}>
+              <IconButton
+                onClick={() => setExpandedSection("scoreFlow")}
+                aria-label="Expand Score Flow section"
+              >
                 <ExpandIcon />
               </IconButton>
             </Box>
@@ -986,7 +995,10 @@ const GameStats: React.FC = () => {
               <Typography variant="h6" sx={{ fontFamily: "var(--serif)" }}>
                 Lineup Efficiency
               </Typography>
-              <IconButton onClick={() => setExpandedSection("lineups")}>
+              <IconButton
+                onClick={() => setExpandedSection("lineups")}
+                aria-label="Expand Lineup Efficiency section"
+              >
                 <ExpandIcon />
               </IconButton>
             </Box>
@@ -1014,7 +1026,10 @@ const GameStats: React.FC = () => {
           {expandedSection === "shotChart" && "Shot Chart"}
           {expandedSection === "scoreFlow" && "Score Flow"}
           {expandedSection === "lineups" && "Lineup Efficiency"}
-          <IconButton onClick={() => setExpandedSection(null)}>
+          <IconButton
+            onClick={() => setExpandedSection(null)}
+            aria-label="Collapse section"
+          >
             <ExpandIcon sx={{ transform: "rotate(180deg)" }} />
           </IconButton>
         </DialogTitle>
