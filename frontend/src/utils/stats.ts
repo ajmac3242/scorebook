@@ -485,7 +485,7 @@ export const calculatePlayerAggregates = (
       // Why: If we have liveContext, stint ends at current clockTime.
       // Otherwise, assume they played until the buzzer (0:00).
       const endClock =
-        liveCtx && stint.lastGameId === stats[0]?.gameId
+        liveCtx && stint.lastGameId === stats[stats.length - 1]?.gameId
           ? liveCtx.clockTime
           : 0;
       playerAgg.min += Math.max(0, stint.startClock - endClock);
@@ -892,7 +892,7 @@ export const calculateLineupStats = (
     if (currentLineup.size === 5) {
       const liveCtx = options.liveContext;
       const endClock =
-        liveCtx && gameId === stats[0]?.gameId ? liveCtx.clockTime : 0;
+        liveCtx && gameId === stats[stats.length - 1]?.gameId ? liveCtx.clockTime : 0;
       recordLineupStint(
         lineupStats,
         getLineupKey(currentLineup),
@@ -946,7 +946,7 @@ export const calculatePlayerStreaks = (
     // We only track streaks for field goal attempts
     if (s.type === ACTION_TYPES.MAKE || s.type === ACTION_TYPES.MISS) {
       // Skip free throws (points === 1) for field goal streaks
-      if (s.type === ACTION_TYPES.MAKE && s.points === 1) continue;
+      if (s.points === 1) continue;
 
       const pId = s.playerId;
       let history = playerStreaks.get(pId);

@@ -854,42 +854,37 @@ describe("stats utilities", () => {
       expect(result.get("p1")).toBe("HOT");
     });
 
-    it("ignores free throws (points === 1)", () => {
+    it("ignores free throws (points === 1) and does not let them affect field goal streaks", () => {
       const stats: StatEvent[] = [
-        {
-          gameId: "g1",
-          playerId: "p1",
-          type: ACTION_TYPES.MAKE,
-          points: 2,
-          timestamp: "1",
-          period: 1,
-        },
-        {
-          gameId: "g1",
-          playerId: "p1",
-          type: ACTION_TYPES.MAKE,
-          points: 2,
-          timestamp: "2",
-          period: 1,
-        },
-        {
-          gameId: "g1",
-          playerId: "p1",
-          type: ACTION_TYPES.MAKE,
-          points: 1,
-          timestamp: "3",
-          period: 1,
-        }, // FT, should not count towards Hot streak
-        {
-          gameId: "g1",
-          playerId: "p1",
-          type: ACTION_TYPES.MISS,
-          timestamp: "4",
-          period: 1,
-        }, // Miss, interrupts streak
+        { gameId: "g1", playerId: "p1", type: ACTION_TYPES.MAKE, points: 2, timestamp: "2023-01-01T10:00:01Z", period: 1 },
+        { gameId: "g1", playerId: "p1", type: ACTION_TYPES.MAKE, points: 2, timestamp: "2023-01-01T10:00:02Z", period: 1 },
+        { gameId: "g1", playerId: "p1", type: ACTION_TYPES.MAKE, points: 1, timestamp: "2023-01-01T10:00:03Z", period: 1 },
+        { gameId: "g1", playerId: "p1", type: ACTION_TYPES.MISS, points: 1, timestamp: "2023-01-01T10:00:04Z", period: 1 },
+        { gameId: "g1", playerId: "p1", type: ACTION_TYPES.MAKE, points: 2, timestamp: "2023-01-01T10:00:05Z", period: 1 },
       ];
       const result = calculatePlayerStreaks(stats);
-      expect(result.get("p1")).toBe(null);
+      expect(result.get("p1")).toBe("HOT");
+    });
+
+    it("isolates stints by gameId correctly (multi-game isolation)", () => {
+      const stats: StatEvent[] = [
+        { gameId: "g1", playerId: "p1", type: ACTION_TYPES.SUB_IN, clockTime: 600, period: 1, timestamp: "2023-01-01T10:00:01Z" },
+        { gameId: "g1", playerId: "p2", type: ACTION_TYPES.SUB_IN, clockTime: 600, period: 1, timestamp: "2023-01-01T10:00:02Z" },
+        { gameId: "g1", playerId: "p3", type: ACTION_TYPES.SUB_IN, clockTime: 600, period: 1, timestamp: "2023-01-01T10:00:03Z" },
+        { gameId: "g1", playerId: "p4", type: ACTION_TYPES.SUB_IN, clockTime: 600, period: 1, timestamp: "2023-01-01T10:00:04Z" },
+        { gameId: "g1", playerId: "p5", type: ACTION_TYPES.SUB_IN, clockTime: 600, period: 1, timestamp: "2023-01-01T10:00:05Z" },
+        { gameId: "g1", playerId: "p1", type: ACTION_TYPES.MAKE, points: 2, period: 1, timestamp: "2023-01-01T10:00:06Z" },
+        { gameId: "g2", playerId: "p1", type: ACTION_TYPES.SUB_IN, clockTime: 600, period: 1, timestamp: "2023-01-02T10:00:01Z" },
+        { gameId: "g2", playerId: "p2", type: ACTION_TYPES.SUB_IN, clockTime: 600, period: 1, timestamp: "2023-01-02T10:00:02Z" },
+        { gameId: "g2", playerId: "p3", type: ACTION_TYPES.SUB_IN, clockTime: 600, period: 1, timestamp: "2023-01-02T10:00:03Z" },
+        { gameId: "g2", playerId: "p4", type: ACTION_TYPES.SUB_IN, clockTime: 600, period: 1, timestamp: "2023-01-02T10:00:04Z" },
+        { gameId: "g2", playerId: "p5", type: ACTION_TYPES.SUB_IN, clockTime: 600, period: 1, timestamp: "2023-01-02T10:00:05Z" },
+        { gameId: "g2", playerId: "p1", type: ACTION_TYPES.MAKE, points: 5, period: 1, timestamp: "2023-01-02T10:00:06Z" },
+      ];
+      const results = calculateLineupStats(stats);
+      expect(results.length).toBe(1);
+      expect(results[0].pointsFor).toBe(7);
+      expect(results[0].seconds).toBe(1200);
     });
 
     it("properly handles chronological order even if stats are unsorted", () => {
