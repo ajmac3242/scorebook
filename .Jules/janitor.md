@@ -17,3 +17,7 @@ Action: Always add `coverage/` to ESLint and Prettier ignore lists. Use targeted
 ## 2026-04-12 - Elite Code Hygiene Improvements
 Learning: Redundant JSDoc blocks often accumulate when refactoring large files like `backend/src/index.ts`. Nullish coalescing (`??`) is preferred over logical OR (`||`) for jersey numbers to avoid treating "0" as a missing value.
 Action: Periodically scan for "orphan" JSDoc blocks and enforce `??` for numeric string properties.
+
+## 2026-04-14 - React Hook and Memoization Hygiene
+Learning: Inline `useCallback` hooks within JSX can lead to `react-hooks/rules-of-hooks` violations if they appear after early returns. Furthermore, incomplete dependency arrays in `useMemo` can prevent the React Compiler from optimizing components and lead to stale calculations.
+Action: Always extract `useCallback` hooks to the component body before any early returns. Ensure `useMemo` dependency arrays are exhaustive to preserve memoization and ensure correctness.

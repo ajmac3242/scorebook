@@ -296,16 +296,6 @@ export const applyActionToAggregate = (agg: BaseStats, stat: StatEvent) => {
 };
 
 /**
- * Updates a player's statistics based on a single statistical event.
- * @param {PlayerAggregates} player - The player aggregate record.
- * @param {StatEvent} stat - The statistical event to process.
- */
-function processStatEvent(player: PlayerAggregates, stat: StatEvent) {
-  player.gamesPlayed.add(stat.gameId);
-  applyActionToAggregate(player, stat);
-}
-
-/**
  * Initializes a map of player aggregates with default values.
  *
  * @param {Player[]} players - List of player objects.
