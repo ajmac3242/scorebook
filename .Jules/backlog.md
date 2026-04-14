@@ -1,20 +1,3 @@
-## Redesign Dashboard page
-**Priority:** HIGH
-**Type:** Feature
-**Why:** The current Dashboard page does not offer any benefits. 
-**What:** Swap out the dashboard page for "My Team" page. My team will be determined by adding a star next to the individual team name on the team page. The team that has the star enabled will now represent the My Team page. 
-**Acceptance Criteria:**
-- [ ] My Team page will show overall stats, heatmaps, and upcoming games for the team
-- [ ] More data can be added to this page. The intent is to give coaches all the high-level information they need at a quick glance.
-
-## Update Edit Team Details
-**Priority:** HIGH
-**Type:** Feature
-**Why:** Coaches need to be able to set default settings for a team 
-**What:** On the Edit Team Details dialog, we need to add a defaults section where we can add/update game defaults. These game defaults can be overwritten when setting up a game but these should be the default values. 
-**Acceptance Criteria:**
-- [ ] All customizable basketball settings should be in this dialog. These settings should include period types, minutes for each period, number of timeouts allowed, and number of fouls allowed. As others are discovered, they should go here. 
-            
 ## Live Game Clock & Minutes Tracking
 **Priority:** HIGH
 **Type:** Feature
@@ -67,17 +50,6 @@
 - [x] Zones are calculated dynamically based on the current filter (All, Player, or Team).
 - [x] Uses a color gradient to represent scoring density or efficiency.
 
-## Workflows for game creation
-**Priority:** MEDIUM
-**Type:** UX
-**Why:** Creating a game contains to many things to enter at once. Introduce a workflow to help streamline the process. 
-**What:** Enhance the `Create Game` dialog to be a workflow similar to this example on Dribbble [https://dribbble.com/shots/26448955-Hotel-Booking-Mobile-App]. This is just an example and is not meant to be copied exactly. This example shows a workflow that A user can follow to create something. The first part of the workflow would be opponent information, the second part would be game date/time information, the last part would be game settings information (period type, fouls, time, etc.)
-**Acceptance Criteria:**
-- [ ] Transition `Create Game` dialog to a workflow.
-- [ ] After all information is entered, there should be a create game button. Once the button is clicked, the game should be created.
-- [ ] On the first two parts of the workflow, once the required information has been entered, show a `continue` button.
-- [ ] Like the example, show the steps to the user and which ones have been completed
-
 ## Individual Opponent Tracking
 **Priority:** HIGH
 **Type:** Feature
@@ -127,53 +99,3 @@
 - [ ] Possessions are calculated as: FGA + 0.44 * FTA + TO - ORB.
 - [ ] Scoreboard shows a small "PPP" metric for both teams.
 - [ ] Lineup Efficiency table includes PPP and Defensive PPP (Opponent PPP).
-
-## Defensive "Stops" & "Kills" Tracker
-**Priority:** HIGH
-**Type:** Feature
-**Why:** Coaches often preach "Stops" (3 consecutive defensive stands) as a key performance indicator. Tracking this in real-time provides a motivational tool and a defensive efficiency metric beyond raw points allowed.
-**What:** Add a "Stops" counter to the scoreboard. A "Stop" is defined as a defensive possession ending in a miss (without offensive rebound), turnover, or blocked shot. Three consecutive stops constitute a "Kill."
-**Acceptance Criteria:**
-- [ ] Visual counter for consecutive stops in `GameMode.tsx`.
-- [ ] Logic to detect "Kills" (3 stops in a row) and log them as a team event.
-- [ ] Summary of "Kills" in the Game Stats page.
-
-## Substitution Timeline Audit & Correction
-**Priority:** HIGH
-**Type:** UX
-**Why:** A single missed substitution ruins the accuracy of Minutes Played, Plus/Minus, and Lineup Efficiency for the entire remainder of the game.
-**What:** Create a dedicated "Timeline Audit" view that shows a vertical timeline of all substitutions. Allow the user to "Insert Missed Sub" at a specific clock time, which automatically updates subsequent on-court states.
-**Acceptance Criteria:**
-- [ ] Interface to view chronological list of all SUB_IN/SUB_OUT events.
-- [ ] Ability to edit the time of an existing sub or delete it.
-- [ ] "Insert Sub" feature that handles the logic of swapping players retroactively.
-
-## Detailed Foul Context (Shooting vs. Non-Shooting)
-**Priority:** HIGH
-**Type:** Feature
-**Why:** Not all fouls are equal. Knowing if a player is fouling on shot attempts (giving up FTs) versus "cheap" reach-in fouls helps coaches adjust defensive aggression.
-**What:** Update the Foul recording dialog to include a toggle for "Shooting" vs "Non-Shooting" and "Offensive" fouls.
-**Acceptance Criteria:**
-- [ ] Foul dialog includes type selection (Personal, Shooting, Offensive, Technical).
-- [ ] Offensive fouls correctly recorded as turnovers (as per basketball rules).
-- [ ] Box score displays "PF" with a drill-down or icon for shooting fouls committed.
-
-## End-of-Period Score & Foul Verification
-**Priority:** MEDIUM
-**Type:** UX
-**Why:** In official games, the scorekeeper must sync with the table/referees at each break. Discrepancies found at the end of the game are much harder to fix than at the end of a quarter.
-**What:** When a period ends (clock hits 0:00), trigger a "Period Review" modal. This forces the user to confirm the period score and team fouls against the official table before the next period can begin.
-**Acceptance Criteria:**
-- [ ] Automated trigger of review dialog when period clock expires.
-- [ ] Comparison view showing calculated score vs. "Official Score" input.
-- [ ] Ability to record a "Score Adjustment" event to reconcile differences.
-
-## Bench Production & Rotation Analytics
-**Priority:** MEDIUM
-**Type:** Enhancement
-**Why:** Coaches need to know if their bench is maintaining the lead or losing it. Comparing Starter vs. Bench efficiency (Net Rating, PPG) is a fundamental part of post-game rotation analysis.
-**What:** Update the `TeamStats` and `GameStats` pages to group players into "Starters" (those who started the 1st period) and "Bench." Calculate aggregate efficiency metrics for both groups.
-**Acceptance Criteria:**
-- [ ] Automatically tag players as "Starters" based on the first 5 players on court at the start of Game.
-- [ ] Display a "Starter vs Bench" breakdown in the Game Stats summary.
-- [ ] Track "Bench Points" as a distinct team stat.

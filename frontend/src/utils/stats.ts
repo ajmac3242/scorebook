@@ -98,10 +98,10 @@ export interface PlayerAggregates {
   makes: number;
   attempts: number;
   threePM: number;
-  fta: number;
   fgPct: string;
   efgPct: string;
   tsPct: string;
+  fta: number;
   plusMinus: number;
   min: number;
   fouls: number;
@@ -240,7 +240,7 @@ interface BaseStats {
   blocks: number;
   fouls: number;
   threePM?: number;
-  fta?: number;
+  fta: number;
 }
 
 /**
@@ -252,10 +252,10 @@ export const applyActionToAggregate = (agg: BaseStats, stat: StatEvent) => {
   switch (stat.type) {
     case ACTION_TYPES.MAKE:
       agg.points += stat.points || 0;
-      // 🏀 CoachBoard: Field Goal Tracking
-      // Why: Free throws (1pt) should not be counted as FGM or FGA.
+      // 🏀 CoachBoard: Field Goal & Free Throw Tracking
+      // Why: Free throws (1pt) are tracked via FTA, while others are FGA.
       if (stat.points === 1) {
-        if (agg.fta !== undefined) agg.fta++;
+        agg.fta++;
       } else {
         agg.makes++;
         agg.attempts++;
@@ -264,7 +264,7 @@ export const applyActionToAggregate = (agg: BaseStats, stat: StatEvent) => {
       break;
     case ACTION_TYPES.MISS:
       if (stat.points === 1) {
-        if (agg.fta !== undefined) agg.fta++;
+        agg.fta++;
       } else {
         agg.attempts++;
       }
@@ -297,6 +297,16 @@ export const applyActionToAggregate = (agg: BaseStats, stat: StatEvent) => {
       break;
   }
 };
+
+/**
+ * Updates a player's statistics based on a single statistical event.
+ * @param {PlayerAggregates} player - The player aggregate record.
+ * @param {StatEvent} stat - The statistical event to process.
+ */
+function processStatEvent(player: PlayerAggregates, stat: StatEvent) {
+  player.gamesPlayed.add(stat.gameId);
+  applyActionToAggregate(player, stat);
+}
 
 /**
  * Initializes a map of player aggregates with default values.
@@ -367,51 +377,27 @@ export const calculatePlayerAggregates = (
   stats: StatEvent[],
   teamPlayers: TeamPlayer[] = [],
   viewType: "total" | "average" = "total",
-  options: {
-    isSorted?: boolean;
-    periodLength?: number;
-    liveContext?: { clockTime: number; period: number };
-  } = {},
+  options: { isSorted?: boolean } = {},
 ): PlayerAggregates[] => {
   const statsMap = initializeStatsMap(players, teamPlayers);
-  const periodLen = options.periodLength ? options.periodLength * 60 : 600;
 
   // Track player stints for MIN and plus-minus
   const activeStints = new Map<
     string,
-    { startClock: number; startScoreDiff: number; lastGameId: string }
+    { startClock: number; startScoreDiff: number }
   >();
   // ⚡ Bolt: Use pre-sorted stats or sort them if needed.
   const sortedStats = options.isSorted ? stats : sortStats(stats);
 
   const scores = { team: 0, opp: 0 };
   let currentPeriod = 1;
-  let currentGameId: string | null = null;
 
   // Accumulate statistics from event stream
   for (let i = 0; i < sortedStats.length; i++) {
     const stat = sortedStats[i];
     if (stat.deletedAt) continue;
 
-    const { playerId, type, clockTime, period, gameId } = stat;
-
-    // Handle new game context
-    if (gameId !== currentGameId) {
-      // Close all active stints for the previous game
-      for (const [pId, stint] of activeStints.entries()) {
-        const playerAgg = statsMap.get(pId);
-        if (playerAgg) {
-          playerAgg.min += stint.startClock; // Assume ends at 0:00
-          playerAgg.plusMinus +=
-            scores.team - scores.opp - stint.startScoreDiff;
-        }
-      }
-      activeStints.clear();
-      scores.team = 0;
-      scores.opp = 0;
-      currentPeriod = 1;
-      currentGameId = gameId;
-    }
+    const { playerId, type, clockTime, period } = stat;
 
     // 🏀 CoachBoard: Handle period transitions for active stints
     // Why: Ensures minutes played and plus-minus are calculated correctly
@@ -425,8 +411,8 @@ export const calculatePlayerAggregates = (
           playerAgg.plusMinus +=
             scores.team - scores.opp - stint.startScoreDiff;
 
-          // Start new stint for the current period (assumed to start at full period)
-          stint.startClock = periodLen;
+          // Start new stint for the current period (assumed to start at 10 mins)
+          stint.startClock = 600;
           stint.startScoreDiff = scores.team - scores.opp;
         }
       }
@@ -448,53 +434,7 @@ export const calculatePlayerAggregates = (
 
     const player = statsMap.get(playerId);
     if (player) {
-      // ⚡ Bolt: Inline processStatEvent and applyActionToAggregate to minimize overhead.
-      player.gamesPlayed.add(stat.gameId);
-      switch (type) {
-        case ACTION_TYPES.MAKE:
-          player.points += stat.points || 0;
-          if (stat.points === 1) {
-            player.fta++;
-          } else {
-            player.makes++;
-            player.attempts++;
-          }
-          if (stat.points === 3) player.threePM++;
-          break;
-        case ACTION_TYPES.MISS:
-          if (stat.points === 1) {
-            player.fta++;
-          } else {
-            player.attempts++;
-          }
-          break;
-        case ACTION_TYPES.REBOUND:
-          player.rebounds++;
-          break;
-        case ACTION_TYPES.OFF_REBOUND:
-          player.offRebounds++;
-          player.rebounds++;
-          break;
-        case ACTION_TYPES.DEF_REBOUND:
-          player.defRebounds++;
-          player.rebounds++;
-          break;
-        case ACTION_TYPES.BLOCK:
-          player.blocks++;
-          break;
-        case ACTION_TYPES.ASSIST:
-          player.assists++;
-          break;
-        case ACTION_TYPES.STEAL:
-          player.steals++;
-          break;
-        case ACTION_TYPES.TURNOVER:
-          player.turnovers++;
-          break;
-        case ACTION_TYPES.FOUL:
-          player.fouls++;
-          break;
-      }
+      processStatEvent(player, stat);
     }
 
     // Handle Sub-In/Sub-Out for MIN and Plus-Minus
@@ -502,7 +442,6 @@ export const calculatePlayerAggregates = (
       activeStints.set(playerId, {
         startClock: clockTime,
         startScoreDiff: scores.team - scores.opp,
-        lastGameId: gameId,
       });
     } else if (type === ACTION_TYPES.SUB_OUT && clockTime !== undefined) {
       const stint = activeStints.get(playerId);
@@ -519,18 +458,10 @@ export const calculatePlayerAggregates = (
   }
 
   // Handle players still on court at end of game
-  const liveCtx = options.liveContext;
   for (const [pId, stint] of activeStints.entries()) {
     const playerAgg = statsMap.get(pId);
     if (playerAgg) {
-      // 🏀 CoachBoard: Accurate Live Minutes
-      // Why: If we have liveContext, stint ends at current clockTime.
-      // Otherwise, assume they played until the buzzer (0:00).
-      const endClock =
-        liveCtx && stint.lastGameId === stats[stats.length - 1]?.gameId
-          ? liveCtx.clockTime
-          : 0;
-      playerAgg.min += Math.max(0, stint.startClock - endClock);
+      playerAgg.min += stint.startClock; // Assuming game ends at 0:00
       playerAgg.plusMinus += scores.team - scores.opp - stint.startScoreDiff;
     }
   }
@@ -556,12 +487,10 @@ export const calculatePlayerAggregates = (
         : "0.0";
 
     // TS% = Points / (2 * (FGA + 0.44 * FTA))
-    const fta = player.fta || 0;
+    const tsDenominator = player.attempts + 0.44 * player.fta;
     player.tsPct =
-      player.attempts > 0 || fta > 0
-        ? formatToOne(
-            (player.points / (2 * (player.attempts + 0.44 * fta))) * 100,
-          )
+      tsDenominator > 0
+        ? formatToOne((player.points / (2 * tsDenominator)) * 100)
         : "0.0";
 
     if (isAverage) {
@@ -621,6 +550,7 @@ export const calculateDetailedOpponentAggregates = (
           makes: 0,
           attempts: 0,
           threePM: 0,
+      fta: 0,
           fgPct: "0.0",
           efgPct: "0.0",
           tsPct: "0.0",
@@ -646,9 +576,10 @@ export const calculateDetailedOpponentAggregates = (
             ((player.makes + 0.5 * player.threePM) / player.attempts) * 100,
           )
         : "0.0";
+    const tsDenominator = player.attempts + 0.44 * player.fta;
     player.tsPct =
-      player.attempts > 0
-        ? formatToOne((player.points / (2 * player.attempts)) * 100)
+      tsDenominator > 0
+        ? formatToOne((player.points / (2 * tsDenominator)) * 100)
         : "0.0";
     return player;
   });
@@ -758,6 +689,7 @@ export const calculateOpponentAggregates = (
     steals: 0,
     turnovers: 0,
     fouls: 0,
+    fta: 0,
   };
 
   for (let i = 0; i < stats.length; i++) {
@@ -938,116 +870,82 @@ const recordLineupStint = (
 
 export const calculateLineupStats = (
   stats: StatEvent[],
-  options: {
-    isSorted?: boolean;
-    periodLength?: number;
-    liveContext?: { clockTime: number; period: number };
-  } = {},
+  options: { isSorted?: boolean } = {},
 ): LineupAggregates[] => {
-  // ⚡ Bolt: Process events in a single pass to avoid grouping overhead.
-  const sortedStats = options.isSorted ? stats : sortStats(stats);
-  const lineupStats = new Map<string, LineupAggregates>();
-  const periodLen = options.periodLength ? options.periodLength * 60 : 600;
-
-  let currentLineup = new Set<string>();
-  let cachedLineupKey: string | null = null;
-  let lastClockTime = periodLen;
-  let lastTeamScore = 0;
-  let lastOppScore = 0;
-  let currentPeriod = 1;
-  let currentGameId: string | null = null;
-  const scores = { team: 0, opp: 0 };
-
-  for (let i = 0; i < sortedStats.length; i++) {
-    const s = sortedStats[i];
-    if (s.deletedAt) continue;
-
-    // ⚡ Bolt: Handle multi-game aggregation by detecting game context changes in-stream.
-    if (currentGameId !== null && s.gameId !== currentGameId) {
-      if (currentLineup.size === 5) {
-        if (!cachedLineupKey) cachedLineupKey = getLineupKey(currentLineup);
-        recordLineupStint(
-          lineupStats,
-          cachedLineupKey,
-          lastClockTime,
-          scores.team - lastTeamScore,
-          scores.opp - lastOppScore,
-        );
-      }
-      currentLineup.clear();
-      cachedLineupKey = null;
-      lastClockTime = periodLen;
-      lastTeamScore = 0;
-      lastOppScore = 0;
-      currentPeriod = 1;
-      scores.team = 0;
-      scores.opp = 0;
-    }
-    currentGameId = s.gameId;
-
-    // Handle period transition
-    if (s.period > currentPeriod) {
-      if (currentLineup.size === 5) {
-        if (!cachedLineupKey) cachedLineupKey = getLineupKey(currentLineup);
-        recordLineupStint(
-          lineupStats,
-          cachedLineupKey,
-          lastClockTime,
-          scores.team - lastTeamScore,
-          scores.opp - lastOppScore,
-        );
-      }
-      lastClockTime = periodLen;
-      lastTeamScore = scores.team;
-      lastOppScore = scores.opp;
-      currentPeriod = s.period;
-    }
-
-    // ⚡ Bolt: Inline updateScores for performance.
-    if (s.type === ACTION_TYPES.MAKE) {
-      const pts = s.points || 0;
-      if (s.playerId === SPECIAL_PLAYER_IDS.OPPONENT) scores.opp += pts;
-      else scores.team += pts;
-    }
-
-    // When lineup changes, record stats for the previous lineup
-    if (s.type === ACTION_TYPES.SUB_IN || s.type === ACTION_TYPES.SUB_OUT) {
-      if (currentLineup.size === 5 && s.clockTime !== undefined) {
-        if (!cachedLineupKey) cachedLineupKey = getLineupKey(currentLineup);
-        recordLineupStint(
-          lineupStats,
-          cachedLineupKey,
-          lastClockTime - s.clockTime,
-          scores.team - lastTeamScore,
-          scores.opp - lastOppScore,
-        );
-      }
-
-      if (s.type === ACTION_TYPES.SUB_IN) currentLineup.add(s.playerId);
-      else currentLineup.delete(s.playerId);
-      cachedLineupKey = null; // Invalidate lineup key cache
-
-      lastClockTime = s.clockTime || 0;
-      lastTeamScore = scores.team;
-      lastOppScore = scores.opp;
-    }
+  // Group stats by gameId to handle multi-game aggregation correctly
+  const statsByGame = new Map<string, StatEvent[]>();
+  for (const s of stats) {
+    if (!statsByGame.has(s.gameId)) statsByGame.set(s.gameId, []);
+    statsByGame.get(s.gameId)!.push(s);
   }
 
-  // Final stint
-  if (currentGameId !== null && currentLineup.size === 5) {
-    const liveCtx = options.liveContext;
-    const endClock =
-      liveCtx && currentGameId === sortedStats[sortedStats.length - 1]?.gameId
-        ? liveCtx.clockTime
-        : 0;
-    if (!cachedLineupKey) cachedLineupKey = getLineupKey(currentLineup);
-    recordLineupStint(
-      lineupStats,
-      cachedLineupKey,
-      Math.max(0, lastClockTime - endClock),
-      scores.team - lastTeamScore,
-      scores.opp - lastOppScore,
-    );
+  const lineupStats = new Map<string, LineupAggregates>();
+
+  for (const gameStats of statsByGame.values()) {
+    const sortedStats = options.isSorted ? gameStats : sortStats(gameStats);
+
+    let currentLineup = new Set<string>();
+    let lastClockTime = 600; // Default to start of P1
+    let lastTeamScore = 0;
+    let lastOppScore = 0;
+    let currentPeriod = 1;
+    const scores = { team: 0, opp: 0 };
+
+    for (let i = 0; i < sortedStats.length; i++) {
+      const s = sortedStats[i];
+      if (s.deletedAt) continue;
+
+      // Handle period transition
+      if (s.period > currentPeriod) {
+        if (currentLineup.size === 5) {
+          recordLineupStint(
+            lineupStats,
+            getLineupKey(currentLineup),
+            lastClockTime, // Time remaining in previous period
+            scores.team - lastTeamScore,
+            scores.opp - lastOppScore,
+          );
+        }
+        lastClockTime = 600; // Reset for new period
+        lastTeamScore = scores.team;
+        lastOppScore = scores.opp;
+        currentPeriod = s.period;
+      }
+
+      // Track score
+      updateScores(s, scores);
+
+      // When lineup changes, record stats for the previous lineup
+      if (s.type === ACTION_TYPES.SUB_IN || s.type === ACTION_TYPES.SUB_OUT) {
+        if (currentLineup.size === 5 && s.clockTime !== undefined) {
+          recordLineupStint(
+            lineupStats,
+            getLineupKey(currentLineup),
+            lastClockTime - s.clockTime,
+            scores.team - lastTeamScore,
+            scores.opp - lastOppScore,
+          );
+        }
+
+        if (s.type === ACTION_TYPES.SUB_IN) currentLineup.add(s.playerId);
+        else currentLineup.delete(s.playerId);
+
+        lastClockTime = s.clockTime || 0;
+        lastTeamScore = scores.team;
+        lastOppScore = scores.opp;
+      }
+    }
+
+    // Final stint for this game
+    if (currentLineup.size === 5) {
+      recordLineupStint(
+        lineupStats,
+        getLineupKey(currentLineup),
+        lastClockTime,
+        scores.team - lastTeamScore,
+        scores.opp - lastOppScore,
+      );
+    }
   }
 
   return Array.from(lineupStats.values())
@@ -1093,7 +991,7 @@ export const calculatePlayerStreaks = (
     // We only track streaks for field goal attempts
     if (s.type === ACTION_TYPES.MAKE || s.type === ACTION_TYPES.MISS) {
       // Skip free throws (points === 1) for field goal streaks
-      if (s.points === 1) continue;
+      if (s.type === ACTION_TYPES.MAKE && s.points === 1) continue;
 
       const pId = s.playerId;
       let history = playerStreaks.get(pId);

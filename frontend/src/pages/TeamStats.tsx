@@ -222,16 +222,16 @@ const TeamStats: React.FC = () => {
     [games, allStats],
   );
 
-  const aggregatedStats = useMemo(() => {
-    // 🏀 CoachBoard: Team-wide aggregation defaults to average period lengths
-    // since multiple games may be involved.
-    return calculatePlayerAggregates(
-      teamPlayerDetails,
-      allStats as StatEvent[],
-      teamPlayers,
-      statView,
-    );
-  }, [teamPlayerDetails, allStats, teamPlayers, statView]);
+  const aggregatedStats = useMemo(
+    () =>
+      calculatePlayerAggregates(
+        teamPlayerDetails,
+        allStats as StatEvent[],
+        teamPlayers,
+        statView,
+      ),
+    [teamPlayerDetails, allStats, teamPlayers, statView],
+  );
 
   const lineupStats = useMemo(
     () => calculateLineupStats(allStats as StatEvent[]),
