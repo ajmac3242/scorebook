@@ -1457,6 +1457,19 @@ const GameMode: React.FC = () => {
     }
   }, [gameId, teamId, navigate]);
 
+  const handleToggleClock = useCallback(() => {
+    setIsClockRunning((prev) => {
+      const next = !prev;
+      if (gameId) {
+        db.games.update(gameId, {
+          clockTime: clockSecondsRef.current,
+          synced: 0,
+        });
+      }
+      return next;
+    });
+  }, [gameId]);
+
   const handleResetClock = useCallback(async () => {
     if (!gameId || isReadOnly) return;
     const defaultMins = periodType === "QUARTERS" ? 10 : 20;
@@ -1626,18 +1639,7 @@ const GameMode: React.FC = () => {
             isReadOnly={isReadOnly}
             clockSeconds={clockSeconds}
             isClockRunning={isClockRunning}
-            onToggleClock={useCallback(() => {
-              setIsClockRunning((prev) => {
-                const next = !prev;
-                if (gameId) {
-                  db.games.update(gameId, {
-                    clockTime: clockSecondsRef.current,
-                    synced: 0,
-                  });
-                }
-                return next;
-              });
-            }, [gameId])}
+            onToggleClock={handleToggleClock}
             onResetClock={handleResetClock}
           />
 
