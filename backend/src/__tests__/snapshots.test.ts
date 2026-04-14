@@ -80,14 +80,15 @@ describe("Snapshot Generation Logic", () => {
   });
 
   it("generates correct game stats snapshot with calculated results", async () => {
+    const gameId = "277e909a-6536-4d2d-937e-f608759556fa";
     ddbMock.on(UpdateCommand).resolves({});
     ddbMock.on(GetCommand).resolves({
       Item: {
-        id: "g1",
-        teamId: "t1",
+        id: gameId,
+        teamId: "277e909a-6536-4d2d-937e-f608759556fb",
         opponent: "Opponent",
-        PK: "GAME#g1",
-        SK: "METADATA#g1",
+        PK: `GAME#${gameId}`,
+        SK: `METADATA#${gameId}`,
       },
     });
     ddbMock.on(QueryCommand).resolves({
@@ -99,12 +100,12 @@ describe("Snapshot Generation Logic", () => {
     });
     s3Mock.on(PutObjectCommand).resolves({});
 
-    const event = createEvent("POST", "/games/g1/complete");
+    const event = createEvent("POST", `/games/${gameId}/complete`);
     await handler(event);
 
     const s3Calls = s3Mock.commandCalls(PutObjectCommand);
     const statsCall = s3Calls.find(
-      (c) => (c.args[0].input as any).Key === "games/g1/stats.json",
+      (c) => (c.args[0].input as any).Key === `games/${gameId}/stats.json`,
     );
 
     expect(statsCall).toBeDefined();
@@ -119,19 +120,20 @@ describe("Snapshot Generation Logic", () => {
   });
 
   it("handles empty stats in game snapshot", async () => {
+    const gameId = "277e909a-6536-4d2d-937e-f608759556fa";
     ddbMock.on(UpdateCommand).resolves({});
     ddbMock.on(GetCommand).resolves({
-      Item: { id: "g1", teamId: "t1", opponent: "Opponent" },
+      Item: { id: gameId, teamId: "277e909a-6536-4d2d-937e-f608759556fb", opponent: "Opponent" },
     });
     ddbMock.on(QueryCommand).resolves({ Items: [] });
     s3Mock.on(PutObjectCommand).resolves({});
 
-    const event = createEvent("POST", "/games/g1/complete");
+    const event = createEvent("POST", `/games/${gameId}/complete`);
     await handler(event);
 
     const s3Calls = s3Mock.commandCalls(PutObjectCommand);
     const statsCall = s3Calls.find(
-      (c) => (c.args[0].input as any).Key === "games/g1/stats.json",
+      (c) => (c.args[0].input as any).Key === `games/${gameId}/stats.json`,
     );
     const body = JSON.parse((statsCall!.args[0].input as any).Body);
 
