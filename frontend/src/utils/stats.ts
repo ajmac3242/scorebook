@@ -550,7 +550,7 @@ export const calculateDetailedOpponentAggregates = (
           makes: 0,
           attempts: 0,
           threePM: 0,
-      fta: 0,
+          fta: 0,
           fgPct: "0.0",
           efgPct: "0.0",
           tsPct: "0.0",

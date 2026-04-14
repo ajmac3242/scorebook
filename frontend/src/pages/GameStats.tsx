@@ -792,9 +792,7 @@ const GameStats: React.FC = () => {
               Our Team (All)
             </MenuItem>
             {players
-              .filter((p) =>
-                teamPlayers.some((tp) => tp.playerId === p.id),
-              )
+              .filter((p) => teamPlayers.some((tp) => tp.playerId === p.id))
               .map((p) => (
                 <MenuItem key={p.id} value={p.id}>
                   {p.name}
