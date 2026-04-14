@@ -892,7 +892,9 @@ export const calculateLineupStats = (
     if (currentLineup.size === 5) {
       const liveCtx = options.liveContext;
       const endClock =
-        liveCtx && gameId === stats[stats.length - 1]?.gameId ? liveCtx.clockTime : 0;
+        liveCtx && gameId === stats[stats.length - 1]?.gameId
+          ? liveCtx.clockTime
+          : 0;
       recordLineupStint(
         lineupStats,
         getLineupKey(currentLineup),
