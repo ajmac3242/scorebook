@@ -18,8 +18,14 @@ import {
   Snackbar,
   Alert,
   Tooltip,
+  IconButton,
 } from "@mui/material";
-import { Add as AddIcon, Groups as TeamsIcon } from "@mui/icons-material";
+import {
+  Add as AddIcon,
+  Groups as TeamsIcon,
+  Star as StarIcon,
+  StarBorder as StarBorderIcon,
+} from "@mui/icons-material";
 import { db, type Team, type StatEvent } from "../db";
 import { syncService } from "../utils/syncService";
 import { useNavigate } from "react-router-dom";
@@ -166,6 +172,41 @@ const Teams: React.FC = () => {
     }
     return results;
   }, [teams, allGames, allStats]);
+
+  /**
+   * Toggles the favorite status of a team.
+   * Ensures only one team can be marked as favorite at a time.
+   * @param {string} teamId - The ID of the team to toggle.
+   * @param {number} currentFavorite - Current favorite status (0 or 1).
+   */
+  const handleToggleFavorite = async (
+    teamId: string,
+    currentFavorite: number,
+    e: React.MouseEvent,
+  ) => {
+    e.stopPropagation();
+    try {
+      await db.open();
+      if (!currentFavorite) {
+        // We are marking this team as favorite. Unmark all others.
+        const allFavorites = await db.teams
+          .where("isFavorite")
+          .equals(1)
+          .toArray();
+        for (const f of allFavorites) {
+          if (f.id !== teamId) {
+            await db.teams.update(f.id!, { isFavorite: 0, synced: 0 });
+          }
+        }
+        await db.teams.update(teamId, { isFavorite: 1, synced: 0 });
+      } else {
+        await db.teams.update(teamId, { isFavorite: 0, synced: 0 });
+      }
+      await syncService.pushUpdates();
+    } catch (err) {
+      logger.error("Failed to toggle favorite team", err, { teamId });
+    }
+  };
 
   /**
    * Handles adding a new team to the database.
@@ -321,14 +362,8 @@ const Teams: React.FC = () => {
                       }}
                     >
                       <Box>
-                        <Typography
-                          variant="h5"
-                          sx={{
-                            fontFamily: "var(--serif)",
-                            fontWeight: 700,
-                            mb: 0.5,
-                            color: "inherit",
-                          }}
+                        <Box
+                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
                         >
                           <Typography
                             variant="h5"

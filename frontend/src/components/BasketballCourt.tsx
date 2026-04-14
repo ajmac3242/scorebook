@@ -330,13 +330,14 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
             const svgY = (marker.y / 100) * 470;
 
             return (
-              <g
+              <Box
+                component="g"
                 key={marker.id || index}
-                onClick={(e) => {
+                onClick={(e: React.MouseEvent<SVGGElement>) => {
                   e.stopPropagation();
                   if (onMarkerClick) onMarkerClick(marker);
                 }}
-                onKeyDown={(e) => {
+                onKeyDown={(e: React.KeyboardEvent<SVGGElement>) => {
                   if (e.key === "Enter" || e.key === " ") {
                     e.stopPropagation();
                     if (onMarkerClick) onMarkerClick(marker);
@@ -377,7 +378,7 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
                     {marker.label}
                   </text>
                 )}
-              </g>
+              </Box>
             );
           })}
         </svg>
