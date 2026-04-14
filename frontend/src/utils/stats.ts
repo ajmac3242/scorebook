@@ -253,7 +253,12 @@ export const getBonusStatus = (
   const config = BONUS_CONFIG[periodType] || BONUS_CONFIG.QUARTERS;
 
   if (fouls >= config.double) {
-    return { label: "BONUS", isBonus: true, isDouble: true, color: "error.main" };
+    return {
+      label: "BONUS",
+      isBonus: true,
+      isDouble: true,
+      color: "error.main",
+    };
   }
   if (fouls >= config.single) {
     return {
@@ -264,7 +269,12 @@ export const getBonusStatus = (
     };
   }
   if (fouls === config.warning) {
-    return { label: "", isBonus: false, isDouble: false, color: "warning.main" };
+    return {
+      label: "",
+      isBonus: false,
+      isDouble: false,
+      color: "warning.main",
+    };
   }
   return { label: "", isBonus: false, isDouble: false, color: "default" };
 };

@@ -335,7 +335,11 @@ async function handleGames(
     }
   }
 
-  if (path.startsWith("/games/") && path.endsWith("/complete") && method === "POST") {
+  if (
+    path.startsWith("/games/") &&
+    path.endsWith("/complete") &&
+    method === "POST"
+  ) {
     const parts = path.split("/");
     if (parts.length !== 4) return null;
     const gameId = parts[2];
