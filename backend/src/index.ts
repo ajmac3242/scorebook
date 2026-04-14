@@ -65,6 +65,8 @@ const VALID_ACTION_TYPES = new Set([
   "TURNOVER",
   "BLOCK",
   "FOUL",
+  "FOUL_SHOOTING",
+  "FOUL_NON_SHOOTING",
   "TIMEOUT",
   "SUB_IN",
   "SUB_OUT",
@@ -1018,18 +1020,34 @@ async function snapshotGameStats(gameId: string, tableName: string) {
  * @param {Record<string, unknown>[]} stats - List of stat events.
  * @returns {{teamScore: number, oppScore: number}} Object containing teamScore and oppScore.
  */
+/**
+ * Accumulates the total score for both teams from a list of stat events.
+ * 🏀 CoachBoard: Field Goal Tracking
+ * Why: Free throws (points: 1) are always counted as 1 point ONLY if the type is MAKE.
+ * A MISS with points: 1 (used for FTA tracking) should NOT increment the score.
+ *
+ * @param {Record<string, unknown>[]} stats - List of statistical events.
+ * @returns {object} Total scores for Team and Opponent.
+ */
 function accumulateScores(stats: Record<string, unknown>[]) {
   let teamScore = 0;
   let oppScore = 0;
   for (let i = 0; i < stats.length; i++) {
     const s = stats[i];
+    if (s.deletedAt) continue;
+
+    // Only increment score for MAKE events.
+    if (s.type !== "MAKE") continue;
+
+    const pts = (s.points as number) || 0;
+
     if (
       typeof s.playerId === "string" &&
       s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT)
     ) {
-      oppScore += (s.points as number) || 0;
+      oppScore += pts;
     } else {
-      teamScore += (s.points as number) || 0;
+      teamScore += pts;
     }
   }
   return { teamScore, oppScore };

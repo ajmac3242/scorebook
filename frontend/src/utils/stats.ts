@@ -367,6 +367,8 @@ export const applyActionToAggregate = (agg: BaseStats, stat: StatEvent) => {
       agg.turnovers++;
       break;
     case ACTION_TYPES.FOUL:
+    case ACTION_TYPES.FOUL_SHOOTING:
+    case ACTION_TYPES.FOUL_NON_SHOOTING:
       agg.fouls++;
       break;
   }
@@ -553,6 +555,8 @@ export const calculatePlayerAggregates = (
           player.turnovers++;
           break;
         case ACTION_TYPES.FOUL:
+        case ACTION_TYPES.FOUL_SHOOTING:
+        case ACTION_TYPES.FOUL_NON_SHOOTING:
           player.fouls++;
           break;
       }
@@ -620,6 +624,82 @@ export const calculatePlayerAggregates = (
     result.push(player);
   }
   return result;
+};
+
+/**
+ * 🏀 CoachBoard: calculateStopsAndKills
+ *
+ * WHY: Defensive momentum is often measured in "Stops" (defensive possessions
+ * without an opponent score) and "Kills" (3 consecutive stops).
+ * This metric helps motivate defensive intensity and identifies defensive runs.
+ *
+ * @param {StatEvent[]} stats - Chronological list of statistical events for the game.
+ * @returns {object} Object containing total stops, kills, and current stop streak.
+ */
+export const calculateStopsAndKills = (stats: StatEvent[]) => {
+  let totalStops = 0;
+  let totalKills = 0;
+  let currentStreak = 0;
+
+  // Use a single pass over sorted stats
+  for (let i = 0; i < stats.length; i++) {
+    const s = stats[i];
+    if (!isActive(s)) continue;
+
+    const isOpp = isOpponentId(s.playerId);
+
+    // If opponent scores, the streak is broken immediately.
+    if (isOpp && isScoringEvent(s)) {
+      currentStreak = 0;
+      continue;
+    }
+
+    // A Stop is earned on an Opponent Turnover.
+    if (isOpp && s.type === ACTION_TYPES.TURNOVER) {
+      totalStops++;
+      currentStreak++;
+    }
+
+    // A Stop is earned on an Opponent Miss followed by our Defensive Rebound.
+    if (isOpp && s.type === ACTION_TYPES.MISS) {
+      // Look ahead for the rebound event
+      let stopEarned = false;
+      for (let j = i + 1; j < stats.length; j++) {
+        const next = stats[j];
+        if (!isActive(next)) continue;
+
+        // Opponent got their own rebound (Offensive) -> Possession continues
+        if (next.type === ACTION_TYPES.OFF_REBOUND && isOpponentId(next.playerId)) {
+          break;
+        }
+
+        // We got the defensive rebound -> Stop!
+        if (
+          (next.type === ACTION_TYPES.DEF_REBOUND || next.type === ACTION_TYPES.REBOUND) &&
+          !isOpponentId(next.playerId)
+        ) {
+          stopEarned = true;
+          break;
+        }
+
+        // Any scoring event breaks the chain
+        if (isScoringEvent(next)) break;
+      }
+
+      if (stopEarned) {
+        totalStops++;
+        currentStreak++;
+      }
+    }
+
+    // Check for "Kill" (3 consecutive stops)
+    if (currentStreak >= 3) {
+      totalKills++;
+      currentStreak = 0; // Reset streak for the next set of 3
+    }
+  }
+
+  return { totalStops, totalKills, currentStreak };
 };
 
 /**
