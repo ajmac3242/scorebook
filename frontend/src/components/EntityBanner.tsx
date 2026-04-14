@@ -80,9 +80,19 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
         transition: "background-color 0.3s ease",
       }}
     >
-      <Tooltip title={backTo ? `Back to ${backTo.split("/").pop() || "Previous Page"}` : "Go Back"}>
+      <Tooltip
+        title={
+          backTo
+            ? `Back to ${backTo.split("/").pop() || "Previous Page"}`
+            : "Go Back"
+        }
+      >
         <IconButton
-          aria-label={backTo ? `Back to ${backTo.split("/").pop() || "previous page"}` : "go back"}
+          aria-label={
+            backTo
+              ? `Back to ${backTo.split("/").pop() || "previous page"}`
+              : "go back"
+          }
           onClick={() => (backTo ? navigate(backTo) : navigate(-1))}
           sx={{
             position: "absolute",

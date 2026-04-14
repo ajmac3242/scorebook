@@ -408,7 +408,10 @@ const Players: React.FC = () => {
                   borderRadius: "50%",
                   bgcolor: color,
                   cursor: "pointer",
-                  border: avatarColor === color ? "3px solid #000" : "1px solid rgba(0,0,0,0.1)",
+                  border:
+                    avatarColor === color
+                      ? "3px solid #000"
+                      : "1px solid rgba(0,0,0,0.1)",
                   boxSizing: "border-box",
                   transition: "all 0.1s",
                   "&:hover": { transform: "scale(1.2)" },
