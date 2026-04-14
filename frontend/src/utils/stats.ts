@@ -212,7 +212,10 @@ export const updateScores = (
 ) => {
   if (stat.type === ACTION_TYPES.MAKE) {
     const points = stat.points || 0;
-    if (stat.playerId === SPECIAL_PLAYER_IDS.OPPONENT) {
+    if (
+      stat.playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
+      stat.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT_PREFIX)
+    ) {
       scores.opp += points;
     } else {
       scores.team += points;
@@ -410,7 +413,10 @@ export const calculatePlayerAggregates = (
     // ⚡ Bolt: Inline updateScores to minimize function call overhead in hot loop.
     if (type === ACTION_TYPES.MAKE) {
       const pts = stat.points || 0;
-      if (playerId === SPECIAL_PLAYER_IDS.OPPONENT) {
+      if (
+        playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
+        playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT_PREFIX)
+      ) {
         scores.opp += pts;
       } else {
         scores.team += pts;
@@ -500,6 +506,76 @@ export const calculatePlayerAggregates = (
 };
 
 /**
+ * Calculates aggregated statistics for specific opponent players.
+ *
+ * @param {StatEvent[]} stats - List of statistical events for the game.
+ * @returns {PlayerAggregates[]} Array of opponent player aggregates.
+ */
+export const calculateDetailedOpponentAggregates = (
+  stats: StatEvent[],
+): PlayerAggregates[] => {
+  const oppStatsMap = new Map<string, PlayerAggregates>();
+
+  for (let i = 0; i < stats.length; i++) {
+    const s = stats[i];
+    if (s.deletedAt) continue;
+
+    if (s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT_PREFIX)) {
+      const jersey = s.playerId.replace(SPECIAL_PLAYER_IDS.OPPONENT_PREFIX, "");
+      let agg = oppStatsMap.get(s.playerId);
+
+      if (!agg) {
+        agg = {
+          id: s.playerId,
+          name: `Opponent #${jersey}`,
+          jerseyNumber: jersey,
+          gamesPlayed: new Set([s.gameId]),
+          gp: 1,
+          points: 0,
+          rebounds: 0,
+          assists: 0,
+          steals: 0,
+          turnovers: 0,
+          blocks: 0,
+          offRebounds: 0,
+          defRebounds: 0,
+          makes: 0,
+          attempts: 0,
+          threePM: 0,
+          fgPct: "0.0",
+          efgPct: "0.0",
+          tsPct: "0.0",
+          plusMinus: 0,
+          min: 0,
+          fouls: 0,
+        };
+        oppStatsMap.set(s.playerId, agg);
+      }
+
+      applyActionToAggregate(agg, s);
+    }
+  }
+
+  return Array.from(oppStatsMap.values()).map((player) => {
+    player.fgPct =
+      player.attempts > 0
+        ? formatToOne((player.makes / player.attempts) * 100)
+        : "0.0";
+    player.efgPct =
+      player.attempts > 0
+        ? formatToOne(
+            ((player.makes + 0.5 * player.threePM) / player.attempts) * 100,
+          )
+        : "0.0";
+    player.tsPct =
+      player.attempts > 0
+        ? formatToOne((player.points / (2 * player.attempts)) * 100)
+        : "0.0";
+    return player;
+  });
+};
+
+/**
  * Calculates aggregated team statistics (PPG, RPG, etc.) and W/L record.
  *
  * This function iterates through games, calculates results for each game
@@ -541,7 +617,9 @@ export const calculateTeamAggregates = (
     const totals = gameTotals.get(stat.gameId);
     if (!totals) continue;
 
-    const isOpponent = stat.playerId === SPECIAL_PLAYER_IDS.OPPONENT;
+    const isOpponent =
+      stat.playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
+      stat.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT_PREFIX);
     const pts = stat.type === ACTION_TYPES.MAKE ? stat.points || 0 : 0;
     updateScores(stat, totals);
 
@@ -605,7 +683,11 @@ export const calculateOpponentAggregates = (
 
   for (let i = 0; i < stats.length; i++) {
     const stat = stats[i];
-    if (stat.deletedAt || stat.playerId !== SPECIAL_PLAYER_IDS.OPPONENT)
+    if (
+      stat.deletedAt ||
+      (stat.playerId !== SPECIAL_PLAYER_IDS.OPPONENT &&
+        !stat.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT_PREFIX))
+    )
       continue;
 
     applyActionToAggregate(agg, stat);
@@ -638,7 +720,10 @@ export const calculateScoreFlow = (stats: StatEvent[]): ScoreFlowPoint[] => {
 
     // ⚡ Bolt: Inline updateScores logic to improve performance in this hot path.
     const pts = stat.points || 0;
-    if (stat.playerId === SPECIAL_PLAYER_IDS.OPPONENT) {
+    if (
+      stat.playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
+      stat.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT_PREFIX)
+    ) {
       scores.opp += pts;
     } else {
       scores.team += pts;

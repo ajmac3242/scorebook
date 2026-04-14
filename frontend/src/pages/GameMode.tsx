@@ -144,6 +144,8 @@ interface ScoreboardProps {
   maxPeriod: number;
   onQuickAction?: (_type: string, _points?: number) => void;
   isReadOnly: boolean;
+  selectedOpponentId?: string | null;
+  onSelectOpponent?: (_id: string | null) => void;
 }
 
 const Scoreboard = React.memo(
@@ -160,6 +162,8 @@ const Scoreboard = React.memo(
     onToggleClock,
     onResetClock,
     isClockRunning,
+    selectedOpponentId,
+    onSelectOpponent,
   }: ScoreboardProps & {
     clockSeconds: number;
     onToggleClock: () => void;
@@ -588,6 +592,52 @@ const Scoreboard = React.memo(
           game?.opponentLogoUrl,
           true,
         )}
+
+        {/* 🏀 CoachBoard: Opponent Jersey Tracking
+          Why: Allows quick selection of tracked opponents for individual stats. */}
+        <Box
+          sx={{
+            position: "absolute",
+            bottom: 8,
+            right: 16,
+            display: "flex",
+            gap: 0.5,
+            alignItems: "center",
+          }}
+        >
+          {game?.opponentRoster?.map((jersey) => (
+            <Chip
+              key={jersey}
+              label={`#${jersey}`}
+              size="small"
+              onClick={() =>
+                onSelectOpponent?.(SPECIAL_PLAYER_IDS.OPPONENT_PREFIX + jersey)
+              }
+              onDelete={
+                selectedOpponentId ===
+                SPECIAL_PLAYER_IDS.OPPONENT_PREFIX + jersey
+                  ? () => onSelectOpponent?.(null)
+                  : undefined
+              }
+              color={
+                selectedOpponentId ===
+                SPECIAL_PLAYER_IDS.OPPONENT_PREFIX + jersey
+                  ? "secondary"
+                  : "default"
+              }
+              sx={{
+                height: 20,
+                fontSize: "0.6rem",
+                bgcolor:
+                  selectedOpponentId ===
+                  SPECIAL_PLAYER_IDS.OPPONENT_PREFIX + jersey
+                    ? "secondary.main"
+                    : "rgba(255,255,255,0.1)",
+                color: "white",
+              }}
+            />
+          ))}
+        </Box>
       </Box>
     );
   },
@@ -792,6 +842,11 @@ const GameMode: React.FC = () => {
   );
   const [selectedSwapId, setSelectedSwapId] = useState<string | null>(null);
 
+  const [opponentRoster, setOpponentRoster] = useState<string[]>([]);
+  const [selectedOpponentId, setSelectedOpponentId] = useState<string | null>(
+    null,
+  );
+
   const [period, setPeriod] = useState<number>(1);
   const [trackingMode, setTrackingMode] = useState<"TEAM" | "OPPONENT">("TEAM");
 
@@ -840,10 +895,14 @@ const GameMode: React.FC = () => {
       // Default to periodLength if set, otherwise 10 mins (600s)
       setClockSeconds(game?.periodLength ? game.periodLength * 60 : 600);
     }
+    if (game?.opponentRoster) {
+      setOpponentRoster(game.opponentRoster);
+    }
   }, [
     game?.currentPeriod,
     game?.clockTime,
     game?.periodLength,
+    game?.opponentRoster,
     period,
     isClockRunning,
     clockSeconds,
@@ -1189,14 +1248,19 @@ const GameMode: React.FC = () => {
   const handleSaveStat = useCallback(
     async (currentType?: string) => {
       const typeToSave = currentType || statType;
-      if (!selectedPlayerId || !typeToSave) return;
+      const targetPlayerId =
+        trackingMode === "OPPONENT"
+          ? selectedOpponentId || SPECIAL_PLAYER_IDS.OPPONENT
+          : selectedPlayerId;
+
+      if (!targetPlayerId || !typeToSave) return;
 
       try {
         if (!gameId) return;
         await db.open();
         if (isEditing && editingStatId) {
           await db.stats.update(editingStatId, {
-            playerId: selectedPlayerId!,
+            playerId: targetPlayerId,
             type: typeToSave,
             points: typeToSave === ACTION_TYPES.MAKE ? points : 0,
             synced: 0,
@@ -1206,7 +1270,7 @@ const GameMode: React.FC = () => {
           const newStat: StatEvent = {
             id: crypto.randomUUID(),
             gameId: gameId,
-            playerId: selectedPlayerId!,
+            playerId: targetPlayerId,
             type: typeToSave,
             points: typeToSave === ACTION_TYPES.MAKE ? points : 0,
             locationX: selectedX || 0,
@@ -1517,12 +1581,14 @@ const GameMode: React.FC = () => {
     async (type: string, pts: number = 0) => {
       if (!gameId || isReadOnly) return;
 
+      const targetPlayerId = selectedOpponentId || SPECIAL_PLAYER_IDS.OPPONENT;
+
       try {
         await db.open();
         await db.stats.add({
           id: crypto.randomUUID(),
           gameId: gameId,
-          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          playerId: targetPlayerId,
           type: type,
           points: pts,
           locationX: 50,
@@ -1603,6 +1669,8 @@ const GameMode: React.FC = () => {
             isReadOnly={isReadOnly}
             clockSeconds={clockSeconds}
             isClockRunning={isClockRunning}
+            selectedOpponentId={selectedOpponentId}
+            onSelectOpponent={setSelectedOpponentId}
             onToggleClock={() => {
               const nextRunning = !isClockRunning;
               setIsClockRunning(nextRunning);
@@ -2086,6 +2154,71 @@ const GameMode: React.FC = () => {
           </Typography>
         </DialogTitle>
         <DialogContent>
+          {trackingMode === "OPPONENT" && !isEditing && (
+            <Box sx={{ mb: 3 }}>
+              <Typography
+                variant="caption"
+                gutterBottom
+                sx={{ display: "block", mb: 1, fontWeight: 600 }}
+              >
+                Select Opponent Jersey
+              </Typography>
+              <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+                <Button
+                  variant={
+                    selectedOpponentId === null ? "contained" : "outlined"
+                  }
+                  size="small"
+                  onClick={() => setSelectedOpponentId(null)}
+                >
+                  General
+                </Button>
+                {opponentRoster.map((jersey) => (
+                  <Button
+                    key={jersey}
+                    variant={
+                      selectedOpponentId ===
+                      SPECIAL_PLAYER_IDS.OPPONENT_PREFIX + jersey
+                        ? "contained"
+                        : "outlined"
+                    }
+                    size="small"
+                    onClick={() =>
+                      setSelectedOpponentId(
+                        SPECIAL_PLAYER_IDS.OPPONENT_PREFIX + jersey,
+                      )
+                    }
+                    color="secondary"
+                  >
+                    #{jersey}
+                  </Button>
+                ))}
+                <IconButton
+                  size="small"
+                  color="primary"
+                  onClick={async () => {
+                    const jersey = window.prompt(
+                      "Enter Opponent Jersey Number:",
+                    );
+                    if (jersey && !opponentRoster.includes(jersey)) {
+                      const newRoster = [...opponentRoster, jersey];
+                      setOpponentRoster(newRoster);
+                      if (gameId) {
+                        await db.games.update(gameId, {
+                          opponentRoster: newRoster,
+                        });
+                      }
+                      setSelectedOpponentId(
+                        SPECIAL_PLAYER_IDS.OPPONENT_PREFIX + jersey,
+                      );
+                    }
+                  }}
+                >
+                  <Edit sx={{ fontSize: 18 }} />
+                </IconButton>
+              </Box>
+            </Box>
+          )}
           {trackingMode === "TEAM" && !isEditing && (
             <Box sx={{ mb: 3 }}>
               <Typography
@@ -2329,7 +2462,9 @@ const GameMode: React.FC = () => {
           <Button
             onClick={() => handleSaveStat()}
             variant="contained"
-            disabled={!selectedPlayerId || !statType}
+            disabled={
+              (trackingMode === "TEAM" && !selectedPlayerId) || !statType
+            }
           >
             {isEditing ? "Update" : "Save"}
           </Button>

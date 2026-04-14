@@ -46,6 +46,7 @@ import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../constants/stats";
 import {
   calculatePlayerAggregates,
   calculateOpponentAggregates,
+  calculateDetailedOpponentAggregates,
   calculateScoreFlow,
   calculateLineupStats,
 } from "../utils/stats";
@@ -247,8 +248,21 @@ const GameStats: React.FC = () => {
     const markers = [];
     for (let i = 0; i < stats.length; i++) {
       const s = stats[i];
-      const playerMatch =
-        selectedPlayerId === "ALL" || s.playerId === selectedPlayerId;
+      let playerMatch = false;
+      if (selectedPlayerId === "ALL") {
+        playerMatch = true;
+      } else if (selectedPlayerId === "TEAM_ALL") {
+        playerMatch =
+          s.playerId !== SPECIAL_PLAYER_IDS.OPPONENT &&
+          !s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT_PREFIX);
+      } else if (selectedPlayerId === "OPP_ALL") {
+        playerMatch =
+          s.playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
+          s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT_PREFIX);
+      } else {
+        playerMatch = s.playerId === selectedPlayerId;
+      }
+
       const typeMatch = selectedType === "ALL" || s.type === selectedType;
       if (playerMatch && typeMatch) {
         filtered.push(s);
@@ -295,6 +309,10 @@ const GameStats: React.FC = () => {
 
   const oppData = useMemo(() => {
     return calculateOpponentAggregates(stats);
+  }, [stats]);
+
+  const detailedOpponentStats = useMemo(() => {
+    return calculateDetailedOpponentAggregates(stats);
   }, [stats]);
 
   const lineupStats = useMemo(() => {
@@ -600,8 +618,91 @@ const GameStats: React.FC = () => {
               </TableCell>
             </TableRow>
           ))}
+          {detailedOpponentStats.map((row) => (
+            <TableRow key={row.id}>
+              <TableCell
+                sx={{
+                  fontWeight: 600,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                }}
+              >
+                <Avatar
+                  sx={{
+                    width: 24,
+                    height: 24,
+                    fontSize: "0.75rem",
+                    bgcolor: "secondary.main",
+                  }}
+                >
+                  {row.jerseyNumber}
+                </Avatar>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    fontWeight: 600,
+                    fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                  }}
+                >
+                  {row.name}
+                </Typography>
+              </TableCell>
+              <TableCell align="right">-</TableCell>
+              <TableCell align="right">{row.points}</TableCell>
+              <TableCell align="right">
+                {row.makes}-{row.attempts}
+              </TableCell>
+              <TableCell
+                align="right"
+                sx={{ display: { xs: "none", sm: "table-cell" } }}
+              >
+                {row.fgPct}%
+              </TableCell>
+              <TableCell
+                align="right"
+                sx={{ display: { xs: "none", sm: "table-cell" } }}
+              >
+                {row.efgPct}%
+              </TableCell>
+              <TableCell
+                align="right"
+                sx={{ display: { xs: "none", sm: "table-cell" } }}
+              >
+                {row.offRebounds}
+              </TableCell>
+              <TableCell
+                align="right"
+                sx={{ display: { xs: "none", sm: "table-cell" } }}
+              >
+                {row.defRebounds}
+              </TableCell>
+              <TableCell align="right">{row.rebounds}</TableCell>
+              <TableCell align="right">{row.assists}</TableCell>
+              <TableCell
+                align="right"
+                sx={{ display: { xs: "none", sm: "table-cell" } }}
+              >
+                {row.steals}
+              </TableCell>
+              <TableCell
+                align="right"
+                sx={{ display: { xs: "none", sm: "table-cell" } }}
+              >
+                {row.blocks}
+              </TableCell>
+              <TableCell
+                align="right"
+                sx={{ display: { xs: "none", sm: "table-cell" } }}
+              >
+                {row.turnovers}
+              </TableCell>
+              <TableCell align="right">{row.fouls}</TableCell>
+              <TableCell align="right">-</TableCell>
+            </TableRow>
+          ))}
           <TableRow sx={{ bgcolor: "secondary.light" }}>
-            <TableCell sx={{ fontWeight: 700 }}>OPPONENT</TableCell>
+            <TableCell sx={{ fontWeight: 700 }}>OPPONENT TOTAL</TableCell>
             <TableCell align="right">-</TableCell>
             <TableCell align="right">{oppData.points}</TableCell>
             <TableCell align="right">
@@ -687,7 +788,22 @@ const GameStats: React.FC = () => {
             onChange={(e) => setSelectedPlayerId(e.target.value)}
           >
             <MenuItem value="ALL">All Players</MenuItem>
-            {players.map((p) => (
+            <MenuItem value="TEAM_ALL" sx={{ fontWeight: 700 }}>
+              Our Team (All)
+            </MenuItem>
+            {players
+              .filter((p) =>
+                teamPlayers.some((tp) => tp.playerId === p.id),
+              )
+              .map((p) => (
+                <MenuItem key={p.id} value={p.id}>
+                  {p.name}
+                </MenuItem>
+              ))}
+            <MenuItem value="OPP_ALL" sx={{ fontWeight: 700 }}>
+              Opponent (All)
+            </MenuItem>
+            {detailedOpponentStats.map((p) => (
               <MenuItem key={p.id} value={p.id}>
                 {p.name}
               </MenuItem>

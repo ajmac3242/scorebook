@@ -56,9 +56,9 @@
 **Why:** Coaches need to identify which specific opponent is the primary threat. Aggregating all opponent stats into one "OPPONENT" entity prevents tactical adjustments like "who needs to be double-teamed."
 **What:** Allow scorekeepers to create "Quick Opponents" (e.g., Opp #12, Opp #5) on the fly during Game Mode. Statistical events can then be assigned to these specific IDs to generate an opponent box score.
 **Acceptance Criteria:**
-- [ ] Interface to quickly add 1-5 specific opponent jerseys in `GameMode.tsx`.
-- [ ] Stat recording dialog allows selecting between "Our Team" and specific "Opponent" players.
-- [ ] Game Stats page displays a secondary box score for the opponent.
+- [x] Interface to quickly add 1-5 specific opponent jerseys in `GameMode.tsx`.
+- [x] Stat recording dialog allows selecting between "Our Team" and specific "Opponent" players.
+- [x] Game Stats page displays a secondary box score for the opponent.
 
 ## Live Stint & Fatigue Monitor
 **Priority:** MEDIUM
