@@ -1901,7 +1901,8 @@ const GameMode: React.FC = () => {
                         const streak = playerStreaks.get(p.id!);
                         const pts = s?.points || 0;
                         const pf = s?.fouls || 0;
-                        const foulLimit = game?.foulLimit || team?.defaultFoulLimit || 5;
+                        const foulLimit =
+                          game?.foulLimit || team?.defaultFoulLimit || 5;
                         const isFoulTrouble = pf === foulLimit - 1;
                         const isFouledOut = pf >= foulLimit;
 
@@ -2308,7 +2309,8 @@ const GameMode: React.FC = () => {
                   .map((p) => {
                     const s = statsMap.get(p.id!);
                     const pf = s?.fouls || 0;
-                    const foulLimit = game?.foulLimit || team?.defaultFoulLimit || 5;
+                    const foulLimit =
+                      game?.foulLimit || team?.defaultFoulLimit || 5;
                     const isFoulTrouble = pf === foulLimit - 1;
                     const isFouledOut = pf >= foulLimit;
 
@@ -2651,7 +2653,8 @@ const GameMode: React.FC = () => {
                   .map((p) => {
                     const s = statsMap.get(p.id!);
                     const pf = s?.fouls || 0;
-                    const foulLimit = game?.foulLimit || team?.defaultFoulLimit || 5;
+                    const foulLimit =
+                      game?.foulLimit || team?.defaultFoulLimit || 5;
                     const isFoulTrouble = pf === foulLimit - 1;
                     const isFouledOut = pf >= foulLimit;
 
@@ -2752,7 +2755,8 @@ const GameMode: React.FC = () => {
                   .map((p) => {
                     const s = statsMap.get(p.id!);
                     const pf = s?.fouls || 0;
-                    const foulLimit = game?.foulLimit || team?.defaultFoulLimit || 5;
+                    const foulLimit =
+                      game?.foulLimit || team?.defaultFoulLimit || 5;
                     const isFoulTrouble = pf === foulLimit - 1;
                     const isFouledOut = pf >= foulLimit;
 

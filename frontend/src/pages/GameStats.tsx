@@ -916,7 +916,11 @@ const GameStats: React.FC = () => {
             <Grid container spacing={4}>
               <Grid item xs={4}>
                 <Box sx={{ textAlign: "center" }}>
-                  <Typography variant="h4" color="primary" sx={{ fontWeight: 700 }}>
+                  <Typography
+                    variant="h4"
+                    color="primary"
+                    sx={{ fontWeight: 700 }}
+                  >
                     {defensiveStats.totalStops}
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
@@ -926,7 +930,11 @@ const GameStats: React.FC = () => {
               </Grid>
               <Grid item xs={4}>
                 <Box sx={{ textAlign: "center" }}>
-                  <Typography variant="h4" color="secondary" sx={{ fontWeight: 700 }}>
+                  <Typography
+                    variant="h4"
+                    color="secondary"
+                    sx={{ fontWeight: 700 }}
+                  >
                     {defensiveStats.totalKills}
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
