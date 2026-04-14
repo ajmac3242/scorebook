@@ -10,6 +10,7 @@ import {
   roundToOne,
   formatToOne,
   determineResult,
+  formatClock,
   formatTimestampToTime,
 } from "./mathUtils";
 
@@ -664,6 +665,7 @@ export const calculateStopsAndKills = (stats: StatEvent[]) => {
     if (isOpp && s.type === ACTION_TYPES.MISS) {
       // Look ahead for the rebound event
       let stopEarned = false;
+      let eventIndex = i;
       for (let j = i + 1; j < stats.length; j++) {
         const next = stats[j];
         if (!isActive(next)) continue;
@@ -673,6 +675,7 @@ export const calculateStopsAndKills = (stats: StatEvent[]) => {
           next.type === ACTION_TYPES.OFF_REBOUND &&
           isOpponentId(next.playerId)
         ) {
+          eventIndex = j;
           break;
         }
 
@@ -683,17 +686,23 @@ export const calculateStopsAndKills = (stats: StatEvent[]) => {
           !isOpponentId(next.playerId)
         ) {
           stopEarned = true;
+          eventIndex = j;
           break;
         }
 
         // Any scoring event breaks the chain
-        if (isScoringEvent(next)) break;
+        if (isScoringEvent(next)) {
+          eventIndex = j;
+          break;
+        }
       }
 
       if (stopEarned) {
         totalStops++;
         currentStreak++;
       }
+      // Skip ahead to the event that ended this sequence to avoid double-counting
+      i = eventIndex;
     }
 
     // Check for "Kill" (3 consecutive stops)
@@ -827,21 +836,25 @@ export const calculateOpponentAggregates = (
 
 /**
  * Calculates the score flow data for a game based on chronological events.
+ * Uses game clock time (period and clockTime) for accurate timeline positioning.
  *
  * @param {StatEvent[]} stats - Chronological list of statistical events.
+ * @param {number} periodLengthMinutes - Length of each period in minutes.
  * @returns {ScoreFlowPoint[]} Array of data points for score flow visualization.
  */
-export const calculateScoreFlow = (stats: StatEvent[]): ScoreFlowPoint[] => {
+export const calculateScoreFlow = (
+  stats: StatEvent[],
+  periodLengthMinutes: number = 10,
+): ScoreFlowPoint[] => {
   const scores = { team: 0, opp: 0 };
   const result = [{ time: "00:00", Team: 0, Opponent: 0 }];
+  const periodLenSecs = periodLengthMinutes * 60;
 
   for (let i = 0; i < stats.length; i++) {
     const stat = stats[i];
 
-    // ⚡ Bolt: Skip non-scoring or deleted events early to minimize processing.
     if (!isScoringEvent(stat) || !isActive(stat)) continue;
 
-    // ⚡ Bolt: Inline updateScores logic to improve performance in this hot path.
     const pts = stat.points || 0;
     if (isOpponentId(stat.playerId)) {
       scores.opp += pts;
@@ -849,10 +862,16 @@ export const calculateScoreFlow = (stats: StatEvent[]): ScoreFlowPoint[] => {
       scores.team += pts;
     }
 
-    // ⚡ Bolt: Use high-performance string slicing instead of Intl.DateTimeFormat
-    // to extract "mm:ss" from ISO timestamps, reducing CPU and memory overhead.
+    // 🏀 CoachBoard: Accurate Timeline Calculation
+    // Why: Uses period and clockTime to determine game elapsed time.
+    // This ensures correct chart positioning even for out-of-order data entry.
+    const period = stat.period || 1;
+    const clockTime = stat.clockTime ?? periodLenSecs;
+    const elapsedSeconds =
+      (period - 1) * periodLenSecs + (periodLenSecs - clockTime);
+
     result.push({
-      time: formatTimestampToTime(stat.timestamp),
+      time: formatClock(elapsedSeconds),
       Team: scores.team,
       Opponent: scores.opp,
     });
