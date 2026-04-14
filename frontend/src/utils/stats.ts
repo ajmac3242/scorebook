@@ -669,13 +669,17 @@ export const calculateStopsAndKills = (stats: StatEvent[]) => {
         if (!isActive(next)) continue;
 
         // Opponent got their own rebound (Offensive) -> Possession continues
-        if (next.type === ACTION_TYPES.OFF_REBOUND && isOpponentId(next.playerId)) {
+        if (
+          next.type === ACTION_TYPES.OFF_REBOUND &&
+          isOpponentId(next.playerId)
+        ) {
           break;
         }
 
         // We got the defensive rebound -> Stop!
         if (
-          (next.type === ACTION_TYPES.DEF_REBOUND || next.type === ACTION_TYPES.REBOUND) &&
+          (next.type === ACTION_TYPES.DEF_REBOUND ||
+            next.type === ACTION_TYPES.REBOUND) &&
           !isOpponentId(next.playerId)
         ) {
           stopEarned = true;
