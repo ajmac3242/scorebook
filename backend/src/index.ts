@@ -80,6 +80,8 @@ const SPECIAL_PLAYER_IDS = {
   OUR_TEAM: "OUR_TEAM",
 };
 
+const SPECIAL_ID_SET: Set<string> = new Set(Object.values(SPECIAL_PLAYER_IDS));
+
 /**
  * Regex for validating UUID v4 format.
  * Prevents path traversal and other injection attacks via IDs.
@@ -105,14 +107,25 @@ function isValidUuid(id: unknown): id is string {
 function isValidPlayerId(id: unknown): boolean {
   if (typeof id !== "string") return false;
   if (isValidUuid(id)) return true;
-  if (id === SPECIAL_PLAYER_IDS.TEAM_TIMEOUT) return true;
-  if (id === SPECIAL_PLAYER_IDS.OUR_TEAM) return true;
-  if (id === SPECIAL_PLAYER_IDS.OPPONENT) return true;
-  if ((id as string).startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":")) {
-    const jersey = (id as string).split(":")[1];
+  if (SPECIAL_ID_SET.has(id)) return true;
+  const strId = id as string;
+  if (strId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":")) {
+    const jersey = strId.split(":")[1];
     return !!jersey && jersey.length > 0 && jersey.length <= 5;
   }
   return false;
+}
+
+/**
+ * Extracts an ID from a path given a prefix.
+ * @param {string} path - The request path.
+ * @param {string} prefix - The path prefix (e.g. "/players/").
+ * @returns {string | null} The extracted ID or null.
+ */
+function extractIdFromPath(path: string, prefix: string): string | null {
+  if (!path.startsWith(prefix)) return null;
+  const id = path.slice(prefix.length);
+  return id.includes("/") ? null : id;
 }
 
 const Keys = {
@@ -174,10 +187,8 @@ async function handlePlayers(
   }
 
   // Member endpoints: /players/{playerId}
-  const match = path.match(/^\/players\/([^\/]+)$/);
-  if (!match) return null;
-
-  const playerId = match[1];
+  const playerId = extractIdFromPath(path, "/players/");
+  if (!playerId) return null;
   if (!isValidUuid(playerId)) {
     return badRequest("Invalid playerId format (UUID required)");
   }
@@ -282,9 +293,8 @@ async function handleGames(
     }
   }
 
-  const gameDetailMatch = path.match(/^\/games\/([^\/]+)$/);
-  if (gameDetailMatch) {
-    const gameId = gameDetailMatch[1];
+  const gameId = extractIdFromPath(path, "/games/");
+  if (gameId) {
     if (!isValidUuid(gameId)) {
       return badRequest("Invalid gameId format (UUID required)");
     }
@@ -325,9 +335,14 @@ async function handleGames(
     }
   }
 
-  const gameCompleteMatch = path.match(/^\/games\/([^\/]+)\/complete$/);
-  if (gameCompleteMatch && method === "POST") {
-    const gameId = gameCompleteMatch[1];
+  if (
+    path.startsWith("/games/") &&
+    path.endsWith("/complete") &&
+    method === "POST"
+  ) {
+    const parts = path.split("/");
+    if (parts.length !== 4) return null;
+    const gameId = parts[2];
     if (!isValidUuid(gameId)) {
       return badRequest("Invalid gameId format (UUID required)");
     }
@@ -352,9 +367,10 @@ async function handleGames(
     return ok({ message: "Game completed" });
   }
 
-  const gameStatsMatch = path.match(/^\/games\/([^\/]+)\/stats$/);
-  if (gameStatsMatch) {
-    const gameId = gameStatsMatch[1];
+  if (path.startsWith("/games/") && path.endsWith("/stats")) {
+    const parts = path.split("/");
+    if (parts.length !== 4) return null;
+    const gameId = parts[2];
     if (!isValidUuid(gameId)) {
       return badRequest("Invalid gameId format (UUID required)");
     }
@@ -486,9 +502,8 @@ async function handleTeams(
     }
   }
 
-  const teamDetailMatch = path.match(/^\/teams\/([^\/]+)$/);
-  if (teamDetailMatch) {
-    const teamId = teamDetailMatch[1];
+  const teamId = extractIdFromPath(path, "/teams/");
+  if (teamId) {
     if (!isValidUuid(teamId)) {
       return badRequest("Invalid teamId format (UUID required)");
     }
@@ -512,9 +527,10 @@ async function handleTeams(
     }
   }
 
-  const teamPlayersMatch = path.match(/^\/teams\/([^\/]+)\/players$/);
-  if (teamPlayersMatch) {
-    const teamId = teamPlayersMatch[1];
+  if (path.startsWith("/teams/") && path.endsWith("/players")) {
+    const parts = path.split("/");
+    if (parts.length !== 4) return null;
+    const teamId = parts[2];
     if (!isValidUuid(teamId)) {
       return badRequest("Invalid teamId format (UUID required)");
     }
@@ -542,12 +558,11 @@ async function handleTeams(
     }
   }
 
-  const teamPlayerDetailMatch = path.match(
-    /^\/teams\/([^\/]+)\/players\/([^\/]+)$/,
-  );
-  if (teamPlayerDetailMatch) {
-    const teamId = teamPlayerDetailMatch[1];
-    const playerId = teamPlayerDetailMatch[2];
+  if (path.startsWith("/teams/") && path.includes("/players/")) {
+    const parts = path.split("/");
+    if (parts.length !== 5) return null;
+    const teamId = parts[2];
+    const playerId = parts[4];
     if (!isValidUuid(teamId) || !isValidUuid(playerId)) {
       return badRequest("Invalid teamId or playerId format (UUID required)");
     }
