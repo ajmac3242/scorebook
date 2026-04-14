@@ -5,7 +5,13 @@
  * on an interactive court, manage active lineups, and track opponent scoring.
  */
 
-import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+  useRef,
+} from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import {
   Box,
