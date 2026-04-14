@@ -67,6 +67,17 @@
 - [x] Zones are calculated dynamically based on the current filter (All, Player, or Team).
 - [x] Uses a color gradient to represent scoring density or efficiency.
 
+## Workflows for game creation
+**Priority:** MEDIUM
+**Type:** UX
+**Why:** Creating a game contains to many things to enter at once. Introduce a workflow to help streamline the process. 
+**What:** Enhance the `Create Game` dialog to be a workflow similar to this example on Dribbble [https://dribbble.com/shots/26448955-Hotel-Booking-Mobile-App]. This is just an example and is not meant to be copied exactly. This example shows a workflow that A user can follow to create something. The first part of the workflow would be opponent information, the second part would be game date/time information, the last part would be game settings information (period type, fouls, time, etc.)
+**Acceptance Criteria:**
+- [ ] Transition `Create Game` dialog to a workflow.
+- [ ] After all information is entered, there should be a create game button. Once the button is clicked, the game should be created.
+- [ ] On the first two parts of the workflow, once the required information has been entered, show a `continue` button.
+- [ ] Like the example, show the steps to the user and which ones have been completed
+
 ## Individual Opponent Tracking
 **Priority:** HIGH
 **Type:** Feature
