@@ -579,6 +579,30 @@ describe("stats utilities", () => {
       expect(results.attempts).toBe(2);
       expect(results.rebounds).toBe(1);
     });
+
+    it("aggregates individual opponent jerseys (e.g., OPPONENT:12) into opponent totals", () => {
+      const stats: StatEvent[] = [
+        {
+          gameId: "g1",
+          playerId: "OPPONENT:12",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          period: 1,
+          timestamp: "t1",
+        },
+        {
+          gameId: "g1",
+          playerId: "OPPONENT:5",
+          type: ACTION_TYPES.MAKE,
+          points: 3,
+          period: 1,
+          timestamp: "t2",
+        },
+      ];
+      const results = calculateOpponentAggregates(stats);
+      expect(results.points).toBe(5);
+      expect(results.makes).toBe(2);
+    });
   });
 
   describe("calculateScoreFlow", () => {
