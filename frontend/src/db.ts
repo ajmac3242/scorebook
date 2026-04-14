@@ -19,6 +19,10 @@ export interface Team {
   fouls?: number;
   deletedAt?: string;
   synced?: number;
+  isFavorite?: number; // 0 or 1
+  defaultPeriodLength?: number;
+  defaultTimeoutLimit?: number;
+  defaultFoulLimit?: number;
 }
 
 /**
@@ -61,6 +65,9 @@ export interface Game {
   currentPeriod?: number;
   clockTime?: number; // Current seconds remaining in period
   periodLength?: number; // Configured length in minutes
+  timeoutLimit?: number;
+  foulLimit?: number;
+  periodType?: "QUARTERS" | "HALVES";
   deletedAt?: string;
   synced?: number;
 }
@@ -108,8 +115,9 @@ export class AppDatabase extends Dexie {
     // v11:    Added 'fouls' to Team for configurable timeouts.
     // v12:    Added 'currentPeriod' to Game.
     // v13:    Added 'clockTime' and 'periodLength' to Game, and 'clockTime' to StatEvent.
-    this.version(13).stores({
-      teams: "id, synced, deletedAt",
+    // v14:    Added 'isFavorite', 'defaultPeriodLength', 'defaultTimeoutLimit', 'defaultFoulLimit' to Team.
+    this.version(14).stores({
+      teams: "id, synced, deletedAt, isFavorite",
       players: "id, synced, isArchived, deletedAt",
       teamPlayers: "id, [teamId+playerId], teamId, playerId, synced",
       games: "id, teamId, completed, synced, deletedAt",

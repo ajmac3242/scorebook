@@ -44,7 +44,10 @@ import {
   Add as AddIcon,
   Close as CloseIcon,
   Search as SearchIcon,
+  NavigateNext,
+  NavigateBefore,
 } from "@mui/icons-material";
+import { Stepper, Step, StepLabel } from "@mui/material";
 import { db, type TeamPlayer, type StatEvent } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
 import { STAT_ACRONYMS } from "../constants/stats";
@@ -91,6 +94,10 @@ const TeamStats: React.FC = () => {
   const [editName, setEditName] = useState("");
   const [editLogoUrl, setEditLogoUrl] = useState("");
   const [editColor, setEditColor] = useState("#154C56");
+  const [editPeriodType, setEditPeriodType] = useState<"QUARTERS" | "HALVES">("QUARTERS");
+  const [editPeriodLength, setEditPeriodLength] = useState<number>(10);
+  const [editTimeoutLimit, setEditTimeoutLimit] = useState<number>(3);
+  const [editFoulLimit, setEditFoulLimit] = useState<number>(5);
   const [timeLeft, setTimeLeft] = useState("");
   const [sortConfig, setSortConfig] = useState<{
     key: string;
@@ -98,11 +105,16 @@ const TeamStats: React.FC = () => {
   }>({ key: "points", direction: "desc" });
 
   const [openAddGame, setOpenAddGame] = useState(false);
+  const [activeStep, setActiveStep] = useState(0);
   const [newOpponent, setNewOpponent] = useState("");
   const [newOpponentLogoUrl, setNewOpponentLogoUrl] = useState("");
   const [newDate, setNewDate] = useState("");
   const [newTime, setNewTime] = useState("");
   const [newLocation, setNewLocation] = useState("");
+  const [newPeriodType, setNewPeriodType] = useState<"QUARTERS" | "HALVES">("QUARTERS");
+  const [newPeriodLength, setNewPeriodLength] = useState<number>(10);
+  const [newTimeoutLimit, setNewTimeoutLimit] = useState<number>(3);
+  const [newFoulLimit, setNewFoulLimit] = useState<number>(5);
   const [isSubmittingGame, setIsSubmittingGame] = useState(false);
   const [rosterSearchTerm, setRosterSearchTerm] = useState("");
 
@@ -127,6 +139,10 @@ const TeamStats: React.FC = () => {
       setEditName(team.name || "");
       setEditLogoUrl(team.logoUrl || "");
       setEditColor(team.primaryColor || "#154C56");
+      setEditPeriodType(team.periodType || "QUARTERS");
+      setEditPeriodLength(team.defaultPeriodLength || (team.periodType === "HALVES" ? 20 : 10));
+      setEditTimeoutLimit(team.defaultTimeoutLimit || team.fouls || 3);
+      setEditFoulLimit(team.defaultFoulLimit || 5);
     }
     // We only want to sync from DB when the team object itself changes (e.g. initial load)
   }, [team]);
@@ -375,6 +391,11 @@ const TeamStats: React.FC = () => {
       name: editName,
       logoUrl: editLogoUrl,
       primaryColor: editColor,
+      periodType: editPeriodType,
+      defaultPeriodLength: editPeriodLength,
+      defaultTimeoutLimit: editTimeoutLimit,
+      defaultFoulLimit: editFoulLimit,
+      fouls: editTimeoutLimit, // Keep legacy fouls field in sync with timeouts
       synced: 0,
     });
     await syncService.pushUpdates();
@@ -431,19 +452,34 @@ const TeamStats: React.FC = () => {
         date: newDate,
         time: newTime,
         location: newLocation,
+        periodLength: newPeriodLength,
+        timeoutLimit: newTimeoutLimit,
+        foulLimit: newFoulLimit,
+        periodType: newPeriodType,
         synced: 0,
       });
       await syncService.pushUpdates();
       setOpenAddGame(false);
-      setNewOpponent("");
-      setNewOpponentLogoUrl("");
-      setNewDate("");
-      setNewTime("");
-      setNewLocation("");
+      resetGameForm();
     } catch (error) {
       logger.error("Failed to add game:", error);
     } finally {
       setIsSubmittingGame(false);
+    }
+  };
+
+  const resetGameForm = () => {
+    setNewOpponent("");
+    setNewOpponentLogoUrl("");
+    setNewDate("");
+    setNewTime("");
+    setNewLocation("");
+    setActiveStep(0);
+    if (team) {
+      setNewPeriodType(team.periodType || "QUARTERS");
+      setNewPeriodLength(team.defaultPeriodLength || (team.periodType === "HALVES" ? 20 : 10));
+      setNewTimeoutLimit(team.defaultTimeoutLimit || team.fouls || 3);
+      setNewFoulLimit(team.defaultFoulLimit || 5);
     }
   };
 
@@ -610,7 +646,10 @@ const TeamStats: React.FC = () => {
               size="small"
               startIcon={<AddIcon />}
               disabled={isDeleted}
-              onClick={() => setOpenAddGame(true)}
+              onClick={() => {
+                resetGameForm();
+                setOpenAddGame(true);
+              }}
               sx={{
                 bgcolor: "var(--palette-golden-dune)",
                 color: "var(--palette-midnight)",
@@ -1120,6 +1159,50 @@ const TeamStats: React.FC = () => {
                 onChange={(e) => setEditColor(e.target.value)}
               />
             </Box>
+
+            <Divider sx={{ my: 1 }}>
+              <Chip label="Game Defaults" size="small" />
+            </Divider>
+
+            <FormControl fullWidth>
+              <InputLabel>Period Type</InputLabel>
+              <Select
+                value={editPeriodType}
+                label="Period Type"
+                onChange={(e) => setEditPeriodType(e.target.value as "QUARTERS" | "HALVES")}
+              >
+                <MenuItem value="QUARTERS">Quarters</MenuItem>
+                <MenuItem value="HALVES">Halves</MenuItem>
+              </Select>
+            </FormControl>
+
+            <TextField
+              fullWidth
+              label="Period Length (Minutes)"
+              type="number"
+              value={editPeriodLength}
+              onChange={(e) => setEditPeriodLength(parseInt(e.target.value) || 0)}
+              inputProps={{ min: 1 }}
+            />
+
+            <Stack direction="row" spacing={2}>
+              <TextField
+                fullWidth
+                label="Timeouts"
+                type="number"
+                value={editTimeoutLimit}
+                onChange={(e) => setEditTimeoutLimit(parseInt(e.target.value) || 0)}
+                inputProps={{ min: 0 }}
+              />
+              <TextField
+                fullWidth
+                label="Foul Limit"
+                type="number"
+                value={editFoulLimit}
+                onChange={(e) => setEditFoulLimit(parseInt(e.target.value) || 0)}
+                inputProps={{ min: 1 }}
+              />
+            </Stack>
           </Stack>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 3 }}>
@@ -1263,109 +1346,170 @@ const TeamStats: React.FC = () => {
         </DialogActions>
       </Dialog>
 
-      <Dialog open={openAddGame} onClose={() => setOpenAddGame(false)}>
+      <Dialog
+        open={openAddGame}
+        onClose={() => setOpenAddGame(false)}
+        fullWidth
+        maxWidth="sm"
+      >
         <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
-          Add New Game
+          Schedule New Game
         </DialogTitle>
         <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Opponent"
-            fullWidth
-            variant="outlined"
-            value={newOpponent}
-            onChange={(e) => setNewOpponent(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && newOpponent.trim()) {
-                handleAddGame();
-              }
-            }}
-            disabled={isSubmittingGame}
-          />
-          <TextField
-            margin="dense"
-            label="Opponent Logo URL"
-            fullWidth
-            variant="outlined"
-            value={newOpponentLogoUrl}
-            onChange={(e) => setNewOpponentLogoUrl(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && newOpponent.trim()) {
-                handleAddGame();
-              }
-            }}
-            disabled={isSubmittingGame}
-          />
-          <TextField
-            margin="dense"
-            label="Date"
-            type="date"
-            fullWidth
-            variant="outlined"
-            InputLabelProps={{ shrink: true }}
-            value={newDate}
-            onChange={(e) => setNewDate(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && newOpponent.trim()) {
-                handleAddGame();
-              }
-            }}
-            disabled={isSubmittingGame}
-          />
-          <TextField
-            margin="dense"
-            label="Time"
-            type="time"
-            fullWidth
-            variant="outlined"
-            InputLabelProps={{ shrink: true }}
-            value={newTime}
-            onChange={(e) => setNewTime(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && newOpponent.trim()) {
-                handleAddGame();
-              }
-            }}
-            disabled={isSubmittingGame}
-          />
-          <Autocomplete
-            freeSolo
-            options={allRecentLocations}
-            value={newLocation}
-            onInputChange={(_, newValue) => setNewLocation(newValue)}
-            disabled={isSubmittingGame}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                margin="dense"
-                label="Location"
-                fullWidth
-                variant="outlined"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && newOpponent.trim()) {
-                    handleAddGame();
-                  }
-                }}
-              />
+          <Stepper activeStep={activeStep} sx={{ py: 3 }}>
+            <Step>
+              <StepLabel>Opponent</StepLabel>
+            </Step>
+            <Step>
+              <StepLabel>Logistics</StepLabel>
+            </Step>
+            <Step>
+              <StepLabel>Settings</StepLabel>
+            </Step>
+          </Stepper>
+
+          <Box sx={{ mt: 1, minHeight: 280 }}>
+            {activeStep === 0 && (
+              <Stack spacing={3}>
+                <TextField
+                  autoFocus
+                  label="Opponent Name"
+                  fullWidth
+                  value={newOpponent}
+                  onChange={(e) => setNewOpponent(e.target.value)}
+                  placeholder="e.g. Springfield Atoms"
+                  required
+                />
+                <TextField
+                  label="Opponent Logo URL"
+                  fullWidth
+                  value={newOpponentLogoUrl}
+                  onChange={(e) => setNewOpponentLogoUrl(e.target.value)}
+                  placeholder="https://example.com/logo.png"
+                />
+              </Stack>
             )}
-            sx={{ mt: 1 }}
-          />
+
+            {activeStep === 1 && (
+              <Stack spacing={3}>
+                <TextField
+                  label="Date"
+                  type="date"
+                  fullWidth
+                  InputLabelProps={{ shrink: true }}
+                  value={newDate}
+                  onChange={(e) => setNewDate(e.target.value)}
+                  required
+                />
+                <TextField
+                  label="Time"
+                  type="time"
+                  fullWidth
+                  InputLabelProps={{ shrink: true }}
+                  value={newTime}
+                  onChange={(e) => setNewTime(e.target.value)}
+                />
+                <Autocomplete
+                  freeSolo
+                  options={allRecentLocations}
+                  value={newLocation}
+                  onInputChange={(_, newValue) => setNewLocation(newValue)}
+                  renderInput={(params) => (
+                    <TextField {...params} label="Location" fullWidth />
+                  )}
+                />
+              </Stack>
+            )}
+
+            {activeStep === 2 && (
+              <Stack spacing={3}>
+                <FormControl fullWidth>
+                  <InputLabel>Period Type</InputLabel>
+                  <Select
+                    value={newPeriodType}
+                    label="Period Type"
+                    onChange={(e) =>
+                      setNewPeriodType(e.target.value as "QUARTERS" | "HALVES")
+                    }
+                  >
+                    <MenuItem value="QUARTERS">Quarters</MenuItem>
+                    <MenuItem value="HALVES">Halves</MenuItem>
+                  </Select>
+                </FormControl>
+                <TextField
+                  fullWidth
+                  label="Period Length (Minutes)"
+                  type="number"
+                  value={newPeriodLength}
+                  onChange={(e) =>
+                    setNewPeriodLength(parseInt(e.target.value) || 0)
+                  }
+                  inputProps={{ min: 1 }}
+                />
+                <Stack direction="row" spacing={2}>
+                  <TextField
+                    fullWidth
+                    label="Timeouts"
+                    type="number"
+                    value={newTimeoutLimit}
+                    onChange={(e) =>
+                      setNewTimeoutLimit(parseInt(e.target.value) || 0)
+                    }
+                    inputProps={{ min: 0 }}
+                  />
+                  <TextField
+                    fullWidth
+                    label="Foul Limit"
+                    type="number"
+                    value={newFoulLimit}
+                    onChange={(e) =>
+                      setNewFoulLimit(parseInt(e.target.value) || 0)
+                    }
+                    inputProps={{ min: 1 }}
+                  />
+                </Stack>
+              </Stack>
+            )}
+          </Box>
         </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
+        <DialogActions sx={{ p: 3 }}>
           <Button
             onClick={() => setOpenAddGame(false)}
             disabled={isSubmittingGame}
           >
             Cancel
           </Button>
+          <Box sx={{ flex: "1 1 auto" }} />
           <Button
-            onClick={handleAddGame}
-            variant="contained"
-            disabled={!newOpponent.trim() || isSubmittingGame}
+            disabled={activeStep === 0 || isSubmittingGame}
+            onClick={() => setActiveStep((prev) => prev - 1)}
+            startIcon={<NavigateBefore />}
           >
-            {isSubmittingGame ? "Adding..." : "Add Game"}
+            Back
           </Button>
+          {activeStep < 2 ? (
+            <Button
+              variant="contained"
+              disabled={
+                (activeStep === 0 && !newOpponent.trim()) ||
+                (activeStep === 1 && !newDate) ||
+                isSubmittingGame
+              }
+              onClick={() => setActiveStep((prev) => prev + 1)}
+              endIcon={<NavigateNext />}
+            >
+              Continue
+            </Button>
+          ) : (
+            <Button
+              variant="contained"
+              onClick={handleAddGame}
+              disabled={isSubmittingGame}
+              sx={{ bgcolor: "success.main", "&:hover": { bgcolor: "success.dark" } }}
+            >
+              {isSubmittingGame ? "Creating..." : "Create Game"}
+            </Button>
+          )}
         </DialogActions>
       </Dialog>
 
