@@ -69,7 +69,7 @@ jobs:
         run: |
           echo "::group::Backend Build"
           cd backend
-          pnpm install --frozen-lockfile
+          for i in {1..3}; do pnpm install --frozen-lockfile && break || if [ $i -eq 3 ]; then exit 1; else sleep 10; fi; done
           pnpm run build
           echo "::endgroup::"
 
@@ -99,7 +99,7 @@ jobs:
         run: |
           echo "::group::Frontend Build"
           cd frontend
-          pnpm install --frozen-lockfile
+          for i in {1..3}; do pnpm install --frozen-lockfile && break || if [ $i -eq 3 ]; then exit 1; else sleep 10; fi; done
           pnpm run build
           echo "::endgroup::"
 
@@ -135,9 +135,15 @@ jobs:
           echo "### CI Run Summary 🚀" >> $GITHUB_STEP_SUMMARY
           echo "- **Backend:** ${{ steps.filter.outputs.backend == 'true' && '✅ Changed' || 'ℹ️ Unchanged' }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Frontend:** ${{ steps.filter.outputs.frontend == 'true' && '✅ Changed' || 'ℹ️ Unchanged' }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Docs:** ${{ steps.filter.outputs.docs == 'true' && '✅ Changed' || 'ℹ️ Unchanged' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Docs & Diagrams:** ${{ steps.filter.outputs.docs == 'true' && '✅ Changed' || 'ℹ️ Unchanged' }}" >> $GITHUB_STEP_SUMMARY
+
+          if [[ "${{ steps.filter.outputs.docs }}" == "true" ]]; then
+            echo "- **Documentation:** Updated via terraform-docs" >> $GITHUB_STEP_SUMMARY
+            echo "- **Architecture Diagram:** Regenerated via Diagrams-as-Code" >> $GITHUB_STEP_SUMMARY
+          fi
+
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Status: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+          echo "Status: ${{ job.status == 'success' && '🟢 Success' || '🔴 Failed' }}" >> $GITHUB_STEP_SUMMARY
           echo "::endgroup::"
 
       # --- Documentation & Diagrams ---

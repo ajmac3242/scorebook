@@ -13,20 +13,20 @@ export default [
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
-      parser: tsParser
+      parser: tsParser,
     },
     plugins: {
       "@typescript-eslint": tsPlugin,
       "react-hooks": reactHooks,
       "react-refresh": reactRefresh,
-      jsdoc: jsdocPlugin
+      jsdoc: jsdocPlugin,
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
       "react-refresh/only-export-components": "off",
       "@typescript-eslint/no-explicit-any": "error",
       "react-hooks/set-state-in-effect": "off",
-      "no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
+      "no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
       // JSDoc enforcement for frontend components and functions
       "jsdoc/require-jsdoc": "off",
       "jsdoc/require-description": "off",
@@ -34,7 +34,7 @@ export default [
       "jsdoc/require-param-description": "off",
       "jsdoc/require-returns": "off",
       "jsdoc/check-alignment": "warn",
-      "jsdoc/check-param-names": "warn"
-    }
-  }
+      "jsdoc/check-param-names": "warn",
+    },
+  },
 ];

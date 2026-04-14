@@ -5,7 +5,13 @@
  * on an interactive court, manage active lineups, and track opponent scoring.
  */
 
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+  useRef,
+} from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import {
   Box,
@@ -792,6 +798,10 @@ const GameMode: React.FC = () => {
   const [points, setPoints] = useState<number>(2);
 
   const [clockSeconds, setClockSeconds] = useState<number>(0);
+  const clockSecondsRef = useRef(clockSeconds);
+  useEffect(() => {
+    clockSecondsRef.current = clockSeconds;
+  }, [clockSeconds]);
   const [isClockRunning, setIsClockRunning] = useState(false);
 
   const [sortConfig, setSortConfig] = useState<{
@@ -921,15 +931,19 @@ const GameMode: React.FC = () => {
     return () => clearInterval(interval);
   }, [isClockRunning, clockSeconds]);
 
-  // Auto-sync clock to DB every 5 seconds if running
+  // ⚡ Bolt: Auto-sync clock to DB every 5 seconds if running.
+  // Using a ref for clockSeconds prevents the interval from being re-created every second.
   useEffect(() => {
     if (isClockRunning && gameId) {
       const syncInterval = setInterval(async () => {
-        await db.games.update(gameId, { clockTime: clockSeconds, synced: 0 });
+        await db.games.update(gameId, {
+          clockTime: clockSecondsRef.current,
+          synced: 0,
+        });
       }, 5000);
       return () => clearInterval(syncInterval);
     }
-  }, [isClockRunning, gameId, clockSeconds]);
+  }, [isClockRunning, gameId]);
 
   const isReadOnly = !!game?.deletedAt || !!team?.deletedAt;
   const periodType = team?.periodType || "QUARTERS";
@@ -1077,9 +1091,18 @@ const GameMode: React.FC = () => {
       "total",
       {
         isSorted: true,
+        periodLength: game?.periodLength,
+        liveContext: { clockTime: clockSeconds, period },
       },
     );
-  }, [players, sortedGameStats, teamPlayers]);
+  }, [
+    players,
+    sortedGameStats,
+    teamPlayers,
+    game?.periodLength,
+    clockSeconds,
+    period,
+  ]);
 
   const sortedStatsGridData = useMemo(() => {
     return [...statsGridData].sort((a, b) => {
@@ -1498,6 +1521,19 @@ const GameMode: React.FC = () => {
     }
   }, [gameId, teamId, navigate]);
 
+  const handleToggleClock = useCallback(() => {
+    setIsClockRunning((prev) => {
+      const next = !prev;
+      if (gameId) {
+        db.games.update(gameId, {
+          clockTime: clockSecondsRef.current,
+          synced: 0,
+        });
+      }
+      return next;
+    });
+  }, [gameId]);
+
   const handleResetClock = useCallback(async () => {
     if (!gameId || isReadOnly) return;
     const defaultMins = periodType === "QUARTERS" ? 10 : 20;
@@ -1678,6 +1714,7 @@ const GameMode: React.FC = () => {
                 db.games.update(gameId, { clockTime: clockSeconds, synced: 0 });
               }
             }}
+            onToggleClock={handleToggleClock}
             onResetClock={handleResetClock}
           />
 

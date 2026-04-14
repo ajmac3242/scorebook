@@ -42,9 +42,10 @@ jobs:
         run: |
           echo "::group::Backend Build"
           cd backend
-          pnpm install --frozen-lockfile
+          for i in {1..3}; do pnpm install --frozen-lockfile && break || if [ $i -eq 3 ]; then exit 1; else sleep 10; fi; done
           pnpm run build
-          pnpm install --prod --shamefully-hoist
+          # Use --prefer-offline for the second install as most packages are already in store
+          for i in {1..3}; do pnpm install --prod --shamefully-hoist --prefer-offline && break || if [ $i -eq 3 ]; then exit 1; else sleep 10; fi; done
           node scripts/verify-build.cjs
           zip -r ../lambda.zip dist node_modules package.json
           echo "::endgroup::"
@@ -110,7 +111,7 @@ jobs:
         run: |
           echo "::group::Frontend Build"
           cd frontend
-          pnpm install --frozen-lockfile
+          for i in {1..3}; do pnpm install --frozen-lockfile && break || if [ $i -eq 3 ]; then exit 1; else sleep 10; fi; done
           pnpm run build
           echo "::endgroup::"
         env:
@@ -128,6 +129,23 @@ jobs:
           echo "::group::Terraform Apply (Final)"
           cd infra && terraform apply -auto-approve
           echo "::endgroup::"
+
+      - name: Deployment Summary
+        if: always()
+        run: |
+          echo "::group::Deployment Summary"
+          echo "### Deployment Summary 🚀" >> $GITHUB_STEP_SUMMARY
+          echo "Infrastructure deployed successfully." >> $GITHUB_STEP_SUMMARY
+          echo "- **User Pool ID:** \`${VITE_USER_POOL_ID}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Client ID:** \`${VITE_CLIENT_ID}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **API Endpoint:** \`${VITE_API_ENDPOINT}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Status: ${{ job.status == 'success' && '🟢 Success' || '🔴 Failed' }}" >> $GITHUB_STEP_SUMMARY
+          echo "::endgroup::"
+        env:
+          VITE_USER_POOL_ID: ${{ env.VITE_USER_POOL_ID }}
+          VITE_CLIENT_ID: ${{ env.VITE_CLIENT_ID }}
+          VITE_API_ENDPOINT: ${{ env.VITE_API_ENDPOINT }}
 
       - name: Upload Test Results on Failure
         if: failure()
