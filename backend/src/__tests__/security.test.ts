@@ -160,7 +160,7 @@ describe("Security Tests", () => {
     // @ts-ignore - Mocking a DynamoDB error
     ddbMock.on(UpdateCommand).rejects(error);
 
-    const event = createEvent("DELETE", "/players/p1");
+    const event = createEvent("DELETE", `/players/277e909a-6536-4d2d-937e-f608759556fb`);
     const response: any = await handler(event);
 
     expect(response.statusCode).toBe(404);
@@ -269,7 +269,7 @@ describe("Security Tests", () => {
   });
 
   it("validates playerId is a UUID in handleTeams", async () => {
-    const event = createEvent("POST", "/teams/t1/players", {
+    const event = createEvent("POST", "/teams/277e909a-6536-4d2d-937e-f608759556fb/players", {
       playerId: "not-a-uuid",
     });
     event.headers = { "content-type": "application/json" };
@@ -319,7 +319,7 @@ describe("Security Tests", () => {
   it("validates stat points are between 0 and 3", async () => {
     ddbMock.on(PutCommand).resolves({});
 
-    const event = createEvent("POST", "/games/g1/stats", {
+    const event = createEvent("POST", "/games/277e909a-6536-4d2d-937e-f608759556fb/stats", {
       type: "MAKE",
       points: 4, // Invalid
     });
@@ -332,7 +332,7 @@ describe("Security Tests", () => {
   });
 
   it("validates stat type against valid actions", async () => {
-    const event = createEvent("POST", "/games/g1/stats", {
+    const event = createEvent("POST", "/games/277e909a-6536-4d2d-937e-f608759556fb/stats", {
       type: "INVALID_ACTION",
       points: 2,
     });
@@ -345,8 +345,9 @@ describe("Security Tests", () => {
   });
 
   it("validates stat id format (UUID)", async () => {
-    const event = createEvent("POST", "/games/g1/stats", {
+    const event = createEvent("POST", "/games/277e909a-6536-4d2d-937e-f608759556fb/stats", {
       type: "MAKE",
+      playerId: "277e909a-6536-4d2d-937e-f608759556fb",
       id: "not-a-uuid",
     });
     event.headers = { "content-type": "application/json" };
@@ -358,9 +359,10 @@ describe("Security Tests", () => {
   });
 
   it("validates stat timestamp format (ISO)", async () => {
-    const event = createEvent("POST", "/games/g1/stats", {
+    const event = createEvent("POST", "/games/277e909a-6536-4d2d-937e-f608759556fb/stats", {
       id: "277e909a-6536-4d2d-937e-f608759556f8",
       type: "MAKE",
+      playerId: "277e909a-6536-4d2d-937e-f608759556fb",
       timestamp: "2023-01-01", // Missing time part
     });
     event.headers = { "content-type": "application/json" };
