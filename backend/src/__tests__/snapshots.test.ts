@@ -123,7 +123,11 @@ describe("Snapshot Generation Logic", () => {
     const gameId = "277e909a-6536-4d2d-937e-f608759556fa";
     ddbMock.on(UpdateCommand).resolves({});
     ddbMock.on(GetCommand).resolves({
-      Item: { id: gameId, teamId: "277e909a-6536-4d2d-937e-f608759556fb", opponent: "Opponent" },
+      Item: {
+        id: gameId,
+        teamId: "277e909a-6536-4d2d-937e-f608759556fb",
+        opponent: "Opponent",
+      },
     });
     ddbMock.on(QueryCommand).resolves({ Items: [] });
     s3Mock.on(PutObjectCommand).resolves({});

@@ -69,10 +69,14 @@ describe("Sentinel Security Enhancements Tests", () => {
 
   describe("Query Parameter Validation", () => {
     it("rejects invalid UUID in teamId query param for GET /games", async () => {
-      const event = createEvent("GET", "/games", null, { teamId: "invalid-uuid" });
+      const event = createEvent("GET", "/games", null, {
+        teamId: "invalid-uuid",
+      });
       const response: any = await handler(event);
       expect(response.statusCode).toBe(400);
-      expect(JSON.parse(response.body).message).toContain("Valid teamId (UUID) is required");
+      expect(JSON.parse(response.body).message).toContain(
+        "Valid teamId (UUID) is required",
+      );
     });
   });
 
@@ -87,7 +91,9 @@ describe("Sentinel Security Enhancements Tests", () => {
       });
       const response: any = await handler(event);
       expect(response.statusCode).toBe(400);
-      expect(JSON.parse(response.body).message).toContain("Valid playerId is required");
+      expect(JSON.parse(response.body).message).toContain(
+        "Valid playerId is required",
+      );
     });
 
     it("accepts special player IDs in stat event", async () => {
@@ -96,7 +102,12 @@ describe("Sentinel Security Enhancements Tests", () => {
       ddbMock.on(GetCommand).resolves({ Item: { id: gameId } });
       ddbMock.on(QueryCommand).resolves({ Items: [] });
 
-      const specialIds = ["OPPONENT", "OPPONENT:12", "OUR_TEAM", "TEAM_TIMEOUT"];
+      const specialIds = [
+        "OPPONENT",
+        "OPPONENT:12",
+        "OUR_TEAM",
+        "TEAM_TIMEOUT",
+      ];
       for (const pId of specialIds) {
         const event = createEvent("POST", `/games/${gameId}/stats`, {
           type: "MAKE",
@@ -117,7 +128,9 @@ describe("Sentinel Security Enhancements Tests", () => {
       });
       const response: any = await handler(event);
       expect(response.statusCode).toBe(400);
-      expect(JSON.parse(response.body).message).toContain("Period must be at least 1");
+      expect(JSON.parse(response.body).message).toContain(
+        "Period must be at least 1",
+      );
     });
 
     it("rejects invalid clockTime in stat event", async () => {
@@ -129,7 +142,9 @@ describe("Sentinel Security Enhancements Tests", () => {
       });
       const response: any = await handler(event);
       expect(response.statusCode).toBe(400);
-      expect(JSON.parse(response.body).message).toContain("Clock time must be at least 0");
+      expect(JSON.parse(response.body).message).toContain(
+        "Clock time must be at least 0",
+      );
     });
 
     it("rejects non-numeric location coordinates", async () => {
@@ -141,7 +156,9 @@ describe("Sentinel Security Enhancements Tests", () => {
       });
       const response: any = await handler(event);
       expect(response.statusCode).toBe(400);
-      expect(JSON.parse(response.body).message).toContain("Location coordinates must be numbers");
+      expect(JSON.parse(response.body).message).toContain(
+        "Location coordinates must be numbers",
+      );
     });
   });
 
@@ -154,7 +171,11 @@ describe("Sentinel Security Enhancements Tests", () => {
       ddbMock.on(QueryCommand).resolves({
         Items: [
           { playerId: "OPPONENT:12", points: 2, type: "MAKE" },
-          { playerId: "277e909a-6536-4d2d-937e-f608759556fc", points: 3, type: "MAKE" },
+          {
+            playerId: "277e909a-6536-4d2d-937e-f608759556fc",
+            points: 3,
+            type: "MAKE",
+          },
         ],
       });
       s3Mock.on(PutObjectCommand).resolves({});
@@ -162,7 +183,9 @@ describe("Sentinel Security Enhancements Tests", () => {
       const event = createEvent("POST", `/games/${gId}/complete`);
       await handler(event);
 
-      const s3Call = s3Mock.calls().find(call => (call.args[0].input as any).Key.includes("stats.json"));
+      const s3Call = s3Mock
+        .calls()
+        .find((call) => (call.args[0].input as any).Key.includes("stats.json"));
       if (!s3Call) throw new Error("S3 call for stats.json not found");
       const input = s3Call.args[0].input as any;
       const snapshot = JSON.parse(input.Body as string);

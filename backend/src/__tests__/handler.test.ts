@@ -87,17 +87,25 @@ describe("Lambda Handler", () => {
 
     it("POST /teams/:id/players adds player and snapshots roster", async () => {
       ddbMock.on(PutCommand).resolves({});
-      ddbMock.on(GetCommand).resolves({ Item: { id: "277e909a-6536-4d2d-937e-f608759556fb", name: "Team 1" } });
+      ddbMock
+        .on(GetCommand)
+        .resolves({
+          Item: { id: "277e909a-6536-4d2d-937e-f608759556fb", name: "Team 1" },
+        });
       ddbMock.on(QueryCommand).resolves({
         Items: [{ id: "p1", name: "Player 1", jerseyNumber: "10" }],
       });
       s3Mock.on(PutObjectCommand).resolves({});
 
-      const event = createEvent("POST", "/teams/277e909a-6536-4d2d-937e-f608759556fb/players", {
-        playerId: "277e909a-6536-4d2d-937e-f608759556f9",
-        name: "Player 1",
-        jerseyNumber: "10",
-      });
+      const event = createEvent(
+        "POST",
+        "/teams/277e909a-6536-4d2d-937e-f608759556fb/players",
+        {
+          playerId: "277e909a-6536-4d2d-937e-f608759556f9",
+          name: "Player 1",
+          jerseyNumber: "10",
+        },
+      );
       const response: any = await handler(event);
 
       expect(response.statusCode).toBe(201);
@@ -131,7 +139,9 @@ describe("Lambda Handler", () => {
         Items: [{ id: "g1", opponent: "Opponent" }],
       });
 
-      const event = createEvent("GET", "/games", null, { teamId: "277e909a-6536-4d2d-937e-f608759556fb" });
+      const event = createEvent("GET", "/games", null, {
+        teamId: "277e909a-6536-4d2d-937e-f608759556fb",
+      });
       const response: any = await handler(event);
 
       expect(response.statusCode).toBe(200);
@@ -154,13 +164,22 @@ describe("Lambda Handler", () => {
       ddbMock.on(UpdateCommand).resolves({});
       ddbMock
         .on(GetCommand)
-        .resolves({ Item: { id: "277e909a-6536-4d2d-937e-f608759556fa", teamId: "277e909a-6536-4d2d-937e-f608759556fb", opponent: "Opp" } });
+        .resolves({
+          Item: {
+            id: "277e909a-6536-4d2d-937e-f608759556fa",
+            teamId: "277e909a-6536-4d2d-937e-f608759556fb",
+            opponent: "Opp",
+          },
+        });
       ddbMock
         .on(QueryCommand)
         .resolves({ Items: [{ id: "st1", type: "SHOT" }] });
       s3Mock.on(PutObjectCommand).resolves({});
 
-      const event = createEvent("POST", "/games/277e909a-6536-4d2d-937e-f608759556fa/complete");
+      const event = createEvent(
+        "POST",
+        "/games/277e909a-6536-4d2d-937e-f608759556fa/complete",
+      );
       const response: any = await handler(event);
 
       expect(response.statusCode).toBe(200);
@@ -169,12 +188,16 @@ describe("Lambda Handler", () => {
 
     it("POST /games/:id/stats records a stat", async () => {
       ddbMock.on(PutCommand).resolves({});
-      const event = createEvent("POST", "/games/277e909a-6536-4d2d-937e-f608759556fa/stats", {
-        id: "277e909a-6536-4d2d-937e-f608759556f8",
-        type: "MAKE",
-        playerId: "277e909a-6536-4d2d-937e-f608759556f9",
-        points: 2,
-      });
+      const event = createEvent(
+        "POST",
+        "/games/277e909a-6536-4d2d-937e-f608759556fa/stats",
+        {
+          id: "277e909a-6536-4d2d-937e-f608759556f8",
+          type: "MAKE",
+          playerId: "277e909a-6536-4d2d-937e-f608759556f9",
+          points: 2,
+        },
+      );
       const response: any = await handler(event);
       expect(response.statusCode).toBe(201);
       const body = JSON.parse(response.body);
@@ -236,10 +259,18 @@ describe("Lambda Handler", () => {
       ddbMock.on(UpdateCommand).resolves({});
       s3Mock.on(PutObjectCommand).resolves({});
       // Mock the snapshots triggered by restore
-      ddbMock.on(GetCommand).resolves({ Item: { id: "277e909a-6536-4d2d-937e-f608759556fb", name: "Team 1" } });
+      ddbMock
+        .on(GetCommand)
+        .resolves({
+          Item: { id: "277e909a-6536-4d2d-937e-f608759556fb", name: "Team 1" },
+        });
       ddbMock.on(QueryCommand).resolves({ Items: [] });
 
-      const event = createEvent("PATCH", "/teams/277e909a-6536-4d2d-937e-f608759556fb", { deletedAt: null });
+      const event = createEvent(
+        "PATCH",
+        "/teams/277e909a-6536-4d2d-937e-f608759556fb",
+        { deletedAt: null },
+      );
       const response: any = await handler(event);
 
       expect(response.statusCode).toBe(200);
@@ -251,7 +282,11 @@ describe("Lambda Handler", () => {
 
     it("PATCH /players/:id restores a deleted player", async () => {
       ddbMock.on(UpdateCommand).resolves({});
-      const event = createEvent("PATCH", "/players/277e909a-6536-4d2d-937e-f608759556f9", { deletedAt: null });
+      const event = createEvent(
+        "PATCH",
+        "/players/277e909a-6536-4d2d-937e-f608759556f9",
+        { deletedAt: null },
+      );
       const response: any = await handler(event);
       expect(response.statusCode).toBe(200);
     });
@@ -260,11 +295,21 @@ describe("Lambda Handler", () => {
       ddbMock.on(UpdateCommand).resolves({});
       ddbMock
         .on(GetCommand)
-        .resolves({ Item: { id: "277e909a-6536-4d2d-937e-f608759556fa", teamId: "277e909a-6536-4d2d-937e-f608759556fb", completed: 1 } });
+        .resolves({
+          Item: {
+            id: "277e909a-6536-4d2d-937e-f608759556fa",
+            teamId: "277e909a-6536-4d2d-937e-f608759556fb",
+            completed: 1,
+          },
+        });
       s3Mock.on(PutObjectCommand).resolves({});
       ddbMock.on(QueryCommand).resolves({ Items: [] });
 
-      const event = createEvent("PATCH", "/games/277e909a-6536-4d2d-937e-f608759556fa", { deletedAt: null });
+      const event = createEvent(
+        "PATCH",
+        "/games/277e909a-6536-4d2d-937e-f608759556fa",
+        { deletedAt: null },
+      );
       const response: any = await handler(event);
 
       expect(response.statusCode).toBe(200);
