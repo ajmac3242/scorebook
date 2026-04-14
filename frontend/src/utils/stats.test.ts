@@ -11,6 +11,7 @@ import {
   calculatePlayerStreaks,
   calculateLineupStats,
   getBonusStatus,
+  calculateStopsAndKills,
 } from "./stats";
 import { TeamPlayer, StatEvent, Game } from "../db";
 import { ACTION_TYPES } from "../constants/stats";
@@ -606,7 +607,7 @@ describe("stats utilities", () => {
   });
 
   describe("calculateScoreFlow", () => {
-    it("generates score flow data correctly", () => {
+    it("generates score flow data correctly using game clock", () => {
       const stats: StatEvent[] = [
         {
           gameId: "g1",
@@ -614,7 +615,8 @@ describe("stats utilities", () => {
           type: ACTION_TYPES.MAKE,
           points: 2,
           period: 1,
-          timestamp: "2023-01-01T10:00:00Z",
+          clockTime: 590, // 0:10 elapsed
+          timestamp: "t1",
         },
         {
           gameId: "g1",
@@ -622,13 +624,24 @@ describe("stats utilities", () => {
           type: ACTION_TYPES.MAKE,
           points: 3,
           period: 1,
-          timestamp: "2023-01-01T10:05:00Z",
+          clockTime: 300, // 5:00 elapsed
+          timestamp: "t2",
+        },
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          period: 2,
+          clockTime: 540, // 10:00 + 1:00 = 11:00 elapsed
+          timestamp: "t3",
         },
       ];
-      const results = calculateScoreFlow(stats);
-      expect(results.length).toBe(3);
-      expect(results[1]).toEqual({ time: "00:00", Team: 2, Opponent: 0 });
-      expect(results[2]).toEqual({ time: "05:00", Team: 2, Opponent: 3 });
+      const results = calculateScoreFlow(stats, 10);
+      expect(results.length).toBe(4);
+      expect(results[1]).toEqual({ time: "0:10", Team: 2, Opponent: 0 });
+      expect(results[2]).toEqual({ time: "5:00", Team: 2, Opponent: 3 });
+      expect(results[3]).toEqual({ time: "11:00", Team: 4, Opponent: 3 });
     });
   });
 
@@ -1059,6 +1072,138 @@ describe("stats utilities", () => {
       ];
       const result = calculatePlayerStreaks(stats);
       expect(result.get("p1")).toBe("HOT");
+    });
+  });
+
+  describe("calculateStopsAndKills", () => {
+    it("calculates stops and kills correctly", () => {
+      const stats: StatEvent[] = [
+        // Stop 1: Turnover
+        {
+          gameId: "g1",
+          playerId: "OPPONENT",
+          type: ACTION_TYPES.TURNOVER,
+          timestamp: "1",
+          period: 1,
+        },
+        // Stop 2: Miss + Def Rebound
+        {
+          gameId: "g1",
+          playerId: "OPPONENT",
+          type: ACTION_TYPES.MISS,
+          timestamp: "2",
+          period: 1,
+        },
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.DEF_REBOUND,
+          timestamp: "3",
+          period: 1,
+        },
+        // Stop 3: Another Turnover -> Should trigger a Kill
+        {
+          gameId: "g1",
+          playerId: "OPPONENT",
+          type: ACTION_TYPES.TURNOVER,
+          timestamp: "4",
+          period: 1,
+        },
+      ];
+      const result = calculateStopsAndKills(stats);
+      expect(result.totalStops).toBe(3);
+      expect(result.totalKills).toBe(1);
+      expect(result.currentStreak).toBe(0);
+    });
+
+    it("breaks streak on opponent score", () => {
+      const stats: StatEvent[] = [
+        {
+          gameId: "g1",
+          playerId: "OPPONENT",
+          type: ACTION_TYPES.TURNOVER,
+          timestamp: "1",
+          period: 1,
+        },
+        {
+          gameId: "g1",
+          playerId: "OPPONENT",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "2",
+          period: 1,
+        },
+        {
+          gameId: "g1",
+          playerId: "OPPONENT",
+          type: ACTION_TYPES.TURNOVER,
+          timestamp: "3",
+          period: 1,
+        },
+      ];
+      const result = calculateStopsAndKills(stats);
+      expect(result.totalStops).toBe(2);
+      expect(result.totalKills).toBe(0);
+      expect(result.currentStreak).toBe(1);
+    });
+
+    it("does NOT count stop on offensive rebound", () => {
+      const stats: StatEvent[] = [
+        {
+          gameId: "g1",
+          playerId: "OPPONENT",
+          type: ACTION_TYPES.MISS,
+          timestamp: "1",
+          period: 1,
+        },
+        {
+          gameId: "g1",
+          playerId: "OPPONENT",
+          type: ACTION_TYPES.OFF_REBOUND,
+          timestamp: "2",
+          period: 1,
+        },
+        {
+          gameId: "g1",
+          playerId: "OPPONENT",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "3",
+          period: 1,
+        },
+      ];
+      const result = calculateStopsAndKills(stats);
+      expect(result.totalStops).toBe(0);
+      expect(result.currentStreak).toBe(0);
+    });
+
+    it("handles multiple misses in one possession without double counting", () => {
+      const stats: StatEvent[] = [
+        {
+          gameId: "g1",
+          playerId: "OPPONENT",
+          type: ACTION_TYPES.MISS,
+          timestamp: "1",
+          period: 1,
+        },
+        {
+          gameId: "g1",
+          playerId: "OPPONENT",
+          type: ACTION_TYPES.MISS,
+          timestamp: "2",
+          period: 1,
+        },
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.DEF_REBOUND,
+          timestamp: "3",
+          period: 1,
+        },
+      ];
+      const result = calculateStopsAndKills(stats);
+      // Currently this might fail and return 2 stops if my analysis is correct
+      expect(result.totalStops).toBe(1);
     });
   });
 
