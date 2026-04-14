@@ -1,3 +1,20 @@
+## Redesign Dashboard page
+**Priority:** HIGH
+**Type:** Feature
+**Why:** The current Dashboard page does not offer any benefits. 
+**What:** Swap out the dashboard page for "My Team" page. My team will be determined by adding a star next to the individual team name on the team page. The team that has the star enabled will now represent the My Team page. 
+**Acceptance Criteria:**
+- [ ] My Team page will show overall stats, heatmaps, and upcoming games for the team
+- [ ] More data can be added to this page. The intent is to give coaches all the high-level information they need at a quick glance.
+
+## Update Edit Team Details
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Coaches need to be able to set default settings for a team 
+**What:** On the Edit Team Details dialog, we need to add a defaults section where we can add/update game defaults. These game defaults can be overwritten when setting up a game but these should be the default values. 
+**Acceptance Criteria:**
+- [ ] All customizable basketball settings should be in this dialog. These settings should include period types, minutes for each period, number of timeouts allowed, and number of fouls allowed. As others are discovered, they should go here. 
+            
 ## Live Game Clock & Minutes Tracking
 **Priority:** HIGH
 **Type:** Feature
