@@ -46,6 +46,7 @@ import {
   PlayArrow,
   Pause,
   RestartAlt,
+  Add as AddIcon,
 } from "@mui/icons-material";
 import {
   Table,
@@ -144,6 +145,10 @@ interface ScoreboardProps {
   maxPeriod: number;
   onQuickAction?: (_type: string, _points?: number) => void;
   isReadOnly: boolean;
+  opponentJerseys?: string[];
+  selectedOpponentId?: string;
+  onAddOpponentJersey?: () => void;
+  onSelectOpponent?: (_id: string) => void;
 }
 
 const Scoreboard = React.memo(
@@ -160,6 +165,10 @@ const Scoreboard = React.memo(
     onToggleClock,
     onResetClock,
     isClockRunning,
+    opponentJerseys = [],
+    selectedOpponentId = SPECIAL_PLAYER_IDS.OPPONENT,
+    onAddOpponentJersey,
+    onSelectOpponent,
   }: ScoreboardProps & {
     clockSeconds: number;
     onToggleClock: () => void;
@@ -302,7 +311,78 @@ const Scoreboard = React.memo(
           Why: Allows scorekeepers to record opponent scores and fouls with a single tap,
           avoiding the need to switch tracking modes during high-pressure live play. */}
         {isOpponent && !isReadOnly && (
-          <Stack direction="row" spacing={0.5} sx={{ mt: 1 }}>
+          <Stack
+            direction="column"
+            alignItems={isOpponent ? "flex-end" : "flex-start"}
+            spacing={1}
+            sx={{ mt: 1 }}
+          >
+            {/* Individual Opponent Selector */}
+            <Box
+              sx={{
+                display: "flex",
+                gap: 0.5,
+                flexWrap: "wrap",
+                justifyContent: isOpponent ? "flex-end" : "flex-start",
+              }}
+            >
+              <Chip
+                label="Gen"
+                size="small"
+                onClick={() =>
+                  onSelectOpponent &&
+                  onSelectOpponent(SPECIAL_PLAYER_IDS.OPPONENT)
+                }
+                color={
+                  selectedOpponentId === SPECIAL_PLAYER_IDS.OPPONENT
+                    ? "primary"
+                    : "default"
+                }
+                variant={
+                  selectedOpponentId === SPECIAL_PLAYER_IDS.OPPONENT
+                    ? "filled"
+                    : "outlined"
+                }
+                sx={{
+                  height: 20,
+                  fontSize: "0.6rem",
+                  color: "white",
+                  borderColor: "rgba(255,255,255,0.3)",
+                }}
+              />
+              {opponentJerseys.map((j) => {
+                const id = `${SPECIAL_PLAYER_IDS.OPPONENT}:${j}`;
+                return (
+                  <Chip
+                    key={j}
+                    label={`#${j}`}
+                    size="small"
+                    onClick={() => onSelectOpponent && onSelectOpponent(id)}
+                    color={selectedOpponentId === id ? "primary" : "default"}
+                    variant={selectedOpponentId === id ? "filled" : "outlined"}
+                    sx={{
+                      height: 20,
+                      fontSize: "0.6rem",
+                      color: "white",
+                      borderColor: "rgba(255,255,255,0.3)",
+                    }}
+                  />
+                );
+              })}
+              <IconButton
+                size="small"
+                onClick={onAddOpponentJersey}
+                sx={{
+                  p: 0,
+                  color: "rgba(255,255,255,0.5)",
+                  "&:hover": { color: "white" },
+                }}
+              >
+                <AddIcon sx={{ fontSize: 16 }} />
+              </IconButton>
+            </Box>
+
+            <Stack direction="row" spacing={0.5}>
             {[1, 2, 3].map((pts) => (
               <Button
                 key={pts}
@@ -389,7 +469,8 @@ const Scoreboard = React.memo(
               F
             </Button>
           </Stack>
-        )}
+        </Stack>
+      )}
       </Box>
     );
 
@@ -741,6 +822,11 @@ const GameMode: React.FC = () => {
   const [statType, setStatType] = useState<string | null>(null);
   const [points, setPoints] = useState<number>(2);
 
+  const [opponentJerseys, setOpponentJerseys] = useState<string[]>([]);
+  const [selectedOpponentId, setSelectedOpponentId] = useState<string>(
+    SPECIAL_PLAYER_IDS.OPPONENT,
+  );
+
   const [clockSeconds, setClockSeconds] = useState<number>(0);
   const [isClockRunning, setIsClockRunning] = useState(false);
 
@@ -921,14 +1007,19 @@ const GameMode: React.FC = () => {
     let oppTimeouts = 0;
     let posState = null;
     const onCourt = new Set<string>();
+    const stintStarts = new Map<string, number>();
     const pType = team?.periodType || "QUARTERS";
 
     for (let i = 0; i < sortedGameStats.length; i++) {
       const s = sortedGameStats[i];
       if (s.deletedAt) continue;
 
+      const isOpp =
+        s.playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
+        s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":");
+
       // Score
-      if (s.playerId === SPECIAL_PLAYER_IDS.OPPONENT) {
+      if (isOpp) {
         oppScore += s.points || 0;
       } else {
         curScore += s.points || 0;
@@ -937,7 +1028,7 @@ const GameMode: React.FC = () => {
       // Fouls (Period-aware)
       if (s.type === ACTION_TYPES.FOUL) {
         if (isEventInPeriod(s.period, period, pType)) {
-          if (s.playerId === SPECIAL_PLAYER_IDS.OPPONENT) {
+          if (isOpp) {
             oppFouls++;
           } else {
             teamFouls++;
@@ -947,7 +1038,7 @@ const GameMode: React.FC = () => {
 
       // Timeouts
       if (s.type === ACTION_TYPES.TIMEOUT) {
-        if (s.playerId === SPECIAL_PLAYER_IDS.OPPONENT) {
+        if (isOpp) {
           oppTimeouts++;
         } else {
           teamTimeouts++;
@@ -962,10 +1053,26 @@ const GameMode: React.FC = () => {
       // Lineup
       if (s.type === ACTION_TYPES.SUB_IN) {
         onCourt.add(s.playerId);
+        if (s.period === period) {
+          stintStarts.set(s.playerId, s.clockTime ?? (game?.periodLength ? game.periodLength * 60 : 600));
+        }
       } else if (s.type === ACTION_TYPES.SUB_OUT) {
         onCourt.delete(s.playerId);
+        stintStarts.delete(s.playerId);
       }
     }
+
+    // For players already on court at start of period without a SUB_IN event this period
+    onCourt.forEach(pId => {
+      if (!stintStarts.has(pId)) {
+        stintStarts.set(pId, game?.periodLength ? game.periodLength * 60 : 600);
+      }
+    });
+
+    const stintDurations = new Map<string, number>();
+    stintStarts.forEach((startClock, pId) => {
+      stintDurations.set(pId, Math.max(0, startClock - clockSeconds));
+    });
 
     const MAX_TIMEOUTS = team?.fouls || 3;
     const teamBonus = getBonusStatus(teamFouls, pType);
@@ -990,9 +1097,10 @@ const GameMode: React.FC = () => {
       },
       possessionState: posState,
       onCourtIds: onCourt,
+      stintDurations,
       recentStats: sortedGameStats.slice(-10).reverse(),
     };
-  }, [sortedGameStats, period, team?.periodType, team?.fouls]);
+  }, [sortedGameStats, period, team?.periodType, team?.fouls, clockSeconds, game?.periodLength]);
 
   // Initialize draft state when dialog opens
   useEffect(() => {
@@ -1182,13 +1290,13 @@ const GameMode: React.FC = () => {
 
       // Auto-select opponent if in opponent tracking mode
       if (trackingMode === "OPPONENT") {
-        setSelectedPlayerId(SPECIAL_PLAYER_IDS.OPPONENT);
+        setSelectedPlayerId(selectedOpponentId);
       } else {
         setSelectedPlayerId(null);
       }
       setDialogOpen(true);
     },
-    [isReadOnly, trackingMode],
+    [isReadOnly, trackingMode, selectedOpponentId],
   );
 
   /**
@@ -1531,7 +1639,7 @@ const GameMode: React.FC = () => {
         await db.stats.add({
           id: crypto.randomUUID(),
           gameId: gameId,
-          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          playerId: selectedOpponentId,
           type: type,
           points: pts,
           locationX: 50,
@@ -1556,7 +1664,7 @@ const GameMode: React.FC = () => {
         });
       }
     },
-    [gameId, isReadOnly, period, clockSeconds],
+    [gameId, isReadOnly, period, clockSeconds, selectedOpponentId],
   );
 
   const handleTogglePossession = useCallback(async () => {
@@ -1620,6 +1728,16 @@ const GameMode: React.FC = () => {
               }
             }}
             onResetClock={handleResetClock}
+            opponentJerseys={opponentJerseys}
+            selectedOpponentId={selectedOpponentId}
+            onAddOpponentJersey={() => {
+              const jersey = window.prompt("Enter opponent jersey number:");
+              if (jersey && !opponentJerseys.includes(jersey)) {
+                setOpponentJerseys((prev) => [...prev, jersey]);
+                setSelectedOpponentId(`${SPECIAL_PLAYER_IDS.OPPONENT}:${jersey}`);
+              }
+            }}
+            onSelectOpponent={(id) => setSelectedOpponentId(id)}
           />
 
           <MoleskineCard>
@@ -1838,6 +1956,15 @@ const GameMode: React.FC = () => {
                                   sx={{ fontSize: "0.6rem", opacity: 0.9 }}
                                 >
                                   {pts} pts |
+                                  {(() => {
+                                    const stintSecs = gameData.stintDurations.get(p.id!) || 0;
+                                    const color = stintSecs > 480 ? theme.palette.error.main : stintSecs > 360 ? theme.palette.warning.main : "inherit";
+                                    return (
+                                      <Box component="span" sx={{ color, fontWeight: stintSecs > 360 ? 700 : 400, ml: 0.5 }}>
+                                        T-MIN: {formatClock(stintSecs)} |
+                                      </Box>
+                                    );
+                                  })()}
                                   <Box
                                     component="span"
                                     sx={{
@@ -2086,6 +2213,10 @@ const GameMode: React.FC = () => {
             {(() => {
               if (selectedPlayerId === SPECIAL_PLAYER_IDS.OPPONENT) {
                 return game?.opponent || "Opponent";
+              }
+              if (selectedPlayerId?.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":")) {
+                const jersey = selectedOpponentId.split(":")[1];
+                return `${game?.opponent || "Opponent"} #${jersey}`;
               }
               const p = players?.find((p) => p.id === selectedPlayerId);
               if (!p) return "Select Player";
@@ -2706,13 +2837,21 @@ const RecentActionItem: React.FC<{
     onEdit,
     onDelete,
   }) => {
+    const getOpponentName = (pId: string) => {
+      if (pId === SPECIAL_PLAYER_IDS.OPPONENT) return opponentName || "Opponent";
+      if (pId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":")) {
+        const jersey = pId.split(":")[1];
+        return `${opponentName || "Opponent"} #${jersey}`;
+      }
+      return null;
+    };
+
     const playerName =
-      stat.playerId === SPECIAL_PLAYER_IDS.OPPONENT
-        ? opponentName || "Opponent"
-        : stat.playerId === SPECIAL_PLAYER_IDS.TEAM_TIMEOUT ||
-            stat.playerId === SPECIAL_PLAYER_IDS.OUR_TEAM
-          ? teamName || "Our Team"
-          : players?.find((p) => p.id === stat.playerId)?.name || "Unknown";
+      getOpponentName(stat.playerId) ||
+      (stat.playerId === SPECIAL_PLAYER_IDS.TEAM_TIMEOUT ||
+      stat.playerId === SPECIAL_PLAYER_IDS.OUR_TEAM
+        ? teamName || "Our Team"
+        : players?.find((p) => p.id === stat.playerId)?.name || "Unknown");
 
     const getActionIcon = (type: string) => {
       const iconSx = { fontSize: 16, mr: 1, verticalAlign: "middle" };

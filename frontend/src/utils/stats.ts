@@ -213,7 +213,10 @@ export const updateScores = (
 ) => {
   if (stat.type === ACTION_TYPES.MAKE) {
     const points = stat.points || 0;
-    if (stat.playerId === SPECIAL_PLAYER_IDS.OPPONENT) {
+    if (
+      stat.playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
+      stat.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":")
+    ) {
       scores.opp += points;
     } else {
       scores.team += points;
@@ -443,7 +446,10 @@ export const calculatePlayerAggregates = (
     // ⚡ Bolt: Inline updateScores to minimize function call overhead in hot loop.
     if (type === ACTION_TYPES.MAKE) {
       const pts = stat.points || 0;
-      if (playerId === SPECIAL_PLAYER_IDS.OPPONENT) {
+      if (
+        playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
+        playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":")
+      ) {
         scores.opp += pts;
       } else {
         scores.team += pts;
@@ -584,7 +590,9 @@ export const calculateTeamAggregates = (
     const totals = gameTotals.get(stat.gameId);
     if (!totals) continue;
 
-    const isOpponent = stat.playerId === SPECIAL_PLAYER_IDS.OPPONENT;
+    const isOpponent =
+      stat.playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
+      stat.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":");
     const pts = stat.type === ACTION_TYPES.MAKE ? stat.points || 0 : 0;
     updateScores(stat, totals);
 
@@ -648,7 +656,11 @@ export const calculateOpponentAggregates = (
 
   for (let i = 0; i < stats.length; i++) {
     const stat = stats[i];
-    if (stat.deletedAt || stat.playerId !== SPECIAL_PLAYER_IDS.OPPONENT)
+    if (
+      stat.deletedAt ||
+      (stat.playerId !== SPECIAL_PLAYER_IDS.OPPONENT &&
+        !stat.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":"))
+    )
       continue;
 
     applyActionToAggregate(agg, stat);
@@ -681,7 +693,10 @@ export const calculateScoreFlow = (stats: StatEvent[]): ScoreFlowPoint[] => {
 
     // ⚡ Bolt: Inline updateScores logic to improve performance in this hot path.
     const pts = stat.points || 0;
-    if (stat.playerId === SPECIAL_PLAYER_IDS.OPPONENT) {
+    if (
+      stat.playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
+      stat.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":")
+    ) {
       scores.opp += pts;
     } else {
       scores.team += pts;
