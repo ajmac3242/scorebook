@@ -516,19 +516,27 @@ async function handleTeams(
  * @returns {unknown} A sanitized copy of the event.
  */
 function maskEvent(event: APIGatewayProxyEventV2): unknown {
-  const masked = { ...event };
-  if (masked.headers) {
-    const redactedHeaders = { ...masked.headers };
-    for (const key in redactedHeaders) {
-      if (
-        Object.prototype.hasOwnProperty.call(redactedHeaders, key) &&
-        REDACTED_HEADERS.has(key.toLowerCase())
-      ) {
-        redactedHeaders[key] = "[REDACTED]";
-      }
+  if (!event.headers) return event;
+
+  // ⚡ Bolt: Check for redacted headers before cloning to avoid unnecessary allocations.
+  let hasRedactable = false;
+  for (const key in event.headers) {
+    if (REDACTED_HEADERS.has(key.toLowerCase())) {
+      hasRedactable = true;
+      break;
     }
-    masked.headers = redactedHeaders;
   }
+
+  if (!hasRedactable) return event;
+
+  const masked = { ...event };
+  const redactedHeaders = { ...masked.headers };
+  for (const key in redactedHeaders) {
+    if (REDACTED_HEADERS.has(key.toLowerCase())) {
+      redactedHeaders[key] = "[REDACTED]";
+    }
+  }
+  masked.headers = redactedHeaders;
   return masked;
 }
 

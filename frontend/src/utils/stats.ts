@@ -452,7 +452,53 @@ export const calculatePlayerAggregates = (
 
     const player = statsMap.get(playerId);
     if (player) {
-      processStatEvent(player, stat);
+      // ⚡ Bolt: Inline processStatEvent and applyActionToAggregate to minimize overhead.
+      player.gamesPlayed.add(stat.gameId);
+      switch (type) {
+        case ACTION_TYPES.MAKE:
+          player.points += stat.points || 0;
+          if (stat.points === 1) {
+            player.fta++;
+          } else {
+            player.makes++;
+            player.attempts++;
+          }
+          if (stat.points === 3) player.threePM++;
+          break;
+        case ACTION_TYPES.MISS:
+          if (stat.points === 1) {
+            player.fta++;
+          } else {
+            player.attempts++;
+          }
+          break;
+        case ACTION_TYPES.REBOUND:
+          player.rebounds++;
+          break;
+        case ACTION_TYPES.OFF_REBOUND:
+          player.offRebounds++;
+          player.rebounds++;
+          break;
+        case ACTION_TYPES.DEF_REBOUND:
+          player.defRebounds++;
+          player.rebounds++;
+          break;
+        case ACTION_TYPES.BLOCK:
+          player.blocks++;
+          break;
+        case ACTION_TYPES.ASSIST:
+          player.assists++;
+          break;
+        case ACTION_TYPES.STEAL:
+          player.steals++;
+          break;
+        case ACTION_TYPES.TURNOVER:
+          player.turnovers++;
+          break;
+        case ACTION_TYPES.FOUL:
+          player.fouls++;
+          break;
+      }
     }
 
     // Handle Sub-In/Sub-Out for MIN and Plus-Minus
@@ -823,86 +869,110 @@ export const calculateLineupStats = (
     liveContext?: { clockTime: number; period: number };
   } = {},
 ): LineupAggregates[] => {
-  // Group stats by gameId to handle multi-game aggregation correctly
-  const statsByGame = new Map<string, StatEvent[]>();
-  for (const s of stats) {
-    if (!statsByGame.has(s.gameId)) statsByGame.set(s.gameId, []);
-    statsByGame.get(s.gameId)!.push(s);
-  }
-
+  // ⚡ Bolt: Process events in a single pass to avoid grouping overhead.
+  const sortedStats = options.isSorted ? stats : sortStats(stats);
   const lineupStats = new Map<string, LineupAggregates>();
   const periodLen = options.periodLength ? options.periodLength * 60 : 600;
 
-  for (const [gameId, gameStats] of statsByGame.entries()) {
-    const sortedStats = options.isSorted ? gameStats : sortStats(gameStats);
+  let currentLineup = new Set<string>();
+  let cachedLineupKey: string | null = null;
+  let lastClockTime = periodLen;
+  let lastTeamScore = 0;
+  let lastOppScore = 0;
+  let currentPeriod = 1;
+  let currentGameId: string | null = null;
+  const scores = { team: 0, opp: 0 };
 
-    let currentLineup = new Set<string>();
-    let lastClockTime = periodLen; // Default to start of P1
-    let lastTeamScore = 0;
-    let lastOppScore = 0;
-    let currentPeriod = 1;
-    const scores = { team: 0, opp: 0 };
+  for (let i = 0; i < sortedStats.length; i++) {
+    const s = sortedStats[i];
+    if (s.deletedAt) continue;
 
-    for (let i = 0; i < sortedStats.length; i++) {
-      const s = sortedStats[i];
-      if (s.deletedAt) continue;
-
-      // Handle period transition
-      if (s.period > currentPeriod) {
-        if (currentLineup.size === 5) {
-          recordLineupStint(
-            lineupStats,
-            getLineupKey(currentLineup),
-            lastClockTime, // Time remaining in previous period
-            scores.team - lastTeamScore,
-            scores.opp - lastOppScore,
-          );
-        }
-        lastClockTime = periodLen; // Reset for new period
-        lastTeamScore = scores.team;
-        lastOppScore = scores.opp;
-        currentPeriod = s.period;
+    // ⚡ Bolt: Handle multi-game aggregation by detecting game context changes in-stream.
+    if (currentGameId !== null && s.gameId !== currentGameId) {
+      if (currentLineup.size === 5) {
+        if (!cachedLineupKey) cachedLineupKey = getLineupKey(currentLineup);
+        recordLineupStint(
+          lineupStats,
+          cachedLineupKey,
+          lastClockTime,
+          scores.team - lastTeamScore,
+          scores.opp - lastOppScore,
+        );
       }
+      currentLineup.clear();
+      cachedLineupKey = null;
+      lastClockTime = periodLen;
+      lastTeamScore = 0;
+      lastOppScore = 0;
+      currentPeriod = 1;
+      scores.team = 0;
+      scores.opp = 0;
+    }
+    currentGameId = s.gameId;
 
-      // Track score
-      updateScores(s, scores);
-
-      // When lineup changes, record stats for the previous lineup
-      if (s.type === ACTION_TYPES.SUB_IN || s.type === ACTION_TYPES.SUB_OUT) {
-        if (currentLineup.size === 5 && s.clockTime !== undefined) {
-          recordLineupStint(
-            lineupStats,
-            getLineupKey(currentLineup),
-            lastClockTime - s.clockTime,
-            scores.team - lastTeamScore,
-            scores.opp - lastOppScore,
-          );
-        }
-
-        if (s.type === ACTION_TYPES.SUB_IN) currentLineup.add(s.playerId);
-        else currentLineup.delete(s.playerId);
-
-        lastClockTime = s.clockTime || 0;
-        lastTeamScore = scores.team;
-        lastOppScore = scores.opp;
+    // Handle period transition
+    if (s.period > currentPeriod) {
+      if (currentLineup.size === 5) {
+        if (!cachedLineupKey) cachedLineupKey = getLineupKey(currentLineup);
+        recordLineupStint(
+          lineupStats,
+          cachedLineupKey,
+          lastClockTime,
+          scores.team - lastTeamScore,
+          scores.opp - lastOppScore,
+        );
       }
+      lastClockTime = periodLen;
+      lastTeamScore = scores.team;
+      lastOppScore = scores.opp;
+      currentPeriod = s.period;
     }
 
-    // Final stint for this game
-    if (currentLineup.size === 5) {
-      const liveCtx = options.liveContext;
-      const endClock =
-        liveCtx && gameId === stats[stats.length - 1]?.gameId
-          ? liveCtx.clockTime
-          : 0;
-      recordLineupStint(
-        lineupStats,
-        getLineupKey(currentLineup),
-        Math.max(0, lastClockTime - endClock),
-        scores.team - lastTeamScore,
-        scores.opp - lastOppScore,
-      );
+    // ⚡ Bolt: Inline updateScores for performance.
+    if (s.type === ACTION_TYPES.MAKE) {
+      const pts = s.points || 0;
+      if (s.playerId === SPECIAL_PLAYER_IDS.OPPONENT) scores.opp += pts;
+      else scores.team += pts;
     }
+
+    // When lineup changes, record stats for the previous lineup
+    if (s.type === ACTION_TYPES.SUB_IN || s.type === ACTION_TYPES.SUB_OUT) {
+      if (currentLineup.size === 5 && s.clockTime !== undefined) {
+        if (!cachedLineupKey) cachedLineupKey = getLineupKey(currentLineup);
+        recordLineupStint(
+          lineupStats,
+          cachedLineupKey,
+          lastClockTime - s.clockTime,
+          scores.team - lastTeamScore,
+          scores.opp - lastOppScore,
+        );
+      }
+
+      if (s.type === ACTION_TYPES.SUB_IN) currentLineup.add(s.playerId);
+      else currentLineup.delete(s.playerId);
+      cachedLineupKey = null; // Invalidate lineup key cache
+
+      lastClockTime = s.clockTime || 0;
+      lastTeamScore = scores.team;
+      lastOppScore = scores.opp;
+    }
+  }
+
+  // Final stint
+  if (currentGameId !== null && currentLineup.size === 5) {
+    const liveCtx = options.liveContext;
+    const endClock =
+      liveCtx && currentGameId === sortedStats[sortedStats.length - 1]?.gameId
+        ? liveCtx.clockTime
+        : 0;
+    if (!cachedLineupKey) cachedLineupKey = getLineupKey(currentLineup);
+    recordLineupStint(
+      lineupStats,
+      cachedLineupKey,
+      Math.max(0, lastClockTime - endClock),
+      scores.team - lastTeamScore,
+      scores.opp - lastOppScore,
+    );
   }
 
   return Array.from(lineupStats.values())
