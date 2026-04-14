@@ -25,11 +25,7 @@ import {
 } from "@mui/icons-material";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db, type StatEvent } from "../db";
-import {
-  MoleskineCard,
-  PageHeader,
-  StatItem,
-} from "../components/SharedUI";
+import { MoleskineCard, PageHeader, StatItem } from "../components/SharedUI";
 import { calculateTeamAggregates, getInitials } from "../utils/stats";
 import BasketballCourt from "../components/BasketballCourt";
 import { getShotZone } from "../utils/shotZones";
@@ -51,23 +47,26 @@ const Dashboard: React.FC = () => {
   const teamId = favoriteTeam?.id;
 
   // Fetch games for the favorite team
-  const teamGames = useLiveQuery(
-    async () =>
-      teamId
-        ? await db.games.where("teamId").equals(teamId).toArray()
-        : [],
-    [teamId],
-  ) || [];
+  const teamGames =
+    useLiveQuery(
+      async () =>
+        teamId ? await db.games.where("teamId").equals(teamId).toArray() : [],
+      [teamId],
+    ) || [];
 
   // Fetch stats for all those games
-  const gameIds = useMemo(() => teamGames.map((g) => g.id).filter(Boolean) as string[], [teamGames]);
-  const allStats = useLiveQuery(
-    async () =>
-      gameIds.length > 0
-        ? await db.stats.where("gameId").anyOf(gameIds).toArray()
-        : [],
-    [gameIds],
-  ) || [];
+  const gameIds = useMemo(
+    () => teamGames.map((g) => g.id).filter(Boolean) as string[],
+    [teamGames],
+  );
+  const allStats =
+    useLiveQuery(
+      async () =>
+        gameIds.length > 0
+          ? await db.stats.where("gameId").anyOf(gameIds).toArray()
+          : [],
+      [gameIds],
+    ) || [];
 
   const aggregates = useMemo(
     () => calculateTeamAggregates(teamGames, allStats),
@@ -92,7 +91,9 @@ const Dashboard: React.FC = () => {
   const upcomingGames = useMemo(() => {
     const now = dayjs();
     return teamGames
-      .filter((g) => !g.completed && dayjs(g.date).isAfter(now.subtract(1, 'day')))
+      .filter(
+        (g) => !g.completed && dayjs(g.date).isAfter(now.subtract(1, "day")),
+      )
       .sort((a, b) => dayjs(a.date).diff(dayjs(b.date)))
       .slice(0, 3);
   }, [teamGames]);
@@ -135,7 +136,7 @@ const Dashboard: React.FC = () => {
 
   return (
     <Box sx={{ pb: 4 }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 3, gap: 2 }}>
+      <Box sx={{ display: "flex", alignItems: "center", mb: 3, gap: 2 }}>
         <Avatar
           src={favoriteTeam.logoUrl}
           variant="rounded"
@@ -146,20 +147,36 @@ const Dashboard: React.FC = () => {
             fontSize: "1.5rem",
             fontWeight: "bold",
             color: "white",
-            boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
           }}
         >
           {getInitials(favoriteTeam.name)}
         </Avatar>
         <Box>
-          <Typography variant="h4" sx={{ fontFamily: "var(--serif)", fontWeight: 800 }}>
+          <Typography
+            variant="h4"
+            sx={{ fontFamily: "var(--serif)", fontWeight: 800 }}
+          >
             {favoriteTeam.name}
           </Typography>
           <Chip
-            icon={<StarIcon sx={{ fontSize: '1rem !important', color: '#FFD700 !important' }} />}
+            icon={
+              <StarIcon
+                sx={{
+                  fontSize: "1rem !important",
+                  color: "#FFD700 !important",
+                }}
+              />
+            }
             label="My Team"
             size="small"
-            sx={{ mt: 0.5, fontWeight: 600, bgcolor: 'rgba(255, 215, 0, 0.1)', color: '#B8860B', border: '1px solid rgba(255, 215, 0, 0.3)' }}
+            sx={{
+              mt: 0.5,
+              fontWeight: 600,
+              bgcolor: "rgba(255, 215, 0, 0.1)",
+              color: "#B8860B",
+              border: "1px solid rgba(255, 215, 0, 0.3)",
+            }}
           />
         </Box>
       </Box>
@@ -167,10 +184,12 @@ const Dashboard: React.FC = () => {
       <Grid container spacing={3}>
         {/* Key Stats */}
         <Grid item xs={12} md={8}>
-          <MoleskineCard sx={{ height: '100%' }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 3, gap: 1 }}>
+          <MoleskineCard sx={{ height: "100%" }}>
+            <Box sx={{ display: "flex", alignItems: "center", mb: 3, gap: 1 }}>
               <TrendingUp color="primary" />
-              <Typography variant="h6" sx={{ fontWeight: 700 }}>Season Aggregates</Typography>
+              <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                Season Aggregates
+              </Typography>
             </Box>
             <Grid container spacing={2}>
               <Grid item xs={6} sm={3}>
@@ -189,11 +208,13 @@ const Dashboard: React.FC = () => {
 
             <Divider sx={{ my: 4 }} />
 
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, gap: 1 }}>
+            <Box sx={{ display: "flex", alignItems: "center", mb: 2, gap: 1 }}>
               <Assessment color="primary" />
-              <Typography variant="h6" sx={{ fontWeight: 700 }}>Shot Efficiency (Heatmap)</Typography>
+              <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                Shot Efficiency (Heatmap)
+              </Typography>
             </Box>
-            <Box sx={{ maxWidth: 600, mx: 'auto', p: 1 }}>
+            <Box sx={{ maxWidth: 600, mx: "auto", p: 1 }}>
               <BasketballCourt heatmapData={heatmapData} />
             </Box>
           </MoleskineCard>
@@ -203,12 +224,20 @@ const Dashboard: React.FC = () => {
         <Grid item xs={12} md={4}>
           <Stack spacing={3}>
             <MoleskineCard>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, gap: 1 }}>
+              <Box
+                sx={{ display: "flex", alignItems: "center", mb: 2, gap: 1 }}
+              >
                 <Event color="primary" />
-                <Typography variant="h6" sx={{ fontWeight: 700 }}>Upcoming Games</Typography>
+                <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                  Upcoming Games
+                </Typography>
               </Box>
               {upcomingGames.length === 0 ? (
-                <Typography variant="body2" color="text.secondary" sx={{ py: 2, textAlign: 'center' }}>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ py: 2, textAlign: "center" }}
+                >
                   No upcoming games scheduled.
                 </Typography>
               ) : (
@@ -219,15 +248,19 @@ const Dashboard: React.FC = () => {
                       sx={{
                         p: 2,
                         borderRadius: 2,
-                        bgcolor: 'rgba(0,0,0,0.02)',
-                        border: '1px solid rgba(0,0,0,0.05)',
-                        cursor: 'pointer',
-                        '&:hover': { bgcolor: 'rgba(0,0,0,0.04)' }
+                        bgcolor: "rgba(0,0,0,0.02)",
+                        border: "1px solid rgba(0,0,0,0.05)",
+                        cursor: "pointer",
+                        "&:hover": { bgcolor: "rgba(0,0,0,0.04)" },
                       }}
                       onClick={() => navigate(`/game/stats?gameId=${game.id}`)}
                     >
-                      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
-                        {dayjs(game.date).format('MMM D, YYYY')} {game.time}
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        sx={{ display: "block", mb: 0.5 }}
+                      >
+                        {dayjs(game.date).format("MMM D, YYYY")} {game.time}
                       </Typography>
                       <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
                         vs {game.opponent}
@@ -249,13 +282,23 @@ const Dashboard: React.FC = () => {
               </Button>
             </MoleskineCard>
 
-            <MoleskineCard sx={{ bgcolor: favoriteTeam.primaryColor || 'primary.main', color: 'white' }}>
-              <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>Quick Actions</Typography>
+            <MoleskineCard
+              sx={{
+                bgcolor: favoriteTeam.primaryColor || "primary.main",
+                color: "white",
+              }}
+            >
+              <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
+                Quick Actions
+              </Typography>
               <Stack spacing={1.5}>
                 <Button
                   fullWidth
                   variant="contained"
-                  sx={{ bgcolor: 'rgba(255,255,255,0.2)', '&:hover': { bgcolor: 'rgba(255,255,255,0.3)' } }}
+                  sx={{
+                    bgcolor: "rgba(255,255,255,0.2)",
+                    "&:hover": { bgcolor: "rgba(255,255,255,0.3)" },
+                  }}
                   startIcon={<AddIcon />}
                   onClick={() => navigate(`/teams/${favoriteTeam.id}`)}
                 >
@@ -264,7 +307,10 @@ const Dashboard: React.FC = () => {
                 <Button
                   fullWidth
                   variant="contained"
-                  sx={{ bgcolor: 'rgba(255,255,255,0.2)', '&:hover': { bgcolor: 'rgba(255,255,255,0.3)' } }}
+                  sx={{
+                    bgcolor: "rgba(255,255,255,0.2)",
+                    "&:hover": { bgcolor: "rgba(255,255,255,0.3)" },
+                  }}
                   startIcon={<Assessment />}
                   onClick={() => navigate(`/teams/${favoriteTeam.id}`)}
                 >

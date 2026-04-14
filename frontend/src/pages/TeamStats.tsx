@@ -99,7 +99,9 @@ const TeamStats: React.FC = () => {
   const [editName, setEditName] = useState("");
   const [editLogoUrl, setEditLogoUrl] = useState("");
   const [editColor, setEditColor] = useState("#154C56");
-  const [editPeriodType, setEditPeriodType] = useState<"QUARTERS" | "HALVES">("QUARTERS");
+  const [editPeriodType, setEditPeriodType] = useState<"QUARTERS" | "HALVES">(
+    "QUARTERS",
+  );
   const [editPeriodLength, setEditPeriodLength] = useState<number>(10);
   const [editTimeoutLimit, setEditTimeoutLimit] = useState<number>(3);
   const [editFoulLimit, setEditFoulLimit] = useState<number>(5);
@@ -116,7 +118,9 @@ const TeamStats: React.FC = () => {
   const [newDate, setNewDate] = useState("");
   const [newTime, setNewTime] = useState("");
   const [newLocation, setNewLocation] = useState("");
-  const [newPeriodType, setNewPeriodType] = useState<"QUARTERS" | "HALVES">("QUARTERS");
+  const [newPeriodType, setNewPeriodType] = useState<"QUARTERS" | "HALVES">(
+    "QUARTERS",
+  );
   const [newPeriodLength, setNewPeriodLength] = useState<number>(10);
   const [newTimeoutLimit, setNewTimeoutLimit] = useState<number>(3);
   const [newFoulLimit, setNewFoulLimit] = useState<number>(5);
@@ -145,7 +149,9 @@ const TeamStats: React.FC = () => {
       setEditLogoUrl(team.logoUrl || "");
       setEditColor(team.primaryColor || "#154C56");
       setEditPeriodType(team.periodType || "QUARTERS");
-      setEditPeriodLength(team.defaultPeriodLength || (team.periodType === "HALVES" ? 20 : 10));
+      setEditPeriodLength(
+        team.defaultPeriodLength || (team.periodType === "HALVES" ? 20 : 10),
+      );
       setEditTimeoutLimit(team.defaultTimeoutLimit || team.fouls || 3);
       setEditFoulLimit(team.defaultFoulLimit || 5);
     }
@@ -482,7 +488,9 @@ const TeamStats: React.FC = () => {
     setActiveStep(0);
     if (team) {
       setNewPeriodType(team.periodType || "QUARTERS");
-      setNewPeriodLength(team.defaultPeriodLength || (team.periodType === "HALVES" ? 20 : 10));
+      setNewPeriodLength(
+        team.defaultPeriodLength || (team.periodType === "HALVES" ? 20 : 10),
+      );
       setNewTimeoutLimit(team.defaultTimeoutLimit || team.fouls || 3);
       setNewFoulLimit(team.defaultFoulLimit || 5);
     }
@@ -1174,7 +1182,9 @@ const TeamStats: React.FC = () => {
               <Select
                 value={editPeriodType}
                 label="Period Type"
-                onChange={(e) => setEditPeriodType(e.target.value as "QUARTERS" | "HALVES")}
+                onChange={(e) =>
+                  setEditPeriodType(e.target.value as "QUARTERS" | "HALVES")
+                }
               >
                 <MenuItem value="QUARTERS">Quarters</MenuItem>
                 <MenuItem value="HALVES">Halves</MenuItem>
@@ -1186,7 +1196,9 @@ const TeamStats: React.FC = () => {
               label="Period Length (Minutes)"
               type="number"
               value={editPeriodLength}
-              onChange={(e) => setEditPeriodLength(parseInt(e.target.value) || 0)}
+              onChange={(e) =>
+                setEditPeriodLength(parseInt(e.target.value) || 0)
+              }
               inputProps={{ min: 1 }}
             />
 
@@ -1196,7 +1208,9 @@ const TeamStats: React.FC = () => {
                 label="Timeouts"
                 type="number"
                 value={editTimeoutLimit}
-                onChange={(e) => setEditTimeoutLimit(parseInt(e.target.value) || 0)}
+                onChange={(e) =>
+                  setEditTimeoutLimit(parseInt(e.target.value) || 0)
+                }
                 inputProps={{ min: 0 }}
               />
               <TextField
@@ -1204,7 +1218,9 @@ const TeamStats: React.FC = () => {
                 label="Foul Limit"
                 type="number"
                 value={editFoulLimit}
-                onChange={(e) => setEditFoulLimit(parseInt(e.target.value) || 0)}
+                onChange={(e) =>
+                  setEditFoulLimit(parseInt(e.target.value) || 0)
+                }
                 inputProps={{ min: 1 }}
               />
             </Stack>
@@ -1510,7 +1526,10 @@ const TeamStats: React.FC = () => {
               variant="contained"
               onClick={handleAddGame}
               disabled={isSubmittingGame}
-              sx={{ bgcolor: "success.main", "&:hover": { bgcolor: "success.dark" } }}
+              sx={{
+                bgcolor: "success.main",
+                "&:hover": { bgcolor: "success.dark" },
+              }}
             >
               {isSubmittingGame ? "Creating..." : "Create Game"}
             </Button>
