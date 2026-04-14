@@ -383,15 +383,37 @@ const Scoreboard = React.memo(
             </Box>
 
             <Stack direction="row" spacing={0.5}>
-            {[1, 2, 3].map((pts) => (
+              {[1, 2, 3].map((pts) => (
+                <Button
+                  key={pts}
+                  size="small"
+                  variant="outlined"
+                  color="secondary"
+                  aria-label={`Record opponent +${pts} points`}
+                  onClick={() =>
+                    onQuickAction && onQuickAction(ACTION_TYPES.MAKE, pts)
+                  }
+                  sx={{
+                    minWidth: 0,
+                    px: 0.8,
+                    py: 0.2,
+                    fontSize: "0.65rem",
+                    fontWeight: 800,
+                    borderColor: "rgba(255,255,255,0.3)",
+                    color: "white",
+                    "&:hover": { borderColor: "white" },
+                  }}
+                >
+                  +{pts}
+                </Button>
+              ))}
               <Button
-                key={pts}
                 size="small"
                 variant="outlined"
                 color="secondary"
-                aria-label={`Record opponent +${pts} points`}
+                aria-label="Record opponent rebound"
                 onClick={() =>
-                  onQuickAction && onQuickAction(ACTION_TYPES.MAKE, pts)
+                  onQuickAction && onQuickAction(ACTION_TYPES.REBOUND)
                 }
                 sx={{
                   minWidth: 0,
@@ -404,73 +426,53 @@ const Scoreboard = React.memo(
                   "&:hover": { borderColor: "white" },
                 }}
               >
-                +{pts}
+                REB
               </Button>
-            ))}
-            <Button
-              size="small"
-              variant="outlined"
-              color="secondary"
-              aria-label="Record opponent rebound"
-              onClick={() =>
-                onQuickAction && onQuickAction(ACTION_TYPES.REBOUND)
-              }
-              sx={{
-                minWidth: 0,
-                px: 0.8,
-                py: 0.2,
-                fontSize: "0.65rem",
-                fontWeight: 800,
-                borderColor: "rgba(255,255,255,0.3)",
-                color: "white",
-                "&:hover": { borderColor: "white" },
-              }}
-            >
-              REB
-            </Button>
-            <Button
-              size="small"
-              variant="outlined"
-              color="warning"
-              aria-label="Record opponent turnover"
-              onClick={() =>
-                onQuickAction && onQuickAction(ACTION_TYPES.TURNOVER)
-              }
-              sx={{
-                minWidth: 0,
-                px: 0.8,
-                py: 0.2,
-                fontSize: "0.65rem",
-                fontWeight: 800,
-                borderColor: "rgba(255,255,255,0.3)",
-                color: "white",
-                "&:hover": { borderColor: "white" },
-              }}
-            >
-              TO
-            </Button>
-            <Button
-              size="small"
-              variant="outlined"
-              color="error"
-              aria-label="Record opponent foul"
-              onClick={() => onQuickAction && onQuickAction(ACTION_TYPES.FOUL)}
-              sx={{
-                minWidth: 0,
-                px: 0.8,
-                py: 0.2,
-                fontSize: "0.65rem",
-                fontWeight: 800,
-                borderColor: "rgba(255,255,255,0.3)",
-                color: theme.palette.error.light,
-                "&:hover": { borderColor: "white" },
-              }}
-            >
-              F
-            </Button>
+              <Button
+                size="small"
+                variant="outlined"
+                color="warning"
+                aria-label="Record opponent turnover"
+                onClick={() =>
+                  onQuickAction && onQuickAction(ACTION_TYPES.TURNOVER)
+                }
+                sx={{
+                  minWidth: 0,
+                  px: 0.8,
+                  py: 0.2,
+                  fontSize: "0.65rem",
+                  fontWeight: 800,
+                  borderColor: "rgba(255,255,255,0.3)",
+                  color: "white",
+                  "&:hover": { borderColor: "white" },
+                }}
+              >
+                TO
+              </Button>
+              <Button
+                size="small"
+                variant="outlined"
+                color="error"
+                aria-label="Record opponent foul"
+                onClick={() =>
+                  onQuickAction && onQuickAction(ACTION_TYPES.FOUL)
+                }
+                sx={{
+                  minWidth: 0,
+                  px: 0.8,
+                  py: 0.2,
+                  fontSize: "0.65rem",
+                  fontWeight: 800,
+                  borderColor: "rgba(255,255,255,0.3)",
+                  color: theme.palette.error.light,
+                  "&:hover": { borderColor: "white" },
+                }}
+              >
+                F
+              </Button>
+            </Stack>
           </Stack>
-        </Stack>
-      )}
+        )}
       </Box>
     );
 
@@ -1054,7 +1056,10 @@ const GameMode: React.FC = () => {
       if (s.type === ACTION_TYPES.SUB_IN) {
         onCourt.add(s.playerId);
         if (s.period === period) {
-          stintStarts.set(s.playerId, s.clockTime ?? (game?.periodLength ? game.periodLength * 60 : 600));
+          stintStarts.set(
+            s.playerId,
+            s.clockTime ?? (game?.periodLength ? game.periodLength * 60 : 600),
+          );
         }
       } else if (s.type === ACTION_TYPES.SUB_OUT) {
         onCourt.delete(s.playerId);
@@ -1063,7 +1068,7 @@ const GameMode: React.FC = () => {
     }
 
     // For players already on court at start of period without a SUB_IN event this period
-    onCourt.forEach(pId => {
+    onCourt.forEach((pId) => {
       if (!stintStarts.has(pId)) {
         stintStarts.set(pId, game?.periodLength ? game.periodLength * 60 : 600);
       }
@@ -1100,7 +1105,14 @@ const GameMode: React.FC = () => {
       stintDurations,
       recentStats: sortedGameStats.slice(-10).reverse(),
     };
-  }, [sortedGameStats, period, team?.periodType, team?.fouls, clockSeconds, game?.periodLength]);
+  }, [
+    sortedGameStats,
+    period,
+    team?.periodType,
+    team?.fouls,
+    clockSeconds,
+    game?.periodLength,
+  ]);
 
   // Initialize draft state when dialog opens
   useEffect(() => {
@@ -1734,7 +1746,9 @@ const GameMode: React.FC = () => {
               const jersey = window.prompt("Enter opponent jersey number:");
               if (jersey && !opponentJerseys.includes(jersey)) {
                 setOpponentJerseys((prev) => [...prev, jersey]);
-                setSelectedOpponentId(`${SPECIAL_PLAYER_IDS.OPPONENT}:${jersey}`);
+                setSelectedOpponentId(
+                  `${SPECIAL_PLAYER_IDS.OPPONENT}:${jersey}`,
+                );
               }
             }}
             onSelectOpponent={(id) => setSelectedOpponentId(id)}
@@ -1957,10 +1971,24 @@ const GameMode: React.FC = () => {
                                 >
                                   {pts} pts |
                                   {(() => {
-                                    const stintSecs = gameData.stintDurations.get(p.id!) || 0;
-                                    const color = stintSecs > 480 ? theme.palette.error.main : stintSecs > 360 ? theme.palette.warning.main : "inherit";
+                                    const stintSecs =
+                                      gameData.stintDurations.get(p.id!) || 0;
+                                    const color =
+                                      stintSecs > 480
+                                        ? theme.palette.error.main
+                                        : stintSecs > 360
+                                          ? theme.palette.warning.main
+                                          : "inherit";
                                     return (
-                                      <Box component="span" sx={{ color, fontWeight: stintSecs > 360 ? 700 : 400, ml: 0.5 }}>
+                                      <Box
+                                        component="span"
+                                        sx={{
+                                          color,
+                                          fontWeight:
+                                            stintSecs > 360 ? 700 : 400,
+                                          ml: 0.5,
+                                        }}
+                                      >
                                         T-MIN: {formatClock(stintSecs)} |
                                       </Box>
                                     );
@@ -2214,7 +2242,9 @@ const GameMode: React.FC = () => {
               if (selectedPlayerId === SPECIAL_PLAYER_IDS.OPPONENT) {
                 return game?.opponent || "Opponent";
               }
-              if (selectedPlayerId?.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":")) {
+              if (
+                selectedPlayerId?.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":")
+              ) {
                 const jersey = selectedOpponentId.split(":")[1];
                 return `${game?.opponent || "Opponent"} #${jersey}`;
               }
@@ -2838,7 +2868,8 @@ const RecentActionItem: React.FC<{
     onDelete,
   }) => {
     const getOpponentName = (pId: string) => {
-      if (pId === SPECIAL_PLAYER_IDS.OPPONENT) return opponentName || "Opponent";
+      if (pId === SPECIAL_PLAYER_IDS.OPPONENT)
+        return opponentName || "Opponent";
       if (pId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":")) {
         const jersey = pId.split(":")[1];
         return `${opponentName || "Opponent"} #${jersey}`;
