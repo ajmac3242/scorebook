@@ -72,6 +72,15 @@ const VALID_ACTION_TYPES = new Set([
 ]);
 
 /**
+ * Standardized IDs for special players.
+ */
+const SPECIAL_PLAYER_IDS = {
+  OPPONENT: "OPPONENT",
+  TEAM_TIMEOUT: "TEAM_TIMEOUT",
+  OUR_TEAM: "OUR_TEAM",
+};
+
+/**
  * Regex for validating UUID v4 format.
  * Prevents path traversal and other injection attacks via IDs.
  */
@@ -85,6 +94,25 @@ const UUID_REGEX =
  */
 function isValidUuid(id: unknown): id is string {
   return typeof id === "string" && UUID_REGEX.test(id);
+}
+
+/**
+ * Validates if a string is a valid player ID.
+ * Accepts UUID v4 or special player IDs (including jersey-specific ones).
+ * @param {unknown} id - The ID to validate.
+ * @returns {boolean} True if it's a valid player ID.
+ */
+function isValidPlayerId(id: unknown): boolean {
+  if (typeof id !== "string") return false;
+  if (isValidUuid(id)) return true;
+  if (id === SPECIAL_PLAYER_IDS.TEAM_TIMEOUT) return true;
+  if (id === SPECIAL_PLAYER_IDS.OUR_TEAM) return true;
+  if (id === SPECIAL_PLAYER_IDS.OPPONENT) return true;
+  if ((id as string).startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":")) {
+    const jersey = (id as string).split(":")[1];
+    return !!jersey && jersey.length > 0 && jersey.length <= 5;
+  }
+  return false;
 }
 
 const Keys = {
@@ -150,6 +178,9 @@ async function handlePlayers(
   if (!match) return null;
 
   const playerId = match[1];
+  if (!isValidUuid(playerId)) {
+    return badRequest("Invalid playerId format (UUID required)");
+  }
   const playerKey = { PK: Keys.player(playerId), SK: Keys.metadata(playerId) };
 
   if (method === "DELETE") {
@@ -218,6 +249,9 @@ async function handleGames(
   if (path === "/games") {
     if (method === "GET") {
       const teamId = event.queryStringParameters?.teamId;
+      if (!isValidUuid(teamId)) {
+        return badRequest("Valid teamId (UUID) is required");
+      }
       return await getItemsByGSI(`TEAM#${teamId}`, tableName);
     }
     if (method === "POST") {
@@ -251,6 +285,9 @@ async function handleGames(
   const gameDetailMatch = path.match(/^\/games\/([^\/]+)$/);
   if (gameDetailMatch) {
     const gameId = gameDetailMatch[1];
+    if (!isValidUuid(gameId)) {
+      return badRequest("Invalid gameId format (UUID required)");
+    }
     if (method === "DELETE") {
       const getResp = await docClient.send(
         new GetCommand({
@@ -291,6 +328,9 @@ async function handleGames(
   const gameCompleteMatch = path.match(/^\/games\/([^\/]+)\/complete$/);
   if (gameCompleteMatch && method === "POST") {
     const gameId = gameCompleteMatch[1];
+    if (!isValidUuid(gameId)) {
+      return badRequest("Invalid gameId format (UUID required)");
+    }
     const getResp = await docClient.send(
       new GetCommand({
         TableName: tableName,
@@ -315,6 +355,9 @@ async function handleGames(
   const gameStatsMatch = path.match(/^\/games\/([^\/]+)\/stats$/);
   if (gameStatsMatch) {
     const gameId = gameStatsMatch[1];
+    if (!isValidUuid(gameId)) {
+      return badRequest("Invalid gameId format (UUID required)");
+    }
     if (method === "GET") {
       const result = await docClient.send(
         new QueryCommand({
@@ -341,6 +384,27 @@ async function handleGames(
         (typeof body.points !== "number" || body.points < 0 || body.points > 3)
       ) {
         return badRequest("Points must be a number between 0 and 3");
+      }
+      if (!isValidPlayerId(body.playerId)) {
+        return badRequest("Valid playerId is required");
+      }
+      if (
+        body.period !== undefined &&
+        (typeof body.period !== "number" || body.period < 1)
+      ) {
+        return badRequest("Period must be at least 1");
+      }
+      if (
+        body.clockTime !== undefined &&
+        (typeof body.clockTime !== "number" || body.clockTime < 0)
+      ) {
+        return badRequest("Clock time must be at least 0");
+      }
+      if (
+        (body.locationX !== undefined && typeof body.locationX !== "number") ||
+        (body.locationY !== undefined && typeof body.locationY !== "number")
+      ) {
+        return badRequest("Location coordinates must be numbers");
       }
 
       const id = (body?.id as string) || uuidv4();
@@ -425,6 +489,9 @@ async function handleTeams(
   const teamDetailMatch = path.match(/^\/teams\/([^\/]+)$/);
   if (teamDetailMatch) {
     const teamId = teamDetailMatch[1];
+    if (!isValidUuid(teamId)) {
+      return badRequest("Invalid teamId format (UUID required)");
+    }
     if (method === "DELETE") {
       const resp = await softDeleteItem("TEAM", "METADATA", teamId, tableName);
       if (resp.statusCode === 200) await deleteTeamSnapshots(teamId);
@@ -448,6 +515,9 @@ async function handleTeams(
   const teamPlayersMatch = path.match(/^\/teams\/([^\/]+)\/players$/);
   if (teamPlayersMatch) {
     const teamId = teamPlayersMatch[1];
+    if (!isValidUuid(teamId)) {
+      return badRequest("Invalid teamId format (UUID required)");
+    }
     if (method === "GET")
       return await getItemsByGSI(`TEAM#${teamId}`, tableName);
     if (method === "POST") {
@@ -478,6 +548,9 @@ async function handleTeams(
   if (teamPlayerDetailMatch) {
     const teamId = teamPlayerDetailMatch[1];
     const playerId = teamPlayerDetailMatch[2];
+    if (!isValidUuid(teamId) || !isValidUuid(playerId)) {
+      return badRequest("Invalid teamId or playerId format (UUID required)");
+    }
     if (method === "DELETE") {
       await docClient.send(
         new UpdateCommand({
@@ -935,8 +1008,14 @@ function accumulateScores(stats: Record<string, unknown>[]) {
   let oppScore = 0;
   for (let i = 0; i < stats.length; i++) {
     const s = stats[i];
-    if (s.playerId === "OPPONENT") oppScore += (s.points as number) || 0;
-    else teamScore += (s.points as number) || 0;
+    if (
+      typeof s.playerId === "string" &&
+      s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT)
+    ) {
+      oppScore += (s.points as number) || 0;
+    } else {
+      teamScore += (s.points as number) || 0;
+    }
   }
   return { teamScore, oppScore };
 }
