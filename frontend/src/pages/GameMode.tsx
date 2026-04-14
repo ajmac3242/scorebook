@@ -5,7 +5,13 @@
  * on an interactive court, manage active lineups, and track opponent scoring.
  */
 
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+  useRef,
+} from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import {
   Box,
@@ -37,7 +43,6 @@ import {
   PanTool,
   SwapHoriz,
   Edit,
-  PersonAdd,
   Delete,
   FlashOn,
   Warning,
@@ -47,6 +52,7 @@ import {
   PlayArrow,
   Pause,
   RestartAlt,
+  Add as AddIcon,
 } from "@mui/icons-material";
 import {
   Table,
@@ -108,7 +114,6 @@ interface ScoreboardProps {
         opponentLogoUrl?: string;
         completed?: number;
         deletedAt?: string;
-        opponentRoster?: string[];
       }
     | null
     | undefined;
@@ -146,8 +151,10 @@ interface ScoreboardProps {
   maxPeriod: number;
   onQuickAction?: (_type: string, _points?: number) => void;
   isReadOnly: boolean;
-  selectedOpponentId?: string | null;
-  onSelectOpponent?: (_id: string | null) => void;
+  opponentJerseys?: string[];
+  selectedOpponentId?: string;
+  onAddOpponentJersey?: () => void;
+  onSelectOpponent?: (_id: string) => void;
 }
 
 const Scoreboard = React.memo(
@@ -164,7 +171,9 @@ const Scoreboard = React.memo(
     onToggleClock,
     onResetClock,
     isClockRunning,
-    selectedOpponentId,
+    opponentJerseys = [],
+    selectedOpponentId = SPECIAL_PLAYER_IDS.OPPONENT,
+    onAddOpponentJersey,
     onSelectOpponent,
   }: ScoreboardProps & {
     clockSeconds: number;
@@ -308,92 +317,173 @@ const Scoreboard = React.memo(
           Why: Allows scorekeepers to record opponent scores and fouls with a single tap,
           avoiding the need to switch tracking modes during high-pressure live play. */}
         {isOpponent && !isReadOnly && (
-          <Stack direction="row" spacing={0.5} sx={{ mt: 1 }}>
-            {[1, 2, 3].map((pts) => (
-              <Button
-                key={pts}
+          <Stack
+            direction="column"
+            alignItems={isOpponent ? "flex-end" : "flex-start"}
+            spacing={1}
+            sx={{ mt: 1 }}
+          >
+            {/* Individual Opponent Selector */}
+            <Box
+              sx={{
+                display: "flex",
+                gap: 0.5,
+                flexWrap: "wrap",
+                justifyContent: isOpponent ? "flex-end" : "flex-start",
+              }}
+            >
+              <Chip
+                label="Gen"
                 size="small"
-                variant="outlined"
-                color="secondary"
-                aria-label={`Record opponent +${pts} points`}
                 onClick={() =>
-                  onQuickAction && onQuickAction(ACTION_TYPES.MAKE, pts)
+                  onSelectOpponent &&
+                  onSelectOpponent(SPECIAL_PLAYER_IDS.OPPONENT)
+                }
+                color={
+                  selectedOpponentId === SPECIAL_PLAYER_IDS.OPPONENT
+                    ? "primary"
+                    : "default"
+                }
+                variant={
+                  selectedOpponentId === SPECIAL_PLAYER_IDS.OPPONENT
+                    ? "filled"
+                    : "outlined"
                 }
                 sx={{
-                  minWidth: 0,
-                  px: 0.8,
-                  py: 0.2,
-                  fontSize: "0.65rem",
-                  fontWeight: 800,
-                  borderColor: "rgba(255,255,255,0.3)",
+                  height: 20,
+                  fontSize: "0.6rem",
                   color: "white",
-                  "&:hover": { borderColor: "white" },
+                  borderColor: "rgba(255,255,255,0.3)",
+                }}
+              />
+              {opponentJerseys.map((j) => {
+                const id = `${SPECIAL_PLAYER_IDS.OPPONENT}:${j}`;
+                return (
+                  <Chip
+                    key={j}
+                    label={`#${j}`}
+                    size="small"
+                    onClick={() => onSelectOpponent && onSelectOpponent(id)}
+                    color={selectedOpponentId === id ? "primary" : "default"}
+                    variant={selectedOpponentId === id ? "filled" : "outlined"}
+                    sx={{
+                      height: 20,
+                      fontSize: "0.6rem",
+                      color: "white",
+                      borderColor: "rgba(255,255,255,0.3)",
+                    }}
+                  />
+                );
+              })}
+              <IconButton
+                size="small"
+                onClick={onAddOpponentJersey}
+                sx={{
+                  p: 0,
+                  color: "rgba(255,255,255,0.5)",
+                  "&:hover": { color: "white" },
                 }}
               >
-                +{pts}
-              </Button>
-            ))}
-            <Button
-              size="small"
-              variant="outlined"
-              color="secondary"
-              aria-label="Record opponent rebound"
-              onClick={() =>
-                onQuickAction && onQuickAction(ACTION_TYPES.REBOUND)
-              }
-              sx={{
-                minWidth: 0,
-                px: 0.8,
-                py: 0.2,
-                fontSize: "0.65rem",
-                fontWeight: 800,
-                borderColor: "rgba(255,255,255,0.3)",
-                color: "white",
-                "&:hover": { borderColor: "white" },
-              }}
-            >
-              REB
-            </Button>
-            <Button
-              size="small"
-              variant="outlined"
-              color="warning"
-              aria-label="Record opponent turnover"
-              onClick={() =>
-                onQuickAction && onQuickAction(ACTION_TYPES.TURNOVER)
-              }
-              sx={{
-                minWidth: 0,
-                px: 0.8,
-                py: 0.2,
-                fontSize: "0.65rem",
-                fontWeight: 800,
-                borderColor: "rgba(255,255,255,0.3)",
-                color: "white",
-                "&:hover": { borderColor: "white" },
-              }}
-            >
-              TO
-            </Button>
-            <Button
-              size="small"
-              variant="outlined"
-              color="error"
-              aria-label="Record opponent foul"
-              onClick={() => onQuickAction && onQuickAction(ACTION_TYPES.FOUL)}
-              sx={{
-                minWidth: 0,
-                px: 0.8,
-                py: 0.2,
-                fontSize: "0.65rem",
-                fontWeight: 800,
-                borderColor: "rgba(255,255,255,0.3)",
-                color: theme.palette.error.light,
-                "&:hover": { borderColor: "white" },
-              }}
-            >
-              F
-            </Button>
+                <AddIcon sx={{ fontSize: 16 }} />
+              </IconButton>
+            </Box>
+
+            <Stack direction="row" spacing={0.5}>
+              {[1, 2, 3].map((pts) => (
+                <Tooltip key={pts} title={`Record opponent +${pts} points`}>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    color="secondary"
+                    aria-label={`Record opponent +${pts} points`}
+                    onClick={() =>
+                      onQuickAction && onQuickAction(ACTION_TYPES.MAKE, pts)
+                    }
+                    sx={{
+                      minWidth: 0,
+                      px: 0.8,
+                      py: 0.2,
+                      fontSize: "0.65rem",
+                      fontWeight: 800,
+                      borderColor: "rgba(255,255,255,0.3)",
+                      color: "white",
+                      "&:hover": { borderColor: "white" },
+                    }}
+                  >
+                    +{pts}
+                  </Button>
+                </Tooltip>
+              ))}
+              <Tooltip title="Record opponent rebound">
+                <Button
+                  size="small"
+                  variant="outlined"
+                  color="secondary"
+                  aria-label="Record opponent rebound"
+                  onClick={() =>
+                    onQuickAction && onQuickAction(ACTION_TYPES.REBOUND)
+                  }
+                  sx={{
+                    minWidth: 0,
+                    px: 0.8,
+                    py: 0.2,
+                    fontSize: "0.65rem",
+                    fontWeight: 800,
+                    borderColor: "rgba(255,255,255,0.3)",
+                    color: "white",
+                    "&:hover": { borderColor: "white" },
+                  }}
+                >
+                  REB
+                </Button>
+              </Tooltip>
+              <Tooltip title="Record opponent turnover">
+                <Button
+                  size="small"
+                  variant="outlined"
+                  color="warning"
+                  aria-label="Record opponent turnover"
+                  onClick={() =>
+                    onQuickAction && onQuickAction(ACTION_TYPES.TURNOVER)
+                  }
+                  sx={{
+                    minWidth: 0,
+                    px: 0.8,
+                    py: 0.2,
+                    fontSize: "0.65rem",
+                    fontWeight: 800,
+                    borderColor: "rgba(255,255,255,0.3)",
+                    color: "white",
+                    "&:hover": { borderColor: "white" },
+                  }}
+                >
+                  TO
+                </Button>
+              </Tooltip>
+              <Tooltip title="Record opponent foul">
+                <Button
+                  size="small"
+                  variant="outlined"
+                  color="error"
+                  aria-label="Record opponent foul"
+                  onClick={() =>
+                    onQuickAction && onQuickAction(ACTION_TYPES.FOUL)
+                  }
+                  sx={{
+                    minWidth: 0,
+                    px: 0.8,
+                    py: 0.2,
+                    fontSize: "0.65rem",
+                    fontWeight: 800,
+                    borderColor: "rgba(255,255,255,0.3)",
+                    color: theme.palette.error.light,
+                    "&:hover": { borderColor: "white" },
+                  }}
+                >
+                  F
+                </Button>
+              </Tooltip>
+            </Stack>
           </Stack>
         )}
       </Box>
@@ -594,52 +684,6 @@ const Scoreboard = React.memo(
           game?.opponentLogoUrl,
           true,
         )}
-
-        {/* 🏀 CoachBoard: Opponent Jersey Tracking
-          Why: Allows quick selection of tracked opponents for individual stats. */}
-        <Box
-          sx={{
-            position: "absolute",
-            bottom: 8,
-            right: 16,
-            display: "flex",
-            gap: 0.5,
-            alignItems: "center",
-          }}
-        >
-          {game?.opponentRoster?.map((jersey) => (
-            <Chip
-              key={jersey}
-              label={`#${jersey}`}
-              size="small"
-              onClick={() =>
-                onSelectOpponent?.(SPECIAL_PLAYER_IDS.OPPONENT_PREFIX + jersey)
-              }
-              onDelete={
-                selectedOpponentId ===
-                SPECIAL_PLAYER_IDS.OPPONENT_PREFIX + jersey
-                  ? () => onSelectOpponent?.(null)
-                  : undefined
-              }
-              color={
-                selectedOpponentId ===
-                SPECIAL_PLAYER_IDS.OPPONENT_PREFIX + jersey
-                  ? "secondary"
-                  : "default"
-              }
-              sx={{
-                height: 20,
-                fontSize: "0.6rem",
-                bgcolor:
-                  selectedOpponentId ===
-                  SPECIAL_PLAYER_IDS.OPPONENT_PREFIX + jersey
-                    ? "secondary.main"
-                    : "rgba(255,255,255,0.1)",
-                color: "white",
-              }}
-            />
-          ))}
-        </Box>
       </Box>
     );
   },
@@ -793,7 +837,16 @@ const GameMode: React.FC = () => {
   const [statType, setStatType] = useState<string | null>(null);
   const [points, setPoints] = useState<number>(2);
 
+  const [opponentJerseys, setOpponentJerseys] = useState<string[]>([]);
+  const [selectedOpponentId, setSelectedOpponentId] = useState<string>(
+    SPECIAL_PLAYER_IDS.OPPONENT,
+  );
+
   const [clockSeconds, setClockSeconds] = useState<number>(0);
+  const clockSecondsRef = useRef(clockSeconds);
+  useEffect(() => {
+    clockSecondsRef.current = clockSeconds;
+  }, [clockSeconds]);
   const [isClockRunning, setIsClockRunning] = useState(false);
 
   const [sortConfig, setSortConfig] = useState<{
@@ -844,11 +897,6 @@ const GameMode: React.FC = () => {
   );
   const [selectedSwapId, setSelectedSwapId] = useState<string | null>(null);
 
-  const [opponentRoster, setOpponentRoster] = useState<string[]>([]);
-  const [selectedOpponentId, setSelectedOpponentId] = useState<string | null>(
-    null,
-  );
-
   const [period, setPeriod] = useState<number>(1);
   const [trackingMode, setTrackingMode] = useState<"TEAM" | "OPPONENT">("TEAM");
 
@@ -897,14 +945,10 @@ const GameMode: React.FC = () => {
       // Default to periodLength if set, otherwise 10 mins (600s)
       setClockSeconds(game?.periodLength ? game.periodLength * 60 : 600);
     }
-    if (game?.opponentRoster) {
-      setOpponentRoster(game.opponentRoster);
-    }
   }, [
     game?.currentPeriod,
     game?.clockTime,
     game?.periodLength,
-    game?.opponentRoster,
     period,
     isClockRunning,
     clockSeconds,
@@ -923,15 +967,19 @@ const GameMode: React.FC = () => {
     return () => clearInterval(interval);
   }, [isClockRunning, clockSeconds]);
 
-  // Auto-sync clock to DB every 5 seconds if running
+  // ⚡ Bolt: Auto-sync clock to DB every 5 seconds if running.
+  // Using a ref for clockSeconds prevents the interval from being re-created every second.
   useEffect(() => {
     if (isClockRunning && gameId) {
       const syncInterval = setInterval(async () => {
-        await db.games.update(gameId, { clockTime: clockSeconds, synced: 0 });
+        await db.games.update(gameId, {
+          clockTime: clockSecondsRef.current,
+          synced: 0,
+        });
       }, 5000);
       return () => clearInterval(syncInterval);
     }
-  }, [isClockRunning, gameId, clockSeconds]);
+  }, [isClockRunning, gameId]);
 
   const isReadOnly = !!game?.deletedAt || !!team?.deletedAt;
   const periodType = team?.periodType || "QUARTERS";
@@ -982,14 +1030,19 @@ const GameMode: React.FC = () => {
     let oppTimeouts = 0;
     let posState = null;
     const onCourt = new Set<string>();
+    const stintStarts = new Map<string, number>();
     const pType = team?.periodType || "QUARTERS";
 
     for (let i = 0; i < sortedGameStats.length; i++) {
       const s = sortedGameStats[i];
       if (s.deletedAt) continue;
 
+      const isOpp =
+        s.playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
+        s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":");
+
       // Score
-      if (s.playerId === SPECIAL_PLAYER_IDS.OPPONENT) {
+      if (isOpp) {
         oppScore += s.points || 0;
       } else {
         curScore += s.points || 0;
@@ -998,7 +1051,7 @@ const GameMode: React.FC = () => {
       // Fouls (Period-aware)
       if (s.type === ACTION_TYPES.FOUL) {
         if (isEventInPeriod(s.period, period, pType)) {
-          if (s.playerId === SPECIAL_PLAYER_IDS.OPPONENT) {
+          if (isOpp) {
             oppFouls++;
           } else {
             teamFouls++;
@@ -1008,7 +1061,7 @@ const GameMode: React.FC = () => {
 
       // Timeouts
       if (s.type === ACTION_TYPES.TIMEOUT) {
-        if (s.playerId === SPECIAL_PLAYER_IDS.OPPONENT) {
+        if (isOpp) {
           oppTimeouts++;
         } else {
           teamTimeouts++;
@@ -1023,10 +1076,29 @@ const GameMode: React.FC = () => {
       // Lineup
       if (s.type === ACTION_TYPES.SUB_IN) {
         onCourt.add(s.playerId);
+        if (s.period === period) {
+          stintStarts.set(
+            s.playerId,
+            s.clockTime ?? (game?.periodLength ? game.periodLength * 60 : 600),
+          );
+        }
       } else if (s.type === ACTION_TYPES.SUB_OUT) {
         onCourt.delete(s.playerId);
+        stintStarts.delete(s.playerId);
       }
     }
+
+    // For players already on court at start of period without a SUB_IN event this period
+    onCourt.forEach((pId) => {
+      if (!stintStarts.has(pId)) {
+        stintStarts.set(pId, game?.periodLength ? game.periodLength * 60 : 600);
+      }
+    });
+
+    const stintDurations = new Map<string, number>();
+    stintStarts.forEach((startClock, pId) => {
+      stintDurations.set(pId, Math.max(0, startClock - clockSeconds));
+    });
 
     const MAX_TIMEOUTS = team?.fouls || 3;
     const teamBonus = getBonusStatus(teamFouls, pType);
@@ -1051,9 +1123,17 @@ const GameMode: React.FC = () => {
       },
       possessionState: posState,
       onCourtIds: onCourt,
+      stintDurations,
       recentStats: sortedGameStats.slice(-10).reverse(),
     };
-  }, [sortedGameStats, period, team?.periodType, team?.fouls]);
+  }, [
+    sortedGameStats,
+    period,
+    team?.periodType,
+    team?.fouls,
+    clockSeconds,
+    game?.periodLength,
+  ]);
 
   // Initialize draft state when dialog opens
   useEffect(() => {
@@ -1079,9 +1159,18 @@ const GameMode: React.FC = () => {
       "total",
       {
         isSorted: true,
+        periodLength: game?.periodLength,
+        liveContext: { clockTime: clockSeconds, period },
       },
     );
-  }, [players, sortedGameStats, teamPlayers]);
+  }, [
+    players,
+    sortedGameStats,
+    teamPlayers,
+    game?.periodLength,
+    clockSeconds,
+    period,
+  ]);
 
   const sortedStatsGridData = useMemo(() => {
     return [...statsGridData].sort((a, b) => {
@@ -1234,13 +1323,13 @@ const GameMode: React.FC = () => {
 
       // Auto-select opponent if in opponent tracking mode
       if (trackingMode === "OPPONENT") {
-        setSelectedPlayerId(SPECIAL_PLAYER_IDS.OPPONENT);
+        setSelectedPlayerId(selectedOpponentId);
       } else {
         setSelectedPlayerId(null);
       }
       setDialogOpen(true);
     },
-    [isReadOnly, trackingMode],
+    [isReadOnly, trackingMode, selectedOpponentId],
   );
 
   /**
@@ -1250,19 +1339,14 @@ const GameMode: React.FC = () => {
   const handleSaveStat = useCallback(
     async (currentType?: string) => {
       const typeToSave = currentType || statType;
-      const targetPlayerId =
-        trackingMode === "OPPONENT"
-          ? selectedOpponentId || SPECIAL_PLAYER_IDS.OPPONENT
-          : selectedPlayerId;
-
-      if (!targetPlayerId || !typeToSave) return;
+      if (!selectedPlayerId || !typeToSave) return;
 
       try {
         if (!gameId) return;
         await db.open();
         if (isEditing && editingStatId) {
           await db.stats.update(editingStatId, {
-            playerId: targetPlayerId,
+            playerId: selectedPlayerId!,
             type: typeToSave,
             points: typeToSave === ACTION_TYPES.MAKE ? points : 0,
             synced: 0,
@@ -1272,7 +1356,7 @@ const GameMode: React.FC = () => {
           const newStat: StatEvent = {
             id: crypto.randomUUID(),
             gameId: gameId,
-            playerId: targetPlayerId,
+            playerId: selectedPlayerId!,
             type: typeToSave,
             points: typeToSave === ACTION_TYPES.MAKE ? points : 0,
             locationX: selectedX || 0,
@@ -1500,6 +1584,19 @@ const GameMode: React.FC = () => {
     }
   }, [gameId, teamId, navigate]);
 
+  const handleToggleClock = useCallback(() => {
+    setIsClockRunning((prev) => {
+      const next = !prev;
+      if (gameId) {
+        db.games.update(gameId, {
+          clockTime: clockSecondsRef.current,
+          synced: 0,
+        });
+      }
+      return next;
+    });
+  }, [gameId]);
+
   const handleResetClock = useCallback(async () => {
     if (!gameId || isReadOnly) return;
     const defaultMins = periodType === "QUARTERS" ? 10 : 20;
@@ -1583,14 +1680,12 @@ const GameMode: React.FC = () => {
     async (type: string, pts: number = 0) => {
       if (!gameId || isReadOnly) return;
 
-      const targetPlayerId = selectedOpponentId || SPECIAL_PLAYER_IDS.OPPONENT;
-
       try {
         await db.open();
         await db.stats.add({
           id: crypto.randomUUID(),
           gameId: gameId,
-          playerId: targetPlayerId,
+          playerId: selectedOpponentId,
           type: type,
           points: pts,
           locationX: 50,
@@ -1615,7 +1710,7 @@ const GameMode: React.FC = () => {
         });
       }
     },
-    [gameId, isReadOnly, period, clockSeconds],
+    [gameId, isReadOnly, period, clockSeconds, selectedOpponentId],
   );
 
   const handleTogglePossession = useCallback(async () => {
@@ -1671,16 +1766,20 @@ const GameMode: React.FC = () => {
             isReadOnly={isReadOnly}
             clockSeconds={clockSeconds}
             isClockRunning={isClockRunning}
+            onToggleClock={handleToggleClock}
+            onResetClock={handleResetClock}
+            opponentJerseys={opponentJerseys}
             selectedOpponentId={selectedOpponentId}
-            onSelectOpponent={setSelectedOpponentId}
-            onToggleClock={() => {
-              const nextRunning = !isClockRunning;
-              setIsClockRunning(nextRunning);
-              if (gameId) {
-                db.games.update(gameId, { clockTime: clockSeconds, synced: 0 });
+            onAddOpponentJersey={() => {
+              const jersey = window.prompt("Enter opponent jersey number:");
+              if (jersey && !opponentJerseys.includes(jersey)) {
+                setOpponentJerseys((prev) => [...prev, jersey]);
+                setSelectedOpponentId(
+                  `${SPECIAL_PLAYER_IDS.OPPONENT}:${jersey}`,
+                );
               }
             }}
-            onResetClock={handleResetClock}
+            onSelectOpponent={(id) => setSelectedOpponentId(id)}
           />
 
           <MoleskineCard>
@@ -1714,7 +1813,7 @@ const GameMode: React.FC = () => {
                 onChange={(_, val) => val && setTrackingMode(val)}
                 size="small"
                 disabled={isReadOnly}
-                fullWidth
+                fullWidth={theme.breakpoints.down("sm") !== null}
                 sx={{ width: { xs: "100%", sm: "auto" } }}
               >
                 <ToggleButton value="TEAM">
@@ -1899,6 +1998,29 @@ const GameMode: React.FC = () => {
                                   sx={{ fontSize: "0.6rem", opacity: 0.9 }}
                                 >
                                   {pts} pts |
+                                  {(() => {
+                                    const stintSecs =
+                                      gameData.stintDurations.get(p.id!) || 0;
+                                    const color =
+                                      stintSecs > 480
+                                        ? theme.palette.error.main
+                                        : stintSecs > 360
+                                          ? theme.palette.warning.main
+                                          : "inherit";
+                                    return (
+                                      <Box
+                                        component="span"
+                                        sx={{
+                                          color,
+                                          fontWeight:
+                                            stintSecs > 360 ? 700 : 400,
+                                          ml: 0.5,
+                                        }}
+                                      >
+                                        T-MIN: {formatClock(stintSecs)} |
+                                      </Box>
+                                    );
+                                  })()}
                                   <Box
                                     component="span"
                                     sx={{
@@ -2148,6 +2270,12 @@ const GameMode: React.FC = () => {
               if (selectedPlayerId === SPECIAL_PLAYER_IDS.OPPONENT) {
                 return game?.opponent || "Opponent";
               }
+              if (
+                selectedPlayerId?.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":")
+              ) {
+                const jersey = selectedOpponentId.split(":")[1];
+                return `${game?.opponent || "Opponent"} #${jersey}`;
+              }
               const p = players?.find((p) => p.id === selectedPlayerId);
               if (!p) return "Select Player";
               const s = statsMap.get(p.id!);
@@ -2156,71 +2284,6 @@ const GameMode: React.FC = () => {
           </Typography>
         </DialogTitle>
         <DialogContent>
-          {trackingMode === "OPPONENT" && !isEditing && (
-            <Box sx={{ mb: 3 }}>
-              <Typography
-                variant="caption"
-                gutterBottom
-                sx={{ display: "block", mb: 1, fontWeight: 600 }}
-              >
-                Select Opponent Jersey
-              </Typography>
-              <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-                <Button
-                  variant={
-                    selectedOpponentId === null ? "contained" : "outlined"
-                  }
-                  size="small"
-                  onClick={() => setSelectedOpponentId(null)}
-                >
-                  General
-                </Button>
-                {opponentRoster.map((jersey) => (
-                  <Button
-                    key={jersey}
-                    variant={
-                      selectedOpponentId ===
-                      SPECIAL_PLAYER_IDS.OPPONENT_PREFIX + jersey
-                        ? "contained"
-                        : "outlined"
-                    }
-                    size="small"
-                    onClick={() =>
-                      setSelectedOpponentId(
-                        SPECIAL_PLAYER_IDS.OPPONENT_PREFIX + jersey,
-                      )
-                    }
-                    color="secondary"
-                  >
-                    #{jersey}
-                  </Button>
-                ))}
-                <IconButton
-                  size="small"
-                  color="primary"
-                  onClick={async () => {
-                    const jersey = window.prompt(
-                      "Enter Opponent Jersey Number:",
-                    );
-                    if (jersey && !opponentRoster.includes(jersey)) {
-                      const newRoster = [...opponentRoster, jersey];
-                      setOpponentRoster(newRoster);
-                      if (gameId) {
-                        await db.games.update(gameId, {
-                          opponentRoster: newRoster,
-                        });
-                      }
-                      setSelectedOpponentId(
-                        SPECIAL_PLAYER_IDS.OPPONENT_PREFIX + jersey,
-                      );
-                    }
-                  }}
-                >
-                  <PersonAdd sx={{ fontSize: 18 }} />
-                </IconButton>
-              </Box>
-            </Box>
-          )}
           {trackingMode === "TEAM" && !isEditing && (
             <Box sx={{ mb: 3 }}>
               <Typography
@@ -2464,9 +2527,7 @@ const GameMode: React.FC = () => {
           <Button
             onClick={() => handleSaveStat()}
             variant="contained"
-            disabled={
-              (trackingMode === "TEAM" && !selectedPlayerId) || !statType
-            }
+            disabled={!selectedPlayerId || !statType}
           >
             {isEditing ? "Update" : "Save"}
           </Button>
@@ -2834,13 +2895,22 @@ const RecentActionItem: React.FC<{
     onEdit,
     onDelete,
   }) => {
+    const getOpponentName = (pId: string) => {
+      if (pId === SPECIAL_PLAYER_IDS.OPPONENT)
+        return opponentName || "Opponent";
+      if (pId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":")) {
+        const jersey = pId.split(":")[1];
+        return `${opponentName || "Opponent"} #${jersey}`;
+      }
+      return null;
+    };
+
     const playerName =
-      stat.playerId === SPECIAL_PLAYER_IDS.OPPONENT
-        ? opponentName || "Opponent"
-        : stat.playerId === SPECIAL_PLAYER_IDS.TEAM_TIMEOUT ||
-            stat.playerId === SPECIAL_PLAYER_IDS.OUR_TEAM
-          ? teamName || "Our Team"
-          : players?.find((p) => p.id === stat.playerId)?.name || "Unknown";
+      getOpponentName(stat.playerId) ||
+      (stat.playerId === SPECIAL_PLAYER_IDS.TEAM_TIMEOUT ||
+      stat.playerId === SPECIAL_PLAYER_IDS.OUR_TEAM
+        ? teamName || "Our Team"
+        : players?.find((p) => p.id === stat.playerId)?.name || "Unknown");
 
     const getActionIcon = (type: string) => {
       const iconSx = { fontSize: 16, mr: 1, verticalAlign: "middle" };
@@ -2938,25 +3008,27 @@ const QuickAction: React.FC<{
   statType: string | null;
   setStatType: (_type: string | null) => void;
 }> = React.memo(({ type, label, icon: Icon, statType, setStatType }) => (
-  <Button
-    variant={statType === type ? "contained" : "outlined"}
-    color="inherit"
-    aria-pressed={statType === type}
-    onClick={() => {
-      setStatType(type);
-    }}
-    sx={{
-      flexDirection: "column",
-      py: 2,
-      minWidth: 80,
-      borderColor: "#D1D1D1",
-      backgroundColor: statType === type ? "primary.main" : "transparent",
-      color: statType === type ? "white" : "text.primary",
-    }}
-  >
-    <Icon sx={{ mb: 1 }} />
-    <Typography variant="caption">{label}</Typography>
-  </Button>
+  <Tooltip title={label}>
+    <Button
+      variant={statType === type ? "contained" : "outlined"}
+      color="inherit"
+      aria-pressed={statType === type}
+      onClick={() => {
+        setStatType(type);
+      }}
+      sx={{
+        flexDirection: "column",
+        py: 2,
+        minWidth: 80,
+        borderColor: "#D1D1D1",
+        backgroundColor: statType === type ? "primary.main" : "transparent",
+        color: statType === type ? "white" : "text.primary",
+      }}
+    >
+      <Icon sx={{ mb: 1 }} />
+      <Typography variant="caption">{label}</Typography>
+    </Button>
+  </Tooltip>
 ));
 
 export default GameMode;

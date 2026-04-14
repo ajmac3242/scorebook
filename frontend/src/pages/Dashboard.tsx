@@ -1,49 +1,107 @@
 /**
  * @file Dashboard.tsx
- * @description The main overview page of the application.
- * Displays high-level counts for teams and players stored in the local database.
+ * @description Redesigned Dashboard to focus on "My Team".
+ * Displays high-level stats, heatmaps, and upcoming games for the starred team.
  */
 
-import React from "react";
-import { Typography, Box, Grid, Button, Stack } from "@mui/material";
-import { Link } from "react-router-dom";
-import { Add as AddIcon } from "@mui/icons-material";
-import { useLiveQuery } from "dexie-react-hooks";
-import { db } from "../db";
+import React, { useMemo } from "react";
 import {
-  MoleskineCard,
-  PageHeader,
-  AnimatedNumber,
-} from "../components/SharedUI";
+  Typography,
+  Box,
+  Grid,
+  Button,
+  Stack,
+  Avatar,
+  Chip,
+  Divider,
+} from "@mui/material";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  Add as AddIcon,
+  Star as StarIcon,
+  TrendingUp,
+  Event,
+  Assessment,
+} from "@mui/icons-material";
+import { useLiveQuery } from "dexie-react-hooks";
+import { db, type StatEvent } from "../db";
+import { MoleskineCard, PageHeader, StatItem } from "../components/SharedUI";
+import { calculateTeamAggregates, getInitials } from "../utils/stats";
+import BasketballCourt from "../components/BasketballCourt";
+import { getShotZone } from "../utils/shotZones";
+import { ACTION_TYPES } from "../constants/stats";
+import dayjs from "dayjs";
 
 /**
- * Dashboard component providing a high-level summary of the stored data.
- *
- * @returns {React.ReactElement}
+ * Dashboard component providing a "My Team" overview or a welcome message.
  */
 const Dashboard: React.FC = () => {
-  // Real-time queries for total counts using Dexie hooks
-  const teamsCount =
-    useLiveQuery(() => db.teams.filter((t) => !t.deletedAt).count()) ?? 0;
-  const playersCount =
-    useLiveQuery(() => db.players.filter((p) => !p.deletedAt).count()) ?? 0;
+  const navigate = useNavigate();
 
-  // Configuration for summary cards
-  const summaryItems = [
-    { label: "Teams", count: teamsCount, to: "/teams", icon: "🏀" },
-    {
-      label: "Players",
-      count: playersCount,
-      to: "/players",
-      icon: "👤",
-    },
-  ];
+  // Find the starred team
+  const favoriteTeam = useLiveQuery(
+    () => db.teams.where("isFavorite").equals(1).first(),
+    [],
+  );
 
-  return (
-    <Box>
-      <PageHeader title="Notebook Overview" />
+  const teamId = favoriteTeam?.id;
 
-      {teamsCount === 0 && (
+  // Fetch games for the favorite team
+  const teamGames =
+    useLiveQuery(
+      async () =>
+        teamId ? await db.games.where("teamId").equals(teamId).toArray() : [],
+      [teamId],
+    ) || [];
+
+  // Fetch stats for all those games
+  const gameIds = useMemo(
+    () => teamGames.map((g) => g.id).filter(Boolean) as string[],
+    [teamGames],
+  );
+  const allStats =
+    useLiveQuery(
+      async () =>
+        gameIds.length > 0
+          ? await db.stats.where("gameId").anyOf(gameIds).toArray()
+          : [],
+      [gameIds],
+    ) || [];
+
+  const aggregates = useMemo(
+    () => calculateTeamAggregates(teamGames, allStats),
+    [teamGames, allStats],
+  );
+
+  const heatmapData = useMemo(() => {
+    const data: Record<string, { makes: number; attempts: number }> = {};
+    for (let i = 0; i < allStats.length; i++) {
+      const s = allStats[i];
+      if (s.type !== ACTION_TYPES.MAKE && s.type !== ACTION_TYPES.MISS)
+        continue;
+
+      const zone = getShotZone(s.locationX || 0, s.locationY || 0);
+      if (!data[zone]) data[zone] = { makes: 0, attempts: 0 };
+      data[zone].attempts++;
+      if (s.type === ACTION_TYPES.MAKE) data[zone].makes++;
+    }
+    return data;
+  }, [allStats]);
+
+  const upcomingGames = useMemo(() => {
+    const now = dayjs();
+    return teamGames
+      .filter(
+        (g) => !g.completed && dayjs(g.date).isAfter(now.subtract(1, "day")),
+      )
+      .sort((a, b) => dayjs(a.date).diff(dayjs(b.date)))
+      .slice(0, 3);
+  }, [teamGames]);
+
+  if (!favoriteTeam) {
+    return (
+      <Box>
+        <PageHeader title="Notebook Overview" />
         <MoleskineCard sx={{ p: { xs: 4, sm: 8 }, mb: 4, textAlign: "center" }}>
           <Typography
             variant="h4"
@@ -56,9 +114,8 @@ const Dashboard: React.FC = () => {
             color="text.secondary"
             sx={{ mb: 4, maxWidth: 600, mx: "auto" }}
           >
-            Your digital basketball coaching notebook is empty. Start by
-            creating your first team to begin tracking live games and
-            statistics.
+            Set your primary team to see a personalized dashboard with stats,
+            heatmaps, and upcoming schedule at a glance.
           </Typography>
           <Stack direction="row" spacing={2} justifyContent="center">
             <Button
@@ -66,53 +123,211 @@ const Dashboard: React.FC = () => {
               to="/teams"
               variant="contained"
               size="large"
-              startIcon={<AddIcon />}
+              startIcon={<StarIcon />}
               sx={{ px: 4, py: 1.5, borderRadius: 2 }}
             >
-              Create Your First Team
+              Star a Team in Notebook
             </Button>
           </Stack>
         </MoleskineCard>
-      )}
+      </Box>
+    );
+  }
+
+  return (
+    <Box sx={{ pb: 4 }}>
+      <Box sx={{ display: "flex", alignItems: "center", mb: 3, gap: 2 }}>
+        <Avatar
+          src={favoriteTeam.logoUrl}
+          variant="rounded"
+          sx={{
+            width: 64,
+            height: 64,
+            bgcolor: favoriteTeam.primaryColor || "primary.main",
+            fontSize: "1.5rem",
+            fontWeight: "bold",
+            color: "white",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+          }}
+        >
+          {getInitials(favoriteTeam.name)}
+        </Avatar>
+        <Box>
+          <Typography
+            variant="h4"
+            sx={{ fontFamily: "var(--serif)", fontWeight: 800 }}
+          >
+            {favoriteTeam.name}
+          </Typography>
+          <Chip
+            icon={
+              <StarIcon
+                sx={{
+                  fontSize: "1rem !important",
+                  color: "#FFD700 !important",
+                }}
+              />
+            }
+            label="My Team"
+            size="small"
+            sx={{
+              mt: 0.5,
+              fontWeight: 600,
+              bgcolor: "rgba(255, 215, 0, 0.1)",
+              color: "#B8860B",
+              border: "1px solid rgba(255, 215, 0, 0.3)",
+            }}
+          />
+        </Box>
+      </Box>
 
       <Grid container spacing={3}>
-        {summaryItems.map((item) => (
-          <Grid item xs={12} sm={6} md={4} key={item.label}>
-            <MoleskineCard sx={{ position: "relative", p: 3 }}>
-              {/* Decorative icon background */}
-              <Typography
-                variant="h2"
-                sx={{ position: "absolute", top: 16, right: 16, opacity: 0.1 }}
-              >
-                {item.icon}
+        {/* Key Stats */}
+        <Grid item xs={12} md={8}>
+          <MoleskineCard sx={{ height: "100%" }}>
+            <Box sx={{ display: "flex", alignItems: "center", mb: 3, gap: 1 }}>
+              <TrendingUp color="primary" />
+              <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                Season Aggregates
               </Typography>
+            </Box>
+            <Grid container spacing={2}>
+              <Grid item xs={6} sm={3}>
+                <StatItem label="Record" value={aggregates.record} />
+              </Grid>
+              <Grid item xs={6} sm={3}>
+                <StatItem label="PPG" value={aggregates.ppg} />
+              </Grid>
+              <Grid item xs={6} sm={3}>
+                <StatItem label="OPPG" value={aggregates.oppg} />
+              </Grid>
+              <Grid item xs={6} sm={3}>
+                <StatItem label="RPG" value={aggregates.rpg} />
+              </Grid>
+            </Grid>
 
-              <Typography
-                variant="h6"
-                sx={{ fontFamily: "var(--serif)", fontWeight: 600 }}
-              >
-                {item.label}
+            <Divider sx={{ my: 4 }} />
+
+            <Box sx={{ display: "flex", alignItems: "center", mb: 2, gap: 1 }}>
+              <Assessment color="primary" />
+              <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                Shot Efficiency (Heatmap)
               </Typography>
+            </Box>
+            <Box sx={{ maxWidth: 600, mx: "auto", p: 1 }}>
+              <BasketballCourt heatmapData={heatmapData} />
+            </Box>
+          </MoleskineCard>
+        </Grid>
 
-              <Typography
-                variant="h3"
-                sx={{ my: 2, fontFamily: "var(--serif)" }}
+        {/* Schedule & Actions */}
+        <Grid item xs={12} md={4}>
+          <Stack spacing={3}>
+            <MoleskineCard>
+              <Box
+                sx={{ display: "flex", alignItems: "center", mb: 2, gap: 1 }}
               >
-                <AnimatedNumber value={item.count} />
-              </Typography>
-
+                <Event color="primary" />
+                <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                  Upcoming Games
+                </Typography>
+              </Box>
+              {upcomingGames.length === 0 ? (
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ py: 2, textAlign: "center" }}
+                >
+                  No upcoming games scheduled.
+                </Typography>
+              ) : (
+                <Stack spacing={2}>
+                  {upcomingGames.map((game) => (
+                    <Box
+                      key={game.id}
+                      sx={{
+                        p: 2,
+                        borderRadius: 2,
+                        bgcolor: "rgba(0,0,0,0.02)",
+                        border: "1px solid rgba(0,0,0,0.05)",
+                        cursor: "pointer",
+                        "&:hover": { bgcolor: "rgba(0,0,0,0.04)" },
+                      }}
+                      onClick={() => navigate(`/game/stats?gameId=${game.id}`)}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          navigate(`/game/stats?gameId=${game.id}`);
+                        }
+                      }}
+                      aria-label={`Upcoming game vs ${game.opponent} on ${dayjs(game.date).format("MMM D, YYYY")}`}
+                    >
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        sx={{ display: "block", mb: 0.5 }}
+                      >
+                        {dayjs(game.date).format("MMM D, YYYY")} {game.time}
+                      </Typography>
+                      <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+                        vs {game.opponent}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {game.location}
+                      </Typography>
+                    </Box>
+                  ))}
+                </Stack>
+              )}
               <Button
-                component={Link}
-                to={item.to}
                 fullWidth
                 variant="outlined"
-                sx={{ mt: 1 }}
+                sx={{ mt: 3 }}
+                onClick={() => navigate(`/teams/${favoriteTeam.id}`)}
               >
-                Open Notebook
+                View Full Schedule
               </Button>
             </MoleskineCard>
-          </Grid>
-        ))}
+
+            <MoleskineCard
+              sx={{
+                bgcolor: favoriteTeam.primaryColor || "primary.main",
+                color: "white",
+              }}
+            >
+              <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
+                Quick Actions
+              </Typography>
+              <Stack spacing={1.5}>
+                <Button
+                  fullWidth
+                  variant="contained"
+                  sx={{
+                    bgcolor: "rgba(255,255,255,0.2)",
+                    "&:hover": { bgcolor: "rgba(255,255,255,0.3)" },
+                  }}
+                  startIcon={<AddIcon />}
+                  onClick={() => navigate(`/teams/${favoriteTeam.id}`)}
+                >
+                  Schedule New Game
+                </Button>
+                <Button
+                  fullWidth
+                  variant="contained"
+                  sx={{
+                    bgcolor: "rgba(255,255,255,0.2)",
+                    "&:hover": { bgcolor: "rgba(255,255,255,0.3)" },
+                  }}
+                  startIcon={<Assessment />}
+                  onClick={() => navigate(`/teams/${favoriteTeam.id}`)}
+                >
+                  Manage Roster
+                </Button>
+              </Stack>
+            </MoleskineCard>
+          </Stack>
+        </Grid>
       </Grid>
     </Box>
   );

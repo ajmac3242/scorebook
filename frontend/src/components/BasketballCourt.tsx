@@ -330,11 +330,29 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
             const svgY = (marker.y / 100) * 470;
 
             return (
-              <g
+              <Box
+                component="g"
                 key={marker.id || index}
-                onClick={(e) => {
+                onClick={(e: React.MouseEvent<SVGGElement>) => {
                   e.stopPropagation();
                   if (onMarkerClick) onMarkerClick(marker);
+                }}
+                onKeyDown={(e: React.KeyboardEvent<SVGGElement>) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.stopPropagation();
+                    if (onMarkerClick) onMarkerClick(marker);
+                  }
+                }}
+                role="button"
+                tabIndex={0}
+                aria-label={`${marker.type} by ${marker.label ? `#${marker.label}` : "Opponent"}`}
+                sx={{
+                  cursor: onMarkerClick ? "pointer" : "default",
+                  outline: "none",
+                  "&:focus-visible circle": {
+                    stroke: "#000",
+                    strokeWidth: 3,
+                  },
                 }}
               >
                 <circle
@@ -360,7 +378,7 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
                     {marker.label}
                   </text>
                 )}
-              </g>
+              </Box>
             );
           })}
         </svg>
