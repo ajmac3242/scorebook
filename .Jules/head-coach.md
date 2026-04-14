@@ -13,11 +13,3 @@ Observation: The foundation of the "digital scorebook" is now solidified with a 
 Impact: Without real-time tactical alerts, coaches may miss critical rotation windows (e.g., a player reaching a fatigue threshold) or strategic vulnerabilities (e.g., an un-scouted opponent player dominating the game). The manual entry of free throws also remains a bottleneck that risks data desynchronization during high-foul periods.
 
 Recommendation: Shift focus toward proactive tactical support. This includes implementing real-time fatigue monitoring (stint timers), proactive foul trouble alerts, and an optimized free-throw entry mode. Additionally, the app must evolve to track specific opponent players to allow for real-time defensive adjustments and scouting-grade post-game analysis.
-
-## 2025-05-17 - Precision Coaching: Reliability and Defensive Identity
-
-Observation: As we transition into high-level analytics, the "Butterfly Effect" of human error becomes our greatest risk. A single missed substitution or an incorrectly attributed foul cascades through Plus/Minus, Lineup Efficiency, and Foul Strategy metrics, rendering them untrustworthy. Furthermore, while our offensive tracking is granular, our defensive tracking is still passive—only recording what we "let happen" rather than what we "forced to happen."
-
-Impact: Inaccurate substitution data leads to coaches making rotation decisions based on false fatigue or efficiency data. Lack of active defensive metrics (like "Stops" or "Kills") prevents coaches from motivating their team or identifying defensive momentum during critical game runs.
-
-Recommendation: Implement a "Substitution Timeline Audit" to allow for rapid retroactive corrections of the on-court lineup. Simultaneously, elevate the defensive experience by introducing a "Stops & Kills" tracker in the live scoreboard. Finally, move towards "Verified Periods" where scorekeepers must reconcile their data with the official table at every break, ensuring the data engine remains a source of truth.

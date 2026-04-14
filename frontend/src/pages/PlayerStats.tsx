@@ -176,23 +176,9 @@ const PlayerStats: React.FC = () => {
   }, [filteredStats]);
 
   const aggregates = useMemo(() => {
-    const activeGame = games.find(
-      (g) => g.id === selectedGameId && !g.completed,
-    );
     const res = calculatePlayerAggregates(
       [player].filter((p): p is NonNullable<typeof p> => p !== undefined),
       filteredStats,
-      [],
-      "total",
-      {
-        periodLength: activeGame?.periodLength,
-        liveContext: activeGame
-          ? {
-              clockTime: activeGame.clockTime || 0,
-              period: activeGame.currentPeriod || 1,
-            }
-          : undefined,
-      },
     );
     return (
       res[0] || {
@@ -212,7 +198,7 @@ const PlayerStats: React.FC = () => {
         attempts: 0,
       }
     );
-  }, [player, filteredStats, games, selectedGameId]);
+  }, [player, filteredStats]);
 
   /**
    * Retrieves the jersey number for the current player within the filtered team context.
