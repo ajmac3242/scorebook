@@ -127,3 +127,53 @@
 - [ ] Possessions are calculated as: FGA + 0.44 * FTA + TO - ORB.
 - [ ] Scoreboard shows a small "PPP" metric for both teams.
 - [ ] Lineup Efficiency table includes PPP and Defensive PPP (Opponent PPP).
+
+## Defensive "Stops" & "Kills" Tracker
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Coaches often preach "Stops" (3 consecutive defensive stands) as a key performance indicator. Tracking this in real-time provides a motivational tool and a defensive efficiency metric beyond raw points allowed.
+**What:** Add a "Stops" counter to the scoreboard. A "Stop" is defined as a defensive possession ending in a miss (without offensive rebound), turnover, or blocked shot. Three consecutive stops constitute a "Kill."
+**Acceptance Criteria:**
+- [ ] Visual counter for consecutive stops in `GameMode.tsx`.
+- [ ] Logic to detect "Kills" (3 stops in a row) and log them as a team event.
+- [ ] Summary of "Kills" in the Game Stats page.
+
+## Substitution Timeline Audit & Correction
+**Priority:** HIGH
+**Type:** UX
+**Why:** A single missed substitution ruins the accuracy of Minutes Played, Plus/Minus, and Lineup Efficiency for the entire remainder of the game.
+**What:** Create a dedicated "Timeline Audit" view that shows a vertical timeline of all substitutions. Allow the user to "Insert Missed Sub" at a specific clock time, which automatically updates subsequent on-court states.
+**Acceptance Criteria:**
+- [ ] Interface to view chronological list of all SUB_IN/SUB_OUT events.
+- [ ] Ability to edit the time of an existing sub or delete it.
+- [ ] "Insert Sub" feature that handles the logic of swapping players retroactively.
+
+## Detailed Foul Context (Shooting vs. Non-Shooting)
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Not all fouls are equal. Knowing if a player is fouling on shot attempts (giving up FTs) versus "cheap" reach-in fouls helps coaches adjust defensive aggression.
+**What:** Update the Foul recording dialog to include a toggle for "Shooting" vs "Non-Shooting" and "Offensive" fouls.
+**Acceptance Criteria:**
+- [ ] Foul dialog includes type selection (Personal, Shooting, Offensive, Technical).
+- [ ] Offensive fouls correctly recorded as turnovers (as per basketball rules).
+- [ ] Box score displays "PF" with a drill-down or icon for shooting fouls committed.
+
+## End-of-Period Score & Foul Verification
+**Priority:** MEDIUM
+**Type:** UX
+**Why:** In official games, the scorekeeper must sync with the table/referees at each break. Discrepancies found at the end of the game are much harder to fix than at the end of a quarter.
+**What:** When a period ends (clock hits 0:00), trigger a "Period Review" modal. This forces the user to confirm the period score and team fouls against the official table before the next period can begin.
+**Acceptance Criteria:**
+- [ ] Automated trigger of review dialog when period clock expires.
+- [ ] Comparison view showing calculated score vs. "Official Score" input.
+- [ ] Ability to record a "Score Adjustment" event to reconcile differences.
+
+## Bench Production & Rotation Analytics
+**Priority:** MEDIUM
+**Type:** Enhancement
+**Why:** Coaches need to know if their bench is maintaining the lead or losing it. Comparing Starter vs. Bench efficiency (Net Rating, PPG) is a fundamental part of post-game rotation analysis.
+**What:** Update the `TeamStats` and `GameStats` pages to group players into "Starters" (those who started the 1st period) and "Bench." Calculate aggregate efficiency metrics for both groups.
+**Acceptance Criteria:**
+- [ ] Automatically tag players as "Starters" based on the first 5 players on court at the start of Game.
+- [ ] Display a "Starter vs Bench" breakdown in the Game Stats summary.
+- [ ] Track "Bench Points" as a distinct team stat.
