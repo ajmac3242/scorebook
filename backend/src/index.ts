@@ -72,17 +72,6 @@ const VALID_ACTION_TYPES = new Set([
 ]);
 
 /**
- * Standardized IDs for special players.
- */
-const SPECIAL_PLAYER_IDS = {
-  OPPONENT: "OPPONENT",
-  TEAM_TIMEOUT: "TEAM_TIMEOUT",
-  OUR_TEAM: "OUR_TEAM",
-};
-
-const SPECIAL_ID_SET: Set<string> = new Set(Object.values(SPECIAL_PLAYER_IDS));
-
-/**
  * Regex for validating UUID v4 format.
  * Prevents path traversal and other injection attacks via IDs.
  */
@@ -96,36 +85,6 @@ const UUID_REGEX =
  */
 function isValidUuid(id: unknown): id is string {
   return typeof id === "string" && UUID_REGEX.test(id);
-}
-
-/**
- * Validates if a string is a valid player ID.
- * Accepts UUID v4 or special player IDs (including jersey-specific ones).
- * @param {unknown} id - The ID to validate.
- * @returns {boolean} True if it's a valid player ID.
- */
-function isValidPlayerId(id: unknown): boolean {
-  if (typeof id !== "string") return false;
-  if (isValidUuid(id)) return true;
-  if (SPECIAL_ID_SET.has(id)) return true;
-  const strId = id as string;
-  if (strId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":")) {
-    const jersey = strId.split(":")[1];
-    return !!jersey && jersey.length > 0 && jersey.length <= 5;
-  }
-  return false;
-}
-
-/**
- * Extracts an ID from a path given a prefix.
- * @param {string} path - The request path.
- * @param {string} prefix - The path prefix (e.g. "/players/").
- * @returns {string | null} The extracted ID or null.
- */
-function extractIdFromPath(path: string, prefix: string): string | null {
-  if (!path.startsWith(prefix)) return null;
-  const id = path.slice(prefix.length);
-  return id.includes("/") ? null : id;
 }
 
 const Keys = {
@@ -187,11 +146,10 @@ async function handlePlayers(
   }
 
   // Member endpoints: /players/{playerId}
-  const playerId = extractIdFromPath(path, "/players/");
-  if (!playerId) return null;
-  if (!isValidUuid(playerId)) {
-    return badRequest("Invalid playerId format (UUID required)");
-  }
+  const match = path.match(/^\/players\/([^\/]+)$/);
+  if (!match) return null;
+
+  const playerId = match[1];
   const playerKey = { PK: Keys.player(playerId), SK: Keys.metadata(playerId) };
 
   if (method === "DELETE") {
@@ -260,9 +218,6 @@ async function handleGames(
   if (path === "/games") {
     if (method === "GET") {
       const teamId = event.queryStringParameters?.teamId;
-      if (!isValidUuid(teamId)) {
-        return badRequest("Valid teamId (UUID) is required");
-      }
       return await getItemsByGSI(`TEAM#${teamId}`, tableName);
     }
     if (method === "POST") {
@@ -293,11 +248,9 @@ async function handleGames(
     }
   }
 
-  const gameId = extractIdFromPath(path, "/games/");
-  if (gameId) {
-    if (!isValidUuid(gameId)) {
-      return badRequest("Invalid gameId format (UUID required)");
-    }
+  const gameDetailMatch = path.match(/^\/games\/([^\/]+)$/);
+  if (gameDetailMatch) {
+    const gameId = gameDetailMatch[1];
     if (method === "DELETE") {
       const getResp = await docClient.send(
         new GetCommand({
@@ -335,17 +288,9 @@ async function handleGames(
     }
   }
 
-  if (
-    path.startsWith("/games/") &&
-    path.endsWith("/complete") &&
-    method === "POST"
-  ) {
-    const parts = path.split("/");
-    if (parts.length !== 4) return null;
-    const gameId = parts[2];
-    if (!isValidUuid(gameId)) {
-      return badRequest("Invalid gameId format (UUID required)");
-    }
+  const gameCompleteMatch = path.match(/^\/games\/([^\/]+)\/complete$/);
+  if (gameCompleteMatch && method === "POST") {
+    const gameId = gameCompleteMatch[1];
     const getResp = await docClient.send(
       new GetCommand({
         TableName: tableName,
@@ -367,13 +312,9 @@ async function handleGames(
     return ok({ message: "Game completed" });
   }
 
-  if (path.startsWith("/games/") && path.endsWith("/stats")) {
-    const parts = path.split("/");
-    if (parts.length !== 4) return null;
-    const gameId = parts[2];
-    if (!isValidUuid(gameId)) {
-      return badRequest("Invalid gameId format (UUID required)");
-    }
+  const gameStatsMatch = path.match(/^\/games\/([^\/]+)\/stats$/);
+  if (gameStatsMatch) {
+    const gameId = gameStatsMatch[1];
     if (method === "GET") {
       const result = await docClient.send(
         new QueryCommand({
@@ -400,27 +341,6 @@ async function handleGames(
         (typeof body.points !== "number" || body.points < 0 || body.points > 3)
       ) {
         return badRequest("Points must be a number between 0 and 3");
-      }
-      if (!isValidPlayerId(body.playerId)) {
-        return badRequest("Valid playerId is required");
-      }
-      if (
-        body.period !== undefined &&
-        (typeof body.period !== "number" || body.period < 1)
-      ) {
-        return badRequest("Period must be at least 1");
-      }
-      if (
-        body.clockTime !== undefined &&
-        (typeof body.clockTime !== "number" || body.clockTime < 0)
-      ) {
-        return badRequest("Clock time must be at least 0");
-      }
-      if (
-        (body.locationX !== undefined && typeof body.locationX !== "number") ||
-        (body.locationY !== undefined && typeof body.locationY !== "number")
-      ) {
-        return badRequest("Location coordinates must be numbers");
       }
 
       const id = (body?.id as string) || uuidv4();
@@ -502,11 +422,9 @@ async function handleTeams(
     }
   }
 
-  const teamId = extractIdFromPath(path, "/teams/");
-  if (teamId) {
-    if (!isValidUuid(teamId)) {
-      return badRequest("Invalid teamId format (UUID required)");
-    }
+  const teamDetailMatch = path.match(/^\/teams\/([^\/]+)$/);
+  if (teamDetailMatch) {
+    const teamId = teamDetailMatch[1];
     if (method === "DELETE") {
       const resp = await softDeleteItem("TEAM", "METADATA", teamId, tableName);
       if (resp.statusCode === 200) await deleteTeamSnapshots(teamId);
@@ -527,13 +445,9 @@ async function handleTeams(
     }
   }
 
-  if (path.startsWith("/teams/") && path.endsWith("/players")) {
-    const parts = path.split("/");
-    if (parts.length !== 4) return null;
-    const teamId = parts[2];
-    if (!isValidUuid(teamId)) {
-      return badRequest("Invalid teamId format (UUID required)");
-    }
+  const teamPlayersMatch = path.match(/^\/teams\/([^\/]+)\/players$/);
+  if (teamPlayersMatch) {
+    const teamId = teamPlayersMatch[1];
     if (method === "GET")
       return await getItemsByGSI(`TEAM#${teamId}`, tableName);
     if (method === "POST") {
@@ -558,14 +472,12 @@ async function handleTeams(
     }
   }
 
-  if (path.startsWith("/teams/") && path.includes("/players/")) {
-    const parts = path.split("/");
-    if (parts.length !== 5) return null;
-    const teamId = parts[2];
-    const playerId = parts[4];
-    if (!isValidUuid(teamId) || !isValidUuid(playerId)) {
-      return badRequest("Invalid teamId or playerId format (UUID required)");
-    }
+  const teamPlayerDetailMatch = path.match(
+    /^\/teams\/([^\/]+)\/players\/([^\/]+)$/,
+  );
+  if (teamPlayerDetailMatch) {
+    const teamId = teamPlayerDetailMatch[1];
+    const playerId = teamPlayerDetailMatch[2];
     if (method === "DELETE") {
       await docClient.send(
         new UpdateCommand({
@@ -604,27 +516,19 @@ async function handleTeams(
  * @returns {unknown} A sanitized copy of the event.
  */
 function maskEvent(event: APIGatewayProxyEventV2): unknown {
-  if (!event.headers) return event;
-
-  // ⚡ Bolt: Check for redacted headers before cloning to avoid unnecessary allocations.
-  let hasRedactable = false;
-  for (const key in event.headers) {
-    if (REDACTED_HEADERS.has(key.toLowerCase())) {
-      hasRedactable = true;
-      break;
-    }
-  }
-
-  if (!hasRedactable) return event;
-
   const masked = { ...event };
-  const redactedHeaders = { ...masked.headers };
-  for (const key in redactedHeaders) {
-    if (REDACTED_HEADERS.has(key.toLowerCase())) {
-      redactedHeaders[key] = "[REDACTED]";
+  if (masked.headers) {
+    const redactedHeaders = { ...masked.headers };
+    for (const key in redactedHeaders) {
+      if (
+        Object.prototype.hasOwnProperty.call(redactedHeaders, key) &&
+        REDACTED_HEADERS.has(key.toLowerCase())
+      ) {
+        redactedHeaders[key] = "[REDACTED]";
+      }
     }
+    masked.headers = redactedHeaders;
   }
-  masked.headers = redactedHeaders;
   return masked;
 }
 
@@ -1023,14 +927,8 @@ function accumulateScores(stats: Record<string, unknown>[]) {
   let oppScore = 0;
   for (let i = 0; i < stats.length; i++) {
     const s = stats[i];
-    if (
-      typeof s.playerId === "string" &&
-      s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT)
-    ) {
-      oppScore += (s.points as number) || 0;
-    } else {
-      teamScore += (s.points as number) || 0;
-    }
+    if (s.playerId === "OPPONENT") oppScore += (s.points as number) || 0;
+    else teamScore += (s.points as number) || 0;
   }
   return { teamScore, oppScore };
 }

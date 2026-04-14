@@ -58,10 +58,7 @@ describe("Lambda Handler - Deletion & Archiving", () => {
   it("DELETE /teams/:id soft deletes a team and deletes snapshots", async () => {
     ddbMock.on(UpdateCommand).resolves({});
     s3Mock.on(DeleteObjectCommand).resolves({});
-    const event = createEvent(
-      "DELETE",
-      "/teams/277e909a-6536-4d2d-937e-f608759556fb",
-    );
+    const event = createEvent("DELETE", "/teams/t1");
     const response: any = await handler(event);
     expect(response.statusCode).toBe(200);
     expect(s3Mock.calls().length).toBe(2); // roster and games snapshots
@@ -69,14 +66,9 @@ describe("Lambda Handler - Deletion & Archiving", () => {
 
   it("DELETE /players/:id?archive=true archives a player", async () => {
     ddbMock.on(UpdateCommand).resolves({});
-    const event = createEvent(
-      "DELETE",
-      "/players/277e909a-6536-4d2d-937e-f608759556fb",
-      null,
-      {
-        archive: "true",
-      },
-    );
+    const event = createEvent("DELETE", "/players/p1", null, {
+      archive: "true",
+    });
     const response: any = await handler(event);
     expect(response.statusCode).toBe(200);
     const updateInput = ddbMock.call(0).args[0].input as any;
