@@ -23,6 +23,13 @@ export const sortStats = (stats: StatEvent[]): StatEvent[] => {
   return [...stats].sort((a, b) => {
     if (a.timestamp < b.timestamp) return -1;
     if (a.timestamp > b.timestamp) return 1;
+    // 🏀 CoachBoard: Stable sorting for identical timestamps
+    // Why: Rapid event entry can lead to identical ISO timestamps.
+    // Secondary sort on ID ensures deterministic order for aggregation.
+    if (a.id && b.id) {
+      if (a.id < b.id) return -1;
+      if (a.id > b.id) return 1;
+    }
     return 0;
   });
 };
@@ -523,10 +530,20 @@ export const calculatePlayerAggregates = (
     // 🏀 CoachBoard: Handle period transitions for active stints
     // Why: Ensures minutes played and plus-minus are calculated correctly
     // even if a player stays on the court across period boundaries.
+    // Fixed: Account for multiple skipped periods (gap periods).
     if (period && period > currentPeriod) {
+      const skippedPeriods = period - currentPeriod - 1;
       for (const [pId, stint] of activeStints.entries()) {
         // Finish stint for the previous period (assumed to end at 0:00)
         handleStintEnd(pId, statsMap, stint, scores, 0);
+
+        // Add full duration for any skipped periods in between
+        if (skippedPeriods > 0) {
+          const playerAgg = statsMap.get(pId);
+          if (playerAgg) {
+            playerAgg.min += skippedPeriods * periodLen;
+          }
+        }
 
         // Start new stint for the current period (assumed to start at full period)
         stint.startClock = periodLen;
@@ -708,11 +725,18 @@ export const calculateStopsAndKills = (stats: StatEvent[]) => {
   let totalStops = 0;
   let totalKills = 0;
   let currentStreak = 0;
+  let currentGameId: string | null = null;
 
   // Use a single pass over sorted stats
   for (let i = 0; i < stats.length; i++) {
     const s = stats[i];
     if (!isActive(s)) continue;
+
+    // Reset streak when game changes
+    if (s.gameId !== currentGameId) {
+      currentStreak = 0;
+      currentGameId = s.gameId;
+    }
 
     const isOpp = isOpponentId(s.playerId);
 
@@ -736,6 +760,11 @@ export const calculateStopsAndKills = (stats: StatEvent[]) => {
       for (let j = i + 1; j < stats.length; j++) {
         const next = stats[j];
         if (!isActive(next)) continue;
+
+        // Stop look-ahead if game changes
+        if (next.gameId !== currentGameId) {
+          break;
+        }
 
         // Opponent got their own rebound (Offensive) -> Possession continues
         if (
@@ -1111,8 +1140,10 @@ export const calculateLineupStats = (
 
     // Handle period transition
     if (s.period > currentPeriod) {
+      const skippedPeriods = s.period - currentPeriod - 1;
       if (currentLineup.size === 5) {
         if (!cachedLineupKey) cachedLineupKey = getLineupKey(currentLineup);
+        // Record remaining time of the previous period
         recordLineupStint(
           lineupStats,
           cachedLineupKey,
@@ -1120,6 +1151,17 @@ export const calculateLineupStats = (
           scores.team - lastTeamScore,
           scores.opp - lastOppScore,
         );
+
+        // Record full duration for any skipped periods
+        if (skippedPeriods > 0) {
+          recordLineupStint(
+            lineupStats,
+            cachedLineupKey,
+            skippedPeriods * periodLen,
+            0,
+            0,
+          );
+        }
       }
       lastClockTime = periodLen;
       lastTeamScore = scores.team;
@@ -1209,10 +1251,17 @@ export const calculatePlayerStreaks = (
   const playerStreaks = new Map<string, ("MAKE" | "MISS")[]>();
 
   const sorted = options.isSorted ? stats : sortStats(stats);
+  let currentGameId: string | null = null;
 
   for (let i = 0; i < sorted.length; i++) {
     const s = sorted[i];
     if (!isActive(s)) continue;
+
+    // Reset history when game changes to ensure per-game streaks
+    if (s.gameId !== currentGameId) {
+      playerStreaks.clear();
+      currentGameId = s.gameId;
+    }
 
     // We only track streaks for field goal attempts
     if (isScoringEvent(s) || s.type === ACTION_TYPES.MISS) {
