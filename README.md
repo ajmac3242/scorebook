@@ -61,8 +61,10 @@ To optimize read performance and reduce DynamoDB costs:
 ## Key Features
 - **Real-time Game Tracking**: Easy-to-use interface for logging shots, misses, rebounds, and more.
 - **Shot Charts**: Visual representation of shot locations on a virtual court.
-- **Detailed Analytics**: Automatic calculation of PPG, RPG, APG, and FG% for individuals and teams.
+- **Advanced Analytics**: Automatic calculation of advanced metrics including **Effective Field Goal Percentage (eFG%)** and **True Shooting Percentage (TS%)** for deep efficiency analysis.
+- **Defensive Momentum Tracking**: Real-time tracking of **Defensive Stops** and **Kills** (3 consecutive stops) to monitor defensive intensity.
 - **Lineup Efficiency Tracking**: Analyze the performance (Plus/Minus) of specific 5-player combinations to optimize rotations.
 - **Hot/Cold Streak Indicators**: Visual cues (🔥/❄️) help coaches identify players with scoring momentum in real-time.
+- **Detailed Box Scores**: Symmetrical analytical parity with detailed stats for both your team and the opponent.
 - **Secure Data**: User data is isolated and encrypted, with local database cleanup on logout.
-- **Synchronization**: Automatic syncing across devices when connectivity is restored.
+- **Offline-First Synchronization**: Robust synchronization across devices with background conflict resolution.

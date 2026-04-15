@@ -255,6 +255,57 @@ describe("stats utilities", () => {
       expect(p1.plusMinus).toBe(1); // Team scored 3, Opponent scored 2 while p1 was in
       expect(p1.efgPct).toBe("150.0"); // (1 + 0.5 * 1) / 1 * 100 = 150%
     });
+
+    it("handles period transitions for player MIN and plus/minus correctly", () => {
+      const players = [{ id: "p1", name: "Player 1" }];
+      const stats: StatEvent[] = [
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          period: 1,
+          timestamp: "1",
+        },
+        // Score in P1
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          period: 1,
+          timestamp: "2",
+        },
+        // Transition to P2. P1 stint should end at 0:00 (600s played).
+        // A new stint should start for P2.
+        {
+          gameId: "g1",
+          playerId: "OPPONENT",
+          type: ACTION_TYPES.MAKE,
+          points: 3,
+          period: 2,
+          clockTime: 300,
+          timestamp: "3",
+        },
+        // Sub out in P2
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.SUB_OUT,
+          clockTime: 240,
+          period: 2,
+          timestamp: "4",
+        },
+      ];
+      // Period length defaults to 10 mins (600s)
+      const results = calculatePlayerAggregates(players, stats);
+      const p1 = results[0];
+
+      // MIN: 10 mins (P1) + (10 - 4) mins (P2) = 16 mins
+      expect(p1.min).toBe(16);
+      // Plus/Minus: +2 (P1) - 3 (P2) = -1
+      expect(p1.plusMinus).toBe(-1);
+    });
   });
 
   describe("calculateLineupStats", () => {
@@ -731,6 +782,31 @@ describe("stats utilities", () => {
       expect(res.oppScore).toBe(2);
       expect(res.result).toBe("D");
     });
+
+    it("ignores events marked as deletedAt", () => {
+      const statsWithDeleted: StatEvent[] = [
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "t1",
+          period: 1,
+        },
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 3,
+          timestamp: "t2",
+          period: 1,
+          deletedAt: "2023-01-01T10:05:00Z",
+        },
+      ];
+      const res = calculateGameResult("g1", statsWithDeleted);
+      expect(res.teamScore).toBe(2);
+      expect(res.result).toBe("W");
+    });
   });
 
   describe("calculatePlayerStreaks", () => {
@@ -1202,7 +1278,43 @@ describe("stats utilities", () => {
         },
       ];
       const result = calculateStopsAndKills(stats);
-      // Currently this might fail and return 2 stops if my analysis is correct
+      expect(result.totalStops).toBe(1);
+    });
+
+    it("handles MISS -> OFF_REBOUND -> MISS -> DEF_REBOUND correctly", () => {
+      const stats: StatEvent[] = [
+        {
+          gameId: "g1",
+          playerId: "OPPONENT",
+          type: ACTION_TYPES.MISS,
+          timestamp: "1",
+          period: 1,
+        },
+        {
+          gameId: "g1",
+          playerId: "OPPONENT",
+          type: ACTION_TYPES.OFF_REBOUND,
+          timestamp: "2",
+          period: 1,
+        },
+        {
+          gameId: "g1",
+          playerId: "OPPONENT",
+          type: ACTION_TYPES.MISS,
+          timestamp: "3",
+          period: 1,
+        },
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.DEF_REBOUND,
+          timestamp: "4",
+          period: 1,
+        },
+      ];
+      const result = calculateStopsAndKills(stats);
+      // First MISS + OFF_REBOUND sequence does not count as stop yet.
+      // Second MISS + DEF_REBOUND sequence counts as 1 stop.
       expect(result.totalStops).toBe(1);
     });
   });

@@ -158,7 +158,14 @@ export const calculateEfgPct = (
     : "0.0";
 
 /**
- * Calculates True Shooting Percentage.
+ * Calculates True Shooting Percentage (TS%).
+ *
+ * WHY: TS% is a measure of shooting efficiency that takes into account 2PT field
+ * goals, 3PT field goals, and free throws.
+ * The 0.44 coefficient is a standard statistical constant used to estimate the
+ * number of possessions ended by free throw attempts, accounting for and-ones,
+ * technical fouls, and 3-shot fouls.
+ *
  * @param {number} points - Total points.
  * @param {number} attempts - Field goals attempted.
  * @param {number} fta - Free throw attempts.
@@ -634,6 +641,16 @@ export const calculatePlayerAggregates = (
  * without an opponent score) and "Kills" (3 consecutive stops).
  * This metric helps motivate defensive intensity and identifies defensive runs.
  *
+ * DEFINITIONS:
+ * - A STOP occurs when a defensive possession ends without an opponent score
+ *   (e.g., opponent turnover or opponent miss followed by a defensive rebound).
+ * - A KILL is a sequence of 3 consecutive STOPS.
+ *
+ * IMPLEMENTATION NOTE: The logic uses a look-ahead loop when a MISS is detected
+ * to determine if the possession ended in a stop (DEF_REBOUND) or continued
+ * (OFF_REBOUND). This look-ahead prevents "double-counting" stops in a single
+ * possession sequence (e.g., MISS -> MISS -> DEF_REBOUND is only 1 stop).
+ *
  * @param {StatEvent[]} stats - Chronological list of statistical events for the game.
  * @returns {object} Object containing total stops, kills, and current stop streak.
  */
@@ -1010,6 +1027,8 @@ export const calculateLineupStats = (
   const periodLen = options.periodLength ? options.periodLength * 60 : 600;
 
   let currentLineup = new Set<string>();
+  // PERFORMANCE: cachedLineupKey avoids expensive Set->Array->Sort->Join operations
+  // on every event. The key is only recalculated when a substitution occurs.
   let cachedLineupKey: string | null = null;
   let lastClockTime = periodLen;
   let lastTeamScore = 0;
