@@ -12,3 +12,8 @@
     - **Patterns in what gets left incomplete**: Complex React state dependencies in large components like `GameMode` often result in stale closure bugs if not carefully audited.
     - **Recurring issues agents create**: Missing dependencies in `useMemo` and `useCallback` hooks, especially when adding new reactive state like `selectedOpponentId`.
     - **End-of-Day improvement patterns**: Implementing 'discovery-based' tracking (like individual opponent jerseys) allows users to start high-value tracking immediately without setup overhead, bridging the gap between simple and advanced modes.
+
+## End-of-Day Insights - 2026-04-15
+- **Patterns in what gets left incomplete**: Advanced shooting percentages (3P%, FT%) were being approximated because miss metadata was lost, leading to 'ghost' attempts not being tracked.
+- **Recurring issues agents create**: Dependency drift in the frontend (missing @testing-library/dom) often breaks the PR verification pipeline for subsequent agents.
+- **End-of-Day improvement patterns**: Implementing 'Point-Aware Misses' allows the statistical engine to provide professional-grade analytics (3PA/FTA) without increasing the scorekeeper's workload.

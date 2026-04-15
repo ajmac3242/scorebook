@@ -99,7 +99,11 @@ export interface PlayerAggregates {
   makes: number;
   attempts: number;
   threePM: number;
+  threePA: number;
   fta: number;
+  ftm: number;
+  threePct: string;
+  ftPct: string;
   fgPct: string;
   efgPct: string;
   tsPct: string;
@@ -322,7 +326,9 @@ interface BaseStats {
   blocks: number;
   fouls: number;
   threePM?: number;
+  threePA?: number;
   fta?: number;
+  ftm?: number;
 }
 
 /**
@@ -335,20 +341,24 @@ export const applyActionToAggregate = (agg: BaseStats, stat: StatEvent) => {
     case ACTION_TYPES.MAKE:
       agg.points += stat.points || 0;
       // 🏀 CoachBoard: Field Goal Tracking
-      // Why: Free throws (1pt) should not be counted as FGM or FGA.
       if (stat.points === 1) {
         if (agg.fta !== undefined) agg.fta++;
+        if (agg.ftm !== undefined) agg.ftm++;
       } else {
         agg.makes++;
         agg.attempts++;
+        if (stat.points === 3) {
+          if (agg.threePM !== undefined) agg.threePM++;
+          if (agg.threePA !== undefined) agg.threePA++;
+        }
       }
-      if (stat.points === 3 && agg.threePM !== undefined) agg.threePM++;
       break;
     case ACTION_TYPES.MISS:
       if (stat.points === 1) {
         if (agg.fta !== undefined) agg.fta++;
       } else {
         agg.attempts++;
+        if (stat.points === 3 && agg.threePA !== undefined) agg.threePA++;
       }
       break;
     case ACTION_TYPES.REBOUND:
@@ -424,7 +434,11 @@ function initializeStatsMap(
       makes: 0,
       attempts: 0,
       threePM: 0,
+      threePA: 0,
       fta: 0,
+      ftm: 0,
+      threePct: "0.0",
+      ftPct: "0.0",
       fgPct: "0.0",
       efgPct: "0.0",
       tsPct: "0.0",
@@ -526,17 +540,22 @@ export const calculatePlayerAggregates = (
           player.points += stat.points || 0;
           if (stat.points === 1) {
             player.fta++;
+            player.ftm++;
           } else {
             player.makes++;
             player.attempts++;
+            if (stat.points === 3) {
+              player.threePM++;
+              player.threePA++;
+            }
           }
-          if (stat.points === 3) player.threePM++;
           break;
         case ACTION_TYPES.MISS:
           if (stat.points === 1) {
             player.fta++;
           } else {
             player.attempts++;
+            if (stat.points === 3) player.threePA++;
           }
           break;
         case ACTION_TYPES.REBOUND:
@@ -607,6 +626,8 @@ export const calculatePlayerAggregates = (
     const gp = gpActual || 1;
     player.gp = gpActual;
     player.fgPct = calculateFgPct(player.makes, player.attempts);
+    player.threePct = calculateFgPct(player.threePM, player.threePA);
+    player.ftPct = calculateFgPct(player.ftm, player.fta);
     player.efgPct = calculateEfgPct(
       player.makes,
       player.threePM,

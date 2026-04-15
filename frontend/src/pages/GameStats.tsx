@@ -464,6 +464,22 @@ const GameStats: React.FC = () => {
               tooltip="Field Goal Percentage"
             />
             <SortableHeader
+              label="3P%"
+              sortKey="threePct"
+              hideOnMobile
+              sortConfig={sortConfig}
+              onSort={handleSort}
+              tooltip="Three Point Percentage"
+            />
+            <SortableHeader
+              label="FT%"
+              sortKey="ftPct"
+              hideOnMobile
+              sortConfig={sortConfig}
+              onSort={handleSort}
+              tooltip="Free Throw Percentage"
+            />
+            <SortableHeader
               label="eFG%"
               sortKey="efgPct"
               hideOnMobile
@@ -587,6 +603,18 @@ const GameStats: React.FC = () => {
                 align="right"
                 sx={{ display: { xs: "none", sm: "table-cell" } }}
               >
+                {row.threePct}%
+              </TableCell>
+              <TableCell
+                align="right"
+                sx={{ display: { xs: "none", sm: "table-cell" } }}
+              >
+                {row.ftPct}%
+              </TableCell>
+              <TableCell
+                align="right"
+                sx={{ display: { xs: "none", sm: "table-cell" } }}
+              >
                 {row.efgPct}%
               </TableCell>
               <TableCell
@@ -639,6 +667,18 @@ const GameStats: React.FC = () => {
               sx={{ display: { xs: "none", sm: "table-cell" } }}
             >
               {oppData.fgPct}%
+            </TableCell>
+            <TableCell
+              align="right"
+              sx={{ display: { xs: "none", sm: "table-cell" } }}
+            >
+              -
+            </TableCell>
+            <TableCell
+              align="right"
+              sx={{ display: { xs: "none", sm: "table-cell" } }}
+            >
+              -
             </TableCell>
             <TableCell
               align="right"

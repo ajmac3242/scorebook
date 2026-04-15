@@ -306,6 +306,53 @@ describe("stats utilities", () => {
       // Plus/Minus: +2 (P1) - 3 (P2) = -1
       expect(p1.plusMinus).toBe(-1);
     });
+
+    it("calculates 3PA and FTA correctly for both makes and misses", () => {
+      const players = [{ id: "p1", name: "Player 1" }];
+      const stats: StatEvent[] = [
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 3,
+          period: 1,
+          timestamp: "1",
+        },
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MISS,
+          points: 3,
+          period: 1,
+          timestamp: "2",
+        },
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 1,
+          period: 1,
+          timestamp: "3",
+        },
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MISS,
+          points: 1,
+          period: 1,
+          timestamp: "4",
+        },
+      ];
+      const results = calculatePlayerAggregates(players, stats);
+      const p1 = results[0];
+
+      expect(p1.threePM).toBe(1);
+      expect(p1.threePA).toBe(2);
+      expect(p1.threePct).toBe("50.0");
+      expect(p1.ftm).toBe(1);
+      expect(p1.fta).toBe(2);
+      expect(p1.ftPct).toBe("50.0");
+    });
   });
 
   describe("calculateLineupStats", () => {

@@ -414,6 +414,29 @@ const Scoreboard = React.memo(
                   </Button>
                 </Tooltip>
               ))}
+              <Tooltip title="Record opponent missed FT">
+                <Button
+                  size="small"
+                  variant="outlined"
+                  color="secondary"
+                  aria-label="Record opponent missed FT"
+                  onClick={() =>
+                    onQuickAction && onQuickAction(ACTION_TYPES.MISS, 1)
+                  }
+                  sx={{
+                    minWidth: 0,
+                    px: 0.8,
+                    py: 0.2,
+                    fontSize: "0.65rem",
+                    fontWeight: 800,
+                    borderColor: "rgba(255,255,255,0.3)",
+                    color: "white",
+                    "&:hover": { borderColor: "white" },
+                  }}
+                >
+                  -FT
+                </Button>
+              </Tooltip>
               <Tooltip title="Record opponent rebound">
                 <Button
                   size="small"
@@ -1348,7 +1371,11 @@ const GameMode: React.FC = () => {
           await db.stats.update(editingStatId, {
             playerId: selectedPlayerId!,
             type: typeToSave,
-            points: typeToSave === ACTION_TYPES.MAKE ? points : 0,
+            points:
+              typeToSave === ACTION_TYPES.MAKE ||
+              typeToSave === ACTION_TYPES.MISS
+                ? points
+                : 0,
             synced: 0,
           });
           await syncService.pushUpdates();
@@ -1358,7 +1385,11 @@ const GameMode: React.FC = () => {
             gameId: gameId,
             playerId: selectedPlayerId!,
             type: typeToSave,
-            points: typeToSave === ACTION_TYPES.MAKE ? points : 0,
+            points:
+              typeToSave === ACTION_TYPES.MAKE ||
+              typeToSave === ACTION_TYPES.MISS
+                ? points
+                : 0,
             locationX: selectedX || 0,
             locationY: selectedY || 0,
             period,
