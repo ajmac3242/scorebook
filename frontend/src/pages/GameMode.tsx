@@ -2578,7 +2578,13 @@ const GameMode: React.FC = () => {
             variant="contained"
             disabled={!selectedPlayerId || !statType || isSaving}
           >
-            {isSaving ? (isEditing ? "Updating..." : "Saving...") : isEditing ? "Update" : "Save"}
+            {isSaving
+              ? isEditing
+                ? "Updating..."
+                : "Saving..."
+              : isEditing
+                ? "Update"
+                : "Save"}
           </Button>
         </DialogActions>
       </Dialog>
