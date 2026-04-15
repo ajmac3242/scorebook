@@ -1,0 +1,3 @@
+# Sentinel's Journal 🛡️
+
+## 2026-04-15 - [Overwrite Protection & Input Hardening] **Vulnerability:** The application was vulnerable to accidental or malicious data overwrites on creation (POST) routes because PutCommand lacked conditional checks. Additionally, log leakage of cookies and proxy headers posed a risk of credential exposure. **Learning:** Implementing `ConditionExpression: "attribute_not_exists(PK)"` on all POST routes is a simple but critical safeguard for single-table designs where IDs might be provided by the client. **Prevention:** Always use conditional writes for resource creation and ensure the global error handler translates `ConditionalCheckFailedException` to 409 Conflict for POST requests.
