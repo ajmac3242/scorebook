@@ -102,7 +102,15 @@ function isValidUuid(id: unknown): id is string {
 
 /**
  * Validates if a string is a valid player ID.
- * Accepts UUID v4 or special player IDs (including jersey-specific ones).
+ *
+ * ARCHITECTURE:
+ * To support "on-the-fly" tracking of opponents without pre-creating entities,
+ * the system accepts three types of player IDs:
+ * 1. UUID v4: Standard for registered team players.
+ * 2. SPECIAL CONSTANTS: (e.g., 'OPPONENT', 'OUR_TEAM') for general tracking.
+ * 3. JERSEY PREFIX: 'OPPONENT:{jersey}' (e.g., 'OPPONENT:12') for tracking
+ *    specific opponent players by their jersey number.
+ *
  * @param {unknown} id - The ID to validate.
  * @returns {boolean} True if it's a valid player ID.
  */
@@ -665,9 +673,18 @@ function parseBody(body: string | undefined): Record<string, unknown> {
 
 /**
  * Timing-safe string comparison to prevent timing attacks on sensitive keys.
- * Uses SHA-256 hashing to ensure both buffers are the same length for crypto.timingSafeEqual.
- * @param {string} a - First string.
- * @param {string} b - Second string.
+ *
+ * WHY: Traditional string comparison (== or ===) returns early when it finds a
+ * mismatch, leaking information about how many characters matched via response time.
+ * crypto.timingSafeEqual prevents this by always checking all bytes, but it requires
+ * both inputs to have the same length.
+ *
+ * Hashing both inputs to SHA-256 first ensures that:
+ * 1. Both buffers passed to timingSafeEqual have the same fixed length (32 bytes).
+ * 2. We don't leak the length of the secret API key through the comparison time.
+ *
+ * @param {string} a - First string (e.g., user-provided key).
+ * @param {string} b - Second string (e.g., actual secret key).
  * @returns {boolean} True if strings are equal.
  */
 function safeCompare(a: string, b: string): boolean {
@@ -1172,6 +1189,9 @@ async function performHardCleanup(tableName: string) {
  * WHY: This is a defense-in-depth measure to prevent mass assignment vulnerabilities.
  * It ensures that even if a malicious user provides internal DynamoDB keys (like PK/SK)
  * in the request body, those keys are stripped before the object is persisted.
+ *
+ * Without this, an attacker could overwrite existing items by providing a matching
+ * PK/SK or escalate privileges by injecting internal metadata.
  *
  * @param {Record<string, unknown>} data - The data object to clean.
  * @returns {Record<string, unknown>} The cleaned object.
