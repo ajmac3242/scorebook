@@ -79,7 +79,7 @@ import {
   type PlayerAggregates,
 } from "../utils/stats";
 import { formatClock } from "../utils/mathUtils";
-import { MoleskineCard } from "../components/SharedUI";
+import { MoleskineCard, AnimatedNumber } from "../components/SharedUI";
 
 /**
  * 🏀 CoachBoard: getShotValue
@@ -375,17 +375,20 @@ const Scoreboard = React.memo(
                   />
                 );
               })}
-              <IconButton
-                size="small"
-                onClick={onAddOpponentJersey}
-                sx={{
-                  p: 0,
-                  color: "rgba(255,255,255,0.5)",
-                  "&:hover": { color: "white" },
-                }}
-              >
-                <AddIcon sx={{ fontSize: 16 }} />
-              </IconButton>
+              <Tooltip title="Add Opponent Jersey">
+                <IconButton
+                  size="small"
+                  onClick={onAddOpponentJersey}
+                  aria-label="Add Opponent Jersey"
+                  sx={{
+                    p: 0,
+                    color: "rgba(255,255,255,0.5)",
+                    "&:hover": { color: "white" },
+                  }}
+                >
+                  <AddIcon sx={{ fontSize: 16 }} />
+                </IconButton>
+              </Tooltip>
             </Box>
 
             <Stack direction="row" spacing={0.5}>
@@ -560,6 +563,7 @@ const Scoreboard = React.memo(
           >
             <Typography
               aria-label={`${team?.name || "Team"} score: ${gameData.currentScore}`}
+              aria-live="polite"
               sx={{
                 color: "white",
                 fontSize: { xs: "1.75rem", sm: "3rem" },
@@ -568,7 +572,7 @@ const Scoreboard = React.memo(
                 lineHeight: 1,
               }}
             >
-              {gameData.currentScore}
+              <AnimatedNumber value={gameData.currentScore} />
             </Typography>
 
             <Box sx={{ textAlign: "center", minWidth: { xs: 100, sm: 150 } }}>
@@ -689,6 +693,7 @@ const Scoreboard = React.memo(
 
             <Typography
               aria-label={`${game?.opponent || "Opponent"} score: ${gameData.opponentScore}`}
+              aria-live="polite"
               sx={{
                 color: "white",
                 fontSize: { xs: "1.75rem", sm: "3rem" },
@@ -697,7 +702,7 @@ const Scoreboard = React.memo(
                 lineHeight: 1,
               }}
             >
-              {gameData.opponentScore}
+              <AnimatedNumber value={gameData.opponentScore} />
             </Typography>
           </Box>
         </Box>
@@ -859,6 +864,7 @@ const GameMode: React.FC = () => {
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
   const [statType, setStatType] = useState<string | null>(null);
   const [points, setPoints] = useState<number>(2);
+  const [isSaving, setIsSaving] = useState(false);
 
   const [opponentJerseys, setOpponentJerseys] = useState<string[]>([]);
   const [selectedOpponentId, setSelectedOpponentId] = useState<string>(
@@ -1362,8 +1368,9 @@ const GameMode: React.FC = () => {
   const handleSaveStat = useCallback(
     async (currentType?: string) => {
       const typeToSave = currentType || statType;
-      if (!selectedPlayerId || !typeToSave) return;
+      if (!selectedPlayerId || !typeToSave || isSaving) return;
 
+      setIsSaving(true);
       try {
         if (!gameId) return;
         await db.open();
@@ -1412,6 +1419,8 @@ const GameMode: React.FC = () => {
           message: "Failed to save action",
           severity: "error",
         });
+      } finally {
+        setIsSaving(false);
       }
       // Reset state after save
       setDialogOpen(false);
@@ -2288,6 +2297,11 @@ const GameMode: React.FC = () => {
       <Dialog
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && selectedPlayerId && statType && !isSaving) {
+            handleSaveStat();
+          }
+        }}
         fullWidth
         maxWidth="xs"
         aria-describedby="stat-dialog-player-info"
@@ -2562,9 +2576,15 @@ const GameMode: React.FC = () => {
           <Button
             onClick={() => handleSaveStat()}
             variant="contained"
-            disabled={!selectedPlayerId || !statType}
+            disabled={!selectedPlayerId || !statType || isSaving}
           >
-            {isEditing ? "Update" : "Save"}
+            {isSaving
+              ? isEditing
+                ? "Updating..."
+                : "Saving..."
+              : isEditing
+                ? "Update"
+                : "Save"}
           </Button>
         </DialogActions>
       </Dialog>
