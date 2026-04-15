@@ -62,16 +62,35 @@ jobs:
             backend/pnpm-lock.yaml
             frontend/pnpm-lock.yaml
 
-      # --- Backend ---
-      - name: "Backend: Install & Build"
-        if: steps.filter.outputs.backend == 'true'
-        timeout-minutes: 5
+      # --- Parallel Install & Build ---
+      - name: "Parallel: Install & Build"
+        if: steps.filter.outputs.backend == 'true' || steps.filter.outputs.frontend == 'true'
+        timeout-minutes: 8
         run: |
-          echo "::group::Backend Build"
-          cd backend
-          for i in {1..3}; do pnpm install --frozen-lockfile && break || if [ $i -eq 3 ]; then exit 1; else sleep 10; fi; done
-          pnpm run build
-          echo "::endgroup::"
+          if [[ "${{ steps.filter.outputs.backend }}" == "true" ]]; then
+            (
+              echo "::group::Backend Build"
+              cd backend
+              for i in {1..3}; do pnpm install --frozen-lockfile && break || if [ $i -eq 3 ]; then exit 1; else sleep 10; fi; done
+              pnpm run build
+              echo "::endgroup::"
+            ) &
+            BACKEND_PID=$!
+          fi
+
+          if [[ "${{ steps.filter.outputs.frontend }}" == "true" ]]; then
+            (
+              echo "::group::Frontend Build"
+              cd frontend
+              for i in {1..3}; do pnpm install --frozen-lockfile && break || if [ $i -eq 3 ]; then exit 1; else sleep 10; fi; done
+              pnpm run build
+              echo "::endgroup::"
+            ) &
+            FRONTEND_PID=$!
+          fi
+
+          if [[ -n $BACKEND_PID ]]; then wait $BACKEND_PID || exit 1; fi
+          if [[ -n $FRONTEND_PID ]]; then wait $FRONTEND_PID || exit 1; fi
 
       - name: "Backend: Format & Lint"
         if: steps.filter.outputs.backend == 'true'
@@ -90,17 +109,6 @@ jobs:
           echo "::group::Backend Tests"
           cd backend
           pnpm test -- --verbose
-          echo "::endgroup::"
-
-      # --- Frontend ---
-      - name: "Frontend: Install & Build"
-        if: steps.filter.outputs.frontend == 'true'
-        timeout-minutes: 5
-        run: |
-          echo "::group::Frontend Build"
-          cd frontend
-          for i in {1..3}; do pnpm install --frozen-lockfile && break || if [ $i -eq 3 ]; then exit 1; else sleep 10; fi; done
-          pnpm run build
           echo "::endgroup::"
 
       - name: Generate frontend build hash
@@ -133,17 +141,29 @@ jobs:
         run: |
           echo "::group::Job Summary"
           echo "### CI Run Summary 🚀" >> $GITHUB_STEP_SUMMARY
-          echo "- **Backend:** ${{ steps.filter.outputs.backend == 'true' && '✅ Changed' || 'ℹ️ Unchanged' }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Frontend:** ${{ steps.filter.outputs.frontend == 'true' && '✅ Changed' || 'ℹ️ Unchanged' }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Docs & Diagrams:** ${{ steps.filter.outputs.docs == 'true' && '✅ Changed' || 'ℹ️ Unchanged' }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Component | Change Detected | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "| :--- | :---: | :---: |" >> $GITHUB_STEP_SUMMARY
 
-          if [[ "${{ steps.filter.outputs.docs }}" == "true" ]]; then
-            echo "- **Documentation:** Updated via terraform-docs" >> $GITHUB_STEP_SUMMARY
-            echo "- **Architecture Diagram:** Regenerated via Diagrams-as-Code" >> $GITHUB_STEP_SUMMARY
-          fi
+          BACKEND_STATUS="${{ steps.filter.outputs.backend == 'true' && '✅ Yes' || 'ℹ️ No' }}"
+          FRONTEND_STATUS="${{ steps.filter.outputs.frontend == 'true' && '✅ Yes' || 'ℹ️ No' }}"
+          DOCS_STATUS="${{ steps.filter.outputs.docs == 'true' && '✅ Yes' || 'ℹ️ No' }}"
+
+          JOB_STATUS_EMOJI="${{ job.status == 'success' && '🟢 Success' || '🔴 Failed' }}"
+
+          echo "| **Backend** | $BACKEND_STATUS | ${{ steps.filter.outputs.backend == 'true' && (job.status == 'success' && '✅ Passed' || '❌ Failed') || '⏩ Skipped' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Frontend** | $FRONTEND_STATUS | ${{ steps.filter.outputs.frontend == 'true' && (job.status == 'success' && '✅ Passed' || '❌ Failed') || '⏩ Skipped' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Docs & Infra** | $DOCS_STATUS | ${{ steps.filter.outputs.docs == 'true' && (job.status == 'success' && '✅ Passed' || '❌ Failed') || '⏩ Skipped' }} |" >> $GITHUB_STEP_SUMMARY
 
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Status: ${{ job.status == 'success' && '🟢 Success' || '🔴 Failed' }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Overall Status:** $JOB_STATUS_EMOJI" >> $GITHUB_STEP_SUMMARY
+
+          if [[ "${{ steps.filter.outputs.docs }}" == "true" ]]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "#### Documentation & Architecture" >> $GITHUB_STEP_SUMMARY
+            echo "- Documentation: Updated via terraform-docs" >> $GITHUB_STEP_SUMMARY
+            echo "- Architecture Diagram: Regenerated via Diagrams-as-Code" >> $GITHUB_STEP_SUMMARY
+          fi
           echo "::endgroup::"
 
       # --- Documentation & Diagrams ---
