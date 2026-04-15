@@ -1,4 +1,4 @@
-import { jest } from '@jest/globals';
+import { jest } from "@jest/globals";
 import { handler } from "../index.js";
 import {
   DynamoDBDocumentClient,
@@ -174,7 +174,9 @@ describe("Security Tests", () => {
 
   it("redacts 'Authorization' headers regardless of casing in CloudWatch logs", async () => {
     ddbMock.on(QueryCommand).resolves({ Items: [] });
-    const consoleSpy = jest.spyOn(console, "log").mockImplementation(() => console);
+    const consoleSpy = jest
+      .spyOn(console, "log")
+      .mockImplementation(() => console);
 
     const event = createEvent("GET", "/teams");
     event.headers = {
@@ -186,7 +188,9 @@ describe("Security Tests", () => {
     await handler(event);
 
     const logCall = consoleSpy.mock.calls.find((call: any[]) =>
-      call.some((arg: unknown) => typeof arg === "string" && arg.includes("[REDACTED]")),
+      call.some(
+        (arg: unknown) => typeof arg === "string" && arg.includes("[REDACTED]"),
+      ),
     );
     expect(logCall).toBeDefined();
 
@@ -203,7 +207,9 @@ describe("Security Tests", () => {
 
   it("redacts 'Cookie' and 'X-Api-Key' headers in CloudWatch logs", async () => {
     ddbMock.on(QueryCommand).resolves({ Items: [] });
-    const consoleSpy = jest.spyOn(console, "log").mockImplementation(() => console);
+    const consoleSpy = jest
+      .spyOn(console, "log")
+      .mockImplementation(() => console);
 
     const event = createEvent("GET", "/teams");
     event.headers = {
@@ -214,7 +220,9 @@ describe("Security Tests", () => {
     await handler(event);
 
     const logCall = consoleSpy.mock.calls.find((call: any[]) =>
-      call.some((arg: unknown) => typeof arg === "string" && arg.includes("[REDACTED]")),
+      call.some(
+        (arg: unknown) => typeof arg === "string" && arg.includes("[REDACTED]"),
+      ),
     );
     expect(logCall).toBeDefined();
 

@@ -514,7 +514,13 @@ async function handleTeams(
           "Team name is required and must be under 100 characters",
         );
       }
-      const resp = await createItem("TEAM", "METADATA", "TEAM", body, tableName);
+      const resp = await createItem(
+        "TEAM",
+        "METADATA",
+        "TEAM",
+        body,
+        tableName,
+      );
       if (resp.statusCode !== 201 || !resp.body) return resp;
       const newItem = JSON.parse(resp.body);
       await snapshotTeamRoster(newItem.id, tableName);
