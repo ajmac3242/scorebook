@@ -46,4 +46,3 @@ export const formatClock = (totalSeconds: number): string => {
   const secs = totalSeconds % 60;
   return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
 };
-

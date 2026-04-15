@@ -776,7 +776,7 @@ export const calculateTeamAggregates = (
     if (!totals) continue;
 
     const isOpponent = isOpponentId(stat.playerId);
-    const pts = isScoringEvent(stat) ? stat.points ?? 0 : 0;
+    const pts = isScoringEvent(stat) ? (stat.points ?? 0) : 0;
     updateScores(stat, totals);
 
     if (isOpponent) {
