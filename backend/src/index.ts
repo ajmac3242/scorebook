@@ -639,14 +639,6 @@ function maskEvent(event: APIGatewayProxyEventV2): unknown {
 }
 
 /**
- * Main Lambda handler function.
- * Handles routing based on HTTP method and path, processes request bodies,
- * and interacts with DynamoDB and S3.
- *
- * @param {APIGatewayProxyEventV2} event - The API Gateway event object.
- * @returns {Promise<APIGatewayProxyResultV2>} The HTTP response.
- */
-/**
  * Extracts HTTP method and path from various event formats.
  * @param {APIGatewayProxyEventV2} event - Lambda event.
  * @returns {{method: string, path: string}} Normalized metadata.
@@ -737,6 +729,14 @@ async function handleCleanup(
   return null;
 }
 
+/**
+ * Main Lambda handler function.
+ * Handles routing based on HTTP method and path, processes request bodies,
+ * and interacts with DynamoDB and S3.
+ *
+ * @param {APIGatewayProxyEventV2} event - The API Gateway event object.
+ * @returns {Promise<APIGatewayProxyResultV2>} The HTTP response.
+ */
 export const handler = async (
   event: APIGatewayProxyEventV2,
 ): Promise<APIGatewayProxyResultV2> => {
@@ -1039,28 +1039,25 @@ async function snapshotGameStats(gameId: string, tableName: string) {
  */
 /**
  * Accumulates the total score for both teams from a list of stat events.
- * 🏀 CoachBoard: Field Goal Tracking
- * Why: Free throws (points: 1) are always counted as 1 point ONLY if the type is MAKE.
- * A MISS with points: 1 (used for FTA tracking) should NOT increment the score.
+ * ⚡ Bolt: Uses direct ID comparison and cached length for faster API response processing.
+ * 🏀 CoachBoard: Free throws (points: 1) are always counted as 1 point ONLY if the type is MAKE.
  *
  * @param {Record<string, unknown>[]} stats - List of statistical events.
- * @returns {object} Total scores for Team and Opponent.
+ * @returns {{teamScore: number, oppScore: number}} Total scores for Team and Opponent.
  */
 function accumulateScores(stats: Record<string, unknown>[]) {
   let teamScore = 0;
   let oppScore = 0;
-  for (let i = 0; i < stats.length; i++) {
+  for (let i = 0, len = stats.length; i < len; i++) {
     const s = stats[i];
-    if (s.deletedAt) continue;
+    if (s.deletedAt || s.type !== "MAKE") continue;
 
-    // Only increment score for MAKE events.
-    if (s.type !== "MAKE") continue;
-
-    const pts = (s.points as number) || 0;
+    const pts = (s.points as number) ?? 0;
+    const pId = s.playerId;
 
     if (
-      typeof s.playerId === "string" &&
-      s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT)
+      pId === SPECIAL_PLAYER_IDS.OPPONENT ||
+      (typeof pId === "string" && pId.startsWith("OPPONENT:"))
     ) {
       oppScore += pts;
     } else {

@@ -157,6 +157,51 @@ interface ScoreboardProps {
   onSelectOpponent?: (_id: string) => void;
 }
 
+/**
+ * ⚡ Bolt: Localized Clock Display.
+ * Prevents re-rendering the entire Scoreboard just to update the text.
+ */
+const GameClockDisplay = React.memo(({ seconds }: { seconds: number }) => (
+  <Typography
+    sx={{
+      color: "white",
+      fontSize: { xs: "1.2rem", sm: "1.8rem" },
+      fontWeight: 700,
+      fontFamily: "'Courier New', monospace",
+      minWidth: "4.5ch",
+    }}
+  >
+    {formatClock(seconds)}
+  </Typography>
+));
+
+/**
+ * ⚡ Bolt: Localized Stint Timer.
+ * Prevents re-rendering the entire Live Lineup list just to update a timer.
+ */
+const StintTimerDisplay = React.memo(({ seconds }: { seconds: number }) => {
+  const theme = useTheme();
+  const color =
+    seconds > 480
+      ? theme.palette.error.main
+      : seconds > 360
+        ? theme.palette.warning.main
+        : "inherit";
+
+  return (
+    <Box
+      component="span"
+      sx={{
+        color,
+        fontWeight: seconds > 360 ? 700 : 400,
+        ml: 0.5,
+      }}
+    >
+      T-MIN: {formatClock(seconds)} |
+    </Box>
+  );
+});
+
 const Scoreboard = React.memo(
   ({
     game,
@@ -599,17 +644,7 @@ const Scoreboard = React.memo(
                   mb: 1,
                 }}
               >
-                <Typography
-                  sx={{
-                    color: "white",
-                    fontSize: { xs: "1.2rem", sm: "1.8rem" },
-                    fontWeight: 700,
-                    fontFamily: "'Courier New', monospace",
-                    minWidth: "4.5ch",
-                  }}
-                >
-                  {formatClock(clockSeconds)}
-                </Typography>
+                <GameClockDisplay seconds={clockSeconds} />
                 {!isReadOnly && (
                   <IconButton
                     size="small"
@@ -1043,8 +1078,9 @@ const GameMode: React.FC = () => {
    * ⚡ Bolt: Consolidate statistical derivations.
    * Performance: Use the pre-sorted event stream for single-pass derivation of
    * scores, fouls, timeouts, possession, lineups, and recent history.
+   * Split from clock-dependent values to prevent O(N) re-calculation every second.
    */
-  const gameData = useMemo(() => {
+  const gameBaseData = useMemo(() => {
     let curScore = 0;
     let oppScore = 0;
     let teamFouls = 0;
@@ -1054,7 +1090,9 @@ const GameMode: React.FC = () => {
     let posState = null;
     const onCourt = new Set<string>();
     const stintStarts = new Map<string, number>();
+    const stintScoreDiffs = new Map<string, number>();
     const pType = team?.periodType || "QUARTERS";
+    const periodLen = game?.periodLength ? game.periodLength * 60 : 600;
 
     for (let i = 0; i < sortedGameStats.length; i++) {
       const s = sortedGameStats[i];
@@ -1066,9 +1104,9 @@ const GameMode: React.FC = () => {
 
       // Score
       if (isOpp) {
-        oppScore += s.points || 0;
+        oppScore += s.points ?? 0;
       } else {
-        curScore += s.points || 0;
+        curScore += s.points ?? 0;
       }
 
       // Fouls (Period-aware)
@@ -1100,27 +1138,22 @@ const GameMode: React.FC = () => {
       if (s.type === ACTION_TYPES.SUB_IN) {
         onCourt.add(s.playerId);
         if (s.period === period) {
-          stintStarts.set(
-            s.playerId,
-            s.clockTime ?? (game?.periodLength ? game.periodLength * 60 : 600),
-          );
+          stintStarts.set(s.playerId, s.clockTime ?? periodLen);
+          stintScoreDiffs.set(s.playerId, curScore - oppScore);
         }
       } else if (s.type === ACTION_TYPES.SUB_OUT) {
         onCourt.delete(s.playerId);
         stintStarts.delete(s.playerId);
+        stintScoreDiffs.delete(s.playerId);
       }
     }
 
     // For players already on court at start of period without a SUB_IN event this period
     onCourt.forEach((pId) => {
       if (!stintStarts.has(pId)) {
-        stintStarts.set(pId, game?.periodLength ? game.periodLength * 60 : 600);
+        stintStarts.set(pId, periodLen);
+        stintScoreDiffs.set(pId, curScore - oppScore);
       }
-    });
-
-    const stintDurations = new Map<string, number>();
-    stintStarts.forEach((startClock, pId) => {
-      stintDurations.set(pId, Math.max(0, startClock - clockSeconds));
     });
 
     const MAX_TIMEOUTS = team?.fouls || 3;
@@ -1146,7 +1179,8 @@ const GameMode: React.FC = () => {
       },
       possessionState: posState,
       onCourtIds: onCourt,
-      stintDurations,
+      stintStarts,
+      stintScoreDiffs,
       recentStats: sortedGameStats.slice(-10).reverse(),
     };
   }, [
@@ -1154,9 +1188,28 @@ const GameMode: React.FC = () => {
     period,
     team?.periodType,
     team?.fouls,
-    clockSeconds,
     game?.periodLength,
   ]);
+
+  /**
+   * ⚡ Bolt: Decouple clock-dependent stint durations.
+   * Prevents re-traversing the entire event history every second.
+   */
+  const stintDurations = useMemo(() => {
+    const durations = new Map<string, number>();
+    gameBaseData.stintStarts.forEach((startClock, pId) => {
+      durations.set(pId, Math.max(0, startClock - clockSeconds));
+    });
+    return durations;
+  }, [gameBaseData.stintStarts, clockSeconds]);
+
+  const gameData = useMemo(
+    () => ({
+      ...gameBaseData,
+      stintDurations,
+    }),
+    [gameBaseData, stintDurations],
+  );
 
   // Initialize draft state when dialog opens
   useEffect(() => {
@@ -1174,7 +1227,11 @@ const GameMode: React.FC = () => {
     return map;
   }, [teamPlayers]);
 
-  const statsGridData = useMemo(() => {
+  /**
+   * ⚡ Bolt: Split stats aggregation into base (stable) and live (dynamic) parts.
+   * Base calculation only runs when the event stream changes.
+   */
+  const baseStatsGridData = useMemo(() => {
     return calculatePlayerAggregates(
       players,
       sortedGameStats,
@@ -1183,17 +1240,29 @@ const GameMode: React.FC = () => {
       {
         isSorted: true,
         periodLength: game?.periodLength,
-        liveContext: { clockTime: clockSeconds, period },
+        // No liveContext here: assumes active stints end at 0:00.
       },
     );
-  }, [
-    players,
-    sortedGameStats,
-    teamPlayers,
-    game?.periodLength,
-    clockSeconds,
-    period,
-  ]);
+  }, [players, sortedGameStats, teamPlayers, game?.periodLength]);
+
+  /**
+   * ⚡ Bolt: Apply live adjustments (MIN) to the base stats.
+   * This lightweight O(P) pass runs every second, avoiding O(N) event traversal.
+   */
+  const statsGridData = useMemo(() => {
+    const clockMins = clockSeconds / 60;
+    return baseStatsGridData.map((p) => {
+      if (gameBaseData.onCourtIds.has(p.id.toString())) {
+        return {
+          ...p,
+          // Adjust MIN: baseStats assumed they play to 0:00 of the current period.
+          // stintStart - 0 was added. We want stintStart - clockSeconds.
+          min: Math.max(0, Math.round((p.min - clockMins) * 10) / 10),
+        };
+      }
+      return p;
+    });
+  }, [baseStatsGridData, gameBaseData.onCourtIds, clockSeconds]);
 
   const sortedStatsGridData = useMemo(() => {
     return [...statsGridData].sort((a, b) => {
@@ -1930,8 +1999,8 @@ const GameMode: React.FC = () => {
                       .map((p) => {
                         const s = statsMap.get(p.id!);
                         const streak = playerStreaks.get(p.id!);
-                        const pts = s?.points || 0;
-                        const pf = s?.fouls || 0;
+                        const pts = s?.points ?? 0;
+                        const pf = s?.fouls ?? 0;
                         const foulLimit =
                           game?.foulLimit || team?.defaultFoulLimit || 5;
                         const isFoulTrouble = pf === foulLimit - 1;
@@ -2031,29 +2100,11 @@ const GameMode: React.FC = () => {
                                   sx={{ fontSize: "0.6rem", opacity: 0.9 }}
                                 >
                                   {pts} pts |
-                                  {(() => {
-                                    const stintSecs =
-                                      gameData.stintDurations.get(p.id!) || 0;
-                                    const color =
-                                      stintSecs > 480
-                                        ? theme.palette.error.main
-                                        : stintSecs > 360
-                                          ? theme.palette.warning.main
-                                          : "inherit";
-                                    return (
-                                      <Box
-                                        component="span"
-                                        sx={{
-                                          color,
-                                          fontWeight:
-                                            stintSecs > 360 ? 700 : 400,
-                                          ml: 0.5,
-                                        }}
-                                      >
-                                        T-MIN: {formatClock(stintSecs)} |
-                                      </Box>
-                                    );
-                                  })()}
+                                  <StintTimerDisplay
+                                    seconds={
+                                      gameData.stintDurations.get(p.id!) || 0
+                                    }
+                                  />
                                   <Box
                                     component="span"
                                     sx={{
@@ -2312,7 +2363,7 @@ const GameMode: React.FC = () => {
               const p = players?.find((p) => p.id === selectedPlayerId);
               if (!p) return "Select Player";
               const s = statsMap.get(p.id!);
-              return `${p.name} (${s?.points || 0} pts | ${s?.fouls || 0} pf)`;
+              return `${p.name} (${s?.points ?? 0} pts | ${s?.fouls ?? 0} pf)`;
             })()}
           </Typography>
         </DialogTitle>
