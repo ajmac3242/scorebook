@@ -393,11 +393,51 @@ export const applyActionToAggregate = (agg: BaseStats, stat: StatEvent) => {
 };
 
 /**
+ * Creates an empty player aggregate record with default values.
+ * @param {Player} player - The player object.
+ * @param {string} jerseyNumber - The player's jersey number.
+ * @returns {PlayerAggregates} Initialized aggregate record.
+ */
+const createEmptyPlayerAggregate = (
+  player: Player,
+  jerseyNumber: string = "",
+): PlayerAggregates => ({
+  id: player.id!,
+  name: player.name,
+  avatarColor: player.avatarColor,
+  jerseyNumber,
+  gamesPlayed: new Set(),
+  gp: 0,
+  points: 0,
+  rebounds: 0,
+  assists: 0,
+  steals: 0,
+  turnovers: 0,
+  blocks: 0,
+  offRebounds: 0,
+  defRebounds: 0,
+  makes: 0,
+  attempts: 0,
+  threePM: 0,
+  threePA: 0,
+  fta: 0,
+  ftm: 0,
+  threePct: "0.0",
+  ftPct: "0.0",
+  fgPct: "0.0",
+  efgPct: "0.0",
+  tsPct: "0.0",
+  plusMinus: 0,
+  min: 0,
+  fouls: 0,
+});
+
+/**
  * Initializes a map of player aggregates with default values.
  *
  * @param {Player[]} players - List of player objects.
  * @param {TeamPlayer[]} teamPlayers - Team roster for jersey numbers.
- * @returns {Record<string, PlayerAggregates>} Initialized map.
+ * @returns {Map<string, PlayerAggregates>} Initialized map.
  */
 function initializeStatsMap(
   players: Player[],
@@ -416,36 +456,10 @@ function initializeStatsMap(
   for (let i = 0; i < players.length; i++) {
     const player = players[i];
     const playerId = player.id!.toString();
-    statsMap.set(playerId, {
-      id: player.id,
-      name: player.name,
-      avatarColor: player.avatarColor,
-      jerseyNumber: jerseyMap.get(playerId) ?? "",
-      gamesPlayed: new Set(),
-      gp: 0,
-      points: 0,
-      rebounds: 0,
-      assists: 0,
-      steals: 0,
-      turnovers: 0,
-      blocks: 0,
-      offRebounds: 0,
-      defRebounds: 0,
-      makes: 0,
-      attempts: 0,
-      threePM: 0,
-      threePA: 0,
-      fta: 0,
-      ftm: 0,
-      threePct: "0.0",
-      ftPct: "0.0",
-      fgPct: "0.0",
-      efgPct: "0.0",
-      tsPct: "0.0",
-      plusMinus: 0,
-      min: 0,
-      fouls: 0,
-    });
+    statsMap.set(
+      playerId,
+      createEmptyPlayerAggregate(player, jerseyMap.get(playerId) ?? ""),
+    );
   }
   return statsMap;
 }
@@ -618,13 +632,28 @@ export const calculatePlayerAggregates = (
     handleStintEnd(pId, statsMap, stint, scores, endClock);
   }
 
-  // Finalize totals, percentages, and averages
+  return finalizePlayerAggregates(statsMap, viewType);
+};
+
+/**
+ * Finalizes statistical aggregates by calculating percentages and averages.
+ * @param {Map<string, PlayerAggregates>} statsMap - The map of aggregates.
+ * @param {"total" | "average"} viewType - The view type.
+ * @returns {PlayerAggregates[]} The finalized list of aggregates.
+ */
+function finalizePlayerAggregates(
+  statsMap: Map<string, PlayerAggregates>,
+  viewType: "total" | "average",
+): PlayerAggregates[] {
   const result: PlayerAggregates[] = [];
   const isAverage = viewType === "average";
+
   for (const player of statsMap.values()) {
     const gpActual = player.gamesPlayed.size;
     const gp = gpActual || 1;
     player.gp = gpActual;
+
+    // Shooting Percentages
     player.fgPct = calculateFgPct(player.makes, player.attempts);
     player.threePct = calculateFgPct(player.threePM, player.threePA);
     player.ftPct = calculateFgPct(player.ftm, player.fta);
@@ -653,7 +682,7 @@ export const calculatePlayerAggregates = (
     result.push(player);
   }
   return result;
-};
+}
 
 /**
  * 🏀 CoachBoard: calculateStopsAndKills
@@ -783,10 +812,9 @@ export const calculateTeamAggregates = (
     }
   }
 
-  let totalPoints = 0;
+  const teamWideTotals = { team: 0, opp: 0 };
   let totalRebounds = 0;
   let totalAssists = 0;
-  let totalOppPoints = 0;
 
   for (let i = 0; i < stats.length; i++) {
     const stat = stats[i];
@@ -795,14 +823,10 @@ export const calculateTeamAggregates = (
     const totals = gameTotals.get(stat.gameId);
     if (!totals) continue;
 
-    const isOpponent = isOpponentId(stat.playerId);
-    const pts = isScoringEvent(stat) ? stat.points || 0 : 0;
     updateScores(stat, totals);
+    updateScores(stat, teamWideTotals);
 
-    if (isOpponent) {
-      totalOppPoints += pts;
-    } else {
-      totalPoints += pts;
+    if (!isOpponentId(stat.playerId)) {
       if (
         stat.type === ACTION_TYPES.REBOUND ||
         stat.type === ACTION_TYPES.OFF_REBOUND ||
@@ -825,10 +849,10 @@ export const calculateTeamAggregates = (
 
   const gp = targetCount || 1;
   return {
-    ppg: formatToOne(totalPoints / gp),
+    ppg: formatToOne(teamWideTotals.team / gp),
     rpg: formatToOne(totalRebounds / gp),
     apg: formatToOne(totalAssists / gp),
-    oppg: formatToOne(totalOppPoints / gp),
+    oppg: formatToOne(teamWideTotals.opp / gp),
     record: `${wins}-${losses}`,
     totalGames: targetCount,
   };

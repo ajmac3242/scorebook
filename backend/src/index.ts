@@ -202,6 +202,7 @@ async function handlePlayers(
   // Member endpoints: /players/{playerId}
   const playerId = extractIdFromPath(path, "/players/");
   if (!playerId) return null;
+
   if (!isValidUuid(playerId)) {
     return badRequest("Invalid playerId format (UUID required)");
   }
@@ -326,16 +327,17 @@ async function handleGames(
       return resp;
     }
     if (method === "PATCH" && body.deletedAt === null) {
+      const gameKey = { PK: Keys.game(gameId), SK: Keys.metadata(gameId) };
       const getResp = await docClient.send(
         new GetCommand({
           TableName: tableName,
-          Key: { PK: Keys.game(gameId), SK: Keys.metadata(gameId) },
+          Key: gameKey,
         }),
       );
       await docClient.send(
         new UpdateCommand({
           TableName: tableName,
-          Key: { PK: Keys.game(gameId), SK: Keys.metadata(gameId) },
+          Key: gameKey,
           UpdateExpression: "REMOVE deletedAt",
           ConditionExpression: "attribute_exists(PK)",
         }),
@@ -501,9 +503,7 @@ async function handleTeams(
   tableName: string,
 ): Promise<APIGatewayProxyResultV2 | null> {
   if (path === "/teams") {
-    if (method === "GET") {
-      return await getItems(tableName, "TEAM");
-    }
+    if (method === "GET") return await getItems(tableName, "TEAM");
     if (method === "POST") {
       if (
         !body?.name ||
@@ -527,6 +527,7 @@ async function handleTeams(
       await snapshotTeamGames(newItem.id, tableName);
       return resp;
     }
+    return null;
   }
 
   const teamId = extractIdFromPath(path, "/teams/");
@@ -540,10 +541,11 @@ async function handleTeams(
       return resp;
     }
     if (method === "PATCH" && body.deletedAt === null) {
+      const teamKey = { PK: Keys.team(teamId), SK: Keys.metadata(teamId) };
       await docClient.send(
         new UpdateCommand({
           TableName: tableName,
-          Key: { PK: Keys.team(teamId), SK: Keys.metadata(teamId) },
+          Key: teamKey,
           UpdateExpression: "REMOVE deletedAt",
           ConditionExpression: "attribute_exists(PK)",
         }),
@@ -642,15 +644,9 @@ function maskEvent(event: APIGatewayProxyEventV2): unknown {
   const cookies = event.cookies || [];
 
   // ⚡ Bolt: Check for redacted headers/cookies before cloning to avoid unnecessary allocations.
-  let hasRedactable = cookies.length > 0;
-  if (!hasRedactable) {
-    for (const key in headers) {
-      if (REDACTED_HEADERS.has(key.toLowerCase())) {
-        hasRedactable = true;
-        break;
-      }
-    }
-  }
+  const hasRedactable =
+    cookies.length > 0 ||
+    Object.keys(headers).some((key) => REDACTED_HEADERS.has(key.toLowerCase()));
 
   if (!hasRedactable) return event;
 

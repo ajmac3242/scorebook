@@ -1,3 +1,4 @@
+import { jest } from "@jest/globals";
 import { handler } from "../index.js";
 import { mockClient } from "aws-sdk-client-mock";
 
@@ -10,12 +11,12 @@ import { DynamoDBDocumentClient, QueryCommand } from "@aws-sdk/lib-dynamodb";
 const ddbMock = mockClient(DynamoDBDocumentClient);
 
 describe("Error Reporting Tests", () => {
-  let consoleSpy: jest.SpyInstance;
+  let consoleSpy: any;
 
   beforeEach(() => {
     ddbMock.reset();
     process.env.TABLE_NAME = "TestTable";
-    consoleSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+    consoleSpy = jest.spyOn(console, "error").mockImplementation(() => console);
   });
 
   afterEach(() => {
