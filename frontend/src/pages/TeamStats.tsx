@@ -824,6 +824,20 @@ const TeamStats: React.FC = () => {
                     tooltip="Field Goal Percentage"
                   />
                   <SortableHeader
+                    label="3P%"
+                    sortKey="threePct"
+                    sortConfig={sortConfig}
+                    onSort={handleSort}
+                    tooltip="Three Point Percentage"
+                  />
+                  <SortableHeader
+                    label="FT%"
+                    sortKey="ftPct"
+                    sortConfig={sortConfig}
+                    onSort={handleSort}
+                    tooltip="Free Throw Percentage"
+                  />
+                  <SortableHeader
                     label="eFG%"
                     sortKey="efgPct"
                     sortConfig={sortConfig}
@@ -941,6 +955,18 @@ const TeamStats: React.FC = () => {
                       sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
                     >
                       {row.fgPct}%
+                    </TableCell>
+                    <TableCell
+                      align="right"
+                      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+                    >
+                      {row.threePct}%
+                    </TableCell>
+                    <TableCell
+                      align="right"
+                      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+                    >
+                      {row.ftPct}%
                     </TableCell>
                     <TableCell
                       align="right"

@@ -255,49 +255,55 @@ const GameStats: React.FC = () => {
   }, [teamPlayers]);
 
   /**
-   * ⚡ Bolt: Consolidate shot-related analytics.
-   * Performance: Merge markers and heatmap generation into a single pass over period-filtered stats.
+   * ⚡ Bolt: Consolidate statistical loops.
+   * Performance: Merge filteredStats and shotChartMarkers into a single optimized pass.
    */
-  const shotAnalytics = useMemo(() => {
+  const derivedStats = useMemo(() => {
+    const filtered = [];
     const markers = [];
-    const heatmap: Record<string, { makes: number; attempts: number }> = {};
-
     for (let i = 0; i < stats.length; i++) {
       const s = stats[i];
-      const isShot =
-        s.type === ACTION_TYPES.MAKE || s.type === ACTION_TYPES.MISS;
-      if (!isShot) continue;
-
       const playerMatch =
         selectedPlayerId === "ALL" || s.playerId === selectedPlayerId;
-      if (!playerMatch) continue;
-
-      // Update Heatmap
-      const zone = getShotZone(s.locationX || 0, s.locationY || 0);
-      if (!heatmap[zone]) heatmap[zone] = { makes: 0, attempts: 0 };
-      heatmap[zone].attempts++;
-      if (s.type === ACTION_TYPES.MAKE) heatmap[zone].makes++;
-
-      // Update Markers
-      if (selectedType === "ALL" || s.type === selectedType) {
-        markers.push({
-          id: s.id,
-          x: s.locationX || 0,
-          y: s.locationY || 0,
-          type: s.type as "MAKE" | "MISS",
-          label:
-            s.playerId !== SPECIAL_PLAYER_IDS.OPPONENT
-              ? shotChartJerseyMap.get(s.playerId)
-              : undefined,
-          playerId: s.playerId,
-        });
+      const typeMatch = selectedType === "ALL" || s.type === selectedType;
+      if (playerMatch && typeMatch) {
+        filtered.push(s);
+        if (s.type === ACTION_TYPES.MAKE || s.type === ACTION_TYPES.MISS) {
+          markers.push({
+            id: s.id,
+            x: s.locationX || 0,
+            y: s.locationY || 0,
+            type: s.type as "MAKE" | "MISS",
+            label:
+              s.playerId !== SPECIAL_PLAYER_IDS.OPPONENT
+                ? shotChartJerseyMap.get(s.playerId)
+                : undefined,
+            playerId: s.playerId,
+          });
+        }
       }
     }
-    return { markers, heatmap };
+    return { filtered, markers };
   }, [stats, selectedPlayerId, selectedType, shotChartJerseyMap]);
 
-  const shotChartMarkers = shotAnalytics.markers;
-  const heatmapData = shotAnalytics.heatmap;
+  const shotChartMarkers = derivedStats.markers;
+
+  const heatmapData = useMemo(() => {
+    const data: Record<string, { makes: number; attempts: number }> = {};
+    for (let i = 0; i < stats.length; i++) {
+      const s = stats[i];
+      if (s.type !== ACTION_TYPES.MAKE && s.type !== ACTION_TYPES.MISS)
+        continue;
+      if (selectedPlayerId !== "ALL" && s.playerId !== selectedPlayerId)
+        continue;
+
+      const zone = getShotZone(s.locationX || 0, s.locationY || 0);
+      if (!data[zone]) data[zone] = { makes: 0, attempts: 0 };
+      data[zone].attempts++;
+      if (s.type === ACTION_TYPES.MAKE) data[zone].makes++;
+    }
+    return data;
+  }, [stats, selectedPlayerId]);
 
   const scoreFlowData = useMemo(() => {
     return calculateScoreFlow(scoreFlowSortedStats, game?.periodLength);
@@ -458,6 +464,22 @@ const GameStats: React.FC = () => {
               tooltip="Field Goal Percentage"
             />
             <SortableHeader
+              label="3P%"
+              sortKey="threePct"
+              hideOnMobile
+              sortConfig={sortConfig}
+              onSort={handleSort}
+              tooltip="Three Point Percentage"
+            />
+            <SortableHeader
+              label="FT%"
+              sortKey="ftPct"
+              hideOnMobile
+              sortConfig={sortConfig}
+              onSort={handleSort}
+              tooltip="Free Throw Percentage"
+            />
+            <SortableHeader
               label="eFG%"
               sortKey="efgPct"
               hideOnMobile
@@ -581,6 +603,18 @@ const GameStats: React.FC = () => {
                 align="right"
                 sx={{ display: { xs: "none", sm: "table-cell" } }}
               >
+                {row.threePct}%
+              </TableCell>
+              <TableCell
+                align="right"
+                sx={{ display: { xs: "none", sm: "table-cell" } }}
+              >
+                {row.ftPct}%
+              </TableCell>
+              <TableCell
+                align="right"
+                sx={{ display: { xs: "none", sm: "table-cell" } }}
+              >
                 {row.efgPct}%
               </TableCell>
               <TableCell
@@ -633,6 +667,18 @@ const GameStats: React.FC = () => {
               sx={{ display: { xs: "none", sm: "table-cell" } }}
             >
               {oppData.fgPct}%
+            </TableCell>
+            <TableCell
+              align="right"
+              sx={{ display: { xs: "none", sm: "table-cell" } }}
+            >
+              -
+            </TableCell>
+            <TableCell
+              align="right"
+              sx={{ display: { xs: "none", sm: "table-cell" } }}
+            >
+              -
             </TableCell>
             <TableCell
               align="right"

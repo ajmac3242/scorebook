@@ -24,7 +24,7 @@ import {
   Assessment,
 } from "@mui/icons-material";
 import { useLiveQuery } from "dexie-react-hooks";
-import { db } from "../db";
+import { db, type StatEvent } from "../db";
 import { MoleskineCard, PageHeader, StatItem } from "../components/SharedUI";
 import { calculateTeamAggregates, getInitials } from "../utils/stats";
 import BasketballCourt from "../components/BasketballCourt";
@@ -47,53 +47,45 @@ const Dashboard: React.FC = () => {
   const teamId = favoriteTeam?.id;
 
   // Fetch games for the favorite team
-  const teamGamesRaw = useLiveQuery(
-    async () =>
-      teamId ? await db.games.where("teamId").equals(teamId).toArray() : [],
-    [teamId],
-  );
-  const teamGames = useMemo(() => teamGamesRaw || [], [teamGamesRaw]);
+  const teamGames =
+    useLiveQuery(
+      async () =>
+        teamId ? await db.games.where("teamId").equals(teamId).toArray() : [],
+      [teamId],
+    ) || [];
 
   // Fetch stats for all those games
   const gameIds = useMemo(
     () => teamGames.map((g) => g.id).filter(Boolean) as string[],
     [teamGames],
   );
-  const allStatsRaw = useLiveQuery(
-    async () =>
-      gameIds.length > 0
-        ? await db.stats.where("gameId").anyOf(gameIds).toArray()
-        : [],
-    [gameIds],
-  );
-  const allStats = useMemo(() => allStatsRaw || [], [allStatsRaw]);
+  const allStats =
+    useLiveQuery(
+      async () =>
+        gameIds.length > 0
+          ? await db.stats.where("gameId").anyOf(gameIds).toArray()
+          : [],
+      [gameIds],
+    ) || [];
 
   const aggregates = useMemo(
     () => calculateTeamAggregates(teamGames, allStats),
     [teamGames, allStats],
   );
 
-  /**
-   * ⚡ Bolt: Efficiently aggregate team-wide heatmap data.
-   * Uses direct property access to minimize overhead in large historical datasets.
-   */
   const heatmapData = useMemo(() => {
-    const heatmap: Record<string, { makes: number; attempts: number }> = {};
-    for (let i = 0, len = allStats.length; i < len; i++) {
+    const data: Record<string, { makes: number; attempts: number }> = {};
+    for (let i = 0; i < allStats.length; i++) {
       const s = allStats[i];
-      const type = s.type;
-      if (type !== ACTION_TYPES.MAKE && type !== ACTION_TYPES.MISS) continue;
+      if (s.type !== ACTION_TYPES.MAKE && s.type !== ACTION_TYPES.MISS)
+        continue;
 
       const zone = getShotZone(s.locationX || 0, s.locationY || 0);
-      let entry = heatmap[zone];
-      if (!entry) {
-        entry = { makes: 0, attempts: 0 };
-        heatmap[zone] = entry;
-      }
-      entry.attempts++;
-      if (type === ACTION_TYPES.MAKE) entry.makes++;
+      if (!data[zone]) data[zone] = { makes: 0, attempts: 0 };
+      data[zone].attempts++;
+      if (s.type === ACTION_TYPES.MAKE) data[zone].makes++;
     }
-    return heatmap;
+    return data;
   }, [allStats]);
 
   const upcomingGames = useMemo(() => {
