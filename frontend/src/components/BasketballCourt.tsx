@@ -109,7 +109,12 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
 
           {/* Heatmap Zones Overlay */}
           {heatmapData && (
-            <g opacity="0.4" style={{ pointerEvents: "none" }}>
+            <g
+              opacity="0.4"
+              style={{ pointerEvents: "none" }}
+              role="group"
+              aria-label="Shot efficiency heatmap visualization"
+            >
               {/* 3PT ABOVE THE BREAK */}
               {heatmapData["3PT_CENTER"]?.attempts > 0 && (
                 <path

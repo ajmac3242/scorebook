@@ -81,7 +81,11 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
         {showBack && (
           <IconButton
             onClick={() => (backTo ? navigate(backTo) : navigate(-1))}
-            aria-label="Go back"
+            aria-label={
+              backTo
+                ? `Go back to ${backTo.split("/").filter(Boolean).pop() || "previous page"}`
+                : "Go back"
+            }
             sx={{
               position: "absolute",
               left: 0,

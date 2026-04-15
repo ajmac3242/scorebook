@@ -102,7 +102,7 @@ const Players: React.FC = () => {
    * Handles adding a new player record.
    */
   const handleAddPlayer = async () => {
-    if (!name.trim()) {
+    if (!name.trim() || isSubmitting) {
       setShowValidation(true);
       return;
     }
@@ -223,11 +223,46 @@ const Players: React.FC = () => {
                   <Box>
                     <Typography
                       variant="h5"
+                      component="a"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        if (!player.isArchived) {
+                          navigate(`/players/${player.id}`);
+                        } else {
+                          handleRestorePlayer(player.id);
+                        }
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          if (!player.isArchived) {
+                            navigate(`/players/${player.id}`);
+                          } else {
+                            handleRestorePlayer(player.id);
+                          }
+                        }
+                      }}
+                      tabIndex={0}
+                      role="link"
+                      aria-label={
+                        player.isArchived
+                          ? `Restore ${player.name}`
+                          : `View details for ${player.name}`
+                      }
                       sx={{
                         fontFamily: "var(--serif)",
                         fontWeight: 700,
                         mb: 0.5,
                         color: "white",
+                        textDecoration: "none",
+                        cursor: "pointer",
+                        "&:hover": {
+                          textDecoration: "underline",
+                        },
+                        "&:focus-visible": {
+                          outline: "2px solid white",
+                          outlineOffset: "2px",
+                          borderRadius: "4px",
+                        },
                       }}
                     >
                       {player.name}
