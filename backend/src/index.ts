@@ -34,6 +34,7 @@ import {
   response,
   sanitizeOutput,
   INTERNAL_KEYS,
+  conflict,
 } from "./responses.js";
 
 // Clients
@@ -49,6 +50,8 @@ const REDACTED_HEADERS = new Set([
   "cookie",
   "set-cookie",
   "x-api-key",
+  "proxy-authorization",
+  "x-amz-security-token",
 ]);
 
 /**
@@ -416,21 +419,31 @@ async function handleGames(
       }
       if (
         body.period !== undefined &&
-        (typeof body.period !== "number" || body.period < 1)
+        (typeof body.period !== "number" || body.period < 1 || body.period > 20)
       ) {
-        return badRequest("Period must be at least 1");
+        return badRequest("Period must be between 1 and 20");
       }
       if (
         body.clockTime !== undefined &&
-        (typeof body.clockTime !== "number" || body.clockTime < 0)
+        (typeof body.clockTime !== "number" ||
+          body.clockTime < 0 ||
+          body.clockTime > 3600)
       ) {
-        return badRequest("Clock time must be at least 0");
+        return badRequest("Clock time must be between 0 and 3600 seconds");
       }
       if (
-        (body.locationX !== undefined && typeof body.locationX !== "number") ||
-        (body.locationY !== undefined && typeof body.locationY !== "number")
+        (body.locationX !== undefined &&
+          (typeof body.locationX !== "number" ||
+            body.locationX < 0 ||
+            body.locationX > 100)) ||
+        (body.locationY !== undefined &&
+          (typeof body.locationY !== "number" ||
+            body.locationY < 0 ||
+            body.locationY > 100))
       ) {
-        return badRequest("Location coordinates must be numbers");
+        return badRequest(
+          "Location coordinates must be numbers between 0 and 100",
+        );
       }
 
       const id = (body?.id as string) || uuidv4();
@@ -457,7 +470,11 @@ async function handleGames(
         timestamp,
       };
       await docClient.send(
-        new PutCommand({ TableName: tableName, Item: item }),
+        new PutCommand({
+          TableName: tableName,
+          Item: item,
+          ConditionExpression: "attribute_not_exists(PK)",
+        }),
       );
       await snapshotGameStats(gameId, tableName);
       return created(item);
@@ -550,6 +567,9 @@ async function handleTeams(
       if (!isValidUuid(body.playerId)) {
         return badRequest("Valid playerId (UUID) is required");
       }
+      if (body.id && !isValidUuid(body.id)) {
+        return badRequest("Invalid player mapping id format (UUID required)");
+      }
       const cleanBody = stripLocalFields(body);
       const teamPlayerItem = {
         ...(cleanBody as Record<string, unknown>),
@@ -561,7 +581,11 @@ async function handleTeams(
         teamId,
       };
       await docClient.send(
-        new PutCommand({ TableName: tableName, Item: teamPlayerItem }),
+        new PutCommand({
+          TableName: tableName,
+          Item: teamPlayerItem,
+          ConditionExpression: "attribute_not_exists(PK)",
+        }),
       );
       await snapshotTeamRoster(teamId, tableName);
       return created(teamPlayerItem);
@@ -614,27 +638,38 @@ async function handleTeams(
  * @returns {unknown} A sanitized copy of the event.
  */
 function maskEvent(event: APIGatewayProxyEventV2): unknown {
-  if (!event.headers) return event;
+  const headers = event.headers || {};
+  const cookies = event.cookies || [];
 
-  // ⚡ Bolt: Check for redacted headers before cloning to avoid unnecessary allocations.
-  let hasRedactable = false;
-  for (const key in event.headers) {
-    if (REDACTED_HEADERS.has(key.toLowerCase())) {
-      hasRedactable = true;
-      break;
+  // ⚡ Bolt: Check for redacted headers/cookies before cloning to avoid unnecessary allocations.
+  let hasRedactable = cookies.length > 0;
+  if (!hasRedactable) {
+    for (const key in headers) {
+      if (REDACTED_HEADERS.has(key.toLowerCase())) {
+        hasRedactable = true;
+        break;
+      }
     }
   }
 
   if (!hasRedactable) return event;
 
   const masked = { ...event };
-  const redactedHeaders = { ...masked.headers };
-  for (const key in redactedHeaders) {
-    if (REDACTED_HEADERS.has(key.toLowerCase())) {
-      redactedHeaders[key] = "[REDACTED]";
+
+  if (headers) {
+    const redactedHeaders = { ...headers };
+    for (const key in redactedHeaders) {
+      if (REDACTED_HEADERS.has(key.toLowerCase())) {
+        redactedHeaders[key] = "[REDACTED]";
+      }
     }
+    masked.headers = redactedHeaders;
   }
-  masked.headers = redactedHeaders;
+
+  if (cookies.length > 0) {
+    masked.cookies = cookies.map(() => "[REDACTED]");
+  }
+
   return masked;
 }
 
@@ -778,6 +813,9 @@ export const handler = async (
       error instanceof Error &&
       error.name === "ConditionalCheckFailedException"
     ) {
+      if (method === "POST") {
+        return conflict("Item already exists");
+      }
       return notFound("Item not found");
     }
     logError("Handler Error", error);
@@ -882,7 +920,13 @@ async function createItem(
     GSI1SK: `${type}#${id}`,
     id,
   };
-  await docClient.send(new PutCommand({ TableName: tableName, Item: item }));
+  await docClient.send(
+    new PutCommand({
+      TableName: tableName,
+      Item: item,
+      ConditionExpression: "attribute_not_exists(PK)",
+    }),
+  );
   return created(item);
 }
 

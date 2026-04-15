@@ -92,5 +92,6 @@ export const ok = (body: unknown) => response(200, body);
 export const created = (body: unknown) => response(201, body);
 export const badRequest = (msg: string) => response(400, { message: msg });
 export const notFound = (msg: string) => response(404, { message: msg });
+export const conflict = (msg: string) => response(409, { message: msg });
 export const serverError = () =>
   response(500, { message: "Internal Server Error" });
