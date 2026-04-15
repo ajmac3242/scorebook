@@ -35,5 +35,55 @@
 - [x] On the first two parts of the workflow, once the required information has been entered, show a `continue` button.
 - [x] Like the example, show the steps to the user and which ones have been completed
 
-## Live Game Clock & Minutes Tracking
-...
+## Substitution Timeline Audit
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Inaccurate substitution data ruins plus/minus and lineup efficiency metrics. Coaches need a way to retroactively fix the on-court lineup without deleting and re-entering every subsequent play.
+**What:** Build a "Timeline Audit" view that shows a vertical chronological list of all substitution events. Allow users to edit the time of a sub, change the players involved, or insert a missing sub event.
+**Acceptance Criteria:**
+- [ ] Accessible from the Game Stats or Game Mode page.
+- [ ] Displays a chronological list of SUB_IN and SUB_OUT events.
+- [ ] Allows editing the `clockTime` and `playerId` of any substitution event.
+- [ ] Recalculates all dependent stats (MIN, +/-, Lineup Efficiency) immediately upon saving changes.
+
+## Offensive Play/Set Success Tracking
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Coaches need to know which offensive sets are yielding results. Raw stats don't show if a bucket came from a specific designed play or a broken-down possession.
+**What:** Introduce "Play Tagging" for offensive events. Allow coaches to define a playbook in Team Settings and tag MAKE/MISS events with specific play names during the game.
+**Acceptance Criteria:**
+- [ ] CRUD interface in Team Details to manage a "Playbook" (list of play names).
+- [ ] Optional "Play" dropdown in the MAKE/MISS recording dialog in Game Mode.
+- [ ] "Play Efficiency" table in Game Stats showing: Play Name, Frequency, Points, and EFG% for each set.
+- [ ] Filter Shot Chart by specific Play Name.
+
+## Persistent Opponent Scouting Database
+**Priority:** MEDIUM
+**Type:** Feature
+**Why:** Coaches often play the same opponents multiple times in a season. Re-identifying jersey numbers every game is tedious and prevents historical scouting analysis.
+**What:** Allow "Opponent Rosters" to be saved and reused across multiple games. When starting a game, allow the user to select an existing opponent team and load their previously identified roster.
+**Acceptance Criteria:**
+- [ ] New "Opponent Library" section or a way to save an opponent's `opponentRoster` from the Game Mode.
+- [ ] "Load Roster" option in Create Game workflow for selected opponents.
+- [ ] Cumulative "Opponent Scouting Report" view showing a player's stats across all games where they were tracked via a persistent ID.
+
+## Verified Period Workflow
+**Priority:** MEDIUM
+**Type:** UX
+**Why:** Official scores and fouls often drift from the app during high-intensity games. A scheduled reconciliation ensures data integrity before moving to the next phase of the game.
+**What:** At the end of every period, show a mandatory "Verify Stats" dialog. The scorekeeper must confirm the score and team fouls against the official table before the period is marked "Verified."
+**Acceptance Criteria:**
+- [ ] Automated dialog trigger when the clock hits 0:00 or "Next Period" is clicked.
+- [ ] Display summarized period stats (Score, Fouls) with input fields for "Correction" if they differ from the app.
+- [ ] Generate a `SYSTEM_CORRECTION` event to balance totals if manual overrides are entered.
+
+## Advanced Fatigue & Rotation Alerts
+**Priority:** MEDIUM
+**Type:** Enhancement
+**Why:** Managing player fatigue is critical for performance and injury prevention. Proactive alerts help coaches stick to their rotation plan during the intensity of a live game.
+**What:** Implement configurable fatigue thresholds. Provide visual cues and alerts when players exceed their target stint lengths or total game minutes.
+**Acceptance Criteria:**
+- [ ] Input fields in Player/Team details for "Max Stint Duration" and "Game Minute Limit."
+- [ ] Visual pulse or color change in the Game Mode "Live Lineup" for players over their limit.
+- [ ] Fatigue indicators in the Quick Substitution dialog to help identify rested bench players.
+- [ ] Real-time stint timer logic that accounts for clock pauses.
