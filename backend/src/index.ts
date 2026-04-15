@@ -1046,21 +1046,23 @@ async function snapshotGameStats(gameId: string, tableName: string) {
  * @param {Record<string, unknown>[]} stats - List of statistical events.
  * @returns {object} Total scores for Team and Opponent.
  */
+/**
+ * Accumulates the total score for both teams from a list of stat events.
+ * ⚡ Bolt: Uses direct ID comparison and cached length for faster API response processing.
+ */
 function accumulateScores(stats: Record<string, unknown>[]) {
   let teamScore = 0;
   let oppScore = 0;
-  for (let i = 0; i < stats.length; i++) {
+  for (let i = 0, len = stats.length; i < len; i++) {
     const s = stats[i];
-    if (s.deletedAt) continue;
-
-    // Only increment score for MAKE events.
-    if (s.type !== "MAKE") continue;
+    if (s.deletedAt || s.type !== "MAKE") continue;
 
     const pts = (s.points as number) || 0;
+    const pId = s.playerId;
 
     if (
-      typeof s.playerId === "string" &&
-      s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT)
+      pId === SPECIAL_PLAYER_IDS.OPPONENT ||
+      (typeof pId === "string" && pId.startsWith("OPPONENT:"))
     ) {
       oppScore += pts;
     } else {

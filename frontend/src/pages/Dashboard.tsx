@@ -73,19 +73,27 @@ const Dashboard: React.FC = () => {
     [teamGames, allStats],
   );
 
+  /**
+   * ⚡ Bolt: Efficiently aggregate team-wide heatmap data.
+   * Uses direct property access to minimize overhead in large historical datasets.
+   */
   const heatmapData = useMemo(() => {
-    const data: Record<string, { makes: number; attempts: number }> = {};
-    for (let i = 0; i < allStats.length; i++) {
+    const heatmap: Record<string, { makes: number; attempts: number }> = {};
+    for (let i = 0, len = allStats.length; i < len; i++) {
       const s = allStats[i];
-      if (s.type !== ACTION_TYPES.MAKE && s.type !== ACTION_TYPES.MISS)
-        continue;
+      const type = s.type;
+      if (type !== ACTION_TYPES.MAKE && type !== ACTION_TYPES.MISS) continue;
 
       const zone = getShotZone(s.locationX || 0, s.locationY || 0);
-      if (!data[zone]) data[zone] = { makes: 0, attempts: 0 };
-      data[zone].attempts++;
-      if (s.type === ACTION_TYPES.MAKE) data[zone].makes++;
+      let entry = heatmap[zone];
+      if (!entry) {
+        entry = { makes: 0, attempts: 0 };
+        heatmap[zone] = entry;
+      }
+      entry.attempts++;
+      if (type === ACTION_TYPES.MAKE) entry.makes++;
     }
-    return data;
+    return heatmap;
   }, [allStats]);
 
   const upcomingGames = useMemo(() => {

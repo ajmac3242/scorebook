@@ -113,9 +113,17 @@ export interface PlayerAggregates {
  * @param {string} playerId - The player ID.
  * @returns {boolean} True if the ID is for an opponent.
  */
-export const isOpponentId = (playerId: string): boolean =>
-  playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
-  playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":");
+/**
+ * Determines if a player ID belongs to an opponent.
+ * ⚡ Bolt: Fast path for generic 'OPPONENT' before string prefix check.
+ * @param {string} playerId - The player ID.
+ * @returns {boolean} True if the ID is for an opponent.
+ */
+export const isOpponentId = (playerId: string): boolean => {
+  if (playerId === SPECIAL_PLAYER_IDS.OPPONENT) return true;
+  // Prefix check for jersey-specific IDs like 'OPPONENT:12'
+  return playerId.startsWith("OPPONENT:");
+};
 
 /**
  * Determines if a statistical event is active (not deleted).
@@ -473,82 +481,81 @@ export const calculatePlayerAggregates = (
   let currentGameId: string | null = null;
 
   // Accumulate statistics from event stream
-  for (let i = 0; i < sortedStats.length; i++) {
-    const stat = sortedStats[i];
-    if (!isActive(stat)) continue;
+  for (let i = 0, len = sortedStats.length; i < len; i++) {
+    const s = sortedStats[i];
+    if (s.deletedAt) continue;
 
-    const { playerId, type, clockTime, period, gameId } = stat;
+    const pId = s.playerId;
+    const type = s.type;
+    const clockTime = s.clockTime;
+    const period = s.period;
+    const gId = s.gameId;
 
     // Handle new game context
-    if (gameId !== currentGameId) {
+    if (gId !== currentGameId) {
       // Close all active stints for the previous game
-      for (const [pId, stint] of activeStints.entries()) {
-        handleStintEnd(pId, statsMap, stint, scores, 0);
+      for (const [activePId, stint] of activeStints.entries()) {
+        handleStintEnd(activePId, statsMap, stint, scores, 0);
       }
       activeStints.clear();
       scores.team = 0;
       scores.opp = 0;
       currentPeriod = 1;
-      currentGameId = gameId;
+      currentGameId = gId;
     }
 
     // 🏀 CoachBoard: Handle period transitions for active stints
-    // Why: Ensures minutes played and plus-minus are calculated correctly
-    // even if a player stays on the court across period boundaries.
     if (period && period > currentPeriod) {
-      for (const [pId, stint] of activeStints.entries()) {
-        // Finish stint for the previous period (assumed to end at 0:00)
-        handleStintEnd(pId, statsMap, stint, scores, 0);
-
-        // Start new stint for the current period (assumed to start at full period)
+      for (const [activePId, stint] of activeStints.entries()) {
+        handleStintEnd(activePId, statsMap, stint, scores, 0);
         stint.startClock = periodLen;
         stint.startScoreDiff = scores.team - scores.opp;
       }
       currentPeriod = period;
     }
 
-    // ⚡ Bolt: Inline updateScores to minimize function call overhead in hot loop.
-    if (isScoringEvent(stat)) {
-      const pts = stat.points || 0;
-      if (isOpponentId(playerId)) {
+    // ⚡ Bolt: Inline scoring logic and use direct ID comparison.
+    if (type === ACTION_TYPES.MAKE) {
+      const pts = s.points || 0;
+      if (
+        pId === SPECIAL_PLAYER_IDS.OPPONENT ||
+        pId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":")
+      ) {
         scores.opp += pts;
       } else {
         scores.team += pts;
       }
     }
 
-    const player = statsMap.get(playerId);
+    const player = statsMap.get(pId);
     if (player) {
-      // ⚡ Bolt: Inline processStatEvent and applyActionToAggregate to minimize overhead.
-      player.gamesPlayed.add(stat.gameId);
+      player.gamesPlayed.add(gId);
       switch (type) {
         case ACTION_TYPES.MAKE:
-          player.points += stat.points || 0;
-          if (stat.points === 1) {
+          const pts = s.points || 0;
+          player.points += pts;
+          if (pts === 1) {
             player.fta++;
           } else {
             player.makes++;
             player.attempts++;
+            if (pts === 3) player.threePM++;
           }
-          if (stat.points === 3) player.threePM++;
           break;
         case ACTION_TYPES.MISS:
-          if (stat.points === 1) {
-            player.fta++;
-          } else {
-            player.attempts++;
-          }
+          if (s.points === 1) player.fta++;
+          else player.attempts++;
           break;
         case ACTION_TYPES.REBOUND:
           player.rebounds++;
           break;
         case ACTION_TYPES.OFF_REBOUND:
-          player.offRebounds++;
           player.rebounds++;
+          player.offRebounds++;
           break;
         case ACTION_TYPES.DEF_REBOUND:
-          player.defRebounds++;
           player.rebounds++;
+          player.defRebounds++;
           break;
         case ACTION_TYPES.BLOCK:
           player.blocks++;
@@ -572,16 +579,16 @@ export const calculatePlayerAggregates = (
 
     // Handle Sub-In/Sub-Out for MIN and Plus-Minus
     if (type === ACTION_TYPES.SUB_IN && clockTime !== undefined) {
-      activeStints.set(playerId, {
+      activeStints.set(pId, {
         startClock: clockTime,
         startScoreDiff: scores.team - scores.opp,
-        lastGameId: gameId,
+        lastGameId: gId,
       });
     } else if (type === ACTION_TYPES.SUB_OUT && clockTime !== undefined) {
-      const stint = activeStints.get(playerId);
+      const stint = activeStints.get(pId);
       if (stint) {
-        handleStintEnd(playerId, statsMap, stint, scores, clockTime);
-        activeStints.delete(playerId);
+        handleStintEnd(pId, statsMap, stint, scores, clockTime);
+        activeStints.delete(pId);
       }
     }
   }

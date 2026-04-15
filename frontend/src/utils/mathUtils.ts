@@ -37,10 +37,14 @@ export const determineResult = (
  * @param {number} totalSeconds - The total seconds.
  * @returns {string} The formatted clock string (e.g., "10:00").
  */
+/**
+ * Formats a total number of seconds into a mm:ss clock string.
+ * ⚡ Bolt: Uses fast ternary padding instead of .padStart() for high-frequency updates.
+ */
 export const formatClock = (totalSeconds: number): string => {
   const mins = Math.floor(totalSeconds / 60);
   const secs = totalSeconds % 60;
-  return `${mins}:${secs.toString().padStart(2, "0")}`;
+  return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
 };
 
 /**
