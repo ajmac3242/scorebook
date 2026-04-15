@@ -21,3 +21,11 @@ Observation: As we transition into high-level analytics, the "Butterfly Effect" 
 Impact: Inaccurate substitution data leads to coaches making rotation decisions based on false fatigue or efficiency data. Lack of active defensive metrics (like "Stops" or "Kills") prevents coaches from motivating their team or identifying defensive momentum during critical game runs.
 
 Recommendation: Implement a "Substitution Timeline Audit" to allow for rapid retroactive corrections of the on-court lineup. Simultaneously, elevate the defensive experience by introducing a "Stops & Kills" tracker in the live scoreboard. Finally, move towards "Verified Periods" where scorekeepers must reconcile their data with the official table at every break, ensuring the data engine remains a source of truth.
+
+## 2025-05-18 - Tactical Depth: Set Analytics and Scouting Continuity
+
+Observation: We have mastered the "What" (stats) and the "Who" (players), but we are still missing the "How" (tactics). Coaches need to know not just that a shot was made, but if it came from a specific set play or offensive concept. Furthermore, our opponent tracking is currently ephemeral—jersey numbers discovered in one game don't persist to the next, forcing scorekeepers to re-identify the same players in a multi-game tournament setting.
+
+Impact: Without play-type tracking, coaches can't objectively evaluate their playbook's effectiveness in real-time. Without scouting continuity, the app loses value in scout-heavy environments where historical data on opponent tendencies is as valuable as live game tracking.
+
+Recommendation: Introduce "Set Play Tagging" to allow coaches to measure the success rate of specific offensive actions. Enable "Persistent Opponent Rosters" to build a scouting database over time. Finally, implement a "Timeline Audit" to ensure that the bedrock of our analytics—the substitution log—can be corrected retroactively without destroying data integrity.
