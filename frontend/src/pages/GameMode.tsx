@@ -1081,9 +1081,9 @@ const GameMode: React.FC = () => {
 
       // Score
       if (isOpp) {
-        oppScore += s.points || 0;
+        oppScore += s.points ?? 0;
       } else {
-        curScore += s.points || 0;
+        curScore += s.points ?? 0;
       }
 
       // Fouls (Period-aware)
@@ -1968,8 +1968,8 @@ const GameMode: React.FC = () => {
                       .map((p) => {
                         const s = statsMap.get(p.id!);
                         const streak = playerStreaks.get(p.id!);
-                        const pts = s?.points || 0;
-                        const pf = s?.fouls || 0;
+                        const pts = s?.points ?? 0;
+                        const pf = s?.fouls ?? 0;
                         const foulLimit =
                           game?.foulLimit || team?.defaultFoulLimit || 5;
                         const isFoulTrouble = pf === foulLimit - 1;
@@ -2332,7 +2332,7 @@ const GameMode: React.FC = () => {
               const p = players?.find((p) => p.id === selectedPlayerId);
               if (!p) return "Select Player";
               const s = statsMap.get(p.id!);
-              return `${p.name} (${s?.points || 0} pts | ${s?.fouls || 0} pf)`;
+              return `${p.name} (${s?.points ?? 0} pts | ${s?.fouls ?? 0} pf)`;
             })()}
           </Typography>
         </DialogTitle>

@@ -24,7 +24,7 @@ import {
   Assessment,
 } from "@mui/icons-material";
 import { useLiveQuery } from "dexie-react-hooks";
-import { db, type StatEvent } from "../db";
+import { db } from "../db";
 import { MoleskineCard, PageHeader, StatItem } from "../components/SharedUI";
 import { calculateTeamAggregates, getInitials } from "../utils/stats";
 import BasketballCourt from "../components/BasketballCourt";
@@ -47,26 +47,26 @@ const Dashboard: React.FC = () => {
   const teamId = favoriteTeam?.id;
 
   // Fetch games for the favorite team
-  const teamGames =
-    useLiveQuery(
-      async () =>
-        teamId ? await db.games.where("teamId").equals(teamId).toArray() : [],
-      [teamId],
-    ) || [];
+  const teamGamesRaw = useLiveQuery(
+    async () =>
+      teamId ? await db.games.where("teamId").equals(teamId).toArray() : [],
+    [teamId],
+  );
+  const teamGames = useMemo(() => teamGamesRaw || [], [teamGamesRaw]);
 
   // Fetch stats for all those games
   const gameIds = useMemo(
     () => teamGames.map((g) => g.id).filter(Boolean) as string[],
     [teamGames],
   );
-  const allStats =
-    useLiveQuery(
-      async () =>
-        gameIds.length > 0
-          ? await db.stats.where("gameId").anyOf(gameIds).toArray()
-          : [],
-      [gameIds],
-    ) || [];
+  const allStatsRaw = useLiveQuery(
+    async () =>
+      gameIds.length > 0
+        ? await db.stats.where("gameId").anyOf(gameIds).toArray()
+        : [],
+    [gameIds],
+  );
+  const allStats = useMemo(() => allStatsRaw || [], [allStatsRaw]);
 
   const aggregates = useMemo(
     () => calculateTeamAggregates(teamGames, allStats),

@@ -21,3 +21,7 @@ Action: Periodically scan for "orphan" JSDoc blocks and enforce `??` for numeric
 ## 2026-04-14 - React Hook and Memoization Hygiene
 Learning: Inline `useCallback` hooks within JSX can lead to `react-hooks/rules-of-hooks` violations if they appear after early returns. Furthermore, incomplete dependency arrays in `useMemo` can prevent the React Compiler from optimizing components and lead to stale calculations.
 Action: Always extract `useCallback` hooks to the component body before any early returns. Ensure `useMemo` dependency arrays are exhaustive to preserve memoization and ensure correctness.
+
+## 2026-04-15 - [Linting / formatting improvement]
+Learning: Re-rendering heavy components like `Dashboard` can be triggered by unstable array references from `useLiveQuery` fallbacks. Nullish coalescing (`??`) is safer than logical OR (`||`) for numeric properties like basketball points to avoid treating "0" as missing.
+Action: Wrap `useLiveQuery` result fallbacks in `useMemo` to stabilize references. Enforce `??` for all point-related calculations.
