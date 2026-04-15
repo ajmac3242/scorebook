@@ -1,13 +1,21 @@
 # Pipeline Smith's Journal ⚙️
 
-## 2025-05-14 - Initial CI/CD Audit
-Learning: The current CI/CD pipelines are functional but lack optimal caching for Go and use slightly outdated action versions (pnpm/action-setup@v3). Log organization is minimal, making it harder to debug failures in large jobs like `quality-and-tests`.
-Action: Pin to latest action versions, implement log grouping with `::group::`, and enable Go caching.
+## 2025-05-15 - Initial Optimization Run
+**Bottlenecks Discovered:**
+- Sequential `pnpm install` and build for backend and frontend in `ci.yml`.
+- Missing Terraform provider caching in `deploy.yml`.
+- Multiple redundant `pnpm install` calls in `deploy.yml` without `--prefer-offline`.
+- Basic Job Summary in `ci.yml` lacked clear status at a glance.
 
-## 2026-04-13 - Pipeline Visibility and Reliability Enhancements
-Learning: Standardizing the use of `::group::` markers across all workflows significantly improves log navigability, especially for documentation, diagram generation, and Terraform steps. Adding explicit `timeout-minutes` to every critical step prevents silent hangs and improves pipeline reliability.
-Action: Implemented log grouping and granular timeouts in `ci.yml`, `deploy.yml`, and `terratest.yml`.
+**Improvements Implemented:**
+- **Parallel Builds:** Combined backend and frontend install/build steps in `ci.yml` using background processes and `wait`, reducing critical path when both components change.
+- **Terraform Caching:** Added `actions/cache@v4` for `infra/.terraform` in `deploy.yml` keyed by `versions.tf` and `.terraform.lock.hcl`.
+- **pnpm Optimization:** Added `--prefer-offline` to secondary install steps in `deploy.yml` to leverage the local store populated by earlier steps.
+- **Enhanced Visibility:**
+    - Updated `ci.yml` Job Summary with a Markdown status table.
+    - Added `lambda.zip` to failure artifacts in `deploy.yml` for easier debugging.
 
-## 2026-04-14 - CI/CD Optimization Suite
-Learning: Implementing robust bash retry loops for package installations (`pnpm install`) significantly reduces CI flakiness caused by transient network issues. It is critical to ensure the loop correctly exits with a non-zero code if all attempts fail to avoid "false green" steps. Using `--prefer-offline` for secondary production-only installs in deployment pipelines speeds up builds by leveraging the local pnpm store. Enhanced `$GITHUB_STEP_SUMMARY` reports across all workflows improve developer experience by providing immediate visibility into complex job outcomes (docs, diagrams, infra IDs, test results) without digging into logs.
-Action: Standardized robust retry loops, optimized deployment installs, and expanded job summaries implemented in `ci.yml`, `deploy.yml`, and `terratest.yml`.
+**Impact:**
+- Reduced CI execution time for multi-component changes.
+- Sped up deployment infrastructure steps.
+- Improved developer feedback with better logs and summaries.
