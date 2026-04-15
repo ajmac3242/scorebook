@@ -34,3 +34,14 @@
 ### Basketball Edge Cases
 - **Stops Tracking**: Possession termination is the key. A stop isn't just a miss; it's a miss *that ends the possession* (captured by a defensive rebound).
 - **Foul Limits**: Different leagues have different rules (High School: 5, NBA: 6). Hardcoding these leads to incorrect tactical alerts.
+
+## 2025-05-25 - Cross-Game Isolation & Multi-Period Accuracy
+
+### Findings & Fixed Bugs
+- **Bug 10: Cross-Game Streak Leakage**: Discovered that `calculateStopsAndKills` and `calculatePlayerStreaks` leaked state across games when processing multiple games in a single event stream. Added `currentGameId` tracking to isolate streaks per game.
+- **Bug 11: Stint Look-Ahead Leakage**: Fixed a bug where the look-ahead logic in `calculateStopsAndKills` could satisfy a MISS event in one game with a REBOUND event from the next game.
+- **Bug 12: Skipped Period Minutes**: Fixed `calculatePlayerAggregates` and `calculateLineupStats` to correctly attribute minutes/duration for "skipped" periods (e.g., if a game jumps from P1 to P3).
+
+### Critical Test Gaps Filled
+- New test suite `scout_discovery.test.ts` specifically targeting cross-game transitions and multi-period gaps.
+- Added tie-breaking logic to `sortStats` to ensure stable event ordering for identical timestamps.
