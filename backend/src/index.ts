@@ -1039,16 +1039,11 @@ async function snapshotGameStats(gameId: string, tableName: string) {
  */
 /**
  * Accumulates the total score for both teams from a list of stat events.
- * 🏀 CoachBoard: Field Goal Tracking
- * Why: Free throws (points: 1) are always counted as 1 point ONLY if the type is MAKE.
- * A MISS with points: 1 (used for FTA tracking) should NOT increment the score.
+ * ⚡ Bolt: Uses direct ID comparison and cached length for faster API response processing.
+ * 🏀 CoachBoard: Free throws (points: 1) are always counted as 1 point ONLY if the type is MAKE.
  *
  * @param {Record<string, unknown>[]} stats - List of statistical events.
- * @returns {object} Total scores for Team and Opponent.
- */
-/**
- * Accumulates the total score for both teams from a list of stat events.
- * ⚡ Bolt: Uses direct ID comparison and cached length for faster API response processing.
+ * @returns {{teamScore: number, oppScore: number}} Total scores for Team and Opponent.
  */
 function accumulateScores(stats: Record<string, unknown>[]) {
   let teamScore = 0;

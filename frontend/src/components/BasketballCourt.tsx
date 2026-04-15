@@ -59,8 +59,8 @@ const CourtMarker = React.memo(
   }: {
     marker: Marker;
     isLatest: boolean;
-    onClick: (_e: React.MouseEvent<SVGGElement>) => void;
-    onKeyDown: (_e: React.KeyboardEvent<SVGGElement>) => void;
+    onClick: (_marker: Marker) => void;
+    onKeyDown: (_marker: Marker, _e: React.KeyboardEvent<SVGGElement>) => void;
   }) => {
     const charcoal = "#2D2D2D";
     let color = marker.color || "#2D2D2D";
@@ -79,8 +79,8 @@ const CourtMarker = React.memo(
     return (
       <Box
         component="g"
-        onClick={onClick}
-        onKeyDown={onKeyDown}
+        onClick={() => onClick(marker)}
+        onKeyDown={(e) => onKeyDown(marker, e)}
         role="button"
         tabIndex={0}
         aria-label={`${marker.type} by ${marker.label ? `#${marker.label}` : "Opponent"}`}
@@ -407,10 +407,10 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
               marker={marker}
               isLatest={index === markers.length - 1}
               onClick={handleMarkerClick}
-              onKeyDown={(e) => {
+              onKeyDown={(m, e) => {
                 if (e.key === "Enter" || e.key === " ") {
                   e.stopPropagation();
-                  handleMarkerClick(marker);
+                  handleMarkerClick(m);
                 }
               }}
             />
