@@ -859,6 +859,7 @@ const GameMode: React.FC = () => {
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
   const [statType, setStatType] = useState<string | null>(null);
   const [points, setPoints] = useState<number>(2);
+  const [selectedPlay, setSelectedPlay] = useState<string>("");
 
   const [opponentJerseys, setOpponentJerseys] = useState<string[]>([]);
   const [selectedOpponentId, setSelectedOpponentId] = useState<string>(
@@ -1376,6 +1377,7 @@ const GameMode: React.FC = () => {
               typeToSave === ACTION_TYPES.MISS
                 ? points
                 : 0,
+            playName: (typeToSave === ACTION_TYPES.MAKE || typeToSave === ACTION_TYPES.MISS) ? selectedPlay : undefined,
             synced: 0,
           });
           await syncService.pushUpdates();
@@ -1390,6 +1392,7 @@ const GameMode: React.FC = () => {
               typeToSave === ACTION_TYPES.MISS
                 ? points
                 : 0,
+            playName: (typeToSave === ACTION_TYPES.MAKE || typeToSave === ACTION_TYPES.MISS) ? selectedPlay : undefined,
             locationX: selectedX || 0,
             locationY: selectedY || 0,
             period,
@@ -1416,6 +1419,7 @@ const GameMode: React.FC = () => {
       // Reset state after save
       setDialogOpen(false);
       setStatType(null);
+      setSelectedPlay("");
       setIsEditing(false);
       setEditingStatId(null);
       if (trackingMode === "OPPONENT") setSelectedPlayerId(null);
@@ -1594,6 +1598,7 @@ const GameMode: React.FC = () => {
       setPoints(stat.points || 2);
       setSelectedX(stat.locationX || 0);
       setSelectedY(stat.locationY || 0);
+      setSelectedPlay(stat.playName || "");
       setIsEditing(true);
       setDialogOpen(true);
     },
@@ -2531,6 +2536,31 @@ const GameMode: React.FC = () => {
               })()}
             </Box>
           </Box>
+          {(statType === ACTION_TYPES.MAKE || statType === ACTION_TYPES.MISS) && team?.playbook && team.playbook.length > 0 && (
+            <Box sx={{ mt: 3 }}>
+              <Typography
+                variant="caption"
+                gutterBottom
+                sx={{ display: "block", mb: 1 }}
+              >
+                Offensive Play (Optional)
+              </Typography>
+              <FormControl fullWidth size="small">
+                <InputLabel>Select Play</InputLabel>
+                <Select
+                  value={selectedPlay}
+                  label="Select Play"
+                  onChange={(e) => setSelectedPlay(e.target.value)}
+                >
+                  <MenuItem value=""><em>None</em></MenuItem>
+                  {team.playbook.map((play) => (
+                    <MenuItem key={play} value={play}>{play}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Box>
+          )}
+
           {statType === ACTION_TYPES.MAKE && (
             <Box sx={{ mt: 3 }}>
               <Typography

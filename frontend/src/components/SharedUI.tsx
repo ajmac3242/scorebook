@@ -1,44 +1,29 @@
 /**
  * @file SharedUI.tsx
- * @description Provides standardized UI components used throughout the application.
- * Includes layout wrappers, page headers, and statistic display items.
+ * @description Provides standardized UI components using HeroUI.
  */
 
 import React, { useState, useEffect } from "react";
-import {
-  Paper,
-  PaperProps,
-  Typography,
-  Box,
-  IconButton,
-  Card,
-  CardContent,
-} from "@mui/material";
+import { Card, CardBody, Button } from "@heroui/react";
 import { ArrowBack as ArrowBackIcon } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 
 /**
- * Standardized card component with Moleskine-style paper effects.
- *
- * @param {PaperProps} props - MUI Paper component props.
- * @returns {React.ReactElement}
+ * Standardized card component using HeroUI.
  */
-export const MoleskineCard: React.FC<PaperProps> = ({
+export const AppCard: React.FC<{ children: React.ReactNode; className?: string }> = ({
   children,
-  sx,
-  ...props
+  className = "",
 }) => (
-  <Paper
-    className="moleskine-card"
-    sx={{
-      p: 2,
-      ...sx,
-    }}
-    {...props}
-  >
-    {children}
-  </Paper>
+  <Card className={`p-2 shadow-md ${className}`}>
+    <CardBody>
+      {children}
+    </CardBody>
+  </Card>
 );
+
+// Alias for migration compatibility
+export const MoleskineCard = AppCard;
 
 /**
  * Interface representing the props for the PageHeader component.
@@ -52,10 +37,7 @@ interface PageHeaderProps {
 }
 
 /**
- * Standardized page header component with optional back button and action area.
- *
- * @param {PageHeaderProps} props - Component props.
- * @returns {React.ReactElement}
+ * Standardized page header component using HeroUI.
  */
 export const PageHeader: React.FC<PageHeaderProps> = ({
   title,
@@ -67,61 +49,32 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
   const navigate = useNavigate();
 
   return (
-    <Box sx={{ mb: { xs: 3, sm: 4 }, position: "relative" }}>
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          minHeight: 48,
-          position: "relative",
-          px: 6,
-        }}
-      >
+    <div className="mb-6 sm:mb-8 relative">
+      <div className="flex items-center justify-center min-h-[48px] relative px-12">
         {showBack && (
-          <IconButton
-            onClick={() => (backTo ? navigate(backTo) : navigate(-1))}
+          <Button
+            isIconOnly
+            variant="light"
+            onPress={() => (backTo ? navigate(backTo) : navigate(-1))}
             aria-label="Go back"
-            sx={{
-              position: "absolute",
-              left: 0,
-              color: "text.primary",
-              "&:hover": {
-                transform: "scale(1.1)",
-                transition: "transform 0.2s",
-              },
-            }}
+            className="absolute left-0 hover:scale-110 transition-transform"
           >
             <ArrowBackIcon />
-          </IconButton>
+          </Button>
         )}
-        <Box sx={{ textAlign: "center" }}>
-          <Typography
-            variant="h4"
-            sx={{
-              fontFamily: "var(--serif)",
-              fontSize: { xs: "1.75rem", sm: "2.125rem" },
-            }}
-          >
+        <div className="text-center">
+          <h1 className="font-serif text-3xl sm:text-4xl font-bold">
             {title}
-          </Typography>
-        </Box>
-      </Box>
+          </h1>
+        </div>
+      </div>
       {subtitle && (
-        <Typography
-          variant="h6"
-          color="text.secondary"
-          sx={{
-            textAlign: "center",
-            mt: 0.5,
-            fontSize: { xs: "1rem", sm: "1.25rem" },
-          }}
-        >
+        <p className="text-center mt-1 text-gray-500 text-lg sm:text-xl">
           {subtitle}
-        </Typography>
+        </p>
       )}
-      {actions && <Box sx={{ mt: 2, textAlign: "center" }}>{actions}</Box>}
-    </Box>
+      {actions && <div className="mt-4 text-center">{actions}</div>}
+    </div>
   );
 };
 
@@ -136,64 +89,39 @@ interface StatItemProps {
 
 /**
  * Standardized component for displaying a single numerical statistic with a label.
- *
- * @param {StatItemProps} props - Component props.
- * @returns {React.ReactElement}
  */
 export const StatItem: React.FC<StatItemProps> = ({ label, value, light }) => (
-  <Box
-    sx={{ textAlign: "center" }}
+  <div
+    className="text-center"
     role="img"
     aria-label={`${label}: ${value}`}
   >
-    <Typography
-      variant="caption"
-      sx={{ opacity: 0.8, color: light ? "white" : "text.secondary" }}
+    <span
+      className={`text-xs uppercase tracking-wider block ${light ? "text-white/80" : "text-gray-500"}`}
       aria-hidden="true"
     >
       {label}
-    </Typography>
-    <Typography
-      variant="h4"
-      sx={{ fontWeight: 700, color: light ? "white" : "text.primary" }}
+    </span>
+    <span
+      className={`text-3xl sm:text-4xl font-black block mt-1 ${light ? "text-white" : "text-gray-900"}`}
       aria-hidden="true"
     >
       {typeof value === "number" ? <AnimatedNumber value={value} /> : value}
-    </Typography>
-  </Box>
+    </span>
+  </div>
 );
 
 /**
- * Interface representing the props for the StatCard component.
- */
-interface StatCardProps {
-  label: string;
-  value: string | number;
-}
-
-/**
  * Standardized component for displaying a statistic within a card.
- *
- * @param {StatCardProps} props - Component props.
- * @returns {React.ReactElement}
  */
-export const StatCard: React.FC<StatCardProps> = ({ label, value }) => (
-  <Card
-    sx={{
-      bgcolor: "#FFFDF5",
-      border: "1px solid #D1D1D1",
-      transition: "transform 0.2s",
-      "&:hover": { transform: "translateY(-4px)" },
-    }}
-  >
-    <CardContent sx={{ p: 2, "&:last-child": { pb: 2 } }}>
-      <Typography variant="caption" color="text.secondary" gutterBottom>
-        {label}
-      </Typography>
-      <Typography variant="h5" sx={{ fontFamily: "var(--serif)" }}>
+export const StatCard: React.FC<{ label: string; value: string | number }> = ({ label, value }) => (
+  <Card className="hover:-translate-y-1 transition-transform border border-gray-200">
+    <CardBody className="p-4">
+      <span className="text-xs text-gray-500 uppercase tracking-wider">{label}</span>
+      <h2 className="font-serif text-2xl mt-1">
         {typeof value === "number" ? <AnimatedNumber value={value} /> : value}
-      </Typography>
-    </CardContent>
+      </h2>
+    </CardBody>
   </Card>
 );
 
@@ -208,9 +136,6 @@ interface AnimatedNumberProps {
 
 /**
  * Component that animates a number from 0 to its target value.
- *
- * @param {AnimatedNumberProps} props - Component props.
- * @returns {React.ReactElement}
  */
 export const AnimatedNumber: React.FC<AnimatedNumberProps> = ({
   value,

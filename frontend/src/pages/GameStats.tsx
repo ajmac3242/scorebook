@@ -9,6 +9,7 @@ import {
   Select,
   MenuItem,
   Stack,
+  Tooltip as MuiTooltip,
   Table,
   TableBody,
   TableCell,
@@ -37,7 +38,19 @@ import {
   Restore,
   Warning,
   Edit as EditIcon,
+  AccessTime,
 } from "@mui/icons-material";
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  useDisclosure,
+  Select as HeroSelect,
+  SelectItem,
+  Input as HeroInput
+} from "@heroui/react";
 import BasketballCourt from "../components/BasketballCourt";
 import { getShotZone } from "../utils/shotZones";
 import { db } from "../db";
@@ -49,6 +62,7 @@ import {
   calculateScoreFlow,
   calculateLineupStats,
   calculateStopsAndKills,
+  formatClock,
 } from "../utils/stats";
 import { MoleskineCard } from "../components/SharedUI";
 import EntityBanner from "../components/EntityBanner";
@@ -64,7 +78,7 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
+  Tooltip as RechartsTooltip,
   ResponsiveContainer,
   Legend,
 } from "recharts";
@@ -84,6 +98,7 @@ const GameStats: React.FC = () => {
     "ALL",
   );
   const [selectedType, setSelectedType] = useState<string>("ALL");
+  const [selectedPlayFilter, setSelectedPlayFilter] = useState<string>("ALL");
   const [periodFilter, setPeriodFilter] = useState<string>("ALL");
   const [shotChartView, setShotChartView] = useState<"markers" | "heatmap">(
     "markers",
@@ -97,6 +112,10 @@ const GameStats: React.FC = () => {
   }>({ key: "points", direction: "desc" });
 
   const [openEditDialog, setOpenEditDialog] = useState(false);
+  const { isOpen: isSubModalOpen, onOpen: onSubModalOpen, onClose: onSubModalClose } = useDisclosure();
+  const [editingSub, setEditingSub] = useState<any>(null);
+  const [subEditTime, setSubEditTime] = useState("");
+  const [subEditPlayer, setSubEditPlayer] = useState("");
   const [isExporting, setIsExporting] = useState(false);
   const [editOpponent, setEditOpponent] = useState("");
   const [editDate, setEditDate] = useState("");
@@ -266,7 +285,8 @@ const GameStats: React.FC = () => {
       const playerMatch =
         selectedPlayerId === "ALL" || s.playerId === selectedPlayerId;
       const typeMatch = selectedType === "ALL" || s.type === selectedType;
-      if (playerMatch && typeMatch) {
+      const playMatch = selectedPlayFilter === "ALL" || s.playName === selectedPlayFilter;
+      if (playerMatch && typeMatch && playMatch) {
         filtered.push(s);
         if (s.type === ACTION_TYPES.MAKE || s.type === ACTION_TYPES.MISS) {
           markers.push({
@@ -296,6 +316,8 @@ const GameStats: React.FC = () => {
         continue;
       if (selectedPlayerId !== "ALL" && s.playerId !== selectedPlayerId)
         continue;
+      if (selectedPlayFilter !== "ALL" && s.playName !== selectedPlayFilter)
+        continue;
 
       const zone = getShotZone(s.locationX || 0, s.locationY || 0);
       if (!data[zone]) data[zone] = { makes: 0, attempts: 0 };
@@ -311,6 +333,34 @@ const GameStats: React.FC = () => {
 
   const oppData = useMemo(() => {
     return calculateOpponentAggregates(stats);
+  }, [stats]);
+
+  const playEfficiency = useMemo(() => {
+    const data: Record<string, { freq: number; points: number; makes: number; attempts: number; threePM: number }> = {};
+    for (let i = 0; i < stats.length; i++) {
+      const s = stats[i];
+      if (!s.playName) continue;
+      if (!data[s.playName]) data[s.playName] = { freq: 0, points: 0, makes: 0, attempts: 0, threePM: 0 };
+
+      if (s.type === ACTION_TYPES.MAKE || s.type === ACTION_TYPES.MISS) {
+        data[s.playName].freq++;
+        if (s.points !== 1) {
+          data[s.playName].attempts++;
+          if (s.type === ACTION_TYPES.MAKE) {
+            data[s.playName].makes++;
+            data[s.playName].points += s.points || 0;
+            if (s.points === 3) data[s.playName].threePM++;
+          }
+        } else {
+           if (s.type === ACTION_TYPES.MAKE) data[s.playName].points += 1;
+        }
+      }
+    }
+    return Object.entries(data).map(([name, d]) => ({
+      name,
+      ...d,
+      efg: d.attempts > 0 ? (((d.makes + 0.5 * d.threePM) / d.attempts) * 100).toFixed(1) : "0.0"
+    })).sort((a, b) => b.points - a.points);
   }, [stats]);
 
   const lineupStats = useMemo(() => {
@@ -349,6 +399,28 @@ const GameStats: React.FC = () => {
       await syncService.pushUpdates();
     } catch (err) {
       logger.error("Failed to restore game:", err);
+    }
+  };
+
+  const handleEditSub = (s: any) => {
+    setEditingSub(s);
+    setSubEditTime(s.clockTime?.toString() || "0");
+    setSubEditPlayer(s.playerId);
+    onSubModalOpen();
+  };
+
+  const handleUpdateSub = async () => {
+    if (!editingSub) return;
+    try {
+      await db.stats.update(editingSub.id, {
+        clockTime: parseInt(subEditTime),
+        playerId: subEditPlayer,
+        synced: 0
+      });
+      await syncService.pushUpdates();
+      onSubModalClose();
+    } catch (err) {
+      logger.error("Failed to update sub:", err);
     }
   };
 
@@ -746,6 +818,21 @@ const GameStats: React.FC = () => {
         </ToggleButtonGroup>
       </Stack>
       <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+        {team?.playbook && team.playbook.length > 0 && (
+          <FormControl fullWidth size="small">
+            <InputLabel>Play</InputLabel>
+            <Select
+              value={selectedPlayFilter}
+              label="Play"
+              onChange={(e) => setSelectedPlayFilter(e.target.value)}
+            >
+              <MenuItem value="ALL">All Plays</MenuItem>
+              {team.playbook.map((play) => (
+                <MenuItem key={play} value={play}>{play}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        )}
         <FormControl fullWidth size="small">
           <InputLabel>Player</InputLabel>
           <Select
@@ -791,7 +878,7 @@ const GameStats: React.FC = () => {
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis dataKey="time" />
         <YAxis />
-        <Tooltip />
+        <RechartsTooltip />
         <Legend />
         <Line
           type="stepAfter"
@@ -809,6 +896,92 @@ const GameStats: React.FC = () => {
         />
       </LineChart>
     </ResponsiveContainer>
+  );
+
+  const substitutionTimeline = (
+    <TableContainer component={Box}>
+      <Table size="small">
+        <TableHead>
+          <TableRow sx={{ bgcolor: "rgba(0,0,0,0.02)" }}>
+            <TableCell sx={{ fontWeight: 700 }}>Time</TableCell>
+            <TableCell sx={{ fontWeight: 700 }}>Action</TableCell>
+            <TableCell sx={{ fontWeight: 700 }}>Player</TableCell>
+            <TableCell align="right" sx={{ fontWeight: 700 }}>Actions</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {allStats
+            .filter(s => s.type === ACTION_TYPES.SUB_IN || s.type === ACTION_TYPES.SUB_OUT)
+            .sort((a, b) => {
+               if (a.period !== b.period) return (a.period || 1) - (b.period || 1);
+               return (b.clockTime || 0) - (a.clockTime || 0);
+            })
+            .map((s) => {
+              const p = players.find(player => player.id === s.playerId);
+              return (
+                <TableRow key={s.id}>
+                  <TableCell>
+                    {periodLabel} {s.period} | {formatClock(s.clockTime || 0)}
+                  </TableCell>
+                  <TableCell>
+                    <Chip
+                      label={s.type === ACTION_TYPES.SUB_IN ? "IN" : "OUT"}
+                      size="small"
+                      color={s.type === ACTION_TYPES.SUB_IN ? "success" : "warning"}
+                      variant="outlined"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Stack direction="row" spacing={1} alignItems="center">
+                      <Avatar sx={{ width: 24, height: 24, fontSize: '0.75rem', bgcolor: p?.avatarColor }}>
+                        {shotChartJerseyMap.get(s.playerId) || "??"}
+                      </Avatar>
+                      <Typography variant="body2">{p?.name || "Unknown"}</Typography>
+                    </Stack>
+                  </TableCell>
+                  <TableCell align="right">
+                    <IconButton size="small" onClick={() => handleEditSub(s)}>
+                      <EditIcon fontSize="small" />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
+
+  const playEfficiencyTable = (
+    <TableContainer component={Box}>
+      <Table size="small">
+        <TableHead>
+          <TableRow sx={{ bgcolor: "rgba(0,0,0,0.02)" }}>
+            <TableCell sx={{ fontWeight: 700 }}>Play Name</TableCell>
+            <TableCell align="right" sx={{ fontWeight: 700 }}>Freq</TableCell>
+            <TableCell align="right" sx={{ fontWeight: 700 }}>Points</TableCell>
+            <TableCell align="right" sx={{ fontWeight: 700 }}>eFG%</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {playEfficiency.map((row) => (
+            <TableRow key={row.name}>
+              <TableCell sx={{ fontWeight: 600 }}>{row.name}</TableCell>
+              <TableCell align="right">{row.freq}</TableCell>
+              <TableCell align="right">{row.points}</TableCell>
+              <TableCell align="right">{row.efg}%</TableCell>
+            </TableRow>
+          ))}
+          {playEfficiency.length === 0 && (
+            <TableRow>
+              <TableCell colSpan={4} align="center" sx={{ py: 3, color: 'text.secondary' }}>
+                No play-tagged events found for this period.
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </TableContainer>
   );
 
   const lineupTable = (
@@ -1075,8 +1248,33 @@ const GameStats: React.FC = () => {
           </MoleskineCard>
         </Grid>
 
-        {/* Lineups Card */}
+        {/* Play Efficiency Card */}
         <Grid item xs={12}>
+          <MoleskineCard>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                mb: 2,
+              }}
+            >
+              <Typography variant="h6" sx={{ fontFamily: "var(--serif)" }}>
+                Play Efficiency
+              </Typography>
+              <IconButton
+                onClick={() => setExpandedSection("playEfficiency")}
+                aria-label="Expand Play Efficiency section"
+              >
+                <ExpandIcon />
+              </IconButton>
+            </Box>
+            {playEfficiencyTable}
+          </MoleskineCard>
+        </Grid>
+
+        {/* Lineups Card */}
+        <Grid item xs={12} md={6}>
           <MoleskineCard>
             <Box
               sx={{
@@ -1097,6 +1295,31 @@ const GameStats: React.FC = () => {
               </IconButton>
             </Box>
             {lineupTable}
+          </MoleskineCard>
+        </Grid>
+
+        {/* Substitution Timeline Card */}
+        <Grid item xs={12} md={6}>
+          <MoleskineCard>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                mb: 2,
+              }}
+            >
+              <Typography variant="h6" sx={{ fontFamily: "var(--serif)" }}>
+                Substitution Timeline
+              </Typography>
+              <IconButton
+                onClick={() => setExpandedSection("timeline")}
+                aria-label="Expand Substitution Timeline section"
+              >
+                <ExpandIcon />
+              </IconButton>
+            </Box>
+            {substitutionTimeline}
           </MoleskineCard>
         </Grid>
       </Grid>
@@ -1141,11 +1364,58 @@ const GameStats: React.FC = () => {
             <Box sx={{ height: 500 }}>{scoreFlowChart}</Box>
           )}
           {expandedSection === "lineups" && lineupTable}
+          {expandedSection === "timeline" && substitutionTimeline}
+          {expandedSection === "playEfficiency" && playEfficiencyTable}
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setExpandedSection(null)}>Close</Button>
         </DialogActions>
       </Dialog>
+
+      <Modal isOpen={isSubModalOpen} onClose={onSubModalClose}>
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1 font-serif">Edit Substitution</ModalHeader>
+              <ModalBody>
+                <div className="flex flex-col gap-4">
+                  <HeroInput
+                    label="Clock Time (Seconds)"
+                    placeholder="Enter seconds remaining"
+                    type="number"
+                    value={subEditTime}
+                    onValueChange={setSubEditTime}
+                    startContent={<AccessTime className="text-default-400" />}
+                  />
+                  <HeroSelect
+                    label="Player"
+                    placeholder="Select a player"
+                    selectedKeys={[subEditPlayer]}
+                    onChange={(e) => setSubEditPlayer(e.target.value)}
+                  >
+                    {players.map((p) => (
+                      <SelectItem key={p.id || ""} textValue={p.name}>
+                        <div className="flex gap-2 items-center">
+                          <Avatar sx={{ width: 20, height: 20, fontSize: '0.6rem' }}>{shotChartJerseyMap.get(p.id!) || "??"}</Avatar>
+                          <span>{p.name}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </HeroSelect>
+                </div>
+              </ModalBody>
+              <ModalFooter>
+                <Button color="danger" variant="light" onPress={onClose}>
+                  Cancel
+                </Button>
+                <Button color="primary" onPress={handleUpdateSub}>
+                  Save Changes
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
 
       <Dialog
         open={openEditDialog}
