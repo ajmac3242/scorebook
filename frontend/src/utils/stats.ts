@@ -11,7 +11,6 @@ import {
   formatToOne,
   determineResult,
   formatClock,
-  formatTimestampToTime,
 } from "./mathUtils";
 
 /**
@@ -108,11 +107,6 @@ export interface PlayerAggregates {
   fouls: number;
 }
 
-/**
- * Determines if a player ID belongs to an opponent.
- * @param {string} playerId - The player ID.
- * @returns {boolean} True if the ID is for an opponent.
- */
 /**
  * Determines if a player ID belongs to an opponent.
  * ⚡ Bolt: Fast path for generic 'OPPONENT' before string prefix check.
@@ -305,7 +299,7 @@ export const updateScores = (
   scores: { team: number; opp: number },
 ) => {
   if (isScoringEvent(stat)) {
-    const points = stat.points || 0;
+    const points = stat.points ?? 0;
     if (isOpponentId(stat.playerId)) {
       scores.opp += points;
     } else {
@@ -341,7 +335,7 @@ interface BaseStats {
 export const applyActionToAggregate = (agg: BaseStats, stat: StatEvent) => {
   switch (stat.type) {
     case ACTION_TYPES.MAKE:
-      agg.points += stat.points || 0;
+      agg.points += stat.points ?? 0;
       // 🏀 CoachBoard: Field Goal Tracking
       // Why: Free throws (1pt) should not be counted as FGM or FGA.
       if (stat.points === 1) {
@@ -516,7 +510,7 @@ export const calculatePlayerAggregates = (
 
     // ⚡ Bolt: Inline scoring logic and use direct ID comparison.
     if (type === ACTION_TYPES.MAKE) {
-      const pts = s.points || 0;
+      const pts = s.points ?? 0;
       if (
         pId === SPECIAL_PLAYER_IDS.OPPONENT ||
         pId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":")
@@ -532,7 +526,7 @@ export const calculatePlayerAggregates = (
       player.gamesPlayed.add(gId);
       switch (type) {
         case ACTION_TYPES.MAKE:
-          const pts = s.points || 0;
+          const pts = s.points ?? 0;
           player.points += pts;
           if (pts === 1) {
             player.fta++;
@@ -782,7 +776,7 @@ export const calculateTeamAggregates = (
     if (!totals) continue;
 
     const isOpponent = isOpponentId(stat.playerId);
-    const pts = isScoringEvent(stat) ? stat.points || 0 : 0;
+    const pts = isScoringEvent(stat) ? stat.points ?? 0 : 0;
     updateScores(stat, totals);
 
     if (isOpponent) {
@@ -879,7 +873,7 @@ export const calculateScoreFlow = (
 
     if (!isScoringEvent(stat) || !isActive(stat)) continue;
 
-    const pts = stat.points || 0;
+    const pts = stat.points ?? 0;
     if (isOpponentId(stat.playerId)) {
       scores.opp += pts;
     } else {
@@ -951,15 +945,6 @@ export const calculateGameResult = (
   return { teamScore: scores.team, oppScore: scores.opp, result };
 };
 
-/**
- * 🏀 CoachBoard: calculatePlayerStreaks
- * Why: Identifies players with scoring momentum (Hot/Cold) to assist with rotation decisions.
- * "Hot" is defined as 3+ consecutive field goal makes.
- * "Cold" is defined as 3+ consecutive field goal misses.
- *
- * @param {StatEvent[]} stats - Chronological list of statistical events for the game.
- * @returns {Map<string, 'HOT' | 'COLD' | null>} Map of player IDs to their current streak status.
- */
 /**
  * 🏀 CoachBoard: calculateLineupStats
  *
@@ -1091,7 +1076,7 @@ export const calculateLineupStats = (
 
     // ⚡ Bolt: Inline updateScores for performance.
     if (isScoringEvent(s)) {
-      const pts = s.points || 0;
+      const pts = s.points ?? 0;
       if (isOpponentId(s.playerId)) scores.opp += pts;
       else scores.team += pts;
     }
