@@ -21,6 +21,9 @@ importers:
         specifier: ^13.0.0
         version: 13.0.0
     devDependencies:
+      '@jest/globals':
+        specifier: 29.7.0
+        version: 29.7.0
       '@types/aws-lambda':
         specifier: ^8.10.161
         version: 8.10.161

@@ -1,3 +1,4 @@
+import { jest } from '@jest/globals';
 import { handler } from "../index.js";
 import {
   DynamoDBDocumentClient,
