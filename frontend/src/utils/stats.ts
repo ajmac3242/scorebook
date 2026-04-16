@@ -11,7 +11,6 @@ import {
   formatToOne,
   determineResult,
   formatClock,
-  formatTimestampToTime,
 } from "./mathUtils";
 
 /**

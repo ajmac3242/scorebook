@@ -17,3 +17,8 @@
 - **Patterns in what gets left incomplete**: Advanced shooting percentages (3P%, FT%) were being approximated because miss metadata was lost, leading to 'ghost' attempts not being tracked.
 - **Recurring issues agents create**: Dependency drift in the frontend (missing @testing-library/dom) often breaks the PR verification pipeline for subsequent agents.
 - **End-of-Day improvement patterns**: Implementing 'Point-Aware Misses' allows the statistical engine to provide professional-grade analytics (3PA/FTA) without increasing the scorekeeper's workload.
+
+## End-of-Day Insights - 2026-04-16
+- **Patterns in what gets left incomplete**: Dead code and unused imports from rapid component migrations (MUI to HeroUI) accumulate quickly and break CI if not pruned.
+- **Recurring issues agents create**: Forgetting that `useLiveQuery` returns `undefined` during the initial fetch, which when combined with `|| []` in dependency arrays, causes infinite re-render loops or stale data.
+- **End-of-Day improvement patterns**: Stabilizing hook references via `useMemo` fallbacks ensures that heavy statistical re-calculations only trigger when data actually changes, not just because a hook returned a new empty array reference.
