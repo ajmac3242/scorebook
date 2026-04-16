@@ -281,7 +281,9 @@ const Scoreboard = React.memo(
           alignItems="center"
           sx={{ mt: 0.5, flexWrap: "nowrap" }}
         >
-          <Tooltip title={`${isOpponent ? game?.opponent || "Opponent" : team?.name || "Team"} has committed ${isOpponent ? gameData.teamFoulStats.oppFouls : gameData.teamFoulStats.teamFouls} fouls this period.`}>
+          <Tooltip
+            title={`${isOpponent ? game?.opponent || "Opponent" : team?.name || "Team"} has committed ${isOpponent ? gameData.teamFoulStats.oppFouls : gameData.teamFoulStats.teamFouls} fouls this period.`}
+          >
             <Typography
               variant="caption"
               sx={{
@@ -302,7 +304,9 @@ const Scoreboard = React.memo(
           {(!isOpponent
             ? gameData.teamFoulStats.oppBonusLabel
             : gameData.teamFoulStats.teamBonusLabel) && (
-            <Tooltip title={`${!isOpponent ? team?.name || "Team" : game?.opponent || "Opponent"} is in the bonus and will shoot free throws on non-shooting fouls.`}>
+            <Tooltip
+              title={`${!isOpponent ? team?.name || "Team" : game?.opponent || "Opponent"} is in the bonus and will shoot free throws on non-shooting fouls.`}
+            >
               <Typography
                 variant="caption"
                 sx={{

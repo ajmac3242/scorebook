@@ -564,7 +564,10 @@ const Teams: React.FC = () => {
         }}
         aria-labelledby="add-team-dialog-title"
       >
-        <DialogTitle id="add-team-dialog-title" sx={{ fontFamily: "var(--serif)" }}>
+        <DialogTitle
+          id="add-team-dialog-title"
+          sx={{ fontFamily: "var(--serif)" }}
+        >
           Add New Team
         </DialogTitle>
         <DialogContent>
@@ -677,7 +680,10 @@ const Teams: React.FC = () => {
                   borderRadius: "50%",
                   bgcolor: color,
                   cursor: "pointer",
-                  border: primaryColor === color ? "3px solid #000" : "1px solid rgba(0,0,0,0.1)",
+                  border:
+                    primaryColor === color
+                      ? "3px solid #000"
+                      : "1px solid rgba(0,0,0,0.1)",
                   "&:hover": { transform: "scale(1.1)" },
                   transition: "transform 0.1s",
                 }}

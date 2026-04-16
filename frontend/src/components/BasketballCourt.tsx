@@ -348,7 +348,9 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
             return (
               <g
                 key={marker.id || index}
-                className={isSelection ? "" : (onMarkerClick ? "marker-group" : "")}
+                className={
+                  isSelection ? "" : onMarkerClick ? "marker-group" : ""
+                }
                 onClick={(e: React.MouseEvent<SVGGElement>) => {
                   e.stopPropagation();
                   if (onMarkerClick) onMarkerClick(marker);
@@ -364,14 +366,20 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
                 aria-label={`${marker.type} by ${marker.label ? `#${marker.label}` : "Opponent"}`}
               >
                 <circle
-                  className={isSelection ? "" : (isLatest ? "latest-marker" : "court-marker")}
+                  className={
+                    isSelection
+                      ? ""
+                      : isLatest
+                        ? "latest-marker"
+                        : "court-marker"
+                  }
                   cx={svgX}
                   cy={svgY}
                   r={isSelection ? "8" : "6"}
                   fill={color}
-                  fillOpacity={isSelection ? "0.6" : (isLatest ? "1" : "0.8")}
+                  fillOpacity={isSelection ? "0.6" : isLatest ? "1" : "0.8"}
                   stroke={color}
-                  strokeWidth={isSelection ? "3" : (isLatest ? "2" : "1")}
+                  strokeWidth={isSelection ? "3" : isLatest ? "2" : "1"}
                   strokeDasharray={isSelection ? "4,2" : "none"}
                   aria-label={`${marker.type} by ${marker.label ? `#${marker.label}` : "Opponent"}`}
                 />

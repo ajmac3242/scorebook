@@ -399,19 +399,25 @@ const PlayerStats: React.FC = () => {
               </MenuItem>
               <MenuItem value="REBOUND">
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <SportsBasketball sx={{ fontSize: 18, color: "primary.main" }} />{" "}
+                  <SportsBasketball
+                    sx={{ fontSize: 18, color: "primary.main" }}
+                  />{" "}
                   Total Rebounds
                 </Box>
               </MenuItem>
               <MenuItem value="OFF_REBOUND">
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <SportsBasketball sx={{ fontSize: 18, color: "primary.main" }} />{" "}
+                  <SportsBasketball
+                    sx={{ fontSize: 18, color: "primary.main" }}
+                  />{" "}
                   Off. Rebounds
                 </Box>
               </MenuItem>
               <MenuItem value="DEF_REBOUND">
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <SportsBasketball sx={{ fontSize: 18, color: "primary.main" }} />{" "}
+                  <SportsBasketball
+                    sx={{ fontSize: 18, color: "primary.main" }}
+                  />{" "}
                   Def. Rebounds
                 </Box>
               </MenuItem>
@@ -422,7 +428,8 @@ const PlayerStats: React.FC = () => {
               </MenuItem>
               <MenuItem value="STEAL">
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <FlashOn sx={{ fontSize: 18, color: "warning.main" }} /> Steals
+                  <FlashOn sx={{ fontSize: 18, color: "warning.main" }} />{" "}
+                  Steals
                 </Box>
               </MenuItem>
               <MenuItem value="BLOCK">
