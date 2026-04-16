@@ -1055,7 +1055,13 @@ const GameMode: React.FC = () => {
    * Performance: Use the pre-sorted event stream for single-pass derivation of
    * scores, fouls, timeouts, possession, lineups, and recent history.
    */
-  const gameData = useMemo(() => {
+  /**
+   * ⚡ Bolt: Static Game Data
+   * Performance: This hook performs the O(N) loop through the event stream.
+   * By separating it from the clock-dependent hook, we prevent expensive
+   * re-calculations every second. It only re-runs when stats or context changes.
+   */
+  const staticGameData = useMemo(() => {
     let curScore = 0;
     let oppScore = 0;
     let teamFouls = 0;
@@ -1129,11 +1135,6 @@ const GameMode: React.FC = () => {
       }
     });
 
-    const stintDurations = new Map<string, number>();
-    stintStarts.forEach((startClock, pId) => {
-      stintDurations.set(pId, Math.max(0, startClock - clockSeconds));
-    });
-
     const MAX_TIMEOUTS = team?.fouls || 3;
     const teamBonus = getBonusStatus(teamFouls, pType);
     const oppBonus = getBonusStatus(oppFouls, pType);
@@ -1157,7 +1158,7 @@ const GameMode: React.FC = () => {
       },
       possessionState: posState,
       onCourtIds: onCourt,
-      stintDurations,
+      stintStarts,
       recentStats: sortedGameStats.slice(-10).reverse(),
     };
   }, [
@@ -1165,9 +1166,25 @@ const GameMode: React.FC = () => {
     period,
     team?.periodType,
     team?.fouls,
-    clockSeconds,
     game?.periodLength,
   ]);
+
+  /**
+   * ⚡ Bolt: Dynamic Game Data
+   * Performance: This hook performs an O(1) calculation derived from the static data.
+   * It is the only data that needs to update on every clock tick.
+   */
+  const gameData = useMemo(() => {
+    const stintDurations = new Map<string, number>();
+    staticGameData.stintStarts.forEach((startClock, pId) => {
+      stintDurations.set(pId, Math.max(0, startClock - clockSeconds));
+    });
+
+    return {
+      ...staticGameData,
+      stintDurations,
+    };
+  }, [staticGameData, clockSeconds]);
 
   // Initialize draft state when dialog opens
   useEffect(() => {
@@ -1282,6 +1299,31 @@ const GameMode: React.FC = () => {
     }
     return res;
   }, [gameStats, markerFilter, jerseyMap, theme.palette.secondary.main]);
+
+  const handleAddOpponentJersey = useCallback(() => {
+    const jersey = window.prompt("Enter opponent jersey number:");
+    if (jersey && !opponentJerseys.includes(jersey)) {
+      setOpponentJerseys((prev) => [...prev, jersey]);
+      setSelectedOpponentId(`${SPECIAL_PLAYER_IDS.OPPONENT}:${jersey}`);
+    }
+  }, [opponentJerseys]);
+
+  const handleSelectOpponent = useCallback((id: string) => {
+    setSelectedOpponentId(id);
+  }, []);
+
+  const handleOpenSubDialog = useCallback(() => {
+    setSubDialogOpen(true);
+  }, []);
+
+  const handleOpenEndGameDialog = useCallback(() => {
+    setEndGameDialogOpen(true);
+  }, []);
+
+  const handleSetStatToDelete = useCallback((id: string) => {
+    setStatToDelete(id);
+    setDeleteDialogOpen(true);
+  }, []);
 
   /**
    * Undoes the most recent statistical action.
@@ -1829,16 +1871,8 @@ const GameMode: React.FC = () => {
             onResetClock={handleResetClock}
             opponentJerseys={opponentJerseys}
             selectedOpponentId={selectedOpponentId}
-            onAddOpponentJersey={() => {
-              const jersey = window.prompt("Enter opponent jersey number:");
-              if (jersey && !opponentJerseys.includes(jersey)) {
-                setOpponentJerseys((prev) => [...prev, jersey]);
-                setSelectedOpponentId(
-                  `${SPECIAL_PLAYER_IDS.OPPONENT}:${jersey}`,
-                );
-              }
-            }}
-            onSelectOpponent={(id) => setSelectedOpponentId(id)}
+            onAddOpponentJersey={handleAddOpponentJersey}
+            onSelectOpponent={handleSelectOpponent}
           />
 
           <MoleskineCard>
@@ -1855,13 +1889,13 @@ const GameMode: React.FC = () => {
               <ActionControls
                 isReadOnly={isReadOnly}
                 onUndo={handleUndo}
-                onQuickSub={() => setSubDialogOpen(true)}
+                onQuickSub={handleOpenSubDialog}
                 onTimeout={handleTimeout}
                 onNextPeriod={handleNextPeriod}
-                onTogglePossession={() => handleTogglePossession()}
+                onTogglePossession={handleTogglePossession}
                 possessionState={gameData.possessionState}
                 recentStatsLength={gameData.recentStats.length}
-                onEndGame={() => setEndGameDialogOpen(true)}
+                onEndGame={handleOpenEndGameDialog}
                 isGameCompleted={!!game?.completed}
               />
 
@@ -2299,10 +2333,7 @@ const GameMode: React.FC = () => {
                         teamName={team?.name}
                         opponentName={game?.opponent}
                         onEdit={openEditDialog}
-                        onDelete={(id) => {
-                          setStatToDelete(id);
-                          setDeleteDialogOpen(true);
-                        }}
+                        onDelete={handleSetStatToDelete}
                       />
                     ))
                 )}

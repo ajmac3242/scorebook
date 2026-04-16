@@ -39,6 +39,14 @@ const COURT_STYLES = `
     opacity: 1 !important;
     cursor: pointer;
   }
+  .marker-group {
+    cursor: pointer;
+    outline: none;
+  }
+  .marker-group:focus-visible circle {
+    stroke: #000;
+    stroke-width: 3;
+  }
   @keyframes pulse {
     0% { r: 6; stroke-width: 1; }
     50% { r: 8; stroke-width: 3; }
@@ -335,9 +343,9 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
             const svgY = (marker.y / 100) * 470;
 
             return (
-              <Box
-                component="g"
+              <g
                 key={marker.id || index}
+                className={onMarkerClick ? "marker-group" : ""}
                 onClick={(e: React.MouseEvent<SVGGElement>) => {
                   e.stopPropagation();
                   if (onMarkerClick) onMarkerClick(marker);
@@ -351,14 +359,6 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
                 role="button"
                 tabIndex={0}
                 aria-label={`${marker.type} by ${marker.label ? `#${marker.label}` : "Opponent"}`}
-                sx={{
-                  cursor: onMarkerClick ? "pointer" : "default",
-                  outline: "none",
-                  "&:focus-visible circle": {
-                    stroke: "#000",
-                    strokeWidth: 3,
-                  },
-                }}
               >
                 <circle
                   className={isLatest ? "latest-marker" : "court-marker"}
@@ -383,7 +383,7 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
                     {marker.label}
                   </text>
                 )}
-              </Box>
+              </g>
             );
           })}
         </svg>
