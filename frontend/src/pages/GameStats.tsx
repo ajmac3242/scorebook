@@ -4,11 +4,9 @@ import {
   Box,
   Typography,
   Grid,
-  Stack,
   useTheme,
   Avatar,
   IconButton,
-  useMediaQuery,
 } from "@mui/material";
 import { Delete, Edit as EditIcon } from "@mui/icons-material";
 import {
@@ -31,7 +29,7 @@ import {
   Tabs,
   Tab,
 } from "@heroui/react";
-import { db, Player } from "../db";
+import { db, Player, StatEvent } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
 import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../constants/stats";
 import {
@@ -59,7 +57,6 @@ const GameStats: React.FC = () => {
   const [searchParams] = useSearchParams();
   const gameId = searchParams.get("gameId");
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const [selectedPeriod, setSelectedPeriod] = useState<string>("all");
   const {
@@ -77,7 +74,7 @@ const GameStats: React.FC = () => {
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   // Substitution Audit State
-  const [editingSub, setEditingSub] = useState<any | null>(null);
+  const [editingSub, setEditingSub] = useState<StatEvent | null>(null);
   const [editSubClock, setEditSubClock] = useState("");
   const [editSubPlayerId, setEditSubPlayerId] = useState("");
 
@@ -243,7 +240,7 @@ const GameStats: React.FC = () => {
     }
   };
 
-  const handleEditSub = (sub: any) => {
+  const handleEditSub = (sub: StatEvent) => {
     setEditingSub(sub);
     setEditSubClock(formatClock(sub.clockTime || 0));
     setEditSubPlayerId(sub.playerId);
@@ -251,7 +248,7 @@ const GameStats: React.FC = () => {
   };
 
   const saveSubEdit = async () => {
-    if (!editingSub) return;
+    if (!editingSub || !editingSub.id) return;
 
     const parts = editSubClock.split(":");
     let newSeconds = 0;

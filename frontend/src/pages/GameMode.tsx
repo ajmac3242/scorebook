@@ -1457,6 +1457,8 @@ const GameMode: React.FC = () => {
       period,
       trackingMode,
       clockSeconds,
+      isSaving,
+      selectedPlay,
     ],
   );
 

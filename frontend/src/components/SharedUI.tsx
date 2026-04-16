@@ -4,13 +4,7 @@
  */
 
 import React, { useState, useEffect } from "react";
-import {
-  Card,
-  CardHeader,
-  CardContent,
-  CardFooter,
-  Button,
-} from "@heroui/react";
+import { Card, CardContent, Button } from "@heroui/react";
 import { ArrowBack as ArrowBackIcon } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 
@@ -18,11 +12,11 @@ import { useNavigate } from "react-router-dom";
  * Standardized card component using HeroUI.
  */
 export const AppCard: React.FC<
-  React.HTMLAttributes<HTMLDivElement> & { sx?: any }
+  React.HTMLAttributes<HTMLDivElement> & { sx?: Record<string, unknown> }
 > = ({
   children,
   className = "",
-  sx, // Ignored for MUI compatibility during migration
+  sx: _sx, // Ignored for MUI compatibility during migration
   ...props
 }) => (
   <Card className={`p-2 shadow-md ${className}`} {...props}>
