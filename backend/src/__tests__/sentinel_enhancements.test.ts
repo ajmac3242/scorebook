@@ -1,3 +1,4 @@
+import { jest } from "@jest/globals";
 import { handler } from "../index.js";
 import {
   DynamoDBDocumentClient,
@@ -129,7 +130,7 @@ describe("Sentinel Security Enhancements Tests", () => {
       const response: any = await handler(event);
       expect(response.statusCode).toBe(400);
       expect(JSON.parse(response.body).message).toContain(
-        "Period must be at least 1",
+        "Period must be between 1 and 20",
       );
     });
 
@@ -143,7 +144,7 @@ describe("Sentinel Security Enhancements Tests", () => {
       const response: any = await handler(event);
       expect(response.statusCode).toBe(400);
       expect(JSON.parse(response.body).message).toContain(
-        "Clock time must be at least 0",
+        "Clock time must be between 0 and 3600 seconds",
       );
     });
 

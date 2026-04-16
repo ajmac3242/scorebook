@@ -455,7 +455,7 @@ const TeamStats: React.FC = () => {
   };
 
   const handleAddGame = async () => {
-    if (!teamId || !newOpponent.trim()) return;
+    if (!teamId || !newOpponent.trim() || isSubmittingGame) return;
     setIsSubmittingGame(true);
     try {
       await db.open();
@@ -1331,6 +1331,7 @@ const TeamStats: React.FC = () => {
             fullWidth
             size="small"
             placeholder="Search players..."
+            aria-label="Search players in roster"
             value={rosterSearchTerm}
             onChange={(e) => setRosterSearchTerm(e.target.value)}
             sx={{ mb: 2, mt: 1 }}

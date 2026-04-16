@@ -12,6 +12,7 @@ import {
   calculateLineupStats,
   getBonusStatus,
   calculateStopsAndKills,
+  calculateTsPct,
 } from "./stats";
 import { TeamPlayer, StatEvent, Game } from "../db";
 import { ACTION_TYPES } from "../constants/stats";
@@ -493,6 +494,113 @@ describe("stats utilities", () => {
       expect(results[0].pointsFor).toBe(2);
       expect(results[0].pointsAgainst).toBe(3);
       expect(results[0].seconds).toBe(1200); // 600 (P1) + 600 (P2)
+    });
+
+    it("isolates stints by gameId correctly (multi-game isolation)", () => {
+      const stats: StatEvent[] = [
+        // Game 1: 10 mins played, +2
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          period: 1,
+          timestamp: "101",
+        },
+        {
+          gameId: "g1",
+          playerId: "p2",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          period: 1,
+          timestamp: "102",
+        },
+        {
+          gameId: "g1",
+          playerId: "p3",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          period: 1,
+          timestamp: "103",
+        },
+        {
+          gameId: "g1",
+          playerId: "p4",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          period: 1,
+          timestamp: "104",
+        },
+        {
+          gameId: "g1",
+          playerId: "p5",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          period: 1,
+          timestamp: "105",
+        },
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          period: 1,
+          timestamp: "106",
+        },
+        // Game 2: Same lineup, 10 mins played, +5
+        {
+          gameId: "g2",
+          playerId: "p1",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          period: 1,
+          timestamp: "201",
+        },
+        {
+          gameId: "g2",
+          playerId: "p2",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          period: 1,
+          timestamp: "202",
+        },
+        {
+          gameId: "g2",
+          playerId: "p3",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          period: 1,
+          timestamp: "203",
+        },
+        {
+          gameId: "g2",
+          playerId: "p4",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          period: 1,
+          timestamp: "204",
+        },
+        {
+          gameId: "g2",
+          playerId: "p5",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          period: 1,
+          timestamp: "205",
+        },
+        {
+          gameId: "g2",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 5,
+          period: 1,
+          timestamp: "206",
+        },
+      ];
+      const results = calculateLineupStats(stats);
+      expect(results.length).toBe(1);
+      expect(results[0].pointsFor).toBe(7);
+      expect(results[0].seconds).toBe(1200);
     });
   });
 
@@ -1061,111 +1169,6 @@ describe("stats utilities", () => {
       expect(result.get("p1")).toBe("HOT");
     });
 
-    it("isolates stints by gameId correctly (multi-game isolation)", () => {
-      const stats: StatEvent[] = [
-        {
-          gameId: "g1",
-          playerId: "p1",
-          type: ACTION_TYPES.SUB_IN,
-          clockTime: 600,
-          period: 1,
-          timestamp: "2023-01-01T10:00:01Z",
-        },
-        {
-          gameId: "g1",
-          playerId: "p2",
-          type: ACTION_TYPES.SUB_IN,
-          clockTime: 600,
-          period: 1,
-          timestamp: "2023-01-01T10:00:02Z",
-        },
-        {
-          gameId: "g1",
-          playerId: "p3",
-          type: ACTION_TYPES.SUB_IN,
-          clockTime: 600,
-          period: 1,
-          timestamp: "2023-01-01T10:00:03Z",
-        },
-        {
-          gameId: "g1",
-          playerId: "p4",
-          type: ACTION_TYPES.SUB_IN,
-          clockTime: 600,
-          period: 1,
-          timestamp: "2023-01-01T10:00:04Z",
-        },
-        {
-          gameId: "g1",
-          playerId: "p5",
-          type: ACTION_TYPES.SUB_IN,
-          clockTime: 600,
-          period: 1,
-          timestamp: "2023-01-01T10:00:05Z",
-        },
-        {
-          gameId: "g1",
-          playerId: "p1",
-          type: ACTION_TYPES.MAKE,
-          points: 2,
-          period: 1,
-          timestamp: "2023-01-01T10:00:06Z",
-        },
-        {
-          gameId: "g2",
-          playerId: "p1",
-          type: ACTION_TYPES.SUB_IN,
-          clockTime: 600,
-          period: 1,
-          timestamp: "2023-01-02T10:00:01Z",
-        },
-        {
-          gameId: "g2",
-          playerId: "p2",
-          type: ACTION_TYPES.SUB_IN,
-          clockTime: 600,
-          period: 1,
-          timestamp: "2023-01-02T10:00:02Z",
-        },
-        {
-          gameId: "g2",
-          playerId: "p3",
-          type: ACTION_TYPES.SUB_IN,
-          clockTime: 600,
-          period: 1,
-          timestamp: "2023-01-02T10:00:03Z",
-        },
-        {
-          gameId: "g2",
-          playerId: "p4",
-          type: ACTION_TYPES.SUB_IN,
-          clockTime: 600,
-          period: 1,
-          timestamp: "2023-01-02T10:00:04Z",
-        },
-        {
-          gameId: "g2",
-          playerId: "p5",
-          type: ACTION_TYPES.SUB_IN,
-          clockTime: 600,
-          period: 1,
-          timestamp: "2023-01-02T10:00:05Z",
-        },
-        {
-          gameId: "g2",
-          playerId: "p1",
-          type: ACTION_TYPES.MAKE,
-          points: 5,
-          period: 1,
-          timestamp: "2023-01-02T10:00:06Z",
-        },
-      ];
-      const results = calculateLineupStats(stats);
-      expect(results.length).toBe(1);
-      expect(results[0].pointsFor).toBe(7);
-      expect(results[0].seconds).toBe(1200);
-    });
-
     it("properly handles chronological order even if stats are unsorted", () => {
       const stats: StatEvent[] = [
         {
@@ -1364,6 +1367,50 @@ describe("stats utilities", () => {
       // Second MISS + DEF_REBOUND sequence counts as 1 stop.
       expect(result.totalStops).toBe(1);
     });
+
+    it("isolates stops and streaks by gameId (multi-game isolation)", () => {
+      const stats: StatEvent[] = [
+        // Game 1: 2 stops, streak 2
+        {
+          gameId: "g1",
+          playerId: "OPPONENT",
+          type: ACTION_TYPES.TURNOVER,
+          timestamp: "1",
+          period: 1,
+        },
+        {
+          gameId: "g1",
+          playerId: "OPPONENT",
+          type: ACTION_TYPES.TURNOVER,
+          timestamp: "2",
+          period: 1,
+        },
+        // Game 2: 1 stop, streak should start from 0
+        {
+          gameId: "g2",
+          playerId: "OPPONENT",
+          type: ACTION_TYPES.TURNOVER,
+          timestamp: "3",
+          period: 1,
+        },
+      ];
+      const result = calculateStopsAndKills(stats);
+      expect(result.totalStops).toBe(3);
+      expect(result.currentStreak).toBe(1); // Should be 1, not 3 (no Kill triggered across games)
+      expect(result.totalKills).toBe(0);
+    });
+  });
+
+  describe("calculateTsPct", () => {
+    it("calculates True Shooting percentage correctly", () => {
+      // 10 points, 4 attempts, 2 FTA -> 10 / (2 * (4 + 0.44 * 2)) = 10 / (2 * 4.88) = 10 / 9.76 = 1.0245... -> 102.5%
+      expect(calculateTsPct(10, 4, 2)).toBe("102.5");
+    });
+
+    it("returns '0.0' when there are no attempts or FTA (division by zero protection)", () => {
+      expect(calculateTsPct(0, 0, 0)).toBe("0.0");
+      expect(calculateTsPct(10, 0, 0)).toBe("0.0");
+    });
   });
 
   describe("getBonusStatus", () => {
@@ -1387,6 +1434,12 @@ describe("stats utilities", () => {
         expect(res.label).toBe("BONUS");
         expect(res.color).toBe("error.main");
       });
+    });
+
+    it("falls back to QUARTERS rules for unknown period types", () => {
+      const res = getBonusStatus(5, "OVERTIME");
+      expect(res.isBonus).toBe(true);
+      expect(res.label).toBe("BONUS");
     });
 
     describe("HALVES", () => {

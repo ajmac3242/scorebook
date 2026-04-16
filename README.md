@@ -41,6 +41,15 @@ To optimize read performance and reduce DynamoDB costs:
 - **Efficient Aggregations**: Statistics are aggregated on-the-fly in the frontend using optimized `for` loops and `Map` objects, ensuring that complex calculations (like PPG, RPG, APG) remain fast even as the number of recorded events grows.
 - **Reduced Backend Load**: By serving historical game stats and rosters directly from S3, the application offloads significant read traffic from DynamoDB, leading to lower costs and improved scalability.
 
+## Security & Reliability
+
+Scorebook implements several layers of security and reliability to protect user data and ensure accurate statistics:
+
+- **Defense-in-Depth Sanitization**: Both the API responses and S3 snapshots are automatically sanitized to remove internal database keys (PK, SK, GSIs). This prevents leaking infrastructure details and protects against mass-assignment vulnerabilities.
+- **Timing-Attack Protection**: Highly privileged endpoints use timing-safe comparisons (`safeCompare` with SHA-256 hashing) for sensitive keys to prevent character-by-character brute-force reconstruction.
+- **Log Masking**: Sensitive headers (Authorization, Cookie, etc.) are automatically redacted from CloudWatch logs in a case-insensitive manner to prevent accidental secret leakage.
+- **Offline-First Resilience**: All statistical calculations handle temporal edge cases like multi-game event streams, period transitions, and deleted events, ensuring high data integrity even in offline scenarios.
+
 ## Setup Instructions
 
 ### Frontend

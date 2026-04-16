@@ -212,7 +212,7 @@ const Teams: React.FC = () => {
    * Handles adding a new team to the database.
    */
   const handleAddTeam = async () => {
-    if (!teamName.trim()) {
+    if (!teamName.trim() || isSubmitting) {
       setShowValidation(true);
       return;
     }
@@ -367,11 +367,34 @@ const Teams: React.FC = () => {
                         >
                           <Typography
                             variant="h5"
+                            component="a"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              navigate(`/teams/${team.id}`);
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter" || e.key === " ") {
+                                navigate(`/teams/${team.id}`);
+                              }
+                            }}
+                            tabIndex={0}
+                            role="link"
+                            aria-label={`View details for ${team.name}`}
                             sx={{
                               fontFamily: "var(--serif)",
                               fontWeight: 700,
                               mb: 0.5,
                               color: "inherit",
+                              textDecoration: "none",
+                              cursor: "pointer",
+                              "&:hover": {
+                                textDecoration: "underline",
+                              },
+                              "&:focus-visible": {
+                                outline: `2px solid ${contrastColor}`,
+                                outlineOffset: "2px",
+                                borderRadius: "4px",
+                              },
                             }}
                           >
                             {team.name}
@@ -391,6 +414,7 @@ const Teams: React.FC = () => {
                                 ? `Remove ${team.name} from favorites`
                                 : `Mark ${team.name} as favorite`
                             }
+                            aria-pressed={!!team.isFavorite}
                           >
                             {team.isFavorite ? (
                               <StarIcon sx={{ color: "#FFD700" }} />
