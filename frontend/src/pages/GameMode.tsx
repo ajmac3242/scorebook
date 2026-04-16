@@ -1545,20 +1545,37 @@ const GameMode: React.FC = () => {
         return;
       }
 
-      const isAOnCourt =
+      const firstIsOnCourt =
         draftOnCourtIds.has(selectedSwapId) ||
         selectedSwapId.startsWith("EMPTY");
-      const isBOnCourt = draftOnCourtIds.has(id) || id.startsWith("EMPTY");
+      const secondIsOnCourt = draftOnCourtIds.has(id) || id.startsWith("EMPTY");
 
       // Update selection if both in same group (bench/court), otherwise perform swap
-      if (isAOnCourt === isBOnCourt) {
+      if (firstIsOnCourt === secondIsOnCourt) {
         setSelectedSwapId(id);
         return;
       }
 
+      // 🏀 CoachBoard: Prevent subbing in fouled-out players
+      // Why: Ensure the player entering the game from the bench has not fouled out.
+      // Note: We always allow subbing a player OUT of the game, even if they have fouled out.
+      const foulLimit = game?.foulLimit || team?.defaultFoulLimit || 5;
+      const playerEnteringGame = firstIsOnCourt ? id : selectedSwapId;
+      if (!playerEnteringGame.startsWith("EMPTY")) {
+        const s = statsMap.get(playerEnteringGame);
+        if (s && s.fouls >= foulLimit) {
+          setSnackbar({
+            open: true,
+            message: `${s.name} has fouled out and cannot return to the game.`,
+            severity: "error",
+          });
+          return;
+        }
+      }
+
       setDraftOnCourtIds((prev) => {
         const next = new Set(prev);
-        const [onCourt, bench] = isAOnCourt
+        const [onCourt, bench] = firstIsOnCourt
           ? [selectedSwapId, id]
           : [id, selectedSwapId];
 
@@ -1568,7 +1585,7 @@ const GameMode: React.FC = () => {
       });
       setSelectedSwapId(null);
     },
-    [selectedSwapId, draftOnCourtIds],
+    [selectedSwapId, draftOnCourtIds, game, team, statsMap, setSnackbar],
   );
 
   const handleQuickSub = useCallback(async () => {

@@ -375,7 +375,7 @@ export const getBonusStatus = (
 
   if (fouls >= config.double) {
     return {
-      label: "BONUS",
+      label: periodType === "HALVES" ? "DOUBLE BONUS" : "BONUS",
       isBonus: true,
       isDouble: true,
       color: "error.main",
@@ -383,7 +383,7 @@ export const getBonusStatus = (
   }
   if (fouls >= config.single) {
     return {
-      label: "BONUS",
+      label: periodType === "HALVES" ? "BONUS (1&1)" : "BONUS",
       isBonus: true,
       isDouble: false,
       color: "error.main",
@@ -661,6 +661,12 @@ export const calculatePlayerAggregates = (
 
     // Handle Sub-In/Sub-Out for MIN and Plus-Minus
     if (type === ACTION_TYPES.SUB_IN && clockTime !== undefined) {
+      // 🏀 CoachBoard: Handle redundant SUB_IN events
+      // Why: If a player is already on court, close the current stint before starting a new one.
+      const existingStint = activeStints.get(playerId);
+      if (existingStint) {
+        handleStintEnd(playerId, statsMap, existingStint, scores, clockTime);
+      }
       activeStints.set(playerId, {
         startClock: clockTime,
         startScoreDiff: scores.team - scores.opp,
