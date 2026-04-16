@@ -281,39 +281,45 @@ const Scoreboard = React.memo(
           alignItems="center"
           sx={{ mt: 0.5, flexWrap: "nowrap" }}
         >
-          <Typography
-            variant="caption"
-            sx={{
-              color: getFoulColor(!!isOpponent),
-              fontWeight: 800,
-              fontSize: "0.7rem",
-              whiteSpace: "nowrap",
-            }}
-          >
-            FOULS:{" "}
-            {isOpponent
-              ? gameData.teamFoulStats.oppFouls
-              : gameData.teamFoulStats.teamFouls}
-          </Typography>
+          <Tooltip title={`${isOpponent ? game?.opponent || "Opponent" : team?.name || "Team"} has committed ${isOpponent ? gameData.teamFoulStats.oppFouls : gameData.teamFoulStats.teamFouls} fouls this period.`}>
+            <Typography
+              variant="caption"
+              sx={{
+                color: getFoulColor(!!isOpponent),
+                fontWeight: 800,
+                fontSize: "0.7rem",
+                whiteSpace: "nowrap",
+                cursor: "help",
+              }}
+            >
+              FOULS:{" "}
+              {isOpponent
+                ? gameData.teamFoulStats.oppFouls
+                : gameData.teamFoulStats.teamFouls}
+            </Typography>
+          </Tooltip>
           {/* Bonus label applied to the team currently in bonus (caused by opposite team's fouls) */}
           {(!isOpponent
             ? gameData.teamFoulStats.oppBonusLabel
             : gameData.teamFoulStats.teamBonusLabel) && (
-            <Typography
-              variant="caption"
-              sx={{
-                color: "#FFD700",
-                fontWeight: 900,
-                fontSize: "0.65rem",
-                letterSpacing: 0.5,
-                whiteSpace: "nowrap",
-              }}
-            >
-              BONUS
-              {!isOpponent
-                ? gameData.teamFoulStats.oppIsDouble && <sup>2</sup>
-                : gameData.teamFoulStats.teamIsDouble && <sup>2</sup>}
-            </Typography>
+            <Tooltip title={`${!isOpponent ? team?.name || "Team" : game?.opponent || "Opponent"} is in the bonus and will shoot free throws on non-shooting fouls.`}>
+              <Typography
+                variant="caption"
+                sx={{
+                  color: "#FFD700",
+                  fontWeight: 900,
+                  fontSize: "0.65rem",
+                  letterSpacing: 0.5,
+                  whiteSpace: "nowrap",
+                  cursor: "help",
+                }}
+              >
+                BONUS
+                {!isOpponent
+                  ? gameData.teamFoulStats.oppIsDouble && <sup>2</sup>
+                  : gameData.teamFoulStats.teamIsDouble && <sup>2</sup>}
+              </Typography>
+            </Tooltip>
           )}
         </Stack>
 
@@ -1355,6 +1361,20 @@ const GameMode: React.FC = () => {
     }
   }, [gameData.recentStats]);
 
+  // ⌨️ Palette: Keyboard Undo Shortcut
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "z") {
+        if (!isReadOnly && gameData.recentStats.length > 0) {
+          e.preventDefault();
+          handleUndo();
+        }
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isReadOnly, gameData.recentStats, handleUndo]);
+
   /**
    * Finalizes the game, marking it as completed and triggering a sync.
    */
@@ -1961,7 +1981,19 @@ const GameMode: React.FC = () => {
 
             <BasketballCourt
               onCoordClick={handleCourtClick}
-              markers={markers}
+              markers={
+                dialogOpen && selectedX !== null && selectedY !== null
+                  ? [
+                      ...markers,
+                      {
+                        x: selectedX,
+                        y: selectedY,
+                        type: "SELECTION",
+                        color: theme.palette.primary.main,
+                      },
+                    ]
+                  : markers
+              }
             />
           </MoleskineCard>
         </Grid>
@@ -2354,9 +2386,10 @@ const GameMode: React.FC = () => {
         }}
         fullWidth
         maxWidth="xs"
+        aria-labelledby="stat-dialog-title"
         aria-describedby="stat-dialog-player-info"
       >
-        <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
+        <DialogTitle id="stat-dialog-title" sx={{ fontFamily: "var(--serif)" }}>
           {isEditing ? "Edit Action" : "Record Action"}
           <Typography
             id="stat-dialog-player-info"
@@ -2679,12 +2712,22 @@ const GameMode: React.FC = () => {
             handleEndGame();
           }
         }}
+        aria-labelledby="end-game-dialog-title"
+        aria-describedby="end-game-dialog-description"
       >
-        <DialogTitle sx={{ fontFamily: "var(--serif)" }}>End Game?</DialogTitle>
+        <DialogTitle
+          id="end-game-dialog-title"
+          sx={{ fontFamily: "var(--serif)" }}
+        >
+          End Game?
+        </DialogTitle>
         <DialogContent>
-          <DialogContentText>
-            Is the game finished? Once ended, the results will be finalized for
-            team averages.
+          <DialogContentText id="end-game-dialog-description">
+            Is the game finished? Current Score:{" "}
+            <strong>
+              {gameData.currentScore} - {gameData.opponentScore}
+            </strong>
+            . Once ended, the results will be finalized for team averages.
           </DialogContentText>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
@@ -2710,8 +2753,12 @@ const GameMode: React.FC = () => {
       <Dialog
         open={summaryDialogOpen}
         onClose={() => setSummaryDialogOpen(false)}
+        aria-labelledby="summary-dialog-title"
       >
-        <DialogTitle sx={{ fontFamily: "var(--serif)", textAlign: "center" }}>
+        <DialogTitle
+          id="summary-dialog-title"
+          sx={{ fontFamily: "var(--serif)", textAlign: "center" }}
+        >
           Game Summary
         </DialogTitle>
         <DialogContent>
@@ -2768,8 +2815,9 @@ const GameMode: React.FC = () => {
         onClose={() => setSubDialogOpen(false)}
         fullWidth
         maxWidth="sm"
+        aria-labelledby="sub-dialog-title"
       >
-        <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
+        <DialogTitle id="sub-dialog-title" sx={{ fontFamily: "var(--serif)" }}>
           Quick Substitution
         </DialogTitle>
         <DialogContent>
@@ -2964,12 +3012,17 @@ const GameMode: React.FC = () => {
             handleDeleteStat();
           }
         }}
+        aria-labelledby="delete-stat-dialog-title"
+        aria-describedby="delete-stat-dialog-description"
       >
-        <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
+        <DialogTitle
+          id="delete-stat-dialog-title"
+          sx={{ fontFamily: "var(--serif)" }}
+        >
           Confirm Delete
         </DialogTitle>
         <DialogContent>
-          <DialogContentText>
+          <DialogContentText id="delete-stat-dialog-description">
             Are you sure you want to delete this action?
           </DialogContentText>
         </DialogContent>
@@ -3080,6 +3133,8 @@ const RecentActionItem: React.FC<{
           return <Groups sx={{ ...iconSx, color: "text.secondary" }} />;
         case ACTION_TYPES.POSSESSION:
           return <SwapHoriz sx={{ ...iconSx, color: "primary.light" }} />;
+        case "SELECTION":
+          return <Check sx={{ ...iconSx, color: "primary.main" }} />;
         default:
           return null;
       }

@@ -83,14 +83,14 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
       <Tooltip
         title={
           backTo
-            ? `Back to ${backTo.split("/").pop() || "Previous Page"}`
+            ? `Back to ${backTo.split("/").at(-1)?.charAt(0).toUpperCase()}${backTo.split("/").at(-1)?.slice(1) || "Previous Page"}`
             : "Go Back"
         }
       >
         <IconButton
           aria-label={
             backTo
-              ? `Back to ${backTo.split("/").pop() || "previous page"}`
+              ? `Back to ${backTo.split("/").at(-1) || "previous page"}`
               : "go back"
           }
           onClick={() => (backTo ? navigate(backTo) : navigate(-1))}

@@ -36,7 +36,17 @@ import { MoleskineCard, StatCard } from "../components/SharedUI";
 import EntityBanner from "../components/EntityBanner";
 import { useTeams } from "../hooks/useTeams";
 import { AVATAR_COLORS } from "../constants/colors";
-import { Warning, Edit as EditIcon } from "@mui/icons-material";
+import {
+  Warning,
+  Edit as EditIcon,
+  Check,
+  Close,
+  SportsBasketball,
+  PanTool,
+  FlashOn,
+  ArrowBack,
+  SwapHoriz,
+} from "@mui/icons-material";
 import dayjs from "dayjs";
 import IconButton from "@mui/material/IconButton";
 
@@ -377,15 +387,56 @@ const PlayerStats: React.FC = () => {
               onChange={(e) => setSelectedType(e.target.value)}
             >
               <MenuItem value="">All Actions</MenuItem>
-              <MenuItem value="MAKE">Makes</MenuItem>
-              <MenuItem value="MISS">Misses</MenuItem>
-              <MenuItem value="REBOUND">Total Rebounds</MenuItem>
-              <MenuItem value="OFF_REBOUND">Off. Rebounds</MenuItem>
-              <MenuItem value="DEF_REBOUND">Def. Rebounds</MenuItem>
-              <MenuItem value="ASSIST">Assists</MenuItem>
-              <MenuItem value="STEAL">Steals</MenuItem>
-              <MenuItem value="BLOCK">Blocks</MenuItem>
-              <MenuItem value="TURNOVER">Turnovers</MenuItem>
+              <MenuItem value="MAKE">
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <Check sx={{ fontSize: 18, color: "success.main" }} /> Makes
+                </Box>
+              </MenuItem>
+              <MenuItem value="MISS">
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <Close sx={{ fontSize: 18, color: "error.main" }} /> Misses
+                </Box>
+              </MenuItem>
+              <MenuItem value="REBOUND">
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <SportsBasketball sx={{ fontSize: 18, color: "primary.main" }} />{" "}
+                  Total Rebounds
+                </Box>
+              </MenuItem>
+              <MenuItem value="OFF_REBOUND">
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <SportsBasketball sx={{ fontSize: 18, color: "primary.main" }} />{" "}
+                  Off. Rebounds
+                </Box>
+              </MenuItem>
+              <MenuItem value="DEF_REBOUND">
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <SportsBasketball sx={{ fontSize: 18, color: "primary.main" }} />{" "}
+                  Def. Rebounds
+                </Box>
+              </MenuItem>
+              <MenuItem value="ASSIST">
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <PanTool sx={{ fontSize: 18, color: "info.main" }} /> Assists
+                </Box>
+              </MenuItem>
+              <MenuItem value="STEAL">
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <FlashOn sx={{ fontSize: 18, color: "warning.main" }} /> Steals
+                </Box>
+              </MenuItem>
+              <MenuItem value="BLOCK">
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <ArrowBack sx={{ fontSize: 18, color: "secondary.main" }} />{" "}
+                  Blocks
+                </Box>
+              </MenuItem>
+              <MenuItem value="TURNOVER">
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <SwapHoriz sx={{ fontSize: 18, color: "warning.dark" }} />{" "}
+                  Turnovers
+                </Box>
+              </MenuItem>
             </Select>
           </FormControl>
         </Stack>

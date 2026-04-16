@@ -337,15 +337,18 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
               else if (marker.type === "STEAL") color = "#FF9800";
               else if (marker.type === "ASSIST") color = "#9C27B0";
               else if (marker.type === "TURNOVER") color = "#795548";
+              else if (marker.type === "SELECTION") color = "#154C56";
             }
 
             const svgX = (marker.x / 100) * 500;
             const svgY = (marker.y / 100) * 470;
 
+            const isSelection = marker.type === "SELECTION";
+
             return (
               <g
                 key={marker.id || index}
-                className={onMarkerClick ? "marker-group" : ""}
+                className={isSelection ? "" : (onMarkerClick ? "marker-group" : "")}
                 onClick={(e: React.MouseEvent<SVGGElement>) => {
                   e.stopPropagation();
                   if (onMarkerClick) onMarkerClick(marker);
@@ -361,14 +364,15 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
                 aria-label={`${marker.type} by ${marker.label ? `#${marker.label}` : "Opponent"}`}
               >
                 <circle
-                  className={isLatest ? "latest-marker" : "court-marker"}
+                  className={isSelection ? "" : (isLatest ? "latest-marker" : "court-marker")}
                   cx={svgX}
                   cy={svgY}
-                  r="6"
+                  r={isSelection ? "8" : "6"}
                   fill={color}
-                  fillOpacity={isLatest ? "1" : "0.8"}
+                  fillOpacity={isSelection ? "0.6" : (isLatest ? "1" : "0.8")}
                   stroke={color}
-                  strokeWidth={isLatest ? "2" : "1"}
+                  strokeWidth={isSelection ? "3" : (isLatest ? "2" : "1")}
+                  strokeDasharray={isSelection ? "4,2" : "none"}
                   aria-label={`${marker.type} by ${marker.label ? `#${marker.label}` : "Opponent"}`}
                 />
                 {marker.label && (

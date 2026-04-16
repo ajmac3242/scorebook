@@ -562,8 +562,9 @@ const Teams: React.FC = () => {
           setOpen(false);
           setShowValidation(false);
         }}
+        aria-labelledby="add-team-dialog-title"
       >
-        <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
+        <DialogTitle id="add-team-dialog-title" sx={{ fontFamily: "var(--serif)" }}>
           Add New Team
         </DialogTitle>
         <DialogContent>
@@ -657,6 +658,32 @@ const Teams: React.FC = () => {
           >
             Primary Color
           </Typography>
+          <Box sx={{ display: "flex", gap: 1, mb: 1, flexWrap: "wrap" }}>
+            {[
+              "#154C56",
+              "#B22222",
+              "#000080",
+              "#006400",
+              "#4B0082",
+              "#DAA520",
+              "#333333",
+            ].map((color) => (
+              <Box
+                key={color}
+                onClick={() => setPrimaryColor(color)}
+                sx={{
+                  width: 28,
+                  height: 28,
+                  borderRadius: "50%",
+                  bgcolor: color,
+                  cursor: "pointer",
+                  border: primaryColor === color ? "3px solid #000" : "1px solid rgba(0,0,0,0.1)",
+                  "&:hover": { transform: "scale(1.1)" },
+                  transition: "transform 0.1s",
+                }}
+              />
+            ))}
+          </Box>
           <input
             id="primary-color-input"
             type="color"
