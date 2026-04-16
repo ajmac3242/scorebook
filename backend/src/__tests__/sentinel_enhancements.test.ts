@@ -130,7 +130,7 @@ describe("Sentinel Security Enhancements Tests", () => {
       const response: any = await handler(event);
       expect(response.statusCode).toBe(400);
       expect(JSON.parse(response.body).message).toContain(
-        "Period must be between 1 and 20",
+        "Period must be an integer between 1 and 20",
       );
     });
 
@@ -144,22 +144,46 @@ describe("Sentinel Security Enhancements Tests", () => {
       const response: any = await handler(event);
       expect(response.statusCode).toBe(400);
       expect(JSON.parse(response.body).message).toContain(
-        "Clock time must be between 0 and 3600 seconds",
+        "Clock time must be an integer between 0 and 3600 seconds",
       );
     });
 
-    it("rejects non-numeric location coordinates", async () => {
+    it("rejects non-integer location coordinates", async () => {
       const event = createEvent("POST", `/games/${gameId}/stats`, {
         type: "MAKE",
         playerId: "277e909a-6536-4d2d-937e-f608759556fa",
         points: 2,
-        locationX: "50",
+        locationX: 50.5,
       });
       const response: any = await handler(event);
       expect(response.statusCode).toBe(400);
       expect(JSON.parse(response.body).message).toContain(
-        "Location coordinates must be numbers",
+        "Location coordinates must be integers",
       );
+    });
+
+    it("rejects 3-digit jersey numbers for opponents", async () => {
+      const event = createEvent("POST", `/games/${gameId}/stats`, {
+        type: "MAKE",
+        playerId: "OPPONENT:123",
+        points: 2,
+      });
+      const response: any = await handler(event);
+      expect(response.statusCode).toBe(400);
+      expect(JSON.parse(response.body).message).toContain(
+        "Valid playerId is required",
+      );
+    });
+  });
+
+  describe("Cleanup Endpoint Hardening", () => {
+    it("rejects extremely long API keys in cleanup request", async () => {
+      process.env.ADMIN_API_KEY = "secret";
+      const event = createEvent("POST", "/cleanup");
+      event.headers = { "x-api-key": "a".repeat(129) };
+      const response: any = await handler(event);
+      expect(response.statusCode).toBe(403);
+      expect(JSON.parse(response.body).message).toContain("Invalid key format");
     });
   });
 

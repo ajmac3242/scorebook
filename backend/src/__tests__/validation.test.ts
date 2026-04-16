@@ -71,7 +71,7 @@ describe("Validation Logic", () => {
         "OUR_TEAM", // Special Constant
         "OPPONENT:23", // Jersey Prefix
         "OPPONENT:0", // Jersey Prefix
-        "OPPONENT:ABC12", // Max length Jersey
+        "OPPONENT:99", // Max length Jersey
       ];
 
       for (const playerId of validIds) {
@@ -92,7 +92,8 @@ describe("Validation Logic", () => {
       const invalidIds = [
         "INVALID_CONSTANT",
         "OPPONENT:", // Missing jersey
-        "OPPONENT:123456", // Too long jersey
+        "OPPONENT:123", // Too long jersey
+        "OPPONENT:ABC", // Non-numeric jersey
         "",
         null,
         123,

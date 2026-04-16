@@ -53,6 +53,7 @@ const REDACTED_HEADERS = new Set([
   "x-api-key",
   "proxy-authorization",
   "x-amz-security-token",
+  "x-amz-access-token",
 ]);
 
 /**
@@ -101,7 +102,7 @@ const UUID_REGEX =
  * @returns {boolean} True if it's a valid UUID string.
  */
 function isValidUuid(id: unknown): id is string {
-  return typeof id === "string" && UUID_REGEX.test(id);
+  return typeof id === "string" && id.length === 36 && UUID_REGEX.test(id);
 }
 
 /**
@@ -125,7 +126,8 @@ function isValidPlayerId(id: unknown): boolean {
   const strId = id as string;
   if (strId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":")) {
     const jersey = strId.split(":")[1];
-    return !!jersey && jersey.length > 0 && jersey.length <= 5;
+    // Basketball jerseys are typically 0-99 or 00-99.
+    return !!jersey && /^\d{1,2}$/.test(jersey);
   }
   return false;
 }
@@ -404,41 +406,42 @@ async function handleGames(
       ) {
         return badRequest("Valid stat type is required");
       }
+      const points = body.points as number | undefined;
       if (
-        body.points !== undefined &&
-        (typeof body.points !== "number" || body.points < 0 || body.points > 3)
+        points !== undefined &&
+        (!Number.isInteger(points) || points < 0 || points > 3)
       ) {
-        return badRequest("Points must be a number between 0 and 3");
+        return badRequest("Points must be an integer between 0 and 3");
       }
       if (!isValidPlayerId(body.playerId)) {
         return badRequest("Valid playerId is required");
       }
+      const period = body.period as number | undefined;
       if (
-        body.period !== undefined &&
-        (typeof body.period !== "number" || body.period < 1 || body.period > 20)
+        period !== undefined &&
+        (!Number.isInteger(period) || period < 1 || period > 20)
       ) {
-        return badRequest("Period must be between 1 and 20");
+        return badRequest("Period must be an integer between 1 and 20");
       }
+      const clockTime = body.clockTime as number | undefined;
       if (
-        body.clockTime !== undefined &&
-        (typeof body.clockTime !== "number" ||
-          body.clockTime < 0 ||
-          body.clockTime > 3600)
-      ) {
-        return badRequest("Clock time must be between 0 and 3600 seconds");
-      }
-      if (
-        (body.locationX !== undefined &&
-          (typeof body.locationX !== "number" ||
-            body.locationX < 0 ||
-            body.locationX > 100)) ||
-        (body.locationY !== undefined &&
-          (typeof body.locationY !== "number" ||
-            body.locationY < 0 ||
-            body.locationY > 100))
+        clockTime !== undefined &&
+        (!Number.isInteger(clockTime) || clockTime < 0 || clockTime > 3600)
       ) {
         return badRequest(
-          "Location coordinates must be numbers between 0 and 100",
+          "Clock time must be an integer between 0 and 3600 seconds",
+        );
+      }
+      const locationX = body.locationX as number | undefined;
+      const locationY = body.locationY as number | undefined;
+      if (
+        (locationX !== undefined &&
+          (!Number.isInteger(locationX) || locationX < 0 || locationX > 100)) ||
+        (locationY !== undefined &&
+          (!Number.isInteger(locationY) || locationY < 0 || locationY > 100))
+      ) {
+        return badRequest(
+          "Location coordinates must be integers between 0 and 100",
         );
       }
 
@@ -750,6 +753,11 @@ async function handleCleanup(
           break;
         }
       }
+    }
+
+    // Protection against DoS via extremely large API keys in headers
+    if (requestApiKey && requestApiKey.length > 128) {
+      return response(403, { message: "Unauthorized: Invalid key format" });
     }
 
     if (
