@@ -9,7 +9,7 @@ import {
   CardHeader,
   CardContent,
   CardFooter,
-  Button
+  Button,
 } from "@heroui/react";
 import { ArrowBack as ArrowBackIcon } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
@@ -17,16 +17,16 @@ import { useNavigate } from "react-router-dom";
 /**
  * Standardized card component using HeroUI.
  */
-export const AppCard: React.FC<React.HTMLAttributes<HTMLDivElement> & { sx?: any }> = ({
+export const AppCard: React.FC<
+  React.HTMLAttributes<HTMLDivElement> & { sx?: any }
+> = ({
   children,
   className = "",
   sx, // Ignored for MUI compatibility during migration
   ...props
 }) => (
   <Card className={`p-2 shadow-md ${className}`} {...props}>
-    <CardContent>
-      {children}
-    </CardContent>
+    <CardContent>{children}</CardContent>
   </Card>
 );
 
@@ -99,11 +99,7 @@ interface StatItemProps {
  * Standardized component for displaying a single numerical statistic with a label.
  */
 export const StatItem: React.FC<StatItemProps> = ({ label, value, light }) => (
-  <div
-    className="text-center"
-    role="img"
-    aria-label={`${label}: ${value}`}
-  >
+  <div className="text-center" role="img" aria-label={`${label}: ${value}`}>
     <span
       className={`text-xs uppercase tracking-wider block ${light ? "text-white/80" : "text-gray-500"}`}
       aria-hidden="true"
@@ -122,10 +118,15 @@ export const StatItem: React.FC<StatItemProps> = ({ label, value, light }) => (
 /**
  * Standardized component for displaying a statistic within a card.
  */
-export const StatCard: React.FC<{ label: string; value: string | number }> = ({ label, value }) => (
+export const StatCard: React.FC<{ label: string; value: string | number }> = ({
+  label,
+  value,
+}) => (
   <Card className="hover:-translate-y-1 transition-transform border border-gray-200">
     <CardContent className="p-4">
-      <span className="text-xs text-gray-500 uppercase tracking-wider">{label}</span>
+      <span className="text-xs text-gray-500 uppercase tracking-wider">
+        {label}
+      </span>
       <h2 className="font-serif text-2xl mt-1 text-gray-900">
         {typeof value === "number" ? <AnimatedNumber value={value} /> : value}
       </h2>

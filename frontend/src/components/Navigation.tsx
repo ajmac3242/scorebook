@@ -5,12 +5,7 @@
  */
 
 import React, { useState, useEffect } from "react";
-import {
-  Navbar,
-  NavbarBrand,
-  NavbarContent,
-  NavbarItem,
-} from "@heroui/navbar";
+import { Navbar, NavbarBrand, NavbarContent, NavbarItem } from "@heroui/navbar";
 import {
   Dashboard as DashboardIcon,
   People as PlayersIcon,
@@ -56,7 +51,11 @@ const Navigation: React.FC = () => {
   ];
 
   return (
-    <Navbar isBordered position="sticky" className="bg-secondary/70 backdrop-blur-md">
+    <Navbar
+      isBordered
+      position="sticky"
+      className="bg-secondary/70 backdrop-blur-md"
+    >
       <NavbarBrand>
         <p className="font-serif font-extrabold text-xl tracking-tight text-primary-900 hidden sm:block">
           Scorebook

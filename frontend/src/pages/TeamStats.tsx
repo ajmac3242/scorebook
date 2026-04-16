@@ -1260,7 +1260,7 @@ const TeamStats: React.FC = () => {
             </Divider>
 
             <Box>
-              <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+              <Box sx={{ display: "flex", gap: 1, mb: 2 }}>
                 <TextField
                   fullWidth
                   size="small"
@@ -1268,7 +1268,7 @@ const TeamStats: React.FC = () => {
                   value={newPlayName}
                   onChange={(e) => setNewPlayName(e.target.value)}
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
+                    if (e.key === "Enter") {
                       e.preventDefault();
                       if (newPlayName.trim()) {
                         setEditPlaybook([...editPlaybook, newPlayName.trim()]);
@@ -1290,7 +1290,7 @@ const TeamStats: React.FC = () => {
                   Add
                 </Button>
               </Box>
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
                 {editPlaybook.map((play, idx) => (
                   <Chip
                     key={idx}
