@@ -707,6 +707,7 @@ function parseBody(body: string | undefined): Record<string, unknown> {
  *
  * WHY: Traditional string comparison (== or ===) returns early when it finds a
  * mismatch, leaking information about how many characters matched via response time.
+ * This can allow an attacker to reconstruct the admin key character-by-character.
  * crypto.timingSafeEqual prevents this by always checking all bytes, but it requires
  * both inputs to have the same length.
  *
@@ -726,6 +727,11 @@ function safeCompare(a: string, b: string): boolean {
 
 /**
  * Handler for cleanup-related endpoints.
+ *
+ * SECURITY: This is a highly privileged endpoint that performs hard deletes
+ * of data. It is protected by a secondary ADMIN_API_KEY check using timing-safe
+ * comparison to prevent unauthorized access and brute-force attacks.
+ *
  * @param {string} method - HTTP method.
  * @param {string} path - Request path.
  * @param {Record<string, unknown>} _body - Parsed JSON body (unused).

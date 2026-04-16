@@ -34,3 +34,8 @@ Pattern: For any utility that processes arrays of events from multiple sources (
 Issue: Complex basketball metrics (TS%, Stops/Kills) and security utilities (safeCompare, stripLocalFields) lacked explicit documentation explaining the "WHY" behind their specific constants or implementation choices.
 Learning: Documenting the specific rationale for statistical constants (like 0.44 for TS%) and security measures (like hashing before timing-safe comparison) preserves critical domain and security knowledge. Adding tests for period transitions and deleted event filtering ensures data integrity in temporal and soft-delete scenarios.
 Pattern: Every domain-specific constant or security-critical utility must have a "WHY" comment. High-impact tests should prioritize data isolation (multi-game), temporal boundaries (periods), and lifecycle states (deletedAt).
+
+## 2026-04-16 - Timing-Safe Security & Memoized Stats Optimization
+Issue: Security-critical timing-safe comparisons lacked explicit documentation of the "WHY" (preventing character reconstruction). Performance optimizations in statistical hot loops (memoized lineup keys, fixed-size buffers) were non-obvious to future maintainers.
+Learning: Linking security measures directly to their threat models (e.g., timing attacks) and documenting the performance gains of specific optimizations (memoization vs. re-calculation) ensures they are not accidentally removed during future refactors.
+Pattern: For any stream-based aggregation, always verify multi-game isolation. If a "streak" or "stint" can span boundaries, ensure the state is explicitly reset when the context ID (gameId) changes.
