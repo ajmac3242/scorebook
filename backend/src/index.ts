@@ -206,19 +206,19 @@ async function handlePlayers(
 
   if (method === "DELETE") {
     const { archive } = event.queryStringParameters || {};
-    if (archive === "true") {
-      await docClient.send(
-        new UpdateCommand({
-          TableName: tableName,
-          Key: playerKey,
-          UpdateExpression: "SET isArchived = :a",
-          ExpressionAttributeValues: { ":a": 1 },
-          ConditionExpression: "attribute_exists(PK)",
-        }),
-      );
-      return ok({ message: "Player archived" });
+    if (archive !== "true") {
+      return await softDeleteItem("PLAYER", "METADATA", playerId, tableName);
     }
-    return await softDeleteItem("PLAYER", "METADATA", playerId, tableName);
+    await docClient.send(
+      new UpdateCommand({
+        TableName: tableName,
+        Key: playerKey,
+        UpdateExpression: "SET isArchived = :a",
+        ExpressionAttributeValues: { ":a": 1 },
+        ConditionExpression: "attribute_exists(PK)",
+      }),
+    );
+    return ok({ message: "Player archived" });
   }
 
   if (method === "PATCH") {
@@ -246,6 +246,68 @@ async function handlePlayers(
       );
       return ok({ message: "Player restored" });
     }
+  }
+
+  return null;
+}
+
+/**
+ * Validates stat data for POST/PUT requests.
+ * @param {Record<string, unknown>} body - Request body.
+ * @returns {APIGatewayProxyResultV2 | null} Error response or null if valid.
+ */
+function validateStatData(
+  body: Record<string, unknown>,
+): APIGatewayProxyResultV2 | null {
+  if (
+    !body?.type ||
+    typeof body.type !== "string" ||
+    !VALID_ACTION_TYPES.has(body.type)
+  ) {
+    return badRequest("Valid stat type is required");
+  }
+
+  const points = body.points as number | undefined;
+  if (
+    points !== undefined &&
+    (!Number.isInteger(points) || points < 0 || points > 3)
+  ) {
+    return badRequest("Points must be an integer between 0 and 3");
+  }
+
+  if (!isValidPlayerId(body.playerId)) {
+    return badRequest("Valid playerId is required");
+  }
+
+  const period = body.period as number | undefined;
+  if (
+    period !== undefined &&
+    (!Number.isInteger(period) || period < 1 || period > 20)
+  ) {
+    return badRequest("Period must be an integer between 1 and 20");
+  }
+
+  const clockTime = body.clockTime as number | undefined;
+  if (
+    clockTime !== undefined &&
+    (!Number.isInteger(clockTime) || clockTime < 0 || clockTime > 3600)
+  ) {
+    return badRequest(
+      "Clock time must be an integer between 0 and 3600 seconds",
+    );
+  }
+
+  const locationX = body.locationX as number | undefined;
+  const locationY = body.locationY as number | undefined;
+  if (
+    (locationX !== undefined &&
+      (!Number.isInteger(locationX) || locationX < 0 || locationX > 100)) ||
+    (locationY !== undefined &&
+      (!Number.isInteger(locationY) || locationY < 0 || locationY > 100))
+  ) {
+    return badRequest(
+      "Location coordinates must be integers between 0 and 100",
+    );
   }
 
   return null;
@@ -304,46 +366,46 @@ async function handleGames(
   }
 
   const gameId = extractIdFromPath(path, "/games/");
-  if (gameId) {
-    if (!isValidUuid(gameId)) {
-      return badRequest("Invalid gameId format (UUID required)");
+  if (gameId && !isValidUuid(gameId)) {
+    return badRequest("Invalid gameId format (UUID required)");
+  }
+
+  if (gameId && method === "DELETE") {
+    const getResp = await docClient.send(
+      new GetCommand({
+        TableName: tableName,
+        Key: { PK: Keys.game(gameId), SK: Keys.metadata(gameId) },
+      }),
+    );
+    const resp = await softDeleteItem("GAME", "METADATA", gameId, tableName);
+    if (resp.statusCode === 200 && getResp.Item) {
+      await snapshotTeamGames(getResp.Item.teamId, tableName);
+      await deleteGameSnapshots(gameId);
     }
-    if (method === "DELETE") {
-      const getResp = await docClient.send(
-        new GetCommand({
-          TableName: tableName,
-          Key: { PK: Keys.game(gameId), SK: Keys.metadata(gameId) },
-        }),
-      );
-      const resp = await softDeleteItem("GAME", "METADATA", gameId, tableName);
-      if (resp.statusCode === 200 && getResp.Item) {
-        await snapshotTeamGames(getResp.Item.teamId, tableName);
-        await deleteGameSnapshots(gameId);
-      }
-      return resp;
+    return resp;
+  }
+
+  if (gameId && method === "PATCH" && body.deletedAt === null) {
+    const gameKey = { PK: Keys.game(gameId), SK: Keys.metadata(gameId) };
+    const getResp = await docClient.send(
+      new GetCommand({
+        TableName: tableName,
+        Key: gameKey,
+      }),
+    );
+    await docClient.send(
+      new UpdateCommand({
+        TableName: tableName,
+        Key: gameKey,
+        UpdateExpression: "REMOVE deletedAt",
+        ConditionExpression: "attribute_exists(PK)",
+      }),
+    );
+    if (getResp.Item) {
+      await snapshotTeamGames(getResp.Item.teamId, tableName);
+      if (getResp.Item.completed) await snapshotGameStats(gameId, tableName);
     }
-    if (method === "PATCH" && body.deletedAt === null) {
-      const gameKey = { PK: Keys.game(gameId), SK: Keys.metadata(gameId) };
-      const getResp = await docClient.send(
-        new GetCommand({
-          TableName: tableName,
-          Key: gameKey,
-        }),
-      );
-      await docClient.send(
-        new UpdateCommand({
-          TableName: tableName,
-          Key: gameKey,
-          UpdateExpression: "REMOVE deletedAt",
-          ConditionExpression: "attribute_exists(PK)",
-        }),
-      );
-      if (getResp.Item) {
-        await snapshotTeamGames(getResp.Item.teamId, tableName);
-        if (getResp.Item.completed) await snapshotGameStats(gameId, tableName);
-      }
-      return ok({ message: "Game restored" });
-    }
+    return ok({ message: "Game restored" });
   }
 
   if (
@@ -399,51 +461,8 @@ async function handleGames(
       return ok(result.Items?.filter((i) => !i.deletedAt) || []);
     }
     if (method === "POST") {
-      if (
-        !body?.type ||
-        typeof body.type !== "string" ||
-        !VALID_ACTION_TYPES.has(body.type)
-      ) {
-        return badRequest("Valid stat type is required");
-      }
-      const points = body.points as number | undefined;
-      if (
-        points !== undefined &&
-        (!Number.isInteger(points) || points < 0 || points > 3)
-      ) {
-        return badRequest("Points must be an integer between 0 and 3");
-      }
-      if (!isValidPlayerId(body.playerId)) {
-        return badRequest("Valid playerId is required");
-      }
-      const period = body.period as number | undefined;
-      if (
-        period !== undefined &&
-        (!Number.isInteger(period) || period < 1 || period > 20)
-      ) {
-        return badRequest("Period must be an integer between 1 and 20");
-      }
-      const clockTime = body.clockTime as number | undefined;
-      if (
-        clockTime !== undefined &&
-        (!Number.isInteger(clockTime) || clockTime < 0 || clockTime > 3600)
-      ) {
-        return badRequest(
-          "Clock time must be an integer between 0 and 3600 seconds",
-        );
-      }
-      const locationX = body.locationX as number | undefined;
-      const locationY = body.locationY as number | undefined;
-      if (
-        (locationX !== undefined &&
-          (!Number.isInteger(locationX) || locationX < 0 || locationX > 100)) ||
-        (locationY !== undefined &&
-          (!Number.isInteger(locationY) || locationY < 0 || locationY > 100))
-      ) {
-        return badRequest(
-          "Location coordinates must be integers between 0 and 100",
-        );
-      }
+      const validationError = validateStatData(body);
+      if (validationError) return validationError;
 
       const id = (body?.id as string) || uuidv4();
       if (!isValidUuid(id)) {
@@ -520,37 +539,35 @@ async function handleTeams(
       );
       if (resp.statusCode !== 201 || !resp.body) return resp;
       const newItem = JSON.parse(resp.body);
-      await snapshotTeamRoster(newItem.id, tableName);
-      await snapshotTeamGames(newItem.id, tableName);
+      await syncTeamSnapshots(newItem.id, tableName);
       return resp;
     }
     return null;
   }
 
   const teamId = extractIdFromPath(path, "/teams/");
-  if (teamId) {
-    if (!isValidUuid(teamId)) {
-      return badRequest("Invalid teamId format (UUID required)");
-    }
-    if (method === "DELETE") {
-      const resp = await softDeleteItem("TEAM", "METADATA", teamId, tableName);
-      if (resp.statusCode === 200) await deleteTeamSnapshots(teamId);
-      return resp;
-    }
-    if (method === "PATCH" && body.deletedAt === null) {
-      const teamKey = { PK: Keys.team(teamId), SK: Keys.metadata(teamId) };
-      await docClient.send(
-        new UpdateCommand({
-          TableName: tableName,
-          Key: teamKey,
-          UpdateExpression: "REMOVE deletedAt",
-          ConditionExpression: "attribute_exists(PK)",
-        }),
-      );
-      await snapshotTeamRoster(teamId, tableName);
-      await snapshotTeamGames(teamId, tableName);
-      return ok({ message: "Team restored" });
-    }
+  if (teamId && !isValidUuid(teamId)) {
+    return badRequest("Invalid teamId format (UUID required)");
+  }
+
+  if (teamId && method === "DELETE") {
+    const resp = await softDeleteItem("TEAM", "METADATA", teamId, tableName);
+    if (resp.statusCode === 200) await deleteTeamSnapshots(teamId);
+    return resp;
+  }
+
+  if (teamId && method === "PATCH" && body.deletedAt === null) {
+    const teamKey = { PK: Keys.team(teamId), SK: Keys.metadata(teamId) };
+    await docClient.send(
+      new UpdateCommand({
+        TableName: tableName,
+        Key: teamKey,
+        UpdateExpression: "REMOVE deletedAt",
+        ConditionExpression: "attribute_exists(PK)",
+      }),
+    );
+    await syncTeamSnapshots(teamId, tableName);
+    return ok({ message: "Team restored" });
   }
 
   if (path.startsWith("/teams/") && path.endsWith("/players")) {
@@ -723,6 +740,21 @@ function safeCompare(a: string, b: string): boolean {
 }
 
 /**
+ * Case-insensitively retrieves the API key from request headers.
+ * @param {APIGatewayProxyEventV2} event - Lambda event.
+ * @returns {string} The API key or empty string.
+ */
+function getApiKey(event: APIGatewayProxyEventV2): string {
+  if (!event.headers) return "";
+  for (const key in event.headers) {
+    if (key.toLowerCase() === "x-api-key") {
+      return event.headers[key] || "";
+    }
+  }
+  return "";
+}
+
+/**
  * Handler for cleanup-related endpoints.
  *
  * SECURITY: This is a highly privileged endpoint that performs hard deletes
@@ -745,15 +777,7 @@ async function handleCleanup(
     const adminApiKey = process.env.ADMIN_API_KEY;
 
     // Case-insensitive retrieval of the API key from headers
-    let requestApiKey = "";
-    if (event.headers) {
-      for (const key in event.headers) {
-        if (key.toLowerCase() === "x-api-key") {
-          requestApiKey = event.headers[key] || "";
-          break;
-        }
-      }
-    }
+    const requestApiKey = getApiKey(event);
 
     // Protection against DoS via extremely large API keys in headers
     if (requestApiKey && requestApiKey.length > 128) {
@@ -774,15 +798,16 @@ async function handleCleanup(
   return null;
 }
 
-export const handler = async (
+/**
+ * Enforces application/json content-type for write requests with a body.
+ * @param {string} method - HTTP method.
+ * @param {APIGatewayProxyEventV2} event - Lambda event.
+ * @returns {APIGatewayProxyResultV2 | null} Error response or null if valid.
+ */
+function validateContentType(
+  method: string,
   event: APIGatewayProxyEventV2,
-): Promise<APIGatewayProxyResultV2> => {
-  logger.info("Event received", maskEvent(event));
-
-  const { method, path } = extractRequestMetadata(event);
-  logger.info("Routing request", { method, path });
-
-  // Enforce Content-Type for write requests with a body
+): APIGatewayProxyResultV2 | null {
   if (["POST", "PUT", "PATCH"].includes(method) && event.body) {
     const contentType =
       event.headers?.["content-type"] || event.headers?.["Content-Type"];
@@ -792,6 +817,20 @@ export const handler = async (
       });
     }
   }
+  return null;
+}
+
+export const handler = async (
+  event: APIGatewayProxyEventV2,
+): Promise<APIGatewayProxyResultV2> => {
+  logger.info("Event received", maskEvent(event));
+
+  const { method, path } = extractRequestMetadata(event);
+  logger.info("Routing request", { method, path });
+
+  // Enforce Content-Type for write requests with a body
+  const contentTypeError = validateContentType(method, event);
+  if (contentTypeError) return contentTypeError;
 
   let body: Record<string, unknown> = {};
   try {
@@ -977,6 +1016,18 @@ async function withDataBucket(
   } catch (e) {
     logError(label, e);
   }
+}
+
+/**
+ * Synchronizes all snapshots for a team (roster and games).
+ * @param {string} teamId - The team ID.
+ * @param {string} tableName - DynamoDB table name.
+ */
+async function syncTeamSnapshots(teamId: string, tableName: string) {
+  await Promise.all([
+    snapshotTeamRoster(teamId, tableName),
+    snapshotTeamGames(teamId, tableName),
+  ]);
 }
 
 /**
