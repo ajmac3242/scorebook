@@ -62,6 +62,10 @@ import {
   TableHead,
   TableRow,
   TableSortLabel,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import BasketballCourt from "../components/BasketballCourt";
 import TimeoutDots from "../components/TimeoutDots";
@@ -2553,7 +2557,7 @@ const GameMode: React.FC = () => {
                   onChange={(e) => setSelectedPlay(e.target.value)}
                 >
                   <MenuItem value=""><em>None</em></MenuItem>
-                  {team.playbook.map((play) => (
+                  {team?.playbook?.map((play) => (
                     <MenuItem key={play} value={play}>{play}</MenuItem>
                   ))}
                 </Select>

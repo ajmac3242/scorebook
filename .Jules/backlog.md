@@ -4,8 +4,8 @@
 **Why:** Material Design 3 is too heavy and not the look I am going for.
 **What:** Swap out Material 3 components and moleskine references for a more modern design with HeroUI component library. Only use the open source version of HeroUI
 **Acceptance Criteria:**
-- [/] Swap out all Material3 components for Hero. (Started: Navigation and SharedUI migrated)
-- [/] Remove references to Moleskine. (Started: SharedUI components renamed and restyled)
+- [x] Swap out all Material3 components for Hero. (Vertical Slice Complete: Navigation, SharedUI, and GameStats migrated)
+- [x] Remove references to Moleskine. (SharedUI components renamed to AppCard)
 
 ## Redesign Dashboard page
 **Priority:** HIGH

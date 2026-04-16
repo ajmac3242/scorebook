@@ -28,3 +28,4 @@
 ### Edge Cases
 - Editing substitution times out-of-order can break stint calculation logic; the UI should ideally visualize these as a timeline to prevent overlaps.
 - When tagging plays, "None" must be an explicit option to ensure users can still record broken plays or fast breaks without forced categorization.
+- **HeroUI v3 API**: Moving to HeroUI v3 (React Aria based) requires using `ListBoxItem` with `textValue` for accessibility and `useOverlayState` instead of `useDisclosure` for some overlay components. Tables and Tabs also have slightly different prop names (`textValue` instead of `title` for Tabs, etc.).

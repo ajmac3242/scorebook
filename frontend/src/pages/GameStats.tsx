@@ -1,1513 +1,651 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
   Box,
   Typography,
   Grid,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   Stack,
-  Tooltip as MuiTooltip,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   useTheme,
   Avatar,
   IconButton,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  Alert,
-  AlertTitle,
-  DialogContentText,
-  TextField,
-  ToggleButton,
-  ToggleButtonGroup,
   useMediaQuery,
 } from "@mui/material";
 import {
-  OpenInFull as ExpandIcon,
   Delete,
-  Restore,
-  Warning,
   Edit as EditIcon,
-  AccessTime,
 } from "@mui/icons-material";
 import {
+  Button,
   Modal,
-  ModalContent,
   ModalHeader,
   ModalBody,
   ModalFooter,
-  useDisclosure,
-  Select as HeroSelect,
-  SelectItem,
-  Input as HeroInput
+  useOverlayState as useDisclosure,
+  Select,
+  ListBoxItem,
+  Input,
+  Table,
+  TableHeader,
+  TableColumn,
+  TableBody,
+  TableRow,
+  TableCell,
+  Chip,
+  Tabs,
+  Tab
 } from "@heroui/react";
-import BasketballCourt from "../components/BasketballCourt";
-import { getShotZone } from "../utils/shotZones";
-import { db } from "../db";
+import { db, Player } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
 import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../constants/stats";
 import {
   calculatePlayerAggregates,
   calculateOpponentAggregates,
   calculateScoreFlow,
+  isOpponentId,
+  isActive,
   calculateLineupStats,
-  calculateStopsAndKills,
-  formatClock,
 } from "../utils/stats";
-import { MoleskineCard } from "../components/SharedUI";
-import EntityBanner from "../components/EntityBanner";
-import { syncService } from "../utils/syncService";
-import { logger } from "../utils/logger";
-import dayjs from "dayjs";
-import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
-import SortableHeader from "../components/SortableHeader";
+import { formatClock } from "../utils/mathUtils";
+import { PageHeader, AppCard, StatItem } from "../components/SharedUI";
 import {
   LineChart,
   Line,
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip as RechartsTooltip,
+  Tooltip,
   ResponsiveContainer,
   Legend,
 } from "recharts";
 
-/**
- * GameStats page component.
- * Displays detailed box score, shot charts, and score flow for a specific game.
- */
 const GameStats: React.FC = () => {
+  const [searchParams] = useSearchParams();
+  const gameId = searchParams.get("gameId");
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const [searchParams] = useSearchParams();
-  const gameId = searchParams.get("gameId") || undefined;
 
-  const [expandedSection, setExpandedSection] = useState<string | null>(null);
-  const [selectedPlayerId, setSelectedPlayerId] = useState<number | string>(
-    "ALL",
-  );
-  const [selectedType, setSelectedType] = useState<string>("ALL");
-  const [selectedPlayFilter, setSelectedPlayFilter] = useState<string>("ALL");
-  const [periodFilter, setPeriodFilter] = useState<string>("ALL");
-  const [shotChartView, setShotChartView] = useState<"markers" | "heatmap">(
-    "markers",
-  );
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [timeLeft, setTimeLeft] = useState("");
+  const [selectedPeriod, setSelectedPeriod] = useState<string>("all");
+  const { isOpen: isDeleteOpen, open: onDeleteOpen, close: onDeleteClose } = useDisclosure();
+  const { isOpen: isEditSubOpen, open: onEditSubOpen, close: onEditSubClose } = useDisclosure();
 
-  const [sortConfig, setSortConfig] = useState<{
-    key: string;
-    direction: "asc" | "desc";
-  }>({ key: "points", direction: "desc" });
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
-  const [openEditDialog, setOpenEditDialog] = useState(false);
-  const { isOpen: isSubModalOpen, onOpen: onSubModalOpen, onClose: onSubModalClose } = useDisclosure();
-  const [editingSub, setEditingSub] = useState<any>(null);
-  const [subEditTime, setSubEditTime] = useState("");
-  const [subEditPlayer, setSubEditPlayer] = useState("");
-  const [isExporting, setIsExporting] = useState(false);
-  const [editOpponent, setEditOpponent] = useState("");
-  const [editDate, setEditDate] = useState("");
-  const [editTime, setEditTime] = useState("");
-  const [editLocation, setEditLocation] = useState("");
-  const [editOpponentLogoUrl, setEditOpponentLogoUrl] = useState("");
+  // Substitution Audit State
+  const [editingSub, setEditingSub] = useState<any | null>(null);
+  const [editSubClock, setEditSubClock] = useState("");
+  const [editSubPlayerId, setEditSubPlayerId] = useState("");
 
-  /**
-   * Updates the column sorting configuration.
-   * @param {string} key - Column key to sort by.
-   */
-  const handleSort = (key: string) => {
-    setSortConfig((prev) => ({
-      key,
-      direction: prev.key === key && prev.direction === "desc" ? "asc" : "desc",
-    }));
-  };
-
-  const game = useLiveQuery(
-    () =>
-      gameId !== undefined
-        ? db.games.get(gameId as string)
-        : Promise.resolve(undefined),
-    [gameId],
-  );
-
+  const game = useLiveQuery(() => (gameId ? db.games.get(gameId) : undefined), [
+    gameId,
+  ]);
   const team = useLiveQuery(
-    () =>
-      game?.teamId ? db.teams.get(game.teamId) : Promise.resolve(undefined),
+    () => (game?.teamId ? db.teams.get(game.teamId) : undefined),
     [game?.teamId],
   );
-
-  const teamPlayersResult = useLiveQuery(
+  const stats = useLiveQuery(
+    () =>
+      gameId
+        ? db.stats
+            .where("gameId")
+            .equals(gameId)
+            .filter(isActive)
+            .toArray()
+        : [],
+    [gameId],
+  );
+  const players = useLiveQuery(
     () =>
       game?.teamId
         ? db.teamPlayers.where("teamId").equals(game.teamId).toArray()
-        : Promise.resolve([]),
+        : [],
     [game?.teamId],
   );
-  const teamPlayers = useMemo(
-    () => teamPlayersResult || [],
-    [teamPlayersResult],
+
+  const filteredStats = useMemo(() => {
+    if (!stats) return [];
+    if (selectedPeriod === "all") return stats;
+    return stats.filter((s) => s.period === parseInt(selectedPeriod));
+  }, [stats, selectedPeriod]);
+
+  const playerStats = useMemo(
+    () => {
+      if (!players || !stats) return [];
+      const mappedPlayers: Player[] = players.map(tp => ({
+        id: tp.playerId,
+        name: tp.name || "Unknown",
+        avatarColor: tp.avatarColor,
+      }));
+      return calculatePlayerAggregates(mappedPlayers, stats);
+    },
+    [players, stats],
   );
 
-  const playersResult = useLiveQuery(async () => {
-    if (!teamPlayers.length) return [];
-    // ⚡ Bolt: Fetch only players rostered on the team to reduce DB overhead.
-    const playerIds = teamPlayers.map((tp) => tp.playerId.toString());
-    return await db.players.where("id").anyOf(playerIds).toArray();
-  }, [teamPlayers]);
-  const players = useMemo(() => playersResult || [], [playersResult]);
+  const teamTotals = useMemo(() => {
+    if (!stats) return { points: 0, rebounds: 0, assists: 0, makes: 0, attempts: 0, fgPct: "0.0" };
+    let points = 0, rebounds = 0, assists = 0, makes = 0, attempts = 0;
+    stats.forEach(s => {
+      if (s.playerId !== SPECIAL_PLAYER_IDS.OPPONENT && !isOpponentId(s.playerId)) {
+        if (s.type === ACTION_TYPES.MAKE) {
+          points += (s.points || 2);
+          makes++;
+          attempts++;
+        } else if (s.type === ACTION_TYPES.MISS) {
+          attempts++;
+        } else if (s.type === ACTION_TYPES.REBOUND || s.type === ACTION_TYPES.OFF_REBOUND || s.type === ACTION_TYPES.DEF_REBOUND) {
+          rebounds++;
+        } else if (s.type === ACTION_TYPES.ASSIST) {
+          assists++;
+        }
+      }
+    });
+    const fgPct = attempts > 0 ? (makes / attempts * 100).toFixed(1) : "0.0";
+    return { points, rebounds, assists, makes, attempts, fgPct };
+  }, [stats]);
 
-  useEffect(() => {
-    if (game) {
-      setEditOpponent(game.opponent || "");
-      setEditDate(game.date || "");
-      setEditTime(game.time || "");
-      setEditLocation(game.location || "");
-      setEditOpponentLogoUrl(game.opponentLogoUrl || "");
-    }
-  }, [game]);
-
-  const allStatsResult = useLiveQuery(
-    () =>
-      gameId !== undefined
-        ? db.stats.where("gameId").equals(gameId).toArray()
-        : Promise.resolve([]),
-    [gameId],
+  const oppData = useMemo(
+    () => (stats ? calculateOpponentAggregates(stats) : null),
+    [stats],
   );
-  const allStats = useMemo(() => allStatsResult || [], [allStatsResult]);
 
-  useEffect(() => {
-    if (game?.deletedAt) {
-      const timer = setInterval(() => {
-        const deleteTime = dayjs(game.deletedAt).add(24, "hour");
-        const diff = deleteTime.diff(dayjs());
-        if (diff <= 0) {
-          setTimeLeft("Deleting now...");
-        } else {
-          const hours = Math.floor(diff / (1000 * 60 * 60));
-          const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-          setTimeLeft(`${hours}h ${mins}m`);
+  const scoreFlowData = useMemo(
+    () => (stats ? calculateScoreFlow(stats) : []),
+    [stats],
+  );
+
+  const lineupStats = useMemo(
+    () => {
+      if (!stats || !players || !game) return [];
+      return calculateLineupStats(stats, { periodLength: game.periodLength || 10 });
+    },
+    [stats, players, game],
+  );
+
+  // Play Efficiency Calculation
+  const playStats = useMemo(() => {
+    if (!stats) return [];
+    const plays: Record<string, { attempts: number; makes: number; points: number }> = {};
+
+    stats.forEach(s => {
+      if (s.playName && (s.type === ACTION_TYPES.MAKE || s.type === ACTION_TYPES.MISS)) {
+        if (!plays[s.playName]) plays[s.playName] = { attempts: 0, makes: 0, points: 0 };
+        plays[s.playName].attempts += 1;
+        if (s.type === ACTION_TYPES.MAKE) {
+          plays[s.playName].makes += 1;
+          plays[s.playName].points += (s.points || 2);
         }
-      }, 1000);
-      return () => clearInterval(timer);
-    }
-  }, [game?.deletedAt]);
-
-  // Filter stats based on the selected period (Quarter/Half)
-  const stats = useMemo(() => {
-    if (periodFilter === "ALL") return allStats;
-    return allStats.filter((s) => s.period === parseInt(periodFilter));
-  }, [allStats, periodFilter]);
-
-  // Optimization: Memoize the sorted statistics used for the score flow chart to avoid redundant sorting.
-  const scoreFlowSortedStats = useMemo(() => {
-    // ⚡ Bolt: Use direct comparison for ISO timestamps instead of localeCompare for hot paths.
-    return [...stats].sort((a, b) => {
-      if (a.timestamp < b.timestamp) return -1;
-      if (a.timestamp > b.timestamp) return 1;
-      return 0;
+      }
     });
-  }, [stats]);
 
-  const aggregatedStats = useMemo(() => {
-    // ⚡ Bolt: Use a single pass with a Set for O(1) roster filtering.
-    // This avoids redundant array allocations and improves performance for large rosters.
-    const teamPlayerIds = new Set<string | number>();
-    for (let i = 0; i < teamPlayers.length; i++) {
-      teamPlayerIds.add(teamPlayers[i].playerId);
-    }
-
-    const rosteredPlayers = [];
-    for (let i = 0; i < players.length; i++) {
-      const p = players[i];
-      if (teamPlayerIds.has(p.id!)) {
-        rosteredPlayers.push(p);
-      }
-    }
-    return calculatePlayerAggregates(
-      rosteredPlayers,
-      scoreFlowSortedStats,
-      teamPlayers,
-      "total",
-      {
-        isSorted: true,
-        periodLength: game?.periodLength,
-        liveContext:
-          game && !game.completed
-            ? {
-                clockTime: game.clockTime || 0,
-                period: game.currentPeriod || 1,
-              }
-            : undefined,
-      },
-    );
-  }, [players, scoreFlowSortedStats, teamPlayers, game]);
-
-  const playerAggregates = useMemo(() => {
-    return [...aggregatedStats].sort((a, b) => {
-      const aValue = a[sortConfig.key as keyof typeof a] as number | string;
-      const bValue = b[sortConfig.key as keyof typeof b] as number | string;
-      if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
-      if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
-      return 0;
-    });
-  }, [aggregatedStats, sortConfig]);
-
-  // Optimization: Pre-calculate jerseyMap to avoid O(P) lookup for every marker in the render loop.
-  const shotChartJerseyMap = useMemo(() => {
-    const map = new Map<string, string>();
-    for (let i = 0; i < teamPlayers.length; i++) {
-      map.set(teamPlayers[i].playerId, teamPlayers[i].jerseyNumber ?? "");
-    }
-    return map;
-  }, [teamPlayers]);
-
-  /**
-   * ⚡ Bolt: Consolidate statistical loops.
-   * Performance: Merge filteredStats and shotChartMarkers into a single optimized pass.
-   */
-  const derivedStats = useMemo(() => {
-    const filtered = [];
-    const markers = [];
-    for (let i = 0; i < stats.length; i++) {
-      const s = stats[i];
-      const playerMatch =
-        selectedPlayerId === "ALL" || s.playerId === selectedPlayerId;
-      const typeMatch = selectedType === "ALL" || s.type === selectedType;
-      const playMatch = selectedPlayFilter === "ALL" || s.playName === selectedPlayFilter;
-      if (playerMatch && typeMatch && playMatch) {
-        filtered.push(s);
-        if (s.type === ACTION_TYPES.MAKE || s.type === ACTION_TYPES.MISS) {
-          markers.push({
-            id: s.id,
-            x: s.locationX || 0,
-            y: s.locationY || 0,
-            type: s.type as "MAKE" | "MISS",
-            label:
-              s.playerId !== SPECIAL_PLAYER_IDS.OPPONENT
-                ? shotChartJerseyMap.get(s.playerId)
-                : undefined,
-            playerId: s.playerId,
-          });
-        }
-      }
-    }
-    return { filtered, markers };
-  }, [stats, selectedPlayerId, selectedType, shotChartJerseyMap]);
-
-  const shotChartMarkers = derivedStats.markers;
-
-  const heatmapData = useMemo(() => {
-    const data: Record<string, { makes: number; attempts: number }> = {};
-    for (let i = 0; i < stats.length; i++) {
-      const s = stats[i];
-      if (s.type !== ACTION_TYPES.MAKE && s.type !== ACTION_TYPES.MISS)
-        continue;
-      if (selectedPlayerId !== "ALL" && s.playerId !== selectedPlayerId)
-        continue;
-      if (selectedPlayFilter !== "ALL" && s.playName !== selectedPlayFilter)
-        continue;
-
-      const zone = getShotZone(s.locationX || 0, s.locationY || 0);
-      if (!data[zone]) data[zone] = { makes: 0, attempts: 0 };
-      data[zone].attempts++;
-      if (s.type === ACTION_TYPES.MAKE) data[zone].makes++;
-    }
-    return data;
-  }, [stats, selectedPlayerId]);
-
-  const scoreFlowData = useMemo(() => {
-    return calculateScoreFlow(scoreFlowSortedStats, game?.periodLength);
-  }, [scoreFlowSortedStats, game?.periodLength]);
-
-  const oppData = useMemo(() => {
-    return calculateOpponentAggregates(stats);
-  }, [stats]);
-
-  const playEfficiency = useMemo(() => {
-    const data: Record<string, { freq: number; points: number; makes: number; attempts: number; threePM: number }> = {};
-    for (let i = 0; i < stats.length; i++) {
-      const s = stats[i];
-      if (!s.playName) continue;
-      if (!data[s.playName]) data[s.playName] = { freq: 0, points: 0, makes: 0, attempts: 0, threePM: 0 };
-
-      if (s.type === ACTION_TYPES.MAKE || s.type === ACTION_TYPES.MISS) {
-        data[s.playName].freq++;
-        if (s.points !== 1) {
-          data[s.playName].attempts++;
-          if (s.type === ACTION_TYPES.MAKE) {
-            data[s.playName].makes++;
-            data[s.playName].points += s.points || 0;
-            if (s.points === 3) data[s.playName].threePM++;
-          }
-        } else {
-           if (s.type === ACTION_TYPES.MAKE) data[s.playName].points += 1;
-        }
-      }
-    }
-    return Object.entries(data).map(([name, d]) => ({
+    return Object.entries(plays).map(([name, data]) => ({
       name,
-      ...d,
-      efg: d.attempts > 0 ? (((d.makes + 0.5 * d.threePM) / d.attempts) * 100).toFixed(1) : "0.0"
+      ...data,
+      fgPct: data.attempts > 0 ? (data.makes / data.attempts * 100).toFixed(1) : "0.0",
+      ppp: data.attempts > 0 ? (data.points / data.attempts).toFixed(2) : "0.00"
     })).sort((a, b) => b.points - a.points);
   }, [stats]);
 
-  const lineupStats = useMemo(() => {
-    return calculateLineupStats(scoreFlowSortedStats, {
-      isSorted: true,
-      periodLength: game?.periodLength,
-      liveContext:
-        game && !game.completed
-          ? { clockTime: game.clockTime || 0, period: game.currentPeriod || 1 }
-          : undefined,
-    });
-  }, [scoreFlowSortedStats, game]);
-
-  const defensiveStats = useMemo(() => {
-    return calculateStopsAndKills(scoreFlowSortedStats);
-  }, [scoreFlowSortedStats]);
-
-  const handleDeleteGame = async () => {
-    if (!gameId || !game) return;
-    try {
-      await db.games.update(game.id!, {
-        deletedAt: new Date().toISOString(),
-        synced: 0,
+  // Substitution Timeline
+  const subTimeline = useMemo(() => {
+    if (!stats) return [];
+    return stats
+      .filter(s => s.type === ACTION_TYPES.SUB_IN || s.type === ACTION_TYPES.SUB_OUT)
+      .sort((a, b) => {
+        if (a.period !== b.period) return a.period - b.period;
+        return (b.clockTime || 0) - (a.clockTime || 0);
       });
-      await syncService.pushUpdates();
-      setDeleteDialogOpen(false);
-    } catch (err) {
-      logger.error("Failed to delete game:", err);
-    }
-  };
+  }, [stats]);
 
-  const handleRestoreGame = async () => {
-    if (!gameId || !game) return;
+  const handleDeleteStat = async () => {
+    if (!deleteId) return;
+    setIsDeleting(true);
     try {
-      await db.games.update(game.id!, { deletedAt: undefined, synced: 0 });
-      await syncService.pushUpdates();
-    } catch (err) {
-      logger.error("Failed to restore game:", err);
+      await db.stats.update(deleteId, { deletedAt: new Date().toISOString() });
+      setDeleteId(null);
+      onDeleteClose();
+    } catch (error) {
+      console.error("Failed to delete stat:", error);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
-  const handleEditSub = (s: any) => {
-    setEditingSub(s);
-    setSubEditTime(s.clockTime?.toString() || "0");
-    setSubEditPlayer(s.playerId);
-    onSubModalOpen();
+  const handleEditSub = (sub: any) => {
+    setEditingSub(sub);
+    setEditSubClock(formatClock(sub.clockTime || 0));
+    setEditSubPlayerId(sub.playerId);
+    onEditSubOpen();
   };
 
-  const handleUpdateSub = async () => {
+  const saveSubEdit = async () => {
     if (!editingSub) return;
+
+    const parts = editSubClock.split(":");
+    let newSeconds = 0;
+    if (parts.length === 2) {
+      newSeconds = parseInt(parts[0]) * 60 + parseInt(parts[1]);
+    } else {
+      newSeconds = parseInt(parts[0]);
+    }
+
     try {
       await db.stats.update(editingSub.id, {
-        clockTime: parseInt(subEditTime),
-        playerId: subEditPlayer,
-        synced: 0
+        clockTime: newSeconds,
+        playerId: editSubPlayerId
       });
-      await syncService.pushUpdates();
-      onSubModalClose();
+      onEditSubClose();
     } catch (err) {
-      logger.error("Failed to update sub:", err);
+      console.error("Failed to update sub:", err);
     }
   };
 
-  const handleUpdateGame = async () => {
-    if (!gameId) return;
-    try {
-      await db.games.update(gameId, {
-        opponent: editOpponent,
-        date: editDate,
-        time: editTime,
-        location: editLocation,
-        opponentLogoUrl: editOpponentLogoUrl,
-        synced: 0,
-      });
-      await syncService.pushUpdates();
-      setOpenEditDialog(false);
-    } catch (err) {
-      logger.error("Failed to update game:", err);
-    }
-  };
+  if (!game) return <Typography p={4}>Loading game data...</Typography>;
 
-  const handleExportPDF = async () => {
-    setIsExporting(true);
-    const element = document.getElementById("game-stats-container");
-    if (!element) return;
-
-    try {
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-      });
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF("p", "mm", "a4");
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-
-      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-      pdf.save(`BoxScore_${team?.name}_vs_${game?.opponent}_${game?.date}.pdf`);
-    } catch (err) {
-      logger.error("Failed to export PDF:", err);
-    } finally {
-      setIsExporting(false);
-    }
-  };
-
-  const periodLabel = team?.periodType === "HALVES" ? "Half" : "Quarter";
-  const maxPeriod = team?.periodType === "HALVES" ? 2 : 4;
-  const periods = useMemo(() => {
-    // ⚡ Bolt: Extract unique OT periods in a single optimized pass.
-    // This replaces a heavy filter/map/Set chain with a simple, high-performance loop.
-    const list = ["ALL"];
-    for (let i = 1; i <= maxPeriod; i++) list.push(i.toString());
-
-    const otPeriodsSet = new Set<number>();
-    for (let i = 0; i < allStats.length; i++) {
-      const p = allStats[i].period;
-      if (p > maxPeriod) otPeriodsSet.add(p);
-    }
-
-    const otPeriods = Array.from(otPeriodsSet).sort((a, b) => a - b);
-    for (let i = 0; i < otPeriods.length; i++) {
-      list.push(otPeriods[i].toString());
-    }
-
-    return list;
-  }, [maxPeriod, allStats]);
-
-  const boxScoreTable = (
-    <TableContainer
-      sx={{
-        mx: { xs: -2, sm: 0 },
-        width: { xs: "calc(100% + 32px)", sm: "100%" },
-      }}
-    >
-      <Table size="small">
-        <TableHead>
-          <TableRow sx={{ bgcolor: "rgba(0,0,0,0.02)" }}>
-            <SortableHeader
-              label="PLAYER"
-              sortKey="name"
-              align="left"
-              sortConfig={sortConfig}
-              onSort={handleSort}
-            />
-            <SortableHeader
-              label="MIN"
-              sortKey="min"
-              sortConfig={sortConfig}
-              onSort={handleSort}
-              tooltip="Minutes Played"
-            />
-            <SortableHeader
-              label="PTS"
-              sortKey="points"
-              sortConfig={sortConfig}
-              onSort={handleSort}
-              tooltip="Points"
-            />
-            <SortableHeader
-              label="FG"
-              sortKey="makes"
-              sortConfig={sortConfig}
-              onSort={handleSort}
-              tooltip="Field Goals Made-Attempted"
-            />
-            <SortableHeader
-              label="FG%"
-              sortKey="fgPct"
-              hideOnMobile
-              sortConfig={sortConfig}
-              onSort={handleSort}
-              tooltip="Field Goal Percentage"
-            />
-            <SortableHeader
-              label="3P%"
-              sortKey="threePct"
-              hideOnMobile
-              sortConfig={sortConfig}
-              onSort={handleSort}
-              tooltip="Three Point Percentage"
-            />
-            <SortableHeader
-              label="FT%"
-              sortKey="ftPct"
-              hideOnMobile
-              sortConfig={sortConfig}
-              onSort={handleSort}
-              tooltip="Free Throw Percentage"
-            />
-            <SortableHeader
-              label="eFG%"
-              sortKey="efgPct"
-              hideOnMobile
-              sortConfig={sortConfig}
-              onSort={handleSort}
-              tooltip="Effective Field Goal Percentage"
-            />
-            <SortableHeader
-              label="OREB"
-              sortKey="offRebounds"
-              hideOnMobile
-              sortConfig={sortConfig}
-              onSort={handleSort}
-              tooltip="Offensive Rebounds"
-            />
-            <SortableHeader
-              label="DREB"
-              sortKey="defRebounds"
-              hideOnMobile
-              sortConfig={sortConfig}
-              onSort={handleSort}
-              tooltip="Defensive Rebounds"
-            />
-            <SortableHeader
-              label="REB"
-              sortKey="rebounds"
-              sortConfig={sortConfig}
-              onSort={handleSort}
-              tooltip="Total Rebounds"
-            />
-            <SortableHeader
-              label="AST"
-              sortKey="assists"
-              sortConfig={sortConfig}
-              onSort={handleSort}
-              tooltip="Assists"
-            />
-            <SortableHeader
-              label="STL"
-              sortKey="steals"
-              hideOnMobile
-              sortConfig={sortConfig}
-              onSort={handleSort}
-              tooltip="Steals"
-            />
-            <SortableHeader
-              label="BLK"
-              sortKey="blocks"
-              hideOnMobile
-              sortConfig={sortConfig}
-              onSort={handleSort}
-              tooltip="Blocks"
-            />
-            <SortableHeader
-              label="TO"
-              sortKey="turnovers"
-              hideOnMobile
-              sortConfig={sortConfig}
-              onSort={handleSort}
-              tooltip="Turnovers"
-            />
-            <SortableHeader
-              label="PF"
-              sortKey="fouls"
-              sortConfig={sortConfig}
-              onSort={handleSort}
-              tooltip="Personal Fouls"
-            />
-            <SortableHeader
-              label="+/-"
-              sortKey="plusMinus"
-              sortConfig={sortConfig}
-              onSort={handleSort}
-              tooltip="Plus/Minus"
-            />
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {playerAggregates.map((row) => (
-            <TableRow key={row.id}>
-              <TableCell
-                sx={{
-                  fontWeight: 600,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1,
-                }}
-              >
-                <Avatar
-                  sx={{
-                    width: 24,
-                    height: 24,
-                    fontSize: "0.75rem",
-                    bgcolor: row.avatarColor,
-                  }}
-                >
-                  {row.jerseyNumber}
-                </Avatar>
-                <Typography
-                  variant="body2"
-                  sx={{
-                    fontWeight: 600,
-                    fontSize: { xs: "0.75rem", sm: "0.875rem" },
-                  }}
-                >
-                  {row.name}
-                </Typography>
-              </TableCell>
-              <TableCell align="right">{row.min}</TableCell>
-              <TableCell align="right">{row.points}</TableCell>
-              <TableCell align="right">
-                {row.makes}-{row.attempts}
-              </TableCell>
-              <TableCell
-                align="right"
-                sx={{ display: { xs: "none", sm: "table-cell" } }}
-              >
-                {row.fgPct}%
-              </TableCell>
-              <TableCell
-                align="right"
-                sx={{ display: { xs: "none", sm: "table-cell" } }}
-              >
-                {row.threePct}%
-              </TableCell>
-              <TableCell
-                align="right"
-                sx={{ display: { xs: "none", sm: "table-cell" } }}
-              >
-                {row.ftPct}%
-              </TableCell>
-              <TableCell
-                align="right"
-                sx={{ display: { xs: "none", sm: "table-cell" } }}
-              >
-                {row.efgPct}%
-              </TableCell>
-              <TableCell
-                align="right"
-                sx={{ display: { xs: "none", sm: "table-cell" } }}
-              >
-                {row.offRebounds}
-              </TableCell>
-              <TableCell
-                align="right"
-                sx={{ display: { xs: "none", sm: "table-cell" } }}
-              >
-                {row.defRebounds}
-              </TableCell>
-              <TableCell align="right">{row.rebounds}</TableCell>
-              <TableCell align="right">{row.assists}</TableCell>
-              <TableCell
-                align="right"
-                sx={{ display: { xs: "none", sm: "table-cell" } }}
-              >
-                {row.steals}
-              </TableCell>
-              <TableCell
-                align="right"
-                sx={{ display: { xs: "none", sm: "table-cell" } }}
-              >
-                {row.blocks}
-              </TableCell>
-              <TableCell
-                align="right"
-                sx={{ display: { xs: "none", sm: "table-cell" } }}
-              >
-                {row.turnovers}
-              </TableCell>
-              <TableCell align="right">{row.fouls}</TableCell>
-              <TableCell align="right">
-                {row.plusMinus > 0 ? `+${row.plusMinus}` : row.plusMinus}
-              </TableCell>
-            </TableRow>
-          ))}
-          <TableRow sx={{ bgcolor: "secondary.light" }}>
-            <TableCell sx={{ fontWeight: 700 }}>OPPONENT</TableCell>
-            <TableCell align="right">-</TableCell>
-            <TableCell align="right">{oppData.points}</TableCell>
-            <TableCell align="right">
-              {oppData.makes}-{oppData.attempts}
-            </TableCell>
-            <TableCell
-              align="right"
-              sx={{ display: { xs: "none", sm: "table-cell" } }}
-            >
-              {oppData.fgPct}%
-            </TableCell>
-            <TableCell
-              align="right"
-              sx={{ display: { xs: "none", sm: "table-cell" } }}
-            >
-              -
-            </TableCell>
-            <TableCell
-              align="right"
-              sx={{ display: { xs: "none", sm: "table-cell" } }}
-            >
-              -
-            </TableCell>
-            <TableCell
-              align="right"
-              sx={{ display: { xs: "none", sm: "table-cell" } }}
-            >
-              -
-            </TableCell>
-            <TableCell
-              align="right"
-              sx={{ display: { xs: "none", sm: "table-cell" } }}
-            >
-              {oppData.offRebounds}
-            </TableCell>
-            <TableCell
-              align="right"
-              sx={{ display: { xs: "none", sm: "table-cell" } }}
-            >
-              {oppData.defRebounds}
-            </TableCell>
-            <TableCell align="right">{oppData.rebounds}</TableCell>
-            <TableCell align="right">{oppData.assists}</TableCell>
-            <TableCell
-              align="right"
-              sx={{ display: { xs: "none", sm: "table-cell" } }}
-            >
-              {oppData.steals}
-            </TableCell>
-            <TableCell
-              align="right"
-              sx={{ display: { xs: "none", sm: "table-cell" } }}
-            >
-              {oppData.blocks}
-            </TableCell>
-            <TableCell
-              align="right"
-              sx={{ display: { xs: "none", sm: "table-cell" } }}
-            >
-              {oppData.turnovers}
-            </TableCell>
-            <TableCell align="right">{oppData.fouls}</TableCell>
-            <TableCell align="right">-</TableCell>
-          </TableRow>
-        </TableBody>
-      </Table>
-    </TableContainer>
-  );
-
-  const shotChartFilters = (
-    <Box sx={{ mb: 2 }}>
-      <Stack
-        direction="row"
-        justifyContent="space-between"
-        alignItems="center"
-        mb={1}
-      >
-        <Typography variant="subtitle2">Filters</Typography>
-        <ToggleButtonGroup
-          value={shotChartView}
-          exclusive
-          onChange={(_, val) => val && setShotChartView(val)}
-          size="small"
-        >
-          <ToggleButton value="markers">Markers</ToggleButton>
-          <ToggleButton value="heatmap">Heatmap</ToggleButton>
-        </ToggleButtonGroup>
-      </Stack>
-      <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
-        {team?.playbook && team.playbook.length > 0 && (
-          <FormControl fullWidth size="small">
-            <InputLabel>Play</InputLabel>
-            <Select
-              value={selectedPlayFilter}
-              label="Play"
-              onChange={(e) => setSelectedPlayFilter(e.target.value)}
-            >
-              <MenuItem value="ALL">All Plays</MenuItem>
-              {team.playbook.map((play) => (
-                <MenuItem key={play} value={play}>{play}</MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        )}
-        <FormControl fullWidth size="small">
-          <InputLabel>Player</InputLabel>
-          <Select
-            value={selectedPlayerId}
-            label="Player"
-            onChange={(e) => setSelectedPlayerId(e.target.value)}
-          >
-            <MenuItem value="ALL">All Players</MenuItem>
-            {players.map((p) => (
-              <MenuItem key={p.id} value={p.id}>
-                {p.name}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <FormControl fullWidth size="small">
-          <InputLabel>Type</InputLabel>
-          <Select
-            value={selectedType}
-            label="Type"
-            onChange={(e) => setSelectedType(e.target.value)}
-          >
-            <MenuItem value="ALL">All Shots</MenuItem>
-            <MenuItem value={ACTION_TYPES.MAKE}>Makes</MenuItem>
-            <MenuItem value={ACTION_TYPES.MISS}>Misses</MenuItem>
-          </Select>
-        </FormControl>
-      </Stack>
-    </Box>
-  );
-
-  const shotChartCourt = (
-    <BasketballCourt
-      markers={shotChartView === "markers" ? shotChartMarkers : []}
-      heatmapData={shotChartView === "heatmap" ? heatmapData : undefined}
-      onMarkerClick={(m) => setSelectedPlayerId(m.playerId || "ALL")}
-    />
-  );
-
-  const scoreFlowChart = (
-    <ResponsiveContainer width="100%" height="100%">
-      <LineChart data={scoreFlowData}>
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="time" />
-        <YAxis />
-        <RechartsTooltip />
-        <Legend />
-        <Line
-          type="stepAfter"
-          dataKey="Team"
-          stroke={theme.palette.primary.main}
-          strokeWidth={3}
-          dot={false}
-        />
-        <Line
-          type="stepAfter"
-          dataKey="Opponent"
-          stroke={theme.palette.secondary.main}
-          strokeWidth={3}
-          dot={false}
-        />
-      </LineChart>
-    </ResponsiveContainer>
-  );
-
-  const substitutionTimeline = (
-    <TableContainer component={Box}>
-      <Table size="small">
-        <TableHead>
-          <TableRow sx={{ bgcolor: "rgba(0,0,0,0.02)" }}>
-            <TableCell sx={{ fontWeight: 700 }}>Time</TableCell>
-            <TableCell sx={{ fontWeight: 700 }}>Action</TableCell>
-            <TableCell sx={{ fontWeight: 700 }}>Player</TableCell>
-            <TableCell align="right" sx={{ fontWeight: 700 }}>Actions</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {allStats
-            .filter(s => s.type === ACTION_TYPES.SUB_IN || s.type === ACTION_TYPES.SUB_OUT)
-            .sort((a, b) => {
-               if (a.period !== b.period) return (a.period || 1) - (b.period || 1);
-               return (b.clockTime || 0) - (a.clockTime || 0);
-            })
-            .map((s) => {
-              const p = players.find(player => player.id === s.playerId);
-              return (
-                <TableRow key={s.id}>
-                  <TableCell>
-                    {periodLabel} {s.period} | {formatClock(s.clockTime || 0)}
-                  </TableCell>
-                  <TableCell>
-                    <Chip
-                      label={s.type === ACTION_TYPES.SUB_IN ? "IN" : "OUT"}
-                      size="small"
-                      color={s.type === ACTION_TYPES.SUB_IN ? "success" : "warning"}
-                      variant="outlined"
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Stack direction="row" spacing={1} alignItems="center">
-                      <Avatar sx={{ width: 24, height: 24, fontSize: '0.75rem', bgcolor: p?.avatarColor }}>
-                        {shotChartJerseyMap.get(s.playerId) || "??"}
-                      </Avatar>
-                      <Typography variant="body2">{p?.name || "Unknown"}</Typography>
-                    </Stack>
-                  </TableCell>
-                  <TableCell align="right">
-                    <IconButton size="small" onClick={() => handleEditSub(s)}>
-                      <EditIcon fontSize="small" />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-        </TableBody>
-      </Table>
-    </TableContainer>
-  );
-
-  const playEfficiencyTable = (
-    <TableContainer component={Box}>
-      <Table size="small">
-        <TableHead>
-          <TableRow sx={{ bgcolor: "rgba(0,0,0,0.02)" }}>
-            <TableCell sx={{ fontWeight: 700 }}>Play Name</TableCell>
-            <TableCell align="right" sx={{ fontWeight: 700 }}>Freq</TableCell>
-            <TableCell align="right" sx={{ fontWeight: 700 }}>Points</TableCell>
-            <TableCell align="right" sx={{ fontWeight: 700 }}>eFG%</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {playEfficiency.map((row) => (
-            <TableRow key={row.name}>
-              <TableCell sx={{ fontWeight: 600 }}>{row.name}</TableCell>
-              <TableCell align="right">{row.freq}</TableCell>
-              <TableCell align="right">{row.points}</TableCell>
-              <TableCell align="right">{row.efg}%</TableCell>
-            </TableRow>
-          ))}
-          {playEfficiency.length === 0 && (
-            <TableRow>
-              <TableCell colSpan={4} align="center" sx={{ py: 3, color: 'text.secondary' }}>
-                No play-tagged events found for this period.
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
-    </TableContainer>
-  );
-
-  const lineupTable = (
-    <TableContainer component={Box}>
-      <Table size="small">
-        <TableHead>
-          <TableRow sx={{ bgcolor: "rgba(0,0,0,0.02)" }}>
-            <TableCell sx={{ fontWeight: 700 }}>Lineup</TableCell>
-            <TableCell align="right" sx={{ fontWeight: 700 }}>
-              MIN
-            </TableCell>
-            <TableCell align="right" sx={{ fontWeight: 700 }}>
-              PTS FOR
-            </TableCell>
-            <TableCell align="right" sx={{ fontWeight: 700 }}>
-              PTS AGN
-            </TableCell>
-            <TableCell align="right" sx={{ fontWeight: 700 }}>
-              +/-
-            </TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {lineupStats.map((row, idx) => (
-            <TableRow key={idx}>
-              <TableCell>
-                <Stack direction="row" spacing={0.5}>
-                  {row.lineup.map((pId) => (
-                    <Avatar
-                      key={pId}
-                      sx={{ width: 24, height: 24, fontSize: "0.65rem" }}
-                    >
-                      {shotChartJerseyMap.get(pId) || "??"}
-                    </Avatar>
-                  ))}
-                </Stack>
-              </TableCell>
-              <TableCell align="right">
-                {(row.seconds / 60).toFixed(1)}
-              </TableCell>
-              <TableCell align="right">{row.pointsFor}</TableCell>
-              <TableCell align="right">{row.pointsAgainst}</TableCell>
-              <TableCell align="right" sx={{ fontWeight: 700 }}>
-                {row.netRating > 0 ? `+${row.netRating}` : row.netRating}
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
-  );
-
-  const isDeleted = !!game?.deletedAt || !!team?.deletedAt;
+  const periods = game.periodType === "QUARTERS" ? [1, 2, 3, 4] : [1, 2];
 
   return (
-    <Box
-      id="game-stats-container"
-      sx={{ pb: 4, opacity: isDeleted ? 0.7 : 1, bgcolor: "white" }}
-    >
-      <EntityBanner
-        title={game?.opponent ? `vs ${game.opponent}` : "Game Stats"}
-        subtitle={`${game?.date ? dayjs(game.date).format("MM-DD-YYYY") : ""} ${game?.time || ""} | ${game?.location || ""}`}
-        avatarSrc={game?.opponentLogoUrl}
-        avatarColor="rgba(255,255,255,0.1)"
-        backTo={game?.teamId ? `/teams/${game.teamId}` : "/teams"}
-        primaryColor={team?.primaryColor}
-        actions={
-          <Stack direction="row" spacing={1} alignItems="center">
-            {!isDeleted && (
-              <Button
-                variant="contained"
-                size="small"
-                onClick={handleExportPDF}
-                disabled={isExporting}
-                sx={{ bgcolor: "rgba(255,255,255,0.2)", color: "white" }}
-              >
-                {isExporting ? "Exporting..." : "Export PDF"}
-              </Button>
-            )}
-            {!isDeleted ? (
-              <IconButton
-                onClick={() => setOpenEditDialog(true)}
-                sx={{
-                  color: "white",
-                  bgcolor: "rgba(255,255,255,0.1)",
-                  "&:hover": {
-                    bgcolor: "rgba(255,255,255,0.2)",
-                    transform: "scale(1.1)",
-                  },
-                }}
-              >
-                <EditIcon />
-              </IconButton>
-            ) : game?.deletedAt && !team?.deletedAt ? (
-              <Button
-                startIcon={<Restore />}
-                variant="contained"
-                color="success"
-                onClick={handleRestoreGame}
-              >
-                Restore Game
-              </Button>
-            ) : null}
-          </Stack>
-        }
+    <Box sx={{ pb: 8 }}>
+      <PageHeader
+        title={`vs ${game.opponent}`}
+        subtitle={`${game.date} @ ${game.location}`}
+        showBack
+        backTo={`/teams/detail?teamId=${game.teamId}`}
       />
 
-      {isDeleted && (
-        <Alert severity="warning" icon={<Warning />} sx={{ mb: 4, mt: 3 }}>
-          <AlertTitle>Read Only Mode</AlertTitle>
-          {game?.deletedAt
-            ? `This game is scheduled for deletion in ${timeLeft}.`
-            : "The associated team is pending deletion."}
-        </Alert>
-      )}
-
-      <Box
-        sx={{
-          mb: 4,
-          mt: 3,
-        }}
-      >
-        <ToggleButtonGroup
-          value={periodFilter}
-          exclusive
-          onChange={(_, val) => val && setPeriodFilter(val)}
-          size="small"
-          fullWidth={Boolean(isMobile)}
-        >
-          {periods.map((p) => (
-            <ToggleButton key={p} value={p}>
-              {p === "ALL" ? "Full Game" : `${periodLabel} ${p}`}
-            </ToggleButton>
-          ))}
-        </ToggleButtonGroup>
-      </Box>
-
-      <Grid container spacing={3}>
-        {/* Defensive Metrics Card */}
-        <Grid item xs={12}>
-          <MoleskineCard>
-            <Typography variant="h6" sx={{ fontFamily: "var(--serif)", mb: 2 }}>
-              Defensive Metrics
-            </Typography>
-            <Grid container spacing={4}>
-              <Grid item xs={4}>
-                <Box sx={{ textAlign: "center" }}>
-                  <Typography
-                    variant="h4"
-                    color="primary"
-                    sx={{ fontWeight: 700 }}
-                  >
-                    {defensiveStats.totalStops}
+      <Box sx={{ px: { xs: 2, sm: 4 } }}>
+        <Grid container spacing={3}>
+          {/* Main Scoreboard */}
+          <Grid item xs={12}>
+            <AppCard className="bg-primary text-white overflow-hidden border-none">
+              <Grid container alignItems="center" spacing={2}>
+                <Grid item xs={5} textAlign="center">
+                  <Typography variant="overline" sx={{ opacity: 0.8 }}>
+                    {team?.name || "OUR TEAM"}
                   </Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    TOTAL STOPS
+                  <Typography variant="h2" fontWeight="900">
+                    {teamTotals.points}
                   </Typography>
-                </Box>
+                </Grid>
+                <Grid item xs={2} textAlign="center">
+                  <Typography variant="h4" fontWeight="300" sx={{ opacity: 0.5 }}>
+                    VS
+                  </Typography>
+                </Grid>
+                <Grid item xs={5} textAlign="center">
+                  <Typography variant="overline" sx={{ opacity: 0.8 }}>
+                    {game.opponent}
+                  </Typography>
+                  <Typography variant="h2" fontWeight="900">
+                    {oppData?.points || 0}
+                  </Typography>
+                </Grid>
               </Grid>
-              <Grid item xs={4}>
-                <Box sx={{ textAlign: "center" }}>
-                  <Typography
-                    variant="h4"
-                    color="secondary"
-                    sx={{ fontWeight: 700 }}
-                  >
-                    {defensiveStats.totalKills}
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    KILLS (3x STOPS)
-                  </Typography>
-                </Box>
+            </AppCard>
+          </Grid>
+
+          {/* Quick Stats Grid */}
+          <Grid item xs={12}>
+            <Grid container spacing={2}>
+              <Grid item xs={6} sm={3}>
+                <AppCard>
+                  <StatItem label="Team FG%" value={`${teamTotals.fgPct}%`} />
+                </AppCard>
               </Grid>
-              <Grid item xs={4}>
-                <Box sx={{ textAlign: "center" }}>
-                  <Typography variant="h4" sx={{ fontWeight: 700 }}>
-                    {defensiveStats.currentStreak}
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    CURRENT STOP STREAK
-                  </Typography>
-                </Box>
+              <Grid item xs={6} sm={3}>
+                <AppCard>
+                  <StatItem label="Opp FG%" value={`${oppData?.fgPct || 0}%`} />
+                </AppCard>
+              </Grid>
+              <Grid item xs={6} sm={3}>
+                <AppCard>
+                  <StatItem label="Total REB" value={teamTotals.rebounds} />
+                </AppCard>
+              </Grid>
+              <Grid item xs={6} sm={3}>
+                <AppCard>
+                  <StatItem label="Total AST" value={teamTotals.assists} />
+                </AppCard>
               </Grid>
             </Grid>
-          </MoleskineCard>
-        </Grid>
+          </Grid>
 
-        {/* Box Score Card */}
-        <Grid item xs={12}>
-          <MoleskineCard>
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                mb: 2,
-              }}
-            >
-              <Typography variant="h6" sx={{ fontFamily: "var(--serif)" }}>
-                Box Score{" "}
-                {periodFilter !== "ALL" && `(${periodLabel} ${periodFilter})`}
+          {/* Scoring Flow Chart */}
+          <Grid item xs={12} md={8}>
+            <AppCard>
+              <Typography variant="h6" gutterBottom sx={{ fontFamily: "var(--serif)" }}>
+                Scoring Flow
               </Typography>
-              <IconButton
-                onClick={() => setExpandedSection("boxScore")}
-                aria-label="Expand Box Score section"
-              >
-                <ExpandIcon />
-              </IconButton>
-            </Box>
-            {boxScoreTable}
-          </MoleskineCard>
-        </Grid>
+              <Box sx={{ height: 300, mt: 2 }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={scoreFlowData}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                    <XAxis
+                      dataKey="time"
+                      label={{ value: "Game Time", position: "insideBottom", offset: -5 }}
+                    />
+                    <YAxis label={{ value: "Points", angle: -90, position: "insideLeft" }} />
+                    <Tooltip />
+                    <Legend verticalAlign="top" height={36}/>
+                    <Line
+                      type="stepAfter"
+                      dataKey="teamScore"
+                      name={team?.name || "Our Team"}
+                      stroke={theme.palette.primary.main}
+                      strokeWidth={3}
+                      dot={false}
+                    />
+                    <Line
+                      type="stepAfter"
+                      dataKey="oppScore"
+                      name={game.opponent}
+                      stroke={theme.palette.secondary.main}
+                      strokeWidth={3}
+                      dot={false}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </Box>
+            </AppCard>
+          </Grid>
 
-        {/* Shot Chart Card */}
-        <Grid item xs={12} md={6}>
-          <MoleskineCard>
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                mb: 2,
-              }}
-            >
-              <Typography variant="h6" sx={{ fontFamily: "var(--serif)" }}>
-                Shot Chart{" "}
-                {periodFilter !== "ALL" && `(${periodLabel} ${periodFilter})`}
-              </Typography>
-              <IconButton
-                onClick={() => setExpandedSection("shotChart")}
-                aria-label="Expand Shot Chart section"
-              >
-                <ExpandIcon />
-              </IconButton>
-            </Box>
-            {shotChartFilters}
-            <Box sx={{ p: 1 }}>{shotChartCourt}</Box>
-          </MoleskineCard>
-        </Grid>
-
-        {/* Score Flow Card */}
-        <Grid item xs={12} md={6}>
-          <MoleskineCard>
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                mb: 2,
-              }}
-            >
-              <Typography variant="h6" sx={{ fontFamily: "var(--serif)" }}>
-                Score Flow{" "}
-                {periodFilter !== "ALL" && `(${periodLabel} ${periodFilter})`}
-              </Typography>
-              <IconButton
-                onClick={() => setExpandedSection("scoreFlow")}
-                aria-label="Expand Score Flow section"
-              >
-                <ExpandIcon />
-              </IconButton>
-            </Box>
-            <Box sx={{ height: 400 }}>{scoreFlowChart}</Box>
-          </MoleskineCard>
-        </Grid>
-
-        {/* Play Efficiency Card */}
-        <Grid item xs={12}>
-          <MoleskineCard>
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                mb: 2,
-              }}
-            >
-              <Typography variant="h6" sx={{ fontFamily: "var(--serif)" }}>
+          {/* Play Efficiency */}
+          <Grid item xs={12} md={4}>
+            <AppCard>
+              <Typography variant="h6" gutterBottom sx={{ fontFamily: "var(--serif)" }}>
                 Play Efficiency
               </Typography>
-              <IconButton
-                onClick={() => setExpandedSection("playEfficiency")}
-                aria-label="Expand Play Efficiency section"
-              >
-                <ExpandIcon />
-              </IconButton>
-            </Box>
-            {playEfficiencyTable}
-          </MoleskineCard>
-        </Grid>
-
-        {/* Lineups Card */}
-        <Grid item xs={12} md={6}>
-          <MoleskineCard>
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                mb: 2,
-              }}
-            >
-              <Typography variant="h6" sx={{ fontFamily: "var(--serif)" }}>
-                Lineup Efficiency
-              </Typography>
-              <IconButton
-                onClick={() => setExpandedSection("lineups")}
-                aria-label="Expand Lineup Efficiency section"
-              >
-                <ExpandIcon />
-              </IconButton>
-            </Box>
-            {lineupTable}
-          </MoleskineCard>
-        </Grid>
-
-        {/* Substitution Timeline Card */}
-        <Grid item xs={12} md={6}>
-          <MoleskineCard>
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                mb: 2,
-              }}
-            >
-              <Typography variant="h6" sx={{ fontFamily: "var(--serif)" }}>
-                Substitution Timeline
-              </Typography>
-              <IconButton
-                onClick={() => setExpandedSection("timeline")}
-                aria-label="Expand Substitution Timeline section"
-              >
-                <ExpandIcon />
-              </IconButton>
-            </Box>
-            {substitutionTimeline}
-          </MoleskineCard>
-        </Grid>
-      </Grid>
-
-      {/* Expanded Section Dialog */}
-      <Dialog
-        fullWidth
-        maxWidth="lg"
-        open={expandedSection !== null}
-        onClose={() => setExpandedSection(null)}
-      >
-        <DialogTitle
-          sx={{
-            fontFamily: "var(--serif)",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          {expandedSection === "boxScore" && "Box Score"}
-          {expandedSection === "shotChart" && "Shot Chart"}
-          {expandedSection === "scoreFlow" && "Score Flow"}
-          {expandedSection === "lineups" && "Lineup Efficiency"}
-          <IconButton
-            onClick={() => setExpandedSection(null)}
-            aria-label="Collapse section"
-          >
-            <ExpandIcon sx={{ transform: "rotate(180deg)" }} />
-          </IconButton>
-        </DialogTitle>
-        <DialogContent>
-          {expandedSection === "boxScore" && boxScoreTable}
-          {expandedSection === "shotChart" && (
-            <>
-              {shotChartFilters}
-              <Box sx={{ p: 1, maxWidth: 800, mx: "auto" }}>
-                {shotChartCourt}
-              </Box>
-            </>
-          )}
-          {expandedSection === "scoreFlow" && (
-            <Box sx={{ height: 500 }}>{scoreFlowChart}</Box>
-          )}
-          {expandedSection === "lineups" && lineupTable}
-          {expandedSection === "timeline" && substitutionTimeline}
-          {expandedSection === "playEfficiency" && playEfficiencyTable}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setExpandedSection(null)}>Close</Button>
-        </DialogActions>
-      </Dialog>
-
-      <Modal isOpen={isSubModalOpen} onClose={onSubModalClose}>
-        <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader className="flex flex-col gap-1 font-serif">Edit Substitution</ModalHeader>
-              <ModalBody>
-                <div className="flex flex-col gap-4">
-                  <HeroInput
-                    label="Clock Time (Seconds)"
-                    placeholder="Enter seconds remaining"
-                    type="number"
-                    value={subEditTime}
-                    onValueChange={setSubEditTime}
-                    startContent={<AccessTime className="text-default-400" />}
-                  />
-                  <HeroSelect
-                    label="Player"
-                    placeholder="Select a player"
-                    selectedKeys={[subEditPlayer]}
-                    onChange={(e) => setSubEditPlayer(e.target.value)}
-                  >
-                    {players.map((p) => (
-                      <SelectItem key={p.id || ""} textValue={p.name}>
-                        <div className="flex gap-2 items-center">
-                          <Avatar sx={{ width: 20, height: 20, fontSize: '0.6rem' }}>{shotChartJerseyMap.get(p.id!) || "??"}</Avatar>
-                          <span>{p.name}</span>
-                        </div>
-                      </SelectItem>
+              {playStats.length > 0 ? (
+                <Table aria-label="Play efficiency table">
+                  <TableHeader>
+                    <TableColumn>SET/PLAY</TableColumn>
+                    <TableColumn>FG%</TableColumn>
+                    <TableColumn>PPP</TableColumn>
+                  </TableHeader>
+                  <TableBody>
+                    {playStats.map((play) => (
+                      <TableRow key={play.name}>
+                        <TableCell className="font-bold">{play.name}</TableCell>
+                        <TableCell>{play.fgPct}%</TableCell>
+                        <TableCell>
+                          <Chip
+                            variant="soft"
+                          >
+                            {play.ppp}
+                          </Chip>
+                        </TableCell>
+                      </TableRow>
                     ))}
-                  </HeroSelect>
-                </div>
-              </ModalBody>
-              <ModalFooter>
-                <Button color="danger" variant="light" onPress={onClose}>
-                  Cancel
-                </Button>
-                <Button color="primary" onPress={handleUpdateSub}>
-                  Save Changes
-                </Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
+                  </TableBody>
+                </Table>
+              ) : (
+                <Box sx={{ py: 4, textAlign: "center", color: "text.secondary" }}>
+                  No tagged plays recorded for this game.
+                </Box>
+              )}
+            </AppCard>
+          </Grid>
+
+          {/* Box Score */}
+          <Grid item xs={12}>
+            <AppCard>
+              <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+                <Typography variant="h6" sx={{ fontFamily: "var(--serif)" }}>
+                  Player Performance
+                </Typography>
+                <Tabs
+                  selectedKey={selectedPeriod}
+                  onSelectionChange={(key) => setSelectedPeriod(key as string)}
+                >
+                  <Tab key="all">
+                    <></>
+                  </Tab>
+                  {periods.map((p) => (
+                    <Tab key={p.toString()}>
+                      <></>
+                    </Tab>
+                  ))}
+                </Tabs>
+              </Box>
+              <Table aria-label="Player box score">
+                <TableHeader>
+                  <TableColumn>PLAYER</TableColumn>
+                  <TableColumn>PTS</TableColumn>
+                  <TableColumn>REB</TableColumn>
+                  <TableColumn>AST</TableColumn>
+                  <TableColumn>FG%</TableColumn>
+                  <TableColumn>3P%</TableColumn>
+                  <TableColumn>FT%</TableColumn>
+                  <TableColumn>+/-</TableColumn>
+                </TableHeader>
+                <TableBody>
+                  {playerStats.map((row) => (
+                    <TableRow key={row.id}>
+                      <TableCell>
+                        <Box sx={{ display: "flex", alignItems: "center" }}>
+                          <Avatar
+                            sx={{
+                              width: 24,
+                              height: 24,
+                              fontSize: "0.75rem",
+                              mr: 1,
+                              bgcolor: row.avatarColor || "primary.main",
+                            }}
+                          >
+                            {row.jerseyNumber}
+                          </Avatar>
+                          <Typography variant="body2" fontWeight="bold">
+                            {row.name}
+                          </Typography>
+                        </Box>
+                      </TableCell>
+                      <TableCell className="font-bold">{row.points}</TableCell>
+                      <TableCell>{row.rebounds}</TableCell>
+                      <TableCell>{row.assists}</TableCell>
+                      <TableCell>{row.fgPct}%</TableCell>
+                      <TableCell>{row.threePct}%</TableCell>
+                      <TableCell>{row.ftPct}%</TableCell>
+                      <TableCell>
+                        <span className={row.plusMinus > 0 ? "text-success font-bold" : row.plusMinus < 0 ? "text-danger font-bold" : ""}>
+                          {row.plusMinus > 0 ? `+${row.plusMinus}` : row.plusMinus}
+                        </span>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </AppCard>
+          </Grid>
+
+          {/* Lineup Efficiency */}
+          <Grid item xs={12}>
+            <AppCard>
+              <Typography variant="h6" gutterBottom sx={{ fontFamily: "var(--serif)" }}>
+                Lineup Analysis (Top 5 by Minutes)
+              </Typography>
+              <Table aria-label="Lineup efficiency table">
+                <TableHeader>
+                  <TableColumn>LINEUP</TableColumn>
+                  <TableColumn>MIN</TableColumn>
+                  <TableColumn>+/-</TableColumn>
+                  <TableColumn>NET/40</TableColumn>
+                </TableHeader>
+                <TableBody>
+                  {lineupStats.slice(0, 5).map((lineup, idx) => (
+                    <TableRow key={idx}>
+                      <TableCell>
+                        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                          {lineup.lineup.map((pId) => {
+                             const p = players?.find(player => player.playerId === pId);
+                             return <Chip key={pId} variant="soft">{p?.jerseyNumber || "?"}</Chip>;
+                          })}
+                        </Box>
+                      </TableCell>
+                      <TableCell>{(lineup.seconds / 60).toFixed(1)}</TableCell>
+                      <TableCell>
+                        <span className={(lineup.pointsFor - lineup.pointsAgainst) > 0 ? "text-success font-bold" : (lineup.pointsFor - lineup.pointsAgainst) < 0 ? "text-danger font-bold" : ""}>
+                          {(lineup.pointsFor - lineup.pointsAgainst) > 0 ? `+${lineup.pointsFor - lineup.pointsAgainst}` : lineup.pointsFor - lineup.pointsAgainst}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        {(( (lineup.pointsFor - lineup.pointsAgainst) / (lineup.seconds || 1)) * 2400).toFixed(1)}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </AppCard>
+          </Grid>
+
+          {/* Substitution Timeline Audit */}
+          <Grid item xs={12}>
+            <AppCard>
+              <Typography variant="h6" gutterBottom sx={{ fontFamily: "var(--serif)" }}>
+                Substitution Audit Timeline
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                Verify and correct substitution timing and personnel.
+              </Typography>
+              <Table aria-label="Substitution timeline table">
+                <TableHeader>
+                  <TableColumn>PERIOD</TableColumn>
+                  <TableColumn>CLOCK</TableColumn>
+                  <TableColumn>ACTION</TableColumn>
+                  <TableColumn>PLAYER</TableColumn>
+                  <TableColumn>EDIT</TableColumn>
+                </TableHeader>
+                <TableBody>
+                  {subTimeline.map((sub) => {
+                    const player = players?.find(p => p.playerId === sub.playerId);
+                    return (
+                      <TableRow key={sub.id}>
+                        <TableCell>P{sub.period}</TableCell>
+                        <TableCell className="tabular-nums">
+                          {formatClock(sub.clockTime || 0)}
+                        </TableCell>
+                        <TableCell>
+                          <Chip
+                            variant="soft"
+                          >
+                            {sub.type}
+                          </Chip>
+                        </TableCell>
+                        <TableCell>
+                          <Box sx={{ display: "flex", alignItems: "center" }}>
+                            <Avatar sx={{ width: 20, height: 20, fontSize: "0.6rem", mr: 1, bgcolor: player?.avatarColor }}>
+                              {player?.jerseyNumber}
+                            </Avatar>
+                            {player?.name || "Unknown"}
+                          </Box>
+                        </TableCell>
+                        <TableCell>
+                          <IconButton size="small" onClick={() => handleEditSub(sub)}>
+                            <EditIcon fontSize="small" />
+                          </IconButton>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </AppCard>
+          </Grid>
+
+          {/* Raw Actions List */}
+          <Grid item xs={12}>
+            <AppCard>
+              <Typography variant="h6" gutterBottom sx={{ fontFamily: "var(--serif)" }}>
+                Game Events
+              </Typography>
+              <Box sx={{ maxHeight: 400, overflowY: "auto" }}>
+                {filteredStats.slice().reverse().map((stat) => (
+                  <Box
+                    key={stat.id}
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      py: 1,
+                      borderBottom: "1px solid #eee",
+                    }}
+                  >
+                    <Box>
+                      <Typography variant="body2" fontWeight="bold">
+                        {isOpponentId(stat.playerId)
+                          ? `${game.opponent} (${stat.playerId.split(":")[1] || "Team"})`
+                          : players?.find((p) => p.playerId === stat.playerId)?.name || "Team"}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {stat.type} - P{stat.period} @ {formatClock(stat.clockTime || 0)}
+                      </Typography>
+                    </Box>
+                    <Box>
+                      <IconButton
+                        size="small"
+                        color="error"
+                        onClick={() => {
+                          setDeleteId(stat.id!);
+                          onDeleteOpen();
+                        }}
+                      >
+                        <Delete fontSize="small" />
+                      </IconButton>
+                    </Box>
+                  </Box>
+                ))}
+              </Box>
+            </AppCard>
+          </Grid>
+        </Grid>
+      </Box>
+
+      {/* Edit Substitution Dialog */}
+      <Modal isOpen={isEditSubOpen} onOpenChange={onEditSubClose}>
+        <ModalHeader>Edit Substitution</ModalHeader>
+        <ModalBody>
+          <Input
+            placeholder="e.g. 8:00"
+            defaultValue={editSubClock}
+            onChange={(e) => setEditSubClock(e.target.value)}
+          />
+          <Select
+            placeholder="Select a player"
+            selectedKey={editSubPlayerId}
+            onSelectionChange={(key) => setEditSubPlayerId(key as string)}
+          >
+            {(players || []).map((p) => (
+              <ListBoxItem key={p.playerId!} textValue={p.name}>
+                {`#${p.jerseyNumber} ${p.name}`}
+              </ListBoxItem>
+            ))}
+          </Select>
+        </ModalBody>
+        <ModalFooter>
+          <Button variant="outline" onPress={onEditSubClose}>
+            Cancel
+          </Button>
+          <Button onPress={saveSubEdit}>
+            Save Changes
+          </Button>
+        </ModalFooter>
       </Modal>
 
-      <Dialog
-        open={openEditDialog}
-        onClose={() => setOpenEditDialog(false)}
-        fullWidth
-        maxWidth="xs"
-      >
-        <DialogTitle
-          sx={{
-            fontFamily: "var(--serif)",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          Edit Game Details
-          <IconButton
-            color="error"
-            onClick={() => {
-              setOpenEditDialog(false);
-              setDeleteDialogOpen(true);
-            }}
+      {/* Delete Confirmation */}
+      <Modal isOpen={isDeleteOpen} onOpenChange={onDeleteClose}>
+        <ModalHeader>Confirm Delete</ModalHeader>
+        <ModalBody>
+          <p>Are you sure you want to delete this game event? This will affect all statistics.</p>
+        </ModalBody>
+        <ModalFooter>
+          <Button variant="outline" onPress={onDeleteClose} isDisabled={isDeleting}>
+            Cancel
+          </Button>
+          <Button
+            onPress={handleDeleteStat}
           >
-            <Delete />
-          </IconButton>
-        </DialogTitle>
-        <DialogContent>
-          <Stack spacing={3} sx={{ mt: 1 }}>
-            <TextField
-              fullWidth
-              label="Opponent"
-              value={editOpponent}
-              onChange={(e) => setEditOpponent(e.target.value)}
-            />
-            <TextField
-              fullWidth
-              label="Opponent Logo URL"
-              value={editOpponentLogoUrl}
-              onChange={(e) => setEditOpponentLogoUrl(e.target.value)}
-            />
-            <TextField
-              fullWidth
-              label="Date"
-              type="date"
-              InputLabelProps={{ shrink: true }}
-              value={editDate}
-              onChange={(e) => setEditDate(e.target.value)}
-            />
-            <TextField
-              fullWidth
-              label="Time"
-              type="time"
-              InputLabelProps={{ shrink: true }}
-              value={editTime}
-              onChange={(e) => setEditTime(e.target.value)}
-            />
-            <TextField
-              fullWidth
-              label="Location"
-              value={editLocation}
-              onChange={(e) => setEditLocation(e.target.value)}
-            />
-          </Stack>
-        </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 3 }}>
-          <Button onClick={() => setOpenEditDialog(false)}>Cancel</Button>
-          <Button onClick={handleUpdateGame} variant="contained" sx={{ ml: 1 }}>
-            Save
+            {isDeleting ? "Deleting..." : "Delete"}
           </Button>
-        </DialogActions>
-      </Dialog>
-
-      <Dialog
-        open={deleteDialogOpen}
-        onClose={() => setDeleteDialogOpen(false)}
-      >
-        <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
-          Delete Game?
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            Are you sure you want to delete this game? You will have 24 hours to
-            restore it.
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
-          <Button onClick={handleDeleteGame} color="error" variant="contained">
-            Yes, Delete
-          </Button>
-        </DialogActions>
-      </Dialog>
+        </ModalFooter>
+      </Modal>
     </Box>
   );
 };

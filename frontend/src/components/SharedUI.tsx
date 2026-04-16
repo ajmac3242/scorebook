@@ -4,21 +4,29 @@
  */
 
 import React, { useState, useEffect } from "react";
-import { Card, CardBody, Button } from "@heroui/react";
+import {
+  Card,
+  CardHeader,
+  CardContent,
+  CardFooter,
+  Button
+} from "@heroui/react";
 import { ArrowBack as ArrowBackIcon } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 
 /**
  * Standardized card component using HeroUI.
  */
-export const AppCard: React.FC<{ children: React.ReactNode; className?: string }> = ({
+export const AppCard: React.FC<React.HTMLAttributes<HTMLDivElement> & { sx?: any }> = ({
   children,
   className = "",
+  sx, // Ignored for MUI compatibility during migration
+  ...props
 }) => (
-  <Card className={`p-2 shadow-md ${className}`}>
-    <CardBody>
+  <Card className={`p-2 shadow-md ${className}`} {...props}>
+    <CardContent>
       {children}
-    </CardBody>
+    </CardContent>
   </Card>
 );
 
@@ -54,7 +62,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
         {showBack && (
           <Button
             isIconOnly
-            variant="light"
+            variant="ghost"
             onPress={() => (backTo ? navigate(backTo) : navigate(-1))}
             aria-label="Go back"
             className="absolute left-0 hover:scale-110 transition-transform"
@@ -63,7 +71,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
           </Button>
         )}
         <div className="text-center">
-          <h1 className="font-serif text-3xl sm:text-4xl font-bold">
+          <h1 className="font-serif text-3xl sm:text-4xl font-bold text-gray-900">
             {title}
           </h1>
         </div>
@@ -116,12 +124,12 @@ export const StatItem: React.FC<StatItemProps> = ({ label, value, light }) => (
  */
 export const StatCard: React.FC<{ label: string; value: string | number }> = ({ label, value }) => (
   <Card className="hover:-translate-y-1 transition-transform border border-gray-200">
-    <CardBody className="p-4">
+    <CardContent className="p-4">
       <span className="text-xs text-gray-500 uppercase tracking-wider">{label}</span>
-      <h2 className="font-serif text-2xl mt-1">
+      <h2 className="font-serif text-2xl mt-1 text-gray-900">
         {typeof value === "number" ? <AnimatedNumber value={value} /> : value}
       </h2>
-    </CardBody>
+    </CardContent>
   </Card>
 );
 
