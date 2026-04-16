@@ -10,11 +10,11 @@ describe("Response Helpers", () => {
         PK: "TEAM#test-id",
         SK: "METADATA#test-id",
         GSI1PK: "TEAM",
-        synced: 1
+        synced: 1,
       };
       const expected = {
         id: "test-id",
-        name: "Test"
+        name: "Test",
       };
       expect(sanitizeOutput(input)).toEqual(expected);
     });
@@ -25,12 +25,12 @@ describe("Response Helpers", () => {
         PK: "TEAM#team-1",
         players: [
           { id: "p1", PK: "PLAYER#p1", name: "Player 1" },
-          { id: "p2", PK: "PLAYER#p2" }
+          { id: "p2", PK: "PLAYER#p2" },
         ],
         metadata: {
           created: "2023-01-01",
-          SK: "INTERNAL_SK"
-        }
+          SK: "INTERNAL_SK",
+        },
       };
       const output: any = sanitizeOutput(input);
       expect(output.PK).toBeUndefined();
