@@ -175,7 +175,7 @@ describe("Security Tests", () => {
   it("redacts 'Authorization' headers regardless of casing in CloudWatch logs", async () => {
     ddbMock.on(QueryCommand).resolves({ Items: [] });
     const consoleSpy = jest
-      .spyOn(console, "log")
+      .spyOn(console, "info")
       .mockImplementation(() => console);
 
     const event = createEvent("GET", "/teams");
@@ -189,7 +189,10 @@ describe("Security Tests", () => {
 
     const logCall = consoleSpy.mock.calls.find((call: any[]) =>
       call.some(
-        (arg: unknown) => typeof arg === "string" && arg.includes("[REDACTED]"),
+        (arg: unknown) =>
+          (typeof arg === "string" && arg.includes("[REDACTED]")) ||
+          (typeof arg === "object" &&
+            JSON.stringify(arg).includes("[REDACTED]")),
       ),
     );
     expect(logCall).toBeDefined();
@@ -208,7 +211,7 @@ describe("Security Tests", () => {
   it("redacts 'Cookie' and 'X-Api-Key' headers in CloudWatch logs", async () => {
     ddbMock.on(QueryCommand).resolves({ Items: [] });
     const consoleSpy = jest
-      .spyOn(console, "log")
+      .spyOn(console, "info")
       .mockImplementation(() => console);
 
     const event = createEvent("GET", "/teams");
@@ -221,7 +224,10 @@ describe("Security Tests", () => {
 
     const logCall = consoleSpy.mock.calls.find((call: any[]) =>
       call.some(
-        (arg: unknown) => typeof arg === "string" && arg.includes("[REDACTED]"),
+        (arg: unknown) =>
+          (typeof arg === "string" && arg.includes("[REDACTED]")) ||
+          (typeof arg === "object" &&
+            JSON.stringify(arg).includes("[REDACTED]")),
       ),
     );
     expect(logCall).toBeDefined();

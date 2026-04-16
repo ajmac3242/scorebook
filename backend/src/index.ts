@@ -36,6 +36,7 @@ import {
   INTERNAL_KEYS,
   conflict,
 } from "./responses.js";
+import { logger } from "./utils/logger.js";
 
 // Clients
 const client = new DynamoDBClient({});
@@ -155,14 +156,7 @@ const Keys = {
  * @param {unknown} error - The error object.
  */
 function logError(label: string, error: unknown) {
-  if (error instanceof Error) {
-    console.error(`[ERROR] ${label}: ${error.message}`, error.stack);
-  } else {
-    console.error(
-      `[ERROR] ${label}:`,
-      typeof error === "object" ? JSON.stringify(error, null, 2) : error,
-    );
-  }
+  logger.error(label, error);
 }
 
 /**
@@ -734,7 +728,6 @@ function safeCompare(a: string, b: string): boolean {
  *
  * @param {string} method - HTTP method.
  * @param {string} path - Request path.
- * @param {Record<string, unknown>} _body - Parsed JSON body (unused).
  * @param {APIGatewayProxyEventV2} event - The full Lambda event.
  * @param {string} tableName - DynamoDB table name.
  * @returns {Promise<APIGatewayProxyResultV2 | null>} Response.
@@ -742,7 +735,6 @@ function safeCompare(a: string, b: string): boolean {
 async function handleCleanup(
   method: string,
   path: string,
-  _body: Record<string, unknown>,
   event: APIGatewayProxyEventV2,
   tableName: string,
 ): Promise<APIGatewayProxyResultV2 | null> {
@@ -777,10 +769,10 @@ async function handleCleanup(
 export const handler = async (
   event: APIGatewayProxyEventV2,
 ): Promise<APIGatewayProxyResultV2> => {
-  console.log("Event:", JSON.stringify(maskEvent(event)));
+  logger.info("Event received", maskEvent(event));
 
   const { method, path } = extractRequestMetadata(event);
-  console.log("Routing:", { method, path });
+  logger.info("Routing request", { method, path });
 
   // Enforce Content-Type for write requests with a body
   if (["POST", "PUT", "PATCH"].includes(method) && event.body) {
@@ -807,7 +799,7 @@ export const handler = async (
       (await handleTeams(method, path, body, event, TABLE_NAME)) ||
       (await handlePlayers(method, path, body, event, TABLE_NAME)) ||
       (await handleGames(method, path, body, event, TABLE_NAME)) ||
-      (await handleCleanup(method, path, body, event, TABLE_NAME));
+      (await handleCleanup(method, path, event, TABLE_NAME));
 
     return res || notFound("Route not found");
   } catch (error: unknown) {
@@ -1226,7 +1218,7 @@ async function performHardCleanup(tableName: string) {
     }),
   );
 
-  console.log("Cleanup attempted with threshold:", oneDayAgo);
+  logger.info("Cleanup attempted", { threshold: oneDayAgo });
 }
 
 /**
