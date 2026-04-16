@@ -13,6 +13,7 @@ import {
   Container,
   Box,
 } from "@mui/material";
+import { HeroUIProvider } from "@heroui/system";
 import theme from "./theme";
 import GameMode from "./pages/GameMode";
 import Login from "./pages/Login";
@@ -168,15 +169,17 @@ const AppContent: React.FC = () => {
  */
 const App: React.FC = () => {
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Router>
-        <AuthProvider>
-          <DevAuthBypass />
-          <AppContent />
-        </AuthProvider>
-      </Router>
-    </ThemeProvider>
+    <HeroUIProvider>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Router>
+          <AuthProvider>
+            <DevAuthBypass />
+            <AppContent />
+          </AuthProvider>
+        </Router>
+      </ThemeProvider>
+    </HeroUIProvider>
   );
 };
 

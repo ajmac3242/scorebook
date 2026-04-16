@@ -1,5 +1,6 @@
 import "@testing-library/jest-dom";
 import { vi } from "vitest";
+import React from "react";
 
 // Mock Cognito
 vi.mock("amazon-cognito-identity-js", () => {
@@ -130,4 +131,62 @@ vi.mock("dexie-react-hooks", () => ({
     }
     return undefined;
   }),
+}));
+
+// Mock HeroUI components to avoid rendering issues in JSDOM
+vi.mock("@heroui/system", () => ({
+  HeroUIProvider: ({ children }: any) =>
+    React.createElement("div", null, children),
+}));
+
+vi.mock("@heroui/navbar", () => ({
+  Navbar: ({ children }: any) => React.createElement("nav", null, children),
+  NavbarBrand: ({ children }: any) =>
+    React.createElement("div", null, children),
+  NavbarContent: ({ children }: any) =>
+    React.createElement("div", null, children),
+  NavbarItem: ({ children }: any) => React.createElement("div", null, children),
+}));
+
+vi.mock("@heroui/react", () => ({
+  Card: ({ children, className }: any) =>
+    React.createElement(
+      "div",
+      { className, "data-testid": "heroui-card" },
+      children,
+    ),
+  CardContent: ({ children }: any) =>
+    React.createElement(
+      "div",
+      { "data-testid": "heroui-card-content" },
+      children,
+    ),
+  CardBody: ({ children }: any) =>
+    React.createElement("div", { "data-testid": "heroui-card-body" }, children),
+  CardHeader: ({ children }: any) => React.createElement("div", null, children),
+  CardFooter: ({ children }: any) => React.createElement("div", null, children),
+  Button: ({ children, onClick, ...props }: any) =>
+    React.createElement("button", { onClick, ...props }, children),
+  Modal: ({ children }: any) => React.createElement("div", null, children),
+  ModalContent: ({ children }: any) =>
+    React.createElement("div", null, children),
+  ModalHeader: ({ children }: any) =>
+    React.createElement("div", null, children),
+  ModalBody: ({ children }: any) => React.createElement("div", null, children),
+  ModalFooter: ({ children }: any) =>
+    React.createElement("div", null, children),
+  useDisclosure: () => ({ isOpen: false, onOpen: vi.fn(), onClose: vi.fn() }),
+  Select: ({ children }: any) => React.createElement("select", null, children),
+  SelectItem: ({ children }: any) =>
+    React.createElement("option", null, children),
+  ListBoxItem: ({ children }: any) =>
+    React.createElement("option", null, children),
+  Input: (props: any) => React.createElement("input", props),
+  Tabs: ({ children }: any) => React.createElement("div", null, children),
+  Tab: ({ children }: any) => React.createElement("div", null, children),
+  Chip: ({ children }: any) => React.createElement("div", null, children),
+}));
+
+vi.mock("@heroui/use-disclosure", () => ({
+  useDisclosure: () => ({ isOpen: false, onOpen: vi.fn(), onClose: vi.fn() }),
 }));

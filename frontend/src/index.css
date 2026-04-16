@@ -1,3 +1,11 @@
+@import "tailwindcss";
+@import "@heroui/styles";
+
+@plugin "./hero.ts";
+@source "../node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}";
+
+@custom-variant dark (&:is(.dark *));
+
 :root {
   --text: #2d2d2d;
   --text-h: #1a1a1a;

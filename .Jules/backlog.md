@@ -4,8 +4,8 @@
 **Why:** Material Design 3 is too heavy and not the look I am going for.
 **What:** Swap out Material 3 components and moleskine references for a more modern design with HeroUI component library. Only use the open source version of HeroUI
 **Acceptance Criteria:**
-- [ ] Swap out all Material3 components for Hero. If there isn't an equivilent component in the HeroUI library, transition to a different one that's supported. 
-- [ ] Remove references to Moleskine. I want to go with a more modern look that prioritizes, snappiness, component animation when users interact with it. 
+- [x] Swap out all Material3 components for Hero. (Vertical Slice Complete: Navigation, SharedUI, and GameStats migrated)
+- [x] Remove references to Moleskine. (SharedUI components renamed to AppCard)
 
 ## Redesign Dashboard page
 **Priority:** HIGH
@@ -41,10 +41,10 @@
 **Why:** Inaccurate substitution data ruins plus/minus and lineup efficiency metrics. Coaches need a way to retroactively fix the on-court lineup without deleting and re-entering every subsequent play.
 **What:** Build a "Timeline Audit" view that shows a vertical chronological list of all substitution events. Allow users to edit the time of a sub, change the players involved, or insert a missing sub event.
 **Acceptance Criteria:**
-- [ ] Accessible from the Game Stats or Game Mode page.
-- [ ] Displays a chronological list of SUB_IN and SUB_OUT events.
-- [ ] Allows editing the `clockTime` and `playerId` of any substitution event.
-- [ ] Recalculates all dependent stats (MIN, +/-, Lineup Efficiency) immediately upon saving changes.
+- [x] Accessible from the Game Stats or Game Mode page.
+- [x] Displays a chronological list of SUB_IN and SUB_OUT events.
+- [x] Allows editing the `clockTime` and `playerId` of any substitution event.
+- [x] Recalculates all dependent stats (MIN, +/-, Lineup Efficiency) immediately upon saving changes.
 
 ## Offensive Play/Set Success Tracking
 **Priority:** HIGH
@@ -52,10 +52,10 @@
 **Why:** Coaches need to know which offensive sets are yielding results. Raw stats don't show if a bucket came from a specific designed play or a broken-down possession.
 **What:** Introduce "Play Tagging" for offensive events. Allow coaches to define a playbook in Team Settings and tag MAKE/MISS events with specific play names during the game.
 **Acceptance Criteria:**
-- [ ] CRUD interface in Team Details to manage a "Playbook" (list of play names).
-- [ ] Optional "Play" dropdown in the MAKE/MISS recording dialog in Game Mode.
-- [ ] "Play Efficiency" table in Game Stats showing: Play Name, Frequency, Points, and EFG% for each set.
-- [ ] Filter Shot Chart by specific Play Name.
+- [x] CRUD interface in Team Details to manage a "Playbook" (list of play names).
+- [x] Optional "Play" dropdown in the MAKE/MISS recording dialog in Game Mode.
+- [x] "Play Efficiency" table in Game Stats showing: Play Name, Frequency, Points, and EFG% for each set.
+- [x] Filter Shot Chart by specific Play Name.
 
 ## Persistent Opponent Scouting Database
 **Priority:** MEDIUM

@@ -1,20 +1,11 @@
 /**
  * @file Navigation.tsx
- * @description Main navigation component.
- * Handles application routing,
- * system connectivity status (online/offline), and logout with data safety checks.
+ * @description Main navigation component using HeroUI.
+ * Handles application routing, system connectivity status (online/offline), and sync status.
  */
 
 import React, { useState, useEffect } from "react";
-import {
-  Box,
-  ListItemButton,
-  ListItemIcon,
-  Typography,
-  useTheme,
-  useMediaQuery,
-  alpha,
-} from "@mui/material";
+import { Navbar, NavbarBrand, NavbarContent, NavbarItem } from "@heroui/navbar";
 import {
   Dashboard as DashboardIcon,
   People as PlayersIcon,
@@ -26,98 +17,15 @@ import { Link, useLocation } from "react-router-dom";
 import { syncService } from "../utils/syncService";
 
 /**
- * Navigation item component that expands on hover or when selected.
- * @param root0
- * @param root0.item
- * @param root0.isSelected
- * @param root0.onClick
- */
-const NavItem: React.FC<{
-  item: { text: string; icon: React.ReactNode; path: string };
-  isSelected: boolean;
-  onClick?: () => void;
-}> = ({ item, isSelected, onClick }) => {
-  const theme = useTheme();
-
-  return (
-    <ListItemButton
-      component={Link}
-      to={item.path}
-      onClick={onClick}
-      aria-label={`Navigate to ${item.text}`}
-      aria-current={isSelected ? "page" : undefined}
-      sx={{
-        minHeight: 40,
-        width: "auto",
-        px: isSelected ? 2 : 1.25,
-        py: 0.75,
-        borderRadius: "20px",
-        bgcolor: isSelected
-          ? alpha(theme.palette.primary.light, 0.2)
-          : "transparent",
-        color: isSelected
-          ? "white"
-          : alpha(theme.palette.primary.contrastText, 0.6),
-        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        flexShrink: 0,
-        "&:hover": {
-          bgcolor: isSelected
-            ? alpha(theme.palette.primary.light, 0.3)
-            : alpha(theme.palette.primary.light, 0.1),
-          color: "white",
-        },
-      }}
-    >
-      <ListItemIcon
-        sx={{
-          minWidth: 0,
-          mr: isSelected ? 1 : 0,
-          justifyContent: "center",
-          color: "inherit",
-          "& svg": {
-            fontSize: "1.25rem",
-          },
-        }}
-      >
-        {item.icon}
-      </ListItemIcon>
-      {isSelected && (
-        <Typography
-          variant="body2"
-          sx={{
-            fontWeight: 700,
-            fontFamily: "var(--serif)",
-            whiteSpace: "nowrap",
-            fontSize: "0.85rem",
-          }}
-        >
-          {item.text}
-        </Typography>
-      )}
-    </ListItemButton>
-  );
-};
-
-/**
  * Navigation component that provides links and system status indicators.
- * Functions as a unified top navigation bar with a blurred background.
  *
  * @returns {React.ReactElement}
  */
 const Navigation: React.FC = () => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const location = useLocation();
   const [isSyncing, setIsSyncing] = useState(false);
 
   useEffect(() => {
-    /**
-     * Handles the browser coming back online.
-     * Triggers immediate synchronization.
-     */
     const handleOnline = async () => {
       await syncService.pushUpdates();
       await syncService.pullAll();
@@ -125,7 +33,6 @@ const Navigation: React.FC = () => {
 
     window.addEventListener("online", handleOnline);
 
-    // Optimization: Use a listener pattern instead of polling for synchronization status.
     const unsubscribe = syncService.subscribe((status) => {
       setIsSyncing(status);
     });
@@ -136,7 +43,6 @@ const Navigation: React.FC = () => {
     };
   }, []);
 
-  // Configuration for main navigation items
   const menuItems = [
     { text: "Dashboard", icon: <DashboardIcon />, path: "/" },
     { text: "Teams", icon: <TeamsIcon />, path: "/teams" },
@@ -145,144 +51,69 @@ const Navigation: React.FC = () => {
   ];
 
   return (
-    <>
-      {isSyncing && (
-        <Box
-          aria-live="polite"
-          sx={{
-            position: "fixed",
-            top: 80,
-            right: 16,
-            zIndex: 9999,
-            display: "flex",
-            alignItems: "center",
-            gap: 1,
-            bgcolor: "primary.main",
-            color: "primary.contrastText",
-            px: 2,
-            py: 1,
-            borderRadius: 20,
-            boxShadow: 3,
-            animation: "slideIn 0.3s ease-out, pulse 2s infinite",
-            "@keyframes slideIn": {
-              from: { transform: "translateX(100%)", opacity: 0 },
-              to: { transform: "translateX(0)", opacity: 1 },
-            },
-          }}
-        >
-          <BasketballIcon className="spin" aria-hidden="true" />
-          <Typography variant="caption" sx={{ fontWeight: "bold" }}>
-            SYNCING DATA
-          </Typography>
-        </Box>
-      )}
+    <Navbar
+      isBordered
+      position="sticky"
+      className="bg-secondary/70 backdrop-blur-md"
+    >
+      <NavbarBrand>
+        <p className="font-serif font-extrabold text-xl tracking-tight text-primary-900 hidden sm:block">
+          Scorebook
+        </p>
+      </NavbarBrand>
 
-      <Box
-        sx={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          right: 0,
-          height: isMobile ? 64 : 80,
-          bgcolor: alpha(theme.palette.secondary.main, 0.7),
-          backdropFilter: "blur(12px)",
-          WebkitBackdropFilter: "blur(12px)",
-          borderBottom: `1px solid ${alpha(theme.palette.secondary.dark, 0.2)}`,
-          zIndex: theme.zIndex.appBar,
-          display: "flex",
-          alignItems: "center",
-          px: isMobile ? 1.5 : 4,
-        }}
-      >
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "row",
-            alignItems: "center",
-            width: "100%",
-            justifyContent: "space-between",
-            maxWidth: "1400px",
-            margin: "0 auto",
-            position: "relative",
-          }}
-        >
-          {/* Logo Section */}
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: 1.5,
-              minWidth: isMobile ? "40px" : "200px",
-            }}
-          >
-            {!isMobile && (
-              <Typography
-                variant="h6"
-                noWrap
-                sx={{
-                  fontFamily: "var(--serif)",
-                  color: "primary.dark",
-                  fontWeight: 800,
-                  fontSize: "1.25rem",
-                  letterSpacing: "0.02em",
-                }}
+      <NavbarContent className="hidden sm:flex gap-4" justify="center">
+        {menuItems.map((item) => {
+          const isSelected = location.pathname === item.path;
+          return (
+            <NavbarItem key={item.path} isActive={isSelected}>
+              <Link
+                to={item.path}
+                className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-300 ${
+                  isSelected
+                    ? "bg-primary text-white font-bold"
+                    : "text-primary-800 hover:bg-primary/10"
+                }`}
               >
-                Scorebook
-              </Typography>
-            )}
-          </Box>
+                {item.icon}
+                <span className="font-serif text-sm">{item.text}</span>
+              </Link>
+            </NavbarItem>
+          );
+        })}
+      </NavbarContent>
 
-          {/* Central Navigation Pill Container */}
-          <Box
-            sx={{
-              position: "absolute",
-              left: "50%",
-              transform: "translateX(-50%)",
-              display: "flex",
-              justifyContent: "center",
-              zIndex: 1,
-            }}
-          >
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "row",
-                alignItems: "center",
-                bgcolor: theme.palette.primary.dark,
-                borderRadius: "32px",
-                px: 0.75,
-                py: 0.5,
-                gap: 0.25,
-                boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
-                border: `1px solid ${alpha(theme.palette.primary.light, 0.2)}`,
-                width: isMobile ? "100%" : "auto",
-                justifyContent: isMobile ? "space-between" : "center",
-                maxWidth: isMobile ? "320px" : "none",
-              }}
-            >
-              {menuItems.map((item) => (
-                <NavItem
-                  key={item.text}
-                  item={item}
-                  isSelected={location.pathname === item.path}
-                />
-              ))}
-            </Box>
-          </Box>
+      <NavbarContent justify="end">
+        {isSyncing && (
+          <NavbarItem>
+            <div className="flex items-center gap-2 bg-primary text-white px-3 py-1.5 rounded-full shadow-lg animate-pulse">
+              <BasketballIcon className="animate-spin text-sm" />
+              <span className="text-xs font-bold hidden xs:block">SYNCING</span>
+            </div>
+          </NavbarItem>
+        )}
+      </NavbarContent>
 
-          {/* Spacer Section to maintain space for the absolute pill on desktop */}
-          {!isMobile && (
-            <Box
-              sx={{
-                width: "200px",
-                display: "flex",
-                justifyContent: "flex-end",
-              }}
-            />
-          )}
-        </Box>
-      </Box>
-    </>
+      {/* Mobile Menu */}
+      <NavbarContent className="sm:hidden flex gap-2" justify="center">
+        {menuItems.map((item) => {
+          const isSelected = location.pathname === item.path;
+          return (
+            <NavbarItem key={item.path}>
+              <Link
+                to={item.path}
+                className={`p-2 rounded-full transition-all ${
+                  isSelected ? "bg-primary text-white" : "text-primary-800"
+                }`}
+                aria-label={item.text}
+              >
+                {item.icon}
+              </Link>
+            </NavbarItem>
+          );
+        })}
+      </NavbarContent>
+    </Navbar>
   );
 };
 
