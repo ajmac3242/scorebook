@@ -18,7 +18,11 @@ export const logger = {
    */
   error: (message: string, error?: unknown, context?: unknown) => {
     if (error instanceof Error) {
-      console.error(`[ERROR] ${message}: ${error.message}`, error.toString(), context);
+      console.error(
+        `[ERROR] ${message}: ${error.message}`,
+        error.toString(),
+        context,
+      );
     } else {
       console.error(`[ERROR] ${message}`, error, context);
     }

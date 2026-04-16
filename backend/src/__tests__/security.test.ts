@@ -191,7 +191,8 @@ describe("Security Tests", () => {
       call.some(
         (arg: unknown) =>
           (typeof arg === "string" && arg.includes("[REDACTED]")) ||
-          (typeof arg === "object" && JSON.stringify(arg).includes("[REDACTED]")),
+          (typeof arg === "object" &&
+            JSON.stringify(arg).includes("[REDACTED]")),
       ),
     );
     expect(logCall).toBeDefined();
@@ -225,7 +226,8 @@ describe("Security Tests", () => {
       call.some(
         (arg: unknown) =>
           (typeof arg === "string" && arg.includes("[REDACTED]")) ||
-          (typeof arg === "object" && JSON.stringify(arg).includes("[REDACTED]")),
+          (typeof arg === "object" &&
+            JSON.stringify(arg).includes("[REDACTED]")),
       ),
     );
     expect(logCall).toBeDefined();
