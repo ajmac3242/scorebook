@@ -87,3 +87,55 @@
 - [ ] Visual pulse or color change in the Game Mode "Live Lineup" for players over their limit.
 - [ ] Fatigue indicators in the Quick Substitution dialog to help identify rested bench players.
 - [ ] Real-time stint timer logic that accounts for clock pauses.
+
+## Automated PDF Box Score & Game Summary Export
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Coaches need to share game results with players, parents, and local media immediately after the buzzer. Manual data entry into other systems is a major pain point.
+**What:** Add a "Export PDF" button to the Game Stats page that generates a professional, formatted box score including team totals, player stats, and the scoring flow chart.
+**Acceptance Criteria:**
+- [ ] "Export PDF" button on Game Stats page.
+- [ ] PDF includes Team Logo, Game Info (Date, Opponent, Score).
+- [ ] Table for Player Stats (PTS, REB, AST, etc.) and Team Totals.
+- [ ] Inclusion of the Scoring Flow visualization in the PDF.
+
+## Free Throw Sequence Workflow
+**Priority:** HIGH
+**Type:** UX
+**Why:** Recording free throws one-by-one is slow and prone to errors during fast-paced games. A dedicated workflow ensures every attempt is captured correctly without context switching.
+**What:** Trigger a "Free Throw Mode" overlay when a shooting foul is recorded or via a quick-action button. This overlay should allow the scorekeeper to quickly tap "Make" or "Miss" for 1, 2, or 3 attempts for a specific player.
+**Acceptance Criteria:**
+- [ ] Modal overlay triggered by FOUL_SHOOTING or a dedicated FT button.
+- [ ] One-tap recording for each attempt in the sequence.
+- [ ] Automatically attributes points and attempts to the selected player.
+- [ ] Closes automatically after the designated number of attempts are recorded.
+
+## Season-Wide Tactical Heatmaps
+**Priority:** MEDIUM
+**Type:** Feature
+**Why:** Single-game shot charts are useful, but season-long patterns reveal a player's true "hot zones" and offensive tendencies.
+**What:** Create a "Season Analytics" view that aggregates all shot data for a team or player across multiple games into a single heatmap.
+**Acceptance Criteria:**
+- [ ] New "Season Stats" tab in the Team Detail page.
+- [ ] High-density heatmap showing shot frequency and efficiency (eFG%) by zone.
+- [ ] Ability to filter the heatmap by specific player or specific offensive "Play".
+
+## Defensive Momentum & "Run" Tracker
+**Priority:** MEDIUM
+**Type:** UX
+**Why:** Coaches often struggle to feel the exact "momentum" of a game under pressure. Visualizing scoring runs helps in deciding when to call a timeout or change defensive schemes.
+**What:** Implement a "Momentum Bar" or "Run Tracker" in the Game Mode scoreboard that highlights consecutive scores or stops (e.g., "8-0 Run" or "3 Consecutive Stops").
+**Acceptance Criteria:**
+- [ ] Real-time "Run" indicator in the Scoreboard (e.g., "Lakers: 10-2 Run").
+- [ ] Visual alert when a team achieves a "Kill" (3 consecutive stops).
+- [ ] Historical "Run" list in the Game Summary to review game-changing stretches.
+
+## Pre-Game Rotation Planner
+**Priority:** LOW
+**Type:** Feature
+**Why:** Elite coaches go into a game with a plan for minutes and substitutions. Comparing the "Plan" vs "Actual" helps improve coaching discipline and player management.
+**What:** A tool within Team Settings to define a target rotation (minutes per player) and then visualize the "Minutes Variance" in post-game stats.
+**Acceptance Criteria:**
+- [ ] "Rotation Plan" interface in Team Details to set target MPG for each player.
+- [ ] "Minutes Variance" column in Game Stats/Season Stats comparing planned vs. actual minutes.
+- [ ] Warning in Game Mode if a player is significantly over their planned minute allocation.
