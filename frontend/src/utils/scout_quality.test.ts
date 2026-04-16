@@ -1,8 +1,5 @@
 import { describe, it, expect } from "vitest";
-import {
-  calculatePlayerAggregates,
-  getBonusStatus,
-} from "./stats";
+import { calculatePlayerAggregates, getBonusStatus } from "./stats";
 import { ACTION_TYPES } from "../constants/stats";
 import { StatEvent } from "../db";
 
