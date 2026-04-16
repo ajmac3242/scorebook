@@ -551,10 +551,13 @@ export const calculatePlayerAggregates = (
       currentPeriod = period;
     }
 
-    // ⚡ Bolt: Inline updateScores to minimize function call overhead in hot loop.
-    if (isScoringEvent(stat)) {
+    // ⚡ Bolt: Inline updateScores and isScoringEvent/isOpponentId to minimize function call overhead.
+    if (type === ACTION_TYPES.MAKE) {
       const pts = stat.points || 0;
-      if (isOpponentId(playerId)) {
+      if (
+        playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
+        playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":")
+      ) {
         scores.opp += pts;
       } else {
         scores.team += pts;
