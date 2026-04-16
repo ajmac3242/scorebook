@@ -233,13 +233,23 @@ const Dashboard: React.FC = () => {
                 </Typography>
               </Box>
               {upcomingGames.length === 0 ? (
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{ py: 2, textAlign: "center" }}
-                >
-                  No upcoming games scheduled.
-                </Typography>
+                <Box sx={{ py: 2, textAlign: "center" }}>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mb: 2 }}
+                  >
+                    No upcoming games scheduled.
+                  </Typography>
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    startIcon={<AddIcon />}
+                    onClick={() => navigate(`/teams/${favoriteTeam.id}`)}
+                  >
+                    Schedule Game
+                  </Button>
+                </Box>
               ) : (
                 <Stack spacing={2}>
                   {upcomingGames.map((game) => (

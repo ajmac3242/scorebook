@@ -12,6 +12,7 @@ import {
   Groups as TeamsIcon,
   SportsBasketball as BasketballIcon,
   Settings as SettingsIcon,
+  Check as CheckIcon,
 } from "@mui/icons-material";
 import { Link, useLocation } from "react-router-dom";
 import { syncService } from "../utils/syncService";
@@ -24,6 +25,7 @@ import { syncService } from "../utils/syncService";
 const Navigation: React.FC = () => {
   const location = useLocation();
   const [isSyncing, setIsSyncing] = useState(false);
+  const [showSyncSuccess, setShowSyncSuccess] = useState(false);
 
   useEffect(() => {
     const handleOnline = async () => {
@@ -34,7 +36,13 @@ const Navigation: React.FC = () => {
     window.addEventListener("online", handleOnline);
 
     const unsubscribe = syncService.subscribe((status) => {
-      setIsSyncing(status);
+      setIsSyncing((prev) => {
+        if (prev && !status) {
+          setShowSyncSuccess(true);
+          setTimeout(() => setShowSyncSuccess(false), 3000);
+        }
+        return status;
+      });
     });
 
     return () => {
@@ -84,14 +92,21 @@ const Navigation: React.FC = () => {
       </NavbarContent>
 
       <NavbarContent justify="end">
-        {isSyncing && (
+        {isSyncing ? (
           <NavbarItem>
             <div className="flex items-center gap-2 bg-primary text-white px-3 py-1.5 rounded-full shadow-lg animate-pulse">
               <BasketballIcon className="animate-spin text-sm" />
               <span className="text-xs font-bold hidden xs:block">SYNCING</span>
             </div>
           </NavbarItem>
-        )}
+        ) : showSyncSuccess ? (
+          <NavbarItem>
+            <div className="flex items-center gap-2 bg-success text-white px-3 py-1.5 rounded-full shadow-lg transition-all duration-500">
+              <CheckIcon className="text-sm" />
+              <span className="text-xs font-bold hidden xs:block">SYNCED</span>
+            </div>
+          </NavbarItem>
+        ) : null}
       </NavbarContent>
 
       {/* Mobile Menu */}

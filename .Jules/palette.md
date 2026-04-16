@@ -19,3 +19,7 @@ Action: Implement prominent "Get Started" CTAs for empty landing pages. Ensure e
 ## 2026-04-09 - Feedback Loops and ARIA state
 Learning: Centralized feedback via Snackbars is essential for a "live" tracking experience where actions happen quickly. Adding aria-pressed to toggle buttons in recording dialogs and role="img" with dynamic labels to visual-only indicators (dots/icons) ensures the game state is fully perceivable by all users.
 Action: Implement Snackbar feedback for all CRUD operations in fast-paced interfaces. Ensure every toggle-style button correctly communicates its state via ARIA.
+
+## 2026-04-16 - Transparent Context and Interface Efficiency
+Learning: High-stakes actions (like ending a game) require summary context in confirmation dialogs to prevent user error. Interface scannability is greatly improved by adding semantic icons to text-heavy dropdowns. Background processes (like syncing) need explicit 'success' states to build user trust. Keyboard shortcuts and visual 'selection' feedback during interactive tasks (like court tracking) reduce cognitive load for power users.
+Action: Always include summary data in confirmation modals. Add visual icons to statistical filters. Provide 'Success' visual feedback for background tasks. Implement keyboard shortcuts for high-frequency actions.
