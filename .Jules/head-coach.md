@@ -29,3 +29,11 @@ Observation: We have mastered the "What" (stats) and the "Who" (players), but we
 Impact: Without play-type tracking, coaches can't objectively evaluate their playbook's effectiveness in real-time. Without scouting continuity, the app loses value in scout-heavy environments where historical data on opponent tendencies is as valuable as live game tracking.
 
 Recommendation: Introduce "Set Play Tagging" to allow coaches to measure the success rate of specific offensive actions. Enable "Persistent Opponent Rosters" to build a scouting database over time. Finally, implement a "Timeline Audit" to ensure that the bedrock of our analytics—the substitution log—can be corrected retroactively without destroying data integrity.
+
+## 2025-05-19 - Tactical Intelligence: Data for Decision Support
+
+Observation: The application has successfully evolved from a simple data capture tool to a robust statistical engine. However, the next frontier is "Tactical Intelligence"—turning that data into immediate, actionable insights for the head coach. Current workflows for recording high-volume events like free throws are still too manual, and post-game reporting requires external effort to share.
+
+Impact: Scorekeepers remain a bottleneck during peak game intensity (e.g., late-game foul situations), leading to potential data loss or lag. Furthermore, the value of the collected data is trapped within the app if it cannot be easily exported as a professional box score or analyzed across a full season to identify long-term player tendencies and tactical "hot zones."
+
+Recommendation: Prioritize "Workflow Speed" (Dedicated Free Throw Mode) and "External Utility" (PDF Export). Following this, move towards "Season-Wide Analytics" to allow coaches to see the bigger picture of their team's performance beyond individual game results.
