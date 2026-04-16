@@ -49,6 +49,7 @@ describe("Error Reporting Tests", () => {
     expect(consoleSpy).toHaveBeenCalledWith(
       expect.stringContaining("[ERROR] Handler Error: Specific database error"),
       expect.stringContaining("Specific database error"),
+      undefined,
     );
   });
 });

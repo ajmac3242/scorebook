@@ -3,7 +3,7 @@ import tsParser from "@typescript-eslint/parser";
 import jsdocPlugin from "eslint-plugin-jsdoc";
 
 export default [
-  { ignores: ["coverage/"] },
+  { ignores: ["coverage/", "dist/", "*.log"] },
   {
     files: ["src/**/*.ts"],
     ignores: ["src/__tests__/**", "src/index.d.ts"],

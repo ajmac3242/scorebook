@@ -30,6 +30,7 @@ import {
   Tab,
 } from "@heroui/react";
 import { db, Player, StatEvent } from "../db";
+import { logger } from "../utils/logger";
 import { useLiveQuery } from "dexie-react-hooks";
 import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../constants/stats";
 import {
@@ -234,7 +235,7 @@ const GameStats: React.FC = () => {
       setDeleteId(null);
       onDeleteClose();
     } catch (error) {
-      console.error("Failed to delete stat:", error);
+      logger.error("Failed to delete stat", error);
     } finally {
       setIsDeleting(false);
     }
@@ -265,7 +266,7 @@ const GameStats: React.FC = () => {
       });
       onEditSubClose();
     } catch (err) {
-      console.error("Failed to update sub:", err);
+      logger.error("Failed to update sub", err);
     }
   };
 
@@ -551,7 +552,7 @@ const GameStats: React.FC = () => {
                             );
                             return (
                               <Chip key={pId} variant="soft">
-                                {p?.jerseyNumber || "?"}
+                                {p?.jerseyNumber ?? "?"}
                               </Chip>
                             );
                           })}

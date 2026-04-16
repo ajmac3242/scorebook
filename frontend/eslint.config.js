@@ -7,7 +7,7 @@ import jsdocPlugin from "eslint-plugin-jsdoc";
 import globals from "globals";
 
 export default [
-  { ignores: ["dist", "src/__tests__/**", "coverage/**", "src/setupTests.ts"] },
+  { ignores: ["dist/**", "src/__tests__/**", "coverage/**", "src/setupTests.ts", "*.log"] },
   {
     files: ["src/**/*.{ts,tsx}"],
     languageOptions: {
