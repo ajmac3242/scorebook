@@ -34,6 +34,11 @@ export const determineResult = (
 
 /**
  * Formats a total number of seconds into a mm:ss clock string.
+ *
+ * WHY: This provides a human-readable representation of game time.
+ * We use simple math and string padding instead of a heavy date library
+ * for performance in high-frequency UI updates.
+ *
  * @param {number} totalSeconds - The total seconds.
  * @returns {string} The formatted clock string (e.g., "10:00").
  */
@@ -45,6 +50,12 @@ export const formatClock = (totalSeconds: number): string => {
 
 /**
  * Formats an ISO timestamp string to a mm:ss time string.
+ *
+ * WHY: This is used for quick visual reference of when an event occurred.
+ * Performance: We use string slicing (positions 14 to 19) because it is
+ * significantly faster than parsing the string into a Date object or using
+ * Day.js when processing hundreds of events in statistical loops.
+ *
  * @param {string} timestamp - ISO timestamp (e.g. "2023-01-01T12:00:30.000Z").
  * @returns {string} The formatted time string (e.g. "00:30").
  */
