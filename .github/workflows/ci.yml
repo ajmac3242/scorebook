@@ -69,7 +69,7 @@ jobs:
         run: |
           echo "::group::Backend Build"
           cd backend
-          for i in {1..3}; do pnpm install --frozen-lockfile && break || if [ $i -eq 3 ]; then exit 1; else sleep 10; fi; done
+          for i in {1..3}; do pnpm install --frozen-lockfile --prefer-offline && break || if [ $i -eq 3 ]; then exit 1; else sleep 10; fi; done
           pnpm run build
           echo "::endgroup::"
 
@@ -86,6 +86,8 @@ jobs:
       - name: "Backend: Run Tests"
         if: steps.filter.outputs.backend == 'true'
         timeout-minutes: 5
+        env:
+          NODE_OPTIONS: '--experimental-vm-modules'
         run: |
           echo "::group::Backend Tests"
           cd backend
@@ -99,7 +101,7 @@ jobs:
         run: |
           echo "::group::Frontend Build"
           cd frontend
-          for i in {1..3}; do pnpm install --frozen-lockfile && break || if [ $i -eq 3 ]; then exit 1; else sleep 10; fi; done
+          for i in {1..3}; do pnpm install --frozen-lockfile --prefer-offline && break || if [ $i -eq 3 ]; then exit 1; else sleep 10; fi; done
           pnpm run build
           echo "::endgroup::"
 
@@ -133,17 +135,14 @@ jobs:
         run: |
           echo "::group::Job Summary"
           echo "### CI Run Summary 🚀" >> $GITHUB_STEP_SUMMARY
-          echo "- **Backend:** ${{ steps.filter.outputs.backend == 'true' && '✅ Changed' || 'ℹ️ Unchanged' }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Frontend:** ${{ steps.filter.outputs.frontend == 'true' && '✅ Changed' || 'ℹ️ Unchanged' }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Docs & Diagrams:** ${{ steps.filter.outputs.docs == 'true' && '✅ Changed' || 'ℹ️ Unchanged' }}" >> $GITHUB_STEP_SUMMARY
-
-          if [[ "${{ steps.filter.outputs.docs }}" == "true" ]]; then
-            echo "- **Documentation:** Updated via terraform-docs" >> $GITHUB_STEP_SUMMARY
-            echo "- **Architecture Diagram:** Regenerated via Diagrams-as-Code" >> $GITHUB_STEP_SUMMARY
-          fi
-
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Status: ${{ job.status == 'success' && '🟢 Success' || '🔴 Failed' }}" >> $GITHUB_STEP_SUMMARY
+          echo "| Component | Status | Details |" >> $GITHUB_STEP_SUMMARY
+          echo "| :--- | :--- | :--- |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Backend** | ${{ steps.filter.outputs.backend == 'true' && '✅ Changed' || 'ℹ️ Unchanged' }} | Tests and Linting |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Frontend** | ${{ steps.filter.outputs.frontend == 'true' && '✅ Changed' || 'ℹ️ Unchanged' }} | Tests and Linting |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Docs & Infra** | ${{ steps.filter.outputs.docs == 'true' && '✅ Changed' || 'ℹ️ Unchanged' }} | terraform-docs & Diagrams |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Overall Status:** ${{ job.status == 'success' && '🟢 Success' || '🔴 Failed' }}" >> $GITHUB_STEP_SUMMARY
           echo "::endgroup::"
 
       # --- Documentation & Diagrams ---

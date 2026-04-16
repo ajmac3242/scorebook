@@ -19,17 +19,18 @@ jobs:
     if: ${{ (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    strategy:
-      fail-fast: true
     steps:
       - uses: actions/checkout@v4
+        timeout-minutes: 5
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
+        timeout-minutes: 5
         with:
           version: 9
 
       - uses: actions/setup-node@v4
+        timeout-minutes: 5
         with:
           node-version: 22
           cache: pnpm
@@ -42,7 +43,7 @@ jobs:
         run: |
           echo "::group::Backend Build"
           cd backend
-          for i in {1..3}; do pnpm install --frozen-lockfile && break || if [ $i -eq 3 ]; then exit 1; else sleep 10; fi; done
+          for i in {1..3}; do pnpm install --frozen-lockfile --prefer-offline && break || if [ $i -eq 3 ]; then exit 1; else sleep 10; fi; done
           pnpm run build
           # Use --prefer-offline for the second install as most packages are already in store
           for i in {1..3}; do pnpm install --prod --shamefully-hoist --prefer-offline && break || if [ $i -eq 3 ]; then exit 1; else sleep 10; fi; done
@@ -52,6 +53,7 @@ jobs:
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
+        timeout-minutes: 5
         with:
           role-to-assume: arn:aws:iam::269555264437:role/github_deployment
           aws-region: us-east-1
@@ -61,6 +63,14 @@ jobs:
         timeout-minutes: 5
         with:
           terraform_wrapper: false
+
+      - name: Cache Terraform Providers
+        uses: actions/cache@v4
+        with:
+          path: infra/.terraform
+          key: ${{ runner.os }}-terraform-${{ hashFiles('infra/versions.tf', 'infra/.terraform.lock.hcl') }}
+          restore-keys: |
+            ${{ runner.os }}-terraform-
 
       - name: Terraform Init
         timeout-minutes: 5
@@ -111,7 +121,7 @@ jobs:
         run: |
           echo "::group::Frontend Build"
           cd frontend
-          for i in {1..3}; do pnpm install --frozen-lockfile && break || if [ $i -eq 3 ]; then exit 1; else sleep 10; fi; done
+          for i in {1..3}; do pnpm install --frozen-lockfile --prefer-offline && break || if [ $i -eq 3 ]; then exit 1; else sleep 10; fi; done
           pnpm run build
           echo "::endgroup::"
         env:
@@ -120,6 +130,7 @@ jobs:
           VITE_API_ENDPOINT: ${{ env.VITE_API_ENDPOINT }}
 
       - name: Generate frontend build hash
+        timeout-minutes: 5
         run: find frontend/dist -type f | sort | xargs sha256sum | sha256sum | awk '{print $1}' > frontend-build-hash.txt
 
       - name: Terraform Apply (Final)
@@ -132,6 +143,7 @@ jobs:
 
       - name: Deployment Summary
         if: always()
+        timeout-minutes: 5
         run: |
           echo "::group::Deployment Summary"
           echo "### Deployment Summary 🚀" >> $GITHUB_STEP_SUMMARY
@@ -149,6 +161,7 @@ jobs:
 
       - name: Upload Test Results on Failure
         if: failure()
+        timeout-minutes: 5
         uses: actions/upload-artifact@v4
         with:
           name: deploy-failure-logs

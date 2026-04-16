@@ -1,13 +1,21 @@
-# Pipeline Smith's Journal ⚙️
+# ⚙️ Pipeline Smith's Journal
 
-## 2025-05-14 - Initial CI/CD Audit
-Learning: The current CI/CD pipelines are functional but lack optimal caching for Go and use slightly outdated action versions (pnpm/action-setup@v3). Log organization is minimal, making it harder to debug failures in large jobs like `quality-and-tests`.
-Action: Pin to latest action versions, implement log grouping with `::group::`, and enable Go caching.
+## 2025-05-15 - CI/CD Optimization Suite
 
-## 2026-04-13 - Pipeline Visibility and Reliability Enhancements
-Learning: Standardizing the use of `::group::` markers across all workflows significantly improves log navigability, especially for documentation, diagram generation, and Terraform steps. Adding explicit `timeout-minutes` to every critical step prevents silent hangs and improves pipeline reliability.
-Action: Implemented log grouping and granular timeouts in `ci.yml`, `deploy.yml`, and `terratest.yml`.
+### Learning: Pipeline Inefficiencies
+- **Visibility:** Plain text job summaries are hard to parse at a glance.
+- **Reliability:** ESM-based tests in Node.js require explicit `NODE_OPTIONS` to avoid execution failures.
+- **Speed:** Redundant network calls during `pnpm install` and `terraform init` significantly slow down execution.
+- **Safety:** Missing step-level timeouts can cause runners to hang indefinitely on flaky network operations.
 
-## 2026-04-14 - CI/CD Optimization Suite
-Learning: Implementing robust bash retry loops for package installations (`pnpm install`) significantly reduces CI flakiness caused by transient network issues. It is critical to ensure the loop correctly exits with a non-zero code if all attempts fail to avoid "false green" steps. Using `--prefer-offline` for secondary production-only installs in deployment pipelines speeds up builds by leveraging the local pnpm store. Enhanced `$GITHUB_STEP_SUMMARY` reports across all workflows improve developer experience by providing immediate visibility into complex job outcomes (docs, diagrams, infra IDs, test results) without digging into logs.
-Action: Standardized robust retry loops, optimized deployment installs, and expanded job summaries implemented in `ci.yml`, `deploy.yml`, and `terratest.yml`.
+### Action: Implemented Ten High-Impact Improvements
+1. **Enhanced Visibility:** Converted `ci.yml` Job Summary to a Markdown table for better scannability.
+2. **ESM Compatibility:** Added `NODE_OPTIONS: --experimental-vm-modules` to Backend test steps.
+3. **Pnpm Optimization (CI):** Added `--prefer-offline` to all `pnpm install` steps in `ci.yml`.
+4. **Pnpm Optimization (Deploy):** Added `--prefer-offline` to all `pnpm install` steps in `deploy.yml`.
+5. **Pnpm Optimization (Terratest):** Added `--prefer-offline` to all `pnpm install` steps in `terratest.yml`.
+6. **Terraform Caching (Deploy):** Implemented provider caching in `deploy.yml` using `actions/cache@v4`.
+7. **Terraform Caching (Terratest):** Implemented provider caching in `terratest.yml`.
+8. **Cleanup:** Removed redundant `strategy: fail-fast` block from `deploy.yml` (no matrix used).
+9. **Timeout Protection (Deploy):** Added `timeout-minutes: 5` to all individual steps in `deploy.yml`.
+10. **Timeout Protection (Terratest):** Added `timeout-minutes: 5` to all individual steps in `terratest.yml`.
