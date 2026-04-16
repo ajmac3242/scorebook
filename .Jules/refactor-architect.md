@@ -27,3 +27,12 @@ Pattern:
 2. Standardize 'magic' strings into shared constants (`SPECIAL_PLAYER_IDS`) for special entities like 'OPPONENT' and 'TEAM_TIMEOUT'.
 3. Use early returns and defensive checks (`!result?.Item`) to flatten deeply nested backend logic and prevent runtime crashes.
 4. Extract pure business logic (`getBonusStatus`) from stateful hooks to improve testability and clarity.
+
+## 2026-04-16 - Lambda Handler and Statistical Loop Refinement
+Smell: Monolithic Lambda handlers with deep nesting; duplicate validation and snapshot logic; oversized statistical loops in frontend utilities.
+Learning: Extracting validation logic into specialized helpers (`validateStatData`, `validateContentType`) makes main handlers read as clear control-flow descriptions. Using early returns for path/method checks significantly reduces cognitive load by keeping the relevant logic close to the top-level path segment. Breaking down large loops in frontend stats into semantic helpers (`applyStatToPlayer`, `handlePeriodTransition`) makes the aggregation logic "skimmable" and easier to maintain.
+Pattern:
+1. Apply the "Rule of Three" to extract common backend sequences into helpers (e.g., `syncTeamSnapshots`, `getApiKey`).
+2. Flatten control flow in API handlers using early returns and predicate-based branching to avoid deeply nested if/else blocks.
+3. Decompose heavy statistical iteration loops into modular stages: event updates, transition management, and finalization.
+4. Replace complex nested ternaries with explicit `if` statements and explanatory comments to document non-obvious business rules (e.g., period context logic).

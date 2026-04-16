@@ -207,6 +207,109 @@ export const getInitials = (name: string | undefined | null): string => {
 };
 
 /**
+ * Updates a player aggregate record with data from a single statistical event.
+ * @param {PlayerAggregates} player - The player aggregate record.
+ * @param {StatEvent} stat - The statistical event.
+ */
+function applyStatToPlayer(player: PlayerAggregates, stat: StatEvent) {
+  const { type } = stat;
+  player.gamesPlayed.add(stat.gameId);
+
+  switch (type) {
+    case ACTION_TYPES.MAKE:
+      player.points += stat.points || 0;
+      if (stat.points === 1) {
+        player.fta++;
+        player.ftm++;
+      } else {
+        player.makes++;
+        player.attempts++;
+        if (stat.points === 3) {
+          player.threePM++;
+          player.threePA++;
+        }
+      }
+      break;
+    case ACTION_TYPES.MISS:
+      if (stat.points === 1) {
+        player.fta++;
+      } else {
+        player.attempts++;
+        if (stat.points === 3) player.threePA++;
+      }
+      break;
+    case ACTION_TYPES.REBOUND:
+      player.rebounds++;
+      break;
+    case ACTION_TYPES.OFF_REBOUND:
+      player.offRebounds++;
+      player.rebounds++;
+      break;
+    case ACTION_TYPES.DEF_REBOUND:
+      player.defRebounds++;
+      player.rebounds++;
+      break;
+    case ACTION_TYPES.BLOCK:
+      player.blocks++;
+      break;
+    case ACTION_TYPES.ASSIST:
+      player.assists++;
+      break;
+    case ACTION_TYPES.STEAL:
+      player.steals++;
+      break;
+    case ACTION_TYPES.TURNOVER:
+      player.turnovers++;
+      break;
+    case ACTION_TYPES.FOUL:
+    case ACTION_TYPES.FOUL_SHOOTING:
+    case ACTION_TYPES.FOUL_NON_SHOOTING:
+      player.fouls++;
+      break;
+  }
+}
+
+/**
+ * Handles period transitions for active stints during statistical aggregation.
+ * @param {number} period - The new period.
+ * @param {number} currentPeriod - The current period.
+ * @param {Map<string, { startClock: number; startScoreDiff: number }>} activeStints - Active player stints.
+ * @param {Map<string, PlayerAggregates>} statsMap - Map of player aggregates.
+ * @param {{ team: number; opp: number }} scores - Current scores.
+ * @param {number} periodLen - Length of a period in seconds.
+ * @returns {number} The updated current period.
+ */
+function handlePeriodTransition(
+  period: number,
+  currentPeriod: number,
+  activeStints: Map<string, { startClock: number; startScoreDiff: number }>,
+  statsMap: Map<string, PlayerAggregates>,
+  scores: { team: number; opp: number },
+  periodLen: number,
+): number {
+  if (period <= currentPeriod) return currentPeriod;
+
+  const skippedPeriods = period - currentPeriod - 1;
+  for (const [pId, stint] of activeStints.entries()) {
+    // Finish stint for the previous period (assumed to end at 0:00)
+    handleStintEnd(pId, statsMap, stint, scores, 0);
+
+    // Add full duration for any skipped periods in between
+    if (skippedPeriods > 0) {
+      const playerAgg = statsMap.get(pId);
+      if (playerAgg) {
+        playerAgg.min += skippedPeriods * periodLen;
+      }
+    }
+
+    // Start new stint for the current period (assumed to start at full period)
+    stint.startClock = periodLen;
+    stint.startScoreDiff = scores.team - scores.opp;
+  }
+  return period;
+}
+
+/**
  * Standardized logic for recording the end of a player's stint.
  * @param {string} playerId - The player ID.
  * @param {Map<string, PlayerAggregates>} statsMap - The map of player aggregates.
@@ -527,28 +630,15 @@ export const calculatePlayerAggregates = (
     }
 
     // 🏀 CoachBoard: Handle period transitions for active stints
-    // Why: Ensures minutes played and plus-minus are calculated correctly
-    // even if a player stays on the court across period boundaries.
-    // Fixed: Account for multiple skipped periods (gap periods).
-    if (period && period > currentPeriod) {
-      const skippedPeriods = period - currentPeriod - 1;
-      for (const [pId, stint] of activeStints.entries()) {
-        // Finish stint for the previous period (assumed to end at 0:00)
-        handleStintEnd(pId, statsMap, stint, scores, 0);
-
-        // Add full duration for any skipped periods in between
-        if (skippedPeriods > 0) {
-          const playerAgg = statsMap.get(pId);
-          if (playerAgg) {
-            playerAgg.min += skippedPeriods * periodLen;
-          }
-        }
-
-        // Start new stint for the current period (assumed to start at full period)
-        stint.startClock = periodLen;
-        stint.startScoreDiff = scores.team - scores.opp;
-      }
-      currentPeriod = period;
+    if (period) {
+      currentPeriod = handlePeriodTransition(
+        period,
+        currentPeriod,
+        activeStints,
+        statsMap,
+        scores,
+        periodLen,
+      );
     }
 
     // ⚡ Bolt: Inline updateScores and isScoringEvent/isOpponentId to minimize function call overhead.
@@ -566,60 +656,7 @@ export const calculatePlayerAggregates = (
 
     const player = statsMap.get(playerId);
     if (player) {
-      // ⚡ Bolt: Inline processStatEvent and applyActionToAggregate to minimize overhead.
-      player.gamesPlayed.add(stat.gameId);
-      switch (type) {
-        case ACTION_TYPES.MAKE:
-          player.points += stat.points || 0;
-          if (stat.points === 1) {
-            player.fta++;
-            player.ftm++;
-          } else {
-            player.makes++;
-            player.attempts++;
-            if (stat.points === 3) {
-              player.threePM++;
-              player.threePA++;
-            }
-          }
-          break;
-        case ACTION_TYPES.MISS:
-          if (stat.points === 1) {
-            player.fta++;
-          } else {
-            player.attempts++;
-            if (stat.points === 3) player.threePA++;
-          }
-          break;
-        case ACTION_TYPES.REBOUND:
-          player.rebounds++;
-          break;
-        case ACTION_TYPES.OFF_REBOUND:
-          player.offRebounds++;
-          player.rebounds++;
-          break;
-        case ACTION_TYPES.DEF_REBOUND:
-          player.defRebounds++;
-          player.rebounds++;
-          break;
-        case ACTION_TYPES.BLOCK:
-          player.blocks++;
-          break;
-        case ACTION_TYPES.ASSIST:
-          player.assists++;
-          break;
-        case ACTION_TYPES.STEAL:
-          player.steals++;
-          break;
-        case ACTION_TYPES.TURNOVER:
-          player.turnovers++;
-          break;
-        case ACTION_TYPES.FOUL:
-        case ACTION_TYPES.FOUL_SHOOTING:
-        case ACTION_TYPES.FOUL_NON_SHOOTING:
-          player.fouls++;
-          break;
-      }
+      applyStatToPlayer(player, stat);
     }
 
     // Handle Sub-In/Sub-Out for MIN and Plus-Minus
@@ -985,12 +1022,15 @@ export const isEventInPeriod = (
   eventPeriod: number,
   currentPeriod: number,
   periodType: string,
-): boolean =>
-  periodType === "QUARTERS"
-    ? eventPeriod === currentPeriod
-    : currentPeriod === 1
-      ? eventPeriod === 1
-      : eventPeriod >= 2;
+): boolean => {
+  if (periodType === "QUARTERS") {
+    return eventPeriod === currentPeriod;
+  }
+  // HALVES logic:
+  // - Period 1 context (currentPeriod === 1) only includes events from period 1.
+  // - Period 2 context (currentPeriod === 2) includes all events from period 2 and overtime (>= 2).
+  return currentPeriod === 1 ? eventPeriod === 1 : eventPeriod >= 2;
+};
 
 /**
  * Calculates the score and result (W, L, D) for a single game.
