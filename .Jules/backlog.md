@@ -57,6 +57,37 @@
 - [x] "Play Efficiency" table in Game Stats showing: Play Name, Frequency, Points, and EFG% for each set.
 - [x] Filter Shot Chart by specific Play Name.
 
+## Live Defensive Momentum HUD (Stops & Kills)
+**Priority:** HIGH
+**Type:** UX
+**Why:** Defensive intensity is driven by momentum. Visualizing "Stops" and "Kills" (3 consecutive stops) on the live scoreboard motivates the team and helps coaches identify defensive runs.
+**What:** Integrate the `calculateStopsAndKills` logic into the `GameMode` scoreboard. Display a "Defensive Momentum Bar" or series of icons that light up as stops are earned, with a special visual for a "Kill."
+**Acceptance Criteria:**
+- [ ] Real-time "Stop" counter on the GameMode scoreboard.
+- [ ] "Kill" indicator (e.g., three flame icons or a "3 STOPS" badge) that resets after 3.
+- [ ] Total "Kills" count for the game displayed in the scoreboard sub-header.
+- [ ] Pulse animation when a Stop is recorded.
+
+## Real-Time Foul Trouble & Fatigue Rotation Alerts
+**Priority:** HIGH
+**Type:** Enhancement
+**Why:** In the heat of a game, coaches often miss when a player is one foul away from disqualification or has exceeded their physical "red-line." Proactive alerts prevent tactical errors.
+**What:** Implement visual and haptic/audio alerts in `GameMode` when a player reaches configured thresholds (e.g., 2 fouls in Q1, 4 fouls total, or 8 consecutive minutes).
+**Acceptance Criteria:**
+- [ ] "Foul Trouble" pulse on the player's lineup card (e.g., orange at limit-1, red at limit).
+- [ ] "Fatigue Alert" visual (e.g., a "Needs Sub" icon) when a player's current stint exceeds the "Max Stint Duration" from Team Settings.
+- [ ] Configuration in Team Details to set "Foul Warning Thresholds" by period.
+
+## Live Lineup Impact (+/-) Dashboard Overlay
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Coaches need to know *immediately* if a specific 5-man unit is being outscored, even if individual players look okay. Plus/Minus for the current lineup is the ultimate efficiency truth.
+**What:** Add a "Live Lineup Impact" section to the `GameMode` page that displays the +/- for the currently active 5-man unit since they were subbed in.
+**Acceptance Criteria:**
+- [ ] Real-time display of the "Current Lineup +/-" (e.g., "+4 since last sub").
+- [ ] Comparison metric showing points scored vs. points allowed for the active unit.
+- [ ] "Stint Duration" timer for the current 5-man unit as a whole.
+
 ## Persistent Opponent Scouting Database
 **Priority:** MEDIUM
 **Type:** Feature
@@ -77,16 +108,25 @@
 - [ ] Display summarized period stats (Score, Fouls) with input fields for "Correction" if they differ from the app.
 - [ ] Generate a `SYSTEM_CORRECTION` event to balance totals if manual overrides are entered.
 
-## Advanced Fatigue & Rotation Alerts
+## Multi-Period Tactical Heatmaps
+**Priority:** MEDIUM
+**Type:** Feature
+**Why:** Shooting patterns change as a game progresses due to fatigue or defensive adjustments. Coaches need to see *when* their team stopped getting to the rim.
+**What:** Enhance the Shot Chart in `GameStats` and `Dashboard` to allow filtering heatmaps by specific period or "Half."
+**Acceptance Criteria:**
+- [ ] Period-selector filter (P1, P2, P3, P4, OT) on the Shot Chart view.
+- [ ] "Compare Periods" mode showing two heatmaps side-by-side (e.g., 1st Half vs 2nd Half).
+- [ ] Toggle to show "Only Misses" or "Only Makes" on the heatmap.
+
+## Interactive Playbook Efficiency HUD
 **Priority:** MEDIUM
 **Type:** Enhancement
-**Why:** Managing player fatigue is critical for performance and injury prevention. Proactive alerts help coaches stick to their rotation plan during the intensity of a live game.
-**What:** Implement configurable fatigue thresholds. Provide visual cues and alerts when players exceed their target stint lengths or total game minutes.
+**Why:** Coaches need to know *during* the game if a specific offensive set is failing. Waiting for post-game stats to stop running an inefficient play is too late.
+**What:** Add a "Playbook Performance" widget to the `GameMode` sidebar that shows the success rate (PPP) of the top 3 most-used plays in the current game.
 **Acceptance Criteria:**
-- [ ] Input fields in Player/Team details for "Max Stint Duration" and "Game Minute Limit."
-- [ ] Visual pulse or color change in the Game Mode "Live Lineup" for players over their limit.
-- [ ] Fatigue indicators in the Quick Substitution dialog to help identify rested bench players.
-- [ ] Real-time stint timer logic that accounts for clock pauses.
+- [ ] Sidebar widget in GameMode showing Play Name, Frequency, and Points Per Possession (PPP).
+- [ ] Color-coded efficiency indicator (Green/Yellow/Red) based on team-average PPP.
+- [ ] One-tap access to see the shot chart for a specific play during timeouts.
 
 ## Automated PDF Box Score & Game Summary Export
 **Priority:** HIGH
@@ -109,33 +149,3 @@
 - [ ] One-tap recording for each attempt in the sequence.
 - [ ] Automatically attributes points and attempts to the selected player.
 - [ ] Closes automatically after the designated number of attempts are recorded.
-
-## Season-Wide Tactical Heatmaps
-**Priority:** MEDIUM
-**Type:** Feature
-**Why:** Single-game shot charts are useful, but season-long patterns reveal a player's true "hot zones" and offensive tendencies.
-**What:** Create a "Season Analytics" view that aggregates all shot data for a team or player across multiple games into a single heatmap.
-**Acceptance Criteria:**
-- [ ] New "Season Stats" tab in the Team Detail page.
-- [ ] High-density heatmap showing shot frequency and efficiency (eFG%) by zone.
-- [ ] Ability to filter the heatmap by specific player or specific offensive "Play".
-
-## Defensive Momentum & "Run" Tracker
-**Priority:** MEDIUM
-**Type:** UX
-**Why:** Coaches often struggle to feel the exact "momentum" of a game under pressure. Visualizing scoring runs helps in deciding when to call a timeout or change defensive schemes.
-**What:** Implement a "Momentum Bar" or "Run Tracker" in the Game Mode scoreboard that highlights consecutive scores or stops (e.g., "8-0 Run" or "3 Consecutive Stops").
-**Acceptance Criteria:**
-- [ ] Real-time "Run" indicator in the Scoreboard (e.g., "Lakers: 10-2 Run").
-- [ ] Visual alert when a team achieves a "Kill" (3 consecutive stops).
-- [ ] Historical "Run" list in the Game Summary to review game-changing stretches.
-
-## Pre-Game Rotation Planner
-**Priority:** LOW
-**Type:** Feature
-**Why:** Elite coaches go into a game with a plan for minutes and substitutions. Comparing the "Plan" vs "Actual" helps improve coaching discipline and player management.
-**What:** A tool within Team Settings to define a target rotation (minutes per player) and then visualize the "Minutes Variance" in post-game stats.
-**Acceptance Criteria:**
-- [ ] "Rotation Plan" interface in Team Details to set target MPG for each player.
-- [ ] "Minutes Variance" column in Game Stats/Season Stats comparing planned vs. actual minutes.
-- [ ] Warning in Game Mode if a player is significantly over their planned minute allocation.

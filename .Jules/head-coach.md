@@ -37,3 +37,11 @@ Observation: The application has successfully evolved from a simple data capture
 Impact: Scorekeepers remain a bottleneck during peak game intensity (e.g., late-game foul situations), leading to potential data loss or lag. Furthermore, the value of the collected data is trapped within the app if it cannot be easily exported as a professional box score or analyzed across a full season to identify long-term player tendencies and tactical "hot zones."
 
 Recommendation: Prioritize "Workflow Speed" (Dedicated Free Throw Mode) and "External Utility" (PDF Export). Following this, move towards "Season-Wide Analytics" to allow coaches to see the bigger picture of their team's performance beyond individual game results.
+
+## 2025-05-20 - Tactical Presence: Bringing the "Engine" to the Scoreboard
+
+Observation: We have built a high-performance statistical engine (`stats.ts`) that can calculate advanced metrics like "Stops," "Kills," and "Lineup Efficiency" in real-time. However, this intelligence is currently "locked in the basement"—it's available in the code, but it's not present on the live scoreboard where the coach actually makes decisions. We are tracking defensive momentum (Stops/Kills) and rotation impact (+/-) but only showing it in post-game summaries.
+
+Impact: Without live tactical visuals, the coach is still relying on "gut feel" for momentum and rotation quality. The app is a record-keeper, not a co-pilot. If we don't visualize the defensive "Kill" streak or the current lineup's +/- in real-time, we are leaving the coach blind to the most critical game-flow indicators that the data is already calculating.
+
+Recommendation: Transition from "Passive Record-Keeping" to "Active Tactical HUD." Integrate the existing "Stops & Kills" logic into a live momentum bar on the scoreboard. Promote "Lineup +/-" to a primary real-time dashboard so the coach can see *exactly* how the current 5-man unit is performing relative to the opponent. Finally, evolve rotation management from simple timers to proactive "Alerts" that trigger before a player reaches their red-line fatigue or foul limit.
