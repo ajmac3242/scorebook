@@ -22,3 +22,8 @@
 - **Patterns in what gets left incomplete**: Dead code and unused imports from rapid component migrations (MUI to HeroUI) accumulate quickly and break CI if not pruned.
 - **Recurring issues agents create**: Forgetting that `useLiveQuery` returns `undefined` during the initial fetch, which when combined with `|| []` in dependency arrays, causes infinite re-render loops or stale data.
 - **End-of-Day improvement patterns**: Stabilizing hook references via `useMemo` fallbacks ensures that heavy statistical re-calculations only trigger when data actually changes, not just because a hook returned a new empty array reference.
+
+## End-of-Day Insights - 2026-04-17
+- **Patterns in what gets left incomplete**: Component library migrations (MUI to HeroUI) often leave the test suite in a broken state if mocks aren't updated to support new prop patterns (e.g., `onPress` vs `onClick`).
+- **Recurring issues agents create**: Testing-library failures due to "Multiple elements found" when modals/dialogs are rendered in the DOM even when closed; conditional rendering in mocks is essential.
+- **End-of-Day improvement patterns**: Robust mocking of HeroUI components in `setupTests.ts` (including label-to-input association) ensures that existing accessibility-focused tests continue to provide value after a UI framework swap.
