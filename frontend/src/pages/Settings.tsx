@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import {
   Button,
   Card,
-  CardBody,
+  CardContent,
   CardHeader,
   Chip,
   Avatar,
@@ -157,15 +157,14 @@ const Settings: React.FC = () => {
       <div className="mt-4 flex justify-center px-2">
         <Card className="max-w-[500px] w-full p-6 shadow-xl border-none">
           <CardHeader className="flex flex-col items-center pb-6">
-            <Avatar
-              className="w-24 h-24 text-3xl mb-4 bg-primary text-white"
-              icon={<SettingsIcon className="text-4xl" />}
-            />
+            <Avatar className="w-24 h-24 text-3xl mb-4 bg-primary text-white text-center flex items-center justify-center">
+              <SettingsIcon className="text-4xl" />
+            </Avatar>
             <h2 className="text-3xl font-serif font-bold text-primary-900">Application Settings</h2>
             <p className="text-default-500">System Configuration</p>
           </CardHeader>
 
-          <CardBody className="space-y-6">
+          <CardContent className="space-y-6">
             <Separator />
 
             <div className="space-y-4">
@@ -174,40 +173,39 @@ const Settings: React.FC = () => {
               <div className="flex justify-between items-center p-3 bg-default-50 rounded-xl border border-default-100">
                 <span className="text-sm font-medium">Network Connection</span>
                 <Chip
-                  variant="flat"
+                  variant="soft"
                   color={isOnline ? "success" : "danger"}
-                  startContent={isOnline ? <OnlineIcon fontSize="small" /> : <OfflineIcon fontSize="small" />}
                   size="sm"
-                  className="font-bold"
+                  className="font-bold flex gap-1 items-center"
                 >
-                  {isOnline ? "Online" : "Offline"}
+                  {isOnline ? <OnlineIcon fontSize="small" /> : <OfflineIcon fontSize="small" />}
+                  <span>{isOnline ? "Online" : "Offline"}</span>
                 </Chip>
               </div>
 
               <div className="flex justify-between items-center p-3 bg-default-50 rounded-xl border border-default-100">
                 <span className="text-sm font-medium">Synchronization Status</span>
                 <Chip
-                  variant="flat"
-                  color={isSyncing ? "secondary" : hasUnsynced ? "warning" : "default"}
-                  startContent={isSyncing ? <SyncingIcon className="spin text-sm" /> : hasUnsynced ? <WarningIcon fontSize="small" /> : <SyncingIcon fontSize="small" />}
+                  variant="soft"
+                  color={isSyncing ? "accent" : hasUnsynced ? "warning" : "default"}
                   size="sm"
-                  className="font-bold"
+                  className="font-bold flex gap-1 items-center"
                 >
-                  {isSyncing ? "Syncing..." : hasUnsynced ? "Unsynced changes" : "Up to date"}
+                  {isSyncing ? <SyncingIcon className="spin text-sm" /> : hasUnsynced ? <WarningIcon fontSize="small" /> : <SyncingIcon fontSize="small" />}
+                  <span>{isSyncing ? "Syncing..." : hasUnsynced ? "Unsynced changes" : "Up to date"}</span>
                 </Chip>
               </div>
             </div>
 
             <Button
-              color="danger"
-              variant="solid"
+              variant="danger"
               fullWidth
               size="lg"
-              startContent={<LogoutIcon />}
               onPress={handleLogoutClick}
-              className="font-bold shadow-lg"
+              className="font-bold shadow-lg flex gap-2 items-center justify-center"
             >
-              Logout
+              <LogoutIcon />
+              <span>Logout</span>
             </Button>
 
             <Separator />
@@ -218,22 +216,23 @@ const Settings: React.FC = () => {
                 <div className="flex gap-2">
                   <Button
                     size="sm"
-                    variant="light"
-                    startContent={<CopyIcon fontSize="small" />}
+                    variant="ghost"
                     onPress={copyLogsToClipboard}
                     isDisabled={logs.length === 0}
+                    className="flex gap-1 items-center"
                   >
-                    Copy
+                    <CopyIcon fontSize="small" />
+                    <span>Copy</span>
                   </Button>
                   <Button
                     size="sm"
-                    variant="light"
-                    color="danger"
-                    startContent={<ClearIcon fontSize="small" />}
+                    variant="ghost"
                     onPress={handleClearLogs}
                     isDisabled={logs.length === 0}
+                    className="flex gap-1 items-center"
                   >
-                    Clear
+                    <ClearIcon fontSize="small" />
+                    <span className="text-danger">Clear</span>
                   </Button>
                 </div>
               </div>
@@ -264,7 +263,7 @@ const Settings: React.FC = () => {
                 )}
               </ScrollShadow>
             </div>
-          </CardBody>
+          </CardContent>
         </Card>
       </div>
 
@@ -285,10 +284,10 @@ const Settings: React.FC = () => {
               </p>
             </AlertDialogBody>
             <AlertDialogFooter>
-              <Button variant="light" onPress={close}>
+              <Button variant="ghost" onPress={close}>
                 Cancel
               </Button>
-              <Button color="danger" onPress={confirmLogout}>
+              <Button variant="danger" onPress={confirmLogout}>
                 Logout Anyway
               </Button>
             </AlertDialogFooter>

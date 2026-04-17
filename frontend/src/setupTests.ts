@@ -51,6 +51,7 @@ vi.mock("./db", () => ({
       get: vi.fn(),
       update: vi.fn(),
       anyOf: vi.fn().mockReturnThis(),
+      first: vi.fn(),
     },
     players: {
       toArray: vi.fn().mockResolvedValue([]),
@@ -97,6 +98,7 @@ vi.mock("./db", () => ({
       anyOf: vi.fn().mockReturnThis(),
     },
     transaction: vi.fn((_mode, _tables, callback) => callback()),
+    delete: vi.fn().mockResolvedValue(undefined),
   },
 }));
 
@@ -161,12 +163,20 @@ vi.mock("@heroui/react", () => ({
       { "data-testid": "heroui-card-content" },
       children,
     ),
-  CardBody: ({ children }: any) =>
-    React.createElement("div", { "data-testid": "heroui-card-body" }, children),
   CardHeader: ({ children }: any) => React.createElement("div", null, children),
   CardFooter: ({ children }: any) => React.createElement("div", null, children),
-  Button: ({ children, onClick, ...props }: any) =>
-    React.createElement("button", { onClick, ...props }, children),
+  Button: ({ children, onClick, onPress, ...props }: any) =>
+    React.createElement(
+      "button",
+      {
+        ...props,
+        onClick: (e: any) => {
+          if (onClick) onClick(e);
+          if (onPress) onPress(e);
+        },
+      },
+      children,
+    ),
   Modal: ({ children }: any) => React.createElement("div", null, children),
   ModalContent: ({ children }: any) =>
     React.createElement("div", null, children),
@@ -175,16 +185,80 @@ vi.mock("@heroui/react", () => ({
   ModalBody: ({ children }: any) => React.createElement("div", null, children),
   ModalFooter: ({ children }: any) =>
     React.createElement("div", null, children),
+  useOverlayState: vi.fn(() => {
+    const [isOpen, setIsOpen] = React.useState(false);
+    return {
+      isOpen,
+      open: vi.fn(() => setIsOpen(true)),
+      close: vi.fn(() => setIsOpen(false)),
+      toggle: vi.fn(() => setIsOpen(!isOpen)),
+    };
+  }),
   useDisclosure: () => ({ isOpen: false, onOpen: vi.fn(), onClose: vi.fn() }),
   Select: ({ children }: any) => React.createElement("select", null, children),
   SelectItem: ({ children }: any) =>
     React.createElement("option", null, children),
   ListBoxItem: ({ children }: any) =>
     React.createElement("option", null, children),
-  Input: (props: any) => React.createElement("input", props),
+  Input: ({ label, onValueChange, ...props }: any) => {
+    const id = props.id || `input-${label}`;
+    const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (onValueChange) onValueChange(e.target.value);
+      if (props.onChange) props.onChange(e);
+    };
+    return React.createElement(
+      "div",
+      null,
+      label && React.createElement("label", { htmlFor: id }, label),
+      React.createElement("input", { ...props, id, onChange }),
+    );
+  },
   Tabs: ({ children }: any) => React.createElement("div", null, children),
   Tab: ({ children }: any) => React.createElement("div", null, children),
-  Chip: ({ children }: any) => React.createElement("div", null, children),
+  Chip: ({ children, startContent }: any) =>
+    React.createElement("div", null, startContent, children),
+  Avatar: ({ children, ...props }: any) =>
+    React.createElement("div", props, children),
+  Separator: () => React.createElement("hr"),
+  ScrollShadow: ({ children, className }: any) =>
+    React.createElement("div", { className }, children),
+  Alert: ({ children, title, description, status, ...props }: any) =>
+    React.createElement(
+      "div",
+      { role: "alert", "data-status": status, ...props },
+      title && React.createElement("div", null, title),
+      description && React.createElement("div", null, description),
+      children,
+    ),
+  AlertDialogRoot: ({ children, isOpen }: any) =>
+    isOpen
+      ? React.createElement(
+          "div",
+          { "data-testid": "alert-dialog-root" },
+          children,
+        )
+      : null,
+  AlertDialogBackdrop: () => null,
+  AlertDialogContainer: ({ children }: any) =>
+    React.createElement("div", null, children),
+  AlertDialogDialog: ({ children }: any) =>
+    React.createElement("div", { role: "alertdialog" }, children),
+  AlertDialogHeader: ({ children }: any) =>
+    React.createElement("div", null, children),
+  AlertDialogHeading: ({ children }: any) =>
+    React.createElement("h2", null, children),
+  AlertDialogBody: ({ children }: any) =>
+    React.createElement("div", null, children),
+  AlertDialogFooter: ({ children }: any) =>
+    React.createElement("div", null, children),
+  AlertDialogCloseTrigger: () => null,
+  toast: {
+    success: vi.fn(),
+    error: vi.fn(),
+    danger: vi.fn(),
+    warning: vi.fn(),
+    info: vi.fn(),
+  },
 }));
 
 vi.mock("@heroui/use-disclosure", () => ({

@@ -3,7 +3,7 @@ import { AuthenticationDetails, CognitoUser } from "amazon-cognito-identity-js";
 import { UserPool } from "../UserPool";
 import {
   Card,
-  CardBody,
+  CardContent,
   CardHeader,
   Button,
   Input,
@@ -59,9 +59,9 @@ const Login: React.FC = () => {
           <h1 className="text-2xl font-serif font-bold text-primary-900">Sign In</h1>
           <p className="text-small text-default-500">Enter your credentials to continue</p>
         </CardHeader>
-        <CardBody>
+        <CardContent>
           {error && (
-            <Alert color="danger" variant="flat" className="mb-4">
+            <Alert status="danger" className="mb-4">
               <div className="flex flex-col gap-1">
                 <span className="text-small font-bold">Error</span>
                 <span className="text-tiny">{error}</span>
@@ -69,38 +69,43 @@ const Login: React.FC = () => {
             </Alert>
           )}
           <form onSubmit={onSubmit} className="flex flex-col gap-4">
-            <Input
-              isRequired
-              label="Username"
-              placeholder="Enter your username"
-              type="text"
-              variant="bordered"
-              value={username}
-              onValueChange={setUsername}
-              autoComplete="username"
-              autoFocus
-            />
-            <Input
-              isRequired
-              label="Password"
-              placeholder="Enter your password"
-              type="password"
-              variant="bordered"
-              value={password}
-              onValueChange={setPassword}
-              autoComplete="current-password"
-            />
+            <div className="flex flex-col gap-1">
+              <label htmlFor="username" className="text-small font-medium text-default-700">Username</label>
+              <Input
+                required
+                id="username"
+                placeholder="Enter your username"
+                type="text"
+                variant="primary"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                autoComplete="username"
+                autoFocus
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label htmlFor="password" className="text-small font-medium text-default-700">Password</label>
+              <Input
+                required
+                id="password"
+                placeholder="Enter your password"
+                type="password"
+                variant="primary"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="current-password"
+              />
+            </div>
             <Button
               type="submit"
-              color="primary"
-              variant="solid"
+              variant="primary"
               fullWidth
               className="mt-2 font-bold"
             >
               Sign In
             </Button>
           </form>
-        </CardBody>
+        </CardContent>
       </Card>
     </div>
   );
