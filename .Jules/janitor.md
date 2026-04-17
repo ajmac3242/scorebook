@@ -21,3 +21,6 @@ Action: Periodically scan for "orphan" JSDoc blocks and enforce `??` for numeric
 ## 2026-04-14 - React Hook and Memoization Hygiene
 Learning: Inline `useCallback` hooks within JSX can lead to `react-hooks/rules-of-hooks` violations if they appear after early returns. Furthermore, incomplete dependency arrays in `useMemo` can prevent the React Compiler from optimizing components and lead to stale calculations.
 Action: Always extract `useCallback` hooks to the component body before any early returns. Ensure `useMemo` dependency arrays are exhaustive to preserve memoization and ensure correctness.
+## 2026-04-17 - Standardized Type Safety and Logic Cleanup
+Learning: The codebase contained several instances of implicit 'any', unused variables, and redundant casting that reduced maintainability. Specifically, Lambda utility functions in 'backend/src/index.ts' lacked explicit return types, and 'syncService.ts' used unsafe 'any' casts for database updates.
+Action: Implemented explicit return types for all backend helper functions, refactored request metadata extraction for better type safety, and replaced unsafe casts with 'Partial<T>' in the sync service. Removed dead logic and duplicate documentation to improve code hygiene.

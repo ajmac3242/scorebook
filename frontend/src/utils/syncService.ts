@@ -14,16 +14,16 @@ import { logger } from "./logger";
  * Interface representing the team roster snapshot structure from S3.
  */
 interface RosterSnapshot {
-  team: Record<string, unknown>;
-  players: Record<string, unknown>[];
+  team: Team;
+  players: (Player & { jerseyNumber?: string })[];
 }
 
 /**
  * Interface representing the game stats snapshot structure from S3.
  */
 interface GameSnapshot {
-  game: Record<string, unknown>;
-  stats: Record<string, unknown>[];
+  game: Game;
+  stats: StatEvent[];
 }
 
 /**
@@ -255,8 +255,7 @@ class SyncService {
       if (successIds.length > 0) {
         await db.transaction("rw", table, async () => {
           for (let j = 0; j < successIds.length; j++) {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            await table.update(successIds[j], { synced: 1 } as any);
+            await table.update(successIds[j], { synced: 1 } as Partial<T>);
           }
         });
       }
