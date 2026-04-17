@@ -19,7 +19,6 @@ import {
   DeleteObjectCommand,
 } from "@aws-sdk/client-s3";
 import { v4 as uuidv4 } from "uuid";
-import crypto from "node:crypto";
 import {
   APIGatewayProxyEventV2,
   APIGatewayProxyResultV2,
@@ -33,25 +32,37 @@ import {
   serverError,
   response,
   sanitizeOutput,
-  INTERNAL_KEYS,
 } from "./responses.js";
+import {
+  isValidUuid,
+  isValidPlayerId,
+  SPECIAL_PLAYER_IDS,
+} from "./validation.js";
+import { Keys } from "./keys.js";
+import {
+  logError,
+  maskEvent,
+  extractRequestMetadata,
+  safeCompare,
+  normalizePath,
+  extractIdFromPath,
+  stripLocalFields,
+} from "./utils.js";
+import {
+  calculateGameResultFromStats,
+} from "./scoring.js";
+import {
+  snapshotTeamRoster,
+  snapshotTeamGames,
+  snapshotGameStats,
+  deleteTeamSnapshots,
+  deleteGameSnapshots,
+} from "./snapshots.js";
 
 // Clients
 const client = new DynamoDBClient({});
 const docClient = DynamoDBDocumentClient.from(client);
 const s3Client = new S3Client({});
-
-/**
- * Set of headers that should be redacted from logs for security.
- */
-const REDACTED_HEADERS = new Set([
-  "authorization",
-  "cookie",
-  "set-cookie",
-  "x-api-key",
-  "proxy-authorization",
-  "x-amz-security-token",
-]);
 
 /**
  * Valid basketball action types for stat event validation.
@@ -75,94 +86,6 @@ const VALID_ACTION_TYPES = new Set([
   "POSSESSION",
 ]);
 
-/**
- * Standardized IDs for special players.
- */
-const SPECIAL_PLAYER_IDS = {
-  OPPONENT: "OPPONENT",
-  TEAM_TIMEOUT: "TEAM_TIMEOUT",
-  OUR_TEAM: "OUR_TEAM",
-};
-
-const SPECIAL_ID_SET: Set<string> = new Set(Object.values(SPECIAL_PLAYER_IDS));
-
-/**
- * Regex for validating UUID v4 format.
- * Prevents path traversal and other injection attacks via IDs.
- */
-const UUID_REGEX =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-/**
- * Validates if a string is a valid UUID v4.
- * @param {unknown} id - The ID to validate.
- * @returns {boolean} True if it's a valid UUID string.
- */
-function isValidUuid(id: unknown): id is string {
-  return typeof id === "string" && UUID_REGEX.test(id);
-}
-
-/**
- * Validates if a string is a valid player ID.
- *
- * ARCHITECTURE:
- * To support "on-the-fly" tracking of opponents without pre-creating entities,
- * the system accepts three types of player IDs:
- * 1. UUID v4: Standard for registered team players.
- * 2. SPECIAL CONSTANTS: (e.g., 'OPPONENT', 'OUR_TEAM') for general tracking.
- * 3. JERSEY PREFIX: 'OPPONENT:{jersey}' (e.g., 'OPPONENT:12') for tracking
- *    specific opponent players by their jersey number.
- *
- * @param {unknown} id - The ID to validate.
- * @returns {boolean} True if it's a valid player ID.
- */
-function isValidPlayerId(id: unknown): boolean {
-  if (typeof id !== "string") return false;
-  if (isValidUuid(id)) return true;
-  if (SPECIAL_ID_SET.has(id)) return true;
-  const strId = id as string;
-  if (strId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":")) {
-    const jersey = strId.split(":")[1];
-    return !!jersey && /^\d{1,2}$/.test(jersey);
-  }
-  return false;
-}
-
-/**
- * Extracts an ID from a path given a prefix.
- * @param {string} path - The request path.
- * @param {string} prefix - The path prefix (e.g. "/players/").
- * @returns {string | null} The extracted ID or null.
- */
-function extractIdFromPath(path: string, prefix: string): string | null {
-  if (!path.startsWith(prefix)) return null;
-  const id = path.slice(prefix.length);
-  return id.includes("/") ? null : id;
-}
-
-const Keys = {
-  team: (id: string) => `TEAM#${id}`,
-  player: (id: string) => `PLAYER#${id}`,
-  game: (id: string) => `GAME#${id}`,
-  metadata: (id: string) => `METADATA#${id}`,
-  stat: (timestamp: string, id: string) => `STAT#${timestamp}#${id}`,
-};
-
-/**
- * Standardized error logger for the backend.
- * @param {string} label - Contextual label for the error.
- * @param {unknown} error - The error object.
- */
-function logError(label: string, error: unknown) {
-  if (error instanceof Error) {
-    console.error(`[ERROR] ${label}: ${error.message}`, error.stack);
-  } else {
-    console.error(
-      `[ERROR] ${label}:`,
-      typeof error === "object" ? JSON.stringify(error, null, 2) : error,
-    );
-  }
-}
 
 /**
  * Handlers for Players endpoints.
@@ -299,8 +222,9 @@ async function handleGames(
       );
       if (resp.statusCode !== 201 || !resp.body) return resp;
       const newItem = JSON.parse(resp.body);
-      await snapshotTeamGames(newItem.teamId, tableName);
-      if (newItem.completed) await snapshotGameStats(newItem.id, tableName);
+      await snapshotTeamGames(newItem.teamId, tableName, docClient);
+      if (newItem.completed)
+        await snapshotGameStats(newItem.id, tableName, docClient);
       return resp;
     }
   }
@@ -319,7 +243,7 @@ async function handleGames(
       );
       const resp = await softDeleteItem("GAME", "METADATA", gameId, tableName);
       if (resp.statusCode === 200 && getResp.Item) {
-        await snapshotTeamGames(getResp.Item.teamId, tableName);
+        await snapshotTeamGames(getResp.Item.teamId, tableName, docClient);
         await deleteGameSnapshots(gameId);
       }
       return resp;
@@ -340,8 +264,9 @@ async function handleGames(
         }),
       );
       if (getResp.Item) {
-        await snapshotTeamGames(getResp.Item.teamId, tableName);
-        if (getResp.Item.completed) await snapshotGameStats(gameId, tableName);
+        await snapshotTeamGames(getResp.Item.teamId, tableName, docClient);
+        if (getResp.Item.completed)
+          await snapshotGameStats(gameId, tableName, docClient);
       }
       return ok({ message: "Game restored" });
     }
@@ -374,94 +299,115 @@ async function handleGames(
         ConditionExpression: "attribute_exists(PK)",
       }),
     );
-    await snapshotGameStats(gameId, tableName);
-    await snapshotTeamGames(getResp.Item.teamId, tableName);
-    return ok({ message: "Game completed" });
+  await snapshotGameStats(gameId, tableName, docClient);
+  await snapshotTeamGames(getResp.Item.teamId, tableName, docClient);
+  return ok({ message: "Game completed" });
   }
 
   if (path.startsWith("/games/") && path.endsWith("/stats")) {
-    const parts = path.split("/");
-    if (parts.length !== 4) return null;
-    const gameId = parts[2];
-    if (!isValidUuid(gameId)) {
-      return badRequest("Invalid gameId format (UUID required)");
-    }
-    if (method === "GET") {
-      const result = await docClient.send(
-        new QueryCommand({
-          TableName: tableName,
-          KeyConditionExpression: "PK = :pk AND begins_with(SK, :sk)",
-          ExpressionAttributeValues: {
-            ":pk": Keys.game(gameId),
-            ":sk": "STAT#",
-          },
-        }),
-      );
-      return ok(result.Items?.filter((i) => !i.deletedAt) || []);
-    }
-    if (method === "POST") {
-      if (
-        !body?.type ||
-        typeof body.type !== "string" ||
-        !VALID_ACTION_TYPES.has(body.type)
-      ) {
-        return badRequest("Valid stat type is required");
-      }
-      if (
-        body.points !== undefined &&
-        (typeof body.points !== "number" || body.points < 0 || body.points > 3)
-      ) {
-        return badRequest("Points must be a number between 0 and 3");
-      }
-      if (!isValidPlayerId(body.playerId)) {
-        return badRequest("Valid playerId is required");
-      }
-      if (
-        body.period !== undefined &&
-        (typeof body.period !== "number" || body.period < 1)
-      ) {
-        return badRequest("Period must be at least 1");
-      }
-      if (
-        body.clockTime !== undefined &&
-        (typeof body.clockTime !== "number" || body.clockTime < 0)
-      ) {
-        return badRequest("Clock time must be at least 0");
-      }
-      if (
-        (body.locationX !== undefined && typeof body.locationX !== "number") ||
-        (body.locationY !== undefined && typeof body.locationY !== "number")
-      ) {
-        return badRequest("Location coordinates must be numbers");
-      }
+    return await handleGameStats(method, path, body, tableName);
+  }
 
-      const id = (body?.id as string) || uuidv4();
-      if (!isValidUuid(id)) {
-        return badRequest("Invalid stat id format (UUID required)");
-      }
+  return null;
+}
 
-      const timestamp = (body?.timestamp as string) || new Date().toISOString();
-      if (
-        typeof timestamp !== "string" ||
-        !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(timestamp)
-      ) {
-        return badRequest("Invalid timestamp format");
-      }
+/**
+ * Handlers for Game Stats sub-endpoints: /games/{gameId}/stats.
+ * @param {string} method - HTTP method.
+ * @param {string} path - Request path.
+ * @param {Record<string, unknown>} body - Parsed JSON body.
+ * @param {string} tableName - DynamoDB table name.
+ * @returns {Promise<APIGatewayProxyResultV2 | null>} Response.
+ */
+async function handleGameStats(
+  method: string,
+  path: string,
+  body: Record<string, unknown>,
+  tableName: string,
+): Promise<APIGatewayProxyResultV2 | null> {
+  const parts = path.split("/");
+  if (parts.length !== 4) return null;
+  const gameId = parts[2];
+  if (!isValidUuid(gameId)) {
+    return badRequest("Invalid gameId format (UUID required)");
+  }
 
-      const cleanBody = stripLocalFields(body);
-      const item = {
-        ...(cleanBody as Record<string, unknown>),
-        PK: Keys.game(gameId),
-        SK: Keys.stat(timestamp as string, id as string),
-        GSI1PK: Keys.game(gameId),
-        GSI1SK: Keys.stat(timestamp as string, id as string),
-        id,
-        timestamp,
-      };
-      await putNewItem(tableName, item);
-      await snapshotGameStats(gameId, tableName);
-      return created(item);
+  if (method === "GET") {
+    const result = await docClient.send(
+      new QueryCommand({
+        TableName: tableName,
+        KeyConditionExpression: "PK = :pk AND begins_with(SK, :sk)",
+        ExpressionAttributeValues: {
+          ":pk": Keys.game(gameId),
+          ":sk": "STAT#",
+        },
+      }),
+    );
+    return ok(result.Items?.filter((i) => !i.deletedAt) || []);
+  }
+
+  if (method === "POST") {
+    if (
+      !body?.type ||
+      typeof body.type !== "string" ||
+      !VALID_ACTION_TYPES.has(body.type)
+    ) {
+      return badRequest("Valid stat type is required");
     }
+    if (
+      body.points !== undefined &&
+      (typeof body.points !== "number" || body.points < 0 || body.points > 3)
+    ) {
+      return badRequest("Points must be a number between 0 and 3");
+    }
+    if (!isValidPlayerId(body.playerId)) {
+      return badRequest("Valid playerId is required");
+    }
+    if (
+      body.period !== undefined &&
+      (typeof body.period !== "number" || body.period < 1)
+    ) {
+      return badRequest("Period must be at least 1");
+    }
+    if (
+      body.clockTime !== undefined &&
+      (typeof body.clockTime !== "number" || body.clockTime < 0)
+    ) {
+      return badRequest("Clock time must be at least 0");
+    }
+    if (
+      (body.locationX !== undefined && typeof body.locationX !== "number") ||
+      (body.locationY !== undefined && typeof body.locationY !== "number")
+    ) {
+      return badRequest("Location coordinates must be numbers");
+    }
+
+    const id = (body?.id as string) || uuidv4();
+    if (!isValidUuid(id)) {
+      return badRequest("Invalid stat id format (UUID required)");
+    }
+
+    const timestamp = (body?.timestamp as string) || new Date().toISOString();
+    if (
+      typeof timestamp !== "string" ||
+      !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(timestamp)
+    ) {
+      return badRequest("Invalid timestamp format");
+    }
+
+    const cleanBody = stripLocalFields(body);
+    const item = {
+      ...(cleanBody as Record<string, unknown>),
+      PK: Keys.game(gameId),
+      SK: Keys.stat(timestamp as string, id as string),
+      GSI1PK: Keys.game(gameId),
+      GSI1SK: Keys.stat(timestamp as string, id as string),
+      id,
+      timestamp,
+    };
+    await putNewItem(tableName, item);
+    await snapshotGameStats(gameId, tableName, docClient);
+    return created(item);
   }
 
   return null;
@@ -506,8 +452,8 @@ async function handleTeams(
       );
       if (resp.statusCode !== 201 || !resp.body) return resp;
       const newItem = JSON.parse(resp.body);
-      await snapshotTeamRoster(newItem.id, tableName);
-      await snapshotTeamGames(newItem.id, tableName);
+      await snapshotTeamRoster(newItem.id, tableName, docClient);
+      await snapshotTeamGames(newItem.id, tableName, docClient);
       return resp;
     }
   }
@@ -531,8 +477,8 @@ async function handleTeams(
           ConditionExpression: "attribute_exists(PK)",
         }),
       );
-      await snapshotTeamRoster(teamId, tableName);
-      await snapshotTeamGames(teamId, tableName);
+      await snapshotTeamRoster(teamId, tableName, docClient);
+      await snapshotTeamGames(teamId, tableName, docClient);
       return ok({ message: "Team restored" });
     }
   }
@@ -561,7 +507,7 @@ async function handleTeams(
         teamId,
       };
       await putNewItem(tableName, teamPlayerItem);
-      await snapshotTeamRoster(teamId, tableName);
+      await snapshotTeamRoster(teamId, tableName, docClient);
       return created(teamPlayerItem);
     }
   }
@@ -584,87 +530,12 @@ async function handleTeams(
           ConditionExpression: "attribute_exists(PK)",
         }),
       );
-      await snapshotTeamRoster(teamId, tableName);
+      await snapshotTeamRoster(teamId, tableName, docClient);
       return ok({ message: "Player removed from team" });
     }
   }
 
   return null;
-}
-
-/**
- * Redacts sensitive information from the Lambda event before logging.
- *
- * WHY: This is a security-critical function that prevents JWT tokens and other
- * secrets (like the "Authorization" header) from being leaked into CloudWatch logs.
- *
- * PERFORMANCE & SECURITY TRADEOFF:
- * We use a shallow clone approach for performance, as logging happens on every
- * request. Shallow cloning the root event and then the headers object allows us
- * to safely redact values without mutating the original event used by the handler,
- * avoiding the overhead of a full deep clone or recursive traversal.
- *
- * NOTE: We check for 'authorization' in a case-insensitive manner (key.toLowerCase())
- * because HTTP header keys are case-insensitive according to RFC 9110, and
- * different clients or proxies may use varying casings.
- *
- * @param {APIGatewayProxyEventV2} event - The raw Lambda event.
- * @returns {unknown} A sanitized copy of the event.
- */
-function maskEvent(event: APIGatewayProxyEventV2): unknown {
-  if (!event.headers && !event.cookies) return event;
-
-  // ⚡ Bolt: Check for redacted headers before cloning to avoid unnecessary allocations.
-  let hasRedactable = false;
-  if (event.headers) {
-    for (const key in event.headers) {
-      if (REDACTED_HEADERS.has(key.toLowerCase())) {
-        hasRedactable = true;
-        break;
-      }
-    }
-  }
-
-  if (!hasRedactable && !event.cookies) return event;
-
-  const masked = { ...event };
-  if (event.headers) {
-    const redactedHeaders = { ...masked.headers };
-    for (const key in redactedHeaders) {
-      if (REDACTED_HEADERS.has(key.toLowerCase())) {
-        redactedHeaders[key] = "[REDACTED]";
-      }
-    }
-    masked.headers = redactedHeaders;
-  }
-
-  if (event.cookies) {
-    masked.cookies = event.cookies.map(() => "[REDACTED]");
-  }
-
-  return masked;
-}
-
-/**
- * Main Lambda handler function.
- * Handles routing based on HTTP method and path, processes request bodies,
- * and interacts with DynamoDB and S3.
- *
- * @param {APIGatewayProxyEventV2} event - The API Gateway event object.
- * @returns {Promise<APIGatewayProxyResultV2>} The HTTP response.
- */
-/**
- * Extracts HTTP method and path from various event formats.
- * @param {APIGatewayProxyEventV2} event - Lambda event.
- * @returns {{method: string, path: string}} Normalized metadata.
- */
-function extractRequestMetadata(event: APIGatewayProxyEventV2) {
-  const method =
-    (event as unknown as Record<string, unknown>).method ||
-    (event as unknown as Record<string, unknown>).httpMethod ||
-    event.requestContext?.http?.method ||
-    "GET";
-  return { method: method as string, path: normalizePath(event) };
 }
 
 /**
@@ -676,28 +547,6 @@ function extractRequestMetadata(event: APIGatewayProxyEventV2) {
 function parseBody(body: string | undefined): Record<string, unknown> {
   if (!body) return {};
   return typeof body === "string" ? JSON.parse(body) : body;
-}
-
-/**
- * Timing-safe string comparison to prevent timing attacks on sensitive keys.
- *
- * WHY: Traditional string comparison (== or ===) returns early when it finds a
- * mismatch, leaking information about how many characters matched via response time.
- * crypto.timingSafeEqual prevents this by always checking all bytes, but it requires
- * both inputs to have the same length.
- *
- * Hashing both inputs to SHA-256 first ensures that:
- * 1. Both buffers passed to timingSafeEqual have the same fixed length (32 bytes).
- * 2. We don't leak the length of the secret API key through the comparison time.
- *
- * @param {string} a - First string (e.g., user-provided key).
- * @param {string} b - Second string (e.g., actual secret key).
- * @returns {boolean} True if strings are equal.
- */
-function safeCompare(a: string, b: string): boolean {
-  const hashA = crypto.createHash("sha256").update(a).digest();
-  const hashB = crypto.createHash("sha256").update(b).digest();
-  return crypto.timingSafeEqual(hashA, hashB);
 }
 
 /**
@@ -794,27 +643,6 @@ export const handler = async (
     return serverError();
   }
 };
-
-/**
- * Normalizes the request path by removing stage and prefix information.
- *
- * @param {APIGatewayProxyEventV2} event - The API Gateway event.
- * @returns {string} The normalized path.
- */
-function normalizePath(event: APIGatewayProxyEventV2): string {
-  const raw = (event.rawPath ||
-    (event as unknown as Record<string, unknown>).path ||
-    event.requestContext?.http?.path ||
-    "/") as string;
-
-  let path = raw;
-  if (path.startsWith("/$default")) path = path.slice(9);
-  else if (path.startsWith("/api")) path = path.slice(4);
-
-  if (path.length > 1 && path.endsWith("/")) path = path.slice(0, -1);
-
-  return path || "/";
-}
 
 /**
  * Retrieves items from DynamoDB based on PK prefix and GSI1PK.
@@ -947,249 +775,10 @@ async function softDeleteItem(
 }
 
 /**
- * Executes snapshot logic with error handling and environment variable validation.
- * @param {string} label - Contextual label for error logging.
- * @param {Function} fn - The snapshot function to execute.
- * @returns {Promise<void>}
- */
-async function withDataBucket(
-  label: string,
-  fn: (bucket: string) => Promise<void>,
-) {
-  const bucket = process.env.DATA_BUCKET;
-  if (!bucket) return;
-  try {
-    await fn(bucket);
-  } catch (e) {
-    logError(label, e);
-  }
-}
-
-/**
- * Generates and uploads a team roster snapshot JSON to S3.
- *
- * @param {string} teamId - The team ID.
- * @param {string} tableName - The name of the DynamoDB table.
- * @returns {Promise<void>}
- */
-async function snapshotTeamRoster(teamId: string, tableName: string) {
-  await withDataBucket("Snapshot Team Roster Error", async (bucket) => {
-    const teamResult = await docClient.send(
-      new GetCommand({
-        TableName: tableName,
-        Key: { PK: Keys.team(teamId), SK: Keys.metadata(teamId) },
-      }),
-    );
-    if (!teamResult?.Item || teamResult.Item.deletedAt) return;
-
-    const playersResult = await docClient.send(
-      new QueryCommand({
-        TableName: tableName,
-        IndexName: "GSI1",
-        KeyConditionExpression: "GSI1PK = :pk AND begins_with(GSI1SK, :sk)",
-        ExpressionAttributeValues: {
-          ":pk": Keys.team(teamId),
-          ":sk": "PLAYER#",
-        },
-      }),
-    );
-
-    const snapshot = {
-      team: teamResult.Item,
-      players: (playersResult.Items || []).filter((p) => !p.deletedAt),
-    };
-    await uploadSnapshot(bucket, `teams/${teamId}/roster.json`, snapshot);
-  });
-}
-
-/**
- * Generates and uploads a list of games for a team as a snapshot JSON to S3.
- *
- * @param {string} teamId - The team ID.
- * @param {string} tableName - The name of the DynamoDB table.
- * @returns {Promise<void>}
- */
-async function snapshotTeamGames(teamId: string, tableName: string) {
-  await withDataBucket("Snapshot Team Games Error", async (bucket) => {
-    const gamesResult = await docClient.send(
-      new QueryCommand({
-        TableName: tableName,
-        IndexName: "GSI1",
-        KeyConditionExpression: "GSI1PK = :pk AND begins_with(GSI1SK, :sk)",
-        ExpressionAttributeValues: { ":pk": Keys.team(teamId), ":sk": "GAME#" },
-      }),
-    );
-    const snapshot = {
-      games: (gamesResult.Items || []).filter((g) => !g.deletedAt),
-    };
-    await uploadSnapshot(bucket, `teams/${teamId}/games.json`, snapshot);
-  });
-}
-
-/**
- * Generates and uploads a detailed game stats snapshot JSON to S3, including calculated results.
- *
- * @param {string} gameId - The game ID.
- * @param {string} tableName - The name of the DynamoDB table.
- * @returns {Promise<void>}
- */
-async function snapshotGameStats(gameId: string, tableName: string) {
-  await withDataBucket("Snapshot Game Stats Error", async (bucket) => {
-    const gameResult = await docClient.send(
-      new GetCommand({
-        TableName: tableName,
-        Key: { PK: Keys.game(gameId), SK: Keys.metadata(gameId) },
-      }),
-    );
-    if (!gameResult?.Item || gameResult.Item.deletedAt) return;
-
-    const statsResult = await docClient.send(
-      new QueryCommand({
-        TableName: tableName,
-        KeyConditionExpression: "PK = :pk AND begins_with(SK, :sk)",
-        ExpressionAttributeValues: { ":pk": `GAME#${gameId}`, ":sk": "STAT#" },
-      }),
-    );
-
-    const stats = (statsResult.Items || []).filter((s) => !s.deletedAt);
-    const { teamScore, oppScore, result } = calculateGameResultFromStats(
-      stats as Record<string, unknown>[],
-    );
-
-    const snapshot = {
-      game: { ...gameResult.Item, teamScore, oppScore, result },
-      stats,
-    };
-    await uploadSnapshot(bucket, `games/${gameId}/stats.json`, snapshot);
-  });
-}
-
-/**
  * Accumulates scores for team and opponent from stat events.
  * @param {Record<string, unknown>[]} stats - List of stat events.
  * @returns {{teamScore: number, oppScore: number}} Object containing teamScore and oppScore.
  */
-/**
- * Accumulates the total score for both teams from a list of stat events.
- * 🏀 CoachBoard: Field Goal Tracking
- * Why: Free throws (points: 1) are always counted as 1 point ONLY if the type is MAKE.
- * A MISS with points: 1 (used for FTA tracking) should NOT increment the score.
- *
- * @param {Record<string, unknown>[]} stats - List of statistical events.
- * @returns {object} Total scores for Team and Opponent.
- */
-function accumulateScores(stats: Record<string, unknown>[]) {
-  let teamScore = 0;
-  let oppScore = 0;
-  for (let i = 0; i < stats.length; i++) {
-    const s = stats[i];
-    if (s.deletedAt) continue;
-
-    // Only increment score for MAKE events.
-    if (s.type !== "MAKE") continue;
-
-    const pts = (s.points as number) || 0;
-
-    if (
-      typeof s.playerId === "string" &&
-      s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT)
-    ) {
-      oppScore += pts;
-    } else {
-      teamScore += pts;
-    }
-  }
-  return { teamScore, oppScore };
-}
-
-/**
- * Determines the game result (W, L, or D) based on team and opponent scores.
- * @param {number} teamScore - Points scored by the team.
- * @param {number} oppScore - Points scored by the opponent.
- * @returns {"W" | "L" | "D"} Result indicator.
- */
-function determineResult(teamScore: number, oppScore: number): "W" | "L" | "D" {
-  if (teamScore > oppScore) return "W";
-  if (teamScore < oppScore) return "L";
-  return "D";
-}
-
-/**
- * Calculates the final score and result from a list of stat events.
- *
- * @param {Record<string, unknown>[]} stats - List of stat events.
- * @returns {{teamScore: number, oppScore: number, result: string}} Object containing teamScore, oppScore, and result.
- */
-function calculateGameResultFromStats(stats: Record<string, unknown>[]) {
-  const { teamScore, oppScore } = accumulateScores(stats);
-  const result = determineResult(teamScore, oppScore);
-  return { teamScore, oppScore, result };
-}
-
-/**
- * Uploads a JSON snapshot to S3.
- *
- * @param {string} bucket - The S3 bucket name.
- * @param {string} key - The S3 object key.
- * @param {unknown} data - The data to upload as JSON.
- * @returns {Promise<void>}
- */
-async function uploadSnapshot(bucket: string, key: string, data: unknown) {
-  await s3Client.send(
-    new PutObjectCommand({
-      Bucket: bucket,
-      Key: key,
-      Body: JSON.stringify(sanitizeOutput(data)),
-      ContentType: "application/json",
-    }),
-  );
-}
-
-/**
- * Deletes team-related snapshots from S3.
- * @param {string} teamId - Team ID.
- * @returns {Promise<void>}
- */
-async function deleteTeamSnapshots(teamId: string) {
-  const DATA_BUCKET = process.env.DATA_BUCKET;
-  if (!DATA_BUCKET) return;
-  try {
-    await s3Client.send(
-      new DeleteObjectCommand({
-        Bucket: DATA_BUCKET,
-        Key: `teams/${teamId}/roster.json`,
-      }),
-    );
-    await s3Client.send(
-      new DeleteObjectCommand({
-        Bucket: DATA_BUCKET,
-        Key: `teams/${teamId}/games.json`,
-      }),
-    );
-  } catch (e) {
-    logError("Delete Team Snapshots Error", e);
-  }
-}
-
-/**
- * Deletes game-related snapshots from S3.
- * @param {string} gameId - Game ID.
- * @returns {Promise<void>}
- */
-async function deleteGameSnapshots(gameId: string) {
-  const DATA_BUCKET = process.env.DATA_BUCKET;
-  if (!DATA_BUCKET) return;
-  try {
-    await s3Client.send(
-      new DeleteObjectCommand({
-        Bucket: DATA_BUCKET,
-        Key: `games/${gameId}/stats.json`,
-      }),
-    );
-  } catch (e) {
-    logError("Delete Game Snapshots Error", e);
-  }
-}
 
 /**
  * Performs cleanup of soft-deleted items older than 24 hours.
@@ -1215,31 +804,3 @@ async function performHardCleanup(tableName: string) {
   console.log("Cleanup attempted with threshold:", oneDayAgo);
 }
 
-/**
- * Strips local-only fields and internal DynamoDB keys from the data object before saving.
- *
- * WHY: This is a defense-in-depth measure to prevent mass assignment vulnerabilities.
- * It ensures that even if a malicious user provides internal DynamoDB keys (like PK/SK)
- * in the request body, those keys are stripped before the object is persisted.
- *
- * Without this, an attacker could overwrite existing items by providing a matching
- * PK/SK or escalate privileges by injecting internal metadata.
- *
- * @param {Record<string, unknown>} data - The data object to clean.
- * @returns {Record<string, unknown>} The cleaned object.
- */
-function stripLocalFields(data: unknown): Record<string, unknown> {
-  if (!data || typeof data !== "object" || data === null) {
-    return {};
-  }
-  const result: Record<string, unknown> = {};
-  for (const key in data as Record<string, unknown>) {
-    if (
-      Object.prototype.hasOwnProperty.call(data, key) &&
-      !INTERNAL_KEYS.has(key)
-    ) {
-      result[key] = (data as Record<string, unknown>)[key];
-    }
-  }
-  return result;
-}

@@ -1,3 +1,4 @@
+import { jest, describe, it, expect, beforeEach, afterEach } from "@jest/globals";
 import { handler } from "../index.js";
 import {
   DynamoDBDocumentClient,
@@ -173,7 +174,7 @@ describe("Security Tests", () => {
 
   it("redacts 'Authorization' headers regardless of casing in CloudWatch logs", async () => {
     ddbMock.on(QueryCommand).resolves({ Items: [] });
-    const consoleSpy = jest.spyOn(console, "log").mockImplementation();
+    const consoleSpy = jest.spyOn(console, "log").mockImplementation(() => {});
 
     const event = createEvent("GET", "/teams");
     event.headers = {
@@ -202,7 +203,7 @@ describe("Security Tests", () => {
 
   it("redacts 'Cookie' and 'X-Api-Key' headers in CloudWatch logs", async () => {
     ddbMock.on(QueryCommand).resolves({ Items: [] });
-    const consoleSpy = jest.spyOn(console, "log").mockImplementation();
+    const consoleSpy = jest.spyOn(console, "log").mockImplementation(() => {});
 
     const event = createEvent("GET", "/teams");
     event.headers = {

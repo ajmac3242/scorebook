@@ -4,7 +4,11 @@
  * Processes StatEvent records into player and team level aggregates.
  */
 
-import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../constants/stats";
+import {
+  ACTION_TYPES,
+  SPECIAL_PLAYER_IDS,
+  BONUS_CONFIG,
+} from "../constants/stats";
 import { StatEvent, TeamPlayer, Player, Game } from "../db";
 import {
   roundToOne,
@@ -186,14 +190,15 @@ export const calculateTsPct = (
  * @returns {string} The uppercase initials.
  */
 export const getInitials = (name: string | undefined | null): string => {
-  if (!name?.trim()) return "";
-  return name
-    .trim()
+  const trimmed = name?.trim();
+  if (!trimmed) return "";
+
+  const initials = trimmed
     .split(/\s+/)
     .map((part) => part[0]?.toUpperCase())
-    .filter(Boolean)
-    .slice(0, 2)
-    .join("");
+    .filter(Boolean);
+
+  return initials.slice(0, 2).join("");
 };
 
 /**
@@ -246,14 +251,6 @@ export const getPlayerJersey = (
  * @param fouls - Current foul count for the period.
  * @param periodType - The game format ('QUARTERS' or 'HALVES').
  */
-const BONUS_CONFIG: Record<
-  string,
-  { double: number; single: number; warning: number }
-> = {
-  QUARTERS: { double: 999, single: 5, warning: 4 },
-  HALVES: { double: 10, single: 7, warning: 6 },
-};
-
 export const getBonusStatus = (
   fouls: number,
   periodType: string,
@@ -909,12 +906,19 @@ export const isEventInPeriod = (
   eventPeriod: number,
   currentPeriod: number,
   periodType: string,
-): boolean =>
-  periodType === "QUARTERS"
-    ? eventPeriod === currentPeriod
-    : currentPeriod === 1
-      ? eventPeriod === 1
-      : eventPeriod >= 2;
+): boolean => {
+  if (periodType === "QUARTERS") {
+    return eventPeriod === currentPeriod;
+  }
+
+  // HALVES logic
+  if (currentPeriod === 1) {
+    return eventPeriod === 1;
+  }
+
+  // Period 2+ in HALVES includes all subsequent periods (OTs)
+  return eventPeriod >= 2;
+};
 
 /**
  * Calculates the score and result (W, L, D) for a single game.

@@ -65,6 +65,8 @@ import {
 } from "@mui/material";
 import BasketballCourt from "../components/BasketballCourt";
 import TimeoutDots from "../components/TimeoutDots";
+import RecentActionItem from "../components/RecentActionItem";
+import QuickSubDialog from "../components/QuickSubDialog";
 import { PlayerStatRow } from "../components/PlayerStatRow";
 import { db, type StatEvent, type Player } from "../db";
 import { syncService } from "../utils/syncService";
@@ -2631,197 +2633,19 @@ const GameMode: React.FC = () => {
       </Dialog>
 
       {/* Quick Substitution Dialog */}
-      <Dialog
+      <QuickSubDialog
         open={subDialogOpen}
         onClose={() => setSubDialogOpen(false)}
-        fullWidth
-        maxWidth="sm"
-      >
-        <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
-          Quick Substitution
-        </DialogTitle>
-        <DialogContent>
-          <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid item xs={6}>
-              <Typography variant="subtitle2" gutterBottom align="center">
-                ON COURT
-              </Typography>
-              <Stack spacing={1}>
-                {/* Active players */}
-                {players
-                  .filter((p) => draftOnCourtIds.has(p.id!))
-                  .map((p) => {
-                    const s = statsMap.get(p.id!);
-                    const pf = s?.fouls || 0;
-                    const foulLimit =
-                      game?.foulLimit || team?.defaultFoulLimit || 5;
-                    const isFoulTrouble = pf === foulLimit - 1;
-                    const isFouledOut = pf >= foulLimit;
-
-                    return (
-                      <Button
-                        key={p.id}
-                        variant={
-                          selectedSwapId === p.id ? "contained" : "outlined"
-                        }
-                        onClick={() => handleSwapClick(p.id!)}
-                        fullWidth
-                        sx={{
-                          justifyContent: "flex-start",
-                          borderColor: isFouledOut
-                            ? "error.main"
-                            : isFoulTrouble
-                              ? "warning.main"
-                              : "divider",
-                          color: isFouledOut ? "error.main" : "text.primary",
-                          bgcolor:
-                            selectedSwapId === p.id
-                              ? isFouledOut
-                                ? "error.light"
-                                : isFoulTrouble
-                                  ? "warning.light"
-                                  : "primary.main"
-                              : "transparent",
-                        }}
-                      >
-                        <Avatar
-                          sx={{
-                            width: 24,
-                            height: 24,
-                            fontSize: "0.75rem",
-                            mr: 1,
-                            bgcolor: p.avatarColor || "grey.500",
-                          }}
-                        >
-                          {jerseyMap.get(p.id!) ?? ""}
-                        </Avatar>
-                        <Typography variant="body2" noWrap>
-                          #{jerseyMap.get(p.id!) ?? ""} {p.name}
-                          {isFouledOut && " - OUT"}
-                        </Typography>
-                      </Button>
-                    );
-                  })}
-                {/* Placeholder "Empty" slots to reach 5 total */}
-                {Array.from({
-                  length: Math.max(0, 5 - draftOnCourtIds.size),
-                }).map((_, i) => {
-                  const emptyId = `EMPTY-${i}`;
-                  return (
-                    <Button
-                      key={emptyId}
-                      variant={
-                        selectedSwapId === emptyId ? "contained" : "outlined"
-                      }
-                      aria-label="Empty lineup slot, click to swap with bench player"
-                      onClick={() => handleSwapClick(emptyId)}
-                      fullWidth
-                      sx={{
-                        justifyContent: "flex-start",
-                        borderStyle: "dashed",
-                        color: "text.secondary",
-                        bgcolor:
-                          selectedSwapId === emptyId
-                            ? "rgba(0,0,0,0.05)"
-                            : "transparent",
-                      }}
-                    >
-                      <Avatar
-                        sx={{
-                          width: 24,
-                          height: 24,
-                          fontSize: "0.75rem",
-                          mr: 1,
-                          bgcolor: "transparent",
-                          border: "1px dashed #bdbdbd",
-                          color: "#bdbdbd",
-                        }}
-                      >
-                        ?
-                      </Avatar>
-                      <Typography variant="body2">Empty</Typography>
-                    </Button>
-                  );
-                })}
-              </Stack>
-            </Grid>
-            <Grid item xs={6}>
-              <Typography variant="subtitle2" gutterBottom align="center">
-                BENCH
-              </Typography>
-              <Stack spacing={1}>
-                {players
-                  .filter((p) => !draftOnCourtIds.has(p.id!))
-                  .map((p) => {
-                    const s = statsMap.get(p.id!);
-                    const pf = s?.fouls || 0;
-                    const foulLimit =
-                      game?.foulLimit || team?.defaultFoulLimit || 5;
-                    const isFoulTrouble = pf === foulLimit - 1;
-                    const isFouledOut = pf >= foulLimit;
-
-                    return (
-                      <Button
-                        key={p.id}
-                        variant={
-                          selectedSwapId === p.id ? "contained" : "outlined"
-                        }
-                        onClick={() => handleSwapClick(p.id!)}
-                        fullWidth
-                        sx={{
-                          justifyContent: "flex-start",
-                          borderColor: isFouledOut
-                            ? "error.main"
-                            : isFoulTrouble
-                              ? "warning.main"
-                              : "divider",
-                          color: isFouledOut ? "error.main" : "text.primary",
-                          opacity: isFouledOut ? 0.6 : 1,
-                          bgcolor:
-                            selectedSwapId === p.id
-                              ? isFouledOut
-                                ? "error.light"
-                                : isFoulTrouble
-                                  ? "warning.light"
-                                  : "primary.main"
-                              : "transparent",
-                        }}
-                      >
-                        <Avatar
-                          sx={{
-                            width: 24,
-                            height: 24,
-                            fontSize: "0.75rem",
-                            mr: 1,
-                            bgcolor: p.avatarColor || "grey.500",
-                          }}
-                        >
-                          {jerseyMap.get(p.id!) ?? ""}
-                        </Avatar>
-                        <Typography variant="body2" noWrap>
-                          #{jerseyMap.get(p.id!) ?? ""} {p.name}
-                          {isFouledOut && " - OUT"}
-                        </Typography>
-                      </Button>
-                    );
-                  })}
-              </Stack>
-            </Grid>
-          </Grid>
-        </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setSubDialogOpen(false)} color="inherit">
-            Cancel
-          </Button>
-          <Button
-            onClick={handleQuickSub}
-            variant="contained"
-            startIcon={<SwapHoriz />}
-          >
-            Sub In
-          </Button>
-        </DialogActions>
-      </Dialog>
+        players={players}
+        team={team}
+        game={game}
+        draftOnCourtIds={draftOnCourtIds}
+        selectedSwapId={selectedSwapId}
+        statsMap={statsMap}
+        jerseyMap={jerseyMap}
+        handleSwapClick={handleSwapClick}
+        handleQuickSub={handleQuickSub}
+      />
 
       {/* Confirm Delete Stat Dialog */}
       <Dialog
@@ -2879,131 +2703,6 @@ const GameMode: React.FC = () => {
   );
 };
 
-/**
- * Sub-component for displaying a single item in the recent actions history.
- * Optimized with React.memo to prevent unnecessary re-renders of stable history items.
- */
-const RecentActionItem: React.FC<{
-  stat: StatEvent;
-  players: Player[];
-  periodLabel: string;
-  isReadOnly: boolean;
-  teamName?: string;
-  opponentName?: string;
-  onEdit: (_stat: StatEvent) => void;
-  onDelete: (_id: string) => void;
-}> = React.memo(
-  ({
-    stat,
-    players,
-    periodLabel,
-    isReadOnly,
-    teamName,
-    opponentName,
-    onEdit,
-    onDelete,
-  }) => {
-    const getOpponentName = (pId: string) => {
-      if (pId === SPECIAL_PLAYER_IDS.OPPONENT)
-        return opponentName || "Opponent";
-      if (pId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":")) {
-        const jersey = pId.split(":")[1];
-        return `${opponentName || "Opponent"} #${jersey}`;
-      }
-      return null;
-    };
-
-    const playerName =
-      getOpponentName(stat.playerId) ||
-      (stat.playerId === SPECIAL_PLAYER_IDS.TEAM_TIMEOUT ||
-      stat.playerId === SPECIAL_PLAYER_IDS.OUR_TEAM
-        ? teamName || "Our Team"
-        : players?.find((p) => p.id === stat.playerId)?.name || "Unknown");
-
-    const getActionIcon = (type: string) => {
-      const iconSx = { fontSize: 16, mr: 1, verticalAlign: "middle" };
-      switch (type) {
-        case ACTION_TYPES.MAKE:
-          return <Check sx={{ ...iconSx, color: "success.main" }} />;
-        case ACTION_TYPES.MISS:
-          return <Close sx={{ ...iconSx, color: "error.main" }} />;
-        case ACTION_TYPES.REBOUND:
-        case ACTION_TYPES.OFF_REBOUND:
-        case ACTION_TYPES.DEF_REBOUND:
-          return <SportsBasketball sx={{ ...iconSx, color: "primary.main" }} />;
-        case ACTION_TYPES.ASSIST:
-          return <PanTool sx={{ ...iconSx, color: "info.main" }} />;
-        case ACTION_TYPES.STEAL:
-          return <FlashOn sx={{ ...iconSx, color: "warning.main" }} />;
-        case ACTION_TYPES.TURNOVER:
-          return <SwapHoriz sx={{ ...iconSx, color: "warning.dark" }} />;
-        case ACTION_TYPES.BLOCK:
-          return <ArrowBack sx={{ ...iconSx, color: "secondary.main" }} />;
-        case ACTION_TYPES.FOUL:
-          return <Warning sx={{ ...iconSx, color: "error.light" }} />;
-        case ACTION_TYPES.TIMEOUT:
-          return <History sx={{ ...iconSx, color: "text.secondary" }} />;
-        case ACTION_TYPES.SUB_IN:
-        case ACTION_TYPES.SUB_OUT:
-          return <Groups sx={{ ...iconSx, color: "text.secondary" }} />;
-        case ACTION_TYPES.POSSESSION:
-          return <SwapHoriz sx={{ ...iconSx, color: "primary.light" }} />;
-        default:
-          return null;
-      }
-    };
-
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          py: 0.5,
-          borderBottom: "1px solid #F0F0F0",
-        }}
-      >
-        <Box sx={{ display: "flex", alignItems: "center" }}>
-          <Box sx={{ minWidth: 24, display: "flex", justifyContent: "center" }}>
-            {getActionIcon(stat.type)}
-          </Box>
-          <Box>
-            <Typography variant="body2">
-              <strong>{playerName}</strong>: {stat.type}
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              {periodLabel} {stat.period || 1}
-              {stat.clockTime !== undefined &&
-                ` @ ${formatClock(stat.clockTime)}`}
-            </Typography>
-          </Box>
-        </Box>
-        <Box>
-          <Tooltip title={`Edit ${stat.type} for ${playerName}`}>
-            <IconButton
-              size="small"
-              disabled={isReadOnly}
-              onClick={() => onEdit(stat)}
-              aria-label={`edit ${stat.type} for ${playerName}`}
-            >
-              <Edit fontSize="small" />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title={`Delete ${stat.type} for ${playerName}`}>
-            <IconButton
-              size="small"
-              disabled={isReadOnly}
-              onClick={() => onDelete(stat.id!)}
-              aria-label={`delete ${stat.type} for ${playerName}`}
-            >
-              <Delete fontSize="small" />
-            </IconButton>
-          </Tooltip>
-        </Box>
-      </Box>
-    );
-  },
-);
 
 /**
  * QuickAction component for recording stats.

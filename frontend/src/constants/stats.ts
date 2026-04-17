@@ -57,3 +57,14 @@ export const SPECIAL_PLAYER_IDS = {
   TEAM_TIMEOUT: "TEAM_TIMEOUT",
   OUR_TEAM: "OUR_TEAM",
 };
+
+/**
+ * Bonus status configuration based on foul counts and period type.
+ */
+export const BONUS_CONFIG: Record<
+  string,
+  { double: number; single: number; warning: number }
+> = {
+  QUARTERS: { double: 999, single: 5, warning: 4 },
+  HALVES: { double: 10, single: 7, warning: 6 },
+};
