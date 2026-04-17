@@ -16,6 +16,10 @@ permissions:
   pull-requests: write
   actions: read
 
+env:
+  FORCE_COLOR: 3
+  NODE_NO_WARNINGS: 1
+
 jobs:
   # ---------------------------------------------------------------
   # Quality & Tests: Backend, Frontend, and Docs
@@ -23,12 +27,13 @@ jobs:
   # ---------------------------------------------------------------
   quality-and-tests:
     name: Quality, Tests & Docs
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     strategy:
       fail-fast: true
     steps:
       - uses: actions/checkout@v4
+        timeout-minutes: 5
         with:
           ref: ${{ github.head_ref || github.ref_name }}
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -36,6 +41,7 @@ jobs:
 
       - uses: dorny/paths-filter@v3
         id: filter
+        timeout-minutes: 5
         with:
           filters: |
             backend:
@@ -49,12 +55,14 @@ jobs:
       - name: Install pnpm
         if: steps.filter.outputs.backend == 'true' || steps.filter.outputs.frontend == 'true'
         uses: pnpm/action-setup@v4
+        timeout-minutes: 5
         with:
           version: 9
 
       - name: Setup Node
         if: steps.filter.outputs.backend == 'true' || steps.filter.outputs.frontend == 'true'
         uses: actions/setup-node@v4
+        timeout-minutes: 5
         with:
           node-version: 22
           cache: 'pnpm'
@@ -69,18 +77,19 @@ jobs:
         run: |
           echo "::group::Backend Build"
           cd backend
-          for i in {1..3}; do pnpm install --frozen-lockfile --prefer-offline && break || if [ $i -eq 3 ]; then exit 1; else sleep 10; fi; done
+          for i in {1..3}; do pnpm install --frozen-lockfile --prefer-offline --reporter=appendonly && break || if [ $i -eq 3 ]; then exit 1; else sleep 10; fi; done
           pnpm run build
           echo "::endgroup::"
 
       - name: "Backend: Format & Lint"
         if: steps.filter.outputs.backend == 'true'
+        timeout-minutes: 5
         run: |
           echo "::group::Backend Lint"
           cd backend
           pnpm exec prettier --write "src/**/*.ts"
           # Auto-add missing JSDoc stubs.
-          pnpm exec eslint "src/**/*.ts" --config eslint.config.mjs --fix --rule '{"jsdoc/require-jsdoc": ["warn", {"enableFixer": true, "require": {"FunctionDeclaration": true, "FunctionExpression": true, "MethodDefinition": true}}]}' || true
+          pnpm exec eslint "src/**/*.ts" --config eslint.config.mjs --fix --rule '{"jsdoc/require-jsdoc": ["warn", {"enableFixer": true, "require": {"FunctionDeclaration": true, "FunctionExpression": true, "MethodDefinition": true}}]}'
           echo "::endgroup::"
 
       - name: "Backend: Run Tests"
@@ -101,12 +110,13 @@ jobs:
         run: |
           echo "::group::Frontend Build"
           cd frontend
-          for i in {1..3}; do pnpm install --frozen-lockfile --prefer-offline && break || if [ $i -eq 3 ]; then exit 1; else sleep 10; fi; done
+          for i in {1..3}; do pnpm install --frozen-lockfile --prefer-offline --reporter=appendonly && break || if [ $i -eq 3 ]; then exit 1; else sleep 10; fi; done
           pnpm run build
           echo "::endgroup::"
 
       - name: Generate frontend build hash
         if: steps.filter.outputs.frontend == 'true'
+        timeout-minutes: 5
         run: |
           echo "::group::Generate frontend build hash"
           find frontend/dist -type f | sort | xargs sha256sum | sha256sum | awk '{print $1}' > frontend-build-hash.txt
@@ -114,11 +124,12 @@ jobs:
 
       - name: "Frontend: Format & Lint"
         if: steps.filter.outputs.frontend == 'true'
+        timeout-minutes: 5
         run: |
           echo "::group::Frontend Lint"
           cd frontend
           pnpm exec prettier --write "src/**/*.{ts,tsx}"
-          pnpm exec eslint "src/**/*.{ts,tsx}" --config eslint.config.js --fix --rule '{"jsdoc/require-jsdoc": ["warn", {"enableFixer": true, "require": {"FunctionDeclaration": true, "FunctionExpression": true, "MethodDefinition": true}}]}' || true
+          pnpm exec eslint "src/**/*.{ts,tsx}" --config eslint.config.js --fix --rule '{"jsdoc/require-jsdoc": ["warn", {"enableFixer": true, "require": {"FunctionDeclaration": true, "FunctionExpression": true, "MethodDefinition": true}}]}'
           echo "::endgroup::"
 
       - name: "Frontend: Run Tests"
@@ -132,15 +143,16 @@ jobs:
 
       - name: Job Summary
         if: always()
+        timeout-minutes: 5
         run: |
           echo "::group::Job Summary"
           echo "### CI Run Summary 🚀" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| Component | Status | Details |" >> $GITHUB_STEP_SUMMARY
+          echo "| Component | Status | Context |" >> $GITHUB_STEP_SUMMARY
           echo "| :--- | :--- | :--- |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Backend** | ${{ steps.filter.outputs.backend == 'true' && '✅ Changed' || 'ℹ️ Unchanged' }} | Tests and Linting |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Frontend** | ${{ steps.filter.outputs.frontend == 'true' && '✅ Changed' || 'ℹ️ Unchanged' }} | Tests and Linting |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Docs & Infra** | ${{ steps.filter.outputs.docs == 'true' && '✅ Changed' || 'ℹ️ Unchanged' }} | terraform-docs & Diagrams |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Backend** | ${{ steps.filter.outputs.backend == 'true' && '🛠️ Changed' || '☕ Unchanged' }} | Tests & Linting |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Frontend** | ${{ steps.filter.outputs.frontend == 'true' && '🎨 Changed' || '☕ Unchanged' }} | Tests & Linting |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Docs & Infra** | ${{ steps.filter.outputs.docs == 'true' && '📖 Changed' || '☕ Unchanged' }} | terraform-docs & Diagrams |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Overall Status:** ${{ job.status == 'success' && '🟢 Success' || '🔴 Failed' }}" >> $GITHUB_STEP_SUMMARY
           echo "::endgroup::"
@@ -162,7 +174,7 @@ jobs:
         run: |
           echo "::group::Install Graphviz"
           for i in {1..3}; do
-            sudo apt-get update -y && sudo apt-get install -y graphviz && break || sleep 5;
+            sudo apt-get -qq update && sudo apt-get -qq install -y graphviz && break || sleep 5;
           done
           echo "::endgroup::"
 
@@ -236,6 +248,7 @@ jobs:
       - name: Commit Auto-fixes and Docs
         if: steps.filter.outputs.backend == 'true' || steps.filter.outputs.frontend == 'true' || steps.filter.outputs.docs == 'true'
         uses: stefanzweifel/git-auto-commit-action@v5
+        timeout-minutes: 5
         with:
           commit_message: "chore: auto-format, JSDoc stubs, and docs update [skip ci]"
           file_pattern: "backend/src/** frontend/src/** infra/README.md docs/architecture.png"
@@ -243,6 +256,7 @@ jobs:
       - name: Upload Test Results on Failure
         if: failure()
         uses: actions/upload-artifact@v4
+        timeout-minutes: 5
         with:
           name: ci-failure-logs
           path: |
@@ -250,9 +264,7 @@ jobs:
             frontend/coverage
             backend/*.log
             frontend/*.log
-            infra/README.md
             docs/*.png
-            frontend-build-hash.txt
           if-no-files-found: ignore
 
   # ---------------------------------------------------------------
@@ -261,7 +273,7 @@ jobs:
   # ---------------------------------------------------------------
   auto-merge:
     name: Auto-Merge PR
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
     needs: quality-and-tests
     if: github.event_name == 'pull_request'
@@ -270,6 +282,7 @@ jobs:
       pull-requests: write
     steps:
       - name: Merge PR
+        timeout-minutes: 5
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -284,7 +297,7 @@ jobs:
   # ---------------------------------------------------------------
   trigger-deploy:
     name: Trigger Deploy
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
     needs: auto-merge
     if: github.event_name == 'pull_request'
@@ -293,6 +306,7 @@ jobs:
       contents: read
     steps:
       - name: Trigger Deploy Workflow
+        timeout-minutes: 5
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |

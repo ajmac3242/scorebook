@@ -19,3 +19,23 @@
 8. **Cleanup:** Removed redundant `strategy: fail-fast` block from `deploy.yml` (no matrix used).
 9. **Timeout Protection (Deploy):** Added `timeout-minutes: 5` to all individual steps in `deploy.yml`.
 10. **Timeout Protection (Terratest):** Added `timeout-minutes: 5` to all individual steps in `terratest.yml`.
+
+## 2025-05-22 - Second CI/CD Optimization Suite
+
+### Learning: Deterministic CI Environments
+- **Stability:** Using `latest` OS tags can introduce non-deterministic failures when GitHub updates their runner images.
+- **Experience:** ANSI color output and warning suppression improve developer focus in CI logs.
+- **Enforcement:** Linting errors should be blocking to prevent technical debt from creeping in.
+- **Hygiene:** Artifacts should be strictly for debugging; avoid cluttering runs with build hashes or documentation unless requested.
+
+### Action: Implemented Ten High-Impact Improvements
+1. **Pinned OS Version:** Switched all workflows to `ubuntu-24.04` for reproducible environments.
+2. **Log Colorization:** Enabled `FORCE_COLOR: 3` globally for high-fidelity log output.
+3. **Log Hygiene:** Added `NODE_NO_WARNINGS: 1` globally to suppress noisy experimental warnings.
+4. **Strict Quality:** Removed `|| true` from ESLint steps to enforce code quality standards.
+5. **Granular Timeouts:** Added `timeout-minutes: 5` to all previously unprotected steps.
+6. **Noisy Command Reduction:** Optimized `apt-get` with `-qq` and `pnpm install` with `--reporter=appendonly`.
+7. **Refined Visibility:** Improved `ci.yml` Job Summary table headers and status indicators.
+8. **Focused Debugging:** Removed redundant artifacts (build hashes, READMEs) from failure uploads.
+9. **Standardized Naming:** Ensured all steps have clear, descriptive names for better log navigation.
+10. **Global Config Standard:** Unified global environment variables across CI, Deploy, and Terratest workflows.
