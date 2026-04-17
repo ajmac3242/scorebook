@@ -71,6 +71,7 @@ describe("Validation Logic", () => {
         "OUR_TEAM", // Special Constant
         "OPPONENT:23", // Jersey Prefix
         "OPPONENT:0", // Jersey Prefix
+        "OPPONENT:00", // Double zero jersey
         "OPPONENT:99", // Max length Jersey
       ];
 

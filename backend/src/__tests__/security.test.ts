@@ -208,6 +208,28 @@ describe("Security Tests", () => {
     consoleSpy.mockRestore();
   });
 
+  it("returns the exact same event object when no sensitive headers are present (reference equality)", async () => {
+    ddbMock.on(QueryCommand).resolves({ Items: [] });
+    // Import logger to spy on it
+    const { logger } = await import("../utils/logger.js");
+    const loggerSpy = jest.spyOn(logger, "info").mockImplementation(() => {});
+
+    const event = createEvent("GET", "/teams");
+    event.headers = {
+      "X-Safe-Header": "safe-value",
+    };
+
+    await handler(event);
+
+    const logCall = loggerSpy.mock.calls.find((call: any[]) =>
+      call[0] === "Event received",
+    );
+    expect(logCall).toBeDefined();
+    expect(logCall![1]).toBe(event); // Reference equality check
+
+    loggerSpy.mockRestore();
+  });
+
   it("redacts 'Cookie' and 'X-Api-Key' headers in CloudWatch logs", async () => {
     ddbMock.on(QueryCommand).resolves({ Items: [] });
     const consoleSpy = jest
@@ -434,5 +456,11 @@ describe("Security Tests", () => {
     event3.headers = { "x-api-key": "secret-too-long" };
     const resp3: any = await handler(event3);
     expect(resp3.statusCode).toBe(403);
+
+    // Empty string key
+    const event4 = createEvent("POST", "/cleanup");
+    event4.headers = { "x-api-key": "" };
+    const resp4: any = await handler(event4);
+    expect(resp4.statusCode).toBe(403);
   });
 });

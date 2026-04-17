@@ -216,6 +216,9 @@ class SyncService {
 
     // ⚡ Bolt: Process items in concurrent chunks to improve throughput.
     // Sequential pushing is slow for large datasets (e.g. game stats).
+    // WHY: CHUNK_SIZE = 5 provides a balance between high throughput and
+    // avoiding rate limits or overwhelming the Lambda/DynamoDB backend
+    // during high-volume syncs (e.g., hundreds of game stats).
     const CHUNK_SIZE = 5;
     for (let i = 0; i < items.length; i += CHUNK_SIZE) {
       const chunk = items.slice(i, i + CHUNK_SIZE);
