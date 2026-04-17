@@ -4,7 +4,7 @@
  * Includes layout wrappers, page headers, and statistic display items.
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Paper,
   PaperProps,
@@ -217,23 +217,30 @@ export const AnimatedNumber: React.FC<AnimatedNumberProps> = ({
   duration = 500,
   decimals = 0,
 }) => {
-  const [displayValue, setDisplayValue] = useState(0);
+  const [displayValue, setDisplayValue] = useState(value);
+  const prevValueRef = useRef(value);
 
   useEffect(() => {
     let startTimestamp: number | null = null;
     let animationFrameId: number;
+    const startValue = prevValueRef.current;
 
     const step = (timestamp: number) => {
       if (!startTimestamp) startTimestamp = timestamp;
       const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-      setDisplayValue(progress * value);
+      setDisplayValue(startValue + progress * (value - startValue));
       if (progress < 1) {
         animationFrameId = window.requestAnimationFrame(step);
+      } else {
+        prevValueRef.current = value;
       }
     };
 
     animationFrameId = window.requestAnimationFrame(step);
-    return () => window.cancelAnimationFrame(animationFrameId);
+    return () => {
+      window.cancelAnimationFrame(animationFrameId);
+      prevValueRef.current = value;
+    };
   }, [value, duration]);
 
   return <>{displayValue.toFixed(decimals)}</>;

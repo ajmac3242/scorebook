@@ -69,6 +69,12 @@ const NavItem: React.FC<{
             : alpha(theme.palette.primary.light, 0.1),
           color: "white",
         },
+        "&:focus-visible": {
+          outline: `2px solid ${theme.palette.primary.contrastText}`,
+          outlineOffset: "2px",
+          bgcolor: alpha(theme.palette.primary.light, 0.4),
+          color: "white",
+        },
       }}
     >
       <ListItemIcon

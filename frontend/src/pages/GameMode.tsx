@@ -42,8 +42,6 @@ import {
   SportsBasketball,
   PanTool,
   SwapHoriz,
-  Edit,
-  Delete,
   FlashOn,
   Warning,
   ArrowForward,
@@ -68,7 +66,7 @@ import TimeoutDots from "../components/TimeoutDots";
 import RecentActionItem from "../components/RecentActionItem";
 import QuickSubDialog from "../components/QuickSubDialog";
 import { PlayerStatRow } from "../components/PlayerStatRow";
-import { db, type StatEvent, type Player } from "../db";
+import { db, type StatEvent } from "../db";
 import { syncService } from "../utils/syncService";
 import { logger } from "../utils/logger";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -81,7 +79,7 @@ import {
   type PlayerAggregates,
 } from "../utils/stats";
 import { formatClock } from "../utils/mathUtils";
-import { MoleskineCard } from "../components/SharedUI";
+import { MoleskineCard, AnimatedNumber } from "../components/SharedUI";
 
 /**
  * 🏀 CoachBoard: getShotValue
@@ -539,6 +537,7 @@ const Scoreboard = React.memo(
           >
             <Typography
               aria-label={`${team?.name || "Team"} score: ${gameData.currentScore}`}
+              aria-live="polite"
               sx={{
                 color: "white",
                 fontSize: { xs: "1.75rem", sm: "3rem" },
@@ -547,7 +546,7 @@ const Scoreboard = React.memo(
                 lineHeight: 1,
               }}
             >
-              {gameData.currentScore}
+              <AnimatedNumber value={gameData.currentScore} />
             </Typography>
 
             <Box sx={{ textAlign: "center", minWidth: { xs: 100, sm: 150 } }}>
@@ -668,6 +667,7 @@ const Scoreboard = React.memo(
 
             <Typography
               aria-label={`${game?.opponent || "Opponent"} score: ${gameData.opponentScore}`}
+              aria-live="polite"
               sx={{
                 color: "white",
                 fontSize: { xs: "1.75rem", sm: "3rem" },
@@ -676,7 +676,7 @@ const Scoreboard = React.memo(
                 lineHeight: 1,
               }}
             >
-              {gameData.opponentScore}
+              <AnimatedNumber value={gameData.opponentScore} />
             </Typography>
           </Box>
         </Box>
@@ -1280,6 +1280,18 @@ const GameMode: React.FC = () => {
       }
     }
   }, [gameData.recentStats]);
+
+  // 🧠 Clarity: Keyboard shortcut for Undo (Ctrl+Z or Cmd+Z)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "z") {
+        e.preventDefault();
+        handleUndo();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleUndo]);
 
   /**
    * Finalizes the game, marking it as completed and triggering a sync.
@@ -2065,7 +2077,7 @@ const GameMode: React.FC = () => {
                           key={emptyId}
                           variant="outlined"
                           disabled={isReadOnly}
-                          aria-label="Empty lineup slot, click to assign player"
+                          aria-label={`Empty lineup slot ${i + 1}, click to assign player`}
                           onClick={() => {
                             setSubOutPlayerId(emptyId);
                             setSubDialogOpen(true);
@@ -2226,7 +2238,8 @@ const GameMode: React.FC = () => {
                     }}
                   >
                     <Typography variant="caption" color="text.secondary">
-                      No actions recorded yet
+                      No actions recorded yet. Tap the court or use quick actions
+                      to start.
                     </Typography>
                   </Box>
                 ) : (
@@ -2662,7 +2675,30 @@ const GameMode: React.FC = () => {
         </DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to delete this action?
+            {(() => {
+              const s = gameStats.find((st) => st.id === statToDelete);
+              if (!s) return "Are you sure you want to delete this action?";
+
+              const getOppName = (pId: string) => {
+                if (pId === SPECIAL_PLAYER_IDS.OPPONENT)
+                  return game?.opponent || "Opponent";
+                if (pId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":")) {
+                  const jersey = pId.split(":")[1];
+                  return `${game?.opponent || "Opponent"} #${jersey}`;
+                }
+                return null;
+              };
+
+              const pName =
+                getOppName(s.playerId) ||
+                (s.playerId === SPECIAL_PLAYER_IDS.TEAM_TIMEOUT ||
+                s.playerId === SPECIAL_PLAYER_IDS.OUR_TEAM
+                  ? team?.name || "Our Team"
+                  : players?.find((p) => p.id === s.playerId)?.name ||
+                    "Unknown");
+
+              return `Are you sure you want to delete the ${s.type} by ${pName}?`;
+            })()}
           </DialogContentText>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
