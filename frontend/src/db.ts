@@ -24,6 +24,7 @@ export interface Team {
   defaultTimeoutLimit?: number;
   defaultFoulLimit?: number;
   defaultOvertimeLength?: number;
+  maxStintDuration?: number; // In minutes
 }
 
 /**
@@ -118,7 +119,8 @@ export class AppDatabase extends Dexie {
     // v13:    Added 'clockTime' and 'periodLength' to Game, and 'clockTime' to StatEvent.
     // v14:    Added 'isFavorite', 'defaultPeriodLength', 'defaultTimeoutLimit', 'defaultFoulLimit' to Team.
     // v15:    Added 'defaultOvertimeLength' to Team.
-    this.version(15).stores({
+    // v16:    Added 'maxStintDuration' to Team.
+    this.version(16).stores({
       teams: "id, synced, deletedAt, isFavorite",
       players: "id, synced, isArchived, deletedAt",
       teamPlayers: "id, [teamId+playerId], teamId, playerId, synced",

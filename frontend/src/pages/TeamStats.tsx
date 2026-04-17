@@ -106,6 +106,7 @@ const TeamStats: React.FC = () => {
   const [editOvertimeLength, setEditOvertimeLength] = useState<number>(5);
   const [editTimeoutLimit, setEditTimeoutLimit] = useState<number>(3);
   const [editFoulLimit, setEditFoulLimit] = useState<number>(5);
+  const [editMaxStintDuration, setEditMaxStintDuration] = useState<number>(8);
   const [timeLeft, setTimeLeft] = useState("");
   const [sortConfig, setSortConfig] = useState<{
     key: string;
@@ -156,6 +157,7 @@ const TeamStats: React.FC = () => {
       setEditOvertimeLength(team.defaultOvertimeLength || 5);
       setEditTimeoutLimit(team.defaultTimeoutLimit || team.fouls || 3);
       setEditFoulLimit(team.defaultFoulLimit || 5);
+      setEditMaxStintDuration(team.maxStintDuration || 8);
     }
     // We only want to sync from DB when the team object itself changes (e.g. initial load)
   }, [team]);
@@ -409,6 +411,7 @@ const TeamStats: React.FC = () => {
       defaultOvertimeLength: editOvertimeLength,
       defaultTimeoutLimit: editTimeoutLimit,
       defaultFoulLimit: editFoulLimit,
+      maxStintDuration: editMaxStintDuration,
       fouls: editTimeoutLimit, // Keep legacy fouls field in sync with timeouts
       synced: 0,
     });
@@ -1216,6 +1219,18 @@ const TeamStats: React.FC = () => {
                 inputProps={{ min: 1 }}
               />
             </Stack>
+
+            <TextField
+              fullWidth
+              label="Max Stint Duration (Mins)"
+              type="number"
+              value={editMaxStintDuration}
+              onChange={(e) =>
+                setEditMaxStintDuration(parseInt(e.target.value) || 0)
+              }
+              inputProps={{ min: 1 }}
+              helperText="Alert scorekeeper when player exceeds this time"
+            />
 
             <Stack direction="row" spacing={2}>
               <TextField
