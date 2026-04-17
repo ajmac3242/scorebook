@@ -4,26 +4,32 @@
  * Implements push (local-to-remote) and pull (remote-to-local via API and S3 snapshots) functionality.
  */
 
-import { db, Game, TeamPlayer, StatEvent, Team, Player } from "../db";
+import { db } from "../db";
+import type { Game, TeamPlayer, StatEvent, Team, Player } from "../db";
 import { UserPool } from "../UserPool";
-import { CognitoUserSession } from "amazon-cognito-identity-js";
-import { type Table } from "dexie";
+import type { CognitoUserSession } from "amazon-cognito-identity-js";
+import type { Table } from "dexie";
 import { logger } from "./logger";
 
 /**
  * Interface representing the team roster snapshot structure from S3.
  */
 interface RosterSnapshot {
-  team: Record<string, unknown>;
-  players: Record<string, unknown>[];
+  team: Team;
+  players: {
+    playerId: string;
+    name: string;
+    avatarColor?: string;
+    jerseyNumber?: string;
+  }[];
 }
 
 /**
  * Interface representing the game stats snapshot structure from S3.
  */
 interface GameSnapshot {
-  game: Record<string, unknown>;
-  stats: Record<string, unknown>[];
+  game: Game;
+  stats: StatEvent[];
 }
 
 /**

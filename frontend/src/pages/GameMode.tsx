@@ -70,7 +70,7 @@ import {
 import BasketballCourt from "../components/BasketballCourt";
 import TimeoutDots from "../components/TimeoutDots";
 import { PlayerStatRow } from "../components/PlayerStatRow";
-import { db, type StatEvent, type Player } from "../db";
+import { db, type StatEvent } from "../db";
 import { syncService } from "../utils/syncService";
 import { logger } from "../utils/logger";
 import { useLiveQuery } from "dexie-react-hooks";

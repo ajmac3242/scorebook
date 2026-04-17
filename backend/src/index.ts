@@ -158,7 +158,7 @@ const Keys = {
  * @param {string} label - Contextual label for the error.
  * @param {unknown} error - The error object.
  */
-function logError(label: string, error: unknown) {
+function logError(label: string, error: unknown): void {
   logger.error(label, error);
 }
 
@@ -652,9 +652,9 @@ async function handleTeams(
  * different clients or proxies may use varying casings.
  *
  * @param {APIGatewayProxyEventV2} event - The raw Lambda event.
- * @returns {unknown} A sanitized copy of the event.
+ * @returns {APIGatewayProxyEventV2} A sanitized copy of the event.
  */
-function maskEvent(event: APIGatewayProxyEventV2): unknown {
+function maskEvent(event: APIGatewayProxyEventV2): APIGatewayProxyEventV2 {
   const headers = event.headers || {};
   const cookies = event.cookies || [];
 
@@ -697,13 +697,16 @@ function maskEvent(event: APIGatewayProxyEventV2): unknown {
  * @param {APIGatewayProxyEventV2} event - Lambda event.
  * @returns {{method: string, path: string}} Normalized metadata.
  */
-function extractRequestMetadata(event: APIGatewayProxyEventV2) {
+function extractRequestMetadata(event: APIGatewayProxyEventV2): {
+  method: string;
+  path: string;
+} {
   const method =
-    (event as unknown as Record<string, unknown>).method ||
-    (event as unknown as Record<string, unknown>).httpMethod ||
     event.requestContext?.http?.method ||
+    (event as unknown as Record<string, string>).method ||
+    (event as unknown as Record<string, string>).httpMethod ||
     "GET";
-  return { method: method as string, path: normalizePath(event) };
+  return { method, path: normalizePath(event) };
 }
 
 /**
@@ -1009,7 +1012,7 @@ async function softDeleteItem(
 async function withDataBucket(
   label: string,
   fn: (bucket: string) => Promise<void>,
-) {
+): Promise<void> {
   const bucket = process.env.DATA_BUCKET;
   if (!bucket) return;
   try {
@@ -1024,7 +1027,10 @@ async function withDataBucket(
  * @param {string} teamId - The team ID.
  * @param {string} tableName - DynamoDB table name.
  */
-async function syncTeamSnapshots(teamId: string, tableName: string) {
+async function syncTeamSnapshots(
+  teamId: string,
+  tableName: string,
+): Promise<void> {
   await Promise.all([
     snapshotTeamRoster(teamId, tableName),
     snapshotTeamGames(teamId, tableName),
@@ -1038,7 +1044,10 @@ async function syncTeamSnapshots(teamId: string, tableName: string) {
  * @param {string} tableName - The name of the DynamoDB table.
  * @returns {Promise<void>}
  */
-async function snapshotTeamRoster(teamId: string, tableName: string) {
+async function snapshotTeamRoster(
+  teamId: string,
+  tableName: string,
+): Promise<void> {
   await withDataBucket("Snapshot Team Roster Error", async (bucket) => {
     const teamResult = await docClient.send(
       new GetCommand({
@@ -1075,7 +1084,10 @@ async function snapshotTeamRoster(teamId: string, tableName: string) {
  * @param {string} tableName - The name of the DynamoDB table.
  * @returns {Promise<void>}
  */
-async function snapshotTeamGames(teamId: string, tableName: string) {
+async function snapshotTeamGames(
+  teamId: string,
+  tableName: string,
+): Promise<void> {
   await withDataBucket("Snapshot Team Games Error", async (bucket) => {
     const gamesResult = await docClient.send(
       new QueryCommand({
@@ -1099,7 +1111,10 @@ async function snapshotTeamGames(teamId: string, tableName: string) {
  * @param {string} tableName - The name of the DynamoDB table.
  * @returns {Promise<void>}
  */
-async function snapshotGameStats(gameId: string, tableName: string) {
+async function snapshotGameStats(
+  gameId: string,
+  tableName: string,
+): Promise<void> {
   await withDataBucket("Snapshot Game Stats Error", async (bucket) => {
     const gameResult = await docClient.send(
       new GetCommand({
@@ -1131,20 +1146,18 @@ async function snapshotGameStats(gameId: string, tableName: string) {
 }
 
 /**
- * Accumulates scores for team and opponent from stat events.
- * @param {Record<string, unknown>[]} stats - List of stat events.
- * @returns {{teamScore: number, oppScore: number}} Object containing teamScore and oppScore.
- */
-/**
  * Accumulates the total score for both teams from a list of stat events.
  * 🏀 CoachBoard: Field Goal Tracking
  * Why: Free throws (points: 1) are always counted as 1 point ONLY if the type is MAKE.
  * A MISS with points: 1 (used for FTA tracking) should NOT increment the score.
  *
  * @param {Record<string, unknown>[]} stats - List of statistical events.
- * @returns {object} Total scores for Team and Opponent.
+ * @returns {{teamScore: number, oppScore: number}} Total scores for Team and Opponent.
  */
-function accumulateScores(stats: Record<string, unknown>[]) {
+function accumulateScores(stats: Record<string, unknown>[]): {
+  teamScore: number;
+  oppScore: number;
+} {
   let teamScore = 0;
   let oppScore = 0;
   for (let i = 0; i < stats.length; i++) {
@@ -1186,7 +1199,11 @@ function determineResult(teamScore: number, oppScore: number): "W" | "L" | "D" {
  * @param {Record<string, unknown>[]} stats - List of stat events.
  * @returns {{teamScore: number, oppScore: number, result: string}} Object containing teamScore, oppScore, and result.
  */
-function calculateGameResultFromStats(stats: Record<string, unknown>[]) {
+function calculateGameResultFromStats(stats: Record<string, unknown>[]): {
+  teamScore: number;
+  oppScore: number;
+  result: string;
+} {
   const { teamScore, oppScore } = accumulateScores(stats);
   const result = determineResult(teamScore, oppScore);
   return { teamScore, oppScore, result };
@@ -1200,7 +1217,11 @@ function calculateGameResultFromStats(stats: Record<string, unknown>[]) {
  * @param {unknown} data - The data to upload as JSON.
  * @returns {Promise<void>}
  */
-async function uploadSnapshot(bucket: string, key: string, data: unknown) {
+async function uploadSnapshot(
+  bucket: string,
+  key: string,
+  data: unknown,
+): Promise<void> {
   await s3Client.send(
     new PutObjectCommand({
       Bucket: bucket,
@@ -1216,7 +1237,7 @@ async function uploadSnapshot(bucket: string, key: string, data: unknown) {
  * @param {string} teamId - Team ID.
  * @returns {Promise<void>}
  */
-async function deleteTeamSnapshots(teamId: string) {
+async function deleteTeamSnapshots(teamId: string): Promise<void> {
   const DATA_BUCKET = process.env.DATA_BUCKET;
   if (!DATA_BUCKET) return;
   try {
@@ -1242,7 +1263,7 @@ async function deleteTeamSnapshots(teamId: string) {
  * @param {string} gameId - Game ID.
  * @returns {Promise<void>}
  */
-async function deleteGameSnapshots(gameId: string) {
+async function deleteGameSnapshots(gameId: string): Promise<void> {
   const DATA_BUCKET = process.env.DATA_BUCKET;
   if (!DATA_BUCKET) return;
   try {
@@ -1262,7 +1283,7 @@ async function deleteGameSnapshots(gameId: string) {
  * @param {string} tableName - DynamoDB table name.
  * @returns {Promise<void>}
  */
-async function performHardCleanup(tableName: string) {
+async function performHardCleanup(tableName: string): Promise<void> {
   const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
 
   // This is a simplified scan-based cleanup. For large tables, use a GSI on deletedAt.
