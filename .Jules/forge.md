@@ -28,3 +28,6 @@
 - [x] PDF Export
 - [x] Shot Zone Heatmaps
 - [x] Team Lineup Efficiency
+- [x] Live Defensive Momentum HUD
+- [x] Live Lineup Impact (+/-)
+- [x] Rotation Alerts (Foul/Fatigue)

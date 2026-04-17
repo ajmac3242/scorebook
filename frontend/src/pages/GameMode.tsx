@@ -33,7 +33,20 @@ import {
   Alert,
   Tooltip,
   Snackbar,
+  keyframes,
 } from "@mui/material";
+
+const pulse = keyframes`
+  0% { opacity: 1; }
+  50% { opacity: 0.7; }
+  100% { opacity: 1; }
+`;
+
+const stopPulse = keyframes`
+  0% { transform: scale(1); color: #fff; }
+  50% { transform: scale(1.2); color: #4caf50; }
+  100% { transform: scale(1); color: #fff; }
+`;
 import {
   Undo as UndoIcon,
   History,
@@ -76,6 +89,7 @@ import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../constants/stats";
 import {
   calculatePlayerAggregates,
   calculatePlayerStreaks,
+  calculateStopsAndKills,
   isEventInPeriod,
   getBonusStatus,
   type PlayerAggregates,
@@ -147,6 +161,11 @@ interface ScoreboardProps {
       oppTOL: number;
     };
     possessionState: string | null;
+    defensiveStats: {
+      totalStops: number;
+      totalKills: number;
+      currentStreak: number;
+    };
   };
   period: number;
   periodLabel: string;
@@ -521,6 +540,86 @@ const Scoreboard = React.memo(
         />
 
         {renderTeamInfo(team?.name || "TEAM", team?.logoUrl)}
+
+        {/* 🏀 CoachBoard: Defensive Momentum HUD
+          Why: Visualizes "Stops" and "Kills" to motivate defensive intensity. */}
+        <Box
+          sx={{
+            position: "absolute",
+            bottom: 8,
+            left: "50%",
+            transform: "translateX(-50%)",
+            display: "flex",
+            alignItems: "center",
+            gap: 2,
+            bgcolor: "rgba(0,0,0,0.5)",
+            px: 2,
+            py: 0.5,
+            borderRadius: 10,
+            border: "1px solid rgba(255,255,255,0.1)",
+          }}
+        >
+          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+            <Typography
+              variant="caption"
+              sx={{ color: "rgba(255,255,255,0.6)", fontWeight: 700, fontSize: "0.6rem" }}
+            >
+              STOPS:
+            </Typography>
+            <Typography
+              key={gameData.defensiveStats.totalStops}
+              variant="caption"
+              sx={{
+                color: "white",
+                fontWeight: 800,
+                fontSize: "0.7rem",
+                display: "inline-block",
+                animation: gameData.defensiveStats.totalStops > 0 ? `${stopPulse} 0.5s ease-out` : "none",
+              }}
+            >
+              {gameData.defensiveStats.totalStops}
+            </Typography>
+          </Box>
+
+          <Box sx={{ display: "flex", gap: 0.5 }}>
+            {[1, 2, 3].map((i) => (
+              <FlashOn
+                key={i}
+                sx={{
+                  fontSize: 14,
+                  color:
+                    i <= gameData.defensiveStats.currentStreak
+                      ? "#FFD700"
+                      : "rgba(255,255,255,0.1)",
+                  filter:
+                    i <= gameData.defensiveStats.currentStreak
+                      ? "drop-shadow(0 0 2px #FFD700)"
+                      : "none",
+                }}
+              />
+            ))}
+          </Box>
+
+          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+            <Typography
+              variant="caption"
+              sx={{ color: "rgba(255,255,255,0.6)", fontWeight: 700, fontSize: "0.6rem" }}
+            >
+              KILLS:
+            </Typography>
+            <Typography
+              variant="caption"
+              sx={{
+                color: "#FF4500",
+                fontWeight: 900,
+                fontSize: "0.7rem",
+                textShadow: "0 0 4px rgba(255,69,0,0.5)",
+              }}
+            >
+              {gameData.defensiveStats.totalKills}
+            </Typography>
+          </Box>
+        </Box>
 
         <Box
           sx={{
@@ -1098,10 +1197,69 @@ const GameMode: React.FC = () => {
     });
 
     const stintDurations = new Map<string, number>();
+    let lastLineupChangeClock = game?.periodLength ? game.periodLength * 60 : 600;
+    let lastLineupChangeScoreTeam = 0;
+    let lastLineupChangeScoreOpp = 0;
+
+    // Find the last substitution event in this period to calculate lineup +/-
+    // If no sub in this period, we use the start of the period.
+    const subsInThisPeriod = sortedGameStats.filter(
+      (s) =>
+        !s.deletedAt &&
+        s.period === period &&
+        (s.type === ACTION_TYPES.SUB_IN || s.type === ACTION_TYPES.SUB_OUT),
+    );
+
+    if (subsInThisPeriod.length > 0) {
+      const lastSub = subsInThisPeriod[subsInThisPeriod.length - 1];
+      lastLineupChangeClock = lastSub.clockTime ?? lastLineupChangeClock;
+
+      // Calculate scores at that exact moment
+      let tempScoreTeam = 0;
+      let tempScoreOpp = 0;
+      for (const s of sortedGameStats) {
+        if (s.deletedAt) continue;
+        if (s.timestamp > lastSub.timestamp) break;
+        if (s.type === ACTION_TYPES.MAKE) {
+          if (
+            s.playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
+            s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":")
+          ) {
+            tempScoreOpp += s.points || 0;
+          } else {
+            tempScoreTeam += s.points || 0;
+          }
+        }
+      }
+      lastLineupChangeScoreTeam = tempScoreTeam;
+      lastLineupChangeScoreOpp = tempScoreOpp;
+    } else {
+      // Scores at the start of the current period
+      let tempScoreTeam = 0;
+      let tempScoreOpp = 0;
+      for (const s of sortedGameStats) {
+        if (s.deletedAt) continue;
+        if (s.period >= period) break;
+        if (s.type === ACTION_TYPES.MAKE) {
+          if (
+            s.playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
+            s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":")
+          ) {
+            tempScoreOpp += s.points || 0;
+          } else {
+            tempScoreTeam += s.points || 0;
+          }
+        }
+      }
+      lastLineupChangeScoreTeam = tempScoreTeam;
+      lastLineupChangeScoreOpp = tempScoreOpp;
+    }
+
     stintStarts.forEach((startClock, pId) => {
       stintDurations.set(pId, Math.max(0, startClock - clockSeconds));
     });
 
+    const defensiveStats = calculateStopsAndKills(sortedGameStats);
     const MAX_TIMEOUTS = team?.fouls || 3;
     const teamBonus = getBonusStatus(teamFouls, pType);
     const oppBonus = getBonusStatus(oppFouls, pType);
@@ -1126,6 +1284,12 @@ const GameMode: React.FC = () => {
       possessionState: posState,
       onCourtIds: onCourt,
       stintDurations,
+      defensiveStats,
+      currentLineupPlusMinus:
+        curScore -
+        oppScore -
+        (lastLineupChangeScoreTeam - lastLineupChangeScoreOpp),
+      currentLineupStintDuration: Math.max(0, lastLineupChangeClock - clockSeconds),
       recentStats: sortedGameStats.slice(-10).reverse(),
     };
   }, [
@@ -1881,13 +2045,34 @@ const GameMode: React.FC = () => {
             {trackingMode === "TEAM" ? (
               <>
                 <MoleskineCard>
-                  <Typography
-                    variant="subtitle2"
-                    gutterBottom
-                    sx={{ fontWeight: 600 }}
-                  >
-                    Live Lineup
-                  </Typography>
+                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 1 }}>
+                    <Typography
+                      variant="subtitle2"
+                      sx={{ fontWeight: 600 }}
+                    >
+                      Live Lineup
+                    </Typography>
+                    <Box sx={{ textAlign: "right" }}>
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          display: "block",
+                          fontWeight: 800,
+                          color: gameData.currentLineupPlusMinus >= 0 ? "success.main" : "error.main",
+                          lineHeight: 1,
+                        }}
+                      >
+                        {gameData.currentLineupPlusMinus >= 0 ? "+" : ""}
+                        {gameData.currentLineupPlusMinus} since sub
+                      </Typography>
+                      <Typography
+                        variant="caption"
+                        sx={{ fontSize: "0.6rem", opacity: 0.7 }}
+                      >
+                        {formatClock(gameData.currentLineupStintDuration)}
+                      </Typography>
+                    </Box>
+                  </Box>
                   <Box
                     sx={{
                       display: "grid",
@@ -1907,6 +2092,7 @@ const GameMode: React.FC = () => {
                           game?.foulLimit || team?.defaultFoulLimit || 5;
                         const isFoulTrouble = pf === foulLimit - 1;
                         const isFouledOut = pf >= foulLimit;
+                        const stintSecs = gameData.stintDurations.get(p.id!) || 0;
 
                         return (
                           <Box
@@ -1935,6 +2121,7 @@ const GameMode: React.FC = () => {
                                     : "primary.main",
                                 color: "white",
                                 borderWidth: "1.5px",
+                                  animation: isFoulTrouble || isFouledOut ? `${pulse} 2s infinite ease-in-out` : "none",
                                 "&.Mui-disabled": {
                                   bgcolor: isFouledOut
                                     ? "error.main"
@@ -1976,6 +2163,16 @@ const GameMode: React.FC = () => {
                                   }}
                                 >
                                   {p.name}
+                                  {stintSecs > (team?.maxStintDuration || 8) * 60 && (
+                                    <Tooltip title={`Fatigue Alert: Exceeded ${team?.maxStintDuration || 8} mins`}>
+                                      <Box
+                                        component="span"
+                                        sx={{ ml: 0.5, fontSize: "0.8rem" }}
+                                      >
+                                        ⚠️
+                                      </Box>
+                                    </Tooltip>
+                                  )}
                                   {streak === "HOT" && (
                                     <Tooltip title="Hot Streak (3+ makes)">
                                       <Box
@@ -2005,10 +2202,11 @@ const GameMode: React.FC = () => {
                                   {(() => {
                                     const stintSecs =
                                       gameData.stintDurations.get(p.id!) || 0;
+                                    const maxStint = (team?.maxStintDuration || 8) * 60;
                                     const color =
-                                      stintSecs > 480
+                                      stintSecs > maxStint
                                         ? theme.palette.error.main
-                                        : stintSecs > 360
+                                        : stintSecs > maxStint * 0.75
                                           ? theme.palette.warning.main
                                           : "inherit";
                                     return (

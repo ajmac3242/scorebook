@@ -54,10 +54,10 @@
 **Why:** Defensive intensity is driven by momentum. Visualizing "Stops" and "Kills" (3 consecutive stops) on the live scoreboard motivates the team and helps coaches identify defensive runs.
 **What:** Integrate the `calculateStopsAndKills` logic into the `GameMode` scoreboard. Display a "Defensive Momentum Bar" or series of icons that light up as stops are earned, with a special visual for a "Kill."
 **Acceptance Criteria:**
-- [ ] Real-time "Stop" counter on the GameMode scoreboard.
-- [ ] "Kill" indicator (e.g., three flame icons or a "3 STOPS" badge) that resets after 3.
-- [ ] Total "Kills" count for the game displayed in the scoreboard sub-header.
-- [ ] Pulse animation when a Stop is recorded.
+- [x] Real-time "Stop" counter on the GameMode scoreboard.
+- [x] "Kill" indicator (e.g., three flame icons or a "3 STOPS" badge) that resets after 3.
+- [x] Total "Kills" count for the game displayed in the scoreboard sub-header.
+- [x] Pulse animation when a Stop is recorded.
 
 ## Real-Time Foul Trouble & Fatigue Rotation Alerts
 **Priority:** HIGH
@@ -65,8 +65,8 @@
 **Why:** In the heat of a game, coaches often miss when a player is one foul away from disqualification or has exceeded their physical "red-line." Proactive alerts prevent tactical errors.
 **What:** Implement visual and haptic/audio alerts in `GameMode` when a player reaches configured thresholds (e.g., 2 fouls in Q1, 4 fouls total, or 8 consecutive minutes).
 **Acceptance Criteria:**
-- [ ] "Foul Trouble" pulse on the player's lineup card (e.g., orange at limit-1, red at limit).
-- [ ] "Fatigue Alert" visual (e.g., a "Needs Sub" icon) when a player's current stint exceeds the "Max Stint Duration" from Team Settings.
+- [x] "Foul Trouble" pulse on the player's lineup card (e.g., orange at limit-1, red at limit).
+- [x] "Fatigue Alert" visual (e.g., a "Needs Sub" icon) when a player's current stint exceeds the "Max Stint Duration" from Team Settings.
 - [ ] Configuration in Team Details to set "Foul Warning Thresholds" by period.
 
 ## Live Lineup Impact (+/-) Dashboard Overlay
@@ -75,9 +75,9 @@
 **Why:** Coaches need to know *immediately* if a specific 5-man unit is being outscored, even if individual players look okay. Plus/Minus for the current lineup is the ultimate efficiency truth.
 **What:** Add a "Live Lineup Impact" section to the `GameMode` page that displays the +/- for the currently active 5-man unit since they were subbed in.
 **Acceptance Criteria:**
-- [ ] Real-time display of the "Current Lineup +/-" (e.g., "+4 since last sub").
-- [ ] Comparison metric showing points scored vs. points allowed for the active unit.
-- [ ] "Stint Duration" timer for the current 5-man unit as a whole.
+- [x] Real-time display of the "Current Lineup +/-" (e.g., "+4 since last sub").
+- [x] Comparison metric showing points scored vs. points allowed for the active unit.
+- [x] "Stint Duration" timer for the current 5-man unit as a whole.
 
 ## Persistent Opponent Scouting Database
 **Priority:** MEDIUM
@@ -125,10 +125,10 @@
 **Why:** Coaches need to share game results with players, parents, and local media immediately after the buzzer. Manual data entry into other systems is a major pain point.
 **What:** Add a "Export PDF" button to the Game Stats page that generates a professional, formatted box score including team totals, player stats, and the scoring flow chart.
 **Acceptance Criteria:**
-- [ ] "Export PDF" button on Game Stats page.
-- [ ] PDF includes Team Logo, Game Info (Date, Opponent, Score).
-- [ ] Table for Player Stats (PTS, REB, AST, etc.) and Team Totals.
-- [ ] Inclusion of the Scoring Flow visualization in the PDF.
+- [x] "Export PDF" button on Game Stats page.
+- [x] PDF includes Team Logo, Game Info (Date, Opponent, Score).
+- [x] Table for Player Stats (PTS, REB, AST, etc.) and Team Totals.
+- [x] Inclusion of the Scoring Flow visualization in the PDF.
 
 ## Free Throw Sequence Workflow
 **Priority:** HIGH
