@@ -13,6 +13,9 @@ interface PlayerStatRowProps {
   name: string;
   min: number;
   points: number;
+  ftm: number;
+  fta: number;
+  ftPct: string;
   rebounds: number;
   assists: number;
   steals: number;
@@ -29,6 +32,9 @@ export const PlayerStatRow: React.FC<PlayerStatRowProps> = React.memo(
     name,
     min,
     points,
+    ftm,
+    fta,
+    ftPct,
     rebounds,
     assists,
     steals,
@@ -84,6 +90,15 @@ export const PlayerStatRow: React.FC<PlayerStatRowProps> = React.memo(
       </TableCell>
       <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
         {points}
+      </TableCell>
+      <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
+        {ftm}
+      </TableCell>
+      <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
+        {fta}
+      </TableCell>
+      <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
+        {ftPct}
       </TableCell>
       <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
         {rebounds}

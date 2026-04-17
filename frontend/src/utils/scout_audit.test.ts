@@ -9,8 +9,8 @@ import { StatEvent, Player } from "../db";
 
 describe("Scout Audit: Quality Fixes", () => {
   const mockPlayers: Player[] = [
-    { id: "p1", name: "Player 1", teamId: "t1" },
-    { id: "p2", name: "Player 2", teamId: "t1" },
+    { id: "p1", name: "Player 1" },
+    { id: "p2", name: "Player 2" },
   ];
 
   describe("Free Throw Tracking", () => {
@@ -22,7 +22,7 @@ describe("Scout Audit: Quality Fixes", () => {
           playerId: "p1",
           type: ACTION_TYPES.MAKE,
           points: 1, // FT Make
-          timestamp: 1000,
+          timestamp: "1000",
           period: 1,
           clockTime: 500,
         },
@@ -32,7 +32,7 @@ describe("Scout Audit: Quality Fixes", () => {
           playerId: "p1",
           type: ACTION_TYPES.MISS,
           points: 1, // FT Miss
-          timestamp: 2000,
+          timestamp: "2000",
           period: 1,
           clockTime: 490,
         },
@@ -42,7 +42,7 @@ describe("Scout Audit: Quality Fixes", () => {
           playerId: "p1",
           type: ACTION_TYPES.MAKE,
           points: 2, // FG Make
-          timestamp: 3000,
+          timestamp: "3000",
           period: 1,
           clockTime: 480,
         }
@@ -68,28 +68,32 @@ describe("Scout Audit: Quality Fixes", () => {
           gameId: "g1",
           playerId: SPECIAL_PLAYER_IDS.OPPONENT,
           type: ACTION_TYPES.TURNOVER,
-          timestamp: 1000,
+          timestamp: "1000",
+          period: 1,
         }, // Stop 1
         {
           id: "2",
           gameId: "g1",
           playerId: SPECIAL_PLAYER_IDS.OPPONENT,
           type: ACTION_TYPES.TURNOVER,
-          timestamp: 2000,
+          timestamp: "2000",
+          period: 1,
         }, // Stop 2
         {
           id: "3",
           gameId: "g1",
           playerId: "p1", // Our player
           type: ACTION_TYPES.FOUL,
-          timestamp: 3000,
+          timestamp: "3000",
+          period: 1,
         }, // Foul - should reset streak
         {
           id: "4",
           gameId: "g1",
           playerId: SPECIAL_PLAYER_IDS.OPPONENT,
           type: ACTION_TYPES.TURNOVER,
-          timestamp: 4000,
+          timestamp: "4000",
+          period: 1,
         }, // Stop 3 (but streak was reset, so no Kill)
       ];
 
@@ -106,14 +110,16 @@ describe("Scout Audit: Quality Fixes", () => {
           gameId: "g1",
           playerId: SPECIAL_PLAYER_IDS.OPPONENT,
           type: ACTION_TYPES.TURNOVER,
-          timestamp: 1000,
+          timestamp: "1000",
+          period: 1,
         },
         {
           id: "2",
           gameId: "g1",
           playerId: "p1",
           type: ACTION_TYPES.TECHNICAL_FOUL,
-          timestamp: 2000,
+          timestamp: "2000",
+          period: 1,
         },
       ];
       const result = calculateStopsAndKills(stats);

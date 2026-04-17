@@ -386,6 +386,7 @@ export const applyActionToAggregate = (agg: BaseStats, stat: StatEvent) => {
     case ACTION_TYPES.FOUL:
     case ACTION_TYPES.FOUL_SHOOTING:
     case ACTION_TYPES.FOUL_NON_SHOOTING:
+    case ACTION_TYPES.TECHNICAL_FOUL:
       agg.fouls++;
       break;
   }
@@ -577,6 +578,7 @@ export const calculatePlayerAggregates = (
         case ACTION_TYPES.FOUL:
         case ACTION_TYPES.FOUL_SHOOTING:
         case ACTION_TYPES.FOUL_NON_SHOOTING:
+        case ACTION_TYPES.TECHNICAL_FOUL:
           player.fouls++;
           break;
       }
