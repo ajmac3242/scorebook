@@ -1,12 +1,3 @@
-## Swap out component library
-**Priority:** HIGH
-**Type:** UX
-**Why:** Material Design 3 is too heavy and not the look I am going for.
-**What:** Swap out Material 3 components and moleskine references for a more modern design with HeroUI component library. Only use the open source version of HeroUI
-**Acceptance Criteria:**
-- [ ] Swap out all Material3 components for Hero. If there isn't an equivilent component in the HeroUI library, transition to a different one that's supported. 
-- [ ] Remove references to Moleskine. I want to go with a more modern look that prioritizes, snappiness, component animation when users interact with it. 
-
 ## Redesign Dashboard page
 **Priority:** HIGH
 **Type:** Feature
