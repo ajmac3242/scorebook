@@ -161,6 +161,87 @@ interface ScoreboardProps {
   onSelectOpponent?: (_id: string) => void;
 }
 
+/**
+ * ⚡ Bolt: ScoreboardClock sub-component.
+ * Why: Isolates the clock countdown to a small component, preventing
+ * the entire Scoreboard from re-rendering every second.
+ */
+const ScoreboardClock = React.memo(
+  ({
+    clockSeconds,
+    onToggleClock,
+    onResetClock,
+    isClockRunning,
+    isReadOnly,
+  }: {
+    clockSeconds: number;
+    onToggleClock: () => void;
+    onResetClock: () => void;
+    isClockRunning: boolean;
+    isReadOnly: boolean;
+  }) => {
+    const theme = useTheme();
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 1,
+          mb: 1,
+        }}
+      >
+        <Typography
+          sx={{
+            color: "white",
+            fontSize: { xs: "1.2rem", sm: "1.8rem" },
+            fontWeight: 700,
+            fontFamily: "'Courier New', monospace",
+            minWidth: "4.5ch",
+          }}
+        >
+          {formatClock(clockSeconds)}
+        </Typography>
+        {!isReadOnly && (
+          <IconButton
+            size="small"
+            onClick={onToggleClock}
+            aria-label={isClockRunning ? "Pause Clock" : "Start Clock"}
+            sx={{
+              color: isClockRunning
+                ? theme.palette.warning.main
+                : theme.palette.success.main,
+              bgcolor: "rgba(255,255,255,0.05)",
+              p: 0.5,
+            }}
+          >
+            {isClockRunning ? (
+              <Pause fontSize="small" />
+            ) : (
+              <PlayArrow fontSize="small" />
+            )}
+          </IconButton>
+        )}
+        {!isReadOnly && (
+          <IconButton
+            size="small"
+            onClick={onResetClock}
+            aria-label="Reset Clock"
+            sx={{
+              color: "rgba(255,255,255,0.4)",
+              bgcolor: "rgba(255,255,255,0.05)",
+              p: 0.5,
+              "&:hover": { color: "white" },
+            }}
+          >
+            <RestartAlt fontSize="small" />
+          </IconButton>
+        )}
+      </Box>
+    );
+  },
+);
+
 const Scoreboard = React.memo(
   ({
     game,
@@ -171,19 +252,13 @@ const Scoreboard = React.memo(
     maxPeriod,
     onQuickAction,
     isReadOnly,
-    clockSeconds,
-    onToggleClock,
-    onResetClock,
-    isClockRunning,
     opponentJerseys = [],
     selectedOpponentId = SPECIAL_PLAYER_IDS.OPPONENT,
     onAddOpponentJersey,
     onSelectOpponent,
+    children, // Using children to inject the volatile Clock component
   }: ScoreboardProps & {
-    clockSeconds: number;
-    onToggleClock: () => void;
-    onResetClock: () => void;
-    isClockRunning: boolean;
+    children: React.ReactNode;
   }) => {
     const theme = useTheme();
 
@@ -608,62 +683,7 @@ const Scoreboard = React.memo(
               </Typography>
 
               {/* Game Clock */}
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 1,
-                  mb: 1,
-                }}
-              >
-                <Typography
-                  sx={{
-                    color: "white",
-                    fontSize: { xs: "1.2rem", sm: "1.8rem" },
-                    fontWeight: 700,
-                    fontFamily: "'Courier New', monospace",
-                    minWidth: "4.5ch",
-                  }}
-                >
-                  {formatClock(clockSeconds)}
-                </Typography>
-                {!isReadOnly && (
-                  <IconButton
-                    size="small"
-                    onClick={onToggleClock}
-                    aria-label={isClockRunning ? "Pause Clock" : "Start Clock"}
-                    sx={{
-                      color: isClockRunning
-                        ? theme.palette.warning.main
-                        : theme.palette.success.main,
-                      bgcolor: "rgba(255,255,255,0.05)",
-                      p: 0.5,
-                    }}
-                  >
-                    {isClockRunning ? (
-                      <Pause fontSize="small" />
-                    ) : (
-                      <PlayArrow fontSize="small" />
-                    )}
-                  </IconButton>
-                )}
-                {!isReadOnly && (
-                  <IconButton
-                    size="small"
-                    onClick={onResetClock}
-                    aria-label="Reset Clock"
-                    sx={{
-                      color: "rgba(255,255,255,0.4)",
-                      bgcolor: "rgba(255,255,255,0.05)",
-                      p: 0.5,
-                      "&:hover": { color: "white" },
-                    }}
-                  >
-                    <RestartAlt fontSize="small" />
-                  </IconButton>
-                )}
-              </Box>
+              {children}
 
               <Stack direction="row" spacing={2} justifyContent="center">
                 <ArrowBack
@@ -1268,6 +1288,16 @@ const GameMode: React.FC = () => {
     return map;
   }, [statsGridData]);
 
+  // ⚡ Bolt: Pre-calculate player names map to optimize lookup in RecentActionItem.
+  const playerNamesMap = useMemo(() => {
+    const map = new Map<string, string>();
+    for (let i = 0; i < players.length; i++) {
+      const p = players[i];
+      if (p.id) map.set(p.id.toString(), p.name);
+    }
+    return map;
+  }, [players]);
+
   // 🏀 CoachBoard: Hot/Cold Streaks
   // Why: Provides immediate coaching visibility into recent player performance trends.
   const playerStreaks = useMemo(() => {
@@ -1607,9 +1637,11 @@ const GameMode: React.FC = () => {
         (id) => !originalOnCourt.has(id) && !id.startsWith("EMPTY"),
       );
 
-      // Record SUB_OUT events
+      // ⚡ Bolt: Batch database writes using bulkAdd to reduce IndexedDB transaction overhead.
+      const subEvents: StatEvent[] = [];
+
       for (const pId of toSubOut) {
-        await db.stats.add({
+        subEvents.push({
           id: crypto.randomUUID(),
           gameId: gameId,
           playerId: pId,
@@ -1621,9 +1653,8 @@ const GameMode: React.FC = () => {
         });
       }
 
-      // Record SUB_IN events
       for (const pId of toSubIn) {
-        await db.stats.add({
+        subEvents.push({
           id: crypto.randomUUID(),
           gameId: gameId,
           playerId: pId,
@@ -1633,6 +1664,10 @@ const GameMode: React.FC = () => {
           timestamp,
           synced: 0,
         });
+      }
+
+      if (subEvents.length > 0) {
+        await db.stats.bulkAdd(subEvents);
       }
 
       setSubDialogOpen(false);
@@ -1900,21 +1935,25 @@ const GameMode: React.FC = () => {
           <Scoreboard
             game={game}
             team={team}
-            gameData={gameData}
+            gameData={staticGameData}
             period={period}
             periodLabel={periodLabel}
             maxPeriod={maxPeriod}
             onQuickAction={handleQuickOpponentAction}
             isReadOnly={isReadOnly}
-            clockSeconds={clockSeconds}
-            isClockRunning={isClockRunning}
-            onToggleClock={handleToggleClock}
-            onResetClock={handleResetClock}
             opponentJerseys={opponentJerseys}
             selectedOpponentId={selectedOpponentId}
             onAddOpponentJersey={handleAddOpponentJersey}
             onSelectOpponent={handleSelectOpponent}
-          />
+          >
+            <ScoreboardClock
+              clockSeconds={clockSeconds}
+              isClockRunning={isClockRunning}
+              onToggleClock={handleToggleClock}
+              onResetClock={handleResetClock}
+              isReadOnly={isReadOnly}
+            />
+          </Scoreboard>
 
           <MoleskineCard>
             <Box
@@ -2380,10 +2419,14 @@ const GameMode: React.FC = () => {
                       <RecentActionItem
                         key={s.id}
                         stat={s}
-                        players={players}
+                        playerName={
+                          s.playerId === SPECIAL_PLAYER_IDS.TEAM_TIMEOUT ||
+                          s.playerId === SPECIAL_PLAYER_IDS.OUR_TEAM
+                            ? team?.name || "Our Team"
+                            : playerNamesMap.get(s.playerId) || "Unknown"
+                        }
                         periodLabel={periodLabel}
                         isReadOnly={isReadOnly}
-                        teamName={team?.name}
                         opponentName={game?.opponent}
                         onEdit={openEditDialog}
                         onDelete={handleSetStatToDelete}
@@ -3091,20 +3134,18 @@ const GameMode: React.FC = () => {
  */
 const RecentActionItem: React.FC<{
   stat: StatEvent;
-  players: Player[];
+  playerName: string;
   periodLabel: string;
   isReadOnly: boolean;
-  teamName?: string;
   opponentName?: string;
   onEdit: (_stat: StatEvent) => void;
   onDelete: (_id: string) => void;
 }> = React.memo(
   ({
     stat,
-    players,
+    playerName: resolvedPlayerName,
     periodLabel,
     isReadOnly,
-    teamName,
     opponentName,
     onEdit,
     onDelete,
@@ -3119,12 +3160,7 @@ const RecentActionItem: React.FC<{
       return null;
     };
 
-    const playerName =
-      getOpponentName(stat.playerId) ||
-      (stat.playerId === SPECIAL_PLAYER_IDS.TEAM_TIMEOUT ||
-      stat.playerId === SPECIAL_PLAYER_IDS.OUR_TEAM
-        ? teamName || "Our Team"
-        : players?.find((p) => p.id === stat.playerId)?.name || "Unknown");
+    const playerName = getOpponentName(stat.playerId) || resolvedPlayerName;
 
     const getActionIcon = (type: string) => {
       const iconSx = { fontSize: 16, mr: 1, verticalAlign: "middle" };

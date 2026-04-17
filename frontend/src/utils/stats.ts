@@ -212,8 +212,8 @@ export const getInitials = (name: string | undefined | null): string => {
  * @param {StatEvent} stat - The statistical event.
  */
 function applyStatToPlayer(player: PlayerAggregates, stat: StatEvent) {
-  const { type } = stat;
-  player.gamesPlayed.add(stat.gameId);
+  const { type, gameId } = stat;
+  player.gamesPlayed.add(gameId);
 
   switch (type) {
     case ACTION_TYPES.MAKE:

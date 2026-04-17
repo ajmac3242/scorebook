@@ -66,6 +66,85 @@ interface BasketballCourtProps {
   heatmapData?: HeatmapData;
 }
 
+/**
+ * Sub-component for individual marker rendering.
+ * Wrapped in React.memo to prevent redundant re-renders of stable markers.
+ */
+const CourtMarker = React.memo(
+  ({
+    marker,
+    isLatest,
+    charcoal,
+    onMarkerClick,
+  }: {
+    marker: Marker;
+    isLatest: boolean;
+    charcoal: string;
+    onMarkerClick?: (_marker: Marker) => void;
+  }) => {
+    let color = marker.color || "#2D2D2D";
+    if (!marker.color) {
+      if (marker.type === "MAKE") color = "#4CAF50";
+      else if (marker.type === "MISS") color = "#F44336";
+      else if (marker.type === "REBOUND") color = "#2196F3";
+      else if (marker.type === "STEAL") color = "#FF9800";
+      else if (marker.type === "ASSIST") color = "#9C27B0";
+      else if (marker.type === "TURNOVER") color = "#795548";
+      else if (marker.type === "SELECTION") color = "#154C56";
+    }
+
+    const svgX = (marker.x / 100) * 500;
+    const svgY = (marker.y / 100) * 470;
+    const isSelection = marker.type === "SELECTION";
+
+    return (
+      <g
+        className={isSelection ? "" : onMarkerClick ? "marker-group" : ""}
+        onClick={(e: React.MouseEvent<SVGGElement>) => {
+          e.stopPropagation();
+          if (onMarkerClick) onMarkerClick(marker);
+        }}
+        onKeyDown={(e: React.KeyboardEvent<SVGGElement>) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.stopPropagation();
+            if (onMarkerClick) onMarkerClick(marker);
+          }
+        }}
+        role="button"
+        tabIndex={0}
+        aria-label={`${marker.type} by ${marker.label ? `#${marker.label}` : "Opponent"}`}
+      >
+        <circle
+          className={
+            isSelection ? "" : isLatest ? "latest-marker" : "court-marker"
+          }
+          cx={svgX}
+          cy={svgY}
+          r={isSelection ? "8" : "6"}
+          fill={color}
+          fillOpacity={isSelection ? "0.6" : isLatest ? "1" : "0.8"}
+          stroke={color}
+          strokeWidth={isSelection ? "3" : isLatest ? "2" : "1"}
+          strokeDasharray={isSelection ? "4,2" : "none"}
+          aria-label={`${marker.type} by ${marker.label ? `#${marker.label}` : "Opponent"}`}
+        />
+        {marker.label && (
+          <text
+            x={svgX}
+            y={svgY - 10}
+            fontSize="12"
+            textAnchor="middle"
+            fill={charcoal}
+            style={{ pointerEvents: "none", fontWeight: "bold" }}
+          >
+            {marker.label}
+          </text>
+        )}
+      </g>
+    );
+  },
+);
+
 const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
   ({ onCoordClick, onMarkerClick, markers = [], heatmapData }) => {
     const handleCourtClick = (e: React.MouseEvent<SVGSVGElement>) => {
@@ -327,77 +406,15 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
 
           {/* Markers / Heatmap Points */}
           <style>{COURT_STYLES}</style>
-          {markers.map((marker, index) => {
-            const isLatest = index === markers.length - 1;
-            let color = marker.color || "#2D2D2D";
-            if (!marker.color) {
-              if (marker.type === "MAKE") color = "#4CAF50";
-              else if (marker.type === "MISS") color = "#F44336";
-              else if (marker.type === "REBOUND") color = "#2196F3";
-              else if (marker.type === "STEAL") color = "#FF9800";
-              else if (marker.type === "ASSIST") color = "#9C27B0";
-              else if (marker.type === "TURNOVER") color = "#795548";
-              else if (marker.type === "SELECTION") color = "#154C56";
-            }
-
-            const svgX = (marker.x / 100) * 500;
-            const svgY = (marker.y / 100) * 470;
-
-            const isSelection = marker.type === "SELECTION";
-
-            return (
-              <g
-                key={marker.id || index}
-                className={
-                  isSelection ? "" : onMarkerClick ? "marker-group" : ""
-                }
-                onClick={(e: React.MouseEvent<SVGGElement>) => {
-                  e.stopPropagation();
-                  if (onMarkerClick) onMarkerClick(marker);
-                }}
-                onKeyDown={(e: React.KeyboardEvent<SVGGElement>) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.stopPropagation();
-                    if (onMarkerClick) onMarkerClick(marker);
-                  }
-                }}
-                role="button"
-                tabIndex={0}
-                aria-label={`${marker.type} by ${marker.label ? `#${marker.label}` : "Opponent"}`}
-              >
-                <circle
-                  className={
-                    isSelection
-                      ? ""
-                      : isLatest
-                        ? "latest-marker"
-                        : "court-marker"
-                  }
-                  cx={svgX}
-                  cy={svgY}
-                  r={isSelection ? "8" : "6"}
-                  fill={color}
-                  fillOpacity={isSelection ? "0.6" : isLatest ? "1" : "0.8"}
-                  stroke={color}
-                  strokeWidth={isSelection ? "3" : isLatest ? "2" : "1"}
-                  strokeDasharray={isSelection ? "4,2" : "none"}
-                  aria-label={`${marker.type} by ${marker.label ? `#${marker.label}` : "Opponent"}`}
-                />
-                {marker.label && (
-                  <text
-                    x={svgX}
-                    y={svgY - 10}
-                    fontSize="12"
-                    textAnchor="middle"
-                    fill={charcoal}
-                    style={{ pointerEvents: "none", fontWeight: "bold" }}
-                  >
-                    {marker.label}
-                  </text>
-                )}
-              </g>
-            );
-          })}
+          {markers.map((marker, index) => (
+            <CourtMarker
+              key={marker.id || index}
+              marker={marker}
+              isLatest={index === markers.length - 1}
+              charcoal={charcoal}
+              onMarkerClick={onMarkerClick}
+            />
+          ))}
         </svg>
       </Box>
     );
