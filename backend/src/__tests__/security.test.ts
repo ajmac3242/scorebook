@@ -230,7 +230,8 @@ describe("Security Tests", () => {
     const response: any = await handler(event);
 
     expect(response.headers).toMatchObject({
-      "Cache-Control": "private, no-cache, no-store, max-age=0, must-revalidate",
+      "Cache-Control":
+        "private, no-cache, no-store, max-age=0, must-revalidate",
       "X-Content-Type-Options": "nosniff",
       "X-Frame-Options": "DENY",
       "Strict-Transport-Security":
