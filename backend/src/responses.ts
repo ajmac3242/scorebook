@@ -16,6 +16,8 @@ export const INTERNAL_KEYS = new Set([
   "GSI1SK",
   "GSI2PK",
   "GSI2SK",
+  "deletedAt",
+  "isArchived",
 ]);
 
 /**
@@ -67,10 +69,10 @@ export function response(
     statusCode,
     headers: {
       "Content-Type": "application/json",
-      "Cache-Control": "no-store, max-age=0, must-revalidate",
+      "Cache-Control": "private, no-cache, no-store, max-age=0, must-revalidate",
       "X-Content-Type-Options": "nosniff",
       "X-Frame-Options": "DENY",
-      "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+      "Strict-Transport-Security": "max-age=31536000; includeSubDomains; preload",
       "Content-Security-Policy":
         "default-src 'none'; frame-ancestors 'none'; sandbox",
       "Referrer-Policy": "no-referrer",

@@ -49,6 +49,8 @@ const REDACTED_HEADERS = new Set([
   "cookie",
   "set-cookie",
   "x-api-key",
+  "proxy-authorization",
+  "x-amz-security-token",
 ]);
 
 /**
@@ -121,7 +123,7 @@ function isValidPlayerId(id: unknown): boolean {
   const strId = id as string;
   if (strId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":")) {
     const jersey = strId.split(":")[1];
-    return !!jersey && jersey.length > 0 && jersey.length <= 5;
+    return !!jersey && /^\d{1,2}$/.test(jersey);
   }
   return false;
 }
@@ -456,9 +458,7 @@ async function handleGames(
         id,
         timestamp,
       };
-      await docClient.send(
-        new PutCommand({ TableName: tableName, Item: item }),
-      );
+      await putNewItem(tableName, item);
       await snapshotGameStats(gameId, tableName);
       return created(item);
     }
@@ -560,9 +560,7 @@ async function handleTeams(
         id: body.id as string,
         teamId,
       };
-      await docClient.send(
-        new PutCommand({ TableName: tableName, Item: teamPlayerItem }),
-      );
+      await putNewItem(tableName, teamPlayerItem);
       await snapshotTeamRoster(teamId, tableName);
       return created(teamPlayerItem);
     }
@@ -614,27 +612,36 @@ async function handleTeams(
  * @returns {unknown} A sanitized copy of the event.
  */
 function maskEvent(event: APIGatewayProxyEventV2): unknown {
-  if (!event.headers) return event;
+  if (!event.headers && !event.cookies) return event;
 
   // ⚡ Bolt: Check for redacted headers before cloning to avoid unnecessary allocations.
   let hasRedactable = false;
-  for (const key in event.headers) {
-    if (REDACTED_HEADERS.has(key.toLowerCase())) {
-      hasRedactable = true;
-      break;
+  if (event.headers) {
+    for (const key in event.headers) {
+      if (REDACTED_HEADERS.has(key.toLowerCase())) {
+        hasRedactable = true;
+        break;
+      }
     }
   }
 
-  if (!hasRedactable) return event;
+  if (!hasRedactable && !event.cookies) return event;
 
   const masked = { ...event };
-  const redactedHeaders = { ...masked.headers };
-  for (const key in redactedHeaders) {
-    if (REDACTED_HEADERS.has(key.toLowerCase())) {
-      redactedHeaders[key] = "[REDACTED]";
+  if (event.headers) {
+    const redactedHeaders = { ...masked.headers };
+    for (const key in redactedHeaders) {
+      if (REDACTED_HEADERS.has(key.toLowerCase())) {
+        redactedHeaders[key] = "[REDACTED]";
+      }
     }
+    masked.headers = redactedHeaders;
   }
-  masked.headers = redactedHeaders;
+
+  if (event.cookies) {
+    masked.cookies = event.cookies.map(() => "[REDACTED]");
+  }
+
   return masked;
 }
 
@@ -778,6 +785,9 @@ export const handler = async (
       error instanceof Error &&
       error.name === "ConditionalCheckFailedException"
     ) {
+      if (method === "POST") {
+        return response(409, { message: "Item already exists" });
+      }
       return notFound("Item not found");
     }
     logError("Handler Error", error);
@@ -882,8 +892,30 @@ async function createItem(
     GSI1SK: `${type}#${id}`,
     id,
   };
-  await docClient.send(new PutCommand({ TableName: tableName, Item: item }));
+  await putNewItem(tableName, item);
   return created(item);
+}
+
+/**
+ * Idempotently creates a new item in DynamoDB if it doesn't already exist.
+ *
+ * WHY: This prevents accidental overwriting of data (e.g., if a client reuses an ID
+ * or multiple clients attempt to create the same resource). Using a condition
+ * expression ensures that the write only succeeds if no item with the same PK exists.
+ *
+ * @param {string} tableName - The DynamoDB table name.
+ * @param {object} item - The item to create.
+ * @returns {Promise<void>}
+ * @throws {Error} If the item already exists (ConditionalCheckFailedException).
+ */
+async function putNewItem(tableName: string, item: Record<string, unknown>) {
+  await docClient.send(
+    new PutCommand({
+      TableName: tableName,
+      Item: item,
+      ConditionExpression: "attribute_not_exists(PK)",
+    }),
+  );
 }
 
 /**
