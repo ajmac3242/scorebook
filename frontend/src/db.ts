@@ -23,6 +23,7 @@ export interface Team {
   defaultPeriodLength?: number;
   defaultTimeoutLimit?: number;
   defaultFoulLimit?: number;
+  defaultOvertimeLength?: number;
 }
 
 /**
@@ -116,7 +117,8 @@ export class AppDatabase extends Dexie {
     // v12:    Added 'currentPeriod' to Game.
     // v13:    Added 'clockTime' and 'periodLength' to Game, and 'clockTime' to StatEvent.
     // v14:    Added 'isFavorite', 'defaultPeriodLength', 'defaultTimeoutLimit', 'defaultFoulLimit' to Team.
-    this.version(14).stores({
+    // v15:    Added 'defaultOvertimeLength' to Team.
+    this.version(15).stores({
       teams: "id, synced, deletedAt, isFavorite",
       players: "id, synced, isArchived, deletedAt",
       teamPlayers: "id, [teamId+playerId], teamId, playerId, synced",

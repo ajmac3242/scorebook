@@ -13,3 +13,19 @@
 ### Edge Cases
 - When starring a team, care must be taken to unstar any other team to maintain a single "My Team" context.
 - Default settings should be pre-filled in the game creation workflow but remain editable for one-off game variations (e.g., tournament rules).
+
+## 2026-04-17 - Dashboard Stats & Multi-Step Game Creation
+
+### Basketball Workflow Insights
+- Season leaders (PPG, RPG, APG) on the dashboard provide coaches with immediate competitive context for their best performers.
+- A "Review" step in game creation is essential for catching entry errors in high-stakes parameters like foul limits or period lengths before the game starts.
+- Historical game results on the main dashboard help maintain a sense of season momentum without navigating deep into team stats.
+
+### Implementation Patterns
+- Extending the Dexie schema (v15) with `defaultOvertimeLength` allows for more granular team-level configuration.
+- The 4-step Stepper workflow (`activeStep` logic) improves UX by breaking down complex entity creation into manageable chunks.
+- Leveraging existing statistical utilities like `calculatePlayerAggregates` and `calculateGameResult` on the Dashboard ensures data consistency across the app.
+
+### Edge Cases
+- When calculating "Season Leaders", players with 0 games played should be handled gracefully (showing "N/A" or "0.0").
+- The review step must summarize ALL fields, including those that might have been skipped or left as defaults.

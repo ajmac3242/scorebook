@@ -26,7 +26,12 @@ import {
 import { useLiveQuery } from "dexie-react-hooks";
 import { db, type StatEvent } from "../db";
 import { MoleskineCard, PageHeader, StatItem } from "../components/SharedUI";
-import { calculateTeamAggregates, getInitials } from "../utils/stats";
+import {
+  calculateTeamAggregates,
+  calculatePlayerAggregates,
+  calculateGameResult,
+  getInitials,
+} from "../utils/stats";
 import BasketballCourt from "../components/BasketballCourt";
 import { getShotZone } from "../utils/shotZones";
 import { ACTION_TYPES } from "../constants/stats";
@@ -68,10 +73,68 @@ const Dashboard: React.FC = () => {
       [gameIds],
     ) || [];
 
+  // Fetch players for leaders section
+  const teamPlayers =
+    useLiveQuery(
+      () =>
+        teamId ? db.teamPlayers.where("teamId").equals(teamId).toArray() : [],
+      [teamId],
+    ) || [];
+
+  const playerIds = useMemo(
+    () => teamPlayers.map((tp) => tp.playerId),
+    [teamPlayers],
+  );
+
+  const players =
+    useLiveQuery(
+      () =>
+        playerIds.length > 0
+          ? db.players.where("id").anyOf(playerIds).toArray()
+          : [],
+      [playerIds],
+    ) || [];
+
   const aggregates = useMemo(
     () => calculateTeamAggregates(teamGames, allStats),
     [teamGames, allStats],
   );
+
+  const playerAverages = useMemo(() => {
+    return calculatePlayerAggregates(players, allStats, teamPlayers, "average");
+  }, [players, allStats, teamPlayers]);
+
+  const leaders = useMemo(() => {
+    const sortedByPoints = [...playerAverages].sort(
+      (a, b) => b.points - a.points,
+    );
+    const sortedByRebounds = [...playerAverages].sort(
+      (a, b) => b.rebounds - a.rebounds,
+    );
+    const sortedByAssists = [...playerAverages].sort(
+      (a, b) => b.assists - a.assists,
+    );
+
+    return {
+      ppg: sortedByPoints[0],
+      rpg: sortedByRebounds[0],
+      apg: sortedByAssists[0],
+    };
+  }, [playerAverages]);
+
+  const recentResults = useMemo(() => {
+    return teamGames
+      .filter((g) => g.completed)
+      .sort((a, b) => dayjs(b.date).diff(dayjs(a.date)))
+      .slice(0, 3)
+      .map((game) => {
+        const { teamScore, oppScore, result } = calculateGameResult(
+          game.id!,
+          allStats,
+        );
+        return { ...game, teamScore, oppScore, result };
+      });
+  }, [teamGames, allStats]);
 
   const heatmapData = useMemo(() => {
     const data: Record<string, { makes: number; attempts: number }> = {};
@@ -217,12 +280,155 @@ const Dashboard: React.FC = () => {
             <Box sx={{ maxWidth: 600, mx: "auto", p: 1 }}>
               <BasketballCourt heatmapData={heatmapData} />
             </Box>
+
+            <Divider sx={{ my: 4 }} />
+
+            <Box sx={{ display: "flex", alignItems: "center", mb: 3, gap: 1 }}>
+              <StarIcon color="primary" />
+              <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                Season Leaders
+              </Typography>
+            </Box>
+            <Grid container spacing={3}>
+              <Grid item xs={12} sm={4}>
+                <MoleskineCard
+                  sx={{
+                    bgcolor: "rgba(0,0,0,0.02)",
+                    textAlign: "center",
+                    border: "1px solid rgba(0,0,0,0.05)",
+                  }}
+                >
+                  <Typography variant="caption" color="text.secondary">
+                    POINTS PER GAME
+                  </Typography>
+                  <Typography variant="h5" sx={{ fontWeight: 800, my: 1 }}>
+                    {leaders.ppg?.points || "0.0"}
+                  </Typography>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                    {leaders.ppg?.name || "N/A"}
+                  </Typography>
+                </MoleskineCard>
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                <MoleskineCard
+                  sx={{
+                    bgcolor: "rgba(0,0,0,0.02)",
+                    textAlign: "center",
+                    border: "1px solid rgba(0,0,0,0.05)",
+                  }}
+                >
+                  <Typography variant="caption" color="text.secondary">
+                    REBOUNDS PER GAME
+                  </Typography>
+                  <Typography variant="h5" sx={{ fontWeight: 800, my: 1 }}>
+                    {leaders.rpg?.rebounds || "0.0"}
+                  </Typography>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                    {leaders.rpg?.name || "N/A"}
+                  </Typography>
+                </MoleskineCard>
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                <MoleskineCard
+                  sx={{
+                    bgcolor: "rgba(0,0,0,0.02)",
+                    textAlign: "center",
+                    border: "1px solid rgba(0,0,0,0.05)",
+                  }}
+                >
+                  <Typography variant="caption" color="text.secondary">
+                    ASSISTS PER GAME
+                  </Typography>
+                  <Typography variant="h5" sx={{ fontWeight: 800, my: 1 }}>
+                    {leaders.apg?.assists || "0.0"}
+                  </Typography>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                    {leaders.apg?.name || "N/A"}
+                  </Typography>
+                </MoleskineCard>
+              </Grid>
+            </Grid>
           </MoleskineCard>
         </Grid>
 
         {/* Schedule & Actions */}
         <Grid item xs={12} md={4}>
           <Stack spacing={3}>
+            <MoleskineCard>
+              <Box
+                sx={{ display: "flex", alignItems: "center", mb: 2, gap: 1 }}
+              >
+                <Assessment color="primary" />
+                <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                  Recent Results
+                </Typography>
+              </Box>
+              {recentResults.length === 0 ? (
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ py: 2, textAlign: "center" }}
+                >
+                  No games completed yet.
+                </Typography>
+              ) : (
+                <Stack spacing={2}>
+                  {recentResults.map((game) => (
+                    <Box
+                      key={game.id}
+                      sx={{
+                        p: 2,
+                        borderRadius: 2,
+                        bgcolor: "rgba(0,0,0,0.02)",
+                        border: "1px solid rgba(0,0,0,0.05)",
+                        cursor: "pointer",
+                        "&:hover": { bgcolor: "rgba(0,0,0,0.04)" },
+                      }}
+                      onClick={() => navigate(`/game/stats?gameId=${game.id}`)}
+                    >
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          mb: 1,
+                        }}
+                      >
+                        <Typography variant="caption" color="text.secondary">
+                          {dayjs(game.date).format("MMM D")}
+                        </Typography>
+                        <Chip
+                          label={game.result}
+                          size="small"
+                          color={
+                            game.result === "W"
+                              ? "success"
+                              : game.result === "L"
+                                ? "error"
+                                : "default"
+                          }
+                          sx={{ height: 16, fontSize: "0.6rem", fontWeight: 900 }}
+                        />
+                      </Box>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
+                          vs {game.opponent}
+                        </Typography>
+                        <Typography variant="h6" sx={{ fontWeight: 800 }}>
+                          {game.teamScore} - {game.oppScore}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  ))}
+                </Stack>
+              )}
+            </MoleskineCard>
+
             <MoleskineCard>
               <Box
                 sx={{ display: "flex", alignItems: "center", mb: 2, gap: 1 }}
