@@ -406,7 +406,11 @@ const Dashboard: React.FC = () => {
                                 ? "error"
                                 : "default"
                           }
-                          sx={{ height: 16, fontSize: "0.6rem", fontWeight: 900 }}
+                          sx={{
+                            height: 16,
+                            fontSize: "0.6rem",
+                            fontWeight: 900,
+                          }}
                         />
                       </Box>
                       <Box
@@ -416,7 +420,10 @@ const Dashboard: React.FC = () => {
                           alignItems: "center",
                         }}
                       >
-                        <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
+                        <Typography
+                          variant="subtitle2"
+                          sx={{ fontWeight: 700 }}
+                        >
                           vs {game.opponent}
                         </Typography>
                         <Typography variant="h6" sx={{ fontWeight: 800 }}>
