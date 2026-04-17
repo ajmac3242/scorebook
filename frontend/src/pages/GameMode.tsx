@@ -2238,8 +2238,8 @@ const GameMode: React.FC = () => {
                     }}
                   >
                     <Typography variant="caption" color="text.secondary">
-                      No actions recorded yet. Tap the court or use quick actions
-                      to start.
+                      No actions recorded yet. Tap the court or use quick
+                      actions to start.
                     </Typography>
                   </Box>
                 ) : (

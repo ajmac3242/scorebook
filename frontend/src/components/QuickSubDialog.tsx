@@ -52,8 +52,13 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
         Quick Substitution
       </DialogTitle>
       <DialogContent>
-        <Typography variant="caption" color="text.secondary" sx={{ mb: 2, display: "block" }}>
-          To substitute: Tap an on-court player and then a bench player to swap their positions.
+        <Typography
+          variant="caption"
+          color="text.secondary"
+          sx={{ mb: 2, display: "block" }}
+        >
+          To substitute: Tap an on-court player and then a bench player to swap
+          their positions.
         </Typography>
         <Grid container spacing={2} sx={{ mt: 1 }}>
           <Grid item xs={6}>
