@@ -27,3 +27,12 @@ Pattern:
 2. Standardize 'magic' strings into shared constants (`SPECIAL_PLAYER_IDS`) for special entities like 'OPPONENT' and 'TEAM_TIMEOUT'.
 3. Use early returns and defensive checks (`!result?.Item`) to flatten deeply nested backend logic and prevent runtime crashes.
 4. Extract pure business logic (`getBonusStatus`) from stateful hooks to improve testability and clarity.
+
+## 2026-04-17 - Modular Architecture and Component Extraction
+Smell: Monolithic backend handler; deeply nested ternary logic in stat utilities; oversized UI components with embedded dialogs.
+Learning: Splitting a monolithic Lambda into domain-specific modules (validation, scoring, snapshots) significantly improves testability and reduces the cognitive load for maintaining individual routes. Transitioning complex UI sub-trees into dedicated components (QuickSubDialog) improves parent component readability and state management focus.
+Pattern:
+1. Decompose monolithic backend handlers into specialized modules (`validation.ts`, `scoring.ts`, `snapshots.ts`) to isolate business logic from routing.
+2. Flatten complex conditional logic (e.g., `isEventInPeriod`) using clear `if/else` or `switch` blocks to improve readability for domain-specific rules.
+3. Extract large Modal/Dialog sub-trees into standalone components (`QuickSubDialog.tsx`) to reduce parent file size and improve component "scannability".
+4. Standardize backend utility functions (request metadata extraction, path normalization) in a shared `utils.ts` to ensure routing consistency.

@@ -1,3 +1,11 @@
+import {
+  jest,
+  describe,
+  it,
+  expect,
+  beforeEach,
+  afterEach,
+} from "@jest/globals";
 import { handler } from "../index.js";
 import {
   DynamoDBDocumentClient,

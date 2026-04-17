@@ -1,3 +1,11 @@
+import {
+  jest,
+  describe,
+  it,
+  expect,
+  beforeEach,
+  afterEach,
+} from "@jest/globals";
 /**
  * Placeholder smoke test — verifies the test framework is wired up correctly.
  * Add real unit tests here as handlers are built out.

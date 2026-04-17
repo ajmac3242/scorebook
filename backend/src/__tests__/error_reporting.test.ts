@@ -1,3 +1,11 @@
+import {
+  jest,
+  describe,
+  it,
+  expect,
+  beforeEach,
+  afterEach,
+} from "@jest/globals";
 import { handler } from "../index.js";
 import { mockClient } from "aws-sdk-client-mock";
 
@@ -10,7 +18,7 @@ import { DynamoDBDocumentClient, QueryCommand } from "@aws-sdk/lib-dynamodb";
 const ddbMock = mockClient(DynamoDBDocumentClient);
 
 describe("Error Reporting Tests", () => {
-  let consoleSpy: jest.SpyInstance;
+  let consoleSpy: jest.Spied<typeof console.error>;
 
   beforeEach(() => {
     ddbMock.reset();
