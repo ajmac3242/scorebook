@@ -221,8 +221,8 @@ describe("Security Tests", () => {
 
     await handler(event);
 
-    const logCall = loggerSpy.mock.calls.find((call: any[]) =>
-      call[0] === "Event received",
+    const logCall = loggerSpy.mock.calls.find(
+      (call: any[]) => call[0] === "Event received",
     );
     expect(logCall).toBeDefined();
     expect(logCall![1]).toBe(event); // Reference equality check

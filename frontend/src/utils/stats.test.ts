@@ -370,9 +370,15 @@ describe("stats utilities", () => {
       ];
       // Live at 5:00 (300s remaining)
       const options = {
-        liveContext: { clockTime: 300, period: 1 }
+        liveContext: { clockTime: 300, period: 1 },
       };
-      const results = calculatePlayerAggregates(players, stats, [], "total", options);
+      const results = calculatePlayerAggregates(
+        players,
+        stats,
+        [],
+        "total",
+        options,
+      );
       const p1 = results[0];
       // (600 - 300) / 60 = 5 mins
       expect(p1.min).toBe(5);
@@ -628,25 +634,90 @@ describe("stats utilities", () => {
 
     it("handles multiple substitutions at the exact same clockTime correctly", () => {
       const stats: StatEvent[] = [
-        { gameId: "g1", playerId: "p1", type: ACTION_TYPES.SUB_IN, clockTime: 600, period: 1, timestamp: "1" },
-        { gameId: "g1", playerId: "p2", type: ACTION_TYPES.SUB_IN, clockTime: 600, period: 1, timestamp: "2" },
-        { gameId: "g1", playerId: "p3", type: ACTION_TYPES.SUB_IN, clockTime: 600, period: 1, timestamp: "3" },
-        { gameId: "g1", playerId: "p4", type: ACTION_TYPES.SUB_IN, clockTime: 600, period: 1, timestamp: "4" },
-        { gameId: "g1", playerId: "p5", type: ACTION_TYPES.SUB_IN, clockTime: 600, period: 1, timestamp: "5" },
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          period: 1,
+          timestamp: "1",
+        },
+        {
+          gameId: "g1",
+          playerId: "p2",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          period: 1,
+          timestamp: "2",
+        },
+        {
+          gameId: "g1",
+          playerId: "p3",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          period: 1,
+          timestamp: "3",
+        },
+        {
+          gameId: "g1",
+          playerId: "p4",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          period: 1,
+          timestamp: "4",
+        },
+        {
+          gameId: "g1",
+          playerId: "p5",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          period: 1,
+          timestamp: "5",
+        },
         // Score 2 pts at 5:00
-        { gameId: "g1", playerId: "p1", type: ACTION_TYPES.MAKE, points: 2, clockTime: 300, period: 1, timestamp: "6" },
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          clockTime: 300,
+          period: 1,
+          timestamp: "6",
+        },
         // Double sub at 5:00
-        { gameId: "g1", playerId: "p1", type: ACTION_TYPES.SUB_OUT, clockTime: 300, period: 1, timestamp: "7" },
-        { gameId: "g1", playerId: "p6", type: ACTION_TYPES.SUB_IN, clockTime: 300, period: 1, timestamp: "8" },
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.SUB_OUT,
+          clockTime: 300,
+          period: 1,
+          timestamp: "7",
+        },
+        {
+          gameId: "g1",
+          playerId: "p6",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 300,
+          period: 1,
+          timestamp: "8",
+        },
         // Score 3 pts with new lineup at 2:00
-        { gameId: "g1", playerId: "p2", type: ACTION_TYPES.MAKE, points: 3, clockTime: 120, period: 1, timestamp: "9" },
+        {
+          gameId: "g1",
+          playerId: "p2",
+          type: ACTION_TYPES.MAKE,
+          points: 3,
+          clockTime: 120,
+          period: 1,
+          timestamp: "9",
+        },
       ];
       const results = calculateLineupStats(stats);
       // Lineup 1: p1,p2,p3,p4,p5 -> 2 pts for, 300 seconds
       // Lineup 2: p2,p3,p4,p5,p6 -> 3 pts for, 300 seconds (final stint to 0:00)
       expect(results.length).toBe(2);
-      const l1 = results.find(r => r.lineup.includes("p1"))!;
-      const l2 = results.find(r => r.lineup.includes("p6"))!;
+      const l1 = results.find((r) => r.lineup.includes("p1"))!;
+      const l2 = results.find((r) => r.lineup.includes("p6"))!;
       expect(l1.pointsFor).toBe(2);
       expect(l1.seconds).toBe(300);
       expect(l2.pointsFor).toBe(3);
@@ -1481,8 +1552,22 @@ describe("stats utilities", () => {
   describe("sortStats", () => {
     it("sorts by timestamp primarily", () => {
       const stats: StatEvent[] = [
-        { id: "b", timestamp: "2023-01-01T10:02:00Z", gameId: "g1", playerId: "p1", type: "MAKE", period: 1 },
-        { id: "a", timestamp: "2023-01-01T10:01:00Z", gameId: "g1", playerId: "p1", type: "MAKE", period: 1 },
+        {
+          id: "b",
+          timestamp: "2023-01-01T10:02:00Z",
+          gameId: "g1",
+          playerId: "p1",
+          type: "MAKE",
+          period: 1,
+        },
+        {
+          id: "a",
+          timestamp: "2023-01-01T10:01:00Z",
+          gameId: "g1",
+          playerId: "p1",
+          type: "MAKE",
+          period: 1,
+        },
       ];
       const sorted = sortStats(stats);
       expect(sorted[0].id).toBe("a");
@@ -1491,8 +1576,22 @@ describe("stats utilities", () => {
 
     it("uses id as a secondary sort key for identical timestamps (deterministic sorting)", () => {
       const stats: StatEvent[] = [
-        { id: "z", timestamp: "2023-01-01T10:00:00Z", gameId: "g1", playerId: "p1", type: "MAKE", period: 1 },
-        { id: "m", timestamp: "2023-01-01T10:00:00Z", gameId: "g1", playerId: "p1", type: "MAKE", period: 1 },
+        {
+          id: "z",
+          timestamp: "2023-01-01T10:00:00Z",
+          gameId: "g1",
+          playerId: "p1",
+          type: "MAKE",
+          period: 1,
+        },
+        {
+          id: "m",
+          timestamp: "2023-01-01T10:00:00Z",
+          gameId: "g1",
+          playerId: "p1",
+          type: "MAKE",
+          period: 1,
+        },
       ];
       const sorted = sortStats(stats);
       expect(sorted[0].id).toBe("m");
