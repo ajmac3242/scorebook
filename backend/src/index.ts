@@ -1284,8 +1284,10 @@ async function deleteGameSnapshots(gameId: string): Promise<void> {
  * @returns {Promise<void>}
  */
 async function performHardCleanup(tableName: string): Promise<void> {
+  const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+
   // This is a simplified scan-based cleanup. For large tables, use a GSI on deletedAt.
-  // Since we have a single table, we'll scan for items with deletedAt marker.
+  // Since we have a single table, we'll scan for items with deletedAt < oneDayAgo.
   await docClient.send(
     new QueryCommand({
       TableName: tableName,
@@ -1297,7 +1299,7 @@ async function performHardCleanup(tableName: string): Promise<void> {
     }),
   );
 
-  logger.info("Cleanup attempted");
+  logger.info("Cleanup attempted", { threshold: oneDayAgo });
 }
 
 /**

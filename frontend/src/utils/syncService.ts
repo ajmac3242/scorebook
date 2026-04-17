@@ -4,10 +4,11 @@
  * Implements push (local-to-remote) and pull (remote-to-local via API and S3 snapshots) functionality.
  */
 
-import { db, Game, TeamPlayer, StatEvent, Team, Player } from "../db";
+import { db } from "../db";
+import type { Game, TeamPlayer, StatEvent, Team, Player } from "../db";
 import { UserPool } from "../UserPool";
-import { CognitoUserSession } from "amazon-cognito-identity-js";
-import { type Table } from "dexie";
+import type { CognitoUserSession } from "amazon-cognito-identity-js";
+import type { Table } from "dexie";
 import { logger } from "./logger";
 
 /**
@@ -15,7 +16,12 @@ import { logger } from "./logger";
  */
 interface RosterSnapshot {
   team: Team;
-  players: (Player & { jerseyNumber?: string })[];
+  players: {
+    playerId: string;
+    name: string;
+    avatarColor?: string;
+    jerseyNumber?: string;
+  }[];
 }
 
 /**
@@ -255,7 +261,8 @@ class SyncService {
       if (successIds.length > 0) {
         await db.transaction("rw", table, async () => {
           for (let j = 0; j < successIds.length; j++) {
-            await table.update(successIds[j], { synced: 1 } as Partial<T>);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            await table.update(successIds[j], { synced: 1 } as any);
           }
         });
       }
