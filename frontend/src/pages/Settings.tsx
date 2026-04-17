@@ -1,21 +1,25 @@
 import React, { useState, useEffect } from "react";
 import {
-  Box,
-  Typography,
   Button,
-  Divider,
-  Stack,
-  Avatar,
-  Paper,
+  Card,
+  CardBody,
+  CardHeader,
   Chip,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
-  Snackbar,
-  Alert,
-} from "@mui/material";
+  Avatar,
+  Separator,
+  ScrollShadow,
+  AlertDialogRoot,
+  AlertDialogBackdrop,
+  AlertDialogContainer,
+  AlertDialogDialog,
+  AlertDialogHeader,
+  AlertDialogHeading,
+  AlertDialogBody,
+  AlertDialogFooter,
+  AlertDialogCloseTrigger,
+  useOverlayState as useDisclosure,
+  toast,
+} from "@heroui/react";
 import {
   Logout as LogoutIcon,
   Wifi as OnlineIcon,
@@ -41,13 +45,8 @@ const Settings: React.FC = () => {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [isSyncing, setIsSyncing] = useState(false);
   const [hasUnsynced, setHasUnsynced] = useState(false);
-  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
+  const { isOpen, open, close } = useDisclosure();
   const [logs, setLogs] = useState<LogEntry[]>(logger.getLogs());
-  const [snackbar, setSnackbar] = useState<{
-    open: boolean;
-    message: string;
-    severity: "success" | "error";
-  }>({ open: false, message: "", severity: "success" });
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
@@ -89,7 +88,7 @@ const Settings: React.FC = () => {
   const handleLogoutClick = async () => {
     const hasUnsynced = await syncService.hasUnsyncedChanges();
     if (hasUnsynced) {
-      setLogoutDialogOpen(true);
+      open();
     } else {
       logout();
     }
@@ -99,7 +98,7 @@ const Settings: React.FC = () => {
    * Confirms and executes the logout action from the dialog.
    */
   const confirmLogout = async () => {
-    setLogoutDialogOpen(false);
+    close();
     try {
       // 1. Clear local database
       await db.delete();
@@ -134,11 +133,7 @@ const Settings: React.FC = () => {
       )
       .join("\n\n");
     navigator.clipboard.writeText(logString);
-    setSnackbar({
-      open: true,
-      message: "Logs copied to clipboard",
-      severity: "success",
-    });
+    toast.success("Logs copied to clipboard");
   };
 
   /**
@@ -147,66 +142,11 @@ const Settings: React.FC = () => {
   const handleClearLogs = () => {
     logger.clearLogs();
     setLogs([]);
-    setSnackbar({
-      open: true,
-      message: "System logs cleared",
-      severity: "success",
-    });
+    toast.success("System logs cleared");
   };
 
-  const logoutDialog = (
-    <Dialog
-      open={logoutDialogOpen}
-      onClose={() => setLogoutDialogOpen(false)}
-      maxWidth="xs"
-      fullWidth
-    >
-      <DialogTitle
-        sx={{
-          fontFamily: "var(--serif)",
-          display: "flex",
-          alignItems: "center",
-          gap: 1.5,
-          color: "error.main",
-        }}
-      >
-        <WarningIcon color="error" />
-        Unsynced Changes
-      </DialogTitle>
-      <DialogContent>
-        <DialogContentText>
-          You have data that hasn't been synced to the server yet. If you logout
-          now, these changes may be lost. Are you sure you want to logout?
-        </DialogContentText>
-      </DialogContent>
-      <DialogActions sx={{ p: 2, px: 3, pb: 3 }}>
-        <Button onClick={() => setLogoutDialogOpen(false)} color="inherit">
-          Cancel
-        </Button>
-        <Button onClick={confirmLogout} color="error" variant="contained">
-          Logout Anyway
-        </Button>
-      </DialogActions>
-    </Dialog>
-  );
-
   return (
-    <Box sx={{ pb: 8 }}>
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={4000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-      >
-        <Alert
-          onClose={() => setSnackbar({ ...snackbar, open: false })}
-          severity={snackbar.severity}
-          variant="filled"
-          sx={{ width: "100%" }}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
+    <div className="pb-8 space-y-6">
       <EntityBanner
         title="Settings"
         icon={<SettingsIcon />}
@@ -214,225 +154,149 @@ const Settings: React.FC = () => {
         backTo="/"
       />
 
-      <Box sx={{ mt: 4, display: "flex", justifyContent: "center" }}>
-        <Paper
-          elevation={0}
-          sx={{
-            p: 4,
-            maxWidth: 500,
-            width: "100%",
-            borderRadius: 4,
-            border: "1px solid rgba(0,0,0,0.05)",
-            textAlign: "center",
-          }}
-        >
-          <Avatar
-            sx={{
-              width: 100,
-              height: 100,
-              bgcolor: "primary.main",
-              mx: "auto",
-              mb: 3,
-              fontSize: "3rem",
-            }}
-          >
-            <SettingsIcon fontSize="inherit" />
-          </Avatar>
+      <div className="mt-4 flex justify-center px-2">
+        <Card className="max-w-[500px] w-full p-6 shadow-xl border-none">
+          <CardHeader className="flex flex-col items-center pb-6">
+            <Avatar
+              className="w-24 h-24 text-3xl mb-4 bg-primary text-white"
+              icon={<SettingsIcon className="text-4xl" />}
+            />
+            <h2 className="text-3xl font-serif font-bold text-primary-900">Application Settings</h2>
+            <p className="text-default-500">System Configuration</p>
+          </CardHeader>
 
-          <Typography variant="h4" sx={{ mb: 1, fontFamily: "var(--serif)" }}>
-            Application Settings
-          </Typography>
-          <Typography color="text.secondary" sx={{ mb: 4 }}>
-            System Configuration
-          </Typography>
+          <CardBody className="space-y-6">
+            <Separator />
 
-          <Divider sx={{ mb: 4 }} />
+            <div className="space-y-4">
+              <h3 className="text-lg font-bold text-primary-900">System Status</h3>
 
-          <Typography
-            variant="subtitle1"
-            gutterBottom
-            align="left"
-            sx={{ fontWeight: 600 }}
-          >
-            System Status
-          </Typography>
+              <div className="flex justify-between items-center p-3 bg-default-50 rounded-xl border border-default-100">
+                <span className="text-sm font-medium">Network Connection</span>
+                <Chip
+                  variant="flat"
+                  color={isOnline ? "success" : "danger"}
+                  startContent={isOnline ? <OnlineIcon fontSize="small" /> : <OfflineIcon fontSize="small" />}
+                  size="sm"
+                  className="font-bold"
+                >
+                  {isOnline ? "Online" : "Offline"}
+                </Chip>
+              </div>
 
-          <Stack spacing={2} sx={{ mb: 4 }}>
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                p: 2,
-                bgcolor: "background.default",
-                borderRadius: 2,
-              }}
+              <div className="flex justify-between items-center p-3 bg-default-50 rounded-xl border border-default-100">
+                <span className="text-sm font-medium">Synchronization Status</span>
+                <Chip
+                  variant="flat"
+                  color={isSyncing ? "secondary" : hasUnsynced ? "warning" : "default"}
+                  startContent={isSyncing ? <SyncingIcon className="spin text-sm" /> : hasUnsynced ? <WarningIcon fontSize="small" /> : <SyncingIcon fontSize="small" />}
+                  size="sm"
+                  className="font-bold"
+                >
+                  {isSyncing ? "Syncing..." : hasUnsynced ? "Unsynced changes" : "Up to date"}
+                </Chip>
+              </div>
+            </div>
+
+            <Button
+              color="danger"
+              variant="solid"
+              fullWidth
+              size="lg"
+              startContent={<LogoutIcon />}
+              onPress={handleLogoutClick}
+              className="font-bold shadow-lg"
             >
-              <Typography variant="body2">Network Connection</Typography>
-              <Chip
-                icon={isOnline ? <OnlineIcon /> : <OfflineIcon />}
-                label={isOnline ? "Online" : "Offline"}
-                color={isOnline ? "success" : "error"}
-                size="small"
-              />
-            </Box>
+              Logout
+            </Button>
 
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                p: 2,
-                bgcolor: "background.default",
-                borderRadius: 2,
-              }}
-            >
-              <Typography variant="body2">Synchronization Status</Typography>
-              <Chip
-                icon={
-                  isSyncing ? (
-                    <SyncingIcon className="spin" />
-                  ) : hasUnsynced ? (
-                    <WarningIcon />
-                  ) : (
-                    <SyncingIcon />
-                  )
-                }
-                label={
-                  isSyncing
-                    ? "Syncing..."
-                    : hasUnsynced
-                      ? "Unsynced changes"
-                      : "Up to date"
-                }
-                color={
-                  isSyncing ? "secondary" : hasUnsynced ? "warning" : "default"
-                }
-                size="small"
-              />
-            </Box>
-          </Stack>
+            <Separator />
 
-          <Button
-            variant="contained"
-            color="error"
-            fullWidth
-            size="large"
-            startIcon={<LogoutIcon />}
-            onClick={handleLogoutClick}
-            sx={{ borderRadius: 2, mb: 4 }}
-          >
-            Logout
-          </Button>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-bold text-primary-900">System Logs</h3>
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    variant="light"
+                    startContent={<CopyIcon fontSize="small" />}
+                    onPress={copyLogsToClipboard}
+                    isDisabled={logs.length === 0}
+                  >
+                    Copy
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="light"
+                    color="danger"
+                    startContent={<ClearIcon fontSize="small" />}
+                    onPress={handleClearLogs}
+                    isDisabled={logs.length === 0}
+                  >
+                    Clear
+                  </Button>
+                </div>
+              </div>
 
-          <Divider sx={{ mb: 4 }} />
+              <ScrollShadow className="h-[200px] p-4 bg-default-50 rounded-xl border border-default-100 overflow-y-auto">
+                {logs.length === 0 ? (
+                  <p className="text-center italic text-default-400 py-4">
+                    No logs recorded yet.
+                  </p>
+                ) : (
+                  <div className="space-y-4">
+                    {[...logs].reverse().map((log, index) => (
+                      <div key={index} className="text-xs">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className={`uppercase font-black ${
+                            log.level === 'error' ? 'text-danger' : log.level === 'warn' ? 'text-warning' : 'text-default-400'
+                          }`}>
+                            {log.level}
+                          </span>
+                          <span className="text-default-400">
+                            {new Date(log.timestamp).toLocaleTimeString()}
+                          </span>
+                        </div>
+                        <p className="font-mono break-all text-default-700">{log.message}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </ScrollShadow>
+            </div>
+          </CardBody>
+        </Card>
+      </div>
 
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              mb: 2,
-            }}
-          >
-            <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-              System Logs
-            </Typography>
-            <Stack direction="row" spacing={1}>
-              <Button
-                size="small"
-                startIcon={<CopyIcon />}
-                onClick={copyLogsToClipboard}
-                disabled={logs.length === 0}
-              >
-                Copy
+      <AlertDialogRoot isOpen={isOpen} onOpenChange={close}>
+        <AlertDialogBackdrop />
+        <AlertDialogContainer>
+          <AlertDialogDialog>
+            <AlertDialogHeader>
+              <AlertDialogHeading className="flex items-center gap-2 text-danger">
+                <WarningIcon color="error" />
+                Unsynced Changes
+              </AlertDialogHeading>
+            </AlertDialogHeader>
+            <AlertDialogBody>
+              <p className="text-default-500">
+                You have data that hasn't been synced to the server yet. If you logout
+                now, these changes may be lost. Are you sure you want to logout?
+              </p>
+            </AlertDialogBody>
+            <AlertDialogFooter>
+              <Button variant="light" onPress={close}>
+                Cancel
               </Button>
-              <Button
-                size="small"
-                startIcon={<ClearIcon />}
-                onClick={handleClearLogs}
-                disabled={logs.length === 0}
-                color="error"
-              >
-                Clear
+              <Button color="danger" onPress={confirmLogout}>
+                Logout Anyway
               </Button>
-            </Stack>
-          </Box>
-
-          <Paper
-            elevation={0}
-            sx={{
-              bgcolor: "background.default",
-              borderRadius: 2,
-              p: 2,
-              maxHeight: 300,
-              overflowY: "auto",
-              textAlign: "left",
-              border: "1px solid rgba(0,0,0,0.05)",
-            }}
-          >
-            {logs.length === 0 ? (
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ textAlign: "center", fontStyle: "italic", py: 2 }}
-              >
-                No logs recorded yet.
-              </Typography>
-            ) : (
-              <Stack spacing={1.5}>
-                {[...logs].reverse().map((log, index) => (
-                  <Box key={index}>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        alignItems: "baseline",
-                        gap: 1,
-                        mb: 0.5,
-                      }}
-                    >
-                      <Typography
-                        variant="caption"
-                        sx={{
-                          fontWeight: "bold",
-                          color:
-                            log.level === "error"
-                              ? "error.main"
-                              : log.level === "warn"
-                                ? "warning.main"
-                                : "text.secondary",
-                          textTransform: "uppercase",
-                        }}
-                      >
-                        {log.level}
-                      </Typography>
-                      <Typography
-                        variant="caption"
-                        color="text.secondary"
-                        sx={{ fontSize: "0.7rem" }}
-                      >
-                        {new Date(log.timestamp).toLocaleTimeString()}
-                      </Typography>
-                    </Box>
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        fontFamily: "monospace",
-                        fontSize: "0.8rem",
-                        wordBreak: "break-all",
-                      }}
-                    >
-                      {log.message}
-                    </Typography>
-                  </Box>
-                ))}
-              </Stack>
-            )}
-          </Paper>
-        </Paper>
-      </Box>
-      {logoutDialog}
-    </Box>
+            </AlertDialogFooter>
+            <AlertDialogCloseTrigger />
+          </AlertDialogDialog>
+        </AlertDialogContainer>
+      </AlertDialogRoot>
+    </div>
   );
 };
 

@@ -2,14 +2,13 @@ import React, { useState } from "react";
 import { AuthenticationDetails, CognitoUser } from "amazon-cognito-identity-js";
 import { UserPool } from "../UserPool";
 import {
-  Box,
+  Card,
+  CardBody,
+  CardHeader,
   Button,
-  TextField,
-  Typography,
-  Container,
-  Paper,
+  Input,
   Alert,
-} from "@mui/material";
+} from "@heroui/react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { syncService } from "../utils/syncService";
@@ -54,62 +53,56 @@ const Login: React.FC = () => {
   };
 
   return (
-    <Container maxWidth="xs">
-      <Box sx={{ mt: 8 }}>
-        <Paper
-          elevation={3}
-          sx={{
-            p: 4,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-          }}
-        >
-          <Typography component="h1" variant="h5" gutterBottom>
-            Sign In
-          </Typography>
+    <div className="min-h-[80vh] flex items-center justify-center px-4">
+      <Card className="max-w-[400px] w-full p-4 shadow-xl">
+        <CardHeader className="flex flex-col items-center pb-0 pt-6 px-4">
+          <h1 className="text-2xl font-serif font-bold text-primary-900">Sign In</h1>
+          <p className="text-small text-default-500">Enter your credentials to continue</p>
+        </CardHeader>
+        <CardBody>
           {error && (
-            <Alert severity="error" sx={{ width: "100%", mb: 2 }}>
-              {error}
+            <Alert color="danger" variant="flat" className="mb-4">
+              <div className="flex flex-col gap-1">
+                <span className="text-small font-bold">Error</span>
+                <span className="text-tiny">{error}</span>
+              </div>
             </Alert>
           )}
-          <Box component="form" onSubmit={onSubmit} sx={{ mt: 1 }}>
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="username"
+          <form onSubmit={onSubmit} className="flex flex-col gap-4">
+            <Input
+              isRequired
               label="Username"
-              name="username"
+              placeholder="Enter your username"
+              type="text"
+              variant="bordered"
+              value={username}
+              onValueChange={setUsername}
               autoComplete="username"
               autoFocus
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
             />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="password"
+            <Input
+              isRequired
               label="Password"
+              placeholder="Enter your password"
               type="password"
-              id="password"
-              autoComplete="current-password"
+              variant="bordered"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onValueChange={setPassword}
+              autoComplete="current-password"
             />
             <Button
               type="submit"
+              color="primary"
+              variant="solid"
               fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
+              className="mt-2 font-bold"
             >
               Sign In
             </Button>
-          </Box>
-        </Paper>
-      </Box>
-    </Container>
+          </form>
+        </CardBody>
+      </Card>
+    </div>
   );
 };
 
