@@ -56,8 +56,12 @@ const Login: React.FC = () => {
     <div className="min-h-[80vh] flex items-center justify-center px-4">
       <Card className="max-w-[400px] w-full p-4 shadow-xl">
         <CardHeader className="flex flex-col items-center pb-0 pt-6 px-4">
-          <h1 className="text-2xl font-serif font-bold text-primary-900">Sign In</h1>
-          <p className="text-small text-default-500">Enter your credentials to continue</p>
+          <h1 className="text-2xl font-serif font-bold text-primary-900">
+            Sign In
+          </h1>
+          <p className="text-small text-default-500">
+            Enter your credentials to continue
+          </p>
         </CardHeader>
         <CardContent>
           {error && (
@@ -70,7 +74,12 @@ const Login: React.FC = () => {
           )}
           <form onSubmit={onSubmit} className="flex flex-col gap-4">
             <div className="flex flex-col gap-1">
-              <label htmlFor="username" className="text-small font-medium text-default-700">Username</label>
+              <label
+                htmlFor="username"
+                className="text-small font-medium text-default-700"
+              >
+                Username
+              </label>
               <Input
                 required
                 id="username"
@@ -84,7 +93,12 @@ const Login: React.FC = () => {
               />
             </div>
             <div className="flex flex-col gap-1">
-              <label htmlFor="password" className="text-small font-medium text-default-700">Password</label>
+              <label
+                htmlFor="password"
+                className="text-small font-medium text-default-700"
+              >
+                Password
+              </label>
               <Input
                 required
                 id="password"

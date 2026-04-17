@@ -160,7 +160,9 @@ const Settings: React.FC = () => {
             <Avatar className="w-24 h-24 text-3xl mb-4 bg-primary text-white text-center flex items-center justify-center">
               <SettingsIcon className="text-4xl" />
             </Avatar>
-            <h2 className="text-3xl font-serif font-bold text-primary-900">Application Settings</h2>
+            <h2 className="text-3xl font-serif font-bold text-primary-900">
+              Application Settings
+            </h2>
             <p className="text-default-500">System Configuration</p>
           </CardHeader>
 
@@ -168,7 +170,9 @@ const Settings: React.FC = () => {
             <Separator />
 
             <div className="space-y-4">
-              <h3 className="text-lg font-bold text-primary-900">System Status</h3>
+              <h3 className="text-lg font-bold text-primary-900">
+                System Status
+              </h3>
 
               <div className="flex justify-between items-center p-3 bg-default-50 rounded-xl border border-default-100">
                 <span className="text-sm font-medium">Network Connection</span>
@@ -178,21 +182,41 @@ const Settings: React.FC = () => {
                   size="sm"
                   className="font-bold flex gap-1 items-center"
                 >
-                  {isOnline ? <OnlineIcon fontSize="small" /> : <OfflineIcon fontSize="small" />}
+                  {isOnline ? (
+                    <OnlineIcon fontSize="small" />
+                  ) : (
+                    <OfflineIcon fontSize="small" />
+                  )}
                   <span>{isOnline ? "Online" : "Offline"}</span>
                 </Chip>
               </div>
 
               <div className="flex justify-between items-center p-3 bg-default-50 rounded-xl border border-default-100">
-                <span className="text-sm font-medium">Synchronization Status</span>
+                <span className="text-sm font-medium">
+                  Synchronization Status
+                </span>
                 <Chip
                   variant="soft"
-                  color={isSyncing ? "accent" : hasUnsynced ? "warning" : "default"}
+                  color={
+                    isSyncing ? "accent" : hasUnsynced ? "warning" : "default"
+                  }
                   size="sm"
                   className="font-bold flex gap-1 items-center"
                 >
-                  {isSyncing ? <SyncingIcon className="spin text-sm" /> : hasUnsynced ? <WarningIcon fontSize="small" /> : <SyncingIcon fontSize="small" />}
-                  <span>{isSyncing ? "Syncing..." : hasUnsynced ? "Unsynced changes" : "Up to date"}</span>
+                  {isSyncing ? (
+                    <SyncingIcon className="spin text-sm" />
+                  ) : hasUnsynced ? (
+                    <WarningIcon fontSize="small" />
+                  ) : (
+                    <SyncingIcon fontSize="small" />
+                  )}
+                  <span>
+                    {isSyncing
+                      ? "Syncing..."
+                      : hasUnsynced
+                        ? "Unsynced changes"
+                        : "Up to date"}
+                  </span>
                 </Chip>
               </div>
             </div>
@@ -212,7 +236,9 @@ const Settings: React.FC = () => {
 
             <div className="space-y-4">
               <div className="flex justify-between items-center">
-                <h3 className="text-lg font-bold text-primary-900">System Logs</h3>
+                <h3 className="text-lg font-bold text-primary-900">
+                  System Logs
+                </h3>
                 <div className="flex gap-2">
                   <Button
                     size="sm"
@@ -247,16 +273,24 @@ const Settings: React.FC = () => {
                     {[...logs].reverse().map((log, index) => (
                       <div key={index} className="text-xs">
                         <div className="flex items-center gap-2 mb-1">
-                          <span className={`uppercase font-black ${
-                            log.level === 'error' ? 'text-danger' : log.level === 'warn' ? 'text-warning' : 'text-default-400'
-                          }`}>
+                          <span
+                            className={`uppercase font-black ${
+                              log.level === "error"
+                                ? "text-danger"
+                                : log.level === "warn"
+                                  ? "text-warning"
+                                  : "text-default-400"
+                            }`}
+                          >
                             {log.level}
                           </span>
                           <span className="text-default-400">
                             {new Date(log.timestamp).toLocaleTimeString()}
                           </span>
                         </div>
-                        <p className="font-mono break-all text-default-700">{log.message}</p>
+                        <p className="font-mono break-all text-default-700">
+                          {log.message}
+                        </p>
                       </div>
                     ))}
                   </div>
@@ -279,8 +313,9 @@ const Settings: React.FC = () => {
             </AlertDialogHeader>
             <AlertDialogBody>
               <p className="text-default-500">
-                You have data that hasn't been synced to the server yet. If you logout
-                now, these changes may be lost. Are you sure you want to logout?
+                You have data that hasn't been synced to the server yet. If you
+                logout now, these changes may be lost. Are you sure you want to
+                logout?
               </p>
             </AlertDialogBody>
             <AlertDialogFooter>
