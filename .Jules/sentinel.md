@@ -17,3 +17,8 @@
 **Vulnerability:** Resource identifiers (Team IDs, Player IDs, etc.) were accepted from clients as arbitrary strings and used directly to construct S3 keys for data snapshots (e.g., `teams/${id}/roster.json`). This allowed path traversal attacks where a malicious ID like `../../../secret` could target unintended S3 locations.
 **Learning:** Even when using UUIDs on the frontend, the backend must never trust client-provided identifiers used in file system or object storage paths.
 **Prevention:** Enforce strict UUID v4 format validation on all client-provided IDs at the API entry point. Centralize this validation to ensure consistency across all handlers. Additionally, use no-store cache headers for sensitive JSON responses to prevent data leakage in shared environments.
+
+## 2026-04-16 - [Unintentional Resource Overwrites and Log Token Leakage]
+**Vulnerability:** The backend utilized `PutCommand` for resource creation (Teams, Players, Stats) without existence checks, allowing clients to overwrite existing data if they guessed or reused a UUID. Additionally, while some headers were redacted, the `cookies` array and several proxy-related headers remained visible in CloudWatch logs, potentially leaking session identifiers.
+**Learning:** In DynamoDB, `PutItem` is an upsert by default. Secure resource creation requires an explicit `attribute_not_exists(PK)` condition. For log security, redacting headers is insufficient if the same sensitive data (like cookies) is also present in other event fields.
+**Prevention:** Implement a centralized `putNewItem` helper that enforces the `attribute_not_exists(PK)` condition for all creation events. Exhaustively redact both `headers` and `cookies` fields in the Lambda event before logging.
