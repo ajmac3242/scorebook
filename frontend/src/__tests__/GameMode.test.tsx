@@ -207,10 +207,13 @@ describe("GameMode Component", () => {
     const container = sidebar.closest(".moleskine-card")!;
 
     // 1 occupied slot
-    expect(await within(container as HTMLElement).findByText(/Player 1/i)).toBeInTheDocument();
+    expect(
+      await within(container as HTMLElement).findByText(/Player 1/i),
+    ).toBeInTheDocument();
     // 4 empty slots
-    const emptySlots =
-      within(container as HTMLElement).getAllByLabelText(/Empty lineup slot/i);
+    const emptySlots = within(container as HTMLElement).getAllByLabelText(
+      /Empty lineup slot/i,
+    );
     expect(emptySlots).toHaveLength(4);
   });
 
@@ -220,7 +223,9 @@ describe("GameMode Component", () => {
     // Tap occupied slot
     const sidebar = await screen.findByText("Live Lineup");
     const sidebarContainer = sidebar.closest(".moleskine-card")!;
-    const playerBtnS = await within(sidebarContainer as HTMLElement).findByText(/Player 1/i);
+    const playerBtnS = await within(sidebarContainer as HTMLElement).findByText(
+      /Player 1/i,
+    );
     fireEvent.click(playerBtnS);
 
     await waitFor(() => {

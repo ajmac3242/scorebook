@@ -562,7 +562,11 @@ const Scoreboard = React.memo(
           <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
             <Typography
               variant="caption"
-              sx={{ color: "rgba(255,255,255,0.6)", fontWeight: 700, fontSize: "0.6rem" }}
+              sx={{
+                color: "rgba(255,255,255,0.6)",
+                fontWeight: 700,
+                fontSize: "0.6rem",
+              }}
             >
               STOPS:
             </Typography>
@@ -574,7 +578,10 @@ const Scoreboard = React.memo(
                 fontWeight: 800,
                 fontSize: "0.7rem",
                 display: "inline-block",
-                animation: gameData.defensiveStats.totalStops > 0 ? `${stopPulse} 0.5s ease-out` : "none",
+                animation:
+                  gameData.defensiveStats.totalStops > 0
+                    ? `${stopPulse} 0.5s ease-out`
+                    : "none",
               }}
             >
               {gameData.defensiveStats.totalStops}
@@ -603,7 +610,11 @@ const Scoreboard = React.memo(
           <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
             <Typography
               variant="caption"
-              sx={{ color: "rgba(255,255,255,0.6)", fontWeight: 700, fontSize: "0.6rem" }}
+              sx={{
+                color: "rgba(255,255,255,0.6)",
+                fontWeight: 700,
+                fontSize: "0.6rem",
+              }}
             >
               KILLS:
             </Typography>
@@ -1197,7 +1208,9 @@ const GameMode: React.FC = () => {
     });
 
     const stintDurations = new Map<string, number>();
-    let lastLineupChangeClock = game?.periodLength ? game.periodLength * 60 : 600;
+    let lastLineupChangeClock = game?.periodLength
+      ? game.periodLength * 60
+      : 600;
     let lastLineupChangeScoreTeam = 0;
     let lastLineupChangeScoreOpp = 0;
 
@@ -1289,7 +1302,10 @@ const GameMode: React.FC = () => {
         curScore -
         oppScore -
         (lastLineupChangeScoreTeam - lastLineupChangeScoreOpp),
-      currentLineupStintDuration: Math.max(0, lastLineupChangeClock - clockSeconds),
+      currentLineupStintDuration: Math.max(
+        0,
+        lastLineupChangeClock - clockSeconds,
+      ),
       recentStats: sortedGameStats.slice(-10).reverse(),
     };
   }, [
@@ -2045,11 +2061,15 @@ const GameMode: React.FC = () => {
             {trackingMode === "TEAM" ? (
               <>
                 <MoleskineCard>
-                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 1 }}>
-                    <Typography
-                      variant="subtitle2"
-                      sx={{ fontWeight: 600 }}
-                    >
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "flex-start",
+                      mb: 1,
+                    }}
+                  >
+                    <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
                       Live Lineup
                     </Typography>
                     <Box sx={{ textAlign: "right" }}>
@@ -2058,7 +2078,10 @@ const GameMode: React.FC = () => {
                         sx={{
                           display: "block",
                           fontWeight: 800,
-                          color: gameData.currentLineupPlusMinus >= 0 ? "success.main" : "error.main",
+                          color:
+                            gameData.currentLineupPlusMinus >= 0
+                              ? "success.main"
+                              : "error.main",
                           lineHeight: 1,
                         }}
                       >
@@ -2092,7 +2115,8 @@ const GameMode: React.FC = () => {
                           game?.foulLimit || team?.defaultFoulLimit || 5;
                         const isFoulTrouble = pf === foulLimit - 1;
                         const isFouledOut = pf >= foulLimit;
-                        const stintSecs = gameData.stintDurations.get(p.id!) || 0;
+                        const stintSecs =
+                          gameData.stintDurations.get(p.id!) || 0;
 
                         return (
                           <Box
@@ -2121,7 +2145,10 @@ const GameMode: React.FC = () => {
                                     : "primary.main",
                                 color: "white",
                                 borderWidth: "1.5px",
-                                  animation: isFoulTrouble || isFouledOut ? `${pulse} 2s infinite ease-in-out` : "none",
+                                animation:
+                                  isFoulTrouble || isFouledOut
+                                    ? `${pulse} 2s infinite ease-in-out`
+                                    : "none",
                                 "&.Mui-disabled": {
                                   bgcolor: isFouledOut
                                     ? "error.main"
@@ -2163,8 +2190,11 @@ const GameMode: React.FC = () => {
                                   }}
                                 >
                                   {p.name}
-                                  {stintSecs > (team?.maxStintDuration || 8) * 60 && (
-                                    <Tooltip title={`Fatigue Alert: Exceeded ${team?.maxStintDuration || 8} mins`}>
+                                  {stintSecs >
+                                    (team?.maxStintDuration || 8) * 60 && (
+                                    <Tooltip
+                                      title={`Fatigue Alert: Exceeded ${team?.maxStintDuration || 8} mins`}
+                                    >
                                       <Box
                                         component="span"
                                         sx={{ ml: 0.5, fontSize: "0.8rem" }}
@@ -2202,7 +2232,8 @@ const GameMode: React.FC = () => {
                                   {(() => {
                                     const stintSecs =
                                       gameData.stintDurations.get(p.id!) || 0;
-                                    const maxStint = (team?.maxStintDuration || 8) * 60;
+                                    const maxStint =
+                                      (team?.maxStintDuration || 8) * 60;
                                     const color =
                                       stintSecs > maxStint
                                         ? theme.palette.error.main

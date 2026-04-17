@@ -23,7 +23,10 @@ vi.mock("react-router-dom", async (importOriginal) => {
 });
 
 describe("GameMode Metrics", () => {
-  const mockPlayers = [{ id: "p1", name: "Player 1" }, { id: "p2", name: "Player 2" }];
+  const mockPlayers = [
+    { id: "p1", name: "Player 1" },
+    { id: "p2", name: "Player 2" },
+  ];
   const mockTeamPlayers = [
     { teamId: "t1", playerId: "p1", jerseyNumber: "1" },
     { teamId: "t1", playerId: "p2", jerseyNumber: "2" },
@@ -36,17 +39,59 @@ describe("GameMode Metrics", () => {
   it("calculates current lineup plus-minus correctly after a sub", async () => {
     const now = new Date();
     const mockStats = [
-      { id: "s1", gameId: "g1", playerId: "p1", type: ACTION_TYPES.SUB_IN, period: 1, clockTime: 600, timestamp: new Date(now.getTime() - 10000).toISOString() },
-      { id: "s2", gameId: "g1", playerId: "OPPONENT", type: ACTION_TYPES.MAKE, points: 2, period: 1, clockTime: 590, timestamp: new Date(now.getTime() - 9000).toISOString() },
-      { id: "s3", gameId: "g1", playerId: "p2", type: ACTION_TYPES.SUB_IN, period: 1, clockTime: 500, timestamp: new Date(now.getTime() - 5000).toISOString() }, // Lineup change here
-      { id: "s4", gameId: "g1", playerId: "p1", type: ACTION_TYPES.MAKE, points: 3, period: 1, clockTime: 450, timestamp: new Date(now.getTime() - 1000).toISOString() },
+      {
+        id: "s1",
+        gameId: "g1",
+        playerId: "p1",
+        type: ACTION_TYPES.SUB_IN,
+        period: 1,
+        clockTime: 600,
+        timestamp: new Date(now.getTime() - 10000).toISOString(),
+      },
+      {
+        id: "s2",
+        gameId: "g1",
+        playerId: "OPPONENT",
+        type: ACTION_TYPES.MAKE,
+        points: 2,
+        period: 1,
+        clockTime: 590,
+        timestamp: new Date(now.getTime() - 9000).toISOString(),
+      },
+      {
+        id: "s3",
+        gameId: "g1",
+        playerId: "p2",
+        type: ACTION_TYPES.SUB_IN,
+        period: 1,
+        clockTime: 500,
+        timestamp: new Date(now.getTime() - 5000).toISOString(),
+      }, // Lineup change here
+      {
+        id: "s4",
+        gameId: "g1",
+        playerId: "p1",
+        type: ACTION_TYPES.MAKE,
+        points: 3,
+        period: 1,
+        clockTime: 450,
+        timestamp: new Date(now.getTime() - 1000).toISOString(),
+      },
     ];
 
     (useLiveQuery as any).mockImplementation((cb: () => any) => {
       const code = cb.toString();
       if (code.includes("db.stats")) return mockStats;
-      if (code.includes("db.games.get")) return { id: "g1", teamId: "t1", currentPeriod: 1, clockTime: 400, periodLength: 10 };
-      if (code.includes("db.teams.get")) return { id: "t1", periodType: "QUARTERS", maxStintDuration: 8 };
+      if (code.includes("db.games.get"))
+        return {
+          id: "g1",
+          teamId: "t1",
+          currentPeriod: 1,
+          clockTime: 400,
+          periodLength: 10,
+        };
+      if (code.includes("db.teams.get"))
+        return { id: "t1", periodType: "QUARTERS", maxStintDuration: 8 };
       if (code.includes("db.players")) return mockPlayers;
       if (code.includes("db.teamPlayers")) return mockTeamPlayers;
       return [];
@@ -57,7 +102,7 @@ describe("GameMode Metrics", () => {
         <BrowserRouter>
           <GameMode />
         </BrowserRouter>
-      </ThemeProvider>
+      </ThemeProvider>,
     );
 
     // Score at sub s3 was 0-2 (Opponent +2).
@@ -72,11 +117,28 @@ describe("GameMode Metrics", () => {
   it("triggers fatigue warning based on team settings", async () => {
     (useLiveQuery as any).mockImplementation((cb: () => any) => {
       const code = cb.toString();
-      if (code.includes("db.stats")) return [
-        { id: "s1", gameId: "g1", playerId: "p1", type: ACTION_TYPES.SUB_IN, period: 1, clockTime: 600, timestamp: new Date(Date.now() - 600000).toISOString() }
-      ];
-      if (code.includes("db.games.get")) return { id: "g1", teamId: "t1", currentPeriod: 1, clockTime: 100, periodLength: 10 }; // 500s played
-      if (code.includes("db.teams.get")) return { id: "t1", maxStintDuration: 5 }; // 5 mins = 300s. 500s > 300s.
+      if (code.includes("db.stats"))
+        return [
+          {
+            id: "s1",
+            gameId: "g1",
+            playerId: "p1",
+            type: ACTION_TYPES.SUB_IN,
+            period: 1,
+            clockTime: 600,
+            timestamp: new Date(Date.now() - 600000).toISOString(),
+          },
+        ];
+      if (code.includes("db.games.get"))
+        return {
+          id: "g1",
+          teamId: "t1",
+          currentPeriod: 1,
+          clockTime: 100,
+          periodLength: 10,
+        }; // 500s played
+      if (code.includes("db.teams.get"))
+        return { id: "t1", maxStintDuration: 5 }; // 5 mins = 300s. 500s > 300s.
       if (code.includes("db.players")) return mockPlayers;
       if (code.includes("db.teamPlayers")) return mockTeamPlayers;
       return [];
@@ -87,7 +149,7 @@ describe("GameMode Metrics", () => {
         <BrowserRouter>
           <GameMode />
         </BrowserRouter>
-      </ThemeProvider>
+      </ThemeProvider>,
     );
 
     await waitFor(() => {
@@ -98,16 +160,42 @@ describe("GameMode Metrics", () => {
 
   it("displays defensive momentum stats (stops and kills)", async () => {
     const mockStats = [
-      { id: "s1", gameId: "g1", playerId: "OPPONENT", type: ACTION_TYPES.TURNOVER, period: 1, clockTime: 600, timestamp: new Date().toISOString() },
-      { id: "s2", gameId: "g1", playerId: "OPPONENT", type: ACTION_TYPES.TURNOVER, period: 1, clockTime: 590, timestamp: new Date(Date.now() + 1000).toISOString() },
-      { id: "s3", gameId: "g1", playerId: "OPPONENT", type: ACTION_TYPES.TURNOVER, period: 1, clockTime: 580, timestamp: new Date(Date.now() + 2000).toISOString() }, // 3rd stop -> 1st kill
+      {
+        id: "s1",
+        gameId: "g1",
+        playerId: "OPPONENT",
+        type: ACTION_TYPES.TURNOVER,
+        period: 1,
+        clockTime: 600,
+        timestamp: new Date().toISOString(),
+      },
+      {
+        id: "s2",
+        gameId: "g1",
+        playerId: "OPPONENT",
+        type: ACTION_TYPES.TURNOVER,
+        period: 1,
+        clockTime: 590,
+        timestamp: new Date(Date.now() + 1000).toISOString(),
+      },
+      {
+        id: "s3",
+        gameId: "g1",
+        playerId: "OPPONENT",
+        type: ACTION_TYPES.TURNOVER,
+        period: 1,
+        clockTime: 580,
+        timestamp: new Date(Date.now() + 2000).toISOString(),
+      }, // 3rd stop -> 1st kill
     ];
 
     (useLiveQuery as any).mockImplementation((cb: () => any) => {
       const code = cb.toString();
       if (code.includes("db.stats")) return mockStats;
-      if (code.includes("db.games.get")) return { id: "g1", teamId: "t1", currentPeriod: 1, clockTime: 400 };
-      if (code.includes("db.teams.get")) return { id: "t1", periodType: "QUARTERS" };
+      if (code.includes("db.games.get"))
+        return { id: "g1", teamId: "t1", currentPeriod: 1, clockTime: 400 };
+      if (code.includes("db.teams.get"))
+        return { id: "t1", periodType: "QUARTERS" };
       if (code.includes("db.players")) return mockPlayers;
       if (code.includes("db.teamPlayers")) return mockTeamPlayers;
       return [];
@@ -118,7 +206,7 @@ describe("GameMode Metrics", () => {
         <BrowserRouter>
           <GameMode />
         </BrowserRouter>
-      </ThemeProvider>
+      </ThemeProvider>,
     );
 
     await waitFor(() => {
