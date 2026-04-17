@@ -103,6 +103,7 @@ const TeamStats: React.FC = () => {
     "QUARTERS",
   );
   const [editPeriodLength, setEditPeriodLength] = useState<number>(10);
+  const [editOvertimeLength, setEditOvertimeLength] = useState<number>(5);
   const [editTimeoutLimit, setEditTimeoutLimit] = useState<number>(3);
   const [editFoulLimit, setEditFoulLimit] = useState<number>(5);
   const [timeLeft, setTimeLeft] = useState("");
@@ -152,6 +153,7 @@ const TeamStats: React.FC = () => {
       setEditPeriodLength(
         team.defaultPeriodLength || (team.periodType === "HALVES" ? 20 : 10),
       );
+      setEditOvertimeLength(team.defaultOvertimeLength || 5);
       setEditTimeoutLimit(team.defaultTimeoutLimit || team.fouls || 3);
       setEditFoulLimit(team.defaultFoulLimit || 5);
     }
@@ -404,6 +406,7 @@ const TeamStats: React.FC = () => {
       primaryColor: editColor,
       periodType: editPeriodType,
       defaultPeriodLength: editPeriodLength,
+      defaultOvertimeLength: editOvertimeLength,
       defaultTimeoutLimit: editTimeoutLimit,
       defaultFoulLimit: editFoulLimit,
       fouls: editTimeoutLimit, // Keep legacy fouls field in sync with timeouts
@@ -1191,16 +1194,28 @@ const TeamStats: React.FC = () => {
               </Select>
             </FormControl>
 
-            <TextField
-              fullWidth
-              label="Period Length (Minutes)"
-              type="number"
-              value={editPeriodLength}
-              onChange={(e) =>
-                setEditPeriodLength(parseInt(e.target.value) || 0)
-              }
-              inputProps={{ min: 1 }}
-            />
+            <Stack direction="row" spacing={2}>
+              <TextField
+                fullWidth
+                label="Period Length (Mins)"
+                type="number"
+                value={editPeriodLength}
+                onChange={(e) =>
+                  setEditPeriodLength(parseInt(e.target.value) || 0)
+                }
+                inputProps={{ min: 1 }}
+              />
+              <TextField
+                fullWidth
+                label="OT Length (Mins)"
+                type="number"
+                value={editOvertimeLength}
+                onChange={(e) =>
+                  setEditOvertimeLength(parseInt(e.target.value) || 0)
+                }
+                inputProps={{ min: 1 }}
+              />
+            </Stack>
 
             <Stack direction="row" spacing={2}>
               <TextField
@@ -1387,6 +1402,9 @@ const TeamStats: React.FC = () => {
             <Step>
               <StepLabel>Settings</StepLabel>
             </Step>
+            <Step>
+              <StepLabel>Review</StepLabel>
+            </Step>
           </Stepper>
 
           <Box sx={{ mt: 1, minHeight: 280 }}>
@@ -1491,6 +1509,56 @@ const TeamStats: React.FC = () => {
                 </Stack>
               </Stack>
             )}
+
+            {activeStep === 3 && (
+              <Box>
+                <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 2 }}>
+                  Review Game Details
+                </Typography>
+                <Grid container spacing={2}>
+                  <Grid item xs={6}>
+                    <Typography variant="caption" color="text.secondary">
+                      OPPONENT
+                    </Typography>
+                    <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                      {newOpponent}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={6}>
+                    <Typography variant="caption" color="text.secondary">
+                      LOGISTICS
+                    </Typography>
+                    <Typography variant="body1">
+                      {dayjs(newDate).format("MMM D, YYYY")} {newTime}
+                    </Typography>
+                    <Typography variant="caption">{newLocation}</Typography>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Divider sx={{ my: 1 }} />
+                  </Grid>
+                  <Grid item xs={6}>
+                    <Typography variant="caption" color="text.secondary">
+                      FORMAT
+                    </Typography>
+                    <Typography variant="body2">
+                      {newPeriodType} ({newPeriodLength}m)
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={6}>
+                    <Typography variant="caption" color="text.secondary">
+                      LIMITS
+                    </Typography>
+                    <Typography variant="body2">
+                      Fouls: {newFoulLimit} | Timeouts: {newTimeoutLimit}
+                    </Typography>
+                  </Grid>
+                </Grid>
+                <Alert severity="info" sx={{ mt: 3 }}>
+                  Everything looks good! Click "Create Game" to add it to your
+                  schedule.
+                </Alert>
+              </Box>
+            )}
           </Box>
         </DialogContent>
         <DialogActions sx={{ p: 3 }}>
@@ -1508,7 +1576,7 @@ const TeamStats: React.FC = () => {
           >
             Back
           </Button>
-          {activeStep < 2 ? (
+          {activeStep < 3 ? (
             <Button
               variant="contained"
               disabled={
