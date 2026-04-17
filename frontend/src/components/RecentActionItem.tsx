@@ -30,8 +30,8 @@ interface RecentActionItemProps {
   isReadOnly: boolean;
   teamName?: string;
   opponentName?: string;
-  onEdit: (stat: StatEvent) => void;
-  onDelete: (id: string) => void;
+  onEdit: (_stat: StatEvent) => void;
+  onDelete: (_id: string) => void;
 }
 
 const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(

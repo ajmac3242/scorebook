@@ -15,6 +15,7 @@ import {
   ArrowBack as ArrowBackIcon,
   Search as SearchIcon,
   Close as CloseIcon,
+  CheckCircle as CheckIcon,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { StatItem } from "./SharedUI";
@@ -63,8 +64,17 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
 }) => {
   const navigate = useNavigate();
   const [isSearchExpanded, setIsSearchExpanded] = React.useState(false);
+  const [showSyncSuccess, setShowSyncSuccess] = React.useState(false);
 
   const showSearch = onSearchChange !== undefined;
+
+  const handleSyncClick = () => {
+    if (onSync) {
+      onSync();
+      setShowSyncSuccess(true);
+      setTimeout(() => setShowSyncSuccess(false), 3000);
+    }
+  };
 
   return (
     <Box
@@ -322,28 +332,45 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
           </Box>
         )}
         {onSync && !isSearchExpanded && (
-          <Tooltip title={isSyncing ? "Synchronizing data..." : "Sync data"}>
+          <Tooltip
+            title={
+              isSyncing
+                ? "Synchronizing data..."
+                : showSyncSuccess
+                  ? "Data Synced!"
+                  : "Sync data"
+            }
+          >
             <span>
               <Button
                 variant="outlined"
                 size="small"
                 startIcon={
-                  isSyncing ? <RefreshIcon className="spin" /> : <RefreshIcon />
+                  isSyncing ? (
+                    <RefreshIcon className="spin" />
+                  ) : showSyncSuccess ? (
+                    <CheckIcon sx={{ color: "#4CAF50" }} />
+                  ) : (
+                    <RefreshIcon />
+                  )
                 }
-                onClick={onSync}
+                onClick={handleSyncClick}
                 disabled={isSyncing}
                 className="hover-grow"
                 sx={{
-                  color: "white",
-                  borderColor: "rgba(255,255,255,0.5)",
+                  color: showSyncSuccess ? "#4CAF50" : "white",
+                  borderColor: showSyncSuccess
+                    ? "#4CAF50"
+                    : "rgba(255,255,255,0.5)",
                   "&:hover": {
-                    borderColor: "white",
+                    borderColor: showSyncSuccess ? "#4CAF50" : "white",
                     bgcolor: "rgba(255,255,255,0.1)",
                   },
                   display: { xs: "none", sm: "flex" },
+                  transition: "all 0.3s ease",
                 }}
               >
-                {isSyncing ? "Syncing..." : "Sync"}
+                {isSyncing ? "Syncing..." : showSyncSuccess ? "Synced" : "Sync"}
               </Button>
             </span>
           </Tooltip>

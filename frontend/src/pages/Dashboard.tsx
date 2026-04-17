@@ -24,7 +24,7 @@ import {
   Assessment,
 } from "@mui/icons-material";
 import { useLiveQuery } from "dexie-react-hooks";
-import { db, type StatEvent } from "../db";
+import { db } from "../db";
 import { MoleskineCard, PageHeader, StatItem } from "../components/SharedUI";
 import {
   calculateTeamAggregates,

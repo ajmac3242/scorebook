@@ -24,6 +24,7 @@ const TimeoutDots: React.FC<TimeoutDotsProps> = ({
     data-testid={testId}
     role="img"
     aria-label={`${count} timeouts remaining`}
+    aria-live="polite"
   >
     {Array.from({ length: total }).map((_, i) => (
       <Box
