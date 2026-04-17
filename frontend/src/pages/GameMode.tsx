@@ -2703,7 +2703,6 @@ const GameMode: React.FC = () => {
   );
 };
 
-
 /**
  * QuickAction component for recording stats.
  * Optimized with React.memo to stabilize the recording dialog's UI.

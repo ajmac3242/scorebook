@@ -4,12 +4,7 @@
  */
 
 import React from "react";
-import {
-  Box,
-  Typography,
-  Tooltip,
-  IconButton,
-} from "@mui/material";
+import { Box, Typography, Tooltip, IconButton } from "@mui/material";
 import {
   Check,
   Close,

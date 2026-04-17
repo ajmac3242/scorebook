@@ -48,9 +48,7 @@ import {
   extractIdFromPath,
   stripLocalFields,
 } from "./utils.js";
-import {
-  calculateGameResultFromStats,
-} from "./scoring.js";
+import { calculateGameResultFromStats } from "./scoring.js";
 import {
   snapshotTeamRoster,
   snapshotTeamGames,
@@ -85,7 +83,6 @@ const VALID_ACTION_TYPES = new Set([
   "SUB_OUT",
   "POSSESSION",
 ]);
-
 
 /**
  * Handlers for Players endpoints.
@@ -299,9 +296,9 @@ async function handleGames(
         ConditionExpression: "attribute_exists(PK)",
       }),
     );
-  await snapshotGameStats(gameId, tableName, docClient);
-  await snapshotTeamGames(getResp.Item.teamId, tableName, docClient);
-  return ok({ message: "Game completed" });
+    await snapshotGameStats(gameId, tableName, docClient);
+    await snapshotTeamGames(getResp.Item.teamId, tableName, docClient);
+    return ok({ message: "Game completed" });
   }
 
   if (path.startsWith("/games/") && path.endsWith("/stats")) {
@@ -803,4 +800,3 @@ async function performHardCleanup(tableName: string) {
 
   console.log("Cleanup attempted with threshold:", oneDayAgo);
 }
-

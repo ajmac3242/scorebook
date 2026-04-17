@@ -22,6 +22,8 @@ const s3Client = new S3Client({});
 
 /**
  * Executes snapshot logic with error handling and environment variable validation.
+ * @param label
+ * @param fn
  */
 export async function withDataBucket(
   label: string,
@@ -38,8 +40,15 @@ export async function withDataBucket(
 
 /**
  * Uploads a JSON snapshot to S3.
+ * @param bucket
+ * @param key
+ * @param data
  */
-export async function uploadSnapshot(bucket: string, key: string, data: unknown) {
+export async function uploadSnapshot(
+  bucket: string,
+  key: string,
+  data: unknown,
+) {
   await s3Client.send(
     new PutObjectCommand({
       Bucket: bucket,
@@ -52,6 +61,9 @@ export async function uploadSnapshot(bucket: string, key: string, data: unknown)
 
 /**
  * Generates and uploads a team roster snapshot JSON to S3.
+ * @param teamId
+ * @param tableName
+ * @param docClient
  */
 export async function snapshotTeamRoster(
   teamId: string,
@@ -89,6 +101,9 @@ export async function snapshotTeamRoster(
 
 /**
  * Generates and uploads a list of games for a team as a snapshot JSON to S3.
+ * @param teamId
+ * @param tableName
+ * @param docClient
  */
 export async function snapshotTeamGames(
   teamId: string,
@@ -113,6 +128,9 @@ export async function snapshotTeamGames(
 
 /**
  * Generates and uploads a detailed game stats snapshot JSON to S3.
+ * @param gameId
+ * @param tableName
+ * @param docClient
  */
 export async function snapshotGameStats(
   gameId: string,
@@ -151,6 +169,7 @@ export async function snapshotGameStats(
 
 /**
  * Deletes team-related snapshots from S3.
+ * @param teamId
  */
 export async function deleteTeamSnapshots(teamId: string) {
   const DATA_BUCKET = process.env.DATA_BUCKET;
@@ -175,6 +194,7 @@ export async function deleteTeamSnapshots(teamId: string) {
 
 /**
  * Deletes game-related snapshots from S3.
+ * @param gameId
  */
 export async function deleteGameSnapshots(gameId: string) {
   const DATA_BUCKET = process.env.DATA_BUCKET;

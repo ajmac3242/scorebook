@@ -41,7 +41,10 @@ export function accumulateScores(stats: Record<string, unknown>[]) {
  * @param {number} oppScore - Points scored by the opponent.
  * @returns {"W" | "L" | "D"} Result indicator.
  */
-export function determineResult(teamScore: number, oppScore: number): "W" | "L" | "D" {
+export function determineResult(
+  teamScore: number,
+  oppScore: number,
+): "W" | "L" | "D" {
   if (teamScore > oppScore) return "W";
   if (teamScore < oppScore) return "L";
   return "D";
