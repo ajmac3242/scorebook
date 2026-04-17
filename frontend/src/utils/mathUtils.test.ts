@@ -1,5 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { roundToOne, formatToOne, determineResult } from "./mathUtils";
+import {
+  roundToOne,
+  formatToOne,
+  determineResult,
+  formatClock,
+  formatTimestampToTime,
+} from "./mathUtils";
 
 describe("mathUtils", () => {
   describe("roundToOne", () => {
@@ -50,6 +56,35 @@ describe("mathUtils", () => {
 
     it("returns 'D' when teamScore == oppScore", () => {
       expect(determineResult(90, 90)).toBe("D");
+    });
+  });
+
+  describe("formatClock", () => {
+    it("formats 0 seconds correctly", () => {
+      expect(formatClock(0)).toBe("0:00");
+    });
+
+    it("formats seconds under 10 with a leading zero", () => {
+      expect(formatClock(65)).toBe("1:05");
+    });
+
+    it("formats 10 minutes correctly", () => {
+      expect(formatClock(600)).toBe("10:00");
+    });
+
+    it("formats exactly one hour (3600s) correctly", () => {
+      expect(formatClock(3600)).toBe("60:00");
+    });
+
+    it("formats more than one hour correctly", () => {
+      expect(formatClock(3665)).toBe("61:05");
+    });
+  });
+
+  describe("formatTimestampToTime", () => {
+    it("extracts mm:ss from an ISO timestamp", () => {
+      expect(formatTimestampToTime("2023-01-01T12:00:30.000Z")).toBe("00:30");
+      expect(formatTimestampToTime("2023-01-01T12:15:45.000Z")).toBe("15:45");
     });
   });
 });

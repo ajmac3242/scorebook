@@ -39,3 +39,8 @@ Pattern: Every domain-specific constant or security-critical utility must have a
 Issue: Security-critical timing-safe comparisons lacked explicit documentation of the "WHY" (preventing character reconstruction). Performance optimizations in statistical hot loops (memoized lineup keys, fixed-size buffers) were non-obvious to future maintainers.
 Learning: Linking security measures directly to their threat models (e.g., timing attacks) and documenting the performance gains of specific optimizations (memoization vs. re-calculation) ensures they are not accidentally removed during future refactors.
 Pattern: For any stream-based aggregation, always verify multi-game isolation. If a "streak" or "stint" can span boundaries, ensure the state is explicitly reset when the context ID (gameId) changes.
+
+## 2026-04-17 - Reliability, Security & Stats Edge Cases
+Issue: Critical logic in security masking, basketball-specific validation, and temporal stats calculations (substitutions, live minutes) lacked explicit documentation and edge-case testing.
+Learning: Verifying "Reference Equality" in log masking tests ensures that performance optimizations (avoiding unnecessary clones) are maintained. Strengthening basketball-specific validation (e.g., jersey "00") and temporal boundary checks (EOF in look-ahead) protects against data integrity issues in domain-heavy logic.
+Pattern: Always test for reference equality in "no-op" performance paths. For look-ahead logic in streams, verify behavior at the end of the array to prevent out-of-bounds or undefined state leaks.

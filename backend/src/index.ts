@@ -127,6 +127,7 @@ function isValidPlayerId(id: unknown): boolean {
   if (strId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":")) {
     const jersey = strId.split(":")[1];
     // Basketball jerseys are typically 0-99 or 00-99.
+    // We support 1-2 digits to cover all standard variations.
     return !!jersey && /^\d{1,2}$/.test(jersey);
   }
   return false;
@@ -1283,12 +1284,13 @@ async function performHardCleanup(tableName: string) {
 /**
  * Strips local-only fields and internal DynamoDB keys from the data object before saving.
  *
- * WHY: This is a defense-in-depth measure to prevent mass assignment vulnerabilities.
- * It ensures that even if a malicious user provides internal DynamoDB keys (like PK/SK)
- * in the request body, those keys are stripped before the object is persisted.
+ * WHY: This is a defense-in-depth measure to prevent "Mass Assignment" or "Over-posting"
+ * vulnerabilities. It ensures that even if a malicious user provides internal
+ * DynamoDB keys (like PK/SK or GSIs) in the request body, those keys are stripped
+ * before the object is persisted.
  *
  * Without this, an attacker could overwrite existing items by providing a matching
- * PK/SK or escalate privileges by injecting internal metadata.
+ * PK/SK or escalate privileges by injecting internal metadata that bypasses application logic.
  *
  * @param {Record<string, unknown>} data - The data object to clean.
  * @returns {Record<string, unknown>} The cleaned object.

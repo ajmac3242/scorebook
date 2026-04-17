@@ -13,6 +13,7 @@ import {
   getBonusStatus,
   calculateStopsAndKills,
   calculateTsPct,
+  sortStats,
 } from "./stats";
 import { TeamPlayer, StatEvent, Game } from "../db";
 import { ACTION_TYPES } from "../constants/stats";
@@ -354,6 +355,34 @@ describe("stats utilities", () => {
       expect(p1.fta).toBe(2);
       expect(p1.ftPct).toBe("50.0");
     });
+
+    it("calculates live minutes accurately using liveContext", () => {
+      const players = [{ id: "p1", name: "Player 1" }];
+      const stats: StatEvent[] = [
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          period: 1,
+          timestamp: "1",
+        },
+      ];
+      // Live at 5:00 (300s remaining)
+      const options = {
+        liveContext: { clockTime: 300, period: 1 },
+      };
+      const results = calculatePlayerAggregates(
+        players,
+        stats,
+        [],
+        "total",
+        options,
+      );
+      const p1 = results[0];
+      // (600 - 300) / 60 = 5 mins
+      expect(p1.min).toBe(5);
+    });
   });
 
   describe("calculateLineupStats", () => {
@@ -601,6 +630,98 @@ describe("stats utilities", () => {
       expect(results.length).toBe(1);
       expect(results[0].pointsFor).toBe(7);
       expect(results[0].seconds).toBe(1200);
+    });
+
+    it("handles multiple substitutions at the exact same clockTime correctly", () => {
+      const stats: StatEvent[] = [
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          period: 1,
+          timestamp: "1",
+        },
+        {
+          gameId: "g1",
+          playerId: "p2",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          period: 1,
+          timestamp: "2",
+        },
+        {
+          gameId: "g1",
+          playerId: "p3",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          period: 1,
+          timestamp: "3",
+        },
+        {
+          gameId: "g1",
+          playerId: "p4",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          period: 1,
+          timestamp: "4",
+        },
+        {
+          gameId: "g1",
+          playerId: "p5",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          period: 1,
+          timestamp: "5",
+        },
+        // Score 2 pts at 5:00
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          clockTime: 300,
+          period: 1,
+          timestamp: "6",
+        },
+        // Double sub at 5:00
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.SUB_OUT,
+          clockTime: 300,
+          period: 1,
+          timestamp: "7",
+        },
+        {
+          gameId: "g1",
+          playerId: "p6",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 300,
+          period: 1,
+          timestamp: "8",
+        },
+        // Score 3 pts with new lineup at 2:00
+        {
+          gameId: "g1",
+          playerId: "p2",
+          type: ACTION_TYPES.MAKE,
+          points: 3,
+          clockTime: 120,
+          period: 1,
+          timestamp: "9",
+        },
+      ];
+      const results = calculateLineupStats(stats);
+      // Lineup 1: p1,p2,p3,p4,p5 -> 2 pts for, 300 seconds
+      // Lineup 2: p2,p3,p4,p5,p6 -> 3 pts for, 300 seconds (final stint to 0:00)
+      expect(results.length).toBe(2);
+      const l1 = results.find((r) => r.lineup.includes("p1"))!;
+      const l2 = results.find((r) => r.lineup.includes("p6"))!;
+      expect(l1.pointsFor).toBe(2);
+      expect(l1.seconds).toBe(300);
+      expect(l2.pointsFor).toBe(3);
+      expect(l2.seconds).toBe(300);
     });
   });
 
@@ -1399,6 +1520,21 @@ describe("stats utilities", () => {
       expect(result.currentStreak).toBe(1); // Should be 1, not 3 (no Kill triggered across games)
       expect(result.totalKills).toBe(0);
     });
+
+    it("handles look-ahead logic gracefully when a MISS is the final event", () => {
+      const stats: StatEvent[] = [
+        {
+          gameId: "g1",
+          playerId: "OPPONENT",
+          type: ACTION_TYPES.MISS,
+          timestamp: "1",
+          period: 1,
+        },
+      ];
+      const result = calculateStopsAndKills(stats);
+      // No stop earned because we don't know who got the rebound
+      expect(result.totalStops).toBe(0);
+    });
   });
 
   describe("calculateTsPct", () => {
@@ -1410,6 +1546,56 @@ describe("stats utilities", () => {
     it("returns '0.0' when there are no attempts or FTA (division by zero protection)", () => {
       expect(calculateTsPct(0, 0, 0)).toBe("0.0");
       expect(calculateTsPct(10, 0, 0)).toBe("0.0");
+    });
+  });
+
+  describe("sortStats", () => {
+    it("sorts by timestamp primarily", () => {
+      const stats: StatEvent[] = [
+        {
+          id: "b",
+          timestamp: "2023-01-01T10:02:00Z",
+          gameId: "g1",
+          playerId: "p1",
+          type: "MAKE",
+          period: 1,
+        },
+        {
+          id: "a",
+          timestamp: "2023-01-01T10:01:00Z",
+          gameId: "g1",
+          playerId: "p1",
+          type: "MAKE",
+          period: 1,
+        },
+      ];
+      const sorted = sortStats(stats);
+      expect(sorted[0].id).toBe("a");
+      expect(sorted[1].id).toBe("b");
+    });
+
+    it("uses id as a secondary sort key for identical timestamps (deterministic sorting)", () => {
+      const stats: StatEvent[] = [
+        {
+          id: "z",
+          timestamp: "2023-01-01T10:00:00Z",
+          gameId: "g1",
+          playerId: "p1",
+          type: "MAKE",
+          period: 1,
+        },
+        {
+          id: "m",
+          timestamp: "2023-01-01T10:00:00Z",
+          gameId: "g1",
+          playerId: "p1",
+          type: "MAKE",
+          period: 1,
+        },
+      ];
+      const sorted = sortStats(stats);
+      expect(sorted[0].id).toBe("m");
+      expect(sorted[1].id).toBe("z");
     });
   });
 
