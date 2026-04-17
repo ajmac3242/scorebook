@@ -1161,7 +1161,12 @@ const GameMode: React.FC = () => {
       }
 
       // Fouls (Period-aware)
-      if (s.type === ACTION_TYPES.FOUL) {
+      if (
+        s.type === ACTION_TYPES.FOUL ||
+        s.type === ACTION_TYPES.FOUL_SHOOTING ||
+        s.type === ACTION_TYPES.FOUL_NON_SHOOTING ||
+        s.type === ACTION_TYPES.TECHNICAL_FOUL
+      ) {
         if (isEventInPeriod(s.period, period, pType)) {
           if (isOpp) {
             oppFouls++;
