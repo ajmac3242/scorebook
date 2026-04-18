@@ -305,65 +305,100 @@ describe("GameMode Component", () => {
     });
   });
 
-  it("displays team fouls in warning state (4 fouls in quarters)", async () => {
-    (useLiveQuery as Record<string, any>).mockImplementation(
-      (cb: () => any) => {
-        const code = cb.toString();
-        if (code.includes("db.stats")) {
-          return Array.from({ length: 4 }).map((_, i) => ({
-            id: `f${i}`,
-            gameId: "g1",
-            playerId: "p1",
-            type: ACTION_TYPES.FOUL,
-            period: 1,
-            timestamp: `2023-01-01T00:00:0${i}Z`,
-          }));
-        }
-        if (code.includes("db.games.get"))
-          return { id: "g1", opponent: "Opp", teamId: "t1" };
-        if (code.includes("db.teams.get"))
-          return { id: "t1", periodType: "QUARTERS" };
-        if (code.includes("db.players")) return mockPlayers;
-        if (code.includes("db.teamPlayers")) return mockTeamPlayers;
-        return [];
-      },
-    );
+  it("displays team fouls (4 fouls in quarters)", async () => {
+    (useLiveQuery as Record<string, any>).mockImplementation((cb: () => any) => {
+      const code = cb.toString();
+      if (code.includes("db.stats")) {
+        return Array.from({ length: 4 }).map((_, i) => ({
+          id: `f${i}`,
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.FOUL,
+          period: 1,
+          timestamp: `2023-01-01T00:00:0${i}Z`,
+        }));
+      }
+      if (code.includes("db.games.get"))
+        return { id: "g1", opponent: "Opp", teamId: "t1" };
+      if (code.includes("db.teams.get"))
+        return { id: "t1", periodType: "QUARTERS" };
+      if (code.includes("db.players")) return mockPlayers;
+      if (code.includes("db.teamPlayers")) return mockTeamPlayers;
+      return [];
+    });
 
     renderComponent();
-    expect(await screen.findByText("FOULS: 4")).toBeInTheDocument();
+    // The redesign removes foul count display from the scoreboard as per requirements.
+    // However, it's still tracked. Let's verify it's NOT on screen anymore.
+    expect(screen.queryByText(/F: 4/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/FOULS: 4/i)).not.toBeInTheDocument();
   });
 
-  it("displays team fouls in bonus state (5 fouls in quarters)", async () => {
-    (useLiveQuery as Record<string, any>).mockImplementation(
-      (cb: () => any) => {
-        const code = cb.toString();
-        if (code.includes("db.stats")) {
-          return Array.from({ length: 5 }).map((_, i) => ({
-            id: `f${i}`,
-            gameId: "g1",
-            playerId: "p1",
-            type: ACTION_TYPES.FOUL,
-            period: 1,
-            timestamp: `2023-01-01T00:00:0${i}Z`,
-          }));
-        }
-        if (code.includes("db.games.get"))
-          return { id: "g1", opponent: "Opp", teamId: "t1" };
-        if (code.includes("db.teams.get"))
-          return { id: "t1", periodType: "QUARTERS" };
-        if (code.includes("db.players")) return mockPlayers;
-        if (code.includes("db.teamPlayers")) return mockTeamPlayers;
-        return [];
-      },
-    );
+  it("displays bonus arrow (5 fouls in quarters)", async () => {
+    (useLiveQuery as Record<string, any>).mockImplementation((cb: () => any) => {
+      const code = cb.toString();
+      if (code.includes("db.stats")) {
+        return Array.from({ length: 5 }).map((_, i) => ({
+          id: `f${i}`,
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.FOUL,
+          period: 1,
+          timestamp: `2023-01-01T00:00:0${i}Z`,
+        }));
+      }
+      if (code.includes("db.games.get"))
+        return { id: "g1", opponent: "Opp", teamId: "t1" };
+      if (code.includes("db.teams.get"))
+        return { id: "t1", periodType: "QUARTERS" };
+      if (code.includes("db.players")) return mockPlayers;
+      if (code.includes("db.teamPlayers")) return mockTeamPlayers;
+      return [];
+    });
 
     renderComponent();
-    expect(await screen.findByText("FOULS: 5")).toBeInTheDocument();
-    // Bonus is now applied to the OPPONENT's side when Team has 5 fouls.
-    // Our mock renders "Test Opponent" as the opponent.
-    // Scoreboard renders renderTeamInfo for team first, then opponent.
-    // Let's check that BONUS is present.
-    expect(await screen.findByText("BONUS")).toBeInTheDocument();
+    // Bonus arrow should now point to the opponent (Opp)
+    expect(await screen.findByTestId("opp-bonus-arrow")).toBeInTheDocument();
+  });
+
+  it("renders team defensive stats (Stops and Kills) in the sidebar", async () => {
+    (useLiveQuery as Record<string, any>).mockImplementation((cb: () => any) => {
+      const code = cb.toString();
+      if (code.includes("db.stats")) {
+        // Mock a turnover by opponent to generate a stop
+        return [
+          {
+            id: "s1",
+            gameId: "g1",
+            playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+            type: ACTION_TYPES.TURNOVER,
+            timestamp: new Date().toISOString(),
+          },
+        ];
+      }
+      if (code.includes("db.games.get")) return { id: "g1", opponent: "Opp" };
+      return [];
+    });
+
+    renderComponent();
+    expect(await screen.findByText("Team Stats")).toBeInTheDocument();
+    expect(screen.getByText("STOPS")).toBeInTheDocument();
+    expect(screen.getByText("KILLS")).toBeInTheDocument();
+    // 1 turnover = 1 stop
+    expect(screen.getByText("1")).toBeInTheDocument();
+  });
+
+  it("opens the Edit Clock dialog when tapping the scoreboard clock", async () => {
+    renderComponent();
+
+    const clockDisplay = await screen.findByText("10:00");
+    fireEvent.click(clockDisplay);
+
+    await waitFor(() => {
+      expect(screen.getByText("Edit Clock")).toBeInTheDocument();
+    });
+    expect(screen.getByLabelText(/Minutes/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Seconds/i)).toBeInTheDocument();
   });
 
   it("automatically detects 3pt shot value in the corner", async () => {
@@ -408,95 +443,4 @@ describe("GameMode Component", () => {
     expect(twoBtn).toHaveClass("MuiButton-contained");
   });
 
-  it("🏀 CoachBoard: records opponent quick actions from the scoreboard", async () => {
-    (useLiveQuery as Record<string, any>).mockImplementation(
-      (cb: () => any) => {
-        const code = cb.toString();
-        if (code.includes("db.stats")) return mockStats;
-        if (code.includes("db.games.get"))
-          return {
-            id: "g1",
-            opponent: "Test Opponent",
-            date: "2023-01-01",
-          };
-        if (code.includes("db.teams.get")) return { id: "t1" };
-        if (code.includes("db.players")) return mockPlayers;
-        if (code.includes("db.teamPlayers")) return mockTeamPlayers;
-        return [];
-      },
-    );
-
-    renderComponent();
-
-    // Find the opponent side of the scoreboard
-    // Based on our mock, the opponent name is "Test Opponent"
-    const oppHeader = await screen.findAllByText(/Test Opponent/i);
-    // Scoreboard structure:
-    // renderTeamInfo -> Box (column) -> Box (row with Avatar and Typography)
-    // The parent of the Typography is a Box, and the grandparent is the column Box.
-    const oppContainer = oppHeader[0].parentElement!.parentElement!;
-
-    // Find the "+2" quick action button for the opponent
-    const plusTwoBtn = within(oppContainer).getByRole("button", {
-      name: "Record opponent +2 points",
-    });
-    fireEvent.click(plusTwoBtn);
-
-    await waitFor(() => {
-      expect(db.stats.add).toHaveBeenCalledWith(
-        expect.objectContaining({
-          type: ACTION_TYPES.MAKE,
-          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
-          points: 2,
-          locationX: 50,
-          locationY: 10,
-        }),
-      );
-    });
-
-    // Find and click the "F" (Foul) quick action button
-    const foulBtn = within(oppContainer).getByRole("button", {
-      name: "Record opponent foul",
-    });
-    fireEvent.click(foulBtn);
-
-    await waitFor(() => {
-      expect(db.stats.add).toHaveBeenCalledWith(
-        expect.objectContaining({
-          type: ACTION_TYPES.FOUL,
-          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
-        }),
-      );
-    });
-
-    // Find and click the "REB" quick action button
-    const rebBtn = within(oppContainer).getByRole("button", {
-      name: "Record opponent rebound",
-    });
-    fireEvent.click(rebBtn);
-
-    await waitFor(() => {
-      expect(db.stats.add).toHaveBeenCalledWith(
-        expect.objectContaining({
-          type: ACTION_TYPES.REBOUND,
-          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
-        }),
-      );
-    });
-
-    // Find and click the "TO" quick action button
-    const toBtn = within(oppContainer).getByRole("button", {
-      name: "Record opponent turnover",
-    });
-    fireEvent.click(toBtn);
-
-    await waitFor(() => {
-      expect(db.stats.add).toHaveBeenCalledWith(
-        expect.objectContaining({
-          type: ACTION_TYPES.TURNOVER,
-          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
-        }),
-      );
-    });
-  });
 });
