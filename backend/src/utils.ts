@@ -158,7 +158,11 @@ export function stripLocalFields(
       !INTERNAL_KEYS.has(key)
     ) {
       const value = (data as Record<string, unknown>)[key];
-      if (value !== null && typeof value === "object" && !Array.isArray(value)) {
+      if (
+        value !== null &&
+        typeof value === "object" &&
+        !Array.isArray(value)
+      ) {
         result[key] = stripLocalFields(value, depth + 1);
       } else {
         result[key] = value;

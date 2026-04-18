@@ -175,22 +175,26 @@ describe("Sentinel Security Enhancements Tests", () => {
       const event1 = createEvent("POST", `/games/${gameId}/stats`, {
         type: "MAKE",
         points: 2.5,
-        playerId: "OPPONENT"
+        playerId: "OPPONENT",
       });
       const resp1: any = await handler(event1);
       expect(resp1.statusCode).toBe(400);
-      expect(JSON.parse(resp1.body).message).toBe("Points must be an integer between 0 and 3");
+      expect(JSON.parse(resp1.body).message).toBe(
+        "Points must be an integer between 0 and 3",
+      );
 
       // Test period as float
       const event2 = createEvent("POST", `/games/${gameId}/stats`, {
         type: "MAKE",
         points: 2,
         period: 1.5,
-        playerId: "OPPONENT"
+        playerId: "OPPONENT",
       });
       const resp2: any = await handler(event2);
       expect(resp2.statusCode).toBe(400);
-      expect(JSON.parse(resp2.body).message).toBe("Period must be an integer at least 1");
+      expect(JSON.parse(resp2.body).message).toBe(
+        "Period must be an integer at least 1",
+      );
     });
   });
 
@@ -200,21 +204,25 @@ describe("Sentinel Security Enhancements Tests", () => {
       const event1 = createEvent("POST", "/games", {
         teamId: "277e909a-6536-4d2d-937e-f608759556fb",
         opponent: "Opp",
-        location: "A".repeat(101)
+        location: "A".repeat(101),
       });
       const resp1: any = await handler(event1);
       expect(resp1.statusCode).toBe(400);
-      expect(JSON.parse(resp1.body).message).toBe("Location must be a string under 100 characters");
+      expect(JSON.parse(resp1.body).message).toBe(
+        "Location must be a string under 100 characters",
+      );
 
       // Test date too long
       const event2 = createEvent("POST", "/games", {
         teamId: "277e909a-6536-4d2d-937e-f608759556fb",
         opponent: "Opp",
-        date: "A".repeat(51)
+        date: "A".repeat(51),
       });
       const resp2: any = await handler(event2);
       expect(resp2.statusCode).toBe(400);
-      expect(JSON.parse(resp2.body).message).toBe("Date must be a string under 50 characters");
+      expect(JSON.parse(resp2.body).message).toBe(
+        "Date must be a string under 50 characters",
+      );
     });
   });
 
@@ -225,20 +233,24 @@ describe("Sentinel Security Enhancements Tests", () => {
       // Test non-digit
       const event1 = createEvent("POST", `/teams/${teamId}/players`, {
         playerId: "277e909a-6536-4d2d-937e-f608759556fc",
-        jerseyNumber: "12A"
+        jerseyNumber: "12A",
       });
       const resp1: any = await handler(event1);
       expect(resp1.statusCode).toBe(400);
-      expect(JSON.parse(resp1.body).message).toBe("Jersey number must be 1-3 digits");
+      expect(JSON.parse(resp1.body).message).toBe(
+        "Jersey number must be 1-3 digits",
+      );
 
       // Test too long
       const event2 = createEvent("POST", `/teams/${teamId}/players`, {
         playerId: "277e909a-6536-4d2d-937e-f608759556fc",
-        jerseyNumber: "1234"
+        jerseyNumber: "1234",
       });
       const resp2: any = await handler(event2);
       expect(resp2.statusCode).toBe(400);
-      expect(JSON.parse(resp2.body).message).toBe("Jersey number must be 1-3 digits");
+      expect(JSON.parse(resp2.body).message).toBe(
+        "Jersey number must be 1-3 digits",
+      );
     });
   });
 
@@ -253,7 +265,10 @@ describe("Sentinel Security Enhancements Tests", () => {
       }
 
       // handlePlayers POST uses createItem which uses stripLocalFields, then created() which uses response() which uses sanitizeOutput.
-      const event = createEvent("POST", "/players", { name: "Test", ...deepObject });
+      const event = createEvent("POST", "/players", {
+        name: "Test",
+        ...deepObject,
+      });
       ddbMock.on(PutCommand).resolves({});
       const resp: any = await handler(event);
 
@@ -277,8 +292,8 @@ describe("Sentinel Security Enhancements Tests", () => {
         id: "277e909a-6536-4d2d-937e-f608759556fb",
         nested: {
           PK: "HACKED",
-          safe: "value"
-        }
+          safe: "value",
+        },
       };
 
       const event = createEvent("POST", "/players", maliciousBody);
