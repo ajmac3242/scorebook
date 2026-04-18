@@ -487,7 +487,8 @@ export const calculatePlayerAggregates = (
   // Accumulate statistics from event stream
   for (let i = 0; i < sortedStats.length; i++) {
     const stat = sortedStats[i];
-    if (!isActive(stat)) continue;
+    // ⚡ Bolt: Inline isActive check to reduce function call overhead in hot loop.
+    if (stat.deletedAt) continue;
 
     const { playerId, type, clockTime, period, gameId } = stat;
 
@@ -519,16 +520,20 @@ export const calculatePlayerAggregates = (
       currentPeriod = period;
     }
 
-    // ⚡ Bolt: Inline updateScores to minimize function call overhead in hot loop.
-    if (isScoringEvent(stat)) {
+    // ⚡ Bolt: Inline updateScores and isOpponentId/isScoringEvent to minimize overhead.
+    if (type === ACTION_TYPES.MAKE) {
       const pts = stat.points || 0;
-      if (isOpponentId(playerId)) {
+      if (
+        playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
+        playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":")
+      ) {
         scores.opp += pts;
       } else {
         scores.team += pts;
       }
     }
 
+    // ⚡ Bolt: Cache statsMap lookups to avoid redundant Map access in the hot loop.
     const player = statsMap.get(playerId);
     if (player) {
       // ⚡ Bolt: Inline processStatEvent and applyActionToAggregate to minimize overhead.
@@ -592,6 +597,7 @@ export const calculatePlayerAggregates = (
         lastGameId: gameId,
       });
     } else if (type === ACTION_TYPES.SUB_OUT && clockTime !== undefined) {
+      // ⚡ Bolt: activeStints lookup cached.
       const stint = activeStints.get(playerId);
       if (stint) {
         handleStintEnd(playerId, statsMap, stint, scores, clockTime);
@@ -1074,7 +1080,8 @@ export const calculateLineupStats = (
 
   for (let i = 0; i < sortedStats.length; i++) {
     const s = sortedStats[i];
-    if (!isActive(s)) continue;
+    // ⚡ Bolt: Inline isActive check to reduce function call overhead in hot loop.
+    if (s.deletedAt) continue;
 
     // ⚡ Bolt: Handle multi-game aggregation by detecting game context changes in-stream.
     if (currentGameId !== null && s.gameId !== currentGameId) {
@@ -1117,11 +1124,17 @@ export const calculateLineupStats = (
       currentPeriod = s.period;
     }
 
-    // ⚡ Bolt: Inline updateScores for performance.
-    if (isScoringEvent(s)) {
+    // ⚡ Bolt: Inline updateScores/isOpponentId/isScoringEvent for performance.
+    if (s.type === ACTION_TYPES.MAKE) {
       const pts = s.points || 0;
-      if (isOpponentId(s.playerId)) scores.opp += pts;
-      else scores.team += pts;
+      if (
+        s.playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
+        s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":")
+      ) {
+        scores.opp += pts;
+      } else {
+        scores.team += pts;
+      }
     }
 
     // When lineup changes, record stats for the previous lineup

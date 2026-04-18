@@ -22,8 +22,8 @@ const s3Client = new S3Client({});
 
 /**
  * Executes snapshot logic with error handling and environment variable validation.
- * @param label
- * @param fn
+ * @param label - Error label for logging.
+ * @param fn - Async function to execute with the bucket name.
  */
 export async function withDataBucket(
   label: string,
@@ -40,9 +40,9 @@ export async function withDataBucket(
 
 /**
  * Uploads a JSON snapshot to S3.
- * @param bucket
- * @param key
- * @param data
+ * @param bucket - S3 bucket name.
+ * @param key - S3 object key.
+ * @param data - Data to upload as JSON.
  */
 export async function uploadSnapshot(
   bucket: string,
@@ -61,9 +61,9 @@ export async function uploadSnapshot(
 
 /**
  * Generates and uploads a team roster snapshot JSON to S3.
- * @param teamId
- * @param tableName
- * @param docClient
+ * @param teamId - ID of the team.
+ * @param tableName - DynamoDB table name.
+ * @param docClient - DynamoDB document client.
  */
 export async function snapshotTeamRoster(
   teamId: string,
@@ -101,9 +101,9 @@ export async function snapshotTeamRoster(
 
 /**
  * Generates and uploads a list of games for a team as a snapshot JSON to S3.
- * @param teamId
- * @param tableName
- * @param docClient
+ * @param teamId - ID of the team.
+ * @param tableName - DynamoDB table name.
+ * @param docClient - DynamoDB document client.
  */
 export async function snapshotTeamGames(
   teamId: string,
@@ -128,9 +128,9 @@ export async function snapshotTeamGames(
 
 /**
  * Generates and uploads a detailed game stats snapshot JSON to S3.
- * @param gameId
- * @param tableName
- * @param docClient
+ * @param gameId - ID of the game.
+ * @param tableName - DynamoDB table name.
+ * @param docClient - DynamoDB document client.
  */
 export async function snapshotGameStats(
   gameId: string,
@@ -169,7 +169,7 @@ export async function snapshotGameStats(
 
 /**
  * Deletes team-related snapshots from S3.
- * @param teamId
+ * @param teamId - ID of the team.
  */
 export async function deleteTeamSnapshots(teamId: string) {
   const DATA_BUCKET = process.env.DATA_BUCKET;
@@ -194,7 +194,7 @@ export async function deleteTeamSnapshots(teamId: string) {
 
 /**
  * Deletes game-related snapshots from S3.
- * @param gameId
+ * @param gameId - ID of the game.
  */
 export async function deleteGameSnapshots(gameId: string) {
   const DATA_BUCKET = process.env.DATA_BUCKET;

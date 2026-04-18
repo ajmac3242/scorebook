@@ -1038,6 +1038,20 @@ const GameMode: React.FC = () => {
   }, [teamId, teamPlayers]);
   const players = useMemo(() => playersQueryResult || [], [playersQueryResult]);
 
+  /**
+   * ⚡ Bolt: O(1) player name lookups.
+   * Performance: Pre-calculating a Map of player names prevents O(P) .find()
+   * operations inside the render loop of recent actions and dialogs.
+   */
+  const playerNamesMap = useMemo(() => {
+    const map = new Map<string, string>();
+    for (let i = 0; i < players.length; i++) {
+      const p = players[i];
+      if (p.id) map.set(p.id.toString(), p.name);
+    }
+    return map;
+  }, [players]);
+
   const game = useLiveQuery(() => db.games.get(gameId as string), [gameId]);
   const team = useLiveQuery(
     () =>
@@ -1132,8 +1146,9 @@ const GameMode: React.FC = () => {
    * ⚡ Bolt: Consolidate statistical derivations.
    * Performance: Use the pre-sorted event stream for single-pass derivation of
    * scores, fouls, timeouts, possession, lineups, and recent history.
+   * This O(N) loop only re-runs when the event stream or period changes.
    */
-  const gameData = useMemo(() => {
+  const eventAggregates = useMemo(() => {
     let curScore = 0;
     let oppScore = 0;
     let teamFouls = 0;
@@ -1212,7 +1227,6 @@ const GameMode: React.FC = () => {
       }
     });
 
-    const stintDurations = new Map<string, number>();
     let lastLineupChangeClock = game?.periodLength
       ? game.periodLength * 60
       : 600;
@@ -1273,10 +1287,6 @@ const GameMode: React.FC = () => {
       lastLineupChangeScoreOpp = tempScoreOpp;
     }
 
-    stintStarts.forEach((startClock, pId) => {
-      stintDurations.set(pId, Math.max(0, startClock - clockSeconds));
-    });
-
     const defensiveStats = calculateStopsAndKills(sortedGameStats);
     const MAX_TIMEOUTS = team?.fouls || 3;
     const teamBonus = getBonusStatus(teamFouls, pType);
@@ -1301,16 +1311,11 @@ const GameMode: React.FC = () => {
       },
       possessionState: posState,
       onCourtIds: onCourt,
-      stintDurations,
+      stintStarts,
       defensiveStats,
-      currentLineupPlusMinus:
-        curScore -
-        oppScore -
-        (lastLineupChangeScoreTeam - lastLineupChangeScoreOpp),
-      currentLineupStintDuration: Math.max(
-        0,
-        lastLineupChangeClock - clockSeconds,
-      ),
+      lastLineupChangeClock,
+      lastLineupChangeScoreTeam,
+      lastLineupChangeScoreOpp,
       recentStats: sortedGameStats.slice(-10).reverse(),
     };
   }, [
@@ -1318,9 +1323,34 @@ const GameMode: React.FC = () => {
     period,
     team?.periodType,
     team?.fouls,
-    clockSeconds,
     game?.periodLength,
   ]);
+
+  /**
+   * ⚡ Bolt: Lightweight live status updates.
+   * Performance: This O(1) memoization handles values that change every second
+   * (like the clock) to avoid reprocessing the entire O(N) event stream.
+   */
+  const gameData = useMemo(() => {
+    const stintDurations = new Map<string, number>();
+    eventAggregates.stintStarts.forEach((startClock, pId) => {
+      stintDurations.set(pId, Math.max(0, startClock - clockSeconds));
+    });
+
+    return {
+      ...eventAggregates,
+      stintDurations,
+      currentLineupPlusMinus:
+        eventAggregates.currentScore -
+        eventAggregates.opponentScore -
+        (eventAggregates.lastLineupChangeScoreTeam -
+          eventAggregates.lastLineupChangeScoreOpp),
+      currentLineupStintDuration: Math.max(
+        0,
+        eventAggregates.lastLineupChangeClock - clockSeconds,
+      ),
+    };
+  }, [eventAggregates, clockSeconds]);
 
   // Initialize draft state when dialog opens
   useEffect(() => {
@@ -1401,37 +1431,53 @@ const GameMode: React.FC = () => {
     return calculatePlayerStreaks(sortedGameStats, { isSorted: true });
   }, [sortedGameStats]);
 
+  /**
+   * ⚡ Bolt: Optimize marker generation.
+   * Performance: Single-pass marker creation using a local array to avoid multiple filter/map
+   * passes. Uses direct property access and cached theme colors to reduce overhead.
+   */
   const markers = useMemo(() => {
     const res = [];
+    const oppColor = theme.palette.secondary.main;
     for (let i = 0; i < gameStats.length; i++) {
       const s = gameStats[i];
+      if (s.deletedAt) continue;
+
+      const type = s.type;
+      // Skip non-visual events
       if (
-        !s.deletedAt &&
-        (markerFilter === "ALL" ||
-          s.type === markerFilter ||
-          (markerFilter === "REBOUND" &&
-            (s.type === ACTION_TYPES.OFF_REBOUND ||
-              s.type === ACTION_TYPES.DEF_REBOUND))) &&
-        s.type !== ACTION_TYPES.SUB_IN &&
-        s.type !== ACTION_TYPES.SUB_OUT &&
-        s.type !== ACTION_TYPES.POSSESSION &&
-        s.type !== ACTION_TYPES.TIMEOUT
-      ) {
-        res.push({
-          id: s.id,
-          x: s.locationX || 0,
-          y: s.locationY || 0,
-          type: s.type,
-          label:
-            s.playerId !== SPECIAL_PLAYER_IDS.OPPONENT
-              ? (jerseyMap.get(s.playerId) ?? "")
-              : undefined,
-          color:
-            s.playerId === SPECIAL_PLAYER_IDS.OPPONENT
-              ? theme.palette.secondary.main
-              : undefined,
-        });
-      }
+        type === ACTION_TYPES.SUB_IN ||
+        type === ACTION_TYPES.SUB_OUT ||
+        type === ACTION_TYPES.POSSESSION ||
+        type === ACTION_TYPES.TIMEOUT
+      )
+        continue;
+
+      // Filter by selection
+      if (
+        markerFilter !== "ALL" &&
+        type !== markerFilter &&
+        !(
+          markerFilter === "REBOUND" &&
+          (type === ACTION_TYPES.OFF_REBOUND ||
+            type === ACTION_TYPES.DEF_REBOUND)
+        )
+      )
+        continue;
+
+      const pId = s.playerId;
+      const isOpp =
+        pId === SPECIAL_PLAYER_IDS.OPPONENT ||
+        pId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":");
+
+      res.push({
+        id: s.id,
+        x: s.locationX || 0,
+        y: s.locationY || 0,
+        type: type,
+        label: !isOpp ? (jerseyMap.get(pId) ?? "") : undefined,
+        color: isOpp ? oppColor : undefined,
+      });
     }
     return res;
   }, [gameStats, markerFilter, jerseyMap, theme.palette.secondary.main]);
@@ -2485,22 +2531,38 @@ const GameMode: React.FC = () => {
                 ) : (
                   gameData.recentStats
                     .filter((s) => !s.deletedAt)
-                    .map((s) => (
-                      <RecentActionItem
-                        key={s.id}
-                        stat={s}
-                        players={players}
-                        periodLabel={periodLabel}
-                        isReadOnly={isReadOnly}
-                        teamName={team?.name}
-                        opponentName={game?.opponent}
-                        onEdit={openEditDialog}
-                        onDelete={(id) => {
-                          setStatToDelete(id);
-                          setDeleteDialogOpen(true);
-                        }}
-                      />
-                    ))
+                    .map((s) => {
+                      const getPlayerName = (pId: string) => {
+                        if (pId === SPECIAL_PLAYER_IDS.OPPONENT)
+                          return game?.opponent || "Opponent";
+                        if (pId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":")) {
+                          const jersey = pId.split(":")[1];
+                          return `${game?.opponent || "Opponent"} #${jersey}`;
+                        }
+                        if (
+                          pId === SPECIAL_PLAYER_IDS.TEAM_TIMEOUT ||
+                          pId === SPECIAL_PLAYER_IDS.OUR_TEAM
+                        ) {
+                          return team?.name || "Our Team";
+                        }
+                        return playerNamesMap.get(pId) || "Unknown";
+                      };
+
+                      return (
+                        <RecentActionItem
+                          key={s.id}
+                          stat={s}
+                          playerName={getPlayerName(s.playerId)}
+                          periodLabel={periodLabel}
+                          isReadOnly={isReadOnly}
+                          onEdit={openEditDialog}
+                          onDelete={(id) => {
+                            setStatToDelete(id);
+                            setDeleteDialogOpen(true);
+                          }}
+                        />
+                      );
+                    })
                 )}
               </Stack>
             </MoleskineCard>
