@@ -19,8 +19,8 @@ import {
   Edit,
   Delete,
 } from "@mui/icons-material";
-import { StatEvent, Player } from "../db";
-import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../constants/stats";
+import { StatEvent } from "../db";
+import { ACTION_TYPES } from "../constants/stats";
 import { formatClock } from "../utils/mathUtils";
 
 interface RecentActionItemProps {
