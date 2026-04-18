@@ -12,3 +12,8 @@
     - **Patterns in what gets left incomplete**: Complex React state dependencies in large components like `GameMode` often result in stale closure bugs if not carefully audited.
     - **Recurring issues agents create**: Missing dependencies in `useMemo` and `useCallback` hooks, especially when adding new reactive state like `selectedOpponentId`.
     - **End-of-Day improvement patterns**: Implementing 'discovery-based' tracking (like individual opponent jerseys) allows users to start high-value tracking immediately without setup overhead, bridging the gap between simple and advanced modes.
+
+## End-of-Day Insights - 2026-04-18
+- **Patterns in what gets left incomplete**: Complex multi-step workflows like Free Throw sequences are often deferred because they require significant state management and UI modal logic.
+- **Recurring issues agents create**: Inconsistent bonus/foul logic across different UI components (Scoreboard vs. Action Dialog). Centralizing these checks into utilities like 'getBonusStatus' prevents drift.
+- **End-of-Day improvement patterns**: Implementing a "Sequence Mode" for rapid data entry (like Free Throws) significantly reduces the mental load for scorekeepers during high-pressure game moments.
