@@ -34,3 +34,18 @@
 ### Basketball Edge Cases
 - **Stops Tracking**: Possession termination is the key. A stop isn't just a miss; it's a miss *that ends the possession* (captured by a defensive rebound).
 - **Foul Limits**: Different leagues have different rules (High School: 5, NBA: 6). Hardcoding these leads to incorrect tactical alerts.
+
+## 2025-05-25 - Stat Precision & Momentum Audit
+
+### Findings & Fixed Bugs
+- **Bug 10: Incomplete Team Foul Calculation**: Discovered that `GameMode.tsx` only counted the base `FOUL` type for period team fouls, missing `FOUL_SHOOTING`, `FOUL_NON_SHOOTING`, and `TECHNICAL_FOUL`. This led to incorrect bonus status displays.
+- **Bug 11: Missing Free Throw Tracking**: Players were missing `FTM` (Free Throws Made) and `FT%` in their box scores. Added explicit tracking for 1-point makes and attempts.
+- **Bug 12: Momentum Leakage**: Found that `calculateStopsAndKills` did not reset the stop streak when the defensive team committed a foul. A foul resets defensive momentum and should terminate the current "Kill" pursuit.
+
+### Critical Test Gaps Filled
+- Comprehensive audit tests in `scout_audit.test.ts` verifying FT tracking, team foul types, and momentum reset logic.
+- Technical foul support added to both aggregation and momentum logic.
+
+### Basketball Edge Cases
+- **Momentum & Fouls**: A defensive stop requires terminating a possession cleanly. Fouls (even non-shooting) reset the streak.
+- **FT/FG Separation**: Always keep `makes`/`attempts` strictly for Field Goals (2pt/3pt) and use `ftm`/`fta` for Free Throws to maintain NBA/FIBA/NCAA box score standards.

@@ -102,8 +102,10 @@ export interface PlayerAggregates {
   makes: number;
   attempts: number;
   threePM: number;
+  ftm: number;
   fta: number;
   fgPct: string;
+  ftPct: string;
   efgPct: string;
   tsPct: string;
   plusMinus: number;
@@ -142,6 +144,15 @@ export const isScoringEvent = (stat: StatEvent): boolean =>
  * @returns {string} Formatted percentage.
  */
 export const calculateFgPct = (makes: number, attempts: number): string =>
+  attempts > 0 ? formatToOne((makes / attempts) * 100) : "0.0";
+
+/**
+ * Calculates Free Throw Percentage.
+ * @param {number} makes - Free throws made.
+ * @param {number} attempts - Free throws attempted.
+ * @returns {string} Formatted percentage.
+ */
+export const calculateFtPct = (makes: number, attempts: number): string =>
   attempts > 0 ? formatToOne((makes / attempts) * 100) : "0.0";
 
 /**
@@ -318,6 +329,7 @@ interface BaseStats {
   blocks: number;
   fouls: number;
   threePM?: number;
+  ftm?: number;
   fta?: number;
 }
 
@@ -333,6 +345,7 @@ export const applyActionToAggregate = (agg: BaseStats, stat: StatEvent) => {
       // 🏀 CoachBoard: Field Goal Tracking
       // Why: Free throws (1pt) should not be counted as FGM or FGA.
       if (stat.points === 1) {
+        if (agg.ftm !== undefined) agg.ftm++;
         if (agg.fta !== undefined) agg.fta++;
       } else {
         agg.makes++;
@@ -373,6 +386,7 @@ export const applyActionToAggregate = (agg: BaseStats, stat: StatEvent) => {
     case ACTION_TYPES.FOUL:
     case ACTION_TYPES.FOUL_SHOOTING:
     case ACTION_TYPES.FOUL_NON_SHOOTING:
+    case ACTION_TYPES.TECHNICAL_FOUL:
       agg.fouls++;
       break;
   }
@@ -420,8 +434,10 @@ function initializeStatsMap(
       makes: 0,
       attempts: 0,
       threePM: 0,
+      ftm: 0,
       fta: 0,
       fgPct: "0.0",
+      ftPct: "0.0",
       efgPct: "0.0",
       tsPct: "0.0",
       plusMinus: 0,
@@ -521,6 +537,7 @@ export const calculatePlayerAggregates = (
         case ACTION_TYPES.MAKE:
           player.points += stat.points || 0;
           if (stat.points === 1) {
+            player.ftm++;
             player.fta++;
           } else {
             player.makes++;
@@ -561,6 +578,7 @@ export const calculatePlayerAggregates = (
         case ACTION_TYPES.FOUL:
         case ACTION_TYPES.FOUL_SHOOTING:
         case ACTION_TYPES.FOUL_NON_SHOOTING:
+        case ACTION_TYPES.TECHNICAL_FOUL:
           player.fouls++;
           break;
       }
@@ -603,6 +621,7 @@ export const calculatePlayerAggregates = (
     const gp = gpActual || 1;
     player.gp = gpActual;
     player.fgPct = calculateFgPct(player.makes, player.attempts);
+    player.ftPct = calculateFtPct(player.ftm, player.fta);
     player.efgPct = calculateEfgPct(
       player.makes,
       player.threePM,
@@ -664,6 +683,19 @@ export const calculateStopsAndKills = (stats: StatEvent[]) => {
 
     // If opponent scores, the streak is broken immediately.
     if (isOpp && isScoringEvent(s)) {
+      currentStreak = 0;
+      continue;
+    }
+
+    // 🏀 CoachBoard: Foul Reset logic
+    // Why: Committing a foul (shooting or non-shooting) resets the stop streak.
+    if (
+      !isOpp &&
+      (s.type === ACTION_TYPES.FOUL ||
+        s.type === ACTION_TYPES.FOUL_SHOOTING ||
+        s.type === ACTION_TYPES.FOUL_NON_SHOOTING ||
+        s.type === ACTION_TYPES.TECHNICAL_FOUL)
+    ) {
       currentStreak = 0;
       continue;
     }

@@ -1161,7 +1161,12 @@ const GameMode: React.FC = () => {
       }
 
       // Fouls (Period-aware)
-      if (s.type === ACTION_TYPES.FOUL) {
+      if (
+        s.type === ACTION_TYPES.FOUL ||
+        s.type === ACTION_TYPES.FOUL_SHOOTING ||
+        s.type === ACTION_TYPES.FOUL_NON_SHOOTING ||
+        s.type === ACTION_TYPES.TECHNICAL_FOUL
+      ) {
         if (isEventInPeriod(s.period, period, pType)) {
           if (isOpp) {
             oppFouls++;
@@ -2355,6 +2360,9 @@ const GameMode: React.FC = () => {
                               { key: "jerseyNumber", label: "PLAYER", px: 1 },
                               { key: "min", label: "MIN" },
                               { key: "points", label: "PTS" },
+                              { key: "ftm", label: "FTM" },
+                              { key: "fta", label: "FTA" },
+                              { key: "ftPct", label: "FT%" },
                               { key: "rebounds", label: "REB" },
                               { key: "assists", label: "AST" },
                               { key: "steals", label: "STL" },
@@ -2411,6 +2419,9 @@ const GameMode: React.FC = () => {
                             name={row.name}
                             min={row.min}
                             points={row.points}
+                            ftm={row.ftm}
+                            fta={row.fta}
+                            ftPct={row.ftPct}
                             rebounds={row.rebounds}
                             assists={row.assists}
                             steals={row.steals}
