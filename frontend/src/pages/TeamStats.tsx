@@ -107,6 +107,9 @@ const TeamStats: React.FC = () => {
   const [editTimeoutLimit, setEditTimeoutLimit] = useState<number>(3);
   const [editFoulLimit, setEditFoulLimit] = useState<number>(5);
   const [editMaxStintDuration, setEditMaxStintDuration] = useState<number>(8);
+  const [editFoulWarningThresholds, setEditFoulWarningThresholds] = useState<
+    Record<string, number>
+  >({});
   const [editPlaybook, setEditPlaybook] = useState<string[]>([]);
   const [newPlayName, setNewPlayName] = useState("");
   const [timeLeft, setTimeLeft] = useState("");
@@ -160,6 +163,7 @@ const TeamStats: React.FC = () => {
       setEditTimeoutLimit(team.defaultTimeoutLimit || team.fouls || 3);
       setEditFoulLimit(team.defaultFoulLimit || 5);
       setEditMaxStintDuration(team.maxStintDuration || 8);
+      setEditFoulWarningThresholds(team.foulWarningThresholds || {});
       setEditPlaybook(team.playbook || []);
     }
     // We only want to sync from DB when the team object itself changes (e.g. initial load)
@@ -415,6 +419,7 @@ const TeamStats: React.FC = () => {
       defaultTimeoutLimit: editTimeoutLimit,
       defaultFoulLimit: editFoulLimit,
       maxStintDuration: editMaxStintDuration,
+      foulWarningThresholds: editFoulWarningThresholds,
       playbook: editPlaybook,
       fouls: editTimeoutLimit, // Keep legacy fouls field in sync with timeouts
       synced: 0,
@@ -1258,6 +1263,34 @@ const TeamStats: React.FC = () => {
                 inputProps={{ min: 1 }}
               />
             </Stack>
+
+            <Divider sx={{ my: 1 }}>
+              <Chip label="Foul Warnings by Period" size="small" />
+            </Divider>
+            <Box>
+              <Typography variant="caption" sx={{ mb: 1, display: "block" }}>
+                Alert when player reaches this many fouls in a period
+              </Typography>
+              <Grid container spacing={1}>
+                {[1, 2, 3, 4].map((p) => (
+                  <Grid item xs={3} key={p}>
+                    <TextField
+                      size="small"
+                      label={`P${p}`}
+                      type="number"
+                      value={editFoulWarningThresholds[`P${p}`] || ""}
+                      onChange={(e) =>
+                        setEditFoulWarningThresholds((prev) => ({
+                          ...prev,
+                          [`P${p}`]: parseInt(e.target.value) || 0,
+                        }))
+                      }
+                      inputProps={{ min: 0, max: editFoulLimit }}
+                    />
+                  </Grid>
+                ))}
+              </Grid>
+            </Box>
 
             <Divider sx={{ my: 1 }}>
               <Chip label="Playbook" size="small" />

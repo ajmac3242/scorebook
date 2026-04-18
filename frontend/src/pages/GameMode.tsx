@@ -166,6 +166,11 @@ interface ScoreboardProps {
       totalKills: number;
       currentStreak: number;
     };
+    momentumAlerts: {
+      opponentRun: string | null;
+      scoringDrought: string | null;
+    };
+    onCourtPeriodFouls: Map<string, number>;
   };
   period: number;
   periodLabel: string;
@@ -540,6 +545,62 @@ const Scoreboard = React.memo(
         />
 
         {renderTeamInfo(team?.name || "TEAM", team?.logoUrl)}
+
+        {/* 🏀 CoachBoard: Momentum Alerts HUD */}
+        {(gameData.momentumAlerts.opponentRun ||
+          gameData.momentumAlerts.scoringDrought) && (
+          <Box
+            sx={{
+              position: "absolute",
+              top: 4,
+              left: "50%",
+              transform: "translateX(-50%)",
+              zIndex: 10,
+              display: "flex",
+              flexDirection: "column",
+              gap: 0.5,
+              width: "100%",
+              alignItems: "center",
+            }}
+          >
+            {gameData.momentumAlerts.opponentRun && (
+              <Alert
+                severity="error"
+                icon={<Warning />}
+                variant="filled"
+                sx={{
+                  py: 0,
+                  px: 1,
+                  fontSize: "0.65rem",
+                  "& .MuiAlert-icon": { fontSize: "0.8rem", mr: 0.5 },
+                  bgcolor: "#d32f2f",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.4)",
+                  animation: `${pulse} 2s infinite ease-in-out`,
+                }}
+              >
+                <strong>OPPONENT RUN: {gameData.momentumAlerts.opponentRun}</strong> - SUGGEST TIMEOUT
+              </Alert>
+            )}
+            {gameData.momentumAlerts.scoringDrought && (
+              <Alert
+                severity="warning"
+                icon={<Warning />}
+                variant="filled"
+                sx={{
+                  py: 0,
+                  px: 1,
+                  fontSize: "0.65rem",
+                  "& .MuiAlert-icon": { fontSize: "0.8rem", mr: 0.5 },
+                  bgcolor: "#ed6c02",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.4)",
+                  animation: `${pulse} 2s infinite ease-in-out`,
+                }}
+              >
+                <strong>SCORING DROUGHT: {gameData.momentumAlerts.scoringDrought}</strong>
+              </Alert>
+            )}
+          </Box>
+        )}
 
         {/* 🏀 CoachBoard: Defensive Momentum HUD
           Why: Visualizes "Stops" and "Kills" to motivate defensive intensity. */}
@@ -1022,6 +1083,10 @@ const GameMode: React.FC = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isEnding, setIsEnding] = useState(false);
   const [isSavingStat, setIsSavingStat] = useState(false);
+  const [chainPrompt, setChainPrompt] = useState<{
+    type: "ASSIST" | "REBOUND";
+    originalStat: StatEvent;
+  } | null>(null);
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;
@@ -1330,6 +1395,92 @@ const GameMode: React.FC = () => {
     }
 
     const defensiveStats = calculateStopsAndKills(sortedGameStats);
+
+    // 🏀 CoachBoard: Momentum Alerts Logic
+    // Detect "Opponent Runs" (e.g. 8-0) and "Scoring Droughts" (3+ minutes without scoring)
+    let opponentRun = null;
+    let scoringDrought = null;
+
+    // Run Detection (Look back at recent scoring events)
+    let tempOppRunPoints = 0;
+    let teamScoredSinceOppRunStarted = false;
+    for (let i = sortedGameStats.length - 1; i >= 0; i--) {
+      const s = sortedGameStats[i];
+      if (s.deletedAt || s.type !== ACTION_TYPES.MAKE) continue;
+
+      const isOpp =
+        s.playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
+        s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":");
+
+      if (isOpp) {
+        if (teamScoredSinceOppRunStarted) break;
+        tempOppRunPoints += s.points || 0;
+      } else {
+        teamScoredSinceOppRunStarted = true;
+        break;
+      }
+    }
+    if (tempOppRunPoints >= 8) {
+      opponentRun = `${tempOppRunPoints}-0`;
+    }
+
+    // Drought Detection (Game clock time since our last score)
+    let lastTeamScoreClockTime = periodLen; // Default to start of current period
+    let lastTeamScorePeriod = period;
+    let foundLastTeamScore = false;
+
+    for (let i = sortedGameStats.length - 1; i >= 0; i--) {
+      const s = sortedGameStats[i];
+      if (s.deletedAt || s.type !== ACTION_TYPES.MAKE) continue;
+      const isOpp =
+        s.playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
+        s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":");
+      if (!isOpp) {
+        lastTeamScoreClockTime = s.clockTime ?? periodLen;
+        lastTeamScorePeriod = s.period;
+        foundLastTeamScore = true;
+        break;
+      }
+    }
+
+    if (foundLastTeamScore) {
+      let droughtSecs = 0;
+      if (lastTeamScorePeriod === period) {
+        droughtSecs = lastTeamScoreClockTime - clockSeconds;
+      } else if (lastTeamScorePeriod < period) {
+        // Drought spans across periods
+        droughtSecs = lastTeamScoreClockTime; // Remainder of its period
+        droughtSecs += (period - lastTeamScorePeriod - 1) * periodLen; // Full periods in between
+        droughtSecs += periodLen - clockSeconds; // Elapsed time in current period
+      }
+
+      if (droughtSecs >= 180) {
+        scoringDrought = `${Math.floor(droughtSecs / 60)}m ${Math.floor(droughtSecs % 60)}s`;
+      }
+    } else {
+      // Team hasn't scored at all - drought from start of game
+      const elapsedGameSecs = (period - 1) * periodLen + (periodLen - clockSeconds);
+      if (elapsedGameSecs >= 180) {
+        scoringDrought = `${Math.floor(elapsedGameSecs / 60)}m ${Math.floor(elapsedGameSecs % 60)}s`;
+      }
+    }
+
+    // 🏀 CoachBoard: Period-specific Foul Tracking
+    const onCourtPeriodFouls = new Map<string, number>();
+    onCourt.forEach((pId) => {
+      const pfCount = sortedGameStats.filter(
+        (s) =>
+          !s.deletedAt &&
+          s.playerId === pId &&
+          s.period === period &&
+          (s.type === ACTION_TYPES.FOUL ||
+            s.type === ACTION_TYPES.FOUL_SHOOTING ||
+            s.type === ACTION_TYPES.FOUL_NON_SHOOTING ||
+            s.type === ACTION_TYPES.TECHNICAL_FOUL),
+      ).length;
+      onCourtPeriodFouls.set(pId, pfCount);
+    });
+
     const MAX_TIMEOUTS = team?.fouls || 3;
     const teamBonus = getBonusStatus(teamFouls, pType);
     const oppBonus = getBonusStatus(oppFouls, pType);
@@ -1355,6 +1506,11 @@ const GameMode: React.FC = () => {
       onCourtIds: onCourt,
       stintStarts,
       defensiveStats,
+      momentumAlerts: {
+        opponentRun,
+        scoringDrought,
+      },
+      onCourtPeriodFouls,
       lastLineupChangeClock,
       lastLineupChangeScoreTeam,
       lastLineupChangeScoreOpp,
@@ -1669,6 +1825,20 @@ const GameMode: React.FC = () => {
           };
           await db.stats.add(newStat);
           await syncService.pushUpdates();
+
+          // 🏀 CoachBoard: Intelligent Linked Event Chaining
+          // Trigger follow-up prompts for "Our Team" makes and misses
+          if (
+            trackingMode === "TEAM" &&
+            !selectedPlayerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT)
+          ) {
+            if (typeToSave === ACTION_TYPES.MAKE && points > 1) {
+              setChainPrompt({ type: "ASSIST", originalStat: newStat });
+            } else if (typeToSave === ACTION_TYPES.MISS) {
+              setChainPrompt({ type: "REBOUND", originalStat: newStat });
+            }
+          }
+
           if (typeToSave === ACTION_TYPES.FOUL_SHOOTING) {
             setFtWorkflowOpen(true);
           }
@@ -2057,6 +2227,41 @@ const GameMode: React.FC = () => {
     return null;
   }
 
+  /**
+   * 🏀 CoachBoard: handleChainAction
+   * Records a linked event (Assist or Rebound) tied to a previous shot.
+   */
+  const handleChainAction = useCallback(
+    async (pId: string, type: string) => {
+      if (!chainPrompt || !gameId) return;
+      const { originalStat } = chainPrompt;
+
+      try {
+        await db.open();
+        await db.stats.add({
+          id: crypto.randomUUID(),
+          gameId,
+          playerId: pId,
+          type,
+          period: originalStat.period,
+          clockTime: originalStat.clockTime,
+          timestamp: originalStat.timestamp, // Share exact metadata
+          synced: 0,
+        });
+        await syncService.pushUpdates();
+        setChainPrompt(null);
+        setSnackbar({
+          open: true,
+          message: `${type} recorded`,
+          severity: "success",
+        });
+      } catch (err) {
+        logger.error("Failed to save chained stat:", err);
+      }
+    },
+    [chainPrompt, gameId],
+  );
+
   return (
     <Box sx={{ pb: 4, opacity: isReadOnly ? 0.7 : 1 }}>
       {isReadOnly && (
@@ -2269,6 +2474,15 @@ const GameMode: React.FC = () => {
                         const stintSecs =
                           gameData.stintDurations.get(p.id!) || 0;
 
+                        const curPeriodKey = `P${period}`;
+                        const periodFoulLimit =
+                          team?.foulWarningThresholds?.[curPeriodKey] || 99;
+                        const pfSincePeriodStart =
+                          gameData.onCourtPeriodFouls.get(p.id!) || 0;
+
+                        const isFoulTroubleInPeriod =
+                          pfSincePeriodStart >= periodFoulLimit;
+
                         return (
                           <Box
                             key={p.id}
@@ -2291,13 +2505,15 @@ const GameMode: React.FC = () => {
                                 px: 1,
                                 bgcolor: isFouledOut
                                   ? "error.main"
-                                  : isFoulTrouble
+                                  : isFoulTrouble || isFoulTroubleInPeriod
                                     ? "warning.main"
                                     : "primary.main",
                                 color: "white",
                                 borderWidth: "1.5px",
                                 animation:
-                                  isFoulTrouble || isFouledOut
+                                  isFoulTrouble ||
+                                  isFouledOut ||
+                                  isFoulTroubleInPeriod
                                     ? `${pulse} 2s infinite ease-in-out`
                                     : "none",
                                 "&.Mui-disabled": {
@@ -2413,20 +2629,28 @@ const GameMode: React.FC = () => {
                                       borderRadius: 0.5,
                                       bgcolor: isFouledOut
                                         ? "#d32f2f"
-                                        : isFoulTrouble
+                                        : isFoulTrouble || isFoulTroubleInPeriod
                                           ? "#ed6c02"
                                           : "transparent",
                                       fontWeight:
-                                        isFouledOut || isFoulTrouble
+                                        isFouledOut ||
+                                        isFoulTrouble ||
+                                        isFoulTroubleInPeriod
                                           ? 900
                                           : 400,
                                       border:
-                                        isFouledOut || isFoulTrouble
+                                        isFouledOut ||
+                                        isFoulTrouble ||
+                                        isFoulTroubleInPeriod
                                           ? "1px solid white"
                                           : "none",
                                     }}
                                   >
                                     {pf} foul{pf !== 1 ? "s" : ""}
+                                    {isFoulTroubleInPeriod &&
+                                      !isFouledOut &&
+                                      !isFoulTrouble &&
+                                      ` (P${period})`}
                                   </Box>
                                   {isFouledOut && " - OUT"}
                                 </Typography>
@@ -3165,6 +3389,101 @@ const GameMode: React.FC = () => {
             disabled={isDeleting}
           >
             {isDeleting ? "Deleting..." : "Delete"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Linked Event Chain Prompt */}
+      <Dialog
+        open={Boolean(chainPrompt)}
+        onClose={() => setChainPrompt(null)}
+        fullWidth
+        maxWidth="xs"
+      >
+        <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
+          {chainPrompt?.type === "ASSIST" ? "Who Assisted?" : "Who Rebounded?"}
+        </DialogTitle>
+        <DialogContent>
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: 1,
+              mt: 1,
+            }}
+          >
+            {chainPrompt?.type === "REBOUND" && (
+              <Button
+                variant="outlined"
+                color="secondary"
+                onClick={() =>
+                  handleChainAction(
+                    SPECIAL_PLAYER_IDS.OPPONENT,
+                    ACTION_TYPES.DEF_REBOUND,
+                  )
+                }
+                sx={{ flexDirection: "column", py: 2 }}
+              >
+                <Avatar sx={{ bgcolor: "secondary.main", mb: 0.5 }}>OPP</Avatar>
+                <Typography variant="caption">Opponent</Typography>
+              </Button>
+            )}
+
+            {players
+              .filter((p) => {
+                if (!gameData.onCourtIds.has(p.id!)) return false;
+                // Don't credit same player with assist on their own make
+                if (
+                  chainPrompt?.type === "ASSIST" &&
+                  p.id === chainPrompt.originalStat.playerId
+                )
+                  return false;
+                return true;
+              })
+              .map((p) => (
+                <Button
+                  key={p.id}
+                  variant="outlined"
+                  onClick={() =>
+                    handleChainAction(
+                      p.id!,
+                      chainPrompt?.type === "ASSIST"
+                        ? ACTION_TYPES.ASSIST
+                        : ACTION_TYPES.OFF_REBOUND,
+                    )
+                  }
+                  sx={{ flexDirection: "column", py: 2 }}
+                >
+                  <Avatar
+                    sx={{
+                      bgcolor: p.avatarColor || "grey.500",
+                      width: 32,
+                      height: 32,
+                      fontSize: "0.8rem",
+                      mb: 0.5,
+                    }}
+                  >
+                    {jerseyMap.get(p.id!) ?? getInitials(p.name)}
+                  </Avatar>
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      width: "100%",
+                      textAlign: "center",
+                    }}
+                  >
+                    {p.name.split(" ")[0]}
+                  </Typography>
+                </Button>
+              ))}
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={() => setChainPrompt(null)} color="inherit">
+            Skip
           </Button>
         </DialogActions>
       </Dialog>

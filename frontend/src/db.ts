@@ -26,6 +26,7 @@ export interface Team {
   defaultOvertimeLength?: number;
   maxStintDuration?: number; // In minutes
   playbook?: string[];
+  foulWarningThresholds?: Record<string, number>;
 }
 
 /**
