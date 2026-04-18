@@ -2471,7 +2471,9 @@ const GameMode: React.FC = () => {
                           >
                             ?
                           </Avatar>
-                          <Typography variant="caption">Assign Player</Typography>
+                          <Typography variant="caption">
+                            Assign Player
+                          </Typography>
                         </Button>
                       );
                     })}
