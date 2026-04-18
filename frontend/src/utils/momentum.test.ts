@@ -8,7 +8,7 @@ import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../constants/stats";
 /**
  * Ported logic for testing
  */
-const detectOpponentRun = (sortedGameStats: any[]) => {
+const detectOpponentRun = (sortedGameStats: { deletedAt?: string; type: string; playerId: string; points?: number }[]) => {
     let tempOppRunPoints = 0;
     let teamScoredSinceOppRunStarted = false;
     for (let i = sortedGameStats.length - 1; i >= 0; i--) {
@@ -30,7 +30,7 @@ const detectOpponentRun = (sortedGameStats: any[]) => {
     return tempOppRunPoints >= 8 ? `${tempOppRunPoints}-0` : null;
 };
 
-const detectScoringDrought = (sortedGameStats: any[], period: number, clockSeconds: number, periodLen: number) => {
+const detectScoringDrought = (sortedGameStats: { deletedAt?: string; type: string; playerId: string; clockTime?: number; period: number }[], period: number, clockSeconds: number, periodLen: number) => {
     let lastTeamScoreClockTime = periodLen;
     let lastTeamScorePeriod = period;
     let foundLastTeamScore = false;
@@ -130,7 +130,7 @@ describe("Momentum Alert Logic", () => {
         });
 
         it("detects drought from start of game if no scores", () => {
-            const stats: any[] = [];
+            const stats: { deletedAt?: string; type: string; playerId: string; clockTime?: number; period: number }[] = [];
             // 4 minutes into P1 (600 - 360 = 240s)
             expect(detectScoringDrought(stats, 1, 360, periodLen)).toBe("4m 0s");
         });

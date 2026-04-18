@@ -1524,6 +1524,7 @@ const GameMode: React.FC = () => {
     team?.periodType,
     team?.fouls,
     game?.periodLength,
+    clockSeconds,
   ]);
 
   /**
@@ -2225,10 +2226,6 @@ const GameMode: React.FC = () => {
     }
   }, [gameId, isReadOnly, period, gameData.possessionState, clockSeconds]);
 
-  if (!gameId || !teamId) {
-    return null;
-  }
-
   /**
    * 🏀 CoachBoard: handleChainAction
    * Records a linked event (Assist or Rebound) tied to a previous shot.
@@ -2263,6 +2260,10 @@ const GameMode: React.FC = () => {
     },
     [chainPrompt, gameId],
   );
+
+  if (!gameId || !teamId) {
+    return null;
+  }
 
   return (
     <Box sx={{ pb: 4, opacity: isReadOnly ? 0.7 : 1 }}>
