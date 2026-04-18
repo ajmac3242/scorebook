@@ -63,6 +63,19 @@ export function sanitizeOutput(data: unknown, depth = 0): unknown {
 }
 
 /**
+ * Filters out soft-deleted items from a list.
+ *
+ * @param {T[]} items - The list of items to filter.
+ * @returns {T[]} The filtered list containing only active (non-deleted) items.
+ */
+export function filterActive<T extends Record<string, any>>(
+  items: T[] | undefined | null,
+): T[] {
+  if (!items) return [];
+  return items.filter((i) => !i.deletedAt);
+}
+
+/**
  * Formats a standardized JSON response with defense-in-depth security headers.
  *
  * @param {number} statusCode - The HTTP status code.

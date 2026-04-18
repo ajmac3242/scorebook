@@ -138,6 +138,26 @@ export function extractIdFromPath(path: string, prefix: string): string | null {
 }
 
 /**
+ * Retrieves a header value in a case-insensitive manner.
+ * @param headers - Request headers.
+ * @param name - Header name to find.
+ * @returns Header value or undefined.
+ */
+export function getHeader(
+  headers: Record<string, string | undefined> | undefined,
+  name: string,
+): string | undefined {
+  if (!headers) return undefined;
+  const target = name.toLowerCase();
+  for (const key in headers) {
+    if (key.toLowerCase() === target) {
+      return headers[key];
+    }
+  }
+  return undefined;
+}
+
+/**
  * Strips local-only fields and internal DynamoDB keys from the data object before saving.
  *
  * @param {Record<string, unknown>} data - The data object to clean.

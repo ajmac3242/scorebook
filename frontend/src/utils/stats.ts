@@ -138,13 +138,22 @@ export const isScoringEvent = (stat: StatEvent): boolean =>
   stat.type === ACTION_TYPES.MAKE;
 
 /**
+ * Generic percentage calculator for basketball stats.
+ * @param {number} numerator - The count (makes, points, etc).
+ * @param {number} denominator - The total attempts or possessions.
+ * @returns {string} Formatted percentage.
+ */
+const calcPct = (numerator: number, denominator: number): string =>
+  denominator > 0 ? formatToOne((numerator / denominator) * 100) : "0.0";
+
+/**
  * Calculates Field Goal Percentage.
  * @param {number} makes - Field goals made.
  * @param {number} attempts - Field goals attempted.
  * @returns {string} Formatted percentage.
  */
 export const calculateFgPct = (makes: number, attempts: number): string =>
-  attempts > 0 ? formatToOne((makes / attempts) * 100) : "0.0";
+  calcPct(makes, attempts);
 
 /**
  * Calculates Free Throw Percentage.
@@ -153,7 +162,7 @@ export const calculateFgPct = (makes: number, attempts: number): string =>
  * @returns {string} Formatted percentage.
  */
 export const calculateFtPct = (makes: number, attempts: number): string =>
-  attempts > 0 ? formatToOne((makes / attempts) * 100) : "0.0";
+  calcPct(makes, attempts);
 
 /**
  * Calculates Effective Field Goal Percentage.
@@ -166,10 +175,7 @@ export const calculateEfgPct = (
   makes: number,
   threePM: number,
   attempts: number,
-): string =>
-  attempts > 0
-    ? formatToOne(((makes + 0.5 * threePM) / attempts) * 100)
-    : "0.0";
+): string => calcPct(makes + 0.5 * threePM, attempts);
 
 /**
  * Calculates True Shooting Percentage (TS%).
@@ -189,10 +195,7 @@ export const calculateTsPct = (
   points: number,
   attempts: number,
   fta: number,
-): string =>
-  attempts > 0 || fta > 0
-    ? formatToOne((points / (2 * (attempts + 0.44 * fta))) * 100)
-    : "0.0";
+): string => calcPct(points, 2 * (attempts + 0.44 * fta));
 
 /**
  * Returns the initials of a name (max 2 characters).
@@ -200,15 +203,12 @@ export const calculateTsPct = (
  * @returns {string} The uppercase initials.
  */
 export const getInitials = (name: string | undefined | null): string => {
-  const trimmed = name?.trim();
-  if (!trimmed) return "";
-
-  const initials = trimmed
+  return (name || "")
+    .trim()
     .split(/\s+/)
-    .map((part) => part[0]?.toUpperCase())
-    .filter(Boolean);
-
-  return initials.slice(0, 2).join("");
+    .slice(0, 2)
+    .map((v) => v[0]?.toUpperCase())
+    .join("");
 };
 
 /**

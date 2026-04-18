@@ -32,11 +32,13 @@ import {
   serverError,
   response,
   sanitizeOutput,
+  filterActive,
 } from "./responses.js";
 import {
   isValidUuid,
   isValidPlayerId,
   SPECIAL_PLAYER_IDS,
+  validateStatEvent,
 } from "./validation.js";
 import { Keys } from "./keys.js";
 import {
@@ -47,11 +49,13 @@ import {
   normalizePath,
   extractIdFromPath,
   stripLocalFields,
+  getHeader,
 } from "./utils.js";
 import { calculateGameResultFromStats } from "./scoring.js";
 import {
   snapshotTeamRoster,
   snapshotTeamGames,
+  snapshotTeam,
   snapshotGameStats,
   deleteTeamSnapshots,
   deleteGameSnapshots,
@@ -61,28 +65,6 @@ import {
 const client = new DynamoDBClient({});
 const docClient = DynamoDBDocumentClient.from(client);
 const s3Client = new S3Client({});
-
-/**
- * Valid basketball action types for stat event validation.
- */
-const VALID_ACTION_TYPES = new Set([
-  "MAKE",
-  "MISS",
-  "REBOUND",
-  "OFF_REBOUND",
-  "DEF_REBOUND",
-  "ASSIST",
-  "STEAL",
-  "TURNOVER",
-  "BLOCK",
-  "FOUL",
-  "FOUL_SHOOTING",
-  "FOUL_NON_SHOOTING",
-  "TIMEOUT",
-  "SUB_IN",
-  "SUB_OUT",
-  "POSSESSION",
-]);
 
 /**
  * Handlers for Players endpoints.
@@ -127,8 +109,8 @@ async function handlePlayers(
   const playerKey = { PK: Keys.player(playerId), SK: Keys.metadata(playerId) };
 
   if (method === "DELETE") {
-    const { archive } = event.queryStringParameters || {};
-    if (archive === "true") {
+    const isArchive = event.queryStringParameters?.archive === "true";
+    if (isArchive) {
       await docClient.send(
         new UpdateCommand({
           TableName: tableName,
@@ -143,31 +125,29 @@ async function handlePlayers(
     return await softDeleteItem("PLAYER", "METADATA", playerId, tableName);
   }
 
-  if (method === "PATCH") {
-    if (body.isArchived === 0) {
-      await docClient.send(
-        new UpdateCommand({
-          TableName: tableName,
-          Key: playerKey,
-          UpdateExpression: "SET isArchived = :a",
-          ExpressionAttributeValues: { ":a": 0 },
-          ConditionExpression: "attribute_exists(PK)",
-        }),
-      );
-      return ok({ message: "Player restored from archive" });
-    }
+  if (method === "PATCH" && body.isArchived === 0) {
+    await docClient.send(
+      new UpdateCommand({
+        TableName: tableName,
+        Key: playerKey,
+        UpdateExpression: "SET isArchived = :a",
+        ExpressionAttributeValues: { ":a": 0 },
+        ConditionExpression: "attribute_exists(PK)",
+      }),
+    );
+    return ok({ message: "Player restored from archive" });
+  }
 
-    if (body.deletedAt === null) {
-      await docClient.send(
-        new UpdateCommand({
-          TableName: tableName,
-          Key: playerKey,
-          UpdateExpression: "REMOVE deletedAt",
-          ConditionExpression: "attribute_exists(PK)",
-        }),
-      );
-      return ok({ message: "Player restored" });
-    }
+  if (method === "PATCH" && body.deletedAt === null) {
+    await docClient.send(
+      new UpdateCommand({
+        TableName: tableName,
+        Key: playerKey,
+        UpdateExpression: "REMOVE deletedAt",
+        ConditionExpression: "attribute_exists(PK)",
+      }),
+    );
+    return ok({ message: "Player restored" });
   }
 
   return null;
@@ -243,12 +223,11 @@ async function handleGames(
     if (!isValidUuid(gameId)) {
       return badRequest("Invalid gameId format (UUID required)");
     }
+    const gameKey = { PK: Keys.game(gameId), SK: Keys.metadata(gameId) };
+
     if (method === "DELETE") {
       const getResp = await docClient.send(
-        new GetCommand({
-          TableName: tableName,
-          Key: { PK: Keys.game(gameId), SK: Keys.metadata(gameId) },
-        }),
+        new GetCommand({ TableName: tableName, Key: gameKey }),
       );
       const resp = await softDeleteItem("GAME", "METADATA", gameId, tableName);
       if (resp.statusCode === 200 && getResp.Item) {
@@ -257,17 +236,15 @@ async function handleGames(
       }
       return resp;
     }
+
     if (method === "PATCH" && body.deletedAt === null) {
       const getResp = await docClient.send(
-        new GetCommand({
-          TableName: tableName,
-          Key: { PK: Keys.game(gameId), SK: Keys.metadata(gameId) },
-        }),
+        new GetCommand({ TableName: tableName, Key: gameKey }),
       );
       await docClient.send(
         new UpdateCommand({
           TableName: tableName,
-          Key: { PK: Keys.game(gameId), SK: Keys.metadata(gameId) },
+          Key: gameKey,
           UpdateExpression: "REMOVE deletedAt",
           ConditionExpression: "attribute_exists(PK)",
         }),
@@ -281,34 +258,29 @@ async function handleGames(
     }
   }
 
-  if (
-    path.startsWith("/games/") &&
-    path.endsWith("/complete") &&
-    method === "POST"
-  ) {
+  if (path.startsWith("/games/") && path.endsWith("/complete") && method === "POST") {
     const parts = path.split("/");
     if (parts.length !== 4) return null;
-    const gameId = parts[2];
-    if (!isValidUuid(gameId)) {
+    const gId = parts[2];
+    if (!isValidUuid(gId)) {
       return badRequest("Invalid gameId format (UUID required)");
     }
+    const gameKey = { PK: Keys.game(gId), SK: Keys.metadata(gId) };
     const getResp = await docClient.send(
-      new GetCommand({
-        TableName: tableName,
-        Key: { PK: Keys.game(gameId), SK: Keys.metadata(gameId) },
-      }),
+      new GetCommand({ TableName: tableName, Key: gameKey }),
     );
     if (!getResp.Item) return notFound("Game not found");
+
     await docClient.send(
       new UpdateCommand({
         TableName: tableName,
-        Key: { PK: Keys.game(gameId), SK: Keys.metadata(gameId) },
+        Key: gameKey,
         UpdateExpression: "SET completed = :c",
         ExpressionAttributeValues: { ":c": 1 },
         ConditionExpression: "attribute_exists(PK)",
       }),
     );
-    await snapshotGameStats(gameId, tableName, docClient);
+    await snapshotGameStats(gId, tableName, docClient);
     await snapshotTeamGames(getResp.Item.teamId, tableName, docClient);
     return ok({ message: "Game completed" });
   }
@@ -352,49 +324,12 @@ async function handleGameStats(
         },
       }),
     );
-    return ok(result.Items?.filter((i) => !i.deletedAt) || []);
+    return ok(filterActive(result.Items));
   }
 
   if (method === "POST") {
-    if (
-      !body?.type ||
-      typeof body.type !== "string" ||
-      !VALID_ACTION_TYPES.has(body.type)
-    ) {
-      return badRequest("Valid stat type is required");
-    }
-    if (
-      body.points !== undefined &&
-      (typeof body.points !== "number" ||
-        !Number.isInteger(body.points) ||
-        body.points < 0 ||
-        body.points > 3)
-    ) {
-      return badRequest("Points must be an integer between 0 and 3");
-    }
-    if (!isValidPlayerId(body.playerId)) {
-      return badRequest("Valid playerId is required");
-    }
-    if (
-      body.period !== undefined &&
-      (typeof body.period !== "number" ||
-        !Number.isInteger(body.period) ||
-        body.period < 1)
-    ) {
-      return badRequest("Period must be an integer at least 1");
-    }
-    if (
-      body.clockTime !== undefined &&
-      (typeof body.clockTime !== "number" || body.clockTime < 0)
-    ) {
-      return badRequest("Clock time must be at least 0");
-    }
-    if (
-      (body.locationX !== undefined && typeof body.locationX !== "number") ||
-      (body.locationY !== undefined && typeof body.locationY !== "number")
-    ) {
-      return badRequest("Location coordinates must be numbers");
-    }
+    const error = validateStatEvent(body);
+    if (error) return badRequest(error);
 
     const id = (body?.id as string) || uuidv4();
     if (!isValidUuid(id)) {
@@ -466,8 +401,7 @@ async function handleTeams(
       );
       if (resp.statusCode !== 201 || !resp.body) return resp;
       const newItem = JSON.parse(resp.body);
-      await snapshotTeamRoster(newItem.id, tableName, docClient);
-      await snapshotTeamGames(newItem.id, tableName, docClient);
+      await snapshotTeam(newItem.id, tableName, docClient);
       return resp;
     }
   }
@@ -477,22 +411,24 @@ async function handleTeams(
     if (!isValidUuid(teamId)) {
       return badRequest("Invalid teamId format (UUID required)");
     }
+    const teamKey = { PK: Keys.team(teamId), SK: Keys.metadata(teamId) };
+
     if (method === "DELETE") {
       const resp = await softDeleteItem("TEAM", "METADATA", teamId, tableName);
       if (resp.statusCode === 200) await deleteTeamSnapshots(teamId);
       return resp;
     }
+
     if (method === "PATCH" && body.deletedAt === null) {
       await docClient.send(
         new UpdateCommand({
           TableName: tableName,
-          Key: { PK: Keys.team(teamId), SK: Keys.metadata(teamId) },
+          Key: teamKey,
           UpdateExpression: "REMOVE deletedAt",
           ConditionExpression: "attribute_exists(PK)",
         }),
       );
-      await snapshotTeamRoster(teamId, tableName, docClient);
-      await snapshotTeamGames(teamId, tableName, docClient);
+      await snapshotTeam(teamId, tableName, docClient);
       return ok({ message: "Team restored" });
     }
   }
@@ -500,36 +436,31 @@ async function handleTeams(
   if (path.startsWith("/teams/") && path.endsWith("/players")) {
     const parts = path.split("/");
     if (parts.length !== 4) return null;
-    const teamId = parts[2];
-    if (!isValidUuid(teamId)) {
-      return badRequest("Invalid teamId format (UUID required)");
-    }
-    if (method === "GET")
-      return await getItemsByGSI(`TEAM#${teamId}`, tableName);
+    const tId = parts[2];
+    if (!isValidUuid(tId)) return badRequest("Invalid teamId format (UUID required)");
+
+    if (method === "GET") return await getItemsByGSI(`TEAM#${tId}`, tableName);
+
     if (method === "POST") {
-      if (!isValidUuid(body.playerId)) {
-        return badRequest("Valid playerId (UUID) is required");
-      }
+      if (!isValidUuid(body.playerId)) return badRequest("Valid playerId (UUID) is required");
       if (
         body.jerseyNumber !== undefined &&
-        (typeof body.jerseyNumber !== "string" ||
-          body.jerseyNumber.length > 3 ||
-          !/^\d+$/.test(body.jerseyNumber))
+        (typeof body.jerseyNumber !== "string" || !/^\d{1,3}$/.test(body.jerseyNumber))
       ) {
         return badRequest("Jersey number must be 1-3 digits");
       }
       const cleanBody = stripLocalFields(body);
       const teamPlayerItem = {
         ...(cleanBody as Record<string, unknown>),
-        PK: Keys.team(teamId),
+        PK: Keys.team(tId),
         SK: Keys.player(body.playerId as string),
-        GSI1PK: Keys.team(teamId),
+        GSI1PK: Keys.team(tId),
         GSI1SK: Keys.player(body.playerId as string),
         id: body.id as string,
-        teamId,
+        teamId: tId,
       };
       await putNewItem(tableName, teamPlayerItem);
-      await snapshotTeamRoster(teamId, tableName, docClient);
+      await snapshotTeamRoster(tId, tableName, docClient);
       return created(teamPlayerItem);
     }
   }
@@ -537,22 +468,22 @@ async function handleTeams(
   if (path.startsWith("/teams/") && path.includes("/players/")) {
     const parts = path.split("/");
     if (parts.length !== 5) return null;
-    const teamId = parts[2];
-    const playerId = parts[4];
-    if (!isValidUuid(teamId) || !isValidUuid(playerId)) {
+    const tId = parts[2];
+    const pId = parts[4];
+    if (!isValidUuid(tId) || !isValidUuid(pId)) {
       return badRequest("Invalid teamId or playerId format (UUID required)");
     }
     if (method === "DELETE") {
       await docClient.send(
         new UpdateCommand({
           TableName: tableName,
-          Key: { PK: Keys.team(teamId), SK: Keys.player(playerId) },
+          Key: { PK: Keys.team(tId), SK: Keys.player(pId) },
           UpdateExpression: "SET deletedAt = :d",
           ExpressionAttributeValues: { ":d": new Date().toISOString() },
           ConditionExpression: "attribute_exists(PK)",
         }),
       );
-      await snapshotTeamRoster(teamId, tableName, docClient);
+      await snapshotTeamRoster(tId, tableName, docClient);
       return ok({ message: "Player removed from team" });
     }
   }
@@ -594,17 +525,7 @@ async function handleCleanup(
 ): Promise<APIGatewayProxyResultV2 | null> {
   if (path === "/cleanup" && method === "POST") {
     const adminApiKey = process.env.ADMIN_API_KEY;
-
-    // Case-insensitive retrieval of the API key from headers
-    let requestApiKey = "";
-    if (event.headers) {
-      for (const key in event.headers) {
-        if (key.toLowerCase() === "x-api-key") {
-          requestApiKey = event.headers[key] || "";
-          break;
-        }
-      }
-    }
+    const requestApiKey = getHeader(event.headers, "x-api-key") || "";
 
     if (
       !adminApiKey ||
@@ -630,8 +551,7 @@ export const handler = async (
 
   // Enforce Content-Type for write requests with a body
   if (["POST", "PUT", "PATCH"].includes(method) && event.body) {
-    const contentType =
-      event.headers?.["content-type"] || event.headers?.["Content-Type"];
+    const contentType = getHeader(event.headers, "content-type");
     if (!contentType?.toLowerCase().includes("application/json")) {
       return response(415, {
         message: "Unsupported Media Type: application/json required",
@@ -690,7 +610,7 @@ async function getItems(
       ExpressionAttributeValues: { ":pk": gsiPrefix },
     }),
   );
-  return ok(result.Items?.filter((i) => !i.deletedAt) || []);
+  return ok(filterActive(result.Items));
 }
 
 /**
@@ -712,7 +632,7 @@ async function getItemsByGSI(
       ExpressionAttributeValues: { ":pk": gsiPk },
     }),
   );
-  return ok(result.Items?.filter((i) => !i.deletedAt) || []);
+  return ok(filterActive(result.Items));
 }
 
 /**
