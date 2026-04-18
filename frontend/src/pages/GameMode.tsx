@@ -92,6 +92,7 @@ import {
   calculateStopsAndKills,
   isEventInPeriod,
   getBonusStatus,
+  getInitials,
   type PlayerAggregates,
 } from "../utils/stats";
 import { formatClock } from "../utils/mathUtils";
@@ -1266,6 +1267,7 @@ const GameMode: React.FC = () => {
     const onCourt = new Set<string>();
     const stintStarts = new Map<string, number>();
     const pType = team?.periodType || "QUARTERS";
+    const periodLen = game?.periodLength ? game.periodLength * 60 : 600;
 
     for (let i = 0; i < sortedGameStats.length; i++) {
       const s = sortedGameStats[i];
