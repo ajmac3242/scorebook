@@ -6,6 +6,10 @@ concurrency:
   group: deploy-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  FORCE_COLOR: 3
+  NODE_NO_WARNINGS: 1
+
 permissions:
   id-token: write
   contents: read
@@ -16,9 +20,10 @@ jobs:
   # ---------------------------------------------------------------
   deploy:
     name: Build & Deploy
-    if: ${{ (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') || github.event_name == 'workflow_dispatch' }}
+    # Ensure deployment only runs on workflow_dispatch or successful main branch trigger
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') }}
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     strategy:
       fail-fast: true
     steps:
@@ -42,10 +47,10 @@ jobs:
         run: |
           echo "::group::Backend Build"
           cd backend
-          for i in {1..3}; do pnpm install --frozen-lockfile && break || if [ $i -eq 3 ]; then exit 1; else sleep 10; fi; done
+          for i in {1..3}; do pnpm install --frozen-lockfile --reporter=appendonly && break || if [ $i -eq 3 ]; then exit 1; else sleep 10; fi; done
           pnpm run build
           # Use --prefer-offline for the second install as most packages are already in store
-          for i in {1..3}; do pnpm install --prod --shamefully-hoist --prefer-offline && break || if [ $i -eq 3 ]; then exit 1; else sleep 10; fi; done
+          for i in {1..3}; do pnpm install --prod --shamefully-hoist --prefer-offline --reporter=appendonly && break || if [ $i -eq 3 ]; then exit 1; else sleep 10; fi; done
           node scripts/verify-build.cjs
           zip -r ../lambda.zip dist node_modules package.json
           echo "::endgroup::"
@@ -111,7 +116,7 @@ jobs:
         run: |
           echo "::group::Frontend Build"
           cd frontend
-          for i in {1..3}; do pnpm install --frozen-lockfile && break || if [ $i -eq 3 ]; then exit 1; else sleep 10; fi; done
+          for i in {1..3}; do pnpm install --frozen-lockfile --reporter=appendonly && break || if [ $i -eq 3 ]; then exit 1; else sleep 10; fi; done
           pnpm run build
           echo "::endgroup::"
         env:
