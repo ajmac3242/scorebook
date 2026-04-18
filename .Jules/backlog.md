@@ -67,7 +67,7 @@
 **Acceptance Criteria:**
 - [x] "Foul Trouble" pulse on the player's lineup card (e.g., orange at limit-1, red at limit).
 - [x] "Fatigue Alert" visual (e.g., a "Needs Sub" icon) when a player's current stint exceeds the "Max Stint Duration" from Team Settings.
-- [ ] Configuration in Team Details to set "Foul Warning Thresholds" by period.
+- [x] Configuration in Team Details to set "Foul Warning Thresholds" by period.
 
 ## Live Lineup Impact (+/-) Dashboard Overlay
 **Priority:** HIGH
@@ -147,10 +147,10 @@
 **Why:** Basketball is a game of connected actions. Requiring separate taps for a make and the assist that led to it is slow and leads to missed data.
 **What:** Implement a "Chained Action" flow in the `GameMode` recording dialog. When a `MAKE` is saved, if an on-court teammate hasn't already been credited with an assist, immediately prompt "Who assisted?" with one-tap teammate buttons. Similarly, after a `MISS`, prompt for "Who rebounded?".
 **Acceptance Criteria:**
-- [ ] After clicking "Save" on a `MAKE` event, display a "Teammate Assist?" overlay if tracking "Our Team".
-- [ ] After clicking "Save" on a `MISS` event, display "Offensive Reb?" and "Defensive Reb?" quick-tap options.
-- [ ] If a teammate is tapped, record the second event (ASSIST or REBOUND) with the same `timestamp`, `period`, and `clockTime` as the shot.
-- [ ] Option to "Skip" or "No Assist/Rebound" to close the chain.
+- [x] After clicking "Save" on a `MAKE` event, display a "Teammate Assist?" overlay if tracking "Our Team".
+- [x] After clicking "Save" on a `MISS` event, display "Offensive Reb?" and "Defensive Reb?" quick-tap options.
+- [x] If a teammate is tapped, record the second event (ASSIST or REBOUND) with the same `timestamp`, `period`, and `clockTime` as the shot.
+- [x] Option to "Skip" or "No Assist/Rebound" to close the chain.
 
 ## Scoring Run & Drought "Coaching Alerts"
 **Priority:** HIGH
@@ -158,10 +158,10 @@
 **Why:** Coaches often lose track of momentum shifts during the heat of the game. Real-time alerts for "10-0 Runs" or "3-Minute Droughts" act as a data-driven trigger for timeouts.
 **What:** Monitor the live event stream for scoring patterns. Trigger a visual HUD alert in `GameMode` when specific momentum thresholds are met.
 **Acceptance Criteria:**
-- [ ] Trigger "Opponent Run" alert (e.g., 8-0 or 10-2 run) in the scoreboard area.
-- [ ] Trigger "Scoring Drought" alert if "Our Team" has not scored for X consecutive minutes of game clock.
-- [ ] Alerts should include a "Suggest Timeout" visual cue.
-- [ ] Thresholds should be configurable in Team Settings (default: 8 points for a run, 3 minutes for a drought).
+- [x] Trigger "Opponent Run" alert (e.g., 8-0 or 10-2 run) in the scoreboard area.
+- [x] Trigger "Scoring Drought" alert if "Our Team" has not scored for X consecutive minutes of game clock.
+- [x] Alerts should include a "Suggest Timeout" visual cue.
+- [x] Thresholds should be configurable in Team Settings (default: 8 points for a run, 3 minutes for a drought).
 
 ## Shot Quality & Process Tagging
 **Priority:** MEDIUM
