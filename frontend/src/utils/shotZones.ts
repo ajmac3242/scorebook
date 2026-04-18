@@ -17,13 +17,23 @@ export type ShotZone =
 
 /**
  * Maps court coordinates (0-100) to a specific shot zone.
+ *
+ * WHY: The application uses a relative coordinate system (0-100) for internal
+ * storage to remain independent of specific UI layouts. This function maps those
+ * relative coordinates to the specific SVG dimensions of the NCAA-regulation
+ * court visualization (500px width by 470px height).
+ *
+ * SCALING:
+ * - svgX (5x): Maps 0-100 width to the 500px SVG viewport.
+ * - svgY (4.7x): Maps 0-100 height to the 470px SVG viewport.
+ *
  * @param x - X coordinate (0-100)
  * @param y - Y coordinate (0-100)
  * @returns The identified ShotZone
  */
 export const getShotZone = (x: number, y: number): ShotZone => {
-  const svgX = x * 5; // Convert 0-100 to 0-500
-  const svgY = y * 4.7; // Convert 0-100 to 0-470
+  const svgX = x * 5;
+  const svgY = y * 4.7;
 
   const rimX = 250;
   const rimY = 47;

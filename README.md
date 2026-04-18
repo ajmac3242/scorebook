@@ -56,7 +56,7 @@ To optimize read performance and reduce DynamoDB costs:
 1.  Navigate to the `backend/` directory.
 2.  Install dependencies: `npm install`
 3.  Build the project: `npm run build`
-4.  Run tests: `npm test`
+4.  Run tests: `NODE_OPTIONS=--experimental-vm-modules npm test` (Required for ESM support in Jest)
 
 ## Key Features
 - **Real-time Game Tracking**: Easy-to-use interface for logging shots, misses, rebounds, and more.
