@@ -21,3 +21,6 @@ Action: Periodically scan for "orphan" JSDoc blocks and enforce `??` for numeric
 ## 2026-04-14 - React Hook and Memoization Hygiene
 Learning: Inline `useCallback` hooks within JSX can lead to `react-hooks/rules-of-hooks` violations if they appear after early returns. Furthermore, incomplete dependency arrays in `useMemo` can prevent the React Compiler from optimizing components and lead to stale calculations.
 Action: Always extract `useCallback` hooks to the component body before any early returns. Ensure `useMemo` dependency arrays are exhaustive to preserve memoization and ensure correctness.
+## 2026-04-18 - Fix JSDoc and Exhaustive Deps
+Learning: Missing JSDoc @param descriptions were triggering warnings in backend code, and unmemoized logical fallbacks in Dashboard.tsx were causing unstable dependency warnings.
+Action: Standardized JSDoc param format and stabilized hook dependencies using useMemo.
