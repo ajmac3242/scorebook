@@ -13,7 +13,7 @@ import {
   GetCommand,
   QueryCommand,
 } from "@aws-sdk/lib-dynamodb";
-import { sanitizeOutput } from "./responses.js";
+import { sanitizeOutput, filterActive } from "./responses.js";
 import { logError } from "./utils.js";
 import { calculateGameResultFromStats } from "./scoring.js";
 import { Keys } from "./keys.js";
@@ -93,7 +93,7 @@ export async function snapshotTeamRoster(
 
     const snapshot = {
       team: teamResult.Item,
-      players: (playersResult.Items || []).filter((p) => !p.deletedAt),
+      players: filterActive(playersResult.Items),
     };
     await uploadSnapshot(bucket, `teams/${teamId}/roster.json`, snapshot);
   });
@@ -120,10 +120,27 @@ export async function snapshotTeamGames(
       }),
     );
     const snapshot = {
-      games: (gamesResult.Items || []).filter((g) => !g.deletedAt),
+      games: filterActive(gamesResult.Items),
     };
     await uploadSnapshot(bucket, `teams/${teamId}/games.json`, snapshot);
   });
+}
+
+/**
+ * Consolidates team roster and games snapshot generation.
+ * @param teamId - ID of the team.
+ * @param tableName - DynamoDB table name.
+ * @param docClient - DynamoDB document client.
+ */
+export async function snapshotTeam(
+  teamId: string,
+  tableName: string,
+  docClient: DynamoDBDocumentClient,
+) {
+  await Promise.all([
+    snapshotTeamRoster(teamId, tableName, docClient),
+    snapshotTeamGames(teamId, tableName, docClient),
+  ]);
 }
 
 /**
@@ -154,7 +171,7 @@ export async function snapshotGameStats(
       }),
     );
 
-    const stats = (statsResult.Items || []).filter((s) => !s.deletedAt);
+    const stats = filterActive(statsResult.Items);
     const { teamScore, oppScore, result } = calculateGameResultFromStats(
       stats as Record<string, unknown>[],
     );

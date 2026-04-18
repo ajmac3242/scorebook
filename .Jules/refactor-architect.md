@@ -36,3 +36,23 @@ Pattern:
 2. Flatten complex conditional logic (e.g., `isEventInPeriod`) using clear `if/else` or `switch` blocks to improve readability for domain-specific rules.
 3. Extract large Modal/Dialog sub-trees into standalone components (`QuickSubDialog.tsx`) to reduce parent file size and improve component "scannability".
 4. Standardize backend utility functions (request metadata extraction, path normalization) in a shared `utils.ts` to ensure routing consistency.
+
+## 2026-04-17 - Micro-Refactor Pass for Consistency
+Smell: Redundant filtering of soft-deleted items; manual case-insensitive header lookups; fragmented stat validation; duplicated percentage logic in frontend.
+Learning: Centralizing common data access patterns (like  and ) reduces boilerplate and prevents subtle bugs. Consolidating domain validation logic into specialized modules improves code scannability and testability.
+Pattern:
+1. Use `filterActive` helper in backend to standardize soft-deletion filtering across API and snapshot layers.
+2. Centralize header access with `getHeader` to ensure case-insensitive lookups are consistent.
+3. Modularize stat event validation into `validateStatEvent` within `validation.ts`.
+4. Consolidate repetitive percentage calculations in frontend utilities using a shared `calcPct` helper.
+5. Group related domain operations (e.g., team roster and games snapshots) into consolidated helpers like `snapshotTeam`.
+
+## 2026-04-17 - Micro-Refactor Pass for Consistency
+Smell: Redundant filtering of soft-deleted items; manual case-insensitive header lookups; fragmented stat validation; duplicated percentage logic in frontend.
+Learning: Centralizing common data access patterns (like `filterActive` and `getHeader`) reduces boilerplate and prevents subtle bugs. Consolidating domain validation logic into specialized modules improves code scannability and testability.
+Pattern:
+1. Use `filterActive` helper in backend to standardize soft-deletion filtering across API and snapshot layers.
+2. Centralize header access with `getHeader` to ensure case-insensitive lookups are consistent.
+3. Modularize stat event validation into `validateStatEvent` within `validation.ts`.
+4. Consolidate repetitive percentage calculations in frontend utilities using a shared `calcPct` helper.
+5. Group related domain operations (e.g., team roster and games snapshots) into consolidated helpers like `snapshotTeam`.
