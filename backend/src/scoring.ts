@@ -6,6 +6,19 @@
 import { SPECIAL_PLAYER_IDS } from "./validation.js";
 
 /**
+ * 🏀 Scoring Strategy: Event-Driven Accumulation
+ *
+ * WHY: The system uses an event-sourcing-lite approach where the current score
+ * is derived by re-playing MAKE events from the stat stream. This ensures that
+ * the score is always consistent with the recorded actions, even if events are
+ * added out of order or deleted (soft-deleted).
+ *
+ * Opponent detection uses a prefix-based strategy ("OPPONENT") to allow for
+ * tracking of both generic "OPPONENT" team stats and specific opponent player
+ * jerseys (e.g., "OPPONENT:12") without requiring a pre-defined roster.
+ */
+
+/**
  * Accumulates the total score for both teams from a list of stat events.
  *
  * @param {Record<string, unknown>[]} stats - List of statistical events.

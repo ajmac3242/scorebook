@@ -355,6 +355,7 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
                   },
                 }}
               >
+                <title>{`${marker.type} - ${marker.label ? "#" + marker.label : "Opponent"}`}</title>
                 <circle
                   className={isLatest ? "latest-marker" : "court-marker"}
                   cx={svgX}

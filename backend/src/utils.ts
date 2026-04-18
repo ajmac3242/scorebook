@@ -45,19 +45,19 @@ export function logError(label: string, error: unknown) {
  * @returns {unknown} A sanitized copy of the event.
  */
 export function maskEvent(event: APIGatewayProxyEventV2): unknown {
+  // ⚡ Bolt: Return original reference early if no sensitive data structures exist.
   if (!event.headers && !event.cookies) return event;
 
   let hasRedactable = false;
   if (event.headers) {
-    for (const key in event.headers) {
-      if (REDACTED_HEADERS.has(key.toLowerCase())) {
-        hasRedactable = true;
-        break;
-      }
-    }
+    // ⚡ Bolt: Use Object.keys().some() for faster sensitive header detection.
+    hasRedactable = Object.keys(event.headers).some((k) =>
+      REDACTED_HEADERS.has(k.toLowerCase()),
+    );
   }
 
-  if (!hasRedactable && !event.cookies) return event;
+  if (!hasRedactable && (!event.cookies || event.cookies.length === 0))
+    return event;
 
   const masked = { ...event };
   if (event.headers) {
@@ -138,13 +138,37 @@ export function extractIdFromPath(path: string, prefix: string): string | null {
 }
 
 /**
+ * Retrieves a header value in a case-insensitive manner.
+ * @param headers - Request headers.
+ * @param name - Header name to find.
+ * @returns Header value or undefined.
+ */
+export function getHeader(
+  headers: Record<string, string | undefined> | undefined,
+  name: string,
+): string | undefined {
+  if (!headers) return undefined;
+  const target = name.toLowerCase();
+  for (const key in headers) {
+    if (key.toLowerCase() === target) {
+      return headers[key];
+    }
+  }
+  return undefined;
+}
+
+/**
  * Strips local-only fields and internal DynamoDB keys from the data object before saving.
  *
  * @param {Record<string, unknown>} data - The data object to clean.
+ * @param {number} depth - Current recursion depth.
  * @returns {Record<string, unknown>} The cleaned object.
  */
-export function stripLocalFields(data: unknown): Record<string, unknown> {
-  if (!data || typeof data !== "object" || data === null) {
+export function stripLocalFields(
+  data: unknown,
+  depth = 0,
+): Record<string, unknown> {
+  if (!data || typeof data !== "object" || data === null || depth > 10) {
     return {};
   }
   const result: Record<string, unknown> = {};
@@ -153,7 +177,16 @@ export function stripLocalFields(data: unknown): Record<string, unknown> {
       Object.prototype.hasOwnProperty.call(data, key) &&
       !INTERNAL_KEYS.has(key)
     ) {
-      result[key] = (data as Record<string, unknown>)[key];
+      const value = (data as Record<string, unknown>)[key];
+      if (
+        value !== null &&
+        typeof value === "object" &&
+        !Array.isArray(value)
+      ) {
+        result[key] = stripLocalFields(value, depth + 1);
+      } else {
+        result[key] = value;
+      }
     }
   }
   return result;

@@ -81,6 +81,8 @@ import BasketballCourt from "../components/BasketballCourt";
 import TimeoutDots from "../components/TimeoutDots";
 import RecentActionItem from "../components/RecentActionItem";
 import QuickSubDialog from "../components/QuickSubDialog";
+import SubstitutionAuditDialog from "../components/SubstitutionAuditDialog";
+import FreeThrowWorkflowDialog from "../components/FreeThrowWorkflowDialog";
 import { PlayerStatRow } from "../components/PlayerStatRow";
 import { db, type StatEvent } from "../db";
 import { syncService } from "../utils/syncService";
@@ -503,6 +505,8 @@ interface ActionControlsProps {
   isReadOnly: boolean;
   onUndo: () => void;
   onQuickSub: () => void;
+  onFtWorkflow: () => void;
+  onAuditSubs: () => void;
   onTimeout: () => void;
   onNextPeriod: () => void;
   onTogglePossession: () => void;
@@ -517,6 +521,8 @@ const ActionControls = React.memo(
     isReadOnly,
     onUndo,
     onQuickSub,
+    onFtWorkflow,
+    onAuditSubs,
     onTimeout,
     onNextPeriod,
     onTogglePossession,
@@ -579,6 +585,23 @@ const ActionControls = React.memo(
           </span>
         </Tooltip>
 
+        <Tooltip title="Audit Substitutions">
+          <span>
+            <IconButton
+              size="small"
+              onClick={() => onAuditSubs()}
+              aria-label="audit substitutions"
+              sx={{
+                border: "1px solid rgba(0,0,0,0.23)",
+                borderRadius: "4px",
+                p: "5px",
+              }}
+            >
+              <History />
+            </IconButton>
+          </span>
+        </Tooltip>
+
         <Tooltip title="Record Team Timeout">
           <span>
             <Button
@@ -593,7 +616,22 @@ const ActionControls = React.memo(
           </span>
         </Tooltip>
 
-        <Tooltip title="Undo last action">
+        <Tooltip title="Record Free Throws">
+          <span>
+            <Button
+              size="small"
+              variant="outlined"
+              startIcon={<SportsBasketball />}
+              onClick={() => onFtWorkflow()}
+              disabled={isReadOnly}
+              aria-label="record free throws"
+            >
+              FT
+            </Button>
+          </span>
+        </Tooltip>
+
+        <Tooltip title="Undo last action (Ctrl+Z)">
           <span>
             <Button
               size="small"
@@ -643,6 +681,7 @@ const GameMode: React.FC = () => {
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
   const [statType, setStatType] = useState<string | null>(null);
   const [points, setPoints] = useState<number>(2);
+  const [playName, setPlayName] = useState<string>("");
 
   const [opponentJerseys, setOpponentJerseys] = useState<string[]>([]);
   const [selectedOpponentId, setSelectedOpponentId] = useState<string>(
@@ -673,12 +712,15 @@ const GameMode: React.FC = () => {
   // Game lifecycle state
   const [endGameDialogOpen, setEndGameDialogOpen] = useState(false);
   const [summaryDialogOpen, setSummaryDialogOpen] = useState(false);
+  const [auditDialogOpen, setAuditDialogOpen] = useState(false);
+  const [ftWorkflowOpen, setFtWorkflowOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isEnding, setIsEnding] = useState(false);
+  const [isSavingStat, setIsSavingStat] = useState(false);
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;
-    severity: "success" | "error";
+    severity: "success" | "error" | "warning" | "info";
   }>({ open: false, message: "", severity: "success" });
 
   // Derived data from StatEvents
@@ -741,6 +783,20 @@ const GameMode: React.FC = () => {
     }
   }, [teamId, teamPlayers]);
   const players = useMemo(() => playersQueryResult || [], [playersQueryResult]);
+
+  /**
+   * ⚡ Bolt: O(1) player name lookups.
+   * Performance: Pre-calculating a Map of player names prevents O(P) .find()
+   * operations inside the render loop of recent actions and dialogs.
+   */
+  const playerNamesMap = useMemo(() => {
+    const map = new Map<string, string>();
+    for (let i = 0; i < players.length; i++) {
+      const p = players[i];
+      if (p.id) map.set(p.id.toString(), p.name);
+    }
+    return map;
+  }, [players]);
 
   const game = useLiveQuery(() => db.games.get(gameId as string), [gameId]);
   const team = useLiveQuery(
@@ -836,8 +892,9 @@ const GameMode: React.FC = () => {
    * ⚡ Bolt: Consolidate statistical derivations.
    * Performance: Use the pre-sorted event stream for single-pass derivation of
    * scores, fouls, timeouts, possession, lineups, and recent history.
+   * This O(N) loop only re-runs when the event stream or period changes.
    */
-  const gameData = useMemo(() => {
+  const eventAggregates = useMemo(() => {
     let curScore = 0;
     let oppScore = 0;
     let teamFouls = 0;
@@ -916,7 +973,6 @@ const GameMode: React.FC = () => {
       }
     });
 
-    const stintDurations = new Map<string, number>();
     let lastLineupChangeClock = game?.periodLength
       ? game.periodLength * 60
       : 600;
@@ -977,10 +1033,6 @@ const GameMode: React.FC = () => {
       lastLineupChangeScoreOpp = tempScoreOpp;
     }
 
-    stintStarts.forEach((startClock, pId) => {
-      stintDurations.set(pId, Math.max(0, startClock - clockSeconds));
-    });
-
     const defensiveStats = calculateStopsAndKills(sortedGameStats);
     const MAX_TIMEOUTS = game?.timeoutLimit || 3;
     const teamBonus = getBonusStatus(teamFouls, pType);
@@ -1006,16 +1058,11 @@ const GameMode: React.FC = () => {
       },
       possessionState: posState,
       onCourtIds: onCourt,
-      stintDurations,
+      stintStarts,
       defensiveStats,
-      currentLineupPlusMinus:
-        curScore -
-        oppScore -
-        (lastLineupChangeScoreTeam - lastLineupChangeScoreOpp),
-      currentLineupStintDuration: Math.max(
-        0,
-        lastLineupChangeClock - clockSeconds,
-      ),
+      lastLineupChangeClock,
+      lastLineupChangeScoreTeam,
+      lastLineupChangeScoreOpp,
       recentStats: sortedGameStats.slice(-10).reverse(),
     };
   }, [
@@ -1023,9 +1070,34 @@ const GameMode: React.FC = () => {
     period,
     team?.periodType,
     team?.fouls,
-    clockSeconds,
     game?.periodLength,
   ]);
+
+  /**
+   * ⚡ Bolt: Lightweight live status updates.
+   * Performance: This O(1) memoization handles values that change every second
+   * (like the clock) to avoid reprocessing the entire O(N) event stream.
+   */
+  const gameData = useMemo(() => {
+    const stintDurations = new Map<string, number>();
+    eventAggregates.stintStarts.forEach((startClock, pId) => {
+      stintDurations.set(pId, Math.max(0, startClock - clockSeconds));
+    });
+
+    return {
+      ...eventAggregates,
+      stintDurations,
+      currentLineupPlusMinus:
+        eventAggregates.currentScore -
+        eventAggregates.opponentScore -
+        (eventAggregates.lastLineupChangeScoreTeam -
+          eventAggregates.lastLineupChangeScoreOpp),
+      currentLineupStintDuration: Math.max(
+        0,
+        eventAggregates.lastLineupChangeClock - clockSeconds,
+      ),
+    };
+  }, [eventAggregates, clockSeconds]);
 
   // Initialize draft state when dialog opens
   useEffect(() => {
@@ -1106,37 +1178,53 @@ const GameMode: React.FC = () => {
     return calculatePlayerStreaks(sortedGameStats, { isSorted: true });
   }, [sortedGameStats]);
 
+  /**
+   * ⚡ Bolt: Optimize marker generation.
+   * Performance: Single-pass marker creation using a local array to avoid multiple filter/map
+   * passes. Uses direct property access and cached theme colors to reduce overhead.
+   */
   const markers = useMemo(() => {
     const res = [];
+    const oppColor = theme.palette.secondary.main;
     for (let i = 0; i < gameStats.length; i++) {
       const s = gameStats[i];
+      if (s.deletedAt) continue;
+
+      const type = s.type;
+      // Skip non-visual events
       if (
-        !s.deletedAt &&
-        (markerFilter === "ALL" ||
-          s.type === markerFilter ||
-          (markerFilter === "REBOUND" &&
-            (s.type === ACTION_TYPES.OFF_REBOUND ||
-              s.type === ACTION_TYPES.DEF_REBOUND))) &&
-        s.type !== ACTION_TYPES.SUB_IN &&
-        s.type !== ACTION_TYPES.SUB_OUT &&
-        s.type !== ACTION_TYPES.POSSESSION &&
-        s.type !== ACTION_TYPES.TIMEOUT
-      ) {
-        res.push({
-          id: s.id,
-          x: s.locationX || 0,
-          y: s.locationY || 0,
-          type: s.type,
-          label:
-            s.playerId !== SPECIAL_PLAYER_IDS.OPPONENT
-              ? (jerseyMap.get(s.playerId) ?? "")
-              : undefined,
-          color:
-            s.playerId === SPECIAL_PLAYER_IDS.OPPONENT
-              ? theme.palette.secondary.main
-              : undefined,
-        });
-      }
+        type === ACTION_TYPES.SUB_IN ||
+        type === ACTION_TYPES.SUB_OUT ||
+        type === ACTION_TYPES.POSSESSION ||
+        type === ACTION_TYPES.TIMEOUT
+      )
+        continue;
+
+      // Filter by selection
+      if (
+        markerFilter !== "ALL" &&
+        type !== markerFilter &&
+        !(
+          markerFilter === "REBOUND" &&
+          (type === ACTION_TYPES.OFF_REBOUND ||
+            type === ACTION_TYPES.DEF_REBOUND)
+        )
+      )
+        continue;
+
+      const pId = s.playerId;
+      const isOpp =
+        pId === SPECIAL_PLAYER_IDS.OPPONENT ||
+        pId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":");
+
+      res.push({
+        id: s.id,
+        x: s.locationX || 0,
+        y: s.locationY || 0,
+        type: type,
+        label: !isOpp ? (jerseyMap.get(pId) ?? "") : undefined,
+        color: isOpp ? oppColor : undefined,
+      });
     }
     return res;
   }, [gameStats, markerFilter, jerseyMap, theme.palette.secondary.main]);
@@ -1245,14 +1333,23 @@ const GameMode: React.FC = () => {
       const typeToSave = currentType || statType;
       if (!selectedPlayerId || !typeToSave) return;
 
+      setIsSavingStat(true);
       try {
-        if (!gameId) return;
+        if (!gameId) {
+          setIsSavingStat(false);
+          return;
+        }
         await db.open();
         if (isEditing && editingStatId) {
           await db.stats.update(editingStatId, {
             playerId: selectedPlayerId!,
             type: typeToSave,
             points: typeToSave === ACTION_TYPES.MAKE ? points : 0,
+            playName:
+              typeToSave === ACTION_TYPES.MAKE ||
+              typeToSave === ACTION_TYPES.MISS
+                ? playName
+                : undefined,
             synced: 0,
           });
           await syncService.pushUpdates();
@@ -1265,6 +1362,11 @@ const GameMode: React.FC = () => {
             points: typeToSave === ACTION_TYPES.MAKE ? points : 0,
             locationX: selectedX || 0,
             locationY: selectedY || 0,
+            playName:
+              typeToSave === ACTION_TYPES.MAKE ||
+              typeToSave === ACTION_TYPES.MISS
+                ? playName
+                : undefined,
             period,
             clockTime: clockSeconds,
             timestamp: new Date().toISOString(),
@@ -1272,12 +1374,22 @@ const GameMode: React.FC = () => {
           };
           await db.stats.add(newStat);
           await syncService.pushUpdates();
+          if (typeToSave === ACTION_TYPES.FOUL_SHOOTING) {
+            setFtWorkflowOpen(true);
+          }
         }
         setSnackbar({
           open: true,
           message: isEditing ? "Action updated" : "Action recorded",
           severity: "success",
         });
+        // Reset state after save
+        setDialogOpen(false);
+        setStatType(null);
+        setPlayName("");
+        setIsEditing(false);
+        setEditingStatId(null);
+        if (trackingMode === "OPPONENT") setSelectedPlayerId(null);
       } catch (err) {
         logger.error("Failed to save stat:", err);
         setSnackbar({
@@ -1285,13 +1397,9 @@ const GameMode: React.FC = () => {
           message: "Failed to save action",
           severity: "error",
         });
+      } finally {
+        setIsSavingStat(false);
       }
-      // Reset state after save
-      setDialogOpen(false);
-      setStatType(null);
-      setIsEditing(false);
-      setEditingStatId(null);
-      if (trackingMode === "OPPONENT") setSelectedPlayerId(null);
     },
     [
       statType,
@@ -1300,6 +1408,7 @@ const GameMode: React.FC = () => {
       isEditing,
       editingStatId,
       points,
+      playName,
       selectedX,
       selectedY,
       period,
@@ -1465,6 +1574,7 @@ const GameMode: React.FC = () => {
       setSelectedPlayerId(stat.playerId as string);
       setStatType(stat.type);
       setPoints(stat.points || 2);
+      setPlayName(stat.playName || "");
       setSelectedX(stat.locationX || 0);
       setSelectedY(stat.locationY || 0);
       setIsEditing(true);
@@ -1569,6 +1679,10 @@ const GameMode: React.FC = () => {
       logger.error("Failed to record timeout:", err);
     }
   }, [gameId, isReadOnly, trackingMode, period, clockSeconds]);
+
+  const handleAuditSubs = useCallback(() => {
+    setAuditDialogOpen(true);
+  }, []);
 
   /**
    * 🏀 CoachBoard: handleTogglePossession
@@ -1703,7 +1817,15 @@ const GameMode: React.FC = () => {
             {isClockRunning ? <Pause /> : <PlayArrow />}
           </Fab>
 
-          <MoleskineCard>
+          <MoleskineCard
+            sx={{
+              border:
+                trackingMode === "OPPONENT"
+                  ? `2px solid ${theme.palette.secondary.main}`
+                  : "1px solid rgba(0,0,0,0.12)",
+              transition: "border 0.3s ease",
+            }}
+          >
             <Box
               sx={{
                 mb: 3,
@@ -1718,6 +1840,18 @@ const GameMode: React.FC = () => {
                 isReadOnly={isReadOnly}
                 onUndo={handleUndo}
                 onQuickSub={() => setSubDialogOpen(true)}
+                onFtWorkflow={() => {
+                  if (selectedPlayerId) {
+                    setFtWorkflowOpen(true);
+                  } else {
+                    setSnackbar({
+                      open: true,
+                      message: "Select a player first",
+                      severity: "warning",
+                    });
+                  }
+                }}
+                onAuditSubs={handleAuditSubs}
                 onTimeout={handleTimeout}
                 onNextPeriod={handleNextPeriod}
                 onTogglePossession={() => handleTogglePossession()}
@@ -2101,7 +2235,9 @@ const GameMode: React.FC = () => {
                           >
                             ?
                           </Avatar>
-                          <Typography variant="caption">Empty</Typography>
+                          <Typography variant="caption">
+                            Assign Player
+                          </Typography>
                         </Button>
                       );
                     })}
@@ -2239,32 +2375,54 @@ const GameMode: React.FC = () => {
                       textAlign: "center",
                       border: "1px dashed #D1D1D1",
                       borderRadius: 1,
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      gap: 1,
                     }}
                   >
+                    <History sx={{ color: "text.secondary", opacity: 0.5 }} />
                     <Typography variant="caption" color="text.secondary">
                       No actions recorded yet. Tap the court or use quick
-                      actions to start.
+                      actions to start tracking.
                     </Typography>
                   </Box>
                 ) : (
                   gameData.recentStats
                     .filter((s) => !s.deletedAt)
-                    .map((s) => (
-                      <RecentActionItem
-                        key={s.id}
-                        stat={s}
-                        players={players}
-                        periodLabel={periodLabel}
-                        isReadOnly={isReadOnly}
-                        teamName={team?.name}
-                        opponentName={game?.opponent}
-                        onEdit={openEditDialog}
-                        onDelete={(id) => {
-                          setStatToDelete(id);
-                          setDeleteDialogOpen(true);
-                        }}
-                      />
-                    ))
+                    .map((s, index) => {
+                      const getPlayerName = (pId: string) => {
+                        if (pId === SPECIAL_PLAYER_IDS.OPPONENT)
+                          return game?.opponent || "Opponent";
+                        if (pId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":")) {
+                          const jersey = pId.split(":")[1];
+                          return `${game?.opponent || "Opponent"} #${jersey}`;
+                        }
+                        if (
+                          pId === SPECIAL_PLAYER_IDS.TEAM_TIMEOUT ||
+                          pId === SPECIAL_PLAYER_IDS.OUR_TEAM
+                        ) {
+                          return team?.name || "Our Team";
+                        }
+                        return playerNamesMap.get(pId) || "Unknown";
+                      };
+
+                      return (
+                        <RecentActionItem
+                          key={s.id}
+                          stat={s}
+                          playerName={getPlayerName(s.playerId)}
+                          periodLabel={periodLabel}
+                          isReadOnly={isReadOnly}
+                          isLatest={index === 0}
+                          onEdit={openEditDialog}
+                          onDelete={(id) => {
+                            setStatToDelete(id);
+                            setDeleteDialogOpen(true);
+                          }}
+                        />
+                      );
+                    })
                 )}
               </Stack>
             </MoleskineCard>
@@ -2519,6 +2677,32 @@ const GameMode: React.FC = () => {
               })()}
             </Box>
           </Box>
+          {(statType === ACTION_TYPES.MAKE || statType === ACTION_TYPES.MISS) &&
+            trackingMode === "TEAM" &&
+            team?.playbook &&
+            team.playbook.length > 0 && (
+              <Box sx={{ mt: 3 }}>
+                <Typography
+                  variant="caption"
+                  gutterBottom
+                  sx={{ display: "block", mb: 1 }}
+                >
+                  Offensive Play
+                </Typography>
+                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                  {team.playbook.map((play) => (
+                    <Chip
+                      key={play}
+                      label={play}
+                      size="small"
+                      onClick={() => setPlayName(playName === play ? "" : play)}
+                      color={playName === play ? "primary" : "default"}
+                      variant={playName === play ? "filled" : "outlined"}
+                    />
+                  ))}
+                </Box>
+              </Box>
+            )}
           {statType === ACTION_TYPES.MAKE && (
             <Box sx={{ mt: 3 }}>
               <Typography
@@ -2550,9 +2734,9 @@ const GameMode: React.FC = () => {
           <Button
             onClick={() => handleSaveStat()}
             variant="contained"
-            disabled={!selectedPlayerId || !statType}
+            disabled={!selectedPlayerId || !statType || isSavingStat}
           >
-            {isEditing ? "Update" : "Save"}
+            {isSavingStat ? "Saving..." : isEditing ? "Update" : "Save"}
           </Button>
         </DialogActions>
       </Dialog>
@@ -2663,6 +2847,31 @@ const GameMode: React.FC = () => {
         handleSwapClick={handleSwapClick}
         handleQuickSub={handleQuickSub}
       />
+
+      {/* Substitution Audit Dialog */}
+      {gameId && (
+        <SubstitutionAuditDialog
+          open={auditDialogOpen}
+          onClose={() => setAuditDialogOpen(false)}
+          gameId={gameId}
+          players={players}
+          jerseyMap={jerseyMap}
+        />
+      )}
+
+      {/* Free Throw Workflow Dialog */}
+      {gameId && selectedPlayerId && (
+        <FreeThrowWorkflowDialog
+          open={ftWorkflowOpen}
+          onClose={() => setFtWorkflowOpen(false)}
+          gameId={gameId}
+          playerId={selectedPlayerId}
+          player={players.find((p) => p.id === selectedPlayerId)}
+          jerseyNumber={jerseyMap.get(selectedPlayerId)}
+          period={period}
+          clockTime={clockSeconds}
+        />
+      )}
 
       {/* Confirm Delete Stat Dialog */}
       <Dialog
@@ -2807,6 +3016,7 @@ const QuickAction: React.FC<{
       variant={statType === type ? "contained" : "outlined"}
       color="inherit"
       aria-pressed={statType === type}
+      aria-label={`Record ${label}`}
       onClick={() => {
         setStatType(type);
       }}

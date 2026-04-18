@@ -4,7 +4,7 @@
  */
 
 import React from "react";
-import { Box, Typography, Tooltip, IconButton } from "@mui/material";
+import { Box, Typography, Tooltip, IconButton, useTheme } from "@mui/material";
 import {
   Check,
   Close,
@@ -19,17 +19,16 @@ import {
   Edit,
   Delete,
 } from "@mui/icons-material";
-import { StatEvent, Player } from "../db";
-import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../constants/stats";
+import { StatEvent } from "../db";
+import { ACTION_TYPES } from "../constants/stats";
 import { formatClock } from "../utils/mathUtils";
 
 interface RecentActionItemProps {
   stat: StatEvent;
-  players: Player[];
+  playerName: string;
   periodLabel: string;
   isReadOnly: boolean;
-  teamName?: string;
-  opponentName?: string;
+  isLatest?: boolean;
   onEdit: (_stat: StatEvent) => void;
   onDelete: (_id: string) => void;
 }
@@ -37,31 +36,14 @@ interface RecentActionItemProps {
 const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
   ({
     stat,
-    players,
+    playerName,
     periodLabel,
     isReadOnly,
-    teamName,
-    opponentName,
+    isLatest,
     onEdit,
     onDelete,
   }) => {
-    const getOpponentName = (pId: string) => {
-      if (pId === SPECIAL_PLAYER_IDS.OPPONENT)
-        return opponentName || "Opponent";
-      if (pId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":")) {
-        const jersey = pId.split(":")[1];
-        return `${opponentName || "Opponent"} #${jersey}`;
-      }
-      return null;
-    };
-
-    const playerName =
-      getOpponentName(stat.playerId) ||
-      (stat.playerId === SPECIAL_PLAYER_IDS.TEAM_TIMEOUT ||
-      stat.playerId === SPECIAL_PLAYER_IDS.OUR_TEAM
-        ? teamName || "Our Team"
-        : players?.find((p) => p.id === stat.playerId)?.name || "Unknown");
-
+    const theme = useTheme();
     const getActionIcon = (type: string) => {
       const iconSx = { fontSize: 16, mr: 1, verticalAlign: "middle" };
       switch (type) {
@@ -102,7 +84,13 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
           justifyContent: "space-between",
           alignItems: "center",
           py: 0.5,
+          px: isLatest ? 1 : 0,
           borderBottom: "1px solid #F0F0F0",
+          bgcolor: isLatest ? "rgba(0, 0, 0, 0.03)" : "transparent",
+          borderLeft: isLatest
+            ? `4px solid ${theme.palette.primary.main}`
+            : "none",
+          transition: "all 0.3s ease",
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center" }}>

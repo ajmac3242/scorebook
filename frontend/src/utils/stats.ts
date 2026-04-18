@@ -138,13 +138,22 @@ export const isScoringEvent = (stat: StatEvent): boolean =>
   stat.type === ACTION_TYPES.MAKE;
 
 /**
+ * Generic percentage calculator for basketball stats.
+ * @param {number} numerator - The count (makes, points, etc).
+ * @param {number} denominator - The total attempts or possessions.
+ * @returns {string} Formatted percentage.
+ */
+const calcPct = (numerator: number, denominator: number): string =>
+  denominator > 0 ? formatToOne((numerator / denominator) * 100) : "0.0";
+
+/**
  * Calculates Field Goal Percentage.
  * @param {number} makes - Field goals made.
  * @param {number} attempts - Field goals attempted.
  * @returns {string} Formatted percentage.
  */
 export const calculateFgPct = (makes: number, attempts: number): string =>
-  attempts > 0 ? formatToOne((makes / attempts) * 100) : "0.0";
+  calcPct(makes, attempts);
 
 /**
  * Calculates Free Throw Percentage.
@@ -153,7 +162,7 @@ export const calculateFgPct = (makes: number, attempts: number): string =>
  * @returns {string} Formatted percentage.
  */
 export const calculateFtPct = (makes: number, attempts: number): string =>
-  attempts > 0 ? formatToOne((makes / attempts) * 100) : "0.0";
+  calcPct(makes, attempts);
 
 /**
  * Calculates Effective Field Goal Percentage.
@@ -166,10 +175,7 @@ export const calculateEfgPct = (
   makes: number,
   threePM: number,
   attempts: number,
-): string =>
-  attempts > 0
-    ? formatToOne(((makes + 0.5 * threePM) / attempts) * 100)
-    : "0.0";
+): string => calcPct(makes + 0.5 * threePM, attempts);
 
 /**
  * Calculates True Shooting Percentage (TS%).
@@ -189,10 +195,7 @@ export const calculateTsPct = (
   points: number,
   attempts: number,
   fta: number,
-): string =>
-  attempts > 0 || fta > 0
-    ? formatToOne((points / (2 * (attempts + 0.44 * fta))) * 100)
-    : "0.0";
+): string => calcPct(points, 2 * (attempts + 0.44 * fta));
 
 /**
  * Returns the initials of a name (max 2 characters).
@@ -200,15 +203,12 @@ export const calculateTsPct = (
  * @returns {string} The uppercase initials.
  */
 export const getInitials = (name: string | undefined | null): string => {
-  const trimmed = name?.trim();
-  if (!trimmed) return "";
-
-  const initials = trimmed
+  return (name || "")
+    .trim()
     .split(/\s+/)
-    .map((part) => part[0]?.toUpperCase())
-    .filter(Boolean);
-
-  return initials.slice(0, 2).join("");
+    .slice(0, 2)
+    .map((v) => v[0]?.toUpperCase())
+    .join("");
 };
 
 /**
@@ -487,7 +487,8 @@ export const calculatePlayerAggregates = (
   // Accumulate statistics from event stream
   for (let i = 0; i < sortedStats.length; i++) {
     const stat = sortedStats[i];
-    if (!isActive(stat)) continue;
+    // ⚡ Bolt: Inline isActive check to reduce function call overhead in hot loop.
+    if (stat.deletedAt) continue;
 
     const { playerId, type, clockTime, period, gameId } = stat;
 
@@ -519,16 +520,20 @@ export const calculatePlayerAggregates = (
       currentPeriod = period;
     }
 
-    // ⚡ Bolt: Inline updateScores to minimize function call overhead in hot loop.
-    if (isScoringEvent(stat)) {
+    // ⚡ Bolt: Inline updateScores and isOpponentId/isScoringEvent to minimize overhead.
+    if (type === ACTION_TYPES.MAKE) {
       const pts = stat.points || 0;
-      if (isOpponentId(playerId)) {
+      if (
+        playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
+        playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":")
+      ) {
         scores.opp += pts;
       } else {
         scores.team += pts;
       }
     }
 
+    // ⚡ Bolt: Cache statsMap lookups to avoid redundant Map access in the hot loop.
     const player = statsMap.get(playerId);
     if (player) {
       // ⚡ Bolt: Inline processStatEvent and applyActionToAggregate to minimize overhead.
@@ -592,6 +597,7 @@ export const calculatePlayerAggregates = (
         lastGameId: gameId,
       });
     } else if (type === ACTION_TYPES.SUB_OUT && clockTime !== undefined) {
+      // ⚡ Bolt: activeStints lookup cached.
       const stint = activeStints.get(playerId);
       if (stint) {
         handleStintEnd(playerId, statsMap, stint, scores, clockTime);
@@ -1074,7 +1080,8 @@ export const calculateLineupStats = (
 
   for (let i = 0; i < sortedStats.length; i++) {
     const s = sortedStats[i];
-    if (!isActive(s)) continue;
+    // ⚡ Bolt: Inline isActive check to reduce function call overhead in hot loop.
+    if (s.deletedAt) continue;
 
     // ⚡ Bolt: Handle multi-game aggregation by detecting game context changes in-stream.
     if (currentGameId !== null && s.gameId !== currentGameId) {
@@ -1117,11 +1124,17 @@ export const calculateLineupStats = (
       currentPeriod = s.period;
     }
 
-    // ⚡ Bolt: Inline updateScores for performance.
-    if (isScoringEvent(s)) {
+    // ⚡ Bolt: Inline updateScores/isOpponentId/isScoringEvent for performance.
+    if (s.type === ACTION_TYPES.MAKE) {
       const pts = s.points || 0;
-      if (isOpponentId(s.playerId)) scores.opp += pts;
-      else scores.team += pts;
+      if (
+        s.playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
+        s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":")
+      ) {
+        scores.opp += pts;
+      } else {
+        scores.team += pts;
+      }
     }
 
     // When lineup changes, record stats for the previous lineup
