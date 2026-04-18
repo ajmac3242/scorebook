@@ -4,7 +4,7 @@
  */
 
 import React from "react";
-import { Box, Typography, Tooltip, IconButton } from "@mui/material";
+import { Box, Typography, Tooltip, IconButton, useTheme } from "@mui/material";
 import {
   Check,
   Close,
@@ -28,12 +28,22 @@ interface RecentActionItemProps {
   playerName: string;
   periodLabel: string;
   isReadOnly: boolean;
+  isLatest?: boolean;
   onEdit: (_stat: StatEvent) => void;
   onDelete: (_id: string) => void;
 }
 
 const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
-  ({ stat, playerName, periodLabel, isReadOnly, onEdit, onDelete }) => {
+  ({
+    stat,
+    playerName,
+    periodLabel,
+    isReadOnly,
+    isLatest,
+    onEdit,
+    onDelete,
+  }) => {
+    const theme = useTheme();
     const getActionIcon = (type: string) => {
       const iconSx = { fontSize: 16, mr: 1, verticalAlign: "middle" };
       switch (type) {
@@ -74,7 +84,13 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
           justifyContent: "space-between",
           alignItems: "center",
           py: 0.5,
+          px: isLatest ? 1 : 0,
           borderBottom: "1px solid #F0F0F0",
+          bgcolor: isLatest ? "rgba(0, 0, 0, 0.03)" : "transparent",
+          borderLeft: isLatest
+            ? `4px solid ${theme.palette.primary.main}`
+            : "none",
+          transition: "all 0.3s ease",
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center" }}>

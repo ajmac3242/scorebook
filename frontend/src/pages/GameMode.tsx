@@ -936,7 +936,7 @@ const ActionControls = React.memo(
           </span>
         </Tooltip>
 
-        <Tooltip title="Undo last action">
+        <Tooltip title="Undo last action (Ctrl+Z)">
           <span>
             <Button
               size="small"
@@ -1021,6 +1021,7 @@ const GameMode: React.FC = () => {
   const [ftWorkflowOpen, setFtWorkflowOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isEnding, setIsEnding] = useState(false);
+  const [isSavingStat, setIsSavingStat] = useState(false);
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;
@@ -1627,8 +1628,12 @@ const GameMode: React.FC = () => {
       const typeToSave = currentType || statType;
       if (!selectedPlayerId || !typeToSave) return;
 
+      setIsSavingStat(true);
       try {
-        if (!gameId) return;
+        if (!gameId) {
+          setIsSavingStat(false);
+          return;
+        }
         await db.open();
         if (isEditing && editingStatId) {
           await db.stats.update(editingStatId, {
@@ -1673,6 +1678,13 @@ const GameMode: React.FC = () => {
           message: isEditing ? "Action updated" : "Action recorded",
           severity: "success",
         });
+        // Reset state after save
+        setDialogOpen(false);
+        setStatType(null);
+        setPlayName("");
+        setIsEditing(false);
+        setEditingStatId(null);
+        if (trackingMode === "OPPONENT") setSelectedPlayerId(null);
       } catch (err) {
         logger.error("Failed to save stat:", err);
         setSnackbar({
@@ -1680,14 +1692,9 @@ const GameMode: React.FC = () => {
           message: "Failed to save action",
           severity: "error",
         });
+      } finally {
+        setIsSavingStat(false);
       }
-      // Reset state after save
-      setDialogOpen(false);
-      setStatType(null);
-      setPlayName("");
-      setIsEditing(false);
-      setEditingStatId(null);
-      if (trackingMode === "OPPONENT") setSelectedPlayerId(null);
     },
     [
       statType,
@@ -2088,7 +2095,15 @@ const GameMode: React.FC = () => {
             onSelectOpponent={(id) => setSelectedOpponentId(id)}
           />
 
-          <MoleskineCard>
+          <MoleskineCard
+            sx={{
+              border:
+                trackingMode === "OPPONENT"
+                  ? `2px solid ${theme.palette.secondary.main}`
+                  : "1px solid rgba(0,0,0,0.12)",
+              transition: "border 0.3s ease",
+            }}
+          >
             <Box
               sx={{
                 mb: 3,
@@ -2456,7 +2471,9 @@ const GameMode: React.FC = () => {
                           >
                             ?
                           </Avatar>
-                          <Typography variant="caption">Empty</Typography>
+                          <Typography variant="caption">
+                            Assign Player
+                          </Typography>
                         </Button>
                       );
                     })}
@@ -2594,17 +2611,22 @@ const GameMode: React.FC = () => {
                       textAlign: "center",
                       border: "1px dashed #D1D1D1",
                       borderRadius: 1,
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      gap: 1,
                     }}
                   >
+                    <History sx={{ color: "text.secondary", opacity: 0.5 }} />
                     <Typography variant="caption" color="text.secondary">
                       No actions recorded yet. Tap the court or use quick
-                      actions to start.
+                      actions to start tracking.
                     </Typography>
                   </Box>
                 ) : (
                   gameData.recentStats
                     .filter((s) => !s.deletedAt)
-                    .map((s) => {
+                    .map((s, index) => {
                       const getPlayerName = (pId: string) => {
                         if (pId === SPECIAL_PLAYER_IDS.OPPONENT)
                           return game?.opponent || "Opponent";
@@ -2628,6 +2650,7 @@ const GameMode: React.FC = () => {
                           playerName={getPlayerName(s.playerId)}
                           periodLabel={periodLabel}
                           isReadOnly={isReadOnly}
+                          isLatest={index === 0}
                           onEdit={openEditDialog}
                           onDelete={(id) => {
                             setStatToDelete(id);
@@ -2947,9 +2970,9 @@ const GameMode: React.FC = () => {
           <Button
             onClick={() => handleSaveStat()}
             variant="contained"
-            disabled={!selectedPlayerId || !statType}
+            disabled={!selectedPlayerId || !statType || isSavingStat}
           >
-            {isEditing ? "Update" : "Save"}
+            {isSavingStat ? "Saving..." : isEditing ? "Update" : "Save"}
           </Button>
         </DialogActions>
       </Dialog>
@@ -3181,6 +3204,7 @@ const QuickAction: React.FC<{
       variant={statType === type ? "contained" : "outlined"}
       color="inherit"
       aria-pressed={statType === type}
+      aria-label={`Record ${label}`}
       onClick={() => {
         setStatType(type);
       }}

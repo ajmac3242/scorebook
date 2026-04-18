@@ -22,6 +22,7 @@ import {
   Add as AddIcon,
   History,
   People as PlayersIcon,
+  Check as CheckIcon,
 } from "@mui/icons-material";
 import { db } from "../db";
 import { syncService } from "../utils/syncService";
@@ -414,13 +415,20 @@ const Players: React.FC = () => {
                       : "1px solid rgba(0,0,0,0.1)",
                   boxSizing: "border-box",
                   transition: "all 0.1s",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                   "&:hover": { transform: "scale(1.2)" },
                   "&:focus-visible": {
                     outline: "2px solid #000",
                     outlineOffset: "2px",
                   },
                 }}
-              />
+              >
+                {avatarColor === color && (
+                  <CheckIcon sx={{ color: "#000", fontSize: 20 }} />
+                )}
+              </Box>
             ))}
           </Box>
         </DialogContent>
