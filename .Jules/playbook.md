@@ -1,5 +1,40 @@
 # 📋 Playbook Journal
 
+## Testing Policy for Jules
+
+**Do NOT run the full test suite.** The full suite (`npm test` / `pnpm test` / `vitest run` without filters) runs 100+ tests and takes too long inside the Jules VM. CI handles the full suite on every PR.
+
+Instead, after making your code changes, run ONLY the targeted test script:
+
+```bash
+bash scripts/jules-test.sh
+```
+
+This script auto-detects which `backend/` and/or `frontend/` source files you changed and runs only the Jest/Vitest tests that cover those modules.
+
+If you need to run tests manually for a single workspace:
+
+```bash
+# Backend only (from repo root)
+cd backend && pnpm jest --testPathPattern="<module-name>"
+
+# Frontend only (from repo root)
+cd frontend && pnpm vitest run "<module-name>"
+```
+
+Or use the convenience npm scripts added to each workspace:
+
+```bash
+# Backend
+cd backend && pnpm test:jules -- --testPathPattern="<module-name>"
+
+# Frontend
+cd frontend && pnpm test:jules -- "<module-name>"
+```
+
+**Never run `pnpm test` or `jest` without a `--testPathPattern` argument inside the Jules VM.** Leave the full regression suite to CI.
+
+
 ## End-of-Day Insights - 2026-04-12
 - **Patterns in what gets left incomplete**: Opponent quick-actions were limited to scores and fouls, making it slow to record common turnovers and rebounds.
 - **Recurring issues agents create**: Unused variables in statistical aggregation utilities can lead to linting failures.
