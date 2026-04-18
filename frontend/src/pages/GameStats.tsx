@@ -289,7 +289,7 @@ const GameStats: React.FC = () => {
       }
     }
     return { filtered, markers };
-  }, [stats, selectedPlayerId, selectedType, shotChartJerseyMap]);
+  }, [stats, selectedPlayerId, selectedType, selectedPlay, shotChartJerseyMap]);
 
   const shotChartMarkers = derivedStats.markers;
 
@@ -309,7 +309,7 @@ const GameStats: React.FC = () => {
       if (s.type === ACTION_TYPES.MAKE) data[zone].makes++;
     }
     return data;
-  }, [stats, selectedPlayerId]);
+  }, [stats, selectedPlayerId, selectedPlay]);
 
   const scoreFlowData = useMemo(() => {
     return calculateScoreFlow(scoreFlowSortedStats, game?.periodLength);

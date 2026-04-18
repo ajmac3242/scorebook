@@ -24,7 +24,6 @@ import {
   Box,
   Stack,
   Avatar,
-  Tooltip,
 } from "@mui/material";
 import {
   Delete as DeleteIcon,

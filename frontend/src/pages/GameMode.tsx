@@ -1690,6 +1690,7 @@ const GameMode: React.FC = () => {
       isEditing,
       editingStatId,
       points,
+      playName,
       selectedX,
       selectedY,
       period,

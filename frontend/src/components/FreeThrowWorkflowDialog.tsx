@@ -14,15 +14,12 @@ import {
   Stack,
   Box,
   Avatar,
-  IconButton,
-  Tooltip,
 } from "@mui/material";
 import {
   Check as CheckIcon,
   Close as CloseIcon,
 } from "@mui/icons-material";
-import { db, type StatEvent, type Player } from "../db";
-import { ACTION_TYPES } from "../constants/stats";
+import { db, type Player } from "../db";
 import { logger } from "../utils/logger";
 import { syncService } from "../utils/syncService";
 
