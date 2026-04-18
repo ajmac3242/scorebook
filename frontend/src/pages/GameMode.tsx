@@ -579,7 +579,10 @@ const Scoreboard = React.memo(
                   animation: `${pulse} 2s infinite ease-in-out`,
                 }}
               >
-                <strong>OPPONENT RUN: {gameData.momentumAlerts.opponentRun}</strong> - SUGGEST TIMEOUT
+                <strong>
+                  OPPONENT RUN: {gameData.momentumAlerts.opponentRun}
+                </strong>{" "}
+                - SUGGEST TIMEOUT
               </Alert>
             )}
             {gameData.momentumAlerts.scoringDrought && (
@@ -597,7 +600,9 @@ const Scoreboard = React.memo(
                   animation: `${pulse} 2s infinite ease-in-out`,
                 }}
               >
-                <strong>SCORING DROUGHT: {gameData.momentumAlerts.scoringDrought}</strong>
+                <strong>
+                  SCORING DROUGHT: {gameData.momentumAlerts.scoringDrought}
+                </strong>
               </Alert>
             )}
           </Box>
@@ -1461,7 +1466,8 @@ const GameMode: React.FC = () => {
       }
     } else {
       // Team hasn't scored at all - drought from start of game
-      const elapsedGameSecs = (period - 1) * periodLen + (periodLen - clockSeconds);
+      const elapsedGameSecs =
+        (period - 1) * periodLen + (periodLen - clockSeconds);
       if (elapsedGameSecs >= 180) {
         scoringDrought = `${Math.floor(elapsedGameSecs / 60)}m ${Math.floor(elapsedGameSecs % 60)}s`;
       }
