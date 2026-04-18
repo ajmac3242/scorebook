@@ -48,86 +48,10 @@ export function isValidPlayerId(id: unknown): boolean {
   if (typeof id !== "string") return false;
   if (isValidUuid(id)) return true;
   if (SPECIAL_ID_SET.has(id)) return true;
-  // ⚡ Bolt: Use O(1) string checks before more expensive operations.
   const strId = id as string;
-  const prefix = SPECIAL_PLAYER_IDS.OPPONENT + ":";
-  if (strId.startsWith(prefix)) {
-    // Avoid split() if the ID is too long to be a jersey number.
-    // 'OPPONENT:' (9) + '99' (2) = 11 chars max.
-    if (strId.length > 11 || strId.length < 10) return false;
-    const jersey = strId.slice(prefix.length);
-    return /^\d{1,2}$/.test(jersey);
+  if (strId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":")) {
+    const jersey = strId.split(":")[1];
+    return !!jersey && /^\d{1,2}$/.test(jersey);
   }
   return false;
-}
-
-/**
- * Valid basketball action types for stat event validation.
- */
-export const VALID_ACTION_TYPES = new Set([
-  "MAKE",
-  "MISS",
-  "REBOUND",
-  "OFF_REBOUND",
-  "DEF_REBOUND",
-  "ASSIST",
-  "STEAL",
-  "TURNOVER",
-  "BLOCK",
-  "FOUL",
-  "FOUL_SHOOTING",
-  "FOUL_NON_SHOOTING",
-  "TIMEOUT",
-  "SUB_IN",
-  "SUB_OUT",
-  "POSSESSION",
-  "TECHNICAL_FOUL",
-]);
-
-/**
- * Validates a stat event body.
- * @param body - The stat event data to validate.
- * @returns {string | null} Error message or null if valid.
- */
-export function validateStatEvent(body: any): string | null {
-  if (
-    !body?.type ||
-    typeof body.type !== "string" ||
-    !VALID_ACTION_TYPES.has(body.type)
-  ) {
-    return "Valid stat type is required";
-  }
-  if (
-    body.points !== undefined &&
-    (typeof body.points !== "number" ||
-      !Number.isInteger(body.points) ||
-      body.points < 0 ||
-      body.points > 3)
-  ) {
-    return "Points must be an integer between 0 and 3";
-  }
-  if (!isValidPlayerId(body.playerId)) {
-    return "Valid playerId is required";
-  }
-  if (
-    body.period !== undefined &&
-    (typeof body.period !== "number" ||
-      !Number.isInteger(body.period) ||
-      body.period < 1)
-  ) {
-    return "Period must be an integer at least 1";
-  }
-  if (
-    body.clockTime !== undefined &&
-    (typeof body.clockTime !== "number" || body.clockTime < 0)
-  ) {
-    return "Clock time must be at least 0";
-  }
-  if (
-    (body.locationX !== undefined && typeof body.locationX !== "number") ||
-    (body.locationY !== undefined && typeof body.locationY !== "number")
-  ) {
-    return "Location coordinates must be numbers";
-  }
-  return null;
 }

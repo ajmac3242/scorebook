@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import GameMode from "./GameMode";
-import { describe, it, expect, vi, beforeEach, type Mock } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { BrowserRouter } from "react-router-dom";
 import { useLiveQuery } from "dexie-react-hooks";
 import React from "react";
@@ -14,7 +14,7 @@ vi.mock("../components/BasketballCourt", () => ({
 }));
 
 vi.mock("react-router-dom", async (importOriginal) => {
-  const actual = (await importOriginal()) as Record<string, unknown>;
+  const actual: any = await importOriginal();
   return {
     ...actual,
     useNavigate: () => vi.fn(),
@@ -79,7 +79,7 @@ describe("GameMode Metrics", () => {
       },
     ];
 
-    (useLiveQuery as Mock).mockImplementation((cb: () => unknown) => {
+    (useLiveQuery as any).mockImplementation((cb: () => any) => {
       const code = cb.toString();
       if (code.includes("db.stats")) return mockStats;
       if (code.includes("db.games.get"))
@@ -115,7 +115,7 @@ describe("GameMode Metrics", () => {
   });
 
   it("triggers fatigue warning based on team settings", async () => {
-    (useLiveQuery as Mock).mockImplementation((cb: () => unknown) => {
+    (useLiveQuery as any).mockImplementation((cb: () => any) => {
       const code = cb.toString();
       if (code.includes("db.stats"))
         return [
@@ -189,7 +189,7 @@ describe("GameMode Metrics", () => {
       }, // 3rd stop -> 1st kill
     ];
 
-    (useLiveQuery as Mock).mockImplementation((cb: () => unknown) => {
+    (useLiveQuery as any).mockImplementation((cb: () => any) => {
       const code = cb.toString();
       if (code.includes("db.stats")) return mockStats;
       if (code.includes("db.games.get"))

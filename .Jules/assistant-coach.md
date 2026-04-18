@@ -1,15 +1,31 @@
-# Assistant Coach Journal 🏀
+## 2026-04-14 - Redesigned Dashboard & Improved Game Setup
 
-## Basketball Workflow Insights
-- Substitution errors are the most common source of stat discrepancies. A timeline-based audit is essential for trust.
-- Chaining events (Make -> Assist, Miss -> Rebound) reduces cognitive load for the scorekeeper and ensures higher data completion.
-- Offensive play tracking bridges the gap between raw stats and tactical coaching.
+### Basketball Workflow Insights
+- Coaches prioritize their own team's data above general app metrics. A "My Team" dashboard provides immediate tactical value upon opening the app.
+- Multi-step workflows for game creation reduce cognitive load during the pre-game rush, especially when default settings are automatically applied.
+- "Starring" a team is an intuitive way to define the user's primary focus without complex configuration.
 
-## Implementation Patterns
-- Use Dexie `useLiveQuery` to ensure that edits in the timeline audit reflect immediately across the app.
-- Multi-step dialogs or overlays in `GameMode` should be non-intrusive and "one-tap" focused.
+### Implementation Patterns
+- Using `dexie-react-hooks`' `useLiveQuery` with `.where('isFavorite').equals(1).first()` is an efficient way to retrieve the primary entity for a personalized dashboard.
+- MUI `Stepper` combined with local state management for each step ensures a clean and validated user journey for complex entity creation.
+- Centralizing game defaults (period length, timeouts, etc.) at the Team level ensures consistency and speeds up game day operations.
 
-## Edge Cases to Watch
-- Substitution audit needs to handle "Empty" slots or unknown players.
-- Linked event chaining should be skippable to avoid blocking the scorekeeper during fast play.
-- Deleting a "Make" that has a linked "Assist" should probably offer to delete the assist too.
+### Edge Cases
+- When starring a team, care must be taken to unstar any other team to maintain a single "My Team" context.
+- Default settings should be pre-filled in the game creation workflow but remain editable for one-off game variations (e.g., tournament rules).
+
+## 2026-04-17 - Dashboard Stats & Multi-Step Game Creation
+
+### Basketball Workflow Insights
+- Season leaders (PPG, RPG, APG) on the dashboard provide coaches with immediate competitive context for their best performers.
+- A "Review" step in game creation is essential for catching entry errors in high-stakes parameters like foul limits or period lengths before the game starts.
+- Historical game results on the main dashboard help maintain a sense of season momentum without navigating deep into team stats.
+
+### Implementation Patterns
+- Extending the Dexie schema (v15) with `defaultOvertimeLength` allows for more granular team-level configuration.
+- The 4-step Stepper workflow (`activeStep` logic) improves UX by breaking down complex entity creation into manageable chunks.
+- Leveraging existing statistical utilities like `calculatePlayerAggregates` and `calculateGameResult` on the Dashboard ensures data consistency across the app.
+
+### Edge Cases
+- When calculating "Season Leaders", players with 0 games played should be handled gracefully (showing "N/A" or "0.0").
+- The review step must summarize ALL fields, including those that might have been skipped or left as defaults.

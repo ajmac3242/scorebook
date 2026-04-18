@@ -8,7 +8,6 @@
     "build": "tsc",
     "test": "jest",
     "test:coverage": "jest --coverage",
-        "test:jules": "jest --testPathPattern",
     "lint": "eslint \"src/**/*.ts\" --max-warnings=0"
   },
   "keywords": [],

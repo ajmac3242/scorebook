@@ -32,10 +32,10 @@
 **Why:** Inaccurate substitution data ruins plus/minus and lineup efficiency metrics. Coaches need a way to retroactively fix the on-court lineup without deleting and re-entering every subsequent play.
 **What:** Build a "Timeline Audit" view that shows a vertical chronological list of all substitution events. Allow users to edit the time of a sub, change the players involved, or insert a missing sub event.
 **Acceptance Criteria:**
-- [x] Accessible from the Game Stats or Game Mode page.
-- [x] Displays a chronological list of SUB_IN and SUB_OUT events.
-- [x] Allows editing the `clockTime` and `playerId` of any substitution event.
-- [x] Recalculates all dependent stats (MIN, +/-, Lineup Efficiency) immediately upon saving changes.
+- [ ] Accessible from the Game Stats or Game Mode page.
+- [ ] Displays a chronological list of SUB_IN and SUB_OUT events.
+- [ ] Allows editing the `clockTime` and `playerId` of any substitution event.
+- [ ] Recalculates all dependent stats (MIN, +/-, Lineup Efficiency) immediately upon saving changes.
 
 ## Offensive Play/Set Success Tracking
 **Priority:** HIGH
@@ -43,10 +43,10 @@
 **Why:** Coaches need to know which offensive sets are yielding results. Raw stats don't show if a bucket came from a specific designed play or a broken-down possession.
 **What:** Introduce "Play Tagging" for offensive events. Allow coaches to define a playbook in Team Settings and tag MAKE/MISS events with specific play names during the game.
 **Acceptance Criteria:**
-- [x] CRUD interface in Team Details to manage a "Playbook" (list of play names).
-- [x] Optional "Play" dropdown in the MAKE/MISS recording dialog in Game Mode.
-- [x] "Play Efficiency" table in Game Stats showing: Play Name, Frequency, Points, and EFG% for each set.
-- [x] Filter Shot Chart by specific Play Name.
+- [ ] CRUD interface in Team Details to manage a "Playbook" (list of play names).
+- [ ] Optional "Play" dropdown in the MAKE/MISS recording dialog in Game Mode.
+- [ ] "Play Efficiency" table in Game Stats showing: Play Name, Frequency, Points, and EFG% for each set.
+- [ ] Filter Shot Chart by specific Play Name.
 
 ## Live Defensive Momentum HUD (Stops & Kills)
 **Priority:** HIGH
@@ -136,62 +136,7 @@
 **Why:** Recording free throws one-by-one is slow and prone to errors during fast-paced games. A dedicated workflow ensures every attempt is captured correctly without context switching.
 **What:** Trigger a "Free Throw Mode" overlay when a shooting foul is recorded or via a quick-action button. This overlay should allow the scorekeeper to quickly tap "Make" or "Miss" for 1, 2, or 3 attempts for a specific player.
 **Acceptance Criteria:**
-- [x] Modal overlay triggered by FOUL_SHOOTING or a dedicated FT button.
-- [x] One-tap recording for each attempt in the sequence.
-- [x] Automatically attributes points and attempts to the selected player.
-- [x] Closes automatically after the designated number of attempts are recorded.
-
-## Intelligent Linked Event Chaining
-**Priority:** HIGH
-**Type:** UX
-**Why:** Basketball is a game of connected actions. Requiring separate taps for a make and the assist that led to it is slow and leads to missed data.
-**What:** Implement a "Chained Action" flow in the `GameMode` recording dialog. When a `MAKE` is saved, if an on-court teammate hasn't already been credited with an assist, immediately prompt "Who assisted?" with one-tap teammate buttons. Similarly, after a `MISS`, prompt for "Who rebounded?".
-**Acceptance Criteria:**
-- [ ] After clicking "Save" on a `MAKE` event, display a "Teammate Assist?" overlay if tracking "Our Team".
-- [ ] After clicking "Save" on a `MISS` event, display "Offensive Reb?" and "Defensive Reb?" quick-tap options.
-- [ ] If a teammate is tapped, record the second event (ASSIST or REBOUND) with the same `timestamp`, `period`, and `clockTime` as the shot.
-- [ ] Option to "Skip" or "No Assist/Rebound" to close the chain.
-
-## Scoring Run & Drought "Coaching Alerts"
-**Priority:** HIGH
-**Type:** Feature
-**Why:** Coaches often lose track of momentum shifts during the heat of the game. Real-time alerts for "10-0 Runs" or "3-Minute Droughts" act as a data-driven trigger for timeouts.
-**What:** Monitor the live event stream for scoring patterns. Trigger a visual HUD alert in `GameMode` when specific momentum thresholds are met.
-**Acceptance Criteria:**
-- [ ] Trigger "Opponent Run" alert (e.g., 8-0 or 10-2 run) in the scoreboard area.
-- [ ] Trigger "Scoring Drought" alert if "Our Team" has not scored for X consecutive minutes of game clock.
-- [ ] Alerts should include a "Suggest Timeout" visual cue.
-- [ ] Thresholds should be configurable in Team Settings (default: 8 points for a run, 3 minutes for a drought).
-
-## Shot Quality & Process Tagging
-**Priority:** MEDIUM
-**Type:** Enhancement
-**Why:** A "good" shot can miss and a "bad" shot can go in. Coaches need to evaluate the *process* of their offense, not just the result, to make halftime adjustments.
-**What:** Add an optional "Shot Quality" toggle to the `MAKE`/`MISS` recording dialog (e.g., "Open" vs "Contested").
-**Acceptance Criteria:**
-- [ ] Add `shotQuality` (OPEN, CONTESTED) to the `StatEvent` schema.
-- [ ] Add a simple toggle or button group in the shot recording dialog to tag quality.
-- [ ] Display "Process Efficiency" in `GameStats` (e.g., "EFG% on Open Shots" vs "EFG% on Contested Shots").
-- [ ] Filter Shot Chart by Shot Quality.
-
-## Interactive Game Flow & Momentum Chart
-**Priority:** MEDIUM
-**Type:** UX
-**Why:** Box scores are static. A flow chart shows *when* the game was won or lost and how specific lineups affected the lead.
-**What:** Add a "Game Flow" visualization to the `GameStats` page—a line graph showing the point spread over the course of the game clock.
-**Acceptance Criteria:**
-- [ ] Interactive line chart showing `Our Score - Opponent Score` on the Y-axis and `Game Time` on the X-axis.
-- [ ] Mark key events on the timeline (Timeouts, Period ends).
-- [ ] Hovering over the line shows the score and active lineup at that specific time.
-- [ ] Color-code the background to show who was "in control" (e.g., blue for home lead, red for away lead).
-
-## Multi-Game Lineup Net Rating Analytics
-**Priority:** MEDIUM
-**Type:** Feature
-**Why:** Single-game Plus/Minus can be noisy. Coaches need to know which 5-man combinations are most effective over a season or tournament.
-**What:** Aggregate lineup performance data across multiple games for a team.
-**Acceptance Criteria:**
-- [ ] New "Lineup Analytics" tab on the `TeamStats` or `My Team` (Dashboard) page.
-- [ ] Table of 5-man units (lineups) that have played together.
-- [ ] Metrics per lineup: Total Minutes, Points For, Points Against, Net Rating (Diff per 100 possessions or per 40 mins).
-- [ ] Ability to filter by "Last 5 Games" or "Season".
+- [ ] Modal overlay triggered by FOUL_SHOOTING or a dedicated FT button.
+- [ ] One-tap recording for each attempt in the sequence.
+- [ ] Automatically attributes points and attempts to the selected player.
+- [ ] Closes automatically after the designated number of attempts are recorded.

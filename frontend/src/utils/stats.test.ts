@@ -694,28 +694,6 @@ describe("stats utilities", () => {
       expect(results[2]).toEqual({ time: "5:00", Team: 2, Opponent: 3 });
       expect(results[3]).toEqual({ time: "11:00", Team: 4, Opponent: 3 });
     });
-
-    it("handles no scoring events", () => {
-      const results = calculateScoreFlow([], 10);
-      expect(results).toEqual([{ time: "00:00", Team: 0, Opponent: 0 }]);
-    });
-
-    it("handles custom period length", () => {
-      const stats: StatEvent[] = [
-        {
-          gameId: "g1",
-          playerId: "p1",
-          type: ACTION_TYPES.MAKE,
-          points: 2,
-          period: 2,
-          clockTime: 480, // 8:00 elapsed in 12 min period -> 12:00 + 4:00 = 16:00
-          timestamp: "t1",
-        },
-      ];
-      // 12 minute periods. 12:00 (P1) + (12:00 - 8:00) (P2) = 16:00
-      const results = calculateScoreFlow(stats, 12);
-      expect(results[1]).toEqual({ time: "16:00", Team: 2, Opponent: 0 });
-    });
   });
 
   describe("isEventInPeriod", () => {

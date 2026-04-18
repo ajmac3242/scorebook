@@ -40,7 +40,7 @@ export const determineResult = (
 export const formatClock = (totalSeconds: number): string => {
   const mins = Math.floor(totalSeconds / 60);
   const secs = totalSeconds % 60;
-  return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
+  return `${mins}:${secs.toString().padStart(2, "0")}`;
 };
 
 /**

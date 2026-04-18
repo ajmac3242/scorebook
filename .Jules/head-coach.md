@@ -21,11 +21,3 @@ Observation: As we transition into high-level analytics, the "Butterfly Effect" 
 Impact: Inaccurate substitution data leads to coaches making rotation decisions based on false fatigue or efficiency data. Lack of active defensive metrics (like "Stops" or "Kills") prevents coaches from motivating their team or identifying defensive momentum during critical game runs.
 
 Recommendation: Implement a "Substitution Timeline Audit" to allow for rapid retroactive corrections of the on-court lineup. Simultaneously, elevate the defensive experience by introducing a "Stops & Kills" tracker in the live scoreboard. Finally, move towards "Verified Periods" where scorekeepers must reconcile their data with the official table at every break, ensuring the data engine remains a source of truth.
-
-## 2025-05-18 - Strategic Evolution: Frictionless Tracking & Actionable Intelligence
-
-Observation: While the core data engine is robust, the user experience during high-intensity game periods still suffers from "tap fatigue." Recording a complete possession (e.g., a made basket following an assist) requires multiple disconnected save actions. Additionally, the data collected remains "flat"—we know what happened, but not the context (e.g., shot quality) or the trend (e.g., a 10-0 run).
-
-Impact: Friction in linked events leads to data gaps during fast-paced play as scorekeepers struggle to keep up. Lack of trend analysis (momentum alerts) means coaches rely on gut feeling rather than the live data engine for critical timeout decisions. Without season-long lineup analytics, the app remains a per-game tool rather than a comprehensive program management solution.
-
-Recommendation: Eliminate tracking friction by implementing intelligent "Linked Event" workflows (e.g., auto-prompting for an assist after a make). Transform the app into a proactive "Assistant" by introducing real-time momentum alerts for runs and droughts. Finally, expand the analytical scope to include multi-game lineup net ratings to identify the team's most effective units across the season.

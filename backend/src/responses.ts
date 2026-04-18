@@ -31,48 +31,25 @@ export const INTERNAL_KEYS = new Set([
  * on internal metadata that might change.
  *
  * @param {unknown} data - The data object or array to sanitize.
- * @param {number} depth - Current recursion depth.
  * @returns {unknown} The sanitized data.
  */
-export function sanitizeOutput(data: unknown, depth = 0): unknown {
-  // ⚡ Bolt: Fast-path for primitives (90% of recursive calls).
-  if (data === null || typeof data !== "object" || depth > 10) {
-    return data;
-  }
-
+export function sanitizeOutput(data: unknown): unknown {
   if (Array.isArray(data)) {
-    // Optimization: Pre-allocate array if size is known.
-    const len = data.length;
-    const result = new Array(len);
-    for (let i = 0; i < len; i++) {
-      result[i] = sanitizeOutput(data[i], depth + 1);
-    }
-    return result;
+    return data.map(sanitizeOutput);
   }
-
-  // ⚡ Bolt: Use Object.entries() for faster object iteration in modern engines.
-  const sanitized: Record<string, unknown> = {};
-  const entries = Object.entries(data as Record<string, unknown>);
-  for (let i = 0; i < entries.length; i++) {
-    const [key, value] = entries[i];
-    if (key === "id" || !INTERNAL_KEYS.has(key)) {
-      sanitized[key] = sanitizeOutput(value, depth + 1);
+  if (data !== null && typeof data === "object") {
+    const sanitized: Record<string, unknown> = {};
+    for (const key in data as Record<string, unknown>) {
+      if (
+        Object.prototype.hasOwnProperty.call(data, key) &&
+        (!INTERNAL_KEYS.has(key) || key === "id")
+      ) {
+        sanitized[key] = sanitizeOutput((data as Record<string, unknown>)[key]);
+      }
     }
+    return sanitized;
   }
-  return sanitized;
-}
-
-/**
- * Filters out soft-deleted items from a list.
- *
- * @param {T[]} items - The list of items to filter.
- * @returns {T[]} The filtered list containing only active (non-deleted) items.
- */
-export function filterActive<T extends Record<string, any>>(
-  items: T[] | undefined | null,
-): T[] {
-  if (!items) return [];
-  return items.filter((i) => !i.deletedAt);
+  return data;
 }
 
 /**
@@ -98,8 +75,6 @@ export function response(
       "X-Frame-Options": "DENY",
       "Strict-Transport-Security":
         "max-age=31536000; includeSubDomains; preload",
-      "Cross-Origin-Opener-Policy": "same-origin",
-      "Cross-Origin-Resource-Policy": "same-origin",
       "Content-Security-Policy":
         "default-src 'none'; frame-ancestors 'none'; sandbox",
       "Referrer-Policy": "no-referrer",

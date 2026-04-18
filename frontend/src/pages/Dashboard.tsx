@@ -52,52 +52,48 @@ const Dashboard: React.FC = () => {
   const teamId = favoriteTeam?.id;
 
   // Fetch games for the favorite team
-  const rawTeamGames = useLiveQuery(
-    async () =>
-      teamId ? await db.games.where("teamId").equals(teamId).toArray() : [],
-    [teamId],
-  );
-
-  const teamGames = useMemo(() => rawTeamGames || [], [rawTeamGames]);
+  const teamGames =
+    useLiveQuery(
+      async () =>
+        teamId ? await db.games.where("teamId").equals(teamId).toArray() : [],
+      [teamId],
+    ) || [];
 
   // Fetch stats for all those games
   const gameIds = useMemo(
     () => teamGames.map((g) => g.id).filter(Boolean) as string[],
     [teamGames],
   );
-  const rawAllStats = useLiveQuery(
-    async () =>
-      gameIds.length > 0
-        ? await db.stats.where("gameId").anyOf(gameIds).toArray()
-        : [],
-    [gameIds],
-  );
-
-  const allStats = useMemo(() => rawAllStats || [], [rawAllStats]);
+  const allStats =
+    useLiveQuery(
+      async () =>
+        gameIds.length > 0
+          ? await db.stats.where("gameId").anyOf(gameIds).toArray()
+          : [],
+      [gameIds],
+    ) || [];
 
   // Fetch players for leaders section
-  const rawTeamPlayers = useLiveQuery(
-    () =>
-      teamId ? db.teamPlayers.where("teamId").equals(teamId).toArray() : [],
-    [teamId],
-  );
-
-  const teamPlayers = useMemo(() => rawTeamPlayers || [], [rawTeamPlayers]);
+  const teamPlayers =
+    useLiveQuery(
+      () =>
+        teamId ? db.teamPlayers.where("teamId").equals(teamId).toArray() : [],
+      [teamId],
+    ) || [];
 
   const playerIds = useMemo(
     () => teamPlayers.map((tp) => tp.playerId),
     [teamPlayers],
   );
 
-  const rawPlayers = useLiveQuery(
-    () =>
-      playerIds.length > 0
-        ? db.players.where("id").anyOf(playerIds).toArray()
-        : [],
-    [playerIds],
-  );
-
-  const players = useMemo(() => rawPlayers || [], [rawPlayers]);
+  const players =
+    useLiveQuery(
+      () =>
+        playerIds.length > 0
+          ? db.players.where("id").anyOf(playerIds).toArray()
+          : [],
+      [playerIds],
+    ) || [];
 
   const aggregates = useMemo(
     () => calculateTeamAggregates(teamGames, allStats),

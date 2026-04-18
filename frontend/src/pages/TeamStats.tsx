@@ -107,8 +107,6 @@ const TeamStats: React.FC = () => {
   const [editTimeoutLimit, setEditTimeoutLimit] = useState<number>(3);
   const [editFoulLimit, setEditFoulLimit] = useState<number>(5);
   const [editMaxStintDuration, setEditMaxStintDuration] = useState<number>(8);
-  const [editPlaybook, setEditPlaybook] = useState<string[]>([]);
-  const [newPlayName, setNewPlayName] = useState("");
   const [timeLeft, setTimeLeft] = useState("");
   const [sortConfig, setSortConfig] = useState<{
     key: string;
@@ -160,7 +158,6 @@ const TeamStats: React.FC = () => {
       setEditTimeoutLimit(team.defaultTimeoutLimit || team.fouls || 3);
       setEditFoulLimit(team.defaultFoulLimit || 5);
       setEditMaxStintDuration(team.maxStintDuration || 8);
-      setEditPlaybook(team.playbook || []);
     }
     // We only want to sync from DB when the team object itself changes (e.g. initial load)
   }, [team]);
@@ -415,7 +412,6 @@ const TeamStats: React.FC = () => {
       defaultTimeoutLimit: editTimeoutLimit,
       defaultFoulLimit: editFoulLimit,
       maxStintDuration: editMaxStintDuration,
-      playbook: editPlaybook,
       fouls: editTimeoutLimit, // Keep legacy fouls field in sync with timeouts
       synced: 0,
     });
@@ -1258,54 +1254,6 @@ const TeamStats: React.FC = () => {
                 inputProps={{ min: 1 }}
               />
             </Stack>
-
-            <Divider sx={{ my: 1 }}>
-              <Chip label="Playbook" size="small" />
-            </Divider>
-            <Box>
-              <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
-                <TextField
-                  fullWidth
-                  size="small"
-                  label="New Play Name"
-                  value={newPlayName}
-                  onChange={(e) => setNewPlayName(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && newPlayName.trim()) {
-                      e.preventDefault();
-                      setEditPlaybook([...editPlaybook, newPlayName.trim()]);
-                      setNewPlayName("");
-                    }
-                  }}
-                />
-                <Button
-                  variant="outlined"
-                  size="small"
-                  onClick={() => {
-                    if (newPlayName.trim()) {
-                      setEditPlaybook([...editPlaybook, newPlayName.trim()]);
-                      setNewPlayName("");
-                    }
-                  }}
-                >
-                  Add
-                </Button>
-              </Stack>
-              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                {editPlaybook.map((play, idx) => (
-                  <Chip
-                    key={idx}
-                    label={play}
-                    onDelete={() => {
-                      const next = [...editPlaybook];
-                      next.splice(idx, 1);
-                      setEditPlaybook(next);
-                    }}
-                    size="small"
-                  />
-                ))}
-              </Box>
-            </Box>
           </Stack>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 3 }}>
