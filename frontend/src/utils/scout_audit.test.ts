@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   calculatePlayerAggregates,
   calculateStopsAndKills,
-  isEventInPeriod
+  isEventInPeriod,
 } from "./stats";
 import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../constants/stats";
 import { StatEvent, Player } from "../db";
@@ -45,11 +45,11 @@ describe("Scout Audit: Quality Fixes", () => {
           timestamp: "3000",
           period: 1,
           clockTime: 480,
-        }
+        },
       ];
 
       const aggregates = calculatePlayerAggregates(mockPlayers, stats);
-      const p1 = aggregates.find(a => a.id === "p1");
+      const p1 = aggregates.find((a) => a.id === "p1");
 
       expect(p1?.ftm).toBe(1);
       expect(p1?.fta).toBe(2);
