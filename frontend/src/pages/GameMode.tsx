@@ -1020,7 +1020,7 @@ const GameMode: React.FC = () => {
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;
-    severity: "success" | "error";
+    severity: "success" | "error" | "warning" | "info";
   }>({ open: false, message: "", severity: "success" });
 
   // Derived data from StatEvents
