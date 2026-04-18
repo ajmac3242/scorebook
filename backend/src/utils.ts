@@ -45,19 +45,19 @@ export function logError(label: string, error: unknown) {
  * @returns {unknown} A sanitized copy of the event.
  */
 export function maskEvent(event: APIGatewayProxyEventV2): unknown {
+  // ⚡ Bolt: Return original reference early if no sensitive data structures exist.
   if (!event.headers && !event.cookies) return event;
 
   let hasRedactable = false;
   if (event.headers) {
-    for (const key in event.headers) {
-      if (REDACTED_HEADERS.has(key.toLowerCase())) {
-        hasRedactable = true;
-        break;
-      }
-    }
+    // ⚡ Bolt: Use Object.keys().some() for faster sensitive header detection.
+    hasRedactable = Object.keys(event.headers).some((k) =>
+      REDACTED_HEADERS.has(k.toLowerCase()),
+    );
   }
 
-  if (!hasRedactable && !event.cookies) return event;
+  if (!hasRedactable && (!event.cookies || event.cookies.length === 0))
+    return event;
 
   const masked = { ...event };
   if (event.headers) {
