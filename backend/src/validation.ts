@@ -90,7 +90,11 @@ export const VALID_ACTION_TYPES = new Set([
  * @returns {string | null} Error message or null if valid.
  */
 export function validateStatEvent(body: any): string | null {
-  if (!body?.type || typeof body.type !== "string" || !VALID_ACTION_TYPES.has(body.type)) {
+  if (
+    !body?.type ||
+    typeof body.type !== "string" ||
+    !VALID_ACTION_TYPES.has(body.type)
+  ) {
     return "Valid stat type is required";
   }
   if (

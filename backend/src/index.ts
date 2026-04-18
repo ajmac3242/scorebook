@@ -258,7 +258,11 @@ async function handleGames(
     }
   }
 
-  if (path.startsWith("/games/") && path.endsWith("/complete") && method === "POST") {
+  if (
+    path.startsWith("/games/") &&
+    path.endsWith("/complete") &&
+    method === "POST"
+  ) {
     const parts = path.split("/");
     if (parts.length !== 4) return null;
     const gId = parts[2];
@@ -437,15 +441,18 @@ async function handleTeams(
     const parts = path.split("/");
     if (parts.length !== 4) return null;
     const tId = parts[2];
-    if (!isValidUuid(tId)) return badRequest("Invalid teamId format (UUID required)");
+    if (!isValidUuid(tId))
+      return badRequest("Invalid teamId format (UUID required)");
 
     if (method === "GET") return await getItemsByGSI(`TEAM#${tId}`, tableName);
 
     if (method === "POST") {
-      if (!isValidUuid(body.playerId)) return badRequest("Valid playerId (UUID) is required");
+      if (!isValidUuid(body.playerId))
+        return badRequest("Valid playerId (UUID) is required");
       if (
         body.jerseyNumber !== undefined &&
-        (typeof body.jerseyNumber !== "string" || !/^\d{1,3}$/.test(body.jerseyNumber))
+        (typeof body.jerseyNumber !== "string" ||
+          !/^\d{1,3}$/.test(body.jerseyNumber))
       ) {
         return badRequest("Jersey number must be 1-3 digits");
       }
