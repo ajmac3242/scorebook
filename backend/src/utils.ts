@@ -141,10 +141,14 @@ export function extractIdFromPath(path: string, prefix: string): string | null {
  * Strips local-only fields and internal DynamoDB keys from the data object before saving.
  *
  * @param {Record<string, unknown>} data - The data object to clean.
+ * @param {number} depth - Current recursion depth.
  * @returns {Record<string, unknown>} The cleaned object.
  */
-export function stripLocalFields(data: unknown): Record<string, unknown> {
-  if (!data || typeof data !== "object" || data === null) {
+export function stripLocalFields(
+  data: unknown,
+  depth = 0,
+): Record<string, unknown> {
+  if (!data || typeof data !== "object" || data === null || depth > 10) {
     return {};
   }
   const result: Record<string, unknown> = {};
@@ -153,7 +157,12 @@ export function stripLocalFields(data: unknown): Record<string, unknown> {
       Object.prototype.hasOwnProperty.call(data, key) &&
       !INTERNAL_KEYS.has(key)
     ) {
-      result[key] = (data as Record<string, unknown>)[key];
+      const value = (data as Record<string, unknown>)[key];
+      if (value !== null && typeof value === "object" && !Array.isArray(value)) {
+        result[key] = stripLocalFields(value, depth + 1);
+      } else {
+        result[key] = value;
+      }
     }
   }
   return result;

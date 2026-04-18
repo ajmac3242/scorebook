@@ -137,7 +137,7 @@ describe("Sentinel Security Enhancements Tests", () => {
       const response: any = await handler(event);
       expect(response.statusCode).toBe(400);
       expect(JSON.parse(response.body).message).toContain(
-        "Period must be at least 1",
+        "Period must be an integer at least 1",
       );
     });
 

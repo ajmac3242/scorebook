@@ -210,6 +210,18 @@ async function handleGames(
           "Opponent name is required and must be under 100 characters",
         );
       }
+      if (
+        body.location !== undefined &&
+        (typeof body.location !== "string" || body.location.length > 100)
+      ) {
+        return badRequest("Location must be a string under 100 characters");
+      }
+      if (
+        body.date !== undefined &&
+        (typeof body.date !== "string" || body.date.length > 50)
+      ) {
+        return badRequest("Date must be a string under 50 characters");
+      }
       const resp = await createItem(
         "GAME",
         "METADATA",
@@ -353,18 +365,23 @@ async function handleGameStats(
     }
     if (
       body.points !== undefined &&
-      (typeof body.points !== "number" || body.points < 0 || body.points > 3)
+      (typeof body.points !== "number" ||
+        !Number.isInteger(body.points) ||
+        body.points < 0 ||
+        body.points > 3)
     ) {
-      return badRequest("Points must be a number between 0 and 3");
+      return badRequest("Points must be an integer between 0 and 3");
     }
     if (!isValidPlayerId(body.playerId)) {
       return badRequest("Valid playerId is required");
     }
     if (
       body.period !== undefined &&
-      (typeof body.period !== "number" || body.period < 1)
+      (typeof body.period !== "number" ||
+        !Number.isInteger(body.period) ||
+        body.period < 1)
     ) {
-      return badRequest("Period must be at least 1");
+      return badRequest("Period must be an integer at least 1");
     }
     if (
       body.clockTime !== undefined &&
@@ -493,6 +510,14 @@ async function handleTeams(
       if (!isValidUuid(body.playerId)) {
         return badRequest("Valid playerId (UUID) is required");
       }
+      if (
+        body.jerseyNumber !== undefined &&
+        (typeof body.jerseyNumber !== "string" ||
+          body.jerseyNumber.length > 3 ||
+          !/^\d+$/.test(body.jerseyNumber))
+      ) {
+        return badRequest("Jersey number must be 1-3 digits");
+      }
       const cleanBody = stripLocalFields(body);
       const teamPlayerItem = {
         ...(cleanBody as Record<string, unknown>),
@@ -543,7 +568,12 @@ async function handleTeams(
  */
 function parseBody(body: string | undefined): Record<string, unknown> {
   if (!body) return {};
-  return typeof body === "string" ? JSON.parse(body) : body;
+  try {
+    const parsed = typeof body === "string" ? JSON.parse(body) : body;
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch {
+    return {};
+  }
 }
 
 /**
