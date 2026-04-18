@@ -14,7 +14,7 @@ vi.mock("../components/BasketballCourt", () => ({
 }));
 
 vi.mock("react-router-dom", async (importOriginal) => {
-  const actual: any = await importOriginal();
+  const actual = (await importOriginal()) as Record<string, unknown>;
   return {
     ...actual,
     useNavigate: () => vi.fn(),
@@ -79,8 +79,8 @@ describe("GameMode Metrics", () => {
       },
     ];
 
-    (useLiveQuery as any).mockImplementation((cb: () => any) => {
-      const code = cb.toString();
+    (useLiveQuery as unknown as { mockImplementation: (_fn: (_cb: () => unknown) => unknown) => void }).mockImplementation((_cb: () => unknown) => {
+      const code = _cb.toString();
       if (code.includes("db.stats")) return mockStats;
       if (code.includes("db.games.get"))
         return {
@@ -115,8 +115,8 @@ describe("GameMode Metrics", () => {
   });
 
   it("triggers fatigue warning based on team settings", async () => {
-    (useLiveQuery as any).mockImplementation((cb: () => any) => {
-      const code = cb.toString();
+    (useLiveQuery as unknown as { mockImplementation: (_fn: (_cb: () => unknown) => unknown) => void }).mockImplementation((_cb: () => unknown) => {
+      const code = _cb.toString();
       if (code.includes("db.stats"))
         return [
           {
@@ -189,8 +189,8 @@ describe("GameMode Metrics", () => {
       }, // 3rd stop -> 1st kill
     ];
 
-    (useLiveQuery as any).mockImplementation((cb: () => any) => {
-      const code = cb.toString();
+    (useLiveQuery as unknown as { mockImplementation: (_fn: (_cb: () => unknown) => unknown) => void }).mockImplementation((_cb: () => unknown) => {
+      const code = _cb.toString();
       if (code.includes("db.stats")) return mockStats;
       if (code.includes("db.games.get"))
         return { id: "g1", teamId: "t1", currentPeriod: 1, clockTime: 400 };
@@ -210,9 +210,9 @@ describe("GameMode Metrics", () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText("STOPS:")).toBeInTheDocument();
+      expect(screen.getByText("STOPS")).toBeInTheDocument();
       expect(screen.getByText("3")).toBeInTheDocument(); // Total stops
-      expect(screen.getByText("KILLS:")).toBeInTheDocument();
+      expect(screen.getByText("KILLS")).toBeInTheDocument();
       expect(screen.getByText("1")).toBeInTheDocument(); // Total kills
     });
   });
