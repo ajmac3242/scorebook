@@ -59,26 +59,23 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
   const [editTime, setEditTime] = useState<string>("");
   const [editPeriod, setEditPeriod] = useState<number>(1);
 
-  const subEvents = useLiveQuery(
-    async () => {
-      if (!gameId) return [];
-      const events = await db.stats
-        .where("gameId")
-        .equals(gameId)
-        .filter(
-          (s) =>
-            !s.deletedAt &&
-            (s.type === ACTION_TYPES.SUB_IN || s.type === ACTION_TYPES.SUB_OUT),
-        )
-        .toArray();
-      return events.sort((a, b) => {
-        if (a.timestamp < b.timestamp) return -1;
-        if (a.timestamp > b.timestamp) return 1;
-        return 0;
-      });
-    },
-    [gameId],
-  );
+  const subEvents = useLiveQuery(async () => {
+    if (!gameId) return [];
+    const events = await db.stats
+      .where("gameId")
+      .equals(gameId)
+      .filter(
+        (s) =>
+          !s.deletedAt &&
+          (s.type === ACTION_TYPES.SUB_IN || s.type === ACTION_TYPES.SUB_OUT),
+      )
+      .toArray();
+    return events.sort((a, b) => {
+      if (a.timestamp < b.timestamp) return -1;
+      if (a.timestamp > b.timestamp) return 1;
+      return 0;
+    });
+  }, [gameId]);
 
   const handleStartEdit = (event: StatEvent) => {
     setEditingId(event.id || null);
@@ -127,12 +124,20 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
-      <DialogTitle sx={{ fontFamily: "var(--serif)", display: "flex", alignItems: "center", gap: 1 }}>
+      <DialogTitle
+        sx={{
+          fontFamily: "var(--serif)",
+          display: "flex",
+          alignItems: "center",
+          gap: 1,
+        }}
+      >
         <HistoryIcon /> Substitution Timeline Audit
       </DialogTitle>
       <DialogContent>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-          Review and correct the substitution timeline. Inaccurate data here affects plus/minus and lineup efficiency metrics.
+          Review and correct the substitution timeline. Inaccurate data here
+          affects plus/minus and lineup efficiency metrics.
         </Typography>
 
         <TableContainer sx={{ maxHeight: 400 }}>
@@ -149,20 +154,28 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
             <TableBody>
               {subEvents?.map((event) => {
                 const isEditing = editingId === event.id;
-                const player = players.find(p => p.id === event.playerId);
+                const player = players.find((p) => p.id === event.playerId);
 
                 return (
                   <TableRow key={event.id} hover>
                     <TableCell>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
                         <Typography
                           variant="caption"
                           sx={{
                             fontWeight: 700,
                             px: 1,
                             borderRadius: 0.5,
-                            bgcolor: event.type === ACTION_TYPES.SUB_IN ? "success.light" : "error.light",
-                            color: event.type === ACTION_TYPES.SUB_IN ? "success.contrastText" : "error.contrastText",
+                            bgcolor:
+                              event.type === ACTION_TYPES.SUB_IN
+                                ? "success.light"
+                                : "error.light",
+                            color:
+                              event.type === ACTION_TYPES.SUB_IN
+                                ? "success.contrastText"
+                                : "error.contrastText",
                           }}
                         >
                           {event.type.replace("SUB_", "")}
@@ -175,7 +188,9 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                           size="small"
                           type="number"
                           value={editPeriod}
-                          onChange={(e) => setEditPeriod(parseInt(e.target.value) || 1)}
+                          onChange={(e) =>
+                            setEditPeriod(parseInt(e.target.value) || 1)
+                          }
                           sx={{ width: 60 }}
                         />
                       ) : (
@@ -210,30 +225,63 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                           ))}
                         </Select>
                       ) : (
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <Avatar sx={{ width: 24, height: 24, fontSize: '0.75rem', bgcolor: player?.avatarColor }}>
+                        <Box
+                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                        >
+                          <Avatar
+                            sx={{
+                              width: 24,
+                              height: 24,
+                              fontSize: "0.75rem",
+                              bgcolor: player?.avatarColor,
+                            }}
+                          >
                             {jerseyMap.get(event.playerId) || "??"}
                           </Avatar>
-                          <Typography variant="body2">{player?.name || "Unknown"}</Typography>
+                          <Typography variant="body2">
+                            {player?.name || "Unknown"}
+                          </Typography>
                         </Box>
                       )}
                     </TableCell>
                     <TableCell align="right">
                       {isEditing ? (
-                        <Stack direction="row" spacing={1} justifyContent="flex-end">
-                          <IconButton size="small" color="primary" onClick={handleSaveEdit}>
+                        <Stack
+                          direction="row"
+                          spacing={1}
+                          justifyContent="flex-end"
+                        >
+                          <IconButton
+                            size="small"
+                            color="primary"
+                            onClick={handleSaveEdit}
+                          >
                             <SaveIcon fontSize="small" />
                           </IconButton>
-                          <IconButton size="small" onClick={() => setEditingId(null)}>
+                          <IconButton
+                            size="small"
+                            onClick={() => setEditingId(null)}
+                          >
                             <CloseIcon fontSize="small" />
                           </IconButton>
                         </Stack>
                       ) : (
-                        <Stack direction="row" spacing={1} justifyContent="flex-end">
-                          <IconButton size="small" onClick={() => handleStartEdit(event)}>
+                        <Stack
+                          direction="row"
+                          spacing={1}
+                          justifyContent="flex-end"
+                        >
+                          <IconButton
+                            size="small"
+                            onClick={() => handleStartEdit(event)}
+                          >
                             <EditIcon fontSize="small" />
                           </IconButton>
-                          <IconButton size="small" color="error" onClick={() => handleDelete(event.id!)}>
+                          <IconButton
+                            size="small"
+                            color="error"
+                            onClick={() => handleDelete(event.id!)}
+                          >
                             <DeleteIcon fontSize="small" />
                           </IconButton>
                         </Stack>

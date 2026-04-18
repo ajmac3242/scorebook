@@ -896,7 +896,11 @@ const ActionControls = React.memo(
               size="small"
               onClick={() => onAuditSubs()}
               aria-label="audit substitutions"
-              sx={{ border: "1px solid rgba(0,0,0,0.23)", borderRadius: "4px", p: "5px" }}
+              sx={{
+                border: "1px solid rgba(0,0,0,0.23)",
+                borderRadius: "4px",
+                p: "5px",
+              }}
             >
               <History />
             </IconButton>
@@ -1631,10 +1635,11 @@ const GameMode: React.FC = () => {
             playerId: selectedPlayerId!,
             type: typeToSave,
             points: typeToSave === ACTION_TYPES.MAKE ? points : 0,
-          playName:
-            typeToSave === ACTION_TYPES.MAKE || typeToSave === ACTION_TYPES.MISS
-              ? playName
-              : undefined,
+            playName:
+              typeToSave === ACTION_TYPES.MAKE ||
+              typeToSave === ACTION_TYPES.MISS
+                ? playName
+                : undefined,
             synced: 0,
           });
           await syncService.pushUpdates();
@@ -1647,10 +1652,11 @@ const GameMode: React.FC = () => {
             points: typeToSave === ACTION_TYPES.MAKE ? points : 0,
             locationX: selectedX || 0,
             locationY: selectedY || 0,
-          playName:
-            typeToSave === ACTION_TYPES.MAKE || typeToSave === ACTION_TYPES.MISS
-              ? playName
-              : undefined,
+            playName:
+              typeToSave === ACTION_TYPES.MAKE ||
+              typeToSave === ACTION_TYPES.MISS
+                ? playName
+                : undefined,
             period,
             clockTime: clockSeconds,
             timestamp: new Date().toISOString(),
@@ -2902,9 +2908,7 @@ const GameMode: React.FC = () => {
                       key={play}
                       label={play}
                       size="small"
-                      onClick={() =>
-                        setPlayName(playName === play ? "" : play)
-                      }
+                      onClick={() => setPlayName(playName === play ? "" : play)}
                       color={playName === play ? "primary" : "default"}
                       variant={playName === play ? "filled" : "outlined"}
                     />

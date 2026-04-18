@@ -1151,22 +1151,22 @@ const GameStats: React.FC = () => {
                   <Typography variant="h6" sx={{ fontFamily: "var(--serif)" }}>
                     Lineup Efficiency
                   </Typography>
-              <Stack direction="row" spacing={1} alignItems="center">
-                <Button
-                  size="small"
-                  variant="outlined"
-                  onClick={() => setAuditDialogOpen(true)}
-                  startIcon={<Restore />}
-                >
-                  Audit Subs
-                </Button>
-                <IconButton
-                  onClick={() => setExpandedSection("lineups")}
-                  aria-label="Expand Lineup Efficiency section"
-                >
-                  <ExpandIcon />
-                </IconButton>
-              </Stack>
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      onClick={() => setAuditDialogOpen(true)}
+                      startIcon={<Restore />}
+                    >
+                      Audit Subs
+                    </Button>
+                    <IconButton
+                      onClick={() => setExpandedSection("lineups")}
+                      aria-label="Expand Lineup Efficiency section"
+                    >
+                      <ExpandIcon />
+                    </IconButton>
+                  </Stack>
                 </Box>
                 {lineupTable}
               </MoleskineCard>

@@ -15,10 +15,7 @@ import {
   Box,
   Avatar,
 } from "@mui/material";
-import {
-  Check as CheckIcon,
-  Close as CloseIcon,
-} from "@mui/icons-material";
+import { Check as CheckIcon, Close as CloseIcon } from "@mui/icons-material";
 import { db, type Player } from "../db";
 import { logger } from "../utils/logger";
 import { syncService } from "../utils/syncService";
@@ -45,7 +42,10 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
   clockTime,
 }) => {
   const [attempts, setAttempts] = useState<number>(2);
-  const [results, setResults] = useState<("MAKE" | "MISS" | null)[]>([null, null]);
+  const [results, setResults] = useState<("MAKE" | "MISS" | null)[]>([
+    null,
+    null,
+  ]);
 
   useEffect(() => {
     if (open) {
@@ -90,7 +90,7 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
     }
   };
 
-  const isComplete = results.every(r => r !== null);
+  const isComplete = results.every((r) => r !== null);
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs">
@@ -98,7 +98,7 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
         Free Throw Sequence
       </DialogTitle>
       <DialogContent>
-        <Box sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 2 }}>
+        <Box sx={{ mb: 3, display: "flex", alignItems: "center", gap: 2 }}>
           <Avatar sx={{ bgcolor: player?.avatarColor }}>
             {jerseyNumber || "??"}
           </Avatar>
@@ -113,7 +113,11 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
         </Box>
 
         <Box sx={{ mb: 3 }}>
-          <Typography variant="caption" gutterBottom sx={{ display: 'block', mb: 1, fontWeight: 600 }}>
+          <Typography
+            variant="caption"
+            gutterBottom
+            sx={{ display: "block", mb: 1, fontWeight: 600 }}
+          >
             Number of Attempts
           </Typography>
           <Stack direction="row" spacing={1}>
@@ -124,7 +128,7 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
                 variant={attempts === n ? "contained" : "outlined"}
                 onClick={() => setAttempts(n)}
               >
-                {n} Shot{n > 1 ? 's' : ''}
+                {n} Shot{n > 1 ? "s" : ""}
               </Button>
             ))}
           </Stack>
@@ -132,7 +136,15 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
 
         <Stack spacing={2}>
           {results.map((res, idx) => (
-            <Box key={idx} sx={{ p: 1.5, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
+            <Box
+              key={idx}
+              sx={{
+                p: 1.5,
+                border: "1px solid",
+                borderColor: "divider",
+                borderRadius: 1,
+              }}
+            >
               <Typography variant="subtitle2" gutterBottom>
                 Attempt #{idx + 1}
               </Typography>
@@ -161,7 +173,9 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
         </Stack>
       </DialogContent>
       <DialogActions sx={{ p: 2 }}>
-        <Button onClick={onClose} color="inherit">Cancel</Button>
+        <Button onClick={onClose} color="inherit">
+          Cancel
+        </Button>
         <Button
           onClick={handleSave}
           variant="contained"
