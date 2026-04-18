@@ -31,11 +31,12 @@ export const INTERNAL_KEYS = new Set([
  * on internal metadata that might change.
  *
  * @param {unknown} data - The data object or array to sanitize.
+ * @param {number} depth - Current recursion depth.
  * @returns {unknown} The sanitized data.
  */
-export function sanitizeOutput(data: unknown): unknown {
+export function sanitizeOutput(data: unknown, depth = 0): unknown {
   // ⚡ Bolt: Fast-path for primitives (90% of recursive calls).
-  if (data === null || typeof data !== "object") {
+  if (data === null || typeof data !== "object" || depth > 10) {
     return data;
   }
 
@@ -44,7 +45,7 @@ export function sanitizeOutput(data: unknown): unknown {
     const len = data.length;
     const result = new Array(len);
     for (let i = 0; i < len; i++) {
-      result[i] = sanitizeOutput(data[i]);
+      result[i] = sanitizeOutput(data[i], depth + 1);
     }
     return result;
   }
@@ -55,7 +56,7 @@ export function sanitizeOutput(data: unknown): unknown {
   for (let i = 0; i < entries.length; i++) {
     const [key, value] = entries[i];
     if (key === "id" || !INTERNAL_KEYS.has(key)) {
-      sanitized[key] = sanitizeOutput(value);
+      sanitized[key] = sanitizeOutput(value, depth + 1);
     }
   }
   return sanitized;
@@ -84,6 +85,8 @@ export function response(
       "X-Frame-Options": "DENY",
       "Strict-Transport-Security":
         "max-age=31536000; includeSubDomains; preload",
+      "Cross-Origin-Opener-Policy": "same-origin",
+      "Cross-Origin-Resource-Policy": "same-origin",
       "Content-Security-Policy":
         "default-src 'none'; frame-ancestors 'none'; sandbox",
       "Referrer-Policy": "no-referrer",
