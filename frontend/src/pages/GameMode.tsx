@@ -78,6 +78,8 @@ import BasketballCourt from "../components/BasketballCourt";
 import TimeoutDots from "../components/TimeoutDots";
 import RecentActionItem from "../components/RecentActionItem";
 import QuickSubDialog from "../components/QuickSubDialog";
+import SubstitutionAuditDialog from "../components/SubstitutionAuditDialog";
+import FreeThrowWorkflowDialog from "../components/FreeThrowWorkflowDialog";
 import { PlayerStatRow } from "../components/PlayerStatRow";
 import { db, type StatEvent } from "../db";
 import { syncService } from "../utils/syncService";
@@ -808,6 +810,8 @@ interface ActionControlsProps {
   isReadOnly: boolean;
   onUndo: () => void;
   onQuickSub: () => void;
+  onFtWorkflow: () => void;
+  onAuditSubs: () => void;
   onTimeout: () => void;
   onNextPeriod: () => void;
   onTogglePossession: () => void;
@@ -822,6 +826,8 @@ const ActionControls = React.memo(
     isReadOnly,
     onUndo,
     onQuickSub,
+    onFtWorkflow,
+    onAuditSubs,
     onTimeout,
     onNextPeriod,
     onTogglePossession,
@@ -884,6 +890,23 @@ const ActionControls = React.memo(
           </span>
         </Tooltip>
 
+        <Tooltip title="Audit Substitutions">
+          <span>
+            <IconButton
+              size="small"
+              onClick={() => onAuditSubs()}
+              aria-label="audit substitutions"
+              sx={{
+                border: "1px solid rgba(0,0,0,0.23)",
+                borderRadius: "4px",
+                p: "5px",
+              }}
+            >
+              <History />
+            </IconButton>
+          </span>
+        </Tooltip>
+
         <Tooltip title="Record Team Timeout">
           <span>
             <Button
@@ -894,6 +917,21 @@ const ActionControls = React.memo(
               disabled={isReadOnly}
             >
               Timeout
+            </Button>
+          </span>
+        </Tooltip>
+
+        <Tooltip title="Record Free Throws">
+          <span>
+            <Button
+              size="small"
+              variant="outlined"
+              startIcon={<SportsBasketball />}
+              onClick={() => onFtWorkflow()}
+              disabled={isReadOnly}
+              aria-label="record free throws"
+            >
+              FT
             </Button>
           </span>
         </Tooltip>
@@ -948,6 +986,7 @@ const GameMode: React.FC = () => {
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
   const [statType, setStatType] = useState<string | null>(null);
   const [points, setPoints] = useState<number>(2);
+  const [playName, setPlayName] = useState<string>("");
 
   const [opponentJerseys, setOpponentJerseys] = useState<string[]>([]);
   const [selectedOpponentId, setSelectedOpponentId] = useState<string>(
@@ -978,12 +1017,14 @@ const GameMode: React.FC = () => {
   // Game lifecycle state
   const [endGameDialogOpen, setEndGameDialogOpen] = useState(false);
   const [summaryDialogOpen, setSummaryDialogOpen] = useState(false);
+  const [auditDialogOpen, setAuditDialogOpen] = useState(false);
+  const [ftWorkflowOpen, setFtWorkflowOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isEnding, setIsEnding] = useState(false);
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;
-    severity: "success" | "error";
+    severity: "success" | "error" | "warning" | "info";
   }>({ open: false, message: "", severity: "success" });
 
   // Derived data from StatEvents
@@ -1594,6 +1635,11 @@ const GameMode: React.FC = () => {
             playerId: selectedPlayerId!,
             type: typeToSave,
             points: typeToSave === ACTION_TYPES.MAKE ? points : 0,
+            playName:
+              typeToSave === ACTION_TYPES.MAKE ||
+              typeToSave === ACTION_TYPES.MISS
+                ? playName
+                : undefined,
             synced: 0,
           });
           await syncService.pushUpdates();
@@ -1606,6 +1652,11 @@ const GameMode: React.FC = () => {
             points: typeToSave === ACTION_TYPES.MAKE ? points : 0,
             locationX: selectedX || 0,
             locationY: selectedY || 0,
+            playName:
+              typeToSave === ACTION_TYPES.MAKE ||
+              typeToSave === ACTION_TYPES.MISS
+                ? playName
+                : undefined,
             period,
             clockTime: clockSeconds,
             timestamp: new Date().toISOString(),
@@ -1613,6 +1664,9 @@ const GameMode: React.FC = () => {
           };
           await db.stats.add(newStat);
           await syncService.pushUpdates();
+          if (typeToSave === ACTION_TYPES.FOUL_SHOOTING) {
+            setFtWorkflowOpen(true);
+          }
         }
         setSnackbar({
           open: true,
@@ -1630,6 +1684,7 @@ const GameMode: React.FC = () => {
       // Reset state after save
       setDialogOpen(false);
       setStatType(null);
+      setPlayName("");
       setIsEditing(false);
       setEditingStatId(null);
       if (trackingMode === "OPPONENT") setSelectedPlayerId(null);
@@ -1641,6 +1696,7 @@ const GameMode: React.FC = () => {
       isEditing,
       editingStatId,
       points,
+      playName,
       selectedX,
       selectedY,
       period,
@@ -1806,6 +1862,7 @@ const GameMode: React.FC = () => {
       setSelectedPlayerId(stat.playerId as string);
       setStatType(stat.type);
       setPoints(stat.points || 2);
+      setPlayName(stat.playName || "");
       setSelectedX(stat.locationX || 0);
       setSelectedY(stat.locationY || 0);
       setIsEditing(true);
@@ -1910,6 +1967,10 @@ const GameMode: React.FC = () => {
       logger.error("Failed to record timeout:", err);
     }
   }, [gameId, isReadOnly, trackingMode, period, clockSeconds]);
+
+  const handleAuditSubs = useCallback(() => {
+    setAuditDialogOpen(true);
+  }, []);
 
   /**
    * 🏀 CoachBoard: handleTogglePossession
@@ -2042,6 +2103,18 @@ const GameMode: React.FC = () => {
                 isReadOnly={isReadOnly}
                 onUndo={handleUndo}
                 onQuickSub={() => setSubDialogOpen(true)}
+                onFtWorkflow={() => {
+                  if (selectedPlayerId) {
+                    setFtWorkflowOpen(true);
+                  } else {
+                    setSnackbar({
+                      open: true,
+                      message: "Select a player first",
+                      severity: "warning",
+                    });
+                  }
+                }}
+                onAuditSubs={handleAuditSubs}
                 onTimeout={handleTimeout}
                 onNextPeriod={handleNextPeriod}
                 onTogglePossession={() => handleTogglePossession()}
@@ -2817,6 +2890,32 @@ const GameMode: React.FC = () => {
               })()}
             </Box>
           </Box>
+          {(statType === ACTION_TYPES.MAKE || statType === ACTION_TYPES.MISS) &&
+            trackingMode === "TEAM" &&
+            team?.playbook &&
+            team.playbook.length > 0 && (
+              <Box sx={{ mt: 3 }}>
+                <Typography
+                  variant="caption"
+                  gutterBottom
+                  sx={{ display: "block", mb: 1 }}
+                >
+                  Offensive Play
+                </Typography>
+                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                  {team.playbook.map((play) => (
+                    <Chip
+                      key={play}
+                      label={play}
+                      size="small"
+                      onClick={() => setPlayName(playName === play ? "" : play)}
+                      color={playName === play ? "primary" : "default"}
+                      variant={playName === play ? "filled" : "outlined"}
+                    />
+                  ))}
+                </Box>
+              </Box>
+            )}
           {statType === ACTION_TYPES.MAKE && (
             <Box sx={{ mt: 3 }}>
               <Typography
@@ -2961,6 +3060,31 @@ const GameMode: React.FC = () => {
         handleSwapClick={handleSwapClick}
         handleQuickSub={handleQuickSub}
       />
+
+      {/* Substitution Audit Dialog */}
+      {gameId && (
+        <SubstitutionAuditDialog
+          open={auditDialogOpen}
+          onClose={() => setAuditDialogOpen(false)}
+          gameId={gameId}
+          players={players}
+          jerseyMap={jerseyMap}
+        />
+      )}
+
+      {/* Free Throw Workflow Dialog */}
+      {gameId && selectedPlayerId && (
+        <FreeThrowWorkflowDialog
+          open={ftWorkflowOpen}
+          onClose={() => setFtWorkflowOpen(false)}
+          gameId={gameId}
+          playerId={selectedPlayerId}
+          player={players.find((p) => p.id === selectedPlayerId)}
+          jerseyNumber={jerseyMap.get(selectedPlayerId)}
+          period={period}
+          clockTime={clockSeconds}
+        />
+      )}
 
       {/* Confirm Delete Stat Dialog */}
       <Dialog

@@ -39,6 +39,7 @@ import {
   Edit as EditIcon,
 } from "@mui/icons-material";
 import BasketballCourt from "../components/BasketballCourt";
+import SubstitutionAuditDialog from "../components/SubstitutionAuditDialog";
 import { getShotZone } from "../utils/shotZones";
 import { db } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -84,6 +85,7 @@ const GameStats: React.FC = () => {
     "ALL",
   );
   const [selectedType, setSelectedType] = useState<string>("ALL");
+  const [selectedPlay, setSelectedPlay] = useState<string>("ALL");
   const [periodFilter, setPeriodFilter] = useState<string>("ALL");
   const [shotChartView, setShotChartView] = useState<"markers" | "heatmap">(
     "markers",
@@ -97,6 +99,7 @@ const GameStats: React.FC = () => {
   }>({ key: "points", direction: "desc" });
 
   const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [auditDialogOpen, setAuditDialogOpen] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [editOpponent, setEditOpponent] = useState("");
   const [editDate, setEditDate] = useState("");
@@ -266,7 +269,9 @@ const GameStats: React.FC = () => {
       const playerMatch =
         selectedPlayerId === "ALL" || s.playerId === selectedPlayerId;
       const typeMatch = selectedType === "ALL" || s.type === selectedType;
-      if (playerMatch && typeMatch) {
+      const playMatch =
+        selectedPlay === "ALL" || (s.playName && s.playName === selectedPlay);
+      if (playerMatch && typeMatch && playMatch) {
         filtered.push(s);
         if (s.type === ACTION_TYPES.MAKE || s.type === ACTION_TYPES.MISS) {
           markers.push({
@@ -284,7 +289,7 @@ const GameStats: React.FC = () => {
       }
     }
     return { filtered, markers };
-  }, [stats, selectedPlayerId, selectedType, shotChartJerseyMap]);
+  }, [stats, selectedPlayerId, selectedType, selectedPlay, shotChartJerseyMap]);
 
   const shotChartMarkers = derivedStats.markers;
 
@@ -296,6 +301,7 @@ const GameStats: React.FC = () => {
         continue;
       if (selectedPlayerId !== "ALL" && s.playerId !== selectedPlayerId)
         continue;
+      if (selectedPlay !== "ALL" && s.playName !== selectedPlay) continue;
 
       const zone = getShotZone(s.locationX || 0, s.locationY || 0);
       if (!data[zone]) data[zone] = { makes: 0, attempts: 0 };
@@ -303,7 +309,7 @@ const GameStats: React.FC = () => {
       if (s.type === ACTION_TYPES.MAKE) data[zone].makes++;
     }
     return data;
-  }, [stats, selectedPlayerId]);
+  }, [stats, selectedPlayerId, selectedPlay]);
 
   const scoreFlowData = useMemo(() => {
     return calculateScoreFlow(scoreFlowSortedStats, game?.periodLength);
@@ -311,6 +317,36 @@ const GameStats: React.FC = () => {
 
   const oppData = useMemo(() => {
     return calculateOpponentAggregates(stats);
+  }, [stats]);
+
+  const playEfficiency = useMemo(() => {
+    const data: Record<
+      string,
+      { makes: number; attempts: number; points: number }
+    > = {};
+    for (let i = 0; i < stats.length; i++) {
+      const s = stats[i];
+      if (
+        (s.type === ACTION_TYPES.MAKE || s.type === ACTION_TYPES.MISS) &&
+        s.playName
+      ) {
+        if (!data[s.playName])
+          data[s.playName] = { makes: 0, attempts: 0, points: 0 };
+        data[s.playName].attempts++;
+        if (s.type === ACTION_TYPES.MAKE) {
+          data[s.playName].makes++;
+          data[s.playName].points += s.points || 0;
+        }
+      }
+    }
+    return Object.entries(data).map(([name, stats]) => ({
+      name,
+      ...stats,
+      efg:
+        stats.attempts > 0
+          ? ((stats.points / stats.attempts / 2) * 100).toFixed(1)
+          : "0.0",
+    }));
   }, [stats]);
 
   const lineupStats = useMemo(() => {
@@ -733,6 +769,23 @@ const GameStats: React.FC = () => {
             <MenuItem value={ACTION_TYPES.MISS}>Misses</MenuItem>
           </Select>
         </FormControl>
+        {team?.playbook && team.playbook.length > 0 && (
+          <FormControl fullWidth size="small">
+            <InputLabel>Play</InputLabel>
+            <Select
+              value={selectedPlay}
+              label="Play"
+              onChange={(e) => setSelectedPlay(e.target.value)}
+            >
+              <MenuItem value="ALL">All Plays</MenuItem>
+              {team.playbook.map((play) => (
+                <MenuItem key={play} value={play}>
+                  {play}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        )}
       </Stack>
     </Box>
   );
@@ -1037,27 +1090,88 @@ const GameStats: React.FC = () => {
 
         {/* Lineups Card */}
         <Grid item xs={12}>
-          <MoleskineCard>
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                mb: 2,
-              }}
-            >
-              <Typography variant="h6" sx={{ fontFamily: "var(--serif)" }}>
-                Lineup Efficiency
-              </Typography>
-              <IconButton
-                onClick={() => setExpandedSection("lineups")}
-                aria-label="Expand Lineup Efficiency section"
-              >
-                <ExpandIcon />
-              </IconButton>
-            </Box>
-            {lineupTable}
-          </MoleskineCard>
+          <Grid container spacing={3}>
+            <Grid item xs={12} md={6}>
+              <MoleskineCard>
+                <Typography
+                  variant="h6"
+                  sx={{ fontFamily: "var(--serif)", mb: 2 }}
+                >
+                  Play Efficiency
+                </Typography>
+                <TableContainer>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow sx={{ bgcolor: "rgba(0,0,0,0.02)" }}>
+                        <TableCell sx={{ fontWeight: 700 }}>Play</TableCell>
+                        <TableCell align="right" sx={{ fontWeight: 700 }}>
+                          Freq
+                        </TableCell>
+                        <TableCell align="right" sx={{ fontWeight: 700 }}>
+                          PTS
+                        </TableCell>
+                        <TableCell align="right" sx={{ fontWeight: 700 }}>
+                          eFG%
+                        </TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {playEfficiency.map((play) => (
+                        <TableRow key={play.name}>
+                          <TableCell sx={{ fontWeight: 600 }}>
+                            {play.name}
+                          </TableCell>
+                          <TableCell align="right">{play.attempts}</TableCell>
+                          <TableCell align="right">{play.points}</TableCell>
+                          <TableCell align="right">{play.efg}%</TableCell>
+                        </TableRow>
+                      ))}
+                      {playEfficiency.length === 0 && (
+                        <TableRow>
+                          <TableCell colSpan={4} align="center">
+                            No play-tagged shots recorded.
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </MoleskineCard>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <MoleskineCard>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    mb: 2,
+                  }}
+                >
+                  <Typography variant="h6" sx={{ fontFamily: "var(--serif)" }}>
+                    Lineup Efficiency
+                  </Typography>
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      onClick={() => setAuditDialogOpen(true)}
+                      startIcon={<Restore />}
+                    >
+                      Audit Subs
+                    </Button>
+                    <IconButton
+                      onClick={() => setExpandedSection("lineups")}
+                      aria-label="Expand Lineup Efficiency section"
+                    >
+                      <ExpandIcon />
+                    </IconButton>
+                  </Stack>
+                </Box>
+                {lineupTable}
+              </MoleskineCard>
+            </Grid>
+          </Grid>
         </Grid>
       </Grid>
 
@@ -1106,6 +1220,16 @@ const GameStats: React.FC = () => {
           <Button onClick={() => setExpandedSection(null)}>Close</Button>
         </DialogActions>
       </Dialog>
+
+      {gameId && (
+        <SubstitutionAuditDialog
+          open={auditDialogOpen}
+          onClose={() => setAuditDialogOpen(false)}
+          gameId={gameId}
+          players={players}
+          jerseyMap={shotChartJerseyMap}
+        />
+      )}
 
       <Dialog
         open={openEditDialog}

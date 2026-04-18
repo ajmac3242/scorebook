@@ -25,6 +25,7 @@ export interface Team {
   defaultFoulLimit?: number;
   defaultOvertimeLength?: number;
   maxStintDuration?: number; // In minutes
+  playbook?: string[];
 }
 
 /**
@@ -87,6 +88,7 @@ export interface StatEvent {
   locationY?: number;
   period: number; // 1, 2, 3, 4 for Quarters; 1, 2 for Halves; 5+ or 3+ for OT
   clockTime?: number; // Seconds remaining in the period when event occurred
+  playName?: string;
   timestamp: string;
   deletedAt?: string;
   synced?: number;
@@ -120,7 +122,8 @@ export class AppDatabase extends Dexie {
     // v14:    Added 'isFavorite', 'defaultPeriodLength', 'defaultTimeoutLimit', 'defaultFoulLimit' to Team.
     // v15:    Added 'defaultOvertimeLength' to Team.
     // v16:    Added 'maxStintDuration' to Team.
-    this.version(16).stores({
+    // v17:    Added 'playbook' to Team and 'playName' to StatEvent.
+    this.version(17).stores({
       teams: "id, synced, deletedAt, isFavorite",
       players: "id, synced, isArchived, deletedAt",
       teamPlayers: "id, [teamId+playerId], teamId, playerId, synced",
