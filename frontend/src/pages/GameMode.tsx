@@ -1318,7 +1318,13 @@ const GameMode: React.FC = () => {
       lastLineupChangeScoreOpp,
       recentStats: sortedGameStats.slice(-10).reverse(),
     };
-  }, [sortedGameStats, period, team?.periodType, team?.fouls, game?.periodLength]);
+  }, [
+    sortedGameStats,
+    period,
+    team?.periodType,
+    team?.fouls,
+    game?.periodLength,
+  ]);
 
   /**
    * ⚡ Bolt: Lightweight live status updates.

@@ -1080,8 +1080,8 @@ export const calculateLineupStats = (
 
   for (let i = 0; i < sortedStats.length; i++) {
     const s = sortedStats[i];
-      // ⚡ Bolt: Inline isActive check to reduce function call overhead in hot loop.
-      if (s.deletedAt) continue;
+    // ⚡ Bolt: Inline isActive check to reduce function call overhead in hot loop.
+    if (s.deletedAt) continue;
 
     // ⚡ Bolt: Handle multi-game aggregation by detecting game context changes in-stream.
     if (currentGameId !== null && s.gameId !== currentGameId) {

@@ -34,7 +34,6 @@ interface RecentActionItemProps {
 
 const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
   ({ stat, playerName, periodLabel, isReadOnly, onEdit, onDelete }) => {
-
     const getActionIcon = (type: string) => {
       const iconSx = { fontSize: 16, mr: 1, verticalAlign: "middle" };
       switch (type) {
