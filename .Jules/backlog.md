@@ -136,10 +136,10 @@
 **Why:** Recording free throws one-by-one is slow and prone to errors during fast-paced games. A dedicated workflow ensures every attempt is captured correctly without context switching.
 **What:** Trigger a "Free Throw Mode" overlay when a shooting foul is recorded or via a quick-action button. This overlay should allow the scorekeeper to quickly tap "Make" or "Miss" for 1, 2, or 3 attempts for a specific player.
 **Acceptance Criteria:**
-- [ ] Modal overlay triggered by FOUL_SHOOTING or a dedicated FT button.
-- [ ] One-tap recording for each attempt in the sequence.
-- [ ] Automatically attributes points and attempts to the selected player.
-- [ ] Closes automatically after the designated number of attempts are recorded.
+- [x] Modal overlay triggered by FOUL_SHOOTING or a dedicated FT button.
+- [x] One-tap recording for each attempt in the sequence.
+- [x] Automatically attributes points and attempts to the selected player.
+- [x] Closes automatically after the designated number of attempts are recorded.
 
 ## Intelligent Linked Event Chaining
 **Priority:** HIGH
