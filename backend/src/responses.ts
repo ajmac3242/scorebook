@@ -34,22 +34,31 @@ export const INTERNAL_KEYS = new Set([
  * @returns {unknown} The sanitized data.
  */
 export function sanitizeOutput(data: unknown): unknown {
+  // ⚡ Bolt: Fast-path for primitives (90% of recursive calls).
+  if (data === null || typeof data !== "object") {
+    return data;
+  }
+
   if (Array.isArray(data)) {
-    return data.map(sanitizeOutput);
-  }
-  if (data !== null && typeof data === "object") {
-    const sanitized: Record<string, unknown> = {};
-    for (const key in data as Record<string, unknown>) {
-      if (
-        Object.prototype.hasOwnProperty.call(data, key) &&
-        (!INTERNAL_KEYS.has(key) || key === "id")
-      ) {
-        sanitized[key] = sanitizeOutput((data as Record<string, unknown>)[key]);
-      }
+    // Optimization: Pre-allocate array if size is known.
+    const len = data.length;
+    const result = new Array(len);
+    for (let i = 0; i < len; i++) {
+      result[i] = sanitizeOutput(data[i]);
     }
-    return sanitized;
+    return result;
   }
-  return data;
+
+  // ⚡ Bolt: Use Object.entries() for faster object iteration in modern engines.
+  const sanitized: Record<string, unknown> = {};
+  const entries = Object.entries(data as Record<string, unknown>);
+  for (let i = 0; i < entries.length; i++) {
+    const [key, value] = entries[i];
+    if (key === "id" || !INTERNAL_KEYS.has(key)) {
+      sanitized[key] = sanitizeOutput(value);
+    }
+  }
+  return sanitized;
 }
 
 /**

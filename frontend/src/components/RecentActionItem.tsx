@@ -25,43 +25,15 @@ import { formatClock } from "../utils/mathUtils";
 
 interface RecentActionItemProps {
   stat: StatEvent;
-  players: Player[];
+  playerName: string;
   periodLabel: string;
   isReadOnly: boolean;
-  teamName?: string;
-  opponentName?: string;
   onEdit: (_stat: StatEvent) => void;
   onDelete: (_id: string) => void;
 }
 
 const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
-  ({
-    stat,
-    players,
-    periodLabel,
-    isReadOnly,
-    teamName,
-    opponentName,
-    onEdit,
-    onDelete,
-  }) => {
-    const getOpponentName = (pId: string) => {
-      if (pId === SPECIAL_PLAYER_IDS.OPPONENT)
-        return opponentName || "Opponent";
-      if (pId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":")) {
-        const jersey = pId.split(":")[1];
-        return `${opponentName || "Opponent"} #${jersey}`;
-      }
-      return null;
-    };
-
-    const playerName =
-      getOpponentName(stat.playerId) ||
-      (stat.playerId === SPECIAL_PLAYER_IDS.TEAM_TIMEOUT ||
-      stat.playerId === SPECIAL_PLAYER_IDS.OUR_TEAM
-        ? teamName || "Our Team"
-        : players?.find((p) => p.id === stat.playerId)?.name || "Unknown");
-
+  ({ stat, playerName, periodLabel, isReadOnly, onEdit, onDelete }) => {
     const getActionIcon = (type: string) => {
       const iconSx = { fontSize: 16, mr: 1, verticalAlign: "middle" };
       switch (type) {

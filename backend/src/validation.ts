@@ -48,10 +48,15 @@ export function isValidPlayerId(id: unknown): boolean {
   if (typeof id !== "string") return false;
   if (isValidUuid(id)) return true;
   if (SPECIAL_ID_SET.has(id)) return true;
+  // ⚡ Bolt: Use O(1) string checks before more expensive operations.
   const strId = id as string;
-  if (strId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":")) {
-    const jersey = strId.split(":")[1];
-    return !!jersey && /^\d{1,2}$/.test(jersey);
+  const prefix = SPECIAL_PLAYER_IDS.OPPONENT + ":";
+  if (strId.startsWith(prefix)) {
+    // Avoid split() if the ID is too long to be a jersey number.
+    // 'OPPONENT:' (9) + '99' (2) = 11 chars max.
+    if (strId.length > 11 || strId.length < 10) return false;
+    const jersey = strId.slice(prefix.length);
+    return /^\d{1,2}$/.test(jersey);
   }
   return false;
 }
