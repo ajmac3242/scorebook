@@ -32,10 +32,10 @@
 **Why:** Inaccurate substitution data ruins plus/minus and lineup efficiency metrics. Coaches need a way to retroactively fix the on-court lineup without deleting and re-entering every subsequent play.
 **What:** Build a "Timeline Audit" view that shows a vertical chronological list of all substitution events. Allow users to edit the time of a sub, change the players involved, or insert a missing sub event.
 **Acceptance Criteria:**
-- [ ] Accessible from the Game Stats or Game Mode page.
-- [ ] Displays a chronological list of SUB_IN and SUB_OUT events.
-- [ ] Allows editing the `clockTime` and `playerId` of any substitution event.
-- [ ] Recalculates all dependent stats (MIN, +/-, Lineup Efficiency) immediately upon saving changes.
+- [x] Accessible from the Game Stats or Game Mode page.
+- [x] Displays a chronological list of SUB_IN and SUB_OUT events.
+- [x] Allows editing the `clockTime` and `playerId` of any substitution event.
+- [x] Recalculates all dependent stats (MIN, +/-, Lineup Efficiency) immediately upon saving changes.
 
 ## Offensive Play/Set Success Tracking
 **Priority:** HIGH
@@ -43,10 +43,10 @@
 **Why:** Coaches need to know which offensive sets are yielding results. Raw stats don't show if a bucket came from a specific designed play or a broken-down possession.
 **What:** Introduce "Play Tagging" for offensive events. Allow coaches to define a playbook in Team Settings and tag MAKE/MISS events with specific play names during the game.
 **Acceptance Criteria:**
-- [ ] CRUD interface in Team Details to manage a "Playbook" (list of play names).
-- [ ] Optional "Play" dropdown in the MAKE/MISS recording dialog in Game Mode.
-- [ ] "Play Efficiency" table in Game Stats showing: Play Name, Frequency, Points, and EFG% for each set.
-- [ ] Filter Shot Chart by specific Play Name.
+- [x] CRUD interface in Team Details to manage a "Playbook" (list of play names).
+- [x] Optional "Play" dropdown in the MAKE/MISS recording dialog in Game Mode.
+- [x] "Play Efficiency" table in Game Stats showing: Play Name, Frequency, Points, and EFG% for each set.
+- [x] Filter Shot Chart by specific Play Name.
 
 ## Live Defensive Momentum HUD (Stops & Kills)
 **Priority:** HIGH
@@ -136,10 +136,10 @@
 **Why:** Recording free throws one-by-one is slow and prone to errors during fast-paced games. A dedicated workflow ensures every attempt is captured correctly without context switching.
 **What:** Trigger a "Free Throw Mode" overlay when a shooting foul is recorded or via a quick-action button. This overlay should allow the scorekeeper to quickly tap "Make" or "Miss" for 1, 2, or 3 attempts for a specific player.
 **Acceptance Criteria:**
-- [ ] Modal overlay triggered by FOUL_SHOOTING or a dedicated FT button.
-- [ ] One-tap recording for each attempt in the sequence.
-- [ ] Automatically attributes points and attempts to the selected player.
-- [ ] Closes automatically after the designated number of attempts are recorded.
+- [x] Modal overlay triggered by FOUL_SHOOTING or a dedicated FT button.
+- [x] One-tap recording for each attempt in the sequence.
+- [x] Automatically attributes points and attempts to the selected player.
+- [x] Closes automatically after the designated number of attempts are recorded.
 
 ## Intelligent Linked Event Chaining
 **Priority:** HIGH
