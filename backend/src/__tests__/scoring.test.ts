@@ -1,5 +1,9 @@
 import { describe, it, expect } from "@jest/globals";
-import { accumulateScores, determineResult, calculateGameResultFromStats } from "../scoring.js";
+import {
+  accumulateScores,
+  determineResult,
+  calculateGameResultFromStats,
+} from "../scoring.js";
 import { SPECIAL_PLAYER_IDS } from "../validation.js";
 
 describe("scoring.ts", () => {
@@ -67,7 +71,7 @@ describe("scoring.ts", () => {
       expect(result).toEqual({
         teamScore: 2,
         oppScore: 3,
-        result: "L"
+        result: "L",
       });
     });
   });

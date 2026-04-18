@@ -10,7 +10,7 @@ describe("responses.ts", () => {
         SK: "METADATA#123",
         name: "Test Team",
         deletedAt: "2023-01-01",
-        isArchived: true
+        isArchived: true,
       };
       const result: any = sanitizeOutput(input);
       expect(result.id).toBe("123");
@@ -27,12 +27,12 @@ describe("responses.ts", () => {
         PK: "TEAM#123",
         players: [
           { id: "p1", PK: "PLAYER#p1", name: "Player 1" },
-          { id: "p2", PK: "PLAYER#p2", name: "Player 2" }
+          { id: "p2", PK: "PLAYER#p2", name: "Player 2" },
         ],
         metadata: {
           SK: "META",
-          foo: "bar"
-        }
+          foo: "bar",
+        },
       };
       const result: any = sanitizeOutput(input);
       expect(result.id).toBe("123");

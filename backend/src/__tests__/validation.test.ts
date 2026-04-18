@@ -1,5 +1,9 @@
 import { describe, it, expect } from "@jest/globals";
-import { isValidUuid, isValidPlayerId, SPECIAL_PLAYER_IDS } from "../validation.js";
+import {
+  isValidUuid,
+  isValidPlayerId,
+  SPECIAL_PLAYER_IDS,
+} from "../validation.js";
 
 describe("validation.ts", () => {
   describe("isValidUuid", () => {
@@ -23,7 +27,9 @@ describe("validation.ts", () => {
 
   describe("isValidPlayerId", () => {
     it("returns true for valid UUIDs", () => {
-      expect(isValidPlayerId("277e909a-6536-4d2d-937e-f608759556fb")).toBe(true);
+      expect(isValidPlayerId("277e909a-6536-4d2d-937e-f608759556fb")).toBe(
+        true,
+      );
     });
 
     it("returns true for special constants", () => {
