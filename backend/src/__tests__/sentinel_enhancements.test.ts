@@ -152,7 +152,7 @@ describe("Sentinel Security Enhancements Tests", () => {
       const response: any = await handler(event);
       expect(response.statusCode).toBe(400);
       expect(JSON.parse(response.body).message).toContain(
-        "Clock time must be at least 0",
+        "Clock time must be a finite number at least 0",
       );
     });
 
@@ -166,7 +166,7 @@ describe("Sentinel Security Enhancements Tests", () => {
       const response: any = await handler(event);
       expect(response.statusCode).toBe(400);
       expect(JSON.parse(response.body).message).toContain(
-        "Location coordinates must be numbers",
+        "Location coordinates must be finite numbers between 0 and 100",
       );
     });
 
@@ -364,6 +364,80 @@ describe("Sentinel Security Enhancements Tests", () => {
       // If accumulateScores is buggy, it might attribute OPPONENT:12 to the team
       expect(snapshot.game.oppScore).toBe(2);
       expect(snapshot.game.teamScore).toBe(3);
+    });
+  });
+
+  describe("New Security Fixes", () => {
+    it("should NOT allow extra characters at the end of a timestamp", async () => {
+      const malformedBody = {
+        id: "277e909a-6536-4d2d-937e-f608759556f8",
+        type: "MAKE",
+        playerId: "277e909a-6536-4d2d-937e-f608759556fb",
+        timestamp: "2023-01-01T12:00:00HACKED",
+      };
+
+      const event = createEvent(
+        "POST",
+        "/games/277e909a-6536-4d2d-937e-f608759556fb/stats",
+        malformedBody,
+      );
+      const response: any = await handler(event);
+
+      expect(response.statusCode).toBe(400);
+      expect(JSON.parse(response.body).message).toBe(
+        "Invalid timestamp format",
+      );
+    });
+
+    it("should reject non-finite numbers for clockTime", () => {
+      const { validateStatEvent } = require("../validation.js");
+      const error = validateStatEvent({
+        type: "MAKE",
+        playerId: "277e909a-6536-4d2d-937e-f608759556fb",
+        clockTime: Infinity,
+      });
+      expect(error).toBe("Clock time must be a finite number at least 0");
+    });
+
+    it("should strip __proto__ in stripLocalFields", () => {
+      const { stripLocalFields } = require("../utils.js");
+      const malicious = JSON.parse(
+        '{"name": "test", "__proto__": {"polluted": true}}',
+      );
+      const cleaned = stripLocalFields(malicious);
+      expect((cleaned as any).__proto__.polluted).toBeUndefined();
+      expect(Object.prototype.hasOwnProperty.call(cleaned, "__proto__")).toBe(
+        false,
+      );
+    });
+
+    it("should handle nested arrays in stripLocalFields", () => {
+      const { stripLocalFields } = require("../utils.js");
+      const data = {
+        name: "Team",
+        PK: "SECRET",
+        players: [{ name: "P1", SK: "HIDE" }],
+      };
+      const cleaned = stripLocalFields(data);
+      expect(cleaned.PK).toBeUndefined();
+      expect((cleaned.players as any)[0].SK).toBeUndefined();
+    });
+
+    it("should validate ID in team-player association", async () => {
+      const malformedBody = {
+        playerId: "277e909a-6536-4d2d-937e-f608759556fb",
+        id: "../../../traversal",
+      };
+
+      const event = createEvent(
+        "POST",
+        "/teams/277e909a-6536-4d2d-937e-f608759556fb/players",
+        malformedBody,
+      );
+      const response: any = await handler(event);
+
+      expect(response.statusCode).toBe(400);
+      expect(JSON.parse(response.body).message).toContain("UUID required");
     });
   });
 });

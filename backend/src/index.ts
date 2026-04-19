@@ -343,7 +343,7 @@ async function handleGameStats(
     const timestamp = (body?.timestamp as string) || new Date().toISOString();
     if (
       typeof timestamp !== "string" ||
-      !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(timestamp)
+      !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z?$/.test(timestamp)
     ) {
       return badRequest("Invalid timestamp format");
     }
@@ -456,6 +456,11 @@ async function handleTeams(
       ) {
         return badRequest("Jersey number must be 1-3 digits");
       }
+      const id = (body?.id as string) || uuidv4();
+      if (!isValidUuid(id)) {
+        return badRequest("Invalid team-player association id (UUID required)");
+      }
+
       const cleanBody = stripLocalFields(body);
       const teamPlayerItem = {
         ...(cleanBody as Record<string, unknown>),
@@ -463,7 +468,7 @@ async function handleTeams(
         SK: Keys.player(body.playerId as string),
         GSI1PK: Keys.team(tId),
         GSI1SK: Keys.player(body.playerId as string),
-        id: body.id as string,
+        id,
         teamId: tId,
       };
       await putNewItem(tableName, teamPlayerItem);
