@@ -22,11 +22,26 @@ import {
  * @param {StatEvent[]} stats - The list of events to sort.
  * @returns {StatEvent[]} A new sorted array of events.
  */
+const ACTION_PRIORITY: Record<string, number> = {
+  [ACTION_TYPES.SUB_IN]: 1,
+  [ACTION_TYPES.SUB_OUT]: 3,
+};
+
+/**
+ * Standardized sorting for statistical events based on timestamp.
+ * Includes a secondary sort for simultaneous events (SUB_IN > others > SUB_OUT).
+ * @param {StatEvent[]} stats - The list of events to sort.
+ * @returns {StatEvent[]} A new sorted array of events.
+ */
 export const sortStats = (stats: StatEvent[]): StatEvent[] => {
   return [...stats].sort((a, b) => {
     if (a.timestamp < b.timestamp) return -1;
     if (a.timestamp > b.timestamp) return 1;
-    return 0;
+
+    // Secondary sort for simultaneous events
+    const priorityA = ACTION_PRIORITY[a.type] || 2;
+    const priorityB = ACTION_PRIORITY[b.type] || 2;
+    return priorityA - priorityB;
   });
 };
 
@@ -102,9 +117,11 @@ export interface PlayerAggregates {
   makes: number;
   attempts: number;
   threePM: number;
+  threePA: number;
   ftm: number;
   fta: number;
   fgPct: string;
+  threePPct: string;
   ftPct: string;
   efgPct: string;
   tsPct: string;
@@ -329,6 +346,7 @@ interface BaseStats {
   blocks: number;
   fouls: number;
   threePM?: number;
+  threePA?: number;
   ftm?: number;
   fta?: number;
 }
@@ -350,14 +368,20 @@ export const applyActionToAggregate = (agg: BaseStats, stat: StatEvent) => {
       } else {
         agg.makes++;
         agg.attempts++;
+        if (stat.points === 3) {
+          if (agg.threePM !== undefined) agg.threePM++;
+          if (agg.threePA !== undefined) agg.threePA++;
+        }
       }
-      if (stat.points === 3 && agg.threePM !== undefined) agg.threePM++;
       break;
     case ACTION_TYPES.MISS:
       if (stat.points === 1) {
         if (agg.fta !== undefined) agg.fta++;
       } else {
         agg.attempts++;
+        if (stat.points === 3) {
+          if (agg.threePA !== undefined) agg.threePA++;
+        }
       }
       break;
     case ACTION_TYPES.REBOUND:
@@ -434,9 +458,11 @@ function initializeStatsMap(
       makes: 0,
       attempts: 0,
       threePM: 0,
+      threePA: 0,
       ftm: 0,
       fta: 0,
       fgPct: "0.0",
+      threePPct: "0.0",
       ftPct: "0.0",
       efgPct: "0.0",
       tsPct: "0.0",
@@ -547,14 +573,20 @@ export const calculatePlayerAggregates = (
           } else {
             player.makes++;
             player.attempts++;
+            if (stat.points === 3) {
+              player.threePM++;
+              player.threePA++;
+            }
           }
-          if (stat.points === 3) player.threePM++;
           break;
         case ACTION_TYPES.MISS:
           if (stat.points === 1) {
             player.fta++;
           } else {
             player.attempts++;
+            if (stat.points === 3) {
+              player.threePA++;
+            }
           }
           break;
         case ACTION_TYPES.REBOUND:
@@ -627,6 +659,7 @@ export const calculatePlayerAggregates = (
     const gp = gpActual || 1;
     player.gp = gpActual;
     player.fgPct = calculateFgPct(player.makes, player.attempts);
+    player.threePPct = calculateFgPct(player.threePM, player.threePA);
     player.ftPct = calculateFtPct(player.ftm, player.fta);
     player.efgPct = calculateEfgPct(
       player.makes,
@@ -830,10 +863,12 @@ export const calculateTeamAggregates = (
 
   let wins = 0;
   let losses = 0;
+  let draws = 0;
   // ⚡ Bolt: Iterate over map values directly to improve iteration performance.
   for (const totals of gameTotals.values()) {
     if (totals.team > totals.opp) wins++;
     else if (totals.team < totals.opp) losses++;
+    else draws++;
   }
 
   const gp = targetCount || 1;
@@ -842,7 +877,7 @@ export const calculateTeamAggregates = (
     rpg: formatToOne(totalRebounds / gp),
     apg: formatToOne(totalAssists / gp),
     oppg: formatToOne(totalOppPoints / gp),
-    record: `${wins}-${losses}`,
+    record: draws > 0 ? `${wins}-${losses}-${draws}` : `${wins}-${losses}`,
     totalGames: targetCount,
   };
 };

@@ -2729,6 +2729,9 @@ const GameMode: React.FC = () => {
                               { key: "jerseyNumber", label: "PLAYER", px: 1 },
                               { key: "min", label: "MIN" },
                               { key: "points", label: "PTS" },
+                              { key: "threePM", label: "3PM" },
+                              { key: "threePA", label: "3PA" },
+                              { key: "threePPct", label: "3P%" },
                               { key: "ftm", label: "FTM" },
                               { key: "fta", label: "FTA" },
                               { key: "ftPct", label: "FT%" },
@@ -2788,6 +2791,9 @@ const GameMode: React.FC = () => {
                             name={row.name}
                             min={row.min}
                             points={row.points}
+                            threePM={row.threePM}
+                            threePA={row.threePA}
+                            threePPct={row.threePPct}
                             ftm={row.ftm}
                             fta={row.fta}
                             ftPct={row.ftPct}

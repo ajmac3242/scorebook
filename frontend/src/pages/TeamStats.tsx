@@ -832,6 +832,27 @@ const TeamStats: React.FC = () => {
                     tooltip="Points"
                   />
                   <SortableHeader
+                    label={STAT_ACRONYMS.THREE_POINTERS_MADE}
+                    sortKey="threePM"
+                    sortConfig={sortConfig}
+                    onSort={handleSort}
+                    tooltip="3-Pointers Made"
+                  />
+                  <SortableHeader
+                    label={STAT_ACRONYMS.THREE_POINTERS_ATTEMPTED}
+                    sortKey="threePA"
+                    sortConfig={sortConfig}
+                    onSort={handleSort}
+                    tooltip="3-Pointers Attempted"
+                  />
+                  <SortableHeader
+                    label={STAT_ACRONYMS.THREE_POINTER_PERCENTAGE}
+                    sortKey="threePPct"
+                    sortConfig={sortConfig}
+                    onSort={handleSort}
+                    tooltip="3-Pointer Percentage"
+                  />
+                  <SortableHeader
                     label="FG%"
                     sortKey="fgPct"
                     sortConfig={sortConfig}
@@ -950,6 +971,24 @@ const TeamStats: React.FC = () => {
                       }}
                     >
                       {row.points}
+                    </TableCell>
+                    <TableCell
+                      align="right"
+                      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+                    >
+                      {row.threePM}
+                    </TableCell>
+                    <TableCell
+                      align="right"
+                      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+                    >
+                      {row.threePA}
+                    </TableCell>
+                    <TableCell
+                      align="right"
+                      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+                    >
+                      {row.threePPct}%
                     </TableCell>
                     <TableCell
                       align="right"

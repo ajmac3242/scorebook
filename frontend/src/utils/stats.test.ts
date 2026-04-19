@@ -256,6 +256,33 @@ describe("stats utilities", () => {
       expect(p1.efgPct).toBe("150.0"); // (1 + 0.5 * 1) / 1 * 100 = 150%
     });
 
+    it("tracks 3PT attempts and percentage correctly", () => {
+      const players = [{ id: "p1", name: "Player 1" }];
+      const stats: StatEvent[] = [
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 3,
+          timestamp: "1",
+          period: 1,
+        },
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MISS,
+          points: 3,
+          timestamp: "2",
+          period: 1,
+        },
+      ];
+      const results = calculatePlayerAggregates(players, stats);
+      const p1 = results[0];
+      expect(p1.threePM).toBe(1);
+      expect(p1.threePA).toBe(2);
+      expect(p1.threePPct).toBe("50.0");
+    });
+
     it("handles period transitions for player MIN and plus/minus correctly", () => {
       const players = [{ id: "p1", name: "Player 1" }];
       const stats: StatEvent[] = [
@@ -587,7 +614,7 @@ describe("stats utilities", () => {
       const res2 = calculateTeamAggregates(games, []);
       expect(res2.totalGames).toBe(2);
       expect(res2.ppg).toBe("0.0");
-      expect(res2.record).toBe("0-0");
+      expect(res2.record).toBe("0-0-2");
     });
   });
 
@@ -1139,6 +1166,39 @@ describe("stats utilities", () => {
       expect(results.length).toBe(1);
       expect(results[0].pointsFor).toBe(7);
       expect(results[0].seconds).toBe(1200);
+    });
+
+    it("handles simultaneous events using priority (SUB_IN > MAKE > SUB_OUT)", () => {
+      const players = [{ id: "p1", name: "Player 1" }];
+      const stats: StatEvent[] = [
+        {
+          id: "2",
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "2023-01-01T10:00:00.000Z",
+          period: 1,
+          clockTime: 600,
+        },
+        {
+          id: "1",
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.SUB_IN,
+          timestamp: "2023-01-01T10:00:00.000Z",
+          period: 1,
+          clockTime: 600,
+        },
+      ];
+
+      // calculatePlayerAggregates calls sortStats
+      const results = calculatePlayerAggregates(players, stats);
+      const p1 = results[0];
+
+      // If SUB_IN didn't come first, p1 wouldn't have been "active" to get the 2 points
+      // because they would have been SUB_IN'd *after* the MAKE in the processing loop.
+      expect(p1.points).toBe(2);
     });
 
     it("properly handles chronological order even if stats are unsorted", () => {
