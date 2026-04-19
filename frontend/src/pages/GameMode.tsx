@@ -2560,6 +2560,12 @@ const GameMode: React.FC = () => {
         fullWidth
         maxWidth="xs"
         aria-describedby="stat-dialog-player-info"
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && selectedPlayerId && statType && !isSavingStat) {
+            e.preventDefault();
+            handleSaveStat();
+          }
+        }}
       >
         <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
           {isEditing ? "Edit Action" : "Record Action"}
@@ -3312,6 +3318,7 @@ const EditClockDialog: React.FC<{
               <IconButton
                 onClick={() => setMins(Math.min(99, mins + 1))}
                 size="small"
+                aria-label="Increase minutes"
               >
                 <AddIcon />
               </IconButton>
@@ -3324,6 +3331,7 @@ const EditClockDialog: React.FC<{
               <IconButton
                 onClick={() => setMins(Math.max(0, mins - 1))}
                 size="small"
+                aria-label="Decrease minutes"
               >
                 <RemoveIcon />
               </IconButton>
@@ -3340,7 +3348,11 @@ const EditClockDialog: React.FC<{
               SECONDS
             </Typography>
             <Stack direction="column" spacing={1} alignItems="center">
-              <IconButton onClick={() => setSecs((secs + 1) % 60)} size="small">
+              <IconButton
+                onClick={() => setSecs((secs + 1) % 60)}
+                size="small"
+                aria-label="Increase seconds"
+              >
                 <AddIcon />
               </IconButton>
               <Typography
@@ -3352,6 +3364,7 @@ const EditClockDialog: React.FC<{
               <IconButton
                 onClick={() => setSecs((secs - 1 + 60) % 60)}
                 size="small"
+                aria-label="Decrease seconds"
               >
                 <RemoveIcon />
               </IconButton>

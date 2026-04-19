@@ -25,6 +25,7 @@ import {
   Warning as WarningIcon,
   ContentCopy as CopyIcon,
   DeleteOutline as ClearIcon,
+  Check as CheckIcon,
 } from "@mui/icons-material";
 import { useAuth } from "../context/AuthContext";
 import { syncService } from "../utils/syncService";
@@ -43,6 +44,7 @@ const Settings: React.FC = () => {
   const [hasUnsynced, setHasUnsynced] = useState(false);
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   const [logs, setLogs] = useState<LogEntry[]>(logger.getLogs());
+  const [isCopied, setIsCopied] = useState(false);
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;
@@ -134,6 +136,8 @@ const Settings: React.FC = () => {
       )
       .join("\n\n");
     navigator.clipboard.writeText(logString);
+    setIsCopied(true);
+    setTimeout(() => setIsCopied(false), 2000);
     setSnackbar({
       open: true,
       message: "Logs copied to clipboard",
@@ -341,11 +345,12 @@ const Settings: React.FC = () => {
             <Stack direction="row" spacing={1}>
               <Button
                 size="small"
-                startIcon={<CopyIcon />}
+                startIcon={isCopied ? <CheckIcon /> : <CopyIcon />}
                 onClick={copyLogsToClipboard}
                 disabled={logs.length === 0}
+                color={isCopied ? "success" : "primary"}
               >
-                Copy
+                {isCopied ? "Copied" : "Copy"}
               </Button>
               <Button
                 size="small"

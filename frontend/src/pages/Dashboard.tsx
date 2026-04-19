@@ -182,7 +182,27 @@ const Dashboard: React.FC = () => {
     return (
       <Box>
         <PageHeader title="Notebook Overview" />
-        <MoleskineCard sx={{ p: { xs: 4, sm: 8 }, mb: 4, textAlign: "center" }}>
+        <Box
+          sx={{
+            textAlign: "center",
+            py: { xs: 6, sm: 10 },
+            px: { xs: 2, sm: 4 },
+            bgcolor: "rgba(0,0,0,0.02)",
+            borderRadius: 4,
+            border: "2px dashed rgba(0,0,0,0.1)",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
+          <StarIcon
+            sx={{
+              fontSize: 64,
+              color: "primary.main",
+              opacity: 0.2,
+              mb: 2,
+            }}
+          />
           <Typography
             variant="h4"
             sx={{ fontFamily: "var(--serif)", mb: 2, fontWeight: 700 }}
@@ -209,7 +229,7 @@ const Dashboard: React.FC = () => {
               Star a Team in Notebook
             </Button>
           </Stack>
-        </MoleskineCard>
+        </Box>
       </Box>
     );
   }
