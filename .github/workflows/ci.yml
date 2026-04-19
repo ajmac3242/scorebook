@@ -22,22 +22,17 @@ permissions:
 
 jobs:
   # ---------------------------------------------------------------
-  # Quality & Tests: Backend, Frontend, and Docs
-  # Combined into a single job to avoid race conditions on git push
+  # Path Filtering: Determines what changed
   # ---------------------------------------------------------------
-  quality-and-tests:
-    name: Quality, Tests & Docs
+  filter:
+    name: Filter Changes
     runs-on: ubuntu-latest
-    timeout-minutes: 10
-    strategy:
-      fail-fast: true
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+      frontend: ${{ steps.filter.outputs.frontend }}
+      docs: ${{ steps.filter.outputs.docs }}
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref || github.ref_name }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0
-
       - uses: dorny/paths-filter@v3
         id: filter
         with:
@@ -50,25 +45,35 @@ jobs:
               - 'docs/**'
               - 'infra/**'
 
+  # ---------------------------------------------------------------
+  # Backend Quality & Tests
+  # ---------------------------------------------------------------
+  backend-ci:
+    name: Backend CI
+    needs: filter
+    if: needs.filter.outputs.backend == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
       - name: Install pnpm
-        if: steps.filter.outputs.backend == 'true' || steps.filter.outputs.frontend == 'true'
         uses: pnpm/action-setup@v4
         with:
           version: 9
 
       - name: Setup Node
-        if: steps.filter.outputs.backend == 'true' || steps.filter.outputs.frontend == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: 'pnpm'
-          cache-dependency-path: |
-            backend/pnpm-lock.yaml
-            frontend/pnpm-lock.yaml
+          cache-dependency-path: backend/pnpm-lock.yaml
 
-      # --- Backend ---
       - name: "Backend: Install & Build"
-        if: steps.filter.outputs.backend == 'true'
         timeout-minutes: 5
         run: |
           echo "::group::Backend Build"
@@ -77,19 +82,7 @@ jobs:
           pnpm run build
           echo "::endgroup::"
 
-      - name: "Backend: Format & Lint"
-        if: steps.filter.outputs.backend == 'true'
-        timeout-minutes: 5
-        run: |
-          echo "::group::Backend Lint"
-          cd backend
-          pnpm exec prettier --write "src/**/*.ts"
-          # Auto-add missing JSDoc stubs.
-          pnpm exec eslint "src/**/*.ts" --config eslint.config.mjs --fix --rule '{"jsdoc/require-jsdoc": ["warn", {"enableFixer": true, "require": {"FunctionDeclaration": true, "FunctionExpression": true, "MethodDefinition": true}}]}'
-          echo "::endgroup::"
-
       - name: "Backend: Run Tests"
-        if: steps.filter.outputs.backend == 'true'
         timeout-minutes: 5
         run: |
           echo "::group::Backend Tests"
@@ -97,9 +90,45 @@ jobs:
           pnpm test -- --verbose
           echo "::endgroup::"
 
-      # --- Frontend ---
+      - name: Upload Backend Logs on Failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-failure-logs
+          path: |
+            backend/coverage
+            backend/*.log
+          if-no-files-found: ignore
+
+  # ---------------------------------------------------------------
+  # Frontend Quality & Tests
+  # ---------------------------------------------------------------
+  frontend-ci:
+    name: Frontend CI
+    needs: filter
+    if: needs.filter.outputs.frontend == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+          cache-dependency-path: frontend/pnpm-lock.yaml
+
       - name: "Frontend: Install & Build"
-        if: steps.filter.outputs.frontend == 'true'
         timeout-minutes: 5
         run: |
           echo "::group::Frontend Build"
@@ -109,25 +138,13 @@ jobs:
           echo "::endgroup::"
 
       - name: Generate frontend build hash
-        if: steps.filter.outputs.frontend == 'true'
         timeout-minutes: 5
         run: |
           echo "::group::Generate frontend build hash"
           find frontend/dist -type f | sort | xargs sha256sum | sha256sum | awk '{print $1}' > frontend-build-hash.txt
           echo "::endgroup::"
 
-      - name: "Frontend: Format & Lint"
-        if: steps.filter.outputs.frontend == 'true'
-        timeout-minutes: 5
-        run: |
-          echo "::group::Frontend Lint"
-          cd frontend
-          pnpm exec prettier --write "src/**/*.{ts,tsx}"
-          pnpm exec eslint "src/**/*.{ts,tsx}" --config eslint.config.js --fix --rule '{"jsdoc/require-jsdoc": ["warn", {"enableFixer": true, "require": {"FunctionDeclaration": true, "FunctionExpression": true, "MethodDefinition": true}}]}'
-          echo "::endgroup::"
-
       - name: "Frontend: Run Tests"
-        if: steps.filter.outputs.frontend == 'true'
         timeout-minutes: 5
         run: |
           echo "::group::Frontend Tests"
@@ -135,29 +152,72 @@ jobs:
           pnpm test -- --reporter=verbose
           echo "::endgroup::"
 
-      - name: Job Summary
-        if: always()
+      - name: Upload Frontend Logs on Failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-failure-logs
+          path: |
+            frontend/coverage
+            frontend/*.log
+            frontend-build-hash.txt
+          if-no-files-found: ignore
+
+  # ---------------------------------------------------------------
+  # Documentation, Diagrams & Auto-Fix Commits
+  # ---------------------------------------------------------------
+  docs-and-auto-fix:
+    name: Docs & Auto-Fix
+    needs: filter
+    if: always() && (needs.filter.outputs.backend == 'true' || needs.filter.outputs.frontend == 'true' || needs.filter.outputs.docs == 'true')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+          cache-dependency-path: |
+            backend/pnpm-lock.yaml
+            frontend/pnpm-lock.yaml
+
+      # --- Backend Auto-Fix ---
+      - name: "Backend: Auto-Fix"
+        if: needs.filter.outputs.backend == 'true'
         run: |
-          echo "::group::Job Summary"
-          echo "### CI Run Summary 🚀" >> $GITHUB_STEP_SUMMARY
-          echo "| Component | Status |" >> $GITHUB_STEP_SUMMARY
-          echo "| :--- | :--- |" >> $GITHUB_STEP_SUMMARY
-          echo "| Backend | ${{ steps.filter.outputs.backend == 'true' && '✅ Changed' || 'ℹ️ Unchanged' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Frontend | ${{ steps.filter.outputs.frontend == 'true' && '✅ Changed' || 'ℹ️ Unchanged' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Docs & Diagrams | ${{ steps.filter.outputs.docs == 'true' && '✅ Changed' || 'ℹ️ Unchanged' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "::group::Backend Auto-Fix"
+          cd backend
+          for i in {1..3}; do pnpm install --frozen-lockfile --reporter=appendonly && break || if [ $i -eq 3 ]; then exit 1; else sleep 10; fi; done
+          pnpm exec prettier --write "src/**/*.ts"
+          pnpm exec eslint "src/**/*.ts" --config eslint.config.mjs --fix --rule '{"jsdoc/require-jsdoc": ["warn", {"enableFixer": true, "require": {"FunctionDeclaration": true, "FunctionExpression": true, "MethodDefinition": true}}]}'
+          echo "::endgroup::"
 
-          if [[ "${{ steps.filter.outputs.docs }}" == "true" ]]; then
-            echo "- **Documentation:** Updated via terraform-docs" >> $GITHUB_STEP_SUMMARY
-            echo "- **Architecture Diagram:** Regenerated via Diagrams-as-Code" >> $GITHUB_STEP_SUMMARY
-          fi
-
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Overall Status:** ${{ job.status == 'success' && '🟢 Success' || '🔴 Failed' }}" >> $GITHUB_STEP_SUMMARY
+      # --- Frontend Auto-Fix ---
+      - name: "Frontend: Auto-Fix"
+        if: needs.filter.outputs.frontend == 'true'
+        run: |
+          echo "::group::Frontend Auto-Fix"
+          cd frontend
+          for i in {1..3}; do pnpm install --frozen-lockfile --reporter=appendonly && break || if [ $i -eq 3 ]; then exit 1; else sleep 10; fi; done
+          pnpm exec prettier --write "src/**/*.{ts,tsx}"
+          pnpm exec eslint "src/**/*.{ts,tsx}" --config eslint.config.js --fix --rule '{"jsdoc/require-jsdoc": ["warn", {"enableFixer": true, "require": {"FunctionDeclaration": true, "FunctionExpression": true, "MethodDefinition": true}}]}'
           echo "::endgroup::"
 
       # --- Documentation & Diagrams ---
       - name: Render terraform-docs
-        if: steps.filter.outputs.docs == 'true'
+        if: needs.filter.outputs.docs == 'true'
         uses: terraform-docs/gh-actions@v1.3.0
         timeout-minutes: 5
         with:
@@ -167,7 +227,7 @@ jobs:
           git-push: "false"
 
       - name: Install Graphviz
-        if: steps.filter.outputs.docs == 'true'
+        if: needs.filter.outputs.docs == 'true'
         timeout-minutes: 5
         run: |
           echo "::group::Install Graphviz"
@@ -177,7 +237,7 @@ jobs:
           echo "::endgroup::"
 
       - name: Set up Python
-        if: steps.filter.outputs.docs == 'true'
+        if: needs.filter.outputs.docs == 'true'
         uses: actions/setup-python@v5
         timeout-minutes: 5
         with:
@@ -186,7 +246,7 @@ jobs:
           cache-dependency-path: 'docs/requirements.txt'
 
       - name: Install diagram dependencies
-        if: steps.filter.outputs.docs == 'true'
+        if: needs.filter.outputs.docs == 'true'
         timeout-minutes: 5
         run: |
           echo "::group::Install diagram dependencies"
@@ -194,7 +254,7 @@ jobs:
           echo "::endgroup::"
 
       - name: Generate architecture diagram
-        if: steps.filter.outputs.docs == 'true'
+        if: needs.filter.outputs.docs == 'true'
         timeout-minutes: 5
         run: |
           echo "::group::Generate architecture diagram"
@@ -244,37 +304,38 @@ jobs:
 
       # --- Unified Commit ---
       - name: Commit Auto-fixes and Docs
-        if: steps.filter.outputs.backend == 'true' || steps.filter.outputs.frontend == 'true' || steps.filter.outputs.docs == 'true'
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore: auto-format, JSDoc stubs, and docs update [skip ci]"
           file_pattern: "backend/src/** frontend/src/** infra/README.md docs/architecture.png"
 
-      - name: Upload Test Results on Failure
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ci-failure-logs
-          path: |
-            backend/coverage
-            frontend/coverage
-            backend/*.log
-            frontend/*.log
-            infra/README.md
-            docs/*.png
-            frontend-build-hash.txt
-          if-no-files-found: ignore
+  # ---------------------------------------------------------------
+  # Summary Job: Provides a consolidated view of the run
+  # ---------------------------------------------------------------
+  summary:
+    name: Job Summary
+    needs: [filter, backend-ci, frontend-ci, docs-and-auto-fix]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Job Summary
+        run: |
+          echo "### CI Run Summary 🚀" >> $GITHUB_STEP_SUMMARY
+          echo "| Component | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "| :--- | :--- |" >> $GITHUB_STEP_SUMMARY
+          echo "| Backend | ${{ needs.filter.outputs.backend == 'true' && (needs.backend-ci.result == 'success' && '✅ Success' || '❌ Failed') || 'ℹ️ Unchanged' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Frontend | ${{ needs.filter.outputs.frontend == 'true' && (needs.frontend-ci.result == 'success' && '✅ Success' || '❌ Failed') || 'ℹ️ Unchanged' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Docs & Fixes | ${{ needs.docs-and-auto-fix.result == 'success' && '✅ Success' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
 
   # ---------------------------------------------------------------
-  # Auto-Merge: Only runs if quality-and-tests passes
-  # No branch protection needed — the `needs` gate is sufficient
+  # Auto-Merge: Only runs if parallel jobs pass
   # ---------------------------------------------------------------
   auto-merge:
     name: Auto-Merge PR
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: quality-and-tests
-    if: github.event_name == 'pull_request'
+    needs: [backend-ci, frontend-ci, docs-and-auto-fix]
+    if: github.event_name == 'pull_request' && (success() || needs.backend-ci.result == 'skipped' && needs.frontend-ci.result == 'skipped')
     permissions:
       contents: write
       pull-requests: write
