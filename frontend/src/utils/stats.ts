@@ -772,7 +772,11 @@ export const calculateStopsAndKills = (stats: StatEvent[]) => {
       inOpponentPossession = false;
     }
     // If opponent gets an offensive rebound, the possession continues.
-    else if (inOpponentPossession && isOpp && s.type === ACTION_TYPES.OFF_REBOUND) {
+    else if (
+      inOpponentPossession &&
+      isOpp &&
+      s.type === ACTION_TYPES.OFF_REBOUND
+    ) {
       // Keep inOpponentPossession = true
     }
     // Any other action by our team (except rebound handled above) or change in game state
