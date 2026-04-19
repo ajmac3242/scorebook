@@ -1903,6 +1903,7 @@ const GameMode: React.FC = () => {
       period,
       trackingMode,
       clockSeconds,
+      shotQuality,
     ],
   );
 
