@@ -17,6 +17,9 @@ export const REDACTED_HEADERS = new Set([
   "x-api-key",
   "proxy-authorization",
   "x-amz-security-token",
+  "x-auth-token",
+  "session-id",
+  "api-key",
 ]);
 
 /**
@@ -168,29 +171,46 @@ export function getHeader(
  * @param {number} depth - Current recursion depth.
  * @returns {Record<string, unknown>} The cleaned object.
  */
-export function stripLocalFields(
-  data: unknown,
-  depth = 0,
-): Record<string, unknown> {
-  if (!data || typeof data !== "object" || data === null || depth > 10) {
+/**
+ * Set of keys that are forbidden to prevent prototype pollution.
+ */
+const FORBIDDEN_KEYS = new Set(["__proto__", "constructor", "prototype"]);
+
+/**
+ * Strips local-only fields and internal DynamoDB keys from the data object before saving.
+ *
+ * WHY: This provides mass assignment protection and prevents UI-only state or
+ * internal database keys from being persisted. It ensures that only valid,
+ * schema-defined fields are saved to DynamoDB. It also protects against
+ * prototype pollution and recursively cleans arrays.
+ *
+ * @param {unknown} data - The data to clean.
+ * @param {number} depth - Current recursion depth.
+ * @returns {any} The cleaned data.
+ */
+export function stripLocalFields(data: unknown, depth = 0): any {
+  if (data === null || typeof data !== "object") {
+    return data;
+  }
+
+  if (depth > 10) {
     return {};
   }
+
+  if (Array.isArray(data)) {
+    return data.map((item) => stripLocalFields(item, depth + 1));
+  }
+
   const result: Record<string, unknown> = {};
-  for (const key in data as Record<string, unknown>) {
+  const obj = data as Record<string, unknown>;
+
+  for (const key in obj) {
     if (
-      Object.prototype.hasOwnProperty.call(data, key) &&
-      !INTERNAL_KEYS.has(key)
+      Object.prototype.hasOwnProperty.call(obj, key) &&
+      !INTERNAL_KEYS.has(key) &&
+      !FORBIDDEN_KEYS.has(key)
     ) {
-      const value = (data as Record<string, unknown>)[key];
-      if (
-        value !== null &&
-        typeof value === "object" &&
-        !Array.isArray(value)
-      ) {
-        result[key] = stripLocalFields(value, depth + 1);
-      } else {
-        result[key] = value;
-      }
+      result[key] = stripLocalFields(obj[key], depth + 1);
     }
   }
   return result;

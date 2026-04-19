@@ -36,8 +36,12 @@ export const INTERNAL_KEYS = new Set([
  */
 export function sanitizeOutput(data: unknown, depth = 0): unknown {
   // ⚡ Bolt: Fast-path for primitives (90% of recursive calls).
-  if (data === null || typeof data !== "object" || depth > 10) {
+  if (data === null || typeof data !== "object") {
     return data;
+  }
+
+  if (depth > 10) {
+    return {};
   }
 
   if (Array.isArray(data)) {
