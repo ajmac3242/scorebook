@@ -102,7 +102,7 @@ export function validateStatEvent(body: any): string | null {
   if (
     body.points !== undefined &&
     (typeof body.points !== "number" ||
-      !Number.isInteger(body.points) ||
+      !Number.isSafeInteger(body.points) ||
       body.points < 0 ||
       body.points > 3)
   ) {
@@ -114,22 +114,36 @@ export function validateStatEvent(body: any): string | null {
   if (
     body.period !== undefined &&
     (typeof body.period !== "number" ||
-      !Number.isInteger(body.period) ||
+      !Number.isSafeInteger(body.period) ||
       body.period < 1)
   ) {
     return "Period must be an integer at least 1";
   }
   if (
     body.clockTime !== undefined &&
-    (typeof body.clockTime !== "number" || body.clockTime < 0)
+    (typeof body.clockTime !== "number" ||
+      !Number.isFinite(body.clockTime) ||
+      body.clockTime < 0)
   ) {
-    return "Clock time must be at least 0";
+    return "Clock time must be a finite number at least 0";
   }
   if (
-    (body.locationX !== undefined && typeof body.locationX !== "number") ||
-    (body.locationY !== undefined && typeof body.locationY !== "number")
+    body.locationX !== undefined &&
+    (typeof body.locationX !== "number" ||
+      !Number.isFinite(body.locationX) ||
+      body.locationX < 0 ||
+      body.locationX > 100)
   ) {
-    return "Location coordinates must be numbers";
+    return "Location coordinates must be finite numbers between 0 and 100";
+  }
+  if (
+    body.locationY !== undefined &&
+    (typeof body.locationY !== "number" ||
+      !Number.isFinite(body.locationY) ||
+      body.locationY < 0 ||
+      body.locationY > 100)
+  ) {
+    return "Location coordinates must be finite numbers between 0 and 100";
   }
   return null;
 }
