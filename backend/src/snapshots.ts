@@ -22,8 +22,8 @@ const s3Client = new S3Client({});
 
 /**
  * Executes snapshot logic with error handling and environment variable validation.
- * @param label
- * @param fn
+ * @param {string} label - A descriptive label for the operation (for logging).
+ * @param {Function} fn - The asynchronous function to execute with the bucket name.
  */
 export async function withDataBucket(
   label: string,
@@ -169,7 +169,7 @@ export async function snapshotGameStats(
 
 /**
  * Deletes team-related snapshots from S3.
- * @param teamId
+ * @param {string} teamId - The ID of the team whose snapshots should be deleted.
  */
 export async function deleteTeamSnapshots(teamId: string) {
   const DATA_BUCKET = process.env.DATA_BUCKET;
@@ -194,7 +194,7 @@ export async function deleteTeamSnapshots(teamId: string) {
 
 /**
  * Deletes game-related snapshots from S3.
- * @param gameId
+ * @param {string} gameId - The ID of the game whose snapshots should be deleted.
  */
 export async function deleteGameSnapshots(gameId: string) {
   const DATA_BUCKET = process.env.DATA_BUCKET;
