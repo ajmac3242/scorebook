@@ -106,6 +106,9 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
   };
 
   const handleDelete = async (id: string) => {
+    if (!window.confirm("Are you sure you want to delete this substitution event? This will affect lineup and plus/minus calculations.")) {
+      return;
+    }
     try {
       await db.stats.update(id, {
         deletedAt: new Date().toISOString(),
@@ -255,12 +258,14 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                             size="small"
                             color="primary"
                             onClick={handleSaveEdit}
+                            aria-label="Save changes"
                           >
                             <SaveIcon fontSize="small" />
                           </IconButton>
                           <IconButton
                             size="small"
                             onClick={() => setEditingId(null)}
+                            aria-label="Cancel editing"
                           >
                             <CloseIcon fontSize="small" />
                           </IconButton>
@@ -274,6 +279,7 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                           <IconButton
                             size="small"
                             onClick={() => handleStartEdit(event)}
+                            aria-label={`Edit ${event.type === ACTION_TYPES.SUB_IN ? "sub in" : "sub out"} for ${player?.name}`}
                           >
                             <EditIcon fontSize="small" />
                           </IconButton>
@@ -281,6 +287,7 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                             size="small"
                             color="error"
                             onClick={() => handleDelete(event.id!)}
+                            aria-label={`Delete ${event.type === ACTION_TYPES.SUB_IN ? "sub in" : "sub out"} for ${player?.name}`}
                           >
                             <DeleteIcon fontSize="small" />
                           </IconButton>

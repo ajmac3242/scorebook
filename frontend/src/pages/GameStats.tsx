@@ -1076,6 +1076,7 @@ const GameStats: React.FC = () => {
               <IconButton
                 onClick={() => setExpandedSection("boxScore")}
                 aria-label="Expand Box Score section"
+                title="Expand section"
               >
                 <ExpandIcon />
               </IconButton>
@@ -1104,6 +1105,7 @@ const GameStats: React.FC = () => {
               <IconButton
                 onClick={() => setExpandedSection("shotChart")}
                 aria-label="Expand Shot Chart section"
+                title="Expand section"
               >
                 <ExpandIcon />
               </IconButton>
@@ -1219,6 +1221,7 @@ const GameStats: React.FC = () => {
               <IconButton
                 onClick={() => setExpandedSection("scoreFlow")}
                 aria-label="Expand Score Flow section"
+                title="Expand section"
               >
                 <ExpandIcon />
               </IconButton>
@@ -1302,6 +1305,7 @@ const GameStats: React.FC = () => {
                     <IconButton
                       onClick={() => setExpandedSection("lineups")}
                       aria-label="Expand Lineup Efficiency section"
+                      title="Expand section"
                     >
                       <ExpandIcon />
                     </IconButton>
@@ -1391,6 +1395,8 @@ const GameStats: React.FC = () => {
               setOpenEditDialog(false);
               setDeleteDialogOpen(true);
             }}
+            aria-label="Delete game"
+            title="Delete game"
           >
             <Delete />
           </IconButton>
