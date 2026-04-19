@@ -85,7 +85,11 @@ import { db, type StatEvent } from "../db";
 import { syncService } from "../utils/syncService";
 import { logger } from "../utils/logger";
 import { useLiveQuery } from "dexie-react-hooks";
-import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../constants/stats";
+import {
+  ACTION_TYPES,
+  SPECIAL_PLAYER_IDS,
+  SHOT_QUALITY,
+} from "../constants/stats";
 import {
   calculatePlayerAggregates,
   calculatePlayerStreaks,
