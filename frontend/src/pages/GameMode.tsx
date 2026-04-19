@@ -3189,7 +3189,8 @@ const GameMode: React.FC = () => {
                 </Box>
               </Box>
             )}
-          {(statType === ACTION_TYPES.MAKE || statType === ACTION_TYPES.MISS) && (
+          {(statType === ACTION_TYPES.MAKE ||
+            statType === ACTION_TYPES.MISS) && (
             <Box sx={{ mt: 3 }}>
               <Typography
                 variant="caption"
