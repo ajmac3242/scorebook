@@ -195,3 +195,57 @@
 - [ ] Table of 5-man units (lineups) that have played together.
 - [ ] Metrics per lineup: Total Minutes, Points For, Points Against, Net Rating (Diff per 100 possessions or per 40 mins).
 - [ ] Ability to filter by "Last 5 Games" or "Season".
+
+## Halftime Tactical Adjustment Summary
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Coaches have only 10 minutes to make game-winning adjustments. They need a 1-page "War Room" summary of what's working and what's failing immediately after the first half buzzer.
+**What:** Build a dedicated Halftime Report view that highlights the team's best/worst lineups, most successful plays, and opponent scoring trends from the first half.
+**Acceptance Criteria:**
+- [ ] Auto-trigger Halftime Report when the second period (or first half) ends.
+- [ ] Top 3 "Positive Lineups" (+/-) and Bottom 3 "Negative Lineups".
+- [ ] Comparison of PPP (Points Per Possession) between Half 1 and season average.
+- [ ] List of "Opponent Streaks" - which opponent players are causing the most damage.
+
+## Clutch-Time "Winning Time" Analytics
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Games are won or lost in the final 4 minutes. Stats often change under pressure; coaches need to know who their "closers" are based on performance in high-leverage situations.
+**What:** Define "Clutch Time" (last 4 mins of game, score within 5 pts) and calculate specialized metrics for this window.
+**Acceptance Criteria:**
+- [ ] New "Clutch" filter on the Game Stats and Player Stats pages.
+- [ ] Metric: Clutch eFG% and Clutch Assist-to-Turnover ratio.
+- [ ] Lineup efficiency specifically during clutch situations across the season.
+- [ ] "Points Per Clutch Possession" comparison against non-clutch time.
+
+## Real-Time Opponent Threat Alerts
+**Priority:** HIGH
+**Type:** Enhancement
+**Why:** In the heat of the game, a bench player on the opposing team can hit three 3-pointers before a coach even notices. Immediate alerts on "Unchecked Threats" prevent games from slipping away.
+**What:** Monitor opponent scoring patterns and trigger HUD alerts in GameMode when an opponent player exceeds their season average or reaches a scoring milestone (e.g., "Opponent #24 is 4/4 from 3PT").
+**Acceptance Criteria:**
+- [ ] Scoreboard HUD alert: "THREAT ALERT: Player X has scored 10 straight points."
+- [ ] Indicator on the "Opponent Tracking" card showing current hot/cold status of active opponent players.
+- [ ] Suggestion to change defensive assignment or call timeout when a threat threshold is met.
+
+## Possession-Based Efficiency Metrics (PPP)
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Raw scores are misleading if one team plays much faster than the other. Points Per Possession (PPP) is the gold standard for measuring true offensive and defensive efficiency.
+**What:** Transition the internal stats engine to calculate total possessions and derive PPP for teams, lineups, and individual players.
+**Acceptance Criteria:**
+- [ ] Calculate "Possessions" for both teams (FGA + 0.44*FTA + TO - OREB).
+- [ ] Display PPP on the GameMode sidebar and Game Stats dashboard.
+- [ ] Defensive PPP (Points Allowed Per Possession) to measure defensive quality independently of pace.
+- [ ] Trend line showing PPP fluctuation throughout the game.
+
+## Visual Rotation & Stint Timeline Chart
+**Priority:** MEDIUM
+**Type:** UX
+**Why:** Coaches manage the game in "waves." Seeing a visual timeline of when players were on and off the court helps identify fatigue patterns and rotation gaps that raw minute totals hide.
+**What:** Create a horizontal Gantt-style timeline chart showing exactly when each player was on the floor throughout the game.
+**Acceptance Criteria:**
+- [ ] Interactive timeline on the Game Stats page with a row for each player.
+- [ ] Color-coded bars showing "On Court" periods.
+- [ ] Overlay "Runs" (Team scoring bursts) on the timeline to see which players were present during big momentum shifts.
+- [ ] Toggle to show "Personal Fouls" markers on the timeline.
