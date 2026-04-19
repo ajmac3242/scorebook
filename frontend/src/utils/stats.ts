@@ -236,8 +236,7 @@ export const getInitials = (name: string | undefined | null): string => {
 
 /**
  * Standardized logic for recording the end of a player's stint.
- * @param {string} playerId - The player ID.
- * @param {Map<string, PlayerAggregates>} statsMap - The map of player aggregates.
+ * @param {PlayerAggregates | undefined} playerAgg - The player aggregate record.
  * @param {{ startClock: number; startScoreDiff: number }} stint - Stint data.
  * @param {{ team: number; opp: number }} currentScores - Current game scores.
  * @param {number} endClock - The clock time when the stint ended.
