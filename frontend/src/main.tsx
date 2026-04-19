@@ -5,6 +5,7 @@ import "./index.css";
 import { db } from "./db";
 
 if (import.meta.env.DEV) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (window as any).db = db;
 }
 
