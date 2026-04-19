@@ -1276,8 +1276,19 @@ const GameMode: React.FC = () => {
     let posState = null;
     const onCourt = new Set<string>();
     const stintStarts = new Map<string, number>();
+    const onCourtPeriodFouls = new Map<string, number>();
     const pType = team?.periodType || "QUARTERS";
     const periodLen = game?.periodLength ? game.periodLength * 60 : 600;
+
+    let lastLineupChangeClock = periodLen;
+    let lastLineupChangeScoreTeam = 0;
+    let lastLineupChangeScoreOpp = 0;
+    let periodStartScoreTeam = 0;
+    let periodStartScoreOpp = 0;
+
+    let lastTeamScoreClockTime = periodLen;
+    let lastTeamScorePeriod = 1;
+    let foundLastTeamScore = false;
 
     for (let i = 0; i < sortedGameStats.length; i++) {
       const s = sortedGameStats[i];
@@ -1287,11 +1298,16 @@ const GameMode: React.FC = () => {
         s.playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
         s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":");
 
-      // Score
+      // Score tracking
       if (isOpp) {
         oppScore += s.points || 0;
       } else {
         curScore += s.points || 0;
+        if (s.type === ACTION_TYPES.MAKE) {
+          lastTeamScoreClockTime = s.clockTime ?? periodLen;
+          lastTeamScorePeriod = s.period;
+          foundLastTeamScore = true;
+        }
       }
 
       // Fouls (Period-aware)
@@ -1306,6 +1322,13 @@ const GameMode: React.FC = () => {
             oppFouls++;
           } else {
             teamFouls++;
+            // ⚡ Bolt: Track individual fouls during the main loop to avoid O(P*N) filter later.
+            if (onCourt.has(s.playerId)) {
+              onCourtPeriodFouls.set(
+                s.playerId,
+                (onCourtPeriodFouls.get(s.playerId) || 0) + 1,
+              );
+            }
           }
         }
       }
@@ -1324,92 +1347,52 @@ const GameMode: React.FC = () => {
         posState = s.playerId;
       }
 
-      // Lineup
+      // Lineup and Substitution Tracking
       if (s.type === ACTION_TYPES.SUB_IN) {
         onCourt.add(s.playerId);
         if (s.period === period) {
-          stintStarts.set(
-            s.playerId,
-            s.clockTime ?? (game?.periodLength ? game.periodLength * 60 : 600),
-          );
+          stintStarts.set(s.playerId, s.clockTime ?? periodLen);
+          // ⚡ Bolt: Update lineup plus-minus baselines during the single pass.
+          lastLineupChangeClock = s.clockTime ?? lastLineupChangeClock;
+          lastLineupChangeScoreTeam = curScore;
+          lastLineupChangeScoreOpp = oppScore;
         }
       } else if (s.type === ACTION_TYPES.SUB_OUT) {
         onCourt.delete(s.playerId);
         stintStarts.delete(s.playerId);
+        if (s.period === period) {
+          lastLineupChangeClock = s.clockTime ?? lastLineupChangeClock;
+          lastLineupChangeScoreTeam = curScore;
+          lastLineupChangeScoreOpp = oppScore;
+        }
       }
+
+      // ⚡ Bolt: Capture scores at the start of the current period context.
+      if (s.period < period) {
+        periodStartScoreTeam = curScore;
+        periodStartScoreOpp = oppScore;
+      }
+    }
+
+    // ⚡ Bolt: If no sub happened in the period, baseline is the period start.
+    if (
+      lastLineupChangeClock === periodLen &&
+      lastLineupChangeScoreTeam === 0
+    ) {
+      lastLineupChangeScoreTeam = periodStartScoreTeam;
+      lastLineupChangeScoreOpp = periodStartScoreOpp;
     }
 
     // For players already on court at start of period without a SUB_IN event this period
     onCourt.forEach((pId) => {
       if (!stintStarts.has(pId)) {
-        stintStarts.set(pId, game?.periodLength ? game.periodLength * 60 : 600);
+        stintStarts.set(pId, periodLen);
       }
     });
-
-    let lastLineupChangeClock = game?.periodLength
-      ? game.periodLength * 60
-      : 600;
-    let lastLineupChangeScoreTeam = 0;
-    let lastLineupChangeScoreOpp = 0;
-
-    // Find the last substitution event in this period to calculate lineup +/-
-    // If no sub in this period, we use the start of the period.
-    const subsInThisPeriod = sortedGameStats.filter(
-      (s) =>
-        !s.deletedAt &&
-        s.period === period &&
-        (s.type === ACTION_TYPES.SUB_IN || s.type === ACTION_TYPES.SUB_OUT),
-    );
-
-    if (subsInThisPeriod.length > 0) {
-      const lastSub = subsInThisPeriod[subsInThisPeriod.length - 1];
-      lastLineupChangeClock = lastSub.clockTime ?? lastLineupChangeClock;
-
-      // Calculate scores at that exact moment
-      let tempScoreTeam = 0;
-      let tempScoreOpp = 0;
-      for (const s of sortedGameStats) {
-        if (s.deletedAt) continue;
-        if (s.timestamp > lastSub.timestamp) break;
-        if (s.type === ACTION_TYPES.MAKE) {
-          if (
-            s.playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
-            s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":")
-          ) {
-            tempScoreOpp += s.points || 0;
-          } else {
-            tempScoreTeam += s.points || 0;
-          }
-        }
-      }
-      lastLineupChangeScoreTeam = tempScoreTeam;
-      lastLineupChangeScoreOpp = tempScoreOpp;
-    } else {
-      // Scores at the start of the current period
-      let tempScoreTeam = 0;
-      let tempScoreOpp = 0;
-      for (const s of sortedGameStats) {
-        if (s.deletedAt) continue;
-        if (s.period >= period) break;
-        if (s.type === ACTION_TYPES.MAKE) {
-          if (
-            s.playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
-            s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":")
-          ) {
-            tempScoreOpp += s.points || 0;
-          } else {
-            tempScoreTeam += s.points || 0;
-          }
-        }
-      }
-      lastLineupChangeScoreTeam = tempScoreTeam;
-      lastLineupChangeScoreOpp = tempScoreOpp;
-    }
 
     const defensiveStats = calculateStopsAndKills(sortedGameStats);
 
     // 🏀 CoachBoard: Momentum Alerts Logic
-    // Detect "Opponent Runs" (e.g. 8-0) and "Scoring Droughts" (3+ minutes without scoring)
     let opponentRun = null;
     let scoringDrought = null;
 
@@ -1436,63 +1419,28 @@ const GameMode: React.FC = () => {
       opponentRun = `${tempOppRunPoints}-0`;
     }
 
-    // Drought Detection (Game clock time since our last score)
-    let lastTeamScoreClockTime = periodLen; // Default to start of current period
-    let lastTeamScorePeriod = period;
-    let foundLastTeamScore = false;
-
-    for (let i = sortedGameStats.length - 1; i >= 0; i--) {
-      const s = sortedGameStats[i];
-      if (s.deletedAt || s.type !== ACTION_TYPES.MAKE) continue;
-      const isOpp =
-        s.playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
-        s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":");
-      if (!isOpp) {
-        lastTeamScoreClockTime = s.clockTime ?? periodLen;
-        lastTeamScorePeriod = s.period;
-        foundLastTeamScore = true;
-        break;
-      }
-    }
-
+    // Drought Detection
     if (foundLastTeamScore) {
       let droughtSecs = 0;
       if (lastTeamScorePeriod === period) {
         droughtSecs = lastTeamScoreClockTime - clockSeconds;
       } else if (lastTeamScorePeriod < period) {
-        // Drought spans across periods
-        droughtSecs = lastTeamScoreClockTime; // Remainder of its period
-        droughtSecs += (period - lastTeamScorePeriod - 1) * periodLen; // Full periods in between
-        droughtSecs += periodLen - clockSeconds; // Elapsed time in current period
+        droughtSecs =
+          lastTeamScoreClockTime +
+          (period - lastTeamScorePeriod - 1) * periodLen +
+          (periodLen - clockSeconds);
       }
 
       if (droughtSecs >= 180) {
         scoringDrought = `${Math.floor(droughtSecs / 60)}m ${Math.floor(droughtSecs % 60)}s`;
       }
     } else {
-      // Team hasn't scored at all - drought from start of game
       const elapsedGameSecs =
         (period - 1) * periodLen + (periodLen - clockSeconds);
       if (elapsedGameSecs >= 180) {
         scoringDrought = `${Math.floor(elapsedGameSecs / 60)}m ${Math.floor(elapsedGameSecs % 60)}s`;
       }
     }
-
-    // 🏀 CoachBoard: Period-specific Foul Tracking
-    const onCourtPeriodFouls = new Map<string, number>();
-    onCourt.forEach((pId) => {
-      const pfCount = sortedGameStats.filter(
-        (s) =>
-          !s.deletedAt &&
-          s.playerId === pId &&
-          s.period === period &&
-          (s.type === ACTION_TYPES.FOUL ||
-            s.type === ACTION_TYPES.FOUL_SHOOTING ||
-            s.type === ACTION_TYPES.FOUL_NON_SHOOTING ||
-            s.type === ACTION_TYPES.TECHNICAL_FOUL),
-      ).length;
-      onCourtPeriodFouls.set(pId, pfCount);
-    });
 
     const MAX_TIMEOUTS = team?.fouls || 3;
     const teamBonus = getBonusStatus(teamFouls, pType);
@@ -1527,7 +1475,11 @@ const GameMode: React.FC = () => {
       lastLineupChangeClock,
       lastLineupChangeScoreTeam,
       lastLineupChangeScoreOpp,
-      recentStats: sortedGameStats.slice(-10).reverse(),
+      // ⚡ Bolt: Pre-filter and memoize only the last 10 active stats to reduce render-time processing.
+      recentStats: sortedGameStats
+        .filter((s) => !s.deletedAt)
+        .slice(-10)
+        .reverse(),
     };
   }, [
     sortedGameStats,
@@ -2880,41 +2832,40 @@ const GameMode: React.FC = () => {
                     </Typography>
                   </Box>
                 ) : (
-                  gameData.recentStats
-                    .filter((s) => !s.deletedAt)
-                    .map((s, index) => {
-                      const getPlayerName = (pId: string) => {
-                        if (pId === SPECIAL_PLAYER_IDS.OPPONENT)
-                          return game?.opponent || "Opponent";
-                        if (pId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":")) {
-                          const jersey = pId.split(":")[1];
-                          return `${game?.opponent || "Opponent"} #${jersey}`;
-                        }
-                        if (
-                          pId === SPECIAL_PLAYER_IDS.TEAM_TIMEOUT ||
-                          pId === SPECIAL_PLAYER_IDS.OUR_TEAM
-                        ) {
-                          return team?.name || "Our Team";
-                        }
-                        return playerNamesMap.get(pId) || "Unknown";
-                      };
+                  gameData.recentStats.map((s, index) => {
+                    // ⚡ Bolt: Use playerNamesMap with fallback logic directly in the map loop.
+                    // This avoids redundant function allocation and complex branching for every item.
+                    let playerName =
+                      playerNamesMap.get(s.playerId) || "Unknown";
+                    if (s.playerId === SPECIAL_PLAYER_IDS.OPPONENT) {
+                      playerName = game?.opponent || "Opponent";
+                    } else if (
+                      s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":")
+                    ) {
+                      playerName = `${game?.opponent || "Opponent"} #${s.playerId.split(":")[1]}`;
+                    } else if (
+                      s.playerId === SPECIAL_PLAYER_IDS.TEAM_TIMEOUT ||
+                      s.playerId === SPECIAL_PLAYER_IDS.OUR_TEAM
+                    ) {
+                      playerName = team?.name || "Our Team";
+                    }
 
-                      return (
-                        <RecentActionItem
-                          key={s.id}
-                          stat={s}
-                          playerName={getPlayerName(s.playerId)}
-                          periodLabel={periodLabel}
-                          isReadOnly={isReadOnly}
-                          isLatest={index === 0}
-                          onEdit={openEditDialog}
-                          onDelete={(id) => {
-                            setStatToDelete(id);
-                            setDeleteDialogOpen(true);
-                          }}
-                        />
-                      );
-                    })
+                    return (
+                      <RecentActionItem
+                        key={s.id}
+                        stat={s}
+                        playerName={playerName}
+                        periodLabel={periodLabel}
+                        isReadOnly={isReadOnly}
+                        isLatest={index === 0}
+                        onEdit={openEditDialog}
+                        onDelete={(id) => {
+                          setStatToDelete(id);
+                          setDeleteDialogOpen(true);
+                        }}
+                      />
+                    );
+                  })
                 )}
               </Stack>
             </MoleskineCard>

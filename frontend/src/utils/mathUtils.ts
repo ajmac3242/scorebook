@@ -38,7 +38,8 @@ export const determineResult = (
  * @returns {string} The formatted clock string (e.g., "10:00").
  */
 export const formatClock = (totalSeconds: number): string => {
-  const mins = Math.floor(totalSeconds / 60);
+  // ⚡ Bolt: Use bitwise OR for faster floor operation and template literals for efficiency.
+  const mins = (totalSeconds / 60) | 0;
   const secs = totalSeconds % 60;
   return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
 };

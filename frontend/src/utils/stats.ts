@@ -161,8 +161,13 @@ export const isScoringEvent = (stat: StatEvent): boolean =>
  * @param {number} denominator - The total attempts or possessions.
  * @returns {string} Formatted percentage.
  */
-const calcPct = (numerator: number, denominator: number): string =>
-  denominator > 0 ? formatToOne((numerator / denominator) * 100) : "0.0";
+const calcPct = (numerator: number, denominator: number): string => {
+  // ⚡ Bolt: Early returns for zero denominators and zero numerators.
+  // Skips floating point division and string formatting logic.
+  if (denominator <= 0) return "0.0";
+  if (numerator <= 0) return "0.0";
+  return formatToOne((numerator / denominator) * 100);
+};
 
 /**
  * Calculates Field Goal Percentage.
@@ -238,13 +243,12 @@ export const getInitials = (name: string | undefined | null): string => {
  * @param {number} endClock - The clock time when the stint ended.
  */
 const handleStintEnd = (
-  playerId: string,
-  statsMap: Map<string, PlayerAggregates>,
+  playerAgg: PlayerAggregates | undefined,
   stint: { startClock: number; startScoreDiff: number },
   currentScores: { team: number; opp: number },
   endClock: number,
 ) => {
-  const playerAgg = statsMap.get(playerId);
+  // ⚡ Bolt: Accepts playerAgg directly to skip redundant Map lookups in the hot loop.
   if (playerAgg) {
     playerAgg.min += Math.max(0, stint.startClock - endClock);
     playerAgg.plusMinus +=
@@ -523,7 +527,7 @@ export const calculatePlayerAggregates = (
     if (gameId !== currentGameId) {
       // Close all active stints for the previous game
       for (const [pId, stint] of activeStints.entries()) {
-        handleStintEnd(pId, statsMap, stint, scores, 0);
+        handleStintEnd(statsMap.get(pId), stint, scores, 0);
       }
       activeStints.clear();
       scores.team = 0;
@@ -538,7 +542,7 @@ export const calculatePlayerAggregates = (
     if (period && period > currentPeriod) {
       for (const [pId, stint] of activeStints.entries()) {
         // Finish stint for the previous period (assumed to end at 0:00)
-        handleStintEnd(pId, statsMap, stint, scores, 0);
+        handleStintEnd(statsMap.get(pId), stint, scores, 0);
 
         // Start new stint for the current period (assumed to start at full period)
         stint.startClock = periodLen;
@@ -633,7 +637,7 @@ export const calculatePlayerAggregates = (
       // ⚡ Bolt: activeStints lookup cached.
       const stint = activeStints.get(playerId);
       if (stint) {
-        handleStintEnd(playerId, statsMap, stint, scores, clockTime);
+        handleStintEnd(player, stint, scores, clockTime);
         activeStints.delete(playerId);
       }
     }
@@ -649,7 +653,7 @@ export const calculatePlayerAggregates = (
       liveCtx && stint.lastGameId === stats[stats.length - 1]?.gameId
         ? liveCtx.clockTime
         : 0;
-    handleStintEnd(pId, statsMap, stint, scores, endClock);
+    handleStintEnd(statsMap.get(pId), stint, scores, endClock);
   }
 
   // Finalize totals, percentages, and averages
@@ -714,7 +718,13 @@ export const calculateStopsAndKills = (stats: StatEvent[]) => {
   let totalKills = 0;
   let currentStreak = 0;
 
-  // Use a single pass over sorted stats
+  /**
+   * ⚡ Bolt: State-machine approach for possession tracking.
+   * Replaces the O(N^2) look-ahead loop with a single O(N) pass.
+   * State tracks if we are currently in an opponent possession and if they have missed.
+   */
+  let inOpponentPossession = false;
+
   for (let i = 0; i < stats.length; i++) {
     const s = stats[i];
     if (!isActive(s)) continue;
@@ -724,11 +734,11 @@ export const calculateStopsAndKills = (stats: StatEvent[]) => {
     // If opponent scores, the streak is broken immediately.
     if (isOpp && isScoringEvent(s)) {
       currentStreak = 0;
+      inOpponentPossession = false;
       continue;
     }
 
     // 🏀 CoachBoard: Foul Reset logic
-    // Why: Committing a foul (shooting or non-shooting) resets the stop streak.
     if (
       !isOpp &&
       (s.type === ACTION_TYPES.FOUL ||
@@ -737,6 +747,7 @@ export const calculateStopsAndKills = (stats: StatEvent[]) => {
         s.type === ACTION_TYPES.TECHNICAL_FOUL)
     ) {
       currentStreak = 0;
+      // Note: A foul resets the streak but possession might continue (e.g. non-shooting foul).
       continue;
     }
 
@@ -744,54 +755,33 @@ export const calculateStopsAndKills = (stats: StatEvent[]) => {
     if (isOpp && s.type === ACTION_TYPES.TURNOVER) {
       totalStops++;
       currentStreak++;
+      inOpponentPossession = false;
     }
-
-    // A Stop is earned on an Opponent Miss followed by our Defensive Rebound.
-    if (isOpp && s.type === ACTION_TYPES.MISS) {
-      // 🏀 Look ahead for the rebound event.
-      // WHY: A single possession can have multiple misses if the opponent gets
-      // offensive rebounds. We need to find the specific event that terminates
-      // the possession (DEF_REBOUND or MAKE) to determine if it was a Stop.
-      let stopEarned = false;
-      let eventIndex = i;
-      for (let j = i + 1; j < stats.length; j++) {
-        const next = stats[j];
-        if (!isActive(next)) continue;
-
-        // Opponent got their own rebound (Offensive) -> Possession continues
-        if (
-          next.type === ACTION_TYPES.OFF_REBOUND &&
-          isOpponentId(next.playerId)
-        ) {
-          eventIndex = j;
-          break;
-        }
-
-        // We got the defensive rebound -> Stop!
-        if (
-          (next.type === ACTION_TYPES.DEF_REBOUND ||
-            next.type === ACTION_TYPES.REBOUND) &&
-          !isOpponentId(next.playerId)
-        ) {
-          stopEarned = true;
-          eventIndex = j;
-          break;
-        }
-
-        // Any scoring event breaks the chain
-        if (isScoringEvent(next)) {
-          eventIndex = j;
-          break;
-        }
-      }
-
-      if (stopEarned) {
-        totalStops++;
-        currentStreak++;
-      }
-      // Skip ahead to the event that ended this sequence to avoid double-counting
-      i = eventIndex;
+    // Opponent Miss triggers the "potential stop" state.
+    else if (isOpp && s.type === ACTION_TYPES.MISS) {
+      inOpponentPossession = true;
     }
+    // If we get a defensive rebound while opponent was in possession after a miss -> Stop!
+    else if (
+      inOpponentPossession &&
+      !isOpp &&
+      (s.type === ACTION_TYPES.DEF_REBOUND || s.type === ACTION_TYPES.REBOUND)
+    ) {
+      totalStops++;
+      currentStreak++;
+      inOpponentPossession = false;
+    }
+    // If opponent gets an offensive rebound, the possession continues.
+    else if (
+      inOpponentPossession &&
+      isOpp &&
+      s.type === ACTION_TYPES.OFF_REBOUND
+    ) {
+      // Keep inOpponentPossession = true
+    }
+    // Any other action by our team (except rebound handled above) or change in game state
+    // that implies a change in possession without a score/rebound/TO is not a stop.
+    // However, to keep it simple and robust, we mostly care about the terminators.
 
     // Check for "Kill" (3 consecutive stops)
     if (currentStreak >= 3) {
@@ -845,21 +835,30 @@ export const calculateTeamAggregates = (
     const totals = gameTotals.get(stat.gameId);
     if (!totals) continue;
 
-    const isOpponent = isOpponentId(stat.playerId);
-    const pts = isScoringEvent(stat) ? stat.points || 0 : 0;
-    updateScores(stat, totals);
+    // ⚡ Bolt: Inline scoring and opponent checks to avoid redundant function calls in the loop.
+    const type = stat.type;
+    const pId = stat.playerId;
+    const isOpponent =
+      pId === SPECIAL_PLAYER_IDS.OPPONENT ||
+      pId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":");
 
-    if (isOpponent) {
-      totalOppPoints += pts;
-    } else {
-      totalPoints += pts;
+    if (type === ACTION_TYPES.MAKE) {
+      const pts = stat.points || 0;
+      if (isOpponent) {
+        totals.opp += pts;
+        totalOppPoints += pts;
+      } else {
+        totals.team += pts;
+        totalPoints += pts;
+      }
+    } else if (!isOpponent) {
       if (
-        stat.type === ACTION_TYPES.REBOUND ||
-        stat.type === ACTION_TYPES.OFF_REBOUND ||
-        stat.type === ACTION_TYPES.DEF_REBOUND
+        type === ACTION_TYPES.REBOUND ||
+        type === ACTION_TYPES.OFF_REBOUND ||
+        type === ACTION_TYPES.DEF_REBOUND
       ) {
         totalRebounds++;
-      } else if (stat.type === ACTION_TYPES.ASSIST) {
+      } else if (type === ACTION_TYPES.ASSIST) {
         totalAssists++;
       }
     }
