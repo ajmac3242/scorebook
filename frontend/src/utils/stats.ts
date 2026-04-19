@@ -69,6 +69,7 @@ export interface ScoreFlowPoint {
   time: string;
   Team: number;
   Opponent: number;
+  Spread: number;
 }
 
 /**
@@ -901,7 +902,7 @@ export const calculateScoreFlow = (
   periodLengthMinutes: number = 10,
 ): ScoreFlowPoint[] => {
   const scores = { team: 0, opp: 0 };
-  const result = [{ time: "00:00", Team: 0, Opponent: 0 }];
+  const result = [{ time: "00:00", Team: 0, Opponent: 0, Spread: 0 }];
   const periodLenSecs = periodLengthMinutes * 60;
 
   for (let i = 0; i < stats.length; i++) {
@@ -928,6 +929,7 @@ export const calculateScoreFlow = (
       time: formatClock(elapsedSeconds),
       Team: scores.team,
       Opponent: scores.opp,
+      Spread: scores.team - scores.opp,
     });
   }
   return result;

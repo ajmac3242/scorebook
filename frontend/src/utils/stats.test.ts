@@ -705,14 +705,14 @@ describe("stats utilities", () => {
       ];
       const results = calculateScoreFlow(stats, 10);
       expect(results.length).toBe(4);
-      expect(results[1]).toEqual({ time: "0:10", Team: 2, Opponent: 0 });
-      expect(results[2]).toEqual({ time: "5:00", Team: 2, Opponent: 3 });
-      expect(results[3]).toEqual({ time: "11:00", Team: 4, Opponent: 3 });
+      expect(results[1]).toEqual({ time: "0:10", Team: 2, Opponent: 0, Spread: 2 });
+      expect(results[2]).toEqual({ time: "5:00", Team: 2, Opponent: 3, Spread: -1 });
+      expect(results[3]).toEqual({ time: "11:00", Team: 4, Opponent: 3, Spread: 1 });
     });
 
     it("handles no scoring events", () => {
       const results = calculateScoreFlow([], 10);
-      expect(results).toEqual([{ time: "00:00", Team: 0, Opponent: 0 }]);
+      expect(results).toEqual([{ time: "00:00", Team: 0, Opponent: 0, Spread: 0 }]);
     });
 
     it("handles custom period length", () => {
@@ -729,7 +729,7 @@ describe("stats utilities", () => {
       ];
       // 12 minute periods. 12:00 (P1) + (12:00 - 8:00) (P2) = 16:00
       const results = calculateScoreFlow(stats, 12);
-      expect(results[1]).toEqual({ time: "16:00", Team: 2, Opponent: 0 });
+      expect(results[1]).toEqual({ time: "16:00", Team: 2, Opponent: 0, Spread: 2 });
     });
   });
 

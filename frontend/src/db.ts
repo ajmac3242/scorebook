@@ -90,6 +90,7 @@ export interface StatEvent {
   period: number; // 1, 2, 3, 4 for Quarters; 1, 2 for Halves; 5+ or 3+ for OT
   clockTime?: number; // Seconds remaining in the period when event occurred
   playName?: string;
+  shotQuality?: string;
   timestamp: string;
   deletedAt?: string;
   synced?: number;

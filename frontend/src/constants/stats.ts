@@ -29,6 +29,14 @@ export const STAT_ACRONYMS = {
 };
 
 /**
+ * Shot quality tags.
+ */
+export const SHOT_QUALITY = {
+  OPEN: "OPEN",
+  CONTESTED: "CONTESTED",
+};
+
+/**
  * Supported game action types that can be recorded as events.
  */
 export const ACTION_TYPES = {
