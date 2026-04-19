@@ -107,7 +107,7 @@
 **Acceptance Criteria:**
 - [ ] Period-selector filter (P1, P2, P3, P4, OT) on the Shot Chart view.
 - [ ] "Compare Periods" mode showing two heatmaps side-by-side (e.g., 1st Half vs 2nd Half).
-- [ ] Toggle to show "Only Misses" or "Only Makes" on the heatmap.
+- [x] Toggle to show "Only Misses" or "Only Makes" on the heatmap.
 
 ## Interactive Playbook Efficiency HUD
 **Priority:** MEDIUM
@@ -169,8 +169,8 @@
 **Why:** A "good" shot can miss and a "bad" shot can go in. Coaches need to evaluate the *process* of their offense, not just the result, to make halftime adjustments.
 **What:** Add an optional "Shot Quality" toggle to the `MAKE`/`MISS` recording dialog (e.g., "Open" vs "Contested").
 **Acceptance Criteria:**
-- [ ] Add `shotQuality` (OPEN, CONTESTED) to the `StatEvent` schema.
-- [ ] Add a simple toggle or button group in the shot recording dialog to tag quality.
+- [x] Add `shotQuality` (OPEN, CONTESTED) to the `StatEvent` schema.
+- [x] Add a simple toggle or button group in the shot recording dialog to tag quality.
 - [ ] Display "Process Efficiency" in `GameStats` (e.g., "EFG% on Open Shots" vs "EFG% on Contested Shots").
 - [ ] Filter Shot Chart by Shot Quality.
 
@@ -180,10 +180,10 @@
 **Why:** Box scores are static. A flow chart shows *when* the game was won or lost and how specific lineups affected the lead.
 **What:** Add a "Game Flow" visualization to the `GameStats` page—a line graph showing the point spread over the course of the game clock.
 **Acceptance Criteria:**
-- [ ] Interactive line chart showing `Our Score - Opponent Score` on the Y-axis and `Game Time` on the X-axis.
+- [x] Interactive line chart showing `Our Score - Opponent Score` on the Y-axis and `Game Time` on the X-axis.
 - [ ] Mark key events on the timeline (Timeouts, Period ends).
 - [ ] Hovering over the line shows the score and active lineup at that specific time.
-- [ ] Color-code the background to show who was "in control" (e.g., blue for home lead, red for away lead).
+- [x] Color-code the background to show who was "in control" (e.g., blue for home lead, red for away lead).
 
 ## Multi-Game Lineup Net Rating Analytics
 **Priority:** MEDIUM

@@ -60,14 +60,16 @@ import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import SortableHeader from "../components/SortableHeader";
 import {
-  LineChart,
   Line,
+  AreaChart,
+  Area,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
   Legend,
+  ReferenceLine,
 } from "recharts";
 
 /**
@@ -301,6 +303,7 @@ const GameStats: React.FC = () => {
         continue;
       if (selectedPlayerId !== "ALL" && s.playerId !== selectedPlayerId)
         continue;
+      if (selectedType !== "ALL" && s.type !== selectedType) continue;
       if (selectedPlay !== "ALL" && s.playName !== selectedPlay) continue;
 
       const zone = getShotZone(s.locationX || 0, s.locationY || 0);
@@ -309,7 +312,7 @@ const GameStats: React.FC = () => {
       if (s.type === ACTION_TYPES.MAKE) data[zone].makes++;
     }
     return data;
-  }, [stats, selectedPlayerId, selectedPlay]);
+  }, [stats, selectedPlayerId, selectedType, selectedPlay]);
 
   const scoreFlowData = useMemo(() => {
     return calculateScoreFlow(scoreFlowSortedStats, game?.periodLength);
@@ -800,27 +803,38 @@ const GameStats: React.FC = () => {
 
   const scoreFlowChart = (
     <ResponsiveContainer width="100%" height="100%">
-      <LineChart data={scoreFlowData}>
-        <CartesianGrid strokeDasharray="3 3" />
+      <AreaChart data={scoreFlowData}>
+        <CartesianGrid strokeDasharray="3 3" vertical={false} />
         <XAxis dataKey="time" />
         <YAxis />
         <Tooltip />
         <Legend />
+        <ReferenceLine y={0} stroke="#666" strokeWidth={2} />
+        <Area
+          type="stepAfter"
+          dataKey="Spread"
+          stroke={theme.palette.primary.main}
+          fill={theme.palette.primary.main}
+          fillOpacity={0.3}
+          strokeWidth={2}
+        />
         <Line
           type="stepAfter"
           dataKey="Team"
           stroke={theme.palette.primary.main}
-          strokeWidth={3}
+          strokeWidth={2}
           dot={false}
+          hide
         />
         <Line
           type="stepAfter"
           dataKey="Opponent"
           stroke={theme.palette.secondary.main}
-          strokeWidth={3}
+          strokeWidth={2}
           dot={false}
+          hide
         />
-      </LineChart>
+      </AreaChart>
     </ResponsiveContainer>
   );
 

@@ -85,7 +85,11 @@ import { db, type StatEvent } from "../db";
 import { syncService } from "../utils/syncService";
 import { logger } from "../utils/logger";
 import { useLiveQuery } from "dexie-react-hooks";
-import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../constants/stats";
+import {
+  ACTION_TYPES,
+  SPECIAL_PLAYER_IDS,
+  SHOT_QUALITY,
+} from "../constants/stats";
 import {
   calculatePlayerAggregates,
   calculatePlayerStreaks,
@@ -1054,6 +1058,7 @@ const GameMode: React.FC = () => {
   const [statType, setStatType] = useState<string | null>(null);
   const [points, setPoints] = useState<number>(2);
   const [playName, setPlayName] = useState<string>("");
+  const [shotQuality, setShotQuality] = useState<string | null>(null);
 
   const [opponentJerseys, setOpponentJerseys] = useState<string[]>([]);
   const [selectedOpponentId, setSelectedOpponentId] = useState<string>(
@@ -1810,6 +1815,11 @@ const GameMode: React.FC = () => {
               typeToSave === ACTION_TYPES.MISS
                 ? playName
                 : undefined,
+            shotQuality:
+              typeToSave === ACTION_TYPES.MAKE ||
+              typeToSave === ACTION_TYPES.MISS
+                ? (shotQuality ?? undefined)
+                : undefined,
             synced: 0,
           });
           await syncService.pushUpdates();
@@ -1826,6 +1836,11 @@ const GameMode: React.FC = () => {
               typeToSave === ACTION_TYPES.MAKE ||
               typeToSave === ACTION_TYPES.MISS
                 ? playName
+                : undefined,
+            shotQuality:
+              typeToSave === ACTION_TYPES.MAKE ||
+              typeToSave === ACTION_TYPES.MISS
+                ? (shotQuality ?? undefined)
                 : undefined,
             period,
             clockTime: clockSeconds,
@@ -1888,6 +1903,7 @@ const GameMode: React.FC = () => {
       period,
       trackingMode,
       clockSeconds,
+      shotQuality,
     ],
   );
 
@@ -2049,6 +2065,7 @@ const GameMode: React.FC = () => {
       setStatType(stat.type);
       setPoints(stat.points || 2);
       setPlayName(stat.playName || "");
+      setShotQuality(stat.shotQuality || null);
       setSelectedX(stat.locationX || 0);
       setSelectedY(stat.locationY || 0);
       setIsEditing(true);
@@ -3172,6 +3189,31 @@ const GameMode: React.FC = () => {
                 </Box>
               </Box>
             )}
+          {(statType === ACTION_TYPES.MAKE ||
+            statType === ACTION_TYPES.MISS) && (
+            <Box sx={{ mt: 3 }}>
+              <Typography
+                variant="caption"
+                gutterBottom
+                sx={{ display: "block", mb: 1 }}
+              >
+                Shot Quality
+              </Typography>
+              <ToggleButtonGroup
+                value={shotQuality}
+                exclusive
+                onChange={(_, val) => setShotQuality(val)}
+                size="small"
+                fullWidth
+              >
+                <ToggleButton value={SHOT_QUALITY.OPEN}>Open</ToggleButton>
+                <ToggleButton value={SHOT_QUALITY.CONTESTED}>
+                  Contested
+                </ToggleButton>
+              </ToggleButtonGroup>
+            </Box>
+          )}
+
           {statType === ACTION_TYPES.MAKE && (
             <Box sx={{ mt: 3 }}>
               <Typography

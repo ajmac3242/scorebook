@@ -52,3 +52,8 @@ cd frontend && pnpm test:jules -- "<module-name>"
 - **Patterns in what gets left incomplete**: Complex multi-step workflows like Free Throw sequences are often deferred because they require significant state management and UI modal logic.
 - **Recurring issues agents create**: Inconsistent bonus/foul logic across different UI components (Scoreboard vs. Action Dialog). Centralizing these checks into utilities like 'getBonusStatus' prevents drift.
 - **End-of-Day improvement patterns**: Implementing a "Sequence Mode" for rapid data entry (like Free Throws) significantly reduces the mental load for scorekeepers during high-pressure game moments.
+
+## End-of-Day Insights - 2026-04-19
+- **Patterns in what gets left incomplete**: Tactical visualization often lags behind data collection. While we could record many stats, seeing the "spread" over time (momentum) provides immediate coaching context that raw scores don't.
+- **Recurring issues agents create**: Neglecting to update visualization dependency arrays in React hooks when adding new filtering dimensions (like heatmap result filtering).
+- **End-of-Day improvement patterns**: Closing the loop between data entry (Shot Quality) and data visualization (Heatmap Filtering) ensures new features are immediately useful for post-game analysis.
