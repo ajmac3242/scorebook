@@ -539,9 +539,16 @@ export const calculatePlayerAggregates = (
     // Why: Ensures minutes played and plus-minus are calculated correctly
     // even if a player stays on the court across period boundaries.
     if (period && period > currentPeriod) {
+      const skippedPeriods = period - currentPeriod - 1;
       for (const [pId, stint] of activeStints.entries()) {
         // Finish stint for the previous period (assumed to end at 0:00)
         handleStintEnd(statsMap.get(pId), stint, scores, 0);
+
+        // 🔍 Scout: Handle full minutes for skipped periods
+        if (skippedPeriods > 0) {
+          const pAgg = statsMap.get(pId);
+          if (pAgg) pAgg.min += skippedPeriods * periodLen;
+        }
 
         // Start new stint for the current period (assumed to start at full period)
         stint.startClock = periodLen;
@@ -723,6 +730,7 @@ export const calculateStopsAndKills = (stats: StatEvent[]) => {
    * State tracks if we are currently in an opponent possession and if they have missed.
    */
   let inOpponentPossession = false;
+  let isOurPossession = false;
 
   for (let i = 0; i < stats.length; i++) {
     const s = stats[i];
@@ -734,8 +742,17 @@ export const calculateStopsAndKills = (stats: StatEvent[]) => {
     if (isOpp && isScoringEvent(s)) {
       currentStreak = 0;
       inOpponentPossession = false;
+      isOurPossession = true; // Ball goes to us after they score
       continue;
     }
+
+    // Track possession changes to distinguish offensive/defensive fouls
+    if (!isOpp && isScoringEvent(s)) isOurPossession = false;
+    if (!isOpp && s.type === ACTION_TYPES.TURNOVER) isOurPossession = false;
+    if (isOpp && (s.type === ACTION_TYPES.DEF_REBOUND || s.type === ACTION_TYPES.REBOUND))
+      isOurPossession = false;
+    if (!isOpp && (s.type === ACTION_TYPES.DEF_REBOUND || s.type === ACTION_TYPES.REBOUND))
+      isOurPossession = true;
 
     // 🏀 CoachBoard: Foul Reset logic
     if (
@@ -745,7 +762,11 @@ export const calculateStopsAndKills = (stats: StatEvent[]) => {
         s.type === ACTION_TYPES.FOUL_NON_SHOOTING ||
         s.type === ACTION_TYPES.TECHNICAL_FOUL)
     ) {
-      currentStreak = 0;
+      // 🔍 Scout: Only reset streak if we are on defense (or if it's a technical foul)
+      // Offensive fouls do not break a defensive stop streak.
+      if (!isOurPossession || s.type === ACTION_TYPES.TECHNICAL_FOUL) {
+        currentStreak = 0;
+      }
       // Note: A foul resets the streak but possession might continue (e.g. non-shooting foul).
       continue;
     }
@@ -755,6 +776,7 @@ export const calculateStopsAndKills = (stats: StatEvent[]) => {
       totalStops++;
       currentStreak++;
       inOpponentPossession = false;
+      isOurPossession = true;
     }
     // Opponent Miss triggers the "potential stop" state.
     else if (isOpp && s.type === ACTION_TYPES.MISS) {
@@ -769,6 +791,7 @@ export const calculateStopsAndKills = (stats: StatEvent[]) => {
       totalStops++;
       currentStreak++;
       inOpponentPossession = false;
+      isOurPossession = true;
     }
     // If opponent gets an offensive rebound, the possession continues.
     else if (
@@ -983,6 +1006,10 @@ export const isEventInPeriod = (
   periodType: string,
 ): boolean => {
   if (periodType === "QUARTERS") {
+    // 🔍 Scout: Overtime periods (5+) are typically grouped with P4 for bonus/team fouls.
+    if (currentPeriod === 4) {
+      return eventPeriod >= 4;
+    }
     return eventPeriod === currentPeriod;
   }
 
@@ -1159,6 +1186,18 @@ export const calculateLineupStats = (
           scores.team - lastTeamScore,
           scores.opp - lastOppScore,
         );
+
+        // 🔍 Scout: Handle full minutes for skipped periods
+        const skippedPeriods = s.period - currentPeriod - 1;
+        if (skippedPeriods > 0) {
+          recordLineupStint(
+            lineupStats,
+            cachedLineupKey,
+            skippedPeriods * periodLen,
+            0,
+            0,
+          );
+        }
       }
       lastClockTime = periodLen;
       lastTeamScore = scores.team;
