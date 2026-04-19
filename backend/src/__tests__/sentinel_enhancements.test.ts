@@ -376,11 +376,17 @@ describe("Sentinel Security Enhancements Tests", () => {
         timestamp: "2023-01-01T12:00:00HACKED",
       };
 
-      const event = createEvent("POST", "/games/277e909a-6536-4d2d-937e-f608759556fb/stats", malformedBody);
+      const event = createEvent(
+        "POST",
+        "/games/277e909a-6536-4d2d-937e-f608759556fb/stats",
+        malformedBody,
+      );
       const response: any = await handler(event);
 
       expect(response.statusCode).toBe(400);
-      expect(JSON.parse(response.body).message).toBe("Invalid timestamp format");
+      expect(JSON.parse(response.body).message).toBe(
+        "Invalid timestamp format",
+      );
     });
 
     it("should reject non-finite numbers for clockTime", () => {
@@ -395,10 +401,14 @@ describe("Sentinel Security Enhancements Tests", () => {
 
     it("should strip __proto__ in stripLocalFields", () => {
       const { stripLocalFields } = require("../utils.js");
-      const malicious = JSON.parse('{"name": "test", "__proto__": {"polluted": true}}');
+      const malicious = JSON.parse(
+        '{"name": "test", "__proto__": {"polluted": true}}',
+      );
       const cleaned = stripLocalFields(malicious);
       expect((cleaned as any).__proto__.polluted).toBeUndefined();
-      expect(Object.prototype.hasOwnProperty.call(cleaned, "__proto__")).toBe(false);
+      expect(Object.prototype.hasOwnProperty.call(cleaned, "__proto__")).toBe(
+        false,
+      );
     });
 
     it("should handle nested arrays in stripLocalFields", () => {
@@ -406,9 +416,7 @@ describe("Sentinel Security Enhancements Tests", () => {
       const data = {
         name: "Team",
         PK: "SECRET",
-        players: [
-          { name: "P1", SK: "HIDE" }
-        ]
+        players: [{ name: "P1", SK: "HIDE" }],
       };
       const cleaned = stripLocalFields(data);
       expect(cleaned.PK).toBeUndefined();
@@ -418,10 +426,14 @@ describe("Sentinel Security Enhancements Tests", () => {
     it("should validate ID in team-player association", async () => {
       const malformedBody = {
         playerId: "277e909a-6536-4d2d-937e-f608759556fb",
-        id: "../../../traversal"
+        id: "../../../traversal",
       };
 
-      const event = createEvent("POST", "/teams/277e909a-6536-4d2d-937e-f608759556fb/players", malformedBody);
+      const event = createEvent(
+        "POST",
+        "/teams/277e909a-6536-4d2d-937e-f608759556fb/players",
+        malformedBody,
+      );
       const response: any = await handler(event);
 
       expect(response.statusCode).toBe(400);
