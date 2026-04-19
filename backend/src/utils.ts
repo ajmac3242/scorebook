@@ -160,6 +160,10 @@ export function getHeader(
 /**
  * Strips local-only fields and internal DynamoDB keys from the data object before saving.
  *
+ * WHY: This provides mass assignment protection and prevents UI-only state or
+ * internal database keys from being persisted. It ensures that only valid,
+ * schema-defined fields are saved to DynamoDB.
+ *
  * @param {Record<string, unknown>} data - The data object to clean.
  * @param {number} depth - Current recursion depth.
  * @returns {Record<string, unknown>} The cleaned object.

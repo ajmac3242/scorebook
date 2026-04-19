@@ -58,6 +58,14 @@ To optimize read performance and reduce DynamoDB costs:
 3.  Build the project: `npm run build`
 4.  Run tests: `NODE_OPTIONS=--experimental-vm-modules npm test` (Required for ESM support in Jest)
 
+## Testing Philosophy
+
+To ensure high reliability and rapid development cycles, Scorebook follows a targeted testing approach:
+
+- **Targeted Testing**: Developers should use the `bash scripts/jules-test.sh` script during local development. This script automatically detects changed files and runs only the relevant tests, significantly reducing feedback loops.
+- **CI Enforcement**: The full test suite (100+ tests) is automatically executed by GitHub Actions on every Pull Request to ensure no regressions are introduced.
+- **Behavior-Driven**: Tests focus on verifying business logic (e.g., statistical aggregations, defensive momentum) rather than internal implementation details.
+
 ## Key Features
 - **Real-time Game Tracking**: Easy-to-use interface for logging shots, misses, rebounds, and more.
 - **Shot Charts**: Visual representation of shot locations on a virtual court.

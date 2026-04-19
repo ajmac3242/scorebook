@@ -7,6 +7,7 @@ import {
   calculateOpponentAggregates,
   calculateScoreFlow,
   isEventInPeriod,
+  isOpponentId,
   calculateGameResult,
   calculatePlayerStreaks,
   calculateLineupStats,
@@ -165,6 +166,20 @@ describe("stats utilities", () => {
       const p2 = results.find((r) => r.id === "p2")!;
       expect(p2.assists).toBe(1);
       expect(p2.gp).toBe(1);
+    });
+
+    it("correctly tracks TECHNICAL_FOUL in player aggregates", () => {
+      const techStats: StatEvent[] = [
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.TECHNICAL_FOUL,
+          period: 1,
+          timestamp: "t1",
+        },
+      ];
+      const results = calculatePlayerAggregates(players, techStats);
+      expect(results.find((r) => r.id === "p1")?.fouls).toBe(1);
     });
 
     it("calculates average aggregates correctly", () => {
@@ -1173,6 +1188,27 @@ describe("stats utilities", () => {
     });
   });
 
+  describe("isOpponentId", () => {
+    it("returns true for exact 'OPPONENT' ID", () => {
+      expect(isOpponentId("OPPONENT")).toBe(true);
+    });
+
+    it("returns true for jersey-prefixed opponent IDs", () => {
+      expect(isOpponentId("OPPONENT:12")).toBe(true);
+      expect(isOpponentId("OPPONENT:0")).toBe(true);
+    });
+
+    it("returns false for regular player IDs", () => {
+      expect(isOpponentId("p1")).toBe(false);
+      expect(isOpponentId("some-uuid-v4")).toBe(false);
+    });
+
+    it("returns false for IDs that happen to contain the word opponent but not as prefix", () => {
+      expect(isOpponentId("NOT_OPPONENT")).toBe(false);
+      expect(isOpponentId("PLAYER_OPPONENT")).toBe(false);
+    });
+  });
+
   describe("calculateStopsAndKills", () => {
     it("calculates stops and kills correctly", () => {
       const stats: StatEvent[] = [
@@ -1338,6 +1374,38 @@ describe("stats utilities", () => {
       // First MISS + OFF_REBOUND sequence does not count as stop yet.
       // Second MISS + DEF_REBOUND sequence counts as 1 stop.
       expect(result.totalStops).toBe(1);
+    });
+
+    it("resets stop streak on any team foul (FOUL, TECHNICAL_FOUL, etc.)", () => {
+      const stats: StatEvent[] = [
+        {
+          gameId: "g1",
+          playerId: "OPPONENT",
+          type: ACTION_TYPES.TURNOVER,
+          timestamp: "1",
+          period: 1,
+        },
+        // Stop earned, streak = 1
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.TECHNICAL_FOUL,
+          timestamp: "2",
+          period: 1,
+        },
+        // Foul resets streak to 0
+        {
+          gameId: "g1",
+          playerId: "OPPONENT",
+          type: ACTION_TYPES.TURNOVER,
+          timestamp: "3",
+          period: 1,
+        },
+        // Stop earned, streak = 1
+      ];
+      const result = calculateStopsAndKills(stats);
+      expect(result.totalStops).toBe(2);
+      expect(result.currentStreak).toBe(1);
     });
   });
 
