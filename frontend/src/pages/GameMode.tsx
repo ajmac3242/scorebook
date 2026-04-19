@@ -282,7 +282,9 @@ const Scoreboard = React.memo(
             <TimeoutDots
               count={timeouts}
               total={timeoutTotal}
-              data-testid={isOpponent ? "opp-timeout-dots" : "team-timeout-dots"}
+              data-testid={
+                isOpponent ? "opp-timeout-dots" : "team-timeout-dots"
+              }
             />
           </Box>
         </Box>
@@ -785,7 +787,6 @@ const GameMode: React.FC = () => {
   const [points, setPoints] = useState<number>(2);
   const [playName, setPlayName] = useState<string>("");
   const [shotQuality, setShotQuality] = useState<string | null>(null);
-
 
   const [clockSeconds, setClockSeconds] = useState<number>(0);
   const clockSecondsRef = useRef(clockSeconds);
@@ -1797,7 +1798,6 @@ const GameMode: React.FC = () => {
     },
     [gameId],
   );
-
 
   const handleNextPeriod = useCallback(async () => {
     const nextPeriod = period < 10 ? period + 1 : 1;
@@ -3302,26 +3302,57 @@ const EditClockDialog: React.FC<{
           sx={{ py: 3 }}
         >
           <Box sx={{ textAlign: "center" }}>
-            <Typography variant="caption" sx={{ fontWeight: 700, mb: 1, display: "block" }}>MINUTES</Typography>
+            <Typography
+              variant="caption"
+              sx={{ fontWeight: 700, mb: 1, display: "block" }}
+            >
+              MINUTES
+            </Typography>
             <Stack direction="column" spacing={1} alignItems="center">
-              <IconButton onClick={() => setMins(Math.min(99, mins + 1))} size="small">
+              <IconButton
+                onClick={() => setMins(Math.min(99, mins + 1))}
+                size="small"
+              >
                 <AddIcon />
               </IconButton>
-              <Typography variant="h4" sx={{ fontWeight: 800, minWidth: "2ch" }}>{mins}</Typography>
-              <IconButton onClick={() => setMins(Math.max(0, mins - 1))} size="small">
+              <Typography
+                variant="h4"
+                sx={{ fontWeight: 800, minWidth: "2ch" }}
+              >
+                {mins}
+              </Typography>
+              <IconButton
+                onClick={() => setMins(Math.max(0, mins - 1))}
+                size="small"
+              >
                 <RemoveIcon />
               </IconButton>
             </Stack>
           </Box>
-          <Typography variant="h4" sx={{ mt: 3, fontWeight: 800 }}>:</Typography>
+          <Typography variant="h4" sx={{ mt: 3, fontWeight: 800 }}>
+            :
+          </Typography>
           <Box sx={{ textAlign: "center" }}>
-            <Typography variant="caption" sx={{ fontWeight: 700, mb: 1, display: "block" }}>SECONDS</Typography>
+            <Typography
+              variant="caption"
+              sx={{ fontWeight: 700, mb: 1, display: "block" }}
+            >
+              SECONDS
+            </Typography>
             <Stack direction="column" spacing={1} alignItems="center">
               <IconButton onClick={() => setSecs((secs + 1) % 60)} size="small">
                 <AddIcon />
               </IconButton>
-              <Typography variant="h4" sx={{ fontWeight: 800, minWidth: "2ch" }}>{secs.toString().padStart(2, "0")}</Typography>
-              <IconButton onClick={() => setSecs((secs - 1 + 60) % 60)} size="small">
+              <Typography
+                variant="h4"
+                sx={{ fontWeight: 800, minWidth: "2ch" }}
+              >
+                {secs.toString().padStart(2, "0")}
+              </Typography>
+              <IconButton
+                onClick={() => setSecs((secs - 1 + 60) % 60)}
+                size="small"
+              >
                 <RemoveIcon />
               </IconButton>
             </Stack>
@@ -3329,8 +3360,12 @@ const EditClockDialog: React.FC<{
         </Stack>
       </DialogContent>
       <DialogActions sx={{ p: 2 }}>
-        <Button onClick={onClose} color="inherit">Cancel</Button>
-        <Button onClick={() => onSave(mins, secs)} variant="contained">Save Clock</Button>
+        <Button onClick={onClose} color="inherit">
+          Cancel
+        </Button>
+        <Button onClick={() => onSave(mins, secs)} variant="contained">
+          Save Clock
+        </Button>
       </DialogActions>
     </Dialog>
   );
