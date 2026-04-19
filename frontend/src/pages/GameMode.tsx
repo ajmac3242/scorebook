@@ -48,11 +48,6 @@ const slideBackAndForth = keyframes`
   100% { left: 0%; }
 `;
 
-const stopPulse = keyframes`
-  0% { transform: scale(1); color: #fff; }
-  50% { transform: scale(1.2); color: #4caf50; }
-  100% { transform: scale(1); color: #fff; }
-`;
 import {
   Undo as UndoIcon,
   History,
@@ -63,12 +58,10 @@ import {
   SwapHoriz,
   FlashOn,
   Warning,
-  ArrowForward,
   ArrowBack,
   Groups,
   PlayArrow,
   Pause,
-  RestartAlt,
   Add as AddIcon,
   Remove as RemoveIcon,
 } from "@mui/icons-material";
@@ -289,7 +282,7 @@ const Scoreboard = React.memo(
             <TimeoutDots
               count={timeouts}
               total={timeoutTotal}
-              data-testid={isOpponent ? "opp-timeouts" : "team-timeouts"}
+              data-testid={isOpponent ? "opp-timeout-dots" : "team-timeout-dots"}
             />
           </Box>
         </Box>
@@ -793,10 +786,6 @@ const GameMode: React.FC = () => {
   const [playName, setPlayName] = useState<string>("");
   const [shotQuality, setShotQuality] = useState<string | null>(null);
 
-  const [opponentJerseys, setOpponentJerseys] = useState<string[]>([]);
-  const [selectedOpponentId, setSelectedOpponentId] = useState<string>(
-    SPECIAL_PLAYER_IDS.OPPONENT,
-  );
 
   const [clockSeconds, setClockSeconds] = useState<number>(0);
   const clockSecondsRef = useRef(clockSeconds);
@@ -1466,13 +1455,13 @@ const GameMode: React.FC = () => {
 
       // Auto-select opponent if in opponent tracking mode
       if (trackingMode === "OPPONENT") {
-        setSelectedPlayerId(selectedOpponentId);
+        setSelectedPlayerId(SPECIAL_PLAYER_IDS.OPPONENT);
       } else {
         setSelectedPlayerId(null);
       }
       setDialogOpen(true);
     },
-    [isReadOnly, trackingMode, selectedOpponentId],
+    [isReadOnly, trackingMode],
   );
 
   /**
@@ -1809,21 +1798,6 @@ const GameMode: React.FC = () => {
     [gameId],
   );
 
-  const handleResetClock = useCallback(async () => {
-    if (!gameId || isReadOnly) return;
-    const defaultMins = periodType === "QUARTERS" ? 10 : 20;
-    const resetSeconds = defaultMins * 60;
-    setClockSeconds(resetSeconds);
-    setIsClockRunning(false);
-
-    try {
-      await db.open();
-      await db.games.update(gameId, { clockTime: resetSeconds, synced: 0 });
-      await syncService.pushUpdates();
-    } catch (err) {
-      logger.error("Failed to reset clock:", err);
-    }
-  }, [gameId, isReadOnly, periodType]);
 
   const handleNextPeriod = useCallback(async () => {
     const nextPeriod = period < 10 ? period + 1 : 1;
@@ -1887,47 +1861,6 @@ const GameMode: React.FC = () => {
    * Why: Quick toggle for the possession arrow.
    * Notes: Records a POSSESSION event for the specified team.
    */
-  /**
-   * 🏀 CoachBoard: handleQuickOpponentAction
-   * Why: Fast recording of opponent statistical events from the scoreboard.
-   * Note: Uses default rim coordinates (50, 10) for recorded shot events.
-   */
-  const handleQuickOpponentAction = useCallback(
-    async (type: string, pts: number = 0) => {
-      if (!gameId || isReadOnly) return;
-
-      try {
-        await db.open();
-        await db.stats.add({
-          id: crypto.randomUUID(),
-          gameId: gameId,
-          playerId: selectedOpponentId,
-          type: type,
-          points: pts,
-          locationX: 50,
-          locationY: 10,
-          period,
-          clockTime: clockSeconds,
-          timestamp: new Date().toISOString(),
-          synced: 0,
-        });
-        await syncService.pushUpdates();
-        setSnackbar({
-          open: true,
-          message: "Opponent action recorded",
-          severity: "success",
-        });
-      } catch (err) {
-        logger.error("Failed to record quick opponent action:", err);
-        setSnackbar({
-          open: true,
-          message: "Failed to record action",
-          severity: "error",
-        });
-      }
-    },
-    [gameId, isReadOnly, period, clockSeconds, selectedOpponentId],
-  );
 
   const handleTogglePossession = useCallback(async () => {
     if (!gameId || isReadOnly) return;

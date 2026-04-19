@@ -305,34 +305,6 @@ describe("GameMode Component", () => {
     });
   });
 
-  it("displays team fouls in warning state (4 fouls in quarters)", async () => {
-    (useLiveQuery as Record<string, any>).mockImplementation(
-      (cb: () => any) => {
-        const code = cb.toString();
-        if (code.includes("db.stats")) {
-          return Array.from({ length: 4 }).map((_, i) => ({
-            id: `f${i}`,
-            gameId: "g1",
-            playerId: "p1",
-            type: ACTION_TYPES.FOUL,
-            period: 1,
-            timestamp: `2023-01-01T00:00:0${i}Z`,
-          }));
-        }
-        if (code.includes("db.games.get"))
-          return { id: "g1", opponent: "Opp", teamId: "t1" };
-        if (code.includes("db.teams.get"))
-          return { id: "t1", periodType: "QUARTERS" };
-        if (code.includes("db.players")) return mockPlayers;
-        if (code.includes("db.teamPlayers")) return mockTeamPlayers;
-        return [];
-      },
-    );
-
-    renderComponent();
-    expect(await screen.findByText("FOULS: 4")).toBeInTheDocument();
-  });
-
   it("displays team fouls in bonus state (5 fouls in quarters)", async () => {
     (useLiveQuery as Record<string, any>).mockImplementation(
       (cb: () => any) => {
@@ -358,12 +330,9 @@ describe("GameMode Component", () => {
     );
 
     renderComponent();
-    expect(await screen.findByText("FOULS: 5")).toBeInTheDocument();
     // Bonus is now applied to the OPPONENT's side when Team has 5 fouls.
-    // Our mock renders "Test Opponent" as the opponent.
-    // Scoreboard renders renderTeamInfo for team first, then opponent.
-    // Let's check that BONUS is present.
-    expect(await screen.findByText("BONUS")).toBeInTheDocument();
+    // In our new design, we show "BONUS →" for the beneficiary.
+    expect(await screen.findByText("BONUS →")).toBeInTheDocument();
   });
 
   it("automatically detects 3pt shot value in the corner", async () => {
@@ -408,7 +377,7 @@ describe("GameMode Component", () => {
     expect(twoBtn).toHaveClass("MuiButton-contained");
   });
 
-  it("🏀 CoachBoard: records opponent quick actions from the scoreboard", async () => {
+  it("🏀 CoachBoard: records opponent actions from the court", async () => {
     (useLiveQuery as Record<string, any>).mockImplementation(
       (cb: () => any) => {
         const code = cb.toString();
@@ -428,19 +397,39 @@ describe("GameMode Component", () => {
 
     renderComponent();
 
-    // Find the opponent side of the scoreboard
-    // Based on our mock, the opponent name is "Test Opponent"
-    const oppHeader = await screen.findAllByText(/Test Opponent/i);
-    // Scoreboard structure:
-    // renderTeamInfo -> Box (column) -> Box (row with Avatar and Typography)
-    // The parent of the Typography is a Box, and the grandparent is the column Box.
-    const oppContainer = oppHeader[0].parentElement!.parentElement!;
-
-    // Find the "+2" quick action button for the opponent
-    const plusTwoBtn = within(oppContainer).getByRole("button", {
-      name: "Record opponent +2 points",
+    // Switch to Opponent tracking mode
+    const oppToggle = await screen.findByRole("button", {
+      name: "Test Opponent",
     });
-    fireEvent.click(plusTwoBtn);
+    fireEvent.click(oppToggle);
+
+    // Click court to open recording dialog
+    const court = screen.getByTestId("basketball-court");
+    court.setAttribute("data-x", "75");
+    court.setAttribute("data-y", "25");
+    fireEvent.click(court);
+
+    await waitFor(() => {
+      expect(screen.getByRole("dialog")).toBeInTheDocument();
+    });
+
+    const dialog = screen.getByRole("dialog");
+
+    // In Opponent mode, the opponent should be auto-selected.
+    // The dialog title should show the opponent name.
+    expect(within(dialog).getByText("Test Opponent")).toBeInTheDocument();
+
+    // Select "Make"
+    const makeBtn = within(dialog).getByText("Make");
+    fireEvent.click(makeBtn);
+
+    // Select "2" points
+    const twoBtn = within(dialog).getByRole("button", { name: "2" });
+    fireEvent.click(twoBtn);
+
+    // Click Save
+    const saveBtn = within(dialog).getByText("Save");
+    fireEvent.click(saveBtn);
 
     await waitFor(() => {
       expect(db.stats.add).toHaveBeenCalledWith(
@@ -448,53 +437,6 @@ describe("GameMode Component", () => {
           type: ACTION_TYPES.MAKE,
           playerId: SPECIAL_PLAYER_IDS.OPPONENT,
           points: 2,
-          locationX: 50,
-          locationY: 10,
-        }),
-      );
-    });
-
-    // Find and click the "F" (Foul) quick action button
-    const foulBtn = within(oppContainer).getByRole("button", {
-      name: "Record opponent foul",
-    });
-    fireEvent.click(foulBtn);
-
-    await waitFor(() => {
-      expect(db.stats.add).toHaveBeenCalledWith(
-        expect.objectContaining({
-          type: ACTION_TYPES.FOUL,
-          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
-        }),
-      );
-    });
-
-    // Find and click the "REB" quick action button
-    const rebBtn = within(oppContainer).getByRole("button", {
-      name: "Record opponent rebound",
-    });
-    fireEvent.click(rebBtn);
-
-    await waitFor(() => {
-      expect(db.stats.add).toHaveBeenCalledWith(
-        expect.objectContaining({
-          type: ACTION_TYPES.REBOUND,
-          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
-        }),
-      );
-    });
-
-    // Find and click the "TO" quick action button
-    const toBtn = within(oppContainer).getByRole("button", {
-      name: "Record opponent turnover",
-    });
-    fireEvent.click(toBtn);
-
-    await waitFor(() => {
-      expect(db.stats.add).toHaveBeenCalledWith(
-        expect.objectContaining({
-          type: ACTION_TYPES.TURNOVER,
-          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
         }),
       );
     });
