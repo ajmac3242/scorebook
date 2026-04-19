@@ -42,6 +42,12 @@ const pulse = keyframes`
   100% { opacity: 1; }
 `;
 
+const slideBackAndForth = keyframes`
+  0% { left: 0%; }
+  50% { left: 70%; }
+  100% { left: 0%; }
+`;
+
 const stopPulse = keyframes`
   0% { transform: scale(1); color: #fff; }
   50% { transform: scale(1.2); color: #4caf50; }
@@ -64,6 +70,7 @@ import {
   Pause,
   RestartAlt,
   Add as AddIcon,
+  Remove as RemoveIcon,
 } from "@mui/icons-material";
 import {
   Table,
@@ -135,6 +142,7 @@ interface ScoreboardProps {
         opponentLogoUrl?: string;
         completed?: number;
         deletedAt?: string;
+        timeoutLimit?: number;
       }
     | null
     | undefined;
@@ -145,6 +153,7 @@ interface ScoreboardProps {
         periodType?: string;
         fouls?: number;
         deletedAt?: string;
+        defaultTimeoutLimit?: number;
       }
     | null
     | undefined;
@@ -166,26 +175,18 @@ interface ScoreboardProps {
       oppTOL: number;
     };
     possessionState: string | null;
-    defensiveStats: {
-      totalStops: number;
-      totalKills: number;
-      currentStreak: number;
-    };
     momentumAlerts: {
       opponentRun: string | null;
       scoringDrought: string | null;
     };
-    onCourtPeriodFouls: Map<string, number>;
   };
   period: number;
   periodLabel: string;
   maxPeriod: number;
-  onQuickAction?: (_type: string, _points?: number) => void;
   isReadOnly: boolean;
-  opponentJerseys?: string[];
-  selectedOpponentId?: string;
-  onAddOpponentJersey?: () => void;
-  onSelectOpponent?: (_id: string) => void;
+  clockSeconds: number;
+  isClockRunning: boolean;
+  onEditClock?: () => void;
 }
 
 const Scoreboard = React.memo(
@@ -196,680 +197,412 @@ const Scoreboard = React.memo(
     period,
     periodLabel,
     maxPeriod,
-    onQuickAction,
     isReadOnly,
     clockSeconds,
-    onToggleClock,
-    onResetClock,
     isClockRunning,
-    opponentJerseys = [],
-    selectedOpponentId = SPECIAL_PLAYER_IDS.OPPONENT,
-    onAddOpponentJersey,
-    onSelectOpponent,
-  }: ScoreboardProps & {
-    clockSeconds: number;
-    onToggleClock: () => void;
-    onResetClock: () => void;
-    isClockRunning: boolean;
-  }) => {
+    onEditClock,
+  }: ScoreboardProps) => {
     const theme = useTheme();
+    const timeoutTotal = game?.timeoutLimit ?? team?.defaultTimeoutLimit ?? 3;
 
-    const getFoulColor = (isOpp: boolean) => {
-      const foulColor = isOpp
-        ? gameData.teamFoulStats.oppBonusColor
-        : gameData.teamFoulStats.teamBonusColor;
-      return foulColor === "default" ? "rgba(255,255,255,0.7)" : foulColor;
-    };
-
-    const renderTeamInfo = (
+    const renderTeamSection = (
       name: string,
-      logoUrl?: string,
-      isOpponent?: boolean,
-    ) => (
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: isOpponent ? "flex-end" : "flex-start",
-          width: { xs: "30%", sm: "35%" },
-        }}
-      >
+      logoUrl: string | undefined,
+      score: number,
+      timeouts: number,
+      isOpponent: boolean,
+    ) => {
+      // Bonus logic:
+      // If we are looking at Team A:
+      // We show "BONUS" if Team B (Opponent) has committed enough fouls.
+      // In gameData, teamBonusLabel is set if Opponent fouls >= threshold.
+
+      return (
         <Box
           sx={{
             display: "flex",
             alignItems: "center",
-            gap: 1.5,
+            gap: { xs: 1, sm: 3 },
             flexDirection: isOpponent ? "row-reverse" : "row",
-            mb: 0.5,
           }}
         >
-          <Avatar
-            src={logoUrl}
+          {/* Logo & Name */}
+          <Box
             sx={{
-              width: { xs: 32, sm: 48 },
-              height: { xs: 32, sm: 48 },
-              bgcolor: isOpponent ? "secondary.main" : "primary.main",
-              border: "2px solid rgba(255,255,255,0.1)",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              minWidth: { xs: 50, sm: 80 },
             }}
           >
-            {name.charAt(0)}
-          </Avatar>
-          <Typography
-            variant="h6"
-            sx={{
-              color: "white",
-              fontWeight: 700,
-              fontSize: { xs: "0.75rem", sm: "1.1rem" },
-              textTransform: "uppercase",
-              letterSpacing: 1,
-              display: { xs: "none", sm: "block" },
-            }}
-          >
-            {name}
-          </Typography>
-        </Box>
-        <Typography
-          variant="caption"
-          sx={{
-            color: "white",
-            fontWeight: 700,
-            fontSize: "0.6rem",
-            display: { xs: "block", sm: "none" },
-            textAlign: isOpponent ? "right" : "left",
-            width: "100%",
-            mb: 0.5,
-          }}
-        >
-          {name}
-        </Typography>
-
-        <Stack
-          direction={isOpponent ? "row-reverse" : "row"}
-          spacing={1.5}
-          alignItems="center"
-          sx={{ mt: 0.5 }}
-        >
-          <TimeoutDots
-            count={
-              isOpponent
-                ? gameData.timeoutStats.oppTOL
-                : gameData.timeoutStats.teamTOL
-            }
-            total={team?.fouls || 3}
-            data-testid={isOpponent ? "opp-timeout-dots" : "team-timeout-dots"}
-          />
-        </Stack>
-
-        {/* 🏀 CoachBoard: Team Foul Indicator
-          Why: Provides critical "foul to give" or "bonus" visibility for coaching decisions. */}
-        <Stack
-          direction={isOpponent ? "row-reverse" : "row"}
-          spacing={1}
-          alignItems="center"
-          sx={{ mt: 0.5, flexWrap: "nowrap" }}
-        >
-          <Typography
-            variant="caption"
-            sx={{
-              color: getFoulColor(!!isOpponent),
-              fontWeight: 800,
-              fontSize: "0.7rem",
-              whiteSpace: "nowrap",
-            }}
-          >
-            FOULS:{" "}
-            {isOpponent
-              ? gameData.teamFoulStats.oppFouls
-              : gameData.teamFoulStats.teamFouls}
-          </Typography>
-          {/* Bonus label applied to the team currently in bonus (caused by opposite team's fouls) */}
-          {(!isOpponent
-            ? gameData.teamFoulStats.oppBonusLabel
-            : gameData.teamFoulStats.teamBonusLabel) && (
+            <Avatar
+              src={logoUrl}
+              sx={{
+                width: { xs: 36, sm: 56 },
+                height: { xs: 36, sm: 56 },
+                bgcolor: isOpponent ? "secondary.main" : "primary.main",
+                border: "2px solid rgba(255,255,255,0.2)",
+                mb: 0.5,
+              }}
+            >
+              {name.charAt(0)}
+            </Avatar>
             <Typography
               variant="caption"
               sx={{
-                color: "#FFD700",
-                fontWeight: 900,
-                fontSize: "0.65rem",
-                letterSpacing: 0.5,
+                color: "white",
+                fontWeight: 700,
+                fontSize: { xs: "0.6rem", sm: "0.8rem" },
+                textTransform: "uppercase",
+                letterSpacing: 1,
+                textAlign: "center",
+                maxWidth: { xs: 60, sm: 100 },
+                overflow: "hidden",
+                textOverflow: "ellipsis",
                 whiteSpace: "nowrap",
               }}
             >
-              BONUS
-              {!isOpponent
-                ? gameData.teamFoulStats.oppIsDouble && <sup>2</sup>
-                : gameData.teamFoulStats.teamIsDouble && <sup>2</sup>}
+              {name}
             </Typography>
-          )}
-        </Stack>
+          </Box>
 
-        {/* 🏀 CoachBoard: Opponent Quick-Action Buttons
-          Why: Allows scorekeepers to record opponent scores and fouls with a single tap,
-          avoiding the need to switch tracking modes during high-pressure live play. */}
-        {isOpponent && !isReadOnly && (
-          <Stack
-            direction="column"
-            alignItems={isOpponent ? "flex-end" : "flex-start"}
-            spacing={1}
-            sx={{ mt: 1 }}
+          {/* Score & Timeouts */}
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+            }}
           >
-            {/* Individual Opponent Selector */}
-            <Box
+            <Typography
               sx={{
-                display: "flex",
-                gap: 0.5,
-                flexWrap: "wrap",
-                justifyContent: isOpponent ? "flex-end" : "flex-start",
+                color: "white",
+                fontSize: { xs: "2rem", sm: "3.5rem" },
+                fontWeight: 900,
+                lineHeight: 1,
+                fontFamily: "'Inter', sans-serif",
+                mb: 1,
               }}
             >
-              <Chip
-                label="Gen"
-                size="small"
-                onClick={() =>
-                  onSelectOpponent &&
-                  onSelectOpponent(SPECIAL_PLAYER_IDS.OPPONENT)
-                }
-                color={
-                  selectedOpponentId === SPECIAL_PLAYER_IDS.OPPONENT
-                    ? "primary"
-                    : "default"
-                }
-                variant={
-                  selectedOpponentId === SPECIAL_PLAYER_IDS.OPPONENT
-                    ? "filled"
-                    : "outlined"
-                }
-                sx={{
-                  height: 20,
-                  fontSize: "0.6rem",
-                  color: "white",
-                  borderColor: "rgba(255,255,255,0.3)",
-                }}
-              />
-              {opponentJerseys.map((j) => {
-                const id = `${SPECIAL_PLAYER_IDS.OPPONENT}:${j}`;
-                return (
-                  <Chip
-                    key={j}
-                    label={`#${j}`}
-                    size="small"
-                    onClick={() => onSelectOpponent && onSelectOpponent(id)}
-                    color={selectedOpponentId === id ? "primary" : "default"}
-                    variant={selectedOpponentId === id ? "filled" : "outlined"}
-                    sx={{
-                      height: 20,
-                      fontSize: "0.6rem",
-                      color: "white",
-                      borderColor: "rgba(255,255,255,0.3)",
-                    }}
-                  />
-                );
-              })}
-              <IconButton
-                size="small"
-                onClick={onAddOpponentJersey}
-                sx={{
-                  p: 0,
-                  color: "rgba(255,255,255,0.5)",
-                  "&:hover": { color: "white" },
-                }}
-              >
-                <AddIcon sx={{ fontSize: 16 }} />
-              </IconButton>
-            </Box>
-
-            <Stack direction="row" spacing={0.5}>
-              {[1, 2, 3].map((pts) => (
-                <Tooltip key={pts} title={`Record opponent +${pts} points`}>
-                  <Button
-                    size="small"
-                    variant="outlined"
-                    color="secondary"
-                    aria-label={`Record opponent +${pts} points`}
-                    onClick={() =>
-                      onQuickAction && onQuickAction(ACTION_TYPES.MAKE, pts)
-                    }
-                    sx={{
-                      minWidth: 0,
-                      px: 0.8,
-                      py: 0.2,
-                      fontSize: "0.65rem",
-                      fontWeight: 800,
-                      borderColor: "rgba(255,255,255,0.3)",
-                      color: "white",
-                      "&:hover": { borderColor: "white" },
-                    }}
-                  >
-                    +{pts}
-                  </Button>
-                </Tooltip>
-              ))}
-              <Tooltip title="Record opponent rebound">
-                <Button
-                  size="small"
-                  variant="outlined"
-                  color="secondary"
-                  aria-label="Record opponent rebound"
-                  onClick={() =>
-                    onQuickAction && onQuickAction(ACTION_TYPES.REBOUND)
-                  }
-                  sx={{
-                    minWidth: 0,
-                    px: 0.8,
-                    py: 0.2,
-                    fontSize: "0.65rem",
-                    fontWeight: 800,
-                    borderColor: "rgba(255,255,255,0.3)",
-                    color: "white",
-                    "&:hover": { borderColor: "white" },
-                  }}
-                >
-                  REB
-                </Button>
-              </Tooltip>
-              <Tooltip title="Record opponent turnover">
-                <Button
-                  size="small"
-                  variant="outlined"
-                  color="warning"
-                  aria-label="Record opponent turnover"
-                  onClick={() =>
-                    onQuickAction && onQuickAction(ACTION_TYPES.TURNOVER)
-                  }
-                  sx={{
-                    minWidth: 0,
-                    px: 0.8,
-                    py: 0.2,
-                    fontSize: "0.65rem",
-                    fontWeight: 800,
-                    borderColor: "rgba(255,255,255,0.3)",
-                    color: "white",
-                    "&:hover": { borderColor: "white" },
-                  }}
-                >
-                  TO
-                </Button>
-              </Tooltip>
-              <Tooltip title="Record opponent foul">
-                <Button
-                  size="small"
-                  variant="outlined"
-                  color="error"
-                  aria-label="Record opponent foul"
-                  onClick={() =>
-                    onQuickAction && onQuickAction(ACTION_TYPES.FOUL)
-                  }
-                  sx={{
-                    minWidth: 0,
-                    px: 0.8,
-                    py: 0.2,
-                    fontSize: "0.65rem",
-                    fontWeight: 800,
-                    borderColor: "rgba(255,255,255,0.3)",
-                    color: theme.palette.error.light,
-                    "&:hover": { borderColor: "white" },
-                  }}
-                >
-                  F
-                </Button>
-              </Tooltip>
-            </Stack>
-          </Stack>
-        )}
-      </Box>
-    );
+              <AnimatedNumber value={score} />
+            </Typography>
+            <TimeoutDots
+              count={timeouts}
+              total={timeoutTotal}
+              data-testid={isOpponent ? "opp-timeouts" : "team-timeouts"}
+            />
+          </Box>
+        </Box>
+      );
+    };
 
     return (
       <Box
         sx={{
-          background: "linear-gradient(180deg, #1a1a1a 0%, #000000 100%)",
-          borderRadius: 2,
-          p: { xs: 1.5, sm: 2.5 },
+          background:
+            "linear-gradient(180deg, rgba(30,30,30,1) 0%, rgba(10,10,10,1) 100%)",
+          borderRadius: 4,
+          p: { xs: 1.5, sm: 3 },
           mb: 3,
           display: "flex",
-          alignItems: "flex-start",
+          alignItems: "center",
           justifyContent: "space-between",
-          boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
-          border: "1px solid rgba(255,255,255,0.1)",
+          boxShadow: "0 12px 40px rgba(0,0,0,0.6)",
+          border: "1px solid rgba(255,255,255,0.08)",
           position: "relative",
           overflow: "hidden",
         }}
       >
-        {/* Decorative accent */}
+        {/* Top Accent Line */}
         <Box
           sx={{
             position: "absolute",
             top: 0,
             left: 0,
             right: 0,
-            height: "2px",
+            height: "3px",
             background: `linear-gradient(90deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
-            opacity: 0.5,
+            opacity: 0.8,
           }}
         />
 
-        {renderTeamInfo(team?.name || "TEAM", team?.logoUrl)}
-
-        {/* 🏀 CoachBoard: Momentum Alerts HUD */}
-        {(gameData.momentumAlerts.opponentRun ||
-          gameData.momentumAlerts.scoringDrought) && (
-          <Box
-            sx={{
-              position: "absolute",
-              top: 4,
-              left: "50%",
-              transform: "translateX(-50%)",
-              zIndex: 10,
-              display: "flex",
-              flexDirection: "column",
-              gap: 0.5,
-              width: "100%",
-              alignItems: "center",
-            }}
-          >
-            {gameData.momentumAlerts.opponentRun && (
-              <Alert
-                severity="error"
-                icon={<Warning />}
-                variant="filled"
-                sx={{
-                  py: 0,
-                  px: 1,
-                  fontSize: "0.65rem",
-                  "& .MuiAlert-icon": { fontSize: "0.8rem", mr: 0.5 },
-                  bgcolor: "#d32f2f",
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.4)",
-                  animation: `${pulse} 2s infinite ease-in-out`,
-                }}
-              >
-                <strong>
-                  OPPONENT RUN: {gameData.momentumAlerts.opponentRun}
-                </strong>{" "}
-                - SUGGEST TIMEOUT
-              </Alert>
-            )}
-            {gameData.momentumAlerts.scoringDrought && (
-              <Alert
-                severity="warning"
-                icon={<Warning />}
-                variant="filled"
-                sx={{
-                  py: 0,
-                  px: 1,
-                  fontSize: "0.65rem",
-                  "& .MuiAlert-icon": { fontSize: "0.8rem", mr: 0.5 },
-                  bgcolor: "#ed6c02",
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.4)",
-                  animation: `${pulse} 2s infinite ease-in-out`,
-                }}
-              >
-                <strong>
-                  SCORING DROUGHT: {gameData.momentumAlerts.scoringDrought}
-                </strong>
-              </Alert>
-            )}
-          </Box>
+        {/* Our Team */}
+        {renderTeamSection(
+          team?.name || "TEAM",
+          team?.logoUrl,
+          gameData.currentScore,
+          gameData.timeoutStats.teamTOL,
+          false,
         )}
 
-        {/* 🏀 CoachBoard: Defensive Momentum HUD
-          Why: Visualizes "Stops" and "Kills" to motivate defensive intensity. */}
-        <Box
-          sx={{
-            position: "absolute",
-            bottom: 8,
-            left: "50%",
-            transform: "translateX(-50%)",
-            display: "flex",
-            alignItems: "center",
-            gap: 2,
-            bgcolor: "rgba(0,0,0,0.5)",
-            px: 2,
-            py: 0.5,
-            borderRadius: 10,
-            border: "1px solid rgba(255,255,255,0.1)",
-          }}
-        >
-          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-            <Typography
-              variant="caption"
-              sx={{
-                color: "rgba(255,255,255,0.6)",
-                fontWeight: 700,
-                fontSize: "0.6rem",
-              }}
-            >
-              STOPS:
-            </Typography>
-            <Typography
-              key={gameData.defensiveStats.totalStops}
-              variant="caption"
-              sx={{
-                color: "white",
-                fontWeight: 800,
-                fontSize: "0.7rem",
-                display: "inline-block",
-                animation:
-                  gameData.defensiveStats.totalStops > 0
-                    ? `${stopPulse} 0.5s ease-out`
-                    : "none",
-              }}
-            >
-              {gameData.defensiveStats.totalStops}
-            </Typography>
-          </Box>
-
-          <Box sx={{ display: "flex", gap: 0.5 }}>
-            {[1, 2, 3].map((i) => (
-              <FlashOn
-                key={i}
-                sx={{
-                  fontSize: 14,
-                  color:
-                    i <= gameData.defensiveStats.currentStreak
-                      ? "#FFD700"
-                      : "rgba(255,255,255,0.1)",
-                  filter:
-                    i <= gameData.defensiveStats.currentStreak
-                      ? "drop-shadow(0 0 2px #FFD700)"
-                      : "none",
-                }}
-              />
-            ))}
-          </Box>
-
-          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-            <Typography
-              variant="caption"
-              sx={{
-                color: "rgba(255,255,255,0.6)",
-                fontWeight: 700,
-                fontSize: "0.6rem",
-              }}
-            >
-              KILLS:
-            </Typography>
-            <Typography
-              variant="caption"
-              sx={{
-                color: "#FF4500",
-                fontWeight: 900,
-                fontSize: "0.7rem",
-                textShadow: "0 0 4px rgba(255,69,0,0.5)",
-              }}
-            >
-              {gameData.defensiveStats.totalKills}
-            </Typography>
-          </Box>
-        </Box>
-
+        {/* Center: Period, Clock, Bonus */}
         <Box
           sx={{
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
             flex: 1,
+            px: 2,
           }}
         >
-          <Box
+          {/* Momentum Alerts */}
+          {(gameData.momentumAlerts.opponentRun ||
+            gameData.momentumAlerts.scoringDrought) && (
+            <Box
+              sx={{
+                position: "absolute",
+                top: 8,
+                zIndex: 10,
+                display: "flex",
+                flexDirection: "column",
+                gap: 0.5,
+              }}
+            >
+              {gameData.momentumAlerts.opponentRun && (
+                <Typography
+                  variant="caption"
+                  sx={{
+                    bgcolor: "error.main",
+                    color: "white",
+                    px: 1,
+                    borderRadius: 1,
+                    fontSize: "0.6rem",
+                    fontWeight: 800,
+                    animation: `${pulse} 2s infinite ease-in-out`,
+                  }}
+                >
+                  RUN: {gameData.momentumAlerts.opponentRun}
+                </Typography>
+              )}
+            </Box>
+          )}
+
+          <Typography
+            variant="h6"
             sx={{
+              color: "rgba(255,255,255,0.5)",
+              fontWeight: 800,
+              fontSize: { xs: "0.7rem", sm: "1rem" },
+              letterSpacing: 2,
+              mb: 0.5,
+            }}
+          >
+            {period > maxPeriod
+              ? `OT ${period - maxPeriod}`
+              : `${periodLabel} ${period}`.toUpperCase()}
+          </Typography>
+
+          <Box
+            onClick={onEditClock}
+            sx={{
+              cursor: isReadOnly ? "default" : "pointer",
               display: "flex",
+              flexDirection: "column",
               alignItems: "center",
-              gap: { xs: 2, sm: 4 },
+              "&:hover": {
+                opacity: isReadOnly ? 1 : 0.8,
+              },
             }}
           >
             <Typography
-              aria-label={`${team?.name || "Team"} score: ${gameData.currentScore}`}
-              aria-live="polite"
               sx={{
                 color: "white",
-                fontSize: { xs: "1.75rem", sm: "3rem" },
-                fontWeight: 800,
+                fontSize: { xs: "1.5rem", sm: "2.5rem" },
+                fontWeight: 700,
                 fontFamily: "'Courier New', monospace",
                 lineHeight: 1,
+                letterSpacing: 1,
               }}
             >
-              <AnimatedNumber value={gameData.currentScore} />
+              {formatClock(clockSeconds)}
             </Typography>
 
-            <Box sx={{ textAlign: "center", minWidth: { xs: 100, sm: 150 } }}>
-              <Typography
-                variant="caption"
-                sx={{
-                  color: "rgba(255,255,255,0.6)",
-                  textTransform: "uppercase",
-                  fontWeight: 700,
-                  fontSize: { xs: "0.6rem", sm: "0.75rem" },
-                  letterSpacing: 2,
-                  display: "block",
-                  mb: 0.5,
-                }}
-              >
-                {period > maxPeriod
-                  ? `OT ${period - maxPeriod}`
-                  : `${periodLabel} ${period}`}
-              </Typography>
-
-              {/* Game Clock */}
+            {/* Sliding Progress Indicator */}
+            <Box
+              sx={{
+                width: "80%",
+                height: "3px",
+                bgcolor: "rgba(255,255,255,0.1)",
+                borderRadius: 2,
+                mt: 1,
+                position: "relative",
+                overflow: "hidden",
+                visibility: isClockRunning ? "visible" : "hidden",
+              }}
+            >
               <Box
                 sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 1,
-                  mb: 1,
+                  position: "absolute",
+                  width: "30%",
+                  height: "100%",
+                  background: `linear-gradient(90deg, transparent, ${theme.palette.primary.main}, transparent)`,
+                  animation: `${slideBackAndForth} 1.5s infinite ease-in-out`,
+                }}
+              />
+            </Box>
+          </Box>
+
+          {/* Bonus Indicators */}
+          <Box sx={{ mt: 1.5, height: 20, display: "flex", gap: 2 }}>
+            {gameData.teamFoulStats.teamBonusLabel && (
+              <Typography
+                sx={{
+                  color: "#FFD700",
+                  fontWeight: 900,
+                  fontSize: "0.7rem",
+                  letterSpacing: 1,
                 }}
               >
-                <Typography
-                  sx={{
-                    color: "white",
-                    fontSize: { xs: "1.2rem", sm: "1.8rem" },
-                    fontWeight: 700,
-                    fontFamily: "'Courier New', monospace",
-                    minWidth: "4.5ch",
-                  }}
-                >
-                  {formatClock(clockSeconds)}
-                </Typography>
-                {!isReadOnly && (
-                  <IconButton
-                    size="small"
-                    onClick={onToggleClock}
-                    aria-label={isClockRunning ? "Pause Clock" : "Start Clock"}
-                    sx={{
-                      color: isClockRunning
-                        ? theme.palette.warning.main
-                        : theme.palette.success.main,
-                      bgcolor: "rgba(255,255,255,0.05)",
-                      p: 0.5,
-                    }}
-                  >
-                    {isClockRunning ? (
-                      <Pause fontSize="small" />
-                    ) : (
-                      <PlayArrow fontSize="small" />
-                    )}
-                  </IconButton>
-                )}
-                {!isReadOnly && (
-                  <IconButton
-                    size="small"
-                    onClick={onResetClock}
-                    aria-label="Reset Clock"
-                    sx={{
-                      color: "rgba(255,255,255,0.4)",
-                      bgcolor: "rgba(255,255,255,0.05)",
-                      p: 0.5,
-                      "&:hover": { color: "white" },
-                    }}
-                  >
-                    <RestartAlt fontSize="small" />
-                  </IconButton>
-                )}
-              </Box>
-
-              <Stack direction="row" spacing={2} justifyContent="center">
-                <ArrowBack
-                  aria-label={`${team?.name || "Team"} possession`}
-                  sx={{
-                    fontSize: { xs: 16, sm: 20 },
-                    color:
-                      gameData.possessionState === SPECIAL_PLAYER_IDS.OUR_TEAM
-                        ? "primary.light"
-                        : "rgba(255,255,255,0.1)",
-                    filter:
-                      gameData.possessionState === SPECIAL_PLAYER_IDS.OUR_TEAM
-                        ? "drop-shadow(0 0 4px #5A9BBD)"
-                        : "none",
-                    opacity:
-                      gameData.possessionState === SPECIAL_PLAYER_IDS.OUR_TEAM
-                        ? 1
-                        : 0.2,
-                  }}
-                />
-                <ArrowForward
-                  aria-label={`${game?.opponent || "Opponent"} possession`}
-                  sx={{
-                    fontSize: { xs: 16, sm: 20 },
-                    color:
-                      gameData.possessionState === SPECIAL_PLAYER_IDS.OPPONENT
-                        ? "secondary.light"
-                        : "rgba(255,255,255,0.1)",
-                    filter:
-                      gameData.possessionState === SPECIAL_PLAYER_IDS.OPPONENT
-                        ? "drop-shadow(0 0 4px #F6F6F6)"
-                        : "none",
-                    opacity:
-                      gameData.possessionState === SPECIAL_PLAYER_IDS.OPPONENT
-                        ? 1
-                        : 0.2,
-                  }}
-                />
-              </Stack>
-            </Box>
-
-            <Typography
-              aria-label={`${game?.opponent || "Opponent"} score: ${gameData.opponentScore}`}
-              aria-live="polite"
-              sx={{
-                color: "white",
-                fontSize: { xs: "1.75rem", sm: "3rem" },
-                fontWeight: 800,
-                fontFamily: "'Courier New', monospace",
-                lineHeight: 1,
-              }}
-            >
-              <AnimatedNumber value={gameData.opponentScore} />
-            </Typography>
+                BONUS →
+              </Typography>
+            )}
+            {gameData.teamFoulStats.oppBonusLabel && (
+              <Typography
+                sx={{
+                  color: "#FFD700",
+                  fontWeight: 900,
+                  fontSize: "0.7rem",
+                  letterSpacing: 1,
+                }}
+              >
+                ← BONUS
+              </Typography>
+            )}
           </Box>
         </Box>
 
-        {renderTeamInfo(
+        {/* Opponent Team */}
+        {renderTeamSection(
           game?.opponent || "OPPONENT",
           game?.opponentLogoUrl,
+          gameData.opponentScore,
+          gameData.timeoutStats.oppTOL,
           true,
         )}
       </Box>
+    );
+  },
+);
+
+/**
+ * 🏀 CoachBoard: Team Stats Card
+ * Why: Centralizes team-level defensive metrics like Stops and Kills.
+ */
+const TeamStatsCard = React.memo(
+  ({
+    defensiveStats,
+  }: {
+    defensiveStats: {
+      totalStops: number;
+      totalKills: number;
+      currentStreak: number;
+    };
+  }) => {
+    return (
+      <MoleskineCard>
+        <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 2 }}>
+          Team Stats
+        </Typography>
+        <Grid container spacing={2}>
+          <Grid item xs={6}>
+            <Box
+              sx={{
+                textAlign: "center",
+                p: 1.5,
+                bgcolor: "rgba(0,0,0,0.03)",
+                borderRadius: 2,
+                border: "1px solid rgba(0,0,0,0.05)",
+              }}
+            >
+              <Typography
+                variant="caption"
+                sx={{
+                  display: "block",
+                  color: "text.secondary",
+                  fontWeight: 700,
+                  letterSpacing: 1,
+                  mb: 0.5,
+                }}
+              >
+                STOPS
+              </Typography>
+              <Typography variant="h4" sx={{ fontWeight: 800, lineHeight: 1 }}>
+                <AnimatedNumber value={defensiveStats.totalStops} />
+              </Typography>
+            </Box>
+          </Grid>
+          <Grid item xs={6}>
+            <Box
+              sx={{
+                textAlign: "center",
+                p: 1.5,
+                bgcolor: "rgba(0,0,0,0.03)",
+                borderRadius: 2,
+                border: "1px solid rgba(0,0,0,0.05)",
+              }}
+            >
+              <Typography
+                variant="caption"
+                sx={{
+                  display: "block",
+                  color: "text.secondary",
+                  fontWeight: 700,
+                  letterSpacing: 1,
+                  mb: 0.5,
+                }}
+              >
+                KILLS
+              </Typography>
+              <Typography
+                variant="h4"
+                sx={{
+                  fontWeight: 800,
+                  color: "#FF4500",
+                  lineHeight: 1,
+                  textShadow: "0 2px 4px rgba(255,69,0,0.2)",
+                }}
+              >
+                <AnimatedNumber value={defensiveStats.totalKills} />
+              </Typography>
+            </Box>
+          </Grid>
+        </Grid>
+        <Box
+          sx={{
+            mt: 2,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: 1,
+          }}
+        >
+          <Typography
+            variant="caption"
+            sx={{ fontWeight: 700, color: "text.secondary", mr: 1 }}
+          >
+            STREAK:
+          </Typography>
+          <Box sx={{ display: "flex", gap: 0.5 }}>
+            {[1, 2, 3].map((i) => (
+              <FlashOn
+                key={i}
+                sx={{
+                  fontSize: 22,
+                  color:
+                    i <= defensiveStats.currentStreak
+                      ? "#FFD700"
+                      : "rgba(0,0,0,0.1)",
+                  filter:
+                    i <= defensiveStats.currentStreak
+                      ? "drop-shadow(0 0 4px #FFD700)"
+                      : "none",
+                  transition: "all 0.3s ease",
+                }}
+              />
+            ))}
+          </Box>
+        </Box>
+      </MoleskineCard>
     );
   },
 );
@@ -1088,6 +821,7 @@ const GameMode: React.FC = () => {
 
   // Game lifecycle state
   const [endGameDialogOpen, setEndGameDialogOpen] = useState(false);
+  const [isClockEditDialogOpen, setIsClockEditDialogOpen] = useState(false);
   const [summaryDialogOpen, setSummaryDialogOpen] = useState(false);
   const [auditDialogOpen, setAuditDialogOpen] = useState(false);
   const [ftWorkflowOpen, setFtWorkflowOpen] = useState(false);
@@ -2054,6 +1788,27 @@ const GameMode: React.FC = () => {
     });
   }, [gameId]);
 
+  const handleEditClock = useCallback(
+    async (mins: number, secs: number) => {
+      const totalSeconds = mins * 60 + secs;
+      setClockSeconds(totalSeconds);
+      if (gameId) {
+        try {
+          await db.open();
+          await db.games.update(gameId, {
+            clockTime: totalSeconds,
+            synced: 0,
+          });
+          await syncService.pushUpdates();
+        } catch (err) {
+          logger.error("Failed to update game clock:", err);
+        }
+      }
+      setIsClockEditDialogOpen(false);
+    },
+    [gameId],
+  );
+
   const handleResetClock = useCallback(async () => {
     if (!gameId || isReadOnly) return;
     const defaultMins = periodType === "QUARTERS" ? 10 : 20;
@@ -2258,24 +2013,14 @@ const GameMode: React.FC = () => {
             period={period}
             periodLabel={periodLabel}
             maxPeriod={maxPeriod}
-            onQuickAction={handleQuickOpponentAction}
             isReadOnly={isReadOnly}
             clockSeconds={clockSeconds}
             isClockRunning={isClockRunning}
-            onToggleClock={handleToggleClock}
-            onResetClock={handleResetClock}
-            opponentJerseys={opponentJerseys}
-            selectedOpponentId={selectedOpponentId}
-            onAddOpponentJersey={() => {
-              const jersey = window.prompt("Enter opponent jersey number:");
-              if (jersey && !opponentJerseys.includes(jersey)) {
-                setOpponentJerseys((prev) => [...prev, jersey]);
-                setSelectedOpponentId(
-                  `${SPECIAL_PLAYER_IDS.OPPONENT}:${jersey}`,
-                );
+            onEditClock={() => {
+              if (!isReadOnly) {
+                setIsClockEditDialogOpen(true);
               }
             }}
-            onSelectOpponent={(id) => setSelectedOpponentId(id)}
           />
 
           <MoleskineCard
@@ -2392,6 +2137,8 @@ const GameMode: React.FC = () => {
         {/* Panel: Roster and Recent Actions */}
         <Grid item xs={12} md={4}>
           <Stack spacing={3}>
+            <TeamStatsCard defensiveStats={gameData.defensiveStats} />
+
             {trackingMode === "TEAM" ? (
               <>
                 <MoleskineCard>
@@ -3496,6 +3243,45 @@ const GameMode: React.FC = () => {
         </DialogActions>
       </Dialog>
 
+      {/* Clock FAB */}
+      {!isReadOnly && (
+        <IconButton
+          onClick={handleToggleClock}
+          sx={{
+            position: "fixed",
+            bottom: 32,
+            right: 32,
+            width: 64,
+            height: 64,
+            bgcolor: isClockRunning ? "warning.main" : "success.main",
+            color: "white",
+            boxShadow: "0 4px 20px rgba(0,0,0,0.4)",
+            zIndex: theme.zIndex.speedDial,
+            "&:hover": {
+              bgcolor: isClockRunning ? "warning.dark" : "success.dark",
+              transform: "scale(1.05)",
+            },
+            transition: "all 0.2s ease-in-out",
+          }}
+          aria-label={isClockRunning ? "Pause Clock" : "Start Clock"}
+        >
+          {isClockRunning ? (
+            <Pause sx={{ fontSize: 32 }} />
+          ) : (
+            <PlayArrow sx={{ fontSize: 32 }} />
+          )}
+        </IconButton>
+      )}
+
+      {/* Edit Clock Dialog */}
+      <EditClockDialog
+        open={isClockEditDialogOpen}
+        onClose={() => setIsClockEditDialogOpen(false)}
+        onSave={handleEditClock}
+        initialMinutes={Math.floor(clockSeconds / 60)}
+        initialSeconds={clockSeconds % 60}
+      />
+
       <Snackbar
         open={snackbar.open}
         autoHideDuration={4000}
@@ -3549,5 +3335,72 @@ const QuickAction: React.FC<{
     </Button>
   </Tooltip>
 ));
+
+/**
+ * 🏀 CoachBoard: EditClockDialog
+ * Why: Allows precise manual adjustment of the game clock.
+ */
+const EditClockDialog: React.FC<{
+  open: boolean;
+  onClose: () => void;
+  onSave: (_mins: number, _secs: number) => void;
+  initialMinutes: number;
+  initialSeconds: number;
+}> = ({ open, onClose, onSave, initialMinutes, initialSeconds }) => {
+  const [mins, setMins] = useState(initialMinutes);
+  const [secs, setSecs] = useState(initialSeconds);
+
+  useEffect(() => {
+    if (open) {
+      setMins(initialMinutes);
+      setSecs(initialSeconds);
+    }
+  }, [open, initialMinutes, initialSeconds]);
+
+  return (
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs">
+      <DialogTitle sx={{ fontFamily: "var(--serif)" }}>Edit Clock</DialogTitle>
+      <DialogContent>
+        <Stack
+          direction="row"
+          spacing={3}
+          alignItems="center"
+          justifyContent="center"
+          sx={{ py: 3 }}
+        >
+          <Box sx={{ textAlign: "center" }}>
+            <Typography variant="caption" sx={{ fontWeight: 700, mb: 1, display: "block" }}>MINUTES</Typography>
+            <Stack direction="column" spacing={1} alignItems="center">
+              <IconButton onClick={() => setMins(Math.min(99, mins + 1))} size="small">
+                <AddIcon />
+              </IconButton>
+              <Typography variant="h4" sx={{ fontWeight: 800, minWidth: "2ch" }}>{mins}</Typography>
+              <IconButton onClick={() => setMins(Math.max(0, mins - 1))} size="small">
+                <RemoveIcon />
+              </IconButton>
+            </Stack>
+          </Box>
+          <Typography variant="h4" sx={{ mt: 3, fontWeight: 800 }}>:</Typography>
+          <Box sx={{ textAlign: "center" }}>
+            <Typography variant="caption" sx={{ fontWeight: 700, mb: 1, display: "block" }}>SECONDS</Typography>
+            <Stack direction="column" spacing={1} alignItems="center">
+              <IconButton onClick={() => setSecs((secs + 1) % 60)} size="small">
+                <AddIcon />
+              </IconButton>
+              <Typography variant="h4" sx={{ fontWeight: 800, minWidth: "2ch" }}>{secs.toString().padStart(2, "0")}</Typography>
+              <IconButton onClick={() => setSecs((secs - 1 + 60) % 60)} size="small">
+                <RemoveIcon />
+              </IconButton>
+            </Stack>
+          </Box>
+        </Stack>
+      </DialogContent>
+      <DialogActions sx={{ p: 2 }}>
+        <Button onClick={onClose} color="inherit">Cancel</Button>
+        <Button onClick={() => onSave(mins, secs)} variant="contained">Save Clock</Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
 
 export default GameMode;

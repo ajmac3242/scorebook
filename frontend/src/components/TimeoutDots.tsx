@@ -26,19 +26,30 @@ const TimeoutDots: React.FC<TimeoutDotsProps> = ({
     aria-label={`${count} timeouts remaining`}
     aria-live="polite"
   >
-    {Array.from({ length: total }).map((_, i) => (
-      <Box
-        key={i}
-        data-testid={i < count ? "timeout-dot-active" : "timeout-dot-inactive"}
-        sx={{
-          width: 6,
-          height: 6,
-          borderRadius: "50%",
-          bgcolor: i < count ? color : "rgba(255,255,255,0.2)",
-          boxShadow: i < count ? `0 0 4px ${color}` : "none",
-        }}
-      />
-    ))}
+    {Array.from({ length: total }).map((_, i) => {
+      // In the new design:
+      // Filled dots = remaining timeouts
+      // Empty dots = used timeouts
+      // count is TOL (Timeouts Left)
+      // Dots from 0 to count-1 should be filled
+      const isActive = i < count;
+
+      return (
+        <Box
+          key={i}
+          data-testid={isActive ? "timeout-dot-active" : "timeout-dot-inactive"}
+          sx={{
+            width: { xs: 6, sm: 8 },
+            height: { xs: 6, sm: 8 },
+            borderRadius: "50%",
+            bgcolor: isActive ? color : "transparent",
+            border: `1.5px solid ${color}`,
+            boxShadow: isActive ? `0 0 8px ${color}` : "none",
+            transition: "all 0.3s ease",
+          }}
+        />
+      );
+    })}
   </Stack>
 );
 

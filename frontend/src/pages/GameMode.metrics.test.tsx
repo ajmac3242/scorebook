@@ -210,9 +210,9 @@ describe("GameMode Metrics", () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText("STOPS:")).toBeInTheDocument();
+      expect(screen.getByText("STOPS")).toBeInTheDocument();
       expect(screen.getByText("3")).toBeInTheDocument(); // Total stops
-      expect(screen.getByText("KILLS:")).toBeInTheDocument();
+      expect(screen.getByText("KILLS")).toBeInTheDocument();
       expect(screen.getByText("1")).toBeInTheDocument(); // Total kills
     });
   });
