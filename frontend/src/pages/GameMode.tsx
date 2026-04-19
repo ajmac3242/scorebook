@@ -1375,7 +1375,10 @@ const GameMode: React.FC = () => {
     }
 
     // ⚡ Bolt: If no sub happened in the period, baseline is the period start.
-    if (lastLineupChangeClock === periodLen && lastLineupChangeScoreTeam === 0) {
+    if (
+      lastLineupChangeClock === periodLen &&
+      lastLineupChangeScoreTeam === 0
+    ) {
       lastLineupChangeScoreTeam = periodStartScoreTeam;
       lastLineupChangeScoreOpp = periodStartScoreOpp;
     }
@@ -2832,7 +2835,8 @@ const GameMode: React.FC = () => {
                   gameData.recentStats.map((s, index) => {
                     // ⚡ Bolt: Use playerNamesMap with fallback logic directly in the map loop.
                     // This avoids redundant function allocation and complex branching for every item.
-                    let playerName = playerNamesMap.get(s.playerId) || "Unknown";
+                    let playerName =
+                      playerNamesMap.get(s.playerId) || "Unknown";
                     if (s.playerId === SPECIAL_PLAYER_IDS.OPPONENT) {
                       playerName = game?.opponent || "Opponent";
                     } else if (
