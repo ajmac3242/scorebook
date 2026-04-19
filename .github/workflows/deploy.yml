@@ -43,7 +43,7 @@ jobs:
             frontend/pnpm-lock.yaml
 
       - name: Build Backend
-        timeout-minutes: 5
+        timeout-minutes: 10
         run: |
           echo "::group::Backend Build"
           cd backend
@@ -111,7 +111,7 @@ jobs:
           echo "::endgroup::"
 
       - name: Build Frontend
-        timeout-minutes: 5
+        timeout-minutes: 10
         # Bakes live Cognito IDs and API endpoint into the React build
         run: |
           echo "::group::Frontend Build"
@@ -160,6 +160,7 @@ jobs:
           path: |
             backend/*.log
             frontend/*.log
+            infra/*.log
             infra/tfplan
             frontend-build-hash.txt
           if-no-files-found: ignore
