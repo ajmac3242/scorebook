@@ -85,8 +85,8 @@
 **Why:** Coaches often play the same opponents multiple times in a season. Re-identifying jersey numbers every game is tedious and prevents historical scouting analysis.
 **What:** Allow "Opponent Rosters" to be saved and reused across multiple games. When starting a game, allow the user to select an existing opponent team and load their previously identified roster.
 **Acceptance Criteria:**
-- [ ] New "Opponent Library" section or a way to save an opponent's `opponentRoster` from the Game Mode.
-- [ ] "Load Roster" option in Create Game workflow for selected opponents.
+- [x] New "Opponent Library" section or a way to save an opponent's `opponentRoster` from the Game Mode.
+- [x] "Load Roster" option in Create Game workflow for selected opponents.
 - [ ] Cumulative "Opponent Scouting Report" view showing a player's stats across all games where they were tracked via a persistent ID.
 
 ## Verified Period Workflow
@@ -95,9 +95,9 @@
 **Why:** Official scores and fouls often drift from the app during high-intensity games. A scheduled reconciliation ensures data integrity before moving to the next phase of the game.
 **What:** At the end of every period, show a mandatory "Verify Stats" dialog. The scorekeeper must confirm the score and team fouls against the official table before the period is marked "Verified."
 **Acceptance Criteria:**
-- [ ] Automated dialog trigger when the clock hits 0:00 or "Next Period" is clicked.
-- [ ] Display summarized period stats (Score, Fouls) with input fields for "Correction" if they differ from the app.
-- [ ] Generate a `SYSTEM_CORRECTION` event to balance totals if manual overrides are entered.
+- [x] Automated dialog trigger when the clock hits 0:00 or "Next Period" is clicked.
+- [x] Display summarized period stats (Score, Fouls) with input fields for "Correction" if they differ from the app.
+- [x] Generate a `SYSTEM_CORRECTION` event to balance totals if manual overrides are entered.
 
 ## Multi-Period Tactical Heatmaps
 **Priority:** MEDIUM
@@ -105,8 +105,8 @@
 **Why:** Shooting patterns change as a game progresses due to fatigue or defensive adjustments. Coaches need to see *when* their team stopped getting to the rim.
 **What:** Enhance the Shot Chart in `GameStats` and `Dashboard` to allow filtering heatmaps by specific period or "Half."
 **Acceptance Criteria:**
-- [ ] Period-selector filter (P1, P2, P3, P4, OT) on the Shot Chart view.
-- [ ] "Compare Periods" mode showing two heatmaps side-by-side (e.g., 1st Half vs 2nd Half).
+- [x] Period-selector filter (P1, P2, P3, P4, OT) on the Shot Chart view.
+- [x] "Compare Periods" mode showing two heatmaps side-by-side (e.g., 1st Half vs 2nd Half).
 - [x] Toggle to show "Only Misses" or "Only Makes" on the heatmap.
 
 ## Interactive Playbook Efficiency HUD

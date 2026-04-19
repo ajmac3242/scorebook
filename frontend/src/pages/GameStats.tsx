@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
   Box,
@@ -89,6 +89,9 @@ const GameStats: React.FC = () => {
   const [selectedType, setSelectedType] = useState<string>("ALL");
   const [selectedPlay, setSelectedPlay] = useState<string>("ALL");
   const [periodFilter, setPeriodFilter] = useState<string>("ALL");
+  const [compareMode, setCompareMode] = useState(false);
+  const [comparePeriod1, setComparePeriod1] = useState<string>("1");
+  const [comparePeriod2, setComparePeriod2] = useState<string>("2");
   const [shotChartView, setShotChartView] = useState<"markers" | "heatmap">(
     "markers",
   );
@@ -295,24 +298,46 @@ const GameStats: React.FC = () => {
 
   const shotChartMarkers = derivedStats.markers;
 
-  const heatmapData = useMemo(() => {
-    const data: Record<string, { makes: number; attempts: number }> = {};
-    for (let i = 0; i < stats.length; i++) {
-      const s = stats[i];
-      if (s.type !== ACTION_TYPES.MAKE && s.type !== ACTION_TYPES.MISS)
-        continue;
-      if (selectedPlayerId !== "ALL" && s.playerId !== selectedPlayerId)
-        continue;
-      if (selectedType !== "ALL" && s.type !== selectedType) continue;
-      if (selectedPlay !== "ALL" && s.playName !== selectedPlay) continue;
+  const getHeatmapDataForPeriod = useCallback(
+    (pFilter: string) => {
+      const periodStats =
+        pFilter === "ALL"
+          ? allStats
+          : allStats.filter((s) => s.period === parseInt(pFilter));
 
-      const zone = getShotZone(s.locationX || 0, s.locationY || 0);
-      if (!data[zone]) data[zone] = { makes: 0, attempts: 0 };
-      data[zone].attempts++;
-      if (s.type === ACTION_TYPES.MAKE) data[zone].makes++;
-    }
-    return data;
-  }, [stats, selectedPlayerId, selectedType, selectedPlay]);
+      const data: Record<string, { makes: number; attempts: number }> = {};
+      for (let i = 0; i < periodStats.length; i++) {
+        const s = periodStats[i];
+        if (s.type !== ACTION_TYPES.MAKE && s.type !== ACTION_TYPES.MISS)
+          continue;
+        if (selectedPlayerId !== "ALL" && s.playerId !== selectedPlayerId)
+          continue;
+        if (selectedType !== "ALL" && s.type !== selectedType) continue;
+        if (selectedPlay !== "ALL" && s.playName !== selectedPlay) continue;
+
+        const zone = getShotZone(s.locationX || 0, s.locationY || 0);
+        if (!data[zone]) data[zone] = { makes: 0, attempts: 0 };
+        data[zone].attempts++;
+        if (s.type === ACTION_TYPES.MAKE) data[zone].makes++;
+      }
+      return data;
+    },
+    [allStats, selectedPlayerId, selectedType, selectedPlay],
+  );
+
+  const heatmapData = useMemo(
+    () => getHeatmapDataForPeriod(periodFilter),
+    [getHeatmapDataForPeriod, periodFilter],
+  );
+
+  const heatmapData1 = useMemo(
+    () => getHeatmapDataForPeriod(comparePeriod1),
+    [getHeatmapDataForPeriod, comparePeriod1],
+  );
+  const heatmapData2 = useMemo(
+    () => getHeatmapDataForPeriod(comparePeriod2),
+    [getHeatmapDataForPeriod, comparePeriod2],
+  );
 
   const scoreFlowData = useMemo(() => {
     return calculateScoreFlow(scoreFlowSortedStats, game?.periodLength);
@@ -734,15 +759,25 @@ const GameStats: React.FC = () => {
         mb={1}
       >
         <Typography variant="subtitle2">Filters</Typography>
-        <ToggleButtonGroup
-          value={shotChartView}
-          exclusive
-          onChange={(_, val) => val && setShotChartView(val)}
-          size="small"
-        >
-          <ToggleButton value="markers">Markers</ToggleButton>
-          <ToggleButton value="heatmap">Heatmap</ToggleButton>
-        </ToggleButtonGroup>
+        <Stack direction="row" spacing={1}>
+          <Button
+            size="small"
+            variant={compareMode ? "contained" : "outlined"}
+            onClick={() => setCompareMode(!compareMode)}
+            sx={{ fontSize: "0.7rem" }}
+          >
+            Compare
+          </Button>
+          <ToggleButtonGroup
+            value={shotChartView}
+            exclusive
+            onChange={(_, val) => val && setShotChartView(val)}
+            size="small"
+          >
+            <ToggleButton value="markers">Markers</ToggleButton>
+            <ToggleButton value="heatmap">Heatmap</ToggleButton>
+          </ToggleButtonGroup>
+        </Stack>
       </Stack>
       <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
         <FormControl fullWidth size="small">
@@ -1050,7 +1085,7 @@ const GameStats: React.FC = () => {
         </Grid>
 
         {/* Shot Chart Card */}
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12} md={compareMode ? 12 : 6}>
           <MoleskineCard>
             <Box
               sx={{
@@ -1061,8 +1096,10 @@ const GameStats: React.FC = () => {
               }}
             >
               <Typography variant="h6" sx={{ fontFamily: "var(--serif)" }}>
-                Shot Chart{" "}
-                {periodFilter !== "ALL" && `(${periodLabel} ${periodFilter})`}
+                {compareMode ? "Tactical Comparison" : "Shot Chart"}{" "}
+                {!compareMode &&
+                  periodFilter !== "ALL" &&
+                  `(${periodLabel} ${periodFilter})`}
               </Typography>
               <IconButton
                 onClick={() => setExpandedSection("shotChart")}
@@ -1072,7 +1109,95 @@ const GameStats: React.FC = () => {
               </IconButton>
             </Box>
             {shotChartFilters}
-            <Box sx={{ p: 1 }}>{shotChartCourt}</Box>
+
+            {compareMode ? (
+              <Box
+                sx={{
+                  display: "flex",
+                  gap: 2,
+                  overflowX: isMobile ? "auto" : "visible",
+                  scrollSnapType: isMobile ? "x mandatory" : "none",
+                  pb: 1,
+                  "&::-webkit-scrollbar": { display: "none" },
+                }}
+              >
+                {[
+                  {
+                    id: 1,
+                    p: comparePeriod1,
+                    setP: setComparePeriod1,
+                    data: heatmapData1,
+                  },
+                  {
+                    id: 2,
+                    p: comparePeriod2,
+                    setP: setComparePeriod2,
+                    data: heatmapData2,
+                  },
+                ].map((court) => (
+                  <Box
+                    key={court.id}
+                    sx={{
+                      minWidth: isMobile ? "100%" : "calc(50% - 8px)",
+                      scrollSnapAlign: "start",
+                    }}
+                  >
+                    <Stack
+                      direction="row"
+                      justifyContent="space-between"
+                      alignItems="center"
+                      sx={{ mb: 1 }}
+                    >
+                      <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
+                        {periodLabel} {court.p}
+                      </Typography>
+                      <Select
+                        size="small"
+                        value={court.p}
+                        onChange={(e) => court.setP(e.target.value)}
+                        sx={{ height: 30, fontSize: "0.8rem" }}
+                      >
+                        {periods
+                          .filter((p) => p !== "ALL")
+                          .map((p) => (
+                            <MenuItem key={p} value={p}>
+                              {periodLabel} {p}
+                            </MenuItem>
+                          ))}
+                      </Select>
+                    </Stack>
+                    <BasketballCourt
+                      heatmapData={
+                        shotChartView === "heatmap" ? court.data : undefined
+                      }
+                      markers={
+                        shotChartView === "markers"
+                          ? shotChartMarkers.filter(
+                              (m) =>
+                                allStats.find((s) => s.id === m.id)?.period ===
+                                parseInt(court.p),
+                            )
+                          : []
+                      }
+                    />
+                  </Box>
+                ))}
+              </Box>
+            ) : (
+              <Box sx={{ p: 1 }}>{shotChartCourt}</Box>
+            )}
+
+            {compareMode && isMobile && (
+              <Typography
+                variant="caption"
+                display="block"
+                textAlign="center"
+                color="text.secondary"
+                sx={{ mt: 1 }}
+              >
+                ← Swipe to compare →
+              </Typography>
+            )}
           </MoleskineCard>
         </Grid>
 

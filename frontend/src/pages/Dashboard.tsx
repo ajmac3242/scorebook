@@ -14,6 +14,8 @@ import {
   Avatar,
   Chip,
   Divider,
+  ToggleButton,
+  ToggleButtonGroup,
 } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import {
@@ -42,6 +44,7 @@ import dayjs from "dayjs";
  */
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
+  const [selectedPeriod, setSelectedPeriod] = React.useState<string>("ALL");
 
   // Find the starred team
   const favoriteTeam = useLiveQuery(
@@ -147,13 +150,23 @@ const Dashboard: React.FC = () => {
       if (s.type !== ACTION_TYPES.MAKE && s.type !== ACTION_TYPES.MISS)
         continue;
 
+      if (selectedPeriod !== "ALL") {
+        if (selectedPeriod === "OT") {
+          const isHalves = favoriteTeam?.periodType === "HALVES";
+          const threshold = isHalves ? 2 : 4;
+          if (s.period <= threshold) continue;
+        } else if (s.period.toString() !== selectedPeriod) {
+          continue;
+        }
+      }
+
       const zone = getShotZone(s.locationX || 0, s.locationY || 0);
       if (!data[zone]) data[zone] = { makes: 0, attempts: 0 };
       data[zone].attempts++;
       if (s.type === ACTION_TYPES.MAKE) data[zone].makes++;
     }
     return data;
-  }, [allStats]);
+  }, [allStats, selectedPeriod, favoriteTeam?.periodType]);
 
   const upcomingGames = useMemo(() => {
     const now = dayjs();
@@ -275,11 +288,39 @@ const Dashboard: React.FC = () => {
 
             <Divider sx={{ my: 4 }} />
 
-            <Box sx={{ display: "flex", alignItems: "center", mb: 2, gap: 1 }}>
-              <Assessment color="primary" />
-              <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                Shot Efficiency (Heatmap)
-              </Typography>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: { xs: "column", sm: "row" },
+                justifyContent: "space-between",
+                alignItems: { xs: "flex-start", sm: "center" },
+                mb: 2,
+                gap: 1,
+              }}
+            >
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Assessment color="primary" />
+                <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                  Shot Efficiency (Heatmap)
+                </Typography>
+              </Box>
+              <ToggleButtonGroup
+                value={selectedPeriod}
+                exclusive
+                onChange={(_, val) => val && setSelectedPeriod(val)}
+                size="small"
+              >
+                <ToggleButton value="ALL">All</ToggleButton>
+                <ToggleButton value="1">P1</ToggleButton>
+                <ToggleButton value="2">P2</ToggleButton>
+                {favoriteTeam?.periodType === "QUARTERS" && (
+                  <ToggleButton value="3">P3</ToggleButton>
+                )}
+                {favoriteTeam?.periodType === "QUARTERS" && (
+                  <ToggleButton value="4">P4</ToggleButton>
+                )}
+                <ToggleButton value="OT">OT</ToggleButton>
+              </ToggleButtonGroup>
             </Box>
             <Box sx={{ maxWidth: 600, mx: "auto", p: 1 }}>
               <BasketballCourt heatmapData={heatmapData} />
