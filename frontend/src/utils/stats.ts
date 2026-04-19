@@ -714,7 +714,10 @@ export const calculateStopsAndKills = (stats: StatEvent[]) => {
 
     // A Stop is earned on an Opponent Miss followed by our Defensive Rebound.
     if (isOpp && s.type === ACTION_TYPES.MISS) {
-      // Look ahead for the rebound event
+      // 🏀 Look ahead for the rebound event.
+      // WHY: A single possession can have multiple misses if the opponent gets
+      // offensive rebounds. We need to find the specific event that terminates
+      // the possession (DEF_REBOUND or MAKE) to determine if it was a Stop.
       let stopEarned = false;
       let eventIndex = i;
       for (let j = i + 1; j < stats.length; j++) {
@@ -1085,12 +1088,14 @@ export const calculateLineupStats = (
 
     // ⚡ Bolt: Handle multi-game aggregation by detecting game context changes in-stream.
     if (currentGameId !== null && s.gameId !== currentGameId) {
+      // 🏀 Boundary Logic: Close the stint for the previous game.
+      // WHY: Plus/Minus and minutes should not bleed across different games.
       if (currentLineup.size === 5) {
         if (!cachedLineupKey) cachedLineupKey = getLineupKey(currentLineup);
         recordLineupStint(
           lineupStats,
           cachedLineupKey,
-          lastClockTime,
+          lastClockTime, // Assume played until buzzer (0:00)
           scores.team - lastTeamScore,
           scores.opp - lastOppScore,
         );
@@ -1108,12 +1113,14 @@ export const calculateLineupStats = (
 
     // Handle period transition
     if (s.period > currentPeriod) {
+      // 🏀 Boundary Logic: Close stint for the previous period.
+      // WHY: We record the stats accumulated during the period that just ended.
       if (currentLineup.size === 5) {
         if (!cachedLineupKey) cachedLineupKey = getLineupKey(currentLineup);
         recordLineupStint(
           lineupStats,
           cachedLineupKey,
-          lastClockTime,
+          lastClockTime, // Time remaining in previous period (usually ends at 0:00)
           scores.team - lastTeamScore,
           scores.opp - lastOppScore,
         );

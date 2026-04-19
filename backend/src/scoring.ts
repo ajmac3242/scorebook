@@ -31,7 +31,10 @@ export function accumulateScores(stats: Record<string, unknown>[]) {
     const s = stats[i];
     if (s.deletedAt) continue;
 
-    // Only increment score for MAKE events.
+    // 🏀 Scoring Strategy: Event-Driven Consistency
+    // WHY: We only increment score for MAKE events. This allows us to re-calculate
+    // the total score at any time from the raw event stream, ensuring that the
+    // displayed score is always derived from the source of truth.
     if (s.type !== "MAKE") continue;
 
     const pts = (s.points as number) || 0;

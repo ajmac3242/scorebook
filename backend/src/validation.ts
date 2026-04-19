@@ -52,8 +52,10 @@ export function isValidPlayerId(id: unknown): boolean {
   const strId = id as string;
   const prefix = SPECIAL_PLAYER_IDS.OPPONENT + ":";
   if (strId.startsWith(prefix)) {
-    // Avoid split() if the ID is too long to be a jersey number.
-    // 'OPPONENT:' (9) + '99' (2) = 11 chars max.
+    // 🛡️ Guard: Length check for jersey-prefixed IDs.
+    // WHY: 'OPPONENT:' (9 chars) plus a 1 or 2 digit jersey number (1-2 chars).
+    // Total valid length must be 10 or 11 characters.
+    // This optimization avoids expensive operations for obviously invalid IDs.
     if (strId.length > 11 || strId.length < 10) return false;
     const jersey = strId.slice(prefix.length);
     return /^\d{1,2}$/.test(jersey);

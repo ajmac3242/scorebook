@@ -45,6 +45,14 @@ export const formatClock = (totalSeconds: number): string => {
 
 /**
  * Formats an ISO timestamp string to a mm:ss time string.
+ *
+ * WHY: This utility provides a lightweight way to extract the time component
+ * from a standard ISO 8601 string.
+ *
+ * CONSTRAINT: It relies on a strict ISO 8601 format (e.g. "YYYY-MM-DDTHH:mm:ss.sssZ").
+ * It uses specific slice indices (14 to 19) to extract the "mm:ss" portion,
+ * assuming the minute starts at index 14.
+ *
  * @param {string} timestamp - ISO timestamp (e.g. "2023-01-01T12:00:30.000Z").
  * @returns {string} The formatted time string (e.g. "00:30").
  */
