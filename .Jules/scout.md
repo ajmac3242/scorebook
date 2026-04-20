@@ -49,3 +49,18 @@
 ### Basketball Edge Cases
 - **Momentum & Fouls**: A defensive stop requires terminating a possession cleanly. Fouls (even non-shooting) reset the streak.
 - **FT/FG Separation**: Always keep `makes`/`attempts` strictly for Field Goals (2pt/3pt) and use `ftm`/`fta` for Free Throws to maintain NBA/FIBA/NCAA box score standards.
+
+## 2025-05-26 - Advanced Logic & Boundary Audit
+
+### Findings & Fixed Bugs
+- **Bug 13: Offensive Foul Momentum Reset**: Discovered that `calculateStopsAndKills` incorrectly reset the defensive stop streak on offensive fouls. Fixed by implementing possession tracking to ensure only defensive or technical fouls break the streak.
+- **Bug 14: Overtime Bonus Gap**: Found that in `QUARTERS` mode, team fouls in overtime were not being grouped with the 4th quarter, causing the bonus status to reset. Updated `isEventInPeriod` to group P5+ with P4.
+- **Bug 15: Silent Period Minute Loss**: Identified a bug where players/lineups lost minutes if entire periods passed without a recorded event (e.g., if a player played all of P2 but P2 had no stats). Added skip-period detection to stint calculations.
+
+### Critical Test Gaps Filled
+- New edge case tests in `scout_audit.test.ts` for offensive fouls during streaks, overtime grouping, and skipped period minutes.
+- Verified that these fixes maintain 100% accuracy in box score and momentum metrics.
+
+### Basketball Edge Cases
+- **Momentum vs. Possession**: A stop streak tracks defensive success. Offensive fouls end a possession but are not defensive failures.
+- **OT Continuation**: Most competitive rulesets treat OT as an extension of the 4th quarter for the purpose of team foul penalties.
