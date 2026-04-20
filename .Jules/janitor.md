@@ -24,3 +24,7 @@ Action: Always extract `useCallback` hooks to the component body before any earl
 ## 2026-04-18 - Fix JSDoc and Exhaustive Deps
 Learning: Missing JSDoc @param descriptions were triggering warnings in backend code, and unmemoized logical fallbacks in Dashboard.tsx were causing unstable dependency warnings.
 Action: Standardized JSDoc param format and stabilized hook dependencies using useMemo.
+
+## 2026-04-19 - Elite Code Hygiene and Type Safety
+Learning: Logical OR (`||`) for jersey number fallbacks incorrectly treats "0" as missing, which is a valid basketball identifier. Standardizing on nullish coalescing (`??`) prevents this UI bug. Generic `Record<string, any>` in backend filters was obscuring property access and triggering lint warnings.
+Action: Enforce `??` for all jersey number displays. Replace `any` with `unknown` and use specific type constraints (e.g., `{ deletedAt?: string | null }`) in utility helpers to improve robustness.

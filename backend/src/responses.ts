@@ -8,7 +8,7 @@ import { APIGatewayProxyStructuredResultV2 } from "aws-lambda";
 /**
  * Internal keys to redact from outgoing data.
  */
-export const INTERNAL_KEYS = new Set([
+export const INTERNAL_KEYS = new Set<string>([
   "synced",
   "PK",
   "SK",
@@ -72,7 +72,7 @@ export function sanitizeOutput(data: unknown, depth = 0): unknown {
  * @param {T[]} items - The list of items to filter.
  * @returns {T[]} The filtered list containing only active (non-deleted) items.
  */
-export function filterActive<T extends Record<string, any>>(
+export function filterActive<T extends { deletedAt?: string | null }>(
   items: T[] | undefined | null,
 ): T[] {
   if (!items) return [];

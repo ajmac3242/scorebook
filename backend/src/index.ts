@@ -43,6 +43,7 @@ import {
 import { Keys } from "./keys.js";
 import {
   logError,
+  logInfo,
   maskEvent,
   extractRequestMetadata,
   safeCompare,
@@ -523,7 +524,6 @@ function parseBody(body: string | undefined): Record<string, unknown> {
  * Handler for cleanup-related endpoints.
  * @param {string} method - HTTP method.
  * @param {string} path - Request path.
- * @param {Record<string, unknown>} _body - Parsed JSON body (unused).
  * @param {APIGatewayProxyEventV2} event - The full Lambda event.
  * @param {string} tableName - DynamoDB table name.
  * @returns {Promise<APIGatewayProxyResultV2 | null>} Response.
@@ -531,7 +531,6 @@ function parseBody(body: string | undefined): Record<string, unknown> {
 async function handleCleanup(
   method: string,
   path: string,
-  _body: Record<string, unknown>,
   event: APIGatewayProxyEventV2,
   tableName: string,
 ): Promise<APIGatewayProxyResultV2 | null> {
@@ -556,10 +555,10 @@ async function handleCleanup(
 export const handler = async (
   event: APIGatewayProxyEventV2,
 ): Promise<APIGatewayProxyResultV2> => {
-  console.log("Event:", JSON.stringify(maskEvent(event)));
+  logInfo("Event", maskEvent(event));
 
   const { method, path } = extractRequestMetadata(event);
-  console.log("Routing:", { method, path });
+  logInfo("Routing", { method, path });
 
   // Enforce Content-Type for write requests with a body
   if (["POST", "PUT", "PATCH"].includes(method) && event.body) {
@@ -585,7 +584,7 @@ export const handler = async (
       (await handleTeams(method, path, body, event, TABLE_NAME)) ||
       (await handlePlayers(method, path, body, event, TABLE_NAME)) ||
       (await handleGames(method, path, body, event, TABLE_NAME)) ||
-      (await handleCleanup(method, path, body, event, TABLE_NAME));
+      (await handleCleanup(method, path, event, TABLE_NAME));
 
     return res || notFound("Route not found");
   } catch (error: unknown) {
@@ -732,12 +731,6 @@ async function softDeleteItem(
   );
   return ok({ message: "Item soft deleted", deletedAt: timestamp });
 }
-
-/**
- * Accumulates scores for team and opponent from stat events.
- * @param {Record<string, unknown>[]} stats - List of stat events.
- * @returns {{teamScore: number, oppScore: number}} Object containing teamScore and oppScore.
- */
 
 /**
  * Performs cleanup of soft-deleted items older than 24 hours.
