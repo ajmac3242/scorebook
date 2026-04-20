@@ -65,3 +65,12 @@ Pattern:
 2. Standardize data filtering and identification using shared helpers (isActive, isOpponentId, isScoringEvent, isFoulAction).
 3. Decompose monolithic UI components into focused sub-components (TeamScoreSection, MomentumAlerts) to improve readability.
 4. Simplify recursive data processing using modern JS/TS patterns like `Object.entries().reduce()`.
+
+## 2026-04-20 - Domain Logic and UI Standardization
+Smell: Inlined domain logic for fouls and free throws; inconsistent plus-minus formatting in JSX; manual path slicing.
+Learning: Centralizing domain-specific conditions (isFoulAction, isFreeThrow) improves scannability of aggregation logic. Moving UI formatting logic to utilities (formatPlusMinus) significantly reduces JSX clutter and ensures visual consistency. Regex-based path normalization is more robust and concise than manual slicing.
+Pattern:
+1. Extract basketball domain logic into semantic helpers (isFoulAction, isFreeThrow) in stats utilities.
+2. Standardize UI-specific formatting (plus-minus colors and signs) in shared math utilities.
+3. Use regex for string normalization tasks like API path routing.
+4. Bolt-optimize recursive cleaners with Object.entries() and standard loops.
