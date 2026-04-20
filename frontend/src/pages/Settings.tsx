@@ -149,13 +149,15 @@ const Settings: React.FC = () => {
    * Clears all stored logs.
    */
   const handleClearLogs = () => {
-    logger.clearLogs();
-    setLogs([]);
-    setSnackbar({
-      open: true,
-      message: "System logs cleared",
-      severity: "success",
-    });
+    if (window.confirm("Are you sure you want to clear all system logs?")) {
+      logger.clearLogs();
+      setLogs([]);
+      setSnackbar({
+        open: true,
+        message: "System logs cleared",
+        severity: "success",
+      });
+    }
   };
 
   const logoutDialog = (

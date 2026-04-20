@@ -322,7 +322,15 @@ const Players: React.FC = () => {
                   ? "Try adjusting your search terms"
                   : "Start by adding players to your roster"}
               </Typography>
-              {!searchTerm && (
+              {searchTerm ? (
+                <Button
+                  variant="outlined"
+                  onClick={() => setSearchTerm("")}
+                  sx={{ borderRadius: 2 }}
+                >
+                  Clear Search
+                </Button>
+              ) : (
                 <Button
                   variant="contained"
                   startIcon={<AddIcon />}
@@ -391,44 +399,45 @@ const Players: React.FC = () => {
           </Typography>
           <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
             {AVATAR_COLORS.map((color) => (
-              <Box
-                key={color}
-                onClick={() => setAvatarColor(color)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    setAvatarColor(color);
-                  }
-                }}
-                role="button"
-                tabIndex={0}
-                aria-label={`Select color ${color.toUpperCase()} as avatar color`}
-                aria-pressed={avatarColor === color}
-                sx={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: "50%",
-                  bgcolor: color,
-                  cursor: "pointer",
-                  border:
-                    avatarColor === color
-                      ? "3px solid #000"
-                      : "1px solid rgba(0,0,0,0.1)",
-                  boxSizing: "border-box",
-                  transition: "all 0.1s",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  "&:hover": { transform: "scale(1.2)" },
-                  "&:focus-visible": {
-                    outline: "2px solid #000",
-                    outlineOffset: "2px",
-                  },
-                }}
-              >
-                {avatarColor === color && (
-                  <CheckIcon sx={{ color: "#000", fontSize: 20 }} />
-                )}
-              </Box>
+              <Tooltip key={color} title={`Select ${color.toUpperCase()}`}>
+                <Box
+                  onClick={() => setAvatarColor(color)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      setAvatarColor(color);
+                    }
+                  }}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`Select color ${color.toUpperCase()} as avatar color`}
+                  aria-pressed={avatarColor === color}
+                  sx={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: "50%",
+                    bgcolor: color,
+                    cursor: "pointer",
+                    border:
+                      avatarColor === color
+                        ? "3px solid #000"
+                        : "1px solid rgba(0,0,0,0.1)",
+                    boxSizing: "border-box",
+                    transition: "all 0.1s",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    "&:hover": { transform: "scale(1.2)" },
+                    "&:focus-visible": {
+                      outline: "2px solid #000",
+                      outlineOffset: "2px",
+                    },
+                  }}
+                >
+                  {avatarColor === color && (
+                    <CheckIcon sx={{ color: "#000", fontSize: 20 }} />
+                  )}
+                </Box>
+              </Tooltip>
             ))}
           </Box>
         </DialogContent>

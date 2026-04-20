@@ -19,6 +19,7 @@ import {
   Alert,
   Tooltip,
   IconButton,
+  FormHelperText,
 } from "@mui/material";
 import {
   Add as AddIcon,
@@ -306,7 +307,15 @@ const Teams: React.FC = () => {
                 ? "Try adjusting your search terms"
                 : "Start by adding your first basketball team"}
             </Typography>
-            {!searchTerm && (
+            {searchTerm ? (
+              <Button
+                variant="outlined"
+                onClick={() => setSearchTerm("")}
+                sx={{ borderRadius: 2 }}
+              >
+                Clear Search
+              </Button>
+            ) : (
               <Button
                 variant="contained"
                 startIcon={<AddIcon />}
@@ -604,6 +613,10 @@ const Teams: React.FC = () => {
               <MenuItem value="QUARTERS">Quarters</MenuItem>
               <MenuItem value="HALVES">Halves</MenuItem>
             </Select>
+            <FormHelperText>
+              Determines if games are tracked by Quarters (4 periods) or Halves
+              (2 periods).
+            </FormHelperText>
           </FormControl>
           <TextField
             margin="dense"

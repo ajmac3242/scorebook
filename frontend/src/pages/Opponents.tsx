@@ -179,6 +179,7 @@ const Opponents: React.FC = () => {
                       <IconButton
                         size="small"
                         color="error"
+                        aria-label="Delete Opponent"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleDeleteOpponent(opponent.id);
@@ -191,6 +192,7 @@ const Opponents: React.FC = () => {
                       <IconButton
                         size="small"
                         color="primary"
+                        aria-label="View Scouting Report"
                         onClick={(e) => {
                           e.stopPropagation();
                           navigate(`/opponents/${opponent.id}/scouting`);
@@ -218,6 +220,11 @@ const Opponents: React.FC = () => {
               fullWidth
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && newName.trim()) {
+                  handleAddOpponent();
+                }
+              }}
               autoFocus
             />
             <TextField
@@ -225,6 +232,11 @@ const Opponents: React.FC = () => {
               fullWidth
               value={newLogoUrl}
               onChange={(e) => setNewLogoUrl(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && newName.trim()) {
+                  handleAddOpponent();
+                }
+              }}
             />
           </Stack>
         </DialogContent>
