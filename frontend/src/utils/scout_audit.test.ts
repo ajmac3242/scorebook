@@ -198,15 +198,9 @@ describe("Scout Audit: Quality Fixes", () => {
       ];
 
       // P1: 10 mins, P2: 10 mins, P3: 10 mins = 30 mins total
-      const aggregates = calculatePlayerAggregates(
-        mockPlayers,
-        stats,
-        [],
-        "total",
-        {
-          periodLength: 10,
-        },
-      );
+      const aggregates = calculatePlayerAggregates(mockPlayers, stats, [], "total", {
+        periodLength: 10,
+      });
       const p1 = aggregates.find((a) => a.id === "p1");
       expect(p1?.min).toBe(30); // 10 (P1) + 10 (P2) + 10 (P3) = 30
     });

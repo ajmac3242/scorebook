@@ -51,8 +51,6 @@ import {
   calculateLineupStats,
   calculateStopsAndKills,
   calculateEfgPct,
-  calculatePossessions,
-  calculatePpp,
 } from "../utils/stats";
 import { MoleskineCard } from "../components/SharedUI";
 import EntityBanner from "../components/EntityBanner";
@@ -340,13 +338,7 @@ const GameStats: React.FC = () => {
       }
       return data;
     },
-    [
-      allStats,
-      selectedPlayerId,
-      selectedType,
-      selectedShotQuality,
-      selectedPlay,
-    ],
+    [allStats, selectedPlayerId, selectedType, selectedShotQuality, selectedPlay],
   );
 
   const heatmapData = useMemo(
@@ -401,37 +393,6 @@ const GameStats: React.FC = () => {
       ...stats,
       efg: calculateEfgPct(stats.makes, stats.threePM, stats.attempts),
     }));
-  const teamData = useMemo(() => {
-    let fga = 0;
-    let fta = 0;
-    let turnovers = 0;
-    let oreb = 0;
-    let points = 0;
-
-    for (let i = 0; i < stats.length; i++) {
-      const s = stats[i];
-      if (s.deletedAt || s.playerId === SPECIAL_PLAYER_IDS.OPPONENT) continue;
-
-      if (s.type === ACTION_TYPES.MAKE) {
-        points += s.points || 0;
-        if (s.points === 1) fta++;
-        else fga++;
-      } else if (s.type === ACTION_TYPES.MISS) {
-        if (s.points === 1) fta++;
-        else fga++;
-      } else if (s.type === ACTION_TYPES.TURNOVER) {
-        turnovers++;
-      } else if (s.type === ACTION_TYPES.OFF_REBOUND) {
-        oreb++;
-      }
-    }
-
-    const possessions = calculatePossessions(fga, fta, turnovers, oreb);
-    return {
-      points,
-      possessions,
-      ppp: calculatePpp(points, possessions),
-    };
   }, [stats]);
 
   const playEfficiency = useMemo(() => {
@@ -778,24 +739,8 @@ const GameStats: React.FC = () => {
               </TableCell>
             </TableRow>
           ))}
-          <TableRow
-            sx={{ bgcolor: "primary.light", color: "primary.contrastText" }}
-          >
-            <TableCell sx={{ fontWeight: 700 }}>
-              TEAM TOTALS (PPP: {teamData.ppp})
-            </TableCell>
-            <TableCell align="right">-</TableCell>
-            <TableCell align="right" sx={{ fontWeight: 700 }}>
-              {teamData.points}
-            </TableCell>
-            <TableCell align="right" colSpan={12}>
-              -
-            </TableCell>
-          </TableRow>
           <TableRow sx={{ bgcolor: "secondary.light" }}>
-            <TableCell sx={{ fontWeight: 700 }}>
-              OPPONENT (PPP: {oppData.ppp})
-            </TableCell>
+            <TableCell sx={{ fontWeight: 700 }}>OPPONENT</TableCell>
             <TableCell align="right">-</TableCell>
             <TableCell align="right">{oppData.points}</TableCell>
             <TableCell align="right">

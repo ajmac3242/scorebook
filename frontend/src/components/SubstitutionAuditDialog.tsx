@@ -106,11 +106,7 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
   };
 
   const handleDelete = async (id: string) => {
-    if (
-      !window.confirm(
-        "Are you sure you want to delete this substitution event? This will affect lineup and plus/minus calculations.",
-      )
-    ) {
+    if (!window.confirm("Are you sure you want to delete this substitution event? This will affect lineup and plus/minus calculations.")) {
       return;
     }
     try {
