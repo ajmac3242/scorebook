@@ -335,7 +335,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs: [backend-ci, frontend-ci, docs-and-auto-fix]
-    if: |       github.event_name == 'pull_request' &&       (needs.backend-ci.result == 'success' || needs.backend-ci.result == 'skipped') &&       (needs.frontend-ci.result == 'success' || needs.frontend-ci.result == 'skipped') &&       (needs.docs-and-auto-fix.result == 'success' || needs.docs-and-auto-fix.result == 'skipped')
+      if: |
+    github.event_name == 'pull_request' &&
+    (needs.backend-ci.result == 'success' || needs.backend-ci.result == 'skipped') &&
+    (needs.frontend-ci.result == 'success' || needs.frontend-ci.result == 'skipped') &&
+    (needs.docs-and-auto-fix.result == 'success' || needs.docs-and-auto-fix.result == 'skipped')
     permissions:
       contents: write
       pull-requests: write
