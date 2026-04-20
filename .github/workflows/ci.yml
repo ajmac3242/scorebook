@@ -24,7 +24,7 @@ jobs:
   # ---------------------------------------------------------------
   # Path Filtering: Determines what changed
   # ---------------------------------------------------------------
-    filter:
+  filter:
     name: Filter Changes
     runs-on: ubuntu-latest
     outputs:
@@ -48,13 +48,13 @@ jobs:
   # ---------------------------------------------------------------
   # Backend Quality & Tests
   # ---------------------------------------------------------------
-    backend-ci:
-        name: Backend CI
-        needs: filter
-        if: needs.filter.outputs.backend == 'true'
-          runs-on: ubuntu-latest
-        timeout-minutes: 10
-        steps:
+  backend-ci:
+    name: Backend CI
+    needs: filter
+    if: needs.filter.outputs.backend == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref || github.ref_name }}
@@ -103,7 +103,7 @@ jobs:
   # ---------------------------------------------------------------
   # Frontend Quality & Tests
   # ---------------------------------------------------------------
-    frontend-ci:
+  frontend-ci:
     name: Frontend CI
     needs: filter
     if: needs.filter.outputs.frontend == 'true'
@@ -166,7 +166,7 @@ jobs:
   # ---------------------------------------------------------------
   # Documentation, Diagrams & Auto-Fix Commits
   # ---------------------------------------------------------------
-    docs-and-auto-fix:
+  docs-and-auto-fix:
     name: Docs & Auto-Fix
     needs: filter
     if: always() && (needs.filter.outputs.backend == 'true' || needs.filter.outputs.frontend == 'true' || needs.filter.outputs.docs == 'true')
@@ -278,17 +278,17 @@ jobs:
               user = User("User / Browser")
 
               with Cluster("Frontend"):
-                  s3_hosting = S3("Hosting\n(S3)")
-                  cf = CloudFront("Delivery\n(CloudFront)")
+                  s3_hosting = S3("Hosting\\n(S3)")
+                  cf = CloudFront("Delivery\\n(CloudFront)")
 
               with Cluster("Backend"):
-                  apigw = APIGateway("API Gateway\n(v2)")
-                  fn = Lambda("API Handler\n(Lambda)")
-                  db = Dynamodb("Data Store\n(DynamoDB)")
-                  s3_data = S3("Snapshots\n(S3)")
+                  apigw = APIGateway("API Gateway\\n(v2)")
+                  fn = Lambda("API Handler\\n(Lambda)")
+                  db = Dynamodb("Data Store\\n(DynamoDB)")
+                  s3_data = S3("Snapshots\\n(S3)")
 
               with Cluster("Security"):
-                  cognito = Cognito("Identity\n(User Pool)")
+                  cognito = Cognito("Identity\\n(User Pool)")
 
               user >> cf >> s3_hosting
               user >> apigw
@@ -312,7 +312,7 @@ jobs:
   # ---------------------------------------------------------------
   # Summary Job: Provides a consolidated view of the run
   # ---------------------------------------------------------------
-    summary:
+  summary:
     name: Job Summary
     needs: [filter, backend-ci, frontend-ci, docs-and-auto-fix]
     if: always()
@@ -330,16 +330,16 @@ jobs:
   # ---------------------------------------------------------------
   # Auto-Merge: Only runs if parallel jobs pass
   # ---------------------------------------------------------------
-    auto-merge:
+  auto-merge:
     name: Auto-Merge PR
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs: [backend-ci, frontend-ci, docs-and-auto-fix]
-      if: |
-    github.event_name == 'pull_request' &&
-    (needs.backend-ci.result == 'success' || needs.backend-ci.result == 'skipped') &&
-    (needs.frontend-ci.result == 'success' || needs.frontend-ci.result == 'skipped') &&
-    (needs.docs-and-auto-fix.result == 'success' || needs.docs-and-auto-fix.result == 'skipped')
+    if: |
+      github.event_name == 'pull_request' &&
+      (needs.backend-ci.result == 'success' || needs.backend-ci.result == 'skipped') &&
+      (needs.frontend-ci.result == 'success' || needs.frontend-ci.result == 'skipped') &&
+      (needs.docs-and-auto-fix.result == 'success' || needs.docs-and-auto-fix.result == 'skipped')
     permissions:
       contents: write
       pull-requests: write
@@ -357,7 +357,7 @@ jobs:
   # ---------------------------------------------------------------
   # Trigger Deploy: Fires after successful auto-merge to main
   # ---------------------------------------------------------------
-    trigger-deploy:
+  trigger-deploy:
     name: Trigger Deploy
     runs-on: ubuntu-latest
     timeout-minutes: 10
