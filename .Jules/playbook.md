@@ -57,8 +57,3 @@ cd frontend && pnpm test:jules -- "<module-name>"
 - **Patterns in what gets left incomplete**: Tactical visualization often lags behind data collection. While we could record many stats, seeing the "spread" over time (momentum) provides immediate coaching context that raw scores don't.
 - **Recurring issues agents create**: Neglecting to update visualization dependency arrays in React hooks when adding new filtering dimensions (like heatmap result filtering).
 - **End-of-Day improvement patterns**: Closing the loop between data entry (Shot Quality) and data visualization (Heatmap Filtering) ensures new features are immediately useful for post-game analysis.
-
-## End-of-Day Insights - 2026-04-20
-- **Patterns in what gets left incomplete**: Complex tactical visualizations like "Opponent Threat Tracking" are often discussed but implementation usually starts with just the detection logic. Closing the loop by adding UI alerts ensures the data is actionable.
-- **Recurring issues agents create**: Hardcoding foul types in multiple aggregation functions leads to maintenance debt and potential drift when new foul types (e.g. Flagrant) are added.
-- **End-of-Day improvement patterns**: Refactoring momentum logic into dedicated utilities (like momentum.ts) makes it testable and reusable across GameMode, GameStats, and potential future dashboard widgets.

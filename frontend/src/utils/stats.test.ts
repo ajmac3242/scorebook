@@ -13,6 +13,9 @@ import {
   calculateLineupStats,
   getBonusStatus,
   calculateStopsAndKills,
+  calculatePossessions,
+  calculatePpp,
+  calculateOpponentThreats,
 } from "./stats";
 import { TeamPlayer, StatEvent, Game } from "../db";
 import { ACTION_TYPES } from "../constants/stats";
@@ -1267,6 +1270,137 @@ describe("stats utilities", () => {
       ];
       const result = calculatePlayerStreaks(stats);
       expect(result.get("p1")).toBe("HOT");
+    });
+  });
+
+  describe("calculatePossessions", () => {
+    it("calculates possessions accurately using the standard formula", () => {
+      // FGA + 0.44 * FTA + TO - OREB
+      // 10 + 0.44 * 10 + 2 - 1 = 10 + 4.4 + 2 - 1 = 15.4
+      expect(calculatePossessions(10, 10, 2, 1)).toBeCloseTo(15.4);
+    });
+
+    it("handles zero values", () => {
+      expect(calculatePossessions(0, 0, 0, 0)).toBe(0);
+    });
+  });
+
+  describe("calculatePpp", () => {
+    it("calculates points per possession correctly", () => {
+      expect(calculatePpp(20, 10)).toBe("2.00");
+      expect(calculatePpp(15, 10)).toBe("1.50");
+    });
+
+    it("returns 0.00 for zero possessions", () => {
+      expect(calculatePpp(10, 0)).toBe("0.00");
+    });
+  });
+
+  describe("calculateOpponentThreats", () => {
+    it("identifies a hot opponent based on points (>= 8)", () => {
+      const stats: StatEvent[] = [
+        {
+          gameId: "g1",
+          playerId: "OPPONENT:1",
+          type: ACTION_TYPES.MAKE,
+          points: 3,
+          timestamp: "1",
+          period: 1,
+        },
+        {
+          gameId: "g1",
+          playerId: "OPPONENT:1",
+          type: ACTION_TYPES.MAKE,
+          points: 3,
+          timestamp: "2",
+          period: 1,
+        },
+        {
+          gameId: "g1",
+          playerId: "OPPONENT:1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "3",
+          period: 1,
+        },
+      ];
+      const result = calculateOpponentThreats(stats);
+      expect(result.length).toBe(1);
+      expect(result[0].playerId).toBe("OPPONENT:1");
+      expect(result[0].isHot).toBe(true);
+    });
+
+    it("identifies a hot opponent based on consecutive makes (>= 3)", () => {
+      const stats: StatEvent[] = [
+        {
+          gameId: "g1",
+          playerId: "OPPONENT:2",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "1",
+          period: 1,
+        },
+        {
+          gameId: "g1",
+          playerId: "OPPONENT:2",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "2",
+          period: 1,
+        },
+        {
+          gameId: "g1",
+          playerId: "OPPONENT:2",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "3",
+          period: 1,
+        },
+      ];
+      const result = calculateOpponentThreats(stats);
+      expect(result.length).toBe(1);
+      expect(result[0].playerId).toBe("OPPONENT:2");
+      expect(result[0].isHot).toBe(true);
+    });
+
+    it("resets consecutive makes on a miss", () => {
+      const stats: StatEvent[] = [
+        {
+          gameId: "g1",
+          playerId: "OPPONENT:3",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "1",
+          period: 1,
+        },
+        {
+          gameId: "g1",
+          playerId: "OPPONENT:3",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "2",
+          period: 1,
+        },
+        {
+          gameId: "g1",
+          playerId: "OPPONENT:3",
+          type: ACTION_TYPES.MISS,
+          points: 2,
+          timestamp: "3",
+          period: 1,
+        },
+        {
+          gameId: "g1",
+          playerId: "OPPONENT:3",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "4",
+          period: 1,
+        },
+      ];
+      const result = calculateOpponentThreats(stats);
+      // Only 6 points total and no 3 consecutive makes
+      expect(result.length).toBe(0);
     });
   });
 
