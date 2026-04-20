@@ -80,7 +80,6 @@ import RecentActionItem from "../components/RecentActionItem";
 import QuickSubDialog from "../components/QuickSubDialog";
 import SubstitutionAuditDialog from "../components/SubstitutionAuditDialog";
 import FreeThrowWorkflowDialog from "../components/FreeThrowWorkflowDialog";
-import HalftimeReportDialog from "../components/HalftimeReportDialog";
 import { PlayerStatRow } from "../components/PlayerStatRow";
 import { db, type StatEvent } from "../db";
 import { syncService } from "../utils/syncService";
@@ -95,16 +94,16 @@ import {
   calculatePlayerAggregates,
   calculatePlayerStreaks,
   calculateStopsAndKills,
-  calculatePossessions,
-  calculatePpp,
-  calculateOpponentThreats,
-  calculateLineupStats,
   isEventInPeriod,
   getBonusStatus,
   getInitials,
   type PlayerAggregates,
-  type OpponentThreat,
 } from "../utils/stats";
+import {
+  calculateOpponentRun,
+  calculateScoringDrought,
+  calculateOpponentThreats,
+} from "../utils/momentum";
 import { formatClock } from "../utils/mathUtils";
 import { MoleskineCard, AnimatedNumber } from "../components/SharedUI";
 
@@ -159,8 +158,6 @@ interface ScoreboardProps {
   gameData: {
     currentScore: number;
     opponentScore: number;
-    teamPpp: string;
-    oppPpp: string;
     teamFoulStats: {
       teamFouls: number;
       oppFouls: number;
@@ -179,7 +176,7 @@ interface ScoreboardProps {
     momentumAlerts: {
       opponentRun: string | null;
       scoringDrought: string | null;
-      opponentThreats: OpponentThreat[];
+      opponentThreats: string[];
     };
   };
   period: number;
@@ -380,25 +377,21 @@ const Scoreboard = React.memo(
                   RUN: {gameData.momentumAlerts.opponentRun}
                 </Typography>
               )}
-              {gameData.momentumAlerts.opponentThreats.map((t) => (
+              {gameData.momentumAlerts.opponentThreats.length > 0 && (
                 <Typography
-                  key={t.playerId}
                   variant="caption"
                   sx={{
                     bgcolor: "warning.main",
-                    color: "black",
+                    color: "white",
                     px: 1,
                     borderRadius: 1,
-                    fontSize: "0.55rem",
-                    fontWeight: 900,
-                    animation: `${pulse} 2.5s infinite ease-in-out`,
+                    fontSize: "0.6rem",
+                    fontWeight: 800,
                   }}
                 >
-                  THREAT: Opp #
-                  {t.playerId.includes(":") ? t.playerId.split(":")[1] : "??"} (
-                  {t.points} pts)
+                  THREAT: {gameData.momentumAlerts.opponentThreats.length} HOT
                 </Typography>
-              ))}
+              )}
             </Box>
           )}
 
@@ -516,16 +509,12 @@ const Scoreboard = React.memo(
 const TeamStatsCard = React.memo(
   ({
     defensiveStats,
-    teamPpp,
-    oppPpp,
   }: {
     defensiveStats: {
       totalStops: number;
       totalKills: number;
       currentStreak: number;
     };
-    teamPpp: string;
-    oppPpp: string;
   }) => {
     return (
       <MoleskineCard>
@@ -592,32 +581,6 @@ const TeamStatsCard = React.memo(
                 }}
               >
                 <AnimatedNumber value={defensiveStats.totalKills} />
-              </Typography>
-            </Box>
-          </Grid>
-          <Grid item xs={6}>
-            <Box sx={{ textAlign: "center", p: 1 }}>
-              <Typography
-                variant="caption"
-                sx={{ display: "block", fontWeight: 700 }}
-              >
-                TEAM PPP
-              </Typography>
-              <Typography variant="h6" sx={{ fontWeight: 800 }}>
-                {teamPpp}
-              </Typography>
-            </Box>
-          </Grid>
-          <Grid item xs={6}>
-            <Box sx={{ textAlign: "center", p: 1 }}>
-              <Typography
-                variant="caption"
-                sx={{ display: "block", fontWeight: 700 }}
-              >
-                OPP PPP
-              </Typography>
-              <Typography variant="h6" sx={{ fontWeight: 800 }}>
-                {oppPpp}
               </Typography>
             </Box>
           </Grid>
@@ -875,9 +838,6 @@ const GameMode: React.FC = () => {
   const [summaryDialogOpen, setSummaryDialogOpen] = useState(false);
   const [auditDialogOpen, setAuditDialogOpen] = useState(false);
   const [ftWorkflowOpen, setFtWorkflowOpen] = useState(false);
-  const [halftimeReportOpen, setHalftimeReportOpen] = useState(false);
-  const [lastViewedHalftimePeriod, setLastViewedHalftimePeriod] =
-    useState<number>(0);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isEnding, setIsEnding] = useState(false);
   const [isSavingStat, setIsSavingStat] = useState(false);
@@ -1024,19 +984,6 @@ const GameMode: React.FC = () => {
     }
   }, [game?.completed, summaryDialogOpen, endGameDialogOpen]);
 
-  // 🏀 CoachBoard: Halftime Tactical Adjustment Summary
-  // Automatically trigger halftime report when the first half ends.
-  useEffect(() => {
-    const isEndOfFirstHalf =
-      (periodType === "QUARTERS" && period === 3) ||
-      (periodType === "HALVES" && period === 2);
-
-    if (isEndOfFirstHalf && lastViewedHalftimePeriod < period) {
-      setHalftimeReportOpen(true);
-      setLastViewedHalftimePeriod(period);
-    }
-  }, [period, periodType, lastViewedHalftimePeriod]);
-
   // Periodic background sync during live tracking
   useEffect(() => {
     const interval = setInterval(() => {
@@ -1086,20 +1033,6 @@ const GameMode: React.FC = () => {
     let periodStartScoreTeam = 0;
     let periodStartScoreOpp = 0;
 
-    // Possession tracking fields
-    let teamFga = 0;
-    let teamFta = 0;
-    let teamTo = 0;
-    let teamOreb = 0;
-    let oppFga = 0;
-    let oppFta = 0;
-    let oppTo = 0;
-    let oppOreb = 0;
-
-    let lastTeamScoreClockTime = periodLen;
-    let lastTeamScorePeriod = 1;
-    let foundLastTeamScore = false;
-
     for (let i = 0; i < sortedGameStats.length; i++) {
       const s = sortedGameStats[i];
       if (s.deletedAt) continue;
@@ -1111,19 +1044,8 @@ const GameMode: React.FC = () => {
       // Score tracking
       if (isOpp) {
         oppScore += s.points || 0;
-        if (s.type === ACTION_TYPES.MAKE) {
-          if (s.points === 1) oppFta++;
-          else oppFga++;
-        }
       } else {
         curScore += s.points || 0;
-        if (s.type === ACTION_TYPES.MAKE) {
-          lastTeamScoreClockTime = s.clockTime ?? periodLen;
-          lastTeamScorePeriod = s.period;
-          foundLastTeamScore = true;
-          if (s.points === 1) teamFta++;
-          else teamFga++;
-        }
       }
 
       // Fouls (Period-aware)
@@ -1161,27 +1083,6 @@ const GameMode: React.FC = () => {
       // Possession
       if (s.type === ACTION_TYPES.POSSESSION) {
         posState = s.playerId;
-      }
-
-      // Track other possession stats
-      if (isOpp) {
-        if (s.type === ACTION_TYPES.MISS) {
-          if (s.points === 1) oppFta++;
-          else oppFga++;
-        } else if (s.type === ACTION_TYPES.OFF_REBOUND) {
-          oppOreb++;
-        } else if (s.type === ACTION_TYPES.TURNOVER) {
-          oppTo++;
-        }
-      } else {
-        if (s.type === ACTION_TYPES.MISS) {
-          if (s.points === 1) teamFta++;
-          else teamFga++;
-        } else if (s.type === ACTION_TYPES.OFF_REBOUND) {
-          teamOreb++;
-        } else if (s.type === ACTION_TYPES.TURNOVER) {
-          teamTo++;
-        }
       }
 
       // Lineup and Substitution Tracking
@@ -1230,67 +1131,22 @@ const GameMode: React.FC = () => {
     const defensiveStats = calculateStopsAndKills(sortedGameStats);
 
     // 🏀 CoachBoard: Momentum Alerts Logic
-    let opponentRun = null;
-    let scoringDrought = null;
-
-    // Run Detection (Look back at recent scoring events)
-    let tempOppRunPoints = 0;
-    let teamScoredSinceOppRunStarted = false;
-    for (let i = sortedGameStats.length - 1; i >= 0; i--) {
-      const s = sortedGameStats[i];
-      if (s.deletedAt || s.type !== ACTION_TYPES.MAKE) continue;
-
-      const isOpp =
-        s.playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
-        s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":");
-
-      if (isOpp) {
-        if (teamScoredSinceOppRunStarted) break;
-        tempOppRunPoints += s.points || 0;
-      } else {
-        teamScoredSinceOppRunStarted = true;
-        break;
-      }
-    }
-    if (tempOppRunPoints >= 8) {
-      opponentRun = `${tempOppRunPoints}-0`;
-    }
-
-    // Drought Detection
-    if (foundLastTeamScore) {
-      let droughtSecs = 0;
-      if (lastTeamScorePeriod === period) {
-        droughtSecs = lastTeamScoreClockTime - clockSeconds;
-      } else if (lastTeamScorePeriod < period) {
-        droughtSecs =
-          lastTeamScoreClockTime +
-          (period - lastTeamScorePeriod - 1) * periodLen +
-          (periodLen - clockSeconds);
-      }
-
-      if (droughtSecs >= 180) {
-        scoringDrought = `${Math.floor(droughtSecs / 60)}m ${Math.floor(droughtSecs % 60)}s`;
-      }
-    } else {
-      const elapsedGameSecs =
-        (period - 1) * periodLen + (periodLen - clockSeconds);
-      if (elapsedGameSecs >= 180) {
-        scoringDrought = `${Math.floor(elapsedGameSecs / 60)}m ${Math.floor(elapsedGameSecs % 60)}s`;
-      }
-    }
+    const opponentRun = calculateOpponentRun(sortedGameStats);
+    const scoringDrought = calculateScoringDrought(
+      sortedGameStats,
+      period,
+      clockSeconds,
+      periodLen,
+    );
+    const opponentThreats = calculateOpponentThreats(sortedGameStats);
 
     const MAX_TIMEOUTS = team?.fouls || 3;
     const teamBonus = getBonusStatus(teamFouls, pType);
     const oppBonus = getBonusStatus(oppFouls, pType);
 
-    const teamPoss = calculatePossessions(teamFga, teamFta, teamTo, teamOreb);
-    const oppPoss = calculatePossessions(oppFga, oppFta, oppTo, oppOreb);
-
     return {
       currentScore: curScore,
       opponentScore: oppScore,
-      teamPpp: calculatePpp(curScore, teamPoss),
-      oppPpp: calculatePpp(oppScore, oppPoss),
       teamFoulStats: {
         teamFouls,
         oppFouls,
@@ -1312,7 +1168,7 @@ const GameMode: React.FC = () => {
       momentumAlerts: {
         opponentRun,
         scoringDrought,
-        opponentThreats: calculateOpponentThreats(sortedGameStats),
+        opponentThreats,
       },
       onCourtPeriodFouls,
       lastLineupChangeClock,
@@ -1430,22 +1286,6 @@ const GameMode: React.FC = () => {
     }
     return map;
   }, [statsGridData]);
-
-  // 🏀 CoachBoard: Halftime Lineup Stats
-  const halftimeLineupStats = useMemo(() => {
-    if (!halftimeReportOpen) return [];
-
-    // Filter stats for the first half
-    const firstHalfStats = sortedGameStats.filter((s) => {
-      if (periodType === "QUARTERS") return s.period <= 2;
-      return s.period <= 1;
-    });
-
-    return calculateLineupStats(firstHalfStats, {
-      isSorted: true,
-      periodLength: game?.periodLength,
-    });
-  }, [halftimeReportOpen, sortedGameStats, periodType, game?.periodLength]);
 
   // 🏀 CoachBoard: Hot/Cold Streaks
   // Why: Provides immediate coaching visibility into recent player performance trends.
@@ -2205,11 +2045,7 @@ const GameMode: React.FC = () => {
         {/* Panel: Roster and Recent Actions */}
         <Grid item xs={12} md={4}>
           <Stack spacing={3}>
-            <TeamStatsCard
-              defensiveStats={gameData.defensiveStats}
-              teamPpp={gameData.teamPpp}
-              oppPpp={gameData.oppPpp}
-            />
+            <TeamStatsCard defensiveStats={gameData.defensiveStats} />
 
             {trackingMode === "TEAM" ? (
               <>
@@ -3170,18 +3006,6 @@ const GameMode: React.FC = () => {
           clockTime={clockSeconds}
         />
       )}
-
-      {/* Halftime Report Dialog */}
-      <HalftimeReportDialog
-        open={halftimeReportOpen}
-        onClose={() => setHalftimeReportOpen(false)}
-        teamPpp={gameData.teamPpp}
-        oppPpp={gameData.oppPpp}
-        topLineups={halftimeLineupStats}
-        bottomLineups={[...halftimeLineupStats].reverse()}
-        opponentThreats={gameData.momentumAlerts.opponentThreats}
-        jerseyMap={jerseyMap}
-      />
 
       {/* Confirm Delete Stat Dialog */}
       <Dialog
