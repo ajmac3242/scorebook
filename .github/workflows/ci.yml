@@ -49,12 +49,12 @@ jobs:
   # Backend Quality & Tests
   # ---------------------------------------------------------------
     backend-ci:
-    name: Backend CI
-    needs: filter
-    if: needs.filter.outputs.backend == 'true'
-      runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
+        name: Backend CI
+        needs: filter
+        if: needs.filter.outputs.backend == 'true'
+          runs-on: ubuntu-latest
+        timeout-minutes: 10
+        steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref || github.ref_name }}
