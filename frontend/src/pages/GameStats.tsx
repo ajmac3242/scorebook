@@ -50,8 +50,7 @@ import {
   calculateScoreFlow,
   calculateLineupStats,
   calculateStopsAndKills,
-  calculatePossessions,
-  calculatePpp,
+  calculateEfgPct,
 } from "../utils/stats";
 import { MoleskineCard } from "../components/SharedUI";
 import EntityBanner from "../components/EntityBanner";
@@ -89,6 +88,7 @@ const GameStats: React.FC = () => {
     "ALL",
   );
   const [selectedType, setSelectedType] = useState<string>("ALL");
+  const [selectedShotQuality, setSelectedShotQuality] = useState<string>("ALL");
   const [selectedPlay, setSelectedPlay] = useState<string>("ALL");
   const [periodFilter, setPeriodFilter] = useState<string>("ALL");
   const [compareMode, setCompareMode] = useState(false);
@@ -276,9 +276,11 @@ const GameStats: React.FC = () => {
       const playerMatch =
         selectedPlayerId === "ALL" || s.playerId === selectedPlayerId;
       const typeMatch = selectedType === "ALL" || s.type === selectedType;
+      const qualityMatch =
+        selectedShotQuality === "ALL" || s.shotQuality === selectedShotQuality;
       const playMatch =
         selectedPlay === "ALL" || (s.playName && s.playName === selectedPlay);
-      if (playerMatch && typeMatch && playMatch) {
+      if (playerMatch && typeMatch && qualityMatch && playMatch) {
         filtered.push(s);
         if (s.type === ACTION_TYPES.MAKE || s.type === ACTION_TYPES.MISS) {
           markers.push({
@@ -296,7 +298,14 @@ const GameStats: React.FC = () => {
       }
     }
     return { filtered, markers };
-  }, [stats, selectedPlayerId, selectedType, selectedPlay, shotChartJerseyMap]);
+  }, [
+    stats,
+    selectedPlayerId,
+    selectedType,
+    selectedShotQuality,
+    selectedPlay,
+    shotChartJerseyMap,
+  ]);
 
   const shotChartMarkers = derivedStats.markers;
 
@@ -315,6 +324,11 @@ const GameStats: React.FC = () => {
         if (selectedPlayerId !== "ALL" && s.playerId !== selectedPlayerId)
           continue;
         if (selectedType !== "ALL" && s.type !== selectedType) continue;
+        if (
+          selectedShotQuality !== "ALL" &&
+          s.shotQuality !== selectedShotQuality
+        )
+          continue;
         if (selectedPlay !== "ALL" && s.playName !== selectedPlay) continue;
 
         const zone = getShotZone(s.locationX || 0, s.locationY || 0);
@@ -324,7 +338,13 @@ const GameStats: React.FC = () => {
       }
       return data;
     },
-    [allStats, selectedPlayerId, selectedType, selectedPlay],
+    [
+      allStats,
+      selectedPlayerId,
+      selectedType,
+      selectedShotQuality,
+      selectedPlay,
+    ],
   );
 
   const heatmapData = useMemo(
@@ -349,37 +369,36 @@ const GameStats: React.FC = () => {
     return calculateOpponentAggregates(stats);
   }, [stats]);
 
-  const teamData = useMemo(() => {
-    let fga = 0;
-    let fta = 0;
-    let turnovers = 0;
-    let oreb = 0;
-    let points = 0;
-
+  const processEfficiency = useMemo(() => {
+    const data: Record<
+      string,
+      { makes: number; attempts: number; points: number; threePM: number }
+    > = {
+      OPEN: { makes: 0, attempts: 0, points: 0, threePM: 0 },
+      CONTESTED: { makes: 0, attempts: 0, points: 0, threePM: 0 },
+    };
     for (let i = 0; i < stats.length; i++) {
       const s = stats[i];
-      if (s.deletedAt || s.playerId === SPECIAL_PLAYER_IDS.OPPONENT) continue;
-
-      if (s.type === ACTION_TYPES.MAKE) {
-        points += s.points || 0;
-        if (s.points === 1) fta++;
-        else fga++;
-      } else if (s.type === ACTION_TYPES.MISS) {
-        if (s.points === 1) fta++;
-        else fga++;
-      } else if (s.type === ACTION_TYPES.TURNOVER) {
-        turnovers++;
-      } else if (s.type === ACTION_TYPES.OFF_REBOUND) {
-        oreb++;
+      if (
+        (s.type === ACTION_TYPES.MAKE || s.type === ACTION_TYPES.MISS) &&
+        s.shotQuality
+      ) {
+        const q = s.shotQuality as "OPEN" | "CONTESTED";
+        if (data[q]) {
+          data[q].attempts++;
+          if (s.type === ACTION_TYPES.MAKE) {
+            data[q].makes++;
+            data[q].points += s.points || 0;
+            if (s.points === 3) data[q].threePM++;
+          }
+        }
       }
     }
-
-    const possessions = calculatePossessions(fga, fta, turnovers, oreb);
-    return {
-      points,
-      possessions,
-      ppp: calculatePpp(points, possessions),
-    };
+    return Object.entries(data).map(([quality, stats]) => ({
+      quality,
+      ...stats,
+      efg: calculateEfgPct(stats.makes, stats.threePM, stats.attempts),
+    }));
   }, [stats]);
 
   const playEfficiency = useMemo(() => {
@@ -726,24 +745,8 @@ const GameStats: React.FC = () => {
               </TableCell>
             </TableRow>
           ))}
-          <TableRow
-            sx={{ bgcolor: "primary.light", color: "primary.contrastText" }}
-          >
-            <TableCell sx={{ fontWeight: 700 }}>
-              TEAM TOTALS (PPP: {teamData.ppp})
-            </TableCell>
-            <TableCell align="right">-</TableCell>
-            <TableCell align="right" sx={{ fontWeight: 700 }}>
-              {teamData.points}
-            </TableCell>
-            <TableCell align="right" colSpan={12}>
-              -
-            </TableCell>
-          </TableRow>
           <TableRow sx={{ bgcolor: "secondary.light" }}>
-            <TableCell sx={{ fontWeight: 700 }}>
-              OPPONENT (PPP: {oppData.ppp})
-            </TableCell>
+            <TableCell sx={{ fontWeight: 700 }}>OPPONENT</TableCell>
             <TableCell align="right">-</TableCell>
             <TableCell align="right">{oppData.points}</TableCell>
             <TableCell align="right">
@@ -856,6 +859,18 @@ const GameStats: React.FC = () => {
             <MenuItem value="ALL">All Shots</MenuItem>
             <MenuItem value={ACTION_TYPES.MAKE}>Makes</MenuItem>
             <MenuItem value={ACTION_TYPES.MISS}>Misses</MenuItem>
+          </Select>
+        </FormControl>
+        <FormControl fullWidth size="small">
+          <InputLabel>Quality</InputLabel>
+          <Select
+            value={selectedShotQuality}
+            label="Quality"
+            onChange={(e) => setSelectedShotQuality(e.target.value)}
+          >
+            <MenuItem value="ALL">All Quality</MenuItem>
+            <MenuItem value="OPEN">Open</MenuItem>
+            <MenuItem value="CONTESTED">Contested</MenuItem>
           </Select>
         </FormControl>
         {team?.playbook && team.playbook.length > 0 && (
@@ -1284,7 +1299,45 @@ const GameStats: React.FC = () => {
         {/* Lineups Card */}
         <Grid item xs={12}>
           <Grid container spacing={3}>
-            <Grid item xs={12} md={6}>
+            <Grid item xs={12} md={4}>
+              <MoleskineCard>
+                <Typography
+                  variant="h6"
+                  sx={{ fontFamily: "var(--serif)", mb: 2 }}
+                >
+                  Process Efficiency
+                </Typography>
+                <TableContainer>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow sx={{ bgcolor: "rgba(0,0,0,0.02)" }}>
+                        <TableCell sx={{ fontWeight: 700 }}>Quality</TableCell>
+                        <TableCell align="right" sx={{ fontWeight: 700 }}>
+                          Freq
+                        </TableCell>
+                        <TableCell align="right" sx={{ fontWeight: 700 }}>
+                          eFG%
+                        </TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {processEfficiency.map((row) => (
+                        <TableRow key={row.quality}>
+                          <TableCell sx={{ fontWeight: 600 }}>
+                            {row.quality}
+                          </TableCell>
+                          <TableCell align="right">{row.attempts}</TableCell>
+                          <TableCell align="right" sx={{ fontWeight: 700 }}>
+                            {row.efg}%
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </MoleskineCard>
+            </Grid>
+            <Grid item xs={12} md={4}>
               <MoleskineCard>
                 <Typography
                   variant="h6"
@@ -1331,7 +1384,7 @@ const GameStats: React.FC = () => {
                 </TableContainer>
               </MoleskineCard>
             </Grid>
-            <Grid item xs={12} md={6}>
+            <Grid item xs={12} md={4}>
               <MoleskineCard>
                 <Box
                   sx={{
