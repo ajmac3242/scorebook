@@ -60,3 +60,23 @@ export const formatClock = (totalSeconds: number): string => {
 export const formatTimestampToTime = (timestamp: string): string => {
   return timestamp.slice(14, 19);
 };
+
+/**
+ * Returns a theme color name based on a plus-minus value.
+ * @param {number} val - The plus-minus value.
+ * @returns {string} The color key.
+ */
+export const getPlusMinusColor = (val: number): string => {
+  if (val > 0) return "success.main";
+  if (val < 0) return "error.main";
+  return "inherit";
+};
+
+/**
+ * Formats a plus-minus value with a leading '+' for positive numbers.
+ * @param {number} val - The plus-minus value.
+ * @returns {string | number} The formatted value.
+ */
+export const formatPlusMinus = (val: number): string | number => {
+  return val > 0 ? `+${val}` : val;
+};

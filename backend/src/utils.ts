@@ -180,11 +180,11 @@ export function normalizePath(event: APIGatewayProxyEventV2): string {
     event.requestContext?.http?.path ||
     "/") as string;
 
-  let path = raw;
-  if (path.startsWith("/$default")) path = path.slice(9);
-  else if (path.startsWith("/api")) path = path.slice(4);
-
-  if (path.length > 1 && path.endsWith("/")) path = path.slice(0, -1);
+  // ⚡ Bolt: Use regex for cleaner prefix and trailing slash normalization.
+  let path = raw.replace(/^\/(\$default|api)/, "");
+  if (path.length > 1) {
+    path = path.replace(/\/$/, "");
+  }
 
   return path || "/";
 }
@@ -293,16 +293,13 @@ export function stripLocalFields(data: unknown, depth = 0): unknown {
     return data.map((item) => stripLocalFields(item, depth + 1));
   }
 
+  // ⚡ Bolt: Use Object.entries() for faster object iteration in modern engines.
   const result: Record<string, unknown> = {};
-  const obj = data as Record<string, unknown>;
-
-  for (const key in obj) {
-    if (
-      Object.prototype.hasOwnProperty.call(obj, key) &&
-      !INTERNAL_KEYS.has(key) &&
-      !FORBIDDEN_KEYS.has(key)
-    ) {
-      result[key] = stripLocalFields(obj[key], depth + 1);
+  const entries = Object.entries(data as Record<string, unknown>);
+  for (let i = 0; i < entries.length; i++) {
+    const [key, value] = entries[i];
+    if (!INTERNAL_KEYS.has(key) && !FORBIDDEN_KEYS.has(key)) {
+      result[key] = stripLocalFields(value, depth + 1);
     }
   }
   return result;

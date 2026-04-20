@@ -1,5 +1,6 @@
 import React from "react";
 import { TableRow, TableCell, Typography, Box, Tooltip } from "@mui/material";
+import { getPlusMinusColor, formatPlusMinus } from "../utils/mathUtils";
 
 /**
  * Sub-component for displaying a player's statistical row in the table.
@@ -152,16 +153,11 @@ export const PlayerStatRow: React.FC<PlayerStatRowProps> = React.memo(
         sx={{
           px: 1,
           fontSize: "0.75rem",
-          color:
-            plusMinus > 0
-              ? "success.main"
-              : plusMinus < 0
-                ? "error.main"
-                : "inherit",
+          color: getPlusMinusColor(plusMinus),
           fontWeight: plusMinus !== 0 ? 600 : 400,
         }}
       >
-        {plusMinus > 0 ? `+${plusMinus}` : plusMinus}
+        {formatPlusMinus(plusMinus)}
       </TableCell>
     </TableRow>
   ),
