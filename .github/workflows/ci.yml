@@ -335,18 +335,56 @@ jobs:
           echo "| Docs & Fixes | ${{ needs.docs-and-auto-fix.result == 'success' && '✅ Success' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
 
   # ---------------------------------------------------------------
-  # Auto-Merge: Only runs if parallel jobs pass
+  # Decision Gate: Centralizes merge/deploy conditions
+  # ---------------------------------------------------------------
+  decision-gate:
+    name: Decision Gate
+    runs-on: ubuntu-latest
+    if: always()
+    needs: [filter, backend-ci, frontend-ci, docs-and-auto-fix]
+    outputs:
+      can_merge: ${{ steps.decide.outputs.can_merge }}
+      should_deploy: ${{ steps.decide.outputs.should_deploy }}
+    steps:
+      - name: Evaluate workflow outcomes
+        id: decide
+        env:
+          BACKEND_RESULT: ${{ needs.backend-ci.result }}
+          FRONTEND_RESULT: ${{ needs.frontend-ci.result }}
+          DOCS_RESULT: ${{ needs.docs-and-auto-fix.result }}
+          BACKEND_CHANGED: ${{ needs.filter.outputs.backend }}
+          FRONTEND_CHANGED: ${{ needs.filter.outputs.frontend }}
+        run: |
+          set -euo pipefail
+
+          can_merge=false
+          should_deploy=false
+
+          if { [ "$BACKEND_RESULT" = "success" ] || [ "$BACKEND_RESULT" = "skipped" ]; } &&
+             { [ "$FRONTEND_RESULT" = "success" ] || [ "$FRONTEND_RESULT" = "skipped" ]; } &&
+             { [ "$DOCS_RESULT" = "success" ] || [ "$DOCS_RESULT" = "skipped" ]; }; then
+            can_merge=true
+          fi
+
+          if [ "$can_merge" = "true" ] &&
+             { [ "$BACKEND_CHANGED" = "true" ] || [ "$FRONTEND_CHANGED" = "true" ]; }; then
+            should_deploy=true
+          fi
+
+          echo "can_merge=$can_merge" >> "$GITHUB_OUTPUT"
+          echo "should_deploy=$should_deploy" >> "$GITHUB_OUTPUT"
+
+  # ---------------------------------------------------------------
+  # Auto-Merge: Only runs if all jobs are success or skipped
   # ---------------------------------------------------------------
   auto-merge:
     name: Auto-Merge PR
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [backend-ci, frontend-ci, docs-and-auto-fix]
+    needs: [decision-gate]
     if: |
       github.event_name == 'pull_request' &&
-      (needs.backend-ci.result == 'success' || needs.backend-ci.result == 'skipped') &&
-      (needs.frontend-ci.result == 'success' || needs.frontend-ci.result == 'skipped') &&
-      (needs.docs-and-auto-fix.result == 'success' || needs.docs-and-auto-fix.result == 'skipped')
+      needs.decision-gate.outputs.can_merge == 'true'
     permissions:
       contents: write
       pull-requests: write
@@ -362,14 +400,17 @@ jobs:
             --subject "chore: merge ${{ github.head_ref }} into main [skip ci]"
 
   # ---------------------------------------------------------------
-  # Trigger Deploy: Fires after successful auto-merge to main
+  # Trigger Deploy: Only if FE/BE changed and no failures
   # ---------------------------------------------------------------
   trigger-deploy:
     name: Trigger Deploy
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: auto-merge
-    if: github.event_name == 'pull_request'
+    needs: [decision-gate, auto-merge]
+    if: |
+      github.event_name == 'pull_request' &&
+      needs.decision-gate.outputs.should_deploy == 'true' &&
+      needs.auto-merge.result == 'success'
     permissions:
       actions: write
       contents: read
