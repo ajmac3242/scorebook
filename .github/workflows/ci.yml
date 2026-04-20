@@ -48,7 +48,7 @@ jobs:
   # ---------------------------------------------------------------
   # Backend Quality & Tests
   # ---------------------------------------------------------------
-  backend-ci:
+    backend-ci:
     name: Backend CI
     needs: filter
     if: needs.filter.outputs.backend == 'true'
