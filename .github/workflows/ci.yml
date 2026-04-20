@@ -166,7 +166,7 @@ jobs:
   # ---------------------------------------------------------------
   # Documentation, Diagrams & Auto-Fix Commits
   # ---------------------------------------------------------------
-  docs-and-auto-fix:
+    docs-and-auto-fix:
     name: Docs & Auto-Fix
     needs: filter
     if: always() && (needs.filter.outputs.backend == 'true' || needs.filter.outputs.frontend == 'true' || needs.filter.outputs.docs == 'true')
