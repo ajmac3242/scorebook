@@ -2700,7 +2700,12 @@ const GameMode: React.FC = () => {
         maxWidth="xs"
         aria-describedby="stat-dialog-player-info"
         onKeyDown={(e) => {
-          if (e.key === "Enter" && selectedPlayerId && statType && !isSavingStat) {
+          if (
+            e.key === "Enter" &&
+            selectedPlayerId &&
+            statType &&
+            !isSavingStat
+          ) {
             e.preventDefault();
             handleSaveStat();
           }
