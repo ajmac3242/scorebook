@@ -202,10 +202,10 @@
 **Why:** Coaches have only 10 minutes to make game-winning adjustments. They need a 1-page "War Room" summary of what's working and what's failing immediately after the first half buzzer.
 **What:** Build a dedicated Halftime Report view that highlights the team's best/worst lineups, most successful plays, and opponent scoring trends from the first half.
 **Acceptance Criteria:**
-- [ ] Auto-trigger Halftime Report when the second period (or first half) ends.
-- [ ] Top 3 "Positive Lineups" (+/-) and Bottom 3 "Negative Lineups".
-- [ ] Comparison of PPP (Points Per Possession) between Half 1 and season average.
-- [ ] List of "Opponent Streaks" - which opponent players are causing the most damage.
+- [x] Auto-trigger Halftime Report when the second period (or first half) ends.
+- [x] Top 3 "Positive Lineups" (+/-) and Bottom 3 "Negative Lineups".
+- [x] Comparison of PPP (Points Per Possession) between Half 1 and season average.
+- [x] List of "Opponent Streaks" - which opponent players are causing the most damage.
 
 ## Clutch-Time "Winning Time" Analytics
 **Priority:** HIGH
@@ -224,9 +224,9 @@
 **Why:** In the heat of the game, a bench player on the opposing team can hit three 3-pointers before a coach even notices. Immediate alerts on "Unchecked Threats" prevent games from slipping away.
 **What:** Monitor opponent scoring patterns and trigger HUD alerts in GameMode when an opponent player exceeds their season average or reaches a scoring milestone (e.g., "Opponent #24 is 4/4 from 3PT").
 **Acceptance Criteria:**
-- [ ] Scoreboard HUD alert: "THREAT ALERT: Player X has scored 10 straight points."
-- [ ] Indicator on the "Opponent Tracking" card showing current hot/cold status of active opponent players.
-- [ ] Suggestion to change defensive assignment or call timeout when a threat threshold is met.
+- [x] Scoreboard HUD alert: "THREAT ALERT: Player X has scored 10 straight points."
+- [x] Indicator on the "Opponent Tracking" card showing current hot/cold status of active opponent players.
+- [x] Suggestion to change defensive assignment or call timeout when a threat threshold is met.
 
 ## Possession-Based Efficiency Metrics (PPP)
 **Priority:** HIGH
@@ -234,10 +234,10 @@
 **Why:** Raw scores are misleading if one team plays much faster than the other. Points Per Possession (PPP) is the gold standard for measuring true offensive and defensive efficiency.
 **What:** Transition the internal stats engine to calculate total possessions and derive PPP for teams, lineups, and individual players.
 **Acceptance Criteria:**
-- [ ] Calculate "Possessions" for both teams (FGA + 0.44*FTA + TO - OREB).
-- [ ] Display PPP on the GameMode sidebar and Game Stats dashboard.
-- [ ] Defensive PPP (Points Allowed Per Possession) to measure defensive quality independently of pace.
-- [ ] Trend line showing PPP fluctuation throughout the game.
+- [x] Calculate "Possessions" for both teams (FGA + 0.44*FTA + TO - OREB).
+- [x] Display PPP on the GameMode sidebar and Game Stats dashboard.
+- [x] Defensive PPP (Points Allowed Per Possession) to measure defensive quality independently of pace.
+- [x] Trend line showing PPP fluctuation throughout the game.
 
 ## Visual Rotation & Stint Timeline Chart
 **Priority:** MEDIUM
