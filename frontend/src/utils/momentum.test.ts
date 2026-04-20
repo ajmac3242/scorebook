@@ -1,6 +1,10 @@
 import { describe, it, expect } from "vitest";
 import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../constants/stats";
-import { calculateOpponentRun, calculateScoringDrought, calculateOpponentThreats } from "./momentum";
+import {
+  calculateOpponentRun,
+  calculateScoringDrought,
+  calculateOpponentThreats,
+} from "./momentum";
 import { StatEvent } from "../db";
 
 describe("Momentum Alert Logic", () => {
@@ -73,28 +77,78 @@ describe("Momentum Alert Logic", () => {
   describe("Opponent Threat Detection", () => {
     it("detects threat based on total points (8+)", () => {
       const stats = [
-        { type: ACTION_TYPES.MAKE, points: 3, playerId: "OPPONENT:10", timestamp: "1" },
-        { type: ACTION_TYPES.MAKE, points: 3, playerId: "OPPONENT:10", timestamp: "2" },
-        { type: ACTION_TYPES.MAKE, points: 2, playerId: "OPPONENT:10", timestamp: "3" },
+        {
+          type: ACTION_TYPES.MAKE,
+          points: 3,
+          playerId: "OPPONENT:10",
+          timestamp: "1",
+        },
+        {
+          type: ACTION_TYPES.MAKE,
+          points: 3,
+          playerId: "OPPONENT:10",
+          timestamp: "2",
+        },
+        {
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          playerId: "OPPONENT:10",
+          timestamp: "3",
+        },
       ] as StatEvent[];
       expect(calculateOpponentThreats(stats)).toContain("OPPONENT:10");
     });
 
     it("detects threat based on consecutive FGM (3+)", () => {
       const stats = [
-        { type: ACTION_TYPES.MAKE, points: 2, playerId: "OPPONENT:24", timestamp: "1" },
-        { type: ACTION_TYPES.MAKE, points: 2, playerId: "OPPONENT:24", timestamp: "2" },
-        { type: ACTION_TYPES.MAKE, points: 2, playerId: "OPPONENT:24", timestamp: "3" },
+        {
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          playerId: "OPPONENT:24",
+          timestamp: "1",
+        },
+        {
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          playerId: "OPPONENT:24",
+          timestamp: "2",
+        },
+        {
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          playerId: "OPPONENT:24",
+          timestamp: "3",
+        },
       ] as StatEvent[];
       expect(calculateOpponentThreats(stats)).toContain("OPPONENT:24");
     });
 
     it("resets streak on miss", () => {
       const stats = [
-        { type: ACTION_TYPES.MAKE, points: 2, playerId: "OPPONENT:24", timestamp: "1" },
-        { type: ACTION_TYPES.MAKE, points: 2, playerId: "OPPONENT:24", timestamp: "2" },
-        { type: ACTION_TYPES.MISS, points: 2, playerId: "OPPONENT:24", timestamp: "3" },
-        { type: ACTION_TYPES.MAKE, points: 2, playerId: "OPPONENT:24", timestamp: "4" },
+        {
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          playerId: "OPPONENT:24",
+          timestamp: "1",
+        },
+        {
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          playerId: "OPPONENT:24",
+          timestamp: "2",
+        },
+        {
+          type: ACTION_TYPES.MISS,
+          points: 2,
+          playerId: "OPPONENT:24",
+          timestamp: "3",
+        },
+        {
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          playerId: "OPPONENT:24",
+          timestamp: "4",
+        },
       ] as StatEvent[];
       expect(calculateOpponentThreats(stats)).not.toContain("OPPONENT:24");
     });

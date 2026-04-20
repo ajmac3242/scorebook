@@ -758,9 +758,15 @@ export const calculateStopsAndKills = (stats: StatEvent[]) => {
     // Track possession changes to distinguish offensive/defensive fouls
     if (!isOpp && isScoringEvent(s)) isOurPossession = false;
     if (!isOpp && s.type === ACTION_TYPES.TURNOVER) isOurPossession = false;
-    if (isOpp && (s.type === ACTION_TYPES.DEF_REBOUND || s.type === ACTION_TYPES.REBOUND))
+    if (
+      isOpp &&
+      (s.type === ACTION_TYPES.DEF_REBOUND || s.type === ACTION_TYPES.REBOUND)
+    )
       isOurPossession = false;
-    if (!isOpp && (s.type === ACTION_TYPES.DEF_REBOUND || s.type === ACTION_TYPES.REBOUND))
+    if (
+      !isOpp &&
+      (s.type === ACTION_TYPES.DEF_REBOUND || s.type === ACTION_TYPES.REBOUND)
+    )
       isOurPossession = true;
 
     // 🏀 CoachBoard: Foul Reset logic

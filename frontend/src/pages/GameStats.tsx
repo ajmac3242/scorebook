@@ -338,7 +338,13 @@ const GameStats: React.FC = () => {
       }
       return data;
     },
-    [allStats, selectedPlayerId, selectedType, selectedShotQuality, selectedPlay],
+    [
+      allStats,
+      selectedPlayerId,
+      selectedType,
+      selectedShotQuality,
+      selectedPlay,
+    ],
   );
 
   const heatmapData = useMemo(

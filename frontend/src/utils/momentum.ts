@@ -9,7 +9,9 @@ import { isOpponentId, isScoringEvent, isActive } from "./stats";
  * @param sortedStats - Chronological list of active statistical events.
  * @returns A string representing the run (e.g., "10-0") or null.
  */
-export const calculateOpponentRun = (sortedStats: StatEvent[]): string | null => {
+export const calculateOpponentRun = (
+  sortedStats: StatEvent[],
+): string | null => {
   let tempOppRunPoints = 0;
   let teamScoredSinceOppRunStarted = false;
 
@@ -45,7 +47,7 @@ export const calculateScoringDrought = (
   sortedStats: StatEvent[],
   currentPeriod: number,
   clockSeconds: number,
-  periodLen: number = 600
+  periodLen: number = 600,
 ): string | null => {
   let lastTeamScoreClockTime = periodLen;
   let lastTeamScorePeriod = 1;
@@ -68,7 +70,8 @@ export const calculateScoringDrought = (
     if (lastTeamScorePeriod === currentPeriod) {
       droughtSecs = lastTeamScoreClockTime - clockSeconds;
     } else if (lastTeamScorePeriod < currentPeriod) {
-      droughtSecs = lastTeamScoreClockTime +
+      droughtSecs =
+        lastTeamScoreClockTime +
         (currentPeriod - lastTeamScorePeriod - 1) * periodLen +
         (periodLen - clockSeconds);
     }
@@ -88,7 +91,7 @@ export const calculateScoringDrought = (
  * A threat is an opponent player with 8+ total points or 3+ consecutive FGM.
  */
 export const calculateOpponentThreats = (
-  sortedStats: StatEvent[]
+  sortedStats: StatEvent[],
 ): string[] => {
   const opponentPoints = new Map<string, number>();
   const opponentStreaks = new Map<string, number>();
