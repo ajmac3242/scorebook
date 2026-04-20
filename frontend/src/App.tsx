@@ -22,6 +22,8 @@ import PlayerStats from "./pages/PlayerStats";
 import GameStats from "./pages/GameStats";
 import Teams from "./pages/Teams";
 import TeamStats from "./pages/TeamStats";
+import Opponents from "./pages/Opponents";
+import OpponentScoutingReport from "./pages/OpponentScoutingReport";
 import Settings from "./pages/Settings";
 import Navigation from "./components/Navigation";
 import { Navigate } from "react-router-dom";
@@ -120,6 +122,22 @@ const AppContent: React.FC = () => {
               element={
                 <ProtectedRoute>
                   <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/opponents"
+              element={
+                <ProtectedRoute>
+                  <Opponents />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/opponents/:opponentId/scouting"
+              element={
+                <ProtectedRoute>
+                  <OpponentScoutingReport />
                 </ProtectedRoute>
               }
             />

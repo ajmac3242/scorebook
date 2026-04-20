@@ -81,6 +81,7 @@ import QuickSubDialog from "../components/QuickSubDialog";
 import SubstitutionAuditDialog from "../components/SubstitutionAuditDialog";
 import FreeThrowWorkflowDialog from "../components/FreeThrowWorkflowDialog";
 import HalftimeReportDialog from "../components/HalftimeReportDialog";
+import PlaybookEfficiencyWidget from "../components/PlaybookEfficiencyWidget";
 import { PlayerStatRow } from "../components/PlayerStatRow";
 import { db, type StatEvent } from "../db";
 import { syncService } from "../utils/syncService";
@@ -94,6 +95,7 @@ import {
 import {
   calculatePlayerAggregates,
   calculatePlayerStreaks,
+  calculatePlayEfficiency,
   calculateStopsAndKills,
   calculatePossessions,
   calculatePpp,
@@ -1507,6 +1509,11 @@ const GameMode: React.FC = () => {
     return calculatePlayerStreaks(sortedGameStats, { isSorted: true });
   }, [sortedGameStats]);
 
+  // 🏀 CoachBoard: Playbook Efficiency
+  const playbookEfficiency = useMemo(() => {
+    return calculatePlayEfficiency(sortedGameStats);
+  }, [sortedGameStats]);
+
   /**
    * ⚡ Bolt: Optimize marker generation.
    * Performance: Single-pass marker creation using a local array to avoid multiple filter/map
@@ -2263,6 +2270,14 @@ const GameMode: React.FC = () => {
               teamPpp={gameData.teamPpp}
               oppPpp={gameData.oppPpp}
             />
+
+            {trackingMode === "TEAM" && (
+              <PlaybookEfficiencyWidget
+                plays={playbookEfficiency}
+                teamPpp={parseFloat(gameData.teamPpp)}
+                gameStats={sortedGameStats}
+              />
+            )}
 
             {trackingMode === "TEAM" ? (
               <>

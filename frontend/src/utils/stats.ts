@@ -739,6 +739,174 @@ export const calculatePlayerAggregates = (
 };
 
 /**
+ * 🏀 CoachBoard: calculateOpponentScoutingStats
+ * Why: Aggregates statistics for opponent players identified by persistent IDs across games.
+ * Supports scouting analysis for recurring opponents.
+ *
+ * @param stats - List of statistical events across multiple games.
+ * @returns Map of persistent player IDs to aggregated stats.
+ */
+export const calculateOpponentScoutingStats = (
+  stats: StatEvent[],
+): Map<string, OpponentAggregates> => {
+  const result = new Map<string, OpponentAggregates>();
+  const gameIdsMap = new Map<string, Set<string>>();
+
+  for (let i = 0; i < stats.length; i++) {
+    const s = stats[i];
+    if (!isActive(s) || !isOpponentId(s.playerId)) continue;
+
+    const pId = s.playerId;
+    let agg = result.get(pId);
+    if (!agg) {
+      agg = {
+        points: 0,
+        makes: 0,
+        attempts: 0,
+        fgPct: "0.0",
+        rebounds: 0,
+        offRebounds: 0,
+        defRebounds: 0,
+        assists: 0,
+        blocks: 0,
+        steals: 0,
+        turnovers: 0,
+        fouls: 0,
+        min: 0,
+        plusMinus: 0,
+        ppp: "0.00",
+        possessions: 0,
+      };
+      result.set(pId, agg);
+    }
+
+    applyActionToAggregate(agg, s);
+
+    // Track games played for this player
+    let gSet = gameIdsMap.get(pId);
+    if (!gSet) {
+      gSet = new Set<string>();
+      gameIdsMap.set(pId, gSet);
+    }
+    gSet.add(s.gameId);
+  }
+
+  // Finalize PPP and percentages
+  for (const [pId, agg] of result.entries()) {
+    const fta =
+      stats.filter(
+        (s) =>
+          s.playerId === pId && s.type === ACTION_TYPES.MAKE && s.points === 1,
+      ).length +
+      stats.filter(
+        (s) =>
+          s.playerId === pId && s.type === ACTION_TYPES.MISS && s.points === 1,
+      ).length;
+
+    const possessions = calculatePossessions(
+      agg.attempts,
+      fta,
+      agg.turnovers,
+      agg.offRebounds,
+    );
+    agg.possessions = Math.round(possessions);
+    agg.ppp = calculatePpp(agg.points, possessions);
+    agg.fgPct = calculateFgPct(agg.makes, agg.attempts);
+  }
+
+  return result;
+};
+
+/**
+ * 🏀 CoachBoard: calculatePlayEfficiency
+ * Why: Analyzes offensive sets to determine which plays are yielding the best results.
+ *
+ * @param stats - Chronological list of statistical events for the game.
+ * @returns Array of play efficiency metrics.
+ */
+export interface PlayEfficiency {
+  name: string;
+  attempts: number;
+  makes: number;
+  points: number;
+  ppp: string;
+  efg: string;
+}
+
+export const calculatePlayEfficiency = (
+  stats: StatEvent[],
+): PlayEfficiency[] => {
+  const data: Record<
+    string,
+    {
+      makes: number;
+      attempts: number;
+      points: number;
+      fta: number;
+      turnovers: number;
+      threePM: number;
+    }
+  > = {};
+
+  for (let i = 0; i < stats.length; i++) {
+    const s = stats[i];
+    if (!isActive(s) || !s.playName) continue;
+
+    if (!data[s.playName]) {
+      data[s.playName] = {
+        makes: 0,
+        attempts: 0,
+        points: 0,
+        fta: 0,
+        turnovers: 0,
+        threePM: 0,
+      };
+    }
+
+    const play = data[s.playName];
+    if (s.type === ACTION_TYPES.MAKE) {
+      play.points += s.points || 0;
+      if (s.points === 1) {
+        play.fta++;
+      } else {
+        play.makes++;
+        play.attempts++;
+        if (s.points === 3) {
+          play.threePM++;
+        }
+      }
+    } else if (s.type === ACTION_TYPES.MISS) {
+      if (s.points === 1) {
+        play.fta++;
+      } else {
+        play.attempts++;
+      }
+    } else if (s.type === ACTION_TYPES.TURNOVER) {
+      play.turnovers++;
+    }
+  }
+
+  return Object.entries(data)
+    .map(([name, s]) => {
+      const possessions = calculatePossessions(
+        s.attempts,
+        s.fta,
+        s.turnovers,
+        0,
+      );
+      return {
+        name,
+        attempts: s.attempts,
+        makes: s.makes,
+        points: s.points,
+        ppp: calculatePpp(s.points, possessions),
+        efg: calculateEfgPct(s.makes, s.threePM, s.attempts),
+      };
+    })
+    .sort((a, b) => b.attempts - a.attempts);
+};
+
+/**
  * 🏀 CoachBoard: calculateOpponentThreats
  *
  * WHY: Identifies opponent players who are scoring significantly or on a streak.

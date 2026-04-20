@@ -146,6 +146,7 @@ const Navigation: React.FC = () => {
   const menuItems = [
     { text: "Dashboard", icon: <DashboardIcon />, path: "/" },
     { text: "Teams", icon: <TeamsIcon />, path: "/teams" },
+    { text: "Opponents", icon: <BasketballIcon />, path: "/opponents" },
     { text: "Players", icon: <PlayersIcon />, path: "/players" },
     { text: "Settings", icon: <SettingsIcon />, path: "/settings" },
   ];
