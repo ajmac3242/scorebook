@@ -726,13 +726,19 @@ const GameStats: React.FC = () => {
               </TableCell>
             </TableRow>
           ))}
-          <TableRow sx={{ bgcolor: "primary.light", color: "primary.contrastText" }}>
+          <TableRow
+            sx={{ bgcolor: "primary.light", color: "primary.contrastText" }}
+          >
             <TableCell sx={{ fontWeight: 700 }}>
               TEAM TOTALS (PPP: {teamData.ppp})
             </TableCell>
             <TableCell align="right">-</TableCell>
-            <TableCell align="right" sx={{ fontWeight: 700 }}>{teamData.points}</TableCell>
-            <TableCell align="right" colSpan={12}>-</TableCell>
+            <TableCell align="right" sx={{ fontWeight: 700 }}>
+              {teamData.points}
+            </TableCell>
+            <TableCell align="right" colSpan={12}>
+              -
+            </TableCell>
           </TableRow>
           <TableRow sx={{ bgcolor: "secondary.light" }}>
             <TableCell sx={{ fontWeight: 700 }}>

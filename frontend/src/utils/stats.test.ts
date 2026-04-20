@@ -1299,9 +1299,30 @@ describe("stats utilities", () => {
   describe("calculateOpponentThreats", () => {
     it("identifies a hot opponent based on points (>= 8)", () => {
       const stats: StatEvent[] = [
-        { gameId: "g1", playerId: "OPPONENT:1", type: ACTION_TYPES.MAKE, points: 3, timestamp: "1", period: 1 },
-        { gameId: "g1", playerId: "OPPONENT:1", type: ACTION_TYPES.MAKE, points: 3, timestamp: "2", period: 1 },
-        { gameId: "g1", playerId: "OPPONENT:1", type: ACTION_TYPES.MAKE, points: 2, timestamp: "3", period: 1 },
+        {
+          gameId: "g1",
+          playerId: "OPPONENT:1",
+          type: ACTION_TYPES.MAKE,
+          points: 3,
+          timestamp: "1",
+          period: 1,
+        },
+        {
+          gameId: "g1",
+          playerId: "OPPONENT:1",
+          type: ACTION_TYPES.MAKE,
+          points: 3,
+          timestamp: "2",
+          period: 1,
+        },
+        {
+          gameId: "g1",
+          playerId: "OPPONENT:1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "3",
+          period: 1,
+        },
       ];
       const result = calculateOpponentThreats(stats);
       expect(result.length).toBe(1);
@@ -1311,9 +1332,30 @@ describe("stats utilities", () => {
 
     it("identifies a hot opponent based on consecutive makes (>= 3)", () => {
       const stats: StatEvent[] = [
-        { gameId: "g1", playerId: "OPPONENT:2", type: ACTION_TYPES.MAKE, points: 2, timestamp: "1", period: 1 },
-        { gameId: "g1", playerId: "OPPONENT:2", type: ACTION_TYPES.MAKE, points: 2, timestamp: "2", period: 1 },
-        { gameId: "g1", playerId: "OPPONENT:2", type: ACTION_TYPES.MAKE, points: 2, timestamp: "3", period: 1 },
+        {
+          gameId: "g1",
+          playerId: "OPPONENT:2",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "1",
+          period: 1,
+        },
+        {
+          gameId: "g1",
+          playerId: "OPPONENT:2",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "2",
+          period: 1,
+        },
+        {
+          gameId: "g1",
+          playerId: "OPPONENT:2",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "3",
+          period: 1,
+        },
       ];
       const result = calculateOpponentThreats(stats);
       expect(result.length).toBe(1);
@@ -1323,10 +1365,38 @@ describe("stats utilities", () => {
 
     it("resets consecutive makes on a miss", () => {
       const stats: StatEvent[] = [
-        { gameId: "g1", playerId: "OPPONENT:3", type: ACTION_TYPES.MAKE, points: 2, timestamp: "1", period: 1 },
-        { gameId: "g1", playerId: "OPPONENT:3", type: ACTION_TYPES.MAKE, points: 2, timestamp: "2", period: 1 },
-        { gameId: "g1", playerId: "OPPONENT:3", type: ACTION_TYPES.MISS, points: 2, timestamp: "3", period: 1 },
-        { gameId: "g1", playerId: "OPPONENT:3", type: ACTION_TYPES.MAKE, points: 2, timestamp: "4", period: 1 },
+        {
+          gameId: "g1",
+          playerId: "OPPONENT:3",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "1",
+          period: 1,
+        },
+        {
+          gameId: "g1",
+          playerId: "OPPONENT:3",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "2",
+          period: 1,
+        },
+        {
+          gameId: "g1",
+          playerId: "OPPONENT:3",
+          type: ACTION_TYPES.MISS,
+          points: 2,
+          timestamp: "3",
+          period: 1,
+        },
+        {
+          gameId: "g1",
+          playerId: "OPPONENT:3",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "4",
+          period: 1,
+        },
       ];
       const result = calculateOpponentThreats(stats);
       // Only 6 points total and no 3 consecutive makes

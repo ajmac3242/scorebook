@@ -876,7 +876,8 @@ const GameMode: React.FC = () => {
   const [auditDialogOpen, setAuditDialogOpen] = useState(false);
   const [ftWorkflowOpen, setFtWorkflowOpen] = useState(false);
   const [halftimeReportOpen, setHalftimeReportOpen] = useState(false);
-  const [lastViewedHalftimePeriod, setLastViewedHalftimePeriod] = useState<number>(0);
+  const [lastViewedHalftimePeriod, setLastViewedHalftimePeriod] =
+    useState<number>(0);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isEnding, setIsEnding] = useState(false);
   const [isSavingStat, setIsSavingStat] = useState(false);
@@ -1435,14 +1436,14 @@ const GameMode: React.FC = () => {
     if (!halftimeReportOpen) return [];
 
     // Filter stats for the first half
-    const firstHalfStats = sortedGameStats.filter(s => {
+    const firstHalfStats = sortedGameStats.filter((s) => {
       if (periodType === "QUARTERS") return s.period <= 2;
       return s.period <= 1;
     });
 
     return calculateLineupStats(firstHalfStats, {
       isSorted: true,
-      periodLength: game?.periodLength
+      periodLength: game?.periodLength,
     });
   }, [halftimeReportOpen, sortedGameStats, periodType, game?.periodLength]);
 
