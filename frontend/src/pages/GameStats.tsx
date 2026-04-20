@@ -96,6 +96,7 @@ const GameStats: React.FC = () => {
   const [selectedQuality, setSelectedQuality] = useState<string>("ALL");
   const [selectedPlay, setSelectedPlay] = useState<string>("ALL");
   const [periodFilter, setPeriodFilter] = useState<string>("ALL");
+  const [clutchFilter, setClutchFilter] = useState(false);
   const [compareMode, setCompareMode] = useState(false);
   const [comparePeriod1, setComparePeriod1] = useState<string>("1");
   const [comparePeriod2, setComparePeriod2] = useState<string>("2");
@@ -239,6 +240,8 @@ const GameStats: React.FC = () => {
       {
         isSorted: true,
         periodLength: game?.periodLength,
+        clutchOnly: clutchFilter,
+        periodType: team?.periodType,
         liveContext:
           game && !game.completed
             ? {
@@ -248,7 +251,14 @@ const GameStats: React.FC = () => {
             : undefined,
       },
     );
-  }, [players, scoreFlowSortedStats, teamPlayers, game]);
+  }, [
+    players,
+    scoreFlowSortedStats,
+    teamPlayers,
+    game,
+    clutchFilter,
+    team?.periodType,
+  ]);
 
   const playerAggregates = useMemo(() => {
     return [...aggregatedStats].sort((a, b) => {
@@ -466,12 +476,14 @@ const GameStats: React.FC = () => {
     return calculateLineupStats(scoreFlowSortedStats, {
       isSorted: true,
       periodLength: game?.periodLength,
+      clutchOnly: clutchFilter,
+      periodType: team?.periodType,
       liveContext:
         game && !game.completed
           ? { clockTime: game.clockTime || 0, period: game.currentPeriod || 1 }
           : undefined,
     });
-  }, [scoreFlowSortedStats, game]);
+  }, [scoreFlowSortedStats, game, clutchFilter, team?.periodType]);
 
   const defensiveStats = useMemo(() => {
     return calculateStopsAndKills(scoreFlowSortedStats);
@@ -1104,6 +1116,11 @@ const GameStats: React.FC = () => {
         sx={{
           mb: 4,
           mt: 3,
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexWrap: "wrap",
+          gap: 2,
         }}
       >
         <ToggleButtonGroup
@@ -1112,6 +1129,7 @@ const GameStats: React.FC = () => {
           onChange={(_, val) => val && setPeriodFilter(val)}
           size="small"
           fullWidth={Boolean(isMobile)}
+          sx={{ flexGrow: isMobile ? 1 : 0 }}
         >
           {periods.map((p) => (
             <ToggleButton key={p} value={p}>
@@ -1119,6 +1137,27 @@ const GameStats: React.FC = () => {
             </ToggleButton>
           ))}
         </ToggleButtonGroup>
+
+        <ToggleButton
+          value="clutch"
+          selected={clutchFilter}
+          onChange={() => setClutchFilter(!clutchFilter)}
+          size="small"
+          color="primary"
+          sx={{
+            fontWeight: 800,
+            px: 3,
+            bgcolor: clutchFilter ? "primary.main" : "transparent",
+            color: clutchFilter ? "white" : "primary.main",
+            "&:hover": {
+              bgcolor: clutchFilter
+                ? "primary.dark"
+                : "rgba(25, 118, 210, 0.04)",
+            },
+          }}
+        >
+          🔥 CLUTCH MODE
+        </ToggleButton>
       </Box>
 
       <Grid container spacing={3}>

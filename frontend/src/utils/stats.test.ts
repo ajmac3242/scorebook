@@ -16,6 +16,7 @@ import {
   calculatePossessions,
   calculatePpp,
   calculateOpponentThreats,
+  isClutchEvent,
 } from "./stats";
 import { TeamPlayer, StatEvent, Game } from "../db";
 import { ACTION_TYPES } from "../constants/stats";
@@ -1363,7 +1364,7 @@ describe("stats utilities", () => {
       expect(result[0].isHot).toBe(true);
     });
 
-    it("resets consecutive makes on a miss", () => {
+    it("resets consecutive makes on a miss and straight points on team score", () => {
       const stats: StatEvent[] = [
         {
           gameId: "g1",
@@ -1379,6 +1380,14 @@ describe("stats utilities", () => {
           type: ACTION_TYPES.MAKE,
           points: 2,
           timestamp: "2",
+          period: 1,
+        },
+        {
+          gameId: "g1",
+          playerId: "PLAYER:1", // Our team scores
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "2.5",
           period: 1,
         },
         {
@@ -1399,8 +1408,155 @@ describe("stats utilities", () => {
         },
       ];
       const result = calculateOpponentThreats(stats);
-      // Only 6 points total and no 3 consecutive makes
+      // Only 6 points total, no 3 consecutive makes, and straight points reset by team score
       expect(result.length).toBe(0);
+    });
+
+    it("identifies a hot opponent based on straight points (>= 6)", () => {
+      const stats = [
+        {
+          gameId: "g1",
+          playerId: "OPPONENT:3",
+          type: ACTION_TYPES.MAKE,
+          points: 3,
+          timestamp: "1",
+          period: 1,
+        },
+        {
+          gameId: "g1",
+          playerId: "OPPONENT:3",
+          type: ACTION_TYPES.MAKE,
+          points: 3,
+          timestamp: "2",
+          period: 1,
+        },
+      ];
+      const result = calculateOpponentThreats(stats);
+      expect(result.length).toBe(1);
+      expect(result[0].straightPoints).toBe(6);
+      expect(result[0].isHot).toBe(true);
+    });
+  });
+
+  describe("isClutchEvent", () => {
+    it("returns true for clutch situations", () => {
+      // Period 4, 2:00 left, 3 point lead
+      expect(isClutchEvent(4, 120, 3, "QUARTERS")).toBe(true);
+      // Period 2, 0:30 left, 5 point deficit
+      expect(isClutchEvent(2, 30, -5, "HALVES")).toBe(true);
+    });
+
+    it("returns false if not in final period", () => {
+      expect(isClutchEvent(3, 120, 2, "QUARTERS")).toBe(false);
+      expect(isClutchEvent(1, 60, 0, "HALVES")).toBe(false);
+    });
+
+    it("returns false if clock > 4 minutes", () => {
+      expect(isClutchEvent(4, 241, 2, "QUARTERS")).toBe(false);
+    });
+
+    it("returns false if score diff > 5", () => {
+      expect(isClutchEvent(4, 60, 6, "QUARTERS")).toBe(false);
+      expect(isClutchEvent(4, 60, -10, "QUARTERS")).toBe(false);
+    });
+  });
+
+  describe("clutch filtering in aggregates", () => {
+    const players = [{ id: "p1", name: "Player 1" }];
+    const stats: StatEvent[] = [
+      {
+        gameId: "g1",
+        playerId: "p1",
+        type: ACTION_TYPES.MAKE,
+        points: 2,
+        period: 1,
+        clockTime: 300,
+        timestamp: "1",
+      },
+      {
+        gameId: "g1",
+        playerId: "p1",
+        type: ACTION_TYPES.MAKE,
+        points: 2,
+        period: 4,
+        clockTime: 120, // Clutch!
+        timestamp: "2",
+      },
+    ];
+
+    it("calculatePlayerAggregates filters clutch events", () => {
+      const all = calculatePlayerAggregates(players, stats);
+      expect(all[0].points).toBe(4);
+
+      const clutch = calculatePlayerAggregates(players, stats, [], "total", {
+        clutchOnly: true,
+        periodType: "QUARTERS",
+      });
+      expect(clutch[0].points).toBe(2);
+    });
+
+    it("calculateLineupStats filters clutch stints", () => {
+      const lineupStats = [
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.SUB_IN,
+          period: 1,
+          clockTime: 600,
+          timestamp: "0",
+        },
+        {
+          gameId: "g1",
+          playerId: "p2",
+          type: ACTION_TYPES.SUB_IN,
+          period: 1,
+          clockTime: 600,
+          timestamp: "0.1",
+        },
+        {
+          gameId: "g1",
+          playerId: "p3",
+          type: ACTION_TYPES.SUB_IN,
+          period: 1,
+          clockTime: 600,
+          timestamp: "0.2",
+        },
+        {
+          gameId: "g1",
+          playerId: "p4",
+          type: ACTION_TYPES.SUB_IN,
+          period: 1,
+          clockTime: 600,
+          timestamp: "0.3",
+        },
+        {
+          gameId: "g1",
+          playerId: "p5",
+          type: ACTION_TYPES.SUB_IN,
+          period: 1,
+          clockTime: 600,
+          timestamp: "0.4",
+        },
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          period: 4,
+          clockTime: 120, // Clutch make
+          timestamp: "10",
+        },
+      ];
+
+      const all = calculateLineupStats(lineupStats);
+      expect(all[0].pointsFor).toBe(2);
+
+      const clutch = calculateLineupStats(lineupStats, {
+        clutchOnly: true,
+        periodType: "QUARTERS",
+      });
+      expect(clutch[0].pointsFor).toBe(2);
+      // It should still have 2 points because the make itself is clutch
     });
   });
 

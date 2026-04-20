@@ -545,6 +545,8 @@ export const calculatePlayerAggregates = (
     isSorted?: boolean;
     periodLength?: number;
     liveContext?: { clockTime: number; period: number };
+    clutchOnly?: boolean;
+    periodType?: string;
   } = {},
 ): PlayerAggregates[] => {
   const statsMap = initializeStatsMap(players, teamPlayers);
@@ -572,6 +574,34 @@ export const calculatePlayerAggregates = (
     if (stat.deletedAt) continue;
 
     const { playerId, type, clockTime, period, gameId } = stat;
+
+    // 🏀 CoachBoard: Clutch Filter
+    if (options.clutchOnly && clockTime !== undefined) {
+      const isClutch = isClutchEvent(
+        period,
+        clockTime,
+        scores.team - scores.opp,
+        options.periodType || "QUARTERS",
+      );
+      if (!isClutch) {
+        // We still need to update scores and lineups to maintain state
+        if (type === ACTION_TYPES.MAKE) {
+          const pts = stat.points || 0;
+          if (isOpponentId(playerId)) scores.opp += pts;
+          else scores.team += pts;
+        }
+        if (type === ACTION_TYPES.SUB_IN) {
+          activeStints.set(playerId, {
+            startClock: clockTime,
+            startScoreDiff: scores.team - scores.opp,
+            lastGameId: gameId,
+          });
+        } else if (type === ACTION_TYPES.SUB_OUT) {
+          activeStints.delete(playerId);
+        }
+        continue;
+      }
+    }
 
     // Handle new game context
     if (gameId !== currentGameId) {
@@ -935,43 +965,68 @@ export interface OpponentThreat {
   points: number;
   makes: number;
   consecutiveMakes: number;
+  straightPoints: number;
   isHot: boolean;
 }
 
+/**
+ * 🏀 CoachBoard: calculateOpponentThreats
+ *
+ * WHY: Identifies opponent players who are scoring significantly or on a streak.
+ * tracks "straight points" (points scored by an opponent while our team has 0 points
+ * in that same window) to alert for unchecked threats.
+ *
+ * @param stats - Chronological list of statistical events for the game.
+ * @returns Array of threat objects for the opponent.
+ */
 export const calculateOpponentThreats = (
   stats: StatEvent[],
 ): OpponentThreat[] => {
   const threats = new Map<string, OpponentThreat>();
 
-  // Process only opponent actions
   for (let i = 0; i < stats.length; i++) {
     const s = stats[i];
-    if (s.deletedAt || !isOpponentId(s.playerId)) continue;
+    if (!isActive(s)) continue;
 
-    const pId = s.playerId;
-    if (!threats.has(pId)) {
-      threats.set(pId, {
-        playerId: pId,
-        points: 0,
-        makes: 0,
-        consecutiveMakes: 0,
-        isHot: false,
-      });
+    const isOpp = isOpponentId(s.playerId);
+
+    // If our team scores, reset all current straight points counters
+    if (!isOpp && isScoringEvent(s)) {
+      for (const t of threats.values()) {
+        t.straightPoints = 0;
+      }
+      continue;
     }
 
-    const t = threats.get(pId)!;
-    if (s.type === ACTION_TYPES.MAKE) {
-      t.points += s.points || 0;
-      if (s.points && s.points > 1) {
-        t.makes++;
-        t.consecutiveMakes++;
+    if (isOpp) {
+      const pId = s.playerId;
+      if (!threats.has(pId)) {
+        threats.set(pId, {
+          playerId: pId,
+          points: 0,
+          makes: 0,
+          consecutiveMakes: 0,
+          straightPoints: 0,
+          isHot: false,
+        });
       }
-      if (t.points >= 8 || t.consecutiveMakes >= 3) {
-        t.isHot = true;
-      }
-    } else if (s.type === ACTION_TYPES.MISS) {
-      if (s.points && s.points > 1) {
-        t.consecutiveMakes = 0;
+
+      const t = threats.get(pId)!;
+      if (s.type === ACTION_TYPES.MAKE) {
+        t.points += s.points || 0;
+        t.straightPoints += s.points || 0;
+        if (s.points && s.points > 1) {
+          t.makes++;
+          t.consecutiveMakes++;
+        }
+        // Hot if: 8+ total points, 3+ consecutive makes, or 6+ straight points
+        if (t.points >= 8 || t.consecutiveMakes >= 3 || t.straightPoints >= 6) {
+          t.isHot = true;
+        }
+      } else if (s.type === ACTION_TYPES.MISS) {
+        if (s.points && s.points > 1) {
+          t.consecutiveMakes = 0;
+        }
       }
     }
   }
@@ -1106,6 +1161,18 @@ export const calculateStopsAndKills = (stats: StatEvent[]) => {
  * @param {boolean} completedOnly - (Optional) Only include completed games, defaults to true.
  * @returns {Record<string, unknown>} Team level aggregates.
  */
+/**
+ * 🏀 CoachBoard: calculateTeamSeasonAverages
+ * Why: Computes historical averages for a team to provide context for live performance.
+ */
+export const calculateTeamSeasonAverages = (
+  games: Game[],
+  allStats: StatEvent[],
+): { ppp: string } => {
+  const teamAgg = calculateTeamAggregates(games, allStats, true);
+  return { ppp: teamAgg.ppp };
+};
+
 export const calculateTeamAggregates = (
   games: Game[],
   stats: StatEvent[],
@@ -1315,6 +1382,30 @@ export const calculateScoreFlow = (
  * @param {string} periodType - 'QUARTERS' or 'HALVES'.
  * @returns {boolean} True if the event belongs to the current period context.
  */
+/**
+ * 🏀 CoachBoard: isClutchEvent
+ * Why: Defines "Clutch Time" as the final 4 minutes of a game when the score is within 5 points.
+ *
+ * @param eventPeriod - Period of the event.
+ * @param clockTime - Seconds remaining in the period.
+ * @param scoreDiff - Absolute difference between team and opponent scores.
+ * @param periodType - 'QUARTERS' or 'HALVES'.
+ * @returns True if the event occurred in a clutch situation.
+ */
+export const isClutchEvent = (
+  eventPeriod: number,
+  clockTime: number,
+  scoreDiff: number,
+  periodType: string,
+): boolean => {
+  const isFinalPeriod =
+    periodType === "QUARTERS" ? eventPeriod >= 4 : eventPeriod >= 2;
+  const isClutchTime = clockTime <= 240; // 4 minutes
+  const isClutchScore = Math.abs(scoreDiff) <= 5;
+
+  return isFinalPeriod && isClutchTime && isClutchScore;
+};
+
 export const isEventInPeriod = (
   eventPeriod: number,
   currentPeriod: number,
@@ -1440,6 +1531,8 @@ export const calculateLineupStats = (
     isSorted?: boolean;
     periodLength?: number;
     liveContext?: { clockTime: number; period: number };
+    clutchOnly?: boolean;
+    periodType?: string;
   } = {},
 ): LineupAggregates[] => {
   // ⚡ Bolt: Process events in a single pass to avoid grouping overhead.
@@ -1521,6 +1614,16 @@ export const calculateLineupStats = (
       currentPeriod = s.period;
     }
 
+    const isClutch =
+      !options.clutchOnly ||
+      (s.clockTime !== undefined &&
+        isClutchEvent(
+          s.period,
+          s.clockTime,
+          scores.team - scores.opp,
+          options.periodType || "QUARTERS",
+        ));
+
     // ⚡ Bolt: Use domain helpers for scoring and opponent identification.
     if (s.type === ACTION_TYPES.MAKE) {
       const pts = s.points || 0;
@@ -1533,7 +1636,7 @@ export const calculateLineupStats = (
 
     // When lineup changes, record stats for the previous lineup
     if (s.type === ACTION_TYPES.SUB_IN || s.type === ACTION_TYPES.SUB_OUT) {
-      if (currentLineup.size === 5 && s.clockTime !== undefined) {
+      if (currentLineup.size === 5 && s.clockTime !== undefined && isClutch) {
         if (!cachedLineupKey) cachedLineupKey = getLineupKey(currentLineup);
         recordLineupStint(
           lineupStats,
