@@ -3,7 +3,6 @@ import {
   Box,
   Typography,
   Stack,
-  Chip,
   IconButton,
   Dialog,
   DialogTitle,

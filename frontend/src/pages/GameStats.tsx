@@ -298,7 +298,14 @@ const GameStats: React.FC = () => {
       }
     }
     return { filtered, markers };
-  }, [stats, selectedPlayerId, selectedType, selectedPlay, shotChartJerseyMap]);
+  }, [
+    stats,
+    selectedPlayerId,
+    selectedType,
+    selectedQuality,
+    selectedPlay,
+    shotChartJerseyMap,
+  ]);
 
   const shotChartMarkers = derivedStats.markers;
 
@@ -317,6 +324,8 @@ const GameStats: React.FC = () => {
         if (selectedPlayerId !== "ALL" && s.playerId !== selectedPlayerId)
           continue;
         if (selectedType !== "ALL" && s.type !== selectedType) continue;
+        if (selectedQuality !== "ALL" && s.shotQuality !== selectedQuality)
+          continue;
         if (selectedPlay !== "ALL" && s.playName !== selectedPlay) continue;
 
         const zone = getShotZone(s.locationX || 0, s.locationY || 0);
