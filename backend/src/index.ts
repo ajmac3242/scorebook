@@ -552,6 +552,17 @@ async function handleCleanup(
   return null;
 }
 
+/**
+ * Maximum allowed request body size (512KB).
+ * Prevents memory exhaustion attacks and large data injection.
+ */
+const MAX_BODY_SIZE = 512 * 1024;
+
+/**
+ * Whitelist of allowed HTTP methods for this API.
+ */
+const ALLOWED_METHODS = new Set(["GET", "POST", "PUT", "PATCH", "DELETE"]);
+
 export const handler = async (
   event: APIGatewayProxyEventV2,
 ): Promise<APIGatewayProxyResultV2> => {
@@ -559,6 +570,16 @@ export const handler = async (
 
   const { method, path } = extractRequestMetadata(event);
   logInfo("Routing", { method, path });
+
+  // 🛡️ Enhancement 8: HTTP Method Whitelisting
+  if (!ALLOWED_METHODS.has(method)) {
+    return response(405, { message: `Method ${method} not allowed` });
+  }
+
+  // 🛡️ Enhancement 9: Body Size Limit Enforcement
+  if (event.body && event.body.length > MAX_BODY_SIZE) {
+    return response(413, { message: "Payload too large" });
+  }
 
   // Enforce Content-Type for write requests with a body
   if (["POST", "PUT", "PATCH"].includes(method) && event.body) {
