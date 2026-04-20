@@ -19,3 +19,7 @@ Action: Implement prominent "Get Started" CTAs for empty landing pages. Ensure e
 ## 2026-04-09 - Feedback Loops and ARIA state
 Learning: Centralized feedback via Snackbars is essential for a "live" tracking experience where actions happen quickly. Adding aria-pressed to toggle buttons in recording dialogs and role="img" with dynamic labels to visual-only indicators (dots/icons) ensures the game state is fully perceivable by all users.
 Action: Implement Snackbar feedback for all CRUD operations in fast-paced interfaces. Ensure every toggle-style button correctly communicates its state via ARIA.
+
+## 2026-05-15 - Interactive Resilience & Accessibility Polish
+Learning: Micro-UX improvements like Enter-key submission for fast-paced stat entry and descriptive ARIA labels on timeline audit controls significantly reduce cognitive load. Immediate visual feedback on copy-to-clipboard actions (icon/text swap) transforms a "blind" action into a confirmed success. Dashboard empty states with dashed borders provide a stronger "place-of-onboarding" feel than plain cards.
+Action: Standardize Enter-key support for all high-frequency dialogs. Ensure destructive timeline edits have safety confirmations. Use visual feedback (icon swaps) for non-entity-based async actions.

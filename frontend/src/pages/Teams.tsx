@@ -376,28 +376,36 @@ const Teams: React.FC = () => {
                           >
                             {team.name}
                           </Typography>
-                          <IconButton
-                            size="small"
-                            onClick={(e) =>
-                              handleToggleFavorite(
-                                team.id!,
-                                team.isFavorite || 0,
-                                e,
-                              )
-                            }
-                            sx={{ color: "inherit", p: 0.5 }}
-                            aria-label={
+                          <Tooltip
+                            title={
                               team.isFavorite
-                                ? `Remove ${team.name} from favorites`
-                                : `Mark ${team.name} as favorite`
+                                ? "Remove from favorites"
+                                : "Mark as favorite"
                             }
                           >
-                            {team.isFavorite ? (
-                              <StarIcon sx={{ color: "#FFD700" }} />
-                            ) : (
-                              <StarBorderIcon sx={{ opacity: 0.5 }} />
-                            )}
-                          </IconButton>
+                            <IconButton
+                              size="small"
+                              onClick={(e) =>
+                                handleToggleFavorite(
+                                  team.id!,
+                                  team.isFavorite || 0,
+                                  e,
+                                )
+                              }
+                              sx={{ color: "inherit", p: 0.5 }}
+                              aria-label={
+                                team.isFavorite
+                                  ? `Remove ${team.name} from favorites`
+                                  : `Mark ${team.name} as favorite`
+                              }
+                            >
+                              {team.isFavorite ? (
+                                <StarIcon sx={{ color: "#FFD700" }} />
+                              ) : (
+                                <StarBorderIcon sx={{ opacity: 0.5 }} />
+                              )}
+                            </IconButton>
+                          </Tooltip>
                         </Box>
                         <Typography
                           variant="caption"

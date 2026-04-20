@@ -401,7 +401,7 @@ const Players: React.FC = () => {
                 }}
                 role="button"
                 tabIndex={0}
-                aria-label={`Select ${color} as avatar color`}
+                aria-label={`Select color ${color.toUpperCase()} as avatar color`}
                 aria-pressed={avatarColor === color}
                 sx={{
                   width: 32,
