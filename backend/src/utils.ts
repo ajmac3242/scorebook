@@ -48,11 +48,6 @@ function sanitizeForLog(obj: any): any {
   return sanitized;
 }
 
-/**
- *
- * @param label
- * @param error
- */
 export function logError(label: string, error: unknown) {
   // 🛡️ Enhancement 10: Sanitize all error logs to prevent secret leakage
   if (error instanceof Error) {

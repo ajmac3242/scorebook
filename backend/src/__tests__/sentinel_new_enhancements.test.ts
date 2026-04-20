@@ -1,6 +1,18 @@
-import { jest, describe, it, expect, beforeEach } from "@jest/globals";
+import {
+  jest,
+  describe,
+  it,
+  expect,
+  beforeEach,
+} from "@jest/globals";
+
+// Mock uuid BEFORE any other imports to prevent ESM loading issues in Jest
+jest.mock("uuid", () => ({
+  v4: jest.fn(() => "test-uuid"),
+}));
+
 import { handler } from "../index.js";
-import { DynamoDBDocumentClient, QueryCommand } from "@aws-sdk/lib-dynamodb";
+import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 import { mockClient } from "aws-sdk-client-mock";
 import { maskEvent, logError } from "../utils.js";
 import { response } from "../responses.js";
@@ -45,12 +57,8 @@ describe("Sentinel New Security Enhancements", () => {
       expect(resp.headers!["X-DNS-Prefetch-Control"]).toBe("off");
       expect(resp.headers!["X-Download-Options"]).toBe("noopen");
       expect(resp.headers!["Surrogate-Control"]).toBe("no-store");
-      expect(resp.headers!["Content-Security-Policy"]).toContain(
-        "base-uri 'none'",
-      );
-      expect(resp.headers!["Content-Security-Policy"]).toContain(
-        "form-action 'none'",
-      );
+      expect(resp.headers!["Content-Security-Policy"]).toContain("base-uri 'none'");
+      expect(resp.headers!["Content-Security-Policy"]).toContain("form-action 'none'");
     });
   });
 
@@ -81,9 +89,7 @@ describe("Sentinel New Security Enhancements", () => {
 
   describe("Error Logging (Enhancement 10)", () => {
     it("sanitizes non-Error objects in logError", () => {
-      const consoleSpy = jest
-        .spyOn(console, "error")
-        .mockImplementation(() => {});
+      const consoleSpy = jest.spyOn(console, "error").mockImplementation(() => {});
       const sensitiveObj = { secret: "password", message: "fail" };
       logError("Test", sensitiveObj);
       const lastCall = consoleSpy.mock.calls[consoleSpy.mock.calls.length - 1];
@@ -94,9 +100,7 @@ describe("Sentinel New Security Enhancements", () => {
     });
 
     it("sanitizes Error objects in logError", () => {
-      const consoleSpy = jest
-        .spyOn(console, "error")
-        .mockImplementation(() => {});
+      const consoleSpy = jest.spyOn(console, "error").mockImplementation(() => {});
       const error = new Error("Failed with secret: my-password");
       logError("TestError", error);
       const lastCall = consoleSpy.mock.calls[consoleSpy.mock.calls.length - 1];
