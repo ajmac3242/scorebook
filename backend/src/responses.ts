@@ -98,6 +98,7 @@ export function response(
       "Content-Type": "application/json",
       "Cache-Control":
         "private, no-cache, no-store, max-age=0, must-revalidate",
+      "Surrogate-Control": "no-store",
       "X-Content-Type-Options": "nosniff",
       "X-Frame-Options": "DENY",
       "Strict-Transport-Security":
@@ -105,11 +106,13 @@ export function response(
       "Cross-Origin-Opener-Policy": "same-origin",
       "Cross-Origin-Resource-Policy": "same-origin",
       "Content-Security-Policy":
-        "default-src 'none'; frame-ancestors 'none'; sandbox",
+        "default-src 'none'; frame-ancestors 'none'; sandbox; base-uri 'none'; form-action 'none';",
       "Referrer-Policy": "no-referrer",
       "Permissions-Policy": "interest-cohort=()",
       "X-XSS-Protection": "0",
       "X-Permitted-Cross-Domain-Policies": "none",
+      "X-DNS-Prefetch-Control": "off",
+      "X-Download-Options": "noopen",
       ...headers,
     },
     body: JSON.stringify(sanitizeOutput(body)),

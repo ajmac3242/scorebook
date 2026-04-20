@@ -255,7 +255,7 @@ describe("Security Tests", () => {
       "Strict-Transport-Security":
         "max-age=31536000; includeSubDomains; preload",
       "Content-Security-Policy":
-        "default-src 'none'; frame-ancestors 'none'; sandbox",
+        "default-src 'none'; frame-ancestors 'none'; sandbox; base-uri 'none'; form-action 'none';",
       "Referrer-Policy": "no-referrer",
       "Permissions-Policy": "interest-cohort=()",
       "X-XSS-Protection": "0",

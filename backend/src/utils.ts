@@ -20,6 +20,9 @@ export const REDACTED_HEADERS = new Set<string>([
   "x-auth-token",
   "session-id",
   "api-key",
+  "secret",
+  "password",
+  "token",
 ]);
 
 /**
@@ -27,13 +30,51 @@ export const REDACTED_HEADERS = new Set<string>([
  * @param {string} label - Contextual label for the error.
  * @param {unknown} error - The error object.
  */
+/**
+ * Redacts sensitive fields from an object before logging.
+ * @param obj - The object to sanitize.
+ * @returns A sanitized copy of the object.
+ */
+function sanitizeForLog(obj: any): any {
+  if (!obj || typeof obj !== "object") return obj;
+  const sanitized = Array.isArray(obj) ? [...obj] : { ...obj };
+  for (const key in sanitized) {
+    if (REDACTED_HEADERS.has(key.toLowerCase())) {
+      sanitized[key] = "[REDACTED]";
+    } else if (typeof sanitized[key] === "object") {
+      sanitized[key] = sanitizeForLog(sanitized[key]);
+    }
+  }
+  return sanitized;
+}
+
+/**
+ *
+ * @param label
+ * @param error
+ */
 export function logError(label: string, error: unknown) {
+  // 🛡️ Enhancement 10: Sanitize all error logs to prevent secret leakage
   if (error instanceof Error) {
-    console.error(`[ERROR] ${label}: ${error.message}`, error.stack);
+    let message = error.message;
+    let stack = error.stack || "";
+    // Simple string-based redaction for the most common sensitive patterns
+    REDACTED_HEADERS.forEach((term) => {
+      const regex = new RegExp(term, "gi");
+      if (message.toLowerCase().includes(term)) {
+        message = message.replace(regex, "[REDACTED]");
+      }
+      if (stack.toLowerCase().includes(term)) {
+        stack = stack.replace(regex, "[REDACTED]");
+      }
+    });
+    console.error(`[ERROR] ${label}: ${message}`, stack);
   } else {
     console.error(
       `[ERROR] ${label}:`,
-      typeof error === "object" ? JSON.stringify(error, null, 2) : error,
+      typeof error === "object"
+        ? JSON.stringify(sanitizeForLog(error), null, 2)
+        : error,
     );
   }
 }
@@ -64,23 +105,13 @@ export function logInfo(label: string, data?: unknown) {
  * @returns {unknown} A sanitized copy of the event.
  */
 export function maskEvent(event: APIGatewayProxyEventV2): unknown {
-  // ⚡ Bolt: Return original reference early if no sensitive data structures exist.
-  if (!event.headers && !event.cookies) return event;
-
-  let hasRedactable = false;
-  if (event.headers) {
-    // ⚡ Bolt: Use Object.keys().some() for faster sensitive header detection.
-    hasRedactable = Object.keys(event.headers).some((k) =>
-      REDACTED_HEADERS.has(k.toLowerCase()),
-    );
-  }
-
-  if (!hasRedactable && (!event.cookies || event.cookies.length === 0))
-    return event;
-
+  // 🛡️ Enhancement 1-3: Broadened log masking for headers, query params, and authorizer.
   const masked = { ...event };
+
   if (event.headers) {
-    const redactedHeaders = { ...masked.headers };
+    const redactedHeaders: Record<string, string | undefined> = {
+      ...masked.headers,
+    };
     for (const key in redactedHeaders) {
       if (REDACTED_HEADERS.has(key.toLowerCase())) {
         redactedHeaders[key] = "[REDACTED]";
@@ -89,8 +120,49 @@ export function maskEvent(event: APIGatewayProxyEventV2): unknown {
     masked.headers = redactedHeaders;
   }
 
+  // Handle multi-value headers if present (older API Gateway versions)
+  const anyEvent = event as any;
+  if (anyEvent.multiValueHeaders) {
+    const redactedMulti = { ...anyEvent.multiValueHeaders };
+    for (const key in redactedMulti) {
+      if (REDACTED_HEADERS.has(key.toLowerCase())) {
+        redactedMulti[key] = redactedMulti[key].map(() => "[REDACTED]");
+      }
+    }
+    (masked as any).multiValueHeaders = redactedMulti;
+  }
+
   if (event.cookies) {
     masked.cookies = event.cookies.map(() => "[REDACTED]");
+  }
+
+  // Redact all query string parameters as they often contain tokens or PII
+  if (event.queryStringParameters) {
+    const redactedParams = { ...event.queryStringParameters };
+    for (const key in redactedParams) {
+      redactedParams[key] = "[REDACTED]";
+    }
+    masked.queryStringParameters = redactedParams;
+  }
+
+  if (anyEvent.multiValueQueryStringParameters) {
+    const redactedMultiParams = { ...anyEvent.multiValueQueryStringParameters };
+    for (const key in redactedMultiParams) {
+      redactedMultiParams[key] = redactedMultiParams[key].map(
+        () => "[REDACTED]",
+      );
+    }
+    (masked as any).multiValueQueryStringParameters = redactedMultiParams;
+  }
+
+  // Redact authorizer context which may contain JWT claims or internal IDs
+  if ((masked.requestContext as any)?.authorizer) {
+    (masked.requestContext as any).authorizer = "[REDACTED]";
+  }
+
+  // 🛡️ Enhancement 11: Redact body in logs to prevent sensitive data leakage and log bloating
+  if (masked.body) {
+    masked.body = "[REDACTED]";
   }
 
   return masked;
