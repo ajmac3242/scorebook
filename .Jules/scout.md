@@ -64,3 +64,17 @@
 ### Basketball Edge Cases
 - **Momentum vs. Possession**: A stop streak tracks defensive success. Offensive fouls end a possession but are not defensive failures.
 - **OT Continuation**: Most competitive rulesets treat OT as an extension of the 4th quarter for the purpose of team foul penalties.
+
+## 2025-05-27 - Data Isolation & Scouting Audit
+
+### Findings & Fixed Bugs
+- **Bug 16: Multi-Game Analytics Leakage**: Discovered that several cumulative analytics (`calculateStopsAndKills`, `calculateOpponentThreats`, `calculatePlayerStreaks`) did not reset state when processing an event stream containing multiple games. Added `gameId` tracking to ensure data isolation.
+- **Bug 17: Inaccurate Clutch Definition**: The `isClutchEvent` helper didn't treat overtime as clutch if the clock was above 4 minutes, and used a 4-minute window for `HALVES` mode (which should be 2 mins). Refined to better reflect competitive standards.
+- **Bug 18: Inefficient Scouting Stats**: `calculateOpponentScoutingStats` used O(N*P) complexity by filtering the entire event stream for every player to find Free Throws. Refactored to a single-pass O(N) loop using `applyActionToAggregate`.
+
+### Critical Test Gaps Filled
+- New reproduction suite `scout_repro.test.ts` verifying game isolation, scouting efficiency, and clutch boundary conditions.
+
+### Basketball Edge Cases
+- **Clutch Windows**: Quarters (4 mins) and Halves (2 mins) have different "winning time" definitions. Overtime is *always* clutch if the score is close.
+- **Batch Processing**: When running stats over a season, analytics must explicitly watch for `gameId` changes to avoid "bleeding" momentum or streaks from one game into the next.
