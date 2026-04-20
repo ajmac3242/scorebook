@@ -1439,10 +1439,15 @@ const GameMode: React.FC = () => {
       // So we subtract the time that hasn't happened yet in the current stint.
       return {
         ...p,
-        min: roundToOne(p.min - (startClock / 60) + (currentStintSecs / 60)),
+        min: roundToOne(p.min - startClock / 60 + currentStintSecs / 60),
       };
     });
-  }, [statsGridDataRaw, gameData.onCourtIds, gameData.stintStarts, clockSeconds]);
+  }, [
+    statsGridDataRaw,
+    gameData.onCourtIds,
+    gameData.stintStarts,
+    clockSeconds,
+  ]);
 
   const sortedStatsGridData = useMemo(() => {
     return [...statsGridData].sort((a, b) => {
