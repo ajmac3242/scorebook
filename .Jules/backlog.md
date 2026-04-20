@@ -249,3 +249,55 @@
 - [ ] Color-coded bars showing "On Court" periods.
 - [ ] Overlay "Runs" (Team scoring bursts) on the timeline to see which players were present during big momentum shifts.
 - [ ] Toggle to show "Personal Fouls" markers on the timeline.
+
+## Defensive Assignment & Matchup Tracking
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Coaches need to know who is responsible for opponent scoring. Raw team defensive stats don't tell you which individual player is failing to stop their man.
+**What:** Add a "Matchup" layer to the live game tracking. Allow coaches to assign a "Primary Defender" to each active opponent. When an opponent scores, the points are automatically attributed as "Points Allowed" to their defender.
+**Acceptance Criteria:**
+- [ ] UI in GameMode to "Drag and Drop" our players onto opponent players to set assignments.
+- [ ] Tracking of "Points Allowed" per player.
+- [ ] "Defensive Stop %" per player (how often an opponent possession ends in a stop while they are the primary defender).
+- [ ] Summary in GameStats showing "Matchup Battle" (Our #5 vs Their #10).
+
+## On/Off Team Impact Analytics
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Some players have a high +/- because they play with the starters; others make the bench units better. On/Off splits reveal the true impact of a player by comparing team performance when they are on the floor vs. when they are on the bench.
+**What:** Calculate team-level metrics (Offensive Rating, Defensive Rating, Net Rating) for both states (Player ON vs. Player OFF) across multiple games.
+**Acceptance Criteria:**
+- [ ] New "Impact" tab in Player Stats or Team Analytics.
+- [ ] Display "Team Net Rating (ON)" vs "Team Net Rating (OFF)" for each player.
+- [ ] "Impact Differential" (The difference between ON and OFF metrics).
+- [ ] Support for filtering by season or last X games to identify recent trends.
+
+## Automated "Next Up" Rotation Suggester
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Managing a 12-player roster under pressure is mentally taxing. An automated suggester helps coaches stick to their rotation plan while accounting for foul trouble and fatigue.
+**What:** Build a "Rotation Engine" that suggests which players should be subbed in based on pre-game "Target Minutes" and live fatigue/foul status.
+**Acceptance Criteria:**
+- [ ] "Rotation Plan" UI in Team Settings to set target minutes and preferred pairings.
+- [ ] Live "Suggestion HUD" in GameMode showing "Next Up" players with one-tap substitution.
+- [ ] Automatic adjustment of suggestions based on live foul counts (e.g., suggesting a sub for a player with 2 fouls in the 1st quarter).
+
+## Live Opponent Tendency Scouting Report
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Opponents often repeat successful patterns (e.g., always driving left, or a specific player only shooting from the corner). Live tendency alerts allow for mid-game defensive adjustments.
+**What:** Analyze opponent shot locations and drive directions in real-time to identify "Hot Zones" and "Directional Tendencies."
+**Acceptance Criteria:**
+- [ ] "Opponent Tendency" card in GameMode sidebar.
+- [ ] Visual alerts for patterns (e.g., "Opponent #12: 80% of shots are in the paint").
+- [ ] "Shot Type" breakdown for top opponent scorers (Catch-and-shoot vs Off-the-dribble).
+
+## Team Wide "Four Factors" Performance HUD
+**Priority:** HIGH
+**Type:** Feature
+**Why:** The "Four Factors" (eFG%, Turnover Rate, Offensive Rebound Rate, Free Throw Rate) are the most reliable predictors of winning. Seeing these in real-time tells a coach *why* they are winning or losing.
+**What:** Add a "Four Factors" comparison dashboard to the GameMode and GameStats pages.
+**Acceptance Criteria:**
+- [ ] Real-time calculation of eFG%, TO%, ORB%, and FTR for both teams.
+- [ ] "Success Threshold" indicators (e.g., highlighting in green if eFG% is > 55%).
+- [ ] Comparison against season averages to see if the team is over/under performing in key areas.
