@@ -44,9 +44,30 @@ describe("Scout: Detailed Quality Audit", () => {
   describe("Multi-Game State Leakage", () => {
     it("should reset stops streak when gameId changes", () => {
       const stats: StatEvent[] = [
-        { id: "1", gameId: "g1", playerId: SPECIAL_PLAYER_IDS.OPPONENT, type: ACTION_TYPES.TURNOVER, timestamp: "1000", period: 1 }, // Stop 1
-        { id: "2", gameId: "g1", playerId: SPECIAL_PLAYER_IDS.OPPONENT, type: ACTION_TYPES.TURNOVER, timestamp: "1100", period: 1 }, // Stop 2
-        { id: "3", gameId: "g2", playerId: SPECIAL_PLAYER_IDS.OPPONENT, type: ACTION_TYPES.TURNOVER, timestamp: "2000", period: 1 }, // Stop 1 (new game)
+        {
+          id: "1",
+          gameId: "g1",
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.TURNOVER,
+          timestamp: "1000",
+          period: 1,
+        }, // Stop 1
+        {
+          id: "2",
+          gameId: "g1",
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.TURNOVER,
+          timestamp: "1100",
+          period: 1,
+        }, // Stop 2
+        {
+          id: "3",
+          gameId: "g2",
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.TURNOVER,
+          timestamp: "2000",
+          period: 1,
+        }, // Stop 1 (new game)
       ];
       const result = calculateStopsAndKills(stats);
       expect(result.totalStops).toBe(3);
@@ -54,24 +75,80 @@ describe("Scout: Detailed Quality Audit", () => {
     });
 
     it("should reset opponent threats when gameId changes", () => {
-       const stats: StatEvent[] = [
-         { id: "1", gameId: "g1", playerId: "OPPONENT:24", type: ACTION_TYPES.MAKE, points: 2, timestamp: "1000", period: 1 },
-         { id: "2", gameId: "g1", playerId: "OPPONENT:24", type: ACTION_TYPES.MAKE, points: 2, timestamp: "1100", period: 1 },
-         { id: "3", gameId: "g2", playerId: "OPPONENT:24", type: ACTION_TYPES.MAKE, points: 2, timestamp: "2000", period: 1 },
-         { id: "4", gameId: "g2", playerId: "OPPONENT:24", type: ACTION_TYPES.MAKE, points: 2, timestamp: "2100", period: 1 },
-       ];
-       const threats = calculateOpponentThreats(stats);
-       // OPPONENT:24 has 4 points per game.
-       // Should not be a threat if threshold is 8 per game.
-       const threat = threats.find(t => t.playerId === "OPPONENT:24");
-       expect(threat).toBeUndefined();
+      const stats: StatEvent[] = [
+        {
+          id: "1",
+          gameId: "g1",
+          playerId: "OPPONENT:24",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "1000",
+          period: 1,
+        },
+        {
+          id: "2",
+          gameId: "g1",
+          playerId: "OPPONENT:24",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "1100",
+          period: 1,
+        },
+        {
+          id: "3",
+          gameId: "g2",
+          playerId: "OPPONENT:24",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "2000",
+          period: 1,
+        },
+        {
+          id: "4",
+          gameId: "g2",
+          playerId: "OPPONENT:24",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "2100",
+          period: 1,
+        },
+      ];
+      const threats = calculateOpponentThreats(stats);
+      // OPPONENT:24 has 4 points per game.
+      // Should not be a threat if threshold is 8 per game.
+      const threat = threats.find((t) => t.playerId === "OPPONENT:24");
+      expect(threat).toBeUndefined();
     });
 
     it("should reset player streaks when gameId changes", () => {
       const stats: StatEvent[] = [
-        { id: "1", gameId: "g1", playerId: "p1", type: ACTION_TYPES.MAKE, points: 2, timestamp: "1000", period: 1 },
-        { id: "2", gameId: "g1", playerId: "p1", type: ACTION_TYPES.MAKE, points: 2, timestamp: "1100", period: 1 },
-        { id: "3", gameId: "g2", playerId: "p1", type: ACTION_TYPES.MAKE, points: 2, timestamp: "2000", period: 1 },
+        {
+          id: "1",
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "1000",
+          period: 1,
+        },
+        {
+          id: "2",
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "1100",
+          period: 1,
+        },
+        {
+          id: "3",
+          gameId: "g2",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "2000",
+          period: 1,
+        },
       ];
       const streaks = calculatePlayerStreaks(stats);
       // Should not be HOT because only 1 make in g2
@@ -82,9 +159,32 @@ describe("Scout: Detailed Quality Audit", () => {
   describe("Opponent Scouting Efficiency", () => {
     it("correctly tracks FTA and possessions for opponent scouting", () => {
       const stats: StatEvent[] = [
-        { id: "1", gameId: "g1", playerId: "OPPONENT:24", type: ACTION_TYPES.MAKE, points: 2, timestamp: "1000", period: 1 },
-        { id: "2", gameId: "g1", playerId: "OPPONENT:24", type: ACTION_TYPES.MISS, points: 1, timestamp: "1100", period: 1 }, // FTA (1)
-        { id: "3", gameId: "g1", playerId: "OPPONENT:24", type: ACTION_TYPES.TURNOVER, timestamp: "1200", period: 1 },
+        {
+          id: "1",
+          gameId: "g1",
+          playerId: "OPPONENT:24",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "1000",
+          period: 1,
+        },
+        {
+          id: "2",
+          gameId: "g1",
+          playerId: "OPPONENT:24",
+          type: ACTION_TYPES.MISS,
+          points: 1,
+          timestamp: "1100",
+          period: 1,
+        }, // FTA (1)
+        {
+          id: "3",
+          gameId: "g1",
+          playerId: "OPPONENT:24",
+          type: ACTION_TYPES.TURNOVER,
+          timestamp: "1200",
+          period: 1,
+        },
       ];
       const scouting = calculateOpponentScoutingStats(stats);
       const opp24 = scouting.get("OPPONENT:24");
