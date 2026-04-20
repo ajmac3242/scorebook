@@ -1333,6 +1333,9 @@ export const calculateOpponentAggregates = (
 
   return {
     ...agg,
+    ftm: 0,
+    threePM: 0,
+    threePA: 0,
     fgPct: calculateFgPct(agg.makes, agg.attempts),
     min: 0,
     plusMinus: 0,
