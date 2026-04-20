@@ -27,13 +27,16 @@ jobs:
   filter:
     name: Filter Changes
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     outputs:
       backend: ${{ steps.filter.outputs.backend }}
       frontend: ${{ steps.filter.outputs.frontend }}
       docs: ${{ steps.filter.outputs.docs }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: dorny/paths-filter@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Filter paths
+        uses: dorny/paths-filter@v3
         id: filter
         with:
           filters: |
@@ -44,6 +47,8 @@ jobs:
             docs:
               - 'docs/**'
               - 'infra/**'
+              - 'README.md'
+              - 'SCHEMA.md'
 
   # ---------------------------------------------------------------
   # Backend Quality & Tests
@@ -55,18 +60,18 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref || github.ref_name }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 9
 
-      - name: Setup Node
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -78,7 +83,7 @@ jobs:
         run: |
           echo "::group::Backend Build"
           cd backend
-          for i in {1..3}; do pnpm install --frozen-lockfile --reporter=appendonly && break || if [ $i -eq 3 ]; then exit 1; else sleep 10; fi; done
+          for i in {1..3}; do pnpm install --frozen-lockfile --prefer-offline --reporter=appendonly && break || if [ $i -eq 3 ]; then exit 1; else sleep 10; fi; done
           pnpm run build
           echo "::endgroup::"
 
@@ -110,18 +115,18 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref || github.ref_name }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 9
 
-      - name: Setup Node
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -133,7 +138,7 @@ jobs:
         run: |
           echo "::group::Frontend Build"
           cd frontend
-          for i in {1..3}; do pnpm install --frozen-lockfile --reporter=appendonly && break || if [ $i -eq 3 ]; then exit 1; else sleep 10; fi; done
+          for i in {1..3}; do pnpm install --frozen-lockfile --prefer-offline --reporter=appendonly && break || if [ $i -eq 3 ]; then exit 1; else sleep 10; fi; done
           pnpm run build
           echo "::endgroup::"
 
@@ -173,7 +178,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref || github.ref_name }}
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -184,7 +190,7 @@ jobs:
         with:
           version: 9
 
-      - name: Setup Node
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -199,7 +205,7 @@ jobs:
         run: |
           echo "::group::Backend Auto-Fix"
           cd backend
-          for i in {1..3}; do pnpm install --frozen-lockfile --reporter=appendonly && break || if [ $i -eq 3 ]; then exit 1; else sleep 10; fi; done
+          for i in {1..3}; do pnpm install --frozen-lockfile --prefer-offline --reporter=appendonly && break || if [ $i -eq 3 ]; then exit 1; else sleep 10; fi; done
           pnpm exec prettier --write "src/**/*.ts"
           pnpm exec eslint "src/**/*.ts" --config eslint.config.mjs --fix --rule '{"jsdoc/require-jsdoc": ["warn", {"enableFixer": true, "require": {"FunctionDeclaration": true, "FunctionExpression": true, "MethodDefinition": true}}]}'
           echo "::endgroup::"
@@ -210,7 +216,7 @@ jobs:
         run: |
           echo "::group::Frontend Auto-Fix"
           cd frontend
-          for i in {1..3}; do pnpm install --frozen-lockfile --reporter=appendonly && break || if [ $i -eq 3 ]; then exit 1; else sleep 10; fi; done
+          for i in {1..3}; do pnpm install --frozen-lockfile --prefer-offline --reporter=appendonly && break || if [ $i -eq 3 ]; then exit 1; else sleep 10; fi; done
           pnpm exec prettier --write "src/**/*.{ts,tsx}"
           pnpm exec eslint "src/**/*.{ts,tsx}" --config eslint.config.js --fix --rule '{"jsdoc/require-jsdoc": ["warn", {"enableFixer": true, "require": {"FunctionDeclaration": true, "FunctionExpression": true, "MethodDefinition": true}}]}'
           echo "::endgroup::"
@@ -317,6 +323,7 @@ jobs:
     needs: [filter, backend-ci, frontend-ci, docs-and-auto-fix]
     if: always()
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - name: Job Summary
         run: |
