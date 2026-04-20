@@ -55,12 +55,24 @@ export interface TeamPlayer {
 }
 
 /**
+ * Interface representing a persistent opponent team for scouting.
+ */
+export interface Opponent {
+  id: string;
+  name: string;
+  logoUrl?: string;
+  roster: string[]; // List of jersey numbers identified for this opponent
+  synced?: number;
+}
+
+/**
  * Interface representing a single basketball game.
  */
 export interface Game {
   id?: string;
   teamId: string;
   opponent: string;
+  opponentId?: string; // Reference to persistent opponent record
   opponentLogoUrl?: string;
   date: string;
   time?: string;
@@ -105,6 +117,7 @@ export class AppDatabase extends Dexie {
   teamPlayers!: Table<TeamPlayer>;
   games!: Table<Game>;
   stats!: Table<StatEvent>;
+  opponents!: Table<Opponent>;
 
   /**
    *
@@ -125,12 +138,15 @@ export class AppDatabase extends Dexie {
     // v15:    Added 'defaultOvertimeLength' to Team.
     // v16:    Added 'maxStintDuration' to Team.
     // v17:    Added 'playbook' to Team and 'playName' to StatEvent.
-    this.version(17).stores({
+    // v18:    Added 'opponents' table and 'opponentId' to Game for persistent scouting.
+    // v19:    Added 'name' index to 'opponents' table.
+    this.version(19).stores({
       teams: "id, synced, deletedAt, isFavorite",
       players: "id, synced, isArchived, deletedAt",
       teamPlayers: "id, [teamId+playerId], teamId, playerId, synced",
-      games: "id, teamId, completed, synced, deletedAt",
+      games: "id, teamId, opponentId, completed, synced, deletedAt",
       stats: "id, gameId, playerId, synced, deletedAt",
+      opponents: "id, name, synced",
     });
   }
 }

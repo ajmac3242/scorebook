@@ -22,3 +22,18 @@
 ## Implementation Patterns (Session 2)
 - Exposing the database instance to `window` in development mode drastically simplifies automated verification and seeding.
 - Using `SYSTEM_CORRECTION` event types allows manual stat overrides while preserving the integrity of the original event stream.
+
+## Session: 2024-05-22 - Assistant Coach 🏀
+
+### Basketball Workflow Insights
+- **Opponent Scouting Persistence**: Moving opponent roster/stats from per-game state to a persistent "Library" allows for multi-game trend analysis (e.g., identifying "Heat Check" threats over a season).
+- **Process vs. Outcome**: Coaching decisions benefit more from knowing if a shot was "Open" or "Contested" (Process Efficiency) than just if it went in. Tagging this live provides immediate halftime adjustments.
+- **Play Efficiency Context**: PPP (Points Per Possession) is the gold standard for Playbook analysis. Including turnovers in the possession denominator ensures that high-risk plays are penalized correctly in the data.
+
+### Implementation Patterns
+- **Dexie Schema Evolution**: Version 19 update to include `opponents` table and `opponentId` in Games. Using `name` as an index facilitates fast lookups for Autocomplete components.
+- **Stat Aggregation Cache**: Reusing `calculatePlayEfficiency` logic in both live HUD and post-game stats ensures consistency.
+
+### Edge Cases
+- **Duplicate Players in Scouting**: Need to handle cases where an opponent is faced multiple times. Roster syncing should merge rather than overwrite.
+- **Turnover Attribution in Plays**: Turnovers during a set play must be tagged with the `playName` to accurately reflect efficiency.

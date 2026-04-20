@@ -121,6 +121,9 @@ const TeamStats: React.FC = () => {
   const [openAddGame, setOpenAddGame] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
   const [newOpponent, setNewOpponent] = useState("");
+  const [newOpponentId, setNewOpponentId] = useState<string | undefined>(
+    undefined,
+  );
   const [newOpponentLogoUrl, setNewOpponentLogoUrl] = useState("");
   const [newDate, setNewDate] = useState("");
   const [newTime, setNewTime] = useState("");
@@ -218,6 +221,16 @@ const TeamStats: React.FC = () => {
         return Array.from(locationSet).sort();
       } catch (error) {
         logger.error("Failed to fetch locations:", error);
+        return [];
+      }
+    }) || [];
+
+  const allOpponents =
+    useLiveQuery(async () => {
+      try {
+        return await db.opponents.toArray();
+      } catch (error) {
+        logger.error("Failed to fetch opponents:", error);
         return [];
       }
     }) || [];
@@ -470,10 +483,33 @@ const TeamStats: React.FC = () => {
     setIsSubmittingGame(true);
     try {
       await db.open();
+
+      let opponentId = newOpponentId;
+      // If no ID but name provided, check if it exists or create it
+      if (!opponentId) {
+        const existing = await db.opponents
+          .where("name")
+          .equals(newOpponent)
+          .first();
+        if (existing) {
+          opponentId = existing.id;
+        } else {
+          opponentId = crypto.randomUUID();
+          await db.opponents.add({
+            id: opponentId,
+            name: newOpponent,
+            logoUrl: newOpponentLogoUrl,
+            roster: [],
+            synced: 0,
+          });
+        }
+      }
+
       await db.games.add({
         id: crypto.randomUUID(),
         teamId: teamId.toString(),
         opponent: newOpponent,
+        opponentId: opponentId,
         opponentLogoUrl: newOpponentLogoUrl,
         date: newDate,
         time: newTime,
@@ -496,6 +532,7 @@ const TeamStats: React.FC = () => {
 
   const resetGameForm = () => {
     setNewOpponent("");
+    setNewOpponentId(undefined);
     setNewOpponentLogoUrl("");
     setNewDate("");
     setNewTime("");
@@ -1549,14 +1586,47 @@ const TeamStats: React.FC = () => {
           <Box sx={{ mt: 1, minHeight: 280 }}>
             {activeStep === 0 && (
               <Stack spacing={3}>
-                <TextField
-                  autoFocus
-                  label="Opponent Name"
-                  fullWidth
-                  value={newOpponent}
-                  onChange={(e) => setNewOpponent(e.target.value)}
-                  placeholder="e.g. Springfield Atoms"
-                  required
+                <Autocomplete
+                  freeSolo
+                  options={allOpponents}
+                  getOptionLabel={(option) =>
+                    typeof option === "string" ? option : option.name
+                  }
+                  value={
+                    newOpponentId
+                      ? allOpponents.find((o) => o.id === newOpponentId)
+                      : newOpponent
+                  }
+                  onChange={(_, newValue) => {
+                    if (typeof newValue === "string") {
+                      setNewOpponent(newValue);
+                      setNewOpponentId(undefined);
+                    } else if (newValue && newValue.name) {
+                      setNewOpponent(newValue.name);
+                      setNewOpponentId(newValue.id);
+                      if (newValue.logoUrl) {
+                        setNewOpponentLogoUrl(newValue.logoUrl);
+                      }
+                    } else {
+                      setNewOpponent("");
+                      setNewOpponentId(undefined);
+                    }
+                  }}
+                  onInputChange={(_, newInputValue) => {
+                    setNewOpponent(newInputValue);
+                    // If they are typing something that matches an existing opponent exactly,
+                    // we could link it, but usually better to let them select from dropdown.
+                  }}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      autoFocus
+                      label="Opponent Name"
+                      fullWidth
+                      placeholder="e.g. Springfield Atoms"
+                      required
+                    />
+                  )}
                 />
                 <TextField
                   label="Opponent Logo URL"

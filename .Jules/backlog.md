@@ -87,7 +87,7 @@
 **Acceptance Criteria:**
 - [x] New "Opponent Library" section or a way to save an opponent's `opponentRoster` from the Game Mode.
 - [x] "Load Roster" option in Create Game workflow for selected opponents.
-- [ ] Cumulative "Opponent Scouting Report" view showing a player's stats across all games where they were tracked via a persistent ID.
+- [x] Cumulative "Opponent Scouting Report" view showing a player's stats across all games where they were tracked via a persistent ID.
 
 ## Verified Period Workflow
 **Priority:** MEDIUM
@@ -115,9 +115,9 @@
 **Why:** Coaches need to know *during* the game if a specific offensive set is failing. Waiting for post-game stats to stop running an inefficient play is too late.
 **What:** Add a "Playbook Performance" widget to the `GameMode` sidebar that shows the success rate (PPP) of the top 3 most-used plays in the current game.
 **Acceptance Criteria:**
-- [ ] Sidebar widget in GameMode showing Play Name, Frequency, and Points Per Possession (PPP).
-- [ ] Color-coded efficiency indicator (Green/Yellow/Red) based on team-average PPP.
-- [ ] One-tap access to see the shot chart for a specific play during timeouts.
+- [x] Sidebar widget in GameMode showing Play Name, Frequency, and Points Per Possession (PPP).
+- [x] Color-coded efficiency indicator (Green/Yellow/Red) based on team-average PPP.
+- [x] One-tap access to see the shot chart for a specific play during timeouts.
 
 ## Automated PDF Box Score & Game Summary Export
 **Priority:** HIGH
@@ -171,8 +171,8 @@
 **Acceptance Criteria:**
 - [x] Add `shotQuality` (OPEN, CONTESTED) to the `StatEvent` schema.
 - [x] Add a simple toggle or button group in the shot recording dialog to tag quality.
-- [ ] Display "Process Efficiency" in `GameStats` (e.g., "EFG% on Open Shots" vs "EFG% on Contested Shots").
-- [ ] Filter Shot Chart by Shot Quality.
+- [x] Display "Process Efficiency" in `GameStats` (e.g., "EFG% on Open Shots" vs "EFG% on Contested Shots").
+- [x] Filter Shot Chart by Shot Quality.
 
 ## Interactive Game Flow & Momentum Chart
 **Priority:** MEDIUM
