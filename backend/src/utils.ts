@@ -48,11 +48,6 @@ function sanitizeForLog(obj: any): any {
   return sanitized;
 }
 
-/**
- *
- * @param label
- * @param error
- */
 export function logError(label: string, error: unknown) {
   // 🛡️ Enhancement 10: Sanitize all error logs to prevent secret leakage
   if (error instanceof Error) {
@@ -158,6 +153,11 @@ export function maskEvent(event: APIGatewayProxyEventV2): unknown {
   // Redact authorizer context which may contain JWT claims or internal IDs
   if ((masked.requestContext as any)?.authorizer) {
     (masked.requestContext as any).authorizer = "[REDACTED]";
+  }
+
+  // 🛡️ Enhancement 11: Redact body in logs to prevent sensitive data leakage and log bloating
+  if (masked.body) {
+    masked.body = "[REDACTED]";
   }
 
   return masked;
