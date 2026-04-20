@@ -410,9 +410,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs: [decision-gate]
-    if: |
-      github.event_name == 'pull_request' &&
-      needs.decision-gate.outputs.can_merge == 'true'
+    if: github.event_name == 'pull_request' && needs.decision-gate.outputs.can_merge == 'true'
     permissions:
       contents: write
       pull-requests: write
@@ -425,7 +423,7 @@ jobs:
             --repo "${{ github.repository }}" \
             --squash \
             --delete-branch \
-            --subject "chore: merge ${{ github.head_ref }} into main [skip ci]"
+            --subject "chore: merge ${{ github.head_ref }} into main"
 
   # ---------------------------------------------------------------
   # Trigger Deploy: Fires on push to main (post-merge), NOT on the
@@ -444,9 +442,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs: [decision-gate]
-    if: |
-      github.event_name == 'push' &&
-      needs.decision-gate.outputs.should_deploy == 'true'
+    if: github.event_name == 'push' && needs.decision-gate.outputs.should_deploy == 'true'
     permissions:
       actions: write
       contents: read
