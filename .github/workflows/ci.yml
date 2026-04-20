@@ -426,23 +426,19 @@ jobs:
             --subject "chore: merge ${{ github.head_ref }} into main"
 
   # ---------------------------------------------------------------
-  # Trigger Deploy: Fires on push to main (post-merge), NOT on the
-  # PR run. This decouples deployment from the PR lifecycle entirely
-  # and eliminates the race condition where trigger-deploy depended
-  # on auto-merge completing in the same workflow run.
-  #
-  # FIX: Changed event guard from 'pull_request' to 'push' so this
-  #      job runs on the merge commit that lands on main, not on the
-  #      PR event. The PR-based deploy was fragile: it required
-  #      auto-merge to succeed first AND both jobs to be in the same
-  #      run window, causing silent skips on frontend-only changes.
+  # Trigger Deploy: Fires on the PR run immediately after auto-merge
+  # succeeds. This is necessary because GITHUB_TOKEN-based merges do
+  # NOT trigger a new push event on main — GitHub suppresses workflow
+  # triggers for bot-performed merges to prevent infinite loops.
+  # Since auto-merge already landed the code on main, it is safe to
+  # dispatch the deploy workflow directly from this PR run.
   # ---------------------------------------------------------------
   trigger-deploy:
     name: Trigger Deploy
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [decision-gate]
-    if: github.event_name == 'push' && needs.decision-gate.outputs.should_deploy == 'true'
+    needs: [decision-gate, auto-merge]
+    if: github.event_name == 'pull_request' && needs.decision-gate.outputs.should_deploy == 'true' && needs.auto-merge.result == 'success'
     permissions:
       actions: write
       contents: read
