@@ -215,7 +215,7 @@ const PlayerStats: React.FC = () => {
         attempts: 0,
       }
     );
-  }, [player, filteredStats, games, selectedGameId]);
+  }, [player, filteredStats, games, selectedGameId, clutchFilter, teamIdParam, teams]);
 
   /**
    * Retrieves the jersey number for the current player within the filtered team context.
