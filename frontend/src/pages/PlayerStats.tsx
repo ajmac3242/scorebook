@@ -188,7 +188,9 @@ const PlayerStats: React.FC = () => {
       {
         periodLength: activeGame?.periodLength,
         clutchOnly: clutchFilter,
-        periodType: teamIdParam ? teams.find(t => t.id === teamIdParam)?.periodType : "QUARTERS",
+        periodType: teamIdParam
+          ? teams.find((t) => t.id === teamIdParam)?.periodType
+          : "QUARTERS",
         liveContext: activeGame
           ? {
               clockTime: activeGame.clockTime || 0,
@@ -215,7 +217,15 @@ const PlayerStats: React.FC = () => {
         attempts: 0,
       }
     );
-  }, [player, filteredStats, games, selectedGameId, clutchFilter, teamIdParam, teams]);
+  }, [
+    player,
+    filteredStats,
+    games,
+    selectedGameId,
+    clutchFilter,
+    teamIdParam,
+    teams,
+  ]);
 
   /**
    * Retrieves the jersey number for the current player within the filtered team context.
@@ -356,7 +366,11 @@ const PlayerStats: React.FC = () => {
             <ToggleButton value="heatmap">Heatmap</ToggleButton>
           </ToggleButtonGroup>
         </Stack>
-        <Stack direction={{ xs: "column", sm: "row" }} spacing={2} alignItems="center">
+        <Stack
+          direction={{ xs: "column", sm: "row" }}
+          spacing={2}
+          alignItems="center"
+        >
           <FormControl fullWidth size="small">
             <InputLabel>Game</InputLabel>
             <Select
@@ -403,7 +417,11 @@ const PlayerStats: React.FC = () => {
               minWidth: 120,
               bgcolor: clutchFilter ? "primary.main" : "transparent",
               color: clutchFilter ? "white" : "primary.main",
-              "&:hover": { bgcolor: clutchFilter ? "primary.dark" : "rgba(25, 118, 210, 0.04)" }
+              "&:hover": {
+                bgcolor: clutchFilter
+                  ? "primary.dark"
+                  : "rgba(25, 118, 210, 0.04)",
+              },
             }}
           >
             🔥 CLUTCH

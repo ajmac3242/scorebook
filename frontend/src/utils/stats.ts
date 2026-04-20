@@ -1020,11 +1020,7 @@ export const calculateOpponentThreats = (
           t.consecutiveMakes++;
         }
         // Hot if: 8+ total points, 3+ consecutive makes, or 6+ straight points
-        if (
-          t.points >= 8 ||
-          t.consecutiveMakes >= 3 ||
-          t.straightPoints >= 6
-        ) {
+        if (t.points >= 8 || t.consecutiveMakes >= 3 || t.straightPoints >= 6) {
           t.isHot = true;
         }
       } else if (s.type === ACTION_TYPES.MISS) {

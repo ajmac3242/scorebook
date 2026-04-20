@@ -393,7 +393,7 @@ const Scoreboard = React.memo(
                       borderRadius: 1,
                       fontSize: "0.5rem",
                       fontWeight: 900,
-                      textTransform: "uppercase"
+                      textTransform: "uppercase",
                     }}
                   >
                     Suggest Timeout
@@ -416,8 +416,7 @@ const Scoreboard = React.memo(
                   >
                     {t.straightPoints >= 6
                       ? `THREAT: Opp #${t.playerId.split(":")[1] || "??"} has scored ${t.straightPoints} STRAIGHT`
-                      : `THREAT: Opp #${t.playerId.split(":")[1] || "??"} (${t.points} pts)`
-                    }
+                      : `THREAT: Opp #${t.playerId.split(":")[1] || "??"} (${t.points} pts)`}
                   </Typography>
                   {t.straightPoints >= 8 && (
                     <Typography
@@ -429,7 +428,7 @@ const Scoreboard = React.memo(
                         borderRadius: 1,
                         fontSize: "0.45rem",
                         fontWeight: 900,
-                        textTransform: "uppercase"
+                        textTransform: "uppercase",
                       }}
                     >
                       Change Matchup
@@ -1236,7 +1235,7 @@ const GameMode: React.FC = () => {
               points: 0,
               makes: 0,
               consecutiveMakes: 0,
-            straightPoints: 0,
+              straightPoints: 0,
               isHot: false,
             };
             threats.set(s.playerId, t);
@@ -2752,10 +2751,19 @@ const GameMode: React.FC = () => {
                 <Typography
                   variant="subtitle2"
                   gutterBottom
-                  sx={{ fontWeight: 700, display: "flex", justifyContent: "space-between" }}
+                  sx={{
+                    fontWeight: 700,
+                    display: "flex",
+                    justifyContent: "space-between",
+                  }}
                 >
                   <span>{game?.opponent || "Opponent"} Scouting</span>
-                  <Chip label="Live Tracking" size="small" color="secondary" sx={{ height: 18, fontSize: "0.6rem" }} />
+                  <Chip
+                    label="Live Tracking"
+                    size="small"
+                    color="secondary"
+                    sx={{ height: 18, fontSize: "0.6rem" }}
+                  />
                 </Typography>
 
                 <Stack spacing={1} sx={{ mt: 2 }}>
@@ -2770,22 +2778,48 @@ const GameMode: React.FC = () => {
                           border: "1px solid rgba(0,0,0,0.05)",
                           display: "flex",
                           justifyContent: "space-between",
-                          alignItems: "center"
+                          alignItems: "center",
                         }}
                       >
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-                          <Avatar sx={{ width: 32, height: 32, bgcolor: "secondary.main", fontSize: "0.8rem", fontWeight: 700 }}>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1.5,
+                          }}
+                        >
+                          <Avatar
+                            sx={{
+                              width: 32,
+                              height: 32,
+                              bgcolor: "secondary.main",
+                              fontSize: "0.8rem",
+                              fontWeight: 700,
+                            }}
+                          >
                             {opp.jersey}
                           </Avatar>
                           <Box>
-                            <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                            <Typography
+                              variant="body2"
+                              sx={{ fontWeight: 700 }}
+                            >
                               Opponent #{opp.jersey}
                               {opp.isHot && (
-                                <Box component="span" sx={{ ml: 1, fontSize: "1rem" }}>🔥</Box>
+                                <Box
+                                  component="span"
+                                  sx={{ ml: 1, fontSize: "1rem" }}
+                                >
+                                  🔥
+                                </Box>
                               )}
                             </Typography>
-                            <Typography variant="caption" color="text.secondary">
-                              {opp.points} pts | {opp.makes}-{opp.attempts} FG | {opp.turnovers} TO
+                            <Typography
+                              variant="caption"
+                              color="text.secondary"
+                            >
+                              {opp.points} pts | {opp.makes}-{opp.attempts} FG |{" "}
+                              {opp.turnovers} TO
                             </Typography>
                           </Box>
                         </Box>
@@ -2794,13 +2828,24 @@ const GameMode: React.FC = () => {
                             label={`${opp.straightPoints} STRAIGHT`}
                             size="small"
                             color="error"
-                            sx={{ height: 16, fontSize: "0.55rem", fontWeight: 800 }}
+                            sx={{
+                              height: 16,
+                              fontSize: "0.55rem",
+                              fontWeight: 800,
+                            }}
                           />
                         )}
                       </Box>
                     ))
                   ) : (
-                    <Box sx={{ py: 3, textAlign: "center", border: "1px dashed #ccc", borderRadius: 2 }}>
+                    <Box
+                      sx={{
+                        py: 3,
+                        textAlign: "center",
+                        border: "1px dashed #ccc",
+                        borderRadius: 2,
+                      }}
+                    >
                       <Typography variant="caption" color="text.secondary">
                         No opponent players tracked yet.
                       </Typography>
@@ -2808,13 +2853,27 @@ const GameMode: React.FC = () => {
                   )}
                 </Stack>
 
-                <Box sx={{ mt: 3, p: 1.5, bgcolor: "secondary.light", borderRadius: 2, color: "white" }}>
-                  <Typography variant="caption" sx={{ fontWeight: 700, display: "block", mb: 0.5 }}>
+                <Box
+                  sx={{
+                    mt: 3,
+                    p: 1.5,
+                    bgcolor: "secondary.light",
+                    borderRadius: 2,
+                    color: "white",
+                  }}
+                >
+                  <Typography
+                    variant="caption"
+                    sx={{ fontWeight: 700, display: "block", mb: 0.5 }}
+                  >
                     QUICK TIP
                   </Typography>
-                  <Typography variant="caption" sx={{ lineHeight: 1.2, display: "block" }}>
-                    Tap the court in Opponent mode to record stats for specific jersey numbers.
-                    Hot players will be highlighted here.
+                  <Typography
+                    variant="caption"
+                    sx={{ lineHeight: 1.2, display: "block" }}
+                  >
+                    Tap the court in Opponent mode to record stats for specific
+                    jersey numbers. Hot players will be highlighted here.
                   </Typography>
                 </Box>
               </MoleskineCard>

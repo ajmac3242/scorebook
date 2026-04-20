@@ -251,7 +251,14 @@ const GameStats: React.FC = () => {
             : undefined,
       },
     );
-  }, [players, scoreFlowSortedStats, teamPlayers, game, clutchFilter, team?.periodType]);
+  }, [
+    players,
+    scoreFlowSortedStats,
+    teamPlayers,
+    game,
+    clutchFilter,
+    team?.periodType,
+  ]);
 
   const playerAggregates = useMemo(() => {
     return [...aggregatedStats].sort((a, b) => {
@@ -1113,7 +1120,7 @@ const GameStats: React.FC = () => {
           justifyContent: "space-between",
           alignItems: "center",
           flexWrap: "wrap",
-          gap: 2
+          gap: 2,
         }}
       >
         <ToggleButtonGroup
@@ -1142,7 +1149,11 @@ const GameStats: React.FC = () => {
             px: 3,
             bgcolor: clutchFilter ? "primary.main" : "transparent",
             color: clutchFilter ? "white" : "primary.main",
-            "&:hover": { bgcolor: clutchFilter ? "primary.dark" : "rgba(25, 118, 210, 0.04)" }
+            "&:hover": {
+              bgcolor: clutchFilter
+                ? "primary.dark"
+                : "rgba(25, 118, 210, 0.04)",
+            },
           }}
         >
           🔥 CLUTCH MODE

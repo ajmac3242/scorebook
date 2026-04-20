@@ -92,14 +92,23 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
               >
                 SEASON AVG
               </Typography>
-              <Typography variant="h4" sx={{ fontWeight: 800, color: "grey.600" }}>
+              <Typography
+                variant="h4"
+                sx={{ fontWeight: 800, color: "grey.600" }}
+              >
                 {seasonPpp}
               </Typography>
             </Grid>
           </Grid>
           {parseFloat(teamPpp) < parseFloat(seasonPpp) && (
-            <Typography variant="caption" color="error.main" sx={{ mt: 1, display: "block", fontWeight: 700 }}>
-              Performing {(parseFloat(seasonPpp) - parseFloat(teamPpp)).toFixed(2)} below season average
+            <Typography
+              variant="caption"
+              color="error.main"
+              sx={{ mt: 1, display: "block", fontWeight: 700 }}
+            >
+              Performing{" "}
+              {(parseFloat(seasonPpp) - parseFloat(teamPpp)).toFixed(2)} below
+              season average
             </Typography>
           )}
         </Box>
@@ -191,30 +200,39 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
           </Typography>
           <Stack spacing={1}>
             {opponentThreats.length > 0 ? (
-              opponentThreats.sort((a, b) => b.points - a.points).slice(0, 3).map((t, idx) => (
-                <Box
-                  key={idx}
-                  sx={{
-                    p: 1,
-                    bgcolor: "rgba(255, 152, 0, 0.05)",
-                    borderRadius: 1,
-                    borderLeft: "3px solid",
-                    borderColor: "warning.main"
-                  }}
-                >
-                  <Typography variant="body2">
-                    <strong>#{t.playerId.split(":")[1] || "??"}</strong>: {t.points} pts
-                    {t.straightPoints >= 6 && (
-                      <Chip
-                        label={`${t.straightPoints} STRAIGHT`}
-                        size="small"
-                        color="error"
-                        sx={{ height: 16, fontSize: "0.6rem", ml: 1, fontWeight: 800 }}
-                      />
-                    )}
-                  </Typography>
-                </Box>
-              ))
+              opponentThreats
+                .sort((a, b) => b.points - a.points)
+                .slice(0, 3)
+                .map((t, idx) => (
+                  <Box
+                    key={idx}
+                    sx={{
+                      p: 1,
+                      bgcolor: "rgba(255, 152, 0, 0.05)",
+                      borderRadius: 1,
+                      borderLeft: "3px solid",
+                      borderColor: "warning.main",
+                    }}
+                  >
+                    <Typography variant="body2">
+                      <strong>#{t.playerId.split(":")[1] || "??"}</strong>:{" "}
+                      {t.points} pts
+                      {t.straightPoints >= 6 && (
+                        <Chip
+                          label={`${t.straightPoints} STRAIGHT`}
+                          size="small"
+                          color="error"
+                          sx={{
+                            height: 16,
+                            fontSize: "0.6rem",
+                            ml: 1,
+                            fontWeight: 800,
+                          }}
+                        />
+                      )}
+                    </Typography>
+                  </Box>
+                ))
             ) : (
               <Typography variant="caption" color="text.secondary">
                 No major opponent threats detected this half.
