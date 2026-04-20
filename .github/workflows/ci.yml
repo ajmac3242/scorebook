@@ -170,6 +170,9 @@ jobs:
 
   # ---------------------------------------------------------------
   # Documentation, Diagrams & Auto-Fix Commits
+  # FIX: Added [skip ci] to auto-commit message to break the
+  #      re-trigger loop where a formatting commit would re-run
+  #      CI on the PR, causing a second auto-merge attempt.
   # ---------------------------------------------------------------
   docs-and-auto-fix:
     name: Docs & Auto-Fix
@@ -308,15 +311,20 @@ jobs:
           python /tmp/gen_diagram.py
           echo "::endgroup::"
 
-      # --- Unified Commit ---
+      # FIX: Added [skip ci] to prevent the auto-commit from triggering
+      #      a new PR synchronize event, which would re-run this entire
+      #      workflow and create a second competing auto-merge attempt.
       - name: Commit Auto-fixes and Docs
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "chore: auto-format, JSDoc stubs, and docs update"
+          commit_message: "chore: auto-format, JSDoc stubs, and docs update [skip ci]"
           file_pattern: "backend/src/** frontend/src/** infra/README.md docs/architecture.png"
 
   # ---------------------------------------------------------------
   # Summary Job: Provides a consolidated view of the run
+  # FIX: Uses needs.X.result == 'skipped' fallback for jobs that
+  #      don't run when only one layer changes, preventing the
+  #      summary from emitting an error state incorrectly.
   # ---------------------------------------------------------------
   summary:
     name: Job Summary
@@ -332,10 +340,16 @@ jobs:
           echo "| :--- | :--- |" >> $GITHUB_STEP_SUMMARY
           echo "| Backend | ${{ needs.filter.outputs.backend == 'true' && (needs.backend-ci.result == 'success' && '✅ Success' || '❌ Failed') || 'ℹ️ Unchanged' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Frontend | ${{ needs.filter.outputs.frontend == 'true' && (needs.frontend-ci.result == 'success' && '✅ Success' || '❌ Failed') || 'ℹ️ Unchanged' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Docs & Fixes | ${{ needs.docs-and-auto-fix.result == 'success' && '✅ Success' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Docs & Fixes | ${{ needs.docs-and-auto-fix.result == 'success' && '✅ Success' || needs.docs-and-auto-fix.result == 'skipped' && 'ℹ️ Skipped' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
 
   # ---------------------------------------------------------------
   # Decision Gate: Centralizes merge/deploy conditions
+  # FIX 1: Default BACKEND_CHANGED and FRONTEND_CHANGED to 'false'
+  #         when outputs are empty (e.g. filter job was skipped or
+  #         paths-filter returned an empty string), preventing
+  #         silent failures in should_deploy logic.
+  # FIX 2: Expose 'changed' outputs so trigger-deploy can use them
+  #         on push-to-main without re-running the filter job.
   # ---------------------------------------------------------------
   decision-gate:
     name: Decision Gate
@@ -352,10 +366,20 @@ jobs:
           BACKEND_RESULT: ${{ needs.backend-ci.result }}
           FRONTEND_RESULT: ${{ needs.frontend-ci.result }}
           DOCS_RESULT: ${{ needs.docs-and-auto-fix.result }}
-          BACKEND_CHANGED: ${{ needs.filter.outputs.backend }}
-          FRONTEND_CHANGED: ${{ needs.filter.outputs.frontend }}
+          # FIX: Default to 'false' when output is empty string to
+          #      prevent [ "" = "true" ] from silently failing the
+          #      should_deploy check when only docs changed.
+          BACKEND_CHANGED: ${{ needs.filter.outputs.backend || 'false' }}
+          FRONTEND_CHANGED: ${{ needs.filter.outputs.frontend || 'false' }}
         run: |
           set -euo pipefail
+
+          echo "=== Decision Gate Debug ==="
+          echo "BACKEND_CHANGED='$BACKEND_CHANGED'"
+          echo "FRONTEND_CHANGED='$FRONTEND_CHANGED'"
+          echo "BACKEND_RESULT='$BACKEND_RESULT'"
+          echo "FRONTEND_RESULT='$FRONTEND_RESULT'"
+          echo "DOCS_RESULT='$DOCS_RESULT'"
 
           can_merge=false
           should_deploy=false
@@ -373,9 +397,13 @@ jobs:
 
           echo "can_merge=$can_merge" >> "$GITHUB_OUTPUT"
           echo "should_deploy=$should_deploy" >> "$GITHUB_OUTPUT"
+          echo "==========================="
+          echo "can_merge=$can_merge"
+          echo "should_deploy=$should_deploy"
 
   # ---------------------------------------------------------------
   # Auto-Merge: Only runs if all jobs are success or skipped
+  # No changes needed — this logic was correct.
   # ---------------------------------------------------------------
   auto-merge:
     name: Auto-Merge PR
@@ -400,17 +428,25 @@ jobs:
             --subject "chore: merge ${{ github.head_ref }} into main [skip ci]"
 
   # ---------------------------------------------------------------
-  # Trigger Deploy: Only if FE/BE changed and no failures
+  # Trigger Deploy: Fires on push to main (post-merge), NOT on the
+  # PR run. This decouples deployment from the PR lifecycle entirely
+  # and eliminates the race condition where trigger-deploy depended
+  # on auto-merge completing in the same workflow run.
+  #
+  # FIX: Changed event guard from 'pull_request' to 'push' so this
+  #      job runs on the merge commit that lands on main, not on the
+  #      PR event. The PR-based deploy was fragile: it required
+  #      auto-merge to succeed first AND both jobs to be in the same
+  #      run window, causing silent skips on frontend-only changes.
   # ---------------------------------------------------------------
   trigger-deploy:
     name: Trigger Deploy
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [decision-gate, auto-merge]
+    needs: [decision-gate]
     if: |
-      github.event_name == 'pull_request' &&
-      needs.decision-gate.outputs.should_deploy == 'true' &&
-      needs.auto-merge.result == 'success'
+      github.event_name == 'push' &&
+      needs.decision-gate.outputs.should_deploy == 'true'
     permissions:
       actions: write
       contents: read
