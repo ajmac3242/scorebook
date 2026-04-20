@@ -794,6 +794,12 @@ describe("stats utilities", () => {
       expect(isEventInPeriod(2, 2, "HALVES")).toBe(true);
       expect(isEventInPeriod(3, 2, "HALVES")).toBe(true);
     });
+
+    it("correctly groups overtime periods in HALVES mode", () => {
+      // 🛡️ Guard: Verifies that any period >= 2 is included in the second half/OT context
+      expect(isEventInPeriod(4, 2, "HALVES")).toBe(true);
+      expect(isEventInPeriod(5, 2, "HALVES")).toBe(true);
+    });
   });
 
   describe("calculateGameResult", () => {
@@ -925,6 +931,62 @@ describe("stats utilities", () => {
       ];
       const result = calculatePlayerStreaks(stats);
       expect(result.get("p1")).toBe("HOT");
+    });
+
+    it("correctly uses options.isSorted to skip sorting", () => {
+      // 🛡️ Guard: Verifies that if isSorted is true, it relies on array order, not timestamp.
+      // Use a sequence that is HOT in array order but NOT hot if sorted by timestamp.
+      const stats: StatEvent[] = [
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE, // 2nd chronologically
+          points: 2,
+          timestamp: "2",
+          period: 1,
+        },
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE, // 3rd chronologically
+          points: 2,
+          timestamp: "3",
+          period: 1,
+        },
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MISS, // 1st chronologically
+          timestamp: "1",
+          period: 1,
+        },
+      ];
+      // If sorted: MISS(1), MAKE(2), MAKE(3) -> null
+      // If NOT sorted: MAKE(2), MAKE(3), MISS(1) -> null
+      // Wait, I need 3 items to be HOT.
+      const statsHot: StatEvent[] = [
+        { gameId: "g1", playerId: "p1", type: ACTION_TYPES.MAKE, timestamp: "2", period: 1 },
+        { gameId: "g1", playerId: "p1", type: ACTION_TYPES.MAKE, timestamp: "3", period: 1 },
+        { gameId: "g1", playerId: "p1", type: ACTION_TYPES.MAKE, timestamp: "1", period: 1 },
+      ];
+      // If sorted by timestamp: 1, 2, 3 (all MAKE) -> HOT
+      // If NOT sorted: 2, 3, 1 (all MAKE) -> HOT
+      // I need a sequence where sorting matters.
+
+      const statsSortedMatter: StatEvent[] = [
+        { gameId: "g1", playerId: "p1", type: ACTION_TYPES.MAKE, timestamp: "4", period: 1 },
+        { gameId: "g1", playerId: "p1", type: ACTION_TYPES.MAKE, timestamp: "5", period: 1 },
+        { gameId: "g1", playerId: "p1", type: ACTION_TYPES.MAKE, timestamp: "6", period: 1 },
+        { gameId: "g1", playerId: "p1", type: ACTION_TYPES.MISS, timestamp: "1", period: 1 },
+      ];
+      // Sorted: MISS(1), MAKE(4), MAKE(5), MAKE(6) -> Last 3 are MAKE -> HOT
+      // Unsorted: MAKE(4), MAKE(5), MAKE(6), MISS(1) -> Last 3 are MAKE(5), MAKE(6), MISS(1) -> null
+
+      const resultSorted = calculatePlayerStreaks(statsSortedMatter, { isSorted: false });
+      expect(resultSorted.get("p1")).toBe("HOT");
+
+      const resultUnsorted = calculatePlayerStreaks(statsSortedMatter, { isSorted: true });
+      expect(resultUnsorted.get("p1")).toBe(null);
     });
 
     it("identifies a COLD streak (3 consecutive misses)", () => {
@@ -1484,6 +1546,80 @@ describe("stats utilities", () => {
           period: 1,
         },
         // Stop earned, streak = 1
+      ];
+      const result = calculateStopsAndKills(stats);
+      expect(result.totalStops).toBe(2);
+      expect(result.currentStreak).toBe(1);
+    });
+
+    it("correctly handles offensive vs defensive fouls for stop streak", () => {
+      // 🛡️ Guard: Offensive fouls should NOT reset defensive stop streaks.
+      const stats: StatEvent[] = [
+        {
+          gameId: "g1",
+          playerId: "OPPONENT",
+          type: ACTION_TYPES.TURNOVER,
+          timestamp: "1",
+          period: 1,
+        },
+        // Stop 1, streak = 1, isOurPossession = true
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.FOUL,
+          timestamp: "2",
+          period: 1,
+        },
+        // Offensive foul. isOurPossession is true, so streak should NOT reset.
+        {
+          gameId: "g1",
+          playerId: "OPPONENT",
+          type: ACTION_TYPES.TURNOVER,
+          timestamp: "3",
+          period: 1,
+        },
+        // Stop 2, streak = 2
+      ];
+      const result = calculateStopsAndKills(stats);
+      expect(result.totalStops).toBe(2);
+      expect(result.currentStreak).toBe(2);
+    });
+
+    it("resets stop streak on defensive foul", () => {
+      // 🛡️ Guard: Defensive fouls SHOULD reset defensive stop streaks.
+      const stats: StatEvent[] = [
+        {
+          gameId: "g1",
+          playerId: "OPPONENT",
+          type: ACTION_TYPES.TURNOVER,
+          timestamp: "1",
+          period: 1,
+        },
+        // Stop 1, streak = 1, isOurPossession = true
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.TURNOVER,
+          timestamp: "2",
+          period: 1,
+        },
+        // We turned it over, ball goes to opponent. isOurPossession = false
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.FOUL,
+          timestamp: "3",
+          period: 1,
+        },
+        // Defensive foul resets streak to 0
+        {
+          gameId: "g1",
+          playerId: "OPPONENT",
+          type: ACTION_TYPES.TURNOVER,
+          timestamp: "4",
+          period: 1,
+        },
+        // Stop 2 earned, streak = 1
       ];
       const result = calculateStopsAndKills(stats);
       expect(result.totalStops).toBe(2);

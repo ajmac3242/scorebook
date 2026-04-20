@@ -43,6 +43,10 @@ export function accumulateScores(stats: Record<string, unknown>[]) {
       typeof s.playerId === "string" &&
       s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT)
     ) {
+      // 🏀 Opponent Scoring logic
+      // WHY: We use a prefix check so that both the generic 'OPPONENT' ID
+      // and specific jersey-based IDs (e.g. 'OPPONENT:23') are correctly
+      // aggregated into the opponent's total score.
       oppScore += pts;
     } else {
       teamScore += pts;

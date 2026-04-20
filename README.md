@@ -62,9 +62,13 @@ To optimize read performance and reduce DynamoDB costs:
 
 To ensure high reliability and rapid development cycles, Scorebook follows a targeted testing approach:
 
-- **Targeted Testing**: Developers should use the `bash scripts/jules-test.sh` script during local development. This script automatically detects changed files and runs only the relevant tests, significantly reducing feedback loops.
+- **Targeted Testing**: Developers should use the `bash scripts/jules-test.sh` script during local development. This script automatically detects changed files and runs only the relevant tests, significantly reducing feedback loops. This is the preferred way to run tests in the environment to avoid overhead.
 - **CI Enforcement**: The full test suite (100+ tests) is automatically executed by GitHub Actions on every Pull Request to ensure no regressions are introduced.
 - **Behavior-Driven**: Tests focus on verifying business logic (e.g., statistical aggregations, defensive momentum) rather than internal implementation details.
+- **Test Categories**:
+  - **Unit Tests**: Focus on utility functions (`mathUtils.ts`, `stats.ts`) and validation logic.
+  - **Component Tests**: Verify UI behavior and state management in React components.
+  - **Integration Tests**: Ensure proper data flow between the frontend `SyncService` and the backend API.
 
 ## Key Features
 - **Real-time Game Tracking**: Easy-to-use interface for logging shots, misses, rebounds, and more.

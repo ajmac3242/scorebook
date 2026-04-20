@@ -711,10 +711,11 @@ export const calculatePlayerAggregates = (
  *   (e.g., opponent turnover or opponent miss followed by a defensive rebound).
  * - A KILL is a sequence of 3 consecutive STOPS.
  *
- * IMPLEMENTATION NOTE: The logic uses a look-ahead loop when a MISS is detected
- * to determine if the possession ended in a stop (DEF_REBOUND) or continued
- * (OFF_REBOUND). This look-ahead prevents "double-counting" stops in a single
- * possession sequence (e.g., MISS -> MISS -> DEF_REBOUND is only 1 stop).
+ * IMPLEMENTATION NOTE: The logic uses a state-machine approach to track possession
+ * transitions. It monitors turnovers, rebounds, and scoring events to infer which
+ * team has the ball (`isOurPossession`). This state is critical for correctly
+ * handling fouls: defensive fouls reset the stop streak, while offensive fouls
+ * (committed while `isOurPossession` is true) do not.
  *
  * @param {StatEvent[]} stats - Chronological list of statistical events for the game.
  * @returns {object} Object containing total stops, kills, and current stop streak.
