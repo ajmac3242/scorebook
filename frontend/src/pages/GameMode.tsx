@@ -3410,7 +3410,9 @@ const GameMode: React.FC = () => {
 
       {/* Clock FAB */}
       {!isReadOnly && (
-        <Tooltip title={isClockRunning ? "Pause Game Clock" : "Start Game Clock"}>
+        <Tooltip
+          title={isClockRunning ? "Pause Game Clock" : "Start Game Clock"}
+        >
           <IconButton
             onClick={handleToggleClock}
             sx={{
