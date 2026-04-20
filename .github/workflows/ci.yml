@@ -312,7 +312,7 @@ jobs:
   # ---------------------------------------------------------------
   # Summary Job: Provides a consolidated view of the run
   # ---------------------------------------------------------------
-  summary:
+    summary:
     name: Job Summary
     needs: [filter, backend-ci, frontend-ci, docs-and-auto-fix]
     if: always()
