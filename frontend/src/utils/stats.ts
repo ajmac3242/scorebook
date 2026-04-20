@@ -19,16 +19,6 @@ import {
 
 /**
  * Standardized sorting for statistical events based on timestamp.
- * @param {StatEvent[]} stats - The list of events to sort.
- * @returns {StatEvent[]} A new sorted array of events.
- */
-const ACTION_PRIORITY: Record<string, number> = {
-  [ACTION_TYPES.SUB_IN]: 1,
-  [ACTION_TYPES.SUB_OUT]: 3,
-};
-
-/**
- * Standardized sorting for statistical events based on timestamp.
  * Includes a secondary sort for simultaneous events (SUB_IN > others > SUB_OUT).
  * @param {StatEvent[]} stats - The list of events to sort.
  * @returns {StatEvent[]} A new sorted array of events.
@@ -38,10 +28,18 @@ export const sortStats = (stats: StatEvent[]): StatEvent[] => {
     if (a.timestamp < b.timestamp) return -1;
     if (a.timestamp > b.timestamp) return 1;
 
-    // Secondary sort for simultaneous events
-    const priorityA = ACTION_PRIORITY[a.type] || 2;
-    const priorityB = ACTION_PRIORITY[b.type] || 2;
-    return priorityA - priorityB;
+    // ⚡ Bolt: Inline priority logic for simultaneous events.
+    // Replaces object lookups with direct conditional logic to eliminate property
+    // access overhead in the hot sort loop.
+    let pA = 2;
+    if (a.type === ACTION_TYPES.SUB_IN) pA = 1;
+    else if (a.type === ACTION_TYPES.SUB_OUT) pA = 3;
+
+    let pB = 2;
+    if (b.type === ACTION_TYPES.SUB_IN) pB = 1;
+    else if (b.type === ACTION_TYPES.SUB_OUT) pB = 3;
+
+    return pA - pB;
   });
 };
 
@@ -546,6 +544,9 @@ export const calculatePlayerAggregates = (
   let currentPeriod = 1;
   let currentGameId: string | null = null;
 
+  // ⚡ Bolt: Cache last gameId per player to avoid redundant Set.add overhead.
+  const lastGameIdMap = new Map<string, string>();
+
   // Accumulate statistics from event stream
   for (let i = 0; i < sortedStats.length; i++) {
     const stat = sortedStats[i];
@@ -561,6 +562,7 @@ export const calculatePlayerAggregates = (
         handleStintEnd(statsMap.get(pId), stint, scores, 0);
       }
       activeStints.clear();
+      lastGameIdMap.clear();
       scores.team = 0;
       scores.opp = 0;
       currentPeriod = 1;
@@ -606,7 +608,12 @@ export const calculatePlayerAggregates = (
     const player = statsMap.get(playerId);
     if (player) {
       // ⚡ Bolt: Inline processStatEvent and applyActionToAggregate to minimize overhead.
-      player.gamesPlayed.add(stat.gameId);
+      // Only call Set.add if gameId has changed for this player to skip internal Set logic.
+      if (lastGameIdMap.get(playerId) !== gameId) {
+        player.gamesPlayed.add(gameId);
+        lastGameIdMap.set(playerId, gameId);
+      }
+
       switch (type) {
         case ACTION_TYPES.MAKE:
           player.points += stat.points || 0;

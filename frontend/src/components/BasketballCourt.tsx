@@ -330,8 +330,7 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
             const svgY = (marker.y / 100) * 470;
 
             return (
-              <Box
-                component="g"
+              <g
                 key={marker.id || index}
                 onClick={(e: React.MouseEvent<SVGGElement>) => {
                   e.stopPropagation();
@@ -346,13 +345,9 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
                 role="button"
                 tabIndex={0}
                 aria-label={`${marker.type} by ${marker.label ? `#${marker.label}` : "Opponent"}`}
-                sx={{
+                style={{
                   cursor: onMarkerClick ? "pointer" : "default",
                   outline: "none",
-                  "&:focus-visible circle": {
-                    stroke: "#000",
-                    strokeWidth: 3,
-                  },
                 }}
               >
                 <title>{`${marker.type} - ${marker.label ? "#" + marker.label : "Opponent"}`}</title>
@@ -379,7 +374,7 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
                     {marker.label}
                   </text>
                 )}
-              </Box>
+              </g>
             );
           })}
         </svg>

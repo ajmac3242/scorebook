@@ -105,7 +105,7 @@ import {
   type PlayerAggregates,
   type OpponentThreat,
 } from "../utils/stats";
-import { formatClock } from "../utils/mathUtils";
+import { formatClock, roundToOne } from "../utils/mathUtils";
 import { MoleskineCard, AnimatedNumber } from "../components/SharedUI";
 
 /**
@@ -1063,8 +1063,8 @@ const GameMode: React.FC = () => {
   /**
    * ⚡ Bolt: Consolidate statistical derivations.
    * Performance: Use the pre-sorted event stream for single-pass derivation of
-   * scores, fouls, timeouts, possession, lineups, and recent history.
-   * This O(N) loop only re-runs when the event stream or period changes.
+   * scores, fouls, timeouts, possession, lineups, recent history, and opponent threats.
+   * This O(N) loop is decoupled from high-frequency clock updates.
    */
   const eventAggregates = useMemo(() => {
     let curScore = 0;
@@ -1099,6 +1099,9 @@ const GameMode: React.FC = () => {
     let lastTeamScoreClockTime = periodLen;
     let lastTeamScorePeriod = 1;
     let foundLastTeamScore = false;
+
+    // Opponent Threats tracking
+    const threats = new Map<string, OpponentThreat>();
 
     for (let i = 0; i < sortedGameStats.length; i++) {
       const s = sortedGameStats[i];
@@ -1166,12 +1169,37 @@ const GameMode: React.FC = () => {
       // Track other possession stats
       if (isOpp) {
         if (s.type === ACTION_TYPES.MISS) {
-          if (s.points === 1) oppFta++;
-          else oppFga++;
+          if (s.points === 1) {
+            oppFta++;
+          } else {
+            oppFga++;
+            // Opponent Threat tracking for misses
+            let t = threats.get(s.playerId);
+            if (t) t.consecutiveMakes = 0;
+          }
         } else if (s.type === ACTION_TYPES.OFF_REBOUND) {
           oppOreb++;
         } else if (s.type === ACTION_TYPES.TURNOVER) {
           oppTo++;
+        } else if (s.type === ACTION_TYPES.MAKE && s.points && s.points > 1) {
+          // Opponent Threat tracking for makes
+          let t = threats.get(s.playerId);
+          if (!t) {
+            t = {
+              playerId: s.playerId,
+              points: 0,
+              makes: 0,
+              consecutiveMakes: 0,
+              isHot: false,
+            };
+            threats.set(s.playerId, t);
+          }
+          t.points += s.points;
+          t.makes++;
+          t.consecutiveMakes++;
+          if (t.points >= 8 || t.consecutiveMakes >= 3) {
+            t.isHot = true;
+          }
         }
       } else {
         if (s.type === ACTION_TYPES.MISS) {
@@ -1256,29 +1284,6 @@ const GameMode: React.FC = () => {
       opponentRun = `${tempOppRunPoints}-0`;
     }
 
-    // Drought Detection
-    if (foundLastTeamScore) {
-      let droughtSecs = 0;
-      if (lastTeamScorePeriod === period) {
-        droughtSecs = lastTeamScoreClockTime - clockSeconds;
-      } else if (lastTeamScorePeriod < period) {
-        droughtSecs =
-          lastTeamScoreClockTime +
-          (period - lastTeamScorePeriod - 1) * periodLen +
-          (periodLen - clockSeconds);
-      }
-
-      if (droughtSecs >= 180) {
-        scoringDrought = `${Math.floor(droughtSecs / 60)}m ${Math.floor(droughtSecs % 60)}s`;
-      }
-    } else {
-      const elapsedGameSecs =
-        (period - 1) * periodLen + (periodLen - clockSeconds);
-      if (elapsedGameSecs >= 180) {
-        scoringDrought = `${Math.floor(elapsedGameSecs / 60)}m ${Math.floor(elapsedGameSecs % 60)}s`;
-      }
-    }
-
     const MAX_TIMEOUTS = team?.fouls || 3;
     const teamBonus = getBonusStatus(teamFouls, pType);
     const oppBonus = getBonusStatus(oppFouls, pType);
@@ -1311,13 +1316,15 @@ const GameMode: React.FC = () => {
       defensiveStats,
       momentumAlerts: {
         opponentRun,
-        scoringDrought,
-        opponentThreats: calculateOpponentThreats(sortedGameStats),
+        opponentThreats: Array.from(threats.values()).filter((t) => t.isHot),
       },
       onCourtPeriodFouls,
       lastLineupChangeClock,
       lastLineupChangeScoreTeam,
       lastLineupChangeScoreOpp,
+      lastTeamScoreClockTime,
+      lastTeamScorePeriod,
+      foundLastTeamScore,
       // ⚡ Bolt: Pre-filter and memoize only the last 10 active stats to reduce render-time processing.
       recentStats: sortedGameStats
         .filter((s) => !s.deletedAt)
@@ -1330,7 +1337,6 @@ const GameMode: React.FC = () => {
     team?.periodType,
     team?.fouls,
     game?.periodLength,
-    clockSeconds,
   ]);
 
   /**
@@ -1344,6 +1350,31 @@ const GameMode: React.FC = () => {
       stintDurations.set(pId, Math.max(0, startClock - clockSeconds));
     });
 
+    // 🏀 CoachBoard: Decoupled Drought Detection
+    let scoringDrought = null;
+    const periodLen = game?.periodLength ? game.periodLength * 60 : 600;
+
+    if (eventAggregates.foundLastTeamScore) {
+      let droughtSecs = 0;
+      if (eventAggregates.lastTeamScorePeriod === period) {
+        droughtSecs = eventAggregates.lastTeamScoreClockTime - clockSeconds;
+      } else if (eventAggregates.lastTeamScorePeriod < period) {
+        droughtSecs =
+          eventAggregates.lastTeamScoreClockTime +
+          (period - eventAggregates.lastTeamScorePeriod - 1) * periodLen +
+          (periodLen - clockSeconds);
+      }
+      if (droughtSecs >= 180) {
+        scoringDrought = `${Math.floor(droughtSecs / 60)}m ${Math.floor(droughtSecs % 60)}s`;
+      }
+    } else {
+      const elapsedGameSecs =
+        (period - 1) * periodLen + (periodLen - clockSeconds);
+      if (elapsedGameSecs >= 180) {
+        scoringDrought = `${Math.floor(elapsedGameSecs / 60)}m ${Math.floor(elapsedGameSecs % 60)}s`;
+      }
+    }
+
     return {
       ...eventAggregates,
       stintDurations,
@@ -1356,8 +1387,12 @@ const GameMode: React.FC = () => {
         0,
         eventAggregates.lastLineupChangeClock - clockSeconds,
       ),
+      momentumAlerts: {
+        ...eventAggregates.momentumAlerts,
+        scoringDrought,
+      },
     };
-  }, [eventAggregates, clockSeconds]);
+  }, [eventAggregates, clockSeconds, period, game?.periodLength]);
 
   // Initialize draft state when dialog opens
   useEffect(() => {
@@ -1375,7 +1410,7 @@ const GameMode: React.FC = () => {
     return map;
   }, [teamPlayers]);
 
-  const statsGridData = useMemo(() => {
+  const statsGridDataRaw = useMemo(() => {
     return calculatePlayerAggregates(
       players,
       sortedGameStats,
@@ -1384,17 +1419,32 @@ const GameMode: React.FC = () => {
       {
         isSorted: true,
         periodLength: game?.periodLength,
-        liveContext: { clockTime: clockSeconds, period },
+        // ⚡ Bolt: Lightweight clock update decoupling.
+        // Assume player played until end of game for initial aggregation.
+        // Live adjustment for active players is done in statsGridData.
+        liveContext: { clockTime: 0, period },
       },
     );
-  }, [
-    players,
-    sortedGameStats,
-    teamPlayers,
-    game?.periodLength,
-    clockSeconds,
-    period,
-  ]);
+  }, [players, sortedGameStats, teamPlayers, game?.periodLength, period]);
+
+  /**
+   * ⚡ Bolt: Live adjustment for stats grid.
+   * Performance: Only adjusts the MIN and plus-minus for active players based
+   * on the current clock, avoiding a full O(N) re-calculation.
+   */
+  const statsGridData = useMemo(() => {
+    return statsGridDataRaw.map((p) => {
+      if (!gameData.onCourtIds.has(p.id.toString())) return p;
+      const startClock = gameData.stintStarts.get(p.id.toString()) ?? 0;
+      const currentStintSecs = Math.max(0, startClock - clockSeconds);
+      // calculatePlayerAggregates already added time until 0:00 (endClock: 0)
+      // So we subtract the time that hasn't happened yet in the current stint.
+      return {
+        ...p,
+        min: roundToOne(p.min - (startClock / 60) + (currentStintSecs / 60)),
+      };
+    });
+  }, [statsGridDataRaw, gameData.onCourtIds, gameData.stintStarts, clockSeconds]);
 
   const sortedStatsGridData = useMemo(() => {
     return [...statsGridData].sort((a, b) => {
