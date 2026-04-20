@@ -103,11 +103,11 @@ import { formatClock } from "../utils/mathUtils";
 import { MoleskineCard, AnimatedNumber } from "../components/SharedUI";
 
 /**
- * 🏀 CoachBoard: getShotValue
+ * 🏀 CoachBoard: detectShotValueFromCoords
  * Why: Automatically detects if a shot is a 2 or 3 based on court coordinates.
  * Coordinates are 0-100 percentage of SVG viewBox "0 0 500 470".
  */
-const getShotValue = (x: number, y: number): number => {
+const detectShotValueFromCoords = (x: number, y: number): number => {
   const svgX = x * 5; // 500 / 100
   const svgY = y * 4.7; // 470 / 100
 
@@ -1452,7 +1452,7 @@ const GameMode: React.FC = () => {
       setSelectedY(y);
       // 🏀 CoachBoard: Dynamic Points Initialization
       // Why: Sets the default point value (2 or 3) based on where the court was clicked.
-      setPoints(getShotValue(x, y));
+      setPoints(detectShotValueFromCoords(x, y));
 
       // Auto-select opponent if in opponent tracking mode
       if (trackingMode === "OPPONENT") {

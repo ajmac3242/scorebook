@@ -56,3 +56,12 @@ Pattern:
 3. Modularize stat event validation into `validateStatEvent` within `validation.ts`.
 4. Consolidate repetitive percentage calculations in frontend utilities using a shared `calcPct` helper.
 5. Group related domain operations (e.g., team roster and games snapshots) into consolidated helpers like `snapshotTeam`.
+
+## 2026-04-20 - Multi-Pass Maintainability Refactor
+Smell: Inlined momentum detection logic; repetitive opponent and active checks in UI loops; monolithic Scoreboard component; verbose recursive cleaning in backend.
+Learning: Isolating specialized domain logic (momentum detection) into dedicated utilities reduces cognitive load in UI components. Modularizing large components into focused sub-components improves scannability and state management clarity. Using functional patterns (reduce) for recursive operations simplifies complex logic.
+Pattern:
+1. Extract complex calculation logic (detectOpponentRun, detectScoringDrought) into standalone domain utilities.
+2. Standardize data filtering and identification using shared helpers (isActive, isOpponentId, isScoringEvent, isFoulAction).
+3. Decompose monolithic UI components into focused sub-components (TeamScoreSection, MomentumAlerts) to improve readability.
+4. Simplify recursive data processing using modern JS/TS patterns like `Object.entries().reduce()`.
