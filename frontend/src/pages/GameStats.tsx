@@ -298,7 +298,14 @@ const GameStats: React.FC = () => {
       }
     }
     return { filtered, markers };
-  }, [stats, selectedPlayerId, selectedType, selectedPlay, shotChartJerseyMap]);
+  }, [
+    stats,
+    selectedPlayerId,
+    selectedType,
+    selectedShotQuality,
+    selectedPlay,
+    shotChartJerseyMap,
+  ]);
 
   const shotChartMarkers = derivedStats.markers;
 

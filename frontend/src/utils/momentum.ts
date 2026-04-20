@@ -1,4 +1,4 @@
-import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../constants/stats";
+import { ACTION_TYPES } from "../constants/stats";
 import { StatEvent } from "../db";
 import { isOpponentId, isScoringEvent, isActive } from "./stats";
 

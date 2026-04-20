@@ -1033,10 +1033,6 @@ const GameMode: React.FC = () => {
     let periodStartScoreTeam = 0;
     let periodStartScoreOpp = 0;
 
-    let lastTeamScoreClockTime = periodLen;
-    let lastTeamScorePeriod = 1;
-    let foundLastTeamScore = false;
-
     for (let i = 0; i < sortedGameStats.length; i++) {
       const s = sortedGameStats[i];
       if (s.deletedAt) continue;
@@ -1050,11 +1046,6 @@ const GameMode: React.FC = () => {
         oppScore += s.points || 0;
       } else {
         curScore += s.points || 0;
-        if (s.type === ACTION_TYPES.MAKE) {
-          lastTeamScoreClockTime = s.clockTime ?? periodLen;
-          lastTeamScorePeriod = s.period;
-          foundLastTeamScore = true;
-        }
       }
 
       // Fouls (Period-aware)
