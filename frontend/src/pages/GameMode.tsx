@@ -99,6 +99,11 @@ import {
   getInitials,
   type PlayerAggregates,
 } from "../utils/stats";
+import {
+  calculateOpponentRun,
+  calculateScoringDrought,
+  calculateOpponentThreats,
+} from "../utils/momentum";
 import { formatClock } from "../utils/mathUtils";
 import { MoleskineCard, AnimatedNumber } from "../components/SharedUI";
 
@@ -171,6 +176,7 @@ interface ScoreboardProps {
     momentumAlerts: {
       opponentRun: string | null;
       scoringDrought: string | null;
+      opponentThreats: string[];
     };
   };
   period: number;
@@ -342,7 +348,8 @@ const Scoreboard = React.memo(
         >
           {/* Momentum Alerts */}
           {(gameData.momentumAlerts.opponentRun ||
-            gameData.momentumAlerts.scoringDrought) && (
+            gameData.momentumAlerts.scoringDrought ||
+            gameData.momentumAlerts.opponentThreats.length > 0) && (
             <Box
               sx={{
                 position: "absolute",
@@ -350,6 +357,7 @@ const Scoreboard = React.memo(
                 zIndex: 10,
                 display: "flex",
                 flexDirection: "column",
+                alignItems: "center",
                 gap: 0.5,
               }}
             >
@@ -367,6 +375,21 @@ const Scoreboard = React.memo(
                   }}
                 >
                   RUN: {gameData.momentumAlerts.opponentRun}
+                </Typography>
+              )}
+              {gameData.momentumAlerts.opponentThreats.length > 0 && (
+                <Typography
+                  variant="caption"
+                  sx={{
+                    bgcolor: "warning.main",
+                    color: "white",
+                    px: 1,
+                    borderRadius: 1,
+                    fontSize: "0.6rem",
+                    fontWeight: 800,
+                  }}
+                >
+                  THREAT: {gameData.momentumAlerts.opponentThreats.length} HOT
                 </Typography>
               )}
             </Box>
@@ -1117,54 +1140,14 @@ const GameMode: React.FC = () => {
     const defensiveStats = calculateStopsAndKills(sortedGameStats);
 
     // 🏀 CoachBoard: Momentum Alerts Logic
-    let opponentRun = null;
-    let scoringDrought = null;
-
-    // Run Detection (Look back at recent scoring events)
-    let tempOppRunPoints = 0;
-    let teamScoredSinceOppRunStarted = false;
-    for (let i = sortedGameStats.length - 1; i >= 0; i--) {
-      const s = sortedGameStats[i];
-      if (s.deletedAt || s.type !== ACTION_TYPES.MAKE) continue;
-
-      const isOpp =
-        s.playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
-        s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":");
-
-      if (isOpp) {
-        if (teamScoredSinceOppRunStarted) break;
-        tempOppRunPoints += s.points || 0;
-      } else {
-        teamScoredSinceOppRunStarted = true;
-        break;
-      }
-    }
-    if (tempOppRunPoints >= 8) {
-      opponentRun = `${tempOppRunPoints}-0`;
-    }
-
-    // Drought Detection
-    if (foundLastTeamScore) {
-      let droughtSecs = 0;
-      if (lastTeamScorePeriod === period) {
-        droughtSecs = lastTeamScoreClockTime - clockSeconds;
-      } else if (lastTeamScorePeriod < period) {
-        droughtSecs =
-          lastTeamScoreClockTime +
-          (period - lastTeamScorePeriod - 1) * periodLen +
-          (periodLen - clockSeconds);
-      }
-
-      if (droughtSecs >= 180) {
-        scoringDrought = `${Math.floor(droughtSecs / 60)}m ${Math.floor(droughtSecs % 60)}s`;
-      }
-    } else {
-      const elapsedGameSecs =
-        (period - 1) * periodLen + (periodLen - clockSeconds);
-      if (elapsedGameSecs >= 180) {
-        scoringDrought = `${Math.floor(elapsedGameSecs / 60)}m ${Math.floor(elapsedGameSecs % 60)}s`;
-      }
-    }
+    const opponentRun = calculateOpponentRun(sortedGameStats);
+    const scoringDrought = calculateScoringDrought(
+      sortedGameStats,
+      period,
+      clockSeconds,
+      periodLen,
+    );
+    const opponentThreats = calculateOpponentThreats(sortedGameStats);
 
     const MAX_TIMEOUTS = team?.fouls || 3;
     const teamBonus = getBonusStatus(teamFouls, pType);
@@ -1194,6 +1177,7 @@ const GameMode: React.FC = () => {
       momentumAlerts: {
         opponentRun,
         scoringDrought,
+        opponentThreats,
       },
       onCourtPeriodFouls,
       lastLineupChangeClock,

@@ -156,6 +156,17 @@ export const isScoringEvent = (stat: StatEvent): boolean =>
   stat.type === ACTION_TYPES.MAKE;
 
 /**
+ * Determines if a statistical event is a foul.
+ * @param {StatEvent} stat - The event to check.
+ * @returns {boolean} True if the action is a foul type.
+ */
+export const isFoulAction = (stat: StatEvent): boolean =>
+  stat.type === ACTION_TYPES.FOUL ||
+  stat.type === ACTION_TYPES.FOUL_SHOOTING ||
+  stat.type === ACTION_TYPES.FOUL_NON_SHOOTING ||
+  stat.type === ACTION_TYPES.TECHNICAL_FOUL;
+
+/**
  * Generic percentage calculator for basketball stats.
  * @param {number} numerator - The count (makes, points, etc).
  * @param {number} denominator - The total attempts or possessions.
@@ -411,11 +422,10 @@ export const applyActionToAggregate = (agg: BaseStats, stat: StatEvent) => {
     case ACTION_TYPES.TURNOVER:
       agg.turnovers++;
       break;
-    case ACTION_TYPES.FOUL:
-    case ACTION_TYPES.FOUL_SHOOTING:
-    case ACTION_TYPES.FOUL_NON_SHOOTING:
-    case ACTION_TYPES.TECHNICAL_FOUL:
-      agg.fouls++;
+    default:
+      if (isFoulAction(stat)) {
+        agg.fouls++;
+      }
       break;
   }
 };
@@ -623,11 +633,10 @@ export const calculatePlayerAggregates = (
         case ACTION_TYPES.TURNOVER:
           player.turnovers++;
           break;
-        case ACTION_TYPES.FOUL:
-        case ACTION_TYPES.FOUL_SHOOTING:
-        case ACTION_TYPES.FOUL_NON_SHOOTING:
-        case ACTION_TYPES.TECHNICAL_FOUL:
-          player.fouls++;
+        default:
+          if (isFoulAction(stat)) {
+            player.fouls++;
+          }
           break;
       }
     }
@@ -755,13 +764,7 @@ export const calculateStopsAndKills = (stats: StatEvent[]) => {
       isOurPossession = true;
 
     // 🏀 CoachBoard: Foul Reset logic
-    if (
-      !isOpp &&
-      (s.type === ACTION_TYPES.FOUL ||
-        s.type === ACTION_TYPES.FOUL_SHOOTING ||
-        s.type === ACTION_TYPES.FOUL_NON_SHOOTING ||
-        s.type === ACTION_TYPES.TECHNICAL_FOUL)
-    ) {
+    if (!isOpp && isFoulAction(s)) {
       // 🔍 Scout: Only reset streak if we are on defense (or if it's a technical foul)
       // Offensive fouls do not break a defensive stop streak.
       if (!isOurPossession || s.type === ACTION_TYPES.TECHNICAL_FOUL) {
