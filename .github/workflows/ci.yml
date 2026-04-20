@@ -24,7 +24,7 @@ jobs:
   # ---------------------------------------------------------------
   # Path Filtering: Determines what changed
   # ---------------------------------------------------------------
-  filter:
+    filter:
     name: Filter Changes
     runs-on: ubuntu-latest
     outputs:
@@ -52,7 +52,7 @@ jobs:
     name: Backend CI
     needs: filter
     if: needs.filter.outputs.backend == 'true'
-    runs-on: ubuntu-latest
+      runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
@@ -103,7 +103,7 @@ jobs:
   # ---------------------------------------------------------------
   # Frontend Quality & Tests
   # ---------------------------------------------------------------
-  frontend-ci:
+    frontend-ci:
     name: Frontend CI
     needs: filter
     if: needs.filter.outputs.frontend == 'true'
@@ -357,7 +357,7 @@ jobs:
   # ---------------------------------------------------------------
   # Trigger Deploy: Fires after successful auto-merge to main
   # ---------------------------------------------------------------
-  trigger-deploy:
+    trigger-deploy:
     name: Trigger Deploy
     runs-on: ubuntu-latest
     timeout-minutes: 10
