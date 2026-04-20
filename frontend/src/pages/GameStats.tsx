@@ -969,7 +969,7 @@ const GameStats: React.FC = () => {
                       key={pId}
                       sx={{ width: 24, height: 24, fontSize: "0.65rem" }}
                     >
-                      {shotChartJerseyMap.get(pId) || "??"}
+                      {shotChartJerseyMap.get(pId) ?? "??"}
                     </Avatar>
                   ))}
                 </Stack>

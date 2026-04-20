@@ -10,7 +10,7 @@ import { INTERNAL_KEYS } from "./responses.js";
 /**
  * Set of headers that should be redacted from logs for security.
  */
-export const REDACTED_HEADERS = new Set([
+export const REDACTED_HEADERS = new Set<string>([
   "authorization",
   "cookie",
   "set-cookie",
@@ -35,6 +35,22 @@ export function logError(label: string, error: unknown) {
       `[ERROR] ${label}:`,
       typeof error === "object" ? JSON.stringify(error, null, 2) : error,
     );
+  }
+}
+
+/**
+ * Standardized info logger for the backend.
+ * @param {string} label - Contextual label for the message.
+ * @param {unknown} data - The data to log.
+ */
+export function logInfo(label: string, data?: unknown) {
+  if (data !== undefined) {
+    console.info(
+      `[INFO] ${label}:`,
+      typeof data === "object" ? JSON.stringify(data) : data,
+    );
+  } else {
+    console.info(`[INFO] ${label}`);
   }
 }
 
@@ -174,7 +190,11 @@ export function getHeader(
 /**
  * Set of keys that are forbidden to prevent prototype pollution.
  */
-const FORBIDDEN_KEYS = new Set(["__proto__", "constructor", "prototype"]);
+const FORBIDDEN_KEYS = new Set<string>([
+  "__proto__",
+  "constructor",
+  "prototype",
+]);
 
 /**
  * Strips local-only fields and internal DynamoDB keys from the data object before saving.
@@ -186,9 +206,9 @@ const FORBIDDEN_KEYS = new Set(["__proto__", "constructor", "prototype"]);
  *
  * @param {unknown} data - The data to clean.
  * @param {number} depth - Current recursion depth.
- * @returns {any} The cleaned data.
+ * @returns {unknown} The cleaned data.
  */
-export function stripLocalFields(data: unknown, depth = 0): any {
+export function stripLocalFields(data: unknown, depth = 0): unknown {
   if (data === null || typeof data !== "object") {
     return data;
   }

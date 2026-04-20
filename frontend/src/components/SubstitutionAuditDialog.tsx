@@ -227,7 +227,7 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                         >
                           {playerOptions.map((p) => (
                             <MenuItem key={p.id} value={p.id}>
-                              #{jerseyMap.get(p.id!) || "??"} {p.name}
+                              #{jerseyMap.get(p.id!) ?? "??"} {p.name}
                             </MenuItem>
                           ))}
                         </Select>
@@ -243,7 +243,7 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                               bgcolor: player?.avatarColor,
                             }}
                           >
-                            {jerseyMap.get(event.playerId) || "??"}
+                            {jerseyMap.get(event.playerId) ?? "??"}
                           </Avatar>
                           <Typography variant="body2">
                             {player?.name || "Unknown"}

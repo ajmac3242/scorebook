@@ -100,7 +100,7 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
       <DialogContent>
         <Box sx={{ mb: 3, display: "flex", alignItems: "center", gap: 2 }}>
           <Avatar sx={{ bgcolor: player?.avatarColor }}>
-            {jerseyNumber || "??"}
+            {jerseyNumber ?? "??"}
           </Avatar>
           <Box>
             <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
