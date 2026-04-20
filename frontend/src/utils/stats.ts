@@ -158,6 +158,24 @@ export const isScoringEvent = (stat: StatEvent): boolean =>
   stat.type === ACTION_TYPES.MAKE;
 
 /**
+ * Determines if a statistical event is a foul action.
+ * @param {StatEvent} stat - The event to check.
+ * @returns {boolean} True if it is a foul.
+ */
+export const isFoulAction = (stat: StatEvent): boolean =>
+  stat.type === ACTION_TYPES.FOUL ||
+  stat.type === ACTION_TYPES.FOUL_SHOOTING ||
+  stat.type === ACTION_TYPES.FOUL_NON_SHOOTING ||
+  stat.type === ACTION_TYPES.TECHNICAL_FOUL;
+
+/**
+ * Determines if a statistical event is a free throw attempt.
+ * @param {StatEvent} stat - The event to check.
+ * @returns {boolean} True if it is a 1-point attempt.
+ */
+export const isFreeThrow = (stat: StatEvent): boolean => stat.points === 1;
+
+/**
  * Generic percentage calculator for basketball stats.
  * @param {number} numerator - The count (makes, points, etc).
  * @param {number} denominator - The total attempts or possessions.
@@ -396,7 +414,7 @@ export const applyActionToAggregate = (agg: BaseStats, stat: StatEvent) => {
       agg.points += stat.points || 0;
       // 🏀 CoachBoard: Field Goal Tracking
       // Why: Free throws (1pt) should not be counted as FGM or FGA.
-      if (stat.points === 1) {
+      if (isFreeThrow(stat)) {
         if (agg.ftm !== undefined) agg.ftm++;
         if (agg.fta !== undefined) agg.fta++;
       } else {
@@ -409,7 +427,7 @@ export const applyActionToAggregate = (agg: BaseStats, stat: StatEvent) => {
       }
       break;
     case ACTION_TYPES.MISS:
-      if (stat.points === 1) {
+      if (isFreeThrow(stat)) {
         if (agg.fta !== undefined) agg.fta++;
       } else {
         agg.attempts++;
@@ -591,13 +609,10 @@ export const calculatePlayerAggregates = (
       currentPeriod = period;
     }
 
-    // ⚡ Bolt: Inline updateScores and isOpponentId/isScoringEvent to minimize overhead.
+    // ⚡ Bolt: Use domain helpers for scoring and opponent identification.
     if (type === ACTION_TYPES.MAKE) {
       const pts = stat.points || 0;
-      if (
-        playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
-        playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":")
-      ) {
+      if (isOpponentId(playerId)) {
         scores.opp += pts;
       } else {
         scores.team += pts;
@@ -617,7 +632,7 @@ export const calculatePlayerAggregates = (
       switch (type) {
         case ACTION_TYPES.MAKE:
           player.points += stat.points || 0;
-          if (stat.points === 1) {
+          if (isFreeThrow(stat)) {
             player.ftm++;
             player.fta++;
           } else {
@@ -630,7 +645,7 @@ export const calculatePlayerAggregates = (
           }
           break;
         case ACTION_TYPES.MISS:
-          if (stat.points === 1) {
+          if (isFreeThrow(stat)) {
             player.fta++;
           } else {
             player.attempts++;
@@ -1026,13 +1041,7 @@ export const calculateStopsAndKills = (stats: StatEvent[]) => {
       isOurPossession = true;
 
     // 🏀 CoachBoard: Foul Reset logic
-    if (
-      !isOpp &&
-      (s.type === ACTION_TYPES.FOUL ||
-        s.type === ACTION_TYPES.FOUL_SHOOTING ||
-        s.type === ACTION_TYPES.FOUL_NON_SHOOTING ||
-        s.type === ACTION_TYPES.TECHNICAL_FOUL)
-    ) {
+    if (!isOpp && isFoulAction(s)) {
       // 🔍 Scout: Only reset streak if we are on defense (or if it's a technical foul)
       // Offensive fouls do not break a defensive stop streak.
       if (!isOurPossession || s.type === ACTION_TYPES.TECHNICAL_FOUL) {
@@ -1132,12 +1141,10 @@ export const calculateTeamAggregates = (
     const totals = gameTotals.get(stat.gameId);
     if (!totals) continue;
 
-    // ⚡ Bolt: Inline scoring and opponent checks to avoid redundant function calls in the loop.
+    // ⚡ Bolt: Use domain helpers for scoring and opponent identification.
     const type = stat.type;
     const pId = stat.playerId;
-    const isOpponent =
-      pId === SPECIAL_PLAYER_IDS.OPPONENT ||
-      pId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":");
+    const isOpponent = isOpponentId(pId);
 
     if (type === ACTION_TYPES.MAKE) {
       const pts = stat.points || 0;
@@ -1147,7 +1154,7 @@ export const calculateTeamAggregates = (
       } else {
         totals.team += pts;
         totalPoints += pts;
-        if (pts === 1) {
+        if (isFreeThrow(stat)) {
           totalFta++;
         } else {
           totalFga++;
@@ -1155,7 +1162,7 @@ export const calculateTeamAggregates = (
       }
     } else if (!isOpponent) {
       if (type === ACTION_TYPES.MISS) {
-        if (stat.points === 1) {
+        if (isFreeThrow(stat)) {
           totalFta++;
         } else {
           totalFga++;
@@ -1514,13 +1521,10 @@ export const calculateLineupStats = (
       currentPeriod = s.period;
     }
 
-    // ⚡ Bolt: Inline updateScores/isOpponentId/isScoringEvent for performance.
+    // ⚡ Bolt: Use domain helpers for scoring and opponent identification.
     if (s.type === ACTION_TYPES.MAKE) {
       const pts = s.points || 0;
-      if (
-        s.playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
-        s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":")
-      ) {
+      if (isOpponentId(s.playerId)) {
         scores.opp += pts;
       } else {
         scores.team += pts;
