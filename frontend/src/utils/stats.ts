@@ -19,16 +19,6 @@ import {
 
 /**
  * Standardized sorting for statistical events based on timestamp.
- * @param {StatEvent[]} stats - The list of events to sort.
- * @returns {StatEvent[]} A new sorted array of events.
- */
-const ACTION_PRIORITY: Record<string, number> = {
-  [ACTION_TYPES.SUB_IN]: 1,
-  [ACTION_TYPES.SUB_OUT]: 3,
-};
-
-/**
- * Standardized sorting for statistical events based on timestamp.
  * Includes a secondary sort for simultaneous events (SUB_IN > others > SUB_OUT).
  * @param {StatEvent[]} stats - The list of events to sort.
  * @returns {StatEvent[]} A new sorted array of events.
@@ -38,10 +28,18 @@ export const sortStats = (stats: StatEvent[]): StatEvent[] => {
     if (a.timestamp < b.timestamp) return -1;
     if (a.timestamp > b.timestamp) return 1;
 
-    // Secondary sort for simultaneous events
-    const priorityA = ACTION_PRIORITY[a.type] || 2;
-    const priorityB = ACTION_PRIORITY[b.type] || 2;
-    return priorityA - priorityB;
+    // ⚡ Bolt: Inline priority logic for simultaneous events.
+    // Replaces object lookups with direct conditional logic to eliminate property
+    // access overhead in the hot sort loop.
+    let pA = 2;
+    if (a.type === ACTION_TYPES.SUB_IN) pA = 1;
+    else if (a.type === ACTION_TYPES.SUB_OUT) pA = 3;
+
+    let pB = 2;
+    if (b.type === ACTION_TYPES.SUB_IN) pB = 1;
+    else if (b.type === ACTION_TYPES.SUB_OUT) pB = 3;
+
+    return pA - pB;
   });
 };
 
@@ -55,6 +53,8 @@ export interface TeamAggregates {
   oppg: string;
   record: string;
   totalGames: number;
+  ppp: string;
+  possessions: number;
 }
 
 /**
@@ -75,6 +75,8 @@ export interface OpponentAggregates {
   fouls: number;
   min: number; // in seconds
   plusMinus: number;
+  ppp: string;
+  possessions: number;
 }
 
 /**
@@ -156,17 +158,6 @@ export const isScoringEvent = (stat: StatEvent): boolean =>
   stat.type === ACTION_TYPES.MAKE;
 
 /**
- * Determines if a statistical event is a foul.
- * @param {StatEvent} stat - The event to check.
- * @returns {boolean} True if the action is a foul type.
- */
-export const isFoulAction = (stat: StatEvent): boolean =>
-  stat.type === ACTION_TYPES.FOUL ||
-  stat.type === ACTION_TYPES.FOUL_SHOOTING ||
-  stat.type === ACTION_TYPES.FOUL_NON_SHOOTING ||
-  stat.type === ACTION_TYPES.TECHNICAL_FOUL;
-
-/**
  * Generic percentage calculator for basketball stats.
  * @param {number} numerator - The count (makes, points, etc).
  * @param {number} denominator - The total attempts or possessions.
@@ -188,6 +179,34 @@ const calcPct = (numerator: number, denominator: number): string => {
  */
 export const calculateFgPct = (makes: number, attempts: number): string =>
   calcPct(makes, attempts);
+
+/**
+ * Calculates Points Per Possession (PPP).
+ * @param {number} points - Total points.
+ * @param {number} possessions - Total possessions.
+ * @returns {string} Formatted PPP.
+ */
+export const calculatePpp = (points: number, possessions: number): string => {
+  if (possessions <= 0) return "0.00";
+  return (points / possessions).toFixed(2);
+};
+
+/**
+ * Calculates possessions based on the formula: FGA + 0.44 * FTA + TO - OREB.
+ * @param {number} fga - Field Goal Attempts.
+ * @param {number} fta - Free Throw Attempts.
+ * @param {number} to - Turnovers.
+ * @param {number} oreb - Offensive Rebounds.
+ * @returns {number} Estimated possessions.
+ */
+export const calculatePossessions = (
+  fga: number,
+  fta: number,
+  to: number,
+  oreb: number,
+): number => {
+  return fga + 0.44 * fta + to - oreb;
+};
 
 /**
  * Calculates Free Throw Percentage.
@@ -422,10 +441,11 @@ export const applyActionToAggregate = (agg: BaseStats, stat: StatEvent) => {
     case ACTION_TYPES.TURNOVER:
       agg.turnovers++;
       break;
-    default:
-      if (isFoulAction(stat)) {
-        agg.fouls++;
-      }
+    case ACTION_TYPES.FOUL:
+    case ACTION_TYPES.FOUL_SHOOTING:
+    case ACTION_TYPES.FOUL_NON_SHOOTING:
+    case ACTION_TYPES.TECHNICAL_FOUL:
+      agg.fouls++;
       break;
   }
 };
@@ -524,6 +544,9 @@ export const calculatePlayerAggregates = (
   let currentPeriod = 1;
   let currentGameId: string | null = null;
 
+  // ⚡ Bolt: Cache last gameId per player to avoid redundant Set.add overhead.
+  const lastGameIdMap = new Map<string, string>();
+
   // Accumulate statistics from event stream
   for (let i = 0; i < sortedStats.length; i++) {
     const stat = sortedStats[i];
@@ -539,6 +562,7 @@ export const calculatePlayerAggregates = (
         handleStintEnd(statsMap.get(pId), stint, scores, 0);
       }
       activeStints.clear();
+      lastGameIdMap.clear();
       scores.team = 0;
       scores.opp = 0;
       currentPeriod = 1;
@@ -584,7 +608,12 @@ export const calculatePlayerAggregates = (
     const player = statsMap.get(playerId);
     if (player) {
       // ⚡ Bolt: Inline processStatEvent and applyActionToAggregate to minimize overhead.
-      player.gamesPlayed.add(stat.gameId);
+      // Only call Set.add if gameId has changed for this player to skip internal Set logic.
+      if (lastGameIdMap.get(playerId) !== gameId) {
+        player.gamesPlayed.add(gameId);
+        lastGameIdMap.set(playerId, gameId);
+      }
+
       switch (type) {
         case ACTION_TYPES.MAKE:
           player.points += stat.points || 0;
@@ -633,10 +662,11 @@ export const calculatePlayerAggregates = (
         case ACTION_TYPES.TURNOVER:
           player.turnovers++;
           break;
-        default:
-          if (isFoulAction(stat)) {
-            player.fouls++;
-          }
+        case ACTION_TYPES.FOUL:
+        case ACTION_TYPES.FOUL_SHOOTING:
+        case ACTION_TYPES.FOUL_NON_SHOOTING:
+        case ACTION_TYPES.TECHNICAL_FOUL:
+          player.fouls++;
           break;
       }
     }
@@ -709,6 +739,64 @@ export const calculatePlayerAggregates = (
 };
 
 /**
+ * 🏀 CoachBoard: calculateOpponentThreats
+ *
+ * WHY: Identifies opponent players who are scoring significantly or on a streak.
+ * This allows the coach to make defensive adjustments before the game slips away.
+ *
+ * @param stats - Chronological list of statistical events for the game.
+ * @returns Array of threat objects for the opponent.
+ */
+export interface OpponentThreat {
+  playerId: string;
+  points: number;
+  makes: number;
+  consecutiveMakes: number;
+  isHot: boolean;
+}
+
+export const calculateOpponentThreats = (
+  stats: StatEvent[],
+): OpponentThreat[] => {
+  const threats = new Map<string, OpponentThreat>();
+
+  // Process only opponent actions
+  for (let i = 0; i < stats.length; i++) {
+    const s = stats[i];
+    if (s.deletedAt || !isOpponentId(s.playerId)) continue;
+
+    const pId = s.playerId;
+    if (!threats.has(pId)) {
+      threats.set(pId, {
+        playerId: pId,
+        points: 0,
+        makes: 0,
+        consecutiveMakes: 0,
+        isHot: false,
+      });
+    }
+
+    const t = threats.get(pId)!;
+    if (s.type === ACTION_TYPES.MAKE) {
+      t.points += s.points || 0;
+      if (s.points && s.points > 1) {
+        t.makes++;
+        t.consecutiveMakes++;
+      }
+      if (t.points >= 8 || t.consecutiveMakes >= 3) {
+        t.isHot = true;
+      }
+    } else if (s.type === ACTION_TYPES.MISS) {
+      if (s.points && s.points > 1) {
+        t.consecutiveMakes = 0;
+      }
+    }
+  }
+
+  return Array.from(threats.values()).filter((t) => t.isHot);
+};
+
+/**
  * 🏀 CoachBoard: calculateStopsAndKills
  *
  * WHY: Defensive momentum is often measured in "Stops" (defensive possessions
@@ -770,7 +858,13 @@ export const calculateStopsAndKills = (stats: StatEvent[]) => {
       isOurPossession = true;
 
     // 🏀 CoachBoard: Foul Reset logic
-    if (!isOpp && isFoulAction(s)) {
+    if (
+      !isOpp &&
+      (s.type === ACTION_TYPES.FOUL ||
+        s.type === ACTION_TYPES.FOUL_SHOOTING ||
+        s.type === ACTION_TYPES.FOUL_NON_SHOOTING ||
+        s.type === ACTION_TYPES.TECHNICAL_FOUL)
+    ) {
       // 🔍 Scout: Only reset streak if we are on defense (or if it's a technical foul)
       // Offensive fouls do not break a defensive stop streak.
       if (!isOurPossession || s.type === ACTION_TYPES.TECHNICAL_FOUL) {
@@ -858,6 +952,10 @@ export const calculateTeamAggregates = (
   let totalRebounds = 0;
   let totalAssists = 0;
   let totalOppPoints = 0;
+  let totalFga = 0;
+  let totalFta = 0;
+  let totalTo = 0;
+  let totalOreb = 0;
 
   for (let i = 0; i < stats.length; i++) {
     const stat = stats[i];
@@ -881,16 +979,31 @@ export const calculateTeamAggregates = (
       } else {
         totals.team += pts;
         totalPoints += pts;
+        if (pts === 1) {
+          totalFta++;
+        } else {
+          totalFga++;
+        }
       }
     } else if (!isOpponent) {
-      if (
+      if (type === ACTION_TYPES.MISS) {
+        if (stat.points === 1) {
+          totalFta++;
+        } else {
+          totalFga++;
+        }
+      } else if (type === ACTION_TYPES.OFF_REBOUND) {
+        totalRebounds++;
+        totalOreb++;
+      } else if (
         type === ACTION_TYPES.REBOUND ||
-        type === ACTION_TYPES.OFF_REBOUND ||
         type === ACTION_TYPES.DEF_REBOUND
       ) {
         totalRebounds++;
       } else if (type === ACTION_TYPES.ASSIST) {
         totalAssists++;
+      } else if (type === ACTION_TYPES.TURNOVER) {
+        totalTo++;
       }
     }
   }
@@ -906,6 +1019,12 @@ export const calculateTeamAggregates = (
   }
 
   const gp = targetCount || 1;
+  const totalPossessions = calculatePossessions(
+    totalFga,
+    totalFta,
+    totalTo,
+    totalOreb,
+  );
   return {
     ppg: formatToOne(totalPoints / gp),
     rpg: formatToOne(totalRebounds / gp),
@@ -913,6 +1032,8 @@ export const calculateTeamAggregates = (
     oppg: formatToOne(totalOppPoints / gp),
     record: draws > 0 ? `${wins}-${losses}-${draws}` : `${wins}-${losses}`,
     totalGames: targetCount,
+    ppp: calculatePpp(totalPoints, totalPossessions),
+    possessions: Math.round(totalPossessions),
   };
 };
 
@@ -937,6 +1058,7 @@ export const calculateOpponentAggregates = (
     steals: 0,
     turnovers: 0,
     fouls: 0,
+    fta: 0, // Needed for possessions
   };
 
   for (let i = 0; i < stats.length; i++) {
@@ -946,11 +1068,20 @@ export const calculateOpponentAggregates = (
     applyActionToAggregate(agg, stat);
   }
 
+  const possessions = calculatePossessions(
+    agg.attempts,
+    agg.fta,
+    agg.turnovers,
+    agg.offRebounds,
+  );
+
   return {
     ...agg,
     fgPct: calculateFgPct(agg.makes, agg.attempts),
     min: 0,
     plusMinus: 0,
+    ppp: calculatePpp(agg.points, possessions),
+    possessions: Math.round(possessions),
   };
 };
 
@@ -1172,7 +1303,8 @@ export const calculateLineupStats = (
         );
       }
       currentLineup.clear();
-      cachedLineupKey = null;
+      cachedLineupKey = null; // Invalidate lineup key cache
+
       lastClockTime = periodLen;
       lastTeamScore = 0;
       lastOppScore = 0;

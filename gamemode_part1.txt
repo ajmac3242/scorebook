@@ -1,0 +1,1500 @@
+/**
+ * @file GameMode.tsx
+ * @description The live game tracking interface.
+ * Allows users to record statistical events (makes, misses, rebounds, etc.)
+ * on an interactive court, manage active lineups, and track opponent scoring.
+ */
+
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+  useRef,
+} from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
+import {
+  Box,
+  Typography,
+  Grid,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  IconButton,
+  Avatar,
+  Chip,
+  DialogContentText,
+  Stack,
+  useTheme,
+  ToggleButton,
+  ToggleButtonGroup,
+  Alert,
+  Tooltip,
+  Snackbar,
+  keyframes,
+} from "@mui/material";
+
+const pulse = keyframes`
+  0% { opacity: 1; }
+  50% { opacity: 0.7; }
+  100% { opacity: 1; }
+`;
+
+const slideBackAndForth = keyframes`
+  0% { left: 0%; }
+  50% { left: 70%; }
+  100% { left: 0%; }
+`;
+
+import {
+  Undo as UndoIcon,
+  History,
+  Check,
+  Close,
+  SportsBasketball,
+  PanTool,
+  SwapHoriz,
+  FlashOn,
+  Warning,
+  ArrowBack,
+  Groups,
+  PlayArrow,
+  Pause,
+  Add as AddIcon,
+  Remove as RemoveIcon,
+} from "@mui/icons-material";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TableSortLabel,
+} from "@mui/material";
+import BasketballCourt from "../components/BasketballCourt";
+import TimeoutDots from "../components/TimeoutDots";
+import RecentActionItem from "../components/RecentActionItem";
+import QuickSubDialog from "../components/QuickSubDialog";
+import SubstitutionAuditDialog from "../components/SubstitutionAuditDialog";
+import FreeThrowWorkflowDialog from "../components/FreeThrowWorkflowDialog";
+import HalftimeReportDialog from "../components/HalftimeReportDialog";
+import { PlayerStatRow } from "../components/PlayerStatRow";
+import { db, type StatEvent } from "../db";
+import { syncService } from "../utils/syncService";
+import { logger } from "../utils/logger";
+import { useLiveQuery } from "dexie-react-hooks";
+import {
+  ACTION_TYPES,
+  SPECIAL_PLAYER_IDS,
+  SHOT_QUALITY,
+} from "../constants/stats";
+import {
+  calculatePlayerAggregates,
+  calculatePlayerStreaks,
+  calculateStopsAndKills,
+  calculatePossessions,
+  calculatePpp,
+  calculateLineupStats,
+  isEventInPeriod,
+  getBonusStatus,
+  getInitials,
+  type PlayerAggregates,
+  type OpponentThreat,
+} from "../utils/stats";
+import { formatClock, roundToOne } from "../utils/mathUtils";
+import { MoleskineCard, AnimatedNumber } from "../components/SharedUI";
+
+/**
+ * 🏀 CoachBoard: detectShotValueFromCoords
+ * Why: Automatically detects if a shot is a 2 or 3 based on court coordinates.
+ * Coordinates are 0-100 percentage of SVG viewBox "0 0 500 470".
+ */
+const detectShotValueFromCoords = (x: number, y: number): number => {
+  const svgX = x * 5; // 500 / 100
+  const svgY = y * 4.7; // 470 / 100
+
+  // Three Point Line logic from BasketballCourt.tsx:
+  // - Sidebar lines: x=30 and x=470 from y=0 to y=140
+  // - Arc: Center (250, 140) with radius 220 for y > 140
+
+  if (svgY <= 140) {
+    if (svgX <= 30 || svgX >= 470) return 3;
+  } else {
+    const dist = Math.sqrt(Math.pow(svgX - 250, 2) + Math.pow(svgY - 140, 2));
+    if (dist >= 220) return 3;
+  }
+
+  return 2;
+};
+
+/**
+ * Redesigned TV-style scoreboard header.
+ */
+interface ScoreboardProps {
+  game:
+    | {
+        opponent?: string;
+        opponentLogoUrl?: string;
+        completed?: number;
+        deletedAt?: string;
+        timeoutLimit?: number;
+      }
+    | null
+    | undefined;
+  team:
+    | {
+        name?: string;
+        logoUrl?: string;
+        periodType?: string;
+        fouls?: number;
+        deletedAt?: string;
+        defaultTimeoutLimit?: number;
+      }
+    | null
+    | undefined;
+  gameData: {
+    currentScore: number;
+    opponentScore: number;
+    teamPpp: string;
+    oppPpp: string;
+    teamFoulStats: {
+      teamFouls: number;
+      oppFouls: number;
+      teamBonusLabel: string;
+      teamIsDouble: boolean;
+      teamBonusColor: string;
+      oppBonusLabel: string;
+      oppIsDouble: boolean;
+      oppBonusColor: string;
+    };
+    timeoutStats: {
+      teamTOL: number;
+      oppTOL: number;
+    };
+    possessionState: string | null;
+    momentumAlerts: {
+      opponentRun: string | null;
+      scoringDrought: string | null;
+      opponentThreats: OpponentThreat[];
+    };
+  };
+  period: number;
+  periodLabel: string;
+  maxPeriod: number;
+  isReadOnly: boolean;
+  clockSeconds: number;
+  isClockRunning: boolean;
+  onEditClock?: () => void;
+}
+
+const Scoreboard = React.memo(
+  ({
+    game,
+    team,
+    gameData,
+    period,
+    periodLabel,
+    maxPeriod,
+    isReadOnly,
+    clockSeconds,
+    isClockRunning,
+    onEditClock,
+  }: ScoreboardProps) => {
+    const theme = useTheme();
+    const timeoutTotal = game?.timeoutLimit ?? team?.defaultTimeoutLimit ?? 3;
+
+    const renderTeamSection = (
+      name: string,
+      logoUrl: string | undefined,
+      score: number,
+      timeouts: number,
+      isOpponent: boolean,
+    ) => {
+      // Bonus logic:
+      // If we are looking at Team A:
+      // We show "BONUS" if Team B (Opponent) has committed enough fouls.
+      // In gameData, teamBonusLabel is set if Opponent fouls >= threshold.
+
+      return (
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: { xs: 1, sm: 3 },
+            flexDirection: isOpponent ? "row-reverse" : "row",
+          }}
+        >
+          {/* Logo & Name */}
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              minWidth: { xs: 50, sm: 80 },
+            }}
+          >
+            <Avatar
+              src={logoUrl}
+              sx={{
+                width: { xs: 36, sm: 56 },
+                height: { xs: 36, sm: 56 },
+                bgcolor: isOpponent ? "secondary.main" : "primary.main",
+                border: "2px solid rgba(255,255,255,0.2)",
+                mb: 0.5,
+              }}
+            >
+              {name.charAt(0)}
+            </Avatar>
+            <Typography
+              variant="caption"
+              sx={{
+                color: "white",
+                fontWeight: 700,
+                fontSize: { xs: "0.6rem", sm: "0.8rem" },
+                textTransform: "uppercase",
+                letterSpacing: 1,
+                textAlign: "center",
+                maxWidth: { xs: 60, sm: 100 },
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {name}
+            </Typography>
+          </Box>
+
+          {/* Score & Timeouts */}
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+            }}
+          >
+            <Typography
+              sx={{
+                color: "white",
+                fontSize: { xs: "2rem", sm: "3.5rem" },
+                fontWeight: 900,
+                lineHeight: 1,
+                fontFamily: "'Inter', sans-serif",
+                mb: 1,
+              }}
+            >
+              <AnimatedNumber value={score} />
+            </Typography>
+            <TimeoutDots
+              count={timeouts}
+              total={timeoutTotal}
+              data-testid={
+                isOpponent ? "opp-timeout-dots" : "team-timeout-dots"
+              }
+            />
+          </Box>
+        </Box>
+      );
+    };
+
+    return (
+      <Box
+        sx={{
+          background:
+            "linear-gradient(180deg, rgba(30,30,30,1) 0%, rgba(10,10,10,1) 100%)",
+          borderRadius: 4,
+          p: { xs: 1.5, sm: 3 },
+          mb: 3,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          boxShadow: "0 12px 40px rgba(0,0,0,0.6)",
+          border: "1px solid rgba(255,255,255,0.08)",
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
+        {/* Top Accent Line */}
+        <Box
+          sx={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            height: "3px",
+            background: `linear-gradient(90deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
+            opacity: 0.8,
+          }}
+        />
+
+        {/* Our Team */}
+        {renderTeamSection(
+          team?.name || "TEAM",
+          team?.logoUrl,
+          gameData.currentScore,
+          gameData.timeoutStats.teamTOL,
+          false,
+        )}
+
+        {/* Center: Period, Clock, Bonus */}
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            flex: 1,
+            px: 2,
+          }}
+        >
+          {/* Momentum Alerts */}
+          {(gameData.momentumAlerts.opponentRun ||
+            gameData.momentumAlerts.scoringDrought ||
+            gameData.momentumAlerts.opponentThreats.length > 0) && (
+            <Box
+              sx={{
+                position: "absolute",
+                top: 8,
+                zIndex: 10,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 0.5,
+              }}
+            >
+              {gameData.momentumAlerts.opponentRun && (
+                <Typography
+                  variant="caption"
+                  sx={{
+                    bgcolor: "error.main",
+                    color: "white",
+                    px: 1,
+                    borderRadius: 1,
+                    fontSize: "0.6rem",
+                    fontWeight: 800,
+                    animation: `${pulse} 2s infinite ease-in-out`,
+                  }}
+                >
+                  RUN: {gameData.momentumAlerts.opponentRun}
+                </Typography>
+              )}
+              {gameData.momentumAlerts.opponentThreats.map((t) => (
+                <Typography
+                  key={t.playerId}
+                  variant="caption"
+                  sx={{
+                    bgcolor: "warning.main",
+                    color: "black",
+                    px: 1,
+                    borderRadius: 1,
+                    fontSize: "0.55rem",
+                    fontWeight: 900,
+                    animation: `${pulse} 2.5s infinite ease-in-out`,
+                  }}
+                >
+                  THREAT: Opp #
+                  {t.playerId.includes(":") ? t.playerId.split(":")[1] : "??"} (
+                  {t.points} pts)
+                </Typography>
+              ))}
+            </Box>
+          )}
+
+          <Typography
+            variant="h6"
+            sx={{
+              color: "rgba(255,255,255,0.5)",
+              fontWeight: 800,
+              fontSize: { xs: "0.7rem", sm: "1rem" },
+              letterSpacing: 2,
+              mb: 0.5,
+            }}
+          >
+            {period > maxPeriod
+              ? `OT ${period - maxPeriod}`
+              : `${periodLabel} ${period}`.toUpperCase()}
+          </Typography>
+
+          <Box
+            onClick={onEditClock}
+            sx={{
+              cursor: isReadOnly ? "default" : "pointer",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              "&:hover": {
+                opacity: isReadOnly ? 1 : 0.8,
+              },
+            }}
+          >
+            <Typography
+              sx={{
+                color: "white",
+                fontSize: { xs: "1.5rem", sm: "2.5rem" },
+                fontWeight: 700,
+                fontFamily: "'Courier New', monospace",
+                lineHeight: 1,
+                letterSpacing: 1,
+              }}
+            >
+              {formatClock(clockSeconds)}
+            </Typography>
+
+            {/* Sliding Progress Indicator */}
+            <Box
+              sx={{
+                width: "80%",
+                height: "3px",
+                bgcolor: "rgba(255,255,255,0.1)",
+                borderRadius: 2,
+                mt: 1,
+                position: "relative",
+                overflow: "hidden",
+                visibility: isClockRunning ? "visible" : "hidden",
+              }}
+            >
+              <Box
+                sx={{
+                  position: "absolute",
+                  width: "30%",
+                  height: "100%",
+                  background: `linear-gradient(90deg, transparent, ${theme.palette.primary.main}, transparent)`,
+                  animation: `${slideBackAndForth} 1.5s infinite ease-in-out`,
+                }}
+              />
+            </Box>
+          </Box>
+
+          {/* Bonus Indicators */}
+          <Box sx={{ mt: 1.5, height: 20, display: "flex", gap: 2 }}>
+            {gameData.teamFoulStats.teamBonusLabel && (
+              <Typography
+                sx={{
+                  color: "#FFD700",
+                  fontWeight: 900,
+                  fontSize: "0.7rem",
+                  letterSpacing: 1,
+                }}
+              >
+                BONUS →
+              </Typography>
+            )}
+            {gameData.teamFoulStats.oppBonusLabel && (
+              <Typography
+                sx={{
+                  color: "#FFD700",
+                  fontWeight: 900,
+                  fontSize: "0.7rem",
+                  letterSpacing: 1,
+                }}
+              >
+                ← BONUS
+              </Typography>
+            )}
+          </Box>
+        </Box>
+
+        {/* Opponent Team */}
+        {renderTeamSection(
+          game?.opponent || "OPPONENT",
+          game?.opponentLogoUrl,
+          gameData.opponentScore,
+          gameData.timeoutStats.oppTOL,
+          true,
+        )}
+      </Box>
+    );
+  },
+);
+
+/**
+ * 🏀 CoachBoard: Team Stats Card
+ * Why: Centralizes team-level defensive metrics like Stops and Kills.
+ */
+const TeamStatsCard = React.memo(
+  ({
+    defensiveStats,
+    teamPpp,
+    oppPpp,
+  }: {
+    defensiveStats: {
+      totalStops: number;
+      totalKills: number;
+      currentStreak: number;
+    };
+    teamPpp: string;
+    oppPpp: string;
+  }) => {
+    return (
+      <MoleskineCard>
+        <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 2 }}>
+          Team Stats
+        </Typography>
+        <Grid container spacing={2}>
+          <Grid item xs={6}>
+            <Box
+              sx={{
+                textAlign: "center",
+                p: 1.5,
+                bgcolor: "rgba(0,0,0,0.03)",
+                borderRadius: 2,
+                border: "1px solid rgba(0,0,0,0.05)",
+              }}
+            >
+              <Typography
+                variant="caption"
+                sx={{
+                  display: "block",
+                  color: "text.secondary",
+                  fontWeight: 700,
+                  letterSpacing: 1,
+                  mb: 0.5,
+                }}
+              >
+                STOPS
+              </Typography>
+              <Typography variant="h4" sx={{ fontWeight: 800, lineHeight: 1 }}>
+                <AnimatedNumber value={defensiveStats.totalStops} />
+              </Typography>
+            </Box>
+          </Grid>
+          <Grid item xs={6}>
+            <Box
+              sx={{
+                textAlign: "center",
+                p: 1.5,
+                bgcolor: "rgba(0,0,0,0.03)",
+                borderRadius: 2,
+                border: "1px solid rgba(0,0,0,0.05)",
+              }}
+            >
+              <Typography
+                variant="caption"
+                sx={{
+                  display: "block",
+                  color: "text.secondary",
+                  fontWeight: 700,
+                  letterSpacing: 1,
+                  mb: 0.5,
+                }}
+              >
+                KILLS
+              </Typography>
+              <Typography
+                variant="h4"
+                sx={{
+                  fontWeight: 800,
+                  color: "#FF4500",
+                  lineHeight: 1,
+                  textShadow: "0 2px 4px rgba(255,69,0,0.2)",
+                }}
+              >
+                <AnimatedNumber value={defensiveStats.totalKills} />
+              </Typography>
+            </Box>
+          </Grid>
+          <Grid item xs={6}>
+            <Box sx={{ textAlign: "center", p: 1 }}>
+              <Typography
+                variant="caption"
+                sx={{ display: "block", fontWeight: 700 }}
+              >
+                TEAM PPP
+              </Typography>
+              <Typography variant="h6" sx={{ fontWeight: 800 }}>
+                {teamPpp}
+              </Typography>
+            </Box>
+          </Grid>
+          <Grid item xs={6}>
+            <Box sx={{ textAlign: "center", p: 1 }}>
+              <Typography
+                variant="caption"
+                sx={{ display: "block", fontWeight: 700 }}
+              >
+                OPP PPP
+              </Typography>
+              <Typography variant="h6" sx={{ fontWeight: 800 }}>
+                {oppPpp}
+              </Typography>
+            </Box>
+          </Grid>
+        </Grid>
+        <Box
+          sx={{
+            mt: 2,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: 1,
+          }}
+        >
+          <Typography
+            variant="caption"
+            sx={{ fontWeight: 700, color: "text.secondary", mr: 1 }}
+          >
+            STREAK:
+          </Typography>
+          <Box sx={{ display: "flex", gap: 0.5 }}>
+            {[1, 2, 3].map((i) => (
+              <FlashOn
+                key={i}
+                sx={{
+                  fontSize: 22,
+                  color:
+                    i <= defensiveStats.currentStreak
+                      ? "#FFD700"
+                      : "rgba(0,0,0,0.1)",
+                  filter:
+                    i <= defensiveStats.currentStreak
+                      ? "drop-shadow(0 0 4px #FFD700)"
+                      : "none",
+                  transition: "all 0.3s ease",
+                }}
+              />
+            ))}
+          </Box>
+        </Box>
+      </MoleskineCard>
+    );
+  },
+);
+
+/**
+ * Interactive controls for game state management.
+ */
+interface ActionControlsProps {
+  isReadOnly: boolean;
+  onUndo: () => void;
+  onQuickSub: () => void;
+  onFtWorkflow: () => void;
+  onAuditSubs: () => void;
+  onTimeout: () => void;
+  onNextPeriod: () => void;
+  onTogglePossession: () => void;
+  possessionState: string | null;
+  recentStatsLength: number;
+  onEndGame: () => void;
+  isGameCompleted: boolean;
+}
+
+const ActionControls = React.memo(
+  ({
+    isReadOnly,
+    onUndo,
+    onQuickSub,
+    onFtWorkflow,
+    onAuditSubs,
+    onTimeout,
+    onNextPeriod,
+    onTogglePossession,
+    possessionState,
+    recentStatsLength,
+    onEndGame,
+    isGameCompleted,
+  }: ActionControlsProps) => {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          gap: 1,
+          flexWrap: "wrap",
+          alignItems: "center",
+        }}
+      >
+        <Tooltip title="Change Period">
+          <span>
+            <Button
+              size="small"
+              variant="outlined"
+              startIcon={<History />}
+              onClick={onNextPeriod}
+              disabled={isReadOnly}
+            >
+              Period
+            </Button>
+          </span>
+        </Tooltip>
+
+        <Tooltip title="Toggle Possession">
+          <span>
+            <Button
+              size="small"
+              variant="outlined"
+              startIcon={<SwapHoriz />}
+              onClick={onTogglePossession}
+              disabled={isReadOnly}
+              aria-label="toggle possession"
+              color={possessionState ? "primary" : "inherit"}
+            >
+              Poss
+            </Button>
+          </span>
+        </Tooltip>
+
+        <Tooltip title="Quick Substitution">
+          <span>
+            <Button
+              size="small"
+              variant="outlined"
+              startIcon={<Groups />}
+              onClick={onQuickSub}
+              disabled={isReadOnly}
+              aria-label="quick substitution"
+            >
+              Sub
+            </Button>
+          </span>
+        </Tooltip>
+
+        <Tooltip title="Audit Substitutions">
+          <span>
+            <IconButton
+              size="small"
+              onClick={() => onAuditSubs()}
+              aria-label="audit substitutions"
+              sx={{
+                border: "1px solid rgba(0,0,0,0.23)",
+                borderRadius: "4px",
+                p: "5px",
+              }}
+            >
+              <History />
+            </IconButton>
+          </span>
+        </Tooltip>
+
+        <Tooltip title="Record Team Timeout">
+          <span>
+            <Button
+              size="small"
+              variant="outlined"
+              startIcon={<History />}
+              onClick={onTimeout}
+              disabled={isReadOnly}
+            >
+              Timeout
+            </Button>
+          </span>
+        </Tooltip>
+
+        <Tooltip title="Record Free Throws">
+          <span>
+            <Button
+              size="small"
+              variant="outlined"
+              startIcon={<SportsBasketball />}
+              onClick={() => onFtWorkflow()}
+              disabled={isReadOnly}
+              aria-label="record free throws"
+            >
+              FT
+            </Button>
+          </span>
+        </Tooltip>
+
+        <Tooltip title="Undo last action (Ctrl+Z)">
+          <span>
+            <Button
+              size="small"
+              variant="outlined"
+              startIcon={<UndoIcon />}
+              onClick={onUndo}
+              disabled={recentStatsLength === 0 || isReadOnly}
+            >
+              Undo
+            </Button>
+          </span>
+        </Tooltip>
+
+        {!isGameCompleted && !isReadOnly && (
+          <Button
+            size="small"
+            variant="contained"
+            color="error"
+            onClick={onEndGame}
+          >
+            End Game
+          </Button>
+        )}
+      </Box>
+    );
+  },
+);
+
+/**
+ * GameMode page component.
+ * Manages the state for live game tracking, including selections,
+ * dialogs for recording actions, and real-time score calculation.
+ */
+const GameMode: React.FC = () => {
+  const theme = useTheme();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  // Extract game and team IDs from URL parameters
+  const gameId = searchParams.get("gameId");
+  const teamId = searchParams.get("teamId");
+
+  // Local state for recording individual actions
+  const [selectedX, setSelectedX] = useState<number | null>(null);
+  const [selectedY, setSelectedY] = useState<number | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
+  const [statType, setStatType] = useState<string | null>(null);
+  const [points, setPoints] = useState<number>(2);
+  const [playName, setPlayName] = useState<string>("");
+  const [shotQuality, setShotQuality] = useState<string | null>(null);
+
+  const [clockSeconds, setClockSeconds] = useState<number>(0);
+  const clockSecondsRef = useRef(clockSeconds);
+  useEffect(() => {
+    clockSecondsRef.current = clockSeconds;
+  }, [clockSeconds]);
+  const [isClockRunning, setIsClockRunning] = useState(false);
+
+  const [sortConfig, setSortConfig] = useState<{
+    key: keyof PlayerAggregates;
+    direction: "asc" | "desc";
+  }>({ key: "jerseyNumber", direction: "asc" });
+
+  // Filter for displaying court markers
+  const [markerFilter, setMarkerFilter] = useState<string>("ALL");
+
+  // State for editing and deleting actions
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [statToDelete, setStatToDelete] = useState<string | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingStatId, setEditingStatId] = useState<string | null>(null);
+
+  // Game lifecycle state
+  const [endGameDialogOpen, setEndGameDialogOpen] = useState(false);
+  const [isClockEditDialogOpen, setIsClockEditDialogOpen] = useState(false);
+  const [summaryDialogOpen, setSummaryDialogOpen] = useState(false);
+  const [auditDialogOpen, setAuditDialogOpen] = useState(false);
+  const [ftWorkflowOpen, setFtWorkflowOpen] = useState(false);
+  const [halftimeReportOpen, setHalftimeReportOpen] = useState(false);
+  const [lastViewedHalftimePeriod, setLastViewedHalftimePeriod] =
+    useState<number>(0);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isEnding, setIsEnding] = useState(false);
+  const [isSavingStat, setIsSavingStat] = useState(false);
+  const [chainPrompt, setChainPrompt] = useState<{
+    type: "ASSIST" | "REBOUND";
+    originalStat: StatEvent;
+  } | null>(null);
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity: "success" | "error" | "warning" | "info";
+  }>({ open: false, message: "", severity: "success" });
+
+  // Derived data from StatEvents
+  const gameStatsQueryResult = useLiveQuery(async () => {
+    try {
+      await db.open();
+      return await db.stats.where("gameId").equals(gameId).toArray();
+    } catch (err) {
+      logger.error("Failed to fetch game stats:", err);
+      return [];
+    }
+  }, [gameId]);
+  const gameStats = useMemo(
+    () => gameStatsQueryResult || [],
+    [gameStatsQueryResult],
+  );
+  const [subDialogOpen, setSubDialogOpen] = useState(false);
+  const [subOutPlayerId, setSubOutPlayerId] = useState<string | null>(null);
+
+  // Quick sub draft state
+  const [draftOnCourtIds, setDraftOnCourtIds] = useState<Set<string>>(
+    new Set(),
+  );
+  const [selectedSwapId, setSelectedSwapId] = useState<string | null>(null);
+
+  const [period, setPeriod] = useState<number>(1);
+  const [trackingMode, setTrackingMode] = useState<"TEAM" | "OPPONENT">("TEAM");
+
+  // Fetch roster data for the current team
+  const teamPlayersQueryResult = useLiveQuery(
+    () =>
+      teamId
+        ? db.teamPlayers.where("teamId").equals(teamId.toString()).toArray()
+        : Promise.resolve([]),
+    [teamId],
+  );
+  const teamPlayers = useMemo(
+    () => teamPlayersQueryResult || [],
+    [teamPlayersQueryResult],
+  );
+
+  const playersQueryResult = useLiveQuery(async () => {
+    try {
+      await db.open();
+      if (!teamId) return [];
+      const playerIds = teamPlayers.map((t) => t.playerId.toString());
+      return await db.players.where("id").anyOf(playerIds).toArray();
+    } catch (err) {
+      logger.error("Failed to fetch players:", err);
+      return [];
+    }
+  }, [teamId, teamPlayers]);
+  const players = useMemo(() => playersQueryResult || [], [playersQueryResult]);
+
+  /**
+   * ⚡ Bolt: O(1) player name lookups.
+   * Performance: Pre-calculating a Map of player names prevents O(P) .find()
+   * operations inside the render loop of recent actions and dialogs.
+   */
+  const playerNamesMap = useMemo(() => {
+    const map = new Map<string, string>();
+    for (let i = 0; i < players.length; i++) {
+      const p = players[i];
+      if (p.id) map.set(p.id.toString(), p.name);
+    }
+    return map;
+  }, [players]);
+
+  const game = useLiveQuery(() => db.games.get(gameId as string), [gameId]);
+  const team = useLiveQuery(
+    () =>
+      game?.teamId ? db.teams.get(game.teamId) : Promise.resolve(undefined),
+    [game?.teamId],
+  );
+
+  // 🏀 CoachBoard: Persistent Period & Clock Tracking
+  // Why: Ensures the game period and clock don't reset on page refresh.
+  useEffect(() => {
+    if (game?.currentPeriod && game.currentPeriod !== period) {
+      setPeriod(game.currentPeriod);
+    }
+    if (game?.clockTime !== undefined && !isClockRunning) {
+      setClockSeconds(game.clockTime);
+    } else if (game?.clockTime === undefined && clockSeconds === 0) {
+      // Default to periodLength if set, otherwise 10 mins (600s)
+      setClockSeconds(game?.periodLength ? game.periodLength * 60 : 600);
+    }
+  }, [
+    game?.currentPeriod,
+    game?.clockTime,
+    game?.periodLength,
+    period,
+    isClockRunning,
+    clockSeconds,
+  ]);
+
+  // Clock Countdown logic
+  useEffect(() => {
+    let interval: ReturnType<typeof setInterval>;
+    if (isClockRunning && clockSeconds > 0) {
+      interval = setInterval(() => {
+        setClockSeconds((prev) => Math.max(0, prev - 1));
+      }, 1000);
+    } else if (clockSeconds === 0) {
+      setIsClockRunning(false);
+    }
+    return () => clearInterval(interval);
+  }, [isClockRunning, clockSeconds]);
+
+  // ⚡ Bolt: Auto-sync clock to DB every 5 seconds if running.
+  // Using a ref for clockSeconds prevents the interval from being re-created every second.
+  useEffect(() => {
+    if (isClockRunning && gameId) {
+      const syncInterval = setInterval(async () => {
+        await db.games.update(gameId, {
+          clockTime: clockSecondsRef.current,
+          synced: 0,
+        });
+      }, 5000);
+      return () => clearInterval(syncInterval);
+    }
+  }, [isClockRunning, gameId]);
+
+  const isReadOnly = !!game?.deletedAt || !!team?.deletedAt;
+  const periodType = team?.periodType || "QUARTERS";
+  const periodLabel = periodType === "HALVES" ? "Half" : "Quarter";
+  const maxPeriod = periodType === "HALVES" ? 2 : 4;
+
+  // Show summary dialog automatically if game is completed
+  useEffect(() => {
+    if (game?.completed && !summaryDialogOpen && !endGameDialogOpen) {
+      setTimeout(() => setSummaryDialogOpen(true), 0);
+    }
+  }, [game?.completed, summaryDialogOpen, endGameDialogOpen]);
+
+  // 🏀 CoachBoard: Halftime Tactical Adjustment Summary
+  // Automatically trigger halftime report when the first half ends.
+  useEffect(() => {
+    const isEndOfFirstHalf =
+      (periodType === "QUARTERS" && period === 3) ||
+      (periodType === "HALVES" && period === 2);
+
+    if (isEndOfFirstHalf && lastViewedHalftimePeriod < period) {
+      setHalftimeReportOpen(true);
+      setLastViewedHalftimePeriod(period);
+    }
+  }, [period, periodType, lastViewedHalftimePeriod]);
+
+  // Periodic background sync during live tracking
+  useEffect(() => {
+    const interval = setInterval(() => {
+      syncService.pushUpdates();
+    }, 60000); // 1 minute
+    return () => clearInterval(interval);
+  }, []);
+
+  /**
+   * ⚡ Bolt: Centralized sorting of game events.
+   * Performance: Sorting once in a dedicated useMemo prevents redundant
+   * O(N log N) operations across multiple statistical derivations.
+   */
+  const sortedGameStats = useMemo(() => {
+    // ⚡ Bolt: Use direct comparison for ISO timestamps instead of localeCompare.
+    // Relational operators (<, >) are significantly faster for string comparison in hot paths.
+    return [...gameStats].sort((a, b) => {
+      if (a.timestamp < b.timestamp) return -1;
+      if (a.timestamp > b.timestamp) return 1;
+      return 0;
+    });
+  }, [gameStats]);
+
+  /**
+   * ⚡ Bolt: Consolidate statistical derivations.
+   * Performance: Use the pre-sorted event stream for single-pass derivation of
+   * scores, fouls, timeouts, possession, lineups, recent history, and opponent threats.
+   * This O(N) loop is decoupled from high-frequency clock updates.
+   */
+  const eventAggregates = useMemo(() => {
+    let curScore = 0;
+    let oppScore = 0;
+    let teamFouls = 0;
+    let oppFouls = 0;
+    let teamTimeouts = 0;
+    let oppTimeouts = 0;
+    let posState = null;
+    const onCourt = new Set<string>();
+    const stintStarts = new Map<string, number>();
+    const onCourtPeriodFouls = new Map<string, number>();
+    const pType = team?.periodType || "QUARTERS";
+    const periodLen = game?.periodLength ? game.periodLength * 60 : 600;
+
+    let lastLineupChangeClock = periodLen;
+    let lastLineupChangeScoreTeam = 0;
+    let lastLineupChangeScoreOpp = 0;
+    let periodStartScoreTeam = 0;
+    let periodStartScoreOpp = 0;
+
+    // Possession tracking fields
+    let teamFga = 0;
+    let teamFta = 0;
+    let teamTo = 0;
+    let teamOreb = 0;
+    let oppFga = 0;
+    let oppFta = 0;
+    let oppTo = 0;
+    let oppOreb = 0;
+
+    let lastTeamScoreClockTime = periodLen;
+    let lastTeamScorePeriod = 1;
+    let foundLastTeamScore = false;
+
+    // Opponent Threats tracking
+    const threats = new Map<string, OpponentThreat>();
+
+    for (let i = 0; i < sortedGameStats.length; i++) {
+      const s = sortedGameStats[i];
+      if (s.deletedAt) continue;
+
+      const isOpp =
+        s.playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
+        s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":");
+
+      // Score tracking
+      if (isOpp) {
+        oppScore += s.points || 0;
+        if (s.type === ACTION_TYPES.MAKE) {
+          if (s.points === 1) oppFta++;
+          else oppFga++;
+        }
+      } else {
+        curScore += s.points || 0;
+        if (s.type === ACTION_TYPES.MAKE) {
+          lastTeamScoreClockTime = s.clockTime ?? periodLen;
+          lastTeamScorePeriod = s.period;
+          foundLastTeamScore = true;
+          if (s.points === 1) teamFta++;
+          else teamFga++;
+        }
+      }
+
+      // Fouls (Period-aware)
+      if (
+        s.type === ACTION_TYPES.FOUL ||
+        s.type === ACTION_TYPES.FOUL_SHOOTING ||
+        s.type === ACTION_TYPES.FOUL_NON_SHOOTING ||
+        s.type === ACTION_TYPES.TECHNICAL_FOUL
+      ) {
+        if (isEventInPeriod(s.period, period, pType)) {
+          if (isOpp) {
+            oppFouls++;
+          } else {
+            teamFouls++;
+            // ⚡ Bolt: Track individual fouls during the main loop to avoid O(P*N) filter later.
+            if (onCourt.has(s.playerId)) {
+              onCourtPeriodFouls.set(
+                s.playerId,
+                (onCourtPeriodFouls.get(s.playerId) || 0) + 1,
+              );
+            }
+          }
+        }
+      }
+
+      // Timeouts
+      if (s.type === ACTION_TYPES.TIMEOUT) {
+        if (isOpp) {
+          oppTimeouts++;
+        } else {
+          teamTimeouts++;
+        }
+      }
+
+      // Possession
+      if (s.type === ACTION_TYPES.POSSESSION) {
+        posState = s.playerId;
+      }
+
+      // Track other possession stats
+      if (isOpp) {
+        if (s.type === ACTION_TYPES.MISS) {
+          if (s.points === 1) {
+            oppFta++;
+          } else {
+            oppFga++;
+            // Opponent Threat tracking for misses
+            let t = threats.get(s.playerId);
+            if (t) t.consecutiveMakes = 0;
+          }
+        } else if (s.type === ACTION_TYPES.OFF_REBOUND) {
+          oppOreb++;
+        } else if (s.type === ACTION_TYPES.TURNOVER) {
+          oppTo++;
+        } else if (s.type === ACTION_TYPES.MAKE && s.points && s.points > 1) {
+          // Opponent Threat tracking for makes
+          let t = threats.get(s.playerId);
+          if (!t) {
+            t = {
+              playerId: s.playerId,
+              points: 0,
+              makes: 0,
+              consecutiveMakes: 0,
+              isHot: false,
+            };
+            threats.set(s.playerId, t);
+          }
+          t.points += s.points;
+          t.makes++;
+          t.consecutiveMakes++;
+          if (t.points >= 8 || t.consecutiveMakes >= 3) {
+            t.isHot = true;
+          }
+        }
+      } else {
+        if (s.type === ACTION_TYPES.MISS) {
+          if (s.points === 1) teamFta++;
+          else teamFga++;
+        } else if (s.type === ACTION_TYPES.OFF_REBOUND) {
+          teamOreb++;
+        } else if (s.type === ACTION_TYPES.TURNOVER) {
+          teamTo++;
+        }
+      }
+
+      // Lineup and Substitution Tracking
+      if (s.type === ACTION_TYPES.SUB_IN) {
+        onCourt.add(s.playerId);
+        if (s.period === period) {
+          stintStarts.set(s.playerId, s.clockTime ?? periodLen);
+          // ⚡ Bolt: Update lineup plus-minus baselines during the single pass.
+          lastLineupChangeClock = s.clockTime ?? lastLineupChangeClock;
+          lastLineupChangeScoreTeam = curScore;
+          lastLineupChangeScoreOpp = oppScore;
+        }
+      } else if (s.type === ACTION_TYPES.SUB_OUT) {
+        onCourt.delete(s.playerId);
+        stintStarts.delete(s.playerId);
+        if (s.period === period) {
+          lastLineupChangeClock = s.clockTime ?? lastLineupChangeClock;
+          lastLineupChangeScoreTeam = curScore;
+          lastLineupChangeScoreOpp = oppScore;
+        }
+      }
+
+      // ⚡ Bolt: Capture scores at the start of the current period context.
+      if (s.period < period) {
+        periodStartScoreTeam = curScore;
+        periodStartScoreOpp = oppScore;
+      }
+    }
+
+    // ⚡ Bolt: If no sub happened in the period, baseline is the period start.
+    if (
+      lastLineupChangeClock === periodLen &&
+      lastLineupChangeScoreTeam === 0
+    ) {
+      lastLineupChangeScoreTeam = periodStartScoreTeam;
+      lastLineupChangeScoreOpp = periodStartScoreOpp;
+    }
+
+    // For players already on court at start of period without a SUB_IN event this period
+    onCourt.forEach((pId) => {
+      if (!stintStarts.has(pId)) {
+        stintStarts.set(pId, periodLen);
+      }
+    });
+
+    const defensiveStats = calculateStopsAndKills(sortedGameStats);
+
+    // 🏀 CoachBoard: Momentum Alerts Logic
+    let opponentRunValue = null;
+
+    // Run Detection (Look back at recent scoring events)
+    let tempOppRunPoints = 0;
+    let teamScoredSinceOppRunStarted = false;
+    for (let i = sortedGameStats.length - 1; i >= 0; i--) {
+      const s = sortedGameStats[i];
+      if (s.deletedAt || s.type !== ACTION_TYPES.MAKE) continue;
+
+      const isOpp =
+        s.playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
+        s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":");
+
+      if (isOpp) {
+        if (teamScoredSinceOppRunStarted) break;
+        tempOppRunPoints += s.points || 0;
+      } else {
+        teamScoredSinceOppRunStarted = true;
+        break;
+      }
+    }
+    if (tempOppRunPoints >= 8) {
+      opponentRunValue = `${tempOppRunPoints}-0`;
+    }
+
+    const MAX_TIMEOUTS = team?.fouls || 3;
+    const teamBonus = getBonusStatus(teamFouls, pType);
+    const oppBonus = getBonusStatus(oppFouls, pType);
+
+    const teamPoss = calculatePossessions(teamFga, teamFta, teamTo, teamOreb);
+    const oppPoss = calculatePossessions(oppFga, oppFta, oppTo, oppOreb);
+
+    return {
+      currentScore: curScore,
+      opponentScore: oppScore,
+      teamPpp: calculatePpp(curScore, teamPoss),
+      oppPpp: calculatePpp(oppScore, oppPoss),
+      teamFoulStats: {
+        teamFouls,
+        oppFouls,
+        teamBonusLabel: teamBonus.label,
+        teamIsDouble: teamBonus.isDouble,
+        teamBonusColor: teamBonus.color,
+        oppBonusLabel: oppBonus.label,
+        oppIsDouble: oppBonus.isDouble,
+        oppBonusColor: oppBonus.color,
+      },
+      timeoutStats: {
+        teamTOL: Math.max(0, MAX_TIMEOUTS - teamTimeouts),
+        oppTOL: Math.max(0, MAX_TIMEOUTS - oppTimeouts),
+      },
+      possessionState: posState,
+      onCourtIds: onCourt,
+      stintStarts,
+      defensiveStats,
+      momentumAlerts: {
+        opponentRun: opponentRunValue,
+        opponentThreats: Array.from(threats.values()).filter((t) => t.isHot),
+      },
+      onCourtPeriodFouls,
+      lastLineupChangeClock,
+      lastLineupChangeScoreTeam,
+      lastLineupChangeScoreOpp,
+      lastTeamScoreClockTime,
+      lastTeamScorePeriod,
+      foundLastTeamScore,
+      // ⚡ Bolt: Pre-filter and memoize only the last 10 active stats to reduce render-time processing.
+      recentStats: sortedGameStats
+        .filter((s) => !s.deletedAt)
+        .slice(-10)
+        .reverse(),
+    };
+  }, [
+    sortedGameStats,
+    period,
+    team?.periodType,
+    team?.fouls,
+    game?.periodLength,
+  ]);
+
+  /**
+   * ⚡ Bolt: Lightweight live status updates.
+   * Performance: This O(1) memoization handles values that change every second
+   * (like the clock) to avoid reprocessing the entire O(N) event stream.
+   */
+  const gameData = useMemo(() => {
+    const stintDurations = new Map<string, number>();
+    eventAggregates.stintStarts.forEach((startClock, pId) => {
+      stintDurations.set(pId, Math.max(0, startClock - clockSeconds));
+    });
+
+    // 🏀 CoachBoard: Decoupled Drought Detection
+    let scoringDrought = null;
+    const periodLen = game?.periodLength ? game.periodLength * 60 : 600;
+
+    if (eventAggregates.foundLastTeamScore) {
+      let droughtSecs = 0;
+      if (eventAggregates.lastTeamScorePeriod === period) {
+        droughtSecs = eventAggregates.lastTeamScoreClockTime - clockSeconds;
+      } else if (eventAggregates.lastTeamScorePeriod < period) {
+        droughtSecs =
+          eventAggregates.lastTeamScoreClockTime +
+          (period - eventAggregates.lastTeamScorePeriod - 1) * periodLen +
+          (periodLen - clockSeconds);
+      }
+      if (droughtSecs >= 180) {
+        scoringDrought = `${Math.floor(droughtSecs / 60)}m ${Math.floor(droughtSecs % 60)}s`;
+      }
+    } else {
+      const elapsedGameSecs =
+        (period - 1) * periodLen + (periodLen - clockSeconds);
+      if (elapsedGameSecs >= 180) {
+        scoringDrought = `${Math.floor(elapsedGameSecs / 60)}m ${Math.floor(elapsedGameSecs % 60)}s`;
+      }
+    }
+
+    return {
+      ...eventAggregates,
+      stintDurations,
+      currentLineupPlusMinus:
+        eventAggregates.currentScore -
+        eventAggregates.opponentScore -
+        (eventAggregates.lastLineupChangeScoreTeam -
+          eventAggregates.lastLineupChangeScoreOpp),
+      currentLineupStintDuration: Math.max(
+        0,
+        eventAggregates.lastLineupChangeClock - clockSeconds,
+      ),
+      momentumAlerts: {
+        ...eventAggregates.momentumAlerts,
+        scoringDrought,
+      },
+    };
+  }, [eventAggregates, clockSeconds, period, game?.periodLength]);
+
+  // Initialize draft state when dialog opens
+  useEffect(() => {
+    if (subDialogOpen) {
+      setDraftOnCourtIds(new Set(gameData.onCourtIds));
+      setSelectedSwapId(subOutPlayerId);
+    }
+  }, [subDialogOpen, gameData.onCourtIds, subOutPlayerId]);
+
+  const jerseyMap = useMemo(() => {
+    const map = new Map<string, string | undefined>();
+    for (let i = 0; i < teamPlayers.length; i++) {
+      map.set(teamPlayers[i].playerId, teamPlayers[i].jerseyNumber);
+    }
+    return map;
+  }, [teamPlayers]);
+
+  const statsGridDataRaw = useMemo(() => {
+    return calculatePlayerAggregates(
+      players,
+      sortedGameStats,
+      teamPlayers,
+      "total",
+      {
+        isSorted: true,
+        periodLength: game?.periodLength,
+        // ⚡ Bolt: Lightweight clock update decoupling.
+        // Assume player played until end of game for initial aggregation.
+        // Live adjustment for active players is done in statsGridData.
+        liveContext: { clockTime: 0, period },
+      },
+    );
+  }, [players, sortedGameStats, teamPlayers, game?.periodLength, period]);
+
+  /**
+   * ⚡ Bolt: Live adjustment for stats grid.
+   * Performance: Only adjusts the MIN and plus-minus for active players based
+   * on the current clock, avoiding a full O(N) re-calculation.
+   */
+  const statsGridData = useMemo(() => {
+    return statsGridDataRaw.map((p) => {
+      if (!gameData.onCourtIds.has(p.id.toString())) return p;
+      const startClock = gameData.stintStarts.get(p.id.toString()) ?? 0;
+      const currentStintSecs = Math.max(0, startClock - clockSeconds);
+      // calculatePlayerAggregates already added time until 0:00 (endClock: 0)
+      // So we subtract the time that hasn't happened yet in the current stint.
+      return {
+        ...p,
+        min: roundToOne(p.min - (startClock / 60) + (currentStintSecs / 60)),
+      };
+    });
+  }, [statsGridDataRaw, gameData.onCourtIds, gameData.stintStarts, clockSeconds]);
+
+  const sortedStatsGridData = useMemo(() => {
+    return [...statsGridData].sort((a, b) => {
+      const { key, direction } = sortConfig;
+      let valA = a[key];
+      let valB = b[key];
+
+      // Handle strings (name, jerseyNumber)
+      if (typeof valA === "string" && typeof valB === "string") {
+        // ⚡ Bolt: Use direct comparison instead of localeCompare for better performance in UI sorting.
+        if (direction === "asc") {
+          if (valA < valB) return -1;
+          if (valA > valB) return 1;
+          return 0;
+        } else {
+          if (valB < valA) return -1;
+          if (valB > valA) return 1;
+          return 0;
+        }
+      }
+
+      // Handle numbers
+      valA = (valA as number) || 0;
+      valB = (valB as number) || 0;
+      return direction === "asc" ? valA - valB : valB - valA;
+    });
+  }, [statsGridData, sortConfig]);
+
+  const statsMap = useMemo(() => {
+    const map = new Map<string, PlayerAggregates>();
+    for (let i = 0; i < statsGridData.length; i++) {
+      map.set(statsGridData[i].id.toString(), statsGridData[i]);
+    }
+    return map;
+  }, [statsGridData]);
+
+  // 🏀 CoachBoard: Halftime Lineup Stats
+  const halftimeLineupStats = useMemo(() => {
+    if (!halftimeReportOpen) return [];
+
+    // Filter stats for the first half
+    const firstHalfStats = sortedGameStats.filter((s) => {
+      if (periodType === "QUARTERS") return s.period <= 2;
+      return s.period <= 1;
+    });
+
+    return calculateLineupStats(firstHalfStats, {
+      isSorted: true,
+      periodLength: game?.periodLength,
+    });
+  }, [halftimeReportOpen, sortedGameStats, periodType, game?.periodLength]);
+
+  // 🏀 CoachBoard: Hot/Cold Streaks
+  // Why: Provides immediate coaching visibility into recent player performance trends.
+  const playerStreaks = useMemo(() => {

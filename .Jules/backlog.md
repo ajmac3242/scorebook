@@ -171,8 +171,8 @@
 **Acceptance Criteria:**
 - [x] Add `shotQuality` (OPEN, CONTESTED) to the `StatEvent` schema.
 - [x] Add a simple toggle or button group in the shot recording dialog to tag quality.
-- [x] Display "Process Efficiency" in `GameStats` (e.g., "EFG% on Open Shots" vs "EFG% on Contested Shots").
-- [x] Filter Shot Chart by Shot Quality.
+- [ ] Display "Process Efficiency" in `GameStats` (e.g., "EFG% on Open Shots" vs "EFG% on Contested Shots").
+- [ ] Filter Shot Chart by Shot Quality.
 
 ## Interactive Game Flow & Momentum Chart
 **Priority:** MEDIUM
@@ -224,8 +224,8 @@
 **Why:** In the heat of the game, a bench player on the opposing team can hit three 3-pointers before a coach even notices. Immediate alerts on "Unchecked Threats" prevent games from slipping away.
 **What:** Monitor opponent scoring patterns and trigger HUD alerts in GameMode when an opponent player exceeds their season average or reaches a scoring milestone (e.g., "Opponent #24 is 4/4 from 3PT").
 **Acceptance Criteria:**
-- [x] Scoreboard HUD alert: "THREAT ALERT: Player X has scored 10 straight points."
-- [x] Indicator on the "Opponent Tracking" card showing current hot/cold status of active opponent players.
+- [ ] Scoreboard HUD alert: "THREAT ALERT: Player X has scored 10 straight points."
+- [ ] Indicator on the "Opponent Tracking" card showing current hot/cold status of active opponent players.
 - [ ] Suggestion to change defensive assignment or call timeout when a threat threshold is met.
 
 ## Possession-Based Efficiency Metrics (PPP)
