@@ -330,7 +330,7 @@ jobs:
   # ---------------------------------------------------------------
   # Auto-Merge: Only runs if parallel jobs pass
   # ---------------------------------------------------------------
-  auto-merge:
+    auto-merge:
     name: Auto-Merge PR
     runs-on: ubuntu-latest
     timeout-minutes: 10
