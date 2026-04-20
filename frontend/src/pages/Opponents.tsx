@@ -35,9 +35,10 @@ const Opponents: React.FC = () => {
   const [newName, setNewName] = useState("");
   const [newLogoUrl, setNewLogoUrl] = useState("");
 
-  const opponents = useLiveQuery(async () => {
-    return await db.opponents.toArray();
-  }) || [];
+  const opponents =
+    useLiveQuery(async () => {
+      return await db.opponents.toArray();
+    }) || [];
 
   const handleAddOpponent = async () => {
     if (!newName.trim()) return;
@@ -59,7 +60,11 @@ const Opponents: React.FC = () => {
   };
 
   const handleDeleteOpponent = async (id: string) => {
-    if (window.confirm("Are you sure you want to delete this opponent and all their scouting data?")) {
+    if (
+      window.confirm(
+        "Are you sure you want to delete this opponent and all their scouting data?",
+      )
+    ) {
       try {
         await db.opponents.delete(id);
         await syncService.pushUpdates();
@@ -76,9 +81,7 @@ const Opponents: React.FC = () => {
         subtitle="Historical scouting and personnel tracking"
         avatarColor="var(--palette-midnight)"
         backTo="/"
-        stats={[
-          { label: "TOTAL", value: opponents.length.toString() },
-        ]}
+        stats={[{ label: "TOTAL", value: opponents.length.toString() }]}
         actions={
           <Button
             variant="contained"
@@ -164,7 +167,14 @@ const Opponents: React.FC = () => {
                     </Box>
                     <ChevronRightIcon color="action" />
                   </Box>
-                  <Box sx={{ p: 2, display: "flex", justifyContent: "flex-end", gap: 1 }}>
+                  <Box
+                    sx={{
+                      p: 2,
+                      display: "flex",
+                      justifyContent: "flex-end",
+                      gap: 1,
+                    }}
+                  >
                     <Tooltip title="Delete Opponent">
                       <IconButton
                         size="small"
@@ -198,7 +208,9 @@ const Opponents: React.FC = () => {
       </Box>
 
       <Dialog open={openAddDialog} onClose={() => setOpenAddDialog(false)}>
-        <DialogTitle sx={{ fontFamily: "var(--serif)" }}>Add New Opponent</DialogTitle>
+        <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
+          Add New Opponent
+        </DialogTitle>
         <DialogContent>
           <Stack spacing={3} sx={{ mt: 1, minWidth: 300 }}>
             <TextField

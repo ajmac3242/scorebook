@@ -793,13 +793,22 @@ export const calculateOpponentScoutingStats = (
 
   // Finalize PPP and percentages
   for (const [pId, agg] of result.entries()) {
-    const fta = stats
-      .filter((s) => s.playerId === pId && s.type === ACTION_TYPES.MAKE && s.points === 1)
-      .length +
-      stats.filter((s) => s.playerId === pId && s.type === ACTION_TYPES.MISS && s.points === 1)
-      .length;
+    const fta =
+      stats.filter(
+        (s) =>
+          s.playerId === pId && s.type === ACTION_TYPES.MAKE && s.points === 1,
+      ).length +
+      stats.filter(
+        (s) =>
+          s.playerId === pId && s.type === ACTION_TYPES.MISS && s.points === 1,
+      ).length;
 
-    const possessions = calculatePossessions(agg.attempts, fta, agg.turnovers, agg.offRebounds);
+    const possessions = calculatePossessions(
+      agg.attempts,
+      fta,
+      agg.turnovers,
+      agg.offRebounds,
+    );
     agg.possessions = Math.round(possessions);
     agg.ppp = calculatePpp(agg.points, possessions);
     agg.fgPct = calculateFgPct(agg.makes, agg.attempts);
@@ -829,7 +838,14 @@ export const calculatePlayEfficiency = (
 ): PlayEfficiency[] => {
   const data: Record<
     string,
-    { makes: number; attempts: number; points: number; fta: number; turnovers: number; threePM: number }
+    {
+      makes: number;
+      attempts: number;
+      points: number;
+      fta: number;
+      turnovers: number;
+      threePM: number;
+    }
   > = {};
 
   for (let i = 0; i < stats.length; i++) {
@@ -872,7 +888,12 @@ export const calculatePlayEfficiency = (
 
   return Object.entries(data)
     .map(([name, s]) => {
-      const possessions = calculatePossessions(s.attempts, s.fta, s.turnovers, 0);
+      const possessions = calculatePossessions(
+        s.attempts,
+        s.fta,
+        s.turnovers,
+        0,
+      );
       return {
         name,
         attempts: s.attempts,

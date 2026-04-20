@@ -37,7 +37,10 @@ const PlaybookEfficiencyWidget: React.FC<PlaybookEfficiencyWidgetProps> = ({
   };
 
   const filteredMarkers = gameStats
-    .filter((s) => s.playName === selectedPlay && (s.type === "MAKE" || s.type === "MISS"))
+    .filter(
+      (s) =>
+        s.playName === selectedPlay && (s.type === "MAKE" || s.type === "MISS"),
+    )
     .map((s) => ({
       id: s.id,
       x: s.locationX || 0,
@@ -64,11 +67,24 @@ const PlaybookEfficiencyWidget: React.FC<PlaybookEfficiencyWidgetProps> = ({
             }}
           >
             <Box>
-              <Typography variant="caption" sx={{ fontWeight: 700, display: "block" }}>
+              <Typography
+                variant="caption"
+                sx={{ fontWeight: 700, display: "block" }}
+              >
                 {play.name.toUpperCase()}
               </Typography>
-              <Typography variant="body2" sx={{ fontWeight: 800, color: getEfficiencyColor(play.ppp) }}>
-                {play.ppp} PPP <Typography component="span" variant="caption" color="text.secondary">({play.attempts} poss)</Typography>
+              <Typography
+                variant="body2"
+                sx={{ fontWeight: 800, color: getEfficiencyColor(play.ppp) }}
+              >
+                {play.ppp} PPP{" "}
+                <Typography
+                  component="span"
+                  variant="caption"
+                  color="text.secondary"
+                >
+                  ({play.attempts} poss)
+                </Typography>
               </Typography>
             </Box>
             <IconButton size="small" onClick={() => setSelectedPlay(play.name)}>
@@ -77,13 +93,22 @@ const PlaybookEfficiencyWidget: React.FC<PlaybookEfficiencyWidgetProps> = ({
           </Box>
         ))}
         {plays.length === 0 && (
-          <Typography variant="caption" color="text.secondary" sx={{ textAlign: "center", py: 1 }}>
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{ textAlign: "center", py: 1 }}
+          >
             No plays tagged yet.
           </Typography>
         )}
       </Stack>
 
-      <Dialog open={!!selectedPlay} onClose={() => setSelectedPlay(null)} fullWidth maxWidth="sm">
+      <Dialog
+        open={!!selectedPlay}
+        onClose={() => setSelectedPlay(null)}
+        fullWidth
+        maxWidth="sm"
+      >
         <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
           Shot Chart: {selectedPlay}
         </DialogTitle>

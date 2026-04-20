@@ -1,65 +1,68 @@
-import { describe, it, expect } from 'vitest';
-import { calculateOpponentScoutingStats, calculatePlayEfficiency } from './stats';
-import { StatEvent } from '../db';
+import { describe, it, expect } from "vitest";
+import {
+  calculateOpponentScoutingStats,
+  calculatePlayEfficiency,
+} from "./stats";
+import { StatEvent } from "../db";
 
-describe('Opponent Scouting and Play Efficiency', () => {
+describe("Opponent Scouting and Play Efficiency", () => {
   const events: StatEvent[] = [
     // Play: 'Horns' - 4 events, 1 make (2pts), 1 miss, 1 TO, 1 make (3pts).
     {
-      id: '1',
-      gameId: 'g1',
-      playerId: 'OPPONENT:10',
-      type: 'MAKE',
+      id: "1",
+      gameId: "g1",
+      playerId: "OPPONENT:10",
+      type: "MAKE",
       points: 2,
-      playName: 'Horns',
+      playName: "Horns",
       period: 1,
       timestamp: new Date().toISOString(),
     },
     {
-      id: '2',
-      gameId: 'g1',
-      playerId: 'OPPONENT:10',
-      type: 'MISS',
-      playName: 'Horns',
+      id: "2",
+      gameId: "g1",
+      playerId: "OPPONENT:10",
+      type: "MISS",
+      playName: "Horns",
       period: 1,
       timestamp: new Date().toISOString(),
     },
     {
-      id: '3',
-      gameId: 'g1',
-      playerId: 'OPPONENT:11',
-      type: 'TURNOVER',
-      playName: 'Horns',
+      id: "3",
+      gameId: "g1",
+      playerId: "OPPONENT:11",
+      type: "TURNOVER",
+      playName: "Horns",
       period: 1,
       timestamp: new Date().toISOString(),
     },
     {
-      id: '5',
-      gameId: 'g1',
-      playerId: 'OPPONENT:10',
-      type: 'MAKE',
+      id: "5",
+      gameId: "g1",
+      playerId: "OPPONENT:10",
+      type: "MAKE",
       points: 3,
-      playName: 'Horns',
+      playName: "Horns",
       period: 1,
       timestamp: new Date().toISOString(),
     },
     // Play: 'ISO' - 1 event, 1 make (3pts).
     {
-      id: '4',
-      gameId: 'g1',
-      playerId: 'p1',
-      type: 'MAKE',
+      id: "4",
+      gameId: "g1",
+      playerId: "p1",
+      type: "MAKE",
       points: 3,
-      playName: 'ISO',
+      playName: "ISO",
       period: 1,
       timestamp: new Date().toISOString(),
     },
   ];
 
-  it('calculates opponent scouting stats correctly', () => {
+  it("calculates opponent scouting stats correctly", () => {
     const stats = calculateOpponentScoutingStats(events);
-    const p10 = stats.get('OPPONENT:10');
-    const p11 = stats.get('OPPONENT:11');
+    const p10 = stats.get("OPPONENT:10");
+    const p11 = stats.get("OPPONENT:11");
 
     expect(p10).toBeDefined();
     expect(p10?.points).toBe(5);
@@ -70,10 +73,10 @@ describe('Opponent Scouting and Play Efficiency', () => {
     expect(p11?.turnovers).toBe(1);
   });
 
-  it('calculates play efficiency correctly', () => {
+  it("calculates play efficiency correctly", () => {
     const plays = calculatePlayEfficiency(events);
-    const horns = plays.find(p => p.name === 'Horns');
-    const iso = plays.find(p => p.name === 'ISO');
+    const horns = plays.find((p) => p.name === "Horns");
+    const iso = plays.find((p) => p.name === "ISO");
 
     expect(horns).toBeDefined();
     // Horns: 2 MAKE (2pt, 3pt), 1 MISS, 1 TO.

@@ -43,7 +43,11 @@ import SubstitutionAuditDialog from "../components/SubstitutionAuditDialog";
 import { getShotZone } from "../utils/shotZones";
 import { db } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
-import { ACTION_TYPES, SPECIAL_PLAYER_IDS, SHOT_QUALITY } from "../constants/stats";
+import {
+  ACTION_TYPES,
+  SPECIAL_PLAYER_IDS,
+  SHOT_QUALITY,
+} from "../constants/stats";
 import {
   calculatePlayerAggregates,
   calculateOpponentAggregates,
@@ -277,7 +281,8 @@ const GameStats: React.FC = () => {
       const playerMatch =
         selectedPlayerId === "ALL" || s.playerId === selectedPlayerId;
       const typeMatch = selectedType === "ALL" || s.type === selectedType;
-      const qualityMatch = selectedQuality === "ALL" || s.shotQuality === selectedQuality;
+      const qualityMatch =
+        selectedQuality === "ALL" || s.shotQuality === selectedQuality;
       const playMatch =
         selectedPlay === "ALL" || (s.playName && s.playName === selectedPlay);
       if (playerMatch && typeMatch && playMatch && qualityMatch) {
@@ -1354,15 +1359,23 @@ const GameStats: React.FC = () => {
                     <TableHead>
                       <TableRow sx={{ bgcolor: "rgba(0,0,0,0.02)" }}>
                         <TableCell sx={{ fontWeight: 700 }}>Quality</TableCell>
-                        <TableCell align="right" sx={{ fontWeight: 700 }}>Freq</TableCell>
-                        <TableCell align="right" sx={{ fontWeight: 700 }}>PTS</TableCell>
-                        <TableCell align="right" sx={{ fontWeight: 700 }}>eFG%</TableCell>
+                        <TableCell align="right" sx={{ fontWeight: 700 }}>
+                          Freq
+                        </TableCell>
+                        <TableCell align="right" sx={{ fontWeight: 700 }}>
+                          PTS
+                        </TableCell>
+                        <TableCell align="right" sx={{ fontWeight: 700 }}>
+                          eFG%
+                        </TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
                       {processEfficiency.map((p) => (
                         <TableRow key={p.quality}>
-                          <TableCell sx={{ fontWeight: 600 }}>{p.quality}</TableCell>
+                          <TableCell sx={{ fontWeight: 600 }}>
+                            {p.quality}
+                          </TableCell>
                           <TableCell align="right">{p.attempts}</TableCell>
                           <TableCell align="right">{p.points}</TableCell>
                           <TableCell align="right">{p.efg}%</TableCell>

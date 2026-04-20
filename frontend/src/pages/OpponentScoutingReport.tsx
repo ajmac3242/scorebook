@@ -23,19 +23,29 @@ const OpponentScoutingReport: React.FC = () => {
   const { opponentId } = useParams<{ opponentId: string }>();
 
   const opponent = useLiveQuery(
-    () => (opponentId ? db.opponents.get(opponentId) : Promise.resolve(undefined)),
+    () =>
+      opponentId ? db.opponents.get(opponentId) : Promise.resolve(undefined),
     [opponentId],
   );
 
   const games = useLiveQuery(
-    () => (opponentId ? db.games.where("opponentId").equals(opponentId).toArray() : Promise.resolve([])),
+    () =>
+      opponentId
+        ? db.games.where("opponentId").equals(opponentId).toArray()
+        : Promise.resolve([]),
     [opponentId],
   );
 
-  const gameIds = useMemo(() => games?.map((g) => g.id).filter(Boolean) as string[] || [], [games]);
+  const gameIds = useMemo(
+    () => (games?.map((g) => g.id).filter(Boolean) as string[]) || [],
+    [games],
+  );
 
   const stats = useLiveQuery(
-    () => (gameIds.length > 0 ? db.stats.where("gameId").anyOf(gameIds).toArray() : Promise.resolve([])),
+    () =>
+      gameIds.length > 0
+        ? db.stats.where("gameId").anyOf(gameIds).toArray()
+        : Promise.resolve([]),
     [gameIds],
   );
 
@@ -45,7 +55,9 @@ const OpponentScoutingReport: React.FC = () => {
   }, [stats]);
 
   const sortedPlayers = useMemo(() => {
-    return Array.from(scoutingStats.entries()).sort((a, b) => b[1].points - a[1].points);
+    return Array.from(scoutingStats.entries()).sort(
+      (a, b) => b[1].points - a[1].points,
+    );
   }, [scoutingStats]);
 
   return (
@@ -69,22 +81,47 @@ const OpponentScoutingReport: React.FC = () => {
                 <TableHead>
                   <TableRow sx={{ bgcolor: "rgba(0,0,0,0.02)" }}>
                     <TableCell sx={{ fontWeight: 700 }}>Jersey</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 700 }}>PTS</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 700 }}>FG%</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 700 }}>PPP</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 700 }}>REB</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 700 }}>AST</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 700 }}>STL</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 700 }}>BLK</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 700 }}>TO</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 700 }}>
+                      PTS
+                    </TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 700 }}>
+                      FG%
+                    </TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 700 }}>
+                      PPP
+                    </TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 700 }}>
+                      REB
+                    </TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 700 }}>
+                      AST
+                    </TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 700 }}>
+                      STL
+                    </TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 700 }}>
+                      BLK
+                    </TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 700 }}>
+                      TO
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {sortedPlayers.map(([pId, agg]) => (
                     <TableRow key={pId}>
                       <TableCell sx={{ fontWeight: 600 }}>
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                          <Avatar sx={{ width: 24, height: 24, fontSize: "0.75rem", bgcolor: "secondary.main" }}>
+                        <Box
+                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                        >
+                          <Avatar
+                            sx={{
+                              width: 24,
+                              height: 24,
+                              fontSize: "0.75rem",
+                              bgcolor: "secondary.main",
+                            }}
+                          >
                             {pId.split(":")[1] || "??"}
                           </Avatar>
                           #{pId.split(":")[1] || "??"}
