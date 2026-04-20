@@ -53,6 +53,7 @@ const PlayerStats: React.FC = () => {
 
   const [selectedGameId, setSelectedGameId] = useState<string>("");
   const [selectedType, setSelectedType] = useState<string>("");
+  const [clutchFilter, setClutchFilter] = useState(false);
   const [shotChartView, setShotChartView] = useState<"markers" | "heatmap">(
     "markers",
   );
@@ -186,6 +187,8 @@ const PlayerStats: React.FC = () => {
       "total",
       {
         periodLength: activeGame?.periodLength,
+        clutchOnly: clutchFilter,
+        periodType: teamIdParam ? teams.find(t => t.id === teamIdParam)?.periodType : "QUARTERS",
         liveContext: activeGame
           ? {
               clockTime: activeGame.clockTime || 0,
@@ -353,7 +356,7 @@ const PlayerStats: React.FC = () => {
             <ToggleButton value="heatmap">Heatmap</ToggleButton>
           </ToggleButtonGroup>
         </Stack>
-        <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+        <Stack direction={{ xs: "column", sm: "row" }} spacing={2} alignItems="center">
           <FormControl fullWidth size="small">
             <InputLabel>Game</InputLabel>
             <Select
@@ -388,6 +391,23 @@ const PlayerStats: React.FC = () => {
               <MenuItem value="TURNOVER">Turnovers</MenuItem>
             </Select>
           </FormControl>
+          <ToggleButton
+            value="clutch"
+            selected={clutchFilter}
+            onChange={() => setClutchFilter(!clutchFilter)}
+            size="small"
+            color="primary"
+            sx={{
+              fontWeight: 800,
+              whiteSpace: "nowrap",
+              minWidth: 120,
+              bgcolor: clutchFilter ? "primary.main" : "transparent",
+              color: clutchFilter ? "white" : "primary.main",
+              "&:hover": { bgcolor: clutchFilter ? "primary.dark" : "rgba(25, 118, 210, 0.04)" }
+            }}
+          >
+            🔥 CLUTCH
+          </ToggleButton>
         </Stack>
       </MoleskineCard>
 

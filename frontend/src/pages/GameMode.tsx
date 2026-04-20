@@ -100,7 +100,10 @@ import {
   calculatePossessions,
   calculatePpp,
   calculateLineupStats,
+  calculateTeamSeasonAverages,
+  calculateOpponentAggregates,
   isEventInPeriod,
+  isOpponentId,
   getBonusStatus,
   getInitials,
   type PlayerAggregates,
@@ -366,39 +369,73 @@ const Scoreboard = React.memo(
               }}
             >
               {gameData.momentumAlerts.opponentRun && (
-                <Typography
-                  variant="caption"
-                  sx={{
-                    bgcolor: "error.main",
-                    color: "white",
-                    px: 1,
-                    borderRadius: 1,
-                    fontSize: "0.6rem",
-                    fontWeight: 800,
-                    animation: `${pulse} 2s infinite ease-in-out`,
-                  }}
-                >
-                  RUN: {gameData.momentumAlerts.opponentRun}
-                </Typography>
+                <Stack spacing={0.5} alignItems="center">
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      bgcolor: "error.main",
+                      color: "white",
+                      px: 1,
+                      borderRadius: 1,
+                      fontSize: "0.6rem",
+                      fontWeight: 800,
+                      animation: `${pulse} 2s infinite ease-in-out`,
+                    }}
+                  >
+                    RUN: {gameData.momentumAlerts.opponentRun}
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      bgcolor: "rgba(255,255,255,0.9)",
+                      color: "error.main",
+                      px: 1,
+                      borderRadius: 1,
+                      fontSize: "0.5rem",
+                      fontWeight: 900,
+                      textTransform: "uppercase"
+                    }}
+                  >
+                    Suggest Timeout
+                  </Typography>
+                </Stack>
               )}
               {gameData.momentumAlerts.opponentThreats.map((t) => (
-                <Typography
-                  key={t.playerId}
-                  variant="caption"
-                  sx={{
-                    bgcolor: "warning.main",
-                    color: "black",
-                    px: 1,
-                    borderRadius: 1,
-                    fontSize: "0.55rem",
-                    fontWeight: 900,
-                    animation: `${pulse} 2.5s infinite ease-in-out`,
-                  }}
-                >
-                  THREAT: Opp #
-                  {t.playerId.includes(":") ? t.playerId.split(":")[1] : "??"} (
-                  {t.points} pts)
-                </Typography>
+                <Stack key={t.playerId} spacing={0.5} alignItems="center">
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      bgcolor: "warning.main",
+                      color: "black",
+                      px: 1,
+                      borderRadius: 1,
+                      fontSize: "0.55rem",
+                      fontWeight: 900,
+                      animation: `${pulse} 2.5s infinite ease-in-out`,
+                    }}
+                  >
+                    {t.straightPoints >= 6
+                      ? `THREAT: Opp #${t.playerId.split(":")[1] || "??"} has scored ${t.straightPoints} STRAIGHT`
+                      : `THREAT: Opp #${t.playerId.split(":")[1] || "??"} (${t.points} pts)`
+                    }
+                  </Typography>
+                  {t.straightPoints >= 8 && (
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        bgcolor: "rgba(255,255,255,0.9)",
+                        color: "warning.dark",
+                        px: 1,
+                        borderRadius: 1,
+                        fontSize: "0.45rem",
+                        fontWeight: 900,
+                        textTransform: "uppercase"
+                      }}
+                    >
+                      Change Matchup
+                    </Typography>
+                  )}
+                </Stack>
               ))}
             </Box>
           )}
@@ -965,6 +1002,14 @@ const GameMode: React.FC = () => {
     [game?.teamId],
   );
 
+  const teamSeasonStats = useLiveQuery(async () => {
+    if (!teamId) return { ppp: "0.00" };
+    const games = await db.games.where("teamId").equals(teamId).toArray();
+    const gameIds = games.map((g) => g.id!).filter(Boolean);
+    const allStats = await db.stats.where("gameId").anyOf(gameIds).toArray();
+    return calculateTeamSeasonAverages(games, allStats);
+  }, [teamId]);
+
   // 🏀 CoachBoard: Persistent Period & Clock Tracking
   // Why: Ensures the game period and clock don't reset on page refresh.
   useEffect(() => {
@@ -1191,6 +1236,7 @@ const GameMode: React.FC = () => {
               points: 0,
               makes: 0,
               consecutiveMakes: 0,
+            straightPoints: 0,
               isHot: false,
             };
             threats.set(s.playerId, t);
@@ -1485,6 +1531,35 @@ const GameMode: React.FC = () => {
     }
     return map;
   }, [statsGridData]);
+
+  const opponentStats = useMemo(() => {
+    // Collect all opponent events
+    const oppEvents = sortedGameStats.filter((s) => isOpponentId(s.playerId));
+
+    // Group by specific jersey IDs if present
+    const jerseyMap = new Map<string, StatEvent[]>();
+    for (const s of oppEvents) {
+      const id = s.playerId;
+      if (!jerseyMap.has(id)) jerseyMap.set(id, []);
+      jerseyMap.get(id)!.push(s);
+    }
+
+    const res = [];
+    for (const [id, events] of jerseyMap.entries()) {
+      const agg = calculateOpponentAggregates(events);
+      const threats = gameData.momentumAlerts.opponentThreats;
+      const t = threats.find((t) => t.playerId === id);
+
+      res.push({
+        id,
+        jersey: id.includes(":") ? id.split(":")[1] : "??",
+        ...agg,
+        isHot: !!t,
+        straightPoints: t?.straightPoints || 0,
+      });
+    }
+    return res.sort((a, b) => b.points - a.points);
+  }, [sortedGameStats, gameData.momentumAlerts.opponentThreats]);
 
   // 🏀 CoachBoard: Halftime Lineup Stats
   const halftimeLineupStats = useMemo(() => {
@@ -2671,21 +2746,77 @@ const GameMode: React.FC = () => {
             ) : (
               <MoleskineCard
                 sx={{
-                  bgcolor: "secondary.light",
-                  color: "secondary.contrastText",
+                  bgcolor: "rgba(0,0,0,0.02)",
                 }}
               >
                 <Typography
                   variant="subtitle2"
                   gutterBottom
-                  sx={{ fontWeight: 600 }}
+                  sx={{ fontWeight: 700, display: "flex", justifyContent: "space-between" }}
                 >
-                  {game?.opponent || "Opponent"} Tracking
+                  <span>{game?.opponent || "Opponent"} Scouting</span>
+                  <Chip label="Live Tracking" size="small" color="secondary" sx={{ height: 18, fontSize: "0.6rem" }} />
                 </Typography>
-                <Typography variant="body2">
-                  Stats recorded in this mode will be assigned to the "
-                  {game?.opponent || "Opponent"}" player.
-                </Typography>
+
+                <Stack spacing={1} sx={{ mt: 2 }}>
+                  {opponentStats.length > 0 ? (
+                    opponentStats.map((opp) => (
+                      <Box
+                        key={opp.id}
+                        sx={{
+                          p: 1.5,
+                          bgcolor: "white",
+                          borderRadius: 2,
+                          border: "1px solid rgba(0,0,0,0.05)",
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center"
+                        }}
+                      >
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                          <Avatar sx={{ width: 32, height: 32, bgcolor: "secondary.main", fontSize: "0.8rem", fontWeight: 700 }}>
+                            {opp.jersey}
+                          </Avatar>
+                          <Box>
+                            <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                              Opponent #{opp.jersey}
+                              {opp.isHot && (
+                                <Box component="span" sx={{ ml: 1, fontSize: "1rem" }}>🔥</Box>
+                              )}
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary">
+                              {opp.points} pts | {opp.makes}-{opp.attempts} FG | {opp.turnovers} TO
+                            </Typography>
+                          </Box>
+                        </Box>
+                        {opp.straightPoints >= 4 && (
+                          <Chip
+                            label={`${opp.straightPoints} STRAIGHT`}
+                            size="small"
+                            color="error"
+                            sx={{ height: 16, fontSize: "0.55rem", fontWeight: 800 }}
+                          />
+                        )}
+                      </Box>
+                    ))
+                  ) : (
+                    <Box sx={{ py: 3, textAlign: "center", border: "1px dashed #ccc", borderRadius: 2 }}>
+                      <Typography variant="caption" color="text.secondary">
+                        No opponent players tracked yet.
+                      </Typography>
+                    </Box>
+                  )}
+                </Stack>
+
+                <Box sx={{ mt: 3, p: 1.5, bgcolor: "secondary.light", borderRadius: 2, color: "white" }}>
+                  <Typography variant="caption" sx={{ fontWeight: 700, display: "block", mb: 0.5 }}>
+                    QUICK TIP
+                  </Typography>
+                  <Typography variant="caption" sx={{ lineHeight: 1.2, display: "block" }}>
+                    Tap the court in Opponent mode to record stats for specific jersey numbers.
+                    Hot players will be highlighted here.
+                  </Typography>
+                </Box>
               </MoleskineCard>
             )}
 
@@ -3245,6 +3376,7 @@ const GameMode: React.FC = () => {
         onClose={() => setHalftimeReportOpen(false)}
         teamPpp={gameData.teamPpp}
         oppPpp={gameData.oppPpp}
+        seasonPpp={teamSeasonStats?.ppp || "0.00"}
         topLineups={halftimeLineupStats}
         bottomLineups={[...halftimeLineupStats].reverse()}
         opponentThreats={gameData.momentumAlerts.opponentThreats}
