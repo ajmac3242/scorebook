@@ -8,17 +8,19 @@ import { APIGatewayProxyStructuredResultV2 } from "aws-lambda";
 /**
  * Internal keys to redact from outgoing data.
  */
-export const INTERNAL_KEYS = new Set<string>([
-  "synced",
-  "PK",
-  "SK",
-  "GSI1PK",
-  "GSI1SK",
-  "GSI2PK",
-  "GSI2SK",
-  "deletedAt",
-  "isArchived",
-]);
+export const INTERNAL_KEYS = Object.freeze(
+  new Set<string>([
+    "synced",
+    "PK",
+    "SK",
+    "GSI1PK",
+    "GSI1SK",
+    "GSI2PK",
+    "GSI2SK",
+    "deletedAt",
+    "isArchived",
+  ]),
+);
 
 /**
  * Redacts internal metadata keys from outgoing data for API responses and S3 snapshots.
@@ -82,6 +84,12 @@ export function filterActive<T extends { deletedAt?: string | null }>(
 /**
  * Formats a standardized JSON response with defense-in-depth security headers.
  *
+ * WHY: Centralizing response generation ensures that critical security headers
+ * are applied consistently to all outgoing API responses. This implements
+ * defense-in-depth by instructing the browser to enable strict security
+ * protections (e.g., CSP, HSTS, COOP, CORP). Critical headers are applied
+ * *after* any custom headers to prevent accidental or malicious overrides.
+ *
  * @param {number} statusCode - The HTTP status code.
  * @param {unknown} body - The JSON body data.
  * @param {Record<string, string>} [headers] - Optional additional headers.
@@ -95,6 +103,7 @@ export function response(
   return {
     statusCode,
     headers: {
+      ...headers,
       "Content-Type": "application/json",
       "Cache-Control":
         "private, no-cache, no-store, max-age=0, must-revalidate",
@@ -105,15 +114,17 @@ export function response(
         "max-age=31536000; includeSubDomains; preload",
       "Cross-Origin-Opener-Policy": "same-origin",
       "Cross-Origin-Resource-Policy": "same-origin",
+      "Cross-Origin-Embedder-Policy": "require-corp",
       "Content-Security-Policy":
         "default-src 'none'; frame-ancestors 'none'; sandbox; base-uri 'none'; form-action 'none';",
       "Referrer-Policy": "no-referrer",
-      "Permissions-Policy": "interest-cohort=()",
+      "Permissions-Policy":
+        "camera=(), microphone=(), geolocation=(), payment=(), interest-cohort=()",
       "X-XSS-Protection": "0",
       "X-Permitted-Cross-Domain-Policies": "none",
       "X-DNS-Prefetch-Control": "off",
       "X-Download-Options": "noopen",
-      ...headers,
+      "Origin-Agent-Cluster": "?1",
     },
     body: JSON.stringify(sanitizeOutput(body)),
   };

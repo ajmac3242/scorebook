@@ -536,13 +536,20 @@ async function handleCleanup(
 ): Promise<APIGatewayProxyResultV2 | null> {
   if (path === "/cleanup" && method === "POST") {
     const adminApiKey = process.env.ADMIN_API_KEY;
+
+    // 🛡️ Enhancement: Prevent weak or missing ADMIN_API_KEY configurations.
+    // Minimum 16 characters required for production-grade entropy.
+    if (!adminApiKey || adminApiKey.length < 16) {
+      logError(
+        "Security Warning",
+        "ADMIN_API_KEY is missing or too weak (min 16 chars). Cleanup denied.",
+      );
+      return response(403, { message: "Unauthorized cleanup request" });
+    }
+
     const requestApiKey = getHeader(event.headers, "x-api-key") || "";
 
-    if (
-      !adminApiKey ||
-      !requestApiKey ||
-      !safeCompare(requestApiKey, adminApiKey)
-    ) {
+    if (!requestApiKey || !safeCompare(requestApiKey, adminApiKey)) {
       return response(403, { message: "Unauthorized cleanup request" });
     }
 
