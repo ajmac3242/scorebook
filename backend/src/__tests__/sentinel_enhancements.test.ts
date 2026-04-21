@@ -29,7 +29,7 @@ describe("Sentinel Security Enhancements Tests", () => {
     s3Mock.reset();
     process.env.TABLE_NAME = "TestTable";
     process.env.DATA_BUCKET = "TestDataBucket";
-    process.env.ADMIN_API_KEY = "test-admin-key";
+    process.env.ADMIN_API_KEY = "test-admin-key-secure";
   });
 
   const createEvent = (

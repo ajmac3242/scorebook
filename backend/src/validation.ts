@@ -6,13 +6,15 @@
 /**
  * Standardized IDs for special players.
  */
-export const SPECIAL_PLAYER_IDS = {
+export const SPECIAL_PLAYER_IDS = Object.freeze({
   OPPONENT: "OPPONENT",
   TEAM_TIMEOUT: "TEAM_TIMEOUT",
   OUR_TEAM: "OUR_TEAM",
-};
+});
 
-const SPECIAL_ID_SET: Set<string> = new Set(Object.values(SPECIAL_PLAYER_IDS));
+const SPECIAL_ID_SET: Set<string> = Object.freeze(
+  new Set(Object.values(SPECIAL_PLAYER_IDS)),
+);
 
 /**
  * Regex for validating UUID v4 format.
@@ -66,25 +68,27 @@ export function isValidPlayerId(id: unknown): boolean {
 /**
  * Valid basketball action types for stat event validation.
  */
-export const VALID_ACTION_TYPES = new Set([
-  "MAKE",
-  "MISS",
-  "REBOUND",
-  "OFF_REBOUND",
-  "DEF_REBOUND",
-  "ASSIST",
-  "STEAL",
-  "TURNOVER",
-  "BLOCK",
-  "FOUL",
-  "FOUL_SHOOTING",
-  "FOUL_NON_SHOOTING",
-  "TIMEOUT",
-  "SUB_IN",
-  "SUB_OUT",
-  "POSSESSION",
-  "TECHNICAL_FOUL",
-]);
+export const VALID_ACTION_TYPES = Object.freeze(
+  new Set([
+    "MAKE",
+    "MISS",
+    "REBOUND",
+    "OFF_REBOUND",
+    "DEF_REBOUND",
+    "ASSIST",
+    "STEAL",
+    "TURNOVER",
+    "BLOCK",
+    "FOUL",
+    "FOUL_SHOOTING",
+    "FOUL_NON_SHOOTING",
+    "TIMEOUT",
+    "SUB_IN",
+    "SUB_OUT",
+    "POSSESSION",
+    "TECHNICAL_FOUL",
+  ]),
+);
 
 /**
  * Validates a stat event body.

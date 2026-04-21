@@ -10,28 +10,39 @@ import { INTERNAL_KEYS } from "./responses.js";
 /**
  * Set of headers that should be redacted from logs for security.
  */
-export const REDACTED_HEADERS = new Set<string>([
-  "authorization",
-  "cookie",
-  "set-cookie",
-  "x-api-key",
-  "proxy-authorization",
-  "x-amz-security-token",
-  "x-auth-token",
-  "session-id",
-  "api-key",
-  "secret",
-  "password",
-  "token",
-]);
+export const REDACTED_HEADERS = Object.freeze(
+  new Set<string>([
+    "authorization",
+    "cookie",
+    "set-cookie",
+    "x-api-key",
+    "proxy-authorization",
+    "x-amz-security-token",
+    "x-auth-token",
+    "session-id",
+    "api-key",
+    "secret",
+    "password",
+    "token",
+  ]),
+);
 
 /**
  * Redacts sensitive fields from an object before logging.
+ *
+ * WHY: This utility prevents accidental leakage of sensitive information into
+ * CloudWatch logs. It recursively scans objects and redacts any keys that match
+ * the REDACTED_HEADERS set. A recursion limit is enforced to prevent stack
+ * overflow Denial-of-Service (DoS) attacks from malicious, deeply nested payloads.
+ *
  * @param obj - The object to sanitize.
+ * @param depth - Current recursion depth.
  * @returns A sanitized copy of the object.
  */
-function sanitizeForLog(obj: unknown): unknown {
+function sanitizeForLog(obj: unknown, depth = 0): unknown {
   if (!obj || typeof obj !== "object") return obj;
+  if (depth > 10) return "[DEPTH_LIMIT_REACHED]";
+
   const sanitized = (Array.isArray(obj) ? [...obj] : { ...obj }) as Record<
     string,
     unknown
@@ -40,7 +51,7 @@ function sanitizeForLog(obj: unknown): unknown {
     if (REDACTED_HEADERS.has(key.toLowerCase())) {
       sanitized[key] = "[REDACTED]";
     } else if (typeof sanitized[key] === "object") {
-      sanitized[key] = sanitizeForLog(sanitized[key]);
+      sanitized[key] = sanitizeForLog(sanitized[key], depth + 1);
     }
   }
   return sanitized;
@@ -276,11 +287,9 @@ export function getHeader(
 /**
  * Set of keys that are forbidden to prevent prototype pollution.
  */
-const FORBIDDEN_KEYS = new Set<string>([
-  "__proto__",
-  "constructor",
-  "prototype",
-]);
+const FORBIDDEN_KEYS = Object.freeze(
+  new Set<string>(["__proto__", "constructor", "prototype"]),
+);
 
 /**
  * Strips local-only fields and internal DynamoDB keys from the data object before saving.

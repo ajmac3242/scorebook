@@ -257,9 +257,11 @@ describe("Security Tests", () => {
       "Content-Security-Policy":
         "default-src 'none'; frame-ancestors 'none'; sandbox; base-uri 'none'; form-action 'none';",
       "Referrer-Policy": "no-referrer",
-      "Permissions-Policy": "interest-cohort=()",
+      "Permissions-Policy":
+        "camera=(), microphone=(), geolocation=(), payment=(), interest-cohort=()",
       "X-XSS-Protection": "0",
       "X-Permitted-Cross-Domain-Policies": "none",
+      "Origin-Agent-Cluster": "?1",
     });
   });
 
@@ -309,7 +311,7 @@ describe("Security Tests", () => {
   });
 
   it("protects /cleanup endpoint with ADMIN_API_KEY and case-insensitive headers", async () => {
-    process.env.ADMIN_API_KEY = "super-secret-admin-key";
+    process.env.ADMIN_API_KEY = "super-secret-admin-key-secure";
     ddbMock.on(QueryCommand).resolves({ Items: [] });
 
     // Test unauthorized (missing key)
@@ -325,13 +327,13 @@ describe("Security Tests", () => {
 
     // Test authorized (exact match)
     const event3 = createEvent("POST", "/cleanup");
-    event3.headers = { "x-api-key": "super-secret-admin-key" };
+    event3.headers = { "x-api-key": "super-secret-admin-key-secure" };
     const resp3: any = await handler(event3);
     expect(resp3.statusCode).toBe(200);
 
     // Test authorized (case-insensitive header)
     const event4 = createEvent("POST", "/cleanup");
-    event4.headers = { "X-API-KEY": "super-secret-admin-key" };
+    event4.headers = { "X-API-KEY": "super-secret-admin-key-secure" };
     const resp4: any = await handler(event4);
     expect(resp4.statusCode).toBe(200);
   });
@@ -417,12 +419,12 @@ describe("Security Tests", () => {
   });
 
   it("protects /cleanup with timing-safe comparison (safeCompare) for various key lengths", async () => {
-    process.env.ADMIN_API_KEY = "secret";
+    process.env.ADMIN_API_KEY = "super-secret-admin-key-secure";
     ddbMock.on(QueryCommand).resolves({ Items: [] });
 
     // Matching key
     const event1 = createEvent("POST", "/cleanup");
-    event1.headers = { "x-api-key": "secret" };
+    event1.headers = { "x-api-key": "super-secret-admin-key-secure" };
     const resp1: any = await handler(event1);
     expect(resp1.statusCode).toBe(200);
 
@@ -434,7 +436,7 @@ describe("Security Tests", () => {
 
     // Non-matching, longer key
     const event3 = createEvent("POST", "/cleanup");
-    event3.headers = { "x-api-key": "secret-too-long" };
+    event3.headers = { "x-api-key": "super-secret-admin-key-secure-too-long" };
     const resp3: any = await handler(event3);
     expect(resp3.statusCode).toBe(403);
   });
