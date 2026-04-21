@@ -57,3 +57,8 @@ cd frontend && pnpm test:jules -- "<module-name>"
 - **Patterns in what gets left incomplete**: Tactical visualization often lags behind data collection. While we could record many stats, seeing the "spread" over time (momentum) provides immediate coaching context that raw scores don't.
 - **Recurring issues agents create**: Neglecting to update visualization dependency arrays in React hooks when adding new filtering dimensions (like heatmap result filtering).
 - **End-of-Day improvement patterns**: Closing the loop between data entry (Shot Quality) and data visualization (Heatmap Filtering) ensures new features are immediately useful for post-game analysis.
+
+## End-of-Day Insights - 2026-04-20
+- **Patterns in what gets left incomplete**: Defensive efficiency (Opponent PPP) is often neglected in favor of offensive metrics, leaving coaches with only half the tactical picture.
+- **Recurring issues agents create**: Hard-coding game lengths (e.g., 40 mins) in UI components instead of deriving them from team settings or calculating a standardized rate (NET/40).
+- **End-of-Day improvement patterns**: Implementing 'Temporal Windowing' (Last 5/10 games) provides immediate value for scouting and performance trend analysis without requiring complex backend filtering.

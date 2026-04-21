@@ -1014,6 +1014,9 @@ const GameStats: React.FC = () => {
               PTS AGN
             </TableCell>
             <TableCell align="right" sx={{ fontWeight: 700 }}>
+              NET/40
+            </TableCell>
+            <TableCell align="right" sx={{ fontWeight: 700 }}>
               +/-
             </TableCell>
           </TableRow>
@@ -1039,6 +1042,20 @@ const GameStats: React.FC = () => {
               <TableCell align="right">{row.pointsFor}</TableCell>
               <TableCell align="right">{row.pointsAgainst}</TableCell>
               <TableCell align="right" sx={{ fontWeight: 700 }}>
+                {row.netRatingPer40}
+              </TableCell>
+              <TableCell
+                align="right"
+                sx={{
+                  fontWeight: 700,
+                  color:
+                    row.netRating > 0
+                      ? "success.main"
+                      : row.netRating < 0
+                        ? "error.main"
+                        : "inherit",
+                }}
+              >
                 {row.netRating > 0 ? `+${row.netRating}` : row.netRating}
               </TableCell>
             </TableRow>
@@ -1062,6 +1079,10 @@ const GameStats: React.FC = () => {
         avatarColor="rgba(255,255,255,0.1)"
         backTo={game?.teamId ? `/teams/${game.teamId}` : "/teams"}
         primaryColor={team?.primaryColor}
+        stats={[
+          { label: "PPP", value: teamData.ppp },
+          { label: "OPPP", value: oppData.ppp },
+        ]}
         actions={
           <Stack direction="row" spacing={1} alignItems="center">
             {!isDeleted && (
