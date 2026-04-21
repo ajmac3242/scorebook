@@ -30,6 +30,8 @@ import {
   ToggleButton,
   ToggleButtonGroup,
   useMediaQuery,
+  Chip,
+  Divider,
 } from "@mui/material";
 import {
   OpenInFull as ExpandIcon,
@@ -67,7 +69,6 @@ import html2canvas from "html2canvas";
 import SortableHeader from "../components/SortableHeader";
 import {
   Line,
-  AreaChart,
   Area,
   XAxis,
   YAxis,
@@ -137,7 +138,13 @@ const GameStats: React.FC = () => {
    * WHY: Provides deep tactical context at any point in the game timeline,
    * including the active lineup and current efficiency (PPP).
    */
-  const ScoreFlowTooltip = ({ active, payload, label }: any) => {
+  interface ScoreFlowTooltipProps {
+    active?: boolean;
+    payload?: any[];
+    label?: string;
+  }
+
+  const ScoreFlowTooltip = ({ active, payload, label }: ScoreFlowTooltipProps) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (
