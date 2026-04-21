@@ -2,8 +2,8 @@ import { describe, it, expect } from "@jest/globals";
 import {
   stripLocalFields,
   normalizePath,
-  maskEvent
-} from "../utils";
+  maskEvent,
+} from "../utils.js";
 import { APIGatewayProxyEventV2 } from "aws-lambda";
 
 describe("backend utils", () => {

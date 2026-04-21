@@ -1914,7 +1914,16 @@ describe("stats utilities", () => {
 
   describe("calculateTeamSeasonAverages", () => {
     it("returns team season ppp average", () => {
-      const games: Game[] = [{ id: "g1", completed: 1, teamId: "t1" } as any];
+      const games: Game[] = [
+        {
+          id: "g1",
+          completed: 1,
+          teamId: "t1",
+          opponent: "Opp",
+          date: "2023-01-01",
+          location: "Home",
+        },
+      ];
       const stats: StatEvent[] = [
         {
           gameId: "g1",
