@@ -1,39 +1,16 @@
-# Assistant Coach Journal 🏀
+# 🏀 Assistant Coach Journal
 
 ## Basketball Workflow Insights
-- Substitution errors are the most common source of stat discrepancies. A timeline-based audit is essential for trust.
-- Chaining events (Make -> Assist, Miss -> Rebound) reduces cognitive load for the scorekeeper and ensures higher data completion.
-- Offensive play tracking bridges the gap between raw stats and tactical coaching.
+- **Momentum Visibility**: Coaches need to see *why* a lead was lost. Combining the score spread with PPP (Points Per Possession) trends in the Game Flow chart allows identifying if a drought was due to poor offense (Team PPP drop) or defensive breakdown (Opponent PPP spike).
+- **Lineup Context**: Stats like +/- are useful, but seeing the *lineup* active during a specific run (via the new chart tooltip) provides immediate tactical feedback for future rotations.
+- **Analytics Windows**: A team's season average can mask recent struggles. Implementing "Last 5" and "Last 10" filters on the Dashboard and Team Stats pages helps coaches identify current trends versus historical performance.
 
 ## Implementation Patterns
-- Use Dexie `useLiveQuery` to ensure that edits in the timeline audit reflect immediately across the app.
-- Multi-step dialogs or overlays in `GameMode` should be non-intrusive and "one-tap" focused.
+- **Single-Pass Aggregation**: Enhanced `calculateScoreFlow` to compute possessions and PPP in the same pass as the score spread. This maintains O(N) performance while quadrupling the tactical data points available to the UI.
+- **Tactical Tooltips**: Using `ComposedChart` allows mixing Area (Spread) and Line (PPP) charts. Custom tooltips that display jersey numbers (using the jersey map) bridge the gap between "abstract data" and "the players on the floor."
+- **Dashboard Leadership**: Surfacing "Top Performing Lineups" directly on the team dashboard (with temporal filtering) moves lineup analytics from a "deep dive" tab to a "daily check" metric.
 
-## Edge Cases to Watch
-- Substitution audit needs to handle "Empty" slots or unknown players.
-- Linked event chaining should be skippable to avoid blocking the scorekeeper during fast play.
-- Deleting a "Make" that has a linked "Assist" should probably offer to delete the assist too.
-
-## Basketball Workflow Insights (Session 2)
-- Scouting is only as good as its persistence. Auto-updating opponent rosters from live game tracking ensures scouting data grows passively with every game played.
-- Official table reconciliation (Verified Period Workflow) prevents "drift" in fouls and scores, which is critical for high-stakes late-game scenarios where bonus status or foul-out limits are key.
-- Tactical analysis often requires relative context (e.g., "Why were we better in the 1st vs 2nd?"). Side-by-side (or swipeable) heatmap comparisons provide immediate visual answers.
-
-## Implementation Patterns (Session 2)
-- Exposing the database instance to `window` in development mode drastically simplifies automated verification and seeding.
-- Using `SYSTEM_CORRECTION` event types allows manual stat overrides while preserving the integrity of the original event stream.
-
-## Session: 2024-05-22 - Assistant Coach 🏀
-
-### Basketball Workflow Insights
-- **Opponent Scouting Persistence**: Moving opponent roster/stats from per-game state to a persistent "Library" allows for multi-game trend analysis (e.g., identifying "Heat Check" threats over a season).
-- **Process vs. Outcome**: Coaching decisions benefit more from knowing if a shot was "Open" or "Contested" (Process Efficiency) than just if it went in. Tagging this live provides immediate halftime adjustments.
-- **Play Efficiency Context**: PPP (Points Per Possession) is the gold standard for Playbook analysis. Including turnovers in the possession denominator ensures that high-risk plays are penalized correctly in the data.
-
-### Implementation Patterns
-- **Dexie Schema Evolution**: Version 19 update to include `opponents` table and `opponentId` in Games. Using `name` as an index facilitates fast lookups for Autocomplete components.
-- **Stat Aggregation Cache**: Reusing `calculatePlayEfficiency` logic in both live HUD and post-game stats ensures consistency.
-
-### Edge Cases
-- **Duplicate Players in Scouting**: Need to handle cases where an opponent is faced multiple times. Roster syncing should merge rather than overwrite.
-- **Turnover Attribution in Plays**: Turnovers during a set play must be tagged with the `playName` to accurately reflect efficiency.
+## Basketball Scoring Edge Cases
+- **Garbage Time PPP**: Large runs at the end of blowouts can skew PPP metrics. Future iterations might benefit from a "Garbage Time" filter to keep efficiency metrics focused on competitive play.
+- **Possession Estimation**: Using the standard (FGA + 0.44*FTA + TO - OREB) formula is reliable, but real-time possession tracking requires careful handling of technical fouls and floor violations which don't always result in a formal possession change.
+- **Lineup Stability**: Lineups with very few minutes can have extreme Net Ratings. Adding a minimum minute threshold for the "Top Lineups" dashboard display was critical for data integrity.

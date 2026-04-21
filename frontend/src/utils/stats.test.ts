@@ -739,23 +739,26 @@ describe("stats utilities", () => {
       ];
       const results = calculateScoreFlow(stats, 10);
       expect(results.length).toBe(4);
-      expect(results[1]).toEqual({
+      expect(results[1]).toMatchObject({
         time: "0:10",
         Team: 2,
         Opponent: 0,
         Spread: 2,
+        event: "2PT MAKE",
       });
-      expect(results[2]).toEqual({
+      expect(results[2]).toMatchObject({
         time: "5:00",
         Team: 2,
         Opponent: 3,
         Spread: -1,
+        event: "3PT MAKE",
       });
-      expect(results[3]).toEqual({
+      expect(results[3]).toMatchObject({
         time: "11:00",
         Team: 4,
         Opponent: 3,
         Spread: 1,
+        event: "2PT MAKE",
       });
     });
 
@@ -780,11 +783,12 @@ describe("stats utilities", () => {
       ];
       // 12 minute periods. 12:00 (P1) + (12:00 - 8:00) (P2) = 16:00
       const results = calculateScoreFlow(stats, 12);
-      expect(results[1]).toEqual({
+      expect(results[1]).toMatchObject({
         time: "16:00",
         Team: 2,
         Opponent: 0,
         Spread: 2,
+        event: "2PT MAKE",
       });
     });
   });

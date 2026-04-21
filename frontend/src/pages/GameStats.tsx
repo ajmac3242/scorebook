@@ -30,6 +30,8 @@ import {
   ToggleButton,
   ToggleButtonGroup,
   useMediaQuery,
+  Chip,
+  Divider,
 } from "@mui/material";
 import {
   OpenInFull as ExpandIcon,
@@ -56,6 +58,7 @@ import {
   calculateStopsAndKills,
   calculatePossessions,
   calculatePpp,
+  type ScoreFlowPoint,
 } from "../utils/stats";
 import { MoleskineCard } from "../components/SharedUI";
 import EntityBanner from "../components/EntityBanner";
@@ -67,7 +70,6 @@ import html2canvas from "html2canvas";
 import SortableHeader from "../components/SortableHeader";
 import {
   Line,
-  AreaChart,
   Area,
   XAxis,
   YAxis,
@@ -76,6 +78,7 @@ import {
   ResponsiveContainer,
   Legend,
   ReferenceLine,
+  ComposedChart,
 } from "recharts";
 
 /**
@@ -129,6 +132,100 @@ const GameStats: React.FC = () => {
       key,
       direction: prev.key === key && prev.direction === "desc" ? "asc" : "desc",
     }));
+  };
+
+  /**
+   * 🏀 Assistant Coach: Custom Game Flow Tooltip
+   * WHY: Provides deep tactical context at any point in the game timeline,
+   * including the active lineup and current efficiency (PPP).
+   */
+  interface ScoreFlowTooltipProps {
+    active?: boolean;
+    payload?: { payload: ScoreFlowPoint }[];
+    label?: string;
+  }
+
+  const ScoreFlowTooltip = ({
+    active,
+    payload,
+    label,
+  }: ScoreFlowTooltipProps) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload;
+      return (
+        <Box
+          sx={{
+            bgcolor: "white",
+            p: 2,
+            border: "1px solid rgba(0,0,0,0.1)",
+            boxShadow: theme.shadows[3],
+            borderRadius: 1,
+            minWidth: 200,
+          }}
+        >
+          <Typography variant="subtitle2" sx={{ fontWeight: 800, mb: 1 }}>
+            {label} - Spread: {data.Spread > 0 ? "+" : ""}
+            {data.Spread}
+          </Typography>
+          {data.event && (
+            <Chip
+              label={data.event}
+              size="small"
+              color="primary"
+              sx={{ mb: 1, height: 20, fontSize: "0.65rem", fontWeight: 700 }}
+            />
+          )}
+          <Divider sx={{ my: 1 }} />
+          <Typography
+            variant="caption"
+            sx={{ fontWeight: 700, display: "block", mb: 0.5 }}
+          >
+            ACTIVE LINEUP:
+          </Typography>
+          <Stack direction="row" spacing={0.5} sx={{ mb: 1.5 }}>
+            {data.lineup?.map((pId: string) => (
+              <Avatar
+                key={pId}
+                sx={{
+                  width: 24,
+                  height: 24,
+                  fontSize: "0.65rem",
+                  bgcolor: theme.palette.grey[200],
+                  color: "black",
+                  border: "1px solid rgba(0,0,0,0.1)",
+                }}
+              >
+                {shotChartJerseyMap.get(pId) || "??"}
+              </Avatar>
+            ))}
+            {(!data.lineup || data.lineup.length === 0) && (
+              <Typography variant="caption" color="text.secondary">
+                Unknown
+              </Typography>
+            )}
+          </Stack>
+          <Grid container spacing={1}>
+            <Grid item xs={6}>
+              <Typography variant="caption" sx={{ display: "block" }}>
+                TEAM PPP
+              </Typography>
+              <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                {data.teamPpp || "0.00"}
+              </Typography>
+            </Grid>
+            <Grid item xs={6}>
+              <Typography variant="caption" sx={{ display: "block" }}>
+                OPP PPP
+              </Typography>
+              <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                {data.oppPpp || "0.00"}
+              </Typography>
+            </Grid>
+          </Grid>
+        </Box>
+      );
+    }
+    return null;
   };
 
   const game = useLiveQuery(
@@ -963,14 +1060,61 @@ const GameStats: React.FC = () => {
 
   const scoreFlowChart = (
     <ResponsiveContainer width="100%" height="100%">
-      <AreaChart data={scoreFlowData}>
+      <ComposedChart data={scoreFlowData}>
         <CartesianGrid strokeDasharray="3 3" vertical={false} />
         <XAxis dataKey="time" />
-        <YAxis />
-        <Tooltip />
+        <YAxis yAxisId="spread" orientation="left" />
+        <YAxis
+          yAxisId="ppp"
+          orientation="right"
+          domain={[0, 2]}
+          label={{ value: "PPP", angle: -90, position: "insideRight" }}
+        />
+        <Tooltip content={<ScoreFlowTooltip />} />
         <Legend />
-        <ReferenceLine y={0} stroke="#666" strokeWidth={2} />
+        <ReferenceLine
+          yAxisId="spread"
+          y={0}
+          stroke="#666"
+          strokeWidth={2}
+          label="Neutral"
+        />
+
+        {/* Period boundaries */}
+        {(() => {
+          const lines = [];
+          const periodLen = game?.periodLength || 10;
+          const totalTime =
+            (allStats[allStats.length - 1]?.period || 4) * periodLen;
+          for (let m = periodLen; m < totalTime; m += periodLen) {
+            lines.push(
+              <ReferenceLine
+                key={m}
+                x={`${m}:00`}
+                stroke="rgba(0,0,0,0.2)"
+                strokeDasharray="5 5"
+                label={{ value: `P${m / periodLen + 1}`, position: "top" }}
+              />,
+            );
+          }
+          return lines;
+        })()}
+
+        {/* Timeouts */}
+        {scoreFlowData
+          .filter((d) => d.event === ACTION_TYPES.TIMEOUT)
+          .map((d, idx) => (
+            <ReferenceLine
+              key={`to-${idx}`}
+              x={d.time}
+              stroke={theme.palette.warning.main}
+              strokeWidth={1}
+              strokeDasharray="3 3"
+            />
+          ))}
+
         <Area
+          yAxisId="spread"
           type="stepAfter"
           dataKey="Spread"
           stroke={theme.palette.primary.main}
@@ -979,6 +1123,27 @@ const GameStats: React.FC = () => {
           strokeWidth={2}
         />
         <Line
+          yAxisId="ppp"
+          type="monotone"
+          dataKey="teamPpp"
+          name="Team PPP"
+          stroke={theme.palette.primary.main}
+          strokeWidth={1}
+          dot={false}
+          strokeDasharray="3 3"
+        />
+        <Line
+          yAxisId="ppp"
+          type="monotone"
+          dataKey="oppPpp"
+          name="Opp PPP"
+          stroke={theme.palette.secondary.main}
+          strokeWidth={1}
+          dot={false}
+          strokeDasharray="3 3"
+        />
+        <Line
+          yAxisId="spread"
           type="stepAfter"
           dataKey="Team"
           stroke={theme.palette.primary.main}
@@ -987,6 +1152,7 @@ const GameStats: React.FC = () => {
           hide
         />
         <Line
+          yAxisId="spread"
           type="stepAfter"
           dataKey="Opponent"
           stroke={theme.palette.secondary.main}
@@ -994,7 +1160,7 @@ const GameStats: React.FC = () => {
           dot={false}
           hide
         />
-      </AreaChart>
+      </ComposedChart>
     </ResponsiveContainer>
   );
 
@@ -1081,7 +1247,7 @@ const GameStats: React.FC = () => {
         primaryColor={team?.primaryColor}
         stats={[
           { label: "PPP", value: teamData.ppp },
-          { label: "OPPP", value: oppData.ppp },
+          { label: "Def. PPP", value: oppData.ppp },
         ]}
         actions={
           <Stack direction="row" spacing={1} alignItems="center">

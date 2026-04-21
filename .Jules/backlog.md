@@ -181,8 +181,8 @@
 **What:** Add a "Game Flow" visualization to the `GameStats` page—a line graph showing the point spread over the course of the game clock.
 **Acceptance Criteria:**
 - [x] Interactive line chart showing `Our Score - Opponent Score` on the Y-axis and `Game Time` on the X-axis.
-- [ ] Mark key events on the timeline (Timeouts, Period ends).
-- [ ] Hovering over the line shows the score and active lineup at that specific time.
+- [x] Mark key events on the timeline (Timeouts, Period ends).
+- [x] Hovering over the line shows the score and active lineup at that specific time.
 - [x] Color-code the background to show who was "in control" (e.g., blue for home lead, red for away lead).
 
 ## Multi-Game Lineup Net Rating Analytics
@@ -191,10 +191,10 @@
 **Why:** Single-game Plus/Minus can be noisy. Coaches need to know which 5-man combinations are most effective over a season or tournament.
 **What:** Aggregate lineup performance data across multiple games for a team.
 **Acceptance Criteria:**
-- [ ] New "Lineup Analytics" tab on the `TeamStats` or `My Team` (Dashboard) page.
-- [ ] Table of 5-man units (lineups) that have played together.
-- [ ] Metrics per lineup: Total Minutes, Points For, Points Against, Net Rating (Diff per 100 possessions or per 40 mins).
-- [ ] Ability to filter by "Last 5 Games" or "Season".
+- [x] New "Lineup Analytics" tab on the `TeamStats` or `My Team` (Dashboard) page.
+- [x] Table of 5-man units (lineups) that have played together.
+- [x] Metrics per lineup: Total Minutes, Points For, Points Against, Net Rating (Diff per 100 possessions or per 40 mins).
+- [x] Ability to filter by "Last 5 Games" or "Season".
 
 ## Halftime Tactical Adjustment Summary
 **Priority:** HIGH
@@ -234,10 +234,10 @@
 **Why:** Raw scores are misleading if one team plays much faster than the other. Points Per Possession (PPP) is the gold standard for measuring true offensive and defensive efficiency.
 **What:** Transition the internal stats engine to calculate total possessions and derive PPP for teams, lineups, and individual players.
 **Acceptance Criteria:**
-- [ ] Calculate "Possessions" for both teams (FGA + 0.44*FTA + TO - OREB).
-- [ ] Display PPP on the GameMode sidebar and Game Stats dashboard.
-- [ ] Defensive PPP (Points Allowed Per Possession) to measure defensive quality independently of pace.
-- [ ] Trend line showing PPP fluctuation throughout the game.
+- [x] Calculate "Possessions" for both teams (FGA + 0.44*FTA + TO - OREB).
+- [x] Display PPP on the GameMode sidebar and Game Stats dashboard.
+- [x] Defensive PPP (Points Allowed Per Possession) to measure defensive quality independently of pace.
+- [x] Trend line showing PPP fluctuation throughout the game.
 
 ## Visual Rotation & Stint Timeline Chart
 **Priority:** MEDIUM

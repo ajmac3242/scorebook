@@ -92,6 +92,10 @@ export interface ScoreFlowPoint {
   Team: number;
   Opponent: number;
   Spread: number;
+  event?: string;
+  lineup?: string[];
+  teamPpp?: string;
+  oppPpp?: string;
 }
 
 /**
@@ -1388,35 +1392,86 @@ export const calculateScoreFlow = (
   periodLengthMinutes: number = 10,
 ): ScoreFlowPoint[] => {
   const scores = { team: 0, opp: 0 };
-  const result = [{ time: "00:00", Team: 0, Opponent: 0, Spread: 0 }];
+  const result: ScoreFlowPoint[] = [
+    { time: "00:00", Team: 0, Opponent: 0, Spread: 0 },
+  ];
   const periodLenSecs = periodLengthMinutes * 60;
+
+  // Running stats for PPP
+  let teamFga = 0,
+    teamFta = 0,
+    teamTo = 0,
+    teamOreb = 0;
+  let oppFga = 0,
+    oppFta = 0,
+    oppTo = 0,
+    oppOreb = 0;
+  const currentLineup = new Set<string>();
 
   for (let i = 0; i < stats.length; i++) {
     const stat = stats[i];
+    if (!isActive(stat)) continue;
 
-    if (!isScoringEvent(stat) || !isActive(stat)) continue;
-
+    const isOpp = isOpponentId(stat.playerId);
     const pts = stat.points || 0;
-    if (isOpponentId(stat.playerId)) {
-      scores.opp += pts;
-    } else {
-      scores.team += pts;
+
+    // Track possessions
+    if (stat.type === ACTION_TYPES.MAKE) {
+      if (isOpp) {
+        scores.opp += pts;
+        if (pts === 1) oppFta++;
+        else oppFga++;
+      } else {
+        scores.team += pts;
+        if (pts === 1) teamFta++;
+        else teamFga++;
+      }
+    } else if (stat.type === ACTION_TYPES.MISS) {
+      if (isOpp) {
+        if (pts === 1) oppFta++;
+        else oppFga++;
+      } else {
+        if (pts === 1) teamFta++;
+        else teamFga++;
+      }
+    } else if (stat.type === ACTION_TYPES.OFF_REBOUND) {
+      if (isOpp) oppOreb++;
+      else teamOreb++;
+    } else if (stat.type === ACTION_TYPES.TURNOVER) {
+      if (isOpp) oppTo++;
+      else teamTo++;
+    } else if (stat.type === ACTION_TYPES.SUB_IN) {
+      currentLineup.add(stat.playerId);
+    } else if (stat.type === ACTION_TYPES.SUB_OUT) {
+      currentLineup.delete(stat.playerId);
     }
 
-    // 🏀 CoachBoard: Accurate Timeline Calculation
-    // Why: Uses period and clockTime to determine game elapsed time.
-    // This ensures correct chart positioning even for out-of-order data entry.
-    const period = stat.period || 1;
-    const clockTime = stat.clockTime ?? periodLenSecs;
-    const elapsedSeconds =
-      (period - 1) * periodLenSecs + (periodLenSecs - clockTime);
+    // Capture point if it's a significant event for the chart
+    if (stat.type === ACTION_TYPES.MAKE || stat.type === ACTION_TYPES.TIMEOUT) {
+      const period = stat.period || 1;
+      const clockTime = stat.clockTime ?? periodLenSecs;
+      const elapsedSeconds =
+        (period - 1) * periodLenSecs + (periodLenSecs - clockTime);
 
-    result.push({
-      time: formatClock(elapsedSeconds),
-      Team: scores.team,
-      Opponent: scores.opp,
-      Spread: scores.team - scores.opp,
-    });
+      const teamPoss = calculatePossessions(teamFga, teamFta, teamTo, teamOreb);
+      const oppPoss = calculatePossessions(oppFga, oppFta, oppTo, oppOreb);
+
+      let eventLabel = stat.type;
+      if (stat.type === ACTION_TYPES.MAKE) {
+        eventLabel = `${pts}PT MAKE`;
+      }
+
+      result.push({
+        time: formatClock(elapsedSeconds),
+        Team: scores.team,
+        Opponent: scores.opp,
+        Spread: scores.team - scores.opp,
+        event: eventLabel,
+        lineup: Array.from(currentLineup),
+        teamPpp: calculatePpp(scores.team, teamPoss),
+        oppPpp: calculatePpp(scores.opp, oppPoss),
+      });
+    }
   }
   return result;
 };
@@ -1586,6 +1641,8 @@ export const calculateLineupStats = (
     liveContext?: { clockTime: number; period: number };
     clutchOnly?: boolean;
     periodType?: string;
+    key?: string;
+    direction?: "asc" | "desc";
   } = {},
 ): LineupAggregates[] => {
   // ⚡ Bolt: Process events in a single pass to avoid grouping overhead.
@@ -1727,17 +1784,35 @@ export const calculateLineupStats = (
     );
   }
 
-  return Array.from(lineupStats.values())
-    .map((agg) => {
-      const net = agg.pointsFor - agg.pointsAgainst;
-      const mins = agg.seconds / 60;
-      return {
-        ...agg,
-        netRating: net,
-        netRatingPer40: mins > 0 ? ((net / mins) * 40).toFixed(1) : "0.0",
-      };
-    })
-    .sort((a, b) => b.netRating - a.netRating);
+  const result = Array.from(lineupStats.values()).map((agg) => {
+    const net = agg.pointsFor - agg.pointsAgainst;
+    const mins = agg.seconds / 60;
+    return {
+      ...agg,
+      netRating: net,
+      netRatingPer40: mins > 0 ? ((net / mins) * 40).toFixed(1) : "0.0",
+    };
+  });
+
+  const sortKey = options.key || "netRating";
+  const sortDir = options.direction || "desc";
+
+  return result.sort((a, b) => {
+    const aValue = a[sortKey as keyof typeof a];
+    const bValue = b[sortKey as keyof typeof b];
+
+    if (typeof aValue === "string" && typeof bValue === "string") {
+      const aNum = parseFloat(aValue);
+      const bNum = parseFloat(bValue);
+      return sortDir === "desc" ? bNum - aNum : aNum - bNum;
+    }
+
+    if (typeof aValue === "number" && typeof bValue === "number") {
+      return sortDir === "desc" ? bValue - aValue : aValue - bValue;
+    }
+
+    return 0;
+  });
 };
 
 /**
