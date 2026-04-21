@@ -32,9 +32,10 @@ export const REDACTED_HEADERS = new Set<string>([
  */
 function sanitizeForLog(obj: unknown): unknown {
   if (!obj || typeof obj !== "object") return obj;
-  const sanitized = (
-    Array.isArray(obj) ? [...obj] : { ...obj }
-  ) as Record<string, unknown>;
+  const sanitized = (Array.isArray(obj) ? [...obj] : { ...obj }) as Record<
+    string,
+    unknown
+  >;
   for (const key in sanitized) {
     if (REDACTED_HEADERS.has(key.toLowerCase())) {
       sanitized[key] = "[REDACTED]";
@@ -159,8 +160,9 @@ export function maskEvent(event: APIGatewayProxyEventV2): unknown {
         () => "[REDACTED]",
       );
     }
-    (masked as unknown as Record<string, unknown>).multiValueQueryStringParameters =
-      redactedMultiParams;
+    (
+      masked as unknown as Record<string, unknown>
+    ).multiValueQueryStringParameters = redactedMultiParams;
   }
 
   // Redact authorizer context which may contain JWT claims or internal IDs
