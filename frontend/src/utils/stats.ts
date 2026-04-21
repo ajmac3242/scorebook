@@ -398,7 +398,7 @@ const updatePossessionCounters = (
     to: number;
     oreb: number;
   },
-): { fga: number; fta: number; to: number; oreb: number } => {
+) => {
   const { type } = stat;
 
   if (isFieldGoal(stat)) {
@@ -410,8 +410,6 @@ const updatePossessionCounters = (
   } else if (type === ACTION_TYPES.OFF_REBOUND) {
     counters.oreb++;
   }
-
-  return counters;
 };
 
 /**
@@ -1258,20 +1256,8 @@ export const calculateTeamAggregates = (
     }
   }
 
-  let totalPoints = 0;
-  let totalRebounds = 0;
-  let totalAssists = 0;
-  let totalOppPoints = 0;
-  let totalFga = 0;
-  let totalFta = 0;
-  let totalTo = 0;
-  let totalOreb = 0;
-
-  // Track opponent possessions for Defensive PPP (oppPpp)
-  let oppFga = 0;
-  let oppFta = 0;
-  let oppTo = 0;
-  let oppOreb = 0;
+  const team = { pts: 0, reb: 0, ast: 0, fga: 0, fta: 0, to: 0, oreb: 0 };
+  const opp = { pts: 0, fga: 0, fta: 0, to: 0, oreb: 0 };
 
   for (let i = 0; i < stats.length; i++) {
     const stat = stats[i];
@@ -1280,51 +1266,30 @@ export const calculateTeamAggregates = (
     const totals = gameTotals.get(stat.gameId);
     if (!totals) continue;
 
-    // ⚡ Bolt: Use domain helpers for scoring and opponent identification.
-    const type = stat.type;
-    const pId = stat.playerId;
-    const isOpponent = isOpponentId(pId);
-
+    const isOpponent = isOpponentId(stat.playerId);
     const pts = stat.points || 0;
-    if (type === ACTION_TYPES.MAKE) {
+
+    if (stat.type === ACTION_TYPES.MAKE) {
       if (isOpponent) {
         totals.opp += pts;
-        totalOppPoints += pts;
+        opp.pts += pts;
       } else {
         totals.team += pts;
-        totalPoints += pts;
+        team.pts += pts;
       }
     }
 
-    if (isOpponent) {
-      const updated = updatePossessionCounters(stat, {
-        fga: oppFga,
-        fta: oppFta,
-        to: oppTo,
-        oreb: oppOreb,
-      });
-      oppFga = updated.fga;
-      oppFta = updated.fta;
-      oppTo = updated.to;
-      oppOreb = updated.oreb;
-    } else {
-      const updated = updatePossessionCounters(stat, {
-        fga: totalFga,
-        fta: totalFta,
-        to: totalTo,
-        oreb: totalOreb,
-      });
-      totalFga = updated.fga;
-      totalFta = updated.fta;
-      totalTo = updated.to;
-      totalOreb = updated.oreb;
-    }
+    updatePossessionCounters(stat, isOpponent ? opp : team);
 
     if (!isOpponent) {
-      if (type === ACTION_TYPES.OFF_REBOUND || type === ACTION_TYPES.REBOUND || type === ACTION_TYPES.DEF_REBOUND) {
-        totalRebounds++;
-      } else if (type === ACTION_TYPES.ASSIST) {
-        totalAssists++;
+      if (
+        stat.type === ACTION_TYPES.OFF_REBOUND ||
+        stat.type === ACTION_TYPES.REBOUND ||
+        stat.type === ACTION_TYPES.DEF_REBOUND
+      ) {
+        team.reb++;
+      } else if (stat.type === ACTION_TYPES.ASSIST) {
+        team.ast++;
       }
     }
   }
@@ -1341,28 +1306,28 @@ export const calculateTeamAggregates = (
 
   const gp = targetCount || 1;
   const totalPossessions = calculatePossessions(
-    totalFga,
-    totalFta,
-    totalTo,
-    totalOreb,
+    team.fga,
+    team.fta,
+    team.to,
+    team.oreb,
   );
   const totalOppPossessions = calculatePossessions(
-    oppFga,
-    oppFta,
-    oppTo,
-    oppOreb,
+    opp.fga,
+    opp.fta,
+    opp.to,
+    opp.oreb,
   );
 
   return {
-    ppg: formatToOne(totalPoints / gp),
-    rpg: formatToOne(totalRebounds / gp),
-    apg: formatToOne(totalAssists / gp),
-    oppg: formatToOne(totalOppPoints / gp),
+    ppg: formatToOne(team.pts / gp),
+    rpg: formatToOne(team.reb / gp),
+    apg: formatToOne(team.ast / gp),
+    oppg: formatToOne(opp.pts / gp),
     record: draws > 0 ? `${wins}-${losses}-${draws}` : `${wins}-${losses}`,
     totalGames: targetCount,
-    ppp: calculatePpp(totalPoints, totalPossessions),
+    ppp: calculatePpp(team.pts, totalPossessions),
     possessions: Math.round(totalPossessions),
-    oppPpp: calculatePpp(totalOppPoints, totalOppPossessions),
+    oppPpp: calculatePpp(opp.pts, totalOppPossessions),
   };
 };
 
@@ -1436,14 +1401,8 @@ export const calculateScoreFlow = (
   const periodLenSecs = periodLengthMinutes * 60;
 
   // Running stats for PPP
-  let teamFga = 0,
-    teamFta = 0,
-    teamTo = 0,
-    teamOreb = 0;
-  let oppFga = 0,
-    oppFta = 0,
-    oppTo = 0,
-    oppOreb = 0;
+  const team = { fga: 0, fta: 0, to: 0, oreb: 0 };
+  const opp = { fga: 0, fta: 0, to: 0, oreb: 0 };
   const currentLineup = new Set<string>();
 
   for (let i = 0; i < stats.length; i++) {
@@ -1460,29 +1419,7 @@ export const calculateScoreFlow = (
     }
 
     // Track possessions
-    if (isOpp) {
-      const updated = updatePossessionCounters(stat, {
-        fga: oppFga,
-        fta: oppFta,
-        to: oppTo,
-        oreb: oppOreb,
-      });
-      oppFga = updated.fga;
-      oppFta = updated.fta;
-      oppTo = updated.to;
-      oppOreb = updated.oreb;
-    } else {
-      const updated = updatePossessionCounters(stat, {
-        fga: teamFga,
-        fta: teamFta,
-        to: teamTo,
-        oreb: teamOreb,
-      });
-      teamFga = updated.fga;
-      teamFta = updated.fta;
-      teamTo = updated.to;
-      teamOreb = updated.oreb;
-    }
+    updatePossessionCounters(stat, isOpp ? opp : team);
 
     if (stat.type === ACTION_TYPES.SUB_IN) {
       currentLineup.add(stat.playerId);
@@ -1497,8 +1434,13 @@ export const calculateScoreFlow = (
       const elapsedSeconds =
         (period - 1) * periodLenSecs + (periodLenSecs - clockTime);
 
-      const teamPoss = calculatePossessions(teamFga, teamFta, teamTo, teamOreb);
-      const oppPoss = calculatePossessions(oppFga, oppFta, oppTo, oppOreb);
+      const teamPoss = calculatePossessions(
+        team.fga,
+        team.fta,
+        team.to,
+        team.oreb,
+      );
+      const oppPoss = calculatePossessions(opp.fga, opp.fta, opp.to, opp.oreb);
 
       let eventLabel = stat.type;
       if (stat.type === ACTION_TYPES.MAKE) {
