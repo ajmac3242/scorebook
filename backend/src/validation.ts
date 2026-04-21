@@ -91,43 +91,44 @@ export const VALID_ACTION_TYPES = new Set([
  * @param body - The stat event data to validate.
  * @returns {string | null} Error message or null if valid.
  */
-export function validateStatEvent(body: any): string | null {
+export function validateStatEvent(body: unknown): string | null {
+  const b = body as Record<string, unknown>;
   if (
-    !body?.type ||
-    typeof body.type !== "string" ||
-    !VALID_ACTION_TYPES.has(body.type)
+    !b?.type ||
+    typeof b.type !== "string" ||
+    !VALID_ACTION_TYPES.has(b.type)
   ) {
     return "Valid stat type is required";
   }
   if (
-    body.points !== undefined &&
-    (typeof body.points !== "number" ||
-      !Number.isInteger(body.points) ||
-      body.points < 0 ||
-      body.points > 3)
+    b.points !== undefined &&
+    (typeof b.points !== "number" ||
+      !Number.isInteger(b.points) ||
+      b.points < 0 ||
+      b.points > 3)
   ) {
     return "Points must be an integer between 0 and 3";
   }
-  if (!isValidPlayerId(body.playerId)) {
+  if (!isValidPlayerId(b.playerId)) {
     return "Valid playerId is required";
   }
   if (
-    body.period !== undefined &&
-    (typeof body.period !== "number" ||
-      !Number.isInteger(body.period) ||
-      body.period < 1)
+    b.period !== undefined &&
+    (typeof b.period !== "number" ||
+      !Number.isInteger(b.period) ||
+      b.period < 1)
   ) {
     return "Period must be an integer at least 1";
   }
   if (
-    body.clockTime !== undefined &&
-    (typeof body.clockTime !== "number" || body.clockTime < 0)
+    b.clockTime !== undefined &&
+    (typeof b.clockTime !== "number" || b.clockTime < 0)
   ) {
     return "Clock time must be at least 0";
   }
   if (
-    (body.locationX !== undefined && typeof body.locationX !== "number") ||
-    (body.locationY !== undefined && typeof body.locationY !== "number")
+    (b.locationX !== undefined && typeof b.locationX !== "number") ||
+    (b.locationY !== undefined && typeof b.locationY !== "number")
   ) {
     return "Location coordinates must be numbers";
   }

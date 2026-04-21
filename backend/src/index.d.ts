@@ -1,4 +1,4 @@
-export declare const handler: (event: any) => Promise<{
+export declare const handler: (event: unknown) => Promise<{
   statusCode: number;
   headers: {
     "Content-Type": string;

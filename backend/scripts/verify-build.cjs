@@ -5,22 +5,22 @@
  */
 
 const dependencies = [
-  '@smithy/config-resolver',
-  '@aws-sdk/client-dynamodb',
-  '@aws-sdk/lib-dynamodb',
-  '@aws-sdk/client-s3',
-  'uuid'
+  "@smithy/config-resolver",
+  "@aws-sdk/client-dynamodb",
+  "@aws-sdk/lib-dynamodb",
+  "@aws-sdk/client-s3",
+  "uuid",
 ];
 
-console.log('Verifying production build dependencies...');
+console.log("Verifying production build dependencies...");
 
 let hasError = false;
 
-dependencies.forEach(dep => {
+dependencies.forEach((dep) => {
   try {
     require.resolve(dep);
     console.log(`[OK] ${dep} is resolvable.`);
-  } catch (e) {
+  } catch {
     console.error(`[ERROR] ${dep} is NOT resolvable!`);
     hasError = true;
   }
@@ -29,6 +29,6 @@ dependencies.forEach(dep => {
 if (hasError) {
   process.exit(1);
 } else {
-  console.log('Build verification successful.');
+  console.log("Build verification successful.");
   process.exit(0);
 }

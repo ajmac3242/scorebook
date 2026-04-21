@@ -13,11 +13,6 @@ import {
   GetCommand,
   UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
-import {
-  S3Client,
-  PutObjectCommand,
-  DeleteObjectCommand,
-} from "@aws-sdk/client-s3";
 import { v4 as uuidv4 } from "uuid";
 import {
   APIGatewayProxyEventV2,
@@ -31,13 +26,10 @@ import {
   notFound,
   serverError,
   response,
-  sanitizeOutput,
   filterActive,
 } from "./responses.js";
 import {
   isValidUuid,
-  isValidPlayerId,
-  SPECIAL_PLAYER_IDS,
   validateStatEvent,
 } from "./validation.js";
 import { Keys } from "./keys.js";
@@ -46,12 +38,10 @@ import {
   maskEvent,
   extractRequestMetadata,
   safeCompare,
-  normalizePath,
   extractIdFromPath,
   stripLocalFields,
   getHeader,
 } from "./utils.js";
-import { calculateGameResultFromStats } from "./scoring.js";
 import {
   snapshotTeamRoster,
   snapshotTeamGames,
@@ -64,7 +54,6 @@ import {
 // Clients
 const client = new DynamoDBClient({});
 const docClient = DynamoDBDocumentClient.from(client);
-const s3Client = new S3Client({});
 
 /**
  * Handlers for Players endpoints.
@@ -569,7 +558,7 @@ export const handler = async (
   let body: Record<string, unknown> = {};
   try {
     body = parseBody(event.body);
-  } catch (e) {
+  } catch {
     return badRequest("Invalid JSON body");
   }
 

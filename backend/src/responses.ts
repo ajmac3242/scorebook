@@ -68,7 +68,7 @@ export function sanitizeOutput(data: unknown, depth = 0): unknown {
  * @param {T[]} items - The list of items to filter.
  * @returns {T[]} The filtered list containing only active (non-deleted) items.
  */
-export function filterActive<T extends Record<string, any>>(
+export function filterActive<T extends Record<string, unknown>>(
   items: T[] | undefined | null,
 ): T[] {
   if (!items) return [];

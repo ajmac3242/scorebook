@@ -29,10 +29,9 @@ export async function withDataBucket(
   label: string,
   fn: (bucket: string) => Promise<void>,
 ) {
-  const bucket = process.env.DATA_BUCKET;
-  if (!bucket) return;
+  if (!process.env.DATA_BUCKET) return;
   try {
-    await fn(bucket);
+    await fn(process.env.DATA_BUCKET!);
   } catch (e) {
     logError(label, e);
   }
