@@ -17,3 +17,15 @@
 - Standardize `pnpm install` with `--prefer-offline`.
 - Add descriptive names to all workflow steps.
 - Ensure build parity across workflows.
+
+## 2024-04-21 - Standardizing and Hardening Pipelines
+
+### Learning:
+Inconsistent shell environments and missing timeouts can lead to flaky or hung pipelines. Decoupled `cache-dependency-path` ensures that backend dependency changes do not invalidate the frontend cache, improving overall CI speed in monorepos.
+
+### Action:
+- **Standardized Shell**: Set `shell: bash` as the global default for all `run` steps to ensure consistent execution environments across all jobs.
+- **Improved Caching Strategy**: Decoupled `cache-dependency-path` for backend and frontend jobs, ensuring independent cache invalidation and faster CI runs.
+- **Harden Pipeline with Timeouts**: Added `timeout-minutes` to critical setup steps and ensured consistent job-level timeouts to prevent hung workflows.
+- **Enhanced Visibility**: Improved artifact naming by appending `${{ github.run_id }}-${{ github.run_attempt }}` for better traceability of failure logs.
+- **Workflow Cleanup**: Removed redundant `ref` and `token` parameters from `actions/checkout` in CI jobs, simplifying the workflow definitions.
