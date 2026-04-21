@@ -73,6 +73,10 @@ export interface OpponentAggregates {
   steals: number;
   turnovers: number;
   fouls: number;
+  fta: number;
+  ftm: number;
+  threePM: number;
+  threePA: number;
   min: number; // in seconds
   plusMinus: number;
   ppp: string;
@@ -817,6 +821,10 @@ export const calculateOpponentScoutingStats = (
         steals: 0,
         turnovers: 0,
         fouls: 0,
+        fta: 0,
+        ftm: 0,
+        threePM: 0,
+        threePA: 0,
         min: 0,
         plusMinus: 0,
         ppp: "0.00",
@@ -837,20 +845,10 @@ export const calculateOpponentScoutingStats = (
   }
 
   // Finalize PPP and percentages
-  for (const [pId, agg] of result.entries()) {
-    const fta =
-      stats.filter(
-        (s) =>
-          s.playerId === pId && s.type === ACTION_TYPES.MAKE && s.points === 1,
-      ).length +
-      stats.filter(
-        (s) =>
-          s.playerId === pId && s.type === ACTION_TYPES.MISS && s.points === 1,
-      ).length;
-
+  for (const agg of result.values()) {
     const possessions = calculatePossessions(
       agg.attempts,
-      fta,
+      agg.fta,
       agg.turnovers,
       agg.offRebounds,
     );
@@ -983,10 +981,17 @@ export const calculateOpponentThreats = (
   stats: StatEvent[],
 ): OpponentThreat[] => {
   const threats = new Map<string, OpponentThreat>();
+  let currentGameId: string | null = null;
 
   for (let i = 0; i < stats.length; i++) {
     const s = stats[i];
     if (!isActive(s)) continue;
+
+    // Reset threats on game change
+    if (s.gameId !== currentGameId) {
+      currentGameId = s.gameId;
+      threats.clear();
+    }
 
     const isOpp = isOpponentId(s.playerId);
 
@@ -1066,10 +1071,19 @@ export const calculateStopsAndKills = (stats: StatEvent[]) => {
    */
   let inOpponentPossession = false;
   let isOurPossession = false;
+  let currentGameId: string | null = null;
 
   for (let i = 0; i < stats.length; i++) {
     const s = stats[i];
     if (!isActive(s)) continue;
+
+    // Handle gameId changes
+    if (s.gameId !== currentGameId) {
+      currentGameId = s.gameId;
+      currentStreak = 0;
+      inOpponentPossession = false;
+      isOurPossession = false;
+    }
 
     const isOpp = isOpponentId(s.playerId);
 
@@ -1319,6 +1333,9 @@ export const calculateOpponentAggregates = (
 
   return {
     ...agg,
+    ftm: 0,
+    threePM: 0,
+    threePA: 0,
     fgPct: calculateFgPct(agg.makes, agg.attempts),
     min: 0,
     plusMinus: 0,
@@ -1398,12 +1415,15 @@ export const isClutchEvent = (
   scoreDiff: number,
   periodType: string,
 ): boolean => {
-  const isFinalPeriod =
-    periodType === "QUARTERS" ? eventPeriod >= 4 : eventPeriod >= 2;
-  const isClutchTime = clockTime <= 240; // 4 minutes
-  const isClutchScore = Math.abs(scoreDiff) <= 5;
+  const isOT = periodType === "QUARTERS" ? eventPeriod > 4 : eventPeriod > 2;
+  const isFinal =
+    periodType === "QUARTERS" ? eventPeriod === 4 : eventPeriod === 2;
 
-  return isFinalPeriod && isClutchTime && isClutchScore;
+  const isClutchScore = Math.abs(scoreDiff) <= 5;
+  const regulationClutchTime = periodType === "QUARTERS" ? 240 : 120;
+  const isClutchTime = isOT || clockTime <= regulationClutchTime;
+
+  return (isFinal || isOT) && isClutchTime && isClutchScore;
 };
 
 export const isEventInPeriod = (
@@ -1707,12 +1727,19 @@ export const calculatePlayerStreaks = (
   // Optimization: Track only the last three actions per player using a fixed-size buffer
   // to reduce memory churn and avoid large array allocations for long games.
   const playerStreaks = new Map<string, ("MAKE" | "MISS")[]>();
+  let currentGameId: string | null = null;
 
   const sorted = options.isSorted ? stats : sortStats(stats);
 
   for (let i = 0; i < sorted.length; i++) {
     const s = sorted[i];
     if (!isActive(s)) continue;
+
+    // Reset streaks on game change
+    if (s.gameId !== currentGameId) {
+      currentGameId = s.gameId;
+      playerStreaks.clear();
+    }
 
     // We only track streaks for field goal attempts
     if (isScoringEvent(s) || s.type === ACTION_TYPES.MISS) {
