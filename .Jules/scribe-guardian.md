@@ -9,3 +9,8 @@ Pattern: Use tests to document existing behavior (even if suboptimal) before pro
 Issue: Utility functions like `formatTimestampToTime` and `isValidPlayerId` relied on implicit formatting or length assumptions that were not documented.
 Learning: Without explicit comments, these "magic" constraints can be accidentally broken during refactoring (e.g., changing timestamp format or extending ID prefixes).
 Pattern: Always document the "WHY" behind hardcoded indices or length checks and provide example formats in comments to serve as a guardrail for future changes.
+
+## 2026-05-13 - Security vs. Efficiency Documentation
+Issue: High-performance optimizations (like bitwise OR for floor or state-machine possession tracking) can appear "clever" but confusing to future maintainers.
+Learning: Documentation should explicitly link the "WHY" (performance in hot paths) with the "WHAT" (the optimization), while also noting the safety boundaries (e.g. strict ISO formats).
+Pattern: For every non-standard optimization, add a "WHY" comment and a "CONSTRAINT" or "BOUNDARY" comment to prevent accidental breakages during future refactors.

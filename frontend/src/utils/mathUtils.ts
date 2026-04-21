@@ -39,6 +39,8 @@ export const determineResult = (
  */
 export const formatClock = (totalSeconds: number): string => {
   // ⚡ Bolt: Use bitwise OR for faster floor operation and template literals for efficiency.
+  // WHY: Bitwise OR (| 0) is a high-performance alternative to Math.floor() for positive
+  // integers in hot paths, as it effectively truncates decimal places in a single operation.
   const mins = (totalSeconds / 60) | 0;
   const secs = totalSeconds % 60;
   return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
@@ -48,11 +50,12 @@ export const formatClock = (totalSeconds: number): string => {
  * Formats an ISO timestamp string to a mm:ss time string.
  *
  * WHY: This utility provides a lightweight way to extract the time component
- * from a standard ISO 8601 string.
+ * from a standard ISO 8601 string without the overhead of a full Date object
+ * or library (like Day.js) in high-frequency rendering paths (e.g., event logs).
  *
  * CONSTRAINT: It relies on a strict ISO 8601 format (e.g. "YYYY-MM-DDTHH:mm:ss.sssZ").
- * It uses specific slice indices (14 to 19) to extract the "mm:ss" portion,
- * assuming the minute starts at index 14.
+ * It uses specific slice indices (14 to 19) to extract the "mm:ss" portion.
+ * Any change to the backend timestamp format MUST be mirrored here.
  *
  * @param {string} timestamp - ISO timestamp (e.g. "2023-01-01T12:00:30.000Z").
  * @returns {string} The formatted time string (e.g. "00:30").

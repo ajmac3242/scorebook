@@ -1067,6 +1067,11 @@ export const calculateStopsAndKills = (stats: StatEvent[]) => {
   /**
    * ⚡ Bolt: State-machine approach for possession tracking.
    * Replaces the O(N^2) look-ahead loop with a single O(N) pass.
+   *
+   * WHY: Previous implementations used nested loops to look ahead for rebounds after a miss.
+   * This state-machine approach is more efficient (O(N)) and handles edge cases like
+   * multiple misses in a single possession or gameId changes without complex index management.
+   *
    * State tracks if we are currently in an opponent possession and if they have missed.
    */
   let inOpponentPossession = false;
@@ -1724,6 +1729,11 @@ export const calculatePlayerStreaks = (
   options: { isSorted?: boolean } = {},
 ): Map<string, "HOT" | "COLD" | null> => {
   // ⚡ Bolt: Track streaks for all players in a single pass.
+  //
+  // WHY: Identifying momentum shifts in real-time requires tracking recent performance.
+  // By using a Map with a fixed-size buffer (last 3 FGA), we get O(N) performance
+  // while keeping memory usage constant regardless of game length.
+  //
   // Optimization: Track only the last three actions per player using a fixed-size buffer
   // to reduce memory churn and avoid large array allocations for long games.
   const playerStreaks = new Map<string, ("MAKE" | "MISS")[]>();

@@ -17,6 +17,9 @@ import {
   calculatePpp,
   calculateOpponentThreats,
   isClutchEvent,
+  calculateOpponentScoutingStats,
+  calculatePlayEfficiency,
+  calculateTeamSeasonAverages,
 } from "./stats";
 import { TeamPlayer, StatEvent, Game } from "../db";
 import { ACTION_TYPES } from "../constants/stats";
@@ -1830,6 +1833,101 @@ describe("stats utilities", () => {
         expect(res.isDouble).toBe(true);
         expect(res.color).toBe("error.main");
       });
+    });
+  });
+
+  describe("calculateOpponentScoutingStats", () => {
+    it("aggregates stats for opponent players across multiple games", () => {
+      const stats: StatEvent[] = [
+        {
+          gameId: "g1",
+          playerId: "OPPONENT:24",
+          type: ACTION_TYPES.MAKE,
+          points: 3,
+          timestamp: "1",
+          period: 1,
+        },
+        {
+          gameId: "g2",
+          playerId: "OPPONENT:24",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "2",
+          period: 1,
+        },
+        {
+          gameId: "g2",
+          playerId: "OPPONENT:10",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "3",
+          period: 1,
+        },
+      ];
+      const result = calculateOpponentScoutingStats(stats);
+      const opp24 = result.get("OPPONENT:24")!;
+      expect(opp24.points).toBe(5);
+      expect(opp24.makes).toBe(2);
+      expect(result.get("OPPONENT:10")?.points).toBe(2);
+    });
+  });
+
+  describe("calculatePlayEfficiency", () => {
+    it("calculates efficiency metrics for named plays", () => {
+      const stats: StatEvent[] = [
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          playName: "SLOB",
+          timestamp: "1",
+          period: 1,
+        },
+        {
+          gameId: "g1",
+          playerId: "p2",
+          type: ACTION_TYPES.MISS,
+          points: 3,
+          playName: "SLOB",
+          timestamp: "2",
+          period: 1,
+        },
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.TURNOVER,
+          playName: "SLOB",
+          timestamp: "3",
+          period: 1,
+        },
+      ];
+      const result = calculatePlayEfficiency(stats);
+      expect(result.length).toBe(1);
+      expect(result[0].name).toBe("SLOB");
+      expect(result[0].attempts).toBe(2);
+      expect(result[0].points).toBe(2);
+      // Possessions = FGA (2) + 0.44 * FTA (0) + TO (1) - OREB (0) = 3
+      expect(result[0].ppp).toBe("0.67");
+    });
+  });
+
+  describe("calculateTeamSeasonAverages", () => {
+    it("returns team season ppp average", () => {
+      const games: Game[] = [{ id: "g1", completed: 1, teamId: "t1" } as any];
+      const stats: StatEvent[] = [
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          timestamp: "1",
+          period: 1,
+        },
+      ];
+      const result = calculateTeamSeasonAverages(games, stats);
+      // 1 possession (1 make), 2 points -> PPP 2.00
+      expect(result.ppp).toBe("2.00");
     });
   });
 });
