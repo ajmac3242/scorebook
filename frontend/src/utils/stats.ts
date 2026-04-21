@@ -185,6 +185,15 @@ export const isFoulAction = (stat: StatEvent): boolean =>
 export const isFreeThrow = (stat: StatEvent): boolean => stat.points === 1;
 
 /**
+ * Determines if a statistical event is a field goal attempt (MAKE or MISS, excluding free throws).
+ * @param {StatEvent} stat - The event to check.
+ * @returns {boolean} True if it is a field goal attempt.
+ */
+export const isFieldGoal = (stat: StatEvent): boolean =>
+  (stat.type === ACTION_TYPES.MAKE || stat.type === ACTION_TYPES.MISS) &&
+  !isFreeThrow(stat);
+
+/**
  * Generic percentage calculator for basketball stats.
  * @param {number} numerator - The count (makes, points, etc).
  * @param {number} denominator - The total attempts or possessions.
@@ -370,6 +379,36 @@ export const getBonusStatus = (
     };
   }
   return { label: "", isBonus: false, isDouble: false, color: "default" };
+};
+
+/**
+ * Updates possession-related counters (FGA, FTA, TO, OREB) for a team or opponent.
+ * @param {StatEvent} stat - The event to process.
+ * @param {boolean} isOpponent - Whether the event belongs to the opponent.
+ * @param {object} counters - The counters to update.
+ */
+const updatePossessionCounters = (
+  stat: StatEvent,
+  counters: {
+    fga: number;
+    fta: number;
+    to: number;
+    oreb: number;
+  },
+): { fga: number; fta: number; to: number; oreb: number } => {
+  const { type } = stat;
+
+  if (isFieldGoal(stat)) {
+    counters.fga++;
+  } else if (isFreeThrow(stat)) {
+    counters.fta++;
+  } else if (type === ACTION_TYPES.TURNOVER) {
+    counters.to++;
+  } else if (type === ACTION_TYPES.OFF_REBOUND) {
+    counters.oreb++;
+  }
+
+  return counters;
 };
 
 /**
@@ -1008,35 +1047,35 @@ export const calculateOpponentThreats = (
       continue;
     }
 
-    if (isOpp) {
-      const pId = s.playerId;
-      if (!threats.has(pId)) {
-        threats.set(pId, {
-          playerId: pId,
-          points: 0,
-          makes: 0,
-          consecutiveMakes: 0,
-          straightPoints: 0,
-          isHot: false,
-        });
-      }
+    if (!isOpp) continue;
 
-      const t = threats.get(pId)!;
-      if (s.type === ACTION_TYPES.MAKE) {
-        t.points += s.points || 0;
-        t.straightPoints += s.points || 0;
-        if (s.points && s.points > 1) {
-          t.makes++;
-          t.consecutiveMakes++;
-        }
-        // Hot if: 8+ total points, 3+ consecutive makes, or 6+ straight points
-        if (t.points >= 8 || t.consecutiveMakes >= 3 || t.straightPoints >= 6) {
-          t.isHot = true;
-        }
-      } else if (s.type === ACTION_TYPES.MISS) {
-        if (s.points && s.points > 1) {
-          t.consecutiveMakes = 0;
-        }
+    const pId = s.playerId;
+    if (!threats.has(pId)) {
+      threats.set(pId, {
+        playerId: pId,
+        points: 0,
+        makes: 0,
+        consecutiveMakes: 0,
+        straightPoints: 0,
+        isHot: false,
+      });
+    }
+
+    const t = threats.get(pId)!;
+    if (s.type === ACTION_TYPES.MAKE) {
+      t.points += s.points || 0;
+      t.straightPoints += s.points || 0;
+      if (isFieldGoal(s)) {
+        t.makes++;
+        t.consecutiveMakes++;
+      }
+      // Hot if: 8+ total points, 3+ consecutive makes, or 6+ straight points
+      if (t.points >= 8 || t.consecutiveMakes >= 3 || t.straightPoints >= 6) {
+        t.isHot = true;
+      }
+    } else if (s.type === ACTION_TYPES.MISS) {
+      if (isFieldGoal(s)) {
+        t.consecutiveMakes = 0;
       }
     }
   }
@@ -1243,50 +1282,46 @@ export const calculateTeamAggregates = (
     const pId = stat.playerId;
     const isOpponent = isOpponentId(pId);
 
+    const pts = stat.points || 0;
     if (type === ACTION_TYPES.MAKE) {
-      const pts = stat.points || 0;
       if (isOpponent) {
         totals.opp += pts;
         totalOppPoints += pts;
-        if (isFreeThrow(stat)) {
-          oppFta++;
-        } else {
-          oppFga++;
-        }
       } else {
         totals.team += pts;
         totalPoints += pts;
-        if (isFreeThrow(stat)) {
-          totalFta++;
-        } else {
-          totalFga++;
-        }
       }
+    }
+
+    if (isOpponent) {
+      const updated = updatePossessionCounters(stat, {
+        fga: oppFga,
+        fta: oppFta,
+        to: oppTo,
+        oreb: oppOreb,
+      });
+      oppFga = updated.fga;
+      oppFta = updated.fta;
+      oppTo = updated.to;
+      oppOreb = updated.oreb;
     } else {
-      if (type === ACTION_TYPES.MISS) {
-        if (isFreeThrow(stat)) {
-          if (isOpponent) oppFta++;
-          else totalFta++;
-        } else {
-          if (isOpponent) oppFga++;
-          else totalFga++;
-        }
-      } else if (type === ACTION_TYPES.OFF_REBOUND) {
-        if (isOpponent) oppOreb++;
-        else {
-          totalRebounds++;
-          totalOreb++;
-        }
-      } else if (
-        type === ACTION_TYPES.REBOUND ||
-        type === ACTION_TYPES.DEF_REBOUND
-      ) {
-        if (!isOpponent) totalRebounds++;
+      const updated = updatePossessionCounters(stat, {
+        fga: totalFga,
+        fta: totalFta,
+        to: totalTo,
+        oreb: totalOreb,
+      });
+      totalFga = updated.fga;
+      totalFta = updated.fta;
+      totalTo = updated.to;
+      totalOreb = updated.oreb;
+    }
+
+    if (!isOpponent) {
+      if (type === ACTION_TYPES.OFF_REBOUND || type === ACTION_TYPES.REBOUND || type === ACTION_TYPES.DEF_REBOUND) {
+        totalRebounds++;
       } else if (type === ACTION_TYPES.ASSIST) {
-        if (!isOpponent) totalAssists++;
-      } else if (type === ACTION_TYPES.TURNOVER) {
-        if (isOpponent) oppTo++;
-        else totalTo++;
+        totalAssists++;
       }
     }
   }
@@ -1415,32 +1450,38 @@ export const calculateScoreFlow = (
     const isOpp = isOpponentId(stat.playerId);
     const pts = stat.points || 0;
 
-    // Track possessions
+    // Track scores
     if (stat.type === ACTION_TYPES.MAKE) {
-      if (isOpp) {
-        scores.opp += pts;
-        if (pts === 1) oppFta++;
-        else oppFga++;
-      } else {
-        scores.team += pts;
-        if (pts === 1) teamFta++;
-        else teamFga++;
-      }
-    } else if (stat.type === ACTION_TYPES.MISS) {
-      if (isOpp) {
-        if (pts === 1) oppFta++;
-        else oppFga++;
-      } else {
-        if (pts === 1) teamFta++;
-        else teamFga++;
-      }
-    } else if (stat.type === ACTION_TYPES.OFF_REBOUND) {
-      if (isOpp) oppOreb++;
-      else teamOreb++;
-    } else if (stat.type === ACTION_TYPES.TURNOVER) {
-      if (isOpp) oppTo++;
-      else teamTo++;
-    } else if (stat.type === ACTION_TYPES.SUB_IN) {
+      if (isOpp) scores.opp += pts;
+      else scores.team += pts;
+    }
+
+    // Track possessions
+    if (isOpp) {
+      const updated = updatePossessionCounters(stat, {
+        fga: oppFga,
+        fta: oppFta,
+        to: oppTo,
+        oreb: oppOreb,
+      });
+      oppFga = updated.fga;
+      oppFta = updated.fta;
+      oppTo = updated.to;
+      oppOreb = updated.oreb;
+    } else {
+      const updated = updatePossessionCounters(stat, {
+        fga: teamFga,
+        fta: teamFta,
+        to: teamTo,
+        oreb: teamOreb,
+      });
+      teamFga = updated.fga;
+      teamFta = updated.fta;
+      teamTo = updated.to;
+      teamOreb = updated.oreb;
+    }
+
+    if (stat.type === ACTION_TYPES.SUB_IN) {
       currentLineup.add(stat.playerId);
     } else if (stat.type === ACTION_TYPES.SUB_OUT) {
       currentLineup.delete(stat.playerId);

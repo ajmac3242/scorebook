@@ -40,18 +40,19 @@ export const REDACTED_HEADERS = Object.freeze(
  * @returns A sanitized copy of the object.
  */
 function sanitizeForLog(obj: unknown, depth = 0): unknown {
-  if (!obj || typeof obj !== "object") return obj;
+  if (obj === null || typeof obj !== "object") return obj;
   if (depth > 10) return "[DEPTH_LIMIT_REACHED]";
 
-  const sanitized = (Array.isArray(obj) ? [...obj] : { ...obj }) as Record<
-    string,
-    unknown
-  >;
-  for (const key in sanitized) {
+  if (Array.isArray(obj)) {
+    return obj.map((item) => sanitizeForLog(item, depth + 1));
+  }
+
+  const sanitized: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(obj as Record<string, unknown>)) {
     if (REDACTED_HEADERS.has(key.toLowerCase())) {
       sanitized[key] = "[REDACTED]";
-    } else if (typeof sanitized[key] === "object") {
-      sanitized[key] = sanitizeForLog(sanitized[key], depth + 1);
+    } else {
+      sanitized[key] = sanitizeForLog(value, depth + 1);
     }
   }
   return sanitized;
