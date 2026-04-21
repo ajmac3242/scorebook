@@ -22,6 +22,7 @@ import {
   SportsBasketball as BasketballIcon,
   Settings as SettingsIcon,
 } from "@mui/icons-material";
+import { Tooltip } from "@mui/material";
 import { Link, useLocation } from "react-router-dom";
 import { syncService } from "../utils/syncService";
 
@@ -40,70 +41,72 @@ const NavItem: React.FC<{
   const theme = useTheme();
 
   return (
-    <ListItemButton
-      component={Link}
-      to={item.path}
-      onClick={onClick}
-      aria-label={`Navigate to ${item.text}`}
-      aria-current={isSelected ? "page" : undefined}
-      sx={{
-        minHeight: 40,
-        width: "auto",
-        px: isSelected ? 2 : 1.25,
-        py: 0.75,
-        borderRadius: "20px",
-        bgcolor: isSelected
-          ? alpha(theme.palette.primary.light, 0.2)
-          : "transparent",
-        color: isSelected
-          ? "white"
-          : alpha(theme.palette.primary.contrastText, 0.6),
-        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        flexShrink: 0,
-        "&:hover": {
-          bgcolor: isSelected
-            ? alpha(theme.palette.primary.light, 0.3)
-            : alpha(theme.palette.primary.light, 0.1),
-          color: "white",
-        },
-        "&:focus-visible": {
-          outline: `2px solid ${theme.palette.primary.contrastText}`,
-          outlineOffset: "2px",
-          bgcolor: alpha(theme.palette.primary.light, 0.4),
-          color: "white",
-        },
-      }}
-    >
-      <ListItemIcon
+    <Tooltip title={item.text} placement="bottom">
+      <ListItemButton
+        component={Link}
+        to={item.path}
+        onClick={onClick}
+        aria-label={`Navigate to ${item.text}`}
+        aria-current={isSelected ? "page" : undefined}
         sx={{
-          minWidth: 0,
-          mr: isSelected ? 1 : 0,
+          minHeight: 40,
+          width: "auto",
+          px: isSelected ? 2 : 1.25,
+          py: 0.75,
+          borderRadius: "20px",
+          bgcolor: isSelected
+            ? alpha(theme.palette.primary.light, 0.2)
+            : "transparent",
+          color: isSelected
+            ? "white"
+            : alpha(theme.palette.primary.contrastText, 0.6),
+          transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+          display: "flex",
+          alignItems: "center",
           justifyContent: "center",
-          color: "inherit",
-          "& svg": {
-            fontSize: "1.25rem",
+          flexShrink: 0,
+          "&:hover": {
+            bgcolor: isSelected
+              ? alpha(theme.palette.primary.light, 0.3)
+              : alpha(theme.palette.primary.light, 0.1),
+            color: "white",
+          },
+          "&:focus-visible": {
+            outline: `2px solid ${theme.palette.primary.contrastText}`,
+            outlineOffset: "2px",
+            bgcolor: alpha(theme.palette.primary.light, 0.4),
+            color: "white",
           },
         }}
       >
-        {item.icon}
-      </ListItemIcon>
-      {isSelected && (
-        <Typography
-          variant="body2"
+        <ListItemIcon
           sx={{
-            fontWeight: 700,
-            fontFamily: "var(--serif)",
-            whiteSpace: "nowrap",
-            fontSize: "0.85rem",
+            minWidth: 0,
+            mr: isSelected ? 1 : 0,
+            justifyContent: "center",
+            color: "inherit",
+            "& svg": {
+              fontSize: "1.25rem",
+            },
           }}
         >
-          {item.text}
-        </Typography>
-      )}
-    </ListItemButton>
+          {item.icon}
+        </ListItemIcon>
+        {isSelected && (
+          <Typography
+            variant="body2"
+            sx={{
+              fontWeight: 700,
+              fontFamily: "var(--serif)",
+              whiteSpace: "nowrap",
+              fontSize: "0.85rem",
+            }}
+          >
+            {item.text}
+          </Typography>
+        )}
+      </ListItemButton>
+    </Tooltip>
   );
 };
 

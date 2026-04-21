@@ -289,6 +289,8 @@ const Scoreboard = React.memo(
                 fontFamily: "'Inter', sans-serif",
                 mb: 1,
               }}
+              aria-live="polite"
+              aria-label={`${name} score: ${score}`}
             >
               <AnimatedNumber value={score} />
             </Typography>
@@ -3599,32 +3601,36 @@ const GameMode: React.FC = () => {
 
       {/* Clock FAB */}
       {!isReadOnly && (
-        <IconButton
-          onClick={handleToggleClock}
-          sx={{
-            position: "fixed",
-            bottom: 32,
-            right: 32,
-            width: 64,
-            height: 64,
-            bgcolor: isClockRunning ? "warning.main" : "success.main",
-            color: "white",
-            boxShadow: "0 4px 20px rgba(0,0,0,0.4)",
-            zIndex: theme.zIndex.speedDial,
-            "&:hover": {
-              bgcolor: isClockRunning ? "warning.dark" : "success.dark",
-              transform: "scale(1.05)",
-            },
-            transition: "all 0.2s ease-in-out",
-          }}
-          aria-label={isClockRunning ? "Pause Clock" : "Start Clock"}
+        <Tooltip
+          title={isClockRunning ? "Pause Game Clock" : "Start Game Clock"}
         >
-          {isClockRunning ? (
-            <Pause sx={{ fontSize: 32 }} />
-          ) : (
-            <PlayArrow sx={{ fontSize: 32 }} />
-          )}
-        </IconButton>
+          <IconButton
+            onClick={handleToggleClock}
+            sx={{
+              position: "fixed",
+              bottom: 32,
+              right: 32,
+              width: 64,
+              height: 64,
+              bgcolor: isClockRunning ? "warning.main" : "success.main",
+              color: "white",
+              boxShadow: "0 4px 20px rgba(0,0,0,0.4)",
+              zIndex: theme.zIndex.speedDial,
+              "&:hover": {
+                bgcolor: isClockRunning ? "warning.dark" : "success.dark",
+                transform: "scale(1.05)",
+              },
+              transition: "all 0.2s ease-in-out",
+            }}
+            aria-label={isClockRunning ? "Pause Clock" : "Start Clock"}
+          >
+            {isClockRunning ? (
+              <Pause sx={{ fontSize: 32 }} />
+            ) : (
+              <PlayArrow sx={{ fontSize: 32 }} />
+            )}
+          </IconButton>
+        </Tooltip>
       )}
 
       {/* Edit Clock Dialog */}

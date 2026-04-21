@@ -329,17 +329,30 @@ const Dashboard: React.FC = () => {
                 exclusive
                 onChange={(_, val) => val && setSelectedPeriod(val)}
                 size="small"
+                aria-label="Filter stats by period"
               >
-                <ToggleButton value="ALL">All</ToggleButton>
-                <ToggleButton value="1">P1</ToggleButton>
-                <ToggleButton value="2">P2</ToggleButton>
+                <ToggleButton value="ALL" aria-label="Show all periods">
+                  All
+                </ToggleButton>
+                <ToggleButton value="1" aria-label="Show period 1">
+                  P1
+                </ToggleButton>
+                <ToggleButton value="2" aria-label="Show period 2">
+                  P2
+                </ToggleButton>
                 {favoriteTeam?.periodType === "QUARTERS" && (
-                  <ToggleButton value="3">P3</ToggleButton>
+                  <ToggleButton value="3" aria-label="Show period 3">
+                    P3
+                  </ToggleButton>
                 )}
                 {favoriteTeam?.periodType === "QUARTERS" && (
-                  <ToggleButton value="4">P4</ToggleButton>
+                  <ToggleButton value="4" aria-label="Show period 4">
+                    P4
+                  </ToggleButton>
                 )}
-                <ToggleButton value="OT">OT</ToggleButton>
+                <ToggleButton value="OT" aria-label="Show overtime">
+                  OT
+                </ToggleButton>
               </ToggleButtonGroup>
             </Box>
             <Box sx={{ maxWidth: 600, mx: "auto", p: 1 }}>
