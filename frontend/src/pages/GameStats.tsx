@@ -1084,7 +1084,8 @@ const GameStats: React.FC = () => {
         {(() => {
           const lines = [];
           const periodLen = game?.periodLength || 10;
-          const totalTime = (allStats[allStats.length - 1]?.period || 4) * periodLen;
+          const totalTime =
+            (allStats[allStats.length - 1]?.period || 4) * periodLen;
           for (let m = periodLen; m < totalTime; m += periodLen) {
             lines.push(
               <ReferenceLine
