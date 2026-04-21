@@ -1318,7 +1318,11 @@ export const calculateTeamAggregates = (
     }
 
     if (!isOpponent) {
-      if (type === ACTION_TYPES.OFF_REBOUND || type === ACTION_TYPES.REBOUND || type === ACTION_TYPES.DEF_REBOUND) {
+      if (
+        type === ACTION_TYPES.OFF_REBOUND ||
+        type === ACTION_TYPES.REBOUND ||
+        type === ACTION_TYPES.DEF_REBOUND
+      ) {
         totalRebounds++;
       } else if (type === ACTION_TYPES.ASSIST) {
         totalAssists++;
