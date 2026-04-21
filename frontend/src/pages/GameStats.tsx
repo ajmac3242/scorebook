@@ -58,6 +58,7 @@ import {
   calculateStopsAndKills,
   calculatePossessions,
   calculatePpp,
+  type ScoreFlowPoint,
 } from "../utils/stats";
 import { MoleskineCard } from "../components/SharedUI";
 import EntityBanner from "../components/EntityBanner";
@@ -140,11 +141,15 @@ const GameStats: React.FC = () => {
    */
   interface ScoreFlowTooltipProps {
     active?: boolean;
-    payload?: any[];
+    payload?: { payload: ScoreFlowPoint }[];
     label?: string;
   }
 
-  const ScoreFlowTooltip = ({ active, payload, label }: ScoreFlowTooltipProps) => {
+  const ScoreFlowTooltip = ({
+    active,
+    payload,
+    label,
+  }: ScoreFlowTooltipProps) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (
