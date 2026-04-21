@@ -1,6 +1,6 @@
 name: Deploy Basketball Stats
 on:
-  workflow_dispatch:  # Called explicitly by CI, or manually
+  workflow_dispatch:  # Now called explicitly by CI, or manually
 
 concurrency:
   group: deploy-${{ github.ref }}
@@ -16,9 +16,7 @@ permissions:
 
 jobs:
   # ---------------------------------------------------------------
-  # Deployment - runs only on workflow_dispatch
-  # The old job-level if condition was removed because this workflow
-  # is already gated by the trigger above.
+  # Deployment - only runs if CI passed on main or if manually triggered
   # ---------------------------------------------------------------
   deploy:
     name: Build & Deploy
@@ -49,6 +47,7 @@ jobs:
           cd backend
           for i in {1..3}; do pnpm install --frozen-lockfile --prefer-offline --reporter=appendonly && break || if [ $i -eq 3 ]; then exit 1; else sleep 10; fi; done
           pnpm run build
+          # Use --prefer-offline for the second install as most packages are already in store
           for i in {1..3}; do pnpm install --prod --shamefully-hoist --prefer-offline --reporter=appendonly && break || if [ $i -eq 3 ]; then exit 1; else sleep 10; fi; done
           node scripts/verify-build.cjs
           zip -r ../lambda.zip dist node_modules package.json
@@ -93,6 +92,7 @@ jobs:
 
       - name: Terraform Apply (Initial)
         timeout-minutes: 5
+        # Create/Update infrastructure (Cognito, Lambda, API Gateway, etc.)
         run: |
           echo "::group::Terraform Apply (Initial)"
           cd infra && terraform apply -auto-approve tfplan
@@ -111,6 +111,7 @@ jobs:
 
       - name: Build Frontend
         timeout-minutes: 10
+        # Bakes live Cognito IDs and API endpoint into the React build
         run: |
           echo "::group::Frontend Build"
           cd frontend
@@ -128,6 +129,7 @@ jobs:
 
       - name: Terraform Apply (Final)
         timeout-minutes: 5
+        # Triggers null_resource.frontend_deploy to sync new build to S3 and invalidate CloudFront
         run: |
           echo "::group::Terraform Apply (Final)"
           cd infra && terraform apply -auto-approve
