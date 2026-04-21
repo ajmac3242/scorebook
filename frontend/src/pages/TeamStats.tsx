@@ -118,6 +118,10 @@ const TeamStats: React.FC = () => {
     key: string;
     direction: "asc" | "desc";
   }>({ key: "points", direction: "desc" });
+  const [lineupSortConfig, setLineupSortConfig] = useState<{
+    key: string;
+    direction: "asc" | "desc";
+  }>({ key: "seconds", direction: "desc" });
 
   const [openAddGame, setOpenAddGame] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
@@ -144,6 +148,13 @@ const TeamStats: React.FC = () => {
    */
   const handleSort = (key: string) => {
     setSortConfig((prev) => ({
+      key,
+      direction: prev.key === key && prev.direction === "desc" ? "asc" : "desc",
+    }));
+  };
+
+  const handleLineupSort = (key: string) => {
+    setLineupSortConfig((prev) => ({
       key,
       direction: prev.key === key && prev.direction === "desc" ? "asc" : "desc",
     }));
@@ -299,8 +310,8 @@ const TeamStats: React.FC = () => {
   }, [teamPlayerDetails, allStats, teamPlayers, statView]);
 
   const lineupStats = useMemo(
-    () => calculateLineupStats(allStats as StatEvent[]),
-    [allStats],
+    () => calculateLineupStats(allStats as StatEvent[], lineupSortConfig),
+    [allStats, lineupSortConfig],
   );
 
   const playerStats = useMemo(() => {
@@ -640,7 +651,7 @@ const TeamStats: React.FC = () => {
           { label: "RPG", value: teamAggregates.rpg },
           { label: "APG", value: teamAggregates.apg },
           { label: "PPP", value: teamAggregates.ppp },
-          { label: "OPPP", value: teamAggregates.oppPpp },
+          { label: "Def. PPP", value: teamAggregates.oppPpp },
         ]}
         actions={
           <Stack direction="row" spacing={1} alignItems="center">
@@ -699,7 +710,7 @@ const TeamStats: React.FC = () => {
         >
           <Tab label="Schedule" sx={{ fontWeight: 600 }} />
           <Tab label="Team Stats" sx={{ fontWeight: 600 }} />
-          <Tab label="Lineups" sx={{ fontWeight: 600 }} />
+          <Tab label="Lineup Analytics" sx={{ fontWeight: 600 }} />
           <Tab label="Roster" sx={{ fontWeight: 600 }} />
         </Tabs>
 
@@ -1132,21 +1143,36 @@ const TeamStats: React.FC = () => {
               <TableHead>
                 <TableRow sx={{ bgcolor: "rgba(0,0,0,0.02)" }}>
                   <TableCell sx={{ fontWeight: 700 }}>Lineup</TableCell>
-                  <TableCell align="right" sx={{ fontWeight: 700 }}>
-                    MIN
-                  </TableCell>
-                  <TableCell align="right" sx={{ fontWeight: 700 }}>
-                    PTS FOR
-                  </TableCell>
-                  <TableCell align="right" sx={{ fontWeight: 700 }}>
-                    PTS AGN
-                  </TableCell>
-                  <TableCell align="right" sx={{ fontWeight: 700 }}>
-                    NET/40
-                  </TableCell>
-                  <TableCell align="right" sx={{ fontWeight: 700 }}>
-                    +/-
-                  </TableCell>
+                  <SortableHeader
+                    label="MIN"
+                    sortKey="seconds"
+                    sortConfig={lineupSortConfig}
+                    onSort={handleLineupSort}
+                  />
+                  <SortableHeader
+                    label="PTS FOR"
+                    sortKey="pointsFor"
+                    sortConfig={lineupSortConfig}
+                    onSort={handleLineupSort}
+                  />
+                  <SortableHeader
+                    label="PTS AGN"
+                    sortKey="pointsAgainst"
+                    sortConfig={lineupSortConfig}
+                    onSort={handleLineupSort}
+                  />
+                  <SortableHeader
+                    label="NET/40"
+                    sortKey="netRatingPer40"
+                    sortConfig={lineupSortConfig}
+                    onSort={handleLineupSort}
+                  />
+                  <SortableHeader
+                    label="+/-"
+                    sortKey="netRating"
+                    sortConfig={lineupSortConfig}
+                    onSort={handleLineupSort}
+                  />
                 </TableRow>
               </TableHead>
               <TableBody>

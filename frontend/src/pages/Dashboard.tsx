@@ -24,6 +24,7 @@ import {
   TrendingUp,
   Event,
   Assessment,
+  Groups,
 } from "@mui/icons-material";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "../db";
@@ -31,6 +32,7 @@ import { MoleskineCard, PageHeader, StatItem } from "../components/SharedUI";
 import {
   calculateTeamAggregates,
   calculatePlayerAggregates,
+  calculateLineupStats,
   calculateGameResult,
   getInitials,
 } from "../utils/stats";
@@ -45,6 +47,7 @@ import dayjs from "dayjs";
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const [selectedPeriod, setSelectedPeriod] = React.useState<string>("ALL");
+  const [gameCountFilter, setGameCountFilter] = React.useState<string>("all");
 
   // Find the starred team
   const favoriteTeam = useLiveQuery(
@@ -64,10 +67,17 @@ const Dashboard: React.FC = () => {
   const teamGames = useMemo(() => rawTeamGames || [], [rawTeamGames]);
 
   // Fetch stats for all those games
-  const gameIds = useMemo(
-    () => teamGames.map((g) => g.id).filter(Boolean) as string[],
-    [teamGames],
-  );
+  const gameIds = useMemo(() => {
+    const completed = teamGames
+      .filter((g) => g.completed)
+      .sort((a, b) => dayjs(b.date).diff(dayjs(a.date)));
+
+    let filtered = completed;
+    if (gameCountFilter !== "all") {
+      filtered = completed.slice(0, parseInt(gameCountFilter));
+    }
+    return filtered.map((g) => g.id).filter(Boolean) as string[];
+  }, [teamGames, gameCountFilter]);
   const rawAllStats = useLiveQuery(
     async () =>
       gameIds.length > 0
@@ -102,14 +112,23 @@ const Dashboard: React.FC = () => {
 
   const players = useMemo(() => rawPlayers || [], [rawPlayers]);
 
-  const aggregates = useMemo(
-    () => calculateTeamAggregates(teamGames, allStats),
-    [teamGames, allStats],
-  );
+  const aggregates = useMemo(() => {
+    // ⚡ Bolt: Only calculate aggregates for the filtered window
+    return calculateTeamAggregates(
+      teamGames.filter((g) => gameIds.includes(g.id!)),
+      allStats,
+    );
+  }, [teamGames, allStats, gameIds]);
 
   const playerAverages = useMemo(() => {
     return calculatePlayerAggregates(players, allStats, teamPlayers, "average");
   }, [players, allStats, teamPlayers]);
+
+  const lineupStats = useMemo(() => {
+    return calculateLineupStats(allStats).filter(
+      (l) => l.seconds > 120, // Min 2 minutes to show on dashboard
+    );
+  }, [allStats]);
 
   const leaders = useMemo(() => {
     const sortedByPoints = [...playerAverages].sort(
@@ -285,11 +304,36 @@ const Dashboard: React.FC = () => {
         {/* Key Stats */}
         <Grid item xs={12} md={8}>
           <MoleskineCard sx={{ height: "100%" }}>
-            <Box sx={{ display: "flex", alignItems: "center", mb: 3, gap: 1 }}>
-              <TrendingUp color="primary" />
-              <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                Season Aggregates
-              </Typography>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                mb: 3,
+              }}
+            >
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <TrendingUp color="primary" />
+                <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                  Team Aggregates
+                </Typography>
+              </Box>
+              <ToggleButtonGroup
+                value={gameCountFilter}
+                exclusive
+                onChange={(_, val) => val && setGameCountFilter(val)}
+                size="small"
+              >
+                <ToggleButton value="5" sx={{ px: 1.5 }}>
+                  L5
+                </ToggleButton>
+                <ToggleButton value="10" sx={{ px: 1.5 }}>
+                  L10
+                </ToggleButton>
+                <ToggleButton value="all" sx={{ px: 1.5 }}>
+                  All
+                </ToggleButton>
+              </ToggleButtonGroup>
             </Box>
             <Grid container spacing={2}>
               <Grid item xs={6} sm={3}>
@@ -358,6 +402,77 @@ const Dashboard: React.FC = () => {
             <Box sx={{ maxWidth: 600, mx: "auto", p: 1 }}>
               <BasketballCourt heatmapData={heatmapData} />
             </Box>
+
+            <Divider sx={{ my: 4 }} />
+
+            <Box sx={{ display: "flex", alignItems: "center", mb: 3, gap: 1 }}>
+              <Groups color="primary" />
+              <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                Top Performing Lineups
+              </Typography>
+            </Box>
+
+            {lineupStats.length === 0 ? (
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ py: 2, textAlign: "center" }}
+              >
+                Not enough lineup data for this period.
+              </Typography>
+            ) : (
+              <Grid container spacing={2} sx={{ mb: 4 }}>
+                {lineupStats.slice(0, 3).map((lineup, idx) => (
+                  <Grid item xs={12} key={idx}>
+                    <Box
+                      sx={{
+                        p: 1.5,
+                        borderRadius: 2,
+                        bgcolor: "rgba(0,0,0,0.02)",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Stack direction="row" spacing={0.5}>
+                        {lineup.lineup.map((pId) => (
+                          <Avatar
+                            key={pId}
+                            sx={{
+                              width: 28,
+                              height: 28,
+                              fontSize: "0.7rem",
+                              bgcolor: favoriteTeam.primaryColor,
+                            }}
+                          >
+                            {teamPlayers.find((tp) => tp.playerId === pId)
+                              ?.jerseyNumber || "??"}
+                          </Avatar>
+                        ))}
+                      </Stack>
+                      <Box sx={{ textAlign: "right" }}>
+                        <Typography
+                          variant="h6"
+                          sx={{
+                            fontWeight: 800,
+                            color:
+                              lineup.netRating > 0
+                                ? "success.main"
+                                : "error.main",
+                          }}
+                        >
+                          {lineup.netRating > 0 ? "+" : ""}
+                          {lineup.netRating}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          NET +/- ({Math.round(lineup.seconds / 60)}m)
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </Grid>
+                ))}
+              </Grid>
+            )}
 
             <Divider sx={{ my: 4 }} />
 
