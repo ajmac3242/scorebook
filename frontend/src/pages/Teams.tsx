@@ -343,6 +343,9 @@ const Teams: React.FC = () => {
             return (
               <Grid item xs={12} sm={6} md={6} key={team.id}>
                 <MoleskineCard
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`View stats for ${team.name}`}
                   sx={{
                     cursor: "pointer",
                     height: "100%",
@@ -353,6 +356,11 @@ const Teams: React.FC = () => {
                       transform: "translateY(-4px)",
                       boxShadow: "0 8px 24px rgba(0,0,0,0.2)",
                     },
+                    "&:focus-visible": {
+                      outline: `4px solid ${contrastColor === "white" ? "#fff" : "#000"}`,
+                      outlineOffset: "2px",
+                      transform: "translateY(-4px)",
+                    },
                     display: "flex",
                     flexDirection: "column",
                     p: 0,
@@ -360,6 +368,11 @@ const Teams: React.FC = () => {
                     border: "none",
                   }}
                   onClick={() => navigate(`/teams/${team.id}`)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      navigate(`/teams/${team.id}`);
+                    }
+                  }}
                 >
                   <Box sx={{ p: 3, flexGrow: 1 }}>
                     <Box

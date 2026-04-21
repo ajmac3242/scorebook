@@ -62,7 +62,7 @@ describe("Login Component", () => {
     fireEvent.click(screen.getByRole("button", { name: /Sign In/i }));
     await waitFor(() => {
       expect(authenticateUserMock).toHaveBeenCalled();
-      expect(mockNavigate).toHaveBeenCalledWith("/");
+      expect(mockNavigate).toHaveBeenCalledWith("/teams");
     });
   });
 
@@ -166,7 +166,7 @@ describe("Login Component", () => {
 
     // Verify the password was not modified before being passed to Cognito
     expect(capturedPassword).toBe(COMPLEX_PASSWORD);
-    expect(mockNavigate).toHaveBeenCalledWith("/");
+    expect(mockNavigate).toHaveBeenCalledWith("/teams");
   });
 
   it("accepts and submits passwords containing ! without error", async () => {
@@ -201,7 +201,7 @@ describe("Login Component", () => {
     await waitFor(() => {
       // Should succeed - no error displayed
       expect(authenticateUserMock).toHaveBeenCalled();
-      expect(mockNavigate).toHaveBeenCalledWith("/");
+      expect(mockNavigate).toHaveBeenCalledWith("/teams");
       expect(screen.queryByRole("alert")).not.toBeInTheDocument();
     });
   });

@@ -172,6 +172,7 @@ const Players: React.FC = () => {
               <Switch
                 checked={showArchived}
                 onChange={(e) => setShowArchived(e.target.checked)}
+                inputProps={{ "aria-label": "Show archived players" }}
                 sx={{
                   "& .MuiSwitch-track": { bgcolor: "rgba(255,255,255,0.3)" },
                 }}
@@ -189,6 +190,9 @@ const Players: React.FC = () => {
         {playersWithStats.map((player) => (
           <Grid item xs={12} sm={6} md={6} key={player.id}>
             <MoleskineCard
+              role="button"
+              tabIndex={0}
+              aria-label={`${player.isArchived ? "Restore" : "View stats for"} ${player.name}`}
               sx={{
                 cursor: "pointer",
                 height: "100%",
@@ -199,6 +203,11 @@ const Players: React.FC = () => {
                   transform: "translateY(-4px)",
                   boxShadow: "0 8px 24px rgba(0,0,0,0.2)",
                 },
+                "&:focus-visible": {
+                  outline: "4px solid #fff",
+                  outlineOffset: "2px",
+                  transform: "translateY(-4px)",
+                },
                 display: "flex",
                 flexDirection: "column",
                 p: 0,
@@ -208,9 +217,16 @@ const Players: React.FC = () => {
               }}
               onClick={() =>
                 player.isArchived
-                  ? handleRestorePlayer(player.id)
+                  ? handleRestorePlayer(player.id!)
                   : navigate(`/players/${player.id}`)
               }
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  player.isArchived
+                    ? handleRestorePlayer(player.id!)
+                    : navigate(`/players/${player.id}`);
+                }
+              }}
             >
               <Box sx={{ p: 3, flexGrow: 1 }}>
                 <Box
