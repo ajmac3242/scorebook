@@ -30,7 +30,7 @@ describe("Lambda Handler", () => {
     s3Mock.reset();
     process.env.TABLE_NAME = "TestTable";
     process.env.DATA_BUCKET = "TestDataBucket";
-    process.env.ADMIN_API_KEY = "test-admin-key";
+    process.env.ADMIN_API_KEY = "test-admin-key-secure";
   });
 
   const createEvent = (
@@ -319,7 +319,7 @@ describe("Lambda Handler", () => {
     it("POST /cleanup performs cleanup", async () => {
       ddbMock.on(QueryCommand).resolves({ Items: [] });
       const event = createEvent("POST", "/cleanup");
-      event.headers = { "x-api-key": "test-admin-key" };
+      event.headers = { "x-api-key": "test-admin-key-secure" };
       const response: any = await handler(event);
       expect(response.statusCode).toBe(200);
       expect(JSON.parse(response.body).message).toBe("Cleanup complete");
