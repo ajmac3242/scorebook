@@ -51,6 +51,7 @@ export interface TeamPlayer {
   name?: string;
   avatarColor?: string;
   jerseyNumber?: string;
+  targetMinutes?: number;
   synced?: number;
 }
 
@@ -103,6 +104,7 @@ export interface StatEvent {
   clockTime?: number; // Seconds remaining in the period when event occurred
   playName?: string;
   shotQuality?: string;
+  relatedPlayerId?: string;
   timestamp: string;
   deletedAt?: string;
   synced?: number;

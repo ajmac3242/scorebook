@@ -1580,6 +1580,38 @@ export interface LineupAggregates {
 }
 
 /**
+ * Interface for matchup-based statistics.
+ */
+export interface MatchupStats {
+  ourPlayerId: string;
+  opponentPlayerId: string;
+  pointsAllowed: number;
+  stops: number;
+  possessions: number;
+  stopPct: string;
+}
+
+/**
+ * Interface for On/Off impact metrics.
+ */
+export interface OnOffImpact {
+  playerId: string;
+  onPointsFor: number;
+  onPointsAgainst: number;
+  onPossessions: number;
+  onOffensiveRating: string;
+  onDefensiveRating: string;
+  onNetRating: string;
+  offPointsFor: number;
+  offPointsAgainst: number;
+  offPossessions: number;
+  offOffensiveRating: string;
+  offDefensiveRating: string;
+  offNetRating: string;
+  netDifferential: string;
+}
+
+/**
  * Generates a unique, sorted string key for a set of players.
  * @param {Set<string> | string[]} players - The players in the lineup.
  * @returns {string} The sorted lineup key.
@@ -1818,6 +1850,273 @@ export const calculateLineupStats = (
  * @param options.isSorted - Skip sorting if data is already ordered.
  * @returns Map of player IDs to their current streak status ('HOT', 'COLD', or null).
  */
+/**
+ * 🏀 CoachBoard: calculateMatchupStats
+ *
+ * WHY: Tracks defensive performance by correlating opponent scoring and turnovers
+ * with the assigned primary defender.
+ *
+ * @param stats - Chronological list of statistical events.
+ * @returns Array of matchup statistics.
+ */
+export const calculateMatchupStats = (stats: StatEvent[]): MatchupStats[] => {
+  const sorted = sortStats(stats);
+  const currentMatchups = new Map<string, string>(); // Opponent ID -> Our Player ID
+  const results = new Map<string, MatchupStats>(); // "ourId:oppId" -> stats
+
+  let inOpponentPossession = false;
+  let opponentPossessionPlayerId: string | null = null;
+  let currentGameId: string | null = null;
+
+  for (let i = 0; i < sorted.length; i++) {
+    const s = sorted[i];
+    if (!isActive(s)) continue;
+
+    if (s.gameId !== currentGameId) {
+      currentGameId = s.gameId;
+      currentMatchups.clear();
+      inOpponentPossession = false;
+    }
+
+    const isOpp = isOpponentId(s.playerId);
+
+    if (s.type === ACTION_TYPES.MATCHUP) {
+      if (s.relatedPlayerId) {
+        currentMatchups.set(s.playerId, s.relatedPlayerId);
+      } else {
+        currentMatchups.delete(s.playerId);
+      }
+      continue;
+    }
+
+    const defenderId =
+      currentMatchups.get(s.playerId) ||
+      currentMatchups.get(SPECIAL_PLAYER_IDS.OPPONENT);
+
+    if (isOpp && isScoringEvent(s)) {
+      if (defenderId) {
+        const key = `${defenderId}:${s.playerId}`;
+        let m = results.get(key);
+        if (!m) {
+          m = {
+            ourPlayerId: defenderId,
+            opponentPlayerId: s.playerId,
+            pointsAllowed: 0,
+            stops: 0,
+            possessions: 0,
+            stopPct: "0.0",
+          };
+          results.set(key, m);
+        }
+        m.pointsAllowed += s.points || 0;
+        m.possessions++;
+      }
+      inOpponentPossession = false;
+      continue;
+    }
+
+    // Stop logic
+    if (isOpp && s.type === ACTION_TYPES.TURNOVER) {
+      if (defenderId) {
+        const key = `${defenderId}:${s.playerId}`;
+        let m = results.get(key);
+        if (!m) {
+          m = {
+            ourPlayerId: defenderId,
+            opponentPlayerId: s.playerId,
+            pointsAllowed: 0,
+            stops: 0,
+            possessions: 0,
+            stopPct: "0.0",
+          };
+          results.set(key, m);
+        }
+        m.stops++;
+        m.possessions++;
+      }
+      inOpponentPossession = false;
+    } else if (isOpp && s.type === ACTION_TYPES.MISS) {
+      inOpponentPossession = true;
+      opponentPossessionPlayerId = s.playerId;
+    } else if (
+      inOpponentPossession &&
+      !isOpp &&
+      (s.type === ACTION_TYPES.DEF_REBOUND || s.type === ACTION_TYPES.REBOUND)
+    ) {
+      const oppId = opponentPossessionPlayerId!;
+      const defId =
+        currentMatchups.get(oppId) ||
+        currentMatchups.get(SPECIAL_PLAYER_IDS.OPPONENT);
+      if (defId) {
+        const key = `${defId}:${oppId}`;
+        let m = results.get(key);
+        if (!m) {
+          m = {
+            ourPlayerId: defId,
+            opponentPlayerId: oppId,
+            pointsAllowed: 0,
+            stops: 0,
+            possessions: 0,
+            stopPct: "0.0",
+          };
+          results.set(key, m);
+        }
+        m.stops++;
+        m.possessions++;
+      }
+      inOpponentPossession = false;
+    } else if (
+      inOpponentPossession &&
+      isOpp &&
+      s.type === ACTION_TYPES.OFF_REBOUND
+    ) {
+      // Possession continues
+    }
+  }
+
+  // Finalize stop percentages
+  return Array.from(results.values()).map((m) => ({
+    ...m,
+    stopPct: m.possessions > 0 ? ((m.stops / m.possessions) * 100).toFixed(1) : "0.0",
+  }));
+};
+
+/**
+ * 🏀 CoachBoard: calculateOnOffStats
+ *
+ * WHY: Measures a player's impact by comparing team performance when they
+ * are on the court versus on the bench.
+ *
+ * @param players - List of players.
+ * @param stats - Chronological list of statistical events.
+ * @returns Array of On/Off impact statistics.
+ */
+export const calculateOnOffStats = (
+  players: Player[],
+  stats: StatEvent[],
+): OnOffImpact[] => {
+  const sorted = sortStats(stats);
+  const results = new Map<string, {
+    onPtsFor: number; onPtsAgn: number;
+    onTeamFga: number; onTeamFta: number; onTeamTo: number; onTeamOreb: number;
+    onOppFga: number; onOppFta: number; onOppTo: number; onOppOreb: number;
+    offPtsFor: number; offPtsAgn: number;
+    offTeamFga: number; offTeamFta: number; offTeamTo: number; offTeamOreb: number;
+    offOppFga: number; offOppFta: number; offOppTo: number; offOppOreb: number;
+  }>();
+
+  // Initialize
+  for (let i = 0; i < players.length; i++) {
+    const p = players[i];
+    if (!p.id) continue;
+    results.set(p.id.toString(), {
+      onPtsFor: 0, onPtsAgn: 0,
+      onTeamFga: 0, onTeamFta: 0, onTeamTo: 0, onTeamOreb: 0,
+      onOppFga: 0, onOppFta: 0, onOppTo: 0, onOppOreb: 0,
+      offPtsFor: 0, offPtsAgn: 0,
+      offTeamFga: 0, offTeamFta: 0, offTeamTo: 0, offTeamOreb: 0,
+      offOppFga: 0, offOppFta: 0, offOppTo: 0, offOppOreb: 0
+    });
+  }
+
+  const activePlayers = new Set<string>();
+  let currentGameId: string | null = null;
+
+  for (let i = 0; i < sorted.length; i++) {
+    const s = sorted[i];
+    if (!isActive(s)) continue;
+
+    if (s.gameId !== currentGameId) {
+      currentGameId = s.gameId;
+      activePlayers.clear();
+    }
+
+    if (s.type === ACTION_TYPES.SUB_IN) {
+      activePlayers.add(s.playerId);
+      continue;
+    } else if (s.type === ACTION_TYPES.SUB_OUT) {
+      activePlayers.delete(s.playerId);
+      continue;
+    }
+
+    const isOpp = isOpponentId(s.playerId);
+    const pts = s.points || 0;
+
+    for (const [pId, agg] of results.entries()) {
+      const isOn = activePlayers.has(pId);
+      if (isOn) {
+        if (s.type === ACTION_TYPES.MAKE) {
+          if (isOpp) agg.onPtsAgn += pts;
+          else agg.onPtsFor += pts;
+        }
+        if (isOpp) {
+          if (isFieldGoal(s)) agg.onOppFga++;
+          else if (isFreeThrow(s)) agg.onOppFta++;
+          else if (s.type === ACTION_TYPES.TURNOVER) agg.onOppTo++;
+          else if (s.type === ACTION_TYPES.OFF_REBOUND) agg.onOppOreb++;
+        } else {
+          if (isFieldGoal(s)) agg.onTeamFga++;
+          else if (isFreeThrow(s)) agg.onTeamFta++;
+          else if (s.type === ACTION_TYPES.TURNOVER) agg.onTeamTo++;
+          else if (s.type === ACTION_TYPES.OFF_REBOUND) agg.onTeamOreb++;
+        }
+      } else {
+        if (s.type === ACTION_TYPES.MAKE) {
+          if (isOpp) agg.offPtsAgn += pts;
+          else agg.offPtsFor += pts;
+        }
+        if (isOpp) {
+          if (isFieldGoal(s)) agg.offOppFga++;
+          else if (isFreeThrow(s)) agg.offOppFta++;
+          else if (s.type === ACTION_TYPES.TURNOVER) agg.offOppTo++;
+          else if (s.type === ACTION_TYPES.OFF_REBOUND) agg.offOppOreb++;
+        } else {
+          if (isFieldGoal(s)) agg.offTeamFga++;
+          else if (isFreeThrow(s)) agg.offTeamFta++;
+          else if (s.type === ACTION_TYPES.TURNOVER) agg.offTeamTo++;
+          else if (s.type === ACTION_TYPES.OFF_REBOUND) agg.offTeamOreb++;
+        }
+      }
+    }
+  }
+
+  // Refined pass to correctly track possessions
+  // Actually, I can just use one pass and for each event, update ALL players' On or Off counters.
+  // Team possessions (for Offense) and Opponent possessions (for Defense)
+
+  return Array.from(results.entries()).map(([pId, agg]) => {
+    const onTeamPoss = agg.onTeamFga + 0.44 * agg.onTeamFta + agg.onTeamTo - agg.onTeamOreb;
+    const onOppPoss = agg.onOppFga + 0.44 * agg.onOppFta + agg.onOppTo - agg.onOppOreb;
+    const offTeamPoss = agg.offTeamFga + 0.44 * agg.offTeamFta + agg.offTeamTo - agg.offTeamOreb;
+    const offOppPoss = agg.offOppFga + 0.44 * agg.offOppFta + agg.offOppTo - agg.offOppOreb;
+
+    const onORtg = onTeamPoss > 0 ? (agg.onPtsFor / onTeamPoss) * 100 : 0;
+    const onDRtg = onOppPoss > 0 ? (agg.onPtsAgn / onOppPoss) * 100 : 0;
+    const offORtg = offTeamPoss > 0 ? (agg.offPtsFor / offTeamPoss) * 100 : 0;
+    const offDRtg = offOppPoss > 0 ? (agg.offPtsAgn / offOppPoss) * 100 : 0;
+
+    const onNet = onORtg - onDRtg;
+    const offNet = offORtg - offDRtg;
+
+    return {
+      playerId: pId,
+      onPointsFor: agg.onPtsFor,
+      onPointsAgainst: agg.onPtsAgn,
+      onPossessions: Math.round(onTeamPoss),
+      onOffensiveRating: onORtg.toFixed(1),
+      onDefensiveRating: onDRtg.toFixed(1),
+      onNetRating: onNet.toFixed(1),
+      offPointsFor: agg.offPtsFor,
+      offPointsAgainst: agg.offPtsAgn,
+      offPossessions: Math.round(offTeamPoss),
+      offOffensiveRating: offORtg.toFixed(1),
+      offDefensiveRating: offDRtg.toFixed(1),
+      offNetRating: offNet.toFixed(1),
+      netDifferential: (onNet - offNet).toFixed(1)
+    };
+  });
+};
+
 export const calculatePlayerStreaks = (
   stats: StatEvent[],
   options: { isSorted?: boolean } = {},
