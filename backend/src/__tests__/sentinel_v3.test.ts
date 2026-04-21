@@ -21,7 +21,9 @@ describe("Sentinel Security Enhancements V3", () => {
 
   describe("Recursion Depth Limit in sanitizeForLog", () => {
     it("stops recursion at depth 10 in sanitizeForLog", () => {
-      const consoleSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+      const consoleSpy = jest
+        .spyOn(console, "error")
+        .mockImplementation(() => {});
 
       const deepObject: any = {};
       let current = deepObject;
@@ -48,14 +50,14 @@ describe("Sentinel Security Enhancements V3", () => {
       const customHeaders = {
         "X-Frame-Options": "ALLOW-FROM https://evil.com",
         "Content-Security-Policy": "default-src *",
-        "X-Custom-Header": "Allowed"
+        "X-Custom-Header": "Allowed",
       };
 
       const resp = response(200, { ok: true }, customHeaders);
 
       expect(resp.headers!["X-Frame-Options"]).toBe("DENY");
       expect(resp.headers!["Content-Security-Policy"]).toBe(
-        "default-src 'none'; frame-ancestors 'none'; sandbox; base-uri 'none'; form-action 'none';"
+        "default-src 'none'; frame-ancestors 'none'; sandbox; base-uri 'none'; form-action 'none';",
       );
       expect(resp.headers!["X-Custom-Header"]).toBe("Allowed");
     });
@@ -63,13 +65,15 @@ describe("Sentinel Security Enhancements V3", () => {
     it("includes new Origin-Agent-Cluster and COEP headers", () => {
       const resp = response(200, { ok: true });
       expect(resp.headers!["Origin-Agent-Cluster"]).toBe("?1");
-      expect(resp.headers!["Cross-Origin-Embedder-Policy"]).toBe("require-corp");
+      expect(resp.headers!["Cross-Origin-Embedder-Policy"]).toBe(
+        "require-corp",
+      );
     });
 
     it("tightens Permissions-Policy", () => {
       const resp = response(200, { ok: true });
       expect(resp.headers!["Permissions-Policy"]).toBe(
-        "camera=(), microphone=(), geolocation=(), payment=(), interest-cohort=()"
+        "camera=(), microphone=(), geolocation=(), payment=(), interest-cohort=()",
       );
     });
   });
@@ -79,7 +83,7 @@ describe("Sentinel Security Enhancements V3", () => {
       version: "2.0",
       rawPath: path,
       requestContext: { http: { method, path } },
-      headers: { "x-api-key": "some-key" }
+      headers: { "x-api-key": "some-key" },
     });
 
     it("rejects cleanup if ADMIN_API_KEY is too short (< 16 chars)", async () => {
@@ -88,7 +92,9 @@ describe("Sentinel Security Enhancements V3", () => {
       const resp: any = await handler(event);
 
       expect(resp.statusCode).toBe(403);
-      expect(JSON.parse(resp.body).message).toBe("Unauthorized cleanup request");
+      expect(JSON.parse(resp.body).message).toBe(
+        "Unauthorized cleanup request",
+      );
     });
 
     it("accepts cleanup if ADMIN_API_KEY is at least 16 chars and matches", async () => {
