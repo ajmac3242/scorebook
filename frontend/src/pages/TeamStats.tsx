@@ -83,6 +83,7 @@ const TeamStats: React.FC = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const [statView, setStatView] = useState<"total" | "average">("total");
+  const [gameCountFilter, setGameCountFilter] = useState<string>("all");
   const [openRosterDialog, setOpenRosterDialog] = useState(false);
   const [pendingRosterChanges, setPendingRosterChanges] = useState<{
     [playerId: string]: { action: "add" | "remove"; jersey?: string };
@@ -252,10 +253,23 @@ const TeamStats: React.FC = () => {
     return details;
   }, [allPlayers, teamPlayers]);
 
-  const gameIds = useMemo(
-    () => games.map((g) => g.id).filter(Boolean),
-    [games],
-  );
+  const gameIds = useMemo(() => {
+    // ⚡ Bolt: Sort and filter games by date for recent analytics
+    const completedGames = games
+      .filter((g) => g.completed && !g.deletedAt)
+      .sort((a, b) => {
+        const dateTimeA = a.date + (a.time || "00:00");
+        const dateTimeB = b.date + (b.time || "00:00");
+        return dateTimeB.localeCompare(dateTimeA);
+      });
+
+    let filtered = completedGames;
+    if (gameCountFilter !== "all") {
+      filtered = completedGames.slice(0, parseInt(gameCountFilter));
+    }
+
+    return filtered.map((g) => g.id).filter(Boolean);
+  }, [games, gameCountFilter]);
   const allStatsResult = useLiveQuery(
     async () =>
       gameIds.length > 0
@@ -625,7 +639,8 @@ const TeamStats: React.FC = () => {
           { label: "PPG", value: teamAggregates.ppg },
           { label: "RPG", value: teamAggregates.rpg },
           { label: "APG", value: teamAggregates.apg },
-          { label: "OPPG", value: teamAggregates.oppg },
+          { label: "PPP", value: teamAggregates.ppp },
+          { label: "OPPP", value: teamAggregates.oppPpp },
         ]}
         actions={
           <Stack direction="row" spacing={1} alignItems="center">
@@ -669,6 +684,10 @@ const TeamStats: React.FC = () => {
           borderRadius: "0 0 8px 8px",
           bgcolor: "white",
           borderBottom: "1px solid #ddd",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexWrap: "wrap",
         }}
       >
         <Tabs
@@ -683,6 +702,32 @@ const TeamStats: React.FC = () => {
           <Tab label="Lineups" sx={{ fontWeight: 600 }} />
           <Tab label="Roster" sx={{ fontWeight: 600 }} />
         </Tabs>
+
+        {(tabValue === 1 || tabValue === 2) && (
+          <Box sx={{ p: 1, pr: 2 }}>
+            <Stack direction="row" spacing={1} alignItems="center">
+              <Typography variant="caption" sx={{ fontWeight: 700 }}>
+                ANALYTICS WINDOW:
+              </Typography>
+              <ToggleButtonGroup
+                value={gameCountFilter}
+                exclusive
+                onChange={(_, val) => val && setGameCountFilter(val)}
+                size="small"
+              >
+                <ToggleButton value="5" sx={{ px: 2 }}>
+                  Last 5
+                </ToggleButton>
+                <ToggleButton value="10" sx={{ px: 2 }}>
+                  Last 10
+                </ToggleButton>
+                <ToggleButton value="all" sx={{ px: 2 }}>
+                  All
+                </ToggleButton>
+              </ToggleButtonGroup>
+            </Stack>
+          </Box>
+        )}
       </Box>
 
       {isDeleted && (
@@ -1097,6 +1142,9 @@ const TeamStats: React.FC = () => {
                     PTS AGN
                   </TableCell>
                   <TableCell align="right" sx={{ fontWeight: 700 }}>
+                    NET/40
+                  </TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 700 }}>
                     +/-
                   </TableCell>
                 </TableRow>
@@ -1124,6 +1172,20 @@ const TeamStats: React.FC = () => {
                     <TableCell align="right">{row.pointsFor}</TableCell>
                     <TableCell align="right">{row.pointsAgainst}</TableCell>
                     <TableCell align="right" sx={{ fontWeight: 700 }}>
+                      {row.netRatingPer40}
+                    </TableCell>
+                    <TableCell
+                      align="right"
+                      sx={{
+                        fontWeight: 700,
+                        color:
+                          row.netRating > 0
+                            ? "success.main"
+                            : row.netRating < 0
+                              ? "error.main"
+                              : "inherit",
+                      }}
+                    >
                       {row.netRating > 0 ? `+${row.netRating}` : row.netRating}
                     </TableCell>
                   </TableRow>

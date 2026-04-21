@@ -55,6 +55,7 @@ export interface TeamAggregates {
   totalGames: number;
   ppp: string;
   possessions: number;
+  oppPpp: string;
 }
 
 /**
@@ -1220,6 +1221,12 @@ export const calculateTeamAggregates = (
   let totalTo = 0;
   let totalOreb = 0;
 
+  // Track opponent possessions for Defensive PPP (oppPpp)
+  let oppFga = 0;
+  let oppFta = 0;
+  let oppTo = 0;
+  let oppOreb = 0;
+
   for (let i = 0; i < stats.length; i++) {
     const stat = stats[i];
     if (!isActive(stat)) continue;
@@ -1237,6 +1244,11 @@ export const calculateTeamAggregates = (
       if (isOpponent) {
         totals.opp += pts;
         totalOppPoints += pts;
+        if (isFreeThrow(stat)) {
+          oppFta++;
+        } else {
+          oppFga++;
+        }
       } else {
         totals.team += pts;
         totalPoints += pts;
@@ -1246,25 +1258,31 @@ export const calculateTeamAggregates = (
           totalFga++;
         }
       }
-    } else if (!isOpponent) {
+    } else {
       if (type === ACTION_TYPES.MISS) {
         if (isFreeThrow(stat)) {
-          totalFta++;
+          if (isOpponent) oppFta++;
+          else totalFta++;
         } else {
-          totalFga++;
+          if (isOpponent) oppFga++;
+          else totalFga++;
         }
       } else if (type === ACTION_TYPES.OFF_REBOUND) {
-        totalRebounds++;
-        totalOreb++;
+        if (isOpponent) oppOreb++;
+        else {
+          totalRebounds++;
+          totalOreb++;
+        }
       } else if (
         type === ACTION_TYPES.REBOUND ||
         type === ACTION_TYPES.DEF_REBOUND
       ) {
-        totalRebounds++;
+        if (!isOpponent) totalRebounds++;
       } else if (type === ACTION_TYPES.ASSIST) {
-        totalAssists++;
+        if (!isOpponent) totalAssists++;
       } else if (type === ACTION_TYPES.TURNOVER) {
-        totalTo++;
+        if (isOpponent) oppTo++;
+        else totalTo++;
       }
     }
   }
@@ -1286,6 +1304,13 @@ export const calculateTeamAggregates = (
     totalTo,
     totalOreb,
   );
+  const totalOppPossessions = calculatePossessions(
+    oppFga,
+    oppFta,
+    oppTo,
+    oppOreb,
+  );
+
   return {
     ppg: formatToOne(totalPoints / gp),
     rpg: formatToOne(totalRebounds / gp),
@@ -1295,6 +1320,7 @@ export const calculateTeamAggregates = (
     totalGames: targetCount,
     ppp: calculatePpp(totalPoints, totalPossessions),
     possessions: Math.round(totalPossessions),
+    oppPpp: calculatePpp(totalOppPoints, totalOppPossessions),
   };
 };
 
@@ -1319,7 +1345,10 @@ export const calculateOpponentAggregates = (
     steals: 0,
     turnovers: 0,
     fouls: 0,
-    fta: 0, // Needed for possessions
+    fta: 0,
+    ftm: 0,
+    threePM: 0,
+    threePA: 0,
   };
 
   for (let i = 0; i < stats.length; i++) {
@@ -1338,9 +1367,6 @@ export const calculateOpponentAggregates = (
 
   return {
     ...agg,
-    ftm: 0,
-    threePM: 0,
-    threePA: 0,
     fgPct: calculateFgPct(agg.makes, agg.attempts),
     min: 0,
     plusMinus: 0,
@@ -1509,6 +1535,7 @@ export interface LineupAggregates {
   pointsAgainst: number;
   netRating: number;
   seconds: number;
+  netRatingPer40: string;
 }
 
 /**
@@ -1700,10 +1727,15 @@ export const calculateLineupStats = (
   }
 
   return Array.from(lineupStats.values())
-    .map((agg) => ({
-      ...agg,
-      netRating: agg.pointsFor - agg.pointsAgainst,
-    }))
+    .map((agg) => {
+      const net = agg.pointsFor - agg.pointsAgainst;
+      const mins = agg.seconds / 60;
+      return {
+        ...agg,
+        netRating: net,
+        netRatingPer40: mins > 0 ? ((net / mins) * 40).toFixed(1) : "0.0",
+      };
+    })
     .sort((a, b) => b.netRating - a.netRating);
 };
 
