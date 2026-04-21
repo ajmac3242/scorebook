@@ -23,3 +23,7 @@ Action: Implement Snackbar feedback for all CRUD operations in fast-paced interf
 ## 2026-05-15 - Interactive Resilience & Accessibility Polish
 Learning: Micro-UX improvements like Enter-key submission for fast-paced stat entry and descriptive ARIA labels on timeline audit controls significantly reduce cognitive load. Immediate visual feedback on copy-to-clipboard actions (icon/text swap) transforms a "blind" action into a confirmed success. Dashboard empty states with dashed borders provide a stronger "place-of-onboarding" feel than plain cards.
 Action: Standardize Enter-key support for all high-frequency dialogs. Ensure destructive timeline edits have safety confirmations. Use visual feedback (icon swaps) for non-entity-based async actions.
+
+## 2026-04-21 - Asynchronous Onboarding and Card Accessibility
+Learning: The login process can feel "broken" if large datasets are being pulled in the background without user feedback. A dedicated loading state with thematic visuals (spinning basketball) and progress text sets the right expectation. Card-based navigation requires explicit focus-visible borders and ARIA descriptions to be truly accessible to keyboard and screen reader users.
+Action: Always await critical data syncs during onboarding and provide a visual loader. Ensure interactive cards use `role="button"` and `aria-label` when they trigger navigation.

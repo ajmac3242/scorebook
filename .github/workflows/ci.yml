@@ -217,13 +217,21 @@ jobs:
 
       - name: Render terraform-docs
         if: needs.filter.outputs.docs == 'true'
-        uses: terraform-docs/gh-actions@v1.3.0
         timeout-minutes: 5
-        with:
-          working-dir: infra
-          output-file: README.md
-          output-method: inject
-          git-push: "false"
+        run: |
+          echo "::group::Install terraform-docs"
+          # Download and install terraform-docs binary directly from GitHub Releases
+          # as a workaround for quay.io registry 502 errors.
+          curl -sSLo ./terraform-docs.tar.gz "https://github.com/terraform-docs/terraform-docs/releases/download/v0.19.0/terraform-docs-v0.19.0-linux-amd64.tar.gz"
+          tar -xzf ./terraform-docs.tar.gz
+          chmod +x ./terraform-docs
+          mv ./terraform-docs /usr/local/bin/
+          rm ./terraform-docs.tar.gz
+          echo "::endgroup::"
+
+          echo "::group::Execute terraform-docs"
+          terraform-docs markdown table infra --output-file infra/README.md --output-method inject
+          echo "::endgroup::"
 
       - name: Install Graphviz
         if: needs.filter.outputs.docs == 'true'

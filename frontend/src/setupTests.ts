@@ -45,6 +45,7 @@ vi.mock("./db", () => ({
       where: vi.fn().mockReturnThis(),
       equals: vi.fn().mockReturnThis(),
       toArray: vi.fn().mockResolvedValue([]),
+      first: vi.fn().mockResolvedValue(undefined),
       add: vi.fn(),
       bulkPut: vi.fn(),
       get: vi.fn(),

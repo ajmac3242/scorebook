@@ -11,6 +11,7 @@ interface Marker {
   label?: string;
   color?: string;
   playerId?: string | number;
+  playerName?: string;
 }
 
 interface HeatmapData {
@@ -344,13 +345,13 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
                 }}
                 role="button"
                 tabIndex={0}
-                aria-label={`${marker.type} by ${marker.label ? `#${marker.label}` : "Opponent"}`}
+                aria-label={`${marker.type} by ${marker.playerName ? marker.playerName : marker.label ? `#${marker.label}` : "Opponent"}`}
                 style={{
                   cursor: onMarkerClick ? "pointer" : "default",
                   outline: "none",
                 }}
               >
-                <title>{`${marker.type} - ${marker.label ? "#" + marker.label : "Opponent"}`}</title>
+                <title>{`${marker.type} - ${marker.playerName ? marker.playerName : marker.label ? "#" + marker.label : "Opponent"}`}</title>
                 <circle
                   className={isLatest ? "latest-marker" : "court-marker"}
                   cx={svgX}
@@ -360,7 +361,7 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
                   fillOpacity={isLatest ? "1" : "0.8"}
                   stroke={color}
                   strokeWidth={isLatest ? "2" : "1"}
-                  aria-label={`${marker.type} by ${marker.label ? `#${marker.label}` : "Opponent"}`}
+                  aria-label={`${marker.type} by ${marker.playerName ? marker.playerName : marker.label ? `#${marker.label}` : "Opponent"}`}
                 />
                 {marker.label && (
                   <text

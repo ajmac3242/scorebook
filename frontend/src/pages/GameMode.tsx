@@ -374,6 +374,8 @@ const Scoreboard = React.memo(
                 <Stack spacing={0.5} alignItems="center">
                   <Typography
                     variant="caption"
+                    role="status"
+                    aria-live="polite"
                     sx={{
                       bgcolor: "error.main",
                       color: "white",
@@ -458,6 +460,14 @@ const Scoreboard = React.memo(
 
           <Box
             onClick={onEditClock}
+            role="button"
+            tabIndex={isReadOnly ? -1 : 0}
+            aria-label={`Game clock: ${formatClock(clockSeconds)}, Period ${period}. Click to edit.`}
+            onKeyDown={(e) => {
+              if (!isReadOnly && (e.key === "Enter" || e.key === " ")) {
+                onEditClock?.();
+              }
+            }}
             sx={{
               cursor: isReadOnly ? "default" : "pointer",
               display: "flex",
@@ -465,6 +475,11 @@ const Scoreboard = React.memo(
               alignItems: "center",
               "&:hover": {
                 opacity: isReadOnly ? 1 : 0.8,
+              },
+              "&:focus-visible": {
+                outline: "2px solid white",
+                outlineOffset: "4px",
+                borderRadius: "4px",
               },
             }}
           >
@@ -757,7 +772,13 @@ const ActionControls = React.memo(
           </span>
         </Tooltip>
 
-        <Tooltip title="Toggle Possession">
+        <Tooltip
+          title={
+            possessionState === SPECIAL_PLAYER_IDS.OUR_TEAM
+              ? "Switch possession to Opponent"
+              : "Switch possession to Team"
+          }
+        >
           <span>
             <Button
               size="small"
@@ -765,7 +786,11 @@ const ActionControls = React.memo(
               startIcon={<SwapHoriz />}
               onClick={onTogglePossession}
               disabled={isReadOnly}
-              aria-label="toggle possession"
+              aria-label={
+                possessionState === SPECIAL_PLAYER_IDS.OUR_TEAM
+                  ? "Switch possession to Opponent"
+                  : "Switch possession to Team"
+              }
               color={possessionState ? "primary" : "inherit"}
             >
               Poss
@@ -842,6 +867,7 @@ const ActionControls = React.memo(
               startIcon={<UndoIcon />}
               onClick={onUndo}
               disabled={recentStatsLength === 0 || isReadOnly}
+              aria-label="Undo last action"
             >
               Undo
             </Button>
@@ -849,14 +875,17 @@ const ActionControls = React.memo(
         </Tooltip>
 
         {!isGameCompleted && !isReadOnly && (
-          <Button
-            size="small"
-            variant="contained"
-            color="error"
-            onClick={onEndGame}
-          >
-            End Game
-          </Button>
+          <Tooltip title="Finalize and save game results">
+            <Button
+              size="small"
+              variant="contained"
+              color="error"
+              onClick={onEndGame}
+              aria-label="End and Save Game"
+            >
+              End Game
+            </Button>
+          </Tooltip>
         )}
       </Box>
     );
@@ -1635,6 +1664,7 @@ const GameMode: React.FC = () => {
         y: s.locationY || 0,
         type: type,
         label: !isOpp ? (jerseyMap.get(pId) ?? "") : undefined,
+        playerName: playerNamesMap.get(pId),
         color: isOpp ? oppColor : undefined,
       });
     }
