@@ -74,3 +74,12 @@ Pattern:
 2. Standardize UI-specific formatting (plus-minus colors and signs) in shared math utilities.
 3. Use regex for string normalization tasks like API path routing.
 4. Bolt-optimize recursive cleaners with Object.entries() and standard loops.
+
+## 2026-04-21 - Domain Helper Consolidation and Logic Flattening
+Smell: Inlined field goal logic; redundant score/possession counters; nested if/else in clutch/bonus logic; unidiomatic closure-based state mutation.
+Learning: Centralizing field goal identification (isFieldGoal) ensures consistency across momentum and threat detection. Avoiding "clever" closure-based state mutation in loops prevents performance overhead and improves scannability. Early returns in domain logic (isClutchEvent) make the code read like a specification.
+Pattern:
+1. Standardize field goal and free throw identification with semantic helpers.
+2. Use idiomatic object passing for multi-value state updates in aggregation loops.
+3. Flatten complex domain conditionals with guard clauses and early returns.
+4. Modernize backend utility patterns (case-insensitive header lookups) with Object.keys().find().
