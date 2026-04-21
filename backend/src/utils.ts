@@ -98,8 +98,10 @@ export function logInfo(label: string, data?: unknown) {
 /**
  * Redacts sensitive information from the Lambda event before logging.
  *
- * WHY: This is a security-critical function that prevents JWT tokens and other
- * secrets (like the "Authorization" header) from being leaked into CloudWatch logs.
+ * WHY: CloudWatch logs are often accessible to multiple developers or automated tools.
+ * Masking sensitive headers (Authorization, Cookies), query parameters, and request
+ * bodies prevents accidental leakage of PII or credentials that could be used for
+ * unauthorized access or replay attacks.
  *
  * @param {APIGatewayProxyEventV2} event - The raw Lambda event.
  * @returns {unknown} A sanitized copy of the event.
@@ -271,10 +273,10 @@ const FORBIDDEN_KEYS = new Set<string>([
 /**
  * Strips local-only fields and internal DynamoDB keys from the data object before saving.
  *
- * WHY: This provides mass assignment protection and prevents UI-only state or
- * internal database keys from being persisted. It ensures that only valid,
- * schema-defined fields are saved to DynamoDB. It also protects against
- * prototype pollution and recursively cleans arrays.
+ * WHY: This provides mass assignment protection by ensuring that internal database
+ * fields (like PK/SK) or temporary UI state cannot be injected into the database.
+ * It is a critical security layer that enforces schema integrity at the application level.
+ * It also protects against prototype pollution and recursively cleans arrays.
  *
  * @param {unknown} data - The data to clean.
  * @param {number} depth - Current recursion depth.

@@ -5,6 +5,8 @@ import {
   determineResult,
   formatClock,
   formatTimestampToTime,
+  getPlusMinusColor,
+  formatPlusMinus,
 } from "./mathUtils";
 
 describe("mathUtils", () => {
@@ -72,6 +74,34 @@ describe("mathUtils", () => {
     it("extracts mm:ss from ISO timestamp", () => {
       expect(formatTimestampToTime("2023-01-01T12:00:30.000Z")).toBe("00:30");
       expect(formatTimestampToTime("2023-01-01T12:10:05.000Z")).toBe("10:05");
+    });
+  });
+
+  describe("getPlusMinusColor", () => {
+    it("returns 'success.main' for positive values", () => {
+      expect(getPlusMinusColor(5)).toBe("success.main");
+    });
+
+    it("returns 'error.main' for negative values", () => {
+      expect(getPlusMinusColor(-3)).toBe("error.main");
+    });
+
+    it("returns 'inherit' for zero", () => {
+      expect(getPlusMinusColor(0)).toBe("inherit");
+    });
+  });
+
+  describe("formatPlusMinus", () => {
+    it("adds '+' prefix to positive numbers", () => {
+      expect(formatPlusMinus(5)).toBe("+5");
+    });
+
+    it("does not add '+' to negative numbers", () => {
+      expect(formatPlusMinus(-3)).toBe(-3);
+    });
+
+    it("does not add '+' to zero", () => {
+      expect(formatPlusMinus(0)).toBe(0);
     });
   });
 });
