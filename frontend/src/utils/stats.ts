@@ -384,8 +384,11 @@ export const getBonusStatus = (
 /**
  * Updates possession-related counters (FGA, FTA, TO, OREB) for a team or opponent.
  * @param {StatEvent} stat - The event to process.
- * @param {boolean} isOpponent - Whether the event belongs to the opponent.
  * @param {object} counters - The counters to update.
+ * @param {number} counters.fga - Field goal attempts.
+ * @param {number} counters.fta - Free throw attempts.
+ * @param {number} counters.to - Turnovers.
+ * @param {number} counters.oreb - Offensive rebounds.
  */
 const updatePossessionCounters = (
   stat: StatEvent,
@@ -1318,11 +1321,7 @@ export const calculateTeamAggregates = (
     }
 
     if (!isOpponent) {
-      if (
-        type === ACTION_TYPES.OFF_REBOUND ||
-        type === ACTION_TYPES.REBOUND ||
-        type === ACTION_TYPES.DEF_REBOUND
-      ) {
+      if (type === ACTION_TYPES.OFF_REBOUND || type === ACTION_TYPES.REBOUND || type === ACTION_TYPES.DEF_REBOUND) {
         totalRebounds++;
       } else if (type === ACTION_TYPES.ASSIST) {
         totalAssists++;
