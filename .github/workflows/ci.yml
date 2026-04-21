@@ -1,4 +1,5 @@
 name: CI
+
 on:
   push:
     branches: [ main ]
@@ -39,6 +40,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
       - name: Filter paths
         uses: dorny/paths-filter@v3
         id: filter
@@ -167,12 +169,12 @@ jobs:
           if-no-files-found: ignore
 
   # ---------------------------------------------------------------
-  # Documentation, Diagrams & Auto-Fix Commits
+  # Code Auto-Fix
   # ---------------------------------------------------------------
-  docs-and-auto-fix:
-    name: Docs & Auto-Fix
+  code-auto-fix:
+    name: Code Auto-Fix
     needs: filter
-    if: always() && (needs.filter.outputs.backend == 'true' || needs.filter.outputs.frontend == 'true' || needs.filter.outputs.docs == 'true')
+    if: always() && (needs.filter.outputs.backend == 'true' || needs.filter.outputs.frontend == 'true')
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -215,13 +217,31 @@ jobs:
           pnpm exec eslint "src/**/*.{ts,tsx}" --config eslint.config.js --fix --rule '{"jsdoc/require-jsdoc": ["warn", {"enableFixer": true, "require": {"FunctionDeclaration": true, "FunctionExpression": true, "MethodDefinition": true}}]}'
           echo "::endgroup::"
 
+      - name: Commit Auto-fixes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: auto-format and JSDoc stubs [skip ci]"
+          file_pattern: "backend/src/** frontend/src/**"
+
+  # ---------------------------------------------------------------
+  # Docs Build
+  # ---------------------------------------------------------------
+  docs-build:
+    name: Docs Build
+    needs: filter
+    if: needs.filter.outputs.docs == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Render terraform-docs
-        if: needs.filter.outputs.docs == 'true'
         timeout-minutes: 5
         run: |
           echo "::group::Install terraform-docs"
-          # Download and install terraform-docs binary directly from GitHub Releases
-          # as a workaround for quay.io registry 502 errors.
           curl -sSLo ./terraform-docs.tar.gz "https://github.com/terraform-docs/terraform-docs/releases/download/v0.19.0/terraform-docs-v0.19.0-linux-amd64.tar.gz"
           tar -xzf ./terraform-docs.tar.gz
           chmod +x ./terraform-docs
@@ -234,7 +254,6 @@ jobs:
           echo "::endgroup::"
 
       - name: Install Graphviz
-        if: needs.filter.outputs.docs == 'true'
         timeout-minutes: 5
         run: |
           echo "::group::Install Graphviz"
@@ -244,7 +263,6 @@ jobs:
           echo "::endgroup::"
 
       - name: Set up Python
-        if: needs.filter.outputs.docs == 'true'
         uses: actions/setup-python@v5
         timeout-minutes: 5
         with:
@@ -253,7 +271,6 @@ jobs:
           cache-dependency-path: 'docs/requirements.txt'
 
       - name: Install diagram dependencies
-        if: needs.filter.outputs.docs == 'true'
         timeout-minutes: 5
         run: |
           echo "::group::Install diagram dependencies"
@@ -261,7 +278,6 @@ jobs:
           echo "::endgroup::"
 
       - name: Generate architecture diagram
-        if: needs.filter.outputs.docs == 'true'
         timeout-minutes: 5
         run: |
           echo "::group::Generate architecture diagram"
@@ -309,18 +325,18 @@ jobs:
           python /tmp/gen_diagram.py
           echo "::endgroup::"
 
-      - name: Commit Auto-fixes and Docs
+      - name: Commit Docs Updates
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "chore: auto-format, JSDoc stubs, and docs update [skip ci]"
-          file_pattern: "backend/src/** frontend/src/** infra/README.md docs/architecture.png"
+          commit_message: "chore: docs update [skip ci]"
+          file_pattern: "infra/README.md docs/architecture.png"
 
   # ---------------------------------------------------------------
   # Summary Job
   # ---------------------------------------------------------------
   summary:
     name: Job Summary
-    needs: [filter, backend-ci, frontend-ci, docs-and-auto-fix]
+    needs: [filter, backend-ci, frontend-ci, code-auto-fix, docs-build]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -332,7 +348,8 @@ jobs:
           echo "| :--- | :--- |" >> $GITHUB_STEP_SUMMARY
           echo "| Backend | ${{ needs.filter.outputs.backend == 'true' && (needs.backend-ci.result == 'success' && '✅ Success' || '❌ Failed') || 'ℹ️ Unchanged' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Frontend | ${{ needs.filter.outputs.frontend == 'true' && (needs.frontend-ci.result == 'success' && '✅ Success' || '❌ Failed') || 'ℹ️ Unchanged' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Docs & Fixes | ${{ needs.docs-and-auto-fix.result == 'success' && '✅ Success' || needs.docs-and-auto-fix.result == 'skipped' && 'ℹ️ Skipped' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Code Auto-Fix | ${{ needs.code-auto-fix.result == 'success' && '✅ Success' || needs.code-auto-fix.result == 'skipped' && 'ℹ️ Skipped' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Docs Build | ${{ needs.docs-build.result == 'success' && '✅ Success' || needs.docs-build.result == 'skipped' && 'ℹ️ Skipped' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
 
   # ---------------------------------------------------------------
   # Decision Gate
@@ -341,7 +358,7 @@ jobs:
     name: Decision Gate
     runs-on: ubuntu-latest
     if: always()
-    needs: [filter, backend-ci, frontend-ci, docs-and-auto-fix]
+    needs: [filter, backend-ci, frontend-ci, code-auto-fix, docs-build]
     outputs:
       can_merge: ${{ steps.decide.outputs.can_merge }}
       should_deploy: ${{ steps.decide.outputs.should_deploy }}
@@ -351,7 +368,8 @@ jobs:
         env:
           BACKEND_RESULT: ${{ needs.backend-ci.result }}
           FRONTEND_RESULT: ${{ needs.frontend-ci.result }}
-          DOCS_RESULT: ${{ needs.docs-and-auto-fix.result }}
+          CODE_AUTOFIX_RESULT: ${{ needs.code-auto-fix.result }}
+          DOCS_RESULT: ${{ needs.docs-build.result }}
           BACKEND_CHANGED: ${{ needs.filter.outputs.backend || 'false' }}
           FRONTEND_CHANGED: ${{ needs.filter.outputs.frontend || 'false' }}
         run: |
@@ -362,6 +380,7 @@ jobs:
           echo "FRONTEND_CHANGED='$FRONTEND_CHANGED'"
           echo "BACKEND_RESULT='$BACKEND_RESULT'"
           echo "FRONTEND_RESULT='$FRONTEND_RESULT'"
+          echo "CODE_AUTOFIX_RESULT='$CODE_AUTOFIX_RESULT'"
           echo "DOCS_RESULT='$DOCS_RESULT'"
 
           can_merge=false
@@ -369,6 +388,7 @@ jobs:
 
           if { [ "$BACKEND_RESULT" = "success" ] || [ "$BACKEND_RESULT" = "skipped" ]; } && \
              { [ "$FRONTEND_RESULT" = "success" ] || [ "$FRONTEND_RESULT" = "skipped" ]; } && \
+             { [ "$CODE_AUTOFIX_RESULT" = "success" ] || [ "$CODE_AUTOFIX_RESULT" = "skipped" ]; } && \
              { [ "$DOCS_RESULT" = "success" ] || [ "$DOCS_RESULT" = "skipped" ]; }; then
             can_merge=true
           fi
@@ -386,10 +406,6 @@ jobs:
 
   # ---------------------------------------------------------------
   # Auto-Merge PR
-  # FIX: Added always() so GitHub does not pre-skip this job when
-  #      upstream jobs (backend-ci, frontend-ci) were skipped.
-  #      Without always(), a skipped job in the needs chain causes
-  #      GitHub to short-circuit and never evaluate the outputs.
   # ---------------------------------------------------------------
   auto-merge:
     name: Auto-Merge PR
@@ -412,8 +428,6 @@ jobs:
 
   # ---------------------------------------------------------------
   # Trigger Deploy
-  # FIX: Added always() and needs.decision-gate.result == 'success'
-  #      for the same reason as auto-merge above.
   # ---------------------------------------------------------------
   trigger-deploy:
     name: Trigger Deploy
