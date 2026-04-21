@@ -502,7 +502,7 @@ function initializeStatsMap(
       name: player.name,
       avatarColor: player.avatarColor,
       jerseyNumber: jerseyMap.get(playerId) ?? "",
-      gamesPlayed: new Set(),
+      gamesPlayed: new Set<string | number>(),
       gp: 0,
       points: 0,
       rebounds: 0,

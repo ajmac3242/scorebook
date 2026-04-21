@@ -774,5 +774,5 @@ async function performHardCleanup(tableName: string) {
     }),
   );
 
-  console.log("Cleanup attempted with threshold:", oneDayAgo);
+  logInfo("Cleanup attempted with threshold", oneDayAgo);
 }

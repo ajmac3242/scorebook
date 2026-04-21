@@ -28,3 +28,7 @@ Action: Standardized JSDoc param format and stabilized hook dependencies using u
 ## 2026-04-19 - Elite Code Hygiene and Type Safety
 Learning: Logical OR (`||`) for jersey number fallbacks incorrectly treats "0" as missing, which is a valid basketball identifier. Standardizing on nullish coalescing (`??`) prevents this UI bug. Generic `Record<string, any>` in backend filters was obscuring property access and triggering lint warnings.
 Action: Enforce `??` for all jersey number displays. Replace `any` with `unknown` and use specific type constraints (e.g., `{ deletedAt?: string | null }`) in utility helpers to improve robustness.
+
+## 2026-04-21 - Addressing Technical Debt and Implicit Any
+Learning: Implicit any in collection constructors (Map, Set) and legacy 'any' casts in Lambda event handling are recurring patterns that bypass type safety.
+Action: Enforce explicit type arguments for all collections and use 'unknown' with type guards for Lambda events to prevent type leakage.
