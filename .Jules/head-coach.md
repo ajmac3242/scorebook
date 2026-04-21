@@ -45,3 +45,11 @@ Observation: We are now capturing the "What" (events) and the "When" (momentum) 
 Impact: Without individual defensive assignment tracking, coaches cannot identify which player is the "weak link" in a specific matchup. Without On/Off analytics, they may misinterpret raw +/- stats. Manual rotation management leads to tactical errors in substitutions. Delaying "Four Factors" and "Tendency" analysis until after the game means missing opportunities for winning mid-game adjustments.
 
 Recommendation: Pivot toward **Impact Attribution** and **Decision Support**. Implement "Matchup Tracking" for defensive accountability and "On/Off Analytics" for relative value. Introduce an "Automated Rotation Suggester" to reduce the mental load on the coach. Finally, provide real-time visibility into "Opponent Tendencies" and "Team Four Factors" to drive data-driven tactical shifts during timeouts and halftime.
+
+## 2025-05-21 - Strategic Vision: Actionable Tactical Intelligence & Operational Excellence
+
+Observation: The current application has achieved a high degree of maturity in data collection and real-time analytics. However, we have reached a point where "too much data" can be as paralyzing as "too little data." The strategic vision must now shift from *displaying* metrics to *delivering* actionable tactical intelligence. We need to close the loop between historical analysis and live-game execution.
+
+Impact: Without specific context on defensive scheme efficiency, coaches rely on intuition for critical fourth-quarter defensive adjustments. Without live tracking of tactical goals (KPIs), teams can drift away from their pre-game identity during the heat of competition. Furthermore, the lack of a "Film Room" bridge means the insights gained during the game are lost in the friction of post-game video analysis.
+
+Recommendation: Transition the platform into a "Tactical Operating System." Priority must be given to Defensive Scheme Tracking (PPP by set) and a live Tactical KPI HUD to keep the game plan front-and-center. We must also optimize for post-game "Operational Excellence" by introducing one-tap Film Room Bookmarking. Finally, the "HALT" system will serve as the safety net, ensuring high-leverage situations are identified and addressed by the coaching staff in real-time.
