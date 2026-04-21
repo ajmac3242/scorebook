@@ -1,9 +1,5 @@
 import { describe, it, expect } from "@jest/globals";
-import {
-  stripLocalFields,
-  normalizePath,
-  maskEvent,
-} from "../utils.js";
+import { stripLocalFields, normalizePath, maskEvent } from "../utils.js";
 import { APIGatewayProxyEventV2 } from "aws-lambda";
 
 describe("backend utils", () => {
@@ -17,7 +13,7 @@ describe("backend utils", () => {
         GSI1PK: "TEAM",
         synced: 1,
         deletedAt: "2023-01-01",
-        isArchived: true
+        isArchived: true,
       };
       const result = stripLocalFields(input) as any;
       expect(result.id).toBe("123");
@@ -36,12 +32,12 @@ describe("backend utils", () => {
         PK: "T1",
         players: [
           { id: "p1", PK: "P1", SK: "S1" },
-          { id: "p2", PK: "P2" }
+          { id: "p2", PK: "P2" },
         ],
         metadata: {
           PK: "M1",
-          foo: "bar"
-        }
+          foo: "bar",
+        },
       };
       const result = stripLocalFields(input) as any;
       expect(result.PK).toBeUndefined();
@@ -53,7 +49,9 @@ describe("backend utils", () => {
     });
 
     it("protects against prototype pollution", () => {
-      const input = JSON.parse('{"id": "123", "__proto__": {"polluted": true}}');
+      const input = JSON.parse(
+        '{"id": "123", "__proto__": {"polluted": true}}',
+      );
       const result = stripLocalFields(input) as any;
       expect(result.__proto__.polluted).toBeUndefined();
       expect(({} as any).polluted).toBeUndefined();
@@ -61,10 +59,11 @@ describe("backend utils", () => {
   });
 
   describe("normalizePath", () => {
-    const createEvent = (path: string): APIGatewayProxyEventV2 => ({
-      rawPath: path,
-      requestContext: { http: { path } }
-    } as any);
+    const createEvent = (path: string): APIGatewayProxyEventV2 =>
+      ({
+        rawPath: path,
+        requestContext: { http: { path } },
+      }) as any;
 
     it("removes /api and /$default prefixes", () => {
       expect(normalizePath(createEvent("/api/teams"))).toBe("/teams");
@@ -85,11 +84,11 @@ describe("backend utils", () => {
     it("redacts sensitive headers", () => {
       const event: APIGatewayProxyEventV2 = {
         headers: {
-          "authorization": "Bearer secret",
+          authorization: "Bearer secret",
           "x-api-key": "secret-key",
-          "content-type": "application/json"
+          "content-type": "application/json",
         },
-        requestContext: { authorizer: { claims: { sub: "123" } } }
+        requestContext: { authorizer: { claims: { sub: "123" } } },
       } as any;
 
       const result = maskEvent(event) as any;
@@ -103,9 +102,9 @@ describe("backend utils", () => {
       const event: APIGatewayProxyEventV2 = {
         queryStringParameters: {
           token: "secret-token",
-          id: "123"
+          id: "123",
         },
-        body: '{"password": "secret"}'
+        body: '{"password": "secret"}',
       } as any;
 
       const result = maskEvent(event) as any;
