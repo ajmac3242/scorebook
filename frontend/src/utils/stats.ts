@@ -1569,6 +1569,7 @@ const recordLineupStint = (
       pointsAgainst: 0,
       netRating: 0,
       seconds: 0,
+      netRatingPer40: "0.0",
     };
     lineupStats.set(key, agg);
   }
