@@ -332,26 +332,6 @@ jobs:
           file_pattern: "infra/README.md docs/architecture.png"
 
   # ---------------------------------------------------------------
-  # Summary Job
-  # ---------------------------------------------------------------
-  summary:
-    name: Job Summary
-    needs: [filter, code-auto-fix, backend-ci, frontend-ci, docs-build]
-    if: always()
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - name: Job Summary
-        run: |
-          echo "### CI Run Summary 🚀" >> $GITHUB_STEP_SUMMARY
-          echo "| Component | Status |" >> $GITHUB_STEP_SUMMARY
-          echo "| :--- | :--- |" >> $GITHUB_STEP_SUMMARY
-          echo "| Backend | ${{ needs.filter.outputs.backend == 'true' && (needs.backend-ci.result == 'success' && '✅ Success' || needs.backend-ci.result == 'skipped' && 'ℹ️ Skipped' || '❌ Failed') || 'ℹ️ Unchanged' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Frontend | ${{ needs.filter.outputs.frontend == 'true' && (needs.frontend-ci.result == 'success' && '✅ Success' || needs.frontend-ci.result == 'skipped' && 'ℹ️ Skipped' || '❌ Failed') || 'ℹ️ Unchanged' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Code Auto-Fix | ${{ needs.code-auto-fix.result == 'success' && '✅ Success' || needs.code-auto-fix.result == 'skipped' && 'ℹ️ Skipped' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Docs Build | ${{ needs.docs-build.result == 'success' && '✅ Success' || needs.docs-build.result == 'skipped' && 'ℹ️ Skipped' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
-
-  # ---------------------------------------------------------------
   # Decision Gate
   # ---------------------------------------------------------------
   decision-gate:
@@ -363,6 +343,16 @@ jobs:
       can_merge: ${{ steps.decide.outputs.can_merge }}
       should_deploy: ${{ steps.decide.outputs.should_deploy }}
     steps:
+      - name: Write CI Summary
+        run: |
+          echo "### CI Run Summary 🚀" >> $GITHUB_STEP_SUMMARY
+          echo "| Component | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "| :--- | :--- |" >> $GITHUB_STEP_SUMMARY
+          echo "| Backend | ${{ needs.filter.outputs.backend == 'true' && (needs.backend-ci.result == 'success' && '✅ Success' || needs.backend-ci.result == 'skipped' && 'ℹ️ Skipped' || '❌ Failed') || 'ℹ️ Unchanged' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Frontend | ${{ needs.filter.outputs.frontend == 'true' && (needs.frontend-ci.result == 'success' && '✅ Success' || needs.frontend-ci.result == 'skipped' && 'ℹ️ Skipped' || '❌ Failed') || 'ℹ️ Unchanged' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Code Auto-Fix | ${{ needs.code-auto-fix.result == 'success' && '✅ Success' || needs.code-auto-fix.result == 'skipped' && 'ℹ️ Skipped' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Docs Build | ${{ needs.docs-build.result == 'success' && '✅ Success' || needs.docs-build.result == 'skipped' && 'ℹ️ Skipped' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+
       - name: Evaluate workflow outcomes
         id: decide
         env:
