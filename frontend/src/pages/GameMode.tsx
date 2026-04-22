@@ -84,7 +84,7 @@ import FreeThrowWorkflowDialog from "../components/FreeThrowWorkflowDialog";
 import HalftimeReportDialog from "../components/HalftimeReportDialog";
 import PlaybookEfficiencyWidget from "../components/PlaybookEfficiencyWidget";
 import { PlayerStatRow } from "../components/PlayerStatRow";
-import { db, type StatEvent } from "../db";
+import { db, type StatEvent, type Player, type TeamPlayer } from "../db";
 import { syncService } from "../utils/syncService";
 import { logger } from "../utils/logger";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -3868,15 +3868,15 @@ const QuickAction: React.FC<{
  * WHY: Helps coaches stick to their rotation plan by comparing actual mins vs target mins.
  */
 const RotationSuggester: React.FC<{
-  players: any[];
-  teamPlayers: any[];
-  gameData: any;
-  statsGridData: any[];
+  players: Player[];
+  teamPlayers: TeamPlayer[];
+  gameData: { onCourtIds: Set<string> };
+  statsGridData: PlayerAggregates[];
   period: number;
   maxPeriod: number;
   periodLength: number;
   clockSeconds: number;
-  onSelectPlayer: (id: string) => void;
+  onSelectPlayer: (_id: string) => void;
 }> = ({
   players,
   teamPlayers,
@@ -3899,7 +3899,7 @@ const RotationSuggester: React.FC<{
       const actualMins = gameStats?.min || 0;
       const targetMins = tp.targetMinutes || 0;
       const expectedMins = targetMins * gameProgress;
-
+      
       return {
         id: tp.playerId,
         name: p?.name || "Unknown",
