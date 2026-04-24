@@ -35,9 +35,9 @@ export const REDACTED_HEADERS = Object.freeze(
  * the REDACTED_HEADERS set. A recursion limit is enforced to prevent stack
  * overflow Denial-of-Service (DoS) attacks from malicious, deeply nested payloads.
  *
- * @param obj - The object to sanitize.
- * @param depth - Current recursion depth.
- * @returns A sanitized copy of the object.
+ * @param {unknown} obj - The object to sanitize.
+ * @param {number} depth - Current recursion depth.
+ * @returns {unknown} A sanitized copy of the object.
  */
 function sanitizeForLog(obj: unknown, depth = 0): unknown {
   if (obj === null || typeof obj !== "object") return obj;
@@ -220,7 +220,10 @@ export function normalizePath(event: APIGatewayProxyEventV2): string {
  * @param {APIGatewayProxyEventV2} event - Lambda event.
  * @returns {{method: string, path: string}} Normalized metadata.
  */
-export function extractRequestMetadata(event: APIGatewayProxyEventV2) {
+export function extractRequestMetadata(event: APIGatewayProxyEventV2): {
+  method: string;
+  path: string;
+} {
   const method =
     (event as unknown as Record<string, unknown>).method ||
     (event as unknown as Record<string, unknown>).httpMethod ||
@@ -256,9 +259,9 @@ export function extractIdFromPath(path: string, prefix: string): string | null {
 
 /**
  * Retrieves a header value in a case-insensitive manner.
- * @param headers - Request headers.
- * @param name - Header name to find.
- * @returns Header value or undefined.
+ * @param {Record<string, string | undefined> | undefined} headers - Request headers.
+ * @param {string} name - Header name to find.
+ * @returns {string | undefined} Header value or undefined.
  */
 export function getHeader(
   headers: Record<string, string | undefined> | undefined,

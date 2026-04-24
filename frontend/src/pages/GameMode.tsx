@@ -420,8 +420,8 @@ const Scoreboard = React.memo(
                     }}
                   >
                     {t.straightPoints >= 6
-                      ? `THREAT: Opp #${t.playerId.split(":")[1] || "??"} has scored ${t.straightPoints} STRAIGHT`
-                      : `THREAT: Opp #${t.playerId.split(":")[1] || "??"} (${t.points} pts)`}
+                      ? `THREAT: Opp #${t.playerId.split(":")[1] ?? "??"} has scored ${t.straightPoints} STRAIGHT`
+                      : `THREAT: Opp #${t.playerId.split(":")[1] ?? "??"} (${t.points} pts)`}
                   </Typography>
                   {t.straightPoints >= 8 && (
                     <Typography
@@ -1685,7 +1685,13 @@ const GameMode: React.FC = () => {
       });
     }
     return res;
-  }, [gameStats, markerFilter, jerseyMap, theme.palette.secondary.main]);
+  }, [
+    gameStats,
+    markerFilter,
+    jerseyMap,
+    playerNamesMap,
+    theme.palette.secondary.main,
+  ]);
 
   /**
    * Undoes the most recent statistical action.

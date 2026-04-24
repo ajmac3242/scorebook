@@ -446,7 +446,7 @@ const Dashboard: React.FC = () => {
                             }}
                           >
                             {teamPlayers.find((tp) => tp.playerId === pId)
-                              ?.jerseyNumber || "??"}
+                              ?.jerseyNumber ?? "??"}
                           </Avatar>
                         ))}
                       </Stack>
