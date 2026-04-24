@@ -59,6 +59,7 @@ import {
   calculatePossessions,
   calculatePpp,
   calculateMatchupStats,
+  calculatePlayerStintTimeline,
   type ScoreFlowPoint,
 } from "../utils/stats";
 import { MoleskineCard } from "../components/SharedUI";
@@ -573,6 +574,17 @@ const GameStats: React.FC = () => {
           : "0.0",
     }));
   }, [stats]);
+
+  const matchupStats = useMemo(() => {
+    return calculateMatchupStats(scoreFlowSortedStats);
+  }, [scoreFlowSortedStats]);
+
+  const playerStints = useMemo(() => {
+    if (!game) return [];
+    return calculatePlayerStintTimeline(scoreFlowSortedStats, {
+      periodLength: team?.periodLength || 10,
+    });
+  }, [scoreFlowSortedStats, game, team]);
 
   const lineupStats = useMemo(() => {
     return calculateLineupStats(scoreFlowSortedStats, {
@@ -1252,6 +1264,100 @@ const GameStats: React.FC = () => {
     </TableContainer>
   );
 
+  const rotationTimeline = (
+    <Box sx={{ mt: 2, overflowX: "auto" }}>
+      <Table size="small">
+        <TableHead>
+          <TableRow>
+            <TableCell sx={{ minWidth: 120, fontWeight: 700 }}>Player</TableCell>
+            <TableCell sx={{ minWidth: 400, fontWeight: 700 }}>
+              Stint Timeline (P1 → OT)
+            </TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {players.map((p) => {
+            const stints = playerStints.filter((s) => s.playerId === p.id);
+            if (stints.length === 0) return null;
+
+            return (
+              <TableRow key={p.id}>
+                <TableCell>
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <Avatar
+                      sx={{
+                        width: 24,
+                        height: 24,
+                        fontSize: "0.65rem",
+                        bgcolor: p.avatarColor,
+                      }}
+                    >
+                      {shotChartJerseyMap.get(p.id!) ?? "??"}
+                    </Avatar>
+                    <Typography variant="caption" noWrap sx={{ maxWidth: 80 }}>
+                      {p.name}
+                    </Typography>
+                  </Stack>
+                </TableCell>
+                <TableCell sx={{ p: 1 }}>
+                  <Box
+                    sx={{
+                      height: 16,
+                      width: "100%",
+                      bgcolor: "rgba(0,0,0,0.05)",
+                      borderRadius: 1,
+                      position: "relative",
+                      minWidth: 400,
+                    }}
+                  >
+                    {stints.map((s, idx) => {
+                      const maxPeriod = team?.periodType === "QUARTERS" ? 4 : 2;
+                      const currentMax = Math.max(
+                        maxPeriod,
+                        ...playerStints.map((ps) => ps.period),
+                      );
+                      const periodLen = (team?.periodLength || 10) * 60;
+                      const totalSecs = currentMax * periodLen;
+
+                      const startOffset =
+                        (s.period - 1) * periodLen + (periodLen - s.startClock);
+                      const endOffset =
+                        (s.period - 1) * periodLen + (periodLen - s.endClock);
+
+                      const left = (startOffset / totalSecs) * 100;
+                      const width = ((endOffset - startOffset) / totalSecs) * 100;
+
+                      return (
+                        <Tooltip
+                          key={idx}
+                          title={`P${s.period}: ${Math.floor((s.startClock - s.endClock) / 60)}m ${Math.floor((s.startClock - s.endClock) % 60)}s`}
+                        >
+                          <Box
+                            sx={{
+                              position: "absolute",
+                              left: `${left}%`,
+                              width: `${width}%`,
+                              height: "100%",
+                              bgcolor: theme.palette.primary.main,
+                              opacity: 0.8,
+                              borderRadius: 0.5,
+                              transition: "all 0.2s",
+                              "&:hover": { opacity: 1, transform: "scaleY(1.2)" },
+                            }}
+                          />
+                        </Tooltip>
+                      );
+                    })}
+                  </Box>
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
+    </Box>
+  );
+
   const lineupTable = (
     <TableContainer component={Box}>
       <Table size="small">
@@ -1669,6 +1775,29 @@ const GameStats: React.FC = () => {
               }}
             >
               <Typography variant="h6" sx={{ fontFamily: "var(--serif)" }}>
+                Rotation Timeline
+              </Typography>
+              <IconButton
+                onClick={() => setExpandedSection("rotation")}
+                aria-label="Expand Rotation Timeline section"
+                title="Expand section"
+              >
+                <ExpandIcon />
+              </IconButton>
+            </Box>
+            {rotationTimeline}
+          </MoleskineCard>
+
+          <MoleskineCard sx={{ mb: 3 }}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                mb: 2,
+              }}
+            >
+              <Typography variant="h6" sx={{ fontFamily: "var(--serif)" }}>
                 Matchup Battle
               </Typography>
               <IconButton
@@ -1828,6 +1957,7 @@ const GameStats: React.FC = () => {
           {expandedSection === "shotChart" && "Shot Chart"}
           {expandedSection === "scoreFlow" && "Score Flow"}
           {expandedSection === "lineups" && "Lineup Efficiency"}
+          {expandedSection === "rotation" && "Rotation Timeline"}
           {expandedSection === "matchups" && "Matchup Battle"}
           <IconButton
             onClick={() => setExpandedSection(null)}
@@ -1851,6 +1981,7 @@ const GameStats: React.FC = () => {
           )}
           {expandedSection === "lineups" && lineupTable}
           {expandedSection === "matchups" && matchupTable}
+          {expandedSection === "rotation" && rotationTimeline}
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setExpandedSection(null)}>Close</Button>

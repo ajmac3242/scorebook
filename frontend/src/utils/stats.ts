@@ -59,6 +59,38 @@ export interface TeamAggregates {
 }
 
 /**
+ * Interface for matchup-based statistics.
+ */
+export interface MatchupStats {
+  ourPlayerId: string;
+  opponentPlayerId: string;
+  pointsAllowed: number;
+  stops: number;
+  possessions: number;
+  stopPct: string;
+}
+
+/**
+ * Interface for On/Off impact metrics.
+ */
+export interface OnOffImpact {
+  playerId: string;
+  onPointsFor: number;
+  onPointsAgainst: number;
+  onPossessions: number;
+  onOffensiveRating: string;
+  onDefensiveRating: string;
+  onNetRating: string;
+  offPointsFor: number;
+  offPointsAgainst: number;
+  offPossessions: number;
+  offOffensiveRating: string;
+  offDefensiveRating: string;
+  offNetRating: string;
+  netDifferential: string;
+}
+
+/**
  * Interface for opponent statistics.
  */
 export interface OpponentAggregates {
@@ -830,6 +862,106 @@ export const calculatePlayerAggregates = (
     result.push(player);
   }
   return result;
+};
+
+/**
+ * Interface for a player's stint on the court.
+ */
+export interface PlayerStint {
+  playerId: string;
+  period: number;
+  startClock: number; // Seconds remaining in period at start of stint
+  endClock: number; // Seconds remaining in period at end of stint
+}
+
+/**
+ * 🏀 CoachBoard: calculatePlayerStintTimeline
+ *
+ * WHY: Visualizing when players were on the court helps identify rotation
+ * patterns and fatigue.
+ *
+ * @param stats - Chronological list of statistical events for a SINGLE game.
+ * @param options - Configuration for period length and live context.
+ * @returns Array of stint records for all tracked players.
+ */
+export const calculatePlayerStintTimeline = (
+  stats: StatEvent[],
+  options: {
+    periodLength?: number;
+    liveContext?: { clockTime: number; period: number };
+  } = {},
+): PlayerStint[] => {
+  const sorted = sortStats(stats);
+  const periodLen = (options.periodLength || 10) * 60;
+  const stints: PlayerStint[] = [];
+  const activeStints = new Map<string, { startClock: number; period: number }>();
+
+  let currentPeriod = 1;
+
+  for (let i = 0; i < sorted.length; i++) {
+    const s = sorted[i];
+    if (!isActive(s)) continue;
+
+    const { playerId, type, clockTime, period } = s;
+
+    // Handle period boundaries for active players
+    if (period > currentPeriod) {
+      for (const [pId, info] of activeStints.entries()) {
+        // End stint at 0:00 of the period it started in (or subsequent ones)
+        // For simplicity, we create one stint record per period the player is on for.
+        stints.push({
+          playerId: pId,
+          period: currentPeriod,
+          startClock: info.startClock,
+          endClock: 0,
+        });
+
+        // 🔍 Scout: Handle full minutes for skipped periods
+        for (let p = currentPeriod + 1; p < period; p++) {
+          stints.push({
+            playerId: pId,
+            period: p,
+            startClock: periodLen,
+            endClock: 0,
+          });
+        }
+
+        // Reset info for the current period
+        info.startClock = periodLen;
+        info.period = period;
+      }
+      currentPeriod = period;
+    }
+
+    if (type === ACTION_TYPES.SUB_IN && clockTime !== undefined) {
+      activeStints.set(playerId, { startClock: clockTime, period });
+    } else if (type === ACTION_TYPES.SUB_OUT && clockTime !== undefined) {
+      const info = activeStints.get(playerId);
+      if (info) {
+        stints.push({
+          playerId,
+          period,
+          startClock: info.startClock,
+          endClock: clockTime,
+        });
+        activeStints.delete(playerId);
+      }
+    }
+  }
+
+  // Handle players still on court
+  const liveCtx = options.liveContext;
+  for (const [pId, info] of activeStints.entries()) {
+    const endClock = liveCtx && liveCtx.period === info.period ? liveCtx.clockTime : 0;
+    stints.push({
+      playerId: pId,
+      period: info.period,
+      startClock: info.startClock,
+      endClock,
+    });
+  }
+
+  return stints;
 };
 
 /**
@@ -1908,7 +2040,7 @@ export const calculateMatchupStats = (stats: StatEvent[]): MatchupStats[] => {
 
     if (isOpp && isScoringEvent(s)) {
       if (defenderId) {
-        const key = defenderId + ":" + s.playerId;
+        const key = `${defenderId}:${s.playerId}`;
         let m = results.get(key);
         if (!m) {
           m = {
@@ -1929,9 +2061,9 @@ export const calculateMatchupStats = (stats: StatEvent[]): MatchupStats[] => {
     }
 
     // Stop logic
-    if (isOpp && type === ACTION_TYPES.TURNOVER) {
+    if (isOpp && s.type === ACTION_TYPES.TURNOVER) {
       if (defenderId) {
-        const key = defenderId + ":" + s.playerId;
+        const key = `${defenderId}:${s.playerId}`;
         let m = results.get(key);
         if (!m) {
           m = {
@@ -1948,20 +2080,20 @@ export const calculateMatchupStats = (stats: StatEvent[]): MatchupStats[] => {
         m.possessions++;
       }
       inOpponentPossession = false;
-    } else if (isOpp && type === ACTION_TYPES.MISS) {
+    } else if (isOpp && s.type === ACTION_TYPES.MISS) {
       inOpponentPossession = true;
       opponentPossessionPlayerId = s.playerId;
     } else if (
       inOpponentPossession &&
       !isOpp &&
-      (type === ACTION_TYPES.DEF_REBOUND || type === ACTION_TYPES.REBOUND)
+      (s.type === ACTION_TYPES.DEF_REBOUND || s.type === ACTION_TYPES.REBOUND)
     ) {
       const oppId = opponentPossessionPlayerId!;
       const defId =
         currentMatchups.get(oppId) ||
         currentMatchups.get(SPECIAL_PLAYER_IDS.OPPONENT);
       if (defId) {
-        const key = defId + ":" + oppId;
+        const key = `${defId}:${oppId}`;
         let m = results.get(key);
         if (!m) {
           m = {
@@ -1981,7 +2113,7 @@ export const calculateMatchupStats = (stats: StatEvent[]): MatchupStats[] => {
     } else if (
       inOpponentPossession &&
       isOpp &&
-      type === ACTION_TYPES.OFF_REBOUND
+      s.type === ACTION_TYPES.OFF_REBOUND
     ) {
       // Possession continues
     }
@@ -2063,42 +2195,40 @@ export const calculateOnOffStats = (
     const isOpp = isOpponentId(s.playerId);
     const pts = s.points || 0;
 
-    // Update global totals
-    if (s.type === ACTION_TYPES.MAKE) {
-      if (isOpp) totals.ptsAgn += pts;
-      else totals.ptsFor += pts;
-    }
-    if (isOpp) {
-      if (isFieldGoal(s)) totals.oppFga++;
-      else if (isFreeThrow(s)) totals.oppFta++;
-      else if (s.type === ACTION_TYPES.TURNOVER) totals.oppTo++;
-      else if (s.type === ACTION_TYPES.OFF_REBOUND) totals.oppOreb++;
-    } else {
-      if (isFieldGoal(s)) totals.teamFga++;
-      else if (isFreeThrow(s)) totals.teamFta++;
-      else if (s.type === ACTION_TYPES.TURNOVER) totals.teamTo++;
-      else if (s.type === ACTION_TYPES.OFF_REBOUND) totals.teamOreb++;
-    }
-
-    // Update ON stats for active players
-    for (const pId of activePlayers) {
-      const agg = results.get(pId);
-      if (!agg) continue;
-
-      if (s.type === ACTION_TYPES.MAKE) {
-        if (isOpp) agg.onPtsAgn += pts;
-        else agg.onPtsFor += pts;
-      }
-      if (isOpp) {
-        if (isFieldGoal(s)) agg.onOppFga++;
-        else if (isFreeThrow(s)) agg.onOppFta++;
-        else if (s.type === ACTION_TYPES.TURNOVER) agg.onOppTo++;
-        else if (s.type === ACTION_TYPES.OFF_REBOUND) agg.onOppOreb++;
+    for (const [pId, agg] of results.entries()) {
+      const isOn = activePlayers.has(pId);
+      if (isOn) {
+        if (s.type === ACTION_TYPES.MAKE) {
+          if (isOpp) agg.onPtsAgn += pts;
+          else agg.onPtsFor += pts;
+        }
+        if (isOpp) {
+          if (isFieldGoal(s)) agg.onOppFga++;
+          else if (isFreeThrow(s)) agg.onOppFta++;
+          else if (s.type === ACTION_TYPES.TURNOVER) agg.onOppTo++;
+          else if (s.type === ACTION_TYPES.OFF_REBOUND) agg.onOppOreb++;
+        } else {
+          if (isFieldGoal(s)) agg.onTeamFga++;
+          else if (isFreeThrow(s)) agg.onTeamFta++;
+          else if (s.type === ACTION_TYPES.TURNOVER) agg.onTeamTo++;
+          else if (s.type === ACTION_TYPES.OFF_REBOUND) agg.onTeamOreb++;
+        }
       } else {
-        if (isFieldGoal(s)) agg.onTeamFga++;
-        else if (isFreeThrow(s)) agg.onTeamFta++;
-        else if (s.type === ACTION_TYPES.TURNOVER) agg.onTeamTo++;
-        else if (s.type === ACTION_TYPES.OFF_REBOUND) agg.onTeamOreb++;
+        if (s.type === ACTION_TYPES.MAKE) {
+          if (isOpp) agg.offPtsAgn += pts;
+          else agg.offPtsFor += pts;
+        }
+        if (isOpp) {
+          if (isFieldGoal(s)) agg.offOppFga++;
+          else if (isFreeThrow(s)) agg.offOppFta++;
+          else if (s.type === ACTION_TYPES.TURNOVER) agg.offOppTo++;
+          else if (s.type === ACTION_TYPES.OFF_REBOUND) agg.offOppOreb++;
+        } else {
+          if (isFieldGoal(s)) agg.offTeamFga++;
+          else if (isFreeThrow(s)) agg.offTeamFta++;
+          else if (s.type === ACTION_TYPES.TURNOVER) agg.offTeamTo++;
+          else if (s.type === ACTION_TYPES.OFF_REBOUND) agg.offTeamOreb++;
+        }
       }
     }
   }
