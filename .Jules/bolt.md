@@ -45,3 +45,10 @@ Action: Use direct comparison operators for sorting ISO timestamps and simple st
 ## 2026-04-08 - Fixed-buffer streaks and Centralized Sorting
 Learning: Tracking streaks or rolling metrics using a fixed-size buffer (e.g., keeping only the last 3 items) instead of growing arrays for each entity significantly reduces memory churn and GC pressure. Centralizing data sorting into a single `useMemo` and passing an `isSorted` hint to downstream utilities eliminates redundant O(N log N) operations across the derivation pipeline.
 Action: Use rolling buffers for streak-like logic and centralize expensive data preparation (like sorting) when used by multiple consumers.
+
+## 2026-04-09 - Global Totals and Hot-path Cache Optimization
+Learning: Refactoring roster-wide aggregate calculations (like `calculateOnOffStats`) to track global team totals and individual "ON" stats allows deriving "OFF" metrics via subtraction. This reduces algorithmic complexity from O(Events * RosterSize) to O(Events + RosterSize), providing massive scalability gains for long seasons.
+Action: Use global-sum-minus-active-sum derivation to calculate "Off" or "Rest of Team" metrics in O(N) instead of O(N*P).
+
+Learning: Caching the array representation of dynamic collections (e.g., `Array.from(lineupSet)`) and only refreshing it when the collection changes prevents thousands of redundant allocations in high-frequency event loops like `calculateScoreFlow`.
+Action: Never call `Array.from()` or `Object.keys()` inside a tight loop if the collection has not changed since the last iteration.

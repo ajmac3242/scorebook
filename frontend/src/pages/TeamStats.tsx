@@ -269,9 +269,12 @@ const TeamStats: React.FC = () => {
     const completedGames = games
       .filter((g) => g.completed && !g.deletedAt)
       .sort((a, b) => {
+        // ⚡ Bolt: Use direct comparison for ISO timestamps instead of localeCompare for hot paths.
         const dateTimeA = a.date + (a.time || "00:00");
         const dateTimeB = b.date + (b.time || "00:00");
-        return dateTimeB.localeCompare(dateTimeA);
+        if (dateTimeA < dateTimeB) return 1;
+        if (dateTimeA > dateTimeB) return -1;
+        return 0;
       });
 
     let filtered = completedGames;
