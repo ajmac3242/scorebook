@@ -409,25 +409,29 @@ const Players: React.FC = () => {
             }
             required
             disabled={isSubmitting}
+            aria-describedby={showValidation && !name.trim() ? "player-name-error" : undefined}
+            FormHelperTextProps={{ id: "player-name-error" }}
           />
           <Typography variant="subtitle2" gutterBottom>
             Avatar Color
           </Typography>
           <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-            {AVATAR_COLORS.map((color) => (
-              <Tooltip key={color} title={`Select ${color.toUpperCase()}`}>
-                <Box
-                  onClick={() => setAvatarColor(color)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      setAvatarColor(color);
-                    }
-                  }}
-                  role="button"
-                  tabIndex={0}
-                  aria-label={`Select color ${color.toUpperCase()} as avatar color`}
-                  aria-pressed={avatarColor === color}
-                  sx={{
+            {AVATAR_COLORS.map((color) => {
+              const colorName = color.replace("#", "").toUpperCase();
+              return (
+                <Tooltip key={color} title={`Select ${colorName}`}>
+                  <Box
+                    onClick={() => setAvatarColor(color)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        setAvatarColor(color);
+                      }
+                    }}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`Select ${colorName} as avatar color`}
+                    aria-pressed={avatarColor === color}
+                    sx={{
                     width: 32,
                     height: 32,
                     borderRadius: "50%",
@@ -452,9 +456,10 @@ const Players: React.FC = () => {
                   {avatarColor === color && (
                     <CheckIcon sx={{ color: "#000", fontSize: 20 }} />
                   )}
-                </Box>
-              </Tooltip>
-            ))}
+                  </Box>
+                </Tooltip>
+              );
+            })}
           </Box>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
