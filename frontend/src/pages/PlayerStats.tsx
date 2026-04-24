@@ -31,7 +31,7 @@ import { getShotZone } from "../utils/shotZones";
 import { db, type StatEvent } from "../db";
 import { syncService } from "../utils/syncService";
 import { useLiveQuery } from "dexie-react-hooks";
-import { calculatePlayerAggregates } from "../utils/stats";
+import { calculatePlayerAggregates, calculateOnOffStats } from "../utils/stats";
 import { MoleskineCard, StatCard } from "../components/SharedUI";
 import EntityBanner from "../components/EntityBanner";
 import { useTeams } from "../hooks/useTeams";
@@ -61,6 +61,7 @@ const PlayerStats: React.FC = () => {
   const [editName, setEditName] = useState("");
   const [editColor, setEditColor] = useState("");
   const [timeLeft, setTimeLeft] = useState("");
+  const [activeTab, setActiveTab] = useState("stats");
 
   const player = useLiveQuery(
     async () => (playerId ? await db.players.get(playerId) : undefined),
@@ -240,6 +241,12 @@ const PlayerStats: React.FC = () => {
     return "";
   };
 
+  const onOffStats = useMemo(() => {
+    if (!player) return null;
+    const res = calculateOnOffStats([player], allStats);
+    return res.find((r) => r.playerId === playerId);
+  }, [player, allStats, playerId]);
+
   const isDeleted = !!player?.deletedAt;
 
   return (
@@ -348,7 +355,20 @@ const PlayerStats: React.FC = () => {
         </DialogActions>
       </Dialog>
 
-      <MoleskineCard sx={{ mb: 3, mt: 3 }}>
+      <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 3, mt: 3 }}>
+        <ToggleButtonGroup
+          value={activeTab}
+          exclusive
+          onChange={(_, val) => val && setActiveTab(val)}
+          size="small"
+        >
+          <ToggleButton value="stats">Standard Stats</ToggleButton>
+          <ToggleButton value="impact">On/Off Impact</ToggleButton>
+        </ToggleButtonGroup>
+      </Box>
+
+      {activeTab === "stats" && (
+        <MoleskineCard sx={{ mb: 3 }}>
         <Stack
           direction="row"
           justifyContent="space-between"
@@ -428,8 +448,10 @@ const PlayerStats: React.FC = () => {
           </ToggleButton>
         </Stack>
       </MoleskineCard>
+      )}
 
-      <Grid container spacing={3}>
+      {activeTab === "stats" ? (
+        <Grid container spacing={3}>
         <Grid item xs={12} md={4}>
           <Stack spacing={2}>
             <StatCard label="Total Minutes" value={aggregates.min} />
@@ -564,6 +586,65 @@ const PlayerStats: React.FC = () => {
           </TableContainer>
         </Grid>
       </Grid>
+      ) : (
+        <Grid container spacing={3}>
+          <Grid item xs={12}>
+            <MoleskineCard>
+              <Typography variant="h6" sx={{ mb: 3, fontFamily: "var(--serif)" }}>
+                Team Performance Differential
+              </Typography>
+              <Grid container spacing={3}>
+                <Grid item xs={12} md={4}>
+                  <StatCard
+                    label="Net Rating Differential"
+                    value={onOffStats?.netDifferential || "0.0"}
+                    color={parseFloat(onOffStats?.netDifferential || "0") > 0 ? "success.main" : "error.main"}
+                  />
+                  <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: "block" }}>
+                    The team's net rating is {onOffStats?.netDifferential} points better per 100 possessions when this player is on the court.
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} md={8}>
+                  <TableContainer>
+                    <Table>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell></TableCell>
+                          <TableCell align="right">OFF RTG</TableCell>
+                          <TableCell align="right">DEF RTG</TableCell>
+                          <TableCell align="right">NET RTG</TableCell>
+                          <TableCell align="right">POSS</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        <TableRow>
+                          <TableCell sx={{ fontWeight: 700 }}>ON COURT</TableCell>
+                          <TableCell align="right">{onOffStats?.onOffensiveRating}</TableCell>
+                          <TableCell align="right">{onOffStats?.onDefensiveRating}</TableCell>
+                          <TableCell align="right" sx={{ fontWeight: 700 }}>{onOffStats?.onNetRating}</TableCell>
+                          <TableCell align="right">{onOffStats?.onPossessions}</TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell sx={{ fontWeight: 700 }}>OFF COURT</TableCell>
+                          <TableCell align="right">{onOffStats?.offOffensiveRating}</TableCell>
+                          <TableCell align="right">{onOffStats?.offDefensiveRating}</TableCell>
+                          <TableCell align="right" sx={{ fontWeight: 700 }}>{onOffStats?.offNetRating}</TableCell>
+                          <TableCell align="right">{onOffStats?.offPossessions}</TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </Grid>
+              </Grid>
+            </MoleskineCard>
+          </Grid>
+          <Grid item xs={12}>
+            <Alert severity="info">
+              On/Off metrics are calculated across all recorded games to show long-term team impact.
+            </Alert>
+          </Grid>
+        </Grid>
+      )}
     </Box>
   );
 };

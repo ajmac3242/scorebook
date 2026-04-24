@@ -2378,11 +2378,27 @@ const GameMode: React.FC = () => {
             />
 
             {trackingMode === "TEAM" && (
-              <PlaybookEfficiencyWidget
-                plays={playbookEfficiency}
-                teamPpp={parseFloat(gameData.teamPpp)}
-                gameStats={sortedGameStats}
-              />
+              <>
+                <RotationSuggester
+                  players={players}
+                  teamPlayers={teamPlayers}
+                  gameData={gameData}
+                  statsGridData={statsGridData}
+                  period={period}
+                  maxPeriod={team?.periodType === "QUARTERS" ? 4 : 2}
+                  periodLength={team?.periodLength || 10}
+                  clockSeconds={clockSeconds}
+                  onSelectPlayer={(id) => {
+                    setSelectedPlayerId(id);
+                    setOpenActionDialog(true);
+                  }}
+                />
+                <PlaybookEfficiencyWidget
+                  plays={playbookEfficiency}
+                  teamPpp={parseFloat(gameData.teamPpp)}
+                  gameStats={sortedGameStats}
+                />
+              </>
             )}
 
             {trackingMode === "TEAM" ? (
@@ -3832,6 +3848,113 @@ const EditClockDialog: React.FC<{
         </Button>
       </DialogActions>
     </Dialog>
+  );
+};
+
+/**
+ * 🏀 CoachBoard: RotationSuggester
+ *
+ * WHY: Helps coaches stick to their rotation plan by identifying players
+ * who are trailing their target minutes based on current game progress.
+ */
+const RotationSuggester: React.FC<{
+  players: Player[];
+  teamPlayers: TeamPlayer[];
+  gameData: { onCourtIds: Set<string> };
+  statsGridData: PlayerAggregates[];
+  period: number;
+  maxPeriod: number;
+  periodLength: number;
+  clockSeconds: number;
+  onSelectPlayer: (id: string) => void;
+}> = ({
+  players,
+  teamPlayers,
+  gameData,
+  statsGridData,
+  period,
+  maxPeriod,
+  periodLength,
+  clockSeconds,
+  onSelectPlayer,
+}) => {
+  const suggestions = useMemo(() => {
+    const totalGameMins = maxPeriod * periodLength;
+    const elapsedMins = Math.max(
+      0.1,
+      (period - 1) * periodLength + (periodLength - clockSeconds / 60),
+    );
+    const gameProgress = Math.min(1, elapsedMins / totalGameMins);
+
+    const roster = teamPlayers.map((tp) => {
+      const p = players.find((p) => p.id === tp.playerId);
+      const gameStats = statsGridData.find((s) => s.id === tp.playerId);
+      const actualMins = gameStats?.min || 0;
+      const targetMins = tp.targetMinutes || 0;
+      const expectedMins = targetMins * gameProgress;
+
+      return {
+        id: tp.playerId,
+        name: p?.name || "Unknown",
+        target: targetMins,
+        actual: actualMins,
+        diff: expectedMins - actualMins,
+        isOn: gameData.onCourtIds.has(tp.playerId),
+        isFoulTrouble: (gameStats?.fouls || 0) >= 4,
+      };
+    });
+
+    // Suggest players who are OFF and significantly below their expected minutes
+    return roster
+      .filter((p) => !p.isOn && p.target > 0 && p.diff > 0)
+      .sort((a, b) => b.diff - a.diff)
+      .slice(0, 3);
+  }, [
+    players,
+    teamPlayers,
+    gameData,
+    statsGridData,
+    period,
+    maxPeriod,
+    periodLength,
+    clockSeconds,
+  ]);
+
+  if (suggestions.length === 0) return null;
+
+  return (
+    <MoleskineCard sx={{ border: "1px solid #FFD700" }}>
+      <Typography
+        variant="subtitle2"
+        sx={{
+          fontWeight: 800,
+          mb: 1,
+          display: "flex",
+          alignItems: "center",
+          gap: 1,
+        }}
+      >
+        <Groups sx={{ fontSize: 18 }} /> ROTATION SUGGESTER
+      </Typography>
+      <Stack spacing={1}>
+        {suggestions.map((p) => (
+          <Button
+            key={p.id}
+            variant="outlined"
+            size="small"
+            onClick={() => onSelectPlayer(p.id)}
+            sx={{ justifyContent: "space-between", textTransform: "none" }}
+          >
+            <Typography variant="caption" sx={{ fontWeight: 700 }}>
+              {p.name}
+            </Typography>
+            <Typography variant="caption" sx={{ opacity: 0.7 }}>
+              Target: {p.target}m
+            </Typography>
+          </Button>
+        ))}
+      </Stack>
+    </MoleskineCard>
   );
 };
 
