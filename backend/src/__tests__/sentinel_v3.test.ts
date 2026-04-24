@@ -57,7 +57,7 @@ describe("Sentinel Security Enhancements V3", () => {
 
       expect(resp.headers!["X-Frame-Options"]).toBe("DENY");
       expect(resp.headers!["Content-Security-Policy"]).toBe(
-        "default-src 'none'; frame-ancestors 'none'; sandbox; base-uri 'none'; form-action 'none';",
+        "default-src 'none'; frame-ancestors 'none'; sandbox; base-uri 'none'; form-action 'none'; upgrade-insecure-requests;",
       );
       expect(resp.headers!["X-Custom-Header"]).toBe("Allowed");
     });
