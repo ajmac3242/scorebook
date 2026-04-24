@@ -58,6 +58,7 @@ import {
   calculateStopsAndKills,
   calculatePossessions,
   calculatePpp,
+  calculateMatchupStats,
   type ScoreFlowPoint,
 } from "../utils/stats";
 import { MoleskineCard } from "../components/SharedUI";
@@ -471,6 +472,10 @@ const GameStats: React.FC = () => {
   const oppData = useMemo(() => {
     return calculateOpponentAggregates(stats);
   }, [stats]);
+
+  const matchupStats = useMemo(() => {
+    return calculateMatchupStats(scoreFlowSortedStats);
+  }, [scoreFlowSortedStats]);
 
   const teamData = useMemo(() => {
     let fga = 0;
@@ -1164,6 +1169,89 @@ const GameStats: React.FC = () => {
     </ResponsiveContainer>
   );
 
+  const matchupTable = (
+    <TableContainer component={Box}>
+      <Table size="small">
+        <TableHead>
+          <TableRow sx={{ bgcolor: "rgba(0,0,0,0.02)" }}>
+            <TableCell sx={{ fontWeight: 700 }}>Our Defender</TableCell>
+            <TableCell sx={{ fontWeight: 700 }}>Opponent</TableCell>
+            <TableCell align="right" sx={{ fontWeight: 700 }}>
+              PTS Allowed
+            </TableCell>
+            <TableCell align="right" sx={{ fontWeight: 700 }}>
+              Stops
+            </TableCell>
+            <TableCell align="right" sx={{ fontWeight: 700 }}>
+              Stop%
+            </TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {matchupStats.map((row, idx) => (
+            <TableRow key={idx}>
+              <TableCell>
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <Avatar sx={{ width: 24, height: 24, fontSize: "0.65rem" }}>
+                    {shotChartJerseyMap.get(row.ourPlayerId) ?? "??"}
+                  </Avatar>
+                  <Typography variant="body2">
+                    {players.find((p) => p.id === row.ourPlayerId)?.name ||
+                      "???"}
+                  </Typography>
+                </Stack>
+              </TableCell>
+              <TableCell>
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <Avatar
+                    sx={{
+                      width: 24,
+                      height: 24,
+                      fontSize: "0.65rem",
+                      bgcolor: "secondary.main",
+                    }}
+                  >
+                    {row.opponentPlayerId.startsWith(
+                      SPECIAL_PLAYER_IDS.OPPONENT + ":",
+                    )
+                      ? row.opponentPlayerId.split(":")[1]
+                      : "??"}
+                  </Avatar>
+                  <Typography variant="body2">
+                    Opp #{row.opponentPlayerId.split(":")[1] || "??"}
+                  </Typography>
+                </Stack>
+              </TableCell>
+              <TableCell align="right" sx={{ fontWeight: 700 }}>
+                {row.pointsAllowed}
+              </TableCell>
+              <TableCell align="right">{row.stops}</TableCell>
+              <TableCell
+                align="right"
+                sx={{
+                  fontWeight: 700,
+                  color:
+                    parseFloat(row.stopPct) >= 50
+                      ? "success.main"
+                      : "inherit",
+                }}
+              >
+                {row.stopPct}%
+              </TableCell>
+            </TableRow>
+          ))}
+          {matchupStats.length === 0 && (
+            <TableRow>
+              <TableCell colSpan={5} align="center">
+                No defensive assignments tracked for this period.
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
+
   const lineupTable = (
     <TableContainer component={Box}>
       <Table size="small">
@@ -1571,6 +1659,29 @@ const GameStats: React.FC = () => {
 
         {/* Efficiency Analytics Card */}
         <Grid item xs={12}>
+          <MoleskineCard sx={{ mb: 3 }}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                mb: 2,
+              }}
+            >
+              <Typography variant="h6" sx={{ fontFamily: "var(--serif)" }}>
+                Matchup Battle
+              </Typography>
+              <IconButton
+                onClick={() => setExpandedSection("matchups")}
+                aria-label="Expand Matchup Battle section"
+                title="Expand section"
+              >
+                <ExpandIcon />
+              </IconButton>
+            </Box>
+            {matchupTable}
+          </MoleskineCard>
+
           <Grid container spacing={3}>
             <Grid item xs={12} md={4}>
               <MoleskineCard>
@@ -1717,6 +1828,7 @@ const GameStats: React.FC = () => {
           {expandedSection === "shotChart" && "Shot Chart"}
           {expandedSection === "scoreFlow" && "Score Flow"}
           {expandedSection === "lineups" && "Lineup Efficiency"}
+          {expandedSection === "matchups" && "Matchup Battle"}
           <IconButton
             onClick={() => setExpandedSection(null)}
             aria-label="Collapse section"
@@ -1738,6 +1850,7 @@ const GameStats: React.FC = () => {
             <Box sx={{ height: 500 }}>{scoreFlowChart}</Box>
           )}
           {expandedSection === "lineups" && lineupTable}
+          {expandedSection === "matchups" && matchupTable}
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setExpandedSection(null)}>Close</Button>

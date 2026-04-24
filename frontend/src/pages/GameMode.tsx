@@ -64,6 +64,7 @@ import {
   Pause,
   Add as AddIcon,
   Remove as RemoveIcon,
+  Security as SecurityIcon,
 } from "@mui/icons-material";
 import {
   Table,
@@ -83,7 +84,7 @@ import FreeThrowWorkflowDialog from "../components/FreeThrowWorkflowDialog";
 import HalftimeReportDialog from "../components/HalftimeReportDialog";
 import PlaybookEfficiencyWidget from "../components/PlaybookEfficiencyWidget";
 import { PlayerStatRow } from "../components/PlayerStatRow";
-import { db, type StatEvent } from "../db";
+import { db, type StatEvent, type Player, type TeamPlayer } from "../db";
 import { syncService } from "../utils/syncService";
 import { logger } from "../utils/logger";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -943,6 +944,8 @@ const GameMode: React.FC = () => {
   const [summaryDialogOpen, setSummaryDialogOpen] = useState(false);
   const [auditDialogOpen, setAuditDialogOpen] = useState(false);
   const [ftWorkflowOpen, setFtWorkflowOpen] = useState(false);
+  const [matchupDialogOpen, setMatchupDialogOpen] = useState(false);
+  const [matchupOpponentId, setMatchupOpponentId] = useState<string | null>(null);
   const [halftimeReportOpen, setHalftimeReportOpen] = useState(false);
   const [lastViewedHalftimePeriod, setLastViewedHalftimePeriod] =
     useState<number>(0);
@@ -1402,6 +1405,19 @@ const GameMode: React.FC = () => {
       lastTeamScorePeriod,
       foundLastTeamScore,
       // ⚡ Bolt: Pre-filter and memoize only the last 10 active stats to reduce render-time processing.
+      // 🏀 CoachBoard: Derive current matchups from the event stream
+      currentMatchups: (() => {
+        const map = new Map<string, string>();
+        for (let i = 0; i < sortedGameStats.length; i++) {
+          const s = sortedGameStats[i];
+          if (s.deletedAt) continue;
+          if (s.type === ACTION_TYPES.MATCHUP) {
+            if (s.relatedPlayerId) map.set(s.playerId, s.relatedPlayerId);
+            else map.set(s.playerId, "");
+          }
+        }
+        return map;
+      })(),
       recentStats: sortedGameStats
         .filter((s) => !s.deletedAt)
         .slice(-10)
@@ -2194,6 +2210,38 @@ const GameMode: React.FC = () => {
    * 🏀 CoachBoard: handleChainAction
    * Records a linked event (Assist or Rebound) tied to a previous shot.
    */
+  const handleSaveMatchup = useCallback(
+    async (ourPlayerId: string) => {
+      if (!matchupOpponentId || !gameId) return;
+
+      try {
+        await db.open();
+        await db.stats.add({
+          id: crypto.randomUUID(),
+          gameId,
+          playerId: matchupOpponentId,
+          relatedPlayerId: ourPlayerId,
+          type: ACTION_TYPES.MATCHUP,
+          period,
+          clockTime: clockSeconds,
+          timestamp: new Date().toISOString(),
+          synced: 0,
+        });
+        await syncService.pushUpdates();
+        setMatchupDialogOpen(false);
+        setMatchupOpponentId(null);
+        setSnackbar({
+          open: true,
+          message: "Matchup updated",
+          severity: "success",
+        });
+      } catch (err) {
+        logger.error("Failed to save matchup:", err);
+      }
+    },
+    [matchupOpponentId, gameId, period, clockSeconds],
+  );
+
   const handleChainAction = useCallback(
     async (pId: string, type: string) => {
       if (!chainPrompt || !gameId) return;
@@ -2371,6 +2419,23 @@ const GameMode: React.FC = () => {
         {/* Panel: Roster and Recent Actions */}
         <Grid item xs={12} md={4}>
           <Stack spacing={3}>
+            {trackingMode === "TEAM" && (
+              <RotationSuggester
+                players={players}
+                teamPlayers={teamPlayers}
+                gameData={gameData}
+                statsGridData={statsGridData}
+                period={period}
+                maxPeriod={maxPeriod}
+                periodLength={game?.periodLength || 10}
+                clockSeconds={clockSeconds}
+                onSelectPlayer={(pId) => {
+                  setSubOutPlayerId(pId);
+                  setSubDialogOpen(true);
+                }}
+              />
+            )}
+
             <TeamStatsCard
               defensiveStats={gameData.defensiveStats}
               teamPpp={gameData.teamPpp}
@@ -2867,6 +2932,26 @@ const GameMode: React.FC = () => {
                             }}
                           />
                         )}
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                          <Typography variant="caption" sx={{ fontSize: "0.6rem", opacity: 0.8 }}>
+                            Guarded by: {(() => {
+                              const ourId = gameData.currentMatchups.get(opp.id);
+                              return ourId ? (playerNamesMap.get(ourId) || "??") : "None";
+                            })()}
+                          </Typography>
+                          <IconButton
+                            size="small"
+                            disabled={isReadOnly}
+                            onClick={() => {
+                              setMatchupOpponentId(opp.id);
+                              setMatchupDialogOpen(true);
+                            }}
+                            sx={{ p: 0.5 }}
+                            aria-label={`Assign defender for Opponent #${opp.jersey}`}
+                          >
+                            <SecurityIcon sx={{ fontSize: 14 }} />
+                          </IconButton>
+                        </Box>
                       </Box>
                     ))
                   ) : (
@@ -3672,6 +3757,84 @@ const GameMode: React.FC = () => {
         initialSeconds={clockSeconds % 60}
       />
 
+      {/* Matchup Assignment Dialog */}
+      <Dialog
+        open={matchupDialogOpen}
+        onClose={() => setMatchupDialogOpen(false)}
+        fullWidth
+        maxWidth="xs"
+      >
+        <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
+          Assign Defender
+          <Typography variant="body2" color="text.secondary">
+            Who should guard {matchupOpponentId?.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":")
+              ? `Opponent #${matchupOpponentId.split(":")[1]}`
+              : (game?.opponent || "Opponent")}?
+          </Typography>
+        </DialogTitle>
+        <DialogContent>
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: 1,
+              mt: 1,
+            }}
+          >
+            {players
+              .filter((p) => gameData.onCourtIds.has(p.id!))
+              .map((p) => (
+                <Button
+                  key={p.id}
+                  variant={gameData.currentMatchups.get(matchupOpponentId!) === p.id ? "contained" : "outlined"}
+                  onClick={() => handleSaveMatchup(p.id!)}
+                  sx={{ flexDirection: "column", py: 2 }}
+                >
+                  <Avatar
+                    sx={{
+                      bgcolor: p.avatarColor || "grey.500",
+                      width: 32,
+                      height: 32,
+                      fontSize: "0.8rem",
+                      mb: 0.5,
+                    }}
+                  >
+                    {jerseyMap.get(p.id!) ?? getInitials(p.name)}
+                  </Avatar>
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      width: "100%",
+                      textAlign: "center",
+                    }}
+                  >
+                    {p.name.split(" ")[0]}
+                  </Typography>
+                </Button>
+              ))}
+            <Button
+              variant="outlined"
+              color="inherit"
+              onClick={() => handleSaveMatchup("")}
+              sx={{ flexDirection: "column", py: 2 }}
+            >
+              <Avatar sx={{ bgcolor: "grey.300", width: 32, height: 32, mb: 0.5 }}>
+                <Close />
+              </Avatar>
+              <Typography variant="caption">None</Typography>
+            </Button>
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={() => setMatchupDialogOpen(false)} color="inherit">
+            Cancel
+          </Button>
+        </DialogActions>
+      </Dialog>
+
       <Snackbar
         open={snackbar.open}
         autoHideDuration={4000}
@@ -3730,6 +3893,86 @@ const QuickAction: React.FC<{
  * 🏀 CoachBoard: EditClockDialog
  * Why: Allows precise manual adjustment of the game clock.
  */
+/**
+ * 🏀 CoachBoard: RotationSuggester
+ * WHY: Helps coaches stick to their rotation plan by comparing actual mins vs target mins.
+ */
+const RotationSuggester: React.FC<{
+  players: Player[];
+  teamPlayers: TeamPlayer[];
+  gameData: { onCourtIds: Set<string> };
+  statsGridData: PlayerAggregates[];
+  period: number;
+  maxPeriod: number;
+  periodLength: number;
+  clockSeconds: number;
+  onSelectPlayer: (_id: string) => void;
+}> = ({
+  players,
+  teamPlayers,
+  gameData,
+  statsGridData,
+  period,
+  maxPeriod,
+  periodLength,
+  clockSeconds,
+  onSelectPlayer,
+}) => {
+  const suggestions = useMemo(() => {
+    const totalGameMins = maxPeriod * periodLength;
+    const elapsedMins = Math.max(0.1, (period - 1) * periodLength + (periodLength - clockSeconds / 60));
+    const gameProgress = Math.min(1, elapsedMins / totalGameMins);
+
+    const roster = teamPlayers.map(tp => {
+      const p = players.find(p => p.id === tp.playerId);
+      const gameStats = statsGridData.find(s => s.id === tp.playerId);
+      const actualMins = gameStats?.min || 0;
+      const targetMins = tp.targetMinutes || 0;
+      const expectedMins = targetMins * gameProgress;
+      
+      return {
+        id: tp.playerId,
+        name: p?.name || "Unknown",
+        target: targetMins,
+        actual: actualMins,
+        diff: expectedMins - actualMins,
+        isOn: gameData.onCourtIds.has(tp.playerId),
+        isFoulTrouble: (gameStats?.fouls || 0) >= 4,
+      };
+    });
+
+    // Suggest players who are OFF and significantly below their expected minutes
+    return roster
+      .filter(p => !p.isOn && p.target > 0 && p.diff > 0)
+      .sort((a, b) => b.diff - a.diff)
+      .slice(0, 3);
+  }, [players, teamPlayers, gameData, statsGridData, period, maxPeriod, periodLength, clockSeconds]);
+
+  if (suggestions.length === 0) return null;
+
+  return (
+    <MoleskineCard sx={{ border: "1px solid #FFD700" }}>
+      <Typography variant="subtitle2" sx={{ fontWeight: 800, mb: 1, display: "flex", alignItems: "center", gap: 1 }}>
+        <Groups sx={{ fontSize: 18 }} /> ROTATION SUGGESTER
+      </Typography>
+      <Stack spacing={1}>
+        {suggestions.map(p => (
+          <Button
+            key={p.id}
+            variant="outlined"
+            size="small"
+            onClick={() => onSelectPlayer(p.id)}
+            sx={{ justifyContent: "space-between", textTransform: "none" }}
+          >
+            <Typography variant="caption" sx={{ fontWeight: 700 }}>{p.name}</Typography>
+            <Typography variant="caption" sx={{ opacity: 0.7 }}>Target: {p.target}m</Typography>
+          </Button>
+        ))}
+      </Stack>
+    </MoleskineCard>
+  );
+};
+
 const EditClockDialog: React.FC<{
   open: boolean;
   onClose: () => void;

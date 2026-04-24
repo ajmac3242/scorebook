@@ -16,3 +16,18 @@
 - **Run Breaks:** Ensured that *any* scoring event by our team immediately terminates an opponent run, regardless of point value.
 - **Assist Ownership:** Prevented a player from being credited with an assist on their own made field goal in the chaining UI.
 - **Free Throw Exclusion:** Field goal streaks and momentum runs correctly exclude free throws (points=1) to focus on dynamic play flow.
+
+## Matchups, On/Off Analytics, and Rotation Suggester
+
+### Architectural Decisions
+- **Matchup State in Event Stream:** Matchups are tracked using standard `StatEvent` records of type `MATCHUP`. This allows retroactive analysis and ensures "points allowed" are attributed to the defender assigned at the exact time of the score.
+- **On/Off Domain Logic:** `calculateOnOffStats` uses separate Team/Opponent possession counters for ON and OFF states to produce standard basketball ratings (per 100 possessions).
+- **Lightweight Rotation Logic:** The `RotationSuggester` uses scaled target minutes (`target * progress`) to identify players trailing their rotation plan, providing proactive sub suggestions without overcomplicating the live HUD.
+
+### Patterns Established
+- **Multi-Player Events:** Using `relatedPlayerId` on `StatEvent` established a pattern for recording interactions between two players (e.g., defender/offensive player, screener/ball-handler).
+- **Analytics Tabs:** Standardized the "Impact" tab pattern in player/team stats for displaying secondary advanced analytics without cluttering the primary box score.
+
+### Basketball Domain Edge Cases
+- **Posession Estimation:** On/Off ratings correctly account for offensive rebounds (subtracting them from the denominator) to align with standard possession-based efficiency metrics.
+- **Defensive Stop Attribution:** Stops are attributed to the defender of the player who missed or turned the ball over, falling back to the "Team Defender" if no specific assignment exists.
