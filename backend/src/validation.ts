@@ -92,7 +92,7 @@ export const VALID_ACTION_TYPES = Object.freeze(
 
 /**
  * Validates a stat event body.
- * @param body - The stat event data to validate.
+ * @param {unknown} body - The stat event data to validate.
  * @returns {string | null} Error message or null if valid.
  */
 export function validateStatEvent(body: unknown): string | null {
