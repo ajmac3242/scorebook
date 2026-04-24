@@ -356,3 +356,56 @@
 - [ ] "Opponent Scoring Breakdown" chart in GameStats showing PPP by Play Type.
 - [ ] Real-time alerts for recurring threats (e.g., "Opponent scoring 1.8 PPP on Pick-and-Rolls").
 - [ ] Filter opponent shot chart by Play Type.
+
+## Automated Defensive Synergy Analysis (2-3 Player Units)
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Some defensive pairings are greater than the sum of their parts. Coaches need to know which duos/trios anchor the defense most effectively, beyond just 5-man units which can have small sample sizes.
+**What:** Build a "Defensive Synergy" report that calculates Opponent PPP and Forced Turnover % for every 2-player and 3-player combination that has played significant minutes together.
+**Acceptance Criteria:**
+- [ ] New "Synergy" tab in Team Analytics.
+- [ ] Table showing 2-player and 3-player units with Defensive Rating (DRtg) and Net Rating.
+- [ ] Filter to show only units with > 10 minutes played.
+- [ ] Highlight "Shut-Down Units" (units with DRtg significantly better than team average).
+
+## Multi-Game Shot Location Trend Analysis
+**Priority:** HIGH
+**Type:** Enhancement
+**Why:** A team's shooting identity shifts throughout a season due to confidence or coaching changes. Identifying that a team has stopped attacking the rim over the last 5 games allows for immediate practice adjustments.
+**What:** Implement a "Trend Mode" for the Team Heatmap that compares shot frequency and accuracy between two time periods (e.g., "Last 5 Games" vs "Season Average").
+**Acceptance Criteria:**
+- [ ] "Trend Comparison" toggle on the Dashboard and Team Stats heatmaps.
+- [ ] Visual indicators (e.g., color-coded arrows) showing if shot frequency in a zone has increased or decreased relative to baseline.
+- [ ] Efficiency delta overlay (e.g., "+5% EFG vs Season Avg") per zone.
+
+## Predictive Foul Strategy Assistant
+**Priority:** HIGH
+**Type:** Enhancement
+**Why:** Managing foul trouble for star players is a high-stakes balancing act. Coaches need to know if they can afford to leave a player in or if they are mathematically likely to foul out before the game ends.
+**What:** Implement a predictive model in the GameMode that calculates "Foul Risk" for active players based on their current foul rate, historical foul frequency, and the remaining game clock.
+**Acceptance Criteria:**
+- [ ] "Foul Risk" percentage displayed on player cards in GameMode (e.g., "75% chance to foul out").
+- [ ] Dynamic recommendation for when to bench a player based on foul count vs. remaining time (e.g., "Sit until final 4:00").
+- [ ] Proactive alert when a player's "Projected Final Fouls" exceeds the limit.
+
+## Interactive Halftime "Adjustment Board"
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Halftime is the most critical window for tactical pivots. Coaches need a workspace to select specific adjustments based on data and then track if those adjustments actually worked in the second half.
+**What:** Enhance the Halftime Report with an interactive "Adjustment Board" where coaches can select from a list of data-driven recommendations and save them to the game record as a "Tactical Pivot."
+**Acceptance Criteria:**
+- [ ] "Adjustment Planner" section in the HalftimeReportDialog.
+- [ ] List of "Smart Suggestions" (e.g., "Opponent #24 driving left 80% - Force Right").
+- [ ] Ability to "Commit" an adjustment, adding a tagged event to the game timeline.
+- [ ] Post-game comparison showing PPP and EFG% before and after the adjustment was activated.
+
+## Player Assist Network & Offensive Chemistry Map
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Understanding who makes whom better is the key to elite playcalling. Raw assist totals don't show the "Gravity" or "Chemistry" between specific player pairings.
+**What:** Create a visual "Assist Network" diagram that shows the volume and efficiency of passes between teammates.
+**Acceptance Criteria:**
+- [ ] Interactive Node-Link diagram where nodes are players and edges represent assists.
+- [ ] Edge thickness represents assist volume; edge color represents the EFG% of shots resulting from those assists.
+- [ ] Filter by "Game" or "Season" to see how chemistry develops.
+- [ ] Highlight "Primary Engines" (players who facilitate the most efficient shots for others).
