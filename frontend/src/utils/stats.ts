@@ -1547,10 +1547,7 @@ export const calculateScoreFlow = (
     const pts = stat.points || 0;
 
     // Track scores
-    if (stat.type === ACTION_TYPES.MAKE) {
-      if (isOpp) scores.opp += pts;
-      else scores.team += pts;
-    }
+    updateScores(stat, scores);
 
     // Track possessions
     updatePossessionCounters(stat, isOpp ? opp : team);
