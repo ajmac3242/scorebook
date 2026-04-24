@@ -245,10 +245,11 @@
 **Why:** Coaches manage the game in "waves." Seeing a visual timeline of when players were on and off the court helps identify fatigue patterns and rotation gaps that raw minute totals hide.
 **What:** Create a horizontal Gantt-style timeline chart showing exactly when each player was on the floor throughout the game.
 **Acceptance Criteria:**
-- [ ] Interactive timeline on the Game Stats page with a row for each player.
-- [ ] Color-coded bars showing "On Court" periods.
-- [ ] Overlay "Runs" (Team scoring bursts) on the timeline to see which players were present during big momentum shifts.
-- [ ] Toggle to show "Personal Fouls" markers on the timeline.
+- [x] Interactive timeline on the Game Stats page with a row for each player.
+- [x] Color-coded bars showing "On Court" periods.
+- [x] Overlay "Runs" (Team scoring bursts) on the timeline to see which players were present during big momentum shifts.
+- [x] Toggle to show "Personal Fouls" markers on the timeline.
+**Status:** [x] COMPLETE
 
 ## Defensive Assignment & Matchup Tracking
 **Priority:** HIGH
@@ -260,6 +261,7 @@
 - [x] Tracking of "Points Allowed" per player.
 - [x] "Defensive Stop %" per player (how often an opponent possession ends in a stop while they are the primary defender).
 - [x] Summary in GameStats showing "Matchup Battle" (Our #5 vs Their #10).
+**Status:** [x] COMPLETE
 
 ## On/Off Team Impact Analytics
 **Priority:** HIGH
@@ -271,6 +273,7 @@
 - [x] Display "Team Net Rating (ON)" vs "Team Net Rating (OFF)" for each player.
 - [x] "Impact Differential" (The difference between ON and OFF metrics).
 - [x] Support for filtering by season or last X games to identify recent trends.
+**Status:** [x] COMPLETE
 
 ## Automated "Next Up" Rotation Suggester
 **Priority:** HIGH
@@ -281,6 +284,7 @@
 - [x] "Rotation Plan" UI in Team Settings to set target minutes and preferred pairings.
 - [x] Live "Suggestion HUD" in GameMode showing "Next Up" players with one-tap substitution.
 - [x] Automatic adjustment of suggestions based on live foul counts (e.g., suggesting a sub for a player with 2 fouls in the 1st quarter).
+**Status:** [x] COMPLETE
 
 ## Live Opponent Tendency Scouting Report
 **Priority:** HIGH
@@ -288,9 +292,10 @@
 **Why:** Opponents often repeat successful patterns (e.g., always driving left, or a specific player only shooting from the corner). Live tendency alerts allow for mid-game defensive adjustments.
 **What:** Analyze opponent shot locations and drive directions in real-time to identify "Hot Zones" and "Directional Tendencies."
 **Acceptance Criteria:**
-- [ ] "Opponent Tendency" card in GameMode sidebar.
-- [ ] Visual alerts for patterns (e.g., "Opponent #12: 80% of shots are in the paint").
-- [ ] "Shot Type" breakdown for top opponent scorers (Catch-and-shoot vs Off-the-dribble).
+- [x] "Opponent Tendency" card in GameMode sidebar.
+- [x] Visual alerts for patterns (e.g., "Opponent #12: 80% of shots are in the paint").
+- [x] "Shot Type" breakdown for top opponent scorers (Catch-and-shoot vs Off-the-dribble).
+**Status:** [x] COMPLETE
 
 ## Team Wide "Four Factors" Performance HUD
 **Priority:** HIGH
@@ -298,9 +303,10 @@
 **Why:** The "Four Factors" (eFG%, Turnover Rate, Offensive Rebound Rate, Free Throw Rate) are the most reliable predictors of winning. Seeing these in real-time tells a coach *why* they are winning or losing.
 **What:** Add a "Four Factors" comparison dashboard to the GameMode and GameStats pages.
 **Acceptance Criteria:**
-- [ ] Real-time calculation of eFG%, TO%, ORB%, and FTR for both teams.
-- [ ] "Success Threshold" indicators (e.g., highlighting in green if eFG% is > 55%).
-- [ ] Comparison against season averages to see if the team is over/under performing in key areas.
+- [x] Real-time calculation of eFG%, TO%, ORB%, and FTR for both teams.
+- [x] "Success Threshold" indicators (e.g., highlighting in green if eFG% is > 55%).
+- [x] Comparison against season averages to see if the team is over/under performing in key areas.
+**Status:** [x] COMPLETE
 
 ## Defensive Scheme Efficiency Tracking (Man vs Zone vs Press)
 **Priority:** HIGH

@@ -96,13 +96,16 @@ import {
 import {
   calculatePlayerAggregates,
   calculatePlayerStreaks,
+  calculateOpponentTendencies,
   calculatePlayEfficiency,
+  detectShotValueFromCoords,
   calculateStopsAndKills,
   calculatePossessions,
   calculatePpp,
+  calcPct,
   calculateLineupStats,
   calculateTeamSeasonAverages,
-  calculateOpponentAggregates,
+  calculateOpponentAggregates, calculateTeamAggregates,
   isEventInPeriod,
   isOpponentId,
   getBonusStatus,
@@ -112,29 +115,8 @@ import {
 } from "../utils/stats";
 import { formatClock, roundToOne } from "../utils/mathUtils";
 import { MoleskineCard, AnimatedNumber } from "../components/SharedUI";
+import FourFactorsHUD from "../components/FourFactorsHUD";
 
-/**
- * 🏀 CoachBoard: detectShotValueFromCoords
- * Why: Automatically detects if a shot is a 2 or 3 based on court coordinates.
- * Coordinates are 0-100 percentage of SVG viewBox "0 0 500 470".
- */
-const detectShotValueFromCoords = (x: number, y: number): number => {
-  const svgX = x * 5; // 500 / 100
-  const svgY = y * 4.7; // 470 / 100
-
-  // Three Point Line logic from BasketballCourt.tsx:
-  // - Sidebar lines: x=30 and x=470 from y=0 to y=140
-  // - Arc: Center (250, 140) with radius 220 for y > 140
-
-  if (svgY <= 140) {
-    if (svgX <= 30 || svgX >= 470) return 3;
-  } else {
-    const dist = Math.sqrt(Math.pow(svgX - 250, 2) + Math.pow(svgY - 140, 2));
-    if (dist >= 220) return 3;
-  }
-
-  return 2;
-};
 
 /**
  * Redesigned TV-style scoreboard header.
@@ -916,6 +898,7 @@ const GameMode: React.FC = () => {
   const [points, setPoints] = useState<number>(2);
   const [playName, setPlayName] = useState<string>("");
   const [shotQuality, setShotQuality] = useState<string | null>(null);
+  const [shotType, setShotType] = useState<string | null>(null);
 
   const [clockSeconds, setClockSeconds] = useState<number>(0);
   const clockSecondsRef = useRef(clockSeconds);
@@ -1036,7 +1019,7 @@ const GameMode: React.FC = () => {
   );
 
   const teamSeasonStats = useLiveQuery(async () => {
-    if (!teamId) return { ppp: "0.00" };
+    if (!teamId) return undefined;
     const games = await db.games.where("teamId").equals(teamId).toArray();
     const gameIds = games.map((g) => g.id!).filter(Boolean);
     const allStats = await db.stats.where("gameId").anyOf(gameIds).toArray();
@@ -1593,8 +1576,8 @@ const GameMode: React.FC = () => {
     const res = [];
     for (const [id, events] of jerseyMap.entries()) {
       const agg = calculateOpponentAggregates(events);
-      const threats = gameData.momentumAlerts.opponentThreats;
-      const t = threats.find((t) => t.playerId === id);
+      const tendency = calculateOpponentTendencies(events);
+      const t = gameData.momentumAlerts.opponentThreats.find((t) => t.playerId === id);
 
       res.push({
         id,
@@ -1602,10 +1585,34 @@ const GameMode: React.FC = () => {
         ...agg,
         isHot: !!t,
         straightPoints: t?.straightPoints || 0,
+        tendency,
       });
     }
     return res.sort((a, b) => b.points - a.points);
   }, [sortedGameStats, gameData.momentumAlerts.opponentThreats]);
+  const teamOpponentTendencies = useMemo(() => {
+    const oppEvents = sortedGameStats.filter((s) => isOpponentId(s.playerId));
+    return calculateOpponentTendencies(oppEvents);
+  }, [sortedGameStats]);
+
+  const liveFourFactors = useMemo(() => {
+    if (!game) return null;
+    const teamStats = calculateTeamAggregates([game], sortedGameStats, false);
+    const oppEvents = sortedGameStats.filter(s => isOpponentId(s.playerId));
+    const oppAgg = calculateOpponentAggregates(oppEvents);
+
+    // Add real-time opponent ORB% which requires team DREB from teamStats context
+    const teamDreb = parseInt(teamStats.rpg) * teamStats.totalGames - teamStats.possessions; // This logic in calculateTeamAggregates needs to be exposed better
+    // Actually, calculateTeamAggregates returns TeamAggregates which I just modified to include dreb.
+
+    return {
+      team: teamStats,
+      opponent: {
+        ...oppAgg,
+        orbPct: calcPct(oppAgg.offRebounds, oppAgg.offRebounds + (teamStats as any).dreb)
+      }
+    };
+  }, [game, sortedGameStats]);
 
   // 🏀 CoachBoard: Halftime Lineup Stats
   const halftimeLineupStats = useMemo(() => {
@@ -1802,6 +1809,11 @@ const GameMode: React.FC = () => {
               typeToSave === ACTION_TYPES.MISS
                 ? playName
                 : undefined,
+            shotType:
+              typeToSave === ACTION_TYPES.MAKE ||
+              typeToSave === ACTION_TYPES.MISS
+                ? (shotType ?? undefined)
+                : undefined,
             shotQuality:
               typeToSave === ACTION_TYPES.MAKE ||
               typeToSave === ACTION_TYPES.MISS
@@ -1823,6 +1835,11 @@ const GameMode: React.FC = () => {
               typeToSave === ACTION_TYPES.MAKE ||
               typeToSave === ACTION_TYPES.MISS
                 ? playName
+                : undefined,
+            shotType:
+              typeToSave === ACTION_TYPES.MAKE ||
+              typeToSave === ACTION_TYPES.MISS
+                ? (shotType ?? undefined)
                 : undefined,
             shotQuality:
               typeToSave === ACTION_TYPES.MAKE ||
@@ -1862,6 +1879,8 @@ const GameMode: React.FC = () => {
         // Reset state after save
         setDialogOpen(false);
         setStatType(null);
+        setShotQuality(null);
+        setShotType(null);
         setPlayName("");
         setIsEditing(false);
         setEditingStatId(null);
@@ -2051,6 +2070,7 @@ const GameMode: React.FC = () => {
       setSelectedPlayerId(stat.playerId as string);
       setStatType(stat.type);
       setPoints(stat.points || 2);
+      setShotType(stat.shotType || null);
       setPlayName(stat.playName || "");
       setShotQuality(stat.shotQuality || null);
       setSelectedX(stat.locationX || 0);
@@ -2477,6 +2497,13 @@ const GameMode: React.FC = () => {
                   teamPpp={parseFloat(gameData.teamPpp)}
                   gameStats={sortedGameStats}
                 />
+                {liveFourFactors && (
+                  <FourFactorsHUD
+                    teamStats={liveFourFactors.team}
+                    oppStats={liveFourFactors.opponent as any}
+                    seasonAvg={teamSeasonStats}
+                  />
+                )}
               </>
             )}
 
@@ -3013,6 +3040,37 @@ const GameMode: React.FC = () => {
                     variant="caption"
                     sx={{ fontWeight: 700, display: "block", mb: 0.5 }}
                   >
+                    OPPONENT TENDENCIES
+                  </Typography>
+                  <Grid container spacing={1}>
+                    <Grid item xs={4}>
+                      <Typography variant="caption" sx={{ display: "block", opacity: 0.8 }}>PAINT</Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 700 }}>{teamOpponentTendencies.paintPct}%</Typography>
+                    </Grid>
+                    <Grid item xs={4}>
+                      <Typography variant="caption" sx={{ display: "block", opacity: 0.8 }}>CATCH</Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 700 }}>{teamOpponentTendencies.catchAndShootPct}%</Typography>
+                    </Grid>
+                    <Grid item xs={4}>
+                      <Typography variant="caption" sx={{ display: "block", opacity: 0.8 }}>DRIB</Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 700 }}>{teamOpponentTendencies.offDribblePct}%</Typography>
+                    </Grid>
+                  </Grid>
+                </Box>
+
+                <Box
+                  sx={{
+                    mt: 2,
+                    p: 1.5,
+                    bgcolor: "rgba(0,0,0,0.03)",
+                    borderRadius: 2,
+                    border: "1px solid rgba(0,0,0,0.05)",
+                  }}
+                >
+                  <Typography
+                    variant="caption"
+                    sx={{ fontWeight: 700, display: "block", mb: 0.5 }}
+                  >
                     QUICK TIP
                   </Typography>
                   <Typography
@@ -3381,29 +3439,49 @@ const GameMode: React.FC = () => {
                 </Box>
               </Box>
             )}
-          {(statType === ACTION_TYPES.MAKE ||
-            statType === ACTION_TYPES.MISS) && (
-            <Box sx={{ mt: 3 }}>
-              <Typography
-                variant="caption"
-                gutterBottom
-                sx={{ display: "block", mb: 1 }}
-              >
-                Shot Quality
-              </Typography>
-              <ToggleButtonGroup
-                value={shotQuality}
-                exclusive
-                onChange={(_, val) => setShotQuality(val)}
-                size="small"
-                fullWidth
-              >
-                <ToggleButton value={SHOT_QUALITY.OPEN}>Open</ToggleButton>
-                <ToggleButton value={SHOT_QUALITY.CONTESTED}>
-                  Contested
-                </ToggleButton>
-              </ToggleButtonGroup>
-            </Box>
+          {(statType === ACTION_TYPES.MAKE || statType === ACTION_TYPES.MISS) && (
+            <>
+              <Box sx={{ mt: 3 }}>
+                <Typography
+                  variant="caption"
+                  gutterBottom
+                  sx={{ display: "block", mb: 1 }}
+                >
+                  Shot Quality
+                </Typography>
+                <ToggleButtonGroup
+                  value={shotQuality}
+                  exclusive
+                  onChange={(_, val) => setShotQuality(val)}
+                  size="small"
+                  fullWidth
+                >
+                  <ToggleButton value={SHOT_QUALITY.OPEN}>Open</ToggleButton>
+                  <ToggleButton value={SHOT_QUALITY.CONTESTED}>
+                    Contested
+                  </ToggleButton>
+                </ToggleButtonGroup>
+              </Box>
+              <Box sx={{ mt: 3 }}>
+                <Typography
+                  variant="caption"
+                  gutterBottom
+                  sx={{ display: "block", mb: 1 }}
+                >
+                  Shot Type
+                </Typography>
+                <ToggleButtonGroup
+                  value={shotType}
+                  exclusive
+                  onChange={(_, val) => setShotType(val)}
+                  size="small"
+                  fullWidth
+                >
+                  <ToggleButton value="CATCH">Catch & Shoot</ToggleButton>
+                  <ToggleButton value="DRIB">Off Dribble</ToggleButton>
+                </ToggleButtonGroup>
+              </Box>
+            </>
           )}
 
           {statType === ACTION_TYPES.MAKE && (

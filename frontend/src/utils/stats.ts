@@ -10,6 +10,7 @@ import {
   BONUS_CONFIG,
 } from "../constants/stats";
 import { StatEvent, TeamPlayer, Player, Game } from "../db";
+import { getShotZone } from "./shotZones";
 import {
   roundToOne,
   formatToOne,
@@ -56,6 +57,11 @@ export interface TeamAggregates {
   ppp: string;
   possessions: number;
   oppPpp: string;
+  efgPct?: string;
+  toPct?: string;
+  orbPct?: string;
+  ftRate?: string;
+  dreb: number;
 }
 
 /**
@@ -106,6 +112,10 @@ export interface OpponentAggregates {
   ftm: number;
   threePM: number;
   threePA: number;
+  efgPct?: string;
+  toPct?: string;
+  orbPct?: string;
+  ftRate?: string;
   min: number; // in seconds
   plusMinus: number;
   ppp: string;
@@ -227,7 +237,7 @@ export const isFieldGoal = (stat: StatEvent): boolean =>
  * @param {number} denominator - The total attempts or possessions.
  * @returns {string} Formatted percentage.
  */
-const calcPct = (numerator: number, denominator: number): string => {
+export const calcPct = (numerator: number, denominator: number): string => {
   // ⚡ Bolt: Early returns for zero denominators and zero numerators.
   // Skips floating point division and string formatting logic.
   if (denominator <= 0) return "0.0";
@@ -1028,6 +1038,10 @@ export const calculateOpponentScoutingStats = (
     agg.possessions = Math.round(possessions);
     agg.ppp = calculatePpp(agg.points, possessions);
     agg.fgPct = calculateFgPct(agg.makes, agg.attempts);
+    agg.efgPct = calculateEfgPct(agg.makes, agg.threePM, agg.attempts);
+    agg.toPct = calcPct(agg.turnovers, possessions);
+    agg.orbPct = "0.0"; // Individual ORB% requires context of all game missed shots
+    agg.ftRate = calcPct(agg.ftm, agg.attempts);
   }
 
   return result;
@@ -1213,6 +1227,175 @@ export const calculateOpponentThreats = (
 };
 
 /**
+ * Interface for a scoring run.
+ */
+export interface ScoringRun {
+  team: "TEAM" | "OPPONENT";
+  points: number;
+  startClock: number;
+  endClock: number;
+  period: number;
+  startTime: string; // Clock formatted
+  endTime: string;
+}
+
+/**
+ * 🏀 CoachBoard: calculateScoringRuns
+ *
+ * WHY: Scoring runs (e.g., 8-0) are high-impact game moments. Visualizing
+ * them helps coaches see which lineups were on the floor during momentum shifts.
+ *
+ * @param stats - Chronological list of events for a SINGLE game.
+ * @returns Array of scoring runs >= 8 points.
+ */
+export const calculateScoringRuns = (stats: StatEvent[]): ScoringRun[] => {
+  const sorted = sortStats(stats);
+  const runs: ScoringRun[] = [];
+
+  let currentRunTeam: "TEAM" | "OPPONENT" | null = null;
+  let currentRunPoints = 0;
+  let runStartEvent: StatEvent | null = null;
+
+  for (let i = 0; i < sorted.length; i++) {
+    const s = sorted[i];
+    if (!isActive(s) || s.type !== ACTION_TYPES.MAKE) continue;
+
+    const isOpp = isOpponentId(s.playerId);
+    const team = isOpp ? "OPPONENT" : "TEAM";
+    const points = s.points || 0;
+
+    if (currentRunTeam === team) {
+      currentRunPoints += points;
+    } else {
+      // If previous run was significant, record it
+      if (currentRunTeam && currentRunPoints >= 8 && runStartEvent) {
+        const lastMake = sorted
+          .slice(0, i)
+          .reverse()
+          .find((es) => isActive(es) && es.type === ACTION_TYPES.MAKE);
+        if (lastMake) {
+          runs.push({
+            team: currentRunTeam,
+            points: currentRunPoints,
+            period: runStartEvent.period,
+            startClock: runStartEvent.clockTime || 0,
+            endClock: lastMake.clockTime || 0,
+            startTime: formatClock(runStartEvent.clockTime || 0),
+            endTime: formatClock(lastMake.clockTime || 0),
+          });
+        }
+      }
+      // Start new run
+      currentRunTeam = team;
+      currentRunPoints = points;
+      runStartEvent = s;
+    }
+  }
+
+  // Final check
+  if (currentRunTeam && currentRunPoints >= 8 && runStartEvent) {
+    const lastMake = sorted
+      .slice()
+      .reverse()
+      .find((es) => isActive(es) && es.type === ACTION_TYPES.MAKE);
+    if (lastMake) {
+      runs.push({
+        team: currentRunTeam,
+        points: currentRunPoints,
+        period: runStartEvent.period,
+        startClock: runStartEvent.clockTime || 0,
+        endClock: lastMake.clockTime || 0,
+        startTime: formatClock(runStartEvent.clockTime || 0),
+        endTime: formatClock(lastMake.clockTime || 0),
+      });
+    }
+  }
+
+  return runs;
+};
+
+/**
+ * Interface for opponent tendencies.
+ */
+export interface OpponentTendency {
+  paintPct: string;
+  catchAndShootPct: string;
+  offDribblePct: string;
+}
+
+/**
+ * 🏀 CoachBoard: calculateOpponentTendencies
+ *
+ * WHY: Identifying how an opponent scores allows for real-time defensive adjustments.
+ *
+ * @param stats - Chronological list of events for the game.
+ * @returns Object containing tendency percentages.
+ */
+export const calculateOpponentTendencies = (
+  stats: StatEvent[],
+): OpponentTendency => {
+  let paintAttempts = 0;
+  let totalFieldGoalAttempts = 0;
+  let catchAndShootAttempts = 0;
+  let offDribbleAttempts = 0;
+  let totalTaggedAttempts = 0;
+
+  for (let i = 0; i < stats.length; i++) {
+    const s = stats[i];
+    if (!isActive(s) || !isOpponentId(s.playerId)) continue;
+    if (s.type !== ACTION_TYPES.MAKE && s.type !== ACTION_TYPES.MISS) continue;
+    if (isFreeThrow(s)) continue;
+
+    totalFieldGoalAttempts++;
+    if (detectShotValueFromCoords(s.locationX || 0, s.locationY || 0) === 2) {
+      // Simplistic paint check - in a real app we would check the exact zone
+      const zone = getShotZone(s.locationX || 0, s.locationY || 0);
+      if (zone === "PAINT") paintAttempts++;
+    }
+
+    if (s.shotType === "CATCH") {
+      catchAndShootAttempts++;
+      totalTaggedAttempts++;
+    } else if (s.shotType === "DRIB") {
+      offDribbleAttempts++;
+      totalTaggedAttempts++;
+    }
+  }
+
+  return {
+    paintPct:
+      totalFieldGoalAttempts > 0
+        ? ((paintAttempts / totalFieldGoalAttempts) * 100).toFixed(1)
+        : "0.0",
+    catchAndShootPct:
+      totalTaggedAttempts > 0
+        ? ((catchAndShootAttempts / totalTaggedAttempts) * 100).toFixed(1)
+        : "0.0",
+    offDribblePct:
+      totalTaggedAttempts > 0
+        ? ((offDribbleAttempts / totalTaggedAttempts) * 100).toFixed(1)
+        : "0.0",
+  };
+};
+
+/**
+ * Detects shot value (2 or 3) from coordinates.
+ * Coordinates are 0-100 percentage of SVG viewBox "0 0 500 470".
+ * Center of the arc is at (250, 140) with a radius of 220.
+ */
+export const detectShotValueFromCoords = (x: number, y: number): number => {
+  const svgX = x * 5;
+  const svgY = y * 4.7;
+  if (svgY <= 140) {
+    if (svgX <= 30 || svgX >= 470) return 3;
+  } else {
+    const dist = Math.sqrt(Math.pow(svgX - 250, 2) + Math.pow(svgY - 140, 2));
+    if (dist >= 220) return 3;
+  }
+  return 2;
+};
+
+/**
  * 🏀 CoachBoard: calculateStopsAndKills
  *
  * WHY: Defensive momentum is often measured in "Stops" (defensive possessions
@@ -1394,8 +1577,8 @@ export const calculateTeamAggregates = (
     }
   }
 
-  const team = { pts: 0, reb: 0, ast: 0, fga: 0, fta: 0, to: 0, oreb: 0 };
-  const opp = { pts: 0, fga: 0, fta: 0, to: 0, oreb: 0 };
+  const team = { pts: 0, reb: 0, ast: 0, fga: 0, fta: 0, to: 0, oreb: 0, dreb: 0, makes: 0, threePM: 0, ftm: 0 };
+  const opp = { pts: 0, fga: 0, fta: 0, to: 0, oreb: 0, dreb: 0, makes: 0, threePM: 0, ftm: 0 };
 
   for (let i = 0; i < stats.length; i++) {
     const stat = stats[i];
@@ -1411,15 +1594,34 @@ export const calculateTeamAggregates = (
       if (isOpponent) {
         totals.opp += pts;
         opp.pts += pts;
+        if (isFreeThrow(stat)) {
+          opp.ftm++;
+        } else {
+          opp.makes++;
+          if (stat.points === 3) opp.threePM++;
+        }
       } else {
         totals.team += pts;
         team.pts += pts;
+        if (isFreeThrow(stat)) {
+          team.ftm++;
+        } else {
+          team.makes++;
+          if (stat.points === 3) team.threePM++;
+        }
       }
     }
 
     updatePossessionCounters(stat, isOpponent ? opp : team);
 
-    if (!isOpponent) {
+    if (isOpponent) {
+      if (stat.type === ACTION_TYPES.DEF_REBOUND || stat.type === ACTION_TYPES.REBOUND) {
+        opp.dreb++;
+      }
+    } else {
+      if (stat.type === ACTION_TYPES.DEF_REBOUND || stat.type === ACTION_TYPES.REBOUND) {
+        team.dreb++;
+      }
       if (
         stat.type === ACTION_TYPES.OFF_REBOUND ||
         stat.type === ACTION_TYPES.REBOUND ||
@@ -1466,6 +1668,11 @@ export const calculateTeamAggregates = (
     ppp: calculatePpp(team.pts, totalPossessions),
     possessions: Math.round(totalPossessions),
     oppPpp: calculatePpp(opp.pts, totalOppPossessions),
+    efgPct: calculateEfgPct(team.makes, team.threePM || 0, team.fga),
+    toPct: calcPct(team.to, totalPossessions),
+    orbPct: calcPct(team.oreb, team.oreb + opp.dreb),
+    ftRate: calcPct(team.ftm || 0, team.fga),
+    dreb: team.dreb,
   };
 };
 
@@ -1517,6 +1724,10 @@ export const calculateOpponentAggregates = (
     plusMinus: 0,
     ppp: calculatePpp(agg.points, possessions),
     possessions: Math.round(possessions),
+    efgPct: calculateEfgPct(agg.makes, agg.threePM, agg.attempts),
+    toPct: calcPct(agg.turnovers, possessions),
+    orbPct: "0.0", // Individual opponent ORB% not supported without team context
+    ftRate: calcPct(agg.ftm, agg.attempts),
   };
 };
 
