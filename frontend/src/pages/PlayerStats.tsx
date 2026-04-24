@@ -368,7 +368,7 @@ const PlayerStats: React.FC = () => {
       </Box>
 
       {activeTab === "stats" && (
-        <MoleskineCard sx={{ mb: 3 }}>
+      <MoleskineCard sx={{ mb: 3 }}>
         <Stack
           direction="row"
           justifyContent="space-between"
@@ -451,7 +451,7 @@ const PlayerStats: React.FC = () => {
       )}
 
       {activeTab === "stats" ? (
-        <Grid container spacing={3}>
+      <Grid container spacing={3}>
         <Grid item xs={12} md={4}>
           <Stack spacing={2}>
             <StatCard label="Total Minutes" value={aggregates.min} />

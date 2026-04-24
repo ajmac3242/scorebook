@@ -6,7 +6,7 @@
 import { APIGatewayProxyStructuredResultV2 } from "aws-lambda";
 
 /**
- * Internal keys to redact from outgoing data.
+ * Internal keys to redact from outgoing data to prevent leaking database schema.
  */
 export const INTERNAL_KEYS = Object.freeze(
   new Set<string>([
@@ -132,12 +132,43 @@ export function response(
 
 /**
  * Semantic response helpers.
+ */
+
+/**
+ * Returns a 200 OK response.
  * @param {unknown} body - The response body.
  * @returns {APIGatewayProxyStructuredResultV2} The formatted response.
  */
-export const ok = (body: unknown) => response(200, body);
-export const created = (body: unknown) => response(201, body);
-export const badRequest = (msg: string) => response(400, { message: msg });
-export const notFound = (msg: string) => response(404, { message: msg });
-export const serverError = () =>
+export const ok = (body: unknown): APIGatewayProxyStructuredResultV2 =>
+  response(200, body);
+
+/**
+ * Returns a 201 Created response.
+ * @param {unknown} body - The response body.
+ * @returns {APIGatewayProxyStructuredResultV2} The formatted response.
+ */
+export const created = (body: unknown): APIGatewayProxyStructuredResultV2 =>
+  response(201, body);
+
+/**
+ * Returns a 400 Bad Request response.
+ * @param {string} msg - The error message.
+ * @returns {APIGatewayProxyStructuredResultV2} The formatted response.
+ */
+export const badRequest = (msg: string): APIGatewayProxyStructuredResultV2 =>
+  response(400, { message: msg });
+
+/**
+ * Returns a 404 Not Found response.
+ * @param {string} msg - The error message.
+ * @returns {APIGatewayProxyStructuredResultV2} The formatted response.
+ */
+export const notFound = (msg: string): APIGatewayProxyStructuredResultV2 =>
+  response(404, { message: msg });
+
+/**
+ * Returns a 500 Internal Server Error response.
+ * @returns {APIGatewayProxyStructuredResultV2} The formatted response.
+ */
+export const serverError = (): APIGatewayProxyStructuredResultV2 =>
   response(500, { message: "Internal Server Error" });

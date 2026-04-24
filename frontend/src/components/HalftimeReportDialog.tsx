@@ -141,7 +141,7 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
                       key={pId}
                       sx={{ width: 24, height: 24, fontSize: "0.65rem" }}
                     >
-                      {jerseyMap.get(pId) || "??"}
+                      {jerseyMap.get(pId) ?? "??"}
                     </Avatar>
                   ))}
                 </Stack>
@@ -179,7 +179,7 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
                       key={pId}
                       sx={{ width: 24, height: 24, fontSize: "0.65rem" }}
                     >
-                      {jerseyMap.get(pId) || "??"}
+                      {jerseyMap.get(pId) ?? "??"}
                     </Avatar>
                   ))}
                 </Stack>

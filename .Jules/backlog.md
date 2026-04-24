@@ -256,10 +256,10 @@
 **Why:** Coaches need to know who is responsible for opponent scoring. Raw team defensive stats don't tell you which individual player is failing to stop their man.
 **What:** Add a "Matchup" layer to the live game tracking. Allow coaches to assign a "Primary Defender" to each active opponent. When an opponent scores, the points are automatically attributed as "Points Allowed" to their defender.
 **Acceptance Criteria:**
-- [ ] UI in GameMode to "Drag and Drop" our players onto opponent players to set assignments.
-- [ ] Tracking of "Points Allowed" per player.
-- [ ] "Defensive Stop %" per player (how often an opponent possession ends in a stop while they are the primary defender).
-- [ ] Summary in GameStats showing "Matchup Battle" (Our #5 vs Their #10).
+- [x] UI in GameMode to "Drag and Drop" our players onto opponent players to set assignments.
+- [x] Tracking of "Points Allowed" per player.
+- [x] "Defensive Stop %" per player (how often an opponent possession ends in a stop while they are the primary defender).
+- [x] Summary in GameStats showing "Matchup Battle" (Our #5 vs Their #10).
 
 ## On/Off Team Impact Analytics
 **Priority:** HIGH
@@ -267,10 +267,10 @@
 **Why:** Some players have a high +/- because they play with the starters; others make the bench units better. On/Off splits reveal the true impact of a player by comparing team performance when they are on the floor vs. when they are on the bench.
 **What:** Calculate team-level metrics (Offensive Rating, Defensive Rating, Net Rating) for both states (Player ON vs. Player OFF) across multiple games.
 **Acceptance Criteria:**
-- [ ] New "Impact" tab in Player Stats or Team Analytics.
-- [ ] Display "Team Net Rating (ON)" vs "Team Net Rating (OFF)" for each player.
-- [ ] "Impact Differential" (The difference between ON and OFF metrics).
-- [ ] Support for filtering by season or last X games to identify recent trends.
+- [x] New "Impact" tab in Player Stats or Team Analytics.
+- [x] Display "Team Net Rating (ON)" vs "Team Net Rating (OFF)" for each player.
+- [x] "Impact Differential" (The difference between ON and OFF metrics).
+- [x] Support for filtering by season or last X games to identify recent trends.
 
 ## Automated "Next Up" Rotation Suggester
 **Priority:** HIGH
@@ -278,9 +278,9 @@
 **Why:** Managing a 12-player roster under pressure is mentally taxing. An automated suggester helps coaches stick to their rotation plan while accounting for foul trouble and fatigue.
 **What:** Build a "Rotation Engine" that suggests which players should be subbed in based on pre-game "Target Minutes" and live fatigue/foul status.
 **Acceptance Criteria:**
-- [ ] "Rotation Plan" UI in Team Settings to set target minutes and preferred pairings.
-- [ ] Live "Suggestion HUD" in GameMode showing "Next Up" players with one-tap substitution.
-- [ ] Automatic adjustment of suggestions based on live foul counts (e.g., suggesting a sub for a player with 2 fouls in the 1st quarter).
+- [x] "Rotation Plan" UI in Team Settings to set target minutes and preferred pairings.
+- [x] Live "Suggestion HUD" in GameMode showing "Next Up" players with one-tap substitution.
+- [x] Automatic adjustment of suggestions based on live foul counts (e.g., suggesting a sub for a player with 2 fouls in the 1st quarter).
 
 ## Live Opponent Tendency Scouting Report
 **Priority:** HIGH

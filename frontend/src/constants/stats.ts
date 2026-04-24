@@ -57,6 +57,7 @@ export const ACTION_TYPES = {
   SUB_IN: "SUB_IN",
   SUB_OUT: "SUB_OUT",
   POSSESSION: "POSSESSION",
+  MATCHUP: "MATCHUP",
 };
 
 /**

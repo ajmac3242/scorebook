@@ -269,9 +269,12 @@ const TeamStats: React.FC = () => {
     const completedGames = games
       .filter((g) => g.completed && !g.deletedAt)
       .sort((a, b) => {
+        // ⚡ Bolt: Use direct comparison for ISO timestamps instead of localeCompare for hot paths.
         const dateTimeA = a.date + (a.time || "00:00");
         const dateTimeB = b.date + (b.time || "00:00");
-        return dateTimeB.localeCompare(dateTimeA);
+        if (dateTimeA < dateTimeB) return 1;
+        if (dateTimeA > dateTimeB) return -1;
+        return 0;
       });
 
     let filtered = completedGames;
@@ -1572,6 +1575,8 @@ const TeamStats: React.FC = () => {
                       ? localJerseyNumbers[pId]
                       : (dbRecord?.jerseyNumber ?? "");
 
+                  const targetMins = dbRecord?.targetMinutes || "";
+
                   const playerEntityId = player.id?.toString() || "";
                   result.push(
                     <ListItem
@@ -1589,19 +1594,37 @@ const TeamStats: React.FC = () => {
                           }}
                         >
                           {isIn && (
-                            <TextField
-                              size="small"
-                              label="#"
-                              inputProps={{ maxLength: 2 }}
-                              sx={{ width: { xs: 60, sm: 80 } }}
-                              value={jersey}
-                              onChange={(e) => {
-                                const val = e.target.value;
-                                if (val === "" || /^\d{1,2}$/.test(val)) {
-                                  stageJerseyUpdate(pId, val);
-                                }
-                              }}
-                            />
+                            <>
+                              <TextField
+                                size="small"
+                                label="#"
+                                inputProps={{ maxLength: 2 }}
+                                sx={{ width: { xs: 60, sm: 70 } }}
+                                value={jersey}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  if (val === "" || /^\d{1,2}$/.test(val)) {
+                                    stageJerseyUpdate(pId, val);
+                                  }
+                                }}
+                              />
+                              <TextField
+                                size="small"
+                                label="T-Min"
+                                type="number"
+                                sx={{ width: { xs: 70, sm: 80 } }}
+                                value={targetMins}
+                                onChange={async (e) => {
+                                  if (dbRecord?.id) {
+                                    await db.teamPlayers.update(dbRecord.id, {
+                                      targetMinutes: parseInt(e.target.value) || 0,
+                                      synced: 0
+                                    });
+                                  }
+                                }}
+                                inputProps={{ min: 0, max: 48 }}
+                              />
+                            </>
                           )}
                           {isIn ? (
                             <IconButton

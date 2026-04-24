@@ -172,6 +172,7 @@ export const StatItem: React.FC<StatItemProps> = ({ label, value, light }) => (
 interface StatCardProps {
   label: string;
   value: string | number;
+  color?: string;
 }
 
 /**
@@ -180,7 +181,7 @@ interface StatCardProps {
  * @param {StatCardProps} props - Component props.
  * @returns {React.ReactElement}
  */
-export const StatCard: React.FC<StatCardProps> = ({ label, value }) => (
+export const StatCard: React.FC<StatCardProps> = ({ label, value, color }) => (
   <Card
     sx={{
       bgcolor: "#FFFDF5",
@@ -193,7 +194,10 @@ export const StatCard: React.FC<StatCardProps> = ({ label, value }) => (
       <Typography variant="caption" color="text.secondary" gutterBottom>
         {label}
       </Typography>
-      <Typography variant="h5" sx={{ fontFamily: "var(--serif)" }}>
+      <Typography
+        variant="h5"
+        sx={{ fontFamily: "var(--serif)", color: color || "inherit" }}
+      >
         {typeof value === "number" ? <AnimatedNumber value={value} /> : value}
       </Typography>
     </CardContent>

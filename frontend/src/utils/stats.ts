@@ -1536,6 +1536,8 @@ export const calculateScoreFlow = (
   const team = { fga: 0, fta: 0, to: 0, oreb: 0 };
   const opp = { fga: 0, fta: 0, to: 0, oreb: 0 };
   const currentLineup = new Set<string>();
+  // ⚡ Bolt: Cached lineup array avoids redundant Array.from calls in the hot loop.
+  let cachedLineup: string[] = [];
 
   for (let i = 0; i < stats.length; i++) {
     const stat = stats[i];
@@ -1555,8 +1557,10 @@ export const calculateScoreFlow = (
 
     if (stat.type === ACTION_TYPES.SUB_IN) {
       currentLineup.add(stat.playerId);
+      cachedLineup = Array.from(currentLineup);
     } else if (stat.type === ACTION_TYPES.SUB_OUT) {
       currentLineup.delete(stat.playerId);
+      cachedLineup = Array.from(currentLineup);
     }
 
     // Capture point if it's a significant event for the chart
@@ -1585,7 +1589,7 @@ export const calculateScoreFlow = (
         Opponent: scores.opp,
         Spread: scores.team - scores.opp,
         event: eventLabel,
-        lineup: Array.from(currentLineup),
+        lineup: cachedLineup,
         teamPpp: calculatePpp(scores.team, teamPoss),
         oppPpp: calculatePpp(scores.opp, oppPoss),
       });
@@ -1709,6 +1713,38 @@ export interface LineupAggregates {
   netRating: number;
   seconds: number;
   netRatingPer40: string;
+}
+
+/**
+ * Interface for matchup-based statistics.
+ */
+export interface MatchupStats {
+  ourPlayerId: string;
+  opponentPlayerId: string;
+  pointsAllowed: number;
+  stops: number;
+  possessions: number;
+  stopPct: string;
+}
+
+/**
+ * Interface for On/Off impact metrics.
+ */
+export interface OnOffImpact {
+  playerId: string;
+  onPointsFor: number;
+  onPointsAgainst: number;
+  onPossessions: number;
+  onOffensiveRating: string;
+  onDefensiveRating: string;
+  onNetRating: string;
+  offPointsFor: number;
+  offPointsAgainst: number;
+  offPossessions: number;
+  offOffensiveRating: string;
+  offDefensiveRating: string;
+  offNetRating: string;
+  netDifferential: string;
 }
 
 /**
@@ -1916,13 +1952,21 @@ export const calculateLineupStats = (
   const sortDir = options.direction || "desc";
 
   return result.sort((a, b) => {
-    const aValue = a[sortKey as keyof typeof a];
-    const bValue = b[sortKey as keyof typeof b];
+    // ⚡ Bolt: Use numeric values directly for sorting to avoid parseFloat in the loop.
+    let aValue = a[sortKey as keyof typeof a];
+    let bValue = b[sortKey as keyof typeof b];
 
-    if (typeof aValue === "string" && typeof bValue === "string") {
-      const aNum = parseFloat(aValue);
-      const bNum = parseFloat(bValue);
-      return sortDir === "desc" ? bNum - aNum : aNum - bNum;
+    // If sorting by netRatingPer40, use the underlying numeric calculation
+    if (sortKey === "netRatingPer40") {
+      const aNet = a.pointsFor - a.pointsAgainst;
+      const aMins = a.seconds / 60;
+      const bNet = b.pointsFor - b.pointsAgainst;
+      const bMins = b.seconds / 60;
+      aValue = aMins > 0 ? (aNet / aMins) * 40 : 0;
+      bValue = bMins > 0 ? (bNet / bMins) * 40 : 0;
+    } else if (typeof aValue === "string" && typeof bValue === "string") {
+      aValue = parseFloat(aValue);
+      bValue = parseFloat(bValue);
     }
 
     if (typeof aValue === "number" && typeof bValue === "number") {
@@ -1979,8 +2023,9 @@ export const calculateMatchupStats = (stats: StatEvent[]): MatchupStats[] => {
     }
 
     const isOpp = isOpponentId(s.playerId);
+    const type = s.type;
 
-    if (s.type === ACTION_TYPES.MATCHUP) {
+    if (type === ACTION_TYPES.MATCHUP) {
       if (s.relatedPlayerId) {
         currentMatchups.set(s.playerId, s.relatedPlayerId);
       } else {
@@ -2122,6 +2167,14 @@ export const calculateOnOffStats = (
   const activePlayers = new Set<string>();
   let currentGameId: string | null = null;
 
+  // ⚡ Bolt: Global totals allow deriving "OFF" stats as (Total - ON),
+  // eliminating the O(N*P) nested loop and improving to O(N+P).
+  const totals = {
+    ptsFor: 0, ptsAgn: 0,
+    teamFga: 0, teamFta: 0, teamTo: 0, teamOreb: 0,
+    oppFga: 0, oppFta: 0, oppTo: 0, oppOreb: 0
+  };
+
   for (let i = 0; i < sorted.length; i++) {
     const s = sorted[i];
     if (!isActive(s)) continue;
@@ -2181,10 +2234,22 @@ export const calculateOnOffStats = (
   }
 
   return Array.from(results.entries()).map(([pId, agg]) => {
+    // Derive OFF stats: Total - ON
+    const offPtsFor = totals.ptsFor - agg.onPtsFor;
+    const offPtsAgn = totals.ptsAgn - agg.onPtsAgn;
+    const offTeamFga = totals.teamFga - agg.onTeamFga;
+    const offTeamFta = totals.teamFta - agg.onTeamFta;
+    const offTeamTo = totals.teamTo - agg.onTeamTo;
+    const offTeamOreb = totals.teamOreb - agg.onTeamOreb;
+    const offOppFga = totals.oppFga - agg.onOppFga;
+    const offOppFta = totals.oppFta - agg.onOppFta;
+    const offOppTo = totals.oppTo - agg.onOppTo;
+    const offOppOreb = totals.oppOreb - agg.onOppOreb;
+
     const onTeamPoss = agg.onTeamFga + 0.44 * agg.onTeamFta + agg.onTeamTo - agg.onTeamOreb;
     const onOppPoss = agg.onOppFga + 0.44 * agg.onOppFta + agg.onOppTo - agg.onOppOreb;
-    const offTeamPoss = agg.offTeamFga + 0.44 * agg.offTeamFta + agg.offTeamTo - agg.offTeamOreb;
-    const offOppPoss = agg.offOppFga + 0.44 * agg.offOppFta + agg.offOppTo - agg.offOppOreb;
+    const offTeamPoss = offTeamFga + 0.44 * offTeamFta + offTeamTo - offTeamOreb;
+    const offOppPoss = offOppFga + 0.44 * offOppFta + offOppTo - offOppOreb;
 
     const onORtg = onTeamPoss > 0 ? (agg.onPtsFor / onTeamPoss) * 100 : 0;
     const onDRtg = onOppPoss > 0 ? (agg.onPtsAgn / onOppPoss) * 100 : 0;

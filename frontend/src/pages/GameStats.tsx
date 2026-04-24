@@ -474,6 +474,10 @@ const GameStats: React.FC = () => {
     return calculateOpponentAggregates(stats);
   }, [stats]);
 
+  const matchupStats = useMemo(() => {
+    return calculateMatchupStats(scoreFlowSortedStats);
+  }, [scoreFlowSortedStats]);
+
   const teamData = useMemo(() => {
     let fga = 0;
     let fta = 0;
@@ -1954,6 +1958,7 @@ const GameStats: React.FC = () => {
           {expandedSection === "scoreFlow" && "Score Flow"}
           {expandedSection === "lineups" && "Lineup Efficiency"}
           {expandedSection === "rotation" && "Rotation Timeline"}
+          {expandedSection === "matchups" && "Matchup Battle"}
           <IconButton
             onClick={() => setExpandedSection(null)}
             aria-label="Collapse section"

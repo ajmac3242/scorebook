@@ -22,9 +22,12 @@ import { SPECIAL_PLAYER_IDS } from "./validation.js";
  * Accumulates the total score for both teams from a list of stat events.
  *
  * @param {Record<string, unknown>[]} stats - List of statistical events.
- * @returns {object} Total scores for Team and Opponent.
+ * @returns {{teamScore: number, oppScore: number}} Total scores for Team and Opponent.
  */
-export function accumulateScores(stats: Record<string, unknown>[]) {
+export function accumulateScores(stats: Record<string, unknown>[]): {
+  teamScore: number;
+  oppScore: number;
+} {
   let teamScore = 0;
   let oppScore = 0;
   for (let i = 0; i < stats.length; i++) {
