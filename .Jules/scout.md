@@ -78,3 +78,18 @@
 ### Basketball Edge Cases
 - **Clutch Windows**: Quarters (4 mins) and Halves (2 mins) have different "winning time" definitions. Overtime is *always* clutch if the score is close.
 - **Batch Processing**: When running stats over a season, analytics must explicitly watch for `gameId` changes to avoid "bleeding" momentum or streaks from one game into the next.
+
+## 2025-05-28 - Boundary Precision & Performance Optimization
+
+### Findings & Fixed Bugs
+- **Bug 19: Incorrect On/Off Metrics**: Discovered that `calculateOnOffStats` failed to track global game totals (PTS, FGA, TO, etc.), leading to zero or negative "OFF" statistics for all players. Fixed by implementing a single-pass global total accumulator.
+- **Bug 20: OT Minute Distortion**: Found that player and lineup minute calculations used hardcoded regulation period lengths for overtime. Implemented `getPeriodLen` helper to support variable OT lengths (default 5 mins).
+- **Bug 21: Missing Opponent Offensive Foul Stops**: `calculateStopsAndKills` did not count opponent offensive fouls as stops. Updated logic to treat non-technical fouls by the offensive team as possession-ending stops.
+
+### Critical Test Gaps Filled
+- New comprehensive audit suite `scout_audit_v2.test.ts` verifying On/Off derivations, variable OT minutes, and offensive foul stop tracking.
+- Optimized `calculateOnOffStats` from $O(N \times P)$ to $O(N + P)$ by deriving OFF stats via subtraction.
+
+### Basketball Edge Cases
+- **OT Transitions**: Overtime periods are shorter than regulation. Any minute tracking must check the period number against the game format.
+- **Offensive Fouls**: A defensive stop occurs whenever a defensive possession ends without a score. Opponent offensive fouls are the ultimate defensive stop.
