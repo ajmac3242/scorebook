@@ -60,9 +60,15 @@ import {
   calculatePpp,
   calculateMatchupStats,
   calculatePlayerStintTimeline,
+  calculateScoringRuns,
+  calculateTeamAggregates,
+  calculateTeamSeasonAverages,
+  calcPct,
+  isOpponentId,
   type ScoreFlowPoint,
 } from "../utils/stats";
 import { MoleskineCard } from "../components/SharedUI";
+import FourFactorsHUD from "../components/FourFactorsHUD";
 import EntityBanner from "../components/EntityBanner";
 import { syncService } from "../utils/syncService";
 import { logger } from "../utils/logger";
@@ -118,6 +124,8 @@ const GameStats: React.FC = () => {
 
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [auditDialogOpen, setAuditDialogOpen] = useState(false);
+  const [showFouls, setShowFouls] = useState(true);
+  const [showRuns, setShowRuns] = useState(true);
   const [isExporting, setIsExporting] = useState(false);
   const [editOpponent, setEditOpponent] = useState("");
   const [editDate, setEditDate] = useState("");
@@ -471,45 +479,39 @@ const GameStats: React.FC = () => {
   }, [scoreFlowSortedStats, game?.periodLength]);
 
   const oppData = useMemo(() => {
-    return calculateOpponentAggregates(stats);
-  }, [stats]);
+    return liveFourFactors?.opponent || calculateOpponentAggregates(stats);
+  }, [stats, liveFourFactors]);
 
   const matchupStats = useMemo(() => {
     return calculateMatchupStats(scoreFlowSortedStats);
   }, [scoreFlowSortedStats]);
 
   const teamData = useMemo(() => {
-    let fga = 0;
-    let fta = 0;
-    let turnovers = 0;
-    let oreb = 0;
-    let points = 0;
+    if (!game) return null;
+    return calculateTeamAggregates([game], stats, false);
+  }, [game, stats]);
 
-    for (let i = 0; i < stats.length; i++) {
-      const s = stats[i];
-      if (s.deletedAt || s.playerId === SPECIAL_PLAYER_IDS.OPPONENT) continue;
+  const liveFourFactors = useMemo(() => {
+    if (!teamData) return null;
+    const oppEvents = stats.filter((s) => isOpponentId(s.playerId));
+    const oppAgg = calculateOpponentAggregates(oppEvents);
 
-      if (s.type === ACTION_TYPES.MAKE) {
-        points += s.points || 0;
-        if (s.points === 1) fta++;
-        else fga++;
-      } else if (s.type === ACTION_TYPES.MISS) {
-        if (s.points === 1) fta++;
-        else fga++;
-      } else if (s.type === ACTION_TYPES.TURNOVER) {
-        turnovers++;
-      } else if (s.type === ACTION_TYPES.OFF_REBOUND) {
-        oreb++;
-      }
-    }
-
-    const possessions = calculatePossessions(fga, fta, turnovers, oreb);
     return {
-      points,
-      possessions,
-      ppp: calculatePpp(points, possessions),
+      team: teamData,
+      opponent: {
+        ...oppAgg,
+        orbPct: calcPct(oppAgg.offRebounds, oppAgg.offRebounds + teamData.dreb),
+      },
     };
-  }, [stats]);
+  }, [teamData, stats]);
+
+  const teamSeasonStats = useLiveQuery(async () => {
+    if (!game?.teamId) return undefined;
+    const games = await db.games.where("teamId").equals(game.teamId).toArray();
+    const gameIds = games.map((g) => g.id!).filter(Boolean);
+    const allStats = await db.stats.where("gameId").anyOf(gameIds).toArray();
+    return calculateTeamSeasonAverages(games, allStats);
+  }, [game?.teamId]);
 
   const playEfficiency = useMemo(() => {
     const data: Record<
@@ -575,9 +577,6 @@ const GameStats: React.FC = () => {
     }));
   }, [stats]);
 
-  const matchupStats = useMemo(() => {
-    return calculateMatchupStats(scoreFlowSortedStats);
-  }, [scoreFlowSortedStats]);
 
   const playerStints = useMemo(() => {
     if (!game) return [];
@@ -598,6 +597,9 @@ const GameStats: React.FC = () => {
           : undefined,
     });
   }, [scoreFlowSortedStats, game, clutchFilter, team?.periodType]);
+  const scoringRuns = useMemo(() => {
+    return calculateScoringRuns(scoreFlowSortedStats);
+  }, [scoreFlowSortedStats]);
 
   const defensiveStats = useMemo(() => {
     return calculateStopsAndKills(scoreFlowSortedStats);
@@ -1265,96 +1267,188 @@ const GameStats: React.FC = () => {
   );
 
   const rotationTimeline = (
-    <Box sx={{ mt: 2, overflowX: "auto" }}>
-      <Table size="small">
-        <TableHead>
-          <TableRow>
-            <TableCell sx={{ minWidth: 120, fontWeight: 700 }}>Player</TableCell>
-            <TableCell sx={{ minWidth: 400, fontWeight: 700 }}>
-              Stint Timeline (P1 → OT)
-            </TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {players.map((p) => {
-            const stints = playerStints.filter((s) => s.playerId === p.id);
-            if (stints.length === 0) return null;
+    <Box sx={{ mt: 2 }}>
+      <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
+        <ToggleButton
+          value="runs"
+          selected={showRuns}
+          onChange={() => setShowRuns(!showRuns)}
+          size="small"
+        >
+          Show Runs
+        </ToggleButton>
+        <ToggleButton
+          value="fouls"
+          selected={showFouls}
+          onChange={() => setShowFouls(!showFouls)}
+          size="small"
+        >
+          Show Fouls
+        </ToggleButton>
+      </Stack>
+      <Box sx={{ overflowX: "auto" }}>
+        <Table size="small">
+          <TableHead>
+            <TableRow>
+              <TableCell sx={{ minWidth: 120, fontWeight: 700 }}>Player</TableCell>
+              <TableCell sx={{ minWidth: 400, fontWeight: 700 }}>
+                Stint Timeline (P1 → OT)
+              </TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {players.map((p) => {
+              const stints = playerStints.filter((s) => s.playerId === p.id);
+              if (stints.length === 0) return null;
 
-            return (
-              <TableRow key={p.id}>
-                <TableCell>
-                  <Stack direction="row" spacing={1} alignItems="center">
-                    <Avatar
+              return (
+                <TableRow key={p.id}>
+                  <TableCell>
+                    <Stack direction="row" spacing={1} alignItems="center">
+                      <Avatar
+                        sx={{
+                          width: 24,
+                          height: 24,
+                          fontSize: "0.75rem",
+                          bgcolor: p.avatarColor,
+                        }}
+                      >
+                        {shotChartJerseyMap.get(p.id!) ?? "??"}
+                      </Avatar>
+                      <Typography variant="caption" noWrap sx={{ maxWidth: 80 }}>
+                        {p.name}
+                      </Typography>
+                    </Stack>
+                  </TableCell>
+                  <TableCell sx={{ p: 1 }}>
+                    <Box
                       sx={{
-                        width: 24,
                         height: 24,
-                        fontSize: "0.65rem",
-                        bgcolor: p.avatarColor,
+                        width: "100%",
+                        bgcolor: "rgba(0,0,0,0.05)",
+                        borderRadius: 1,
+                        position: "relative",
+                        minWidth: 400,
                       }}
                     >
-                      {shotChartJerseyMap.get(p.id!) ?? "??"}
-                    </Avatar>
-                    <Typography variant="caption" noWrap sx={{ maxWidth: 80 }}>
-                      {p.name}
-                    </Typography>
-                  </Stack>
-                </TableCell>
-                <TableCell sx={{ p: 1 }}>
-                  <Box
-                    sx={{
-                      height: 16,
-                      width: "100%",
-                      bgcolor: "rgba(0,0,0,0.05)",
-                      borderRadius: 1,
-                      position: "relative",
-                      minWidth: 400,
-                    }}
-                  >
-                    {stints.map((s, idx) => {
-                      const maxPeriod = team?.periodType === "QUARTERS" ? 4 : 2;
-                      const currentMax = Math.max(
-                        maxPeriod,
-                        ...playerStints.map((ps) => ps.period),
-                      );
-                      const periodLen = (team?.periodLength || 10) * 60;
-                      const totalSecs = currentMax * periodLen;
+                      {/* Scoring Runs Background */}
+                      {showRuns &&
+                        scoringRuns.map((run, ridx) => {
+                          const maxPeriod = team?.periodType === "QUARTERS" ? 4 : 2;
+                          const currentMax = Math.max(
+                            maxPeriod,
+                            ...playerStints.map((ps) => ps.period),
+                          );
+                          const periodLen = (team?.periodLength || 10) * 60;
+                          const totalSecs = currentMax * periodLen;
 
-                      const startOffset =
-                        (s.period - 1) * periodLen + (periodLen - s.startClock);
-                      const endOffset =
-                        (s.period - 1) * periodLen + (periodLen - s.endClock);
+                          const startOffset =
+                            (run.period - 1) * periodLen + (periodLen - run.startClock);
+                          const endOffset =
+                            (run.period - 1) * periodLen + (periodLen - run.endClock);
 
-                      const left = (startOffset / totalSecs) * 100;
-                      const width = ((endOffset - startOffset) / totalSecs) * 100;
+                          const left = (startOffset / totalSecs) * 100;
+                          const width = ((endOffset - startOffset) / totalSecs) * 100;
 
-                      return (
-                        <Tooltip
-                          key={idx}
-                          title={`P${s.period}: ${Math.floor((s.startClock - s.endClock) / 60)}m ${Math.floor((s.startClock - s.endClock) % 60)}s`}
-                        >
-                          <Box
-                            sx={{
-                              position: "absolute",
-                              left: `${left}%`,
-                              width: `${width}%`,
-                              height: "100%",
-                              bgcolor: theme.palette.primary.main,
-                              opacity: 0.8,
-                              borderRadius: 0.5,
-                              transition: "all 0.2s",
-                              "&:hover": { opacity: 1, transform: "scaleY(1.2)" },
-                            }}
-                          />
-                        </Tooltip>
-                      );
-                    })}
-                  </Box>
-                </TableCell>
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
+                          return (
+                            <Box
+                              key={`run-${ridx}`}
+                              sx={{
+                                position: "absolute",
+                                left: `${left}%`,
+                                width: `${width}%`,
+                                height: "100%",
+                                bgcolor:
+                                  run.team === "TEAM"
+                                    ? "primary.main"
+                                    : "secondary.main",
+                                opacity: 0.1,
+                                zIndex: 0,
+                              }}
+                            />
+                          );
+                        })}
+
+                      {stints.map((s, idx) => {
+                        const maxPeriod = team?.periodType === "QUARTERS" ? 4 : 2;
+                        const currentMax = Math.max(
+                          maxPeriod,
+                          ...playerStints.map((ps) => ps.period),
+                        );
+                        const periodLen = (team?.periodLength || 10) * 60;
+                        const totalSecs = currentMax * periodLen;
+
+                        const startOffset =
+                          (s.period - 1) * periodLen + (periodLen - s.startClock);
+                        const endOffset =
+                          (s.period - 1) * periodLen + (periodLen - s.endClock);
+
+                        const left = (startOffset / totalSecs) * 100;
+                        const width = ((endOffset - startOffset) / totalSecs) * 100;
+
+                        // Get fouls during this stint
+                        const foulsDuringStint = showFouls
+                          ? scoreFlowSortedStats.filter(
+                              (stat) =>
+                                stat.playerId === s.playerId &&
+                                stat.period === s.period &&
+                                (stat.type === ACTION_TYPES.FOUL ||
+                                  stat.type === ACTION_TYPES.FOUL_SHOOTING ||
+                                  stat.type === ACTION_TYPES.FOUL_NON_SHOOTING ||
+                                  stat.type === ACTION_TYPES.TECHNICAL_FOUL) &&
+                                (stat.clockTime || 0) <= s.startClock &&
+                                (stat.clockTime || 0) >= s.endClock,
+                            )
+                          : [];
+
+                        return (
+                          <Tooltip
+                            key={idx}
+                            title={`P${s.period} [${formatClock(s.startClock)} - ${formatClock(s.endClock)}]: ${s.points} PTS, ${s.plusMinus > 0 ? "+" : ""}${s.plusMinus} +/-`}
+                          >
+                            <Box
+                              sx={{
+                                position: "absolute",
+                                left: `${left}%`,
+                                width: `${width}%`,
+                                height: "60%",
+                                top: "20%",
+                                bgcolor: theme.palette.primary.main,
+                                opacity: 0.8,
+                                borderRadius: 0.5,
+                                zIndex: 1,
+                                transition: "all 0.2s",
+                                "&:hover": { opacity: 1, transform: "scaleY(1.2)" },
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                gap: 0.2,
+                              }}
+                            >
+                              {foulsDuringStint.map((_, fidx) => (
+                                <Box
+                                  key={fidx}
+                                  sx={{
+                                    width: 4,
+                                    height: 4,
+                                    bgcolor: "error.main",
+                                    borderRadius: "50%",
+                                    border: "0.5px solid white",
+                                  }}
+                                />
+                              ))}
+                            </Box>
+                          </Tooltip>
+                        );
+                      })}
+                    </Box>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </Box>
     </Box>
   );
 
@@ -1439,10 +1533,7 @@ const GameStats: React.FC = () => {
         avatarColor="rgba(255,255,255,0.1)"
         backTo={game?.teamId ? `/teams/${game.teamId}` : "/teams"}
         primaryColor={team?.primaryColor}
-        stats={[
-          { label: "PPP", value: teamData.ppp },
-          { label: "Def. PPP", value: oppData.ppp },
-        ]}
+        stats={[ { label: "PPP", value: teamData?.ppp || "0.00" }, { label: "Def. PPP", value: oppData.ppp } ]}
         actions={
           <Stack direction="row" spacing={1} alignItems="center">
             {!isDeleted && (
@@ -1542,6 +1633,17 @@ const GameStats: React.FC = () => {
       </Box>
 
       <Grid container spacing={3}>
+        {/* Four Factors Card */}
+        {liveFourFactors && (
+          <Grid item xs={12}>
+            <FourFactorsHUD
+              teamStats={liveFourFactors.team}
+              oppStats={liveFourFactors.opponent}
+              seasonAvg={teamSeasonStats}
+            />
+          </Grid>
+        )}
+
         {/* Defensive Metrics Card */}
         <Grid item xs={12}>
           <MoleskineCard>
