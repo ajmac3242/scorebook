@@ -16,6 +16,7 @@ import {
   Divider,
   ToggleButton,
   ToggleButtonGroup,
+  Tooltip,
 } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import {
@@ -484,61 +485,67 @@ const Dashboard: React.FC = () => {
             </Box>
             <Grid container spacing={3}>
               <Grid item xs={12} sm={4}>
-                <MoleskineCard
-                  sx={{
-                    bgcolor: "rgba(0,0,0,0.02)",
-                    textAlign: "center",
-                    border: "1px solid rgba(0,0,0,0.05)",
-                  }}
-                >
-                  <Typography variant="caption" color="text.secondary">
-                    POINTS PER GAME
-                  </Typography>
-                  <Typography variant="h5" sx={{ fontWeight: 800, my: 1 }}>
-                    {leaders.ppg?.points || "0.0"}
-                  </Typography>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                    {leaders.ppg?.name || "N/A"}
-                  </Typography>
-                </MoleskineCard>
+                <Tooltip title={`Points Leader: ${leaders.ppg?.name || "N/A"}`}>
+                  <MoleskineCard
+                    sx={{
+                      bgcolor: "rgba(0,0,0,0.02)",
+                      textAlign: "center",
+                      border: "1px solid rgba(0,0,0,0.05)",
+                    }}
+                  >
+                    <Typography variant="caption" color="text.secondary">
+                      POINTS PER GAME
+                    </Typography>
+                    <Typography variant="h5" sx={{ fontWeight: 800, my: 1 }}>
+                      {leaders.ppg?.points || "0.0"}
+                    </Typography>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                      {leaders.ppg?.name || "N/A"}
+                    </Typography>
+                  </MoleskineCard>
+                </Tooltip>
               </Grid>
               <Grid item xs={12} sm={4}>
-                <MoleskineCard
-                  sx={{
-                    bgcolor: "rgba(0,0,0,0.02)",
-                    textAlign: "center",
-                    border: "1px solid rgba(0,0,0,0.05)",
-                  }}
-                >
-                  <Typography variant="caption" color="text.secondary">
-                    REBOUNDS PER GAME
-                  </Typography>
-                  <Typography variant="h5" sx={{ fontWeight: 800, my: 1 }}>
-                    {leaders.rpg?.rebounds || "0.0"}
-                  </Typography>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                    {leaders.rpg?.name || "N/A"}
-                  </Typography>
-                </MoleskineCard>
+                <Tooltip title={`Rebounds Leader: ${leaders.rpg?.name || "N/A"}`}>
+                  <MoleskineCard
+                    sx={{
+                      bgcolor: "rgba(0,0,0,0.02)",
+                      textAlign: "center",
+                      border: "1px solid rgba(0,0,0,0.05)",
+                    }}
+                  >
+                    <Typography variant="caption" color="text.secondary">
+                      REBOUNDS PER GAME
+                    </Typography>
+                    <Typography variant="h5" sx={{ fontWeight: 800, my: 1 }}>
+                      {leaders.rpg?.rebounds || "0.0"}
+                    </Typography>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                      {leaders.rpg?.name || "N/A"}
+                    </Typography>
+                  </MoleskineCard>
+                </Tooltip>
               </Grid>
               <Grid item xs={12} sm={4}>
-                <MoleskineCard
-                  sx={{
-                    bgcolor: "rgba(0,0,0,0.02)",
-                    textAlign: "center",
-                    border: "1px solid rgba(0,0,0,0.05)",
-                  }}
-                >
-                  <Typography variant="caption" color="text.secondary">
-                    ASSISTS PER GAME
-                  </Typography>
-                  <Typography variant="h5" sx={{ fontWeight: 800, my: 1 }}>
-                    {leaders.apg?.assists || "0.0"}
-                  </Typography>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                    {leaders.apg?.name || "N/A"}
-                  </Typography>
-                </MoleskineCard>
+                <Tooltip title={`Assists Leader: ${leaders.apg?.name || "N/A"}`}>
+                  <MoleskineCard
+                    sx={{
+                      bgcolor: "rgba(0,0,0,0.02)",
+                      textAlign: "center",
+                      border: "1px solid rgba(0,0,0,0.05)",
+                    }}
+                  >
+                    <Typography variant="caption" color="text.secondary">
+                      ASSISTS PER GAME
+                    </Typography>
+                    <Typography variant="h5" sx={{ fontWeight: 800, my: 1 }}>
+                      {leaders.apg?.assists || "0.0"}
+                    </Typography>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                      {leaders.apg?.name || "N/A"}
+                    </Typography>
+                  </MoleskineCard>
+                </Tooltip>
               </Grid>
             </Grid>
           </MoleskineCard>

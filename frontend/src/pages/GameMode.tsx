@@ -445,7 +445,7 @@ const Scoreboard = React.memo(
             onClick={onEditClock}
             role="button"
             tabIndex={isReadOnly ? -1 : 0}
-            aria-label={`Game clock: ${formatClock(clockSeconds)}, Period ${period}. Click to edit.`}
+            aria-label={`Game clock: ${formatClock(clockSeconds)}, Period ${period}, ${isClockRunning ? "Running" : "Paused"}. Click to edit.`}
             onKeyDown={(e) => {
               if (!isReadOnly && (e.key === "Enter" || e.key === " ")) {
                 onEditClock?.();
@@ -771,8 +771,8 @@ const ActionControls = React.memo(
               disabled={isReadOnly}
               aria-label={
                 possessionState === SPECIAL_PLAYER_IDS.OUR_TEAM
-                  ? "Switch possession to Opponent"
-                  : "Switch possession to Team"
+                  ? "Possession: Team. Click to switch to Opponent."
+                  : "Possession: Opponent. Click to switch to Team."
               }
               color={possessionState ? "primary" : "inherit"}
             >
@@ -789,7 +789,7 @@ const ActionControls = React.memo(
               startIcon={<Groups />}
               onClick={onQuickSub}
               disabled={isReadOnly}
-              aria-label="quick substitution"
+              aria-label="Quick Player Substitution"
             >
               Sub
             </Button>
@@ -835,7 +835,7 @@ const ActionControls = React.memo(
               startIcon={<SportsBasketball />}
               onClick={() => onFtWorkflow()}
               disabled={isReadOnly}
-              aria-label="record free throws"
+              aria-label="Record Free Throws Workflow"
             >
               FT
             </Button>
@@ -1730,18 +1730,6 @@ const GameMode: React.FC = () => {
     }
   }, [gameData.recentStats]);
 
-  // 🧠 Clarity: Keyboard shortcut for Undo (Ctrl+Z or Cmd+Z)
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === "z") {
-        e.preventDefault();
-        handleUndo();
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [handleUndo]);
-
   /**
    * Finalizes the game, marking it as completed and triggering a sync.
    */
@@ -2121,6 +2109,26 @@ const GameMode: React.FC = () => {
     });
   }, [gameId]);
 
+  // 🧠 Clarity: Keyboard shortcut for Undo (Ctrl+Z) and Clock Toggle (Space)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "z") {
+        e.preventDefault();
+        handleUndo();
+      }
+      if (
+        e.key === " " &&
+        document.activeElement?.tagName !== "INPUT" &&
+        document.activeElement?.tagName !== "TEXTAREA"
+      ) {
+        e.preventDefault();
+        handleToggleClock();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleUndo, handleToggleClock]);
+
   const handleEditClock = useCallback(
     async (mins: number, secs: number) => {
       const totalSeconds = mins * 60 + secs;
@@ -2470,6 +2478,20 @@ const GameMode: React.FC = () => {
 
             {trackingMode === "TEAM" && (
               <>
+                <RotationSuggester
+                  players={players}
+                  teamPlayers={teamPlayers}
+                  gameData={gameData}
+                  statsGridData={statsGridData}
+                  period={period}
+                  maxPeriod={team?.periodType === "QUARTERS" ? 4 : 2}
+                  periodLength={team?.periodLength || 10}
+                  clockSeconds={clockSeconds}
+                  onSelectPlayer={(id) => {
+                    setSelectedPlayerId(id);
+                    setDialogOpen(true);
+                  }}
+                />
                 <PlaybookEfficiencyWidget
                   plays={playbookEfficiency}
                   teamPpp={parseFloat(gameData.teamPpp)}
@@ -3803,7 +3825,7 @@ const GameMode: React.FC = () => {
       {/* Clock FAB */}
       {!isReadOnly && (
         <Tooltip
-          title={isClockRunning ? "Pause Game Clock" : "Start Game Clock"}
+          title={isClockRunning ? "Pause Game Clock (Space)" : "Start Game Clock (Space)"}
         >
           <IconButton
             onClick={handleToggleClock}
@@ -3979,85 +4001,6 @@ const QuickAction: React.FC<{
  * 🏀 CoachBoard: EditClockDialog
  * Why: Allows precise manual adjustment of the game clock.
  */
-/**
- * 🏀 CoachBoard: RotationSuggester
- * WHY: Helps coaches stick to their rotation plan by comparing actual mins vs target mins.
- */
-const RotationSuggester: React.FC<{
-  players: Player[];
-  teamPlayers: TeamPlayer[];
-  gameData: { onCourtIds: Set<string> };
-  statsGridData: PlayerAggregates[];
-  period: number;
-  maxPeriod: number;
-  periodLength: number;
-  clockSeconds: number;
-  onSelectPlayer: (_id: string) => void;
-}> = ({
-  players,
-  teamPlayers,
-  gameData,
-  statsGridData,
-  period,
-  maxPeriod,
-  periodLength,
-  clockSeconds,
-  onSelectPlayer,
-}) => {
-  const suggestions = useMemo(() => {
-    const totalGameMins = maxPeriod * periodLength;
-    const elapsedMins = Math.max(0.1, (period - 1) * periodLength + (periodLength - clockSeconds / 60));
-    const gameProgress = Math.min(1, elapsedMins / totalGameMins);
-
-    const roster = teamPlayers.map(tp => {
-      const p = players.find(p => p.id === tp.playerId);
-      const gameStats = statsGridData.find(s => s.id === tp.playerId);
-      const actualMins = gameStats?.min || 0;
-      const targetMins = tp.targetMinutes || 0;
-      const expectedMins = targetMins * gameProgress;
-      
-      return {
-        id: tp.playerId,
-        name: p?.name || "Unknown",
-        target: targetMins,
-        actual: actualMins,
-        diff: expectedMins - actualMins,
-        isOn: gameData.onCourtIds.has(tp.playerId),
-        isFoulTrouble: (gameStats?.fouls || 0) >= 4,
-      };
-    });
-
-    // Suggest players who are OFF and significantly below their expected minutes
-    return roster
-      .filter(p => !p.isOn && p.target > 0 && p.diff > 0)
-      .sort((a, b) => b.diff - a.diff)
-      .slice(0, 3);
-  }, [players, teamPlayers, gameData, statsGridData, period, maxPeriod, periodLength, clockSeconds]);
-
-  if (suggestions.length === 0) return null;
-
-  return (
-    <MoleskineCard sx={{ border: "1px solid #FFD700" }}>
-      <Typography variant="subtitle2" sx={{ fontWeight: 800, mb: 1, display: "flex", alignItems: "center", gap: 1 }}>
-        <Groups sx={{ fontSize: 18 }} /> ROTATION SUGGESTER
-      </Typography>
-      <Stack spacing={1}>
-        {suggestions.map(p => (
-          <Button
-            key={p.id}
-            variant="outlined"
-            size="small"
-            onClick={() => onSelectPlayer(p.id)}
-            sx={{ justifyContent: "space-between", textTransform: "none" }}
-          >
-            <Typography variant="caption" sx={{ fontWeight: 700 }}>{p.name}</Typography>
-            <Typography variant="caption" sx={{ opacity: 0.7 }}>Target: {p.target}m</Typography>
-          </Button>
-        ))}
-      </Stack>
-    </MoleskineCard>
-  );
-};
 
 const EditClockDialog: React.FC<{
   open: boolean;
@@ -4163,5 +4106,4 @@ const EditClockDialog: React.FC<{
     </Dialog>
   );
 };
-
 export default GameMode;

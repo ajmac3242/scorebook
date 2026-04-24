@@ -593,6 +593,8 @@ const Teams: React.FC = () => {
             }
             required
             disabled={isSubmitting}
+            aria-describedby={showValidation && !teamName.trim() ? "team-name-error" : undefined}
+            FormHelperTextProps={{ id: "team-name-error" }}
           />
           <TextField
             margin="dense"

@@ -24,6 +24,16 @@ export const REDACTED_HEADERS = Object.freeze(
     "secret",
     "password",
     "token",
+    "access-token",
+    "refresh-token",
+    "id-token",
+    "csrf-token",
+    "xsrf-token",
+    "x-csrf-token",
+    "x-xsrf-token",
+    "bearer",
+    "client-secret",
+    "otp",
   ]),
 );
 
@@ -68,9 +78,12 @@ export function logError(label: string, error: unknown) {
   if (error instanceof Error) {
     let message = error.message;
     let stack = error.stack || "";
-    // Simple string-based redaction for the most common sensitive patterns
+    // 🛡️ Enhancement: Robust regex-based redaction with term escaping
+    // WHY: Escaping terms prevents potential regex injection if field names contain special characters
+    // and ensures that the redaction logic is consistent across message and stack trace.
     REDACTED_HEADERS.forEach((term) => {
-      const regex = new RegExp(term, "gi");
+      const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const regex = new RegExp(escapedTerm, "gi");
       if (message.toLowerCase().includes(term)) {
         message = message.replace(regex, "[REDACTED]");
       }

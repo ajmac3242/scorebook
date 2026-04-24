@@ -287,6 +287,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
             <Tooltip title={isSearchExpanded ? "Close search" : "Search"}>
               <IconButton
                 aria-label={isSearchExpanded ? "close search" : "search"}
+                aria-expanded={isSearchExpanded}
                 onClick={() => setIsSearchExpanded(!isSearchExpanded)}
                 sx={{ color: "white", flexShrink: 0 }}
               >
@@ -302,9 +303,11 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                 autoFocus
                 variant="standard"
                 placeholder="Search..."
-                aria-label={`Search ${title}`}
                 value={searchTerm || ""}
                 onChange={(e) => onSearchChange(e.target.value)}
+                inputProps={{
+                  "aria-label": `Search ${title}`,
+                }}
                 InputProps={{
                   disableUnderline: true,
                   sx: {
