@@ -245,8 +245,8 @@
 **Why:** Coaches manage the game in "waves." Seeing a visual timeline of when players were on and off the court helps identify fatigue patterns and rotation gaps that raw minute totals hide.
 **What:** Create a horizontal Gantt-style timeline chart showing exactly when each player was on the floor throughout the game.
 **Acceptance Criteria:**
-- [ ] Interactive timeline on the Game Stats page with a row for each player.
-- [ ] Color-coded bars showing "On Court" periods.
+- [x] Interactive timeline on the Game Stats page with a row for each player.
+- [x] Color-coded bars showing "On Court" periods.
 - [ ] Overlay "Runs" (Team scoring bursts) on the timeline to see which players were present during big momentum shifts.
 - [ ] Toggle to show "Personal Fouls" markers on the timeline.
 
