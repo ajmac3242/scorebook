@@ -23,6 +23,13 @@ export const INTERNAL_KEYS = Object.freeze(
 );
 
 /**
+ * Set of keys that are forbidden to prevent prototype pollution in outgoing data.
+ */
+const FORBIDDEN_KEYS = Object.freeze(
+  new Set<string>(["__proto__", "constructor", "prototype"]),
+);
+
+/**
  * Redacts internal metadata keys from outgoing data for API responses and S3 snapshots.
  * Recursively cleans objects and arrays while preserving the 'id' field for frontend consumption.
  *
@@ -61,7 +68,11 @@ export function sanitizeOutput(data: unknown, depth = 0): unknown {
   const entries = Object.entries(data as Record<string, unknown>);
   for (let i = 0; i < entries.length; i++) {
     const [key, value] = entries[i];
-    if (key === "id" || !INTERNAL_KEYS.has(key)) {
+    // 🛡️ Enhancement: Added prototype pollution protection by checking against FORBIDDEN_KEYS
+    if (
+      (key === "id" || !INTERNAL_KEYS.has(key)) &&
+      !FORBIDDEN_KEYS.has(key)
+    ) {
       sanitized[key] = sanitizeOutput(value, depth + 1);
     }
   }
@@ -116,7 +127,11 @@ export function response(
       "Cross-Origin-Resource-Policy": "same-origin",
       "Cross-Origin-Embedder-Policy": "require-corp",
       "Content-Security-Policy":
-        "default-src 'none'; frame-ancestors 'none'; sandbox; base-uri 'none'; form-action 'none';",
+        "default-src 'none'; frame-ancestors 'none'; sandbox; base-uri 'none'; form-action 'none'; upgrade-insecure-requests;",
+      "X-Content-Security-Policy":
+        "default-src 'none'; frame-ancestors 'none'; sandbox; base-uri 'none'; form-action 'none'; upgrade-insecure-requests;",
+      "X-WebKit-CSP":
+        "default-src 'none'; frame-ancestors 'none'; sandbox; base-uri 'none'; form-action 'none'; upgrade-insecure-requests;",
       "Referrer-Policy": "no-referrer",
       "Permissions-Policy":
         "camera=(), microphone=(), geolocation=(), payment=(), interest-cohort=()",
