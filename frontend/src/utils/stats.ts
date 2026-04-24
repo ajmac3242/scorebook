@@ -8,8 +8,10 @@ import {
   ACTION_TYPES,
   SPECIAL_PLAYER_IDS,
   BONUS_CONFIG,
+  SHOT_TYPES,
 } from "../constants/stats";
 import { StatEvent, TeamPlayer, Player, Game } from "../db";
+import { getShotZone } from "./shotZones";
 import {
   roundToOne,
   formatToOne,
@@ -56,6 +58,18 @@ export interface TeamAggregates {
   ppp: string;
   possessions: number;
   oppPpp: string;
+  fourFactors?: FourFactors;
+  oppFourFactors?: FourFactors;
+}
+
+/**
+ * Interface for the "Four Factors" of basketball success.
+ */
+export interface FourFactors {
+  efg: string;
+  toRate: string;
+  orbPct: string;
+  ftRate: string;
 }
 
 /**
@@ -1460,6 +1474,8 @@ export const calculateTeamAggregates = (
     ppp: calculatePpp(team.pts, totalPossessions),
     possessions: Math.round(totalPossessions),
     oppPpp: calculatePpp(opp.pts, totalOppPossessions),
+    fourFactors: calculateFourFactors(stats, false),
+    oppFourFactors: calculateFourFactors(stats, true),
   };
 };
 
@@ -2271,6 +2287,166 @@ export const calculateOnOffStats = (
       offDefensiveRating: offDRtg.toFixed(1),
       offNetRating: offNet.toFixed(1),
       netDifferential: (onNet - offNet).toFixed(1)
+    };
+  });
+};
+
+/**
+ * 🏀 CoachBoard: calculateFourFactors
+ *
+ * WHY: The Four Factors (eFG%, TO%, ORB%, FT Rate) are the primary indicators
+ * of winning in basketball.
+ *
+ * @param stats - List of statistical events.
+ * @param isOpponent - Whether to calculate for the opponent.
+ * @returns FourFactors object.
+ */
+export const calculateFourFactors = (
+  stats: StatEvent[],
+  isOpponent: boolean = false,
+): FourFactors => {
+  let fga = 0,
+    fgm = 0,
+    threePM = 0,
+    fta = 0,
+    to = 0,
+    oreb = 0,
+    oppDreb = 0;
+
+  for (let i = 0; i < stats.length; i++) {
+    const s = stats[i];
+    if (!isActive(s)) continue;
+
+    const sIsOpp = isOpponentId(s.playerId);
+    if (sIsOpp === isOpponent) {
+      if (isFieldGoal(s)) {
+        fga++;
+        if (s.type === ACTION_TYPES.MAKE) {
+          fgm++;
+          if (s.points === 3) threePM++;
+        }
+      } else if (isFreeThrow(s)) {
+        fta++;
+      } else if (s.type === ACTION_TYPES.TURNOVER) {
+        to++;
+      } else if (s.type === ACTION_TYPES.OFF_REBOUND) {
+        oreb++;
+      }
+    } else {
+      // Need opponent defensive rebounds for ORB%
+      if (s.type === ACTION_TYPES.DEF_REBOUND) {
+        oppDreb++;
+      }
+    }
+  }
+
+  const efg = calculateEfgPct(fgm, threePM, fga);
+  const possessions = calculatePossessions(fga, fta, to, oreb);
+  const toRate = possessions > 0 ? ((to / possessions) * 100).toFixed(1) : "0.0";
+  const orbPct =
+    oreb + oppDreb > 0 ? ((oreb / (oreb + oppDreb)) * 100).toFixed(1) : "0.0";
+  const ftRate = fga > 0 ? (fta / fga).toFixed(3) : "0.000";
+
+  return { efg, toRate, orbPct, ftRate };
+};
+
+/**
+ * 🏀 CoachBoard: calculateOpponentTendencies
+ *
+ * WHY: Identifies where the opponent is attacking and how they are shooting.
+ */
+export interface OpponentTendency {
+  playerId: string;
+  paintPct: string;
+  catchAndShootPct: string;
+  offDribblePct: string;
+}
+
+export const calculateOpponentTendencies = (
+  stats: StatEvent[],
+): OpponentTendency[] => {
+  const playersMap = new Map<
+    string,
+    { total: number; paint: number; catch: number; drib: number }
+  >();
+
+  for (let i = 0; i < stats.length; i++) {
+    const s = stats[i];
+    if (!isActive(s) || !isOpponentId(s.playerId)) continue;
+    if (s.type !== ACTION_TYPES.MAKE && s.type !== ACTION_TYPES.MISS) continue;
+
+    let p = playersMap.get(s.playerId);
+    if (!p) {
+      p = { total: 0, paint: 0, catch: 0, drib: 0 };
+      playersMap.set(s.playerId, p);
+    }
+
+    p.total++;
+    const zone = getShotZone(s.locationX || 0, s.locationY || 0);
+    if (zone === "PAINT" || zone === "RA") p.paint++;
+    if (s.shotType === SHOT_TYPES.CATCH) p.catch++;
+    else if (s.shotType === SHOT_TYPES.DRIB) p.drib++;
+  }
+
+  return Array.from(playersMap.entries()).map(([pId, p]) => ({
+    playerId: pId,
+    paintPct: p.total > 0 ? ((p.paint / p.total) * 100).toFixed(1) : "0.0",
+    catchAndShootPct: p.total > 0 ? ((p.catch / p.total) * 100).toFixed(1) : "0.0",
+    offDribblePct: p.total > 0 ? ((p.drib / p.total) * 100).toFixed(1) : "0.0",
+  }));
+};
+
+/**
+ * 🏀 CoachBoard: calculateDefensiveEfficiencyByScheme
+ *
+ * WHY: Tracks PPP allowed for each defensive scheme.
+ */
+export interface SchemeEfficiency {
+  scheme: string;
+  pointsAllowed: number;
+  possessions: number;
+  ppp: string;
+}
+
+export const calculateDefensiveEfficiencyByScheme = (
+  stats: StatEvent[],
+): SchemeEfficiency[] => {
+  const schemes = new Map<string, { points: number; fga: number; fta: number; to: number; oreb: number }>();
+
+  for (let i = 0; i < stats.length; i++) {
+    const s = stats[i];
+    if (!isActive(s) || !s.defensiveScheme) continue;
+
+    let sch = schemes.get(s.defensiveScheme);
+    if (!sch) {
+      sch = { points: 0, fga: 0, fta: 0, to: 0, oreb: 0 };
+      schemes.set(s.defensiveScheme, sch);
+    }
+
+    const isOpp = isOpponentId(s.playerId);
+    if (isOpp) {
+      if (s.type === ACTION_TYPES.MAKE) {
+        sch.points += s.points || 0;
+        if (s.points === 1) sch.fta++;
+        else sch.fga++;
+      } else if (s.type === ACTION_TYPES.MISS) {
+        if (s.points === 1) sch.fta++;
+        else sch.fga++;
+      } else if (s.type === ACTION_TYPES.TURNOVER) {
+        sch.to++;
+      } else if (s.type === ACTION_TYPES.OFF_REBOUND) {
+        sch.oreb++;
+      }
+    }
+  }
+
+  return Array.from(schemes.entries()).map(([scheme, s]) => {
+    const possessions = calculatePossessions(s.fga, s.fta, s.to, s.oreb);
+    return {
+      scheme,
+      pointsAllowed: s.points,
+      possessions: Math.round(possessions),
+      ppp: calculatePpp(s.points, possessions),
     };
   });
 };

@@ -37,6 +37,24 @@ export const SHOT_QUALITY = {
 };
 
 /**
+ * Shot type tags.
+ */
+export const SHOT_TYPES = {
+  CATCH: "CATCH",
+  DRIB: "DRIB",
+};
+
+/**
+ * Defensive scheme tags.
+ */
+export const DEFENSIVE_SCHEMES = {
+  MAN: "MAN",
+  ZONE: "ZONE",
+  PRESS: "PRESS",
+  SPECIAL: "SPECIAL",
+};
+
+/**
  * Supported game action types that can be recorded as events.
  */
 export const ACTION_TYPES = {

@@ -92,6 +92,8 @@ import {
   ACTION_TYPES,
   SPECIAL_PLAYER_IDS,
   SHOT_QUALITY,
+  SHOT_TYPES,
+  DEFENSIVE_SCHEMES,
 } from "../constants/stats";
 import {
   calculatePlayerAggregates,
@@ -103,6 +105,9 @@ import {
   calculateLineupStats,
   calculateTeamSeasonAverages,
   calculateOpponentAggregates,
+  calculateFourFactors,
+  calculateOpponentTendencies,
+  calculateDefensiveEfficiencyByScheme,
   isEventInPeriod,
   isOpponentId,
   getBonusStatus,
@@ -112,6 +117,7 @@ import {
 } from "../utils/stats";
 import { formatClock, roundToOne } from "../utils/mathUtils";
 import { MoleskineCard, AnimatedNumber } from "../components/SharedUI";
+import { type FourFactors } from "../utils/stats";
 
 /**
  * 🏀 CoachBoard: detectShotValueFromCoords
@@ -565,6 +571,36 @@ const Scoreboard = React.memo(
 );
 
 /**
+ * 🏀 CoachBoard: Four Factors HUD
+ */
+const FourFactorsHUD = React.memo(({ factors, seasonAvg, label }: { factors: FourFactors, seasonAvg?: string, label: string }) => {
+  const renderFactor = (name: string, value: string, seasonVal?: string) => {
+    const isHigher = seasonVal && parseFloat(value) > parseFloat(seasonVal);
+    return (
+      <Box sx={{ textAlign: "center", flex: 1 }}>
+        <Typography variant="caption" sx={{ fontWeight: 700, display: "block", fontSize: "0.6rem", opacity: 0.7 }}>{name}</Typography>
+        <Typography variant="body2" sx={{ fontWeight: 800, color: isHigher ? "success.main" : "inherit" }}>{value}</Typography>
+        {seasonVal && (
+          <Typography variant="caption" sx={{ fontSize: "0.55rem", opacity: 0.5 }}>Avg: {seasonVal}</Typography>
+        )}
+      </Box>
+    );
+  };
+
+  return (
+    <Box sx={{ p: 1.5, borderRadius: 2, bgcolor: "rgba(0,0,0,0.02)", border: "1px solid rgba(0,0,0,0.05)" }}>
+      <Typography variant="caption" sx={{ fontWeight: 900, mb: 1, display: "block", letterSpacing: 1 }}>{label} FOUR FACTORS</Typography>
+      <Stack direction="row" spacing={1}>
+        {renderFactor("eFG%", factors.efg + "%", seasonAvg)}
+        {renderFactor("TO%", factors.toRate + "%")}
+        {renderFactor("ORB%", factors.orbPct + "%")}
+        {renderFactor("FTR", factors.ftRate)}
+      </Stack>
+    </Box>
+  );
+});
+
+/**
  * 🏀 CoachBoard: Team Stats Card
  * Why: Centralizes team-level defensive metrics like Stops and Kills.
  */
@@ -573,6 +609,9 @@ const TeamStatsCard = React.memo(
     defensiveStats,
     teamPpp,
     oppPpp,
+    fourFactors,
+    oppFourFactors,
+    seasonPpp,
   }: {
     defensiveStats: {
       totalStops: number;
@@ -581,13 +620,16 @@ const TeamStatsCard = React.memo(
     };
     teamPpp: string;
     oppPpp: string;
+    fourFactors: FourFactors;
+    oppFourFactors: FourFactors;
+    seasonPpp?: string;
   }) => {
     return (
       <MoleskineCard>
         <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 2 }}>
           Team Stats
         </Typography>
-        <Grid container spacing={2}>
+        <Grid container spacing={2} sx={{ mb: 2 }}>
           <Grid item xs={6}>
             <Box
               sx={{
@@ -650,33 +692,13 @@ const TeamStatsCard = React.memo(
               </Typography>
             </Box>
           </Grid>
-          <Grid item xs={6}>
-            <Box sx={{ textAlign: "center", p: 1 }}>
-              <Typography
-                variant="caption"
-                sx={{ display: "block", fontWeight: 700 }}
-              >
-                TEAM PPP
-              </Typography>
-              <Typography variant="h6" sx={{ fontWeight: 800 }}>
-                {teamPpp}
-              </Typography>
-            </Box>
-          </Grid>
-          <Grid item xs={6}>
-            <Box sx={{ textAlign: "center", p: 1 }}>
-              <Typography
-                variant="caption"
-                sx={{ display: "block", fontWeight: 700 }}
-              >
-                OPP PPP
-              </Typography>
-              <Typography variant="h6" sx={{ fontWeight: 800 }}>
-                {oppPpp}
-              </Typography>
-            </Box>
-          </Grid>
         </Grid>
+
+        <Stack spacing={1.5}>
+          <FourFactorsHUD label="TEAM" factors={fourFactors} seasonAvg={seasonPpp} />
+          <FourFactorsHUD label="OPPONENT" factors={oppFourFactors} />
+        </Stack>
+
         <Box
           sx={{
             mt: 2,
@@ -916,6 +938,7 @@ const GameMode: React.FC = () => {
   const [points, setPoints] = useState<number>(2);
   const [playName, setPlayName] = useState<string>("");
   const [shotQuality, setShotQuality] = useState<string | null>(null);
+  const [shotTypeSelection, setShotTypeSelection] = useState<string | null>(null);
 
   const [clockSeconds, setClockSeconds] = useState<number>(0);
   const clockSecondsRef = useRef(clockSeconds);
@@ -987,6 +1010,7 @@ const GameMode: React.FC = () => {
 
   const [period, setPeriod] = useState<number>(1);
   const [trackingMode, setTrackingMode] = useState<"TEAM" | "OPPONENT">("TEAM");
+  const [activeDefense, setActiveDefense] = useState<string>(DEFENSIVE_SCHEMES.MAN);
 
   // Fetch roster data for the current team
   const teamPlayersQueryResult = useLiveQuery(
@@ -1336,6 +1360,8 @@ const GameMode: React.FC = () => {
     });
 
     const defensiveStats = calculateStopsAndKills(sortedGameStats);
+  const fourFactors = calculateFourFactors(sortedGameStats, false);
+  const oppFourFactors = calculateFourFactors(sortedGameStats, true);
 
     // 🏀 CoachBoard: Momentum Alerts Logic
     let opponentRunValue = null;
@@ -1422,6 +1448,8 @@ const GameMode: React.FC = () => {
         .filter((s) => !s.deletedAt)
         .slice(-10)
         .reverse(),
+      fourFactors,
+      oppFourFactors,
     };
   }, [
     sortedGameStats,
@@ -1635,6 +1663,10 @@ const GameMode: React.FC = () => {
     return calculatePlayEfficiency(sortedGameStats);
   }, [sortedGameStats]);
 
+  const opponentTendencies = useMemo(() => {
+    return calculateOpponentTendencies(sortedGameStats);
+  }, [sortedGameStats]);
+
   /**
    * ⚡ Bolt: Optimize marker generation.
    * Performance: Single-pass marker creation using a local array to avoid multiple filter/map
@@ -1819,6 +1851,11 @@ const GameMode: React.FC = () => {
               typeToSave === ACTION_TYPES.MISS
                 ? (shotQuality ?? undefined)
                 : undefined,
+            shotType:
+              typeToSave === ACTION_TYPES.MAKE ||
+              typeToSave === ACTION_TYPES.MISS
+                ? (shotTypeSelection ?? undefined)
+                : undefined,
             synced: 0,
           });
           await syncService.pushUpdates();
@@ -1840,6 +1877,18 @@ const GameMode: React.FC = () => {
               typeToSave === ACTION_TYPES.MAKE ||
               typeToSave === ACTION_TYPES.MISS
                 ? (shotQuality ?? undefined)
+                : undefined,
+            shotType:
+              typeToSave === ACTION_TYPES.MAKE ||
+              typeToSave === ACTION_TYPES.MISS
+                ? (shotTypeSelection ?? undefined)
+                : undefined,
+            defensiveScheme:
+              isOpponentId(selectedPlayerId!) &&
+              (typeToSave === ACTION_TYPES.MAKE ||
+                typeToSave === ACTION_TYPES.MISS ||
+                typeToSave === ACTION_TYPES.TURNOVER)
+                ? activeDefense
                 : undefined,
             period,
             clockTime: clockSeconds,
@@ -1875,6 +1924,7 @@ const GameMode: React.FC = () => {
         setDialogOpen(false);
         setStatType(null);
         setPlayName("");
+        setShotTypeSelection(null);
         setIsEditing(false);
         setEditingStatId(null);
         if (trackingMode === "OPPONENT") setSelectedPlayerId(null);
@@ -2065,6 +2115,7 @@ const GameMode: React.FC = () => {
       setPoints(stat.points || 2);
       setPlayName(stat.playName || "");
       setShotQuality(stat.shotQuality || null);
+      setShotTypeSelection(stat.shotType || null);
       setSelectedX(stat.locationX || 0);
       setSelectedY(stat.locationY || 0);
       setIsEditing(true);
@@ -2330,9 +2381,21 @@ const GameMode: React.FC = () => {
                 gap: 2,
               }}
             >
-              <ActionControls
-                isReadOnly={isReadOnly}
-                onUndo={handleUndo}
+              <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                <ToggleButtonGroup
+                  value={activeDefense}
+                  exclusive
+                  size="small"
+                  onChange={(_, val) => val && setActiveDefense(val)}
+                  disabled={isReadOnly}
+                >
+                  <ToggleButton value={DEFENSIVE_SCHEMES.MAN} sx={{ fontSize: "0.65rem", px: 1 }}>MAN</ToggleButton>
+                  <ToggleButton value={DEFENSIVE_SCHEMES.ZONE} sx={{ fontSize: "0.65rem", px: 1 }}>ZONE</ToggleButton>
+                  <ToggleButton value={DEFENSIVE_SCHEMES.PRESS} sx={{ fontSize: "0.65rem", px: 1 }}>PRESS</ToggleButton>
+                </ToggleButtonGroup>
+                <ActionControls
+                  isReadOnly={isReadOnly}
+                  onUndo={handleUndo}
                 onQuickSub={() => setSubDialogOpen(true)}
                 onFtWorkflow={() => {
                   if (selectedPlayerId) {
@@ -2351,9 +2414,10 @@ const GameMode: React.FC = () => {
                 onTogglePossession={() => handleTogglePossession()}
                 possessionState={gameData.possessionState}
                 recentStatsLength={gameData.recentStats.length}
-                onEndGame={() => setEndGameDialogOpen(true)}
-                isGameCompleted={!!game?.completed}
-              />
+                  onEndGame={() => setEndGameDialogOpen(true)}
+                  isGameCompleted={!!game?.completed}
+                />
+              </Box>
 
               <ToggleButtonGroup
                 value={trackingMode}
@@ -2446,6 +2510,9 @@ const GameMode: React.FC = () => {
               defensiveStats={gameData.defensiveStats}
               teamPpp={gameData.teamPpp}
               oppPpp={gameData.oppPpp}
+              fourFactors={gameData.fourFactors}
+              oppFourFactors={gameData.oppFourFactors}
+              seasonPpp={teamSeasonStats?.ppp}
             />
 
             {trackingMode === "TEAM" && (
@@ -2954,25 +3021,37 @@ const GameMode: React.FC = () => {
                             }}
                           />
                         )}
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                          <Typography variant="caption" sx={{ fontSize: "0.6rem", opacity: 0.8 }}>
-                            Guarded by: {(() => {
-                              const ourId = gameData.currentMatchups.get(opp.id);
-                              return ourId ? (playerNamesMap.get(ourId) || "??") : "None";
-                            })()}
-                          </Typography>
-                          <IconButton
-                            size="small"
-                            disabled={isReadOnly}
-                            onClick={() => {
-                              setMatchupOpponentId(opp.id);
-                              setMatchupDialogOpen(true);
-                            }}
-                            sx={{ p: 0.5 }}
-                            aria-label={`Assign defender for Opponent #${opp.jersey}`}
-                          >
-                            <SecurityIcon sx={{ fontSize: 14 }} />
-                          </IconButton>
+                        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 0.5 }}>
+                          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                            <Typography variant="caption" sx={{ fontSize: "0.6rem", opacity: 0.8 }}>
+                              Guarded by: {(() => {
+                                const ourId = gameData.currentMatchups.get(opp.id);
+                                return ourId ? (playerNamesMap.get(ourId) || "??") : "None";
+                              })()}
+                            </Typography>
+                            <IconButton
+                              size="small"
+                              disabled={isReadOnly}
+                              onClick={() => {
+                                setMatchupOpponentId(opp.id);
+                                setMatchupDialogOpen(true);
+                              }}
+                              sx={{ p: 0.5 }}
+                              aria-label={`Assign defender for Opponent #${opp.jersey}`}
+                            >
+                              <SecurityIcon sx={{ fontSize: 14 }} />
+                            </IconButton>
+                          </Box>
+                          {(() => {
+                            const tendency = opponentTendencies.find(t => t.playerId === opp.id);
+                            if (!tendency) return null;
+                            return (
+                              <Stack direction="row" spacing={0.5}>
+                                <Chip label={`Paint: ${tendency.paintPct}%`} size="small" sx={{ height: 14, fontSize: "0.5rem" }} />
+                                <Chip label={`C&S: ${tendency.catchAndShootPct}%`} size="small" sx={{ height: 14, fontSize: "0.5rem" }} />
+                              </Stack>
+                            );
+                          })()}
                         </Box>
                       </Box>
                     ))
@@ -3394,6 +3473,29 @@ const GameMode: React.FC = () => {
                 <ToggleButton value={SHOT_QUALITY.CONTESTED}>
                   Contested
                 </ToggleButton>
+              </ToggleButtonGroup>
+            </Box>
+          )}
+
+          {(statType === ACTION_TYPES.MAKE ||
+            statType === ACTION_TYPES.MISS) && (
+            <Box sx={{ mt: 3 }}>
+              <Typography
+                variant="caption"
+                gutterBottom
+                sx={{ display: "block", mb: 1 }}
+              >
+                Shot Type
+              </Typography>
+              <ToggleButtonGroup
+                value={shotTypeSelection}
+                exclusive
+                onChange={(_, val) => setShotTypeSelection(val)}
+                size="small"
+                fullWidth
+              >
+                <ToggleButton value={SHOT_TYPES.CATCH}>Catch & Shoot</ToggleButton>
+                <ToggleButton value={SHOT_TYPES.DRIB}>Off Dribble</ToggleButton>
               </ToggleButtonGroup>
             </Box>
           )}

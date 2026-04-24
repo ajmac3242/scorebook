@@ -288,9 +288,9 @@
 **Why:** Opponents often repeat successful patterns (e.g., always driving left, or a specific player only shooting from the corner). Live tendency alerts allow for mid-game defensive adjustments.
 **What:** Analyze opponent shot locations and drive directions in real-time to identify "Hot Zones" and "Directional Tendencies."
 **Acceptance Criteria:**
-- [ ] "Opponent Tendency" card in GameMode sidebar.
-- [ ] Visual alerts for patterns (e.g., "Opponent #12: 80% of shots are in the paint").
-- [ ] "Shot Type" breakdown for top opponent scorers (Catch-and-shoot vs Off-the-dribble).
+- [x] "Opponent Tendency" card in GameMode sidebar.
+- [x] Visual alerts for patterns (e.g., "Opponent #12: 80% of shots are in the paint").
+- [x] "Shot Type" breakdown for top opponent scorers (Catch-and-shoot vs Off-the-dribble).
 
 ## Team Wide "Four Factors" Performance HUD
 **Priority:** HIGH
@@ -298,9 +298,9 @@
 **Why:** The "Four Factors" (eFG%, Turnover Rate, Offensive Rebound Rate, Free Throw Rate) are the most reliable predictors of winning. Seeing these in real-time tells a coach *why* they are winning or losing.
 **What:** Add a "Four Factors" comparison dashboard to the GameMode and GameStats pages.
 **Acceptance Criteria:**
-- [ ] Real-time calculation of eFG%, TO%, ORB%, and FTR for both teams.
-- [ ] "Success Threshold" indicators (e.g., highlighting in green if eFG% is > 55%).
-- [ ] Comparison against season averages to see if the team is over/under performing in key areas.
+- [x] Real-time calculation of eFG%, TO%, ORB%, and FTR for both teams.
+- [x] "Success Threshold" indicators (e.g., highlighting in green if eFG% is > 55%).
+- [x] Comparison against season averages to see if the team is over/under performing in key areas.
 
 ## Defensive Scheme Efficiency Tracking (Man vs Zone vs Press)
 **Priority:** HIGH
@@ -308,10 +308,10 @@
 **Why:** Coaches need to know which defensive scheme is most effective against the current opponent's offensive style. PPP allowed by scheme is the ultimate truth.
 **What:** Introduce "Defensive Scheme" tagging. Allow coaches to toggle the current defensive set (e.g., 2-3 Zone, Man-to-Man) in GameMode. All opponent scoring events are then attributed to the active scheme.
 **Acceptance Criteria:**
-- [ ] "Active Defense" toggle in GameMode (options: Man, Zone, Press, Special).
-- [ ] Track PPP Allowed for each scheme within the current game.
-- [ ] "Defensive Efficiency by Scheme" table in GameStats.
-- [ ] Season-wide analytics comparing scheme performance against different opponent archetypes.
+- [x] "Active Defense" toggle in GameMode (options: Man, Zone, Press, Special).
+- [x] Track PPP Allowed for each scheme within the current game.
+- [x] "Defensive Efficiency by Scheme" table in GameStats.
+- [x] Season-wide analytics comparing scheme performance against different opponent archetypes.
 
 ## In-Game Tactical Goals & KPI HUD
 **Priority:** HIGH

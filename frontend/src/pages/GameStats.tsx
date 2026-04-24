@@ -60,6 +60,8 @@ import {
   calculatePpp,
   calculateMatchupStats,
   calculatePlayerStintTimeline,
+  calculateFourFactors,
+  calculateDefensiveEfficiencyByScheme,
   type ScoreFlowPoint,
 } from "../utils/stats";
 import { MoleskineCard } from "../components/SharedUI";
@@ -474,10 +476,6 @@ const GameStats: React.FC = () => {
     return calculateOpponentAggregates(stats);
   }, [stats]);
 
-  const matchupStats = useMemo(() => {
-    return calculateMatchupStats(scoreFlowSortedStats);
-  }, [scoreFlowSortedStats]);
-
   const teamData = useMemo(() => {
     let fga = 0;
     let fta = 0;
@@ -578,6 +576,16 @@ const GameStats: React.FC = () => {
   const matchupStats = useMemo(() => {
     return calculateMatchupStats(scoreFlowSortedStats);
   }, [scoreFlowSortedStats]);
+
+  const fourFactors = useMemo(() => {
+    const teamStats = calculateFourFactors(stats, false);
+    const oppStats = calculateFourFactors(stats, true);
+    return { team: teamStats, opponent: oppStats };
+  }, [stats]);
+
+  const schemeEfficiency = useMemo(() => {
+    return calculateDefensiveEfficiencyByScheme(stats);
+  }, [stats]);
 
   const playerStints = useMemo(() => {
     if (!game) return [];
@@ -1542,6 +1550,132 @@ const GameStats: React.FC = () => {
       </Box>
 
       <Grid container spacing={3}>
+        {/* Advanced Metrics HUD */}
+        <Grid item xs={12} md={6}>
+          <MoleskineCard>
+            <Typography
+              variant="h6"
+              sx={{ fontFamily: "var(--serif)", mb: 2, fontWeight: 700 }}
+            >
+              Four Factors Comparison
+            </Typography>
+            <TableContainer>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell sx={{ fontWeight: 700 }}>Factor</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 700 }}>
+                      Team
+                    </TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 700 }}>
+                      Opponent
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  <TableRow>
+                    <TableCell sx={{ fontWeight: 600 }}>eFG%</TableCell>
+                    <TableCell align="right">
+                      {fourFactors.team.efg}%
+                    </TableCell>
+                    <TableCell align="right">
+                      {fourFactors.opponent.efg}%
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell sx={{ fontWeight: 600 }}>TO%</TableCell>
+                    <TableCell align="right">
+                      {fourFactors.team.toRate}%
+                    </TableCell>
+                    <TableCell align="right">
+                      {fourFactors.opponent.toRate}%
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell sx={{ fontWeight: 600 }}>ORB%</TableCell>
+                    <TableCell align="right">
+                      {fourFactors.team.orbPct}%
+                    </TableCell>
+                    <TableCell align="right">
+                      {fourFactors.opponent.orbPct}%
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell sx={{ fontWeight: 600 }}>FT Rate</TableCell>
+                    <TableCell align="right">
+                      {fourFactors.team.ftRate.toFixed(3)}
+                    </TableCell>
+                    <TableCell align="right">
+                      {fourFactors.opponent.ftRate.toFixed(3)}
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </MoleskineCard>
+        </Grid>
+
+        <Grid item xs={12} md={6}>
+          <MoleskineCard>
+            <Typography
+              variant="h6"
+              sx={{ fontFamily: "var(--serif)", mb: 2, fontWeight: 700 }}
+            >
+              Defensive Scheme Efficiency
+            </Typography>
+            <TableContainer>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell sx={{ fontWeight: 700 }}>Scheme</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 700 }}>
+                      Poss
+                    </TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 700 }}>
+                      PTS
+                    </TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 700 }}>
+                      PPP
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {schemeEfficiency.map((row) => (
+                    <TableRow key={row.scheme}>
+                      <TableCell sx={{ fontWeight: 600 }}>
+                        {row.scheme}
+                      </TableCell>
+                      <TableCell align="right">{row.possessions}</TableCell>
+                      <TableCell align="right">{row.points}</TableCell>
+                      <TableCell
+                        align="right"
+                        sx={{
+                          fontWeight: 700,
+                          color:
+                            parseFloat(row.ppp) < 0.9
+                              ? "success.main"
+                              : parseFloat(row.ppp) > 1.1
+                                ? "error.main"
+                                : "inherit",
+                        }}
+                      >
+                        {row.ppp}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {schemeEfficiency.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={4} align="center">
+                        No defensive schemes tracked.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </MoleskineCard>
+        </Grid>
+
         {/* Defensive Metrics Card */}
         <Grid item xs={12}>
           <MoleskineCard>

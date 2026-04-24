@@ -104,6 +104,8 @@ export interface StatEvent {
   clockTime?: number; // Seconds remaining in the period when event occurred
   playName?: string;
   shotQuality?: string;
+  shotType?: string; // e.g., 'CATCH', 'DRIB'
+  defensiveScheme?: string; // e.g., 'MAN', 'ZONE'
   relatedPlayerId?: string;
   timestamp: string;
   deletedAt?: string;
@@ -142,7 +144,8 @@ export class AppDatabase extends Dexie {
     // v17:    Added 'playbook' to Team and 'playName' to StatEvent.
     // v18:    Added 'opponents' table and 'opponentId' to Game for persistent scouting.
     // v19:    Added 'name' index to 'opponents' table.
-    this.version(19).stores({
+    // v20:    Added 'shotType' and 'defensiveScheme' to StatEvent.
+    this.version(20).stores({
       teams: "id, synced, deletedAt, isFavorite",
       players: "id, synced, isArchived, deletedAt",
       teamPlayers: "id, [teamId+playerId], teamId, playerId, synced",
