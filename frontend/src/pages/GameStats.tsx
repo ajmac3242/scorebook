@@ -32,6 +32,7 @@ import {
   useMediaQuery,
   Chip,
   Divider,
+  Tooltip,
 } from "@mui/material";
 import {
   OpenInFull as ExpandIcon,
@@ -76,7 +77,7 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
+  Tooltip as RechartsTooltip,
   ResponsiveContainer,
   Legend,
   ReferenceLine,
@@ -575,9 +576,6 @@ const GameStats: React.FC = () => {
     }));
   }, [stats]);
 
-  const matchupStats = useMemo(() => {
-    return calculateMatchupStats(scoreFlowSortedStats);
-  }, [scoreFlowSortedStats]);
 
   const playerStints = useMemo(() => {
     if (!game) return [];
@@ -1087,7 +1085,7 @@ const GameStats: React.FC = () => {
           domain={[0, 2]}
           label={{ value: "PPP", angle: -90, position: "insideRight" }}
         />
-        <Tooltip content={<ScoreFlowTooltip />} />
+        <RechartsTooltip content={<ScoreFlowTooltip />} />
         <Legend />
         <ReferenceLine
           yAxisId="spread"
