@@ -67,8 +67,11 @@ export interface TeamAggregates {
 /**
  * Helper to determine the length of a period in seconds.
  * Accounts for shorter overtime periods.
- * @param period - The period number.
- * @param options - Options containing regulation and overtime lengths.
+ * @param {number} period - The period number.
+ * @param {object} options - Options containing regulation and overtime lengths.
+ * @param {number} [options.periodLength] - Regulation period length in minutes.
+ * @param {number} [options.overtimeLength] - Overtime period length in minutes.
+ * @param {string} [options.periodType] - The format of the game (QUARTERS or HALVES).
  */
 const getPeriodLen = (
   period: number,
@@ -621,6 +624,15 @@ function initializeStatsMap(
  * @param {StatEvent[]} stats - List of statistical events to process.
  * @param {TeamPlayer[]} teamPlayers - (Optional) Team roster for jersey numbers.
  * @param {"total" | "average"} viewType - (Optional) Type of calculation, defaults to "total".
+ * @param {object} [options] - Aggregation options.
+ * @param {boolean} [options.isSorted] - Whether the input stats are already sorted.
+ * @param {number} [options.periodLength] - Regulation period length in minutes.
+ * @param {number} [options.overtimeLength] - Overtime period length in minutes.
+ * @param {object} [options.liveContext] - Current game state for live minutes.
+ * @param {number} options.liveContext.clockTime - Remaining seconds in the period.
+ * @param {number} options.liveContext.period - The current period.
+ * @param {boolean} [options.clutchOnly] - Whether to only include clutch-time stats.
+ * @param {string} [options.periodType] - The format of the game (QUARTERS or HALVES).
  * @returns {PlayerAggregates[]} Array of aggregated statistics.
  */
 export const calculatePlayerAggregates = (
@@ -885,9 +897,15 @@ export interface PlayerStint {
  * WHY: Visualizing when players were on the court helps identify rotation
  * patterns and fatigue.
  *
- * @param stats - Chronological list of statistical events for a SINGLE game.
- * @param options - Configuration for period length and live context.
- * @returns Array of stint records for all tracked players.
+ * @param {StatEvent[]} stats - Chronological list of statistical events for a SINGLE game.
+ * @param {object} [options] - Configuration for period length and live context.
+ * @param {number} [options.periodLength] - Regulation period length in minutes.
+ * @param {number} [options.overtimeLength] - Overtime period length in minutes.
+ * @param {string} [options.periodType] - The format of the game (QUARTERS or HALVES).
+ * @param {object} [options.liveContext] - Current game state for live tracking.
+ * @param {number} options.liveContext.clockTime - Remaining seconds in the period.
+ * @param {number} options.liveContext.period - The current period.
+ * @returns {PlayerStint[]} Array of stint records for all tracked players.
  */
 export const calculatePlayerStintTimeline = (
   stats: StatEvent[],

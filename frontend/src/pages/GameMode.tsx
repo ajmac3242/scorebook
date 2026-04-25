@@ -84,7 +84,7 @@ import FreeThrowWorkflowDialog from "../components/FreeThrowWorkflowDialog";
 import HalftimeReportDialog from "../components/HalftimeReportDialog";
 import PlaybookEfficiencyWidget from "../components/PlaybookEfficiencyWidget";
 import { PlayerStatRow } from "../components/PlayerStatRow";
-import { db, type StatEvent, type Player, type TeamPlayer } from "../db";
+import { db, type StatEvent } from "../db";
 import { syncService } from "../utils/syncService";
 import { logger } from "../utils/logger";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -111,6 +111,8 @@ import {
   getBonusStatus,
   getInitials,
   type PlayerAggregates,
+  type OpponentAggregates,
+  type TeamAggregates,
   OpponentThreat,
 } from "../utils/stats";
 import { formatClock, roundToOne } from "../utils/mathUtils";
@@ -1595,21 +1597,23 @@ const GameMode: React.FC = () => {
     return calculateOpponentTendencies(oppEvents);
   }, [sortedGameStats]);
 
-  const liveFourFactors = useMemo(() => {
+  const liveFourFactors = useMemo<{
+    team: TeamAggregates;
+    opponent: OpponentAggregates;
+  } | null>(() => {
     if (!game) return null;
     const teamStats = calculateTeamAggregates([game], sortedGameStats, false);
     const oppEvents = sortedGameStats.filter(s => isOpponentId(s.playerId));
     const oppAgg = calculateOpponentAggregates(oppEvents);
 
     // Add real-time opponent ORB% which requires team DREB from teamStats context
-    const teamDreb = parseInt(teamStats.rpg) * teamStats.totalGames - teamStats.possessions; // This logic in calculateTeamAggregates needs to be exposed better
     // Actually, calculateTeamAggregates returns TeamAggregates which I just modified to include dreb.
 
     return {
       team: teamStats,
       opponent: {
         ...oppAgg,
-        orbPct: calcPct(oppAgg.offRebounds, oppAgg.offRebounds + (teamStats as any).dreb)
+        orbPct: calcPct(oppAgg.offRebounds, oppAgg.offRebounds + teamStats.dreb)
       }
     };
   }, [game, sortedGameStats]);
@@ -1910,6 +1914,7 @@ const GameMode: React.FC = () => {
       trackingMode,
       clockSeconds,
       shotQuality,
+      shotType,
     ],
   );
 
@@ -2500,7 +2505,7 @@ const GameMode: React.FC = () => {
                 {liveFourFactors && (
                   <FourFactorsHUD
                     teamStats={liveFourFactors.team}
-                    oppStats={liveFourFactors.opponent as any}
+                    oppStats={liveFourFactors.opponent}
                     seasonAvg={teamSeasonStats}
                   />
                 )}

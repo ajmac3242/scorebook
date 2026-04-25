@@ -7,6 +7,7 @@ import {
   LinearProgress,
 } from "@mui/material";
 import { MoleskineCard } from "./SharedUI";
+import { TeamAggregates, OpponentAggregates } from "../utils/stats";
 
 interface FactorProps {
   label: string;
@@ -60,9 +61,9 @@ const Factor: React.FC<FactorProps> = ({ label, value, seasonAvg, isInverse, too
 };
 
 interface FourFactorsHUDProps {
-  teamStats: any;
-  oppStats: any;
-  seasonAvg?: any;
+  teamStats: TeamAggregates;
+  oppStats: OpponentAggregates;
+  seasonAvg?: TeamAggregates | null;
 }
 
 const FourFactorsHUD: React.FC<FourFactorsHUDProps> = ({ teamStats, oppStats, seasonAvg }) => {
@@ -80,27 +81,27 @@ const FourFactorsHUD: React.FC<FourFactorsHUDProps> = ({ teamStats, oppStats, se
           <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
             <Factor
               label="eFG%"
-              value={teamStats.efgPct}
-              seasonAvg={seasonAvg?.efgPct}
+              value={parseFloat(teamStats.efgPct ?? "0")}
+              seasonAvg={parseFloat(seasonAvg?.efgPct ?? "0")}
               tooltip="Effective Field Goal Percentage: (FG + 0.5 * 3P) / FGA"
             />
             <Factor
               label="TO%"
-              value={teamStats.toPct}
-              seasonAvg={seasonAvg?.toPct}
+              value={parseFloat(teamStats.toPct ?? "0")}
+              seasonAvg={parseFloat(seasonAvg?.toPct ?? "0")}
               isInverse
               tooltip="Turnover Percentage: Estimated turnovers per 100 possessions"
             />
             <Factor
               label="ORB%"
-              value={teamStats.orbPct}
-              seasonAvg={seasonAvg?.orbPct}
+              value={parseFloat(teamStats.orbPct ?? "0")}
+              seasonAvg={parseFloat(seasonAvg?.orbPct ?? "0")}
               tooltip="Offensive Rebound Percentage: % of available offensive rebounds grabbed"
             />
             <Factor
               label="FT RATE"
-              value={teamStats.ftRate}
-              seasonAvg={seasonAvg?.ftRate}
+              value={parseFloat(teamStats.ftRate ?? "0")}
+              seasonAvg={parseFloat(seasonAvg?.ftRate ?? "0")}
               tooltip="Free Throw Rate: FT Made per FG Attempt"
             />
           </Box>
@@ -112,24 +113,24 @@ const FourFactorsHUD: React.FC<FourFactorsHUDProps> = ({ teamStats, oppStats, se
           <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
             <Factor
               label="eFG%"
-              value={oppStats.efgPct}
+              value={parseFloat(oppStats.efgPct ?? "0")}
               isInverse
               tooltip="Opponent Effective Field Goal Percentage"
             />
             <Factor
               label="TO%"
-              value={oppStats.toPct}
+              value={parseFloat(oppStats.toPct ?? "0")}
               tooltip="Opponent Turnover Percentage (Forced TOs)"
             />
             <Factor
               label="ORB%"
-              value={oppStats.orbPct}
+              value={parseFloat(oppStats.orbPct ?? "0")}
               isInverse
               tooltip="Opponent Offensive Rebound Percentage (Allowed OREBs)"
             />
             <Factor
               label="FT RATE"
-              value={oppStats.ftRate}
+              value={parseFloat(oppStats.ftRate ?? "0")}
               isInverse
               tooltip="Opponent Free Throw Rate"
             />

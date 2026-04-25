@@ -36,3 +36,7 @@ Action: Enforce explicit type arguments for all collections and use 'unknown' wi
 ## 2026-04-23 - Elite Code Hygiene and Type Safety
 Learning: Logical OR (||) for jersey number fallbacks incorrectly treats "0" as missing, which is a valid basketball identifier. Standardizing on nullish coalescing (??) prevents this UI bug. Explicit JSDoc types in the backend improve IDE support and maintainability.
 Action: Enforce ?? for all jersey number displays and explicit types in curly braces for JSDoc @param and @returns tags.
+
+## 2026-04-25 - Elite Code Hygiene and Type Safety
+Learning: Missing dependency arrays in hooks and 'any' types in core HUD components were obscuring potential bugs and reducing maintainability. Standardizing on explicit interfaces for statistical aggregates (TeamAggregates, OpponentAggregates) improves type safety across the live tracking and stats display layers.
+Action: Enforce explicit interface usage for all shared statistical props and ensure exhaustive dependency arrays in React hooks.

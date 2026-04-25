@@ -2,7 +2,6 @@ import { describe, it, expect } from "vitest";
 import {
   calculateOnOffStats,
   calculatePlayerAggregates,
-  calculateLineupStats,
   calculateStopsAndKills,
 } from "./stats";
 import { ACTION_TYPES } from "../constants/stats";
@@ -34,8 +33,8 @@ describe("Scout Audit V2 - Reproduction Tests", () => {
         },
       ];
 
-      const results = calculateOnOffStats(players, stats);
-      const p2Stats = results.find((r) => r.playerId === "p2");
+      const resultsArr = calculateOnOffStats(players, stats);
+      const p2Stats = resultsArr.find((r) => r.playerId === "p2");
 
       // CURRENT BUG: totals.ptsFor is 0, so offPointsFor = 0 - 0 = 0.
       // It SHOULD be 2.
@@ -60,7 +59,7 @@ describe("Scout Audit V2 - Reproduction Tests", () => {
 
       // OT is usually 5 mins. If periodLength is 10, OT should still be 5 by default or via option.
       // CURRENT BEHAVIOR: assumes periodLen (10) for ALL periods.
-      const results = calculatePlayerAggregates(players, stats, [], "total", {
+      calculatePlayerAggregates(players, stats, [], "total", {
         periodLength: 10,
         // overtimeLength: 5 // This option doesn't exist yet
       });
