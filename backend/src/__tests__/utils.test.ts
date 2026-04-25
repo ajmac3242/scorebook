@@ -1,5 +1,5 @@
 import { describe, it, expect } from "@jest/globals";
-import { stripLocalFields, normalizePath, maskEvent } from "../utils.js";
+import { stripLocalFields, normalizePath, maskEvent, getHeader, extractIdFromPath } from "../utils.js";
 import { APIGatewayProxyEventV2 } from "aws-lambda";
 
 describe("backend utils", () => {
@@ -111,6 +111,35 @@ describe("backend utils", () => {
       expect(result.queryStringParameters.token).toBe("[REDACTED]");
       expect(result.queryStringParameters.id).toBe("[REDACTED]");
       expect(result.body).toBe("[REDACTED]");
+    });
+  });
+
+  describe("getHeader", () => {
+    it("retrieves header values case-insensitively", () => {
+      const headers = {
+        Authorization: "Bearer token",
+        "X-Custom": "value",
+      };
+      expect(getHeader(headers, "authorization")).toBe("Bearer token");
+      expect(getHeader(headers, "AUTHORIZATION")).toBe("Bearer token");
+      expect(getHeader(headers, "x-custom")).toBe("value");
+    });
+
+    it("returns undefined for missing headers", () => {
+      expect(getHeader({}, "missing")).toBeUndefined();
+      expect(getHeader(undefined, "any")).toBeUndefined();
+    });
+  });
+
+  describe("extractIdFromPath", () => {
+    it("extracts ID from a valid path", () => {
+      expect(extractIdFromPath("/teams/123", "/teams/")).toBe("123");
+      expect(extractIdFromPath("/players/abc", "/players/")).toBe("abc");
+    });
+
+    it("returns null for malformed or non-matching paths", () => {
+      expect(extractIdFromPath("/teams/123/extra", "/teams/")).toBeNull();
+      expect(extractIdFromPath("/other/123", "/teams/")).toBeNull();
     });
   });
 });

@@ -14,3 +14,8 @@ Pattern: Always document the "WHY" behind hardcoded indices or length checks and
 Issue: High-performance optimizations (like bitwise OR for floor or state-machine possession tracking) can appear "clever" but confusing to future maintainers.
 Learning: Documentation should explicitly link the "WHY" (performance in hot paths) with the "WHAT" (the optimization), while also noting the safety boundaries (e.g. strict ISO formats).
 Pattern: For every non-standard optimization, add a "WHY" comment and a "CONSTRAINT" or "BOUNDARY" comment to prevent accidental breakages during future refactors.
+
+## 2026-05-15 - Improving Clarity and Reliability
+Issue: Complex state-machine logic in `calculateStopsAndKills` was only partially documented, making it hard to understand how defensive stops are tracked across multi-miss possessions. Optimization in `calculateOnOffStats` was not explicitly explained, risking future regressions that might re-introduce (N \times P)$ loops.
+Learning: Explicitly documenting the "WHY" behind state-machine transitions and performance optimizations ensures that future developers maintain these critical paths correctly. High-quality tests for previously untested functions like `calculatePlayerStintTimeline` and `calculateMatchupStats` provide a safety net for future refactors.
+Pattern: Use JSDoc to explain the "WHY" of complex logic (e.g., timing safe comparisons, mass assignment protection) and provide detailed tests for state-driven statistical functions to verify behavior across all edge cases (multi-period, game boundaries).

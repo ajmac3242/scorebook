@@ -27,8 +27,8 @@ Scorebook is a mobile-first, offline-ready basketball statistics tracking applic
 ### Offline-First Strategy
 The application is designed to function seamlessly without a network connection.
 1.  **Local Storage**: All data is initially written to a local **IndexedDB** instance via Dexie.js.
-2.  **Background Sync**: A custom `SyncService` monitors connectivity and pushes local changes to the backend when online.
-3.  **Conflict Resolution**: Uses versioning and ETags to handle synchronization between multiple devices.
+2.  **Background Sync**: A custom `SyncService` monitors connectivity and pushes local changes to the backend when online. It processes updates in concurrent chunks to maximize throughput while maintaining backend stability.
+3.  **Conflict Resolution**: Uses versioning and ETag-based caching to handle synchronization between multiple devices efficiently.
 
 ### S3 Snapshot Distribution
 To optimize read performance and reduce DynamoDB costs:
@@ -38,6 +38,7 @@ To optimize read performance and reduce DynamoDB costs:
 
 ## Performance & Scalability
 - **ETag Caching**: The application utilizes ETag-based caching (via `If-None-Match` headers) when pulling S3 snapshots. This ensures that the frontend only downloads data if it has changed since the last sync, significantly reducing data usage and processing time.
+- **Parallelized Synchronization**: The `SyncService` parallelizes independent network requests (e.g., fetching multiple team rosters or game stats) to minimize total synchronization latency and fully utilize available bandwidth.
 - **Efficient Aggregations**: Statistics are aggregated on-the-fly in the frontend using optimized `for` loops and `Map` objects, ensuring that complex calculations (like PPG, RPG, APG) remain fast even as the number of recorded events grows.
 - **Reduced Backend Load**: By serving historical game stats and rosters directly from S3, the application offloads significant read traffic from DynamoDB, leading to lower costs and improved scalability.
 

@@ -20,6 +20,9 @@ import {
   calculateOpponentScoutingStats,
   calculatePlayEfficiency,
   calculateTeamSeasonAverages,
+  calculatePlayerStintTimeline,
+  calculateOnOffStats,
+  calculateMatchupStats,
 } from "./stats";
 import { TeamPlayer, StatEvent, Game } from "../db";
 import { ACTION_TYPES } from "../constants/stats";
@@ -1941,6 +1944,233 @@ describe("stats utilities", () => {
       const result = calculateTeamSeasonAverages(games, stats);
       // 1 possession (1 make), 2 points -> PPP 2.00
       expect(result.ppp).toBe("2.00");
+    });
+  });
+
+  describe("calculateMatchupStats", () => {
+    it("attributes points allowed to the assigned defender", () => {
+      const stats: StatEvent[] = [
+        {
+          gameId: "g1",
+          playerId: "OPPONENT:10",
+          relatedPlayerId: "p1",
+          type: ACTION_TYPES.MATCHUP,
+          period: 1,
+          timestamp: "1",
+        },
+        {
+          gameId: "g1",
+          playerId: "OPPONENT:10",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          period: 1,
+          timestamp: "2",
+        },
+        {
+          gameId: "g1",
+          playerId: "OPPONENT:10",
+          relatedPlayerId: "p2",
+          type: ACTION_TYPES.MATCHUP,
+          period: 1,
+          timestamp: "3",
+        },
+        {
+          gameId: "g1",
+          playerId: "OPPONENT:10",
+          type: ACTION_TYPES.MAKE,
+          points: 3,
+          period: 1,
+          timestamp: "4",
+        },
+      ];
+
+      const results = calculateMatchupStats(stats);
+      const m1 = results.find((r) => r.ourPlayerId === "p1" && r.opponentPlayerId === "OPPONENT:10")!;
+      const m2 = results.find((r) => r.ourPlayerId === "p2" && r.opponentPlayerId === "OPPONENT:10")!;
+
+      expect(m1.pointsAllowed).toBe(2);
+      expect(m2.pointsAllowed).toBe(3);
+    });
+
+    it("attributes stops correctly to defender", () => {
+      const stats: StatEvent[] = [
+        {
+          gameId: "g1",
+          playerId: "OPPONENT:10",
+          relatedPlayerId: "p1",
+          type: ACTION_TYPES.MATCHUP,
+          period: 1,
+          timestamp: "1",
+        },
+        {
+          gameId: "g1",
+          playerId: "OPPONENT:10",
+          type: ACTION_TYPES.TURNOVER,
+          period: 1,
+          timestamp: "2",
+        },
+      ];
+      const results = calculateMatchupStats(stats);
+      const m1 = results.find((r) => r.ourPlayerId === "p1" && r.opponentPlayerId === "OPPONENT:10")!;
+      expect(m1.stops).toBe(1);
+      expect(m1.stopPct).toBe("100.0");
+    });
+  });
+
+  describe("calculateOnOffStats", () => {
+    it("calculates ON and OFF impact stats correctly", () => {
+      const players = [
+        { id: "p1", name: "Player 1" },
+        { id: "p2", name: "Player 2" },
+      ];
+      const stats: StatEvent[] = [
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          period: 1,
+          timestamp: "1",
+        },
+        // p1 is ON, p2 is OFF. Team scores.
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          period: 1,
+          timestamp: "2",
+        },
+        // p1 is ON, p2 is OFF. Opponent scores.
+        {
+          gameId: "g1",
+          playerId: "OPPONENT",
+          type: ACTION_TYPES.MAKE,
+          points: 3,
+          period: 1,
+          timestamp: "3",
+        },
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.SUB_OUT,
+          clockTime: 300,
+          period: 1,
+          timestamp: "4",
+        },
+        {
+          gameId: "g1",
+          playerId: "p2",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 300,
+          period: 1,
+          timestamp: "5",
+        },
+        // p1 is OFF, p2 is ON. Team scores.
+        {
+          gameId: "g1",
+          playerId: "p2",
+          type: ACTION_TYPES.MAKE,
+          points: 3,
+          period: 1,
+          timestamp: "6",
+        },
+      ];
+
+      const result = calculateOnOffStats(players, stats);
+      const p1 = result.find((r) => r.playerId === "p1")!;
+      const p2 = result.find((r) => r.playerId === "p2")!;
+
+      // p1 was ON for 2 team pts and 3 opp pts.
+      expect(p1.onPointsFor).toBe(2);
+      expect(p1.onPointsAgainst).toBe(3);
+      // p1 was OFF for 3 team pts and 0 opp pts.
+      expect(p1.offPointsFor).toBe(3);
+      expect(p1.offPointsAgainst).toBe(0);
+
+      // p2 was ON for 3 team pts and 0 opp pts.
+      expect(p2.onPointsFor).toBe(3);
+      expect(p2.onPointsAgainst).toBe(0);
+      // p2 was OFF for 2 team pts and 3 opp pts.
+      expect(p2.offPointsFor).toBe(2);
+      expect(p2.offPointsAgainst).toBe(3);
+    });
+  });
+
+  describe("calculatePlayerStintTimeline", () => {
+    it("records a basic stint correctly", () => {
+      const stats: StatEvent[] = [
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          period: 1,
+          timestamp: "1",
+        },
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.SUB_OUT,
+          clockTime: 300,
+          period: 1,
+          timestamp: "2",
+        },
+      ];
+      const result = calculatePlayerStintTimeline(stats);
+      expect(result.length).toBe(1);
+      expect(result[0]).toEqual({
+        playerId: "p1",
+        period: 1,
+        startClock: 600,
+        endClock: 300,
+      });
+    });
+
+    it("handles multi-period stints (staying on court)", () => {
+      const stats: StatEvent[] = [
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.SUB_IN,
+          clockTime: 600,
+          period: 1,
+          timestamp: "1",
+        },
+        // Score in P1
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          period: 1,
+          timestamp: "2",
+        },
+        // Action in P2 without sub
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.MISS,
+          period: 2,
+          clockTime: 400,
+          timestamp: "3",
+        },
+      ];
+      const result = calculatePlayerStintTimeline(stats);
+      // P1: 600-0, P2: 600-0 (end of game)
+      expect(result.length).toBe(2);
+      expect(result[0]).toEqual({
+        playerId: "p1",
+        period: 1,
+        startClock: 600,
+        endClock: 0,
+      });
+      expect(result[1]).toEqual({
+        playerId: "p1",
+        period: 2,
+        startClock: 600,
+        endClock: 0,
+      });
     });
   });
 });
