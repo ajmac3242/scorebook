@@ -32,3 +32,13 @@
 **Vulnerability:** The application leaked potentially sensitive data (query parameters and authorizer context) into CloudWatch logs and lacked standard defensive layers like HTTP method whitelisting, request body size limits, and advanced security headers (Surrogate-Control, DNS-Prefetch-Control). Error logs also risked leaking secrets via `Error.message` and `Error.stack`.
 **Learning:** Log redaction must be exhaustive across all event fields and error objects to be effective. Relying solely on header redaction leaves gaps in query strings and authorizer metadata. Defense-in-depth requires multiple layers of protection at the handler entry point.
 **Prevention:** Implement centralized, exhaustive log masking for all event fields and recursively sanitize all error logs (including messages and stack traces). Enforce strict whitelists for HTTP methods and upper bounds for payload sizes to mitigate DoS and injection risks.
+
+## 2026-04-25 - [Prototype Pollution in Log Sanitization]
+**Vulnerability:** Recursive log sanitizers that iterate over object keys without skipping built-in prototype properties (like `__proto__`, `constructor`, `prototype`) are vulnerable to prototype pollution. While this doesn't directly pollute the runtime environment in a read-only sanitizer, it can lead to unexpected behavior or excessive memory consumption if a malicious payload contains deeply nested or circular references via prototype properties.
+**Learning:** Even utility functions that are meant to *improve* security (like log sanitizers) must themselves be hardened against common injection patterns like prototype pollution.
+**Prevention:** Always skip `FORBIDDEN_KEYS` (`__proto__`, `constructor`, `prototype`) when iterating over object entries in recursive utilities.
+
+## 2026-04-25 - [Request Traceability as a Security Requirement]
+**Vulnerability:** In high-volume serverless environments, correlating log entries with specific HTTP requests is critical for security auditing and incident response. Without a consistent request ID across logs and responses, it is difficult to trace an attacker's actions or diagnose potential exploitation attempts across multiple Lambda invocations.
+**Learning:** Observability is a core component of security. Being able to definitively link a set of logs to a specific transaction improves the "Detect" and "Respond" phases of security operations.
+**Prevention:** Pass the Lambda `requestId` through all logging utilities and include it in the `X-Request-Id` response header to ensure end-to-end traceability.

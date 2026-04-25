@@ -82,10 +82,11 @@ async function handlePlayers(
   body: Record<string, unknown>,
   event: APIGatewayProxyEventV2,
   tableName: string,
+  requestId: string,
 ): Promise<APIGatewayProxyResultV2 | null> {
   // Collection endpoints: /players
   if (path === "/players") {
-    if (method === "GET") return await getItems(tableName, "PLAYER");
+    if (method === "GET") return await getItems(tableName, "PLAYER", requestId);
     if (method === "POST") {
       if (
         !body?.name ||
@@ -94,9 +95,17 @@ async function handlePlayers(
       ) {
         return badRequest(
           "Player name is required and must be under 100 characters",
+          requestId,
         );
       }
-      return await createItem("PLAYER", "METADATA", "PLAYER", body, tableName);
+      return await createItem(
+        "PLAYER",
+        "METADATA",
+        "PLAYER",
+        body,
+        tableName,
+        requestId,
+      );
     }
     return null;
   }
@@ -105,7 +114,7 @@ async function handlePlayers(
   const playerId = extractIdFromPath(path, "/players/");
   if (!playerId) return null;
   if (!isValidUuid(playerId)) {
-    return badRequest("Invalid playerId format (UUID required)");
+    return badRequest("Invalid playerId format (UUID required)", requestId);
   }
   const playerKey = { PK: Keys.player(playerId), SK: Keys.metadata(playerId) };
 
@@ -121,9 +130,15 @@ async function handlePlayers(
           ConditionExpression: "attribute_exists(PK)",
         }),
       );
-      return ok({ message: "Player archived" });
+      return ok({ message: "Player archived" }, requestId);
     }
-    return await softDeleteItem("PLAYER", "METADATA", playerId, tableName);
+    return await softDeleteItem(
+      "PLAYER",
+      "METADATA",
+      playerId,
+      tableName,
+      requestId,
+    );
   }
 
   if (method === "PATCH" && body.isArchived === 0) {
@@ -136,7 +151,7 @@ async function handlePlayers(
         ConditionExpression: "attribute_exists(PK)",
       }),
     );
-    return ok({ message: "Player restored from archive" });
+    return ok({ message: "Player restored from archive" }, requestId);
   }
 
   if (method === "PATCH" && body.deletedAt === null) {
@@ -148,7 +163,7 @@ async function handlePlayers(
         ConditionExpression: "attribute_exists(PK)",
       }),
     );
-    return ok({ message: "Player restored" });
+    return ok({ message: "Player restored" }, requestId);
   }
 
   return null;
@@ -169,18 +184,19 @@ async function handleGames(
   body: Record<string, unknown>,
   event: APIGatewayProxyEventV2,
   tableName: string,
+  requestId: string,
 ): Promise<APIGatewayProxyResultV2 | null> {
   if (path === "/games") {
     if (method === "GET") {
       const teamId = event.queryStringParameters?.teamId;
       if (!isValidUuid(teamId)) {
-        return badRequest("Valid teamId (UUID) is required");
+        return badRequest("Valid teamId (UUID) is required", requestId);
       }
-      return await getItemsByGSI(`TEAM#${teamId}`, tableName);
+      return await getItemsByGSI(`TEAM#${teamId}`, tableName, requestId);
     }
     if (method === "POST") {
       if (!isValidUuid(body?.teamId)) {
-        return badRequest("Valid teamId (UUID) is required");
+        return badRequest("Valid teamId (UUID) is required", requestId);
       }
       if (
         !body?.opponent ||
@@ -189,19 +205,23 @@ async function handleGames(
       ) {
         return badRequest(
           "Opponent name is required and must be under 100 characters",
+          requestId,
         );
       }
       if (
         body.location !== undefined &&
         (typeof body.location !== "string" || body.location.length > 100)
       ) {
-        return badRequest("Location must be a string under 100 characters");
+        return badRequest(
+          "Location must be a string under 100 characters",
+          requestId,
+        );
       }
       if (
         body.date !== undefined &&
         (typeof body.date !== "string" || body.date.length > 50)
       ) {
-        return badRequest("Date must be a string under 50 characters");
+        return badRequest("Date must be a string under 50 characters", requestId);
       }
       const resp = await createItem(
         "GAME",
@@ -209,6 +229,7 @@ async function handleGames(
         Keys.team(body.teamId as string),
         body,
         tableName,
+        requestId,
       );
       if (resp.statusCode !== 201 || !resp.body) return resp;
       const newItem = JSON.parse(resp.body);
@@ -222,7 +243,7 @@ async function handleGames(
   const gameId = extractIdFromPath(path, "/games/");
   if (gameId) {
     if (!isValidUuid(gameId)) {
-      return badRequest("Invalid gameId format (UUID required)");
+      return badRequest("Invalid gameId format (UUID required)", requestId);
     }
     const gameKey = { PK: Keys.game(gameId), SK: Keys.metadata(gameId) };
 
@@ -230,7 +251,13 @@ async function handleGames(
       const getResp = await docClient.send(
         new GetCommand({ TableName: tableName, Key: gameKey }),
       );
-      const resp = await softDeleteItem("GAME", "METADATA", gameId, tableName);
+      const resp = await softDeleteItem(
+        "GAME",
+        "METADATA",
+        gameId,
+        tableName,
+        requestId,
+      );
       if (resp.statusCode === 200 && getResp.Item) {
         await snapshotTeamGames(getResp.Item.teamId, tableName, docClient);
         await deleteGameSnapshots(gameId);
@@ -255,7 +282,7 @@ async function handleGames(
         if (getResp.Item.completed)
           await snapshotGameStats(gameId, tableName, docClient);
       }
-      return ok({ message: "Game restored" });
+      return ok({ message: "Game restored" }, requestId);
     }
   }
 
@@ -268,13 +295,13 @@ async function handleGames(
     if (parts.length !== 4) return null;
     const gId = parts[2];
     if (!isValidUuid(gId)) {
-      return badRequest("Invalid gameId format (UUID required)");
+      return badRequest("Invalid gameId format (UUID required)", requestId);
     }
     const gameKey = { PK: Keys.game(gId), SK: Keys.metadata(gId) };
     const getResp = await docClient.send(
       new GetCommand({ TableName: tableName, Key: gameKey }),
     );
-    if (!getResp.Item) return notFound("Game not found");
+    if (!getResp.Item) return notFound("Game not found", requestId);
 
     await docClient.send(
       new UpdateCommand({
@@ -287,11 +314,11 @@ async function handleGames(
     );
     await snapshotGameStats(gId, tableName, docClient);
     await snapshotTeamGames(getResp.Item.teamId, tableName, docClient);
-    return ok({ message: "Game completed" });
+    return ok({ message: "Game completed" }, requestId);
   }
 
   if (path.startsWith("/games/") && path.endsWith("/stats")) {
-    return await handleGameStats(method, path, body, tableName);
+    return await handleGameStats(method, path, body, tableName, requestId);
   }
 
   return null;
@@ -310,12 +337,13 @@ async function handleGameStats(
   path: string,
   body: Record<string, unknown>,
   tableName: string,
+  requestId: string,
 ): Promise<APIGatewayProxyResultV2 | null> {
   const parts = path.split("/");
   if (parts.length !== 4) return null;
   const gameId = parts[2];
   if (!isValidUuid(gameId)) {
-    return badRequest("Invalid gameId format (UUID required)");
+    return badRequest("Invalid gameId format (UUID required)", requestId);
   }
 
   if (method === "GET") {
@@ -329,16 +357,16 @@ async function handleGameStats(
         },
       }),
     );
-    return ok(filterActive(result.Items));
+    return ok(filterActive(result.Items), requestId);
   }
 
   if (method === "POST") {
     const error = validateStatEvent(body);
-    if (error) return badRequest(error);
+    if (error) return badRequest(error, requestId);
 
     const id = (body?.id as string) || uuidv4();
     if (!isValidUuid(id)) {
-      return badRequest("Invalid stat id format (UUID required)");
+      return badRequest("Invalid stat id format (UUID required)", requestId);
     }
 
     const timestamp = (body?.timestamp as string) || new Date().toISOString();
@@ -346,7 +374,7 @@ async function handleGameStats(
       typeof timestamp !== "string" ||
       !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z?$/.test(timestamp)
     ) {
-      return badRequest("Invalid timestamp format");
+      return badRequest("Invalid timestamp format", requestId);
     }
 
     const cleanBody = stripLocalFields(body);
@@ -361,7 +389,7 @@ async function handleGameStats(
     };
     await putNewItem(tableName, item);
     await snapshotGameStats(gameId, tableName, docClient);
-    return created(item);
+    return created(item, requestId);
   }
 
   return null;
@@ -382,10 +410,11 @@ async function handleTeams(
   body: Record<string, unknown>,
   event: APIGatewayProxyEventV2,
   tableName: string,
+  requestId: string,
 ): Promise<APIGatewayProxyResultV2 | null> {
   if (path === "/teams") {
     if (method === "GET") {
-      return await getItems(tableName, "TEAM");
+      return await getItems(tableName, "TEAM", requestId);
     }
     if (method === "POST") {
       if (
@@ -395,6 +424,7 @@ async function handleTeams(
       ) {
         return badRequest(
           "Team name is required and must be under 100 characters",
+          requestId,
         );
       }
       const resp = await createItem(
@@ -403,6 +433,7 @@ async function handleTeams(
         "TEAM",
         body,
         tableName,
+        requestId,
       );
       if (resp.statusCode !== 201 || !resp.body) return resp;
       const newItem = JSON.parse(resp.body);
@@ -414,12 +445,18 @@ async function handleTeams(
   const teamId = extractIdFromPath(path, "/teams/");
   if (teamId) {
     if (!isValidUuid(teamId)) {
-      return badRequest("Invalid teamId format (UUID required)");
+      return badRequest("Invalid teamId format (UUID required)", requestId);
     }
     const teamKey = { PK: Keys.team(teamId), SK: Keys.metadata(teamId) };
 
     if (method === "DELETE") {
-      const resp = await softDeleteItem("TEAM", "METADATA", teamId, tableName);
+      const resp = await softDeleteItem(
+        "TEAM",
+        "METADATA",
+        teamId,
+        tableName,
+        requestId,
+      );
       if (resp.statusCode === 200) await deleteTeamSnapshots(teamId);
       return resp;
     }
@@ -434,8 +471,8 @@ async function handleTeams(
         }),
       );
       await snapshotTeam(teamId, tableName, docClient);
-      return ok({ message: "Team restored" });
-    }
+    return ok({ message: "Team restored" }, requestId);
+  }
   }
 
   if (path.startsWith("/teams/") && path.endsWith("/players")) {
@@ -443,23 +480,27 @@ async function handleTeams(
     if (parts.length !== 4) return null;
     const tId = parts[2];
     if (!isValidUuid(tId))
-      return badRequest("Invalid teamId format (UUID required)");
+      return badRequest("Invalid teamId format (UUID required)", requestId);
 
-    if (method === "GET") return await getItemsByGSI(`TEAM#${tId}`, tableName);
+    if (method === "GET")
+      return await getItemsByGSI(`TEAM#${tId}`, tableName, requestId);
 
     if (method === "POST") {
       if (!isValidUuid(body.playerId))
-        return badRequest("Valid playerId (UUID) is required");
+        return badRequest("Valid playerId (UUID) is required", requestId);
       if (
         body.jerseyNumber !== undefined &&
         (typeof body.jerseyNumber !== "string" ||
           !/^\d{1,3}$/.test(body.jerseyNumber))
       ) {
-        return badRequest("Jersey number must be 1-3 digits");
+        return badRequest("Jersey number must be 1-3 digits", requestId);
       }
       const id = (body?.id as string) || uuidv4();
       if (!isValidUuid(id)) {
-        return badRequest("Invalid team-player association id (UUID required)");
+        return badRequest(
+          "Invalid team-player association id (UUID required)",
+          requestId,
+        );
       }
 
       const cleanBody = stripLocalFields(body);
@@ -474,7 +515,7 @@ async function handleTeams(
       };
       await putNewItem(tableName, teamPlayerItem);
       await snapshotTeamRoster(tId, tableName, docClient);
-      return created(teamPlayerItem);
+      return created(teamPlayerItem, requestId);
     }
   }
 
@@ -484,7 +525,10 @@ async function handleTeams(
     const tId = parts[2];
     const pId = parts[4];
     if (!isValidUuid(tId) || !isValidUuid(pId)) {
-      return badRequest("Invalid teamId or playerId format (UUID required)");
+      return badRequest(
+        "Invalid teamId or playerId format (UUID required)",
+        requestId,
+      );
     }
     if (method === "DELETE") {
       await docClient.send(
@@ -497,7 +541,7 @@ async function handleTeams(
         }),
       );
       await snapshotTeamRoster(tId, tableName, docClient);
-      return ok({ message: "Player removed from team" });
+      return ok({ message: "Player removed from team" }, requestId);
     }
   }
 
@@ -533,7 +577,10 @@ async function handleCleanup(
   path: string,
   event: APIGatewayProxyEventV2,
   tableName: string,
+  requestId: string,
 ): Promise<APIGatewayProxyResultV2 | null> {
+  const logLabel = (label: string) => `[${requestId}] ${label}`;
+
   if (path === "/cleanup" && method === "POST") {
     const adminApiKey = process.env.ADMIN_API_KEY;
 
@@ -541,20 +588,36 @@ async function handleCleanup(
     // Minimum 16 characters required for production-grade entropy.
     if (!adminApiKey || adminApiKey.length < 16) {
       logError(
-        "Security Warning",
+        logLabel("Security Warning"),
         "ADMIN_API_KEY is missing or too weak (min 16 chars). Cleanup denied.",
       );
-      return response(403, { message: "Unauthorized cleanup request" });
+      return response(
+        403,
+        { message: "Unauthorized cleanup request" },
+        {},
+        requestId,
+      );
     }
 
     const requestApiKey = getHeader(event.headers, "x-api-key") || "";
 
+    // 🛡️ Enhancement: Enforce maximum length for API key to prevent DoS via long string comparisons.
+    if (requestApiKey.length > 128) {
+      logError(logLabel("Security Warning"), "Extremely long API key provided. Potential DoS attempt.");
+      return response(403, { message: "Unauthorized cleanup request" }, {}, requestId);
+    }
+
     if (!requestApiKey || !safeCompare(requestApiKey, adminApiKey)) {
-      return response(403, { message: "Unauthorized cleanup request" });
+      return response(
+        403,
+        { message: "Unauthorized cleanup request" },
+        {},
+        requestId,
+      );
     }
 
     await performHardCleanup(tableName);
-    return ok({ message: "Cleanup complete" });
+    return ok({ message: "Cleanup complete" }, requestId);
   }
   return null;
 }
@@ -573,19 +636,22 @@ const ALLOWED_METHODS = new Set(["GET", "POST", "PUT", "PATCH", "DELETE"]);
 export const handler = async (
   event: APIGatewayProxyEventV2,
 ): Promise<APIGatewayProxyResultV2> => {
-  logInfo("Event", maskEvent(event));
+  const requestId = event.requestContext.requestId;
+  const logLabel = (label: string) => `[${requestId}] ${label}`;
+
+  logInfo(logLabel("Event"), maskEvent(event));
 
   const { method, path } = extractRequestMetadata(event);
-  logInfo("Routing", { method, path });
+  logInfo(logLabel("Routing"), { method, path });
 
   // 🛡️ Enhancement 8: HTTP Method Whitelisting
   if (!ALLOWED_METHODS.has(method)) {
-    return response(405, { message: `Method ${method} not allowed` });
+    return response(405, { message: `Method ${method} not allowed` }, {}, requestId);
   }
 
   // 🛡️ Enhancement 9: Body Size Limit Enforcement
   if (event.body && event.body.length > MAX_BODY_SIZE) {
-    return response(413, { message: "Payload too large" });
+    return response(413, { message: "Payload too large" }, {}, requestId);
   }
 
   // Enforce Content-Type for write requests with a body
@@ -594,7 +660,7 @@ export const handler = async (
     if (!contentType?.toLowerCase().includes("application/json")) {
       return response(415, {
         message: "Unsupported Media Type: application/json required",
-      });
+      }, {}, requestId);
     }
   }
 
@@ -602,31 +668,40 @@ export const handler = async (
   try {
     body = parseBody(event.body);
   } catch (e) {
-    return badRequest("Invalid JSON body");
+    return badRequest("Invalid JSON body", requestId);
   }
 
   try {
     const TABLE_NAME = process.env.TABLE_NAME || "BasketballStats";
 
     const res =
-      (await handleTeams(method, path, body, event, TABLE_NAME)) ||
-      (await handlePlayers(method, path, body, event, TABLE_NAME)) ||
-      (await handleGames(method, path, body, event, TABLE_NAME)) ||
-      (await handleCleanup(method, path, event, TABLE_NAME));
+      (await handleTeams(method, path, body, event, TABLE_NAME, requestId)) ||
+      (await handlePlayers(method, path, body, event, TABLE_NAME, requestId)) ||
+      (await handleGames(method, path, body, event, TABLE_NAME, requestId)) ||
+      (await handleCleanup(method, path, event, TABLE_NAME, requestId));
 
-    return res || notFound("Route not found");
+    if (res) {
+      // Inject requestId into nested handler responses if not already present
+      if (typeof res !== "string" && res.headers) {
+        res.headers["X-Request-Id"] = requestId;
+        res.headers["Access-Control-Expose-Headers"] = "X-Request-Id";
+      }
+      return res;
+    }
+
+    return notFound("Route not found", requestId);
   } catch (error: unknown) {
     if (
       error instanceof Error &&
       error.name === "ConditionalCheckFailedException"
     ) {
       if (method === "POST") {
-        return response(409, { message: "Item already exists" });
+        return response(409, { message: "Item already exists" }, {}, requestId);
       }
-      return notFound("Item not found");
+      return notFound("Item not found", requestId);
     }
-    logError("Handler Error", error);
-    return serverError();
+    logError(logLabel("Handler Error"), error);
+    return serverError(requestId);
   }
 };
 
@@ -640,6 +715,7 @@ export const handler = async (
 async function getItems(
   tableName: string,
   gsiPrefix: string,
+  requestId?: string,
 ): Promise<APIGatewayProxyStructuredResultV2> {
   const result = await docClient.send(
     new QueryCommand({
@@ -649,7 +725,7 @@ async function getItems(
       ExpressionAttributeValues: { ":pk": gsiPrefix },
     }),
   );
-  return ok(filterActive(result.Items));
+  return ok(filterActive(result.Items), requestId);
 }
 
 /**
@@ -657,11 +733,13 @@ async function getItems(
  *
  * @param {string} gsiPk - The GSI1PK value.
  * @param {string} tableName - The name of the DynamoDB table.
+ * @param {string} [requestId] - Optional request ID.
  * @returns {Promise<APIGatewayProxyStructuredResultV2>} The HTTP response with the items.
  */
 async function getItemsByGSI(
   gsiPk: string,
   tableName: string,
+  requestId?: string,
 ): Promise<APIGatewayProxyStructuredResultV2> {
   const result = await docClient.send(
     new QueryCommand({
@@ -671,7 +749,7 @@ async function getItemsByGSI(
       ExpressionAttributeValues: { ":pk": gsiPk },
     }),
   );
-  return ok(filterActive(result.Items));
+  return ok(filterActive(result.Items), requestId);
 }
 
 /**
@@ -682,6 +760,7 @@ async function getItemsByGSI(
  * @param {string} gsiPk - The GSI1PK value.
  * @param {Record<string, unknown>} data - The item data.
  * @param {string} tableName - The name of the DynamoDB table.
+ * @param {string} [requestId] - Optional request ID.
  * @returns {Promise<APIGatewayProxyStructuredResultV2>} The HTTP response with the created item.
  */
 async function createItem(
@@ -690,11 +769,13 @@ async function createItem(
   gsiPk: string,
   data: Record<string, unknown>,
   tableName: string,
+  requestId?: string,
 ): Promise<APIGatewayProxyStructuredResultV2> {
   const id = (data?.id as string) || uuidv4();
   if (!isValidUuid(id)) {
     return badRequest(
       `Invalid ${type.toLowerCase()} id format (UUID required)`,
+      requestId,
     );
   }
   const cleanData = stripLocalFields(data);
@@ -707,7 +788,7 @@ async function createItem(
     id,
   };
   await putNewItem(tableName, item);
-  return created(item);
+  return created(item, requestId);
 }
 
 /**
@@ -739,6 +820,7 @@ async function putNewItem(tableName: string, item: Record<string, unknown>) {
  * @param {string} skPrefix - SK prefix.
  * @param {string} id - Item ID.
  * @param {string} tableName - DynamoDB table name.
+ * @param {string} [requestId] - Optional request ID.
  * @returns {Promise<APIGatewayProxyStructuredResultV2>} Response.
  */
 async function softDeleteItem(
@@ -746,6 +828,7 @@ async function softDeleteItem(
   skPrefix: string,
   id: string,
   tableName: string,
+  requestId?: string,
 ): Promise<APIGatewayProxyStructuredResultV2> {
   const timestamp = new Date().toISOString();
   await docClient.send(
@@ -757,7 +840,10 @@ async function softDeleteItem(
       ConditionExpression: "attribute_exists(PK)",
     }),
   );
-  return ok({ message: "Item soft deleted", deletedAt: timestamp });
+  return ok(
+    { message: "Item soft deleted", deletedAt: timestamp },
+    requestId,
+  );
 }
 
 /**
