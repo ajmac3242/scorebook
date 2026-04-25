@@ -38,6 +38,18 @@ export const REDACTED_HEADERS = Object.freeze(
 );
 
 /**
+ * Pre-compiled regex for redacting sensitive terms from logs.
+ *
+ * WHY: Re-creating regex objects or iterating over headers in every log call
+ * is expensive. Compiling this once at module load time improves performance
+ * of error logging, especially in high-throughput or error-heavy scenarios.
+ */
+const REDACTION_PATTERN = Array.from(REDACTED_HEADERS)
+  .map((term) => term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+  .join("|");
+const REDACTION_REGEX = new RegExp(`(${REDACTION_PATTERN})`, "gi");
+
+/**
  * Redacts sensitive fields from an object before logging.
  *
  * WHY: This utility prevents accidental leakage of sensitive information into
@@ -78,19 +90,12 @@ export function logError(label: string, error: unknown) {
   if (error instanceof Error) {
     let message = error.message;
     let stack = error.stack || "";
-    // 🛡️ Enhancement: Robust regex-based redaction with term escaping
-    // WHY: Escaping terms prevents potential regex injection if field names contain special characters
-    // and ensures that the redaction logic is consistent across message and stack trace.
-    REDACTED_HEADERS.forEach((term) => {
-      const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-      const regex = new RegExp(escapedTerm, "gi");
-      if (message.toLowerCase().includes(term)) {
-        message = message.replace(regex, "[REDACTED]");
-      }
-      if (stack.toLowerCase().includes(term)) {
-        stack = stack.replace(regex, "[REDACTED]");
-      }
-    });
+    // ⚡ Bolt: Use pre-compiled regex for efficient, single-pass redaction.
+    // WHY: Replacing a loop of regex creations with a single global regex
+    // significantly reduces CPU overhead and garbage collection pressure
+    // during error handling.
+    message = message.replace(REDACTION_REGEX, "[REDACTED]");
+    stack = stack.replace(REDACTION_REGEX, "[REDACTED]");
     console.error(`[ERROR] ${label}: ${message}`, stack);
   } else {
     console.error(
