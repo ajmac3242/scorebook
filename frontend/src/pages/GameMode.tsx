@@ -339,6 +339,8 @@ const Scoreboard = React.memo(
             flex: 1,
             px: 2,
           }}
+          role="status"
+          aria-live="off"
         >
           {/* 🏀 Assistant Coach: Live Sync Indicator */}
           {!isReadOnly && !game?.completed && (
@@ -476,6 +478,7 @@ const Scoreboard = React.memo(
               letterSpacing: 2,
               mb: 0.5,
             }}
+            aria-label={`Current Period: ${period > maxPeriod ? `Overtime ${period - maxPeriod}` : `${periodLabel} ${period}`}`}
           >
             {period > maxPeriod
               ? `OT ${period - maxPeriod}`
@@ -546,7 +549,7 @@ const Scoreboard = React.memo(
           </Box>
 
           {/* Bonus Indicators */}
-          <Box sx={{ mt: 1.5, height: 20, display: "flex", gap: 2 }}>
+          <Box sx={{ mt: 1.5, height: 20, display: "flex", gap: 2 }} aria-label="Bonus status">
             {gameData.teamFoulStats.teamBonusLabel && (
               <Typography
                 sx={{
@@ -555,6 +558,7 @@ const Scoreboard = React.memo(
                   fontSize: "0.7rem",
                   letterSpacing: 1,
                 }}
+                aria-label="Team is in bonus"
               >
                 BONUS →
               </Typography>
@@ -567,6 +571,7 @@ const Scoreboard = React.memo(
                   fontSize: "0.7rem",
                   letterSpacing: 1,
                 }}
+                aria-label="Opponent is in bonus"
               >
                 ← BONUS
               </Typography>
@@ -782,7 +787,7 @@ const ActionControls = React.memo(
           alignItems: "center",
         }}
       >
-        <Tooltip title="Change Period">
+        <Tooltip title="Advance to Next Period">
           <span>
             <Button
               size="small"
@@ -790,6 +795,7 @@ const ActionControls = React.memo(
               startIcon={<History />}
               onClick={onNextPeriod}
               disabled={isReadOnly}
+              aria-label="Advance to Next Period"
             >
               Period
             </Button>
@@ -862,6 +868,7 @@ const ActionControls = React.memo(
               startIcon={<History />}
               onClick={onTimeout}
               disabled={isReadOnly}
+              aria-label="Record Team Timeout"
             >
               Timeout
             </Button>

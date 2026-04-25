@@ -351,15 +351,17 @@ const Teams: React.FC = () => {
                     height: "100%",
                     bgcolor: team.primaryColor || "primary.main",
                     color: contrastColor,
-                    transition: "transform 0.2s, box-shadow 0.2s",
+                    transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
                     "&:hover": {
-                      transform: "translateY(-4px)",
-                      boxShadow: "0 8px 24px rgba(0,0,0,0.2)",
+                      transform: "translateY(-8px)",
+                      boxShadow: "0 12px 32px rgba(0,0,0,0.3)",
+                      filter: "brightness(1.05)",
                     },
                     "&:focus-visible": {
                       outline: `4px solid ${contrastColor === "white" ? "#fff" : "#000"}`,
-                      outlineOffset: "2px",
-                      transform: "translateY(-4px)",
+                      outlineOffset: "4px",
+                      transform: "translateY(-8px)",
+                      boxShadow: "0 12px 32px rgba(0,0,0,0.3)",
                     },
                     display: "flex",
                     flexDirection: "column",
@@ -604,7 +606,7 @@ const Teams: React.FC = () => {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === "Enter" && teamName.trim()) {
+              if (e.key === "Enter" && teamName.trim() && !isSubmitting) {
                 handleAddTeam();
               }
             }}
@@ -641,12 +643,13 @@ const Teams: React.FC = () => {
             value={logoUrl}
             onChange={(e) => setLogoUrl(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === "Enter" && teamName.trim()) {
+              if (e.key === "Enter" && teamName.trim() && !isSubmitting) {
                 handleAddTeam();
               }
             }}
             sx={{ mb: 2 }}
             disabled={isSubmitting}
+            placeholder="https://example.com/logo.png"
           />
           <TextField
             margin="dense"

@@ -239,50 +239,68 @@ const Dashboard: React.FC = () => {
         <Box
           sx={{
             textAlign: "center",
-            py: { xs: 6, sm: 10 },
-            px: { xs: 2, sm: 4 },
-            bgcolor: "rgba(0,0,0,0.02)",
+            py: { xs: 8, sm: 12 },
+            px: { xs: 3, sm: 6 },
+            bgcolor: "rgba(0,0,0,0.01)",
             borderRadius: 4,
             border: "2px dashed rgba(0,0,0,0.1)",
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
+            transition: "all 0.3s ease",
+            "&:hover": {
+              bgcolor: "rgba(0,0,0,0.02)",
+              borderColor: "primary.main",
+            },
           }}
         >
           <StarIcon
             sx={{
-              fontSize: 64,
+              fontSize: 80,
               color: "primary.main",
-              opacity: 0.2,
-              mb: 2,
+              opacity: 0.15,
+              mb: 3,
             }}
           />
           <Typography
-            variant="h4"
-            sx={{ fontFamily: "var(--serif)", mb: 2, fontWeight: 700 }}
+            variant="h3"
+            sx={{
+              fontFamily: "var(--serif)",
+              mb: 2,
+              fontWeight: 800,
+              fontSize: { xs: "2rem", sm: "3rem" },
+            }}
           >
-            Welcome to Scorebook!
+            Your Scouting Notebook is Empty
           </Typography>
           <Typography
-            variant="body1"
+            variant="h6"
             color="text.secondary"
-            sx={{ mb: 4, maxWidth: 600, mx: "auto" }}
+            sx={{ mb: 5, maxWidth: 600, mx: "auto", fontWeight: 400 }}
           >
-            Set your primary team to see a personalized dashboard with stats,
-            heatmaps, and upcoming schedule at a glance.
+            Choose a primary team to unlock real-time stats, interactive heatmaps, and season-long program health tracking.
           </Typography>
-          <Stack direction="row" spacing={2} justifyContent="center">
-            <Button
-              component={Link}
-              to="/teams"
-              variant="contained"
-              size="large"
-              startIcon={<StarIcon />}
-              sx={{ px: 4, py: 1.5, borderRadius: 2 }}
-            >
-              Star a Team in Notebook
-            </Button>
-          </Stack>
+          <Button
+            component={Link}
+            to="/teams"
+            variant="contained"
+            size="large"
+            startIcon={<StarIcon />}
+            sx={{
+              px: 6,
+              py: 2,
+              borderRadius: 3,
+              fontSize: "1.1rem",
+              fontWeight: 700,
+              boxShadow: "0 8px 16px rgba(0,0,0,0.1)",
+              "&:hover": {
+                transform: "translateY(-2px)",
+                boxShadow: "0 12px 20px rgba(0,0,0,0.15)",
+              },
+            }}
+          >
+            Go to Teams & Star a Favorite
+          </Button>
         </Box>
       </Box>
     );
