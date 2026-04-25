@@ -34,7 +34,27 @@ export const REDACTED_HEADERS = Object.freeze(
     "bearer",
     "client-secret",
     "otp",
+    "x-session-token",
+    "x-api-token",
+    "x-access-key",
+    "x-secret-key",
+    "apikey",
+    "secretkey",
+    "auth-token",
+    "credentials",
+    "private-key",
+    "passphrase",
+    "signature",
+    "proxy-authenticate",
+    "www-authenticate",
   ]),
+);
+
+/**
+ * Set of keys that are forbidden to prevent prototype pollution.
+ */
+const FORBIDDEN_KEYS = Object.freeze(
+  new Set<string>(["__proto__", "constructor", "prototype"]),
 );
 
 /**
@@ -71,6 +91,9 @@ function sanitizeForLog(obj: unknown, depth = 0): unknown {
 
   const sanitized: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(obj as Record<string, unknown>)) {
+    // 🛡️ Enhancement: Prevent prototype pollution in logs
+    if (FORBIDDEN_KEYS.has(key)) continue;
+
     if (REDACTED_HEADERS.has(key.toLowerCase())) {
       sanitized[key] = "[REDACTED]";
     } else {
@@ -226,6 +249,16 @@ export function normalizePath(event: APIGatewayProxyEventV2): string {
 
   // ⚡ Bolt: Use regex for cleaner prefix and trailing slash normalization.
   let path = raw.replace(/^\/(\$default|api)/, "");
+
+  // 🛡️ Enhancement: Path Traversal Protection
+  // WHY: Removing '..' sequences prevents attackers from attempting to
+  // navigate out of the intended API path structure via URL manipulation.
+  while (path.includes("..")) {
+    path = path.replace(/\.\.\//g, "").replace(/\/\.\./g, "").replace(/\.\./g, "");
+  }
+
+  // ⚡ Bolt: Cleanup multiple forward slashes and trailing slash.
+  path = path.replace(/\/+/g, "/");
   if (path.length > 1) {
     path = path.replace(/\/$/, "");
   }
@@ -316,13 +349,6 @@ export function getHeader(
  * @param {number} depth - Current recursion depth.
  * @returns {Record<string, unknown>} The cleaned object.
  */
-/**
- * Set of keys that are forbidden to prevent prototype pollution.
- */
-const FORBIDDEN_KEYS = Object.freeze(
-  new Set<string>(["__proto__", "constructor", "prototype"]),
-);
-
 /**
  * Strips local-only fields and internal DynamoDB keys from the data object before saving.
  *

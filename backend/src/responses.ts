@@ -104,43 +104,50 @@ export function filterActive<T extends { deletedAt?: string | null }>(
  * @param {number} statusCode - The HTTP status code.
  * @param {unknown} body - The JSON body data.
  * @param {Record<string, string>} [headers] - Optional additional headers.
+ * @param {string} [requestId] - Optional AWS Request ID for traceability.
  * @returns {APIGatewayProxyStructuredResultV2} The formatted response object.
  */
 export function response(
   statusCode: number,
   body: unknown,
   headers: Record<string, string> = {},
+  requestId?: string,
 ): APIGatewayProxyStructuredResultV2 {
+  const responseHeaders: Record<string, string> = {
+    ...headers,
+    "Content-Type": "application/json",
+    "Cache-Control": "private, no-cache, no-store, max-age=0, must-revalidate",
+    "Surrogate-Control": "no-store",
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+    "Strict-Transport-Security": "max-age=31536000; includeSubDomains; preload",
+    "Cross-Origin-Opener-Policy": "same-origin",
+    "Cross-Origin-Resource-Policy": "same-origin",
+    "Cross-Origin-Embedder-Policy": "require-corp",
+    "Content-Security-Policy":
+      "default-src 'none'; object-src 'none'; script-src 'none'; frame-ancestors 'none'; sandbox; base-uri 'none'; form-action 'none'; upgrade-insecure-requests;",
+    "X-Content-Security-Policy":
+      "default-src 'none'; object-src 'none'; script-src 'none'; frame-ancestors 'none'; sandbox; base-uri 'none'; form-action 'none'; upgrade-insecure-requests;",
+    "X-WebKit-CSP":
+      "default-src 'none'; object-src 'none'; script-src 'none'; frame-ancestors 'none'; sandbox; base-uri 'none'; form-action 'none'; upgrade-insecure-requests;",
+    "Referrer-Policy": "no-referrer",
+    "Permissions-Policy":
+      "camera=(), microphone=(), geolocation=(), payment=(), interest-cohort=(), usb=(), bluetooth=(), hid=(), serial=(), idle-detection=(), keyboard-map=(), screen-wake-lock=()",
+    "X-XSS-Protection": "0",
+    "X-Permitted-Cross-Domain-Policies": "none",
+    "X-DNS-Prefetch-Control": "off",
+    "X-Download-Options": "noopen",
+    "Origin-Agent-Cluster": "?1",
+  };
+
+  if (requestId) {
+    responseHeaders["X-Request-Id"] = requestId;
+    responseHeaders["Access-Control-Expose-Headers"] = "X-Request-Id";
+  }
+
   return {
     statusCode,
-    headers: {
-      ...headers,
-      "Content-Type": "application/json",
-      "Cache-Control":
-        "private, no-cache, no-store, max-age=0, must-revalidate",
-      "Surrogate-Control": "no-store",
-      "X-Content-Type-Options": "nosniff",
-      "X-Frame-Options": "DENY",
-      "Strict-Transport-Security":
-        "max-age=31536000; includeSubDomains; preload",
-      "Cross-Origin-Opener-Policy": "same-origin",
-      "Cross-Origin-Resource-Policy": "same-origin",
-      "Cross-Origin-Embedder-Policy": "require-corp",
-      "Content-Security-Policy":
-        "default-src 'none'; frame-ancestors 'none'; sandbox; base-uri 'none'; form-action 'none'; upgrade-insecure-requests;",
-      "X-Content-Security-Policy":
-        "default-src 'none'; frame-ancestors 'none'; sandbox; base-uri 'none'; form-action 'none'; upgrade-insecure-requests;",
-      "X-WebKit-CSP":
-        "default-src 'none'; frame-ancestors 'none'; sandbox; base-uri 'none'; form-action 'none'; upgrade-insecure-requests;",
-      "Referrer-Policy": "no-referrer",
-      "Permissions-Policy":
-        "camera=(), microphone=(), geolocation=(), payment=(), interest-cohort=()",
-      "X-XSS-Protection": "0",
-      "X-Permitted-Cross-Domain-Policies": "none",
-      "X-DNS-Prefetch-Control": "off",
-      "X-Download-Options": "noopen",
-      "Origin-Agent-Cluster": "?1",
-    },
+    headers: responseHeaders,
     body: JSON.stringify(sanitizeOutput(body)),
   };
 }
@@ -152,38 +159,55 @@ export function response(
 /**
  * Returns a 200 OK response.
  * @param {unknown} body - The response body.
+ * @param {string} [requestId] - Optional AWS Request ID.
  * @returns {APIGatewayProxyStructuredResultV2} The formatted response.
  */
-export const ok = (body: unknown): APIGatewayProxyStructuredResultV2 =>
-  response(200, body);
+export const ok = (
+  body: unknown,
+  requestId?: string,
+): APIGatewayProxyStructuredResultV2 => response(200, body, {}, requestId);
 
 /**
  * Returns a 201 Created response.
  * @param {unknown} body - The response body.
+ * @param {string} [requestId] - Optional AWS Request ID.
  * @returns {APIGatewayProxyStructuredResultV2} The formatted response.
  */
-export const created = (body: unknown): APIGatewayProxyStructuredResultV2 =>
-  response(201, body);
+export const created = (
+  body: unknown,
+  requestId?: string,
+): APIGatewayProxyStructuredResultV2 => response(201, body, {}, requestId);
 
 /**
  * Returns a 400 Bad Request response.
  * @param {string} msg - The error message.
+ * @param {string} [requestId] - Optional AWS Request ID.
  * @returns {APIGatewayProxyStructuredResultV2} The formatted response.
  */
-export const badRequest = (msg: string): APIGatewayProxyStructuredResultV2 =>
-  response(400, { message: msg });
+export const badRequest = (
+  msg: string,
+  requestId?: string,
+): APIGatewayProxyStructuredResultV2 =>
+  response(400, { message: msg }, {}, requestId);
 
 /**
  * Returns a 404 Not Found response.
  * @param {string} msg - The error message.
+ * @param {string} [requestId] - Optional AWS Request ID.
  * @returns {APIGatewayProxyStructuredResultV2} The formatted response.
  */
-export const notFound = (msg: string): APIGatewayProxyStructuredResultV2 =>
-  response(404, { message: msg });
+export const notFound = (
+  msg: string,
+  requestId?: string,
+): APIGatewayProxyStructuredResultV2 =>
+  response(404, { message: msg }, {}, requestId);
 
 /**
  * Returns a 500 Internal Server Error response.
+ * @param {string} [requestId] - Optional AWS Request ID.
  * @returns {APIGatewayProxyStructuredResultV2} The formatted response.
  */
-export const serverError = (): APIGatewayProxyStructuredResultV2 =>
-  response(500, { message: "Internal Server Error" });
+export const serverError = (
+  requestId?: string,
+): APIGatewayProxyStructuredResultV2 =>
+  response(500, { message: "Internal Server Error" }, {}, requestId);
