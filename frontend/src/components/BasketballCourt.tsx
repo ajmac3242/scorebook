@@ -35,11 +35,11 @@ const COURT_STYLES = `
     transform: scale(1.5);
     opacity: 1 !important;
   }
-  g[role="button"]:focus-visible circle {
+  .court-marker-group:focus-visible circle {
     transform: scale(1.5);
     opacity: 1 !important;
     stroke: black;
-    stroke-width: 2px;
+    stroke-width: 3px;
   }
   .latest-marker {
     animation: marker-appear 0.3s ease-out forwards, pulse 2s infinite 0.3s;
@@ -356,6 +356,7 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
                   cursor: onMarkerClick ? "pointer" : "default",
                   outline: "none",
                 }}
+                className="court-marker-group"
               >
                 <title>{`${marker.type} - ${marker.playerName ? marker.playerName : marker.label ? "#" + marker.label : "Opponent"}`}</title>
                 <circle

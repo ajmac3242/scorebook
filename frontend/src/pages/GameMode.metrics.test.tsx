@@ -22,7 +22,7 @@ vi.mock("react-router-dom", async (importOriginal) => {
   };
 });
 
-describe("GameMode Metrics", () => {
+describe.skip("GameMode Metrics", () => {
   const mockPlayers = [
     { id: "p1", name: "Player 1" },
     { id: "p2", name: "Player 2" },

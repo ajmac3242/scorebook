@@ -113,7 +113,11 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
         <Box sx={{ display: "flex", alignItems: "center" }}>
           {/* 🏀 Assistant Coach: Sync Status Indicator */}
           <Tooltip title={stat.synced ? "Synced to Cloud" : "Syncing to Cloud..."}>
-            <Box sx={{ mr: 1, display: "flex" }}>
+            <Box
+              sx={{ mr: 1, display: "flex" }}
+              role="status"
+              aria-label={stat.synced ? "Synced to cloud" : "Syncing to cloud..."}
+            >
               {stat.synced ? (
                 <CloudDone sx={{ fontSize: 16, color: "success.light", opacity: 0.7 }} />
               ) : (

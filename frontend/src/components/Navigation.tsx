@@ -274,7 +274,7 @@ const Navigation: React.FC = () => {
                 <NavItem
                   key={item.text}
                   item={item}
-                  isSelected={location.pathname === item.path}
+                  isSelected={location.pathname === item.path || (item.path !== "/" && location.pathname.startsWith(item.path))}
                 />
               ))}
             </Box>
