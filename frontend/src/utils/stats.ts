@@ -1407,10 +1407,12 @@ export const detectShotValueFromCoords = (x: number, y: number): number => {
  *   (e.g., opponent turnover or opponent miss followed by a defensive rebound).
  * - A KILL is a sequence of 3 consecutive STOPS.
  *
- * IMPLEMENTATION NOTE: The logic uses a look-ahead loop when a MISS is detected
- * to determine if the possession ended in a stop (DEF_REBOUND) or continued
- * (OFF_REBOUND). This look-ahead prevents "double-counting" stops in a single
- * possession sequence (e.g., MISS -> MISS -> DEF_REBOUND is only 1 stop).
+ * IMPLEMENTATION NOTE: This function employs a state-machine approach to process
+ * the event stream in a single linear pass (O(N)). It accurately identifies
+ * possession terminators (scores, turnovers, rebounds) to determine when a
+ * stop is earned. This avoids the complexity and performance overhead of
+ * nested "look-ahead" loops while robustly handling edge cases like multiple
+ * misses within a single possession.
  *
  * @param {StatEvent[]} stats - Chronological list of statistical events for the game.
  * @returns {object} Object containing total stops, kills, and current stop streak.
@@ -1422,13 +1424,14 @@ export const calculateStopsAndKills = (stats: StatEvent[]) => {
 
   /**
    * ⚡ Bolt: State-machine approach for possession tracking.
-   * Replaces the O(N^2) look-ahead loop with a single O(N) pass.
    *
-   * WHY: Previous implementations used nested loops to look ahead for rebounds after a miss.
-   * This state-machine approach is more efficient (O(N)) and handles edge cases like
-   * multiple misses in a single possession or gameId changes without complex index management.
-   *
-   * State tracks if we are currently in an opponent possession and if they have missed.
+   * STATE VARIABLES:
+   * - inOpponentPossession: Tracks if the opponent is currently in an active
+   *   possession where they have already missed a shot. This prevents awarding
+   *   multiple stops for multiple misses in the same possession.
+   * - isOurPossession: Tracks which team currently holds the ball. This is
+   *   critical for distinguishing between offensive and defensive fouls, as
+   *   only defensive fouls (committed while opponent has ball) break the streak.
    */
   let inOpponentPossession = false;
   let isOurPossession = false;
@@ -2380,8 +2383,16 @@ export const calculateOnOffStats = (
   const activePlayers = new Set<string>();
   let currentGameId: string | null = null;
 
-  // ⚡ Bolt: Global totals allow deriving "OFF" stats as (Total - ON),
-  // eliminating the O(N*P) nested loop and improving to O(N+P).
+  // ⚡ Bolt: $O(N+P)$ Optimization via "OFF-as-Difference"
+  //
+  // WHY: A naive "OFF" calculation would require checking every player against
+  // every event ($O(N \times P)$). Instead, we track global totals for all events
+  // in the game once. Any stat for a player while they are "OFF" the court is
+  // mathematically equivalent to (Total Game Stat - Player ON Stat).
+  //
+  // PERFORMANCE: This reduces complexity to a single pass through events ($O(N)$)
+  // plus a single pass through players ($O(P)$), ensuring rapid calculation
+  // even for large multi-game datasets or rosters.
   const totals = {
     ptsFor: 0, ptsAgn: 0,
     teamFga: 0, teamFta: 0, teamTo: 0, teamOreb: 0,

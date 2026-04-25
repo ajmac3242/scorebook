@@ -248,6 +248,16 @@ export function extractRequestMetadata(event: APIGatewayProxyEventV2): {
 /**
  * Timing-safe string comparison to prevent timing attacks on sensitive keys.
  *
+ * WHY: Standard string comparison (===) often short-circuits as soon as a
+ * mismatch is found, meaning it takes slightly less time to return 'false' if
+ * the mismatch is at the beginning of the string. An attacker can use this
+ * timing difference to guess a secret character-by-character.
+ *
+ * This function uses 'crypto.timingSafeEqual' on fixed-length SHA-256 hashes
+ * of the inputs. This ensures that the comparison always takes a constant
+ * amount of time regardless of how much of the string matches, making it
+ * immune to timing-based side-channel attacks.
+ *
  * @param {string} a - First string (e.g., user-provided key).
  * @param {string} b - Second string (e.g., actual secret key).
  * @returns {boolean} True if strings are equal.
@@ -311,10 +321,16 @@ const FORBIDDEN_KEYS = Object.freeze(
 /**
  * Strips local-only fields and internal DynamoDB keys from the data object before saving.
  *
- * WHY: This provides mass assignment protection by ensuring that internal database
- * fields (like PK/SK) or temporary UI state cannot be injected into the database.
- * It is a critical security layer that enforces schema integrity at the application level.
- * It also protects against prototype pollution and recursively cleans arrays.
+ * WHY: This utility serves as a critical security layer for "Mass Assignment Protection".
+ * By filtering out internal DynamoDB keys (PK, SK, GSIs) and UI-only state (synced, deletedAt),
+ * it ensures that a malicious client cannot inject or overwrite metadata that should
+ * only be managed by the server.
+ *
+ * SECURITY:
+ * - Prototype Pollution: Explicitly skips forbidden keys like '__proto__' to
+ *   prevent malicious payloads from modifying the object prototype.
+ * - Recursion Depth: Enforces a maximum depth (10) to mitigate stack overflow
+ *   Denial-of-Service (DoS) attacks from deeply nested JSON structures.
  *
  * @param {unknown} data - The data to clean.
  * @param {number} depth - Current recursion depth.
