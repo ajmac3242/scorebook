@@ -405,6 +405,35 @@ class SyncService {
   }
 
   /**
+   * 🏀 Assistant Coach: Live Game Syncing
+   * Fetches latest stats for an active game directly from the API.
+   * @param {string} gameId - The game ID.
+   */
+  async pullLiveStats(gameId: string) {
+    try {
+      const res = await this.fetchApi(`/api/games/${gameId}/stats`);
+      if (res.ok) {
+        const stats = await res.json();
+        if (Array.isArray(stats)) {
+          await db.transaction("rw", [db.stats], async () => {
+            const statsToPut = stats.map(
+              (s) =>
+                ({
+                  ...s,
+                  id: s.id as string,
+                  synced: 1,
+                }) as StatEvent,
+            );
+            await db.stats.bulkPut(statsToPut);
+          });
+        }
+      }
+    } catch (e) {
+      logger.error(`Live sync failed for game ${gameId}:`, e);
+    }
+  }
+
+  /**
    * Persists roster snapshot data to local IndexedDB.
    * @param {string} teamId - Team ID.
    * @param {RosterSnapshot} data - Snapshot data.

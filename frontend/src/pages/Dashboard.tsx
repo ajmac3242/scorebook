@@ -41,6 +41,17 @@ import BasketballCourt from "../components/BasketballCourt";
 import { getShotZone } from "../utils/shotZones";
 import { ACTION_TYPES } from "../constants/stats";
 import dayjs from "dayjs";
+import {
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip as RechartsTooltip,
+  ResponsiveContainer,
+  Legend,
+  ComposedChart,
+  Area,
+} from "recharts";
 
 /**
  * Dashboard component providing a "My Team" overview or a welcome message.
@@ -49,6 +60,7 @@ const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const [selectedPeriod, setSelectedPeriod] = React.useState<string>("ALL");
   const [gameCountFilter, setGameCountFilter] = React.useState<string>("all");
+  const [activeTab, setActiveTab] = React.useState<"OVERVIEW" | "HEALTH">("OVERVIEW");
 
   // Find the starred team
   const favoriteTeam = useLiveQuery(
@@ -198,6 +210,28 @@ const Dashboard: React.FC = () => {
       .slice(0, 3);
   }, [teamGames]);
 
+  const healthData = useMemo(() => {
+    if (!favoriteTeam || !teamGames.length) return [];
+
+    const completed = teamGames
+      .filter((g) => g.completed)
+      .sort((a, b) => dayjs(a.date).diff(dayjs(b.date)))
+      .slice(-10);
+
+    return completed.map((game) => {
+      const gameStats = allStats.filter((s) => s.gameId === game.id);
+      const agg = calculateTeamAggregates([game], gameStats);
+      return {
+        date: dayjs(game.date).format("M/D"),
+        opponent: game.opponent,
+        efg: parseFloat(agg.efgPct),
+        to: parseFloat(agg.toPct),
+        orb: parseFloat(agg.orbPct),
+        ftr: parseFloat(agg.ftRate),
+      };
+    });
+  }, [favoriteTeam, teamGames, allStats]);
+
   if (!favoriteTeam) {
     return (
       <Box>
@@ -299,8 +333,20 @@ const Dashboard: React.FC = () => {
             }}
           />
         </Box>
+        <Box sx={{ ml: "auto" }}>
+          <ToggleButtonGroup
+            value={activeTab}
+            exclusive
+            onChange={(_, v) => v && setActiveTab(v)}
+            size="small"
+          >
+            <ToggleButton value="OVERVIEW">Overview</ToggleButton>
+            <ToggleButton value="HEALTH">Program Health</ToggleButton>
+          </ToggleButtonGroup>
+        </Box>
       </Box>
 
+      {activeTab === "OVERVIEW" ? (
       <Grid container spacing={3}>
         {/* Key Stats */}
         <Grid item xs={12} md={8}>
@@ -742,6 +788,82 @@ const Dashboard: React.FC = () => {
           </Stack>
         </Grid>
       </Grid>
+      ) : (
+        <Grid container spacing={3}>
+          <Grid item xs={12}>
+            <MoleskineCard>
+              <Typography variant="h6" sx={{ fontWeight: 700, mb: 3 }}>
+                Longitudinal Program Health (Last 10 Games)
+              </Typography>
+              <Box sx={{ height: 400, width: "100%", py: 2 }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <ComposedChart data={healthData}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                    <XAxis dataKey="date" />
+                    <YAxis domain={[0, 100]} />
+                    <RechartsTooltip />
+                    <Legend />
+                    <Area
+                      type="monotone"
+                      dataKey="efg"
+                      name="eFG%"
+                      fill={theme.palette.primary.main}
+                      stroke={theme.palette.primary.main}
+                      fillOpacity={0.1}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="to"
+                      name="TO%"
+                      stroke={theme.palette.error.main}
+                      strokeWidth={2}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="orb"
+                      name="ORB%"
+                      stroke={theme.palette.success.main}
+                      strokeWidth={2}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="ftr"
+                      name="FT Rate"
+                      stroke={theme.palette.warning.main}
+                      strokeWidth={2}
+                    />
+                  </ComposedChart>
+                </ResponsiveContainer>
+              </Box>
+            </MoleskineCard>
+          </Grid>
+          <Grid item xs={12}>
+            <MoleskineCard>
+              <Typography variant="h6" sx={{ fontWeight: 700, mb: 3 }}>
+                Identity Goals (Target Achievement)
+              </Typography>
+              <Grid container spacing={3}>
+                {[
+                  { label: "eFG% > 50%", value: healthData.filter(d => d.efg > 50).length / healthData.length * 100 },
+                  { label: "TO% < 15%", value: healthData.filter(d => d.to < 15).length / healthData.length * 100 },
+                  { label: "ORB% > 30%", value: healthData.filter(d => d.orb > 30).length / healthData.length * 100 },
+                  { label: "FTR > 25", value: healthData.filter(d => d.ftr > 25).length / healthData.length * 100 },
+                ].map((goal, idx) => (
+                  <Grid item xs={6} md={3} key={idx}>
+                    <Box sx={{ textAlign: "center", p: 2, bgcolor: "rgba(0,0,0,0.02)", borderRadius: 2 }}>
+                      <Typography variant="caption" sx={{ fontWeight: 700, display: "block", mb: 1 }}>{goal.label}</Typography>
+                      <Typography variant="h4" sx={{ fontWeight: 800, color: goal.value >= 50 ? "success.main" : "warning.main" }}>
+                        {isNaN(goal.value) ? 0 : Math.round(goal.value)}%
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">of games met</Typography>
+                    </Box>
+                  </Grid>
+                ))}
+              </Grid>
+            </MoleskineCard>
+          </Grid>
+        </Grid>
+      )}
     </Box>
   );
 };

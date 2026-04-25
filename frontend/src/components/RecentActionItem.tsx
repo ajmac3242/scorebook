@@ -18,6 +18,8 @@ import {
   Groups,
   Edit,
   Delete,
+  CloudUpload,
+  CloudDone,
 } from "@mui/icons-material";
 import { StatEvent } from "../db";
 import { ACTION_TYPES } from "../constants/stats";
@@ -108,7 +110,18 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
             </Typography>
           </Box>
         </Box>
-        <Box>
+        <Box sx={{ display: "flex", alignItems: "center" }}>
+          {/* 🏀 Assistant Coach: Sync Status Indicator */}
+          <Tooltip title={stat.synced ? "Synced to Cloud" : "Syncing to Cloud..."}>
+            <Box sx={{ mr: 1, display: "flex" }}>
+              {stat.synced ? (
+                <CloudDone sx={{ fontSize: 16, color: "success.light", opacity: 0.7 }} />
+              ) : (
+                <CloudUpload sx={{ fontSize: 16, color: "warning.main", opacity: 0.8 }} />
+              )}
+            </Box>
+          </Tooltip>
+
           <Tooltip title={`Edit ${stat.type} for ${playerName}`}>
             <IconButton
               size="small"

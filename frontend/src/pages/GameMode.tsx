@@ -340,6 +340,45 @@ const Scoreboard = React.memo(
             px: 2,
           }}
         >
+          {/* 🏀 Assistant Coach: Live Sync Indicator */}
+          {!isReadOnly && !game?.completed && (
+            <Box
+              sx={{
+                position: "absolute",
+                top: 8,
+                left: "50%",
+                transform: "translateX(-50%)",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 0.5,
+              }}
+            >
+              <Chip
+                label="LIVE SYNC ACTIVE"
+                size="small"
+                color="success"
+                sx={{
+                  height: 16,
+                  fontSize: "0.55rem",
+                  fontWeight: 800,
+                  opacity: 0.8,
+                  animation: `${pulse} 3s infinite ease-in-out`,
+                }}
+              />
+              <Typography
+                variant="caption"
+                sx={{
+                  color: "rgba(255,255,255,0.5)",
+                  fontSize: "0.5rem",
+                  fontWeight: 600,
+                  textTransform: "uppercase",
+                }}
+              >
+                1 Assistant Connected
+              </Typography>
+            </Box>
+          )}
           {/* Momentum Alerts */}
           {(gameData.momentumAlerts.opponentRun ||
             gameData.momentumAlerts.scoringDrought ||
@@ -1108,6 +1147,18 @@ const GameMode: React.FC = () => {
     }, 60000); // 1 minute
     return () => clearInterval(interval);
   }, []);
+
+  // 🏀 Assistant Coach: Live Sync Polling
+  // Periodically pulls latest stats from the server to keep multiple devices in sync.
+  useEffect(() => {
+    if (!gameId || isReadOnly || game?.completed) return;
+
+    const interval = setInterval(() => {
+      syncService.pullLiveStats(gameId);
+    }, 15000); // Poll every 15 seconds
+
+    return () => clearInterval(interval);
+  }, [gameId, isReadOnly, game?.completed]);
 
   /**
    * ⚡ Bolt: Centralized sorting of game events.
