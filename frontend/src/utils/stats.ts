@@ -1389,8 +1389,9 @@ export const detectShotValueFromCoords = (x: number, y: number): number => {
   if (svgY <= 140) {
     if (svgX <= 30 || svgX >= 470) return 3;
   } else {
-    const dist = Math.sqrt(Math.pow(svgX - 250, 2) + Math.pow(svgY - 140, 2));
-    if (dist >= 220) return 3;
+    // ⚡ Bolt: Use squared distance to avoid expensive Math.sqrt() calls.
+    const distSq = Math.pow(svgX - 250, 2) + Math.pow(svgY - 140, 2);
+    if (distSq >= 48400) return 3; // 220^2 = 48400
   }
   return 2;
 };
@@ -1583,11 +1584,26 @@ export const calculateTeamAggregates = (
   const team = { pts: 0, reb: 0, ast: 0, fga: 0, fta: 0, to: 0, oreb: 0, dreb: 0, makes: 0, threePM: 0, ftm: 0 };
   const opp = { pts: 0, fga: 0, fta: 0, to: 0, oreb: 0, dreb: 0, makes: 0, threePM: 0, ftm: 0 };
 
+  // ⚡ Bolt: One-slot cache for game totals lookup.
+  // WHY: Events are usually grouped by gameId. Caching the last lookup
+  // avoids redundant Map.get() calls in the hot event loop.
+  let lastGameId: string | null = null;
+  let cachedTotals: { team: number; opp: number } | undefined;
+
   for (let i = 0; i < stats.length; i++) {
     const stat = stats[i];
     if (!isActive(stat)) continue;
 
-    const totals = gameTotals.get(stat.gameId);
+    const gameId = stat.gameId;
+    let totals: { team: number; opp: number } | undefined;
+
+    if (gameId === lastGameId) {
+      totals = cachedTotals;
+    } else {
+      totals = gameTotals.get(gameId);
+      lastGameId = gameId;
+      cachedTotals = totals;
+    }
     if (!totals) continue;
 
     const isOpponent = isOpponentId(stat.playerId);
@@ -2154,43 +2170,39 @@ export const calculateLineupStats = (
     );
   }
 
+  const sortKey = (options.key || "netRating") as keyof LineupAggregates;
+  const sortDir = options.direction || "desc";
+
   const result = Array.from(lineupStats.values()).map((agg) => {
     const net = agg.pointsFor - agg.pointsAgainst;
     const mins = agg.seconds / 60;
+    const netRatingPer40Str = mins > 0 ? ((net / mins) * 40).toFixed(1) : "0.0";
+
+    // ⚡ Bolt: Pre-calculate numeric sort value to avoid expensive calculations
+    // and parseFloat calls in the hot .sort() comparator ($O(N log N)$).
+    let sortValue: number;
+    if (sortKey === "netRatingPer40") {
+      sortValue = mins > 0 ? (net / mins) * 40 : 0;
+    } else if (sortKey === "netRating") {
+      sortValue = net;
+    } else {
+      const val = agg[sortKey];
+      sortValue = typeof val === "number" ? val : 0;
+    }
+
     return {
       ...agg,
       netRating: net,
-      netRatingPer40: mins > 0 ? ((net / mins) * 40).toFixed(1) : "0.0",
+      netRatingPer40: netRatingPer40Str,
+      sortValue,
     };
   });
 
-  const sortKey = options.key || "netRating";
-  const sortDir = options.direction || "desc";
-
-  return result.sort((a, b) => {
-    // ⚡ Bolt: Use numeric values directly for sorting to avoid parseFloat in the loop.
-    let aValue = a[sortKey as keyof typeof a];
-    let bValue = b[sortKey as keyof typeof b];
-
-    // If sorting by netRatingPer40, use the underlying numeric calculation
-    if (sortKey === "netRatingPer40") {
-      const aNet = a.pointsFor - a.pointsAgainst;
-      const aMins = a.seconds / 60;
-      const bNet = b.pointsFor - b.pointsAgainst;
-      const bMins = b.seconds / 60;
-      aValue = aMins > 0 ? (aNet / aMins) * 40 : 0;
-      bValue = bMins > 0 ? (bNet / bMins) * 40 : 0;
-    } else if (typeof aValue === "string" && typeof bValue === "string") {
-      aValue = parseFloat(aValue);
-      bValue = parseFloat(bValue);
-    }
-
-    if (typeof aValue === "number" && typeof bValue === "number") {
-      return sortDir === "desc" ? bValue - aValue : aValue - bValue;
-    }
-
-    return 0;
-  });
+  return result
+    .sort((a, b) =>
+      sortDir === "desc" ? b.sortValue - a.sortValue : a.sortValue - b.sortValue,
+    )
+    .map(({ sortValue, ...rest }) => rest);
 };
 
 /**
@@ -2546,9 +2558,16 @@ export const calculatePlayerStreaks = (
         playerStreaks.set(pId, history);
       }
 
-      history.push(isScoringEvent(s) ? "MAKE" : "MISS");
-      if (history.length > 3) {
-        history.shift(); // Keep only last 3 to minimize memory overhead
+      // ⚡ Bolt: Efficiently track the last 3 field goal attempts.
+      // WHY: history.shift() is O(N). For a fixed-size buffer of 3,
+      // manual shifting or circular indexing is faster and avoids re-indexing.
+      const action = isScoringEvent(s) ? "MAKE" : "MISS";
+      if (history.length < 3) {
+        history.push(action);
+      } else {
+        history[0] = history[1];
+        history[1] = history[2];
+        history[2] = action;
       }
     }
   }
