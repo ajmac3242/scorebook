@@ -93,3 +93,17 @@
 ### Basketball Edge Cases
 - **OT Transitions**: Overtime periods are shorter than regulation. Any minute tracking must check the period number against the game format.
 - **Offensive Fouls**: A defensive stop occurs whenever a defensive possession ends without a score. Opponent offensive fouls are the ultimate defensive stop.
+
+## 2025-05-29 - Logic Precision & Boundary Refinement
+
+### Findings & Fixed Bugs
+- **Bug 22: HALVES Mode OT Leakage**: Discovered that `isEventInPeriod` incorrectly showed 2nd Half (P2) events when viewing an OT period (P3+) in HALVES mode. Standardized it so specific OT views only show their own events.
+- **Bug 23: Play Efficiency Possession Gap**: Found that `calculatePlayEfficiency` ignored offensive rebounds, leading to inflated possession counts for plays that were kept alive. Added `oreb` tracking and updated the formula.
+- **Bug 24: Clutch Minute Rounding**: Identified that `clutchOnly` statistics were inaccurate because they only recorded stints that *ended* during clutch time. Refactored the engine to use interval-based accumulation (sweep-line) to capture playing time exactly as it crosses the clutch boundary.
+
+### Critical Test Gaps Filled
+- New comprehensive suite `scout_audit_v3.test.ts` verifying OT isolation in HALVES mode, OREB inclusion in play PPP, and precise minute tracking for clutch boundaries.
+
+### Basketball Edge Cases
+- **Clutch Boundaries**: Calculating stats for a sub-window of a game (like Clutch or a specific period) requires an interval-based approach. A player might start a stint before clutch time and end it after; only the overlapping seconds should count.
+- **Play Possessions**: A "play" isn't a single shot; it's a sequence. Offensive rebounds reset the 24-second clock but do not start a new team possession for that specific set.

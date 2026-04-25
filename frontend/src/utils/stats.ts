@@ -654,7 +654,12 @@ export const calculatePlayerAggregates = (
   // Track player stints for MIN and plus-minus
   const activeStints = new Map<
     string,
-    { startClock: number; startScoreDiff: number; lastGameId: string }
+    {
+      startClock: number;
+      startScoreDiff: number;
+      lastGameId: string;
+      lastPeriod: number;
+    }
   >();
   // ⚡ Bolt: Use pre-sorted stats or sort them if needed.
   const sortedStats = options.isSorted ? stats : sortStats(stats);
@@ -662,6 +667,9 @@ export const calculatePlayerAggregates = (
   const scores = { team: 0, opp: 0 };
   let currentPeriod = 1;
   let currentGameId: string | null = null;
+  let lastClockTime = getPeriodLen(1, options);
+  let lastScoreDiff = 0;
+  const activePlayers = new Set<string>();
 
   // ⚡ Bolt: Cache last gameId per player to avoid redundant Set.add overhead.
   const lastGameIdMap = new Map<string, string>();
@@ -674,82 +682,110 @@ export const calculatePlayerAggregates = (
 
     const { playerId, type, clockTime, period, gameId } = stat;
 
-    // 🏀 CoachBoard: Clutch Filter
-    if (options.clutchOnly && clockTime !== undefined) {
-      const isClutch = isClutchEvent(
-        period,
-        clockTime,
-        scores.team - scores.opp,
-        options.periodType || "QUARTERS",
-      );
-      if (!isClutch) {
-        // We still need to update scores and lineups to maintain state
-        if (type === ACTION_TYPES.MAKE) {
-          const pts = stat.points || 0;
-          if (isOpponentId(playerId)) scores.opp += pts;
-          else scores.team += pts;
-        }
-        if (type === ACTION_TYPES.SUB_IN) {
-          activeStints.set(playerId, {
-            startClock: clockTime,
-            startScoreDiff: scores.team - scores.opp,
-            lastGameId: gameId,
-          });
-        } else if (type === ACTION_TYPES.SUB_OUT) {
-          activeStints.delete(playerId);
-        }
-        continue;
-      }
-    }
-
     // Handle new game context
     if (gameId !== currentGameId) {
-      // Close all active stints for the previous game
-      for (const [pId, stint] of activeStints.entries()) {
-        handleStintEnd(statsMap.get(pId), stint, scores, 0);
+      // Record final minutes for previous game
+      for (const pId of activePlayers) {
+        const clutchSecs = getClutchSeconds(
+          currentPeriod,
+          lastClockTime,
+          0,
+          lastScoreDiff,
+          options.periodType || "QUARTERS",
+        );
+        const pAgg = statsMap.get(pId);
+        if (pAgg) pAgg.min += options.clutchOnly ? clutchSecs : lastClockTime;
       }
-      activeStints.clear();
+      activePlayers.clear();
       lastGameIdMap.clear();
       scores.team = 0;
       scores.opp = 0;
       currentPeriod = 1;
       currentGameId = gameId;
+      lastClockTime = getPeriodLen(1, options);
+      lastScoreDiff = 0;
     }
 
     // 🏀 CoachBoard: Handle period transitions for active stints
-    // Why: Ensures minutes played and plus-minus are calculated correctly
-    // even if a player stays on the court across period boundaries.
     if (period && period > currentPeriod) {
-      for (const [pId, stint] of activeStints.entries()) {
-        // Finish stint for the previous period (assumed to end at 0:00)
-        handleStintEnd(statsMap.get(pId), stint, scores, 0);
+      for (const pId of activePlayers) {
+        const clutchSecs = getClutchSeconds(
+          currentPeriod,
+          lastClockTime,
+          0,
+          lastScoreDiff,
+          options.periodType || "QUARTERS",
+        );
+        const pAgg = statsMap.get(pId);
+        if (pAgg) pAgg.min += options.clutchOnly ? clutchSecs : lastClockTime;
 
         // 🔍 Scout: Handle full minutes for skipped periods
         for (let p = currentPeriod + 1; p < period; p++) {
-          const pAgg = statsMap.get(pId);
-          if (pAgg) pAgg.min += getPeriodLen(p, options);
+          if (pAgg) {
+            const skipClutchSecs = getClutchSeconds(
+              p,
+              getPeriodLen(p, options),
+              0,
+              lastScoreDiff,
+              options.periodType || "QUARTERS",
+            );
+            pAgg.min += options.clutchOnly ? skipClutchSecs : getPeriodLen(p, options);
+          }
         }
-
-        // Start new stint for the current period (assumed to start at full period)
-        stint.startClock = getPeriodLen(period, options);
-        stint.startScoreDiff = scores.team - scores.opp;
       }
       currentPeriod = period;
+      lastClockTime = getPeriodLen(period, options);
     }
 
-    // ⚡ Bolt: Use domain helpers for scoring and opponent identification.
+    // Accumulate minutes for interval since last event
+    if (clockTime !== undefined) {
+      const clutchSecs = getClutchSeconds(
+        period,
+        lastClockTime,
+        clockTime,
+        lastScoreDiff,
+        options.periodType || "QUARTERS",
+      );
+      for (const pId of activePlayers) {
+        const pAgg = statsMap.get(pId);
+        if (pAgg) {
+          pAgg.min += options.clutchOnly ? clutchSecs : (lastClockTime - clockTime);
+        }
+      }
+      lastClockTime = clockTime;
+    }
+
+    // Determine if current event is clutch
+    const isClutch =
+      !options.clutchOnly ||
+      (clockTime !== undefined &&
+        isClutchEvent(
+          period,
+          clockTime,
+          scores.team - scores.opp,
+          options.periodType || "QUARTERS",
+        ));
+
+    // Update plus-minus and scores
     if (type === ACTION_TYPES.MAKE) {
       const pts = stat.points || 0;
-      if (isOpponentId(playerId)) {
-        scores.opp += pts;
-      } else {
-        scores.team += pts;
+      const isOpp = isOpponentId(playerId);
+      const diffChange = isOpp ? -pts : pts;
+
+      if (isClutch) {
+        for (const pId of activePlayers) {
+          const pAgg = statsMap.get(pId);
+          if (pAgg) pAgg.plusMinus += diffChange;
+        }
       }
+
+      if (isOpp) scores.opp += pts; else scores.team += pts;
+      lastScoreDiff = scores.team - scores.opp;
     }
 
     // ⚡ Bolt: Cache statsMap lookups to avoid redundant Map access in the hot loop.
     const player = statsMap.get(playerId);
-    if (player) {
+    if (player && isClutch) {
       // ⚡ Bolt: Inline processStatEvent and applyActionToAggregate to minimize overhead.
       // Only call Set.add if gameId has changed for this player to skip internal Set logic.
       if (lastGameIdMap.get(playerId) !== gameId) {
@@ -814,34 +850,31 @@ export const calculatePlayerAggregates = (
       }
     }
 
-    // Handle Sub-In/Sub-Out for MIN and Plus-Minus
-    if (type === ACTION_TYPES.SUB_IN && clockTime !== undefined) {
-      activeStints.set(playerId, {
-        startClock: clockTime,
-        startScoreDiff: scores.team - scores.opp,
-        lastGameId: gameId,
-      });
-    } else if (type === ACTION_TYPES.SUB_OUT && clockTime !== undefined) {
-      // ⚡ Bolt: activeStints lookup cached.
-      const stint = activeStints.get(playerId);
-      if (stint) {
-        handleStintEnd(player, stint, scores, clockTime);
-        activeStints.delete(playerId);
-      }
+    // Handle Sub-In/Sub-Out
+    if (type === ACTION_TYPES.SUB_IN) {
+      activePlayers.add(playerId);
+    } else if (type === ACTION_TYPES.SUB_OUT) {
+      activePlayers.delete(playerId);
     }
   }
 
   // Handle players still on court at end of game
   const liveCtx = options.liveContext;
-  for (const [pId, stint] of activeStints.entries()) {
-    // 🏀 CoachBoard: Accurate Live Minutes
-    // Why: If we have liveContext, stint ends at current clockTime.
-    // Otherwise, assume they played until the buzzer (0:00).
-    const endClock =
-      liveCtx && stint.lastGameId === stats[stats.length - 1]?.gameId
-        ? liveCtx.clockTime
-        : 0;
-    handleStintEnd(statsMap.get(pId), stint, scores, endClock);
+  const finalClock =
+    liveCtx && sortedStats[sortedStats.length - 1]?.gameId === currentGameId
+      ? liveCtx.clockTime
+      : 0;
+
+  for (const pId of activePlayers) {
+    const clutchSecs = getClutchSeconds(
+      currentPeriod,
+      lastClockTime,
+      finalClock,
+      lastScoreDiff,
+      options.periodType || "QUARTERS",
+    );
+    const pAgg = statsMap.get(pId);
+    if (pAgg) pAgg.min += options.clutchOnly ? clutchSecs : (lastClockTime - finalClock);
   }
 
   // Finalize totals, percentages, and averages
@@ -1093,6 +1126,7 @@ export const calculatePlayEfficiency = (
       fta: number;
       turnovers: number;
       threePM: number;
+      oreb: number;
     }
   > = {};
 
@@ -1108,6 +1142,7 @@ export const calculatePlayEfficiency = (
         fta: 0,
         turnovers: 0,
         threePM: 0,
+        oreb: 0,
       };
     }
 
@@ -1131,6 +1166,8 @@ export const calculatePlayEfficiency = (
       }
     } else if (s.type === ACTION_TYPES.TURNOVER) {
       play.turnovers++;
+    } else if (s.type === ACTION_TYPES.OFF_REBOUND) {
+      play.oreb = (play.oreb || 0) + 1;
     }
   }
 
@@ -1140,7 +1177,7 @@ export const calculatePlayEfficiency = (
         s.attempts,
         s.fta,
         s.turnovers,
-        0,
+        s.oreb || 0,
       );
       return {
         name,
@@ -1885,6 +1922,29 @@ export const isClutchEvent = (
   return (isFinal || isOT) && isClutchTime && isClutchScore;
 };
 
+/**
+ * 🔍 Scout: Calculates how many seconds of an interval [startClock, endClock]
+ * are considered "clutch time".
+ */
+export const getClutchSeconds = (
+  period: number,
+  startClock: number,
+  endClock: number,
+  scoreDiff: number,
+  periodType: string,
+): number => {
+  if (Math.abs(scoreDiff) > 5) return 0;
+  const isOT = periodType === "QUARTERS" ? period > 4 : period > 2;
+  const isFinal = periodType === "QUARTERS" ? period === 4 : period === 2;
+  if (isOT) return Math.max(0, startClock - endClock);
+  if (!isFinal) return 0;
+
+  const regClutchTime = periodType === "QUARTERS" ? 240 : 120;
+  const s = Math.min(startClock, regClutchTime);
+  const e = Math.min(endClock, regClutchTime);
+  return Math.max(0, s - e);
+};
+
 export const isEventInPeriod = (
   eventPeriod: number,
   currentPeriod: number,
@@ -1903,8 +1963,12 @@ export const isEventInPeriod = (
     return eventPeriod === 1;
   }
 
-  // Period 2+ in HALVES includes all subsequent periods (OTs)
-  return eventPeriod >= 2;
+  // Period 2 in HALVES includes all subsequent periods (OTs)
+  if (currentPeriod === 2) {
+    return eventPeriod >= 2;
+  }
+
+  return eventPeriod === currentPeriod;
 };
 
 /**
@@ -2060,6 +2124,7 @@ export const calculateLineupStats = (
   // on every event. The key is only recalculated when a substitution occurs.
   let cachedLineupKey: string | null = null;
   let lastClockTime = getPeriodLen(1, options);
+  let lastScoreDiff = 0;
   let lastTeamScore = 0;
   let lastOppScore = 0;
   let currentPeriod = 1;
@@ -2073,22 +2138,27 @@ export const calculateLineupStats = (
 
     // ⚡ Bolt: Handle multi-game aggregation by detecting game context changes in-stream.
     if (currentGameId !== null && s.gameId !== currentGameId) {
-      // 🏀 Boundary Logic: Close the stint for the previous game.
-      // WHY: Plus/Minus and minutes should not bleed across different games.
       if (currentLineup.size === 5) {
         if (!cachedLineupKey) cachedLineupKey = getLineupKey(currentLineup);
+        const clutchSecs = getClutchSeconds(
+          currentPeriod,
+          lastClockTime,
+          0,
+          lastScoreDiff,
+          options.periodType || "QUARTERS",
+        );
         recordLineupStint(
           lineupStats,
           cachedLineupKey,
-          lastClockTime, // Assume played until buzzer (0:00)
+          options.clutchOnly ? clutchSecs : lastClockTime,
           scores.team - lastTeamScore,
           scores.opp - lastOppScore,
         );
       }
       currentLineup.clear();
-      cachedLineupKey = null; // Invalidate lineup key cache
-
+      cachedLineupKey = null;
       lastClockTime = getPeriodLen(1, options);
+      lastScoreDiff = 0;
       lastTeamScore = 0;
       lastOppScore = 0;
       currentPeriod = 1;
@@ -2099,24 +2169,36 @@ export const calculateLineupStats = (
 
     // Handle period transition
     if (s.period > currentPeriod) {
-      // 🏀 Boundary Logic: Close stint for the previous period.
-      // WHY: We record the stats accumulated during the period that just ended.
       if (currentLineup.size === 5) {
         if (!cachedLineupKey) cachedLineupKey = getLineupKey(currentLineup);
+        const clutchSecs = getClutchSeconds(
+          currentPeriod,
+          lastClockTime,
+          0,
+          lastScoreDiff,
+          options.periodType || "QUARTERS",
+        );
         recordLineupStint(
           lineupStats,
           cachedLineupKey,
-          lastClockTime, // Time remaining in previous period (usually ends at 0:00)
+          options.clutchOnly ? clutchSecs : lastClockTime,
           scores.team - lastTeamScore,
           scores.opp - lastOppScore,
         );
 
         // 🔍 Scout: Handle full minutes for skipped periods
         for (let p = currentPeriod + 1; p < s.period; p++) {
+          const skipClutchSecs = getClutchSeconds(
+            p,
+            getPeriodLen(p, options),
+            0,
+            lastScoreDiff,
+            options.periodType || "QUARTERS",
+          );
           recordLineupStint(
             lineupStats,
             cachedLineupKey,
-            getPeriodLen(p, options),
+            options.clutchOnly ? skipClutchSecs : getPeriodLen(p, options),
             0,
             0,
           );
@@ -2128,6 +2210,31 @@ export const calculateLineupStats = (
       currentPeriod = s.period;
     }
 
+    // Accumulate interval stats
+    if (s.clockTime !== undefined && currentLineup.size === 5) {
+      const clutchSecs = getClutchSeconds(
+        s.period,
+        lastClockTime,
+        s.clockTime,
+        lastScoreDiff,
+        options.periodType || "QUARTERS",
+      );
+      if (!options.clutchOnly || clutchSecs > 0) {
+        if (!cachedLineupKey) cachedLineupKey = getLineupKey(currentLineup);
+        recordLineupStint(
+          lineupStats,
+          cachedLineupKey,
+          options.clutchOnly ? clutchSecs : (lastClockTime - s.clockTime),
+          scores.team - lastTeamScore,
+          scores.opp - lastOppScore,
+        );
+      }
+      lastClockTime = s.clockTime;
+      lastTeamScore = scores.team;
+      lastOppScore = scores.opp;
+    }
+
+    // Determine if current event is clutch
     const isClutch =
       !options.clutchOnly ||
       (s.clockTime !== undefined &&
@@ -2146,43 +2253,36 @@ export const calculateLineupStats = (
       } else {
         scores.team += pts;
       }
+      lastScoreDiff = scores.team - scores.opp;
     }
 
-    // When lineup changes, record stats for the previous lineup
+    // When lineup changes
     if (s.type === ACTION_TYPES.SUB_IN || s.type === ACTION_TYPES.SUB_OUT) {
-      if (currentLineup.size === 5 && s.clockTime !== undefined && isClutch) {
-        if (!cachedLineupKey) cachedLineupKey = getLineupKey(currentLineup);
-        recordLineupStint(
-          lineupStats,
-          cachedLineupKey,
-          lastClockTime - s.clockTime,
-          scores.team - lastTeamScore,
-          scores.opp - lastOppScore,
-        );
-      }
-
       if (s.type === ACTION_TYPES.SUB_IN) currentLineup.add(s.playerId);
       else currentLineup.delete(s.playerId);
-      cachedLineupKey = null; // Invalidate lineup key cache
-
-      lastClockTime = s.clockTime || 0;
-      lastTeamScore = scores.team;
-      lastOppScore = scores.opp;
+      cachedLineupKey = null;
     }
   }
 
   // Final stint
   if (currentGameId !== null && currentLineup.size === 5) {
     const liveCtx = options.liveContext;
-    const endClock =
+    const finalClock =
       liveCtx && currentGameId === sortedStats[sortedStats.length - 1]?.gameId
         ? liveCtx.clockTime
         : 0;
+    const clutchSecs = getClutchSeconds(
+      currentPeriod,
+      lastClockTime,
+      finalClock,
+      lastScoreDiff,
+      options.periodType || "QUARTERS",
+    );
     if (!cachedLineupKey) cachedLineupKey = getLineupKey(currentLineup);
     recordLineupStint(
       lineupStats,
       cachedLineupKey,
-      Math.max(0, lastClockTime - endClock),
+      options.clutchOnly ? clutchSecs : Math.max(0, lastClockTime - finalClock),
       scores.team - lastTeamScore,
       scores.opp - lastOppScore,
     );
