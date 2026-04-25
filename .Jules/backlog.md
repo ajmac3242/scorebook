@@ -4,10 +4,10 @@
 **Why:** Tracking a high-intensity game is too much for one person. A bridge allowing one person to track shots/lineups and another to track defensive "hustle" stats (deflections, floor dives) ensures 100% data accuracy.
 **What:** Implement a real-time WebSocket or pub/sub layer (e.g., via AWS AppSync or similar) that allows multiple users to contribute to the same `gameId` simultaneously with conflict resolution.
 **Acceptance Criteria:**
-- [ ] Real-time sync of `StatEvent` records across multiple devices.
-- [ ] Visual indicator of "connected assistants" in the GameMode header.
-- [ ] Optimistic UI updates with "Syncing..." and "Synced" states for every contributed event.
-- [ ] Mechanism to handle duplicate events from different devices (last-write-wins or prompt).
+- [x] Real-time sync of `StatEvent` records across multiple devices.
+- [x] Visual indicator of "connected assistants" in the GameMode header.
+- [x] Optimistic UI updates with "Syncing..." and "Synced" states for every contributed event.
+- [x] Mechanism to handle duplicate events from different devices (last-write-wins or prompt).
 
 ## Standardized Video Platform Export (Hudl/Synergy)
 **Priority:** HIGH
@@ -15,10 +15,10 @@
 **Why:** Coaches spend hours manually tagging film. Exporting our granular game data into formats compatible with Hudl, Synergy, or VidSwap bridges the gap between stats and film.
 **What:** Create an export engine that generates CSV or XML files mapped to the specific column requirements of major video analysis platforms.
 **Acceptance Criteria:**
-- [ ] "Export for Video" button in Game Stats.
-- [ ] Dropdown to select platform (Hudl, Synergy, VidSwap).
-- [ ] Export includes `clockTime`, `period`, `playerName`, `actionType`, and `playName`.
-- [ ] Properly formatted CSV/XML file downloaded to the user's device.
+- [x] "Export for Video" button in Game Stats.
+- [x] Dropdown to select platform (Hudl, Synergy, VidSwap).
+- [x] Export includes `clockTime`, `period`, `playerName`, `actionType`, and `playName`.
+- [x] Properly formatted CSV/XML file downloaded to the user's device.
 
 ## Program-Wide Tactical KPI Dashboard
 **Priority:** HIGH
@@ -26,10 +26,10 @@
 **Why:** A season is a marathon. Coaches need to see if their team's identity (e.g., "We are a transition team") is holding up over months, not just individual games.
 **What:** Build a longitudinal dashboard that tracks specific team-defined KPIs (e.g., OREB%, TO Rate, PPP) across the entire season with trend lines.
 **Acceptance Criteria:**
-- [ ] New "Program Health" tab on the Dashboard/My Team page.
-- [ ] Multi-game trend charts for the "Four Factors."
-- [ ] "Identity Goals" section where coaches see % of games where goals were met.
-- [ ] Filter by date range or opponent strength.
+- [x] New "Program Health" tab on the Dashboard/My Team page.
+- [x] Multi-game trend charts for the "Four Factors."
+- [x] "Identity Goals" section where coaches see % of games where goals were met.
+- [x] Filter by date range or opponent strength.
 
 ## Advanced Post-Game "Film Session" Report
 **Priority:** HIGH

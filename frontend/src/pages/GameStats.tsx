@@ -75,6 +75,7 @@ import dayjs from "dayjs";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import SortableHeader from "../components/SortableHeader";
+import { generateHudlCSV, generateSynergyCSV, downloadCSV } from "../utils/videoExport";
 import {
   Line,
   Area,
@@ -122,6 +123,7 @@ const GameStats: React.FC = () => {
   }>({ key: "points", direction: "desc" });
 
   const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [videoExportDialogOpen, setVideoExportDialogOpen] = useState(false);
   const [auditDialogOpen, setAuditDialogOpen] = useState(false);
   const [showFouls, setShowFouls] = useState(true);
   const [showRuns, setShowRuns] = useState(true);
@@ -669,6 +671,20 @@ const GameStats: React.FC = () => {
     } finally {
       setIsExporting(false);
     }
+  };
+
+  const handleVideoExport = (platform: "HUDL" | "SYNERGY") => {
+    let csv = "";
+    const filename = `${platform}_Export_${team?.name}_vs_${game?.opponent}_${game?.date}.csv`;
+
+    if (platform === "HUDL") {
+      csv = generateHudlCSV(allStats, players, game);
+    } else {
+      csv = generateSynergyCSV(allStats, players, game);
+    }
+
+    downloadCSV(filename, csv);
+    setVideoExportDialogOpen(false);
   };
 
   const periodLabel = team?.periodType === "HALVES" ? "Half" : "Quarter";
@@ -1536,15 +1552,25 @@ const GameStats: React.FC = () => {
         actions={
           <Stack direction="row" spacing={1} alignItems="center">
             {!isDeleted && (
-              <Button
-                variant="contained"
-                size="small"
-                onClick={handleExportPDF}
-                disabled={isExporting}
-                sx={{ bgcolor: "rgba(255,255,255,0.2)", color: "white" }}
-              >
-                {isExporting ? "Exporting..." : "Export PDF"}
-              </Button>
+              <>
+                <Button
+                  variant="contained"
+                  size="small"
+                  onClick={() => setVideoExportDialogOpen(true)}
+                  sx={{ bgcolor: "rgba(255,255,255,0.2)", color: "white" }}
+                >
+                  Export for Video
+                </Button>
+                <Button
+                  variant="contained"
+                  size="small"
+                  onClick={handleExportPDF}
+                  disabled={isExporting}
+                  sx={{ bgcolor: "rgba(255,255,255,0.2)", color: "white" }}
+                >
+                  {isExporting ? "Exporting..." : "Export PDF"}
+                </Button>
+              </>
             )}
             {!isDeleted ? (
               <IconButton
@@ -2169,6 +2195,42 @@ const GameStats: React.FC = () => {
           <Button onClick={handleUpdateGame} variant="contained" sx={{ ml: 1 }}>
             Save
           </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Video Export Platform Selection Dialog */}
+      <Dialog
+        open={videoExportDialogOpen}
+        onClose={() => setVideoExportDialogOpen(false)}
+      >
+        <DialogTitle sx={{ fontFamily: "var(--serif)" }}>Export for Video Platform</DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ mb: 3 }}>
+            Choose your video analysis platform. We will generate a compatible CSV for easy tagging.
+          </DialogContentText>
+          <Stack spacing={2}>
+            <Button
+              variant="outlined"
+              fullWidth
+              onClick={() => handleVideoExport("HUDL")}
+              sx={{ py: 1.5, justifyContent: "space-between" }}
+            >
+              Hudl
+              <Chip label="CSV" size="small" />
+            </Button>
+            <Button
+              variant="outlined"
+              fullWidth
+              onClick={() => handleVideoExport("SYNERGY")}
+              sx={{ py: 1.5, justifyContent: "space-between" }}
+            >
+              Synergy
+              <Chip label="CSV" size="small" />
+            </Button>
+          </Stack>
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={() => setVideoExportDialogOpen(false)}>Cancel</Button>
         </DialogActions>
       </Dialog>
 
