@@ -1,3 +1,58 @@
+## Coach-Assistant Live Sync Bridge
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Tracking a high-intensity game is too much for one person. A bridge allowing one person to track shots/lineups and another to track defensive "hustle" stats (deflections, floor dives) ensures 100% data accuracy.
+**What:** Implement a real-time WebSocket or pub/sub layer (e.g., via AWS AppSync or similar) that allows multiple users to contribute to the same `gameId` simultaneously with conflict resolution.
+**Acceptance Criteria:**
+- [ ] Real-time sync of `StatEvent` records across multiple devices.
+- [ ] Visual indicator of "connected assistants" in the GameMode header.
+- [ ] Optimistic UI updates with "Syncing..." and "Synced" states for every contributed event.
+- [ ] Mechanism to handle duplicate events from different devices (last-write-wins or prompt).
+
+## Standardized Video Platform Export (Hudl/Synergy)
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Coaches spend hours manually tagging film. Exporting our granular game data into formats compatible with Hudl, Synergy, or VidSwap bridges the gap between stats and film.
+**What:** Create an export engine that generates CSV or XML files mapped to the specific column requirements of major video analysis platforms.
+**Acceptance Criteria:**
+- [ ] "Export for Video" button in Game Stats.
+- [ ] Dropdown to select platform (Hudl, Synergy, VidSwap).
+- [ ] Export includes `clockTime`, `period`, `playerName`, `actionType`, and `playName`.
+- [ ] Properly formatted CSV/XML file downloaded to the user's device.
+
+## Program-Wide Tactical KPI Dashboard
+**Priority:** HIGH
+**Type:** Feature
+**Why:** A season is a marathon. Coaches need to see if their team's identity (e.g., "We are a transition team") is holding up over months, not just individual games.
+**What:** Build a longitudinal dashboard that tracks specific team-defined KPIs (e.g., OREB%, TO Rate, PPP) across the entire season with trend lines.
+**Acceptance Criteria:**
+- [ ] New "Program Health" tab on the Dashboard/My Team page.
+- [ ] Multi-game trend charts for the "Four Factors."
+- [ ] "Identity Goals" section where coaches see % of games where goals were met.
+- [ ] Filter by date range or opponent strength.
+
+## Advanced Post-Game "Film Session" Report
+**Priority:** HIGH
+**Type:** UX
+**Why:** Post-game review is for learning. Grouping stats by tactical context (e.g., "Show me all Contested Misses") helps coaches identify specific execution errors to fix in practice.
+**What:** A specialized Game Stats view optimized for film review sessions, grouping events by "Play Name," "Shot Quality," and "Result."
+**Acceptance Criteria:**
+- [ ] "Film Room View" toggle in Game Stats.
+- [ ] Chronological event log with expandable details (Matchup, Play Type).
+- [ ] One-tap filtering for "Key Moments" (Bookmarked events).
+- [ ] Grouped summary: EFG% by Play Name, PPP by Shot Quality.
+
+## Halftime "War Room" Tactical Advisor
+**Priority:** HIGH
+**Type:** Feature
+**Why:** The 10 minutes of halftime are frantic. A "Tactical Advisor" that delivers 3-5 punchy, data-driven bullet points allows the coach to walk into the locker room with immediate answers.
+**What:** An automated insight engine in the Halftime Report that identifies the most impactful trends (e.g., "Lineup X is -12", "Opponent #24 scoring 1.8 PPP on drives").
+**Acceptance Criteria:**
+- [ ] "Coach's Notes" section in the Halftime Report.
+- [ ] Automated bullets for: Most effective/ineffective 5-man unit.
+- [ ] Automated bullets for: Top 3 opponent threats with "Points Allowed" attribution.
+- [ ] Automated bullets for: Primary "Four Factor" deficit (e.g., "We are losing the ORB battle 12% to 35%").
+
 ## Redesign Dashboard page
 **Priority:** HIGH
 **Type:** Feature
