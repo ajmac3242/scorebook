@@ -65,6 +65,7 @@ import {
   Add as AddIcon,
   Remove as RemoveIcon,
   Security as SecurityIcon,
+  Star as StarIcon,
 } from "@mui/icons-material";
 import {
   Table,
@@ -98,6 +99,7 @@ import {
   calculatePlayerStreaks,
   calculateOpponentTendencies,
   calculatePlayEfficiency,
+  calculateSchemeEfficiency,
   detectShotValueFromCoords,
   calculateStopsAndKills,
   calculatePossessions,
@@ -757,6 +759,7 @@ interface ActionControlsProps {
   onTimeout: () => void;
   onNextPeriod: () => void;
   onTogglePossession: () => void;
+  onFlagPlay: () => void;
   possessionState: string | null;
   recentStatsLength: number;
   onEndGame: () => void;
@@ -773,6 +776,7 @@ const ActionControls = React.memo(
     onTimeout,
     onNextPeriod,
     onTogglePossession,
+    onFlagPlay,
     possessionState,
     recentStatsLength,
     onEndGame,
@@ -798,6 +802,29 @@ const ActionControls = React.memo(
               aria-label="Advance to Next Period"
             >
               Period
+            </Button>
+          </span>
+        </Tooltip>
+
+        <Tooltip title="Flag last action for review">
+          <span>
+            <Button
+              size="small"
+              variant="outlined"
+              startIcon={<StarIcon />}
+              onClick={onFlagPlay}
+              disabled={recentStatsLength === 0 || isReadOnly}
+              aria-label="Flag last play for review"
+              sx={{
+                borderColor: "warning.light",
+                color: "warning.dark",
+                "&:hover": {
+                  borderColor: "warning.main",
+                  bgcolor: "rgba(255, 152, 0, 0.04)",
+                },
+              }}
+            >
+              Flag
             </Button>
           </span>
         </Tooltip>
@@ -836,7 +863,7 @@ const ActionControls = React.memo(
               startIcon={<Groups />}
               onClick={onQuickSub}
               disabled={isReadOnly}
-              aria-label="Quick Player Substitution"
+              aria-label="quick sub"
             >
               Sub
             </Button>
@@ -928,6 +955,104 @@ const ActionControls = React.memo(
  * Manages the state for live game tracking, including selections,
  * dialogs for recording actions, and real-time score calculation.
  */
+/**
+ * 🏀 CoachBoard: RotationSuggester
+ * WHY: Helps coaches stick to their rotation plan by comparing actual mins vs target mins.
+ */
+const RotationSuggester: React.FC<{
+  players: any[];
+  teamPlayers: any[];
+  gameData: { onCourtIds: Set<string> };
+  statsGridData: PlayerAggregates[];
+  period: number;
+  maxPeriod: number;
+  periodLength: number;
+  clockSeconds: number;
+  onSelectPlayer: (_id: string) => void;
+}> = ({
+  players,
+  teamPlayers,
+  gameData,
+  statsGridData,
+  period,
+  maxPeriod,
+  periodLength,
+  clockSeconds,
+  onSelectPlayer,
+}) => {
+  const suggestions = useMemo(() => {
+    const totalGameMins = maxPeriod * periodLength;
+    const elapsedMins = Math.max(
+      0.1,
+      (period - 1) * periodLength + (periodLength - clockSeconds / 60),
+    );
+    const gameProgress = Math.min(1, elapsedMins / totalGameMins);
+
+    const roster = teamPlayers.map((tp) => {
+      const p = players.find((p) => p.id === tp.playerId);
+      const gameStats = statsGridData.find((s) => s.id === tp.playerId);
+      const actualMins = gameStats?.min || 0;
+      const targetMins = tp.targetMinutes || 0;
+      const expectedMins = targetMins * gameProgress;
+
+      return {
+        id: tp.playerId,
+        name: p?.name || "Unknown",
+        target: targetMins,
+        actual: actualMins,
+        diff: expectedMins - actualMins,
+        isOn: gameData.onCourtIds.has(tp.playerId),
+        isFoulTrouble: (gameStats?.fouls || 0) >= 4,
+      };
+    });
+
+    // Suggest players who are OFF and significantly below their expected minutes
+    return roster
+      .filter((p) => !p.isOn && p.target > 0 && p.diff > 0)
+      .sort((a, b) => b.diff - a.diff)
+      .slice(0, 3);
+  }, [
+    players,
+    teamPlayers,
+    gameData,
+    statsGridData,
+    period,
+    maxPeriod,
+    periodLength,
+    clockSeconds,
+  ]);
+
+  if (suggestions.length === 0) return null;
+
+  return (
+    <MoleskineCard sx={{ border: "1px solid #FFD700" }}>
+      <Typography
+        variant="subtitle2"
+        sx={{ fontWeight: 800, mb: 1, display: "flex", alignItems: "center", gap: 1 }}
+      >
+        <Groups sx={{ fontSize: 18 }} /> ROTATION SUGGESTER
+      </Typography>
+      <Stack spacing={1}>
+        {suggestions.map((p) => (
+          <Button
+            key={p.id}
+            variant="outlined"
+            size="small"
+            onClick={() => onSelectPlayer(p.id)}
+            sx={{ justifyContent: "space-between", textTransform: "none" }}
+          >
+            <Typography variant="caption" sx={{ fontWeight: 700 }}>
+              {p.name}
+            </Typography>
+            <Typography variant="caption" sx={{ opacity: 0.7 }}>
+              Target: {p.target}m
+            </Typography>
+          </Button>
+        ))}
+      </Stack>
+    </MoleskineCard>
+  );
+};
 const GameMode: React.FC = () => {
   const theme = useTheme();
   const navigate = useNavigate();
@@ -976,7 +1101,12 @@ const GameMode: React.FC = () => {
   const [auditDialogOpen, setAuditDialogOpen] = useState(false);
   const [ftWorkflowOpen, setFtWorkflowOpen] = useState(false);
   const [matchupDialogOpen, setMatchupDialogOpen] = useState(false);
-  const [matchupOpponentId, setMatchupOpponentId] = useState<string | null>(null);
+  const [matchupOpponentId, setMatchupOpponentId] = useState<string | null>(
+    null,
+  );
+  const [activeDefensiveScheme, setActiveDefensiveScheme] = useState<
+    "MAN" | "ZONE" | "PRESS"
+  >("MAN");
   const [halftimeReportOpen, setHalftimeReportOpen] = useState(false);
   const [lastViewedHalftimePeriod, setLastViewedHalftimePeriod] =
     useState<number>(0);
@@ -1704,6 +1834,75 @@ const GameMode: React.FC = () => {
     return calculatePlayEfficiency(sortedGameStats);
   }, [sortedGameStats]);
 
+  const schemeEfficiency = useMemo(() => {
+    return calculateSchemeEfficiency(sortedGameStats);
+  }, [sortedGameStats]);
+
+  const coachNotes = useMemo(() => {
+    const notes: string[] = [];
+    if (!liveFourFactors || !teamSeasonStats) return notes;
+
+    const team = liveFourFactors.team;
+
+    // 1. Efficiency vs Season Avg
+    const pppDiff =
+      parseFloat(gameData.teamPpp) - parseFloat(teamSeasonStats.ppp);
+    if (pppDiff < -0.15) {
+      notes.push(
+        `Offense is struggling: ${gameData.teamPpp} PPP (avg ${teamSeasonStats.ppp}). Need better shot selection.`,
+      );
+    }
+
+    // 2. Turnover Problem
+    if (parseFloat(team.toPct || "0") > 20) {
+      notes.push(`High turnover rate (${team.toPct}%). Value the possession!`);
+    }
+
+    // 3. Offensive Rebounding
+    if (parseFloat(team.orbPct || "0") < 20) {
+      notes.push(
+        `Losing the boards: only grabbing ${team.orbPct}% of our misses.`,
+      );
+    }
+
+    // 4. Defensive Breakdown
+    if (parseFloat(gameData.oppPpp) > 1.1) {
+      notes.push(
+        `Opponent scoring at will (${gameData.oppPpp} PPP). Consider a scheme change.`,
+      );
+    }
+
+    // 5. Lineup Insight
+    if (halftimeLineupStats.length > 0) {
+      const bottomLineup = halftimeLineupStats[halftimeLineupStats.length - 1];
+      if (bottomLineup.netRating < -10) {
+        notes.push(
+          "Unit with starters/bench struggling. Limit their next stint.",
+        );
+      }
+    }
+
+    // 6. Scheme Insight
+    if (schemeEfficiency.length > 1) {
+      const bestScheme = [...schemeEfficiency].sort(
+        (a, b) => parseFloat(a.ppp) - parseFloat(b.ppp),
+      )[0];
+      if (parseFloat(bestScheme.ppp) < 0.9) {
+        notes.push(
+          `Our ${bestScheme.scheme} defense is holding them to ${bestScheme.ppp} PPP. Stick with it.`,
+        );
+      }
+    }
+
+    return notes;
+  }, [
+    liveFourFactors,
+    teamSeasonStats,
+    gameData,
+    halftimeLineupStats,
+    schemeEfficiency,
+  ]);
+
   /**
    * ⚡ Bolt: Optimize marker generation.
    * Performance: Single-pass marker creation using a local array to avoid multiple filter/map
@@ -1908,6 +2107,9 @@ const GameMode: React.FC = () => {
               typeToSave === ACTION_TYPES.MISS
                 ? (shotQuality ?? undefined)
                 : undefined,
+            defensiveScheme: isOpponentId(selectedPlayerId!)
+              ? activeDefensiveScheme
+              : undefined,
             period,
             clockTime: clockSeconds,
             timestamp: new Date().toISOString(),
@@ -2339,6 +2541,58 @@ const GameMode: React.FC = () => {
     [matchupOpponentId, gameId, period, clockSeconds],
   );
 
+  /**
+   * 🏀 Playbook: handleToggleBookmark
+   * Toggles the bookmark status for a specific event.
+   */
+  const handleToggleBookmark = useCallback(
+    async (statId: string, currentStatus: number | undefined) => {
+      try {
+        await db.open();
+        await db.stats.update(statId, {
+          isBookmarked: currentStatus === 1 ? 0 : 1,
+          synced: 0,
+        });
+        await syncService.pushUpdates();
+      } catch (err) {
+        logger.error("Failed to toggle bookmark:", err);
+      }
+    },
+    [],
+  );
+
+  /**
+   * 🏀 Playbook: handleFlagLastPlay
+   * Bookmarks the most recent recorded event.
+   */
+  const handleFlagLastPlay = useCallback(async () => {
+    const lastStat = gameData.recentStats.find((s) => !s.deletedAt);
+    if (!lastStat || !lastStat.id) {
+      setSnackbar({
+        open: true,
+        message: "No recent play to flag",
+        severity: "warning",
+      });
+      return;
+    }
+
+    try {
+      await db.open();
+      await db.stats.update(lastStat.id, {
+        isBookmarked: 1,
+        synced: 0,
+      });
+      await syncService.pushUpdates();
+      setSnackbar({
+        open: true,
+        message: "Play flagged for review",
+        severity: "success",
+      });
+    } catch (err) {
+      logger.error("Failed to flag last play:", err);
+    }
+  }, [gameData.recentStats]);
+
   const handleChainAction = useCallback(
     async (pId: string, type: string) => {
       if (!chainPrompt || !gameId) return;
@@ -2440,6 +2694,7 @@ const GameMode: React.FC = () => {
                 onTimeout={handleTimeout}
                 onNextPeriod={handleNextPeriod}
                 onTogglePossession={() => handleTogglePossession()}
+                onFlagPlay={handleFlagLastPlay}
                 possessionState={gameData.possessionState}
                 recentStatsLength={gameData.recentStats.length}
                 onEndGame={() => setEndGameDialogOpen(true)}
@@ -2983,6 +3238,47 @@ const GameMode: React.FC = () => {
                   />
                 </Typography>
 
+                <Box
+                  sx={{
+                    mt: 2,
+                    p: 1.5,
+                    bgcolor: "rgba(0,0,0,0.03)",
+                    borderRadius: 2,
+                    border: "1px solid rgba(0,0,0,0.05)",
+                  }}
+                >
+                  <Typography
+                    variant="caption"
+                    sx={{ fontWeight: 700, display: "block", mb: 1 }}
+                  >
+                    ACTIVE DEFENSE
+                  </Typography>
+                  <ToggleButtonGroup
+                    value={activeDefensiveScheme}
+                    exclusive
+                    onChange={(_, val) => val && setActiveDefensiveScheme(val)}
+                    size="small"
+                    fullWidth
+                    sx={{
+                      bgcolor: "white",
+                      "& .MuiToggleButton-root": {
+                        py: 0.5,
+                        fontSize: "0.65rem",
+                        fontWeight: 700,
+                        border: "1px solid rgba(0,0,0,0.1)",
+                      },
+                      "& .Mui-selected": {
+                        bgcolor: "primary.main !important",
+                        color: "white !important",
+                      },
+                    }}
+                  >
+                    <ToggleButton value="MAN">MAN</ToggleButton>
+                    <ToggleButton value="ZONE">ZONE</ToggleButton>
+                    <ToggleButton value="PRESS">PRESS</ToggleButton>
+                  </ToggleButtonGroup>
+                </Box>
+
                 <Stack spacing={1} sx={{ mt: 2 }}>
                   {opponentStats.length > 0 ? (
                     opponentStats.map((opp) => (
@@ -3208,6 +3504,7 @@ const GameMode: React.FC = () => {
                           setStatToDelete(id);
                           setDeleteDialogOpen(true);
                         }}
+                        onToggleBookmark={handleToggleBookmark}
                       />
                     );
                   })
@@ -3728,6 +4025,7 @@ const GameMode: React.FC = () => {
         bottomLineups={[...halftimeLineupStats].reverse()}
         opponentThreats={gameData.momentumAlerts.opponentThreats}
         jerseyMap={jerseyMap}
+        coachNotes={coachNotes}
       />
 
       {/* Confirm Delete Stat Dialog */}
