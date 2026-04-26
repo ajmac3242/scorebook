@@ -1199,6 +1199,89 @@ export const calculatePlayEfficiency = (
 };
 
 /**
+ * Interface for defensive scheme efficiency.
+ */
+export interface SchemeEfficiency {
+  scheme: string;
+  possessions: number;
+  pointsAllowed: number;
+  ppp: string;
+}
+
+/**
+ * 🏀 Playbook: calculateSchemeEfficiency
+ * Tracks Points Allowed per Possession for each defensive scheme.
+ *
+ * @param stats - Chronological list of statistical events for the game.
+ * @returns Array of efficiency metrics per scheme.
+ */
+export const calculateSchemeEfficiency = (
+  stats: StatEvent[],
+): SchemeEfficiency[] => {
+  const data: Record<
+    string,
+    {
+      points: number;
+      attempts: number;
+      fta: number;
+      turnovers: number;
+      oreb: number;
+    }
+  > = {};
+
+  for (let i = 0; i < stats.length; i++) {
+    const s = stats[i];
+    if (!isActive(s) || !s.defensiveScheme || !isOpponentId(s.playerId))
+      continue;
+
+    if (!data[s.defensiveScheme]) {
+      data[s.defensiveScheme] = {
+        points: 0,
+        attempts: 0,
+        fta: 0,
+        turnovers: 0,
+        oreb: 0,
+      };
+    }
+
+    const scheme = data[s.defensiveScheme];
+    if (s.type === ACTION_TYPES.MAKE) {
+      scheme.points += s.points || 0;
+      if (s.points === 1) {
+        scheme.fta++;
+      } else {
+        scheme.attempts++;
+      }
+    } else if (s.type === ACTION_TYPES.MISS) {
+      if (s.points === 1) {
+        scheme.fta++;
+      } else {
+        scheme.attempts++;
+      }
+    } else if (s.type === ACTION_TYPES.TURNOVER) {
+      scheme.turnovers++;
+    } else if (s.type === ACTION_TYPES.OFF_REBOUND) {
+      scheme.oreb++;
+    }
+  }
+
+  return Object.entries(data).map(([scheme, s]) => {
+    const possessions = calculatePossessions(
+      s.attempts,
+      s.fta,
+      s.turnovers,
+      s.oreb,
+    );
+    return {
+      scheme,
+      possessions,
+      pointsAllowed: s.points,
+      ppp: calculatePpp(s.points, possessions),
+    };
+  });
+};
+
+/**
  * 🏀 CoachBoard: calculateOpponentThreats
  *
  * WHY: Identifies opponent players who are scoring significantly or on a streak.

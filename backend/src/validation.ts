@@ -138,6 +138,19 @@ export function validateStatEvent(body: unknown): string | null {
     return "Clock time must be a finite number at least 0";
   }
   if (
+    b.isBookmarked !== undefined &&
+    (typeof b.isBookmarked !== "number" || ![0, 1].includes(b.isBookmarked))
+  ) {
+    return "isBookmarked must be 0 or 1";
+  }
+  if (
+    b.defensiveScheme !== undefined &&
+    (typeof b.defensiveScheme !== "string" ||
+      !["MAN", "ZONE", "PRESS"].includes(b.defensiveScheme))
+  ) {
+    return "Invalid defensive scheme";
+  }
+  if (
     b.locationX !== undefined &&
     (typeof b.locationX !== "number" ||
       !Number.isFinite(b.locationX) ||

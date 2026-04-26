@@ -25,6 +25,7 @@ interface HalftimeReportDialogProps {
   bottomLineups: LineupAggregates[];
   opponentThreats: OpponentThreat[];
   jerseyMap: Map<string, string | undefined>;
+  coachNotes?: string[];
 }
 
 const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
@@ -37,6 +38,7 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
   bottomLineups,
   opponentThreats,
   jerseyMap,
+  coachNotes = [],
 }) => {
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
@@ -114,6 +116,39 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
         </Box>
 
         <Divider sx={{ mb: 2 }} />
+
+        <Box sx={{ mb: 3 }}>
+          <Typography
+            variant="subtitle2"
+            sx={{ fontWeight: 700, mb: 1, color: "primary.dark" }}
+          >
+            COACH'S TACTICAL NOTES
+          </Typography>
+          <Stack spacing={1}>
+            {coachNotes.length > 0 ? (
+              coachNotes.map((note, idx) => (
+                <Box
+                  key={idx}
+                  sx={{
+                    p: 1.2,
+                    bgcolor: "rgba(33, 150, 243, 0.05)",
+                    borderRadius: 1,
+                    borderLeft: "4px solid",
+                    borderColor: "primary.main",
+                  }}
+                >
+                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                    • {note}
+                  </Typography>
+                </Box>
+              ))
+            ) : (
+              <Typography variant="caption" color="text.secondary">
+                No automated tactical insights for this half.
+              </Typography>
+            )}
+          </Stack>
+        </Box>
 
         <Box sx={{ mb: 3 }}>
           <Typography

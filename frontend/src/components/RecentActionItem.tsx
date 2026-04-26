@@ -20,6 +20,8 @@ import {
   Delete,
   CloudUpload,
   CloudDone,
+  Star,
+  StarBorder,
 } from "@mui/icons-material";
 import { StatEvent } from "../db";
 import { ACTION_TYPES } from "../constants/stats";
@@ -33,6 +35,7 @@ interface RecentActionItemProps {
   isLatest?: boolean;
   onEdit: (_stat: StatEvent) => void;
   onDelete: (_id: string) => void;
+  onToggleBookmark?: (_id: string, _currentStatus: number | undefined) => void;
 }
 
 const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
@@ -44,6 +47,7 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
     isLatest,
     onEdit,
     onDelete,
+    onToggleBookmark,
   }) => {
     const theme = useTheme();
     const getActionIcon = (type: string) => {
@@ -124,6 +128,22 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
                 <CloudUpload sx={{ fontSize: 16, color: "warning.main", opacity: 0.8 }} />
               )}
             </Box>
+          </Tooltip>
+
+          <Tooltip title={!!stat.isBookmarked ? "Remove Bookmark" : "Bookmark for Review"}>
+            <IconButton
+              size="small"
+              disabled={isReadOnly}
+              onClick={() => onToggleBookmark?.(stat.id!, stat.isBookmarked)}
+              aria-label={!!stat.isBookmarked ? "remove bookmark" : "bookmark for review"}
+              color={!!stat.isBookmarked ? "warning" : "default"}
+            >
+              {!!stat.isBookmarked ? (
+                <Star fontSize="small" />
+              ) : (
+                <StarBorder fontSize="small" />
+              )}
+            </IconButton>
           </Tooltip>
 
           <Tooltip title={`Edit ${stat.type} for ${playerName}`}>
