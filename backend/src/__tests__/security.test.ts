@@ -255,10 +255,10 @@ describe("Security Tests", () => {
       "Strict-Transport-Security":
         "max-age=31536000; includeSubDomains; preload",
       "Content-Security-Policy":
-        "default-src 'none'; frame-ancestors 'none'; sandbox; base-uri 'none'; form-action 'none'; upgrade-insecure-requests;",
+        "default-src 'none'; object-src 'none'; script-src 'none'; frame-ancestors 'none'; sandbox; base-uri 'none'; form-action 'none'; upgrade-insecure-requests;",
       "Referrer-Policy": "no-referrer",
       "Permissions-Policy":
-        "camera=(), microphone=(), geolocation=(), payment=(), interest-cohort=()",
+        "camera=(), microphone=(), geolocation=(), payment=(), interest-cohort=(), usb=(), bluetooth=(), hid=(), serial=(), idle-detection=(), keyboard-map=(), screen-wake-lock=()",
       "X-XSS-Protection": "0",
       "X-Permitted-Cross-Domain-Policies": "none",
       "Origin-Agent-Cluster": "?1",
