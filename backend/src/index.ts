@@ -74,6 +74,7 @@ const s3Client = new S3Client({});
  * @param {Record<string, unknown>} body - Parsed JSON body.
  * @param {APIGatewayProxyEventV2} event - The full Lambda event.
  * @param {string} tableName - DynamoDB table name.
+ * @param {string} requestId - The unique request ID.
  * @returns {Promise<APIGatewayProxyResultV2 | null>} The response or null if not handled.
  */
 async function handlePlayers(
@@ -176,6 +177,7 @@ async function handlePlayers(
  * @param {Record<string, unknown>} body - Parsed JSON body.
  * @param {APIGatewayProxyEventV2} event - The full Lambda event.
  * @param {string} tableName - DynamoDB table name.
+ * @param {string} requestId - The unique request ID.
  * @returns {Promise<APIGatewayProxyResultV2 | null>} The response or null if not handled.
  */
 async function handleGames(
@@ -221,7 +223,10 @@ async function handleGames(
         body.date !== undefined &&
         (typeof body.date !== "string" || body.date.length > 50)
       ) {
-        return badRequest("Date must be a string under 50 characters", requestId);
+        return badRequest(
+          "Date must be a string under 50 characters",
+          requestId,
+        );
       }
       const resp = await createItem(
         "GAME",
@@ -330,6 +335,7 @@ async function handleGames(
  * @param {string} path - Request path.
  * @param {Record<string, unknown>} body - Parsed JSON body.
  * @param {string} tableName - DynamoDB table name.
+ * @param {string} requestId - The unique request ID.
  * @returns {Promise<APIGatewayProxyResultV2 | null>} Response.
  */
 async function handleGameStats(
@@ -402,6 +408,7 @@ async function handleGameStats(
  * @param {Record<string, unknown>} body - Parsed JSON body.
  * @param {APIGatewayProxyEventV2} event - The full Lambda event.
  * @param {string} tableName - DynamoDB table name.
+ * @param {string} requestId - The unique request ID.
  * @returns {Promise<APIGatewayProxyResultV2 | null>} The response or null if not handled.
  */
 async function handleTeams(
@@ -471,8 +478,8 @@ async function handleTeams(
         }),
       );
       await snapshotTeam(teamId, tableName, docClient);
-    return ok({ message: "Team restored" }, requestId);
-  }
+      return ok({ message: "Team restored" }, requestId);
+    }
   }
 
   if (path.startsWith("/teams/") && path.endsWith("/players")) {
@@ -570,6 +577,7 @@ function parseBody(body: string | undefined): Record<string, unknown> {
  * @param {string} path - Request path.
  * @param {APIGatewayProxyEventV2} event - The full Lambda event.
  * @param {string} tableName - DynamoDB table name.
+ * @param {string} requestId - The unique request ID.
  * @returns {Promise<APIGatewayProxyResultV2 | null>} Response.
  */
 async function handleCleanup(
@@ -603,8 +611,16 @@ async function handleCleanup(
 
     // 🛡️ Enhancement: Enforce maximum length for API key to prevent DoS via long string comparisons.
     if (requestApiKey.length > 128) {
-      logError(logLabel("Security Warning"), "Extremely long API key provided. Potential DoS attempt.");
-      return response(403, { message: "Unauthorized cleanup request" }, {}, requestId);
+      logError(
+        logLabel("Security Warning"),
+        "Extremely long API key provided. Potential DoS attempt.",
+      );
+      return response(
+        403,
+        { message: "Unauthorized cleanup request" },
+        {},
+        requestId,
+      );
     }
 
     if (!requestApiKey || !safeCompare(requestApiKey, adminApiKey)) {
@@ -646,7 +662,12 @@ export const handler = async (
 
   // 🛡️ Enhancement 8: HTTP Method Whitelisting
   if (!ALLOWED_METHODS.has(method)) {
-    return response(405, { message: `Method ${method} not allowed` }, {}, requestId);
+    return response(
+      405,
+      { message: `Method ${method} not allowed` },
+      {},
+      requestId,
+    );
   }
 
   // 🛡️ Enhancement 9: Body Size Limit Enforcement
@@ -658,9 +679,14 @@ export const handler = async (
   if (["POST", "PUT", "PATCH"].includes(method) && event.body) {
     const contentType = getHeader(event.headers, "content-type");
     if (!contentType?.toLowerCase().includes("application/json")) {
-      return response(415, {
-        message: "Unsupported Media Type: application/json required",
-      }, {}, requestId);
+      return response(
+        415,
+        {
+          message: "Unsupported Media Type: application/json required",
+        },
+        {},
+        requestId,
+      );
     }
   }
 
@@ -710,6 +736,7 @@ export const handler = async (
  *
  * @param {string} tableName - The name of the DynamoDB table.
  * @param {string} gsiPrefix - The prefix for the GSI1PK.
+ * @param {string} [requestId] - The unique request ID.
  * @returns {Promise<APIGatewayProxyStructuredResultV2>} The HTTP response with the items.
  */
 async function getItems(
@@ -840,10 +867,7 @@ async function softDeleteItem(
       ConditionExpression: "attribute_exists(PK)",
     }),
   );
-  return ok(
-    { message: "Item soft deleted", deletedAt: timestamp },
-    requestId,
-  );
+  return ok({ message: "Item soft deleted", deletedAt: timestamp }, requestId);
 }
 
 /**

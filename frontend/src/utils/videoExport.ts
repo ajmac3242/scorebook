@@ -13,11 +13,19 @@ import { formatClock } from "./mathUtils";
 export function generateHudlCSV(
   stats: StatEvent[],
   players: Player[],
-  game: Game | undefined
+  _game: Game | undefined,
 ): string {
   const playerMap = new Map(players.map((p) => [p.id, p.name]));
   const rows = [
-    ["Timestamp", "Period", "Player", "Action", "Result", "Play", "Points"].join(","),
+    [
+      "Timestamp",
+      "Period",
+      "Player",
+      "Action",
+      "Result",
+      "Play",
+      "Points",
+    ].join(","),
   ];
 
   const sortedStats = [...stats].sort((a, b) => {
@@ -29,12 +37,19 @@ export function generateHudlCSV(
     if (s.deletedAt) continue;
 
     // Skip internal events
-    if (["SUB_IN", "SUB_OUT", "POSSESSION", "TIMEOUT", "MATCHUP"].includes(s.type)) continue;
+    if (
+      ["SUB_IN", "SUB_OUT", "POSSESSION", "TIMEOUT", "MATCHUP"].includes(s.type)
+    )
+      continue;
 
     const playerName = playerMap.get(s.playerId) || s.playerId;
     const timestamp = formatClock(s.clockTime || 0);
-    const result = s.type === "MAKE" ? "Made" : s.type === "MISS" ? "Missed" : "";
-    const action = s.type === "MAKE" || s.type === "MISS" ? `${s.points || 2}PT Shot` : s.type;
+    const result =
+      s.type === "MAKE" ? "Made" : s.type === "MISS" ? "Missed" : "";
+    const action =
+      s.type === "MAKE" || s.type === "MISS"
+        ? `${s.points || 2}PT Shot`
+        : s.type;
 
     rows.push(
       [
@@ -45,7 +60,7 @@ export function generateHudlCSV(
         `"${result}"`,
         `"${s.playName || ""}"`,
         s.points || 0,
-      ].join(",")
+      ].join(","),
     );
   }
 
@@ -58,11 +73,20 @@ export function generateHudlCSV(
 export function generateSynergyCSV(
   stats: StatEvent[],
   players: Player[],
-  game: Game | undefined
+  _game: Game | undefined,
 ): string {
   const playerMap = new Map(players.map((p) => [p.id, p.name]));
   const rows = [
-    ["Time", "Period", "Jersey", "Player", "Action", "Result", "Zone", "Quality"].join(","),
+    [
+      "Time",
+      "Period",
+      "Jersey",
+      "Player",
+      "Action",
+      "Result",
+      "Zone",
+      "Quality",
+    ].join(","),
   ];
 
   const sortedStats = [...stats].sort((a, b) => {
@@ -72,7 +96,10 @@ export function generateSynergyCSV(
 
   for (const s of sortedStats) {
     if (s.deletedAt) continue;
-    if (["SUB_IN", "SUB_OUT", "POSSESSION", "TIMEOUT", "MATCHUP"].includes(s.type)) continue;
+    if (
+      ["SUB_IN", "SUB_OUT", "POSSESSION", "TIMEOUT", "MATCHUP"].includes(s.type)
+    )
+      continue;
 
     const playerName = playerMap.get(s.playerId) || s.playerId;
     const time = formatClock(s.clockTime || 0);
@@ -87,7 +114,7 @@ export function generateSynergyCSV(
         s.type === "MAKE" ? "Success" : "Failure",
         "", // Zone placeholder
         `"${s.shotQuality || ""}"`,
-      ].join(",")
+      ].join(","),
     );
   }
 

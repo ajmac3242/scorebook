@@ -40,3 +40,7 @@ Action: Enforce ?? for all jersey number displays and explicit types in curly br
 ## 2026-04-25 - Elite Code Hygiene and Type Safety
 Learning: Missing dependency arrays in hooks and 'any' types in core HUD components were obscuring potential bugs and reducing maintainability. Standardizing on explicit interfaces for statistical aggregates (TeamAggregates, OpponentAggregates) improves type safety across the live tracking and stats display layers.
 Action: Enforce explicit interface usage for all shared statistical props and ensure exhaustive dependency arrays in React hooks.
+
+## 2026-04-26 - Standardizing JSDoc and Resolving Unused Variables
+Learning: Unused variables in complex statistical functions like `calculateLineupStats` and `calculatePlayerAggregates` often accumulate during performance optimizations (e.g., Bolt missions). Missing JSDoc @param tags in backend handlers trigger ESLint warnings that clutter CI reports.
+Action: Regularly prune unused variables after optimization passes and ensure all Lambda handler arguments are fully documented in JSDoc to maintain 0-warning status.

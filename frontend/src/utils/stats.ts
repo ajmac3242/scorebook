@@ -75,7 +75,11 @@ export interface TeamAggregates {
  */
 const getPeriodLen = (
   period: number,
-  options: { periodLength?: number; overtimeLength?: number; periodType?: string },
+  options: {
+    periodLength?: number;
+    overtimeLength?: number;
+    periodType?: string;
+  },
 ): number => {
   const regLen = options.periodLength ? options.periodLength * 60 : 600;
   const otLen = options.overtimeLength ? options.overtimeLength * 60 : 300;
@@ -351,27 +355,6 @@ export const getInitials = (name: string | undefined | null): string => {
     }
   }
   return result;
-};
-
-/**
- * Standardized logic for recording the end of a player's stint.
- * @param {PlayerAggregates | undefined} playerAgg - The player aggregate record.
- * @param {{ startClock: number; startScoreDiff: number }} stint - Stint data.
- * @param {{ team: number; opp: number }} currentScores - Current game scores.
- * @param {number} endClock - The clock time when the stint ended.
- */
-const handleStintEnd = (
-  playerAgg: PlayerAggregates | undefined,
-  stint: { startClock: number; startScoreDiff: number },
-  currentScores: { team: number; opp: number },
-  endClock: number,
-) => {
-  // ⚡ Bolt: Accepts playerAgg directly to skip redundant Map lookups in the hot loop.
-  if (playerAgg) {
-    playerAgg.min += Math.max(0, stint.startClock - endClock);
-    playerAgg.plusMinus +=
-      currentScores.team - currentScores.opp - stint.startScoreDiff;
-  }
 };
 
 /**
@@ -781,7 +764,8 @@ export const calculatePlayerAggregates = (
         }
       }
 
-      if (isOpp) scores.opp += pts; else scores.team += pts;
+      if (isOpp) scores.opp += pts;
+      else scores.team += pts;
       lastScoreDiff = scores.team - scores.opp;
     }
 
@@ -955,7 +939,10 @@ export const calculatePlayerStintTimeline = (
 ): PlayerStint[] => {
   const sorted = sortStats(stats);
   const stints: PlayerStint[] = [];
-  const activeStints = new Map<string, { startClock: number; period: number }>();
+  const activeStints = new Map<
+    string,
+    { startClock: number; period: number }
+  >();
 
   let currentPeriod = 1;
 
@@ -1013,7 +1000,8 @@ export const calculatePlayerStintTimeline = (
   // Handle players still on court
   const liveCtx = options.liveContext;
   for (const [pId, info] of activeStints.entries()) {
-    const endClock = liveCtx && liveCtx.period === info.period ? liveCtx.clockTime : 0;
+    const endClock =
+      liveCtx && liveCtx.period === info.period ? liveCtx.clockTime : 0;
     stints.push({
       playerId: pId,
       period: info.period,
@@ -1638,8 +1626,30 @@ export const calculateTeamAggregates = (
     }
   }
 
-  const team = { pts: 0, reb: 0, ast: 0, fga: 0, fta: 0, to: 0, oreb: 0, dreb: 0, makes: 0, threePM: 0, ftm: 0 };
-  const opp = { pts: 0, fga: 0, fta: 0, to: 0, oreb: 0, dreb: 0, makes: 0, threePM: 0, ftm: 0 };
+  const team = {
+    pts: 0,
+    reb: 0,
+    ast: 0,
+    fga: 0,
+    fta: 0,
+    to: 0,
+    oreb: 0,
+    dreb: 0,
+    makes: 0,
+    threePM: 0,
+    ftm: 0,
+  };
+  const opp = {
+    pts: 0,
+    fga: 0,
+    fta: 0,
+    to: 0,
+    oreb: 0,
+    dreb: 0,
+    makes: 0,
+    threePM: 0,
+    ftm: 0,
+  };
 
   // ⚡ Bolt: One-slot cache for game totals lookup.
   // WHY: Events are usually grouped by gameId. Caching the last lookup
@@ -1691,11 +1701,17 @@ export const calculateTeamAggregates = (
     updatePossessionCounters(stat, isOpponent ? opp : team);
 
     if (isOpponent) {
-      if (stat.type === ACTION_TYPES.DEF_REBOUND || stat.type === ACTION_TYPES.REBOUND) {
+      if (
+        stat.type === ACTION_TYPES.DEF_REBOUND ||
+        stat.type === ACTION_TYPES.REBOUND
+      ) {
         opp.dreb++;
       }
     } else {
-      if (stat.type === ACTION_TYPES.DEF_REBOUND || stat.type === ACTION_TYPES.REBOUND) {
+      if (
+        stat.type === ACTION_TYPES.DEF_REBOUND ||
+        stat.type === ACTION_TYPES.REBOUND
+      ) {
         team.dreb++;
       }
       if (
@@ -2217,6 +2233,14 @@ export const calculateLineupStats = (
         periodType,
       );
       if (!options.clutchOnly || clutchSecs > 0) {
+        if (!cachedLineupKey) cachedLineupKey = getLineupKey(currentLineup);
+        recordLineupStint(
+          lineupStats,
+          cachedLineupKey,
+          options.clutchOnly ? clutchSecs : lastClockTime - s.clockTime,
+          scores.team - lastTeamScore,
+          scores.opp - lastOppScore,
+        );
         pendingDuration += options.clutchOnly ? clutchSecs : (lastClockTime - s.clockTime);
         pendingPtsFor += scores.team - lastTeamScore;
         pendingPtsAgainst += scores.opp - lastOppScore;
@@ -2307,9 +2331,11 @@ export const calculateLineupStats = (
 
   return result
     .sort((a, b) =>
-      sortDir === "desc" ? b.sortValue - a.sortValue : a.sortValue - b.sortValue,
+      sortDir === "desc"
+        ? b.sortValue - a.sortValue
+        : a.sortValue - b.sortValue,
     )
-    .map(({ sortValue, ...rest }) => rest);
+    .map(({ sortValue: _sortValue, ...rest }) => rest);
 };
 
 /**
@@ -2457,7 +2483,8 @@ export const calculateMatchupStats = (stats: StatEvent[]): MatchupStats[] => {
   // Finalize stop percentages
   return Array.from(results.values()).map((m) => ({
     ...m,
-    stopPct: m.possessions > 0 ? ((m.stops / m.possessions) * 100).toFixed(1) : "0.0",
+    stopPct:
+      m.possessions > 0 ? ((m.stops / m.possessions) * 100).toFixed(1) : "0.0",
   }));
 };
 
@@ -2481,14 +2508,31 @@ export const calculateOnOffStats = (
   stats: StatEvent[],
 ): OnOffImpact[] => {
   const sorted = sortStats(stats);
-  const results = new Map<string, {
-    onPtsFor: number; onPtsAgn: number;
-    onTeamFga: number; onTeamFta: number; onTeamTo: number; onTeamOreb: number;
-    onOppFga: number; onOppFta: number; onOppTo: number; onOppOreb: number;
-    offPtsFor: number; offPtsAgn: number;
-    offTeamFga: number; offTeamFta: number; offTeamTo: number; offTeamOreb: number;
-    offOppFga: number; offOppFta: number; offOppTo: number; offOppOreb: number;
-  }>();
+  const results = new Map<
+    string,
+    {
+      onPtsFor: number;
+      onPtsAgn: number;
+      onTeamFga: number;
+      onTeamFta: number;
+      onTeamTo: number;
+      onTeamOreb: number;
+      onOppFga: number;
+      onOppFta: number;
+      onOppTo: number;
+      onOppOreb: number;
+      offPtsFor: number;
+      offPtsAgn: number;
+      offTeamFga: number;
+      offTeamFta: number;
+      offTeamTo: number;
+      offTeamOreb: number;
+      offOppFga: number;
+      offOppFta: number;
+      offOppTo: number;
+      offOppOreb: number;
+    }
+  >();
 
   type OnOffStats = {
     onPtsFor: number; onPtsAgn: number;
@@ -2504,12 +2548,26 @@ export const calculateOnOffStats = (
     const p = players[i];
     if (!p.id) continue;
     results.set(p.id.toString(), {
-      onPtsFor: 0, onPtsAgn: 0,
-      onTeamFga: 0, onTeamFta: 0, onTeamTo: 0, onTeamOreb: 0,
-      onOppFga: 0, onOppFta: 0, onOppTo: 0, onOppOreb: 0,
-      offPtsFor: 0, offPtsAgn: 0,
-      offTeamFga: 0, offTeamFta: 0, offTeamTo: 0, offTeamOreb: 0,
-      offOppFga: 0, offOppFta: 0, offOppTo: 0, offOppOreb: 0
+      onPtsFor: 0,
+      onPtsAgn: 0,
+      onTeamFga: 0,
+      onTeamFta: 0,
+      onTeamTo: 0,
+      onTeamOreb: 0,
+      onOppFga: 0,
+      onOppFta: 0,
+      onOppTo: 0,
+      onOppOreb: 0,
+      offPtsFor: 0,
+      offPtsAgn: 0,
+      offTeamFga: 0,
+      offTeamFta: 0,
+      offTeamTo: 0,
+      offTeamOreb: 0,
+      offOppFga: 0,
+      offOppFta: 0,
+      offOppTo: 0,
+      offOppOreb: 0,
     });
   }
 
@@ -2527,9 +2585,16 @@ export const calculateOnOffStats = (
   // plus a single pass through players ($O(P)$), ensuring rapid calculation
   // even for large multi-game datasets or rosters.
   const totals = {
-    ptsFor: 0, ptsAgn: 0,
-    teamFga: 0, teamFta: 0, teamTo: 0, teamOreb: 0,
-    oppFga: 0, oppFta: 0, oppTo: 0, oppOreb: 0
+    ptsFor: 0,
+    ptsAgn: 0,
+    teamFga: 0,
+    teamFta: 0,
+    teamTo: 0,
+    teamOreb: 0,
+    oppFga: 0,
+    oppFta: 0,
+    oppTo: 0,
+    oppOreb: 0,
   };
 
   for (let i = 0; i < sorted.length; i++) {
@@ -2607,9 +2672,12 @@ export const calculateOnOffStats = (
     const offOppTo = totals.oppTo - agg.onOppTo;
     const offOppOreb = totals.oppOreb - agg.onOppOreb;
 
-    const onTeamPoss = agg.onTeamFga + 0.44 * agg.onTeamFta + agg.onTeamTo - agg.onTeamOreb;
-    const onOppPoss = agg.onOppFga + 0.44 * agg.onOppFta + agg.onOppTo - agg.onOppOreb;
-    const offTeamPoss = offTeamFga + 0.44 * offTeamFta + offTeamTo - offTeamOreb;
+    const onTeamPoss =
+      agg.onTeamFga + 0.44 * agg.onTeamFta + agg.onTeamTo - agg.onTeamOreb;
+    const onOppPoss =
+      agg.onOppFga + 0.44 * agg.onOppFta + agg.onOppTo - agg.onOppOreb;
+    const offTeamPoss =
+      offTeamFga + 0.44 * offTeamFta + offTeamTo - offTeamOreb;
     const offOppPoss = offOppFga + 0.44 * offOppFta + offOppTo - offOppOreb;
 
     const onORtg = onTeamPoss > 0 ? (agg.onPtsFor / onTeamPoss) * 100 : 0;
@@ -2634,7 +2702,7 @@ export const calculateOnOffStats = (
       offOffensiveRating: offORtg.toFixed(1),
       offDefensiveRating: offDRtg.toFixed(1),
       offNetRating: offNet.toFixed(1),
-      netDifferential: (onNet - offNet).toFixed(1)
+      netDifferential: (onNet - offNet).toFixed(1),
     };
   });
 };
