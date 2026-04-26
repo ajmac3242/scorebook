@@ -337,12 +337,24 @@ export const calculateTsPct = (
  * @returns {string} The uppercase initials.
  */
 export const getInitials = (name: string | undefined | null): string => {
-  return (name || "")
-    .trim()
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((v) => v[0]?.toUpperCase())
-    .join("");
+  // ⚡ Bolt: Use a single-pass loop instead of multiple regex/array allocations.
+  if (!name) return "";
+  const s = name.trim();
+  let result = "";
+  let inWord = false;
+  for (let i = 0; i < s.length; i++) {
+    const char = s[i];
+    if (char !== " " && char !== "\t" && char !== "\n" && char !== "\r") {
+      if (!inWord) {
+        result += char.toUpperCase();
+        if (result.length === 2) break;
+        inWord = true;
+      }
+    } else {
+      inWord = false;
+    }
+  }
+  return result;
 };
 
 /**
@@ -649,7 +661,8 @@ export const calculatePlayerAggregates = (
   let currentGameId: string | null = null;
   let lastClockTime = getPeriodLen(1, options);
   let lastScoreDiff = 0;
-  const activePlayers = new Set<string>();
+  const activePlayers = new Map<string, PlayerAggregates>();
+  const periodType = options.periodType || "QUARTERS";
 
   // ⚡ Bolt: Cache last gameId per player to avoid redundant Set.add overhead.
   const lastGameIdMap = new Map<string, string>();
@@ -665,16 +678,16 @@ export const calculatePlayerAggregates = (
     // Handle new game context
     if (gameId !== currentGameId) {
       // Record final minutes for previous game
-      for (const pId of activePlayers) {
+      const clutchOnly = options.clutchOnly;
+      for (const pAgg of activePlayers.values()) {
         const clutchSecs = getClutchSeconds(
           currentPeriod,
           lastClockTime,
           0,
           lastScoreDiff,
-          options.periodType || "QUARTERS",
+          periodType,
         );
-        const pAgg = statsMap.get(pId);
-        if (pAgg) pAgg.min += options.clutchOnly ? clutchSecs : lastClockTime;
+        pAgg.min += clutchOnly ? clutchSecs : lastClockTime;
       }
       activePlayers.clear();
       lastGameIdMap.clear();
@@ -688,32 +701,24 @@ export const calculatePlayerAggregates = (
 
     // 🏀 CoachBoard: Handle period transitions for active stints
     if (period && period > currentPeriod) {
-      for (const pId of activePlayers) {
-        const clutchSecs = getClutchSeconds(
-          currentPeriod,
-          lastClockTime,
-          0,
-          lastScoreDiff,
-          options.periodType || "QUARTERS",
-        );
-        const pAgg = statsMap.get(pId);
-        if (pAgg) pAgg.min += options.clutchOnly ? clutchSecs : lastClockTime;
+      const clutchOnly = options.clutchOnly;
+      const clutchSecs = getClutchSeconds(
+        currentPeriod,
+        lastClockTime,
+        0,
+        lastScoreDiff,
+        periodType,
+      );
 
-        // 🔍 Scout: Handle full minutes for skipped periods
-        for (let p = currentPeriod + 1; p < period; p++) {
-          if (pAgg) {
-            const skipClutchSecs = getClutchSeconds(
-              p,
-              getPeriodLen(p, options),
-              0,
-              lastScoreDiff,
-              options.periodType || "QUARTERS",
-            );
-            pAgg.min += options.clutchOnly
-              ? skipClutchSecs
-              : getPeriodLen(p, options);
-          }
-        }
+      // Pre-calculate full minutes for skipped periods
+      let skippedMins = 0;
+      for (let p = currentPeriod + 1; p < period; p++) {
+        const pLen = getPeriodLen(p, options);
+        skippedMins += clutchOnly ? getClutchSeconds(p, pLen, 0, lastScoreDiff, periodType) : pLen;
+      }
+
+      for (const pAgg of activePlayers.values()) {
+        pAgg.min += (clutchOnly ? clutchSecs : lastClockTime) + skippedMins;
       }
       currentPeriod = period;
       lastClockTime = getPeriodLen(period, options);
@@ -721,20 +726,17 @@ export const calculatePlayerAggregates = (
 
     // Accumulate minutes for interval since last event
     if (clockTime !== undefined) {
+      const diff = lastClockTime - clockTime;
       const clutchSecs = getClutchSeconds(
         period,
         lastClockTime,
         clockTime,
         lastScoreDiff,
-        options.periodType || "QUARTERS",
+        periodType,
       );
-      for (const pId of activePlayers) {
-        const pAgg = statsMap.get(pId);
-        if (pAgg) {
-          pAgg.min += options.clutchOnly
-            ? clutchSecs
-            : lastClockTime - clockTime;
-        }
+      const clutchOnly = options.clutchOnly;
+      for (const pAgg of activePlayers.values()) {
+        pAgg.min += clutchOnly ? clutchSecs : diff;
       }
       lastClockTime = clockTime;
     }
@@ -747,7 +749,7 @@ export const calculatePlayerAggregates = (
           period,
           clockTime,
           scores.team - scores.opp,
-          options.periodType || "QUARTERS",
+          periodType,
         ));
 
     // Update plus-minus and scores
@@ -757,9 +759,8 @@ export const calculatePlayerAggregates = (
       const diffChange = isOpp ? -pts : pts;
 
       if (isClutch) {
-        for (const pId of activePlayers) {
-          const pAgg = statsMap.get(pId);
-          if (pAgg) pAgg.plusMinus += diffChange;
+        for (const pAgg of activePlayers.values()) {
+          pAgg.plusMinus += diffChange;
         }
       }
 
@@ -837,7 +838,8 @@ export const calculatePlayerAggregates = (
 
     // Handle Sub-In/Sub-Out
     if (type === ACTION_TYPES.SUB_IN) {
-      activePlayers.add(playerId);
+      const p = statsMap.get(playerId);
+      if (p) activePlayers.set(playerId, p);
     } else if (type === ACTION_TYPES.SUB_OUT) {
       activePlayers.delete(playerId);
     }
@@ -850,17 +852,17 @@ export const calculatePlayerAggregates = (
       ? liveCtx.clockTime
       : 0;
 
-  for (const pId of activePlayers) {
+  const clutchOnly = options.clutchOnly;
+  const diffEnd = lastClockTime - finalClock;
+  for (const pAgg of activePlayers.values()) {
     const clutchSecs = getClutchSeconds(
       currentPeriod,
       lastClockTime,
       finalClock,
       lastScoreDiff,
-      options.periodType || "QUARTERS",
+      periodType,
     );
-    const pAgg = statsMap.get(pId);
-    if (pAgg)
-      pAgg.min += options.clutchOnly ? clutchSecs : lastClockTime - finalClock;
+    pAgg.min += clutchOnly ? clutchSecs : diffEnd;
   }
 
   // Finalize totals, percentages, and averages
@@ -1124,8 +1126,9 @@ export const calculatePlayEfficiency = (
     const s = stats[i];
     if (!isActive(s) || !s.playName) continue;
 
-    if (!data[s.playName]) {
-      data[s.playName] = {
+    let play = data[s.playName];
+    if (!play) {
+      play = {
         makes: 0,
         attempts: 0,
         points: 0,
@@ -1134,9 +1137,8 @@ export const calculatePlayEfficiency = (
         threePM: 0,
         oreb: 0,
       };
+      data[s.playName] = play;
     }
-
-    const play = data[s.playName];
     if (s.type === ACTION_TYPES.MAKE) {
       play.points += s.points || 0;
       if (s.points === 1) {
@@ -1238,18 +1240,18 @@ export const calculateOpponentThreats = (
     if (!isOpp) continue;
 
     const pId = s.playerId;
-    if (!threats.has(pId)) {
-      threats.set(pId, {
+    let t = threats.get(pId);
+    if (!t) {
+      t = {
         playerId: pId,
         points: 0,
         makes: 0,
         consecutiveMakes: 0,
         straightPoints: 0,
         isHot: false,
-      });
+      };
+      threats.set(pId, t);
     }
-
-    const t = threats.get(pId)!;
     if (s.type === ACTION_TYPES.MAKE) {
       t.points += s.points || 0;
       t.straightPoints += s.points || 0;
@@ -1300,6 +1302,7 @@ export const calculateScoringRuns = (stats: StatEvent[]): ScoringRun[] => {
   let currentRunTeam: "TEAM" | "OPPONENT" | null = null;
   let currentRunPoints = 0;
   let runStartEvent: StatEvent | null = null;
+  let lastMakeEvent: StatEvent | null = null; // ⚡ Bolt: Track last make for O(N) runs
 
   for (let i = 0; i < sorted.length; i++) {
     const s = sorted[i];
@@ -1311,49 +1314,39 @@ export const calculateScoringRuns = (stats: StatEvent[]): ScoringRun[] => {
 
     if (currentRunTeam === team) {
       currentRunPoints += points;
+      lastMakeEvent = s;
     } else {
       // If previous run was significant, record it
-      if (currentRunTeam && currentRunPoints >= 8 && runStartEvent) {
-        const lastMake = sorted
-          .slice(0, i)
-          .reverse()
-          .find((es) => isActive(es) && es.type === ACTION_TYPES.MAKE);
-        if (lastMake) {
-          runs.push({
-            team: currentRunTeam,
-            points: currentRunPoints,
-            period: runStartEvent.period,
-            startClock: runStartEvent.clockTime || 0,
-            endClock: lastMake.clockTime || 0,
-            startTime: formatClock(runStartEvent.clockTime || 0),
-            endTime: formatClock(lastMake.clockTime || 0),
-          });
-        }
+      if (currentRunTeam && currentRunPoints >= 8 && runStartEvent && lastMakeEvent) {
+        runs.push({
+          team: currentRunTeam,
+          points: currentRunPoints,
+          period: runStartEvent.period,
+          startClock: runStartEvent.clockTime || 0,
+          endClock: lastMakeEvent.clockTime || 0,
+          startTime: formatClock(runStartEvent.clockTime || 0),
+          endTime: formatClock(lastMakeEvent.clockTime || 0),
+        });
       }
       // Start new run
       currentRunTeam = team;
       currentRunPoints = points;
       runStartEvent = s;
+      lastMakeEvent = s;
     }
   }
 
   // Final check
-  if (currentRunTeam && currentRunPoints >= 8 && runStartEvent) {
-    const lastMake = sorted
-      .slice()
-      .reverse()
-      .find((es) => isActive(es) && es.type === ACTION_TYPES.MAKE);
-    if (lastMake) {
-      runs.push({
-        team: currentRunTeam,
-        points: currentRunPoints,
-        period: runStartEvent.period,
-        startClock: runStartEvent.clockTime || 0,
-        endClock: lastMake.clockTime || 0,
-        startTime: formatClock(runStartEvent.clockTime || 0),
-        endTime: formatClock(lastMake.clockTime || 0),
-      });
-    }
+  if (currentRunTeam && currentRunPoints >= 8 && runStartEvent && lastMakeEvent) {
+    runs.push({
+      team: currentRunTeam,
+      points: currentRunPoints,
+      period: runStartEvent.period,
+      startClock: runStartEvent.clockTime || 0,
+      endClock: lastMakeEvent.clockTime || 0,
+      startTime: formatClock(runStartEvent.clockTime || 0),
+      endTime: formatClock(lastMakeEvent.clockTime || 0),
+    });
   }
 
   return runs;
@@ -1435,7 +1428,9 @@ export const detectShotValueFromCoords = (x: number, y: number): number => {
     if (svgX <= 30 || svgX >= 470) return 3;
   } else {
     // ⚡ Bolt: Use squared distance to avoid expensive Math.sqrt() calls.
-    const distSq = Math.pow(svgX - 250, 2) + Math.pow(svgY - 140, 2);
+    const dX = svgX - 250;
+    const dY = svgY - 140;
+    const distSq = dX * dX + dY * dY;
     if (distSq >= 48400) return 3; // 220^2 = 48400
   }
   return 2;
@@ -2154,6 +2149,23 @@ export const calculateLineupStats = (
   let currentGameId: string | null = null;
   const scores = { team: 0, opp: 0 };
 
+  let pendingDuration = 0;
+  let pendingPtsFor = 0;
+  let pendingPtsAgainst = 0;
+
+  const flushPending = () => {
+    if (pendingDuration === 0 && pendingPtsFor === 0 && pendingPtsAgainst === 0) return;
+    if (currentLineup.size === 5) {
+      if (!cachedLineupKey) cachedLineupKey = getLineupKey(currentLineup);
+      recordLineupStint(lineupStats, cachedLineupKey, pendingDuration, pendingPtsFor, pendingPtsAgainst);
+    }
+    pendingDuration = 0;
+    pendingPtsFor = 0;
+    pendingPtsAgainst = 0;
+  };
+
+  const periodType = options.periodType || "QUARTERS";
+
   for (let i = 0; i < sortedStats.length; i++) {
     const s = sortedStats[i];
     // ⚡ Bolt: Inline isActive check to reduce function call overhead in hot loop.
@@ -2162,22 +2174,12 @@ export const calculateLineupStats = (
     // ⚡ Bolt: Handle multi-game aggregation by detecting game context changes in-stream.
     if (currentGameId !== null && s.gameId !== currentGameId) {
       if (currentLineup.size === 5) {
-        if (!cachedLineupKey) cachedLineupKey = getLineupKey(currentLineup);
-        const clutchSecs = getClutchSeconds(
-          currentPeriod,
-          lastClockTime,
-          0,
-          lastScoreDiff,
-          options.periodType || "QUARTERS",
-        );
-        recordLineupStint(
-          lineupStats,
-          cachedLineupKey,
-          options.clutchOnly ? clutchSecs : lastClockTime,
-          scores.team - lastTeamScore,
-          scores.opp - lastOppScore,
-        );
+        const clutchSec = getClutchSeconds(currentPeriod, lastClockTime, 0, lastScoreDiff, periodType);
+        pendingDuration += options.clutchOnly ? clutchSec : lastClockTime;
+        pendingPtsFor += scores.team - lastTeamScore;
+        pendingPtsAgainst += scores.opp - lastOppScore;
       }
+      flushPending();
       currentLineup.clear();
       cachedLineupKey = null;
       lastClockTime = getPeriodLen(1, options);
@@ -2193,39 +2195,27 @@ export const calculateLineupStats = (
     // Handle period transition
     if (s.period > currentPeriod) {
       if (currentLineup.size === 5) {
-        if (!cachedLineupKey) cachedLineupKey = getLineupKey(currentLineup);
-        const clutchSecs = getClutchSeconds(
-          currentPeriod,
-          lastClockTime,
-          0,
-          lastScoreDiff,
-          options.periodType || "QUARTERS",
-        );
-        recordLineupStint(
-          lineupStats,
-          cachedLineupKey,
-          options.clutchOnly ? clutchSecs : lastClockTime,
-          scores.team - lastTeamScore,
-          scores.opp - lastOppScore,
-        );
+        const clutchSec = getClutchSeconds(currentPeriod, lastClockTime, 0, lastScoreDiff, periodType);
+        pendingDuration += options.clutchOnly ? clutchSec : lastClockTime;
+        pendingPtsFor += scores.team - lastTeamScore;
+        pendingPtsAgainst += scores.opp - lastOppScore;
+        flushPending();
 
         // 🔍 Scout: Handle full minutes for skipped periods
+        if (!cachedLineupKey) cachedLineupKey = getLineupKey(currentLineup);
         for (let p = currentPeriod + 1; p < s.period; p++) {
-          const skipClutchSecs = getClutchSeconds(
-            p,
-            getPeriodLen(p, options),
-            0,
-            lastScoreDiff,
-            options.periodType || "QUARTERS",
-          );
+          const pLen = getPeriodLen(p, options);
+          const skipClutchSecs = getClutchSeconds(p, pLen, 0, lastScoreDiff, periodType);
           recordLineupStint(
             lineupStats,
             cachedLineupKey,
-            options.clutchOnly ? skipClutchSecs : getPeriodLen(p, options),
+            options.clutchOnly ? skipClutchSecs : pLen,
             0,
             0,
           );
         }
+      } else {
+        flushPending();
       }
       lastClockTime = getPeriodLen(s.period, options);
       lastTeamScore = scores.team;
@@ -2240,7 +2230,7 @@ export const calculateLineupStats = (
         lastClockTime,
         s.clockTime,
         lastScoreDiff,
-        options.periodType || "QUARTERS",
+        periodType,
       );
       if (!options.clutchOnly || clutchSecs > 0) {
         if (!cachedLineupKey) cachedLineupKey = getLineupKey(currentLineup);
@@ -2251,11 +2241,25 @@ export const calculateLineupStats = (
           scores.team - lastTeamScore,
           scores.opp - lastOppScore,
         );
+        pendingDuration += options.clutchOnly ? clutchSecs : (lastClockTime - s.clockTime);
+        pendingPtsFor += scores.team - lastTeamScore;
+        pendingPtsAgainst += scores.opp - lastOppScore;
       }
       lastClockTime = s.clockTime;
       lastTeamScore = scores.team;
       lastOppScore = scores.opp;
     }
+
+    // Determine if current event is clutch
+    const isClutch =
+      !options.clutchOnly ||
+      (s.clockTime !== undefined &&
+        isClutchEvent(
+          s.period,
+          s.clockTime,
+          scores.team - scores.opp,
+          periodType,
+        ));
 
     // ⚡ Bolt: Use domain helpers for scoring and opponent identification.
     if (s.type === ACTION_TYPES.MAKE) {
@@ -2270,6 +2274,7 @@ export const calculateLineupStats = (
 
     // When lineup changes
     if (s.type === ACTION_TYPES.SUB_IN || s.type === ACTION_TYPES.SUB_OUT) {
+      flushPending();
       if (s.type === ACTION_TYPES.SUB_IN) currentLineup.add(s.playerId);
       else currentLineup.delete(s.playerId);
       cachedLineupKey = null;
@@ -2288,16 +2293,12 @@ export const calculateLineupStats = (
       lastClockTime,
       finalClock,
       lastScoreDiff,
-      options.periodType || "QUARTERS",
+      periodType,
     );
-    if (!cachedLineupKey) cachedLineupKey = getLineupKey(currentLineup);
-    recordLineupStint(
-      lineupStats,
-      cachedLineupKey,
-      options.clutchOnly ? clutchSecs : Math.max(0, lastClockTime - finalClock),
-      scores.team - lastTeamScore,
-      scores.opp - lastOppScore,
-    );
+    pendingDuration += options.clutchOnly ? clutchSecs : Math.max(0, lastClockTime - finalClock);
+    pendingPtsFor += scores.team - lastTeamScore;
+    pendingPtsAgainst += scores.opp - lastOppScore;
+    flushPending();
   }
 
   const sortKey = (options.key || "netRating") as keyof LineupAggregates;
@@ -2533,6 +2534,15 @@ export const calculateOnOffStats = (
     }
   >();
 
+  type OnOffStats = {
+    onPtsFor: number; onPtsAgn: number;
+    onTeamFga: number; onTeamFta: number; onTeamTo: number; onTeamOreb: number;
+    onOppFga: number; onOppFta: number; onOppTo: number; onOppOreb: number;
+    offPtsFor: number; offPtsAgn: number;
+    offTeamFga: number; offTeamFta: number; offTeamTo: number; offTeamOreb: number;
+    offOppFga: number; offOppFta: number; offOppTo: number; offOppOreb: number;
+  };
+
   // Initialize
   for (let i = 0; i < players.length; i++) {
     const p = players[i];
@@ -2561,7 +2571,7 @@ export const calculateOnOffStats = (
     });
   }
 
-  const activePlayers = new Set<string>();
+  const activeAggs = new Map<string, OnOffStats>();
   let currentGameId: string | null = null;
 
   // ⚡ Bolt: $O(N+P)$ Optimization via "OFF-as-Difference"
@@ -2593,14 +2603,15 @@ export const calculateOnOffStats = (
 
     if (s.gameId !== currentGameId) {
       currentGameId = s.gameId;
-      activePlayers.clear();
+      activeAggs.clear();
     }
 
     if (s.type === ACTION_TYPES.SUB_IN) {
-      activePlayers.add(s.playerId);
+      const agg = results.get(s.playerId);
+      if (agg) activeAggs.set(s.playerId, agg);
       continue;
     } else if (s.type === ACTION_TYPES.SUB_OUT) {
-      activePlayers.delete(s.playerId);
+      activeAggs.delete(s.playerId);
       continue;
     }
 
@@ -2626,10 +2637,8 @@ export const calculateOnOffStats = (
     }
 
     // Update ON stats for active players
-    for (const pId of activePlayers) {
-      const agg = results.get(pId);
-      if (!agg) continue;
-
+    // ⚡ Bolt: Iterate over cached aggregate objects to avoid Map.get() in the hot loop.
+    for (const agg of activeAggs.values()) {
       if (s.type === ACTION_TYPES.MAKE) {
         if (isOpp) agg.onPtsAgn += pts;
         else agg.onPtsFor += pts;
