@@ -40,6 +40,13 @@ export function isValidUuid(id: unknown): id is string {
 export const isOpponentId = (playerId: string): boolean =>
   playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
   playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":");
+ * Validates if a string is a valid jersey number (1-2 digits).
+ * @param {unknown} jersey - The jersey number to validate.
+ * @returns {boolean} True if it's a valid jersey number string.
+ */
+export function isValidJerseyNumber(jersey: unknown): jersey is string {
+  return typeof jersey === "string" && /^\d{1,2}$/.test(jersey);
+}
 
 /**
  * Validates if a string is a valid player ID.
@@ -64,12 +71,9 @@ export function isValidPlayerId(id: unknown): boolean {
   const prefix = SPECIAL_PLAYER_IDS.OPPONENT + ":";
   if (strId.startsWith(prefix)) {
     // 🛡️ Guard: Length check for jersey-prefixed IDs.
-    // WHY: 'OPPONENT:' (9 chars) plus a 1 or 2 digit jersey number (1-2 chars).
-    // Total valid length must be 10 or 11 characters.
-    // This optimization avoids expensive operations for obviously invalid IDs.
     if (strId.length > 11 || strId.length < 10) return false;
     const jersey = strId.slice(prefix.length);
-    return /^\d{1,2}$/.test(jersey);
+    return isValidJerseyNumber(jersey);
   }
   return false;
 }
@@ -127,6 +131,7 @@ export const VALID_ACTION_TYPES = Object.freeze(
     "SUB_OUT",
     "POSSESSION",
     "TECHNICAL_FOUL",
+    "MATCHUP",
   ]),
 );
 
@@ -165,9 +170,10 @@ export function validateStatEvent(body: unknown): string | null {
     b.period !== undefined &&
     (typeof b.period !== "number" ||
       !Number.isSafeInteger(b.period) ||
-      b.period < 1)
+      b.period < 1 ||
+      b.period > 20)
   ) {
-    return "Period must be an integer at least 1";
+    return "Period must be an integer between 1 and 20";
   }
   if (
     b.clockTime !== undefined &&
@@ -208,5 +214,38 @@ export function validateStatEvent(body: unknown): string | null {
   ) {
     return "Location coordinates must be finite numbers between 0 and 100";
   }
+
+  // 🛡️ Enhancements: Validate relationship IDs, metadata and point consistency
+  if (b.relatedPlayerId !== undefined && !isValidPlayerId(b.relatedPlayerId))
+    return "Invalid relatedPlayerId";
+  if (b.subInPlayerId !== undefined && !isValidPlayerId(b.subInPlayerId))
+    return "Invalid subInPlayerId";
+  if (b.subOutPlayerId !== undefined && !isValidPlayerId(b.subOutPlayerId))
+    return "Invalid subOutPlayerId";
+
+  if (
+    b.shotType !== undefined &&
+    (typeof b.shotType !== "string" || !["CATCH", "DRIB"].includes(b.shotType))
+  )
+    return "Invalid shot type";
+  if (
+    b.shotQuality !== undefined &&
+    (typeof b.shotQuality !== "string" ||
+      !["OPEN", "CONTESTED"].includes(b.shotQuality))
+  )
+    return "Invalid shot quality";
+  if (
+    b.playName !== undefined &&
+    (typeof b.playName !== "string" || b.playName.length > 50)
+  )
+    return "Play name too long";
+
+  if (
+    b.points !== undefined &&
+    b.points > 0 &&
+    !["MAKE", "FOUL_SHOOTING"].includes(b.type as string)
+  )
+    return "Points only for MAKE or FOUL_SHOOTING";
+
   return null;
 }

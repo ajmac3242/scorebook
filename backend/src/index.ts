@@ -37,6 +37,7 @@ import {
 import {
   isValidUuid,
   isValidPlayerId,
+  isValidJerseyNumber,
   SPECIAL_PLAYER_IDS,
   validateStatEvent,
   validateGame,
@@ -89,11 +90,29 @@ async function handlePlayers(
   // Collection endpoints: /players
   if (path === "/players") {
     if (method === "GET") return await getItems(tableName, "PLAYER", requestId);
-    if (method !== "POST") return null;
-
-    if (!body?.name || typeof body.name !== "string" || body.name.length > 100) {
-      return badRequest(
-        "Player name is required and must be under 100 characters",
+    if (method === "POST") {
+      if (
+        !body?.name ||
+        typeof body.name !== "string" ||
+        body.name.length > 100
+      ) {
+        return badRequest(
+          "Player name is required and must be under 100 characters",
+          requestId,
+        );
+      }
+      if (
+        body.defaultNumber !== undefined &&
+        !isValidJerseyNumber(body.defaultNumber)
+      ) {
+        return badRequest("Default jersey number must be 1-3 digits", requestId);
+      }
+      return await createItem(
+        "PLAYER",
+        "METADATA",
+        "PLAYER",
+        body,
+        tableName,
         requestId,
       );
     }
@@ -467,8 +486,7 @@ async function handleTeams(
         return badRequest("Valid playerId (UUID) is required", requestId);
       if (
         body.jerseyNumber !== undefined &&
-        (typeof body.jerseyNumber !== "string" ||
-          !/^\d{1,3}$/.test(body.jerseyNumber))
+        !isValidJerseyNumber(body.jerseyNumber)
       ) {
         return badRequest("Jersey number must be 1-3 digits", requestId);
       }
