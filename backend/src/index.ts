@@ -37,6 +37,7 @@ import {
 import {
   isValidUuid,
   isValidPlayerId,
+  isValidJerseyNumber,
   SPECIAL_PLAYER_IDS,
   validateStatEvent,
 } from "./validation.js";
@@ -98,6 +99,12 @@ async function handlePlayers(
           "Player name is required and must be under 100 characters",
           requestId,
         );
+      }
+      if (
+        body.defaultNumber !== undefined &&
+        !isValidJerseyNumber(body.defaultNumber)
+      ) {
+        return badRequest("Default jersey number must be 1-3 digits", requestId);
       }
       return await createItem(
         "PLAYER",
@@ -497,8 +504,7 @@ async function handleTeams(
         return badRequest("Valid playerId (UUID) is required", requestId);
       if (
         body.jerseyNumber !== undefined &&
-        (typeof body.jerseyNumber !== "string" ||
-          !/^\d{1,3}$/.test(body.jerseyNumber))
+        !isValidJerseyNumber(body.jerseyNumber)
       ) {
         return badRequest("Jersey number must be 1-3 digits", requestId);
       }
