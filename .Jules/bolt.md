@@ -52,3 +52,19 @@ Action: Use global-sum-minus-active-sum derivation to calculate "Off" or "Rest o
 
 Learning: Caching the array representation of dynamic collections (e.g., `Array.from(lineupSet)`) and only refreshing it when the collection changes prevents thousands of redundant allocations in high-frequency event loops like `calculateScoreFlow`.
 Action: Never call `Array.from()` or `Object.keys()` inside a tight loop if the collection has not changed since the last iteration.
+
+## 2026-04-10 - Performance Optimization Deep Dive
+Learning: Squaring numbers using `a * a` is significantly more efficient than `Math.pow(a, 2)` in high-frequency geometric calculations (like court zone mapping). While `Math.pow` is more general, direct multiplication avoids function call overhead for a very common operation.
+Action: Use direct multiplication `x * x` for squaring in hot paths.
+
+Learning: Tracking 'boundary events' (like the last scoring event) during a single-pass traversal allows for O(1) interval recording, transforming algorithms like `calculateScoringRuns` from O(N^2) to O(N). This avoids expensive look-back operations like `.slice().reverse().find()`.
+Action: Use variables to track state from the previous iteration to eliminate redundant searches in the stream.
+
+Learning: Stint-based aggregation (e.g., Lineup stats) can be optimized via 'batching'. By accumulating duration and points in "pending" variables and only flushing to the result Map on lineup changes, we avoid thousands of expensive Map lookups and key generations.
+Action: Implement a 'dirty-flush' pattern for interval-based metrics to minimize Map operations.
+
+Learning: Manual single-pass character loops are more efficient than functional chains (`split().map().join()`) for simple string transformations like `getInitials`. This avoids multiple intermediate array allocations and regex overhead.
+Action: Use low-level string iteration for simple extraction logic in performance-critical paths.
+
+Learning: Standardizing on a single `Map.get()` call followed by a null check, instead of the `Map.has()` followed by `Map.get()` pattern, halves the number of hash-table lookups.
+Action: Always use the single-lookup `get` pattern for Map access in loops.
