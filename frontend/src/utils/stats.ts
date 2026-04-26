@@ -81,10 +81,11 @@ const getPeriodLen = (
     periodType?: string;
   },
 ): number => {
-  const regLen = options.periodLength ? options.periodLength * 60 : 600;
-  const otLen = options.overtimeLength ? options.overtimeLength * 60 : 300;
   const isOT = options.periodType === "HALVES" ? period > 2 : period > 4;
-  return isOT ? otLen : regLen;
+  const mins = isOT
+    ? options.overtimeLength ?? 5
+    : options.periodLength ?? 10;
+  return mins * 60;
 };
 
 /**
@@ -221,6 +222,32 @@ export const isFoulAction = (stat: StatEvent): boolean =>
   stat.type === ACTION_TYPES.FOUL_SHOOTING ||
   stat.type === ACTION_TYPES.FOUL_NON_SHOOTING ||
   stat.type === ACTION_TYPES.TECHNICAL_FOUL;
+
+/**
+ * Determines if a statistical event is a rebound.
+ * @param {StatEvent} stat - The event to check.
+ * @returns {boolean} True if it is a rebound.
+ */
+export const isRebound = (stat: StatEvent): boolean =>
+  stat.type === ACTION_TYPES.REBOUND ||
+  stat.type === ACTION_TYPES.OFF_REBOUND ||
+  stat.type === ACTION_TYPES.DEF_REBOUND;
+
+/**
+ * Determines if a statistical event is a defensive rebound.
+ * @param {StatEvent} stat - The event to check.
+ * @returns {boolean} True if it is a defensive rebound.
+ */
+export const isDefensiveRebound = (stat: StatEvent): boolean =>
+  stat.type === ACTION_TYPES.DEF_REBOUND || stat.type === ACTION_TYPES.REBOUND;
+
+/**
+ * Determines if a statistical event is a substitution.
+ * @param {StatEvent} stat - The event to check.
+ * @returns {boolean} True if it is a substitution.
+ */
+export const isSubstitution = (stat: StatEvent): boolean =>
+  stat.type === ACTION_TYPES.SUB_IN || stat.type === ACTION_TYPES.SUB_OUT;
 
 /**
  * Determines if a statistical event is a free throw attempt.
@@ -866,7 +893,7 @@ export const calculatePlayerAggregates = (
   }
 
   // Finalize totals, percentages, and averages
-  const result: PlayerAggregates[] = [];
+  const playerAggregates: PlayerAggregates[] = [];
   const isAverage = viewType === "average";
   for (const player of statsMap.values()) {
     const gpActual = player.gamesPlayed.size;
@@ -897,9 +924,9 @@ export const calculatePlayerAggregates = (
     } else {
       player.min = roundToOne(player.min / 60); // Total mins
     }
-    result.push(player);
+    playerAggregates.push(player);
   }
-  return result;
+  return playerAggregates;
 };
 
 /**
@@ -1589,18 +1616,13 @@ export const calculateStopsAndKills = (stats: StatEvent[]) => {
     }
 
     // Track possession changes to distinguish offensive/defensive fouls
-    if (!isOpp && isScoringEvent(s)) isOurPossession = false;
-    if (!isOpp && s.type === ACTION_TYPES.TURNOVER) isOurPossession = false;
-    if (
-      isOpp &&
-      (s.type === ACTION_TYPES.DEF_REBOUND || s.type === ACTION_TYPES.REBOUND)
-    )
+    if (!isOpp && (isScoringEvent(s) || s.type === ACTION_TYPES.TURNOVER)) {
       isOurPossession = false;
-    if (
-      !isOpp &&
-      (s.type === ACTION_TYPES.DEF_REBOUND || s.type === ACTION_TYPES.REBOUND)
-    )
-      isOurPossession = true;
+    }
+
+    if (isDefensiveRebound(s)) {
+      isOurPossession = !isOpp;
+    }
 
     // 🏀 CoachBoard: Foul Reset logic
     if (isFoulAction(s)) {
@@ -1635,11 +1657,7 @@ export const calculateStopsAndKills = (stats: StatEvent[]) => {
       inOpponentPossession = true;
     }
     // If we get a defensive rebound while opponent was in possession after a miss -> Stop!
-    else if (
-      inOpponentPossession &&
-      !isOpp &&
-      (s.type === ACTION_TYPES.DEF_REBOUND || s.type === ACTION_TYPES.REBOUND)
-    ) {
+    else if (inOpponentPossession && !isOpp && isDefensiveRebound(s)) {
       totalStops++;
       currentStreak++;
       inOpponentPossession = false;
@@ -1784,24 +1802,14 @@ export const calculateTeamAggregates = (
     updatePossessionCounters(stat, isOpponent ? opp : team);
 
     if (isOpponent) {
-      if (
-        stat.type === ACTION_TYPES.DEF_REBOUND ||
-        stat.type === ACTION_TYPES.REBOUND
-      ) {
+      if (isDefensiveRebound(stat)) {
         opp.dreb++;
       }
     } else {
-      if (
-        stat.type === ACTION_TYPES.DEF_REBOUND ||
-        stat.type === ACTION_TYPES.REBOUND
-      ) {
+      if (isDefensiveRebound(stat)) {
         team.dreb++;
       }
-      if (
-        stat.type === ACTION_TYPES.OFF_REBOUND ||
-        stat.type === ACTION_TYPES.REBOUND ||
-        stat.type === ACTION_TYPES.DEF_REBOUND
-      ) {
+      if (isRebound(stat)) {
         team.reb++;
       } else if (stat.type === ACTION_TYPES.ASSIST) {
         team.ast++;
@@ -1944,11 +1952,12 @@ export const calculateScoreFlow = (
     // Track possessions
     updatePossessionCounters(stat, isOpp ? opp : team);
 
-    if (stat.type === ACTION_TYPES.SUB_IN) {
-      currentLineup.add(stat.playerId);
-      cachedLineup = Array.from(currentLineup);
-    } else if (stat.type === ACTION_TYPES.SUB_OUT) {
-      currentLineup.delete(stat.playerId);
+    if (isSubstitution(stat)) {
+      if (stat.type === ACTION_TYPES.SUB_IN) {
+        currentLineup.add(stat.playerId);
+      } else {
+        currentLineup.delete(stat.playerId);
+      }
       cachedLineup = Array.from(currentLineup);
     }
 
@@ -2051,25 +2060,8 @@ export const isEventInPeriod = (
   currentPeriod: number,
   periodType: string,
 ): boolean => {
-  if (periodType === "QUARTERS") {
-    // 🔍 Scout: Overtime periods (5+) are typically grouped with P4 for bonus/team fouls.
-    if (currentPeriod === 4) {
-      return eventPeriod >= 4;
-    }
-    return eventPeriod === currentPeriod;
-  }
-
-  // HALVES logic
-  if (currentPeriod === 1) {
-    return eventPeriod === 1;
-  }
-
-  // Period 2 in HALVES includes all subsequent periods (OTs)
-  if (currentPeriod === 2) {
-    return eventPeriod >= 2;
-  }
-
-  return eventPeriod === currentPeriod;
+  const isFinal = periodType === "QUARTERS" ? currentPeriod === 4 : currentPeriod === 2;
+  return isFinal ? eventPeriod >= currentPeriod : eventPeriod === currentPeriod;
 };
 
 /**
@@ -2317,13 +2309,6 @@ export const calculateLineupStats = (
       );
       if (!options.clutchOnly || clutchSecs > 0) {
         if (!cachedLineupKey) cachedLineupKey = getLineupKey(currentLineup);
-        recordLineupStint(
-          lineupStats,
-          cachedLineupKey,
-          options.clutchOnly ? clutchSecs : lastClockTime - s.clockTime,
-          scores.team - lastTeamScore,
-          scores.opp - lastOppScore,
-        );
         pendingDuration += options.clutchOnly ? clutchSecs : (lastClockTime - s.clockTime);
         pendingPtsFor += scores.team - lastTeamScore;
         pendingPtsAgainst += scores.opp - lastOppScore;

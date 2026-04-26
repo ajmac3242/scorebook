@@ -40,6 +40,7 @@ import {
   isValidJerseyNumber,
   SPECIAL_PLAYER_IDS,
   validateStatEvent,
+  validateGame,
 } from "./validation.js";
 import { Keys } from "./keys.js";
 import {
@@ -115,15 +116,24 @@ async function handlePlayers(
         requestId,
       );
     }
-    return null;
+    return await createItem(
+      "PLAYER",
+      "METADATA",
+      "PLAYER",
+      body,
+      tableName,
+      requestId,
+    );
   }
 
   // Member endpoints: /players/{playerId}
   const playerId = extractIdFromPath(path, "/players/");
   if (!playerId) return null;
+
   if (!isValidUuid(playerId)) {
     return badRequest("Invalid playerId format (UUID required)", requestId);
   }
+
   const playerKey = { PK: Keys.player(playerId), SK: Keys.metadata(playerId) };
 
   if (method === "DELETE") {
@@ -204,37 +214,9 @@ async function handleGames(
       return await getItemsByGSI(`TEAM#${teamId}`, tableName, requestId);
     }
     if (method === "POST") {
-      if (!isValidUuid(body?.teamId)) {
-        return badRequest("Valid teamId (UUID) is required", requestId);
-      }
-      if (
-        !body?.opponent ||
-        typeof body.opponent !== "string" ||
-        body.opponent.length > 100
-      ) {
-        return badRequest(
-          "Opponent name is required and must be under 100 characters",
-          requestId,
-        );
-      }
-      if (
-        body.location !== undefined &&
-        (typeof body.location !== "string" || body.location.length > 100)
-      ) {
-        return badRequest(
-          "Location must be a string under 100 characters",
-          requestId,
-        );
-      }
-      if (
-        body.date !== undefined &&
-        (typeof body.date !== "string" || body.date.length > 50)
-      ) {
-        return badRequest(
-          "Date must be a string under 50 characters",
-          requestId,
-        );
-      }
+      const error = validateGame(body);
+      if (error) return badRequest(error, requestId);
+
       const resp = await createItem(
         "GAME",
         "METADATA",

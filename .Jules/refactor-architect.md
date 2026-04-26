@@ -83,3 +83,13 @@ Pattern:
 2. Use idiomatic object passing for multi-value state updates in aggregation loops.
 3. Flatten complex domain conditionals with guard clauses and early returns.
 4. Modernize backend utility patterns (case-insensitive header lookups) with Object.keys().find().
+
+## 2026-04-22 - Multi-Layer Quality and Domain Helper Extraction
+Smell: Manual prefix checks for opponent IDs in backend; repetitive rebound and substitution logic in frontend; deep nesting in player handlers; fragmented game validation.
+Learning: Centralizing domain-specific identifiers (isOpponentId) and actions (isRebound, isSubstitution) reduces visual noise and ensures logic parity across aggregation layers. Flattening handlers with early returns makes the routing flow "scannable."
+Pattern:
+1. Extract domain helpers (isRebound, isSubstitution) to replace multi-condition checks in complex loops.
+2. Centralize cross-layer identifiers (isOpponentId) in validation modules to ensure consistent entity detection.
+3. Modularize entity validation (validateGame) to decouple routing from business rules.
+4. Flatten nested controller logic using guard clauses for cleaner request handling.
+5. Use batching patterns for stint recording to avoid redundant map updates in hot paths.

@@ -3,7 +3,7 @@
  * @description Scoring and game result calculation logic for the Basketball Stats API.
  */
 
-import { SPECIAL_PLAYER_IDS } from "./validation.js";
+import { SPECIAL_PLAYER_IDS, isOpponentId } from "./validation.js";
 
 /**
  * 🏀 Scoring Strategy: Event-Driven Accumulation
@@ -42,10 +42,7 @@ export function accumulateScores(stats: Record<string, unknown>[]): {
 
     const pts = (s.points as number) || 0;
 
-    if (
-      typeof s.playerId === "string" &&
-      s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT)
-    ) {
+    if (typeof s.playerId === "string" && isOpponentId(s.playerId)) {
       oppScore += pts;
     } else {
       teamScore += pts;

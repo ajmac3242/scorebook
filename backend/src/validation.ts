@@ -33,6 +33,13 @@ export function isValidUuid(id: unknown): id is string {
 }
 
 /**
+ * Determines if a player ID belongs to an opponent.
+ * @param {string} playerId - The player ID.
+ * @returns {boolean} True if the ID is for an opponent.
+ */
+export const isOpponentId = (playerId: string): boolean =>
+  playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
+  playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":");
  * Validates if a string is a valid jersey number (1-2 digits).
  * @param {unknown} jersey - The jersey number to validate.
  * @returns {boolean} True if it's a valid jersey number string.
@@ -69,6 +76,37 @@ export function isValidPlayerId(id: unknown): boolean {
     return isValidJerseyNumber(jersey);
   }
   return false;
+}
+
+/**
+ * Validates a game metadata object.
+ * @param {Record<string, unknown>} body - The game data to validate.
+ * @returns {string | null} Error message or null if valid.
+ */
+export function validateGame(body: Record<string, unknown>): string | null {
+  if (!isValidUuid(body?.teamId)) {
+    return "Valid teamId (UUID) is required";
+  }
+  if (
+    !body?.opponent ||
+    typeof body.opponent !== "string" ||
+    body.opponent.length > 100
+  ) {
+    return "Opponent name is required and must be under 100 characters";
+  }
+  if (
+    body.location !== undefined &&
+    (typeof body.location !== "string" || body.location.length > 100)
+  ) {
+    return "Location must be a string under 100 characters";
+  }
+  if (
+    body.date !== undefined &&
+    (typeof body.date !== "string" || body.date.length > 50)
+  ) {
+    return "Date must be a string under 50 characters";
+  }
+  return null;
 }
 
 /**
