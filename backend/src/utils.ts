@@ -254,7 +254,10 @@ export function normalizePath(event: APIGatewayProxyEventV2): string {
   // WHY: Removing '..' sequences prevents attackers from attempting to
   // navigate out of the intended API path structure via URL manipulation.
   while (path.includes("..")) {
-    path = path.replace(/\.\.\//g, "").replace(/\/\.\./g, "").replace(/\.\./g, "");
+    path = path
+      .replace(/\.\.\//g, "")
+      .replace(/\/\.\./g, "")
+      .replace(/\.\./g, "");
   }
 
   // ⚡ Bolt: Cleanup multiple forward slashes and trailing slash.
@@ -341,17 +344,6 @@ export function getHeader(
   return undefined;
 }
 
-/**
- * Strips local-only fields and internal DynamoDB keys from the data object before saving.
- *
- * WHY: This provides mass assignment protection and prevents UI-only state or
- * internal database keys from being persisted. It ensures that only valid,
- * schema-defined fields are saved to DynamoDB.
- *
- * @param {Record<string, unknown>} data - The data object to clean.
- * @param {number} depth - Current recursion depth.
- * @returns {Record<string, unknown>} The cleaned object.
- */
 /**
  * Strips local-only fields and internal DynamoDB keys from the data object before saving.
  *
