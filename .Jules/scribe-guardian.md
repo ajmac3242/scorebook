@@ -19,3 +19,8 @@ Pattern: For every non-standard optimization, add a "WHY" comment and a "CONSTRA
 Issue: Complex state-machine logic in `calculateStopsAndKills` was only partially documented, making it hard to understand how defensive stops are tracked across multi-miss possessions. Optimization in `calculateOnOffStats` was not explicitly explained, risking future regressions that might re-introduce (N \times P)$ loops.
 Learning: Explicitly documenting the "WHY" behind state-machine transitions and performance optimizations ensures that future developers maintain these critical paths correctly. High-quality tests for previously untested functions like `calculatePlayerStintTimeline` and `calculateMatchupStats` provide a safety net for future refactors.
 Pattern: Use JSDoc to explain the "WHY" of complex logic (e.g., timing safe comparisons, mass assignment protection) and provide detailed tests for state-driven statistical functions to verify behavior across all edge cases (multi-period, game boundaries).
+
+## 2026-05-20 - Explicit Boundary Documentation
+Issue: Logic that relies on external data formats (like fixed ISO string indices in `formatTimestampToTime`) or complex mathematical conservations (like "OFF-as-Difference" in `calculateOnOffStats`) often lacks explicit boundary documentation.
+Learning: Without "CONSTRAINT" or "METHODOLOGY" comments, these optimizations appear fragile or magical. Documenting the underlying math (e.g., Total - ON = OFF) provides the necessary context for safe refactoring.
+Pattern: For any logic that depends on a fixed data format or uses a mathematical shortcut for performance, add an explicit "CONSTRAINT" or "METHODOLOGY" comment to serve as a guardrail.
