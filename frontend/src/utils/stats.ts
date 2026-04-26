@@ -918,6 +918,12 @@ export const calculatePlayerAggregates = (
       player.blocks = roundToOne(player.blocks / gp);
       player.offRebounds = roundToOne(player.offRebounds / gp);
       player.defRebounds = roundToOne(player.defRebounds / gp);
+      player.makes = roundToOne(player.makes / gp);
+      player.attempts = roundToOne(player.attempts / gp);
+      player.threePM = roundToOne(player.threePM / gp);
+      player.threePA = roundToOne(player.threePA / gp);
+      player.ftm = roundToOne(player.ftm / gp);
+      player.fta = roundToOne(player.fta / gp);
       player.fouls = roundToOne(player.fouls / gp);
       player.min = roundToOne(player.min / (60 * gp)); // Convert to avg mins
       player.plusMinus = roundToOne(player.plusMinus / gp);
@@ -2121,6 +2127,14 @@ export interface LineupAggregates {
   netRating: number;
   seconds: number;
   netRatingPer40: string;
+  efgPct: string;
+  toPct: string;
+  fga: number;
+  fgm: number;
+  threePM: number;
+  fta: number;
+  turnovers: number;
+  oreb: number;
 }
 
 /**
@@ -2177,6 +2191,14 @@ const recordLineupStint = (
   seconds: number,
   ptsFor: number,
   ptsAgainst: number,
+  stintStats: {
+    fga: number;
+    fgm: number;
+    threePM: number;
+    fta: number;
+    turnovers: number;
+    oreb: number;
+  },
 ) => {
   let agg = lineupStats.get(key);
   if (!agg) {
@@ -2187,12 +2209,26 @@ const recordLineupStint = (
       netRating: 0,
       seconds: 0,
       netRatingPer40: "0.0",
+      efgPct: "0.0",
+      toPct: "0.0",
+      fga: 0,
+      fgm: 0,
+      threePM: 0,
+      fta: 0,
+      turnovers: 0,
+      oreb: 0,
     };
     lineupStats.set(key, agg);
   }
   agg.seconds += seconds;
   agg.pointsFor += ptsFor;
   agg.pointsAgainst += ptsAgainst;
+  agg.fga += stintStats.fga;
+  agg.fgm += stintStats.fgm;
+  agg.threePM += stintStats.threePM;
+  agg.fta += stintStats.fta;
+  agg.turnovers += stintStats.turnovers;
+  agg.oreb += stintStats.oreb;
 };
 
 export const calculateLineupStats = (
@@ -2227,16 +2263,53 @@ export const calculateLineupStats = (
   let pendingDuration = 0;
   let pendingPtsFor = 0;
   let pendingPtsAgainst = 0;
+  let pendingFga = 0;
+  let pendingFgm = 0;
+  let pendingThreePM = 0;
+  let pendingFta = 0;
+  let pendingTurnovers = 0;
+  let pendingOreb = 0;
 
   const flushPending = () => {
-    if (pendingDuration === 0 && pendingPtsFor === 0 && pendingPtsAgainst === 0) return;
+    if (
+      pendingDuration === 0 &&
+      pendingPtsFor === 0 &&
+      pendingPtsAgainst === 0 &&
+      pendingFga === 0 &&
+      pendingFgm === 0 &&
+      pendingThreePM === 0 &&
+      pendingFta === 0 &&
+      pendingTurnovers === 0 &&
+      pendingOreb === 0
+    )
+      return;
     if (currentLineup.size === 5) {
       if (!cachedLineupKey) cachedLineupKey = getLineupKey(currentLineup);
-      recordLineupStint(lineupStats, cachedLineupKey, pendingDuration, pendingPtsFor, pendingPtsAgainst);
+      recordLineupStint(
+        lineupStats,
+        cachedLineupKey,
+        pendingDuration,
+        pendingPtsFor,
+        pendingPtsAgainst,
+        {
+          fga: pendingFga,
+          fgm: pendingFgm,
+          threePM: pendingThreePM,
+          fta: pendingFta,
+          turnovers: pendingTurnovers,
+          oreb: pendingOreb,
+        },
+      );
     }
     pendingDuration = 0;
     pendingPtsFor = 0;
     pendingPtsAgainst = 0;
+    pendingFga = 0;
+    pendingFgm = 0;
+    pendingThreePM = 0;
+    pendingFta = 0;
+    pendingTurnovers = 0;
+    pendingOreb = 0;
   };
 
   const periodType = options.periodType || "QUARTERS";
@@ -2287,6 +2360,7 @@ export const calculateLineupStats = (
             options.clutchOnly ? skipClutchSecs : pLen,
             0,
             0,
+            { fga: 0, fgm: 0, threePM: 0, fta: 0, turnovers: 0, oreb: 0 },
           );
         }
       } else {
@@ -2336,8 +2410,29 @@ export const calculateLineupStats = (
         scores.opp += pts;
       } else {
         scores.team += pts;
+        // Track lineup-level metrics
+        if (isFreeThrow(s)) {
+          pendingFta++;
+        } else {
+          pendingFga++;
+          pendingFgm++;
+          if (pts === 3) pendingThreePM++;
+        }
       }
       lastScoreDiff = scores.team - scores.opp;
+    } else if (!isOpponentId(s.playerId)) {
+      if (s.type === ACTION_TYPES.MISS) {
+        if (isFreeThrow(s)) {
+          pendingFta++;
+        } else {
+          pendingFga++;
+          if (s.points === 3) pendingThreePM += 0; // Just for clarity
+        }
+      } else if (s.type === ACTION_TYPES.TURNOVER) {
+        pendingTurnovers++;
+      } else if (s.type === ACTION_TYPES.OFF_REBOUND) {
+        pendingOreb++;
+      }
     }
 
     // When lineup changes
@@ -2389,10 +2484,19 @@ export const calculateLineupStats = (
       sortValue = typeof val === "number" ? val : 0;
     }
 
+    const lineupPossessions = calculatePossessions(
+      agg.fga,
+      agg.fta,
+      agg.turnovers,
+      agg.oreb,
+    );
+
     return {
       ...agg,
       netRating: net,
       netRatingPer40: netRatingPer40Str,
+      efgPct: calculateEfgPct(agg.fgm, agg.threePM, agg.fga),
+      toPct: calcPct(agg.turnovers, lineupPossessions),
       sortValue,
     };
   });
@@ -2487,6 +2591,11 @@ export const calculateMatchupStats = (stats: StatEvent[]): MatchupStats[] => {
       }
       inOpponentPossession = false;
       continue;
+    }
+
+    // 🔍 Scout: Our team scoring or turnovers also end opponent possession
+    if (!isOpp && (isScoringEvent(s) || s.type === ACTION_TYPES.TURNOVER)) {
+      inOpponentPossession = false;
     }
 
     // Stop logic

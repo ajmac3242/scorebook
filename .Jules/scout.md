@@ -107,3 +107,17 @@
 ### Basketball Edge Cases
 - **Clutch Boundaries**: Calculating stats for a sub-window of a game (like Clutch or a specific period) requires an interval-based approach. A player might start a stint before clutch time and end it after; only the overlapping seconds should count.
 - **Play Possessions**: A "play" isn't a single shot; it's a sequence. Offensive rebounds reset the 24-second clock but do not start a new team possession for that specific set.
+
+## 2025-05-30 - Precision Metrics & Matchup Audit
+
+### Findings & Fixed Bugs
+- **Bug 25: Matchup Possession Leakage**: Discovered that `calculateMatchupStats` failed to reset the `inOpponentPossession` state when our team scored or committed a turnover. This led to "ghost stops" where an opponent miss in a *new* possession was incorrectly credited as a stop for the previous matchup state.
+- **Bug 26: Player Average Volume Gap**: Found that while rates (FG%) were correct, raw volume stats (`makes`, `attempts`, `threePM`, etc.) remained as totals even when `viewType` was set to "average". Updated to ensure a consistent per-game view across all box score columns.
+- **Bug 27: Incomplete Lineup Analytics**: Identified that `calculateLineupStats` lacked `efgPct` and `toPct`, making it difficult for coaches to judge unit efficiency beyond raw +/-. Added full possession component tracking to the lineup engine to derive these metrics.
+
+### Critical Test Gaps Filled
+- New comprehensive suite `scout_audit_v4.test.ts` verifying matchup terminators, averaged volume stats, and enhanced lineup metrics.
+
+### Basketball Edge Cases
+- **Matchup Termination**: A matchup "stop" requires a clean possession end. Any change in ball control (including our scores) must reset the defensive tracking state.
+- **Lineup eFG%**: Calculating eFG% for a lineup requires tracking 3PM and FGM specifically for that 5-man unit's stint duration, not just global team totals.
