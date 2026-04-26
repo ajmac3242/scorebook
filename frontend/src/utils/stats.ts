@@ -2318,17 +2318,6 @@ export const calculateLineupStats = (
       lastOppScore = scores.opp;
     }
 
-    // Determine if current event is clutch
-    const isClutch =
-      !options.clutchOnly ||
-      (s.clockTime !== undefined &&
-        isClutchEvent(
-          s.period,
-          s.clockTime,
-          scores.team - scores.opp,
-          periodType,
-        ));
-
     // ⚡ Bolt: Use domain helpers for scoring and opponent identification.
     if (s.type === ACTION_TYPES.MAKE) {
       const pts = s.points || 0;

@@ -31,3 +31,18 @@
 ### Basketball Domain Edge Cases
 - **Posession Estimation:** On/Off ratings correctly account for offensive rebounds (subtracting them from the denominator) to align with standard possession-based efficiency metrics.
 - **Defensive Stop Attribution:** Stops are attributed to the defender of the player who missed or turned the ball over, falling back to the "Team Defender" if no specific assignment exists.
+
+## Tactical Goals, Bookmarking, and HALT Alerting
+
+### Architectural Decisions
+- **Tactical KPI HUD:** Used a dynamic KPI mapper in `GameMode.tsx` to translate raw `StatEvent` aggregates (TO, AST, OREB, etc.) into user-defined goal progress. This ensures the HUD remains decoupled from the specific stats being tracked.
+- **HALT Alert Engine:** Implemented a prioritized notification system in the `Scoreboard` using a combination of `Alert` components and `pulse` animations. This ensures critical state changes (Clutch/Bonus/Foul Trouble) are immediately visible without cluttering the primary game-tracking UI.
+- **Bookmarking Schema:** Leveraging the `isBookmarked` flag on the existing `StatEvent` interface for "Key Moments" allows for efficient filtering and CSV export without needing a separate mapping table, maintaining database simplicity and performance.
+
+### Patterns Established
+- **KPI Summary Component:** The `TacticalGoalHUD` establishes a pattern for visualizing target-based progress that can be reused across live game, halftime, and post-game views.
+- **CSV Export Engine:** Implementation of the "Film Room" export in `GameStats.tsx` provides a template for future integrations with video platforms (Hudl/Synergy).
+
+### Basketball Domain Edge Cases
+- **Clutch Sensitivity:** Clutch alerts are grounded in the specific `periodType` (Quarters vs Halves), correctly adjusting the time threshold (4 mins vs 2 mins) to align with standard high-school and college rules.
+- **Bonus Warning:** The "Bonus Approaching" alert uses a 1-foul buffer (threshold - 1) to give coaches a "next foul is bonus" warning, facilitating proactive substitution or defensive scheme changes.

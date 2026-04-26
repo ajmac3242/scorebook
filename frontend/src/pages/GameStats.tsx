@@ -123,6 +123,7 @@ const GameStats: React.FC = () => {
   }>({ key: "points", direction: "desc" });
 
   const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [keyMomentsOnly, setKeyMomentsOnly] = useState(false);
   const [videoExportDialogOpen, setVideoExportDialogOpen] = useState(false);
   const [auditDialogOpen, setAuditDialogOpen] = useState(false);
   const [showFouls, setShowFouls] = useState(true);
@@ -585,6 +586,67 @@ const GameStats: React.FC = () => {
       periodLength: team?.periodLength || 10,
     });
   }, [scoreFlowSortedStats, game, team]);
+
+  const tacticalGoalStats = useMemo(() => {
+    if (!liveFourFactors) return {};
+    return {
+      TO: liveFourFactors.team.turnovers,
+      AST: liveFourFactors.team.assists,
+      OREB: liveFourFactors.team.offRebounds,
+      OPP_3PT: parseFloat(liveFourFactors.opponent.threePPct || "0"),
+      EFG: parseFloat(liveFourFactors.team.efgPct || "0"),
+    };
+  }, [liveFourFactors]);
+
+  const playerNamesMap = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const p of players) {
+      if (p.id) map.set(p.id.toString(), p.name);
+    }
+    return map;
+  }, [players]);
+
+  const eventLogStats = useMemo(() => {
+    let filtered = scoreFlowSortedStats;
+    if (keyMomentsOnly) {
+      filtered = filtered.filter((s) => !!s.isBookmarked);
+    }
+    return filtered.slice().reverse();
+  }, [scoreFlowSortedStats, keyMomentsOnly]);
+
+  const handleToggleBookmark = useCallback(
+    async (statId: string, currentStatus: number | undefined) => {
+      try {
+        await db.open();
+        await db.stats.update(statId, {
+          isBookmarked: currentStatus === 1 ? 0 : 1,
+          synced: 0,
+        });
+        await syncService.pushUpdates();
+      } catch (err) {
+        logger.error("Failed to toggle bookmark:", err);
+      }
+    },
+    [],
+  );
+
+  const handleExportBookmarks = () => {
+    const bookmarked = allStats.filter((s) => !!s.isBookmarked);
+    if (bookmarked.length === 0) {
+      alert("No bookmarked events to export.");
+      return;
+    }
+
+    let csv = "Timestamp,Period,Clock,Player,Action,Points,Shot Quality,Play Name\n";
+    for (const s of bookmarked) {
+      let pName = playerNamesMap.get(s.playerId) || "Unknown";
+      if (isOpponentId(s.playerId)) pName = `Opponent #${s.playerId.split(":")[1] || "??"}`;
+
+      csv += `${s.timestamp},${s.period},${s.clockTime},"${pName}",${s.type},${s.points || 0},${s.shotQuality || ""},"${s.playName || ""}"\n`;
+    }
+
+    downloadCSV(`Bookmarks_${game?.opponent}_${game?.date}.csv`, csv);
+  };
 
   const lineupStats = useMemo(() => {
     return calculateLineupStats(scoreFlowSortedStats, {
@@ -1467,6 +1529,59 @@ const GameStats: React.FC = () => {
     </Box>
   );
 
+  const eventLog = (
+    <MoleskineCard>
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+        <Typography variant="h6" sx={{ fontFamily: "var(--serif)" }}>
+          Game Event Log
+        </Typography>
+        <Stack direction="row" spacing={1} alignItems="center">
+          <Button
+            size="small"
+            variant="outlined"
+            onClick={handleExportBookmarks}
+            startIcon={<ExpandIcon />}
+          >
+            Export Bookmarks
+          </Button>
+          <ToggleButton
+            value="keyMoments"
+            selected={keyMomentsOnly}
+            onChange={() => setKeyMomentsOnly(!keyMomentsOnly)}
+            size="small"
+            color="primary"
+          >
+            ⭐ Key Moments
+          </ToggleButton>
+        </Stack>
+      </Box>
+      <Stack spacing={1} sx={{ maxHeight: 600, overflowY: "auto", pr: 1 }}>
+        {eventLogStats.map((s) => {
+          let pName = playerNamesMap.get(s.playerId) || "Unknown";
+          if (isOpponentId(s.playerId)) pName = `Opponent #${s.playerId.split(":")[1] || "??"}`;
+
+          return (
+            <RecentActionItem
+              key={s.id}
+              stat={s}
+              playerName={pName}
+              periodLabel={periodLabel}
+              isReadOnly={isDeleted}
+              onEdit={() => {}} // Disabled in stats view for now
+              onDelete={() => {}}
+              onToggleBookmark={handleToggleBookmark}
+            />
+          );
+        })}
+        {eventLogStats.length === 0 && (
+          <Typography variant="body2" color="text.secondary" align="center" sx={{ py: 4 }}>
+            {keyMomentsOnly ? "No bookmarked events." : "No events recorded."}
+          </Typography>
+        )}
+      </Stack>
+    </MoleskineCard>
+  );
+
   const lineupTable = (
     <TableContainer component={Box}>
       <Table size="small">
@@ -2060,6 +2175,19 @@ const GameStats: React.FC = () => {
                 </Box>
                 {lineupTable}
               </MoleskineCard>
+            </Grid>
+
+            {team?.tacticalGoals && team.tacticalGoals.length > 0 && (
+              <Grid item xs={12} md={4}>
+                <TacticalGoalHUD
+                  goals={team.tacticalGoals}
+                  currentStats={tacticalGoalStats}
+                />
+              </Grid>
+            )}
+
+            <Grid item xs={12}>
+              {eventLog}
             </Grid>
           </Grid>
         </Grid>

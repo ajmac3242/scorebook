@@ -85,8 +85,9 @@ import SubstitutionAuditDialog from "../components/SubstitutionAuditDialog";
 import FreeThrowWorkflowDialog from "../components/FreeThrowWorkflowDialog";
 import HalftimeReportDialog from "../components/HalftimeReportDialog";
 import PlaybookEfficiencyWidget from "../components/PlaybookEfficiencyWidget";
+import TacticalGoalHUD from "../components/TacticalGoalHUD";
 import { PlayerStatRow } from "../components/PlayerStatRow";
-import { db, type StatEvent } from "../db";
+import { db, type StatEvent, type Player, type TeamPlayer } from "../db";
 import { syncService } from "../utils/syncService";
 import { logger } from "../utils/logger";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -94,6 +95,7 @@ import {
   ACTION_TYPES,
   SPECIAL_PLAYER_IDS,
   SHOT_QUALITY,
+  BONUS_CONFIG,
 } from "../constants/stats";
 import {
   calculatePlayerAggregates,
@@ -108,10 +110,12 @@ import {
   calcPct,
   calculateLineupStats,
   calculateTeamSeasonAverages,
-  calculateOpponentAggregates, calculateTeamAggregates,
+  calculateOpponentAggregates,
+  calculateTeamAggregates,
   isEventInPeriod,
   isOpponentId,
   getBonusStatus,
+  getClutchSeconds,
   getInitials,
   type PlayerAggregates,
   type OpponentAggregates,
@@ -172,6 +176,10 @@ interface ScoreboardProps {
       opponentRun: string | null;
       scoringDrought: string | null;
       opponentThreats: OpponentThreat[];
+      isClutchMode?: boolean;
+      teamBonusApproaching?: boolean;
+      oppBonusApproaching?: boolean;
+      foulTroublePlayers?: string[];
     };
   };
   period: number;
@@ -387,6 +395,10 @@ const Scoreboard = React.memo(
           {/* Momentum Alerts */}
           {(gameData.momentumAlerts.opponentRun ||
             gameData.momentumAlerts.scoringDrought ||
+            gameData.momentumAlerts.isClutchMode ||
+            gameData.momentumAlerts.teamBonusApproaching ||
+            gameData.momentumAlerts.oppBonusApproaching ||
+            (gameData.momentumAlerts.foulTroublePlayers?.length || 0) > 0 ||
             gameData.momentumAlerts.opponentThreats.length > 0) && (
             <Box
               sx={{
@@ -399,6 +411,68 @@ const Scoreboard = React.memo(
                 gap: 0.5,
               }}
             >
+              {gameData.momentumAlerts.isClutchMode && (
+                <Typography
+                  variant="caption"
+                  sx={{
+                    bgcolor: "primary.main",
+                    color: "white",
+                    px: 1,
+                    borderRadius: 1,
+                    fontSize: "0.6rem",
+                    fontWeight: 900,
+                    animation: `${pulse} 1.5s infinite ease-in-out`,
+                  }}
+                >
+                  🔥 CLUTCH MODE ACTIVE
+                </Typography>
+              )}
+              {gameData.momentumAlerts.teamBonusApproaching && (
+                <Typography
+                  variant="caption"
+                  sx={{
+                    bgcolor: "warning.main",
+                    color: "black",
+                    px: 1,
+                    borderRadius: 1,
+                    fontSize: "0.55rem",
+                    fontWeight: 800,
+                  }}
+                >
+                  ⚠️ BONUS APPROACHING (TEAM)
+                </Typography>
+              )}
+              {gameData.momentumAlerts.oppBonusApproaching && (
+                <Typography
+                  variant="caption"
+                  sx={{
+                    bgcolor: "warning.main",
+                    color: "black",
+                    px: 1,
+                    borderRadius: 1,
+                    fontSize: "0.55rem",
+                    fontWeight: 800,
+                  }}
+                >
+                  ⚠️ BONUS APPROACHING (OPP)
+                </Typography>
+              )}
+              {gameData.momentumAlerts.foulTroublePlayers?.map((pName) => (
+                <Typography
+                  key={pName}
+                  variant="caption"
+                  sx={{
+                    bgcolor: "error.main",
+                    color: "white",
+                    px: 1,
+                    borderRadius: 1,
+                    fontSize: "0.55rem",
+                    fontWeight: 800,
+                  }}
+                >
+                  🚩 FOUL TROUBLE: {pName}
+                </Typography>
+              ))}
               {gameData.momentumAlerts.opponentRun && (
                 <Stack spacing={0.5} alignItems="center">
                   <Typography
@@ -969,8 +1043,8 @@ const ActionControls = React.memo(
  * WHY: Helps coaches stick to their rotation plan by comparing actual mins vs target mins.
  */
 const RotationSuggester: React.FC<{
-  players: any[];
-  teamPlayers: any[];
+  players: Player[];
+  teamPlayers: TeamPlayer[];
   gameData: { onCourtIds: Set<string> };
   statsGridData: PlayerAggregates[];
   period: number;
@@ -1549,6 +1623,8 @@ const GameMode: React.FC = () => {
     const teamBonus = getBonusStatus(teamFouls, pType);
     const oppBonus = getBonusStatus(oppFouls, pType);
 
+    const bonusThresholds = BONUS_CONFIG[pType] || BONUS_CONFIG.QUARTERS;
+
     const teamPoss = calculatePossessions(teamFga, teamFta, teamTo, teamOreb);
     const oppPoss = calculatePossessions(oppFga, oppFta, oppTo, oppOreb);
 
@@ -1578,6 +1654,8 @@ const GameMode: React.FC = () => {
       momentumAlerts: {
         opponentRun: opponentRunValue,
         opponentThreats: Array.from(threats.values()).filter((t) => t.isHot),
+        teamBonusApproaching: teamFouls === bonusThresholds.warning,
+        oppBonusApproaching: oppFouls === bonusThresholds.warning,
       },
       onCourtPeriodFouls,
       lastLineupChangeClock,
@@ -1618,6 +1696,14 @@ const GameMode: React.FC = () => {
    * Performance: This O(1) memoization handles values that change every second
    * (like the clock) to avoid reprocessing the entire O(N) event stream.
    */
+  const statsMap = useMemo(() => {
+    const map = new Map<string, PlayerAggregates>();
+    for (let i = 0; i < statsGridData.length; i++) {
+      map.set(statsGridData[i].id.toString(), statsGridData[i]);
+    }
+    return map;
+  }, [statsGridData]);
+
   const gameData = useMemo(() => {
     const stintDurations = new Map<string, number>();
     eventAggregates.stintStarts.forEach((startClock, pId) => {
@@ -1649,6 +1735,23 @@ const GameMode: React.FC = () => {
       }
     }
 
+    const foulTroublePlayers: string[] = [];
+    const foulLimit = game?.foulLimit || team?.defaultFoulLimit || 5;
+    eventAggregates.onCourtIds.forEach((pId) => {
+      const stats = statsMap.get(pId);
+      if (stats && stats.fouls >= foulLimit - 1) {
+        foulTroublePlayers.push(stats.name);
+      }
+    });
+
+    const clutchSecs = getClutchSeconds(
+      period,
+      clockSeconds,
+      clockSeconds, // just checking if current moment is clutch
+      eventAggregates.currentScore - eventAggregates.opponentScore,
+      team?.periodType || "QUARTERS",
+    );
+
     return {
       ...eventAggregates,
       stintDurations,
@@ -1664,9 +1767,13 @@ const GameMode: React.FC = () => {
       momentumAlerts: {
         ...eventAggregates.momentumAlerts,
         scoringDrought,
+        isClutchMode:
+          clutchSecs > 0 ||
+          (team?.periodType === "QUARTERS" ? period > 4 : period > 2),
+        foulTroublePlayers,
       },
     };
-  }, [eventAggregates, clockSeconds, period, game?.periodLength]);
+  }, [eventAggregates, clockSeconds, period, game?.periodLength, statsMap, team?.periodType, game?.foulLimit, team?.defaultFoulLimit]);
 
   // Initialize draft state when dialog opens
   useEffect(() => {
@@ -1752,14 +1859,6 @@ const GameMode: React.FC = () => {
     });
   }, [statsGridData, sortConfig]);
 
-  const statsMap = useMemo(() => {
-    const map = new Map<string, PlayerAggregates>();
-    for (let i = 0; i < statsGridData.length; i++) {
-      map.set(statsGridData[i].id.toString(), statsGridData[i]);
-    }
-    return map;
-  }, [statsGridData]);
-
   const opponentStats = useMemo(() => {
     // Collect all opponent events
     const oppEvents = sortedGameStats.filter((s) => isOpponentId(s.playerId));
@@ -1800,20 +1899,31 @@ const GameMode: React.FC = () => {
   } | null>(() => {
     if (!game) return null;
     const teamStats = calculateTeamAggregates([game], sortedGameStats, false);
-    const oppEvents = sortedGameStats.filter(s => isOpponentId(s.playerId));
+    const oppEvents = sortedGameStats.filter((s) => isOpponentId(s.playerId));
     const oppAgg = calculateOpponentAggregates(oppEvents);
-
-    // Add real-time opponent ORB% which requires team DREB from teamStats context
-    // Actually, calculateTeamAggregates returns TeamAggregates which I just modified to include dreb.
 
     return {
       team: teamStats,
       opponent: {
         ...oppAgg,
-        orbPct: calcPct(oppAgg.offRebounds, oppAgg.offRebounds + teamStats.dreb)
-      }
+        orbPct: calcPct(
+          oppAgg.offRebounds,
+          oppAgg.offRebounds + teamStats.dreb,
+        ),
+      },
     };
   }, [game, sortedGameStats]);
+
+  const tacticalGoalStats = useMemo(() => {
+    if (!liveFourFactors) return {};
+    return {
+      TO: liveFourFactors.team.turnovers,
+      AST: liveFourFactors.team.assists,
+      OREB: liveFourFactors.team.offRebounds,
+      OPP_3PT: parseFloat(liveFourFactors.opponent.threePPct || "0"),
+      EFG: parseFloat(liveFourFactors.team.efgPct || "0"),
+    };
+  }, [liveFourFactors]);
 
   // 🏀 CoachBoard: Halftime Lineup Stats
   const halftimeLineupStats = useMemo(() => {
@@ -2184,6 +2294,7 @@ const GameMode: React.FC = () => {
       clockSeconds,
       shotQuality,
       shotType,
+      activeDefensiveScheme,
     ],
   );
 
@@ -2829,6 +2940,12 @@ const GameMode: React.FC = () => {
                     teamStats={liveFourFactors.team}
                     oppStats={liveFourFactors.opponent}
                     seasonAvg={teamSeasonStats}
+                  />
+                )}
+                {team?.tacticalGoals && team.tacticalGoals.length > 0 && (
+                  <TacticalGoalHUD
+                    goals={team.tacticalGoals}
+                    currentStats={tacticalGoalStats}
                   />
                 )}
               </>
