@@ -37,10 +37,11 @@
 **Why:** Post-game review is for learning. Grouping stats by tactical context (e.g., "Show me all Contested Misses") helps coaches identify specific execution errors to fix in practice.
 **What:** A specialized Game Stats view optimized for film review sessions, grouping events by "Play Name," "Shot Quality," and "Result."
 **Acceptance Criteria:**
-- [ ] "Film Room View" toggle in Game Stats.
-- [ ] Chronological event log with expandable details (Matchup, Play Type).
-- [ ] One-tap filtering for "Key Moments" (Bookmarked events).
-- [ ] Grouped summary: EFG% by Play Name, PPP by Shot Quality.
+- [x] "Film Room View" toggle in Game Stats.
+- [x] Chronological event log with expandable details (Matchup, Play Type).
+- [x] One-tap filtering for "Key Moments" (Bookmarked events).
+- [x] Grouped summary: EFG% by Play Name, PPP by Shot Quality.
+**Status:** [x] COMPLETE
 
 ## Halftime "War Room" Tactical Advisor
 **Priority:** HIGH
@@ -48,10 +49,11 @@
 **Why:** The 10 minutes of halftime are frantic. A "Tactical Advisor" that delivers 3-5 punchy, data-driven bullet points allows the coach to walk into the locker room with immediate answers.
 **What:** An automated insight engine in the Halftime Report that identifies the most impactful trends (e.g., "Lineup X is -12", "Opponent #24 scoring 1.8 PPP on drives").
 **Acceptance Criteria:**
-- [ ] "Coach's Notes" section in the Halftime Report.
-- [ ] Automated bullets for: Most effective/ineffective 5-man unit.
-- [ ] Automated bullets for: Top 3 opponent threats with "Points Allowed" attribution.
-- [ ] Automated bullets for: Primary "Four Factor" deficit (e.g., "We are losing the ORB battle 12% to 35%").
+- [x] "Coach's Notes" section in the Halftime Report.
+- [x] Automated bullets for: Most effective/ineffective 5-man unit.
+- [x] Automated bullets for: Top 3 opponent threats with "Points Allowed" attribution.
+- [x] Automated bullets for: Primary "Four Factor" deficit (e.g., "We are losing the ORB battle 12% to 35%").
+**Status:** [x] COMPLETE
 
 ## Redesign Dashboard page
 **Priority:** HIGH
@@ -369,10 +371,11 @@
 **Why:** Coaches need to know which defensive scheme is most effective against the current opponent's offensive style. PPP allowed by scheme is the ultimate truth.
 **What:** Introduce "Defensive Scheme" tagging. Allow coaches to toggle the current defensive set (e.g., 2-3 Zone, Man-to-Man) in GameMode. All opponent scoring events are then attributed to the active scheme.
 **Acceptance Criteria:**
-- [ ] "Active Defense" toggle in GameMode (options: Man, Zone, Press, Special).
-- [ ] Track PPP Allowed for each scheme within the current game.
-- [ ] "Defensive Efficiency by Scheme" table in GameStats.
-- [ ] Season-wide analytics comparing scheme performance against different opponent archetypes.
+- [x] "Active Defense" toggle in GameMode (options: Man, Zone, Press, Special).
+- [x] Track PPP Allowed for each scheme within the current game.
+- [x] "Defensive Efficiency by Scheme" table in GameStats.
+- [x] Season-wide analytics comparing scheme performance against different opponent archetypes.
+**Status:** [x] COMPLETE
 
 ## In-Game Tactical Goals & KPI HUD
 **Priority:** HIGH
