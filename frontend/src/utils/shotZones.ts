@@ -38,7 +38,9 @@ export const getShotZone = (x: number, y: number): ShotZone => {
   const rimX = 250;
   const rimY = 47;
   // ⚡ Bolt: Use squared distance to avoid expensive Math.sqrt() calls.
-  const distToRimSq = Math.pow(svgX - rimX, 2) + Math.pow(svgY - rimY, 2);
+  const dX = svgX - rimX;
+  const dY = svgY - rimY;
+  const distToRimSq = dX * dX + dY * dY;
 
   // 1. Restricted Area (Approx radius 45)
   if (distToRimSq <= 2025) return "RA"; // 45^2 = 2025
@@ -52,8 +54,9 @@ export const getShotZone = (x: number, y: number): ShotZone => {
     if (svgX <= 30 || svgX >= 470) isThree = true;
   } else {
     // ⚡ Bolt: Use squared distance to avoid expensive Math.sqrt() calls.
-    const distToThreeCenterSq =
-      Math.pow(svgX - 250, 2) + Math.pow(svgY - 140, 2);
+    const dX3 = svgX - 250;
+    const dY3 = svgY - 140;
+    const distToThreeCenterSq = dX3 * dX3 + dY3 * dY3;
     if (distToThreeCenterSq >= 48400) isThree = true; // 220^2 = 48400
   }
 
