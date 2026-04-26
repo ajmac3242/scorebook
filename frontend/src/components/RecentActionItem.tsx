@@ -97,6 +97,9 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
             ? `4px solid ${theme.palette.primary.main}`
             : "none",
           transition: "all 0.3s ease",
+          "&:hover": {
+            bgcolor: isLatest ? "rgba(0, 0, 0, 0.05)" : "rgba(0, 0, 0, 0.02)",
+          },
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center" }}>
@@ -152,6 +155,7 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
               disabled={isReadOnly}
               onClick={() => onEdit(stat)}
               aria-label={`edit ${stat.type} for ${playerName}`}
+              aria-haspopup="dialog"
             >
               <Edit fontSize="small" />
             </IconButton>
@@ -162,6 +166,7 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
               disabled={isReadOnly}
               onClick={() => onDelete(stat.id!)}
               aria-label={`delete ${stat.type} for ${playerName}`}
+              aria-haspopup="dialog"
             >
               <Delete fontSize="small" />
             </IconButton>

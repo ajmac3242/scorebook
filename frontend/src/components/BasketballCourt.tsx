@@ -95,6 +95,7 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
           viewBox="0 0 500 470"
           role="img"
           aria-label="Interactive basketball court map"
+          aria-describedby="court-instructions"
           onClick={handleCourtClick}
           style={{
             width: "100%",
@@ -318,6 +319,11 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
             stroke={charcoal}
             strokeWidth={strokeWidth}
           />
+
+          <desc id="court-instructions">
+            Interactive basketball court. Click anywhere on the court to record a shot at that location.
+            Existing markers can be navigated using the Tab key and activated with Enter.
+          </desc>
 
           {/* Markers / Heatmap Points */}
           <style>{COURT_STYLES}</style>

@@ -33,6 +33,7 @@ import {
   Alert,
   Tooltip,
   Snackbar,
+  LinearProgress,
   keyframes,
 } from "@mui/material";
 
@@ -276,7 +277,7 @@ const Scoreboard = React.memo(
                 fontFamily: "'Inter', sans-serif",
                 mb: 1,
               }}
-              aria-live="polite"
+              aria-live="assertive"
               aria-label={`${name} score: ${score}`}
             >
               <AnimatedNumber value={score} />
@@ -481,6 +482,7 @@ const Scoreboard = React.memo(
               mb: 0.5,
             }}
             aria-label={`Current Period: ${period > maxPeriod ? `Overtime ${period - maxPeriod}` : `${periodLabel} ${period}`}`}
+            aria-current="step"
           >
             {period > maxPeriod
               ? `OT ${period - maxPeriod}`
@@ -492,6 +494,7 @@ const Scoreboard = React.memo(
             role="button"
             tabIndex={isReadOnly ? -1 : 0}
             aria-label={`Game clock: ${formatClock(clockSeconds)}, Period ${period}, ${isClockRunning ? "Running" : "Paused"}. Click to edit.`}
+            aria-haspopup="dialog"
             onKeyDown={(e) => {
               if (!isReadOnly && (e.key === "Enter" || e.key === " ")) {
                 onEditClock?.();
@@ -864,6 +867,7 @@ const ActionControls = React.memo(
               onClick={onQuickSub}
               disabled={isReadOnly}
               aria-label="quick sub"
+              aria-haspopup="dialog"
             >
               Sub
             </Button>
@@ -876,6 +880,7 @@ const ActionControls = React.memo(
               size="small"
               onClick={() => onAuditSubs()}
               aria-label="audit substitutions"
+              aria-haspopup="dialog"
               sx={{
                 border: "1px solid rgba(0,0,0,0.23)",
                 borderRadius: "4px",
@@ -896,6 +901,7 @@ const ActionControls = React.memo(
               onClick={onTimeout}
               disabled={isReadOnly}
               aria-label="Record Team Timeout"
+              aria-haspopup="dialog"
             >
               Timeout
             </Button>
@@ -911,6 +917,7 @@ const ActionControls = React.memo(
               onClick={() => onFtWorkflow()}
               disabled={isReadOnly}
               aria-label="Record Free Throws Workflow"
+              aria-haspopup="dialog"
             >
               FT
             </Button>
@@ -926,6 +933,7 @@ const ActionControls = React.memo(
               onClick={onUndo}
               disabled={recentStatsLength === 0 || isReadOnly}
               aria-label="Undo last action"
+              aria-haspopup="dialog"
             >
               Undo
             </Button>
@@ -940,6 +948,7 @@ const ActionControls = React.memo(
               color="error"
               onClick={onEndGame}
               aria-label="End and Save Game"
+              aria-haspopup="dialog"
             >
               End Game
             </Button>
@@ -2907,6 +2916,7 @@ const GameMode: React.FC = () => {
                               fullWidth
                               disabled={isReadOnly}
                               variant="contained"
+                              aria-label={`Sub out ${p.name}, ${pts} points, ${pf} fouls`}
                               onClick={() => {
                                 setSubOutPlayerId(p.id!);
                                 setSubDialogOpen(true);
@@ -3364,6 +3374,7 @@ const GameMode: React.FC = () => {
                             }}
                             sx={{ p: 0.5 }}
                             aria-label={`Assign defender for Opponent #${opp.jersey}`}
+                            aria-haspopup="dialog"
                           >
                             <SecurityIcon sx={{ fontSize: 14 }} />
                           </IconButton>
@@ -3373,14 +3384,29 @@ const GameMode: React.FC = () => {
                   ) : (
                     <Box
                       sx={{
-                        py: 3,
+                        py: 4,
                         textAlign: "center",
                         border: "1px dashed #ccc",
                         borderRadius: 2,
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        gap: 1,
                       }}
                     >
-                      <Typography variant="caption" color="text.secondary">
+                      <SecurityIcon
+                        sx={{ color: "text.secondary", opacity: 0.5, fontSize: 32 }}
+                      />
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        sx={{ fontWeight: 600 }}
+                      >
                         No opponent players tracked yet.
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary" sx={{ px: 2 }}>
+                        Tap the court while in 'Opponent' mode to record stats for
+                        specific jersey numbers.
                       </Typography>
                     </Box>
                   )}
@@ -3559,6 +3585,9 @@ const GameMode: React.FC = () => {
           </Typography>
         </DialogTitle>
         <DialogContent>
+          {isSavingStat && (
+            <LinearProgress sx={{ mb: 2, borderRadius: 1 }} />
+          )}
           {trackingMode === "TEAM" && !isEditing && (
             <Box sx={{ mb: 3 }}>
               <Typography
