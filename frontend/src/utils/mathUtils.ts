@@ -55,7 +55,8 @@ export const formatClock = (totalSeconds: number): string => {
  *
  * CONSTRAINT: It relies on a strict ISO 8601 format (e.g. "YYYY-MM-DDTHH:mm:ss.sssZ").
  * It uses specific slice indices (14 to 19) to extract the "mm:ss" portion.
- * Any change to the backend timestamp format MUST be mirrored here.
+ * Any change to the backend timestamp format (e.g., removing the date prefix or
+ * changing precision) MUST be mirrored here to avoid incorrect time display.
  *
  * @param {string} timestamp - ISO timestamp (e.g. "2023-01-01T12:00:30.000Z").
  * @returns {string} The formatted time string (e.g. "00:30").

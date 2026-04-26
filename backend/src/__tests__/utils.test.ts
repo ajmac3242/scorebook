@@ -1,5 +1,5 @@
 import { describe, it, expect } from "@jest/globals";
-import { stripLocalFields, normalizePath, maskEvent, getHeader, extractIdFromPath, logError } from "../utils.js";
+import { stripLocalFields, normalizePath, maskEvent, getHeader, extractIdFromPath, logError, safeCompare } from "../utils.js";
 import { APIGatewayProxyEventV2 } from "aws-lambda";
 import { jest } from "@jest/globals";
 
@@ -158,6 +158,27 @@ describe("backend utils", () => {
       );
 
       consoleSpy.mockRestore();
+    });
+  });
+
+  describe("safeCompare", () => {
+    it("returns true for identical strings", () => {
+      expect(safeCompare("secret123", "secret123")).toBe(true);
+      expect(safeCompare("", "")).toBe(true);
+    });
+
+    it("returns false for different strings of same length", () => {
+      expect(safeCompare("secret123", "secret456")).toBe(false);
+    });
+
+    it("returns false for different strings of different length", () => {
+      expect(safeCompare("secret123", "secret")).toBe(false);
+      expect(safeCompare("abc", "abcdef")).toBe(false);
+    });
+
+    it("handles special characters", () => {
+      expect(safeCompare("!@#$%^", "!@#$%^")).toBe(true);
+      expect(safeCompare("!@#$%^", "^%$#@!")).toBe(false);
     });
   });
 });

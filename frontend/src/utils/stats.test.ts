@@ -23,6 +23,7 @@ import {
   calculatePlayerStintTimeline,
   calculateOnOffStats,
   calculateMatchupStats,
+  getClutchSeconds,
 } from "./stats";
 import { TeamPlayer, StatEvent, Game } from "../db";
 import { ACTION_TYPES } from "../constants/stats";
@@ -1789,6 +1790,48 @@ describe("stats utilities", () => {
       expect(result.totalStops).toBe(2);
       expect(result.currentStreak).toBe(1);
     });
+
+    it("differentiates between offensive and defensive fouls for stop streak", () => {
+      const stats: StatEvent[] = [
+        { gameId: "g1", playerId: "OPPONENT", type: ACTION_TYPES.TURNOVER, timestamp: "1", period: 1 },
+        // Streak = 1. Now we commit an offensive foul (while we have ball)
+        { gameId: "g1", playerId: "p1", type: ACTION_TYPES.FOUL, timestamp: "2", period: 1 },
+        { gameId: "g1", playerId: "OPPONENT", type: ACTION_TYPES.TURNOVER, timestamp: "3", period: 1 },
+      ];
+      // isOurPossession becomes true after first TO. p1 FOUL is offensive -> streak NOT reset.
+      const result = calculateStopsAndKills(stats);
+      expect(result.totalStops).toBe(2);
+      expect(result.currentStreak).toBe(2);
+    });
+
+    it("awards a stop for opponent offensive fouls", () => {
+      const stats: StatEvent[] = [
+        // Opponent has ball, they commit a foul (offensive)
+        { gameId: "g1", playerId: "OPPONENT", type: ACTION_TYPES.FOUL, timestamp: "1", period: 1 },
+      ];
+      const result = calculateStopsAndKills(stats);
+      expect(result.totalStops).toBe(1);
+      expect(result.currentStreak).toBe(1);
+    });
+  });
+
+  describe("getClutchSeconds", () => {
+    it("calculates overlap correctly when stint spans the clutch threshold", () => {
+      // Regulation clutch starts at 240s in QUARTERS.
+      // Stint from 300s to 120s should have 120s of clutch (240 - 120).
+      const clutch = getClutchSeconds(4, 300, 120, 2, "QUARTERS");
+      expect(clutch).toBe(120);
+    });
+
+    it("returns 0 if score difference is too large", () => {
+      const clutch = getClutchSeconds(4, 100, 0, 10, "QUARTERS");
+      expect(clutch).toBe(0);
+    });
+
+    it("returns full interval in overtime regardless of time", () => {
+      const clutch = getClutchSeconds(5, 300, 200, 2, "QUARTERS");
+      expect(clutch).toBe(100);
+    });
   });
 
   describe("getBonusStatus", () => {
@@ -2094,6 +2137,23 @@ describe("stats utilities", () => {
       // p2 was OFF for 2 team pts and 3 opp pts.
       expect(p2.offPointsFor).toBe(2);
       expect(p2.offPointsAgainst).toBe(3);
+    });
+
+    it("isolates game totals correctly for On/Off calculation (multi-game isolation)", () => {
+      const players = [{ id: "p1", name: "Player 1" }];
+      const stats: StatEvent[] = [
+        { gameId: "g1", playerId: "p1", type: ACTION_TYPES.SUB_IN, clockTime: 600, period: 1, timestamp: "1" },
+        { gameId: "g1", playerId: "p1", type: ACTION_TYPES.MAKE, points: 2, period: 1, timestamp: "2" },
+        { gameId: "g1", playerId: "p1", type: ACTION_TYPES.SUB_OUT, clockTime: 300, period: 1, timestamp: "3" },
+        // Game 2
+        { gameId: "g2", playerId: "p1", type: ACTION_TYPES.SUB_IN, clockTime: 600, period: 1, timestamp: "4" },
+        { gameId: "g2", playerId: "p1", type: ACTION_TYPES.MAKE, points: 3, period: 1, timestamp: "5" },
+      ];
+      // Total game points: 5. p1 ON for 5. p1 OFF should be 0.
+      const result = calculateOnOffStats(players, stats);
+      const p1 = result[0];
+      expect(p1.onPointsFor).toBe(5);
+      expect(p1.offPointsFor).toBe(0);
     });
   });
 

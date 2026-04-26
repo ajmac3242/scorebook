@@ -620,6 +620,13 @@ function initializeStatsMap(
  * Calculates aggregated statistics for a list of players based on a set of events.
  * Supports both total and per-game average calculations.
  *
+ * WHY: Calculating minutes played (MIN) and plus-minus in a multi-period,
+ * multi-game context requires tracking the *intervals* between events.
+ * This function uses a "clock-interval" approach where it credits active
+ * players with minutes for the time elapsed between the current and
+ * previous event. This ensures accuracy even when events are sparse
+ * or periods end abruptly.
+ *
  * @param {Player[]} players - List of player objects.
  * @param {StatEvent[]} stats - List of statistical events to process.
  * @param {TeamPlayer[]} teamPlayers - (Optional) Team roster for jersey numbers.
@@ -1469,6 +1476,11 @@ export const detectShotValueFromCoords = (x: number, y: number): number => {
  * stop is earned. This avoids the complexity and performance overhead of
  * nested "look-ahead" loops while robustly handling edge cases like multiple
  * misses within a single possession.
+ *
+ * TERMINATORS:
+ * - STOP: Earned on Opponent Turnover or Opponent Miss followed by Team Defensive Rebound.
+ * - RESET: Streak breaks on Opponent Score or Team Defensive/Technical Foul.
+ * - CONTINUE: Possession continues on Opponent Offensive Rebound.
  *
  * @param {StatEvent[]} stats - Chronological list of statistical events for the game.
  * @returns {object} Object containing total stops, kills, and current stop streak.
@@ -2477,6 +2489,11 @@ export const calculateMatchupStats = (stats: StatEvent[]): MatchupStats[] => {
  *
  * WHY: Measures a player's impact by comparing team performance when they
  * are on the court versus on the bench.
+ *
+ * METHODOLOGY:
+ * Uses the "OFF-as-Difference" optimization. Instead of checking every player
+ * for every event (O(N*P)), we track global totals once and subtract a player's
+ * "ON" stats from the "Total" to derive their "OFF" performance.
  *
  * @param players - List of players.
  * @param stats - Chronological list of statistical events.

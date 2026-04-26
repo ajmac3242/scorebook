@@ -70,8 +70,8 @@ To ensure high reliability and rapid development cycles, Scorebook follows a tar
 ## Key Features
 - **Real-time Game Tracking**: Easy-to-use interface for logging shots, misses, rebounds, and more.
 - **Shot Charts**: Visual representation of shot locations on a virtual court.
-- **Advanced Analytics**: Automatic calculation of advanced metrics including **Effective Field Goal Percentage (eFG%)** and **True Shooting Percentage (TS%)** for deep efficiency analysis.
-- **Defensive Momentum Tracking**: Real-time tracking of **Defensive Stops** and **Kills** (3 consecutive stops) to monitor defensive intensity.
+- **Advanced Analytics**: Automatic calculation of advanced metrics including **Effective Field Goal Percentage (eFG%)** and **True Shooting Percentage (TS%)**. It utilizes a real-time possession estimation formula (`FGA + 0.44 * FTA + TO - OREB`) to provide deep efficiency insights (Points Per Possession) during live play.
+- **Defensive Momentum Tracking**: Real-time tracking of **Defensive Stops** (defensive possessions without an opponent score) and **Kills** (3 consecutive stops). This uses a state-machine logic to accurately identify possession terminators across multi-miss sequences.
 - **Momentum & Run Alerts**: Automated detection of opponent scoring runs (e.g. 8-0) and scoring droughts to assist with timeout management.
 - **Clutch Analytics**: Interactive filtering to analyze player and lineup performance during high-leverage "Clutch Time" situations.
 - **Lineup Efficiency Tracking**: Analyze the performance (Plus/Minus) of specific 5-player combinations to optimize rotations.
