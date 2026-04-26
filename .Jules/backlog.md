@@ -470,3 +470,57 @@
 - [ ] Edge thickness represents assist volume; edge color represents the EFG% of shots resulting from those assists.
 - [ ] Filter by "Game" or "Season" to see how chemistry develops.
 - [ ] Highlight "Primary Engines" (players who facilitate the most efficient shots for others).
+
+## Voice-Driven Live Scorekeeping
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Tapping a screen during a 90-foot transition is difficult and leads to errors. Voice commands allow the scorekeeper to keep their eyes on the floor and record actions with 100% focus.
+**What:** Implement a Web Speech API layer that listens for a specific command grammar (e.g., "Five make two", "Ten assist", "Opponent miss").
+**Acceptance Criteria:**
+- [ ] Wake-word or "always listening" mode toggle in GameMode.
+- [ ] Support for commands: "[Jersey] [Action]" (e.g., "Twenty-four make three").
+- [ ] Support for chained commands: "Five make two assist ten".
+- [ ] Visual confirmation "Heard: #5 Make 2PT" in the HUD.
+
+## Advanced Opponent Drive & Finish Analytics
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Knowing a player is "Hot" is good; knowing they always drive LEFT and finish with a FLOAT is game-changing. This data drives the most effective defensive adjustments.
+**What:** Enhance the opponent shot recording to include "Drive Direction" (Left, Right, Straight) and "Finish Type" (Layup, Jumper, Float, Dunk, Hook).
+**Acceptance Criteria:**
+- [ ] Optional "Drive/Finish" selector in the Opponent shot dialog.
+- [ ] "Tendency Map" in GameStats showing drive direction arrows per player.
+- [ ] Real-time alert: "Opponent #12 has driven LEFT on 4/5 attempts."
+- [ ] Filter opponent heatmaps by Finish Type.
+
+## "Blue Collar" Hustle & Identity Tracker
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Winning teams are built on "Hustle Stats" (Deflections, Dives, Great Contests). These aren't in a standard box score but are the primary way coaches measure team culture and effort.
+**What:** Add a dedicated "Hustle Mode" toggle in GameMode to track non-standard defensive impact events.
+**Acceptance Criteria:**
+- [ ] Quick-action buttons for: Deflection, Floor Dive (Loose Ball), Great Contest, Charge Taken.
+- [ ] "Hustle Leaderboard" in GameStats and Team Analytics.
+- [ ] "Effort Points" system (e.g., Deflection = 2 pts) to rank players by total hustle impact.
+- [ ] Visual pulse on the scoreboard when a "Hustle Event" is recorded.
+
+## Predictive Performance & Fatigue Modeling
+**Priority:** HIGH
+**Type:** Enhancement
+**Why:** A player's impact doesn't drop off exactly at 8 minutes. We need to predict when a player is *about* to hit their wall based on season-long stint performance and live intensity.
+**What:** Build a model that compares a player's live stint efficiency (PPP, eFG%) against their fresh-state averages to predict performance decline.
+**Acceptance Criteria:**
+- [ ] "Performance Warning" on player cards when live stint efficiency drops 20% below season average.
+- [ ] Projection of "Effective Remaining Minutes" before significant performance dip.
+- [ ] Integration with Rotation Suggester to prioritize subbing out "Gassed" players over just "Timed" players.
+
+## Executive Halftime Talking Points Generator
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Coaches have 10 minutes to deliver a life-changing speech. They don't need raw data; they need 3 executive-level talking points that summarize the most critical game-winning adjustments.
+**What:** An automated NLP-style engine that synthesizes game stats into 3 punchy, coach-ready bullet points (e.g., "We are -14 on the glass; put #5 in for size", "Stop playing Zone; Opponent scoring 1.4 PPP against it").
+**Acceptance Criteria:**
+- [ ] "Talking Points" tab in the Halftime Report.
+- [ ] Exactly 3 bullets: 1 Offensive insight, 1 Defensive insight, 1 Personnel adjustment.
+- [ ] "Copy to Clipboard" for sharing with assistant coaches via text.
+- [ ] Highlight the specific stat that drove each bullet (e.g., "Why? Team ORB% is 12%").

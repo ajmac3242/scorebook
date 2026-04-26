@@ -69,3 +69,10 @@ Observation: The application has achieved a state of "Live Tactical Maturity." T
 Impact: Without standardized video export, the data we collect remains siloed, requiring coaches to duplicate work in Hudl or Synergy. Without a season-wide KPI dashboard, short-term game results can obscure long-term program trends. Furthermore, the mental load of tracking a complete game is still high for a single user; enabling a collaborative "Coach-Assistant Bridge" is essential for professional-grade data integrity.
 
 Recommendation: Pivot toward **Program Interoperability** and **Longitudinal Insights**. Priority must be given to Video Platform Metadata Export and the Season-Wide Tactical KPI Dashboard. To ensure 100% data fidelity in high-stakes environments, we must implement the Coach-Assistant Live Sync Bridge. Finally, the Halftime Tactical Advisor will move from just providing stats to delivering punchy, executive-level talking points for the locker room.
+
+## 2025-05-24 - Strategic Shift: From Descriptive to Prescriptive Intelligence
+Observation: We have achieved "Capture Maturity." The app successfully records the 'what' and 'when' of basketball with high fidelity. However, we are still forcing the Head Coach to perform the final "Translation Layer"—converting raw statistics into winning adjustments under intense time pressure.
+
+Impact: During the heat of a game, a 10% dip in a player's eFG% might go unnoticed until it's too late. Similarly, knowing an opponent is scoring is less valuable than knowing *how* they are scoring (e.g., driving left vs. right). Our data is rich, but it isn't yet "loud" enough to drive immediate, game-winning pivots.
+
+Recommendation: We must pivot toward **Prescriptive Intelligence** and **Frictionless Entry**. This means introducing Voice-Driven Scorekeeping to eliminate "tap lag," and Advanced Drive/Finish analytics to provide the specific tactical "how" for defensive adjustments. Most critically, we must move from tracking fatigue to *predicting* it, using live efficiency drops as a trigger for substitutions before a player hits their performance wall.
