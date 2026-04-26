@@ -383,10 +383,11 @@
 **Why:** Coaches enter games with specific tactical objectives (e.g., "Keep them under 8 offensive rebounds"). Live tracking of these KPIs keeps the team focused on the game plan.
 **What:** Add a "Tactical Goals" section to Team Settings where coaches can set numeric targets for a game. Display a live "Goal Progress" HUD in GameMode.
 **Acceptance Criteria:**
-- [ ] CRUD interface in Team Settings to define "Tactical Goals" (e.g., < 10 TOs, > 15 AST, < 30% Opp 3PT).
-- [ ] "Goal HUD" in GameMode showing real-time progress (e.g., "Offensive Rebounds: 4/8").
-- [ ] Visual celebration/alert when a goal is achieved or a limit is breached.
-- [ ] Post-game "Goal Performance" summary in GameStats.
+- [x] CRUD interface in Team Settings to define "Tactical Goals" (e.g., < 10 TOs, > 15 AST, < 30% Opp 3PT).
+- [x] "Goal HUD" in GameMode showing real-time progress (e.g., "Offensive Rebounds: 4/8").
+- [x] Visual celebration/alert when a goal is achieved or a limit is breached.
+- [x] Post-game "Goal Performance" summary in GameStats.
+**Status:** [x] COMPLETE
 
 ## Live "Film Room" Event Bookmarking
 **Priority:** HIGH
@@ -394,10 +395,11 @@
 **Why:** Reviewing game film is tedious when you have to hunt for specific moments. One-tap bookmarking during the game allows coaches to jump straight to critical plays for post-game study.
 **What:** Add a "Bookmark" (Star) icon to the recent actions list and a "Flag Play" button to the quick actions. These flagged events are highlighted in the post-game summary and exported CSVs.
 **Acceptance Criteria:**
-- [ ] "Flag Play" button in GameMode for immediate bookmarking of the last event.
-- [ ] Bookmark icons next to each event in the Recent Actions list.
-- [ ] "Key Moments" filter in the GameStats event log.
-- [ ] Exportable list of bookmarked events with timestamps for easy film synchronization.
+- [x] "Flag Play" button in GameMode for immediate bookmarking of the last event.
+- [x] Bookmark icons next to each event in the Recent Actions list.
+- [x] "Key Moments" filter in the GameStats event log.
+- [x] Exportable list of bookmarked events with timestamps for easy film synchronization.
+**Status:** [x] COMPLETE
 
 ## HALT (High-Leverage Alerting) System
 **Priority:** HIGH
@@ -405,10 +407,11 @@
 **Why:** Critical game situations (e.g., a star player with 3 fouls in the 1st half) require immediate tactical shifts. Automated alerts ensure coaches never miss a high-leverage decision window.
 **What:** Implement a "High-Leverage Alert" engine that monitors game state and triggers intrusive HUD warnings for critical tactical scenarios.
 **Acceptance Criteria:**
-- [ ] "Star Player Foul Warning" (e.g., 2 fouls in Q1, 3 in Q2).
-- [ ] "Bonus Approaching" alert when an opponent is at 4 fouls in a quarter.
-- [ ] "Time to Sub" fatigue alerts based on live stint duration vs target minutes.
-- [ ] "Clutch Mode" activation alert when entering the final 4 mins of a close game.
+- [x] "Star Player Foul Warning" (e.g., 2 fouls in Q1, 3 in Q2).
+- [x] "Bonus Approaching" alert when an opponent is at 4 fouls in a quarter.
+- [x] "Time to Sub" fatigue alerts based on live stint duration vs target minutes.
+- [x] "Clutch Mode" activation alert when entering the final 4 mins of a close game.
+**Status:** [x] COMPLETE
 
 ## Opponent Play-Type Breakdown (PnR vs ISO vs Post)
 **Priority:** HIGH

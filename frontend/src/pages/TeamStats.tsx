@@ -53,7 +53,7 @@ import {
   NavigateBefore,
 } from "@mui/icons-material";
 import { Stepper, Step, StepLabel } from "@mui/material";
-import { db, type TeamPlayer, type StatEvent } from "../db";
+import { db, type TeamPlayer, type StatEvent, type TacticalGoal } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
 import { STAT_ACRONYMS } from "../constants/stats";
 import {
@@ -113,6 +113,11 @@ const TeamStats: React.FC = () => {
   >({});
   const [editPlaybook, setEditPlaybook] = useState<string[]>([]);
   const [newPlayName, setNewPlayName] = useState("");
+  const [editTacticalGoals, setEditTacticalGoals] = useState<TacticalGoal[]>([]);
+  const [newGoalLabel, setNewGoalLabel] = useState("");
+  const [newGoalType, setNewGoalType] = useState("TO");
+  const [newGoalOperator, setNewGoalOperator] = useState<TacticalGoal["operator"]>("<=");
+  const [newGoalTarget, setNewGoalTarget] = useState<number>(0);
   const [timeLeft, setTimeLeft] = useState("");
   const [sortConfig, setSortConfig] = useState<{
     key: string;
@@ -180,6 +185,7 @@ const TeamStats: React.FC = () => {
       setEditMaxStintDuration(team.maxStintDuration || 8);
       setEditFoulWarningThresholds(team.foulWarningThresholds || {});
       setEditPlaybook(team.playbook || []);
+      setEditTacticalGoals(team.tacticalGoals || []);
     }
     // We only want to sync from DB when the team object itself changes (e.g. initial load)
   }, [team]);
@@ -462,6 +468,7 @@ const TeamStats: React.FC = () => {
       maxStintDuration: editMaxStintDuration,
       foulWarningThresholds: editFoulWarningThresholds,
       playbook: editPlaybook,
+      tacticalGoals: editTacticalGoals,
       fouls: editTimeoutLimit, // Keep legacy fouls field in sync with timeouts
       synced: 0,
     });
@@ -1505,6 +1512,91 @@ const TeamStats: React.FC = () => {
                   />
                 ))}
               </Box>
+            </Box>
+
+            <Divider sx={{ my: 1 }}>
+              <Chip label="Tactical Goals" size="small" />
+            </Divider>
+            <Box>
+              <Stack spacing={1} sx={{ mb: 2 }}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  label="Goal Label (e.g. Keep TOs low)"
+                  value={newGoalLabel}
+                  onChange={(e) => setNewGoalLabel(e.target.value)}
+                />
+                <Stack direction="row" spacing={1}>
+                  <FormControl fullWidth size="small">
+                    <InputLabel>Type</InputLabel>
+                    <Select
+                      value={newGoalType}
+                      label="Type"
+                      onChange={(e) => setNewGoalType(e.target.value)}
+                    >
+                      <MenuItem value="TO">Turnovers</MenuItem>
+                      <MenuItem value="AST">Assists</MenuItem>
+                      <MenuItem value="OREB">Off. Rebounds</MenuItem>
+                      <MenuItem value="OPP_3PT">Opp. 3PT%</MenuItem>
+                      <MenuItem value="EFG">Team eFG%</MenuItem>
+                    </Select>
+                  </FormControl>
+                  <FormControl fullWidth size="small">
+                    <InputLabel>Op</InputLabel>
+                    <Select
+                      value={newGoalOperator}
+                      label="Op"
+                      onChange={(e) => setNewGoalOperator(e.target.value as TacticalGoal["operator"])}
+                    >
+                      <MenuItem value="<=">&lt;=</MenuItem>
+                      <MenuItem value=">=">&gt;=</MenuItem>
+                      <MenuItem value="<">&lt;</MenuItem>
+                      <MenuItem value=">">&gt;</MenuItem>
+                    </Select>
+                  </FormControl>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    label="Target"
+                    type="number"
+                    value={newGoalTarget}
+                    onChange={(e) => setNewGoalTarget(parseFloat(e.target.value) || 0)}
+                  />
+                  <Button
+                    variant="outlined"
+                    onClick={() => {
+                      if (newGoalLabel.trim()) {
+                        setEditTacticalGoals([
+                          ...editTacticalGoals,
+                          {
+                            label: newGoalLabel.trim(),
+                            type: newGoalType,
+                            operator: newGoalOperator,
+                            target: newGoalTarget,
+                          },
+                        ]);
+                        setNewGoalLabel("");
+                      }
+                    }}
+                  >
+                    Add
+                  </Button>
+                </Stack>
+              </Stack>
+              <Stack spacing={1}>
+                {editTacticalGoals.map((goal, idx) => (
+                  <Chip
+                    key={idx}
+                    label={`${goal.label}: ${goal.type} ${goal.operator} ${goal.target}`}
+                    onDelete={() => {
+                      const next = [...editTacticalGoals];
+                      next.splice(idx, 1);
+                      setEditTacticalGoals(next);
+                    }}
+                    sx={{ justifyContent: "space-between", width: "100%" }}
+                  />
+                ))}
+              </Stack>
             </Box>
           </Stack>
         </DialogContent>
