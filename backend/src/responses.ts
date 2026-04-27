@@ -82,7 +82,7 @@ export function sanitizeOutput(data: unknown, depth = 0): unknown {
 /**
  * Filters out soft-deleted items from a list.
  *
- * @param {T[]} items - The list of items to filter.
+ * @param {T[] | undefined | null} items - The list of items to filter.
  * @returns {T[]} The filtered list containing only active (non-deleted) items.
  */
 export function filterActive<T extends { deletedAt?: string | null }>(
