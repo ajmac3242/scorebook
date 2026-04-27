@@ -193,9 +193,15 @@ export interface PlayerAggregates {
  * @param {string} playerId - The player ID.
  * @returns {boolean} True if the ID is for an opponent.
  */
-export const isOpponentId = (playerId: string): boolean =>
-  playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
-  playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":");
+export const isOpponentId = (playerId: string): boolean => {
+  // ⚡ Bolt: Quick check on the first character ('O' for OPPONENT) before
+  // full string comparison to accelerate the frequent team-player ID lookups.
+  if (playerId[0] !== "O") return false;
+  return (
+    playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
+    playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":")
+  );
+};
 
 /**
  * Determines if a statistical event is active (not deleted).
@@ -688,8 +694,13 @@ export const calculatePlayerAggregates = (
   let currentGameId: string | null = null;
   let lastClockTime = getPeriodLen(1, options);
   let lastScoreDiff = 0;
+
   const activePlayers = new Map<string, PlayerAggregates>();
+  // ⚡ Bolt: Maintain a local array for high-performance iteration in the hot loop.
+  let activePlayersArray: PlayerAggregates[] = [];
+
   const periodType = options.periodType || "QUARTERS";
+  const clutchOnly = !!options.clutchOnly;
 
   // ⚡ Bolt: Cache last gameId per player to avoid redundant Set.add overhead.
   const lastGameIdMap = new Map<string, string>();
@@ -705,8 +716,8 @@ export const calculatePlayerAggregates = (
     // Handle new game context
     if (gameId !== currentGameId) {
       // Record final minutes for previous game
-      const clutchOnly = options.clutchOnly;
-      for (const pAgg of activePlayers.values()) {
+      for (let j = 0; j < activePlayersArray.length; j++) {
+        const pAgg = activePlayersArray[j];
         const clutchSecs = getClutchSeconds(
           currentPeriod,
           lastClockTime,
@@ -717,6 +728,7 @@ export const calculatePlayerAggregates = (
         pAgg.min += clutchOnly ? clutchSecs : lastClockTime;
       }
       activePlayers.clear();
+      activePlayersArray = [];
       lastGameIdMap.clear();
       scores.team = 0;
       scores.opp = 0;
@@ -728,7 +740,6 @@ export const calculatePlayerAggregates = (
 
     // 🏀 CoachBoard: Handle period transitions for active stints
     if (period && period > currentPeriod) {
-      const clutchOnly = options.clutchOnly;
       const clutchSecs = getClutchSeconds(
         currentPeriod,
         lastClockTime,
@@ -744,8 +755,9 @@ export const calculatePlayerAggregates = (
         skippedMins += clutchOnly ? getClutchSeconds(p, pLen, 0, lastScoreDiff, periodType) : pLen;
       }
 
-      for (const pAgg of activePlayers.values()) {
-        pAgg.min += (clutchOnly ? clutchSecs : lastClockTime) + skippedMins;
+      const increment = (clutchOnly ? clutchSecs : lastClockTime) + skippedMins;
+      for (let j = 0; j < activePlayersArray.length; j++) {
+        activePlayersArray[j].min += increment;
       }
       currentPeriod = period;
       lastClockTime = getPeriodLen(period, options);
@@ -753,7 +765,6 @@ export const calculatePlayerAggregates = (
 
     // Accumulate minutes for interval since last event
     if (clockTime !== undefined) {
-      const diff = lastClockTime - clockTime;
       const clutchSecs = getClutchSeconds(
         period,
         lastClockTime,
@@ -761,16 +772,17 @@ export const calculatePlayerAggregates = (
         lastScoreDiff,
         periodType,
       );
-      const clutchOnly = options.clutchOnly;
-      for (const pAgg of activePlayers.values()) {
-        pAgg.min += clutchOnly ? clutchSecs : diff;
+      const diff = lastClockTime - clockTime;
+      const increment = clutchOnly ? clutchSecs : diff;
+      for (let j = 0; j < activePlayersArray.length; j++) {
+        activePlayersArray[j].min += increment;
       }
       lastClockTime = clockTime;
     }
 
     // Determine if current event is clutch
     const isClutch =
-      !options.clutchOnly ||
+      !clutchOnly ||
       (clockTime !== undefined &&
         isClutchEvent(
           period,
@@ -786,8 +798,8 @@ export const calculatePlayerAggregates = (
       const diffChange = isOpp ? -pts : pts;
 
       if (isClutch) {
-        for (const pAgg of activePlayers.values()) {
-          pAgg.plusMinus += diffChange;
+        for (let j = 0; j < activePlayersArray.length; j++) {
+          activePlayersArray[j].plusMinus += diffChange;
         }
       }
 
@@ -866,9 +878,15 @@ export const calculatePlayerAggregates = (
     // Handle Sub-In/Sub-Out
     if (type === ACTION_TYPES.SUB_IN) {
       const p = statsMap.get(playerId);
-      if (p) activePlayers.set(playerId, p);
+      if (p && !activePlayers.has(playerId)) {
+        activePlayers.set(playerId, p);
+        activePlayersArray.push(p);
+      }
     } else if (type === ACTION_TYPES.SUB_OUT) {
-      activePlayers.delete(playerId);
+      if (activePlayers.has(playerId)) {
+        activePlayers.delete(playerId);
+        activePlayersArray = Array.from(activePlayers.values());
+      }
     }
   }
 
@@ -879,9 +897,9 @@ export const calculatePlayerAggregates = (
       ? liveCtx.clockTime
       : 0;
 
-  const clutchOnly = options.clutchOnly;
   const diffEnd = lastClockTime - finalClock;
-  for (const pAgg of activePlayers.values()) {
+  for (let j = 0; j < activePlayersArray.length; j++) {
+    const pAgg = activePlayersArray[j];
     const clutchSecs = getClutchSeconds(
       currentPeriod,
       lastClockTime,
@@ -2033,15 +2051,16 @@ export const isClutchEvent = (
   scoreDiff: number,
   periodType: string,
 ): boolean => {
-  const isOT = periodType === "QUARTERS" ? eventPeriod > 4 : eventPeriod > 2;
-  const isFinal =
-    periodType === "QUARTERS" ? eventPeriod === 4 : eventPeriod === 2;
+  // ⚡ Bolt: Hoist periodType branching to reduce redundant conditional logic.
+  const isQuarters = periodType === "QUARTERS";
+  const isOT = isQuarters ? eventPeriod > 4 : eventPeriod > 2;
+  const isFinal = isQuarters ? eventPeriod === 4 : eventPeriod === 2;
 
-  const isClutchScore = Math.abs(scoreDiff) <= 5;
-  const regulationClutchTime = periodType === "QUARTERS" ? 240 : 120;
-  const isClutchTime = isOT || clockTime <= regulationClutchTime;
+  if (!(isFinal || isOT)) return false;
+  if (Math.abs(scoreDiff) > 5) return false;
 
-  return (isFinal || isOT) && isClutchTime && isClutchScore;
+  const regulationClutchTime = isQuarters ? 240 : 120;
+  return isOT || clockTime <= regulationClutchTime;
 };
 
 /**
@@ -2220,14 +2239,12 @@ const recordLineupStint = (
   seconds: number,
   ptsFor: number,
   ptsAgainst: number,
-  stintStats: {
-    fga: number;
-    fgm: number;
-    threePM: number;
-    fta: number;
-    turnovers: number;
-    oreb: number;
-  },
+  fga: number,
+  fgm: number,
+  threePM: number,
+  fta: number,
+  turnovers: number,
+  oreb: number,
 ) => {
   let agg = lineupStats.get(key);
   if (!agg) {
@@ -2252,12 +2269,12 @@ const recordLineupStint = (
   agg.seconds += seconds;
   agg.pointsFor += ptsFor;
   agg.pointsAgainst += ptsAgainst;
-  agg.fga += stintStats.fga;
-  agg.fgm += stintStats.fgm;
-  agg.threePM += stintStats.threePM;
-  agg.fta += stintStats.fta;
-  agg.turnovers += stintStats.turnovers;
-  agg.oreb += stintStats.oreb;
+  agg.fga += fga;
+  agg.fgm += fgm;
+  agg.threePM += threePM;
+  agg.fta += fta;
+  agg.turnovers += turnovers;
+  agg.oreb += oreb;
 };
 
 export const calculateLineupStats = (
@@ -2320,14 +2337,12 @@ export const calculateLineupStats = (
         pendingDuration,
         pendingPtsFor,
         pendingPtsAgainst,
-        {
-          fga: pendingFga,
-          fgm: pendingFgm,
-          threePM: pendingThreePM,
-          fta: pendingFta,
-          turnovers: pendingTurnovers,
-          oreb: pendingOreb,
-        },
+        pendingFga,
+        pendingFgm,
+        pendingThreePM,
+        pendingFta,
+        pendingTurnovers,
+        pendingOreb,
       );
     }
     pendingDuration = 0;
@@ -2389,7 +2404,12 @@ export const calculateLineupStats = (
             options.clutchOnly ? skipClutchSecs : pLen,
             0,
             0,
-            { fga: 0, fgm: 0, threePM: 0, fta: 0, turnovers: 0, oreb: 0 },
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
           );
         }
       } else {
@@ -2767,6 +2787,9 @@ export const calculateOnOffStats = (
   }
 
   const activeAggs = new Map<string, OnOffStats>();
+  // ⚡ Bolt: Maintain a local array for high-performance iteration in the hot loop.
+  let activeAggsArray: OnOffStats[] = [];
+
   let currentGameId: string | null = null;
 
   // ⚡ Bolt: $O(N+P)$ Optimization via "OFF-as-Difference"
@@ -2799,14 +2822,21 @@ export const calculateOnOffStats = (
     if (s.gameId !== currentGameId) {
       currentGameId = s.gameId;
       activeAggs.clear();
+      activeAggsArray = [];
     }
 
     if (s.type === ACTION_TYPES.SUB_IN) {
       const agg = results.get(s.playerId);
-      if (agg) activeAggs.set(s.playerId, agg);
+      if (agg && !activeAggs.has(s.playerId)) {
+        activeAggs.set(s.playerId, agg);
+        activeAggsArray.push(agg);
+      }
       continue;
     } else if (s.type === ACTION_TYPES.SUB_OUT) {
-      activeAggs.delete(s.playerId);
+      if (activeAggs.has(s.playerId)) {
+        activeAggs.delete(s.playerId);
+        activeAggsArray = Array.from(activeAggs.values());
+      }
       continue;
     }
 
@@ -2832,22 +2862,55 @@ export const calculateOnOffStats = (
     }
 
     // Update ON stats for active players
-    // ⚡ Bolt: Iterate over cached aggregate objects to avoid Map.get() in the hot loop.
-    for (const agg of activeAggs.values()) {
-      if (s.type === ACTION_TYPES.MAKE) {
-        if (isOpp) agg.onPtsAgn += pts;
-        else agg.onPtsFor += pts;
-      }
+    // ⚡ Bolt: Use loop inversion and a standard for loop on the activeAggsArray
+    // to determine the target field once per event, minimizing branching in the hot inner loop.
+    if (s.type === ACTION_TYPES.MAKE) {
       if (isOpp) {
-        if (isFieldGoal(s)) agg.onOppFga++;
-        else if (isFreeThrow(s)) agg.onOppFta++;
-        else if (s.type === ACTION_TYPES.TURNOVER) agg.onOppTo++;
-        else if (s.type === ACTION_TYPES.OFF_REBOUND) agg.onOppOreb++;
+        for (let j = 0; j < activeAggsArray.length; j++) {
+          activeAggsArray[j].onPtsAgn += pts;
+        }
       } else {
-        if (isFieldGoal(s)) agg.onTeamFga++;
-        else if (isFreeThrow(s)) agg.onTeamFta++;
-        else if (s.type === ACTION_TYPES.TURNOVER) agg.onTeamTo++;
-        else if (s.type === ACTION_TYPES.OFF_REBOUND) agg.onTeamOreb++;
+        for (let j = 0; j < activeAggsArray.length; j++) {
+          activeAggsArray[j].onPtsFor += pts;
+        }
+      }
+    }
+
+    if (isOpp) {
+      if (isFieldGoal(s)) {
+        for (let j = 0; j < activeAggsArray.length; j++) {
+          activeAggsArray[j].onOppFga++;
+        }
+      } else if (isFreeThrow(s)) {
+        for (let j = 0; j < activeAggsArray.length; j++) {
+          activeAggsArray[j].onOppFta++;
+        }
+      } else if (s.type === ACTION_TYPES.TURNOVER) {
+        for (let j = 0; j < activeAggsArray.length; j++) {
+          activeAggsArray[j].onOppTo++;
+        }
+      } else if (s.type === ACTION_TYPES.OFF_REBOUND) {
+        for (let j = 0; j < activeAggsArray.length; j++) {
+          activeAggsArray[j].onOppOreb++;
+        }
+      }
+    } else {
+      if (isFieldGoal(s)) {
+        for (let j = 0; j < activeAggsArray.length; j++) {
+          activeAggsArray[j].onTeamFga++;
+        }
+      } else if (isFreeThrow(s)) {
+        for (let j = 0; j < activeAggsArray.length; j++) {
+          activeAggsArray[j].onTeamFta++;
+        }
+      } else if (s.type === ACTION_TYPES.TURNOVER) {
+        for (let j = 0; j < activeAggsArray.length; j++) {
+          activeAggsArray[j].onTeamTo++;
+        }
+      } else if (s.type === ACTION_TYPES.OFF_REBOUND) {
+        for (let j = 0; j < activeAggsArray.length; j++) {
+          activeAggsArray[j].onTeamOreb++;
+        }
       }
     }
   }
