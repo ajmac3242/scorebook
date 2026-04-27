@@ -387,6 +387,7 @@ describe("Security Tests", () => {
       "/games/277e909a-6536-4d2d-937e-f608759556fb/stats",
       {
         type: "MAKE",
+        points: 2,
         playerId: "277e909a-6536-4d2d-937e-f608759556fb",
         id: "not-a-uuid",
       },
@@ -406,6 +407,7 @@ describe("Security Tests", () => {
       {
         id: "277e909a-6536-4d2d-937e-f608759556f8",
         type: "MAKE",
+        points: 3,
         playerId: "277e909a-6536-4d2d-937e-f608759556fb",
         timestamp: "2023-01-01", // Missing time part
       },
