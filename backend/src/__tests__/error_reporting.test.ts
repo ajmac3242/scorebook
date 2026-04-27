@@ -34,6 +34,7 @@ describe("Error Reporting Tests", () => {
     version: "2.0",
     rawPath: path,
     requestContext: {
+      requestId: "test-request-id",
       http: {
         method,
         path,
@@ -54,7 +55,9 @@ describe("Error Reporting Tests", () => {
 
     // Verify it was logged server-side
     expect(consoleSpy).toHaveBeenCalledWith(
-      expect.stringContaining("[ERROR] Handler Error: Specific database error"),
+      expect.stringContaining(
+        "[ERROR] [test-request-id] Handler Error: Specific database error",
+      ),
       expect.stringContaining("Specific database error"),
     );
   });

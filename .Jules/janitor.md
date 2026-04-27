@@ -44,3 +44,7 @@ Action: Enforce explicit interface usage for all shared statistical props and en
 ## 2026-04-26 - Standardizing JSDoc and Resolving Unused Variables
 Learning: Unused variables in complex statistical functions like `calculateLineupStats` and `calculatePlayerAggregates` often accumulate during performance optimizations (e.g., Bolt missions). Missing JSDoc @param tags in backend handlers trigger ESLint warnings that clutter CI reports.
 Action: Regularly prune unused variables after optimization passes and ensure all Lambda handler arguments are fully documented in JSDoc to maintain 0-warning status.
+
+## 2026-04-28 - JSDoc Standardization and Nullish UI Checks
+Learning: Strict linting for JSDoc @returns and @param tags ensures better API documentation but requires diligent maintenance in utility files. UI logic using truthy checks for 'jerseyNumber' can lead to bugs where '0' is incorrectly hidden; standardized on nullish checks for all identifier displays.
+Action: Periodically run 'npm run lint' with --max-warnings=0 to catch missing JSDoc early. Use 'val !== undefined' or 'val ?? default' for all basketball-related identifiers.

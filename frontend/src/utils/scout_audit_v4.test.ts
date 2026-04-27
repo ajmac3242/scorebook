@@ -3,8 +3,9 @@ import {
   calculateMatchupStats,
   calculatePlayerAggregates,
   calculateLineupStats,
+  LineupAggregates,
 } from "./stats";
-import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../constants/stats";
+import { ACTION_TYPES } from "../constants/stats";
 import { StatEvent, Player } from "../db";
 
 describe("Scout: Audit V4", () => {
@@ -62,9 +63,8 @@ describe("Scout: Audit V4", () => {
         },
       ];
 
-      const results = calculateMatchupStats(stats);
-      const m1 = results.find(r => r.opponentPlayerId === "OPPONENT:10");
-      // If bug exists, m1 might have a stop or possession because inOpponentPossession was true from event 1
+      calculateMatchupStats(stats);
+      // If bug exists, a matchup might have a stop or possession because inOpponentPossession was true from event 1
       // when event 5 happened (if it matched defender p1).
       // Actually event 5 uses opponentPossessionPlayerId which would be OPPONENT:20.
       // So let's make it more direct.
@@ -161,7 +161,7 @@ describe("Scout: Audit V4", () => {
         { id: '7', gameId: 'g1', playerId: 'p2', type: ACTION_TYPES.TURNOVER, period: 1, clockTime: 400, timestamp: '7' },
       ];
 
-      const results = calculateLineupStats(stats) as any[];
+      const results = calculateLineupStats(stats) as LineupAggregates[];
       expect(results.length).toBe(1);
       const l1 = results[0];
       // eFG% = (FGM + 0.5 * 3PM) / FGA = (1 + 0.5 * 1) / 1 = 1.5 -> 150.0%

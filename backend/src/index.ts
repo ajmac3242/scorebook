@@ -638,6 +638,11 @@ const MAX_BODY_SIZE = 512 * 1024;
  */
 const ALLOWED_METHODS = new Set(["GET", "POST", "PUT", "PATCH", "DELETE"]);
 
+/**
+ * Main Lambda handler for the Basketball Stats API.
+ * @param {APIGatewayProxyEventV2} event - The entry point for the Lambda function.
+ * @returns {Promise<APIGatewayProxyResultV2>} The result of the API request.
+ */
 export const handler = async (
   event: APIGatewayProxyEventV2,
 ): Promise<APIGatewayProxyResultV2> => {

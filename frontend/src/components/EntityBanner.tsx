@@ -177,7 +177,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                 {getInitials(title)}
               </Avatar>
             )}
-            {jerseyNumber && (
+            {jerseyNumber !== undefined && (
               <Box
                 sx={{
                   position: "absolute",
