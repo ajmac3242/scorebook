@@ -1442,9 +1442,11 @@ const GameMode: React.FC = () => {
       const s = sortedGameStats[i];
       if (s.deletedAt) continue;
 
+      // ⚡ Bolt: Use optimized character-prefix check to accelerate team ID lookups.
       const isOpp =
-        s.playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
-        s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":");
+        s.playerId[0] === "O" &&
+        (s.playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
+          s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":"));
 
       // Score tracking
       if (isOpp) {
@@ -1585,11 +1587,12 @@ const GameMode: React.FC = () => {
     }
 
     // For players already on court at start of period without a SUB_IN event this period
-    onCourt.forEach((pId) => {
+    // ⚡ Bolt: Replace forEach with for...of to reduce function call overhead.
+    for (const pId of onCourt) {
       if (!stintStarts.has(pId)) {
         stintStarts.set(pId, periodLen);
       }
-    });
+    }
 
     const defensiveStats = calculateStopsAndKills(sortedGameStats);
 
@@ -1691,6 +1694,49 @@ const GameMode: React.FC = () => {
     game?.periodLength,
   ]);
 
+  const statsGridDataRaw = useMemo(() => {
+    return calculatePlayerAggregates(
+      players,
+      sortedGameStats,
+      teamPlayers,
+      "total",
+      {
+        isSorted: true,
+        periodLength: game?.periodLength,
+        // ⚡ Bolt: Lightweight clock update decoupling.
+        // Assume player played until end of game for initial aggregation.
+        // Live adjustment for active players is done in statsGridData.
+        liveContext: { clockTime: 0, period },
+      },
+    );
+  }, [players, sortedGameStats, teamPlayers, game?.periodLength, period]);
+
+  /**
+   * ⚡ Bolt: Live adjustment for stats grid.
+   * Performance: Only adjusts the MIN and plus-minus for active players based
+   * on the current clock, avoiding a full O(N) re-calculation.
+   */
+  const statsGridData = useMemo(() => {
+    // ⚡ Bolt: Reference eventAggregates instead of gameData to break circular dependency
+    // and avoid ReferenceError during hook initialization.
+    return statsGridDataRaw.map((p) => {
+      if (!eventAggregates.onCourtIds.has(p.id.toString())) return p;
+      const startClock = eventAggregates.stintStarts.get(p.id.toString()) ?? 0;
+      const currentStintSecs = Math.max(0, startClock - clockSeconds);
+      // calculatePlayerAggregates already added time until 0:00 (endClock: 0)
+      // So we subtract the time that hasn't happened yet in the current stint.
+      return {
+        ...p,
+        min: roundToOne(p.min - startClock / 60 + currentStintSecs / 60),
+      };
+    });
+  }, [
+    statsGridDataRaw,
+    eventAggregates.onCourtIds,
+    eventAggregates.stintStarts,
+    clockSeconds,
+  ]);
+
   /**
    * ⚡ Bolt: Lightweight live status updates.
    * Performance: This O(1) memoization handles values that change every second
@@ -1790,47 +1836,6 @@ const GameMode: React.FC = () => {
     }
     return map;
   }, [teamPlayers]);
-
-  const statsGridDataRaw = useMemo(() => {
-    return calculatePlayerAggregates(
-      players,
-      sortedGameStats,
-      teamPlayers,
-      "total",
-      {
-        isSorted: true,
-        periodLength: game?.periodLength,
-        // ⚡ Bolt: Lightweight clock update decoupling.
-        // Assume player played until end of game for initial aggregation.
-        // Live adjustment for active players is done in statsGridData.
-        liveContext: { clockTime: 0, period },
-      },
-    );
-  }, [players, sortedGameStats, teamPlayers, game?.periodLength, period]);
-
-  /**
-   * ⚡ Bolt: Live adjustment for stats grid.
-   * Performance: Only adjusts the MIN and plus-minus for active players based
-   * on the current clock, avoiding a full O(N) re-calculation.
-   */
-  const statsGridData = useMemo(() => {
-    return statsGridDataRaw.map((p) => {
-      if (!gameData.onCourtIds.has(p.id.toString())) return p;
-      const startClock = gameData.stintStarts.get(p.id.toString()) ?? 0;
-      const currentStintSecs = Math.max(0, startClock - clockSeconds);
-      // calculatePlayerAggregates already added time until 0:00 (endClock: 0)
-      // So we subtract the time that hasn't happened yet in the current stint.
-      return {
-        ...p,
-        min: roundToOne(p.min - startClock / 60 + currentStintSecs / 60),
-      };
-    });
-  }, [
-    statsGridDataRaw,
-    gameData.onCourtIds,
-    gameData.stintStarts,
-    clockSeconds,
-  ]);
 
   const sortedStatsGridData = useMemo(() => {
     return [...statsGridData].sort((a, b) => {
