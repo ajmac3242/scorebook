@@ -82,6 +82,7 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                       variant={
                         selectedSwapId === p.id ? "contained" : "outlined"
                       }
+                      aria-pressed={selectedSwapId === p.id}
                       onClick={() => handleSwapClick(p.id!)}
                       fullWidth
                       sx={{
@@ -91,15 +92,30 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                           : isFoulTrouble
                             ? "warning.main"
                             : "divider",
-                        color: isFouledOut ? "error.main" : "text.primary",
+                        color:
+                          selectedSwapId === p.id
+                            ? "white"
+                            : isFouledOut
+                              ? "error.main"
+                              : "text.primary",
                         bgcolor:
                           selectedSwapId === p.id
                             ? isFouledOut
-                              ? "error.light"
+                              ? "error.dark"
                               : isFoulTrouble
-                                ? "warning.light"
+                                ? "warning.dark"
                                 : "primary.main"
                             : "transparent",
+                        "&:hover": {
+                          bgcolor:
+                            selectedSwapId === p.id
+                              ? isFouledOut
+                                ? "error.dark"
+                                : isFoulTrouble
+                                  ? "warning.dark"
+                                  : "primary.dark"
+                              : "rgba(0, 0, 0, 0.04)",
+                        },
                       }}
                     >
                       <Avatar
@@ -130,17 +146,25 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                     variant={
                       selectedSwapId === emptyId ? "contained" : "outlined"
                     }
+                    aria-pressed={selectedSwapId === emptyId}
                     aria-label="Empty lineup slot, click to swap with bench player"
                     onClick={() => handleSwapClick(emptyId)}
                     fullWidth
                     sx={{
                       justifyContent: "flex-start",
                       borderStyle: "dashed",
-                      color: "text.secondary",
+                      color:
+                        selectedSwapId === emptyId ? "white" : "text.secondary",
                       bgcolor:
                         selectedSwapId === emptyId
-                          ? "rgba(0,0,0,0.05)"
+                          ? "primary.main"
                           : "transparent",
+                      "&:hover": {
+                        bgcolor:
+                          selectedSwapId === emptyId
+                            ? "primary.dark"
+                            : "rgba(0, 0, 0, 0.04)",
+                      },
                     }}
                   >
                     <Avatar
@@ -183,6 +207,7 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                       variant={
                         selectedSwapId === p.id ? "contained" : "outlined"
                       }
+                      aria-pressed={selectedSwapId === p.id}
                       onClick={() => handleSwapClick(p.id!)}
                       fullWidth
                       sx={{
@@ -192,16 +217,31 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                           : isFoulTrouble
                             ? "warning.main"
                             : "divider",
-                        color: isFouledOut ? "error.main" : "text.primary",
-                        opacity: isFouledOut ? 0.6 : 1,
+                        color:
+                          selectedSwapId === p.id
+                            ? "white"
+                            : isFouledOut
+                              ? "error.main"
+                              : "text.primary",
+                        opacity: isFouledOut && selectedSwapId !== p.id ? 0.6 : 1,
                         bgcolor:
                           selectedSwapId === p.id
                             ? isFouledOut
-                              ? "error.light"
+                              ? "error.dark"
                               : isFoulTrouble
-                                ? "warning.light"
+                                ? "warning.dark"
                                 : "primary.main"
                             : "transparent",
+                        "&:hover": {
+                          bgcolor:
+                            selectedSwapId === p.id
+                              ? isFouledOut
+                                ? "error.dark"
+                                : isFoulTrouble
+                                  ? "warning.dark"
+                                  : "primary.dark"
+                              : "rgba(0, 0, 0, 0.04)",
+                        },
                       }}
                     >
                       <Avatar

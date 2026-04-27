@@ -4,7 +4,7 @@
  */
 
 import React from "react";
-import { Box, Typography, Tooltip, IconButton, useTheme } from "@mui/material";
+import { Box, Typography, Tooltip, IconButton, useTheme, keyframes } from "@mui/material";
 import {
   Check,
   Close,
@@ -27,6 +27,11 @@ import {
 import { StatEvent } from "../db";
 import { ACTION_TYPES } from "../constants/stats";
 import { formatClock } from "../utils/mathUtils";
+
+const slideIn = keyframes`
+  from { transform: translateX(20px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+`;
 
 interface RecentActionItemProps {
   stat: StatEvent;
@@ -103,6 +108,7 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
             ? `4px solid ${theme.palette.primary.main}`
             : "none",
           transition: "all 0.3s ease",
+          animation: isLatest ? `${slideIn} 0.4s ease-out forwards` : "none",
           "&:hover": {
             bgcolor: isLatest ? "rgba(0, 0, 0, 0.05)" : "rgba(0, 0, 0, 0.02)",
           },
