@@ -98,6 +98,7 @@ export interface MatchupStats {
   stops: number;
   possessions: number;
   stopPct: string;
+  isOpponentDefender?: boolean;
 }
 
 /**
@@ -466,6 +467,183 @@ export const getInitials = (name: string | undefined | null): string => {
     }
   }
   return result;
+};
+
+/**
+ * 🏀 CoachBoard: calculateTargetAttackStats
+ * Why: Automates the identification of defensive mismatches to drive play-calling.
+ * Highlights which opponent player is allowing the highest PPP and suggests a primary attacker.
+ */
+export interface TargetAttack {
+  targetOpponentId: string;
+  pppAllowed: string;
+  suggestedAttackerId: string;
+  reason: string;
+}
+
+export const calculateTargetAttackStats = (
+  matchups: MatchupStats[],
+  playerStats: PlayerAggregates[],
+): TargetAttack | null => {
+  const opponentDefenders = matchups.filter((m) => m.isOpponentDefender);
+  if (opponentDefenders.length === 0) return null;
+
+  // Group by opponent defender to calculate total PPP allowed
+  const defenderStats = new Map<string, { points: number; possessions: number }>();
+  for (const m of opponentDefenders) {
+    const current = defenderStats.get(m.opponentPlayerId) || { points: 0, possessions: 0 };
+    current.points += m.pointsAllowed;
+    current.possessions += m.possessions;
+    defenderStats.set(m.opponentPlayerId, current);
+  }
+
+  let worstDefenderId = "";
+  let highestPpp = -1;
+
+  for (const [id, stats] of defenderStats.entries()) {
+    const ppp = stats.possessions > 0 ? stats.points / stats.possessions : 0;
+    if (ppp > highestPpp) {
+      highestPpp = ppp;
+      worstDefenderId = id;
+    }
+  }
+
+  if (!worstDefenderId || highestPpp === 0) return null;
+
+  // Find our best attacker (highest eFG% with > 0 attempts)
+  const bestAttacker = [...playerStats]
+    .filter((p) => p.attempts > 0 && !isOpponentId(p.id.toString()))
+    .sort((a, b) => parseFloat(b.efgPct) - parseFloat(a.efgPct))[0];
+
+  if (!bestAttacker) return null;
+
+  return {
+    targetOpponentId: worstDefenderId,
+    pppAllowed: highestPpp.toFixed(2),
+    suggestedAttackerId: bestAttacker.id.toString(),
+    reason: `Opponent defender allowing ${highestPpp.toFixed(2)} PPP. ${bestAttacker.name} is our most efficient attacker (${bestAttacker.efgPct}% eFG).`,
+  };
+};
+
+/**
+ * 🏀 CoachBoard: calculateTimeoutRecommendation
+ * Why: Provides data-driven decision support for timeout management during high-stress moments.
+ */
+export interface TimeoutRecommendation {
+  recommendation: string;
+  urgency: "LOW" | "MEDIUM" | "HIGH";
+  reason: string;
+}
+
+export const calculateTimeoutRecommendation = (params: {
+  scoreDiff: number;
+  clockSeconds: number;
+  period: number;
+  maxPeriod: number;
+  timeoutsRemaining: number;
+  opponentRunPoints: number;
+  starPlayerInFoulTrouble: boolean;
+}): TimeoutRecommendation | null => {
+  const { scoreDiff, clockSeconds, period, timeoutsRemaining, opponentRunPoints, starPlayerInFoulTrouble } = params;
+
+  // Urgent: Opponent on a big run
+  if (opponentRunPoints >= 8) {
+    return {
+      recommendation: "CALL TIMEOUT",
+      urgency: "HIGH",
+      reason: `Opponent is on a ${opponentRunPoints}-0 run. Kill the momentum.`,
+    };
+  }
+
+  // Late game situational logic
+  const isFourthQuarter = period === params.maxPeriod;
+  const isClutchTime = isFourthQuarter && clockSeconds <= 120 && Math.abs(scoreDiff) <= 5;
+
+  if (isClutchTime) {
+    if (scoreDiff < 0 && clockSeconds <= 30 && timeoutsRemaining > 0) {
+      return {
+        recommendation: "CALL TIMEOUT",
+        urgency: "HIGH",
+        reason: `Down ${Math.abs(scoreDiff)} with ${clockSeconds}s left. Draw up a set play.`,
+      };
+    }
+    return {
+      recommendation: "STAY AGGRESSIVE",
+      urgency: "MEDIUM",
+      reason: "Clutch situation. Focus on high-quality shots and transition defense.",
+    };
+  }
+
+  // Foul trouble alert
+  if (starPlayerInFoulTrouble && timeoutsRemaining > 1) {
+    return {
+      recommendation: "CONSIDER TIMEOUT",
+      urgency: "MEDIUM",
+      reason: "Key player in foul trouble. Adjust defensive assignments or rotation.",
+    };
+  }
+
+  // Moderate: Opponent on a 6-0 run
+  if (opponentRunPoints >= 6) {
+    return {
+      recommendation: "CONSIDER TIMEOUT",
+      urgency: "MEDIUM",
+      reason: `Opponent is on a ${opponentRunPoints}-0 run. Re-group the defense.`,
+    };
+  }
+
+  return null;
+};
+
+/**
+ * 🏀 CoachBoard: generatePlayerNarrative
+ * Why: Converts raw stats into actionable 3-sentence performance summaries for coaching feedback.
+ */
+export interface PlayerNarrative {
+  strength: string;
+  growthArea: string;
+  summary: string;
+}
+
+export const generatePlayerNarrative = (
+  player: PlayerAggregates,
+  _stats: StatEvent[],
+): PlayerNarrative | null => {
+  // Only generate for players with significant minutes (> 5 mins)
+  if (player.min < 5) return null;
+
+  let strength = "";
+  let growthArea = "";
+
+  // Identify Strength
+  if (parseFloat(player.efgPct) > 55) {
+    strength = `Elite efficiency on offense today, posting a ${player.efgPct}% eFG percentage.`;
+  } else if (player.assists >= 5 || (player.turnovers > 0 && player.assists / player.turnovers > 2)) {
+    strength = "Excellent floor vision and ball security, creating high-quality looks for teammates.";
+  } else if (player.rebounds >= 8) {
+    strength = `Dominant presence on the glass with ${player.rebounds} total rebounds.`;
+  } else if (player.steals + player.blocks >= 3) {
+    strength = "High-impact defensive disruptor, creating multiple turnovers and protecting the rim.";
+  } else {
+    strength = "Consistently played within the system and provided valuable minutes on both ends.";
+  }
+
+  // Identify Growth Area
+  if (player.turnovers >= 4) {
+    growthArea = "Needs to focus on ball security and decision-making under pressure to limit turnovers.";
+  } else if (player.attempts > 5 && parseFloat(player.fgPct) < 35) {
+    growthArea = "Shot selection could be improved to find higher-percentage looks in the flow of the offense.";
+  } else if (player.fouls >= 4) {
+    growthArea = "Needs to stay disciplined on defense to avoid early foul trouble and stay on the floor.";
+  } else if (player.fta > 0 && parseFloat(player.ftPct) < 60) {
+    growthArea = "Free throw consistency is a key area for improvement to capitalize on trips to the line.";
+  } else {
+    growthArea = "Continue working on defensive positioning to provide better help-side support.";
+  }
+
+  const summary = `${player.name} finished with ${player.points} points in ${player.min} minutes. ${strength} ${growthArea}`;
+
+  return { strength, growthArea, summary };
 };
 
 /**
@@ -2203,17 +2381,6 @@ export interface LineupAggregates {
   oreb: number;
 }
 
-/**
- * Interface for matchup-based statistics.
- */
-export interface MatchupStats {
-  ourPlayerId: string;
-  opponentPlayerId: string;
-  pointsAllowed: number;
-  stops: number;
-  possessions: number;
-  stopPct: string;
-}
 
 /**
  * Interface for On/Off impact metrics.
@@ -2588,10 +2755,12 @@ export const calculateLineupStats = (
 export const calculateMatchupStats = (stats: StatEvent[]): MatchupStats[] => {
   const sorted = sortStats(stats);
   const currentMatchups = new Map<string, string>(); // Opponent ID -> Our Player ID
-  const results = new Map<string, MatchupStats>(); // "ourId:oppId" -> stats
+  const results = new Map<string, MatchupStats>(); // "ourId:oppId:isOppDef" -> stats
 
   let inOpponentPossession = false;
   let opponentPossessionPlayerId: string | null = null;
+  let inOurPossession = false;
+  let ourPossessionPlayerId: string | null = null;
   let currentGameId: string | null = null;
 
   for (let i = 0; i < sorted.length; i++) {
@@ -2602,6 +2771,7 @@ export const calculateMatchupStats = (stats: StatEvent[]): MatchupStats[] => {
       currentGameId = s.gameId;
       currentMatchups.clear();
       inOpponentPossession = false;
+      inOurPossession = false;
     }
 
     const isOpp = isOpponentId(s.playerId);
@@ -2616,93 +2786,177 @@ export const calculateMatchupStats = (stats: StatEvent[]): MatchupStats[] => {
       continue;
     }
 
-    const defenderId =
+    // Direction 1: Our defender guarding Opponent
+    const ourDefenderId =
       currentMatchups.get(s.playerId) ||
       currentMatchups.get(SPECIAL_PLAYER_IDS.OPPONENT);
 
-    if (isOpp && isScoringEvent(s)) {
-      if (defenderId) {
-        const key = `${defenderId}:${s.playerId}`;
-        let m = results.get(key);
-        if (!m) {
-          m = {
-            ourPlayerId: defenderId,
-            opponentPlayerId: s.playerId,
-            pointsAllowed: 0,
-            stops: 0,
-            possessions: 0,
-            stopPct: "0.0",
-          };
-          results.set(key, m);
-        }
-        m.pointsAllowed += s.points || 0;
-        m.possessions++;
+    // Direction 2: Opponent defender guarding Us
+    let oppDefenderId: string | undefined;
+    for (const [oppId, ourId] of currentMatchups.entries()) {
+      if (ourId === s.playerId) {
+        oppDefenderId = oppId;
+        break;
       }
-      inOpponentPossession = false;
+    }
+
+    // SCORING
+    if (isScoringEvent(s)) {
+      if (isOpp) {
+        if (ourDefenderId) {
+          const key = `${ourDefenderId}:${s.playerId}:false`;
+          let m = results.get(key);
+          if (!m) {
+            m = {
+              ourPlayerId: ourDefenderId,
+              opponentPlayerId: s.playerId,
+              pointsAllowed: 0,
+              stops: 0,
+              possessions: 0,
+              stopPct: "0.0",
+              isOpponentDefender: false,
+            };
+            results.set(key, m);
+          }
+          m.pointsAllowed += s.points || 0;
+          m.possessions++;
+        }
+        inOpponentPossession = false;
+        inOurPossession = false; // Reset our state when they score
+      } else {
+        if (oppDefenderId) {
+          const key = `${s.playerId}:${oppDefenderId}:true`;
+          let m = results.get(key);
+          if (!m) {
+            m = {
+              ourPlayerId: s.playerId,
+              opponentPlayerId: oppDefenderId,
+              pointsAllowed: 0,
+              stops: 0,
+              possessions: 0,
+              stopPct: "0.0",
+              isOpponentDefender: true,
+            };
+            results.set(key, m);
+          }
+          m.pointsAllowed += s.points || 0;
+          m.possessions++;
+        }
+        inOurPossession = false;
+        inOpponentPossession = false; // Reset opponent state when we score
+      }
       continue;
     }
 
-    // 🔍 Scout: Our team scoring or turnovers also end opponent possession
-    if (!isOpp && (isScoringEvent(s) || s.type === ACTION_TYPES.TURNOVER)) {
-      inOpponentPossession = false;
-    }
-
-    // Stop logic
-    if (isOpp && s.type === ACTION_TYPES.TURNOVER) {
-      if (defenderId) {
-        const key = `${defenderId}:${s.playerId}`;
-        let m = results.get(key);
-        if (!m) {
-          m = {
-            ourPlayerId: defenderId,
-            opponentPlayerId: s.playerId,
-            pointsAllowed: 0,
-            stops: 0,
-            possessions: 0,
-            stopPct: "0.0",
-          };
-          results.set(key, m);
+    // POSSESSION ENDERS (STOPS/TURNOVERS)
+    if (type === ACTION_TYPES.TURNOVER) {
+      if (isOpp) {
+        if (ourDefenderId) {
+          const key = `${ourDefenderId}:${s.playerId}:false`;
+          let m = results.get(key);
+          if (!m) {
+            m = {
+              ourPlayerId: ourDefenderId,
+              opponentPlayerId: s.playerId,
+              pointsAllowed: 0,
+              stops: 0,
+              possessions: 0,
+              stopPct: "0.0",
+              isOpponentDefender: false,
+            };
+            results.set(key, m);
+          }
+          m.stops++;
+          m.possessions++;
         }
-        m.stops++;
-        m.possessions++;
-      }
-      inOpponentPossession = false;
-    } else if (isOpp && s.type === ACTION_TYPES.MISS) {
-      inOpponentPossession = true;
-      opponentPossessionPlayerId = s.playerId;
-    } else if (
-      inOpponentPossession &&
-      !isOpp &&
-      (s.type === ACTION_TYPES.DEF_REBOUND || s.type === ACTION_TYPES.REBOUND)
-    ) {
-      const oppId = opponentPossessionPlayerId!;
-      const defId =
-        currentMatchups.get(oppId) ||
-        currentMatchups.get(SPECIAL_PLAYER_IDS.OPPONENT);
-      if (defId) {
-        const key = `${defId}:${oppId}`;
-        let m = results.get(key);
-        if (!m) {
-          m = {
-            ourPlayerId: defId,
-            opponentPlayerId: oppId,
-            pointsAllowed: 0,
-            stops: 0,
-            possessions: 0,
-            stopPct: "0.0",
-          };
-          results.set(key, m);
+        inOpponentPossession = false;
+        inOurPossession = false; // Turnover ends their possession, reset both
+      } else {
+        if (oppDefenderId) {
+          const key = `${s.playerId}:${oppDefenderId}:true`;
+          let m = results.get(key);
+          if (!m) {
+            m = {
+              ourPlayerId: s.playerId,
+              opponentPlayerId: oppDefenderId,
+              pointsAllowed: 0,
+              stops: 0,
+              possessions: 0,
+              stopPct: "0.0",
+              isOpponentDefender: true,
+            };
+            results.set(key, m);
+          }
+          m.stops++;
+          m.possessions++;
         }
-        m.stops++;
-        m.possessions++;
+        inOurPossession = false;
+        inOpponentPossession = false; // Turnover ends our possession, reset both
       }
-      inOpponentPossession = false;
-    } else if (
-      inOpponentPossession &&
-      isOpp &&
-      s.type === ACTION_TYPES.OFF_REBOUND
-    ) {
-      // Possession continues
+    } else if (type === ACTION_TYPES.MISS) {
+      if (isOpp) {
+        inOpponentPossession = true;
+        opponentPossessionPlayerId = s.playerId;
+      } else {
+        inOurPossession = true;
+        ourPossessionPlayerId = s.playerId;
+      }
+    } else if (isDefensiveRebound(s)) {
+      if (isOpp) {
+        if (inOurPossession && ourPossessionPlayerId) {
+          let odId: string | undefined;
+          for (const [oid, ourid] of currentMatchups.entries()) {
+            if (ourid === ourPossessionPlayerId) {
+              odId = oid;
+              break;
+            }
+          }
+          if (odId) {
+            const key = `${ourPossessionPlayerId}:${odId}:true`;
+            let m = results.get(key);
+            if (!m) {
+              m = {
+                ourPlayerId: ourPossessionPlayerId,
+                opponentPlayerId: odId,
+                pointsAllowed: 0,
+                stops: 0,
+                possessions: 0,
+                stopPct: "0.0",
+                isOpponentDefender: true,
+              };
+              results.set(key, m);
+            }
+            m.stops++;
+            m.possessions++;
+          }
+        }
+        inOurPossession = false;
+      } else {
+        if (inOpponentPossession && opponentPossessionPlayerId) {
+          const defId =
+            currentMatchups.get(opponentPossessionPlayerId) ||
+            currentMatchups.get(SPECIAL_PLAYER_IDS.OPPONENT);
+          if (defId) {
+            const key = `${defId}:${opponentPossessionPlayerId}:false`;
+            let m = results.get(key);
+            if (!m) {
+              m = {
+                ourPlayerId: defId,
+                opponentPlayerId: opponentPossessionPlayerId,
+                pointsAllowed: 0,
+                stops: 0,
+                possessions: 0,
+                stopPct: "0.0",
+                isOpponentDefender: false,
+              };
+              results.set(key, m);
+            }
+            m.stops++;
+            m.possessions++;
+          }
+        }
+        inOpponentPossession = false;
+      }
     }
   }
 

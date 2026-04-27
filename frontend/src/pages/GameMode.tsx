@@ -49,6 +49,8 @@ const slideBackAndForth = keyframes`
   100% { left: 0%; }
 `;
 
+const MISMATCH_STOP_THRESHOLD = 30;
+
 import {
   Undo as UndoIcon,
   History,
@@ -113,6 +115,8 @@ import {
   calculateTeamSeasonAverages,
   calculateOpponentAggregates,
   calculateTeamAggregates,
+  calculateTargetAttackStats,
+  calculateTimeoutRecommendation,
   isEventInPeriod,
   isOpponentId,
   getBonusStatus,
@@ -1784,6 +1788,10 @@ const GameMode: React.FC = () => {
     return map;
   }, [statsGridData]);
 
+  const matchupStats = useLiveQuery(async () => {
+    return calculateMatchupStats(sortedGameStats);
+  }, [sortedGameStats]);
+
   const gameData = useMemo(() => {
     const stintDurations = new Map<string, number>();
     eventAggregates.stintStarts.forEach((startClock, pId) => {
@@ -1854,6 +1862,28 @@ const GameMode: React.FC = () => {
       },
     };
   }, [eventAggregates, clockSeconds, period, game?.periodLength, statsMap, team?.periodType, game?.foulLimit, team?.defaultFoulLimit]);
+
+  const targetAttackStats = useMemo(() => {
+    if (!matchupStats) return null;
+    return calculateTargetAttackStats(matchupStats, statsGridData);
+  }, [matchupStats, statsGridData]);
+
+  const timeoutRecommendation = useMemo(() => {
+    if (!game) return null;
+    const oppRunPoints = gameData?.momentumAlerts.opponentRun
+      ? parseInt(gameData.momentumAlerts.opponentRun.split("-")[0])
+      : 0;
+
+    return calculateTimeoutRecommendation({
+      scoreDiff: eventAggregates.currentScore - eventAggregates.opponentScore,
+      clockSeconds,
+      period,
+      maxPeriod: team?.periodType === "HALVES" ? 2 : 4,
+      timeoutsRemaining: gameData?.timeoutStats.teamTOL || 0,
+      opponentRunPoints: oppRunPoints,
+      starPlayerInFoulTrouble: (gameData?.momentumAlerts.foulTroublePlayers?.length || 0) > 0,
+    });
+  }, [game, gameData, eventAggregates, clockSeconds, period, team]);
 
   // Initialize draft state when dialog opens
   useEffect(() => {
@@ -2535,6 +2565,31 @@ const GameMode: React.FC = () => {
     });
   }, [gameId]);
 
+  const handleNextPeriod = useCallback(async () => {
+    const nextPeriod = period < 10 ? period + 1 : 1;
+    setPeriod(nextPeriod);
+
+    // Reset clock for next period
+    const defaultMins = periodType === "QUARTERS" ? 10 : 20;
+    const nextSeconds = defaultMins * 60;
+    setClockSeconds(nextSeconds);
+    setIsClockRunning(false);
+
+    if (gameId) {
+      try {
+        await db.open();
+        await db.games.update(gameId, {
+          currentPeriod: nextPeriod,
+          clockTime: nextSeconds,
+          synced: 0,
+        });
+        await syncService.pushUpdates();
+      } catch (err) {
+        logger.error("Failed to update game period:", err);
+      }
+    }
+  }, [gameId, period, periodType]);
+
   // 🧠 Clarity: Keyboard shortcut for Undo (Ctrl+Z), Period (P) and Clock Toggle (Space)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -2580,30 +2635,6 @@ const GameMode: React.FC = () => {
     [gameId],
   );
 
-  const handleNextPeriod = useCallback(async () => {
-    const nextPeriod = period < 10 ? period + 1 : 1;
-    setPeriod(nextPeriod);
-
-    // Reset clock for next period
-    const defaultMins = periodType === "QUARTERS" ? 10 : 20;
-    const nextSeconds = defaultMins * 60;
-    setClockSeconds(nextSeconds);
-    setIsClockRunning(false);
-
-    if (gameId) {
-      try {
-        await db.open();
-        await db.games.update(gameId, {
-          currentPeriod: nextPeriod,
-          clockTime: nextSeconds,
-          synced: 0,
-        });
-        await syncService.pushUpdates();
-      } catch (err) {
-        logger.error("Failed to update game period:", err);
-      }
-    }
-  }, [gameId, period, periodType]);
 
   /**
    * 🏀 CoachBoard: handleTimeout
@@ -2994,6 +3025,72 @@ const GameMode: React.FC = () => {
               teamPpp={gameData.teamPpp}
               oppPpp={gameData.oppPpp}
             />
+
+            {trackingMode === "TEAM" && targetAttackStats && (
+              <MoleskineCard sx={{ border: "2px solid", borderColor: "secondary.main", bgcolor: "rgba(156, 39, 176, 0.04)" }}>
+                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "secondary.main", display: "flex", alignItems: "center", gap: 1 }}>
+                    <FlashOn fontSize="small" /> TARGET ATTACK
+                  </Typography>
+                  <Chip
+                    label={`Opp #${targetAttackStats.targetOpponentId.split(":")[1] || "??"}`}
+                    size="small"
+                    color="secondary"
+                    sx={{ fontWeight: 800 }}
+                  />
+                </Box>
+                <Typography variant="caption" sx={{ fontWeight: 600, display: "block", mb: 1 }}>
+                  {targetAttackStats.reason}
+                </Typography>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  color="secondary"
+                  fullWidth
+                  onClick={() => {
+                    setSelectedPlayerId(targetAttackStats.suggestedAttackerId);
+                    setDialogOpen(true);
+                  }}
+                  sx={{ textTransform: "none", fontWeight: 700 }}
+                >
+                  Attack with {playerNamesMap.get(targetAttackStats.suggestedAttackerId)}
+                </Button>
+              </MoleskineCard>
+            )}
+
+            {trackingMode === "TEAM" && timeoutRecommendation && (
+              <MoleskineCard sx={{
+                border: "2px solid",
+                borderColor: timeoutRecommendation.urgency === "HIGH" ? "error.main" : "primary.main",
+                bgcolor: timeoutRecommendation.urgency === "HIGH" ? "rgba(211, 47, 47, 0.04)" : "rgba(25, 118, 210, 0.04)",
+                animation: timeoutRecommendation.urgency === "HIGH" ? `${pulse} 2s infinite ease-in-out` : "none"
+              }}>
+                <Typography variant="subtitle2" sx={{
+                  fontWeight: 800,
+                  color: timeoutRecommendation.urgency === "HIGH" ? "error.main" : "primary.main",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                  mb: 1
+                }}>
+                  <SecurityIcon fontSize="small" /> STRATEGIC ADVISOR
+                </Typography>
+                <Typography variant="h6" sx={{ fontWeight: 900, mb: 0.5, lineHeight: 1.2 }}>
+                  {timeoutRecommendation.recommendation}
+                </Typography>
+                <Typography variant="caption" sx={{ fontWeight: 600, display: "block", mb: 1.5 }}>
+                  {timeoutRecommendation.reason}
+                </Typography>
+                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <Typography variant="caption" sx={{ fontWeight: 700, opacity: 0.8 }}>
+                    Effective Timeouts: {gameData.timeoutStats.teamTOL}
+                  </Typography>
+                  {timeoutRecommendation.urgency === "HIGH" && (
+                    <Chip label="CRITICAL" size="small" color="error" sx={{ height: 16, fontSize: "0.55rem", fontWeight: 900 }} />
+                  )}
+                </Box>
+              </MoleskineCard>
+            )}
 
             {trackingMode === "TEAM" && (
               <>
@@ -3516,6 +3613,8 @@ const GameMode: React.FC = () => {
                               bgcolor: "secondary.main",
                               fontSize: "0.8rem",
                               fontWeight: 700,
+                                border: parseFloat(opp.stopPct) < MISMATCH_STOP_THRESHOLD && opp.possessions >= 3 ? "2px solid #ff1744" : "none",
+                                animation: parseFloat(opp.stopPct) < MISMATCH_STOP_THRESHOLD && opp.possessions >= 3 ? `${pulse} 1.5s infinite ease-in-out` : "none",
                             }}
                           >
                             {opp.jersey}
@@ -3523,7 +3622,10 @@ const GameMode: React.FC = () => {
                           <Box>
                             <Typography
                               variant="body2"
-                              sx={{ fontWeight: 700 }}
+                                sx={{
+                                  fontWeight: 700,
+                                  color: parseFloat(opp.stopPct) < MISMATCH_STOP_THRESHOLD && opp.possessions >= 3 ? "error.main" : "inherit"
+                                }}
                             >
                               Opponent #{opp.jersey}
                               {opp.isHot && (
@@ -3539,8 +3641,7 @@ const GameMode: React.FC = () => {
                               variant="caption"
                               color="text.secondary"
                             >
-                              {opp.points} pts | {opp.makes}-{opp.attempts} FG |{" "}
-                              {opp.turnovers} TO
+                              {opp.points} pts | {opp.stopPct}% Stop | {opp.turnovers} TO
                             </Typography>
                           </Box>
                         </Box>

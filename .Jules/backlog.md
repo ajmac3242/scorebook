@@ -4,9 +4,9 @@
 **Why:** Coaches often miss which opponent defender is the "weak link" or which specific matchup is most exploitable in real-time. This tool automates the identification of mismatches to drive play-calling.
 **What:** Implement an intelligence layer that correlates Matchup Tracking with Points Per Possession (PPP). It should highlight which opponent player is allowing the highest PPP and suggest which of our players should be the primary attacker.
 **Acceptance Criteria:**
-- [ ] Live HUD element in GameMode showing "Top Attack Target" (Opponent Jersey #).
-- [ ] Real-time "Mismatch Alert" when a specific defender's Stop % drops below a configurable threshold.
-- [ ] "Targeted Play" recommendation based on which of our players has the best eFG% against that specific defender's archetype.
+- [x] Live HUD element in GameMode showing "Top Attack Target" (Opponent Jersey #).
+- [x] Real-time "Mismatch Alert" when a specific defender's Stop % drops below a configurable threshold.
+- [x] "Targeted Play" recommendation based on which of our players has the best eFG% against that specific defender's archetype.
 
 ## Strategic Timeout & Game State Advisor
 **Priority:** HIGH
@@ -14,9 +14,9 @@
 **Why:** Timeout decisions in the 4th quarter are high-stress. An advisor that considers remaining timeouts, foul situation, and momentum helps coaches make the "mathematically correct" call.
 **What:** Build a "Decision Support" engine that analyzes game state (Score, Time, Fouls, Momentum) and provides a recommended action during dead balls.
 **Acceptance Criteria:**
-- [ ] "Timeout Logic" that triggers a recommendation when the opponent is on a 6-0 run OR when a star player enters foul trouble.
-- [ ] Late-game "Situational HUD" (e.g., "Down 2, 10s left: Recommendation - Attack the rim for 2PT to tie").
-- [ ] Visual indicator of "Effective Timeouts Remaining" considering the game's current pace and remaining duration.
+- [x] "Timeout Logic" that triggers a recommendation when the opponent is on a 6-0 run OR when a star player enters foul trouble.
+- [x] Late-game "Situational HUD" (e.g., "Down 2, 10s left: Recommendation - Attack the rim for 2PT to tie").
+- [x] Visual indicator of "Effective Timeouts Remaining" considering the game's current pace and remaining duration.
 
 ## Automated Post-Game Player Performance Narratives
 **Priority:** HIGH
@@ -24,9 +24,9 @@
 **Why:** Players often don't understand raw stats. Converting data into "Narratives" (e.g., "You were elite at closing out but struggled with ball security") makes coaching feedback more digestible and actionable.
 **What:** Use the accumulated StatEvents to generate a 3-sentence performance summary for every player who played > 5 minutes.
 **Acceptance Criteria:**
-- [ ] "Player Feedback" section in the Game Stats page.
-- [ ] Automated generation of one "Strength" (e.g., "High Efficiency from Corner 3") and one "Growth Area" (e.g., "High TO rate on drives").
-- [ ] Ability for the coach to "Approve & Send" the narrative to the player via text/email.
+- [x] "Player Feedback" section in the Game Stats page.
+- [x] Automated generation of one "Strength" (e.g., "High Efficiency from Corner 3") and one "Growth Area" (e.g., "High TO rate on drives").
+- [x] Ability for the coach to "Approve & Send" the narrative to the player via text/email.
 
 ## Live "Game Identity" Radar
 **Priority:** HIGH

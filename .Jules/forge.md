@@ -46,3 +46,19 @@
 ### Basketball Domain Edge Cases
 - **Clutch Sensitivity:** Clutch alerts are grounded in the specific `periodType` (Quarters vs Halves), correctly adjusting the time threshold (4 mins vs 2 mins) to align with standard high-school and college rules.
 - **Bonus Warning:** The "Bonus Approaching" alert uses a 1-foul buffer (threshold - 1) to give coaches a "next foul is bonus" warning, facilitating proactive substitution or defensive scheme changes.
+
+## Target Attack, Strategic Advisor, and Performance Narratives
+
+### Architectural Decisions
+- **Two-Way Matchup Tracking:** Refactored `calculateMatchupStats` to simultaneously track our defenders guarding opponents and opponent defenders guarding our players. This is achieved by tracking both `inOpponentPossession` and `inOurPossession` state variables in a single $O(N)$ pass.
+- **Intelligence Layer Integration:** HUD elements for Target Attack and Strategic Advisor are memoized in `GameMode.tsx`, decoupled from the high-frequency clock updates by depending only on the derived `eventAggregates` and `matchupStats`.
+- **Narrative Logic:** Implemented `generatePlayerNarrative` as a deterministic function mapping statistical outliers (efficiency, playmaking, glass-eating, rim protection) to human-readable summaries, avoiding the need for expensive LLM calls during post-game review.
+
+### Patterns Established
+- **Advisor Widgets:** Established a pattern for "Intelligence Widgets" in the sidebar that provide proactive tactical advice rather than just reactive data.
+- **Mismatch UI:** Introduced the "Mismatch Alert" pattern (pulsing red borders on opponent cards) to direct scorekeeper attention to actionable statistical anomalies.
+
+### Basketball Domain Edge Cases
+- **Posession Resets:** Matchup tracking correctly resets both team's possession states on scores and turnovers, preventing "stale" possession data from causing false Stop% attribution.
+- **Clutch Timeout Logic:** Strategic Advisor considers specific late-game clock thresholds (e.g., < 30s) and score differentials to recommend timeouts for set-play drawing.
+- **Floor Time for Feedback:** Performance narratives are strictly filtered by a 5-minute floor to ensure summaries are based on a representative sample of play.
