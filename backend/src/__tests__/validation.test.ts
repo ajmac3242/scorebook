@@ -47,7 +47,7 @@ describe("validation.ts", () => {
     it("returns false for invalid jersey prefixes", () => {
       expect(isValidPlayerId("OPPONENT:")).toBe(false);
       expect(isValidPlayerId("OPPONENT:abc")).toBe(false);
-      expect(isValidPlayerId("OPPONENT:100")).toBe(false); // more than 2 digits
+      expect(isValidPlayerId("OPPONENT:1000")).toBe(false); // more than 3 digits
       expect(isValidPlayerId("PLAYER:12")).toBe(false);
     });
 

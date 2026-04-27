@@ -47,6 +47,11 @@ export const REDACTED_HEADERS = Object.freeze(
     "signature",
     "proxy-authenticate",
     "www-authenticate",
+    "x-amz-date",
+    "x-amz-content-sha256",
+    "origin",
+    "referer",
+    "user-agent",
   ]),
 );
 
@@ -141,7 +146,9 @@ export function logInfo(label: string, data?: unknown) {
   if (data !== undefined) {
     console.info(
       `[INFO] ${label}:`,
-      typeof data === "object" ? JSON.stringify(data) : data,
+      typeof data === "object"
+        ? JSON.stringify(sanitizeForLog(data))
+        : data,
     );
   } else {
     console.info(`[INFO] ${label}`);

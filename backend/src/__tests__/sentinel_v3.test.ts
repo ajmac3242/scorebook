@@ -57,7 +57,7 @@ describe("Sentinel Security Enhancements V3", () => {
 
       expect(resp.headers!["X-Frame-Options"]).toBe("DENY");
       expect(resp.headers!["Content-Security-Policy"]).toBe(
-        "default-src 'none'; frame-ancestors 'none'; sandbox; base-uri 'none'; form-action 'none'; upgrade-insecure-requests;",
+        "default-src 'none'; object-src 'none'; script-src 'none'; frame-ancestors 'none'; sandbox; base-uri 'none'; form-action 'none'; upgrade-insecure-requests;",
       );
       expect(resp.headers!["X-Custom-Header"]).toBe("Allowed");
     });
@@ -73,7 +73,7 @@ describe("Sentinel Security Enhancements V3", () => {
     it("tightens Permissions-Policy", () => {
       const resp = response(200, { ok: true });
       expect(resp.headers!["Permissions-Policy"]).toBe(
-        "camera=(), microphone=(), geolocation=(), payment=(), interest-cohort=()",
+        "camera=(), microphone=(), geolocation=(), payment=(), interest-cohort=(), usb=(), bluetooth=(), hid=(), serial=(), idle-detection=(), keyboard-map=(), screen-wake-lock=()",
       );
     });
   });

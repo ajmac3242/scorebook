@@ -47,7 +47,7 @@ export const isOpponentId = (playerId: string): boolean =>
  * @returns {boolean} True if it's a valid jersey number string.
  */
 export function isValidJerseyNumber(jersey: unknown): jersey is string {
-  return typeof jersey === "string" && /^\d{1,2}$/.test(jersey);
+  return typeof jersey === "string" && /^\d{1,3}$/.test(jersey);
 }
 
 /**
@@ -73,10 +73,10 @@ export function isValidPlayerId(id: unknown): boolean {
   const prefix = SPECIAL_PLAYER_IDS.OPPONENT + ":";
   if (strId.startsWith(prefix)) {
     // 🛡️ SECURITY GUARD: Strict length check for jersey-prefixed IDs.
-    // WHY: Valid jersey-prefixed IDs (e.g., 'OPPONENT:5' or 'OPPONENT:12')
-    // must be between 10 and 11 characters. This prevents malformed input
+    // WHY: Valid jersey-prefixed IDs (e.g., 'OPPONENT:5' or 'OPPONENT:123')
+    // must be between 10 and 12 characters. This prevents malformed input
     // and potential injection attempts via the jersey suffix.
-    if (strId.length > 11 || strId.length < 10) return false;
+    if (strId.length > 12 || strId.length < 10) return false;
     const jersey = strId.slice(prefix.length);
     return isValidJerseyNumber(jersey);
   }
@@ -95,13 +95,16 @@ export function validateGame(body: Record<string, unknown>): string | null {
   if (
     !body?.opponent ||
     typeof body.opponent !== "string" ||
+    body.opponent.trim().length === 0 ||
     body.opponent.length > 100
   ) {
     return "Opponent name is required and must be under 100 characters";
   }
   if (
     body.location !== undefined &&
-    (typeof body.location !== "string" || body.location.length > 100)
+    (typeof body.location !== "string" ||
+      body.location.trim().length === 0 ||
+      body.location.length > 100)
   ) {
     return "Location must be a string under 100 characters";
   }
@@ -241,9 +244,24 @@ export function validateStatEvent(body: unknown): string | null {
     return "Invalid shot quality";
   if (
     b.playName !== undefined &&
-    (typeof b.playName !== "string" || b.playName.length > 50)
+    (typeof b.playName !== "string" ||
+      b.playName.trim().length === 0 ||
+      b.playName.length > 50)
   )
-    return "Play name too long";
+    return "Invalid play name";
+
+  if (
+    b.type === "MAKE" &&
+    (b.points === undefined || (b.points as number) <= 0)
+  )
+    return "MAKE must have points > 0";
+
+  if (
+    b.type === "MISS" &&
+    b.points !== undefined &&
+    (b.points as number) > 0
+  )
+    return "MISS cannot have points > 0";
 
   if (
     b.points !== undefined &&
