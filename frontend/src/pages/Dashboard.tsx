@@ -17,6 +17,7 @@ import {
   ToggleButton,
   ToggleButtonGroup,
   Tooltip,
+  useTheme,
 } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import {
@@ -57,6 +58,7 @@ import {
  * Dashboard component providing a "My Team" overview or a welcome message.
  */
 const Dashboard: React.FC = () => {
+  const theme = useTheme();
   const navigate = useNavigate();
   const [selectedPeriod, setSelectedPeriod] = React.useState<string>("ALL");
   const [gameCountFilter, setGameCountFilter] = React.useState<string>("all");

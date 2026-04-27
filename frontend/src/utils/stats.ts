@@ -62,6 +62,10 @@ export interface TeamAggregates {
   orbPct?: string;
   ftRate?: string;
   dreb: number;
+  turnovers: number;
+  assists: number;
+  offRebounds: number;
+  points: number;
 }
 
 /**
@@ -125,6 +129,7 @@ export interface OpponentAggregates {
   toPct?: string;
   orbPct?: string;
   ftRate?: string;
+  threePPct?: string;
   min: number; // in seconds
   plusMinus: number;
   ppp: string;
@@ -1936,9 +1941,8 @@ export const calculateStopsAndKills = (stats: StatEvent[]) => {
 export const calculateTeamSeasonAverages = (
   games: Game[],
   allStats: StatEvent[],
-): { ppp: string } => {
-  const teamAgg = calculateTeamAggregates(games, allStats, true);
-  return { ppp: teamAgg.ppp };
+): TeamAggregates => {
+  return calculateTeamAggregates(games, allStats, true);
 };
 
 export const calculateTeamAggregates = (
@@ -2089,6 +2093,10 @@ export const calculateTeamAggregates = (
     orbPct: calcPct(team.oreb, team.oreb + opp.dreb),
     ftRate: calcPct(team.ftm || 0, team.fga),
     dreb: team.dreb,
+    turnovers: team.to,
+    assists: team.ast,
+    offRebounds: team.oreb,
+    points: team.pts,
   };
 };
 
@@ -2123,6 +2131,7 @@ export const calculateOpponentAggregates = (
     toPct: calcPct(agg.turnovers, possessions),
     orbPct: "0.0", // Individual opponent ORB% not supported without team context
     ftRate: calcPct(agg.ftm, agg.attempts),
+    threePPct: calculateFgPct(agg.threePM, agg.threePA),
   };
 };
 
@@ -2381,6 +2390,18 @@ export interface LineupAggregates {
   oreb: number;
 }
 
+/**
+ * Interface for matchup-based statistics.
+ */
+export interface MatchupStats {
+  ourPlayerId: string;
+  opponentPlayerId: string;
+  pointsAllowed: number;
+  stops: number;
+  possessions: number;
+  stopPct: string;
+  isOpponentDefender?: boolean;
+}
 
 /**
  * Interface for On/Off impact metrics.
@@ -2893,6 +2914,8 @@ export const calculateMatchupStats = (stats: StatEvent[]): MatchupStats[] => {
         inOurPossession = false;
         inOpponentPossession = false; // Turnover ends our possession, reset both
       }
+      inOpponentPossession = false;
+      inOurPossession = false;
     } else if (type === ACTION_TYPES.MISS) {
       if (isOpp) {
         inOpponentPossession = true;
@@ -2966,6 +2989,109 @@ export const calculateMatchupStats = (stats: StatEvent[]): MatchupStats[] => {
     stopPct:
       m.possessions > 0 ? ((m.stops / m.possessions) * 100).toFixed(1) : "0.0",
   }));
+};
+
+/**
+ * 🏀 Assistant Coach: calculateTimeoutRecommendation
+ * WHY: Helps high-stress situational decision making.
+ */
+export const calculateTimeoutRecommendation = (params: {
+  opponentRun: string | null;
+  teamFoulTrouble: boolean;
+  clutchMode: boolean;
+  timeoutsRemaining: number;
+  isClockRunning: boolean;
+  scoreSpread: number;
+  clockSeconds: number;
+  period: number;
+}): { recommendation: string | null; urgency: "LOW" | "MEDIUM" | "HIGH" } => {
+  const {
+    opponentRun,
+    teamFoulTrouble,
+    clutchMode,
+    timeoutsRemaining,
+    isClockRunning,
+    scoreSpread,
+    clockSeconds,
+    period,
+  } = params;
+
+  if (timeoutsRemaining <= 0) return { recommendation: null, urgency: "LOW" };
+
+  // 1. High Urgency: Opponent is on a major run and clock is running
+  if (opponentRun) {
+    const runPoints = parseInt(opponentRun.split("-")[0]);
+    if (runPoints >= 10) {
+      return { recommendation: "STOP THE RUN: Opponent is on a " + opponentRun + " run.", urgency: "HIGH" };
+    }
+    if (runPoints >= 6) {
+      return { recommendation: "MOMENTUM SHIFT: Opponent is on a " + opponentRun + " run.", urgency: "MEDIUM" };
+    }
+  }
+
+  // 2. Foul Trouble Alert
+  if (teamFoulTrouble && !clutchMode && period < 4) {
+    return { recommendation: "PERSONNEL: Star player in foul trouble. Consider sub or timeout to adjust.", urgency: "MEDIUM" };
+  }
+
+  // 3. Late Game Clutch Situation
+  if (clutchMode && clockSeconds < 60 && !isClockRunning && Math.abs(scoreSpread) <= 3) {
+    return { recommendation: "STRATEGIC: Final minute, tight game. Use timeout to advance ball or set play.", urgency: "HIGH" };
+  }
+
+  return { recommendation: null, urgency: "LOW" };
+};
+
+/**
+ * 🏀 Assistant Coach: generatePlayerNarratives
+ * WHY: Converts raw data into actionable feedback for players.
+ */
+export const generatePlayerNarratives = (
+  playerStats: PlayerAggregates,
+): { strength: string; growth: string } | null => {
+  if (playerStats.min < 0.1) return null;
+
+  const strengths = [];
+  const growths = [];
+
+  // Efficiency
+  if (parseFloat(playerStats.threePPct) > 40 && playerStats.threePA >= 3) {
+    strengths.push("Elite efficiency from the 3PT line (" + playerStats.threePPct + "%)");
+  } else if (parseFloat(playerStats.fgPct) > 55 && playerStats.attempts >= 5) {
+    strengths.push("Strong interior finishing and shot selection");
+  }
+
+  // Playmaking
+  if (playerStats.assists >= 4) {
+    strengths.push("Excellent floor vision and playmaking");
+  } else if (playerStats.assists > 0 && playerStats.turnovers === 0) {
+    strengths.push("Perfect ball security with zero turnovers");
+  }
+
+  // Defense
+  if (playerStats.steals + playerStats.blocks >= 3) {
+    strengths.push("High-impact defensive presence and disruptor");
+  }
+
+  // Growth Areas
+  if (playerStats.turnovers >= 3) {
+    growths.push("High turnover rate on drives - focus on ball security");
+  }
+  if (parseFloat(playerStats.ftPct) < 60 && playerStats.fta >= 2) {
+    growths.push("Struggled at the free throw line (" + playerStats.ftPct + "%)");
+  }
+  if (playerStats.fouls >= 4) {
+    growths.push("Foul trouble limited your defensive aggressiveness");
+  }
+  if (parseFloat(playerStats.threePPct) < 20 && playerStats.threePA >= 4) {
+    growths.push("Poor 3PT shooting - look for higher quality looks");
+  }
+
+  // Fallbacks
+  const strength = strengths.length > 0 ? strengths[0] : "Maintained consistent effort on both ends";
+  const growth = growths.length > 0 ? growths[0] : "Focus on maintaining this level of play into the next game";
+
+  return { strength, growth };
 };
 
 /**

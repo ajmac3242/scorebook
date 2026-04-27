@@ -62,20 +62,25 @@ import {
   calculateScoringRuns,
   calculateTeamAggregates,
   calculateTeamSeasonAverages,
-  generatePlayerNarrative,
+  generatePlayerNarratives,
   calcPct,
   isOpponentId,
   type ScoreFlowPoint,
+  type PlayerAggregates,
+  type TeamAggregates,
 } from "../utils/stats";
 import { MoleskineCard } from "../components/SharedUI";
 import FourFactorsHUD from "../components/FourFactorsHUD";
 import EntityBanner from "../components/EntityBanner";
+import RecentActionItem from "../components/RecentActionItem";
+import TacticalGoalHUD from "../components/TacticalGoalHUD";
 import { syncService } from "../utils/syncService";
 import { logger } from "../utils/logger";
 import dayjs from "dayjs";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import SortableHeader from "../components/SortableHeader";
+import { formatClock } from "../utils/mathUtils";
 import { generateHudlCSV, generateSynergyCSV, downloadCSV } from "../utils/videoExport";
 import {
   Line,
@@ -89,6 +94,56 @@ import {
   ReferenceLine,
   ComposedChart,
 } from "recharts";
+
+/**
+ * 🏀 Assistant Coach: PlayerFeedbackCard
+ * WHY: Displays automated performance narratives to players.
+ */
+const PlayerFeedbackCard: React.FC<{
+  player: PlayerAggregates;
+  narrative: { strength: string; growth: string };
+}> = ({ player, narrative }) => {
+  const [sent, setSent] = useState(false);
+
+  return (
+    <MoleskineCard sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
+        <Avatar sx={{ bgcolor: player.avatarColor }}>{player.jerseyNumber}</Avatar>
+        <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+          {player.name}
+        </Typography>
+      </Box>
+
+      <Box sx={{ flexGrow: 1 }}>
+        <Typography variant="caption" color="success.main" sx={{ fontWeight: 800, textTransform: "uppercase" }}>
+          Strength
+        </Typography>
+        <Typography variant="body2" sx={{ mb: 2, mt: 0.5, fontWeight: 500 }}>
+          {narrative.strength}
+        </Typography>
+
+        <Typography variant="caption" color="error.main" sx={{ fontWeight: 800, textTransform: "uppercase" }}>
+          Growth Area
+        </Typography>
+        <Typography variant="body2" sx={{ mt: 0.5, fontWeight: 500 }}>
+          {narrative.growth}
+        </Typography>
+      </Box>
+
+      <Button
+        variant={sent ? "contained" : "outlined"}
+        color={sent ? "success" : "primary"}
+        size="small"
+        fullWidth
+        sx={{ mt: 3 }}
+        onClick={() => setSent(true)}
+        startIcon={sent ? <ExpandIcon sx={{ transform: "rotate(90deg)" }} /> : null}
+      >
+        {sent ? "Sent to Player" : "Approve & Send"}
+      </Button>
+    </MoleskineCard>
+  );
+};
 
 /**
  * GameStats page component.
@@ -487,6 +542,11 @@ const GameStats: React.FC = () => {
     return calculateScoreFlow(scoreFlowSortedStats, game?.periodLength);
   }, [scoreFlowSortedStats, game?.periodLength]);
 
+
+  const matchupStats = useMemo(() => {
+    return calculateMatchupStats(scoreFlowSortedStats);
+  }, [scoreFlowSortedStats]);
+
   const teamData = useMemo(() => {
     if (!game) return null;
     return calculateTeamAggregates([game], stats, false);
@@ -637,7 +697,7 @@ const GameStats: React.FC = () => {
     [],
   );
 
-  const handleExportBookmarks = () => {
+        const handleExportBookmarks = () => {
     const bookmarked = allStats.filter((s) => !!s.isBookmarked);
     if (bookmarked.length === 0) {
       alert("No bookmarked events to export.");
@@ -1498,7 +1558,7 @@ const GameStats: React.FC = () => {
                         return (
                           <Tooltip
                             key={idx}
-                            title={`P${s.period} [${formatClock(s.startClock)} - ${formatClock(s.endClock)}]: ${s.points} PTS, ${s.plusMinus > 0 ? "+" : ""}${s.plusMinus} +/-`}
+                            title={`P${s.period} [${formatClock(s.startClock)} - ${formatClock(s.endClock)}]`}
                           >
                             <Box
                               sx={{
@@ -1667,6 +1727,15 @@ const GameStats: React.FC = () => {
   );
 
   const isDeleted = !!game?.deletedAt || !!team?.deletedAt;
+
+  const playerNarratives = useMemo(() => {
+    return playerAggregates
+      .map((p) => ({
+        player: p,
+        narrative: generatePlayerNarratives(p),
+      }))
+      .filter((n) => n.narrative !== null);
+  }, [playerAggregates]);
 
   return (
     <Box
@@ -2247,6 +2316,19 @@ const GameStats: React.FC = () => {
                 />
               </Grid>
             )}
+
+            <Grid item xs={12}>
+              <Typography variant="h5" sx={{ fontFamily: "var(--serif)", mb: 2, mt: 4 }}>
+                Player Feedback Narratives
+              </Typography>
+              <Grid container spacing={2}>
+                {playerNarratives.map((n) => (
+                  <Grid item xs={12} sm={6} md={4} key={n.player.id}>
+                    <PlayerFeedbackCard player={n.player} narrative={n.narrative!} />
+                  </Grid>
+                ))}
+              </Grid>
+            </Grid>
 
             <Grid item xs={12}>
               {eventLog}

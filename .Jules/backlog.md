@@ -1,4 +1,4 @@
-## Dynamic "Target Attack" Identifier
+## [x] Dynamic "Target Attack" Identifier
 **Priority:** HIGH
 **Type:** Feature
 **Why:** Coaches often miss which opponent defender is the "weak link" or which specific matchup is most exploitable in real-time. This tool automates the identification of mismatches to drive play-calling.
@@ -8,7 +8,7 @@
 - [x] Real-time "Mismatch Alert" when a specific defender's Stop % drops below a configurable threshold.
 - [x] "Targeted Play" recommendation based on which of our players has the best eFG% against that specific defender's archetype.
 
-## Strategic Timeout & Game State Advisor
+## [x] Strategic Timeout & Game State Advisor
 **Priority:** HIGH
 **Type:** Feature
 **Why:** Timeout decisions in the 4th quarter are high-stress. An advisor that considers remaining timeouts, foul situation, and momentum helps coaches make the "mathematically correct" call.
@@ -18,7 +18,7 @@
 - [x] Late-game "Situational HUD" (e.g., "Down 2, 10s left: Recommendation - Attack the rim for 2PT to tie").
 - [x] Visual indicator of "Effective Timeouts Remaining" considering the game's current pace and remaining duration.
 
-## Automated Post-Game Player Performance Narratives
+## [x] Automated Post-Game Player Performance Narratives
 **Priority:** HIGH
 **Type:** Feature
 **Why:** Players often don't understand raw stats. Converting data into "Narratives" (e.g., "You were elite at closing out but struggled with ball security") makes coaching feedback more digestible and actionable.
