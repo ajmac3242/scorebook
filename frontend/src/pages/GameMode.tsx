@@ -106,6 +106,8 @@ import {
   calculateSchemeEfficiency,
   detectShotValueFromCoords,
   calculateStopsAndKills,
+  calculateMatchupStats,
+  calculateTimeoutRecommendation,
   calculatePossessions,
   calculatePpp,
   calcPct,
@@ -122,6 +124,7 @@ import {
   type OpponentAggregates,
   type TeamAggregates,
   OpponentThreat,
+  MatchupStats,
 } from "../utils/stats";
 import { formatClock, roundToOne } from "../utils/mathUtils";
 import { MoleskineCard, AnimatedNumber } from "../components/SharedUI";
@@ -291,13 +294,28 @@ const Scoreboard = React.memo(
             >
               <AnimatedNumber value={score} />
             </Typography>
-            <TimeoutDots
-              count={timeouts}
-              total={timeoutTotal}
-              data-testid={
-                isOpponent ? "opp-timeout-dots" : "team-timeout-dots"
-              }
-            />
+            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 0.5 }}>
+              <TimeoutDots
+                count={timeouts}
+                total={timeoutTotal}
+                data-testid={
+                  isOpponent ? "opp-timeout-dots" : "team-timeout-dots"
+                }
+              />
+              {!isOpponent && (
+                <Typography
+                  variant="caption"
+                  sx={{
+                    color: timeouts <= 1 ? "error.light" : "rgba(255,255,255,0.5)",
+                    fontSize: "0.5rem",
+                    fontWeight: 800,
+                    textTransform: "uppercase",
+                  }}
+                >
+                  {timeouts <= 1 ? "CRITICAL" : "SAFE"}
+                </Typography>
+              )}
+            </Box>
           </Box>
         </Box>
       );
@@ -1061,6 +1079,140 @@ const ActionControls = React.memo(
  * dialogs for recording actions, and real-time score calculation.
  */
 /**
+ * 🏀 Assistant Coach: StrategicAdvisorHUD
+ * WHY: Provides real-time tactical advice and timeout recommendations.
+ */
+interface StrategicAdvisorHUDProps {
+  gameData: {
+    currentScore: number;
+    opponentScore: number;
+    timeoutStats: { teamTOL: number };
+    momentumAlerts: {
+      opponentRun: string | null;
+      foulTroublePlayers?: string[];
+      isClutchMode?: boolean;
+    };
+  };
+  clockSeconds: number;
+  period: number;
+  isClockRunning: boolean;
+}
+
+const StrategicAdvisorHUD: React.FC<StrategicAdvisorHUDProps> = ({
+  gameData,
+  clockSeconds,
+  period,
+  isClockRunning,
+}) => {
+  const recommendation = useMemo(() => {
+    return calculateTimeoutRecommendation({
+      opponentRun: gameData.momentumAlerts.opponentRun,
+      teamFoulTrouble: (gameData.momentumAlerts.foulTroublePlayers?.length || 0) > 0,
+      clutchMode: !!gameData.momentumAlerts.isClutchMode,
+      timeoutsRemaining: gameData.timeoutStats.teamTOL,
+      isClockRunning,
+      scoreSpread: gameData.currentScore - gameData.opponentScore,
+      clockSeconds,
+      period,
+    });
+  }, [gameData, clockSeconds, period, isClockRunning]);
+
+  if (!recommendation.recommendation) return null;
+
+  const color =
+    recommendation.urgency === "HIGH"
+      ? "error.main"
+      : recommendation.urgency === "MEDIUM"
+        ? "warning.main"
+        : "primary.main";
+
+  return (
+    <MoleskineCard sx={{ borderLeft: `6px solid ${color}` }}>
+      <Typography variant="subtitle2" sx={{ fontWeight: 800, mb: 1, color }}>
+        🏆 STRATEGIC ADVISOR
+      </Typography>
+      <Typography variant="body2" sx={{ fontWeight: 600, lineHeight: 1.4 }}>
+        {recommendation.recommendation}
+      </Typography>
+      {recommendation.urgency === "HIGH" && (
+        <Button
+          variant="contained"
+          color="error"
+          size="small"
+          fullWidth
+          sx={{ mt: 2, fontWeight: 900 }}
+          onClick={() => {
+            // In a real app, this might open the timeout dialog
+          }}
+        >
+          ADVISE TIMEOUT
+        </Button>
+      )}
+    </MoleskineCard>
+  );
+};
+
+/**
+ * 🏀 Assistant Coach: TargetAttackHUD
+ * WHY: Highlights the opponent defender who is the "weak link" to drive play-calling.
+ */
+const TargetAttackHUD: React.FC<{
+  matchups: MatchupStats[];
+}> = ({ matchups }) => {
+  const target = useMemo(() => {
+    return [...matchups]
+      .filter((m) => m.isOpponentDefender && m.possessions >= 2)
+      .sort((a, b) => {
+        const pppA = parseFloat(calculatePpp(a.pointsAllowed, a.possessions));
+        const pppB = parseFloat(calculatePpp(b.pointsAllowed, b.possessions));
+        return pppB - pppA;
+      })[0];
+  }, [matchups]);
+
+  if (!target) return null;
+
+  const oppJersey = target.opponentPlayerId.split(":")[1] || "??";
+  const ppp = calculatePpp(target.pointsAllowed, target.possessions);
+  const isMismatch = parseFloat(target.stopPct) < 30 && target.possessions >= 3;
+
+  return (
+    <MoleskineCard
+      sx={{
+        border: isMismatch ? "2px solid #ff1744" : "1px solid rgba(0,0,0,0.12)",
+        animation: isMismatch ? `${pulse} 2s infinite ease-in-out` : "none",
+      }}
+    >
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
+        <Typography variant="subtitle2" sx={{ fontWeight: 800, display: "flex", alignItems: "center", gap: 1 }}>
+          <SecurityIcon sx={{ fontSize: 18, color: "secondary.main" }} /> TARGET ATTACK
+        </Typography>
+        {isMismatch && (
+          <Chip label="MISMATCH" size="small" color="error" sx={{ fontWeight: 900, height: 20, fontSize: "0.6rem" }} />
+        )}
+      </Box>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+        <Avatar sx={{ bgcolor: "secondary.main", width: 40, height: 40, fontWeight: 800 }}>
+          {oppJersey}
+        </Avatar>
+        <Box>
+          <Typography variant="body2" sx={{ fontWeight: 700 }}>
+            Opponent #{oppJersey}
+          </Typography>
+          <Typography variant="caption" sx={{ display: "block", color: "text.secondary" }}>
+            Allowing {ppp} PPP | {target.stopPct}% Stop Rate
+          </Typography>
+        </Box>
+      </Box>
+      <Box sx={{ mt: 1.5, p: 1, bgcolor: "rgba(0,0,0,0.03)", borderRadius: 1 }}>
+        <Typography variant="caption" sx={{ fontWeight: 600, color: "primary.main" }}>
+          💡 REC: Attack via Isolation or PnR
+        </Typography>
+      </Box>
+    </MoleskineCard>
+  );
+};
+
+/**
  * 🏀 CoachBoard: RotationSuggester
  * WHY: Helps coaches stick to their rotation plan by comparing actual mins vs target mins.
  */
@@ -1176,7 +1328,7 @@ const GameMode: React.FC = () => {
   const [points, setPoints] = useState<number>(2);
   const [playName, setPlayName] = useState<string>("");
   const [shotQuality, setShotQuality] = useState<string | null>(null);
-  const [shotType, setShotType] = useState<string | null>(null);
+  const [shotType, setShotType] = useState<"CATCH" | "DRIB" | null>(null);
 
   const [clockSeconds, setClockSeconds] = useState<number>(0);
   const clockSecondsRef = useRef(clockSeconds);
@@ -1764,47 +1916,6 @@ const GameMode: React.FC = () => {
    * Performance: This O(1) memoization handles values that change every second
    * (like the clock) to avoid reprocessing the entire O(N) event stream.
    */
-  const statsGridDataRaw = useMemo(() => {
-    return calculatePlayerAggregates(
-      players,
-      sortedGameStats,
-      teamPlayers,
-      "total",
-      {
-        isSorted: true,
-        periodLength: game?.periodLength,
-        // ⚡ Bolt: Lightweight clock update decoupling.
-        // Assume player played until end of game for initial aggregation.
-        // Live adjustment for statsGridData.
-        liveContext: { clockTime: 0, period },
-      },
-    );
-  }, [players, sortedGameStats, teamPlayers, game?.periodLength, period]);
-
-  /**
-   * ⚡ Bolt: Live adjustment for stats grid.
-   * Performance: Only adjusts the MIN and plus-minus for active players based
-   * on the current clock, avoiding a full O(N) re-calculation.
-   */
-  const statsGridData = useMemo(() => {
-    return statsGridDataRaw.map((p) => {
-      if (!eventAggregates.onCourtIds.has(p.id.toString())) return p;
-      const startClock = eventAggregates.stintStarts.get(p.id.toString()) ?? 0;
-      const currentStintSecs = Math.max(0, startClock - clockSeconds);
-      // calculatePlayerAggregates already added time until 0:00 (endClock: 0)
-      // So we subtract the time that hasn't happened yet in the current stint.
-      return {
-        ...p,
-        min: roundToOne(p.min - startClock / 60 + currentStintSecs / 60),
-      };
-    });
-  }, [
-    statsGridDataRaw,
-    eventAggregates.onCourtIds,
-    eventAggregates.stintStarts,
-    clockSeconds,
-  ]);
-
   const statsMap = useMemo(() => {
     const map = new Map<string, PlayerAggregates>();
     for (let i = 0; i < statsGridData.length; i++) {
@@ -1812,6 +1923,10 @@ const GameMode: React.FC = () => {
     }
     return map;
   }, [statsGridData]);
+
+  const matchupStats = useMemo(() => {
+    return calculateMatchupStats(sortedGameStats);
+  }, [sortedGameStats]);
 
   const gameData = useMemo(() => {
     const stintDurations = new Map<string, number>();
@@ -2995,6 +3110,21 @@ const GameMode: React.FC = () => {
         {/* Panel: Roster and Recent Actions */}
         <Grid item xs={12} md={4}>
           <Stack spacing={3}>
+            {trackingMode === "TEAM" && (
+              <StrategicAdvisorHUD
+                gameData={gameData}
+                clockSeconds={clockSeconds}
+                period={period}
+                isClockRunning={isClockRunning}
+              />
+            )}
+
+            {trackingMode === "TEAM" && (
+              <TargetAttackHUD
+                matchups={matchupStats}
+              />
+            )}
+
             {trackingMode === "TEAM" && (
               <RotationSuggester
                 players={players}
