@@ -41,6 +41,9 @@ export const formatClock = (totalSeconds: number): string => {
   // ⚡ Bolt: Use bitwise OR for faster floor operation and template literals for efficiency.
   // WHY: Bitwise OR (| 0) is a high-performance alternative to Math.floor() for positive
   // integers in hot paths, as it effectively truncates decimal places in a single operation.
+  //
+  // CONSTRAINT: Bitwise operations in JS operate on 32-bit signed integers.
+  // This is safe for totalSeconds up to 2^31 - 1, which exceeds 35,000 hours.
   const mins = (totalSeconds / 60) | 0;
   const secs = totalSeconds % 60;
   return `${mins}:${secs < 10 ? "0" : ""}${secs}`;

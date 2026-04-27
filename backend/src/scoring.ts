@@ -40,6 +40,9 @@ export function accumulateScores(stats: Record<string, unknown>[]): {
     // displayed score is always derived from the source of truth.
     if (s.type !== "MAKE") continue;
 
+    // 🛡️ Defensive Coding: Preserve integrity for legacy/malformed events
+    // WHY: In cases where 'points' is missing, null, or NaN, we default to 0
+    // to prevent entire score calculations from failing or returning NaN.
     const pts = (s.points as number) || 0;
 
     if (typeof s.playerId === "string" && isOpponentId(s.playerId)) {

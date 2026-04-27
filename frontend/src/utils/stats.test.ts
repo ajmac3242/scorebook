@@ -807,7 +807,8 @@ describe("stats utilities", () => {
       expect(isEventInPeriod(1, 1, "HALVES")).toBe(true);
       expect(isEventInPeriod(2, 1, "HALVES")).toBe(false);
       expect(isEventInPeriod(2, 2, "HALVES")).toBe(true);
-      expect(isEventInPeriod(3, 2, "HALVES")).toBe(true);
+      expect(isEventInPeriod(3, 2, "HALVES")).toBe(true); // OT included in 2nd half
+      expect(isEventInPeriod(4, 2, "HALVES")).toBe(true); // 2nd OT included
     });
   });
 

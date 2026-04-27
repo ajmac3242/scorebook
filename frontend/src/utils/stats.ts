@@ -1576,6 +1576,12 @@ export const detectShotValueFromCoords = (x: number, y: number): number => {
  * - RESET: Streak breaks on Opponent Score or Team Defensive/Technical Foul.
  * - CONTINUE: Possession continues on Opponent Offensive Rebound.
  *
+ * STATE TRANSITIONS:
+ * - inOpponentPossession: Set to TRUE on opponent MISS; reset to FALSE on any score,
+ *   turnover, or defensive rebound. This ensures a single stop per possession.
+ * - isOurPossession: Toggled on turnovers, scores, and rebounds. Used to filter
+ *   offensive fouls which do not break a defensive stop streak.
+ *
  * @param {StatEvent[]} stats - Chronological list of statistical events for the game.
  * @returns {object} Object containing total stops, kills, and current stop streak.
  */
@@ -2041,6 +2047,17 @@ export const isClutchEvent = (
 /**
  * 🔍 Scout: Calculates how many seconds of an interval [startClock, endClock]
  * are considered "clutch time".
+ *
+ * METHODOLOGY: For efficiency, we clamp the start and end clocks of an interval
+ * to the regulation clutch threshold (e.g., 240s). The difference between these
+ * clamped values represents the duration of that interval that occurred
+ * within the clutch window.
+ *
+ * @param period - Game period.
+ * @param startClock - Seconds remaining at start of interval.
+ * @param endClock - Seconds remaining at end of interval.
+ * @param scoreDiff - Point spread at start of interval.
+ * @param periodType - 'QUARTERS' or 'HALVES'.
  */
 export const getClutchSeconds = (
   period: number,
@@ -2061,12 +2078,24 @@ export const getClutchSeconds = (
   return Math.max(0, s - e);
 };
 
+/**
+ * Determines if a statistical event occurred within the specified game period.
+ *
+ * WHY: In 'HALVES' mode (NCAA), the 2nd half (period 2) typically includes all
+ * overtime periods (3+) for high-level reporting. In 'QUARTERS' mode, periods
+ * are usually kept distinct unless viewing a full-game summary.
+ *
+ * @param eventPeriod - The period recorded on the event.
+ * @param currentPeriod - The current game period being viewed.
+ * @param periodType - 'QUARTERS' or 'HALVES'.
+ */
 export const isEventInPeriod = (
   eventPeriod: number,
   currentPeriod: number,
   periodType: string,
 ): boolean => {
-  const isFinal = periodType === "QUARTERS" ? currentPeriod === 4 : currentPeriod === 2;
+  const isFinal =
+    periodType === "QUARTERS" ? currentPeriod === 4 : currentPeriod === 2;
   return isFinal ? eventPeriod >= currentPeriod : eventPeriod === currentPeriod;
 };
 

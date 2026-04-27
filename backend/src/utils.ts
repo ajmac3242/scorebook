@@ -287,24 +287,20 @@ export function extractRequestMetadata(event: APIGatewayProxyEventV2): {
 }
 
 /**
- * Timing-safe string comparison to prevent timing attacks on sensitive keys.
+ * Timing-safe string comparison to prevent timing attacks.
  *
  * WHY: Standard string comparison (===) often short-circuits as soon as a
  * mismatch is found, meaning it takes slightly less time to return 'false' if
  * the mismatch is at the beginning of the string. An attacker can use this
  * timing difference to guess a secret character-by-character.
  *
- * MECHANICS:
- * This function uses 'crypto.timingSafeEqual' on fixed-length SHA-256 hashes
- * of the inputs. This is necessary because 'timingSafeEqual' requires both
- * inputs to have the same length. By hashing the inputs first, we ensure:
- * 1. Both inputs to the comparison are exactly 32 bytes (SHA-256 length).
- * 2. The comparison takes constant time regardless of the original input lengths
- *    or how much of the secret matches, mitigating timing-based side-channels.
+ * METHODOLOGY: Both inputs are hashed to a fixed length (SHA-256, 32 bytes)
+ * before comparison. This is necessary because 'crypto.timingSafeEqual'
+ * requires both buffers to have the exact same length to avoid leaking
+ * length information via execution time.
  *
- * @param {string} a - First string (e.g., user-provided key).
- * @param {string} b - Second string (e.g., actual secret key).
- * @returns {boolean} True if strings are equal.
+ * @param a - User-provided key.
+ * @param b - Actual secret key.
  */
 export function safeCompare(a: string, b: string): boolean {
   const hashA = crypto.createHash("sha256").update(a).digest();

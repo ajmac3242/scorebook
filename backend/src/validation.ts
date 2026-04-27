@@ -40,6 +40,8 @@ export function isValidUuid(id: unknown): id is string {
 export const isOpponentId = (playerId: string): boolean =>
   playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
   playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":");
+
+/**
  * Validates if a string is a valid jersey number (1-2 digits).
  * @param {unknown} jersey - The jersey number to validate.
  * @returns {boolean} True if it's a valid jersey number string.
@@ -70,7 +72,10 @@ export function isValidPlayerId(id: unknown): boolean {
   const strId = id as string;
   const prefix = SPECIAL_PLAYER_IDS.OPPONENT + ":";
   if (strId.startsWith(prefix)) {
-    // 🛡️ Guard: Length check for jersey-prefixed IDs.
+    // 🛡️ SECURITY GUARD: Strict length check for jersey-prefixed IDs.
+    // WHY: Valid jersey-prefixed IDs (e.g., 'OPPONENT:5' or 'OPPONENT:12')
+    // must be between 10 and 11 characters. This prevents malformed input
+    // and potential injection attempts via the jersey suffix.
     if (strId.length > 11 || strId.length < 10) return false;
     const jersey = strId.slice(prefix.length);
     return isValidJerseyNumber(jersey);

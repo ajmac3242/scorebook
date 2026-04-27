@@ -581,7 +581,8 @@ async function handleCleanup(
     const adminApiKey = process.env.ADMIN_API_KEY;
 
     // 🛡️ Enhancement: Prevent weak or missing ADMIN_API_KEY configurations.
-    // Minimum 16 characters required for production-grade entropy.
+    // WHY: Minimum 16 characters required for production-grade entropy to
+    // protect the high-privilege cleanup endpoint from brute-force attempts.
     if (!adminApiKey || adminApiKey.length < 16) {
       logError(
         logLabel("Security Warning"),
