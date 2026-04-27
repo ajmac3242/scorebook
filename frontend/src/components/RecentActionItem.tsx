@@ -22,6 +22,7 @@ import {
   CloudDone,
   Star,
   StarBorder,
+  ElectricBolt,
 } from "@mui/icons-material";
 import { StatEvent } from "../db";
 import { ACTION_TYPES } from "../constants/stats";
@@ -78,6 +79,11 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
           return <Groups sx={{ ...iconSx, color: "text.secondary" }} />;
         case ACTION_TYPES.POSSESSION:
           return <SwapHoriz sx={{ ...iconSx, color: "primary.light" }} />;
+        case ACTION_TYPES.DEFLECTION:
+        case ACTION_TYPES.FLOOR_DIVE:
+        case ACTION_TYPES.CHARGE_TAKEN:
+        case ACTION_TYPES.GREAT_CONTEST:
+          return <ElectricBolt sx={{ ...iconSx, color: "secondary.main" }} />;
         default:
           return null;
       }
