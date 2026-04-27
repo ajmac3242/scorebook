@@ -269,6 +269,14 @@ export const isSubstitution = (stat: StatEvent): boolean =>
 export const isFreeThrow = (stat: StatEvent): boolean => stat.points === 1;
 
 /**
+ * Determines if a statistical event is a 3-point attempt.
+ * @param {StatEvent} stat - The event to check.
+ * @returns {boolean} True if it is a 3-point attempt.
+ */
+export const isThreePointAttempt = (stat: StatEvent): boolean =>
+  stat.points === 3;
+
+/**
  * Determines if a statistical event is a field goal attempt (MAKE or MISS, excluding free throws).
  * @param {StatEvent} stat - The event to check.
  * @returns {boolean} True if it is a field goal attempt.
@@ -329,6 +337,76 @@ export const calculatePossessions = (
 };
 
 /**
+ * Calculates possessions for a statistical aggregate record.
+ * @param agg - An object containing attempts, fta, turnovers, and offensive rebounds.
+ */
+export const calculatePossessionsForAgg = (agg: {
+  attempts: number;
+  fta: number;
+  turnovers: number;
+  offRebounds?: number;
+  oreb?: number;
+}): number => {
+  return calculatePossessions(
+    agg.attempts,
+    agg.fta,
+    agg.turnovers,
+    agg.offRebounds ?? agg.oreb ?? 0,
+  );
+};
+
+/**
+ * Initializes a new opponent aggregate record.
+ */
+const initOpponentAggregates = (): OpponentAggregates => ({
+  points: 0,
+  makes: 0,
+  attempts: 0,
+  fgPct: "0.0",
+  rebounds: 0,
+  offRebounds: 0,
+  defRebounds: 0,
+  assists: 0,
+  blocks: 0,
+  steals: 0,
+  turnovers: 0,
+  fouls: 0,
+  fta: 0,
+  ftm: 0,
+  threePM: 0,
+  threePA: 0,
+  min: 0,
+  plusMinus: 0,
+  ppp: "0.00",
+  possessions: 0,
+});
+
+/**
+ * Initializes a new opponent threat record.
+ */
+const initOpponentThreat = (playerId: string): OpponentThreat => ({
+  playerId,
+  points: 0,
+  makes: 0,
+  consecutiveMakes: 0,
+  straightPoints: 0,
+  isHot: false,
+});
+
+/**
+ * Initializes a new play efficiency record.
+ */
+const initPlayEfficiencyAgg = () => ({
+  makes: 0,
+  attempts: 0,
+  points: 0,
+  fta: 0,
+  turnovers: 0,
+  threePM: 0,
+  oreb: 0,
+});
+
+/**
  * Calculates Free Throw Percentage.
  * @param {number} makes - Free throws made.
  * @param {number} attempts - Free throws attempted.
@@ -383,7 +461,7 @@ export const getInitials = (name: string | undefined | null): string => {
   let inWord = false;
   for (let i = 0; i < s.length; i++) {
     const char = s[i];
-    if (char !== " " && char !== "\t" && char !== "\n" && char !== "\r") {
+    if (/\S/.test(char)) {
       if (!inWord) {
         result += char.toUpperCase();
         if (result.length === 2) break;
@@ -544,7 +622,7 @@ export const applyActionToAggregate = (agg: BaseStats, stat: StatEvent) => {
       } else {
         agg.makes++;
         agg.attempts++;
-        if (stat.points === 3) {
+        if (isThreePointAttempt(stat)) {
           if (agg.threePM !== undefined) agg.threePM++;
           if (agg.threePA !== undefined) agg.threePA++;
         }
@@ -555,7 +633,7 @@ export const applyActionToAggregate = (agg: BaseStats, stat: StatEvent) => {
         if (agg.fta !== undefined) agg.fta++;
       } else {
         agg.attempts++;
-        if (stat.points === 3) {
+        if (isThreePointAttempt(stat)) {
           if (agg.threePA !== undefined) agg.threePA++;
         }
       }
@@ -583,11 +661,10 @@ export const applyActionToAggregate = (agg: BaseStats, stat: StatEvent) => {
     case ACTION_TYPES.TURNOVER:
       agg.turnovers++;
       break;
-    case ACTION_TYPES.FOUL:
-    case ACTION_TYPES.FOUL_SHOOTING:
-    case ACTION_TYPES.FOUL_NON_SHOOTING:
-    case ACTION_TYPES.TECHNICAL_FOUL:
-      agg.fouls++;
+    default:
+      if (isFoulAction(stat)) {
+        agg.fouls++;
+      }
       break;
   }
 };
@@ -714,8 +791,7 @@ export const calculatePlayerAggregates = (
   // Accumulate statistics from event stream
   for (let i = 0; i < sortedStats.length; i++) {
     const stat = sortedStats[i];
-    // ⚡ Bolt: Inline isActive check to reduce function call overhead in hot loop.
-    if (stat.deletedAt) continue;
+    if (!isActive(stat)) continue;
 
     const { playerId, type, clockTime, period, gameId } = stat;
 
@@ -833,7 +909,7 @@ export const calculatePlayerAggregates = (
           } else {
             player.makes++;
             player.attempts++;
-            if (stat.points === 3) {
+            if (isThreePointAttempt(stat)) {
               player.threePM++;
               player.threePA++;
             }
@@ -844,7 +920,7 @@ export const calculatePlayerAggregates = (
             player.fta++;
           } else {
             player.attempts++;
-            if (stat.points === 3) {
+            if (isThreePointAttempt(stat)) {
               player.threePA++;
             }
           }
@@ -1091,28 +1167,7 @@ export const calculateOpponentScoutingStats = (
     const pId = s.playerId;
     let agg = result.get(pId);
     if (!agg) {
-      agg = {
-        points: 0,
-        makes: 0,
-        attempts: 0,
-        fgPct: "0.0",
-        rebounds: 0,
-        offRebounds: 0,
-        defRebounds: 0,
-        assists: 0,
-        blocks: 0,
-        steals: 0,
-        turnovers: 0,
-        fouls: 0,
-        fta: 0,
-        ftm: 0,
-        threePM: 0,
-        threePA: 0,
-        min: 0,
-        plusMinus: 0,
-        ppp: "0.00",
-        possessions: 0,
-      };
+      agg = initOpponentAggregates();
       result.set(pId, agg);
     }
 
@@ -1129,12 +1184,7 @@ export const calculateOpponentScoutingStats = (
 
   // Finalize PPP and percentages
   for (const agg of result.values()) {
-    const possessions = calculatePossessions(
-      agg.attempts,
-      agg.fta,
-      agg.turnovers,
-      agg.offRebounds,
-    );
+    const possessions = calculatePossessionsForAgg(agg);
     agg.possessions = Math.round(possessions);
     agg.ppp = calculatePpp(agg.points, possessions);
     agg.fgPct = calculateFgPct(agg.makes, agg.attempts);
@@ -1185,15 +1235,7 @@ export const calculatePlayEfficiency = (
 
     let play = data[s.playName];
     if (!play) {
-      play = {
-        makes: 0,
-        attempts: 0,
-        points: 0,
-        fta: 0,
-        turnovers: 0,
-        threePM: 0,
-        oreb: 0,
-      };
+      play = initPlayEfficiencyAgg();
       data[s.playName] = play;
     }
     if (s.type === ACTION_TYPES.MAKE) {
@@ -1203,7 +1245,7 @@ export const calculatePlayEfficiency = (
       } else {
         play.makes++;
         play.attempts++;
-        if (s.points === 3) {
+        if (isThreePointAttempt(s)) {
           play.threePM++;
         }
       }
@@ -1222,12 +1264,7 @@ export const calculatePlayEfficiency = (
 
   return Object.entries(data)
     .map(([name, s]) => {
-      const possessions = calculatePossessions(
-        s.attempts,
-        s.fta,
-        s.turnovers,
-        s.oreb || 0,
-      );
+      const possessions = calculatePossessionsForAgg(s);
       return {
         name,
         attempts: s.attempts,
@@ -1308,12 +1345,7 @@ export const calculateSchemeEfficiency = (
   }
 
   return Object.entries(data).map(([scheme, s]) => {
-    const possessions = calculatePossessions(
-      s.attempts,
-      s.fta,
-      s.turnovers,
-      s.oreb,
-    );
+    const possessions = calculatePossessionsForAgg(s);
     return {
       scheme,
       possessions,
@@ -1382,14 +1414,7 @@ export const calculateOpponentThreats = (
     const pId = s.playerId;
     let t = threats.get(pId);
     if (!t) {
-      t = {
-        playerId: pId,
-        points: 0,
-        makes: 0,
-        consecutiveMakes: 0,
-        straightPoints: 0,
-        isHot: false,
-      };
+      t = initOpponentThreat(pId);
       threats.set(pId, t);
     }
     if (s.type === ACTION_TYPES.MAKE) {
@@ -1820,7 +1845,7 @@ export const calculateTeamAggregates = (
           opp.ftm++;
         } else {
           opp.makes++;
-          if (stat.points === 3) opp.threePM++;
+          if (isThreePointAttempt(stat)) opp.threePM++;
         }
       } else {
         totals.team += pts;
@@ -1829,7 +1854,7 @@ export const calculateTeamAggregates = (
           team.ftm++;
         } else {
           team.makes++;
-          if (stat.points === 3) team.threePM++;
+          if (isThreePointAttempt(stat)) team.threePM++;
         }
       }
     }
@@ -1907,23 +1932,7 @@ export const calculateTeamAggregates = (
 export const calculateOpponentAggregates = (
   stats: StatEvent[],
 ): OpponentAggregates => {
-  const agg = {
-    points: 0,
-    makes: 0,
-    attempts: 0,
-    rebounds: 0,
-    offRebounds: 0,
-    defRebounds: 0,
-    assists: 0,
-    blocks: 0,
-    steals: 0,
-    turnovers: 0,
-    fouls: 0,
-    fta: 0,
-    ftm: 0,
-    threePM: 0,
-    threePA: 0,
-  };
+  const agg = initOpponentAggregates();
 
   for (let i = 0; i < stats.length; i++) {
     const stat = stats[i];
@@ -1932,12 +1941,7 @@ export const calculateOpponentAggregates = (
     applyActionToAggregate(agg, stat);
   }
 
-  const possessions = calculatePossessions(
-    agg.attempts,
-    agg.fta,
-    agg.turnovers,
-    agg.offRebounds,
-  );
+  const possessions = calculatePossessionsForAgg(agg);
 
   return {
     ...agg,
@@ -2055,22 +2059,35 @@ export const calculateScoreFlow = (
  * @param periodType - 'QUARTERS' or 'HALVES'.
  * @returns True if the event occurred in a clutch situation.
  */
+/**
+ * Helper to determine if a period is regulation-final or overtime.
+ * @param period - The game period.
+ * @param periodType - 'QUARTERS' or 'HALVES'.
+ */
+const getClutchPeriodInfo = (period: number, periodType: string) => {
+  const isQuarters = periodType === "QUARTERS";
+  return {
+    isOT: isQuarters ? period > 4 : period > 2,
+    isFinal: isQuarters ? period === 4 : period === 2,
+    regClutchTime: isQuarters ? 240 : 120,
+  };
+};
+
 export const isClutchEvent = (
   eventPeriod: number,
   clockTime: number,
   scoreDiff: number,
   periodType: string,
 ): boolean => {
-  // ⚡ Bolt: Hoist periodType branching to reduce redundant conditional logic.
-  const isQuarters = periodType === "QUARTERS";
-  const isOT = isQuarters ? eventPeriod > 4 : eventPeriod > 2;
-  const isFinal = isQuarters ? eventPeriod === 4 : eventPeriod === 2;
+  const { isOT, isFinal, regClutchTime } = getClutchPeriodInfo(
+    eventPeriod,
+    periodType,
+  );
 
   if (!(isFinal || isOT)) return false;
   if (Math.abs(scoreDiff) > 5) return false;
 
-  const regulationClutchTime = isQuarters ? 240 : 120;
-  return isOT || clockTime <= regulationClutchTime;
+  return isOT || clockTime <= regClutchTime;
 };
 
 /**
@@ -2096,12 +2113,13 @@ export const getClutchSeconds = (
   periodType: string,
 ): number => {
   if (Math.abs(scoreDiff) > 5) return 0;
-  const isOT = periodType === "QUARTERS" ? period > 4 : period > 2;
-  const isFinal = periodType === "QUARTERS" ? period === 4 : period === 2;
+  const { isOT, isFinal, regClutchTime } = getClutchPeriodInfo(
+    period,
+    periodType,
+  );
   if (isOT) return Math.max(0, startClock - endClock);
   if (!isFinal) return 0;
 
-  const regClutchTime = periodType === "QUARTERS" ? 240 : 120;
   const s = Math.min(startClock, regClutchTime);
   const e = Math.min(endClock, regClutchTime);
   return Math.max(0, s - e);
@@ -2371,8 +2389,7 @@ export const calculateLineupStats = (
 
   for (let i = 0; i < sortedStats.length; i++) {
     const s = sortedStats[i];
-    // ⚡ Bolt: Inline isActive check to reduce function call overhead in hot loop.
-    if (s.deletedAt) continue;
+    if (!isActive(s)) continue;
 
     // ⚡ Bolt: Handle multi-game aggregation by detecting game context changes in-stream.
     if (currentGameId !== null && s.gameId !== currentGameId) {
@@ -2475,7 +2492,7 @@ export const calculateLineupStats = (
           pendingFta++;
         } else {
           pendingFga++;
-          if (s.points === 3) pendingThreePM += 0; // Just for clarity
+          if (isThreePointAttempt(s)) pendingThreePM += 0; // Just for clarity
         }
       } else if (s.type === ACTION_TYPES.TURNOVER) {
         pendingTurnovers++;
@@ -2533,13 +2550,7 @@ export const calculateLineupStats = (
       sortValue = typeof val === "number" ? val : 0;
     }
 
-    const lineupPossessions = calculatePossessions(
-      agg.fga,
-      agg.fta,
-      agg.turnovers,
-      agg.oreb,
-    );
-
+    const lineupPossessions = calculatePossessionsForAgg({ attempts: agg.fga, fta: agg.fta, turnovers: agg.turnovers, oreb: agg.oreb });
     return {
       ...agg,
       netRating: net,
@@ -3062,13 +3073,30 @@ export const calculateOnOffStats = (
     const offOppTo = totals.oppTo - agg.onOppTo;
     const offOppOreb = totals.oppOreb - agg.onOppOreb;
 
-    const onTeamPoss =
-      agg.onTeamFga + 0.44 * agg.onTeamFta + agg.onTeamTo - agg.onTeamOreb;
-    const onOppPoss =
-      agg.onOppFga + 0.44 * agg.onOppFta + agg.onOppTo - agg.onOppOreb;
-    const offTeamPoss =
-      offTeamFga + 0.44 * offTeamFta + offTeamTo - offTeamOreb;
-    const offOppPoss = offOppFga + 0.44 * offOppFta + offOppTo - offOppOreb;
+    const onTeamPoss = calculatePossessions(
+      agg.onTeamFga,
+      agg.onTeamFta,
+      agg.onTeamTo,
+      agg.onTeamOreb,
+    );
+    const onOppPoss = calculatePossessions(
+      agg.onOppFga,
+      agg.onOppFta,
+      agg.onOppTo,
+      agg.onOppOreb,
+    );
+    const offTeamPoss = calculatePossessions(
+      offTeamFga,
+      offTeamFta,
+      offTeamTo,
+      offTeamOreb,
+    );
+    const offOppPoss = calculatePossessions(
+      offOppFga,
+      offOppFta,
+      offOppTo,
+      offOppOreb,
+    );
 
     const onORtg = onTeamPoss > 0 ? (agg.onPtsFor / onTeamPoss) * 100 : 0;
     const onDRtg = onOppPoss > 0 ? (agg.onPtsAgn / onOppPoss) * 100 : 0;

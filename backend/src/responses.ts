@@ -138,6 +138,7 @@ export function response(
     "X-DNS-Prefetch-Control": "off",
     "X-Download-Options": "noopen",
     "Origin-Agent-Cluster": "?1",
+    "X-Robots-Tag": "noindex, nofollow",
   };
 
   if (requestId) {

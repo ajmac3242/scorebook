@@ -94,6 +94,7 @@ async function handlePlayers(
       if (
         !body?.name ||
         typeof body.name !== "string" ||
+        body.name.trim().length === 0 ||
         body.name.length > 100
       ) {
         return badRequest(
@@ -416,6 +417,7 @@ async function handleTeams(
       if (
         !body?.name ||
         typeof body.name !== "string" ||
+        body.name.trim().length === 0 ||
         body.name.length > 100
       ) {
         return badRequest(

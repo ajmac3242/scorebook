@@ -55,6 +55,10 @@ export async function uploadSnapshot(
       Key: key,
       Body: JSON.stringify(sanitizeOutput(data)),
       ContentType: "application/json",
+      CacheControl: "private, no-cache, no-store, must-revalidate",
+      Metadata: {
+        "x-content-type-options": "nosniff",
+      },
     }),
   );
 }

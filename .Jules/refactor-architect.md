@@ -93,3 +93,13 @@ Pattern:
 3. Modularize entity validation (validateGame) to decouple routing from business rules.
 4. Flatten nested controller logic using guard clauses for cleaner request handling.
 5. Use batching patterns for stint recording to avoid redundant map updates in hot paths.
+
+## 2026-04-27 - Statistical Logic Refinement and Boilerplate Reduction
+Smell: Redundant determination of clutch periods; manual initialization of complex statistical objects; inconsistent use of active-event checks; repetitive possession formula application.
+Learning: Centralizing domain-specific timing rules (`getClutchPeriodInfo`) ensures consistency between real-time event tracking and interval-based minute calculations. Using initializer helpers (`initOpponentAggregates`) reduces cognitive load and prevents partial initialization bugs in scouting and efficiency analytics.
+Pattern:
+1. Extract timing context helpers (`isClutchPeriod`) to unify game-clock logic across multiple statistical functions.
+2. Implement statistical object initializers (`initOpponentAggregates`, `initPlayEfficiencyAgg`) to standardize baseline state across aggregation loops.
+3. Consolidate repetitive formula application using record-aware helpers (`calculatePossessionsForAgg`) to ensure calculation parity.
+4. Normalize event filtering across all hot loops using the `isActive` utility.
+5. Enhance readability of semantic checks (e.g., `isThreePointAttempt`) to decouple business rules from raw event properties.

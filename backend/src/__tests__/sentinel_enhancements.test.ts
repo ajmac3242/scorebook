@@ -138,7 +138,7 @@ describe("Sentinel Security Enhancements Tests", () => {
       const response: any = await handler(event);
       expect(response.statusCode).toBe(400);
       expect(JSON.parse(response.body).message).toContain(
-        "Period must be an integer at least 1",
+        "Period must be an integer between 1 and 20",
       );
     });
 
@@ -193,7 +193,7 @@ describe("Sentinel Security Enhancements Tests", () => {
       const resp2: any = await handler(event2);
       expect(resp2.statusCode).toBe(400);
       expect(JSON.parse(resp2.body).message).toBe(
-        "Period must be an integer at least 1",
+        "Period must be an integer between 1 and 20",
       );
     });
   });
@@ -372,6 +372,7 @@ describe("Sentinel Security Enhancements Tests", () => {
       const malformedBody = {
         id: "277e909a-6536-4d2d-937e-f608759556f8",
         type: "MAKE",
+        points: 2,
         playerId: "277e909a-6536-4d2d-937e-f608759556fb",
         timestamp: "2023-01-01T12:00:00HACKED",
       };
