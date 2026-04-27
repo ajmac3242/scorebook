@@ -57,6 +57,27 @@ describe("backend utils", () => {
       expect(result.__proto__.polluted).toBeUndefined();
       expect(({} as any).polluted).toBeUndefined();
     });
+
+    it("enforces a maximum recursion depth of 10 to prevent DoS", () => {
+      // Create a deeply nested object (12 levels)
+      const deepInput: any = { id: "0" };
+      let current = deepInput;
+      for (let i = 1; i <= 12; i++) {
+        current.child = { id: i.toString() };
+        current = current.child;
+      }
+
+      const result = stripLocalFields(deepInput) as any;
+
+      // Verify that level 10 is reached but level 11 returns an empty object {}
+      // (The code returns {} when depth > 10)
+      let check = result;
+      for (let i = 0; i < 11; i++) {
+        expect(check.id).toBe(i.toString());
+        check = check.child;
+      }
+      expect(check).toEqual({});
+    });
   });
 
   describe("normalizePath", () => {
