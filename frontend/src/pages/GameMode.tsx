@@ -67,6 +67,7 @@ import {
   Remove as RemoveIcon,
   Security as SecurityIcon,
   Star as StarIcon,
+  ElectricBolt,
 } from "@mui/icons-material";
 import {
   Table,
@@ -837,6 +838,7 @@ interface ActionControlsProps {
   onNextPeriod: () => void;
   onTogglePossession: () => void;
   onFlagPlay: () => void;
+  onRecordHustle: (_type: string) => void;
   possessionState: string | null;
   recentStatsLength: number;
   onEndGame: () => void;
@@ -854,6 +856,7 @@ const ActionControls = React.memo(
     onNextPeriod,
     onTogglePossession,
     onFlagPlay,
+    onRecordHustle,
     possessionState,
     recentStatsLength,
     onEndGame,
@@ -880,6 +883,25 @@ const ActionControls = React.memo(
             >
               Period
             </Button>
+          </span>
+        </Tooltip>
+
+        <Tooltip title="Record Deflection">
+          <span>
+            <IconButton
+              size="small"
+              onClick={() => onRecordHustle(ACTION_TYPES.DEFLECTION)}
+              disabled={isReadOnly}
+              aria-label="record deflection"
+              sx={{
+                border: "1px solid rgba(0,0,0,0.23)",
+                borderRadius: "4px",
+                p: "5px",
+                color: "secondary.main",
+              }}
+            >
+              <ElectricBolt fontSize="small" />
+            </IconButton>
           </span>
         </Tooltip>
 
@@ -1742,6 +1764,47 @@ const GameMode: React.FC = () => {
    * Performance: This O(1) memoization handles values that change every second
    * (like the clock) to avoid reprocessing the entire O(N) event stream.
    */
+  const statsGridDataRaw = useMemo(() => {
+    return calculatePlayerAggregates(
+      players,
+      sortedGameStats,
+      teamPlayers,
+      "total",
+      {
+        isSorted: true,
+        periodLength: game?.periodLength,
+        // ⚡ Bolt: Lightweight clock update decoupling.
+        // Assume player played until end of game for initial aggregation.
+        // Live adjustment for statsGridData.
+        liveContext: { clockTime: 0, period },
+      },
+    );
+  }, [players, sortedGameStats, teamPlayers, game?.periodLength, period]);
+
+  /**
+   * ⚡ Bolt: Live adjustment for stats grid.
+   * Performance: Only adjusts the MIN and plus-minus for active players based
+   * on the current clock, avoiding a full O(N) re-calculation.
+   */
+  const statsGridData = useMemo(() => {
+    return statsGridDataRaw.map((p) => {
+      if (!eventAggregates.onCourtIds.has(p.id.toString())) return p;
+      const startClock = eventAggregates.stintStarts.get(p.id.toString()) ?? 0;
+      const currentStintSecs = Math.max(0, startClock - clockSeconds);
+      // calculatePlayerAggregates already added time until 0:00 (endClock: 0)
+      // So we subtract the time that hasn't happened yet in the current stint.
+      return {
+        ...p,
+        min: roundToOne(p.min - startClock / 60 + currentStintSecs / 60),
+      };
+    });
+  }, [
+    statsGridDataRaw,
+    eventAggregates.onCourtIds,
+    eventAggregates.stintStarts,
+    clockSeconds,
+  ]);
+
   const statsMap = useMemo(() => {
     const map = new Map<string, PlayerAggregates>();
     for (let i = 0; i < statsGridData.length; i++) {
@@ -2690,6 +2753,41 @@ const GameMode: React.FC = () => {
    * 🏀 Playbook: handleFlagLastPlay
    * Bookmarks the most recent recorded event.
    */
+  const handleRecordHustle = useCallback(
+    async (type: string) => {
+      if (!gameId || !selectedPlayerId || isReadOnly) {
+        setSnackbar({
+          open: true,
+          message: "Select a player first",
+          severity: "warning",
+        });
+        return;
+      }
+      try {
+        await db.open();
+        await db.stats.add({
+          id: crypto.randomUUID(),
+          gameId,
+          playerId: selectedPlayerId,
+          type,
+          period,
+          clockTime: clockSeconds,
+          timestamp: new Date().toISOString(),
+          synced: 0,
+        });
+        await syncService.pushUpdates();
+        setSnackbar({
+          open: true,
+          message: `${type.replace("_", " ")} recorded`,
+          severity: "success",
+        });
+      } catch (err) {
+        logger.error("Failed to record hustle stat:", err);
+      }
+    },
+    [gameId, selectedPlayerId, isReadOnly, period, clockSeconds],
+  );
+
   const handleFlagLastPlay = useCallback(async () => {
     const lastStat = gameData.recentStats.find((s) => !s.deletedAt);
     if (!lastStat || !lastStat.id) {
@@ -2820,6 +2918,7 @@ const GameMode: React.FC = () => {
                 onNextPeriod={handleNextPeriod}
                 onTogglePossession={() => handleTogglePossession()}
                 onFlagPlay={handleFlagLastPlay}
+                onRecordHustle={handleRecordHustle}
                 possessionState={gameData.possessionState}
                 recentStatsLength={gameData.recentStats.length}
                 onEndGame={() => setEndGameDialogOpen(true)}

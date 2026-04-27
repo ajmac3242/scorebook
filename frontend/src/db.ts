@@ -116,6 +116,7 @@ export interface StatEvent {
   playName?: string;
   shotType?: "CATCH" | "DRIB";
   shotQuality?: string;
+  playType?: string;
   defensiveScheme?: "MAN" | "ZONE" | "PRESS";
   isBookmarked?: number; // 0 or 1
   relatedPlayerId?: string;
