@@ -68,3 +68,19 @@ Action: Use low-level string iteration for simple extraction logic in performanc
 
 Learning: Standardizing on a single `Map.get()` call followed by a null check, instead of the `Map.has()` followed by `Map.get()` pattern, halves the number of hash-table lookups.
 Action: Always use the single-lookup `get` pattern for Map access in loops.
+
+## 2026-04-27 - Statistical Aggregation and UI Optimization
+Learning: Iterating over MapIterator (Map.values()) in hot loops is slower than standard for-loops over a pre-populated array. Maintaining a local 'activeArray' synchronized with a Map during state-changing events (like SUB_IN/OUT) enables high-performance traversals in hot O(N) paths.
+Action: Use local arrays for frequent traversals of active entities in high-frequency event loops.
+
+Learning: 'Loop inversion' in nested statistical updates (e.g., calculateOnOffStats) significantly reduces branching. By determining which stat field to increment once per event, the inner player loop becomes a tight sequence of arithmetic operations without redundant conditional logic.
+Action: Move event-type branching outside of player-iteration loops in aggregation logic.
+
+Learning: Flattening consolidated 'stats objects' into individual numeric parameters in helper functions (like recordLineupStint) eliminates thousands of temporary object allocations during full-game processing. This reduces memory churn and GC pressure in computation-heavy utilities.
+Action: Avoid passing temporary objects as parameters in hot paths; use primitive arguments instead.
+
+Learning: Performing a fast character check on string prefixes (e.g., playerId[0] === 'O') before executing full string comparisons or startsWith calls accelerates lookups in mixed-ID datasets. This provides a cheap early-exit for team-player IDs in hot loops.
+Action: Use character-prefix pre-checks to prune string-heavy branching logic.
+
+Learning: Referencing lower-level, more stable memos (like eventAggregates) instead of composite high-level memos (like gameData) in UI hooks prevents circular dependencies and ReferenceErrors during component initialization.
+Action: Map hook dependencies to the most granular stable ancestor to avoid initialization race conditions.
