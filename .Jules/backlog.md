@@ -1,3 +1,53 @@
+## Dynamic "Target Attack" Identifier
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Coaches often miss which opponent defender is the "weak link" or which specific matchup is most exploitable in real-time. This tool automates the identification of mismatches to drive play-calling.
+**What:** Implement an intelligence layer that correlates Matchup Tracking with Points Per Possession (PPP). It should highlight which opponent player is allowing the highest PPP and suggest which of our players should be the primary attacker.
+**Acceptance Criteria:**
+- [ ] Live HUD element in GameMode showing "Top Attack Target" (Opponent Jersey #).
+- [ ] Real-time "Mismatch Alert" when a specific defender's Stop % drops below a configurable threshold.
+- [ ] "Targeted Play" recommendation based on which of our players has the best eFG% against that specific defender's archetype.
+
+## Strategic Timeout & Game State Advisor
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Timeout decisions in the 4th quarter are high-stress. An advisor that considers remaining timeouts, foul situation, and momentum helps coaches make the "mathematically correct" call.
+**What:** Build a "Decision Support" engine that analyzes game state (Score, Time, Fouls, Momentum) and provides a recommended action during dead balls.
+**Acceptance Criteria:**
+- [ ] "Timeout Logic" that triggers a recommendation when the opponent is on a 6-0 run OR when a star player enters foul trouble.
+- [ ] Late-game "Situational HUD" (e.g., "Down 2, 10s left: Recommendation - Attack the rim for 2PT to tie").
+- [ ] Visual indicator of "Effective Timeouts Remaining" considering the game's current pace and remaining duration.
+
+## Automated Post-Game Player Performance Narratives
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Players often don't understand raw stats. Converting data into "Narratives" (e.g., "You were elite at closing out but struggled with ball security") makes coaching feedback more digestible and actionable.
+**What:** Use the accumulated StatEvents to generate a 3-sentence performance summary for every player who played > 5 minutes.
+**Acceptance Criteria:**
+- [ ] "Player Feedback" section in the Game Stats page.
+- [ ] Automated generation of one "Strength" (e.g., "High Efficiency from Corner 3") and one "Growth Area" (e.g., "High TO rate on drives").
+- [ ] Ability for the coach to "Approve & Send" the narrative to the player via text/email.
+
+## Live "Game Identity" Radar
+**Priority:** HIGH
+**Type:** UX
+**Why:** Teams often lose their "Identity" (e.g., "We are a fast-break team") during high-pressure games. A radar chart comparing live performance against the "Team Blueprint" keeps the team focused.
+**What:** A real-time Radar Chart in GameMode that compares current game Four Factors and Pace against the team's season-long averages (the "Blueprint").
+**Acceptance Criteria:**
+- [ ] Interactive Radar Chart in the GameMode sidebar.
+- [ ] Overlay of "Current Game" (Solid) vs "Season Average" (Dashed) for: Pace, eFG%, TO%, ORB%, and FT Rate.
+- [ ] "Identity Alert" when a core metric deviates by more than 20% from the blueprint.
+
+## Integrated Practice Prescription Engine
+**Priority:** HIGH
+**Type:** Feature
+**Why:** The best coaches use game data to plan the next practice. This feature closes the loop by suggesting specific drills based on the team's statistical failures in the last game.
+**What:** A logic engine that maps low KPI performance (e.g., low FT%, high TOs) to a library of suggested practice drills.
+**Acceptance Criteria:**
+- [ ] "Practice Planner" button on the Game Stats page.
+- [ ] Automatic suggestion of 3 "Focus Areas" based on the game's worst-performing metrics.
+- [ ] Linkage to a (mock) library of drills (e.g., "Poor 3PT% -> Suggest '100 Makes' Drill").
+
 ## Coach-Assistant Live Sync Bridge
 **Priority:** HIGH
 **Type:** Feature
