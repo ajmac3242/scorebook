@@ -2,6 +2,7 @@ import React from "react";
 import { Box } from "@mui/material";
 
 import { getHeatmapColor } from "../utils/shotZones";
+import { formatClock } from "../utils/mathUtils";
 
 interface Marker {
   id?: string | number;
@@ -12,6 +13,8 @@ interface Marker {
   color?: string;
   playerId?: string | number;
   playerName?: string;
+  clockTime?: number;
+  period?: number;
 }
 
 interface HeatmapData {
@@ -342,6 +345,8 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
             const svgX = (marker.x / 100) * 500;
             const svgY = (marker.y / 100) * 470;
 
+            const markerAriaLabel = `${marker.type} by ${marker.playerName ? marker.playerName : marker.label ? `#${marker.label}` : "Opponent"}${marker.period ? `, Period ${marker.period}` : ""}${marker.clockTime !== undefined ? ` at ${formatClock(marker.clockTime)}` : ""}`;
+
             return (
               <g
                 key={marker.id || index}
@@ -357,14 +362,14 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
                 }}
                 role="button"
                 tabIndex={0}
-                aria-label={`${marker.type} by ${marker.playerName ? marker.playerName : marker.label ? `#${marker.label}` : "Opponent"}`}
+                aria-label={markerAriaLabel}
                 style={{
                   cursor: onMarkerClick ? "pointer" : "default",
                   outline: "none",
                 }}
                 className="court-marker-group"
               >
-                <title>{`${marker.type} - ${marker.playerName ? marker.playerName : marker.label ? "#" + marker.label : "Opponent"}`}</title>
+                <title>{markerAriaLabel}</title>
                 <circle
                   className={isLatest ? "latest-marker" : "court-marker"}
                   cx={svgX}
@@ -374,7 +379,7 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
                   fillOpacity={isLatest ? "1" : "0.8"}
                   stroke={color}
                   strokeWidth={isLatest ? "2" : "1"}
-                  aria-label={`${marker.type} by ${marker.playerName ? marker.playerName : marker.label ? `#${marker.label}` : "Opponent"}`}
+                  aria-label={markerAriaLabel}
                 />
                 {marker.label && (
                   <text

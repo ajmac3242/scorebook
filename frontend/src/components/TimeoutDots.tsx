@@ -23,7 +23,11 @@ const TimeoutDots: React.FC<TimeoutDotsProps> = ({
     alignItems="center"
     data-testid={testId}
     role="img"
-    aria-label={`${count} timeouts remaining`}
+    aria-label={
+      testId?.includes("opp")
+        ? `Opponent timeouts: ${count} of ${total} remaining`
+        : `Team timeouts: ${count} of ${total} remaining`
+    }
     aria-live="polite"
   >
     {Array.from({ length: total }).map((_, i) => {

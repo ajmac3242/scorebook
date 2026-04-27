@@ -56,6 +56,10 @@ const TacticalGoalHUD: React.FC<TacticalGoalHUDProps> = ({ goals, currentStats }
                   variant="determinate"
                   value={progress}
                   color={isMet ? "success" : "warning"}
+                  aria-valuenow={current}
+                  aria-valuemin={0}
+                  aria-valuemax={target}
+                  aria-label={`${goal.label} progress`}
                   sx={{ height: 6, borderRadius: 3, bgcolor: "rgba(0,0,0,0.05)" }}
                 />
               </Tooltip>

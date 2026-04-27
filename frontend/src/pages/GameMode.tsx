@@ -592,16 +592,32 @@ const Scoreboard = React.memo(
           >
             <Typography
               sx={{
-                color: "white",
+                color: isClockRunning ? "white" : "rgba(255,255,255,0.4)",
                 fontSize: { xs: "1.5rem", sm: "2.5rem" },
                 fontWeight: 700,
                 fontFamily: "'Courier New', monospace",
                 lineHeight: 1,
                 letterSpacing: 1,
+                transition: "color 0.3s ease",
               }}
             >
               {formatClock(clockSeconds)}
             </Typography>
+
+            {!isClockRunning && clockSeconds > 0 && (
+              <Typography
+                variant="caption"
+                sx={{
+                  color: "rgba(255,255,255,0.3)",
+                  fontWeight: 900,
+                  fontSize: "0.55rem",
+                  letterSpacing: 1,
+                  mt: 0.5,
+                }}
+              >
+                PAUSED
+              </Typography>
+            )}
 
             {/* Sliding Progress Indicator */}
             <Box
@@ -871,7 +887,7 @@ const ActionControls = React.memo(
           alignItems: "center",
         }}
       >
-        <Tooltip title="Advance to Next Period">
+        <Tooltip title="Advance to Next Period (P)">
           <span>
             <Button
               size="small"
@@ -879,7 +895,7 @@ const ActionControls = React.memo(
               startIcon={<History />}
               onClick={onNextPeriod}
               disabled={isReadOnly}
-              aria-label="Advance to Next Period"
+              aria-label="Advance to Next Period (P)"
             >
               Period
             </Button>
@@ -1759,51 +1775,6 @@ const GameMode: React.FC = () => {
     clockSeconds,
   ]);
 
-  /**
-   * ⚡ Bolt: Lightweight live status updates.
-   * Performance: This O(1) memoization handles values that change every second
-   * (like the clock) to avoid reprocessing the entire O(N) event stream.
-   */
-  const statsGridDataRaw = useMemo(() => {
-    return calculatePlayerAggregates(
-      players,
-      sortedGameStats,
-      teamPlayers,
-      "total",
-      {
-        isSorted: true,
-        periodLength: game?.periodLength,
-        // ⚡ Bolt: Lightweight clock update decoupling.
-        // Assume player played until end of game for initial aggregation.
-        // Live adjustment for statsGridData.
-        liveContext: { clockTime: 0, period },
-      },
-    );
-  }, [players, sortedGameStats, teamPlayers, game?.periodLength, period]);
-
-  /**
-   * ⚡ Bolt: Live adjustment for stats grid.
-   * Performance: Only adjusts the MIN and plus-minus for active players based
-   * on the current clock, avoiding a full O(N) re-calculation.
-   */
-  const statsGridData = useMemo(() => {
-    return statsGridDataRaw.map((p) => {
-      if (!eventAggregates.onCourtIds.has(p.id.toString())) return p;
-      const startClock = eventAggregates.stintStarts.get(p.id.toString()) ?? 0;
-      const currentStintSecs = Math.max(0, startClock - clockSeconds);
-      // calculatePlayerAggregates already added time until 0:00 (endClock: 0)
-      // So we subtract the time that hasn't happened yet in the current stint.
-      return {
-        ...p,
-        min: roundToOne(p.min - startClock / 60 + currentStintSecs / 60),
-      };
-    });
-  }, [
-    statsGridDataRaw,
-    eventAggregates.onCourtIds,
-    eventAggregates.stintStarts,
-    clockSeconds,
-  ]);
 
   const statsMap = useMemo(() => {
     const map = new Map<string, PlayerAggregates>();
@@ -2137,6 +2108,8 @@ const GameMode: React.FC = () => {
         label: !isOpp ? (jerseyMap.get(pId) ?? "") : undefined,
         playerName: playerNamesMap.get(pId),
         color: isOpp ? oppColor : undefined,
+        clockTime: s.clockTime,
+        period: s.period,
       });
     }
     return res;
@@ -2562,25 +2535,29 @@ const GameMode: React.FC = () => {
     });
   }, [gameId]);
 
-  // 🧠 Clarity: Keyboard shortcut for Undo (Ctrl+Z) and Clock Toggle (Space)
+  // 🧠 Clarity: Keyboard shortcut for Undo (Ctrl+Z), Period (P) and Clock Toggle (Space)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      const isInput =
+        document.activeElement?.tagName === "INPUT" ||
+        document.activeElement?.tagName === "TEXTAREA";
+
       if ((e.ctrlKey || e.metaKey) && e.key === "z") {
         e.preventDefault();
         handleUndo();
       }
-      if (
-        e.key === " " &&
-        document.activeElement?.tagName !== "INPUT" &&
-        document.activeElement?.tagName !== "TEXTAREA"
-      ) {
+      if (e.key === " " && !isInput) {
         e.preventDefault();
         handleToggleClock();
+      }
+      if (e.key.toLowerCase() === "p" && !isInput && !isReadOnly) {
+        e.preventDefault();
+        handleNextPeriod();
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [handleUndo, handleToggleClock]);
+  }, [handleUndo, handleToggleClock, handleNextPeriod, isReadOnly]);
 
   const handleEditClock = useCallback(
     async (mins: number, secs: number) => {
@@ -3973,6 +3950,13 @@ const GameMode: React.FC = () => {
                 icon={Warning}
                 statType={statType}
                 setStatType={setStatType}
+                warning={(() => {
+                  if (!selectedPlayerId) return false;
+                  const s = statsMap.get(selectedPlayerId);
+                  const foulLimit =
+                    game?.foulLimit || team?.defaultFoulLimit || 5;
+                  return (s?.fouls || 0) >= foulLimit - 1;
+                })()}
               />
               {(() => {
                 const fouls =
@@ -4144,6 +4128,9 @@ const GameMode: React.FC = () => {
       >
         <DialogTitle sx={{ fontFamily: "var(--serif)" }}>End Game?</DialogTitle>
         <DialogContent>
+          {isEnding && (
+            <LinearProgress sx={{ mb: 2, borderRadius: 1 }} />
+          )}
           <DialogContentText>
             Is the game finished? Once ended, the results will be finalized for
             team averages.
@@ -4583,30 +4570,47 @@ const QuickAction: React.FC<{
   icon: React.ElementType;
   statType: string | null;
   setStatType: (_type: string | null) => void;
-}> = React.memo(({ type, label, icon: Icon, statType, setStatType }) => (
-  <Tooltip title={label}>
-    <Button
-      variant={statType === type ? "contained" : "outlined"}
-      color="inherit"
-      aria-pressed={statType === type}
-      aria-label={`Record ${label}`}
-      onClick={() => {
-        setStatType(type);
-      }}
-      sx={{
-        flexDirection: "column",
-        py: 2,
-        minWidth: 80,
-        borderColor: "#D1D1D1",
-        backgroundColor: statType === type ? "primary.main" : "transparent",
-        color: statType === type ? "white" : "text.primary",
-      }}
-    >
-      <Icon sx={{ mb: 1 }} />
-      <Typography variant="caption">{label}</Typography>
-    </Button>
-  </Tooltip>
-));
+  warning?: boolean;
+}> = React.memo(
+  ({ type, label, icon: Icon, statType, setStatType, warning }) => (
+    <Tooltip title={warning && type === ACTION_TYPES.FOUL ? `${label} (Foul Trouble!)` : label}>
+      <Button
+        variant={statType === type ? "contained" : "outlined"}
+        color={warning && type === ACTION_TYPES.FOUL ? "error" : "inherit"}
+        aria-pressed={statType === type}
+        aria-label={`Record ${label}${warning && type === ACTION_TYPES.FOUL ? " - Foul Trouble!" : ""}`}
+        onClick={() => {
+          setStatType(type);
+        }}
+        sx={{
+          flexDirection: "column",
+          py: 2,
+          minWidth: 80,
+          borderColor: warning && type === ACTION_TYPES.FOUL ? "error.main" : "#D1D1D1",
+          backgroundColor:
+            statType === type
+              ? warning && type === ACTION_TYPES.FOUL
+                ? "error.main"
+                : "primary.main"
+              : "transparent",
+          color:
+            statType === type
+              ? "white"
+              : warning && type === ACTION_TYPES.FOUL
+                ? "error.main"
+                : "text.primary",
+          animation:
+            warning && type === ACTION_TYPES.FOUL && statType !== type
+              ? `${pulse} 2s infinite ease-in-out`
+              : "none",
+        }}
+      >
+        <Icon sx={{ mb: 1 }} />
+        <Typography variant="caption">{label}</Typography>
+      </Button>
+    </Tooltip>
+  ),
+);
 
 /**
  * 🏀 CoachBoard: EditClockDialog
@@ -4658,7 +4662,27 @@ const EditClockDialog: React.FC<{
               </IconButton>
               <Typography
                 variant="h4"
-                sx={{ fontWeight: 800, minWidth: "2ch" }}
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === "ArrowUp") {
+                    e.preventDefault();
+                    setMins(Math.min(99, mins + 1));
+                  } else if (e.key === "ArrowDown") {
+                    e.preventDefault();
+                    setMins(Math.max(0, mins - 1));
+                  }
+                }}
+                sx={{
+                  fontWeight: 800,
+                  minWidth: "2ch",
+                  cursor: "ns-resize",
+                  "&:focus": {
+                    outline: "2px solid",
+                    outlineColor: "primary.main",
+                    borderRadius: 1,
+                  },
+                }}
+                aria-label={`${mins} minutes. Use up and down arrows to adjust.`}
               >
                 {mins}
               </Typography>
@@ -4691,7 +4715,27 @@ const EditClockDialog: React.FC<{
               </IconButton>
               <Typography
                 variant="h4"
-                sx={{ fontWeight: 800, minWidth: "2ch" }}
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === "ArrowUp") {
+                    e.preventDefault();
+                    setSecs((secs + 1) % 60);
+                  } else if (e.key === "ArrowDown") {
+                    e.preventDefault();
+                    setSecs((secs - 1 + 60) % 60);
+                  }
+                }}
+                sx={{
+                  fontWeight: 800,
+                  minWidth: "2ch",
+                  cursor: "ns-resize",
+                  "&:focus": {
+                    outline: "2px solid",
+                    outlineColor: "primary.main",
+                    borderRadius: 1,
+                  },
+                }}
+                aria-label={`${secs} seconds. Use up and down arrows to adjust.`}
               >
                 {secs.toString().padStart(2, "0")}
               </Typography>
