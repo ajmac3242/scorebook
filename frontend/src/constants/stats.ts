@@ -58,6 +58,21 @@ export const ACTION_TYPES = {
   SUB_OUT: "SUB_OUT",
   POSSESSION: "POSSESSION",
   MATCHUP: "MATCHUP",
+  DEFLECTION: "DEFLECTION",
+  FLOOR_DIVE: "FLOOR_DIVE",
+  CHARGE_TAKEN: "CHARGE_TAKEN",
+  GREAT_CONTEST: "GREAT_CONTEST",
+};
+
+/**
+ * Opponent Play Types.
+ */
+export const PLAY_TYPES = {
+  PNR: "PnR",
+  ISO: "ISO",
+  POST: "Post",
+  TRANSITION: "Transition",
+  OFF_SCREEN: "Off-Screen",
 };
 
 /**

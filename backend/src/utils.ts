@@ -301,6 +301,7 @@ export function extractRequestMetadata(event: APIGatewayProxyEventV2): {
  *
  * @param a - User-provided key.
  * @param b - Actual secret key.
+ * @returns True if the keys match, false otherwise.
  */
 export function safeCompare(a: string, b: string): boolean {
   const hashA = crypto.createHash("sha256").update(a).digest();
