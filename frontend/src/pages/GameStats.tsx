@@ -178,6 +178,12 @@ const GameStats: React.FC = () => {
     direction: "asc" | "desc";
   }>({ key: "points", direction: "desc" });
 
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity: "success" | "error" | "warning" | "info";
+  }>({ open: false, message: "", severity: "success" });
+
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [keyMomentsOnly, setKeyMomentsOnly] = useState(false);
   const [videoExportDialogOpen, setVideoExportDialogOpen] = useState(false);
@@ -564,6 +570,10 @@ const GameStats: React.FC = () => {
     return liveFourFactors?.opponent || calculateOpponentAggregates(stats);
   }, [stats, liveFourFactors]);
 
+  const matchupStats = useMemo(() => {
+    return calculateMatchupStats(scoreFlowSortedStats);
+  }, [scoreFlowSortedStats]);
+
   const teamSeasonStats = useLiveQuery(async () => {
     if (!game?.teamId) return undefined;
     const games = await db.games.where("teamId").equals(game.teamId).toArray();
@@ -720,6 +730,14 @@ const GameStats: React.FC = () => {
   const scoringRuns = useMemo(() => {
     return calculateScoringRuns(scoreFlowSortedStats);
   }, [scoreFlowSortedStats]);
+
+  const playerNarratives = useMemo(() => {
+    return playerAggregates.map((p) => ({
+      playerId: p.id,
+      name: p.name,
+      narrative: generatePlayerNarrative(p, scoreFlowSortedStats),
+    })).filter((n) => n.narrative !== null);
+  }, [playerAggregates, scoreFlowSortedStats]);
 
   const defensiveStats = useMemo(() => {
     return calculateStopsAndKills(scoreFlowSortedStats);
@@ -1038,20 +1056,22 @@ const GameStats: React.FC = () => {
               </TableCell>
             </TableRow>
           ))}
-          <TableRow
-            sx={{ bgcolor: "primary.light", color: "primary.contrastText" }}
-          >
-            <TableCell sx={{ fontWeight: 700 }}>
-              TEAM TOTALS (PPP: {teamData.ppp})
-            </TableCell>
-            <TableCell align="right">-</TableCell>
-            <TableCell align="right" sx={{ fontWeight: 700 }}>
-              {teamData.points}
-            </TableCell>
-            <TableCell align="right" colSpan={12}>
-              -
-            </TableCell>
-          </TableRow>
+          {teamData && (
+            <TableRow
+              sx={{ bgcolor: "primary.light", color: "primary.contrastText" }}
+            >
+              <TableCell sx={{ fontWeight: 700 }}>
+                TEAM TOTALS (PPP: {teamData.ppp})
+              </TableCell>
+              <TableCell align="right">-</TableCell>
+              <TableCell align="right" sx={{ fontWeight: 700 }}>
+                {teamData.points}
+              </TableCell>
+              <TableCell align="right" colSpan={12}>
+                -
+              </TableCell>
+            </TableRow>
+          )}
           <TableRow sx={{ bgcolor: "secondary.light" }}>
             <TableCell sx={{ fontWeight: 700 }}>
               OPPONENT (PPP: {oppData.ppp})
@@ -2120,6 +2140,51 @@ const GameStats: React.FC = () => {
           </MoleskineCard>
 
           <Grid container spacing={3}>
+            <Grid item xs={12}>
+              <MoleskineCard>
+                <Typography variant="h6" sx={{ fontFamily: "var(--serif)", mb: 2 }}>
+                  Player Performance Feedback
+                </Typography>
+                <Grid container spacing={2}>
+                  {playerNarratives.map((n) => (
+                    <Grid item xs={12} md={6} key={n.playerId}>
+                      <Box sx={{ p: 2, bgcolor: "rgba(0,0,0,0.02)", borderRadius: 2, height: "100%", display: "flex", flexDirection: "column" }}>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 800, mb: 1 }}>
+                          {n.name}
+                        </Typography>
+                        <Typography variant="body2" sx={{ fontStyle: "italic", mb: 2, flexGrow: 1 }}>
+                          "{n.narrative?.summary}"
+                        </Typography>
+                        <Stack direction="row" spacing={1}>
+                          <Chip label={`Strength: ${n.narrative?.strength.split(",")[0]}`} size="small" color="success" sx={{ fontSize: "0.65rem" }} />
+                          <Button
+                            size="small"
+                            variant="outlined"
+                            onClick={() => {
+                              setSnackbar({
+                                open: true,
+                                message: `Narrative for ${n.name} sent to player!`,
+                                severity: "success"
+                              });
+                            }}
+                          >
+                            Approve & Send
+                          </Button>
+                        </Stack>
+                      </Box>
+                    </Grid>
+                  ))}
+                  {playerNarratives.length === 0 && (
+                    <Grid item xs={12}>
+                      <Typography variant="body2" color="text.secondary" align="center" sx={{ py: 4 }}>
+                        No qualifying player performance narratives (min. 5 mins played).
+                      </Typography>
+                    </Grid>
+                  )}
+                </Grid>
+              </MoleskineCard>
+            </Grid>
+
             <Grid item xs={12} md={4}>
               <MoleskineCard>
                 <Typography
@@ -2440,6 +2505,22 @@ const GameStats: React.FC = () => {
           <Button onClick={() => setVideoExportDialogOpen(false)}>Cancel</Button>
         </DialogActions>
       </Dialog>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity}
+          variant="filled"
+          sx={{ width: "100%" }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
 
       <Dialog
         open={deleteDialogOpen}
