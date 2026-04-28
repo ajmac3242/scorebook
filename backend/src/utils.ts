@@ -95,14 +95,18 @@ function sanitizeForLog(obj: unknown, depth = 0): unknown {
   }
 
   const sanitized: Record<string, unknown> = {};
-  for (const [key, value] of Object.entries(obj as Record<string, unknown>)) {
-    // 🛡️ Enhancement: Prevent prototype pollution in logs
-    if (FORBIDDEN_KEYS.has(key)) continue;
+  const record = obj as Record<string, unknown>;
+  for (const key in record) {
+    if (Object.prototype.hasOwnProperty.call(record, key)) {
+      const value = record[key];
+      // 🛡️ Enhancement: Prevent prototype pollution in logs
+      if (FORBIDDEN_KEYS.has(key)) continue;
 
-    if (REDACTED_HEADERS.has(key.toLowerCase())) {
-      sanitized[key] = "[REDACTED]";
-    } else {
-      sanitized[key] = sanitizeForLog(value, depth + 1);
+      if (REDACTED_HEADERS.has(key.toLowerCase())) {
+        sanitized[key] = "[REDACTED]";
+      } else {
+        sanitized[key] = sanitizeForLog(value, depth + 1);
+      }
     }
   }
   return sanitized;
@@ -390,13 +394,14 @@ export function stripLocalFields(data: unknown, depth = 0): unknown {
     return data.map((item) => stripLocalFields(item, depth + 1));
   }
 
-  // ⚡ Bolt: Use Object.entries() for faster object iteration in modern engines.
+  // ⚡ Bolt: Use for...in for faster object iteration and reduced allocations in recursion.
   const result: Record<string, unknown> = {};
-  const entries = Object.entries(data as Record<string, unknown>);
-  for (let i = 0; i < entries.length; i++) {
-    const [key, value] = entries[i];
-    if (!INTERNAL_KEYS.has(key) && !FORBIDDEN_KEYS.has(key)) {
-      result[key] = stripLocalFields(value, depth + 1);
+  const record = data as Record<string, unknown>;
+  for (const key in record) {
+    if (Object.prototype.hasOwnProperty.call(record, key)) {
+      if (!INTERNAL_KEYS.has(key) && !FORBIDDEN_KEYS.has(key)) {
+        result[key] = stripLocalFields(record[key], depth + 1);
+      }
     }
   }
   return result;
