@@ -59,8 +59,10 @@ export function sanitizeOutput(data: unknown, depth = 0): unknown {
   }
 
   if (Array.isArray(data)) {
-    // Optimization: Pre-allocate array if size is known.
-    const len = data.length;
+    // 🛡️ Enhancement: Array Size Limit for DoS Protection
+    // WHY: Limiting the size of arrays processed recursively prevents memory
+    // exhaustion and potential DoS attacks from maliciously crafted large payloads.
+    const len = Math.min(data.length, 1000);
     const result = new Array(len);
     for (let i = 0; i < len; i++) {
       result[i] = sanitizeOutput(data[i], depth + 1);

@@ -223,11 +223,29 @@ export function validateStatEvent(body: unknown): string | null {
     return "Location coordinates must be finite numbers between 0 and 100";
   }
 
+  // 🛡️ Enhancement: Centralized ID and Timestamp validation
+  if (b.id !== undefined && !isValidUuid(b.id)) {
+    return "Invalid stat id format (UUID required)";
+  }
+  if (
+    b.timestamp !== undefined &&
+    (typeof b.timestamp !== "string" ||
+      !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z?$/.test(b.timestamp))
+  ) {
+    return "Invalid timestamp format";
+  }
+
   // 🛡️ Enhancements: Validate relationship IDs, metadata and point consistency
-  if (b.relatedPlayerId !== undefined && !isValidPlayerId(b.relatedPlayerId))
-    return "Invalid relatedPlayerId";
-  if (b.subInPlayerId !== undefined && !isValidPlayerId(b.subInPlayerId))
-    return "Invalid subInPlayerId";
+  if (b.relatedPlayerId !== undefined) {
+    if (!isValidPlayerId(b.relatedPlayerId)) return "Invalid relatedPlayerId";
+    if (b.relatedPlayerId === b.playerId)
+      return "playerId and relatedPlayerId must be different";
+  }
+  if (b.subInPlayerId !== undefined) {
+    if (!isValidPlayerId(b.subInPlayerId)) return "Invalid subInPlayerId";
+    if (b.subInPlayerId === b.subOutPlayerId)
+      return "subInPlayerId and subOutPlayerId must be different";
+  }
   if (b.subOutPlayerId !== undefined && !isValidPlayerId(b.subOutPlayerId))
     return "Invalid subOutPlayerId";
 
@@ -242,6 +260,13 @@ export function validateStatEvent(body: unknown): string | null {
       !["OPEN", "CONTESTED"].includes(b.shotQuality))
   )
     return "Invalid shot quality";
+  if (
+    b.playType !== undefined &&
+    (typeof b.playType !== "string" ||
+      b.playType.trim().length === 0 ||
+      b.playType.length > 50)
+  )
+    return "Invalid play type";
   if (
     b.playName !== undefined &&
     (typeof b.playName !== "string" ||
