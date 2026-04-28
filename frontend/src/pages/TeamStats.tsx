@@ -255,7 +255,7 @@ const TeamStats: React.FC = () => {
 
   const teamPlayerDetails = useMemo(() => {
     // Optimization: Use a single for loop and a Set for O(1) lookups to avoid intermediate array allocations.
-    const playerIdSet = new Set();
+    const playerIdSet = new Set<string>();
     for (let i = 0; i < teamPlayers.length; i++) {
       playerIdSet.add(teamPlayers[i].playerId.toString());
     }
@@ -408,7 +408,7 @@ const TeamStats: React.FC = () => {
 
       // 2. Process remaining jersey updates for players already in the roster
       // Optimization: Use a Set for O(1) existence checks.
-      const existingPlayerIds = new Set();
+      const existingPlayerIds = new Set<string>();
       for (let i = 0; i < teamPlayers.length; i++) {
         existingPlayerIds.add(teamPlayers[i].playerId.toString());
       }
