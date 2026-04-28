@@ -121,3 +121,18 @@
 ### Basketball Edge Cases
 - **Matchup Termination**: A matchup "stop" requires a clean possession end. Any change in ball control (including our scores) must reset the defensive tracking state.
 - **Lineup eFG%**: Calculating eFG% for a lineup requires tracking 3PM and FGM specifically for that 5-man unit's stint duration, not just global team totals.
+
+## 2025-05-31 - Analytics Precision & On/Off Isolation
+
+### Findings & Fixed Bugs
+- **Bug 28: Matchup Possession Overcounting**: Discovered that `calculateMatchupStats` treated every score or turnover as a full possession (1.0). Refactored to track FGA, FTA, TO, and OREB independently to use the standard weighted formula (0.44 for FTAs).
+- **Bug 29: Multi-Game On/Off Skew**: Found that `calculateOnOffStats` incorrectly included team stats from games a player never entered in their "OFF" rating. Implemented game-level isolation to ensure "OFF" metrics only compare stints within games where the player was actually active.
+- **Bug 30: Opponent Scouting Volume Gap**: Identified that `calculateOpponentScoutingStats` only provided cumulative totals. Added a `viewType` parameter to support standard per-game averages for Points, Rebounds, and other volume metrics.
+
+### Critical Test Gaps Filled
+- New comprehensive suite `scout_audit_v5.test.ts` verifying FTA weighting in matchups, multi-game isolation for On/Off impact, and averaged volume stats for scouting.
+- Fixed a `ReferenceError` in `calculateOnOffStats` where `allGameIds` was accessed out of scope.
+
+### Basketball Edge Cases
+- **Possession Weighting**: Accurate PPP and Stop % require weighting FTAs at 0.44 to account for and-ones and technicals. Simple event counting inflates possession volume.
+- **Eligible "OFF" Stats**: A player's impact should only be measured against the games they actually played. Including a 40-minute blowout they didn't attend in their "OFF" rating is statistically invalid.
