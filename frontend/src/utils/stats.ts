@@ -2834,7 +2834,7 @@ export const calculateMatchupStats = (stats: StatEvent[]): MatchupStats[] => {
       }
       inOpponentPossession = false;
       inOurPossession = false;
-    } else if (stat.type === ACTION_TYPES.MISS) {
+    } else if (s.type === ACTION_TYPES.MISS) {
       if (isOpp) {
         inOpponentPossession = true;
         opponentPossessionPlayerId = s.playerId;

@@ -1,29 +1,23 @@
-# Palette's Journal
+# Palette 🎨 - UX & Accessibility Journal
 
-## 2025-05-14 - Standardizing Interactive Feedback
-Learning: Users need immediate confirmation after asynchronous creation actions. Without Snackbars or loading states, the UI feels unresponsive. Adding ARIA labels to icon buttons is a low-effort, high-impact a11y win.
-Action: Always implement `isSubmitting` states and Success Snackbars for any form-based entity creation. Ensure all icon buttons have `aria-label` and `Tooltip`.
+## 2026-04-28 - Strategic Accessibility Enhancements
 
-## 2025-05-14 - Empty State Guidance
-Learning: Plain text empty states are easily missed and don't guide the user. Visual cues like dashed borders and large icons make the "next step" clearer.
-Action: Use a standardized `Box` with dashed borders for empty list states.
+### Learning: Semantic Lists for Screen Readers
+Using `Stack` (div-based) for tactical notes or lists prevents screen readers from announcing the count of items. Converting to `Box component="ul"` with `Box component="li"` preserves the layout while providing critical structural context.
+**Action:** Default to semantic HTML for all instructional or tactical lists.
 
-## 2025-05-14 - Keyboard Support parity
-Learning: Power users expect 'Enter' to submit forms. Adding `onKeyDown` to text fields improves the flow significantly.
-Action: Add Enter-key support to all creation dialogs.
+### Learning: Interactive SVG Accessibility
+Interactive SVG elements like the basketball court need both a descriptive `<desc>` for general purpose and `tabIndex={0}`/`role="button"` for individual markers to be truly keyboard-navigable.
+**Action:** Always include keyboard navigation hints in SVG descriptions.
 
-## 2026-04-02 - UX Guidance and Accessibility Polish
-Learning: Empty dashboards are a major friction point for new users. Direct CTAs like "Create Your First Team" in a prominent Welcome card significantly improve onboarding. Adding aria-label to SVG markers and Tooltips to all game actions makes the core scorekeeping experience more robust and professional.
-Action: Implement prominent "Get Started" CTAs for empty landing pages. Ensure every icon-only button in the hot path has both a Tooltip and a unique ARIA label.
+### Learning: State Communication in Forms
+Standard HTML `required` is often not enough for complex React forms. Adding `aria-required="true"` and `aria-invalid` provides immediate feedback to assistive technology when validation fails.
+**Action:** Enforce ARIA validation attributes on all entity creation forms.
 
-## 2026-04-09 - Feedback Loops and ARIA state
-Learning: Centralized feedback via Snackbars is essential for a "live" tracking experience where actions happen quickly. Adding aria-pressed to toggle buttons in recording dialogs and role="img" with dynamic labels to visual-only indicators (dots/icons) ensures the game state is fully perceivable by all users.
-Action: Implement Snackbar feedback for all CRUD operations in fast-paced interfaces. Ensure every toggle-style button correctly communicates its state via ARIA.
+### Learning: Real-time Feedback for Async Actions
+The "Copy Game ID" feature is a small utility, but providing visual feedback (checkmark icon swap) reduces user uncertainty about whether the action succeeded.
+**Action:** Use icon-swapping or toast notifications for all "invisible" clipboard actions.
 
-## 2026-05-15 - Interactive Resilience & Accessibility Polish
-Learning: Micro-UX improvements like Enter-key submission for fast-paced stat entry and descriptive ARIA labels on timeline audit controls significantly reduce cognitive load. Immediate visual feedback on copy-to-clipboard actions (icon/text swap) transforms a "blind" action into a confirmed success. Dashboard empty states with dashed borders provide a stronger "place-of-onboarding" feel than plain cards.
-Action: Standardize Enter-key support for all high-frequency dialogs. Ensure destructive timeline edits have safety confirmations. Use visual feedback (icon swaps) for non-entity-based async actions.
-
-## 2026-04-21 - Asynchronous Onboarding and Card Accessibility
-Learning: The login process can feel "broken" if large datasets are being pulled in the background without user feedback. A dedicated loading state with thematic visuals (spinning basketball) and progress text sets the right expectation. Card-based navigation requires explicit focus-visible borders and ARIA descriptions to be truly accessible to keyboard and screen reader users.
-Action: Always await critical data syncs during onboarding and provide a visual loader. Ensure interactive cards use `role="button"` and `aria-label` when they trigger navigation.
+### Learning: ARIA Live Regions for Tactical Alerts
+Momentum alerts (scoring runs, foul trouble) are high-priority but dynamic. Placing them in an `aria-live="polite"` region ensures the coach is notified of game shifts without being interrupted by "assertive" announcements.
+**Action:** Use `polite` live regions for all automated tactical insights.
