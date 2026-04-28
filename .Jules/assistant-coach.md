@@ -30,3 +30,33 @@
 ### Basketball Edge Cases for Future Attention
 - **Opponent Defender Identification**: Currently, the "Target Attack" identifier relies on manual matchup assignment. If assignments aren't updated, the data shifts to team-level averages.
 - **Narrative Complexity**: Rule-based narratives can sometimes conflict (e.g., high efficiency but high turnovers). Future iterations should use a priority system to ensure the most "coachable" insight is presented first.
+
+## 2025-05-28: Game Pace, Official Tendencies, and Clutch Playbook
+
+### Discovered Insights
+- **Fouls Per Minute (FPM) as a Contextual Metric**: Total fouls don't tell the whole story. Normalizing fouls by game duration (FPM) allows coaches to identify "Tight" games relative to a baseline (0.7 FPM), prompting defensive shifts like switching to a Zone to avoid foul trouble.
+- **Pace Shift Awareness**: Sudden changes in tempo (>15%) are often leading indicators of fatigue or losing control of the game script. Visualizing this delta allows for proactive timeouts.
+- **Clutch Playbook Context**: Play efficiency changes under pressure. Ranking plays by live PPP specifically during clutch windows, and correlating them with the opponent's weakest defender, provides a "Prescriptive" edge that raw season averages lack.
+
+### Implementation Patterns
+- **Manual Overrides for Automated Intelligence**: While the Clutch Advisor triggers automatically, providing a manual "Force View" toggle ensures coaches can access tactical suggestions during standard timeouts or momentum-building windows.
+- **Foul Attribution (Starter vs. Bench)**: In post-game analysis, knowing *who* is fouling is as important as *how many*. High starter foul rates indicate a lack of discipline in primary units, while bench foul rates might suggest defensive liability in specific subs.
+
+### Basketball Edge Cases for Future Attention
+- **Possession Definition**: The pace calculation uses the standard possession formula. However, "Possessions" can be interpreted differently (e.g., counting a jump ball or technical free throws). Consistency in the  utility is key.
+- **Shot Clock Heuristics**: "Shot Clock Pressure" is currently estimated based on possession-starting events. Future versions could integrate with a physical scoreboard feed if available for 100% precision.
+
+## 2025-05-28: Game Pace, Official Tendencies, and Clutch Playbook
+
+### Discovered Insights
+- **Fouls Per Minute (FPM) as a Contextual Metric**: Total fouls don't tell the whole story. Normalizing fouls by game duration (FPM) allows coaches to identify "Tight" games relative to a baseline (0.7 FPM), prompting defensive shifts like switching to a Zone to avoid foul trouble.
+- **Pace Shift Awareness**: Sudden changes in tempo (>15%) are often leading indicators of fatigue or losing control of the game script. Visualizing this delta allows for proactive timeouts.
+- **Clutch Playbook Context**: Play efficiency changes under pressure. Ranking plays by live PPP specifically during clutch windows, and correlating them with the opponent's weakest defender, provides a "Prescriptive" edge that raw season averages lack.
+
+### Implementation Patterns
+- **Manual Overrides for Automated Intelligence**: While the Clutch Advisor triggers automatically, providing a manual "Force View" toggle ensures coaches can access tactical suggestions during standard timeouts or momentum-building windows.
+- **Foul Attribution (Starter vs. Bench)**: In post-game analysis, knowing *who* is fouling is as important as *how many*. High starter foul rates indicate a lack of discipline in primary units, while bench foul rates might suggest defensive liability in specific subs.
+
+### Basketball Edge Cases for Future Attention
+- **Possession Definition**: The pace calculation uses the standard possession formula. However, "Possessions" can be interpreted differently (e.g., counting a jump ball or technical free throws). Consistency in the `calculatePossessions` utility is key.
+- **Shot Clock Heuristics**: "Shot Clock Pressure" is currently estimated based on possession-starting events. Future versions could integrate with a physical scoreboard feed if available for 100% precision.

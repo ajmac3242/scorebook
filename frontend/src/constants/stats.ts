@@ -94,3 +94,12 @@ export const BONUS_CONFIG: Record<
   QUARTERS: { double: 999, single: 5, warning: 4 },
   HALVES: { double: 10, single: 7, warning: 6 },
 };
+
+/**
+ * 🏀 Assistant Coach: Analytical Baselines
+ */
+export const ANALYTICAL_BASELINES = {
+  DEFAULT_SHOT_CLOCK: 30,
+  BASELINE_FPM: 0.7, // Fouls Per Minute (Average)
+  DEFAULT_TARGET_PACE: 70, // Possessions per 40m
+};

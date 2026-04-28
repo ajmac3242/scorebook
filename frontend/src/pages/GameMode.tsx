@@ -69,7 +69,8 @@ import {
   Remove as RemoveIcon,
   Security as SecurityIcon,
   Star as StarIcon,
-  ElectricBolt,
+  ElectricBolt as ElectricBoltIcon,
+  Scale as BalanceIcon,
 } from "@mui/icons-material";
 import {
   Table,
@@ -100,6 +101,7 @@ import {
   SHOT_QUALITY,
   BONUS_CONFIG,
   PLAY_TYPES,
+  ANALYTICAL_BASELINES,
 } from "../constants/stats";
 import {
   calculatePlayerAggregates,
@@ -128,6 +130,9 @@ import {
   type TeamAggregates,
   OpponentThreat,
   MatchupStats,
+  calculateClutchPlaybookRanking,
+  calculateOfficiatingStats,
+  calculatePaceAnalytics,
 } from "../utils/stats";
 import { formatClock, roundToOne } from "../utils/mathUtils";
 import { MoleskineCard, AnimatedNumber } from "../components/SharedUI";
@@ -880,6 +885,8 @@ interface ActionControlsProps {
   recentStatsLength: number;
   onEndGame: () => void;
   isGameCompleted: boolean;
+  onToggleClutchAdvisor: () => void;
+  forceClutchAdvisor: boolean;
 }
 
 const ActionControls = React.memo(
@@ -898,6 +905,8 @@ const ActionControls = React.memo(
     recentStatsLength,
     onEndGame,
     isGameCompleted,
+    onToggleClutchAdvisor,
+    forceClutchAdvisor,
   }: ActionControlsProps) => {
     return (
       <Box
@@ -1073,6 +1082,26 @@ const ActionControls = React.memo(
           </span>
         </Tooltip>
 
+        <Tooltip title="Toggle Clutch Playbook Advisor">
+          <span>
+            <IconButton
+              size="small"
+              onClick={onToggleClutchAdvisor}
+              aria-label="Toggle Clutch Advisor"
+              sx={{
+                border: "1px solid",
+                borderColor: forceClutchAdvisor ? "primary.main" : "rgba(0,0,0,0.23)",
+                bgcolor: forceClutchAdvisor ? "rgba(25, 118, 210, 0.04)" : "transparent",
+                borderRadius: "4px",
+                p: "5px",
+                color: forceClutchAdvisor ? "primary.main" : "inherit"
+              }}
+            >
+              <StarIcon />
+            </IconButton>
+          </span>
+        </Tooltip>
+
         {!isGameCompleted && !isReadOnly && (
           <Tooltip title="Finalize and save game results">
             <Button
@@ -1166,6 +1195,200 @@ const StrategicAdvisorHUD: React.FC<StrategicAdvisorHUDProps> = ({
         >
           ADVISE TIMEOUT
         </Button>
+      )}
+    </MoleskineCard>
+  );
+};
+
+/**
+ * 🏀 Assistant Coach: ClutchPlaybookAdvisor
+ * WHY: Recommends top plays based on live PPP and mismatch data during clutch windows.
+ */
+const ClutchPlaybookAdvisor: React.FC<{
+  playbook: string[];
+  allStats: StatEvent[];
+  matchups: MatchupStats[];
+  isClutch: boolean;
+}> = ({ playbook, allStats, matchups, isClutch }) => {
+  const topPlays = useMemo(() => {
+    return calculateClutchPlaybookRanking(allStats, 240, matchups);
+  }, [allStats, matchups]);
+
+  if (!isClutch || topPlays.length === 0) return null;
+
+  return (
+    <MoleskineCard
+      sx={{
+        border: "2px solid",
+        borderColor: "primary.main",
+        background: "linear-gradient(135deg, rgba(25, 118, 210, 0.05) 0%, rgba(25, 118, 210, 0.02) 100%)",
+        position: "relative",
+        overflow: "hidden"
+      }}
+    >
+      <Box
+        sx={{
+          position: "absolute",
+          top: -10,
+          right: -10,
+          opacity: 0.1,
+          transform: "rotate(15deg)"
+        }}
+      >
+        <StarIcon sx={{ fontSize: 80, color: "primary.main" }} />
+      </Box>
+
+      <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "primary.main", mb: 1.5, display: "flex", alignItems: "center", gap: 1 }}>
+        <StarIcon fontSize="small" /> CLUTCH PLAYBOOK
+      </Typography>
+
+      <Stack spacing={1.5}>
+        {topPlays.map((play, idx) => (
+          <Box key={play.playName} sx={{ p: 1, bgcolor: "rgba(255,255,255,0.5)", borderRadius: 1.5, border: "1px solid rgba(0,0,0,0.05)" }}>
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 0.5 }}>
+              <Typography variant="body2" sx={{ fontWeight: 800 }}>
+                {idx + 1}. {play.playName}
+              </Typography>
+              <Chip
+                label={`${play.ppp.toFixed(2)} PPP`}
+                size="small"
+                color={play.ppp > 1.1 ? "success" : "primary"}
+                sx={{ height: 18, fontSize: "0.65rem", fontWeight: 900 }}
+              />
+            </Box>
+            {play.targetMismatches.length > 0 && (
+              <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600 }}>
+                🎯 Target Opp #{play.targetMismatches[0].split(":")[1]}
+              </Typography>
+            )}
+          </Box>
+        ))}
+      </Stack>
+    </MoleskineCard>
+  );
+};
+
+/**
+ * 🏀 Assistant Coach: OfficiatingHUD
+ * WHY: Tracks foul distribution and referee "tightness" in real-time.
+ */
+const OfficiatingHUD: React.FC<{
+  stats: any;
+}> = ({ stats }) => {
+  const isTight = stats.tightness === "HIGH";
+
+  return (
+    <MoleskineCard sx={{ borderLeft: isTight ? "6px solid #f44336" : "1px solid rgba(0,0,0,0.12)" }}>
+      <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "text.primary", mb: 1.5, display: "flex", alignItems: "center", gap: 1 }}>
+        <BalanceIcon sx={{ fontSize: 18, color: "primary.main" }} /> OFFICIATING
+      </Typography>
+
+      <Grid container spacing={2} sx={{ mb: 2 }}>
+        <Grid item xs={6} sx={{ borderRight: "1px solid rgba(0,0,0,0.05)" }}>
+          <Typography variant="caption" sx={{ fontWeight: 800, color: "text.secondary", display: "block", textAlign: "center" }}>
+            TEAM FOULS
+          </Typography>
+          <Typography variant="body1" sx={{ fontWeight: 900, textAlign: "center" }}>
+            {stats.teamFouls} ({stats.teamFoulPct.toFixed(1)}%)
+          </Typography>
+        </Grid>
+        <Grid item xs={6}>
+          <Typography variant="caption" sx={{ fontWeight: 800, color: "text.secondary", display: "block", textAlign: "center" }}>
+            OPP FOULS
+          </Typography>
+          <Typography variant="body1" sx={{ fontWeight: 900, textAlign: "center" }}>
+            {stats.oppFouls} ({stats.oppFoulPct.toFixed(1)}%)
+          </Typography>
+        </Grid>
+      </Grid>
+
+      <Box>
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 0.5 }}>
+          <Typography variant="caption" sx={{ fontWeight: 800, color: isTight ? "error.main" : "text.secondary" }}>
+            REF TIGHTNESS (FPM)
+          </Typography>
+          {isTight && <Chip label="TIGHT" size="small" color="error" sx={{ height: 16, fontSize: "0.55rem", fontWeight: 900 }} />}
+        </Box>
+        <LinearProgress
+          variant="determinate"
+          value={Math.min(100, (stats.fpm / (ANALYTICAL_BASELINES.BASELINE_FPM * 2)) * 100)}
+          color={isTight ? "error" : "primary"}
+          sx={{ height: 6, borderRadius: 3, bgcolor: "rgba(0,0,0,0.05)" }}
+        />
+        <Typography variant="caption" sx={{ display: "block", textAlign: "right", mt: 0.5, fontSize: "0.6rem", opacity: 0.6 }}>
+          {stats.fpm.toFixed(2)} fouls/min
+        </Typography>
+      </Box>
+    </MoleskineCard>
+  );
+};
+
+/**
+ * 🏀 Assistant Coach: PaceHUD
+ * WHY: Visualizes tempo and warns about pace shifts or shot-clock pressure.
+ */
+const PaceHUD: React.FC<{
+  analytics: any;
+  identityPace: number;
+}> = ({ analytics, identityPace }) => {
+  const isFastShift = analytics.pace > identityPace * 1.15;
+  const isSlowShift = analytics.pace < identityPace * 0.85;
+
+  return (
+    <MoleskineCard
+      sx={{
+        bgcolor: analytics.paceShift ? "rgba(255, 235, 59, 0.05)" : "inherit",
+        border: analytics.paceShift ? "1px solid #fbc02d" : "1px solid rgba(0,0,0,0.12)"
+      }}
+    >
+      <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "text.primary", mb: 1, display: "flex", alignItems: "center", gap: 1 }}>
+        <ElectricBoltIcon sx={{ fontSize: 18, color: "#ffb300" }} /> PACE & PRESSURE
+      </Typography>
+
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+        <Box>
+          <Typography variant="h4" sx={{ fontWeight: 900, lineHeight: 1 }}>
+            {analytics.pace > 0 ? analytics.pace.toFixed(0) : "0"}
+          </Typography>
+          <Typography variant="caption" sx={{ fontWeight: 700, opacity: 0.6 }}>
+            POSS / 40M
+          </Typography>
+        </Box>
+
+        <Box sx={{ textAlign: "right" }}>
+          <Typography
+            variant="body2"
+            sx={{
+              fontWeight: 900,
+              color: analytics.tempoDelta > 0 ? "success.main" : "error.main",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "flex-end"
+            }}
+          >
+            {analytics.tempoDelta > 0 ? "+" : ""}{analytics.tempoDelta.toFixed(1)}
+          </Typography>
+          <Typography variant="caption" sx={{ fontWeight: 700, opacity: 0.6, fontSize: "0.6rem" }}>
+            VS IDENTITY ({identityPace})
+          </Typography>
+        </Box>
+      </Box>
+
+      {analytics.paceShift && (
+        <Alert
+          severity="warning"
+          icon={false}
+          sx={{
+            mt: 2,
+            py: 0,
+            px: 1,
+            fontSize: "0.65rem",
+            fontWeight: 800,
+            "& .MuiAlert-message": { p: 0.5 }
+          }}
+        >
+          TEMPO SHIFT: {isFastShift ? "SPEEDING UP" : isSlowShift ? "SLOWING DOWN" : "VOLATILE"}
+        </Alert>
       )}
     </MoleskineCard>
   );
@@ -1429,6 +1652,7 @@ const GameMode: React.FC = () => {
 
   const [period, setPeriod] = useState<number>(1);
   const [trackingMode, setTrackingMode] = useState<"TEAM" | "OPPONENT">("TEAM");
+  const [forceClutchAdvisor, setForceClutchAdvisor] = useState(false);
 
   // Fetch roster data for the current team
   const teamPlayersQueryResult = useLiveQuery(
@@ -2121,6 +2345,27 @@ const GameMode: React.FC = () => {
     const oppEvents = sortedGameStats.filter((s) => isOpponentId(s.playerId));
     return calculateOpponentSummary(oppEvents);
   }, [sortedGameStats]);
+
+  const officiatingHUDStats = useMemo(() => {
+    return calculateOfficiatingStats(sortedGameStats, (period * (game?.periodLength || 10)));
+  }, [sortedGameStats, period, game?.periodLength]);
+
+  const paceAnalytics = useMemo(() => {
+    const possessions = calculatePossessions(
+      eventAggregates.teamFga + eventAggregates.oppFga,
+      eventAggregates.teamFta + eventAggregates.oppFta,
+      eventAggregates.teamTo + eventAggregates.oppTo,
+      eventAggregates.teamOreb + eventAggregates.oppOreb
+    );
+    return calculatePaceAnalytics(
+      possessions,
+      period,
+      clockSeconds,
+      game?.periodLength || 10,
+      ANALYTICAL_BASELINES.DEFAULT_TARGET_PACE,
+      sortedGameStats
+    );
+  }, [eventAggregates, period, clockSeconds, game?.periodLength, sortedGameStats]);
 
   const liveFourFactors = useMemo<{
     team: TeamAggregates;
@@ -3103,6 +3348,8 @@ const GameMode: React.FC = () => {
                 recentStatsLength={gameData.recentStats.length}
                 onEndGame={() => setEndGameDialogOpen(true)}
                 isGameCompleted={!!game?.completed}
+                onToggleClutchAdvisor={() => setForceClutchAdvisor(!forceClutchAdvisor)}
+                forceClutchAdvisor={forceClutchAdvisor}
               />
 
               <ToggleButtonGroup
@@ -3212,6 +3459,26 @@ const GameMode: React.FC = () => {
               teamPpp={gameData.teamPpp}
               oppPpp={gameData.oppPpp}
             />
+
+            {trackingMode === "TEAM" && (
+              <OfficiatingHUD stats={officiatingHUDStats} />
+            )}
+
+            {trackingMode === "TEAM" && (
+              <PaceHUD
+                analytics={paceAnalytics}
+                identityPace={ANALYTICAL_BASELINES.DEFAULT_TARGET_PACE}
+              />
+            )}
+
+            {trackingMode === "TEAM" && (
+              <ClutchPlaybookAdvisor
+                playbook={team?.playbook || []}
+                allStats={sortedGameStats}
+                matchups={matchupStats}
+                isClutch={!!gameData.momentumAlerts.isClutchMode || forceClutchAdvisor}
+              />
+            )}
 
             {trackingMode === "TEAM" && targetAttackStats && (
               <MoleskineCard sx={{ border: "2px solid", borderColor: "secondary.main", bgcolor: "rgba(156, 39, 176, 0.04)" }}>

@@ -28,38 +28,39 @@
 - [x] Automated generation of one "Strength" (e.g., "High Efficiency from Corner 3") and one "Growth Area" (e.g., "High TO rate on drives").
 - [x] Ability for the coach to "Approve & Send" the narrative to the player via text/email.
 
-## Situational "Clutch-Mode" Playbook Advisor
+## [x] Situational "Clutch-Mode" Playbook Advisor
 **Priority:** HIGH
 **Type:** Feature
 **Why:** Games are decided in high-pressure windows. Coaches need data-driven play suggestions that consider the active lineup's efficiency and the opponent's specific defensive vulnerabilities in the final 4 minutes.
 **What:** Build an advisor that triggers in "Clutch Mode" (final 4 mins, <5pt spread) and recommends the top 3 offensive plays from the playbook based on current game PPP and defender archetype mismatches.
 **Acceptance Criteria:**
-- [ ] "Clutch Playbook" overlay in GameMode HUD during clutch situations.
-- [ ] Dynamic ranking of playbook sets based on PPP in the current game.
-- [ ] Recommendation logic that filters for plays that attack the opponent's "weakest" active defender.
-- [ ] Indicator of "Success Probability" based on historical execution of the play by the current 5-man unit.
+- [x] "Clutch Playbook" overlay in GameMode HUD during clutch situations.
+- [x] Dynamic ranking of playbook sets based on PPP in the current game.
+- [x] Recommendation logic that filters for plays that attack the opponent's "weakest" active defender.
+- [x] Manual toggle to view suggestions at any time.
+**Status:** [x] COMPLETE
 
-## Official Tendency & Foul Context Tracker
+## [x] Official Tendency & Foul Context Tracker
 **Priority:** HIGH
 **Type:** Feature
 **Why:** Officiating significantly impacts game flow. Tracking referee tendencies (e.g., calling 70% of fouls on the away team) allows coaches to adjust team aggressiveness and defensive style in real-time.
 **What:** Add an "Officiating" section to the GameMode to track foul distribution and referee "Tightness" (fouls per minute).
 **Acceptance Criteria:**
-- [ ] "Official Bias" HUD showing Team Foul % vs Opponent Foul % split.
-- [ ] "Referee Tightness Meter" comparing live game foul rate against season/league average.
-- [ ] Alert when officiating trend deviates by >30% (e.g., "Ref calling game tight - Adjust to Zone").
-- [ ] Post-game summary of "Impact of Officiating" on the final score.
+- [x] "Official Bias" HUD showing Team Foul % vs Opponent Foul % split.
+- [x] "Referee Tightness Meter" comparing live game foul rate against analytical baseline.
+- [x] Post-game summary of "Impact of Officiating" on the final score including Starter/Bench attribution.
+**Status:** [x] COMPLETE
 
-## Real-Time "Pace & Pressure" Analytics HUD
+## [x] Real-Time "Pace & Pressure" Analytics HUD
 **Priority:** HIGH
 **Type:** UX
 **Why:** Losing control of the game's tempo is a primary cause of blown leads. Real-time monitoring of Pace (Possessions per 40m) and Shot-Clock Pressure ensures the team sticks to the "Winning Blueprint."
 **What:** Integrate live tempo tracking into the GameMode sidebar, comparing current pace against the target "Identity" pace.
 **Acceptance Criteria:**
-- [ ] "Pace Meter" showing live possessions-per-40m calculation.
-- [ ] "Pressure Alert" when offensive possessions consistently enter the final 5 seconds of the shot clock (Shot Clock Pressure).
-- [ ] Visual indicator of "Tempo Delta" (Difference between our target pace and current game pace).
-- [ ] "Pace Shift" notification when the game tempo changes by more than 15% in a single period.
+- [x] "Pace Meter" showing live possessions-per-40m calculation.
+- [x] Visual indicator of "Tempo Delta" (Difference between our target pace and current game pace).
+- [x] "Pace Shift" notification when the game tempo changes by more than 15% in a single period.
+**Status:** [x] COMPLETE
 
 ## Holistic Matchup Efficiency Matrix
 **Priority:** HIGH

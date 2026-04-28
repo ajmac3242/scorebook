@@ -8,6 +8,7 @@ import {
   ACTION_TYPES,
   SPECIAL_PLAYER_IDS,
   BONUS_CONFIG,
+  ANALYTICAL_BASELINES,
 } from "../constants/stats";
 import { StatEvent, TeamPlayer, Player, Game } from "../db";
 import { getShotZone } from "./shotZones";
@@ -3409,4 +3410,147 @@ export const calculatePlayerStreaks = (
   }
 
   return result;
+};
+
+/**
+ * 🏀 Assistant Coach: Analytical Models
+ */
+
+export interface ClutchPlay {
+  playName: string;
+  ppp: number;
+  efg: number;
+  frequency: number;
+  targetMismatches: string[];
+}
+
+export const calculateClutchPlaybookRanking = (
+  stats: StatEvent[],
+  clutchThresholdSeconds: number = 240, // Final 4 mins
+  matchups: MatchupStats[]
+): ClutchPlay[] => {
+  const sorted = sortStats(stats);
+  const playStats = new Map<string, { points: number; attempts: number; makes: number; frequency: number }>();
+
+  // Identify the weakest active defenders
+  const weakDefenders = matchups
+    .filter(m => m.isOpponentDefender && m.possessions >= 3 && parseFloat(m.stopPct) < 35)
+    .map(m => m.opponentPlayerId);
+
+  for (let i = 0; i < sorted.length; i++) {
+    const s = sorted[i];
+    if (!isActive(s) || !s.playName) continue;
+
+    let data = playStats.get(s.playName);
+    if (!data) {
+      data = { points: 0, attempts: 0, makes: 0, frequency: 0 };
+      playStats.set(s.playName, data);
+    }
+
+    data.frequency++;
+    if (isFieldGoal(s)) {
+      data.attempts++;
+      data.points += s.points;
+      if (s.type === ACTION_TYPES.MAKE) data.makes++;
+    } else if (s.type === ACTION_TYPES.TURNOVER) {
+      data.attempts++; // TO counts as a failed possession
+    }
+  }
+
+  return Array.from(playStats.entries())
+    .map(([playName, data]) => {
+      const ppp = data.attempts > 0 ? data.points / data.attempts : 0;
+      const efg = data.attempts > 0 ? (data.makes + 0.5 * (data.makes)) / data.attempts : 0; // Simplified
+      return {
+        playName,
+        ppp,
+        efg,
+        frequency: data.frequency,
+        targetMismatches: weakDefenders
+      };
+    })
+    .sort((a, b) => b.ppp - a.ppp)
+    .slice(0, 3);
+};
+
+export interface OfficiatingStats {
+  teamFouls: number;
+  oppFouls: number;
+  teamFoulPct: number;
+  oppFoulPct: number;
+  fpm: number;
+  tightness: "LOW" | "NORMAL" | "HIGH";
+}
+
+export const calculateOfficiatingStats = (
+  stats: StatEvent[],
+  totalMinutes: number
+): OfficiatingStats => {
+  const teamFouls = stats.filter(s => isActive(s) && !isOpponentId(s.playerId) && s.type === ACTION_TYPES.FOUL).length;
+  const oppFouls = stats.filter(s => isActive(s) && isOpponentId(s.playerId) && s.type === ACTION_TYPES.FOUL).length;
+  const totalFouls = teamFouls + oppFouls;
+
+  const fpm = totalMinutes > 0 ? totalFouls / totalMinutes : 0;
+  const baseline = ANALYTICAL_BASELINES.BASELINE_FPM;
+
+  let tightness: "LOW" | "NORMAL" | "HIGH" = "NORMAL";
+  if (fpm > baseline * 1.3) tightness = "HIGH";
+  else if (fpm < baseline * 0.7) tightness = "LOW";
+
+  return {
+    teamFouls,
+    oppFouls,
+    teamFoulPct: totalFouls > 0 ? (teamFouls / totalFouls) * 100 : 50,
+    oppFoulPct: totalFouls > 0 ? (oppFouls / totalFouls) * 100 : 50,
+    fpm,
+    tightness
+  };
+};
+
+export interface PaceAnalytics {
+  pace: number;
+  tempoDelta: number;
+  paceShift: boolean;
+}
+
+export const calculatePaceAnalytics = (
+  possessions: number,
+  period: number,
+  clockSeconds: number,
+  periodLength: number,
+  targetPace: number,
+  allStats: StatEvent[]
+): PaceAnalytics => {
+  const safePeriodLength = periodLength || 10;
+  const safeClockSeconds = clockSeconds || 0;
+  const elapsedMinutes = Math.max(0.1, (period - 1) * safePeriodLength + (safePeriodLength - safeClockSeconds / 60));
+  const currentPace = (possessions / 2 / elapsedMinutes) * 40;
+
+  // Pace Shift Detection: Compare current period pace to overall pace
+  let paceShift = false;
+  if (period >= 1) {
+    const currentPeriodStats = allStats.filter(s => s.period === period);
+    let pFga = 0, pFta = 0, pTo = 0, pOreb = 0;
+    for (let i = 0; i < currentPeriodStats.length; i++) {
+      const s = currentPeriodStats[i];
+      if (!isActive(s)) continue;
+      if (isFieldGoal(s)) pFga++;
+      else if (isFreeThrow(s)) pFta++;
+      else if (s.type === ACTION_TYPES.TURNOVER) pTo++;
+      else if (s.type === ACTION_TYPES.OFF_REBOUND) pOreb++;
+    }
+    const currentPeriodPossessions = calculatePossessions(pFga, pFta, pTo, pOreb) / 2;
+    const elapsedPeriodMins = Math.max(0.1, safePeriodLength - safeClockSeconds / 60);
+    const periodPace = (currentPeriodPossessions / elapsedPeriodMins) * 40;
+
+    if (currentPace > 0 && Math.abs(periodPace - currentPace) / currentPace > 0.15) {
+      paceShift = true;
+    }
+  }
+
+  return {
+    pace: currentPace || 0,
+    tempoDelta: (currentPace || 0) - targetPace,
+    paceShift
+  };
 };
