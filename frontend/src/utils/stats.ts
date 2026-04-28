@@ -2990,6 +2990,12 @@ export const generatePlayerNarrative = (
  * for every event (O(N*P)), we track global totals once and subtract a player's
  * "ON" stats from the "Total" to derive their "OFF" performance.
  *
+ * SECURITY & INTEGRITY: The accuracy of this optimization relies on the
+ * consistency of the event stream. Since 'Total' is global, any stat event
+ * that is NOT attributed to a player while they are on the court will
+ * automatically be attributed to their 'OFF' state. This is mathematically
+ * robust even if players are not subbed in/out perfectly.
+ *
  * @param players - List of players.
  * @param stats - Chronological list of statistical events.
  * @returns Array of On/Off impact statistics.

@@ -195,6 +195,10 @@ class SyncService {
    * between high throughput (faster than one-by-one) and server safety (not
    * overwhelming the Lambda backend or DynamoDB with hundreds of simultaneous requests).
    *
+   * THROUGHPUT DESIGN: The CHUNK_SIZE of 5 is tuned for typical mobile bandwidth
+   * and AWS Lambda concurrency limits. Increasing this may lead to 429 Throttle
+   * responses from the backend or DynamoDB provisioned throughput exceptions.
+   *
    * TRANSACTION SAFETY:
    * Only after a chunk of items is successfully acknowledged by the API do we
    * update their 'synced' status in IndexedDB using a single batched transaction.

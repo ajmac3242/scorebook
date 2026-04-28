@@ -308,6 +308,11 @@ export function extractRequestMetadata(event: APIGatewayProxyEventV2): {
  * requires both buffers to have the exact same length to avoid leaking
  * length information via execution time.
  *
+ * SECURITY CONSTRAINT: Using a fixed-length hash (SHA-256) is critical because
+ * timingSafeEqual throws an error if buffer lengths differ. If we compared raw
+ * strings, an attacker could determine the secret's length by observing
+ * whether the server returns a 500 (length mismatch error) or a 401 (mismatch).
+ *
  * @param a - User-provided key.
  * @param b - Actual secret key.
  * @returns {boolean} True if the keys match.
@@ -363,6 +368,10 @@ export function getHeader(
  *   prevent malicious payloads from modifying the object prototype.
  * - Recursion Depth: Enforces a maximum depth (10) to mitigate stack overflow
  *   Denial-of-Service (DoS) attacks from deeply nested JSON structures.
+ *
+ * SECURITY CONSTRAINT: This function is the primary defense against internal state
+ * corruption. Any new internal-only fields added to the database schema MUST be
+ * added to the INTERNAL_KEYS set to ensure they are stripped here.
  *
  * @param {unknown} data - The data to clean.
  * @param {number} depth - Current recursion depth.

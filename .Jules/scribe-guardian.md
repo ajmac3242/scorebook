@@ -29,3 +29,8 @@ Pattern: For any logic that depends on a fixed data format or uses a mathematica
 Issue: Several core statistical functions and validation helpers relied on implicit constraints or complex state transitions that were not fully documented. Specifically, period transition logic in `isEventInPeriod` and the state machine in `calculateStopsAndKills` were difficult to audit without deeper context.
 Learning: Explicitly documenting "WHY" certain boundaries exist (like OT inclusion in HALVES) and providing tests for these edge cases significantly increases confidence for future refactors.
 Pattern: Pair complex logic updates with "WHY" comments and specific edge-case tests to ensure behavior remains consistent across game formats.
+
+## 2026-05-25 - Performance & Security Guardrails
+Issue: Critical performance optimizations (Bitwise OR for floor) and security boundaries (Mass Assignment Protection) often lack explicit constraint documentation, leading to potential regressions (e.g., bitwise wrapping at 32-bit boundary) or accidental exposure of internal data structures.
+Learning: Documenting the exact boundaries of optimizations (like the 35 million hour limit for `formatClock`) and the role of security layers (like `sanitizeOutput` as a contract enforcer) provides essential guardrails for future maintainers.
+Pattern: For every optimization or security filter, document the "BOUNDARY" (where it fails) and the "RATIONALE" (why it exists) to ensure long-term stability and security.

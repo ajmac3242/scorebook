@@ -42,6 +42,7 @@ describe("validation.ts", () => {
       expect(isValidPlayerId("OPPONENT:5")).toBe(true);
       expect(isValidPlayerId("OPPONENT:0")).toBe(true);
       expect(isValidPlayerId("OPPONENT:99")).toBe(true);
+      expect(isValidPlayerId("OPPONENT:123")).toBe(true);
     });
 
     it("returns false for invalid jersey prefixes", () => {
@@ -49,6 +50,18 @@ describe("validation.ts", () => {
       expect(isValidPlayerId("OPPONENT:abc")).toBe(false);
       expect(isValidPlayerId("OPPONENT:1000")).toBe(false); // more than 3 digits
       expect(isValidPlayerId("PLAYER:12")).toBe(false);
+    });
+
+    it("enforces strict length and digit constraints for jersey prefixes", () => {
+      // Valid lengths (prefix 'OPPONENT:' is length 9)
+      // 9 + 1 = 10 chars (min)
+      expect(isValidPlayerId("OPPONENT:1")).toBe(true);
+      // 9 + 3 = 12 chars (max)
+      expect(isValidPlayerId("OPPONENT:999")).toBe(true);
+
+      // Invalid lengths
+      expect(isValidPlayerId("OPPONENT:1234")).toBe(false); // 13 chars
+      expect(isValidPlayerId("OPPONENT:")).toBe(false); // 9 chars
     });
 
     it("returns false for invalid inputs", () => {

@@ -43,7 +43,9 @@ export const formatClock = (totalSeconds: number): string => {
   // integers in hot paths, as it effectively truncates decimal places in a single operation.
   //
   // CONSTRAINT: Bitwise operations in JS operate on 32-bit signed integers.
-  // This is safe for totalSeconds up to 2^31 - 1, which exceeds 35,000 hours.
+  // The result of (totalSeconds / 60) must be less than 2^31.
+  // This is safe for totalSeconds up to approx 128 billion (60 * 2^31),
+  // which is approx 35 million hours.
   const mins = (totalSeconds / 60) | 0;
   const secs = totalSeconds % 60;
   return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
@@ -60,6 +62,9 @@ export const formatClock = (totalSeconds: number): string => {
  * It uses specific slice indices (14 to 19) to extract the "mm:ss" portion.
  * Any change to the backend timestamp format (e.g., removing the date prefix or
  * changing precision) MUST be mirrored here to avoid incorrect time display.
+ *
+ * MAINTENANCE ALERT: If switching to a format without 'T' at index 10 or with
+ * varying lengths, this function WILL break and return incorrect data.
  *
  * @param {string} timestamp - ISO timestamp (e.g. "2023-01-01T12:00:30.000Z").
  * @returns {string} The formatted time string (e.g. "00:30").

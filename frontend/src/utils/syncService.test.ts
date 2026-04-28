@@ -276,6 +276,34 @@ describe("SyncService", () => {
 
       loggerErrorSpy.mockRestore();
     });
+
+    it("verifies that successful items are marked as synced even if some items in a batch fail", async () => {
+      // Mock stats table with 3 unsynced items
+      const mockStats = [
+        { id: "s1", synced: 0, gameId: "g1" },
+        { id: "s2", synced: 0, gameId: "g1" },
+        { id: "s3", synced: 0, gameId: "g1" },
+      ];
+      vi.mocked(db.stats.toArray).mockResolvedValue(mockStats);
+      // Other tables empty
+      vi.mocked(db.teams.toArray).mockResolvedValue([]);
+      vi.mocked(db.players.toArray).mockResolvedValue([]);
+      vi.mocked(db.teamPlayers.toArray).mockResolvedValue([]);
+      vi.mocked(db.games.toArray).mockResolvedValue([]);
+
+      // Mock fetch: s1 succeeds, s2 fails, s3 succeeds
+      fetchMock
+        .mockResolvedValueOnce({ ok: true }) // s1
+        .mockResolvedValueOnce({ ok: false, status: 500, text: () => Promise.resolve("fail") }) // s2
+        .mockResolvedValueOnce({ ok: true }); // s3
+
+      await syncService.pushUpdates();
+
+      // update should be called for s1 and s3, but NOT s2
+      expect(db.stats.update).toHaveBeenCalledWith("s1", { synced: 1 });
+      expect(db.stats.update).not.toHaveBeenCalledWith("s2", { synced: 1 });
+      expect(db.stats.update).toHaveBeenCalledWith("s3", { synced: 1 });
+    });
   });
 
   describe("syncAllForTeam", () => {

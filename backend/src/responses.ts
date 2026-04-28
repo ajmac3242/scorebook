@@ -39,6 +39,11 @@ const FORBIDDEN_KEYS = Object.freeze(
  * not exposing the underlying database schema and prevents clients from relying
  * on internal metadata that might change.
  *
+ * SECURITY BOUNDARY: This function ensures that even if the backend logic accidentally
+ * includes internal fields in its response objects, they are stripped before
+ * the data leaves the trusted environment. This implements defense-in-depth by
+ * separating internal data structures from external API contracts.
+ *
  * @param {unknown} data - The data object or array to sanitize.
  * @param {number} depth - Current recursion depth.
  * @returns {unknown} The sanitized data.
