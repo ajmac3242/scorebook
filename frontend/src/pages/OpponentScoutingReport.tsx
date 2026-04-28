@@ -14,7 +14,10 @@ import {
 } from "@mui/material";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "../db";
-import { calculateOpponentScoutingStats } from "../utils/stats";
+import {
+  calculateOpponentScoutingStats,
+  type OpponentAggregates,
+} from "../utils/stats";
 import { MoleskineCard } from "../components/SharedUI";
 import EntityBanner from "../components/EntityBanner";
 import { Groups as OpponentsIcon } from "@mui/icons-material";
@@ -50,7 +53,7 @@ const OpponentScoutingReport: React.FC = () => {
   );
 
   const scoutingStats = useMemo(() => {
-    if (!stats) return new Map();
+    if (!stats) return new Map<string, OpponentAggregates>();
     return calculateOpponentScoutingStats(stats);
   }, [stats]);
 

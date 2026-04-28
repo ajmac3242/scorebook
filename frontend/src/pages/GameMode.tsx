@@ -2025,9 +2025,6 @@ const GameMode: React.FC = () => {
 
   const timeoutRecommendation = useMemo(() => {
     if (!game) return null;
-    const oppRunPoints = gameData?.momentumAlerts.opponentRun
-      ? parseInt(gameData.momentumAlerts.opponentRun.split("-")[0])
-      : 0;
 
     return calculateTimeoutRecommendation({
       opponentRun: gameData?.momentumAlerts.opponentRun || null,
@@ -2039,7 +2036,7 @@ const GameMode: React.FC = () => {
       clockSeconds,
       period,
     });
-  }, [game, gameData, eventAggregates, clockSeconds, period, team]);
+  }, [game, gameData, eventAggregates, clockSeconds, period]);
 
   // Initialize draft state when dialog opens
   useEffect(() => {

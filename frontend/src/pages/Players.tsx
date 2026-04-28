@@ -26,7 +26,11 @@ import {
 } from "@mui/icons-material";
 import { db } from "../db";
 import { syncService } from "../utils/syncService";
-import { getInitials, calculatePlayerAggregates } from "../utils/stats";
+import {
+  getInitials,
+  calculatePlayerAggregates,
+  type PlayerAggregates,
+} from "../utils/stats";
 import { MoleskineCard, StatItem } from "../components/SharedUI";
 import { useLiveQuery } from "dexie-react-hooks";
 import { logger } from "../utils/logger";
@@ -81,7 +85,7 @@ const Players: React.FC = () => {
       "average",
     );
     // Optimization: Create the map in a single pass using a for loop to avoid intermediate array allocation from map().
-    const aggMap = new Map();
+    const aggMap = new Map<string | number, PlayerAggregates>();
     for (let i = 0; i < aggregates.length; i++) {
       const a = aggregates[i];
       aggMap.set(a.id, a);
