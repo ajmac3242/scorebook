@@ -117,14 +117,6 @@ async function handlePlayers(
         requestId,
       );
     }
-    return await createItem(
-      "PLAYER",
-      "METADATA",
-      "PLAYER",
-      body,
-      tableName,
-      requestId,
-    );
   }
 
   // Member endpoints: /players/{playerId}

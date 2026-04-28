@@ -91,7 +91,10 @@ function sanitizeForLog(obj: unknown, depth = 0): unknown {
   if (depth > 10) return "[DEPTH_LIMIT_REACHED]";
 
   if (Array.isArray(obj)) {
-    return obj.map((item) => sanitizeForLog(item, depth + 1));
+    // 🛡️ Enhancement: Array Size Limit for Log DoS Protection
+    return obj
+      .slice(0, 1000)
+      .map((item) => sanitizeForLog(item, depth + 1));
   }
 
   const sanitized: Record<string, unknown> = {};
@@ -263,14 +266,20 @@ export function normalizePath(event: APIGatewayProxyEventV2): string {
   // ⚡ Bolt: Use regex for cleaner prefix and trailing slash normalization.
   let path = raw.replace(/^\/(\$default|api)/, "");
 
-  // 🛡️ Enhancement: Path Traversal Protection
-  // WHY: Removing '..' sequences prevents attackers from attempting to
-  // navigate out of the intended API path structure via URL manipulation.
-  while (path.includes("..")) {
-    path = path
-      .replace(/\.\.\//g, "")
-      .replace(/\/\.\./g, "")
-      .replace(/\.\./g, "");
+  // 🛡️ Enhancement: Robust Path Traversal Protection
+  // WHY: Decoding the path and removing '..' sequences prevents attackers from
+  // navigating out of the intended API structure via URL manipulation or
+  // obfuscated (e.g., %2e%2e) traversal attempts.
+  try {
+    path = decodeURIComponent(path);
+  } catch {
+    // If decoding fails (malformed URL), treat as root for safety
+    return "/";
+  }
+
+  // 🛡️ Enhancement: Block Path Traversal
+  if (path.includes("..") || path.includes("%2e%2e")) {
+    return "/";
   }
 
   // ⚡ Bolt: Cleanup multiple forward slashes and trailing slash.
@@ -391,7 +400,10 @@ export function stripLocalFields(data: unknown, depth = 0): unknown {
   }
 
   if (Array.isArray(data)) {
-    return data.map((item) => stripLocalFields(item, depth + 1));
+    // 🛡️ Enhancement: Array Size Limit for Mass Assignment Protection
+    return data
+      .slice(0, 1000)
+      .map((item) => stripLocalFields(item, depth + 1));
   }
 
   // ⚡ Bolt: Use for...in for faster object iteration and reduced allocations in recursion.
