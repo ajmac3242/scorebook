@@ -42,3 +42,13 @@
 **Vulnerability:** In high-volume serverless environments, correlating log entries with specific HTTP requests is critical for security auditing and incident response. Without a consistent request ID across logs and responses, it is difficult to trace an attacker's actions or diagnose potential exploitation attempts across multiple Lambda invocations.
 **Learning:** Observability is a core component of security. Being able to definitively link a set of logs to a specific transaction improves the "Detect" and "Respond" phases of security operations.
 **Prevention:** Pass the Lambda `requestId` through all logging utilities and include it in the `X-Request-Id` response header to ensure end-to-end traceability.
+
+## 2026-04-28 - [Robust Path Normalization] 
+**Vulnerability:** URL-encoded path traversal sequences (e.g., %2e%2e) could potentially bypass simple string-based '..' checks in API Gateway V2. 
+**Learning:** Always decode URIs (`decodeURIComponent`) before performing path traversal checks to ensure consistency between the security logic and the final resource access. 
+**Prevention:** Implement mandatory decoding at the entry point of path normalization utilities.
+
+## 2026-04-28 - [Recursive Sanitization DoS Protection] 
+**Vulnerability:** Unbounded recursion or extremely large arrays in data sanitization (output redacting, log masking) can lead to memory exhaustion and DoS. 
+**Learning:** Implement explicit array size limits (e.g., 1000 items) in all recursive sanitization and mass-assignment protection functions. 
+**Prevention:** Enforce maximum collection sizes at the data boundary.
