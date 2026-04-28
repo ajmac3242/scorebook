@@ -63,6 +63,70 @@ const FORBIDDEN_KEYS = Object.freeze(
 );
 
 /**
+ * Redacts values in a record if their keys match a sensitive set.
+ * If sensitiveKeys is not provided, all keys are redacted.
+ *
+ * @param record - The record to redact.
+ * @param sensitiveKeys - Optional set of keys to redact (case-insensitive).
+ * @param redactor - Optional custom redaction function.
+ */
+function redactRecord<T>(
+  record: Record<string, T>,
+  sensitiveKeys?: ReadonlySet<string>,
+  redactor: (val: T) => any = () => "[REDACTED]",
+): Record<string, any> {
+  const result: Record<string, any> = { ...record };
+  for (const key in result) {
+    if (Object.prototype.hasOwnProperty.call(result, key)) {
+      if (!sensitiveKeys || sensitiveKeys.has(key.toLowerCase())) {
+        result[key] = redactor(result[key]);
+      }
+    }
+  }
+  return result;
+}
+
+/**
+ * Core recursive object transformation logic for security sanitization.
+ *
+ * @param data - The data to transform.
+ * @param transform - Callback to transform or skip a specific key/value.
+ * @param depth - Current recursion depth.
+ */
+function recursiveTransform(
+  data: unknown,
+  transform: (key: string, value: unknown) => { skip: boolean; value?: unknown },
+  depth = 0,
+): unknown {
+  if (data === null || typeof data !== "object") return data;
+  if (depth > 10) return Array.isArray(data) ? [] : {};
+
+  if (Array.isArray(data)) {
+    return data
+      .slice(0, 1000)
+      .map((item) => recursiveTransform(item, transform, depth + 1));
+  }
+
+  const result: Record<string, unknown> = {};
+  const record = data as Record<string, unknown>;
+  for (const key in record) {
+    if (Object.prototype.hasOwnProperty.call(record, key)) {
+      if (FORBIDDEN_KEYS.has(key)) continue;
+
+      const { skip, value } = transform(key, record[key]);
+      if (!skip) {
+        result[key] = recursiveTransform(
+          value !== undefined ? value : record[key],
+          transform,
+          depth + 1,
+        );
+      }
+    }
+  }
+  return result;
+}
+
+/**
  * Pre-compiled regex for redacting sensitive terms from logs.
  *
  * WHY: Re-creating regex objects or iterating over headers in every log call
@@ -86,30 +150,13 @@ const REDACTION_REGEX = new RegExp(`(${REDACTION_PATTERN})`, "gi");
  * @param {number} depth - Current recursion depth.
  * @returns {unknown} A sanitized copy of the object.
  */
-function sanitizeForLog(obj: unknown, depth = 0): unknown {
-  if (obj === null || typeof obj !== "object") return obj;
-  if (depth > 10) return "[DEPTH_LIMIT_REACHED]";
-
-  if (Array.isArray(obj)) {
-    return obj.map((item) => sanitizeForLog(item, depth + 1));
-  }
-
-  const sanitized: Record<string, unknown> = {};
-  const record = obj as Record<string, unknown>;
-  for (const key in record) {
-    if (Object.prototype.hasOwnProperty.call(record, key)) {
-      const value = record[key];
-      // 🛡️ Enhancement: Prevent prototype pollution in logs
-      if (FORBIDDEN_KEYS.has(key)) continue;
-
-      if (REDACTED_HEADERS.has(key.toLowerCase())) {
-        sanitized[key] = "[REDACTED]";
-      } else {
-        sanitized[key] = sanitizeForLog(value, depth + 1);
-      }
+function sanitizeForLog(obj: unknown): unknown {
+  return recursiveTransform(obj, (key) => {
+    if (REDACTED_HEADERS.has(key.toLowerCase())) {
+      return { skip: false, value: "[REDACTED]" };
     }
-  }
-  return sanitized;
+    return { skip: false };
+  });
 }
 
 /**
@@ -175,15 +222,7 @@ export function maskEvent(event: APIGatewayProxyEventV2): unknown {
   const masked = { ...event };
 
   if (event.headers) {
-    const redactedHeaders: Record<string, string | undefined> = {
-      ...masked.headers,
-    };
-    for (const key in redactedHeaders) {
-      if (REDACTED_HEADERS.has(key.toLowerCase())) {
-        redactedHeaders[key] = "[REDACTED]";
-      }
-    }
-    masked.headers = redactedHeaders;
+    masked.headers = redactRecord(event.headers, REDACTED_HEADERS);
   }
 
   // Handle multi-value headers if present (older API Gateway versions)
@@ -193,14 +232,10 @@ export function maskEvent(event: APIGatewayProxyEventV2): unknown {
     string[]
   >;
   if (multiValueHeaders) {
-    const redactedMulti = { ...multiValueHeaders };
-    for (const key in redactedMulti) {
-      if (REDACTED_HEADERS.has(key.toLowerCase())) {
-        redactedMulti[key] = redactedMulti[key].map(() => "[REDACTED]");
-      }
-    }
     (masked as unknown as Record<string, unknown>).multiValueHeaders =
-      redactedMulti;
+      redactRecord(multiValueHeaders, REDACTED_HEADERS, (val) =>
+        val.map(() => "[REDACTED]"),
+      );
   }
 
   if (event.cookies) {
@@ -209,26 +244,20 @@ export function maskEvent(event: APIGatewayProxyEventV2): unknown {
 
   // Redact all query string parameters as they often contain tokens or PII
   if (event.queryStringParameters) {
-    const redactedParams = { ...event.queryStringParameters };
-    for (const key in redactedParams) {
-      redactedParams[key] = "[REDACTED]";
-    }
-    masked.queryStringParameters = redactedParams;
+    masked.queryStringParameters = redactRecord(event.queryStringParameters);
   }
 
   const multiValueQueryParams = anyEvent.multiValueQueryStringParameters as
     | Record<string, string[]>
     | undefined;
   if (multiValueQueryParams) {
-    const redactedMultiParams = { ...multiValueQueryParams };
-    for (const key in redactedMultiParams) {
-      redactedMultiParams[key] = redactedMultiParams[key].map(
-        () => "[REDACTED]",
-      );
-    }
     (
       masked as unknown as Record<string, unknown>
-    ).multiValueQueryStringParameters = redactedMultiParams;
+    ).multiValueQueryStringParameters = redactRecord(
+      multiValueQueryParams,
+      undefined,
+      (val) => val.map(() => "[REDACTED]"),
+    );
   }
 
   // Redact authorizer context which may contain JWT claims or internal IDs
@@ -260,26 +289,24 @@ export function normalizePath(event: APIGatewayProxyEventV2): string {
     event.requestContext?.http?.path ||
     "/") as string;
 
-  // ⚡ Bolt: Use regex for cleaner prefix and trailing slash normalization.
-  let path = raw.replace(/^\/(\$default|api)/, "");
+  // ⚡ Bolt: Consolidated path normalization and security checks.
+  try {
+    let path = decodeURIComponent(raw)
+      .replace(/^\/(\$default|api)/, "")
+      .replace(/\/+/g, "/");
 
-  // 🛡️ Enhancement: Path Traversal Protection
-  // WHY: Removing '..' sequences prevents attackers from attempting to
-  // navigate out of the intended API path structure via URL manipulation.
-  while (path.includes("..")) {
-    path = path
-      .replace(/\.\.\//g, "")
-      .replace(/\/\.\./g, "")
-      .replace(/\.\./g, "");
+    // 🛡️ Enhancement: Block Path Traversal (.. or encoded %2e%2e)
+    if (path.includes("..") || path.includes("%2e%2e")) return "/";
+
+    // Cleanup trailing slash if not root
+    if (path.length > 1 && path.endsWith("/")) {
+      path = path.slice(0, -1);
+    }
+
+    return path || "/";
+  } catch {
+    return "/";
   }
-
-  // ⚡ Bolt: Cleanup multiple forward slashes and trailing slash.
-  path = path.replace(/\/+/g, "/");
-  if (path.length > 1) {
-    path = path.replace(/\/$/, "");
-  }
-
-  return path || "/";
 }
 
 /**
@@ -381,28 +408,11 @@ export function getHeader(
  * @param {number} depth - Current recursion depth.
  * @returns {unknown} The cleaned data.
  */
-export function stripLocalFields(data: unknown, depth = 0): unknown {
-  if (data === null || typeof data !== "object") {
-    return data;
-  }
-
-  if (depth > 10) {
-    return {};
-  }
-
-  if (Array.isArray(data)) {
-    return data.map((item) => stripLocalFields(item, depth + 1));
-  }
-
-  // ⚡ Bolt: Use for...in for faster object iteration and reduced allocations in recursion.
-  const result: Record<string, unknown> = {};
-  const record = data as Record<string, unknown>;
-  for (const key in record) {
-    if (Object.prototype.hasOwnProperty.call(record, key)) {
-      if (!INTERNAL_KEYS.has(key) && !FORBIDDEN_KEYS.has(key)) {
-        result[key] = stripLocalFields(record[key], depth + 1);
-      }
+export function stripLocalFields(data: unknown): unknown {
+  return recursiveTransform(data, (key) => {
+    if (INTERNAL_KEYS.has(key)) {
+      return { skip: true };
     }
-  }
-  return result;
+    return { skip: false };
+  });
 }

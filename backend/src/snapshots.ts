@@ -56,6 +56,7 @@ export async function uploadSnapshot(
       Body: JSON.stringify(sanitizeOutput(data)),
       ContentType: "application/json",
       CacheControl: "private, no-cache, no-store, must-revalidate",
+      ContentDisposition: "attachment; filename=" + key.split("/").pop(),
       Metadata: {
         "x-content-type-options": "nosniff",
       },

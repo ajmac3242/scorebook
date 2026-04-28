@@ -124,10 +124,21 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
           >
             COACH'S TACTICAL NOTES
           </Typography>
-          <Stack spacing={1}>
+          <Box
+            component="ul"
+            sx={{
+              p: 0,
+              m: 0,
+              listStyle: "none",
+              display: "flex",
+              flexDirection: "column",
+              gap: 1,
+            }}
+          >
             {coachNotes.length > 0 ? (
               coachNotes.map((note, idx) => (
                 <Box
+                  component="li"
                   key={idx}
                   sx={{
                     p: 1.2,
@@ -138,7 +149,7 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
                   }}
                 >
                   <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                    • {note}
+                    {note}
                   </Typography>
                 </Box>
               ))
@@ -147,7 +158,7 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
                 No automated tactical insights for this half.
               </Typography>
             )}
-          </Stack>
+          </Box>
         </Box>
 
         <Box sx={{ mb: 3 }}>

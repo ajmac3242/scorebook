@@ -42,6 +42,8 @@ import {
   Warning,
   Edit as EditIcon,
   Scale as BalanceIcon,
+  ContentCopy as CopyIcon,
+  Check as CheckIcon,
 } from "@mui/icons-material";
 import BasketballCourt from "../components/BasketballCourt";
 import SubstitutionAuditDialog from "../components/SubstitutionAuditDialog";
@@ -307,6 +309,7 @@ const GameStats: React.FC = () => {
   const [showFouls, setShowFouls] = useState(true);
   const [showRuns, setShowRuns] = useState(true);
   const [isExporting, setIsExporting] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [editOpponent, setEditOpponent] = useState("");
   const [editDate, setEditDate] = useState("");
   const [editTime, setEditTime] = useState("");
@@ -901,6 +904,13 @@ const GameStats: React.FC = () => {
     } catch (err) {
       logger.error("Failed to restore game:", err);
     }
+  };
+
+  const handleCopyId = () => {
+    if (!gameId) return;
+    navigator.clipboard.writeText(gameId);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   const handleUpdateGame = async () => {
@@ -1880,7 +1890,18 @@ const GameStats: React.FC = () => {
     >
       <EntityBanner
         title={game?.opponent ? `vs ${game.opponent}` : "Game Stats"}
-        subtitle={`${game?.date ? dayjs(game.date).format("MM-DD-YYYY") : ""} ${game?.time || ""} | ${game?.location || ""}`}
+        subtitle={
+          <Stack direction="row" spacing={1} alignItems="center">
+            <Typography variant="body2">
+              {`${game?.date ? dayjs(game.date).format("MM-DD-YYYY") : ""} ${game?.time || ""} | ${game?.location || ""}`}
+            </Typography>
+            <Tooltip title={copied ? "Copied!" : "Copy Game ID"}>
+              <IconButton size="small" onClick={handleCopyId} sx={{ color: "rgba(255,255,255,0.7)", p: 0.5 }}>
+                {copied ? <CheckIcon fontSize="inherit" /> : <CopyIcon fontSize="inherit" />}
+              </IconButton>
+            </Tooltip>
+          </Stack>
+        }
         avatarSrc={game?.opponentLogoUrl}
         avatarColor="rgba(255,255,255,0.1)"
         backTo={game?.teamId ? `/teams/${game.teamId}` : "/teams"}

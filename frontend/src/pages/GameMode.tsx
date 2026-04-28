@@ -383,6 +383,8 @@ const Scoreboard = React.memo(
           {/* 🏀 Assistant Coach: Live Sync Indicator */}
           {!isReadOnly && !game?.completed && (
             <Box
+              role="status"
+              aria-live="polite"
               sx={{
                 position: "absolute",
                 top: 8,
@@ -504,8 +506,6 @@ const Scoreboard = React.memo(
                 <Stack spacing={0.5} alignItems="center">
                   <Typography
                     variant="caption"
-                    role="status"
-                    aria-live="polite"
                     sx={{
                       bgcolor: "error.main",
                       color: "white",
@@ -4115,19 +4115,21 @@ const GameMode: React.FC = () => {
                               return ourId ? (playerNamesMap.get(ourId) || "??") : "None";
                             })()}
                           </Typography>
-                          <IconButton
-                            size="small"
-                            disabled={isReadOnly}
-                            onClick={() => {
-                              setMatchupOpponentId(opp.id);
-                              setMatchupDialogOpen(true);
-                            }}
-                            sx={{ p: 0.5 }}
-                            aria-label={`Assign defender for Opponent #${opp.jersey}`}
-                            aria-haspopup="dialog"
-                          >
-                            <SecurityIcon sx={{ fontSize: 14 }} />
-                          </IconButton>
+                            <Tooltip title="Assign Defender">
+                              <IconButton
+                                size="small"
+                                disabled={isReadOnly}
+                                onClick={() => {
+                                  setMatchupOpponentId(opp.id);
+                                  setMatchupDialogOpen(true);
+                                }}
+                                sx={{ p: 0.5 }}
+                                aria-label={`Assign defender for Opponent #${opp.jersey}`}
+                                aria-haspopup="dialog"
+                              >
+                                <SecurityIcon sx={{ fontSize: 14 }} />
+                              </IconButton>
+                            </Tooltip>
                         </Box>
                       </Box>
                     ))
@@ -4232,21 +4234,26 @@ const GameMode: React.FC = () => {
                 0 ? (
                   <Box
                     sx={{
-                      py: 4,
+                      py: 6,
                       textAlign: "center",
-                      border: "1px dashed #D1D1D1",
-                      borderRadius: 1,
+                      border: "2px dashed #D1D1D1",
+                      borderRadius: 2,
                       display: "flex",
                       flexDirection: "column",
                       alignItems: "center",
-                      gap: 1,
+                      gap: 2,
+                      bgcolor: "rgba(0,0,0,0.01)",
                     }}
                   >
-                    <History sx={{ color: "text.secondary", opacity: 0.5 }} />
-                    <Typography variant="caption" color="text.secondary">
-                      No actions recorded yet. Tap the court or use quick
-                      actions to start tracking.
-                    </Typography>
+                    <History sx={{ color: "text.secondary", opacity: 0.3, fontSize: 48 }} />
+                    <Box>
+                      <Typography variant="subtitle2" sx={{ fontWeight: 700, color: "text.secondary", mb: 0.5 }}>
+                        Timeline Empty
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary" sx={{ display: "block", px: 4 }}>
+                        Tap the court or use quick actions (FT, Sub, Timeout) to start tracking the game flow.
+                      </Typography>
+                    </Box>
                   </Box>
                 ) : (
                   gameData.recentStats.map((s, index) => {
@@ -5244,6 +5251,10 @@ const EditClockDialog: React.FC<{
               <Typography
                 variant="h4"
                 tabIndex={0}
+                role="spinbutton"
+                aria-valuenow={mins}
+                aria-valuemin={0}
+                aria-valuemax={99}
                 onKeyDown={(e) => {
                   if (e.key === "ArrowUp") {
                     e.preventDefault();
@@ -5297,6 +5308,10 @@ const EditClockDialog: React.FC<{
               <Typography
                 variant="h4"
                 tabIndex={0}
+                role="spinbutton"
+                aria-valuenow={secs}
+                aria-valuemin={0}
+                aria-valuemax={59}
                 onKeyDown={(e) => {
                   if (e.key === "ArrowUp") {
                     e.preventDefault();

@@ -965,68 +965,13 @@ export const calculatePlayerAggregates = (
     // ⚡ Bolt: Cache statsMap lookups to avoid redundant Map access in the hot loop.
     const player = statsMap.get(playerId);
     if (player && isClutch) {
-      // ⚡ Bolt: Inline processStatEvent and applyActionToAggregate to minimize overhead.
       // Only call Set.add if gameId has changed for this player to skip internal Set logic.
       if (lastGameIdMap.get(playerId) !== gameId) {
         player.gamesPlayed.add(gameId);
         lastGameIdMap.set(playerId, gameId);
       }
 
-      switch (type) {
-        case ACTION_TYPES.MAKE:
-          player.points += stat.points || 0;
-          if (isFreeThrow(stat)) {
-            player.ftm++;
-            player.fta++;
-          } else {
-            player.makes++;
-            player.attempts++;
-            if (isThreePointAttempt(stat)) {
-              player.threePM++;
-              player.threePA++;
-            }
-          }
-          break;
-        case ACTION_TYPES.MISS:
-          if (isFreeThrow(stat)) {
-            player.fta++;
-          } else {
-            player.attempts++;
-            if (isThreePointAttempt(stat)) {
-              player.threePA++;
-            }
-          }
-          break;
-        case ACTION_TYPES.REBOUND:
-          player.rebounds++;
-          break;
-        case ACTION_TYPES.OFF_REBOUND:
-          player.offRebounds++;
-          player.rebounds++;
-          break;
-        case ACTION_TYPES.DEF_REBOUND:
-          player.defRebounds++;
-          player.rebounds++;
-          break;
-        case ACTION_TYPES.BLOCK:
-          player.blocks++;
-          break;
-        case ACTION_TYPES.ASSIST:
-          player.assists++;
-          break;
-        case ACTION_TYPES.STEAL:
-          player.steals++;
-          break;
-        case ACTION_TYPES.TURNOVER:
-          player.turnovers++;
-          break;
-        case ACTION_TYPES.FOUL:
-        case ACTION_TYPES.FOUL_SHOOTING:
-        case ACTION_TYPES.FOUL_NON_SHOOTING:
-        case ACTION_TYPES.TECHNICAL_FOUL:
-          player.fouls++;
-          break;
-      }
+      applyActionToAggregate(player, stat);
     }
 
     // Handle Sub-In/Sub-Out
@@ -1908,39 +1853,28 @@ export const calculateTeamAggregates = (
 
     const isOpponent = isOpponentId(stat.playerId);
     const pts = stat.points || 0;
+    const target = isOpponent ? opp : team;
 
     if (stat.type === ACTION_TYPES.MAKE) {
-      if (isOpponent) {
-        totals.opp += pts;
-        opp.pts += pts;
-        if (isFreeThrow(stat)) {
-          opp.ftm++;
-        } else {
-          opp.makes++;
-          if (isThreePointAttempt(stat)) opp.threePM++;
-        }
+      if (isOpponent) totals.opp += pts;
+      else totals.team += pts;
+
+      target.pts += pts;
+      if (isFreeThrow(stat)) {
+        target.ftm++;
       } else {
-        totals.team += pts;
-        team.pts += pts;
-        if (isFreeThrow(stat)) {
-          team.ftm++;
-        } else {
-          team.makes++;
-          if (isThreePointAttempt(stat)) team.threePM++;
-        }
+        target.makes++;
+        if (isThreePointAttempt(stat)) target.threePM++;
       }
     }
 
-    updatePossessionCounters(stat, isOpponent ? opp : team);
+    updatePossessionCounters(stat, target);
 
-    if (isOpponent) {
-      if (isDefensiveRebound(stat)) {
-        opp.dreb++;
-      }
-    } else {
-      if (isDefensiveRebound(stat)) {
-        team.dreb++;
-      }
+    if (isDefensiveRebound(stat)) {
+      target.dreb++;
+    }
+
+    if (!isOpponent) {
       if (isRebound(stat)) {
         team.reb++;
       } else if (stat.type === ACTION_TYPES.ASSIST) {
@@ -2429,6 +2363,47 @@ const recordLineupStint = (
   agg.oreb += oreb;
 };
 
+/**
+ * Records full minutes for periods where no events occurred but a lineup remained on court.
+ */
+const recordSkippedPeriods = (
+  lineupStats: Map<string, LineupAggregates>,
+  lineupKey: string,
+  startPeriod: number,
+  endPeriod: number,
+  lastScoreDiff: number,
+  periodType: string,
+  options: {
+    periodLength?: number;
+    overtimeLength?: number;
+    clutchOnly?: boolean;
+  },
+) => {
+  for (let p = startPeriod; p < endPeriod; p++) {
+    const pLen = getPeriodLen(p, options);
+    const skipClutchSecs = getClutchSeconds(
+      p,
+      pLen,
+      0,
+      lastScoreDiff,
+      periodType,
+    );
+    recordLineupStint(
+      lineupStats,
+      lineupKey,
+      options.clutchOnly ? skipClutchSecs : pLen,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+    );
+  }
+};
+
 export const calculateLineupStats = (
   stats: StatEvent[],
   options: {
@@ -2546,23 +2521,15 @@ export const calculateLineupStats = (
 
         // 🔍 Scout: Handle full minutes for skipped periods
         if (!cachedLineupKey) cachedLineupKey = getLineupKey(currentLineup);
-        for (let p = currentPeriod + 1; p < s.period; p++) {
-          const pLen = getPeriodLen(p, options);
-          const skipClutchSecs = getClutchSeconds(p, pLen, 0, lastScoreDiff, periodType);
-          recordLineupStint(
-            lineupStats,
-            cachedLineupKey,
-            options.clutchOnly ? skipClutchSecs : pLen,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-          );
-        }
+        recordSkippedPeriods(
+          lineupStats,
+          cachedLineupKey,
+          currentPeriod + 1,
+          s.period,
+          lastScoreDiff,
+          periodType,
+          options,
+        );
       } else {
         flushPending();
       }
@@ -2868,7 +2835,7 @@ export const calculateMatchupStats = (stats: StatEvent[]): MatchupStats[] => {
       }
       inOpponentPossession = false;
       inOurPossession = false;
-    } else if (type === ACTION_TYPES.MISS) {
+    } else if (s.type === ACTION_TYPES.MISS) {
       if (isOpp) {
         inOpponentPossession = true;
         opponentPossessionPlayerId = s.playerId;
