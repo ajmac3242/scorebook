@@ -27,6 +27,9 @@ import {
   calculateTargetAttackStats,
   calculateTimeoutRecommendation,
   generatePlayerNarrative,
+  calculateOfficiatingStats,
+  calculatePaceAnalytics,
+  calculateClutchPlaybookRanking,
   type PlayerAggregates,
   type MatchupStats,
 } from "./stats";
@@ -2357,5 +2360,33 @@ describe("stats utilities", () => {
       const result = generatePlayerNarrative(toPlayer);
       expect(result?.growth).toContain("High turnover rate");
     });
+  });
+});
+
+describe('Assistant Coach Analytical Models', () => {
+  const mockStats: StatEvent[] = [
+    { id: '1', type: ACTION_TYPES.FOUL, playerId: 'PLAYER:1', period: 1, clockTime: '10:00', timestamp: '2023-01-01T00:00:00Z', gameId: 'G1' },
+    { id: '2', type: ACTION_TYPES.FOUL, playerId: 'OPPONENT:1', period: 1, clockTime: '09:00', timestamp: '2023-01-01T00:00:01Z', gameId: 'G1' },
+    { id: '3', type: ACTION_TYPES.MAKE, playerId: 'PLAYER:1', points: 3, period: 1, clockTime: '08:00', timestamp: '2023-01-01T00:00:02Z', gameId: 'G1', playName: 'PnR' },
+  ];
+
+  it('calculateOfficiatingStats calculates correctly', () => {
+    const stats = calculateOfficiatingStats(mockStats, 10);
+    expect(stats.teamFouls).toBe(1);
+    expect(stats.oppFouls).toBe(1);
+    expect(stats.fpm).toBe(0.2);
+    expect(stats.tightness).toBe('LOW');
+  });
+
+  it('calculatePaceAnalytics calculates correctly', () => {
+    const pace = calculatePaceAnalytics(10, 1, 300, 10, 70, mockStats);
+    expect(pace.pace).toBeGreaterThan(0);
+    expect(pace.tempoDelta).toBeDefined();
+  });
+
+  it('calculateClutchPlaybookRanking ranks plays', () => {
+    const rankings = calculateClutchPlaybookRanking(mockStats, 240, []);
+    expect(rankings.length).toBeGreaterThan(0);
+    expect(rankings[0].playName).toBe('PnR');
   });
 });

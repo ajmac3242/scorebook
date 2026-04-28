@@ -41,6 +41,7 @@ import {
   Restore,
   Warning,
   Edit as EditIcon,
+  Scale as BalanceIcon,
   ContentCopy as CopyIcon,
   Check as CheckIcon,
 } from "@mui/icons-material";
@@ -143,6 +144,121 @@ const PlayerFeedbackCard: React.FC<{
       >
         {sent ? "Sent to Player" : "Approve & Send"}
       </Button>
+    </MoleskineCard>
+  );
+};
+
+/**
+ * 🏀 Assistant Coach: OfficiatingImpactSummary
+ * WHY: Visualizes how foul distribution and free-throw scoring influenced the outcome.
+ */
+const OfficiatingImpactSummary: React.FC<{
+  stats: any[];
+  teamScore: number;
+  oppScore: number;
+  teamPlayers: any[];
+}> = ({ stats, teamScore, oppScore, teamPlayers }) => {
+  const officiatingImpact = useMemo(() => {
+    const teamFTM = stats.filter(s => s.type === ACTION_TYPES.MAKE && s.points === 1 && !isOpponentId(s.playerId)).length;
+    const oppFTM = stats.filter(s => s.type === ACTION_TYPES.MAKE && s.points === 1 && isOpponentId(s.playerId)).length;
+
+    const teamFoulEvents = stats.filter(s => s.type === ACTION_TYPES.FOUL && !isOpponentId(s.playerId));
+    const oppFouls = stats.filter(s => s.type === ACTION_TYPES.FOUL && isOpponentId(s.playerId)).length;
+
+    const starterIds = new Set(teamPlayers.filter(tp => tp.isStarter).map(tp => tp.playerId));
+    let starterFouls = 0;
+    let benchFouls = 0;
+
+    teamFoulEvents.forEach(s => {
+      if (starterIds.has(s.playerId)) starterFouls++;
+      else benchFouls++;
+    });
+
+    const teamFouls = teamFoulEvents.length;
+    const ftDiff = teamFTM - oppFTM;
+    const scoreDiff = teamScore - oppScore;
+    const impactPct = scoreDiff !== 0 ? (ftDiff / Math.abs(scoreDiff)) * 100 : 0;
+
+    return {
+      teamFTM,
+      oppFTM,
+      teamFouls,
+      oppFouls,
+      starterFouls,
+      benchFouls,
+      ftDiff,
+      impactPct
+    };
+  }, [stats, teamScore, oppScore, teamPlayers]);
+
+  return (
+    <MoleskineCard sx={{ height: "100%" }}>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
+        <BalanceIcon color="primary" />
+        <Typography variant="h6" sx={{ fontWeight: 800 }}>
+          Officiating Impact
+        </Typography>
+      </Box>
+
+      <Grid container spacing={3}>
+        <Grid item xs={12}>
+          <Box sx={{ mb: 2, p: 2, bgcolor: "rgba(25, 118, 210, 0.04)", borderRadius: 2 }}>
+            <Typography variant="caption" sx={{ fontWeight: 800, color: "primary.main", display: "block", mb: 1 }}>
+              TEAM FOUL ATTRIBUTION
+            </Typography>
+            <Stack direction="row" spacing={2} justifyContent="space-around">
+              <Box sx={{ textAlign: "center" }}>
+                <Typography variant="h6" sx={{ fontWeight: 900 }}>{officiatingImpact.starterFouls}</Typography>
+                <Typography variant="caption" sx={{ fontWeight: 700 }}>Starters</Typography>
+              </Box>
+              <Divider orientation="vertical" flexItem />
+              <Box sx={{ textAlign: "center" }}>
+                <Typography variant="h6" sx={{ fontWeight: 900 }}>{officiatingImpact.benchFouls}</Typography>
+                <Typography variant="caption" sx={{ fontWeight: 700 }}>Bench</Typography>
+              </Box>
+            </Stack>
+          </Box>
+        </Grid>
+
+        <Grid item xs={6}>
+          <Box sx={{ p: 2, bgcolor: "rgba(0,0,0,0.02)", borderRadius: 2, textAlign: "center" }}>
+            <Typography variant="caption" sx={{ fontWeight: 700, color: "text.secondary", display: "block", mb: 1 }}>
+              FOUL BATTLE
+            </Typography>
+            <Typography variant="h5" sx={{ fontWeight: 900 }}>
+              {officiatingImpact.teamFouls} <Typography component="span" variant="caption">VS</Typography> {officiatingImpact.oppFouls}
+            </Typography>
+            <Typography variant="caption" sx={{ fontWeight: 600, color: officiatingImpact.teamFouls > officiatingImpact.oppFouls ? "error.main" : "success.main" }}>
+              {officiatingImpact.teamFouls > officiatingImpact.oppFouls ? "Disadvantage" : "Advantage"}
+            </Typography>
+          </Box>
+        </Grid>
+        <Grid item xs={6}>
+          <Box sx={{ p: 2, bgcolor: "rgba(0,0,0,0.02)", borderRadius: 2, textAlign: "center" }}>
+            <Typography variant="caption" sx={{ fontWeight: 700, color: "text.secondary", display: "block", mb: 1 }}>
+              FT MARGIN
+            </Typography>
+            <Typography variant="h5" sx={{ fontWeight: 900, color: officiatingImpact.ftDiff >= 0 ? "success.main" : "error.main" }}>
+              {officiatingImpact.ftDiff >= 0 ? "+" : ""}{officiatingImpact.ftDiff}
+            </Typography>
+            <Typography variant="caption" sx={{ fontWeight: 600 }}>
+              Points from Line
+            </Typography>
+          </Box>
+        </Grid>
+      </Grid>
+
+      <Box sx={{ mt: 3, p: 2, border: "1px dashed rgba(0,0,0,0.1)", borderRadius: 2 }}>
+        <Typography variant="body2" sx={{ fontWeight: 700, mb: 1 }}>
+          💡 Tactical Insight
+        </Typography>
+        <Typography variant="caption" sx={{ lineHeight: 1.5, display: "block" }}>
+          {officiatingImpact.ftDiff > 0
+            ? `Our ability to draw fouls and convert at the line contributed ${officiatingImpact.ftDiff} points to our total. This margin was ${Math.abs(officiatingImpact.impactPct).toFixed(0)}% of the final point spread.`
+            : `Opponent's free throw advantage (-${Math.abs(officiatingImpact.ftDiff)} pts) put significant pressure on our half-court defense. Defensive discipline should be a focus for next game.`
+          }
+        </Typography>
+      </Box>
     </MoleskineCard>
   );
 };
@@ -2404,6 +2520,15 @@ const GameStats: React.FC = () => {
                 />
               </Grid>
             )}
+
+            <Grid item xs={12} md={4}>
+              <OfficiatingImpactSummary
+                stats={scoreFlowSortedStats}
+                teamScore={teamData?.points || 0}
+                oppScore={oppData?.points || 0}
+                teamPlayers={teamPlayers}
+              />
+            </Grid>
 
             <Grid item xs={12}>
               <Typography variant="h5" sx={{ fontFamily: "var(--serif)", mb: 2, mt: 4 }}>
