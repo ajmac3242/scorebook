@@ -415,6 +415,8 @@ const Players: React.FC = () => {
             }
             required
             disabled={isSubmitting}
+            aria-required="true"
+            aria-invalid={showValidation && !name.trim() ? "true" : "false"}
             aria-describedby={showValidation && !name.trim() ? "player-name-error" : undefined}
             FormHelperTextProps={{ id: "player-name-error" }}
           />

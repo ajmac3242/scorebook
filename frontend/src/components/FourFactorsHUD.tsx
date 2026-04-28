@@ -23,12 +23,15 @@ const Factor: React.FC<FactorProps> = ({ label, value, seasonAvg, isInverse, too
 
   const diff = numSeasonAvg !== undefined && !isNaN(numSeasonAvg) ? numValue - numSeasonAvg : 0;
   const isBetter = isInverse ? diff < 0 : diff > 0;
-  const color = isBetter ? "success.main" : diff === 0 ? "text.secondary" : "error.main";
+  const isWorse = isInverse ? diff > 0 : diff < 0;
+  const color = isBetter ? "success.main" : isWorse ? "error.main" : "text.secondary";
+  const statusWording = isBetter ? "better" : isWorse ? "worse" : "equal";
+  const ariaLabel = `${label}: ${isNaN(numValue) ? "0.0" : numValue.toFixed(1)}${numSeasonAvg !== undefined && !isNaN(numSeasonAvg) ? `. Season average is ${numSeasonAvg.toFixed(1)}, current performance is ${Math.abs(diff).toFixed(1)} ${statusWording} than average.` : ""}`;
 
   return (
     <Box sx={{ flex: 1, minWidth: 100 }}>
       <Tooltip title={tooltip}>
-        <Box>
+        <Box role="group" aria-label={ariaLabel}>
           <Typography variant="caption" sx={{ fontWeight: 800, color: "text.secondary", display: "block" }}>
             {label}
           </Typography>

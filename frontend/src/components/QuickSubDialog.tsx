@@ -76,13 +76,15 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                   const isFoulTrouble = pf === foulLimit - 1;
                   const isFouledOut = pf >= foulLimit;
 
+                  const isSelected = selectedSwapId === p.id;
+                  const label = `#${jerseyMap.get(p.id!) ?? ""} ${p.name} (On Court)${isSelected ? " - Selected for swap" : ""}`;
+
                   return (
                     <Button
                       key={p.id}
-                      variant={
-                        selectedSwapId === p.id ? "contained" : "outlined"
-                      }
-                      aria-pressed={selectedSwapId === p.id}
+                      variant={isSelected ? "contained" : "outlined"}
+                      aria-pressed={isSelected}
+                      aria-label={label}
                       onClick={() => handleSwapClick(p.id!)}
                       fullWidth
                       sx={{
@@ -201,13 +203,15 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                   const isFoulTrouble = pf === foulLimit - 1;
                   const isFouledOut = pf >= foulLimit;
 
+                  const isSelected = selectedSwapId === p.id;
+                  const label = `#${jerseyMap.get(p.id!) ?? ""} ${p.name} (Bench)${isSelected ? " - Selected for swap" : ""}`;
+
                   return (
                     <Button
                       key={p.id}
-                      variant={
-                        selectedSwapId === p.id ? "contained" : "outlined"
-                      }
-                      aria-pressed={selectedSwapId === p.id}
+                      variant={isSelected ? "contained" : "outlined"}
+                      aria-pressed={isSelected}
+                      aria-label={label}
                       onClick={() => handleSwapClick(p.id!)}
                       fullWidth
                       sx={{
