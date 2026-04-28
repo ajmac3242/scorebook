@@ -118,7 +118,6 @@ import {
   calculateOpponentAggregates,
   calculateTeamAggregates,
   calculateTargetAttackStats,
-  calculateTimeoutRecommendation,
   isEventInPeriod,
   isOpponentId,
   getBonusStatus,
@@ -2031,13 +2030,14 @@ const GameMode: React.FC = () => {
       : 0;
 
     return calculateTimeoutRecommendation({
-      scoreDiff: eventAggregates.currentScore - eventAggregates.opponentScore,
+      opponentRun: gameData?.momentumAlerts.opponentRun || null,
+      teamFoulTrouble: (gameData?.momentumAlerts.foulTroublePlayers?.length || 0) > 0,
+      clutchMode: !!gameData?.momentumAlerts.isClutchMode,
+      timeoutsRemaining: gameData?.timeoutStats.teamTOL || 0,
+      isClockRunning: false,
+      scoreSpread: eventAggregates.currentScore - eventAggregates.opponentScore,
       clockSeconds,
       period,
-      maxPeriod: team?.periodType === "HALVES" ? 2 : 4,
-      timeoutsRemaining: gameData?.timeoutStats.teamTOL || 0,
-      opponentRunPoints: oppRunPoints,
-      starPlayerInFoulTrouble: (gameData?.momentumAlerts.foulTroublePlayers?.length || 0) > 0,
     });
   }, [game, gameData, eventAggregates, clockSeconds, period, team]);
 
@@ -3248,9 +3248,6 @@ const GameMode: React.FC = () => {
                 </Typography>
                 <Typography variant="h6" sx={{ fontWeight: 900, mb: 0.5, lineHeight: 1.2 }}>
                   {timeoutRecommendation.recommendation}
-                </Typography>
-                <Typography variant="caption" sx={{ fontWeight: 600, display: "block", mb: 1.5 }}>
-                  {timeoutRecommendation.reason}
                 </Typography>
                 <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <Typography variant="caption" sx={{ fontWeight: 700, opacity: 0.8 }}>

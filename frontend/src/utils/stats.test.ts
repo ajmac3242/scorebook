@@ -27,6 +27,8 @@ import {
   calculateTargetAttackStats,
   calculateTimeoutRecommendation,
   generatePlayerNarrative,
+  type PlayerAggregates,
+  type MatchupStats,
 } from "./stats";
 import { TeamPlayer, StatEvent, Game } from "../db";
 import { ACTION_TYPES } from "../constants/stats";
@@ -2262,45 +2264,48 @@ describe("stats utilities", () => {
   });
 
   describe("calculateTimeoutRecommendation", () => {
-    it("recommends timeout on 8-0 run", () => {
+    it("recommends timeout on 10-0 run", () => {
       const result = calculateTimeoutRecommendation({
-        scoreDiff: -2,
+        opponentRun: "10-0",
+        teamFoulTrouble: false,
+        clutchMode: false,
+        timeoutsRemaining: 3,
+        isClockRunning: true,
+        scoreSpread: -2,
         clockSeconds: 300,
         period: 1,
-        maxPeriod: 4,
-        timeoutsRemaining: 3,
-        opponentRunPoints: 8,
-        starPlayerInFoulTrouble: false,
       });
-      expect(result?.recommendation).toBe("CALL TIMEOUT");
+      expect(result?.recommendation).toContain("STOP THE RUN");
       expect(result?.urgency).toBe("HIGH");
     });
 
     it("recommends timeout in late game clutch situation", () => {
       const result = calculateTimeoutRecommendation({
-        scoreDiff: -2,
+        opponentRun: null,
+        teamFoulTrouble: false,
+        clutchMode: true,
+        timeoutsRemaining: 1,
+        isClockRunning: false,
+        scoreSpread: -2,
         clockSeconds: 20,
         period: 4,
-        maxPeriod: 4,
-        timeoutsRemaining: 1,
-        opponentRunPoints: 0,
-        starPlayerInFoulTrouble: false,
       });
-      expect(result?.recommendation).toBe("CALL TIMEOUT");
+      expect(result?.recommendation).toContain("STRATEGIC");
       expect(result?.urgency).toBe("HIGH");
     });
 
-    it("suggests staying aggressive in normal clutch time", () => {
+    it("returns null recommendation when not needed", () => {
       const result = calculateTimeoutRecommendation({
-        scoreDiff: 2,
-        clockSeconds: 90,
-        period: 4,
-        maxPeriod: 4,
+        opponentRun: null,
+        teamFoulTrouble: false,
+        clutchMode: false,
         timeoutsRemaining: 2,
-        opponentRunPoints: 0,
-        starPlayerInFoulTrouble: false,
+        isClockRunning: true,
+        scoreSpread: 2,
+        clockSeconds: 90,
+        period: 2,
       });
-      expect(result?.recommendation).toBe("STAY AGGRESSIVE");
+      expect(result?.recommendation).toBeNull();
     });
   });
 
@@ -2313,24 +2318,25 @@ describe("stats utilities", () => {
       turnovers: 1,
       attempts: 8,
       fgPct: "60.0",
+      threePPct: "45.0",
+      threePA: 4,
     } as PlayerAggregates;
 
     it("generates a positive narrative for high efficiency", () => {
-      const result = generatePlayerNarrative(player, []);
+      const result = generatePlayerNarrative(player);
       expect(result?.strength).toContain("Elite efficiency");
-      expect(result?.summary).toContain("John Doe finished with 15 points");
     });
 
     it("returns null for players with low minutes", () => {
-      const lowMinPlayer = { ...player, min: 2 } as PlayerAggregates;
-      const result = generatePlayerNarrative(lowMinPlayer, []);
+      const lowMinPlayer = { ...player, min: 0.05 } as PlayerAggregates;
+      const result = generatePlayerNarrative(lowMinPlayer);
       expect(result).toBeNull();
     });
 
     it("identifies growth area for high turnovers", () => {
       const toPlayer = { ...player, turnovers: 5 } as PlayerAggregates;
-      const result = generatePlayerNarrative(toPlayer, []);
-      expect(result?.growthArea).toContain("limit turnovers");
+      const result = generatePlayerNarrative(toPlayer);
+      expect(result?.growth).toContain("High turnover rate");
     });
   });
 });

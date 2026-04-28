@@ -339,6 +339,11 @@ export const calculatePossessions = (
 /**
  * Calculates possessions for a statistical aggregate record.
  * @param agg - An object containing attempts, fta, turnovers, and offensive rebounds.
+ * @param agg.attempts - Field goal attempts.
+ * @param agg.fta - Free throw attempts.
+ * @param agg.turnovers - Turnovers.
+ * @param agg.offRebounds - Optional offensive rebounds.
+ * @param agg.oreb - Optional offensive rebounds (alternative key).
  */
 export const calculatePossessionsForAgg = (agg: {
   attempts: number;
@@ -530,126 +535,6 @@ export const calculateTargetAttackStats = (
   };
 };
 
-/**
- * 🏀 CoachBoard: calculateTimeoutRecommendation
- * Why: Provides data-driven decision support for timeout management during high-stress moments.
- */
-export interface TimeoutRecommendation {
-  recommendation: string;
-  urgency: "LOW" | "MEDIUM" | "HIGH";
-  reason: string;
-}
-
-export const calculateTimeoutRecommendation = (params: {
-  scoreDiff: number;
-  clockSeconds: number;
-  period: number;
-  maxPeriod: number;
-  timeoutsRemaining: number;
-  opponentRunPoints: number;
-  starPlayerInFoulTrouble: boolean;
-}): TimeoutRecommendation | null => {
-  const { scoreDiff, clockSeconds, period, timeoutsRemaining, opponentRunPoints, starPlayerInFoulTrouble } = params;
-
-  // Urgent: Opponent on a big run
-  if (opponentRunPoints >= 8) {
-    return {
-      recommendation: "CALL TIMEOUT",
-      urgency: "HIGH",
-      reason: `Opponent is on a ${opponentRunPoints}-0 run. Kill the momentum.`,
-    };
-  }
-
-  // Late game situational logic
-  const isFourthQuarter = period === params.maxPeriod;
-  const isClutchTime = isFourthQuarter && clockSeconds <= 120 && Math.abs(scoreDiff) <= 5;
-
-  if (isClutchTime) {
-    if (scoreDiff < 0 && clockSeconds <= 30 && timeoutsRemaining > 0) {
-      return {
-        recommendation: "CALL TIMEOUT",
-        urgency: "HIGH",
-        reason: `Down ${Math.abs(scoreDiff)} with ${clockSeconds}s left. Draw up a set play.`,
-      };
-    }
-    return {
-      recommendation: "STAY AGGRESSIVE",
-      urgency: "MEDIUM",
-      reason: "Clutch situation. Focus on high-quality shots and transition defense.",
-    };
-  }
-
-  // Foul trouble alert
-  if (starPlayerInFoulTrouble && timeoutsRemaining > 1) {
-    return {
-      recommendation: "CONSIDER TIMEOUT",
-      urgency: "MEDIUM",
-      reason: "Key player in foul trouble. Adjust defensive assignments or rotation.",
-    };
-  }
-
-  // Moderate: Opponent on a 6-0 run
-  if (opponentRunPoints >= 6) {
-    return {
-      recommendation: "CONSIDER TIMEOUT",
-      urgency: "MEDIUM",
-      reason: `Opponent is on a ${opponentRunPoints}-0 run. Re-group the defense.`,
-    };
-  }
-
-  return null;
-};
-
-/**
- * 🏀 CoachBoard: generatePlayerNarrative
- * Why: Converts raw stats into actionable 3-sentence performance summaries for coaching feedback.
- */
-export interface PlayerNarrative {
-  strength: string;
-  growthArea: string;
-  summary: string;
-}
-
-export const generatePlayerNarrative = (
-  player: PlayerAggregates,
-  _stats: StatEvent[],
-): PlayerNarrative | null => {
-  // Only generate for players with significant minutes (> 5 mins)
-  if (player.min < 5) return null;
-
-  let strength = "";
-  let growthArea = "";
-
-  // Identify Strength
-  if (parseFloat(player.efgPct) > 55) {
-    strength = `Elite efficiency on offense today, posting a ${player.efgPct}% eFG percentage.`;
-  } else if (player.assists >= 5 || (player.turnovers > 0 && player.assists / player.turnovers > 2)) {
-    strength = "Excellent floor vision and ball security, creating high-quality looks for teammates.";
-  } else if (player.rebounds >= 8) {
-    strength = `Dominant presence on the glass with ${player.rebounds} total rebounds.`;
-  } else if (player.steals + player.blocks >= 3) {
-    strength = "High-impact defensive disruptor, creating multiple turnovers and protecting the rim.";
-  } else {
-    strength = "Consistently played within the system and provided valuable minutes on both ends.";
-  }
-
-  // Identify Growth Area
-  if (player.turnovers >= 4) {
-    growthArea = "Needs to focus on ball security and decision-making under pressure to limit turnovers.";
-  } else if (player.attempts > 5 && parseFloat(player.fgPct) < 35) {
-    growthArea = "Shot selection could be improved to find higher-percentage looks in the flow of the offense.";
-  } else if (player.fouls >= 4) {
-    growthArea = "Needs to stay disciplined on defense to avoid early foul trouble and stay on the floor.";
-  } else if (player.fta > 0 && parseFloat(player.ftPct) < 60) {
-    growthArea = "Free throw consistency is a key area for improvement to capitalize on trips to the line.";
-  } else {
-    growthArea = "Continue working on defensive positioning to provide better help-side support.";
-  }
-
-  const summary = `${player.name} finished with ${player.points} points in ${player.min} minutes. ${strength} ${growthArea}`;
-
-  return { strength, growthArea, summary };
-};
 
 /**
  * Retrieves the jersey number for a player from the team roster.
@@ -3043,10 +2928,10 @@ export const calculateTimeoutRecommendation = (params: {
 };
 
 /**
- * 🏀 Assistant Coach: generatePlayerNarratives
+ * 🏀 Assistant Coach: generatePlayerNarrative
  * WHY: Converts raw data into actionable feedback for players.
  */
-export const generatePlayerNarratives = (
+export const generatePlayerNarrative = (
   playerStats: PlayerAggregates,
 ): { strength: string; growth: string } | null => {
   if (playerStats.min < 0.1) return null;
