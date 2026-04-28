@@ -199,7 +199,8 @@ export interface PlayerAggregates {
  * @param {string} playerId - The player ID.
  * @returns {boolean} True if the ID is for an opponent.
  */
-export const isOpponentId = (playerId: string): boolean => {
+export const isOpponentId = (playerId: string | null): boolean => {
+  if (!playerId) return false;
   // ⚡ Bolt: Quick check on the first character ('O' for OPPONENT) before
   // full string comparison to accelerate the frequent team-player ID lookups.
   if (playerId[0] !== "O") return false;
