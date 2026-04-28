@@ -62,3 +62,8 @@ cd frontend && pnpm test:jules -- "<module-name>"
 - **Patterns in what gets left incomplete**: Defensive efficiency (Opponent PPP) is often neglected in favor of offensive metrics, leaving coaches with only half the tactical picture.
 - **Recurring issues agents create**: Hard-coding game lengths (e.g., 40 mins) in UI components instead of deriving them from team settings or calculating a standardized rate (NET/40).
 - **End-of-Day improvement patterns**: Implementing 'Temporal Windowing' (Last 5/10 games) provides immediate value for scouting and performance trend analysis without requiring complex backend filtering.
+
+## End-of-Day Insights - 2026-04-28
+- **Patterns in what gets left incomplete**: Defensive categorization (like opponent play types) is often defined in constants but missing from the live entry/reporting UI.
+- **Recurring issues agents create**: Neglecting null checks in fast-path utilities like 'isOpponentId', leading to crashes when processing partially-formed events.
+- **End-of-Day improvement patterns**: Closing the loop on 'dormant' features (like Opponent Play Types) provides high tactical value for coaches without requiring new database schema changes.

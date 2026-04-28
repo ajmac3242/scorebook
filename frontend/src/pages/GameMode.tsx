@@ -99,6 +99,7 @@ import {
   SPECIAL_PLAYER_IDS,
   SHOT_QUALITY,
   BONUS_CONFIG,
+  PLAY_TYPES,
 } from "../constants/stats";
 import {
   calculatePlayerAggregates,
@@ -1346,6 +1347,7 @@ const GameMode: React.FC = () => {
   const [statType, setStatType] = useState<string | null>(null);
   const [points, setPoints] = useState<number>(2);
   const [playName, setPlayName] = useState<string>("");
+  const [playType, setPlayType] = useState<string | null>(null);
   const [shotQuality, setShotQuality] = useState<string | null>(null);
   const [shotType, setShotType] = useState<"CATCH" | "DRIB" | null>(null);
 
@@ -2025,13 +2027,11 @@ const GameMode: React.FC = () => {
 
   const timeoutRecommendation = useMemo(() => {
     if (!game) return null;
-    const oppRunPoints = gameData?.momentumAlerts.opponentRun
-      ? parseInt(gameData.momentumAlerts.opponentRun.split("-")[0])
-      : 0;
 
     return calculateTimeoutRecommendation({
       opponentRun: gameData?.momentumAlerts.opponentRun || null,
-      teamFoulTrouble: (gameData?.momentumAlerts.foulTroublePlayers?.length || 0) > 0,
+      teamFoulTrouble:
+        (gameData?.momentumAlerts.foulTroublePlayers?.length || 0) > 0,
       clutchMode: !!gameData?.momentumAlerts.isClutchMode,
       timeoutsRemaining: gameData?.timeoutStats.teamTOL || 0,
       isClockRunning: false,
@@ -2039,7 +2039,7 @@ const GameMode: React.FC = () => {
       clockSeconds,
       period,
     });
-  }, [game, gameData, eventAggregates, clockSeconds, period, team]);
+  }, [game, gameData, eventAggregates, clockSeconds, period]);
 
   // Initialize draft state when dialog opens
   useEffect(() => {
@@ -2416,6 +2416,11 @@ const GameMode: React.FC = () => {
               typeToSave === ACTION_TYPES.MISS
                 ? playName
                 : undefined,
+            playType:
+              typeToSave === ACTION_TYPES.MAKE ||
+              typeToSave === ACTION_TYPES.MISS
+                ? (playType ?? undefined)
+                : undefined,
             shotType:
               typeToSave === ACTION_TYPES.MAKE ||
               typeToSave === ACTION_TYPES.MISS
@@ -2442,6 +2447,11 @@ const GameMode: React.FC = () => {
               typeToSave === ACTION_TYPES.MAKE ||
               typeToSave === ACTION_TYPES.MISS
                 ? playName
+                : undefined,
+            playType:
+              typeToSave === ACTION_TYPES.MAKE ||
+              typeToSave === ACTION_TYPES.MISS
+                ? (playType ?? undefined)
                 : undefined,
             shotType:
               typeToSave === ACTION_TYPES.MAKE ||
@@ -2492,6 +2502,7 @@ const GameMode: React.FC = () => {
         setShotQuality(null);
         setShotType(null);
         setPlayName("");
+        setPlayType(null);
         setIsEditing(false);
         setEditingStatId(null);
         if (trackingMode === "OPPONENT") setSelectedPlayerId(null);
@@ -2522,6 +2533,7 @@ const GameMode: React.FC = () => {
       shotQuality,
       shotType,
       activeDefensiveScheme,
+      playType,
     ],
   );
 
@@ -2684,6 +2696,7 @@ const GameMode: React.FC = () => {
       setPoints(stat.points || 2);
       setShotType(stat.shotType || null);
       setPlayName(stat.playName || "");
+      setPlayType(stat.playType || null);
       setShotQuality(stat.shotQuality || null);
       setSelectedX(stat.locationX || 0);
       setSelectedY(stat.locationY || 0);
@@ -4344,6 +4357,35 @@ const GameMode: React.FC = () => {
                   <ToggleButton value="DRIB">Off Dribble</ToggleButton>
                 </ToggleButtonGroup>
               </Box>
+              {isOpponentId(selectedPlayerId!) && (
+                <Box sx={{ mt: 3 }}>
+                  <Typography
+                    variant="caption"
+                    gutterBottom
+                    sx={{ display: "block", mb: 1 }}
+                  >
+                    Opponent Play Type
+                  </Typography>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexWrap: "wrap",
+                      gap: 1,
+                    }}
+                  >
+                    {Object.values(PLAY_TYPES).map((type) => (
+                      <Chip
+                        key={type}
+                        label={type}
+                        onClick={() => setPlayType(playType === type ? null : type)}
+                        color={playType === type ? "primary" : "default"}
+                        variant={playType === type ? "filled" : "outlined"}
+                        sx={{ borderRadius: 1 }}
+                      />
+                    ))}
+                  </Box>
+                </Box>
+              )}
             </>
           )}
 

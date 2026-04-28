@@ -463,14 +463,14 @@
 - [x] "Clutch Mode" activation alert when entering the final 4 mins of a close game.
 **Status:** [x] COMPLETE
 
-## Opponent Play-Type Breakdown (PnR vs ISO vs Post)
+## [x] Opponent Play-Type Breakdown (PnR vs ISO vs Post)
 **Priority:** HIGH
 **Type:** Feature
 **Why:** Understanding *how* an opponent is scoring (e.g., Pick-and-Roll vs. Isolation) is the first step to stopping them. Defensive adjustments are only as good as the underlying data.
 **What:** Add a "Play Type" tag to opponent scoring events. Allow the scorekeeper to quickly categorize opponent buckets as "PnR", "ISO", "Post", "Transition", or "Off-Screen".
 **Acceptance Criteria:**
-- [ ] Optional "Play Type" selector in the opponent shot recording dialog.
-- [ ] "Opponent Scoring Breakdown" chart in GameStats showing PPP by Play Type.
+- [x] Optional "Play Type" selector in the opponent shot recording dialog.
+- [x] "Opponent Scoring Breakdown" table in GameStats showing efficiency by Play Type.
 - [ ] Real-time alerts for recurring threats (e.g., "Opponent scoring 1.8 PPP on Pick-and-Rolls").
 - [ ] Filter opponent shot chart by Play Type.
 

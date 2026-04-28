@@ -608,6 +608,37 @@ const GameStats: React.FC = () => {
     }));
   }, [stats]);
 
+  const opponentPlayEfficiency = useMemo(() => {
+    const data: Record<
+      string,
+      { makes: number; attempts: number; points: number }
+    > = {};
+    for (let i = 0; i < stats.length; i++) {
+      const s = stats[i];
+      if (
+        (s.type === ACTION_TYPES.MAKE || s.type === ACTION_TYPES.MISS) &&
+        isOpponentId(s.playerId) &&
+        s.playType
+      ) {
+        if (!data[s.playType])
+          data[s.playType] = { makes: 0, attempts: 0, points: 0 };
+        data[s.playType].attempts++;
+        if (s.type === ACTION_TYPES.MAKE) {
+          data[s.playType].makes++;
+          data[s.playType].points += s.points || 0;
+        }
+      }
+    }
+    return Object.entries(data).map(([name, stats]) => ({
+      name,
+      ...stats,
+      efg:
+        stats.attempts > 0
+          ? ((stats.points / stats.attempts / 2) * 100).toFixed(1)
+          : "0.0",
+    }));
+  }, [stats]);
+
   const processEfficiency = useMemo(() => {
     const data: Record<
       string,
@@ -2254,6 +2285,53 @@ const GameStats: React.FC = () => {
                         <TableRow>
                           <TableCell colSpan={4} align="center">
                             No play-tagged shots recorded.
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </MoleskineCard>
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <MoleskineCard>
+                <Typography
+                  variant="h6"
+                  sx={{ fontFamily: "var(--serif)", mb: 2 }}
+                >
+                  Opponent Play Types
+                </Typography>
+                <TableContainer>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow sx={{ bgcolor: "rgba(0,0,0,0.02)" }}>
+                        <TableCell sx={{ fontWeight: 700 }}>Play Type</TableCell>
+                        <TableCell align="right" sx={{ fontWeight: 700 }}>
+                          Freq
+                        </TableCell>
+                        <TableCell align="right" sx={{ fontWeight: 700 }}>
+                          PTS
+                        </TableCell>
+                        <TableCell align="right" sx={{ fontWeight: 700 }}>
+                          eFG%
+                        </TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {opponentPlayEfficiency.map((play) => (
+                        <TableRow key={play.name}>
+                          <TableCell sx={{ fontWeight: 600 }}>
+                            {play.name}
+                          </TableCell>
+                          <TableCell align="right">{play.attempts}</TableCell>
+                          <TableCell align="right">{play.points}</TableCell>
+                          <TableCell align="right">{play.efg}%</TableCell>
+                        </TableRow>
+                      ))}
+                      {opponentPlayEfficiency.length === 0 && (
+                        <TableRow>
+                          <TableCell colSpan={4} align="center">
+                            No opponent play types recorded.
                           </TableCell>
                         </TableRow>
                       )}
