@@ -33,6 +33,7 @@ import {
   Chip,
   Divider,
   Tooltip,
+  Snackbar,
 } from "@mui/material";
 import {
   OpenInFull as ExpandIcon,
@@ -62,12 +63,11 @@ import {
   calculateScoringRuns,
   calculateTeamAggregates,
   calculateTeamSeasonAverages,
-  generatePlayerNarratives,
+  generatePlayerNarrative,
   calcPct,
   isOpponentId,
   type ScoreFlowPoint,
   type PlayerAggregates,
-  type TeamAggregates,
 } from "../utils/stats";
 import { MoleskineCard } from "../components/SharedUI";
 import FourFactorsHUD from "../components/FourFactorsHUD";
@@ -543,10 +543,6 @@ const GameStats: React.FC = () => {
   }, [scoreFlowSortedStats, game?.periodLength]);
 
 
-  const matchupStats = useMemo(() => {
-    return calculateMatchupStats(scoreFlowSortedStats);
-  }, [scoreFlowSortedStats]);
-
   const teamData = useMemo(() => {
     if (!game) return null;
     return calculateTeamAggregates([game], stats, false);
@@ -731,13 +727,6 @@ const GameStats: React.FC = () => {
     return calculateScoringRuns(scoreFlowSortedStats);
   }, [scoreFlowSortedStats]);
 
-  const playerNarratives = useMemo(() => {
-    return playerAggregates.map((p) => ({
-      playerId: p.id,
-      name: p.name,
-      narrative: generatePlayerNarrative(p, scoreFlowSortedStats),
-    })).filter((n) => n.narrative !== null);
-  }, [playerAggregates, scoreFlowSortedStats]);
 
   const defensiveStats = useMemo(() => {
     return calculateStopsAndKills(scoreFlowSortedStats);
@@ -1732,7 +1721,7 @@ const GameStats: React.FC = () => {
     return playerAggregates
       .map((p) => ({
         player: p,
-        narrative: generatePlayerNarratives(p),
+        narrative: generatePlayerNarrative(p),
       }))
       .filter((n) => n.narrative !== null);
   }, [playerAggregates]);
@@ -2147,23 +2136,23 @@ const GameStats: React.FC = () => {
                 </Typography>
                 <Grid container spacing={2}>
                   {playerNarratives.map((n) => (
-                    <Grid item xs={12} md={6} key={n.playerId}>
+                    <Grid item xs={12} md={6} key={n.player.id}>
                       <Box sx={{ p: 2, bgcolor: "rgba(0,0,0,0.02)", borderRadius: 2, height: "100%", display: "flex", flexDirection: "column" }}>
                         <Typography variant="subtitle2" sx={{ fontWeight: 800, mb: 1 }}>
-                          {n.name}
+                          {n.player.name}
                         </Typography>
                         <Typography variant="body2" sx={{ fontStyle: "italic", mb: 2, flexGrow: 1 }}>
-                          "{n.narrative?.summary}"
+                          "{n.narrative?.strength} {n.narrative?.growth}"
                         </Typography>
                         <Stack direction="row" spacing={1}>
-                          <Chip label={`Strength: ${n.narrative?.strength.split(",")[0]}`} size="small" color="success" sx={{ fontSize: "0.65rem" }} />
+                          <Chip label={`Strength: ${n.narrative?.strength.split(".")[0]}`} size="small" color="success" sx={{ fontSize: "0.65rem" }} />
                           <Button
                             size="small"
                             variant="outlined"
                             onClick={() => {
                               setSnackbar({
                                 open: true,
-                                message: `Narrative for ${n.name} sent to player!`,
+                                message: `Narrative for ${n.player.name} sent to player!`,
                                 severity: "success"
                               });
                             }}
