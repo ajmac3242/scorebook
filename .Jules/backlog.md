@@ -28,6 +28,61 @@
 - [x] Automated generation of one "Strength" (e.g., "High Efficiency from Corner 3") and one "Growth Area" (e.g., "High TO rate on drives").
 - [x] Ability for the coach to "Approve & Send" the narrative to the player via text/email.
 
+## Situational "Clutch-Mode" Playbook Advisor
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Games are decided in high-pressure windows. Coaches need data-driven play suggestions that consider the active lineup's efficiency and the opponent's specific defensive vulnerabilities in the final 4 minutes.
+**What:** Build an advisor that triggers in "Clutch Mode" (final 4 mins, <5pt spread) and recommends the top 3 offensive plays from the playbook based on current game PPP and defender archetype mismatches.
+**Acceptance Criteria:**
+- [ ] "Clutch Playbook" overlay in GameMode HUD during clutch situations.
+- [ ] Dynamic ranking of playbook sets based on PPP in the current game.
+- [ ] Recommendation logic that filters for plays that attack the opponent's "weakest" active defender.
+- [ ] Indicator of "Success Probability" based on historical execution of the play by the current 5-man unit.
+
+## Official Tendency & Foul Context Tracker
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Officiating significantly impacts game flow. Tracking referee tendencies (e.g., calling 70% of fouls on the away team) allows coaches to adjust team aggressiveness and defensive style in real-time.
+**What:** Add an "Officiating" section to the GameMode to track foul distribution and referee "Tightness" (fouls per minute).
+**Acceptance Criteria:**
+- [ ] "Official Bias" HUD showing Team Foul % vs Opponent Foul % split.
+- [ ] "Referee Tightness Meter" comparing live game foul rate against season/league average.
+- [ ] Alert when officiating trend deviates by >30% (e.g., "Ref calling game tight - Adjust to Zone").
+- [ ] Post-game summary of "Impact of Officiating" on the final score.
+
+## Real-Time "Pace & Pressure" Analytics HUD
+**Priority:** HIGH
+**Type:** UX
+**Why:** Losing control of the game's tempo is a primary cause of blown leads. Real-time monitoring of Pace (Possessions per 40m) and Shot-Clock Pressure ensures the team sticks to the "Winning Blueprint."
+**What:** Integrate live tempo tracking into the GameMode sidebar, comparing current pace against the target "Identity" pace.
+**Acceptance Criteria:**
+- [ ] "Pace Meter" showing live possessions-per-40m calculation.
+- [ ] "Pressure Alert" when offensive possessions consistently enter the final 5 seconds of the shot clock (Shot Clock Pressure).
+- [ ] Visual indicator of "Tempo Delta" (Difference between our target pace and current game pace).
+- [ ] "Pace Shift" notification when the game tempo changes by more than 15% in a single period.
+
+## Holistic Matchup Efficiency Matrix
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Coaches need to see the entire defensive landscape at once, not just isolated mismatches. A 5x5 Matrix reveals the most exploitable and vulnerable points of the current unit-on-unit battle.
+**What:** Build a visual matrix component in GameMode that maps our 5 active players (Y-axis) against the 5 opponent players (X-axis) using color-coded efficiency (Stop %).
+**Acceptance Criteria:**
+- [ ] 5x5 "Efficiency Matrix" accessible via a sidebar toggle in GameMode.
+- [ ] Color-coded cells: Green (High Stop %), Red (Low Stop %), Gray (Insufficient Data).
+- [ ] One-tap reassignment by clicking a cell in the matrix.
+- [ ] "Unit Optimization" score summarizing the total defensive parity of the current 5-man unit.
+
+## "Locker Room" Post-Game Learning System
+**Priority:** HIGH
+**Type:** UX
+**Why:** The learning gap between games is where championships are won. A guided review mode turns a static box score into an interactive teaching tool for coaches and players.
+**What:** Implement a "Coaching Clinic" mode in the Game Stats page that automatically identifies and walks through the 5 most critical game-changing moments.
+**Acceptance Criteria:**
+- [ ] "Start Clinic" button in Game Stats.
+- [ ] Guided walkthrough identifying: 3 "Execution Wins" and 3 "Tactical Errors" based on PPP and Score Flow.
+- [ ] Integrated "Momentum Shift" analyzer that highlights the specific play or sub that triggered a scoring run.
+- [ ] "Coach's Reflection" text area to save takeaways for the next practice plan.
+
 ## Live "Game Identity" Radar
 **Priority:** HIGH
 **Type:** UX
