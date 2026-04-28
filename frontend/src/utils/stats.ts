@@ -492,22 +492,30 @@ export interface TargetAttack {
   reason: string;
 }
 
+/**
+ * ⚡ Bolt: Optimized calculateTargetAttackStats using a two-pass approach for mathematical correctness.
+ */
 export const calculateTargetAttackStats = (
   matchups: MatchupStats[],
   playerStats: PlayerAggregates[],
 ): TargetAttack | null => {
-  const opponentDefenders = matchups.filter((m) => m.isOpponentDefender);
-  if (opponentDefenders.length === 0) return null;
-
-  // Group by opponent defender to calculate total PPP allowed
   const defenderStats = new Map<string, { points: number; possessions: number }>();
-  for (const m of opponentDefenders) {
-    const current = defenderStats.get(m.opponentPlayerId) || { points: 0, possessions: 0 };
-    current.points += m.pointsAllowed;
-    current.possessions += m.possessions;
-    defenderStats.set(m.opponentPlayerId, current);
+
+  // Pass 1: Aggregate points and possessions
+  for (let i = 0; i < matchups.length; i++) {
+    const m = matchups[i];
+    if (!m.isOpponentDefender) continue;
+
+    const stats = defenderStats.get(m.opponentPlayerId) || {
+      points: 0,
+      possessions: 0,
+    };
+    stats.points += m.pointsAllowed;
+    stats.possessions += m.possessions;
+    defenderStats.set(m.opponentPlayerId, stats);
   }
 
+  // Pass 2: Identify defender with highest final PPP
   let worstDefenderId = "";
   let highestPpp = -1;
 
@@ -1992,16 +2000,46 @@ export const calculateTeamAggregates = (
  * @param {StatEvent[]} stats - List of statistical events for the game.
  * @returns {OpponentAggregates} Opponent statistical summary.
  */
-export const calculateOpponentAggregates = (
+/**
+ * ⚡ Bolt: Consolidated opponent aggregates and tendencies into a single pass.
+ */
+export const calculateOpponentSummary = (
   stats: StatEvent[],
-): OpponentAggregates => {
+): OpponentAggregates & { tendency: OpponentTendency } => {
   const agg = initOpponentAggregates();
+  let paintAttempts = 0;
+  let totalFieldGoalAttempts = 0;
+  let catchAndShootAttempts = 0;
+  let offDribbleAttempts = 0;
+  let totalTaggedAttempts = 0;
 
   for (let i = 0; i < stats.length; i++) {
     const stat = stats[i];
     if (!isActive(stat) || !isOpponentId(stat.playerId)) continue;
 
     applyActionToAggregate(agg, stat);
+
+    // Tendency logic
+    if (
+      (stat.type === ACTION_TYPES.MAKE || stat.type === ACTION_TYPES.MISS) &&
+      !isFreeThrow(stat)
+    ) {
+      totalFieldGoalAttempts++;
+      if (
+        detectShotValueFromCoords(stat.locationX || 0, stat.locationY || 0) === 2
+      ) {
+        const zone = getShotZone(stat.locationX || 0, stat.locationY || 0);
+        if (zone === "PAINT") paintAttempts++;
+      }
+
+      if (stat.shotType === "CATCH") {
+        catchAndShootAttempts++;
+        totalTaggedAttempts++;
+      } else if (stat.shotType === "DRIB") {
+        offDribbleAttempts++;
+        totalTaggedAttempts++;
+      }
+    }
   }
 
   const possessions = calculatePossessionsForAgg(agg);
@@ -2015,10 +2053,31 @@ export const calculateOpponentAggregates = (
     possessions: Math.round(possessions),
     efgPct: calculateEfgPct(agg.makes, agg.threePM, agg.attempts),
     toPct: calcPct(agg.turnovers, possessions),
-    orbPct: "0.0", // Individual opponent ORB% not supported without team context
+    orbPct: "0.0",
     ftRate: calcPct(agg.ftm, agg.attempts),
     threePPct: calculateFgPct(agg.threePM, agg.threePA),
+    tendency: {
+      paintPct:
+        totalFieldGoalAttempts > 0
+          ? ((paintAttempts / totalFieldGoalAttempts) * 100).toFixed(1)
+          : "0.0",
+      catchAndShootPct:
+        totalTaggedAttempts > 0
+          ? ((catchAndShootAttempts / totalTaggedAttempts) * 100).toFixed(1)
+          : "0.0",
+      offDribblePct:
+        totalTaggedAttempts > 0
+          ? ((offDribbleAttempts / totalTaggedAttempts) * 100).toFixed(1)
+          : "0.0",
+    },
   };
+};
+
+export const calculateOpponentAggregates = (
+  stats: StatEvent[],
+): OpponentAggregates => {
+  const { tendency, ...agg } = calculateOpponentSummary(stats);
+  return agg;
 };
 
 /**
@@ -2662,6 +2721,7 @@ export const calculateLineupStats = (
 export const calculateMatchupStats = (stats: StatEvent[]): MatchupStats[] => {
   const sorted = sortStats(stats);
   const currentMatchups = new Map<string, string>(); // Opponent ID -> Our Player ID
+  const reverseMatchups = new Map<string, string>(); // Our Player ID -> Opponent ID
   const results = new Map<string, MatchupStats>(); // "ourId:oppId:isOppDef" -> stats
 
   let inOpponentPossession = false;
@@ -2685,8 +2745,18 @@ export const calculateMatchupStats = (stats: StatEvent[]): MatchupStats[] => {
     const type = s.type;
 
     if (type === ACTION_TYPES.MATCHUP) {
+      // ⚡ Bolt: Correctly manage bidirectional mapping when reassignment occurs.
+      // 1. If this opponent was previously guarded by someone else, remove that old link.
+      const oldOurId = currentMatchups.get(s.playerId);
+      if (oldOurId) reverseMatchups.delete(oldOurId);
+
       if (s.relatedPlayerId) {
+        // 2. If our player was previously guarding a different opponent, remove that old link.
+        const oldOppId = reverseMatchups.get(s.relatedPlayerId);
+        if (oldOppId) currentMatchups.delete(oldOppId);
+
         currentMatchups.set(s.playerId, s.relatedPlayerId);
+        reverseMatchups.set(s.relatedPlayerId, s.playerId);
       } else {
         currentMatchups.delete(s.playerId);
       }
@@ -2699,13 +2769,8 @@ export const calculateMatchupStats = (stats: StatEvent[]): MatchupStats[] => {
       currentMatchups.get(SPECIAL_PLAYER_IDS.OPPONENT);
 
     // Direction 2: Opponent defender guarding Us
-    let oppDefenderId: string | undefined;
-    for (const [oppId, ourId] of currentMatchups.entries()) {
-      if (ourId === s.playerId) {
-        oppDefenderId = oppId;
-        break;
-      }
-    }
+    // ⚡ Bolt: Use reverseMatchups Map for O(1) lookup instead of iterating currentMatchups.
+    const oppDefenderId = reverseMatchups.get(s.playerId);
 
     // SCORING
     if (isScoringEvent(s)) {

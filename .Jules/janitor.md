@@ -48,3 +48,7 @@ Action: Regularly prune unused variables after optimization passes and ensure al
 ## 2026-04-28 - JSDoc Standardization and Nullish UI Checks
 Learning: Strict linting for JSDoc @returns and @param tags ensures better API documentation but requires diligent maintenance in utility files. UI logic using truthy checks for 'jerseyNumber' can lead to bugs where '0' is incorrectly hidden; standardized on nullish checks for all identifier displays.
 Action: Periodically run 'npm run lint' with --max-warnings=0 to catch missing JSDoc early. Use 'val !== undefined' or 'val ?? default' for all basketball-related identifiers.
+
+## 2026-04-28 - Collection Type Hygiene and Hook Dependency Pruning
+Learning: Implicit 'any' in 'Map' and 'Set' constructors and redundant hook dependencies are silent technical debts that obscure type errors and cause unnecessary React re-renders. Standardizing on explicit type parameters for collections (e.g., 'new Map<string, PlayerAggregates>()') and strict dependency arrays ensures both type safety and performance.
+Action: Enforce explicit type parameters for all collection constructors. Regularly audit 'useMemo' and 'useCallback' dependency arrays during hygiene passes to remove unused references.
