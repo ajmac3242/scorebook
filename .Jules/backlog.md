@@ -9,8 +9,8 @@
 5. Add a guardrail note to `playbook.md`: Jules should flag any file approaching 300 lines and propose a split before continuing.
 **Acceptance Criteria:**
 - [ ] `index.ts` is under 150 lines (router only)
-- [ ] No source file in `backend/src/` exceeds 300 lines
-- [ ] `backlog.md` is under 200 lines (active items only)
+- [ ] No source file in `backend/src/` exceeds 300 lines unless it logically makes sense. This is not a hard rule, but it's a refactor trigger. 
+- [ ] `backlog.md` (active items only)
 - [ ] `backlog-archive.md` exists with all completed items
 - [ ] Total test file count in `__tests__/` reduced by at least 4
 - [ ] All existing tests continue to pass
