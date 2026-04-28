@@ -68,6 +68,21 @@ describe("mathUtils", () => {
       expect(formatClock(0)).toBe("0:00");
       expect(formatClock(61)).toBe("1:01");
     });
+
+    it("handles large values correctly within 32-bit boundary", () => {
+      // 3600 seconds = 1 hour (60:00)
+      expect(formatClock(3600)).toBe("60:00");
+      // 2147483640 seconds is just below 2^31-1
+      expect(formatClock(2147483640)).toBe("35791394:00");
+    });
+
+    it("demonstrates 32-bit wrapping behavior for extremely large values", () => {
+      // (largeVal / 60) >= 2^31
+      // 60 * 2^31 = 128,849,018,880
+      const largeVal = 60 * Math.pow(2, 31);
+      const formatted = formatClock(largeVal);
+      expect(formatted).toContain("-");
+    });
   });
 
   describe("formatTimestampToTime", () => {

@@ -2161,6 +2161,25 @@ describe("stats utilities", () => {
       expect(p1.onPointsFor).toBe(5);
       expect(p1.offPointsFor).toBe(0);
     });
+
+    it("verifies OFF stats are exactly zero when a player is on the court for the whole game", () => {
+      const players = [{ id: "p1", name: "Player 1" }];
+      const stats: StatEvent[] = [
+        { gameId: "g1", playerId: "p1", type: ACTION_TYPES.SUB_IN, clockTime: 600, period: 1, timestamp: "1" },
+        { gameId: "g1", playerId: "p1", type: ACTION_TYPES.MAKE, points: 2, period: 1, timestamp: "2" },
+        { gameId: "g1", playerId: "OPPONENT", type: ACTION_TYPES.MAKE, points: 2, period: 1, timestamp: "3" },
+        // No SUB_OUT
+      ];
+      const result = calculateOnOffStats(players, stats);
+      const p1 = result[0];
+
+      expect(p1.onPointsFor).toBe(2);
+      expect(p1.onPointsAgainst).toBe(2);
+      expect(p1.offPointsFor).toBe(0);
+      expect(p1.offPointsAgainst).toBe(0);
+      expect(p1.offPossessions).toBe(0);
+      expect(p1.netDifferential).toBe("0.0");
+    });
   });
 
   describe("calculatePlayerStintTimeline", () => {

@@ -67,6 +67,22 @@ To ensure high reliability and rapid development cycles, Scorebook follows a tar
 - **CI Enforcement**: The full test suite (100+ tests) is automatically executed by GitHub Actions on every Pull Request to ensure no regressions are introduced.
 - **Behavior-Driven**: Tests focus on verifying business logic (e.g., statistical aggregations, defensive momentum) rather than internal implementation details.
 
+## Technical Deep Dive: Performance & Security Patterns
+
+To maintain high performance on low-end mobile devices and ensure enterprise-grade security for user data, Scorebook follows several strict engineering patterns:
+
+### 1. High-Performance Statistical Aggregation
+- **Loop Inversion**: Frequent checks (like determining if an event is a score) are performed once per event, and then we iterate over active players or lineups. This reduces branching logic inside the inner-most loops.
+- **O(N) Single-Pass Streams**: Complex metrics like Defensive Stops and Kills are calculated using a state-machine that processes the event stream in a single linear pass, avoiding expensive nested loops or look-aheads.
+- **OFF-as-Difference Optimization**: On/Off impact statistics are derived by tracking global game totals and subtracting a player's "ON" stats. This reduces the complexity of On/Off calculation from $O(N \times P)$ to $O(N + P)$.
+- **Bitwise Math**: Bitwise OR (`| 0`) is used for high-performance floor operations in clock formatting, providing a faster alternative to `Math.floor` for positive 32-bit integers.
+
+### 2. Defense-in-Depth Security
+- **Mass Assignment Protection**: Utility functions `stripLocalFields` (inbound) and `sanitizeOutput` (outbound) act as security boundaries, ensuring that internal database metadata (like DynamoDB PK/SK) and restricted state never cross the API perimeter.
+- **Timing Attack Prevention**: All secret comparisons (like API keys) use `crypto.timingSafeEqual` after fixed-length hashing (SHA-256) to prevent character-by-character guessing via execution time analysis.
+- **Strict Validation**: All IDs are validated as UUID v4 or strict jersey-prefixed formats (`OPPONENT:123`) to prevent injection and path traversal attacks.
+- **Hardened Headers**: Every API response includes a comprehensive CSP and other security headers (HSTS, COOP, CORP) to isolate the application in the browser.
+
 ## Key Features
 - **Real-time Game Tracking**: Easy-to-use interface for logging shots, misses, rebounds, and more.
 - **Shot Charts**: Visual representation of shot locations on a virtual court.
