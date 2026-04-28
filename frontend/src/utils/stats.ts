@@ -104,6 +104,10 @@ export interface MatchupStats {
   possessions: number;
   stopPct: string;
   isOpponentDefender?: boolean;
+  fga?: number;
+  fta?: number;
+  to?: number;
+  oreb?: number;
 }
 
 /**
@@ -1173,6 +1177,7 @@ export const calculatePlayerStintTimeline = (
  */
 export const calculateOpponentScoutingStats = (
   stats: StatEvent[],
+  viewType: "total" | "average" = "total",
 ): Map<string, OpponentAggregates> => {
   const result = new Map<string, OpponentAggregates>();
   const gameIdsMap = new Map<string, Set<string>>();
@@ -1200,15 +1205,37 @@ export const calculateOpponentScoutingStats = (
   }
 
   // Finalize PPP and percentages
-  for (const agg of result.values()) {
+  const isAverage = viewType === "average";
+  for (const [pId, agg] of result.entries()) {
     const possessions = calculatePossessionsForAgg(agg);
     agg.possessions = Math.round(possessions);
     agg.ppp = calculatePpp(agg.points, possessions);
     agg.fgPct = calculateFgPct(agg.makes, agg.attempts);
     agg.efgPct = calculateEfgPct(agg.makes, agg.threePM, agg.attempts);
+    agg.threePPct = calculateFgPct(agg.threePM, agg.threePA);
     agg.toPct = calcPct(agg.turnovers, possessions);
     agg.orbPct = "0.0"; // Individual ORB% requires context of all game missed shots
     agg.ftRate = calcPct(agg.ftm, agg.attempts);
+
+    if (isAverage) {
+      const gp = gameIdsMap.get(pId)?.size || 1;
+      agg.points = roundToOne(agg.points / gp);
+      agg.makes = roundToOne(agg.makes / gp);
+      agg.attempts = roundToOne(agg.attempts / gp);
+      agg.rebounds = roundToOne(agg.rebounds / gp);
+      agg.offRebounds = roundToOne(agg.offRebounds / gp);
+      agg.defRebounds = roundToOne(agg.defRebounds / gp);
+      agg.assists = roundToOne(agg.assists / gp);
+      agg.blocks = roundToOne(agg.blocks / gp);
+      agg.steals = roundToOne(agg.steals / gp);
+      agg.turnovers = roundToOne(agg.turnovers / gp);
+      agg.fouls = roundToOne(agg.fouls / gp);
+      agg.fta = roundToOne(agg.fta / gp);
+      agg.ftm = roundToOne(agg.ftm / gp);
+      agg.threePM = roundToOne(agg.threePM / gp);
+      agg.threePA = roundToOne(agg.threePA / gp);
+      agg.possessions = roundToOne(agg.possessions / gp);
+    }
   }
 
   return result;
@@ -2281,6 +2308,10 @@ export interface MatchupStats {
   possessions: number;
   stopPct: string;
   isOpponentDefender?: boolean;
+  fga?: number;
+  fta?: number;
+  to?: number;
+  oreb?: number;
 }
 
 /**
@@ -2740,50 +2771,46 @@ export const calculateMatchupStats = (stats: StatEvent[]): MatchupStats[] => {
     // ⚡ Bolt: Use reverseMatchups Map for O(1) lookup instead of iterating currentMatchups.
     const oppDefenderId = reverseMatchups.get(s.playerId);
 
+    // 🔍 Scout: Helper to get or create matchup stats record
+    const getM = (ourId: string, oppId: string, isOppDef: boolean) => {
+      const key = `${ourId}:${oppId}:${isOppDef}`;
+      let m = results.get(key);
+      if (!m) {
+        m = {
+          ourPlayerId: ourId,
+          opponentPlayerId: oppId,
+          pointsAllowed: 0,
+          stops: 0,
+          possessions: 0,
+          stopPct: "0.0",
+          isOpponentDefender: isOppDef,
+          fga: 0, fta: 0, to: 0, oreb: 0
+        };
+        results.set(key, m);
+      }
+      return m;
+    };
+
     // SCORING
     if (isScoringEvent(s)) {
       if (isOpp) {
         if (ourDefenderId) {
-          const key = `${ourDefenderId}:${s.playerId}:false`;
-          let m = results.get(key);
-          if (!m) {
-            m = {
-              ourPlayerId: ourDefenderId,
-              opponentPlayerId: s.playerId,
-              pointsAllowed: 0,
-              stops: 0,
-              possessions: 0,
-              stopPct: "0.0",
-              isOpponentDefender: false,
-            };
-            results.set(key, m);
-          }
+          const m = getM(ourDefenderId, s.playerId, false);
           m.pointsAllowed += s.points || 0;
-          m.possessions++;
+          if (isFreeThrow(s)) m.fta = (m.fta || 0) + 1;
+          else m.fga = (m.fga || 0) + 1;
         }
         inOpponentPossession = false;
-        inOurPossession = false; // Reset our state when they score
+        inOurPossession = false;
       } else {
         if (oppDefenderId) {
-          const key = `${s.playerId}:${oppDefenderId}:true`;
-          let m = results.get(key);
-          if (!m) {
-            m = {
-              ourPlayerId: s.playerId,
-              opponentPlayerId: oppDefenderId,
-              pointsAllowed: 0,
-              stops: 0,
-              possessions: 0,
-              stopPct: "0.0",
-              isOpponentDefender: true,
-            };
-            results.set(key, m);
-          }
+          const m = getM(s.playerId, oppDefenderId, true);
           m.pointsAllowed += s.points || 0;
-          m.possessions++;
+          if (isFreeThrow(s)) m.fta = (m.fta || 0) + 1;
+          else m.fga = (m.fga || 0) + 1;
         }
         inOurPossession = false;
-        inOpponentPossession = false; // Reset opponent state when we score
+        inOpponentPossession = false;
       }
       continue;
     }
@@ -2792,46 +2819,20 @@ export const calculateMatchupStats = (stats: StatEvent[]): MatchupStats[] => {
     if (type === ACTION_TYPES.TURNOVER) {
       if (isOpp) {
         if (ourDefenderId) {
-          const key = `${ourDefenderId}:${s.playerId}:false`;
-          let m = results.get(key);
-          if (!m) {
-            m = {
-              ourPlayerId: ourDefenderId,
-              opponentPlayerId: s.playerId,
-              pointsAllowed: 0,
-              stops: 0,
-              possessions: 0,
-              stopPct: "0.0",
-              isOpponentDefender: false,
-            };
-            results.set(key, m);
-          }
+          const m = getM(ourDefenderId, s.playerId, false);
           m.stops++;
-          m.possessions++;
+          m.to = (m.to || 0) + 1;
         }
         inOpponentPossession = false;
-        inOurPossession = false; // Turnover ends their possession, reset both
+        inOurPossession = false;
       } else {
         if (oppDefenderId) {
-          const key = `${s.playerId}:${oppDefenderId}:true`;
-          let m = results.get(key);
-          if (!m) {
-            m = {
-              ourPlayerId: s.playerId,
-              opponentPlayerId: oppDefenderId,
-              pointsAllowed: 0,
-              stops: 0,
-              possessions: 0,
-              stopPct: "0.0",
-              isOpponentDefender: true,
-            };
-            results.set(key, m);
-          }
+          const m = getM(s.playerId, oppDefenderId, true);
           m.stops++;
-          m.possessions++;
+          m.to = (m.to || 0) + 1;
         }
         inOurPossession = false;
-        inOpponentPossession = false; // Turnover ends our possession, reset both
+        inOpponentPossession = false;
       }
       inOpponentPossession = false;
       inOurPossession = false;
@@ -2839,9 +2840,31 @@ export const calculateMatchupStats = (stats: StatEvent[]): MatchupStats[] => {
       if (isOpp) {
         inOpponentPossession = true;
         opponentPossessionPlayerId = s.playerId;
+        if (ourDefenderId) {
+          const m = getM(ourDefenderId, s.playerId, false);
+          if (isFreeThrow(s)) m.fta = (m.fta || 0) + 1;
+          else m.fga = (m.fga || 0) + 1;
+        }
       } else {
         inOurPossession = true;
         ourPossessionPlayerId = s.playerId;
+        if (oppDefenderId) {
+          const m = getM(s.playerId, oppDefenderId, true);
+          if (isFreeThrow(s)) m.fta = (m.fta || 0) + 1;
+          else m.fga = (m.fga || 0) + 1;
+        }
+      }
+    } else if (s.type === ACTION_TYPES.OFF_REBOUND) {
+      if (isOpp) {
+        if (ourDefenderId) {
+          const m = getM(ourDefenderId, s.playerId, false);
+          m.oreb = (m.oreb || 0) + 1;
+        }
+      } else {
+        if (oppDefenderId) {
+          const m = getM(s.playerId, oppDefenderId, true);
+          m.oreb = (m.oreb || 0) + 1;
+        }
       }
     } else if (isDefensiveRebound(s)) {
       if (isOpp) {
@@ -2854,22 +2877,8 @@ export const calculateMatchupStats = (stats: StatEvent[]): MatchupStats[] => {
             }
           }
           if (odId) {
-            const key = `${ourPossessionPlayerId}:${odId}:true`;
-            let m = results.get(key);
-            if (!m) {
-              m = {
-                ourPlayerId: ourPossessionPlayerId,
-                opponentPlayerId: odId,
-                pointsAllowed: 0,
-                stops: 0,
-                possessions: 0,
-                stopPct: "0.0",
-                isOpponentDefender: true,
-              };
-              results.set(key, m);
-            }
+            const m = getM(ourPossessionPlayerId, odId, true);
             m.stops++;
-            m.possessions++;
           }
         }
         inOurPossession = false;
@@ -2879,22 +2888,8 @@ export const calculateMatchupStats = (stats: StatEvent[]): MatchupStats[] => {
             currentMatchups.get(opponentPossessionPlayerId) ||
             currentMatchups.get(SPECIAL_PLAYER_IDS.OPPONENT);
           if (defId) {
-            const key = `${defId}:${opponentPossessionPlayerId}:false`;
-            let m = results.get(key);
-            if (!m) {
-              m = {
-                ourPlayerId: defId,
-                opponentPlayerId: opponentPossessionPlayerId,
-                pointsAllowed: 0,
-                stops: 0,
-                possessions: 0,
-                stopPct: "0.0",
-                isOpponentDefender: false,
-              };
-              results.set(key, m);
-            }
+            const m = getM(defId, opponentPossessionPlayerId, false);
             m.stops++;
-            m.possessions++;
           }
         }
         inOpponentPossession = false;
@@ -2903,11 +2898,14 @@ export const calculateMatchupStats = (stats: StatEvent[]): MatchupStats[] => {
   }
 
   // Finalize stop percentages
-  return Array.from(results.values()).map((m) => ({
-    ...m,
-    stopPct:
-      m.possessions > 0 ? ((m.stops / m.possessions) * 100).toFixed(1) : "0.0",
-  }));
+  return Array.from(results.values()).map((m) => {
+    const possessions = calculatePossessions(m.fga || 0, m.fta || 0, m.to || 0, m.oreb || 0);
+    return {
+      ...m,
+      possessions,
+      stopPct: possessions > 0 ? ((m.stops / possessions) * 100).toFixed(1) : "0.0",
+    };
+  });
 };
 
 /**
@@ -3072,6 +3070,7 @@ export const calculateOnOffStats = (
     offPtsFor: number; offPtsAgn: number;
     offTeamFga: number; offTeamFta: number; offTeamTo: number; offTeamOreb: number;
     offOppFga: number; offOppFta: number; offOppTo: number; offOppOreb: number;
+    activeGames: Set<string>;
   };
 
   // Initialize
@@ -3099,6 +3098,7 @@ export const calculateOnOffStats = (
       offOppFta: 0,
       offOppTo: 0,
       offOppOreb: 0,
+      activeGames: new Set<string>(),
     });
   }
 
@@ -3107,6 +3107,7 @@ export const calculateOnOffStats = (
   let activeAggsArray: OnOffStats[] = [];
 
   let currentGameId: string | null = null;
+  const allGameIds = new Set<string>();
 
   // ⚡ Bolt: $O(N+P)$ Optimization via "OFF-as-Difference"
   //
@@ -3118,18 +3119,18 @@ export const calculateOnOffStats = (
   // PERFORMANCE: This reduces complexity to a single pass through events ($O(N)$)
   // plus a single pass through players ($O(P)$), ensuring rapid calculation
   // even for large multi-game datasets or rosters.
-  const totals = {
-    ptsFor: 0,
-    ptsAgn: 0,
-    teamFga: 0,
-    teamFta: 0,
-    teamTo: 0,
-    teamOreb: 0,
-    oppFga: 0,
-    oppFta: 0,
-    oppTo: 0,
-    oppOreb: 0,
-  };
+  const gameTotalsMap = new Map<string, {
+    ptsFor: number;
+    ptsAgn: number;
+    teamFga: number;
+    teamFta: number;
+    teamTo: number;
+    teamOreb: number;
+    oppFga: number;
+    oppFta: number;
+    oppTo: number;
+    oppOreb: number;
+  }>();
 
   for (let i = 0; i < sorted.length; i++) {
     const s = sorted[i];
@@ -3137,15 +3138,31 @@ export const calculateOnOffStats = (
 
     if (s.gameId !== currentGameId) {
       currentGameId = s.gameId;
+      allGameIds.add(currentGameId);
       activeAggs.clear();
       activeAggsArray = [];
+      gameTotalsMap.set(currentGameId, {
+        ptsFor: 0,
+        ptsAgn: 0,
+        teamFga: 0,
+        teamFta: 0,
+        teamTo: 0,
+        teamOreb: 0,
+        oppFga: 0,
+        oppFta: 0,
+        oppTo: 0,
+        oppOreb: 0,
+      });
     }
+
+    const currentTotals = gameTotalsMap.get(currentGameId)!;
 
     if (s.type === ACTION_TYPES.SUB_IN) {
       const agg = results.get(s.playerId);
       if (agg && !activeAggs.has(s.playerId)) {
         activeAggs.set(s.playerId, agg);
         activeAggsArray.push(agg);
+        agg.activeGames.add(currentGameId);
       }
       continue;
     } else if (s.type === ACTION_TYPES.SUB_OUT) {
@@ -3161,20 +3178,20 @@ export const calculateOnOffStats = (
 
     // Update global totals
     if (s.type === ACTION_TYPES.MAKE) {
-      if (isOpp) totals.ptsAgn += pts;
-      else totals.ptsFor += pts;
+      if (isOpp) currentTotals.ptsAgn += pts;
+      else currentTotals.ptsFor += pts;
     }
 
     if (isOpp) {
-      if (isFieldGoal(s)) totals.oppFga++;
-      else if (isFreeThrow(s)) totals.oppFta++;
-      else if (s.type === ACTION_TYPES.TURNOVER) totals.oppTo++;
-      else if (s.type === ACTION_TYPES.OFF_REBOUND) totals.oppOreb++;
+      if (isFieldGoal(s)) currentTotals.oppFga++;
+      else if (isFreeThrow(s)) currentTotals.oppFta++;
+      else if (s.type === ACTION_TYPES.TURNOVER) currentTotals.oppTo++;
+      else if (s.type === ACTION_TYPES.OFF_REBOUND) currentTotals.oppOreb++;
     } else {
-      if (isFieldGoal(s)) totals.teamFga++;
-      else if (isFreeThrow(s)) totals.teamFta++;
-      else if (s.type === ACTION_TYPES.TURNOVER) totals.teamTo++;
-      else if (s.type === ACTION_TYPES.OFF_REBOUND) totals.teamOreb++;
+      if (isFieldGoal(s)) currentTotals.teamFga++;
+      else if (isFreeThrow(s)) currentTotals.teamFta++;
+      else if (s.type === ACTION_TYPES.TURNOVER) currentTotals.teamTo++;
+      else if (s.type === ACTION_TYPES.OFF_REBOUND) currentTotals.teamOreb++;
     }
 
     // Update ON stats for active players
@@ -3232,19 +3249,44 @@ export const calculateOnOffStats = (
   }
 
   return Array.from(results.entries()).map(([pId, agg]) => {
-    // ⚡ Bolt: Derive OFF stats: Total - ON
-    // This is mathematically guaranteed to be accurate and significantly
-    // faster than tracking OFF state during the event loop.
-    const offPtsFor = totals.ptsFor - agg.onPtsFor;
-    const offPtsAgn = totals.ptsAgn - agg.onPtsAgn;
-    const offTeamFga = totals.teamFga - agg.onTeamFga;
-    const offTeamFta = totals.teamFta - agg.onTeamFta;
-    const offTeamTo = totals.teamTo - agg.onTeamTo;
-    const offTeamOreb = totals.teamOreb - agg.onTeamOreb;
-    const offOppFga = totals.oppFga - agg.onOppFga;
-    const offOppFta = totals.oppFta - agg.onOppFta;
-    const offOppTo = totals.oppTo - agg.onOppTo;
-    const offOppOreb = totals.oppOreb - agg.onOppOreb;
+    // 🔍 Scout: Aggregate totals only from games where the player was active.
+    // However, if we only have one game in the stream, we include it even if
+    // no SUB_IN was recorded (assuming the player was on the roster).
+    // For multi-game streams, we strictly use activeGames to prevent skew.
+    const eligibleTotals = {
+      ptsFor: 0, ptsAgn: 0, teamFga: 0, teamFta: 0, teamTo: 0, teamOreb: 0,
+      oppFga: 0, oppFta: 0, oppTo: 0, oppOreb: 0
+    };
+
+    const gamesToInclude = (allGameIds.size <= 1) ? allGameIds : agg.activeGames;
+
+    for (const gId of gamesToInclude) {
+      const gTot = gameTotalsMap.get(gId);
+      if (gTot) {
+        eligibleTotals.ptsFor += gTot.ptsFor;
+        eligibleTotals.ptsAgn += gTot.ptsAgn;
+        eligibleTotals.teamFga += gTot.teamFga;
+        eligibleTotals.teamFta += gTot.teamFta;
+        eligibleTotals.teamTo += gTot.teamTo;
+        eligibleTotals.teamOreb += gTot.teamOreb;
+        eligibleTotals.oppFga += gTot.oppFga;
+        eligibleTotals.oppFta += gTot.oppFta;
+        eligibleTotals.oppTo += gTot.oppTo;
+        eligibleTotals.oppOreb += gTot.oppOreb;
+      }
+    }
+
+    // ⚡ Bolt: Derive OFF stats: Eligible Total - ON
+    const offPtsFor = eligibleTotals.ptsFor - agg.onPtsFor;
+    const offPtsAgn = eligibleTotals.ptsAgn - agg.onPtsAgn;
+    const offTeamFga = eligibleTotals.teamFga - agg.onTeamFga;
+    const offTeamFta = eligibleTotals.teamFta - agg.onTeamFta;
+    const offTeamTo = eligibleTotals.teamTo - agg.onTeamTo;
+    const offTeamOreb = eligibleTotals.teamOreb - agg.onTeamOreb;
+    const offOppFga = eligibleTotals.oppFga - agg.onOppFga;
+    const offOppFta = eligibleTotals.oppFta - agg.onOppFta;
+    const offOppTo = eligibleTotals.oppTo - agg.onOppTo;
+    const offOppOreb = eligibleTotals.oppOreb - agg.onOppOreb;
 
     const onTeamPoss = calculatePossessions(
       agg.onTeamFga,
