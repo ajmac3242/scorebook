@@ -103,7 +103,6 @@ import {
 import {
   calculatePlayerAggregates,
   calculatePlayerStreaks,
-  calculateOpponentTendencies,
   calculatePlayEfficiency,
   calculateSchemeEfficiency,
   detectShotValueFromCoords,
@@ -114,9 +113,9 @@ import {
   calculatePpp,
   calcPct,
   calculateLineupStats,
-  calculateTeamSeasonAverages,
-  calculateOpponentAggregates,
+  calculateOpponentSummary,
   calculateTeamAggregates,
+  calculateTeamSeasonAverages,
   calculateTargetAttackStats,
   isEventInPeriod,
   isOpponentId,
@@ -1264,9 +1263,13 @@ const RotationSuggester: React.FC<{
     );
     const gameProgress = Math.min(1, elapsedMins / totalGameMins);
 
+    // ⚡ Bolt: Use Maps for O(1) lookups instead of O(N) .find() in the roster loop.
+    const playersMap = new Map(players.map((p) => [p.id, p]));
+    const statsMap = new Map(statsGridData.map((s) => [s.id, s]));
+
     const roster = teamPlayers.map((tp) => {
-      const p = players.find((p) => p.id === tp.playerId);
-      const gameStats = statsGridData.find((s) => s.id === tp.playerId);
+      const p = playersMap.get(tp.playerId);
+      const gameStats = statsMap.get(tp.playerId);
       const actualMins = gameStats?.min || 0;
       const targetMins = tp.targetMinutes || 0;
       const expectedMins = targetMins * gameProgress;
@@ -2095,9 +2098,10 @@ const GameMode: React.FC = () => {
 
     const res = [];
     for (const [id, events] of jerseyMap.entries()) {
-      const agg = calculateOpponentAggregates(events);
-      const tendency = calculateOpponentTendencies(events);
-      const t = gameData.momentumAlerts.opponentThreats.find((t) => t.playerId === id);
+      const { tendency, ...agg } = calculateOpponentSummary(events);
+      const t = gameData.momentumAlerts.opponentThreats.find(
+        (t) => t.playerId === id,
+      );
 
       res.push({
         id,
@@ -2110,9 +2114,9 @@ const GameMode: React.FC = () => {
     }
     return res.sort((a, b) => b.points - a.points);
   }, [sortedGameStats, gameData.momentumAlerts.opponentThreats]);
-  const teamOpponentTendencies = useMemo(() => {
+  const opponentSummary = useMemo(() => {
     const oppEvents = sortedGameStats.filter((s) => isOpponentId(s.playerId));
-    return calculateOpponentTendencies(oppEvents);
+    return calculateOpponentSummary(oppEvents);
   }, [sortedGameStats]);
 
   const liveFourFactors = useMemo<{
@@ -2121,8 +2125,7 @@ const GameMode: React.FC = () => {
   } | null>(() => {
     if (!game) return null;
     const teamStats = calculateTeamAggregates([game], sortedGameStats, false);
-    const oppEvents = sortedGameStats.filter((s) => isOpponentId(s.playerId));
-    const oppAgg = calculateOpponentAggregates(oppEvents);
+    const { tendency: _t, ...oppAgg } = opponentSummary;
 
     return {
       team: teamStats,
@@ -3894,15 +3897,15 @@ const GameMode: React.FC = () => {
                   <Grid container spacing={1}>
                     <Grid item xs={4}>
                       <Typography variant="caption" sx={{ display: "block", opacity: 0.8 }}>PAINT</Typography>
-                      <Typography variant="body2" sx={{ fontWeight: 700 }}>{teamOpponentTendencies.paintPct}%</Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 700 }}>{opponentSummary.tendency.paintPct}%</Typography>
                     </Grid>
                     <Grid item xs={4}>
                       <Typography variant="caption" sx={{ display: "block", opacity: 0.8 }}>CATCH</Typography>
-                      <Typography variant="body2" sx={{ fontWeight: 700 }}>{teamOpponentTendencies.catchAndShootPct}%</Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 700 }}>{opponentSummary.tendency.catchAndShootPct}%</Typography>
                     </Grid>
                     <Grid item xs={4}>
                       <Typography variant="caption" sx={{ display: "block", opacity: 0.8 }}>DRIB</Typography>
-                      <Typography variant="body2" sx={{ fontWeight: 700 }}>{teamOpponentTendencies.offDribblePct}%</Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 700 }}>{opponentSummary.tendency.offDribblePct}%</Typography>
                     </Grid>
                   </Grid>
                 </Box>
