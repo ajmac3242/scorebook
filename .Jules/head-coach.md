@@ -91,3 +91,11 @@ Observation: The application has matured into a comprehensive "Tactical Operatin
 Impact: Without officiating analysis, coaches may miss that a specific referee is calling the game tighter on the away team, leading to avoidable foul trouble. Without real-time pace and pressure monitoring, teams can fall into the opponent's desired tempo without realizing it until the lead has evaporated. A lack of a holistic Matchup Matrix means tactical adjustments remain focused on single-player mismatches rather than optimized unit-to-unit parity.
 
 Recommendation: Pivot toward **Situational Intelligence** and **Holistic Accountability**. Priority must be given to the Situational "Clutch-Mode" Playbook Advisor and the referee bias tracker. We must also implement a "Mismatch Matrix" for unit-to-unit analysis and a "Pace & Pressure" HUD to maintain tempo control. Finally, we must close the professional loop by introducing a "Coaching Clinic" post-game mode that turns data into a guided learning experience for the staff.
+
+## 2026-04-29 - Strategic Vision: Operational Accountability & Situational Mastery
+
+Observation: The platform has achieved "Live Tactical Maturity" for individual scorekeepers. However, basketball at the elite level is a collaborative effort involving a coaching staff. Current gaps include a lack of individual defensive accountability (Defensive Breakdowns), a way to isolate high-leverage execution (Special Situations like ATOs), and a mechanism for staff-level collaboration (Coach-Assistant Bridge).
+
+Impact: Without defensive breakdown attribution, coaches cannot distinguish between "good offense" and "bad defense" during post-game reviews. Without special situation tracking, the value of set-play execution remains hidden in raw efficiency totals. Lack of real-time staff sync limits the app's utility in professional environments where data fidelity is non-negotiable.
+
+Recommendation: Pivot toward **Staff-Level Operations** and **Situational Accountability**. Priority must be given to Defensive Breakdown Attribution and Special Situations Tracking (ATO/SLOB/BLOB). To support professional workflows, we must implement the Coach-Assistant Live Sync Bridge and surface scouting intelligence directly in the live HUD. Finally, the Ref-Identity Conflict Alert will provide the ultimate strategic safety net for high-pressure teams.
