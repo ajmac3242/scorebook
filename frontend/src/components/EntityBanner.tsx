@@ -37,6 +37,7 @@ interface EntityBannerProps {
   jerseyNumber?: string;
   searchTerm?: string;
   onSearchChange?: (_value: string) => void;
+  listId?: string;
 }
 
 /**
@@ -61,6 +62,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
   jerseyNumber,
   searchTerm,
   onSearchChange,
+  listId,
 }) => {
   const navigate = useNavigate();
   const [isSearchExpanded, setIsSearchExpanded] = React.useState(false);
@@ -282,6 +284,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                 : "transparent",
               borderRadius: "20px",
               pr: isSearchExpanded ? 1 : 0,
+              transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
             }}
           >
             <Tooltip title={isSearchExpanded ? "Close search" : "Search"}>
@@ -307,6 +310,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                 onChange={(e) => onSearchChange(e.target.value)}
                 inputProps={{
                   "aria-label": `Search ${title}`,
+                  "aria-controls": listId,
                 }}
                 InputProps={{
                   disableUnderline: true,

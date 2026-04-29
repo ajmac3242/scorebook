@@ -228,6 +228,16 @@ export const AnimatedNumber: React.FC<AnimatedNumberProps> = ({
   const prevValueRef = useRef(value);
 
   useEffect(() => {
+    const prefersReducedMotion =
+      typeof window.matchMedia === "function" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (prefersReducedMotion) {
+      setDisplayValue(value);
+      prevValueRef.current = value;
+      return;
+    }
+
     let startTimestamp: number | null = null;
     let animationFrameId: number;
     const startValue = prevValueRef.current;

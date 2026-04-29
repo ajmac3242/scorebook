@@ -170,6 +170,7 @@ const Players: React.FC = () => {
         backTo="/"
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
+        listId="player-list"
         actions={
           <FormControlLabel
             control={
@@ -188,9 +189,29 @@ const Players: React.FC = () => {
         }
       />
 
-      <Box sx={{ mt: 4 }} />
+      <Box sx={{ mt: 4 }}>
+        <Typography
+          variant="body2"
+          sx={{
+            position: "absolute",
+            width: "1px",
+            height: "1px",
+            padding: 0,
+            margin: "-1px",
+            overflow: "hidden",
+            clip: "rect(0, 0, 0, 0)",
+            whiteSpace: "nowrap",
+            border: 0,
+          }}
+          aria-live="polite"
+        >
+          {searchTerm
+            ? `${playersWithStats.length} player${playersWithStats.length === 1 ? "" : "s"} found for "${searchTerm}"`
+            : ""}
+        </Typography>
+      </Box>
 
-      <Grid container spacing={3}>
+      <Grid container spacing={3} id="player-list">
         {playersWithStats.map((player) => (
           <Grid item xs={12} sm={6} md={6} key={player.id}>
             <MoleskineCard
