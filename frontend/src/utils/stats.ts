@@ -231,8 +231,7 @@ export const isActive = (stat: StatEvent): boolean => !stat.deletedAt;
  * @param {StatEvent} stat - The event to check.
  * @returns {boolean} True if it is a MAKE action.
  */
-export const isScoringEvent = (stat: StatEvent): boolean =>
-  isScoringEvent(stat);
+export const isScoringEvent = (stat: StatEvent): boolean => stat.type === ACTION_TYPES.MAKE;
 
 /**
  * Determines if a statistical event is a foul action.
@@ -3439,6 +3438,7 @@ export interface ClutchPlay {
 export const calculateClutchPlaybookRanking = (
   stats: StatEvent[],
   _clutchThresholdSeconds = 240, // Final 4 mins
+  matchups: MatchupStats[] = [],
 ): ClutchPlay[] => {
   const sorted = sortStats(stats);
   const playStats = new Map<string, { points: number; attempts: number; makes: number; frequency: number }>();

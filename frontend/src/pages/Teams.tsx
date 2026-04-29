@@ -276,9 +276,30 @@ const Teams: React.FC = () => {
         backTo="/"
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
+        listId="team-list"
       />
 
       <Box sx={{ mt: 4 }}>
+        <Typography
+          variant="body2"
+          sx={{
+            position: "absolute",
+            width: "1px",
+            height: "1px",
+            padding: 0,
+            margin: "-1px",
+            overflow: "hidden",
+            clip: "rect(0, 0, 0, 0)",
+            whiteSpace: "nowrap",
+            border: 0,
+          }}
+          aria-live="polite"
+        >
+          {searchTerm
+            ? `${filteredTeams.length} team${filteredTeams.length === 1 ? "" : "s"} found for "${searchTerm}"`
+            : ""}
+        </Typography>
+
         {filteredTeams.length === 0 && (
           <Box
             sx={{
@@ -327,7 +348,7 @@ const Teams: React.FC = () => {
             )}
           </Box>
         )}
-        <Grid container spacing={3}>
+        <Grid container spacing={3} id="team-list">
           {filteredTeams.map((team) => {
             const aggregates = teamAggregatesMap[team.id!] || {
               record: "0-0",

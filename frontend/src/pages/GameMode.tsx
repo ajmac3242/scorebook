@@ -301,6 +301,7 @@ const Scoreboard = React.memo(
                 mb: 1,
               }}
               aria-live="assertive"
+              aria-atomic="true"
               aria-label={`${name} score: ${score}`}
             >
               <AnimatedNumber value={score} />
@@ -1036,7 +1037,7 @@ const ActionControls = React.memo(
           </span>
         </Tooltip>
 
-        <Tooltip title="Quick Substitution">
+        <Tooltip title="Quick Substitution (S)">
           <span>
             <Button
               size="small"
@@ -1044,7 +1045,7 @@ const ActionControls = React.memo(
               startIcon={<Groups />}
               onClick={onQuickSub}
               disabled={isReadOnly}
-              aria-label="quick sub"
+              aria-label="Quick Substitution (S)"
               aria-haspopup="dialog"
             >
               Sub
@@ -1070,7 +1071,7 @@ const ActionControls = React.memo(
           </span>
         </Tooltip>
 
-        <Tooltip title="Record Team Timeout">
+        <Tooltip title="Record Team Timeout (T)">
           <span>
             <Button
               size="small"
@@ -1078,7 +1079,7 @@ const ActionControls = React.memo(
               startIcon={<History />}
               onClick={onTimeout}
               disabled={isReadOnly}
-              aria-label="Record Team Timeout"
+              aria-label="Record Team Timeout (T)"
               aria-haspopup="dialog"
             >
               Timeout
@@ -3096,6 +3097,14 @@ const GameMode: React.FC = () => {
         e.preventDefault();
         handleNextPeriod();
       }
+      if (e.key.toLowerCase() === "s" && !isInput && !isReadOnly) {
+        e.preventDefault();
+        setSubDialogOpen(true);
+      }
+      if (e.key.toLowerCase() === "t" && !isInput && !isReadOnly) {
+        e.preventDefault();
+        handleTimeout();
+      }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
@@ -3493,18 +3502,22 @@ const GameMode: React.FC = () => {
         <Grid item xs={12} md={4}>
           <Stack spacing={3}>
             {trackingMode === "TEAM" && (
-              <StrategicAdvisorHUD
-                gameData={gameData}
-                clockSeconds={clockSeconds}
-                period={period}
-                isClockRunning={isClockRunning}
-              />
+              <Box aria-live="polite">
+                <StrategicAdvisorHUD
+                  gameData={gameData}
+                  clockSeconds={clockSeconds}
+                  period={period}
+                  isClockRunning={isClockRunning}
+                />
+              </Box>
             )}
 
             {trackingMode === "TEAM" && (
-              <TargetAttackHUD
-                matchups={matchupStats}
-              />
+              <Box aria-live="polite">
+                <TargetAttackHUD
+                  matchups={matchupStats}
+                />
+              </Box>
             )}
 
             {trackingMode === "TEAM" && (
@@ -5084,6 +5097,7 @@ const GameMode: React.FC = () => {
           title={isClockRunning ? "Pause Game Clock (Space)" : "Start Game Clock (Space)"}
         >
           <IconButton
+            aria-pressed={isClockRunning}
             onClick={handleToggleClock}
             sx={{
               position: "fixed",

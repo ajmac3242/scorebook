@@ -188,6 +188,8 @@ const Navigation: React.FC = () => {
       )}
 
       <Box
+        component="header"
+        aria-label="Application Header"
         sx={{
           position: "fixed",
           top: 0,
@@ -229,12 +231,18 @@ const Navigation: React.FC = () => {
               <Typography
                 variant="h6"
                 noWrap
+                component={Link}
+                to="/"
                 sx={{
                   fontFamily: "var(--serif)",
                   color: "primary.dark",
                   fontWeight: 800,
                   fontSize: "1.25rem",
                   letterSpacing: "0.02em",
+                  textDecoration: "none",
+                  "&:hover": {
+                    opacity: 0.8,
+                  },
                 }}
               >
                 Scorebook
@@ -244,6 +252,8 @@ const Navigation: React.FC = () => {
 
           {/* Central Navigation Pill Container */}
           <Box
+            component="nav"
+            aria-label="Main Navigation"
             sx={{
               position: "absolute",
               left: "50%",

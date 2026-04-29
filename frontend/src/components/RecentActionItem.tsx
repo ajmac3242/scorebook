@@ -96,6 +96,7 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
 
     return (
       <Box
+        aria-current={isLatest ? "true" : undefined}
         sx={{
           display: "flex",
           justifyContent: "space-between",
