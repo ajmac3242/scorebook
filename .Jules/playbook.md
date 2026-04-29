@@ -67,3 +67,6 @@ cd frontend && pnpm test:jules -- "<module-name>"
 - **Patterns in what gets left incomplete**: Defensive categorization (like opponent play types) is often defined in constants but missing from the live entry/reporting UI.
 - **Recurring issues agents create**: Neglecting null checks in fast-path utilities like 'isOpponentId', leading to crashes when processing partially-formed events.
 - **End-of-Day improvement patterns**: Closing the loop on 'dormant' features (like Opponent Play Types) provides high tactical value for coaches without requiring new database schema changes.
+
+## Agent Guardrail Note
+- **File Size Management**: Agents should flag any file approaching 300 lines and propose a split into smaller, more focused modules before continuing.
