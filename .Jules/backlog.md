@@ -8,6 +8,7 @@ Completed items are archived to `.Jules/backlog-archive.md` to maintain optimal 
 **Why:** Jules is exhibiting slowdowns and "file too large" issues because several core files have grown beyond effective context window limits. The monolithic `index.ts` (883 lines) forces Jules to load the entire API surface for any single endpoint change. The `backlog.md` (637 lines) is injected into every session regardless of relevance. Multiple overlapping sentinel test files add redundant context on every run.
 **What:**
 1. Split `index.ts` into per-resource handler modules: `handlers/players.ts`, `handlers/games.ts`, `handlers/teams.ts`, `handlers/stats.ts`, `handlers/cleanup.ts` — each under 200 lines. Keep `index.ts` as a thin router (~100 lines).
+   - [x] `handlers/cleanup.ts` created and integrated.
 2. Split `utils.ts` (420 lines) — separate `security-utils.ts` (sanitize, mask, safeCompare, normalizePath) from `data-utils.ts` (stripLocalFields, extractId, etc.).
 3. Archive `backlog.md` — move all `[x]` completed items to a `backlog-archive.md`. Add a rule: completed items get archived after each sprint. Enforce a soft cap of ~200 lines on active `backlog.md`.
 4. Consolidate sentinel test files — merge `sentinel_enhancements.test.ts`, `sentinel_dos.test.ts`, `sentinel_path.test.ts`, `sentinel_v3.test.ts`, `sentinel_v4.test.ts` into a single organized `security.test.ts` with `describe` blocks per concern. Target under 500 total lines.
@@ -63,7 +64,7 @@ Completed items are archived to `.Jules/backlog-archive.md` to maintain optimal 
 - [ ] Automatic suggestion of 3 "Focus Areas" based on the game's worst-performing metrics.
 - [ ] Linkage to a (mock) library of drills (e.g., "Poor 3PT% -> Suggest '100 Makes' Drill").
 
-## [ ] Opponent Play-Type Breakdown (PnR vs ISO vs Post)
+## [x] Opponent Play-Type Breakdown (PnR vs ISO vs Post)
 **Priority:** HIGH
 **Type:** Feature
 **Why:** Understanding *how* an opponent is scoring (e.g., Pick-and-Roll vs. Isolation) is the first step to stopping them. Defensive adjustments are only as good as the underlying data.
@@ -71,8 +72,8 @@ Completed items are archived to `.Jules/backlog-archive.md` to maintain optimal 
 **Acceptance Criteria:**
 - [x] Optional "Play Type" selector in the opponent shot recording dialog.
 - [x] "Opponent Scoring Breakdown" table in GameStats showing efficiency by Play Type.
-- [ ] Real-time alerts for recurring threats (e.g., "Opponent scoring 1.8 PPP on Pick-and-Rolls").
-- [ ] Filter opponent shot chart by Play Type.
+- [x] Real-time alerts for recurring threats (e.g., "Opponent scoring 1.8 PPP on Pick-and-Rolls").
+- [x] Filter opponent shot chart by Play Type.
 
 ## Automated Defensive Synergy Analysis (2-3 Player Units)
 **Priority:** HIGH

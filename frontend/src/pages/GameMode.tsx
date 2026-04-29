@@ -188,6 +188,7 @@ interface ScoreboardProps {
       opponentRun: string | null;
       scoringDrought: string | null;
       opponentThreats: OpponentThreat[];
+        opponentPlayThreats?: { name: string; ppp: string; frequency: number }[];
       isClutchMode?: boolean;
       teamBonusApproaching?: boolean;
       oppBonusApproaching?: boolean;
@@ -570,6 +571,39 @@ const Scoreboard = React.memo(
                   )}
                 </Stack>
               ))}
+
+              {gameData.momentumAlerts.opponentPlayThreats?.map((play) => (
+                <Stack key={play.name} spacing={0.5} alignItems="center">
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      bgcolor: "secondary.main",
+                      color: "white",
+                      px: 1,
+                      borderRadius: 1,
+                      fontSize: "0.55rem",
+                      fontWeight: 900,
+                      animation: `${pulse} 3s infinite ease-in-out`,
+                    }}
+                  >
+                    THREAT: {play.name} ({play.ppp} PPP)
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      bgcolor: "rgba(255,255,255,0.9)",
+                      color: "secondary.dark",
+                      px: 1,
+                      borderRadius: 1,
+                      fontSize: "0.45rem",
+                      fontWeight: 900,
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    Switch Defense
+                  </Typography>
+                </Stack>
+              ))}
             </Box>
           )}
 
@@ -946,7 +980,7 @@ const ActionControls = React.memo(
                 color: "secondary.main",
               }}
             >
-              <ElectricBolt fontSize="small" />
+              <ElectricBoltIcon fontSize="small" />
             </IconButton>
           </span>
         </Tooltip>
@@ -1859,6 +1893,7 @@ const GameMode: React.FC = () => {
 
     // Opponent Threats tracking
     const threats = new Map<string, OpponentThreat>();
+    const oppPlayStats = new Map<string, { points: number; attempts: number }>();
 
     for (let i = 0; i < sortedGameStats.length; i++) {
       const s = sortedGameStats[i];
@@ -1932,6 +1967,12 @@ const GameMode: React.FC = () => {
             oppFta++;
           } else {
             oppFga++;
+            // Opponent Play tracking for misses
+            if (s.playType) {
+              const ps = oppPlayStats.get(s.playType) || { points: 0, attempts: 0 };
+              ps.attempts++;
+              oppPlayStats.set(s.playType, ps);
+            }
             // Opponent Threat tracking for misses
             let t = threats.get(s.playerId);
             if (t) t.consecutiveMakes = 0;
@@ -1959,6 +2000,14 @@ const GameMode: React.FC = () => {
           t.consecutiveMakes++;
           if (t.points >= 8 || t.consecutiveMakes >= 3) {
             t.isHot = true;
+          }
+
+          // Opponent Play tracking for makes
+          if (s.playType) {
+            const ps = oppPlayStats.get(s.playType) || { points: 0, attempts: 0 };
+            ps.attempts++;
+            ps.points += s.points || 0;
+            oppPlayStats.set(s.playType, ps);
           }
         }
       } else {
@@ -2079,6 +2128,13 @@ const GameMode: React.FC = () => {
       momentumAlerts: {
         opponentRun: opponentRunValue,
         opponentThreats: Array.from(threats.values()).filter((t) => t.isHot),
+        opponentPlayThreats: Array.from(oppPlayStats.entries())
+          .map(([name, ps]) => ({
+            name,
+            ppp: (ps.points / Math.max(1, ps.attempts)).toFixed(2),
+            frequency: ps.attempts,
+          }))
+          .filter((p) => p.frequency >= 3 && parseFloat(p.ppp) >= 1.2),
         teamBonusApproaching: teamFouls === bonusThresholds.warning,
         oppBonusApproaching: oppFouls === bonusThresholds.warning,
       },

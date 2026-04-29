@@ -54,6 +54,7 @@ import {
   ACTION_TYPES,
   SPECIAL_PLAYER_IDS,
   SHOT_QUALITY,
+  PLAY_TYPES,
 } from "../constants/stats";
 import {
   calculatePlayerAggregates,
@@ -280,6 +281,7 @@ const GameStats: React.FC = () => {
   const [selectedType, setSelectedType] = useState<string>("ALL");
   const [selectedQuality, setSelectedQuality] = useState<string>("ALL");
   const [selectedPlay, setSelectedPlay] = useState<string>("ALL");
+  const [selectedOpponentPlay, setSelectedOpponentPlay] = useState<string>("ALL");
   const [periodFilter, setPeriodFilter] = useState<string>("ALL");
   const [clutchFilter, setClutchFilter] = useState(false);
   const [compareMode, setCompareMode] = useState(false);
@@ -585,7 +587,9 @@ const GameStats: React.FC = () => {
         selectedQuality === "ALL" || s.shotQuality === selectedQuality;
       const playMatch =
         selectedPlay === "ALL" || (s.playName && s.playName === selectedPlay);
-      if (playerMatch && typeMatch && playMatch && qualityMatch) {
+      const oppPlayMatch =
+        selectedOpponentPlay === "ALL" || (s.playType && s.playType === selectedOpponentPlay);
+      if (playerMatch && typeMatch && playMatch && qualityMatch && oppPlayMatch) {
         filtered.push(s);
         if (s.type === ACTION_TYPES.MAKE || s.type === ACTION_TYPES.MISS) {
           markers.push({
@@ -609,6 +613,7 @@ const GameStats: React.FC = () => {
     selectedType,
     selectedQuality,
     selectedPlay,
+    selectedOpponentPlay,
     shotChartJerseyMap,
   ]);
 
@@ -632,6 +637,7 @@ const GameStats: React.FC = () => {
         if (selectedQuality !== "ALL" && s.shotQuality !== selectedQuality)
           continue;
         if (selectedPlay !== "ALL" && s.playName !== selectedPlay) continue;
+        if (selectedOpponentPlay !== "ALL" && s.playType !== selectedOpponentPlay) continue;
 
         const zone = getShotZone(s.locationX || 0, s.locationY || 0);
         if (!data[zone]) data[zone] = { makes: 0, attempts: 0 };
@@ -640,7 +646,7 @@ const GameStats: React.FC = () => {
       }
       return data;
     },
-    [allStats, selectedPlayerId, selectedType, selectedPlay, selectedQuality],
+    [allStats, selectedPlayerId, selectedType, selectedPlay, selectedOpponentPlay, selectedQuality],
   );
 
   const heatmapData = useMemo(
@@ -1365,6 +1371,21 @@ const GameStats: React.FC = () => {
             </Select>
           </FormControl>
         )}
+        <FormControl fullWidth size="small">
+          <InputLabel>Opp. Play Type</InputLabel>
+          <Select
+            value={selectedOpponentPlay}
+            label="Opp. Play Type"
+            onChange={(e) => setSelectedOpponentPlay(e.target.value)}
+          >
+            <MenuItem value="ALL">All Opp. Plays</MenuItem>
+            {Object.values(PLAY_TYPES).map((type) => (
+              <MenuItem key={type} value={type}>
+                {type}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
       </Stack>
     </Box>
   );
