@@ -132,6 +132,8 @@ import {
   MatchupStats,
   calculateClutchPlaybookRanking,
   calculateOfficiatingStats,
+  type OfficiatingStats,
+  type PaceAnalytics,
   calculatePaceAnalytics,
 } from "../utils/stats";
 import { formatClock, roundToOne } from "../utils/mathUtils";
@@ -1243,7 +1245,7 @@ const ClutchPlaybookAdvisor: React.FC<{
   allStats: StatEvent[];
   matchups: MatchupStats[];
   isClutch: boolean;
-}> = ({ playbook, allStats, matchups, isClutch }) => {
+}> = ({ playbook: _, allStats, matchups, isClutch }) => {
   const topPlays = useMemo(() => {
     return calculateClutchPlaybookRanking(allStats, 240, matchups);
   }, [allStats, matchups]);
@@ -1307,7 +1309,7 @@ const ClutchPlaybookAdvisor: React.FC<{
  * WHY: Tracks foul distribution and referee "tightness" in real-time.
  */
 const OfficiatingHUD: React.FC<{
-  stats: any;
+  stats: OfficiatingStats;
 }> = ({ stats }) => {
   const isTight = stats.tightness === "HIGH";
 
@@ -1362,7 +1364,7 @@ const OfficiatingHUD: React.FC<{
  * WHY: Visualizes tempo and warns about pace shifts or shot-clock pressure.
  */
 const PaceHUD: React.FC<{
-  analytics: any;
+  analytics: PaceAnalytics;
   identityPace: number;
 }> = ({ analytics, identityPace }) => {
   const isFastShift = analytics.pace > identityPace * 1.15;
@@ -1522,8 +1524,8 @@ const RotationSuggester: React.FC<{
     const gameProgress = Math.min(1, elapsedMins / totalGameMins);
 
     // ⚡ Bolt: Use Maps for O(1) lookups instead of O(N) .find() in the roster loop.
-    const playersMap = new Map(players.map((p) => [p.id, p]));
-    const statsMap = new Map(statsGridData.map((s) => [s.id, s]));
+    const playersMap = new Map(players.map((p) => [p.id?.toString(), p]));
+    const statsMap = new Map(statsGridData.map((s) => [s.id.toString(), s]));
 
     const roster = teamPlayers.map((tp) => {
       const p = playersMap.get(tp.playerId);
@@ -1724,6 +1726,14 @@ const GameMode: React.FC = () => {
     for (let i = 0; i < players.length; i++) {
       const p = players[i];
       if (p.id) map.set(p.id.toString(), p.name);
+    }
+    return map;
+  }, [players]);
+  const playersMap = useMemo(() => {
+    const map = new Map<string, Player>();
+    for (let i = 0; i < players.length; i++) {
+      const p = players[i];
+      if (p.id) map.set(p.id.toString(), p);
     }
     return map;
   }, [players]);
@@ -2023,21 +2033,25 @@ const GameMode: React.FC = () => {
 
       // Lineup and Substitution Tracking
       if (s.type === ACTION_TYPES.SUB_IN) {
-        onCourt.add(s.playerId);
-        if (s.period === period) {
-          stintStarts.set(s.playerId, s.clockTime ?? periodLen);
-          // ⚡ Bolt: Update lineup plus-minus baselines during the single pass.
-          lastLineupChangeClock = s.clockTime ?? lastLineupChangeClock;
-          lastLineupChangeScoreTeam = curScore;
-          lastLineupChangeScoreOpp = oppScore;
+        if (!onCourt.has(s.playerId)) {
+          onCourt.add(s.playerId);
+          if (s.period === period) {
+            stintStarts.set(s.playerId, s.clockTime ?? periodLen);
+            // ⚡ Bolt: Update lineup plus-minus baselines during the single pass.
+            lastLineupChangeClock = s.clockTime ?? lastLineupChangeClock;
+            lastLineupChangeScoreTeam = curScore;
+            lastLineupChangeScoreOpp = oppScore;
+          }
         }
       } else if (s.type === ACTION_TYPES.SUB_OUT) {
-        onCourt.delete(s.playerId);
-        stintStarts.delete(s.playerId);
-        if (s.period === period) {
-          lastLineupChangeClock = s.clockTime ?? lastLineupChangeClock;
-          lastLineupChangeScoreTeam = curScore;
-          lastLineupChangeScoreOpp = oppScore;
+        if (onCourt.has(s.playerId)) {
+          onCourt.delete(s.playerId);
+          stintStarts.delete(s.playerId);
+          if (s.period === period) {
+            lastLineupChangeClock = s.clockTime ?? lastLineupChangeClock;
+            lastLineupChangeScoreTeam = curScore;
+            lastLineupChangeScoreOpp = oppScore;
+          }
         }
       }
 
@@ -2429,7 +2443,7 @@ const GameMode: React.FC = () => {
   } | null>(() => {
     if (!game) return null;
     const teamStats = calculateTeamAggregates([game], sortedGameStats, false);
-    const { tendency: _t, ...oppAgg } = opponentSummary;
+    const oppAgg = opponentSummary;
 
     return {
       team: teamStats,
@@ -2441,7 +2455,7 @@ const GameMode: React.FC = () => {
         ),
       },
     };
-  }, [game, sortedGameStats]);
+  }, [game, sortedGameStats, opponentSummary]);
 
   const tacticalGoalStats = useMemo(() => {
     if (!liveFourFactors) return {};
@@ -4390,7 +4404,7 @@ const GameMode: React.FC = () => {
                 const jersey = selectedPlayerId.split(":")[1];
                 return `${game?.opponent || "Opponent"} #${jersey}`;
               }
-              const p = players?.find((p) => p.id === selectedPlayerId);
+              const p = playersMap.get(selectedPlayerId);
               if (!p) return "Select Player";
               const s = statsMap.get(p.id!);
               return `${p.name} (${s?.points || 0} pts | ${s?.fouls || 0} pf)`;
@@ -4888,7 +4902,7 @@ const GameMode: React.FC = () => {
           onClose={() => setFtWorkflowOpen(false)}
           gameId={gameId}
           playerId={selectedPlayerId}
-          player={players.find((p) => p.id === selectedPlayerId)}
+          player={playersMap.get(selectedPlayerId)}
           jerseyNumber={jerseyMap.get(selectedPlayerId)}
           period={period}
           clockTime={clockSeconds}
@@ -4943,7 +4957,7 @@ const GameMode: React.FC = () => {
                 (s.playerId === SPECIAL_PLAYER_IDS.TEAM_TIMEOUT ||
                 s.playerId === SPECIAL_PLAYER_IDS.OUR_TEAM
                   ? team?.name || "Our Team"
-                  : players?.find((p) => p.id === s.playerId)?.name ||
+                  : playersMap.get(s.playerId)?.name ||
                     "Unknown");
 
               return `Are you sure you want to delete the ${s.type} by ${pName}?`;

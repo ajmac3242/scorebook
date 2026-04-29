@@ -1,3 +1,7 @@
+import { sortStats, getPeriodLen, isOpponentId, isActive, isScoringEvent, isFreeThrow, isThreePointAttempt, calcPct, initializeStatsMap, applyActionToAggregate } from "./stats/core";
+import { TeamAggregates, MatchupStats, OpponentAggregates, ScoreFlowPoint, BonusStatus, PlayerAggregates, TargetAttack, PlayerStint, PlayEfficiency, SchemeEfficiency, OpponentThreat, ScoringRun, OpponentTendency, LineupAggregates, OnOffImpact, ClutchPlay, OfficiatingStats, PaceAnalytics } from "./stats/types";
+export * from "./stats/types";
+export * from "./stats/core";
 /**
  * @file stats.ts
  * @description Utility functions for calculating basketball statistics (averages, totals, records).
@@ -228,7 +232,7 @@ export const isActive = (stat: StatEvent): boolean => !stat.deletedAt;
  * @returns {boolean} True if it is a MAKE action.
  */
 export const isScoringEvent = (stat: StatEvent): boolean =>
-  stat.type === ACTION_TYPES.MAKE;
+  isScoringEvent(stat);
 
 /**
  * Determines if a statistical event is a foul action.
@@ -288,7 +292,7 @@ export const isThreePointAttempt = (stat: StatEvent): boolean =>
  * @returns {boolean} True if it is a field goal attempt.
  */
 export const isFieldGoal = (stat: StatEvent): boolean =>
-  (stat.type === ACTION_TYPES.MAKE || stat.type === ACTION_TYPES.MISS) &&
+  (isScoringEvent(stat) || stat.type === ACTION_TYPES.MISS) &&
   !isFreeThrow(stat);
 
 /**
@@ -1882,7 +1886,7 @@ export const calculateTeamAggregates = (
     const pts = stat.points || 0;
     const target = isOpponent ? opp : team;
 
-    if (stat.type === ACTION_TYPES.MAKE) {
+    if (isScoringEvent(stat)) {
       if (isOpponent) totals.opp += pts;
       else totals.team += pts;
 
@@ -1983,7 +1987,7 @@ export const calculateOpponentSummary = (
 
     // Tendency logic
     if (
-      (stat.type === ACTION_TYPES.MAKE || stat.type === ACTION_TYPES.MISS) &&
+      (isScoringEvent(stat) || stat.type === ACTION_TYPES.MISS) &&
       !isFreeThrow(stat)
     ) {
       totalFieldGoalAttempts++;
@@ -2038,8 +2042,7 @@ export const calculateOpponentSummary = (
 export const calculateOpponentAggregates = (
   stats: StatEvent[],
 ): OpponentAggregates => {
-  const { tendency, ...agg } = calculateOpponentSummary(stats);
-  return agg;
+  return calculateOpponentSummary(stats);
 };
 
 /**
@@ -2090,7 +2093,7 @@ export const calculateScoreFlow = (
     }
 
     // Capture point if it's a significant event for the chart
-    if (stat.type === ACTION_TYPES.MAKE || stat.type === ACTION_TYPES.TIMEOUT) {
+    if (isScoringEvent(stat) || stat.type === ACTION_TYPES.TIMEOUT) {
       const period = stat.period || 1;
       const clockTime = stat.clockTime ?? periodLenSecs;
       const elapsedSeconds =
@@ -2105,7 +2108,7 @@ export const calculateScoreFlow = (
       const oppPoss = calculatePossessions(opp.fga, opp.fta, opp.to, opp.oreb);
 
       let eventLabel = stat.type;
-      if (stat.type === ACTION_TYPES.MAKE) {
+      if (isScoringEvent(stat)) {
         eventLabel = `${pts}PT MAKE`;
       }
 
@@ -3435,8 +3438,7 @@ export interface ClutchPlay {
 
 export const calculateClutchPlaybookRanking = (
   stats: StatEvent[],
-  clutchThresholdSeconds: number = 240, // Final 4 mins
-  matchups: MatchupStats[]
+  _clutchThresholdSeconds = 240, // Final 4 mins
 ): ClutchPlay[] => {
   const sorted = sortStats(stats);
   const playStats = new Map<string, { points: number; attempts: number; makes: number; frequency: number }>();

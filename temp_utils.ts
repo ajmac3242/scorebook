@@ -349,10 +349,12 @@ export function extractRequestMetadata(event: APIGatewayProxyEventV2): {
  * @returns {boolean} True if the keys match.
  */
 /**
-  const hashA = crypto.createHash("sha256").update(a).digest();
-  const hashB = crypto.createHash("sha256").update(b).digest();
-  return crypto.timingSafeEqual(hashA, hashB);
-}
+ * Timing-safe string comparison to prevent timing attacks.
+ *
+ * @param a - User-provided key.
+ * @param b - Actual secret key.
+ * @returns {boolean} True if the keys match.
+
 /**
  * Extracts an ID from a path given a prefix.
  * @param {string} path - The request path.
