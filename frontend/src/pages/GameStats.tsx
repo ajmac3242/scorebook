@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useCallback } from "react";
+import React, { useState, useMemo, useEffect, useCallback, memo } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
   Box,
@@ -48,7 +48,7 @@ import {
 import BasketballCourt from "../components/BasketballCourt";
 import SubstitutionAuditDialog from "../components/SubstitutionAuditDialog";
 import { getShotZone } from "../utils/shotZones";
-import { db } from "../db";
+import { db, StatEvent, TeamPlayer } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
 import {
   ACTION_TYPES,
@@ -154,10 +154,10 @@ const PlayerFeedbackCard: React.FC<{
  * WHY: Visualizes how foul distribution and free-throw scoring influenced the outcome.
  */
 const OfficiatingImpactSummary: React.FC<{
-  stats: any[];
+  stats: StatEvent[];
   teamScore: number;
   oppScore: number;
-  teamPlayers: any[];
+  teamPlayers: TeamPlayer[];
 }> = ({ stats, teamScore, oppScore, teamPlayers }) => {
   const officiatingImpact = useMemo(() => {
     const teamFTM = stats.filter(s => s.type === ACTION_TYPES.MAKE && s.points === 1 && !isOpponentId(s.playerId)).length;
@@ -166,7 +166,7 @@ const OfficiatingImpactSummary: React.FC<{
     const teamFoulEvents = stats.filter(s => s.type === ACTION_TYPES.FOUL && !isOpponentId(s.playerId));
     const oppFouls = stats.filter(s => s.type === ACTION_TYPES.FOUL && isOpponentId(s.playerId)).length;
 
-    const starterIds = new Set(teamPlayers.filter(tp => tp.isStarter).map(tp => tp.playerId));
+    const starterIds = new Set<string>(teamPlayers.filter(tp => tp.isStarter).map(tp => tp.playerId));
     let starterFouls = 0;
     let benchFouls = 0;
 
@@ -263,6 +263,97 @@ const OfficiatingImpactSummary: React.FC<{
     </MoleskineCard>
   );
 };
+
+/**
+ * ⚡ Bolt: PlayerStatRow
+ * WHY: Memoizing individual rows prevents re-rendering all rows when only
+ * one player's stats change or during time-scrubbing interactions.
+ */
+const PlayerStatRow = memo(({ row }: { row: PlayerAggregates }) => (
+  <TableRow key={row.id}>
+    <TableCell
+      sx={{
+        fontWeight: 600,
+        display: "flex",
+        alignItems: "center",
+        gap: 1,
+      }}
+    >
+      <Avatar
+        sx={{
+          width: 24,
+          height: 24,
+          fontSize: "0.75rem",
+          bgcolor: row.avatarColor,
+        }}
+      >
+        {row.jerseyNumber}
+      </Avatar>
+      <Typography
+        variant="body2"
+        sx={{
+          fontWeight: 600,
+          fontSize: { xs: "0.75rem", sm: "0.875rem" },
+        }}
+      >
+        {row.name}
+      </Typography>
+    </TableCell>
+    <TableCell align="right">{row.min}</TableCell>
+    <TableCell align="right">{row.points}</TableCell>
+    <TableCell align="right">
+      {row.makes}-{row.attempts}
+    </TableCell>
+    <TableCell
+      align="right"
+      sx={{ display: { xs: "none", sm: "table-cell" } }}
+    >
+      {row.fgPct}%
+    </TableCell>
+    <TableCell
+      align="right"
+      sx={{ display: { xs: "none", sm: "table-cell" } }}
+    >
+      {row.efgPct}%
+    </TableCell>
+    <TableCell
+      align="right"
+      sx={{ display: { xs: "none", sm: "table-cell" } }}
+    >
+      {row.offRebounds}
+    </TableCell>
+    <TableCell
+      align="right"
+      sx={{ display: { xs: "none", sm: "table-cell" } }}
+    >
+      {row.defRebounds}
+    </TableCell>
+    <TableCell align="right">{row.rebounds}</TableCell>
+    <TableCell align="right">{row.assists}</TableCell>
+    <TableCell
+      align="right"
+      sx={{ display: { xs: "none", sm: "table-cell" } }}
+    >
+      {row.steals}
+    </TableCell>
+    <TableCell
+      align="right"
+      sx={{ display: { xs: "none", sm: "table-cell" } }}
+    >
+      {row.blocks}
+    </TableCell>
+    <TableCell
+      align="right"
+      sx={{ display: { xs: "none", sm: "table-cell" } }}
+    >
+      {row.turnovers}
+    </TableCell>
+    <TableCell align="right">{row.fouls}</TableCell>
+    <TableCell align="right">
+      {row.plusMinus > 0 ? `+${row.plusMinus}` : row.plusMinus}
+    </TableCell>
+  </TableRow>
+));
 
 /**
  * GameStats page component.
@@ -1124,89 +1215,7 @@ const GameStats: React.FC = () => {
         </TableHead>
         <TableBody>
           {playerAggregates.map((row) => (
-            <TableRow key={row.id}>
-              <TableCell
-                sx={{
-                  fontWeight: 600,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1,
-                }}
-              >
-                <Avatar
-                  sx={{
-                    width: 24,
-                    height: 24,
-                    fontSize: "0.75rem",
-                    bgcolor: row.avatarColor,
-                  }}
-                >
-                  {row.jerseyNumber}
-                </Avatar>
-                <Typography
-                  variant="body2"
-                  sx={{
-                    fontWeight: 600,
-                    fontSize: { xs: "0.75rem", sm: "0.875rem" },
-                  }}
-                >
-                  {row.name}
-                </Typography>
-              </TableCell>
-              <TableCell align="right">{row.min}</TableCell>
-              <TableCell align="right">{row.points}</TableCell>
-              <TableCell align="right">
-                {row.makes}-{row.attempts}
-              </TableCell>
-              <TableCell
-                align="right"
-                sx={{ display: { xs: "none", sm: "table-cell" } }}
-              >
-                {row.fgPct}%
-              </TableCell>
-              <TableCell
-                align="right"
-                sx={{ display: { xs: "none", sm: "table-cell" } }}
-              >
-                {row.efgPct}%
-              </TableCell>
-              <TableCell
-                align="right"
-                sx={{ display: { xs: "none", sm: "table-cell" } }}
-              >
-                {row.offRebounds}
-              </TableCell>
-              <TableCell
-                align="right"
-                sx={{ display: { xs: "none", sm: "table-cell" } }}
-              >
-                {row.defRebounds}
-              </TableCell>
-              <TableCell align="right">{row.rebounds}</TableCell>
-              <TableCell align="right">{row.assists}</TableCell>
-              <TableCell
-                align="right"
-                sx={{ display: { xs: "none", sm: "table-cell" } }}
-              >
-                {row.steals}
-              </TableCell>
-              <TableCell
-                align="right"
-                sx={{ display: { xs: "none", sm: "table-cell" } }}
-              >
-                {row.blocks}
-              </TableCell>
-              <TableCell
-                align="right"
-                sx={{ display: { xs: "none", sm: "table-cell" } }}
-              >
-                {row.turnovers}
-              </TableCell>
-              <TableCell align="right">{row.fouls}</TableCell>
-              <TableCell align="right">
-                {row.plusMinus > 0 ? `+${row.plusMinus}` : row.plusMinus}
-              </TableCell>
-            </TableRow>
+            <PlayerStatRow key={row.id} row={row} />
           ))}
           {teamData && (
             <TableRow
