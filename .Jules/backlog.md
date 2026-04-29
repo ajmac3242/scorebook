@@ -181,3 +181,53 @@ Completed items are archived to `.Jules/backlog-archive.md` to maintain optimal 
 - [ ] Exactly 3 bullets: 1 Offensive insight, 1 Defensive insight, 1 Personnel adjustment.
 - [ ] "Copy to Clipboard" for sharing with assistant coaches via text.
 - [ ] Highlight the specific stat that drove each bullet (e.g., "Why? Team ORB% is 12%").
+
+## Defensive Breakdown Attribution (The Accountability Layer)
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Understanding *why* the defense failed is the first step to fixing it. Separating "Coaching/Rotation Errors" from "Skill/Make" buckets allows for objective post-game accountability.
+**What:** Add an optional "Breakdown Reason" tag to opponent scoring events (Missed Rotation, Transition Leak, Poor Closeout, Out-Hustled, Great Contest).
+**Acceptance Criteria:**
+- [ ] "Breakdown" selector appears after recording an opponent make.
+- [ ] "Defensive Integrity" report in GameStats showing % of points allowed by breakdown category.
+- [ ] "Accountability HUD" in GameMode highlighting the primary breakdown cause in the current half.
+
+## Special Situations Efficiency Tracker (ATO/SLOB/BLOB)
+**Priority:** HIGH
+**Type:** Feature
+**Why:** High-leverage execution on set plays (After Timeouts, Side-Line OB, Base-Line OB) is the hallmark of championship teams. Raw PPP doesn't isolate these critical tactical moments.
+**What:** Implement a "Situation Tag" for possessions to track execution on specialized set plays.
+**Acceptance Criteria:**
+- [ ] One-tap tags for: ATO (After Timeout), SLOB, BLOB, EOP (End of Period).
+- [ ] "Specialty Execution" table in GameStats showing PPP and EFG% isolated by situation.
+- [ ] Dashboard insight: "Your team is +0.4 PPP higher on ATOs than standard possessions."
+
+## Live Opponent Personnel Intelligence HUD
+**Priority:** HIGH
+**Type:** UX
+**Why:** Scouting reports are often forgotten in the heat of a game. Surfacing "How to play him" tendencies directly on the player selection screen reduces scorekeeper error and aids coaching pivots.
+**What:** Integrate persistent scouting notes (e.g., "Force Left", "Elite Shooter", "Non-Threat") into the live GameMode opponent cards.
+**Acceptance Criteria:**
+- [ ] Opponent cards in GameMode display a 1-line scouting "Key" (e.g., "FORCE LEFT").
+- [ ] "Personnel Alert" pulses when a player with "Elite Shooter" tag takes an open attempt.
+- [ ] Integration with Target Attack HUD to explain *why* a player is being targeted based on scouting.
+
+## Coach-Assistant Live Sync Bridge
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Elite programs use multiple sets of eyes. One person tracking fouls/subs while another tracks shots ensures 100% data fidelity during high-intensity 4th quarter runs.
+**What:** A multi-device websocket or real-time sync layer that allows two "Scorekeeper" roles to update the same game instance simultaneously.
+**Acceptance Criteria:**
+- [ ] "Invite Assistant" QR code/Link in GameMode.
+- [ ] Real-time (sub-500ms) propagation of events across devices.
+- [ ] Conflict resolution logic (e.g., if two people record a sub, only one is committed).
+
+## Ref-Identity Conflict Alert System
+**Priority:** MEDIUM
+**Type:** Enhancement
+**Why:** If a team's identity is "High Pressure" but the officiating "Tightness" is high, they will foul out by halftime. This alert forces a tactical pivot before the game is lost to the free-throw line.
+**What:** A predictive engine that compares live Officiating FPM (Fouls Per Minute) against the Team's active defensive scheme.
+**Acceptance Criteria:**
+- [ ] "Conflict Warning" alert: "Ref Tightness is HIGH. Pressing Identity at risk of foul trouble."
+- [ ] Suggestion to shift to "Soft Zone" or "MAN-Contain" when tightness exceeds 1.5x baseline.
+- [ ] Real-time projection of "Team Fouls at Period End" based on current ref tightness.
