@@ -60,6 +60,7 @@ import {
   calculatePlayerAggregates,
   calculateTeamAggregates,
   calculateLineupStats,
+  calculateSynergyStats,
   getInitials,
 } from "../utils/stats";
 import { MoleskineCard } from "../components/SharedUI";
@@ -321,6 +322,15 @@ const TeamStats: React.FC = () => {
   const lineupStats = useMemo(
     () => calculateLineupStats(allStats as StatEvent[], lineupSortConfig),
     [allStats, lineupSortConfig],
+  );
+
+  const [synergyUnitSize, setSynergyUnitSize] = useState<2 | 3>(2);
+  const synergyStats = useMemo(
+    () => calculateSynergyStats(allStats as StatEvent[], synergyUnitSize, {
+      periodLength: team?.defaultPeriodLength,
+      periodType: team?.periodType
+    }),
+    [allStats, synergyUnitSize, team]
   );
 
   const playerStats = useMemo(() => {
@@ -721,6 +731,7 @@ const TeamStats: React.FC = () => {
           <Tab label="Schedule" sx={{ fontWeight: 600 }} />
           <Tab label="Team Stats" sx={{ fontWeight: 600 }} />
           <Tab label="Lineup Analytics" sx={{ fontWeight: 600 }} />
+          <Tab label="Synergy" sx={{ fontWeight: 600 }} />
           <Tab label="Roster" sx={{ fontWeight: 600 }} />
         </Tabs>
 
@@ -1233,6 +1244,79 @@ const TeamStats: React.FC = () => {
       )}
 
       {tabValue === 3 && (
+        <Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+            <Typography variant="h5" sx={{ fontFamily: "var(--serif)" }}>
+              Defensive Synergy (Multi-Player Units)
+            </Typography>
+            <ToggleButtonGroup
+              value={synergyUnitSize}
+              exclusive
+              onChange={(_, val) => val && setSynergyUnitSize(val)}
+              size="small"
+            >
+              <ToggleButton value={2}>2-Player</ToggleButton>
+              <ToggleButton value={3}>3-Player</ToggleButton>
+            </ToggleButtonGroup>
+          </Box>
+
+          <TableContainer component={MoleskineCard}>
+            <Table size="small">
+              <TableHead>
+                <TableRow sx={{ bgcolor: "rgba(0,0,0,0.02)" }}>
+                  <TableCell sx={{ fontWeight: 700 }}>Unit</TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 700 }}>MIN</TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 700 }}>POSS</TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 700 }}>STOPS</TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 700 }}>DRTG</TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 700 }}>NET</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {synergyStats
+                  .filter(s => s.seconds >= 600) // Min 10 mins
+                  .sort((a, b) => parseFloat(a.dRtg) - parseFloat(b.dRtg))
+                  .map((row, idx) => (
+                    <TableRow key={idx}>
+                      <TableCell>
+                        <Stack direction="row" spacing={0.5}>
+                          {row.lineup.map((pId) => (
+                            <Avatar
+                              key={pId}
+                              sx={{ width: 24, height: 24, fontSize: "0.65rem" }}
+                            >
+                              {sortedRosterJerseyMap.get(pId) || "??"}
+                            </Avatar>
+                          ))}
+                        </Stack>
+                      </TableCell>
+                      <TableCell align="right">{(row.seconds / 60).toFixed(1)}</TableCell>
+                      <TableCell align="right">{row.possessions}</TableCell>
+                      <TableCell align="right">{row.defensiveStops}</TableCell>
+                      <TableCell align="right" sx={{ fontWeight: 700, color: parseFloat(row.dRtg) < 100 ? 'success.main' : 'inherit' }}>
+                        {row.dRtg}
+                      </TableCell>
+                      <TableCell align="right" sx={{ fontWeight: 700, color: parseFloat(row.netRating) > 0 ? 'success.main' : 'error.main' }}>
+                        {row.netRating}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                {synergyStats.filter(s => s.seconds >= 600).length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
+                      <Typography variant="body2" color="text.secondary">
+                        No units found with significant minutes (&gt;10m) in this window.
+                      </Typography>
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Box>
+      )}
+
+      {tabValue === 4 && (
         <Box>
           <Box
             sx={{

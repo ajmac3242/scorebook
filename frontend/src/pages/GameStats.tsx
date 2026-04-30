@@ -79,6 +79,7 @@ import { MoleskineCard } from "../components/SharedUI";
 import FourFactorsHUD from "../components/FourFactorsHUD";
 import EntityBanner from "../components/EntityBanner";
 import RecentActionItem from "../components/RecentActionItem";
+import PracticePlannerDialog from "../components/PracticePlannerDialog";
 import TacticalGoalHUD from "../components/TacticalGoalHUD";
 import { syncService } from "../utils/syncService";
 import { logger } from "../utils/logger";
@@ -401,6 +402,7 @@ const GameStats: React.FC = () => {
   const [keyMomentsOnly, setKeyMomentsOnly] = useState(false);
   const [videoExportDialogOpen, setVideoExportDialogOpen] = useState(false);
   const [auditDialogOpen, setAuditDialogOpen] = useState(false);
+  const [practicePlannerOpen, setPracticePlannerOpen] = useState(false);
   const [showFouls, setShowFouls] = useState(true);
   const [showRuns, setShowRuns] = useState(true);
   const [isExporting, setIsExporting] = useState(false);
@@ -1947,6 +1949,14 @@ const GameStats: React.FC = () => {
                 <Button
                   variant="contained"
                   size="small"
+                  onClick={() => setPracticePlannerOpen(true)}
+                  sx={{ bgcolor: "rgba(255,255,255,0.2)", color: "white" }}
+                >
+                  Practice Planner
+                </Button>
+                <Button
+                  variant="contained"
+                  size="small"
                   onClick={() => setVideoExportDialogOpen(true)}
                   sx={{ bgcolor: "rgba(255,255,255,0.2)", color: "white" }}
                 >
@@ -2653,6 +2663,14 @@ const GameStats: React.FC = () => {
           <Button onClick={() => setExpandedSection(null)}>Close</Button>
         </DialogActions>
       </Dialog>
+
+      {gameId && teamData && (
+        <PracticePlannerDialog
+          open={practicePlannerOpen}
+          onClose={() => setPracticePlannerOpen(false)}
+          teamStats={teamData}
+        />
+      )}
 
       {gameId && (
         <SubstitutionAuditDialog
