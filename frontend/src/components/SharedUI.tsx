@@ -33,6 +33,12 @@ export const MoleskineCard: React.FC<PaperProps> = ({
     className="moleskine-card"
     sx={{
       p: 2,
+      "&:focus-visible": {
+        outline: "4px solid currentColor",
+        outlineOffset: "4px",
+        transform: "translateY(-4px)",
+        boxShadow: (theme) => theme.shadows[8],
+      },
       ...sx,
     }}
     {...props}

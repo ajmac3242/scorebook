@@ -530,6 +530,8 @@ export const Scoreboard = React.memo(
             }}
           >
             <Typography
+              role="timer"
+              aria-relevant="all"
               sx={{
                 color: isClockRunning ? "white" : "rgba(255,255,255,0.4)",
                 fontSize: { xs: "1.5rem", sm: "2.5rem" },
@@ -546,6 +548,7 @@ export const Scoreboard = React.memo(
             {!isClockRunning && clockSeconds > 0 && (
               <Typography
                 variant="caption"
+                aria-live="polite"
                 sx={{
                   color: "rgba(255,255,255,0.3)",
                   fontWeight: 900,

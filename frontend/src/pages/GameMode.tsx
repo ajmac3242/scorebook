@@ -1000,21 +1000,54 @@ const ActionControls = React.memo(
         </Tooltip>
         <Tooltip title="Record Floor Dive">
           <span>
-            <IconButton size="small" onClick={() => onRecordHustle(ACTION_TYPES.FLOOR_DIVE)} disabled={isReadOnly} sx={{ border: "1px solid rgba(0,0,0,0.23)", borderRadius: "4px", p: "5px", color: "success.main" }}>
+            <IconButton
+              size="small"
+              onClick={() => onRecordHustle(ACTION_TYPES.FLOOR_DIVE)}
+              disabled={isReadOnly}
+              aria-label="record floor dive"
+              sx={{
+                border: "1px solid rgba(0,0,0,0.23)",
+                borderRadius: "4px",
+                p: "5px",
+                color: "success.main",
+              }}
+            >
               <Groups fontSize="small" />
             </IconButton>
           </span>
         </Tooltip>
         <Tooltip title="Record Charge Taken">
           <span>
-            <IconButton size="small" onClick={() => onRecordHustle(ACTION_TYPES.CHARGE_TAKEN)} disabled={isReadOnly} sx={{ border: "1px solid rgba(0,0,0,0.23)", borderRadius: "4px", p: "5px", color: "error.main" }}>
+            <IconButton
+              size="small"
+              onClick={() => onRecordHustle(ACTION_TYPES.CHARGE_TAKEN)}
+              disabled={isReadOnly}
+              aria-label="record charge taken"
+              sx={{
+                border: "1px solid rgba(0,0,0,0.23)",
+                borderRadius: "4px",
+                p: "5px",
+                color: "error.main",
+              }}
+            >
               <PanTool fontSize="small" />
             </IconButton>
           </span>
         </Tooltip>
         <Tooltip title="Record Great Contest">
           <span>
-            <IconButton size="small" onClick={() => onRecordHustle(ACTION_TYPES.GREAT_CONTEST)} disabled={isReadOnly} sx={{ border: "1px solid rgba(0,0,0,0.23)", borderRadius: "4px", p: "5px", color: "info.main" }}>
+            <IconButton
+              size="small"
+              onClick={() => onRecordHustle(ACTION_TYPES.GREAT_CONTEST)}
+              disabled={isReadOnly}
+              aria-label="record great contest"
+              sx={{
+                border: "1px solid rgba(0,0,0,0.23)",
+                borderRadius: "4px",
+                p: "5px",
+                color: "info.main",
+              }}
+            >
               <FlashOn fontSize="small" />
             </IconButton>
           </span>
@@ -1593,6 +1626,7 @@ const GameMode: React.FC = () => {
   // Game lifecycle state
   const [endGameDialogOpen, setEndGameDialogOpen] = useState(false);
   const [isClockEditDialogOpen, setIsClockEditDialogOpen] = useState(false);
+  const [nextPeriodDialogOpen, setNextPeriodDialogOpen] = useState(false);
   const [summaryDialogOpen, setSummaryDialogOpen] = useState(false);
   const [auditDialogOpen, setAuditDialogOpen] = useState(false);
   const [ftWorkflowOpen, setFtWorkflowOpen] = useState(false);
@@ -3052,6 +3086,11 @@ const GameMode: React.FC = () => {
   }, [gameId]);
 
   const handleNextPeriod = useCallback(async () => {
+    if (clockSeconds > 0 && !nextPeriodDialogOpen) {
+      setNextPeriodDialogOpen(true);
+      return;
+    }
+
     const nextPeriod = period < 10 ? period + 1 : 1;
     setPeriod(nextPeriod);
 
@@ -3060,6 +3099,7 @@ const GameMode: React.FC = () => {
     const nextSeconds = defaultMins * 60;
     setClockSeconds(nextSeconds);
     setIsClockRunning(false);
+    setNextPeriodDialogOpen(false);
 
     if (gameId) {
       try {
@@ -3074,67 +3114,8 @@ const GameMode: React.FC = () => {
         logger.error("Failed to update game period:", err);
       }
     }
-  }, [gameId, period, periodType]);
+  }, [gameId, period, periodType, clockSeconds, nextPeriodDialogOpen]);
 
-  /**
-   * 🏀 CoachBoard: handleTimeout
-   * Why: Quick recording of a timeout for the current team.
-   * Notes: Records a TIMEOUT event tied to either Our Team or Opponent.
-   */
-  const handleTimeout = useCallback(async () => {
-    if (!gameId || isReadOnly) return;
-    try {
-      await db.open();
-      await db.stats.add({
-        id: crypto.randomUUID(),
-        gameId: gameId,
-        playerId:
-          trackingMode === "OPPONENT"
-            ? SPECIAL_PLAYER_IDS.OPPONENT
-            : SPECIAL_PLAYER_IDS.TEAM_TIMEOUT,
-        type: ACTION_TYPES.TIMEOUT,
-        period,
-        clockTime: clockSeconds,
-        timestamp: new Date().toISOString(),
-        synced: 0,
-      });
-      await syncService.pushUpdates();
-    } catch (err) {
-      logger.error("Failed to record timeout:", err);
-    }
-  }, [gameId, isReadOnly, trackingMode, period, clockSeconds]);
-
-  // 🧠 Clarity: Keyboard shortcut for Undo (Ctrl+Z), Period (P) and Clock Toggle (Space)
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const isInput =
-        document.activeElement?.tagName === "INPUT" ||
-        document.activeElement?.tagName === "TEXTAREA";
-
-      if ((e.ctrlKey || e.metaKey) && e.key === "z") {
-        e.preventDefault();
-        handleUndo();
-      }
-      if (e.key === " " && !isInput) {
-        e.preventDefault();
-        handleToggleClock();
-      }
-      if (e.key.toLowerCase() === "p" && !isInput && !isReadOnly) {
-        e.preventDefault();
-        handleNextPeriod();
-      }
-      if (e.key.toLowerCase() === "s" && !isInput && !isReadOnly) {
-        e.preventDefault();
-        setSubDialogOpen(true);
-      }
-      if (e.key.toLowerCase() === "t" && !isInput && !isReadOnly) {
-        e.preventDefault();
-        handleTimeout();
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [handleUndo, handleToggleClock, handleNextPeriod, handleTimeout, isReadOnly]);
 
   const handleEditClock = useCallback(
     async (mins: number, secs: number) => {
@@ -4894,9 +4875,10 @@ const GameMode: React.FC = () => {
       {/* Confirm End Game Dialog */}
       <Dialog
         open={endGameDialogOpen}
-        onClose={() => setEndGameDialogOpen(false)}
+        onClose={() => !isEnding && setEndGameDialogOpen(false)}
         onKeyDown={(e) => {
           if (e.key === "Enter" && !isEnding) {
+            e.preventDefault();
             handleEndGame();
           }
         }}
@@ -4924,8 +4906,41 @@ const GameMode: React.FC = () => {
             color="error"
             variant="contained"
             disabled={isEnding}
+            aria-busy={isEnding}
           >
-            {isEnding ? "Ending..." : "Yes, Finish Game"}
+            {isEnding ? "Finishing..." : "Yes, Finish Game"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Confirm Next Period Dialog */}
+      <Dialog
+        open={nextPeriodDialogOpen}
+        onClose={() => setNextPeriodDialogOpen(false)}
+      >
+        <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
+          Advance to Next {periodLabel}?
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            The game clock hasn't reached zero. Are you sure you want to advance
+            to the next {periodLabel.toLowerCase()}?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button
+            onClick={() => setNextPeriodDialogOpen(false)}
+            color="inherit"
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleNextPeriod}
+            color="primary"
+            variant="contained"
+            autoFocus
+          >
+            Advance Period
           </Button>
         </DialogActions>
       </Dialog>

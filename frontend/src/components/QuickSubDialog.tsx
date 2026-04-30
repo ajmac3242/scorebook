@@ -77,7 +77,8 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                   const isFouledOut = pf >= foulLimit;
 
                   const isSelected = selectedSwapId === p.id;
-                  const label = `#${jerseyMap.get(p.id!) ?? ""} ${p.name} (On Court)${isSelected ? " - Selected for swap" : ""}`;
+                  const pts = s?.points || 0;
+                  const label = `#${jerseyMap.get(p.id!) ?? ""} ${p.name} (On Court), ${pts} pts, ${pf} fouls${isSelected ? " - Selected for swap" : ""}`;
 
                   return (
                     <Button
@@ -205,7 +206,8 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                   const isFouledOut = pf >= foulLimit;
 
                   const isSelected = selectedSwapId === p.id;
-                  const label = `#${jerseyMap.get(p.id!) ?? ""} ${p.name} (Bench)${isSelected ? " - Selected for swap" : ""}`;
+                  const pts = s?.points || 0;
+                  const label = `#${jerseyMap.get(p.id!) ?? ""} ${p.name} (Bench), ${pts} pts, ${pf} fouls${isSelected ? " - Selected for swap" : ""}`;
 
                   return (
                     <Button
