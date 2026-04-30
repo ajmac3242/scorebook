@@ -48,7 +48,7 @@ export const formatClock = (totalSeconds: number): string => {
   // which is approx 35 million hours.
   const mins = (totalSeconds / 60) | 0;
   const secs = totalSeconds % 60;
-  return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
+  return `${mins}:${String(secs).padStart(2, "0")}`;
 };
 
 /**
