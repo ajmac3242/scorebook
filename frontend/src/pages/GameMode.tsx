@@ -99,6 +99,7 @@ import {
   ACTION_TYPES,
   SPECIAL_PLAYER_IDS,
   SHOT_QUALITY,
+  SITUATION_TYPES,
   BONUS_CONFIG,
   PLAY_TYPES,
   ANALYTICAL_BASELINES,
@@ -997,6 +998,27 @@ const ActionControls = React.memo(
             </IconButton>
           </span>
         </Tooltip>
+        <Tooltip title="Record Floor Dive">
+          <span>
+            <IconButton size="small" onClick={() => onRecordHustle(ACTION_TYPES.FLOOR_DIVE)} disabled={isReadOnly} sx={{ border: "1px solid rgba(0,0,0,0.23)", borderRadius: "4px", p: "5px", color: "success.main" }}>
+              <Groups fontSize="small" />
+            </IconButton>
+          </span>
+        </Tooltip>
+        <Tooltip title="Record Charge Taken">
+          <span>
+            <IconButton size="small" onClick={() => onRecordHustle(ACTION_TYPES.CHARGE_TAKEN)} disabled={isReadOnly} sx={{ border: "1px solid rgba(0,0,0,0.23)", borderRadius: "4px", p: "5px", color: "error.main" }}>
+              <PanTool fontSize="small" />
+            </IconButton>
+          </span>
+        </Tooltip>
+        <Tooltip title="Record Great Contest">
+          <span>
+            <IconButton size="small" onClick={() => onRecordHustle(ACTION_TYPES.GREAT_CONTEST)} disabled={isReadOnly} sx={{ border: "1px solid rgba(0,0,0,0.23)", borderRadius: "4px", p: "5px", color: "info.main" }}>
+              <FlashOn fontSize="small" />
+            </IconButton>
+          </span>
+        </Tooltip>
 
         <Tooltip title="Flag last action for review">
           <span>
@@ -1543,6 +1565,7 @@ const GameMode: React.FC = () => {
   const [points, setPoints] = useState<number>(2);
   const [playName, setPlayName] = useState<string>("");
   const [playType, setPlayType] = useState<string | null>(null);
+  const [situation, setSituation] = useState<string | null>(null);
   const [shotQuality, setShotQuality] = useState<string | null>(null);
   const [shotType, setShotType] = useState<"CATCH" | "DRIB" | null>(null);
 
@@ -2721,6 +2744,7 @@ const GameMode: React.FC = () => {
               typeToSave === ACTION_TYPES.MISS
                 ? (shotQuality ?? undefined)
                 : undefined,
+            situation: (situation as any ?? undefined),
             synced: 0,
           });
           await syncService.pushUpdates();
@@ -2753,6 +2777,7 @@ const GameMode: React.FC = () => {
               typeToSave === ACTION_TYPES.MISS
                 ? (shotQuality ?? undefined)
                 : undefined,
+            situation: (situation as any ?? undefined),
             defensiveScheme: isOpponentId(selectedPlayerId!)
               ? activeDefensiveScheme
               : undefined,
@@ -2793,6 +2818,7 @@ const GameMode: React.FC = () => {
         setShotType(null);
         setPlayName("");
         setPlayType(null);
+        setSituation(null);
         setIsEditing(false);
         setEditingStatId(null);
         if (trackingMode === "OPPONENT") setSelectedPlayerId(null);
@@ -2824,6 +2850,7 @@ const GameMode: React.FC = () => {
       shotType,
       activeDefensiveScheme,
       playType,
+      situation,
     ],
   );
 
@@ -3049,6 +3076,65 @@ const GameMode: React.FC = () => {
     }
   }, [gameId, period, periodType]);
 
+  /**
+   * 🏀 CoachBoard: handleTimeout
+   * Why: Quick recording of a timeout for the current team.
+   * Notes: Records a TIMEOUT event tied to either Our Team or Opponent.
+   */
+  const handleTimeout = useCallback(async () => {
+    if (!gameId || isReadOnly) return;
+    try {
+      await db.open();
+      await db.stats.add({
+        id: crypto.randomUUID(),
+        gameId: gameId,
+        playerId:
+          trackingMode === "OPPONENT"
+            ? SPECIAL_PLAYER_IDS.OPPONENT
+            : SPECIAL_PLAYER_IDS.TEAM_TIMEOUT,
+        type: ACTION_TYPES.TIMEOUT,
+        period,
+        clockTime: clockSeconds,
+        timestamp: new Date().toISOString(),
+        synced: 0,
+      });
+      await syncService.pushUpdates();
+    } catch (err) {
+      logger.error("Failed to record timeout:", err);
+    }
+  }, [gameId, isReadOnly, trackingMode, period, clockSeconds]);
+
+  // 🧠 Clarity: Keyboard shortcut for Undo (Ctrl+Z), Period (P) and Clock Toggle (Space)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const isInput =
+        document.activeElement?.tagName === "INPUT" ||
+        document.activeElement?.tagName === "TEXTAREA";
+
+      if ((e.ctrlKey || e.metaKey) && e.key === "z") {
+        e.preventDefault();
+        handleUndo();
+      }
+      if (e.key === " " && !isInput) {
+        e.preventDefault();
+        handleToggleClock();
+      }
+      if (e.key.toLowerCase() === "p" && !isInput && !isReadOnly) {
+        e.preventDefault();
+        handleNextPeriod();
+      }
+      if (e.key.toLowerCase() === "s" && !isInput && !isReadOnly) {
+        e.preventDefault();
+        setSubDialogOpen(true);
+      }
+      if (e.key.toLowerCase() === "t" && !isInput && !isReadOnly) {
+        e.preventDefault();
+        handleTimeout();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleUndo, handleToggleClock, handleNextPeriod, handleTimeout, isReadOnly]);
 
   const handleEditClock = useCallback(
     async (mins: number, secs: number) => {
@@ -4747,6 +4833,23 @@ const GameMode: React.FC = () => {
                   </Box>
                 </Box>
               )}
+              <Box sx={{ mt: 3 }}>
+                <Typography variant="caption" gutterBottom sx={{ display: "block", mb: 1 }}>
+                  Situation
+                </Typography>
+                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                  {Object.values(SITUATION_TYPES).map((s) => (
+                    <Chip
+                      key={s}
+                      label={s}
+                      onClick={() => setSituation(situation === s ? null : s)}
+                      color={situation === s ? "secondary" : "default"}
+                      variant={situation === s ? "filled" : "outlined"}
+                      sx={{ borderRadius: 1 }}
+                    />
+                  ))}
+                </Box>
+              </Box>
             </>
           )}
 

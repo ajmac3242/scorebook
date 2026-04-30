@@ -4,10 +4,14 @@ export * from "./stats/types.js";
 export * from "./stats/core.js";
 /**
  * @file stats.ts
- * @description Utility functions for calculating basketball statistics (averages, totals, records).
- * Processes StatEvent records into player and team level aggregates.
+ * @description Barrel file for the modularized statistics engine.
  */
 
+export * from "./stats/types";
+export * from "./stats/core";
+export * from "./stats/matchups";
+export * from "./stats/momentum";
+export * from "./stats/clinic";
 import {
   ACTION_TYPES,
   SPECIAL_PLAYER_IDS,
