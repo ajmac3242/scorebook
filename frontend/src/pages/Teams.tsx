@@ -642,18 +642,20 @@ const Teams: React.FC = () => {
             sx={{ mb: 2 }}
             disabled={isSubmitting}
           >
-            <InputLabel>Period Type</InputLabel>
+            <InputLabel id="period-type-label">Period Type</InputLabel>
             <Select
+              labelId="period-type-label"
               value={periodType}
               onChange={(e) =>
                 setPeriodType(e.target.value as "QUARTERS" | "HALVES")
               }
               label="Period Type"
+              aria-describedby="period-type-helper-text"
             >
               <MenuItem value="QUARTERS">Quarters</MenuItem>
               <MenuItem value="HALVES">Halves</MenuItem>
             </Select>
-            <FormHelperText>
+            <FormHelperText id="period-type-helper-text">
               Determines if games are tracked by Quarters (4 periods) or Halves
               (2 periods).
             </FormHelperText>

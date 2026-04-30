@@ -38,11 +38,15 @@ const COURT_STYLES = `
     transform: scale(1.5);
     opacity: 1 !important;
   }
+  .court-marker-group:focus-visible {
+    outline: none;
+  }
   .court-marker-group:focus-visible circle {
-    transform: scale(1.5);
+    transform: scale(1.8);
     opacity: 1 !important;
-    stroke: black;
-    stroke-width: 3px;
+    stroke: #000;
+    stroke-width: 4px;
+    filter: drop-shadow(0 0 4px rgba(0,0,0,0.5));
   }
   .latest-marker {
     animation: marker-appear 0.3s ease-out forwards, pulse 2s infinite 0.3s;

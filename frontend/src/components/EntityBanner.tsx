@@ -311,6 +311,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                 inputProps={{
                   "aria-label": `Search ${title}`,
                   "aria-controls": listId,
+                  role: "searchbox",
                 }}
                 InputProps={{
                   disableUnderline: true,

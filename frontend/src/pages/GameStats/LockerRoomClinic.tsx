@@ -8,6 +8,7 @@ import {
   Stack,
   Chip,
   Divider,
+  Tooltip,
 } from "@mui/material";
 import {
   School as ClinicIcon,
@@ -76,12 +77,14 @@ export const LockerRoomClinic: React.FC<LockerRoomClinicProps> = ({
                   {m.description}
                 </Typography>
               </Box>
-              <Chip
-                label={`PPP: ${m.ppp}`}
-                size="small"
-                color={m.type === "WIN" ? "success" : "error"}
-                variant="outlined"
-              />
+              <Tooltip title={m.type === "WIN" ? "High-efficiency execution (> 1.2 PPP)" : "Low-efficiency execution (< 0.8 PPP)"}>
+                <Chip
+                  label={`PPP: ${m.ppp}`}
+                  size="small"
+                  color={m.type === "WIN" ? "success" : "error"}
+                  variant="outlined"
+                />
+              </Tooltip>
             </Paper>
           ))}
         </Stack>
