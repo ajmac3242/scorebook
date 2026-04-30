@@ -29,6 +29,16 @@ export const STAT_ACRONYMS = {
 };
 
 /**
+ * Special Situations.
+ */
+export const SITUATION_TYPES = {
+  ATO: "ATO",
+  SLOB: "SLOB",
+  BLOB: "BLOB",
+  EOP: "EOP",
+};
+
+/**
  * Shot quality tags.
  */
 export const SHOT_QUALITY = {
