@@ -3,47 +3,6 @@
 ## Maintenance Note
 Completed items are archived to `.Jules/backlog-archive.md` to maintain optimal performance for agent context. Active `backlog.md` should aim for a soft cap of ~200 lines.
 
-## [ ] Refactor & Right-Size Large Files to Improve Jules Performance
-**Priority:** HIGH **Type:** Technical Debt
-**Why:** Jules is exhibiting slowdowns and "file too large" issues because several core files have grown beyond effective context window limits. The monolithic `index.ts` (883 lines) forces Jules to load the entire API surface for any single endpoint change. The `backlog.md` (637 lines) is injected into every session regardless of relevance. Multiple overlapping sentinel test files add redundant context on every run.
-**What:**
-1. Split `index.ts` into per-resource handler modules: `handlers/players.ts`, `handlers/games.ts`, `handlers/teams.ts`, `handlers/stats.ts`, `handlers/cleanup.ts` — each under 200 lines. Keep `index.ts` as a thin router (~100 lines).
-   - [x] `handlers/cleanup.ts` created and integrated.
-2. Split `utils.ts` (420 lines) — separate `security-utils.ts` (sanitize, mask, safeCompare, normalizePath) from `data-utils.ts` (stripLocalFields, extractId, etc.).
-3. Archive `backlog.md` — move all `[x]` completed items to a `backlog-archive.md`. Add a rule: completed items get archived after each sprint. Enforce a soft cap of ~200 lines on active `backlog.md`.
-4. Consolidate sentinel test files — merge `sentinel_enhancements.test.ts`, `sentinel_dos.test.ts`, `sentinel_path.test.ts`, `sentinel_v3.test.ts`, `sentinel_v4.test.ts` into a single organized `security.test.ts` with `describe` blocks per concern. Target under 500 total lines.
-5. Add a guardrail note to `playbook.md`: Jules should flag any file approaching 300 lines and propose a split before continuing.
-**Acceptance Criteria:**
-- [ ] `index.ts` is under 150 lines (router only)
-- [ ] No source file in `backend/src/` exceeds 300 lines unless it logically makes sense. This is not a hard rule, but it's a refactor trigger. 
-- [x] `backlog.md` (active items only)
-- [x] `backlog-archive.md` exists with all completed items
-- [ ] Total test file count in `__tests__/` reduced by at least 4
-- [ ] All existing tests continue to pass
-- [x] `playbook.md` updated with file size guardrail rule
-
-## Holistic Matchup Efficiency Matrix
-**Priority:** HIGH
-**Type:** Feature
-**Why:** Coaches need to see the entire defensive landscape at once, not just isolated mismatches. A 5x5 Matrix reveals the most exploitable and vulnerable points of the current unit-on-unit battle.
-**What:** Build a visual matrix component in GameMode that maps our 5 active players (Y-axis) against the 5 opponent players (X-axis) using color-coded efficiency (Stop %).
-**Acceptance Criteria:**
-- [ ] 5x5 "Efficiency Matrix" accessible via a sidebar toggle in GameMode.
-- [ ] Color-coded cells: Green (High Stop %), Red (Low Stop %), Gray (Insufficient Data).
-- [ ] One-tap reassignment by clicking a cell in the matrix.
-- [ ] "Unit Optimization" score summarizing the total defensive parity of the current 5-man unit.
-
-## "Locker Room" Post-Game Learning System
-**Priority:** HIGH
-**Type:** UX
-**Why:** The learning gap between games is where championships are won. A guided review mode turns a static box score into an interactive teaching tool for coaches and players.
-**What:** Implement a "Coaching Clinic" mode in the Game Stats page that automatically identifies and walks through the 5 most critical game-changing moments.
-**Acceptance Criteria:**
-- [ ] "Start Clinic" button in Game Stats.
-- [ ] Guided walkthrough identifying: 3 "Execution Wins" and 3 "Tactical Errors" based on PPP and Score Flow.
-- [ ] Integrated "Momentum Shift" analyzer that highlights the specific play or sub that triggered a scoring run.
-- [ ] "Coach's Reflection" text area to save takeaways for the next practice plan.
-
 ## Live "Game Identity" Radar
 **Priority:** HIGH
 **Type:** UX
@@ -63,17 +22,6 @@ Completed items are archived to `.Jules/backlog-archive.md` to maintain optimal 
 - [ ] "Practice Planner" button on the Game Stats page.
 - [ ] Automatic suggestion of 3 "Focus Areas" based on the game's worst-performing metrics.
 - [ ] Linkage to a (mock) library of drills (e.g., "Poor 3PT% -> Suggest '100 Makes' Drill").
-
-## [x] Opponent Play-Type Breakdown (PnR vs ISO vs Post)
-**Priority:** HIGH
-**Type:** Feature
-**Why:** Understanding *how* an opponent is scoring (e.g., Pick-and-Roll vs. Isolation) is the first step to stopping them. Defensive adjustments are only as good as the underlying data.
-**What:** Add a "Play Type" tag to opponent scoring events. Allow the scorekeeper to quickly categorize opponent buckets as "PnR", "ISO", "Post", "Transition", or "Off-Screen".
-**Acceptance Criteria:**
-- [x] Optional "Play Type" selector in the opponent shot recording dialog.
-- [x] "Opponent Scoring Breakdown" table in GameStats showing efficiency by Play Type.
-- [x] Real-time alerts for recurring threats (e.g., "Opponent scoring 1.8 PPP on Pick-and-Rolls").
-- [x] Filter opponent shot chart by Play Type.
 
 ## Automated Defensive Synergy Analysis (2-3 Player Units)
 **Priority:** HIGH

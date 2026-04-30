@@ -4,7 +4,7 @@ import { Keys } from "../keys.js";
 import { badRequest, ok, response, created, notFound } from "../responses.js";
 import { isValidUuid, isValidJerseyNumber } from "../validation.js";
 import { extractIdFromPath, stripLocalFields } from "../utils.js";
-import { getItems, createItem, softDeleteItem } from "../index.js";
+import { getItems, createItem, softDeleteItem } from "../db.js";
 
 /**
  * Handlers for Players endpoints.

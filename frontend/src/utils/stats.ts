@@ -1,7 +1,7 @@
-import { sortStats, getPeriodLen, isOpponentId, isActive, isScoringEvent, isFreeThrow, isThreePointAttempt, calcPct, initializeStatsMap, applyActionToAggregate } from "./stats/core";
-import { TeamAggregates, MatchupStats, OpponentAggregates, ScoreFlowPoint, BonusStatus, PlayerAggregates, TargetAttack, PlayerStint, PlayEfficiency, SchemeEfficiency, OpponentThreat, ScoringRun, OpponentTendency, LineupAggregates, OnOffImpact, ClutchPlay, OfficiatingStats, PaceAnalytics } from "./stats/types";
-export * from "./stats/types";
-export * from "./stats/core";
+import { sortStats, getPeriodLen, isOpponentId, isActive, isScoringEvent, isFreeThrow, isThreePointAttempt, calcPct, initializeStatsMap, applyActionToAggregate } from "./stats/core.js";
+import { TeamAggregates, MatchupStats, OpponentAggregates, ScoreFlowPoint, BonusStatus, PlayerAggregates, TargetAttack, PlayerStint, PlayEfficiency, SchemeEfficiency, OpponentThreat, ScoringRun, OpponentTendency, LineupAggregates, OnOffImpact, ClutchPlay, OfficiatingStats, PaceAnalytics } from "./stats/types.js";
+export * from "./stats/types.js";
+export * from "./stats/core.js";
 /**
  * @file stats.ts
  * @description Utility functions for calculating basketball statistics (averages, totals, records).
@@ -483,35 +483,6 @@ export const getInitials = (name: string | undefined | null): string => {
 };
 
 /**
- * 🏀 CoachBoard: calculateTargetAttackStats
- * Why: Automates the identification of defensive mismatches to drive play-calling.
- * Highlights which opponent player is allowing the highest PPP and suggests a primary attacker.
- */
-export interface TargetAttack {
-  targetOpponentId: string;
-  pppAllowed: string;
-  suggestedAttackerId: string;
-  reason: string;
-}
-
-/**
- * ⚡ Bolt: Optimized calculateTargetAttackStats using a two-pass approach for mathematical correctness.
- */
-export const calculateTargetAttackStats = (
-  matchups: MatchupStats[],
-  playerStats: PlayerAggregates[],
-): TargetAttack | null => {
-  const defenderStats = new Map<string, { points: number; possessions: number }>();
-
-  // Pass 1: Aggregate points and possessions
-  for (let i = 0; i < matchups.length; i++) {
-    const m = matchups[i];
-    if (!m.isOpponentDefender) continue;
-
-    const stats = defenderStats.get(m.opponentPlayerId) || {
-      points: 0,
-      possessions: 0,
-    };
     stats.points += m.pointsAllowed;
     stats.possessions += m.possessions;
     defenderStats.set(m.opponentPlayerId, stats);
@@ -2705,36 +2676,6 @@ export const calculateLineupStats = (
  * @returns Map of player IDs to their current streak status ('HOT', 'COLD', or null).
  */
 /**
- * 🏀 CoachBoard: calculateMatchupStats
- *
- * WHY: Tracks defensive performance by correlating opponent scoring and turnovers
- * with the assigned primary defender.
- *
- * @param stats - Chronological list of statistical events.
- * @returns Array of matchup statistics.
- */
-export const calculateMatchupStats = (stats: StatEvent[]): MatchupStats[] => {
-  const sorted = sortStats(stats);
-  const currentMatchups = new Map<string, string>(); // Opponent ID -> Our Player ID
-  const reverseMatchups = new Map<string, string>(); // Our Player ID -> Opponent ID
-  const results = new Map<string, MatchupStats>(); // "ourId:oppId:isOppDef" -> stats
-
-  let inOpponentPossession = false;
-  let opponentPossessionPlayerId: string | null = null;
-  let inOurPossession = false;
-  let ourPossessionPlayerId: string | null = null;
-  let currentGameId: string | null = null;
-
-  for (let i = 0; i < sorted.length; i++) {
-    const s = sorted[i];
-    if (!isActive(s)) continue;
-
-    if (s.gameId !== currentGameId) {
-      currentGameId = s.gameId;
-      currentMatchups.clear();
-      inOpponentPossession = false;
-      inOurPossession = false;
-    }
 
     const isOpp = isOpponentId(s.playerId);
     const type = s.type;

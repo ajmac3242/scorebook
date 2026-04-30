@@ -1,6 +1,6 @@
 /**
  * @file utils.ts
- * @description Utility and security helper functions for the Basketball Stats API.
+ * @description Exporting utilities from modular files.
  */
 
 import { APIGatewayProxyEventV2 } from "aws-lambda";
@@ -460,3 +460,6 @@ export function stripLocalFields(data: unknown): unknown {
     return { skip: false };
   });
 }
+export * from "./utils/security.js";
+export * from "./utils/logging.js";
+export * from "./utils/data.js";
