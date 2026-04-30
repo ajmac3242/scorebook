@@ -179,3 +179,56 @@ Completed items are archived to `.Jules/backlog-archive.md` to maintain optimal 
 - [ ] "Conflict Warning" alert: "Ref Tightness is HIGH. Pressing Identity at risk of foul trouble."
 - [ ] Suggestion to shift to "Soft Zone" or "MAN-Contain" when tightness exceeds 1.5x baseline.
 - [ ] Real-time projection of "Team Fouls at Period End" based on current ref tightness.
+
+## Expected Value (xPTS) & Shot Quality ROI Engine
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Coaches need to move beyond "Results-Based" analysis to "Process-Based" analysis. Knowing that a missed wide-open corner 3 has a higher Expected Value than a contested long 2 helps maintain tactical discipline despite cold streaks.
+**What:** Build a model that assigns an "Expected Points" (xPTS) value to every shot based on location and shot quality (Open/Contested), and compare it to actual results (ROI).
+**Acceptance Criteria:**
+- [ ] "Expected Value" (xPTS) attribute added to shot events.
+- [ ] "Shot ROI" metric in GameStats comparing Total Points to Total xPTS.
+- [ ] "Quality Control" HUD in GameMode showing average xPTS per possession.
+- [ ] Post-game report highlighting "High-Quality Misses" vs "Low-Quality Makes".
+
+## Situational Opponent "Go-To" Playmaker Analysis
+**Priority:** HIGH
+**Type:** Feature
+**Why:** In winning time, every team has a "Go-To" player. Identifying who the opponent relies on in specific high-leverage situations allows for elite defensive "pre-pivots."
+**What:** An analytical tool that identifies opponent usage rates and PPP in specific situational buckets (e.g., Under 2:00, After Timeouts, End of Shot Clock).
+**Acceptance Criteria:**
+- [ ] "Opponent Go-To" report in GameStats.
+- [ ] Situational filters for opponent usage: Clutch, ATO, EOP.
+- [ ] Real-time "Personnel Warning" in GameMode when a situational "Go-To" player enters the court or handles the ball in high-leverage moments.
+
+## Longitudinal Official/Referee Scouting Database
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Officiating is the "Third Team" on the court. Understanding referee tendencies (e.g., "Home/Away Bias", "Foul Frequency by Period") allows coaches to adjust their team's aggressiveness to match the whistle.
+**What:** Implement a season-wide database of officiating stats, tracking Foul-Per-Minute (FPM) and distribution by specific referee or "Ref Profile".
+**Acceptance Criteria:**
+- [ ] "Official Scouting" tab in Team Analytics.
+- [ ] Foul distribution heatmap per official (or profile).
+- [ ] Comparison of Team Aggressiveness vs. Referee Whistle Tightness across multiple games.
+- [ ] Pre-game "Referee Briefing" summary.
+
+## Bench Momentum & "Spark Plug" Impact Tracking
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Some players provide value that doesn't show up in a box score but is felt in momentum shifts. Identifying "Spark Plugs"—players who consistently trigger scoring runs or defensive stops—helps optimize mid-game rotation adjustments.
+**What:** Create a "Momentum Impact" metric that measures Team Net Rating and "Run Frequency" specifically in the 2 minutes following a player's substitution into the game.
+**Acceptance Criteria:**
+- [ ] "Spark Plug" leaderboard in Team Analytics.
+- [ ] "Momentum Delta" displayed on player cards in GameMode (e.g., "+4.5 Net since entry").
+- [ ] Visual highlight of "Momentum Units" (bench pairings that drive the highest positive runs).
+
+## Program-Wide Optimal Rotation Optimizer
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Managing a roster across a long season requires identifying which units are mathematically most effective. Moving beyond 5-man lineups to identify the "Optimal Starting 5" based on season-long synergy and net ratings.
+**What:** A prescriptive engine that analyzes season-wide unit data to suggest the statistically most effective starting lineup and rotation patterns.
+**Acceptance Criteria:**
+- [ ] "Rotation Optimizer" tool in the Team Dashboard.
+- [ ] Ranking of 5-man units by Net Rating, adjusted for sample size and opponent strength.
+- [ ] Suggested "Closer Unit" based on Clutch performance data.
+- [ ] Visualization of "Chemistry Gaps" (efficient players who rarely play together).
