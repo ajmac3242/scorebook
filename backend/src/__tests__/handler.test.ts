@@ -325,4 +325,63 @@ describe("Lambda Handler", () => {
       expect(JSON.parse(response.body).message).toBe("Cleanup complete");
     });
   });
+
+  describe("Security & Robustness", () => {
+    describe("Enhancement 8: HTTP Method Whitelisting", () => {
+      it("should reject TRACE method with 405", async () => {
+        const event = createEvent("TRACE", "/teams");
+        const response: any = await handler(event);
+        expect(response.statusCode).toBe(405);
+        expect(JSON.parse(response.body).message).toContain("not allowed");
+      });
+
+      it("should allow POST method", async () => {
+        ddbMock.on(PutCommand).rejects(new Error("Generic Error"));
+        const event = createEvent("POST", "/teams", { name: "Test Team" });
+        const response: any = await handler(event);
+        expect(response.statusCode).not.toBe(405);
+      });
+    });
+
+    describe("Enhancement 9: Body Size Limit Enforcement", () => {
+      it("should reject payloads larger than 512KB", async () => {
+        const largeBody = "a".repeat(512 * 1024 + 1);
+        const event = createEvent("POST", "/teams");
+        event.body = largeBody;
+        const response: any = await handler(event);
+        expect(response.statusCode).toBe(413);
+        expect(JSON.parse(response.body).message).toBe("Payload too large");
+      });
+    });
+
+    describe("Path Traversal & Normalization", () => {
+      it("should block path traversal attempts", async () => {
+        const event = createEvent("GET", "/teams/../../etc/passwd");
+        const response: any = await handler(event);
+        expect(response.statusCode).toBe(404); // Normalized to / then not found
+      });
+
+      it("should normalize multiple slashes", async () => {
+        ddbMock.on(QueryCommand).resolves({ Items: [] });
+        const event = createEvent("GET", "///teams");
+        const response: any = await handler(event);
+        expect(response.statusCode).toBe(200);
+      });
+    });
+
+    describe("Prototype Pollution Prevention", () => {
+      it("should strip forbidden keys from body", async () => {
+        ddbMock.on(PutCommand).resolves({});
+        const event = createEvent("POST", "/teams", {
+          name: "Safe Team",
+          "constructor": { admin: true }
+        });
+        await handler(event);
+        const lastCall = ddbMock.calls().find(c => c.args[0] instanceof PutCommand);
+        const item = (lastCall?.args[0].input as any).Item;
+        expect(Object.prototype.hasOwnProperty.call(item, "constructor")).toBe(false);
+        expect(item.name).toBe("Safe Team");
+      });
+    });
+  });
 });

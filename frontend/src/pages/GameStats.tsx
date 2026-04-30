@@ -44,8 +44,10 @@ import {
   Scale as BalanceIcon,
   ContentCopy as CopyIcon,
   Check as CheckIcon,
+  School as ClinicIcon,
 } from "@mui/icons-material";
 import BasketballCourt from "../components/BasketballCourt";
+import { LockerRoomClinic } from "./GameStats/LockerRoomClinic";
 import SubstitutionAuditDialog from "../components/SubstitutionAuditDialog";
 import { getShotZone } from "../utils/shotZones";
 import { db, StatEvent, TeamPlayer } from "../db";
@@ -402,6 +404,7 @@ const GameStats: React.FC = () => {
   const [showFouls, setShowFouls] = useState(true);
   const [showRuns, setShowRuns] = useState(true);
   const [isExporting, setIsExporting] = useState(false);
+  const [isClinicMode, setIsClinicMode] = useState(false);
   const [copied, setCopied] = useState(false);
   const [editOpponent, setEditOpponent] = useState("");
   const [editDate, setEditDate] = useState("");
@@ -1958,6 +1961,19 @@ const GameStats: React.FC = () => {
                 >
                   {isExporting ? "Exporting..." : "Export PDF"}
                 </Button>
+                <Button
+                  variant="contained"
+                  size="small"
+                  startIcon={<ClinicIcon />}
+                  onClick={() => setIsClinicMode(!isClinicMode)}
+                  sx={{
+                    bgcolor: isClinicMode ? "white" : "rgba(255,255,255,0.2)",
+                    color: isClinicMode ? "primary.main" : "white",
+                    "&:hover": { bgcolor: isClinicMode ? "#eee" : "rgba(255,255,255,0.3)" }
+                  }}
+                >
+                  {isClinicMode ? "Close Clinic" : "Start Clinic"}
+                </Button>
               </>
             )}
             {!isDeleted ? (
@@ -2044,6 +2060,14 @@ const GameStats: React.FC = () => {
           🔥 CLUTCH MODE
         </ToggleButton>
       </Box>
+
+      {isClinicMode && game && (
+        <LockerRoomClinic
+          game={game}
+          allStats={allStats}
+          teamPpp={teamData?.ppp || "0.00"}
+        />
+      )}
 
       <Grid container spacing={3}>
         {/* Four Factors Card */}

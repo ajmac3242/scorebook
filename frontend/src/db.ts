@@ -98,6 +98,7 @@ export interface Game {
   periodType?: "QUARTERS" | "HALVES";
   deletedAt?: string;
   synced?: number;
+  reflections?: string;
 }
 
 /**
@@ -159,7 +160,8 @@ export class AppDatabase extends Dexie {
     // v19:    Added 'name' index to 'opponents' table.
     // v20:    Added 'shotType', 'defensiveScheme', and 'isBookmarked' to StatEvent.
     // v21:    Added 'tacticalGoals' to Team.
-    this.version(21).stores({
+    // v22:    Added 'reflections' to Game.
+    this.version(22).stores({
       teams: "id, synced, deletedAt, isFavorite",
       players: "id, synced, isArchived, deletedAt",
       teamPlayers: "id, [teamId+playerId], teamId, playerId, synced",

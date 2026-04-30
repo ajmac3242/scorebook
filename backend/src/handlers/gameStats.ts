@@ -8,7 +8,7 @@ import { Keys } from "../keys.js";
 import { badRequest, ok, created, filterActive } from "../responses.js";
 import { isValidUuid, validateStatEvent } from "../validation.js";
 import { stripLocalFields } from "../utils.js";
-import { putNewItem } from "../index.js";
+import { putNewItem } from "../db.js";
 import { snapshotGameStats } from "../snapshots.js";
 
 /**
