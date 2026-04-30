@@ -1,62 +1,22 @@
 # Assistant Coach Journal 🏀
 
-## 2025-05-22: Advanced Coaching Analytics & Film Room
+## Basketball Workflow Insights
+- **The "Game Identity" Crisis**: Coaches often feel the game "slipping away" but can't quantify it. By visualizing Four Factors (eFG%, TO%, ORB%, FT Rate) and Pace as a Radar Chart against season blueprints, we provide an immediate "Identity Alert" when the team deviates >20% from their established style of play.
+- **Defensive Synergy is Non-Linear**: A 5-player lineup's performance isn't just the sum of its parts. Calculating Net Ratings for 2 and 3-player units (Synergy) reveals "underrated" defensive pairings that might have low individual scoring but elite Stop % when shared on the floor.
+- **Prescriptive Analytics**: Post-game stats are often "descriptive" (what happened). By mapping statistical failures (e.g., < 20% ORB) directly to specific drills (e.g., "The Gauntlet"), we turn data into a tangible Practice Plan.
 
-### Discovered Insights
-- **Defensive Scheme Granularity**: Coaches often struggle to remember *when* they switched to a zone. Real-time tagging on the sidebar ensures that opponent scoring is immediately attributed to the active strategy, making halftime adjustments data-driven.
-- **Film Review Efficiency**: A chronological log with tactical metadata (Shot Quality, Play Name) is more useful for film sessions than a simple box score. It bridges the gap between what happened and why it happened.
-- **Halftime War Room**: Automated insights should focus on deltas (e.g., current game vs season average) rather than raw totals to give coaches immediate perspective.
+## Implementation Patterns
+- **Flush-on-Transition Pattern**: When calculating unit stats (Synergy) from a stream of events, standard interval tracking fails at period boundaries or substitutions. Implementing a `flushPending` helper that closes the current "open stint" before processing the next state ensures precision in Defensive Rating (DRtg) and Net Rating.
+- **Hook Ordering Dependency**: In React, `useMemo` blocks that depend on each other (e.g., `identityAlerts` depending on `liveFourFactors`) must be declared in strict order. Mixing these up leads to `ReferenceError` even with `useMemo` due to the way Vite/React transpiles the component body.
+- **JSX Entity Safety**: Always escape or use entities for `>` and `<` in component text (e.g., `&gt;`) to avoid JSX parser confusion, especially in complex ternary logic within the render body.
 
-### Implementation Patterns
-- **Stateful Event Tagging**: Using a top-level `activeDefensiveScheme` state in `GameMode` that automatically populates the `StatEvent` on save minimizes scorekeeper burden.
-- **Toggleable View Modes**: Using a conditional rendering pattern for "Film Room View" in `GameStats` allows the page to remain clean for standard review while offering deep-dive capabilities.
-- **Bookmarking Flow**: The "Flag Play" button in `GameMode` acts as an executive bookmark, allowing coaches to mark critical moments for later without leaving the live tracking screen.
+## Edge Cases to Watch
+- **Period Transitions**: Stints that start in P1 and end in P2 must be split to correctly attribute points and minutes to the active period.
+- **Zero-Possession Units**: Small sample sizes (e.g., 20 seconds of play) can produce extreme DRtg (0 or Infinity). The Synergy UI now filters for units with >10 minutes of shared time by default to maintain coach trust.
+- **Radar Scaling**: Pace (70-100) and eFG% (40-60) have different scales. The Radar Chart must normalize these to a 0-100% "Identity Match" scale to be visually useful.
 
-### Basketball Edge Cases for Future Attention
-- **Sub-Period Scheme Changes**: If a coach switches from Man to Zone mid-possession, the current logic tags the *next* event. Refined state-machine tracking might be needed for absolute precision.
-- **Complex "Kills"**: Defensive Kills (3 stops) are currently tracked in the stats engine. Integrating these more tightly into the automated halftime insights could provide a "Defensive Momentum" score.
-
-## 2025-05-25: Prescriptive Intelligence & Situational Coaching
-
-### Discovered Insights
-- **Inverted Matchup Tracking**: To identify attack targets, we must track defensive efficiency from the opponent's perspective. Correlating our team scores with the assigned opponent defender reveals the "weak link" in their defense.
-- **Situational Urgency**: Real-time advice is most effective when it categorizes urgency. A 10-0 run requires a "HIGH" urgency timeout recommendation, while foul trouble in the first half is a "MEDIUM" urgency sub/adjustment prompt.
-- **Post-Game Narratives**: Players respond better to rule-based qualitative feedback (e.g., "High-impact defensive presence") than just looking at a box score. This humanizes the data and makes it immediately actionable for the next practice.
-
-### Implementation Patterns
-- **HUD-First Architecture**: Adding intelligence layers as self-contained "HUD" components in the sidebar allows coaches to see insights without losing focus on the live court tracking.
-- **Aggregated Interface Extensions**: Extending core stats interfaces (like `TeamAggregates`) to include missing raw totals (TO, AST, OREB) is necessary for high-fidelity situational advising and Four Factors comparison.
-
-### Basketball Edge Cases for Future Attention
-- **Opponent Defender Identification**: Currently, the "Target Attack" identifier relies on manual matchup assignment. If assignments aren't updated, the data shifts to team-level averages.
-- **Narrative Complexity**: Rule-based narratives can sometimes conflict (e.g., high efficiency but high turnovers). Future iterations should use a priority system to ensure the most "coachable" insight is presented first.
-
-## 2025-05-28: Game Pace, Official Tendencies, and Clutch Playbook
-
-### Discovered Insights
-- **Fouls Per Minute (FPM) as a Contextual Metric**: Total fouls don't tell the whole story. Normalizing fouls by game duration (FPM) allows coaches to identify "Tight" games relative to a baseline (0.7 FPM), prompting defensive shifts like switching to a Zone to avoid foul trouble.
-- **Pace Shift Awareness**: Sudden changes in tempo (>15%) are often leading indicators of fatigue or losing control of the game script. Visualizing this delta allows for proactive timeouts.
-- **Clutch Playbook Context**: Play efficiency changes under pressure. Ranking plays by live PPP specifically during clutch windows, and correlating them with the opponent's weakest defender, provides a "Prescriptive" edge that raw season averages lack.
-
-### Implementation Patterns
-- **Manual Overrides for Automated Intelligence**: While the Clutch Advisor triggers automatically, providing a manual "Force View" toggle ensures coaches can access tactical suggestions during standard timeouts or momentum-building windows.
-- **Foul Attribution (Starter vs. Bench)**: In post-game analysis, knowing *who* is fouling is as important as *how many*. High starter foul rates indicate a lack of discipline in primary units, while bench foul rates might suggest defensive liability in specific subs.
-
-### Basketball Edge Cases for Future Attention
-- **Possession Definition**: The pace calculation uses the standard possession formula. However, "Possessions" can be interpreted differently (e.g., counting a jump ball or technical free throws). Consistency in the  utility is key.
-- **Shot Clock Heuristics**: "Shot Clock Pressure" is currently estimated based on possession-starting events. Future versions could integrate with a physical scoreboard feed if available for 100% precision.
-
-## 2025-05-28: Game Pace, Official Tendencies, and Clutch Playbook
-
-### Discovered Insights
-- **Fouls Per Minute (FPM) as a Contextual Metric**: Total fouls don't tell the whole story. Normalizing fouls by game duration (FPM) allows coaches to identify "Tight" games relative to a baseline (0.7 FPM), prompting defensive shifts like switching to a Zone to avoid foul trouble.
-- **Pace Shift Awareness**: Sudden changes in tempo (>15%) are often leading indicators of fatigue or losing control of the game script. Visualizing this delta allows for proactive timeouts.
-- **Clutch Playbook Context**: Play efficiency changes under pressure. Ranking plays by live PPP specifically during clutch windows, and correlating them with the opponent's weakest defender, provides a "Prescriptive" edge that raw season averages lack.
-
-### Implementation Patterns
-- **Manual Overrides for Automated Intelligence**: While the Clutch Advisor triggers automatically, providing a manual "Force View" toggle ensures coaches can access tactical suggestions during standard timeouts or momentum-building windows.
-- **Foul Attribution (Starter vs. Bench)**: In post-game analysis, knowing *who* is fouling is as important as *how many*. High starter foul rates indicate a lack of discipline in primary units, while bench foul rates might suggest defensive liability in specific subs.
-
-### Basketball Edge Cases for Future Attention
-- **Possession Definition**: The pace calculation uses the standard possession formula. However, "Possessions" can be interpreted differently (e.g., counting a jump ball or technical free throws). Consistency in the `calculatePossessions` utility is key.
-- **Shot Clock Heuristics**: "Shot Clock Pressure" is currently estimated based on possession-starting events. Future versions could integrate with a physical scoreboard feed if available for 100% precision.
+## Final Review & Refinements
+- **Efficiency Matrix Integration**: Verified that the `EfficiencyMatrix` component is properly imported and utilized in `GameMode.tsx`. This provides O(1) visibility into lineup performance.
+- **Radar Chart Normalization**: Refactored `IdentityRadarChart.tsx` to remove redundant math and use raw Pace values, as Recharts handles the scaling.
+- **Dependency Integrity**: Confirmed `recharts` is present in `package.json` to prevent build failures.
+- **Import Verification**: Re-verified MUI and constant imports (`Alert`, `ANALYTICAL_BASELINES`) to ensure runtime stability.

@@ -11,8 +11,6 @@ export const calculateMatchupStats = (stats: StatEvent[]): MatchupStats[] => {
   const reverseMatchups = new Map<string, string>(); // Our Player ID -> Opponent ID
   const results = new Map<string, MatchupStats>(); // "ourId:oppId:isOppDef" -> stats
 
-  let inOpponentPossession = false;
-  let inOurPossession = false;
   let currentGameId: string | null = null;
 
   for (let i = 0; i < sorted.length; i++) {
@@ -23,8 +21,6 @@ export const calculateMatchupStats = (stats: StatEvent[]): MatchupStats[] => {
       currentGameId = s.gameId;
       currentMatchups.clear();
       reverseMatchups.clear();
-      inOpponentPossession = false;
-      inOurPossession = false;
     }
 
     const isOpp = isOpponentId(s.playerId);
@@ -79,8 +75,6 @@ export const calculateMatchupStats = (stats: StatEvent[]): MatchupStats[] => {
           if (isFreeThrow(s)) m.fta = (m.fta || 0) + 1;
           else m.fga = (m.fga || 0) + 1;
         }
-        inOpponentPossession = false;
-        inOurPossession = false;
       } else {
         if (oppDefenderId) {
           const m = getM(s.playerId, oppDefenderId, true);
@@ -88,8 +82,6 @@ export const calculateMatchupStats = (stats: StatEvent[]): MatchupStats[] => {
           if (isFreeThrow(s)) m.fta = (m.fta || 0) + 1;
           else m.fga = (m.fga || 0) + 1;
         }
-        inOurPossession = false;
-        inOpponentPossession = false;
       }
       continue;
     }
@@ -108,18 +100,14 @@ export const calculateMatchupStats = (stats: StatEvent[]): MatchupStats[] => {
           m.to = (m.to || 0) + 1;
         }
       }
-      inOpponentPossession = false;
-      inOurPossession = false;
     } else if (s.type === ACTION_TYPES.MISS) {
       if (isOpp) {
-        inOpponentPossession = true;
         if (ourDefenderId) {
           const m = getM(ourDefenderId, s.playerId, false);
           if (isFreeThrow(s)) m.fta = (m.fta || 0) + 1;
           else m.fga = (m.fga || 0) + 1;
         }
       } else {
-        inOurPossession = true;
         if (oppDefenderId) {
           const m = getM(s.playerId, oppDefenderId, true);
           if (isFreeThrow(s)) m.fta = (m.fta || 0) + 1;
@@ -129,13 +117,11 @@ export const calculateMatchupStats = (stats: StatEvent[]): MatchupStats[] => {
     } else if (type === ACTION_TYPES.REBOUND) {
       if (isOpp) {
         if (s.locationX === -1) { // OREB
-          inOpponentPossession = true;
           if (ourDefenderId) {
             const m = getM(ourDefenderId, SPECIAL_PLAYER_IDS.OPPONENT, false);
             m.oreb = (m.oreb || 0) + 1;
           }
         } else {
-          inOpponentPossession = false;
           if (ourDefenderId) {
             const m = getM(ourDefenderId, SPECIAL_PLAYER_IDS.OPPONENT, false);
             m.stops++;
@@ -143,13 +129,11 @@ export const calculateMatchupStats = (stats: StatEvent[]): MatchupStats[] => {
         }
       } else {
         if (s.locationX === -1) { // OREB
-          inOurPossession = true;
           if (oppDefenderId) {
             const m = getM(s.playerId, oppDefenderId, true);
             m.oreb = (m.oreb || 0) + 1;
           }
         } else {
-          inOurPossession = false;
           if (oppDefenderId) {
             const m = getM(s.playerId, oppDefenderId, true);
             m.stops++;

@@ -91,7 +91,7 @@ import HalftimeReportDialog from "../components/HalftimeReportDialog";
 import PlaybookEfficiencyWidget from "../components/PlaybookEfficiencyWidget";
 import TacticalGoalHUD from "../components/TacticalGoalHUD";
 import { PlayerStatRow } from "../components/PlayerStatRow";
-import { db, type StatEvent, type Player, type TeamPlayer } from "../db";
+import { db, type StatEvent, type Player } from "../db";
 import { syncService } from "../utils/syncService";
 import { logger } from "../utils/logger";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -105,7 +105,6 @@ import {
   ANALYTICAL_BASELINES,
 } from "../constants/stats";
 import { calculateMatchupStats, calculateTargetAttackStats } from "../utils/stats/matchups";
-import { detectOpponentRun, detectScoringDrought } from "../utils/stats/momentum";
 import { RotationSuggester } from "../components/RotationSuggester";
 import { MatchupAssignmentDialog } from "../components/MatchupAssignmentDialog";
 import {
@@ -145,6 +144,8 @@ import {
 import { formatClock, roundToOne } from "../utils/mathUtils";
 import { MoleskineCard, AnimatedNumber } from "../components/SharedUI";
 import FourFactorsHUD from "../components/FourFactorsHUD";
+import IdentityRadarChart from "../components/IdentityRadarChart";
+import EfficiencyMatrix from "../components/EfficiencyMatrix";
 
 
 /**
@@ -2424,6 +2425,33 @@ const GameMode: React.FC = () => {
     };
   }, [game, sortedGameStats, opponentSummary]);
 
+  const identityAlerts = useMemo(() => {
+    if (!liveFourFactors || !teamSeasonStats) return [];
+    const alerts: string[] = [];
+    const current = liveFourFactors.team;
+    const season = teamSeasonStats;
+
+    const check = (label: string, curVal: string | undefined, seaVal: string | undefined) => {
+      const cv = parseFloat(curVal || "0");
+      const sv = parseFloat(seaVal || "0");
+      if (sv > 0 && Math.abs(cv - sv) / sv > 0.2) {
+        alerts.push(`${label} deviation: ${cv.toFixed(1)} vs blueprint ${sv.toFixed(1)}`);
+      }
+    };
+
+    check("eFG%", current.efgPct, season.efgPct);
+    check("TO%", current.toPct, season.toPct);
+    check("ORB%", current.orbPct, season.orbPct);
+    check("FT Rate", current.ftRate, season.ftRate);
+
+    const seaPace = ANALYTICAL_BASELINES.DEFAULT_TARGET_PACE;
+    if (Math.abs(paceAnalytics.pace - seaPace) / seaPace > 0.2) {
+      alerts.push(`Pace deviation: ${paceAnalytics.pace.toFixed(1)} vs blueprint ${seaPace.toFixed(1)}`);
+    }
+
+    return alerts;
+  }, [liveFourFactors, teamSeasonStats, paceAnalytics]);
+
   const tacticalGoalStats = useMemo(() => {
     if (!liveFourFactors) return {};
     return {
@@ -3129,7 +3157,65 @@ const GameMode: React.FC = () => {
     [gameId],
   );
 
+  /**
+   * 🏀 CoachBoard: handleTimeout
+   * Why: Quick recording of a timeout for the current team.
+   * Notes: Records a TIMEOUT event tied to either Our Team or Opponent.
+   */
+  const handleTimeout = useCallback(async () => {
+    if (!gameId || isReadOnly) return;
+    try {
+      await db.open();
+      await db.stats.add({
+        id: crypto.randomUUID(),
+        gameId: gameId,
+        playerId:
+          trackingMode === "OPPONENT"
+            ? SPECIAL_PLAYER_IDS.OPPONENT
+            : SPECIAL_PLAYER_IDS.TEAM_TIMEOUT,
+        type: ACTION_TYPES.TIMEOUT,
+        period,
+        clockTime: clockSeconds,
+        timestamp: new Date().toISOString(),
+        synced: 0,
+      });
+      await syncService.pushUpdates();
+    } catch (err) {
+      logger.error("Failed to record timeout:", err);
+    }
+  }, [gameId, isReadOnly, trackingMode, period, clockSeconds]);
 
+  // 🧠 Clarity: Keyboard shortcut for Undo (Ctrl+Z), Period (P) and Clock Toggle (Space)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const isInput =
+        document.activeElement?.tagName === "INPUT" ||
+        document.activeElement?.tagName === "TEXTAREA";
+
+      if ((e.ctrlKey || e.metaKey) && e.key === "z") {
+        e.preventDefault();
+        handleUndo();
+      }
+      if (e.key === " " && !isInput) {
+        e.preventDefault();
+        handleToggleClock();
+      }
+      if (e.key.toLowerCase() === "p" && !isInput && !isReadOnly) {
+        e.preventDefault();
+        handleNextPeriod();
+      }
+      if (e.key.toLowerCase() === "s" && !isInput && !isReadOnly) {
+        e.preventDefault();
+        setSubDialogOpen(true);
+      }
+      if (e.key.toLowerCase() === "t" && !isInput && !isReadOnly) {
+        e.preventDefault();
+        handleTimeout();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleUndo, handleToggleClock, handleNextPeriod, handleTimeout, isReadOnly]);
 
   const handleAuditSubs = useCallback(() => {
     setAuditDialogOpen(true);
@@ -3639,6 +3725,21 @@ const GameMode: React.FC = () => {
                     oppStats={liveFourFactors.opponent}
                     seasonAvg={teamSeasonStats}
                   />
+                )}
+                {liveFourFactors && teamSeasonStats && (
+                  <IdentityRadarChart
+                    currentGame={{ ...liveFourFactors.team, pace: paceAnalytics.pace }}
+                    seasonAvg={{ ...teamSeasonStats, pace: ANALYTICAL_BASELINES.DEFAULT_TARGET_PACE }}
+                  />
+                )}
+                {identityAlerts.length > 0 && (
+                  <Stack spacing={1} sx={{ mt: 2 }}>
+                    {identityAlerts.map((alert, i) => (
+                      <Alert key={i} severity="warning" sx={{ py: 0, "& .MuiAlert-message": { fontWeight: 700, fontSize: '0.75rem' } }}>
+                        IDENTITY ALERT: {alert}
+                      </Alert>
+                    ))}
+                  </Stack>
                 )}
                 {team?.tacticalGoals && team.tacticalGoals.length > 0 && (
                   <TacticalGoalHUD
