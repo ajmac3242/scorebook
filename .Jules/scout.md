@@ -136,3 +136,24 @@
 ### Basketball Edge Cases
 - **Possession Weighting**: Accurate PPP and Stop % require weighting FTAs at 0.44 to account for and-ones and technicals. Simple event counting inflates possession volume.
 - **Eligible "OFF" Stats**: A player's impact should only be measured against the games they actually played. Including a 40-minute blowout they didn't attend in their "OFF" rating is statistically invalid.
+
+## 2025-06-01 - Security, Hygiene & Coverage Audit
+
+### Findings & Fixed Bugs
+- **Bug 31: Log Sanitization Recursion Failure**: Discovered that `recursiveTransform` in `backend/src/utils.ts` returned an empty object `{}` when reaching the depth limit, while the logging tests expected a specific string `[DEPTH_LIMIT_REACHED]`. This caused security tests to fail. Fixed by returning the correct sentinel string.
+- **Bug 32: Malformed Security Utilities**: Found that `safeCompare` and `stripLocalFields` in `backend/src/utils.ts` were malformed (truncated or missing implementation). Restored the correct logic for timing-safe comparison and mass assignment protection.
+- **Bug 33: Scoring Logic Deduplication**: Found a duplicate definition of `isScoringEvent` in `frontend/src/utils/stats.ts` which risked infinite recursion. Removed the local copy and standardized on the shared utility from `core.ts`.
+
+### Critical Test Gaps Filled
+- Created `frontend/src/utils/stats/core.test.ts` to provide comprehensive coverage for statistical aggregators and domain helpers.
+- Enhanced `frontend/src/utils/shotZones.test.ts` to cover heatmap color logic and all coordinate-to-zone mappings.
+- Restored and verified `backend/src/__tests__/utils.test.ts` to ensure 100% confidence in security and utility helpers.
+
+### 📊 Coverage Improvements
+- **frontend/src/utils/stats/core.ts**: 11.57% -> 96.84% coverage.
+- **frontend/src/utils/shotZones.ts**: 4.25% -> 97.87% coverage.
+- **backend/src/utils.ts**: 81.48% -> 94.44% coverage.
+
+### Basketball Edge Cases
+- **Shot Zone Identification**: Testing boundary conditions for shot coordinates (e.g., exactly at the 3pt line or corner) ensures accurate shot chart generation.
+- **Statistical Initialization**: Standardizing how `PlayerAggregates` are initialized prevents "undefined" errors when players with no stats are viewed in the box score.

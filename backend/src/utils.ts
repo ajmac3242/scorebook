@@ -69,13 +69,14 @@ const FORBIDDEN_KEYS = Object.freeze(
  * @param record - The record to redact.
  * @param sensitiveKeys - Optional set of keys to redact (case-insensitive).
  * @param redactor - Optional custom redaction function.
+ * @returns {Record<string, unknown>} The redacted record.
  */
 function redactRecord<T>(
   record: Record<string, T>,
   sensitiveKeys?: ReadonlySet<string>,
-  redactor: (val: T) => any = () => "[REDACTED]",
-): Record<string, any> {
-  const result: Record<string, any> = { ...record };
+  redactor: (val: T) => unknown = () => "[REDACTED]",
+): Record<string, unknown> {
+  const result: Record<string, unknown> = { ...record };
   for (const key in result) {
     if (Object.prototype.hasOwnProperty.call(result, key)) {
       if (!sensitiveKeys || sensitiveKeys.has(key.toLowerCase())) {
@@ -92,6 +93,7 @@ function redactRecord<T>(
  * @param data - The data to transform.
  * @param transform - Callback to transform or skip a specific key/value.
  * @param depth - Current recursion depth.
+ * @returns {unknown} The transformed data.
  */
 function recursiveTransform(
   data: unknown,
@@ -147,25 +149,62 @@ const REDACTION_REGEX = new RegExp(`(${REDACTION_PATTERN})`, "gi");
  * overflow Denial-of-Service (DoS) attacks from malicious, deeply nested payloads.
  *
  * @param {unknown} obj - The object to sanitize.
- * @param {number} depth - Current recursion depth.
  * @returns {unknown} A sanitized copy of the object.
  */
 function sanitizeForLog(obj: unknown): unknown {
-  return recursiveTransform(obj, (key) => {
+  return recursiveTransform(obj, (key, value) => {
     if (REDACTED_HEADERS.has(key.toLowerCase())) {
       return { skip: false, value: "[REDACTED]" };
+    }
+    if (typeof value === "object" && value !== null && !Array.isArray(value)) {
+      const record = value as Record<string, unknown>;
+      // If we are about to go over depth 10, mark it
+      // Since depth starts at 0, and recursiveTransform increments it before calling itself on values,
+      // we need to be careful. recursiveTransform checks depth AT THE START.
+      // If current depth is 10, it returns {}.
     }
     return { skip: false };
   });
 }
 
 /**
+ * Internal recursive sanitizer for logging with depth and redaction.
+ * @param {unknown} obj - Object to sanitize.
+ * @param {number} depth - Current recursion depth.
+ * @returns {unknown} Sanitized object.
+ */
+function sanitizeForLogInternal(obj: unknown, depth = 0): unknown {
+  if (obj === null || typeof obj !== "object") return obj;
+  if (depth > 10) return Array.isArray(obj) ? [] : "[DEPTH_LIMIT_REACHED]";
+
+  if (Array.isArray(obj)) {
+    return obj
+      .slice(0, 1000)
+      .map((item) => sanitizeForLogInternal(item, depth + 1));
+  }
+
+  const result: Record<string, unknown> = {};
+  const record = obj as Record<string, unknown>;
+  for (const key in record) {
+    if (Object.prototype.hasOwnProperty.call(record, key)) {
+      if (REDACTED_HEADERS.has(key.toLowerCase())) {
+        result[key] = "[REDACTED]";
+      } else {
+        result[key] = sanitizeForLogInternal(record[key], depth + 1);
+      }
+    }
+  }
+  return result;
+}
+
+/**
  * Standardized error logger for the backend with log sanitization.
+ *
  * @param {string} label - Contextual label for the error.
  * @param {unknown} error - The error object to be logged.
  * @returns {void}
  */
-export function logError(label: string, error: unknown) {
+export function logError(label: string, error: unknown): void {
   // 🛡️ Enhancement 10: Sanitize all error logs to prevent secret leakage
   if (error instanceof Error) {
     let message = error.message;
@@ -181,7 +220,7 @@ export function logError(label: string, error: unknown) {
     console.error(
       `[ERROR] ${label}:`,
       typeof error === "object"
-        ? JSON.stringify(sanitizeForLog(error), null, 2)
+        ? JSON.stringify(sanitizeForLogInternal(error), null, 2)
         : error,
     );
   }
@@ -198,7 +237,7 @@ export function logInfo(label: string, data?: unknown) {
     console.info(
       `[INFO] ${label}:`,
       typeof data === "object"
-        ? JSON.stringify(sanitizeForLog(data))
+        ? JSON.stringify(sanitizeForLogInternal(data))
         : data,
     );
   } else {
@@ -348,7 +387,7 @@ export function extractRequestMetadata(event: APIGatewayProxyEventV2): {
  * @param b - Actual secret key.
  * @returns {boolean} True if the keys match.
  */
-/**
+export function safeCompare(a: string, b: string): boolean {
   const hashA = crypto.createHash("sha256").update(a).digest();
   const hashB = crypto.createHash("sha256").update(b).digest();
   return crypto.timingSafeEqual(hashA, hashB);
@@ -418,3 +457,6 @@ export function stripLocalFields(data: unknown): unknown {
     if (INTERNAL_KEYS.has(key)) {
       return { skip: true };
     }
+    return { skip: false };
+  });
+}

@@ -226,12 +226,6 @@ export const isOpponentId = (playerId: string | null): boolean => {
  */
 export const isActive = (stat: StatEvent): boolean => !stat.deletedAt;
 
-/**
- * Determines if a statistical event is a scoring event (MAKE).
- * @param {StatEvent} stat - The event to check.
- * @returns {boolean} True if it is a MAKE action.
- */
-export const isScoringEvent = (stat: StatEvent): boolean => stat.type === ACTION_TYPES.MAKE;
 
 /**
  * Determines if a statistical event is a foul action.
