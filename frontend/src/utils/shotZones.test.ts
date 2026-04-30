@@ -1,7 +1,34 @@
 import { describe, it, expect } from "vitest";
-import { getShotZone } from "./shotZones";
+import { getShotZone, getHeatmapColor } from "./shotZones";
 
 describe("shotZones.ts", () => {
+  describe("getHeatmapColor", () => {
+    it("returns green for >= 50%", () => {
+      expect(getHeatmapColor(50)).toBe("#4caf50");
+      expect(getHeatmapColor(60)).toBe("#4caf50");
+    });
+
+    it("returns light green for 40-49%", () => {
+      expect(getHeatmapColor(40)).toBe("#8bc34a");
+      expect(getHeatmapColor(45)).toBe("#8bc34a");
+    });
+
+    it("returns yellow for 30-39%", () => {
+      expect(getHeatmapColor(30)).toBe("#ffeb3b");
+      expect(getHeatmapColor(35)).toBe("#ffeb3b");
+    });
+
+    it("returns orange for 20-29%", () => {
+      expect(getHeatmapColor(20)).toBe("#ff9800");
+      expect(getHeatmapColor(25)).toBe("#ff9800");
+    });
+
+    it("returns red for < 20%", () => {
+      expect(getHeatmapColor(0)).toBe("#f44336");
+      expect(getHeatmapColor(19)).toBe("#f44336");
+    });
+  });
+
   describe("getShotZone", () => {
     it("identifies Restricted Area (RA)", () => {
       // Rim is at (250, 47) in SVG coords. (50, 10) in 0-100 coords -> (250, 47)

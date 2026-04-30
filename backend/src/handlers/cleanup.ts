@@ -19,6 +19,14 @@ import {
 
 /**
  * Handler for cleanup-related endpoints.
+ *
+ * @param {string} method - The HTTP method.
+ * @param {string} path - The request path.
+ * @param {APIGatewayProxyEventV2} event - The Lambda event.
+ * @param {string} tableName - The DynamoDB table name.
+ * @param {string} requestId - The unique request ID.
+ * @param {DynamoDBDocumentClient} docClient - The DynamoDB client.
+ * @returns {Promise<APIGatewayProxyResultV2 | null>} The response or null if not handled.
  */
 export async function handleCleanup(
   method: string,
@@ -78,6 +86,10 @@ export async function handleCleanup(
 
 /**
  * Performs cleanup of soft-deleted items older than 24 hours.
+ *
+ * @param {string} tableName - The DynamoDB table name.
+ * @param {DynamoDBDocumentClient} docClient - The DynamoDB client.
+ * @returns {Promise<void>}
  */
 async function performHardCleanup(
   tableName: string,

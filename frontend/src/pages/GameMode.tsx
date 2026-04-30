@@ -3051,7 +3051,7 @@ const GameMode: React.FC = () => {
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [handleUndo, handleToggleClock, handleNextPeriod, isReadOnly]);
+  }, [handleUndo, handleToggleClock, handleNextPeriod, handleTimeout, isReadOnly]);
 
   const handleEditClock = useCallback(
     async (mins: number, secs: number) => {
