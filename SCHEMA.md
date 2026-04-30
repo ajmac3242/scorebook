@@ -14,7 +14,7 @@
 | **Player** | `PLAYER#<PlayerId>` | `METADATA#<PlayerId>` | Name, DefaultNumber, deletedAt, isArchived |
 | **TeamPlayer** | `TEAM#<TeamId>` | `PLAYER#<PlayerId>` | JerseyNumber, teamId, playerId, deletedAt |
 | **Game** | `GAME#<GameId>` | `METADATA#<GameId>` | TeamId, Opponent, Date, Location, completed, deletedAt |
-| **StatEvent** | `GAME#<GameId>` | `STAT#<Timestamp>#<StatId>` | PlayerId, Type (Shot, Rebound, etc.), Points, LocationX, LocationY, SubInPlayerId, SubOutPlayerId, deletedAt |
+| **StatEvent** | `GAME#<GameId>` | `STAT#<Timestamp>#<StatId>` | PlayerId, Type, Points, clockTime, period, locationX, locationY, shotQuality, shotType, playType, playName, relatedPlayerId, subInPlayerId, subOutPlayerId, isBookmarked, defensiveScheme, deletedAt |
 
 ### Global Secondary Indexes (GSI)
 
@@ -31,40 +31,71 @@ Responses include a `X-Request-Id` header.
 ### Teams
 - `GET /teams`: Returns all active teams.
 - `POST /teams`: Creates a new team.
-  - Body: `{ name: string, id?: UUID }`
-- `DELETE /teams/{id}`: Soft deletes a team.
+  - Body: `{ "name": string, "id"?: UUID }`
+- `DELETE /teams/{id}`: Soft deletes a team and its snapshots.
 - `PATCH /teams/{id}`: Restores a deleted team.
-  - Body: `{ deletedAt: null }`
+  - Body: `{ "deletedAt": null }`
 
 ### Team Players
-- `GET /teams/{id}/players`: Returns all players associated with a team.
+- `GET /teams/{id}/players`: Returns all active player associations for a team.
 - `POST /teams/{id}/players`: Adds a player to a team.
-  - Body: `{ playerId: UUID, jerseyNumber?: string, id?: UUID }`
+  - Body: `{ "playerId": UUID, "jerseyNumber"?: string, "id"?: UUID }`
 - `DELETE /teams/{id}/players/{playerId}`: Removes a player from a team (soft delete).
 
 ### Players
-- `GET /players`: Returns all active players.
+- `GET /players`: Returns all active (non-deleted, non-archived) players.
 - `POST /players`: Creates a new player.
-  - Body: `{ name: string, defaultNumber?: string, id?: UUID }`
+  - Body: `{ "name": string, "defaultNumber"?: string, "id"?: UUID }`
 - `DELETE /players/{id}`: Soft deletes or archives a player.
-  - Use `?archive=true` query parameter to archive instead of soft delete.
+  - Use `?archive=true` query parameter to archive (sets `isArchived = 1`) instead of soft delete.
 - `PATCH /players/{id}`: Restores or unarchives a player.
-  - Body: `{ deletedAt: null }` to restore from soft delete.
-  - Body: `{ isArchived: 0 }` to restore from archive.
+  - Body: `{ "deletedAt": null }` to restore from soft delete.
+  - Body: `{ "isArchived": 0 }` to restore from archive.
 
 ### Games
-- `GET /games?teamId={id}`: Returns games for a specific team.
+- `GET /games?teamId={id}`: Returns all active games for a specific team.
 - `POST /games`: Creates a new game.
-  - Body: `{ teamId: UUID, opponent: string, date: ISO8601, location: string, ... }`
-- `DELETE /games/{id}`: Soft deletes a game.
+  - Body:
+    ```json
+    {
+      "teamId": "UUID",
+      "opponent": "string",
+      "date": "ISO8601",
+      "location": "string",
+      "completed"?: number (0|1),
+      "id"?: "UUID"
+    }
+    ```
+- `DELETE /games/{id}`: Soft deletes a game and its snapshots.
 - `PATCH /games/{id}`: Restores a deleted game.
-  - Body: `{ deletedAt: null }`
+  - Body: `{ "deletedAt": null }`
 - `POST /games/{id}/complete`: Marks a game as completed and triggers final snapshot generation.
 
 ### Game Stats
-- `GET /games/{id}/stats`: Returns all stat events for a game.
+- `GET /games/{id}/stats`: Returns all active stat events for a game.
+  - Response: `Array<StatEvent>` (sanitized, internal keys removed)
 - `POST /games/{id}/stats`: Records a new stat event.
-  - Body: `{ type: string, playerId: string, points?: number, locationX?: number, locationY?: number, ... }`
+  - Body:
+    ```json
+    {
+      "type": "MAKE" | "MISS" | "REBOUND" | "ASSIST" | "TURNOVER" | "SUB_IN" | "SUB_OUT" | ...,
+      "playerId": "UUID" | "OPPONENT" | "OPPONENT:12",
+      "points": number (0-3),
+      "clockTime": number (seconds),
+      "period": number (1-20),
+      "locationX": number (0-100),
+      "locationY": number (0-100),
+      "shotQuality": "OPEN" | "CONTESTED",
+      "shotType": "CATCH" | "DRIB",
+      "playType": string,
+      "relatedPlayerId": "UUID",
+      "subInPlayerId": "UUID",
+      "subOutPlayerId": "UUID",
+      "timestamp": "ISO8601",
+      "id": "UUID"
+    }
+    ```
+  - Response: `201 Created` with the saved item.
 
 ### Cleanup (Admin)
 - `POST /cleanup`: Performs hard cleanup of soft-deleted items older than 24 hours.

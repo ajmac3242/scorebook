@@ -88,6 +88,9 @@ To maintain high performance on low-end mobile devices and ensure enterprise-gra
 - **Shot Charts**: Visual representation of shot locations on a virtual court.
 - **Advanced Analytics**: Automatic calculation of advanced metrics including **Effective Field Goal Percentage (eFG%)** and **True Shooting Percentage (TS%)**. It utilizes a real-time possession estimation formula (`FGA + 0.44 * FTA + TO - OREB`) to provide deep efficiency insights (Points Per Possession) during live play.
 - **Defensive Momentum Tracking**: Real-time tracking of **Defensive Stops** (defensive possessions without an opponent score) and **Kills** (3 consecutive stops). This uses a state-machine logic to accurately identify possession terminators across multi-miss sequences.
+- **Holistic Matchup Efficiency Matrix**: A 5x5 visual matrix that maps our 5 active players against the opponent's unit, color-coded by defensive efficiency (Stop %) to reveal exploitable mismatches.
+- **Locker Room Post-Game Learning System**: An interactive "Coaching Clinic" mode that identifies critical game-changing moments, execution wins, and tactical errors based on PPP and score flow.
+- **Opponent Play-Type Breakdown**: Granular categorization of opponent scoring (PnR, ISO, Transition, etc.) with real-time efficiency alerts and shot chart filtering.
 - **Momentum & Run Alerts**: Automated detection of opponent scoring runs (e.g. 8-0) and scoring droughts to assist with timeout management.
 - **Clutch Analytics**: Interactive filtering to analyze player and lineup performance during high-leverage "Clutch Time" situations.
 - **Lineup Efficiency Tracking**: Analyze the performance (Plus/Minus) of specific 5-player combinations to optimize rotations.
