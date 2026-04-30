@@ -3501,3 +3501,4 @@ export const calculatePaceAnalytics = (
   };
 };
 export * from "./stats/matchups.js";
+export * from "./stats/synergy.js";
