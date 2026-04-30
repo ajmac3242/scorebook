@@ -103,3 +103,13 @@ Pattern:
 3. Consolidate repetitive formula application using record-aware helpers (`calculatePossessionsForAgg`) to ensure calculation parity.
 4. Normalize event filtering across all hot loops using the `isActive` utility.
 5. Enhance readability of semantic checks (e.g., `isThreePointAttempt`) to decouple business rules from raw event properties.
+
+2026-05-15 - Modernization and Structural Cleanup
+Smell: Manual loop-based header lookups; repetitive run-recording logic; magic numbers for court coordinates; non-idiomatic clock string building.
+Learning: Leveraging modern ES2017+ features (`Object.entries`, `Object.fromEntries`, `padStart`) reduces imperative boilerplate and improves readability. Consolidating inner-loop logic into local helpers (`recordRun`) makes complex event processing flows more scannable. Named constants for geometric logic (`SHOT_COORDS`) provide much-needed domain context.
+Pattern:
+1. Modernize record transformations using `Object.fromEntries` and `Object.entries`.
+2. Standardize case-insensitive lookups using `Object.keys().find()`.
+3. Extract geometric magic numbers into semantic constant objects.
+4. Use `padStart` for standardized numeric string formatting.
+5. Deduplicate logical "checkpoints" in event loops using local closure-based helpers.

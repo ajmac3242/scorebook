@@ -71,20 +71,19 @@ const FORBIDDEN_KEYS = Object.freeze(
  * @param redactor - Optional custom redaction function.
  * @returns {Record<string, unknown>} The redacted record.
  */
-function redactRecord<T>(
+function redactRecord<T, R = unknown>(
   record: Record<string, T>,
   sensitiveKeys?: ReadonlySet<string>,
-  redactor: (val: T) => unknown = () => "[REDACTED]",
-): Record<string, unknown> {
-  const result: Record<string, unknown> = { ...record };
-  for (const key in result) {
-    if (Object.prototype.hasOwnProperty.call(result, key)) {
-      if (!sensitiveKeys || sensitiveKeys.has(key.toLowerCase())) {
-        result[key] = redactor(result[key]);
-      }
-    }
-  }
-  return result;
+  redactor: (val: T) => R = () => "[REDACTED]" as unknown as R,
+): Record<string, T | R> {
+  return Object.fromEntries(
+    Object.entries(record).map(([key, value]) => [
+      key,
+      !sensitiveKeys || sensitiveKeys.has(key.toLowerCase())
+        ? redactor(value)
+        : value,
+    ]),
+  );
 }
 
 /**
@@ -152,49 +151,12 @@ const REDACTION_REGEX = new RegExp(`(${REDACTION_PATTERN})`, "gi");
  * @returns {unknown} A sanitized copy of the object.
  */
 function sanitizeForLog(obj: unknown): unknown {
-  return recursiveTransform(obj, (key, value) => {
+  return recursiveTransform(obj, (key) => {
     if (REDACTED_HEADERS.has(key.toLowerCase())) {
       return { skip: false, value: "[REDACTED]" };
     }
-    if (typeof value === "object" && value !== null && !Array.isArray(value)) {
-      const record = value as Record<string, unknown>;
-      // If we are about to go over depth 10, mark it
-      // Since depth starts at 0, and recursiveTransform increments it before calling itself on values,
-      // we need to be careful. recursiveTransform checks depth AT THE START.
-      // If current depth is 10, it returns {}.
-    }
     return { skip: false };
   });
-}
-
-/**
- * Internal recursive sanitizer for logging with depth and redaction.
- * @param {unknown} obj - Object to sanitize.
- * @param {number} depth - Current recursion depth.
- * @returns {unknown} Sanitized object.
- */
-function sanitizeForLogInternal(obj: unknown, depth = 0): unknown {
-  if (obj === null || typeof obj !== "object") return obj;
-  if (depth > 10) return Array.isArray(obj) ? [] : "[DEPTH_LIMIT_REACHED]";
-
-  if (Array.isArray(obj)) {
-    return obj
-      .slice(0, 1000)
-      .map((item) => sanitizeForLogInternal(item, depth + 1));
-  }
-
-  const result: Record<string, unknown> = {};
-  const record = obj as Record<string, unknown>;
-  for (const key in record) {
-    if (Object.prototype.hasOwnProperty.call(record, key)) {
-      if (REDACTED_HEADERS.has(key.toLowerCase())) {
-        result[key] = "[REDACTED]";
-      } else {
-        result[key] = sanitizeForLogInternal(record[key], depth + 1);
-      }
-    }
-  }
-  return result;
 }
 
 /**
@@ -220,7 +182,7 @@ export function logError(label: string, error: unknown): void {
     console.error(
       `[ERROR] ${label}:`,
       typeof error === "object"
-        ? JSON.stringify(sanitizeForLogInternal(error), null, 2)
+        ? JSON.stringify(sanitizeForLog(error), null, 2)
         : error,
     );
   }
@@ -236,9 +198,7 @@ export function logInfo(label: string, data?: unknown) {
   if (data !== undefined) {
     console.info(
       `[INFO] ${label}:`,
-      typeof data === "object"
-        ? JSON.stringify(sanitizeForLogInternal(data))
-        : data,
+      typeof data === "object" ? JSON.stringify(sanitizeForLog(data)) : data,
     );
   } else {
     console.info(`[INFO] ${label}`);
@@ -261,7 +221,7 @@ export function maskEvent(event: APIGatewayProxyEventV2): unknown {
   const masked = { ...event };
 
   if (event.headers) {
-    masked.headers = redactRecord(event.headers, REDACTED_HEADERS);
+    masked.headers = redactRecord(event.headers, REDACTED_HEADERS, () => "[REDACTED]") as Record<string, string | undefined>;
   }
 
   // Handle multi-value headers if present (older API Gateway versions)
@@ -283,7 +243,7 @@ export function maskEvent(event: APIGatewayProxyEventV2): unknown {
 
   // Redact all query string parameters as they often contain tokens or PII
   if (event.queryStringParameters) {
-    masked.queryStringParameters = redactRecord(event.queryStringParameters);
+    masked.queryStringParameters = redactRecord(event.queryStringParameters) as Record<string, string | undefined>;
   }
 
   const multiValueQueryParams = anyEvent.multiValueQueryStringParameters as
@@ -330,17 +290,13 @@ export function normalizePath(event: APIGatewayProxyEventV2): string {
 
   // ⚡ Bolt: Consolidated path normalization and security checks.
   try {
-    let path = decodeURIComponent(raw)
+    const path = decodeURIComponent(raw)
       .replace(/^\/(\$default|api)/, "")
-      .replace(/\/+/g, "/");
+      .replace(/\/+/g, "/")
+      .replace(/\/$/, "");
 
     // 🛡️ Enhancement: Block Path Traversal (.. or encoded %2e%2e)
     if (path.includes("..") || path.includes("%2e%2e")) return "/";
-
-    // Cleanup trailing slash if not root
-    if (path.length > 1 && path.endsWith("/")) {
-      path = path.slice(0, -1);
-    }
 
     return path || "/";
   } catch {
@@ -416,12 +372,8 @@ export function getHeader(
 ): string | undefined {
   if (!headers) return undefined;
   const target = name.toLowerCase();
-  for (const key in headers) {
-    if (key.toLowerCase() === target) {
-      return headers[key];
-    }
-  }
-  return undefined;
+  const key = Object.keys(headers).find((k) => k.toLowerCase() === target);
+  return key ? headers[key] : undefined;
 }
 
 /**

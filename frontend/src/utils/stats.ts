@@ -342,25 +342,21 @@ export const calculatePossessions = (
 /**
  * Calculates possessions for a statistical aggregate record.
  * @param agg - An object containing attempts, fta, turnovers, and offensive rebounds.
- * @param agg.attempts - Field goal attempts.
- * @param agg.fta - Free throw attempts.
- * @param agg.turnovers - Turnovers.
- * @param agg.offRebounds - Optional offensive rebounds.
- * @param agg.oreb - Optional offensive rebounds (alternative key).
  */
-export const calculatePossessionsForAgg = (agg: {
+export const calculatePossessionsForAgg = ({
+  attempts,
+  fta,
+  turnovers,
+  offRebounds,
+  oreb,
+}: {
   attempts: number;
   fta: number;
   turnovers: number;
   offRebounds?: number;
   oreb?: number;
 }): number => {
-  return calculatePossessions(
-    agg.attempts,
-    agg.fta,
-    agg.turnovers,
-    agg.offRebounds ?? agg.oreb ?? 0,
-  );
+  return calculatePossessions(attempts, fta, turnovers, offRebounds ?? oreb ?? 0);
 };
 
 /**
@@ -1481,6 +1477,25 @@ export const calculateScoringRuns = (stats: StatEvent[]): ScoringRun[] => {
   let runStartEvent: StatEvent | null = null;
   let lastMakeEvent: StatEvent | null = null; // ⚡ Bolt: Track last make for O(N) runs
 
+  const recordRun = () => {
+    if (
+      currentRunTeam &&
+      currentRunPoints >= 8 &&
+      runStartEvent &&
+      lastMakeEvent
+    ) {
+      runs.push({
+        team: currentRunTeam,
+        points: currentRunPoints,
+        period: runStartEvent.period,
+        startClock: runStartEvent.clockTime || 0,
+        endClock: lastMakeEvent.clockTime || 0,
+        startTime: formatClock(runStartEvent.clockTime || 0),
+        endTime: formatClock(lastMakeEvent.clockTime || 0),
+      });
+    }
+  };
+
   for (let i = 0; i < sorted.length; i++) {
     const s = sorted[i];
     if (!isActive(s) || s.type !== ACTION_TYPES.MAKE) continue;
@@ -1493,18 +1508,7 @@ export const calculateScoringRuns = (stats: StatEvent[]): ScoringRun[] => {
       currentRunPoints += points;
       lastMakeEvent = s;
     } else {
-      // If previous run was significant, record it
-      if (currentRunTeam && currentRunPoints >= 8 && runStartEvent && lastMakeEvent) {
-        runs.push({
-          team: currentRunTeam,
-          points: currentRunPoints,
-          period: runStartEvent.period,
-          startClock: runStartEvent.clockTime || 0,
-          endClock: lastMakeEvent.clockTime || 0,
-          startTime: formatClock(runStartEvent.clockTime || 0),
-          endTime: formatClock(lastMakeEvent.clockTime || 0),
-        });
-      }
+      recordRun();
       // Start new run
       currentRunTeam = team;
       currentRunPoints = points;
@@ -1513,19 +1517,7 @@ export const calculateScoringRuns = (stats: StatEvent[]): ScoringRun[] => {
     }
   }
 
-  // Final check
-  if (currentRunTeam && currentRunPoints >= 8 && runStartEvent && lastMakeEvent) {
-    runs.push({
-      team: currentRunTeam,
-      points: currentRunPoints,
-      period: runStartEvent.period,
-      startClock: runStartEvent.clockTime || 0,
-      endClock: lastMakeEvent.clockTime || 0,
-      startTime: formatClock(runStartEvent.clockTime || 0),
-      endTime: formatClock(lastMakeEvent.clockTime || 0),
-    });
-  }
-
+  recordRun();
   return runs;
 };
 
@@ -1593,22 +1585,36 @@ export const calculateOpponentTendencies = (
   };
 };
 
+const SHOT_COORDS = {
+  X_SCALE: 5,
+  Y_SCALE: 4.7,
+  ARC_CENTER_X: 250,
+  ARC_CENTER_Y: 140,
+  CORNER_THREE_X_LOW: 30,
+  CORNER_THREE_X_HIGH: 470,
+  THREE_POINT_RADIUS_SQ: 48400, // 220^2
+};
+
 /**
  * Detects shot value (2 or 3) from coordinates.
  * Coordinates are 0-100 percentage of SVG viewBox "0 0 500 470".
- * Center of the arc is at (250, 140) with a radius of 220.
  */
 export const detectShotValueFromCoords = (x: number, y: number): number => {
-  const svgX = x * 5;
-  const svgY = y * 4.7;
-  if (svgY <= 140) {
-    if (svgX <= 30 || svgX >= 470) return 3;
+  const svgX = x * SHOT_COORDS.X_SCALE;
+  const svgY = y * SHOT_COORDS.Y_SCALE;
+
+  if (svgY <= SHOT_COORDS.ARC_CENTER_Y) {
+    if (
+      svgX <= SHOT_COORDS.CORNER_THREE_X_LOW ||
+      svgX >= SHOT_COORDS.CORNER_THREE_X_HIGH
+    )
+      return 3;
   } else {
     // ⚡ Bolt: Use squared distance to avoid expensive Math.sqrt() calls.
-    const dX = svgX - 250;
-    const dY = svgY - 140;
+    const dX = svgX - SHOT_COORDS.ARC_CENTER_X;
+    const dY = svgY - SHOT_COORDS.ARC_CENTER_Y;
     const distSq = dX * dX + dY * dY;
-    if (distSq >= 48400) return 3; // 220^2 = 48400
+    if (distSq >= SHOT_COORDS.THREE_POINT_RADIUS_SQ) return 3;
   }
   return 2;
 };
