@@ -1,5 +1,5 @@
 import { sortStats, getPeriodLen, isOpponentId, isActive, isScoringEvent, isFreeThrow, isThreePointAttempt, calcPct, initializeStatsMap, applyActionToAggregate } from "./stats/core.js";
-import { TeamAggregates, MatchupStats, OpponentAggregates, ScoreFlowPoint, BonusStatus, PlayerAggregates, TargetAttack, PlayerStint, PlayEfficiency, SchemeEfficiency, OpponentThreat, ScoringRun, OpponentTendency, LineupAggregates, OnOffImpact, ClutchPlay, OfficiatingStats, PaceAnalytics } from "./stats/types.js";
+import { TeamAggregates, MatchupStats, OpponentAggregates, ScoreFlowPoint, BonusStatus, PlayerAggregates, PlayerStint, PlayEfficiency, SchemeEfficiency, OpponentThreat, ScoringRun, OpponentTendency, LineupAggregates, OnOffImpact, ClutchPlay, OfficiatingStats, PaceAnalytics } from "./stats/types.js";
 export * from "./stats/types.js";
 export * from "./stats/core.js";
 /**
@@ -3500,3 +3500,4 @@ export const calculatePaceAnalytics = (
     paceShift
   };
 };
+export * from "./stats/matchups.js";

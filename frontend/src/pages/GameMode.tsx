@@ -91,7 +91,7 @@ import HalftimeReportDialog from "../components/HalftimeReportDialog";
 import PlaybookEfficiencyWidget from "../components/PlaybookEfficiencyWidget";
 import TacticalGoalHUD from "../components/TacticalGoalHUD";
 import { PlayerStatRow } from "../components/PlayerStatRow";
-import { db, type StatEvent, type Player, type TeamPlayer } from "../db";
+import { db, type StatEvent, type Player } from "../db";
 import { syncService } from "../utils/syncService";
 import { logger } from "../utils/logger";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -104,7 +104,6 @@ import {
   ANALYTICAL_BASELINES,
 } from "../constants/stats";
 import { calculateMatchupStats, calculateTargetAttackStats } from "../utils/stats/matchups";
-import { detectOpponentRun, detectScoringDrought } from "../utils/stats/momentum";
 import { RotationSuggester } from "../components/RotationSuggester";
 import { MatchupAssignmentDialog } from "../components/MatchupAssignmentDialog";
 import {
