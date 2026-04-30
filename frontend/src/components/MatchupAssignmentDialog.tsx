@@ -20,8 +20,8 @@ interface MatchupAssignmentDialogProps {
   onCourtIds: Set<string>;
   currentMatchups: Map<string, string>;
   jerseyMap: Map<string, string>;
-  getInitials: (name: string) => string;
-  handleSaveMatchup: (defenderId: string) => void;
+  getInitials: (_name: string) => string;
+  handleSaveMatchup: (_defenderId: string) => void;
 }
 
 export const MatchupAssignmentDialog: React.FC<MatchupAssignmentDialogProps> = ({

@@ -15,9 +15,8 @@ export interface CriticalMoment {
  */
 export const identifyCriticalMoments = (
   stats: StatEvent[],
-  teamPpp: string,
+  _teamPpp: string,
 ): CriticalMoment[] => {
-  const moments: CriticalMoment[] = [];
 
   // Logic to identify 3 "Execution Wins" (PPP > 1.2)
   // and 3 "Tactical Errors" (turnovers or < 0.5 PPP)

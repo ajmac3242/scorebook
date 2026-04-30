@@ -19,12 +19,12 @@ interface EfficiencyMatrixProps {
   ourPlayers: Player[];
   opponents: Player[];
   matchups: MatchupStats[];
-  onAssign: (ourId: string, oppId: string) => void;
+  onAssign: (_ourId: string, _oppId: string) => void;
   jerseyMap: Map<string, string>;
-  getInitials: (name: string) => string;
+  getInitials: (_name: string) => string;
 }
 
-export const EfficiencyMatrix: React.FC<EfficiencyMatrixProps> = ({
+export const EfficiencyMatrix: React.FC<EfficiencyMatrixProps> = React.memo(({
   ourPlayers,
   opponents,
   matchups,
@@ -32,7 +32,7 @@ export const EfficiencyMatrix: React.FC<EfficiencyMatrixProps> = ({
   jerseyMap,
   getInitials,
 }) => {
-  const getEfficiency = (ourId: string, oppId: string) => {
+  const getEfficiency = (_ourId: string, _oppId: string) => {
     const m = matchups.find(
       (ms) => ms.ourPlayerId === ourId && ms.opponentPlayerId === oppId && !ms.isOpponentDefender
     );
@@ -101,4 +101,4 @@ export const EfficiencyMatrix: React.FC<EfficiencyMatrixProps> = ({
       </Table>
     </TableContainer>
   );
-};
+});

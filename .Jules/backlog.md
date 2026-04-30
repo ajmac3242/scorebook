@@ -180,6 +180,15 @@ Completed items are archived to `.Jules/backlog-archive.md` to maintain optimal 
 - [ ] Suggestion to shift to "Soft Zone" or "MAN-Contain" when tightness exceeds 1.5x baseline.
 - [ ] Real-time projection of "Team Fouls at Period End" based on current ref tightness.
 
+## High-Impact File Splitting (Remaining from Night Maintenance)
+**Priority:** MEDIUM
+**Type:** Refactor
+**Why:** GameMode.tsx (~5300 lines) and stats.ts (~3500 lines) are too large for stable maintenance.
+**What:** Surgically extract sub-components from GameMode.tsx and modularize stats.ts logical blocks (aggregators, lineups, impact).
+**Acceptance Criteria:**
+- [ ] GameMode.tsx split into focused components in src/components/GameMode/.
+- [ ] stats.ts split into logical modules in src/utils/stats/.
+- [ ] Full build and test suite pass with no regressions.
 ## Expected Value (xPTS) & Shot Quality ROI Engine
 **Priority:** HIGH
 **Type:** Feature
