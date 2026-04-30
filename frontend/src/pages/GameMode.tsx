@@ -103,6 +103,13 @@ import {
   PLAY_TYPES,
   ANALYTICAL_BASELINES,
 } from "../constants/stats";
+import { calculateMatchupStats, calculateTargetAttackStats } from "../utils/stats/matchups";
+import { detectOpponentRun, detectScoringDrought } from "../utils/stats/momentum";
+import { RotationSuggester } from "../components/RotationSuggester";
+import { MatchupAssignmentDialog } from "../components/MatchupAssignmentDialog";
+import {
+  GridOn,
+} from "@mui/icons-material";
 import {
   calculatePlayerAggregates,
   calculatePlayerStreaks,
@@ -110,7 +117,6 @@ import {
   calculateSchemeEfficiency,
   detectShotValueFromCoords,
   calculateStopsAndKills,
-  calculateMatchupStats,
   calculateTimeoutRecommendation,
   calculatePossessions,
   calculatePpp,
@@ -119,7 +125,6 @@ import {
   calculateOpponentSummary,
   calculateTeamAggregates,
   calculateTeamSeasonAverages,
-  calculateTargetAttackStats,
   isEventInPeriod,
   isOpponentId,
   getBonusStatus,
@@ -924,6 +929,8 @@ interface ActionControlsProps {
   isGameCompleted: boolean;
   onToggleClutchAdvisor: () => void;
   forceClutchAdvisor: boolean;
+  onToggleMatrix: () => void;
+  showMatrix: boolean;
 }
 
 const ActionControls = React.memo(
@@ -944,6 +951,8 @@ const ActionControls = React.memo(
     isGameCompleted,
     onToggleClutchAdvisor,
     forceClutchAdvisor,
+    onToggleMatrix,
+    showMatrix,
   }: ActionControlsProps) => {
     return (
       <Box
@@ -1116,6 +1125,26 @@ const ActionControls = React.memo(
             >
               Undo
             </Button>
+          </span>
+        </Tooltip>
+
+        <Tooltip title="Toggle Efficiency Matrix">
+          <span>
+            <IconButton
+              size="small"
+              onClick={onToggleMatrix}
+              aria-label="Toggle Efficiency Matrix"
+              sx={{
+                border: "1px solid",
+                borderColor: showMatrix ? "primary.main" : "rgba(0,0,0,0.23)",
+                bgcolor: showMatrix ? "rgba(25, 118, 210, 0.04)" : "transparent",
+                borderRadius: "4px",
+                p: "5px",
+                color: showMatrix ? "primary.main" : "inherit"
+              }}
+            >
+              <GridOn />
+            </IconButton>
           </span>
         </Tooltip>
 
@@ -1495,104 +1524,6 @@ const TargetAttackHUD: React.FC<{
  * 🏀 CoachBoard: RotationSuggester
  * WHY: Helps coaches stick to their rotation plan by comparing actual mins vs target mins.
  */
-const RotationSuggester: React.FC<{
-  players: Player[];
-  teamPlayers: TeamPlayer[];
-  gameData: { onCourtIds: Set<string> };
-  statsGridData: PlayerAggregates[];
-  period: number;
-  maxPeriod: number;
-  periodLength: number;
-  clockSeconds: number;
-  onSelectPlayer: (_id: string) => void;
-}> = ({
-  players,
-  teamPlayers,
-  gameData,
-  statsGridData,
-  period,
-  maxPeriod,
-  periodLength,
-  clockSeconds,
-  onSelectPlayer,
-}) => {
-  const suggestions = useMemo(() => {
-    const totalGameMins = maxPeriod * periodLength;
-    const elapsedMins = Math.max(
-      0.1,
-      (period - 1) * periodLength + (periodLength - clockSeconds / 60),
-    );
-    const gameProgress = Math.min(1, elapsedMins / totalGameMins);
-
-    // ⚡ Bolt: Use Maps for O(1) lookups instead of O(N) .find() in the roster loop.
-    const playersMap = new Map(players.map((p) => [p.id?.toString(), p]));
-    const statsMap = new Map(statsGridData.map((s) => [s.id.toString(), s]));
-
-    const roster = teamPlayers.map((tp) => {
-      const p = playersMap.get(tp.playerId);
-      const gameStats = statsMap.get(tp.playerId);
-      const actualMins = gameStats?.min || 0;
-      const targetMins = tp.targetMinutes || 0;
-      const expectedMins = targetMins * gameProgress;
-
-      return {
-        id: tp.playerId,
-        name: p?.name || "Unknown",
-        target: targetMins,
-        actual: actualMins,
-        diff: expectedMins - actualMins,
-        isOn: gameData.onCourtIds.has(tp.playerId),
-        isFoulTrouble: (gameStats?.fouls || 0) >= 4,
-      };
-    });
-
-    // Suggest players who are OFF and significantly below their expected minutes
-    return roster
-      .filter((p) => !p.isOn && p.target > 0 && p.diff > 0)
-      .sort((a, b) => b.diff - a.diff)
-      .slice(0, 3);
-  }, [
-    players,
-    teamPlayers,
-    gameData,
-    statsGridData,
-    period,
-    maxPeriod,
-    periodLength,
-    clockSeconds,
-  ]);
-
-  if (suggestions.length === 0) return null;
-
-  return (
-    <MoleskineCard sx={{ border: "1px solid #FFD700" }}>
-      <Typography
-        variant="subtitle2"
-        sx={{ fontWeight: 800, mb: 1, display: "flex", alignItems: "center", gap: 1 }}
-      >
-        <Groups sx={{ fontSize: 18 }} /> ROTATION SUGGESTER
-      </Typography>
-      <Stack spacing={1}>
-        {suggestions.map((p) => (
-          <Button
-            key={p.id}
-            variant="outlined"
-            size="small"
-            onClick={() => onSelectPlayer(p.id)}
-            sx={{ justifyContent: "space-between", textTransform: "none" }}
-          >
-            <Typography variant="caption" sx={{ fontWeight: 700 }}>
-              {p.name}
-            </Typography>
-            <Typography variant="caption" sx={{ opacity: 0.7 }}>
-              Target: {p.target}m
-            </Typography>
-          </Button>
-        ))}
-      </Stack>
-    </MoleskineCard>
-  );
-};
 const GameMode: React.FC = () => {
   const theme = useTheme();
   const navigate = useNavigate();
@@ -1689,6 +1620,7 @@ const GameMode: React.FC = () => {
 
   const [period, setPeriod] = useState<number>(1);
   const [trackingMode, setTrackingMode] = useState<"TEAM" | "OPPONENT">("TEAM");
+  const [showMatrix, setShowMatrix] = useState(false);
   const [forceClutchAdvisor, setForceClutchAdvisor] = useState(false);
 
   // Fetch roster data for the current team
@@ -1877,6 +1809,7 @@ const GameMode: React.FC = () => {
     let oppTimeouts = 0;
     let posState = null;
     const onCourt = new Set<string>();
+    const opponentsOnCourt = new Set<string>();
     const stintStarts = new Map<string, number>();
     const onCourtPeriodFouls = new Map<string, number>();
     const pType = team?.periodType || "QUARTERS";
@@ -2034,7 +1967,9 @@ const GameMode: React.FC = () => {
 
       // Lineup and Substitution Tracking
       if (s.type === ACTION_TYPES.SUB_IN) {
-        if (!onCourt.has(s.playerId)) {
+        if (isOpp) {
+          opponentsOnCourt.add(s.playerId);
+        } else if (!onCourt.has(s.playerId)) {
           onCourt.add(s.playerId);
           if (s.period === period) {
             stintStarts.set(s.playerId, s.clockTime ?? periodLen);
@@ -2045,7 +1980,9 @@ const GameMode: React.FC = () => {
           }
         }
       } else if (s.type === ACTION_TYPES.SUB_OUT) {
-        if (onCourt.has(s.playerId)) {
+        if (isOpp) {
+          opponentsOnCourt.delete(s.playerId);
+        } else if (onCourt.has(s.playerId)) {
           onCourt.delete(s.playerId);
           stintStarts.delete(s.playerId);
           if (s.period === period) {
@@ -2138,6 +2075,12 @@ const GameMode: React.FC = () => {
       },
       possessionState: posState,
       onCourtIds: onCourt,
+      opponentsOnCourt: Array.from(opponentsOnCourt).map((id) => ({
+        id,
+        name: id.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":")
+          ? `Opponent #${id.split(":")[1]}`
+          : "Opponent",
+      })) as Player[],
       stintStarts,
       defensiveStats,
       momentumAlerts: {
@@ -3429,6 +3372,8 @@ const GameMode: React.FC = () => {
                 isGameCompleted={!!game?.completed}
                 onToggleClutchAdvisor={() => setForceClutchAdvisor(!forceClutchAdvisor)}
                 forceClutchAdvisor={forceClutchAdvisor}
+                onToggleMatrix={() => setShowMatrix(!showMatrix)}
+                showMatrix={showMatrix}
               />
 
               <ToggleButtonGroup
@@ -3508,6 +3453,19 @@ const GameMode: React.FC = () => {
                   clockSeconds={clockSeconds}
                   period={period}
                   isClockRunning={isClockRunning}
+                />
+              </Box>
+            )}
+
+            {trackingMode === "TEAM" && showMatrix && (
+              <Box aria-live="polite">
+                <EfficiencyMatrix
+                  ourPlayers={players.filter((p) => gameData.onCourtIds.has(p.id!))}
+                  opponents={gameData.opponentsOnCourt}
+                  matchups={matchupStats}
+                  onAssign={handleSaveMatchup}
+                  jerseyMap={jerseyMap}
+                  getInitials={getInitials}
                 />
               </Box>
             )}
@@ -5135,83 +5093,18 @@ const GameMode: React.FC = () => {
         initialSeconds={clockSeconds % 60}
       />
 
-      {/* Matchup Assignment Dialog */}
-      <Dialog
+      <MatchupAssignmentDialog
         open={matchupDialogOpen}
         onClose={() => setMatchupDialogOpen(false)}
-        fullWidth
-        maxWidth="xs"
-      >
-        <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
-          Assign Defender
-          <Typography variant="body2" color="text.secondary">
-            Who should guard {matchupOpponentId?.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":")
-              ? `Opponent #${matchupOpponentId.split(":")[1]}`
-              : (game?.opponent || "Opponent")}?
-          </Typography>
-        </DialogTitle>
-        <DialogContent>
-          <Box
-            sx={{
-              display: "grid",
-              gridTemplateColumns: "repeat(3, 1fr)",
-              gap: 1,
-              mt: 1,
-            }}
-          >
-            {players
-              .filter((p) => gameData.onCourtIds.has(p.id!))
-              .map((p) => (
-                <Button
-                  key={p.id}
-                  variant={gameData.currentMatchups.get(matchupOpponentId!) === p.id ? "contained" : "outlined"}
-                  onClick={() => handleSaveMatchup(p.id!)}
-                  sx={{ flexDirection: "column", py: 2 }}
-                >
-                  <Avatar
-                    sx={{
-                      bgcolor: p.avatarColor || "grey.500",
-                      width: 32,
-                      height: 32,
-                      fontSize: "0.8rem",
-                      mb: 0.5,
-                    }}
-                  >
-                    {jerseyMap.get(p.id!) ?? getInitials(p.name)}
-                  </Avatar>
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      width: "100%",
-                      textAlign: "center",
-                    }}
-                  >
-                    {p.name.split(" ")[0]}
-                  </Typography>
-                </Button>
-              ))}
-            <Button
-              variant="outlined"
-              color="inherit"
-              onClick={() => handleSaveMatchup("")}
-              sx={{ flexDirection: "column", py: 2 }}
-            >
-              <Avatar sx={{ bgcolor: "grey.300", width: 32, height: 32, mb: 0.5 }}>
-                <Close />
-              </Avatar>
-              <Typography variant="caption">None</Typography>
-            </Button>
-          </Box>
-        </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setMatchupDialogOpen(false)} color="inherit">
-            Cancel
-          </Button>
-        </DialogActions>
-      </Dialog>
+        matchupOpponentId={matchupOpponentId}
+        game={game}
+        players={players}
+        onCourtIds={gameData.onCourtIds}
+        currentMatchups={gameData.currentMatchups}
+        jerseyMap={jerseyMap}
+        getInitials={getInitials}
+        handleSaveMatchup={handleSaveMatchup}
+      />
 
       <Snackbar
         open={snackbar.open}

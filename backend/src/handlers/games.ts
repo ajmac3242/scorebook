@@ -8,7 +8,7 @@ import { Keys } from "../keys.js";
 import { badRequest, ok, notFound } from "../responses.js";
 import { isValidUuid, validateGame } from "../validation.js";
 import { extractIdFromPath } from "../utils.js";
-import { getItemsByGSI, createItem, softDeleteItem } from "../index.js";
+import { getItemsByGSI, createItem, softDeleteItem } from "../db.js";
 import {
   snapshotTeamGames,
   snapshotGameStats,

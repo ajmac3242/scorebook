@@ -14,7 +14,7 @@ import {
   createItem,
   softDeleteItem,
   putNewItem,
-} from "../index.js";
+} from "../db.js";
 import {
   snapshotTeam,
   snapshotTeamRoster,
