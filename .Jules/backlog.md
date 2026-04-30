@@ -181,7 +181,7 @@ Completed items are archived to `.Jules/backlog-archive.md` to maintain optimal 
 - [ ] Real-time projection of "Team Fouls at Period End" based on current ref tightness.
 
 ## High-Impact File Splitting (Remaining from Night Maintenance)
-**Priority:** MEDIUM
+**Priority:** HIGH
 **Type:** Refactor
 **Why:** GameMode.tsx (~5300 lines) and stats.ts (~3500 lines) are too large for stable maintenance.
 **What:** Surgically extract sub-components from GameMode.tsx and modularize stats.ts logical blocks (aggregators, lineups, impact).
