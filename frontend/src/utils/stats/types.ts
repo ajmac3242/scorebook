@@ -1,3 +1,5 @@
+export type { StatEvent } from "../../db";
+
 export interface TeamAggregates {
   ppg: string;
   rpg: string;
@@ -21,10 +23,19 @@ export interface TeamAggregates {
 
 export interface MatchupStats {
   ourPlayerId: string;
-  oppPlayerId: string;
-  possessions: number;
+  opponentPlayerId: string;
   pointsAllowed: number;
-  pppAllowed: string;
+  stops: number;
+  possessions: number;
+  stopPct: string;
+  isOpponentDefender?: boolean;
+  fga?: number;
+  fta?: number;
+  to?: number;
+  oreb?: number;
+  pppDelta?: number;
+  playerNumber?: string;
+  opponentNumber?: string;
 }
 
 export interface OpponentAggregates {
@@ -73,7 +84,7 @@ export interface PlayerAggregates {
   name: string;
   avatarColor?: string;
   jerseyNumber?: string;
-  gamesPlayed: Set<number | string>;
+  gamesPlayed: Set<string>;
   gp: number;
   points: number;
   rebounds: number;
@@ -164,20 +175,33 @@ export interface LineupAggregates {
   ppp: string;
   oppPpp: string;
   min: number;
+  seconds: number;
+  netRating: number;
 }
 
 export interface OnOffImpact {
   playerId: string;
-  playerName: string;
-  onPpp: string;
-  offPpp: string;
-  netImpact: string;
+  onPointsFor: number;
+  onPointsAgainst: number;
+  onPossessions: number;
+  onOffensiveRating: string;
+  onDefensiveRating: string;
+  onNetRating: string;
+  offPointsFor: number;
+  offPointsAgainst: number;
+  offPossessions: number;
+  offOffensiveRating: string;
+  offDefensiveRating: string;
+  offNetRating: string;
+  netDifferential: string;
 }
 
 export interface ClutchPlay {
-  playType: string;
-  ppp: string;
-  frequency: string;
+  playName: string;
+  ppp: number;
+  efg: number;
+  frequency: number;
+  targetMismatches: string[];
 }
 
 export interface OfficiatingStats {
@@ -188,6 +212,6 @@ export interface OfficiatingStats {
 
 export interface PaceAnalytics {
   pace: number;
-  transitionFrequency: string;
-  halfCourtPpp: string;
+  tempoDelta: number;
+  paceShift: boolean;
 }
