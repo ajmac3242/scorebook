@@ -1,4 +1,22 @@
-import { TeamAggregates, MatchupStats, OpponentAggregates, ScoreFlowPoint, BonusStatus, PlayerAggregates, PlayerStint, PlayEfficiency, SchemeEfficiency, OpponentThreat, ScoringRun, OpponentTendency, LineupAggregates, OnOffImpact, ClutchPlay, OfficiatingStats, PaceAnalytics } from "./types";
+import {
+  TeamAggregates,
+  MatchupStats,
+  OpponentAggregates,
+  ScoreFlowPoint,
+  BonusStatus,
+  PlayerAggregates,
+  PlayerStint,
+  PlayEfficiency,
+  SchemeEfficiency,
+  OpponentThreat,
+  ScoringRun,
+  OpponentTendency,
+  LineupAggregates,
+  OnOffImpact,
+  ClutchPlay,
+  OfficiatingStats,
+  PaceAnalytics,
+} from "./types";
 
 /**
  * @file stats.ts
@@ -90,8 +108,8 @@ const getPeriodLen = (
 ): number => {
   const isOT = options.periodType === "HALVES" ? period > 2 : period > 4;
   const mins = isOT
-    ? options.overtimeLength ?? 5
-    : options.periodLength ?? 10;
+    ? (options.overtimeLength ?? 5)
+    : (options.periodLength ?? 10);
   return mins * 60;
 };
 
@@ -223,7 +241,8 @@ export const isOpponentId = (playerId: string | null): boolean => {
  * @returns {boolean} True if active.
  */
 export const isActive = (stat: StatEvent): boolean => !stat.deletedAt;
-export const isScoringEvent = (stat: StatEvent): boolean => stat.type === ACTION_TYPES.MAKE;
+export const isScoringEvent = (stat: StatEvent): boolean =>
+  stat.type === ACTION_TYPES.MAKE;
 
 /**
  * Determines if a statistical event is a foul action.
@@ -488,7 +507,7 @@ export const getInitials = (name: string | undefined | null): string => {
   // Pass 2: Identify defender with highest final PPP
   let worstDefenderId = "";
   let highestPpp = -1;
-
+ 
   for (const [id, stats] of defenderStats.entries()) {
     const ppp = stats.possessions > 0 ? stats.points / stats.possessions : 0;
     if (ppp > highestPpp) {
@@ -496,16 +515,16 @@ export const getInitials = (name: string | undefined | null): string => {
       worstDefenderId = id;
     }
   }
-
+ 
   if (!worstDefenderId || highestPpp === 0) return null;
-
+ 
   // Find our best attacker (highest eFG% with > 0 attempts)
   const bestAttacker = [...playerStats]
     .filter((p) => p.attempts > 0 && !isOpponentId(p.id.toString()))
     .sort((a, b) => parseFloat(b.efgPct) - parseFloat(a.efgPct))[0];
-
+ 
   if (!bestAttacker) return null;
-
+ 
   return {
     targetOpponentId: worstDefenderId,
     pppAllowed: highestPpp.toFixed(2),
@@ -513,7 +532,7 @@ export const getInitials = (name: string | undefined | null): string => {
     reason: `Opponent defender allowing ${highestPpp.toFixed(2)} PPP. ${bestAttacker.name} is our most efficient attacker (${bestAttacker.efgPct}% eFG).`,
   };
 };
-
+ 
 /**
  * Retrieves the jersey number for a player from the team roster.
  * @param {number | string | undefined} playerId - The player ID.
@@ -874,7 +893,9 @@ export const calculatePlayerAggregates = (
       let skippedMins = 0;
       for (let p = currentPeriod + 1; p < period; p++) {
         const pLen = getPeriodLen(p, options);
-        skippedMins += clutchOnly ? getClutchSeconds(p, pLen, 0, lastScoreDiff, periodType) : pLen;
+        skippedMins += clutchOnly
+          ? getClutchSeconds(p, pLen, 0, lastScoreDiff, periodType)
+          : pLen;
       }
 
       const increment = (clutchOnly ? clutchSecs : lastClockTime) + skippedMins;
@@ -906,12 +927,7 @@ export const calculatePlayerAggregates = (
     const isClutch =
       !clutchOnly ||
       (clockTime !== undefined &&
-        isClutchEvent(
-          period,
-          clockTime,
-          scores.team - scores.opp,
-          periodType,
-        ));
+        isClutchEvent(period, clockTime, scores.team - scores.opp, periodType));
 
     // Update plus-minus and scores
     if (type === ACTION_TYPES.MAKE) {
@@ -1490,7 +1506,12 @@ export const calculateScoringRuns = (stats: StatEvent[]): ScoringRun[] => {
       lastMakeEvent = s;
     } else {
       // If previous run was significant, record it
-      if (currentRunTeam && currentRunPoints >= 8 && runStartEvent && lastMakeEvent) {
+      if (
+        currentRunTeam &&
+        currentRunPoints >= 8 &&
+        runStartEvent &&
+        lastMakeEvent
+      ) {
         runs.push({
           team: currentRunTeam,
           points: currentRunPoints,
@@ -1510,7 +1531,12 @@ export const calculateScoringRuns = (stats: StatEvent[]): ScoringRun[] => {
   }
 
   // Final check
-  if (currentRunTeam && currentRunPoints >= 8 && runStartEvent && lastMakeEvent) {
+  if (
+    currentRunTeam &&
+    currentRunPoints >= 8 &&
+    runStartEvent &&
+    lastMakeEvent
+  ) {
     runs.push({
       team: currentRunTeam,
       points: currentRunPoints,
@@ -1952,7 +1978,8 @@ export const calculateOpponentSummary = (
     ) {
       totalFieldGoalAttempts++;
       if (
-        detectShotValueFromCoords(stat.locationX || 0, stat.locationY || 0) === 2
+        detectShotValueFromCoords(stat.locationX || 0, stat.locationY || 0) ===
+        2
       ) {
         const zone = getShotZone(stat.locationX || 0, stat.locationY || 0);
         if (zone === "PAINT") paintAttempts++;
@@ -2486,7 +2513,13 @@ export const calculateLineupStats = (
     // ⚡ Bolt: Handle multi-game aggregation by detecting game context changes in-stream.
     if (currentGameId !== null && s.gameId !== currentGameId) {
       if (currentLineup.size === 5) {
-        const clutchSec = getClutchSeconds(currentPeriod, lastClockTime, 0, lastScoreDiff, periodType);
+        const clutchSec = getClutchSeconds(
+          currentPeriod,
+          lastClockTime,
+          0,
+          lastScoreDiff,
+          periodType,
+        );
         pendingDuration += options.clutchOnly ? clutchSec : lastClockTime;
         pendingPtsFor += scores.team - lastTeamScore;
         pendingPtsAgainst += scores.opp - lastOppScore;
@@ -2507,7 +2540,13 @@ export const calculateLineupStats = (
     // Handle period transition
     if (s.period > currentPeriod) {
       if (currentLineup.size === 5) {
-        const clutchSec = getClutchSeconds(currentPeriod, lastClockTime, 0, lastScoreDiff, periodType);
+        const clutchSec = getClutchSeconds(
+          currentPeriod,
+          lastClockTime,
+          0,
+          lastScoreDiff,
+          periodType,
+        );
         pendingDuration += options.clutchOnly ? clutchSec : lastClockTime;
         pendingPtsFor += scores.team - lastTeamScore;
         pendingPtsAgainst += scores.opp - lastOppScore;
@@ -2544,7 +2583,9 @@ export const calculateLineupStats = (
       );
       if (!options.clutchOnly || clutchSecs > 0) {
         if (!cachedLineupKey) cachedLineupKey = getLineupKey(currentLineup);
-        pendingDuration += options.clutchOnly ? clutchSecs : (lastClockTime - s.clockTime);
+        pendingDuration += options.clutchOnly
+          ? clutchSecs
+          : lastClockTime - s.clockTime;
         pendingPtsFor += scores.team - lastTeamScore;
         pendingPtsAgainst += scores.opp - lastOppScore;
       }
@@ -2608,7 +2649,9 @@ export const calculateLineupStats = (
       lastScoreDiff,
       periodType,
     );
-    pendingDuration += options.clutchOnly ? clutchSecs : Math.max(0, lastClockTime - finalClock);
+    pendingDuration += options.clutchOnly
+      ? clutchSecs
+      : Math.max(0, lastClockTime - finalClock);
     pendingPtsFor += scores.team - lastTeamScore;
     pendingPtsAgainst += scores.opp - lastOppScore;
     flushPending();
@@ -2634,7 +2677,12 @@ export const calculateLineupStats = (
       sortValue = typeof val === "number" ? val : 0;
     }
 
-    const lineupPossessions = calculatePossessionsForAgg({ attempts: agg.fga, fta: agg.fta, turnovers: agg.turnovers, oreb: agg.oreb });
+    const lineupPossessions = calculatePossessionsForAgg({
+      attempts: agg.fga,
+      fta: agg.fta,
+      turnovers: agg.turnovers,
+      oreb: agg.oreb,
+    });
     return {
       ...agg,
       netRating: net,
@@ -2672,20 +2720,20 @@ export const calculateLineupStats = (
  * @returns Map of player IDs to their current streak status ('HOT', 'COLD', or null).
  */
 /**
-
+ 
     const type = s.type;
-
+ 
     if (type === ACTION_TYPES.MATCHUP) {
       // ⚡ Bolt: Correctly manage bidirectional mapping when reassignment occurs.
       // 1. If this opponent was previously guarded by someone else, remove that old link.
       const oldOurId = currentMatchups.get(s.playerId);
       if (oldOurId) reverseMatchups.delete(oldOurId);
-
+ 
       if (s.relatedPlayerId) {
         // 2. If our player was previously guarding a different opponent, remove that old link.
         const oldOppId = reverseMatchups.get(s.relatedPlayerId);
         if (oldOppId) currentMatchups.delete(oldOppId);
-
+ 
         currentMatchups.set(s.playerId, s.relatedPlayerId);
         reverseMatchups.set(s.relatedPlayerId, s.playerId);
       } else {
@@ -2693,16 +2741,16 @@ export const calculateLineupStats = (
       }
       continue;
     }
-
+ 
     // Direction 1: Our defender guarding Opponent
     const ourDefenderId =
       currentMatchups.get(s.playerId) ||
       currentMatchups.get(SPECIAL_PLAYER_IDS.OPPONENT);
-
+ 
     // Direction 2: Opponent defender guarding Us
     // ⚡ Bolt: Use reverseMatchups Map for O(1) lookup instead of iterating currentMatchups.
     const oppDefenderId = reverseMatchups.get(s.playerId);
-
+ 
     // 🔍 Scout: Helper to get or create matchup stats record
     const getM = (ourId: string, oppId: string, isOppDef: boolean) => {
       const key = `${ourId}:${oppId}:${isOppDef}`;
@@ -2722,7 +2770,7 @@ export const calculateLineupStats = (
       }
       return m;
     };
-
+ 
     // SCORING
     if (isScoringEvent(s)) {
       if (isOpp) {
@@ -2746,7 +2794,7 @@ export const calculateLineupStats = (
       }
       continue;
     }
-
+ 
     // POSSESSION ENDERS (STOPS/TURNOVERS)
     if (type === ACTION_TYPES.TURNOVER) {
       if (isOpp) {
@@ -2828,7 +2876,7 @@ export const calculateLineupStats = (
       }
     }
   }
-
+ 
   // Finalize stop percentages
   return Array.from(results.values()).map((m) => {
     const possessions = calculatePossessions(m.fga || 0, m.fta || 0, m.to || 0, m.oreb || 0);
@@ -2839,7 +2887,7 @@ export const calculateLineupStats = (
     };
   });
 };
-
+ 
 /**
  * 🏀 Assistant Coach: calculateTimeoutRecommendation
  * WHY: Helps high-stress situational decision making.
@@ -2871,21 +2919,42 @@ export const calculateTimeoutRecommendation = (params: {
   if (opponentRun) {
     const runPoints = parseInt(opponentRun.split("-")[0]);
     if (runPoints >= 10) {
-      return { recommendation: "STOP THE RUN: Opponent is on a " + opponentRun + " run.", urgency: "HIGH" };
+      return {
+        recommendation:
+          "STOP THE RUN: Opponent is on a " + opponentRun + " run.",
+        urgency: "HIGH",
+      };
     }
     if (runPoints >= 6) {
-      return { recommendation: "MOMENTUM SHIFT: Opponent is on a " + opponentRun + " run.", urgency: "MEDIUM" };
+      return {
+        recommendation:
+          "MOMENTUM SHIFT: Opponent is on a " + opponentRun + " run.",
+        urgency: "MEDIUM",
+      };
     }
   }
 
   // 2. Foul Trouble Alert
   if (teamFoulTrouble && !clutchMode && period < 4) {
-    return { recommendation: "PERSONNEL: Star player in foul trouble. Consider sub or timeout to adjust.", urgency: "MEDIUM" };
+    return {
+      recommendation:
+        "PERSONNEL: Star player in foul trouble. Consider sub or timeout to adjust.",
+      urgency: "MEDIUM",
+    };
   }
 
   // 3. Late Game Clutch Situation
-  if (clutchMode && clockSeconds < 60 && !isClockRunning && Math.abs(scoreSpread) <= 3) {
-    return { recommendation: "STRATEGIC: Final minute, tight game. Use timeout to advance ball or set play.", urgency: "HIGH" };
+  if (
+    clutchMode &&
+    clockSeconds < 60 &&
+    !isClockRunning &&
+    Math.abs(scoreSpread) <= 3
+  ) {
+    return {
+      recommendation:
+        "STRATEGIC: Final minute, tight game. Use timeout to advance ball or set play.",
+      urgency: "HIGH",
+    };
   }
 
   return { recommendation: null, urgency: "LOW" };
@@ -2905,7 +2974,9 @@ export const generatePlayerNarrative = (
 
   // Efficiency
   if (parseFloat(playerStats.threePPct) > 40 && playerStats.threePA >= 3) {
-    strengths.push("Elite efficiency from the 3PT line (" + playerStats.threePPct + "%)");
+    strengths.push(
+      "Elite efficiency from the 3PT line (" + playerStats.threePPct + "%)",
+    );
   } else if (parseFloat(playerStats.fgPct) > 55 && playerStats.attempts >= 5) {
     strengths.push("Strong interior finishing and shot selection");
   }
@@ -2927,7 +2998,9 @@ export const generatePlayerNarrative = (
     growths.push("High turnover rate on drives - focus on ball security");
   }
   if (parseFloat(playerStats.ftPct) < 60 && playerStats.fta >= 2) {
-    growths.push("Struggled at the free throw line (" + playerStats.ftPct + "%)");
+    growths.push(
+      "Struggled at the free throw line (" + playerStats.ftPct + "%)",
+    );
   }
   if (playerStats.fouls >= 4) {
     growths.push("Foul trouble limited your defensive aggressiveness");
@@ -2937,8 +3010,14 @@ export const generatePlayerNarrative = (
   }
 
   // Fallbacks
-  const strength = strengths.length > 0 ? strengths[0] : "Maintained consistent effort on both ends";
-  const growth = growths.length > 0 ? growths[0] : "Focus on maintaining this level of play into the next game";
+  const strength =
+    strengths.length > 0
+      ? strengths[0]
+      : "Maintained consistent effort on both ends";
+  const growth =
+    growths.length > 0
+      ? growths[0]
+      : "Focus on maintaining this level of play into the next game";
 
   return { strength, growth };
 };
@@ -2996,12 +3075,26 @@ export const calculateOnOffStats = (
   >();
 
   type OnOffStats = {
-    onPtsFor: number; onPtsAgn: number;
-    onTeamFga: number; onTeamFta: number; onTeamTo: number; onTeamOreb: number;
-    onOppFga: number; onOppFta: number; onOppTo: number; onOppOreb: number;
-    offPtsFor: number; offPtsAgn: number;
-    offTeamFga: number; offTeamFta: number; offTeamTo: number; offTeamOreb: number;
-    offOppFga: number; offOppFta: number; offOppTo: number; offOppOreb: number;
+    onPtsFor: number;
+    onPtsAgn: number;
+    onTeamFga: number;
+    onTeamFta: number;
+    onTeamTo: number;
+    onTeamOreb: number;
+    onOppFga: number;
+    onOppFta: number;
+    onOppTo: number;
+    onOppOreb: number;
+    offPtsFor: number;
+    offPtsAgn: number;
+    offTeamFga: number;
+    offTeamFta: number;
+    offTeamTo: number;
+    offTeamOreb: number;
+    offOppFga: number;
+    offOppFta: number;
+    offOppTo: number;
+    offOppOreb: number;
     activeGames: Set<string>;
   };
 
@@ -3051,18 +3144,21 @@ export const calculateOnOffStats = (
   // PERFORMANCE: This reduces complexity to a single pass through events ($O(N)$)
   // plus a single pass through players ($O(P)$), ensuring rapid calculation
   // even for large multi-game datasets or rosters.
-  const gameTotalsMap = new Map<string, {
-    ptsFor: number;
-    ptsAgn: number;
-    teamFga: number;
-    teamFta: number;
-    teamTo: number;
-    teamOreb: number;
-    oppFga: number;
-    oppFta: number;
-    oppTo: number;
-    oppOreb: number;
-  }>();
+  const gameTotalsMap = new Map<
+    string,
+    {
+      ptsFor: number;
+      ptsAgn: number;
+      teamFga: number;
+      teamFta: number;
+      teamTo: number;
+      teamOreb: number;
+      oppFga: number;
+      oppFta: number;
+      oppTo: number;
+      oppOreb: number;
+    }
+  >();
 
   for (let i = 0; i < sorted.length; i++) {
     const s = sorted[i];
@@ -3186,11 +3282,19 @@ export const calculateOnOffStats = (
     // no SUB_IN was recorded (assuming the player was on the roster).
     // For multi-game streams, we strictly use activeGames to prevent skew.
     const eligibleTotals = {
-      ptsFor: 0, ptsAgn: 0, teamFga: 0, teamFta: 0, teamTo: 0, teamOreb: 0,
-      oppFga: 0, oppFta: 0, oppTo: 0, oppOreb: 0
+      ptsFor: 0,
+      ptsAgn: 0,
+      teamFga: 0,
+      teamFta: 0,
+      teamTo: 0,
+      teamOreb: 0,
+      oppFga: 0,
+      oppFta: 0,
+      oppTo: 0,
+      oppOreb: 0,
     };
 
-    const gamesToInclude = (allGameIds.size <= 1) ? allGameIds : agg.activeGames;
+    const gamesToInclude = allGameIds.size <= 1 ? allGameIds : agg.activeGames;
 
     for (const gId of gamesToInclude) {
       const gTot = gameTotalsMap.get(gId);
@@ -3371,12 +3475,20 @@ export const calculateClutchPlaybookRanking = (
   matchups: MatchupStats[] = [],
 ): ClutchPlay[] => {
   const sorted = sortStats(stats);
-  const playStats = new Map<string, { points: number; attempts: number; makes: number; frequency: number }>();
+  const playStats = new Map<
+    string,
+    { points: number; attempts: number; makes: number; frequency: number }
+  >();
 
   // Identify the weakest active defenders
   const weakDefenders = matchups
-    .filter(m => m.isOpponentDefender && m.possessions >= 3 && parseFloat(m.stopPct) < 35)
-    .map(m => m.opponentPlayerId);
+    .filter(
+      (m) =>
+        m.isOpponentDefender &&
+        m.possessions >= 3 &&
+        parseFloat(m.stopPct) < 35,
+    )
+    .map((m) => m.opponentPlayerId);
 
   for (let i = 0; i < sorted.length; i++) {
     const s = sorted[i];
@@ -3401,13 +3513,14 @@ export const calculateClutchPlaybookRanking = (
   return Array.from(playStats.entries())
     .map(([playName, data]) => {
       const ppp = data.attempts > 0 ? data.points / data.attempts : 0;
-      const efg = data.attempts > 0 ? (data.makes + 0.5 * (data.makes)) / data.attempts : 0; // Simplified
+      const efg =
+        data.attempts > 0 ? (data.makes + 0.5 * data.makes) / data.attempts : 0; // Simplified
       return {
         playName,
         ppp,
         efg,
         frequency: data.frequency,
-        targetMismatches: weakDefenders
+        targetMismatches: weakDefenders,
       };
     })
     .sort((a, b) => b.ppp - a.ppp)
@@ -3425,10 +3538,16 @@ export interface OfficiatingStats {
 
 export const calculateOfficiatingStats = (
   stats: StatEvent[],
-  totalMinutes: number
+  totalMinutes: number,
 ): OfficiatingStats => {
-  const teamFouls = stats.filter(s => isActive(s) && !isOpponentId(s.playerId) && s.type === ACTION_TYPES.FOUL).length;
-  const oppFouls = stats.filter(s => isActive(s) && isOpponentId(s.playerId) && s.type === ACTION_TYPES.FOUL).length;
+  const teamFouls = stats.filter(
+    (s) =>
+      isActive(s) && !isOpponentId(s.playerId) && s.type === ACTION_TYPES.FOUL,
+  ).length;
+  const oppFouls = stats.filter(
+    (s) =>
+      isActive(s) && isOpponentId(s.playerId) && s.type === ACTION_TYPES.FOUL,
+  ).length;
   const totalFouls = teamFouls + oppFouls;
 
   const fpm = totalMinutes > 0 ? totalFouls / totalMinutes : 0;
@@ -3444,7 +3563,7 @@ export const calculateOfficiatingStats = (
     teamFoulPct: totalFouls > 0 ? (teamFouls / totalFouls) * 100 : 50,
     oppFoulPct: totalFouls > 0 ? (oppFouls / totalFouls) * 100 : 50,
     fpm,
-    tightness
+    tightness,
   };
 };
 
@@ -3460,18 +3579,25 @@ export const calculatePaceAnalytics = (
   clockSeconds: number,
   periodLength: number,
   targetPace: number,
-  allStats: StatEvent[]
+  allStats: StatEvent[],
 ): PaceAnalytics => {
   const safePeriodLength = periodLength || 10;
   const safeClockSeconds = clockSeconds || 0;
-  const elapsedMinutes = Math.max(0.1, (period - 1) * safePeriodLength + (safePeriodLength - safeClockSeconds / 60));
+  const elapsedMinutes = Math.max(
+    0.1,
+    (period - 1) * safePeriodLength +
+      (safePeriodLength - safeClockSeconds / 60),
+  );
   const currentPace = (possessions / 2 / elapsedMinutes) * 40;
 
   // Pace Shift Detection: Compare current period pace to overall pace
   let paceShift = false;
   if (period >= 1) {
-    const currentPeriodStats = allStats.filter(s => s.period === period);
-    let pFga = 0, pFta = 0, pTo = 0, pOreb = 0;
+    const currentPeriodStats = allStats.filter((s) => s.period === period);
+    let pFga = 0,
+      pFta = 0,
+      pTo = 0,
+      pOreb = 0;
     for (let i = 0; i < currentPeriodStats.length; i++) {
       const s = currentPeriodStats[i];
       if (!isActive(s)) continue;
@@ -3480,11 +3606,18 @@ export const calculatePaceAnalytics = (
       else if (s.type === ACTION_TYPES.TURNOVER) pTo++;
       else if (s.type === ACTION_TYPES.OFF_REBOUND) pOreb++;
     }
-    const currentPeriodPossessions = calculatePossessions(pFga, pFta, pTo, pOreb) / 2;
-    const elapsedPeriodMins = Math.max(0.1, safePeriodLength - safeClockSeconds / 60);
+    const currentPeriodPossessions =
+      calculatePossessions(pFga, pFta, pTo, pOreb) / 2;
+    const elapsedPeriodMins = Math.max(
+      0.1,
+      safePeriodLength - safeClockSeconds / 60,
+    );
     const periodPace = (currentPeriodPossessions / elapsedPeriodMins) * 40;
 
-    if (currentPace > 0 && Math.abs(periodPace - currentPace) / currentPace > 0.15) {
+    if (
+      currentPace > 0 &&
+      Math.abs(periodPace - currentPace) / currentPace > 0.15
+    ) {
       paceShift = true;
     }
   }
@@ -3492,6 +3625,6 @@ export const calculatePaceAnalytics = (
   return {
     pace: currentPace || 0,
     tempoDelta: (currentPace || 0) - targetPace,
-    paceShift
+    paceShift,
   };
 };

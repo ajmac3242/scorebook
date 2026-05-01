@@ -4,7 +4,14 @@
  */
 
 import React from "react";
-import { Box, Typography, Tooltip, IconButton, useTheme, keyframes } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Tooltip,
+  IconButton,
+  useTheme,
+  keyframes,
+} from "@mui/material";
 import {
   Check,
   Close,
@@ -132,26 +139,40 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
         </Box>
         <Box sx={{ display: "flex", alignItems: "center" }}>
           {/* 🏀 Assistant Coach: Sync Status Indicator */}
-          <Tooltip title={stat.synced ? "Synced to Cloud" : "Syncing to Cloud..."}>
+          <Tooltip
+            title={stat.synced ? "Synced to Cloud" : "Syncing to Cloud..."}
+          >
             <Box
               sx={{ mr: 1, display: "flex" }}
               role="status"
-              aria-label={stat.synced ? "Synced to cloud" : "Syncing to cloud..."}
+              aria-label={
+                stat.synced ? "Synced to cloud" : "Syncing to cloud..."
+              }
             >
               {stat.synced ? (
-                <CloudDone sx={{ fontSize: 16, color: "success.light", opacity: 0.7 }} />
+                <CloudDone
+                  sx={{ fontSize: 16, color: "success.light", opacity: 0.7 }}
+                />
               ) : (
-                <CloudUpload sx={{ fontSize: 16, color: "warning.main", opacity: 0.8 }} />
+                <CloudUpload
+                  sx={{ fontSize: 16, color: "warning.main", opacity: 0.8 }}
+                />
               )}
             </Box>
           </Tooltip>
 
-          <Tooltip title={!!stat.isBookmarked ? "Remove Bookmark" : "Bookmark for Review"}>
+          <Tooltip
+            title={
+              !!stat.isBookmarked ? "Remove Bookmark" : "Bookmark for Review"
+            }
+          >
             <IconButton
               size="small"
               disabled={isReadOnly}
               onClick={() => onToggleBookmark?.(stat.id!, stat.isBookmarked)}
-              aria-label={!!stat.isBookmarked ? "remove bookmark" : "bookmark for review"}
+              aria-label={
+                !!stat.isBookmarked ? "remove bookmark" : "bookmark for review"
+              }
               color={!!stat.isBookmarked ? "warning" : "default"}
             >
               {!!stat.isBookmarked ? (

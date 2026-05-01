@@ -374,12 +374,16 @@ describe("Lambda Handler", () => {
         ddbMock.on(PutCommand).resolves({});
         const event = createEvent("POST", "/teams", {
           name: "Safe Team",
-          "constructor": { admin: true }
+          constructor: { admin: true },
         });
         await handler(event);
-        const lastCall = ddbMock.calls().find(c => c.args[0] instanceof PutCommand);
+        const lastCall = ddbMock
+          .calls()
+          .find((c) => c.args[0] instanceof PutCommand);
         const item = (lastCall?.args[0].input as any).Item;
-        expect(Object.prototype.hasOwnProperty.call(item, "constructor")).toBe(false);
+        expect(Object.prototype.hasOwnProperty.call(item, "constructor")).toBe(
+          false,
+        );
         expect(item.name).toBe("Safe Team");
       });
     });

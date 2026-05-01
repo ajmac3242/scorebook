@@ -4,16 +4,8 @@
  * Provides RESTful endpoints for managing Seasons, Teams, Players, Games, and Stats.
  */
 
-import {
-  APIGatewayProxyEventV2,
-  APIGatewayProxyResultV2,
-} from "aws-lambda";
-import {
-  badRequest,
-  notFound,
-  serverError,
-  response,
-} from "./responses.js";
+import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
+import { badRequest, notFound, serverError, response } from "./responses.js";
 import {
   logError,
   logInfo,
@@ -99,9 +91,33 @@ export const handler = async (
     const TABLE_NAME = process.env.TABLE_NAME || "BasketballStats";
 
     const res =
-      (await handleTeams(method, path, body, event, TABLE_NAME, requestId, docClient)) ||
-      (await handlePlayers(method, path, body, event, TABLE_NAME, requestId, docClient)) ||
-      (await handleGames(method, path, body, event, TABLE_NAME, requestId, docClient)) ||
+      (await handleTeams(
+        method,
+        path,
+        body,
+        event,
+        TABLE_NAME,
+        requestId,
+        docClient,
+      )) ||
+      (await handlePlayers(
+        method,
+        path,
+        body,
+        event,
+        TABLE_NAME,
+        requestId,
+        docClient,
+      )) ||
+      (await handleGames(
+        method,
+        path,
+        body,
+        event,
+        TABLE_NAME,
+        requestId,
+        docClient,
+      )) ||
       (await handleCleanup(
         method,
         path,

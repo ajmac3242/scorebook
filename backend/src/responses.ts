@@ -76,10 +76,7 @@ export function sanitizeOutput(data: unknown, depth = 0): unknown {
   for (let i = 0; i < entries.length; i++) {
     const [key, value] = entries[i];
     // 🛡️ Enhancement: Added prototype pollution protection by checking against FORBIDDEN_KEYS
-    if (
-      (key === "id" || !INTERNAL_KEYS.has(key)) &&
-      !FORBIDDEN_KEYS.has(key)
-    ) {
+    if ((key === "id" || !INTERNAL_KEYS.has(key)) && !FORBIDDEN_KEYS.has(key)) {
       sanitized[key] = sanitizeOutput(value, depth + 1);
     }
   }

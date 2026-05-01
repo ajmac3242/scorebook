@@ -328,8 +328,9 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
           />
 
           <desc id="court-instructions">
-            Interactive basketball court. Click anywhere on the court to record a shot at that location.
-            Existing markers can be navigated using the Tab key and activated with Enter.
+            Interactive basketball court. Click anywhere on the court to record
+            a shot at that location. Existing markers can be navigated using the
+            Tab key and activated with Enter.
           </desc>
 
           {/* Markers / Heatmap Points */}

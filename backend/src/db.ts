@@ -6,21 +6,10 @@ import {
   UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { v4 as uuidv4 } from "uuid";
-import {
-  ok,
-  created,
-  badRequest,
-  filterActive,
-} from "./responses.js";
-import {
-  isValidUuid,
-} from "./validation.js";
-import {
-  stripLocalFields,
-} from "./utils/data.js";
-import {
-  APIGatewayProxyStructuredResultV2,
-} from "aws-lambda";
+import { ok, created, badRequest, filterActive } from "./responses.js";
+import { isValidUuid } from "./validation.js";
+import { stripLocalFields } from "./utils/data.js";
+import { APIGatewayProxyStructuredResultV2 } from "aws-lambda";
 
 // Clients
 const client = new DynamoDBClient({});
@@ -120,7 +109,10 @@ export async function createItem(
  * @param item - The full item record to put.
  * @returns {Promise<void>}
  */
-export async function putNewItem(tableName: string, item: Record<string, unknown>) {
+export async function putNewItem(
+  tableName: string,
+  item: Record<string, unknown>,
+) {
   await docClient.send(
     new PutCommand({
       TableName: tableName,

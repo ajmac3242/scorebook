@@ -1,4 +1,8 @@
-import { recursiveTransform, redactRecord, REDACTED_HEADERS } from "./security.js";
+import {
+  recursiveTransform,
+  redactRecord,
+  REDACTED_HEADERS,
+} from "./security.js";
 import { INTERNAL_KEYS } from "../responses.js";
 
 /**

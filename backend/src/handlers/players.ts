@@ -45,7 +45,10 @@ export async function handlePlayers(
         body.defaultNumber !== undefined &&
         !isValidJerseyNumber(body.defaultNumber)
       ) {
-        return badRequest("Default jersey number must be 1-3 digits", requestId);
+        return badRequest(
+          "Default jersey number must be 1-3 digits",
+          requestId,
+        );
       }
       return await createItem(
         "PLAYER",

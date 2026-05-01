@@ -18,9 +18,7 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import {
-  History as HistoryIcon,
-} from "@mui/icons-material";
+import { History as HistoryIcon } from "@mui/icons-material";
 import { db, type StatEvent, type Player } from "../db";
 import { ACTION_TYPES } from "../constants/stats";
 import { formatClock } from "../utils/mathUtils";

@@ -1,4 +1,3 @@
-
 export interface TeamAggregates {
   ppg: string;
   rpg: string;
@@ -141,7 +140,7 @@ export interface OpponentThreat {
 }
 
 export interface ScoringRun {
-  team: 'TEAM' | 'OPPONENT';
+  team: "TEAM" | "OPPONENT";
   points: number;
   startClock: number;
   endClock: number;
@@ -153,7 +152,7 @@ export interface OpponentTendency {
   drivePct: string;
   catchAndShootPct: string;
   postUpPct: string;
-  preferredSide: 'LEFT' | 'RIGHT' | 'CENTER';
+  preferredSide: "LEFT" | "RIGHT" | "CENTER";
 }
 
 export interface LineupAggregates {
@@ -182,7 +181,7 @@ export interface ClutchPlay {
 }
 
 export interface OfficiatingStats {
-  tightness: 'LOW' | 'MEDIUM' | 'HIGH';
+  tightness: "LOW" | "MEDIUM" | "HIGH";
   foulsPerMinute: string;
   disparity: number;
 }

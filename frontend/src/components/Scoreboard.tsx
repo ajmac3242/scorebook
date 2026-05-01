@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  Box,
-  Typography,
-  Chip,
-  useTheme,
-  keyframes,
-} from "@mui/material";
+import { Box, Typography, Chip, useTheme, keyframes } from "@mui/material";
 import { OpponentThreat } from "../utils/stats";
 import TeamSection from "./Scoreboard/TeamSection";
 import MomentumAlerts from "./Scoreboard/MomentumAlerts";
@@ -16,7 +10,6 @@ const pulse = keyframes`
   50% { opacity: 0.7; }
   100% { opacity: 1; }
 `;
-
 
 interface ScoreboardProps {
   game:
@@ -218,7 +211,10 @@ export const Scoreboard = React.memo(
           />
 
           {/* Bonus Indicators */}
-          <Box sx={{ mt: 1.5, height: 20, display: "flex", gap: 2 }} aria-label="Bonus status">
+          <Box
+            sx={{ mt: 1.5, height: 20, display: "flex", gap: 2 }}
+            aria-label="Bonus status"
+          >
             {gameData.teamFoulStats.teamBonusLabel && (
               <Typography
                 sx={{

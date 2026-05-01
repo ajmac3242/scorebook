@@ -1,7 +1,4 @@
-import {
-  DynamoDBDocumentClient,
-  QueryCommand,
-} from "@aws-sdk/lib-dynamodb";
+import { DynamoDBDocumentClient, QueryCommand } from "@aws-sdk/lib-dynamodb";
 import { APIGatewayProxyResultV2 } from "aws-lambda";
 import { v4 as uuidv4 } from "uuid";
 import { Keys } from "../keys.js";
@@ -47,7 +44,8 @@ export async function handleGameStats(
         },
         // ⚡ Bolt: Use ProjectionExpression to exclude large internal keys and redundant GSIs.
         // This reduces Lambda memory usage, network bandwidth, and serialization overhead.
-        ProjectionExpression: "id, #ts, #type, playerId, points, clockTime, period, gameId, locationX, locationY, shotQuality, playType, relatedPlayerId, subInPlayerId, subOutPlayerId, deletedAt",
+        ProjectionExpression:
+          "id, #ts, #type, playerId, points, clockTime, period, gameId, locationX, locationY, shotQuality, playType, relatedPlayerId, subInPlayerId, subOutPlayerId, deletedAt",
         ExpressionAttributeNames: {
           "#ts": "timestamp",
           "#type": "type",

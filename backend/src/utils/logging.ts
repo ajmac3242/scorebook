@@ -1,4 +1,8 @@
-import { REDACTED_HEADERS, REDACTION_REGEX, recursiveTransform } from "./security.js";
+import {
+  REDACTED_HEADERS,
+  REDACTION_REGEX,
+  recursiveTransform,
+} from "./security.js";
 
 /**
  * Redacts sensitive fields from an object before logging.

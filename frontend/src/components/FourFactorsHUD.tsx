@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  Box,
-  Typography,
-  Grid,
-  Tooltip,
-  LinearProgress,
-} from "@mui/material";
+import { Box, Typography, Grid, Tooltip, LinearProgress } from "@mui/material";
 import { MoleskineCard } from "./SharedUI";
 import { TeamAggregates, OpponentAggregates } from "../utils/stats";
 
@@ -17,14 +11,28 @@ interface FactorProps {
   tooltip: string;
 }
 
-const Factor: React.FC<FactorProps> = ({ label, value, seasonAvg, isInverse, tooltip }) => {
+const Factor: React.FC<FactorProps> = ({
+  label,
+  value,
+  seasonAvg,
+  isInverse,
+  tooltip,
+}) => {
   const numValue = typeof value === "string" ? parseFloat(value) : value;
-  const numSeasonAvg = typeof seasonAvg === "string" ? parseFloat(seasonAvg) : seasonAvg;
+  const numSeasonAvg =
+    typeof seasonAvg === "string" ? parseFloat(seasonAvg) : seasonAvg;
 
-  const diff = numSeasonAvg !== undefined && !isNaN(numSeasonAvg) ? numValue - numSeasonAvg : 0;
+  const diff =
+    numSeasonAvg !== undefined && !isNaN(numSeasonAvg)
+      ? numValue - numSeasonAvg
+      : 0;
   const isBetter = isInverse ? diff < 0 : diff > 0;
   const isWorse = isInverse ? diff > 0 : diff < 0;
-  const color = isBetter ? "success.main" : isWorse ? "error.main" : "text.secondary";
+  const color = isBetter
+    ? "success.main"
+    : isWorse
+      ? "error.main"
+      : "text.secondary";
   const statusWording = isBetter ? "better" : isWorse ? "worse" : "equal";
   const ariaLabel = `${label}: ${isNaN(numValue) ? "0.0" : numValue.toFixed(1)}${numSeasonAvg !== undefined && !isNaN(numSeasonAvg) ? `. Season average is ${numSeasonAvg.toFixed(1)}, current performance is ${Math.abs(diff).toFixed(1)} ${statusWording} than average.` : ""}`;
 
@@ -32,16 +40,21 @@ const Factor: React.FC<FactorProps> = ({ label, value, seasonAvg, isInverse, too
     <Box sx={{ flex: 1, minWidth: 100 }}>
       <Tooltip title={tooltip}>
         <Box role="group" aria-label={ariaLabel}>
-          <Typography variant="caption" sx={{ fontWeight: 800, color: "text.secondary", display: "block" }}>
+          <Typography
+            variant="caption"
+            sx={{ fontWeight: 800, color: "text.secondary", display: "block" }}
+          >
             {label}
           </Typography>
           <Box sx={{ display: "flex", alignItems: "baseline", gap: 0.5 }}>
             <Typography variant="h5" sx={{ fontWeight: 800 }}>
-              {isNaN(numValue) ? "0.0" : numValue.toFixed(1)}{label.includes("%") ? "" : ""}
+              {isNaN(numValue) ? "0.0" : numValue.toFixed(1)}
+              {label.includes("%") ? "" : ""}
             </Typography>
             {numSeasonAvg !== undefined && !isNaN(numSeasonAvg) && (
               <Typography variant="caption" sx={{ fontWeight: 700, color }}>
-                {diff > 0 ? "+" : ""}{diff.toFixed(1)}
+                {diff > 0 ? "+" : ""}
+                {diff.toFixed(1)}
               </Typography>
             )}
           </Box>
@@ -53,8 +66,8 @@ const Factor: React.FC<FactorProps> = ({ label, value, seasonAvg, isInverse, too
               borderRadius: 2,
               bgcolor: "rgba(0,0,0,0.05)",
               "& .MuiLinearProgress-bar": {
-                bgcolor: color
-              }
+                bgcolor: color,
+              },
             }}
           />
         </Box>
@@ -69,16 +82,38 @@ interface FourFactorsHUDProps {
   seasonAvg?: TeamAggregates | null;
 }
 
-const FourFactorsHUD: React.FC<FourFactorsHUDProps> = ({ teamStats, oppStats, seasonAvg }) => {
+const FourFactorsHUD: React.FC<FourFactorsHUDProps> = ({
+  teamStats,
+  oppStats,
+  seasonAvg,
+}) => {
   if (!teamStats || !oppStats) return null;
   return (
-    <MoleskineCard sx={{ bgcolor: "rgba(0,0,0,0.02)", border: "1px solid rgba(0,0,0,0.05)" }}>
-      <Typography variant="subtitle2" sx={{ fontWeight: 800, mb: 2, letterSpacing: 1, color: "text.secondary" }}>
+    <MoleskineCard
+      sx={{ bgcolor: "rgba(0,0,0,0.02)", border: "1px solid rgba(0,0,0,0.05)" }}
+    >
+      <Typography
+        variant="subtitle2"
+        sx={{
+          fontWeight: 800,
+          mb: 2,
+          letterSpacing: 1,
+          color: "text.secondary",
+        }}
+      >
         FOUR FACTORS PERFORMANCE HUD
       </Typography>
       <Grid container spacing={3}>
         <Grid item xs={12} md={6}>
-          <Typography variant="caption" sx={{ fontWeight: 900, mb: 1, display: "block", color: "primary.main" }}>
+          <Typography
+            variant="caption"
+            sx={{
+              fontWeight: 900,
+              mb: 1,
+              display: "block",
+              color: "primary.main",
+            }}
+          >
             OFFENSIVE EFFICIENCY
           </Typography>
           <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
@@ -110,7 +145,15 @@ const FourFactorsHUD: React.FC<FourFactorsHUDProps> = ({ teamStats, oppStats, se
           </Box>
         </Grid>
         <Grid item xs={12} md={6}>
-          <Typography variant="caption" sx={{ fontWeight: 900, mb: 1, display: "block", color: "secondary.main" }}>
+          <Typography
+            variant="caption"
+            sx={{
+              fontWeight: 900,
+              mb: 1,
+              display: "block",
+              color: "secondary.main",
+            }}
+          >
             DEFENSIVE EFFICIENCY (OPPONENT FACTORS)
           </Typography>
           <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
