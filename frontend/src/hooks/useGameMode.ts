@@ -1,13 +1,9 @@
-import { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { db, type StatEvent } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
 import { logger } from "../utils/logger";
 import { syncService } from "../utils/syncService";
-import {
-  ACTION_TYPES,
-  SPECIAL_PLAYER_IDS,
-  SHOT_QUALITY,
-} from "../constants/stats";
+import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../constants/stats";
 import {
   calculatePlayerAggregates,
   calculatePlayerStreaks,
@@ -489,7 +485,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     period,
     team?.periodType,
     team?.fouls,
-    game?.periodLength,
+    game,
   ]);
 
   const gameData = useMemo(() => {
