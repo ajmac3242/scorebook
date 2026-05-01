@@ -31,7 +31,7 @@ export const ClutchPlaybookAdvisor: React.FC<ClutchPlaybookAdvisorProps> = ({
   const theme = useTheme();
 
   const rankings = useMemo(() => {
-    return calculateClutchPlaybookRanking(allStats, 240, matchups as any);
+    return calculateClutchPlaybookRanking(allStats, 240, matchups);
   }, [allStats, matchups]);
 
   if (!isClutch || rankings.length === 0) return null;
@@ -65,7 +65,7 @@ export const ClutchPlaybookAdvisor: React.FC<ClutchPlaybookAdvisorProps> = ({
           TOP EFFICIENCY PLAYS:
         </Typography>
         <Stack spacing={1}>
-          {rankings.slice(0, 3).map((play: any, idx: number) => (
+          {rankings.slice(0, 3).map((play: ClutchPlay, idx: number) => (
             <Box
               key={play.playName}
               sx={{
@@ -87,7 +87,7 @@ export const ClutchPlaybookAdvisor: React.FC<ClutchPlaybookAdvisorProps> = ({
           ))}
         </Stack>
 
-        {matchups.filter((m: any) => m.pppDelta > 0.3).length > 0 && (
+        {matchups.filter((m: MatchupStats) => m.pppDelta > 0.3).length > 0 && (
           <>
             <Divider sx={{ my: 1.5 }} />
             <Typography variant="caption" sx={{ fontWeight: 700, color: "text.secondary", mb: 1, display: "block" }}>
@@ -95,9 +95,9 @@ export const ClutchPlaybookAdvisor: React.FC<ClutchPlaybookAdvisorProps> = ({
             </Typography>
             <Stack spacing={1}>
               {matchups
-                .filter((m: any) => m.pppDelta > 0.3)
+                .filter((m: MatchupStats) => m.pppDelta > 0.3)
                 .slice(0, 2)
-                .map((m: any) => (
+                .map((m: MatchupStats) => (
                   <Box key={m.playerId} sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                     <StarIcon sx={{ fontSize: 14, color: "warning.main" }} />
                     <Typography variant="caption" sx={{ fontWeight: 700 }}>

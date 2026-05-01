@@ -179,5 +179,5 @@ export class AppDatabase extends Dexie {
 export const db = new AppDatabase();
 
 if (import.meta.env.DEV) {
-  (window as any).db = db;
+  (window as unknown as { db : unknown }).db = db;
 }

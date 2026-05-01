@@ -1271,7 +1271,7 @@ const GameMode: React.FC = () => {
               typeToSave === ACTION_TYPES.MISS
                 ? (shotQuality ?? undefined)
                 : undefined,
-            situation: (situation as any ?? undefined),
+            situation: (situation ?? undefined),
             synced: 0,
           });
           await syncService.pushUpdates();
@@ -1304,7 +1304,7 @@ const GameMode: React.FC = () => {
               typeToSave === ACTION_TYPES.MISS
                 ? (shotQuality ?? undefined)
                 : undefined,
-            situation: (situation as any ?? undefined),
+            situation: (situation ?? undefined),
             defensiveScheme: isOpponentId(selectedPlayerId!)
               ? activeDefensiveScheme
               : undefined,

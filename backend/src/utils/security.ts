@@ -25,11 +25,16 @@ export const FORBIDDEN_KEYS = Object.freeze(
 
 /**
  * Redacts values in a record if their keys match a sensitive set.
+ *
+ * @param record - The record to redact.
+ * @param sensitiveKeys - Optional set of keys to redact (case-insensitive).
+ * @param redactor - Optional custom redaction function.
+ * @returns {Record<string, any>} The redacted record.
  */
 export function redactRecord<T>(
   record: Record<string, T>,
   sensitiveKeys?: ReadonlySet<string>,
-  redactor: (val: T) => any = () => "[REDACTED]",
+  redactor: (val: T) => unknown = () => "[REDACTED]",
 ): Record<string, any> {
   const result: Record<string, any> = { ...record };
   for (const key in result) {
@@ -52,6 +57,10 @@ export const REDACTION_REGEX = new RegExp(`(${REDACTION_PATTERN})`, "gi");
 
 /**
  * Timing-safe string comparison to prevent timing attacks.
+ *
+ * @param a - User-provided key.
+ * @param b - Actual secret key.
+ * @returns {boolean} True if the keys match.
  */
 export function safeCompare(a: string, b: string): boolean {
   if (typeof a !== "string" || typeof b !== "string") return false;
@@ -62,6 +71,11 @@ export function safeCompare(a: string, b: string): boolean {
 
 /**
  * Core recursive object transformation logic for security sanitization.
+ *
+ * @param data - The data to transform.
+ * @param transform - Callback to transform or skip a specific key/value.
+ * @param depth - Current recursion depth.
+ * @returns {unknown} The transformed data.
  */
 export function recursiveTransform(
   data: unknown,
@@ -77,8 +91,8 @@ export function recursiveTransform(
       .map((item) => recursiveTransform(item, transform, depth + 1));
   }
 
-  const result: Record<string, unknown> = {};
-  const record = data as Record<string, unknown>;
+  const result: Record<string, any> = {};
+  const record = data as Record<string, any>;
   for (const key in record) {
     if (Object.prototype.hasOwnProperty.call(record, key)) {
       if (FORBIDDEN_KEYS.has(key)) continue;
