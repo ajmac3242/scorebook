@@ -29,8 +29,8 @@ export const EfficiencyMatrix: React.FC<EfficiencyMatrixProps> = React.memo(
     const getEfficiency = (_ourId: string, _oppId: string) => {
       const m = matchups.find(
         (ms) =>
-          ms.ourPlayerId === ourId &&
-          ms.opponentPlayerId === oppId &&
+          ms.ourPlayerId === _ourId &&
+          ms.opponentPlayerId === _oppId &&
           !ms.isOpponentDefender,
       );
       return m ? parseFloat(m.stopPct) : null;
