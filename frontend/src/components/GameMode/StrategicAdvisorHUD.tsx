@@ -1,17 +1,8 @@
 import React, { useMemo } from "react";
 import {
-  Box,
   Typography,
   Button,
-  Chip,
-  Stack,
-  useTheme,
-} from "@mui/material";
-import {
-  FlashOn,
-  Warning,
-  Pause,
-} from "@mui/icons-material";
+  from "@mui/material";
 import { MoleskineCard } from "../SharedUI";
 import { calculateTimeoutRecommendation } from "../../utils/stats";
 
