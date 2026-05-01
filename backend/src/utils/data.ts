@@ -8,53 +8,56 @@ import { INTERNAL_KEYS } from "../responses.js";
 /**
  * Redacts sensitive information from the Lambda event before logging.
  *
- * @param {any} event - The raw Lambda event.
- * @returns {unknown} A sanitized copy of the event.
+ * @param {Record<string, unknown>} event - The raw Lambda event.
+ * @returns {Record<string, unknown>} A sanitized copy of the event.
  */
-export function maskEvent(event: unknown): unknown {
-  const masked = { ...event };
+export function maskEvent(
+  event: Record<string, unknown>,
+): Record<string, unknown> {
+  const masked: Record<string, unknown> = { ...event };
 
   if (event.headers) {
-    masked.headers = redactRecord(event.headers, REDACTED_HEADERS);
+    masked.headers = redactRecord(
+      event.headers as Record<string, string>,
+      REDACTED_HEADERS,
+    );
   }
 
-  const anyEvent = event as unknown as Record<string, unknown>;
-  const multiValueHeaders = anyEvent.multiValueHeaders as Record<
-    string,
-    string[]
-  >;
+  const multiValueHeaders = event.multiValueHeaders as
+    | Record<string, string[]>
+    | undefined;
   if (multiValueHeaders) {
-    (masked as unknown as Record<string, unknown>).multiValueHeaders =
-      redactRecord(multiValueHeaders, REDACTED_HEADERS, (val) =>
-        val.map(() => "[REDACTED]"),
-      );
+    masked.multiValueHeaders = redactRecord(
+      multiValueHeaders,
+      REDACTED_HEADERS,
+      (val) => val.map(() => "[REDACTED]"),
+    );
   }
 
   if (event.cookies) {
-    masked.cookies = event.cookies.map(() => "[REDACTED]");
+    masked.cookies = (event.cookies as string[]).map(() => "[REDACTED]");
   }
 
   if (event.queryStringParameters) {
-    masked.queryStringParameters = redactRecord(event.queryStringParameters);
+    masked.queryStringParameters = redactRecord(
+      event.queryStringParameters as Record<string, string>,
+    );
   }
 
-  const multiValueQueryParams = anyEvent.multiValueQueryStringParameters as
+  const multiValueQueryParams = event.multiValueQueryStringParameters as
     | Record<string, string[]>
     | undefined;
   if (multiValueQueryParams) {
-    (
-      masked as unknown as Record<string, unknown>
-    ).multiValueQueryStringParameters = redactRecord(
+    masked.multiValueQueryStringParameters = redactRecord(
       multiValueQueryParams,
       undefined,
       (val) => val.map(() => "[REDACTED]"),
     );
   }
 
-  const requestContext = masked.requestContext as unknown as Record<
-    string,
-    unknown
-  >;
+  const requestContext = masked.requestContext as
+    | Record<string, unknown>
+    | undefined;
   if (requestContext?.authorizer) {
     requestContext.authorizer = "[REDACTED]";
   }
