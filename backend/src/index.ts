@@ -4,16 +4,8 @@
  * Provides RESTful endpoints for managing Seasons, Teams, Players, Games, and Stats.
  */
 
-import {
-  APIGatewayProxyEventV2,
-  APIGatewayProxyResultV2,
-} from "aws-lambda";
-import {
-  badRequest,
-  notFound,
-  serverError,
-  response,
-} from "./responses.js";
+import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
+import { badRequest, notFound, serverError, response } from "./responses.js";
 import {
   logError,
   logInfo,
@@ -29,6 +21,7 @@ import { handleTeams } from "./handlers/teams.js";
 
 /**
  * Parses the request body as JSON.
+ * @param body
  */
 function parseBody(body: string | undefined): Record<string, unknown> {
   if (!body) return {};
@@ -45,6 +38,7 @@ const ALLOWED_METHODS = new Set(["GET", "POST", "PUT", "PATCH", "DELETE"]);
 
 /**
  * Main Lambda handler for the Basketball Stats API.
+ * @param event
  */
 export const handler = async (
   event: APIGatewayProxyEventV2,
@@ -95,9 +89,33 @@ export const handler = async (
     const TABLE_NAME = process.env.TABLE_NAME || "BasketballStats";
 
     const res =
-      (await handleTeams(method, path, body, event, TABLE_NAME, requestId, docClient)) ||
-      (await handlePlayers(method, path, body, event, TABLE_NAME, requestId, docClient)) ||
-      (await handleGames(method, path, body, event, TABLE_NAME, requestId, docClient)) ||
+      (await handleTeams(
+        method,
+        path,
+        body,
+        event,
+        TABLE_NAME,
+        requestId,
+        docClient,
+      )) ||
+      (await handlePlayers(
+        method,
+        path,
+        body,
+        event,
+        TABLE_NAME,
+        requestId,
+        docClient,
+      )) ||
+      (await handleGames(
+        method,
+        path,
+        body,
+        event,
+        TABLE_NAME,
+        requestId,
+        docClient,
+      )) ||
       (await handleCleanup(
         method,
         path,

@@ -281,11 +281,7 @@ export function validateStatEvent(body: unknown): string | null {
   )
     return "MAKE must have points > 0";
 
-  if (
-    b.type === "MISS" &&
-    b.points !== undefined &&
-    (b.points as number) > 0
-  )
+  if (b.type === "MISS" && b.points !== undefined && (b.points as number) > 0)
     return "MISS cannot have points > 0";
 
   if (

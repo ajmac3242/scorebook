@@ -1,5 +1,13 @@
 import { describe, it, expect } from "@jest/globals";
-import { stripLocalFields, normalizePath, maskEvent, getHeader, extractIdFromPath, logError, safeCompare } from "../utils.js";
+import {
+  stripLocalFields,
+  normalizePath,
+  maskEvent,
+  getHeader,
+  extractIdFromPath,
+  logError,
+  safeCompare,
+} from "../utils.js";
 import { APIGatewayProxyEventV2 } from "aws-lambda";
 import { jest } from "@jest/globals";
 
@@ -167,15 +175,21 @@ describe("backend utils", () => {
 
   describe("logError", () => {
     it("redacts sensitive terms from Error message and stack", () => {
-      const consoleSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+      const consoleSpy = jest
+        .spyOn(console, "error")
+        .mockImplementation(() => {});
       const error = new Error("Failed with password=123 and token:abc");
       error.stack = "Error: at line 1 (password=123)\nat line 2 (token:abc)";
 
       logError("TestLabel", error);
 
       expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining("[ERROR] TestLabel: Failed with [REDACTED]=123 and [REDACTED]:abc"),
-        expect.stringContaining("Error: at line 1 ([REDACTED]=123)\nat line 2 ([REDACTED]:abc)"),
+        expect.stringContaining(
+          "[ERROR] TestLabel: Failed with [REDACTED]=123 and [REDACTED]:abc",
+        ),
+        expect.stringContaining(
+          "Error: at line 1 ([REDACTED]=123)\nat line 2 ([REDACTED]:abc)",
+        ),
       );
 
       consoleSpy.mockRestore();

@@ -143,7 +143,14 @@ export async function handleGames(
   }
 
   if (path.startsWith("/games/") && path.endsWith("/stats")) {
-    return await handleGameStats(method, path, body, tableName, requestId, docClient);
+    return await handleGameStats(
+      method,
+      path,
+      body,
+      tableName,
+      requestId,
+      docClient,
+    );
   }
 
   return null;

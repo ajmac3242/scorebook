@@ -253,6 +253,18 @@ export const isOpponentId = (playerId: string | null): boolean => {
 };
 
 /**
+ * 🏀 Assistant Coach: Centralized period type identification.
+ */
+export const isQuarters = (periodType: string): boolean =>
+  periodType === "QUARTERS";
+
+/**
+ * 🏀 Assistant Coach: Returns the final regulation period (4 for quarters, 2 for halves).
+ */
+export const getPeriodLimit = (periodType: string): number =>
+  isQuarters(periodType) ? 4 : 2;
+
+/**
  * Determines if a statistical event is active (not deleted).
  * @param {StatEvent} stat - The event to check.
  * @returns {boolean} True if active.
@@ -289,6 +301,14 @@ export const isDefensiveRebound = (stat: StatEvent): boolean =>
   stat.type === ACTION_TYPES.DEF_REBOUND || stat.type === ACTION_TYPES.REBOUND;
 
 /**
+ * Determines if a statistical event is an offensive rebound.
+ * @param {StatEvent} stat - The event to check.
+ * @returns {boolean} True if it is an offensive rebound.
+ */
+export const isOffensiveRebound = (stat: StatEvent): boolean =>
+  stat.type === ACTION_TYPES.OFF_REBOUND;
+
+/**
  * Determines if a statistical event is a substitution.
  * @param {StatEvent} stat - The event to check.
  * @returns {boolean} True if it is a substitution.
@@ -309,7 +329,7 @@ export const isFreeThrow = (stat: StatEvent): boolean => stat.points === 1;
  * @returns {boolean} True if it is a 3-point attempt.
  */
 export const isThreePointAttempt = (stat: StatEvent): boolean =>
-  stat.points === 3;
+  stat.points === 3 && !isFreeThrow(stat);
 
 /**
  * Determines if a statistical event is a field goal attempt (MAKE or MISS, excluding free throws).
@@ -2161,12 +2181,12 @@ export const calculateScoreFlow = (
  * @param period - The game period.
  * @param periodType - 'QUARTERS' or 'HALVES'.
  */
-const getClutchPeriodInfo = (period: number, periodType: string) => {
-  const isQuarters = periodType === "QUARTERS";
+export const getClutchPeriodInfo = (period: number, periodType: string) => {
+  const limit = getPeriodLimit(periodType);
   return {
-    isOT: isQuarters ? period > 4 : period > 2,
-    isFinal: isQuarters ? period === 4 : period === 2,
-    regClutchTime: isQuarters ? 240 : 120,
+    isOT: period > limit,
+    isFinal: period === limit,
+    regClutchTime: isQuarters(periodType) ? 240 : 120,
   };
 };
 
@@ -2238,8 +2258,7 @@ export const isEventInPeriod = (
   currentPeriod: number,
   periodType: string,
 ): boolean => {
-  const isFinal =
-    periodType === "QUARTERS" ? currentPeriod === 4 : currentPeriod === 2;
+  const isFinal = currentPeriod === getPeriodLimit(periodType);
   return isFinal ? eventPeriod >= currentPeriod : eventPeriod === currentPeriod;
 };
 
