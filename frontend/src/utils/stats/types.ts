@@ -26,6 +26,8 @@ export interface MatchupStats {
   possessions: number;
   pointsAllowed: number;
   pppAllowed: string;
+        isOpponentDefender?: boolean;
+      stopPct?: string;
 }
 
 export interface OpponentAggregates {
