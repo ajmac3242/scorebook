@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import {
   Typography,
   Button,
+  }
   from "@mui/material";
 import { MoleskineCard } from "../SharedUI";
 import { calculateTimeoutRecommendation } from "../../utils/stats";
