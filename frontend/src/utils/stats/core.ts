@@ -98,7 +98,7 @@ export interface TeamAggregates {
  * @param {number} [options.overtimeLength] - Overtime period length in minutes.
  * @param {string} [options.periodType] - The format of the game (QUARTERS or HALVES).
  */
-export export const getPeriodLen = (
+export const getPeriodLen = (
   period: number,
   options: {
     periodLength?: number;
