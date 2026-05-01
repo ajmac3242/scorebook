@@ -34,11 +34,9 @@ export interface MatchupStats {
   to?: number;
   oreb?: number;
   playerId?: string;
-  stopPct?: string;
 }
 
 export interface OpponentAggregates {
-  points: number;
   makes: number;
   attempts: number;
   fgPct: string;
