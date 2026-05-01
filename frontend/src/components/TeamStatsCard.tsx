@@ -1,9 +1,5 @@
 import React from "react";
-import {
-  Box,
-  Typography,
-  Grid,
-} from "@mui/material";
+import { Box, Typography, Grid } from "@mui/material";
 import { FlashOn } from "@mui/icons-material";
 import { MoleskineCard, AnimatedNumber } from "./SharedUI";
 
