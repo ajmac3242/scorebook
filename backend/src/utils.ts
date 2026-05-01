@@ -218,23 +218,22 @@ export function logInfo(label: string, data?: unknown) {
  */
 export function maskEvent(event: APIGatewayProxyEventV2): unknown {
   // 🛡️ Enhancement 1-3: Broadened log masking for headers, query params, and authorizer.
-  const masked = { ...event };
+  const masked: Record<string, unknown> = { ...event };
 
   if (event.headers) {
-    masked.headers = redactRecord(event.headers, REDACTED_HEADERS, () => "[REDACTED]") as Record<string, string | undefined>;
+    masked.headers = redactRecord(event.headers, REDACTED_HEADERS, () =>
+      "[REDACTED]",
+    );
   }
 
   // Handle multi-value headers if present (older API Gateway versions)
-  const anyEvent = event as unknown as Record<string, unknown>;
-  const multiValueHeaders = anyEvent.multiValueHeaders as Record<
-    string,
-    string[]
-  >;
+  const multiValueHeaders = (event as any).multiValueHeaders;
   if (multiValueHeaders) {
-    (masked as unknown as Record<string, unknown>).multiValueHeaders =
-      redactRecord(multiValueHeaders, REDACTED_HEADERS, (val) =>
-        val.map(() => "[REDACTED]"),
-      );
+    masked.multiValueHeaders = redactRecord(
+      multiValueHeaders,
+      REDACTED_HEADERS,
+      (val: string[]) => val.map(() => "[REDACTED]"),
+    );
   }
 
   if (event.cookies) {
@@ -243,29 +242,22 @@ export function maskEvent(event: APIGatewayProxyEventV2): unknown {
 
   // Redact all query string parameters as they often contain tokens or PII
   if (event.queryStringParameters) {
-    masked.queryStringParameters = redactRecord(event.queryStringParameters) as Record<string, string | undefined>;
+    masked.queryStringParameters = redactRecord(event.queryStringParameters);
   }
 
-  const multiValueQueryParams = anyEvent.multiValueQueryStringParameters as
-    | Record<string, string[]>
-    | undefined;
+  const multiValueQueryParams = (event as any).multiValueQueryStringParameters;
   if (multiValueQueryParams) {
-    (
-      masked as unknown as Record<string, unknown>
-    ).multiValueQueryStringParameters = redactRecord(
+    masked.multiValueQueryStringParameters = redactRecord(
       multiValueQueryParams,
       undefined,
-      (val) => val.map(() => "[REDACTED]"),
+      (val: string[]) => val.map(() => "[REDACTED]"),
     );
   }
 
   // Redact authorizer context which may contain JWT claims or internal IDs
-  const requestContext = masked.requestContext as unknown as Record<
-    string,
-    unknown
-  >;
-  if (requestContext?.authorizer) {
-    requestContext.authorizer = "[REDACTED]";
+  const context = (masked.requestContext as any) || {};
+  if (context.authorizer) {
+    context.authorizer = "[REDACTED]";
   }
 
   // 🛡️ Enhancement 11: Redact body in logs to prevent sensitive data leakage and log bloating
@@ -283,14 +275,15 @@ export function maskEvent(event: APIGatewayProxyEventV2): unknown {
  * @returns {string} The normalized path.
  */
 export function normalizePath(event: APIGatewayProxyEventV2): string {
-  const raw = (event.rawPath ||
-    (event as unknown as Record<string, unknown>).path ||
+  const raw =
+    event.rawPath ||
+    (event as any).path ||
     event.requestContext?.http?.path ||
-    "/") as string;
+    "/";
 
   // ⚡ Bolt: Consolidated path normalization and security checks.
   try {
-    const path = decodeURIComponent(raw)
+    const path = decodeURIComponent(raw as string)
       .replace(/^\/(\$default|api)/, "")
       .replace(/\/+/g, "/")
       .replace(/\/$/, "");
