@@ -2,17 +2,10 @@ import React, { useMemo } from "react";
 import { Box, Typography, Chip, Stack, useTheme, Divider } from "@mui/material";
 import { FlashOn, Star as StarIcon } from "@mui/icons-material";
 import { MoleskineCard } from "../SharedUI";
-import { MatchupStats } from "../../utils/stats/types";
+import { ClutchPlay, MatchupStats } from "../../utils/stats/types";
 import { calculateClutchPlaybookRanking } from "../../utils/stats";
 import { StatEvent } from "../../db";
 
-interface ClutchPlayResult {
-  playName: string;
-  ppp: number;
-  efg: number;
-  frequency: number;
-  targetMismatches: string[];
-}
 
 interface ClutchMatchup extends MatchupStats {
   pppDelta: number;
@@ -38,7 +31,7 @@ export const ClutchPlaybookAdvisor: React.FC<ClutchPlaybookAdvisorProps> = ({
       allStats,
       240,
       matchups,
-    ) as ClutchPlayResult[];
+        );
   }, [allStats, matchups]);
 
   if (!isClutch || rankings.length === 0) return null;
@@ -94,7 +87,7 @@ export const ClutchPlaybookAdvisor: React.FC<ClutchPlaybookAdvisorProps> = ({
           TOP EFFICIENCY PLAYS:
         </Typography>
         <Stack spacing={1}>
-          {rankings.slice(0, 3).map((play: ClutchPlayResult, idx: number) => (
+          {rankings.slice(0, 3).map((play: ClutchPlay, idx: number) => (
             <Box
               key={play.playName}
               sx={{
