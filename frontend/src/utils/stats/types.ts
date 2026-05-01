@@ -55,7 +55,12 @@ export interface OpponentAggregates {
   ftm: number;
   threePM: number;
   threePA: number;
-  min: number;
+  threePPct?: string;
+  efgPct?: string;
+  toPct?: string;
+  orbPct?: string;
+  ftRate?: string;
+  min: number; // in seconds
   plusMinus: number;
   ppp: string;
   possessions: number;
@@ -84,7 +89,7 @@ export interface PlayerAggregates {
   name: string;
   avatarColor?: string;
   jerseyNumber?: string;
-  gamesPlayed: Set<string>;
+  gamesPlayed: Set<string | number>;
   gp: number;
   points: number;
   rebounds: number;
@@ -119,10 +124,9 @@ export interface TargetAttack {
 
 export interface PlayerStint {
   playerId: string;
-  start: number;
-  end: number;
+  startClock: number;
+  endClock: number;
   period: number;
-  plusMinus: number;
 }
 
 export interface PlayEfficiency {
@@ -139,6 +143,7 @@ export interface SchemeEfficiency {
   possessions: number;
   pointsAllowed: number;
   pppAllowed: string;
+  ppp: string;
 }
 
 export interface OpponentThreat {
@@ -156,14 +161,18 @@ export interface ScoringRun {
   startClock: number;
   endClock: number;
   period: number;
+  startTime: string;
+  endTime: string;
 }
 
 export interface OpponentTendency {
   playerId: string;
-  drivePct: string;
+  drivePct?: string;
   catchAndShootPct: string;
-  postUpPct: string;
-  preferredSide: "LEFT" | "RIGHT" | "CENTER";
+  postUpPct?: string;
+  paintPct: string;
+  offDribblePct: string;
+  preferredSide?: "LEFT" | "RIGHT" | "CENTER";
 }
 
 export interface LineupAggregates {
