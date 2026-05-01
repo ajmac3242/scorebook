@@ -1,4 +1,4 @@
-# Scorebook - Basketball Stats
+# Welcome to Scorebook - Basketball Stats
 
 Scorebook is a mobile-first, offline-ready basketball statistics tracking application. It allows coaches and enthusiasts to track game events (shots, rebounds, assists, etc.) in real-time and provides detailed analytics for teams and players.
 
