@@ -368,229 +368,234 @@ const PlayerStats: React.FC = () => {
       </Box>
 
       {activeTab === "stats" && (
-      <MoleskineCard sx={{ mb: 3 }}>
-        <Stack
-          direction="row"
-          justifyContent="space-between"
-          alignItems="center"
-          mb={2}
-        >
-          <Typography variant="subtitle2">Filters</Typography>
-          <ToggleButtonGroup
-            value={shotChartView}
-            exclusive
-            onChange={(_, val) => val && setShotChartView(val)}
-            size="small"
+        <MoleskineCard sx={{ mb: 3 }}>
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            alignItems="center"
+            mb={2}
           >
-            <ToggleButton value="markers">Markers</ToggleButton>
-            <ToggleButton value="heatmap">Heatmap</ToggleButton>
-          </ToggleButtonGroup>
-        </Stack>
-        <Stack
-          direction={{ xs: "column", sm: "row" }}
-          spacing={2}
-          alignItems="center"
-        >
-          <FormControl fullWidth size="small">
-            <InputLabel>Game</InputLabel>
-            <Select
-              value={selectedGameId}
-              label="Game"
-              onChange={(e) => setSelectedGameId(e.target.value as string)}
+            <Typography variant="subtitle2">Filters</Typography>
+            <ToggleButtonGroup
+              value={shotChartView}
+              exclusive
+              onChange={(_, val) => val && setShotChartView(val)}
+              size="small"
             >
-              <MenuItem value="">All Games</MenuItem>
-              {games.map((g) => (
-                <MenuItem key={g.id} value={g.id!}>
-                  {g.opponent} ({g.date})
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <FormControl fullWidth size="small">
-            <InputLabel>Action Type</InputLabel>
-            <Select
-              value={selectedType}
-              label="Action Type"
-              onChange={(e) => setSelectedType(e.target.value)}
-            >
-              <MenuItem value="">All Actions</MenuItem>
-              <MenuItem value="MAKE">Makes</MenuItem>
-              <MenuItem value="MISS">Misses</MenuItem>
-              <MenuItem value="REBOUND">Total Rebounds</MenuItem>
-              <MenuItem value="OFF_REBOUND">Off. Rebounds</MenuItem>
-              <MenuItem value="DEF_REBOUND">Def. Rebounds</MenuItem>
-              <MenuItem value="ASSIST">Assists</MenuItem>
-              <MenuItem value="STEAL">Steals</MenuItem>
-              <MenuItem value="BLOCK">Blocks</MenuItem>
-              <MenuItem value="TURNOVER">Turnovers</MenuItem>
-            </Select>
-          </FormControl>
-          <ToggleButton
-            value="clutch"
-            selected={clutchFilter}
-            onChange={() => setClutchFilter(!clutchFilter)}
-            size="small"
-            color="primary"
-            sx={{
-              fontWeight: 800,
-              whiteSpace: "nowrap",
-              minWidth: 120,
-              bgcolor: clutchFilter ? "primary.main" : "transparent",
-              color: clutchFilter ? "white" : "primary.main",
-              "&:hover": {
-                bgcolor: clutchFilter
-                  ? "primary.dark"
-                  : "rgba(25, 118, 210, 0.04)",
-              },
-            }}
+              <ToggleButton value="markers">Markers</ToggleButton>
+              <ToggleButton value="heatmap">Heatmap</ToggleButton>
+            </ToggleButtonGroup>
+          </Stack>
+          <Stack
+            direction={{ xs: "column", sm: "row" }}
+            spacing={2}
+            alignItems="center"
           >
-            🔥 CLUTCH
-          </ToggleButton>
-        </Stack>
-      </MoleskineCard>
+            <FormControl fullWidth size="small">
+              <InputLabel>Game</InputLabel>
+              <Select
+                value={selectedGameId}
+                label="Game"
+                onChange={(e) => setSelectedGameId(e.target.value as string)}
+              >
+                <MenuItem value="">All Games</MenuItem>
+                {games.map((g) => (
+                  <MenuItem key={g.id} value={g.id!}>
+                    {g.opponent} ({g.date})
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <FormControl fullWidth size="small">
+              <InputLabel>Action Type</InputLabel>
+              <Select
+                value={selectedType}
+                label="Action Type"
+                onChange={(e) => setSelectedType(e.target.value)}
+              >
+                <MenuItem value="">All Actions</MenuItem>
+                <MenuItem value="MAKE">Makes</MenuItem>
+                <MenuItem value="MISS">Misses</MenuItem>
+                <MenuItem value="REBOUND">Total Rebounds</MenuItem>
+                <MenuItem value="OFF_REBOUND">Off. Rebounds</MenuItem>
+                <MenuItem value="DEF_REBOUND">Def. Rebounds</MenuItem>
+                <MenuItem value="ASSIST">Assists</MenuItem>
+                <MenuItem value="STEAL">Steals</MenuItem>
+                <MenuItem value="BLOCK">Blocks</MenuItem>
+                <MenuItem value="TURNOVER">Turnovers</MenuItem>
+              </Select>
+            </FormControl>
+            <ToggleButton
+              value="clutch"
+              selected={clutchFilter}
+              onChange={() => setClutchFilter(!clutchFilter)}
+              size="small"
+              color="primary"
+              sx={{
+                fontWeight: 800,
+                whiteSpace: "nowrap",
+                minWidth: 120,
+                bgcolor: clutchFilter ? "primary.main" : "transparent",
+                color: clutchFilter ? "white" : "primary.main",
+                "&:hover": {
+                  bgcolor: clutchFilter
+                    ? "primary.dark"
+                    : "rgba(25, 118, 210, 0.04)",
+                },
+              }}
+            >
+              🔥 CLUTCH
+            </ToggleButton>
+          </Stack>
+        </MoleskineCard>
       )}
 
       {activeTab === "stats" ? (
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={4}>
-          <Stack spacing={2}>
-            <StatCard label="Total Minutes" value={aggregates.min} />
-            <StatCard label="Total Points" value={aggregates.points} />
-            <Box
-              sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2 }}
-            >
-              <StatCard label="FG%" value={`${aggregates.fgPct}%`} />
-              <StatCard label="eFG%" value={`${aggregates.efgPct}%`} />
-              <StatCard
-                label="FG"
-                value={`${aggregates.makes}/${aggregates.attempts}`}
-              />
-              <StatCard
-                label="+/-"
-                value={
-                  aggregates.plusMinus > 0
-                    ? `+${aggregates.plusMinus}`
-                    : aggregates.plusMinus
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={4}>
+            <Stack spacing={2}>
+              <StatCard label="Total Minutes" value={aggregates.min} />
+              <StatCard label="Total Points" value={aggregates.points} />
+              <Box
+                sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2 }}
+              >
+                <StatCard label="FG%" value={`${aggregates.fgPct}%`} />
+                <StatCard label="eFG%" value={`${aggregates.efgPct}%`} />
+                <StatCard
+                  label="FG"
+                  value={`${aggregates.makes}/${aggregates.attempts}`}
+                />
+                <StatCard
+                  label="+/-"
+                  value={
+                    aggregates.plusMinus > 0
+                      ? `+${aggregates.plusMinus}`
+                      : aggregates.plusMinus
+                  }
+                />
+                <StatCard label="REB" value={aggregates.rebounds} />
+                <StatCard label="AST" value={aggregates.assists} />
+                <StatCard label="STL" value={aggregates.steals} />
+                <StatCard label="BLK" value={aggregates.blocks} />
+                <StatCard label="TO" value={aggregates.turnovers} />
+                <StatCard
+                  label="OREB/DREB"
+                  value={`${aggregates.offRebounds}/${aggregates.defRebounds}`}
+                />
+              </Box>
+            </Stack>
+          </Grid>
+          <Grid item xs={12} md={8}>
+            <MoleskineCard sx={{ p: 1 }}>
+              <BasketballCourt
+                markers={
+                  shotChartView === "markers"
+                    ? filteredStats.map((s) => ({
+                        id: s.id,
+                        x: s.locationX || 0,
+                        y: s.locationY || 0,
+                        type: s.type,
+                      }))
+                    : []
+                }
+                heatmapData={
+                  shotChartView === "heatmap" ? heatmapData : undefined
                 }
               />
-              <StatCard label="REB" value={aggregates.rebounds} />
-              <StatCard label="AST" value={aggregates.assists} />
-              <StatCard label="STL" value={aggregates.steals} />
-              <StatCard label="BLK" value={aggregates.blocks} />
-              <StatCard label="TO" value={aggregates.turnovers} />
-              <StatCard
-                label="OREB/DREB"
-                value={`${aggregates.offRebounds}/${aggregates.defRebounds}`}
-              />
-            </Box>
-          </Stack>
+            </MoleskineCard>
+          </Grid>
+          <Grid item xs={12}>
+            <TableContainer
+              component={MoleskineCard}
+              sx={{
+                mx: { xs: -2, sm: 0 },
+                width: { xs: "calc(100% + 32px)", sm: "100%" },
+              }}
+            >
+              <Table size="small">
+                <TableHead>
+                  <TableRow sx={{ bgcolor: "rgba(0,0,0,0.02)" }}>
+                    <TableCell sx={{ fontWeight: 700, p: { xs: 1, sm: 2 } }}>
+                      Period
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: 700, p: { xs: 1, sm: 2 } }}>
+                      Game
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: 700, p: { xs: 1, sm: 2 } }}>
+                      Clock
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: 700, p: { xs: 1, sm: 2 } }}>
+                      Action
+                    </TableCell>
+                    <TableCell
+                      sx={{ fontWeight: 700, p: { xs: 1, sm: 2 } }}
+                      align="right"
+                    >
+                      Pts
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {filteredStats
+                    .slice()
+                    .reverse()
+                    .map((stat) => {
+                      const g = games.find((g) => g.id === stat.gameId);
+                      const formatClock = (totalSeconds: number) => {
+                        const mins = Math.floor(totalSeconds / 60);
+                        const secs = totalSeconds % 60;
+                        return `${mins}:${secs.toString().padStart(2, "0")}`;
+                      };
+                      return (
+                        <TableRow key={stat.id} hover>
+                          <TableCell sx={{ p: { xs: 1, sm: 2 } }}>
+                            P{stat.period || 1}
+                          </TableCell>
+                          <TableCell sx={{ p: { xs: 1, sm: 2 } }}>
+                            {stat.clockTime !== undefined
+                              ? formatClock(stat.clockTime)
+                              : "-"}
+                          </TableCell>
+                          <TableCell sx={{ p: { xs: 1, sm: 2 } }}>
+                            <Typography
+                              variant="body2"
+                              sx={{
+                                fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                                fontWeight: 500,
+                              }}
+                            >
+                              {g?.opponent || "Unknown"}
+                            </Typography>
+                          </TableCell>
+                          <TableCell sx={{ p: { xs: 1, sm: 2 } }}>
+                            <Typography
+                              variant="body2"
+                              sx={{
+                                fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                              }}
+                            >
+                              {stat.type}
+                            </Typography>
+                          </TableCell>
+                          <TableCell align="right" sx={{ p: { xs: 1, sm: 2 } }}>
+                            {stat.points || 0}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Grid>
         </Grid>
-        <Grid item xs={12} md={8}>
-          <MoleskineCard sx={{ p: 1 }}>
-            <BasketballCourt
-              markers={
-                shotChartView === "markers"
-                  ? filteredStats.map((s) => ({
-                      id: s.id,
-                      x: s.locationX || 0,
-                      y: s.locationY || 0,
-                      type: s.type,
-                    }))
-                  : []
-              }
-              heatmapData={
-                shotChartView === "heatmap" ? heatmapData : undefined
-              }
-            />
-          </MoleskineCard>
-        </Grid>
-        <Grid item xs={12}>
-          <TableContainer
-            component={MoleskineCard}
-            sx={{
-              mx: { xs: -2, sm: 0 },
-              width: { xs: "calc(100% + 32px)", sm: "100%" },
-            }}
-          >
-            <Table size="small">
-              <TableHead>
-                <TableRow sx={{ bgcolor: "rgba(0,0,0,0.02)" }}>
-                  <TableCell sx={{ fontWeight: 700, p: { xs: 1, sm: 2 } }}>
-                    Period
-                  </TableCell>
-                  <TableCell sx={{ fontWeight: 700, p: { xs: 1, sm: 2 } }}>
-                    Game
-                  </TableCell>
-                  <TableCell sx={{ fontWeight: 700, p: { xs: 1, sm: 2 } }}>
-                    Clock
-                  </TableCell>
-                  <TableCell sx={{ fontWeight: 700, p: { xs: 1, sm: 2 } }}>
-                    Action
-                  </TableCell>
-                  <TableCell
-                    sx={{ fontWeight: 700, p: { xs: 1, sm: 2 } }}
-                    align="right"
-                  >
-                    Pts
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {filteredStats
-                  .slice()
-                  .reverse()
-                  .map((stat) => {
-                    const g = games.find((g) => g.id === stat.gameId);
-                    const formatClock = (totalSeconds: number) => {
-                      const mins = Math.floor(totalSeconds / 60);
-                      const secs = totalSeconds % 60;
-                      return `${mins}:${secs.toString().padStart(2, "0")}`;
-                    };
-                    return (
-                      <TableRow key={stat.id} hover>
-                        <TableCell sx={{ p: { xs: 1, sm: 2 } }}>
-                          P{stat.period || 1}
-                        </TableCell>
-                        <TableCell sx={{ p: { xs: 1, sm: 2 } }}>
-                          {stat.clockTime !== undefined
-                            ? formatClock(stat.clockTime)
-                            : "-"}
-                        </TableCell>
-                        <TableCell sx={{ p: { xs: 1, sm: 2 } }}>
-                          <Typography
-                            variant="body2"
-                            sx={{
-                              fontSize: { xs: "0.75rem", sm: "0.875rem" },
-                              fontWeight: 500,
-                            }}
-                          >
-                            {g?.opponent || "Unknown"}
-                          </Typography>
-                        </TableCell>
-                        <TableCell sx={{ p: { xs: 1, sm: 2 } }}>
-                          <Typography
-                            variant="body2"
-                            sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
-                          >
-                            {stat.type}
-                          </Typography>
-                        </TableCell>
-                        <TableCell align="right" sx={{ p: { xs: 1, sm: 2 } }}>
-                          {stat.points || 0}
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Grid>
-      </Grid>
       ) : (
         <Grid container spacing={3}>
           <Grid item xs={12}>
             <MoleskineCard>
-              <Typography variant="h6" sx={{ mb: 3, fontFamily: "var(--serif)" }}>
+              <Typography
+                variant="h6"
+                sx={{ mb: 3, fontFamily: "var(--serif)" }}
+              >
                 Team Performance Differential
               </Typography>
               <Grid container spacing={3}>
@@ -598,10 +603,20 @@ const PlayerStats: React.FC = () => {
                   <StatCard
                     label="Net Rating Differential"
                     value={onOffStats?.netDifferential || "0.0"}
-                    color={parseFloat(onOffStats?.netDifferential || "0") > 0 ? "success.main" : "error.main"}
+                    color={
+                      parseFloat(onOffStats?.netDifferential || "0") > 0
+                        ? "success.main"
+                        : "error.main"
+                    }
                   />
-                  <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: "block" }}>
-                    The team's net rating is {onOffStats?.netDifferential} points better per 100 possessions when this player is on the court.
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ mt: 1, display: "block" }}
+                  >
+                    The team's net rating is {onOffStats?.netDifferential}{" "}
+                    points better per 100 possessions when this player is on the
+                    court.
                   </Typography>
                 </Grid>
                 <Grid item xs={12} md={8}>
@@ -618,18 +633,38 @@ const PlayerStats: React.FC = () => {
                       </TableHead>
                       <TableBody>
                         <TableRow>
-                          <TableCell sx={{ fontWeight: 700 }}>ON COURT</TableCell>
-                          <TableCell align="right">{onOffStats?.onOffensiveRating}</TableCell>
-                          <TableCell align="right">{onOffStats?.onDefensiveRating}</TableCell>
-                          <TableCell align="right" sx={{ fontWeight: 700 }}>{onOffStats?.onNetRating}</TableCell>
-                          <TableCell align="right">{onOffStats?.onPossessions}</TableCell>
+                          <TableCell sx={{ fontWeight: 700 }}>
+                            ON COURT
+                          </TableCell>
+                          <TableCell align="right">
+                            {onOffStats?.onOffensiveRating}
+                          </TableCell>
+                          <TableCell align="right">
+                            {onOffStats?.onDefensiveRating}
+                          </TableCell>
+                          <TableCell align="right" sx={{ fontWeight: 700 }}>
+                            {onOffStats?.onNetRating}
+                          </TableCell>
+                          <TableCell align="right">
+                            {onOffStats?.onPossessions}
+                          </TableCell>
                         </TableRow>
                         <TableRow>
-                          <TableCell sx={{ fontWeight: 700 }}>OFF COURT</TableCell>
-                          <TableCell align="right">{onOffStats?.offOffensiveRating}</TableCell>
-                          <TableCell align="right">{onOffStats?.offDefensiveRating}</TableCell>
-                          <TableCell align="right" sx={{ fontWeight: 700 }}>{onOffStats?.offNetRating}</TableCell>
-                          <TableCell align="right">{onOffStats?.offPossessions}</TableCell>
+                          <TableCell sx={{ fontWeight: 700 }}>
+                            OFF COURT
+                          </TableCell>
+                          <TableCell align="right">
+                            {onOffStats?.offOffensiveRating}
+                          </TableCell>
+                          <TableCell align="right">
+                            {onOffStats?.offDefensiveRating}
+                          </TableCell>
+                          <TableCell align="right" sx={{ fontWeight: 700 }}>
+                            {onOffStats?.offNetRating}
+                          </TableCell>
+                          <TableCell align="right">
+                            {onOffStats?.offPossessions}
+                          </TableCell>
                         </TableRow>
                       </TableBody>
                     </Table>
@@ -640,7 +675,8 @@ const PlayerStats: React.FC = () => {
           </Grid>
           <Grid item xs={12}>
             <Alert severity="info">
-              On/Off metrics are calculated across all recorded games to show long-term team impact.
+              On/Off metrics are calculated across all recorded games to show
+              long-term team impact.
             </Alert>
           </Grid>
         </Grid>

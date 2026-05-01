@@ -1,21 +1,16 @@
 import React, { useMemo } from "react";
-import {
-  Box,
-  Typography,
-  Chip,
-  Stack,
-  useTheme,
-  Divider,
-} from "@mui/material";
-import {
-  FlashOn,
-  Star as StarIcon,
-} from "@mui/icons-material";
+import { Box, Typography, Chip, Stack, useTheme, Divider } from "@mui/material";
+import { FlashOn, Star as StarIcon } from "@mui/icons-material";
 import { MoleskineCard } from "../SharedUI";
-import { MatchupStats } from "../../utils/stats/types";
+import { ClutchPlay, MatchupStats } from "../../utils/stats/types";
 import { calculateClutchPlaybookRanking } from "../../utils/stats";
 import { StatEvent } from "../../db";
 
+interface ClutchMatchup extends MatchupStats {
+  pppDelta: number;
+  playerNumber: string;
+  opponentNumber: string;
+}
 export interface ClutchPlaybookAdvisorProps {
   playbook: string[];
   allStats: StatEvent[];
@@ -47,8 +42,22 @@ export const ClutchPlaybookAdvisor: React.FC<ClutchPlaybookAdvisorProps> = ({
             : "linear-gradient(90deg, rgba(255,193,7,0.02) 0%, rgba(0,0,0,0) 100%)",
       }}
     >
-      <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
-        <Typography variant="subtitle2" sx={{ fontWeight: 800, letterSpacing: 1, display: "flex", alignItems: "center", gap: 1 }}>
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="center"
+        sx={{ mb: 2 }}
+      >
+        <Typography
+          variant="subtitle2"
+          sx={{
+            fontWeight: 800,
+            letterSpacing: 1,
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
+          }}
+        >
           <FlashOn fontSize="small" color="warning" />
           CLUTCH PLAYBOOK
         </Typography>
@@ -61,7 +70,15 @@ export const ClutchPlaybookAdvisor: React.FC<ClutchPlaybookAdvisorProps> = ({
       </Stack>
 
       <Box>
-        <Typography variant="caption" sx={{ fontWeight: 700, color: "text.secondary", mb: 1, display: "block" }}>
+        <Typography
+          variant="caption"
+          sx={{
+            fontWeight: 700,
+            color: "text.secondary",
+            mb: 1,
+            display: "block",
+          }}
+        >
           TOP EFFICIENCY PLAYS:
         </Typography>
         <Stack spacing={1}>
@@ -77,11 +94,19 @@ export const ClutchPlaybookAdvisor: React.FC<ClutchPlaybookAdvisorProps> = ({
                 bgcolor: idx === 0 ? "rgba(255, 193, 7, 0.1)" : "transparent",
               }}
             >
-              <Typography variant="body2" sx={{ fontWeight: idx === 0 ? 800 : 600 }}>
+              <Typography
+                variant="body2"
+                sx={{ fontWeight: idx === 0 ? 800 : 600 }}
+              >
                 {play.playName}
               </Typography>
-              <Typography variant="body2" color="warning.main" sx={{ fontWeight: 900 }}>
-                {typeof play.ppp === 'number' ? play.ppp.toFixed(2) : play.ppp} PPP
+              <Typography
+                variant="body2"
+                color="warning.main"
+                sx={{ fontWeight: 900 }}
+              >
+                {typeof play.ppp === "number" ? play.ppp.toFixed(2) : play.ppp}{" "}
+                PPP
               </Typography>
             </Box>
           ))}
@@ -90,7 +115,15 @@ export const ClutchPlaybookAdvisor: React.FC<ClutchPlaybookAdvisorProps> = ({
         {matchups.filter((m: MatchupStats) => m.pppDelta > 0.3).length > 0 && (
           <>
             <Divider sx={{ my: 1.5 }} />
-            <Typography variant="caption" sx={{ fontWeight: 700, color: "text.secondary", mb: 1, display: "block" }}>
+            <Typography
+              variant="caption"
+              sx={{
+                fontWeight: 700,
+                color: "text.secondary",
+                mb: 1,
+                display: "block",
+              }}
+            >
               EXTRACT MISMATCHES:
             </Typography>
             <Stack spacing={1}>
@@ -101,7 +134,8 @@ export const ClutchPlaybookAdvisor: React.FC<ClutchPlaybookAdvisorProps> = ({
                   <Box key={m.playerId} sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                     <StarIcon sx={{ fontSize: 14, color: "warning.main" }} />
                     <Typography variant="caption" sx={{ fontWeight: 700 }}>
-                      #{m.playerNumber} is +{m.pppDelta} PPP vs {m.opponentNumber}
+                      #{m.playerNumber} is +{m.pppDelta} PPP vs{" "}
+                      {m.opponentNumber}
                     </Typography>
                   </Box>
                 ))}

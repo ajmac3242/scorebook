@@ -27,19 +27,22 @@ export const calculateSynergyStats = (
     periodLength?: number;
     overtimeLength?: number;
     periodType?: string;
-  } = {}
+  } = {},
 ): SynergyUnit[] => {
   const sorted = sortStats(stats);
-  const unitStats = new Map<string, {
-    seconds: number;
-    pointsFor: number;
-    pointsAgainst: number;
-    fga: number;
-    fta: number;
-    to: number;
-    oreb: number;
-    stops: number;
-  }>();
+  const unitStats = new Map<
+    string,
+    {
+      seconds: number;
+      pointsFor: number;
+      pointsAgainst: number;
+      fga: number;
+      fta: number;
+      to: number;
+      oreb: number;
+      stops: number;
+    }
+  >();
 
   let currentLineup = new Set<string>();
   let lastClockTime = getPeriodLen(1, options);
@@ -67,7 +70,16 @@ export const calculateSynergyStats = (
     return results;
   };
 
-  const recordStint = (duration: number, ptsFor: number, ptsAgn: number, fga: number, fta: number, to: number, oreb: number, stops: number) => {
+  const recordStint = (
+    duration: number,
+    ptsFor: number,
+    ptsAgn: number,
+    fga: number,
+    fta: number,
+    to: number,
+    oreb: number,
+    stops: number,
+  ) => {
     if (currentLineup.size < unitSize) return;
     const players = Array.from(currentLineup).sort();
     const combos = getCombinations(players, unitSize);
@@ -76,7 +88,16 @@ export const calculateSynergyStats = (
       const key = combo.join(",");
       let agg = unitStats.get(key);
       if (!agg) {
-        agg = { seconds: 0, pointsFor: 0, pointsAgainst: 0, fga: 0, fta: 0, to: 0, oreb: 0, stops: 0 };
+        agg = {
+          seconds: 0,
+          pointsFor: 0,
+          pointsAgainst: 0,
+          fga: 0,
+          fta: 0,
+          to: 0,
+          oreb: 0,
+          stops: 0,
+        };
         unitStats.set(key, agg);
       }
       agg.seconds += duration;
@@ -104,7 +125,16 @@ export const calculateSynergyStats = (
     if (!isActive(s)) continue;
 
     if (s.gameId !== currentGameId) {
-      recordStint(pendingDuration, pendingPtsFor, pendingPtsAgainst, pendingFga, pendingFta, pendingTo, pendingOreb, pendingStops);
+      recordStint(
+        pendingDuration,
+        pendingPtsFor,
+        pendingPtsAgainst,
+        pendingFga,
+        pendingFta,
+        pendingTo,
+        pendingOreb,
+        pendingStops,
+      );
       currentGameId = s.gameId;
       currentLineup.clear();
       lastClockTime = getPeriodLen(1, options);
@@ -113,17 +143,36 @@ export const calculateSynergyStats = (
       scores.opp = 0;
       lastTeamScore = 0;
       lastOppScore = 0;
-      pendingDuration = 0; pendingPtsFor = 0; pendingPtsAgainst = 0;
-      pendingFga = 0; pendingFta = 0; pendingTo = 0; pendingOreb = 0; pendingStops = 0;
+      pendingDuration = 0;
+      pendingPtsFor = 0;
+      pendingPtsAgainst = 0;
+      pendingFga = 0;
+      pendingFta = 0;
+      pendingTo = 0;
+      pendingOreb = 0;
+      pendingStops = 0;
     }
 
     if (s.period > currentPeriod) {
-      recordStint(lastClockTime, scores.team - lastTeamScore, scores.opp - lastOppScore, pendingFga, pendingFta, pendingTo, pendingOreb, pendingStops);
+      recordStint(
+        lastClockTime,
+        scores.team - lastTeamScore,
+        scores.opp - lastOppScore,
+        pendingFga,
+        pendingFta,
+        pendingTo,
+        pendingOreb,
+        pendingStops,
+      );
       lastClockTime = getPeriodLen(s.period, options);
       currentPeriod = s.period;
       lastTeamScore = scores.team;
       lastOppScore = scores.opp;
-      pendingFga = 0; pendingFta = 0; pendingTo = 0; pendingOreb = 0; pendingStops = 0;
+      pendingFga = 0;
+      pendingFta = 0;
+      pendingTo = 0;
+      pendingOreb = 0;
+      pendingStops = 0;
     }
 
     if (s.clockTime !== undefined) {
@@ -171,26 +220,70 @@ export const calculateSynergyStats = (
 
     if (s.type === ACTION_TYPES.SUB_IN) {
       if (!isOpp) {
-        recordStint(pendingDuration, pendingPtsFor, pendingPtsAgainst, pendingFga, pendingFta, pendingTo, pendingOreb, pendingStops);
+        recordStint(
+          pendingDuration,
+          pendingPtsFor,
+          pendingPtsAgainst,
+          pendingFga,
+          pendingFta,
+          pendingTo,
+          pendingOreb,
+          pendingStops,
+        );
         currentLineup.add(s.playerId);
-        pendingDuration = 0; pendingPtsFor = 0; pendingPtsAgainst = 0;
-        pendingFga = 0; pendingFta = 0; pendingTo = 0; pendingOreb = 0; pendingStops = 0;
+        pendingDuration = 0;
+        pendingPtsFor = 0;
+        pendingPtsAgainst = 0;
+        pendingFga = 0;
+        pendingFta = 0;
+        pendingTo = 0;
+        pendingOreb = 0;
+        pendingStops = 0;
       }
     } else if (s.type === ACTION_TYPES.SUB_OUT) {
       if (!isOpp) {
-        recordStint(pendingDuration, pendingPtsFor, pendingPtsAgainst, pendingFga, pendingFta, pendingTo, pendingOreb, pendingStops);
+        recordStint(
+          pendingDuration,
+          pendingPtsFor,
+          pendingPtsAgainst,
+          pendingFga,
+          pendingFta,
+          pendingTo,
+          pendingOreb,
+          pendingStops,
+        );
         currentLineup.delete(s.playerId);
-        pendingDuration = 0; pendingPtsFor = 0; pendingPtsAgainst = 0;
-        pendingFga = 0; pendingFta = 0; pendingTo = 0; pendingOreb = 0; pendingStops = 0;
+        pendingDuration = 0;
+        pendingPtsFor = 0;
+        pendingPtsAgainst = 0;
+        pendingFga = 0;
+        pendingFta = 0;
+        pendingTo = 0;
+        pendingOreb = 0;
+        pendingStops = 0;
       }
     }
   }
 
   // Final stint
-  recordStint(pendingDuration, pendingPtsFor, pendingPtsAgainst, pendingFga, pendingFta, pendingTo, pendingOreb, pendingStops);
+  recordStint(
+    pendingDuration,
+    pendingPtsFor,
+    pendingPtsAgainst,
+    pendingFga,
+    pendingFta,
+    pendingTo,
+    pendingOreb,
+    pendingStops,
+  );
 
   return Array.from(unitStats.entries()).map(([key, agg]) => {
-    const possessions = calculatePossessions(agg.fga, agg.fta, agg.to, agg.oreb);
+    const possessions = calculatePossessions(
+      agg.fga,
+      agg.fta,
+      agg.to,
+      agg.oreb,
+    );
     const dRtg = possessions > 0 ? (agg.pointsAgainst / possessions) * 100 : 0;
     const oRtg = possessions > 0 ? (agg.pointsFor / possessions) * 100 : 0;
 
