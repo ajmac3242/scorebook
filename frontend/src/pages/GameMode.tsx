@@ -35,6 +35,12 @@ import {
   Warning,
   PlayArrow,
   Pause,
+  Check,
+  Close,
+  PanTool,
+  SwapHoriz,
+  FlashOn,
+  ArrowBack,
 } from "@mui/icons-material";
 import {
   Table,
@@ -89,71 +95,39 @@ const GameMode: React.FC = () => {
   const teamId = searchParams.get("teamId");
 
   const {
-    selectedX,
-    setSelectedX,
-    selectedY,
-    setSelectedY,
-    dialogOpen,
-    setDialogOpen,
-    selectedPlayerId,
-    setSelectedPlayerId,
-    statType,
-    setStatType,
-    points,
-    setPoints,
-    playName,
-    setPlayName,
-    shotQuality,
-    setShotQuality,
-    clockSeconds,
-    setClockSeconds,
-    isClockRunning,
-    setIsClockRunning,
-    sortConfig,
-    setSortConfig,
-    markerFilter,
-    setMarkerFilter,
-    deleteDialogOpen,
-    setDeleteDialogOpen,
-    statToDelete,
-    setStatToDelete,
-    isEditing,
-    setIsEditing,
-    editingStatId,
-    setEditingStatId,
-    endGameDialogOpen,
-    setEndGameDialogOpen,
-    isClockEditDialogOpen,
-    setIsClockEditDialogOpen,
-    summaryDialogOpen,
-    setSummaryDialogOpen,
-    auditDialogOpen,
-    setAuditDialogOpen,
-    ftWorkflowOpen,
-    setFtWorkflowOpen,
-    halftimeReportOpen,
-    setHalftimeReportOpen,
-    isDeleting,
-    setIsDeleting,
-    isEnding,
-    setIsEnding,
-    isSavingStat,
-    setIsSavingStat,
-    chainPrompt,
-    setChainPrompt,
-    snackbar,
-    setSnackbar,
-    subDialogOpen,
-    setSubDialogOpen,
+    selectedX, setSelectedX,
+    selectedY, setSelectedY,
+    dialogOpen, setDialogOpen,
+    selectedPlayerId, setSelectedPlayerId,
+    statType, setStatType,
+    points, setPoints,
+    playName, setPlayName,
+    shotQuality, setShotQuality,
+    clockSeconds, setClockSeconds,
+    isClockRunning, setIsClockRunning,
+    sortConfig, setSortConfig,
+    markerFilter, setMarkerFilter,
+    deleteDialogOpen, setDeleteDialogOpen,
+    statToDelete, setStatToDelete,
+    isEditing, setIsEditing,
+    editingStatId, setEditingStatId,
+    endGameDialogOpen, setEndGameDialogOpen,
+    isClockEditDialogOpen, setIsClockEditDialogOpen,
+    summaryDialogOpen, setSummaryDialogOpen,
+    auditDialogOpen, setAuditDialogOpen,
+    ftWorkflowOpen, setFtWorkflowOpen,
+    halftimeReportOpen, setHalftimeReportOpen,
+    isDeleting, setIsDeleting,
+    isEnding, setIsEnding,
+    isSavingStat, setIsSavingStat,
+    chainPrompt, setChainPrompt,
+    snackbar, setSnackbar,
+    subDialogOpen, setSubDialogOpen,
     setSubOutPlayerId,
-    draftOnCourtIds,
-    setDraftOnCourtIds,
-    selectedSwapId,
-    setSelectedSwapId,
-    period,
-    setPeriod,
-    trackingMode,
-    setTrackingMode,
+    draftOnCourtIds, setDraftOnCourtIds,
+    selectedSwapId, setSelectedSwapId,
+    period, setPeriod,
+    trackingMode, setTrackingMode,
     gameStats,
     players,
     playerNamesMap,
@@ -245,13 +219,7 @@ const GameMode: React.FC = () => {
     } finally {
       setIsEnding(false);
     }
-  }, [
-    gameId,
-    setIsEnding,
-    setEndGameDialogOpen,
-    setSummaryDialogOpen,
-    setSnackbar,
-  ]);
+  }, [gameId, setIsEnding, setEndGameDialogOpen, setSummaryDialogOpen, setSnackbar]);
 
   /**
    * Handles a click on the court to start recording an action.
@@ -263,11 +231,8 @@ const GameMode: React.FC = () => {
       if (isReadOnly) return;
       setSelectedX(x);
       setSelectedY(y);
-      // 🏀 CoachBoard: Dynamic Points Initialization
-      // Why: Sets the default point value (2 or 3) based on where the court was clicked.
       setPoints(detectShotValueFromCoords(x, y));
 
-      // Auto-select opponent if in opponent tracking mode
       if (trackingMode === "OPPONENT") {
         setSelectedPlayerId(SPECIAL_PLAYER_IDS.OPPONENT);
       } else {
@@ -275,15 +240,7 @@ const GameMode: React.FC = () => {
       }
       setDialogOpen(true);
     },
-    [
-      isReadOnly,
-      trackingMode,
-      setSelectedX,
-      setSelectedY,
-      setPoints,
-      setSelectedPlayerId,
-      setDialogOpen,
-    ],
+    [isReadOnly, trackingMode, setSelectedX, setSelectedY, setPoints, setSelectedPlayerId, setDialogOpen],
   );
 
   /**
@@ -347,8 +304,6 @@ const GameMode: React.FC = () => {
           await db.stats.add(newStat);
           await syncService.pushUpdates();
 
-          // 🏀 CoachBoard: Intelligent Linked Event Chaining
-          // Trigger follow-up prompts for "Our Team" makes and misses
           if (
             trackingMode === "TEAM" &&
             !selectedPlayerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT)
@@ -369,7 +324,6 @@ const GameMode: React.FC = () => {
           message: isEditing ? "Action updated" : "Action recorded",
           severity: "success",
         });
-        // Reset state after save
         setDialogOpen(false);
         setStatType(null);
         setPlayName("");
@@ -410,13 +364,12 @@ const GameMode: React.FC = () => {
       setPlayName,
       setIsEditing,
       setEditingStatId,
-      setSelectedPlayerId,
+      setSelectedPlayerId
     ],
   );
 
   const handleSwapClick = useCallback(
     (id: string) => {
-      // Early return for deselect or initial select
       if (!selectedSwapId || selectedSwapId === id) {
         setSelectedSwapId(selectedSwapId === id ? null : id);
         return;
@@ -427,7 +380,6 @@ const GameMode: React.FC = () => {
         selectedSwapId.startsWith("EMPTY");
       const isBOnCourt = draftOnCourtIds.has(id) || id.startsWith("EMPTY");
 
-      // Update selection if both in same group (bench/court), otherwise perform swap
       if (isAOnCourt === isBOnCourt) {
         setSelectedSwapId(id);
         return;
@@ -458,16 +410,13 @@ const GameMode: React.FC = () => {
       const originalOnCourt = gameData.onCourtIds;
       const finalOnCourt = draftOnCourtIds;
 
-      // Players who were on court but are no longer in the draft lineup
       const toSubOut = Array.from(originalOnCourt).filter(
         (id) => !finalOnCourt.has(id),
       );
-      // Players who were NOT on court but are now in the draft lineup
       const toSubIn = Array.from(finalOnCourt).filter(
         (id) => !originalOnCourt.has(id) && !id.startsWith("EMPTY"),
       );
 
-      // Record SUB_OUT events
       for (const pId of toSubOut) {
         await db.stats.add({
           id: crypto.randomUUID(),
@@ -481,7 +430,6 @@ const GameMode: React.FC = () => {
         });
       }
 
-      // Record SUB_IN events
       for (const pId of toSubIn) {
         await db.stats.add({
           id: crypto.randomUUID(),
@@ -518,12 +466,9 @@ const GameMode: React.FC = () => {
     period,
     clockSeconds,
     setSubDialogOpen,
-    setSnackbar,
+    setSnackbar
   ]);
 
-  /**
-   * Deletes a specific statistical event.
-   */
   const handleDeleteStat = useCallback(async () => {
     if (!statToDelete) return;
     setIsDeleting(true);
@@ -551,18 +496,8 @@ const GameMode: React.FC = () => {
     } finally {
       setIsDeleting(false);
     }
-  }, [
-    statToDelete,
-    setIsDeleting,
-    setDeleteDialogOpen,
-    setStatToDelete,
-    setSnackbar,
-  ]);
+  }, [statToDelete, setIsDeleting, setDeleteDialogOpen, setStatToDelete, setSnackbar]);
 
-  /**
-   * Populates the dialog state with an existing stat for editing.
-   * @param {StatEvent} stat - The stat event to edit.
-   */
   const openEditDialog = useCallback(
     (stat: StatEvent) => {
       if (isReadOnly) return;
@@ -577,22 +512,9 @@ const GameMode: React.FC = () => {
       setIsEditing(true);
       setDialogOpen(true);
     },
-    [
-      isReadOnly,
-      setEditingStatId,
-      setSelectedPlayerId,
-      setStatType,
-      setPoints,
-      setPlayName,
-      setShotQuality,
-      setSelectedX,
-      setSelectedY,
-      setIsEditing,
-      setDialogOpen,
-    ],
+    [isReadOnly, setEditingStatId, setSelectedPlayerId, setStatType, setPoints, setPlayName, setShotQuality, setSelectedX, setSelectedY, setIsEditing, setDialogOpen],
   );
 
-  // Ensure required parameters are present, otherwise redirect
   useEffect(() => {
     if (!gameId || !teamId) {
       navigate("/");
@@ -637,7 +559,6 @@ const GameMode: React.FC = () => {
     const nextPeriod = period < 10 ? period + 1 : 1;
     setPeriod(nextPeriod);
 
-    // Reset clock for next period
     const defaultMins = periodType === "QUARTERS" ? 10 : 20;
     const nextSeconds = defaultMins * 60;
     setClockSeconds(nextSeconds);
@@ -656,20 +577,8 @@ const GameMode: React.FC = () => {
         logger.error("Failed to update game period:", err);
       }
     }
-  }, [
-    gameId,
-    period,
-    periodType,
-    setPeriod,
-    setClockSeconds,
-    setIsClockRunning,
-  ]);
+  }, [gameId, period, periodType, setPeriod, setClockSeconds, setIsClockRunning]);
 
-  /**
-   * 🏀 CoachBoard: handleTimeout
-   * Why: Quick recording of a timeout for the current team.
-   * Notes: Records a TIMEOUT event tied to either Our Team or Opponent.
-   */
   const handleTimeout = useCallback(async () => {
     if (!gameId || isReadOnly) return;
     try {
@@ -697,16 +606,9 @@ const GameMode: React.FC = () => {
     setAuditDialogOpen(true);
   }, [setAuditDialogOpen]);
 
-  /**
-   * 🏀 CoachBoard: handleTogglePossession
-   * Why: Quick toggle for the possession arrow.
-   * Notes: Records a POSSESSION event for the specified team.
-   */
-
   const handleTogglePossession = useCallback(async () => {
     if (!gameId || isReadOnly) return;
 
-    // Toggle between OUR_TEAM and OPPONENT. Default to OUR_TEAM if no possession set.
     const targetTeam =
       gameData.possessionState === SPECIAL_PLAYER_IDS.OUR_TEAM
         ? SPECIAL_PLAYER_IDS.OPPONENT
@@ -730,10 +632,6 @@ const GameMode: React.FC = () => {
     }
   }, [gameId, isReadOnly, period, gameData.possessionState, clockSeconds]);
 
-  /**
-   * 🏀 CoachBoard: handleChainAction
-   * Records a linked event (Assist or Rebound) tied to a previous shot.
-   */
   const handleChainAction = useCallback(
     async (pId: string, type: string) => {
       if (!chainPrompt || !gameId) return;
@@ -748,7 +646,7 @@ const GameMode: React.FC = () => {
           type,
           period: originalStat.period,
           clockTime: originalStat.clockTime,
-          timestamp: originalStat.timestamp, // Share exact metadata
+          timestamp: originalStat.timestamp,
           synced: 0,
         });
         await syncService.pushUpdates();
@@ -778,7 +676,6 @@ const GameMode: React.FC = () => {
         </Alert>
       )}
       <Grid container spacing={3}>
-        {/* Main Content Area: Scoreboard and Court */}
         <Grid item xs={12} md={8}>
           <Scoreboard
             game={game}
@@ -869,7 +766,6 @@ const GameMode: React.FC = () => {
                 alignItems: "center",
               }}
             >
-              {/* Markers filtering chips */}
               <Box
                 sx={{
                   display: "flex",
@@ -908,7 +804,6 @@ const GameMode: React.FC = () => {
           </MoleskineCard>
         </Grid>
 
-        {/* Panel: Roster and Recent Actions */}
         <Grid item xs={12} md={4}>
           <Stack spacing={3}>
             <TeamStatsCard
@@ -970,7 +865,6 @@ const GameMode: React.FC = () => {
                       gap: 1,
                     }}
                   >
-                    {/* 🏀 CoachBoard: Display exactly 5 slots in Live Lineup for rotation visibility */}
                     {players
                       .filter((p) => gameData.onCourtIds.has(p.id!))
                       .map((p) => {
@@ -990,10 +884,8 @@ const GameMode: React.FC = () => {
                         const isFoulTroubleInPeriod =
                           pfSincePeriodStart >= periodFoulLimit;
 
-                        const stintSecs =
-                          gameData.stintDurations.get(p.id!) || 0;
-                        const isFatigued =
-                          stintSecs > (team?.maxStintDuration || 8) * 60;
+                        const stintSecs = gameData.stintDurations.get(p.id!) || 0;
+                        const isFatigued = stintSecs > (team?.maxStintDuration || 8) * 60;
 
                         return (
                           <Box
@@ -1060,17 +952,10 @@ const GameMode: React.FC = () => {
                                     lineHeight: 1,
                                   }}
                                 >
-                                  {p.name.split(" ").pop()}
+                                  {p.name}
                                   {isFatigued && (
-                                    <Tooltip
-                                      title={`Fatigue Alert: Exceeded ${team?.maxStintDuration || 8} mins`}
-                                    >
-                                      <Box
-                                        component="span"
-                                        sx={{ ml: 0.5, fontSize: "0.8rem" }}
-                                      >
-                                        ⚠️
-                                      </Box>
+                                    <Tooltip title={`Fatigue Alert: Exceeded ${team?.maxStintDuration || 8} mins`}>
+                                      <Box component="span" sx={{ ml: 0.5, fontSize: "0.8rem" }}>⚠️</Box>
                                     </Tooltip>
                                   )}
                                 </Typography>
@@ -1081,8 +966,7 @@ const GameMode: React.FC = () => {
                                   {s?.points} pts | {s?.rebounds} reb |{" "}
                                   {s?.fouls} pf |{" "}
                                   {(() => {
-                                    const maxStint =
-                                      (team?.maxStintDuration || 8) * 60;
+                                    const maxStint = (team?.maxStintDuration || 8) * 60;
                                     const color =
                                       stintSecs > maxStint
                                         ? theme.palette.error.main
@@ -1114,10 +998,48 @@ const GameMode: React.FC = () => {
                           </Box>
                         );
                       })}
+                    {Array.from({
+                      length: Math.max(0, 5 - gameData.onCourtIds.size),
+                    }).map((_, i) => {
+                      const emptyId = `EMPTY-${i}`;
+                      return (
+                        <Button
+                          key={emptyId}
+                          variant="outlined"
+                          disabled={isReadOnly}
+                          aria-label={`Empty lineup slot ${i + 1}, click to assign player`}
+                          onClick={() => {
+                            setSubOutPlayerId(emptyId);
+                            setSubDialogOpen(true);
+                          }}
+                          fullWidth
+                          sx={{
+                            justifyContent: "flex-start",
+                            borderStyle: "dashed",
+                            color: "text.secondary",
+                            px: 1,
+                          }}
+                        >
+                          <Avatar
+                            sx={{
+                              width: 20,
+                              height: 20,
+                              fontSize: "0.65rem",
+                              mr: 1,
+                              bgcolor: "transparent",
+                              border: "1px dashed #ccc",
+                              color: "text.secondary",
+                            }}
+                          >
+                            +
+                          </Avatar>
+                          <Typography variant="caption">Empty Slot</Typography>
+                        </Button>
+                      );
+                    })}
                   </Box>
                 </MoleskineCard>
 
-                {/* Chained Action Alert */}
                 {chainPrompt && (
                   <MoleskineCard
                     sx={{
@@ -1178,10 +1100,7 @@ const GameMode: React.FC = () => {
                 )}
 
                 <MoleskineCard>
-                  <Typography
-                    variant="subtitle2"
-                    sx={{ fontWeight: 600, mb: 2 }}
-                  >
+                  <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 2 }}>
                     Player Performance
                   </Typography>
                   <TableContainer>
@@ -1427,8 +1346,6 @@ const GameMode: React.FC = () => {
                   </Box>
                 ) : (
                   gameData.recentStats.map((s, index) => {
-                    // ⚡ Bolt: Use playerNamesMap with fallback logic directly in the map loop.
-                    // This avoids redundant function allocation and complex branching for every item.
                     let playerName =
                       playerNamesMap.get(s.playerId) || "Unknown";
                     if (s.playerId === SPECIAL_PLAYER_IDS.OPPONENT) {
@@ -1467,7 +1384,6 @@ const GameMode: React.FC = () => {
         </Grid>
       </Grid>
 
-      {/* Record/Edit Action Dialog */}
       <Dialog
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}
@@ -1505,24 +1421,22 @@ const GameMode: React.FC = () => {
             <Avatar
               sx={{
                 bgcolor:
-                  trackingMode === "OPPONENT"
-                    ? "secondary.main"
-                    : "primary.main",
+                  trackingMode === "OPPONENT" ? "secondary.main" : "primary.main",
               }}
             >
               {selectedPlayerId
-                ? trackingMode === "OPPONENT"
-                  ? "OP"
-                  : jerseyMap.get(selectedPlayerId) || "?"
+                ? (trackingMode === "OPPONENT"
+                    ? "OP"
+                    : jerseyMap.get(selectedPlayerId) || "?")
                 : "?"}
             </Avatar>
             <Box>
               <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
                 {selectedPlayerId
-                  ? trackingMode === "OPPONENT"
-                    ? game?.opponent || "Opponent"
-                    : players.find((p) => p.id === selectedPlayerId)?.name ||
-                      "Unknown Player"
+                  ? (trackingMode === "OPPONENT"
+                      ? game?.opponent || "Opponent"
+                      : players.find((p) => p.id === selectedPlayerId)?.name ||
+                        "Unknown Player")
                   : "Select a player..."}
               </Typography>
               <Typography variant="caption" color="text.secondary">
@@ -1548,70 +1462,69 @@ const GameMode: React.FC = () => {
           >
             <QuickAction
               type={ACTION_TYPES.MAKE}
-              label="MAKE"
-              icon={SportsBasketball}
+              label="Make"
+              icon={Check}
               statType={statType}
               setStatType={setStatType}
             />
             <QuickAction
               type={ACTION_TYPES.MISS}
-              label="MISS"
-              icon={SportsBasketball}
+              label="Miss"
+              icon={Close}
               statType={statType}
               setStatType={setStatType}
             />
             <QuickAction
               type={ACTION_TYPES.OFF_REBOUND}
-              label="OFF REB"
-              icon={History}
+              label="Off Reb"
+              icon={SportsBasketball}
               statType={statType}
               setStatType={setStatType}
             />
             <QuickAction
               type={ACTION_TYPES.DEF_REBOUND}
-              label="DEF REB"
-              icon={History}
+              label="Def Reb"
+              icon={SportsBasketball}
               statType={statType}
               setStatType={setStatType}
             />
             <QuickAction
               type={ACTION_TYPES.ASSIST}
-              label="ASSIST"
-              icon={History}
+              label="Assist"
+              icon={PanTool}
               statType={statType}
               setStatType={setStatType}
             />
             <QuickAction
               type={ACTION_TYPES.TURNOVER}
-              label="TO"
-              icon={History}
+              label="Turnover"
+              icon={SwapHoriz}
               statType={statType}
               setStatType={setStatType}
             />
             <QuickAction
               type={ACTION_TYPES.STEAL}
-              label="STEAL"
-              icon={History}
+              label="Steal"
+              icon={FlashOn}
               statType={statType}
               setStatType={setStatType}
             />
             <QuickAction
               type={ACTION_TYPES.BLOCK}
-              label="BLOCK"
-              icon={History}
+              label="Block"
+              icon={ArrowBack}
               statType={statType}
               setStatType={setStatType}
             />
             <QuickAction
               type={ACTION_TYPES.FOUL_SHOOTING}
-              label="S. FOUL"
+              label="S. Foul"
               icon={Warning}
               statType={statType}
               setStatType={setStatType}
             />
           </Box>
 
-          {/* Player Selection List (Team only) */}
           {trackingMode === "TEAM" && (
             <Box sx={{ mt: 3 }}>
               <Typography
@@ -1651,7 +1564,6 @@ const GameMode: React.FC = () => {
             </Box>
           )}
 
-          {/* Opponent Jersey Selection */}
           {trackingMode === "OPPONENT" && (
             <Box sx={{ mt: 3 }}>
               <Typography
@@ -1690,9 +1602,7 @@ const GameMode: React.FC = () => {
                   return (
                     <Button
                       key={num}
-                      variant={
-                        selectedPlayerId === oppId ? "contained" : "outlined"
-                      }
+                      variant={selectedPlayerId === oppId ? "contained" : "outlined"}
                       size="small"
                       onClick={() =>
                         setSelectedPlayerId(
@@ -1701,11 +1611,7 @@ const GameMode: React.FC = () => {
                             : oppId,
                         )
                       }
-                      sx={{
-                        minWidth: 40,
-                        fontWeight: 700,
-                        borderColor: "#D1D1D1",
-                      }}
+                      sx={{ minWidth: 40, fontWeight: 700, borderColor: "#D1D1D1" }}
                     >
                       {num}
                     </Button>
@@ -1714,12 +1620,9 @@ const GameMode: React.FC = () => {
               </Box>
               {(() => {
                 const pId = selectedPlayerId || "";
-                const isOpp =
-                  pId === SPECIAL_PLAYER_IDS.OPPONENT ||
-                  pId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":");
+                const isOpp = pId === SPECIAL_PLAYER_IDS.OPPONENT || pId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":");
                 if (!isOpp) return null;
 
-                // Simple bonus logic for opponent (trackingMode).
                 const foulsRequiredForBonus = periodType === "QUARTERS" ? 5 : 7;
                 const foulsForWarning = foulsRequiredForBonus - 1;
                 const fouls = gameData.teamFoulStats.oppFouls;
@@ -1850,7 +1753,6 @@ const GameMode: React.FC = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Confirm End Game Dialog */}
       <Dialog
         open={endGameDialogOpen}
         onClose={() => setEndGameDialogOpen(false)}
@@ -1886,7 +1788,6 @@ const GameMode: React.FC = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Final Game Summary Dialog */}
       <Dialog
         open={summaryDialogOpen}
         onClose={() => setSummaryDialogOpen(false)}
@@ -1942,7 +1843,6 @@ const GameMode: React.FC = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Quick Substitution Dialog */}
       <QuickSubDialog
         open={subDialogOpen}
         onClose={() => setSubDialogOpen(false)}
@@ -1957,7 +1857,6 @@ const GameMode: React.FC = () => {
         handleQuickSub={handleQuickSub}
       />
 
-      {/* Substitution Audit Dialog */}
       {gameId && (
         <SubstitutionAuditDialog
           open={auditDialogOpen}
@@ -1968,7 +1867,6 @@ const GameMode: React.FC = () => {
         />
       )}
 
-      {/* Free Throw Workflow Dialog */}
       {gameId && selectedPlayerId && (
         <FreeThrowWorkflowDialog
           open={ftWorkflowOpen}
@@ -1982,7 +1880,6 @@ const GameMode: React.FC = () => {
         />
       )}
 
-      {/* Halftime Report Dialog */}
       <HalftimeReportDialog
         open={halftimeReportOpen}
         onClose={() => setHalftimeReportOpen(false)}
@@ -1995,7 +1892,6 @@ const GameMode: React.FC = () => {
         jerseyMap={jerseyMap}
       />
 
-      {/* Confirm Delete Stat Dialog */}
       <Dialog
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
@@ -2053,7 +1949,6 @@ const GameMode: React.FC = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Persistent Live Action Button */}
       {!isReadOnly && !game?.completed && (
         <Tooltip
           title={isClockRunning ? "Pause Clock (Space)" : "Start Clock (Space)"}
@@ -2087,7 +1982,6 @@ const GameMode: React.FC = () => {
         </Tooltip>
       )}
 
-      {/* Edit Clock Dialog */}
       <EditClockDialog
         open={isClockEditDialogOpen}
         onClose={() => setIsClockEditDialogOpen(false)}
@@ -2115,10 +2009,6 @@ const GameMode: React.FC = () => {
   );
 };
 
-/**
- * QuickAction component for recording stats.
- * Optimized with React.memo to stabilize the recording dialog's UI.
- */
 const QuickAction: React.FC<{
   type: string;
   label: string;
