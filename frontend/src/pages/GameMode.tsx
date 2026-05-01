@@ -43,17 +43,9 @@ const pulse = keyframes`
   100% { opacity: 1; }
 `;
 
-const slideBackAndForth = keyframes`
-  0% { left: 0%; }
-  50% { left: 70%; }
-  100% { left: 0%; }
-`;
-
 const MISMATCH_STOP_THRESHOLD = 30;
 
 import {
-  Undo as UndoIcon,
-  History,
   Check,
   Close,
   SportsBasketball,
@@ -62,16 +54,10 @@ import {
   FlashOn,
   Warning,
   ArrowBack,
-  Groups,
   PlayArrow,
   Pause,
-  Add as AddIcon,
-  Remove as RemoveIcon,
   Security as SecurityIcon,
-  Star as StarIcon,
-  ElectricBolt as ElectricBoltIcon,
-  Scale as BalanceIcon,
-} from "@mui/icons-material";
+  from "@mui/icons-material";
 import {
   Table,
   TableBody,
@@ -82,7 +68,6 @@ import {
   TableSortLabel,
 } from "@mui/material";
 import BasketballCourt from "../components/BasketballCourt";
-import TimeoutDots from "../components/TimeoutDots";
 import RecentActionItem from "../components/RecentActionItem";
 import QuickSubDialog from "../components/QuickSubDialog";
 import SubstitutionAuditDialog from "../components/SubstitutionAuditDialog";
@@ -108,9 +93,6 @@ import { calculateMatchupStats, calculateTargetAttackStats } from "../utils/stat
 import { RotationSuggester } from "../components/RotationSuggester";
 import { MatchupAssignmentDialog } from "../components/MatchupAssignmentDialog";
 import {
-  GridOn,
-} from "@mui/icons-material";
-import {
   calculatePlayerAggregates,
   calculatePlayerStreaks,
   calculatePlayEfficiency,
@@ -124,7 +106,6 @@ import {
   calculateLineupStats,
   calculateOpponentSummary,
   calculateTeamAggregates,
-  calculateTeamSeasonAverages,
   isEventInPeriod,
   isOpponentId,
   getBonusStatus,
@@ -134,15 +115,11 @@ import {
   type OpponentAggregates,
   type TeamAggregates,
   OpponentThreat,
-  MatchupStats,
-  calculateClutchPlaybookRanking,
   calculateOfficiatingStats,
-  type OfficiatingStats,
-  type PaceAnalytics,
   calculatePaceAnalytics,
 } from "../utils/stats";
 import { formatClock, roundToOne } from "../utils/mathUtils";
-import { MoleskineCard, AnimatedNumber } from "../components/SharedUI";
+import { MoleskineCard} from "../components/SharedUI";
 import FourFactorsHUD from "../components/FourFactorsHUD";
 import IdentityRadarChart from "../components/IdentityRadarChart";
 import { EfficiencyMatrix } from "../components/EfficiencyMatrix";
@@ -1286,7 +1263,7 @@ const GameMode: React.FC = () => {
               typeToSave === ACTION_TYPES.MISS
                 ? (shotQuality ?? undefined)
                 : undefined,
-            situation: (situation as any ?? undefined),
+            situation: (situation as StatEvent["situation"] ?? undefined),
             synced: 0,
           });
           await syncService.pushUpdates();
@@ -1319,7 +1296,7 @@ const GameMode: React.FC = () => {
               typeToSave === ACTION_TYPES.MISS
                 ? (shotQuality ?? undefined)
                 : undefined,
-            situation: (situation as any ?? undefined),
+            situation: (situation as StatEvent["situation"] ?? undefined),
             defensiveScheme: isOpponentId(selectedPlayerId!)
               ? activeDefensiveScheme
               : undefined,
