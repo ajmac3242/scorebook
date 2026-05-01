@@ -6,7 +6,6 @@ import { ClutchPlay, MatchupStats } from "../../utils/stats/types";
 import { calculateClutchPlaybookRanking } from "../../utils/stats";
 import { StatEvent } from "../../db";
 
-
 interface ClutchMatchup extends MatchupStats {
   pppDelta: number;
   playerNumber: string;
@@ -27,11 +26,7 @@ export const ClutchPlaybookAdvisor: React.FC<ClutchPlaybookAdvisorProps> = ({
   const theme = useTheme();
 
   const rankings = useMemo(() => {
-    return calculateClutchPlaybookRanking(
-      allStats,
-      240,
-      matchups,
-        );
+    return calculateClutchPlaybookRanking(allStats, 240, matchups);
   }, [allStats, matchups]);
 
   if (!isClutch || rankings.length === 0) return null;
