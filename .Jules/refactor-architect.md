@@ -113,3 +113,12 @@ Pattern:
 3. Extract geometric magic numbers into semantic constant objects.
 4. Use `padStart` for standardized numeric string formatting.
 5. Deduplicate logical "checkpoints" in event loops using local closure-based helpers.
+
+2026-05-15 - Multi-Layer Quality Pass
+Smell: Repetitive period boundary logic (Quarters vs Halves); redundant type casting in backend utilities; inconsistent rebound helpers; imprecise 3PT identification.
+Learning: Centralizing game format rules (isQuarters, getPeriodLimit) significantly reduces ternary noise in statistical hot loops. Using broader interface types (Record<string, unknown>) in backend utilities reduces "casting noise" and improves readability without sacrificing safety. Explicit domain checks (isThreePointAttempt excluding FT) provide defensive clarity even when logically redundant.
+Pattern:
+1. Extract format-specific constants into semantic helpers (getPeriodLimit).
+2. Use Record<string, unknown> for flexible object manipulation in utility functions.
+3. Align helper availability (isOffensiveRebound) across the domain model.
+4. Simplify complex routing logic (normalizePath) using early returns.

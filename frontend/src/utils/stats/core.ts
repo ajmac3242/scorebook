@@ -294,7 +294,7 @@ export const isFreeThrow = (stat: StatEvent): boolean => stat.points === 1;
  * @returns {boolean} True if it is a 3-point attempt.
  */
 export const isThreePointAttempt = (stat: StatEvent): boolean =>
-  stat.points === 3;
+  stat.points === 3 && !isFreeThrow(stat);
 
 /**
  * Determines if a statistical event is a field goal attempt (MAKE or MISS, excluding free throws).
