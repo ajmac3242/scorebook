@@ -7,7 +7,7 @@
 import { db, Game, TeamPlayer, StatEvent, Team, Player } from "../db";
 import { UserPool } from "../UserPool";
 import { CognitoUserSession } from "amazon-cognito-identity-js";
-import { type Table, type UpdateSpec } from "dexie";
+import { type Table } from "dexie";
 import { logger } from "./logger";
 
 /**
