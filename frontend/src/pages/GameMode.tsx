@@ -94,7 +94,6 @@ import { PlayerStatRow } from "../components/PlayerStatRow";
 import { db, type StatEvent, type Player } from "../db";
 import { syncService } from "../utils/syncService";
 import { logger } from "../utils/logger";
-import { useLiveQuery } from "dexie-react-hooks";
 import { useGameModeQueries } from "../features/gameMode/hooks/useGameModeQueries";
 import {
   ACTION_TYPES,
@@ -236,20 +235,20 @@ const GameMode: React.FC = () => {
     severity: "success" | "error" | "warning" | "info";
   }>({ open: false, message: "", severity: "success" });
 
-  // Derived data from StatEvents
-  const gameStatsQueryResult = useLiveQuery(async () => {
-    try {
-      await db.open();
-      return await db.stats.where("gameId").equals(gameId).toArray();
-    } catch (err) {
-      logger.error("Failed to fetch game stats:", err);
-      return [];
-    }
-  }, [gameId]);
-  const gameStats = useMemo(
-    () => gameStatsQueryResult || [],
-    [gameStatsQueryResult],
-  );
+// ── Data from useGameModeQueries hook ───────────────────────────────
+  const {
+    game,
+    team,
+    gameStats,
+    teamPlayers,
+    players,
+    teamSeasonStats,
+    playerNamesMap,
+    playersMap,
+    jerseyMap,
+    isReadOnly,
+    periodType,
+  } = useGameModeQueries({ gameId, teamId });
   const [subDialogOpen, setSubDialogOpen] = useState(false);
   const [subOutPlayerId, setSubOutPlayerId] = useState<string | null>(null);
 
@@ -263,69 +262,6 @@ const GameMode: React.FC = () => {
   const [trackingMode, setTrackingMode] = useState<"TEAM" | "OPPONENT">("TEAM");
   const [showMatrix, setShowMatrix] = useState(false);
   const [forceClutchAdvisor, setForceClutchAdvisor] = useState(false);
-
-  // Fetch roster data for the current team
-  const teamPlayersQueryResult = useLiveQuery(
-    () =>
-      teamId
-        ? db.teamPlayers.where("teamId").equals(teamId.toString()).toArray()
-        : Promise.resolve([]),
-    [teamId],
-  );
-  const teamPlayers = useMemo(
-    () => teamPlayersQueryResult || [],
-    [teamPlayersQueryResult],
-  );
-
-  const playersQueryResult = useLiveQuery(async () => {
-    try {
-      await db.open();
-      if (!teamId) return [];
-      const playerIds = teamPlayers.map((t) => t.playerId.toString());
-      return await db.players.where("id").anyOf(playerIds).toArray();
-    } catch (err) {
-      logger.error("Failed to fetch players:", err);
-      return [];
-    }
-  }, [teamId, teamPlayers]);
-  const players = useMemo(() => playersQueryResult || [], [playersQueryResult]);
-
-  /**
-   * ⚡ Bolt: O(1) player name lookups.
-   * Performance: Pre-calculating a Map of player names prevents O(P) .find()
-   * operations inside the render loop of recent actions and dialogs.
-   */
-  const playerNamesMap = useMemo(() => {
-    const map = new Map<string, string>();
-    for (let i = 0; i < players.length; i++) {
-      const p = players[i];
-      if (p.id) map.set(p.id.toString(), p.name);
-    }
-    return map;
-  }, [players]);
-  const playersMap = useMemo(() => {
-    const map = new Map<string, Player>();
-    for (let i = 0; i < players.length; i++) {
-      const p = players[i];
-      if (p.id) map.set(p.id.toString(), p);
-    }
-    return map;
-  }, [players]);
-
-  const game = useLiveQuery(() => db.games.get(gameId as string), [gameId]);
-  const team = useLiveQuery(
-    () =>
-      game?.teamId ? db.teams.get(game.teamId) : Promise.resolve(undefined),
-    [game?.teamId],
-  );
-
-  const teamSeasonStats = useLiveQuery(async () => {
-    if (!teamId) return undefined;
-    const games = await db.games.where("teamId").equals(teamId).toArray();
-    const gameIds = games.map((g) => g.id!).filter(Boolean);
-    const allStats = await db.stats.where("gameId").anyOf(gameIds).toArray();
-    return calculateTeamSeasonAverages(games, allStats);
-  }, [teamId]);
 
   // 🏀 CoachBoard: Persistent Period & Clock Tracking
   // Why: Ensures the game period and clock don't reset on page refresh.
@@ -375,8 +311,6 @@ const GameMode: React.FC = () => {
     }
   }, [isClockRunning, gameId]);
 
-  const isReadOnly = !!game?.deletedAt || !!team?.deletedAt;
-  const periodType = team?.periodType || "QUARTERS";
   const periodLabel = periodType === "HALVES" ? "Half" : "Quarter";
   const maxPeriod = periodType === "HALVES" ? 2 : 4;
 
@@ -930,15 +864,6 @@ const GameMode: React.FC = () => {
       setSelectedSwapId(subOutPlayerId);
     }
   }, [subDialogOpen, gameData.onCourtIds, subOutPlayerId]);
-
-  const jerseyMap = useMemo(() => {
-    const map = new Map<string, string | undefined>();
-    for (let i = 0; i < teamPlayers.length; i++) {
-      map.set(teamPlayers[i].playerId, teamPlayers[i].jerseyNumber);
-    }
-    return map;
-  }, [teamPlayers]);
-
   const sortedStatsGridData = useMemo(() => {
     return [...statsGridData].sort((a, b) => {
       const { key, direction } = sortConfig;
