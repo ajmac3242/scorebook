@@ -10,8 +10,8 @@ type UseGameModeQueriesParams = {
 };
 
 export type UseGameModeQueriesResult = {
-    game: Game | undefined;
-    team: Team | undefined;
+  game: Game | undefined;
+  team: Team | undefined;
   gameStats: Awaited<ReturnType<typeof db.stats.toArray>>;
   teamPlayers: Awaited<ReturnType<typeof db.teamPlayers.toArray>>;
   players: Player[];
