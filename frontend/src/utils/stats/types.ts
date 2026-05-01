@@ -27,6 +27,14 @@ export interface MatchupStats {
   pppAllowed: string;
   isOpponentDefender?: boolean;
   stopPct?: string;
+  opponentPlayerId?: string;
+  fta?: number;
+  fga?: number;
+  stops?: number;
+  to?: number;
+  oreb?: number;
+  playerId?: string;
+  stopPct?: string;
 }
 
 export interface OpponentAggregates {
