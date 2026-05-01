@@ -29,6 +29,8 @@ import { handleTeams } from "./handlers/teams.js";
 
 /**
  * Parses the request body as JSON.
+ * @param body - body
+ * @returns {Record<string, unknown>} result
  */
 function parseBody(body: string | undefined): Record<string, unknown> {
   if (!body) return {};
@@ -45,6 +47,8 @@ const ALLOWED_METHODS = new Set(["GET", "POST", "PUT", "PATCH", "DELETE"]);
 
 /**
  * Main Lambda handler for the Basketball Stats API.
+ * @param event - event
+ * @returns {Promise<APIGatewayProxyResultV2>} result
  */
 export const handler = async (
   event: APIGatewayProxyEventV2,

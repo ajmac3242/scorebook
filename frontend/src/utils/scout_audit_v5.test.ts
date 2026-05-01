@@ -44,9 +44,7 @@ describe("Scout: Audit V5", () => {
       ];
 
       const results = calculateMatchupStats(stats);
-      const m1 = results.find(
-        (r) => r.ourPlayerId === "p1" && r.opponentPlayerId === "OPPONENT:10",
-      );
+      const m1 = results.find(r => r.ourPlayerId === "p1" && r.opponentPlayerId === "OPPONENT:10");
 
       // Currently, this will likely be 2.0 because it increments for every isScoringEvent.
       // It should be 0.44 * 2 = 0.88
@@ -59,40 +57,14 @@ describe("Scout: Audit V5", () => {
       const players: Player[] = [{ id: "p1", name: "Player 1" }];
       const stats: StatEvent[] = [
         // Game 1: p1 is active
-        {
-          id: "s1",
-          gameId: "g1",
-          playerId: "p1",
-          type: ACTION_TYPES.SUB_IN,
-          timestamp: "100",
-          period: 1,
-          clockTime: 600,
-        },
-        {
-          id: "s2",
-          gameId: "g1",
-          playerId: "p1",
-          type: ACTION_TYPES.MAKE,
-          points: 2,
-          timestamp: "110",
-          period: 1,
-          clockTime: 590,
-        },
+        { id: "s1", gameId: "g1", playerId: "p1", type: ACTION_TYPES.SUB_IN, timestamp: "100", period: 1, clockTime: 600 },
+        { id: "s2", gameId: "g1", playerId: "p1", type: ACTION_TYPES.MAKE, points: 2, timestamp: "110", period: 1, clockTime: 590 },
         // Game 2: p1 is NOT active, but there are stats
-        {
-          id: "s3",
-          gameId: "g2",
-          playerId: "p2",
-          type: ACTION_TYPES.MAKE,
-          points: 2,
-          timestamp: "210",
-          period: 1,
-          clockTime: 590,
-        },
+        { id: "s3", gameId: "g2", playerId: "p2", type: ACTION_TYPES.MAKE, points: 2, timestamp: "210", period: 1, clockTime: 590 },
       ];
 
       const results = calculateOnOffStats(players, stats);
-      const p1 = results.find((r) => r.playerId === "p1");
+      const p1 = results.find(r => r.playerId === "p1");
 
       // If p1 only played in Game 1, their OFF stats for g2 should be ignored
       // if we want a true measure of their impact ON vs OFF in the games they actually participated in.
@@ -104,24 +76,8 @@ describe("Scout: Audit V5", () => {
   describe("calculateOpponentScoutingStats average volume", () => {
     it("should support per-game averages for volume stats", () => {
       const stats: StatEvent[] = [
-        {
-          id: "1",
-          gameId: "g1",
-          playerId: "OPPONENT:10",
-          type: ACTION_TYPES.MAKE,
-          points: 2,
-          timestamp: "100",
-          period: 1,
-        },
-        {
-          id: "2",
-          gameId: "g2",
-          playerId: "OPPONENT:10",
-          type: ACTION_TYPES.MISS,
-          points: 2,
-          timestamp: "200",
-          period: 1,
-        },
+        { id: "1", gameId: "g1", playerId: "OPPONENT:10", type: ACTION_TYPES.MAKE, points: 2, timestamp: "100", period: 1 },
+        { id: "2", gameId: "g2", playerId: "OPPONENT:10", type: ACTION_TYPES.MISS, points: 2, timestamp: "200", period: 1 },
       ];
 
       // @ts-ignore - testing new parameter

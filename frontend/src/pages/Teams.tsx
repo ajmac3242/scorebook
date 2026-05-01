@@ -618,9 +618,7 @@ const Teams: React.FC = () => {
             disabled={isSubmitting}
             aria-required="true"
             aria-invalid={showValidation && !teamName.trim() ? "true" : "false"}
-            aria-describedby={
-              showValidation && !teamName.trim() ? "team-name-error" : undefined
-            }
+            aria-describedby={showValidation && !teamName.trim() ? "team-name-error" : undefined}
             FormHelperTextProps={{ id: "team-name-error" }}
           />
           <TextField

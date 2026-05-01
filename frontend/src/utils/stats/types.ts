@@ -1,3 +1,4 @@
+
 export interface TeamAggregates {
   ppg: string;
   rpg: string;
@@ -25,18 +26,10 @@ export interface MatchupStats {
   possessions: number;
   pointsAllowed: number;
   pppAllowed: string;
-  isOpponentDefender?: boolean;
-  stopPct?: string;
-  opponentPlayerId?: string;
-  fta?: number;
-  fga?: number;
-  stops?: number;
-  to?: number;
-  oreb?: number;
-  playerId?: string;
 }
 
 export interface OpponentAggregates {
+  points: number;
   makes: number;
   attempts: number;
   fgPct: string;
@@ -148,7 +141,7 @@ export interface OpponentThreat {
 }
 
 export interface ScoringRun {
-  team: "TEAM" | "OPPONENT";
+  team: 'TEAM' | 'OPPONENT';
   points: number;
   startClock: number;
   endClock: number;
@@ -160,7 +153,7 @@ export interface OpponentTendency {
   drivePct: string;
   catchAndShootPct: string;
   postUpPct: string;
-  preferredSide: "LEFT" | "RIGHT" | "CENTER";
+  preferredSide: 'LEFT' | 'RIGHT' | 'CENTER';
 }
 
 export interface LineupAggregates {
@@ -172,9 +165,6 @@ export interface LineupAggregates {
   ppp: string;
   oppPpp: string;
   min: number;
-  seconds?: number;
-  netRating?: string | number;
-  turnovers?: number;
 }
 
 export interface OnOffImpact {
@@ -187,15 +177,12 @@ export interface OnOffImpact {
 
 export interface ClutchPlay {
   playType: string;
-  ppp: number;
-  frequency: number;
-  playName?: string;
-  efg?: number;
-  targetMismatches?: string[];
+  ppp: string;
+  frequency: string;
 }
 
 export interface OfficiatingStats {
-  tightness: "LOW" | "MEDIUM" | "HIGH";
+  tightness: 'LOW' | 'MEDIUM' | 'HIGH';
   foulsPerMinute: string;
   disparity: number;
 }

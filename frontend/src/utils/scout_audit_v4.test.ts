@@ -107,7 +107,7 @@ describe("Scout: Audit V4", () => {
           clockTime: 270,
           period: 1,
           timestamp: "1300",
-        },
+        }
       ];
       const results2 = calculateMatchupStats(stats2);
       expect(results2.length).toBe(0); // Should have no matchup stats yet
@@ -141,7 +141,7 @@ describe("Scout: Audit V4", () => {
       ];
 
       const results = calculatePlayerAggregates(players, stats, [], "average");
-      const p1 = results.find((r) => r.id === "p1");
+      const p1 = results.find(r => r.id === "p1");
       expect(p1?.gp).toBe(2);
       // BUG: Currently it returns total makes (1) and attempts (2)
       expect(p1?.makes).toBe(0.5);
@@ -152,70 +152,13 @@ describe("Scout: Audit V4", () => {
   describe("calculateLineupStats missing metrics", () => {
     it("should include efgPct and toPct in LineupAggregates", () => {
       const stats: StatEvent[] = [
-        {
-          id: "1",
-          gameId: "g1",
-          playerId: "p1",
-          type: ACTION_TYPES.SUB_IN,
-          period: 1,
-          clockTime: 600,
-          timestamp: "1",
-        },
-        {
-          id: "2",
-          gameId: "g1",
-          playerId: "p2",
-          type: ACTION_TYPES.SUB_IN,
-          period: 1,
-          clockTime: 600,
-          timestamp: "2",
-        },
-        {
-          id: "3",
-          gameId: "g1",
-          playerId: "p3",
-          type: ACTION_TYPES.SUB_IN,
-          period: 1,
-          clockTime: 600,
-          timestamp: "3",
-        },
-        {
-          id: "4",
-          gameId: "g1",
-          playerId: "p4",
-          type: ACTION_TYPES.SUB_IN,
-          period: 1,
-          clockTime: 600,
-          timestamp: "4",
-        },
-        {
-          id: "5",
-          gameId: "g1",
-          playerId: "p5",
-          type: ACTION_TYPES.SUB_IN,
-          period: 1,
-          clockTime: 600,
-          timestamp: "5",
-        },
-        {
-          id: "6",
-          gameId: "g1",
-          playerId: "p1",
-          type: ACTION_TYPES.MAKE,
-          points: 3,
-          period: 1,
-          clockTime: 500,
-          timestamp: "6",
-        },
-        {
-          id: "7",
-          gameId: "g1",
-          playerId: "p2",
-          type: ACTION_TYPES.TURNOVER,
-          period: 1,
-          clockTime: 400,
-          timestamp: "7",
-        },
+        { id: '1', gameId: 'g1', playerId: 'p1', type: ACTION_TYPES.SUB_IN, period: 1, clockTime: 600, timestamp: '1' },
+        { id: '2', gameId: 'g1', playerId: 'p2', type: ACTION_TYPES.SUB_IN, period: 1, clockTime: 600, timestamp: '2' },
+        { id: '3', gameId: 'g1', playerId: 'p3', type: ACTION_TYPES.SUB_IN, period: 1, clockTime: 600, timestamp: '3' },
+        { id: '4', gameId: 'g1', playerId: 'p4', type: ACTION_TYPES.SUB_IN, period: 1, clockTime: 600, timestamp: '4' },
+        { id: '5', gameId: 'g1', playerId: 'p5', type: ACTION_TYPES.SUB_IN, period: 1, clockTime: 600, timestamp: '5' },
+        { id: '6', gameId: 'g1', playerId: 'p1', type: ACTION_TYPES.MAKE, points: 3, period: 1, clockTime: 500, timestamp: '6' },
+        { id: '7', gameId: 'g1', playerId: 'p2', type: ACTION_TYPES.TURNOVER, period: 1, clockTime: 400, timestamp: '7' },
       ];
 
       const results = calculateLineupStats(stats) as LineupAggregates[];

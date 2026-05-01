@@ -63,29 +63,15 @@ const IdentityRadarChart: React.FC<IdentityRadarChartProps> = ({
     <Box sx={{ width: "100%", height: 300, mt: 2 }}>
       <Typography
         variant="caption"
-        sx={{
-          fontWeight: 800,
-          mb: 1,
-          display: "block",
-          textAlign: "center",
-          color: "text.secondary",
-        }}
+        sx={{ fontWeight: 800, mb: 1, display: "block", textAlign: "center", color: "text.secondary" }}
       >
         TEAM IDENTITY RADAR (BLUEPRINT VS LIVE)
       </Typography>
       <ResponsiveContainer width="100%" height="100%">
         <RadarChart cx="50%" cy="50%" outerRadius="80%" data={data}>
           <PolarGrid />
-          <PolarAngleAxis
-            dataKey="subject"
-            tick={{ fontSize: 10, fontWeight: 700 }}
-          />
-          <PolarRadiusAxis
-            angle={30}
-            domain={[0, 100]}
-            tick={false}
-            axisLine={false}
-          />
+          <PolarAngleAxis dataKey="subject" tick={{ fontSize: 10, fontWeight: 700 }} />
+          <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
           <Radar
             name="Current Game"
             dataKey="current"

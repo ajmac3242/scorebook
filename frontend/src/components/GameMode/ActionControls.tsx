@@ -298,12 +298,10 @@ export const ActionControls = React.memo(
               sx={{
                 border: "1px solid",
                 borderColor: showMatrix ? "primary.main" : "rgba(0,0,0,0.23)",
-                bgcolor: showMatrix
-                  ? "rgba(25, 118, 210, 0.04)"
-                  : "transparent",
+                bgcolor: showMatrix ? "rgba(25, 118, 210, 0.04)" : "transparent",
                 borderRadius: "4px",
                 p: "5px",
-                color: showMatrix ? "primary.main" : "inherit",
+                color: showMatrix ? "primary.main" : "inherit"
               }}
             >
               <GridOn />
@@ -319,15 +317,11 @@ export const ActionControls = React.memo(
               aria-label="Toggle Clutch Advisor"
               sx={{
                 border: "1px solid",
-                borderColor: forceClutchAdvisor
-                  ? "primary.main"
-                  : "rgba(0,0,0,0.23)",
-                bgcolor: forceClutchAdvisor
-                  ? "rgba(25, 118, 210, 0.04)"
-                  : "transparent",
+                borderColor: forceClutchAdvisor ? "primary.main" : "rgba(0,0,0,0.23)",
+                bgcolor: forceClutchAdvisor ? "rgba(25, 118, 210, 0.04)" : "transparent",
                 borderRadius: "4px",
                 p: "5px",
-                color: forceClutchAdvisor ? "primary.main" : "inherit",
+                color: forceClutchAdvisor ? "primary.main" : "inherit"
               }}
             >
               <StarIcon />

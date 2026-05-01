@@ -62,9 +62,7 @@ const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const [selectedPeriod, setSelectedPeriod] = React.useState<string>("ALL");
   const [gameCountFilter, setGameCountFilter] = React.useState<string>("all");
-  const [activeTab, setActiveTab] = React.useState<"OVERVIEW" | "HEALTH">(
-    "OVERVIEW",
-  );
+  const [activeTab, setActiveTab] = React.useState<"OVERVIEW" | "HEALTH">("OVERVIEW");
 
   // Find the starred team
   const favoriteTeam = useLiveQuery(
@@ -282,8 +280,7 @@ const Dashboard: React.FC = () => {
             color="text.secondary"
             sx={{ mb: 5, maxWidth: 600, mx: "auto", fontWeight: 400 }}
           >
-            Choose a primary team to unlock real-time stats, interactive
-            heatmaps, and season-long program health tracking.
+            Choose a primary team to unlock real-time stats, interactive heatmaps, and season-long program health tracking.
           </Typography>
           <Button
             component={Link}
@@ -370,464 +367,447 @@ const Dashboard: React.FC = () => {
       </Box>
 
       {activeTab === "OVERVIEW" ? (
-        <Grid container spacing={3}>
-          {/* Key Stats */}
-          <Grid item xs={12} md={8}>
-            <MoleskineCard sx={{ height: "100%" }}>
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  mb: 3,
-                }}
-              >
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <TrendingUp color="primary" />
-                  <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                    Team Aggregates
-                  </Typography>
-                </Box>
-                <ToggleButtonGroup
-                  value={gameCountFilter}
-                  exclusive
-                  onChange={(_, val) => val && setGameCountFilter(val)}
-                  size="small"
-                >
-                  <ToggleButton value="5" sx={{ px: 1.5 }}>
-                    L5
-                  </ToggleButton>
-                  <ToggleButton value="10" sx={{ px: 1.5 }}>
-                    L10
-                  </ToggleButton>
-                  <ToggleButton value="all" sx={{ px: 1.5 }}>
-                    All
-                  </ToggleButton>
-                </ToggleButtonGroup>
-              </Box>
-              <Grid container spacing={2}>
-                <Grid item xs={6} sm={3}>
-                  <StatItem label="Record" value={aggregates.record} />
-                </Grid>
-                <Grid item xs={6} sm={3}>
-                  <StatItem label="PPG" value={aggregates.ppg} />
-                </Grid>
-                <Grid item xs={6} sm={3}>
-                  <StatItem label="OPPG" value={aggregates.oppg} />
-                </Grid>
-                <Grid item xs={6} sm={3}>
-                  <StatItem label="RPG" value={aggregates.rpg} />
-                </Grid>
-              </Grid>
-
-              <Divider sx={{ my: 4 }} />
-
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: { xs: "column", sm: "row" },
-                  justifyContent: "space-between",
-                  alignItems: { xs: "flex-start", sm: "center" },
-                  mb: 2,
-                  gap: 1,
-                }}
-              >
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <Assessment color="primary" />
-                  <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                    Shot Efficiency (Heatmap)
-                  </Typography>
-                </Box>
-                <ToggleButtonGroup
-                  value={selectedPeriod}
-                  exclusive
-                  onChange={(_, val) => val && setSelectedPeriod(val)}
-                  size="small"
-                  aria-label="Filter stats by period"
-                >
-                  <ToggleButton value="ALL" aria-label="Show all periods">
-                    All
-                  </ToggleButton>
-                  <ToggleButton value="1" aria-label="Show period 1">
-                    P1
-                  </ToggleButton>
-                  <ToggleButton value="2" aria-label="Show period 2">
-                    P2
-                  </ToggleButton>
-                  {favoriteTeam?.periodType === "QUARTERS" && (
-                    <ToggleButton value="3" aria-label="Show period 3">
-                      P3
-                    </ToggleButton>
-                  )}
-                  {favoriteTeam?.periodType === "QUARTERS" && (
-                    <ToggleButton value="4" aria-label="Show period 4">
-                      P4
-                    </ToggleButton>
-                  )}
-                  <ToggleButton value="OT" aria-label="Show overtime">
-                    OT
-                  </ToggleButton>
-                </ToggleButtonGroup>
-              </Box>
-              <Box sx={{ maxWidth: 600, mx: "auto", p: 1 }}>
-                <BasketballCourt heatmapData={heatmapData} />
-              </Box>
-
-              <Divider sx={{ my: 4 }} />
-
-              <Box
-                sx={{ display: "flex", alignItems: "center", mb: 3, gap: 1 }}
-              >
-                <Groups color="primary" />
+      <Grid container spacing={3}>
+        {/* Key Stats */}
+        <Grid item xs={12} md={8}>
+          <MoleskineCard sx={{ height: "100%" }}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                mb: 3,
+              }}
+            >
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <TrendingUp color="primary" />
                 <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                  Top Performing Lineups
+                  Team Aggregates
                 </Typography>
               </Box>
+              <ToggleButtonGroup
+                value={gameCountFilter}
+                exclusive
+                onChange={(_, val) => val && setGameCountFilter(val)}
+                size="small"
+              >
+                <ToggleButton value="5" sx={{ px: 1.5 }}>
+                  L5
+                </ToggleButton>
+                <ToggleButton value="10" sx={{ px: 1.5 }}>
+                  L10
+                </ToggleButton>
+                <ToggleButton value="all" sx={{ px: 1.5 }}>
+                  All
+                </ToggleButton>
+              </ToggleButtonGroup>
+            </Box>
+            <Grid container spacing={2}>
+              <Grid item xs={6} sm={3}>
+                <StatItem label="Record" value={aggregates.record} />
+              </Grid>
+              <Grid item xs={6} sm={3}>
+                <StatItem label="PPG" value={aggregates.ppg} />
+              </Grid>
+              <Grid item xs={6} sm={3}>
+                <StatItem label="OPPG" value={aggregates.oppg} />
+              </Grid>
+              <Grid item xs={6} sm={3}>
+                <StatItem label="RPG" value={aggregates.rpg} />
+              </Grid>
+            </Grid>
 
-              {lineupStats.length === 0 ? (
+            <Divider sx={{ my: 4 }} />
+
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: { xs: "column", sm: "row" },
+                justifyContent: "space-between",
+                alignItems: { xs: "flex-start", sm: "center" },
+                mb: 2,
+                gap: 1,
+              }}
+            >
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Assessment color="primary" />
+                <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                  Shot Efficiency (Heatmap)
+                </Typography>
+              </Box>
+              <ToggleButtonGroup
+                value={selectedPeriod}
+                exclusive
+                onChange={(_, val) => val && setSelectedPeriod(val)}
+                size="small"
+                aria-label="Filter stats by period"
+              >
+                <ToggleButton value="ALL" aria-label="Show all periods">
+                  All
+                </ToggleButton>
+                <ToggleButton value="1" aria-label="Show period 1">
+                  P1
+                </ToggleButton>
+                <ToggleButton value="2" aria-label="Show period 2">
+                  P2
+                </ToggleButton>
+                {favoriteTeam?.periodType === "QUARTERS" && (
+                  <ToggleButton value="3" aria-label="Show period 3">
+                    P3
+                  </ToggleButton>
+                )}
+                {favoriteTeam?.periodType === "QUARTERS" && (
+                  <ToggleButton value="4" aria-label="Show period 4">
+                    P4
+                  </ToggleButton>
+                )}
+                <ToggleButton value="OT" aria-label="Show overtime">
+                  OT
+                </ToggleButton>
+              </ToggleButtonGroup>
+            </Box>
+            <Box sx={{ maxWidth: 600, mx: "auto", p: 1 }}>
+              <BasketballCourt heatmapData={heatmapData} />
+            </Box>
+
+            <Divider sx={{ my: 4 }} />
+
+            <Box sx={{ display: "flex", alignItems: "center", mb: 3, gap: 1 }}>
+              <Groups color="primary" />
+              <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                Top Performing Lineups
+              </Typography>
+            </Box>
+
+            {lineupStats.length === 0 ? (
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ py: 2, textAlign: "center" }}
+              >
+                Not enough lineup data for this period.
+              </Typography>
+            ) : (
+              <Grid container spacing={2} sx={{ mb: 4 }}>
+                {lineupStats.slice(0, 3).map((lineup, idx) => (
+                  <Grid item xs={12} key={idx}>
+                    <Box
+                      sx={{
+                        p: 1.5,
+                        borderRadius: 2,
+                        bgcolor: "rgba(0,0,0,0.02)",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Stack direction="row" spacing={0.5}>
+                        {lineup.lineup.map((pId) => (
+                          <Avatar
+                            key={pId}
+                            sx={{
+                              width: 28,
+                              height: 28,
+                              fontSize: "0.7rem",
+                              bgcolor: favoriteTeam.primaryColor,
+                            }}
+                          >
+                            {teamPlayers.find((tp) => tp.playerId === pId)
+                              ?.jerseyNumber ?? "??"}
+                          </Avatar>
+                        ))}
+                      </Stack>
+                      <Box sx={{ textAlign: "right" }}>
+                        <Typography
+                          variant="h6"
+                          sx={{
+                            fontWeight: 800,
+                            color:
+                              lineup.netRating > 0
+                                ? "success.main"
+                                : "error.main",
+                          }}
+                        >
+                          {lineup.netRating > 0 ? "+" : ""}
+                          {lineup.netRating}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          NET +/- ({Math.round(lineup.seconds / 60)}m)
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </Grid>
+                ))}
+              </Grid>
+            )}
+
+            <Divider sx={{ my: 4 }} />
+
+            <Box sx={{ display: "flex", alignItems: "center", mb: 3, gap: 1 }}>
+              <StarIcon color="primary" />
+              <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                Season Leaders
+              </Typography>
+            </Box>
+            <Grid container spacing={3}>
+              <Grid item xs={12} sm={4}>
+                <Tooltip title={`Points Leader: ${leaders.ppg?.name || "N/A"}`}>
+                  <MoleskineCard
+                    sx={{
+                      bgcolor: "rgba(0,0,0,0.02)",
+                      textAlign: "center",
+                      border: "1px solid rgba(0,0,0,0.05)",
+                    }}
+                  >
+                    <Typography variant="caption" color="text.secondary">
+                      POINTS PER GAME
+                    </Typography>
+                    <Typography variant="h5" sx={{ fontWeight: 800, my: 1 }}>
+                      {leaders.ppg?.points || "0.0"}
+                    </Typography>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                      {leaders.ppg?.name || "N/A"}
+                    </Typography>
+                  </MoleskineCard>
+                </Tooltip>
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                <Tooltip title={`Rebounds Leader: ${leaders.rpg?.name || "N/A"}`}>
+                  <MoleskineCard
+                    sx={{
+                      bgcolor: "rgba(0,0,0,0.02)",
+                      textAlign: "center",
+                      border: "1px solid rgba(0,0,0,0.05)",
+                    }}
+                  >
+                    <Typography variant="caption" color="text.secondary">
+                      REBOUNDS PER GAME
+                    </Typography>
+                    <Typography variant="h5" sx={{ fontWeight: 800, my: 1 }}>
+                      {leaders.rpg?.rebounds || "0.0"}
+                    </Typography>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                      {leaders.rpg?.name || "N/A"}
+                    </Typography>
+                  </MoleskineCard>
+                </Tooltip>
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                <Tooltip title={`Assists Leader: ${leaders.apg?.name || "N/A"}`}>
+                  <MoleskineCard
+                    sx={{
+                      bgcolor: "rgba(0,0,0,0.02)",
+                      textAlign: "center",
+                      border: "1px solid rgba(0,0,0,0.05)",
+                    }}
+                  >
+                    <Typography variant="caption" color="text.secondary">
+                      ASSISTS PER GAME
+                    </Typography>
+                    <Typography variant="h5" sx={{ fontWeight: 800, my: 1 }}>
+                      {leaders.apg?.assists || "0.0"}
+                    </Typography>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                      {leaders.apg?.name || "N/A"}
+                    </Typography>
+                  </MoleskineCard>
+                </Tooltip>
+              </Grid>
+            </Grid>
+          </MoleskineCard>
+        </Grid>
+
+        {/* Schedule & Actions */}
+        <Grid item xs={12} md={4}>
+          <Stack spacing={3}>
+            <MoleskineCard>
+              <Box
+                sx={{ display: "flex", alignItems: "center", mb: 2, gap: 1 }}
+              >
+                <Assessment color="primary" />
+                <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                  Recent Results
+                </Typography>
+              </Box>
+              {recentResults.length === 0 ? (
                 <Typography
                   variant="body2"
                   color="text.secondary"
                   sx={{ py: 2, textAlign: "center" }}
                 >
-                  Not enough lineup data for this period.
+                  No games completed yet.
                 </Typography>
               ) : (
-                <Grid container spacing={2} sx={{ mb: 4 }}>
-                  {lineupStats.slice(0, 3).map((lineup, idx) => (
-                    <Grid item xs={12} key={idx}>
+                <Stack spacing={2}>
+                  {recentResults.map((game) => (
+                    <Box
+                      key={game.id}
+                      sx={{
+                        p: 2,
+                        borderRadius: 2,
+                        bgcolor: "rgba(0,0,0,0.02)",
+                        border: "1px solid rgba(0,0,0,0.05)",
+                        cursor: "pointer",
+                        "&:hover": { bgcolor: "rgba(0,0,0,0.04)" },
+                      }}
+                      onClick={() => navigate(`/game/stats?gameId=${game.id}`)}
+                    >
                       <Box
                         sx={{
-                          p: 1.5,
-                          borderRadius: 2,
-                          bgcolor: "rgba(0,0,0,0.02)",
+                          display: "flex",
+                          justifyContent: "space-between",
+                          mb: 1,
+                        }}
+                      >
+                        <Typography variant="caption" color="text.secondary">
+                          {dayjs(game.date).format("MMM D")}
+                        </Typography>
+                        <Chip
+                          label={game.result}
+                          size="small"
+                          color={
+                            game.result === "W"
+                              ? "success"
+                              : game.result === "L"
+                                ? "error"
+                                : "default"
+                          }
+                          sx={{
+                            height: 16,
+                            fontSize: "0.6rem",
+                            fontWeight: 900,
+                          }}
+                        />
+                      </Box>
+                      <Box
+                        sx={{
                           display: "flex",
                           justifyContent: "space-between",
                           alignItems: "center",
                         }}
                       >
-                        <Stack direction="row" spacing={0.5}>
-                          {lineup.lineup.map((pId) => (
-                            <Avatar
-                              key={pId}
-                              sx={{
-                                width: 28,
-                                height: 28,
-                                fontSize: "0.7rem",
-                                bgcolor: favoriteTeam.primaryColor,
-                              }}
-                            >
-                              {teamPlayers.find((tp) => tp.playerId === pId)
-                                ?.jerseyNumber ?? "??"}
-                            </Avatar>
-                          ))}
-                        </Stack>
-                        <Box sx={{ textAlign: "right" }}>
-                          <Typography
-                            variant="h6"
-                            sx={{
-                              fontWeight: 800,
-                              color:
-                                lineup.netRating > 0
-                                  ? "success.main"
-                                  : "error.main",
-                            }}
-                          >
-                            {lineup.netRating > 0 ? "+" : ""}
-                            {lineup.netRating}
-                          </Typography>
-                          <Typography variant="caption" color="text.secondary">
-                            NET +/- ({Math.round(lineup.seconds / 60)}m)
-                          </Typography>
-                        </Box>
-                      </Box>
-                    </Grid>
-                  ))}
-                </Grid>
-              )}
-
-              <Divider sx={{ my: 4 }} />
-
-              <Box
-                sx={{ display: "flex", alignItems: "center", mb: 3, gap: 1 }}
-              >
-                <StarIcon color="primary" />
-                <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                  Season Leaders
-                </Typography>
-              </Box>
-              <Grid container spacing={3}>
-                <Grid item xs={12} sm={4}>
-                  <Tooltip
-                    title={`Points Leader: ${leaders.ppg?.name || "N/A"}`}
-                  >
-                    <MoleskineCard
-                      sx={{
-                        bgcolor: "rgba(0,0,0,0.02)",
-                        textAlign: "center",
-                        border: "1px solid rgba(0,0,0,0.05)",
-                      }}
-                    >
-                      <Typography variant="caption" color="text.secondary">
-                        POINTS PER GAME
-                      </Typography>
-                      <Typography variant="h5" sx={{ fontWeight: 800, my: 1 }}>
-                        {leaders.ppg?.points || "0.0"}
-                      </Typography>
-                      <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                        {leaders.ppg?.name || "N/A"}
-                      </Typography>
-                    </MoleskineCard>
-                  </Tooltip>
-                </Grid>
-                <Grid item xs={12} sm={4}>
-                  <Tooltip
-                    title={`Rebounds Leader: ${leaders.rpg?.name || "N/A"}`}
-                  >
-                    <MoleskineCard
-                      sx={{
-                        bgcolor: "rgba(0,0,0,0.02)",
-                        textAlign: "center",
-                        border: "1px solid rgba(0,0,0,0.05)",
-                      }}
-                    >
-                      <Typography variant="caption" color="text.secondary">
-                        REBOUNDS PER GAME
-                      </Typography>
-                      <Typography variant="h5" sx={{ fontWeight: 800, my: 1 }}>
-                        {leaders.rpg?.rebounds || "0.0"}
-                      </Typography>
-                      <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                        {leaders.rpg?.name || "N/A"}
-                      </Typography>
-                    </MoleskineCard>
-                  </Tooltip>
-                </Grid>
-                <Grid item xs={12} sm={4}>
-                  <Tooltip
-                    title={`Assists Leader: ${leaders.apg?.name || "N/A"}`}
-                  >
-                    <MoleskineCard
-                      sx={{
-                        bgcolor: "rgba(0,0,0,0.02)",
-                        textAlign: "center",
-                        border: "1px solid rgba(0,0,0,0.05)",
-                      }}
-                    >
-                      <Typography variant="caption" color="text.secondary">
-                        ASSISTS PER GAME
-                      </Typography>
-                      <Typography variant="h5" sx={{ fontWeight: 800, my: 1 }}>
-                        {leaders.apg?.assists || "0.0"}
-                      </Typography>
-                      <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                        {leaders.apg?.name || "N/A"}
-                      </Typography>
-                    </MoleskineCard>
-                  </Tooltip>
-                </Grid>
-              </Grid>
-            </MoleskineCard>
-          </Grid>
-
-          {/* Schedule & Actions */}
-          <Grid item xs={12} md={4}>
-            <Stack spacing={3}>
-              <MoleskineCard>
-                <Box
-                  sx={{ display: "flex", alignItems: "center", mb: 2, gap: 1 }}
-                >
-                  <Assessment color="primary" />
-                  <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                    Recent Results
-                  </Typography>
-                </Box>
-                {recentResults.length === 0 ? (
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ py: 2, textAlign: "center" }}
-                  >
-                    No games completed yet.
-                  </Typography>
-                ) : (
-                  <Stack spacing={2}>
-                    {recentResults.map((game) => (
-                      <Box
-                        key={game.id}
-                        sx={{
-                          p: 2,
-                          borderRadius: 2,
-                          bgcolor: "rgba(0,0,0,0.02)",
-                          border: "1px solid rgba(0,0,0,0.05)",
-                          cursor: "pointer",
-                          "&:hover": { bgcolor: "rgba(0,0,0,0.04)" },
-                        }}
-                        onClick={() =>
-                          navigate(`/game/stats?gameId=${game.id}`)
-                        }
-                      >
-                        <Box
-                          sx={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            mb: 1,
-                          }}
-                        >
-                          <Typography variant="caption" color="text.secondary">
-                            {dayjs(game.date).format("MMM D")}
-                          </Typography>
-                          <Chip
-                            label={game.result}
-                            size="small"
-                            color={
-                              game.result === "W"
-                                ? "success"
-                                : game.result === "L"
-                                  ? "error"
-                                  : "default"
-                            }
-                            sx={{
-                              height: 16,
-                              fontSize: "0.6rem",
-                              fontWeight: 900,
-                            }}
-                          />
-                        </Box>
-                        <Box
-                          sx={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                          }}
-                        >
-                          <Typography
-                            variant="subtitle2"
-                            sx={{ fontWeight: 700 }}
-                          >
-                            vs {game.opponent}
-                          </Typography>
-                          <Typography variant="h6" sx={{ fontWeight: 800 }}>
-                            {game.teamScore} - {game.oppScore}
-                          </Typography>
-                        </Box>
-                      </Box>
-                    ))}
-                  </Stack>
-                )}
-              </MoleskineCard>
-
-              <MoleskineCard>
-                <Box
-                  sx={{ display: "flex", alignItems: "center", mb: 2, gap: 1 }}
-                >
-                  <Event color="primary" />
-                  <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                    Upcoming Games
-                  </Typography>
-                </Box>
-                {upcomingGames.length === 0 ? (
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ py: 2, textAlign: "center" }}
-                  >
-                    No upcoming games scheduled.
-                  </Typography>
-                ) : (
-                  <Stack spacing={2}>
-                    {upcomingGames.map((game) => (
-                      <Box
-                        key={game.id}
-                        sx={{
-                          p: 2,
-                          borderRadius: 2,
-                          bgcolor: "rgba(0,0,0,0.02)",
-                          border: "1px solid rgba(0,0,0,0.05)",
-                          cursor: "pointer",
-                          "&:hover": { bgcolor: "rgba(0,0,0,0.04)" },
-                        }}
-                        onClick={() =>
-                          navigate(`/game/stats?gameId=${game.id}`)
-                        }
-                        role="button"
-                        tabIndex={0}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter" || e.key === " ") {
-                            navigate(`/game/stats?gameId=${game.id}`);
-                          }
-                        }}
-                        aria-label={`Upcoming game vs ${game.opponent} on ${dayjs(game.date).format("MMM D, YYYY")}`}
-                      >
                         <Typography
-                          variant="caption"
-                          color="text.secondary"
-                          sx={{ display: "block", mb: 0.5 }}
-                        >
-                          {dayjs(game.date).format("MMM D, YYYY")} {game.time}
-                        </Typography>
-                        <Typography
-                          variant="subtitle1"
+                          variant="subtitle2"
                           sx={{ fontWeight: 700 }}
                         >
                           vs {game.opponent}
                         </Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          {game.location}
+                        <Typography variant="h6" sx={{ fontWeight: 800 }}>
+                          {game.teamScore} - {game.oppScore}
                         </Typography>
                       </Box>
-                    ))}
-                  </Stack>
-                )}
+                    </Box>
+                  ))}
+                </Stack>
+              )}
+            </MoleskineCard>
+
+            <MoleskineCard>
+              <Box
+                sx={{ display: "flex", alignItems: "center", mb: 2, gap: 1 }}
+              >
+                <Event color="primary" />
+                <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                  Upcoming Games
+                </Typography>
+              </Box>
+              {upcomingGames.length === 0 ? (
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ py: 2, textAlign: "center" }}
+                >
+                  No upcoming games scheduled.
+                </Typography>
+              ) : (
+                <Stack spacing={2}>
+                  {upcomingGames.map((game) => (
+                    <Box
+                      key={game.id}
+                      sx={{
+                        p: 2,
+                        borderRadius: 2,
+                        bgcolor: "rgba(0,0,0,0.02)",
+                        border: "1px solid rgba(0,0,0,0.05)",
+                        cursor: "pointer",
+                        "&:hover": { bgcolor: "rgba(0,0,0,0.04)" },
+                      }}
+                      onClick={() => navigate(`/game/stats?gameId=${game.id}`)}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          navigate(`/game/stats?gameId=${game.id}`);
+                        }
+                      }}
+                      aria-label={`Upcoming game vs ${game.opponent} on ${dayjs(game.date).format("MMM D, YYYY")}`}
+                    >
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        sx={{ display: "block", mb: 0.5 }}
+                      >
+                        {dayjs(game.date).format("MMM D, YYYY")} {game.time}
+                      </Typography>
+                      <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+                        vs {game.opponent}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {game.location}
+                      </Typography>
+                    </Box>
+                  ))}
+                </Stack>
+              )}
+              <Button
+                fullWidth
+                variant="outlined"
+                sx={{ mt: 3 }}
+                onClick={() => navigate(`/teams/${favoriteTeam.id}`)}
+              >
+                View Full Schedule
+              </Button>
+            </MoleskineCard>
+
+            <MoleskineCard
+              sx={{
+                bgcolor: favoriteTeam.primaryColor || "primary.main",
+                color: "white",
+              }}
+            >
+              <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
+                Quick Actions
+              </Typography>
+              <Stack spacing={1.5}>
                 <Button
                   fullWidth
-                  variant="outlined"
-                  sx={{ mt: 3 }}
+                  variant="contained"
+                  sx={{
+                    bgcolor: "rgba(255,255,255,0.2)",
+                    "&:hover": { bgcolor: "rgba(255,255,255,0.3)" },
+                  }}
+                  startIcon={<AddIcon />}
                   onClick={() => navigate(`/teams/${favoriteTeam.id}`)}
                 >
-                  View Full Schedule
+                  Schedule New Game
                 </Button>
-              </MoleskineCard>
-
-              <MoleskineCard
-                sx={{
-                  bgcolor: favoriteTeam.primaryColor || "primary.main",
-                  color: "white",
-                }}
-              >
-                <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
-                  Quick Actions
-                </Typography>
-                <Stack spacing={1.5}>
-                  <Button
-                    fullWidth
-                    variant="contained"
-                    sx={{
-                      bgcolor: "rgba(255,255,255,0.2)",
-                      "&:hover": { bgcolor: "rgba(255,255,255,0.3)" },
-                    }}
-                    startIcon={<AddIcon />}
-                    onClick={() => navigate(`/teams/${favoriteTeam.id}`)}
-                  >
-                    Schedule New Game
-                  </Button>
-                  <Button
-                    fullWidth
-                    variant="contained"
-                    sx={{
-                      bgcolor: "rgba(255,255,255,0.2)",
-                      "&:hover": { bgcolor: "rgba(255,255,255,0.3)" },
-                    }}
-                    startIcon={<Assessment />}
-                    onClick={() => navigate(`/teams/${favoriteTeam.id}`)}
-                  >
-                    Manage Roster
-                  </Button>
-                </Stack>
-              </MoleskineCard>
-            </Stack>
-          </Grid>
+                <Button
+                  fullWidth
+                  variant="contained"
+                  sx={{
+                    bgcolor: "rgba(255,255,255,0.2)",
+                    "&:hover": { bgcolor: "rgba(255,255,255,0.3)" },
+                  }}
+                  startIcon={<Assessment />}
+                  onClick={() => navigate(`/teams/${favoriteTeam.id}`)}
+                >
+                  Manage Roster
+                </Button>
+              </Stack>
+            </MoleskineCard>
+          </Stack>
         </Grid>
+      </Grid>
       ) : (
         <Grid container spacing={3}>
           <Grid item xs={12}>
@@ -884,63 +864,18 @@ const Dashboard: React.FC = () => {
               </Typography>
               <Grid container spacing={3}>
                 {[
-                  {
-                    label: "eFG% > 50%",
-                    value:
-                      (healthData.filter((d) => d.efg > 50).length /
-                        healthData.length) *
-                      100,
-                  },
-                  {
-                    label: "TO% < 15%",
-                    value:
-                      (healthData.filter((d) => d.to < 15).length /
-                        healthData.length) *
-                      100,
-                  },
-                  {
-                    label: "ORB% > 30%",
-                    value:
-                      (healthData.filter((d) => d.orb > 30).length /
-                        healthData.length) *
-                      100,
-                  },
-                  {
-                    label: "FTR > 25",
-                    value:
-                      (healthData.filter((d) => d.ftr > 25).length /
-                        healthData.length) *
-                      100,
-                  },
+                  { label: "eFG% > 50%", value: healthData.filter(d => d.efg > 50).length / healthData.length * 100 },
+                  { label: "TO% < 15%", value: healthData.filter(d => d.to < 15).length / healthData.length * 100 },
+                  { label: "ORB% > 30%", value: healthData.filter(d => d.orb > 30).length / healthData.length * 100 },
+                  { label: "FTR > 25", value: healthData.filter(d => d.ftr > 25).length / healthData.length * 100 },
                 ].map((goal, idx) => (
                   <Grid item xs={6} md={3} key={idx}>
-                    <Box
-                      sx={{
-                        textAlign: "center",
-                        p: 2,
-                        bgcolor: "rgba(0,0,0,0.02)",
-                        borderRadius: 2,
-                      }}
-                    >
-                      <Typography
-                        variant="caption"
-                        sx={{ fontWeight: 700, display: "block", mb: 1 }}
-                      >
-                        {goal.label}
-                      </Typography>
-                      <Typography
-                        variant="h4"
-                        sx={{
-                          fontWeight: 800,
-                          color:
-                            goal.value >= 50 ? "success.main" : "warning.main",
-                        }}
-                      >
+                    <Box sx={{ textAlign: "center", p: 2, bgcolor: "rgba(0,0,0,0.02)", borderRadius: 2 }}>
+                      <Typography variant="caption" sx={{ fontWeight: 700, display: "block", mb: 1 }}>{goal.label}</Typography>
+                      <Typography variant="h4" sx={{ fontWeight: 800, color: goal.value >= 50 ? "success.main" : "warning.main" }}>
                         {isNaN(goal.value) ? 0 : Math.round(goal.value)}%
                       </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        of games met
-                      </Typography>
+                      <Typography variant="caption" color="text.secondary">of games met</Typography>
                     </Box>
                   </Grid>
                 ))}

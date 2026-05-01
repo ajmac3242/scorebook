@@ -9,10 +9,7 @@ interface TacticalGoalHUDProps {
   currentStats: Record<string, number>;
 }
 
-const TacticalGoalHUD: React.FC<TacticalGoalHUDProps> = ({
-  goals,
-  currentStats,
-}) => {
+const TacticalGoalHUD: React.FC<TacticalGoalHUDProps> = ({ goals, currentStats }) => {
   if (!goals || goals.length === 0) return null;
 
   return (
@@ -27,18 +24,10 @@ const TacticalGoalHUD: React.FC<TacticalGoalHUDProps> = ({
 
           let isMet = false;
           switch (goal.operator) {
-            case ">":
-              isMet = current > target;
-              break;
-            case "<":
-              isMet = current < target;
-              break;
-            case ">=":
-              isMet = current >= target;
-              break;
-            case "<=":
-              isMet = current <= target;
-              break;
+            case ">": isMet = current > target; break;
+            case "<": isMet = current < target; break;
+            case ">=": isMet = current >= target; break;
+            case "<=": isMet = current <= target; break;
           }
 
           const progress = goal.operator.startsWith(">")
@@ -47,14 +36,7 @@ const TacticalGoalHUD: React.FC<TacticalGoalHUDProps> = ({
 
           return (
             <Box key={idx}>
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  mb: 0.5,
-                }}
-              >
+              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 0.5 }}>
                 <Typography variant="caption" sx={{ fontWeight: 700 }}>
                   {goal.label}
                 </Typography>
@@ -65,9 +47,7 @@ const TacticalGoalHUD: React.FC<TacticalGoalHUDProps> = ({
                   {isMet ? (
                     <CheckCircle sx={{ fontSize: 14, color: "success.main" }} />
                   ) : (
-                    <Error
-                      sx={{ fontSize: 14, color: "error.main", opacity: 0.5 }}
-                    />
+                    <Error sx={{ fontSize: 14, color: "error.main", opacity: 0.5 }} />
                   )}
                 </Box>
               </Box>
@@ -80,11 +60,7 @@ const TacticalGoalHUD: React.FC<TacticalGoalHUDProps> = ({
                   aria-valuemin={0}
                   aria-valuemax={target}
                   aria-label={`${goal.label} progress`}
-                  sx={{
-                    height: 6,
-                    borderRadius: 3,
-                    bgcolor: "rgba(0,0,0,0.05)",
-                  }}
+                  sx={{ height: 6, borderRadius: 3, bgcolor: "rgba(0,0,0,0.05)" }}
                 />
               </Tooltip>
             </Box>

@@ -85,7 +85,7 @@ describe("Scout Audit V2 - Reproduction Tests", () => {
           clockTime: 300,
           period: 5,
           timestamp: "2",
-        },
+        }
       ];
 
       // Regulation 10m. OT 5m.
@@ -94,16 +94,10 @@ describe("Scout Audit V2 - Reproduction Tests", () => {
       // If we SUB_IN at 600 in P4 and are still in at end of P5 (5m OT).
       // Total MIN should be 10 (P4) + 5 (P5) = 15.
 
-      const results2 = calculatePlayerAggregates(
-        players,
-        statsBoundary,
-        [],
-        "total",
-        {
-          periodLength: 10,
-          // overtimeLength: 5
-        },
-      );
+      const results2 = calculatePlayerAggregates(players, statsBoundary, [], "total", {
+        periodLength: 10,
+        // overtimeLength: 5
+      });
 
       // CURRENT BUG: uses 10 for P5 too, so 10 + 10 = 20.
       expect(results2[0].min).toBe(15);

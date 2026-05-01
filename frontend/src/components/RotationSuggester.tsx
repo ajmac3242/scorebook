@@ -78,13 +78,7 @@ export const RotationSuggester: React.FC<RotationSuggesterProps> = ({
     <MoleskineCard sx={{ border: "1px solid #FFD700" }}>
       <Typography
         variant="subtitle2"
-        sx={{
-          fontWeight: 800,
-          mb: 1,
-          display: "flex",
-          alignItems: "center",
-          gap: 1,
-        }}
+        sx={{ fontWeight: 800, mb: 1, display: "flex", alignItems: "center", gap: 1 }}
       >
         <Groups sx={{ fontSize: 18 }} /> ROTATION SUGGESTER
       </Typography>

@@ -88,11 +88,7 @@ import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import SortableHeader from "../components/SortableHeader";
 import { formatClock } from "../utils/mathUtils";
-import {
-  generateHudlCSV,
-  generateSynergyCSV,
-  downloadCSV,
-} from "../utils/videoExport";
+import { generateHudlCSV, generateSynergyCSV, downloadCSV } from "../utils/videoExport";
 import {
   Line,
   Area,
@@ -117,35 +113,23 @@ const PlayerFeedbackCard: React.FC<{
   const [sent, setSent] = useState(false);
 
   return (
-    <MoleskineCard
-      sx={{ height: "100%", display: "flex", flexDirection: "column" }}
-    >
+    <MoleskineCard sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
       <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
-        <Avatar sx={{ bgcolor: player.avatarColor }}>
-          {player.jerseyNumber}
-        </Avatar>
+        <Avatar sx={{ bgcolor: player.avatarColor }}>{player.jerseyNumber}</Avatar>
         <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
           {player.name}
         </Typography>
       </Box>
 
       <Box sx={{ flexGrow: 1 }}>
-        <Typography
-          variant="caption"
-          color="success.main"
-          sx={{ fontWeight: 800, textTransform: "uppercase" }}
-        >
+        <Typography variant="caption" color="success.main" sx={{ fontWeight: 800, textTransform: "uppercase" }}>
           Strength
         </Typography>
         <Typography variant="body2" sx={{ mb: 2, mt: 0.5, fontWeight: 500 }}>
           {narrative.strength}
         </Typography>
 
-        <Typography
-          variant="caption"
-          color="error.main"
-          sx={{ fontWeight: 800, textTransform: "uppercase" }}
-        >
+        <Typography variant="caption" color="error.main" sx={{ fontWeight: 800, textTransform: "uppercase" }}>
           Growth Area
         </Typography>
         <Typography variant="body2" sx={{ mt: 0.5, fontWeight: 500 }}>
@@ -160,9 +144,7 @@ const PlayerFeedbackCard: React.FC<{
         fullWidth
         sx={{ mt: 3 }}
         onClick={() => setSent(true)}
-        startIcon={
-          sent ? <ExpandIcon sx={{ transform: "rotate(90deg)" }} /> : null
-        }
+        startIcon={sent ? <ExpandIcon sx={{ transform: "rotate(90deg)" }} /> : null}
       >
         {sent ? "Sent to Player" : "Approve & Send"}
       </Button>
@@ -181,33 +163,17 @@ const OfficiatingImpactSummary: React.FC<{
   teamPlayers: TeamPlayer[];
 }> = ({ stats, teamScore, oppScore, teamPlayers }) => {
   const officiatingImpact = useMemo(() => {
-    const teamFTM = stats.filter(
-      (s) =>
-        s.type === ACTION_TYPES.MAKE &&
-        s.points === 1 &&
-        !isOpponentId(s.playerId),
-    ).length;
-    const oppFTM = stats.filter(
-      (s) =>
-        s.type === ACTION_TYPES.MAKE &&
-        s.points === 1 &&
-        isOpponentId(s.playerId),
-    ).length;
+    const teamFTM = stats.filter(s => s.type === ACTION_TYPES.MAKE && s.points === 1 && !isOpponentId(s.playerId)).length;
+    const oppFTM = stats.filter(s => s.type === ACTION_TYPES.MAKE && s.points === 1 && isOpponentId(s.playerId)).length;
 
-    const teamFoulEvents = stats.filter(
-      (s) => s.type === ACTION_TYPES.FOUL && !isOpponentId(s.playerId),
-    );
-    const oppFouls = stats.filter(
-      (s) => s.type === ACTION_TYPES.FOUL && isOpponentId(s.playerId),
-    ).length;
+    const teamFoulEvents = stats.filter(s => s.type === ACTION_TYPES.FOUL && !isOpponentId(s.playerId));
+    const oppFouls = stats.filter(s => s.type === ACTION_TYPES.FOUL && isOpponentId(s.playerId)).length;
 
-    const starterIds = new Set<string>(
-      teamPlayers.filter((tp) => tp.isStarter).map((tp) => tp.playerId),
-    );
+    const starterIds = new Set<string>(teamPlayers.filter(tp => tp.isStarter).map(tp => tp.playerId));
     let starterFouls = 0;
     let benchFouls = 0;
 
-    teamFoulEvents.forEach((s) => {
+    teamFoulEvents.forEach(s => {
       if (starterIds.has(s.playerId)) starterFouls++;
       else benchFouls++;
     });
@@ -215,8 +181,7 @@ const OfficiatingImpactSummary: React.FC<{
     const teamFouls = teamFoulEvents.length;
     const ftDiff = teamFTM - oppFTM;
     const scoreDiff = teamScore - oppScore;
-    const impactPct =
-      scoreDiff !== 0 ? (ftDiff / Math.abs(scoreDiff)) * 100 : 0;
+    const impactPct = scoreDiff !== 0 ? (ftDiff / Math.abs(scoreDiff)) * 100 : 0;
 
     return {
       teamFTM,
@@ -226,7 +191,7 @@ const OfficiatingImpactSummary: React.FC<{
       starterFouls,
       benchFouls,
       ftDiff,
-      impactPct,
+      impactPct
     };
   }, [stats, teamScore, oppScore, teamPlayers]);
 
@@ -241,120 +206,44 @@ const OfficiatingImpactSummary: React.FC<{
 
       <Grid container spacing={3}>
         <Grid item xs={12}>
-          <Box
-            sx={{
-              mb: 2,
-              p: 2,
-              bgcolor: "rgba(25, 118, 210, 0.04)",
-              borderRadius: 2,
-            }}
-          >
-            <Typography
-              variant="caption"
-              sx={{
-                fontWeight: 800,
-                color: "primary.main",
-                display: "block",
-                mb: 1,
-              }}
-            >
+          <Box sx={{ mb: 2, p: 2, bgcolor: "rgba(25, 118, 210, 0.04)", borderRadius: 2 }}>
+            <Typography variant="caption" sx={{ fontWeight: 800, color: "primary.main", display: "block", mb: 1 }}>
               TEAM FOUL ATTRIBUTION
             </Typography>
             <Stack direction="row" spacing={2} justifyContent="space-around">
               <Box sx={{ textAlign: "center" }}>
-                <Typography variant="h6" sx={{ fontWeight: 900 }}>
-                  {officiatingImpact.starterFouls}
-                </Typography>
-                <Typography variant="caption" sx={{ fontWeight: 700 }}>
-                  Starters
-                </Typography>
+                <Typography variant="h6" sx={{ fontWeight: 900 }}>{officiatingImpact.starterFouls}</Typography>
+                <Typography variant="caption" sx={{ fontWeight: 700 }}>Starters</Typography>
               </Box>
               <Divider orientation="vertical" flexItem />
               <Box sx={{ textAlign: "center" }}>
-                <Typography variant="h6" sx={{ fontWeight: 900 }}>
-                  {officiatingImpact.benchFouls}
-                </Typography>
-                <Typography variant="caption" sx={{ fontWeight: 700 }}>
-                  Bench
-                </Typography>
+                <Typography variant="h6" sx={{ fontWeight: 900 }}>{officiatingImpact.benchFouls}</Typography>
+                <Typography variant="caption" sx={{ fontWeight: 700 }}>Bench</Typography>
               </Box>
             </Stack>
           </Box>
         </Grid>
 
         <Grid item xs={6}>
-          <Box
-            sx={{
-              p: 2,
-              bgcolor: "rgba(0,0,0,0.02)",
-              borderRadius: 2,
-              textAlign: "center",
-            }}
-          >
-            <Typography
-              variant="caption"
-              sx={{
-                fontWeight: 700,
-                color: "text.secondary",
-                display: "block",
-                mb: 1,
-              }}
-            >
+          <Box sx={{ p: 2, bgcolor: "rgba(0,0,0,0.02)", borderRadius: 2, textAlign: "center" }}>
+            <Typography variant="caption" sx={{ fontWeight: 700, color: "text.secondary", display: "block", mb: 1 }}>
               FOUL BATTLE
             </Typography>
             <Typography variant="h5" sx={{ fontWeight: 900 }}>
-              {officiatingImpact.teamFouls}{" "}
-              <Typography component="span" variant="caption">
-                VS
-              </Typography>{" "}
-              {officiatingImpact.oppFouls}
+              {officiatingImpact.teamFouls} <Typography component="span" variant="caption">VS</Typography> {officiatingImpact.oppFouls}
             </Typography>
-            <Typography
-              variant="caption"
-              sx={{
-                fontWeight: 600,
-                color:
-                  officiatingImpact.teamFouls > officiatingImpact.oppFouls
-                    ? "error.main"
-                    : "success.main",
-              }}
-            >
-              {officiatingImpact.teamFouls > officiatingImpact.oppFouls
-                ? "Disadvantage"
-                : "Advantage"}
+            <Typography variant="caption" sx={{ fontWeight: 600, color: officiatingImpact.teamFouls > officiatingImpact.oppFouls ? "error.main" : "success.main" }}>
+              {officiatingImpact.teamFouls > officiatingImpact.oppFouls ? "Disadvantage" : "Advantage"}
             </Typography>
           </Box>
         </Grid>
         <Grid item xs={6}>
-          <Box
-            sx={{
-              p: 2,
-              bgcolor: "rgba(0,0,0,0.02)",
-              borderRadius: 2,
-              textAlign: "center",
-            }}
-          >
-            <Typography
-              variant="caption"
-              sx={{
-                fontWeight: 700,
-                color: "text.secondary",
-                display: "block",
-                mb: 1,
-              }}
-            >
+          <Box sx={{ p: 2, bgcolor: "rgba(0,0,0,0.02)", borderRadius: 2, textAlign: "center" }}>
+            <Typography variant="caption" sx={{ fontWeight: 700, color: "text.secondary", display: "block", mb: 1 }}>
               FT MARGIN
             </Typography>
-            <Typography
-              variant="h5"
-              sx={{
-                fontWeight: 900,
-                color:
-                  officiatingImpact.ftDiff >= 0 ? "success.main" : "error.main",
-              }}
-            >
-              {officiatingImpact.ftDiff >= 0 ? "+" : ""}
-              {officiatingImpact.ftDiff}
+            <Typography variant="h5" sx={{ fontWeight: 900, color: officiatingImpact.ftDiff >= 0 ? "success.main" : "error.main" }}>
+              {officiatingImpact.ftDiff >= 0 ? "+" : ""}{officiatingImpact.ftDiff}
             </Typography>
             <Typography variant="caption" sx={{ fontWeight: 600 }}>
               Points from Line
@@ -363,24 +252,15 @@ const OfficiatingImpactSummary: React.FC<{
         </Grid>
       </Grid>
 
-      <Box
-        sx={{
-          mt: 3,
-          p: 2,
-          border: "1px dashed rgba(0,0,0,0.1)",
-          borderRadius: 2,
-        }}
-      >
+      <Box sx={{ mt: 3, p: 2, border: "1px dashed rgba(0,0,0,0.1)", borderRadius: 2 }}>
         <Typography variant="body2" sx={{ fontWeight: 700, mb: 1 }}>
           💡 Tactical Insight
         </Typography>
-        <Typography
-          variant="caption"
-          sx={{ lineHeight: 1.5, display: "block" }}
-        >
+        <Typography variant="caption" sx={{ lineHeight: 1.5, display: "block" }}>
           {officiatingImpact.ftDiff > 0
             ? `Our ability to draw fouls and convert at the line contributed ${officiatingImpact.ftDiff} points to our total. This margin was ${Math.abs(officiatingImpact.impactPct).toFixed(0)}% of the final point spread.`
-            : `Opponent's free throw advantage (-${Math.abs(officiatingImpact.ftDiff)} pts) put significant pressure on our half-court defense. Defensive discipline should be a focus for next game.`}
+            : `Opponent's free throw advantage (-${Math.abs(officiatingImpact.ftDiff)} pts) put significant pressure on our half-court defense. Defensive discipline should be a focus for next game.`
+          }
         </Typography>
       </Box>
     </MoleskineCard>
@@ -427,27 +307,48 @@ const PlayerStatRow = memo(({ row }: { row: PlayerAggregates }) => (
     <TableCell align="right">
       {row.makes}-{row.attempts}
     </TableCell>
-    <TableCell align="right" sx={{ display: { xs: "none", sm: "table-cell" } }}>
+    <TableCell
+      align="right"
+      sx={{ display: { xs: "none", sm: "table-cell" } }}
+    >
       {row.fgPct}%
     </TableCell>
-    <TableCell align="right" sx={{ display: { xs: "none", sm: "table-cell" } }}>
+    <TableCell
+      align="right"
+      sx={{ display: { xs: "none", sm: "table-cell" } }}
+    >
       {row.efgPct}%
     </TableCell>
-    <TableCell align="right" sx={{ display: { xs: "none", sm: "table-cell" } }}>
+    <TableCell
+      align="right"
+      sx={{ display: { xs: "none", sm: "table-cell" } }}
+    >
       {row.offRebounds}
     </TableCell>
-    <TableCell align="right" sx={{ display: { xs: "none", sm: "table-cell" } }}>
+    <TableCell
+      align="right"
+      sx={{ display: { xs: "none", sm: "table-cell" } }}
+    >
       {row.defRebounds}
     </TableCell>
     <TableCell align="right">{row.rebounds}</TableCell>
     <TableCell align="right">{row.assists}</TableCell>
-    <TableCell align="right" sx={{ display: { xs: "none", sm: "table-cell" } }}>
+    <TableCell
+      align="right"
+      sx={{ display: { xs: "none", sm: "table-cell" } }}
+    >
       {row.steals}
     </TableCell>
-    <TableCell align="right" sx={{ display: { xs: "none", sm: "table-cell" } }}>
+    <TableCell
+      align="right"
+      sx={{ display: { xs: "none", sm: "table-cell" } }}
+    >
       {row.blocks}
     </TableCell>
-    <TableCell align="right" sx={{ display: { xs: "none", sm: "table-cell" } }}>
+    <TableCell
+      align="right"
+      sx={{ display: { xs: "none", sm: "table-cell" } }}
+    >
       {row.turnovers}
     </TableCell>
     <TableCell align="right">{row.fouls}</TableCell>
@@ -474,8 +375,7 @@ const GameStats: React.FC = () => {
   const [selectedType, setSelectedType] = useState<string>("ALL");
   const [selectedQuality, setSelectedQuality] = useState<string>("ALL");
   const [selectedPlay, setSelectedPlay] = useState<string>("ALL");
-  const [selectedOpponentPlay, setSelectedOpponentPlay] =
-    useState<string>("ALL");
+  const [selectedOpponentPlay, setSelectedOpponentPlay] = useState<string>("ALL");
   const [periodFilter, setPeriodFilter] = useState<string>("ALL");
   const [clutchFilter, setClutchFilter] = useState(false);
   const [compareMode, setCompareMode] = useState(false);
@@ -784,15 +684,8 @@ const GameStats: React.FC = () => {
       const playMatch =
         selectedPlay === "ALL" || (s.playName && s.playName === selectedPlay);
       const oppPlayMatch =
-        selectedOpponentPlay === "ALL" ||
-        (s.playType && s.playType === selectedOpponentPlay);
-      if (
-        playerMatch &&
-        typeMatch &&
-        playMatch &&
-        qualityMatch &&
-        oppPlayMatch
-      ) {
+        selectedOpponentPlay === "ALL" || (s.playType && s.playType === selectedOpponentPlay);
+      if (playerMatch && typeMatch && playMatch && qualityMatch && oppPlayMatch) {
         filtered.push(s);
         if (s.type === ACTION_TYPES.MAKE || s.type === ACTION_TYPES.MISS) {
           markers.push({
@@ -840,11 +733,7 @@ const GameStats: React.FC = () => {
         if (selectedQuality !== "ALL" && s.shotQuality !== selectedQuality)
           continue;
         if (selectedPlay !== "ALL" && s.playName !== selectedPlay) continue;
-        if (
-          selectedOpponentPlay !== "ALL" &&
-          s.playType !== selectedOpponentPlay
-        )
-          continue;
+        if (selectedOpponentPlay !== "ALL" && s.playType !== selectedOpponentPlay) continue;
 
         const zone = getShotZone(s.locationX || 0, s.locationY || 0);
         if (!data[zone]) data[zone] = { makes: 0, attempts: 0 };
@@ -853,14 +742,7 @@ const GameStats: React.FC = () => {
       }
       return data;
     },
-    [
-      allStats,
-      selectedPlayerId,
-      selectedType,
-      selectedPlay,
-      selectedOpponentPlay,
-      selectedQuality,
-    ],
+    [allStats, selectedPlayerId, selectedType, selectedPlay, selectedOpponentPlay, selectedQuality],
   );
 
   const heatmapData = useMemo(
@@ -880,6 +762,7 @@ const GameStats: React.FC = () => {
   const scoreFlowData = useMemo(() => {
     return calculateScoreFlow(scoreFlowSortedStats, game?.periodLength);
   }, [scoreFlowSortedStats, game?.periodLength]);
+
 
   const teamData = useMemo(() => {
     if (!game) return null;
@@ -1011,6 +894,7 @@ const GameStats: React.FC = () => {
     }));
   }, [stats]);
 
+
   const playerStints = useMemo(() => {
     if (!game) return [];
     return calculatePlayerStintTimeline(scoreFlowSortedStats, {
@@ -1061,19 +945,17 @@ const GameStats: React.FC = () => {
     [],
   );
 
-  const handleExportBookmarks = () => {
+        const handleExportBookmarks = () => {
     const bookmarked = allStats.filter((s) => !!s.isBookmarked);
     if (bookmarked.length === 0) {
       alert("No bookmarked events to export.");
       return;
     }
 
-    let csv =
-      "Timestamp,Period,Clock,Player,Action,Points,Shot Quality,Play Name\n";
+    let csv = "Timestamp,Period,Clock,Player,Action,Points,Shot Quality,Play Name\n";
     for (const s of bookmarked) {
       let pName = playerNamesMap.get(s.playerId) || "Unknown";
-      if (isOpponentId(s.playerId))
-        pName = `Opponent #${s.playerId.split(":")[1] || "??"}`;
+      if (isOpponentId(s.playerId)) pName = `Opponent #${s.playerId.split(":")[1] || "??"}`;
 
       csv += `${s.timestamp},${s.period},${s.clockTime},"${pName}",${s.type},${s.points || 0},${s.shotQuality || ""},"${s.playName || ""}"\n`;
     }
@@ -1096,6 +978,7 @@ const GameStats: React.FC = () => {
   const scoringRuns = useMemo(() => {
     return calculateScoringRuns(scoreFlowSortedStats);
   }, [scoreFlowSortedStats]);
+
 
   const defensiveStats = useMemo(() => {
     return calculateStopsAndKills(scoreFlowSortedStats);
@@ -1697,7 +1580,9 @@ const GameStats: React.FC = () => {
                 sx={{
                   fontWeight: 700,
                   color:
-                    parseFloat(row.stopPct) >= 50 ? "success.main" : "inherit",
+                    parseFloat(row.stopPct) >= 50
+                      ? "success.main"
+                      : "inherit",
                 }}
               >
                 {row.stopPct}%
@@ -1740,9 +1625,7 @@ const GameStats: React.FC = () => {
         <Table size="small">
           <TableHead>
             <TableRow>
-              <TableCell sx={{ minWidth: 120, fontWeight: 700 }}>
-                Player
-              </TableCell>
+              <TableCell sx={{ minWidth: 120, fontWeight: 700 }}>Player</TableCell>
               <TableCell sx={{ minWidth: 400, fontWeight: 700 }}>
                 Stint Timeline (P1 → OT)
               </TableCell>
@@ -1767,11 +1650,7 @@ const GameStats: React.FC = () => {
                       >
                         {shotChartJerseyMap.get(p.id!) ?? "??"}
                       </Avatar>
-                      <Typography
-                        variant="caption"
-                        noWrap
-                        sx={{ maxWidth: 80 }}
-                      >
+                      <Typography variant="caption" noWrap sx={{ maxWidth: 80 }}>
                         {p.name}
                       </Typography>
                     </Stack>
@@ -1790,8 +1669,7 @@ const GameStats: React.FC = () => {
                       {/* Scoring Runs Background */}
                       {showRuns &&
                         scoringRuns.map((run, ridx) => {
-                          const maxPeriod =
-                            team?.periodType === "QUARTERS" ? 4 : 2;
+                          const maxPeriod = team?.periodType === "QUARTERS" ? 4 : 2;
                           const currentMax = Math.max(
                             maxPeriod,
                             ...playerStints.map((ps) => ps.period),
@@ -1800,15 +1678,12 @@ const GameStats: React.FC = () => {
                           const totalSecs = currentMax * periodLen;
 
                           const startOffset =
-                            (run.period - 1) * periodLen +
-                            (periodLen - run.startClock);
+                            (run.period - 1) * periodLen + (periodLen - run.startClock);
                           const endOffset =
-                            (run.period - 1) * periodLen +
-                            (periodLen - run.endClock);
+                            (run.period - 1) * periodLen + (periodLen - run.endClock);
 
                           const left = (startOffset / totalSecs) * 100;
-                          const width =
-                            ((endOffset - startOffset) / totalSecs) * 100;
+                          const width = ((endOffset - startOffset) / totalSecs) * 100;
 
                           return (
                             <Box
@@ -1830,8 +1705,7 @@ const GameStats: React.FC = () => {
                         })}
 
                       {stints.map((s, idx) => {
-                        const maxPeriod =
-                          team?.periodType === "QUARTERS" ? 4 : 2;
+                        const maxPeriod = team?.periodType === "QUARTERS" ? 4 : 2;
                         const currentMax = Math.max(
                           maxPeriod,
                           ...playerStints.map((ps) => ps.period),
@@ -1840,14 +1714,12 @@ const GameStats: React.FC = () => {
                         const totalSecs = currentMax * periodLen;
 
                         const startOffset =
-                          (s.period - 1) * periodLen +
-                          (periodLen - s.startClock);
+                          (s.period - 1) * periodLen + (periodLen - s.startClock);
                         const endOffset =
                           (s.period - 1) * periodLen + (periodLen - s.endClock);
 
                         const left = (startOffset / totalSecs) * 100;
-                        const width =
-                          ((endOffset - startOffset) / totalSecs) * 100;
+                        const width = ((endOffset - startOffset) / totalSecs) * 100;
 
                         // Get fouls during this stint
                         const foulsDuringStint = showFouls
@@ -1857,8 +1729,7 @@ const GameStats: React.FC = () => {
                                 stat.period === s.period &&
                                 (stat.type === ACTION_TYPES.FOUL ||
                                   stat.type === ACTION_TYPES.FOUL_SHOOTING ||
-                                  stat.type ===
-                                    ACTION_TYPES.FOUL_NON_SHOOTING ||
+                                  stat.type === ACTION_TYPES.FOUL_NON_SHOOTING ||
                                   stat.type === ACTION_TYPES.TECHNICAL_FOUL) &&
                                 (stat.clockTime || 0) <= s.startClock &&
                                 (stat.clockTime || 0) >= s.endClock,
@@ -1882,10 +1753,7 @@ const GameStats: React.FC = () => {
                                 borderRadius: 0.5,
                                 zIndex: 1,
                                 transition: "all 0.2s",
-                                "&:hover": {
-                                  opacity: 1,
-                                  transform: "scaleY(1.2)",
-                                },
+                                "&:hover": { opacity: 1, transform: "scaleY(1.2)" },
                                 display: "flex",
                                 alignItems: "center",
                                 justifyContent: "center",
@@ -1921,14 +1789,7 @@ const GameStats: React.FC = () => {
 
   const eventLog = (
     <MoleskineCard>
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          mb: 2,
-        }}
-      >
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
         <Typography variant="h6" sx={{ fontFamily: "var(--serif)" }}>
           Game Event Log
         </Typography>
@@ -1955,8 +1816,7 @@ const GameStats: React.FC = () => {
       <Stack spacing={1} sx={{ maxHeight: 600, overflowY: "auto", pr: 1 }}>
         {eventLogStats.map((s) => {
           let pName = playerNamesMap.get(s.playerId) || "Unknown";
-          if (isOpponentId(s.playerId))
-            pName = `Opponent #${s.playerId.split(":")[1] || "??"}`;
+          if (isOpponentId(s.playerId)) pName = `Opponent #${s.playerId.split(":")[1] || "??"}`;
 
           return (
             <RecentActionItem
@@ -1972,12 +1832,7 @@ const GameStats: React.FC = () => {
           );
         })}
         {eventLogStats.length === 0 && (
-          <Typography
-            variant="body2"
-            color="text.secondary"
-            align="center"
-            sx={{ py: 4 }}
-          >
+          <Typography variant="body2" color="text.secondary" align="center" sx={{ py: 4 }}>
             {keyMomentsOnly ? "No bookmarked events." : "No events recorded."}
           </Typography>
         )}
@@ -2076,16 +1931,8 @@ const GameStats: React.FC = () => {
               {`${game?.date ? dayjs(game.date).format("MM-DD-YYYY") : ""} ${game?.time || ""} | ${game?.location || ""}`}
             </Typography>
             <Tooltip title={copied ? "Copied!" : "Copy Game ID"}>
-              <IconButton
-                size="small"
-                onClick={handleCopyId}
-                sx={{ color: "rgba(255,255,255,0.7)", p: 0.5 }}
-              >
-                {copied ? (
-                  <CheckIcon fontSize="inherit" />
-                ) : (
-                  <CopyIcon fontSize="inherit" />
-                )}
+              <IconButton size="small" onClick={handleCopyId} sx={{ color: "rgba(255,255,255,0.7)", p: 0.5 }}>
+                {copied ? <CheckIcon fontSize="inherit" /> : <CopyIcon fontSize="inherit" />}
               </IconButton>
             </Tooltip>
           </Stack>
@@ -2094,10 +1941,7 @@ const GameStats: React.FC = () => {
         avatarColor="rgba(255,255,255,0.1)"
         backTo={game?.teamId ? `/teams/${game.teamId}` : "/teams"}
         primaryColor={team?.primaryColor}
-        stats={[
-          { label: "PPP", value: teamData?.ppp || "0.00" },
-          { label: "Def. PPP", value: oppData.ppp },
-        ]}
+        stats={[ { label: "PPP", value: teamData?.ppp || "0.00" }, { label: "Def. PPP", value: oppData.ppp } ]}
         actions={
           <Stack direction="row" spacing={1} alignItems="center">
             {!isDeleted && (
@@ -2135,9 +1979,7 @@ const GameStats: React.FC = () => {
                   sx={{
                     bgcolor: isClinicMode ? "white" : "rgba(255,255,255,0.2)",
                     color: isClinicMode ? "primary.main" : "white",
-                    "&:hover": {
-                      bgcolor: isClinicMode ? "#eee" : "rgba(255,255,255,0.3)",
-                    },
+                    "&:hover": { bgcolor: isClinicMode ? "#eee" : "rgba(255,255,255,0.3)" }
                   }}
                 >
                   {isClinicMode ? "Close Clinic" : "Start Clinic"}
@@ -2521,44 +2363,21 @@ const GameStats: React.FC = () => {
           <Grid container spacing={3}>
             <Grid item xs={12}>
               <MoleskineCard>
-                <Typography
-                  variant="h6"
-                  sx={{ fontFamily: "var(--serif)", mb: 2 }}
-                >
+                <Typography variant="h6" sx={{ fontFamily: "var(--serif)", mb: 2 }}>
                   Player Performance Feedback
                 </Typography>
                 <Grid container spacing={2}>
                   {playerNarratives.map((n) => (
                     <Grid item xs={12} md={6} key={n.player.id}>
-                      <Box
-                        sx={{
-                          p: 2,
-                          bgcolor: "rgba(0,0,0,0.02)",
-                          borderRadius: 2,
-                          height: "100%",
-                          display: "flex",
-                          flexDirection: "column",
-                        }}
-                      >
-                        <Typography
-                          variant="subtitle2"
-                          sx={{ fontWeight: 800, mb: 1 }}
-                        >
+                      <Box sx={{ p: 2, bgcolor: "rgba(0,0,0,0.02)", borderRadius: 2, height: "100%", display: "flex", flexDirection: "column" }}>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 800, mb: 1 }}>
                           {n.player.name}
                         </Typography>
-                        <Typography
-                          variant="body2"
-                          sx={{ fontStyle: "italic", mb: 2, flexGrow: 1 }}
-                        >
+                        <Typography variant="body2" sx={{ fontStyle: "italic", mb: 2, flexGrow: 1 }}>
                           "{n.narrative?.strength} {n.narrative?.growth}"
                         </Typography>
                         <Stack direction="row" spacing={1}>
-                          <Chip
-                            label={`Strength: ${n.narrative?.strength.split(".")[0]}`}
-                            size="small"
-                            color="success"
-                            sx={{ fontSize: "0.65rem" }}
-                          />
+                          <Chip label={`Strength: ${n.narrative?.strength.split(".")[0]}`} size="small" color="success" sx={{ fontSize: "0.65rem" }} />
                           <Button
                             size="small"
                             variant="outlined"
@@ -2566,7 +2385,7 @@ const GameStats: React.FC = () => {
                               setSnackbar({
                                 open: true,
                                 message: `Narrative for ${n.player.name} sent to player!`,
-                                severity: "success",
+                                severity: "success"
                               });
                             }}
                           >
@@ -2578,14 +2397,8 @@ const GameStats: React.FC = () => {
                   ))}
                   {playerNarratives.length === 0 && (
                     <Grid item xs={12}>
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        align="center"
-                        sx={{ py: 4 }}
-                      >
-                        No qualifying player performance narratives (min. 5 mins
-                        played).
+                      <Typography variant="body2" color="text.secondary" align="center" sx={{ py: 4 }}>
+                        No qualifying player performance narratives (min. 5 mins played).
                       </Typography>
                     </Grid>
                   )}
@@ -2693,9 +2506,7 @@ const GameStats: React.FC = () => {
                   <Table size="small">
                     <TableHead>
                       <TableRow sx={{ bgcolor: "rgba(0,0,0,0.02)" }}>
-                        <TableCell sx={{ fontWeight: 700 }}>
-                          Play Type
-                        </TableCell>
+                        <TableCell sx={{ fontWeight: 700 }}>Play Type</TableCell>
                         <TableCell align="right" sx={{ fontWeight: 700 }}>
                           Freq
                         </TableCell>
@@ -2784,19 +2595,13 @@ const GameStats: React.FC = () => {
             </Grid>
 
             <Grid item xs={12}>
-              <Typography
-                variant="h5"
-                sx={{ fontFamily: "var(--serif)", mb: 2, mt: 4 }}
-              >
+              <Typography variant="h5" sx={{ fontFamily: "var(--serif)", mb: 2, mt: 4 }}>
                 Player Feedback Narratives
               </Typography>
               <Grid container spacing={2}>
                 {playerNarratives.map((n) => (
                   <Grid item xs={12} sm={6} md={4} key={n.player.id}>
-                    <PlayerFeedbackCard
-                      player={n.player}
-                      narrative={n.narrative!}
-                    />
+                    <PlayerFeedbackCard player={n.player} narrative={n.narrative!} />
                   </Grid>
                 ))}
               </Grid>
@@ -2955,13 +2760,10 @@ const GameStats: React.FC = () => {
         open={videoExportDialogOpen}
         onClose={() => setVideoExportDialogOpen(false)}
       >
-        <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
-          Export for Video Platform
-        </DialogTitle>
+        <DialogTitle sx={{ fontFamily: "var(--serif)" }}>Export for Video Platform</DialogTitle>
         <DialogContent>
           <DialogContentText sx={{ mb: 3 }}>
-            Choose your video analysis platform. We will generate a compatible
-            CSV for easy tagging.
+            Choose your video analysis platform. We will generate a compatible CSV for easy tagging.
           </DialogContentText>
           <Stack spacing={2}>
             <Button
@@ -2985,9 +2787,7 @@ const GameStats: React.FC = () => {
           </Stack>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setVideoExportDialogOpen(false)}>
-            Cancel
-          </Button>
+          <Button onClick={() => setVideoExportDialogOpen(false)}>Cancel</Button>
         </DialogActions>
       </Dialog>
 

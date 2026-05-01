@@ -86,20 +86,10 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
         }}
       >
         {showBack && (
-          <Tooltip
-            title={
-              backTo
-                ? `Back to ${backTo.split("/").pop() || "previous page"}`
-                : "Go back"
-            }
-          >
+          <Tooltip title={backTo ? `Back to ${backTo.split("/").pop() || "previous page"}` : "Go back"}>
             <IconButton
               onClick={() => (backTo ? navigate(backTo) : navigate(-1))}
-              aria-label={
-                backTo
-                  ? `Back to ${backTo.split("/").pop() || "previous page"}`
-                  : "Go back"
-              }
+              aria-label={backTo ? `Back to ${backTo.split("/").pop() || "previous page"}` : "Go back"}
               sx={{
                 position: "absolute",
                 left: 0,

@@ -1,5 +1,10 @@
 import React from "react";
-import { Typography, Button, Tooltip, keyframes } from "@mui/material";
+import {
+  Typography,
+  Button,
+  Tooltip,
+  keyframes,
+} from "@mui/material";
 import { ACTION_TYPES } from "../../constants/stats";
 
 const pulse = keyframes`
@@ -17,13 +22,7 @@ export const QuickAction: React.FC<{
   warning?: boolean;
 }> = React.memo(
   ({ type, label, icon: Icon, statType, setStatType, warning }) => (
-    <Tooltip
-      title={
-        warning && type === ACTION_TYPES.FOUL
-          ? `${label} (Foul Trouble!)`
-          : label
-      }
-    >
+    <Tooltip title={warning && type === ACTION_TYPES.FOUL ? `${label} (Foul Trouble!)` : label}>
       <Button
         variant={statType === type ? "contained" : "outlined"}
         color={warning && type === ACTION_TYPES.FOUL ? "error" : "inherit"}
@@ -36,8 +35,7 @@ export const QuickAction: React.FC<{
           flexDirection: "column",
           py: 2,
           minWidth: 80,
-          borderColor:
-            warning && type === ACTION_TYPES.FOUL ? "error.main" : "#D1D1D1",
+          borderColor: warning && type === ACTION_TYPES.FOUL ? "error.main" : "#D1D1D1",
           backgroundColor:
             statType === type
               ? warning && type === ACTION_TYPES.FOUL

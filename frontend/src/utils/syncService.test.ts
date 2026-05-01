@@ -294,11 +294,7 @@ describe("SyncService", () => {
       // Mock fetch: s1 succeeds, s2 fails, s3 succeeds
       fetchMock
         .mockResolvedValueOnce({ ok: true }) // s1
-        .mockResolvedValueOnce({
-          ok: false,
-          status: 500,
-          text: () => Promise.resolve("fail"),
-        }) // s2
+        .mockResolvedValueOnce({ ok: false, status: 500, text: () => Promise.resolve("fail") }) // s2
         .mockResolvedValueOnce({ ok: true }); // s3
 
       await syncService.pushUpdates();

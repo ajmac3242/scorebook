@@ -1,5 +1,9 @@
 import React from "react";
-import { Grid, Typography, Box } from "@mui/material";
+import {
+  Grid,
+  Typography,
+  Box,
+} from "@mui/material";
 import { FlashOn } from "@mui/icons-material";
 import { MoleskineCard, AnimatedNumber } from "../SharedUI";
 
@@ -14,7 +18,11 @@ export interface TeamStatsCardProps {
 }
 
 export const TeamStatsCard = React.memo(
-  ({ defensiveStats, teamPpp, oppPpp }: TeamStatsCardProps) => {
+  ({
+    defensiveStats,
+    teamPpp,
+    oppPpp,
+  }: TeamStatsCardProps) => {
     return (
       <MoleskineCard>
         <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 2 }}>

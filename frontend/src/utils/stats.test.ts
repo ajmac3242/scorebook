@@ -1802,28 +1802,10 @@ describe("stats utilities", () => {
 
     it("differentiates between offensive and defensive fouls for stop streak", () => {
       const stats: StatEvent[] = [
-        {
-          gameId: "g1",
-          playerId: "OPPONENT",
-          type: ACTION_TYPES.TURNOVER,
-          timestamp: "1",
-          period: 1,
-        },
+        { gameId: "g1", playerId: "OPPONENT", type: ACTION_TYPES.TURNOVER, timestamp: "1", period: 1 },
         // Streak = 1. Now we commit an offensive foul (while we have ball)
-        {
-          gameId: "g1",
-          playerId: "p1",
-          type: ACTION_TYPES.FOUL,
-          timestamp: "2",
-          period: 1,
-        },
-        {
-          gameId: "g1",
-          playerId: "OPPONENT",
-          type: ACTION_TYPES.TURNOVER,
-          timestamp: "3",
-          period: 1,
-        },
+        { gameId: "g1", playerId: "p1", type: ACTION_TYPES.FOUL, timestamp: "2", period: 1 },
+        { gameId: "g1", playerId: "OPPONENT", type: ACTION_TYPES.TURNOVER, timestamp: "3", period: 1 },
       ];
       // isOurPossession becomes true after first TO. p1 FOUL is offensive -> streak NOT reset.
       const result = calculateStopsAndKills(stats);
@@ -1834,13 +1816,7 @@ describe("stats utilities", () => {
     it("awards a stop for opponent offensive fouls", () => {
       const stats: StatEvent[] = [
         // Opponent has ball, they commit a foul (offensive)
-        {
-          gameId: "g1",
-          playerId: "OPPONENT",
-          type: ACTION_TYPES.FOUL,
-          timestamp: "1",
-          period: 1,
-        },
+        { gameId: "g1", playerId: "OPPONENT", type: ACTION_TYPES.FOUL, timestamp: "1", period: 1 },
       ];
       const result = calculateStopsAndKills(stats);
       expect(result.totalStops).toBe(1);
@@ -2061,12 +2037,8 @@ describe("stats utilities", () => {
       ];
 
       const results = calculateMatchupStats(stats);
-      const m1 = results.find(
-        (r) => r.ourPlayerId === "p1" && r.opponentPlayerId === "OPPONENT:10",
-      )!;
-      const m2 = results.find(
-        (r) => r.ourPlayerId === "p2" && r.opponentPlayerId === "OPPONENT:10",
-      )!;
+      const m1 = results.find((r) => r.ourPlayerId === "p1" && r.opponentPlayerId === "OPPONENT:10")!;
+      const m2 = results.find((r) => r.ourPlayerId === "p2" && r.opponentPlayerId === "OPPONENT:10")!;
 
       expect(m1.pointsAllowed).toBe(2);
       expect(m2.pointsAllowed).toBe(3);
@@ -2091,9 +2063,7 @@ describe("stats utilities", () => {
         },
       ];
       const results = calculateMatchupStats(stats);
-      const m1 = results.find(
-        (r) => r.ourPlayerId === "p1" && r.opponentPlayerId === "OPPONENT:10",
-      )!;
+      const m1 = results.find((r) => r.ourPlayerId === "p1" && r.opponentPlayerId === "OPPONENT:10")!;
       expect(m1.stops).toBe(1);
       expect(m1.stopPct).toBe("100.0");
     });
@@ -2181,47 +2151,12 @@ describe("stats utilities", () => {
     it("isolates game totals correctly for On/Off calculation (multi-game isolation)", () => {
       const players = [{ id: "p1", name: "Player 1" }];
       const stats: StatEvent[] = [
-        {
-          gameId: "g1",
-          playerId: "p1",
-          type: ACTION_TYPES.SUB_IN,
-          clockTime: 600,
-          period: 1,
-          timestamp: "1",
-        },
-        {
-          gameId: "g1",
-          playerId: "p1",
-          type: ACTION_TYPES.MAKE,
-          points: 2,
-          period: 1,
-          timestamp: "2",
-        },
-        {
-          gameId: "g1",
-          playerId: "p1",
-          type: ACTION_TYPES.SUB_OUT,
-          clockTime: 300,
-          period: 1,
-          timestamp: "3",
-        },
+        { gameId: "g1", playerId: "p1", type: ACTION_TYPES.SUB_IN, clockTime: 600, period: 1, timestamp: "1" },
+        { gameId: "g1", playerId: "p1", type: ACTION_TYPES.MAKE, points: 2, period: 1, timestamp: "2" },
+        { gameId: "g1", playerId: "p1", type: ACTION_TYPES.SUB_OUT, clockTime: 300, period: 1, timestamp: "3" },
         // Game 2
-        {
-          gameId: "g2",
-          playerId: "p1",
-          type: ACTION_TYPES.SUB_IN,
-          clockTime: 600,
-          period: 1,
-          timestamp: "4",
-        },
-        {
-          gameId: "g2",
-          playerId: "p1",
-          type: ACTION_TYPES.MAKE,
-          points: 3,
-          period: 1,
-          timestamp: "5",
-        },
+        { gameId: "g2", playerId: "p1", type: ACTION_TYPES.SUB_IN, clockTime: 600, period: 1, timestamp: "4" },
+        { gameId: "g2", playerId: "p1", type: ACTION_TYPES.MAKE, points: 3, period: 1, timestamp: "5" },
       ];
       // Total game points: 5. p1 ON for 5. p1 OFF should be 0.
       const result = calculateOnOffStats(players, stats);
@@ -2233,30 +2168,9 @@ describe("stats utilities", () => {
     it("verifies OFF stats are exactly zero when a player is on the court for the whole game", () => {
       const players = [{ id: "p1", name: "Player 1" }];
       const stats: StatEvent[] = [
-        {
-          gameId: "g1",
-          playerId: "p1",
-          type: ACTION_TYPES.SUB_IN,
-          clockTime: 600,
-          period: 1,
-          timestamp: "1",
-        },
-        {
-          gameId: "g1",
-          playerId: "p1",
-          type: ACTION_TYPES.MAKE,
-          points: 2,
-          period: 1,
-          timestamp: "2",
-        },
-        {
-          gameId: "g1",
-          playerId: "OPPONENT",
-          type: ACTION_TYPES.MAKE,
-          points: 2,
-          period: 1,
-          timestamp: "3",
-        },
+        { gameId: "g1", playerId: "p1", type: ACTION_TYPES.SUB_IN, clockTime: 600, period: 1, timestamp: "1" },
+        { gameId: "g1", playerId: "p1", type: ACTION_TYPES.MAKE, points: 2, period: 1, timestamp: "2" },
+        { gameId: "g1", playerId: "OPPONENT", type: ACTION_TYPES.MAKE, points: 2, period: 1, timestamp: "3" },
         // No SUB_OUT
       ];
       const result = calculateOnOffStats(players, stats);
@@ -2350,34 +2264,14 @@ describe("stats utilities", () => {
 
   describe("calculateTargetAttackStats", () => {
     const playerStats: PlayerAggregates[] = [
-      {
-        id: "p1",
-        name: "Attacker 1",
-        efgPct: "60.0",
-        attempts: 5,
-      } as PlayerAggregates,
-      {
-        id: "p2",
-        name: "Attacker 2",
-        efgPct: "40.0",
-        attempts: 5,
-      } as PlayerAggregates,
+      { id: "p1", name: "Attacker 1", efgPct: "60.0", attempts: 5 } as PlayerAggregates,
+      { id: "p2", name: "Attacker 2", efgPct: "40.0", attempts: 5 } as PlayerAggregates,
     ];
 
     it("identifies the opponent defender with highest PPP allowed", () => {
       const matchups: MatchupStats[] = [
-        {
-          opponentPlayerId: "OPPONENT:1",
-          pointsAllowed: 10,
-          possessions: 5,
-          isOpponentDefender: true,
-        } as MatchupStats,
-        {
-          opponentPlayerId: "OPPONENT:2",
-          pointsAllowed: 2,
-          possessions: 5,
-          isOpponentDefender: true,
-        } as MatchupStats,
+        { opponentPlayerId: "OPPONENT:1", pointsAllowed: 10, possessions: 5, isOpponentDefender: true } as MatchupStats,
+        { opponentPlayerId: "OPPONENT:2", pointsAllowed: 2, possessions: 5, isOpponentDefender: true } as MatchupStats,
       ];
       const result = calculateTargetAttackStats(matchups, playerStats);
       expect(result?.targetOpponentId).toBe("OPPONENT:1");
@@ -2469,56 +2363,30 @@ describe("stats utilities", () => {
   });
 });
 
-describe("Assistant Coach Analytical Models", () => {
+describe('Assistant Coach Analytical Models', () => {
   const mockStats: StatEvent[] = [
-    {
-      id: "1",
-      type: ACTION_TYPES.FOUL,
-      playerId: "PLAYER:1",
-      period: 1,
-      clockTime: "10:00",
-      timestamp: "2023-01-01T00:00:00Z",
-      gameId: "G1",
-    },
-    {
-      id: "2",
-      type: ACTION_TYPES.FOUL,
-      playerId: "OPPONENT:1",
-      period: 1,
-      clockTime: "09:00",
-      timestamp: "2023-01-01T00:00:01Z",
-      gameId: "G1",
-    },
-    {
-      id: "3",
-      type: ACTION_TYPES.MAKE,
-      playerId: "PLAYER:1",
-      points: 3,
-      period: 1,
-      clockTime: "08:00",
-      timestamp: "2023-01-01T00:00:02Z",
-      gameId: "G1",
-      playName: "PnR",
-    },
+    { id: '1', type: ACTION_TYPES.FOUL, playerId: 'PLAYER:1', period: 1, clockTime: '10:00', timestamp: '2023-01-01T00:00:00Z', gameId: 'G1' },
+    { id: '2', type: ACTION_TYPES.FOUL, playerId: 'OPPONENT:1', period: 1, clockTime: '09:00', timestamp: '2023-01-01T00:00:01Z', gameId: 'G1' },
+    { id: '3', type: ACTION_TYPES.MAKE, playerId: 'PLAYER:1', points: 3, period: 1, clockTime: '08:00', timestamp: '2023-01-01T00:00:02Z', gameId: 'G1', playName: 'PnR' },
   ];
 
-  it("calculateOfficiatingStats calculates correctly", () => {
+  it('calculateOfficiatingStats calculates correctly', () => {
     const stats = calculateOfficiatingStats(mockStats, 10);
     expect(stats.teamFouls).toBe(1);
     expect(stats.oppFouls).toBe(1);
     expect(stats.fpm).toBe(0.2);
-    expect(stats.tightness).toBe("LOW");
+    expect(stats.tightness).toBe('LOW');
   });
 
-  it("calculatePaceAnalytics calculates correctly", () => {
+  it('calculatePaceAnalytics calculates correctly', () => {
     const pace = calculatePaceAnalytics(10, 1, 300, 10, 70, mockStats);
     expect(pace.pace).toBeGreaterThan(0);
     expect(pace.tempoDelta).toBeDefined();
   });
 
-  it("calculateClutchPlaybookRanking ranks plays", () => {
+  it('calculateClutchPlaybookRanking ranks plays', () => {
     const rankings = calculateClutchPlaybookRanking(mockStats, 240, []);
     expect(rankings.length).toBeGreaterThan(0);
-    expect(rankings[0].playName).toBe("PnR");
+    expect(rankings[0].playName).toBe('PnR');
   });
 });

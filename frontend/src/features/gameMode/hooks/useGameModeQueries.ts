@@ -94,8 +94,7 @@ export function useGameModeQueries({
   );
 
   const game = useLiveQuery(
-    () =>
-      gameId ? db.games.get(gameId as string) : Promise.resolve(undefined),
+    () => (gameId ? db.games.get(gameId as string) : Promise.resolve(undefined)),
     [gameId],
   );
 

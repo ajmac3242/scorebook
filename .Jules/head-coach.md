@@ -107,11 +107,3 @@ Observation: The application has reached a peak in "Live Game Execution" intelli
 Impact: Without Expected Points (xPTS), coaches can be victims of "Result Bias"—blaming a good process for a bad outcome during a shooting slump. Without longitudinal referee scouting, the "Third Team" (officials) remains a variable we react to rather than a factor we prepare for. Finally, without automated program-wide rotation optimization, the "Hidden Engines" of team chemistry remain buried in fragmented game data.
 
 Recommendation: Pivot toward **Prescriptive Process Intelligence** and **Program-Wide Longitudinal Analysis**. Priority must be given to the Expected Value (xPTS) ROI Engine and the Longitudinal Referee Scouting Database. We must also implement "Spark Plug" analytics to value bench impact and a "Rotation Optimizer" to identify the statistically ideal 5-man units across the entire season. This transforms the platform from a tactical assistant into a Program-Level Operating System.
-
-## 2026-05-01 - From Causal Analytics to Operational Autonomy
-
-Observation: We have successfully archived the "Capture" and "Efficiency" phases of the roadmap. The platform now possesses a high-fidelity understanding of possession-based value (PPP) and lineup synergy. However, the data remains "Outcome Biased." We know *what* happened (a 1.2 PPP half), but the attribution to "Why" (Defensive Breakdowns vs. Process Quality) is still locked in the coach's head rather than the data engine.
-
-Impact: Without Defensive Breakdown Attribution, post-game film reviews are subjective and lack accountability. Without Expected Value (xPTS), a team can abandon a winning strategy due to a variance-driven shooting slump. Finally, the "Entry Bottleneck"—the manual taps required to record high-pace play—remains the primary barrier to 100% data fidelity in solo-operator environments.
-
-Recommendation: Pivot the implementation focus toward **The Attribution Layer**. Priority must be given to Defensive Breakdown Attribution and the Expected Value (xPTS) ROI Engine to move from result-bias to process-integrity. Simultaneously, we must solve the "Entry Friction" problem via Voice-Driven Scorekeeping to ensure professional-grade data can be captured by a single user on the bench.

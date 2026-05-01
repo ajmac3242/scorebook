@@ -35,8 +35,8 @@ export function redactRecord<T>(
   record: Record<string, T>,
   sensitiveKeys?: ReadonlySet<string>,
   redactor: (val: T) => unknown = () => "[REDACTED]",
-): Record<string, any> {
-  const result: Record<string, any> = { ...record };
+): Record<string, unknown> {
+  const result: Record<string, unknown> = { ...record };
   for (const key in result) {
     if (Object.prototype.hasOwnProperty.call(result, key)) {
       if (!sensitiveKeys || sensitiveKeys.has(key.toLowerCase())) {
@@ -91,8 +91,8 @@ export function recursiveTransform(
       .map((item) => recursiveTransform(item, transform, depth + 1));
   }
 
-  const result: Record<string, any> = {};
-  const record = data as Record<string, any>;
+  const result: Record<string, unknown> = {};
+  const record = data as Record<string, unknown>;
   for (const key in record) {
     if (Object.prototype.hasOwnProperty.call(record, key)) {
       if (FORBIDDEN_KEYS.has(key)) continue;

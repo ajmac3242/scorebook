@@ -7,7 +7,7 @@ import { INTERNAL_KEYS } from "../responses.js";
  * @param {any} event - The raw Lambda event.
  * @returns {unknown} A sanitized copy of the event.
  */
-export function maskEvent(event: any): unknown {
+export function maskEvent(event: unknown): unknown {
   const masked = { ...event };
 
   if (event.headers) {

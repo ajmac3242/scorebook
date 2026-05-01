@@ -114,13 +114,10 @@ const TeamStats: React.FC = () => {
   >({});
   const [editPlaybook, setEditPlaybook] = useState<string[]>([]);
   const [newPlayName, setNewPlayName] = useState("");
-  const [editTacticalGoals, setEditTacticalGoals] = useState<TacticalGoal[]>(
-    [],
-  );
+  const [editTacticalGoals, setEditTacticalGoals] = useState<TacticalGoal[]>([]);
   const [newGoalLabel, setNewGoalLabel] = useState("");
   const [newGoalType, setNewGoalType] = useState("TO");
-  const [newGoalOperator, setNewGoalOperator] =
-    useState<TacticalGoal["operator"]>("<=");
+  const [newGoalOperator, setNewGoalOperator] = useState<TacticalGoal["operator"]>("<=");
   const [newGoalTarget, setNewGoalTarget] = useState<number>(0);
   const [timeLeft, setTimeLeft] = useState("");
   const [sortConfig, setSortConfig] = useState<{
@@ -329,12 +326,11 @@ const TeamStats: React.FC = () => {
 
   const [synergyUnitSize, setSynergyUnitSize] = useState<2 | 3>(2);
   const synergyStats = useMemo(
-    () =>
-      calculateSynergyStats(allStats as StatEvent[], synergyUnitSize, {
-        periodLength: team?.defaultPeriodLength,
-        periodType: team?.periodType,
-      }),
-    [allStats, synergyUnitSize, team],
+    () => calculateSynergyStats(allStats as StatEvent[], synergyUnitSize, {
+      periodLength: team?.defaultPeriodLength,
+      periodType: team?.periodType
+    }),
+    [allStats, synergyUnitSize, team]
   );
 
   const playerStats = useMemo(() => {
@@ -1249,14 +1245,7 @@ const TeamStats: React.FC = () => {
 
       {tabValue === 3 && (
         <Box>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              mb: 3,
-            }}
-          >
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
             <Typography variant="h5" sx={{ fontFamily: "var(--serif)" }}>
               Defensive Synergy (Multi-Player Units)
             </Typography>
@@ -1276,26 +1265,16 @@ const TeamStats: React.FC = () => {
               <TableHead>
                 <TableRow sx={{ bgcolor: "rgba(0,0,0,0.02)" }}>
                   <TableCell sx={{ fontWeight: 700 }}>Unit</TableCell>
-                  <TableCell align="right" sx={{ fontWeight: 700 }}>
-                    MIN
-                  </TableCell>
-                  <TableCell align="right" sx={{ fontWeight: 700 }}>
-                    POSS
-                  </TableCell>
-                  <TableCell align="right" sx={{ fontWeight: 700 }}>
-                    STOPS
-                  </TableCell>
-                  <TableCell align="right" sx={{ fontWeight: 700 }}>
-                    DRTG
-                  </TableCell>
-                  <TableCell align="right" sx={{ fontWeight: 700 }}>
-                    NET
-                  </TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 700 }}>MIN</TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 700 }}>POSS</TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 700 }}>STOPS</TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 700 }}>DRTG</TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 700 }}>NET</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {synergyStats
-                  .filter((s) => s.seconds >= 600) // Min 10 mins
+                  .filter(s => s.seconds >= 600) // Min 10 mins
                   .sort((a, b) => parseFloat(a.dRtg) - parseFloat(b.dRtg))
                   .map((row, idx) => (
                     <TableRow key={idx}>
@@ -1304,54 +1283,29 @@ const TeamStats: React.FC = () => {
                           {row.lineup.map((pId) => (
                             <Avatar
                               key={pId}
-                              sx={{
-                                width: 24,
-                                height: 24,
-                                fontSize: "0.65rem",
-                              }}
+                              sx={{ width: 24, height: 24, fontSize: "0.65rem" }}
                             >
                               {sortedRosterJerseyMap.get(pId) || "??"}
                             </Avatar>
                           ))}
                         </Stack>
                       </TableCell>
-                      <TableCell align="right">
-                        {(row.seconds / 60).toFixed(1)}
-                      </TableCell>
+                      <TableCell align="right">{(row.seconds / 60).toFixed(1)}</TableCell>
                       <TableCell align="right">{row.possessions}</TableCell>
                       <TableCell align="right">{row.defensiveStops}</TableCell>
-                      <TableCell
-                        align="right"
-                        sx={{
-                          fontWeight: 700,
-                          color:
-                            parseFloat(row.dRtg) < 100
-                              ? "success.main"
-                              : "inherit",
-                        }}
-                      >
+                      <TableCell align="right" sx={{ fontWeight: 700, color: parseFloat(row.dRtg) < 100 ? 'success.main' : 'inherit' }}>
                         {row.dRtg}
                       </TableCell>
-                      <TableCell
-                        align="right"
-                        sx={{
-                          fontWeight: 700,
-                          color:
-                            parseFloat(row.netRating) > 0
-                              ? "success.main"
-                              : "error.main",
-                        }}
-                      >
+                      <TableCell align="right" sx={{ fontWeight: 700, color: parseFloat(row.netRating) > 0 ? 'success.main' : 'error.main' }}>
                         {row.netRating}
                       </TableCell>
                     </TableRow>
                   ))}
-                {synergyStats.filter((s) => s.seconds >= 600).length === 0 && (
+                {synergyStats.filter(s => s.seconds >= 600).length === 0 && (
                   <TableRow>
                     <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
                       <Typography variant="body2" color="text.secondary">
-                        No units found with significant minutes (&gt;10m) in
-                        this window.
+                        No units found with significant minutes (&gt;10m) in this window.
                       </Typography>
                     </TableCell>
                   </TableRow>
@@ -1676,11 +1630,7 @@ const TeamStats: React.FC = () => {
                     <Select
                       value={newGoalOperator}
                       label="Op"
-                      onChange={(e) =>
-                        setNewGoalOperator(
-                          e.target.value as TacticalGoal["operator"],
-                        )
-                      }
+                      onChange={(e) => setNewGoalOperator(e.target.value as TacticalGoal["operator"])}
                     >
                       <MenuItem value="<=">&lt;=</MenuItem>
                       <MenuItem value=">=">&gt;=</MenuItem>
@@ -1694,9 +1644,7 @@ const TeamStats: React.FC = () => {
                     label="Target"
                     type="number"
                     value={newGoalTarget}
-                    onChange={(e) =>
-                      setNewGoalTarget(parseFloat(e.target.value) || 0)
-                    }
+                    onChange={(e) => setNewGoalTarget(parseFloat(e.target.value) || 0)}
                   />
                   <Button
                     variant="outlined"
@@ -1845,9 +1793,8 @@ const TeamStats: React.FC = () => {
                                 onChange={async (e) => {
                                   if (dbRecord?.id) {
                                     await db.teamPlayers.update(dbRecord.id, {
-                                      targetMinutes:
-                                        parseInt(e.target.value) || 0,
-                                      synced: 0,
+                                      targetMinutes: parseInt(e.target.value) || 0,
+                                      synced: 0
                                     });
                                   }
                                 }}

@@ -24,9 +24,7 @@ interface MatchupAssignmentDialogProps {
   handleSaveMatchup: (_defenderId: string) => void;
 }
 
-export const MatchupAssignmentDialog: React.FC<
-  MatchupAssignmentDialogProps
-> = ({
+export const MatchupAssignmentDialog: React.FC<MatchupAssignmentDialogProps> = ({
   open,
   onClose,
   matchupOpponentId,
@@ -39,15 +37,18 @@ export const MatchupAssignmentDialog: React.FC<
   handleSaveMatchup,
 }) => {
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs">
+    <Dialog
+      open={open}
+      onClose={onClose}
+      fullWidth
+      maxWidth="xs"
+    >
       <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
         Assign Defender
         <Typography variant="body2" color="text.secondary">
-          Who should guard{" "}
-          {matchupOpponentId?.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":")
+          Who should guard {matchupOpponentId?.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":")
             ? `Opponent #${matchupOpponentId.split(":")[1]}`
-            : game?.opponent || "Opponent"}
-          ?
+            : (game?.opponent || "Opponent")}?
         </Typography>
       </DialogTitle>
       <DialogContent>
@@ -64,11 +65,7 @@ export const MatchupAssignmentDialog: React.FC<
             .map((p) => (
               <Button
                 key={p.id}
-                variant={
-                  currentMatchups.get(matchupOpponentId!) === p.id
-                    ? "contained"
-                    : "outlined"
-                }
+                variant={currentMatchups.get(matchupOpponentId!) === p.id ? "contained" : "outlined"}
                 onClick={() => handleSaveMatchup(p.id!)}
                 sx={{ flexDirection: "column", py: 2 }}
               >
@@ -103,18 +100,7 @@ export const MatchupAssignmentDialog: React.FC<
             onClick={() => handleSaveMatchup("")}
             sx={{ flexDirection: "column", py: 2 }}
           >
-            <Avatar
-              sx={{
-                bgcolor: "transparent",
-                border: "1px dashed grey",
-                width: 32,
-                height: 32,
-                mb: 0.5,
-                color: "text.secondary",
-              }}
-            >
-              ?
-            </Avatar>
+            <Avatar sx={{ bgcolor: "transparent", border: "1px dashed grey", width: 32, height: 32, mb: 0.5, color: "text.secondary" }}>?</Avatar>
             <Typography variant="caption">None</Typography>
           </Button>
         </Box>

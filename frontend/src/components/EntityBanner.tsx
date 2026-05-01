@@ -276,6 +276,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
             sx={{
               display: "flex",
               alignItems: "center",
+              transition: "all 0.3s ease",
               width: isSearchExpanded ? { xs: "160px", sm: "240px" } : "40px",
               overflow: "hidden",
               bgcolor: isSearchExpanded
