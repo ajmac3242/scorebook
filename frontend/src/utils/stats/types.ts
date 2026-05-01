@@ -174,6 +174,7 @@ export interface LineupAggregates {
   min: number;
   seconds?: number;
   netRating?: string | number;
+  turnovers?: number;
 }
 
 export interface OnOffImpact {
