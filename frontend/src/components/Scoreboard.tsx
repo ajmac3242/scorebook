@@ -182,7 +182,14 @@ export const Scoreboard = React.memo(
             >
               <AnimatedNumber value={score} />
             </Typography>
-            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 0.5 }}>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 0.5,
+              }}
+            >
               <TimeoutDots
                 count={timeouts}
                 total={timeoutTotal}
@@ -194,7 +201,8 @@ export const Scoreboard = React.memo(
                 <Typography
                   variant="caption"
                   sx={{
-                    color: timeouts <= 1 ? "error.light" : "rgba(255,255,255,0.5)",
+                    color:
+                      timeouts <= 1 ? "error.light" : "rgba(255,255,255,0.5)",
                     fontSize: "0.5rem",
                     fontWeight: 800,
                     textTransform: "uppercase",
@@ -587,7 +595,10 @@ export const Scoreboard = React.memo(
           </Box>
 
           {/* Bonus Indicators */}
-          <Box sx={{ mt: 1.5, height: 20, display: "flex", gap: 2 }} aria-label="Bonus status">
+          <Box
+            sx={{ mt: 1.5, height: 20, display: "flex", gap: 2 }}
+            aria-label="Bonus status"
+          >
             {gameData.teamFoulStats.teamBonusLabel && (
               <Typography
                 sx={{

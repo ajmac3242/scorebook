@@ -1,17 +1,5 @@
 import React, { useMemo } from "react";
-import {
-  Box,
-  Typography,
-  Button,
-  Chip,
-  Stack,
-  useTheme,
-} from "@mui/material";
-import {
-  FlashOn,
-  Warning,
-  Pause,
-} from "@mui/icons-material";
+import { Typography, Button } from "@mui/material";
 import { MoleskineCard } from "../SharedUI";
 import { calculateTimeoutRecommendation } from "../../utils/stats";
 
@@ -40,7 +28,8 @@ export const StrategicAdvisorHUD: React.FC<StrategicAdvisorHUDProps> = ({
   const recommendation = useMemo(() => {
     return calculateTimeoutRecommendation({
       opponentRun: gameData.momentumAlerts.opponentRun,
-      teamFoulTrouble: (gameData.momentumAlerts.foulTroublePlayers?.length || 0) > 0,
+      teamFoulTrouble:
+        (gameData.momentumAlerts.foulTroublePlayers?.length || 0) > 0,
       clutchMode: !!gameData.momentumAlerts.isClutchMode,
       timeoutsRemaining: gameData.timeoutStats.teamTOL,
       isClockRunning,

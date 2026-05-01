@@ -12,7 +12,6 @@ import {
   keyframes,
 } from "@mui/material";
 import {
-  FlashOn,
   Security as SecurityIcon,
   Star as StarIcon,
   Scale as BalanceIcon,
@@ -61,7 +60,8 @@ export const StrategicAdvisorHUD: React.FC<StrategicAdvisorHUDProps> = ({
   const recommendation = useMemo(() => {
     return calculateTimeoutRecommendation({
       opponentRun: gameData.momentumAlerts.opponentRun,
-      teamFoulTrouble: (gameData.momentumAlerts.foulTroublePlayers?.length || 0) > 0,
+      teamFoulTrouble:
+        (gameData.momentumAlerts.foulTroublePlayers?.length || 0) > 0,
       clutchMode: !!gameData.momentumAlerts.isClutchMode,
       timeoutsRemaining: gameData.timeoutStats.teamTOL,
       isClockRunning,
@@ -123,9 +123,10 @@ export const ClutchPlaybookAdvisor: React.FC<{
       sx={{
         border: "2px solid",
         borderColor: "primary.main",
-        background: "linear-gradient(135deg, rgba(25, 118, 210, 0.05) 0%, rgba(25, 118, 210, 0.02) 100%)",
+        background:
+          "linear-gradient(135deg, rgba(25, 118, 210, 0.05) 0%, rgba(25, 118, 210, 0.02) 100%)",
         position: "relative",
-        overflow: "hidden"
+        overflow: "hidden",
       }}
     >
       <Box
@@ -134,20 +135,45 @@ export const ClutchPlaybookAdvisor: React.FC<{
           top: -10,
           right: -10,
           opacity: 0.1,
-          transform: "rotate(15deg)"
+          transform: "rotate(15deg)",
         }}
       >
         <StarIcon sx={{ fontSize: 80, color: "primary.main" }} />
       </Box>
 
-      <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "primary.main", mb: 1.5, display: "flex", alignItems: "center", gap: 1 }}>
+      <Typography
+        variant="subtitle2"
+        sx={{
+          fontWeight: 800,
+          color: "primary.main",
+          mb: 1.5,
+          display: "flex",
+          alignItems: "center",
+          gap: 1,
+        }}
+      >
         <StarIcon fontSize="small" /> CLUTCH PLAYBOOK
       </Typography>
 
       <Stack spacing={1.5}>
         {topPlays.map((play, idx) => (
-          <Box key={play.playName} sx={{ p: 1, bgcolor: "rgba(255,255,255,0.5)", borderRadius: 1.5, border: "1px solid rgba(0,0,0,0.05)" }}>
-            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 0.5 }}>
+          <Box
+            key={play.playName}
+            sx={{
+              p: 1,
+              bgcolor: "rgba(255,255,255,0.5)",
+              borderRadius: 1.5,
+              border: "1px solid rgba(0,0,0,0.05)",
+            }}
+          >
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                mb: 0.5,
+              }}
+            >
               <Typography variant="body2" sx={{ fontWeight: 800 }}>
                 {idx + 1}. {play.playName}
               </Typography>
@@ -159,7 +185,10 @@ export const ClutchPlaybookAdvisor: React.FC<{
               />
             </Box>
             {play.targetMismatches.length > 0 && (
-              <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600 }}>
+              <Typography
+                variant="caption"
+                sx={{ color: "text.secondary", fontWeight: 600 }}
+              >
                 🎯 Target Opp #{play.targetMismatches[0].split(":")[1]}
               </Typography>
             )}
@@ -176,44 +205,114 @@ export const OfficiatingHUD: React.FC<{
   const isTight = stats.tightness === "HIGH";
 
   return (
-    <MoleskineCard sx={{ borderLeft: isTight ? "6px solid #f44336" : "1px solid rgba(0,0,0,0.12)" }}>
-      <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "text.primary", mb: 1.5, display: "flex", alignItems: "center", gap: 1 }}>
+    <MoleskineCard
+      sx={{
+        borderLeft: isTight
+          ? "6px solid #f44336"
+          : "1px solid rgba(0,0,0,0.12)",
+      }}
+    >
+      <Typography
+        variant="subtitle2"
+        sx={{
+          fontWeight: 800,
+          color: "text.primary",
+          mb: 1.5,
+          display: "flex",
+          alignItems: "center",
+          gap: 1,
+        }}
+      >
         <BalanceIcon sx={{ fontSize: 18, color: "primary.main" }} /> OFFICIATING
       </Typography>
 
       <Grid container spacing={2} sx={{ mb: 2 }}>
         <Grid item xs={6} sx={{ borderRight: "1px solid rgba(0,0,0,0.05)" }}>
-          <Typography variant="caption" sx={{ fontWeight: 800, color: "text.secondary", display: "block", textAlign: "center" }}>
+          <Typography
+            variant="caption"
+            sx={{
+              fontWeight: 800,
+              color: "text.secondary",
+              display: "block",
+              textAlign: "center",
+            }}
+          >
             TEAM FOULS
           </Typography>
-          <Typography variant="body1" sx={{ fontWeight: 900, textAlign: "center" }}>
+          <Typography
+            variant="body1"
+            sx={{ fontWeight: 900, textAlign: "center" }}
+          >
             {stats.teamFouls} ({stats.teamFoulPct.toFixed(1)}%)
           </Typography>
         </Grid>
         <Grid item xs={6}>
-          <Typography variant="caption" sx={{ fontWeight: 800, color: "text.secondary", display: "block", textAlign: "center" }}>
+          <Typography
+            variant="caption"
+            sx={{
+              fontWeight: 800,
+              color: "text.secondary",
+              display: "block",
+              textAlign: "center",
+            }}
+          >
             OPP FOULS
           </Typography>
-          <Typography variant="body1" sx={{ fontWeight: 900, textAlign: "center" }}>
+          <Typography
+            variant="body1"
+            sx={{ fontWeight: 900, textAlign: "center" }}
+          >
             {stats.oppFouls} ({stats.oppFoulPct.toFixed(1)}%)
           </Typography>
         </Grid>
       </Grid>
 
       <Box>
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 0.5 }}>
-          <Typography variant="caption" sx={{ fontWeight: 800, color: isTight ? "error.main" : "text.secondary" }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 0.5,
+          }}
+        >
+          <Typography
+            variant="caption"
+            sx={{
+              fontWeight: 800,
+              color: isTight ? "error.main" : "text.secondary",
+            }}
+          >
             REF TIGHTNESS (FPM)
           </Typography>
-          {isTight && <Chip label="TIGHT" size="small" color="error" sx={{ height: 16, fontSize: "0.55rem", fontWeight: 900 }} />}
+          {isTight && (
+            <Chip
+              label="TIGHT"
+              size="small"
+              color="error"
+              sx={{ height: 16, fontSize: "0.55rem", fontWeight: 900 }}
+            />
+          )}
         </Box>
         <LinearProgress
           variant="determinate"
-          value={Math.min(100, (stats.fpm / (ANALYTICAL_BASELINES.BASELINE_FPM * 2)) * 100)}
+          value={Math.min(
+            100,
+            (stats.fpm / (ANALYTICAL_BASELINES.BASELINE_FPM * 2)) * 100,
+          )}
           color={isTight ? "error" : "primary"}
           sx={{ height: 6, borderRadius: 3, bgcolor: "rgba(0,0,0,0.05)" }}
         />
-        <Typography variant="caption" sx={{ display: "block", textAlign: "right", mt: 0.5, fontSize: "0.6rem", opacity: 0.6 }}>
+        <Typography
+          variant="caption"
+          sx={{
+            display: "block",
+            textAlign: "right",
+            mt: 0.5,
+            fontSize: "0.6rem",
+            opacity: 0.6,
+          }}
+        >
           {stats.fpm.toFixed(2)} fouls/min
         </Typography>
       </Box>
@@ -232,14 +331,33 @@ export const PaceHUD: React.FC<{
     <MoleskineCard
       sx={{
         bgcolor: analytics.paceShift ? "rgba(255, 235, 59, 0.05)" : "inherit",
-        border: analytics.paceShift ? "1px solid #fbc02d" : "1px solid rgba(0,0,0,0.12)"
+        border: analytics.paceShift
+          ? "1px solid #fbc02d"
+          : "1px solid rgba(0,0,0,0.12)",
       }}
     >
-      <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "text.primary", mb: 1, display: "flex", alignItems: "center", gap: 1 }}>
-        <ElectricBoltIcon sx={{ fontSize: 18, color: "#ffb300" }} /> PACE & PRESSURE
+      <Typography
+        variant="subtitle2"
+        sx={{
+          fontWeight: 800,
+          color: "text.primary",
+          mb: 1,
+          display: "flex",
+          alignItems: "center",
+          gap: 1,
+        }}
+      >
+        <ElectricBoltIcon sx={{ fontSize: 18, color: "#ffb300" }} /> PACE &
+        PRESSURE
       </Typography>
 
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-end",
+        }}
+      >
         <Box>
           <Typography variant="h4" sx={{ fontWeight: 900, lineHeight: 1 }}>
             {analytics.pace > 0 ? analytics.pace.toFixed(0) : "0"}
@@ -257,12 +375,16 @@ export const PaceHUD: React.FC<{
               color: analytics.tempoDelta > 0 ? "success.main" : "error.main",
               display: "flex",
               alignItems: "center",
-              justifyContent: "flex-end"
+              justifyContent: "flex-end",
             }}
           >
-            {analytics.tempoDelta > 0 ? "+" : ""}{analytics.tempoDelta.toFixed(1)}
+            {analytics.tempoDelta > 0 ? "+" : ""}
+            {analytics.tempoDelta.toFixed(1)}
           </Typography>
-          <Typography variant="caption" sx={{ fontWeight: 700, opacity: 0.6, fontSize: "0.6rem" }}>
+          <Typography
+            variant="caption"
+            sx={{ fontWeight: 700, opacity: 0.6, fontSize: "0.6rem" }}
+          >
             VS IDENTITY ({identityPace})
           </Typography>
         </Box>
@@ -278,10 +400,15 @@ export const PaceHUD: React.FC<{
             px: 1,
             fontSize: "0.65rem",
             fontWeight: 800,
-            "& .MuiAlert-message": { p: 0.5 }
+            "& .MuiAlert-message": { p: 0.5 },
           }}
         >
-          TEMPO SHIFT: {isFastShift ? "SPEEDING UP" : isSlowShift ? "SLOWING DOWN" : "VOLATILE"}
+          TEMPO SHIFT:{" "}
+          {isFastShift
+            ? "SPEEDING UP"
+            : isSlowShift
+              ? "SLOWING DOWN"
+              : "VOLATILE"}
         </Alert>
       )}
     </MoleskineCard>
@@ -314,29 +441,63 @@ export const TargetAttackHUD: React.FC<{
         animation: isMismatch ? `${pulse} 2s infinite ease-in-out` : "none",
       }}
     >
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
-        <Typography variant="subtitle2" sx={{ fontWeight: 800, display: "flex", alignItems: "center", gap: 1 }}>
-          <SecurityIcon sx={{ fontSize: 18, color: "secondary.main" }} /> TARGET ATTACK
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 1,
+        }}
+      >
+        <Typography
+          variant="subtitle2"
+          sx={{
+            fontWeight: 800,
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
+          }}
+        >
+          <SecurityIcon sx={{ fontSize: 18, color: "secondary.main" }} /> TARGET
+          ATTACK
         </Typography>
         {isMismatch && (
-          <Chip label="MISMATCH" size="small" color="error" sx={{ fontWeight: 900, height: 20, fontSize: "0.6rem" }} />
+          <Chip
+            label="MISMATCH"
+            size="small"
+            color="error"
+            sx={{ fontWeight: 900, height: 20, fontSize: "0.6rem" }}
+          />
         )}
       </Box>
       <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-        <Avatar sx={{ bgcolor: "secondary.main", width: 40, height: 40, fontWeight: 800 }}>
+        <Avatar
+          sx={{
+            bgcolor: "secondary.main",
+            width: 40,
+            height: 40,
+            fontWeight: 800,
+          }}
+        >
           {oppJersey}
         </Avatar>
         <Box>
           <Typography variant="body2" sx={{ fontWeight: 700 }}>
             Opponent #{oppJersey}
           </Typography>
-          <Typography variant="caption" sx={{ display: "block", color: "text.secondary" }}>
+          <Typography
+            variant="caption"
+            sx={{ display: "block", color: "text.secondary" }}
+          >
             Allowing {ppp} PPP | {target.stopPct}% Stop Rate
           </Typography>
         </Box>
       </Box>
       <Box sx={{ mt: 1.5, p: 1, bgcolor: "rgba(0,0,0,0.03)", borderRadius: 1 }}>
-        <Typography variant="caption" sx={{ fontWeight: 600, color: "primary.main" }}>
+        <Typography
+          variant="caption"
+          sx={{ fontWeight: 600, color: "primary.main" }}
+        >
           💡 REC: Attack via Isolation or PnR
         </Typography>
       </Box>

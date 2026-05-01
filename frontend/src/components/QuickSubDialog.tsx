@@ -132,10 +132,16 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                       >
                         {jerseyMap.get(p.id!) ?? ""}
                       </Avatar>
-                      <Typography variant="body2" noWrap sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                      <Typography
+                        variant="body2"
+                        noWrap
+                        sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
+                      >
                         #{jerseyMap.get(p.id!) ?? ""} {p.name}
                         {isFouledOut && " - OUT"}
-                        {isSelected && <SwapHoriz fontSize="small" sx={{ ml: 0.5 }} />}
+                        {isSelected && (
+                          <SwapHoriz fontSize="small" sx={{ ml: 0.5 }} />
+                        )}
                       </Typography>
                     </Button>
                   );
@@ -230,7 +236,8 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                             : isFouledOut
                               ? "error.main"
                               : "text.primary",
-                        opacity: isFouledOut && selectedSwapId !== p.id ? 0.6 : 1,
+                        opacity:
+                          isFouledOut && selectedSwapId !== p.id ? 0.6 : 1,
                         bgcolor:
                           selectedSwapId === p.id
                             ? isFouledOut
@@ -262,10 +269,16 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                       >
                         {jerseyMap.get(p.id!) ?? ""}
                       </Avatar>
-                      <Typography variant="body2" noWrap sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                      <Typography
+                        variant="body2"
+                        noWrap
+                        sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
+                      >
                         #{jerseyMap.get(p.id!) ?? ""} {p.name}
                         {isFouledOut && " - OUT"}
-                        {isSelected && <SwapHoriz fontSize="small" sx={{ ml: 0.5 }} />}
+                        {isSelected && (
+                          <SwapHoriz fontSize="small" sx={{ ml: 0.5 }} />
+                        )}
                       </Typography>
                     </Button>
                   );

@@ -1,12 +1,10 @@
 import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../../constants/stats";
-import { StatEvent } from "./types";
+import { StatEvent } from "./../../db";
 
 /**
  * 🏀 Momentum: detectOpponentRun
  */
-export const detectOpponentRun = (
-  sortedGameStats: StatEvent[],
-) => {
+export const detectOpponentRun = (sortedGameStats: StatEvent[]) => {
   let tempOppRunPoints = 0;
   let teamScoredSinceOppRunStarted = false;
   for (let i = sortedGameStats.length - 1; i >= 0; i--) {

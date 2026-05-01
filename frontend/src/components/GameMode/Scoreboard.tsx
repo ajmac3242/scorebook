@@ -3,7 +3,6 @@ import {
   Box,
   Typography,
   Avatar,
-  Chip,
   useTheme,
   Stack,
   keyframes,
@@ -190,10 +189,7 @@ export const Scoreboard = React.memo(
 
             {/* Timeouts */}
             <Box sx={{ mt: 1 }}>
-              <TimeoutDots
-                total={timeoutTotal}
-                count={timeouts}
-              />
+              <TimeoutDots total={timeoutTotal} count={timeouts} />
             </Box>
           </Box>
         </Box>
