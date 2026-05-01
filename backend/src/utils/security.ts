@@ -5,14 +5,46 @@ import crypto from "node:crypto";
  */
 export const REDACTED_HEADERS = Object.freeze(
   new Set<string>([
-    "authorization", "cookie", "set-cookie", "x-api-key", "proxy-authorization",
-    "x-amz-security-token", "x-auth-token", "session-id", "api-key", "secret",
-    "password", "token", "access-token", "refresh-token", "id-token", "csrf-token",
-    "xsrf-token", "x-csrf-token", "x-xsrf-token", "bearer", "client-secret", "otp",
-    "x-session-token", "x-api-token", "x-access-key", "x-secret-key", "apikey",
-    "secretkey", "auth-token", "credentials", "private-key", "passphrase",
-    "signature", "proxy-authenticate", "www-authenticate", "x-amz-date",
-    "x-amz-content-sha256", "origin", "referer", "user-agent",
+    "authorization",
+    "cookie",
+    "set-cookie",
+    "x-api-key",
+    "proxy-authorization",
+    "x-amz-security-token",
+    "x-auth-token",
+    "session-id",
+    "api-key",
+    "secret",
+    "password",
+    "token",
+    "access-token",
+    "refresh-token",
+    "id-token",
+    "csrf-token",
+    "xsrf-token",
+    "x-csrf-token",
+    "x-xsrf-token",
+    "bearer",
+    "client-secret",
+    "otp",
+    "x-session-token",
+    "x-api-token",
+    "x-access-key",
+    "x-secret-key",
+    "apikey",
+    "secretkey",
+    "auth-token",
+    "credentials",
+    "private-key",
+    "passphrase",
+    "signature",
+    "proxy-authenticate",
+    "www-authenticate",
+    "x-amz-date",
+    "x-amz-content-sha256",
+    "origin",
+    "referer",
+    "user-agent",
   ]),
 );
 
@@ -25,6 +57,9 @@ export const FORBIDDEN_KEYS = Object.freeze(
 
 /**
  * Redacts values in a record if their keys match a sensitive set.
+ * @param record
+ * @param sensitiveKeys
+ * @param redactor
  */
 export function redactRecord<T>(
   record: Record<string, T>,
@@ -52,6 +87,8 @@ export const REDACTION_REGEX = new RegExp(`(${REDACTION_PATTERN})`, "gi");
 
 /**
  * Timing-safe string comparison to prevent timing attacks.
+ * @param a
+ * @param b
  */
 export function safeCompare(a: string, b: string): boolean {
   if (typeof a !== "string" || typeof b !== "string") return false;
@@ -62,10 +99,16 @@ export function safeCompare(a: string, b: string): boolean {
 
 /**
  * Core recursive object transformation logic for security sanitization.
+ * @param data
+ * @param transform
+ * @param depth
  */
 export function recursiveTransform(
   data: unknown,
-  transform: (key: string, value: unknown) => { skip: boolean; value?: unknown },
+  transform: (
+    key: string,
+    value: unknown,
+  ) => { skip: boolean; value?: unknown },
   depth = 0,
 ): unknown {
   if (data === null || typeof data !== "object") return data;

@@ -1,9 +1,14 @@
 import { APIGatewayProxyEventV2 } from "aws-lambda";
 import { INTERNAL_KEYS } from "../responses.js";
-import { recursiveTransform, redactRecord, REDACTED_HEADERS } from "./security.js";
+import {
+  recursiveTransform,
+  redactRecord,
+  REDACTED_HEADERS,
+} from "./security.js";
 
 /**
  * Normalizes the request path by removing stage and prefix information.
+ * @param event
  */
 export function normalizePath(event: APIGatewayProxyEventV2): string {
   const raw = (event.rawPath ||
@@ -30,6 +35,7 @@ export function normalizePath(event: APIGatewayProxyEventV2): string {
 
 /**
  * Extracts HTTP method and path from various event formats.
+ * @param event
  */
 export function extractRequestMetadata(event: APIGatewayProxyEventV2): {
   method: string;
@@ -45,6 +51,7 @@ export function extractRequestMetadata(event: APIGatewayProxyEventV2): {
 
 /**
  * Redacts sensitive information from the Lambda event before logging.
+ * @param event
  */
 export function maskEvent(event: APIGatewayProxyEventV2): unknown {
   const masked = { ...event };
@@ -103,6 +110,8 @@ export function maskEvent(event: APIGatewayProxyEventV2): unknown {
 
 /**
  * Extracts an ID from a path given a prefix.
+ * @param path
+ * @param prefix
  */
 export function extractIdFromPath(path: string, prefix: string): string | null {
   if (!path.startsWith(prefix)) return null;
@@ -112,6 +121,8 @@ export function extractIdFromPath(path: string, prefix: string): string | null {
 
 /**
  * Retrieves a header value in a case-insensitive manner.
+ * @param headers
+ * @param name
  */
 export function getHeader(
   headers: Record<string, string | undefined> | undefined,
@@ -129,6 +140,7 @@ export function getHeader(
 
 /**
  * Strips local-only fields and internal DynamoDB keys from the data object.
+ * @param data
  */
 export function stripLocalFields(data: unknown): unknown {
   return recursiveTransform(data, (key) => {

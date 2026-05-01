@@ -3,6 +3,7 @@ import { recursiveTransform } from "./security.js";
 
 /**
  * Redacts sensitive fields from an object before logging.
+ * @param obj
  */
 export function sanitizeForLog(obj: unknown): unknown {
   return recursiveTransform(obj, (key) => {
@@ -15,6 +16,8 @@ export function sanitizeForLog(obj: unknown): unknown {
 
 /**
  * Standardized error logger for the backend with log sanitization.
+ * @param label
+ * @param error
  */
 export function logError(label: string, error: unknown) {
   if (error instanceof Error) {
@@ -35,14 +38,14 @@ export function logError(label: string, error: unknown) {
 
 /**
  * Standardized info logger for the backend.
+ * @param label
+ * @param data
  */
 export function logInfo(label: string, data?: unknown) {
   if (data !== undefined) {
     console.info(
       `[INFO] ${label}:`,
-      typeof data === "object"
-        ? JSON.stringify(sanitizeForLog(data))
-        : data,
+      typeof data === "object" ? JSON.stringify(sanitizeForLog(data)) : data,
     );
   } else {
     console.info(`[INFO] ${label}`);

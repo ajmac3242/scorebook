@@ -1,21 +1,7 @@
-import {
-  APIGatewayProxyEventV2,
-  APIGatewayProxyResultV2,
-} from "aws-lambda";
-import {
-  QueryCommand,
-  DynamoDBDocumentClient,
-} from "@aws-sdk/lib-dynamodb";
-import {
-  ok,
-  response,
-} from "../responses.js";
-import {
-  logError,
-  logInfo,
-  safeCompare,
-  getHeader,
-} from "../utils.js";
+import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
+import { QueryCommand, DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
+import { ok, response } from "../responses.js";
+import { logError, logInfo, safeCompare, getHeader } from "../utils.js";
 
 /**
  * Handler for cleanup-related endpoints.

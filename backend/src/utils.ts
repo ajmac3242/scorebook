@@ -96,7 +96,10 @@ function redactRecord<T, R = unknown>(
  */
 function recursiveTransform(
   data: unknown,
-  transform: (key: string, value: unknown) => { skip: boolean; value?: unknown },
+  transform: (
+    key: string,
+    value: unknown,
+  ) => { skip: boolean; value?: unknown },
   depth = 0,
 ): unknown {
   if (data === null || typeof data !== "object") return data;
@@ -221,8 +224,10 @@ export function maskEvent(event: APIGatewayProxyEventV2): unknown {
   const masked: Record<string, unknown> = { ...event };
 
   if (event.headers) {
-    masked.headers = redactRecord(event.headers, REDACTED_HEADERS, () =>
-      "[REDACTED]",
+    masked.headers = redactRecord(
+      event.headers,
+      REDACTED_HEADERS,
+      () => "[REDACTED]",
     );
   }
 
