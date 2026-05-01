@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
-import { db, type Player } from "../../../db";
+import { db, type Game, type Team, type Player } from "../../../db";
 import { logger } from "../../../utils/logger";
 import { calculateTeamSeasonAverages } from "../../../utils/stats";
 
@@ -10,8 +10,8 @@ type UseGameModeQueriesParams = {
 };
 
 export type UseGameModeQueriesResult = {
-  game: Awaited<ReturnType<typeof db.games.get>>;
-  team: Awaited<ReturnType<typeof db.teams.get>>;
+    game: Game | undefined;
+    team: Team | undefined;
   gameStats: Awaited<ReturnType<typeof db.stats.toArray>>;
   teamPlayers: Awaited<ReturnType<typeof db.teamPlayers.toArray>>;
   players: Player[];
