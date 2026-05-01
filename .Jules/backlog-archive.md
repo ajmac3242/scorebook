@@ -2,6 +2,40 @@
 
 This file contains completed backlog items to keep the active `backlog.md` concise and performant for agent context.
 
+## [x] Live "Game Identity" Radar
+**Priority:** HIGH
+**Type:** UX
+**Why:** Teams often lose their "Identity" (e.g., "We are a fast-break team") during high-pressure games. A radar chart comparing live performance against the "Team Blueprint" keeps the team focused.
+**What:** A real-time Radar Chart in GameMode that compares current game Four Factors and Pace against the team's season-long averages (the "Blueprint").
+**Acceptance Criteria:**
+- [x] Interactive Radar Chart in the GameMode sidebar.
+- [x] Overlay of "Current Game" (Solid) vs "Season Average" (Dashed) for: Pace, eFG%, TO%, ORB%, and FT Rate.
+- [x] "Identity Alert" when a core metric deviates by more than 20% from the blueprint.
+**Status:** [x] COMPLETE
+
+## [x] Integrated Practice Prescription Engine
+**Priority:** HIGH
+**Type:** Feature
+**Why:** The best coaches use game data to plan the next practice. This feature closes the loop by suggesting specific drills based on the team's statistical failures in the last game.
+**What:** A logic engine that maps low KPI performance (e.g., low FT%, high TOs) to a library of suggested practice drills.
+**Acceptance Criteria:**
+- [x] "Practice Planner" button on the Game Stats page.
+- [x] Automatic suggestion of 3 "Focus Areas" based on the game's worst-performing metrics.
+- [x] Linkage to a (mock) library of drills (e.g., "Poor 3PT% -> Suggest '100 Makes' Drill").
+**Status:** [x] COMPLETE
+
+## [x] Automated Defensive Synergy Analysis (2-3 Player Units)
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Some defensive pairings are greater than the sum of their parts. Coaches need to know which duos/trios anchor the defense most effectively, beyond just 5-man units which can have small sample sizes.
+**What:** Build a "Defensive Synergy" report that calculates Opponent PPP and Forced Turnover % for every 2-player and 3-player combination that has played significant minutes together.
+**Acceptance Criteria:**
+- [x] New "Synergy" tab in Team Analytics.
+- [x] Table showing 2-player and 3-player units with Defensive Rating (DRtg) and Net Rating.
+- [x] Filter to show only units with > 10 minutes played.
+- [x] Highlight "Shut-Down Units" (units with DRtg significantly better than team average).
+**Status:** [x] COMPLETE
+
 ## [x] Dynamic "Target Attack" Identifier
 **Priority:** HIGH
 **Type:** Feature
