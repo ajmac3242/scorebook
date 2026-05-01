@@ -10,10 +10,7 @@ import {
   Button,
   Stack,
 } from "@mui/material";
-import {
-  Add as AddIcon,
-  Remove as RemoveIcon,
-} from "@mui/icons-material";
+import { Add as AddIcon, Remove as RemoveIcon } from "@mui/icons-material";
 
 export const EditClockDialog: React.FC<{
   open: boolean;

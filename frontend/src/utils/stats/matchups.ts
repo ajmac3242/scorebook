@@ -1,6 +1,17 @@
 import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../../constants/stats";
-import { MatchupStats, StatEvent, PlayerAggregates, TargetAttack } from "./types";
-import { isScoringEvent, isFreeThrow, isOpponentId, isActive, sortStats } from "./core";
+import {
+  MatchupStats,
+  StatEvent,
+  PlayerAggregates,
+  TargetAttack,
+} from "./types";
+import {
+  isScoringEvent,
+  isFreeThrow,
+  isOpponentId,
+  isActive,
+  sortStats,
+} from "./core";
 
 /**
  * 🏀 CoachBoard: calculateMatchupStats
@@ -60,7 +71,10 @@ export const calculateMatchupStats = (stats: StatEvent[]): MatchupStats[] => {
           possessions: 0,
           stopPct: "0.0",
           isOpponentDefender: isOppDef,
-          fga: 0, fta: 0, to: 0, oreb: 0
+          fga: 0,
+          fta: 0,
+          to: 0,
+          oreb: 0,
         };
         results.set(key, m);
       }
@@ -116,7 +130,8 @@ export const calculateMatchupStats = (stats: StatEvent[]): MatchupStats[] => {
       }
     } else if (type === ACTION_TYPES.REBOUND) {
       if (isOpp) {
-        if (s.locationX === -1) { // OREB
+        if (s.locationX === -1) {
+          // OREB
           if (ourDefenderId) {
             const m = getM(ourDefenderId, SPECIAL_PLAYER_IDS.OPPONENT, false);
             m.oreb = (m.oreb || 0) + 1;
@@ -128,7 +143,8 @@ export const calculateMatchupStats = (stats: StatEvent[]): MatchupStats[] => {
           }
         }
       } else {
-        if (s.locationX === -1) { // OREB
+        if (s.locationX === -1) {
+          // OREB
           if (oppDefenderId) {
             const m = getM(s.playerId, oppDefenderId, true);
             m.oreb = (m.oreb || 0) + 1;
@@ -144,7 +160,8 @@ export const calculateMatchupStats = (stats: StatEvent[]): MatchupStats[] => {
   }
 
   results.forEach((m) => {
-    m.possessions = (m.fga || 0) + 0.44 * (m.fta || 0) + (m.to || 0) - (m.oreb || 0);
+    m.possessions =
+      (m.fga || 0) + 0.44 * (m.fta || 0) + (m.to || 0) - (m.oreb || 0);
     if (m.possessions > 0) {
       m.stopPct = ((m.stops / m.possessions) * 100).toFixed(1);
     }
@@ -160,7 +177,10 @@ export const calculateTargetAttackStats = (
   matchups: MatchupStats[],
   playerStats: PlayerAggregates[],
 ): TargetAttack | null => {
-  const defenderStats = new Map<string, { points: number; possessions: number }>();
+  const defenderStats = new Map<
+    string,
+    { points: number; possessions: number }
+  >();
 
   for (let i = 0; i < matchups.length; i++) {
     const m = matchups[i];

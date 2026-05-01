@@ -10,15 +10,12 @@ import {
   Typography,
   IconButton,
 } from "@mui/material";
-import {
-  Add as AddIcon,
-  Remove as RemoveIcon,
-} from "@mui/icons-material";
+import { Add as AddIcon, Remove as RemoveIcon } from "@mui/icons-material";
 
 interface EditClockDialogProps {
   open: boolean;
   onClose: () => void;
-  onSave: (_mins: number,_secs: number) => void;
+  onSave: (_mins: number, _secs: number) => void;
   initialMinutes: number;
   initialSeconds: number;
 }

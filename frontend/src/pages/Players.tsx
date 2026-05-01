@@ -438,7 +438,9 @@ const Players: React.FC = () => {
             disabled={isSubmitting}
             aria-required="true"
             aria-invalid={showValidation && !name.trim() ? "true" : "false"}
-            aria-describedby={showValidation && !name.trim() ? "player-name-error" : undefined}
+            aria-describedby={
+              showValidation && !name.trim() ? "player-name-error" : undefined
+            }
             FormHelperTextProps={{ id: "player-name-error" }}
           />
           <Typography variant="subtitle2" gutterBottom>
@@ -461,30 +463,30 @@ const Players: React.FC = () => {
                     aria-label={`Select ${colorName} as avatar color`}
                     aria-pressed={avatarColor === color}
                     sx={{
-                    width: 32,
-                    height: 32,
-                    borderRadius: "50%",
-                    bgcolor: color,
-                    cursor: "pointer",
-                    border:
-                      avatarColor === color
-                        ? "3px solid #000"
-                        : "1px solid rgba(0,0,0,0.1)",
-                    boxSizing: "border-box",
-                    transition: "all 0.1s",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    "&:hover": { transform: "scale(1.2)" },
-                    "&:focus-visible": {
-                      outline: "2px solid #000",
-                      outlineOffset: "2px",
-                    },
-                  }}
-                >
-                  {avatarColor === color && (
-                    <CheckIcon sx={{ color: "#000", fontSize: 20 }} />
-                  )}
+                      width: 32,
+                      height: 32,
+                      borderRadius: "50%",
+                      bgcolor: color,
+                      cursor: "pointer",
+                      border:
+                        avatarColor === color
+                          ? "3px solid #000"
+                          : "1px solid rgba(0,0,0,0.1)",
+                      boxSizing: "border-box",
+                      transition: "all 0.1s",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      "&:hover": { transform: "scale(1.2)" },
+                      "&:focus-visible": {
+                        outline: "2px solid #000",
+                        outlineOffset: "2px",
+                      },
+                    }}
+                  >
+                    {avatarColor === color && (
+                      <CheckIcon sx={{ color: "#000", fontSize: 20 }} />
+                    )}
                   </Box>
                 </Tooltip>
               );
