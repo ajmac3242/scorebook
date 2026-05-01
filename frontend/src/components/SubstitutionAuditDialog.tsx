@@ -3,7 +3,7 @@
  * @description Dialog for auditing and editing substitution events to ensure data integrity.
  */
 
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -16,20 +16,9 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  IconButton,
-  TextField,
-  Select,
-  MenuItem,
   Typography,
-  Box,
-  Stack,
-  Avatar,
 } from "@mui/material";
 import {
-  Delete as DeleteIcon,
-  Edit as EditIcon,
-  Save as SaveIcon,
-  Close as CloseIcon,
   History as HistoryIcon,
 } from "@mui/icons-material";
 import { db, type StatEvent, type Player } from "../db";
@@ -38,6 +27,7 @@ import { formatClock } from "../utils/mathUtils";
 import { useLiveQuery } from "dexie-react-hooks";
 import { logger } from "../utils/logger";
 import { syncService } from "../utils/syncService";
+import SubstitutionAuditRow from "./SubstitutionAudit/SubstitutionAuditRow";
 
 interface SubstitutionAuditDialogProps {
   open: boolean;
@@ -124,11 +114,6 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
     }
   };
 
-  const playerOptions = useMemo(
-    () => [...players].sort((a, b) => a.name.localeCompare(b.name)),
-    [players],
-  );
-
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
       <DialogTitle
@@ -159,148 +144,26 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
               </TableRow>
             </TableHead>
             <TableBody>
-              {subEvents?.map((event) => {
-                const isEditing = editingId === event.id;
-                const player = players.find((p) => p.id === event.playerId);
-
-                return (
-                  <TableRow key={event.id} hover>
-                    <TableCell>
-                      <Box
-                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                      >
-                        <Typography
-                          variant="caption"
-                          sx={{
-                            fontWeight: 700,
-                            px: 1,
-                            borderRadius: 0.5,
-                            bgcolor:
-                              event.type === ACTION_TYPES.SUB_IN
-                                ? "success.light"
-                                : "error.light",
-                            color:
-                              event.type === ACTION_TYPES.SUB_IN
-                                ? "success.contrastText"
-                                : "error.contrastText",
-                          }}
-                        >
-                          {event.type.replace("SUB_", "")}
-                        </Typography>
-                      </Box>
-                    </TableCell>
-                    <TableCell>
-                      {isEditing ? (
-                        <TextField
-                          size="small"
-                          type="number"
-                          value={editPeriod}
-                          onChange={(e) =>
-                            setEditPeriod(parseInt(e.target.value) || 1)
-                          }
-                          sx={{ width: 60 }}
-                        />
-                      ) : (
-                        event.period
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {isEditing ? (
-                        <TextField
-                          size="small"
-                          value={editTime}
-                          onChange={(e) => setEditTime(e.target.value)}
-                          placeholder="mm:ss"
-                          sx={{ width: 80 }}
-                        />
-                      ) : (
-                        formatClock(event.clockTime || 0)
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {isEditing ? (
-                        <Select
-                          size="small"
-                          value={editPlayerId}
-                          onChange={(e) => setEditPlayerId(e.target.value)}
-                          sx={{ minWidth: 150 }}
-                        >
-                          {playerOptions.map((p) => (
-                            <MenuItem key={p.id} value={p.id}>
-                              #{jerseyMap.get(p.id!) ?? "??"} {p.name}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      ) : (
-                        <Box
-                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                        >
-                          <Avatar
-                            sx={{
-                              width: 24,
-                              height: 24,
-                              fontSize: "0.75rem",
-                              bgcolor: player?.avatarColor,
-                            }}
-                          >
-                            {jerseyMap.get(event.playerId) ?? "??"}
-                          </Avatar>
-                          <Typography variant="body2">
-                            {player?.name || "Unknown"}
-                          </Typography>
-                        </Box>
-                      )}
-                    </TableCell>
-                    <TableCell align="right">
-                      {isEditing ? (
-                        <Stack
-                          direction="row"
-                          spacing={1}
-                          justifyContent="flex-end"
-                        >
-                          <IconButton
-                            size="small"
-                            color="primary"
-                            onClick={handleSaveEdit}
-                            aria-label="Save changes"
-                          >
-                            <SaveIcon fontSize="small" />
-                          </IconButton>
-                          <IconButton
-                            size="small"
-                            onClick={() => setEditingId(null)}
-                            aria-label="Cancel editing"
-                          >
-                            <CloseIcon fontSize="small" />
-                          </IconButton>
-                        </Stack>
-                      ) : (
-                        <Stack
-                          direction="row"
-                          spacing={1}
-                          justifyContent="flex-end"
-                        >
-                          <IconButton
-                            size="small"
-                            onClick={() => handleStartEdit(event)}
-                            aria-label={`Edit ${event.type === ACTION_TYPES.SUB_IN ? "sub in" : "sub out"} for ${player?.name}`}
-                          >
-                            <EditIcon fontSize="small" />
-                          </IconButton>
-                          <IconButton
-                            size="small"
-                            color="error"
-                            onClick={() => handleDelete(event.id!)}
-                            aria-label={`Delete ${event.type === ACTION_TYPES.SUB_IN ? "sub in" : "sub out"} for ${player?.name}`}
-                          >
-                            <DeleteIcon fontSize="small" />
-                          </IconButton>
-                        </Stack>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
+              {subEvents?.map((event) => (
+                <SubstitutionAuditRow
+                  key={event.id}
+                  event={event}
+                  isEditing={editingId === event.id}
+                  player={players.find((p) => p.id === event.playerId)}
+                  players={players}
+                  jerseyMap={jerseyMap}
+                  editPeriod={editPeriod}
+                  editTime={editTime}
+                  editPlayerId={editPlayerId}
+                  onStartEdit={handleStartEdit}
+                  onSaveEdit={handleSaveEdit}
+                  onCancelEdit={() => setEditingId(null)}
+                  onDelete={handleDelete}
+                  onSetEditPeriod={setEditPeriod}
+                  onSetEditTime={setEditTime}
+                  onSetEditPlayerId={setEditPlayerId}
+                />
+              ))}
               {(!subEvents || subEvents.length === 0) && (
                 <TableRow>
                   <TableCell colSpan={5} align="center" sx={{ py: 4 }}>

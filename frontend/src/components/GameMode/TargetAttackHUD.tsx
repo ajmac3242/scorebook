@@ -26,7 +26,7 @@ export interface TargetAttackHUDProps {
 export const TargetAttackHUD: React.FC<TargetAttackHUDProps> = ({ matchups }) => {
   const target = useMemo(() => {
     return [...matchups]
-      .filter((m: any) => m.isOpponentDefender && m.possessions >= 2)
+      .filter((m) => m.isOpponentDefender && m.possessions >= 2)
       .sort((a, b) => {
         const pppA = parseFloat(calculatePpp(a.pointsAllowed, a.possessions));
         const pppB = parseFloat(calculatePpp(b.pointsAllowed, b.possessions));
@@ -36,9 +36,9 @@ export const TargetAttackHUD: React.FC<TargetAttackHUDProps> = ({ matchups }) =>
 
   if (!target) return null;
 
-  const oppJersey = (target as any).opponentPlayerId.split(":")[1] || "??";
+  const oppJersey = target.opponentPlayerId.split(":")[1] || "??";
   const ppp = calculatePpp(target.pointsAllowed, target.possessions);
-  const isMismatch = parseFloat((target as any).stopPct) < 30 && target.possessions >= 3;
+  const isMismatch = parseFloat(target.stopPct) < 30 && target.possessions >= 3;
 
   return (
     <MoleskineCard
@@ -64,7 +64,7 @@ export const TargetAttackHUD: React.FC<TargetAttackHUDProps> = ({ matchups }) =>
             Opponent #{oppJersey}
           </Typography>
           <Typography variant="caption" sx={{ display: "block", color: "text.secondary" }}>
-            Allowing {ppp} PPP | {(target as any).stopPct}% Stop Rate
+            Allowing {ppp} PPP | {target.stopPct}% Stop Rate
           </Typography>
         </Box>
       </Box>

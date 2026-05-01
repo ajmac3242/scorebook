@@ -8,7 +8,7 @@ import {
   Typography,
   Stack,
   Box,
-  Divider,
+
   Chip,
 } from "@mui/material";
 import { TeamAggregates } from "../utils/stats";

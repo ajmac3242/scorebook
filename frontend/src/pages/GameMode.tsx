@@ -35,44 +35,6 @@ import {
   Snackbar,
   LinearProgress,
   keyframes,
-} from "@mui/material";
-
-const pulse = keyframes`
-  0% { opacity: 1; }
-  50% { opacity: 0.7; }
-  100% { opacity: 1; }
-`;
-
-const slideBackAndForth = keyframes`
-  0% { left: 0%; }
-  50% { left: 70%; }
-  100% { left: 0%; }
-`;
-
-const MISMATCH_STOP_THRESHOLD = 30;
-
-import {
-  Undo as UndoIcon,
-  History,
-  Check,
-  Close,
-  SportsBasketball,
-  PanTool,
-  SwapHoriz,
-  FlashOn,
-  Warning,
-  ArrowBack,
-  Groups,
-  PlayArrow,
-  Pause,
-  Add as AddIcon,
-  Remove as RemoveIcon,
-  Security as SecurityIcon,
-  Star as StarIcon,
-  ElectricBolt as ElectricBoltIcon,
-  Scale as BalanceIcon,
-} from "@mui/icons-material";
-import {
   Table,
   TableBody,
   TableCell,
@@ -81,8 +43,30 @@ import {
   TableRow,
   TableSortLabel,
 } from "@mui/material";
+
+const pulse = keyframes`
+  0% { opacity: 1; }
+  50% { opacity: 0.7; }
+  100% { opacity: 1; }
+`;
+
+const MISMATCH_STOP_THRESHOLD = 30;
+
+import {
+  Check,
+  Close,
+  FlashOn,
+  Warning,
+  ArrowBack,
+  Security as SecurityIcon,
+  History,
+  PanTool,
+  SwapHoriz,
+  SportsBasketball,
+  PlayArrow,
+  Pause,
+} from "@mui/icons-material";
 import BasketballCourt from "../components/BasketballCourt";
-import TimeoutDots from "../components/TimeoutDots";
 import RecentActionItem from "../components/RecentActionItem";
 import QuickSubDialog from "../components/QuickSubDialog";
 import SubstitutionAuditDialog from "../components/SubstitutionAuditDialog";
@@ -108,9 +92,6 @@ import { calculateMatchupStats, calculateTargetAttackStats } from "../utils/stat
 import { RotationSuggester } from "../components/RotationSuggester";
 import { MatchupAssignmentDialog } from "../components/MatchupAssignmentDialog";
 import {
-  GridOn,
-} from "@mui/icons-material";
-import {
   calculatePlayerAggregates,
   calculatePlayerStreaks,
   calculatePlayEfficiency,
@@ -124,7 +105,6 @@ import {
   calculateLineupStats,
   calculateOpponentSummary,
   calculateTeamAggregates,
-  calculateTeamSeasonAverages,
   isEventInPeriod,
   isOpponentId,
   getBonusStatus,
@@ -134,15 +114,11 @@ import {
   type OpponentAggregates,
   type TeamAggregates,
   OpponentThreat,
-  MatchupStats,
-  calculateClutchPlaybookRanking,
   calculateOfficiatingStats,
-  type OfficiatingStats,
-  type PaceAnalytics,
   calculatePaceAnalytics,
 } from "../utils/stats";
 import { formatClock, roundToOne } from "../utils/mathUtils";
-import { MoleskineCard, AnimatedNumber } from "../components/SharedUI";
+import { MoleskineCard } from "../components/SharedUI";
 import FourFactorsHUD from "../components/FourFactorsHUD";
 import IdentityRadarChart from "../components/IdentityRadarChart";
 import { EfficiencyMatrix } from "../components/EfficiencyMatrix";
@@ -208,6 +184,7 @@ const GameMode: React.FC = () => {
   // Game lifecycle state
   const [endGameDialogOpen, setEndGameDialogOpen] = useState(false);
   const [isClockEditDialogOpen, setIsClockEditDialogOpen] = useState(false);
+
   const [nextPeriodDialogOpen, setNextPeriodDialogOpen] = useState(false);
   const [summaryDialogOpen, setSummaryDialogOpen] = useState(false);
   const [auditDialogOpen, setAuditDialogOpen] = useState(false);
@@ -249,6 +226,14 @@ const GameMode: React.FC = () => {
     isReadOnly,
     periodType,
   } = useGameModeQueries({ gameId, teamId });
+
+  // ⚡ Bolt: Memoize clock edit handler to prevent redundant Scoreboard re-renders.
+  const onOpenClockEdit = useCallback(() => {
+    if (!isReadOnly) {
+      setIsClockEditDialogOpen(true);
+    }
+  }, [isReadOnly]);
+
   const [subDialogOpen, setSubDialogOpen] = useState(false);
   const [subOutPlayerId, setSubOutPlayerId] = useState<string | null>(null);
 
@@ -1922,11 +1907,7 @@ const GameMode: React.FC = () => {
             isReadOnly={isReadOnly}
             clockSeconds={clockSeconds}
             isClockRunning={isClockRunning}
-            onEditClock={() => {
-              if (!isReadOnly) {
-                setIsClockEditDialogOpen(true);
-              }
-            }}
+            onEditClock={onOpenClockEdit}
           />
 
           <MoleskineCard

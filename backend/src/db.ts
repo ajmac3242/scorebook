@@ -28,6 +28,11 @@ export const docClient = DynamoDBDocumentClient.from(client);
 
 /**
  * Retrieves items from DynamoDB based on PK prefix and GSI1PK.
+ *
+ * @param tableName - The name of the DynamoDB table.
+ * @param gsiPrefix - The GSI1PK prefix to query.
+ * @param requestId - Optional request ID for response tracking.
+ * @returns {Promise<APIGatewayProxyStructuredResultV2>} The API Gateway response containing items.
  */
 export async function getItems(
   tableName: string,
@@ -47,6 +52,11 @@ export async function getItems(
 
 /**
  * Retrieves items from DynamoDB using GSI1PK.
+ *
+ * @param gsiPk - The exact GSI1PK value to query.
+ * @param tableName - The name of the DynamoDB table.
+ * @param requestId - Optional request ID for response tracking.
+ * @returns {Promise<APIGatewayProxyStructuredResultV2>} The API Gateway response containing items.
  */
 export async function getItemsByGSI(
   gsiPk: string,
@@ -66,6 +76,14 @@ export async function getItemsByGSI(
 
 /**
  * Creates a new item in DynamoDB.
+ *
+ * @param type - The entity type (e.g., 'TEAM', 'PLAYER').
+ * @param skPrefix - The prefix for the Sort Key.
+ * @param gsiPk - The partition key for GSI1.
+ * @param data - The item data to store.
+ * @param tableName - The name of the DynamoDB table.
+ * @param requestId - Optional request ID for response tracking.
+ * @returns {Promise<APIGatewayProxyStructuredResultV2>} The API Gateway response containing the created item.
  */
 export async function createItem(
   type: string,
@@ -97,6 +115,10 @@ export async function createItem(
 
 /**
  * Idempotently creates a new item in DynamoDB if it doesn't already exist.
+ *
+ * @param tableName - The name of the DynamoDB table.
+ * @param item - The full item record to put.
+ * @returns {Promise<void>}
  */
 export async function putNewItem(tableName: string, item: Record<string, unknown>) {
   await docClient.send(
@@ -110,6 +132,13 @@ export async function putNewItem(tableName: string, item: Record<string, unknown
 
 /**
  * Soft deletes an item by setting the deletedAt timestamp.
+ *
+ * @param type - The entity type.
+ * @param skPrefix - The Sort Key prefix.
+ * @param id - The unique ID of the item.
+ * @param tableName - The name of the DynamoDB table.
+ * @param requestId - Optional request ID for response tracking.
+ * @returns {Promise<APIGatewayProxyStructuredResultV2>} The API Gateway response.
  */
 export async function softDeleteItem(
   type: string,

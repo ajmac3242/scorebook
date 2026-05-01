@@ -1,52 +1,13 @@
-import { APIGatewayProxyEventV2 } from "aws-lambda";
-import { INTERNAL_KEYS } from "../responses.js";
 import { recursiveTransform, redactRecord, REDACTED_HEADERS } from "./security.js";
-
-/**
- * Normalizes the request path by removing stage and prefix information.
- */
-export function normalizePath(event: APIGatewayProxyEventV2): string {
-  const raw = (event.rawPath ||
-    (event as unknown as Record<string, unknown>).path ||
-    event.requestContext?.http?.path ||
-    "/") as string;
-
-  try {
-    let path = decodeURIComponent(raw)
-      .replace(/^\/(\$default|api)/, "")
-      .replace(/\/+/g, "/");
-
-    if (path.includes("..") || path.includes("%2e%2e")) return "/";
-
-    if (path.length > 1 && path.endsWith("/")) {
-      path = path.slice(0, -1);
-    }
-
-    return path || "/";
-  } catch {
-    return "/";
-  }
-}
-
-/**
- * Extracts HTTP method and path from various event formats.
- */
-export function extractRequestMetadata(event: APIGatewayProxyEventV2): {
-  method: string;
-  path: string;
-} {
-  const method =
-    (event as unknown as Record<string, unknown>).method ||
-    (event as unknown as Record<string, unknown>).httpMethod ||
-    event.requestContext?.http?.method ||
-    "GET";
-  return { method: method as string, path: normalizePath(event) };
-}
+import { INTERNAL_KEYS } from "../responses.js";
 
 /**
  * Redacts sensitive information from the Lambda event before logging.
+ *
+ * @param {any} event - The raw Lambda event.
+ * @returns {unknown} A sanitized copy of the event.
  */
-export function maskEvent(event: APIGatewayProxyEventV2): unknown {
+export function maskEvent(event: any): unknown {
   const masked = { ...event };
 
   if (event.headers) {
@@ -102,16 +63,11 @@ export function maskEvent(event: APIGatewayProxyEventV2): unknown {
 }
 
 /**
- * Extracts an ID from a path given a prefix.
- */
-export function extractIdFromPath(path: string, prefix: string): string | null {
-  if (!path.startsWith(prefix)) return null;
-  const id = path.slice(prefix.length);
-  return id.includes("/") ? null : id;
-}
-
-/**
  * Retrieves a header value in a case-insensitive manner.
+ *
+ * @param {Record<string, string | undefined> | undefined} headers - Request headers.
+ * @param {string} name - Header name to find.
+ * @returns {string | undefined} Header value or undefined.
  */
 export function getHeader(
   headers: Record<string, string | undefined> | undefined,
@@ -129,6 +85,9 @@ export function getHeader(
 
 /**
  * Strips local-only fields and internal DynamoDB keys from the data object.
+ *
+ * @param {unknown} data - The data to clean.
+ * @returns {unknown} The cleaned data.
  */
 export function stripLocalFields(data: unknown): unknown {
   return recursiveTransform(data, (key) => {

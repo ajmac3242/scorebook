@@ -2,16 +2,14 @@ import React from "react";
 import {
   Box,
   Typography,
-  Avatar,
   Chip,
   useTheme,
-  Stack,
   keyframes,
 } from "@mui/material";
-import { formatClock } from "../utils/mathUtils";
-import { AnimatedNumber } from "./SharedUI";
-import TimeoutDots from "./TimeoutDots";
 import { OpponentThreat } from "../utils/stats";
+import TeamSection from "./Scoreboard/TeamSection";
+import MomentumAlerts from "./Scoreboard/MomentumAlerts";
+import GameClock from "./Scoreboard/GameClock";
 
 const pulse = keyframes`
   0% { opacity: 1; }
@@ -19,11 +17,6 @@ const pulse = keyframes`
   100% { opacity: 1; }
 `;
 
-const slideBackAndForth = keyframes`
-  0% { left: 0%; }
-  50% { left: 70%; }
-  100% { left: 0%; }
-`;
 
 interface ScoreboardProps {
   game:
@@ -103,112 +96,6 @@ export const Scoreboard = React.memo(
     const theme = useTheme();
     const timeoutTotal = game?.timeoutLimit ?? team?.defaultTimeoutLimit ?? 3;
 
-    const renderTeamSection = (
-      name: string,
-      logoUrl: string | undefined,
-      score: number,
-      timeouts: number,
-      isOpponent: boolean,
-    ) => {
-      return (
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: { xs: 1, sm: 3 },
-            flexDirection: isOpponent ? "row-reverse" : "row",
-          }}
-        >
-          {/* Logo & Name */}
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              minWidth: { xs: 50, sm: 80 },
-            }}
-          >
-            <Avatar
-              src={logoUrl}
-              sx={{
-                width: { xs: 36, sm: 56 },
-                height: { xs: 36, sm: 56 },
-                bgcolor: isOpponent ? "secondary.main" : "primary.main",
-                border: "2px solid rgba(255,255,255,0.2)",
-                mb: 0.5,
-              }}
-            >
-              {name.charAt(0)}
-            </Avatar>
-            <Typography
-              variant="caption"
-              sx={{
-                color: "white",
-                fontWeight: 700,
-                fontSize: { xs: "0.6rem", sm: "0.8rem" },
-                textTransform: "uppercase",
-                letterSpacing: 1,
-                textAlign: "center",
-                maxWidth: { xs: 60, sm: 100 },
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-              }}
-            >
-              {name}
-            </Typography>
-          </Box>
-
-          {/* Score & Timeouts */}
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-            }}
-          >
-            <Typography
-              sx={{
-                color: "white",
-                fontSize: { xs: "2rem", sm: "3.5rem" },
-                fontWeight: 900,
-                lineHeight: 1,
-                fontFamily: "'Inter', sans-serif",
-                mb: 1,
-              }}
-              aria-live="assertive"
-              aria-atomic="true"
-              aria-label={`${name} score: ${score}`}
-            >
-              <AnimatedNumber value={score} />
-            </Typography>
-            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 0.5 }}>
-              <TimeoutDots
-                count={timeouts}
-                total={timeoutTotal}
-                data-testid={
-                  isOpponent ? "opp-timeout-dots" : "team-timeout-dots"
-                }
-              />
-              {!isOpponent && (
-                <Typography
-                  variant="caption"
-                  sx={{
-                    color: timeouts <= 1 ? "error.light" : "rgba(255,255,255,0.5)",
-                    fontSize: "0.5rem",
-                    fontWeight: 800,
-                    textTransform: "uppercase",
-                  }}
-                >
-                  {timeouts <= 1 ? "CRITICAL" : "SAFE"}
-                </Typography>
-              )}
-            </Box>
-          </Box>
-        </Box>
-      );
-    };
-
     return (
       <Box
         sx={{
@@ -240,13 +127,14 @@ export const Scoreboard = React.memo(
         />
 
         {/* Our Team */}
-        {renderTeamSection(
-          team?.name || "TEAM",
-          team?.logoUrl,
-          gameData.currentScore,
-          gameData.timeoutStats.teamTOL,
-          false,
-        )}
+        <TeamSection
+          name={team?.name || "TEAM"}
+          logoUrl={team?.logoUrl}
+          score={gameData.currentScore}
+          timeouts={gameData.timeoutStats.teamTOL}
+          timeoutTotal={timeoutTotal}
+          isOpponent={false}
+        />
 
         {/* Center: Period, Clock, Bonus */}
         <Box
@@ -302,189 +190,7 @@ export const Scoreboard = React.memo(
             </Box>
           )}
           {/* Momentum Alerts */}
-          {(gameData.momentumAlerts.opponentRun ||
-            gameData.momentumAlerts.scoringDrought ||
-            gameData.momentumAlerts.isClutchMode ||
-            gameData.momentumAlerts.teamBonusApproaching ||
-            gameData.momentumAlerts.oppBonusApproaching ||
-            (gameData.momentumAlerts.foulTroublePlayers?.length || 0) > 0 ||
-            gameData.momentumAlerts.opponentThreats.length > 0) && (
-            <Box
-              sx={{
-                position: "absolute",
-                top: 8,
-                zIndex: 10,
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: 0.5,
-              }}
-            >
-              {gameData.momentumAlerts.isClutchMode && (
-                <Typography
-                  variant="caption"
-                  sx={{
-                    bgcolor: "primary.main",
-                    color: "white",
-                    px: 1,
-                    borderRadius: 1,
-                    fontSize: "0.6rem",
-                    fontWeight: 900,
-                    animation: `${pulse} 1.5s infinite ease-in-out`,
-                  }}
-                >
-                  🔥 CLUTCH MODE ACTIVE
-                </Typography>
-              )}
-              {gameData.momentumAlerts.teamBonusApproaching && (
-                <Typography
-                  variant="caption"
-                  sx={{
-                    bgcolor: "warning.main",
-                    color: "black",
-                    px: 1,
-                    borderRadius: 1,
-                    fontSize: "0.55rem",
-                    fontWeight: 800,
-                  }}
-                >
-                  ⚠️ BONUS APPROACHING (TEAM)
-                </Typography>
-              )}
-              {gameData.momentumAlerts.oppBonusApproaching && (
-                <Typography
-                  variant="caption"
-                  sx={{
-                    bgcolor: "warning.main",
-                    color: "black",
-                    px: 1,
-                    borderRadius: 1,
-                    fontSize: "0.55rem",
-                    fontWeight: 800,
-                  }}
-                >
-                  ⚠️ BONUS APPROACHING (OPP)
-                </Typography>
-              )}
-              {gameData.momentumAlerts.foulTroublePlayers?.map((pName) => (
-                <Typography
-                  key={pName}
-                  variant="caption"
-                  sx={{
-                    bgcolor: "error.main",
-                    color: "white",
-                    px: 1,
-                    borderRadius: 1,
-                    fontSize: "0.55rem",
-                    fontWeight: 800,
-                  }}
-                >
-                  🚩 FOUL TROUBLE: {pName}
-                </Typography>
-              ))}
-              {gameData.momentumAlerts.opponentRun && (
-                <Stack spacing={0.5} alignItems="center">
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      bgcolor: "error.main",
-                      color: "white",
-                      px: 1,
-                      borderRadius: 1,
-                      fontSize: "0.6rem",
-                      fontWeight: 800,
-                      animation: `${pulse} 2s infinite ease-in-out`,
-                    }}
-                  >
-                    RUN: {gameData.momentumAlerts.opponentRun}
-                  </Typography>
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      bgcolor: "rgba(255,255,255,0.9)",
-                      color: "error.main",
-                      px: 1,
-                      borderRadius: 1,
-                      fontSize: "0.5rem",
-                      fontWeight: 900,
-                      textTransform: "uppercase",
-                    }}
-                  >
-                    Suggest Timeout
-                  </Typography>
-                </Stack>
-              )}
-              {gameData.momentumAlerts.opponentThreats.map((t) => (
-                <Stack key={t.playerId} spacing={0.5} alignItems="center">
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      bgcolor: "warning.main",
-                      color: "black",
-                      px: 1,
-                      borderRadius: 1,
-                      fontSize: "0.55rem",
-                      fontWeight: 900,
-                      animation: `${pulse} 2.5s infinite ease-in-out`,
-                    }}
-                  >
-                    {t.straightPoints >= 6
-                      ? `THREAT: Opp #${t.playerId.split(":")[1] ?? "??"} has scored ${t.straightPoints} STRAIGHT`
-                      : `THREAT: Opp #${t.playerId.split(":")[1] ?? "??"} (${t.points} pts)`}
-                  </Typography>
-                  {t.straightPoints >= 8 && (
-                    <Typography
-                      variant="caption"
-                      sx={{
-                        bgcolor: "rgba(255,255,255,0.9)",
-                        color: "warning.dark",
-                        px: 1,
-                        borderRadius: 1,
-                        fontSize: "0.45rem",
-                        fontWeight: 900,
-                        textTransform: "uppercase",
-                      }}
-                    >
-                      Change Matchup
-                    </Typography>
-                  )}
-                </Stack>
-              ))}
-
-              {gameData.momentumAlerts.opponentPlayThreats?.map((play) => (
-                <Stack key={play.name} spacing={0.5} alignItems="center">
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      bgcolor: "secondary.main",
-                      color: "white",
-                      px: 1,
-                      borderRadius: 1,
-                      fontSize: "0.55rem",
-                      fontWeight: 900,
-                      animation: `${pulse} 3s infinite ease-in-out`,
-                    }}
-                  >
-                    THREAT: {play.name} ({play.ppp} PPP)
-                  </Typography>
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      bgcolor: "rgba(255,255,255,0.9)",
-                      color: "secondary.dark",
-                      px: 1,
-                      borderRadius: 1,
-                      fontSize: "0.45rem",
-                      fontWeight: 900,
-                      textTransform: "uppercase",
-                    }}
-                  >
-                    Switch Defense
-                  </Typography>
-                </Stack>
-              ))}
-            </Box>
-          )}
+          <MomentumAlerts momentumAlerts={gameData.momentumAlerts} />
 
           <Typography
             variant="h6"
@@ -503,88 +209,13 @@ export const Scoreboard = React.memo(
               : `${periodLabel} ${period}`.toUpperCase()}
           </Typography>
 
-          <Box
-            onClick={onEditClock}
-            role="button"
-            tabIndex={isReadOnly ? -1 : 0}
-            aria-label={`Game clock: ${formatClock(clockSeconds)}, Period ${period}, ${isClockRunning ? "Running" : "Paused"}. Click to edit.`}
-            aria-haspopup="dialog"
-            onKeyDown={(e) => {
-              if (!isReadOnly && (e.key === "Enter" || e.key === " ")) {
-                onEditClock?.();
-              }
-            }}
-            sx={{
-              cursor: isReadOnly ? "default" : "pointer",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              "&:hover": {
-                opacity: isReadOnly ? 1 : 0.8,
-              },
-              "&:focus-visible": {
-                outline: "2px solid white",
-                outlineOffset: "4px",
-                borderRadius: "4px",
-              },
-            }}
-          >
-            <Typography
-              role="timer"
-              aria-relevant="all"
-              sx={{
-                color: isClockRunning ? "white" : "rgba(255,255,255,0.4)",
-                fontSize: { xs: "1.5rem", sm: "2.5rem" },
-                fontWeight: 700,
-                fontFamily: "'Courier New', monospace",
-                lineHeight: 1,
-                letterSpacing: 1,
-                transition: "color 0.3s ease",
-              }}
-            >
-              {formatClock(clockSeconds)}
-            </Typography>
-
-            {!isClockRunning && clockSeconds > 0 && (
-              <Typography
-                variant="caption"
-                aria-live="polite"
-                sx={{
-                  color: "rgba(255,255,255,0.3)",
-                  fontWeight: 900,
-                  fontSize: "0.55rem",
-                  letterSpacing: 1,
-                  mt: 0.5,
-                }}
-              >
-                PAUSED
-              </Typography>
-            )}
-
-            {/* Sliding Progress Indicator */}
-            <Box
-              sx={{
-                width: "80%",
-                height: "3px",
-                bgcolor: "rgba(255,255,255,0.1)",
-                borderRadius: 2,
-                mt: 1,
-                position: "relative",
-                overflow: "hidden",
-                visibility: isClockRunning ? "visible" : "hidden",
-              }}
-            >
-              <Box
-                sx={{
-                  position: "absolute",
-                  width: "30%",
-                  height: "100%",
-                  background: `linear-gradient(90deg, transparent, ${theme.palette.primary.main}, transparent)`,
-                  animation: `${slideBackAndForth} 1.5s infinite ease-in-out`,
-                }}
-              />
-            </Box>
-          </Box>
+          <GameClock
+            clockSeconds={clockSeconds}
+            isClockRunning={isClockRunning}
+            period={period}
+            onEditClock={onEditClock}
+            isReadOnly={isReadOnly}
+          />
 
           {/* Bonus Indicators */}
           <Box sx={{ mt: 1.5, height: 20, display: "flex", gap: 2 }} aria-label="Bonus status">
@@ -618,13 +249,14 @@ export const Scoreboard = React.memo(
         </Box>
 
         {/* Opponent Team */}
-        {renderTeamSection(
-          game?.opponent || "OPPONENT",
-          game?.opponentLogoUrl,
-          gameData.opponentScore,
-          gameData.timeoutStats.oppTOL,
-          true,
-        )}
+        <TeamSection
+          name={game?.opponent || "OPPONENT"}
+          logoUrl={game?.opponentLogoUrl}
+          score={gameData.opponentScore}
+          timeouts={gameData.timeoutStats.oppTOL}
+          timeoutTotal={timeoutTotal}
+          isOpponent={true}
+        />
       </Box>
     );
   },

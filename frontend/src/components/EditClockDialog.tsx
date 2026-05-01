@@ -18,7 +18,7 @@ import {
 interface EditClockDialogProps {
   open: boolean;
   onClose: () => void;
-  onSave: (mins: number, secs: number) => void;
+  onSave: (_mins: number, _secs: number) => void;
   initialMinutes: number;
   initialSeconds: number;
 }

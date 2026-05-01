@@ -116,6 +116,10 @@ export interface MatchupStats {
   fta?: number;
   to?: number;
   oreb?: number;
+  pppDelta?: number;
+  playerId?: string;
+  playerNumber?: string;
+  opponentNumber?: string;
 }
 
 /**
@@ -3388,10 +3392,17 @@ export const calculateClutchPlaybookRanking = (
   const sorted = sortStats(stats);
   const playStats = new Map<string, { points: number; attempts: number; makes: number; frequency: number }>();
 
-  // Identify the weakest active defenders
-  const weakDefenders = matchups
-    .filter(m => m.isOpponentDefender && m.possessions >= 3 && parseFloat(m.stopPct) < 35)
-    .map(m => m.opponentPlayerId);
+  // ⚡ Bolt: Use a single-pass reduce to extract weak defenders, avoiding intermediate arrays.
+  const weakDefenders = matchups.reduce((acc: string[], m) => {
+    if (
+      m.isOpponentDefender &&
+      m.possessions >= 3 &&
+      parseFloat(m.stopPct) < 35
+    ) {
+      acc.push(m.opponentPlayerId);
+    }
+    return acc;
+  }, []);
 
   for (let i = 0; i < sorted.length; i++) {
     const s = sorted[i];
