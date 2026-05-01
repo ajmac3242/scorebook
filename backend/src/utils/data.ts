@@ -1,18 +1,16 @@
+import { APIGatewayProxyEventV2 } from "aws-lambda";
 import {
   recursiveTransform,
   redactRecord,
   REDACTED_HEADERS,
 } from "./security.js";
 import { INTERNAL_KEYS } from "../responses.js";
-import {
-  recursiveTransform,
-  redactRecord,
-  REDACTED_HEADERS,
-} from "./security.js";
 
 /**
  * Normalizes the request path by removing stage and prefix information.
- * @param event
+ *
+ * @param event - The API Gateway event.
+ * @returns Normalized path string.
  */
 export function normalizePath(event: APIGatewayProxyEventV2): string {
   const raw = (event.rawPath ||
@@ -22,7 +20,7 @@ export function normalizePath(event: APIGatewayProxyEventV2): string {
 
   try {
     let path = decodeURIComponent(raw)
-      .replace(/^\/(\$default|api)/, "")
+      .replace(/^\/(\.\$default|api)/, "")
       .replace(/\/+/g, "/");
 
     if (path.includes("..") || path.includes("%2e%2e")) return "/";
@@ -39,7 +37,9 @@ export function normalizePath(event: APIGatewayProxyEventV2): string {
 
 /**
  * Extracts HTTP method and path from various event formats.
- * @param event
+ *
+ * @param event - The API Gateway event.
+ * @returns Object containing method and path.
  */
 export function extractRequestMetadata(event: APIGatewayProxyEventV2): {
   method: string;
@@ -55,7 +55,9 @@ export function extractRequestMetadata(event: APIGatewayProxyEventV2): {
 
 /**
  * Redacts sensitive information from the Lambda event before logging.
- * @param event
+ *
+ * @param {unknown} event - The raw Lambda event.
+ * @returns {unknown} A sanitized copy of the event.
  */
 export function maskEvent(event: unknown): unknown {
   const ev = event as Record<string, unknown>;
