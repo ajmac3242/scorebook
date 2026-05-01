@@ -174,6 +174,8 @@ export interface LineupAggregates {
   ppp: string;
   oppPpp: string;
   min: number;
+  seconds?: number;
+  netRating?: string | number;
 }
 
 export interface OnOffImpact {
@@ -186,8 +188,11 @@ export interface OnOffImpact {
 
 export interface ClutchPlay {
   playType: string;
-  ppp: string;
-  frequency: string;
+  ppp: number;
+  frequency: number;
+  playName?: string;
+  efg?: number;
+  targetMismatches?: string[];
 }
 
 export interface OfficiatingStats {
