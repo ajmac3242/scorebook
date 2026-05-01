@@ -241,3 +241,15 @@ Completed items are archived to `.Jules/backlog-archive.md` to maintain optimal 
 - [ ] Ranking of 5-man units by Net Rating, adjusted for sample size and opponent strength.
 - [ ] Suggested "Closer Unit" based on Clutch performance data.
 - [ ] Visualization of "Chemistry Gaps" (efficient players who rarely play together).
+
+## [HYGIENE] Modularize Statistics Engine (stats.ts / core.ts)
+**Priority:** MEDIUM
+**Type:** Refactor
+**Why:** The statistics engine is tightly coupled and exceeds 3500 lines, making it difficult to maintain and test.
+**What:** Surgically extract logical blocks into dedicated modules within `src/utils/stats/`.
+**Acceptance Criteria:**
+- [ ] Extract Base Aggregators & Action Appliers (move `applyActionToAggregate`, `initializeStatsMap` to `aggregators.ts`)
+- [ ] Extract Lineup & Stint Logic (move `calculateLineupStats`, `calculatePlayerStintTimeline` to `lineups.ts`)
+- [ ] Extract Impact & Streak Metrics (move `calculateOnOffStats`, `calculatePlayerStreaks` to `impact.ts`)
+- [ ] Extract Advanced Analytics (move `calculateClutchPlaybookRanking`, `calculateOfficiatingStats`, `calculatePaceAnalytics` to `analytics.ts`)
+- [ ] Standardize Types across all stats modules in `types.ts`.
