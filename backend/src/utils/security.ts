@@ -59,9 +59,9 @@ export const FORBIDDEN_KEYS = Object.freeze(
  * Redacts values in a record if their keys match a sensitive set.
  *
  * @param record - The record to redact.
- * @param sensitiveKeys - Optional set of keys to redact (case-insensitive).
- * @param redactor - Optional custom redaction function.
- * @returns {Record<string, any>} The redacted record.
+ * @param sensitiveKeys - Keys whose values should be redacted.
+ * @param redactor - Function to apply to matched values.
+ * @returns A new record with sensitive values redacted.
  */
 export function redactRecord<T>(
   record: Record<string, T>,
@@ -72,27 +72,24 @@ export function redactRecord<T>(
   for (const key in result) {
     if (Object.prototype.hasOwnProperty.call(result, key)) {
       if (!sensitiveKeys || sensitiveKeys.has(key.toLowerCase())) {
-        result[key] = redactor(result[key]);
+        result[key] = redactor(result[key] as T);
       }
     }
   }
   return result;
 }
 
-/**
- * Pre-compiled regex for redacting sensitive terms from logs.
- */
 const REDACTION_PATTERN = Array.from(REDACTED_HEADERS)
   .map((term) => term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
   .join("|");
 export const REDACTION_REGEX = new RegExp(`(${REDACTION_PATTERN})`, "gi");
 
 /**
- * Timing-safe string comparison to prevent timing attacks.
+ * Performs a timing-safe comparison of two strings.
  *
- * @param a - User-provided key.
- * @param b - Actual secret key.
- * @returns {boolean} True if the keys match.
+ * @param a - First string.
+ * @param b - Second string.
+ * @returns True if both strings are equal.
  */
 export function safeCompare(a: string, b: string): boolean {
   if (typeof a !== "string" || typeof b !== "string") return false;
@@ -102,12 +99,12 @@ export function safeCompare(a: string, b: string): boolean {
 }
 
 /**
- * Core recursive object transformation logic for security sanitization.
+ * Recursively transforms the keys and values of a nested object.
  *
  * @param data - The data to transform.
- * @param transform - Callback to transform or skip a specific key/value.
- * @param depth - Current recursion depth.
- * @returns {unknown} The transformed data.
+ * @param transform - Callback invoked for each key/value pair.
+ * @param depth - Current recursion depth (used internally).
+ * @returns The transformed data.
  */
 export function recursiveTransform(
   data: unknown,
@@ -119,19 +116,16 @@ export function recursiveTransform(
 ): unknown {
   if (data === null || typeof data !== "object") return data;
   if (depth > 10) return Array.isArray(data) ? [] : {};
-
   if (Array.isArray(data)) {
     return data
       .slice(0, 1000)
       .map((item) => recursiveTransform(item, transform, depth + 1));
   }
-
   const result: Record<string, unknown> = {};
   const record = data as Record<string, unknown>;
   for (const key in record) {
     if (Object.prototype.hasOwnProperty.call(record, key)) {
       if (FORBIDDEN_KEYS.has(key)) continue;
-
       const { skip, value } = transform(key, record[key]);
       if (!skip) {
         result[key] = recursiveTransform(
