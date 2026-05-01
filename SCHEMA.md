@@ -14,7 +14,7 @@
 | **Player** | `PLAYER#<PlayerId>` | `METADATA#<PlayerId>` | Name, DefaultNumber, deletedAt, isArchived |
 | **TeamPlayer** | `TEAM#<TeamId>` | `PLAYER#<PlayerId>` | JerseyNumber, teamId, playerId, deletedAt |
 | **Game** | `GAME#<GameId>` | `METADATA#<GameId>` | TeamId, Opponent, Date, Location, completed, deletedAt |
-| **StatEvent** | `GAME#<GameId>` | `STAT#<Timestamp>#<StatId>` | PlayerId, Type, Points, clockTime, period, locationX, locationY, shotQuality, shotType, playType, playName, relatedPlayerId, subInPlayerId, subOutPlayerId, isBookmarked, defensiveScheme, deletedAt |
+| **StatEvent** | `GAME#<GameId>` | `STAT#<Timestamp>#<StatId>` | PlayerId, Type, Points, clockTime, period, locationX, locationY, shotQuality, shotType, playType, playName, relatedPlayerId, subInPlayerId, subOutPlayerId, isBookmarked, defensiveScheme, situation, deletedAt |
 
 ### Global Secondary Indexes (GSI)
 
@@ -88,6 +88,10 @@ Responses include a `X-Request-Id` header.
       "shotQuality": "OPEN" | "CONTESTED",
       "shotType": "CATCH" | "DRIB",
       "playType": string,
+      "playName": string,
+      "situation": "ATO" | "SLOB" | "BLOB" | "EOP",
+      "defensiveScheme": "MAN" | "ZONE" | "PRESS",
+      "isBookmarked": number (0|1),
       "relatedPlayerId": "UUID",
       "subInPlayerId": "UUID",
       "subOutPlayerId": "UUID",
