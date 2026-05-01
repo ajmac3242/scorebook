@@ -10,7 +10,7 @@ import {
   Tooltip,
 } from "recharts";
 import { Box, Typography, useTheme } from "@mui/material";
-import { TeamAggregates, PaceAnalytics } from "../utils/stats";
+import { TeamAggregates } from "../utils/stats";
 
 interface IdentityRadarChartProps {
   currentGame: TeamAggregates & { pace: number };
