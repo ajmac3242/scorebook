@@ -12,7 +12,6 @@ import {
   keyframes,
 } from "@mui/material";
 import {
-  FlashOn,
   Security as SecurityIcon,
   Star as StarIcon,
   Scale as BalanceIcon,
