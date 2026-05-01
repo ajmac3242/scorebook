@@ -3,7 +3,6 @@ import {
   Box,
   Typography,
   Avatar,
-  Chip,
   useTheme,
   Stack,
   keyframes,
