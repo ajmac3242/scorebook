@@ -89,71 +89,39 @@ const GameMode: React.FC = () => {
   const teamId = searchParams.get("teamId");
 
   const {
-    selectedX,
-    setSelectedX,
-    selectedY,
-    setSelectedY,
-    dialogOpen,
-    setDialogOpen,
-    selectedPlayerId,
-    setSelectedPlayerId,
-    statType,
-    setStatType,
-    points,
-    setPoints,
-    playName,
-    setPlayName,
-    shotQuality,
-    setShotQuality,
-    clockSeconds,
-    setClockSeconds,
-    isClockRunning,
-    setIsClockRunning,
-    sortConfig,
-    setSortConfig,
-    markerFilter,
-    setMarkerFilter,
-    deleteDialogOpen,
-    setDeleteDialogOpen,
-    statToDelete,
-    setStatToDelete,
-    isEditing,
-    setIsEditing,
-    editingStatId,
-    setEditingStatId,
-    endGameDialogOpen,
-    setEndGameDialogOpen,
-    isClockEditDialogOpen,
-    setIsClockEditDialogOpen,
-    summaryDialogOpen,
-    setSummaryDialogOpen,
-    auditDialogOpen,
-    setAuditDialogOpen,
-    ftWorkflowOpen,
-    setFtWorkflowOpen,
-    halftimeReportOpen,
-    setHalftimeReportOpen,
-    isDeleting,
-    setIsDeleting,
-    isEnding,
-    setIsEnding,
-    isSavingStat,
-    setIsSavingStat,
-    chainPrompt,
-    setChainPrompt,
-    snackbar,
-    setSnackbar,
-    subDialogOpen,
-    setSubDialogOpen,
+    selectedX, setSelectedX,
+    selectedY, setSelectedY,
+    dialogOpen, setDialogOpen,
+    selectedPlayerId, setSelectedPlayerId,
+    statType, setStatType,
+    points, setPoints,
+    playName, setPlayName,
+    shotQuality, setShotQuality,
+    clockSeconds, setClockSeconds,
+    isClockRunning, setIsClockRunning,
+    sortConfig, setSortConfig,
+    markerFilter, setMarkerFilter,
+    deleteDialogOpen, setDeleteDialogOpen,
+    statToDelete, setStatToDelete,
+    isEditing, setIsEditing,
+    editingStatId, setEditingStatId,
+    endGameDialogOpen, setEndGameDialogOpen,
+    isClockEditDialogOpen, setIsClockEditDialogOpen,
+    summaryDialogOpen, setSummaryDialogOpen,
+    auditDialogOpen, setAuditDialogOpen,
+    ftWorkflowOpen, setFtWorkflowOpen,
+    halftimeReportOpen, setHalftimeReportOpen,
+    isDeleting, setIsDeleting,
+    isEnding, setIsEnding,
+    isSavingStat, setIsSavingStat,
+    chainPrompt, setChainPrompt,
+    snackbar, setSnackbar,
+    subDialogOpen, setSubDialogOpen,
     setSubOutPlayerId,
-    draftOnCourtIds,
-    setDraftOnCourtIds,
-    selectedSwapId,
-    setSelectedSwapId,
-    period,
-    setPeriod,
-    trackingMode,
-    setTrackingMode,
+    draftOnCourtIds, setDraftOnCourtIds,
+    selectedSwapId, setSelectedSwapId,
+    period, setPeriod,
+    trackingMode, setTrackingMode,
     gameStats,
     players,
     playerNamesMap,
@@ -245,13 +213,7 @@ const GameMode: React.FC = () => {
     } finally {
       setIsEnding(false);
     }
-  }, [
-    gameId,
-    setIsEnding,
-    setEndGameDialogOpen,
-    setSummaryDialogOpen,
-    setSnackbar,
-  ]);
+  }, [gameId, setIsEnding, setEndGameDialogOpen, setSummaryDialogOpen, setSnackbar]);
 
   /**
    * Handles a click on the court to start recording an action.
@@ -275,15 +237,7 @@ const GameMode: React.FC = () => {
       }
       setDialogOpen(true);
     },
-    [
-      isReadOnly,
-      trackingMode,
-      setSelectedX,
-      setSelectedY,
-      setPoints,
-      setSelectedPlayerId,
-      setDialogOpen,
-    ],
+    [isReadOnly, trackingMode, setSelectedX, setSelectedY, setPoints, setSelectedPlayerId, setDialogOpen],
   );
 
   /**
@@ -410,7 +364,7 @@ const GameMode: React.FC = () => {
       setPlayName,
       setIsEditing,
       setEditingStatId,
-      setSelectedPlayerId,
+      setSelectedPlayerId
     ],
   );
 
@@ -518,7 +472,7 @@ const GameMode: React.FC = () => {
     period,
     clockSeconds,
     setSubDialogOpen,
-    setSnackbar,
+    setSnackbar
   ]);
 
   /**
@@ -551,13 +505,7 @@ const GameMode: React.FC = () => {
     } finally {
       setIsDeleting(false);
     }
-  }, [
-    statToDelete,
-    setIsDeleting,
-    setDeleteDialogOpen,
-    setStatToDelete,
-    setSnackbar,
-  ]);
+  }, [statToDelete, setIsDeleting, setDeleteDialogOpen, setStatToDelete, setSnackbar]);
 
   /**
    * Populates the dialog state with an existing stat for editing.
@@ -577,19 +525,7 @@ const GameMode: React.FC = () => {
       setIsEditing(true);
       setDialogOpen(true);
     },
-    [
-      isReadOnly,
-      setEditingStatId,
-      setSelectedPlayerId,
-      setStatType,
-      setPoints,
-      setPlayName,
-      setShotQuality,
-      setSelectedX,
-      setSelectedY,
-      setIsEditing,
-      setDialogOpen,
-    ],
+    [isReadOnly, setEditingStatId, setSelectedPlayerId, setStatType, setPoints, setPlayName, setShotQuality, setSelectedX, setSelectedY, setIsEditing, setDialogOpen],
   );
 
   // Ensure required parameters are present, otherwise redirect
@@ -656,14 +592,7 @@ const GameMode: React.FC = () => {
         logger.error("Failed to update game period:", err);
       }
     }
-  }, [
-    gameId,
-    period,
-    periodType,
-    setPeriod,
-    setClockSeconds,
-    setIsClockRunning,
-  ]);
+  }, [gameId, period, periodType, setPeriod, setClockSeconds, setIsClockRunning]);
 
   /**
    * 🏀 CoachBoard: handleTimeout
@@ -990,10 +919,8 @@ const GameMode: React.FC = () => {
                         const isFoulTroubleInPeriod =
                           pfSincePeriodStart >= periodFoulLimit;
 
-                        const stintSecs =
-                          gameData.stintDurations.get(p.id!) || 0;
-                        const isFatigued =
-                          stintSecs > (team?.maxStintDuration || 8) * 60;
+                        const stintSecs = gameData.stintDurations.get(p.id!) || 0;
+                        const isFatigued = stintSecs > (team?.maxStintDuration || 8) * 60;
 
                         return (
                           <Box
@@ -1039,7 +966,6 @@ const GameMode: React.FC = () => {
                               }}
                             >
                               <Avatar
-                                src={p.photoUrl}
                                 sx={{
                                   width: 24,
                                   height: 24,
@@ -1050,7 +976,7 @@ const GameMode: React.FC = () => {
                                   fontWeight: 700,
                                 }}
                               >
-                                {p.jerseyNumber}
+                                {jerseyMap.get(p.id!)}
                               </Avatar>
                               <Box sx={{ flex: 1, textAlign: "left" }}>
                                 <Typography
@@ -1063,15 +989,8 @@ const GameMode: React.FC = () => {
                                 >
                                   {p.name.split(" ").pop()}
                                   {isFatigued && (
-                                    <Tooltip
-                                      title={`Fatigue Alert: Exceeded ${team?.maxStintDuration || 8} mins`}
-                                    >
-                                      <Box
-                                        component="span"
-                                        sx={{ ml: 0.5, fontSize: "0.8rem" }}
-                                      >
-                                        ⚠️
-                                      </Box>
+                                    <Tooltip title={`Fatigue Alert: Exceeded ${team?.maxStintDuration || 8} mins`}>
+                                      <Box component="span" sx={{ ml: 0.5, fontSize: "0.8rem" }}>⚠️</Box>
                                     </Tooltip>
                                   )}
                                 </Typography>
@@ -1082,8 +1001,7 @@ const GameMode: React.FC = () => {
                                   {s?.points} pts | {s?.rebounds} reb |{" "}
                                   {s?.fouls} pf |{" "}
                                   {(() => {
-                                    const maxStint =
-                                      (team?.maxStintDuration || 8) * 60;
+                                    const maxStint = (team?.maxStintDuration || 8) * 60;
                                     const color =
                                       stintSecs > maxStint
                                         ? theme.palette.error.main
@@ -1098,7 +1016,7 @@ const GameMode: React.FC = () => {
                                   })()}
                                 </Typography>
                               </Box>
-                              {playerStreaks.get(p.id!)?.isHot && (
+                              {playerStreaks.get(p.id!) === "HOT" && (
                                 <Box sx={{ fontSize: "0.8rem", ml: 0.5 }}>
                                   🔥
                                 </Box>
@@ -1171,7 +1089,7 @@ const GameMode: React.FC = () => {
                               "&:hover": { bgcolor: "rgba(255,255,255,0.9)" },
                             }}
                           >
-                            #{p.jerseyNumber}
+                            #{jerseyMap.get(p.id!)}
                           </Button>
                         ))}
                     </Box>
@@ -1179,10 +1097,7 @@ const GameMode: React.FC = () => {
                 )}
 
                 <MoleskineCard>
-                  <Typography
-                    variant="subtitle2"
-                    sx={{ fontWeight: 600, mb: 2 }}
-                  >
+                  <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 2 }}>
                     Player Performance
                   </Typography>
                   <TableContainer>
@@ -1506,24 +1421,22 @@ const GameMode: React.FC = () => {
             <Avatar
               sx={{
                 bgcolor:
-                  trackingMode === "OPPONENT"
-                    ? "secondary.main"
-                    : "primary.main",
+                  trackingMode === "OPPONENT" ? "secondary.main" : "primary.main",
               }}
             >
               {selectedPlayerId
-                ? trackingMode === "OPPONENT"
-                  ? "OP"
-                  : jerseyMap.get(selectedPlayerId) || "?"
+                ? (trackingMode === "OPPONENT"
+                    ? "OP"
+                    : jerseyMap.get(selectedPlayerId) || "?")
                 : "?"}
             </Avatar>
             <Box>
               <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
                 {selectedPlayerId
-                  ? trackingMode === "OPPONENT"
-                    ? game?.opponent || "Opponent"
-                    : players.find((p) => p.id === selectedPlayerId)?.name ||
-                      "Unknown Player"
+                  ? (trackingMode === "OPPONENT"
+                      ? game?.opponent || "Opponent"
+                      : players.find((p) => p.id === selectedPlayerId)?.name ||
+                        "Unknown Player")
                   : "Select a player..."}
               </Typography>
               <Typography variant="caption" color="text.secondary">
@@ -1645,7 +1558,7 @@ const GameMode: React.FC = () => {
                         borderColor: "#D1D1D1",
                       }}
                     >
-                      {p.jerseyNumber}
+                      {jerseyMap.get(p.id!)}
                     </Button>
                   ))}
               </Box>
@@ -1691,9 +1604,7 @@ const GameMode: React.FC = () => {
                   return (
                     <Button
                       key={num}
-                      variant={
-                        selectedPlayerId === oppId ? "contained" : "outlined"
-                      }
+                      variant={selectedPlayerId === oppId ? "contained" : "outlined"}
                       size="small"
                       onClick={() =>
                         setSelectedPlayerId(
@@ -1702,11 +1613,7 @@ const GameMode: React.FC = () => {
                             : oppId,
                         )
                       }
-                      sx={{
-                        minWidth: 40,
-                        fontWeight: 700,
-                        borderColor: "#D1D1D1",
-                      }}
+                      sx={{ minWidth: 40, fontWeight: 700, borderColor: "#D1D1D1" }}
                     >
                       {num}
                     </Button>
@@ -1715,9 +1622,7 @@ const GameMode: React.FC = () => {
               </Box>
               {(() => {
                 const pId = selectedPlayerId || "";
-                const isOpp =
-                  pId === SPECIAL_PLAYER_IDS.OPPONENT ||
-                  pId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":");
+                const isOpp = pId === SPECIAL_PLAYER_IDS.OPPONENT || pId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":");
                 if (!isOpp) return null;
 
                 // Simple bonus logic for opponent (trackingMode).

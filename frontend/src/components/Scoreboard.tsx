@@ -1,5 +1,11 @@
 import React from "react";
-import { Box, Typography, Avatar, Stack, useTheme } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Avatar,
+  Stack,
+  useTheme,
+} from "@mui/material";
 import { OpponentThreat } from "../utils/stats";
 import { formatClock } from "../utils/mathUtils";
 import { AnimatedNumber } from "./SharedUI";
