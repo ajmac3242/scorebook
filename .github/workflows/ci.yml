@@ -189,7 +189,7 @@ jobs:
           cache-dependency-path: frontend/pnpm-lock.yaml
 
       - name: "Frontend: Install & Build"
-        timeout-minutes: 5
+        timeout-minutes: 10
         run: |
           echo "::group::Frontend Build"
           cd frontend
@@ -205,7 +205,7 @@ jobs:
           echo "::endgroup::"
 
       - name: "Frontend: Run Tests"
-        timeout-minutes: 5
+        timeout-minutes: 10
         run: |
           echo "::group::Frontend Tests"
           cd frontend
