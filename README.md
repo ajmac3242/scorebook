@@ -13,7 +13,7 @@ Scorebook is a mobile-first, offline-ready basketball statistics tracking applic
 - **Day.js** for lightweight date and time formatting
 
 ### Backend
-- **AWS Lambda** (Node.js 22 runtime)
+- **AWS Lambda** (Node.js 22 runtime) using a modular handler architecture
 - **Amazon DynamoDB** for high-performance, scalable NoSQL storage
 - **Amazon S3** for JSON snapshot distribution
 - **Amazon Cognito** for secure user authentication
@@ -29,6 +29,9 @@ The application is designed to function seamlessly without a network connection.
 1.  **Local Storage**: All data is initially written to a local **IndexedDB** instance via Dexie.js.
 2.  **Background Sync**: A custom `SyncService` monitors connectivity and pushes local changes to the backend when online. It processes updates in concurrent chunks to maximize throughput while maintaining backend stability.
 3.  **Conflict Resolution**: Uses versioning and ETag-based caching to handle synchronization between multiple devices efficiently.
+
+### Modular Backend Architecture
+To ensure maintainability and performance as the API surface grows, the backend is organized into domain-specific handlers (e.g., `players.ts`, `games.ts`, `teams.ts`). This structure avoids the complexity of a monolithic router and allows for granular validation and optimization within each resource path.
 
 ### S3 Snapshot Distribution
 To optimize read performance and reduce DynamoDB costs:
@@ -46,18 +49,18 @@ To optimize read performance and reduce DynamoDB costs:
 
 ### Frontend
 1.  Navigate to the `frontend/` directory.
-2.  Install dependencies: `npm install`
+2.  Install dependencies: `pnpm install`
 3.  Set up environment variables in a `.env` file:
     - `VITE_USER_POOL_ID`: Your AWS Cognito User Pool ID
     - `VITE_CLIENT_ID`: Your AWS Cognito Client ID
-4.  Start development server: `npm run dev`
-5.  Run tests: `npm test`
+4.  Start development server: `pnpm run dev`
+5.  Run tests: `pnpm test`
 
 ### Backend
 1.  Navigate to the `backend/` directory.
-2.  Install dependencies: `npm install`
-3.  Build the project: `npm run build`
-4.  Run tests: `NODE_OPTIONS=--experimental-vm-modules npm test` (Required for ESM support in Jest)
+2.  Install dependencies: `pnpm install`
+3.  Build the project: `pnpm run build`
+4.  Run tests: `NODE_OPTIONS=--experimental-vm-modules pnpm test` (Required for ESM support in Jest)
 
 ## Testing Philosophy
 
@@ -92,6 +95,8 @@ To maintain high performance on low-end mobile devices and ensure enterprise-gra
 - **Locker Room Post-Game Learning System**: An interactive "Coaching Clinic" mode that identifies critical game-changing moments, execution wins, and tactical errors based on PPP and score flow.
 - **Opponent Play-Type Breakdown**: Granular categorization of opponent scoring (PnR, ISO, Transition, etc.) with real-time efficiency alerts and shot chart filtering.
 - **Momentum & Run Alerts**: Automated detection of opponent scoring runs (e.g. 8-0) and scoring droughts to assist with timeout management.
+- **"Blue Collar" Hustle Stats**: Dedicated tracking for non-standard defensive impact events including **Deflections**, **Floor Dives**, **Charges Taken**, and **Great Contests**.
+- **Special Situations Tracking**: One-tap tagging for critical tactical moments including **ATO** (After Timeout), **SLOB** (Side-Line Out of Bounds), **BLOB** (Base-Line Out of Bounds), and **EOP** (End of Period) to analyze execution efficiency under pressure.
 - **Clutch Analytics**: Interactive filtering to analyze player and lineup performance during high-leverage "Clutch Time" situations.
 - **Lineup Efficiency Tracking**: Analyze the performance (Plus/Minus) of specific 5-player combinations to optimize rotations.
 - **Hot/Cold Streak Indicators**: Visual cues (🔥/❄️) help coaches identify players with scoring momentum in real-time.
