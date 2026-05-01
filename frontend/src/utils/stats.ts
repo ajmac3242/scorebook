@@ -345,7 +345,12 @@ export const calculatePossessions = (
 
 /**
  * Calculates possessions for a statistical aggregate record.
- * @param agg - An object containing attempts, fta, turnovers, and offensive rebounds.
+  * @param {object} agg - An object containing stat aggregates.
+ * @param {number} agg.attempts - Field goal attempts.
+ * @param {number} agg.fta - Free throw attempts.
+ * @param {number} agg.turnovers - Turnovers.
+ * @param {number} [agg.offRebounds] - Offensive rebounds.
+ * @param {number} [agg.oreb] - Offensive rebounds (alternate field).
  */
 export const calculatePossessionsForAgg = ({
   attempts,
