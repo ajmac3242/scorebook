@@ -1,5 +1,5 @@
 import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../../constants/stats";
-import { StatEvent } from "./types";
+import { StatEvent } from "./../../db";
 
 /**
  * 🏀 Momentum: detectOpponentRun
