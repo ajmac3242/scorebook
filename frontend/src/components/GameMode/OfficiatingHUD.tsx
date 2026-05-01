@@ -3,12 +3,10 @@ import {
   Box,
   Typography,
   Chip,
-  Stack,
   LinearProgress,
   Grid,
 } from "@mui/material";
 import {
-  Gavel as GavelIcon,
   Scale as BalanceIcon,
 } from "@mui/icons-material";
 import { MoleskineCard } from "../SharedUI";
