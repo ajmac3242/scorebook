@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import { Box, Typography, Chip, Stack, useTheme, Divider } from "@mui/material";
 import { FlashOn, Star as StarIcon } from "@mui/icons-material";
 import { MoleskineCard } from "../SharedUI";
-import { MatchupStats } from "../../utils/stats/types";
+import { MatchupStats, ClutchPlay } from "../../utils/stats/types";
 import { calculateClutchPlaybookRanking } from "../../utils/stats";
 import { StatEvent } from "../../db";
 
@@ -127,7 +127,7 @@ export const ClutchPlaybookAdvisor: React.FC<ClutchPlaybookAdvisorProps> = ({
                 .slice(0, 2)
                 .map((m: MatchupStats) => (
                   <Box
-                    key={m.playerId}
+                    key={m.ourPlayerId}
                     sx={{ display: "flex", alignItems: "center", gap: 1 }}
                   >
                     <StarIcon sx={{ fontSize: 14, color: "warning.main" }} />
