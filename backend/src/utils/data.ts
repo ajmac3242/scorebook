@@ -8,22 +8,21 @@ import { INTERNAL_KEYS } from "../responses.js";
 /**
  * Redacts sensitive information from the Lambda event before logging.
  *
- * @param {Record<string, unknown>} event - The raw Lambda event.
- * @returns {Record<string, unknown>} A sanitized copy of the event.
+ * @param {unknown} event - The raw Lambda event.
+ * @returns {unknown} A sanitized copy of the event.
  */
-export function maskEvent(
-  event: Record<string, unknown>,
-): Record<string, unknown> {
-  const masked: Record<string, unknown> = { ...event };
+export function maskEvent(event: unknown): unknown {
+  const ev = event as Record<string, unknown>;
+  const masked: Record<string, unknown> = { ...ev };
 
-  if (event.headers) {
+  if (ev.headers) {
     masked.headers = redactRecord(
-      event.headers as Record<string, string>,
+      ev.headers as Record<string, string>,
       REDACTED_HEADERS,
     );
   }
 
-  const multiValueHeaders = event.multiValueHeaders as
+  const multiValueHeaders = ev.multiValueHeaders as
     | Record<string, string[]>
     | undefined;
   if (multiValueHeaders) {
@@ -34,17 +33,17 @@ export function maskEvent(
     );
   }
 
-  if (event.cookies) {
-    masked.cookies = (event.cookies as string[]).map(() => "[REDACTED]");
+  if (ev.cookies) {
+    masked.cookies = (ev.cookies as string[]).map(() => "[REDACTED]");
   }
 
-  if (event.queryStringParameters) {
+  if (ev.queryStringParameters) {
     masked.queryStringParameters = redactRecord(
-      event.queryStringParameters as Record<string, string>,
+      ev.queryStringParameters as Record<string, string>,
     );
   }
 
-  const multiValueQueryParams = event.multiValueQueryStringParameters as
+  const multiValueQueryParams = ev.multiValueQueryStringParameters as
     | Record<string, string[]>
     | undefined;
   if (multiValueQueryParams) {
