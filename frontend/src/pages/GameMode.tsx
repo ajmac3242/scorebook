@@ -95,6 +95,7 @@ import { db, type StatEvent, type Player } from "../db";
 import { syncService } from "../utils/syncService";
 import { logger } from "../utils/logger";
 import { useLiveQuery } from "dexie-react-hooks";
+import { useGameModeQueries } from "../features/gameMode/hooks/useGameModeQueries";
 import {
   ACTION_TYPES,
   SPECIAL_PLAYER_IDS,
