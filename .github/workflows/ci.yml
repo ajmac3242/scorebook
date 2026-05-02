@@ -209,7 +209,7 @@ jobs:
         run: |
           echo "::group::Frontend Tests"
           cd frontend
-          pnpm test -- --reporter=verbose
+          pnpm test -- --reporter=default
           echo "::endgroup::"
 
       - name: Upload Frontend Logs on Failure
@@ -250,7 +250,7 @@ jobs:
           echo "::endgroup::"
 
           echo "::group::Execute terraform-docs"
-          terraform-docs markdown table infra --output-file README.md --output-mode inject
+          terraform-docs markdown table infra --output-file infra/README.md --output-mode inject
           echo "::endgroup::"
 
       - name: Install Graphviz
