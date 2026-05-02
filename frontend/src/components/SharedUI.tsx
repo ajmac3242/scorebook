@@ -246,7 +246,5 @@ export const AnimatedNumber: React.FC<AnimatedNumberProps> = ({
     };
   }, [value, duration]);
 
-  return (
-    <span aria-live="polite">{displayValue.toFixed(decimals)}</span>
-  );
+  return <span aria-live="polite">{displayValue.toFixed(decimals)}</span>;
 };
