@@ -12,9 +12,7 @@ import {
   QueryCommand,
   UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
-import {
-  S3Client,
-} from "@aws-sdk/client-s3";
+import { S3Client } from "@aws-sdk/client-s3";
 import { v4 as uuidv4 } from "uuid";
 import {
   APIGatewayProxyEventV2,
@@ -30,9 +28,7 @@ import {
   response,
   filterActive,
 } from "./responses.js";
-import {
-  isValidUuid,
-} from "./validation.js";
+import { isValidUuid } from "./validation.js";
 import {
   logError,
   logInfo,
@@ -223,7 +219,10 @@ export async function createItem(
  * @param {Record<string, unknown>} item - The item to create.
  * @returns {Promise<void>}
  */
-export async function putNewItem(tableName: string, item: Record<string, unknown>) {
+export async function putNewItem(
+  tableName: string,
+  item: Record<string, unknown>,
+) {
   await docClient.send(
     new PutCommand({
       TableName: tableName,

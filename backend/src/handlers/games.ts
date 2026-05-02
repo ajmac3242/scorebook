@@ -1,5 +1,10 @@
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
-import { DynamoDBDocumentClient, QueryCommand, GetCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
+import {
+  DynamoDBDocumentClient,
+  QueryCommand,
+  GetCommand,
+  UpdateCommand,
+} from "@aws-sdk/lib-dynamodb";
 import { v4 as uuidv4 } from "uuid";
 import {
   ok,
@@ -8,21 +13,20 @@ import {
   notFound,
   filterActive,
 } from "../responses.js";
-import {
-  isValidUuid,
-  validateStatEvent,
-} from "../validation.js";
+import { isValidUuid, validateStatEvent } from "../validation.js";
 import { Keys } from "../keys.js";
-import {
-  extractIdFromPath,
-  stripLocalFields,
-} from "../utils.js";
+import { extractIdFromPath, stripLocalFields } from "../utils.js";
 import {
   snapshotTeamGames,
   snapshotGameStats,
   deleteGameSnapshots,
 } from "../snapshots.js";
-import { getItemsByGSI, createItem, softDeleteItem, putNewItem } from "../index.js";
+import {
+  getItemsByGSI,
+  createItem,
+  softDeleteItem,
+  putNewItem,
+} from "../index.js";
 
 /**
  * Handlers for Games endpoints.
