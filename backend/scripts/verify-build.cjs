@@ -12,14 +12,14 @@ const dependencies = [
   'uuid'
 ];
 
-console.log('Verifying production build dependencies...');
+process.stdout.write('Verifying production build dependencies...' + "\n");
 
 let hasError = false;
 
 dependencies.forEach(dep => {
   try {
     require.resolve(dep);
-    console.log(`[OK] ${dep} is resolvable.`);
+    process.stdout.write(`[OK] ${dep} is resolvable.` + "\n");
   } catch (e) {
     console.error(`[ERROR] ${dep} is NOT resolvable!`);
     hasError = true;
@@ -29,6 +29,6 @@ dependencies.forEach(dep => {
 if (hasError) {
   process.exit(1);
 } else {
-  console.log('Build verification successful.');
+  process.stdout.write('Build verification successful.' + "\n");
   process.exit(0);
 }

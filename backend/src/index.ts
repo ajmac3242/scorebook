@@ -86,7 +86,13 @@ async function handlePlayers(
 ): Promise<APIGatewayProxyResultV2 | null> {
   // Collection endpoints: /players
   if (path === "/players") {
-    if (method === "GET") return await getItems(tableName, "PLAYER");
+    if (method === "GET")
+      return await getItems(
+        tableName,
+        "PLAYER",
+        "id, #n, avatarColor, isArchived, deletedAt",
+        { "#n": "name" },
+      );
     if (method === "POST") {
       if (
         !body?.name ||
@@ -177,7 +183,17 @@ async function handleGames(
       if (!isValidUuid(teamId)) {
         return badRequest("Valid teamId (UUID) is required");
       }
-      return await getItemsByGSI(`TEAM#${teamId}`, tableName);
+      return await getItemsByGSI(
+        `TEAM#${teamId}`,
+        tableName,
+        "id, teamId, opponent, opponentId, opponentLogoUrl, #d, #t, #l, completed, periodLength, timeoutLimit, foulLimit, periodType, deletedAt, #n, avatarColor, jerseyNumber",
+        {
+          "#d": "date",
+          "#t": "time",
+          "#l": "location",
+          "#n": "name",
+        },
+      );
     }
     if (method === "POST") {
       if (!isValidUuid(body?.teamId)) {
@@ -328,9 +344,15 @@ async function handleGameStats(
           ":pk": Keys.game(gameId),
           ":sk": "STAT#",
         },
+        ProjectionExpression:
+          "id, gameId, playerId, #t, points, locationX, locationY, period, clockTime, playName, shotQuality, situation, #ts, deletedAt",
+        ExpressionAttributeNames: {
+          "#t": "type",
+          "#ts": "timestamp",
+        },
       }),
     );
-    return ok(filterActive(result.Items));
+    return ok(filterActive(result.Items as any));
   }
 
   if (method === "POST") {
@@ -386,7 +408,12 @@ async function handleTeams(
 ): Promise<APIGatewayProxyResultV2 | null> {
   if (path === "/teams") {
     if (method === "GET") {
-      return await getItems(tableName, "TEAM");
+      return await getItems(
+        tableName,
+        "TEAM",
+        "id, #n, description, logoUrl, primaryColor, periodType, fouls, deletedAt",
+        { "#n": "name" },
+      );
     }
     if (method === "POST") {
       if (
@@ -446,7 +473,13 @@ async function handleTeams(
     if (!isValidUuid(tId))
       return badRequest("Invalid teamId format (UUID required)");
 
-    if (method === "GET") return await getItemsByGSI(`TEAM#${tId}`, tableName);
+    if (method === "GET")
+      return await getItemsByGSI(
+        `TEAM#${tId}`,
+        tableName,
+        "id, teamId, playerId, #n, avatarColor, jerseyNumber, deletedAt",
+        { "#n": "name" },
+      );
 
     if (method === "POST") {
       if (!isValidUuid(body.playerId))
@@ -597,11 +630,15 @@ export const handler = async (
  *
  * @param {string} tableName - The name of the DynamoDB table.
  * @param {string} gsiPrefix - The prefix for the GSI1PK.
+ * @param {string} [projection] - Optional projection expression.
+ * @param {Record<string, string>} [expressionAttributeNames] - Optional attribute name mappings.
  * @returns {Promise<APIGatewayProxyStructuredResultV2>} The HTTP response with the items.
  */
 async function getItems(
   tableName: string,
   gsiPrefix: string,
+  projection?: string,
+  expressionAttributeNames?: Record<string, string>,
 ): Promise<APIGatewayProxyStructuredResultV2> {
   const result = await docClient.send(
     new QueryCommand({
@@ -609,9 +646,11 @@ async function getItems(
       IndexName: "GSI1",
       KeyConditionExpression: "GSI1PK = :pk",
       ExpressionAttributeValues: { ":pk": gsiPrefix },
+      ProjectionExpression: projection,
+      ExpressionAttributeNames: expressionAttributeNames,
     }),
   );
-  return ok(filterActive(result.Items));
+  return ok(filterActive(result.Items as any));
 }
 
 /**
@@ -619,11 +658,15 @@ async function getItems(
  *
  * @param {string} gsiPk - The GSI1PK value.
  * @param {string} tableName - The name of the DynamoDB table.
+ * @param {string} [projection] - Optional projection expression.
+ * @param {Record<string, string>} [expressionAttributeNames] - Optional attribute name mappings.
  * @returns {Promise<APIGatewayProxyStructuredResultV2>} The HTTP response with the items.
  */
 async function getItemsByGSI(
   gsiPk: string,
   tableName: string,
+  projection?: string,
+  expressionAttributeNames?: Record<string, string>,
 ): Promise<APIGatewayProxyStructuredResultV2> {
   const result = await docClient.send(
     new QueryCommand({
@@ -631,9 +674,11 @@ async function getItemsByGSI(
       IndexName: "GSI1",
       KeyConditionExpression: "GSI1PK = :pk",
       ExpressionAttributeValues: { ":pk": gsiPk },
+      ProjectionExpression: projection,
+      ExpressionAttributeNames: expressionAttributeNames,
     }),
   );
-  return ok(filterActive(result.Items));
+  return ok(filterActive(result.Items as any));
 }
 
 /**

@@ -61,6 +61,7 @@ import {
   calculateTeamAggregates,
   calculateLineupStats,
   getInitials,
+  type PlayerAggregates,
 } from "../utils/stats";
 import { MoleskineCard } from "../components/SharedUI";
 import { syncService } from "../utils/syncService";
@@ -70,6 +71,138 @@ import { useGames } from "../hooks/useGames";
 import { usePlayers } from "../hooks/usePlayers";
 import dayjs from "dayjs";
 import SortableHeader from "../components/SortableHeader";
+
+/**
+ * Individual player statistic row component.
+ * Memoized to prevent unnecessary re-renders when other parts of the table change.
+ */
+const StatRow: React.FC<{
+  row: PlayerAggregates;
+  teamId: string | undefined;
+  navigate: (_path: string) => void;
+}> = React.memo(({ row, teamId, navigate }) => (
+  <TableRow
+    hover
+    sx={{ cursor: "pointer" }}
+    onClick={() => navigate(`/players/${row.id}?teamId=${teamId}`)}
+  >
+    <TableCell
+      sx={{
+        fontWeight: 700,
+        display: { xs: "none", sm: "table-cell" },
+      }}
+    >
+      {row.jerseyNumber ?? "-"}
+    </TableCell>
+    <TableCell>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+        <Avatar
+          sx={{
+            bgcolor: row.avatarColor || "grey.500",
+            width: { xs: 24, sm: 40 },
+            height: { xs: 24, sm: 40 },
+          }}
+        >
+          <Typography
+            variant="caption"
+            sx={{ fontSize: { xs: "0.6rem", sm: "0.8rem" } }}
+          >
+            {getInitials(row.name)}
+          </Typography>
+        </Avatar>
+        <Typography
+          sx={{
+            fontWeight: 600,
+            fontSize: { xs: "0.75rem", sm: "1rem" },
+          }}
+        >
+          {row.name}
+        </Typography>
+      </Box>
+    </TableCell>
+    <TableCell
+      align="center"
+      sx={{ display: { xs: "none", sm: "table-cell" } }}
+    >
+      {row.gp}
+    </TableCell>
+    <TableCell
+      align="right"
+      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+    >
+      {row.min}
+    </TableCell>
+    <TableCell
+      align="right"
+      sx={{
+        fontWeight: 700,
+        fontSize: { xs: "0.75rem", sm: "0.875rem" },
+      }}
+    >
+      {row.points}
+    </TableCell>
+    <TableCell
+      align="right"
+      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+    >
+      {row.threePM}
+    </TableCell>
+    <TableCell
+      align="right"
+      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+    >
+      {row.threePA}
+    </TableCell>
+    <TableCell
+      align="right"
+      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+    >
+      {row.threePPct}%
+    </TableCell>
+    <TableCell
+      align="right"
+      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+    >
+      {row.fgPct}%
+    </TableCell>
+    <TableCell
+      align="right"
+      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+    >
+      {row.efgPct}%
+    </TableCell>
+    <TableCell
+      align="right"
+      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+    >
+      {row.rebounds}
+    </TableCell>
+    <TableCell
+      align="right"
+      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+    >
+      {row.assists}
+    </TableCell>
+    <TableCell
+      align="right"
+      sx={{ display: { xs: "none", sm: "table-cell" } }}
+    >
+      {row.steals}
+    </TableCell>
+    <TableCell
+      align="right"
+      sx={{ display: { xs: "none", sm: "table-cell" } }}
+    >
+      {row.turnovers}
+    </TableCell>
+    <TableCell
+      align="right"
+      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+    >
+      {row.plusMinus > 0 ? `+${row.plusMinus}` : row.plusMinus}
+    </TableCell>
+  </TableRow>
+));
 
 /**
  * TeamStats page component.
@@ -1000,132 +1133,12 @@ const TeamStats: React.FC = () => {
               </TableHead>
               <TableBody>
                 {playerStats.map((row) => (
-                  <TableRow
+                  <StatRow
                     key={row.id}
-                    hover
-                    sx={{ cursor: "pointer" }}
-                    onClick={() =>
-                      navigate(`/players/${row.id}?teamId=${teamId}`)
-                    }
-                  >
-                    <TableCell
-                      sx={{
-                        fontWeight: 700,
-                        display: { xs: "none", sm: "table-cell" },
-                      }}
-                    >
-                      {row.jerseyNumber ?? "-"}
-                    </TableCell>
-                    <TableCell>
-                      <Box
-                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                      >
-                        <Avatar
-                          sx={{
-                            bgcolor: row.avatarColor || "grey.500",
-                            width: { xs: 24, sm: 40 },
-                            height: { xs: 24, sm: 40 },
-                          }}
-                        >
-                          <Typography
-                            variant="caption"
-                            sx={{ fontSize: { xs: "0.6rem", sm: "0.8rem" } }}
-                          >
-                            {getInitials(row.name)}
-                          </Typography>
-                        </Avatar>
-                        <Typography
-                          sx={{
-                            fontWeight: 600,
-                            fontSize: { xs: "0.75rem", sm: "1rem" },
-                          }}
-                        >
-                          {row.name}
-                        </Typography>
-                      </Box>
-                    </TableCell>
-                    <TableCell
-                      align="center"
-                      sx={{ display: { xs: "none", sm: "table-cell" } }}
-                    >
-                      {row.gp}
-                    </TableCell>
-                    <TableCell
-                      align="right"
-                      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
-                    >
-                      {row.min}
-                    </TableCell>
-                    <TableCell
-                      align="right"
-                      sx={{
-                        fontWeight: 700,
-                        fontSize: { xs: "0.75rem", sm: "0.875rem" },
-                      }}
-                    >
-                      {row.points}
-                    </TableCell>
-                    <TableCell
-                      align="right"
-                      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
-                    >
-                      {row.threePM}
-                    </TableCell>
-                    <TableCell
-                      align="right"
-                      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
-                    >
-                      {row.threePA}
-                    </TableCell>
-                    <TableCell
-                      align="right"
-                      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
-                    >
-                      {row.threePPct}%
-                    </TableCell>
-                    <TableCell
-                      align="right"
-                      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
-                    >
-                      {row.fgPct}%
-                    </TableCell>
-                    <TableCell
-                      align="right"
-                      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
-                    >
-                      {row.efgPct}%
-                    </TableCell>
-                    <TableCell
-                      align="right"
-                      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
-                    >
-                      {row.rebounds}
-                    </TableCell>
-                    <TableCell
-                      align="right"
-                      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
-                    >
-                      {row.assists}
-                    </TableCell>
-                    <TableCell
-                      align="right"
-                      sx={{ display: { xs: "none", sm: "table-cell" } }}
-                    >
-                      {row.steals}
-                    </TableCell>
-                    <TableCell
-                      align="right"
-                      sx={{ display: { xs: "none", sm: "table-cell" } }}
-                    >
-                      {row.turnovers}
-                    </TableCell>
-                    <TableCell
-                      align="right"
-                      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
-                    >
-                      {row.plusMinus > 0 ? `+${row.plusMinus}` : row.plusMinus}
-                    </TableCell>
-                  </TableRow>
+                    row={row}
+                    teamId={teamId}
+                    navigate={navigate}
+                  />
                 ))}
               </TableBody>
             </Table>
