@@ -1,4 +1,4 @@
-# Scorebook - Basketball Stats
+# Welcome to Scorebook - Basketball Stats
 
 Scorebook is a mobile-first, offline-ready basketball statistics tracking application. It allows coaches and enthusiasts to track game events (shots, rebounds, assists, etc.) in real-time and provides detailed analytics for teams and players.
 
@@ -36,54 +36,50 @@ To optimize read performance and reduce DynamoDB costs:
 - These snapshots are uploaded to an S3 bucket.
 - The frontend pulls these snapshots for large data sets (like full game stats), utilizing browser caching and S3's global scale.
 
-## Performance & Scalability
-- **ETag Caching**: The application utilizes ETag-based caching (via `If-None-Match` headers) when pulling S3 snapshots. This ensures that the frontend only downloads data if it has changed since the last sync, significantly reducing data usage and processing time.
-- **Efficient Aggregations**: Statistics are aggregated on-the-fly in the frontend using optimized `for` loops and `Map` objects, ensuring that complex calculations (like PPG, RPG, APG) remain fast even as the number of recorded events grows.
-- **Reduced Backend Load**: By serving historical game stats and rosters directly from S3, the application offloads significant read traffic from DynamoDB, leading to lower costs and improved scalability.
+### Security & Governance
+- **API Security**: Administrative endpoints (like `/cleanup`) are protected via `x-api-key` headers with strict entropy requirements (min 16 chars).
+- **Request Sanitization**: All incoming payloads are subject to size limits (512KB) and content-type enforcement to prevent injection and resource exhaustion attacks.
+- **Data Protection**: Sensitive internal keys are stripped from public API responses using a recursive transformation layer.
+
+## Development Workflow
+
+### Agent-Based Development
+This project utilizes specialized AI agents (Jules) to maintain and evolve the codebase. Coordination is handled through the `.Jules/` directory:
+- **backlog.md**: The active list of features and maintenance tasks.
+- **backlog-archive.md**: History of completed tasks to keep the active context small.
+- **Agent Roles**: Specialized files (e.g., `scout.md`, `scribe-guardian.md`) define the ownership and responsibilities of different agent personas.
+
+### Targeted Testing
+To maintain high velocity while ensuring reliability:
+- **Targeted Test Script**: Use `bash scripts/jules-test.sh` during development. It automatically identifies modified files and runs only the relevant tests.
+- **Test Locations**:
+  - Backend: `backend/src/__tests__` (Jest)
+  - Frontend: `frontend/src/**/*.test.ts` (Vitest)
+- **CI Enforcement**: The full suite of 100+ tests runs on every PR via GitHub Actions.
 
 ## Setup Instructions
 
 ### Frontend
 1.  Navigate to the `frontend/` directory.
-2.  Install dependencies: `npm install`
+2.  Install dependencies: `pnpm install`
 3.  Set up environment variables in a `.env` file:
     - `VITE_USER_POOL_ID`: Your AWS Cognito User Pool ID
     - `VITE_CLIENT_ID`: Your AWS Cognito Client ID
-4.  Start development server: `npm run dev`
-5.  Run tests: `npm test`
+4.  Start development server: `pnpm run dev`
+5.  Run tests: `pnpm test`
 
 ### Backend
 1.  Navigate to the `backend/` directory.
-2.  Install dependencies: `npm install`
-3.  Build the project: `npm run build`
-4.  Run tests: `NODE_OPTIONS=--experimental-vm-modules npm test` (Required for ESM support in Jest)
-
-## Testing Philosophy
-
-To ensure high reliability and rapid development cycles, Scorebook follows a targeted testing approach:
-
-- **Targeted Testing**: Developers should use the `bash scripts/jules-test.sh` script during local development. This script automatically detects changed files and runs only the relevant tests, significantly reducing feedback loops.
-- **CI Enforcement**: The full test suite (100+ tests) is automatically executed by GitHub Actions on every Pull Request to ensure no regressions are introduced.
-- **Behavior-Driven**: Tests focus on verifying business logic (e.g., statistical aggregations, defensive momentum) rather than internal implementation details.
+2.  Install dependencies: `pnpm install`
+3.  Build the project: `pnpm run build`
+4.  Run tests: `pnpm test`
 
 ## Key Features
 - **Real-time Game Tracking**: Easy-to-use interface for logging shots, misses, rebounds, and more.
 - **Shot Charts**: Visual representation of shot locations on a virtual court.
-- **Advanced Analytics**: Automatic calculation of advanced metrics including **Effective Field Goal Percentage (eFG%)** and **True Shooting Percentage (TS%)** for deep efficiency analysis.
-- **Defensive Momentum Tracking**: Real-time tracking of **Defensive Stops** and **Kills** (3 consecutive stops) to monitor defensive intensity.
-- **Momentum & Run Alerts**: Automated detection of opponent scoring runs (e.g. 8-0) and scoring droughts to assist with timeout management.
-- **Clutch Analytics**: Interactive filtering to analyze player and lineup performance during high-leverage "Clutch Time" situations.
-- **Lineup Efficiency Tracking**: Analyze the performance (Plus/Minus) of specific 5-player combinations to optimize rotations.
-- **Hot/Cold Streak Indicators**: Visual cues (🔥/❄️) help coaches identify players with scoring momentum in real-time.
-- **Detailed Box Scores**: Symmetrical analytical parity with detailed stats for both your team and the opponent.
-- **Secure Data**: User data is isolated and encrypted, with local database cleanup on logout.
+- **Advanced Analytics**: Automatic calculation of advanced metrics including **Effective Field Goal Percentage (eFG%)** and **True Shooting Percentage (TS%)**.
+- **Defensive Momentum Tracking**: Real-time tracking of **Defensive Stops** and **Kills** (3 consecutive stops).
+- **Momentum & Run Alerts**: Automated detection of opponent scoring runs and scoring droughts.
+- **Lineup Efficiency Tracking**: Analyze the performance (Plus/Minus) of specific 5-player combinations.
+- **Hot/Cold Streak Indicators**: Visual cues (🔥/❄️) help coaches identify players with scoring momentum.
 - **Offline-First Synchronization**: Robust synchronization across devices with background conflict resolution.
-
----
-
-**CI Validation Test #2**: Testing after YAML fix - April 19, 2026 at 9:00 PM CDT
-
-
-<!-- CI Test: Validating YAML fixes - 2026-04-19 -->
-
-<!-- CI Test: Validating YAML fixes - 2026-04-19 -->
