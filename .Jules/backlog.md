@@ -3,6 +3,19 @@
 ## Maintenance Note
 Completed items are archived to `.Jules/backlog-archive.md` to maintain optimal performance for agent context. Active `backlog.md` should aim for a soft cap of ~200 lines.
 
+## Dexie Test Harness Mocking for Fast Vitest Runs
+**Priority:** HIGH **Type:** Test Infrastructure **Why:** Vitest runtime is being inflated by heavy `waitFor` polling against real async Dexie/IndexedDB behavior and MUI re-renders in jsdom. Fully mocking Dexie at the test boundary will make async assertions resolve immediately and reduce suite cancellation risk. **What:** Introduce a global Vitest test setup that mocks the app’s Dexie-backed database layer so component and hook tests do not hit real IndexedDB stubs.
+
+**Acceptance Criteria:**
+
+* [ ] Add a shared Vitest setup file for frontend tests.
+* [ ] Mock the app’s Dexie/database module at the import boundary used by components and hooks.
+* [ ] Ensure common table methods (`toArray`, `get`, `put`, `add`, `update`, `delete`, `bulkPut`, query-chain helpers) resolve immediately in tests.
+* [ ] Replace test reliance on real IndexedDB behavior so `waitFor` completes without 50ms polling against Dexie async state.
+* [ ] Keep mock behavior override-friendly per test file for custom scenarios.
+* [ ] Verify frontend test runtime improves and affected test files pass consistently in CI.
+
+
 ## [HYGIENE] Refactor: Split useGameMode.ts into focused domain hooks
 **Priority:** HIGH **Type:** Refactor **Why:** `useGameMode.ts` is the central coordinator for all live game state and currently carries too many unrelated responsibilities under one return surface, making it difficult to unit test, extend, or hand off to an agent without full-file context. **What:** Decompose the hook into focused domain hooks that are composed back into a thin `useGameMode` coordinator.
 
@@ -79,17 +92,6 @@ Completed items are archived to `.Jules/backlog-archive.md` to maintain optimal 
 
 ---
 
-## Dexie Test Harness Mocking for Fast Vitest Runs
-**Priority:** HIGH **Type:** Test Infrastructure **Why:** Vitest runtime is being inflated by heavy `waitFor` polling against real async Dexie/IndexedDB behavior and MUI re-renders in jsdom. Fully mocking Dexie at the test boundary will make async assertions resolve immediately and reduce suite cancellation risk. **What:** Introduce a global Vitest test setup that mocks the app’s Dexie-backed database layer so component and hook tests do not hit real IndexedDB stubs.
-
-**Acceptance Criteria:**
-
-* [ ] Add a shared Vitest setup file for frontend tests.
-* [ ] Mock the app’s Dexie/database module at the import boundary used by components and hooks.
-* [ ] Ensure common table methods (`toArray`, `get`, `put`, `add`, `update`, `delete`, `bulkPut`, query-chain helpers) resolve immediately in tests.
-* [ ] Replace test reliance on real IndexedDB behavior so `waitFor` completes without 50ms polling against Dexie async state.
-* [ ] Keep mock behavior override-friendly per test file for custom scenarios.
-* [ ] Verify frontend test runtime improves and affected test files pass consistently in CI.
 
 ## Voice-Driven Live Scorekeeping
 **Priority:** HIGH
