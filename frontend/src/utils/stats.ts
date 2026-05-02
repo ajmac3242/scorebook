@@ -185,6 +185,14 @@ export const isFoulAction = (stat: StatEvent): boolean =>
 export const isFreeThrow = (stat: StatEvent): boolean => stat.points === 1;
 
 /**
+ * Determines if a statistical event is a three-point attempt.
+ * @param {StatEvent} stat - The event to check.
+ * @returns {boolean} True if it is a 3-point attempt.
+ */
+export const isThreePointAttempt = (stat: StatEvent): boolean =>
+  stat.points === 3;
+
+/**
  * Determines if a statistical event is a field goal attempt (MAKE or MISS, excluding free throws).
  * @param {StatEvent} stat - The event to check.
  * @returns {boolean} True if it is a field goal attempt.
@@ -469,7 +477,7 @@ export const applyActionToAggregate = (agg: BaseStats, stat: StatEvent) => {
       } else {
         agg.makes++;
         agg.attempts++;
-        if (stat.points === 3) {
+        if (isThreePointAttempt(stat)) {
           if (agg.threePM !== undefined) agg.threePM++;
           if (agg.threePA !== undefined) agg.threePA++;
         }
@@ -480,7 +488,7 @@ export const applyActionToAggregate = (agg: BaseStats, stat: StatEvent) => {
         if (agg.fta !== undefined) agg.fta++;
       } else {
         agg.attempts++;
-        if (stat.points === 3) {
+        if (isThreePointAttempt(stat)) {
           if (agg.threePA !== undefined) agg.threePA++;
         }
       }

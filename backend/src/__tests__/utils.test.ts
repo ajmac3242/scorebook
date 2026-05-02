@@ -1,8 +1,30 @@
-import { describe, it, expect } from "@jest/globals";
-import { stripLocalFields, normalizePath, maskEvent } from "../utils.js";
+import { describe, it, expect, jest, beforeEach, afterEach } from "@jest/globals";
+import {
+  stripLocalFields,
+  normalizePath,
+  maskEvent,
+  logError,
+  logInfo,
+  safeCompare,
+  getHeader,
+  extractRequestMetadata,
+  extractIdFromPath,
+} from "../utils.js";
 import { APIGatewayProxyEventV2 } from "aws-lambda";
 
 describe("backend utils", () => {
+  let consoleSpy: any;
+
+  beforeEach(() => {
+    consoleSpy = {
+      info: jest.spyOn(console, "info").mockImplementation(() => {}),
+      error: jest.spyOn(console, "error").mockImplementation(() => {}),
+    };
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
   describe("stripLocalFields", () => {
     it("removes internal DynamoDB keys and UI-only fields", () => {
       const input = {
@@ -111,6 +133,125 @@ describe("backend utils", () => {
       expect(result.queryStringParameters.token).toBe("[REDACTED]");
       expect(result.queryStringParameters.id).toBe("[REDACTED]");
       expect(result.body).toBe("[REDACTED]");
+    });
+
+    it("redacts multi-value headers and query parameters", () => {
+      const event = {
+        multiValueHeaders: {
+          cookie: ["a=b", "c=d"],
+          "content-type": ["application/json"],
+        },
+        multiValueQueryStringParameters: {
+          token: ["s1", "s2"],
+          page: ["1"],
+        },
+      } as any;
+
+      const result = maskEvent(event) as any;
+      expect(result.multiValueHeaders.cookie[0]).toBe("[REDACTED]");
+      expect(result.multiValueHeaders["content-type"][0]).toBe("application/json");
+      expect(result.multiValueQueryStringParameters.token[0]).toBe("[REDACTED]");
+      expect(result.multiValueQueryStringParameters.page[0]).toBe("[REDACTED]");
+    });
+  });
+
+  describe("logError", () => {
+    it("logs and redacts Error objects", () => {
+      const error = new Error("failed with secret=123");
+      logError("Test", error);
+      expect(console.error).toHaveBeenCalledWith(
+        expect.stringContaining("[ERROR] Test: failed with [REDACTED]=123"),
+        expect.any(String),
+      );
+    });
+
+    it("logs and sanitizes plain objects", () => {
+      const data = { foo: "bar", secret: "123" };
+      logError("Test", data);
+      expect(console.error).toHaveBeenCalledWith(
+        "[ERROR] Test:",
+        expect.stringContaining("[REDACTED]"),
+      );
+    });
+
+    it("handles deeply nested objects with recursion limit", () => {
+      const deep: any = { a: { a: { a: { a: { a: { a: { a: { a: { a: { a: { a: {} } } } } } } } } } } };
+      logError("Test", deep);
+      expect(console.error).toHaveBeenCalledWith(
+        "[ERROR] Test:",
+        expect.stringContaining("[DEPTH_LIMIT_REACHED]"),
+      );
+    });
+  });
+
+  describe("logInfo", () => {
+    it("logs string messages", () => {
+      logInfo("Test");
+      expect(console.info).toHaveBeenCalledWith("[INFO] Test");
+    });
+
+    it("logs messages with data", () => {
+      logInfo("Test", { foo: "bar" });
+      expect(console.info).toHaveBeenCalledWith("[INFO] Test:", '{"foo":"bar"}');
+    });
+  });
+
+  describe("safeCompare", () => {
+    it("returns true for identical strings", () => {
+      expect(safeCompare("abc", "abc")).toBe(true);
+    });
+
+    it("returns false for different strings", () => {
+      expect(safeCompare("abc", "def")).toBe(false);
+    });
+  });
+
+  describe("getHeader", () => {
+    const headers = {
+      "Content-Type": "application/json",
+      Authorization: "Bearer token",
+    };
+
+    it("finds headers case-insensitively", () => {
+      expect(getHeader(headers, "content-type")).toBe("application/json");
+      expect(getHeader(headers, "AUTHORIZATION")).toBe("Bearer token");
+    });
+
+    it("returns undefined if not found", () => {
+      expect(getHeader(headers, "x-api-key")).toBeUndefined();
+      expect(getHeader(undefined, "any")).toBeUndefined();
+    });
+  });
+
+  describe("extractRequestMetadata", () => {
+    it("extracts method and normalized path", () => {
+      const event = {
+        requestContext: { http: { method: "POST", path: "/api/teams/" } },
+      } as any;
+      const meta = extractRequestMetadata(event);
+      expect(meta.method).toBe("POST");
+      expect(meta.path).toBe("/teams");
+    });
+
+    it("falls back to GET if method missing", () => {
+      const event = { rawPath: "/teams" } as any;
+      const meta = extractRequestMetadata(event);
+      expect(meta.method).toBe("GET");
+      expect(meta.path).toBe("/teams");
+    });
+  });
+
+  describe("extractIdFromPath", () => {
+    it("extracts ID from valid path", () => {
+      expect(extractIdFromPath("/players/123", "/players/")).toBe("123");
+    });
+
+    it("returns null if path doesn't start with prefix", () => {
+      expect(extractIdFromPath("/teams/123", "/players/")).toBeNull();
+    });
+
+    it("returns null if extra segments present", () => {
+      expect(extractIdFromPath("/players/123/stats", "/players/")).toBeNull();
     });
   });
 });

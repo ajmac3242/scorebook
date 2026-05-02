@@ -103,6 +103,7 @@ export interface StatEvent {
   clockTime?: number; // Seconds remaining in the period when event occurred
   playName?: string;
   shotQuality?: string;
+  situation?: string; // 'ATO', 'SLOB', 'BLOB', 'EOP'
   timestamp: string;
   deletedAt?: string;
   synced?: number;

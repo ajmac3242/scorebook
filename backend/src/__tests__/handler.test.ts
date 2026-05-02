@@ -137,6 +137,33 @@ describe("Lambda Handler", () => {
       const response: any = await handler(event);
       expect(response.statusCode).toBe(201);
     });
+
+    it("DELETE /players/:id archives a player", async () => {
+      ddbMock.on(UpdateCommand).resolves({});
+      const event = createEvent(
+        "DELETE",
+        "/players/277e909a-6536-4d2d-937e-f608759556fb",
+        null,
+        { archive: "true" },
+      );
+      const response: any = await handler(event);
+      expect(response.statusCode).toBe(200);
+      expect(JSON.parse(response.body).message).toBe("Player archived");
+    });
+
+    it("PATCH /players/:id restores an archived player", async () => {
+      ddbMock.on(UpdateCommand).resolves({});
+      const event = createEvent(
+        "PATCH",
+        "/players/277e909a-6536-4d2d-937e-f608759556fb",
+        { isArchived: 0 },
+      );
+      const response: any = await handler(event);
+      expect(response.statusCode).toBe(200);
+      expect(JSON.parse(response.body).message).toBe(
+        "Player restored from archive",
+      );
+    });
   });
 
   describe("Games", () => {
@@ -323,6 +350,20 @@ describe("Lambda Handler", () => {
       const response: any = await handler(event);
       expect(response.statusCode).toBe(200);
       expect(JSON.parse(response.body).message).toBe("Cleanup complete");
+    });
+
+    it("DELETE /teams/:id/players/:playerId removes player from team", async () => {
+      ddbMock.on(UpdateCommand).resolves({});
+      ddbMock.on(QueryCommand).resolves({ Items: [] });
+      s3Mock.on(PutObjectCommand).resolves({});
+
+      const event = createEvent(
+        "DELETE",
+        "/teams/277e909a-6536-4d2d-937e-f608759556fb/players/277e909a-6536-4d2d-937e-f608759556f9",
+      );
+      const response: any = await handler(event);
+      expect(response.statusCode).toBe(200);
+      expect(JSON.parse(response.body).message).toBe("Player removed from team");
     });
   });
 });
