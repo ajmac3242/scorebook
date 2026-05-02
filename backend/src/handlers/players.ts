@@ -1,9 +1,16 @@
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
 import { DynamoDBDocumentClient, UpdateCommand } from "@aws-sdk/lib-dynamodb";
-import { ok, badRequest } from "../responses.js";
-import { isValidUuid } from "../validation.js";
+import {
+  ok,
+  badRequest,
+} from "../responses.js";
+import {
+  isValidUuid,
+} from "../validation.js";
 import { Keys } from "../keys.js";
-import { extractIdFromPath } from "../utils.js";
+import {
+  extractIdFromPath,
+} from "../utils.js";
 import { getItems, createItem, softDeleteItem } from "../index.js";
 
 /**

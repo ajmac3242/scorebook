@@ -1,22 +1,25 @@
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
 import { DynamoDBDocumentClient, UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import { v4 as uuidv4 } from "uuid";
-import { ok, created, badRequest } from "../responses.js";
-import { isValidUuid } from "../validation.js";
+import {
+  ok,
+  created,
+  badRequest,
+} from "../responses.js";
+import {
+  isValidUuid,
+} from "../validation.js";
 import { Keys } from "../keys.js";
-import { extractIdFromPath, stripLocalFields } from "../utils.js";
+import {
+  extractIdFromPath,
+  stripLocalFields,
+} from "../utils.js";
 import {
   snapshotTeam,
   snapshotTeamRoster,
   deleteTeamSnapshots,
 } from "../snapshots.js";
-import {
-  getItems,
-  createItem,
-  softDeleteItem,
-  getItemsByGSI,
-  putNewItem,
-} from "../index.js";
+import { getItems, createItem, softDeleteItem, getItemsByGSI, putNewItem } from "../index.js";
 
 /**
  * Handlers for Teams endpoints.
