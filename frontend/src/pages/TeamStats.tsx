@@ -183,16 +183,10 @@ const StatRow: React.FC<{
     >
       {row.assists}
     </TableCell>
-    <TableCell
-      align="right"
-      sx={{ display: { xs: "none", sm: "table-cell" } }}
-    >
+    <TableCell align="right" sx={{ display: { xs: "none", sm: "table-cell" } }}>
       {row.steals}
     </TableCell>
-    <TableCell
-      align="right"
-      sx={{ display: { xs: "none", sm: "table-cell" } }}
-    >
+    <TableCell align="right" sx={{ display: { xs: "none", sm: "table-cell" } }}>
       {row.turnovers}
     </TableCell>
     <TableCell
