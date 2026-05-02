@@ -9,7 +9,6 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import {
   ThemeProvider,
   CssBaseline,
-  Typography,
   Container,
   Box,
 } from "@mui/material";
