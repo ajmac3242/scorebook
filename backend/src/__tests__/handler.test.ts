@@ -363,7 +363,9 @@ describe("Lambda Handler", () => {
       );
       const response: any = await handler(event);
       expect(response.statusCode).toBe(200);
-      expect(JSON.parse(response.body).message).toBe("Player removed from team");
+      expect(JSON.parse(response.body).message).toBe(
+        "Player removed from team",
+      );
     });
   });
 });

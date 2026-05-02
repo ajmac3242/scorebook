@@ -1945,30 +1945,30 @@ describe("stats utilities", () => {
   });
 });
 
-  describe("Overtime Period Grouping (Scout Bug 14)", () => {
-    it("should group period 5+ with period 4 in QUARTERS mode for bonus tracking", () => {
-      // Period 4 vs Period 4 (Direct match)
-      expect(isEventInPeriod(4, 4, "QUARTERS")).toBe(true);
+describe("Overtime Period Grouping (Scout Bug 14)", () => {
+  it("should group period 5+ with period 4 in QUARTERS mode for bonus tracking", () => {
+    // Period 4 vs Period 4 (Direct match)
+    expect(isEventInPeriod(4, 4, "QUARTERS")).toBe(true);
 
-      // Period 5 vs Period 4 (OT grouping)
-      expect(isEventInPeriod(5, 4, "QUARTERS")).toBe(true);
+    // Period 5 vs Period 4 (OT grouping)
+    expect(isEventInPeriod(5, 4, "QUARTERS")).toBe(true);
 
-      // Period 6 vs Period 4 (Double OT grouping)
-      expect(isEventInPeriod(6, 4, "QUARTERS")).toBe(true);
+    // Period 6 vs Period 4 (Double OT grouping)
+    expect(isEventInPeriod(6, 4, "QUARTERS")).toBe(true);
 
-      // Period 4 vs Period 1 (No match)
-      expect(isEventInPeriod(4, 1, "QUARTERS")).toBe(false);
+    // Period 4 vs Period 1 (No match)
+    expect(isEventInPeriod(4, 1, "QUARTERS")).toBe(false);
 
-      // Period 5 vs Period 5 (Direct match when NOT looking at P4)
-      // Actually, our logic says if currentPeriod === 4 then eventPeriod >= 4.
-      // If currentPeriod is 5, it should be eventPeriod === 5.
-      expect(isEventInPeriod(5, 5, "QUARTERS")).toBe(true);
-      expect(isEventInPeriod(4, 5, "QUARTERS")).toBe(false);
-    });
-
-    it("should group period 2+ in HALVES mode for bonus tracking", () => {
-      expect(isEventInPeriod(2, 2, "HALVES")).toBe(true);
-      expect(isEventInPeriod(3, 2, "HALVES")).toBe(true); // OT in halves
-      expect(isEventInPeriod(1, 2, "HALVES")).toBe(false);
-    });
+    // Period 5 vs Period 5 (Direct match when NOT looking at P4)
+    // Actually, our logic says if currentPeriod === 4 then eventPeriod >= 4.
+    // If currentPeriod is 5, it should be eventPeriod === 5.
+    expect(isEventInPeriod(5, 5, "QUARTERS")).toBe(true);
+    expect(isEventInPeriod(4, 5, "QUARTERS")).toBe(false);
   });
+
+  it("should group period 2+ in HALVES mode for bonus tracking", () => {
+    expect(isEventInPeriod(2, 2, "HALVES")).toBe(true);
+    expect(isEventInPeriod(3, 2, "HALVES")).toBe(true); // OT in halves
+    expect(isEventInPeriod(1, 2, "HALVES")).toBe(false);
+  });
+});

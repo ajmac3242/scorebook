@@ -1,4 +1,11 @@
-import { describe, it, expect, jest, beforeEach, afterEach } from "@jest/globals";
+import {
+  describe,
+  it,
+  expect,
+  jest,
+  beforeEach,
+  afterEach,
+} from "@jest/globals";
 import {
   stripLocalFields,
   normalizePath,
@@ -149,8 +156,12 @@ describe("backend utils", () => {
 
       const result = maskEvent(event) as any;
       expect(result.multiValueHeaders.cookie[0]).toBe("[REDACTED]");
-      expect(result.multiValueHeaders["content-type"][0]).toBe("application/json");
-      expect(result.multiValueQueryStringParameters.token[0]).toBe("[REDACTED]");
+      expect(result.multiValueHeaders["content-type"][0]).toBe(
+        "application/json",
+      );
+      expect(result.multiValueQueryStringParameters.token[0]).toBe(
+        "[REDACTED]",
+      );
       expect(result.multiValueQueryStringParameters.page[0]).toBe("[REDACTED]");
     });
   });
@@ -175,7 +186,11 @@ describe("backend utils", () => {
     });
 
     it("handles deeply nested objects with recursion limit", () => {
-      const deep: any = { a: { a: { a: { a: { a: { a: { a: { a: { a: { a: { a: {} } } } } } } } } } } };
+      const deep: any = {
+        a: {
+          a: { a: { a: { a: { a: { a: { a: { a: { a: { a: {} } } } } } } } } },
+        },
+      };
       logError("Test", deep);
       expect(console.error).toHaveBeenCalledWith(
         "[ERROR] Test:",
@@ -192,7 +207,10 @@ describe("backend utils", () => {
 
     it("logs messages with data", () => {
       logInfo("Test", { foo: "bar" });
-      expect(console.info).toHaveBeenCalledWith("[INFO] Test:", '{"foo":"bar"}');
+      expect(console.info).toHaveBeenCalledWith(
+        "[INFO] Test:",
+        '{"foo":"bar"}',
+      );
     });
   });
 
