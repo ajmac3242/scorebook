@@ -82,6 +82,7 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                       variant={
                         selectedSwapId === p.id ? "contained" : "outlined"
                       }
+                      aria-label={`Select player #${jerseyMap.get(p.id!) ?? ""} ${p.name} for substitution`}
                       onClick={() => handleSwapClick(p.id!)}
                       fullWidth
                       sx={{
@@ -183,6 +184,7 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                       variant={
                         selectedSwapId === p.id ? "contained" : "outlined"
                       }
+                      aria-label={`Select player #${jerseyMap.get(p.id!) ?? ""} ${p.name} for substitution`}
                       onClick={() => handleSwapClick(p.id!)}
                       fullWidth
                       sx={{

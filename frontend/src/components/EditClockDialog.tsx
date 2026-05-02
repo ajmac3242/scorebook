@@ -59,12 +59,14 @@ export const EditClockDialog: React.FC<{
               >
                 <AddIcon />
               </IconButton>
-              <Typography
-                variant="h4"
-                sx={{ fontWeight: 800, minWidth: "2ch" }}
-              >
-                {mins}
-              </Typography>
+              <Box aria-live="polite">
+                <Typography
+                  variant="h4"
+                  sx={{ fontWeight: 800, minWidth: "2ch" }}
+                >
+                  {mins}
+                </Typography>
+              </Box>
               <IconButton
                 onClick={() => setMins(Math.max(0, mins - 1))}
                 size="small"
@@ -92,12 +94,14 @@ export const EditClockDialog: React.FC<{
               >
                 <AddIcon />
               </IconButton>
-              <Typography
-                variant="h4"
-                sx={{ fontWeight: 800, minWidth: "2ch" }}
-              >
-                {secs.toString().padStart(2, "0")}
-              </Typography>
+              <Box aria-live="polite">
+                <Typography
+                  variant="h4"
+                  sx={{ fontWeight: 800, minWidth: "2ch" }}
+                >
+                  {secs.toString().padStart(2, "0")}
+                </Typography>
+              </Box>
               <IconButton
                 onClick={() => setSecs((secs - 1 + 60) % 60)}
                 size="small"
@@ -113,7 +117,11 @@ export const EditClockDialog: React.FC<{
         <Button onClick={onClose} color="inherit">
           Cancel
         </Button>
-        <Button onClick={() => onSave(mins, secs)} variant="contained">
+        <Button
+          onClick={() => onSave(mins, secs)}
+          variant="contained"
+          aria-label="Save updated game clock"
+        >
           Save Clock
         </Button>
       </DialogActions>

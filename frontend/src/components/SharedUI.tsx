@@ -146,7 +146,7 @@ interface StatItemProps {
 export const StatItem: React.FC<StatItemProps> = ({ label, value, light }) => (
   <Box
     sx={{ textAlign: "center" }}
-    role="img"
+    role="group"
     aria-label={`${label}: ${value}`}
   >
     <Typography
@@ -246,5 +246,7 @@ export const AnimatedNumber: React.FC<AnimatedNumberProps> = ({
     };
   }, [value, duration]);
 
-  return <>{displayValue.toFixed(decimals)}</>;
+  return (
+    <span aria-live="polite">{displayValue.toFixed(decimals)}</span>
+  );
 };

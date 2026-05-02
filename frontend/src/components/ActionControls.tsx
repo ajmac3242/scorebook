@@ -59,6 +59,7 @@ export const ActionControls = React.memo(
               startIcon={<History />}
               onClick={onNextPeriod}
               disabled={isReadOnly}
+              aria-label="Advance to next period"
             >
               Period
             </Button>
@@ -131,6 +132,7 @@ export const ActionControls = React.memo(
               startIcon={<History />}
               onClick={onTimeout}
               disabled={isReadOnly}
+              aria-label="Record team timeout"
             >
               Timeout
             </Button>

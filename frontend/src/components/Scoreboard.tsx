@@ -1,5 +1,7 @@
 import React from "react";
 import { Box, Typography, Avatar, Stack, useTheme } from "@mui/material";
+import { PlayArrow } from "@mui/icons-material";
+import { SPECIAL_PLAYER_IDS } from "../constants/stats";
 import { OpponentThreat } from "../utils/stats";
 import { formatClock } from "../utils/mathUtils";
 import { AnimatedNumber } from "./SharedUI";
@@ -83,12 +85,15 @@ export const Scoreboard = React.memo(
     const timeoutTotal = game?.timeoutLimit ?? team?.defaultTimeoutLimit ?? 3;
 
     const renderTeamSection = (
+      teamId: string,
       name: string,
       logoUrl: string | undefined,
       score: number,
       timeouts: number,
       isOpponent: boolean,
     ) => {
+      const hasPossession = gameData.possessionState === teamId;
+
       return (
         <Box
           sx={{
@@ -105,8 +110,21 @@ export const Scoreboard = React.memo(
               flexDirection: "column",
               alignItems: "center",
               minWidth: { xs: 50, sm: 80 },
+              position: "relative",
             }}
           >
+            {hasPossession && (
+              <PlayArrow
+                sx={{
+                  position: "absolute",
+                  top: -10,
+                  fontSize: 24,
+                  color: "#FFD700",
+                  transform: isOpponent ? "rotate(180deg)" : "none",
+                  filter: "drop-shadow(0 0 4px rgba(255,215,0,0.6))",
+                }}
+              />
+            )}
             <Avatar
               src={logoUrl}
               sx={{
@@ -204,6 +222,7 @@ export const Scoreboard = React.memo(
 
         {/* Our Team */}
         {renderTeamSection(
+          SPECIAL_PLAYER_IDS.OUR_TEAM,
           team?.name || "TEAM",
           team?.logoUrl,
           gameData.currentScore,
@@ -391,6 +410,7 @@ export const Scoreboard = React.memo(
           <Box sx={{ mt: 1.5, height: 20, display: "flex", gap: 2 }}>
             {gameData.teamFoulStats.teamBonusLabel && (
               <Typography
+                aria-label={`Team ${team?.name || "TEAM"} is in the bonus`}
                 sx={{
                   color: "#FFD700",
                   fontWeight: 900,
@@ -403,6 +423,7 @@ export const Scoreboard = React.memo(
             )}
             {gameData.teamFoulStats.oppBonusLabel && (
               <Typography
+                aria-label={`Opponent ${game?.opponent || "OPPONENT"} is in the bonus`}
                 sx={{
                   color: "#FFD700",
                   fontWeight: 900,
@@ -418,6 +439,7 @@ export const Scoreboard = React.memo(
 
         {/* Opponent Team */}
         {renderTeamSection(
+          SPECIAL_PLAYER_IDS.OPPONENT,
           game?.opponent || "OPPONENT",
           game?.opponentLogoUrl,
           gameData.opponentScore,

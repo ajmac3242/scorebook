@@ -243,9 +243,18 @@ const Dashboard: React.FC = () => {
               variant="contained"
               size="large"
               startIcon={<StarIcon />}
-              sx={{ px: 4, py: 1.5, borderRadius: 2 }}
+              sx={{
+                px: 6,
+                py: 2,
+                borderRadius: 4,
+                fontWeight: 800,
+                fontSize: "1.1rem",
+                boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
+                textTransform: "none",
+              }}
+              aria-label="Start by starring a team in your notebook"
             >
-              Star a Team in Notebook
+              Star Your First Team
             </Button>
           </Stack>
         </Box>

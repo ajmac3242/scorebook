@@ -36,38 +36,13 @@ const AppContent: React.FC = () => {
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
-      <Box
-        component="a"
-        href="#main-content"
-        sx={{
-          position: "absolute",
-          left: "-10000px",
-          top: "auto",
-          width: "1px",
-          height: "1px",
-          overflow: "hidden",
-          "&:focus": {
-            position: "fixed",
-            top: 16,
-            left: 16,
-            width: "auto",
-            height: "auto",
-            bgcolor: "primary.main",
-            color: "white",
-            p: 2,
-            borderRadius: 1,
-            zIndex: 10000,
-          },
-        }}
-      >
-        Skip to main content
-      </Box>
       {/* Show navigation bar only for authenticated users */}
       {isAuthenticated && <Navigation />}
 
       <Box
         id="main-content"
         component="main"
+        tabIndex={-1}
         sx={{
           flexGrow: 1,
           p: { xs: 1, sm: 3 },

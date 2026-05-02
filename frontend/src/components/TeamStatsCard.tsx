@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Typography, Grid } from "@mui/material";
+import { Box, Typography, Grid, Tooltip } from "@mui/material";
 import { FlashOn } from "@mui/icons-material";
 import { MoleskineCard, AnimatedNumber } from "./SharedUI";
 
@@ -37,18 +37,21 @@ export const TeamStatsCard = React.memo(
                 border: "1px solid rgba(0,0,0,0.05)",
               }}
             >
-              <Typography
-                variant="caption"
-                sx={{
-                  display: "block",
-                  color: "text.secondary",
-                  fontWeight: 700,
-                  letterSpacing: 1,
-                  mb: 0.5,
-                }}
-              >
-                STOPS
-              </Typography>
+              <Tooltip title="Stops: Possessions where the opponent did not score">
+                <Typography
+                  variant="caption"
+                  sx={{
+                    display: "block",
+                    color: "text.secondary",
+                    fontWeight: 700,
+                    letterSpacing: 1,
+                    mb: 0.5,
+                    cursor: "help",
+                  }}
+                >
+                  STOPS
+                </Typography>
+              </Tooltip>
               <Typography variant="h4" sx={{ fontWeight: 800, lineHeight: 1 }}>
                 <AnimatedNumber value={defensiveStats.totalStops} />
               </Typography>
@@ -64,18 +67,21 @@ export const TeamStatsCard = React.memo(
                 border: "1px solid rgba(0,0,0,0.05)",
               }}
             >
-              <Typography
-                variant="caption"
-                sx={{
-                  display: "block",
-                  color: "text.secondary",
-                  fontWeight: 700,
-                  letterSpacing: 1,
-                  mb: 0.5,
-                }}
-              >
-                KILLS
-              </Typography>
+              <Tooltip title="Kills: 3 consecutive defensive stops">
+                <Typography
+                  variant="caption"
+                  sx={{
+                    display: "block",
+                    color: "text.secondary",
+                    fontWeight: 700,
+                    letterSpacing: 1,
+                    mb: 0.5,
+                    cursor: "help",
+                  }}
+                >
+                  KILLS
+                </Typography>
+              </Tooltip>
               <Typography
                 variant="h4"
                 sx={{

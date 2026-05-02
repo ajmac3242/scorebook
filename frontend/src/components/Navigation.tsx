@@ -8,6 +8,7 @@
 import React, { useState, useEffect } from "react";
 import {
   Box,
+  Button,
   ListItemButton,
   ListItemIcon,
   Typography,
@@ -156,6 +157,29 @@ const Navigation: React.FC = () => {
 
   return (
     <>
+      <Button
+        variant="contained"
+        sx={{
+          position: "fixed",
+          top: -100,
+          left: 16,
+          zIndex: 10001,
+          transition: "top 0.3s",
+          "&:focus": {
+            top: 16,
+          },
+        }}
+        onClick={() => {
+          const main = document.getElementById("main-content");
+          if (main) {
+            main.focus();
+            main.scrollIntoView();
+          }
+        }}
+      >
+        Skip to main content
+      </Button>
+
       {isSyncing && (
         <Box
           aria-live="polite"
