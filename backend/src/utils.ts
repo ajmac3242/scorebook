@@ -62,6 +62,7 @@ function sanitizeForLog(obj: unknown, depth = 0): unknown {
  * Standardized error logger for the backend with log sanitization.
  * @param {string} label - Contextual label for the error.
  * @param {unknown} error - The error object to be logged.
+ * @returns {void}
  */
 export function logError(label: string, error: unknown) {
   // 🛡️ Enhancement 10: Sanitize all error logs to prevent secret leakage
@@ -93,6 +94,7 @@ export function logError(label: string, error: unknown) {
  * Standardized info logger for the backend.
  * @param {string} label - Contextual label for the message.
  * @param {unknown} data - The data to log.
+ * @returns {void}
  */
 export function logInfo(label: string, data?: unknown) {
   if (data !== undefined) {

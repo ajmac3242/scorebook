@@ -91,6 +91,13 @@ export const VALID_ACTION_TYPES = Object.freeze(
 );
 
 /**
+ * Valid situational contexts for statistical events.
+ */
+export const VALID_SITUATIONS = Object.freeze(
+  new Set(["ATO", "SLOB", "BLOB", "EOP"]),
+);
+
+/**
  * Validates a stat event body.
  * @param body - The stat event data to validate.
  * @returns {string | null} Error message or null if valid.
@@ -154,6 +161,12 @@ export function validateStatEvent(body: unknown): string | null {
       b.locationY > 100)
   ) {
     return "Location coordinates must be finite numbers between 0 and 100";
+  }
+  if (
+    b.situation !== undefined &&
+    (typeof b.situation !== "string" || !VALID_SITUATIONS.has(b.situation))
+  ) {
+    return "Invalid situational context";
   }
   return null;
 }
