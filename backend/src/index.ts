@@ -521,7 +521,6 @@ function parseBody(body: string | undefined): Record<string, unknown> {
   }
 }
 
-
 /**
  * Maximum allowed request body size (512KB).
  * Prevents memory exhaustion attacks and large data injection.
@@ -722,4 +721,3 @@ async function softDeleteItem(
   );
   return ok({ message: "Item soft deleted", deletedAt: timestamp });
 }
-

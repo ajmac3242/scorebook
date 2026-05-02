@@ -6,12 +6,7 @@
 
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import {
-  ThemeProvider,
-  CssBaseline,
-  Container,
-  Box,
-} from "@mui/material";
+import { ThemeProvider, CssBaseline, Container, Box } from "@mui/material";
 import theme from "./theme";
 import GameMode from "./pages/GameMode";
 import Login from "./pages/Login";

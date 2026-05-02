@@ -1,21 +1,7 @@
-import {
-  APIGatewayProxyEventV2,
-  APIGatewayProxyResultV2,
-} from "aws-lambda";
-import {
-  DynamoDBDocumentClient,
-  QueryCommand,
-} from "@aws-sdk/lib-dynamodb";
-import {
-  logError,
-  logInfo,
-  getHeader,
-  safeCompare,
-} from "../utils.js";
-import {
-  response,
-  ok,
-} from "../responses.js";
+import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
+import { DynamoDBDocumentClient, QueryCommand } from "@aws-sdk/lib-dynamodb";
+import { logError, logInfo, getHeader, safeCompare } from "../utils.js";
+import { response, ok } from "../responses.js";
 
 /**
  * Handler for cleanup-related endpoints.
@@ -64,7 +50,10 @@ export async function handleCleanup(
  * @param {DynamoDBDocumentClient} docClient - DynamoDB document client.
  * @returns {Promise<void>}
  */
-async function performHardCleanup(tableName: string, docClient: DynamoDBDocumentClient) {
+async function performHardCleanup(
+  tableName: string,
+  docClient: DynamoDBDocumentClient,
+) {
   const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
 
   // This is a simplified scan-based cleanup. For large tables, use a GSI on deletedAt.
