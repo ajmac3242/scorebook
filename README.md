@@ -37,7 +37,7 @@ To optimize read performance and reduce DynamoDB costs:
 - The frontend pulls these snapshots for large data sets (like full game stats), utilizing browser caching and S3's global scale.
 
 ### Security & Governance
-- **API Security**: Administrative endpoints (like `/cleanup`) are protected via `x-api-key` headers with strict entropy requirements.
+- **API Security**: Administrative endpoints (like `/cleanup`) are protected via `x-api-key` headers with strict entropy requirements (min 16 chars).
 - **Request Sanitization**: All incoming payloads are subject to size limits (512KB) and content-type enforcement to prevent injection and resource exhaustion attacks.
 - **Data Protection**: Sensitive internal keys are stripped from public API responses using a recursive transformation layer.
 
