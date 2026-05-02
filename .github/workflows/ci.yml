@@ -205,12 +205,12 @@ jobs:
           echo "::endgroup::"
 
       - name: "Frontend: Run Tests"
-          timeout-minutes: 10
-          run: |
-            echo "::group::Frontend Tests"
-            cd frontend
-            pnpm test -- --reporter=default
-            echo "::endgroup::"
+        timeout-minutes: 10
+        run: |
+          echo "::group::Frontend Tests"
+          cd frontend
+          pnpm test -- --reporter=default
+          echo "::endgroup::"
 
       - name: Upload Frontend Logs on Failure
         if: failure()
