@@ -3,6 +3,82 @@
 ## Maintenance Note
 Completed items are archived to `.Jules/backlog-archive.md` to maintain optimal performance for agent context. Active `backlog.md` should aim for a soft cap of ~200 lines.
 
+## [HYGIENE] Refactor: Split useGameMode.ts into focused domain hooks
+**Priority:** HIGH **Type:** Refactor **Why:** `useGameMode.ts` is the central coordinator for all live game state and currently carries too many unrelated responsibilities under one return surface, making it difficult to unit test, extend, or hand off to an agent without full-file context. **What:** Decompose the hook into focused domain hooks that are composed back into a thin `useGameMode` coordinator.
+
+**Acceptance Criteria:**
+
+* [ ] Extract `useGameClock` — clock tick, pause/resume, period transitions.
+* [ ] Extract `useLineupState` — on-court player tracking, substitution draft state.
+* [ ] Extract `useStatWriter` — all DB write helpers + `syncService.pushUpdates()` calls, consolidated into a single `writeStat()` utility.
+* [ ] Extract `usePossessionTracker` — possession arrow, live PPP derivation.
+* [ ] `useGameMode.ts` becomes a thin coordinator (~100 lines) that composes the above hooks.
+* [ ] All existing tests pass; new unit tests added for each extracted hook.
+* [ ] No regression to GameMode.tsx rendering or live game behavior.
+
+---
+
+## [HYGIENE] Refactor: Extract data layer and types out of db.ts
+**Priority:** HIGH **Type:** Refactor **Why:** `db.ts` currently mixes domain interfaces, schema/version history, Dexie table setup, and a singleton DB instance in one runtime file. This creates tight coupling between types and persistence that makes it impossible to import types without pulling in Dexie as a side effect. **What:** Split into dedicated modules with clean import boundaries.
+
+**Acceptance Criteria:**
+
+* [ ] Extract all domain interfaces/types into `src/types/` (e.g., `game.ts`, `player.ts`, `stat.ts`).
+* [ ] Extract Dexie schema and version history into `src/db/schema.ts`.
+* [ ] `db.ts` becomes a thin singleton setup file that imports from the above.
+* [ ] All existing imports updated throughout the codebase — no broken references.
+* [ ] Types can be imported without triggering Dexie initialization as a side effect.
+* [ ] All tests pass after the restructure.
+
+---
+
+## [HYGIENE] Refactor: Break GameStats.tsx into data hook + display components
+**Priority:** HIGH **Type:** Refactor **Why:** `GameStats.tsx` combines page rendering, business action handlers, sorting logic, and export functionality in a single file. This makes it hard to test individual concerns and will become a maintenance bottleneck as new stat categories and export formats are added. **What:** Separate data/action concerns from display.
+
+**Acceptance Criteria:**
+
+* [ ] Extract `useGameStats` hook — all `useLiveQuery` calls, derived stat aggregations, sort state, and export handlers.
+* [ ] Extract `PlayerStatRow.tsx` — individual player row rendering.
+* [ ] Extract `StatExportMenu.tsx` — export format selection and trigger logic.
+* [ ] `GameStats.tsx` becomes a layout-only page component (~100 lines) that wires hook → components.
+* [ ] Export functionality (CSV/PDF) remains fully operational after refactor.
+* [ ] All tests pass; add tests for `useGameStats` derivations.
+
+---
+
+## [HYGIENE] Frontend Structure Cleanup (Grouped Small Refactors)
+**Priority:** HIGH **Type:** Refactor **Why:** Several files have outgrown their original scope or contain obvious extraction seams. These are bundled as lower-risk, mechanical refactors that can be tackled incrementally. **What:** Clean up 5 files with clear, contained seams.
+
+**Scope:**
+
+### App.tsx
+* [ ] Extract `ProtectedRoute` into `src/components/ProtectedRoute.tsx`.
+* [ ] Extract route declarations into `src/router/routes.tsx`.
+* [ ] `App.tsx` becomes provider wiring + layout shell only.
+
+### SharedUI.tsx
+* [ ] Move each exported component (`MoleskineCard`, `PageHeader`, `StatItem`, `StatCard`, `AnimatedNumber`) into its own file under `src/components/ui/`.
+* [ ] Update all import sites.
+
+### Scoreboard.tsx
+* [ ] Convert internal `renderTeamSection` function into a typed `TeamPanel.tsx` sub-component.
+* [ ] Add props interface for `TeamPanel`.
+
+### OpponentScoutingReport.tsx
+* [ ] Extract chained `useLiveQuery` calls and sorted stat derivations into `useOpponentScouting` hook.
+* [ ] Page component becomes layout + wiring only.
+
+### Dashboard.tsx
+* [ ] Extract inline queries and derived stats into `useDashboardData` hook.
+* [ ] Page component becomes layout + wiring only.
+
+**Acceptance Criteria:**
+* [ ] All 5 files refactored per scope above.
+* [ ] No change to rendered UI or user-facing behavior.
+* [ ] All existing tests pass.
+
+---
+
 ## Dexie Test Harness Mocking for Fast Vitest Runs
 **Priority:** HIGH **Type:** Test Infrastructure **Why:** Vitest runtime is being inflated by heavy `waitFor` polling against real async Dexie/IndexedDB behavior and MUI re-renders in jsdom. Fully mocking Dexie at the test boundary will make async assertions resolve immediately and reduce suite cancellation risk. **What:** Introduce a global Vitest test setup that mocks the app’s Dexie-backed database layer so component and hook tests do not hit real IndexedDB stubs.
 
