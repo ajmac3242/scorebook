@@ -61,3 +61,11 @@ Observation: A strategic audit of the codebase revealed a significant discrepanc
 Impact: The absence of these "archived" features means coaches are missing out on the most advanced tactical visualizations and prescriptive insights intended for the platform. Without On/Off analytics, roster management remains tethered to traditional counting stats, potentially overlooking high-impact role players.
 
 Recommendation: Immediately restore the missing "Ghost" features to the active backlog for implementation. Prioritize "Live Game Identity Radar" for real-time tactical adherence and "On/Off Team Impact Analytics" to provide the deep-value insights coaches need for roster optimization. Introduce "Defensive Breakdown Attribution" to move from tracking *results* to tracking *tactical failures*.
+
+## 2026-05-03 - Strategic Pivot: From Passive Aggregates to Causal Accountability
+
+Observation: The platform has achieved "Scorebook Maturity" but still treats events as isolated data points. We capture *what* happened but often miss *why* it happened or the *environmental context* (e.g., officiating tightness, lineup chemistry). The "Ghost Archive" discovery highlights a lack of follow-through on complex tactical features that move the needle from scorekeeping to coaching.
+
+Impact: Coaches are still forced to perform too much mental synthesis during high-pressure game situations. They may observe a high foul count but fail to correlate it with the referee's live "Tightness" vs. their own defensive scheme in real-time. Similarly, whileassist totals are tracked, the "Causal Map" of who creates the best shots for whom remains invisible.
+
+Recommendation: Focus the next development cycle on **Causal Analytics** and **Environmental Awareness**. Prioritize the Ref-Identity Conflict Alert System to provide proactive risk management, and implement Lineup "Offensive Chemistry" Connectivity Maps to reveal the true playmakers. Finally, the "Ghost Archive" features must be fully implemented to complete the transition to a true Tactical Operating System.
