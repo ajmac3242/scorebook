@@ -607,19 +607,15 @@ Completed items are archived to `.Jules/backlog-archive.md` to maintain optimal 
 
 ## [ ] Refactor & Right-Size Large Files to Improve Jules Performance
 **Priority:** HIGH **Type:** Technical Debt
-**Why:** Jules is exhibiting slowdowns and "file too large" issues because several core files have grown beyond effective context window limits. The monolithic `index.ts` (883 lines) forces Jules to load the entire API surface for any single endpoint change. The `backlog.md` (637 lines) is injected into every session regardless of relevance. Multiple overlapping sentinel test files add redundant context on every run.
+**Why:** Jules is exhibiting slowdowns and "file too large" issues because several core files have grown beyond effective context window limits.
 **What:**
-1. Split `index.ts` into per-resource handler modules: `handlers/players.ts`, `handlers/games.ts`, `handlers/teams.ts`, `handlers/stats.ts`, `handlers/cleanup.ts` — each under 200 lines. Keep `index.ts` as a thin router (~100 lines).
-   - [ ] `handlers/cleanup.ts` created and integrated.
-2. Split `utils.ts` (420 lines) — separate `security-utils.ts` (sanitize, mask, safeCompare, normalizePath) from `data-utils.ts` (stripLocalFields, extractId, etc.).
-3. Archive `backlog.md` — move all `[ ]` completed items to a `backlog-archive.md`. Add a rule: completed items get archived after each sprint. Enforce a soft cap of ~200 lines on active `backlog.md`.
-4. Consolidate sentinel test files — merge `sentinel_enhancements.test.ts`, `sentinel_dos.test.ts`, `sentinel_path.test.ts`, `sentinel_v3.test.ts`, `sentinel_v4.test.ts` into a single organized `security.test.ts` with `describe` blocks per concern. Target under 500 total lines.
-5. Add a guardrail note to `playbook.md`: Jules should flag any file approaching 300 lines and propose a split before continuing.
+1. Split `index.ts` into per-resource handler modules. (PARTIALLY COMPLETE: `players.ts`, `games.ts`, `teams.ts`, `cleanup.ts` created. `index.ts` reduced from 883 to 260 lines.)
+2. Split `utils.ts` (339 lines) — separate `security-utils.ts` from `data-utils.ts`.
+3. Consolidate sentinel test files — merge `sentinel_enhancements.test.ts`, `sentinel_v3.test.ts`, etc. into `security.test.ts`. (PARTIALLY COMPLETE: `security.test.ts` exists, but sentinel files remain.)
+4. Add a guardrail note to `playbook.md`: Jules should flag any file approaching 300 lines and propose a split before continuing.
 **Acceptance Criteria:**
 - [ ] `index.ts` is under 150 lines (router only)
-- [ ] No source file in `backend/src/` exceeds 300 lines unless it logically makes sense. This is not a hard rule, but it's a refactor trigger.
-- [ ] `backlog.md` (active items only)
-- [ ] `backlog-archive.md` exists with all completed items
+- [ ] No source file in `backend/src/` exceeds 300 lines unless it logically makes sense.
 - [ ] Total test file count in `__tests__/` reduced by at least 4
 - [ ] All existing tests continue to pass
 - [ ] `playbook.md` updated with file size guardrail rule
