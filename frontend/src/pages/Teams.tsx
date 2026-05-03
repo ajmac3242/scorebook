@@ -582,7 +582,7 @@ const Teams: React.FC = () => {
             value={teamName}
             onChange={(e) => setTeamName(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === "Enter" && teamName.trim()) {
+              if (e.key === "Enter" && teamName.trim() && !isSubmitting) {
                 handleAddTeam();
               }
             }}
@@ -602,7 +602,7 @@ const Teams: React.FC = () => {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === "Enter" && teamName.trim()) {
+              if (e.key === "Enter" && teamName.trim() && !isSubmitting) {
                 handleAddTeam();
               }
             }}
@@ -639,7 +639,7 @@ const Teams: React.FC = () => {
             value={logoUrl}
             onChange={(e) => setLogoUrl(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === "Enter" && teamName.trim()) {
+              if (e.key === "Enter" && teamName.trim() && !isSubmitting) {
                 handleAddTeam();
               }
             }}
@@ -654,6 +654,11 @@ const Teams: React.FC = () => {
             variant="outlined"
             value={fouls}
             onChange={(e) => setFouls(parseInt(e.target.value) || 0)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && teamName.trim() && !isSubmitting) {
+                handleAddTeam();
+              }
+            }}
             sx={{ mb: 2 }}
             disabled={isSubmitting}
             inputProps={{ min: 0 }}

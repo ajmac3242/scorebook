@@ -51,7 +51,7 @@ export const ActionControls = React.memo(
           alignItems: "center",
         }}
       >
-        <Tooltip title="Change Period">
+        <Tooltip title="Advance to Next Period">
           <span>
             <Button
               size="small"
@@ -59,6 +59,7 @@ export const ActionControls = React.memo(
               startIcon={<History />}
               onClick={onNextPeriod}
               disabled={isReadOnly}
+              aria-label="Advance to Next Period"
             >
               Period
             </Button>
@@ -131,6 +132,7 @@ export const ActionControls = React.memo(
               startIcon={<History />}
               onClick={onTimeout}
               disabled={isReadOnly}
+              aria-label="Record Team Timeout"
             >
               Timeout
             </Button>

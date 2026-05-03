@@ -82,6 +82,8 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                       variant={
                         selectedSwapId === p.id ? "contained" : "outlined"
                       }
+                      aria-label={`Swap #${jerseyMap.get(p.id!) ?? ""} ${p.name}${isFouledOut ? " (Fouled Out)" : ""}`}
+                      aria-pressed={selectedSwapId === p.id}
                       onClick={() => handleSwapClick(p.id!)}
                       fullWidth
                       sx={{
@@ -183,6 +185,8 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                       variant={
                         selectedSwapId === p.id ? "contained" : "outlined"
                       }
+                      aria-label={`Swap #${jerseyMap.get(p.id!) ?? ""} ${p.name}${isFouledOut ? " (Fouled Out)" : ""}`}
+                      aria-pressed={selectedSwapId === p.id}
                       onClick={() => handleSwapClick(p.id!)}
                       fullWidth
                       sx={{

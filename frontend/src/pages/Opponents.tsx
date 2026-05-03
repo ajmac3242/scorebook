@@ -34,6 +34,7 @@ const Opponents: React.FC = () => {
   const [openAddDialog, setOpenAddDialog] = useState(false);
   const [newName, setNewName] = useState("");
   const [newLogoUrl, setNewLogoUrl] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const opponents =
     useLiveQuery(async () => {
@@ -42,6 +43,7 @@ const Opponents: React.FC = () => {
 
   const handleAddOpponent = async () => {
     if (!newName.trim()) return;
+    setIsSubmitting(true);
     try {
       await db.opponents.add({
         id: crypto.randomUUID(),
@@ -56,6 +58,8 @@ const Opponents: React.FC = () => {
       setNewLogoUrl("");
     } catch (err) {
       logger.error("Failed to add opponent", err);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -221,11 +225,12 @@ const Opponents: React.FC = () => {
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === "Enter" && newName.trim()) {
+                if (e.key === "Enter" && newName.trim() && !isSubmitting) {
                   handleAddOpponent();
                 }
               }}
               autoFocus
+              disabled={isSubmitting}
             />
             <TextField
               label="Logo URL"
@@ -233,21 +238,24 @@ const Opponents: React.FC = () => {
               value={newLogoUrl}
               onChange={(e) => setNewLogoUrl(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === "Enter" && newName.trim()) {
+                if (e.key === "Enter" && newName.trim() && !isSubmitting) {
                   handleAddOpponent();
                 }
               }}
+              disabled={isSubmitting}
             />
           </Stack>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setOpenAddDialog(false)}>Cancel</Button>
+          <Button onClick={() => setOpenAddDialog(false)} disabled={isSubmitting}>
+            Cancel
+          </Button>
           <Button
             variant="contained"
             onClick={handleAddOpponent}
-            disabled={!newName.trim()}
+            disabled={!newName.trim() || isSubmitting}
           >
-            Add
+            {isSubmitting ? "Adding..." : "Add"}
           </Button>
         </DialogActions>
       </Dialog>

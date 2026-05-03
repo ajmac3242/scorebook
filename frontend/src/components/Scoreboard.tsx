@@ -1,5 +1,12 @@
 import React from "react";
-import { Box, Typography, Avatar, Stack, useTheme } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Avatar,
+  Stack,
+  useTheme,
+  Tooltip,
+} from "@mui/material";
 import { OpponentThreat } from "../utils/stats";
 import { formatClock } from "../utils/mathUtils";
 import { AnimatedNumber } from "./SharedUI";
@@ -324,31 +331,32 @@ export const Scoreboard = React.memo(
               : `${periodLabel} ${period}`.toUpperCase()}
           </Typography>
 
-          <Box
-            onClick={onEditClock}
-            role="button"
-            tabIndex={isReadOnly ? -1 : 0}
-            aria-label={`Game clock: ${formatClock(clockSeconds)}, Period ${period}. Click to edit.`}
-            onKeyDown={(e) => {
-              if (!isReadOnly && (e.key === "Enter" || e.key === " ")) {
-                onEditClock?.();
-              }
-            }}
-            sx={{
-              cursor: isReadOnly ? "default" : "pointer",
+          <Tooltip title={isReadOnly ? "" : "Click to edit game clock"}>
+            <Box
+              onClick={onEditClock}
+              role="button"
+              tabIndex={isReadOnly ? -1 : 0}
+              aria-label={`Game clock: ${formatClock(clockSeconds)}, Period ${period}. ${isReadOnly ? "" : "Click to edit."}`}
+              onKeyDown={(e) => {
+                if (!isReadOnly && (e.key === "Enter" || e.key === " ")) {
+                  onEditClock?.();
+                }
+              }}
+              sx={{
+                cursor: isReadOnly ? "default" : "pointer",
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
               "&:hover": {
                 opacity: isReadOnly ? 1 : 0.8,
               },
-              "&:focus-visible": {
-                outline: "2px solid white",
-                outlineOffset: "4px",
-                borderRadius: "4px",
-              },
-            }}
-          >
+                "&:focus-visible": {
+                  outline: "2px solid white",
+                  outlineOffset: "4px",
+                  borderRadius: "4px",
+                },
+              }}
+            >
             <Typography
               sx={{
                 color: "white",
@@ -384,8 +392,9 @@ export const Scoreboard = React.memo(
                   animation: `${slideBackAndForth} 1.5s infinite ease-in-out`,
                 }}
               />
+              </Box>
             </Box>
-          </Box>
+          </Tooltip>
 
           {/* Bonus Indicators */}
           <Box sx={{ mt: 1.5, height: 20, display: "flex", gap: 2 }}>

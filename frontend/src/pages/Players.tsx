@@ -398,7 +398,7 @@ const Players: React.FC = () => {
             value={name}
             onChange={(e) => setName(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === "Enter" && name.trim()) {
+              if (e.key === "Enter" && name.trim() && !isSubmitting) {
                 handleAddPlayer();
               }
             }}
