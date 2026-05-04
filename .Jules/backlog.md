@@ -605,20 +605,20 @@ Completed items are archived to `.Jules/backlog-archive.md` to maintain optimal 
 - [ ] Defensive PPP (Points Allowed Per Possession) to measure defensive quality independently of pace.
 - [ ] Trend line showing PPP fluctuation throughout the game.
 
-## [ ] Refactor & Right-Size Large Files to Improve Jules Performance
+## [x] Refactor & Right-Size Large Files to Improve Jules Performance
 **Priority:** HIGH **Type:** Technical Debt
 **Why:** Jules is exhibiting slowdowns and "file too large" issues because several core files have grown beyond effective context window limits.
 **What:**
-1. Split `index.ts` into per-resource handler modules. (PARTIALLY COMPLETE: `players.ts`, `games.ts`, `teams.ts`, `cleanup.ts` created. `index.ts` reduced from 883 to 260 lines.)
-2. Split `utils.ts` (339 lines) — separate `security-utils.ts` from `data-utils.ts`.
-3. Consolidate sentinel test files — merge `sentinel_enhancements.test.ts`, `sentinel_v3.test.ts`, etc. into `security.test.ts`. (PARTIALLY COMPLETE: `security.test.ts` exists, but sentinel files remain.)
+1. Split `index.ts` into per-resource handler modules. (COMPLETE: Router reduced to ~100 lines, helpers moved to `database.ts`)
+2. Split `utils.ts` (339 lines) — separate `logging.ts`, `security.ts`, and `request.ts`.
+3. Consolidate sentinel test files — merge `sentinel_enhancements.test.ts`, `sentinel_v3.test.ts`, etc. into `security.test.ts`. (COMPLETE: Redundant files deleted.)
 4. Add a guardrail note to `playbook.md`: Jules should flag any file approaching 300 lines and propose a split before continuing.
 **Acceptance Criteria:**
-- [ ] `index.ts` is under 150 lines (router only)
-- [ ] No source file in `backend/src/` exceeds 300 lines unless it logically makes sense.
-- [ ] Total test file count in `__tests__/` reduced by at least 4
-- [ ] All existing tests continue to pass
-- [ ] `playbook.md` updated with file size guardrail rule
+- [x] `index.ts` is under 150 lines (router only)
+- [x] No source file in `backend/src/` exceeds 300 lines unless it logically makes sense.
+- [x] Total test file count in `__tests__/` reduced by at least 4
+- [x] All existing tests continue to pass
+- [x] `playbook.md` updated with file size guardrail rule
 
 ## [ ] Holistic Matchup Efficiency Matrix
 **Priority:** HIGH

@@ -16,7 +16,7 @@ import {
   softDeleteItem,
   getItemsByGSI,
   putNewItem,
-} from "../index.js";
+} from "../database.js";
 
 /**
  * Handlers for Teams endpoints.
@@ -41,6 +41,7 @@ export async function handleTeams(
       return await getItems(
         tableName,
         "TEAM",
+        docClient,
         "id, #n, description, logoUrl, primaryColor, periodType, fouls, deletedAt",
         { "#n": "name" },
       );
@@ -61,6 +62,7 @@ export async function handleTeams(
         "TEAM",
         body,
         tableName,
+        docClient,
       );
       if (resp.statusCode !== 201 || !resp.body) return resp;
       const newItem = JSON.parse(resp.body);
@@ -77,7 +79,13 @@ export async function handleTeams(
     const teamKey = { PK: Keys.team(teamId), SK: Keys.metadata(teamId) };
 
     if (method === "DELETE") {
-      const resp = await softDeleteItem("TEAM", "METADATA", teamId, tableName);
+      const resp = await softDeleteItem(
+        "TEAM",
+        "METADATA",
+        teamId,
+        tableName,
+        docClient,
+      );
       if (resp.statusCode === 200) await deleteTeamSnapshots(teamId);
       return resp;
     }
@@ -107,6 +115,7 @@ export async function handleTeams(
       return await getItemsByGSI(
         `TEAM#${tId}`,
         tableName,
+        docClient,
         "id, teamId, playerId, #n, avatarColor, jerseyNumber, deletedAt",
         { "#n": "name" },
       );
@@ -136,7 +145,7 @@ export async function handleTeams(
         id,
         teamId: tId,
       };
-      await putNewItem(tableName, teamPlayerItem);
+      await putNewItem(tableName, teamPlayerItem, docClient);
       await snapshotTeamRoster(tId, tableName, docClient);
       return created(teamPlayerItem);
     }

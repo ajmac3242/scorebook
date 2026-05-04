@@ -63,3 +63,6 @@ cd frontend && pnpm test:jules -- "<module-name>"
 - **Recurring issues agents create**: Hard-coding game lengths (e.g., 40 mins) in UI components instead of deriving them from team settings or calculating a standardized rate (NET/40).
 - **End-of-Day improvement patterns**: Implementing 'Temporal Windowing' (Last 5/10 games) provides immediate value for scouting and performance trend analysis without requiring complex backend filtering.
 - **End-of-Day improvement patterns**: Jules should flag any file approaching 300 lines and propose a split before continuing.
+
+## File Size Guardrail
+Jules MUST flag any file that approaches or exceeds 300 lines of code. Before continuing with modifications to such a file, Jules should propose and execute a logical split of the file into smaller, focused modules to maintain maintainability and context window efficiency.

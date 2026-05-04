@@ -26,7 +26,7 @@ import {
   createItem,
   softDeleteItem,
   putNewItem,
-} from "../index.js";
+} from "../database.js";
 
 /**
  * Handlers for Games endpoints.
@@ -55,6 +55,7 @@ export async function handleGames(
       return await getItemsByGSI(
         `TEAM#${teamId}`,
         tableName,
+        docClient,
         "id, teamId, opponent, opponentId, opponentLogoUrl, #d, #t, #l, completed, periodLength, timeoutLimit, foulLimit, periodType, deletedAt, #n, avatarColor, jerseyNumber",
         {
           "#d": "date",
@@ -95,6 +96,7 @@ export async function handleGames(
         Keys.team(body.teamId as string),
         body,
         tableName,
+        docClient,
       );
       if (resp.statusCode !== 201 || !resp.body) return resp;
       const newItem = JSON.parse(resp.body);
@@ -116,7 +118,13 @@ export async function handleGames(
       const getResp = await docClient.send(
         new GetCommand({ TableName: tableName, Key: gameKey }),
       );
-      const resp = await softDeleteItem("GAME", "METADATA", gameId, tableName);
+      const resp = await softDeleteItem(
+        "GAME",
+        "METADATA",
+        gameId,
+        tableName,
+        docClient,
+      );
       if (resp.statusCode === 200 && getResp.Item) {
         await snapshotTeamGames(getResp.Item.teamId, tableName, docClient);
         await deleteGameSnapshots(gameId);
@@ -253,7 +261,7 @@ async function handleGameStats(
       id,
       timestamp,
     };
-    await putNewItem(tableName, item);
+    await putNewItem(tableName, item, docClient);
     await snapshotGameStats(gameId, tableName, docClient);
     return created(item);
   }

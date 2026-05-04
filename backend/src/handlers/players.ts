@@ -4,7 +4,7 @@ import { ok, badRequest } from "../responses.js";
 import { isValidUuid } from "../validation.js";
 import { Keys } from "../keys.js";
 import { extractIdFromPath } from "../utils.js";
-import { getItems, createItem, softDeleteItem } from "../index.js";
+import { getItems, createItem, softDeleteItem } from "../database.js";
 
 /**
  * Handlers for Players endpoints.
@@ -30,6 +30,7 @@ export async function handlePlayers(
       return await getItems(
         tableName,
         "PLAYER",
+        docClient,
         "id, #n, avatarColor, isArchived, deletedAt",
         { "#n": "name" },
       );
@@ -43,7 +44,14 @@ export async function handlePlayers(
           "Player name is required and must be under 100 characters",
         );
       }
-      return await createItem("PLAYER", "METADATA", "PLAYER", body, tableName);
+      return await createItem(
+        "PLAYER",
+        "METADATA",
+        "PLAYER",
+        body,
+        tableName,
+        docClient,
+      );
     }
     return null;
   }
@@ -70,7 +78,13 @@ export async function handlePlayers(
       );
       return ok({ message: "Player archived" });
     }
-    return await softDeleteItem("PLAYER", "METADATA", playerId, tableName);
+    return await softDeleteItem(
+      "PLAYER",
+      "METADATA",
+      playerId,
+      tableName,
+      docClient,
+    );
   }
 
   if (method === "PATCH" && body.isArchived === 0) {
