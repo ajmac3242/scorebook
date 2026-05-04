@@ -652,3 +652,54 @@ Completed items are archived to `.Jules/backlog-archive.md` to maintain optimal 
 - [ ] "Opponent Scoring Breakdown" table in GameStats showing efficiency by Play Type.
 - [ ] Real-time alerts for recurring threats (e.g., "Opponent scoring 1.8 PPP on Pick-and-Rolls").
 - [ ] Filter opponent shot chart by Play Type.
+
+## [ ] Live Defensive Scheme Effectiveness Dashboard
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Coaches often stick to a defensive scheme (e.g., 2-3 Zone) because it's "safe," even when it's being shredded. A live efficiency dashboard allows for data-driven adjustments mid-quarter.
+**What:** Build a real-time monitor that tracks Points Per Possession (PPP) allowed for the current active defensive scheme (Man, Zone, Press) and compares it to the season average.
+**Acceptance Criteria:**
+- [ ] "Active Defense" toggle in GameMode header.
+- [ ] Real-time PPP display for the active scheme.
+- [ ] "Switch Defense" alert if current scheme PPP is > 1.2 for 3 consecutive possessions.
+- [ ] Breakdown table in GameStats showing PPP Allowed by Scheme.
+
+## [ ] "Shot Clock Process" Analysis
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Rushing shots early in the clock or settling for late-clock heaves is a "process" failure. This feature distinguishes between quick-hit offensive success and desperation shots.
+**What:** Categorize every shot into "Early Clock" (first 10s), "Mid Clock", and "Late Clock" (last 5s) buckets and track EFG% for each.
+**Acceptance Criteria:**
+- [ ] "Clock Phase" tagging automatically derived from StatEvent.clockTime and periodLength.
+- [ ] "Shot Rhythm" chart in GameStats showing volume and efficiency by clock phase.
+- [ ] "Decision Alert" in GameMode if team is shooting < 20% on Early Clock shots.
+
+## [ ] Automated Referee Profile HUD
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Referee "tightness" (fouls per minute) and bias (home/away split) should dictate how aggressive a team plays. A coach who knows the ref is calling it tight can adjust defensive pressure before foul trouble hits.
+**What:** An intelligence layer that analyzes the frequency and distribution of fouls called by the current officiating crew.
+**Acceptance Criteria:**
+- [ ] "Ref Tightness Meter" in GameMode comparing current game Fouls Per Minute (FPM) against a historical baseline.
+- [ ] "Foul Bias" indicator showing the split between Our Team vs Opponent fouls.
+- [ ] "Aggression Advisor" suggesting "Press Hard" or "Play Soft" based on FPM.
+
+## [ ] "Spark Plug" Momentum Index
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Some players provide value that doesn't show up in the box score but triggers team-wide energy shifts (e.g., a floor dive or a charge taken).
+**What:** A specialized metric that weighs "Blue Collar" hustle stats against immediate subsequent team scoring runs to identify "Momentum Starters."
+**Acceptance Criteria:**
+- [ ] "Spark Plug" score for every player who records a FLOOR_DIVE, CHARGE_TAKEN, or GREAT_CONTEST.
+- [ ] Correlation of hustle events to 2-minute scoring runs.
+- [ ] "Energy Alert" in GameMode suggesting when to bring in a high-momentum player.
+
+## [ ] Program-Wide "Tactical DNA" Comparison
+**Priority:** HIGH
+**Type:** Feature
+**Why:** A season is a marathon. Coaches need to know if their team is evolving or regressing in their core identity (e.g., "Are we still an elite rebounding team?").
+**What:** A longitudinal comparison tool that overlays current game "Four Factors" against the season-to-date "DNA" blueprint.
+**Acceptance Criteria:**
+- [ ] "Program DNA" Radar Chart in GameStats.
+- [ ] Overlay of "Last 3 Games" vs "Season Average" to identify recent trends.
+- [ ] "Identity Crisis" alert if more than 3 of the Four Factors deviate by >15% from the season mean.
