@@ -609,7 +609,7 @@ Completed items are archived to `.Jules/backlog-archive.md` to maintain optimal 
 **Priority:** HIGH **Type:** Technical Debt
 **Why:** Jules is exhibiting slowdowns and "file too large" issues because several core files have grown beyond effective context window limits.
 **What:**
-1. Split `index.ts` into per-resource handler modules. (PARTIALLY COMPLETE: `players.ts`, `games.ts`, `teams.ts`, `cleanup.ts` created. `index.ts` reduced from 883 to 260 lines.)
+1. [DONE] Split `index.ts` into per-resource handler modules. (`players.ts`, `games.ts`, `teams.ts`, `cleanup.ts` created.)
 2. Split `utils.ts` (339 lines) — separate `security-utils.ts` from `data-utils.ts`.
 3. Consolidate sentinel test files — merge `sentinel_enhancements.test.ts`, `sentinel_v3.test.ts`, etc. into `security.test.ts`. (PARTIALLY COMPLETE: `security.test.ts` exists, but sentinel files remain.)
 4. Add a guardrail note to `playbook.md`: Jules should flag any file approaching 300 lines and propose a split before continuing.
@@ -619,6 +619,16 @@ Completed items are archived to `.Jules/backlog-archive.md` to maintain optimal 
 - [ ] Total test file count in `__tests__/` reduced by at least 4
 - [ ] All existing tests continue to pass
 - [ ] `playbook.md` updated with file size guardrail rule
+
+## [HYGIENE] Align backend projections with frontend data needs
+**Priority:** MEDIUM
+**Type:** Refactor
+**Why:** The frontend tracks additional event metadata (like `isBookmarked` and `defensiveScheme`) that is currently being stripped or ignored by the backend's `ProjectionExpression` in `handleGameStats`.
+**What:** Update the `ProjectionExpression` in `backend/src/handlers/games.ts` to include missing fields.
+**Acceptance Criteria:**
+- [ ] `StatEvent` projections include `isBookmarked` and `defensiveScheme`.
+- [ ] Verify frontend can successfully retrieve and display these fields after a sync.
+- [ ] All tests pass.
 
 ## [ ] Holistic Matchup Efficiency Matrix
 **Priority:** HIGH

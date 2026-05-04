@@ -10,11 +10,11 @@
 
 | Entity | PK | SK | Attributes |
 | --- | --- | --- | --- |
-| **Team** | `TEAM#<TeamId>` | `METADATA#<TeamId>` | Name, SeasonId, deletedAt? |
-| **Player** | `PLAYER#<PlayerId>` | `METADATA#<PlayerId>` | Name, DefaultNumber, isArchived?, deletedAt? |
-| **TeamPlayer** | `TEAM#<TeamId>` | `PLAYER#<PlayerId>` | JerseyNumber (1-3 digits), deletedAt? |
-| **Game** | `GAME#<GameId>` | `METADATA#<GameId>` | TeamId, Opponent, Date, Location, completed (0/1), deletedAt? |
-| **StatEvent** | `GAME#<GameId>` | `STAT#<Timestamp>#<StatId>` | PlayerId, Type, Points, LocationX, LocationY, Period, ClockTime, PlayName, ShotQuality, Situation, Timestamp |
+| **Team** | `TEAM#<TeamId>` | `METADATA#<TeamId>` | id, name, description, logoUrl, primaryColor, periodType, fouls, deletedAt? |
+| **Player** | `PLAYER#<PlayerId>` | `METADATA#<PlayerId>` | id, name, avatarColor, isArchived (0/1), deletedAt? |
+| **TeamPlayer** | `TEAM#<TeamId>` | `PLAYER#<PlayerId>` | id, teamId, playerId, name, avatarColor, jerseyNumber (1-3 digits), deletedAt? |
+| **Game** | `GAME#<GameId>` | `METADATA#<GameId>` | id, teamId, opponent, opponentId, opponentLogoUrl, date, time, location, completed (0/1), periodLength, timeoutLimit, foulLimit, periodType, deletedAt? |
+| **StatEvent** | `GAME#<GameId>` | `STAT#<Timestamp>#<StatId>` | id, gameId, playerId, type, points, locationX, locationY, period, clockTime, playName, shotQuality, situation, timestamp, deletedAt? |
 
 ### Global Secondary Indexes (GSI)
 
@@ -36,18 +36,18 @@ All write endpoints (`POST`, `PUT`, `PATCH`) require `Content-Type: application/
 
 ### Teams
 - `GET /teams` - List all active teams.
-- `POST /teams` - Create a team. Body: `{ "name": string }`.
+- `POST /teams` - Create a team. Body: `{ "name": string, "description"?: string, "logoUrl"?: string, "primaryColor"?: string, "periodType"?: string, "fouls"?: number }`.
 - `DELETE /teams/{id}` - Soft delete a team.
 - `PATCH /teams/{id}` - Restore a deleted team. Body: `{ "deletedAt": null }`.
 
 ### Team Players (Roster)
 - `GET /teams/{teamId}/players` - List players assigned to a team.
-- `POST /teams/{teamId}/players` - Add player to team. Body: `{ "playerId": UUID, "jerseyNumber": string (1-3 digits) }`.
+- `POST /teams/{teamId}/players` - Add player to team. Body: `{ "playerId": UUID, "name": string, "avatarColor"?: string, "jerseyNumber"?: string (1-3 digits) }`.
 - `DELETE /teams/{teamId}/players/{playerId}` - Remove player from team (soft delete association).
 
 ### Players
 - `GET /players` - List all active players.
-- `POST /players` - Create a player. Body: `{ "name": string }`.
+- `POST /players` - Create a player. Body: `{ "name": string, "avatarColor"?: string }`.
 - `DELETE /players/{id}` - Soft delete a player.
   - **Query Params**: `?archive=true` - Transition player to an archived state instead of soft deletion.
 - `PATCH /players/{id}` - Restore a player.
@@ -56,7 +56,7 @@ All write endpoints (`POST`, `PUT`, `PATCH`) require `Content-Type: application/
 
 ### Games
 - `GET /games?teamId={id}` - List games for a specific team.
-- `POST /games` - Create a game. Body: `{ "teamId": UUID, "opponent": string, "location"?: string, "date"?: string }`.
+- `POST /games` - Create a game. Body: `{ "teamId": UUID, "opponent": string, "opponentId"?: string, "opponentLogoUrl"?: string, "location"?: string, "date"?: string, "time"?: string, "periodLength"?: number, "timeoutLimit"?: number, "foulLimit"?: number, "periodType"?: string }`.
 - `DELETE /games/{id}` - Soft delete a game.
 - `PATCH /games/{id}` - Restore a deleted game. Body: `{ "deletedAt": null }`.
 - `POST /games/{id}/complete` - Mark a game as completed. Triggers final S3 snapshot.
