@@ -1,106 +1,96 @@
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+} from "@testing-library/react";
 import Players from "../pages/Players";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { BrowserRouter } from "react-router-dom";
-import { db } from "../db";
-import { useLiveQuery } from "dexie-react-hooks";
+import React from "react";
+import { ThemeProvider, createTheme } from "@mui/material";
+
+const theme = createTheme();
+const mockDb = (globalThis as any).mockDb;
 
 describe("Players Component", () => {
-  const mockPlayers = [{ id: "1", name: "John Doe", avatarColor: "#4E7D5B" }];
-
   beforeEach(() => {
-    vi.clearAllMocks();
-    (useLiveQuery as Record<string, any>).mockReturnValue([]);
+    mockDb.reset();
   });
 
-  it("renders Players page and empty state", async () => {
+  const renderComponent = () =>
     render(
-      <BrowserRouter>
-        <Players />
-      </BrowserRouter>,
+      <ThemeProvider theme={theme}>
+        <BrowserRouter>
+          <Players />
+        </BrowserRouter>
+      </ThemeProvider>,
     );
 
-    expect(
-      screen.getByRole("heading", { name: /^Players$/i, level: 3 }),
-    ).toBeInTheDocument();
+  it("renders Players page and empty state", async () => {
+    renderComponent();
+    expect(await screen.findByRole("heading", { name: /^Players$/i, level: 3 })).toBeInTheDocument();
     expect(screen.getByText(/No active players found/i)).toBeInTheDocument();
   });
 
   it("renders list of players", async () => {
-    (useLiveQuery as Record<string, any>).mockReturnValue(mockPlayers);
+    mockDb.seed({
+      players: [
+        { id: "p1", name: "John Doe", avatarColor: "red" },
+        { id: "p2", name: "Jane Smith", avatarColor: "blue" },
+      ],
+    });
 
-    render(
-      <BrowserRouter>
-        <Players />
-      </BrowserRouter>,
-    );
-
-    expect(screen.getByText("John Doe")).toBeInTheDocument();
+    renderComponent();
+    expect(await screen.findByText(/John Doe/i)).toBeInTheDocument();
+    expect(screen.getByText(/Jane Smith/i)).toBeInTheDocument();
   });
 
   it("adds a new player", async () => {
-    (db.players.add as Record<string, any>).mockResolvedValue(1);
+    renderComponent();
 
-    render(
-      <BrowserRouter>
-        <Players />
-      </BrowserRouter>,
-    );
+    fireEvent.click(screen.getByLabelText(/add new player/i));
 
-    fireEvent.click(screen.getByLabelText(/add/i));
+    const nameInput = screen.getByLabelText(/Player Name/i);
+    fireEvent.change(nameInput, { target: { value: "New Player" } });
 
-    fireEvent.change(screen.getByLabelText(/Player Name/i), {
-      target: { value: "Jane Smith" },
-    });
-
-    fireEvent.click(screen.getByRole("button", { name: /Add/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Add Player/i }));
 
     await waitFor(() => {
-      expect(db.players.add).toHaveBeenCalledWith(
+      expect(mockDb.players.add).toHaveBeenCalledWith(
         expect.objectContaining({
-          name: "Jane Smith",
+          name: "New Player",
         }),
       );
     });
   });
 
   it("handles fetch error", async () => {
-    // Note: The previous test was expecting console.error for fetch errors
-    // but the updated Players component uses useLiveQuery directly which might not log to console
-    // in the same way or at all if not explicitly handled in the component.
-    // Given the updated component, we skip this specific console check or update it.
-    // For now, let's just make sure it renders.
-    render(
-      <BrowserRouter>
-        <Players />
-      </BrowserRouter>,
-    );
-    expect(
-      screen.getByRole("heading", { name: /^Players$/i, level: 3 }),
-    ).toBeInTheDocument();
+    vi.spyOn(mockDb.players, "toArray").mockImplementation(() => {
+      throw new Error("Fetch failed");
+    });
+
+    renderComponent();
+    expect(await screen.findByRole("heading", { name: /^Players$/i, level: 3 })).toBeInTheDocument();
   });
 
   it("handles error when adding player", async () => {
-    // We use logger.error now
     const logger = await import("../utils/logger");
     const loggerSpy = vi
       .spyOn(logger.logger, "error")
       .mockImplementation(() => {});
-    (db.players.add as Record<string, any>).mockRejectedValue(
-      new Error("Add error"),
-    );
 
-    render(
-      <BrowserRouter>
-        <Players />
-      </BrowserRouter>,
-    );
+    renderComponent();
 
-    fireEvent.click(screen.getByLabelText(/add/i));
-    fireEvent.change(screen.getByLabelText(/Player Name/i), {
-      target: { value: "Error Player" },
+    vi.spyOn(mockDb.players, "add").mockImplementation(() => {
+      throw new Error("Add failed");
     });
-    fireEvent.click(screen.getByRole("button", { name: /Add/i }));
+
+    fireEvent.click(screen.getByLabelText(/add new player/i));
+    fireEvent.change(screen.getByLabelText(/Player Name/i), {
+      target: { value: "Fail Player" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /Add Player/i }));
 
     await waitFor(() => {
       expect(loggerSpy).toHaveBeenCalledWith(

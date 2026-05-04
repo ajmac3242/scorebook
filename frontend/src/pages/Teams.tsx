@@ -99,16 +99,13 @@ const Teams: React.FC = () => {
     [teams],
   );
 
-  const allGamesQueryResult = useLiveQuery(
-    async () =>
-      teamIds.length > 0
-        ? await db.games
-            .where("teamId")
-            .anyOf(teamIds as string[])
-            .toArray()
-        : [],
-    [teamIds],
-  );
+  const allGamesQueryResult = useLiveQuery(() => {
+    if (teamIds.length === 0) return [];
+    return db.games
+      .where("teamId")
+      .anyOf(teamIds as string[])
+      .toArray();
+  }, [teamIds]);
 
   const allGames = useMemo(
     () => allGamesQueryResult || [],
@@ -116,20 +113,17 @@ const Teams: React.FC = () => {
   );
 
   const gameIds = useMemo(
-    () => allGames.map((g) => g.id).filter(Boolean),
+    () =>  (allGames || []).map((g) => g.id).filter(Boolean),
     [allGames],
   );
 
-  const allStatsQueryResult = useLiveQuery(
-    async () =>
-      gameIds.length > 0
-        ? await db.stats
-            .where("gameId")
-            .anyOf(gameIds as string[])
-            .toArray()
-        : [],
-    [gameIds],
-  );
+  const allStatsQueryResult = useLiveQuery(() => {
+    if (gameIds.length === 0) return [];
+    return db.stats
+      .where("gameId")
+      .anyOf(gameIds as string[])
+      .toArray();
+  }, [gameIds]);
 
   const allStats = useMemo(
     () => allStatsQueryResult || [],
@@ -187,7 +181,7 @@ const Teams: React.FC = () => {
   ) => {
     e.stopPropagation();
     try {
-      await db.open();
+
       if (!currentFavorite) {
         // We are marking this team as favorite. Unmark all others.
         const allFavorites = await db.teams
@@ -219,7 +213,7 @@ const Teams: React.FC = () => {
     }
     setIsSubmitting(true);
     try {
-      await db.open();
+
       const newTeam: Team = {
         id: crypto.randomUUID(),
         name: teamName,

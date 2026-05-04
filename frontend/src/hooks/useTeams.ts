@@ -8,14 +8,6 @@ import { logger } from "../utils/logger";
  */
 export const useTeams = () => {
   return (
-    useLiveQuery(async () => {
-      try {
-        await db.open();
-        return await db.teams.toArray();
-      } catch (err) {
-        logger.error("Failed to fetch teams:", err);
-        return [];
-      }
-    }) || []
+    useLiveQuery(() => db.teams.toArray()) || []
   );
 };

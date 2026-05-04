@@ -160,10 +160,10 @@ const TeamStats: React.FC = () => {
     }));
   };
 
-  const team = useLiveQuery(
-    async () => (teamId !== undefined ? await db.teams.get(teamId) : undefined),
-    [teamId],
-  );
+  const team = useLiveQuery(() => {
+    if (teamId === undefined) return undefined;
+    return db.teams.get(teamId);
+  }, [teamId]);
 
   useEffect(() => {
     if (team) {
@@ -205,47 +205,37 @@ const TeamStats: React.FC = () => {
   const games = useGames(teamId);
   const allPlayers = usePlayers();
 
-  const teamPlayersResult = useLiveQuery(
-    async () =>
-      teamId !== undefined
-        ? await db.teamPlayers
-            .where("teamId")
-            .equals(teamId.toString())
-            .toArray()
-        : [],
-    [teamId],
-  );
+  const teamPlayersResult = useLiveQuery(() => {
+    if (teamId === undefined) return [];
+    return db.teamPlayers
+      .where("teamId")
+      .equals(teamId.toString())
+      .toArray();
+  }, [teamId]);
   const teamPlayers = useMemo(
     () => teamPlayersResult || [],
     [teamPlayersResult],
   );
 
   const allRecentLocations =
-    useLiveQuery(async () => {
-      try {
-        await db.open();
-        const items = await db.games.toArray();
-        // Optimization: Use a single forEach pass with a Set to avoid multiple intermediate arrays.
-        const locationSet = new Set<string>();
-        for (const g of items) {
-          if (g.location) locationSet.add(g.location);
-        }
-        return Array.from(locationSet).sort();
-      } catch (error) {
-        logger.error("Failed to fetch locations:", error);
-        return [];
-      }
+    useLiveQuery(() => {
+      return db.games
+        .toArray()
+        .then((items) => {
+          // Optimization: Use a single forEach pass with a Set to avoid multiple intermediate arrays.
+          const locationSet = new Set<string>();
+          for (const g of items) {
+            if (g.location) locationSet.add(g.location);
+          }
+          return Array.from(locationSet).sort();
+        })
+        .catch((error) => {
+          logger.error("Failed to fetch locations:", error);
+          return [];
+        });
     }) || [];
 
-  const allOpponents =
-    useLiveQuery(async () => {
-      try {
-        return await db.opponents.toArray();
-      } catch (error) {
-        logger.error("Failed to fetch opponents:", error);
-        return [];
-      }
-    }) || [];
+  const allOpponents = useLiveQuery(() => db.opponents.toArray()) || [];
 
   const teamPlayerDetails = useMemo(() => {
     // Optimization: Use a single for loop and a Set for O(1) lookups to avoid intermediate array allocations.
@@ -281,16 +271,13 @@ const TeamStats: React.FC = () => {
 
     return filtered.map((g) => g.id).filter(Boolean);
   }, [games, gameCountFilter]);
-  const allStatsResult = useLiveQuery(
-    async () =>
-      gameIds.length > 0
-        ? await db.stats
-            .where("gameId")
-            .anyOf(gameIds as string[])
-            .toArray()
-        : [],
-    [gameIds],
-  );
+  const allStatsResult = useLiveQuery(() => {
+    if (gameIds.length === 0) return [];
+    return db.stats
+      .where("gameId")
+      .anyOf(gameIds as string[])
+      .toArray();
+  }, [gameIds]);
   const allStats = useMemo(() => allStatsResult || [], [allStatsResult]);
 
   const teamAggregates = useMemo(

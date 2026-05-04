@@ -254,12 +254,10 @@ const GameStats: React.FC = () => {
     [teamPlayersResult],
   );
 
-  const playersResult = useLiveQuery(async () => {
-    if (!teamPlayers.length) return [];
-    // ⚡ Bolt: Fetch only players rostered on the team to reduce DB overhead.
-    const playerIds = teamPlayers.map((tp) => tp.playerId.toString());
-    return await db.players.where("id").anyOf(playerIds).toArray();
-  }, [teamPlayers]);
+  const playersResult = useLiveQuery(
+    () => db.players.where("id").anyOf(playerIds).toArray(),
+    [playerIds],
+  );
   const players = useMemo(() => playersResult || [], [playersResult]);
 
   useEffect(() => {

@@ -2,8 +2,7 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import GameMode from "../pages/GameMode";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { BrowserRouter } from "react-router-dom";
-import { db } from "../db";
-import { useLiveQuery } from "dexie-react-hooks";
+import { mockDb } from "../dbMock";
 import React from "react";
 import { ACTION_TYPES } from "../constants/stats";
 import { ThemeProvider, createTheme } from "@mui/material";
@@ -43,6 +42,8 @@ describe("GameMode Timeouts", () => {
       playerId: "p1",
       type: ACTION_TYPES.SUB_IN,
       timestamp: new Date().toISOString(),
+      period: 1,
+      clockTime: 600,
     },
   ];
   const mockTeamPlayers = [
@@ -55,22 +56,29 @@ describe("GameMode Timeouts", () => {
   ];
 
   beforeEach(() => {
-    vi.clearAllMocks();
-    (useLiveQuery as Record<string, any>).mockImplementation(
-      (cb: () => any) => {
-        const code = cb.toString();
-        if (code.includes("db.stats")) return mockStats;
-        if (code.includes("db.games.get"))
-          return {
-            id: "g1",
-            opponent: "Test Opponent",
-            date: "2023-01-01",
-          };
-        if (code.includes("db.players")) return mockPlayers;
-        if (code.includes("db.teamPlayers")) return mockTeamPlayers;
-        return [];
-      },
-    );
+    mockDb.reset();
+    mockDb.seed({
+      players: mockPlayers,
+      stats: mockStats,
+      teamPlayers: mockTeamPlayers,
+      games: [{
+        id: "g1",
+        opponent: "Test Opponent",
+        date: "2023-01-01",
+        teamId: "t1",
+        periodType: "QUARTERS",
+        completed: 0,
+        clockTime: 600,
+        currentPeriod: 1,
+        periodLength: 10
+      }],
+      teams: [{
+        id: "t1",
+        name: "My Team",
+        periodType: "QUARTERS",
+        defaultTimeoutLimit: 3
+      }]
+    });
   });
 
   const renderComponent = () =>
@@ -84,31 +92,32 @@ describe("GameMode Timeouts", () => {
 
   it("displays initial timeouts correctly (3 dots for each team by default)", async () => {
     renderComponent();
-    await waitFor(() => {
-      // Each TimeoutDots component has 3 dots by default now.
-      const teamDots = screen.getByTestId("team-timeout-dots");
-      const oppDots = screen.getByTestId("opp-timeout-dots");
+    await screen.findByText(/Live Lineup/i);
 
-      const teamActive = teamDots.querySelectorAll(
-        '[data-testid="timeout-dot-active"]',
-      ).length;
-      const oppActive = oppDots.querySelectorAll(
-        '[data-testid="timeout-dot-active"]',
-      ).length;
+    // Each TimeoutDots component has 3 dots by default now.
+    const teamDots = screen.getByTestId("team-timeout-dots");
+    const oppDots = screen.getByTestId("opp-timeout-dots");
 
-      expect(teamActive).toBe(3);
-      expect(oppActive).toBe(3);
-    });
+    const teamActive = teamDots.querySelectorAll(
+      '[data-testid="timeout-dot-active"]',
+    ).length;
+    const oppActive = oppDots.querySelectorAll(
+      '[data-testid="timeout-dot-active"]',
+    ).length;
+
+    expect(teamActive).toBe(3);
+    expect(oppActive).toBe(3);
   });
 
   it("records a TEAM timeout", async () => {
     renderComponent();
+    await screen.findByText(/Live Lineup/i);
 
     const timeoutBtn = await screen.findByRole("button", { name: /timeout/i });
     fireEvent.click(timeoutBtn);
 
     await waitFor(() => {
-      expect(db.stats.add).toHaveBeenCalledWith(
+      expect(mockDb.stats.add).toHaveBeenCalledWith(
         expect.objectContaining({
           type: ACTION_TYPES.TIMEOUT,
           playerId: "TEAM_TIMEOUT",
@@ -119,18 +128,18 @@ describe("GameMode Timeouts", () => {
 
   it("records an OPPONENT timeout when in opponent tracking mode", async () => {
     renderComponent();
+    await screen.findByText(/Live Lineup/i);
 
     // Switch to Opponent tracking mode
-    const oppModeBtn = screen
-      .getAllByRole("button", { name: /Opponent/i })
-      .find((el) => el instanceof HTMLButtonElement && el.value === "OPPONENT");
-    fireEvent.click(oppModeBtn!);
+    const oppToggles = await screen.findAllByRole("button", { name: /Test Opponent/i });
+    const oppToggleBtn = oppToggles.find(el => el.closest('.MuiToggleButtonGroup-root'));
+    fireEvent.click(oppToggleBtn!);
 
     const timeoutBtn = await screen.findByRole("button", { name: /timeout/i });
     fireEvent.click(timeoutBtn);
 
     await waitFor(() => {
-      expect(db.stats.add).toHaveBeenCalledWith(
+      expect(mockDb.stats.add).toHaveBeenCalledWith(
         expect.objectContaining({
           type: ACTION_TYPES.TIMEOUT,
           playerId: "OPPONENT",
@@ -149,6 +158,8 @@ describe("GameMode Timeouts", () => {
         playerId: "TEAM_TIMEOUT",
         type: ACTION_TYPES.TIMEOUT,
         timestamp: new Date().toISOString(),
+        period: 1,
+        clockTime: 500,
       },
       {
         id: "t2",
@@ -156,6 +167,8 @@ describe("GameMode Timeouts", () => {
         playerId: "OPPONENT",
         type: ACTION_TYPES.TIMEOUT,
         timestamp: new Date().toISOString(),
+        period: 1,
+        clockTime: 400,
       },
       {
         id: "t3",
@@ -163,41 +176,28 @@ describe("GameMode Timeouts", () => {
         playerId: "OPPONENT",
         type: ACTION_TYPES.TIMEOUT,
         timestamp: new Date().toISOString(),
+        period: 1,
+        clockTime: 300,
       },
     ];
 
-    (useLiveQuery as Record<string, any>).mockImplementation(
-      (cb: () => any) => {
-        const code = cb.toString();
-        if (code.includes("db.stats")) return statsWithTimeouts;
-        if (code.includes("db.games.get"))
-          return {
-            id: "g1",
-            opponent: "Test Opponent",
-            date: "2023-01-01",
-          };
-        if (code.includes("db.players")) return mockPlayers;
-        if (code.includes("db.teamPlayers")) return mockTeamPlayers;
-        return [];
-      },
-    );
+    mockDb.seed({ stats: statsWithTimeouts });
 
     renderComponent();
+    await screen.findByText(/Live Lineup/i);
 
-    await waitFor(() => {
-      // 3 - 1 = 2 active dots for Team, 3 - 2 = 1 active dots for Opponent
-      const teamDots = screen.getByTestId("team-timeout-dots");
-      const oppDots = screen.getByTestId("opp-timeout-dots");
+    // 3 - 1 = 2 active dots for Team, 3 - 2 = 1 active dots for Opponent
+    const teamDots = screen.getByTestId("team-timeout-dots");
+    const oppDots = screen.getByTestId("opp-timeout-dots");
 
-      const teamActive = teamDots.querySelectorAll(
-        '[data-testid="timeout-dot-active"]',
-      ).length;
-      const oppActive = oppDots.querySelectorAll(
-        '[data-testid="timeout-dot-active"]',
-      ).length;
+    const teamActive = teamDots.querySelectorAll(
+      '[data-testid="timeout-dot-active"]',
+    ).length;
+    const oppActive = oppDots.querySelectorAll(
+      '[data-testid="timeout-dot-active"]',
+    ).length;
 
-      expect(teamActive).toBe(2);
-      expect(oppActive).toBe(1);
-    });
+    expect(teamActive).toBe(2);
+    expect(oppActive).toBe(1);
   });
 });

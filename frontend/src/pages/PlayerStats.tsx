@@ -63,7 +63,7 @@ const PlayerStats: React.FC = () => {
   const [timeLeft, setTimeLeft] = useState("");
 
   const player = useLiveQuery(
-    async () => (playerId ? await db.players.get(playerId) : undefined),
+    () => (playerId ? db.players.get(playerId) : undefined),
     [playerId],
   );
 
@@ -89,9 +89,9 @@ const PlayerStats: React.FC = () => {
 
   const teamPlayers =
     useLiveQuery(
-      async () =>
+      () =>
         playerId
-          ? await db.teamPlayers
+          ? db.teamPlayers
               .where("playerId")
               .equals(playerId.toString())
               .toArray()
@@ -99,27 +99,16 @@ const PlayerStats: React.FC = () => {
       [playerId],
     ) || [];
 
-  const gamesQueryResult = useLiveQuery(async () => {
-    if (selectedGameId) {
-      const g = await db.games.get(selectedGameId);
-      return g ? [g] : [];
-    }
-    if (teamIdParam) {
-      return await db.games.where("teamId").equals(teamIdParam).toArray();
-    }
-    if (teams.length > 0)
-      return await db.games
-        .where("teamId")
-        .anyOf(teams.map((t) => t.id!).filter(Boolean))
-        .toArray();
-    return await db.games.toArray();
-  }, [selectedGameId, teams, teamIdParam]);
+  const gamesQueryResult = useLiveQuery(
+    () => (teamIdParam ? db.games.where("teamId").equals(teamIdParam).toArray() : []),
+    [teamIdParam],
+  );
   const games = useMemo(() => gamesQueryResult || [], [gamesQueryResult]);
 
   const allStatsResult = useLiveQuery(
-    async () =>
+    () =>
       playerId !== undefined
-        ? await db.stats.where("playerId").equals(playerId).toArray()
+        ? db.stats.where("playerId").equals(playerId).toArray()
         : [],
     [playerId],
   );

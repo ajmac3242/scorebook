@@ -191,7 +191,6 @@ const GameMode: React.FC = () => {
     const lastStat = gameData.recentStats[0];
     if (lastStat.id) {
       try {
-        await db.open();
         await db.stats.update(lastStat.id, {
           deletedAt: new Date().toISOString(),
           synced: 0,
@@ -231,7 +230,6 @@ const GameMode: React.FC = () => {
   const handleEndGame = useCallback(async () => {
     setIsEnding(true);
     try {
-      await db.open();
       await db.games.update(gameId as string, { completed: 1, synced: 0 });
       await syncService.pushUpdates();
       setEndGameDialogOpen(false);
@@ -304,7 +302,6 @@ const GameMode: React.FC = () => {
           setIsSavingStat(false);
           return;
         }
-        await db.open();
         if (isEditing && editingStatId) {
           await db.stats.update(editingStatId, {
             playerId: selectedPlayerId!,
@@ -450,7 +447,6 @@ const GameMode: React.FC = () => {
     if (!gameId || isReadOnly) return;
 
     try {
-      await db.open();
       const timestamp = new Date().toISOString();
 
       const originalOnCourt = gameData.onCourtIds;
@@ -519,7 +515,6 @@ const GameMode: React.FC = () => {
     if (!statToDelete) return;
     setIsDeleting(true);
     try {
-      await db.open();
       await db.stats.update(statToDelete, {
         deletedAt: new Date().toISOString(),
         synced: 0,
@@ -604,7 +599,6 @@ const GameMode: React.FC = () => {
       setClockSeconds(totalSeconds);
       if (gameId) {
         try {
-          await db.open();
           await db.games.update(gameId, {
             clockTime: totalSeconds,
             synced: 0,
@@ -630,7 +624,6 @@ const GameMode: React.FC = () => {
 
     if (gameId) {
       try {
-        await db.open();
         await db.games.update(gameId, {
           currentPeriod: nextPeriod,
           clockTime: nextSeconds,
@@ -653,7 +646,6 @@ const GameMode: React.FC = () => {
   const handleTimeout = useCallback(async () => {
     if (!gameId || isReadOnly) return;
     try {
-      await db.open();
       await db.stats.add({
         id: crypto.randomUUID(),
         gameId: gameId,
@@ -686,7 +678,6 @@ const GameMode: React.FC = () => {
         : SPECIAL_PLAYER_IDS.OUR_TEAM;
 
     try {
-      await db.open();
       await db.stats.add({
         id: crypto.randomUUID(),
         gameId: gameId,
@@ -709,7 +700,6 @@ const GameMode: React.FC = () => {
       const { originalStat } = chainPrompt;
 
       try {
-        await db.open();
         await db.stats.add({
           id: crypto.randomUUID(),
           gameId,

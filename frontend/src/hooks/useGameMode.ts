@@ -91,48 +91,28 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
   const [trackingMode, setTrackingMode] = useState<"TEAM" | "OPPONENT">("TEAM");
 
   // Derived data from StatEvents
-  const gameStatsQueryResult = useLiveQuery(async () => {
-    try {
-      await db.open();
-      return await db.stats
-        .where("gameId")
-        .equals(gameId || "")
-        .toArray();
-    } catch (err) {
-      logger.error("Failed to fetch game stats:", err);
-      return [];
-    }
-  }, [gameId]);
+  const gameStatsQueryResult = useLiveQuery(
+    () => db.stats.where("gameId").equals(gameId || "").toArray(),
+    [gameId],
+  );
   const gameStats = useMemo(
     () => gameStatsQueryResult || [],
     [gameStatsQueryResult],
   );
 
-  // Fetch roster data for the current team
-  const teamPlayersQueryResult = useLiveQuery(
-    () =>
-      teamId
-        ? db.teamPlayers.where("teamId").equals(teamId.toString()).toArray()
-        : Promise.resolve([]),
-    [teamId],
-  );
-  const teamPlayers = useMemo(
-    () => teamPlayersQueryResult || [],
-    [teamPlayersQueryResult],
-  );
+  // Combine roster and player data to avoid unstable dependency chains
+  const rosterData = useLiveQuery(() => {
+    if (!teamId) return { teamPlayers: [], players: [] };
+    return db.teamPlayers.where("teamId").equals(teamId.toString()).toArray().then(tp => {
+      const pIds = tp.map((t: any) => t.playerId.toString());
+      return db.players.where("id").anyOf(pIds).toArray().then(p => ({
+        teamPlayers: tp,
+        players: p
+      }));
+    });
+  }, [teamId]) || { teamPlayers: [], players: [] };
 
-  const playersQueryResult = useLiveQuery(async () => {
-    try {
-      await db.open();
-      if (!teamId) return [];
-      const playerIds = teamPlayers.map((t) => t.playerId.toString());
-      return await db.players.where("id").anyOf(playerIds).toArray();
-    } catch (err) {
-      logger.error("Failed to fetch players:", err);
-      return [];
-    }
-  }, [teamId, teamPlayers]);
-  const players = useMemo(() => playersQueryResult || [], [playersQueryResult]);
+  const { teamPlayers, players } = rosterData;
 
   const playerNamesMap = useMemo(() => {
     const map = new Map<string, string>();
@@ -143,19 +123,26 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     return map;
   }, [players]);
 
-  const game = useLiveQuery(() => db.games.get(gameId || ""), [gameId]);
-  const team = useLiveQuery(
-    () =>
-      game?.teamId ? db.teams.get(game.teamId) : Promise.resolve(undefined),
-    [game?.teamId],
-  );
+  // Combine game and team data
+  const gameAndTeam = useLiveQuery(() => {
+    return db.games.get(gameId || "").then(g => {
+      if (g?.teamId) {
+        return db.teams.get(g.teamId).then(t => ({ game: g, team: t }));
+      }
+      return { game: g, team: undefined };
+    });
+  }, [gameId]) || { game: undefined, team: undefined };
 
-  const teamSeasonStats = useLiveQuery(async () => {
+  const { game, team } = gameAndTeam;
+
+  const teamSeasonStats = useLiveQuery(() => {
     if (!teamId) return { ppp: "0.00" };
-    const games = await db.games.where("teamId").equals(teamId).toArray();
-    const gameIds = games.map((g) => g.id!).filter(Boolean);
-    const allStats = await db.stats.where("gameId").anyOf(gameIds).toArray();
-    return calculateTeamSeasonAverages(games, allStats);
+    return db.games.where("teamId").equals(teamId).toArray().then(games => {
+      const gameIds = games.map((g) => g.id!).filter(Boolean);
+      return db.stats.where("gameId").anyOf(gameIds).toArray().then(allStats => {
+        return calculateTeamSeasonAverages(games, allStats);
+      });
+    });
   }, [teamId]);
 
   useEffect(() => {
