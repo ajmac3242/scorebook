@@ -59,7 +59,58 @@ jobs:
   # ---------------------------------------------------------------
   # Code Auto-Fix
   # ---------------------------------------------------------------
-  #
+  code-auto-fix:
+    name: Code Auto-Fix
+    needs: filter
+    if: always() && (needs.filter.outputs.backend == 'true' || needs.filter.outputs.frontend == 'true')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: 'pnpm'
+          cache-dependency-path: |
+            backend/pnpm-lock.yaml
+            frontend/pnpm-lock.yaml
+
+      - name: "Backend: Auto-Fix"
+        if: needs.filter.outputs.backend == 'true'
+        run: |
+          echo "::group::Backend Auto-Fix"
+          cd backend
+          for i in {1..3}; do pnpm install --frozen-lockfile --prefer-offline --reporter=appendonly && break || if [ $i -eq 3 ]; then exit 1; else sleep 10; fi; done
+          pnpm exec prettier --write "src/**/*.ts"
+          pnpm exec eslint "src/**/*.ts" --config eslint.config.mjs --fix --rule '{"jsdoc/require-jsdoc": ["warn", {"enableFixer": true, "require": {"FunctionDeclaration": true, "FunctionExpression": true, "MethodDefinition": true}}]}'
+          echo "::endgroup::"
+
+      - name: "Frontend: Auto-Fix"
+        if: needs.filter.outputs.frontend == 'true'
+        run: |
+          echo "::group::Frontend Auto-Fix"
+          cd frontend
+          for i in {1..3}; do pnpm install --frozen-lockfile --prefer-offline --reporter=appendonly && break || if [ $i -eq 3 ]; then exit 1; else sleep 10; fi; done
+          pnpm exec prettier --write "src/**/*.{ts,tsx}"
+          pnpm exec eslint "src/**/*.{ts,tsx}" --config eslint.config.js --fix --rule '{"jsdoc/require-jsdoc": ["warn", {"enableFixer": true, "require": {"FunctionDeclaration": true, "FunctionExpression": true, "MethodDefinition": true}}]}'
+          echo "::endgroup::"
+
+      #- name: Commit Auto-fixes
+        #uses: stefanzweifel/git-auto-commit-action@v5
+        #with:
+          #commit_message: "chore: auto-format and JSDoc stubs [skip ci]"
+          #file_pattern: "backend/src/** frontend/src/**"
+
   # ---------------------------------------------------------------
   # Backend Quality & Tests
   # ---------------------------------------------------------------
