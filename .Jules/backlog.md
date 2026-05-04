@@ -311,6 +311,59 @@ Completed items are archived to `.Jules/backlog-archive.md` to maintain optimal 
 - [ ] "Identity Goals" section where coaches see % of games where goals were met.
 - [ ] Filter by date range or opponent strength.
 
+## [ ] Live Game Identity Radar Chart
+**Priority:** HIGH
+**Type:** UX
+**Why:** Teams often lose their "Identity" (e.g., "We are a fast-break team") during high-pressure games. A radar chart comparing live performance against the "Team Blueprint" keeps the team focused.
+**What:** A real-time Radar Chart in GameMode that compares current game Four Factors and Pace against the team's season-long averages (the "Blueprint").
+**Acceptance Criteria:**
+- [ ] Interactive Radar Chart in the GameMode sidebar.
+- [ ] Overlay of "Current Game" (Solid) vs "Season Average" (Dashed) for: Pace, eFG%, TO%, ORB%, and FT Rate.
+- [ ] "Identity Alert" when a core metric deviates by more than 20% from the blueprint.
+
+## [ ] Defensive Synergy Analysis (2-3 Player Units)
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Some defensive pairings are greater than the sum of their parts. Coaches need to know which duos/trios anchor the defense most effectively, beyond just 5-man units which can have small sample sizes.
+**What:** Build a "Defensive Synergy" report that calculates Opponent PPP and Forced Turnover % for every 2-player and 3-player combination that has played significant minutes together.
+**Acceptance Criteria:**
+- [ ] New "Synergy" tab in Team Analytics.
+- [ ] Table showing 2-player and 3-player units with Defensive Rating (DRtg) and Net Rating.
+- [ ] Filter to show only units with > 10 minutes played.
+- [ ] Highlight "Shut-Down Units" (units with DRtg significantly better than team average).
+
+## [ ] Halftime "War Room" Tactical Advisor
+**Priority:** HIGH
+**Type:** Feature
+**Why:** The 10 minutes of halftime are frantic. A "Tactical Advisor" that delivers 3-5 punchy, data-driven bullet points allows the coach to walk into the locker room with immediate answers.
+**What:** An automated insight engine in the Halftime Report that identifies the most impactful trends (e.g., "Lineup X is -12", "Opponent #24 scoring 1.8 PPP on drives").
+**Acceptance Criteria:**
+- [ ] "Coach's Notes" section in the Halftime Report Dialog.
+- [ ] Automated bullets for: Most effective/ineffective 5-man unit.
+- [ ] Automated bullets for: Top 3 opponent threats with "Points Allowed" attribution.
+- [ ] Automated bullets for: Primary "Four Factor" deficit (e.g., "We are losing the ORB battle 12% to 35%").
+
+## [ ] On/Off Team Impact Analytics
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Some players have a high +/- because they play with the starters; others make the bench units better. On/Off splits reveal the true impact of a player by comparing team performance when they are on the floor vs. when they are on the bench.
+**What:** Calculate team-level metrics (Offensive Rating, Defensive Rating, Net Rating) for both states (Player ON vs. Player OFF) across multiple games.
+**Acceptance Criteria:**
+- [ ] New "Impact" tab in Player Stats or Team Analytics.
+- [ ] Display "Team Net Rating (ON)" vs "Team Net Rating (OFF)" for each player.
+- [ ] "Impact Differential" (The difference between ON and OFF metrics).
+- [ ] Support for filtering by season or last X games to identify recent trends.
+
+## [ ] Integrated Practice Prescription Engine
+**Priority:** HIGH
+**Type:** Feature
+**Why:** The best coaches use game data to plan the next practice. This feature closes the loop by suggesting specific drills based on the team's statistical failures in the last game.
+**What:** A logic engine that maps low KPI performance (e.g., low FT%, high TOs) to a library of suggested practice drills.
+**Acceptance Criteria:**
+- [ ] "Practice Planner" button on the Game Stats page.
+- [ ] Automatic suggestion of 3 "Focus Areas" based on the game's worst-performing metrics.
+- [ ] Linkage to a library of drills (e.g., "Poor 3PT% -> Suggest '100 Makes' Drill").
+
 ## [ ] Redesign Dashboard page
 **Priority:** HIGH
 **Type:** Feature
@@ -554,19 +607,15 @@ Completed items are archived to `.Jules/backlog-archive.md` to maintain optimal 
 
 ## [ ] Refactor & Right-Size Large Files to Improve Jules Performance
 **Priority:** HIGH **Type:** Technical Debt
-**Why:** Jules is exhibiting slowdowns and "file too large" issues because several core files have grown beyond effective context window limits. The monolithic `index.ts` (883 lines) forces Jules to load the entire API surface for any single endpoint change. The `backlog.md` (637 lines) is injected into every session regardless of relevance. Multiple overlapping sentinel test files add redundant context on every run.
+**Why:** Jules is exhibiting slowdowns and "file too large" issues because several core files have grown beyond effective context window limits.
 **What:**
-1. Split `index.ts` into per-resource handler modules: `handlers/players.ts`, `handlers/games.ts`, `handlers/teams.ts`, `handlers/stats.ts`, `handlers/cleanup.ts` — each under 200 lines. Keep `index.ts` as a thin router (~100 lines).
-   - [ ] `handlers/cleanup.ts` created and integrated.
-2. Split `utils.ts` (420 lines) — separate `security-utils.ts` (sanitize, mask, safeCompare, normalizePath) from `data-utils.ts` (stripLocalFields, extractId, etc.).
-3. Archive `backlog.md` — move all `[ ]` completed items to a `backlog-archive.md`. Add a rule: completed items get archived after each sprint. Enforce a soft cap of ~200 lines on active `backlog.md`.
-4. Consolidate sentinel test files — merge `sentinel_enhancements.test.ts`, `sentinel_dos.test.ts`, `sentinel_path.test.ts`, `sentinel_v3.test.ts`, `sentinel_v4.test.ts` into a single organized `security.test.ts` with `describe` blocks per concern. Target under 500 total lines.
-5. Add a guardrail note to `playbook.md`: Jules should flag any file approaching 300 lines and propose a split before continuing.
+1. Split `index.ts` into per-resource handler modules. (PARTIALLY COMPLETE: `players.ts`, `games.ts`, `teams.ts`, `cleanup.ts` created. `index.ts` reduced from 883 to 260 lines.)
+2. Split `utils.ts` (339 lines) — separate `security-utils.ts` from `data-utils.ts`.
+3. Consolidate sentinel test files — merge `sentinel_enhancements.test.ts`, `sentinel_v3.test.ts`, etc. into `security.test.ts`. (PARTIALLY COMPLETE: `security.test.ts` exists, but sentinel files remain.)
+4. Add a guardrail note to `playbook.md`: Jules should flag any file approaching 300 lines and propose a split before continuing.
 **Acceptance Criteria:**
 - [ ] `index.ts` is under 150 lines (router only)
-- [ ] No source file in `backend/src/` exceeds 300 lines unless it logically makes sense. This is not a hard rule, but it's a refactor trigger.
-- [ ] `backlog.md` (active items only)
-- [ ] `backlog-archive.md` exists with all completed items
+- [ ] No source file in `backend/src/` exceeds 300 lines unless it logically makes sense.
 - [ ] Total test file count in `__tests__/` reduced by at least 4
 - [ ] All existing tests continue to pass
 - [ ] `playbook.md` updated with file size guardrail rule

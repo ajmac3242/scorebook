@@ -1511,6 +1511,16 @@ export const isEventInPeriod = (
   currentPeriod: number,
   periodType: string,
 ): boolean => {
+  // ⚡ Bolt: Fast-path for the most common case to skip complex branching logic.
+  // In most games, we are checking if an event happened in the active regulation period.
+  if (
+    eventPeriod === currentPeriod &&
+    !(periodType === "QUARTERS" && currentPeriod === 4) &&
+    !(periodType === "HALVES" && currentPeriod === 2)
+  ) {
+    return true;
+  }
+
   if (periodType === "QUARTERS") {
     // 🔍 Scout: Overtime periods (5+) are typically grouped with P4 for bonus/team fouls.
     if (currentPeriod === 4) {
