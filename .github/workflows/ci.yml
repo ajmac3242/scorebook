@@ -105,11 +105,11 @@ jobs:
           pnpm exec eslint "src/**/*.{ts,tsx}" --config eslint.config.js --fix --rule '{"jsdoc/require-jsdoc": ["warn", {"enableFixer": true, "require": {"FunctionDeclaration": true, "FunctionExpression": true, "MethodDefinition": true}}]}'
           echo "::endgroup::"
 
-      #- name: Commit Auto-fixes
-        #uses: stefanzweifel/git-auto-commit-action@v5
-        #with:
-          #commit_message: "chore: auto-format and JSDoc stubs [skip ci]"
-          #file_pattern: "backend/src/** frontend/src/**"
+      - name: Commit Auto-fixes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: auto-format and JSDoc stubs [skip ci]"
+          file_pattern: "backend/src/** frontend/src/**"
 
   # ---------------------------------------------------------------
   # Backend Quality & Tests

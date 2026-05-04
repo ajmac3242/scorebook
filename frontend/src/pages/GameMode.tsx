@@ -99,8 +99,8 @@ const GameMode: React.FC = () => {
     setSelectedX,
     selectedY,
     setSelectedY,
-    isDialogOpen,
-    setIsDialogOpen,
+    dialogOpen,
+    setDialogOpen,
     selectedPlayerId,
     setSelectedPlayerId,
     statType,
@@ -119,26 +119,26 @@ const GameMode: React.FC = () => {
     setSortConfig,
     markerFilter,
     setMarkerFilter,
-    isDeleteDialogOpen,
-    setIsDeleteDialogOpen,
+    deleteDialogOpen,
+    setDeleteDialogOpen,
     statToDelete,
     setStatToDelete,
     isEditing,
     setIsEditing,
     editingStatId,
     setEditingStatId,
-    isEndGameDialogOpen,
-    setIsEndGameDialogOpen,
+    endGameDialogOpen,
+    setEndGameDialogOpen,
     isClockEditDialogOpen,
     setIsClockEditDialogOpen,
-    isSummaryDialogOpen,
-    setIsSummaryDialogOpen,
-    isAuditDialogOpen,
-    setIsAuditDialogOpen,
-    isFtWorkflowOpen,
-    setIsFtWorkflowOpen,
-    isHalftimeReportOpen,
-    setIsHalftimeReportOpen,
+    summaryDialogOpen,
+    setSummaryDialogOpen,
+    auditDialogOpen,
+    setAuditDialogOpen,
+    ftWorkflowOpen,
+    setFtWorkflowOpen,
+    halftimeReportOpen,
+    setHalftimeReportOpen,
     isDeleting,
     setIsDeleting,
     isEnding,
@@ -149,8 +149,8 @@ const GameMode: React.FC = () => {
     setChainPrompt,
     snackbar,
     setSnackbar,
-    isSubDialogOpen,
-    setIsSubDialogOpen,
+    subDialogOpen,
+    setSubDialogOpen,
     setSubOutPlayerId,
     draftOnCourtIds,
     setDraftOnCourtIds,
@@ -232,8 +232,8 @@ const GameMode: React.FC = () => {
     try {
       await db.games.update(gameId as string, { completed: 1, synced: 0 });
       await syncService.pushUpdates();
-      setIsEndGameDialogOpen(false);
-      setIsSummaryDialogOpen(true);
+      setEndGameDialogOpen(false);
+      setSummaryDialogOpen(true);
       setSnackbar({
         open: true,
         message: "Game finalized successfully!",
@@ -252,8 +252,8 @@ const GameMode: React.FC = () => {
   }, [
     gameId,
     setIsEnding,
-    setIsEndGameDialogOpen,
-    setIsSummaryDialogOpen,
+    setEndGameDialogOpen,
+    setSummaryDialogOpen,
     setSnackbar,
   ]);
 
@@ -274,7 +274,7 @@ const GameMode: React.FC = () => {
       } else {
         setSelectedPlayerId(null);
       }
-      setIsDialogOpen(true);
+      setDialogOpen(true);
     },
     [
       isReadOnly,
@@ -283,7 +283,7 @@ const GameMode: React.FC = () => {
       setSelectedY,
       setPoints,
       setSelectedPlayerId,
-      setIsDialogOpen,
+      setDialogOpen,
     ],
   );
 
@@ -359,7 +359,7 @@ const GameMode: React.FC = () => {
           }
 
           if (typeToSave === ACTION_TYPES.FOUL_SHOOTING) {
-            setIsFtWorkflowOpen(true);
+            setFtWorkflowOpen(true);
           }
         }
         setSnackbar({
@@ -367,7 +367,7 @@ const GameMode: React.FC = () => {
           message: isEditing ? "Action updated" : "Action recorded",
           severity: "success",
         });
-        setIsDialogOpen(false);
+        setDialogOpen(false);
         setStatType(null);
         setPlayName("");
         setIsEditing(false);
@@ -400,9 +400,9 @@ const GameMode: React.FC = () => {
       shotQuality,
       setIsSavingStat,
       setChainPrompt,
-      setIsFtWorkflowOpen,
+      setFtWorkflowOpen,
       setSnackbar,
-      setIsDialogOpen,
+      setDialogOpen,
       setStatType,
       setPlayName,
       setIsEditing,
@@ -485,7 +485,7 @@ const GameMode: React.FC = () => {
         });
       }
 
-      setIsSubDialogOpen(false);
+      setSubDialogOpen(false);
       await syncService.pushUpdates();
       setSnackbar({
         open: true,
@@ -507,7 +507,7 @@ const GameMode: React.FC = () => {
     draftOnCourtIds,
     period,
     clockSeconds,
-    setIsSubDialogOpen,
+    setSubDialogOpen,
     setSnackbar,
   ]);
 
@@ -520,7 +520,7 @@ const GameMode: React.FC = () => {
         synced: 0,
       });
       await syncService.pushUpdates();
-      setIsDeleteDialogOpen(false);
+      setDeleteDialogOpen(false);
       setStatToDelete(null);
       setSnackbar({
         open: true,
@@ -540,7 +540,7 @@ const GameMode: React.FC = () => {
   }, [
     statToDelete,
     setIsDeleting,
-    setIsDeleteDialogOpen,
+    setDeleteDialogOpen,
     setStatToDelete,
     setSnackbar,
   ]);
@@ -557,7 +557,7 @@ const GameMode: React.FC = () => {
       setSelectedX(stat.locationX || 0);
       setSelectedY(stat.locationY || 0);
       setIsEditing(true);
-      setIsDialogOpen(true);
+      setDialogOpen(true);
     },
     [
       isReadOnly,
@@ -570,7 +570,7 @@ const GameMode: React.FC = () => {
       setSelectedX,
       setSelectedY,
       setIsEditing,
-      setIsDialogOpen,
+      setDialogOpen,
     ],
   );
 
@@ -666,8 +666,8 @@ const GameMode: React.FC = () => {
   }, [gameId, isReadOnly, trackingMode, period, clockSeconds]);
 
   const handleAuditSubs = useCallback(() => {
-    setIsAuditDialogOpen(true);
-  }, [setIsAuditDialogOpen]);
+    setAuditDialogOpen(true);
+  }, [setAuditDialogOpen]);
 
   const handleTogglePossession = useCallback(async () => {
     if (!gameId || isReadOnly) return;
@@ -777,10 +777,10 @@ const GameMode: React.FC = () => {
               <ActionControls
                 isReadOnly={isReadOnly}
                 onUndo={handleUndo}
-                onQuickSub={() => setIsSubDialogOpen(true)}
+                onQuickSub={() => setSubDialogOpen(true)}
                 onFtWorkflow={() => {
                   if (selectedPlayerId) {
-                    setIsFtWorkflowOpen(true);
+                    setFtWorkflowOpen(true);
                   } else {
                     setSnackbar({
                       open: true,
@@ -795,7 +795,7 @@ const GameMode: React.FC = () => {
                 onTogglePossession={() => handleTogglePossession()}
                 possessionState={gameData.possessionState}
                 recentStatsLength={gameData.recentStats.length}
-                onEndGame={() => setIsEndGameDialogOpen(true)}
+                onEndGame={() => setEndGameDialogOpen(true)}
                 isGameCompleted={!!game?.completed}
               />
 
@@ -965,7 +965,7 @@ const GameMode: React.FC = () => {
                               variant="contained"
                               onClick={() => {
                                 setSubOutPlayerId(p.id!);
-                                setIsSubDialogOpen(true);
+                                setSubDialogOpen(true);
                               }}
                               sx={{
                                 justifyContent: "flex-start",
@@ -1081,7 +1081,7 @@ const GameMode: React.FC = () => {
                           aria-label={`Empty lineup slot ${i + 1}, click to assign player`}
                           onClick={() => {
                             setSubOutPlayerId(emptyId);
-                            setIsSubDialogOpen(true);
+                            setSubDialogOpen(true);
                           }}
                           fullWidth
                           sx={{
@@ -1446,7 +1446,7 @@ const GameMode: React.FC = () => {
                         onEdit={openEditDialog}
                         onDelete={(id) => {
                           setStatToDelete(id);
-                          setIsDeleteDialogOpen(true);
+                          setDeleteDialogOpen(true);
                         }}
                       />
                     );
@@ -1459,8 +1459,8 @@ const GameMode: React.FC = () => {
       </Grid>
 
       <Dialog
-        open={isDialogOpen}
-        onClose={() => setIsDialogOpen(false)}
+        open={dialogOpen}
+        onClose={() => setDialogOpen(false)}
         fullWidth
         maxWidth="xs"
         aria-describedby="stat-dialog-player-info"
@@ -1824,7 +1824,7 @@ const GameMode: React.FC = () => {
           )}
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setIsDialogOpen(false)} color="inherit">
+          <Button onClick={() => setDialogOpen(false)} color="inherit">
             Cancel
           </Button>
           <Button
@@ -1838,8 +1838,8 @@ const GameMode: React.FC = () => {
       </Dialog>
 
       <Dialog
-        open={isEndGameDialogOpen}
-        onClose={() => setIsEndGameDialogOpen(false)}
+        open={endGameDialogOpen}
+        onClose={() => setEndGameDialogOpen(false)}
         onKeyDown={(e) => {
           if (e.key === "Enter" && !isEnding) {
             handleEndGame();
@@ -1855,7 +1855,7 @@ const GameMode: React.FC = () => {
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
           <Button
-            onClick={() => setIsEndGameDialogOpen(false)}
+            onClick={() => setEndGameDialogOpen(false)}
             color="inherit"
             disabled={isEnding}
           >
@@ -1873,8 +1873,8 @@ const GameMode: React.FC = () => {
       </Dialog>
 
       <Dialog
-        open={isSummaryDialogOpen}
-        onClose={() => setIsSummaryDialogOpen(false)}
+        open={summaryDialogOpen}
+        onClose={() => setSummaryDialogOpen(false)}
       >
         <DialogTitle sx={{ fontFamily: "var(--serif)", textAlign: "center" }}>
           Game Summary
@@ -1909,7 +1909,7 @@ const GameMode: React.FC = () => {
           <Button
             variant="outlined"
             onClick={() => {
-              setIsSummaryDialogOpen(false);
+              setSummaryDialogOpen(false);
             }}
             sx={{ mr: 2 }}
           >
@@ -1918,7 +1918,7 @@ const GameMode: React.FC = () => {
           <Button
             variant="contained"
             onClick={() => {
-              setIsSummaryDialogOpen(false);
+              setSummaryDialogOpen(false);
               navigate(`/game/stats?gameId=${gameId}`);
             }}
           >
@@ -1928,8 +1928,8 @@ const GameMode: React.FC = () => {
       </Dialog>
 
       <QuickSubDialog
-        open={isSubDialogOpen}
-        onClose={() => setIsSubDialogOpen(false)}
+        open={subDialogOpen}
+        onClose={() => setSubDialogOpen(false)}
         players={players}
         team={team}
         game={game}
@@ -1943,8 +1943,8 @@ const GameMode: React.FC = () => {
 
       {gameId && (
         <SubstitutionAuditDialog
-          open={isAuditDialogOpen}
-          onClose={() => setIsAuditDialogOpen(false)}
+          open={auditDialogOpen}
+          onClose={() => setAuditDialogOpen(false)}
           gameId={gameId}
           players={players}
           jerseyMap={jerseyMap}
@@ -1953,8 +1953,8 @@ const GameMode: React.FC = () => {
 
       {gameId && selectedPlayerId && (
         <FreeThrowWorkflowDialog
-          open={isFtWorkflowOpen}
-          onClose={() => setIsFtWorkflowOpen(false)}
+          open={ftWorkflowOpen}
+          onClose={() => setFtWorkflowOpen(false)}
           gameId={gameId}
           playerId={selectedPlayerId}
           player={players.find((p) => p.id === selectedPlayerId)}
@@ -1965,8 +1965,8 @@ const GameMode: React.FC = () => {
       )}
 
       <HalftimeReportDialog
-        open={isHalftimeReportOpen}
-        onClose={() => setIsHalftimeReportOpen(false)}
+        open={halftimeReportOpen}
+        onClose={() => setHalftimeReportOpen(false)}
         teamPpp={gameData.teamPpp}
         oppPpp={gameData.oppPpp}
         seasonPpp={teamSeasonStats?.ppp || "0.00"}
@@ -1977,8 +1977,8 @@ const GameMode: React.FC = () => {
       />
 
       <Dialog
-        open={isDeleteDialogOpen}
-        onClose={() => setIsDeleteDialogOpen(false)}
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
         onKeyDown={(e) => {
           if (e.key === "Enter" && !isDeleting) {
             handleDeleteStat();
@@ -2016,7 +2016,7 @@ const GameMode: React.FC = () => {
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
           <Button
-            onClick={() => setIsDeleteDialogOpen(false)}
+            onClick={() => setDeleteDialogOpen(false)}
             color="inherit"
             disabled={isDeleting}
           >

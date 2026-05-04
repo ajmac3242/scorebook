@@ -254,6 +254,11 @@ const GameStats: React.FC = () => {
     [teamPlayersResult],
   );
 
+  const playerIds = useMemo(
+    () => teamPlayers.map((tp) => tp.playerId.toString()),
+    [teamPlayers],
+  );
+
   const playersResult = useLiveQuery(
     () => db.players.where("id").anyOf(playerIds).toArray(),
     [playerIds],

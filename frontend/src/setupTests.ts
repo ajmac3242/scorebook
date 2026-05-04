@@ -56,13 +56,14 @@ vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, status: 200, json: 
 // Mock AnimatedNumber
 vi.mock("./components/SharedUI", async (importOriginal) => {
   const actual: any = await importOriginal();
-  const React = require("react");
-  return { ...actual, AnimatedNumber: ({ value }: any) => React.createElement("span", null, value) };
+  return {
+    ...actual,
+    AnimatedNumber: ({ value }: any) => React.createElement("span", null, value),
+  };
 });
 
 // Mock dexie-react-hooks
 vi.mock("dexie-react-hooks", () => {
-  const React = require("react");
 
   const resolveRecursive = (res: any): any => {
     let current = res;

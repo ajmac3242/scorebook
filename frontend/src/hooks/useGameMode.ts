@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { db, type StatEvent } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
 import { syncService } from "../utils/syncService";
+import { SyncPromise } from "../dbMock";
 import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../constants/stats";
 import {
   calculatePlayerAggregates,
@@ -27,7 +28,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
   // Local state for recording individual actions
   const [selectedX, setSelectedX] = useState<number | null>(null);
   const [selectedY, setSelectedY] = useState<number | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
   const [statType, setStatType] = useState<string | null>(null);
   const [points, setPoints] = useState<number>(2);
@@ -50,18 +51,18 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
   const [markerFilter, setMarkerFilter] = useState<string>("ALL");
 
   // State for editing and deleting actions
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [statToDelete, setStatToDelete] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editingStatId, setEditingStatId] = useState<string | null>(null);
 
   // Game lifecycle state
-  const [isEndGameDialogOpen, setIsEndGameDialogOpen] = useState(false);
+  const [endGameDialogOpen, setEndGameDialogOpen] = useState(false);
   const [isClockEditDialogOpen, setIsClockEditDialogOpen] = useState(false);
-  const [isSummaryDialogOpen, setIsSummaryDialogOpen] = useState(false);
-  const [isAuditDialogOpen, setIsAuditDialogOpen] = useState(false);
-  const [isFtWorkflowOpen, setIsFtWorkflowOpen] = useState(false);
-  const [isHalftimeReportOpen, setIsHalftimeReportOpen] = useState(false);
+  const [summaryDialogOpen, setSummaryDialogOpen] = useState(false);
+  const [auditDialogOpen, setAuditDialogOpen] = useState(false);
+  const [ftWorkflowOpen, setFtWorkflowOpen] = useState(false);
+  const [halftimeReportOpen, setHalftimeReportOpen] = useState(false);
   const [lastViewedHalftimePeriod, setLastViewedHalftimePeriod] =
     useState<number>(0);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -77,7 +78,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     severity: "success" | "error" | "warning" | "info";
   }>({ open: false, message: "", severity: "success" });
 
-  const [isSubDialogOpen, setIsSubDialogOpen] = useState(false);
+  const [subDialogOpen, setSubDialogOpen] = useState(false);
   const [subOutPlayerId, setSubOutPlayerId] = useState<string | null>(null);
 
   // Quick sub draft state
@@ -203,10 +204,10 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
   const maxPeriod = periodType === "HALVES" ? 2 : 4;
 
   useEffect(() => {
-    if (game?.completed && !isSummaryDialogOpen && !isEndGameDialogOpen) {
-      setTimeout(() => setIsSummaryDialogOpen(true), 0);
+    if (game?.completed && !summaryDialogOpen && !endGameDialogOpen) {
+      setTimeout(() => setSummaryDialogOpen(true), 0);
     }
-  }, [game?.completed, isSummaryDialogOpen, isEndGameDialogOpen]);
+  }, [game?.completed, summaryDialogOpen, endGameDialogOpen]);
 
   useEffect(() => {
     const isEndOfFirstHalf =
@@ -214,7 +215,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       (periodType === "HALVES" && period === 2);
 
     if (isEndOfFirstHalf && lastViewedHalftimePeriod < period) {
-      setIsHalftimeReportOpen(true);
+      setHalftimeReportOpen(true);
       setLastViewedHalftimePeriod(period);
     }
   }, [period, periodType, lastViewedHalftimePeriod]);
@@ -532,11 +533,11 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
   }, [eventAggregates, clockSeconds, period, game?.periodLength]);
 
   useEffect(() => {
-    if (isSubDialogOpen) {
+    if (subDialogOpen) {
       setDraftOnCourtIds(new Set(gameData.onCourtIds));
       setSelectedSwapId(subOutPlayerId);
     }
-  }, [isSubDialogOpen, gameData.onCourtIds, subOutPlayerId]);
+  }, [subDialogOpen, gameData.onCourtIds, subOutPlayerId]);
 
   const jerseyMap = useMemo(() => {
     const map = new Map<string, string | undefined>();
@@ -636,7 +637,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
   }, [sortedGameStats, gameData.momentumAlerts.opponentThreats]);
 
   const halftimeLineupStats = useMemo(() => {
-    if (!isHalftimeReportOpen) return [];
+    if (!halftimeReportOpen) return [];
     const firstHalfStats = sortedGameStats.filter((s) => {
       if (periodType === "QUARTERS") return s.period <= 2;
       return s.period <= 1;
@@ -645,7 +646,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       isSorted: true,
       periodLength: game?.periodLength,
     });
-  }, [isHalftimeReportOpen, sortedGameStats, periodType, game?.periodLength]);
+  }, [halftimeReportOpen, sortedGameStats, periodType, game?.periodLength]);
 
   const playerStreaks = useMemo(() => {
     return calculatePlayerStreaks(sortedGameStats, { isSorted: true });
@@ -708,8 +709,8 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     setSelectedX,
     selectedY,
     setSelectedY,
-    isDialogOpen,
-    setIsDialogOpen,
+    dialogOpen,
+    setDialogOpen,
     selectedPlayerId,
     setSelectedPlayerId,
     statType,
@@ -728,26 +729,26 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     setSortConfig,
     markerFilter,
     setMarkerFilter,
-    isDeleteDialogOpen,
-    setIsDeleteDialogOpen,
+    deleteDialogOpen,
+    setDeleteDialogOpen,
     statToDelete,
     setStatToDelete,
     isEditing,
     setIsEditing,
     editingStatId,
     setEditingStatId,
-    isEndGameDialogOpen,
-    setIsEndGameDialogOpen,
+    endGameDialogOpen,
+    setEndGameDialogOpen,
     isClockEditDialogOpen,
     setIsClockEditDialogOpen,
-    isSummaryDialogOpen,
-    setIsSummaryDialogOpen,
-    isAuditDialogOpen,
-    setIsAuditDialogOpen,
-    isFtWorkflowOpen,
-    setIsFtWorkflowOpen,
-    isHalftimeReportOpen,
-    setIsHalftimeReportOpen,
+    summaryDialogOpen,
+    setSummaryDialogOpen,
+    auditDialogOpen,
+    setAuditDialogOpen,
+    ftWorkflowOpen,
+    setFtWorkflowOpen,
+    halftimeReportOpen,
+    setHalftimeReportOpen,
     lastViewedHalftimePeriod,
     setLastViewedHalftimePeriod,
     isDeleting,
@@ -760,8 +761,8 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     setChainPrompt,
     snackbar,
     setSnackbar,
-    isSubDialogOpen,
-    setIsSubDialogOpen,
+    subDialogOpen,
+    setSubDialogOpen,
     subOutPlayerId,
     setSubOutPlayerId,
     draftOnCourtIds,
