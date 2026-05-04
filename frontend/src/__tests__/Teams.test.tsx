@@ -43,7 +43,7 @@ describe("Teams Component", () => {
     fireEvent.change(screen.getByLabelText(/Team Name/i), {
       target: { value: "Fail Team" },
     });
-    fireEvent.click(screen.getByRole("button", { name: /Add Team/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^Add$/i }));
 
     await waitFor(() => {
       expect(loggerSpy).toHaveBeenCalledWith(

@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { db, type StatEvent } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
-import { logger } from "../utils/logger";
 import { syncService } from "../utils/syncService";
 import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../constants/stats";
 import {
@@ -92,7 +91,10 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
 
   // Derived data from StatEvents
   const gameStatsQueryResult = useLiveQuery(
-    () => db.stats.where("gameId").equals(gameId || "").toArray(),
+    () =>
+      gameId
+        ? db.stats.where("gameId").equals(gameId).toArray()
+        : (SyncPromise.resolve([]) as unknown as StatEvent[]),
     [gameId],
   );
   const gameStats = useMemo(
@@ -103,13 +105,21 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
   // Combine roster and player data to avoid unstable dependency chains
   const rosterData = useLiveQuery(() => {
     if (!teamId) return { teamPlayers: [], players: [] };
-    return db.teamPlayers.where("teamId").equals(teamId.toString()).toArray().then(tp => {
-      const pIds = tp.map((t: any) => t.playerId.toString());
-      return db.players.where("id").anyOf(pIds).toArray().then(p => ({
-        teamPlayers: tp,
-        players: p
-      }));
-    });
+    return db.teamPlayers
+      .where("teamId")
+      .equals(teamId.toString())
+      .toArray()
+      .then((tp) => {
+        const pIds = tp.map((t) => t.playerId.toString());
+        return db.players
+          .where("id")
+          .anyOf(pIds)
+          .toArray()
+          .then((p) => ({
+            teamPlayers: tp,
+            players: p,
+          }));
+      });
   }, [teamId]) || { teamPlayers: [], players: [] };
 
   const { teamPlayers, players } = rosterData;

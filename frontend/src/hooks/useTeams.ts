@@ -1,6 +1,5 @@
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "../db";
-import { logger } from "../utils/logger";
 
 /**
  * Hook to fetch teams from the local database.

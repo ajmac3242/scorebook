@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { vi } from "vitest";
 
 /**
@@ -19,43 +20,43 @@ export class SyncPromise<T> {
     while (
       this.value &&
       typeof this.value === "object" &&
-      (this.value as any).isSync &&
+      "isSync" in (this.value as object) &&
       iterations < 10
     ) {
-      const inner = this.value as any;
+      const inner = this.value as unknown as SyncPromise<T>;
       this.status = inner.status;
       this.value = inner.value;
       iterations++;
     }
   }
 
-  then<U>(onfulfilled?: (value: T) => U | PromiseLike<U>): any {
-    if (this.status === "rejected") return this;
-    if (!onfulfilled) return this;
+  then<U>(onfulfilled?: (_value: T) => U | PromiseLike<U>): SyncPromise<U> {
+    if (this.status === "rejected") return this as unknown as SyncPromise<U>;
+    if (!onfulfilled) return this as unknown as SyncPromise<U>;
     try {
       const result = onfulfilled(this.value);
-      return new SyncPromise(result as any);
+      return new SyncPromise(result as U);
     } catch (e) {
-      return SyncPromise.reject(e);
+      return SyncPromise.reject(e) as unknown as SyncPromise<U>;
     }
   }
 
-  catch<U>(onrejected?: (reason: any) => U | PromiseLike<U>): any {
+  catch<U>(onrejected?: (_reason: unknown) => U | PromiseLike<U>): SyncPromise<U | T> {
     if (this.status === "fulfilled") return this;
     if (!onrejected) return this;
     try {
       const result = onrejected(this.value);
-      return new SyncPromise(result as any);
+      return new SyncPromise(result as U);
     } catch (e) {
-      return SyncPromise.reject(e);
+      return SyncPromise.reject(e) as unknown as SyncPromise<U>;
     }
   }
 
-  finally(onfinally?: () => void): any {
+  finally(onfinally?: () => void): SyncPromise<T> {
     if (onfinally) {
       try {
         onfinally();
-      } catch (e) {
+      } catch {
         // ignore
       }
     }
@@ -63,48 +64,66 @@ export class SyncPromise<T> {
   }
 
   static resolve<T>(value: T): SyncPromise<T> {
-    if (value && (value as any).isSync) return value as any;
+    if (value && typeof value === "object" && "isSync" in (value as object)) {
+      return value as unknown as SyncPromise<T>;
+    }
     return new SyncPromise(value);
   }
 
-  static reject(error: any): SyncPromise<any> {
+  static reject<T = unknown>(error: T): SyncPromise<T> {
     return new SyncPromise(error, "rejected");
   }
 
-  static all(promises: any[]) {
-    const results: any[] = [];
+  static all<U>(promises: (SyncPromise<U> | Promise<U> | U)[]) {
+    const results: U[] = [];
     for (const p of promises) {
-      if (p && p.isSync) {
-        if (p.status === "rejected") return SyncPromise.reject(p.value);
-        results.push(p.value);
+      if (p && typeof p === "object" && "isSync" in (p as object)) {
+        const sp = p as unknown as SyncPromise<U>;
+        if (sp.status === "rejected") return SyncPromise.reject(sp.value);
+        results.push(sp.value);
       } else if (p instanceof Promise) {
         return Promise.all(promises);
       } else {
-        results.push(p);
+        results.push(p as U);
       }
     }
     return SyncPromise.resolve(results);
   }
 }
 
-function createCollection<T>(getData: () => T[], onDelete?: (items: T[]) => void): any {
+// Helper to avoid 'any' in mock db structure
+type MockTable = {
+  data: any[];
+  [key: string]: any;
+};
+
+function createCollection<T>(
+  getData: () => T[],
+  onDelete?: (_items: T[]) => void,
+): any {
   const coll = {
     toArray: vi.fn(() => SyncPromise.resolve([...getData()])),
     first: vi.fn(() => SyncPromise.resolve(getData()[0])),
     last: vi.fn(() => SyncPromise.resolve(getData()[getData().length - 1])),
     count: vi.fn(() => SyncPromise.resolve(getData().length)),
-    limit: vi.fn((n: number) => createCollection(() => getData().slice(0, n), onDelete)),
-    offset: vi.fn((n: number) => createCollection(() => getData().slice(n), onDelete)),
-    reverse: vi.fn(() => createCollection(() => [...getData()].reverse(), onDelete)),
+    limit: vi.fn((n: number) =>
+      createCollection(() => getData().slice(0, n), onDelete),
+    ),
+    offset: vi.fn((n: number) =>
+      createCollection(() => getData().slice(n), onDelete),
+    ),
+    reverse: vi.fn(() =>
+      createCollection(() => [...getData()].reverse(), onDelete),
+    ),
     sortBy: vi.fn((key: string) =>
       SyncPromise.resolve(
         [...getData()].sort((a: any, b: any) => (a[key] > b[key] ? 1 : -1)),
       ),
     ),
-    filter: vi.fn((cb: (item: T) => boolean) =>
+    filter: vi.fn((cb: (_item: T) => boolean) =>
       createCollection(() => getData().filter(cb), onDelete),
     ),
-    each: vi.fn((cb: (item: T) => void) => {
+    each: vi.fn((cb: (_item: T) => void) => {
       getData().forEach(cb);
       return SyncPromise.resolve(undefined);
     }),
@@ -116,7 +135,11 @@ function createCollection<T>(getData: () => T[], onDelete?: (items: T[]) => void
       return SyncPromise.resolve(len);
     }),
     primaryKeys: vi.fn(() =>
-      SyncPromise.resolve(getData().map((i: any) => (i as any).id || (i as any).playerId)),
+      SyncPromise.resolve(
+        getData().map(
+          (i: any) => (i as any).id || (i as any).playerId,
+        ),
+      ),
     ),
     clone: vi.fn(() => createCollection(() => [...getData()], onDelete)),
   };
@@ -126,56 +149,67 @@ function createCollection<T>(getData: () => T[], onDelete?: (items: T[]) => void
 function createWhereClause<T>(table: { data: T[] }, key: string): any {
   const coll = createCollection(() => table.data);
   const onDelete = (items: T[]) => {
-      const idsToDelete = new Set(items.map(i => (i as any).id || (i as any).playerId));
-      table.data = table.data.filter(i => !idsToDelete.has((i as any).id || (i as any).playerId));
+    const idsToDelete = new Set(
+      items.map((i) => (i as any).id || (i as any).playerId),
+    );
+    table.data = table.data.filter(
+      (i) => !idsToDelete.has((i as any).id || (i as any).playerId),
+    );
   };
 
   return {
     ...coll,
     equals: vi.fn((val: any) =>
-      createCollection(() =>
-        table.data.filter((i: any) => String(i[key]) === String(val)),
-        onDelete
+      createCollection(
+        () => table.data.filter((i: any) => String(i[key]) === String(val)),
+        onDelete,
       ),
     ),
     anyOf: vi.fn((vals: any[]) => {
       const strVals = vals.map(String);
-      return createCollection(() =>
-        table.data.filter((i: any) => strVals.includes(String(i[key]))),
-        onDelete
+      return createCollection(
+        () => table.data.filter((i: any) => strVals.includes(String(i[key]))),
+        onDelete,
       );
     }),
     above: vi.fn((val: any) =>
-      createCollection(() => table.data.filter((i: any) => i[key] > val), onDelete),
+      createCollection(
+        () => table.data.filter((i: any) => i[key] > val),
+        onDelete,
+      ),
     ),
     below: vi.fn((val: any) =>
-      createCollection(() => table.data.filter((i: any) => i[key] < val), onDelete),
+      createCollection(
+        () => table.data.filter((i: any) => i[key] < val),
+        onDelete,
+      ),
     ),
     between: vi.fn((l: any, u: any) =>
-      createCollection(() =>
-        table.data.filter((i: any) => i[key] >= l && i[key] <= u),
-        onDelete
+      createCollection(
+        () => table.data.filter((i: any) => i[key] >= l && i[key] <= u),
+        onDelete,
       ),
     ),
     startsWith: vi.fn((p: string) =>
-      createCollection(() =>
-        table.data.filter(
-          (i: any) => typeof i[key] === "string" && i[key].startsWith(p),
-        ),
-        onDelete
+      createCollection(
+        () =>
+          table.data.filter(
+            (i: any) => typeof i[key] === "string" && i[key].startsWith(p),
+          ),
+        onDelete,
       ),
     ),
     notEqual: vi.fn((v: any) =>
-      createCollection(() =>
-        table.data.filter((i: any) => String(i[key]) !== String(v)),
-        onDelete
+      createCollection(
+        () => table.data.filter((i: any) => String(i[key]) !== String(v)),
+        onDelete,
       ),
     ),
   };
 }
 
-const createTable = () => {
-  const table: any = {
+const createTable = (): MockTable => {
+  const table: MockTable = {
     data: [] as any[],
     toArray: vi.fn(() => SyncPromise.resolve([...table.data])),
     get: vi.fn((id: any) =>
@@ -183,19 +217,19 @@ const createTable = () => {
         table.data.find((i: any) => String(i.id || i.playerId) === String(id)),
       ),
     ),
-    add: vi.fn((item: any) => {
-      const id = item.id || item.playerId || Math.random().toString();
-      table.data.push({ ...item, id });
+    add: vi.fn((itemToAdd: any) => {
+      const id = itemToAdd.id || itemToAdd.playerId || Math.random().toString();
+      table.data.push({ ...itemToAdd, id });
       if ((globalThis as any).mockDb) (globalThis as any).mockDb.notify();
       return SyncPromise.resolve(id);
     }),
-    put: vi.fn((item: any) => {
-      const id = item.id || item.playerId || Math.random().toString();
+    put: vi.fn((itemToPut: any) => {
+      const id = itemToPut.id || itemToPut.playerId || Math.random().toString();
       const idx = table.data.findIndex(
         (i: any) => String(i.id || i.playerId) === String(id),
       );
-      if (idx > -1) table.data[idx] = { ...item, id };
-      else table.data.push({ ...item, id });
+      if (idx > -1) table.data[idx] = { ...itemToPut, id };
+      else table.data.push({ ...itemToPut, id });
       if ((globalThis as any).mockDb) (globalThis as any).mockDb.notify();
       return SyncPromise.resolve(id);
     }),
@@ -248,12 +282,12 @@ const createTable = () => {
     count: vi.fn(() => SyncPromise.resolve(table.data.length)),
     where: vi.fn((key: string) => createWhereClause(table, key)),
     orderBy: vi.fn((key: string) =>
-      createCollection(() =>
-        [...table.data].sort((a, b) => (a[key] > b[key] ? 1 : -1)),
+      createCollection(
+        () => [...table.data].sort((a, b) => (a[key] > b[key] ? 1 : -1)),
         (items) => {
-            const ids = new Set(items.map(i => i.id || i.playerId));
-            table.data = table.data.filter(i => !ids.has(i.id || i.playerId));
-        }
+          const ids = new Set(items.map((i) => i.id || i.playerId));
+          table.data = table.data.filter((i) => !ids.has(i.id || i.playerId));
+        },
       ),
     ),
     limit: vi.fn((n: number) => createCollection(() => table.data.slice(0, n))),
@@ -281,7 +315,7 @@ export const mockDb: any = {
   on: vi.fn(),
   open: vi.fn(() => SyncPromise.resolve(undefined)),
   delete: vi.fn(() => SyncPromise.resolve(undefined)),
-  transaction: vi.fn((mode, tables, cb) => {
+  transaction: vi.fn((_mode, _tables, cb) => {
     try {
       const res = cb();
       if (res && typeof res.then === "function") return res;
