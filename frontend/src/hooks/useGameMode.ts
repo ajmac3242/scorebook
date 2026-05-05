@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { db, type StatEvent } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
-import { logger } from "../utils/logger";
 import { syncService } from "../utils/syncService";
 import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../constants/stats";
 import {
@@ -28,7 +27,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
   // Local state for recording individual actions
   const [selectedX, setSelectedX] = useState<number | null>(null);
   const [selectedY, setSelectedY] = useState<number | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
   const [statType, setStatType] = useState<string | null>(null);
   const [points, setPoints] = useState<number>(2);
@@ -51,18 +50,18 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
   const [markerFilter, setMarkerFilter] = useState<string>("ALL");
 
   // State for editing and deleting actions
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [statToDelete, setStatToDelete] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editingStatId, setEditingStatId] = useState<string | null>(null);
 
   // Game lifecycle state
-  const [isEndGameDialogOpen, setIsEndGameDialogOpen] = useState(false);
+  const [endGameDialogOpen, setEndGameDialogOpen] = useState(false);
   const [isClockEditDialogOpen, setIsClockEditDialogOpen] = useState(false);
-  const [isSummaryDialogOpen, setIsSummaryDialogOpen] = useState(false);
-  const [isAuditDialogOpen, setIsAuditDialogOpen] = useState(false);
-  const [isFtWorkflowOpen, setIsFtWorkflowOpen] = useState(false);
-  const [isHalftimeReportOpen, setIsHalftimeReportOpen] = useState(false);
+  const [summaryDialogOpen, setSummaryDialogOpen] = useState(false);
+  const [auditDialogOpen, setAuditDialogOpen] = useState(false);
+  const [ftWorkflowOpen, setFtWorkflowOpen] = useState(false);
+  const [halftimeReportOpen, setHalftimeReportOpen] = useState(false);
   const [lastViewedHalftimePeriod, setLastViewedHalftimePeriod] =
     useState<number>(0);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -78,7 +77,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     severity: "success" | "error" | "warning" | "info";
   }>({ open: false, message: "", severity: "success" });
 
-  const [isSubDialogOpen, setIsSubDialogOpen] = useState(false);
+  const [subDialogOpen, setSubDialogOpen] = useState(false);
   const [subOutPlayerId, setSubOutPlayerId] = useState<string | null>(null);
 
   // Quick sub draft state
@@ -91,71 +90,92 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
   const [trackingMode, setTrackingMode] = useState<"TEAM" | "OPPONENT">("TEAM");
 
   // Derived data from StatEvents
-  const gameStatsQueryResult = useLiveQuery(async () => {
-    try {
-      await db.open();
-      return await db.stats
-        .where("gameId")
-        .equals(gameId || "")
-        .toArray();
-    } catch (err) {
-      logger.error("Failed to fetch game stats:", err);
-      return [];
-    }
-  }, [gameId]);
+  const gameStatsQueryResult = useLiveQuery(
+    () => (gameId ? db.stats.where("gameId").equals(gameId).toArray() : []),
+    [gameId],
+  );
   const gameStats = useMemo(
     () => gameStatsQueryResult || [],
     [gameStatsQueryResult],
   );
 
-  // Fetch roster data for the current team
-  const teamPlayersQueryResult = useLiveQuery(
-    () =>
-      teamId
-        ? db.teamPlayers.where("teamId").equals(teamId.toString()).toArray()
-        : Promise.resolve([]),
-    [teamId],
-  );
-  const teamPlayers = useMemo(
-    () => teamPlayersQueryResult || [],
-    [teamPlayersQueryResult],
+  // Combine roster and player data to avoid unstable dependency chains
+  const rawRosterData = useLiveQuery(() => {
+    if (!teamId) return { teamPlayers: [], players: [] };
+    return db.teamPlayers
+      .where("teamId")
+      .equals(teamId.toString())
+      .toArray()
+      .then((tp) => {
+        const pIds = tp.map((t) => t.playerId.toString());
+        return db.players
+          .where("id")
+          .anyOf(pIds)
+          .toArray()
+          .then((p) => ({
+            teamPlayers: tp,
+            players: p,
+          }));
+      });
+  }, [teamId]);
+
+  const rosterData = useMemo(
+    () => rawRosterData || { teamPlayers: [], players: [] },
+    [rawRosterData],
   );
 
-  const playersQueryResult = useLiveQuery(async () => {
-    try {
-      await db.open();
-      if (!teamId) return [];
-      const playerIds = teamPlayers.map((t) => t.playerId.toString());
-      return await db.players.where("id").anyOf(playerIds).toArray();
-    } catch (err) {
-      logger.error("Failed to fetch players:", err);
-      return [];
-    }
-  }, [teamId, teamPlayers]);
-  const players = useMemo(() => playersQueryResult || [], [playersQueryResult]);
+  const teamPlayers = useMemo(
+    () =>
+      rosterData && "teamPlayers" in rosterData ? rosterData.teamPlayers : [],
+    [rosterData],
+  );
+  const players = useMemo(
+    () => (rosterData && "players" in rosterData ? rosterData.players : []),
+    [rosterData],
+  );
 
   const playerNamesMap = useMemo(() => {
     const map = new Map<string, string>();
-    for (let i = 0; i < players.length; i++) {
-      const p = players[i];
-      if (p.id) map.set(p.id.toString(), p.name);
+    if (Array.isArray(players)) {
+      for (let i = 0; i < players.length; i++) {
+        const p = players[i];
+        if (p?.id) map.set(p.id.toString(), p.name);
+      }
     }
     return map;
   }, [players]);
 
-  const game = useLiveQuery(() => db.games.get(gameId || ""), [gameId]);
-  const team = useLiveQuery(
-    () =>
-      game?.teamId ? db.teams.get(game.teamId) : Promise.resolve(undefined),
-    [game?.teamId],
-  );
+  // Combine game and team data
+  const gameAndTeam = useLiveQuery(() => {
+    return db.games.get(gameId || "").then((g) => {
+      if (g?.teamId) {
+        return db.teams.get(g.teamId).then((t) => ({ game: g, team: t }));
+      }
+      return { game: g, team: undefined };
+    });
+  }, [gameId]) || { game: undefined, team: undefined };
 
-  const teamSeasonStats = useLiveQuery(async () => {
+  const game =
+    gameAndTeam && "game" in gameAndTeam ? gameAndTeam.game : undefined;
+  const team =
+    gameAndTeam && "team" in gameAndTeam ? gameAndTeam.team : undefined;
+
+  const teamSeasonStats = useLiveQuery(() => {
     if (!teamId) return { ppp: "0.00" };
-    const games = await db.games.where("teamId").equals(teamId).toArray();
-    const gameIds = games.map((g) => g.id!).filter(Boolean);
-    const allStats = await db.stats.where("gameId").anyOf(gameIds).toArray();
-    return calculateTeamSeasonAverages(games, allStats);
+    return db.games
+      .where("teamId")
+      .equals(teamId)
+      .toArray()
+      .then((games) => {
+        const gameIds = games.map((g) => g.id!).filter(Boolean);
+        return db.stats
+          .where("gameId")
+          .anyOf(gameIds)
+          .toArray()
+          .then((allStats) => {
+            return calculateTeamSeasonAverages(games, allStats);
+          });
+      });
   }, [teamId]);
 
   useEffect(() => {
@@ -206,10 +226,10 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
   const maxPeriod = periodType === "HALVES" ? 2 : 4;
 
   useEffect(() => {
-    if (game?.completed && !isSummaryDialogOpen && !isEndGameDialogOpen) {
-      setTimeout(() => setIsSummaryDialogOpen(true), 0);
+    if (game?.completed && !summaryDialogOpen && !endGameDialogOpen) {
+      setTimeout(() => setSummaryDialogOpen(true), 0);
     }
-  }, [game?.completed, isSummaryDialogOpen, isEndGameDialogOpen]);
+  }, [game?.completed, summaryDialogOpen, endGameDialogOpen]);
 
   useEffect(() => {
     const isEndOfFirstHalf =
@@ -217,7 +237,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       (periodType === "HALVES" && period === 2);
 
     if (isEndOfFirstHalf && lastViewedHalftimePeriod < period) {
-      setIsHalftimeReportOpen(true);
+      setHalftimeReportOpen(true);
       setLastViewedHalftimePeriod(period);
     }
   }, [period, periodType, lastViewedHalftimePeriod]);
@@ -535,11 +555,11 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
   }, [eventAggregates, clockSeconds, period, game?.periodLength]);
 
   useEffect(() => {
-    if (isSubDialogOpen) {
+    if (subDialogOpen) {
       setDraftOnCourtIds(new Set(gameData.onCourtIds));
       setSelectedSwapId(subOutPlayerId);
     }
-  }, [isSubDialogOpen, gameData.onCourtIds, subOutPlayerId]);
+  }, [subDialogOpen, gameData.onCourtIds, subOutPlayerId]);
 
   const jerseyMap = useMemo(() => {
     const map = new Map<string, string | undefined>();
@@ -639,7 +659,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
   }, [sortedGameStats, gameData.momentumAlerts.opponentThreats]);
 
   const halftimeLineupStats = useMemo(() => {
-    if (!isHalftimeReportOpen) return [];
+    if (!halftimeReportOpen) return [];
     const firstHalfStats = sortedGameStats.filter((s) => {
       if (periodType === "QUARTERS") return s.period <= 2;
       return s.period <= 1;
@@ -648,7 +668,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       isSorted: true,
       periodLength: game?.periodLength,
     });
-  }, [isHalftimeReportOpen, sortedGameStats, periodType, game?.periodLength]);
+  }, [halftimeReportOpen, sortedGameStats, periodType, game?.periodLength]);
 
   const playerStreaks = useMemo(() => {
     return calculatePlayerStreaks(sortedGameStats, { isSorted: true });
@@ -711,8 +731,8 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     setSelectedX,
     selectedY,
     setSelectedY,
-    isDialogOpen,
-    setIsDialogOpen,
+    dialogOpen,
+    setDialogOpen,
     selectedPlayerId,
     setSelectedPlayerId,
     statType,
@@ -731,26 +751,26 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     setSortConfig,
     markerFilter,
     setMarkerFilter,
-    isDeleteDialogOpen,
-    setIsDeleteDialogOpen,
+    deleteDialogOpen,
+    setDeleteDialogOpen,
     statToDelete,
     setStatToDelete,
     isEditing,
     setIsEditing,
     editingStatId,
     setEditingStatId,
-    isEndGameDialogOpen,
-    setIsEndGameDialogOpen,
+    endGameDialogOpen,
+    setEndGameDialogOpen,
     isClockEditDialogOpen,
     setIsClockEditDialogOpen,
-    isSummaryDialogOpen,
-    setIsSummaryDialogOpen,
-    isAuditDialogOpen,
-    setIsAuditDialogOpen,
-    isFtWorkflowOpen,
-    setIsFtWorkflowOpen,
-    isHalftimeReportOpen,
-    setIsHalftimeReportOpen,
+    summaryDialogOpen,
+    setSummaryDialogOpen,
+    auditDialogOpen,
+    setAuditDialogOpen,
+    ftWorkflowOpen,
+    setFtWorkflowOpen,
+    halftimeReportOpen,
+    setHalftimeReportOpen,
     lastViewedHalftimePeriod,
     setLastViewedHalftimePeriod,
     isDeleting,
@@ -763,8 +783,8 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     setChainPrompt,
     snackbar,
     setSnackbar,
-    isSubDialogOpen,
-    setIsSubDialogOpen,
+    subDialogOpen,
+    setSubDialogOpen,
     subOutPlayerId,
     setSubOutPlayerId,
     draftOnCourtIds,

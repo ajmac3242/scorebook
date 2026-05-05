@@ -1,67 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { syncService } from "./syncService";
-import { db, type Game } from "../db";
 import { logger } from "./logger";
-
-// Mock Dexie
-vi.mock("../db", () => ({
-  db: {
-    transaction: vi.fn((_mode, _tables, cb) => cb()),
-    teams: {
-      put: vi.fn(),
-      bulkPut: vi.fn(),
-      where: vi.fn().mockReturnThis(),
-      equals: vi.fn().mockReturnThis(),
-      limit: vi.fn().mockReturnThis(),
-      toArray: vi.fn().mockResolvedValue([]),
-      count: vi.fn().mockResolvedValue(0),
-      update: vi.fn().mockResolvedValue(1),
-      get: vi.fn().mockResolvedValue(undefined),
-    },
-    players: {
-      put: vi.fn(),
-      bulkPut: vi.fn(),
-      where: vi.fn().mockReturnThis(),
-      equals: vi.fn().mockReturnThis(),
-      limit: vi.fn().mockReturnThis(),
-      toArray: vi.fn().mockResolvedValue([]),
-      count: vi.fn().mockResolvedValue(0),
-      update: vi.fn().mockResolvedValue(1),
-      get: vi.fn().mockResolvedValue(undefined),
-    },
-    teamPlayers: {
-      put: vi.fn(),
-      bulkPut: vi.fn(),
-      where: vi.fn().mockReturnThis(),
-      equals: vi.fn().mockReturnThis(),
-      limit: vi.fn().mockReturnThis(),
-      toArray: vi.fn().mockResolvedValue([]),
-      count: vi.fn().mockResolvedValue(0),
-      update: vi.fn().mockResolvedValue(1),
-      get: vi.fn().mockResolvedValue(undefined),
-    },
-    games: {
-      put: vi.fn(),
-      bulkPut: vi.fn(),
-      where: vi.fn().mockReturnThis(),
-      equals: vi.fn().mockReturnThis(),
-      limit: vi.fn().mockReturnThis(),
-      toArray: vi.fn().mockResolvedValue([]),
-      count: vi.fn().mockResolvedValue(0),
-      update: vi.fn().mockResolvedValue(1),
-    },
-    stats: {
-      put: vi.fn(),
-      bulkPut: vi.fn(),
-      where: vi.fn().mockReturnThis(),
-      equals: vi.fn().mockReturnThis(),
-      limit: vi.fn().mockReturnThis(),
-      toArray: vi.fn().mockResolvedValue([]),
-      count: vi.fn().mockResolvedValue(0),
-      update: vi.fn().mockResolvedValue(1),
-    },
-  },
-}));
+import { mockDb } from "../dbMock";
 
 // Mock UserPool
 vi.mock("../UserPool", () => ({
@@ -84,12 +24,13 @@ describe("SyncService", () => {
     vi.clearAllMocks();
     vi.stubGlobal("fetch", fetchMock);
     localStorage.clear();
+    mockDb.reset();
   });
 
   it("syncTeamRoster fetches and updates local DB", async () => {
     const mockData = {
       team: { id: "t1", name: "Team 1" },
-      players: [{ playerId: "p1", name: "Player 1", jerseyNumber: "10" }],
+      players: [{ playerId: "p1", name: "Player 1", avatarColor: "red" }],
     };
 
     fetchMock.mockResolvedValue({
@@ -105,20 +46,21 @@ describe("SyncService", () => {
       "/data/teams/t1/roster.json",
       expect.any(Object),
     );
-    expect(db.teams.put).toHaveBeenCalledWith(
-      expect.objectContaining({ id: "t1", synced: 1 }),
-    );
-    expect(db.players.bulkPut).toHaveBeenCalledWith(
-      expect.arrayContaining([
-        expect.objectContaining({ id: "p1", synced: 1 }),
-      ]),
-    );
+
+    const team = mockDb.teams.data.find((t) => String(t.id) === "t1");
+    expect(team).toBeDefined();
+    expect(team.synced).toBe(1);
+
+    const player = mockDb.players.data.find((p) => String(p.id) === "p1");
+    expect(player).toBeDefined();
+    expect(player.synced).toBe(1);
+
     expect(localStorage.getItem("etag_team_t1")).toBe("etag-1");
   });
 
   it("syncTeamRoster skips if 304 Not Modified", async () => {
     localStorage.setItem("etag_team_t1", "etag-1");
-    vi.mocked(db.teams.get).mockResolvedValue({ id: "t1" });
+    mockDb.seed({ teams: [{ id: "t1" }] });
 
     fetchMock.mockResolvedValue({
       status: 304,
@@ -134,12 +76,13 @@ describe("SyncService", () => {
         headers: expect.objectContaining({ "If-None-Match": "etag-1" }),
       }),
     );
-    expect(db.teams.put).not.toHaveBeenCalled();
+    // add/put should not have been called for update if 304
+    expect(mockDb.teams.put).not.toHaveBeenCalled();
   });
 
   it("syncTeamRoster does NOT skip if IndexedDB is empty even if ETag exists", async () => {
     localStorage.setItem("etag_team_t1", "etag-1");
-    vi.mocked(db.teams.get).mockResolvedValue(undefined);
+    mockDb.teams.data = [];
 
     fetchMock.mockResolvedValue({
       ok: true,
@@ -160,18 +103,12 @@ describe("SyncService", () => {
 
   describe("hasUnsyncedChanges", () => {
     it("returns true if any table has unsynced items", async () => {
-      vi.mocked(db.teams.count).mockResolvedValue(1);
+      mockDb.seed({ teams: [{ id: "t1", synced: 0 }] });
       const result = await syncService.hasUnsyncedChanges();
       expect(result).toBe(true);
     });
 
     it("returns false if all tables are synced", async () => {
-      vi.mocked(db.teams.count).mockResolvedValue(0);
-      vi.mocked(db.players.count).mockResolvedValue(0);
-      vi.mocked(db.teamPlayers.count).mockResolvedValue(0);
-      vi.mocked(db.games.count).mockResolvedValue(0);
-      vi.mocked(db.stats.count).mockResolvedValue(0);
-
       const result = await syncService.hasUnsyncedChanges();
       expect(result).toBe(false);
     });
@@ -180,8 +117,7 @@ describe("SyncService", () => {
   describe("pushUpdates", () => {
     it("handles game completion", async () => {
       const mockGame = { id: 10, completed: 1, synced: 0 };
-      vi.mocked(db.games.toArray).mockResolvedValue([mockGame]);
-      fetchMock.mockResolvedValue({ ok: true, headers: new Headers() });
+      mockDb.seed({ games: [mockGame] });
       fetchMock.mockResolvedValue({ ok: true, headers: new Headers() });
 
       await syncService.pushUpdates();
@@ -194,21 +130,19 @@ describe("SyncService", () => {
         "/api/games/10/complete",
         expect.objectContaining({ method: "POST" }),
       );
-      expect(db.games.update).toHaveBeenCalledWith(10, { synced: 1 });
+
+      const game = mockDb.games.data.find((g) => String(g.id) === "10");
+      expect(game.synced).toBe(1);
     });
 
     it("pushes all entities", async () => {
-      vi.mocked(db.teams.toArray).mockResolvedValue([{ id: 2, synced: 0 }]);
-      vi.mocked(db.players.toArray).mockResolvedValue([{ id: 3, synced: 0 }]);
-      vi.mocked(db.teamPlayers.toArray).mockResolvedValue([
-        { id: 4, teamId: 2, synced: 0 },
-      ]);
-      vi.mocked(db.games.toArray).mockResolvedValue([
-        { id: 5, teamId: 2, synced: 0 },
-      ]);
-      vi.mocked(db.stats.toArray).mockResolvedValue([
-        { id: 6, gameId: 5, synced: 0 },
-      ]);
+      mockDb.seed({
+        teams: [{ id: 2, synced: 0 }],
+        players: [{ id: 3, synced: 0 }],
+        teamPlayers: [{ id: 4, teamId: 2, synced: 0 }],
+        games: [{ id: 5, teamId: 2, synced: 0 }],
+        stats: [{ id: 6, gameId: 5, synced: 0 }],
+      });
 
       fetchMock.mockResolvedValue({ ok: true });
 
@@ -229,23 +163,18 @@ describe("SyncService", () => {
         expect.any(Object),
       );
 
-      expect(db.teams.update).toHaveBeenCalled();
-      expect(db.players.update).toHaveBeenCalled();
-      expect(db.teamPlayers.update).toHaveBeenCalled();
-      expect(db.games.update).toHaveBeenCalled();
-      expect(db.stats.update).toHaveBeenCalled();
+      expect(mockDb.teams.data[0].synced).toBe(1);
+      expect(mockDb.players.data[0].synced).toBe(1);
+      expect(mockDb.teamPlayers.data[0].synced).toBe(1);
+      expect(mockDb.games.data[0].synced).toBe(1);
+      expect(mockDb.stats.data[0].synced).toBe(1);
     });
 
     it("logs an error and continues if the API returns 500", async () => {
-      // Ensure other tables return empty
-      vi.mocked(db.teamPlayers.toArray).mockResolvedValue([]);
-      vi.mocked(db.games.toArray).mockResolvedValue([]);
-      vi.mocked(db.stats.toArray).mockResolvedValue([]);
-
-      vi.mocked(db.teams.toArray).mockResolvedValue([{ id: "t1", synced: 0 }]);
-      vi.mocked(db.players.toArray).mockResolvedValue([
-        { id: "p1", synced: 0 },
-      ]);
+      mockDb.seed({
+        teams: [{ id: "t1", synced: 0 }],
+        players: [{ id: "p1", synced: 0 }],
+      });
 
       const loggerErrorSpy = vi
         .spyOn(logger, "error")
@@ -270,9 +199,9 @@ describe("SyncService", () => {
       );
 
       // Team update should NOT have been called due to 500
-      expect(db.teams.update).not.toHaveBeenCalled();
+      expect(mockDb.teams.data[0].synced).toBe(0);
       // Player update SHOULD have been called due to successful second push
-      expect(db.players.update).toHaveBeenCalledWith("p1", { synced: 1 });
+      expect(mockDb.players.data[0].synced).toBe(1);
 
       loggerErrorSpy.mockRestore();
     });
@@ -290,24 +219,26 @@ describe("SyncService", () => {
         .spyOn(syncService, "syncGameStats")
         .mockResolvedValue(undefined);
 
-      vi.mocked(db.games.toArray).mockResolvedValue([
-        {
-          id: "g1",
-          completed: 1,
-          teamId: "t1",
-          opponent: "Opponent",
-          date: "2023-01-01",
-          location: "Home",
-        },
-        {
-          id: "g2",
-          completed: 0,
-          teamId: "t1",
-          opponent: "Opponent",
-          date: "2023-01-02",
-          location: "Home",
-        },
-      ] as Game[]);
+      mockDb.seed({
+        games: [
+          {
+            id: "g1",
+            completed: 1,
+            teamId: "t1",
+            opponent: "Opponent",
+            date: "2023-01-01",
+            location: "Home",
+          },
+          {
+            id: "g2",
+            completed: 0,
+            teamId: "t1",
+            opponent: "Opponent",
+            date: "2023-01-02",
+            location: "Home",
+          },
+        ],
+      });
 
       await syncService.syncAllForTeam("t1");
 
@@ -340,16 +271,18 @@ describe("SyncService", () => {
           json: () => Promise.resolve([{ id: "p1" }]),
         }); // /api/players
 
-      vi.mocked(db.games.toArray).mockResolvedValue([
-        {
-          id: "g1",
-          completed: 1,
-          teamId: "t1",
-          opponent: "Opponent",
-          date: "2023-01-01",
-          location: "Home",
-        },
-      ] as Game[]);
+      mockDb.seed({
+        games: [
+          {
+            id: "g1",
+            completed: 1,
+            teamId: "t1",
+            opponent: "Opponent",
+            date: "2023-01-01",
+            location: "Home",
+          },
+        ],
+      });
 
       await syncService.pullAll();
 
@@ -358,12 +291,14 @@ describe("SyncService", () => {
         "/api/players",
         expect.any(Object),
       );
-      expect(db.teams.bulkPut).toHaveBeenCalledWith(
-        expect.arrayContaining([expect.objectContaining({ id: "t1" })]),
-      );
-      expect(db.players.bulkPut).toHaveBeenCalledWith(
-        expect.arrayContaining([expect.objectContaining({ id: "p1" })]),
-      );
+
+      expect(
+        mockDb.teams.data.find((t) => String(t.id) === "t1"),
+      ).toBeDefined();
+      expect(
+        mockDb.players.data.find((p) => String(p.id) === "p1"),
+      ).toBeDefined();
+
       expect(syncTeamRosterSpy).toHaveBeenCalledWith("t1");
       expect(syncTeamGamesListSpy).toHaveBeenCalledWith("t1");
       expect(syncGameStatsSpy).toHaveBeenCalledWith("g1");

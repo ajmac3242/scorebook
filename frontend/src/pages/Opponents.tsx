@@ -36,10 +36,8 @@ const Opponents: React.FC = () => {
   const [newLogoUrl, setNewLogoUrl] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const opponents =
-    useLiveQuery(async () => {
-      return await db.opponents.toArray();
-    }) || [];
+  const opponentsQueryResult = useLiveQuery(() => db.opponents.toArray(), []);
+  const opponents = opponentsQueryResult || [];
 
   const handleAddOpponent = async () => {
     if (!newName.trim()) return;

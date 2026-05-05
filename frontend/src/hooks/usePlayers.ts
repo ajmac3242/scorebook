@@ -8,22 +8,23 @@ import { logger } from "../utils/logger";
  */
 export const usePlayers = () => {
   return (
-    useLiveQuery(async () => {
-      try {
-        await db.open();
-        const items = await db.players.toArray();
-        // ⚡ Bolt: Use direct comparison instead of localeCompare for significantly faster sorting in hot paths.
-        return items.sort((a, b) => {
-          const nameA = a.name || "";
-          const nameB = b.name || "";
-          if (nameA < nameB) return -1;
-          if (nameA > nameB) return 1;
-          return 0;
+    useLiveQuery(() => {
+      return db.players
+        .toArray()
+        .then((items) => {
+          // ⚡ Bolt: Use direct comparison instead of localeCompare for significantly faster sorting in hot paths.
+          return items.sort((a, b) => {
+            const nameA = a.name || "";
+            const nameB = b.name || "";
+            if (nameA < nameB) return -1;
+            if (nameA > nameB) return 1;
+            return 0;
+          });
+        })
+        .catch((err) => {
+          logger.error("Failed to fetch players:", err);
+          return [];
         });
-      } catch (err) {
-        logger.error("Failed to fetch players:", err);
-        return [];
-      }
     }) || []
   );
 };

@@ -1,5 +1,12 @@
 # Scorebook Backlog Archive
 
+## [Refactor] Split index.ts into per-resource handler modules
+**Priority:** HIGH
+**Type:** Technical Debt
+**Why:** index.ts was becoming a monolith (800+ lines), hindering agent performance and maintainability.
+**What:** Extracted domain logic into `players.ts`, `games.ts`, `teams.ts`, and `cleanup.ts`.
+**Status:** [x] COMPLETE (2026-05-20)
+
 ## [ ] Live "Game Identity" Radar
 **Priority:** HIGH
 **Type:** UX

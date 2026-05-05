@@ -54,18 +54,27 @@ const Players: React.FC = () => {
   }>({ open: false, message: "", severity: "success" });
 
   // Use live query directly to handle archived/deleted filtering
-  const playersResult = useLiveQuery(async () => {
-    const query = db.players.toCollection();
-    const all = await query.toArray();
-    // Performance: Normalize search term once outside the loop
-    const normalizedSearch = searchTerm.toLowerCase();
-    return all.filter((p) => {
-      if (p.deletedAt) return false;
-      if (!showArchived && p.isArchived) return false;
-      if (normalizedSearch && !p.name.toLowerCase().includes(normalizedSearch))
-        return false;
-      return true;
-    });
+  const playersResult = useLiveQuery(() => {
+    return db.players
+      .toArray()
+      .then((all) => {
+        // Performance: Normalize search term once outside the loop
+        const normalizedSearch = searchTerm.toLowerCase();
+        return all.filter((p) => {
+          if (p.deletedAt) return false;
+          if (!showArchived && p.isArchived) return false;
+          if (
+            normalizedSearch &&
+            !p.name.toLowerCase().includes(normalizedSearch)
+          )
+            return false;
+          return true;
+        });
+      })
+      .catch((err) => {
+        logger.error("Failed to fetch players:", err);
+        return [];
+      });
   }, [showArchived, searchTerm]);
 
   const players = useMemo(() => playersResult || [], [playersResult]);
@@ -109,7 +118,6 @@ const Players: React.FC = () => {
     }
     setIsSubmitting(true);
     try {
-      await db.open();
       await db.players.add({
         id: crypto.randomUUID(),
         name: name.trim(),
