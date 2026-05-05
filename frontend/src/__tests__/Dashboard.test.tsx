@@ -1,12 +1,12 @@
 import { render, screen } from "@testing-library/react";
 import Dashboard from "../pages/Dashboard";
 import { describe, it, expect, beforeEach } from "vitest";
+import { mockDb } from "../dbMock";
 import { BrowserRouter } from "react-router-dom";
 import { ThemeProvider, createTheme } from "@mui/material";
 import React from "react";
 
 const theme = createTheme();
-const mockDb = (globalThis as any).mockDb;
 
 describe("Dashboard Component", () => {
   beforeEach(() => {

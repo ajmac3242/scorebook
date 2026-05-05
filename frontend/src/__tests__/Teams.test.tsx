@@ -1,12 +1,12 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import Teams from "../pages/Teams";
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { mockDb } from "../dbMock";
 import { BrowserRouter } from "react-router-dom";
 import { logger } from "../utils/logger";
 import { ThemeProvider, createTheme } from "@mui/material";
 
 const theme = createTheme();
-const mockDb = (globalThis as any).mockDb;
 
 describe("Teams Component", () => {
   beforeEach(() => {

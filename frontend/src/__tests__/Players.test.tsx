@@ -6,12 +6,12 @@ import {
 } from "@testing-library/react";
 import Players from "../pages/Players";
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { mockDb } from "../dbMock";
 import { BrowserRouter } from "react-router-dom";
 import React from "react";
 import { ThemeProvider, createTheme } from "@mui/material";
 
 const theme = createTheme();
-const mockDb = (globalThis as any).mockDb;
 
 describe("Players Component", () => {
   beforeEach(() => {

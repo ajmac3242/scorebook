@@ -100,7 +100,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
   );
 
   // Combine roster and player data to avoid unstable dependency chains
-  const rosterData = useLiveQuery(() => {
+  const rawRosterData = useLiveQuery(() => {
     if (!teamId) return { teamPlayers: [], players: [] };
     return db.teamPlayers
       .where("teamId")
@@ -117,11 +117,22 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
             players: p,
           }));
       });
-  }, [teamId]) || { teamPlayers: [], players: [] };
+  }, [teamId]);
 
-  const teamPlayers =
-    rosterData && "teamPlayers" in rosterData ? rosterData.teamPlayers : [];
-  const players = rosterData && "players" in rosterData ? rosterData.players : [];
+  const rosterData = useMemo(
+    () => rawRosterData || { teamPlayers: [], players: [] },
+    [rawRosterData],
+  );
+
+  const teamPlayers = useMemo(
+    () =>
+      rosterData && "teamPlayers" in rosterData ? rosterData.teamPlayers : [],
+    [rosterData],
+  );
+  const players = useMemo(
+    () => (rosterData && "players" in rosterData ? rosterData.players : []),
+    [rosterData],
+  );
 
   const playerNamesMap = useMemo(() => {
     const map = new Map<string, string>();

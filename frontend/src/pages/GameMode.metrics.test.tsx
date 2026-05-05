@@ -1,6 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import GameMode from "./GameMode";
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { mockDb } from "../dbMock";
 import { BrowserRouter } from "react-router-dom";
 import React from "react";
 import { ACTION_TYPES } from "../constants/stats";
@@ -47,7 +48,7 @@ describe("GameMode Metrics", () => {
   };
 
   beforeEach(() => {
-    (globalThis as any).mockDb.reset();
+    mockDb.reset();
   });
 
   it("calculates current lineup plus-minus correctly after a sub", async () => {
@@ -93,7 +94,7 @@ describe("GameMode Metrics", () => {
       },
     ];
 
-    (globalThis as any).mockDb.seed({
+    mockDb.seed({
       teams: [mockTeam],
       players: mockPlayers,
       teamPlayers: mockTeamPlayers,
@@ -115,7 +116,7 @@ describe("GameMode Metrics", () => {
   });
 
   it("triggers fatigue warning based on team settings", async () => {
-    (globalThis as any).mockDb.seed({
+    mockDb.seed({
       teams: [{ ...mockTeam, maxStintDuration: 5 }],
       players: mockPlayers,
       teamPlayers: mockTeamPlayers,
@@ -177,7 +178,7 @@ describe("GameMode Metrics", () => {
       }, // 3rd stop -> 1st kill
     ];
 
-    (globalThis as any).mockDb.seed({
+    mockDb.seed({
       teams: [mockTeam],
       players: mockPlayers,
       teamPlayers: mockTeamPlayers,
