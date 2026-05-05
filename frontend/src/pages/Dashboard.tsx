@@ -59,8 +59,7 @@ const Dashboard: React.FC = () => {
 
   // Fetch games for the favorite team
   const rawTeamGames = useLiveQuery(
-    () =>
-      teamId ? db.games.where("teamId").equals(teamId).toArray() : [],
+    () => (teamId ? db.games.where("teamId").equals(teamId).toArray() : []),
     [teamId],
   );
 

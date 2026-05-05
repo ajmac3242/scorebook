@@ -61,23 +61,27 @@ describe("GameMode Timeouts", () => {
       players: mockPlayers,
       stats: mockStats,
       teamPlayers: mockTeamPlayers,
-      games: [{
-        id: "g1",
-        opponent: "Test Opponent",
-        date: "2023-01-01",
-        teamId: "t1",
-        periodType: "QUARTERS",
-        completed: 0,
-        clockTime: 600,
-        currentPeriod: 1,
-        periodLength: 10
-      }],
-      teams: [{
-        id: "t1",
-        name: "My Team",
-        periodType: "QUARTERS",
-        defaultTimeoutLimit: 3
-      }]
+      games: [
+        {
+          id: "g1",
+          opponent: "Test Opponent",
+          date: "2023-01-01",
+          teamId: "t1",
+          periodType: "QUARTERS",
+          completed: 0,
+          clockTime: 600,
+          currentPeriod: 1,
+          periodLength: 10,
+        },
+      ],
+      teams: [
+        {
+          id: "t1",
+          name: "My Team",
+          periodType: "QUARTERS",
+          defaultTimeoutLimit: 3,
+        },
+      ],
     });
   });
 
@@ -131,8 +135,12 @@ describe("GameMode Timeouts", () => {
     await screen.findByText(/Live Lineup/i);
 
     // Switch to Opponent tracking mode
-    const oppToggles = await screen.findAllByRole("button", { name: /Test Opponent/i });
-    const oppToggleBtn = oppToggles.find(el => el.closest('.MuiToggleButtonGroup-root'));
+    const oppToggles = await screen.findAllByRole("button", {
+      name: /Test Opponent/i,
+    });
+    const oppToggleBtn = oppToggles.find((el) =>
+      el.closest(".MuiToggleButtonGroup-root"),
+    );
     fireEvent.click(oppToggleBtn!);
 
     const timeoutBtn = await screen.findByRole("button", { name: /timeout/i });
