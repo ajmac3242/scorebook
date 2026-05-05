@@ -92,6 +92,55 @@ Completed items are archived to `.Jules/backlog-archive.md` to maintain optimal 
 
 ---
 
+## [ ] [Ref-Identity Conflict Alert System]
+**Priority:** HIGH
+**Type:** Enhancement
+**Why:** If a team's identity is "High Pressure" but the officiating "Tightness" is high, they will foul out. Proactive alerts allow the coach to adjust aggressiveness before the game is lost.
+**What:** A predictive engine that compares live Officiating FPM (Fouls Per Minute) against the Team's active defensive scheme.
+**Acceptance Criteria:**
+- [ ] Live "Ref Tightness" meter in GameMode sidebar.
+- [ ] Conflict Alert (Visual) when Foul Rate exceeds 0.8 FPM while in a "High Pressure" scheme (Press/Double).
+- [ ] Recommendation to "Dial Back Pressure" or "Sub Fresh Legs" based on foul distribution.
+
+## [ ] [Opponent "Go-To" Usage Analytics (Clutch)]
+**Priority:** HIGH
+**Type:** Feature
+**Why:** In "Winning Time," every team has a primary option. Identifying this player's usage rate and preferred shot type in the clutch allows for specialized defensive counters.
+**What:** An analytical tool that identifies opponent usage rates and eFG% specifically in clutch situations (final 4 mins, < 5pt spread).
+**Acceptance Criteria:**
+- [ ] "Clutch Threat" indicator on the opponent roster card during Winning Time.
+- [ ] Breakdown of "Clutch Action Type" (e.g., "ISO Drive", "PnR Handler").
+- [ ] Comparison of Opponent X's Clutch Usage vs. Regulation Usage.
+
+## [ ] [Bench Momentum & "Spark Plug" Impact Tracking]
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Some players provide value that doesn't show up in a box score but is felt in momentum shifts. Identifying "Spark Plugs" helps coaches optimize non-starter rotations.
+**What:** Create a "Momentum Impact" metric that correlates bench player "Hustle Stats" (Deflections, Dives, Great Contests) with team scoring runs.
+**Acceptance Criteria:**
+- [ ] "Spark Plug" badge in GameStats for players with high Net Rating during bench-heavy stints.
+- [ ] Correlation chart showing "Hustle Events" vs. "Lead Change" frequency.
+- [ ] "Impact per Stint" summary for second-unit players.
+
+## [ ] ["Defensive Scheme" Real-Time PPP Analyzer]
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Coaches need to know which defensive set is most effective *now*. PPP allowed by scheme is the ultimate truth for mid-game adjustments.
+**What:** Enhance "Defensive Scheme" tracking to provide live PPP (Points Per Possession) allowed for Man vs. Zone vs. Press.
+**Acceptance Criteria:**
+- [ ] Sidebar toggle in GameMode to select active defensive scheme.
+- [ ] Real-time PPP display for the active scheme.
+- [ ] "Scheme Efficiency" comparison table in the Halftime Report.
+
+## [ ] [Lineup "Offensive Chemistry" Connectivity Map]
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Understanding who makes whom better is the key to elite playcalling. Connectivity maps show which duos create the most efficient shots.
+**What:** Create a visual "Assist Network" diagram for the active 5-man unit.
+**Acceptance Criteria:**
+- [ ] Visual graph in GameStats showing assist/pass connectivity between players.
+- [ ] Weighting of connections by eFG% (e.g., "Player A to Player B results in 65% eFG%").
+- [ ] Identification of "Primary Playmaker" and "Primary Finisher" nodes for the current lineup.
 
 ## Voice-Driven Live Scorekeeping
 **Priority:** HIGH
@@ -182,12 +231,6 @@ Completed items are archived to `.Jules/backlog-archive.md` to maintain optimal 
 **Why:** Halftime is the most critical window for tactical pivots.
 **What:** Enhance the Halftime Report with an interactive "Adjustment Board".
 
-## Player Assist Network & Offensive Chemistry Map
-**Priority:** MEDIUM
-**Type:** Feature
-**Why:** Understanding who makes whom better is the key to elite playcalling.
-**What:** Create a visual "Assist Network" diagram.
-
 ## Advanced Opponent Drive & Finish Analytics
 **Priority:** MEDIUM
 **Type:** Feature
@@ -218,29 +261,11 @@ Completed items are archived to `.Jules/backlog-archive.md` to maintain optimal 
 **Why:** Elite programs use multiple sets of eyes.
 **What:** A multi-device websocket or real-time sync layer.
 
-## Ref-Identity Conflict Alert System
-**Priority:** LOW
-**Type:** Enhancement
-**Why:** If a team's identity is "High Pressure" but the officiating "Tightness" is high, they will foul out.
-**What:** A predictive engine that compares live Officiating FPM against the Team's active defensive scheme.
-
-## Situational Opponent "Go-To" Playmaker Analysis
-**Priority:** MEDIUM
-**Type:** Feature
-**Why:** In winning time, every team has a "Go-To" player.
-**What:** An analytical tool that identifies opponent usage rates in clutch situations.
-
 ## Longitudinal Official/Referee Scouting Database
 **Priority:** MEDIUM
 **Type:** Feature
 **Why:** Officiating is the "Third Team" on the court.
 **What:** Implement a season-wide database of officiating stats.
-
-## Bench Momentum & "Spark Plug" Impact Tracking
-**Priority:** MEDIUM
-**Type:** Feature
-**Why:** Some players provide value that doesn't show up in a box score but is felt in momentum shifts.
-**What:** Create a "Momentum Impact" metric.
 
 ## Program-Wide Optimal Rotation Optimizer
 **Priority:** MEDIUM
@@ -277,17 +302,6 @@ Completed items are archived to `.Jules/backlog-archive.md` to maintain optimal 
 - [ ] "Player Feedback" section in the Game Stats page.
 - [ ] Automated generation of one "Strength" (e.g., "High Efficiency from Corner 3") and one "Growth Area" (e.g., "High TO rate on drives").
 - [ ] Ability for the coach to "Approve & Send" the narrative to the player via text/email.
-
-## Coach-Assistant Live Sync Bridge
-**Priority:** HIGH
-**Type:** Feature
-**Why:** Tracking a high-intensity game is too much for one person. A bridge allowing one person to track shots/lineups and another to track defensive "hustle" stats (deflections, floor dives) ensures 100% data accuracy.
-**What:** Implement a real-time WebSocket or pub/sub layer (e.g., via AWS AppSync or similar) that allows multiple users to contribute to the same `gameId` simultaneously with conflict resolution.
-**Acceptance Criteria:**
-- [ ] Real-time sync of `StatEvent` records across multiple devices.
-- [ ] Visual indicator of "connected assistants" in the GameMode header.
-- [ ] Optimistic UI updates with "Syncing..." and "Synced" states for every contributed event.
-- [ ] Mechanism to handle duplicate events from different devices (last-write-wins or prompt).
 
 ## Standardized Video Platform Export (Hudl/Synergy)
 **Priority:** HIGH
@@ -508,28 +522,6 @@ Completed items are archived to `.Jules/backlog-archive.md` to maintain optimal 
 - [ ] Table of 5-man units (lineups) that have played together.
 - [ ] Metrics per lineup: Total Minutes, Points For, Points Against, Net Rating (Diff per 100 possessions or per 40 mins).
 - [ ] Ability to filter by "Last 5 Games" or "Season".
-
-## [ ] Halftime Tactical Adjustment Summary
-**Priority:** HIGH
-**Type:** Feature
-**Why:** Coaches have only 10 minutes to make game-winning adjustments. They need a 1-page "War Room" summary of what's working and what's failing immediately after the first half buzzer.
-**What:** Build a dedicated Halftime Report view that highlights the team's best/worst lineups, most successful plays, and opponent scoring trends from the first half.
-**Acceptance Criteria:**
-- [ ] Auto-trigger Halftime Report when the second period (or first half) ends.
-- [ ] Top 3 "Positive Lineups" (+/-) and Bottom 3 "Negative Lineups".
-- [ ] Comparison of PPP (Points Per Possession) between Half 1 and season average.
-- [ ] List of "Opponent Streaks" - which opponent players are causing the most damage.
-
-## [ ] Clutch-Time "Winning Time" Analytics
-**Priority:** HIGH
-**Type:** Feature
-**Why:** Games are won or lost in the final 4 minutes. Stats often change under pressure; coaches need to know who their "closers" are based on performance in high-leverage situations.
-**What:** Define "Clutch Time" (last 4 mins of game, score within 5 pts) and calculate specialized metrics for this window.
-**Acceptance Criteria:**
-- [ ] New "Clutch" filter on the Game Stats and Player Stats pages.
-- [ ] Metric: Clutch eFG% and Clutch Assist-to-Turnover ratio.
-- [ ] Lineup efficiency specifically during clutch situations across the season.
-- [ ] "Points Per Clutch Possession" comparison against non-clutch time.
 
 ## [ ] Real-Time Opponent Threat Alerts
 **Priority:** HIGH
