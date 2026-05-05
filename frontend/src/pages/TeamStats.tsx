@@ -61,7 +61,6 @@ import {
   calculateTeamAggregates,
   calculateLineupStats,
   getInitials,
-  type PlayerAggregates,
 } from "../utils/stats";
 import { MoleskineCard } from "../components/SharedUI";
 import { syncService } from "../utils/syncService";
@@ -71,132 +70,6 @@ import { useGames } from "../hooks/useGames";
 import { usePlayers } from "../hooks/usePlayers";
 import dayjs from "dayjs";
 import SortableHeader from "../components/SortableHeader";
-
-/**
- * Individual player statistic row component.
- * Memoized to prevent unnecessary re-renders when other parts of the table change.
- */
-const StatRow: React.FC<{
-  row: PlayerAggregates;
-  teamId: string | undefined;
-  navigate: (_path: string) => void;
-}> = React.memo(({ row, teamId, navigate }) => (
-  <TableRow
-    hover
-    sx={{ cursor: "pointer" }}
-    onClick={() => navigate(`/players/${row.id}?teamId=${teamId}`)}
-  >
-    <TableCell
-      sx={{
-        fontWeight: 700,
-        display: { xs: "none", sm: "table-cell" },
-      }}
-    >
-      {row.jerseyNumber ?? "-"}
-    </TableCell>
-    <TableCell>
-      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-        <Avatar
-          sx={{
-            bgcolor: row.avatarColor || "grey.500",
-            width: { xs: 24, sm: 40 },
-            height: { xs: 24, sm: 40 },
-          }}
-        >
-          <Typography
-            variant="caption"
-            sx={{ fontSize: { xs: "0.6rem", sm: "0.8rem" } }}
-          >
-            {getInitials(row.name)}
-          </Typography>
-        </Avatar>
-        <Typography
-          sx={{
-            fontWeight: 600,
-            fontSize: { xs: "0.75rem", sm: "1rem" },
-          }}
-        >
-          {row.name}
-        </Typography>
-      </Box>
-    </TableCell>
-    <TableCell
-      align="center"
-      sx={{ display: { xs: "none", sm: "table-cell" } }}
-    >
-      {row.gp}
-    </TableCell>
-    <TableCell
-      align="right"
-      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
-    >
-      {row.min}
-    </TableCell>
-    <TableCell
-      align="right"
-      sx={{
-        fontWeight: 700,
-        fontSize: { xs: "0.75rem", sm: "0.875rem" },
-      }}
-    >
-      {row.points}
-    </TableCell>
-    <TableCell
-      align="right"
-      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
-    >
-      {row.threePM}
-    </TableCell>
-    <TableCell
-      align="right"
-      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
-    >
-      {row.threePA}
-    </TableCell>
-    <TableCell
-      align="right"
-      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
-    >
-      {row.threePPct}%
-    </TableCell>
-    <TableCell
-      align="right"
-      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
-    >
-      {row.fgPct}%
-    </TableCell>
-    <TableCell
-      align="right"
-      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
-    >
-      {row.efgPct}%
-    </TableCell>
-    <TableCell
-      align="right"
-      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
-    >
-      {row.rebounds}
-    </TableCell>
-    <TableCell
-      align="right"
-      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
-    >
-      {row.assists}
-    </TableCell>
-    <TableCell align="right" sx={{ display: { xs: "none", sm: "table-cell" } }}>
-      {row.steals}
-    </TableCell>
-    <TableCell align="right" sx={{ display: { xs: "none", sm: "table-cell" } }}>
-      {row.turnovers}
-    </TableCell>
-    <TableCell
-      align="right"
-      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
-    >
-      {row.plusMinus > 0 ? `+${row.plusMinus}` : row.plusMinus}
-    </TableCell>
-  </TableRow>
-));
 
 /**
  * TeamStats page component.
@@ -287,10 +160,10 @@ const TeamStats: React.FC = () => {
     }));
   };
 
-  const team = useLiveQuery(
-    async () => (teamId !== undefined ? await db.teams.get(teamId) : undefined),
-    [teamId],
-  );
+  const team = useLiveQuery(() => {
+    if (teamId === undefined) return undefined;
+    return db.teams.get(teamId);
+  }, [teamId]);
 
   useEffect(() => {
     if (team) {
@@ -332,47 +205,34 @@ const TeamStats: React.FC = () => {
   const games = useGames(teamId);
   const allPlayers = usePlayers();
 
-  const teamPlayersResult = useLiveQuery(
-    async () =>
-      teamId !== undefined
-        ? await db.teamPlayers
-            .where("teamId")
-            .equals(teamId.toString())
-            .toArray()
-        : [],
-    [teamId],
-  );
+  const teamPlayersResult = useLiveQuery(() => {
+    if (teamId === undefined) return [];
+    return db.teamPlayers.where("teamId").equals(teamId.toString()).toArray();
+  }, [teamId]);
   const teamPlayers = useMemo(
     () => teamPlayersResult || [],
     [teamPlayersResult],
   );
 
   const allRecentLocations =
-    useLiveQuery(async () => {
-      try {
-        await db.open();
-        const items = await db.games.toArray();
-        // Optimization: Use a single forEach pass with a Set to avoid multiple intermediate arrays.
-        const locationSet = new Set<string>();
-        for (const g of items) {
-          if (g.location) locationSet.add(g.location);
-        }
-        return Array.from(locationSet).sort();
-      } catch (error) {
-        logger.error("Failed to fetch locations:", error);
-        return [];
-      }
+    useLiveQuery(() => {
+      return db.games
+        .toArray()
+        .then((items) => {
+          // Optimization: Use a single forEach pass with a Set to avoid multiple intermediate arrays.
+          const locationSet = new Set<string>();
+          for (const g of items) {
+            if (g.location) locationSet.add(g.location);
+          }
+          return Array.from(locationSet).sort();
+        })
+        .catch((error) => {
+          logger.error("Failed to fetch locations:", error);
+          return [];
+        });
     }) || [];
 
-  const allOpponents =
-    useLiveQuery(async () => {
-      try {
-        return await db.opponents.toArray();
-      } catch (error) {
-        logger.error("Failed to fetch opponents:", error);
-        return [];
-      }
-    }) || [];
+  const allOpponents = useLiveQuery(() => db.opponents.toArray()) || [];
 
   const teamPlayerDetails = useMemo(() => {
     // Optimization: Use a single for loop and a Set for O(1) lookups to avoid intermediate array allocations.
@@ -408,16 +268,13 @@ const TeamStats: React.FC = () => {
 
     return filtered.map((g) => g.id).filter(Boolean);
   }, [games, gameCountFilter]);
-  const allStatsResult = useLiveQuery(
-    async () =>
-      gameIds.length > 0
-        ? await db.stats
-            .where("gameId")
-            .anyOf(gameIds as string[])
-            .toArray()
-        : [],
-    [gameIds],
-  );
+  const allStatsResult = useLiveQuery(() => {
+    if (gameIds.length === 0) return [];
+    return db.stats
+      .where("gameId")
+      .anyOf(gameIds as string[])
+      .toArray();
+  }, [gameIds]);
   const allStats = useMemo(() => allStatsResult || [], [allStatsResult]);
 
   const teamAggregates = useMemo(
@@ -1127,12 +984,132 @@ const TeamStats: React.FC = () => {
               </TableHead>
               <TableBody>
                 {playerStats.map((row) => (
-                  <StatRow
+                  <TableRow
                     key={row.id}
-                    row={row}
-                    teamId={teamId}
-                    navigate={navigate}
-                  />
+                    hover
+                    sx={{ cursor: "pointer" }}
+                    onClick={() =>
+                      navigate(`/players/${row.id}?teamId=${teamId}`)
+                    }
+                  >
+                    <TableCell
+                      sx={{
+                        fontWeight: 700,
+                        display: { xs: "none", sm: "table-cell" },
+                      }}
+                    >
+                      {row.jerseyNumber ?? "-"}
+                    </TableCell>
+                    <TableCell>
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
+                        <Avatar
+                          sx={{
+                            bgcolor: row.avatarColor || "grey.500",
+                            width: { xs: 24, sm: 40 },
+                            height: { xs: 24, sm: 40 },
+                          }}
+                        >
+                          <Typography
+                            variant="caption"
+                            sx={{ fontSize: { xs: "0.6rem", sm: "0.8rem" } }}
+                          >
+                            {getInitials(row.name)}
+                          </Typography>
+                        </Avatar>
+                        <Typography
+                          sx={{
+                            fontWeight: 600,
+                            fontSize: { xs: "0.75rem", sm: "1rem" },
+                          }}
+                        >
+                          {row.name}
+                        </Typography>
+                      </Box>
+                    </TableCell>
+                    <TableCell
+                      align="center"
+                      sx={{ display: { xs: "none", sm: "table-cell" } }}
+                    >
+                      {row.gp}
+                    </TableCell>
+                    <TableCell
+                      align="right"
+                      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+                    >
+                      {row.min}
+                    </TableCell>
+                    <TableCell
+                      align="right"
+                      sx={{
+                        fontWeight: 700,
+                        fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                      }}
+                    >
+                      {row.points}
+                    </TableCell>
+                    <TableCell
+                      align="right"
+                      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+                    >
+                      {row.threePM}
+                    </TableCell>
+                    <TableCell
+                      align="right"
+                      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+                    >
+                      {row.threePA}
+                    </TableCell>
+                    <TableCell
+                      align="right"
+                      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+                    >
+                      {row.threePPct}%
+                    </TableCell>
+                    <TableCell
+                      align="right"
+                      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+                    >
+                      {row.fgPct}%
+                    </TableCell>
+                    <TableCell
+                      align="right"
+                      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+                    >
+                      {row.efgPct}%
+                    </TableCell>
+                    <TableCell
+                      align="right"
+                      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+                    >
+                      {row.rebounds}
+                    </TableCell>
+                    <TableCell
+                      align="right"
+                      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+                    >
+                      {row.assists}
+                    </TableCell>
+                    <TableCell
+                      align="right"
+                      sx={{ display: { xs: "none", sm: "table-cell" } }}
+                    >
+                      {row.steals}
+                    </TableCell>
+                    <TableCell
+                      align="right"
+                      sx={{ display: { xs: "none", sm: "table-cell" } }}
+                    >
+                      {row.turnovers}
+                    </TableCell>
+                    <TableCell
+                      align="right"
+                      sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+                    >
+                      {row.plusMinus > 0 ? `+${row.plusMinus}` : row.plusMinus}
+                    </TableCell>
+                  </TableRow>
                 ))}
               </TableBody>
             </Table>

@@ -35,9 +35,9 @@ export const REDACTED_HEADERS = Object.freeze(
  * the REDACTED_HEADERS set. A recursion limit is enforced to prevent stack
  * overflow Denial-of-Service (DoS) attacks from malicious, deeply nested payloads.
  *
- * @param {unknown} obj - The object to sanitize.
- * @param {number} depth - Current recursion depth.
- * @returns {unknown} A sanitized copy of the object.
+ * @param obj - The object to sanitize.
+ * @param depth - Current recursion depth.
+ * @returns A sanitized copy of the object.
  */
 function sanitizeForLog(obj: unknown, depth = 0): unknown {
   if (obj === null || typeof obj !== "object") return obj;
@@ -234,11 +234,6 @@ export function extractRequestMetadata(event: APIGatewayProxyEventV2) {
 /**
  * Timing-safe string comparison to prevent timing attacks on sensitive keys.
  *
- * WHY: Standard string comparison (`==` or `===`) can leak information about
- * the secret key because it returns as soon as it finds a mismatching character.
- * This helper uses SHA-256 hashes and timing-safe comparison to ensure the
- * execution time is independent of the input values.
- *
  * @param {string} a - First string (e.g., user-provided key).
  * @param {string} b - Second string (e.g., actual secret key).
  * @returns {boolean} True if strings are equal.
@@ -273,8 +268,12 @@ export function getHeader(
 ): string | undefined {
   if (!headers) return undefined;
   const target = name.toLowerCase();
-  const key = Object.keys(headers).find((k) => k.toLowerCase() === target);
-  return key ? headers[key] : undefined;
+  for (const key in headers) {
+    if (key.toLowerCase() === target) {
+      return headers[key];
+    }
+  }
+  return undefined;
 }
 
 /**
@@ -308,8 +307,7 @@ const FORBIDDEN_KEYS = Object.freeze(
  * @returns {unknown} The cleaned data.
  */
 export function stripLocalFields(data: unknown, depth = 0): unknown {
-  // ⚡ Bolt: Fast-path for non-objects. 95% of data doesn't need recursive cleaning.
-  if (!data || typeof data !== "object") {
+  if (data === null || typeof data !== "object") {
     return data;
   }
 
@@ -318,12 +316,7 @@ export function stripLocalFields(data: unknown, depth = 0): unknown {
   }
 
   if (Array.isArray(data)) {
-    const len = data.length;
-    const result = new Array(len);
-    for (let i = 0; i < len; i++) {
-      result[i] = stripLocalFields(data[i], depth + 1);
-    }
-    return result;
+    return data.map((item) => stripLocalFields(item, depth + 1));
   }
 
   // ⚡ Bolt: Use Object.entries() for faster object iteration in modern engines.

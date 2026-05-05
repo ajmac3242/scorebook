@@ -59,8 +59,7 @@ const Dashboard: React.FC = () => {
 
   // Fetch games for the favorite team
   const rawTeamGames = useLiveQuery(
-    async () =>
-      teamId ? await db.games.where("teamId").equals(teamId).toArray() : [],
+    () => (teamId ? db.games.where("teamId").equals(teamId).toArray() : []),
     [teamId],
   );
 
@@ -68,8 +67,9 @@ const Dashboard: React.FC = () => {
 
   // Fetch stats for all those games
   const gameIds = useMemo(() => {
+    if (!Array.isArray(teamGames)) return [];
     const completed = teamGames
-      .filter((g) => g.completed)
+      .filter((g) => g?.completed)
       .sort((a, b) => dayjs(b.date).diff(dayjs(a.date)));
 
     let filtered = completed;
@@ -79,9 +79,9 @@ const Dashboard: React.FC = () => {
     return filtered.map((g) => g.id).filter(Boolean) as string[];
   }, [teamGames, gameCountFilter]);
   const rawAllStats = useLiveQuery(
-    async () =>
+    () =>
       gameIds.length > 0
-        ? await db.stats.where("gameId").anyOf(gameIds).toArray()
+        ? db.stats.where("gameId").anyOf(gameIds).toArray()
         : [],
     [gameIds],
   );
@@ -113,18 +113,38 @@ const Dashboard: React.FC = () => {
   const players = useMemo(() => rawPlayers || [], [rawPlayers]);
 
   const aggregates = useMemo(() => {
+    if (!Array.isArray(teamGames) || !Array.isArray(allStats)) {
+      return {
+        ppg: "0.0",
+        rpg: "0.0",
+        apg: "0.0",
+        oppg: "0.0",
+        record: "0-0",
+        totalGames: 0,
+        ppp: "0.00",
+        possessions: 0,
+        oppPpp: "0.00",
+      };
+    }
     // ⚡ Bolt: Only calculate aggregates for the filtered window
     return calculateTeamAggregates(
-      teamGames.filter((g) => gameIds.includes(g.id!)),
+      teamGames.filter((g) => gameIds.includes(g?.id || "")),
       allStats,
     );
   }, [teamGames, allStats, gameIds]);
 
   const playerAverages = useMemo(() => {
+    if (
+      !Array.isArray(players) ||
+      !Array.isArray(allStats) ||
+      !Array.isArray(teamPlayers)
+    )
+      return [];
     return calculatePlayerAggregates(players, allStats, teamPlayers, "average");
   }, [players, allStats, teamPlayers]);
 
   const lineupStats = useMemo(() => {
+    if (!Array.isArray(allStats)) return [];
     return calculateLineupStats(allStats).filter(
       (l) => l.seconds > 120, // Min 2 minutes to show on dashboard
     );
