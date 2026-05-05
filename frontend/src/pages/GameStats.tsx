@@ -282,7 +282,7 @@ const GameStats: React.FC = () => {
         : Promise.resolve([]),
     [gameId],
   );
-  const allStats = useMemo(() => allStatsResult || [], [allStatsResult]);
+  const allStats = useMemo(() => (Array.isArray(allStatsResult) ? allStatsResult : []), [allStatsResult]);
 
   useEffect(() => {
     if (game?.deletedAt) {

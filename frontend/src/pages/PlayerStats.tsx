@@ -100,8 +100,7 @@ const PlayerStats: React.FC = () => {
     ) || [];
 
   const gamesQueryResult = useLiveQuery(
-    () =>
-      teamIdParam ? db.games.where("teamId").equals(teamIdParam).toArray() : [],
+    () => (teamIdParam ? db.games.where("teamId").equals(teamIdParam).toArray() : []),
     [teamIdParam],
   );
   const games = useMemo(() => gamesQueryResult || [], [gamesQueryResult]);

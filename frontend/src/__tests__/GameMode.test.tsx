@@ -85,26 +85,22 @@ describe("GameMode Component", () => {
       players: mockPlayers,
       stats: mockStats,
       teamPlayers: mockTeamPlayers,
-      games: [
-        {
-          id: "g1",
-          opponent: "Test Opponent",
-          date: "2023-01-01",
-          teamId: "t1",
-          periodType: "QUARTERS",
-          completed: 0,
-          clockTime: 600,
-          currentPeriod: 1,
-          periodLength: 10,
-        },
-      ],
-      teams: [
-        {
-          id: "t1",
-          name: "My Team",
-          periodType: "QUARTERS",
-        },
-      ],
+      games: [{
+        id: "g1",
+        opponent: "Test Opponent",
+        date: "2023-01-01",
+        teamId: "t1",
+        periodType: "QUARTERS",
+        completed: 0,
+        clockTime: 600,
+        currentPeriod: 1,
+        periodLength: 10
+      }],
+      teams: [{
+        id: "t1",
+        name: "My Team",
+        periodType: "QUARTERS",
+      }]
     });
   });
 
@@ -171,7 +167,7 @@ describe("GameMode Component", () => {
     const undoBtn = await screen.findByRole("button", { name: /Undo/i });
 
     await waitFor(() => {
-      expect(undoBtn).not.toBeDisabled();
+        expect(undoBtn).not.toBeDisabled();
     });
 
     fireEvent.click(undoBtn);
@@ -219,18 +215,13 @@ describe("GameMode Component", () => {
     renderComponent();
 
     const sidebar = await screen.findByText(/Live Lineup/i);
-    const container =
-      sidebar.closest(".moleskine-card") || sidebar.parentElement;
+    const container = sidebar.closest(".moleskine-card") || sidebar.parentElement;
 
     // 1 occupied slot
-    expect(
-      await within(container as HTMLElement).findByText(/Player 1/i),
-    ).toBeInTheDocument();
+    expect(await within(container as HTMLElement).findByText(/Player 1/i)).toBeInTheDocument();
 
     // 4 empty slots
-    const emptySlots = within(container as HTMLElement).getAllByLabelText(
-      /Empty lineup slot/i,
-    );
+    const emptySlots = within(container as HTMLElement).getAllByLabelText(/Empty lineup slot/i);
     expect(emptySlots).toHaveLength(4);
   });
 
@@ -239,13 +230,9 @@ describe("GameMode Component", () => {
 
     // Tap occupied slot
     const sidebar = await screen.findByText(/Live Lineup/i);
-    const container =
-      sidebar.closest(".moleskine-card") || sidebar.parentElement;
+    const container = sidebar.closest(".moleskine-card") || sidebar.parentElement;
     // Use findByRole button to be more specific if possible, but lineup slots are buttons
-    const playerBtnS = await within(container as HTMLElement).findByRole(
-      "button",
-      { name: /Player 1/i },
-    );
+    const playerBtnS = await within(container as HTMLElement).findByRole("button", { name: /Player 1/i });
     fireEvent.click(playerBtnS);
 
     expect(await screen.findByText(/Quick Substitution/i)).toBeInTheDocument();
@@ -260,9 +247,7 @@ describe("GameMode Component", () => {
   it("handles quick sub in (to empty slot)", async () => {
     renderComponent();
 
-    const subBtn = await screen.findByRole("button", {
-      name: /quick substitution/i,
-    });
+    const subBtn = await screen.findByRole("button", { name: /quick substitution/i });
     fireEvent.click(subBtn);
 
     expect(await screen.findByText(/Quick Substitution/i)).toBeInTheDocument();
@@ -301,18 +286,7 @@ describe("GameMode Component", () => {
         clockTime: 600,
         timestamp: `2023-01-01T00:00:0${i}Z`,
       })),
-      games: [
-        {
-          id: "g1",
-          teamId: "t1",
-          periodType: "QUARTERS",
-          completed: 0,
-          opponent: "Opp",
-          currentPeriod: 1,
-          clockTime: 600,
-          periodLength: 10,
-        },
-      ],
+      games: [{ id: "g1", teamId: "t1", periodType: "QUARTERS", completed: 0, opponent: "Opp", currentPeriod: 1, clockTime: 600, periodLength: 10 }],
       teams: [{ id: "t1", name: "My Team", periodType: "QUARTERS" }],
       players: mockPlayers,
       teamPlayers: mockTeamPlayers,
@@ -332,9 +306,7 @@ describe("GameMode Component", () => {
 
     expect(await screen.findByRole("dialog")).toBeInTheDocument();
 
-    fireEvent.click(
-      within(screen.getByRole("dialog")).getByLabelText(/Record Make/i),
-    );
+    fireEvent.click(within(screen.getByRole("dialog")).getByLabelText(/Record Make/i));
 
     const threeBtn = screen.getByRole("button", { name: "3" });
     expect(threeBtn).toHaveClass("MuiButton-contained");
@@ -350,9 +322,7 @@ describe("GameMode Component", () => {
 
     expect(await screen.findByRole("dialog")).toBeInTheDocument();
 
-    fireEvent.click(
-      within(screen.getByRole("dialog")).getByLabelText(/Record Make/i),
-    );
+    fireEvent.click(within(screen.getByRole("dialog")).getByLabelText(/Record Make/i));
 
     const twoBtn = screen.getByRole("button", { name: "2" });
     expect(twoBtn).toHaveClass("MuiButton-contained");
@@ -363,9 +333,7 @@ describe("GameMode Component", () => {
 
     // The buttons in Scoreboard have aria-label with score, but ActionControls might have others.
     // Let's use getByRole with name matching.
-    const oppBtn = await screen.findByRole("button", {
-      name: /Test Opponent/i,
-    });
+    const oppBtn = await screen.findByRole("button", { name: /Test Opponent/i });
 
     fireEvent.click(oppBtn);
 

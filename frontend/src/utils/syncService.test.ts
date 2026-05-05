@@ -47,11 +47,11 @@ describe("SyncService", () => {
       expect.any(Object),
     );
 
-    const team = mockDb.teams.data.find((t) => String(t.id) === "t1");
+    const team = mockDb.teams.data.find(t => String(t.id) === "t1");
     expect(team).toBeDefined();
     expect(team.synced).toBe(1);
 
-    const player = mockDb.players.data.find((p) => String(p.id) === "p1");
+    const player = mockDb.players.data.find(p => String(p.id) === "p1");
     expect(player).toBeDefined();
     expect(player.synced).toBe(1);
 
@@ -131,17 +131,17 @@ describe("SyncService", () => {
         expect.objectContaining({ method: "POST" }),
       );
 
-      const game = mockDb.games.data.find((g) => String(g.id) === "10");
+      const game = mockDb.games.data.find(g => String(g.id) === "10");
       expect(game.synced).toBe(1);
     });
 
     it("pushes all entities", async () => {
       mockDb.seed({
-        teams: [{ id: 2, synced: 0 }],
-        players: [{ id: 3, synced: 0 }],
-        teamPlayers: [{ id: 4, teamId: 2, synced: 0 }],
-        games: [{ id: 5, teamId: 2, synced: 0 }],
-        stats: [{ id: 6, gameId: 5, synced: 0 }],
+          teams: [{ id: 2, synced: 0 }],
+          players: [{ id: 3, synced: 0 }],
+          teamPlayers: [{ id: 4, teamId: 2, synced: 0 }],
+          games: [{ id: 5, teamId: 2, synced: 0 }],
+          stats: [{ id: 6, gameId: 5, synced: 0 }]
       });
 
       fetchMock.mockResolvedValue({ ok: true });
@@ -172,8 +172,8 @@ describe("SyncService", () => {
 
     it("logs an error and continues if the API returns 500", async () => {
       mockDb.seed({
-        teams: [{ id: "t1", synced: 0 }],
-        players: [{ id: "p1", synced: 0 }],
+          teams: [{ id: "t1", synced: 0 }],
+          players: [{ id: "p1", synced: 0 }]
       });
 
       const loggerErrorSpy = vi
@@ -220,24 +220,24 @@ describe("SyncService", () => {
         .mockResolvedValue(undefined);
 
       mockDb.seed({
-        games: [
-          {
-            id: "g1",
-            completed: 1,
-            teamId: "t1",
-            opponent: "Opponent",
-            date: "2023-01-01",
-            location: "Home",
-          },
-          {
-            id: "g2",
-            completed: 0,
-            teamId: "t1",
-            opponent: "Opponent",
-            date: "2023-01-02",
-            location: "Home",
-          },
-        ],
+          games: [
+            {
+              id: "g1",
+              completed: 1,
+              teamId: "t1",
+              opponent: "Opponent",
+              date: "2023-01-01",
+              location: "Home",
+            },
+            {
+              id: "g2",
+              completed: 0,
+              teamId: "t1",
+              opponent: "Opponent",
+              date: "2023-01-02",
+              location: "Home",
+            },
+          ]
       });
 
       await syncService.syncAllForTeam("t1");
@@ -272,16 +272,16 @@ describe("SyncService", () => {
         }); // /api/players
 
       mockDb.seed({
-        games: [
-          {
-            id: "g1",
-            completed: 1,
-            teamId: "t1",
-            opponent: "Opponent",
-            date: "2023-01-01",
-            location: "Home",
-          },
-        ],
+          games: [
+            {
+              id: "g1",
+              completed: 1,
+              teamId: "t1",
+              opponent: "Opponent",
+              date: "2023-01-01",
+              location: "Home",
+            },
+          ]
       });
 
       await syncService.pullAll();
@@ -292,12 +292,8 @@ describe("SyncService", () => {
         expect.any(Object),
       );
 
-      expect(
-        mockDb.teams.data.find((t) => String(t.id) === "t1"),
-      ).toBeDefined();
-      expect(
-        mockDb.players.data.find((p) => String(p.id) === "p1"),
-      ).toBeDefined();
+      expect(mockDb.teams.data.find(t => String(t.id) === "t1")).toBeDefined();
+      expect(mockDb.players.data.find(p => String(p.id) === "p1")).toBeDefined();
 
       expect(syncTeamRosterSpy).toHaveBeenCalledWith("t1");
       expect(syncTeamGamesListSpy).toHaveBeenCalledWith("t1");

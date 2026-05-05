@@ -19,7 +19,7 @@ describe("Dashboard Component", () => {
         <BrowserRouter>
           <Dashboard />
         </BrowserRouter>
-      </ThemeProvider>,
+      </ThemeProvider>
     );
 
     expect(screen.getByText(/Notebook Overview/i)).toBeInTheDocument();
@@ -56,7 +56,7 @@ describe("Dashboard Component", () => {
         <BrowserRouter>
           <Dashboard />
         </BrowserRouter>
-      </ThemeProvider>,
+      </ThemeProvider>
     );
 
     expect(await screen.findByText("Lakers")).toBeInTheDocument();

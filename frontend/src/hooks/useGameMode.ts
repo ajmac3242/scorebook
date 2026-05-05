@@ -119,13 +119,17 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       });
   }, [teamId]) || { teamPlayers: [], players: [] };
 
-  const { teamPlayers, players } = rosterData;
+  const teamPlayers =
+    rosterData && "teamPlayers" in rosterData ? rosterData.teamPlayers : [];
+  const players = rosterData && "players" in rosterData ? rosterData.players : [];
 
   const playerNamesMap = useMemo(() => {
     const map = new Map<string, string>();
-    for (let i = 0; i < players.length; i++) {
-      const p = players[i];
-      if (p.id) map.set(p.id.toString(), p.name);
+    if (Array.isArray(players)) {
+      for (let i = 0; i < players.length; i++) {
+        const p = players[i];
+        if (p?.id) map.set(p.id.toString(), p.name);
+      }
     }
     return map;
   }, [players]);
@@ -140,24 +144,19 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     });
   }, [gameId]) || { game: undefined, team: undefined };
 
-  const { game, team } = gameAndTeam;
+  const game =
+    gameAndTeam && "game" in gameAndTeam ? gameAndTeam.game : undefined;
+  const team =
+    gameAndTeam && "team" in gameAndTeam ? gameAndTeam.team : undefined;
 
   const teamSeasonStats = useLiveQuery(() => {
     if (!teamId) return { ppp: "0.00" };
-    return db.games
-      .where("teamId")
-      .equals(teamId)
-      .toArray()
-      .then((games) => {
-        const gameIds = games.map((g) => g.id!).filter(Boolean);
-        return db.stats
-          .where("gameId")
-          .anyOf(gameIds)
-          .toArray()
-          .then((allStats) => {
-            return calculateTeamSeasonAverages(games, allStats);
-          });
+    return db.games.where("teamId").equals(teamId).toArray().then(games => {
+      const gameIds = games.map((g) => g.id!).filter(Boolean);
+      return db.stats.where("gameId").anyOf(gameIds).toArray().then(allStats => {
+        return calculateTeamSeasonAverages(games, allStats);
       });
+    });
   }, [teamId]);
 
   useEffect(() => {
