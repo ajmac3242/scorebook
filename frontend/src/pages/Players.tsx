@@ -55,7 +55,9 @@ const Players: React.FC = () => {
 
   // Use live query directly to handle archived/deleted filtering
   const playersResult = useLiveQuery(() => {
-    return db.players.toArray().then(all => {
+    return db.players
+      .toArray()
+      .then((all) => {
         // Performance: Normalize search term once outside the loop
         const normalizedSearch = searchTerm.toLowerCase();
         return all.filter((p) => {
@@ -68,10 +70,11 @@ const Players: React.FC = () => {
             return false;
           return true;
         });
-    }).catch(err => {
+      })
+      .catch((err) => {
         logger.error("Failed to fetch players:", err);
         return [];
-    });
+      });
   }, [showArchived, searchTerm]);
 
   const players = useMemo(() => playersResult || [], [playersResult]);

@@ -51,14 +51,24 @@ vi.stubGlobal("crypto", {
 });
 
 // Mock fetch globally
-vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, status: 200, json: () => Promise.resolve([]) }));
+vi.stubGlobal(
+  "fetch",
+  vi
+    .fn()
+    .mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve([]),
+    }),
+);
 
 // Mock AnimatedNumber
 vi.mock("./components/SharedUI", async (importOriginal) => {
   const actual: any = await importOriginal();
   return {
     ...actual,
-    AnimatedNumber: ({ value }: any) => React.createElement("span", null, value),
+    AnimatedNumber: ({ value }: any) =>
+      React.createElement("span", null, value),
   };
 });
 
@@ -89,13 +99,15 @@ const useLiveQueryMock = vi.fn((cb: any, deps: any) => {
         const current = cb();
         const resolved = resolveRecursive(current);
         if (resolved === undefined && current instanceof Promise) {
-            current.then(v => {
-                if (isMounted) setVal(resolveRecursive(v));
-            }).catch(() => {
-                if (isMounted) setVal(undefined);
+          current
+            .then((v) => {
+              if (isMounted) setVal(resolveRecursive(v));
+            })
+            .catch(() => {
+              if (isMounted) setVal(undefined);
             });
         } else {
-            if (isMounted) setVal(resolved);
+          if (isMounted) setVal(resolved);
         }
       } catch (e) {
         if (isMounted) setVal(undefined);
@@ -104,7 +116,7 @@ const useLiveQueryMock = vi.fn((cb: any, deps: any) => {
 
     const sharedDb = (globalThis as any).mockDb;
     let unsubscribe = () => {};
-    if (sharedDb && typeof sharedDb.subscribe === 'function') {
+    if (sharedDb && typeof sharedDb.subscribe === "function") {
       unsubscribe = sharedDb.subscribe(update);
     }
     update();
