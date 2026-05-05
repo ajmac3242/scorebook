@@ -162,20 +162,12 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
 
   const teamSeasonStats = useLiveQuery(() => {
     if (!teamId) return { ppp: "0.00" };
-    return db.games
-      .where("teamId")
-      .equals(teamId)
-      .toArray()
-      .then((games) => {
-        const gameIds = games.map((g) => g.id!).filter(Boolean);
-        return db.stats
-          .where("gameId")
-          .anyOf(gameIds)
-          .toArray()
-          .then((allStats) => {
-            return calculateTeamSeasonAverages(games, allStats);
-          });
+    return db.games.where("teamId").equals(teamId).toArray().then(games => {
+      const gameIds = games.map((g) => g.id!).filter(Boolean);
+      return db.stats.where("gameId").anyOf(gameIds).toArray().then(allStats => {
+        return calculateTeamSeasonAverages(games, allStats);
       });
+    });
   }, [teamId]);
 
   useEffect(() => {

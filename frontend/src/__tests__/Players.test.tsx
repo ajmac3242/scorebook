@@ -1,4 +1,9 @@
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+} from "@testing-library/react";
 import Players from "../pages/Players";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { mockDb } from "../dbMock";
@@ -24,9 +29,7 @@ describe("Players Component", () => {
 
   it("renders Players page and empty state", async () => {
     renderComponent();
-    expect(
-      await screen.findByRole("heading", { name: /^Players$/i, level: 3 }),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: /^Players$/i, level: 3 })).toBeInTheDocument();
     expect(screen.getByText(/No active players found/i)).toBeInTheDocument();
   });
 
@@ -68,9 +71,7 @@ describe("Players Component", () => {
     });
 
     renderComponent();
-    expect(
-      await screen.findByRole("heading", { name: /^Players$/i, level: 3 }),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: /^Players$/i, level: 3 })).toBeInTheDocument();
   });
 
   it("handles error when adding player", async () => {

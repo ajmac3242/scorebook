@@ -59,7 +59,8 @@ const Dashboard: React.FC = () => {
 
   // Fetch games for the favorite team
   const rawTeamGames = useLiveQuery(
-    () => (teamId ? db.games.where("teamId").equals(teamId).toArray() : []),
+    () =>
+      teamId ? db.games.where("teamId").equals(teamId).toArray() : [],
     [teamId],
   );
 
@@ -115,26 +116,15 @@ const Dashboard: React.FC = () => {
   const aggregates = useMemo(() => {
     if (!Array.isArray(teamGames) || !Array.isArray(allStats)) {
       return {
-        points: 0,
-        oppPoints: 0,
-        fgm: 0,
-        fga: 0,
-        fg3m: 0,
-        fg3a: 0,
-        ftm: 0,
-        fta: 0,
-        oreb: 0,
-        dreb: 0,
-        ast: 0,
-        stl: 0,
-        blk: 0,
-        to: 0,
-        fouls: 0,
+        ppg: "0.0",
+        rpg: "0.0",
+        apg: "0.0",
+        oppg: "0.0",
+        record: "0-0",
+        totalGames: 0,
         ppp: "0.00",
+        possessions: 0,
         oppPpp: "0.00",
-        efg: "0.00%",
-        wins: 0,
-        losses: 0,
       };
     }
     // ⚡ Bolt: Only calculate aggregates for the filtered window

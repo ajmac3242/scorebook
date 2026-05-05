@@ -113,7 +113,7 @@ const Teams: React.FC = () => {
   );
 
   const gameIds = useMemo(
-    () => (allGames || []).map((g) => g.id).filter(Boolean),
+    () =>  (allGames || []).map((g) => g.id).filter(Boolean),
     [allGames],
   );
 
@@ -181,6 +181,7 @@ const Teams: React.FC = () => {
   ) => {
     e.stopPropagation();
     try {
+
       if (!currentFavorite) {
         // We are marking this team as favorite. Unmark all others.
         const allFavorites = await db.teams
@@ -212,6 +213,7 @@ const Teams: React.FC = () => {
     }
     setIsSubmitting(true);
     try {
+
       const newTeam: Team = {
         id: crypto.randomUUID(),
         name: teamName,

@@ -24,7 +24,7 @@ describe("Teams Component", () => {
 
   it("renders Teams page", async () => {
     mockDb.seed({
-      teams: [{ id: "t1", name: "Team One" }],
+        teams: [{ id: "t1", name: "Team One" }]
     });
     renderComponent();
     expect(await screen.findByText(/Team One/i)).toBeInTheDocument();
