@@ -1,6 +1,6 @@
-# Welcome to Scorebook - Basketball Stats
+# Welcome to Scorebook - Tactical Operating System
 
-Scorebook is a mobile-first, offline-ready basketball statistics tracking application. It allows coaches and enthusiasts to track game events (shots, rebounds, assists, etc.) in real-time and provides detailed analytics for teams and players.
+Scorebook is a mobile-first, offline-ready basketball statistics tracking application designed as a **Tactical Operating System**. It moves beyond raw stats to provide **Causal Accountability**—helping coaches understand the *why* behind game events through environmental factors, tactical breakdown attribution, and real-time strategic advising.
 
 ## Tech Stack
 
@@ -13,16 +13,19 @@ Scorebook is a mobile-first, offline-ready basketball statistics tracking applic
 - **Day.js** for lightweight date and time formatting
 
 ### Backend
-- **AWS Lambda** (Node.js 22 runtime)
-- **Amazon DynamoDB** for high-performance, scalable NoSQL storage
-- **Amazon S3** for JSON snapshot distribution
-- **Amazon Cognito** for secure user authentication
+- **AWS Lambda** (Node.js 22 runtime) utilizing a modular handler architecture.
+- **Amazon DynamoDB** for high-performance, scalable NoSQL storage.
+- **Amazon S3** for JSON snapshot distribution.
+- **Amazon Cognito** for secure user authentication.
 
 ### Infrastructure
-- **Terraform** for Infrastructure as Code (IaC)
-- **GitHub Actions** for CI/CD pipelines (Backend Jest tests, Frontend Vitest tests, and automated deployment)
+- **Terraform** for Infrastructure as Code (IaC).
+- **GitHub Actions** for CI/CD pipelines (Backend Jest tests, Frontend Vitest tests, and automated deployment).
 
 ## Architecture
+
+### Modular Backend
+The backend has transitioned from a monolithic handler to a domain-specific modular architecture. The core router in `index.ts` delegates requests to specialized handlers in `backend/src/handlers/` (Players, Teams, Games, Cleanup), improving maintainability and reducing the cold-start footprint.
 
 ### Offline-First Strategy
 The application is designed to function seamlessly without a network connection.
@@ -75,11 +78,17 @@ To maintain high velocity while ensuring reliability:
 4.  Run tests: `pnpm test`
 
 ## Key Features
+
+### Live Intelligence
 - **Real-time Game Tracking**: Easy-to-use interface for logging shots, misses, rebounds, and more.
+- **Defensive Momentum HUD**: Real-time tracking of **Defensive Stops** and **Kills** (3 consecutive stops).
+- **Special Situations (ATO/SLOB/BLOB)**: Dedicated tracking and analytical engine for possessions following timeouts or dead balls.
+- **Shot Quality & Process Tagging**: Tag shots as "Open" or "Contested" to move the conversation from results to quality.
+- **Momentum & Run Alerts**: Automated detection of opponent scoring runs and scoring droughts.
+
+### Deep Analytics
 - **Shot Charts**: Visual representation of shot locations on a virtual court.
 - **Advanced Analytics**: Automatic calculation of advanced metrics including **Effective Field Goal Percentage (eFG%)** and **True Shooting Percentage (TS%)**.
-- **Defensive Momentum Tracking**: Real-time tracking of **Defensive Stops** and **Kills** (3 consecutive stops).
-- **Momentum & Run Alerts**: Automated detection of opponent scoring runs and scoring droughts.
 - **Lineup Efficiency Tracking**: Analyze the performance (Plus/Minus) of specific 5-player combinations.
 - **Hot/Cold Streak Indicators**: Visual cues (🔥/❄️) help coaches identify players with scoring momentum.
 - **Offline-First Synchronization**: Robust synchronization across devices with background conflict resolution.

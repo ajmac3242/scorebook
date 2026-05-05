@@ -36,24 +36,33 @@ All write endpoints (`POST`, `PUT`, `PATCH`) require `Content-Type: application/
 
 ### Teams
 - `GET /teams` - List all active teams.
-- `POST /teams` - Create a team. Body: `{ "name": string }`.
+- `POST /teams` - Create a team. Body: `{ "name": string, "description"?: string, "logoUrl"?: string, "primaryColor"?: string, "periodType"?: string, "fouls"?: number }`.
 - `DELETE /teams/{id}` - Soft delete a team.
 - `PATCH /teams/{id}` - Restore a deleted team. Body: `{ "deletedAt": null }`.
 
 ### Team Players (Roster)
 - `GET /teams/{teamId}/players` - List players assigned to a team.
-- `POST /teams/{teamId}/players` - Add player to team. Body: `{ "playerId": UUID, "jerseyNumber": string (1-3 digits) }`.
+- `POST /teams/{teamId}/players` - Add player to team. Body: `{ "playerId": UUID, "name": string, "avatarColor"?: string, "jerseyNumber"?: string (1-3 digits) }`.
 - `DELETE /teams/{teamId}/players/{playerId}` - Remove player from team (soft delete association).
 
 ### Players
 - `GET /players` - List all active players.
+<<<<<<< scribe-doc-improvements-3364392278239960223
+- `POST /players` - Create a player. Body: `{ "name": string, "avatarColor"?: string }`.
+- `DELETE /players/{id}` - Soft delete a player.
+  - **Query Params**: `?archive=true` - Transition player to an archived state instead of soft deletion.
+- `PATCH /players/{id}` - Restore a player.
+  - **Body**: `{ "deletedAt": null }` to restore from soft-delete.
+  - **Body**: `{ "isArchived": 0 }` to restore from archive.
+=======
 - `POST /players` - Create a player. Body: `{ "name": string }`.
 - `DELETE /players/{id}` - Soft delete a player. Use `?archive=true` to archive instead.
 - `PATCH /players/{id}` - Restore a player. Body: `{ "deletedAt": null }` or `{ "isArchived": 0 }`.
+>>>>>>> main
 
 ### Games
 - `GET /games?teamId={id}` - List games for a specific team.
-- `POST /games` - Create a game. Body: `{ "teamId": UUID, "opponent": string, "location"?: string, "date"?: string }`.
+- `POST /games` - Create a game. Body: `{ "teamId": UUID, "opponent": string, "opponentId"?: string, "opponentLogoUrl"?: string, "location"?: string, "date"?: string, "time"?: string, "periodLength"?: number, "timeoutLimit"?: number, "foulLimit"?: number, "periodType"?: string }`.
 - `DELETE /games/{id}` - Soft delete a game.
 - `PATCH /games/{id}` - Restore a deleted game. Body: `{ "deletedAt": null }`.
 - `POST /games/{id}/complete` - Mark a game as completed. Triggers final S3 snapshot.
