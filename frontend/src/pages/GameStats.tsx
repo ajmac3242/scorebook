@@ -254,12 +254,15 @@ const GameStats: React.FC = () => {
     [teamPlayersResult],
   );
 
-  const playersResult = useLiveQuery(async () => {
-    if (!teamPlayers.length) return [];
-    // ⚡ Bolt: Fetch only players rostered on the team to reduce DB overhead.
-    const playerIds = teamPlayers.map((tp) => tp.playerId.toString());
-    return await db.players.where("id").anyOf(playerIds).toArray();
-  }, [teamPlayers]);
+  const playerIds = useMemo(
+    () => teamPlayers.map((tp) => tp.playerId.toString()),
+    [teamPlayers],
+  );
+
+  const playersResult = useLiveQuery(
+    () => db.players.where("id").anyOf(playerIds).toArray(),
+    [playerIds],
+  );
   const players = useMemo(() => playersResult || [], [playersResult]);
 
   useEffect(() => {
@@ -279,7 +282,10 @@ const GameStats: React.FC = () => {
         : Promise.resolve([]),
     [gameId],
   );
-  const allStats = useMemo(() => allStatsResult || [], [allStatsResult]);
+  const allStats = useMemo(
+    () => (Array.isArray(allStatsResult) ? allStatsResult : []),
+    [allStatsResult],
+  );
 
   useEffect(() => {
     if (game?.deletedAt) {

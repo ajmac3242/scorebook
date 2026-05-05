@@ -59,9 +59,9 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
   const [editTime, setEditTime] = useState<string>("");
   const [editPeriod, setEditPeriod] = useState<number>(1);
 
-  const subEvents = useLiveQuery(async () => {
+  const subEvents = useLiveQuery(() => {
     if (!gameId) return [];
-    const events = await db.stats
+    return db.stats
       .where("gameId")
       .equals(gameId)
       .filter(
@@ -69,12 +69,14 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
           !s.deletedAt &&
           (s.type === ACTION_TYPES.SUB_IN || s.type === ACTION_TYPES.SUB_OUT),
       )
-      .toArray();
-    return events.sort((a, b) => {
-      if (a.timestamp < b.timestamp) return -1;
-      if (a.timestamp > b.timestamp) return 1;
-      return 0;
-    });
+      .toArray()
+      .then((events) => {
+        return [...events].sort((a, b) => {
+          if (a.timestamp < b.timestamp) return -1;
+          if (a.timestamp > b.timestamp) return 1;
+          return 0;
+        });
+      });
   }, [gameId]);
 
   const handleStartEdit = (event: StatEvent) => {
