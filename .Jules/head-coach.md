@@ -53,3 +53,19 @@ Observation: The current application has achieved a high degree of maturity in d
 Impact: Without specific context on defensive scheme efficiency, coaches rely on intuition for critical fourth-quarter defensive adjustments. Without live tracking of tactical goals (KPIs), teams can drift away from their pre-game identity during the heat of competition. Furthermore, the lack of a "Film Room" bridge means the insights gained during the game are lost in the friction of post-game video analysis.
 
 Recommendation: Transition the platform into a "Tactical Operating System." Priority must be given to Defensive Scheme Tracking (PPP by set) and a live Tactical KPI HUD to keep the game plan front-and-center. We must also optimize for post-game "Operational Excellence" by introducing one-tap Film Room Bookmarking. Finally, the "HALT" system will serve as the safety net, ensuring high-leverage situations are identified and addressed by the coaching staff in real-time.
+
+## 2025-05-22 - Strategic Audit: Addressing the "Ghost Archive" and Impact Attribution
+
+Observation: A strategic audit of the codebase revealed a significant discrepancy: several high-value features (Live Identity Radar, Defensive Synergy Analysis, Practice Prescription) are marked as "COMPLETE" in the `.Jules/backlog-archive.md` but are entirely missing from the source code. This "Ghost Archive" state creates a false sense of maturity. Furthermore, while we have robust per-game stats, we lack longitudinal "On/Off" impact analytics, which is the gold standard for evaluating player value beyond raw box scores.
+
+Impact: The absence of these "archived" features means coaches are missing out on the most advanced tactical visualizations and prescriptive insights intended for the platform. Without On/Off analytics, roster management remains tethered to traditional counting stats, potentially overlooking high-impact role players.
+
+Recommendation: Immediately restore the missing "Ghost" features to the active backlog for implementation. Prioritize "Live Game Identity Radar" for real-time tactical adherence and "On/Off Team Impact Analytics" to provide the deep-value insights coaches need for roster optimization. Introduce "Defensive Breakdown Attribution" to move from tracking *results* to tracking *tactical failures*.
+
+## 2026-05-23 - Strategic Focus: Operational Intelligence & Decision Support
+
+Observation: The platform has matured from a data entry system to a robust analytical engine. However, the most critical gap is "Decision Lag"—the time between a tactical failure occurring on the court and the coach receiving actionable data to fix it. We are currently displaying stats, but we aren't yet prescribing solutions in real-time.
+
+Impact: Without real-time defensive scheme effectiveness or shot-clock process analysis, coaches rely on delayed intuition rather than immediate evidence. Tactical regressions (like settling for poor early-clock shots) often go unnoticed until the halftime report, by which time the momentum may have shifted irrevocably.
+
+Recommendation: Pivot the product strategy toward **Operational Intelligence**. This involves automating the "Synthesis" step for the coach. Priority must be given to Live Defensive Scheme Efficiency to drive mid-quarter adjustments and a "Shot Clock Process" tracker to ensure offensive discipline. Finally, implementing a "Spark Plug" index will help identify the emotional and momentum-based value of role players that traditional +/- metrics often dilute.
