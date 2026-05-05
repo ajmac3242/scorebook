@@ -245,7 +245,10 @@ const Opponents: React.FC = () => {
           </Stack>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setOpenAddDialog(false)} disabled={isSubmitting}>
+          <Button
+            onClick={() => setOpenAddDialog(false)}
+            disabled={isSubmitting}
+          >
             Cancel
           </Button>
           <Button
