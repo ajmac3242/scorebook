@@ -6,7 +6,13 @@
 
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { ThemeProvider, CssBaseline, Container, Box } from "@mui/material";
+import {
+  ThemeProvider,
+  CssBaseline,
+  Typography,
+  Container,
+  Box,
+} from "@mui/material";
 import theme from "./theme";
 import GameMode from "./pages/GameMode";
 import Login from "./pages/Login";
@@ -23,7 +29,30 @@ import Navigation from "./components/Navigation";
 import { Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import DevAuthBypass from "./components/DevAuthBypass";
-import ProtectedRoute from "./components/ProtectedRoute";
+
+/**
+ * Higher-order component to protect routes that require authentication.
+ * Redirects to the login page if the user is not authenticated.
+ *
+ * @param {object} props - Component props.
+ * @param {React.ReactNode} props.children - Child components to render if authenticated.
+ * @returns {React.ReactElement}
+ */
+const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  const { isAuthenticated, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", mt: 8 }}>
+        <Typography>Loading...</Typography>
+      </Box>
+    );
+  }
+
+  return isAuthenticated ? <>{children}</> : <Navigate to="/login" />;
+};
 
 /**
  * Main layout component containing the navigation and routed page content.
@@ -68,6 +97,7 @@ const AppContent: React.FC = () => {
       <Box
         id="main-content"
         component="main"
+        tabIndex={-1}
         sx={{
           flexGrow: 1,
           p: { xs: 1, sm: 3 },

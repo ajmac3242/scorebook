@@ -69,3 +69,10 @@ Observation: The platform has achieved "Scorebook Maturity" but still treats eve
 Impact: Coaches are still forced to perform too much mental synthesis during high-pressure game situations. They may observe a high foul count but fail to correlate it with the referee's live "Tightness" vs. their own defensive scheme in real-time. Similarly, whileassist totals are tracked, the "Causal Map" of who creates the best shots for whom remains invisible.
 
 Recommendation: Focus the next development cycle on **Causal Analytics** and **Environmental Awareness**. Prioritize the Ref-Identity Conflict Alert System to provide proactive risk management, and implement Lineup "Offensive Chemistry" Connectivity Maps to reveal the true playmakers. Finally, the "Ghost Archive" features must be fully implemented to complete the transition to a true Tactical Operating System.
+## 2026-05-23 - Strategic Focus: Operational Intelligence & Decision Support
+
+Observation: The platform has matured from a data entry system to a robust analytical engine. However, the most critical gap is "Decision Lag"—the time between a tactical failure occurring on the court and the coach receiving actionable data to fix it. We are currently displaying stats, but we aren't yet prescribing solutions in real-time.
+
+Impact: Without real-time defensive scheme effectiveness or shot-clock process analysis, coaches rely on delayed intuition rather than immediate evidence. Tactical regressions (like settling for poor early-clock shots) often go unnoticed until the halftime report, by which time the momentum may have shifted irrevocably.
+
+Recommendation: Pivot the product strategy toward **Operational Intelligence**. This involves automating the "Synthesis" step for the coach. Priority must be given to Live Defensive Scheme Efficiency to drive mid-quarter adjustments and a "Shot Clock Process" tracker to ensure offensive discipline. Finally, implementing a "Spark Plug" index will help identify the emotional and momentum-based value of role players that traditional +/- metrics often dilute.

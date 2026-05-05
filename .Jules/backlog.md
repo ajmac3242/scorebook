@@ -325,59 +325,6 @@ Completed items are archived to `.Jules/backlog-archive.md` to maintain optimal 
 - [ ] "Identity Goals" section where coaches see % of games where goals were met.
 - [ ] Filter by date range or opponent strength.
 
-## [ ] Live Game Identity Radar Chart
-**Priority:** HIGH
-**Type:** UX
-**Why:** Teams often lose their "Identity" (e.g., "We are a fast-break team") during high-pressure games. A radar chart comparing live performance against the "Team Blueprint" keeps the team focused.
-**What:** A real-time Radar Chart in GameMode that compares current game Four Factors and Pace against the team's season-long averages (the "Blueprint").
-**Acceptance Criteria:**
-- [ ] Interactive Radar Chart in the GameMode sidebar.
-- [ ] Overlay of "Current Game" (Solid) vs "Season Average" (Dashed) for: Pace, eFG%, TO%, ORB%, and FT Rate.
-- [ ] "Identity Alert" when a core metric deviates by more than 20% from the blueprint.
-
-## [ ] Defensive Synergy Analysis (2-3 Player Units)
-**Priority:** HIGH
-**Type:** Feature
-**Why:** Some defensive pairings are greater than the sum of their parts. Coaches need to know which duos/trios anchor the defense most effectively, beyond just 5-man units which can have small sample sizes.
-**What:** Build a "Defensive Synergy" report that calculates Opponent PPP and Forced Turnover % for every 2-player and 3-player combination that has played significant minutes together.
-**Acceptance Criteria:**
-- [ ] New "Synergy" tab in Team Analytics.
-- [ ] Table showing 2-player and 3-player units with Defensive Rating (DRtg) and Net Rating.
-- [ ] Filter to show only units with > 10 minutes played.
-- [ ] Highlight "Shut-Down Units" (units with DRtg significantly better than team average).
-
-## [ ] Halftime "War Room" Tactical Advisor
-**Priority:** HIGH
-**Type:** Feature
-**Why:** The 10 minutes of halftime are frantic. A "Tactical Advisor" that delivers 3-5 punchy, data-driven bullet points allows the coach to walk into the locker room with immediate answers.
-**What:** An automated insight engine in the Halftime Report that identifies the most impactful trends (e.g., "Lineup X is -12", "Opponent #24 scoring 1.8 PPP on drives").
-**Acceptance Criteria:**
-- [ ] "Coach's Notes" section in the Halftime Report Dialog.
-- [ ] Automated bullets for: Most effective/ineffective 5-man unit.
-- [ ] Automated bullets for: Top 3 opponent threats with "Points Allowed" attribution.
-- [ ] Automated bullets for: Primary "Four Factor" deficit (e.g., "We are losing the ORB battle 12% to 35%").
-
-## [ ] On/Off Team Impact Analytics
-**Priority:** HIGH
-**Type:** Feature
-**Why:** Some players have a high +/- because they play with the starters; others make the bench units better. On/Off splits reveal the true impact of a player by comparing team performance when they are on the floor vs. when they are on the bench.
-**What:** Calculate team-level metrics (Offensive Rating, Defensive Rating, Net Rating) for both states (Player ON vs. Player OFF) across multiple games.
-**Acceptance Criteria:**
-- [ ] New "Impact" tab in Player Stats or Team Analytics.
-- [ ] Display "Team Net Rating (ON)" vs "Team Net Rating (OFF)" for each player.
-- [ ] "Impact Differential" (The difference between ON and OFF metrics).
-- [ ] Support for filtering by season or last X games to identify recent trends.
-
-## [ ] Integrated Practice Prescription Engine
-**Priority:** HIGH
-**Type:** Feature
-**Why:** The best coaches use game data to plan the next practice. This feature closes the loop by suggesting specific drills based on the team's statistical failures in the last game.
-**What:** A logic engine that maps low KPI performance (e.g., low FT%, high TOs) to a library of suggested practice drills.
-**Acceptance Criteria:**
-- [ ] "Practice Planner" button on the Game Stats page.
-- [ ] Automatic suggestion of 3 "Focus Areas" based on the game's worst-performing metrics.
-- [ ] Linkage to a library of drills (e.g., "Poor 3PT% -> Suggest '100 Makes' Drill").
-
 ## [ ] Redesign Dashboard page
 **Priority:** HIGH
 **Type:** Feature
@@ -599,18 +546,39 @@ Completed items are archived to `.Jules/backlog-archive.md` to maintain optimal 
 
 ## [ ] Refactor & Right-Size Large Files to Improve Jules Performance
 **Priority:** HIGH **Type:** Technical Debt
-**Why:** Jules is exhibiting slowdowns and "file too large" issues because several core files have grown beyond effective context window limits.
+**Why:** Jules is exhibiting slowdowns and "file too large" issues because several core files have grown beyond effective context window limits. The monolithic `index.ts` (883 lines) forces Jules to load the entire API surface for any single endpoint change. The `backlog.md` (637 lines) is injected into every session regardless of relevance. Multiple overlapping sentinel test files add redundant context on every run.
 **What:**
-1. Split `index.ts` into per-resource handler modules. (PARTIALLY COMPLETE: `players.ts`, `games.ts`, `teams.ts`, `cleanup.ts` created. `index.ts` reduced from 883 to 260 lines.)
+<<<<<<< scribe-doc-improvements-3364392278239960223
+1. [DONE] Split `index.ts` into per-resource handler modules. (`players.ts`, `games.ts`, `teams.ts`, `cleanup.ts` created.)
 2. Split `utils.ts` (339 lines) — separate `security-utils.ts` from `data-utils.ts`.
 3. Consolidate sentinel test files — merge `sentinel_enhancements.test.ts`, `sentinel_v3.test.ts`, etc. into `security.test.ts`. (PARTIALLY COMPLETE: `security.test.ts` exists, but sentinel files remain.)
 4. Add a guardrail note to `playbook.md`: Jules should flag any file approaching 300 lines and propose a split before continuing.
+=======
+1. Split `index.ts` into per-resource handler modules: `handlers/players.ts`, `handlers/games.ts`, `handlers/teams.ts`, `handlers/stats.ts`, `handlers/cleanup.ts` — each under 200 lines. Keep `index.ts` as a thin router (~100 lines).
+   - [ ] `handlers/cleanup.ts` created and integrated.
+2. Split `utils.ts` (420 lines) — separate `security-utils.ts` (sanitize, mask, safeCompare, normalizePath) from `data-utils.ts` (stripLocalFields, extractId, etc.).
+3. Archive `backlog.md` — move all `[ ]` completed items to a `backlog-archive.md`. Add a rule: completed items get archived after each sprint. Enforce a soft cap of ~200 lines on active `backlog.md`.
+4. Consolidate sentinel test files — merge `sentinel_enhancements.test.ts`, `sentinel_dos.test.ts`, `sentinel_path.test.ts`, `sentinel_v3.test.ts`, `sentinel_v4.test.ts` into a single organized `security.test.ts` with `describe` blocks per concern. Target under 500 total lines.
+5. Add a guardrail note to `playbook.md`: Jules should flag any file approaching 300 lines and propose a split before continuing.
+>>>>>>> main
 **Acceptance Criteria:**
 - [ ] `index.ts` is under 150 lines (router only)
-- [ ] No source file in `backend/src/` exceeds 300 lines unless it logically makes sense.
+- [ ] No source file in `backend/src/` exceeds 300 lines unless it logically makes sense. This is not a hard rule, but it's a refactor trigger.
+- [ ] `backlog.md` (active items only)
+- [ ] `backlog-archive.md` exists with all completed items
 - [ ] Total test file count in `__tests__/` reduced by at least 4
 - [ ] All existing tests continue to pass
 - [ ] `playbook.md` updated with file size guardrail rule
+
+## [HYGIENE] Align backend projections with frontend data needs
+**Priority:** MEDIUM
+**Type:** Refactor
+**Why:** The frontend tracks additional event metadata (like `isBookmarked` and `defensiveScheme`) that is currently being stripped or ignored by the backend's `ProjectionExpression` in `handleGameStats`.
+**What:** Update the `ProjectionExpression` in `backend/src/handlers/games.ts` to include missing fields.
+**Acceptance Criteria:**
+- [ ] `StatEvent` projections include `isBookmarked` and `defensiveScheme`.
+- [ ] Verify frontend can successfully retrieve and display these fields after a sync.
+- [ ] All tests pass.
 
 ## [ ] Holistic Matchup Efficiency Matrix
 **Priority:** HIGH
@@ -644,3 +612,54 @@ Completed items are archived to `.Jules/backlog-archive.md` to maintain optimal 
 - [ ] "Opponent Scoring Breakdown" table in GameStats showing efficiency by Play Type.
 - [ ] Real-time alerts for recurring threats (e.g., "Opponent scoring 1.8 PPP on Pick-and-Rolls").
 - [ ] Filter opponent shot chart by Play Type.
+
+## [ ] Live Defensive Scheme Effectiveness Dashboard
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Coaches often stick to a defensive scheme (e.g., 2-3 Zone) because it's "safe," even when it's being shredded. A live efficiency dashboard allows for data-driven adjustments mid-quarter.
+**What:** Build a real-time monitor that tracks Points Per Possession (PPP) allowed for the current active defensive scheme (Man, Zone, Press) and compares it to the season average.
+**Acceptance Criteria:**
+- [ ] "Active Defense" toggle in GameMode header.
+- [ ] Real-time PPP display for the active scheme.
+- [ ] "Switch Defense" alert if current scheme PPP is > 1.2 for 3 consecutive possessions.
+- [ ] Breakdown table in GameStats showing PPP Allowed by Scheme.
+
+## [ ] "Shot Clock Process" Analysis
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Rushing shots early in the clock or settling for late-clock heaves is a "process" failure. This feature distinguishes between quick-hit offensive success and desperation shots.
+**What:** Categorize every shot into "Early Clock" (first 10s), "Mid Clock", and "Late Clock" (last 5s) buckets and track EFG% for each.
+**Acceptance Criteria:**
+- [ ] "Clock Phase" tagging automatically derived from StatEvent.clockTime and periodLength.
+- [ ] "Shot Rhythm" chart in GameStats showing volume and efficiency by clock phase.
+- [ ] "Decision Alert" in GameMode if team is shooting < 20% on Early Clock shots.
+
+## [ ] Automated Referee Profile HUD
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Referee "tightness" (fouls per minute) and bias (home/away split) should dictate how aggressive a team plays. A coach who knows the ref is calling it tight can adjust defensive pressure before foul trouble hits.
+**What:** An intelligence layer that analyzes the frequency and distribution of fouls called by the current officiating crew.
+**Acceptance Criteria:**
+- [ ] "Ref Tightness Meter" in GameMode comparing current game Fouls Per Minute (FPM) against a historical baseline.
+- [ ] "Foul Bias" indicator showing the split between Our Team vs Opponent fouls.
+- [ ] "Aggression Advisor" suggesting "Press Hard" or "Play Soft" based on FPM.
+
+## [ ] "Spark Plug" Momentum Index
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Some players provide value that doesn't show up in the box score but triggers team-wide energy shifts (e.g., a floor dive or a charge taken).
+**What:** A specialized metric that weighs "Blue Collar" hustle stats against immediate subsequent team scoring runs to identify "Momentum Starters."
+**Acceptance Criteria:**
+- [ ] "Spark Plug" score for every player who records a FLOOR_DIVE, CHARGE_TAKEN, or GREAT_CONTEST.
+- [ ] Correlation of hustle events to 2-minute scoring runs.
+- [ ] "Energy Alert" in GameMode suggesting when to bring in a high-momentum player.
+
+## [ ] Program-Wide "Tactical DNA" Comparison
+**Priority:** HIGH
+**Type:** Feature
+**Why:** A season is a marathon. Coaches need to know if their team is evolving or regressing in their core identity (e.g., "Are we still an elite rebounding team?").
+**What:** A longitudinal comparison tool that overlays current game "Four Factors" against the season-to-date "DNA" blueprint.
+**Acceptance Criteria:**
+- [ ] "Program DNA" Radar Chart in GameStats.
+- [ ] Overlay of "Last 3 Games" vs "Season Average" to identify recent trends.
+- [ ] "Identity Crisis" alert if more than 3 of the Four Factors deviate by >15% from the season mean.

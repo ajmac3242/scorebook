@@ -1,5 +1,7 @@
 import "@testing-library/jest-dom";
 import { vi } from "vitest";
+import React from "react";
+import { mockDb } from "./dbMock";
 
 // Mock Cognito
 vi.mock("amazon-cognito-identity-js", () => {
@@ -25,7 +27,6 @@ vi.mock("amazon-cognito-identity-js", () => {
       Password: string;
     },
   ) {
-    // Store credentials so tests can inspect them via getPassword() / getUsername()
     this.getPassword = vi.fn().mockReturnValue(data?.Password ?? "");
     this.getUsername = vi.fn().mockReturnValue(data?.Username ?? "");
   });
@@ -37,67 +38,11 @@ vi.mock("amazon-cognito-identity-js", () => {
   };
 });
 
-// Mock Dexie
+(globalThis as any).mockDb = mockDb;
+
 vi.mock("./db", () => ({
-  db: {
-    open: vi.fn().mockResolvedValue(null),
-    teams: {
-      where: vi.fn().mockReturnThis(),
-      equals: vi.fn().mockReturnThis(),
-      toArray: vi.fn().mockResolvedValue([]),
-      first: vi.fn().mockResolvedValue(undefined),
-      add: vi.fn(),
-      bulkPut: vi.fn(),
-      get: vi.fn(),
-      update: vi.fn(),
-      anyOf: vi.fn().mockReturnThis(),
-    },
-    players: {
-      toArray: vi.fn().mockResolvedValue([]),
-      add: vi.fn(),
-      bulkPut: vi.fn(),
-      get: vi.fn(),
-      update: vi.fn(),
-      where: vi.fn().mockReturnThis(),
-      equals: vi.fn().mockReturnThis(),
-      anyOf: vi.fn().mockReturnThis(),
-      toCollection: vi.fn().mockReturnThis(),
-    },
-    teamPlayers: {
-      toArray: vi.fn().mockResolvedValue([]),
-      add: vi.fn(),
-      bulkPut: vi.fn(),
-      where: vi.fn().mockReturnThis(),
-      equals: vi.fn().mockReturnThis(),
-      anyOf: vi.fn().mockReturnThis(),
-      delete: vi.fn(),
-      first: vi.fn(),
-    },
-    games: {
-      where: vi.fn().mockReturnThis(),
-      equals: vi.fn().mockReturnThis(),
-      toArray: vi.fn().mockResolvedValue([]),
-      add: vi.fn(),
-      bulkPut: vi.fn(),
-      get: vi.fn(),
-      update: vi.fn(),
-      anyOf: vi.fn().mockReturnThis(),
-    },
-    stats: {
-      orderBy: vi.fn().mockReturnThis(),
-      reverse: vi.fn().mockReturnThis(),
-      limit: vi.fn().mockReturnThis(),
-      toArray: vi.fn().mockResolvedValue([]),
-      add: vi.fn(),
-      bulkPut: vi.fn(),
-      update: vi.fn(),
-      delete: vi.fn(),
-      where: vi.fn().mockReturnThis(),
-      equals: vi.fn().mockReturnThis(),
-      anyOf: vi.fn().mockReturnThis(),
-    },
-    transaction: vi.fn((_mode, _tables, callback) => callback()),
-  },
+  db: (globalThis as any).mockDb,
+  AppDatabase: vi.fn(),
 }));
 
 // Mock crypto for randomUUID
@@ -105,30 +50,84 @@ vi.stubGlobal("crypto", {
   randomUUID: () => "test-uuid-" + Math.random(),
 });
 
-// Mock fetch globally to prevent ERR_INVALID_URL for relative paths in tests
+// Mock fetch globally
 vi.stubGlobal(
   "fetch",
   vi.fn().mockResolvedValue({
     ok: true,
+    status: 200,
     json: () => Promise.resolve([]),
-    headers: new Headers(),
   }),
 );
 
+// Mock AnimatedNumber
+vi.mock("./components/SharedUI", async (importOriginal) => {
+  const actual: any = await importOriginal();
+  return {
+    ...actual,
+    AnimatedNumber: ({ value }: any) =>
+      React.createElement("span", null, value),
+  };
+});
+
 // Mock dexie-react-hooks
-vi.mock("dexie-react-hooks", () => ({
-  useLiveQuery: vi.fn((cb) => {
-    if (typeof cb === "function") {
-      try {
-        const res = cb();
-        if (res && typeof res.then === "function") {
-          return undefined; // Or some meaningful default
-        }
-        return res;
-      } catch {
-        return undefined;
-      }
+const resolveRecursive = (res: any): any => {
+  if (!res) return res;
+  if (typeof res === "object" && res.isSync) {
+    if (res.status === "rejected") return undefined;
+    return resolveRecursive(res.value);
+  }
+  if (res instanceof Promise) return undefined;
+  return res;
+};
+
+const useLiveQueryMock = vi.fn((cb: any, deps: any) => {
+  const [val, setVal] = React.useState(() => {
+    try {
+      return resolveRecursive(cb());
+    } catch (e) {
+      return undefined;
     }
-    return undefined;
-  }),
+  });
+
+  React.useLayoutEffect(() => {
+    let isMounted = true;
+    const update = () => {
+      if (!isMounted) return;
+      try {
+        const current = cb();
+        const resolved = resolveRecursive(current);
+        if (resolved === undefined && current instanceof Promise) {
+          current
+            .then((v) => {
+              if (isMounted) setVal(resolveRecursive(v));
+            })
+            .catch(() => {
+              if (isMounted) setVal(undefined);
+            });
+        } else {
+          if (isMounted) setVal(resolved);
+        }
+      } catch (e) {
+        if (isMounted) setVal(undefined);
+      }
+    };
+
+    const sharedDb = (globalThis as any).mockDb;
+    let unsubscribe = () => {};
+    if (sharedDb && typeof sharedDb.subscribe === "function") {
+      unsubscribe = sharedDb.subscribe(update);
+    }
+    update();
+    return () => {
+      isMounted = false;
+      unsubscribe();
+    };
+  }, deps || []);
+
+  return val;
+});
+
+vi.mock("dexie-react-hooks", () => ({
+  useLiveQuery: useLiveQueryMock,
 }));
