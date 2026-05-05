@@ -61,3 +61,11 @@ Observation: A strategic audit of the codebase revealed a significant discrepanc
 Impact: The absence of these "archived" features means coaches are missing out on the most advanced tactical visualizations and prescriptive insights intended for the platform. Without On/Off analytics, roster management remains tethered to traditional counting stats, potentially overlooking high-impact role players.
 
 Recommendation: Immediately restore the missing "Ghost" features to the active backlog for implementation. Prioritize "Live Game Identity Radar" for real-time tactical adherence and "On/Off Team Impact Analytics" to provide the deep-value insights coaches need for roster optimization. Introduce "Defensive Breakdown Attribution" to move from tracking *results* to tracking *tactical failures*.
+
+## 2026-05-23 - Strategic Focus: Operational Intelligence & Decision Support
+
+Observation: The platform has matured from a data entry system to a robust analytical engine. However, the most critical gap is "Decision Lag"—the time between a tactical failure occurring on the court and the coach receiving actionable data to fix it. We are currently displaying stats, but we aren't yet prescribing solutions in real-time.
+
+Impact: Without real-time defensive scheme effectiveness or shot-clock process analysis, coaches rely on delayed intuition rather than immediate evidence. Tactical regressions (like settling for poor early-clock shots) often go unnoticed until the halftime report, by which time the momentum may have shifted irrevocably.
+
+Recommendation: Pivot the product strategy toward **Operational Intelligence**. This involves automating the "Synthesis" step for the coach. Priority must be given to Live Defensive Scheme Efficiency to drive mid-quarter adjustments and a "Shot Clock Process" tracker to ensure offensive discipline. Finally, implementing a "Spark Plug" index will help identify the emotional and momentum-based value of role players that traditional +/- metrics often dilute.

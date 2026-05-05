@@ -10,11 +10,11 @@
 
 | Entity | PK | SK | Attributes |
 | --- | --- | --- | --- |
-| **Team** | `TEAM#<TeamId>` | `METADATA#<TeamId>` | id, name, description, logoUrl, primaryColor, periodType, fouls, deletedAt? |
-| **Player** | `PLAYER#<PlayerId>` | `METADATA#<PlayerId>` | id, name, avatarColor, isArchived (0/1), deletedAt? |
-| **TeamPlayer** | `TEAM#<TeamId>` | `PLAYER#<PlayerId>` | id, teamId, playerId, name, avatarColor, jerseyNumber (1-3 digits), deletedAt? |
-| **Game** | `GAME#<GameId>` | `METADATA#<GameId>` | id, teamId, opponent, opponentId, opponentLogoUrl, date, time, location, completed (0/1), periodLength, timeoutLimit, foulLimit, periodType, deletedAt? |
-| **StatEvent** | `GAME#<GameId>` | `STAT#<Timestamp>#<StatId>` | id, gameId, playerId, type, points, locationX, locationY, period, clockTime, playName, shotQuality, situation, timestamp, deletedAt? |
+| **Team** | `TEAM#<TeamId>` | `METADATA#<TeamId>` | Name, SeasonId, deletedAt? |
+| **Player** | `PLAYER#<PlayerId>` | `METADATA#<PlayerId>` | Name, DefaultNumber, isArchived?, deletedAt? |
+| **TeamPlayer** | `TEAM#<TeamId>` | `PLAYER#<PlayerId>` | JerseyNumber (1-3 digits), deletedAt? |
+| **Game** | `GAME#<GameId>` | `METADATA#<GameId>` | TeamId, Opponent, Date, Location, completed (0/1), deletedAt? |
+| **StatEvent** | `GAME#<GameId>` | `STAT#<Timestamp>#<StatId>` | PlayerId, Type (MAKE, MISS, etc.), Points, LocationX, LocationY, timestamp |
 
 ### Global Secondary Indexes (GSI)
 
@@ -47,12 +47,18 @@ All write endpoints (`POST`, `PUT`, `PATCH`) require `Content-Type: application/
 
 ### Players
 - `GET /players` - List all active players.
+<<<<<<< scribe-doc-improvements-3364392278239960223
 - `POST /players` - Create a player. Body: `{ "name": string, "avatarColor"?: string }`.
 - `DELETE /players/{id}` - Soft delete a player.
   - **Query Params**: `?archive=true` - Transition player to an archived state instead of soft deletion.
 - `PATCH /players/{id}` - Restore a player.
   - **Body**: `{ "deletedAt": null }` to restore from soft-delete.
   - **Body**: `{ "isArchived": 0 }` to restore from archive.
+=======
+- `POST /players` - Create a player. Body: `{ "name": string }`.
+- `DELETE /players/{id}` - Soft delete a player. Use `?archive=true` to archive instead.
+- `PATCH /players/{id}` - Restore a player. Body: `{ "deletedAt": null }` or `{ "isArchived": 0 }`.
+>>>>>>> main
 
 ### Games
 - `GET /games?teamId={id}` - List games for a specific team.
@@ -62,43 +68,8 @@ All write endpoints (`POST`, `PUT`, `PATCH`) require `Content-Type: application/
 - `POST /games/{id}/complete` - Mark a game as completed. Triggers final S3 snapshot.
 
 ### Game Stats
-- `GET /games/{id}/stats` - List all active stats for a game.
-- `POST /games/{id}/stats` - Record a stat event.
-  - **Body**:
-    ```json
-    {
-      "type": "MAKE" | "MISS" | "REBOUND" | "ASSIST" | "STEAL" | "TURNOVER" | "BLOCK" | "FOUL" | "TIMEOUT" | "SUB_IN" | "SUB_OUT" | "POSSESSION" | "TECHNICAL_FOUL",
-      "playerId": "UUID" | "OPPONENT" | "OPPONENT:{jersey}" | "TEAM_TIMEOUT" | "OUR_TEAM",
-      "points": 0 | 1 | 2 | 3,
-      "locationX": number (0-100),
-      "locationY": number (0-100),
-      "period": number (>= 1),
-      "clockTime": number (>= 0),
-      "playName": string,
-      "shotQuality": string,
-      "situation": "ATO" | "SLOB" | "BLOB" | "EOP",
-      "timestamp": "ISO8601 String"
-    }
-    ```
-  - **Example Request**:
-    ```json
-    {
-      "type": "MAKE",
-      "playerId": "550e8400-e29b-41d4-a716-446655440000",
-      "points": 3,
-      "locationX": 25.5,
-      "locationY": 10.0,
-      "period": 1,
-      "clockTime": 480,
-      "playName": "Horns",
-      "shotQuality": "OPEN",
-      "situation": "ATO",
-      "timestamp": "2024-03-21T10:00:00.000Z"
-    }
-    ```
-
-#### Valid Action Types
-`MAKE`, `MISS`, `REBOUND`, `OFF_REBOUND`, `DEF_REBOUND`, `ASSIST`, `STEAL`, `TURNOVER`, `BLOCK`, `FOUL`, `FOUL_SHOOTING`, `FOUL_NON_SHOOTING`, `TIMEOUT`, `SUB_IN`, `SUB_OUT`, `POSSESSION`, `TECHNICAL_FOUL`
+- `GET /games/{id}/stats` - List all stats for a game.
+- `POST /games/{id}/stats` - Record a stat event. Body: `{ "type": string, "playerId": string, "points"?: number, ... }`.
 
 ### Administration
 - `POST /cleanup` - Hard delete soft-deleted items older than 24 hours.
