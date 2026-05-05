@@ -97,6 +97,7 @@ const AppContent: React.FC = () => {
       <Box
         id="main-content"
         component="main"
+        tabIndex={-1}
         sx={{
           flexGrow: 1,
           p: { xs: 1, sm: 3 },

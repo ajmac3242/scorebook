@@ -53,13 +53,11 @@ vi.stubGlobal("crypto", {
 // Mock fetch globally
 vi.stubGlobal(
   "fetch",
-  vi
-    .fn()
-    .mockResolvedValue({
-      ok: true,
-      status: 200,
-      json: () => Promise.resolve([]),
-    }),
+  vi.fn().mockResolvedValue({
+    ok: true,
+    status: 200,
+    json: () => Promise.resolve([]),
+  }),
 );
 
 // Mock AnimatedNumber

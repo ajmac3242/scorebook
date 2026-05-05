@@ -1,4 +1,4 @@
-# Welcome to Scorebook - Tactical Operating System
+# Welcome to Scorebook - Basketball
 
 Scorebook is a mobile-first, offline-ready basketball statistics tracking application designed as a **Tactical Operating System**. It moves beyond raw stats to provide **Causal Accountability**—helping coaches understand the *why* behind game events through environmental factors, tactical breakdown attribution, and real-time strategic advising.
 

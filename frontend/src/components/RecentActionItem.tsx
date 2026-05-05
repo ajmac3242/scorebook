@@ -46,32 +46,84 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
     const theme = useTheme();
     const getActionIcon = (type: string) => {
       const iconSx = { fontSize: 16, mr: 1, verticalAlign: "middle" };
+      const commonProps = {
+        sx: iconSx,
+        role: "img",
+        "aria-label": type.toLowerCase(),
+      };
+
       switch (type) {
         case ACTION_TYPES.MAKE:
-          return <Check sx={{ ...iconSx, color: "success.main" }} />;
+          return (
+            <Check {...commonProps} sx={{ ...iconSx, color: "success.main" }} />
+          );
         case ACTION_TYPES.MISS:
-          return <Close sx={{ ...iconSx, color: "error.main" }} />;
+          return (
+            <Close {...commonProps} sx={{ ...iconSx, color: "error.main" }} />
+          );
         case ACTION_TYPES.REBOUND:
         case ACTION_TYPES.OFF_REBOUND:
         case ACTION_TYPES.DEF_REBOUND:
-          return <SportsBasketball sx={{ ...iconSx, color: "primary.main" }} />;
+          return (
+            <SportsBasketball
+              {...commonProps}
+              sx={{ ...iconSx, color: "primary.main" }}
+            />
+          );
         case ACTION_TYPES.ASSIST:
-          return <PanTool sx={{ ...iconSx, color: "info.main" }} />;
+          return (
+            <PanTool {...commonProps} sx={{ ...iconSx, color: "info.main" }} />
+          );
         case ACTION_TYPES.STEAL:
-          return <FlashOn sx={{ ...iconSx, color: "warning.main" }} />;
+          return (
+            <FlashOn
+              {...commonProps}
+              sx={{ ...iconSx, color: "warning.main" }}
+            />
+          );
         case ACTION_TYPES.TURNOVER:
-          return <SwapHoriz sx={{ ...iconSx, color: "warning.dark" }} />;
+          return (
+            <SwapHoriz
+              {...commonProps}
+              sx={{ ...iconSx, color: "warning.dark" }}
+            />
+          );
         case ACTION_TYPES.BLOCK:
-          return <ArrowBack sx={{ ...iconSx, color: "secondary.main" }} />;
+          return (
+            <ArrowBack
+              {...commonProps}
+              sx={{ ...iconSx, color: "secondary.main" }}
+            />
+          );
         case ACTION_TYPES.FOUL:
-          return <Warning sx={{ ...iconSx, color: "error.light" }} />;
+          return (
+            <Warning
+              {...commonProps}
+              sx={{ ...iconSx, color: "error.light" }}
+            />
+          );
         case ACTION_TYPES.TIMEOUT:
-          return <History sx={{ ...iconSx, color: "text.secondary" }} />;
+          return (
+            <History
+              {...commonProps}
+              sx={{ ...iconSx, color: "text.secondary" }}
+            />
+          );
         case ACTION_TYPES.SUB_IN:
         case ACTION_TYPES.SUB_OUT:
-          return <Groups sx={{ ...iconSx, color: "text.secondary" }} />;
+          return (
+            <Groups
+              {...commonProps}
+              sx={{ ...iconSx, color: "text.secondary" }}
+            />
+          );
         case ACTION_TYPES.POSSESSION:
-          return <SwapHoriz sx={{ ...iconSx, color: "primary.light" }} />;
+          return (
+            <SwapHoriz
+              {...commonProps}
+              sx={{ ...iconSx, color: "primary.light" }}
+            />
+          );
         default:
           return null;
       }

@@ -342,7 +342,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                   : "Sync data"
             }
           >
-            <span>
+            <span aria-live="polite">
               <Button
                 variant="outlined"
                 size="small"
