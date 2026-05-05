@@ -51,85 +51,72 @@ vi.stubGlobal("crypto", {
 });
 
 // Mock fetch globally
-vi.stubGlobal(
-  "fetch",
-  vi
-    .fn()
-    .mockResolvedValue({
-      ok: true,
-      status: 200,
-      json: () => Promise.resolve([]),
-    }),
-);
+vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, status: 200, json: () => Promise.resolve([]) }));
 
 // Mock AnimatedNumber
 vi.mock("./components/SharedUI", async (importOriginal) => {
   const actual: any = await importOriginal();
   return {
     ...actual,
-    AnimatedNumber: ({ value }: any) =>
-      React.createElement("span", null, value),
+    AnimatedNumber: ({ value }: any) => React.createElement("span", null, value),
   };
 });
 
 // Mock dexie-react-hooks
-vi.mock("dexie-react-hooks", () => {
-  const resolveRecursive = (res: any): any => {
-    let current = res;
-    while (current && typeof current === "object" && current.isSync) {
-      current = current.value;
+const resolveRecursive = (res: any): any => {
+  if (!res) return res;
+  if (typeof res === "object" && res.isSync) {
+    return resolveRecursive(res.value);
+  }
+  if (res instanceof Promise) return undefined;
+  return res;
+};
+
+const useLiveQueryMock = vi.fn((cb: any, deps: any) => {
+  const [val, setVal] = React.useState(() => {
+    try {
+      return resolveRecursive(cb());
+    } catch (e) {
+      return undefined;
     }
-    return current;
-  };
+  });
 
-  return {
-    useLiveQuery: (cb: any, deps: any) => {
-      const [val, setVal] = React.useState(() => {
-        try {
-          return resolveRecursive(cb());
-        } catch (e) {
-          return undefined;
+  React.useLayoutEffect(() => {
+    let isMounted = true;
+    const update = () => {
+      if (!isMounted) return;
+      try {
+        const current = cb();
+        const resolved = resolveRecursive(current);
+        if (resolved === undefined && current instanceof Promise) {
+            current.then(v => {
+                if (isMounted) setVal(resolveRecursive(v));
+            }).catch(() => {
+                if (isMounted) setVal(undefined);
+            });
+        } else {
+            if (isMounted) setVal(resolved);
         }
-      });
+      } catch (e) {
+        if (isMounted) setVal(undefined);
+      }
+    };
 
-      // Use useLayoutEffect to ensure we subscribe and potentially update before browser paint
-      React.useLayoutEffect(() => {
-        let isMounted = true;
-        const update = () => {
-          if (!isMounted) return;
-          try {
-            const current = cb();
-            const resolved = resolveRecursive(current);
-            if (resolved instanceof Promise) {
-              resolved
-                .then((v) => {
-                  if (isMounted) setVal(resolveRecursive(v));
-                })
-                .catch(() => {
-                  if (isMounted) setVal(undefined);
-                });
-            } else {
-              if (isMounted) setVal(resolved);
-            }
-          } catch (e) {
-            if (isMounted) setVal(undefined);
-          }
-        };
+    const sharedDb = (globalThis as any).mockDb;
+    let unsubscribe = () => {};
+    if (sharedDb && typeof sharedDb.subscribe === 'function') {
+      unsubscribe = sharedDb.subscribe(update);
+    }
+    update();
+    return () => {
+      isMounted = false;
+      unsubscribe();
+    };
+  }, deps || []);
 
-        const sharedDb = (globalThis as any).mockDb;
-        let unsubscribe = () => {};
-        if (sharedDb && typeof sharedDb.subscribe === "function") {
-          unsubscribe = sharedDb.subscribe(update);
-        }
-        // Trigger an initial update in case things changed between initial state and effect
-        update();
-        return () => {
-          isMounted = false;
-          unsubscribe();
-        };
-      }, deps || []);
-
-      return val;
-    },
-  };
+  return val;
 });
+
+vi.mock("dexie-react-hooks", () => ({
+  useLiveQuery: useLiveQueryMock,
+}));

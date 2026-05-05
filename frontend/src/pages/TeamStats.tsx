@@ -207,7 +207,10 @@ const TeamStats: React.FC = () => {
 
   const teamPlayersResult = useLiveQuery(() => {
     if (teamId === undefined) return [];
-    return db.teamPlayers.where("teamId").equals(teamId.toString()).toArray();
+    return db.teamPlayers
+      .where("teamId")
+      .equals(teamId.toString())
+      .toArray();
   }, [teamId]);
   const teamPlayers = useMemo(
     () => teamPlayersResult || [],

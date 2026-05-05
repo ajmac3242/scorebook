@@ -2,7 +2,6 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { db, type StatEvent } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
 import { syncService } from "../utils/syncService";
-import { SyncPromise } from "../dbMock";
 import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../constants/stats";
 import {
   calculatePlayerAggregates,
@@ -92,10 +91,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
 
   // Derived data from StatEvents
   const gameStatsQueryResult = useLiveQuery(
-    () =>
-      gameId
-        ? db.stats.where("gameId").equals(gameId).toArray()
-        : (SyncPromise.resolve([]) as unknown as StatEvent[]),
+    () => (gameId ? db.stats.where("gameId").equals(gameId).toArray() : []),
     [gameId],
   );
   const gameStats = useMemo(
@@ -136,9 +132,9 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
 
   // Combine game and team data
   const gameAndTeam = useLiveQuery(() => {
-    return db.games.get(gameId || "").then((g) => {
+    return db.games.get(gameId || "").then(g => {
       if (g?.teamId) {
-        return db.teams.get(g.teamId).then((t) => ({ game: g, team: t }));
+        return db.teams.get(g.teamId).then(t => ({ game: g, team: t }));
       }
       return { game: g, team: undefined };
     });
@@ -148,20 +144,12 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
 
   const teamSeasonStats = useLiveQuery(() => {
     if (!teamId) return { ppp: "0.00" };
-    return db.games
-      .where("teamId")
-      .equals(teamId)
-      .toArray()
-      .then((games) => {
-        const gameIds = games.map((g) => g.id!).filter(Boolean);
-        return db.stats
-          .where("gameId")
-          .anyOf(gameIds)
-          .toArray()
-          .then((allStats) => {
-            return calculateTeamSeasonAverages(games, allStats);
-          });
+    return db.games.where("teamId").equals(teamId).toArray().then(games => {
+      const gameIds = games.map((g) => g.id!).filter(Boolean);
+      return db.stats.where("gameId").anyOf(gameIds).toArray().then(allStats => {
+        return calculateTeamSeasonAverages(games, allStats);
       });
+    });
   }, [teamId]);
 
   useEffect(() => {

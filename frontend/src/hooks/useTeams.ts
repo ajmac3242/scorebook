@@ -6,5 +6,7 @@ import { db } from "../db";
  * @returns {Team[]} Array of teams.
  */
 export const useTeams = () => {
-  return useLiveQuery(() => db.teams.toArray()) || [];
+  return (
+    useLiveQuery(() => db.teams.toArray()) || []
+  );
 };
