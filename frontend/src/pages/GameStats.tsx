@@ -106,7 +106,7 @@ const GameStats: React.FC = () => {
   const [shotChartView, setShotChartView] = useState<"markers" | "heatmap">(
     "markers",
   );
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [timeLeft, setTimeLeft] = useState("");
 
   const [sortConfig, setSortConfig] = useState<{
@@ -115,7 +115,7 @@ const GameStats: React.FC = () => {
   }>({ key: "points", direction: "desc" });
 
   const [openEditDialog, setOpenEditDialog] = useState(false);
-  const [auditDialogOpen, setAuditDialogOpen] = useState(false);
+  const [isAuditDialogOpen, setIsAuditDialogOpen] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [editOpponent, setEditOpponent] = useState("");
   const [editDate, setEditDate] = useState("");
@@ -600,7 +600,7 @@ const GameStats: React.FC = () => {
         synced: 0,
       });
       await syncService.pushUpdates();
-      setDeleteDialogOpen(false);
+      setIsDeleteDialogOpen(false);
     } catch (err) {
       logger.error("Failed to delete game:", err);
     }
@@ -1683,7 +1683,7 @@ const GameStats: React.FC = () => {
                     <Button
                       size="small"
                       variant="outlined"
-                      onClick={() => setAuditDialogOpen(true)}
+                      onClick={() => setIsAuditDialogOpen(true)}
                       startIcon={<Restore />}
                     >
                       Audit Subs
@@ -1752,8 +1752,8 @@ const GameStats: React.FC = () => {
 
       {gameId && (
         <SubstitutionAuditDialog
-          open={auditDialogOpen}
-          onClose={() => setAuditDialogOpen(false)}
+          open={isAuditDialogOpen}
+          onClose={() => setIsAuditDialogOpen(false)}
           gameId={gameId}
           players={players}
           jerseyMap={shotChartJerseyMap}
@@ -1779,7 +1779,7 @@ const GameStats: React.FC = () => {
             color="error"
             onClick={() => {
               setOpenEditDialog(false);
-              setDeleteDialogOpen(true);
+              setIsDeleteDialogOpen(true);
             }}
             aria-label="Delete game"
             title="Delete game"
@@ -1834,8 +1834,8 @@ const GameStats: React.FC = () => {
       </Dialog>
 
       <Dialog
-        open={deleteDialogOpen}
-        onClose={() => setDeleteDialogOpen(false)}
+        open={isDeleteDialogOpen}
+        onClose={() => setIsDeleteDialogOpen(false)}
       >
         <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
           Delete Game?
@@ -1847,7 +1847,7 @@ const GameStats: React.FC = () => {
           </DialogContentText>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+          <Button onClick={() => setIsDeleteDialogOpen(false)}>Cancel</Button>
           <Button onClick={handleDeleteGame} color="error" variant="contained">
             Yes, Delete
           </Button>

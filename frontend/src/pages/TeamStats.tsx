@@ -96,7 +96,7 @@ const TeamStats: React.FC = () => {
     "upcoming",
   );
   const [openSettingsDialog, setOpenSettingsDialog] = useState(false);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [editName, setEditName] = useState("");
   const [editLogoUrl, setEditLogoUrl] = useState("");
   const [editColor, setEditColor] = useState("#154C56");
@@ -464,7 +464,7 @@ const TeamStats: React.FC = () => {
         await db.games.update(g.id!, { deletedAt, synced: 0 });
       }
       await syncService.pushUpdates();
-      setDeleteDialogOpen(false);
+      setIsDeleteDialogOpen(false);
     } catch (err) {
       logger.error("Failed to delete team:", err);
     }
@@ -1295,7 +1295,7 @@ const TeamStats: React.FC = () => {
               color="error"
               onClick={() => {
                 setOpenSettingsDialog(false);
-                setDeleteDialogOpen(true);
+                setIsDeleteDialogOpen(true);
               }}
             >
               <Delete />
@@ -1887,8 +1887,8 @@ const TeamStats: React.FC = () => {
       </Dialog>
 
       <Dialog
-        open={deleteDialogOpen}
-        onClose={() => setDeleteDialogOpen(false)}
+        open={isDeleteDialogOpen}
+        onClose={() => setIsDeleteDialogOpen(false)}
       >
         <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
           Delete Team?
@@ -1901,7 +1901,7 @@ const TeamStats: React.FC = () => {
           </DialogContentText>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
+          <Button onClick={() => setIsDeleteDialogOpen(false)}>Cancel</Button>
           <Button onClick={handleDeleteTeam} color="error" variant="contained">
             Yes, Delete
           </Button>
