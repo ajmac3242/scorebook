@@ -52,11 +52,15 @@ export const isActive = (stat: StatEvent): boolean => !stat.deletedAt;
 export const isScoringEvent = (stat: StatEvent): boolean =>
   stat.type === ACTION_TYPES.MAKE;
 
+const FOUL_TYPES = new Set<string>([
+  ACTION_TYPES.FOUL,
+  ACTION_TYPES.FOUL_SHOOTING,
+  ACTION_TYPES.FOUL_NON_SHOOTING,
+  ACTION_TYPES.TECHNICAL_FOUL,
+]);
+
 export const isFoulAction = (stat: StatEvent): boolean =>
-  stat.type === ACTION_TYPES.FOUL ||
-  stat.type === ACTION_TYPES.FOUL_SHOOTING ||
-  stat.type === ACTION_TYPES.FOUL_NON_SHOOTING ||
-  stat.type === ACTION_TYPES.TECHNICAL_FOUL;
+  FOUL_TYPES.has(stat.type);
 
 export const isFreeThrow = (stat: StatEvent): boolean => stat.points === 1;
 
@@ -106,11 +110,10 @@ export const calculateTsPct = (
 ): string => calcPct(points, 2 * (attempts + 0.44 * fta));
 
 export const getInitials = (name: string | undefined | null): string => {
-  return (name || "")
-    .trim()
-    .split(/\s+/)
+  const parts = (name || "").trim().split(/\s+/).filter(Boolean);
+  return parts
     .slice(0, 2)
-    .map((v) => v[0]?.toUpperCase())
+    .map((part) => part[0]?.toUpperCase())
     .join("");
 };
 
@@ -162,11 +165,8 @@ export const updateScores = (
 ) => {
   if (isScoringEvent(stat)) {
     const points = stat.points || 0;
-    if (isOpponentId(stat.playerId)) {
-      scores.opp += points;
-    } else {
-      scores.team += points;
-    }
+    const key = isOpponentId(stat.playerId) ? "opp" : "team";
+    scores[key] += points;
   }
 };
 
@@ -235,10 +235,9 @@ export function initializeStatsMap(
   players: Player[],
   teamPlayers: TeamPlayer[],
 ): Map<string, PlayerAggregates> {
-  const jerseyMap = new Map<string, string | undefined>();
-  for (let i = 0; i < teamPlayers.length; i++) {
-    jerseyMap.set(teamPlayers[i].playerId, teamPlayers[i].jerseyNumber);
-  }
+  const jerseyMap = new Map<string, string | undefined>(
+    teamPlayers.map((tp) => [tp.playerId, tp.jerseyNumber]),
+  );
 
   const statsMap = new Map<string, PlayerAggregates>();
   for (let i = 0; i < players.length; i++) {
@@ -285,6 +284,23 @@ export const calculateTeamSeasonAverages = (
   const teamAgg = calculateTeamAggregates(games, allStats, true);
   return { ppp: teamAgg.ppp };
 };
+
+/**
+ * Calculates a win-loss-draw record from game totals.
+ */
+function calculateRecord(
+  gameTotals: Iterable<{ team: number; opp: number }>,
+): string {
+  let wins = 0;
+  let losses = 0;
+  let draws = 0;
+  for (const totals of gameTotals) {
+    if (totals.team > totals.opp) wins++;
+    else if (totals.team < totals.opp) losses++;
+    else draws++;
+  }
+  return draws > 0 ? `${wins}-${losses}-${draws}` : `${wins}-${losses}`;
+}
 
 export const calculateTeamAggregates = (
   games: Game[],
@@ -353,15 +369,6 @@ export const calculateTeamAggregates = (
     }
   }
 
-  let wins = 0;
-  let losses = 0;
-  let draws = 0;
-  for (const totals of gameTotals.values()) {
-    if (totals.team > totals.opp) wins++;
-    else if (totals.team < totals.opp) losses++;
-    else draws++;
-  }
-
   const gp = targetCount || 1;
   const totalPossessions = calculatePossessions(
     team.fga,
@@ -381,7 +388,7 @@ export const calculateTeamAggregates = (
     rpg: formatToOne(team.reb / gp),
     apg: formatToOne(team.ast / gp),
     oppg: formatToOne(opp.pts / gp),
-    record: draws > 0 ? `${wins}-${losses}-${draws}` : `${wins}-${losses}`,
+    record: calculateRecord(gameTotals.values()),
     totalGames: targetCount,
     ppp: calculatePpp(team.pts, totalPossessions),
     possessions: Math.round(totalPossessions),
@@ -458,15 +465,12 @@ export const isEventInPeriod = (
   periodType: string,
 ): boolean => {
   if (periodType === "QUARTERS") {
-    if (currentPeriod === 4) {
-      return eventPeriod >= 4;
-    }
+    if (currentPeriod === 4) return eventPeriod >= 4;
     return eventPeriod === currentPeriod;
   }
 
-  if (currentPeriod === 1) {
-    return eventPeriod === 1;
-  }
+  if (currentPeriod === 1) return eventPeriod === 1;
 
+  // For non-quarters (halves), any period >= 2 is considered part of the second half (including OT)
   return eventPeriod >= 2;
 };

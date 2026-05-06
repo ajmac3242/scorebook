@@ -78,8 +78,8 @@ export const getPlusMinusColor = (val: number): string => {
 /**
  * Formats a plus-minus value with a leading '+' for positive numbers.
  * @param {number} val - The plus-minus value.
- * @returns {string | number} The formatted value.
+ * @returns {string} The formatted value.
  */
-export const formatPlusMinus = (val: number): string | number => {
-  return val > 0 ? `+${val}` : val;
+export const formatPlusMinus = (val: number): string => {
+  return val > 0 ? `+${val}` : String(val);
 };

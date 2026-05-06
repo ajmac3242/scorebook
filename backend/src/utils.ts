@@ -108,6 +108,29 @@ export function logInfo(label: string, data?: unknown) {
 }
 
 /**
+ * Helper to redact sensitive keys in a map (Record).
+ * @param map - The map to redact.
+ * @param redactAll - Whether to redact all keys regardless of name.
+ * @returns A redacted copy of the map.
+ */
+function redactMap(
+  map: Record<string, unknown> | undefined,
+  redactAll = false,
+): Record<string, unknown> | undefined {
+  if (!map) return undefined;
+  const redacted = { ...map };
+  for (const key in redacted) {
+    if (redactAll || REDACTED_HEADERS.has(key.toLowerCase())) {
+      const val = redacted[key];
+      redacted[key] = Array.isArray(val)
+        ? val.map(() => "[REDACTED]")
+        : "[REDACTED]";
+    }
+  }
+  return redacted;
+}
+
+/**
  * Redacts sensitive information from the Lambda event before logging.
  *
  * WHY: CloudWatch logs are often accessible to multiple developers or automated tools.
@@ -121,34 +144,21 @@ export function logInfo(label: string, data?: unknown) {
 export function maskEvent(event: APIGatewayProxyEventV2): unknown {
   // 🛡️ Enhancement 1-3: Broadened log masking for headers, query params, and authorizer.
   const masked = { ...event };
+  const anyEvent = event as unknown as Record<string, unknown>;
 
   if (event.headers) {
-    const redactedHeaders: Record<string, string | undefined> = {
-      ...masked.headers,
-    };
-    for (const key in redactedHeaders) {
-      if (REDACTED_HEADERS.has(key.toLowerCase())) {
-        redactedHeaders[key] = "[REDACTED]";
-      }
-    }
-    masked.headers = redactedHeaders;
+    masked.headers = redactMap(
+      event.headers as Record<string, unknown>,
+    ) as Record<string, string | undefined>;
   }
 
   // Handle multi-value headers if present (older API Gateway versions)
-  const anyEvent = event as unknown as Record<string, unknown>;
-  const multiValueHeaders = anyEvent.multiValueHeaders as Record<
-    string,
-    string[]
-  >;
+  const multiValueHeaders = anyEvent.multiValueHeaders as
+    | Record<string, string[]>
+    | undefined;
   if (multiValueHeaders) {
-    const redactedMulti = { ...multiValueHeaders };
-    for (const key in redactedMulti) {
-      if (REDACTED_HEADERS.has(key.toLowerCase())) {
-        redactedMulti[key] = redactedMulti[key].map(() => "[REDACTED]");
-      }
-    }
     (masked as unknown as Record<string, unknown>).multiValueHeaders =
-      redactedMulti;
+      redactMap(multiValueHeaders as Record<string, unknown>);
   }
 
   if (event.cookies) {
@@ -157,26 +167,22 @@ export function maskEvent(event: APIGatewayProxyEventV2): unknown {
 
   // Redact all query string parameters as they often contain tokens or PII
   if (event.queryStringParameters) {
-    const redactedParams = { ...event.queryStringParameters };
-    for (const key in redactedParams) {
-      redactedParams[key] = "[REDACTED]";
-    }
-    masked.queryStringParameters = redactedParams;
+    masked.queryStringParameters = redactMap(
+      event.queryStringParameters as Record<string, unknown>,
+      true,
+    ) as Record<string, string | undefined>;
   }
 
   const multiValueQueryParams = anyEvent.multiValueQueryStringParameters as
     | Record<string, string[]>
     | undefined;
   if (multiValueQueryParams) {
-    const redactedMultiParams = { ...multiValueQueryParams };
-    for (const key in redactedMultiParams) {
-      redactedMultiParams[key] = redactedMultiParams[key].map(
-        () => "[REDACTED]",
-      );
-    }
     (
       masked as unknown as Record<string, unknown>
-    ).multiValueQueryStringParameters = redactedMultiParams;
+    ).multiValueQueryStringParameters = redactMap(
+      multiValueQueryParams as Record<string, unknown>,
+      true,
+    );
   }
 
   // Redact authorizer context which may contain JWT claims or internal IDs
@@ -224,9 +230,9 @@ export function normalizePath(event: APIGatewayProxyEventV2): string {
  */
 export function extractRequestMetadata(event: APIGatewayProxyEventV2) {
   const method =
+    event.requestContext?.http?.method ||
     (event as unknown as Record<string, unknown>).method ||
     (event as unknown as Record<string, unknown>).httpMethod ||
-    event.requestContext?.http?.method ||
     "GET";
   return { method: method as string, path: normalizePath(event) };
 }
@@ -268,12 +274,8 @@ export function getHeader(
 ): string | undefined {
   if (!headers) return undefined;
   const target = name.toLowerCase();
-  for (const key in headers) {
-    if (key.toLowerCase() === target) {
-      return headers[key];
-    }
-  }
-  return undefined;
+  const key = Object.keys(headers).find((k) => k.toLowerCase() === target);
+  return key ? headers[key] : undefined;
 }
 
 /**
