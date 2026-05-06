@@ -1,0 +1,88 @@
+import { DynamoDBDocumentClient, QueryCommand } from "@aws-sdk/lib-dynamodb";
+import { APIGatewayProxyResultV2 } from "aws-lambda";
+import { v4 as uuidv4 } from "uuid";
+import { ok, created, badRequest } from "../responses.js";
+import { isValidUuid, validateStatEvent } from "../validation.js";
+import { Keys } from "../keys.js";
+import { stripLocalFields } from "../utils.js";
+import { putNewItem } from "../database.js";
+import { snapshotGameStats } from "../snapshots.js";
+
+/**
+ * Handlers for Game Stats sub-endpoints: /games/{gameId}/stats.
+ * @param method - HTTP method.
+ * @param path - Request path.
+ * @param body - Parsed JSON body.
+ * @param tableName - DynamoDB table name.
+ * @param docClient - DynamoDB Document Client.
+ * @returns Response or null.
+ */
+export async function handleGameStats(
+  method: string,
+  path: string,
+  body: Record<string, unknown>,
+  tableName: string,
+  docClient: DynamoDBDocumentClient,
+): Promise<APIGatewayProxyResultV2 | null> {
+  /**
+   * 🏀 Game Stats Handler
+   *
+   * WHY: High-frequency endpoint for recording and retrieving live game events.
+   * Enforces strict validation and schema normalization for all statistical events
+   * and triggers immediate game-level snapshots for real-time visibility.
+   */
+  const parts = path.split("/");
+  if (parts.length !== 4) return null;
+  const gameId = parts[2];
+  if (!isValidUuid(gameId)) {
+    return badRequest("Invalid gameId format (UUID required)");
+  }
+
+  if (method === "GET") {
+    const result = await docClient.send(
+      new QueryCommand({
+        TableName: tableName,
+        KeyConditionExpression: "PK = :pk AND begins_with(SK, :sk)",
+        ExpressionAttributeValues: {
+          ":pk": Keys.game(gameId),
+          ":sk": "STAT#",
+        },
+      }),
+    );
+    return ok(result.Items);
+  }
+
+  if (method === "POST") {
+    const error = validateStatEvent(body);
+    if (error) return badRequest(error);
+
+    const id = (body?.id as string) || uuidv4();
+    if (!isValidUuid(id)) {
+      return badRequest("Invalid stat id format (UUID required)");
+    }
+
+    const timestamp = (body?.timestamp as string) || new Date().toISOString();
+    if (
+      typeof timestamp !== "string" ||
+      !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z?$/.test(timestamp)
+    ) {
+      return badRequest("Invalid timestamp format");
+    }
+
+    const cleanBody = stripLocalFields(body) as Record<string, unknown>;
+    const item = {
+      ...cleanBody,
+      PK: Keys.game(gameId),
+      SK: Keys.stat(timestamp as string, id as string),
+      GSI1PK: Keys.game(gameId),
+      GSI1SK: Keys.stat(timestamp as string, id as string),
+      id,
+      timestamp,
+    };
+    await putNewItem(tableName, item, docClient);
+    await snapshotGameStats(gameId, tableName, docClient);
+    return created(item);
+  }
+
+  return null;
+}
