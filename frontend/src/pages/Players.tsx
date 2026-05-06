@@ -154,7 +154,11 @@ const Players: React.FC = () => {
     }
   };
 
-  const handleToggleStar = async (e: React.MouseEvent, id: string, currentIsStar: number | undefined) => {
+  const handleToggleStar = async (
+    e: React.MouseEvent,
+    id: string,
+    currentIsStar: number | undefined,
+  ) => {
     e.stopPropagation();
     try {
       await db.players.update(id, { isStar: currentIsStar ? 0 : 1, synced: 0 });
@@ -289,11 +293,23 @@ const Players: React.FC = () => {
                           }
                         />
                       )}
-                      <Tooltip title={player.isStar ? "Remove Star Player" : "Mark as Star Player"}>
+                      <Tooltip
+                        title={
+                          player.isStar
+                            ? "Remove Star Player"
+                            : "Mark as Star Player"
+                        }
+                      >
                         <IconButton
                           size="small"
-                          onClick={(e) => handleToggleStar(e, player.id!, player.isStar)}
-                          sx={{ color: player.isStar ? "#FFD700" : "rgba(255,255,255,0.5)" }}
+                          onClick={(e) =>
+                            handleToggleStar(e, player.id!, player.isStar)
+                          }
+                          sx={{
+                            color: player.isStar
+                              ? "#FFD700"
+                              : "rgba(255,255,255,0.5)",
+                          }}
                         >
                           {player.isStar ? <StarIcon /> : <StarOutlineIcon />}
                         </IconButton>

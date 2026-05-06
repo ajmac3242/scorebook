@@ -322,7 +322,10 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       }
     }
 
-    if (lastLineupChangeClock === periodLen && lastLineupChangeScoreTeam === 0) {
+    if (
+      lastLineupChangeClock === periodLen &&
+      lastLineupChangeScoreTeam === 0
+    ) {
       lastLineupChangeScoreTeam = periodStartScoreTeam;
       lastLineupChangeScoreOpp = periodStartScoreOpp;
     }

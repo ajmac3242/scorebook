@@ -252,7 +252,10 @@ export const Scoreboard = React.memo(
                   gap: 2,
                 }}
               >
-                <Typography variant="h6" sx={{ fontWeight: 900, fontSize: "1.2rem" }}>
+                <Typography
+                  variant="h6"
+                  sx={{ fontWeight: 900, fontSize: "1.2rem" }}
+                >
                   {alert.message}
                 </Typography>
               </Box>
