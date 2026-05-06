@@ -14,7 +14,7 @@ export const useStatWriter = (gameId: string | null) => {
       statData: Partial<StatEvent> & {
         isEditing?: boolean;
         editingStatId?: string | null;
-      }
+      },
     ) => {
       if (!gameId) return null;
       setIsSavingStat(true);
@@ -58,7 +58,7 @@ export const useStatWriter = (gameId: string | null) => {
         setIsSavingStat(false);
       }
     },
-    [gameId]
+    [gameId],
   );
 
   const deleteStat = useCallback(async (statId: string) => {
@@ -82,15 +82,15 @@ export const useStatWriter = (gameId: string | null) => {
       originalOnCourt: Set<string>,
       finalOnCourt: Set<string>,
       period: number,
-      clockSeconds: number
+      clockSeconds: number,
     ) => {
       if (!gameId) return;
       const timestamp = new Date().toISOString();
       const toSubOut = Array.from(originalOnCourt).filter(
-        (id) => !finalOnCourt.has(id)
+        (id) => !finalOnCourt.has(id),
       );
       const toSubIn = Array.from(finalOnCourt).filter(
-        (id) => !originalOnCourt.has(id) && !id.startsWith("EMPTY")
+        (id) => !originalOnCourt.has(id) && !id.startsWith("EMPTY"),
       );
 
       for (const pId of toSubOut) {
@@ -120,7 +120,7 @@ export const useStatWriter = (gameId: string | null) => {
       }
       await syncService.pushUpdates();
     },
-    [gameId]
+    [gameId],
   );
 
   const endHighGame = useCallback(async () => {
