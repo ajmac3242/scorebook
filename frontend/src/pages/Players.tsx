@@ -376,7 +376,12 @@ const Players: React.FC = () => {
                   mb: 2,
                 }}
               />
-              <Typography variant="h6" color="text.secondary" gutterBottom>
+              <Typography
+                id="empty-state-msg"
+                variant="h6"
+                color="text.secondary"
+                gutterBottom
+              >
                 {searchTerm
                   ? `No players matching "${searchTerm}"`
                   : `No ${showArchived ? "" : "active"} players found.`}
@@ -391,6 +396,7 @@ const Players: React.FC = () => {
                   variant="outlined"
                   onClick={() => setSearchTerm("")}
                   sx={{ borderRadius: 2 }}
+                  aria-describedby="empty-state-msg"
                 >
                   Clear Search
                 </Button>
@@ -400,6 +406,7 @@ const Players: React.FC = () => {
                   startIcon={<AddIcon />}
                   onClick={() => setOpen(true)}
                   sx={{ borderRadius: 2 }}
+                  aria-describedby="empty-state-msg"
                 >
                   Add Your First Player
                 </Button>
@@ -453,15 +460,31 @@ const Players: React.FC = () => {
             sx={{ mb: 2, mt: 1 }}
             error={showValidation && !name.trim()}
             helperText={
-              showValidation && !name.trim() ? "Player name is required" : ""
+              showValidation && !name.trim() ? (
+                <span id="player-name-error">Player name is required</span>
+              ) : (
+                ""
+              )
             }
+            FormHelperTextProps={{
+              id: "player-name-error",
+            }}
+            inputProps={{
+              "aria-invalid": showValidation && !name.trim(),
+              "aria-describedby":
+                showValidation && !name.trim() ? "player-name-error" : undefined,
+            }}
             required
             disabled={isSubmitting}
           />
           <Typography variant="subtitle2" gutterBottom>
             Avatar Color
           </Typography>
-          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+          <Box
+            sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}
+            role="radiogroup"
+            aria-label="Select avatar color"
+          >
             {AVATAR_COLORS.map((color) => (
               <Tooltip key={color} title={`Select ${color.toUpperCase()}`}>
                 <Box
@@ -471,10 +494,10 @@ const Players: React.FC = () => {
                       setAvatarColor(color);
                     }
                   }}
-                  role="button"
+                  role="radio"
                   tabIndex={0}
                   aria-label={`Select color ${color.toUpperCase()} as avatar color`}
-                  aria-pressed={avatarColor === color}
+                  aria-checked={avatarColor === color}
                   sx={{
                     width: 32,
                     height: 32,

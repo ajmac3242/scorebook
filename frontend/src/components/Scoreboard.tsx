@@ -385,12 +385,14 @@ export const Scoreboard = React.memo(
               : `${periodLabel} ${period}`.toUpperCase()}
           </Typography>
 
-          <Tooltip title={isReadOnly ? "" : "Click to edit game clock"}>
+          <Tooltip
+            title={isReadOnly ? "" : "Adjust Game Time and Clock Status"}
+          >
             <Box
               onClick={onEditClock}
               role="button"
               tabIndex={isReadOnly ? -1 : 0}
-              aria-label={`Game clock: ${formatClock(clockSeconds)}, Period ${period}. ${isReadOnly ? "" : "Click to edit."}`}
+              aria-label={`Game clock: ${formatClock(clockSeconds)}, ${isClockRunning ? "Running" : "Paused"}, Period ${period}. ${isReadOnly ? "" : "Click to edit."}`}
               onKeyDown={(e) => {
                 if (!isReadOnly && (e.key === "Enter" || e.key === " ")) {
                   onEditClock?.();

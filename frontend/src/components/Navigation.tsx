@@ -158,7 +158,9 @@ const Navigation: React.FC = () => {
     <>
       {isSyncing && (
         <Box
+          role="status"
           aria-live="polite"
+          aria-busy="true"
           sx={{
             position: "fixed",
             top: 80,

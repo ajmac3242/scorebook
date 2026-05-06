@@ -69,8 +69,8 @@ export const ActionControls = React.memo(
         <Tooltip
           title={
             possessionState === SPECIAL_PLAYER_IDS.OUR_TEAM
-              ? "Switch possession to Opponent"
-              : "Switch possession to Team"
+              ? "Change possession to Opponent"
+              : "Change possession to Our Team"
           }
         >
           <span>
@@ -82,9 +82,10 @@ export const ActionControls = React.memo(
               disabled={isReadOnly}
               aria-label={
                 possessionState === SPECIAL_PLAYER_IDS.OUR_TEAM
-                  ? "Switch possession to Opponent"
-                  : "Switch possession to Team"
+                  ? "Change possession to Opponent"
+                  : "Change possession to Our Team"
               }
+              aria-pressed={!!possessionState}
               color={possessionState ? "primary" : "inherit"}
             >
               Poss
@@ -92,7 +93,7 @@ export const ActionControls = React.memo(
           </span>
         </Tooltip>
 
-        <Tooltip title="Quick Substitution">
+        <Tooltip title="Manage Lineup Substitutions">
           <span>
             <Button
               size="small"
@@ -100,19 +101,19 @@ export const ActionControls = React.memo(
               startIcon={<Groups />}
               onClick={onQuickSub}
               disabled={isReadOnly}
-              aria-label="quick substitution"
+              aria-label="manage lineup substitutions"
             >
               Sub
             </Button>
           </span>
         </Tooltip>
 
-        <Tooltip title="Audit Substitutions">
+        <Tooltip title="View history and correct substitution errors">
           <span>
             <IconButton
               size="small"
               onClick={() => onAuditSubs()}
-              aria-label="audit substitutions"
+              aria-label="audit substitutions history"
               sx={{
                 border: "1px solid rgba(0,0,0,0.23)",
                 borderRadius: "4px",
@@ -124,7 +125,7 @@ export const ActionControls = React.memo(
           </span>
         </Tooltip>
 
-        <Tooltip title="Record Team Timeout">
+        <Tooltip title="Log a timeout for the active team">
           <span>
             <Button
               size="small"
@@ -132,14 +133,14 @@ export const ActionControls = React.memo(
               startIcon={<History />}
               onClick={onTimeout}
               disabled={isReadOnly}
-              aria-label="Record Team Timeout"
+              aria-label="log team timeout"
             >
               Timeout
             </Button>
           </span>
         </Tooltip>
 
-        <Tooltip title="Record Free Throws">
+        <Tooltip title="Open Free Throw Scoring Workflow">
           <span>
             <Button
               size="small"
@@ -154,7 +155,13 @@ export const ActionControls = React.memo(
           </span>
         </Tooltip>
 
-        <Tooltip title="Undo last action (Ctrl+Z)">
+        <Tooltip
+          title={
+            recentStatsLength === 0
+              ? "No actions to undo"
+              : "Revert the last recorded action (Ctrl+Z)"
+          }
+        >
           <span>
             <Button
               size="small"
@@ -162,7 +169,7 @@ export const ActionControls = React.memo(
               startIcon={<UndoIcon />}
               onClick={onUndo}
               disabled={recentStatsLength === 0 || isReadOnly}
-              aria-label="Undo last action"
+              aria-label="undo last action"
             >
               Undo
             </Button>

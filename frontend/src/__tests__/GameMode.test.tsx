@@ -261,7 +261,7 @@ describe("GameMode Component", () => {
     renderComponent();
 
     const subBtn = await screen.findByRole("button", {
-      name: /quick substitution/i,
+      name: /manage lineup substitutions/i,
     });
     fireEvent.click(subBtn);
 
