@@ -122,7 +122,9 @@ function redactMap(
   for (const key in redacted) {
     if (redactAll || REDACTED_HEADERS.has(key.toLowerCase())) {
       const val = redacted[key];
-      redacted[key] = Array.isArray(val) ? val.map(() => "[REDACTED]") : "[REDACTED]";
+      redacted[key] = Array.isArray(val)
+        ? val.map(() => "[REDACTED]")
+        : "[REDACTED]";
     }
   }
   return redacted;

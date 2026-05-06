@@ -288,7 +288,9 @@ export const calculateTeamSeasonAverages = (
 /**
  * Calculates a win-loss-draw record from game totals.
  */
-function calculateRecord(gameTotals: Iterable<{ team: number; opp: number }>): string {
+function calculateRecord(
+  gameTotals: Iterable<{ team: number; opp: number }>,
+): string {
   let wins = 0;
   let losses = 0;
   let draws = 0;
