@@ -76,3 +76,11 @@ Observation: The platform has matured from a data entry system to a robust analy
 Impact: Without real-time defensive scheme effectiveness or shot-clock process analysis, coaches rely on delayed intuition rather than immediate evidence. Tactical regressions (like settling for poor early-clock shots) often go unnoticed until the halftime report, by which time the momentum may have shifted irrevocably.
 
 Recommendation: Pivot the product strategy toward **Operational Intelligence**. This involves automating the "Synthesis" step for the coach. Priority must be given to Live Defensive Scheme Efficiency to drive mid-quarter adjustments and a "Shot Clock Process" tracker to ensure offensive discipline. Finally, implementing a "Spark Plug" index will help identify the emotional and momentum-based value of role players that traditional +/- metrics often dilute.
+
+## 2026-05-24 - The Strategic Restoration: Fixing the "Ghost Archive"
+
+Observation: A deep audit revealed that high-impact coaching features (HALT, On/Off Analytics, Matchup Tracking) were prematurely archived without implementation in the source code. This "Ghost Archive" state creates a false sense of product maturity and leaves the coach without essential decision-support tools.
+
+Impact: The platform currently excels at data collection but lags in automated tactical intervention. Coaches are still manually tracking matchups and officiating tightness, which increases cognitive load during high-pressure game moments.
+
+Recommendation: Restore and prioritize the "Ghost" features. Specifically, focus on the HALT system for immediate risk management and On/Off Analytics for longitudinal roster optimization. This shift moves the platform from a "Digitized Scorebook" to a true "Tactical Command Center."
