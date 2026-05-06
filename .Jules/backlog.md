@@ -92,6 +92,59 @@ Completed items are archived to `.Jules/backlog-archive.md` to maintain optimal 
 
 ---
 
+## [ ] HALT (High-Leverage Alerting) System
+**Priority:** HIGH
+**Type:** Enhancement
+**Why:** Critical game situations (e.g., a star player with 3 fouls in the 1st half) require immediate tactical shifts. Automated alerts ensure coaches never miss a high-leverage decision window.
+**What:** Implement a "High-Leverage Alert" engine that monitors game state and triggers intrusive HUD warnings for critical tactical scenarios.
+**Acceptance Criteria:**
+- [ ] "Star Player Foul Warning" (e.g., 2 fouls in Q1, 3 in Q2).
+- [ ] "Bonus Approaching" alert when an opponent is at 4 fouls in a quarter.
+- [ ] "Time to Sub" fatigue alerts based on live stint duration vs target minutes.
+- [ ] "Clutch Mode" activation alert when entering the final 4 mins of a close game.
+
+## [ ] Defensive Assignment & Matchup Tracking
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Coaches need to know who is responsible for opponent scoring. Raw team defensive stats don't tell you which individual player is failing to stop their man.
+**What:** Add a "Matchup" layer to the live game tracking. Allow coaches to assign a "Primary Defender" to each active opponent. When an opponent scores, the points are automatically attributed as "Points Allowed" to their defender.
+**Acceptance Criteria:**
+- [ ] UI in GameMode to "Drag and Drop" our players onto opponent players to set assignments.
+- [ ] Tracking of "Points Allowed" per player.
+- [ ] "Defensive Stop %" per player (how often an opponent possession ends in a stop while they are the primary defender).
+- [ ] Summary in GameStats showing "Matchup Battle" (Our #5 vs Their #10).
+
+## [ ] On/Off Team Impact Analytics
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Some players have a high +/- because they play with the starters; others make the bench units better. On/Off splits reveal the true impact of a player by comparing team performance when they are on the floor vs. when they are on the bench.
+**What:** Calculate team-level metrics (Offensive Rating, Defensive Rating, Net Rating) for both states (Player ON vs. Player OFF) across multiple games.
+**Acceptance Criteria:**
+- [ ] New "Impact" tab in Player Stats or Team Analytics.
+- [ ] Display "Team Net Rating (ON)" vs "Team Net Rating (OFF)" for each player.
+- [ ] "Impact Differential" (The difference between ON and OFF metrics).
+- [ ] Support for filtering by season or last X games to identify recent trends.
+
+## [ ] Integrated Practice Prescription Engine
+**Priority:** HIGH
+**Type:** Feature
+**Why:** The best coaches use game data to plan the next practice. This feature closes the loop by suggesting specific drills based on the team's statistical failures in the last game.
+**What:** A logic engine that maps low KPI performance (e.g., low FT%, high TOs) to a library of suggested practice drills.
+**Acceptance Criteria:**
+- [ ] "Practice Planner" button on the Game Stats page.
+- [ ] Automatic suggestion of 3 "Focus Areas" based on the game's worst-performing metrics.
+- [ ] Linkage to a (mock) library of drills (e.g., "Poor 3PT% -> Suggest '100 Makes' Drill").
+
+## [ ] Real-Time "Pace & Pressure" Analytics HUD
+**Priority:** HIGH
+**Type:** UX
+**Why:** Losing control of the game's tempo is a primary cause of blown leads. Real-time monitoring of Pace (Possessions per 40m) and Shot-Clock Pressure ensures the team sticks to the "Winning Blueprint."
+**What:** Integrate live tempo tracking into the GameMode sidebar, comparing current pace against the target "Identity" pace.
+**Acceptance Criteria:**
+- [ ] "Pace Meter" showing live possessions-per-40m calculation.
+- [ ] Visual indicator of "Tempo Delta" (Difference between our target pace and current game pace).
+- [ ] "Pace Shift" notification when the game tempo changes by more than 15% in a single period.
+
 ## [ ] [Ref-Identity Conflict Alert System]
 **Priority:** HIGH
 **Type:** Enhancement
