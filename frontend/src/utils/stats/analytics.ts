@@ -311,3 +311,100 @@ export const isClutchEvent = (
 
   return (isFinal || isOT) && isClutchTime && isClutchScore;
 };
+
+export const calculateHaltAlerts = (params: {
+  players: any[];
+  statsMap: Map<string, any>;
+  gameData: any;
+  period: number;
+  clockSeconds: number;
+  periodType: string;
+  maxStintDuration: number;
+  jerseyMap: Map<string, string | undefined>;
+}): HaltAlert[] => {
+  const alerts: HaltAlert[] = [];
+  const {
+    players,
+    statsMap,
+    gameData,
+    period,
+    clockSeconds,
+    periodType,
+    maxStintDuration,
+    jerseyMap,
+  } = params;
+
+  // 1. Star Player Foul Warning
+  players.forEach((p) => {
+    if (p.isStar === 1 && gameData.onCourtIds.has(p.id)) {
+      const fouls = statsMap.get(p.id)?.fouls || 0;
+      let trigger = false;
+      if (period === 1 && fouls >= 2) trigger = true;
+      if (period === 2 && fouls >= 3) trigger = true;
+      if (fouls >= 4) trigger = true;
+
+      if (trigger) {
+        alerts.push({
+          id: `foul-${p.id}`,
+          type: "FOUL",
+          severity: fouls >= 4 ? "error" : "warning",
+          message: `Star Foul Trouble: #${jerseyMap.get(p.id)} (${fouls} PF)`,
+          playerId: p.id,
+          jerseyNumber: jerseyMap.get(p.id),
+        });
+      }
+    }
+  });
+
+  // 2. Bonus Approaching Alert
+  const oppFouls = gameData.teamFoulStats.oppFouls;
+  const bonusLimit = periodType === "QUARTERS" ? 5 : 7;
+  if (oppFouls === bonusLimit - 1) {
+    alerts.push({
+      id: "bonus-approaching",
+      type: "BONUS",
+      severity: "info",
+      message: "Opponent in Foul Trouble (4/5)",
+    });
+  } else if (oppFouls >= bonusLimit) {
+    alerts.push({
+      id: "in-bonus",
+      type: "BONUS",
+      severity: "warning",
+      message: "BONUS ACTIVE: Attack the Rim",
+    });
+  }
+
+  // 3. Time to Sub fatigue alerts
+  gameData.onCourtIds.forEach((pId: string) => {
+    const duration = gameData.stintDurations.get(pId) || 0;
+    if (duration > maxStintDuration * 60) {
+      alerts.push({
+        id: `fatigue-${pId}`,
+        type: "FATIGUE",
+        severity: "warning",
+        message: `Fatigue Alert: #${jerseyMap.get(pId)} (${Math.floor(duration / 60)}m)`,
+        playerId: pId,
+        jerseyNumber: jerseyMap.get(pId),
+      });
+    }
+  });
+
+  // 4. Clutch Mode Alert
+  const isClutch = isClutchEvent(
+    period,
+    clockSeconds,
+    gameData.currentScore - gameData.opponentScore,
+    periodType,
+  );
+  if (isClutch) {
+    alerts.push({
+      id: "clutch-mode",
+      type: "CLUTCH",
+      severity: "error",
+      message: "🔥 CLUTCH MODE ACTIVE",
+    });
+  }
+
+  return alerts;
+};

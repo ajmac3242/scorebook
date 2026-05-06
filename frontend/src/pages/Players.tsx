@@ -17,12 +17,15 @@ import {
   Snackbar,
   Alert,
   Tooltip,
+  IconButton,
 } from "@mui/material";
 import {
   Add as AddIcon,
   History,
   People as PlayersIcon,
   Check as CheckIcon,
+  Star as StarIcon,
+  StarBorder as StarOutlineIcon,
 } from "@mui/icons-material";
 import { db } from "../db";
 import { syncService } from "../utils/syncService";
@@ -151,6 +154,16 @@ const Players: React.FC = () => {
     }
   };
 
+  const handleToggleStar = async (e: React.MouseEvent, id: string, currentIsStar: number | undefined) => {
+    e.stopPropagation();
+    try {
+      await db.players.update(id, { isStar: currentIsStar ? 0 : 1, synced: 0 });
+      await syncService.pushUpdates();
+    } catch (err) {
+      logger.error("Failed to toggle star player status", err, { id });
+    }
+  };
+
   return (
     <Box sx={{ pb: 8 }}>
       <Snackbar
@@ -257,24 +270,35 @@ const Players: React.FC = () => {
                     >
                       {player.name}
                     </Typography>
-                    {Boolean(player.isArchived) && (
-                      <Chip
-                        label="Archived"
-                        size="small"
-                        sx={{
-                          bgcolor: "rgba(255,255,255,0.2)",
-                          color: "white",
-                        }}
-                        icon={
-                          <History
-                            sx={{
-                              fontSize: "12px !important",
-                              color: "white !important",
-                            }}
-                          />
-                        }
-                      />
-                    )}
+                    <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+                      {Boolean(player.isArchived) && (
+                        <Chip
+                          label="Archived"
+                          size="small"
+                          sx={{
+                            bgcolor: "rgba(255,255,255,0.2)",
+                            color: "white",
+                          }}
+                          icon={
+                            <History
+                              sx={{
+                                fontSize: "12px !important",
+                                color: "white !important",
+                              }}
+                            />
+                          }
+                        />
+                      )}
+                      <Tooltip title={player.isStar ? "Remove Star Player" : "Mark as Star Player"}>
+                        <IconButton
+                          size="small"
+                          onClick={(e) => handleToggleStar(e, player.id!, player.isStar)}
+                          sx={{ color: player.isStar ? "#FFD700" : "rgba(255,255,255,0.5)" }}
+                        >
+                          {player.isStar ? <StarIcon /> : <StarOutlineIcon />}
+                        </IconButton>
+                      </Tooltip>
+                    </Box>
                   </Box>
                   <Avatar
                     sx={{

@@ -21,11 +21,11 @@ Completed items are archived to `.Jules/backlog-archive.md` to maintain optimal 
 
 **Acceptance Criteria:**
 
-* [ ] Extract `useGameClock` — clock tick, pause/resume, period transitions.
-* [ ] Extract `useLineupState` — on-court player tracking, substitution draft state.
-* [ ] Extract `useStatWriter` — all DB write helpers + `syncService.pushUpdates()` calls, consolidated into a single `writeStat()` utility.
-* [ ] Extract `usePossessionTracker` — possession arrow, live PPP derivation.
-* [ ] `useGameMode.ts` becomes a thin coordinator (~100 lines) that composes the above hooks.
+* [x] Extract `useGameClock` — clock tick, pause/resume, period transitions.
+* [x] Extract `useLineupState` — on-court player tracking, substitution draft state.
+* [x] Extract `useStatWriter` — all DB write helpers + `syncService.pushUpdates()` calls, consolidated into a single `writeStat()` utility.
+* [x] Extract `usePossessionTracker` — possession arrow, live PPP derivation.
+* [x] `useGameMode.ts` becomes a thin coordinator (~100 lines) that composes the above hooks.
 * [ ] All existing tests pass; new unit tests added for each extracted hook.
 * [ ] No regression to GameMode.tsx rendering or live game behavior.
 
@@ -92,16 +92,16 @@ Completed items are archived to `.Jules/backlog-archive.md` to maintain optimal 
 
 ---
 
-## [ ] HALT (High-Leverage Alerting) System
+## [x] HALT (High-Leverage Alerting) System
 **Priority:** HIGH
 **Type:** Enhancement
 **Why:** Critical game situations (e.g., a star player with 3 fouls in the 1st half) require immediate tactical shifts. Automated alerts ensure coaches never miss a high-leverage decision window.
 **What:** Implement a "High-Leverage Alert" engine that monitors game state and triggers intrusive HUD warnings for critical tactical scenarios.
 **Acceptance Criteria:**
-- [ ] "Star Player Foul Warning" (e.g., 2 fouls in Q1, 3 in Q2).
-- [ ] "Bonus Approaching" alert when an opponent is at 4 fouls in a quarter.
-- [ ] "Time to Sub" fatigue alerts based on live stint duration vs target minutes.
-- [ ] "Clutch Mode" activation alert when entering the final 4 mins of a close game.
+- [x] "Star Player Foul Warning" (e.g., 2 fouls in Q1, 3 in Q2).
+- [x] "Bonus Approaching" alert when an opponent is at 4 fouls in a quarter.
+- [x] "Time to Sub" fatigue alerts based on live stint duration vs target minutes.
+- [x] "Clutch Mode" activation alert when entering the final 4 mins of a close game.
 
 ## [ ] Defensive Assignment & Matchup Tracking
 **Priority:** HIGH
