@@ -97,11 +97,11 @@ describe("mathUtils", () => {
     });
 
     it("does not add '+' to negative numbers", () => {
-      expect(formatPlusMinus(-3)).toBe(-3);
+      expect(formatPlusMinus(-3)).toBe("-3");
     });
 
     it("does not add '+' to zero", () => {
-      expect(formatPlusMinus(0)).toBe(0);
+      expect(formatPlusMinus(0)).toBe("0");
     });
   });
 });
