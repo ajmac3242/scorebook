@@ -114,6 +114,17 @@ export interface HaltAlert {
   jerseyNumber?: string;
 }
 
+export interface GameAnalyticsContext {
+  onCourtIds: Set<string>;
+  teamFoulStats: {
+    oppFouls: number;
+    [key: string]: string | number | boolean | undefined;
+  };
+  stintDurations: Map<string, number>;
+  currentScore: number;
+  opponentScore: number;
+}
+
 export interface LineupAggregates {
   lineup: string[]; // Player IDs
   pointsFor: number;

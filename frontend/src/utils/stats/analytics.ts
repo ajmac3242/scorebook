@@ -24,6 +24,7 @@ import {
   ScoreFlowPoint,
   PlayerAggregates,
   HaltAlert,
+  GameAnalyticsContext,
 } from "./types";
 
 export const calculateOpponentScoutingStats = (
@@ -317,7 +318,7 @@ export const isClutchEvent = (
 export const calculateHaltAlerts = (params: {
   players: Player[];
   statsMap: Map<string, PlayerAggregates>;
-  gameData: any;
+  gameData: GameAnalyticsContext;
   period: number;
   clockSeconds: number;
   periodType: string;
