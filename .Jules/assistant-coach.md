@@ -14,3 +14,8 @@
 - **Garbage Time PPP**: Large runs at the end of blowouts can skew PPP metrics. Future iterations might benefit from a "Garbage Time" filter to keep efficiency metrics focused on competitive play.
 - **Possession Estimation**: Using the standard (FGA + 0.44*FTA + TO - OREB) formula is reliable, but real-time possession tracking requires careful handling of technical fouls and floor violations which don't always result in a formal possession change.
 - **Lineup Stability**: Lineups with very few minutes can have extreme Net Ratings. Adding a minimum minute threshold for the "Top Lineups" dashboard display was critical for data integrity.
+
+## Journal - Session 1
+- **Basketball Workflow Insight**: Real-time alerts (HALT) reduce "Decision Lag". Coaches often miss foul trouble for stars in the first half; automated HUD warnings ensure they never lose a star to the bench for "stupid" fouls.
+- **Implementation Pattern**: The 'Synchronous Mock' pattern for Dexie is a game-changer for testing. By using a custom `SyncPromise`, we avoid the non-deterministic nature of IndexedDB in jsdom, making the "Scorekeeper" UI tests 10x faster.
+- **Basketball Edge Case**: 'Clutch Mode' is traditionally defined as the final 5 minutes and 5 point spread, but for developmental/high school ball, we've adjusted to the final 4 minutes to align with standard quarter lengths and typical pace.

@@ -37,6 +37,7 @@ export interface Player {
   name: string;
   avatarColor?: string;
   isArchived?: number; // 0 or 1
+  isStar?: number; // 0 or 1
   deletedAt?: string;
   synced?: number;
 }
@@ -141,7 +142,8 @@ export class AppDatabase extends Dexie {
     // v17:    Added 'playbook' to Team and 'playName' to StatEvent.
     // v18:    Added 'opponents' table and 'opponentId' to Game for persistent scouting.
     // v19:    Added 'name' index to 'opponents' table.
-    this.version(19).stores({
+    // v20:    Added 'isStar' to Player schema.
+    this.version(20).stores({
       teams: "id, synced, deletedAt, isFavorite",
       players: "id, synced, isArchived, deletedAt",
       teamPlayers: "id, [teamId+playerId], teamId, playerId, synced",

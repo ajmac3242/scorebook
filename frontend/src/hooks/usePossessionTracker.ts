@@ -9,7 +9,7 @@ export const usePossessionTracker = (gameId: string | null) => {
     async (
       currentPossession: string | null,
       period: number,
-      clockSeconds: number,
+      clockSeconds: number
     ) => {
       if (!gameId) return;
 
@@ -34,7 +34,7 @@ export const usePossessionTracker = (gameId: string | null) => {
         logger.error("Failed to toggle possession:", err);
       }
     },
-    [gameId],
+    [gameId]
   );
 
   return {

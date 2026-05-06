@@ -105,6 +105,15 @@ export interface OpponentThreat {
   isHot: boolean;
 }
 
+export interface HaltAlert {
+  id: string;
+  type: "FOUL" | "BONUS" | "FATIGUE" | "CLUTCH";
+  severity: "warning" | "error" | "info";
+  message: string;
+  playerId?: string;
+  jerseyNumber?: string;
+}
+
 export interface LineupAggregates {
   lineup: string[]; // Player IDs
   pointsFor: number;

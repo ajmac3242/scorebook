@@ -4,7 +4,7 @@ export const useLineupState = (onCourtIds: Set<string>) => {
   const [isSubDialogOpen, setIsSubDialogOpen] = useState(false);
   const [subOutPlayerId, setSubOutPlayerId] = useState<string | null>(null);
   const [draftOnCourtIds, setDraftOnCourtIds] = useState<Set<string>>(
-    new Set(),
+    new Set()
   );
   const [selectedSwapId, setSelectedSwapId] = useState<string | null>(null);
 

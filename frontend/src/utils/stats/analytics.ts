@@ -22,6 +22,8 @@ import {
   PlayEfficiency,
   OpponentThreat,
   ScoreFlowPoint,
+  PlayerAggregates,
+  HaltAlert,
 } from "./types";
 
 export const calculateOpponentScoutingStats = (
@@ -315,7 +317,7 @@ export const isClutchEvent = (
 export const calculateHaltAlerts = (params: {
   players: Player[];
   statsMap: Map<string, PlayerAggregates>;
-  gameData: Record<string, unknown>;
+  gameData: any;
   period: number;
   clockSeconds: number;
   periodType: string;
@@ -337,7 +339,7 @@ export const calculateHaltAlerts = (params: {
   // 1. Star Player Foul Warning
   players.forEach((p) => {
     if (p.isStar === 1 && gameData.onCourtIds.has(p.id)) {
-      const fouls = statsMap.get(p.id)?.fouls || 0;
+      const fouls = statsMap.get(p.id!)?.fouls || 0;
       let trigger = false;
       if (period === 1 && fouls >= 2) trigger = true;
       if (period === 2 && fouls >= 3) trigger = true;
@@ -348,9 +350,9 @@ export const calculateHaltAlerts = (params: {
           id: `foul-${p.id}`,
           type: "FOUL",
           severity: fouls >= 4 ? "error" : "warning",
-          message: `Star Foul Trouble: #${jerseyMap.get(p.id)} (${fouls} PF)`,
+          message: `Star Foul Trouble: #${jerseyMap.get(p.id!)} (${fouls} PF)`,
           playerId: p.id,
-          jerseyNumber: jerseyMap.get(p.id),
+          jerseyNumber: jerseyMap.get(p.id!),
         });
       }
     }

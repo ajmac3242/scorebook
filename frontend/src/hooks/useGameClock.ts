@@ -7,10 +7,10 @@ export const useGameClock = (
   gameId: string | null,
   periodLength: number | undefined,
   currentPeriod: number | undefined,
-  initialClock: number | undefined,
+  initialClock: number | undefined
 ) => {
   const [clockSeconds, setClockSeconds] = useState<number>(
-    initialClock ?? (periodLength ? periodLength * 60 : 600),
+    initialClock ?? (periodLength ? periodLength * 60 : 600)
   );
   const clockSecondsRef = useRef(clockSeconds);
   const [isClockRunning, setIsClockRunning] = useState(false);
@@ -82,7 +82,7 @@ export const useGameClock = (
         }
       }
     },
-    [gameId],
+    [gameId]
   );
 
   const handleNextPeriod = useCallback(
@@ -108,7 +108,7 @@ export const useGameClock = (
         }
       }
     },
-    [gameId, period],
+    [gameId, period]
   );
 
   return {

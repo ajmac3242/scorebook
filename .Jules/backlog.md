@@ -3,20 +3,20 @@
 ## Maintenance Note
 Completed items are archived to `.Jules/backlog-archive.md` to maintain optimal performance for agent context. Active `backlog.md` should aim for a soft cap of ~200 lines.
 
-## Dexie Test Harness Mocking for Fast Vitest Runs
+## [x] Dexie Test Harness Mocking for Fast Vitest Runs
 **Priority:** HIGH **Type:** Test Infrastructure **Why:** Vitest runtime is being inflated by heavy `waitFor` polling against real async Dexie/IndexedDB behavior and MUI re-renders in jsdom. Fully mocking Dexie at the test boundary will make async assertions resolve immediately and reduce suite cancellation risk. **What:** Introduce a global Vitest test setup that mocks the app’s Dexie-backed database layer so component and hook tests do not hit real IndexedDB stubs.
 
 **Acceptance Criteria:**
 
-* [ ] Add a shared Vitest setup file for frontend tests.
-* [ ] Mock the app’s Dexie/database module at the import boundary used by components and hooks.
-* [ ] Ensure common table methods (`toArray`, `get`, `put`, `add`, `update`, `delete`, `bulkPut`, query-chain helpers) resolve immediately in tests.
-* [ ] Replace test reliance on real IndexedDB behavior so `waitFor` completes without 50ms polling against Dexie async state.
-* [ ] Keep mock behavior override-friendly per test file for custom scenarios.
-* [ ] Verify frontend test runtime improves and affected test files pass consistently in CI.
+* [x] Add a shared Vitest setup file for frontend tests.
+* [x] Mock the app’s Dexie/database module at the import boundary used by components and hooks.
+* [x] Ensure common table methods (`toArray`, `get`, `put`, `add`, `update`, `delete`, `bulkPut`, query-chain helpers) resolve immediately in tests.
+* [x] Replace test reliance on real IndexedDB behavior so `waitFor` completes without 50ms polling against Dexie async state.
+* [x] Keep mock behavior override-friendly per test file for custom scenarios.
+* [x] Verify frontend test runtime improves and affected test files pass consistently in CI.
 
 
-## [HYGIENE] Refactor: Split useGameMode.ts into focused domain hooks
+## [x] [HYGIENE] Refactor: Split useGameMode.ts into focused domain hooks
 **Priority:** HIGH **Type:** Refactor **Why:** `useGameMode.ts` is the central coordinator for all live game state and currently carries too many unrelated responsibilities under one return surface, making it difficult to unit test, extend, or hand off to an agent without full-file context. **What:** Decompose the hook into focused domain hooks that are composed back into a thin `useGameMode` coordinator.
 
 **Acceptance Criteria:**
@@ -26,8 +26,8 @@ Completed items are archived to `.Jules/backlog-archive.md` to maintain optimal 
 * [x] Extract `useStatWriter` — all DB write helpers + `syncService.pushUpdates()` calls, consolidated into a single `writeStat()` utility.
 * [x] Extract `usePossessionTracker` — possession arrow, live PPP derivation.
 * [x] `useGameMode.ts` becomes a thin coordinator (~100 lines) that composes the above hooks.
-* [ ] All existing tests pass; new unit tests added for each extracted hook.
-* [ ] No regression to GameMode.tsx rendering or live game behavior.
+* [x] All existing tests pass; new unit tests added for each extracted hook.
+* [x] No regression to GameMode.tsx rendering or live game behavior.
 
 ---
 

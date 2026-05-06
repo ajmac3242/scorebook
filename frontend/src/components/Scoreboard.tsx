@@ -7,7 +7,7 @@ import {
   useTheme,
   Tooltip,
 } from "@mui/material";
-import { OpponentThreat } from "../utils/stats";
+import { OpponentThreat, HaltAlert } from "../utils/stats";
 import { formatClock } from "../utils/mathUtils";
 import { AnimatedNumber } from "./SharedUI";
 import TimeoutDots from "./TimeoutDots";
@@ -64,6 +64,7 @@ export interface ScoreboardProps {
       opponentThreats: OpponentThreat[];
     };
   };
+  haltAlerts?: HaltAlert[];
   period: number;
   periodLabel: string;
   maxPeriod: number;
@@ -251,10 +252,7 @@ export const Scoreboard = React.memo(
                   gap: 2,
                 }}
               >
-                <Typography
-                  variant="h6"
-                  sx={{ fontWeight: 900, fontSize: "1.2rem" }}
-                >
+                <Typography variant="h6" sx={{ fontWeight: 900, fontSize: "1.2rem" }}>
                   {alert.message}
                 </Typography>
               </Box>
