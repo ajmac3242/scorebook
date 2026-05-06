@@ -1,15 +1,7 @@
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
 import { DynamoDBDocumentClient, QueryCommand } from "@aws-sdk/lib-dynamodb";
-import {
-  ok,
-  response,
-} from "../responses.js";
-import {
-  logError,
-  logInfo,
-  safeCompare,
-  getHeader,
-} from "../utils.js";
+import { ok, response } from "../responses.js";
+import { logError, logInfo, safeCompare, getHeader } from "../utils.js";
 
 /**
  * Handler for cleanup-related endpoints.
@@ -55,7 +47,10 @@ export async function handleCleanup(
  * @param tableName - DynamoDB table name.
  * @param docClient - DynamoDB Document Client.
  */
-async function performHardCleanup(tableName: string, docClient: DynamoDBDocumentClient) {
+async function performHardCleanup(
+  tableName: string,
+  docClient: DynamoDBDocumentClient,
+) {
   const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
 
   await docClient.send(

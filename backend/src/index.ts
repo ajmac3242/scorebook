@@ -6,19 +6,9 @@
  */
 
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import {
-  DynamoDBDocumentClient,
-} from "@aws-sdk/lib-dynamodb";
-import {
-  APIGatewayProxyEventV2,
-  APIGatewayProxyResultV2,
-} from "aws-lambda";
-import {
-  badRequest,
-  notFound,
-  serverError,
-  response,
-} from "./responses.js";
+import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
+import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
+import { badRequest, notFound, serverError, response } from "./responses.js";
 import {
   logError,
   logInfo,

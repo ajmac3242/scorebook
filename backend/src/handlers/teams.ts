@@ -1,19 +1,17 @@
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
 import { DynamoDBDocumentClient, UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import { v4 as uuidv4 } from "uuid";
-import {
-  ok,
-  created,
-  badRequest,
-} from "../responses.js";
-import {
-  isValidUuid,
-} from "../validation.js";
+import { ok, created, badRequest } from "../responses.js";
+import { isValidUuid } from "../validation.js";
 import { Keys } from "../keys.js";
+import { extractIdFromPath } from "../utils.js";
 import {
-  extractIdFromPath,
-} from "../utils.js";
-import { getItems, createItem, getItemsByGSI, softDeleteItem, putNewItem } from "../database.js";
+  getItems,
+  createItem,
+  getItemsByGSI,
+  softDeleteItem,
+  putNewItem,
+} from "../database.js";
 import {
   snapshotTeamRoster,
   snapshotTeam,
@@ -82,7 +80,13 @@ export async function handleTeams(
     const teamKey = { PK: Keys.team(teamId), SK: Keys.metadata(teamId) };
 
     if (method === "DELETE") {
-      const resp = await softDeleteItem("TEAM", "METADATA", teamId, tableName, docClient);
+      const resp = await softDeleteItem(
+        "TEAM",
+        "METADATA",
+        teamId,
+        tableName,
+        docClient,
+      );
       if (resp.statusCode === 200) await deleteTeamSnapshots(teamId);
       return resp;
     }
@@ -108,7 +112,8 @@ export async function handleTeams(
     if (!isValidUuid(tId))
       return badRequest("Invalid teamId format (UUID required)");
 
-    if (method === "GET") return await getItemsByGSI(`TEAM#${tId}`, tableName, docClient);
+    if (method === "GET")
+      return await getItemsByGSI(`TEAM#${tId}`, tableName, docClient);
 
     if (method === "POST") {
       if (!isValidUuid(body.playerId))

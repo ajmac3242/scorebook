@@ -1,23 +1,12 @@
 import { DynamoDBDocumentClient, QueryCommand } from "@aws-sdk/lib-dynamodb";
 import { APIGatewayProxyResultV2 } from "aws-lambda";
 import { v4 as uuidv4 } from "uuid";
-import {
-  ok,
-  created,
-  badRequest,
-} from "../responses.js";
-import {
-  isValidUuid,
-  validateStatEvent,
-} from "../validation.js";
+import { ok, created, badRequest } from "../responses.js";
+import { isValidUuid, validateStatEvent } from "../validation.js";
 import { Keys } from "../keys.js";
-import {
-  stripLocalFields,
-} from "../utils.js";
+import { stripLocalFields } from "../utils.js";
 import { putNewItem } from "../database.js";
-import {
-  snapshotGameStats,
-} from "../snapshots.js";
+import { snapshotGameStats } from "../snapshots.js";
 
 /**
  * Handlers for Game Stats sub-endpoints: /games/{gameId}/stats.

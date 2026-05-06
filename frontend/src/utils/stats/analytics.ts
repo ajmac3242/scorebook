@@ -239,13 +239,20 @@ export const calculateScoreFlow = (
 
     const { type } = stat;
     if (isFieldGoal(stat)) {
-      if (isOpp) opp.fga++; else team.fga++;
-    } else if (stat.points === 1 && (type === ACTION_TYPES.MAKE || type === ACTION_TYPES.MISS)) {
-      if (isOpp) opp.fta++; else team.fta++;
+      if (isOpp) opp.fga++;
+      else team.fga++;
+    } else if (
+      stat.points === 1 &&
+      (type === ACTION_TYPES.MAKE || type === ACTION_TYPES.MISS)
+    ) {
+      if (isOpp) opp.fta++;
+      else team.fta++;
     } else if (type === ACTION_TYPES.TURNOVER) {
-      if (isOpp) opp.to++; else team.to++;
+      if (isOpp) opp.to++;
+      else team.to++;
     } else if (type === ACTION_TYPES.OFF_REBOUND) {
-      if (isOpp) opp.oreb++; else team.oreb++;
+      if (isOpp) opp.oreb++;
+      else team.oreb++;
     }
 
     if (stat.type === ACTION_TYPES.SUB_IN) {

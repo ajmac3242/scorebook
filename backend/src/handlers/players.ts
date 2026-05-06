@@ -1,16 +1,9 @@
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
 import { DynamoDBDocumentClient, UpdateCommand } from "@aws-sdk/lib-dynamodb";
-import {
-  ok,
-  badRequest,
-} from "../responses.js";
-import {
-  isValidUuid,
-} from "../validation.js";
+import { ok, badRequest } from "../responses.js";
+import { isValidUuid } from "../validation.js";
 import { Keys } from "../keys.js";
-import {
-  extractIdFromPath,
-} from "../utils.js";
+import { extractIdFromPath } from "../utils.js";
 import { getItems, createItem, softDeleteItem } from "../database.js";
 
 /**
@@ -51,7 +44,14 @@ export async function handlePlayers(
           "Player name is required and must be under 100 characters",
         );
       }
-      return await createItem("PLAYER", "METADATA", "PLAYER", body, tableName, docClient);
+      return await createItem(
+        "PLAYER",
+        "METADATA",
+        "PLAYER",
+        body,
+        tableName,
+        docClient,
+      );
     }
     return null;
   }
@@ -78,7 +78,13 @@ export async function handlePlayers(
       );
       return ok({ message: "Player archived" });
     }
-    return await softDeleteItem("PLAYER", "METADATA", playerId, tableName, docClient);
+    return await softDeleteItem(
+      "PLAYER",
+      "METADATA",
+      playerId,
+      tableName,
+      docClient,
+    );
   }
 
   if (method === "PATCH" && body.isArchived === 0) {

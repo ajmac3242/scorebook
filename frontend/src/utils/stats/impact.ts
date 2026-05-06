@@ -5,11 +5,7 @@
 
 import { ACTION_TYPES } from "../../constants/stats";
 import { StatEvent } from "../../db";
-import {
-  isActive,
-  isScoringEvent,
-  sortStats,
-} from "./aggregators";
+import { isActive, isScoringEvent, sortStats } from "./aggregators";
 
 export const calculatePlayerStreaks = (
   stats: StatEvent[],
@@ -93,7 +89,8 @@ export const calculateStopsAndKills = (stats: StatEvent[]) => {
       isOurPossession = false;
     }
 
-    const isOpp = s.playerId === "OPPONENT" || s.playerId.startsWith("OPPONENT:");
+    const isOpp =
+      s.playerId === "OPPONENT" || s.playerId.startsWith("OPPONENT:");
 
     if (isOpp && s.type === ACTION_TYPES.MAKE) {
       currentStreak = 0;
@@ -104,10 +101,24 @@ export const calculateStopsAndKills = (stats: StatEvent[]) => {
 
     if (!isOpp && s.type === ACTION_TYPES.MAKE) isOurPossession = false;
     if (!isOpp && s.type === ACTION_TYPES.TURNOVER) isOurPossession = false;
-    if (isOpp && (s.type === ACTION_TYPES.DEF_REBOUND || s.type === ACTION_TYPES.REBOUND)) isOurPossession = false;
-    if (!isOpp && (s.type === ACTION_TYPES.DEF_REBOUND || s.type === ACTION_TYPES.REBOUND)) isOurPossession = true;
+    if (
+      isOpp &&
+      (s.type === ACTION_TYPES.DEF_REBOUND || s.type === ACTION_TYPES.REBOUND)
+    )
+      isOurPossession = false;
+    if (
+      !isOpp &&
+      (s.type === ACTION_TYPES.DEF_REBOUND || s.type === ACTION_TYPES.REBOUND)
+    )
+      isOurPossession = true;
 
-    if (!isOpp && (s.type === ACTION_TYPES.FOUL || s.type === ACTION_TYPES.FOUL_SHOOTING || s.type === ACTION_TYPES.FOUL_NON_SHOOTING || s.type === ACTION_TYPES.TECHNICAL_FOUL)) {
+    if (
+      !isOpp &&
+      (s.type === ACTION_TYPES.FOUL ||
+        s.type === ACTION_TYPES.FOUL_SHOOTING ||
+        s.type === ACTION_TYPES.FOUL_NON_SHOOTING ||
+        s.type === ACTION_TYPES.TECHNICAL_FOUL)
+    ) {
       if (!isOurPossession || s.type === ACTION_TYPES.TECHNICAL_FOUL) {
         currentStreak = 0;
       }
@@ -121,12 +132,20 @@ export const calculateStopsAndKills = (stats: StatEvent[]) => {
       isOurPossession = true;
     } else if (isOpp && s.type === ACTION_TYPES.MISS) {
       inOpponentPossession = true;
-    } else if (inOpponentPossession && !isOpp && (s.type === ACTION_TYPES.DEF_REBOUND || s.type === ACTION_TYPES.REBOUND)) {
+    } else if (
+      inOpponentPossession &&
+      !isOpp &&
+      (s.type === ACTION_TYPES.DEF_REBOUND || s.type === ACTION_TYPES.REBOUND)
+    ) {
       totalStops++;
       currentStreak++;
       inOpponentPossession = false;
       isOurPossession = true;
-    } else if (inOpponentPossession && isOpp && s.type === ACTION_TYPES.OFF_REBOUND) {
+    } else if (
+      inOpponentPossession &&
+      isOpp &&
+      s.type === ACTION_TYPES.OFF_REBOUND
+    ) {
       // continues
     }
 

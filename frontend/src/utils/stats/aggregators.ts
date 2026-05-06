@@ -3,7 +3,11 @@
  * @description Base aggregators and helper functions for statistics.
  */
 
-import { ACTION_TYPES, SPECIAL_PLAYER_IDS, BONUS_CONFIG } from "../../constants/stats";
+import {
+  ACTION_TYPES,
+  SPECIAL_PLAYER_IDS,
+  BONUS_CONFIG,
+} from "../../constants/stats";
 import { StatEvent, Player, TeamPlayer, Game } from "../../db";
 import { formatToOne, determineResult } from "../mathUtils";
 import {
@@ -22,8 +26,18 @@ export const sortStats = (stats: StatEvent[]): StatEvent[] => {
     if (a.timestamp < b.timestamp) return -1;
     if (a.timestamp > b.timestamp) return 1;
 
-    const pA = a.type === ACTION_TYPES.SUB_IN ? 1 : a.type === ACTION_TYPES.SUB_OUT ? 3 : 2;
-    const pB = b.type === ACTION_TYPES.SUB_IN ? 1 : b.type === ACTION_TYPES.SUB_OUT ? 3 : 2;
+    const pA =
+      a.type === ACTION_TYPES.SUB_IN
+        ? 1
+        : a.type === ACTION_TYPES.SUB_OUT
+          ? 3
+          : 2;
+    const pB =
+      b.type === ACTION_TYPES.SUB_IN
+        ? 1
+        : b.type === ACTION_TYPES.SUB_OUT
+          ? 3
+          : 2;
 
     return pA - pB;
   });
@@ -214,6 +228,9 @@ export const applyActionToAggregate = (agg: BaseStats, stat: StatEvent) => {
   }
 };
 
+/**
+ *
+ */
 export function initializeStatsMap(
   players: Player[],
   teamPlayers: TeamPlayer[],
@@ -310,13 +327,17 @@ export const calculateTeamAggregates = (
 
     const { type } = stat;
     if (isFieldGoal(stat)) {
-      if (isOpponent) opp.fga++; else team.fga++;
+      if (isOpponent) opp.fga++;
+      else team.fga++;
     } else if (isFreeThrow(stat)) {
-      if (isOpponent) opp.fta++; else team.fta++;
+      if (isOpponent) opp.fta++;
+      else team.fta++;
     } else if (type === ACTION_TYPES.TURNOVER) {
-      if (isOpponent) opp.to++; else team.to++;
+      if (isOpponent) opp.to++;
+      else team.to++;
     } else if (type === ACTION_TYPES.OFF_REBOUND) {
-      if (isOpponent) opp.oreb++; else team.oreb++;
+      if (isOpponent) opp.oreb++;
+      else team.oreb++;
     }
 
     if (!isOpponent) {

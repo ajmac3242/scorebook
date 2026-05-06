@@ -13,10 +13,7 @@ import {
   isFreeThrow,
 } from "./aggregators";
 import { isClutchEvent } from "./analytics";
-import {
-  LineupAggregates,
-  PlayerAggregates,
-} from "./types";
+import { LineupAggregates, PlayerAggregates } from "./types";
 
 const handleStintEnd = (
   playerAgg: PlayerAggregates | undefined,
@@ -222,11 +219,30 @@ export const calculatePlayerAggregates = (
     const gpActual = player.gamesPlayed.size;
     const gp = gpActual || 1;
     player.gp = gpActual;
-    player.fgPct = (player.attempts > 0 ? (player.makes / player.attempts * 100).toFixed(1) : "0.0");
-    player.threePPct = (player.threePA > 0 ? (player.threePM / player.threePA * 100).toFixed(1) : "0.0");
-    player.ftPct = (player.fta > 0 ? (player.ftm / player.fta * 100).toFixed(1) : "0.0");
-    player.efgPct = (player.attempts > 0 ? ((player.makes + 0.5 * player.threePM) / player.attempts * 100).toFixed(1) : "0.0");
-    player.tsPct = ((player.attempts + 0.44 * player.fta) > 0 ? (player.points / (2 * (player.attempts + 0.44 * player.fta)) * 100).toFixed(1) : "0.0");
+    player.fgPct =
+      player.attempts > 0
+        ? ((player.makes / player.attempts) * 100).toFixed(1)
+        : "0.0";
+    player.threePPct =
+      player.threePA > 0
+        ? ((player.threePM / player.threePA) * 100).toFixed(1)
+        : "0.0";
+    player.ftPct =
+      player.fta > 0 ? ((player.ftm / player.fta) * 100).toFixed(1) : "0.0";
+    player.efgPct =
+      player.attempts > 0
+        ? (
+            ((player.makes + 0.5 * player.threePM) / player.attempts) *
+            100
+          ).toFixed(1)
+        : "0.0";
+    player.tsPct =
+      player.attempts + 0.44 * player.fta > 0
+        ? (
+            (player.points / (2 * (player.attempts + 0.44 * player.fta))) *
+            100
+          ).toFixed(1)
+        : "0.0";
 
     if (isAverage) {
       player.points = roundToOne(player.points / gp);
@@ -355,7 +371,15 @@ export const calculateLineupStats = (
       currentPeriod = s.period;
     }
 
-    const isClutch = !options.clutchOnly || (s.clockTime !== undefined && isClutchEvent(s.period, s.clockTime, scores.team - scores.opp, options.periodType || "QUARTERS"));
+    const isClutch =
+      !options.clutchOnly ||
+      (s.clockTime !== undefined &&
+        isClutchEvent(
+          s.period,
+          s.clockTime,
+          scores.team - scores.opp,
+          options.periodType || "QUARTERS",
+        ));
 
     if (s.type === ACTION_TYPES.MAKE) {
       const pts = s.points || 0;

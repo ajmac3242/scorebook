@@ -1,4 +1,9 @@
-import { DynamoDBDocumentClient, QueryCommand, PutCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
+import {
+  DynamoDBDocumentClient,
+  QueryCommand,
+  PutCommand,
+  UpdateCommand,
+} from "@aws-sdk/lib-dynamodb";
 import { APIGatewayProxyStructuredResultV2 } from "aws-lambda";
 import { v4 as uuidv4 } from "uuid";
 import { ok, created, badRequest, filterActive } from "./responses.js";
@@ -99,7 +104,11 @@ export async function createItem(
  * @param docClient - DynamoDB Document Client.
  * @returns Promise.
  */
-export async function putNewItem(tableName: string, item: Record<string, unknown>, docClient: DynamoDBDocumentClient) {
+export async function putNewItem(
+  tableName: string,
+  item: Record<string, unknown>,
+  docClient: DynamoDBDocumentClient,
+) {
   await docClient.send(
     new PutCommand({
       TableName: tableName,

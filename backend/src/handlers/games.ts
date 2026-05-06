@@ -1,17 +1,13 @@
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
-import { DynamoDBDocumentClient, GetCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import {
-  ok,
-  badRequest,
-  notFound,
-} from "../responses.js";
-import {
-  isValidUuid,
-} from "../validation.js";
+  DynamoDBDocumentClient,
+  GetCommand,
+  UpdateCommand,
+} from "@aws-sdk/lib-dynamodb";
+import { ok, badRequest, notFound } from "../responses.js";
+import { isValidUuid } from "../validation.js";
 import { Keys } from "../keys.js";
-import {
-  extractIdFromPath,
-} from "../utils.js";
+import { extractIdFromPath } from "../utils.js";
 import { getItemsByGSI, createItem, softDeleteItem } from "../database.js";
 import {
   snapshotTeamGames,
@@ -106,7 +102,13 @@ export async function handleGames(
       const getResp = await docClient.send(
         new GetCommand({ TableName: tableName, Key: gameKey }),
       );
-      const resp = await softDeleteItem("GAME", "METADATA", gameId, tableName, docClient);
+      const resp = await softDeleteItem(
+        "GAME",
+        "METADATA",
+        gameId,
+        tableName,
+        docClient,
+      );
       if (resp.statusCode === 200 && getResp.Item) {
         await snapshotTeamGames(getResp.Item.teamId, tableName, docClient);
         await deleteGameSnapshots(gameId);
