@@ -131,6 +131,16 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
 
     return (
       <Box
+        role="button"
+        tabIndex={0}
+        aria-label={`Action: ${playerName} ${stat.type}. Click to edit.`}
+        onClick={() => onEdit(stat)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            onEdit(stat);
+          }
+        }}
         sx={{
           display: "flex",
           justifyContent: "space-between",
@@ -143,6 +153,16 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
             ? `4px solid ${theme.palette.primary.main}`
             : "none",
           transition: "all 0.3s ease",
+          cursor: "pointer",
+          "&:hover": {
+            bgcolor: isLatest ? "rgba(0, 0, 0, 0.05)" : "rgba(0, 0, 0, 0.02)",
+          },
+          "&:focus-visible": {
+            outline: `2px solid ${theme.palette.primary.main}`,
+            outlineOffset: "-2px",
+            borderRadius: "4px",
+            bgcolor: "rgba(0, 0, 0, 0.05)",
+          },
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center" }}>

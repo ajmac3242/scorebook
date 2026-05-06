@@ -1,29 +1,5 @@
 # Palette's Journal
 
-## 2025-05-14 - Standardizing Interactive Feedback
-Learning: Users need immediate confirmation after asynchronous creation actions. Without Snackbars or loading states, the UI feels unresponsive. Adding ARIA labels to icon buttons is a low-effort, high-impact a11y win.
-Action: Always implement `isSubmitting` states and Success Snackbars for any form-based entity creation. Ensure all icon buttons have `aria-label` and `Tooltip`.
-
-## 2025-05-14 - Empty State Guidance
-Learning: Plain text empty states are easily missed and don't guide the user. Visual cues like dashed borders and large icons make the "next step" clearer.
-Action: Use a standardized `Box` with dashed borders for empty list states.
-
-## 2025-05-14 - Keyboard Support parity
-Learning: Power users expect 'Enter' to submit forms. Adding `onKeyDown` to text fields improves the flow significantly.
-Action: Add Enter-key support to all creation dialogs.
-
-## 2026-04-02 - UX Guidance and Accessibility Polish
-Learning: Empty dashboards are a major friction point for new users. Direct CTAs like "Create Your First Team" in a prominent Welcome card significantly improve onboarding. Adding aria-label to SVG markers and Tooltips to all game actions makes the core scorekeeping experience more robust and professional.
-Action: Implement prominent "Get Started" CTAs for empty landing pages. Ensure every icon-only button in the hot path has both a Tooltip and a unique ARIA label.
-
-## 2026-04-09 - Feedback Loops and ARIA state
-Learning: Centralized feedback via Snackbars is essential for a "live" tracking experience where actions happen quickly. Adding aria-pressed to toggle buttons in recording dialogs and role="img" with dynamic labels to visual-only indicators (dots/icons) ensures the game state is fully perceivable by all users.
-Action: Implement Snackbar feedback for all CRUD operations in fast-paced interfaces. Ensure every toggle-style button correctly communicates its state via ARIA.
-
-## 2026-05-15 - Interactive Resilience & Accessibility Polish
-Learning: Micro-UX improvements like Enter-key submission for fast-paced stat entry and descriptive ARIA labels on timeline audit controls significantly reduce cognitive load. Immediate visual feedback on copy-to-clipboard actions (icon/text swap) transforms a "blind" action into a confirmed success. Dashboard empty states with dashed borders provide a stronger "place-of-onboarding" feel than plain cards.
-Action: Standardize Enter-key support for all high-frequency dialogs. Ensure destructive timeline edits have safety confirmations. Use visual feedback (icon swaps) for non-entity-based async actions.
-
-## 2026-04-21 - Asynchronous Onboarding and Card Accessibility
-Learning: The login process can feel "broken" if large datasets are being pulled in the background without user feedback. A dedicated loading state with thematic visuals (spinning basketball) and progress text sets the right expectation. Card-based navigation requires explicit focus-visible borders and ARIA descriptions to be truly accessible to keyboard and screen reader users.
-Action: Always await critical data syncs during onboarding and provide a visual loader. Ensure interactive cards use `role="button"` and `aria-label` when they trigger navigation.
+## 2025-05-15 - Initial Audit
+Learning: The app has good foundational accessibility (ARIA labels, keyboard handling), but lacks some polish in state communication (aria-expanded) and micro-interactions (Escape key to close search).
+Action: Implement 10 micro-UX improvements focused on feedback and accessibility.

@@ -68,6 +68,16 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
 
   const showSearch = onSearchChange !== undefined;
 
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isSearchExpanded) {
+        setIsSearchExpanded(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isSearchExpanded]);
+
   const handleSyncClick = () => {
     if (onSync) {
       onSync();
@@ -287,6 +297,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
             <Tooltip title={isSearchExpanded ? "Close search" : "Search"}>
               <IconButton
                 aria-label={isSearchExpanded ? "close search" : "search"}
+                aria-expanded={isSearchExpanded}
                 onClick={() => setIsSearchExpanded(!isSearchExpanded)}
                 sx={{ color: "white", flexShrink: 0 }}
               >
@@ -357,6 +368,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                 }
                 onClick={handleSyncClick}
                 disabled={isSyncing}
+                aria-busy={isSyncing}
                 className="hover-grow"
                 sx={{
                   color: showSyncSuccess ? "#4CAF50" : "white",

@@ -289,7 +289,12 @@ const Teams: React.FC = () => {
                 mb: 2,
               }}
             />
-            <Typography variant="h6" color="text.secondary" gutterBottom>
+            <Typography
+              id="empty-state-msg"
+              variant="h6"
+              color="text.secondary"
+              gutterBottom
+            >
               {searchTerm
                 ? `No teams matching "${searchTerm}"`
                 : "Your Notebook is Empty"}
@@ -304,6 +309,7 @@ const Teams: React.FC = () => {
                 variant="outlined"
                 onClick={() => setSearchTerm("")}
                 sx={{ borderRadius: 2 }}
+                aria-describedby="empty-state-msg"
               >
                 Clear Search
               </Button>
@@ -313,6 +319,7 @@ const Teams: React.FC = () => {
                 startIcon={<AddIcon />}
                 onClick={() => setOpen(true)}
                 sx={{ borderRadius: 2 }}
+                aria-describedby="empty-state-msg"
               >
                 Create Team Now
               </Button>
@@ -581,8 +588,22 @@ const Teams: React.FC = () => {
             sx={{ mt: 1, mb: 2 }}
             error={showValidation && !teamName.trim()}
             helperText={
-              showValidation && !teamName.trim() ? "Team name is required" : ""
+              showValidation && !teamName.trim() ? (
+                <span id="team-name-error">Team name is required</span>
+              ) : (
+                ""
+              )
             }
+            FormHelperTextProps={{
+              id: "team-name-error",
+            }}
+            inputProps={{
+              "aria-invalid": showValidation && !teamName.trim(),
+              "aria-describedby":
+                showValidation && !teamName.trim()
+                  ? "team-name-error"
+                  : undefined,
+            }}
             required
             disabled={isSubmitting}
           />

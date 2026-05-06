@@ -50,6 +50,7 @@ import {
   TableHead,
   TableRow,
   TableSortLabel,
+  useMediaQuery,
 } from "@mui/material";
 import BasketballCourt from "../components/BasketballCourt";
 import RecentActionItem from "../components/RecentActionItem";
@@ -87,6 +88,7 @@ import { useGameMode } from "../hooks/useGameMode";
  */
 const GameMode: React.FC = () => {
   const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -862,6 +864,20 @@ const GameMode: React.FC = () => {
               onCoordClick={handleCourtClick}
               markers={markers}
             />
+            {isMobile && !isReadOnly && (
+              <Typography
+                variant="caption"
+                sx={{
+                  display: "block",
+                  mt: 1,
+                  textAlign: "center",
+                  color: "text.secondary",
+                  fontStyle: "italic",
+                }}
+              >
+                Tip: Tap the court to record a play at that location
+              </Typography>
+            )}
           </MoleskineCard>
         </Grid>
 
