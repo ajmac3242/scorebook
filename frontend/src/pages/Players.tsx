@@ -472,7 +472,9 @@ const Players: React.FC = () => {
             inputProps={{
               "aria-invalid": showValidation && !name.trim(),
               "aria-describedby":
-                showValidation && !name.trim() ? "player-name-error" : undefined,
+                showValidation && !name.trim()
+                  ? "player-name-error"
+                  : undefined,
             }}
             required
             disabled={isSubmitting}

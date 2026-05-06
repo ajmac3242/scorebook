@@ -600,7 +600,9 @@ const Teams: React.FC = () => {
             inputProps={{
               "aria-invalid": showValidation && !teamName.trim(),
               "aria-describedby":
-                showValidation && !teamName.trim() ? "team-name-error" : undefined,
+                showValidation && !teamName.trim()
+                  ? "team-name-error"
+                  : undefined,
             }}
             required
             disabled={isSubmitting}
