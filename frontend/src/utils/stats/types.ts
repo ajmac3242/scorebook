@@ -105,6 +105,26 @@ export interface OpponentThreat {
   isHot: boolean;
 }
 
+export interface HaltAlert {
+  id: string;
+  type: "FOUL" | "BONUS" | "FATIGUE" | "CLUTCH";
+  severity: "warning" | "error" | "info";
+  message: string;
+  playerId?: string;
+  jerseyNumber?: string;
+}
+
+export interface GameAnalyticsContext {
+  onCourtIds: Set<string>;
+  teamFoulStats: {
+    oppFouls: number;
+    [key: string]: string | number | boolean | undefined;
+  };
+  stintDurations: Map<string, number>;
+  currentScore: number;
+  opponentScore: number;
+}
+
 export interface LineupAggregates {
   lineup: string[]; // Player IDs
   pointsFor: number;

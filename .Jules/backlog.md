@@ -3,31 +3,31 @@
 ## Maintenance Note
 Completed items are archived to `.Jules/backlog-archive.md` to maintain optimal performance for agent context. Active `backlog.md` should aim for a soft cap of ~200 lines.
 
-## Dexie Test Harness Mocking for Fast Vitest Runs
+## [x] Dexie Test Harness Mocking for Fast Vitest Runs
 **Priority:** HIGH **Type:** Test Infrastructure **Why:** Vitest runtime is being inflated by heavy `waitFor` polling against real async Dexie/IndexedDB behavior and MUI re-renders in jsdom. Fully mocking Dexie at the test boundary will make async assertions resolve immediately and reduce suite cancellation risk. **What:** Introduce a global Vitest test setup that mocks the app’s Dexie-backed database layer so component and hook tests do not hit real IndexedDB stubs.
 
 **Acceptance Criteria:**
 
-* [ ] Add a shared Vitest setup file for frontend tests.
-* [ ] Mock the app’s Dexie/database module at the import boundary used by components and hooks.
-* [ ] Ensure common table methods (`toArray`, `get`, `put`, `add`, `update`, `delete`, `bulkPut`, query-chain helpers) resolve immediately in tests.
-* [ ] Replace test reliance on real IndexedDB behavior so `waitFor` completes without 50ms polling against Dexie async state.
-* [ ] Keep mock behavior override-friendly per test file for custom scenarios.
-* [ ] Verify frontend test runtime improves and affected test files pass consistently in CI.
+* [x] Add a shared Vitest setup file for frontend tests.
+* [x] Mock the app’s Dexie/database module at the import boundary used by components and hooks.
+* [x] Ensure common table methods (`toArray`, `get`, `put`, `add`, `update`, `delete`, `bulkPut`, query-chain helpers) resolve immediately in tests.
+* [x] Replace test reliance on real IndexedDB behavior so `waitFor` completes without 50ms polling against Dexie async state.
+* [x] Keep mock behavior override-friendly per test file for custom scenarios.
+* [x] Verify frontend test runtime improves and affected test files pass consistently in CI.
 
 
-## [HYGIENE] Refactor: Split useGameMode.ts into focused domain hooks
+## [x] [HYGIENE] Refactor: Split useGameMode.ts into focused domain hooks
 **Priority:** HIGH **Type:** Refactor **Why:** `useGameMode.ts` is the central coordinator for all live game state and currently carries too many unrelated responsibilities under one return surface, making it difficult to unit test, extend, or hand off to an agent without full-file context. **What:** Decompose the hook into focused domain hooks that are composed back into a thin `useGameMode` coordinator.
 
 **Acceptance Criteria:**
 
-* [ ] Extract `useGameClock` — clock tick, pause/resume, period transitions.
-* [ ] Extract `useLineupState` — on-court player tracking, substitution draft state.
-* [ ] Extract `useStatWriter` — all DB write helpers + `syncService.pushUpdates()` calls, consolidated into a single `writeStat()` utility.
-* [ ] Extract `usePossessionTracker` — possession arrow, live PPP derivation.
-* [ ] `useGameMode.ts` becomes a thin coordinator (~100 lines) that composes the above hooks.
-* [ ] All existing tests pass; new unit tests added for each extracted hook.
-* [ ] No regression to GameMode.tsx rendering or live game behavior.
+* [x] Extract `useGameClock` — clock tick, pause/resume, period transitions.
+* [x] Extract `useLineupState` — on-court player tracking, substitution draft state.
+* [x] Extract `useStatWriter` — all DB write helpers + `syncService.pushUpdates()` calls, consolidated into a single `writeStat()` utility.
+* [x] Extract `usePossessionTracker` — possession arrow, live PPP derivation.
+* [x] `useGameMode.ts` becomes a thin coordinator (~100 lines) that composes the above hooks.
+* [x] All existing tests pass; new unit tests added for each extracted hook.
+* [x] No regression to GameMode.tsx rendering or live game behavior.
 
 ---
 
@@ -92,16 +92,16 @@ Completed items are archived to `.Jules/backlog-archive.md` to maintain optimal 
 
 ---
 
-## [ ] HALT (High-Leverage Alerting) System
+## [x] HALT (High-Leverage Alerting) System
 **Priority:** HIGH
 **Type:** Enhancement
 **Why:** Critical game situations (e.g., a star player with 3 fouls in the 1st half) require immediate tactical shifts. Automated alerts ensure coaches never miss a high-leverage decision window.
 **What:** Implement a "High-Leverage Alert" engine that monitors game state and triggers intrusive HUD warnings for critical tactical scenarios.
 **Acceptance Criteria:**
-- [ ] "Star Player Foul Warning" (e.g., 2 fouls in Q1, 3 in Q2).
-- [ ] "Bonus Approaching" alert when an opponent is at 4 fouls in a quarter.
-- [ ] "Time to Sub" fatigue alerts based on live stint duration vs target minutes.
-- [ ] "Clutch Mode" activation alert when entering the final 4 mins of a close game.
+- [x] "Star Player Foul Warning" (e.g., 2 fouls in Q1, 3 in Q2).
+- [x] "Bonus Approaching" alert when an opponent is at 4 fouls in a quarter.
+- [x] "Time to Sub" fatigue alerts based on live stint duration vs target minutes.
+- [x] "Clutch Mode" activation alert when entering the final 4 mins of a close game.
 
 ## [ ] Defensive Assignment & Matchup Tracking
 **Priority:** HIGH

@@ -7,7 +7,7 @@ import {
   useTheme,
   Tooltip,
 } from "@mui/material";
-import { OpponentThreat } from "../utils/stats";
+import { OpponentThreat, HaltAlert } from "../utils/stats";
 import { formatClock } from "../utils/mathUtils";
 import { AnimatedNumber } from "./SharedUI";
 import TimeoutDots from "./TimeoutDots";
@@ -64,6 +64,7 @@ export interface ScoreboardProps {
       opponentThreats: OpponentThreat[];
     };
   };
+  haltAlerts?: HaltAlert[];
   period: number;
   periodLabel: string;
   maxPeriod: number;
@@ -78,6 +79,7 @@ export const Scoreboard = React.memo(
     game,
     team,
     gameData,
+    haltAlerts = [],
     period,
     periodLabel,
     maxPeriod,
@@ -208,6 +210,58 @@ export const Scoreboard = React.memo(
             opacity: 0.8,
           }}
         />
+
+        {/* HALT Alerts Overlay */}
+        {haltAlerts.length > 0 && (
+          <Box
+            sx={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              zIndex: 100,
+              pointerEvents: "none",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              background: "rgba(0,0,0,0.4)",
+              backdropFilter: "blur(4px)",
+            }}
+          >
+            {haltAlerts.map((alert) => (
+              <Box
+                key={alert.id}
+                sx={{
+                  bgcolor:
+                    alert.severity === "error"
+                      ? "error.main"
+                      : alert.severity === "warning"
+                        ? "warning.main"
+                        : "info.main",
+                  color: alert.severity === "warning" ? "black" : "white",
+                  px: 3,
+                  py: 1,
+                  borderRadius: 2,
+                  mb: 1,
+                  boxShadow: "0 4px 20px rgba(0,0,0,0.5)",
+                  animation: `${pulse} 2s infinite ease-in-out`,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 2,
+                }}
+              >
+                <Typography
+                  variant="h6"
+                  sx={{ fontWeight: 900, fontSize: "1.2rem" }}
+                >
+                  {alert.message}
+                </Typography>
+              </Box>
+            ))}
+          </Box>
+        )}
 
         {/* Our Team */}
         {renderTeamSection(
