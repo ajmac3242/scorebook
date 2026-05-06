@@ -1,7 +1,6 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useMemo } from "react";
 import { db, type StatEvent } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
-import { syncService } from "../utils/syncService";
 import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../constants/stats";
 import {
   calculatePlayerAggregates,
@@ -19,7 +18,6 @@ import {
   calculateHaltAlerts,
   type PlayerAggregates,
   OpponentThreat,
-  HaltAlert,
 } from "../utils/stats";
 import { roundToOne } from "../utils/mathUtils";
 import { useTheme } from "@mui/material";
@@ -37,7 +35,10 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     () => (gameId ? db.stats.where("gameId").equals(gameId).toArray() : []),
     [gameId],
   );
-  const gameStats = useMemo(() => gameStatsQueryResult || [], [gameStatsQueryResult]);
+  const gameStats = useMemo(
+    () => gameStatsQueryResult || [],
+    [gameStatsQueryResult],
+  );
 
   const rawRosterData = useLiveQuery(() => {
     if (!teamId) return { teamPlayers: [], players: [] };
@@ -55,7 +56,10 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       });
   }, [teamId]);
 
-  const rosterData = useMemo(() => rawRosterData || { teamPlayers: [], players: [] }, [rawRosterData]);
+  const rosterData = useMemo(
+    () => rawRosterData || { teamPlayers: [], players: [] },
+    [rawRosterData],
+  );
   const teamPlayers = rosterData.teamPlayers;
   const players = rosterData.players;
 
@@ -98,7 +102,12 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     handleToggleClock,
     handleEditClock,
     handleNextPeriod,
-  } = useGameClock(gameId, team?.defaultPeriodLength, game?.currentPeriod, game?.clockTime);
+  } = useGameClock(
+    gameId,
+    team?.defaultPeriodLength,
+    game?.currentPeriod,
+    game?.clockTime,
+  );
 
   const [trackingMode, setTrackingMode] = useState<"TEAM" | "OPPONENT">("TEAM");
 
@@ -145,8 +154,12 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
   const [isAuditDialogOpen, setIsAuditDialogOpen] = useState(false);
   const [isFtWorkflowOpen, setIsFtWorkflowOpen] = useState(false);
   const [isHalftimeReportOpen, setIsHalftimeReportOpen] = useState(false);
-  const [lastViewedHalftimePeriod, setLastViewedHalftimePeriod] = useState<number>(0);
-  const [chainPrompt, setChainPrompt] = useState<{ type: "ASSIST" | "REBOUND"; originalStat: StatEvent } | null>(null);
+  const [lastViewedHalftimePeriod, setLastViewedHalftimePeriod] =
+    useState<number>(0);
+  const [chainPrompt, setChainPrompt] = useState<{
+    type: "ASSIST" | "REBOUND";
+    originalStat: StatEvent;
+  } | null>(null);
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;
@@ -182,8 +195,14 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     let periodStartScoreTeam = 0;
     let periodStartScoreOpp = 0;
 
-    let teamFga = 0, teamFta = 0, teamTo = 0, teamOreb = 0;
-    let oppFga = 0, oppFta = 0, oppTo = 0, oppOreb = 0;
+    let teamFga = 0,
+      teamFta = 0,
+      teamTo = 0,
+      teamOreb = 0;
+    let oppFga = 0,
+      oppFta = 0,
+      oppTo = 0,
+      oppOreb = 0;
 
     let lastTeamScoreClockTime = periodLen;
     let lastTeamScorePeriod = 1;
@@ -193,12 +212,15 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
 
     for (const s of sortedGameStats) {
       if (s.deletedAt) continue;
-      const isOpp = s.playerId === SPECIAL_PLAYER_IDS.OPPONENT || s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":");
+      const isOpp =
+        s.playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
+        s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":");
 
       if (isOpp) {
         oppScore += s.points || 0;
         if (s.type === ACTION_TYPES.MAKE) {
-          if (s.points === 1) oppFta++; else oppFga++;
+          if (s.points === 1) oppFta++;
+          else oppFga++;
         }
       } else {
         curScore += s.points || 0;
@@ -206,31 +228,44 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
           lastTeamScoreClockTime = s.clockTime ?? periodLen;
           lastTeamScorePeriod = s.period;
           foundLastTeamScore = true;
-          if (s.points === 1) teamFta++; else teamFga++;
+          if (s.points === 1) teamFta++;
+          else teamFga++;
         }
       }
 
-      if ([ACTION_TYPES.FOUL, ACTION_TYPES.FOUL_SHOOTING, ACTION_TYPES.FOUL_NON_SHOOTING, ACTION_TYPES.TECHNICAL_FOUL].includes(s.type)) {
+      if (
+        [
+          ACTION_TYPES.FOUL,
+          ACTION_TYPES.FOUL_SHOOTING,
+          ACTION_TYPES.FOUL_NON_SHOOTING,
+          ACTION_TYPES.TECHNICAL_FOUL,
+        ].includes(s.type)
+      ) {
         if (isEventInPeriod(s.period, period, pType)) {
           if (isOpp) oppFouls++;
           else {
             teamFouls++;
             if (onCourt.has(s.playerId)) {
-              onCourtPeriodFouls.set(s.playerId, (onCourtPeriodFouls.get(s.playerId) || 0) + 1);
+              onCourtPeriodFouls.set(
+                s.playerId,
+                (onCourtPeriodFouls.get(s.playerId) || 0) + 1,
+              );
             }
           }
         }
       }
 
       if (s.type === ACTION_TYPES.TIMEOUT) {
-        if (isOpp) oppTimeouts++; else teamTimeouts++;
+        if (isOpp) oppTimeouts++;
+        else teamTimeouts++;
       }
 
       if (s.type === ACTION_TYPES.POSSESSION) posState = s.playerId;
 
       if (isOpp) {
         if (s.type === ACTION_TYPES.MISS) {
-          if (s.points === 1) oppFta++; else {
+          if (s.points === 1) oppFta++;
+          else {
             oppFga++;
             const t = threats.get(s.playerId);
             if (t) t.consecutiveMakes = 0;
@@ -240,15 +275,25 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
         else if (s.type === ACTION_TYPES.MAKE && s.points && s.points > 1) {
           let t = threats.get(s.playerId);
           if (!t) {
-            t = { playerId: s.playerId, points: 0, makes: 0, consecutiveMakes: 0, straightPoints: 0, isHot: false };
+            t = {
+              playerId: s.playerId,
+              points: 0,
+              makes: 0,
+              consecutiveMakes: 0,
+              straightPoints: 0,
+              isHot: false,
+            };
             threats.set(s.playerId, t);
           }
-          t.points += s.points; t.makes++; t.consecutiveMakes++;
+          t.points += s.points;
+          t.makes++;
+          t.consecutiveMakes++;
           if (t.points >= 8 || t.consecutiveMakes >= 3) t.isHot = true;
         }
       } else {
         if (s.type === ACTION_TYPES.MISS) {
-          if (s.points === 1) teamFta++; else teamFga++;
+          if (s.points === 1) teamFta++;
+          else teamFga++;
         } else if (s.type === ACTION_TYPES.OFF_REBOUND) teamOreb++;
         else if (s.type === ACTION_TYPES.TURNOVER) teamTo++;
       }
@@ -294,7 +339,9 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     for (let i = sortedGameStats.length - 1; i >= 0; i--) {
       const s = sortedGameStats[i];
       if (s.deletedAt || s.type !== ACTION_TYPES.MAKE) continue;
-      const isOpp = s.playerId === SPECIAL_PLAYER_IDS.OPPONENT || s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":");
+      const isOpp =
+        s.playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
+        s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":");
       if (isOpp) {
         if (teamScoredSinceOppRunStarted) break;
         tempOppRunPoints += s.points || 0;
@@ -312,25 +359,43 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     const oppPoss = calculatePossessions(oppFga, oppFta, oppTo, oppOreb);
 
     return {
-      currentScore: curScore, opponentScore: oppScore,
-      teamPpp: calculatePpp(curScore, teamPoss), oppPpp: calculatePpp(oppScore, oppPoss),
+      currentScore: curScore,
+      opponentScore: oppScore,
+      teamPpp: calculatePpp(curScore, teamPoss),
+      oppPpp: calculatePpp(oppScore, oppPoss),
       teamFoulStats: {
-        teamFouls, oppFouls,
-        teamBonusLabel: teamBonus.label, teamIsDouble: teamBonus.isDouble, teamBonusColor: teamBonus.color,
-        oppBonusLabel: oppBonus.label, oppIsDouble: oppBonus.isDouble, oppBonusColor: oppBonus.color,
+        teamFouls,
+        oppFouls,
+        teamBonusLabel: teamBonus.label,
+        teamIsDouble: teamBonus.isDouble,
+        teamBonusColor: teamBonus.color,
+        oppBonusLabel: oppBonus.label,
+        oppIsDouble: oppBonus.isDouble,
+        oppBonusColor: oppBonus.color,
       },
       timeoutStats: {
         teamTOL: Math.max(0, MAX_TIMEOUTS - teamTimeouts),
         oppTOL: Math.max(0, MAX_TIMEOUTS - oppTimeouts),
       },
-      possessionState: posState, onCourtIds: onCourt, stintStarts, defensiveStats,
+      possessionState: posState,
+      onCourtIds: onCourt,
+      stintStarts,
+      defensiveStats,
       momentumAlerts: {
         opponentRun: opponentRunValue,
         opponentThreats: Array.from(threats.values()).filter((t) => t.isHot),
       },
-      onCourtPeriodFouls, lastLineupChangeClock, lastLineupChangeScoreTeam, lastLineupChangeScoreOpp,
-      lastTeamScoreClockTime, lastTeamScorePeriod, foundLastTeamScore,
-      recentStats: sortedGameStats.filter((s) => !s.deletedAt).slice(-10).reverse(),
+      onCourtPeriodFouls,
+      lastLineupChangeClock,
+      lastLineupChangeScoreTeam,
+      lastLineupChangeScoreOpp,
+      lastTeamScoreClockTime,
+      lastTeamScorePeriod,
+      foundLastTeamScore,
+      recentStats: sortedGameStats
+        .filter((s) => !s.deletedAt)
+        .slice(-10)
+        .reverse(),
     };
   }, [sortedGameStats, period, team?.periodType, team?.fouls, game]);
 
@@ -348,18 +413,32 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       if (eventAggregates.lastTeamScorePeriod === period) {
         droughtSecs = eventAggregates.lastTeamScoreClockTime - clockSeconds;
       } else if (eventAggregates.lastTeamScorePeriod < period) {
-        droughtSecs = eventAggregates.lastTeamScoreClockTime + (period - eventAggregates.lastTeamScorePeriod - 1) * periodLen + (periodLen - clockSeconds);
+        droughtSecs =
+          eventAggregates.lastTeamScoreClockTime +
+          (period - eventAggregates.lastTeamScorePeriod - 1) * periodLen +
+          (periodLen - clockSeconds);
       }
-      if (droughtSecs >= 180) scoringDrought = `${Math.floor(droughtSecs / 60)}m ${Math.floor(droughtSecs % 60)}s`;
+      if (droughtSecs >= 180)
+        scoringDrought = `${Math.floor(droughtSecs / 60)}m ${Math.floor(droughtSecs % 60)}s`;
     } else {
-      const elapsedGameSecs = (period - 1) * periodLen + (periodLen - clockSeconds);
-      if (elapsedGameSecs >= 180) scoringDrought = `${Math.floor(elapsedGameSecs / 60)}m ${Math.floor(elapsedGameSecs % 60)}s`;
+      const elapsedGameSecs =
+        (period - 1) * periodLen + (periodLen - clockSeconds);
+      if (elapsedGameSecs >= 180)
+        scoringDrought = `${Math.floor(elapsedGameSecs / 60)}m ${Math.floor(elapsedGameSecs % 60)}s`;
     }
 
     return {
-      ...eventAggregates, stintDurations,
-      currentLineupPlusMinus: eventAggregates.currentScore - eventAggregates.opponentScore - (eventAggregates.lastLineupChangeScoreTeam - eventAggregates.lastLineupChangeScoreOpp),
-      currentLineupStintDuration: Math.max(0, eventAggregates.lastLineupChangeClock - clockSeconds),
+      ...eventAggregates,
+      stintDurations,
+      currentLineupPlusMinus:
+        eventAggregates.currentScore -
+        eventAggregates.opponentScore -
+        (eventAggregates.lastLineupChangeScoreTeam -
+          eventAggregates.lastLineupChangeScoreOpp),
+      currentLineupStintDuration: Math.max(
+        0,
+        eventAggregates.lastLineupChangeClock - clockSeconds,
+      ),
       momentumAlerts: { ...eventAggregates.momentumAlerts, scoringDrought },
     };
   }, [eventAggregates, clockSeconds, period, game?.periodLength]);
@@ -381,9 +460,17 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
   }, [teamPlayers]);
 
   const statsMap = useMemo(() => {
-    const aggregates = calculatePlayerAggregates(players, sortedGameStats, teamPlayers, "total", {
-      isSorted: true, periodLength: game?.periodLength, liveContext: { clockTime: 0, period }
-    });
+    const aggregates = calculatePlayerAggregates(
+      players,
+      sortedGameStats,
+      teamPlayers,
+      "total",
+      {
+        isSorted: true,
+        periodLength: game?.periodLength,
+        liveContext: { clockTime: 0, period },
+      },
+    );
     const map = new Map<string, PlayerAggregates>();
     for (const p of aggregates) map.set(p.id.toString(), p);
     return map;
@@ -400,32 +487,62 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       maxStintDuration: team?.maxStintDuration || 8,
       jerseyMap,
     });
-  }, [players, statsMap, gameData, period, clockSeconds, team?.periodType, team?.maxStintDuration, jerseyMap]);
+  }, [
+    players,
+    statsMap,
+    gameData,
+    period,
+    clockSeconds,
+    team?.periodType,
+    team?.maxStintDuration,
+    jerseyMap,
+  ]);
 
   const {
-    isSubDialogOpen, setIsSubDialogOpen, subOutPlayerId, setSubOutPlayerId,
-    draftOnCourtIds, setDraftOnCourtIds, selectedSwapId, setSelectedSwapId
+    isSubDialogOpen,
+    setIsSubDialogOpen,
+    subOutPlayerId,
+    setSubOutPlayerId,
+    draftOnCourtIds,
+    setDraftOnCourtIds,
+    selectedSwapId,
+    setSelectedSwapId,
   } = useLineupState(gameData.onCourtIds);
 
-  const statsGridDataRaw = useMemo(() => Array.from(statsMap.values()), [statsMap]);
+  const statsGridDataRaw = useMemo(
+    () => Array.from(statsMap.values()),
+    [statsMap],
+  );
 
   const statsGridData = useMemo(() => {
     return statsGridDataRaw.map((p) => {
       if (!gameData.onCourtIds.has(p.id.toString())) return p;
       const startClock = gameData.stintStarts.get(p.id.toString()) ?? 0;
       const currentStintSecs = Math.max(0, startClock - clockSeconds);
-      return { ...p, min: roundToOne(p.min - startClock / 60 + currentStintSecs / 60) };
+      return {
+        ...p,
+        min: roundToOne(p.min - startClock / 60 + currentStintSecs / 60),
+      };
     });
-  }, [statsGridDataRaw, gameData.onCourtIds, gameData.stintStarts, clockSeconds]);
+  }, [
+    statsGridDataRaw,
+    gameData.onCourtIds,
+    gameData.stintStarts,
+    clockSeconds,
+  ]);
 
   const sortedStatsGridData = useMemo(() => {
     return [...statsGridData].sort((a, b) => {
       const { key, direction } = sortConfig;
-      let valA = a[key], valB = b[key];
+      let valA = a[key],
+        valB = b[key];
       if (typeof valA === "string" && typeof valB === "string") {
-        return direction === "asc" ? valA.localeCompare(valB) : valB.localeCompare(valA);
+        return direction === "asc"
+          ? valA.localeCompare(valB)
+          : valB.localeCompare(valA);
       }
-      valA = (valA as number) || 0; valB = (valB as number) || 0;
+      valA = (valA as number) || 0;
+      valB = (valB as number) || 0;
       return direction === "asc" ? valA - valB : valB - valA;
     });
   }, [statsGridData, sortConfig]);
@@ -443,8 +560,11 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       const threats = gameData.momentumAlerts.opponentThreats;
       const t = threats.find((t) => t.playerId === id);
       res.push({
-        id, jersey: id.includes(":") ? id.split(":")[1] : "??", ...agg,
-        isHot: !!t, straightPoints: t?.straightPoints || 0
+        id,
+        jersey: id.includes(":") ? id.split(":")[1] : "??",
+        ...agg,
+        isHot: !!t,
+        straightPoints: t?.straightPoints || 0,
       });
     }
     return res.sort((a, b) => b.points - a.points);
@@ -452,25 +572,69 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
 
   const halftimeLineupStats = useMemo(() => {
     if (!isHalftimeReportOpen) return [];
-    const firstHalfStats = sortedGameStats.filter((s) => (team?.periodType || "QUARTERS") === "QUARTERS" ? s.period <= 2 : s.period <= 1);
-    return calculateLineupStats(firstHalfStats, { isSorted: true, periodLength: game?.periodLength });
-  }, [isHalftimeReportOpen, sortedGameStats, team?.periodType, game?.periodLength]);
+    const firstHalfStats = sortedGameStats.filter((s) =>
+      (team?.periodType || "QUARTERS") === "QUARTERS"
+        ? s.period <= 2
+        : s.period <= 1,
+    );
+    return calculateLineupStats(firstHalfStats, {
+      isSorted: true,
+      periodLength: game?.periodLength,
+    });
+  }, [
+    isHalftimeReportOpen,
+    sortedGameStats,
+    team?.periodType,
+    game?.periodLength,
+  ]);
 
-  const playerStreaks = useMemo(() => calculatePlayerStreaks(sortedGameStats, { isSorted: true }), [sortedGameStats]);
-  const playbookEfficiency = useMemo(() => calculatePlayEfficiency(sortedGameStats), [sortedGameStats]);
+  const playerStreaks = useMemo(
+    () => calculatePlayerStreaks(sortedGameStats, { isSorted: true }),
+    [sortedGameStats],
+  );
+  const playbookEfficiency = useMemo(
+    () => calculatePlayEfficiency(sortedGameStats),
+    [sortedGameStats],
+  );
 
   const markers = useMemo(() => {
     const res = [];
     const oppColor = theme.palette.secondary.main;
     for (const s of gameStats) {
       if (s.deletedAt) continue;
-      if ([ACTION_TYPES.SUB_IN, ACTION_TYPES.SUB_OUT, ACTION_TYPES.POSSESSION, ACTION_TYPES.TIMEOUT].includes(s.type)) continue;
-      if (markerFilter !== "ALL" && s.type !== markerFilter && !(markerFilter === "REBOUND" && (s.type === ACTION_TYPES.OFF_REBOUND || s.type === ACTION_TYPES.DEF_REBOUND))) continue;
+      if (
+        [
+          ACTION_TYPES.SUB_IN,
+          ACTION_TYPES.SUB_OUT,
+          ACTION_TYPES.POSSESSION,
+          ACTION_TYPES.TIMEOUT,
+        ].includes(s.type)
+      )
+        continue;
+      if (
+        markerFilter !== "ALL" &&
+        s.type !== markerFilter &&
+        !(
+          markerFilter === "REBOUND" &&
+          (s.type === ACTION_TYPES.OFF_REBOUND ||
+            s.type === ACTION_TYPES.DEF_REBOUND)
+        )
+      )
+        continue;
 
-      const isOpp = s.playerId === SPECIAL_PLAYER_IDS.OPPONENT || s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":");
+      const isOpp =
+        s.playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
+        s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":");
       res.push({
-        x: s.locationX, y: s.locationY,
-        color: isOpp ? oppColor : s.type === ACTION_TYPES.MAKE ? "#4CAF50" : s.type === ACTION_TYPES.MISS ? "#F44336" : "#2196F3",
+        x: s.locationX,
+        y: s.locationY,
+        color: isOpp
+          ? oppColor
+          : s.type === ACTION_TYPES.MAKE
+            ? "#4CAF50"
+            : s.type === ACTION_TYPES.MISS
+              ? "#F44336"
+              : "#2196F3",
         label: isOpp ? "Opp" : playerNamesMap.get(s.playerId) || "Player",
         type: s.type,
       });
@@ -479,27 +643,105 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
   }, [gameStats, markerFilter, playerNamesMap, theme.palette.secondary.main]);
 
   return {
-    selectedX, setSelectedX, selectedY, setSelectedY, isDialogOpen, setIsDialogOpen,
-    selectedPlayerId, setSelectedPlayerId, statType, setStatType, points, setPoints,
-    playName, setPlayName, shotQuality, setShotQuality, clockSeconds, setClockSeconds,
-    isClockRunning, setIsClockRunning, sortConfig, setSortConfig, markerFilter, setMarkerFilter,
-    isDeleteDialogOpen, setIsDeleteDialogOpen, statToDelete, setStatToDelete, isEditing, setIsEditing,
-    editingStatId, setEditingStatId, isEndGameDialogOpen, setIsEndGameDialogOpen,
-    isClockEditDialogOpen, setIsClockEditDialogOpen, isSummaryDialogOpen, setIsSummaryDialogOpen,
-    isAuditDialogOpen, setIsAuditDialogOpen, isFtWorkflowOpen, setIsFtWorkflowOpen,
-    isHalftimeReportOpen, setIsHalftimeReportOpen, lastViewedHalftimePeriod, setLastViewedHalftimePeriod,
-    isDeleting, setIsDeleting, isEnding, setIsEnding, isSavingStat, setIsSavingStat,
-    chainPrompt, setChainPrompt, snackbar, setSnackbar, isSubDialogOpen, setIsSubDialogOpen,
-    subOutPlayerId, setSubOutPlayerId, draftOnCourtIds, setDraftOnCourtIds,
-    selectedSwapId, setSelectedSwapId, period, setPeriod, trackingMode, setTrackingMode,
-    gameStats, teamPlayers, players, playerNamesMap, game, team, teamSeasonStats,
+    selectedX,
+    setSelectedX,
+    selectedY,
+    setSelectedY,
+    isDialogOpen,
+    setIsDialogOpen,
+    selectedPlayerId,
+    setSelectedPlayerId,
+    statType,
+    setStatType,
+    points,
+    setPoints,
+    playName,
+    setPlayName,
+    shotQuality,
+    setShotQuality,
+    clockSeconds,
+    setClockSeconds,
+    isClockRunning,
+    setIsClockRunning,
+    sortConfig,
+    setSortConfig,
+    markerFilter,
+    setMarkerFilter,
+    isDeleteDialogOpen,
+    setIsDeleteDialogOpen,
+    statToDelete,
+    setStatToDelete,
+    isEditing,
+    setIsEditing,
+    editingStatId,
+    setEditingStatId,
+    isEndGameDialogOpen,
+    setIsEndGameDialogOpen,
+    isClockEditDialogOpen,
+    setIsClockEditDialogOpen,
+    isSummaryDialogOpen,
+    setIsSummaryDialogOpen,
+    isAuditDialogOpen,
+    setIsAuditDialogOpen,
+    isFtWorkflowOpen,
+    setIsFtWorkflowOpen,
+    isHalftimeReportOpen,
+    setIsHalftimeReportOpen,
+    lastViewedHalftimePeriod,
+    setLastViewedHalftimePeriod,
+    isDeleting,
+    setIsDeleting,
+    isEnding,
+    setIsEnding,
+    isSavingStat,
+    setIsSavingStat,
+    chainPrompt,
+    setChainPrompt,
+    snackbar,
+    setSnackbar,
+    isSubDialogOpen,
+    setIsSubDialogOpen,
+    subOutPlayerId,
+    setSubOutPlayerId,
+    draftOnCourtIds,
+    setDraftOnCourtIds,
+    selectedSwapId,
+    setSelectedSwapId,
+    period,
+    setPeriod,
+    trackingMode,
+    setTrackingMode,
+    gameStats,
+    teamPlayers,
+    players,
+    playerNamesMap,
+    game,
+    team,
+    teamSeasonStats,
     isReadOnly: !!game?.deletedAt || !!team?.deletedAt,
     periodType: team?.periodType || "QUARTERS",
-    periodLabel: (team?.periodType || "QUARTERS") === "HALVES" ? "Half" : "Quarter",
+    periodLabel:
+      (team?.periodType || "QUARTERS") === "HALVES" ? "Half" : "Quarter",
     maxPeriod: (team?.periodType || "QUARTERS") === "HALVES" ? 2 : 4,
-    sortedGameStats, gameData, jerseyMap, sortedStatsGridData, statsMap, opponentStats,
-    halftimeLineupStats, playerStreaks, playbookEfficiency, markers, clockSecondsRef,
-    handleToggleClock, handleEditClock, handleNextPeriod, togglePossession,
-    writeStat, deleteStat, quickSub, endHighGame, haltAlerts
+    sortedGameStats,
+    gameData,
+    jerseyMap,
+    sortedStatsGridData,
+    statsMap,
+    opponentStats,
+    halftimeLineupStats,
+    playerStreaks,
+    playbookEfficiency,
+    markers,
+    clockSecondsRef,
+    handleToggleClock,
+    handleEditClock,
+    handleNextPeriod,
+    togglePossession,
+    writeStat,
+    deleteStat,
+    quickSub,
+    endHighGame,
+    haltAlerts,
   };
 };

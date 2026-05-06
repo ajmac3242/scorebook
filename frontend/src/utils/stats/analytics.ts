@@ -4,7 +4,7 @@
  */
 
 import { ACTION_TYPES } from "../../constants/stats";
-import { StatEvent } from "../../db";
+import { StatEvent, Player } from "../../db";
 import { formatClock } from "../mathUtils";
 import {
   isActive,
@@ -313,9 +313,9 @@ export const isClutchEvent = (
 };
 
 export const calculateHaltAlerts = (params: {
-  players: any[];
-  statsMap: Map<string, any>;
-  gameData: any;
+  players: Player[];
+  statsMap: Map<string, PlayerAggregates>;
+  gameData: Record<string, unknown>;
   period: number;
   clockSeconds: number;
   periodType: string;

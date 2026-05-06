@@ -21,7 +21,7 @@ export const useStatWriter = (gameId: string | null) => {
       try {
         let savedStat: StatEvent;
         if (statData.isEditing && statData.editingStatId) {
-          const updates: any = { ...statData };
+          const updates: Record<string, unknown> = { ...statData };
           delete updates.isEditing;
           delete updates.editingStatId;
           delete updates.id;
