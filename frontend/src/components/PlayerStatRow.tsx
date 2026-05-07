@@ -1,9 +1,27 @@
 import React from "react";
 import { TableRow, TableCell, Avatar, Typography } from "@mui/material";
+import { PlayerAggregates } from "../utils/stats/types";
 
 interface PlayerStatRowProps {
-  row?: any;
-  [key: string]: any;
+  row?: PlayerAggregates;
+  jerseyNumber?: string;
+  name?: string;
+  avatarColor?: string;
+  min?: number;
+  points?: number;
+  makes?: number;
+  attempts?: number;
+  fgPct?: string;
+  efgPct?: string;
+  offRebounds?: number;
+  defRebounds?: number;
+  rebounds?: number;
+  assists?: number;
+  steals?: number;
+  blocks?: number;
+  turnovers?: number;
+  fouls?: number;
+  plusMinus?: number;
 }
 
 export const PlayerStatRow: React.FC<PlayerStatRowProps> = (props) => {
@@ -12,7 +30,7 @@ export const PlayerStatRow: React.FC<PlayerStatRowProps> = (props) => {
   // If row is passed, use it (GameStats.tsx style)
   if (row) {
     return (
-      <TableRow key={row.id}>
+      <TableRow>
         <TableCell
           sx={{
             fontWeight: 600,
@@ -201,7 +219,7 @@ export const PlayerStatRow: React.FC<PlayerStatRowProps> = (props) => {
       </TableCell>
       <TableCell align="right">{fouls}</TableCell>
       <TableCell align="right">
-        {plusMinus > 0 ? `+${plusMinus}` : plusMinus}
+        {plusMinus !== undefined && plusMinus > 0 ? `+${plusMinus}` : plusMinus}
       </TableCell>
     </TableRow>
   );

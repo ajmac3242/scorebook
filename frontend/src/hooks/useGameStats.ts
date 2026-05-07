@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useCallback } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { db } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
 import { ACTION_TYPES, SPECIAL_PLAYER_IDS, SHOT_QUALITY } from "../constants/stats";
@@ -12,11 +12,6 @@ import {
   calculatePpp,
 } from "../utils/stats";
 import { getShotZone } from "../utils/shotZones";
-import dayjs from "dayjs";
-import { StatEvent } from "../types/stat";
-import { Player } from "../types/player";
-import { Team } from "../types/team";
-import { TeamPlayer } from "../types/teamPlayer";
 
 export const useGameStats = (gameId: string | undefined) => {
   const [selectedPlayerId, setSelectedPlayerId] = useState<number | string>("ALL");

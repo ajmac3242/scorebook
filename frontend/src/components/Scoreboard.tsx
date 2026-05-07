@@ -2,11 +2,10 @@ import React from "react";
 import {
   Box,
   Typography,
-  Stack,
   useTheme,
   Tooltip,
 } from "@mui/material";
-import { HaltAlert } from "../utils/stats";
+import { HaltAlert, OpponentThreat } from "../utils/stats";
 import { formatClock } from "../utils/mathUtils";
 import { slideBackAndForth } from "../styles/animations";
 import TeamPanel from "./TeamPanel";
@@ -61,7 +60,7 @@ export interface ScoreboardProps {
     momentumAlerts: {
       opponentRun: string | null;
       scoringDrought: string | null;
-      opponentThreats: any[]; // Changed from OpponentThreat[] for flexibility or just use the type
+      opponentThreats: OpponentThreat[];
     };
   };
   haltAlerts?: HaltAlert[];
