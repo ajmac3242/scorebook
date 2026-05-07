@@ -934,7 +934,8 @@ const GameMode: React.FC = () => {
                           opacity: 0.9,
                         }}
                       >
-                        STINT: {formatClock(gameData.currentLineupStintDuration)}
+                        STINT:{" "}
+                        {formatClock(gameData.currentLineupStintDuration)}
                       </Typography>
                     </Box>
                     <Box sx={{ textAlign: "right" }}>
