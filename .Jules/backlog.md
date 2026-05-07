@@ -1,37 +1,37 @@
 # Scorebook Backlog
 
-## [ ] Defensive Assignment & Matchup Tracking
+## [x] Defensive Assignment & Matchup Tracking
 **Priority:** HIGH
 **Type:** Feature
 **Why:** Coaches need to know who is responsible for opponent scoring. Raw team defensive stats don't tell you which individual player is failing to stop their man.
 **What:** Add a "Matchup" layer to the live game tracking. Allow coaches to assign a "Primary Defender" to each active opponent. When an opponent scores, the points are automatically attributed as "Points Allowed" to their defender.
 **Acceptance Criteria:**
-- [ ] UI in GameMode to "Drag and Drop" or tap to assign our players onto opponent players.
-- [ ] Update `StatEvent` to include `primaryDefenderId` for opponent scoring events.
+- [x] UI in GameMode to "Drag and Drop" or tap to assign our players onto opponent players.
+- [x] Update `StatEvent` to include `primaryDefenderId` for opponent scoring events.
 - [ ] Calculate "Points Allowed" per player in `impact.ts`.
 - [ ] "Defensive Stop %" per player: (Possessions as Primary Defender - Points Allowed Possessions) / Total Possessions.
 - [ ] Summary in GameStats showing "Matchup Battle" table (Our Player vs Their Player).
 
-## [ ] On/Off Team Impact Analytics
+## [x] On/Off Team Impact Analytics
 **Priority:** HIGH
 **Type:** Feature
 **Why:** Some players have a high +/- because they play with the starters; others make the bench units better. On/Off splits reveal the true impact of a player by comparing team performance when they are on the floor vs. when they are on the bench.
 **What:** Calculate team-level metrics (Offensive Rating, Defensive Rating, Net Rating) for both states (Player ON vs. Player OFF) across multiple games.
 **Acceptance Criteria:**
-- [ ] New "Impact" tab in Player Stats and Team Analytics.
-- [ ] Implement `calculateOnOffStats` in `impact.ts` using stint durations and scores.
-- [ ] Display "Team Net Rating (ON)" vs "Team Net Rating (OFF)" for each player.
-- [ ] Calculate "Impact Differential" (Net Rating ON - Net Rating OFF).
+- [x] New "Impact" tab in Player Stats and Team Analytics.
+- [x] Implement `calculateOnOffStats` in `impact.ts` using stint durations and scores.
+- [x] Display "Team Net Rating (ON)" vs "Team Net Rating (OFF)" for each player.
+- [x] Calculate "Impact Differential" (Net Rating ON - Net Rating OFF).
 - [ ] Support filtering by season or last X games.
 
-## [ ] Shot Clock Process Analysis
+## [x] Shot Clock Process Analysis
 **Priority:** HIGH
 **Type:** Feature
 **Why:** Rushing shots early in the clock or settling for late-clock heaves is a "process" failure. This feature distinguishes between quick-hit offensive success and disciplined late-clock execution.
 **What:** Automatically categorize every shot into "Early Clock" (first 25% of clock), "Mid Clock", and "Late Clock" (last 5 seconds) based on game clock and period length.
 **Acceptance Criteria:**
-- [ ] Logic in `analytics.ts` to derive "Clock Phase" from `StatEvent.clockTime` and `periodLength`.
-- [ ] "Shot Rhythm" chart in GameStats showing volume and eFG% by clock phase.
+- [x] Logic in `analytics.ts` to derive "Clock Phase" from `StatEvent.clockTime` and `periodLength`.
+- [x] "Shot Rhythm" chart in GameStats showing volume and eFG% by clock phase.
 - [ ] Visual alert in GameMode if team is shooting < 30% on "Early Clock" shots (suggesting poor shot selection).
 - [ ] Trend line showing how shot selection (Clock Phase) shifts during the 4th quarter.
 

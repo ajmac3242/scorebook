@@ -177,6 +177,7 @@ const GameMode: React.FC = () => {
     jerseyMap,
     sortedStatsGridData,
     statsMap,
+    matchups,
     opponentStats,
     halftimeLineupStats,
     playerStreaks,
@@ -304,6 +305,25 @@ const GameMode: React.FC = () => {
           setIsSavingStat(false);
           return;
         }
+
+        let primaryDefenderId: string | undefined = undefined;
+        let derivedShotClockPhase: "EARLY" | "MID" | "LATE" | undefined =
+          undefined;
+
+        if (
+          typeToSave === ACTION_TYPES.MAKE ||
+          typeToSave === ACTION_TYPES.MISS
+        ) {
+          if (selectedPlayerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT)) {
+            primaryDefenderId = matchups[selectedPlayerId];
+          }
+
+          const elapsed = gameData.possessionStartClock - clockSeconds;
+          if (elapsed <= 10) derivedShotClockPhase = "EARLY";
+          else if (elapsed >= 20) derivedShotClockPhase = "LATE";
+          else derivedShotClockPhase = "MID";
+        }
+
         if (isEditing && editingStatId) {
           await db.stats.update(editingStatId, {
             playerId: selectedPlayerId!,
@@ -319,6 +339,8 @@ const GameMode: React.FC = () => {
               typeToSave === ACTION_TYPES.MISS
                 ? (shotQuality ?? undefined)
                 : undefined,
+            shotClockPhase: derivedShotClockPhase,
+            primaryDefenderId,
             synced: 0,
           });
           await syncService.pushUpdates();
@@ -341,6 +363,8 @@ const GameMode: React.FC = () => {
               typeToSave === ACTION_TYPES.MISS
                 ? (shotQuality ?? undefined)
                 : undefined,
+            shotClockPhase: derivedShotClockPhase,
+            primaryDefenderId,
             period,
             clockTime: clockSeconds,
             timestamp: new Date().toISOString(),
@@ -410,6 +434,8 @@ const GameMode: React.FC = () => {
       setIsEditing,
       setEditingStatId,
       setSelectedPlayerId,
+      gameData.possessionStartClock,
+      matchups,
     ],
   );
 
@@ -1334,65 +1360,130 @@ const GameMode: React.FC = () => {
                           bgcolor: "white",
                           borderRadius: 2,
                           border: "1px solid rgba(0,0,0,0.05)",
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
                         }}
                       >
                         <Box
                           sx={{
                             display: "flex",
+                            justifyContent: "space-between",
                             alignItems: "center",
-                            gap: 1.5,
+                            mb: 1,
                           }}
                         >
-                          <Avatar
+                          <Box
                             sx={{
-                              width: 32,
-                              height: 32,
-                              bgcolor: "secondary.main",
-                              fontSize: "0.8rem",
-                              fontWeight: 700,
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 1.5,
                             }}
                           >
-                            {opp.jersey}
-                          </Avatar>
-                          <Box>
-                            <Typography
-                              variant="body2"
-                              sx={{ fontWeight: 700 }}
+                            <Avatar
+                              sx={{
+                                width: 32,
+                                height: 32,
+                                bgcolor: "secondary.main",
+                                fontSize: "0.8rem",
+                                fontWeight: 700,
+                              }}
                             >
-                              Opponent #{opp.jersey}
-                              {opp.isHot && (
-                                <Box
-                                  component="span"
-                                  sx={{ ml: 1, fontSize: "1rem" }}
+                              {opp.jersey}
+                            </Avatar>
+                            <Box>
+                              <Typography
+                                variant="body2"
+                                sx={{ fontWeight: 700 }}
+                              >
+                                Opponent #{opp.jersey}
+                                {opp.isHot && (
+                                  <Box
+                                    component="span"
+                                    sx={{ ml: 1, fontSize: "1rem" }}
+                                  >
+                                    🔥
+                                  </Box>
+                                )}
+                              </Typography>
+                              <Typography
+                                variant="caption"
+                                color="text.secondary"
+                              >
+                                {opp.points} pts | {opp.makes}-{opp.attempts} FG
+                                | {opp.turnovers} TO
+                              </Typography>
+                            </Box>
+                          </Box>
+                          {opp.straightPoints >= 4 && (
+                            <Chip
+                              label={`${opp.straightPoints} STRAIGHT`}
+                              size="small"
+                              color="error"
+                              sx={{
+                                height: 16,
+                                fontSize: "0.55rem",
+                                fontWeight: 800,
+                              }}
+                            />
+                          )}
+                        </Box>
+
+                        <Box sx={{ mt: 1 }}>
+                          <Typography
+                            variant="caption"
+                            sx={{
+                              fontSize: "0.6rem",
+                              fontWeight: 800,
+                              textTransform: "uppercase",
+                              display: "block",
+                              mb: 0.5,
+                              color: "text.secondary",
+                            }}
+                          >
+                            Primary Defender
+                          </Typography>
+                          <Box
+                            sx={{
+                              display: "grid",
+                              gridTemplateColumns: "repeat(5, 1fr)",
+                              gap: 0.5,
+                            }}
+                          >
+                            {players
+                              .filter((p) => gameData.onCourtIds.has(p.id!))
+                              .map((p) => (
+                                <Button
+                                  key={p.id}
+                                  variant={
+                                    matchups[opp.id] === p.id
+                                      ? "contained"
+                                      : "outlined"
+                                  }
+                                  size="small"
+                                  onClick={async () => {
+                                    if (!gameId) return;
+                                    const newMatchups = {
+                                      ...(game?.matchups || {}),
+                                      [opp.id]:
+                                        matchups[opp.id] === p.id ? "" : p.id!,
+                                    };
+                                    await db.games.update(gameId, {
+                                      matchups: newMatchups,
+                                      synced: 0,
+                                    });
+                                    await syncService.pushUpdates();
+                                  }}
+                                  sx={{
+                                    minWidth: 0,
+                                    p: 0.5,
+                                    fontSize: "0.65rem",
+                                    fontWeight: 700,
+                                    height: 24,
+                                  }}
                                 >
-                                  🔥
-                                </Box>
-                              )}
-                            </Typography>
-                            <Typography
-                              variant="caption"
-                              color="text.secondary"
-                            >
-                              {opp.points} pts | {opp.makes}-{opp.attempts} FG |{" "}
-                              {opp.turnovers} TO
-                            </Typography>
+                                  #{jerseyMap.get(p.id!)}
+                                </Button>
+                              ))}
                           </Box>
                         </Box>
-                        {opp.straightPoints >= 4 && (
-                          <Chip
-                            label={`${opp.straightPoints} STRAIGHT`}
-                            size="small"
-                            color="error"
-                            sx={{
-                              height: 16,
-                              fontSize: "0.55rem",
-                              fontWeight: 800,
-                            }}
-                          />
-                        )}
                       </Box>
                     ))
                   ) : (

@@ -87,6 +87,7 @@ export interface Game {
   periodType?: "QUARTERS" | "HALVES";
   deletedAt?: string;
   synced?: number;
+  matchups?: Record<string, string>; // Opponent Player ID -> Our Player ID
 }
 
 /**
@@ -104,6 +105,8 @@ export interface StatEvent {
   clockTime?: number; // Seconds remaining in the period when event occurred
   playName?: string;
   shotQuality?: string;
+  shotClockPhase?: "EARLY" | "MID" | "LATE";
+  primaryDefenderId?: string;
   situation?: string; // 'ATO', 'SLOB', 'BLOB', 'EOP'
   timestamp: string;
   deletedAt?: string;
@@ -143,7 +146,8 @@ export class AppDatabase extends Dexie {
     // v18:    Added 'opponents' table and 'opponentId' to Game for persistent scouting.
     // v19:    Added 'name' index to 'opponents' table.
     // v20:    Added 'isStar' to Player schema.
-    this.version(20).stores({
+    // v21:    Added 'matchups' to Game and 'primaryDefenderId', 'shotClockPhase' to StatEvent.
+    this.version(21).stores({
       teams: "id, synced, deletedAt, isFavorite",
       players: "id, synced, isArchived, deletedAt",
       teamPlayers: "id, [teamId+playerId], teamId, playerId, synced",
