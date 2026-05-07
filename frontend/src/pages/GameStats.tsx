@@ -39,6 +39,7 @@ import {
   Restore,
   Warning,
   Edit as EditIcon,
+  FitnessCenter as PracticeIcon,
 } from "@mui/icons-material";
 import BasketballCourt from "../components/BasketballCourt";
 import SubstitutionAuditDialog from "../components/SubstitutionAuditDialog";
@@ -58,6 +59,8 @@ import {
   calculateStopsAndKills,
   calculatePossessions,
   calculatePpp,
+  generatePracticePrescription,
+  calculateTeamSeasonAverages,
   type ScoreFlowPoint,
 } from "../utils/stats";
 import { MoleskineCard } from "../components/SharedUI";
@@ -122,6 +125,7 @@ const GameStats: React.FC = () => {
 
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [isAuditDialogOpen, setIsAuditDialogOpen] = useState(false);
+  const [isPracticePlannerOpen, setIsPracticePlannerOpen] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [editOpponent, setEditOpponent] = useState("");
   const [editDate, setEditDate] = useState("");
@@ -247,6 +251,38 @@ const GameStats: React.FC = () => {
       game?.teamId ? db.teams.get(game.teamId) : Promise.resolve(undefined),
     [game?.teamId],
   );
+
+  const teamSeasonStatsResult = useLiveQuery(
+    () =>
+      game?.teamId
+        ? db.games
+            .where("teamId")
+            .equals(game.teamId)
+            .toArray()
+            .then((games) => {
+              const gameIds = games.map((g) => g.id!).filter(Boolean);
+              return db.stats
+                .where("gameId")
+                .anyOf(gameIds)
+                .toArray()
+                .then((allStats) =>
+                  calculateTeamSeasonAverages(games, allStats),
+                );
+            })
+        : Promise.resolve(undefined),
+    [game?.teamId],
+  );
+
+  const teamSeasonStats = useMemo(() => {
+    return (
+      teamSeasonStatsResult || {
+        ppp: "0.00",
+        ftPct: "0.0",
+        turnoverRate: "0.0",
+        orebPct: "0.0",
+      }
+    );
+  }, [teamSeasonStatsResult]);
 
   const teamPlayersResult = useLiveQuery(
     () =>
@@ -647,6 +683,63 @@ const GameStats: React.FC = () => {
   const defensiveStats = useMemo(() => {
     return calculateStopsAndKills(scoreFlowSortedStats);
   }, [scoreFlowSortedStats]);
+
+  const practiceFocusAreas = useMemo(() => {
+    if (!teamSeasonStats || !teamData) return [];
+    // Calculate current game rates
+    const ftAttempts = stats.filter(
+      (s) =>
+        s.playerId !== SPECIAL_PLAYER_IDS.OPPONENT &&
+        s.points === 1 &&
+        (s.type === ACTION_TYPES.MAKE || s.type === ACTION_TYPES.MISS),
+    ).length;
+    const ftMakes = stats.filter(
+      (s) =>
+        s.playerId !== SPECIAL_PLAYER_IDS.OPPONENT &&
+        s.points === 1 &&
+        s.type === ACTION_TYPES.MAKE,
+    ).length;
+    const gameFtPct = ftAttempts > 0 ? (ftMakes / ftAttempts) * 100 : 0;
+
+    const gameTurnoverRate =
+      teamData.possessions > 0
+        ? (stats.filter(
+            (s) =>
+              s.playerId !== SPECIAL_PLAYER_IDS.OPPONENT &&
+              s.type === ACTION_TYPES.TURNOVER,
+          ).length /
+            teamData.possessions) *
+          100
+        : 0;
+
+    // Approximate OREB%
+    const teamOreb = stats.filter(
+      (s) =>
+        s.playerId !== SPECIAL_PLAYER_IDS.OPPONENT &&
+        s.type === ACTION_TYPES.OFF_REBOUND,
+    ).length;
+    const oppDreb = stats.filter(
+      (s) =>
+        s.playerId === SPECIAL_PLAYER_IDS.OPPONENT &&
+        s.type === ACTION_TYPES.DEF_REBOUND,
+    ).length;
+    const gameOrebPct =
+      teamOreb + oppDreb > 0 ? (teamOreb / (teamOreb + oppDreb)) * 100 : 0;
+
+    return generatePracticePrescription({
+      gameStats: playerAggregates,
+      teamStats: {
+        ftPct: gameFtPct.toFixed(1),
+        turnoverRate: gameTurnoverRate.toFixed(1),
+        orebPct: gameOrebPct.toFixed(1),
+      },
+      seasonAverages: {
+        ftPct: teamSeasonStats.ftPct || "70.0",
+        turnoverRate: teamSeasonStats.turnoverRate || "15.0",
+        orebPct: teamSeasonStats.orebPct || "25.0",
+      },
+    });
+  }, [teamSeasonStats, teamData, stats, playerAggregates]);
 
   const handleDeleteGame = async () => {
     if (!gameId || !game) return;
@@ -1314,15 +1407,26 @@ const GameStats: React.FC = () => {
         actions={
           <Stack direction="row" spacing={1} alignItems="center">
             {!isDeleted && (
-              <Button
-                variant="contained"
-                size="small"
-                onClick={handleExportPDF}
-                disabled={isExporting}
-                sx={{ bgcolor: "rgba(255,255,255,0.2)", color: "white" }}
-              >
-                {isExporting ? "Exporting..." : "Export PDF"}
-              </Button>
+              <Stack direction="row" spacing={1}>
+                <Button
+                  variant="contained"
+                  size="small"
+                  startIcon={<PracticeIcon />}
+                  onClick={() => setIsPracticePlannerOpen(true)}
+                  sx={{ bgcolor: "success.main", color: "white" }}
+                >
+                  Practice Planner
+                </Button>
+                <Button
+                  variant="contained"
+                  size="small"
+                  onClick={handleExportPDF}
+                  disabled={isExporting}
+                  sx={{ bgcolor: "rgba(255,255,255,0.2)", color: "white" }}
+                >
+                  {isExporting ? "Exporting..." : "Export PDF"}
+                </Button>
+              </Stack>
             )}
             {!isDeleted ? (
               <IconButton
@@ -2007,6 +2111,78 @@ const GameStats: React.FC = () => {
           <Button onClick={() => setOpenEditDialog(false)}>Cancel</Button>
           <Button onClick={handleUpdateGame} variant="contained" sx={{ ml: 1 }}>
             Save
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={isPracticePlannerOpen}
+        onClose={() => setIsPracticePlannerOpen(false)}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle sx={{ fontFamily: "var(--serif)", fontWeight: 800 }}>
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <PracticeIcon color="success" />
+            <span>Practice Prescription Engine</span>
+          </Stack>
+        </DialogTitle>
+        <DialogContent>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+            Based on this game's statistical failures compared to your season
+            averages, the following focus areas and drills are recommended for
+            your next practice.
+          </Typography>
+
+          <Stack spacing={2}>
+            {practiceFocusAreas.length > 0 ? (
+              practiceFocusAreas.map((area, idx) => (
+                <Box
+                  key={idx}
+                  sx={{
+                    p: 2,
+                    borderRadius: 2,
+                    bgcolor: "rgba(0,0,0,0.02)",
+                    border: "1px solid rgba(0,0,0,0.08)",
+                  }}
+                >
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      mb: 1,
+                    }}
+                  >
+                    <Typography
+                      variant="subtitle2"
+                      sx={{ fontWeight: 800, color: "error.main" }}
+                    >
+                      {area.metric}: {area.value}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      Season Avg: {area.average}
+                    </Typography>
+                  </Box>
+                  <Typography variant="body2" sx={{ fontWeight: 700, mb: 0.5 }}>
+                    DRILL: {area.drill}
+                  </Typography>
+                  <Typography variant="caption" sx={{ display: "block" }}>
+                    {area.description}
+                  </Typography>
+                </Box>
+              ))
+            ) : (
+              <Alert severity="success">
+                Great performance! No major statistical deviations detected
+                requiring specialized drills.
+              </Alert>
+            )}
+          </Stack>
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={() => setIsPracticePlannerOpen(false)}>Close</Button>
+          <Button variant="contained" color="success">
+            Export to Practice PDF
           </Button>
         </DialogActions>
       </Dialog>

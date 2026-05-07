@@ -304,9 +304,19 @@ export function initializeStatsMap(
 export const calculateTeamSeasonAverages = (
   games: Game[],
   allStats: StatEvent[],
-): { ppp: string } => {
+): {
+  ppp: string;
+  ftPct: string;
+  turnoverRate: string;
+  orebPct: string;
+} => {
   const teamAgg = calculateTeamAggregates(games, allStats, true);
-  return { ppp: teamAgg.ppp };
+  return {
+    ppp: teamAgg.ppp,
+    ftPct: teamAgg.ftPct,
+    turnoverRate: teamAgg.turnoverRate,
+    orebPct: teamAgg.orebPct,
+  };
 };
 
 /**
@@ -344,8 +354,26 @@ export const calculateTeamAggregates = (
     }
   }
 
-  const team = { pts: 0, reb: 0, ast: 0, fga: 0, fta: 0, to: 0, oreb: 0 };
-  const opp = { pts: 0, fga: 0, fta: 0, to: 0, oreb: 0 };
+  const team = {
+    pts: 0,
+    reb: 0,
+    ast: 0,
+    fga: 0,
+    fta: 0,
+    ftm: 0,
+    to: 0,
+    oreb: 0,
+    dreb: 0,
+  };
+  const opp = {
+    pts: 0,
+    fga: 0,
+    fta: 0,
+    ftm: 0,
+    to: 0,
+    oreb: 0,
+    dreb: 0,
+  };
 
   for (let i = 0; i < stats.length; i++) {
     const stat = stats[i];
@@ -372,8 +400,13 @@ export const calculateTeamAggregates = (
       if (isOpponent) opp.fga++;
       else team.fga++;
     } else if (isFreeThrow(stat)) {
-      if (isOpponent) opp.fta++;
-      else team.fta++;
+      if (isOpponent) {
+        opp.fta++;
+        if (stat.type === ACTION_TYPES.MAKE) opp.ftm++;
+      } else {
+        team.fta++;
+        if (stat.type === ACTION_TYPES.MAKE) team.ftm++;
+      }
     } else if (type === ACTION_TYPES.TURNOVER) {
       if (isOpponent) opp.to++;
       else team.to++;
@@ -382,16 +415,20 @@ export const calculateTeamAggregates = (
       else team.oreb++;
     }
 
-    if (!isOpponent) {
-      if (
-        stat.type === ACTION_TYPES.OFF_REBOUND ||
-        stat.type === ACTION_TYPES.REBOUND ||
-        stat.type === ACTION_TYPES.DEF_REBOUND
-      ) {
-        team.reb++;
-      } else if (stat.type === ACTION_TYPES.ASSIST) {
-        team.ast++;
+    if (
+      stat.type === ACTION_TYPES.OFF_REBOUND ||
+      stat.type === ACTION_TYPES.REBOUND ||
+      stat.type === ACTION_TYPES.DEF_REBOUND
+    ) {
+      if (isOpponent) opp.reb++;
+      else team.reb++;
+
+      if (stat.type === ACTION_TYPES.DEF_REBOUND) {
+        if (isOpponent) opp.dreb++;
+        else team.dreb++;
       }
+    } else if (stat.type === ACTION_TYPES.ASSIST) {
+      if (!isOpponent) team.ast++;
     }
   }
 
@@ -409,6 +446,11 @@ export const calculateTeamAggregates = (
     opp.oreb,
   );
 
+  const teamOrebPct =
+    team.oreb + opp.dreb > 0
+      ? ((team.oreb / (team.oreb + opp.dreb)) * 100).toFixed(1)
+      : "0.0";
+
   return {
     ppg: formatToOne(team.pts / gp),
     rpg: formatToOne(team.reb / gp),
@@ -419,6 +461,12 @@ export const calculateTeamAggregates = (
     ppp: calculatePpp(team.pts, totalPossessions),
     possessions: Math.round(totalPossessions),
     oppPpp: calculatePpp(opp.pts, totalOppPossessions),
+    ftPct: calculateFtPct(team.ftm, team.fta),
+    turnoverRate:
+      totalPossessions > 0
+        ? ((team.to / totalPossessions) * 100).toFixed(1)
+        : "0.0",
+    orebPct: teamOrebPct,
   };
 };
 

@@ -114,6 +114,20 @@ export interface HaltAlert {
   jerseyNumber?: string;
 }
 
+export interface TalkingPoint {
+  type: "OFFENSE" | "DEFENSE" | "LINEUP";
+  text: string;
+  insight: string;
+}
+
+export interface PracticeFocusArea {
+  metric: string;
+  value: string;
+  average: string;
+  drill: string;
+  description: string;
+}
+
 export interface GameAnalyticsContext {
   onCourtIds: Set<string>;
   teamFoulStats: {

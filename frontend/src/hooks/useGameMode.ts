@@ -445,9 +445,18 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
         scoringDrought = `${Math.floor(elapsedGameSecs / 60)}m ${Math.floor(elapsedGameSecs % 60)}s`;
     }
 
+    const totalElapsedSeconds =
+      (period - 1) * periodLen + (periodLen - clockSeconds);
+    const totalPossessions = teamPoss + oppPoss;
+    const livePace =
+      totalElapsedSeconds > 0
+        ? (totalPossessions / (totalElapsedSeconds / 60)) * 40
+        : 0;
+
     return {
       ...eventAggregates,
       stintDurations,
+      livePace,
       currentLineupPlusMinus:
         eventAggregates.currentScore -
         eventAggregates.opponentScore -
