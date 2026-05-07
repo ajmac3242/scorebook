@@ -450,8 +450,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
 
     const totalElapsedSeconds =
       (period - 1) * periodLen + (periodLen - clockSeconds);
-    const totalPossessions =
-      eventAggregates.teamPoss + eventAggregates.oppPoss;
+    const totalPossessions = eventAggregates.teamPoss + eventAggregates.oppPoss;
     const livePace =
       totalElapsedSeconds > 0
         ? (totalPossessions / (totalElapsedSeconds / 60)) * 40
