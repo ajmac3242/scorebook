@@ -68,10 +68,7 @@ import {
   SPECIAL_PLAYER_IDS,
   SHOT_QUALITY,
 } from "../constants/stats";
-import {
-  type PlayerAggregates,
-  getPlayerDisplayName,
-} from "../utils/stats";
+import { type PlayerAggregates, getPlayerDisplayName } from "../utils/stats";
 import { formatClock, formatPlusMinus } from "../utils/mathUtils";
 import { MoleskineCard } from "../components/SharedUI";
 
@@ -2228,7 +2225,9 @@ const LineupPlayerButton: React.FC<{
               })()}
             </Typography>
           </Box>
-          {streak === "HOT" && <Box sx={{ fontSize: "0.8rem", ml: 0.5 }}>🔥</Box>}
+          {streak === "HOT" && (
+            <Box sx={{ fontSize: "0.8rem", ml: 0.5 }}>🔥</Box>
+          )}
           {isFouledOut && (
             <Chip
               label="OUT"

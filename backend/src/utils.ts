@@ -66,6 +66,7 @@ function sanitizeForLog(obj: unknown, depth = 0): unknown {
  */
 /**
  * Redacts sensitive terms from a string.
+ * @param input
  */
 function redactString(input: string): string {
   let result = input;
@@ -76,6 +77,11 @@ function redactString(input: string): string {
   return result;
 }
 
+/**
+ *
+ * @param label
+ * @param error
+ */
 export function logError(label: string, error: unknown) {
   // 🛡️ Enhancement 10: Sanitize all error logs to prevent secret leakage
   if (error instanceof Error) {
@@ -159,7 +165,10 @@ export function maskEvent(event: APIGatewayProxyEventV2): unknown {
   for (const { key, redactAll } of redactTargets) {
     const val = anyEvent[key];
     if (val) {
-      (masked as any)[key] = redactMap(val as Record<string, unknown>, redactAll);
+      (masked as any)[key] = redactMap(
+        val as Record<string, unknown>,
+        redactAll,
+      );
     }
   }
 
