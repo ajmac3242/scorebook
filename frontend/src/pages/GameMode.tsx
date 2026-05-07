@@ -434,6 +434,8 @@ const GameMode: React.FC = () => {
       setIsEditing,
       setEditingStatId,
       setSelectedPlayerId,
+      gameData.possessionStartClock,
+      matchups,
     ],
   );
 

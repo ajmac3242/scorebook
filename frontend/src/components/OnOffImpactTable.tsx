@@ -7,8 +7,6 @@ import {
   TableHead,
   TableRow,
   Paper,
-  Typography,
-  Box,
 } from "@mui/material";
 import { OnOffStats } from "../utils/stats/impact";
 import { formatPlusMinus } from "../utils/mathUtils";

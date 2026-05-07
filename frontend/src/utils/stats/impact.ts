@@ -340,7 +340,7 @@ export interface MatchupStat {
 export const calculateMatchupStats = (
   stats: StatEvent[],
   players: { id: string; name: string }[],
-  jerseyMap: Map<string, string | undefined>,
+  _jerseyMap: Map<string, string | undefined>,
 ): MatchupStat[] => {
   const matchupMap = new Map<string, { pointsAllowed: number; stops: number; possessions: number }>();
   const sorted = sortStats(stats);

@@ -63,7 +63,7 @@ import {
 import { MoleskineCard } from "../components/SharedUI";
 import EntityBanner from "../components/EntityBanner";
 import { OnOffImpactTable } from "../components/OnOffImpactTable";
-import { calculateOnOffStats, calculateMatchupStats, MatchupStat } from "../utils/stats/impact";
+import { calculateOnOffStats, calculateMatchupStats } from "../utils/stats/impact";
 import { syncService } from "../utils/syncService";
 import { logger } from "../utils/logger";
 import dayjs from "dayjs";
