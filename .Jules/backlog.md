@@ -1,81 +1,16 @@
 # Scorebook Backlog
 
-## Maintenance Note
-Completed items are archived to `.Jules/backlog-archive.md` to maintain optimal performance for agent context. Active `backlog.md` should aim for a soft cap of ~200 lines.
-
----
-
-## [HYGIENE] Refactor: Extract data layer and types out of db.ts
-**Priority:** HIGH **Type:** Refactor **Why:** `db.ts` currently mixes domain interfaces, schema/version history, Dexie table setup, and a singleton DB instance in one runtime file. This creates tight coupling between types and persistence that makes it impossible to import types without pulling in Dexie as a side effect. **What:** Split into dedicated modules with clean import boundaries.
-
-**Acceptance Criteria:**
-
-* [ ] Extract all domain interfaces/types into `src/types/` (e.g., `game.ts`, `player.ts`, `stat.ts`).
-* [ ] Extract Dexie schema and version history into `src/db/schema.ts`.
-* [ ] `db.ts` becomes a thin singleton setup file that imports from the above.
-* [ ] All existing imports updated throughout the codebase — no broken references.
-* [ ] Types can be imported without triggering Dexie initialization as a side effect.
-* [ ] All tests pass after the restructure.
-
----
-
-## [HYGIENE] Refactor: Break GameStats.tsx into data hook + display components
-**Priority:** HIGH **Type:** Refactor **Why:** `GameStats.tsx` combines page rendering, business action handlers, sorting logic, and export functionality in a single file. This makes it hard to test individual concerns and will become a maintenance bottleneck as new stat categories and export formats are added. **What:** Separate data/action concerns from display.
-
-**Acceptance Criteria:**
-
-* [ ] Extract `useGameStats` hook — all `useLiveQuery` calls, derived stat aggregations, sort state, and export handlers.
-* [ ] Extract `PlayerStatRow.tsx` — individual player row rendering.
-* [ ] Extract `StatExportMenu.tsx` — export format selection and trigger logic.
-* [ ] `GameStats.tsx` becomes a layout-only page component (~100 lines) that wires hook → components.
-* [ ] Export functionality (CSV/PDF) remains fully operational after refactor.
-* [ ] All tests pass; add tests for `useGameStats` derivations.
-
----
-
-## [HYGIENE] Frontend Structure Cleanup (Grouped Small Refactors)
-**Priority:** HIGH **Type:** Refactor **Why:** Several files have outgrown their original scope or contain obvious extraction seams. These are bundled as lower-risk, mechanical refactors that can be tackled incrementally. **What:** Clean up 5 files with clear, contained seams.
-
-**Scope:**
-
-### App.tsx
-* [ ] Extract `ProtectedRoute` into `src/components/ProtectedRoute.tsx`.
-* [ ] Extract route declarations into `src/router/routes.tsx`.
-* [ ] `App.tsx` becomes provider wiring + layout shell only.
-
-### SharedUI.tsx
-* [ ] Move each exported component (`MoleskineCard`, `PageHeader`, `StatItem`, `StatCard`, `AnimatedNumber`) into its own file under `src/components/ui/`.
-* [ ] Update all import sites.
-
-### Scoreboard.tsx
-* [x] Convert internal `renderTeamSection` function into a typed `TeamPanel.tsx` sub-component.
-* [x] Add props interface for `TeamPanel`.
-
-### OpponentScoutingReport.tsx
-* [ ] Extract chained `useLiveQuery` calls and sorted stat derivations into `useOpponentScouting` hook.
-* [ ] Page component becomes layout + wiring only.
-
-### Dashboard.tsx
-* [ ] Extract inline queries and derived stats into `useDashboardData` hook.
-* [ ] Page component becomes layout + wiring only.
-
-**Acceptance Criteria:**
-* [ ] All 5 files refactored per scope above.
-* [ ] No change to rendered UI or user-facing behavior.
-* [ ] All existing tests pass.
-
----
-
 ## [ ] Defensive Assignment & Matchup Tracking
 **Priority:** HIGH
 **Type:** Feature
 **Why:** Coaches need to know who is responsible for opponent scoring. Raw team defensive stats don't tell you which individual player is failing to stop their man.
 **What:** Add a "Matchup" layer to the live game tracking. Allow coaches to assign a "Primary Defender" to each active opponent. When an opponent scores, the points are automatically attributed as "Points Allowed" to their defender.
 **Acceptance Criteria:**
-- [ ] UI in GameMode to "Drag and Drop" our players onto opponent players to set assignments.
-- [ ] Tracking of "Points Allowed" per player.
-- [ ] "Defensive Stop %" per player (how often an opponent possession ends in a stop while they are the primary defender).
-- [ ] Summary in GameStats showing "Matchup Battle" (Our #5 vs Their #10).
+- [ ] UI in GameMode to "Drag and Drop" or tap to assign our players onto opponent players.
+- [ ] Update `StatEvent` to include `primaryDefenderId` for opponent scoring events.
+- [ ] Calculate "Points Allowed" per player in `impact.ts`.
+- [ ] "Defensive Stop %" per player: (Possessions as Primary Defender - Points Allowed Possessions) / Total Possessions.
+- [ ] Summary in GameStats showing "Matchup Battle" table (Our Player vs Their Player).
 
 ## [ ] On/Off Team Impact Analytics
 **Priority:** HIGH
@@ -83,20 +18,59 @@ Completed items are archived to `.Jules/backlog-archive.md` to maintain optimal 
 **Why:** Some players have a high +/- because they play with the starters; others make the bench units better. On/Off splits reveal the true impact of a player by comparing team performance when they are on the floor vs. when they are on the bench.
 **What:** Calculate team-level metrics (Offensive Rating, Defensive Rating, Net Rating) for both states (Player ON vs. Player OFF) across multiple games.
 **Acceptance Criteria:**
-- [ ] New "Impact" tab in Player Stats or Team Analytics.
+- [ ] New "Impact" tab in Player Stats and Team Analytics.
+- [ ] Implement `calculateOnOffStats` in `impact.ts` using stint durations and scores.
 - [ ] Display "Team Net Rating (ON)" vs "Team Net Rating (OFF)" for each player.
-- [ ] "Impact Differential" (The difference between ON and OFF metrics).
-- [ ] Support for filtering by season or last X games to identify recent trends.
+- [ ] Calculate "Impact Differential" (Net Rating ON - Net Rating OFF).
+- [ ] Support filtering by season or last X games.
+
+## [ ] Shot Clock Process Analysis
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Rushing shots early in the clock or settling for late-clock heaves is a "process" failure. This feature distinguishes between quick-hit offensive success and disciplined late-clock execution.
+**What:** Automatically categorize every shot into "Early Clock" (first 25% of clock), "Mid Clock", and "Late Clock" (last 5 seconds) based on game clock and period length.
+**Acceptance Criteria:**
+- [ ] Logic in `analytics.ts` to derive "Clock Phase" from `StatEvent.clockTime` and `periodLength`.
+- [ ] "Shot Rhythm" chart in GameStats showing volume and eFG% by clock phase.
+- [ ] Visual alert in GameMode if team is shooting < 30% on "Early Clock" shots (suggesting poor shot selection).
+- [ ] Trend line showing how shot selection (Clock Phase) shifts during the 4th quarter.
+
+## [ ] Executive Halftime Talking Points Generator
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Halftime is only 10 minutes. Coaches need automated synthesis of complex data into 3 punchy, actionable directives for the locker room.
+**What:** An automated engine that analyzes game aggregates vs. season averages (or league benchmarks) to generate 3 executive-level bullet points.
+**Acceptance Criteria:**
+- [ ] "Talking Points" section in the Halftime Report Dialog.
+- [ ] Generate 1 Offensive insight (e.g., "eFG% is low because 40% of shots are Contested; move the ball").
+- [ ] Generate 1 Defensive insight (e.g., "Opponent #24 is 5/5 on drives; force him Left").
+- [ ] Generate 1 Lineup insight (e.g., "Lineup [A,B,C,D,E] is +12; use them to start the 3rd").
+- [ ] "Copy to Clipboard" button for quick sharing with assistants.
 
 ## [ ] Integrated Practice Prescription Engine
 **Priority:** HIGH
 **Type:** Feature
-**Why:** The best coaches use game data to plan the next practice. This feature closes the loop by suggesting specific drills based on the team's statistical failures in the last game.
+**Why:** The best coaches use game data to plan the next practice. This feature closes the loop by suggesting specific drills based on the team statistical failures.
 **What:** A logic engine that maps low KPI performance (e.g., low FT%, high TOs) to a library of suggested practice drills.
 **Acceptance Criteria:**
 - [ ] "Practice Planner" button on the Game Stats page.
-- [ ] Automatic suggestion of 3 "Focus Areas" based on the game's worst-performing metrics.
-- [ ] Linkage to a (mock) library of drills (e.g., "Poor 3PT% -> Suggest '100 Makes' Drill").
+- [ ] Identify 3 "Focus Areas" based on the game worst-performing metrics (metrics > 1 standard deviation below average).
+- [ ] Mapping table: "Poor FT%" -> "Pressure Free Throws", "High TO%" -> "3-on-2 Transition Drill", etc.
+- [ ] Generate a "Practice Summary PDF" with the suggested drills.
+
+## [HYGIENE] Epic: Frontend Architectural Decoupling & Performance
+**Priority:** HIGH
+**Type:** Refactor
+**Why:** Several core files and modules have outgrown their scope, leading to tight coupling, maintenance bottlenecks, and decreased agent performance.
+**What:** Execute a multi-phase refactor to modularize data layers, extract domain hooks, and right-size large files.
+**Acceptance Criteria:**
+- [ ] Extract data layer/types from `db.ts` into `src/types/` and `src/db/schema.ts`.
+- [ ] Break `GameStats.tsx` into `useGameStats` hook and focused sub-components.
+- [ ] Modularize Statistics Engine: Extract logic into `aggregators.ts`, `lineups.ts`, `impact.ts`, `analytics.ts`.
+- [ ] Decouple `App.tsx` by extracting `ProtectedRoute` and route declarations.
+- [ ] Split `utils.ts` into `security-utils.ts` and `data-utils.ts`.
+- [ ] Ensure all backend projections in `games.ts` align with frontend metadata needs (e.g., `isBookmarked`).
+- [ ] Ensure no source file exceeds ~300 lines unless logically unavoidable.
 
 ## [ ] Real-Time "Pace & Pressure" Analytics HUD
 **Priority:** HIGH
@@ -216,78 +190,11 @@ Completed items are archived to `.Jules/backlog-archive.md` to maintain optimal 
 - [ ] Bullet 3 (Personnel): Lineup suggestion (e.g., "Lineup [5,10,12] is +8; keep them together").
 - [ ] "Copy for Assistant" button to send talking points via clipboard.
 
-## [HYGIENE] Modularize Statistics Engine (stats.ts / core.ts)
-**Priority:** HIGH
-**Type:** Refactor
-**Why:** The statistics engine is tightly coupled and exceeds 3500 lines, making it difficult to maintain and test. Modularization is required to keep Jules performant.
-**What:** Surgically extract logical blocks into dedicated modules within `src/utils/stats/`.
-**Acceptance Criteria:**
-- [ ] Extract Base Aggregators & Action Appliers (move `applyActionToAggregate`, `initializeStatsMap` to `aggregators.ts`)
-- [ ] Extract Lineup & Stint Logic (move `calculateLineupStats`, `calculatePlayerStintTimeline` to `lineups.ts`)
-- [ ] Extract Impact & Streak Metrics (move `calculateOnOffStats`, `calculatePlayerStreaks` to `impact.ts`)
-- [ ] Extract Advanced Analytics (move `calculateClutchPlaybookRanking`, `calculateOfficiatingStats`, `calculatePaceAnalytics` to `analytics.ts`)
-- [ ] Standardize Types across all stats modules in `types.ts`.
-- [ ] Ensure all 100+ tests pass using `bash scripts/jules-test.sh`.
-
-## Multi-Game Shot Location Trend Analysis
-**Priority:** MEDIUM
-**Type:** Enhancement
-**Why:** A team's shooting identity shifts throughout a season. Identifying that a team has stopped attacking the rim over the last 5 games allows for immediate practice adjustments.
-**What:** Implement a "Trend Mode" for the Team Heatmap.
-
-## Predictive Foul Strategy Assistant
-**Priority:** MEDIUM
-**Type:** Enhancement
-**Why:** Managing foul trouble for star players is a high-stakes balancing act.
-**What:** Implement a predictive model in the GameMode that calculates "Foul Risk".
-
-## Interactive Halftime "Adjustment Board"
-**Priority:** MEDIUM
-**Type:** Feature
-**Why:** Halftime is the most critical window for tactical pivots.
-**What:** Enhance the Halftime Report with an interactive "Adjustment Board".
-
-## Advanced Opponent Drive & Finish Analytics
-**Priority:** MEDIUM
-**Type:** Feature
-**Why:** Knowing a player is "Hot" is good; knowing they always drive LEFT and finish with a FLOAT is game-changing.
-**What:** Enhance the opponent shot recording to include "Drive Direction".
-
-## "Blue Collar" Hustle & Identity Tracker
-**Priority:** MEDIUM
-**Type:** Feature
-**Why:** Winning teams are built on "Hustle Stats" (Deflections, Dives, Great Contests).
-**What:** Add a dedicated "Hustle Mode" toggle in GameMode.
-
-## Predictive Performance & Fatigue Modeling
-**Priority:** MEDIUM
-**Type:** Enhancement
-**Why:** A player's impact doesn't drop off exactly at 8 minutes.
-**What:** Build a model that compares a player's live stint efficiency against fresh-state averages.
-
-## Live Opponent Personnel Intelligence HUD
-**Priority:** MEDIUM
-**Type:** UX
-**Why:** Scouting reports are often forgotten in the heat of a game.
-**What:** Integrate persistent scouting notes into the live GameMode opponent cards.
-
 ## Coach-Assistant Live Sync Bridge
 **Priority:** HIGH
 **Type:** Feature
 **Why:** Elite programs use multiple sets of eyes.
 **What:** A multi-device websocket or real-time sync layer.
-
-## Longitudinal Official/Referee Scouting Database
-**Priority:** MEDIUM
-**Type:** Feature
-**Why:** Officiating is the "Third Team" on the court.
-**What:** Implement a season-wide database of officiating stats.
-
-## Program-Wide Optimal Rotation Optimizer
-**Priority:** MEDIUM
-**Type:** Feature
-**Why:** Managing a roster across a long season requires identifying which units are mathematically most effective.
-**What:** A prescriptive engine that analyzes season-wide unit data.
 
 ## [ ] Dynamic "Target Attack" Identifier
 **Priority:** HIGH
@@ -341,34 +248,6 @@ Completed items are archived to `.Jules/backlog-archive.md` to maintain optimal 
 - [ ] "Identity Goals" section where coaches see % of games where goals were met.
 - [ ] Filter by date range or opponent strength.
 
-## [ ] Redesign Dashboard page
-**Priority:** HIGH
-**Type:** Feature
-**Why:** The current Dashboard page does not offer any benefits.
-**What:** Swap out the dashboard page for "My Team" page. My team will be determined by adding a star next to the individual team name on the team page. The team that has the star enabled will now represent the My Team page.
-**Acceptance Criteria:**
-- [ ] My Team page will show overall stats, heatmaps, and upcoming games for the team
-- [ ] More data can be added to this page. The intent is to give coaches all the high-level information they need at a quick glance.
-
-## [ ] Update Edit Team Details
-**Priority:** HIGH
-**Type:** Feature
-**Why:** Coaches need to be able to set default settings for a team
-**What:** On the Edit Team Details dialog, we need to add a defaults section where we can add/update game defaults. These game defaults can be overwritten when setting up a game but these should be the default values.
-**Acceptance Criteria:**
-- [ ] All customizable basketball settings should be in this dialog. These settings should include period types, minutes for each period, number of timeouts allowed, and number of fouls allowed. As others are discovered, they should go here.
-
-## [ ] Workflows for game creation
-**Priority:** MEDIUM
-**Type:** UX
-**Why:** Creating a game contains to many things to enter at once. Introduce a workflow to help streamline the process.
-**What:** Enhance the `Create Game` dialog to be a workflow similar to this example on Dribbble [https://dribbble.com/shots/26448955-Hotel-Booking-Mobile-App]. This is just an example and is not meant to be copied exactly. This example shows a workflow that A user can follow to create something. The first part of the workflow would be opponent information, the second part would be game date/time information, the last part would be game settings information (period type, fouls, time, etc.)
-**Acceptance Criteria:**
-- [ ] Transition `Create Game` dialog to a workflow.
-- [ ] After all information is entered, there should be a create game button. Once the button is clicked, the game should be created.
-- [ ] On the first two parts of the workflow, once the required information has been entered, show a `continue` button.
-- [ ] Like the example, show the steps to the user and which ones have been completed
-
 ## [ ] Substitution Timeline Audit
 **Priority:** HIGH
 **Type:** Feature
@@ -391,17 +270,6 @@ Completed items are archived to `.Jules/backlog-archive.md` to maintain optimal 
 - [ ] "Play Efficiency" table in Game Stats showing: Play Name, Frequency, Points, and EFG% for each set.
 - [ ] Filter Shot Chart by specific Play Name.
 
-## [x] Live Defensive Momentum HUD (Stops & Kills)
-**Priority:** HIGH
-**Type:** UX
-**Why:** Defensive intensity is driven by momentum. Visualizing "Stops" and "Kills" (3 consecutive stops) on the live scoreboard motivates the team and helps coaches identify defensive runs.
-**What:** Integrate the `calculateStopsAndKills` logic into the `GameMode` scoreboard. Display a "Defensive Momentum Bar" or series of icons that light up as stops are earned, with a special visual for a "Kill."
-**Acceptance Criteria:**
-- [x] Real-time "Stop" counter on the GameMode scoreboard.
-- [x] "Kill" indicator (e.g., three flame icons or a "3 STOPS" badge) that resets after 3.
-- [x] Total "Kills" count for the game displayed in the scoreboard sub-header.
-- [x] Pulse animation when a Stop is recorded.
-
 ## [ ] Real-Time Foul Trouble & Fatigue Rotation Alerts
 **Priority:** HIGH
 **Type:** Enhancement
@@ -411,56 +279,6 @@ Completed items are archived to `.Jules/backlog-archive.md` to maintain optimal 
 - [ ] "Foul Trouble" pulse on the player's lineup card (e.g., orange at limit-1, red at limit).
 - [ ] "Fatigue Alert" visual (e.g., a "Needs Sub" icon) when a player's current stint exceeds the "Max Stint Duration" from Team Settings.
 - [ ] Configuration in Team Details to set "Foul Warning Thresholds" by period.
-
-## [x] Live Lineup Impact (+/-) Dashboard Overlay
-**Priority:** HIGH
-**Type:** Feature
-**Why:** Coaches need to know *immediately* if a specific 5-man unit is being outscored, even if individual players look okay. Plus/Minus for the current lineup is the ultimate efficiency truth.
-**What:** Add a "Live Lineup Impact" section to the `GameMode` page that displays the +/- for the currently active 5-man unit since they were subbed in.
-**Acceptance Criteria:**
-- [x] Real-time display of the "Current Lineup +/-" (e.g., "+4 since last sub").
-- [ ] Comparison metric showing points scored vs. points allowed for the active unit.
-- [x] "Stint Duration" timer for the current 5-man unit as a whole.
-
-## [ ] Persistent Opponent Scouting Database
-**Priority:** MEDIUM
-**Type:** Feature
-**Why:** Coaches often play the same opponents multiple times in a season. Re-identifying jersey numbers every game is tedious and prevents historical scouting analysis.
-**What:** Allow "Opponent Rosters" to be saved and reused across multiple games. When starting a game, allow the user to select an existing opponent team and load their previously identified roster.
-**Acceptance Criteria:**
-- [ ] New "Opponent Library" section or a way to save an opponent's `opponentRoster` from the Game Mode.
-- [ ] "Load Roster" option in Create Game workflow for selected opponents.
-- [ ] Cumulative "Opponent Scouting Report" view showing a player's stats across all games where they were tracked via a persistent ID.
-
-## [ ] Verified Period Workflow
-**Priority:** MEDIUM
-**Type:** UX
-**Why:** Official scores and fouls often drift from the app during high-intensity games. A scheduled reconciliation ensures data integrity before moving to the next phase of the game.
-**What:** At the end of every period, show a mandatory "Verify Stats" dialog. The scorekeeper must confirm the score and team fouls against the official table before the period is marked "Verified."
-**Acceptance Criteria:**
-- [ ] Automated dialog trigger when the clock hits 0:00 or "Next Period" is clicked.
-- [ ] Display summarized period stats (Score, Fouls) with input fields for "Correction" if they differ from the app.
-- [ ] Generate a `SYSTEM_CORRECTION` event to balance totals if manual overrides are entered.
-
-## [ ] Multi-Period Tactical Heatmaps
-**Priority:** MEDIUM
-**Type:** Feature
-**Why:** Shooting patterns change as a game progresses due to fatigue or defensive adjustments. Coaches need to see *when* their team stopped getting to the rim.
-**What:** Enhance the Shot Chart in `GameStats` and `Dashboard` to allow filtering heatmaps by specific period or "Half."
-**Acceptance Criteria:**
-- [ ] Period-selector filter (P1, P2, P3, P4, OT) on the Shot Chart view.
-- [ ] "Compare Periods" mode showing two heatmaps side-by-side (e.g., 1st Half vs 2nd Half).
-- [ ] Toggle to show "Only Misses" or "Only Makes" on the heatmap.
-
-## [ ] Interactive Playbook Efficiency HUD
-**Priority:** MEDIUM
-**Type:** Enhancement
-**Why:** Coaches need to know *during* the game if a specific offensive set is failing. Waiting for post-game stats to stop running an inefficient play is too late.
-**What:** Add a "Playbook Performance" widget to the `GameMode` sidebar that shows the success rate (PPP) of the top 3 most-used plays in the current game.
-**Acceptance Criteria:**
-- [ ] Sidebar widget in GameMode showing Play Name, Frequency, and Points Per Possession (PPP).
-- [ ] Color-coded efficiency indicator (Green/Yellow/Red) based on team-average PPP.
-- [ ] One-tap access to see the shot chart for a specific play during timeouts.
 
 ## [ ] Automated PDF Box Score & Game Summary Export
 **Priority:** HIGH
@@ -506,39 +324,6 @@ Completed items are archived to `.Jules/backlog-archive.md` to maintain optimal 
 - [ ] Alerts should include a "Suggest Timeout" visual cue.
 - [ ] Thresholds should be configurable in Team Settings (default: 8 points for a run, 3 minutes for a drought).
 
-## [ ] Shot Quality & Process Tagging
-**Priority:** MEDIUM
-**Type:** Enhancement
-**Why:** A "good" shot can miss and a "bad" shot can go in. Coaches need to evaluate the *process* of their offense, not just the result, to make halftime adjustments.
-**What:** Add an optional "Shot Quality" toggle to the `MAKE`/`MISS` recording dialog (e.g., "Open" vs "Contested").
-**Acceptance Criteria:**
-- [ ] Add `shotQuality` (OPEN, CONTESTED) to the `StatEvent` schema.
-- [ ] Add a simple toggle or button group in the shot recording dialog to tag quality.
-- [ ] Display "Process Efficiency" in `GameStats` (e.g., "EFG% on Open Shots" vs "EFG% on Contested Shots").
-- [ ] Filter Shot Chart by Shot Quality.
-
-## [ ] Interactive Game Flow & Momentum Chart
-**Priority:** MEDIUM
-**Type:** UX
-**Why:** Box scores are static. A flow chart shows *when* the game was won or lost and how specific lineups affected the lead.
-**What:** Add a "Game Flow" visualization to the `GameStats` page—a line graph showing the point spread over the course of the game clock.
-**Acceptance Criteria:**
-- [ ] Interactive line chart showing `Our Score - Opponent Score` on the Y-axis and `Game Time` on the X-axis.
-- [ ] Mark key events on the timeline (Timeouts, Period ends).
-- [ ] Hovering over the line shows the score and active lineup at that specific time.
-- [ ] Color-code the background to show who was "in control" (e.g., blue for home lead, red for away lead).
-
-## [ ] Multi-Game Lineup Net Rating Analytics
-**Priority:** MEDIUM
-**Type:** Feature
-**Why:** Single-game Plus/Minus can be noisy. Coaches need to know which 5-man combinations are most effective over a season or tournament.
-**What:** Aggregate lineup performance data across multiple games for a team.
-**Acceptance Criteria:**
-- [ ] New "Lineup Analytics" tab on the `TeamStats` or `My Team` (Dashboard) page.
-- [ ] Table of 5-man units (lineups) that have played together.
-- [ ] Metrics per lineup: Total Minutes, Points For, Points Against, Net Rating (Diff per 100 possessions or per 40 mins).
-- [ ] Ability to filter by "Last 5 Games" or "Season".
-
 ## [ ] Real-Time Opponent Threat Alerts
 **Priority:** HIGH
 **Type:** Enhancement
@@ -559,34 +344,6 @@ Completed items are archived to `.Jules/backlog-archive.md` to maintain optimal 
 - [ ] Display PPP on the GameMode sidebar and Game Stats dashboard.
 - [ ] Defensive PPP (Points Allowed Per Possession) to measure defensive quality independently of pace.
 - [ ] Trend line showing PPP fluctuation throughout the game.
-
-## [ ] Refactor & Right-Size Large Files to Improve Jules Performance
-**Priority:** HIGH **Type:** Technical Debt
-**Why:** Jules is exhibiting slowdowns and "file too large" issues because several core files have grown beyond effective context window limits. The monolithic `index.ts` (883 lines) forces Jules to load the entire API surface for any single endpoint change. The `backlog.md` (637 lines) is injected into every session regardless of relevance. Multiple overlapping sentinel test files add redundant context on every run.
-**What:**
-1. [DONE] Split `index.ts` into per-resource handler modules. (`players.ts`, `games.ts`, `teams.ts`, `cleanup.ts` created.)
-2. Split `utils.ts` (334 lines) — separate `security-utils.ts` from `data-utils.ts`.
-3. Consolidate sentinel test files — merge `sentinel_enhancements.test.ts`, `sentinel_v3.test.ts`, etc. into `security.test.ts`. (PARTIALLY COMPLETE: `security.test.ts` exists, but sentinel files remain.)
-4. Add a guardrail note to `playbook.md`: Jules should flag any file approaching 300 lines and propose a split before continuing.
-
-**Acceptance Criteria:**
-- [ ] `index.ts` is under 150 lines (router only)
-- [ ] No source file in `backend/src/` exceeds 300 lines unless it logically makes sense. This is not a hard rule, but it's a refactor trigger.
-- [ ] `backlog.md` (active items only)
-- [ ] `backlog-archive.md` exists with all completed items
-- [ ] Total test file count in `__tests__/` reduced by at least 4
-- [ ] All existing tests continue to pass
-- [ ] `playbook.md` updated with file size guardrail rule
-
-## [HYGIENE] Align backend projections with frontend data needs
-**Priority:** MEDIUM
-**Type:** Refactor
-**Why:** The frontend tracks additional event metadata (like `isBookmarked` and `defensiveScheme`) that is currently being stripped or ignored by the backend's `ProjectionExpression` in `handleGameStats`.
-**What:** Update the `ProjectionExpression` in `backend/src/handlers/games.ts` to include missing fields.
-**Acceptance Criteria:**
-- [ ] `StatEvent` projections include `isBookmarked` and `defensiveScheme`.
-- [ ] Verify frontend can successfully retrieve and display these fields after a sync.
-- [ ] All tests pass.
 
 ## [ ] Holistic Matchup Efficiency Matrix
 **Priority:** HIGH
@@ -671,3 +428,139 @@ Completed items are archived to `.Jules/backlog-archive.md` to maintain optimal 
 - [ ] "Program DNA" Radar Chart in GameStats.
 - [ ] Overlay of "Last 3 Games" vs "Season Average" to identify recent trends.
 - [ ] "Identity Crisis" alert if more than 3 of the Four Factors deviate by >15% from the season mean.
+## [UX] Epic: Administrative Workflow & Dashboard Streamlining
+**Priority:** MEDIUM
+**Type:** UX / Enhancement
+**Why:** Current administrative workflows (game creation, team editing) are high-friction, and the dashboard lacks actionable information.
+**What:** Redesign the administrative experience to be workflow-driven and transform the dashboard into a high-value "My Team" hub.
+**Acceptance Criteria:**
+- [ ] Replace static Dashboard with a dynamic "My Team" hub driven by "Star Team" selection.
+- [ ] Implement a multi-step workflow for the `Create Game` dialog (Opponent -> Date/Time -> Settings).
+- [ ] Update `Edit Team Details` to include global game defaults (period lengths, foul limits, timeout counts).
+
+## Multi-Game Shot Location Trend Analysis
+**Priority:** MEDIUM
+**Type:** Enhancement
+**Why:** A team's shooting identity shifts throughout a season. Identifying that a team has stopped attacking the rim over the last 5 games allows for immediate practice adjustments.
+**What:** Implement a "Trend Mode" for the Team Heatmap.
+
+## Predictive Foul Strategy Assistant
+**Priority:** MEDIUM
+**Type:** Enhancement
+**Why:** Managing foul trouble for star players is a high-stakes balancing act.
+**What:** Implement a predictive model in the GameMode that calculates "Foul Risk".
+
+## Interactive Halftime "Adjustment Board"
+**Priority:** MEDIUM
+**Type:** Feature
+**Why:** Halftime is the most critical window for tactical pivots.
+**What:** Enhance the Halftime Report with an interactive "Adjustment Board".
+
+## Advanced Opponent Drive & Finish Analytics
+**Priority:** MEDIUM
+**Type:** Feature
+**Why:** Knowing a player is "Hot" is good; knowing they always drive LEFT and finish with a FLOAT is game-changing.
+**What:** Enhance the opponent shot recording to include "Drive Direction".
+
+## "Blue Collar" Hustle & Identity Tracker
+**Priority:** MEDIUM
+**Type:** Feature
+**Why:** Winning teams are built on "Hustle Stats" (Deflections, Dives, Great Contests).
+**What:** Add a dedicated "Hustle Mode" toggle in GameMode.
+
+## Predictive Performance & Fatigue Modeling
+**Priority:** MEDIUM
+**Type:** Enhancement
+**Why:** A player's impact doesn't drop off exactly at 8 minutes.
+**What:** Build a model that compares a player's live stint efficiency against fresh-state averages.
+
+## Live Opponent Personnel Intelligence HUD
+**Priority:** MEDIUM
+**Type:** UX
+**Why:** Scouting reports are often forgotten in the heat of a game.
+**What:** Integrate persistent scouting notes into the live GameMode opponent cards.
+
+## Longitudinal Official/Referee Scouting Database
+**Priority:** MEDIUM
+**Type:** Feature
+**Why:** Officiating is the "Third Team" on the court.
+**What:** Implement a season-wide database of officiating stats.
+
+## Program-Wide Optimal Rotation Optimizer
+**Priority:** MEDIUM
+**Type:** Feature
+**Why:** Managing a roster across a long season requires identifying which units are mathematically most effective.
+**What:** A prescriptive engine that analyzes season-wide unit data.
+
+## [ ] Persistent Opponent Scouting Database
+**Priority:** MEDIUM
+**Type:** Feature
+**Why:** Coaches often play the same opponents multiple times in a season. Re-identifying jersey numbers every game is tedious and prevents historical scouting analysis.
+**What:** Allow "Opponent Rosters" to be saved and reused across multiple games. When starting a game, allow the user to select an existing opponent team and load their previously identified roster.
+**Acceptance Criteria:**
+- [ ] New "Opponent Library" section or a way to save an opponent's `opponentRoster` from the Game Mode.
+- [ ] "Load Roster" option in Create Game workflow for selected opponents.
+- [ ] Cumulative "Opponent Scouting Report" view showing a player's stats across all games where they were tracked via a persistent ID.
+
+## [ ] Verified Period Workflow
+**Priority:** MEDIUM
+**Type:** UX
+**Why:** Official scores and fouls often drift from the app during high-intensity games. A scheduled reconciliation ensures data integrity before moving to the next phase of the game.
+**What:** At the end of every period, show a mandatory "Verify Stats" dialog. The scorekeeper must confirm the score and team fouls against the official table before the period is marked "Verified."
+**Acceptance Criteria:**
+- [ ] Automated dialog trigger when the clock hits 0:00 or "Next Period" is clicked.
+- [ ] Display summarized period stats (Score, Fouls) with input fields for "Correction" if they differ from the app.
+- [ ] Generate a `SYSTEM_CORRECTION` event to balance totals if manual overrides are entered.
+
+## [ ] Multi-Period Tactical Heatmaps
+**Priority:** MEDIUM
+**Type:** Feature
+**Why:** Shooting patterns change as a game progresses due to fatigue or defensive adjustments. Coaches need to see *when* their team stopped getting to the rim.
+**What:** Enhance the Shot Chart in `GameStats` and `Dashboard` to allow filtering heatmaps by specific period or "Half."
+**Acceptance Criteria:**
+- [ ] Period-selector filter (P1, P2, P3, P4, OT) on the Shot Chart view.
+- [ ] "Compare Periods" mode showing two heatmaps side-by-side (e.g., 1st Half vs 2nd Half).
+- [ ] Toggle to show "Only Misses" or "Only Makes" on the heatmap.
+
+## [ ] Interactive Playbook Efficiency HUD
+**Priority:** MEDIUM
+**Type:** Enhancement
+**Why:** Coaches need to know *during* the game if a specific offensive set is failing. Waiting for post-game stats to stop running an inefficient play is too late.
+**What:** Add a "Playbook Performance" widget to the `GameMode` sidebar that shows the success rate (PPP) of the top 3 most-used plays in the current game.
+**Acceptance Criteria:**
+- [ ] Sidebar widget in GameMode showing Play Name, Frequency, and Points Per Possession (PPP).
+- [ ] Color-coded efficiency indicator (Green/Yellow/Red) based on team-average PPP.
+- [ ] One-tap access to see the shot chart for a specific play during timeouts.
+
+## [ ] Shot Quality & Process Tagging
+**Priority:** MEDIUM
+**Type:** Enhancement
+**Why:** A "good" shot can miss and a "bad" shot can go in. Coaches need to evaluate the *process* of their offense, not just the result, to make halftime adjustments.
+**What:** Add an optional "Shot Quality" toggle to the `MAKE`/`MISS` recording dialog (e.g., "Open" vs "Contested").
+**Acceptance Criteria:**
+- [ ] Add `shotQuality` (OPEN, CONTESTED) to the `StatEvent` schema.
+- [ ] Add a simple toggle or button group in the shot recording dialog to tag quality.
+- [ ] Display "Process Efficiency" in `GameStats` (e.g., "EFG% on Open Shots" vs "EFG% on Contested Shots").
+- [ ] Filter Shot Chart by Shot Quality.
+
+## [ ] Interactive Game Flow & Momentum Chart
+**Priority:** MEDIUM
+**Type:** UX
+**Why:** Box scores are static. A flow chart shows *when* the game was won or lost and how specific lineups affected the lead.
+**What:** Add a "Game Flow" visualization to the `GameStats` page—a line graph showing the point spread over the course of the game clock.
+**Acceptance Criteria:**
+- [ ] Interactive line chart showing `Our Score - Opponent Score` on the Y-axis and `Game Time` on the X-axis.
+- [ ] Mark key events on the timeline (Timeouts, Period ends).
+- [ ] Hovering over the line shows the score and active lineup at that specific time.
+- [ ] Color-code the background to show who was "in control" (e.g., blue for home lead, red for away lead).
+
+## [ ] Multi-Game Lineup Net Rating Analytics
+**Priority:** MEDIUM
+**Type:** Feature
+**Why:** Single-game Plus/Minus can be noisy. Coaches need to know which 5-man combinations are most effective over a season or tournament.
+**What:** Aggregate lineup performance data across multiple games for a team.
+**Acceptance Criteria:**
+- [ ] New "Lineup Analytics" tab on the `TeamStats` or `My Team` (Dashboard) page.
+- [ ] Table of 5-man units (lineups) that have played together.
+- [ ] Metrics per lineup: Total Minutes, Points For, Points Against, Net Rating (Diff per 100 possessions or per 40 mins).
+- [ ] Ability to filter by "Last 5 Games" or "Season".
