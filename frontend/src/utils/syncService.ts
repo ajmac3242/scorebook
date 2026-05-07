@@ -247,15 +247,16 @@ class SyncService {
         }),
       );
 
-      // ⚡ Bolt: Batch database updates in a single transaction for efficiency.
-      // Reducing transaction overhead significantly improves performance on low-end devices.
+      // ⚡ Bolt: Batch database updates for efficiency using bulk modify.
+      // Reducing transaction overhead and using anyOf + modify significantly
+      // improves performance on low-end devices compared to sequential updates.
       if (successIds.length > 0) {
-        await db.transaction("rw", table, async () => {
-          for (let j = 0; j < successIds.length; j++) {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            await table.update(successIds[j], { synced: 1 } as any);
-          }
-        });
+        await table
+          .where("id")
+          .anyOf(successIds)
+          .modify((obj: any) => {
+            obj.synced = 1;
+          });
       }
     }
   }

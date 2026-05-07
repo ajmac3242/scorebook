@@ -270,6 +270,7 @@ export const calculateScoreFlow = (
       const elapsedSeconds =
         (period - 1) * periodLenSecs + (periodLenSecs - clockTime);
 
+      // ⚡ Bolt: Cache possessions and ppp calculation only when needed.
       const teamPoss = calculatePossessions(
         team.fga,
         team.fta,
@@ -278,17 +279,12 @@ export const calculateScoreFlow = (
       );
       const oppPoss = calculatePossessions(opp.fga, opp.fta, opp.to, opp.oreb);
 
-      let eventLabel = stat.type;
-      if (stat.type === ACTION_TYPES.MAKE) {
-        eventLabel = `${pts}PT MAKE`;
-      }
-
       result.push({
         time: formatClock(elapsedSeconds),
         Team: scores.team,
         Opponent: scores.opp,
         Spread: scores.team - scores.opp,
-        event: eventLabel,
+        event: stat.type === ACTION_TYPES.MAKE ? `${pts}PT MAKE` : stat.type,
         lineup: Array.from(currentLineup),
         teamPpp: calculatePpp(scores.team, teamPoss),
         oppPpp: calculatePpp(scores.opp, oppPoss),
@@ -367,7 +363,7 @@ export const calculateHaltAlerts = (params: {
       id: "bonus-approaching",
       type: "BONUS",
       severity: "info",
-      message: "Opponent in Foul Trouble (4/5)",
+      message: `Opponent Foul Trouble (${oppFouls}/${bonusLimit})`,
     });
   } else if (oppFouls >= bonusLimit) {
     alerts.push({

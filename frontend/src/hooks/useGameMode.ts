@@ -182,7 +182,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     let oppFouls = 0;
     let teamTimeouts = 0;
     let oppTimeouts = 0;
-    let posState = null;
+    let posState: string | null = null;
     const onCourt = new Set<string>();
     const stintStarts = new Map<string, number>();
     const onCourtPeriodFouls = new Map<string, number>();
@@ -603,17 +603,18 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
   const markers = useMemo(() => {
     const res = [];
     const oppColor = theme.palette.secondary.main;
-    for (const s of gameStats) {
-      if (s.deletedAt) continue;
-      if (
-        [
-          ACTION_TYPES.SUB_IN,
-          ACTION_TYPES.SUB_OUT,
-          ACTION_TYPES.POSSESSION,
-          ACTION_TYPES.TIMEOUT,
-        ].includes(s.type)
-      )
-        continue;
+    // ⚡ Bolt: Use a Set for faster lookup of types to skip.
+    const SKIP_TYPES = new Set([
+      ACTION_TYPES.SUB_IN,
+      ACTION_TYPES.SUB_OUT,
+      ACTION_TYPES.POSSESSION,
+      ACTION_TYPES.TIMEOUT,
+    ]);
+
+    for (let i = 0; i < gameStats.length; i++) {
+      const s = gameStats[i];
+      if (s.deletedAt || SKIP_TYPES.has(s.type)) continue;
+
       if (
         markerFilter !== "ALL" &&
         s.type !== markerFilter &&
@@ -625,9 +626,11 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       )
         continue;
 
+      const pId = s.playerId;
       const isOpp =
-        s.playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
-        s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":");
+        pId === SPECIAL_PLAYER_IDS.OPPONENT ||
+        pId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":");
+
       res.push({
         x: s.locationX,
         y: s.locationY,
@@ -638,7 +641,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
             : s.type === ACTION_TYPES.MISS
               ? "#F44336"
               : "#2196F3",
-        label: isOpp ? "Opp" : playerNamesMap.get(s.playerId) || "Player",
+        label: isOpp ? "Opp" : playerNamesMap.get(pId) || "Player",
         type: s.type,
       });
     }

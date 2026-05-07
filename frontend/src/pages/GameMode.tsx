@@ -80,6 +80,7 @@ import { Scoreboard } from "../components/Scoreboard";
 import { TeamStatsCard } from "../components/TeamStatsCard";
 import { ActionControls } from "../components/ActionControls";
 import { useGameMode } from "../hooks/useGameMode";
+import { QuickAction } from "../components/game/QuickAction";
 
 /**
  * GameMode page component.
@@ -1011,6 +1012,7 @@ const GameMode: React.FC = () => {
                               fullWidth
                               disabled={isReadOnly}
                               variant="contained"
+                              aria-label={`Substitute player ${p.name}`}
                               onClick={() => {
                                 setSubOutPlayerId(p.id!);
                                 setIsSubDialogOpen(true);
@@ -1329,6 +1331,8 @@ const GameMode: React.FC = () => {
                     opponentStats.map((opp) => (
                       <Box
                         key={opp.id}
+                        role="article"
+                        aria-label={`Opponent player ${opp.jersey} stats`}
                         sx={{
                           p: 1.5,
                           bgcolor: "white",
@@ -2140,36 +2144,5 @@ const GameMode: React.FC = () => {
     </Box>
   );
 };
-
-const QuickAction: React.FC<{
-  type: string;
-  label: string;
-  icon: React.ElementType;
-  statType: string | null;
-  setStatType: (_type: string | null) => void;
-}> = React.memo(({ type, label, icon: Icon, statType, setStatType }) => (
-  <Tooltip title={label}>
-    <Button
-      variant={statType === type ? "contained" : "outlined"}
-      color="inherit"
-      aria-pressed={statType === type}
-      aria-label={`Record ${label}`}
-      onClick={() => {
-        setStatType(type);
-      }}
-      sx={{
-        flexDirection: "column",
-        py: 2,
-        minWidth: 80,
-        borderColor: "#D1D1D1",
-        backgroundColor: statType === type ? "primary.main" : "transparent",
-        color: statType === type ? "white" : "text.primary",
-      }}
-    >
-      <Icon sx={{ mb: 1 }} />
-      <Typography variant="caption">{label}</Typography>
-    </Button>
-  </Tooltip>
-));
 
 export default GameMode;

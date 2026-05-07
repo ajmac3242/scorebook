@@ -85,6 +85,12 @@ export const calculatePpp = (points: number, possessions: number): string => {
   return (points / possessions).toFixed(2);
 };
 
+/**
+ * Calculates estimated total possessions.
+ * WHY: The 0.44 multiplier is a standard statistical coefficient used to estimate
+ * how many free throw trips resulted from shooting fouls (accounting for and-1s,
+ * 2-shot fouls, and 3-shot fouls).
+ */
 export const calculatePossessions = (
   fga: number,
   fta: number,
@@ -103,6 +109,11 @@ export const calculateEfgPct = (
   attempts: number,
 ): string => calcPct(makes + 0.5 * threePM, attempts);
 
+/**
+ * Calculates True Shooting Percentage (TS%).
+ * WHY: TS% measures efficiency by accounting for 2pt FGs, 3pt FGs, and FTs together.
+ * The 0.44 coefficient here again estimates the number of possessions used by FT trips.
+ */
 export const calculateTsPct = (
   points: number,
   attempts: number,

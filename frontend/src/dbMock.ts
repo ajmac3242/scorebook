@@ -144,6 +144,18 @@ function createCollection<T>(
     reverse: vi.fn(() =>
       createCollection(() => [...getData()].reverse(), onDelete),
     ),
+    modify: vi.fn((changes: any) => {
+      const data = getData();
+      data.forEach((item: any) => {
+        if (typeof changes === "function") {
+          changes(item);
+        } else {
+          Object.assign(item, changes);
+        }
+      });
+      if ((globalThis as any).mockDb) (globalThis as any).mockDb.notify();
+      return SyncPromise.resolve(data.length);
+    }),
     sortBy: vi.fn((key: string) =>
       SyncPromise.resolve(
         [...getData()].sort((a: any, b: any) => (a[key] > b[key] ? 1 : -1)),
