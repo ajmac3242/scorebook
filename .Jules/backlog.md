@@ -48,8 +48,8 @@ Completed items are archived to `.Jules/backlog-archive.md` to maintain optimal 
 * [ ] Update all import sites.
 
 ### Scoreboard.tsx
-* [ ] Convert internal `renderTeamSection` function into a typed `TeamPanel.tsx` sub-component.
-* [ ] Add props interface for `TeamPanel`.
+* [x] Convert internal `renderTeamSection` function into a typed `TeamPanel.tsx` sub-component.
+* [x] Add props interface for `TeamPanel`.
 
 ### OpponentScoutingReport.tsx
 * [ ] Extract chained `useLiveQuery` calls and sorted stat derivations into `useOpponentScouting` hook.
@@ -391,16 +391,16 @@ Completed items are archived to `.Jules/backlog-archive.md` to maintain optimal 
 - [ ] "Play Efficiency" table in Game Stats showing: Play Name, Frequency, Points, and EFG% for each set.
 - [ ] Filter Shot Chart by specific Play Name.
 
-## [ ] Live Defensive Momentum HUD (Stops & Kills)
+## [x] Live Defensive Momentum HUD (Stops & Kills)
 **Priority:** HIGH
 **Type:** UX
 **Why:** Defensive intensity is driven by momentum. Visualizing "Stops" and "Kills" (3 consecutive stops) on the live scoreboard motivates the team and helps coaches identify defensive runs.
 **What:** Integrate the `calculateStopsAndKills` logic into the `GameMode` scoreboard. Display a "Defensive Momentum Bar" or series of icons that light up as stops are earned, with a special visual for a "Kill."
 **Acceptance Criteria:**
-- [ ] Real-time "Stop" counter on the GameMode scoreboard.
-- [ ] "Kill" indicator (e.g., three flame icons or a "3 STOPS" badge) that resets after 3.
-- [ ] Total "Kills" count for the game displayed in the scoreboard sub-header.
-- [ ] Pulse animation when a Stop is recorded.
+- [x] Real-time "Stop" counter on the GameMode scoreboard.
+- [x] "Kill" indicator (e.g., three flame icons or a "3 STOPS" badge) that resets after 3.
+- [x] Total "Kills" count for the game displayed in the scoreboard sub-header.
+- [x] Pulse animation when a Stop is recorded.
 
 ## [ ] Real-Time Foul Trouble & Fatigue Rotation Alerts
 **Priority:** HIGH
@@ -412,15 +412,15 @@ Completed items are archived to `.Jules/backlog-archive.md` to maintain optimal 
 - [ ] "Fatigue Alert" visual (e.g., a "Needs Sub" icon) when a player's current stint exceeds the "Max Stint Duration" from Team Settings.
 - [ ] Configuration in Team Details to set "Foul Warning Thresholds" by period.
 
-## [ ] Live Lineup Impact (+/-) Dashboard Overlay
+## [x] Live Lineup Impact (+/-) Dashboard Overlay
 **Priority:** HIGH
 **Type:** Feature
 **Why:** Coaches need to know *immediately* if a specific 5-man unit is being outscored, even if individual players look okay. Plus/Minus for the current lineup is the ultimate efficiency truth.
 **What:** Add a "Live Lineup Impact" section to the `GameMode` page that displays the +/- for the currently active 5-man unit since they were subbed in.
 **Acceptance Criteria:**
-- [ ] Real-time display of the "Current Lineup +/-" (e.g., "+4 since last sub").
+- [x] Real-time display of the "Current Lineup +/-" (e.g., "+4 since last sub").
 - [ ] Comparison metric showing points scored vs. points allowed for the active unit.
-- [ ] "Stint Duration" timer for the current 5-man unit as a whole.
+- [x] "Stint Duration" timer for the current 5-man unit as a whole.
 
 ## [ ] Persistent Opponent Scouting Database
 **Priority:** MEDIUM
