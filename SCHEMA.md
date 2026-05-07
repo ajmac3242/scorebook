@@ -11,7 +11,7 @@
 | Entity | PK | SK | Attributes |
 | --- | --- | --- | --- |
 | **Team** | `TEAM#<TeamId>` | `METADATA#<TeamId>` | Name, SeasonId, deletedAt? |
-| **Player** | `PLAYER#<PlayerId>` | `METADATA#<PlayerId>` | Name, DefaultNumber, isArchived?, deletedAt? |
+| **Player** | `PLAYER#<PlayerId>` | `METADATA#<PlayerId>` | Name, DefaultNumber, isStar (0/1), isArchived (0/1), deletedAt? |
 | **TeamPlayer** | `TEAM#<TeamId>` | `PLAYER#<PlayerId>` | JerseyNumber (1-3 digits), deletedAt? |
 | **Game** | `GAME#<GameId>` | `METADATA#<GameId>` | TeamId, Opponent, Date, Location, completed (0/1), deletedAt? |
 | **StatEvent** | `GAME#<GameId>` | `STAT#<Timestamp>#<StatId>` | PlayerId, Type (MAKE, MISS, etc.), Points, LocationX, LocationY, timestamp |
@@ -35,45 +35,146 @@
 All write endpoints (`POST`, `PUT`, `PATCH`) require `Content-Type: application/json`.
 
 ### Teams
-- `GET /teams` - List all active teams.
-- `POST /teams` - Create a team. Body: `{ "name": string, "description"?: string, "logoUrl"?: string, "primaryColor"?: string, "periodType"?: string, "fouls"?: number }`.
-- `DELETE /teams/{id}` - Soft delete a team.
-- `PATCH /teams/{id}` - Restore a deleted team. Body: `{ "deletedAt": null }`.
+
+#### `GET /teams`
+- **Description**: List all active teams.
+- **Response**: `200 OK` with an array of Team objects.
+
+#### `POST /teams`
+- **Description**: Create a team.
+- **Request Body**:
+```json
+{
+  "name": "Warriors",
+  "description": "City High Varsity",
+  "primaryColor": "#1D428A",
+  "fouls": 5
+}
+```
+- **Response**: `201 Created` with the created Team object.
+
+#### `DELETE /teams/{id}`
+- **Description**: Soft delete a team.
+- **Response**: `200 OK`
+
+#### `PATCH /teams/{id}`
+- **Description**: Restore a deleted team.
+- **Request Body**: `{ "deletedAt": null }`
+- **Response**: `200 OK`
 
 ### Team Players (Roster)
-- `GET /teams/{teamId}/players` - List players assigned to a team.
-- `POST /teams/{teamId}/players` - Add player to team. Body: `{ "playerId": UUID, "name": string, "avatarColor"?: string, "jerseyNumber"?: string (1-3 digits) }`.
-- `DELETE /teams/{teamId}/players/{playerId}` - Remove player from team (soft delete association).
+
+#### `GET /teams/{teamId}/players`
+- **Description**: List players assigned to a team.
+- **Response**: `200 OK` with an array of TeamPlayer objects.
+
+#### `POST /teams/{teamId}/players`
+- **Description**: Add player to team roster.
+- **Request Body**:
+```json
+{
+  "playerId": "uuid-v4-string",
+  "jerseyNumber": "30"
+}
+```
+- **Response**: `201 Created` with the association object.
+
+#### `DELETE /teams/{teamId}/players/{playerId}`
+- **Description**: Remove player from team (soft delete association).
+- **Response**: `200 OK`
 
 ### Players
-- `GET /players` - List all active players.
-<<<<<<< scribe-doc-improvements-3364392278239960223
-- `POST /players` - Create a player. Body: `{ "name": string, "avatarColor"?: string }`.
-- `DELETE /players/{id}` - Soft delete a player.
-  - **Query Params**: `?archive=true` - Transition player to an archived state instead of soft deletion.
-- `PATCH /players/{id}` - Restore a player.
-  - **Body**: `{ "deletedAt": null }` to restore from soft-delete.
-  - **Body**: `{ "isArchived": 0 }` to restore from archive.
-=======
-- `POST /players` - Create a player. Body: `{ "name": string }`.
-- `DELETE /players/{id}` - Soft delete a player. Use `?archive=true` to archive instead.
-- `PATCH /players/{id}` - Restore a player. Body: `{ "deletedAt": null }` or `{ "isArchived": 0 }`.
->>>>>>> main
+
+#### `GET /players`
+- **Description**: List all active players.
+- **Response**: `200 OK` with an array of Player objects.
+
+#### `POST /players`
+- **Description**: Create a global player entity.
+- **Request Body**:
+```json
+{
+  "name": "Stephen Curry"
+}
+```
+- **Response**: `201 Created` with the created Player object.
+
+#### `DELETE /players/{id}`
+- **Description**: Soft delete a player.
+- **Query Params**: `?archive=true` - Transitions player to an archived state instead of soft deletion.
+- **Response**: `200 OK`
+
+#### `PATCH /players/{id}`
+- **Description**: Update/Restore a player.
+- **Request Body (Restore from Soft Delete)**: `{ "deletedAt": null }`
+- **Request Body (Restore from Archive)**: `{ "isArchived": 0 }`
+- **Response**: `200 OK`
 
 ### Games
-- `GET /games?teamId={id}` - List games for a specific team.
-- `POST /games` - Create a game. Body: `{ "teamId": UUID, "opponent": string, "opponentId"?: string, "opponentLogoUrl"?: string, "location"?: string, "date"?: string, "time"?: string, "periodLength"?: number, "timeoutLimit"?: number, "foulLimit"?: number, "periodType"?: string }`.
-- `DELETE /games/{id}` - Soft delete a game.
-- `PATCH /games/{id}` - Restore a deleted game. Body: `{ "deletedAt": null }`.
-- `POST /games/{id}/complete` - Mark a game as completed. Triggers final S3 snapshot.
+
+#### `GET /games?teamId={id}`
+- **Description**: List games for a specific team.
+- **Query Params**: `teamId` (Required UUID)
+- **Response**: `200 OK` with an array of Game objects.
+
+#### `POST /games`
+- **Description**: Create a new game.
+- **Request Body**:
+```json
+{
+  "teamId": "team-uuid",
+  "opponent": "Lakers",
+  "location": "Home",
+  "date": "2024-11-15",
+  "time": "19:00",
+  "periodLength": 8,
+  "foulLimit": 5
+}
+```
+- **Response**: `201 Created`
+
+#### `DELETE /games/{id}`
+- **Description**: Soft delete a game.
+- **Response**: `200 OK`
+
+#### `PATCH /games/{id}`
+- **Description**: Restore a deleted game.
+- **Request Body**: `{ "deletedAt": null }`
+- **Response**: `200 OK`
+
+#### `POST /games/{id}/complete`
+- **Description**: Mark a game as completed. Triggers final S3 snapshot.
+- **Response**: `200 OK`
 
 ### Game Stats
-- `GET /games/{id}/stats` - List all stats for a game.
-- `POST /games/{id}/stats` - Record a stat event. Body: `{ "type": string, "playerId": string, "points"?: number, ... }`.
+
+#### `GET /games/{id}/stats`
+- **Description**: List all stats for a game.
+- **Response**: `200 OK` with an array of StatEvent objects.
+
+#### `POST /games/{id}/stats`
+- **Description**: Record a stat event.
+- **Request Body**:
+```json
+{
+  "type": "MAKE",
+  "playerId": "player-uuid",
+  "points": 3,
+  "period": 1,
+  "clockTime": 420.5,
+  "locationX": 85.0,
+  "locationY": 25.0,
+  "situation": "ATO"
+}
+```
+- **Response**: `201 Created`
 
 ### Administration
-- `POST /cleanup` - Hard delete soft-deleted items older than 24 hours.
-  - **Headers**: `x-api-key`: Admin API Key (Min 16 characters).
+
+#### `POST /cleanup`
+- **Description**: Hard delete soft-deleted items older than 24 hours.
+- **Headers**: `x-api-key`: Admin API Key (Min 16 characters).
+- **Response**: `200 OK`
 
 ---
 
