@@ -35,6 +35,12 @@ const COURT_STYLES = `
     transform: scale(1.5);
     opacity: 1 !important;
   }
+  g[role="button"]:focus-visible circle {
+    outline: 2px solid #000;
+    outline-offset: 2px;
+    transform: scale(1.3);
+    opacity: 1 !important;
+  }
   .latest-marker {
     animation: marker-appear 0.3s ease-out forwards, pulse 2s infinite 0.3s;
     opacity: 1 !important;

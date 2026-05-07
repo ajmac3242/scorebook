@@ -356,9 +356,10 @@ const Teams: React.FC = () => {
                       boxShadow: "0 8px 24px rgba(0,0,0,0.2)",
                     },
                     "&:focus-visible": {
-                      outline: `4px solid ${contrastColor === "white" ? "#fff" : "#000"}`,
+                      outline: `4px solid ${contrastColor === "white" ? "rgba(255,255,255,0.8)" : "rgba(0,0,0,0.8)"}`,
                       outlineOffset: "2px",
                       transform: "translateY(-4px)",
+                      boxShadow: `0 12px 32px rgba(0,0,0,0.3), 0 0 0 8px ${team.primaryColor}44`,
                     },
                     display: "flex",
                     flexDirection: "column",
@@ -603,6 +604,7 @@ const Teams: React.FC = () => {
                 showValidation && !teamName.trim()
                   ? "team-name-error"
                   : undefined,
+              "aria-required": "true",
             }}
             required
             disabled={isSubmitting}

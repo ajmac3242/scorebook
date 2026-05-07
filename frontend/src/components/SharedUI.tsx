@@ -146,8 +146,8 @@ interface StatItemProps {
 export const StatItem: React.FC<StatItemProps> = ({ label, value, light }) => (
   <Box
     sx={{ textAlign: "center" }}
-    role="img"
-    aria-label={`${label}: ${value}`}
+    role="text"
+    aria-label={`${value} ${label}`}
   >
     <Typography
       variant="caption"
