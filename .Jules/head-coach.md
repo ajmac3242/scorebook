@@ -84,3 +84,11 @@ Observation: A deep audit revealed that high-impact coaching features (HALT, On/
 Impact: The platform currently excels at data collection but lags in automated tactical intervention. Coaches are still manually tracking matchups and officiating tightness, which increases cognitive load during high-pressure game moments.
 
 Recommendation: Restore and prioritize the "Ghost" features. Specifically, focus on the HALT system for immediate risk management and On/Off Analytics for longitudinal roster optimization. This shift moves the platform from a "Digitized Scorebook" to a true "Tactical Command Center."
+
+## 2026-05-25 - Strategic Pivot: Causal Accountability & Decision Support
+
+Observation: A deep audit of the codebase vs. the archived backlog revealed that several "completed" features (Matchup Tracking, On/Off Analytics) were archived without being fully implemented in the source code. This has left the application in a state where it captures events but lacks the analytical depth to explain *why* those events happened.
+
+Impact: Coaches are forced to perform manual mental synthesis for defensive accountability and lineup value. Without these "Causal" features, the app remains a high-end scorebook rather than a true tactical operating system.
+
+Recommendation: Immediately prioritize the implementation of the "Ghost Archive" features—Defensive Matchup Tracking and On/Off Analytics. Simultaneously, introduce "Shot Clock Process Analysis" to begin tracking offensive discipline. This pivot moves the platform from tracking *results* to tracking *causal factors* and providing proactive *decision support*.
