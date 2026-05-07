@@ -5,54 +5,18 @@
  */
 
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router } from "react-router-dom";
 import {
   ThemeProvider,
   CssBaseline,
-  Typography,
   Container,
   Box,
 } from "@mui/material";
 import theme from "./theme";
-import GameMode from "./pages/GameMode";
-import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
-import Players from "./pages/Players";
-import PlayerStats from "./pages/PlayerStats";
-import GameStats from "./pages/GameStats";
-import Teams from "./pages/Teams";
-import TeamStats from "./pages/TeamStats";
-import Opponents from "./pages/Opponents";
-import OpponentScoutingReport from "./pages/OpponentScoutingReport";
-import Settings from "./pages/Settings";
 import Navigation from "./components/Navigation";
-import { Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import DevAuthBypass from "./components/DevAuthBypass";
-
-/**
- * Higher-order component to protect routes that require authentication.
- * Redirects to the login page if the user is not authenticated.
- *
- * @param {object} props - Component props.
- * @param {React.ReactNode} props.children - Child components to render if authenticated.
- * @returns {React.ReactElement}
- */
-const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
-  const { isAuthenticated, loading } = useAuth();
-
-  if (loading) {
-    return (
-      <Box sx={{ display: "flex", justifyContent: "center", mt: 8 }}>
-        <Typography>Loading...</Typography>
-      </Box>
-    );
-  }
-
-  return isAuthenticated ? <>{children}</> : <Navigate to="/login" />;
-};
+import { AppRoutes } from "./router/routes";
 
 /**
  * Main layout component containing the navigation and routed page content.
@@ -116,91 +80,7 @@ const AppContent: React.FC = () => {
             px: { xs: 1, sm: 2 },
           }}
         >
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route
-              path="/"
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/opponents"
-              element={
-                <ProtectedRoute>
-                  <Opponents />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/opponents/:opponentId/scouting"
-              element={
-                <ProtectedRoute>
-                  <OpponentScoutingReport />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/settings"
-              element={
-                <ProtectedRoute>
-                  <Settings />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/teams/:teamId"
-              element={
-                <ProtectedRoute>
-                  <TeamStats />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/game/stats"
-              element={
-                <ProtectedRoute>
-                  <GameStats />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/players/:playerId"
-              element={
-                <ProtectedRoute>
-                  <PlayerStats />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/players"
-              element={
-                <ProtectedRoute>
-                  <Players />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/teams"
-              element={
-                <ProtectedRoute>
-                  <Teams />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/game"
-              element={
-                <ProtectedRoute>
-                  <GameMode />
-                </ProtectedRoute>
-              }
-            />
-            {/* Catch-all route to redirect to home */}
-            <Route path="*" element={<Navigate to="/" />} />
-          </Routes>
+          <AppRoutes />
         </Container>
       </Box>
     </Box>

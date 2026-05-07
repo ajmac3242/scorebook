@@ -60,7 +60,8 @@ import FreeThrowWorkflowDialog from "../components/FreeThrowWorkflowDialog";
 import HalftimeReportDialog from "../components/HalftimeReportDialog";
 import PlaybookEfficiencyWidget from "../components/PlaybookEfficiencyWidget";
 import { PlayerStatRow } from "../components/PlayerStatRow";
-import { db, type StatEvent } from "../db";
+import { db } from "../db";
+import { StatEvent } from "../types/stat";
 import { syncService } from "../utils/syncService";
 import { logger } from "../utils/logger";
 import {

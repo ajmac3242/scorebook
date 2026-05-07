@@ -16,7 +16,8 @@ import {
   Avatar,
 } from "@mui/material";
 import { Check as CheckIcon, Close as CloseIcon } from "@mui/icons-material";
-import { db, type Player } from "../db";
+import { db } from "../db";
+import { Player } from "../types/player";
 import { logger } from "../utils/logger";
 import { syncService } from "../utils/syncService";
 

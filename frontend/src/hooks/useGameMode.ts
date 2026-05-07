@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
-import { db, type StatEvent } from "../db";
+import { db } from "../db";
+import { StatEvent } from "../types/stat";
 import { useLiveQuery } from "dexie-react-hooks";
 import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../constants/stats";
 import {

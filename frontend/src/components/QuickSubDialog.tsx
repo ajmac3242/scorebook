@@ -16,7 +16,9 @@ import {
   Avatar,
 } from "@mui/material";
 import { SwapHoriz } from "@mui/icons-material";
-import { Player, Team, Game } from "../db";
+import { Player } from "../types/player";
+import { Team } from "../types/team";
+import { Game } from "../types/game";
 import { PlayerAggregates } from "../utils/stats";
 
 interface QuickSubDialogProps {

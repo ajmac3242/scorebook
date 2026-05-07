@@ -8,7 +8,10 @@ import {
   SPECIAL_PLAYER_IDS,
   BONUS_CONFIG,
 } from "../../constants/stats";
-import { StatEvent, Player, TeamPlayer, Game } from "../../db";
+import { StatEvent } from "../../types/stat";
+import { Player } from "../../types/player";
+import { TeamPlayer } from "../../types/teamPlayer";
+import { Game } from "../../types/game";
 import { formatToOne, determineResult } from "../mathUtils";
 import {
   BaseStats,

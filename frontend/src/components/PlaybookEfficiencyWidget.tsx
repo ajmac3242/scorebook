@@ -13,7 +13,7 @@ import {
 import { Assessment as ChartIcon } from "@mui/icons-material";
 import { PlayEfficiency } from "../utils/stats";
 import BasketballCourt from "./BasketballCourt";
-import { StatEvent } from "../db";
+import { StatEvent } from "../types/stat";
 import { MoleskineCard } from "./SharedUI";
 
 interface PlaybookEfficiencyWidgetProps {

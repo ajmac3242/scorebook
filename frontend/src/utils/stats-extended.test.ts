@@ -3,7 +3,7 @@ import {
   calculateOpponentScoutingStats,
   calculatePlayEfficiency,
 } from "./stats";
-import { StatEvent } from "../db";
+import { StatEvent } from "../types/stat";
 
 describe("Opponent Scouting and Play Efficiency", () => {
   const events: StatEvent[] = [

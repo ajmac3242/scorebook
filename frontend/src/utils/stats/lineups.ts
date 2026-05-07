@@ -4,7 +4,9 @@
  */
 
 import { ACTION_TYPES } from "../../constants/stats";
-import { StatEvent, Player, TeamPlayer } from "../../db";
+import { StatEvent } from "../../types/stat";
+import { Player } from "../../types/player";
+import { TeamPlayer } from "../../types/teamPlayer";
 import { roundToOne } from "../mathUtils";
 import {
   isOpponentId,

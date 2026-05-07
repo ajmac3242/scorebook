@@ -28,7 +28,8 @@ import {
 } from "@mui/material";
 import BasketballCourt from "../components/BasketballCourt";
 import { getShotZone } from "../utils/shotZones";
-import { db, type StatEvent } from "../db";
+import { db } from "../db";
+import { StatEvent } from "../types/stat";
 import { syncService } from "../utils/syncService";
 import { useLiveQuery } from "dexie-react-hooks";
 import { calculatePlayerAggregates } from "../utils/stats";

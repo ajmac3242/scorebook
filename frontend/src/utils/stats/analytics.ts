@@ -4,7 +4,8 @@
  */
 
 import { ACTION_TYPES } from "../../constants/stats";
-import { StatEvent, Player } from "../../db";
+import { StatEvent } from "../../types/stat";
+import { Player } from "../../types/player";
 import { formatClock } from "../mathUtils";
 import {
   isActive,

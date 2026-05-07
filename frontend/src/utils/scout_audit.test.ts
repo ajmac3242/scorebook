@@ -5,7 +5,8 @@ import {
   isEventInPeriod,
 } from "./stats";
 import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../constants/stats";
-import { StatEvent, Player } from "../db";
+import { StatEvent } from "../types/stat";
+import { Player } from "../types/player";
 
 describe("Scout Audit: Quality Fixes", () => {
   const mockPlayers: Player[] = [

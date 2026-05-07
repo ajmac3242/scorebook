@@ -32,7 +32,9 @@ import {
   Close as CloseIcon,
   History as HistoryIcon,
 } from "@mui/icons-material";
-import { db, type StatEvent, type Player } from "../db";
+import { db } from "../db";
+import { StatEvent } from "../types/stat";
+import { Player } from "../types/player";
 import { ACTION_TYPES } from "../constants/stats";
 import { formatClock } from "../utils/mathUtils";
 import { useLiveQuery } from "dexie-react-hooks";

@@ -1,9 +1,9 @@
-import React, { useMemo } from "react";
+import React from "react";
 import { useParams } from "react-router-dom";
 import {
   Box,
-  Typography,
   Grid,
+  Typography,
   Table,
   TableBody,
   TableCell,
@@ -12,53 +12,14 @@ import {
   TableRow,
   Avatar,
 } from "@mui/material";
-import { useLiveQuery } from "dexie-react-hooks";
-import { db } from "../db";
-import { calculateOpponentScoutingStats } from "../utils/stats";
+import { useOpponentScouting } from "../hooks/useOpponentScouting";
 import { MoleskineCard } from "../components/SharedUI";
 import EntityBanner from "../components/EntityBanner";
 import { Groups as OpponentsIcon } from "@mui/icons-material";
 
 const OpponentScoutingReport: React.FC = () => {
   const { opponentId } = useParams<{ opponentId: string }>();
-
-  const opponent = useLiveQuery(
-    () =>
-      opponentId ? db.opponents.get(opponentId) : Promise.resolve(undefined),
-    [opponentId],
-  );
-
-  const games = useLiveQuery(
-    () =>
-      opponentId
-        ? db.games.where("opponentId").equals(opponentId).toArray()
-        : Promise.resolve([]),
-    [opponentId],
-  );
-
-  const gameIds = useMemo(
-    () => (games?.map((g) => g.id).filter(Boolean) as string[]) || [],
-    [games],
-  );
-
-  const stats = useLiveQuery(
-    () =>
-      gameIds.length > 0
-        ? db.stats.where("gameId").anyOf(gameIds).toArray()
-        : Promise.resolve([]),
-    [gameIds],
-  );
-
-  const scoutingStats = useMemo(() => {
-    if (!stats) return new Map();
-    return calculateOpponentScoutingStats(stats);
-  }, [stats]);
-
-  const sortedPlayers = useMemo(() => {
-    return Array.from(scoutingStats.entries()).sort(
-      (a, b) => b[1].points - a[1].points,
-    );
-  }, [scoutingStats]);
+  const { opponent, games, sortedPlayers } = useOpponentScouting(opponentId);
 
   return (
     <Box sx={{ pb: 4 }}>
@@ -67,7 +28,7 @@ const OpponentScoutingReport: React.FC = () => {
         icon={<OpponentsIcon />}
         subtitle={`Historical Scouting Report | ${games?.length || 0} Games Tracked`}
         avatarSrc={opponent?.logoUrl}
-        backTo="/teams" // Assuming this is where users come from
+        backTo="/teams"
       />
 
       <Grid container spacing={3} sx={{ mt: 2 }}>
@@ -81,47 +42,22 @@ const OpponentScoutingReport: React.FC = () => {
                 <TableHead>
                   <TableRow sx={{ bgcolor: "rgba(0,0,0,0.02)" }}>
                     <TableCell sx={{ fontWeight: 700 }}>Jersey</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 700 }}>
-                      PTS
-                    </TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 700 }}>
-                      FG%
-                    </TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 700 }}>
-                      PPP
-                    </TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 700 }}>
-                      REB
-                    </TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 700 }}>
-                      AST
-                    </TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 700 }}>
-                      STL
-                    </TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 700 }}>
-                      BLK
-                    </TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 700 }}>
-                      TO
-                    </TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 700 }}>PTS</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 700 }}>FG%</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 700 }}>PPP</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 700 }}>REB</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 700 }}>AST</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 700 }}>STL</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 700 }}>BLK</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 700 }}>TO</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {sortedPlayers.map(([pId, agg]) => (
                     <TableRow key={pId}>
                       <TableCell sx={{ fontWeight: 600 }}>
-                        <Box
-                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                        >
-                          <Avatar
-                            sx={{
-                              width: 24,
-                              height: 24,
-                              fontSize: "0.75rem",
-                              bgcolor: "secondary.main",
-                            }}
-                          >
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                          <Avatar sx={{ width: 24, height: 24, fontSize: "0.75rem", bgcolor: "secondary.main" }}>
                             {pId.split(":")[1] || "??"}
                           </Avatar>
                           #{pId.split(":")[1] || "??"}

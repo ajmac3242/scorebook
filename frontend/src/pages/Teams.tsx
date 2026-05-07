@@ -27,7 +27,9 @@ import {
   Star as StarIcon,
   StarBorder as StarBorderIcon,
 } from "@mui/icons-material";
-import { db, type Team, type StatEvent } from "../db";
+import { db } from "../db";
+import { Team } from "../types/team";
+import { StatEvent } from "../types/stat";
 import { syncService } from "../utils/syncService";
 import { useNavigate } from "react-router-dom";
 import { MoleskineCard, StatItem } from "../components/SharedUI";

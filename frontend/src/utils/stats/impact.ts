@@ -4,7 +4,7 @@
  */
 
 import { ACTION_TYPES } from "../../constants/stats";
-import { StatEvent } from "../../db";
+import { StatEvent } from "../../types/stat";
 import { isActive, isScoringEvent, sortStats } from "./aggregators";
 
 export const calculatePlayerStreaks = (

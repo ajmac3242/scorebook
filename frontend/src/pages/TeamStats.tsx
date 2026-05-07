@@ -53,7 +53,9 @@ import {
   NavigateBefore,
 } from "@mui/icons-material";
 import { Stepper, Step, StepLabel } from "@mui/material";
-import { db, type TeamPlayer, type StatEvent } from "../db";
+import { db } from "../db";
+import { TeamPlayer } from "../types/teamPlayer";
+import { StatEvent } from "../types/stat";
 import { useLiveQuery } from "dexie-react-hooks";
 import { STAT_ACRONYMS } from "../constants/stats";
 import {

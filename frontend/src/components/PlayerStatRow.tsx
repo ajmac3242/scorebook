@@ -1,47 +1,116 @@
 import React from "react";
-import { TableRow, TableCell, Typography, Box, Tooltip } from "@mui/material";
-import { getPlusMinusColor, formatPlusMinus } from "../utils/mathUtils";
+import { TableRow, TableCell, Avatar, Typography } from "@mui/material";
 
-/**
- * Sub-component for displaying a player's statistical row in the table.
- * Optimized with React.memo and primitive props to skip redundant virtual DOM diffing.
- * ⚡ Bolt: By passing primitive props instead of a monolithic 'row' object,
- * React.memo can accurately detect when a player's stats have NOT changed,
- * preventing 90%+ of redundant row re-renders during live game tracking.
- */
 interface PlayerStatRowProps {
-  jerseyNumber: string;
-  name: string;
-  min: number;
-  points: number;
-  threePM: number;
-  threePA: number;
-  threePPct: string;
-  ftm: number;
-  fta: number;
-  ftPct: string;
-  rebounds: number;
-  assists: number;
-  steals: number;
-  blocks: number;
-  turnovers: number;
-  fouls: number;
-  plusMinus: number;
-  streak: "HOT" | "COLD" | null | undefined;
+  row?: any;
+  [key: string]: any;
 }
 
-export const PlayerStatRow: React.FC<PlayerStatRowProps> = React.memo(
-  ({
+export const PlayerStatRow: React.FC<PlayerStatRowProps> = (props) => {
+  const { row, ...rest } = props;
+
+  // If row is passed, use it (GameStats.tsx style)
+  if (row) {
+    return (
+      <TableRow key={row.id}>
+        <TableCell
+          sx={{
+            fontWeight: 600,
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
+          }}
+        >
+          <Avatar
+            sx={{
+              width: 24,
+              height: 24,
+              fontSize: "0.75rem",
+              bgcolor: row.avatarColor,
+            }}
+          >
+            {row.jerseyNumber}
+          </Avatar>
+          <Typography
+            variant="body2"
+            sx={{
+              fontWeight: 600,
+              fontSize: { xs: "0.75rem", sm: "0.875rem" },
+            }}
+          >
+            {row.name}
+          </Typography>
+        </TableCell>
+        <TableCell align="right">{row.min}</TableCell>
+        <TableCell align="right">{row.points}</TableCell>
+        <TableCell align="right">
+          {row.makes}-{row.attempts}
+        </TableCell>
+        <TableCell
+          align="right"
+          sx={{ display: { xs: "none", sm: "table-cell" } }}
+        >
+          {row.fgPct}%
+        </TableCell>
+        <TableCell
+          align="right"
+          sx={{ display: { xs: "none", sm: "table-cell" } }}
+        >
+          {row.efgPct}%
+        </TableCell>
+        <TableCell
+          align="right"
+          sx={{ display: { xs: "none", sm: "table-cell" } }}
+        >
+          {row.offRebounds}
+        </TableCell>
+        <TableCell
+          align="right"
+          sx={{ display: { xs: "none", sm: "table-cell" } }}
+        >
+          {row.defRebounds}
+        </TableCell>
+        <TableCell align="right">{row.rebounds}</TableCell>
+        <TableCell align="right">{row.assists}</TableCell>
+        <TableCell
+          align="right"
+          sx={{ display: { xs: "none", sm: "table-cell" } }}
+        >
+          {row.steals}
+        </TableCell>
+        <TableCell
+          align="right"
+          sx={{ display: { xs: "none", sm: "table-cell" } }}
+        >
+          {row.blocks}
+        </TableCell>
+        <TableCell
+          align="right"
+          sx={{ display: { xs: "none", sm: "table-cell" } }}
+        >
+          {row.turnovers}
+        </TableCell>
+        <TableCell align="right">{row.fouls}</TableCell>
+        <TableCell align="right">
+          {row.plusMinus > 0 ? `+${row.plusMinus}` : row.plusMinus}
+        </TableCell>
+      </TableRow>
+    );
+  }
+
+  // Otherwise use flat props (GameMode.tsx style)
+  const {
     jerseyNumber,
     name,
+    avatarColor,
     min,
     points,
-    threePM,
-    threePA,
-    threePPct,
-    ftm,
-    fta,
-    ftPct,
+    makes,
+    attempts,
+    fgPct,
+    efgPct,
+    offRebounds,
+    defRebounds,
     rebounds,
     assists,
     steals,
@@ -49,116 +118,93 @@ export const PlayerStatRow: React.FC<PlayerStatRowProps> = React.memo(
     turnovers,
     fouls,
     plusMinus,
-    streak,
-  }) => (
+  } = rest;
+
+  return (
     <TableRow>
-      <TableCell sx={{ py: 1, px: 1 }}>
+      <TableCell
+        sx={{
+          fontWeight: 600,
+          display: "flex",
+          alignItems: "center",
+          gap: 1,
+        }}
+      >
+        <Avatar
+          sx={{
+            width: 24,
+            height: 24,
+            fontSize: "0.75rem",
+            bgcolor: avatarColor,
+          }}
+        >
+          {jerseyNumber}
+        </Avatar>
         <Typography
-          variant="caption"
+          variant="body2"
           sx={{
             fontWeight: 600,
-            display: "block",
-            lineHeight: 1.1,
+            fontSize: { xs: "0.75rem", sm: "0.875rem" },
           }}
         >
-          #{jerseyNumber}
-        </Typography>
-        <Typography
-          variant="caption"
-          sx={{
-            fontSize: "0.65rem",
-            display: "block",
-            color: "text.secondary",
-            whiteSpace: "nowrap",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            maxWidth: "60px",
-          }}
-        >
-          {name.split(" ")[0]}
-          {streak === "HOT" && (
-            <Tooltip title="Hot Streak (3+ makes)">
-              <Box component="span" sx={{ ml: 0.2 }}>
-                🔥
-              </Box>
-            </Tooltip>
-          )}
-          {streak === "COLD" && (
-            <Tooltip title="Cold Streak (3+ misses)">
-              <Box component="span" sx={{ ml: 0.2 }}>
-                ❄️
-              </Box>
-            </Tooltip>
-          )}
+          {name}
         </Typography>
       </TableCell>
-      <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
-        {min}
+      <TableCell align="right">{min}</TableCell>
+      <TableCell align="right">{points}</TableCell>
+      <TableCell align="right">
+        {makes}-{attempts}
       </TableCell>
-      <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
-        {points}
+      <TableCell
+        align="right"
+        sx={{ display: { xs: "none", sm: "table-cell" } }}
+      >
+        {fgPct}%
       </TableCell>
-      <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
-        {threePM}
+      <TableCell
+        align="right"
+        sx={{ display: { xs: "none", sm: "table-cell" } }}
+      >
+        {efgPct}%
       </TableCell>
-      <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
-        {threePA}
+      <TableCell
+        align="right"
+        sx={{ display: { xs: "none", sm: "table-cell" } }}
+      >
+        {offRebounds}
       </TableCell>
-      <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
-        {threePPct}
+      <TableCell
+        align="right"
+        sx={{ display: { xs: "none", sm: "table-cell" } }}
+      >
+        {defRebounds}
       </TableCell>
-      <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
-        {ftm}
-      </TableCell>
-      <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
-        {fta}
-      </TableCell>
-      <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
-        {ftPct}
-      </TableCell>
-      <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
-        {rebounds}
-      </TableCell>
-      <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
-        {assists}
-      </TableCell>
-      <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
+      <TableCell align="right">{rebounds}</TableCell>
+      <TableCell align="right">{assists}</TableCell>
+      <TableCell
+        align="right"
+        sx={{ display: { xs: "none", sm: "table-cell" } }}
+      >
         {steals}
       </TableCell>
-      <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
+      <TableCell
+        align="right"
+        sx={{ display: { xs: "none", sm: "table-cell" } }}
+      >
         {blocks}
       </TableCell>
-      <TableCell align="right" sx={{ px: 0.5, fontSize: "0.75rem" }}>
+      <TableCell
+        align="right"
+        sx={{ display: { xs: "none", sm: "table-cell" } }}
+      >
         {turnovers}
       </TableCell>
-      <TableCell
-        align="right"
-        sx={{
-          px: 1,
-          fontSize: "0.75rem",
-          fontWeight: fouls >= 4 ? 700 : 400,
-          bgcolor:
-            fouls >= 5
-              ? "error.main"
-              : fouls === 4
-                ? "warning.main"
-                : "transparent",
-          color: fouls >= 4 ? "white" : "inherit",
-        }}
-      >
-        {fouls}
-      </TableCell>
-      <TableCell
-        align="right"
-        sx={{
-          px: 1,
-          fontSize: "0.75rem",
-          color: getPlusMinusColor(plusMinus),
-          fontWeight: plusMinus !== 0 ? 600 : 400,
-        }}
-      >
-        {formatPlusMinus(plusMinus)}
+      <TableCell align="right">{fouls}</TableCell>
+      <TableCell align="right">
+        {plusMinus > 0 ? `+${plusMinus}` : plusMinus}
       </TableCell>
     </TableRow>
-  ),
-);
+  );
+};
+
+export default PlayerStatRow;

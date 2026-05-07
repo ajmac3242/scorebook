@@ -19,7 +19,7 @@ import {
   Edit,
   Delete,
 } from "@mui/icons-material";
-import { StatEvent } from "../db";
+import { StatEvent } from "../types/stat";
 import { ACTION_TYPES } from "../constants/stats";
 import { formatClock } from "../utils/mathUtils";
 

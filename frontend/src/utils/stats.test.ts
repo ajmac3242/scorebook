@@ -21,7 +21,9 @@ import {
   calculatePlayEfficiency,
   calculateTeamSeasonAverages,
 } from "./stats";
-import { TeamPlayer, StatEvent, Game } from "../db";
+import { TeamPlayer } from "../types/teamPlayer";
+import { StatEvent } from "../types/stat";
+import { Game } from "../types/game";
 import { ACTION_TYPES } from "../constants/stats";
 
 describe("stats utilities", () => {

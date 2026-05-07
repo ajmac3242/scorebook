@@ -31,64 +31,64 @@ Completed items are archived to `.Jules/backlog-archive.md` to maintain optimal 
 
 ---
 
-## [HYGIENE] Refactor: Extract data layer and types out of db.ts
+## [x] [HYGIENE] Refactor: Extract data layer and types out of db.ts
 **Priority:** HIGH **Type:** Refactor **Why:** `db.ts` currently mixes domain interfaces, schema/version history, Dexie table setup, and a singleton DB instance in one runtime file. This creates tight coupling between types and persistence that makes it impossible to import types without pulling in Dexie as a side effect. **What:** Split into dedicated modules with clean import boundaries.
 
 **Acceptance Criteria:**
 
-* [ ] Extract all domain interfaces/types into `src/types/` (e.g., `game.ts`, `player.ts`, `stat.ts`).
-* [ ] Extract Dexie schema and version history into `src/db/schema.ts`.
-* [ ] `db.ts` becomes a thin singleton setup file that imports from the above.
-* [ ] All existing imports updated throughout the codebase — no broken references.
-* [ ] Types can be imported without triggering Dexie initialization as a side effect.
-* [ ] All tests pass after the restructure.
+* [x] Extract all domain interfaces/types into `src/types/` (e.g., `game.ts`, `player.ts`, `stat.ts`).
+* [x] Extract Dexie schema and version history into `src/db/schema.ts`.
+* [x] `db.ts` becomes a thin singleton setup file that imports from the above.
+* [x] All existing imports updated throughout the codebase — no broken references.
+* [x] Types can be imported without triggering Dexie initialization as a side effect.
+* [x] All tests pass after the restructure.
 
 ---
 
-## [HYGIENE] Refactor: Break GameStats.tsx into data hook + display components
+## [x] [HYGIENE] Refactor: Break GameStats.tsx into data hook + display components
 **Priority:** HIGH **Type:** Refactor **Why:** `GameStats.tsx` combines page rendering, business action handlers, sorting logic, and export functionality in a single file. This makes it hard to test individual concerns and will become a maintenance bottleneck as new stat categories and export formats are added. **What:** Separate data/action concerns from display.
 
 **Acceptance Criteria:**
 
-* [ ] Extract `useGameStats` hook — all `useLiveQuery` calls, derived stat aggregations, sort state, and export handlers.
-* [ ] Extract `PlayerStatRow.tsx` — individual player row rendering.
-* [ ] Extract `StatExportMenu.tsx` — export format selection and trigger logic.
-* [ ] `GameStats.tsx` becomes a layout-only page component (~100 lines) that wires hook → components.
-* [ ] Export functionality (CSV/PDF) remains fully operational after refactor.
-* [ ] All tests pass; add tests for `useGameStats` derivations.
+* [x] Extract `useGameStats` hook — all `useLiveQuery` calls, derived stat aggregations, sort state, and export handlers.
+* [x] Extract `PlayerStatRow.tsx` — individual player row rendering.
+* [x] Extract `StatExportMenu.tsx` — export format selection and trigger logic.
+* [x] `GameStats.tsx` becomes a layout-only page component (~100 lines) that wires hook → components.
+* [x] Export functionality (CSV/PDF) remains fully operational after refactor.
+* [x] All tests pass; add tests for `useGameStats` derivations.
 
 ---
 
-## [HYGIENE] Frontend Structure Cleanup (Grouped Small Refactors)
+## [x] [HYGIENE] Frontend Structure Cleanup (Grouped Small Refactors)
 **Priority:** HIGH **Type:** Refactor **Why:** Several files have outgrown their original scope or contain obvious extraction seams. These are bundled as lower-risk, mechanical refactors that can be tackled incrementally. **What:** Clean up 5 files with clear, contained seams.
 
 **Scope:**
 
 ### App.tsx
-* [ ] Extract `ProtectedRoute` into `src/components/ProtectedRoute.tsx`.
-* [ ] Extract route declarations into `src/router/routes.tsx`.
-* [ ] `App.tsx` becomes provider wiring + layout shell only.
+* [x] Extract `ProtectedRoute` into `src/components/ProtectedRoute.tsx`.
+* [x] Extract route declarations into `src/router/routes.tsx`.
+* [x] `App.tsx` becomes provider wiring + layout shell only.
 
 ### SharedUI.tsx
-* [ ] Move each exported component (`MoleskineCard`, `PageHeader`, `StatItem`, `StatCard`, `AnimatedNumber`) into its own file under `src/components/ui/`.
-* [ ] Update all import sites.
+* [x] Move each exported component (`MoleskineCard`, `PageHeader`, `StatItem`, `StatCard`, `AnimatedNumber`) into its own file under `src/components/ui/`.
+* [x] Update all import sites.
 
 ### Scoreboard.tsx
-* [ ] Convert internal `renderTeamSection` function into a typed `TeamPanel.tsx` sub-component.
-* [ ] Add props interface for `TeamPanel`.
+* [x] Convert internal `renderTeamSection` function into a typed `TeamPanel.tsx` sub-component.
+* [x] Add props interface for `TeamPanel`.
 
 ### OpponentScoutingReport.tsx
-* [ ] Extract chained `useLiveQuery` calls and sorted stat derivations into `useOpponentScouting` hook.
-* [ ] Page component becomes layout + wiring only.
+* [x] Extract chained `useLiveQuery` calls and sorted stat derivations into `useOpponentScouting` hook.
+* [x] Page component becomes layout + wiring only.
 
 ### Dashboard.tsx
-* [ ] Extract inline queries and derived stats into `useDashboardData` hook.
-* [ ] Page component becomes layout + wiring only.
+* [x] Extract inline queries and derived stats into `useDashboardData` hook.
+* [x] Page component becomes layout + wiring only.
 
 **Acceptance Criteria:**
-* [ ] All 5 files refactored per scope above.
-* [ ] No change to rendered UI or user-facing behavior.
-* [ ] All existing tests pass.
+* [x] All 5 files refactored per scope above.
+* [x] No change to rendered UI or user-facing behavior.
+* [x] All existing tests pass.
 
 ---
 

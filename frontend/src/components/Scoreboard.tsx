@@ -2,16 +2,16 @@ import React from "react";
 import {
   Box,
   Typography,
-  Avatar,
   Stack,
   useTheme,
   Tooltip,
 } from "@mui/material";
-import { OpponentThreat, HaltAlert } from "../utils/stats";
+import { HaltAlert } from "../utils/stats";
 import { formatClock } from "../utils/mathUtils";
-import { AnimatedNumber } from "./SharedUI";
-import TimeoutDots from "./TimeoutDots";
-import { pulse, slideBackAndForth } from "../styles/animations";
+import { slideBackAndForth } from "../styles/animations";
+import TeamPanel from "./TeamPanel";
+import MomentumAlerts from "./MomentumAlerts";
+import HaltAlertsOverlay from "./HaltAlertsOverlay";
 
 /**
  * Redesigned TV-style scoreboard header.
@@ -61,7 +61,7 @@ export interface ScoreboardProps {
     momentumAlerts: {
       opponentRun: string | null;
       scoringDrought: string | null;
-      opponentThreats: OpponentThreat[];
+      opponentThreats: any[]; // Changed from OpponentThreat[] for flexibility or just use the type
     };
   };
   haltAlerts?: HaltAlert[];
@@ -90,96 +90,6 @@ export const Scoreboard = React.memo(
   }: ScoreboardProps) => {
     const theme = useTheme();
     const timeoutTotal = game?.timeoutLimit ?? team?.defaultTimeoutLimit ?? 3;
-
-    const renderTeamSection = (
-      name: string,
-      logoUrl: string | undefined,
-      score: number,
-      timeouts: number,
-      isOpponent: boolean,
-    ) => {
-      return (
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: { xs: 1, sm: 3 },
-            flexDirection: isOpponent ? "row-reverse" : "row",
-          }}
-        >
-          {/* Logo & Name */}
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              minWidth: { xs: 50, sm: 80 },
-            }}
-          >
-            <Avatar
-              src={logoUrl}
-              sx={{
-                width: { xs: 36, sm: 56 },
-                height: { xs: 36, sm: 56 },
-                bgcolor: isOpponent ? "secondary.main" : "primary.main",
-                border: "2px solid rgba(255,255,255,0.2)",
-                mb: 0.5,
-              }}
-            >
-              {name.charAt(0)}
-            </Avatar>
-            <Typography
-              variant="caption"
-              sx={{
-                color: "white",
-                fontWeight: 700,
-                fontSize: { xs: "0.6rem", sm: "0.8rem" },
-                textTransform: "uppercase",
-                letterSpacing: 1,
-                textAlign: "center",
-                maxWidth: { xs: 60, sm: 100 },
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-              }}
-            >
-              {name}
-            </Typography>
-          </Box>
-
-          {/* Score & Timeouts */}
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-            }}
-          >
-            <Typography
-              sx={{
-                color: "white",
-                fontSize: { xs: "2rem", sm: "3.5rem" },
-                fontWeight: 900,
-                lineHeight: 1,
-                fontFamily: "'Inter', sans-serif",
-                mb: 1,
-              }}
-              aria-live="polite"
-              aria-label={`${name} score: ${score}`}
-            >
-              <AnimatedNumber value={score} />
-            </Typography>
-            <TimeoutDots
-              count={timeouts}
-              total={timeoutTotal}
-              data-testid={
-                isOpponent ? "opp-timeout-dots" : "team-timeout-dots"
-              }
-            />
-          </Box>
-        </Box>
-      );
-    };
 
     return (
       <Box
@@ -211,66 +121,17 @@ export const Scoreboard = React.memo(
           }}
         />
 
-        {/* HALT Alerts Overlay */}
-        {haltAlerts.length > 0 && (
-          <Box
-            sx={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              zIndex: 100,
-              pointerEvents: "none",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              background: "rgba(0,0,0,0.4)",
-              backdropFilter: "blur(4px)",
-            }}
-          >
-            {haltAlerts.map((alert) => (
-              <Box
-                key={alert.id}
-                sx={{
-                  bgcolor:
-                    alert.severity === "error"
-                      ? "error.main"
-                      : alert.severity === "warning"
-                        ? "warning.main"
-                        : "info.main",
-                  color: alert.severity === "warning" ? "black" : "white",
-                  px: 3,
-                  py: 1,
-                  borderRadius: 2,
-                  mb: 1,
-                  boxShadow: "0 4px 20px rgba(0,0,0,0.5)",
-                  animation: `${pulse} 2s infinite ease-in-out`,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 2,
-                }}
-              >
-                <Typography
-                  variant="h6"
-                  sx={{ fontWeight: 900, fontSize: "1.2rem" }}
-                >
-                  {alert.message}
-                </Typography>
-              </Box>
-            ))}
-          </Box>
-        )}
+        <HaltAlertsOverlay haltAlerts={haltAlerts} />
 
         {/* Our Team */}
-        {renderTeamSection(
-          team?.name || "TEAM",
-          team?.logoUrl,
-          gameData.currentScore,
-          gameData.timeoutStats.teamTOL,
-          false,
-        )}
+        <TeamPanel
+          name={team?.name || "TEAM"}
+          logoUrl={team?.logoUrl}
+          score={gameData.currentScore}
+          timeouts={gameData.timeoutStats.teamTOL}
+          timeoutTotal={timeoutTotal}
+          isOpponent={false}
+        />
 
         {/* Center: Period, Clock, Bonus */}
         <Box
@@ -282,93 +143,7 @@ export const Scoreboard = React.memo(
             px: 2,
           }}
         >
-          {/* Momentum Alerts */}
-          {(gameData.momentumAlerts.opponentRun ||
-            gameData.momentumAlerts.scoringDrought ||
-            gameData.momentumAlerts.opponentThreats.length > 0) && (
-            <Box
-              sx={{
-                position: "absolute",
-                top: 8,
-                zIndex: 10,
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: 0.5,
-              }}
-            >
-              {gameData.momentumAlerts.opponentRun && (
-                <Stack spacing={0.5} alignItems="center">
-                  <Typography
-                    variant="caption"
-                    role="status"
-                    aria-live="polite"
-                    sx={{
-                      bgcolor: "error.main",
-                      color: "white",
-                      px: 1,
-                      borderRadius: 1,
-                      fontSize: "0.6rem",
-                      fontWeight: 800,
-                      animation: `${pulse} 2s infinite ease-in-out`,
-                    }}
-                  >
-                    RUN: {gameData.momentumAlerts.opponentRun}
-                  </Typography>
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      bgcolor: "rgba(255,255,255,0.9)",
-                      color: "error.main",
-                      px: 1,
-                      borderRadius: 1,
-                      fontSize: "0.5rem",
-                      fontWeight: 900,
-                      textTransform: "uppercase",
-                    }}
-                  >
-                    Suggest Timeout
-                  </Typography>
-                </Stack>
-              )}
-              {gameData.momentumAlerts.opponentThreats.map((t) => (
-                <Stack key={t.playerId} spacing={0.5} alignItems="center">
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      bgcolor: "warning.main",
-                      color: "black",
-                      px: 1,
-                      borderRadius: 1,
-                      fontSize: "0.55rem",
-                      fontWeight: 900,
-                      animation: `${pulse} 2.5s infinite ease-in-out`,
-                    }}
-                  >
-                    {t.straightPoints >= 6
-                      ? `THREAT: Opp #${t.playerId.split(":")[1] || "??"} has scored ${t.straightPoints} STRAIGHT`
-                      : `THREAT: Opp #${t.playerId.split(":")[1] || "??"} (${t.points} pts)`}
-                  </Typography>
-                  {t.straightPoints >= 8 && (
-                    <Typography
-                      variant="caption"
-                      sx={{
-                        bgcolor: "rgba(255,255,255,0.9)",
-                        color: "warning.dark",
-                        px: 1,
-                        borderRadius: 1,
-                        fontSize: "0.45rem",
-                        fontWeight: 900,
-                        textTransform: "uppercase",
-                      }}
-                    >
-                      Change Matchup
-                    </Typography>
-                  )}
-                </Stack>
-              ))}
-            </Box>
-          )}
+          <MomentumAlerts momentumAlerts={gameData.momentumAlerts} />
 
           <Typography
             variant="h6"
@@ -482,13 +257,14 @@ export const Scoreboard = React.memo(
         </Box>
 
         {/* Opponent Team */}
-        {renderTeamSection(
-          game?.opponent || "OPPONENT",
-          game?.opponentLogoUrl,
-          gameData.opponentScore,
-          gameData.timeoutStats.oppTOL,
-          true,
-        )}
+        <TeamPanel
+          name={game?.opponent || "OPPONENT"}
+          logoUrl={game?.opponentLogoUrl}
+          score={gameData.opponentScore}
+          timeouts={gameData.timeoutStats.oppTOL}
+          timeoutTotal={timeoutTotal}
+          isOpponent={true}
+        />
       </Box>
     );
   },
