@@ -3,32 +3,6 @@
 ## Maintenance Note
 Completed items are archived to `.Jules/backlog-archive.md` to maintain optimal performance for agent context. Active `backlog.md` should aim for a soft cap of ~200 lines.
 
-## [x] Dexie Test Harness Mocking for Fast Vitest Runs
-**Priority:** HIGH **Type:** Test Infrastructure **Why:** Vitest runtime is being inflated by heavy `waitFor` polling against real async Dexie/IndexedDB behavior and MUI re-renders in jsdom. Fully mocking Dexie at the test boundary will make async assertions resolve immediately and reduce suite cancellation risk. **What:** Introduce a global Vitest test setup that mocks the app’s Dexie-backed database layer so component and hook tests do not hit real IndexedDB stubs.
-
-**Acceptance Criteria:**
-
-* [x] Add a shared Vitest setup file for frontend tests.
-* [x] Mock the app’s Dexie/database module at the import boundary used by components and hooks.
-* [x] Ensure common table methods (`toArray`, `get`, `put`, `add`, `update`, `delete`, `bulkPut`, query-chain helpers) resolve immediately in tests.
-* [x] Replace test reliance on real IndexedDB behavior so `waitFor` completes without 50ms polling against Dexie async state.
-* [x] Keep mock behavior override-friendly per test file for custom scenarios.
-* [x] Verify frontend test runtime improves and affected test files pass consistently in CI.
-
-
-## [x] [HYGIENE] Refactor: Split useGameMode.ts into focused domain hooks
-**Priority:** HIGH **Type:** Refactor **Why:** `useGameMode.ts` is the central coordinator for all live game state and currently carries too many unrelated responsibilities under one return surface, making it difficult to unit test, extend, or hand off to an agent without full-file context. **What:** Decompose the hook into focused domain hooks that are composed back into a thin `useGameMode` coordinator.
-
-**Acceptance Criteria:**
-
-* [x] Extract `useGameClock` — clock tick, pause/resume, period transitions.
-* [x] Extract `useLineupState` — on-court player tracking, substitution draft state.
-* [x] Extract `useStatWriter` — all DB write helpers + `syncService.pushUpdates()` calls, consolidated into a single `writeStat()` utility.
-* [x] Extract `usePossessionTracker` — possession arrow, live PPP derivation.
-* [x] `useGameMode.ts` becomes a thin coordinator (~100 lines) that composes the above hooks.
-* [x] All existing tests pass; new unit tests added for each extracted hook.
-* [x] No regression to GameMode.tsx rendering or live game behavior.
-
 ---
 
 ## [HYGIENE] Refactor: Extract data layer and types out of db.ts
@@ -91,17 +65,6 @@ Completed items are archived to `.Jules/backlog-archive.md` to maintain optimal 
 * [ ] All existing tests pass.
 
 ---
-
-## [x] HALT (High-Leverage Alerting) System
-**Priority:** HIGH
-**Type:** Enhancement
-**Why:** Critical game situations (e.g., a star player with 3 fouls in the 1st half) require immediate tactical shifts. Automated alerts ensure coaches never miss a high-leverage decision window.
-**What:** Implement a "High-Leverage Alert" engine that monitors game state and triggers intrusive HUD warnings for critical tactical scenarios.
-**Acceptance Criteria:**
-- [x] "Star Player Foul Warning" (e.g., 2 fouls in Q1, 3 in Q2).
-- [x] "Bonus Approaching" alert when an opponent is at 4 fouls in a quarter.
-- [x] "Time to Sub" fatigue alerts based on live stint duration vs target minutes.
-- [x] "Clutch Mode" activation alert when entering the final 4 mins of a close game.
 
 ## [ ] Defensive Assignment & Matchup Tracking
 **Priority:** HIGH
@@ -601,19 +564,11 @@ Completed items are archived to `.Jules/backlog-archive.md` to maintain optimal 
 **Priority:** HIGH **Type:** Technical Debt
 **Why:** Jules is exhibiting slowdowns and "file too large" issues because several core files have grown beyond effective context window limits. The monolithic `index.ts` (883 lines) forces Jules to load the entire API surface for any single endpoint change. The `backlog.md` (637 lines) is injected into every session regardless of relevance. Multiple overlapping sentinel test files add redundant context on every run.
 **What:**
-<<<<<<< scribe-doc-improvements-3364392278239960223
 1. [DONE] Split `index.ts` into per-resource handler modules. (`players.ts`, `games.ts`, `teams.ts`, `cleanup.ts` created.)
-2. Split `utils.ts` (339 lines) — separate `security-utils.ts` from `data-utils.ts`.
+2. Split `utils.ts` (334 lines) — separate `security-utils.ts` from `data-utils.ts`.
 3. Consolidate sentinel test files — merge `sentinel_enhancements.test.ts`, `sentinel_v3.test.ts`, etc. into `security.test.ts`. (PARTIALLY COMPLETE: `security.test.ts` exists, but sentinel files remain.)
 4. Add a guardrail note to `playbook.md`: Jules should flag any file approaching 300 lines and propose a split before continuing.
-=======
-1. Split `index.ts` into per-resource handler modules: `handlers/players.ts`, `handlers/games.ts`, `handlers/teams.ts`, `handlers/stats.ts`, `handlers/cleanup.ts` — each under 200 lines. Keep `index.ts` as a thin router (~100 lines).
-   - [ ] `handlers/cleanup.ts` created and integrated.
-2. Split `utils.ts` (420 lines) — separate `security-utils.ts` (sanitize, mask, safeCompare, normalizePath) from `data-utils.ts` (stripLocalFields, extractId, etc.).
-3. Archive `backlog.md` — move all `[ ]` completed items to a `backlog-archive.md`. Add a rule: completed items get archived after each sprint. Enforce a soft cap of ~200 lines on active `backlog.md`.
-4. Consolidate sentinel test files — merge `sentinel_enhancements.test.ts`, `sentinel_dos.test.ts`, `sentinel_path.test.ts`, `sentinel_v3.test.ts`, `sentinel_v4.test.ts` into a single organized `security.test.ts` with `describe` blocks per concern. Target under 500 total lines.
-5. Add a guardrail note to `playbook.md`: Jules should flag any file approaching 300 lines and propose a split before continuing.
->>>>>>> main
+
 **Acceptance Criteria:**
 - [ ] `index.ts` is under 150 lines (router only)
 - [ ] No source file in `backend/src/` exceeds 300 lines unless it logically makes sense. This is not a hard rule, but it's a refactor trigger.
