@@ -1,5 +1,11 @@
 import React from "react";
-import { Box, Typography, Stack, useTheme, Tooltip } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Stack,
+  useTheme,
+  Tooltip,
+} from "@mui/material";
 import { LocalFireDepartment, Shield } from "@mui/icons-material";
 import { OpponentThreat, HaltAlert } from "../utils/stats";
 import { formatClock } from "../utils/mathUtils";
@@ -387,9 +393,7 @@ export const Scoreboard = React.memo(
 
             {/* Defensive Momentum HUD */}
             <Stack direction="row" spacing={1.5} alignItems="center">
-              <Tooltip
-                title={`Total Defensive Stops: ${gameData.defensiveStats.totalStops}`}
-              >
+              <Tooltip title={`Total Defensive Stops: ${gameData.defensiveStats.totalStops}`}>
                 <Stack direction="row" spacing={0.5} alignItems="center">
                   <Shield
                     sx={{
@@ -411,18 +415,13 @@ export const Scoreboard = React.memo(
                 </Stack>
               </Tooltip>
 
-              <Tooltip
-                title={`Total Kills: ${gameData.defensiveStats.totalKills}`}
-              >
+              <Tooltip title={`Total Kills: ${gameData.defensiveStats.totalKills}`}>
                 <Stack direction="row" spacing={0.5} alignItems="center">
                   <LocalFireDepartment
                     sx={{
                       fontSize: "1.1rem",
                       color: "error.main",
-                      animation:
-                        gameData.defensiveStats.totalKills > 0
-                          ? `${pulse} 2s infinite ease-in-out`
-                          : "none",
+                      animation: gameData.defensiveStats.totalKills > 0 ? `${pulse} 2s infinite ease-in-out` : "none",
                     }}
                   />
                   <Typography

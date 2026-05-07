@@ -69,7 +69,7 @@ import {
   SHOT_QUALITY,
 } from "../constants/stats";
 import { type PlayerAggregates } from "../utils/stats";
-import { formatClock } from "../utils/mathUtils";
+import { formatClock, formatPlusMinus } from "../utils/mathUtils";
 import { MoleskineCard } from "../components/SharedUI";
 
 // Extracted modules
@@ -934,13 +934,13 @@ const GameMode: React.FC = () => {
                           opacity: 0.9,
                         }}
                       >
-                        STINT:{" "}
-                        {formatClock(gameData.currentLineupStintDuration)}
+                        STINT: {formatClock(gameData.currentLineupStintDuration)}
                       </Typography>
                     </Box>
                     <Box sx={{ textAlign: "right" }}>
                       <Typography
                         variant="h6"
+                        data-testid="lineup-plus-minus"
                         sx={{
                           fontWeight: 900,
                           color:
@@ -951,8 +951,7 @@ const GameMode: React.FC = () => {
                           fontSize: "1.2rem",
                         }}
                       >
-                        {gameData.currentLineupPlusMinus >= 0 ? "+" : ""}
-                        {gameData.currentLineupPlusMinus}
+                        {formatPlusMinus(gameData.currentLineupPlusMinus)}
                       </Typography>
                       <Typography
                         variant="caption"
