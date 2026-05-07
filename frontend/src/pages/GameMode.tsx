@@ -904,34 +904,65 @@ const GameMode: React.FC = () => {
                     sx={{
                       display: "flex",
                       justifyContent: "space-between",
-                      alignItems: "flex-start",
-                      mb: 1,
+                      alignItems: "center",
+                      mb: 1.5,
+                      p: 1.5,
+                      borderRadius: 2,
+                      bgcolor: "rgba(255,255,255,0.04)",
+                      border: "1px solid rgba(255,255,255,0.08)",
                     }}
                   >
-                    <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                      Live Lineup
-                    </Typography>
-                    <Box sx={{ textAlign: "right" }}>
+                    <Box>
+                      <Typography
+                        variant="subtitle2"
+                        sx={{
+                          fontWeight: 800,
+                          fontSize: "0.7rem",
+                          textTransform: "uppercase",
+                          letterSpacing: 1,
+                          color: "primary.main",
+                        }}
+                      >
+                        Live Lineup
+                      </Typography>
                       <Typography
                         variant="caption"
                         sx={{
-                          display: "block",
-                          fontWeight: 800,
+                          fontSize: "0.65rem",
+                          fontWeight: 600,
+                          fontFamily: "'Courier New', monospace",
+                          opacity: 0.9,
+                        }}
+                      >
+                        STINT: {formatClock(gameData.currentLineupStintDuration)}
+                      </Typography>
+                    </Box>
+                    <Box sx={{ textAlign: "right" }}>
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          fontWeight: 900,
                           color:
                             gameData.currentLineupPlusMinus >= 0
                               ? "success.main"
                               : "error.main",
                           lineHeight: 1,
+                          fontSize: "1.2rem",
                         }}
                       >
                         {gameData.currentLineupPlusMinus >= 0 ? "+" : ""}
-                        {gameData.currentLineupPlusMinus} since sub
+                        {gameData.currentLineupPlusMinus}
                       </Typography>
                       <Typography
                         variant="caption"
-                        sx={{ fontSize: "0.6rem", opacity: 0.7 }}
+                        sx={{
+                          fontSize: "0.55rem",
+                          fontWeight: 800,
+                          textTransform: "uppercase",
+                          opacity: 0.6,
+                        }}
                       >
-                        {formatClock(gameData.currentLineupStintDuration)}
+                        Net Impact
                       </Typography>
                     </Box>
                   </Box>

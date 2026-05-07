@@ -2,16 +2,15 @@ import React from "react";
 import {
   Box,
   Typography,
-  Avatar,
   Stack,
   useTheme,
   Tooltip,
 } from "@mui/material";
+import { LocalFireDepartment, Shield } from "@mui/icons-material";
 import { OpponentThreat, HaltAlert } from "../utils/stats";
 import { formatClock } from "../utils/mathUtils";
-import { AnimatedNumber } from "./SharedUI";
-import TimeoutDots from "./TimeoutDots";
 import { pulse, slideBackAndForth } from "../styles/animations";
+import { TeamPanel } from "./TeamPanel";
 
 /**
  * Redesigned TV-style scoreboard header.
@@ -57,6 +56,11 @@ export interface ScoreboardProps {
       teamTOL: number;
       oppTOL: number;
     };
+    defensiveStats: {
+      totalStops: number;
+      totalKills: number;
+      currentStreak: number;
+    };
     possessionState: string | null;
     momentumAlerts: {
       opponentRun: string | null;
@@ -90,96 +94,6 @@ export const Scoreboard = React.memo(
   }: ScoreboardProps) => {
     const theme = useTheme();
     const timeoutTotal = game?.timeoutLimit ?? team?.defaultTimeoutLimit ?? 3;
-
-    const renderTeamSection = (
-      name: string,
-      logoUrl: string | undefined,
-      score: number,
-      timeouts: number,
-      isOpponent: boolean,
-    ) => {
-      return (
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: { xs: 1, sm: 3 },
-            flexDirection: isOpponent ? "row-reverse" : "row",
-          }}
-        >
-          {/* Logo & Name */}
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              minWidth: { xs: 50, sm: 80 },
-            }}
-          >
-            <Avatar
-              src={logoUrl}
-              sx={{
-                width: { xs: 36, sm: 56 },
-                height: { xs: 36, sm: 56 },
-                bgcolor: isOpponent ? "secondary.main" : "primary.main",
-                border: "2px solid rgba(255,255,255,0.2)",
-                mb: 0.5,
-              }}
-            >
-              {name.charAt(0)}
-            </Avatar>
-            <Typography
-              variant="caption"
-              sx={{
-                color: "white",
-                fontWeight: 700,
-                fontSize: { xs: "0.6rem", sm: "0.8rem" },
-                textTransform: "uppercase",
-                letterSpacing: 1,
-                textAlign: "center",
-                maxWidth: { xs: 60, sm: 100 },
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-              }}
-            >
-              {name}
-            </Typography>
-          </Box>
-
-          {/* Score & Timeouts */}
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-            }}
-          >
-            <Typography
-              sx={{
-                color: "white",
-                fontSize: { xs: "2rem", sm: "3.5rem" },
-                fontWeight: 900,
-                lineHeight: 1,
-                fontFamily: "'Inter', sans-serif",
-                mb: 1,
-              }}
-              aria-live="polite"
-              aria-label={`${name} score: ${score}`}
-            >
-              <AnimatedNumber value={score} />
-            </Typography>
-            <TimeoutDots
-              count={timeouts}
-              total={timeoutTotal}
-              data-testid={
-                isOpponent ? "opp-timeout-dots" : "team-timeout-dots"
-              }
-            />
-          </Box>
-        </Box>
-      );
-    };
 
     return (
       <Box
@@ -264,13 +178,14 @@ export const Scoreboard = React.memo(
         )}
 
         {/* Our Team */}
-        {renderTeamSection(
-          team?.name || "TEAM",
-          team?.logoUrl,
-          gameData.currentScore,
-          gameData.timeoutStats.teamTOL,
-          false,
-        )}
+        <TeamPanel
+          name={team?.name || "TEAM"}
+          logoUrl={team?.logoUrl}
+          score={gameData.currentScore}
+          timeouts={gameData.timeoutStats.teamTOL}
+          timeoutTotal={timeoutTotal}
+          isOpponent={false}
+        />
 
         {/* Center: Period, Clock, Bonus */}
         <Box
@@ -452,8 +367,17 @@ export const Scoreboard = React.memo(
             </Box>
           </Tooltip>
 
-          {/* Bonus Indicators */}
-          <Box sx={{ mt: 1.5, height: 20, display: "flex", gap: 2 }}>
+          {/* Defensive Momentum & Bonus Indicators */}
+          <Box
+            sx={{
+              mt: 1.5,
+              display: "flex",
+              alignItems: "center",
+              gap: 2,
+              minHeight: 24,
+            }}
+          >
+            {/* Team Bonus */}
             {gameData.teamFoulStats.teamBonusLabel && (
               <Typography
                 sx={{
@@ -466,6 +390,77 @@ export const Scoreboard = React.memo(
                 BONUS →
               </Typography>
             )}
+
+            {/* Defensive Momentum HUD */}
+            <Stack direction="row" spacing={1.5} alignItems="center">
+              <Tooltip title={`Total Defensive Stops: ${gameData.defensiveStats.totalStops}`}>
+                <Stack direction="row" spacing={0.5} alignItems="center">
+                  <Shield
+                    sx={{
+                      fontSize: "1rem",
+                      color: "primary.main",
+                      opacity: 0.8,
+                    }}
+                  />
+                  <Typography
+                    sx={{
+                      color: "white",
+                      fontSize: "0.75rem",
+                      fontWeight: 800,
+                      fontFamily: "'Inter', sans-serif",
+                    }}
+                  >
+                    {gameData.defensiveStats.totalStops}
+                  </Typography>
+                </Stack>
+              </Tooltip>
+
+              <Tooltip title={`Total Kills: ${gameData.defensiveStats.totalKills}`}>
+                <Stack direction="row" spacing={0.5} alignItems="center">
+                  <LocalFireDepartment
+                    sx={{
+                      fontSize: "1.1rem",
+                      color: "error.main",
+                      animation: gameData.defensiveStats.totalKills > 0 ? `${pulse} 2s infinite ease-in-out` : "none",
+                    }}
+                  />
+                  <Typography
+                    sx={{
+                      color: "white",
+                      fontSize: "0.85rem",
+                      fontWeight: 900,
+                      fontFamily: "'Inter', sans-serif",
+                    }}
+                  >
+                    {gameData.defensiveStats.totalKills}
+                  </Typography>
+                </Stack>
+              </Tooltip>
+
+              {/* Current Stop Streak Dots */}
+              <Stack direction="row" spacing={0.5}>
+                {[1, 2, 3].map((dot) => (
+                  <Box
+                    key={dot}
+                    sx={{
+                      width: 6,
+                      height: 6,
+                      borderRadius: "50%",
+                      bgcolor:
+                        gameData.defensiveStats.currentStreak >= dot
+                          ? "error.main"
+                          : "rgba(255,255,255,0.1)",
+                      boxShadow:
+                        gameData.defensiveStats.currentStreak >= dot
+                          ? `0 0 8px ${theme.palette.error.main}`
+                          : "none",
+                    }}
+                  />
+                ))}
+              </Stack>
+            </Stack>
+
+            {/* Opponent Bonus */}
             {gameData.teamFoulStats.oppBonusLabel && (
               <Typography
                 sx={{
@@ -482,13 +477,14 @@ export const Scoreboard = React.memo(
         </Box>
 
         {/* Opponent Team */}
-        {renderTeamSection(
-          game?.opponent || "OPPONENT",
-          game?.opponentLogoUrl,
-          gameData.opponentScore,
-          gameData.timeoutStats.oppTOL,
-          true,
-        )}
+        <TeamPanel
+          name={game?.opponent || "OPPONENT"}
+          logoUrl={game?.opponentLogoUrl}
+          score={gameData.opponentScore}
+          timeouts={gameData.timeoutStats.oppTOL}
+          timeoutTotal={timeoutTotal}
+          isOpponent={true}
+        />
       </Box>
     );
   },
