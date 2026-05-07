@@ -12,6 +12,7 @@ export const TeamStatsCard = React.memo(
     defensiveStats,
     teamPpp,
     oppPpp,
+    livePace,
   }: {
     defensiveStats: {
       totalStops: number;
@@ -20,6 +21,7 @@ export const TeamStatsCard = React.memo(
     };
     teamPpp: string;
     oppPpp: string;
+    livePace: number;
   }) => {
     return (
       <MoleskineCard>
@@ -112,6 +114,34 @@ export const TeamStatsCard = React.memo(
               </Typography>
               <Typography variant="h6" sx={{ fontWeight: 800 }}>
                 {oppPpp}
+              </Typography>
+            </Box>
+          </Grid>
+          <Grid item xs={12}>
+            <Box
+              sx={{
+                textAlign: "center",
+                p: 1.5,
+                bgcolor: "primary.main",
+                color: "white",
+                borderRadius: 2,
+                boxShadow: "0 4px 12px rgba(25, 118, 210, 0.2)",
+              }}
+            >
+              <Typography
+                variant="caption"
+                sx={{
+                  display: "block",
+                  fontWeight: 800,
+                  letterSpacing: 1,
+                  mb: 0.5,
+                  opacity: 0.9,
+                }}
+              >
+                LIVE PACE (POSS/40M)
+              </Typography>
+              <Typography variant="h4" sx={{ fontWeight: 900, lineHeight: 1 }}>
+                {livePace.toFixed(1)}
               </Typography>
             </Box>
           </Grid>

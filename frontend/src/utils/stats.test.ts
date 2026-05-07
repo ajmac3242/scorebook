@@ -20,6 +20,8 @@ import {
   calculateOpponentScoutingStats,
   calculatePlayEfficiency,
   calculateTeamSeasonAverages,
+  generateHalftimeTalkingPoints,
+  generatePracticePrescription,
 } from "./stats";
 import { TeamPlayer, StatEvent, Game } from "../db";
 import { ACTION_TYPES } from "../constants/stats";
@@ -1970,5 +1972,68 @@ describe("Overtime Period Grouping (Scout Bug 14)", () => {
     expect(isEventInPeriod(2, 2, "HALVES")).toBe(true);
     expect(isEventInPeriod(3, 2, "HALVES")).toBe(true); // OT in halves
     expect(isEventInPeriod(1, 2, "HALVES")).toBe(false);
+  });
+});
+
+describe("advanced analytics generation", () => {
+  it("generates halftime talking points correctly", () => {
+    const jerseyMap = new Map([
+      ["p1", "10"],
+      ["p2", "20"],
+    ]);
+    const params = {
+      teamPpp: "0.85",
+      seasonPpp: "1.05",
+      opponentThreats: [
+        {
+          playerId: "OPPONENT:24",
+          points: 15,
+          makes: 6,
+          consecutiveMakes: 3,
+          straightPoints: 6,
+          isHot: true,
+        },
+      ],
+      topLineups: [
+        {
+          lineup: ["p1", "p2"],
+          pointsFor: 10,
+          pointsAgainst: 2,
+          netRating: 8,
+          seconds: 300,
+          netRatingPer40: "64.0",
+        },
+      ],
+      jerseyMap,
+    };
+
+    const points = generateHalftimeTalkingPoints(params);
+    expect(points.length).toBe(3);
+    expect(points[0].type).toBe("OFFENSE");
+    expect(points[0].text).toContain("Efficiency is down");
+    expect(points[1].type).toBe("DEFENSE");
+    expect(points[1].text).toContain("Neutralize Opponent #24");
+    expect(points[2].type).toBe("LINEUP");
+    expect(points[2].text).toContain("Utilize Lineup [10,20]");
+  });
+
+  it("generates practice prescription correctly", () => {
+    const params = {
+      gameStats: [],
+      teamStats: { ftPct: "55.0", turnoverRate: "25.0", orebPct: "15.0" },
+      seasonAverages: { ftPct: "75.0", turnoverRate: "15.0", orebPct: "30.0" },
+    };
+
+    const prescription = generatePracticePrescription(params);
+    expect(prescription.length).toBe(3);
+    expect(prescription.find((p) => p.metric === "Free Throw %")?.drill).toBe(
+      "Pressure Free Throws",
+    );
+    expect(prescription.find((p) => p.metric === "Turnover Rate")?.drill).toBe(
+      "3-on-2 Transition Continuous",
+    );
+    expect(
+      prescription.find((p) => p.metric === "Offensive Rebound %")?.drill,
+    ).toBe("Find the Body / War Drill");
   });
 });

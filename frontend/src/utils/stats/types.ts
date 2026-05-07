@@ -13,6 +13,9 @@ export interface TeamAggregates {
   ppp: string;
   possessions: number;
   oppPpp: string;
+  ftPct: string;
+  turnoverRate: string;
+  orebPct: string;
 }
 
 export interface OpponentAggregates {
@@ -112,6 +115,20 @@ export interface HaltAlert {
   message: string;
   playerId?: string;
   jerseyNumber?: string;
+}
+
+export interface TalkingPoint {
+  type: "OFFENSE" | "DEFENSE" | "LINEUP";
+  text: string;
+  insight: string;
+}
+
+export interface PracticeFocusArea {
+  metric: string;
+  value: string;
+  average: string;
+  drill: string;
+  description: string;
 }
 
 export interface GameAnalyticsContext {

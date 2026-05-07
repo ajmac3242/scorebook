@@ -13,7 +13,15 @@ import {
   Divider,
   Chip,
 } from "@mui/material";
-import { LineupAggregates, OpponentThreat } from "../utils/stats";
+import {
+  LineupAggregates,
+  OpponentThreat,
+  generateHalftimeTalkingPoints,
+} from "../utils/stats";
+import {
+  Assignment as AssignmentIcon,
+  ContentCopy as CopyIcon,
+} from "@mui/icons-material";
 
 interface HalftimeReportDialogProps {
   open: boolean;
@@ -38,6 +46,25 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
   opponentThreats,
   jerseyMap,
 }) => {
+  const talkingPoints = React.useMemo(
+    () =>
+      generateHalftimeTalkingPoints({
+        teamPpp,
+        seasonPpp,
+        opponentThreats,
+        topLineups,
+        jerseyMap,
+      }),
+    [teamPpp, seasonPpp, opponentThreats, topLineups, jerseyMap],
+  );
+
+  const handleCopyTalkingPoints = () => {
+    const text = talkingPoints
+      .map((p) => `[${p.type}] ${p.text}\n${p.insight}`)
+      .join("\n\n");
+    navigator.clipboard.writeText(text);
+  };
+
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle
@@ -50,6 +77,74 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
         Halftime Tactical Report
       </DialogTitle>
       <DialogContent>
+        <Box sx={{ mb: 3 }}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              mb: 1,
+            }}
+          >
+            <Typography
+              variant="subtitle2"
+              sx={{
+                fontWeight: 800,
+                color: "primary.main",
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+              }}
+            >
+              <AssignmentIcon fontSize="small" /> HALFTIME TALKING POINTS
+            </Typography>
+            <Button
+              size="small"
+              startIcon={<CopyIcon />}
+              onClick={handleCopyTalkingPoints}
+              sx={{ fontSize: "0.65rem" }}
+            >
+              Copy
+            </Button>
+          </Box>
+          <Stack spacing={1.5} sx={{ mb: 3 }}>
+            {talkingPoints.map((p, idx) => (
+              <Box
+                key={idx}
+                sx={{
+                  p: 1.5,
+                  borderRadius: 2,
+                  bgcolor:
+                    p.type === "OFFENSE"
+                      ? "rgba(33, 150, 243, 0.05)"
+                      : p.type === "DEFENSE"
+                        ? "rgba(244, 67, 54, 0.05)"
+                        : "rgba(76, 175, 80, 0.05)",
+                  borderLeft: "4px solid",
+                  borderColor:
+                    p.type === "OFFENSE"
+                      ? "primary.main"
+                      : p.type === "DEFENSE"
+                        ? "error.main"
+                        : "success.main",
+                }}
+              >
+                <Typography
+                  variant="subtitle2"
+                  sx={{ fontWeight: 800, mb: 0.5 }}
+                >
+                  {p.text}
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  {p.insight}
+                </Typography>
+              </Box>
+            ))}
+          </Stack>
+        </Box>
+
+        <Divider sx={{ mb: 2 }} />
+
         <Box sx={{ mb: 3, textAlign: "center" }}>
           <Grid container spacing={2}>
             <Grid item xs={4}>

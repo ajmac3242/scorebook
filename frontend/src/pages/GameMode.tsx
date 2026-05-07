@@ -913,6 +913,7 @@ const GameMode: React.FC = () => {
               defensiveStats={gameData.defensiveStats}
               teamPpp={gameData.teamPpp}
               oppPpp={gameData.oppPpp}
+              livePace={gameData.livePace}
             />
 
             {trackingMode === "TEAM" && (

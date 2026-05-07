@@ -35,7 +35,7 @@
 - [ ] Visual alert in GameMode if team is shooting < 30% on "Early Clock" shots (suggesting poor shot selection).
 - [ ] Trend line showing how shot selection (Clock Phase) shifts during the 4th quarter.
 
-## [ ] Executive Halftime Talking Points Generator
+## [x] Executive Halftime Talking Points Generator
 **Priority:** HIGH
 **Type:** Feature
 **Why:** Halftime is only 10 minutes. Coaches need automated synthesis of complex data into 3 punchy, actionable directives for the locker room.
@@ -47,7 +47,7 @@
 - [ ] Generate 1 Lineup insight (e.g., "Lineup [A,B,C,D,E] is +12; use them to start the 3rd").
 - [ ] "Copy to Clipboard" button for quick sharing with assistants.
 
-## [ ] Integrated Practice Prescription Engine
+## [x] Integrated Practice Prescription Engine
 **Priority:** HIGH
 **Type:** Feature
 **Why:** The best coaches use game data to plan the next practice. This feature closes the loop by suggesting specific drills based on the team statistical failures.
@@ -72,7 +72,7 @@
 - [ ] Ensure all backend projections in `games.ts` align with frontend metadata needs (e.g., `isBookmarked`).
 - [ ] Ensure no source file exceeds ~300 lines unless logically unavoidable.
 
-## [ ] Real-Time "Pace & Pressure" Analytics HUD
+## [x] Real-Time "Pace & Pressure" Analytics HUD
 **Priority:** HIGH
 **Type:** UX
 **Why:** Losing control of the game's tempo is a primary cause of blown leads. Real-time monitoring of Pace (Possessions per 40m) and Shot-Clock Pressure ensures the team sticks to the "Winning Blueprint."
