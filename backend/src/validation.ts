@@ -98,6 +98,13 @@ export const VALID_SITUATIONS = Object.freeze(
 );
 
 /**
+ * Valid shot clock phases.
+ */
+export const VALID_SHOT_CLOCK_PHASES = Object.freeze(
+  new Set(["EARLY", "MID", "LATE"]),
+);
+
+/**
  * Validates a stat event body.
  * @param body - The stat event data to validate.
  * @returns {string | null} Error message or null if valid.
@@ -167,6 +174,19 @@ export function validateStatEvent(body: unknown): string | null {
     (typeof b.situation !== "string" || !VALID_SITUATIONS.has(b.situation))
   ) {
     return "Invalid situational context";
+  }
+  if (
+    b.shotClockPhase !== undefined &&
+    (typeof b.shotClockPhase !== "string" ||
+      !VALID_SHOT_CLOCK_PHASES.has(b.shotClockPhase))
+  ) {
+    return "Invalid shot clock phase";
+  }
+  if (
+    b.primaryDefenderId !== undefined &&
+    !isValidPlayerId(b.primaryDefenderId)
+  ) {
+    return "Invalid primary defender ID";
   }
   return null;
 }

@@ -62,6 +62,8 @@ import {
 } from "../utils/stats";
 import { MoleskineCard } from "../components/SharedUI";
 import EntityBanner from "../components/EntityBanner";
+import { OnOffImpactTable } from "../components/OnOffImpactTable";
+import { calculateOnOffStats, calculateMatchupStats, MatchupStat } from "../utils/stats/impact";
 import { syncService } from "../utils/syncService";
 import { logger } from "../utils/logger";
 import dayjs from "dayjs";
@@ -92,6 +94,7 @@ const GameStats: React.FC = () => {
   const gameId = searchParams.get("gameId") || undefined;
 
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<"standard" | "impact">("standard");
   const [selectedPlayerId, setSelectedPlayerId] = useState<number | string>(
     "ALL",
   );
@@ -575,6 +578,38 @@ const GameStats: React.FC = () => {
     }));
   }, [stats]);
 
+  const shotClockEfficiency = useMemo(() => {
+    const data: Record<string, { makes: number; attempts: number; points: number }> = {
+      EARLY: { makes: 0, attempts: 0, points: 0 },
+      MID: { makes: 0, attempts: 0, points: 0 },
+      LATE: { makes: 0, attempts: 0, points: 0 },
+    };
+
+    for (let i = 0; i < stats.length; i++) {
+      const s = stats[i];
+      if (
+        (s.type === ACTION_TYPES.MAKE || s.type === ACTION_TYPES.MISS) &&
+        s.shotClockPhase &&
+        data[s.shotClockPhase]
+      ) {
+        data[s.shotClockPhase].attempts++;
+        if (s.type === ACTION_TYPES.MAKE) {
+          data[s.shotClockPhase].makes++;
+          data[s.shotClockPhase].points += s.points || 0;
+        }
+      }
+    }
+
+    return Object.entries(data).map(([phase, stats]) => ({
+      phase,
+      ...stats,
+      efg:
+        stats.attempts > 0
+          ? ((stats.points / stats.attempts / 2) * 100).toFixed(1)
+          : "0.0",
+    }));
+  }, [stats]);
+
   const lineupStats = useMemo(() => {
     return calculateLineupStats(scoreFlowSortedStats, {
       isSorted: true,
@@ -587,6 +622,14 @@ const GameStats: React.FC = () => {
           : undefined,
     });
   }, [scoreFlowSortedStats, game, clutchFilter, team?.periodType]);
+
+  const onOffStats = useMemo(() => {
+    return calculateOnOffStats(scoreFlowSortedStats, players as { id: string; name: string }[]);
+  }, [scoreFlowSortedStats, players]);
+
+  const matchupStats = useMemo(() => {
+    return calculateMatchupStats(scoreFlowSortedStats, players as { id: string; name: string }[], shotChartJerseyMap);
+  }, [scoreFlowSortedStats, players, shotChartJerseyMap]);
 
   const defensiveStats = useMemo(() => {
     return calculateStopsAndKills(scoreFlowSortedStats);
@@ -1316,20 +1359,33 @@ const GameStats: React.FC = () => {
           gap: 2,
         }}
       >
-        <ToggleButtonGroup
-          value={periodFilter}
+        <Stack direction="row" spacing={2} alignItems="center">
+          <ToggleButtonGroup
+            value={activeTab}
+            exclusive
+            onChange={(_, val) => val && setActiveTab(val)}
+            size="small"
+            color="primary"
+          >
+            <ToggleButton value="standard">Standard</ToggleButton>
+            <ToggleButton value="impact">Impact (On/Off)</ToggleButton>
+          </ToggleButtonGroup>
+
+          <ToggleButtonGroup
+            value={periodFilter}
           exclusive
           onChange={(_, val) => val && setPeriodFilter(val)}
           size="small"
           fullWidth={Boolean(isMobile)}
           sx={{ flexGrow: isMobile ? 1 : 0 }}
         >
-          {periods.map((p) => (
-            <ToggleButton key={p} value={p}>
-              {p === "ALL" ? "Full Game" : `${periodLabel} ${p}`}
-            </ToggleButton>
-          ))}
-        </ToggleButtonGroup>
+            {periods.map((p) => (
+              <ToggleButton key={p} value={p}>
+                {p === "ALL" ? "Full Game" : `${periodLabel} ${p}`}
+              </ToggleButton>
+            ))}
+          </ToggleButtonGroup>
+        </Stack>
 
         <ToggleButton
           value="clutch"
@@ -1354,6 +1410,56 @@ const GameStats: React.FC = () => {
       </Box>
 
       <Grid container spacing={3}>
+        {activeTab === "impact" && (
+          <Grid item xs={12}>
+            <MoleskineCard>
+              <Typography variant="h6" sx={{ fontFamily: "var(--serif)", mb: 2 }}>
+                Team Impact Analytics (On/Off)
+              </Typography>
+              <OnOffImpactTable data={onOffStats} />
+            </MoleskineCard>
+          </Grid>
+        )}
+
+        {activeTab === "impact" && (
+          <Grid item xs={12}>
+            <MoleskineCard>
+              <Typography variant="h6" sx={{ fontFamily: "var(--serif)", mb: 2 }}>
+                Matchup Accountability (Points Allowed)
+              </Typography>
+              <TableContainer component={Box}>
+                <Table size="small">
+                    <TableHead>
+                        <TableRow sx={{ bgcolor: "rgba(0,0,0,0.02)" }}>
+                            <TableCell sx={{ fontWeight: 700 }}>Opponent</TableCell>
+                            <TableCell sx={{ fontWeight: 700 }}>Primary Defender</TableCell>
+                            <TableCell align="right" sx={{ fontWeight: 700 }}>PTS Allowed</TableCell>
+                            <TableCell align="right" sx={{ fontWeight: 700 }}>Stops</TableCell>
+                            <TableCell align="right" sx={{ fontWeight: 700 }}>Stop %</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {matchupStats.map((m, idx) => (
+                            <TableRow key={idx}>
+                                <TableCell>Opponent #{m.opponentJersey}</TableCell>
+                                <TableCell>{m.defenderName}</TableCell>
+                                <TableCell align="right">{m.pointsAllowed}</TableCell>
+                                <TableCell align="right">{m.stops}</TableCell>
+                                <TableCell align="right" sx={{ fontWeight: 700 }}>{m.stopPct}%</TableCell>
+                            </TableRow>
+                        ))}
+                        {matchupStats.length === 0 && (
+                            <TableRow>
+                                <TableCell colSpan={5} align="center">No matchup data recorded.</TableCell>
+                            </TableRow>
+                        )}
+                    </TableBody>
+                </Table>
+              </TableContainer>
+            </MoleskineCard>
+          </Grid>
+        )}
+
         {/* Defensive Metrics Card */}
         <Grid item xs={12}>
           <MoleskineCard>
@@ -1578,6 +1684,45 @@ const GameStats: React.FC = () => {
         {/* Efficiency Analytics Card */}
         <Grid item xs={12}>
           <Grid container spacing={3}>
+            <Grid item xs={12} md={4}>
+              <MoleskineCard>
+                <Typography
+                  variant="h6"
+                  sx={{ fontFamily: "var(--serif)", mb: 2 }}
+                >
+                  Shot Rhythm (Clock)
+                </Typography>
+                <TableContainer>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow sx={{ bgcolor: "rgba(0,0,0,0.02)" }}>
+                        <TableCell sx={{ fontWeight: 700 }}>Phase</TableCell>
+                        <TableCell align="right" sx={{ fontWeight: 700 }}>
+                          Freq
+                        </TableCell>
+                        <TableCell align="right" sx={{ fontWeight: 700 }}>
+                          PTS
+                        </TableCell>
+                        <TableCell align="right" sx={{ fontWeight: 700 }}>
+                          eFG%
+                        </TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {shotClockEfficiency.map((p) => (
+                        <TableRow key={p.phase}>
+                          <TableCell sx={{ fontWeight: 600 }}>{p.phase}</TableCell>
+                          <TableCell align="right">{p.attempts}</TableCell>
+                          <TableCell align="right">{p.points}</TableCell>
+                          <TableCell align="right">{p.efg}%</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </MoleskineCard>
+            </Grid>
+
             <Grid item xs={12} md={4}>
               <MoleskineCard>
                 <Typography

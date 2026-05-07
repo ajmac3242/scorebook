@@ -209,6 +209,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     let foundLastTeamScore = false;
 
     const threats = new Map<string, OpponentThreat>();
+    let possessionStartClock = periodLen;
 
     for (const s of sortedGameStats) {
       if (s.deletedAt) continue;
@@ -260,7 +261,10 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
         else teamTimeouts++;
       }
 
-      if (s.type === ACTION_TYPES.POSSESSION) posState = s.playerId;
+      if (s.type === ACTION_TYPES.POSSESSION) {
+        posState = s.playerId;
+        possessionStartClock = s.clockTime ?? periodLen;
+      }
 
       if (isOpp) {
         if (s.type === ACTION_TYPES.MISS) {
@@ -271,8 +275,11 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
             if (t) t.consecutiveMakes = 0;
           }
         } else if (s.type === ACTION_TYPES.OFF_REBOUND) oppOreb++;
-        else if (s.type === ACTION_TYPES.TURNOVER) oppTo++;
-        else if (s.type === ACTION_TYPES.MAKE && s.points && s.points > 1) {
+        if (s.type === ACTION_TYPES.TURNOVER) {
+          oppTo++;
+          possessionStartClock = s.clockTime ?? periodLen;
+        } else if (s.type === ACTION_TYPES.MAKE && s.points && s.points > 1) {
+          possessionStartClock = s.clockTime ?? periodLen;
           let t = threats.get(s.playerId);
           if (!t) {
             t = {
@@ -294,8 +301,15 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
         if (s.type === ACTION_TYPES.MISS) {
           if (s.points === 1) teamFta++;
           else teamFga++;
-        } else if (s.type === ACTION_TYPES.OFF_REBOUND) teamOreb++;
-        else if (s.type === ACTION_TYPES.TURNOVER) teamTo++;
+        } else if (s.type === ACTION_TYPES.OFF_REBOUND) {
+          teamOreb++;
+          possessionStartClock = s.clockTime ?? periodLen;
+        } else if (s.type === ACTION_TYPES.TURNOVER) {
+          teamTo++;
+          possessionStartClock = s.clockTime ?? periodLen;
+        } else if (s.type === ACTION_TYPES.MAKE && s.points && s.points > 1) {
+          possessionStartClock = s.clockTime ?? periodLen;
+        }
       }
 
       if (s.type === ACTION_TYPES.SUB_IN) {
@@ -395,6 +409,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       lastTeamScoreClockTime,
       lastTeamScorePeriod,
       foundLastTeamScore,
+      possessionStartClock,
       recentStats: sortedGameStats
         .filter((s) => !s.deletedAt)
         .slice(-10)
@@ -731,6 +746,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     jerseyMap,
     sortedStatsGridData,
     statsMap,
+    matchups: game?.matchups || {},
     opponentStats,
     halftimeLineupStats,
     playerStreaks,
