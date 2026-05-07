@@ -169,120 +169,120 @@ export const PlayerStatsTable: React.FC<PlayerStatsTableProps> = ({
         component={MoleskineCard}
         sx={{
           mx: { xs: -2, sm: 0 },
-          width: { xs: \"calc(100% + 32px)\", sm: \"100%\" },
+          width: { xs: "calc(100% + 32px)", sm: "100%" },
         }}
       >
         <Table size="small">
           <TableHead>
-            <TableRow sx={{ bgcolor: \"rgba(0,0,0,0.02)\" }}>
+            <TableRow sx={{ bgcolor: "rgba(0,0,0,0.02)" }}>
               <SortableHeader
-                label=\"#\"
-                sortKey=\"jerseyNumber\"
+                label="#"
+                sortKey="jerseyNumber"
                 hideOnMobile
                 sortConfig={sortConfig}
                 onSort={handleSort}
               />
               <SortableHeader
-                label=\"PLAYER\"
-                sortKey=\"name\"
-                align=\"left\"
+                label="PLAYER"
+                sortKey="name"
+                align="left"
                 sortConfig={sortConfig}
                 onSort={handleSort}
               />
               <SortableHeader
-                label=\"GP\"
-                sortKey=\"gp\"
-                align=\"center\"
+                label="GP"
+                sortKey="gp"
+                align="center"
                 hideOnMobile
                 sortConfig={sortConfig}
                 onSort={handleSort}
-                tooltip=\"Games Played\"
+                tooltip="Games Played"
               />
               <SortableHeader
-                label=\"MIN\"
-                sortKey=\"min\"
+                label="MIN"
+                sortKey="min"
                 sortConfig={sortConfig}
                 onSort={handleSort}
-                tooltip=\"Minutes Played\"
+                tooltip="Minutes Played"
               />
               <SortableHeader
                 label={STAT_ACRONYMS.POINTS}
-                sortKey=\"points\"
+                sortKey="points"
                 sortConfig={sortConfig}
                 onSort={handleSort}
-                tooltip=\"Points\"
+                tooltip="Points"
               />
               <SortableHeader
                 label={STAT_ACRONYMS.THREE_POINTERS_MADE}
-                sortKey=\"threePM\"
+                sortKey="threePM"
                 sortConfig={sortConfig}
                 onSort={handleSort}
-                tooltip=\"3-Pointers Made\"
+                tooltip="3-Pointers Made"
               />
               <SortableHeader
                 label={STAT_ACRONYMS.THREE_POINTERS_ATTEMPTED}
-                sortKey=\"threePA\"
+                sortKey="threePA"
                 sortConfig={sortConfig}
                 onSort={handleSort}
-                tooltip=\"3-Pointers Attempted\"
+                tooltip="3-Pointers Attempted"
               />
               <SortableHeader
                 label={STAT_ACRONYMS.THREE_POINTER_PERCENTAGE}
-                sortKey=\"threePPct\"
+                sortKey="threePPct"
                 sortConfig={sortConfig}
                 onSort={handleSort}
-                tooltip=\"3-Pointer Percentage\"
+                tooltip="3-Pointer Percentage"
               />
               <SortableHeader
-                label=\"FG%\"
-                sortKey=\"fgPct\"
+                label="FG%"
+                sortKey="fgPct"
                 sortConfig={sortConfig}
                 onSort={handleSort}
-                tooltip=\"Field Goal Percentage\"
+                tooltip="Field Goal Percentage"
               />
               <SortableHeader
-                label=\"eFG%\"
-                sortKey=\"efgPct\"
+                label="eFG%"
+                sortKey="efgPct"
                 sortConfig={sortConfig}
                 onSort={handleSort}
-                tooltip=\"Effective Field Goal Percentage\"
+                tooltip="Effective Field Goal Percentage"
               />
               <SortableHeader
                 label={STAT_ACRONYMS.REBOUNDS}
-                sortKey=\"rebounds\"
+                sortKey="rebounds"
                 sortConfig={sortConfig}
                 onSort={handleSort}
-                tooltip=\"Rebounds\"
+                tooltip="Rebounds"
               />
               <SortableHeader
                 label={STAT_ACRONYMS.ASSISTS}
-                sortKey=\"assists\"
+                sortKey="assists"
                 sortConfig={sortConfig}
                 onSort={handleSort}
-                tooltip=\"Assists\"
+                tooltip="Assists"
               />
               <SortableHeader
                 label={STAT_ACRONYMS.STEALS}
-                sortKey=\"steals\"
+                sortKey="steals"
                 hideOnMobile
                 sortConfig={sortConfig}
                 onSort={handleSort}
-                tooltip=\"Steals\"
+                tooltip="Steals"
               />
               <SortableHeader
                 label={STAT_ACRONYMS.TURNOVERS}
-                sortKey=\"turnovers\"
+                sortKey="turnovers"
                 hideOnMobile
                 sortConfig={sortConfig}
                 onSort={handleSort}
-                tooltip=\"Turnovers\"
+                tooltip="Turnovers"
               />
               <SortableHeader
-                label=\"+/-\"
-                sortKey=\"plusMinus\"
+                label="+/-"
+                sortKey="plusMinus"
                 sortConfig={sortConfig}
                 onSort={handleSort}
-                tooltip=\"Plus/Minus\"
+                tooltip="Plus/Minus"
               />
             </TableRow>
           </TableHead>

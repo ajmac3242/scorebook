@@ -254,7 +254,7 @@ class SyncService {
         await table
           .where("id")
           .anyOf(successIds)
-          .modify((obj: any) => {
+          .modify((obj: T) => {
             obj.synced = 1;
           });
       }

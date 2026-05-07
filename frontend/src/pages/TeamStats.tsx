@@ -55,7 +55,6 @@ import {
 import { Stepper, Step, StepLabel } from "@mui/material";
 import { db, type TeamPlayer, type StatEvent } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
-import { STAT_ACRONYMS } from "../constants/stats";
 import {
   calculatePlayerAggregates,
   calculateTeamAggregates,
@@ -71,7 +70,6 @@ import { useGames } from "../hooks/useGames";
 import { usePlayers } from "../hooks/usePlayers";
 import dayjs from "dayjs";
 import SortableHeader from "../components/SortableHeader";
-import { type PlayerAggregates } from "../utils/stats";
 
 /**
  * TeamStats page component.
