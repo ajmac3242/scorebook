@@ -65,6 +65,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
   const navigate = useNavigate();
   const [isSearchExpanded, setIsSearchExpanded] = React.useState(false);
   const [showSyncSuccess, setShowSyncSuccess] = React.useState(false);
+  const searchButtonRef = React.useRef<HTMLButtonElement>(null);
 
   const showSearch = onSearchChange !== undefined;
 
@@ -72,6 +73,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape" && isSearchExpanded) {
         setIsSearchExpanded(false);
+        searchButtonRef.current?.focus();
       }
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -296,8 +298,10 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
           >
             <Tooltip title={isSearchExpanded ? "Close search" : "Search"}>
               <IconButton
+                ref={searchButtonRef}
                 aria-label={isSearchExpanded ? "close search" : "search"}
                 aria-expanded={isSearchExpanded}
+                aria-controls="entity-search-field"
                 onClick={() => setIsSearchExpanded(!isSearchExpanded)}
                 sx={{ color: "white", flexShrink: 0 }}
               >
@@ -310,6 +314,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
             </Tooltip>
             {isSearchExpanded && (
               <TextField
+                id="entity-search-field"
                 autoFocus
                 variant="standard"
                 placeholder="Search..."

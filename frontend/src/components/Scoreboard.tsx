@@ -122,6 +122,8 @@ export const Scoreboard = React.memo(
         {/* HALT Alerts Overlay */}
         {haltAlerts.length > 0 && (
           <Box
+            role="alert"
+            aria-live="assertive"
             sx={{
               position: "absolute",
               top: 0,
@@ -241,7 +243,13 @@ export const Scoreboard = React.memo(
                 </Stack>
               )}
               {gameData.momentumAlerts.opponentThreats.map((t) => (
-                <Stack key={t.playerId} spacing={0.5} alignItems="center">
+                <Stack
+                  key={t.playerId}
+                  spacing={0.5}
+                  alignItems="center"
+                  role="status"
+                  aria-live="polite"
+                >
                   <Typography
                     variant="caption"
                     sx={{

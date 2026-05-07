@@ -161,6 +161,7 @@ const Navigation: React.FC = () => {
           role="status"
           aria-live="polite"
           aria-busy="true"
+          aria-label="Synchronizing data with the server"
           sx={{
             position: "fixed",
             top: 80,
@@ -246,6 +247,8 @@ const Navigation: React.FC = () => {
 
           {/* Central Navigation Pill Container */}
           <Box
+            component="nav"
+            aria-label="Main Navigation"
             sx={{
               position: "absolute",
               left: "50%",

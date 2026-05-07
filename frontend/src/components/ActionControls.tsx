@@ -102,6 +102,7 @@ export const ActionControls = React.memo(
               onClick={onQuickSub}
               disabled={isReadOnly}
               aria-label="manage lineup substitutions"
+              aria-haspopup="dialog"
             >
               Sub
             </Button>
@@ -114,6 +115,7 @@ export const ActionControls = React.memo(
               size="small"
               onClick={() => onAuditSubs()}
               aria-label="audit substitutions history"
+              aria-haspopup="dialog"
               sx={{
                 border: "1px solid rgba(0,0,0,0.23)",
                 borderRadius: "4px",
@@ -149,6 +151,7 @@ export const ActionControls = React.memo(
               onClick={() => onFtWorkflow()}
               disabled={isReadOnly}
               aria-label="record free throws"
+              aria-haspopup="dialog"
             >
               FT
             </Button>
@@ -169,7 +172,11 @@ export const ActionControls = React.memo(
               startIcon={<UndoIcon />}
               onClick={onUndo}
               disabled={recentStatsLength === 0 || isReadOnly}
-              aria-label="undo last action"
+              aria-label={
+                recentStatsLength === 0
+                  ? "undo last action (no actions to undo)"
+                  : "undo last action"
+              }
             >
               Undo
             </Button>

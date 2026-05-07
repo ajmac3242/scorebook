@@ -229,9 +229,10 @@ const Players: React.FC = () => {
                   boxShadow: "0 8px 24px rgba(0,0,0,0.2)",
                 },
                 "&:focus-visible": {
-                  outline: "4px solid #fff",
+                  outline: "4px solid rgba(255,255,255,0.8)",
                   outlineOffset: "2px",
                   transform: "translateY(-4px)",
+                  boxShadow: `0 12px 32px rgba(0,0,0,0.3), 0 0 0 8px ${player.avatarColor}44`,
                 },
                 display: "flex",
                 flexDirection: "column",
@@ -475,17 +476,18 @@ const Players: React.FC = () => {
                 showValidation && !name.trim()
                   ? "player-name-error"
                   : undefined,
+              "aria-required": "true",
             }}
             required
             disabled={isSubmitting}
           />
-          <Typography variant="subtitle2" gutterBottom>
+          <Typography variant="subtitle2" gutterBottom id="avatar-color-label">
             Avatar Color
           </Typography>
           <Box
             sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}
             role="radiogroup"
-            aria-label="Select avatar color"
+            aria-labelledby="avatar-color-label"
           >
             {AVATAR_COLORS.map((color) => (
               <Tooltip key={color} title={`Select ${color.toUpperCase()}`}>

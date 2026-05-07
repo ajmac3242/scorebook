@@ -129,11 +129,13 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
       }
     };
 
+    const timeInfo = `${periodLabel} ${stat.period || 1}${stat.clockTime !== undefined ? ` at ${formatClock(stat.clockTime)}` : ""}`;
+
     return (
       <Box
         role="button"
         tabIndex={0}
-        aria-label={`Action: ${playerName} ${stat.type}. Click to edit.`}
+        aria-label={`Action: ${playerName} ${stat.type} during ${timeInfo}. Click to edit.`}
         onClick={() => onEdit(stat)}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
@@ -162,6 +164,7 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
             outlineOffset: "-2px",
             borderRadius: "4px",
             bgcolor: "rgba(0, 0, 0, 0.05)",
+            boxShadow: `0 0 0 4px ${theme.palette.primary.main}22`,
           },
         }}
       >

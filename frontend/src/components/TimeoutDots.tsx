@@ -39,7 +39,9 @@ const TimeoutDots: React.FC<TimeoutDotsProps> = ({
           key={i}
           data-testid={isActive ? "timeout-dot-active" : "timeout-dot-inactive"}
           role="img"
-          aria-label={isActive ? "Timeout remaining" : "Timeout used"}
+          aria-label={
+            isActive ? `Timeout ${i + 1} remaining` : `Timeout ${i + 1} used`
+          }
           sx={{
             width: { xs: 6, sm: 8 },
             height: { xs: 6, sm: 8 },
