@@ -60,7 +60,7 @@ import FreeThrowWorkflowDialog from "../components/FreeThrowWorkflowDialog";
 import HalftimeReportDialog from "../components/HalftimeReportDialog";
 import PlaybookEfficiencyWidget from "../components/PlaybookEfficiencyWidget";
 import { PlayerStatRow } from "../components/PlayerStatRow";
-import { db, type StatEvent } from "../db";
+import { db, type StatEvent, type Player, type Game, type Team } from "../db";
 import { syncService } from "../utils/syncService";
 import { logger } from "../utils/logger";
 import {
@@ -68,7 +68,7 @@ import {
   SPECIAL_PLAYER_IDS,
   SHOT_QUALITY,
 } from "../constants/stats";
-import { type PlayerAggregates } from "../utils/stats";
+import { type PlayerAggregates, getPlayerDisplayName } from "../utils/stats";
 import { formatClock, formatPlusMinus } from "../utils/mathUtils";
 import { MoleskineCard } from "../components/SharedUI";
 
@@ -1002,147 +1002,27 @@ const GameMode: React.FC = () => {
                   >
                     {players
                       .filter((p) => gameData.onCourtIds.has(p.id!))
-                      .map((p) => {
-                        const s = statsMap.get(p.id!);
-                        const pf = s?.fouls || 0;
-                        const foulLimit =
-                          game?.foulLimit || team?.defaultFoulLimit || 5;
-                        const isFoulTrouble = pf === foulLimit - 1;
-                        const isFouledOut = pf >= foulLimit;
-
-                        const curPeriodKey = `P${period}`;
-                        const periodFoulLimit =
-                          team?.foulWarningThresholds?.[curPeriodKey] || 99;
-                        const pfSincePeriodStart =
-                          gameData.onCourtPeriodFouls.get(p.id!) || 0;
-
-                        const isFoulTroubleInPeriod =
-                          pfSincePeriodStart >= periodFoulLimit;
-
-                        const stintSecs =
-                          gameData.stintDurations.get(p.id!) || 0;
-                        const isFatigued =
-                          stintSecs > (team?.maxStintDuration || 8) * 60;
-
-                        return (
-                          <Box
-                            key={p.id}
-                            sx={{
-                              display: "flex",
-                              gap: 0.5,
-                              alignItems: "center",
-                            }}
-                          >
-                            <Button
-                              fullWidth
-                              disabled={isReadOnly}
-                              variant="contained"
-                              onClick={() => {
-                                setSubOutPlayerId(p.id!);
-                                setIsSubDialogOpen(true);
-                              }}
-                              sx={{
-                                justifyContent: "flex-start",
-                                px: 1,
-                                bgcolor: isFouledOut
-                                  ? "error.main"
-                                  : isFoulTrouble || isFoulTroubleInPeriod
-                                    ? "warning.main"
-                                    : "primary.main",
-                                color: "white",
-                                borderWidth: "1.5px",
-                                animation:
-                                  isFoulTrouble ||
-                                  isFouledOut ||
-                                  isFoulTroubleInPeriod
-                                    ? `${pulse} 2s infinite ease-in-out`
-                                    : "none",
-                                "&.Mui-disabled": {
-                                  bgcolor: isFouledOut
-                                    ? "error.main"
-                                    : isFoulTrouble
-                                      ? "warning.main"
-                                      : "primary.main",
-                                  color: "white",
-                                },
-                              }}
-                            >
-                              <Avatar
-                                sx={{
-                                  width: 24,
-                                  height: 24,
-                                  mr: 1,
-                                  bgcolor: "white",
-                                  color: "primary.main",
-                                  fontSize: "0.7rem",
-                                  fontWeight: 700,
-                                }}
-                              >
-                                {jerseyMap.get(p.id!)}
-                              </Avatar>
-                              <Box sx={{ flex: 1, textAlign: "left" }}>
-                                <Typography
-                                  variant="caption"
-                                  sx={{
-                                    fontWeight: 700,
-                                    display: "block",
-                                    lineHeight: 1,
-                                  }}
-                                >
-                                  {p.name}
-                                  {isFatigued && (
-                                    <Tooltip
-                                      title={`Fatigue Alert: Exceeded ${team?.maxStintDuration || 8} mins`}
-                                    >
-                                      <Box
-                                        component="span"
-                                        sx={{ ml: 0.5, fontSize: "0.8rem" }}
-                                      >
-                                        ⚠️
-                                      </Box>
-                                    </Tooltip>
-                                  )}
-                                </Typography>
-                                <Typography
-                                  variant="caption"
-                                  sx={{ fontSize: "0.6rem", opacity: 0.8 }}
-                                >
-                                  {s?.points} pts | {s?.rebounds} reb |{" "}
-                                  {s?.fouls} pf |{" "}
-                                  {(() => {
-                                    const maxStint =
-                                      (team?.maxStintDuration || 8) * 60;
-                                    const color =
-                                      stintSecs > maxStint
-                                        ? theme.palette.error.main
-                                        : stintSecs > maxStint * 0.75
-                                          ? theme.palette.warning.main
-                                          : "inherit";
-                                    return (
-                                      <Box component="span" sx={{ color }}>
-                                        {formatClock(stintSecs)}
-                                      </Box>
-                                    );
-                                  })()}
-                                </Typography>
-                              </Box>
-                              {playerStreaks.get(p.id!) === "HOT" && (
-                                <Box sx={{ fontSize: "0.8rem", ml: 0.5 }}>
-                                  🔥
-                                </Box>
-                              )}
-                              {isFouledOut && (
-                                <Chip
-                                  label="OUT"
-                                  size="small"
-                                  color="error"
-                                  sx={{ height: 16, fontSize: "0.5rem" }}
-                                />
-                              )}
-                            </Button>
-                          </Box>
-                        );
-                      })}
+                      .map((p) => (
+                        <LineupPlayerButton
+                          key={p.id}
+                          player={p}
+                          stats={statsMap.get(p.id!)}
+                          jerseyNumber={jerseyMap.get(p.id!) || ""}
+                          isReadOnly={isReadOnly}
+                          period={period}
+                          game={game}
+                          team={team}
+                          stintSecs={gameData.stintDurations.get(p.id!) || 0}
+                          periodFouls={
+                            gameData.onCourtPeriodFouls.get(p.id!) || 0
+                          }
+                          streak={playerStreaks.get(p.id!)}
+                          onClick={() => {
+                            setSubOutPlayerId(p.id!);
+                            setIsSubDialogOpen(true);
+                          }}
+                        />
+                      ))}
                     {Array.from({
                       length: Math.max(0, 5 - gameData.onCourtIds.size),
                     }).map((_, i) => {
@@ -1558,38 +1438,26 @@ const GameMode: React.FC = () => {
                     </Typography>
                   </Box>
                 ) : (
-                  gameData.recentStats.map((s, index) => {
-                    let playerName =
-                      playerNamesMap.get(s.playerId) || "Unknown";
-                    if (s.playerId === SPECIAL_PLAYER_IDS.OPPONENT) {
-                      playerName = game?.opponent || "Opponent";
-                    } else if (
-                      s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":")
-                    ) {
-                      playerName = `${game?.opponent || "Opponent"} #${s.playerId.split(":")[1]}`;
-                    } else if (
-                      s.playerId === SPECIAL_PLAYER_IDS.TEAM_TIMEOUT ||
-                      s.playerId === SPECIAL_PLAYER_IDS.OUR_TEAM
-                    ) {
-                      playerName = team?.name || "Our Team";
-                    }
-
-                    return (
-                      <RecentActionItem
-                        key={s.id}
-                        stat={s}
-                        playerName={playerName}
-                        periodLabel={periodLabel}
-                        isReadOnly={isReadOnly}
-                        isLatest={index === 0}
-                        onEdit={openEditDialog}
-                        onDelete={(id) => {
-                          setStatToDelete(id);
-                          setIsDeleteDialogOpen(true);
-                        }}
-                      />
-                    );
-                  })
+                  gameData.recentStats.map((s, index) => (
+                    <RecentActionItem
+                      key={s.id}
+                      stat={s}
+                      playerName={getPlayerDisplayName(
+                        s.playerId,
+                        playerNamesMap,
+                        game?.opponent,
+                        team?.name,
+                      )}
+                      periodLabel={periodLabel}
+                      isReadOnly={isReadOnly}
+                      isLatest={index === 0}
+                      onEdit={openEditDialog}
+                      onDelete={(id) => {
+                        setStatToDelete(id);
+                        setIsDeleteDialogOpen(true);
+                      }}
+                    />
+                  ))
                 )}
               </Stack>
             </MoleskineCard>
@@ -1648,10 +1516,12 @@ const GameMode: React.FC = () => {
             <Box>
               <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
                 {selectedPlayerId
-                  ? trackingMode === "OPPONENT"
-                    ? game?.opponent || "Opponent"
-                    : players.find((p) => p.id === selectedPlayerId)?.name ||
-                      "Unknown Player"
+                  ? getPlayerDisplayName(
+                      selectedPlayerId,
+                      playerNamesMap,
+                      game?.opponent,
+                      team?.name,
+                    )
                   : "Select a player..."}
               </Typography>
               <Typography variant="caption" color="text.secondary">
@@ -1675,69 +1545,42 @@ const GameMode: React.FC = () => {
               mb: 3,
             }}
           >
-            <QuickAction
-              type={ACTION_TYPES.MAKE}
-              label="Make"
-              icon={Check}
-              statType={statType}
-              setStatType={setStatType}
-            />
-            <QuickAction
-              type={ACTION_TYPES.MISS}
-              label="Miss"
-              icon={Close}
-              statType={statType}
-              setStatType={setStatType}
-            />
-            <QuickAction
-              type={ACTION_TYPES.OFF_REBOUND}
-              label="Off Reb"
-              icon={SportsBasketball}
-              statType={statType}
-              setStatType={setStatType}
-            />
-            <QuickAction
-              type={ACTION_TYPES.DEF_REBOUND}
-              label="Def Reb"
-              icon={SportsBasketball}
-              statType={statType}
-              setStatType={setStatType}
-            />
-            <QuickAction
-              type={ACTION_TYPES.ASSIST}
-              label="Assist"
-              icon={PanTool}
-              statType={statType}
-              setStatType={setStatType}
-            />
-            <QuickAction
-              type={ACTION_TYPES.TURNOVER}
-              label="Turnover"
-              icon={SwapHoriz}
-              statType={statType}
-              setStatType={setStatType}
-            />
-            <QuickAction
-              type={ACTION_TYPES.STEAL}
-              label="Steal"
-              icon={FlashOn}
-              statType={statType}
-              setStatType={setStatType}
-            />
-            <QuickAction
-              type={ACTION_TYPES.BLOCK}
-              label="Block"
-              icon={ArrowBack}
-              statType={statType}
-              setStatType={setStatType}
-            />
-            <QuickAction
-              type={ACTION_TYPES.FOUL_SHOOTING}
-              label="S. Foul"
-              icon={Warning}
-              statType={statType}
-              setStatType={setStatType}
-            />
+            {[
+              { type: ACTION_TYPES.MAKE, label: "Make", icon: Check },
+              { type: ACTION_TYPES.MISS, label: "Miss", icon: Close },
+              {
+                type: ACTION_TYPES.OFF_REBOUND,
+                label: "Off Reb",
+                icon: SportsBasketball,
+              },
+              {
+                type: ACTION_TYPES.DEF_REBOUND,
+                label: "Def Reb",
+                icon: SportsBasketball,
+              },
+              { type: ACTION_TYPES.ASSIST, label: "Assist", icon: PanTool },
+              {
+                type: ACTION_TYPES.TURNOVER,
+                label: "Turnover",
+                icon: SwapHoriz,
+              },
+              { type: ACTION_TYPES.STEAL, label: "Steal", icon: FlashOn },
+              { type: ACTION_TYPES.BLOCK, label: "Block", icon: ArrowBack },
+              {
+                type: ACTION_TYPES.FOUL_SHOOTING,
+                label: "S. Foul",
+                icon: Warning,
+              },
+            ].map((action) => (
+              <QuickAction
+                key={action.type}
+                type={action.type}
+                label={action.label}
+                icon={action.icon}
+                statType={statType}
+                setStatType={setStatType}
+              />
+            ))}
           </Box>
 
           {trackingMode === "TEAM" && (
@@ -2239,7 +2082,7 @@ const QuickAction: React.FC<{
   statType: string | null;
   setStatType: (_type: string | null) => void;
 }> = React.memo(({ type, label, icon: Icon, statType, setStatType }) => (
-  <Tooltip title={label}>
+  <Tooltip title={label || ""}>
     <Button
       variant={statType === type ? "contained" : "outlined"}
       color="inherit"
@@ -2262,5 +2105,141 @@ const QuickAction: React.FC<{
     </Button>
   </Tooltip>
 ));
+
+const LineupPlayerButton: React.FC<{
+  player: Player;
+  stats: PlayerAggregates | undefined;
+  jerseyNumber: string;
+  isReadOnly: boolean;
+  period: number;
+  game: Game | null;
+  team: Team | null;
+  stintSecs: number;
+  periodFouls: number;
+  streak: string | undefined;
+  onClick: () => void;
+}> = React.memo(
+  ({
+    player,
+    stats,
+    jerseyNumber,
+    isReadOnly,
+    period,
+    game,
+    team,
+    stintSecs,
+    periodFouls,
+    streak,
+    onClick,
+  }) => {
+    const theme = useTheme();
+    const pf = stats?.fouls || 0;
+    const foulLimit = game?.foulLimit || team?.defaultFoulLimit || 5;
+    const isFoulTrouble = pf === foulLimit - 1;
+    const isFouledOut = pf >= foulLimit;
+
+    const curPeriodKey = `P${period}`;
+    const periodFoulLimit = team?.foulWarningThresholds?.[curPeriodKey] || 99;
+    const isFoulTroubleInPeriod = periodFouls >= periodFoulLimit;
+
+    const maxStint = (team?.maxStintDuration || 8) * 60;
+    const isFatigued = stintSecs > maxStint;
+
+    return (
+      <Box sx={{ display: "flex", gap: 0.5, alignItems: "center" }}>
+        <Button
+          fullWidth
+          disabled={isReadOnly}
+          variant="contained"
+          onClick={onClick}
+          sx={{
+            justifyContent: "flex-start",
+            px: 1,
+            bgcolor: isFouledOut
+              ? "error.main"
+              : isFoulTrouble || isFoulTroubleInPeriod
+                ? "warning.main"
+                : "primary.main",
+            color: "white",
+            borderWidth: "1.5px",
+            animation:
+              isFoulTrouble || isFouledOut || isFoulTroubleInPeriod
+                ? `${pulse} 2s infinite ease-in-out`
+                : "none",
+            "&.Mui-disabled": {
+              bgcolor: isFouledOut
+                ? "error.main"
+                : isFoulTrouble
+                  ? "warning.main"
+                  : "primary.main",
+              color: "white",
+            },
+          }}
+        >
+          <Avatar
+            sx={{
+              width: 24,
+              height: 24,
+              mr: 1,
+              bgcolor: "white",
+              color: "primary.main",
+              fontSize: "0.7rem",
+              fontWeight: 700,
+            }}
+          >
+            {jerseyNumber}
+          </Avatar>
+          <Box sx={{ flex: 1, textAlign: "left" }}>
+            <Typography
+              variant="caption"
+              sx={{ fontWeight: 700, display: "block", lineHeight: 1 }}
+            >
+              {player.name}
+              {isFatigued && (
+                <Tooltip
+                  title={`Fatigue Alert: Exceeded ${maxStint / 60} mins`}
+                >
+                  <Box component="span" sx={{ ml: 0.5, fontSize: "0.8rem" }}>
+                    ⚠️
+                  </Box>
+                </Tooltip>
+              )}
+            </Typography>
+            <Typography
+              variant="caption"
+              sx={{ fontSize: "0.6rem", opacity: 0.8 }}
+            >
+              {stats?.points || 0} pts | {stats?.rebounds || 0} reb | {pf} pf |{" "}
+              {(() => {
+                const color =
+                  stintSecs > maxStint
+                    ? theme.palette.error.main
+                    : stintSecs > maxStint * 0.75
+                      ? theme.palette.warning.main
+                      : "inherit";
+                return (
+                  <Box component="span" sx={{ color }}>
+                    {formatClock(stintSecs)}
+                  </Box>
+                );
+              })()}
+            </Typography>
+          </Box>
+          {streak === "HOT" && (
+            <Box sx={{ fontSize: "0.8rem", ml: 0.5 }}>🔥</Box>
+          )}
+          {isFouledOut && (
+            <Chip
+              label="OUT"
+              size="small"
+              color="error"
+              sx={{ height: 16, fontSize: "0.5rem" }}
+            />
+          )}
+        </Button>
+      </Box>
+    );
+  },
+);
 
 export default GameMode;

@@ -126,6 +126,31 @@ export const getPlayerJersey = (
   return tp?.jerseyNumber ?? "";
 };
 
+/**
+ * Resolves a player's display name, handling opponent and team-level identifiers.
+ */
+export const getPlayerDisplayName = (
+  playerId: string,
+  playerNamesMap: Map<string | number, string>,
+  gameOpponent?: string,
+  teamName?: string,
+): string => {
+  if (playerId === SPECIAL_PLAYER_IDS.OPPONENT) {
+    return gameOpponent || "Opponent";
+  }
+  if (playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":")) {
+    const jersey = playerId.split(":")[1];
+    return `${gameOpponent || "Opponent"} #${jersey}`;
+  }
+  if (
+    playerId === SPECIAL_PLAYER_IDS.TEAM_TIMEOUT ||
+    playerId === SPECIAL_PLAYER_IDS.OUR_TEAM
+  ) {
+    return teamName || "Our Team";
+  }
+  return playerNamesMap.get(playerId) || "Unknown Player";
+};
+
 export const getBonusStatus = (
   fouls: number,
   periodType: string,
@@ -219,11 +244,10 @@ export const applyActionToAggregate = (agg: BaseStats, stat: StatEvent) => {
     case ACTION_TYPES.TURNOVER:
       agg.turnovers++;
       break;
-    case ACTION_TYPES.FOUL:
-    case ACTION_TYPES.FOUL_SHOOTING:
-    case ACTION_TYPES.FOUL_NON_SHOOTING:
-    case ACTION_TYPES.TECHNICAL_FOUL:
-      agg.fouls++;
+    default:
+      if (isFoulAction(stat)) {
+        agg.fouls++;
+      }
       break;
   }
 };
@@ -291,14 +315,16 @@ export const calculateTeamSeasonAverages = (
 function calculateRecord(
   gameTotals: Iterable<{ team: number; opp: number }>,
 ): string {
-  let wins = 0;
-  let losses = 0;
-  let draws = 0;
-  for (const totals of gameTotals) {
-    if (totals.team > totals.opp) wins++;
-    else if (totals.team < totals.opp) losses++;
-    else draws++;
-  }
+  const { wins, losses, draws } = Array.from(gameTotals).reduce(
+    (acc, { team, opp }) => {
+      if (team > opp) acc.wins++;
+      else if (team < opp) acc.losses++;
+      else acc.draws++;
+      return acc;
+    },
+    { wins: 0, losses: 0, draws: 0 },
+  );
+
   return draws > 0 ? `${wins}-${losses}-${draws}` : `${wins}-${losses}`;
 }
 
@@ -465,12 +491,11 @@ export const isEventInPeriod = (
   periodType: string,
 ): boolean => {
   if (periodType === "QUARTERS") {
-    if (currentPeriod === 4) return eventPeriod >= 4;
-    return eventPeriod === currentPeriod;
+    return currentPeriod === 4
+      ? eventPeriod >= 4
+      : eventPeriod === currentPeriod;
   }
 
-  if (currentPeriod === 1) return eventPeriod === 1;
-
-  // For non-quarters (halves), any period >= 2 is considered part of the second half (including OT)
-  return eventPeriod >= 2;
+  // For non-quarters (halves), any period >= 2 is part of the second half (including OT)
+  return currentPeriod === 1 ? eventPeriod === 1 : eventPeriod >= 2;
 };
