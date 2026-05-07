@@ -195,7 +195,9 @@ describe("GameMode Metrics", () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByLabelText(/Total Defensive Stops: 3/i)).toBeInTheDocument();
+      expect(
+        screen.getByLabelText(/Total Defensive Stops: 3/i),
+      ).toBeInTheDocument();
       expect(screen.getByLabelText(/Total Kills: 1/i)).toBeInTheDocument();
     });
   });
