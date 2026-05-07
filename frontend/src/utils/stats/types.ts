@@ -13,6 +13,9 @@ export interface TeamAggregates {
   ppp: string;
   possessions: number;
   oppPpp: string;
+  ftPct: string;
+  turnoverRate: string;
+  orebPct: string;
 }
 
 export interface OpponentAggregates {

@@ -420,12 +420,11 @@ export const calculateTeamAggregates = (
       stat.type === ACTION_TYPES.REBOUND ||
       stat.type === ACTION_TYPES.DEF_REBOUND
     ) {
-      if (isOpponent) opp.reb++;
-      else team.reb++;
-
-      if (stat.type === ACTION_TYPES.DEF_REBOUND) {
-        if (isOpponent) opp.dreb++;
-        else team.dreb++;
+      if (isOpponent) {
+        if (stat.type === ACTION_TYPES.DEF_REBOUND) opp.dreb++;
+      } else {
+        if (stat.type === ACTION_TYPES.DEF_REBOUND) team.dreb++;
+        team.reb++;
       }
     } else if (stat.type === ACTION_TYPES.ASSIST) {
       if (!isOpponent) team.ast++;

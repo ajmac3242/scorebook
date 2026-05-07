@@ -75,7 +75,8 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
   const { game, team } = gameAndTeam;
 
   const teamSeasonStats = useLiveQuery(() => {
-    if (!teamId) return { ppp: "0.00" };
+    if (!teamId)
+      return { ppp: "0.00", ftPct: "0.0", turnoverRate: "0.0", orebPct: "0.0" };
     return db.games
       .where("teamId")
       .equals(teamId)
@@ -380,6 +381,8 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       opponentScore: oppScore,
       teamPpp: calculatePpp(curScore, teamPoss),
       oppPpp: calculatePpp(oppScore, oppPoss),
+      teamPoss,
+      oppPoss,
       teamFoulStats: {
         teamFouls,
         oppFouls,
@@ -447,7 +450,8 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
 
     const totalElapsedSeconds =
       (period - 1) * periodLen + (periodLen - clockSeconds);
-    const totalPossessions = teamPoss + oppPoss;
+    const totalPossessions =
+      eventAggregates.teamPoss + eventAggregates.oppPoss;
     const livePace =
       totalElapsedSeconds > 0
         ? (totalPossessions / (totalElapsedSeconds / 60)) * 40

@@ -470,9 +470,7 @@ export const generateHalftimeTalkingPoints = (params: {
   // 3. Lineup Insight
   if (topLineups.length > 0) {
     const best = topLineups[0];
-    const jerseys = best.lineup
-      .map((id) => jerseyMap.get(id) || "??")
-      .join(",");
+    const jerseys = best.lineup.map((id) => jerseyMap.get(id) || "??").join(",");
     points.push({
       type: "LINEUP",
       text: `Utilize Lineup [${jerseys}].`,
