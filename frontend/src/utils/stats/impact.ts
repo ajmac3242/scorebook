@@ -290,13 +290,15 @@ export const calculateOnOffStats = (
 
     const onOffRating = calculatePpp(statsOn.ptsFor, onPoss);
     const onDefRating = calculatePpp(statsOn.ptsAgainst, onOppPoss);
-    const onNet = (parseFloat(onOffRating) - parseFloat(onDefRating)).toFixed(2);
+    const onNet = (parseFloat(onOffRating) - parseFloat(onDefRating)).toFixed(
+      2,
+    );
 
     const offOffRating = calculatePpp(statsOff.ptsFor, offPoss);
     const offDefRating = calculatePpp(statsOff.ptsAgainst, offOppPoss);
-    const offNet = (parseFloat(offOffRating) - parseFloat(offDefRating)).toFixed(
-      2,
-    );
+    const offNet = (
+      parseFloat(offOffRating) - parseFloat(offDefRating)
+    ).toFixed(2);
 
     const diff = (parseFloat(onNet) - parseFloat(offNet)).toFixed(2);
 
@@ -342,7 +344,10 @@ export const calculateMatchupStats = (
   players: { id: string; name: string }[],
   _jerseyMap: Map<string, string | undefined>,
 ): MatchupStat[] => {
-  const matchupMap = new Map<string, { pointsAllowed: number; stops: number; possessions: number }>();
+  const matchupMap = new Map<
+    string,
+    { pointsAllowed: number; stops: number; possessions: number }
+  >();
   const sorted = sortStats(stats);
 
   // Track current defenders assigned to opponents based on events
@@ -358,7 +363,7 @@ export const calculateMatchupStats = (
     const defenderId = s.primaryDefenderId;
 
     if (defenderId) {
-        currentMatchups.set(oppId, defenderId);
+      currentMatchups.set(oppId, defenderId);
     }
 
     const activeDefender = currentMatchups.get(oppId);
@@ -366,23 +371,23 @@ export const calculateMatchupStats = (
 
     const key = `${oppId}:${activeDefender}`;
     if (!matchupMap.has(key)) {
-        matchupMap.set(key, { pointsAllowed: 0, stops: 0, possessions: 0 });
+      matchupMap.set(key, { pointsAllowed: 0, stops: 0, possessions: 0 });
     }
     const m = matchupMap.get(key)!;
 
     if (s.type === ACTION_TYPES.MAKE) {
-        m.pointsAllowed += s.points || 0;
-        m.possessions++;
+      m.pointsAllowed += s.points || 0;
+      m.possessions++;
     } else if (s.type === ACTION_TYPES.TURNOVER) {
-        m.stops++;
-        m.possessions++;
+      m.stops++;
+      m.possessions++;
     } else if (s.type === ACTION_TYPES.MISS) {
-        // Possession continues until a rebound or another event
-        // For simplicity in Matchup Tracking, we count the end of a possession
-        // In a real tracker, this would be more complex
+      // Possession continues until a rebound or another event
+      // For simplicity in Matchup Tracking, we count the end of a possession
+      // In a real tracker, this would be more complex
     } else if (s.type === ACTION_TYPES.DEF_REBOUND) {
-        // This is usually recorded for our player, but if we see it in context of an opponent miss
-        // it counts as a stop. However, StatEvent for DEF_REBOUND has playerId of our player.
+      // This is usually recorded for our player, but if we see it in context of an opponent miss
+      // it counts as a stop. However, StatEvent for DEF_REBOUND has playerId of our player.
     }
   }
 
@@ -394,37 +399,44 @@ export const calculateMatchupStats = (
     const isOpp = s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT);
 
     if (isOpp) {
-        lastOppPlayerId = s.playerId;
-    if (s.type === ACTION_TYPES.MISS) inOppPossession = true;
-    if (s.type === ACTION_TYPES.MAKE || s.type === ACTION_TYPES.TURNOVER) inOppPossession = false;
+      lastOppPlayerId = s.playerId;
+      if (s.type === ACTION_TYPES.MISS) inOppPossession = true;
+      if (s.type === ACTION_TYPES.MAKE || s.type === ACTION_TYPES.TURNOVER)
+        inOppPossession = false;
     } else {
-        if (inOppPossession && (s.type === ACTION_TYPES.DEF_REBOUND || s.type === ACTION_TYPES.REBOUND)) {
-            const defenderId = s.playerId;
-            const key = `${lastOppPlayerId}:${defenderId}`;
-            if (matchupMap.has(key)) {
-                matchupMap.get(key)!.stops++;
-                matchupMap.get(key)!.possessions++;
-            }
-            inOppPossession = false;
+      if (
+        inOppPossession &&
+        (s.type === ACTION_TYPES.DEF_REBOUND || s.type === ACTION_TYPES.REBOUND)
+      ) {
+        const defenderId = s.playerId;
+        const key = `${lastOppPlayerId}:${defenderId}`;
+        if (matchupMap.has(key)) {
+          matchupMap.get(key)!.stops++;
+          matchupMap.get(key)!.possessions++;
         }
+        inOppPossession = false;
+      }
     }
   }
 
   const results: MatchupStat[] = [];
   for (const [key, data] of matchupMap.entries()) {
     const [oppId, defenderId] = key.split(":");
-    const defender = players.find(p => p.id === defenderId);
+    const defender = players.find((p) => p.id === defenderId);
     if (!defender) continue;
 
     results.push({
-        opponentId: oppId,
-        opponentJersey: oppId.includes(":") ? oppId.split(":")[1] : "??",
-        defenderId,
-        defenderName: defender.name,
-        pointsAllowed: data.pointsAllowed,
-        stops: data.stops,
-        totalPossessions: data.possessions,
-        stopPct: data.possessions > 0 ? ((data.stops / data.possessions) * 100).toFixed(1) : "0.0"
+      opponentId: oppId,
+      opponentJersey: oppId.includes(":") ? oppId.split(":")[1] : "??",
+      defenderId,
+      defenderName: defender.name,
+      pointsAllowed: data.pointsAllowed,
+      stops: data.stops,
+      totalPossessions: data.possessions,
+      stopPct:
+        data.possessions > 0
+          ? ((data.stops / data.possessions) * 100).toFixed(1)
+          : "0.0",
     });
   }
 

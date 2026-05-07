@@ -63,7 +63,10 @@ import {
 import { MoleskineCard } from "../components/SharedUI";
 import EntityBanner from "../components/EntityBanner";
 import { OnOffImpactTable } from "../components/OnOffImpactTable";
-import { calculateOnOffStats, calculateMatchupStats } from "../utils/stats/impact";
+import {
+  calculateOnOffStats,
+  calculateMatchupStats,
+} from "../utils/stats/impact";
 import { syncService } from "../utils/syncService";
 import { logger } from "../utils/logger";
 import dayjs from "dayjs";
@@ -579,7 +582,10 @@ const GameStats: React.FC = () => {
   }, [stats]);
 
   const shotClockEfficiency = useMemo(() => {
-    const data: Record<string, { makes: number; attempts: number; points: number }> = {
+    const data: Record<
+      string,
+      { makes: number; attempts: number; points: number }
+    > = {
       EARLY: { makes: 0, attempts: 0, points: 0 },
       MID: { makes: 0, attempts: 0, points: 0 },
       LATE: { makes: 0, attempts: 0, points: 0 },
@@ -624,11 +630,18 @@ const GameStats: React.FC = () => {
   }, [scoreFlowSortedStats, game, clutchFilter, team?.periodType]);
 
   const onOffStats = useMemo(() => {
-    return calculateOnOffStats(scoreFlowSortedStats, players as { id: string; name: string }[]);
+    return calculateOnOffStats(
+      scoreFlowSortedStats,
+      players as { id: string; name: string }[],
+    );
   }, [scoreFlowSortedStats, players]);
 
   const matchupStats = useMemo(() => {
-    return calculateMatchupStats(scoreFlowSortedStats, players as { id: string; name: string }[], shotChartJerseyMap);
+    return calculateMatchupStats(
+      scoreFlowSortedStats,
+      players as { id: string; name: string }[],
+      shotChartJerseyMap,
+    );
   }, [scoreFlowSortedStats, players, shotChartJerseyMap]);
 
   const defensiveStats = useMemo(() => {
@@ -1373,12 +1386,12 @@ const GameStats: React.FC = () => {
 
           <ToggleButtonGroup
             value={periodFilter}
-          exclusive
-          onChange={(_, val) => val && setPeriodFilter(val)}
-          size="small"
-          fullWidth={Boolean(isMobile)}
-          sx={{ flexGrow: isMobile ? 1 : 0 }}
-        >
+            exclusive
+            onChange={(_, val) => val && setPeriodFilter(val)}
+            size="small"
+            fullWidth={Boolean(isMobile)}
+            sx={{ flexGrow: isMobile ? 1 : 0 }}
+          >
             {periods.map((p) => (
               <ToggleButton key={p} value={p}>
                 {p === "ALL" ? "Full Game" : `${periodLabel} ${p}`}
@@ -1413,7 +1426,10 @@ const GameStats: React.FC = () => {
         {activeTab === "impact" && (
           <Grid item xs={12}>
             <MoleskineCard>
-              <Typography variant="h6" sx={{ fontFamily: "var(--serif)", mb: 2 }}>
+              <Typography
+                variant="h6"
+                sx={{ fontFamily: "var(--serif)", mb: 2 }}
+              >
                 Team Impact Analytics (On/Off)
               </Typography>
               <OnOffImpactTable data={onOffStats} />
@@ -1424,36 +1440,51 @@ const GameStats: React.FC = () => {
         {activeTab === "impact" && (
           <Grid item xs={12}>
             <MoleskineCard>
-              <Typography variant="h6" sx={{ fontFamily: "var(--serif)", mb: 2 }}>
+              <Typography
+                variant="h6"
+                sx={{ fontFamily: "var(--serif)", mb: 2 }}
+              >
                 Matchup Accountability (Points Allowed)
               </Typography>
               <TableContainer component={Box}>
                 <Table size="small">
-                    <TableHead>
-                        <TableRow sx={{ bgcolor: "rgba(0,0,0,0.02)" }}>
-                            <TableCell sx={{ fontWeight: 700 }}>Opponent</TableCell>
-                            <TableCell sx={{ fontWeight: 700 }}>Primary Defender</TableCell>
-                            <TableCell align="right" sx={{ fontWeight: 700 }}>PTS Allowed</TableCell>
-                            <TableCell align="right" sx={{ fontWeight: 700 }}>Stops</TableCell>
-                            <TableCell align="right" sx={{ fontWeight: 700 }}>Stop %</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {matchupStats.map((m, idx) => (
-                            <TableRow key={idx}>
-                                <TableCell>Opponent #{m.opponentJersey}</TableCell>
-                                <TableCell>{m.defenderName}</TableCell>
-                                <TableCell align="right">{m.pointsAllowed}</TableCell>
-                                <TableCell align="right">{m.stops}</TableCell>
-                                <TableCell align="right" sx={{ fontWeight: 700 }}>{m.stopPct}%</TableCell>
-                            </TableRow>
-                        ))}
-                        {matchupStats.length === 0 && (
-                            <TableRow>
-                                <TableCell colSpan={5} align="center">No matchup data recorded.</TableCell>
-                            </TableRow>
-                        )}
-                    </TableBody>
+                  <TableHead>
+                    <TableRow sx={{ bgcolor: "rgba(0,0,0,0.02)" }}>
+                      <TableCell sx={{ fontWeight: 700 }}>Opponent</TableCell>
+                      <TableCell sx={{ fontWeight: 700 }}>
+                        Primary Defender
+                      </TableCell>
+                      <TableCell align="right" sx={{ fontWeight: 700 }}>
+                        PTS Allowed
+                      </TableCell>
+                      <TableCell align="right" sx={{ fontWeight: 700 }}>
+                        Stops
+                      </TableCell>
+                      <TableCell align="right" sx={{ fontWeight: 700 }}>
+                        Stop %
+                      </TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {matchupStats.map((m, idx) => (
+                      <TableRow key={idx}>
+                        <TableCell>Opponent #{m.opponentJersey}</TableCell>
+                        <TableCell>{m.defenderName}</TableCell>
+                        <TableCell align="right">{m.pointsAllowed}</TableCell>
+                        <TableCell align="right">{m.stops}</TableCell>
+                        <TableCell align="right" sx={{ fontWeight: 700 }}>
+                          {m.stopPct}%
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                    {matchupStats.length === 0 && (
+                      <TableRow>
+                        <TableCell colSpan={5} align="center">
+                          No matchup data recorded.
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
                 </Table>
               </TableContainer>
             </MoleskineCard>
@@ -1711,7 +1742,9 @@ const GameStats: React.FC = () => {
                     <TableBody>
                       {shotClockEfficiency.map((p) => (
                         <TableRow key={p.phase}>
-                          <TableCell sx={{ fontWeight: 600 }}>{p.phase}</TableCell>
+                          <TableCell sx={{ fontWeight: 600 }}>
+                            {p.phase}
+                          </TableCell>
                           <TableCell align="right">{p.attempts}</TableCell>
                           <TableCell align="right">{p.points}</TableCell>
                           <TableCell align="right">{p.efg}%</TableCell>
