@@ -1945,6 +1945,36 @@ describe("stats utilities", () => {
       expect(result.ppp).toBe("2.00");
     });
   });
+  describe("Foul Disqualification and Bonus Edge Cases", () => {
+    it("should track foul disqualification (5th/6th foul)", () => {
+      const players = [{ id: "p1", name: "Player 1" }];
+      const stats: StatEvent[] = Array(6).fill(null).map((_, i) => ({
+        gameId: "g1",
+        playerId: "p1",
+        type: ACTION_TYPES.FOUL,
+        period: 1,
+        timestamp: `t${i}`,
+      }));
+
+      const results = calculatePlayerAggregates(players, stats);
+      const p1 = results[0];
+      expect(p1.fouls).toBe(6);
+    });
+
+    it("should correctly transition bonus states in QUARTERS", () => {
+      expect(getBonusStatus(3, "QUARTERS").isBonus).toBe(false);
+      expect(getBonusStatus(4, "QUARTERS").color).toBe("warning.main");
+      expect(getBonusStatus(5, "QUARTERS").isBonus).toBe(true);
+      expect(getBonusStatus(5, "QUARTERS").isDouble).toBe(false);
+    });
+
+    it("should correctly transition bonus states in HALVES", () => {
+      expect(getBonusStatus(6, "HALVES").isBonus).toBe(false);
+      expect(getBonusStatus(7, "HALVES").isBonus).toBe(true);
+      expect(getBonusStatus(7, "HALVES").isDouble).toBe(false);
+      expect(getBonusStatus(10, "HALVES").isDouble).toBe(true);
+    });
+  });
 });
 
 describe("Overtime Period Grouping (Scout Bug 14)", () => {

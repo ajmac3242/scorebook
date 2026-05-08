@@ -59,14 +59,9 @@ function sanitizeForLog(obj: unknown, depth = 0): unknown {
 }
 
 /**
- * Standardized error logger for the backend with log sanitization.
- * @param {string} label - Contextual label for the error.
- * @param {unknown} error - The error object to be logged.
- * @returns {void}
- */
-/**
  * Redacts sensitive terms from a string.
- * @param input
+ * @param input - The string to redact.
+ * @returns The redacted string.
  */
 function redactString(input: string): string {
   let result = input;
@@ -78,9 +73,9 @@ function redactString(input: string): string {
 }
 
 /**
- *
- * @param label
- * @param error
+ * Standardized error logger for the backend with log sanitization.
+ * @param label - Contextual label for the error.
+ * @param error - The error object or data to be logged.
  */
 export function logError(label: string, error: unknown) {
   // 🛡️ Enhancement 10: Sanitize all error logs to prevent secret leakage
@@ -165,7 +160,7 @@ export function maskEvent(event: APIGatewayProxyEventV2): unknown {
   for (const { key, redactAll } of redactTargets) {
     const val = anyEvent[key];
     if (val) {
-      (masked as any)[key] = redactMap(
+      (masked as Record<string, unknown>)[key] = redactMap(
         val as Record<string, unknown>,
         redactAll,
       );
@@ -266,17 +261,6 @@ export function getHeader(
   return key ? headers[key] : undefined;
 }
 
-/**
- * Strips local-only fields and internal DynamoDB keys from the data object before saving.
- *
- * WHY: This provides mass assignment protection and prevents UI-only state or
- * internal database keys from being persisted. It ensures that only valid,
- * schema-defined fields are saved to DynamoDB.
- *
- * @param {Record<string, unknown>} data - The data object to clean.
- * @param {number} depth - Current recursion depth.
- * @returns {Record<string, unknown>} The cleaned object.
- */
 /**
  * Set of keys that are forbidden to prevent prototype pollution.
  */

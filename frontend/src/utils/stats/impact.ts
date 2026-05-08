@@ -356,7 +356,9 @@ export const calculateMatchupStats = (
   for (const s of sorted) {
     if (!isActive(s)) continue;
 
-    const isOpp = s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT);
+    const isOpp =
+      s.playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
+      s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":");
     if (!isOpp) continue;
 
     const oppId = s.playerId;
@@ -396,7 +398,9 @@ export const calculateMatchupStats = (
   let lastOppPlayerId = "";
   for (const s of sorted) {
     if (!isActive(s)) continue;
-    const isOpp = s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT);
+    const isOpp =
+      s.playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
+      s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":");
 
     if (isOpp) {
       lastOppPlayerId = s.playerId;

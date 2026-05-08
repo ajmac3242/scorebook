@@ -8,3 +8,4 @@ dist/
 *.log
 backend/dist/
 frontend/dist/
+coverage/
