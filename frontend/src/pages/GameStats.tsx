@@ -2156,9 +2156,7 @@ const GameStats: React.FC = () => {
                   <Table size="small">
                     <TableHead>
                       <TableRow sx={{ bgcolor: "rgba(0,0,0,0.02)" }}>
-                        <TableCell sx={{ fontWeight: 700 }}>
-                          Breakdown
-                        </TableCell>
+                        <TableCell sx={{ fontWeight: 700 }}>Breakdown</TableCell>
                         <TableCell align="right" sx={{ fontWeight: 700 }}>
                           PTS
                         </TableCell>
