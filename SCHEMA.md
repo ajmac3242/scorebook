@@ -14,7 +14,7 @@
 | **Player** | `PLAYER#<PlayerId>` | `METADATA#<PlayerId>` | Name, DefaultNumber, isStar (0/1), isArchived (0/1), deletedAt? |
 | **TeamPlayer** | `TEAM#<TeamId>` | `PLAYER#<PlayerId>` | JerseyNumber (1-3 digits), deletedAt? |
 | **Game** | `GAME#<GameId>` | `METADATA#<GameId>` | TeamId, Opponent, Date, Location, completed (0/1), deletedAt? |
-| **StatEvent** | `GAME#<GameId>` | `STAT#<Timestamp>#<StatId>` | PlayerId, Type (MAKE, MISS, etc.), Points, LocationX, LocationY, timestamp |
+| **StatEvent** | `GAME#<GameId>` | `STAT#<Timestamp>#<StatId>` | PlayerId, Type, Points, LocationX, LocationY, timestamp, situation?, shotClockPhase?, primaryDefenderId? |
 
 ### Global Secondary Indexes (GSI)
 
@@ -164,10 +164,25 @@ All write endpoints (`POST`, `PUT`, `PATCH`) require `Content-Type: application/
   "clockTime": 420.5,
   "locationX": 85.0,
   "locationY": 25.0,
-  "situation": "ATO"
+  "situation": "ATO",
+  "shotClockPhase": "MID",
+  "primaryDefenderId": "defender-uuid"
 }
 ```
 - **Response**: `201 Created`
+
+#### Stat Event Field Definitions
+
+- **situation**: Tactical context of the possession.
+  - `ATO`: After Time Out
+  - `SLOB`: Sideline Out of Bounds
+  - `BLOB`: Baseline Out of Bounds
+  - `EOP`: End of Period
+- **shotClockPhase**: Timing of the shot within the possession.
+  - `EARLY`: First 25% of the clock
+  - `MID`: Middle of the clock
+  - `LATE`: Final 5 seconds of the clock
+- **primaryDefenderId**: The ID of the opponent player primarily responsible for defending the action (used in Matchup Tracking).
 
 ### Administration
 

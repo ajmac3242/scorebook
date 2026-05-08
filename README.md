@@ -24,6 +24,13 @@ Scorebook is a mobile-first, offline-ready basketball statistics tracking applic
 
 ## Architecture
 
+### Causal Accountability
+Scorebook is built on the principle of **Causal Accountability**. Standard box scores tell you *what* happened; Scorebook tells you *why*.
+- **Matchup Tracking**: Move beyond team defense by attributing every opponent bucket to a primary defender. Track "Points Allowed" and "Stop %" for every player on your roster.
+- **On/Off Impact Analytics**: Measure a player's true value by comparing team performance (Net Rating) when they are on the floor versus when they are on the bench.
+- **Shot Clock Process Analysis**: Evaluate offensive discipline by categorizing every shot into Early, Mid, or Late-clock phases. Identify if your team is rushing shots or executing late into the clock.
+- **Tactical Attribution**: Tag turnovers and fouls with specific causes (e.g., "Missed Rotation", "Poor Spacing") to drive data-driven practice prescriptions.
+
 ### Modular Backend
 The backend has transitioned from a monolithic handler to a domain-specific modular architecture. The core router in `index.ts` delegates requests to specialized handlers in `backend/src/handlers/` (Players, Teams, Games, Cleanup), improving maintainability and reducing the cold-start footprint.
 
