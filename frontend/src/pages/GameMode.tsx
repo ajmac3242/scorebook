@@ -1909,7 +1909,9 @@ const GameMode: React.FC = () => {
                       label={reason}
                       size="small"
                       onClick={() =>
-                        setBreakdownType(breakdownType === reason ? null : reason)
+                        setBreakdownType(
+                          breakdownType === reason ? null : reason,
+                        )
                       }
                       color={breakdownType === reason ? "primary" : "default"}
                       variant={breakdownType === reason ? "filled" : "outlined"}

@@ -838,7 +838,8 @@ export const calculateWinningTimeRecommendations = (params: {
   // 2. Defensive Recommendation
   let defensiveRec = "Stay disciplined and contest every shot.";
   if (refTightness > 0.8) {
-    defensiveRec = "Refs are tight (FPM > 0.8). Avoid reach-ins; play vertical.";
+    defensiveRec =
+      "Refs are tight (FPM > 0.8). Avoid reach-ins; play vertical.";
   } else if (opponentThreats.length > 0) {
     defensiveRec = `High threat detected. Trap or shade help toward #${opponentThreats[0].playerId.split(":")[1]}.`;
   }
@@ -849,7 +850,8 @@ export const calculateWinningTimeRecommendations = (params: {
 
   if (clockSeconds < 60 && Math.abs(scoreDiff) <= 3 && timeoutsRemaining > 1) {
     strategy = "USE";
-    timeoutReason = "High-leverage moment: Draw up a set for a high-quality look.";
+    timeoutReason =
+      "High-leverage moment: Draw up a set for a high-quality look.";
   } else if (scoreDiff < -8) {
     strategy = "USE";
     timeoutReason = "Opponent run detected. Settle the team down.";
