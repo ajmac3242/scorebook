@@ -4,7 +4,6 @@ import {
   Typography,
   Stack,
   Chip,
-  IconButton,
   Tooltip,
   Paper,
   Divider,
@@ -13,7 +12,6 @@ import {
   FlashOn,
   Shield,
   Timer,
-  Warning,
   TrendingUp,
 } from "@mui/icons-material";
 import { WinningTimeRecommendation } from "../utils/stats/types";

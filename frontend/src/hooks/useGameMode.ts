@@ -482,7 +482,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       ),
       momentumAlerts: { ...eventAggregates.momentumAlerts, scoringDrought },
     };
-  }, [eventAggregates, clockSeconds, period, game?.periodLength]);
+  }, [eventAggregates, clockSeconds, period, game?.periodLength, team?.periodType]);
 
   const playerNamesMap = useMemo(() => {
     const map = new Map<string, string>();
