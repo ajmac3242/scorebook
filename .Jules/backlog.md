@@ -1,23 +1,4 @@
 # Scorebook Backlog
-## [ ] [Ref-Identity Conflict Alert System]
-**Priority:** HIGH
-**Type:** Enhancement
-**Why:** If a team's identity is "High Pressure" but the officiating "Tightness" is high, they will foul out. Proactive alerts allow the coach to adjust aggressiveness before the game is lost.
-**What:** A predictive engine that compares live Officiating FPM (Fouls Per Minute) against the Team's active defensive scheme.
-**Acceptance Criteria:**
-- [ ] Live "Ref Tightness" meter in GameMode sidebar.
-- [ ] Conflict Alert (Visual) when Foul Rate exceeds 0.8 FPM while in a "High Pressure" scheme (Press/Double).
-- [ ] Recommendation to "Dial Back Pressure" or "Sub Fresh Legs" based on foul distribution.
-
-## [ ] [Opponent "Go-To" Usage Analytics (Clutch)]
-**Priority:** HIGH
-**Type:** Feature
-**Why:** In "Winning Time," every team has a primary option. Identifying this player's usage rate and preferred shot type in the clutch allows for specialized defensive counters.
-**What:** An analytical tool that identifies opponent usage rates and eFG% specifically in clutch situations (final 4 mins, < 5pt spread).
-**Acceptance Criteria:**
-- [ ] "Clutch Threat" indicator on the opponent roster card during Winning Time.
-- [ ] Breakdown of "Clutch Action Type" (e.g., "ISO Drive", "PnR Handler").
-- [ ] Comparison of Opponent X's Clutch Usage vs. Regulation Usage.
 
 ## [ ] [Bench Momentum & "Spark Plug" Impact Tracking]
 **Priority:** HIGH
@@ -29,15 +10,6 @@
 - [ ] Correlation chart showing "Hustle Events" vs. "Lead Change" frequency.
 - [ ] "Impact per Stint" summary for second-unit players.
 
-## [ ] ["Defensive Scheme" Real-Time PPP Analyzer]
-**Priority:** HIGH
-**Type:** Feature
-**Why:** Coaches need to know which defensive set is most effective *now*. PPP allowed by scheme is the ultimate truth for mid-game adjustments.
-**What:** Enhance "Defensive Scheme" tracking to provide live PPP (Points Per Possession) allowed for Man vs. Zone vs. Press.
-**Acceptance Criteria:**
-- [ ] Sidebar toggle in GameMode to select active defensive scheme.
-- [ ] Real-time PPP display for the active scheme.
-- [ ] "Scheme Efficiency" comparison table in the Halftime Report.
 
 ## [ ] [Lineup "Offensive Chemistry" Connectivity Map]
 **Priority:** HIGH
