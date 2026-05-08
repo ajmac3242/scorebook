@@ -151,6 +151,42 @@ export interface LineupAggregates {
   netRatingPer40: string;
 }
 
+export interface SituationalStats {
+  situation: string;
+  attempts: number;
+  makes: number;
+  points: number;
+  ppp: string;
+  efg: string;
+  successRate: string;
+  pppDelta: string;
+}
+
+export interface WinningTimeRecommendation {
+  offensive: {
+    topSets: { name: string; ppp: string }[];
+    recommendation: string;
+  };
+  defensive: {
+    recommendation: string;
+    threats: { jersey: string; points: number }[];
+  };
+  timeout: {
+    strategy: "SAVE" | "USE";
+    reason: string;
+  };
+}
+
+export interface DefensiveIntegrity {
+  breakdowns: {
+    type: string;
+    points: number;
+    count: number;
+    frequency: string;
+  }[];
+  tacticalWeakLink: string;
+}
+
 export interface BaseStats {
   points: number;
   makes: number;

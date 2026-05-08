@@ -115,6 +115,7 @@ export interface StatEvent {
   situation?: string; // 'ATO', 'SLOB', 'BLOB', 'EOP'
   defensiveScheme?: "MAN" | "ZONE" | "PRESS" | "DOUBLE";
   opponentPlayType?: "PnR" | "ISO" | "POST" | "TRANSITION" | "OFF_SCREEN";
+  breakdownType?: string;
   timestamp: string;
   deletedAt?: string;
   synced?: number;
@@ -155,7 +156,8 @@ export class AppDatabase extends Dexie {
     // v20:    Added 'isStar' to Player schema.
     // v21:    Added 'matchups' to Game and 'primaryDefenderId', 'shotClockPhase' to StatEvent.
     // v22:    Added 'tacticalGoals' to Team and 'defensiveScheme', 'opponentPlayType' to StatEvent.
-    this.version(22).stores({
+    // v23:    Added 'breakdownType' to StatEvent.
+    this.version(23).stores({
       teams: "id, synced, deletedAt, isFavorite",
       players: "id, synced, isArchived, deletedAt",
       teamPlayers: "id, [teamId+playerId], teamId, playerId, synced",

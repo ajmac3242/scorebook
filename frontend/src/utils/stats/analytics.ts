@@ -28,6 +28,9 @@ import {
   PracticeFocusArea,
   GameAnalyticsContext,
   LineupAggregates,
+  SituationalStats,
+  WinningTimeRecommendation,
+  DefensiveIntegrity,
 } from "./types";
 
 /**
@@ -713,4 +716,213 @@ export const generatePracticePrescription = (params: {
   }
 
   return focusAreas;
+};
+
+/**
+ * 🔨 Forge: Special Situation (ATO/SLOB/BLOB) Analytical Engine
+ * WHY: Designing the perfect play is useless if you don't know if it works.
+ * This engine moves beyond raw stats to show efficiency in high-leverage set plays.
+ */
+export const calculateSituationalStats = (
+  stats: StatEvent[],
+  halfCourtPpp: string,
+): SituationalStats[] => {
+  const situations = ["ATO", "SLOB", "BLOB", "EOP"];
+  const data: Record<
+    string,
+    {
+      attempts: number;
+      makes: number;
+      points: number;
+      threePM: number;
+      fta: number;
+      turnovers: number;
+      successes: number;
+    }
+  > = {};
+
+  situations.forEach((s) => {
+    data[s] = {
+      attempts: 0,
+      makes: 0,
+      points: 0,
+      threePM: 0,
+      fta: 0,
+      turnovers: 0,
+      successes: 0,
+    };
+  });
+
+  for (let i = 0; i < stats.length; i++) {
+    const s = stats[i];
+    if (!isActive(s) || !s.situation || !data[s.situation]) continue;
+
+    const situ = data[s.situation];
+    if (s.type === ACTION_TYPES.MAKE) {
+      situ.points += s.points || 0;
+      situ.successes++;
+      if (s.points === 1) {
+        situ.fta++;
+      } else {
+        situ.makes++;
+        situ.attempts++;
+        if (s.points === 3) situ.threePM++;
+      }
+    } else if (s.type === ACTION_TYPES.MISS) {
+      if (s.points === 1) situ.fta++;
+      else situ.attempts++;
+    } else if (s.type === ACTION_TYPES.TURNOVER) {
+      situ.turnovers++;
+    } else if (s.type === ACTION_TYPES.FOUL_SHOOTING) {
+      situ.successes++;
+    }
+  }
+
+  return situations.map((situ) => {
+    const s = data[situ];
+    const possessions = calculatePossessions(s.attempts, s.fta, s.turnovers, 0);
+    const ppp = calculatePpp(s.points, possessions);
+    const efg = calculateEfgPct(s.makes, s.threePM, s.attempts);
+    const successRate =
+      possessions > 0 ? ((s.successes / possessions) * 100).toFixed(1) : "0.0";
+    const delta = (parseFloat(ppp) - parseFloat(halfCourtPpp)).toFixed(2);
+
+    return {
+      situation: situ,
+      attempts: s.attempts,
+      makes: s.makes,
+      points: s.points,
+      ppp,
+      efg,
+      successRate,
+      pppDelta: delta,
+    };
+  });
+};
+
+/**
+ * 🔨 Forge: High-Leverage "Winning Time" Decision Support HUD
+ * WHY: Provides the "mathematically correct" tactical path during high-leverage moments.
+ */
+export const calculateWinningTimeRecommendations = (params: {
+  gameStats: StatEvent[];
+  playbookEfficiency: PlayEfficiency[];
+  refTightness: number; // Fouls Per Minute
+  opponentThreats: OpponentThreat[];
+  teamFouls: number;
+  oppFouls: number;
+  scoreDiff: number;
+  clockSeconds: number;
+  timeoutsRemaining: number;
+}): WinningTimeRecommendation => {
+  const {
+    playbookEfficiency,
+    refTightness,
+    opponentThreats,
+    scoreDiff,
+    clockSeconds,
+    timeoutsRemaining,
+  } = params;
+
+  // 1. Offensive Recommendation
+  const topSets = playbookEfficiency.slice(0, 3).map((p) => ({
+    name: p.name,
+    ppp: p.ppp,
+  }));
+
+  let offensiveRec = "Run your highest-efficiency sets.";
+  if (topSets.length > 0) {
+    offensiveRec = `Prioritize "${topSets[0].name}" (PPP: ${topSets[0].ppp}).`;
+  }
+
+  // 2. Defensive Recommendation
+  let defensiveRec = "Stay disciplined and contest every shot.";
+  if (refTightness > 0.8) {
+    defensiveRec =
+      "Refs are tight (FPM > 0.8). Avoid reach-ins; play vertical.";
+  } else if (opponentThreats.length > 0) {
+    defensiveRec = `High threat detected. Trap or shade help toward #${opponentThreats[0].playerId.split(":")[1]}.`;
+  }
+
+  // 3. Timeout Strategy
+  let strategy: "SAVE" | "USE" = "SAVE";
+  let timeoutReason = "Keep for late-game advancement or stopping runs.";
+
+  if (clockSeconds < 60 && Math.abs(scoreDiff) <= 3 && timeoutsRemaining > 1) {
+    strategy = "USE";
+    timeoutReason =
+      "High-leverage moment: Draw up a set for a high-quality look.";
+  } else if (scoreDiff < -8) {
+    strategy = "USE";
+    timeoutReason = "Opponent run detected. Settle the team down.";
+  }
+
+  return {
+    offensive: { topSets, recommendation: offensiveRec },
+    defensive: {
+      recommendation: defensiveRec,
+      threats: opponentThreats.map((t) => ({
+        jersey: t.playerId.split(":")[1] || "??",
+        points: t.points,
+      })),
+    },
+    timeout: { strategy, reason: timeoutReason },
+  };
+};
+
+/**
+ * 🔨 Forge: Defensive Breakdown Attribution
+ * WHY: Separates physical skill makes from tactical mental errors.
+ */
+export const calculateDefensiveIntegrity = (
+  stats: StatEvent[],
+): DefensiveIntegrity => {
+  const breakdowns: Record<string, { points: number; count: number }> = {
+    "Missed Rotation": { points: 0, count: 0 },
+    "Transition Leak": { points: 0, count: 0 },
+    "Poor Closeout": { points: 0, count: 0 },
+    "Out-Hustled": { points: 0, count: 0 },
+    "Great Contest": { points: 0, count: 0 },
+  };
+
+  let totalPointsAllowed = 0;
+
+  for (let i = 0; i < stats.length; i++) {
+    const s = stats[i];
+    if (
+      !isActive(s) ||
+      !isOpponentId(s.playerId) ||
+      s.type !== ACTION_TYPES.MAKE ||
+      s.points === 1
+    )
+      continue;
+
+    totalPointsAllowed += s.points || 0;
+    if (s.breakdownType && breakdowns[s.breakdownType]) {
+      breakdowns[s.breakdownType].points += s.points || 0;
+      breakdowns[s.breakdownType].count++;
+    }
+  }
+
+  const breakdownList = Object.entries(breakdowns)
+    .map(([type, data]) => ({
+      type,
+      points: data.points,
+      count: data.count,
+      frequency:
+        totalPointsAllowed > 0
+          ? ((data.points / totalPointsAllowed) * 100).toFixed(1)
+          : "0.0",
+    }))
+    .sort((a, b) => b.points - a.points);
+
+  const tacticalWeakLink =
+    breakdownList.length > 0 && breakdownList[0].points > 0
+      ? breakdownList[0].type
+      : "None Identified";
+
+  return {
+    breakdowns: breakdownList,
+    tacticalWeakLink,
+  };
 };

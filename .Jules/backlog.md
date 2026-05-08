@@ -31,16 +31,16 @@
 - [x] "Proactive Sub Alert" triggered 2 minutes *before* a player hits their predicted "Red Line."
 - [x] Post-game "Rotation Audit" showing the points lost due to "Over-Extended Stints."
 
-## [ ] [High-Leverage "Winning Time" Decision Support HUD]
+## [x] [High-Leverage "Winning Time" Decision Support HUD]
 **Priority:** HIGH
 **Type:** Feature
 **Why:** The final 4 minutes of a close game are where "gut feelings" lead to losses. A specialized HUD provides the "mathematically correct" tactical path during high-leverage moments.
 **What:** A specialized "Winning Time" HUD that activates in "Clutch Mode" (final 4m, spread <= 5). It synthesizes foul situations, timeout availability, and lineup efficiency.
 **Acceptance Criteria:**
-- [ ] "Winning Time" HUD overlay in GameMode.
-- [ ] "Offensive Recommendation": Which of our 3 top sets has the highest PPP in this specific game.
-- [ ] "Defensive Recommendation": Based on current game Ref Tightness and Opponent Threat stats.
-- [ ] "Timeout Strategy": Visual advisor for "Save" vs "Use" based on score/time/possession.
+- [x] "Winning Time" HUD overlay in GameMode.
+- [x] "Offensive Recommendation": Which of our 3 top sets has the highest PPP in this specific game.
+- [x] "Defensive Recommendation": Based on current game Ref Tightness and Opponent Threat stats.
+- [x] "Timeout Strategy": Visual advisor for "Save" vs "Use" based on score/time/possession.
 
 ## [ ] [Program-Wide "Success DNA" Correlation Engine]
 **Priority:** HIGH
@@ -86,27 +86,27 @@
 - [ ] Visual HUD feedback showing "Last Heard: #24 Make 3PT".
 - [ ] High-confidence threshold filtering to prevent background noise errors.
 
-## Special Situation (ATO/SLOB/BLOB) Analytical Engine
+## [x] Special Situation (ATO/SLOB/BLOB) Analytical Engine
 **Priority:** HIGH
 **Type:** Feature
 **Why:** Designing the perfect play is useless if you don't know if it works. This engine moves beyond raw stats to show efficiency in high-leverage set plays.
 **What:** Build a dedicated analytics module and UI to visualize PPP and eFG% for possessions tagged as ATO, SLOB, BLOB, or EOP.
 **Acceptance Criteria:**
-- [ ] Add `calculateSituationalStats` to the stats engine to derive PPP/eFG% filtered by situation.
-- [ ] New "Specialty Execution" card in GameStats showing a performance table by situation.
-- [ ] "Execution Delta" metric comparing Situational PPP vs. standard Half-Court PPP.
-- [ ] Visualization of "Success Rate" (Possessions ending in score or shooting foul) per situation.
+- [x] Add `calculateSituationalStats` to the stats engine to derive PPP/eFG% filtered by situation.
+- [x] New "Specialty Execution" card in GameStats showing a performance table by situation.
+- [x] "Execution Delta" metric comparing Situational PPP vs. standard Half-Court PPP.
+- [x] Visualization of "Success Rate" (Possessions ending in score or shooting foul) per situation.
 
-## Defensive Breakdown Attribution (The Accountability Layer)
+## [x] Defensive Breakdown Attribution (The Accountability Layer)
 **Priority:** HIGH
 **Type:** Feature
 **Why:** Coaches need to know *why* a bucket was allowed to fix it in practice. This layer separates physical skill makes from tactical mental errors.
 **What:** Enhance opponent scoring events with a mandatory (optional toggle) breakdown reason and provide a post-game integrity report.
 **Acceptance Criteria:**
-- [ ] Quick-select "Breakdown Reason" overlay after recording an opponent make: "Missed Rotation", "Transition Leak", "Poor Closeout", "Out-Hustled", "Great Contest".
-- [ ] "Defensive Integrity" report in GameStats summarizing % of points allowed by breakdown category.
-- [ ] "Tactical Weak Link" identification: Highlight the most frequent breakdown type in the current game.
-- [ ] Filter opponent shot chart markers by breakdown type.
+- [x] Quick-select "Breakdown Reason" overlay after recording an opponent make: "Missed Rotation", "Transition Leak", "Poor Closeout", "Out-Hustled", "Great Contest".
+- [x] "Defensive Integrity" report in GameStats summarizing % of points allowed by breakdown category.
+- [x] "Tactical Weak Link" identification: Highlight the most frequent breakdown type in the current game.
+- [x] Filter opponent shot chart markers by breakdown type.
 
 ## Expected Value (xPTS) & Shot Quality ROI Engine
 **Priority:** HIGH

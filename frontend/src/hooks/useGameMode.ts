@@ -15,9 +15,11 @@ import {
   isEventInPeriod,
   isOpponentId,
   getBonusStatus,
+  isClutchEvent,
   calculateHaltAlerts,
   calculateTacticalGoalStatus,
   analyzeOpponentArchetype,
+  calculateWinningTimeRecommendations,
   type PlayerAggregates,
   OpponentThreat,
 } from "../utils/stats";
@@ -138,6 +140,8 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
   const [points, setPoints] = useState<number>(2);
   const [playName, setPlayName] = useState<string>("");
   const [shotQuality, setShotQuality] = useState<string | null>(null);
+  const [breakdownType, setBreakdownType] = useState<string | null>(null);
+  const [situation, setSituation] = useState<string | null>(null);
 
   const [sortConfig, setSortConfig] = useState<{
     key: keyof PlayerAggregates;
@@ -460,6 +464,12 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
 
     return {
       ...eventAggregates,
+      clutchMode: isClutchEvent(
+        period,
+        clockSeconds,
+        eventAggregates.currentScore - eventAggregates.opponentScore,
+        team?.periodType || "QUARTERS",
+      ),
       stintDurations,
       livePace,
       currentLineupPlusMinus:
@@ -473,7 +483,13 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       ),
       momentumAlerts: { ...eventAggregates.momentumAlerts, scoringDrought },
     };
-  }, [eventAggregates, clockSeconds, period, game?.periodLength]);
+  }, [
+    eventAggregates,
+    clockSeconds,
+    period,
+    game?.periodLength,
+    team?.periodType,
+  ]);
 
   const playerNamesMap = useMemo(() => {
     const map = new Map<string, string>();
@@ -772,6 +788,27 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       goals: team?.tacticalGoals || [],
     }),
     opponentArchetype: analyzeOpponentArchetype(sortedGameStats),
+    winningTimeRecommendations: calculateWinningTimeRecommendations({
+      gameStats: sortedGameStats,
+      playbookEfficiency,
+      refTightness:
+        (gameData.teamFoulStats.teamFouls + gameData.teamFoulStats.oppFouls) /
+        Math.max(
+          1,
+          (period - 1) * (game?.periodLength || 10) +
+            ((game?.periodLength || 10) * 60 - clockSeconds) / 60,
+        ),
+      opponentThreats: gameData.momentumAlerts.opponentThreats,
+      teamFouls: gameData.teamFoulStats.teamFouls,
+      oppFouls: gameData.teamFoulStats.oppFouls,
+      scoreDiff: gameData.currentScore - gameData.opponentScore,
+      clockSeconds,
+      timeoutsRemaining: gameData.timeoutStats.teamTOL,
+    }),
+    breakdownType,
+    setBreakdownType,
+    situation,
+    setSituation,
     handleToggleClock,
     handleEditClock,
     handleNextPeriod,
