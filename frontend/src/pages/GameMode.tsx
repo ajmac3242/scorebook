@@ -84,6 +84,7 @@ import { Scoreboard } from "../components/Scoreboard";
 import { TeamStatsCard } from "../components/TeamStatsCard";
 import { ActionControls } from "../components/ActionControls";
 import { TacticalGoalsHUD } from "../components/TacticalGoalsHUD";
+import { WinningTimeHUD } from "../components/WinningTimeHUD";
 import { useGameMode } from "../hooks/useGameMode";
 
 /**
@@ -118,6 +119,10 @@ const GameMode: React.FC = () => {
     setPlayName,
     shotQuality,
     setShotQuality,
+    breakdownType,
+    setBreakdownType,
+    situation,
+    setSituation,
     clockSeconds,
     setClockSeconds,
     isClockRunning,
@@ -191,6 +196,7 @@ const GameMode: React.FC = () => {
     clockSecondsRef,
     tacticalGoalStatus,
     opponentArchetype,
+    winningTimeRecommendations,
   } = useGameMode(gameId, teamId);
 
   /**
@@ -346,6 +352,12 @@ const GameMode: React.FC = () => {
               typeToSave === ACTION_TYPES.MISS
                 ? (shotQuality ?? undefined)
                 : undefined,
+            breakdownType:
+              typeToSave === ACTION_TYPES.MAKE &&
+              selectedPlayerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT)
+                ? (breakdownType ?? undefined)
+                : undefined,
+            situation: situation ?? undefined,
             shotClockPhase: derivedShotClockPhase,
             primaryDefenderId,
             synced: 0,
@@ -370,6 +382,12 @@ const GameMode: React.FC = () => {
               typeToSave === ACTION_TYPES.MISS
                 ? (shotQuality ?? undefined)
                 : undefined,
+            breakdownType:
+              typeToSave === ACTION_TYPES.MAKE &&
+              selectedPlayerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT)
+                ? (breakdownType ?? undefined)
+                : undefined,
+            situation: situation ?? undefined,
             shotClockPhase: derivedShotClockPhase,
             primaryDefenderId,
             period,
@@ -403,6 +421,8 @@ const GameMode: React.FC = () => {
         setIsDialogOpen(false);
         setStatType(null);
         setPlayName("");
+        setBreakdownType(null);
+        setSituation(null);
         setIsEditing(false);
         setEditingStatId(null);
         if (trackingMode === "OPPONENT") setSelectedPlayerId(null);
@@ -431,6 +451,8 @@ const GameMode: React.FC = () => {
       trackingMode,
       clockSeconds,
       shotQuality,
+      breakdownType,
+      situation,
       setIsSavingStat,
       setChainPrompt,
       setIsFtWorkflowOpen,
@@ -438,6 +460,8 @@ const GameMode: React.FC = () => {
       setIsDialogOpen,
       setStatType,
       setPlayName,
+      setBreakdownType,
+      setSituation,
       setIsEditing,
       setEditingStatId,
       setSelectedPlayerId,
@@ -589,6 +613,8 @@ const GameMode: React.FC = () => {
       setPoints(stat.points || 2);
       setPlayName(stat.playName || "");
       setShotQuality(stat.shotQuality || null);
+      setBreakdownType(stat.breakdownType || null);
+      setSituation(stat.situation || null);
       setSelectedX(stat.locationX || 0);
       setSelectedY(stat.locationY || 0);
       setIsEditing(true);
@@ -602,6 +628,8 @@ const GameMode: React.FC = () => {
       setPoints,
       setPlayName,
       setShotQuality,
+      setBreakdownType,
+      setSituation,
       setSelectedX,
       setSelectedY,
       setIsEditing,
@@ -925,6 +953,10 @@ const GameMode: React.FC = () => {
 
             {trackingMode === "TEAM" && (
               <TacticalGoalsHUD goals={tacticalGoalStatus} />
+            )}
+
+            {gameData.clutchMode && (
+              <WinningTimeHUD recommendations={winningTimeRecommendations} />
             )}
 
             {trackingMode === "TEAM" && (
@@ -1830,6 +1862,62 @@ const GameMode: React.FC = () => {
               </ToggleButtonGroup>
             </Box>
           )}
+
+          <Box sx={{ mt: 3 }}>
+            <Typography
+              variant="caption"
+              gutterBottom
+              sx={{ display: "block", mb: 1 }}
+            >
+              Special Situation
+            </Typography>
+            <ToggleButtonGroup
+              value={situation}
+              exclusive
+              onChange={(_, val) => setSituation(val)}
+              size="small"
+              fullWidth
+            >
+              {["ATO", "SLOB", "BLOB", "EOP"].map((situ) => (
+                <ToggleButton key={situ} value={situ}>
+                  {situ}
+                </ToggleButton>
+              ))}
+            </ToggleButtonGroup>
+          </Box>
+
+          {statType === ACTION_TYPES.MAKE &&
+            selectedPlayerId?.startsWith(SPECIAL_PLAYER_IDS.OPPONENT) && (
+              <Box sx={{ mt: 3 }}>
+                <Typography
+                  variant="caption"
+                  gutterBottom
+                  sx={{ display: "block", mb: 1 }}
+                >
+                  Defensive Breakdown
+                </Typography>
+                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                  {[
+                    "Missed Rotation",
+                    "Transition Leak",
+                    "Poor Closeout",
+                    "Out-Hustled",
+                    "Great Contest",
+                  ].map((reason) => (
+                    <Chip
+                      key={reason}
+                      label={reason}
+                      size="small"
+                      onClick={() =>
+                        setBreakdownType(breakdownType === reason ? null : reason)
+                      }
+                      color={breakdownType === reason ? "primary" : "default"}
+                      variant={breakdownType === reason ? "filled" : "outlined"}
+                    />
+                  ))}
+                </Box>
+              </Box>
+            )}
 
           {statType === ACTION_TYPES.MAKE && (
             <Box sx={{ mt: 3 }}>

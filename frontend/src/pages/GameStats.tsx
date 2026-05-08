@@ -62,6 +62,8 @@ import {
   generatePracticePrescription,
   calculateTeamSeasonAverages,
   calculateFatigueDecay,
+  calculateSituationalStats,
+  calculateDefensiveIntegrity,
   type ScoreFlowPoint,
 } from "../utils/stats";
 import { MoleskineCard } from "../components/SharedUI";
@@ -730,6 +732,14 @@ const GameStats: React.FC = () => {
     }
     return stints;
   }, [scoreFlowSortedStats, game?.periodLength, team?.maxStintDuration]);
+
+  const situationalStats = useMemo(() => {
+    return calculateSituationalStats(scoreFlowSortedStats, teamData.ppp);
+  }, [scoreFlowSortedStats, teamData.ppp]);
+
+  const defensiveIntegrity = useMemo(() => {
+    return calculateDefensiveIntegrity(scoreFlowSortedStats);
+  }, [scoreFlowSortedStats]);
 
   const practiceFocusAreas = useMemo(() => {
     if (!teamSeasonStats || !teamData) return [];
@@ -2067,6 +2077,110 @@ const GameStats: React.FC = () => {
                 </TableContainer>
               </MoleskineCard>
             </Grid>
+            <Grid item xs={12} md={4}>
+              <MoleskineCard>
+                <Typography
+                  variant="h6"
+                  sx={{ fontFamily: "var(--serif)", mb: 2 }}
+                >
+                  Specialty Execution (Set Plays)
+                </Typography>
+                <TableContainer>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow sx={{ bgcolor: "rgba(0,0,0,0.02)" }}>
+                        <TableCell sx={{ fontWeight: 700 }}>Situ</TableCell>
+                        <TableCell align="right" sx={{ fontWeight: 700 }}>
+                          PPP
+                        </TableCell>
+                        <TableCell align="right" sx={{ fontWeight: 700 }}>
+                          Δ
+                        </TableCell>
+                        <TableCell align="right" sx={{ fontWeight: 700 }}>
+                          SR%
+                        </TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {situationalStats.map((s) => (
+                        <TableRow key={s.situation}>
+                          <TableCell sx={{ fontWeight: 600 }}>
+                            {s.situation}
+                          </TableCell>
+                          <TableCell align="right">{s.ppp}</TableCell>
+                          <TableCell
+                            align="right"
+                            sx={{
+                              color:
+                                parseFloat(s.pppDelta) > 0
+                                  ? "success.main"
+                                  : parseFloat(s.pppDelta) < 0
+                                    ? "error.main"
+                                    : "inherit",
+                              fontWeight: 700,
+                            }}
+                          >
+                            {parseFloat(s.pppDelta) > 0 ? "+" : ""}
+                            {s.pppDelta}
+                          </TableCell>
+                          <TableCell align="right">{s.successRate}%</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </MoleskineCard>
+            </Grid>
+
+            <Grid item xs={12} md={4}>
+              <MoleskineCard>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    fontFamily: "var(--serif)",
+                    mb: 2,
+                    display: "flex",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <span>Defensive Integrity</span>
+                  <Chip
+                    label={defensiveIntegrity.tacticalWeakLink}
+                    size="small"
+                    color="error"
+                    variant="outlined"
+                    sx={{ height: 20, fontSize: "0.6rem", fontWeight: 800 }}
+                  />
+                </Typography>
+                <TableContainer>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow sx={{ bgcolor: "rgba(0,0,0,0.02)" }}>
+                        <TableCell sx={{ fontWeight: 700 }}>Breakdown</TableCell>
+                        <TableCell align="right" sx={{ fontWeight: 700 }}>
+                          PTS
+                        </TableCell>
+                        <TableCell align="right" sx={{ fontWeight: 700 }}>
+                          Freq%
+                        </TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {defensiveIntegrity.breakdowns.map((b) => (
+                        <TableRow key={b.type}>
+                          <TableCell sx={{ fontWeight: 600 }}>
+                            {b.type}
+                          </TableCell>
+                          <TableCell align="right">{b.points}</TableCell>
+                          <TableCell align="right">{b.frequency}%</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </MoleskineCard>
+            </Grid>
+
             <Grid item xs={12} md={4}>
               <MoleskineCard>
                 <Box
