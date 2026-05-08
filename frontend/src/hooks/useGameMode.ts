@@ -16,6 +16,9 @@ import {
   isOpponentId,
   getBonusStatus,
   calculateHaltAlerts,
+  calculateTacticalGoalStatus,
+  analyzeOpponentArchetype,
+  calculateFatigueDecay,
   type PlayerAggregates,
   OpponentThreat,
 } from "../utils/stats";
@@ -765,6 +768,11 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     playbookEfficiency,
     markers,
     clockSecondsRef,
+    tacticalGoalStatus: calculateTacticalGoalStatus({
+      stats: sortedGameStats,
+      goals: team?.tacticalGoals || [],
+    }),
+    opponentArchetype: analyzeOpponentArchetype(sortedGameStats),
     handleToggleClock,
     handleEditClock,
     handleNextPeriod,

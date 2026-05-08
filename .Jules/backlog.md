@@ -1,35 +1,35 @@
 # Scorebook Backlog
 
-## [ ] [Live Tactical KPI Performance HUD]
+## [x] [Live Tactical KPI Performance HUD]
 **Priority:** HIGH
 **Type:** Feature
 **Why:** Coaches often lose sight of their pre-game strategic goals (e.g., "Win the glass", "Under 12 TOs") during the heat of the game. A live HUD keeps the team's identity front-and-center.
 **What:** Build a "Goals HUD" in GameMode that tracks real-time progress against 3-5 user-defined Tactical KPIs (e.g., OREB%, TO Rate, Opponent eFG%).
 **Acceptance Criteria:**
-- [ ] Define "Tactical Goals" in Team Settings with target thresholds.
-- [ ] Live HUD in GameMode showing Goal Status: Green (Meeting), Red (Failing).
-- [ ] Pulse animation when a KPI crosses the threshold (e.g., "Goal Met: OREB% > 30%").
-- [ ] Integration with the Halftime Report to summarize "Identity Discipline."
+- [x] Define "Tactical Goals" in Team Settings with target thresholds.
+- [x] Live HUD in GameMode showing Goal Status: Green (Meeting), Red (Failing).
+- [x] Pulse animation when a KPI crosses the threshold (e.g., "Goal Met: OREB% > 30%").
+- [x] Integration with the Halftime Report to summarize "Identity Discipline."
 
-## [ ] [Opponent Tactical Archetype & "Tell" Recognition]
+## [x] [Opponent Tactical Archetype & "Tell" Recognition]
 **Priority:** HIGH
 **Type:** Feature
 **Why:** Elite assistants identify opponent play-calling patterns ("Tells") by the 2nd quarter. Automating this helps the head coach adjust the defensive scheme before the opponent pulls away.
 **What:** An intelligence layer that analyzes opponent scoring events to identify recurring "Tactical Archetypes" (e.g., "Heavy Pick-and-Roll", "Isolation-Driven", "Corner 3 Hunters").
 **Acceptance Criteria:**
-- [ ] Automated "Opponent Profile" in GameMode updating every 5 possessions.
-- [ ] "Trend Alert" when a specific play-type exceeds 1.2 PPP (e.g., "Alert: Opponent scoring 1.4 PPP on ISO drives").
-- [ ] Suggestion for defensive adjustment based on archetype (e.g., "Switch to Zone: Opponent ISO efficiency is critical").
+- [x] Automated "Opponent Profile" in GameMode updating every 5 possessions.
+- [x] "Trend Alert" when a specific play-type exceeds 1.2 PPP (e.g., "Alert: Opponent scoring 1.4 PPP on ISO drives").
+- [x] Suggestion for defensive adjustment based on archetype (e.g., "Switch to Zone: Opponent ISO efficiency is critical").
 
-## [ ] [Predictive "Rotation Fatigue" Efficiency Modeler]
+## [x] [Predictive "Rotation Fatigue" Efficiency Modeler]
 **Priority:** HIGH
 **Type:** Feature
 **Why:** A player's impact doesn't drop off a cliff at exactly 8 minutes; it's a gradual decay. This modeler uses historical and live data to predict when a player is about to become a liability.
 **What:** Enhance the "Fatigue" system to use a "Decay Model" that correlates live stint duration with a drop in Net Rating and Stop %.
 **Acceptance Criteria:**
-- [ ] Visual "Efficiency Decay" indicator on Lineup Cards (e.g., a battery icon draining from Green -> Yellow -> Red).
-- [ ] "Proactive Sub Alert" triggered 2 minutes *before* a player hits their predicted "Red Line."
-- [ ] Post-game "Rotation Audit" showing the points lost due to "Over-Extended Stints."
+- [x] Visual "Efficiency Decay" indicator on Lineup Cards (e.g., a battery icon draining from Green -> Yellow -> Red).
+- [x] "Proactive Sub Alert" triggered 2 minutes *before* a player hits their predicted "Red Line."
+- [x] Post-game "Rotation Audit" showing the points lost due to "Over-Extended Stints."
 
 ## [ ] [High-Leverage "Winning Time" Decision Support HUD]
 **Priority:** HIGH
