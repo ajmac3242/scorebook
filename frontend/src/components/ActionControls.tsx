@@ -186,7 +186,11 @@ export const ActionControls = React.memo(
         </Tooltip>
 
         {!isGameCompleted && !isReadOnly && (
-          <Tooltip title={isEnding ? "Ending game..." : "Finalize and save game results"}>
+          <Tooltip
+            title={
+              isEnding ? "Ending game..." : "Finalize and save game results"
+            }
+          >
             <span>
               <Button
                 size="small"
