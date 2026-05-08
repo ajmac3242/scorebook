@@ -108,8 +108,12 @@ describe("useStatWriter", () => {
     });
 
     const allStats = await mockDb.stats.toArray();
-    const subOut = allStats.find(s => s.playerId === "p5" && s.type === ACTION_TYPES.SUB_OUT);
-    const subIn = allStats.find(s => s.playerId === "p6" && s.type === ACTION_TYPES.SUB_IN);
+    const subOut = allStats.find(
+      (s) => s.playerId === "p5" && s.type === ACTION_TYPES.SUB_OUT,
+    );
+    const subIn = allStats.find(
+      (s) => s.playerId === "p6" && s.type === ACTION_TYPES.SUB_IN,
+    );
 
     expect(subOut).toBeDefined();
     expect(subIn).toBeDefined();
@@ -138,7 +142,10 @@ describe("useStatWriter", () => {
 
     let res: any;
     await act(async () => {
-      res = await result.current.writeStat({ playerId: "p1", type: ACTION_TYPES.MAKE });
+      res = await result.current.writeStat({
+        playerId: "p1",
+        type: ACTION_TYPES.MAKE,
+      });
     });
 
     expect(res).toBeNull();

@@ -1948,13 +1948,15 @@ describe("stats utilities", () => {
   describe("Foul Disqualification and Bonus Edge Cases", () => {
     it("should track foul disqualification (5th/6th foul)", () => {
       const players = [{ id: "p1", name: "Player 1" }];
-      const stats: StatEvent[] = Array(6).fill(null).map((_, i) => ({
-        gameId: "g1",
-        playerId: "p1",
-        type: ACTION_TYPES.FOUL,
-        period: 1,
-        timestamp: `t${i}`,
-      }));
+      const stats: StatEvent[] = Array(6)
+        .fill(null)
+        .map((_, i) => ({
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.FOUL,
+          period: 1,
+          timestamp: `t${i}`,
+        }));
 
       const results = calculatePlayerAggregates(players, stats);
       const p1 = results[0];

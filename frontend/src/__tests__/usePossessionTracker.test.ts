@@ -23,7 +23,11 @@ describe("usePossessionTracker", () => {
     const { result } = renderHook(() => usePossessionTracker(gameId));
 
     await act(async () => {
-      await result.current.togglePossession(SPECIAL_PLAYER_IDS.OUR_TEAM, 1, 600);
+      await result.current.togglePossession(
+        SPECIAL_PLAYER_IDS.OUR_TEAM,
+        1,
+        600,
+      );
     });
 
     const stats = await mockDb.stats.toArray();
@@ -37,7 +41,11 @@ describe("usePossessionTracker", () => {
     const { result } = renderHook(() => usePossessionTracker(gameId));
 
     await act(async () => {
-      await result.current.togglePossession(SPECIAL_PLAYER_IDS.OPPONENT, 1, 600);
+      await result.current.togglePossession(
+        SPECIAL_PLAYER_IDS.OPPONENT,
+        1,
+        600,
+      );
     });
 
     const stats = await mockDb.stats.toArray();
@@ -61,7 +69,11 @@ describe("usePossessionTracker", () => {
     const { result } = renderHook(() => usePossessionTracker(null));
 
     await act(async () => {
-      await result.current.togglePossession(SPECIAL_PLAYER_IDS.OUR_TEAM, 1, 600);
+      await result.current.togglePossession(
+        SPECIAL_PLAYER_IDS.OUR_TEAM,
+        1,
+        600,
+      );
     });
 
     const stats = await mockDb.stats.toArray();
