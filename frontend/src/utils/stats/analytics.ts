@@ -30,6 +30,164 @@ import {
   LineupAggregates,
 } from "./types";
 
+/**
+ * 🏀 Assistant Coach: Tactical Goal Status Calculation
+ * Evaluates live KPIs against user-defined goals.
+ */
+export const calculateTacticalGoalStatus = (params: {
+  stats: StatEvent[];
+  goals: { metric: string; threshold: number; direction: "above" | "below" }[];
+}) => {
+  const { stats, goals } = params;
+
+  // ⚡ Bolt: Single pass to get team totals for KPIs
+  let fga = 0,
+    fta = 0,
+    to = 0,
+    oreb = 0,
+    pts = 0;
+  let oppFga = 0,
+    oppThreePM = 0,
+    oppMakes = 0;
+  let oppDreb = 0;
+
+  for (let i = 0; i < stats.length; i++) {
+    const s = stats[i];
+    if (!isActive(s)) continue;
+
+    const isOpp = isOpponentId(s.playerId);
+
+    if (isOpp) {
+      if (isFieldGoal(s)) {
+        oppFga++;
+        if (s.type === ACTION_TYPES.MAKE) {
+          oppMakes++;
+          if (s.points === 3) oppThreePM++;
+        }
+      } else if (s.type === ACTION_TYPES.DEF_REBOUND) {
+        oppDreb++;
+      }
+    } else {
+      if (s.type === ACTION_TYPES.MAKE) {
+        pts += s.points || 0;
+        if (s.points !== 1) fga++;
+        else fta++;
+      } else if (s.type === ACTION_TYPES.MISS) {
+        if (s.points !== 1) fga++;
+        else fta++;
+      } else if (s.type === ACTION_TYPES.TURNOVER) {
+        to++;
+      } else if (s.type === ACTION_TYPES.OFF_REBOUND) {
+        oreb++;
+      }
+    }
+  }
+
+  const possessions = calculatePossessions(fga, fta, to, oreb);
+  const ppp = calculatePpp(pts, possessions);
+  const toRate =
+    possessions > 0 ? ((to / possessions) * 100).toFixed(1) : "0.0";
+  const orebPct =
+    oreb + oppDreb > 0 ? ((oreb / (oreb + oppDreb)) * 100).toFixed(1) : "0.0";
+  const oppEfg = calculateEfgPct(oppMakes, oppThreePM, oppFga);
+
+  const kpis: Record<string, string> = {
+    "OREB%": orebPct,
+    "TO Rate": toRate,
+    "Opp eFG%": oppEfg,
+    PPP: ppp,
+  };
+
+  return goals.map((goal) => {
+    const currentVal = parseFloat(kpis[goal.metric] || "0");
+    const isMet =
+      goal.direction === "above"
+        ? currentVal >= goal.threshold
+        : currentVal <= goal.threshold;
+
+    return {
+      ...goal,
+      currentValue: currentVal,
+      isMet,
+    };
+  });
+};
+
+/**
+ * 🏀 Assistant Coach: Opponent Archetype Recognition
+ * Analyzes shot distribution to identify defensive focus areas.
+ */
+export const analyzeOpponentArchetype = (stats: StatEvent[]) => {
+  let rimAttempts = 0;
+  let threeAttempts = 0;
+  let totalAttempts = 0;
+
+  for (let i = 0; i < stats.length; i++) {
+    const s = stats[i];
+    if (
+      !isActive(s) ||
+      !isOpponentId(s.playerId) ||
+      (s.type !== ACTION_TYPES.MAKE && s.type !== ACTION_TYPES.MISS) ||
+      s.points === 1
+    )
+      continue;
+
+    totalAttempts++;
+    if (s.points === 3) {
+      threeAttempts++;
+    } else {
+      const dist = Math.sqrt(
+        Math.pow((s.locationX || 0) * 5 - 250, 2) +
+          Math.pow((s.locationY || 0) * 4.7 - 140, 2),
+      );
+      if (dist <= 100) rimAttempts++;
+    }
+  }
+
+  if (totalAttempts < 5) return "Scouting...";
+
+  const rimRate = rimAttempts / totalAttempts;
+  const threeRate = threeAttempts / totalAttempts;
+
+  if (rimRate > 0.45)
+    return { type: "Rim-Heavy Slashing", suggestion: "Pack the paint / Zone" };
+  if (threeRate > 0.4)
+    return {
+      type: "Long-Range Marksmen",
+      suggestion: "Stay home / No help off shooters",
+    };
+  if (rimRate < 0.2 && threeRate < 0.2)
+    return {
+      type: "Mid-Range Specialists",
+      suggestion: "Hand in face / Contest all",
+    };
+  return {
+    type: "Balanced Attack",
+    suggestion: "Stay disciplined on rotations",
+  };
+};
+
+/**
+ * 🏀 Assistant Coach: Predictive Fatigue Decay Modeler
+ * WHY: Correlates live stint duration with a drop in performance.
+ */
+export const calculateFatigueDecay = (
+  stintSeconds: number,
+  maxStintMinutes: number,
+) => {
+  const maxSecs = maxStintMinutes * 60;
+  if (stintSeconds < maxSecs * 0.75) return 100; // Fresh
+
+  // Decay begins at 75% of max stint
+  const decayStart = maxSecs * 0.75;
+  const decayRange = maxSecs * 0.5; // Over-extended by 50%
+  const elapsedInDecay = Math.max(0, stintSeconds - decayStart);
+
+  // Linear decay to 60% efficiency
+  const efficiency = Math.max(60, 100 - (elapsedInDecay / decayRange) * 40);
+  return Math.round(efficiency);
+};
+
 export const calculateOpponentScoutingStats = (
   stats: StatEvent[],
 ): Map<string, OpponentAggregates> => {
@@ -381,15 +539,27 @@ export const calculateHaltAlerts = (params: {
     });
   }
 
-  // 3. Time to Sub fatigue alerts
+  // 3. Time to Sub fatigue alerts (with Proactive Sub Alerts)
   gameData.onCourtIds.forEach((pId: string) => {
     const duration = gameData.stintDurations.get(pId) || 0;
-    if (duration > maxStintDuration * 60) {
+    const maxSecs = maxStintDuration * 60;
+
+    if (duration > maxSecs) {
       alerts.push({
         id: `fatigue-${pId}`,
         type: "FATIGUE",
+        severity: "error",
+        message: `RED LINE: #${jerseyMap.get(pId)} over-extended (${Math.floor(duration / 60)}m)`,
+        playerId: pId,
+        jerseyNumber: jerseyMap.get(pId),
+      });
+    } else if (duration > maxSecs - 120) {
+      // 2 minute warning
+      alerts.push({
+        id: `proactive-sub-${pId}`,
+        type: "FATIGUE",
         severity: "warning",
-        message: `Fatigue Alert: #${jerseyMap.get(pId)} (${Math.floor(duration / 60)}m)`,
+        message: `Proactive Sub: #${jerseyMap.get(pId)} near red-line`,
         playerId: pId,
         jerseyNumber: jerseyMap.get(pId),
       });

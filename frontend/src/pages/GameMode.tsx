@@ -68,17 +68,22 @@ import {
   SPECIAL_PLAYER_IDS,
   SHOT_QUALITY,
 } from "../constants/stats";
-import { type PlayerAggregates, getPlayerDisplayName } from "../utils/stats";
+import {
+  type PlayerAggregates,
+  getPlayerDisplayName,
+  calculateFatigueDecay,
+} from "../utils/stats";
 import { formatClock, formatPlusMinus } from "../utils/mathUtils";
 import { MoleskineCard } from "../components/SharedUI";
 
 // Extracted modules
 import { detectShotValueFromCoords } from "../utils/courtUtils";
-import { pulse } from "../styles/animations";
+import { pulse, batteryDrain } from "../styles/animations";
 import { EditClockDialog } from "../components/EditClockDialog";
 import { Scoreboard } from "../components/Scoreboard";
 import { TeamStatsCard } from "../components/TeamStatsCard";
 import { ActionControls } from "../components/ActionControls";
+import { TacticalGoalsHUD } from "../components/TacticalGoalsHUD";
 import { useGameMode } from "../hooks/useGameMode";
 
 /**
@@ -184,6 +189,8 @@ const GameMode: React.FC = () => {
     playbookEfficiency,
     markers,
     clockSecondsRef,
+    tacticalGoalStatus,
+    opponentArchetype,
   } = useGameMode(gameId, teamId);
 
   /**
@@ -917,6 +924,10 @@ const GameMode: React.FC = () => {
             />
 
             {trackingMode === "TEAM" && (
+              <TacticalGoalsHUD goals={tacticalGoalStatus} />
+            )}
+
+            {trackingMode === "TEAM" && (
               <PlaybookEfficiencyWidget
                 plays={playbookEfficiency}
                 teamPpp={parseFloat(gameData.teamPpp)}
@@ -1213,6 +1224,44 @@ const GameMode: React.FC = () => {
                   bgcolor: "rgba(0,0,0,0.02)",
                 }}
               >
+                <Box
+                  sx={{
+                    mb: 2,
+                    p: 1.5,
+                    borderRadius: 2,
+                    bgcolor: "secondary.main",
+                    color: "white",
+                  }}
+                >
+                  <Typography
+                    variant="caption"
+                    sx={{ fontWeight: 800, opacity: 0.8, display: "block" }}
+                  >
+                    TACTICAL ARCHETYPE
+                  </Typography>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      fontWeight: 900,
+                      fontFamily: "var(--serif)",
+                      lineHeight: 1.2,
+                      mb: 0.5,
+                    }}
+                  >
+                    {typeof opponentArchetype === "string"
+                      ? opponentArchetype
+                      : opponentArchetype.type}
+                  </Typography>
+                  {typeof opponentArchetype !== "string" && (
+                    <Typography
+                      variant="caption"
+                      sx={{ fontStyle: "italic", opacity: 0.9 }}
+                    >
+                      Rec: {opponentArchetype.suggestion}
+                    </Typography>
+                  )}
+                </Box>
+
                 <Typography
                   variant="subtitle2"
                   gutterBottom
@@ -1957,6 +2006,8 @@ const GameMode: React.FC = () => {
         bottomLineups={[...halftimeLineupStats].reverse()}
         opponentThreats={gameData.momentumAlerts.opponentThreats}
         jerseyMap={jerseyMap}
+        tacticalGoals={team?.tacticalGoals}
+        allStats={sortedGameStats}
       />
 
       <Dialog
@@ -2145,6 +2196,10 @@ const LineupPlayerButton: React.FC<{
 
     const maxStint = (team?.maxStintDuration || 8) * 60;
     const isFatigued = stintSecs > maxStint;
+    const efficiency = calculateFatigueDecay(
+      stintSecs,
+      team?.maxStintDuration || 8,
+    );
 
     return (
       <Box sx={{ display: "flex", gap: 0.5, alignItems: "center" }}>
@@ -2191,21 +2246,67 @@ const LineupPlayerButton: React.FC<{
             {jerseyNumber}
           </Avatar>
           <Box sx={{ flex: 1, textAlign: "left" }}>
-            <Typography
-              variant="caption"
-              sx={{ fontWeight: 700, display: "block", lineHeight: 1 }}
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
             >
-              {player.name}
-              {isFatigued && (
-                <Tooltip
-                  title={`Fatigue Alert: Exceeded ${maxStint / 60} mins`}
+              <Typography
+                variant="caption"
+                sx={{ fontWeight: 700, display: "block", lineHeight: 1 }}
+              >
+                {player.name}
+                {isFatigued && (
+                  <Tooltip
+                    title={`Fatigue Alert: Exceeded ${maxStint / 60} mins`}
+                  >
+                    <Box component="span" sx={{ ml: 0.5, fontSize: "0.8rem" }}>
+                      ⚠️
+                    </Box>
+                  </Tooltip>
+                )}
+              </Typography>
+              <Tooltip title={`Current Efficiency: ${efficiency}%`}>
+                <Box
+                  sx={{
+                    width: 24,
+                    height: 12,
+                    border: "1.5px solid white",
+                    borderRadius: "2px",
+                    position: "relative",
+                    "&::after": {
+                      content: '""',
+                      position: "absolute",
+                      right: -3,
+                      top: 2,
+                      width: 2,
+                      height: 4,
+                      bgcolor: "white",
+                    },
+                  }}
                 >
-                  <Box component="span" sx={{ ml: 0.5, fontSize: "0.8rem" }}>
-                    ⚠️
-                  </Box>
-                </Tooltip>
-              )}
-            </Typography>
+                  <Box
+                    sx={{
+                      height: "100%",
+                      width: `${efficiency}%`,
+                      bgcolor:
+                        efficiency > 85
+                          ? "#4caf50"
+                          : efficiency > 70
+                            ? "#ffeb3b"
+                            : "#f44336",
+                      transition: "width 0.5s ease",
+                      animation:
+                        efficiency <= 70
+                          ? `${batteryDrain} 2s infinite ease-in-out`
+                          : "none",
+                    }}
+                  />
+                </Box>
+              </Tooltip>
+            </Box>
             <Typography
               variant="caption"
               sx={{ fontSize: "0.6rem", opacity: 0.8 }}

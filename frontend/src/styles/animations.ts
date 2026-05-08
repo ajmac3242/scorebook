@@ -11,3 +11,9 @@ export const slideBackAndForth = keyframes`
   50% { left: 70%; }
   100% { left: 0%; }
 `;
+
+export const batteryDrain = keyframes`
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+`;

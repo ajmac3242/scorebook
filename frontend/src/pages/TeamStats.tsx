@@ -113,6 +113,9 @@ const TeamStats: React.FC = () => {
   >({});
   const [editPlaybook, setEditPlaybook] = useState<string[]>([]);
   const [newPlayName, setNewPlayName] = useState("");
+  const [editTacticalGoals, setEditTacticalGoals] = useState<
+    { metric: string; threshold: number; direction: "above" | "below" }[]
+  >([]);
   const [timeLeft, setTimeLeft] = useState("");
   const [sortConfig, setSortConfig] = useState<{
     key: string;
@@ -180,6 +183,7 @@ const TeamStats: React.FC = () => {
       setEditMaxStintDuration(team.maxStintDuration || 8);
       setEditFoulWarningThresholds(team.foulWarningThresholds || {});
       setEditPlaybook(team.playbook || []);
+      setEditTacticalGoals(team.tacticalGoals || []);
     }
     // We only want to sync from DB when the team object itself changes (e.g. initial load)
   }, [team]);
@@ -443,6 +447,7 @@ const TeamStats: React.FC = () => {
       maxStintDuration: editMaxStintDuration,
       foulWarningThresholds: editFoulWarningThresholds,
       playbook: editPlaybook,
+      tacticalGoals: editTacticalGoals,
       fouls: editTimeoutLimit, // Keep legacy fouls field in sync with timeouts
       synced: 0,
     });
@@ -1486,6 +1491,97 @@ const TeamStats: React.FC = () => {
                   />
                 ))}
               </Box>
+            </Box>
+
+            <Divider sx={{ my: 1 }}>
+              <Chip label="Tactical Identity Goals" size="small" />
+            </Divider>
+            <Box>
+              <Typography variant="caption" sx={{ mb: 1, display: "block" }}>
+                Define target KPIs to track in real-time (e.g. OREB% &gt; 30)
+              </Typography>
+              <Stack spacing={2}>
+                {editTacticalGoals.map((goal, idx) => (
+                  <Stack
+                    key={idx}
+                    direction="row"
+                    spacing={1}
+                    alignItems="center"
+                  >
+                    <FormControl size="small" sx={{ flex: 2 }}>
+                      <InputLabel>Metric</InputLabel>
+                      <Select
+                        label="Metric"
+                        value={goal.metric}
+                        onChange={(e) => {
+                          const next = [...editTacticalGoals];
+                          next[idx].metric = e.target.value;
+                          setEditTacticalGoals(next);
+                        }}
+                      >
+                        <MenuItem value="OREB%">OREB%</MenuItem>
+                        <MenuItem value="TO Rate">TO Rate</MenuItem>
+                        <MenuItem value="Opp eFG%">Opp eFG%</MenuItem>
+                        <MenuItem value="PPP">PPP</MenuItem>
+                      </Select>
+                    </FormControl>
+                    <FormControl size="small" sx={{ flex: 1.5 }}>
+                      <InputLabel>Target</InputLabel>
+                      <Select
+                        label="Target"
+                        value={goal.direction}
+                        onChange={(e) => {
+                          const next = [...editTacticalGoals];
+                          next[idx].direction = e.target.value as
+                            | "above"
+                            | "below";
+                          setEditTacticalGoals(next);
+                        }}
+                      >
+                        <MenuItem value="above">Above</MenuItem>
+                        <MenuItem value="below">Below</MenuItem>
+                      </Select>
+                    </FormControl>
+                    <TextField
+                      size="small"
+                      label="Val"
+                      type="number"
+                      sx={{ flex: 1 }}
+                      value={goal.threshold}
+                      onChange={(e) => {
+                        const next = [...editTacticalGoals];
+                        next[idx].threshold = parseFloat(e.target.value) || 0;
+                        setEditTacticalGoals(next);
+                      }}
+                    />
+                    <IconButton
+                      size="small"
+                      color="error"
+                      onClick={() => {
+                        const next = [...editTacticalGoals];
+                        next.splice(idx, 1);
+                        setEditTacticalGoals(next);
+                      }}
+                    >
+                      <CloseIcon fontSize="small" />
+                    </IconButton>
+                  </Stack>
+                ))}
+                {editTacticalGoals.length < 5 && (
+                  <Button
+                    size="small"
+                    startIcon={<AddIcon />}
+                    onClick={() =>
+                      setEditTacticalGoals([
+                        ...editTacticalGoals,
+                        { metric: "OREB%", threshold: 30, direction: "above" },
+                      ])
+                    }
+                  >
+                    Add Goal
+                  </Button>
+                )}
+              </Stack>
             </Box>
           </Stack>
         </DialogContent>
