@@ -25,6 +25,7 @@ export interface ActionControlsProps {
   recentStatsLength: number;
   onEndGame: () => void;
   isGameCompleted: boolean;
+  isEnding?: boolean;
 }
 
 export const ActionControls = React.memo(
@@ -41,6 +42,7 @@ export const ActionControls = React.memo(
     recentStatsLength,
     onEndGame,
     isGameCompleted,
+    isEnding = false,
   }: ActionControlsProps) => {
     return (
       <Box
@@ -161,7 +163,7 @@ export const ActionControls = React.memo(
         <Tooltip
           title={
             recentStatsLength === 0
-              ? "No actions to undo"
+              ? "No actions to undo (Ctrl+Z)"
               : "Revert the last recorded action (Ctrl+Z)"
           }
         >
@@ -174,8 +176,8 @@ export const ActionControls = React.memo(
               disabled={recentStatsLength === 0 || isReadOnly}
               aria-label={
                 recentStatsLength === 0
-                  ? "undo last action (no actions to undo)"
-                  : "undo last action"
+                  ? "undo last action (no actions to undo, Ctrl+Z)"
+                  : "undo last action (Ctrl+Z)"
               }
             >
               Undo
@@ -184,16 +186,19 @@ export const ActionControls = React.memo(
         </Tooltip>
 
         {!isGameCompleted && !isReadOnly && (
-          <Tooltip title="Finalize and save game results">
-            <Button
-              size="small"
-              variant="contained"
-              color="error"
-              onClick={onEndGame}
-              aria-label="End and Save Game"
-            >
-              End Game
-            </Button>
+          <Tooltip title={isEnding ? "Ending game..." : "Finalize and save game results"}>
+            <span>
+              <Button
+                size="small"
+                variant="contained"
+                color="error"
+                onClick={onEndGame}
+                disabled={isEnding}
+                aria-label={isEnding ? "Ending game" : "End and Save Game"}
+              >
+                {isEnding ? "Ending..." : "End Game"}
+              </Button>
+            </span>
           </Tooltip>
         )}
       </Box>
