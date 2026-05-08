@@ -1233,14 +1233,30 @@ const GameMode: React.FC = () => {
                     color: "white",
                   }}
                 >
-                  <Typography variant="caption" sx={{ fontWeight: 800, opacity: 0.8, display: "block" }}>
+                  <Typography
+                    variant="caption"
+                    sx={{ fontWeight: 800, opacity: 0.8, display: "block" }}
+                  >
                     TACTICAL ARCHETYPE
                   </Typography>
-                  <Typography variant="h6" sx={{ fontWeight: 900, fontFamily: "var(--serif)", lineHeight: 1.2, mb: 0.5 }}>
-                    {typeof opponentArchetype === "string" ? opponentArchetype : opponentArchetype.type}
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      fontWeight: 900,
+                      fontFamily: "var(--serif)",
+                      lineHeight: 1.2,
+                      mb: 0.5,
+                    }}
+                  >
+                    {typeof opponentArchetype === "string"
+                      ? opponentArchetype
+                      : opponentArchetype.type}
                   </Typography>
                   {typeof opponentArchetype !== "string" && (
-                    <Typography variant="caption" sx={{ fontStyle: "italic", opacity: 0.9 }}>
+                    <Typography
+                      variant="caption"
+                      sx={{ fontStyle: "italic", opacity: 0.9 }}
+                    >
                       Rec: {opponentArchetype.suggestion}
                     </Typography>
                   )}
@@ -2180,7 +2196,10 @@ const LineupPlayerButton: React.FC<{
 
     const maxStint = (team?.maxStintDuration || 8) * 60;
     const isFatigued = stintSecs > maxStint;
-    const efficiency = calculateFatigueDecay(stintSecs, team?.maxStintDuration || 8);
+    const efficiency = calculateFatigueDecay(
+      stintSecs,
+      team?.maxStintDuration || 8,
+    );
 
     return (
       <Box sx={{ display: "flex", gap: 0.5, alignItems: "center" }}>
@@ -2227,7 +2246,13 @@ const LineupPlayerButton: React.FC<{
             {jerseyNumber}
           </Avatar>
           <Box sx={{ flex: 1, textAlign: "left" }}>
-            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
               <Typography
                 variant="caption"
                 sx={{ fontWeight: 700, display: "block", lineHeight: 1 }}
@@ -2266,9 +2291,17 @@ const LineupPlayerButton: React.FC<{
                     sx={{
                       height: "100%",
                       width: `${efficiency}%`,
-                      bgcolor: efficiency > 85 ? "#4caf50" : efficiency > 70 ? "#ffeb3b" : "#f44336",
+                      bgcolor:
+                        efficiency > 85
+                          ? "#4caf50"
+                          : efficiency > 70
+                            ? "#ffeb3b"
+                            : "#f44336",
                       transition: "width 0.5s ease",
-                      animation: efficiency <= 70 ? `${batteryDrain} 2s infinite ease-in-out` : "none",
+                      animation:
+                        efficiency <= 70
+                          ? `${batteryDrain} 2s infinite ease-in-out`
+                          : "none",
                     }}
                   />
                 </Box>

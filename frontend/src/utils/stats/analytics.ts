@@ -149,10 +149,22 @@ export const analyzeOpponentArchetype = (stats: StatEvent[]) => {
   const rimRate = rimAttempts / totalAttempts;
   const threeRate = threeAttempts / totalAttempts;
 
-  if (rimRate > 0.45) return { type: "Rim-Heavy Slashing", suggestion: "Pack the paint / Zone" };
-  if (threeRate > 0.4) return { type: "Long-Range Marksmen", suggestion: "Stay home / No help off shooters" };
-  if (rimRate < 0.2 && threeRate < 0.2) return { type: "Mid-Range Specialists", suggestion: "Hand in face / Contest all" };
-  return { type: "Balanced Attack", suggestion: "Stay disciplined on rotations" };
+  if (rimRate > 0.45)
+    return { type: "Rim-Heavy Slashing", suggestion: "Pack the paint / Zone" };
+  if (threeRate > 0.4)
+    return {
+      type: "Long-Range Marksmen",
+      suggestion: "Stay home / No help off shooters",
+    };
+  if (rimRate < 0.2 && threeRate < 0.2)
+    return {
+      type: "Mid-Range Specialists",
+      suggestion: "Hand in face / Contest all",
+    };
+  return {
+    type: "Balanced Attack",
+    suggestion: "Stay disciplined on rotations",
+  };
 };
 
 /**

@@ -708,7 +708,10 @@ const GameStats: React.FC = () => {
           const duration = start - (s.clockTime || 0);
           if (duration > maxStint) {
             // Estimate points lost: (Efficiency Drop % / 100) * (Team PPP * Estimated Possessions in over-extension)
-            const efficiency = calculateFatigueDecay(duration, team?.maxStintDuration || 8);
+            const efficiency = calculateFatigueDecay(
+              duration,
+              team?.maxStintDuration || 8,
+            );
             const drop = 100 - efficiency;
             // Rough heuristic: 2 possessions per minute
             const overExtensionMins = (duration - maxStint) / 60;
@@ -1864,36 +1867,65 @@ const GameStats: React.FC = () => {
         {rotationAudit.length > 0 && (
           <Grid item xs={12}>
             <MoleskineCard>
-              <Typography variant="h6" sx={{ fontFamily: "var(--serif)", mb: 2, color: "error.main" }}>
+              <Typography
+                variant="h6"
+                sx={{ fontFamily: "var(--serif)", mb: 2, color: "error.main" }}
+              >
                 Rotation Efficiency Audit (Over-Extended Stints)
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                Identifies stints that exceeded the {team?.maxStintDuration || 8}-minute threshold and estimates potential points lost due to fatigue-driven performance decay.
+                Identifies stints that exceeded the{" "}
+                {team?.maxStintDuration || 8}-minute threshold and estimates
+                potential points lost due to fatigue-driven performance decay.
               </Typography>
               <TableContainer>
                 <Table size="small">
                   <TableHead>
                     <TableRow sx={{ bgcolor: "rgba(244, 67, 54, 0.05)" }}>
                       <TableCell sx={{ fontWeight: 700 }}>Player</TableCell>
-                      <TableCell align="right" sx={{ fontWeight: 700 }}>Stint Duration</TableCell>
-                      <TableCell align="right" sx={{ fontWeight: 700 }}>Over-Extension</TableCell>
-                      <TableCell align="right" sx={{ fontWeight: 700 }}>Est. Points Lost</TableCell>
+                      <TableCell align="right" sx={{ fontWeight: 700 }}>
+                        Stint Duration
+                      </TableCell>
+                      <TableCell align="right" sx={{ fontWeight: 700 }}>
+                        Over-Extension
+                      </TableCell>
+                      <TableCell align="right" sx={{ fontWeight: 700 }}>
+                        Est. Points Lost
+                      </TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {rotationAudit.map((s, idx) => (
                       <TableRow key={idx}>
-                        <TableCell sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                          <Avatar sx={{ width: 24, height: 24, fontSize: "0.7rem" }}>
+                        <TableCell
+                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                        >
+                          <Avatar
+                            sx={{ width: 24, height: 24, fontSize: "0.7rem" }}
+                          >
                             {shotChartJerseyMap.get(s.playerId)}
                           </Avatar>
                           <Typography variant="body2">
-                            {players.find(p => p.id === s.playerId)?.name || "Unknown"}
+                            {players.find((p) => p.id === s.playerId)?.name ||
+                              "Unknown"}
                           </Typography>
                         </TableCell>
-                        <TableCell align="right">{(s.duration / 60).toFixed(1)}m</TableCell>
-                        <TableCell align="right">{((s.duration - (team?.maxStintDuration || 8) * 60) / 60).toFixed(1)}m</TableCell>
-                        <TableCell align="right" sx={{ fontWeight: 800, color: "error.main" }}>-{s.pointsLost}</TableCell>
+                        <TableCell align="right">
+                          {(s.duration / 60).toFixed(1)}m
+                        </TableCell>
+                        <TableCell align="right">
+                          {(
+                            (s.duration - (team?.maxStintDuration || 8) * 60) /
+                            60
+                          ).toFixed(1)}
+                          m
+                        </TableCell>
+                        <TableCell
+                          align="right"
+                          sx={{ fontWeight: 800, color: "error.main" }}
+                        >
+                          -{s.pointsLost}
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>

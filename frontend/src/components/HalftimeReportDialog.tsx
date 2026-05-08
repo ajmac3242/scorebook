@@ -115,14 +115,25 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
                       color: "white",
                     }}
                   >
-                    <Typography variant="caption" sx={{ fontWeight: 800, display: "block" }}>
+                    <Typography
+                      variant="caption"
+                      sx={{ fontWeight: 800, display: "block" }}
+                    >
                       {goal.metric}
                     </Typography>
-                    <Typography variant="h6" sx={{ fontWeight: 900, lineHeight: 1 }}>
-                      {goal.currentValue}{goal.metric.includes("%") ? "%" : ""}
+                    <Typography
+                      variant="h6"
+                      sx={{ fontWeight: 900, lineHeight: 1 }}
+                    >
+                      {goal.currentValue}
+                      {goal.metric.includes("%") ? "%" : ""}
                     </Typography>
-                    <Typography variant="caption" sx={{ fontSize: "0.55rem", opacity: 0.8 }}>
-                      Target: {goal.direction === "above" ? ">" : "<"} {goal.threshold}
+                    <Typography
+                      variant="caption"
+                      sx={{ fontSize: "0.55rem", opacity: 0.8 }}
+                    >
+                      Target: {goal.direction === "above" ? ">" : "<"}{" "}
+                      {goal.threshold}
                     </Typography>
                   </Box>
                 </Grid>
