@@ -18,7 +18,6 @@ import {
   calculateHaltAlerts,
   calculateTacticalGoalStatus,
   analyzeOpponentArchetype,
-  calculateFatigueDecay,
   type PlayerAggregates,
   OpponentThreat,
 } from "../utils/stats";

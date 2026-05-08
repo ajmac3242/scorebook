@@ -13,6 +13,7 @@ import {
   Divider,
   Chip,
 } from "@mui/material";
+import { StatEvent } from "../db";
 import {
   LineupAggregates,
   OpponentThreat,
@@ -34,8 +35,12 @@ interface HalftimeReportDialogProps {
   bottomLineups: LineupAggregates[];
   opponentThreats: OpponentThreat[];
   jerseyMap: Map<string, string | undefined>;
-  tacticalGoals?: { metric: string; threshold: number; direction: "above" | "below" }[];
-  allStats: any[];
+  tacticalGoals?: {
+    metric: string;
+    threshold: number;
+    direction: "above" | "below";
+  }[];
+  allStats: StatEvent[];
 }
 
 const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({

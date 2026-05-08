@@ -119,7 +119,6 @@ export const calculateTacticalGoalStatus = (params: {
  */
 export const analyzeOpponentArchetype = (stats: StatEvent[]) => {
   let rimAttempts = 0;
-  let midAttempts = 0;
   let threeAttempts = 0;
   let totalAttempts = 0;
 
@@ -142,7 +141,6 @@ export const analyzeOpponentArchetype = (stats: StatEvent[]) => {
           Math.pow((s.locationY || 0) * 4.7 - 140, 2),
       );
       if (dist <= 100) rimAttempts++;
-      else midAttempts++;
     }
   }
 
