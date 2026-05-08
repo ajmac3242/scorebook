@@ -1,0 +1,154 @@
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { renderHook, act } from "@testing-library/react";
+import { useStatWriter } from "../hooks/useStatWriter";
+import { mockDb } from "../dbMock";
+import { syncService } from "../utils/syncService";
+import { ACTION_TYPES } from "../constants/stats";
+
+vi.mock("../utils/syncService", () => ({
+  syncService: {
+    pushUpdates: vi.fn().mockResolvedValue(undefined),
+  },
+}));
+
+describe("useStatWriter", () => {
+  const gameId = "test-game-id";
+
+  beforeEach(() => {
+    mockDb.reset();
+    vi.clearAllMocks();
+  });
+
+  it("should write a new stat", async () => {
+    const { result } = renderHook(() => useStatWriter(gameId));
+
+    let savedStat: any;
+    await act(async () => {
+      savedStat = await result.current.writeStat({
+        playerId: "player-1",
+        type: ACTION_TYPES.MAKE,
+        points: 2,
+        period: 1,
+        clockTime: 600,
+      });
+    });
+
+    expect(savedStat).toBeDefined();
+    expect(savedStat.gameId).toBe(gameId);
+    expect(savedStat.playerId).toBe("player-1");
+    expect(savedStat.points).toBe(2);
+    expect(syncService.pushUpdates).toHaveBeenCalled();
+
+    const dbStat = await mockDb.stats.get(savedStat.id);
+    expect(dbStat).toBeDefined();
+    expect(dbStat?.type).toBe(ACTION_TYPES.MAKE);
+  });
+
+  it("should update an existing stat when editing", async () => {
+    const { result } = renderHook(() => useStatWriter(gameId));
+
+    // First, add a stat
+    const initialStat = {
+      id: "stat-to-edit",
+      gameId,
+      playerId: "player-1",
+      type: ACTION_TYPES.MISS,
+      period: 1,
+      clockTime: 500,
+      synced: 1,
+    };
+    await mockDb.stats.add(initialStat);
+
+    await act(async () => {
+      await result.current.writeStat({
+        isEditing: true,
+        editingStatId: "stat-to-edit",
+        type: ACTION_TYPES.MAKE,
+        points: 3,
+      });
+    });
+
+    const updatedStat = await mockDb.stats.get("stat-to-edit");
+    expect(updatedStat?.type).toBe(ACTION_TYPES.MAKE);
+    expect(updatedStat?.points).toBe(3);
+    expect(updatedStat?.synced).toBe(0);
+    expect(syncService.pushUpdates).toHaveBeenCalled();
+  });
+
+  it("should soft delete a stat", async () => {
+    const { result } = renderHook(() => useStatWriter(gameId));
+
+    const statId = "stat-to-delete";
+    await mockDb.stats.add({
+      id: statId,
+      gameId,
+      playerId: "player-1",
+      type: ACTION_TYPES.MAKE,
+      synced: 1,
+    });
+
+    await act(async () => {
+      await result.current.deleteStat(statId);
+    });
+
+    const deletedStat = await mockDb.stats.get(statId);
+    expect(deletedStat?.deletedAt).toBeDefined();
+    expect(deletedStat?.synced).toBe(0);
+    expect(syncService.pushUpdates).toHaveBeenCalled();
+  });
+
+  it("should handle quick substitution", async () => {
+    const { result } = renderHook(() => useStatWriter(gameId));
+
+    const originalOnCourt = new Set(["p1", "p2", "p3", "p4", "p5"]);
+    const finalOnCourt = new Set(["p1", "p2", "p3", "p4", "p6"]); // p5 out, p6 in
+
+    await act(async () => {
+      await result.current.quickSub(originalOnCourt, finalOnCourt, 1, 300);
+    });
+
+    const allStats = await mockDb.stats.toArray();
+    const subOut = allStats.find(
+      (s) => s.playerId === "p5" && s.type === ACTION_TYPES.SUB_OUT,
+    );
+    const subIn = allStats.find(
+      (s) => s.playerId === "p6" && s.type === ACTION_TYPES.SUB_IN,
+    );
+
+    expect(subOut).toBeDefined();
+    expect(subIn).toBeDefined();
+    expect(subOut?.clockTime).toBe(300);
+    expect(subIn?.clockTime).toBe(300);
+    expect(syncService.pushUpdates).toHaveBeenCalled();
+  });
+
+  it("should end a game", async () => {
+    const { result } = renderHook(() => useStatWriter(gameId));
+
+    await mockDb.games.add({ id: gameId, completed: 0, synced: 1 } as any);
+
+    await act(async () => {
+      await result.current.endHighGame();
+    });
+
+    const game = await mockDb.games.get(gameId);
+    expect(game?.completed).toBe(1);
+    expect(game?.synced).toBe(0);
+    expect(syncService.pushUpdates).toHaveBeenCalled();
+  });
+
+  it("should return null and do nothing if gameId is missing", async () => {
+    const { result } = renderHook(() => useStatWriter(null));
+
+    let res: any;
+    await act(async () => {
+      res = await result.current.writeStat({
+        playerId: "p1",
+        type: ACTION_TYPES.MAKE,
+      });
+    });
+
+    expect(res).toBeNull();
+    expect(syncService.pushUpdates).not.toHaveBeenCalled();
+  });
+});
