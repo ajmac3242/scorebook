@@ -467,7 +467,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
         period,
         clockSeconds,
         eventAggregates.currentScore - eventAggregates.opponentScore,
-        team?.periodType || "QUARTERS"
+        team?.periodType || "QUARTERS",
       ),
       stintDurations,
       livePace,
@@ -482,7 +482,13 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       ),
       momentumAlerts: { ...eventAggregates.momentumAlerts, scoringDrought },
     };
-  }, [eventAggregates, clockSeconds, period, game?.periodLength, team?.periodType]);
+  }, [
+    eventAggregates,
+    clockSeconds,
+    period,
+    game?.periodLength,
+    team?.periodType,
+  ]);
 
   const playerNamesMap = useMemo(() => {
     const map = new Map<string, string>();
@@ -784,7 +790,13 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     winningTimeRecommendations: calculateWinningTimeRecommendations({
       gameStats: sortedGameStats,
       playbookEfficiency,
-      refTightness: gameData.defensiveStats.totalFouls / (Math.max(1, (period - 1) * (game?.periodLength || 10) + ((game?.periodLength || 10) * 60 - clockSeconds) / 60)),
+      refTightness:
+        gameData.defensiveStats.totalFouls /
+        Math.max(
+          1,
+          (period - 1) * (game?.periodLength || 10) +
+            ((game?.periodLength || 10) * 60 - clockSeconds) / 60,
+        ),
       opponentThreats: gameData.momentumAlerts.opponentThreats,
       teamFouls: gameData.teamFoulStats.teamFouls,
       oppFouls: gameData.teamFoulStats.oppFouls,

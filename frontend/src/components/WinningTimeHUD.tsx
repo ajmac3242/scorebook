@@ -8,12 +8,7 @@ import {
   Paper,
   Divider,
 } from "@mui/material";
-import {
-  FlashOn,
-  Shield,
-  Timer,
-  TrendingUp,
-} from "@mui/icons-material";
+import { FlashOn, Shield, Timer, TrendingUp } from "@mui/icons-material";
 import { WinningTimeRecommendation } from "../utils/stats/types";
 import { pulse } from "../styles/animations";
 
@@ -57,7 +52,10 @@ export const WinningTimeHUD: React.FC<WinningTimeHUDProps> = ({
         sx={{ mb: 1.5, borderBottom: "1px solid rgba(255,255,255,0.2)", pb: 1 }}
       >
         <FlashOn sx={{ color: "#ffd700" }} />
-        <Typography variant="subtitle1" sx={{ fontWeight: 900, letterSpacing: 1 }}>
+        <Typography
+          variant="subtitle1"
+          sx={{ fontWeight: 900, letterSpacing: 1 }}
+        >
           WINNING TIME ADVISOR
         </Typography>
       </Stack>
@@ -65,16 +63,28 @@ export const WinningTimeHUD: React.FC<WinningTimeHUDProps> = ({
       <Stack spacing={2}>
         {/* Offensive Recommendation */}
         <Box>
-          <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 0.5 }}>
+          <Stack
+            direction="row"
+            spacing={1}
+            alignItems="center"
+            sx={{ mb: 0.5 }}
+          >
             <TrendingUp sx={{ fontSize: 16, color: "#4caf50" }} />
-            <Typography variant="caption" sx={{ fontWeight: 800, opacity: 0.8 }}>
+            <Typography
+              variant="caption"
+              sx={{ fontWeight: 800, opacity: 0.8 }}
+            >
               OFFENSIVE PATH
             </Typography>
           </Stack>
           <Typography variant="body2" sx={{ fontWeight: 700, mb: 1 }}>
             {recommendations.offensive.recommendation}
           </Typography>
-          <Stack direction="row" spacing={1} sx={{ overflowX: "auto", pb: 0.5 }}>
+          <Stack
+            direction="row"
+            spacing={1}
+            sx={{ overflowX: "auto", pb: 0.5 }}
+          >
             {recommendations.offensive.topSets.map((set, idx) => (
               <Chip
                 key={idx}
@@ -95,9 +105,17 @@ export const WinningTimeHUD: React.FC<WinningTimeHUDProps> = ({
 
         {/* Defensive Recommendation */}
         <Box>
-          <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 0.5 }}>
+          <Stack
+            direction="row"
+            spacing={1}
+            alignItems="center"
+            sx={{ mb: 0.5 }}
+          >
             <Shield sx={{ fontSize: 16, color: "#f44336" }} />
-            <Typography variant="caption" sx={{ fontWeight: 800, opacity: 0.8 }}>
+            <Typography
+              variant="caption"
+              sx={{ fontWeight: 800, opacity: 0.8 }}
+            >
               DEFENSIVE PRIORITY
             </Typography>
           </Stack>
@@ -126,18 +144,40 @@ export const WinningTimeHUD: React.FC<WinningTimeHUDProps> = ({
         <Box
           sx={{
             p: 1.5,
-            bgcolor: recommendations.timeout.strategy === "USE" ? "rgba(255, 152, 0, 0.2)" : "rgba(255,255,255,0.05)",
+            bgcolor:
+              recommendations.timeout.strategy === "USE"
+                ? "rgba(255, 152, 0, 0.2)"
+                : "rgba(255,255,255,0.05)",
             borderRadius: 1,
-            border: recommendations.timeout.strategy === "USE" ? "1px solid #ff9800" : "1px solid transparent",
+            border:
+              recommendations.timeout.strategy === "USE"
+                ? "1px solid #ff9800"
+                : "1px solid transparent",
           }}
         >
-          <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 0.5 }}>
-            <Timer sx={{ fontSize: 16, color: recommendations.timeout.strategy === "USE" ? "#ff9800" : "white" }} />
+          <Stack
+            direction="row"
+            spacing={1}
+            alignItems="center"
+            sx={{ mb: 0.5 }}
+          >
+            <Timer
+              sx={{
+                fontSize: 16,
+                color:
+                  recommendations.timeout.strategy === "USE"
+                    ? "#ff9800"
+                    : "white",
+              }}
+            />
             <Typography variant="caption" sx={{ fontWeight: 800 }}>
               TIMEOUT: {recommendations.timeout.strategy}
             </Typography>
           </Stack>
-          <Typography variant="caption" sx={{ display: "block", fontStyle: "italic" }}>
+          <Typography
+            variant="caption"
+            sx={{ display: "block", fontStyle: "italic" }}
+          >
             {recommendations.timeout.reason}
           </Typography>
         </Box>
