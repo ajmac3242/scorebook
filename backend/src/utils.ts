@@ -28,6 +28,14 @@ export const REDACTED_HEADERS = Object.freeze(
 );
 
 /**
+ * Checks if a given key is considered sensitive and should be redacted.
+ * @param key - The key to check.
+ * @returns True if the key is sensitive.
+ */
+export const isSensitiveKey = (key: string): boolean =>
+  REDACTED_HEADERS.has(key.toLowerCase());
+
+/**
  * Redacts sensitive fields from an object before logging.
  *
  * WHY: This utility prevents accidental leakage of sensitive information into
@@ -49,7 +57,7 @@ function sanitizeForLog(obj: unknown, depth = 0): unknown {
 
   const sanitized: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(obj as Record<string, unknown>)) {
-    if (REDACTED_HEADERS.has(key.toLowerCase())) {
+    if (isSensitiveKey(key)) {
       sanitized[key] = "[REDACTED]";
     } else {
       sanitized[key] = sanitizeForLog(value, depth + 1);
@@ -123,7 +131,7 @@ function redactMap(
   if (!map) return undefined;
   const redacted = { ...map };
   for (const key in redacted) {
-    if (redactAll || REDACTED_HEADERS.has(key.toLowerCase())) {
+    if (redactAll || isSensitiveKey(key)) {
       const val = redacted[key];
       redacted[key] = Array.isArray(val)
         ? val.map(() => "[REDACTED]")
@@ -212,10 +220,11 @@ export function normalizePath(event: APIGatewayProxyEventV2): string {
  * @returns {{method: string, path: string}} Normalized metadata.
  */
 export function extractRequestMetadata(event: APIGatewayProxyEventV2) {
+  const anyEvent = event as unknown as Record<string, unknown>;
   const method =
     event.requestContext?.http?.method ||
-    (event as unknown as Record<string, unknown>).method ||
-    (event as unknown as Record<string, unknown>).httpMethod ||
+    anyEvent.method ||
+    anyEvent.httpMethod ||
     "GET";
   return { method: method as string, path: normalizePath(event) };
 }
@@ -257,8 +266,7 @@ export function getHeader(
 ): string | undefined {
   if (!headers) return undefined;
   const target = name.toLowerCase();
-  const key = Object.keys(headers).find((k) => k.toLowerCase() === target);
-  return key ? headers[key] : undefined;
+  return Object.entries(headers).find(([k]) => k.toLowerCase() === target)?.[1];
 }
 
 /**
