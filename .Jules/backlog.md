@@ -1,4 +1,63 @@
 # Scorebook Backlog
+
+## [Defensive Breakdown Attribution (The Accountability Layer)]
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Coaches need to know *why* a bucket was allowed to fix it in practice. This layer separates physical skill makes from tactical mental errors.
+**What:** Enhance opponent scoring events with a mandatory (optional toggle) breakdown reason and provide a post-game integrity report.
+**Acceptance Criteria:**
+- [ ] Quick-select "Breakdown Reason" overlay after recording an opponent make: "Missed Rotation", "Transition Leak", "Poor Closeout", "Out-Hustled", "Great Contest".
+- [ ] "Defensive Integrity" report in GameStats summarizing % of points allowed by breakdown category.
+- [ ] "Tactical Weak Link" identification: Highlight the most frequent breakdown type in the current game.
+- [ ] Filter opponent shot chart markers by breakdown type.
+
+## [Special Situation (ATO/SLOB/BLOB) Analytical Engine]
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Designing the perfect play is useless if you don't know if it works. This engine moves beyond raw stats to show efficiency in high-leverage set plays.
+**What:** Build a dedicated analytics module and UI to visualize PPP and eFG% for possessions tagged as ATO, SLOB, BLOB, or EOP.
+**Acceptance Criteria:**
+- [ ] Add `calculateSituationalStats` to the stats engine to derive PPP/eFG% filtered by situation.
+- [ ] New "Specialty Execution" card in GameStats showing a performance table by situation.
+- [ ] "Execution Delta" metric comparing Situational PPP vs. standard Half-Court PPP.
+- [ ] Visualization of "Success Rate" (Possessions ending in score or shooting foul) per situation.
+
+## [Voice-Driven Live Scorekeeping]
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Solo scorekeepers struggle to keep up with high-intensity transition play. Voice commands eliminate "tap lag" and allow the user to keep their eyes on the floor.
+**What:** Implement a Web Speech API layer in GameMode to record events via voice.
+**Acceptance Criteria:**
+- [ ] "Voice Mode" toggle in GameMode header with microphone permission handling.
+- [ ] Support for standard grammar: "[Jersey] [Action]" (e.g., "Five make two", "Ten assist").
+- [ ] Support for opponent actions: "Opponent twelve miss".
+- [ ] Chained commands: "Twenty-four make three assist five".
+- [ ] Visual HUD feedback showing "Last Heard: #24 Make 3PT".
+- [ ] High-confidence threshold filtering to prevent background noise errors.
+
+## [Holistic Matchup Efficiency Matrix]
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Coaches need to see the entire defensive landscape at once, not just isolated mismatches. A 5x5 Matrix reveals the most exploitable and vulnerable points of the current unit-on-unit battle.
+**What:** Build a visual matrix component in GameMode that maps our 5 active players (Y-axis) against the 5 opponent players (X-axis) using color-coded efficiency (Stop %).
+**Acceptance Criteria:**
+- [ ] 5x5 "Efficiency Matrix" accessible via a sidebar toggle in GameMode.
+- [ ] Color-coded cells: Green (High Stop %), Red (Low Stop %), Gray (Insufficient Data).
+- [ ] One-tap reassignment by clicking a cell in the matrix.
+- [ ] "Unit Optimization" score summarizing the total defensive parity of the current 5-man unit.
+
+## [Spark Plug Momentum Index]
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Some players provide value that doesn't show up in the box score but triggers team-wide energy shifts (e.g., a floor dive or a charge taken).
+**What:** A specialized metric that weighs "Blue Collar" hustle stats against immediate subsequent team scoring runs to identify "Momentum Starters."
+**Acceptance Criteria:**
+- [ ] "Spark Plug" score for every player who records a FLOOR_DIVE, CHARGE_TAKEN, or GREAT_CONTEST.
+- [ ] Correlation of hustle events to 2-minute scoring runs.
+- [ ] "Energy Alert" in GameMode suggesting when to bring in a high-momentum player.
+
+---
+
 ## [x] [Ref-Identity Conflict Alert System]
 **Priority:** HIGH
 **Type:** Enhancement
@@ -16,18 +75,8 @@
 **What:** An analytical tool that identifies opponent usage rates and eFG% specifically in clutch situations (final 4 mins, < 5pt spread).
 **Acceptance Criteria:**
 - [x] "Clutch Threat" indicator on the opponent roster card during Winning Time.
-- [ ] Breakdown of "Clutch Action Type" (e.g., "ISO Drive", "PnR Handler").
-- [ ] Comparison of Opponent X's Clutch Usage vs. Regulation Usage.
-
-## [ ] [Bench Momentum & "Spark Plug" Impact Tracking]
-**Priority:** HIGH
-**Type:** Feature
-**Why:** Some players provide value that doesn't show up in a box score but is felt in momentum shifts. Identifying "Spark Plugs" helps coaches optimize non-starter rotations.
-**What:** Create a "Momentum Impact" metric that correlates bench player "Hustle Stats" (Deflections, Dives, Great Contests) with team scoring runs.
-**Acceptance Criteria:**
-- [ ] "Spark Plug" badge in GameStats for players with high Net Rating during bench-heavy stints.
-- [ ] Correlation chart showing "Hustle Events" vs. "Lead Change" frequency.
-- [ ] "Impact per Stint" summary for second-unit players.
+- [x] Breakdown of "Clutch Action Type" (e.g., "ISO Drive", "PnR Handler").
+- [x] Comparison of Opponent X's Clutch Usage vs. Regulation Usage.
 
 ## [/] ["Defensive Scheme" Real-Time PPP Analyzer]
 **Priority:** HIGH
@@ -49,42 +98,7 @@
 - [ ] Weighting of connections by eFG% (e.g., "Player A to Player B results in 65% eFG%").
 - [ ] Identification of "Primary Playmaker" and "Primary Finisher" nodes for the current lineup.
 
-## Voice-Driven Live Scorekeeping
-**Priority:** HIGH
-**Type:** Feature
-**Why:** Solo scorekeepers struggle to keep up with high-intensity transition play. Voice commands eliminate "tap lag" and allow the user to keep their eyes on the floor.
-**What:** Implement a Web Speech API layer in GameMode to record events via voice.
-**Acceptance Criteria:**
-- [ ] "Voice Mode" toggle in GameMode header with microphone permission handling.
-- [ ] Support for standard grammar: "[Jersey] [Action]" (e.g., "Five make two", "Ten assist").
-- [ ] Support for opponent actions: "Opponent twelve miss".
-- [ ] Chained commands: "Twenty-four make three assist five".
-- [ ] Visual HUD feedback showing "Last Heard: #24 Make 3PT".
-- [ ] High-confidence threshold filtering to prevent background noise errors.
-
-## Special Situation (ATO/SLOB/BLOB) Analytical Engine
-**Priority:** HIGH
-**Type:** Feature
-**Why:** Designing the perfect play is useless if you don't know if it works. This engine moves beyond raw stats to show efficiency in high-leverage set plays.
-**What:** Build a dedicated analytics module and UI to visualize PPP and eFG% for possessions tagged as ATO, SLOB, BLOB, or EOP.
-**Acceptance Criteria:**
-- [ ] Add `calculateSituationalStats` to the stats engine to derive PPP/eFG% filtered by situation.
-- [ ] New "Specialty Execution" card in GameStats showing a performance table by situation.
-- [ ] "Execution Delta" metric comparing Situational PPP vs. standard Half-Court PPP.
-- [ ] Visualization of "Success Rate" (Possessions ending in score or shooting foul) per situation.
-
-## Defensive Breakdown Attribution (The Accountability Layer)
-**Priority:** HIGH
-**Type:** Feature
-**Why:** Coaches need to know *why* a bucket was allowed to fix it in practice. This layer separates physical skill makes from tactical mental errors.
-**What:** Enhance opponent scoring events with a mandatory (optional toggle) breakdown reason and provide a post-game integrity report.
-**Acceptance Criteria:**
-- [ ] Quick-select "Breakdown Reason" overlay after recording an opponent make: "Missed Rotation", "Transition Leak", "Poor Closeout", "Out-Hustled", "Great Contest".
-- [ ] "Defensive Integrity" report in GameStats summarizing % of points allowed by breakdown category.
-- [ ] "Tactical Weak Link" identification: Highlight the most frequent breakdown type in the current game.
-- [ ] Filter opponent shot chart markers by breakdown type.
-
-## Expected Value (xPTS) & Shot Quality ROI Engine
+## [ ] Expected Value (xPTS) & Shot Quality ROI Engine
 **Priority:** HIGH
 **Type:** Feature
 **Why:** A cold shooting night shouldn't result in a tactical pivot if the "Process" is correct. xPTS moves the conversation from results to quality.
@@ -95,17 +109,17 @@
 - [ ] "Quality Control" HUD in GameMode showing average xPTS per possession for the current lineup.
 - [ ] Post-game "Process Report" highlighting high xPTS shots that missed vs. low xPTS shots that went in.
 
-## Executive Halftime Talking Points Generator
+## [x] [Executive Halftime Talking Points Generator]
 **Priority:** HIGH
 **Type:** Feature
 **Why:** Halftime is only 10 minutes. Coaches need automated synthesis of complex data into 3 punchy, actionable directives for the locker room.
 **What:** An automated NLP-style engine that analyzes game aggregates vs. season averages to generate 3 executive-level bullet points.
 **Acceptance Criteria:**
-- [ ] "Talking Points" tab in the Halftime Report Dialog.
-- [ ] Bullet 1 (Offensive): Efficiency insight (e.g., "eFG% is 12% below average; stop settling for long 2s").
-- [ ] Bullet 2 (Defensive): Personnel threat (e.g., "Opponent #24 is 4/4 on drives; force him left").
-- [ ] Bullet 3 (Personnel): Lineup suggestion (e.g., "Lineup [5,10,12] is +8; keep them together").
-- [ ] "Copy for Assistant" button to send talking points via clipboard.
+- [x] "Talking Points" tab in the Halftime Report Dialog.
+- [x] Bullet 1 (Offensive): Efficiency insight (e.g., "eFG% is 12% below average; stop settling for long 2s").
+- [x] Bullet 2 (Defensive): Personnel threat (e.g., "Opponent #24 is 4/4 on drives; force him left").
+- [x] Bullet 3 (Personnel): Lineup suggestion (e.g., "Lineup [5,10,12] is +8; keep them together").
+- [x] "Copy for Assistant" button to send talking points via clipboard.
 
 ## Coach-Assistant Live Sync Bridge
 **Priority:** HIGH
@@ -165,72 +179,72 @@
 - [ ] "Identity Goals" section where coaches see % of games where goals were met.
 - [ ] Filter by date range or opponent strength.
 
-## [ ] Substitution Timeline Audit
+## [x] [Substitution Timeline Audit]
 **Priority:** HIGH
 **Type:** Feature
 **Why:** Inaccurate substitution data ruins plus/minus and lineup efficiency metrics. Coaches need a way to retroactively fix the on-court lineup without deleting and re-entering every subsequent play.
 **What:** Build a "Timeline Audit" view that shows a vertical chronological list of all substitution events. Allow users to edit the time of a sub, change the players involved, or insert a missing sub event.
 **Acceptance Criteria:**
-- [ ] Accessible from the Game Stats or Game Mode page.
-- [ ] Displays a chronological list of SUB_IN and SUB_OUT events.
-- [ ] Allows editing the `clockTime` and `playerId` of any substitution event.
-- [ ] Recalculates all dependent stats (MIN, +/-, Lineup Efficiency) immediately upon saving changes.
+- [x] Accessible from the Game Stats or Game Mode page.
+- [x] Displays a chronological list of SUB_IN and SUB_OUT events.
+- [x] Allows editing the `clockTime` and `playerId` of any substitution event.
+- [x] Recalculates all dependent stats (MIN, +/-, Lineup Efficiency) immediately upon saving changes.
 
-## [ ] Offensive Play/Set Success Tracking
+## [x] [Offensive Play/Set Success Tracking]
 **Priority:** HIGH
 **Type:** Feature
 **Why:** Coaches need to know which offensive sets are yielding results. Raw stats don't show if a bucket came from a specific designed play or a broken-down possession.
 **What:** Introduce "Play Tagging" for offensive events. Allow coaches to define a playbook in Team Settings and tag MAKE/MISS events with specific play names during the game.
 **Acceptance Criteria:**
-- [ ] CRUD interface in Team Details to manage a "Playbook" (list of play names).
-- [ ] Optional "Play" dropdown in the MAKE/MISS recording dialog in Game Mode.
-- [ ] "Play Efficiency" table in Game Stats showing: Play Name, Frequency, Points, and EFG% for each set.
-- [ ] Filter Shot Chart by specific Play Name.
+- [x] CRUD interface in Team Details to manage a "Playbook" (list of play names).
+- [x] Optional "Play" dropdown in the MAKE/MISS recording dialog in Game Mode.
+- [x] "Play Efficiency" table in Game Stats showing: Play Name, Frequency, Points, and EFG% for each set.
+- [x] Filter Shot Chart by specific Play Name.
 
-## [ ] Real-Time Foul Trouble & Fatigue Rotation Alerts
+## [x] [Real-Time Foul Trouble & Fatigue Rotation Alerts]
 **Priority:** HIGH
 **Type:** Enhancement
 **Why:** In the heat of a game, coaches often miss when a player is one foul away from disqualification or has exceeded their physical "red-line." Proactive alerts prevent tactical errors.
 **What:** Implement visual and haptic/audio alerts in `GameMode` when a player reaches configured thresholds (e.g., 2 fouls in Q1, 4 fouls total, or 8 consecutive minutes).
 **Acceptance Criteria:**
-- [ ] "Foul Trouble" pulse on the player's lineup card (e.g., orange at limit-1, red at limit).
-- [ ] "Fatigue Alert" visual (e.g., a "Needs Sub" icon) when a player's current stint exceeds the "Max Stint Duration" from Team Settings.
-- [ ] Configuration in Team Details to set "Foul Warning Thresholds" by period.
+- [x] "Foul Trouble" pulse on the player's lineup card (e.g., orange at limit-1, red at limit).
+- [x] "Fatigue Alert" visual (e.g., a "Needs Sub" icon) when a player's current stint exceeds the "Max Stint Duration" from Team Settings.
+- [x] Configuration in Team Details to set "Foul Warning Thresholds" by period.
 
-## [ ] Automated PDF Box Score & Game Summary Export
+## [x] [Automated PDF Box Score & Game Summary Export]
 **Priority:** HIGH
 **Type:** Feature
 **Why:** Coaches need to share game results with players, parents, and local media immediately after the buzzer. Manual data entry into other systems is a major pain point.
 **What:** Add a "Export PDF" button to the Game Stats page that generates a professional, formatted box score including team totals, player stats, and the scoring flow chart.
 **Acceptance Criteria:**
-- [ ] "Export PDF" button on Game Stats page.
-- [ ] PDF includes Team Logo, Game Info (Date, Opponent, Score).
-- [ ] Table for Player Stats (PTS, REB, AST, etc.) and Team Totals.
-- [ ] Inclusion of the Scoring Flow visualization in the PDF.
+- [x] "Export PDF" button on Game Stats page.
+- [x] PDF includes Team Logo, Game Info (Date, Opponent, Score).
+- [x] Table for Player Stats (PTS, REB, AST, etc.) and Team Totals.
+- [x] Inclusion of the Scoring Flow visualization in the PDF.
 
-## [ ] Free Throw Sequence Workflow
+## [x] [Free Throw Sequence Workflow]
 **Priority:** HIGH
 **Type:** UX
 **Why:** Recording free throws one-by-one is slow and prone to errors during fast-paced games. A dedicated workflow ensures every attempt is captured correctly without context switching.
 **What:** Trigger a "Free Throw Mode" overlay when a shooting foul is recorded or via a quick-action button. This overlay should allow the scorekeeper to quickly tap "Make" or "Miss" for 1, 2, or 3 attempts for a specific player.
 **Acceptance Criteria:**
-- [ ] Modal overlay triggered by FOUL_SHOOTING or a dedicated FT button.
-- [ ] One-tap recording for each attempt in the sequence.
-- [ ] Automatically attributes points and attempts to the selected player.
-- [ ] Closes automatically after the designated number of attempts are recorded.
+- [x] Modal overlay triggered by FOUL_SHOOTING or a dedicated FT button.
+- [x] One-tap recording for each attempt in the sequence.
+- [x] Automatically attributes points and attempts to the selected player.
+- [x] Closes automatically after the designated number of attempts are recorded.
 
-## [ ] Intelligent Linked Event Chaining
+## [x] [Intelligent Linked Event Chaining]
 **Priority:** HIGH
 **Type:** UX
 **Why:** Basketball is a game of connected actions. Requiring separate taps for a make and the assist that led to it is slow and leads to missed data.
 **What:** Implement a "Chained Action" flow in the `GameMode` recording dialog. When a `MAKE` is saved, if an on-court teammate hasn't already been credited with an assist, immediately prompt "Who assisted?" with one-tap teammate buttons. Similarly, after a `MISS`, prompt for "Who rebounded?".
 **Acceptance Criteria:**
-- [ ] After clicking "Save" on a `MAKE` event, display a "Teammate Assist?" overlay if tracking "Our Team".
-- [ ] After clicking "Save" on a `MISS` event, display "Offensive Reb?" and "Defensive Reb?" quick-tap options.
-- [ ] If a teammate is tapped, record the second event (ASSIST or REBOUND) with the same `timestamp`, `period`, and `clockTime` as the shot.
-- [ ] Option to "Skip" or "No Assist/Rebound" to close the chain.
+- [x] After clicking "Save" on a `MAKE` event, display a "Teammate Assist?" overlay if tracking "Our Team".
+- [x] After clicking "Save" on a `MISS` event, display "Offensive Reb?" and "Defensive Reb?" quick-tap options.
+- [x] If a teammate is tapped, record the second event (ASSIST or REBOUND) with the same `timestamp`, `period`, and `clockTime` as the shot.
+- [x] Option to "Skip" or "No Assist/Rebound" to close the chain.
 
-## [ ] Scoring Run & Drought "Coaching Alerts"
+## [ ] [Scoring Run & Drought "Coaching Alerts"]
 **Priority:** HIGH
 **Type:** Feature
 **Why:** Coaches often lose track of momentum shifts during the heat of the game. Real-time alerts for "10-0 Runs" or "3-Minute Droughts" act as a data-driven trigger for timeouts.
@@ -241,7 +255,7 @@
 - [ ] Alerts should include a "Suggest Timeout" visual cue.
 - [ ] Thresholds should be configurable in Team Settings (default: 8 points for a run, 3 minutes for a drought).
 
-## [ ] Real-Time Opponent Threat Alerts
+## [ ] [Real-Time Opponent Threat Alerts]
 **Priority:** HIGH
 **Type:** Enhancement
 **Why:** In the heat of the game, a bench player on the opposing team can hit three 3-pointers before a coach even notices. Immediate alerts on "Unchecked Threats" prevent games from slipping away.
@@ -251,29 +265,18 @@
 - [ ] Indicator on the "Opponent Tracking" card showing current hot/cold status of active opponent players.
 - [ ] Suggestion to change defensive assignment or call timeout when a threat threshold is met.
 
-## [ ] Possession-Based Efficiency Metrics (PPP)
+## [x] [Possession-Based Efficiency Metrics (PPP)]
 **Priority:** HIGH
 **Type:** Feature
 **Why:** Raw scores are misleading if one team plays much faster than the other. Points Per Possession (PPP) is the gold standard for measuring true offensive and defensive efficiency.
 **What:** Transition the internal stats engine to calculate total possessions and derive PPP for teams, lineups, and individual players.
 **Acceptance Criteria:**
-- [ ] Calculate "Possessions" for both teams (FGA + 0.44*FTA + TO - OREB).
-- [ ] Display PPP on the GameMode sidebar and Game Stats dashboard.
-- [ ] Defensive PPP (Points Allowed Per Possession) to measure defensive quality independently of pace.
-- [ ] Trend line showing PPP fluctuation throughout the game.
+- [x] Calculate "Possessions" for both teams (FGA + 0.44*FTA + TO - OREB).
+- [x] Display PPP on the GameMode sidebar and Game Stats dashboard.
+- [x] Defensive PPP (Points Allowed Per Possession) to measure defensive quality independently of pace.
+- [x] Trend line showing PPP fluctuation throughout the game.
 
-## [ ] Holistic Matchup Efficiency Matrix
-**Priority:** HIGH
-**Type:** Feature
-**Why:** Coaches need to see the entire defensive landscape at once, not just isolated mismatches. A 5x5 Matrix reveals the most exploitable and vulnerable points of the current unit-on-unit battle.
-**What:** Build a visual matrix component in GameMode that maps our 5 active players (Y-axis) against the 5 opponent players (X-axis) using color-coded efficiency (Stop %).
-**Acceptance Criteria:**
-- [ ] 5x5 "Efficiency Matrix" accessible via a sidebar toggle in GameMode.
-- [ ] Color-coded cells: Green (High Stop %), Red (Low Stop %), Gray (Insufficient Data).
-- [ ] One-tap reassignment by clicking a cell in the matrix.
-- [ ] "Unit Optimization" score summarizing the total defensive parity of the current 5-man unit.
-
-## [ ] "Locker Room" Post-Game Learning System
+## [ ] [Locker Room] Post-Game Learning System
 **Priority:** HIGH
 **Type:** UX
 **Why:** The learning gap between games is where championships are won. A guided review mode turns a static box score into an interactive teaching tool for coaches and players.
@@ -306,15 +309,15 @@
 - [ ] "Switch Defense" alert if current scheme PPP is > 1.2 for 3 consecutive possessions.
 - [ ] Breakdown table in GameStats showing PPP Allowed by Scheme.
 
-## [ ] "Shot Clock Process" Analysis
+## [x] [Shot Clock Process Analysis]
 **Priority:** HIGH
 **Type:** Feature
 **Why:** Rushing shots early in the clock or settling for late-clock heaves is a "process" failure. This feature distinguishes between quick-hit offensive success and desperation shots.
 **What:** Categorize every shot into "Early Clock" (first 10s), "Mid Clock", and "Late Clock" (last 5s) buckets and track EFG% for each.
 **Acceptance Criteria:**
-- [ ] "Clock Phase" tagging automatically derived from StatEvent.clockTime and periodLength.
-- [ ] "Shot Rhythm" chart in GameStats showing volume and efficiency by clock phase.
-- [ ] "Decision Alert" in GameMode if team is shooting < 20% on Early Clock shots.
+- [x] "Clock Phase" tagging automatically derived from StatEvent.clockTime and periodLength.
+- [x] "Shot Rhythm" chart in GameStats showing volume and efficiency by clock phase.
+- [x] "Decision Alert" in GameMode if team is shooting < 20% on Early Clock shots.
 
 ## [ ] Automated Referee Profile HUD
 **Priority:** HIGH
@@ -326,16 +329,6 @@
 - [ ] "Foul Bias" indicator showing the split between Our Team vs Opponent fouls.
 - [ ] "Aggression Advisor" suggesting "Press Hard" or "Play Soft" based on FPM.
 
-## [ ] "Spark Plug" Momentum Index
-**Priority:** HIGH
-**Type:** Feature
-**Why:** Some players provide value that doesn't show up in the box score but triggers team-wide energy shifts (e.g., a floor dive or a charge taken).
-**What:** A specialized metric that weighs "Blue Collar" hustle stats against immediate subsequent team scoring runs to identify "Momentum Starters."
-**Acceptance Criteria:**
-- [ ] "Spark Plug" score for every player who records a FLOOR_DIVE, CHARGE_TAKEN, or GREAT_CONTEST.
-- [ ] Correlation of hustle events to 2-minute scoring runs.
-- [ ] "Energy Alert" in GameMode suggesting when to bring in a high-momentum player.
-
 ## [ ] Program-Wide "Tactical DNA" Comparison
 **Priority:** HIGH
 **Type:** Feature
@@ -345,6 +338,7 @@
 - [ ] "Program DNA" Radar Chart in GameStats.
 - [ ] Overlay of "Last 3 Games" vs "Season Average" to identify recent trends.
 - [ ] "Identity Crisis" alert if more than 3 of the Four Factors deviate by >15% from the season mean.
+
 ## [UX] Epic: Administrative Workflow & Dashboard Streamlining
 **Priority:** MEDIUM
 **Type:** UX / Enhancement

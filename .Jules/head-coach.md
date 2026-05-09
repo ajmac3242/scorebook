@@ -92,3 +92,11 @@ Observation: A deep audit of the codebase vs. the archived backlog revealed that
 Impact: Coaches are forced to perform manual mental synthesis for defensive accountability and lineup value. Without these "Causal" features, the app remains a high-end scorebook rather than a true tactical operating system.
 
 Recommendation: Immediately prioritize the implementation of the "Ghost Archive" features—Defensive Matchup Tracking and On/Off Analytics. Simultaneously, introduce "Shot Clock Process Analysis" to begin tracking offensive discipline. This pivot moves the platform from tracking *results* to tracking *causal factors* and providing proactive *decision support*.
+
+## 2026-05-26 - Strategic Realignment: From Raw Data to Decision Support
+
+Observation: A deep audit of the codebase reveals that the "Statistical Foundation" is now remarkably solid. We have successfully implemented complex logic for PPP, eFG%, Lineup Net Rating, and even advanced predictive systems like HALT and Ref-Identity Conflict alerts. However, a significant strategic gap remains: "Silent Logic." While the analytical engines exist (e.g., HALT alerts in `analytics.ts`), they are not always surfacing their insights effectively in the `GameMode` UI, or they lack the necessary "Causal" context (e.g., *why* a defensive breakdown happened).
+
+Impact: The platform is currently a "High-End Data Processor." It correctly calculates the numbers, but it doesn't always tell the coach what to *do* with them in real-time. Without "Defensive Breakdown Attribution," coaches know they are losing, but they don't have the data-driven "Proof" to fix a specific player's missed rotation during the next timeout. Without "Voice-Driven Scorekeeping," the data integrity during high-intensity transition play remains at risk of human "Tap Lag."
+
+Recommendation: The next development phase must move beyond raw aggregates into **Causal Accountability** and **Operational Intelligence**. We must implement the "Accountability Layer" (Defensive Breakdown Attribution) to bridge the gap between results and coaching. We must also prioritize "Zero-Friction Entry" (Voice Mode) to ensure 100% data fidelity. Finally, the "Holistic Matchup Matrix" will serve as the crown jewel of decision support, providing a single visual for unit-on-unit optimization.
