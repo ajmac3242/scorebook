@@ -51,7 +51,9 @@ const ACTION_MAP: Record<string, string> = {
  * Parses a voice transcript into a structured basketball action.
  * Supports: "[Jersey] [Action] [Points]" or "Opponent [Jersey] [Action]"
  */
-export const parseVoiceCommand = (transcript: string): ParsedVoiceCommand | null => {
+export const parseVoiceCommand = (
+  transcript: string,
+): ParsedVoiceCommand | null => {
   const words = transcript.toLowerCase().trim().split(/\s+/);
   if (words.length < 2) return null;
 
@@ -66,15 +68,19 @@ export const parseVoiceCommand = (transcript: string): ParsedVoiceCommand | null
   // Handle complex numbers like "twenty three"
   let jerseyNumber = "";
   if (NUMBER_MAP[words[wordIndex]]) {
-    if (words[wordIndex + 1] && NUMBER_MAP[words[wordIndex + 1]] && parseInt(NUMBER_MAP[words[wordIndex + 1]]) < 10) {
-        // Handle "twenty three"
-        const tens = parseInt(NUMBER_MAP[words[wordIndex]]);
-        const ones = parseInt(NUMBER_MAP[words[wordIndex + 1]]);
-        jerseyNumber = (tens + ones).toString();
-        wordIndex += 2;
+    if (
+      words[wordIndex + 1] &&
+      NUMBER_MAP[words[wordIndex + 1]] &&
+      parseInt(NUMBER_MAP[words[wordIndex + 1]]) < 10
+    ) {
+      // Handle "twenty three"
+      const tens = parseInt(NUMBER_MAP[words[wordIndex]]);
+      const ones = parseInt(NUMBER_MAP[words[wordIndex + 1]]);
+      jerseyNumber = (tens + ones).toString();
+      wordIndex += 2;
     } else {
-        jerseyNumber = NUMBER_MAP[words[wordIndex]];
-        wordIndex++;
+      jerseyNumber = NUMBER_MAP[words[wordIndex]];
+      wordIndex++;
     }
   } else if (!isNaN(parseInt(words[wordIndex]))) {
     jerseyNumber = words[wordIndex];

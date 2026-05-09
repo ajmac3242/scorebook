@@ -35,7 +35,9 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
   jerseyMap,
 }) => {
   const getCellData = (tId: string, oId: string) => {
-    return matchupData.find((m) => m.teamPlayerId === tId && m.oppPlayerId === oId);
+    return matchupData.find(
+      (m) => m.teamPlayerId === tId && m.oppPlayerId === oId,
+    );
   };
 
   const getCellColor = (stopPct: number, possessions: number) => {
@@ -47,16 +49,36 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
 
   return (
     <Box sx={{ mt: 2 }}>
-      <Typography variant="caption" sx={{ fontWeight: 800, mb: 1, display: "block", textTransform: "uppercase" }}>
+      <Typography
+        variant="caption"
+        sx={{
+          fontWeight: 800,
+          mb: 1,
+          display: "block",
+          textTransform: "uppercase",
+        }}
+      >
         Holistic Matchup Efficiency (Stop %)
       </Typography>
       <TableContainer component={Paper} variant="outlined">
         <Table size="small">
           <TableHead>
             <TableRow>
-              <TableCell sx={{ bgcolor: "rgba(0,0,0,0.02)", fontWeight: 800, fontSize: "0.6rem" }}>US \ OPP</TableCell>
+              <TableCell
+                sx={{
+                  bgcolor: "rgba(0,0,0,0.02)",
+                  fontWeight: 800,
+                  fontSize: "0.6rem",
+                }}
+              >
+                US \ OPP
+              </TableCell>
               {oppActiveIds.map((oId) => (
-                <TableCell key={oId} align="center" sx={{ fontWeight: 800, fontSize: "0.6rem" }}>
+                <TableCell
+                  key={oId}
+                  align="center"
+                  sx={{ fontWeight: 800, fontSize: "0.6rem" }}
+                >
                   #{oId.includes(":") ? oId.split(":")[1] : "??"}
                 </TableCell>
               ))}
@@ -65,7 +87,13 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
           <TableBody>
             {teamActiveIds.map((tId) => (
               <TableRow key={tId}>
-                <TableCell sx={{ fontWeight: 800, fontSize: "0.6rem", bgcolor: "rgba(0,0,0,0.02)" }}>
+                <TableCell
+                  sx={{
+                    fontWeight: 800,
+                    fontSize: "0.6rem",
+                    bgcolor: "rgba(0,0,0,0.02)",
+                  }}
+                >
                   #{jerseyMap.get(tId) || "??"}
                 </TableCell>
                 {oppActiveIds.map((oId) => {
@@ -73,14 +101,20 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
                   return (
                     <Tooltip
                       key={`${tId}-${oId}`}
-                      title={data ? `${data.stopPct}% Stop Rate over ${data.possessions} possessions` : "No data"}
+                      title={
+                        data
+                          ? `${data.stopPct}% Stop Rate over ${data.possessions} possessions`
+                          : "No data"
+                      }
                     >
                       <TableCell
                         align="center"
                         sx={{
                           fontSize: "0.65rem",
                           fontWeight: 700,
-                          bgcolor: data ? getCellColor(data.stopPct, data.possessions) : "transparent",
+                          bgcolor: data
+                            ? getCellColor(data.stopPct, data.possessions)
+                            : "transparent",
                           cursor: "help",
                         }}
                       >

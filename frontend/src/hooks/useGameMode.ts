@@ -163,7 +163,9 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
         if (player) {
           pId = player.playerId;
         } else {
-          logger.warn(`Voice command for unknown jersey: ${command.jerseyNumber}`);
+          logger.warn(
+            `Voice command for unknown jersey: ${command.jerseyNumber}`,
+          );
           return;
         }
       } else {
@@ -181,7 +183,11 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
           locationY: 0,
         });
 
-        if (saved && command.isOpponent && command.action === ACTION_TYPES.MAKE) {
+        if (
+          saved &&
+          command.isOpponent &&
+          command.action === ACTION_TYPES.MAKE
+        ) {
           setLastOpponentStatId(saved.id!);
           setIsBreakdownDialogOpen(true);
         }
