@@ -25,6 +25,7 @@ export interface ActionControlsProps {
   recentStatsLength: number;
   onEndGame: () => void;
   isGameCompleted: boolean;
+  isEnding?: boolean;
 }
 
 export const ActionControls = React.memo(
@@ -41,6 +42,7 @@ export const ActionControls = React.memo(
     recentStatsLength,
     onEndGame,
     isGameCompleted,
+    isEnding,
   }: ActionControlsProps) => {
     return (
       <Box
@@ -185,15 +187,18 @@ export const ActionControls = React.memo(
 
         {!isGameCompleted && !isReadOnly && (
           <Tooltip title="Finalize and save game results">
-            <Button
-              size="small"
-              variant="contained"
-              color="error"
-              onClick={onEndGame}
-              aria-label="End and Save Game"
-            >
-              End Game
-            </Button>
+            <span>
+              <Button
+                size="small"
+                variant="contained"
+                color="error"
+                onClick={onEndGame}
+                disabled={isEnding}
+                aria-label="End and Save Game"
+              >
+                {isEnding ? "Ending..." : "End Game"}
+              </Button>
+            </span>
           </Tooltip>
         )}
       </Box>

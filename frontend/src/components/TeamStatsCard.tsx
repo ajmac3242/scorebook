@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Typography, Grid } from "@mui/material";
+import { Box, Typography, Grid, Tooltip } from "@mui/material";
 import { FlashOn } from "@mui/icons-material";
 import { MoleskineCard, AnimatedNumber } from "./SharedUI";
 
@@ -34,33 +34,35 @@ export const TeamStatsCard = React.memo(
         </Typography>
         <Grid container spacing={2}>
           <Grid item xs={6}>
-            <Box
-              sx={{
-                textAlign: "center",
-                p: 1.5,
-                bgcolor: "secondary.dark",
-                color: "white",
-                borderRadius: 2,
-                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
-              }}
-            >
-              <Typography
-                variant="caption"
+            <Tooltip title="Points Per Possession allowed in current defensive scheme">
+              <Box
                 sx={{
-                  display: "block",
-                  fontWeight: 800,
-                  fontSize: "0.5rem",
-                  letterSpacing: 1,
-                  mb: 0.5,
-                  opacity: 0.9,
+                  textAlign: "center",
+                  p: 1.5,
+                  bgcolor: "secondary.dark",
+                  color: "white",
+                  borderRadius: 2,
+                  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
                 }}
               >
-                DEF SCHEME PPP
-              </Typography>
-              <Typography variant="h5" sx={{ fontWeight: 900, lineHeight: 1 }}>
-                {activeSchemePpp || "0.00"}
-              </Typography>
-            </Box>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    display: "block",
+                    fontWeight: 800,
+                    fontSize: "0.5rem",
+                    letterSpacing: 1,
+                    mb: 0.5,
+                    opacity: 0.9,
+                  }}
+                >
+                  DEF SCHEME PPP
+                </Typography>
+                <Typography variant="h5" sx={{ fontWeight: 900, lineHeight: 1 }}>
+                  {activeSchemePpp || "0.00"}
+                </Typography>
+              </Box>
+            </Tooltip>
           </Grid>
           <Grid item xs={6}>
             <Box
@@ -151,63 +153,67 @@ export const TeamStatsCard = React.memo(
             </Box>
           </Grid>
           <Grid item xs={6}>
-            <Box
-              sx={{
-                textAlign: "center",
-                p: 1.5,
-                bgcolor: "primary.main",
-                color: "white",
-                borderRadius: 2,
-                boxShadow: "0 4px 12px rgba(25, 118, 210, 0.2)",
-              }}
-            >
-              <Typography
-                variant="caption"
+            <Tooltip title="Estimated possessions per 40 minutes (normalized speed of play)">
+              <Box
                 sx={{
-                  display: "block",
-                  fontWeight: 800,
-                  fontSize: "0.5rem",
-                  letterSpacing: 1,
-                  mb: 0.5,
-                  opacity: 0.9,
+                  textAlign: "center",
+                  p: 1.5,
+                  bgcolor: "primary.main",
+                  color: "white",
+                  borderRadius: 2,
+                  boxShadow: "0 4px 12px rgba(25, 118, 210, 0.2)",
                 }}
               >
-                PACE
-              </Typography>
-              <Typography variant="h5" sx={{ fontWeight: 900, lineHeight: 1 }}>
-                {livePace.toFixed(1)}
-              </Typography>
-            </Box>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    display: "block",
+                    fontWeight: 800,
+                    fontSize: "0.5rem",
+                    letterSpacing: 1,
+                    mb: 0.5,
+                    opacity: 0.9,
+                  }}
+                >
+                  PACE
+                </Typography>
+                <Typography variant="h5" sx={{ fontWeight: 900, lineHeight: 1 }}>
+                  {livePace.toFixed(1)}
+                </Typography>
+              </Box>
+            </Tooltip>
           </Grid>
           <Grid item xs={6}>
-            <Box
-              sx={{
-                textAlign: "center",
-                p: 1.5,
-                bgcolor:
-                  (refTightness || 0) > 0.8 ? "error.main" : "secondary.main",
-                color: "white",
-                borderRadius: 2,
-                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
-              }}
-            >
-              <Typography
-                variant="caption"
+            <Tooltip title="Fouls Per Minute (FPM). High values (>0.8) indicate a tightly called game.">
+              <Box
                 sx={{
-                  display: "block",
-                  fontWeight: 800,
-                  fontSize: "0.5rem",
-                  letterSpacing: 1,
-                  mb: 0.5,
-                  opacity: 0.9,
+                  textAlign: "center",
+                  p: 1.5,
+                  bgcolor:
+                    (refTightness || 0) > 0.8 ? "error.main" : "secondary.main",
+                  color: "white",
+                  borderRadius: 2,
+                  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
                 }}
               >
-                REF TIGHTNESS
-              </Typography>
-              <Typography variant="h5" sx={{ fontWeight: 900, lineHeight: 1 }}>
-                {(refTightness || 0).toFixed(2)}
-              </Typography>
-            </Box>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    display: "block",
+                    fontWeight: 800,
+                    fontSize: "0.5rem",
+                    letterSpacing: 1,
+                    mb: 0.5,
+                    opacity: 0.9,
+                  }}
+                >
+                  REF TIGHTNESS
+                </Typography>
+                <Typography variant="h5" sx={{ fontWeight: 900, lineHeight: 1 }}>
+                  {(refTightness || 0).toFixed(2)}
+                </Typography>
+              </Box>
+            </Tooltip>
           </Grid>
         </Grid>
         <Box

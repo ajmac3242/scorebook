@@ -1,10 +1,15 @@
 import React from "react";
 import { Box, Typography, Stack, useTheme, Tooltip } from "@mui/material";
-import { LocalFireDepartment, Shield } from "@mui/icons-material";
+import {
+  LocalFireDepartment,
+  Shield,
+  SportsBasketball,
+} from "@mui/icons-material";
 import { OpponentThreat, HaltAlert } from "../utils/stats";
 import { formatClock } from "../utils/mathUtils";
 import { pulse, slideBackAndForth } from "../styles/animations";
 import { TeamPanel } from "./TeamPanel";
+import { SPECIAL_PLAYER_IDS } from "../constants/stats";
 
 /**
  * Redesigned TV-style scoreboard header.
@@ -174,14 +179,30 @@ export const Scoreboard = React.memo(
         )}
 
         {/* Our Team */}
-        <TeamPanel
-          name={team?.name || "TEAM"}
-          logoUrl={team?.logoUrl}
-          score={gameData.currentScore}
-          timeouts={gameData.timeoutStats.teamTOL}
-          timeoutTotal={timeoutTotal}
-          isOpponent={false}
-        />
+        <Box sx={{ position: "relative" }}>
+          <TeamPanel
+            name={team?.name || "TEAM"}
+            logoUrl={team?.logoUrl}
+            score={gameData.currentScore}
+            timeouts={gameData.timeoutStats.teamTOL}
+            timeoutTotal={timeoutTotal}
+            isOpponent={false}
+          />
+          {gameData.possessionState === SPECIAL_PLAYER_IDS.OUR_TEAM && (
+            <Tooltip title="Current Possession">
+              <SportsBasketball
+                sx={{
+                  position: "absolute",
+                  top: -10,
+                  right: -10,
+                  color: "primary.main",
+                  fontSize: "1.2rem",
+                  animation: `${pulse} 2s infinite ease-in-out`,
+                }}
+              />
+            </Tooltip>
+          )}
+        </Box>
 
         {/* Center: Period, Clock, Bonus */}
         <Box
@@ -486,14 +507,30 @@ export const Scoreboard = React.memo(
         </Box>
 
         {/* Opponent Team */}
-        <TeamPanel
-          name={game?.opponent || "OPPONENT"}
-          logoUrl={game?.opponentLogoUrl}
-          score={gameData.opponentScore}
-          timeouts={gameData.timeoutStats.oppTOL}
-          timeoutTotal={timeoutTotal}
-          isOpponent={true}
-        />
+        <Box sx={{ position: "relative" }}>
+          <TeamPanel
+            name={game?.opponent || "OPPONENT"}
+            logoUrl={game?.opponentLogoUrl}
+            score={gameData.opponentScore}
+            timeouts={gameData.timeoutStats.oppTOL}
+            timeoutTotal={timeoutTotal}
+            isOpponent={true}
+          />
+          {gameData.possessionState === SPECIAL_PLAYER_IDS.OPPONENT && (
+            <Tooltip title="Current Possession">
+              <SportsBasketball
+                sx={{
+                  position: "absolute",
+                  top: -10,
+                  left: -10,
+                  color: "secondary.main",
+                  fontSize: "1.2rem",
+                  animation: `${pulse} 2s infinite ease-in-out`,
+                }}
+              />
+            </Tooltip>
+          )}
+        </Box>
       </Box>
     );
   },

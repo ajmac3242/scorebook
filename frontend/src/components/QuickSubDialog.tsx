@@ -48,8 +48,25 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
 }) => {
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-      <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
+      <DialogTitle
+        sx={{
+          fontFamily: "var(--serif)",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
         Quick Substitution
+        {selectedSwapId && (
+          <Button
+            size="small"
+            variant="text"
+            onClick={() => handleSwapClick(selectedSwapId)}
+            sx={{ fontSize: "0.65rem" }}
+          >
+            Clear Selection
+          </Button>
+        )}
       </DialogTitle>
       <DialogContent>
         <Typography

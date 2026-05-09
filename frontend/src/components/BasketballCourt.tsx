@@ -1,5 +1,5 @@
 import React from "react";
-import { Box } from "@mui/material";
+import { Box, useTheme } from "@mui/material";
 
 import { getHeatmapColor } from "../utils/shotZones";
 
@@ -18,7 +18,7 @@ interface HeatmapData {
   [key: string]: { makes: number; attempts: number };
 }
 
-const COURT_STYLES = `
+const getCourtStyles = (theme: any) => `
   @keyframes marker-appear {
     0% { transform: scale(0); opacity: 0; }
     70% { transform: scale(1.2); opacity: 1; }
@@ -36,9 +36,9 @@ const COURT_STYLES = `
     opacity: 1 !important;
   }
   g[role="button"]:focus-visible circle {
-    outline: 2px solid #000;
-    outline-offset: 2px;
-    transform: scale(1.3);
+    outline: 3px solid ${theme.palette.primary.main};
+    outline-offset: 3px;
+    transform: scale(1.5);
     opacity: 1 !important;
   }
   .latest-marker {
@@ -67,6 +67,7 @@ interface BasketballCourtProps {
 
 const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
   ({ onCoordClick, onMarkerClick, markers = [], heatmapData }) => {
+    const theme = useTheme();
     const handleCourtClick = (e: React.MouseEvent<SVGSVGElement>) => {
       // Only trigger if we clicked the background or court lines, not a marker
       if ((e.target as SVGElement).tagName !== "circle" && onCoordClick) {
@@ -320,7 +321,7 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
           />
 
           {/* Markers / Heatmap Points */}
-          <style>{COURT_STYLES}</style>
+          <style>{getCourtStyles(theme)}</style>
           {markers.map((marker, index) => {
             const isLatest = index === markers.length - 1;
             let color = marker.color || "#2D2D2D";
@@ -335,6 +336,13 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
 
             const svgX = (marker.x / 100) * 500;
             const svgY = (marker.y / 100) * 470;
+
+            const playerName = marker.playerName
+              ? marker.playerName
+              : marker.label
+                ? `#${marker.label}`
+                : "Opponent";
+            const markerAriaLabel = `${marker.type} by ${playerName} at ${marker.x.toFixed(0)}%, ${marker.y.toFixed(0)}%`;
 
             return (
               <g
@@ -351,7 +359,7 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
                 }}
                 role="button"
                 tabIndex={0}
-                aria-label={`${marker.type} by ${marker.playerName ? marker.playerName : marker.label ? `#${marker.label}` : "Opponent"}`}
+                aria-label={markerAriaLabel}
                 style={{
                   cursor: onMarkerClick ? "pointer" : "default",
                   outline: "none",
@@ -367,7 +375,6 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
                   fillOpacity={isLatest ? "1" : "0.8"}
                   stroke={color}
                   strokeWidth={isLatest ? "2" : "1"}
-                  aria-label={`${marker.type} by ${marker.playerName ? marker.playerName : marker.label ? `#${marker.label}` : "Opponent"}`}
                 />
                 {marker.label && (
                   <text

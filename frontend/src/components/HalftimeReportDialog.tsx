@@ -27,6 +27,7 @@ import {
 import {
   Assignment as AssignmentIcon,
   ContentCopy as CopyIcon,
+  Check as CheckIcon,
 } from "@mui/icons-material";
 
 interface HalftimeReportDialogProps {
@@ -66,11 +67,15 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
     [teamPpp, seasonPpp, opponentThreats, topLineups, jerseyMap],
   );
 
+  const [copied, setCopied] = React.useState(false);
+
   const handleCopyTalkingPoints = () => {
     const text = talkingPoints
       .map((p) => `[${p.type}] ${p.text}\n${p.insight}`)
       .join("\n\n");
     navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   return (
@@ -108,11 +113,12 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
             </Typography>
             <Button
               size="small"
-              startIcon={<CopyIcon />}
+              startIcon={copied ? <CheckIcon /> : <CopyIcon />}
               onClick={handleCopyTalkingPoints}
+              color={copied ? "success" : "primary"}
               sx={{ fontSize: "0.65rem" }}
             >
-              Copy
+              {copied ? "Copied!" : "Copy"}
             </Button>
           </Box>
           <Stack spacing={1.5} sx={{ mb: 3 }}>
