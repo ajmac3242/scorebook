@@ -58,7 +58,10 @@ export const TeamStatsCard = React.memo(
                 >
                   DEF SCHEME PPP
                 </Typography>
-                <Typography variant="h5" sx={{ fontWeight: 900, lineHeight: 1 }}>
+                <Typography
+                  variant="h5"
+                  sx={{ fontWeight: 900, lineHeight: 1 }}
+                >
                   {activeSchemePpp || "0.00"}
                 </Typography>
               </Box>
@@ -177,7 +180,10 @@ export const TeamStatsCard = React.memo(
                 >
                   PACE
                 </Typography>
-                <Typography variant="h5" sx={{ fontWeight: 900, lineHeight: 1 }}>
+                <Typography
+                  variant="h5"
+                  sx={{ fontWeight: 900, lineHeight: 1 }}
+                >
                   {livePace.toFixed(1)}
                 </Typography>
               </Box>
@@ -209,7 +215,10 @@ export const TeamStatsCard = React.memo(
                 >
                   REF TIGHTNESS
                 </Typography>
-                <Typography variant="h5" sx={{ fontWeight: 900, lineHeight: 1 }}>
+                <Typography
+                  variant="h5"
+                  sx={{ fontWeight: 900, lineHeight: 1 }}
+                >
                   {(refTightness || 0).toFixed(2)}
                 </Typography>
               </Box>

@@ -1295,7 +1295,9 @@ const GameMode: React.FC = () => {
                             fouls={row.fouls}
                             plusMinus={row.plusMinus}
                             streak={playerStreaks.get(row.id.toString())}
-                            isOnCourt={gameData.onCourtIds.has(row.id.toString())}
+                            isOnCourt={gameData.onCourtIds.has(
+                              row.id.toString(),
+                            )}
                           />
                         ))}
                       </TableBody>
