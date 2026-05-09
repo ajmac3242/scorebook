@@ -17,6 +17,8 @@ import {
   getBonusStatus,
   calculateHaltAlerts,
   calculateOpponentThreats,
+  calculateMatchupEfficiency,
+  calculateSparkPlugIndex,
   type PlayerAggregates,
   OpponentThreat,
 } from "../utils/stats";
@@ -27,6 +29,8 @@ import { useGameClock } from "./useGameClock";
 import { useLineupState } from "./useLineupState";
 import { useStatWriter } from "./useStatWriter";
 import { usePossessionTracker } from "./usePossessionTracker";
+import { useVoiceRecognition } from "./useVoiceRecognition";
+import { ParsedVoiceCommand } from "../utils/voiceParser";
 
 export const useGameMode = (gameId: string | null, teamId: string | null) => {
   const theme = useTheme();
@@ -128,6 +132,77 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
 
   const { togglePossession } = usePossessionTracker(gameId);
 
+  const [voiceEnabled, setVoiceEnabled] = useState(false);
+
+  const handleVoiceCommand = useCallback(
+    async (command: ParsedVoiceCommand) => {
+      if (!gameId) return;
+
+      let pId = "";
+      if (command.isOpponent) {
+        pId = command.jerseyNumber
+          ? `${SPECIAL_PLAYER_IDS.OPPONENT}:${command.jerseyNumber}`
+          : SPECIAL_PLAYER_IDS.OPPONENT;
+      } else if (command.jerseyNumber) {
+        const player = teamPlayers.find(
+          (tp) => tp.jerseyNumber === command.jerseyNumber,
+        );
+        if (player) {
+          pId = player.playerId;
+        } else {
+          logger.warn(`Voice command for unknown jersey: ${command.jerseyNumber}`);
+          return;
+        }
+      } else {
+        return;
+      }
+
+      try {
+        const saved = await writeStat({
+          playerId: pId,
+          type: command.action,
+          points: command.points,
+          period,
+          clockTime: clockSeconds,
+          locationX: 0,
+          locationY: 0,
+        });
+
+        if (saved && command.isOpponent && command.action === ACTION_TYPES.MAKE) {
+          setLastOpponentStatId(saved.id!);
+          setIsBreakdownDialogOpen(true);
+        }
+
+        setSnackbar({
+          open: true,
+          message: `Voice Recorded: #${command.jerseyNumber} ${command.action}`,
+          severity: "success",
+        });
+      } catch (err) {
+        setSnackbar({
+          open: true,
+          message: "Voice command failed",
+          severity: "error",
+        });
+      }
+    },
+    [
+      gameId,
+      teamPlayers,
+      period,
+      clockSeconds,
+      writeStat,
+      setLastOpponentStatId,
+      setIsBreakdownDialogOpen,
+      setSnackbar,
+    ],
+  );
+
+  const { isListening, lastTranscript } = useVoiceRecognition({
+    onCommand: handleVoiceCommand,
+    enabled: voiceEnabled,
+  });
+
   // 3. Derived State & Local UI State
   const [selectedX, setSelectedX] = useState<number | null>(null);
   const [selectedY, setSelectedY] = useState<number | null>(null);
@@ -163,6 +238,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
   const [isHalftimeReportOpen, setIsHalftimeReportOpen] = useState(false);
   const [lastViewedHalftimePeriod, setLastViewedHalftimePeriod] =
     useState<number>(0);
+  const [showMatchupMatrix, setShowMatchupMatrix] = useState(false);
   const [chainPrompt, setChainPrompt] = useState<{
     type: "ASSIST" | "REBOUND";
     originalStat: StatEvent;
@@ -835,6 +911,10 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     setIsBreakdownDialogOpen,
     lastOpponentStatId,
     setLastOpponentStatId,
+    voiceEnabled,
+    setVoiceEnabled,
+    isListening,
+    lastTranscript,
     subOutPlayerId,
     setSubOutPlayerId,
     draftOnCourtIds,
@@ -863,6 +943,16 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     sortedStatsGridData,
     statsMap,
     matchups: game?.matchups || {},
+    matchupEfficiency: useMemo(
+      () => calculateMatchupEfficiency(sortedGameStats, game?.matchups || {}),
+      [sortedGameStats, game?.matchups],
+    ),
+    sparkPlugIndex: useMemo(
+      () => calculateSparkPlugIndex(sortedGameStats, game?.periodLength || 10),
+      [sortedGameStats, game?.periodLength],
+    ),
+    showMatchupMatrix,
+    setShowMatchupMatrix,
     opponentStats,
     halftimeStats,
     playerStreaks,

@@ -149,15 +149,7 @@ const GameMode: React.FC = () => {
     setIsHalftimeReportOpen,
     isBreakdownDialogOpen,
     setIsBreakdownDialogOpen,
-    lastOpponentStatId,
-    voiceEnabled,
-    setVoiceEnabled,
-    isListening,
-    lastTranscript,
-    matchupEfficiency,
-    sparkPlugIndex,
-    showMatchupMatrix,
-    setShowMatchupMatrix,
+    lastOpponentStatId, voiceEnabled, setVoiceEnabled, isListening, lastTranscript, matchupEfficiency, sparkPlugIndex, showMatchupMatrix, setShowMatchupMatrix,
     setLastOpponentStatId,
     isDeleting,
     setIsDeleting,
@@ -827,23 +819,12 @@ const GameMode: React.FC = () => {
           {voiceEnabled && (
             <Alert
               severity={isListening ? "info" : "warning"}
-              icon={
-                isListening ? (
-                  <Mic sx={{ animation: `${pulse} 2s infinite` }} />
-                ) : (
-                  <MicOff />
-                )
-              }
+              icon={isListening ? <Mic sx={{ animation: `${pulse} 2s infinite` }} /> : <MicOff />}
               sx={{ mb: 2, borderRadius: 2, fontWeight: 700 }}
             >
-              {isListening
-                ? "Voice Mode Active: Listening for commands..."
-                : "Voice Mode Paused"}
+              {isListening ? "Voice Mode Active: Listening for commands..." : "Voice Mode Paused"}
               {lastTranscript && (
-                <Typography
-                  variant="caption"
-                  sx={{ display: "block", mt: 0.5, fontStyle: "italic" }}
-                >
+                <Typography variant="caption" sx={{ display: "block", mt: 0.5, fontStyle: "italic" }}>
                   Last heard: "{lastTranscript}"
                 </Typography>
               )}
@@ -912,12 +893,8 @@ const GameMode: React.FC = () => {
                 isEnding={isEnding}
               />
 
-              <Box
-                sx={{ display: "flex", gap: 1, width: { xs: "100%", sm: "auto" } }}
-              >
-                <Tooltip
-                  title={voiceEnabled ? "Disable Voice Mode" : "Enable Voice Mode"}
-                >
+              <Box sx={{ display: "flex", gap: 1, width: { xs: "100%", sm: "auto" } }}>
+                <Tooltip title={voiceEnabled ? "Disable Voice Mode" : "Enable Voice Mode"}>
                   <IconButton
                     onClick={() => setVoiceEnabled(!voiceEnabled)}
                     color={voiceEnabled ? "primary" : "default"}
@@ -1015,32 +992,18 @@ const GameMode: React.FC = () => {
         <Grid item xs={12} md={4}>
           <Stack spacing={3}>
             <MoleskineCard>
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  mb: 1,
-                }}
-              >
-                <Typography
-                  variant="caption"
-                  sx={{ fontWeight: 800, color: "text.secondary" }}
-                >
+              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
+                <Typography variant="caption" sx={{ fontWeight: 800, color: "text.secondary" }}>
                   MATCHUP ANALYTICS
                 </Typography>
-                <IconButton
-                  size="small"
-                  onClick={() => setShowMatchupMatrix(!showMatchupMatrix)}
-                  color={showMatchupMatrix ? "primary" : "default"}
-                >
+                <IconButton size="small" onClick={() => setShowMatchupMatrix(!showMatchupMatrix)} color={showMatchupMatrix ? "primary" : "default"}>
                   <GridOn fontSize="small" />
                 </IconButton>
               </Box>
               {showMatchupMatrix && (
                 <MatchupMatrix
                   teamActiveIds={Array.from(gameData.onCourtIds)}
-                  oppActiveIds={opponentStats.slice(0, 5).map((o) => o.id)}
+                  oppActiveIds={opponentStats.slice(0, 5).map(o => o.id)}
                   matchupData={matchupEfficiency}
                   jerseyMap={jerseyMap}
                 />
@@ -1072,7 +1035,22 @@ const GameMode: React.FC = () => {
               >
                 ACTIVE DEFENSIVE SCHEME
               </Typography>
-              <ToggleButtonGroup
+              <Box sx={{ display: "flex", gap: 1, width: { xs: "100%", sm: "auto" } }}>
+                <Tooltip title={voiceEnabled ? "Disable Voice Mode" : "Enable Voice Mode"}>
+                  <IconButton
+                    onClick={() => setVoiceEnabled(!voiceEnabled)}
+                    color={voiceEnabled ? "primary" : "default"}
+                    sx={{
+                      border: "1px solid",
+                      borderColor: voiceEnabled ? "primary.main" : "divider",
+                      borderRadius: 1,
+                    }}
+                  >
+                    {voiceEnabled ? <Mic /> : <MicOff />}
+                  </IconButton>
+                </Tooltip>
+
+                <ToggleButtonGroup
                 value={game?.activeDefensiveScheme || "MAN"}
                 exclusive
                 onChange={async (_, val) => {
@@ -1316,83 +1294,32 @@ const GameMode: React.FC = () => {
                     Player Performance
                   </Typography>
                   <TableContainer sx={{ mt: 2, mb: 3 }}>
-                    <Typography
-                      variant="caption"
-                      sx={{
-                        fontWeight: 800,
-                        mb: 1,
-                        display: "block",
-                        textTransform: "uppercase",
-                        color: "primary.main",
-                      }}
-                    >
+                    <Typography variant="caption" sx={{ fontWeight: 800, mb: 1, display: "block", textTransform: "uppercase", color: "primary.main" }}>
                       SPARK PLUG MOMENTUM INDEX
                     </Typography>
                     <Table size="small">
                       <TableHead>
                         <TableRow>
-                          <TableCell sx={{ fontSize: "0.6rem", fontWeight: 800 }}>
-                            PLAYER
-                          </TableCell>
-                          <TableCell
-                            align="center"
-                            sx={{ fontSize: "0.6rem", fontWeight: 800 }}
-                          >
-                            HUSTLE
-                          </TableCell>
-                          <TableCell
-                            align="center"
-                            sx={{ fontSize: "0.6rem", fontWeight: 800 }}
-                          >
-                            RUN PTS
-                          </TableCell>
-                          <TableCell
-                            align="center"
-                            sx={{ fontSize: "0.6rem", fontWeight: 800 }}
-                          >
-                            INDEX
-                          </TableCell>
+                          <TableCell sx={{ fontSize: "0.6rem", fontWeight: 800 }}>PLAYER</TableCell>
+                          <TableCell align="center" sx={{ fontSize: "0.6rem", fontWeight: 800 }}>HUSTLE</TableCell>
+                          <TableCell align="center" sx={{ fontSize: "0.6rem", fontWeight: 800 }}>RUN PTS</TableCell>
+                          <TableCell align="center" sx={{ fontSize: "0.6rem", fontWeight: 800 }}>INDEX</TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
                         {sparkPlugIndex.slice(0, 3).map((spi) => (
                           <TableRow key={spi.playerId}>
-                            <TableCell
-                              sx={{ fontSize: "0.65rem", fontWeight: 700 }}
-                            >
-                              #{jerseyMap.get(spi.playerId)}{" "}
-                              {
-                                playerNamesMap
-                                  .get(spi.playerId)
-                                  ?.split(" ")[0]
-                              }
+                            <TableCell sx={{ fontSize: "0.65rem", fontWeight: 700 }}>
+                              #{jerseyMap.get(spi.playerId)} {playerNamesMap.get(spi.playerId)?.split(" ")[0]}
                             </TableCell>
-                            <TableCell
-                              align="center"
-                              sx={{ fontSize: "0.65rem" }}
-                            >
-                              {spi.hustleStats}
-                            </TableCell>
-                            <TableCell
-                              align="center"
-                              sx={{ fontSize: "0.65rem" }}
-                            >
-                              {spi.momentumScore}
-                            </TableCell>
+                            <TableCell align="center" sx={{ fontSize: "0.65rem" }}>{spi.hustleStats}</TableCell>
+                            <TableCell align="center" sx={{ fontSize: "0.65rem" }}>{spi.momentumScore}</TableCell>
                             <TableCell align="center">
                               <Chip
                                 label={spi.compositeIndex}
                                 size="small"
-                                color={
-                                  spi.compositeIndex >= 10
-                                    ? "primary"
-                                    : "default"
-                                }
-                                sx={{
-                                  height: 18,
-                                  fontSize: "0.6rem",
-                                  fontWeight: 800,
-                                }}
+                                color={spi.compositeIndex >= 10 ? "primary" : "default"}
+                                sx={{ height: 18, fontSize: "0.6rem", fontWeight: 800 }}
                               />
                             </TableCell>
                           </TableRow>
@@ -1892,6 +1819,21 @@ const GameMode: React.FC = () => {
                 label: "Contest",
                 icon: Shield,
               },
+              {
+                type: ACTION_TYPES.FLOOR_DIVE,
+                label: "Floor Dive",
+                icon: SportsBasketball,
+              },
+              {
+                type: ACTION_TYPES.CHARGE_TAKEN,
+                label: "Charge",
+                icon: PanTool,
+              },
+              {
+                type: ACTION_TYPES.GREAT_CONTEST,
+                label: "Contest",
+                icon: Shield,
+              },
             ].map((action) => (
               <QuickAction
                 key={action.type}
@@ -2087,7 +2029,22 @@ const GameMode: React.FC = () => {
               >
                 Situation
               </Typography>
-              <ToggleButtonGroup
+              <Box sx={{ display: "flex", gap: 1, width: { xs: "100%", sm: "auto" } }}>
+                <Tooltip title={voiceEnabled ? "Disable Voice Mode" : "Enable Voice Mode"}>
+                  <IconButton
+                    onClick={() => setVoiceEnabled(!voiceEnabled)}
+                    color={voiceEnabled ? "primary" : "default"}
+                    sx={{
+                      border: "1px solid",
+                      borderColor: voiceEnabled ? "primary.main" : "divider",
+                      borderRadius: 1,
+                    }}
+                  >
+                    {voiceEnabled ? <Mic /> : <MicOff />}
+                  </IconButton>
+                </Tooltip>
+
+                <ToggleButtonGroup
                 value={situation}
                 exclusive
                 onChange={(_, val) => setSituation(val)}
@@ -2100,6 +2057,7 @@ const GameMode: React.FC = () => {
                   </ToggleButton>
                 ))}
               </ToggleButtonGroup>
+              </Box>
             </Box>
           )}
 
@@ -2113,7 +2071,22 @@ const GameMode: React.FC = () => {
               >
                 Shot Quality
               </Typography>
-              <ToggleButtonGroup
+              <Box sx={{ display: "flex", gap: 1, width: { xs: "100%", sm: "auto" } }}>
+                <Tooltip title={voiceEnabled ? "Disable Voice Mode" : "Enable Voice Mode"}>
+                  <IconButton
+                    onClick={() => setVoiceEnabled(!voiceEnabled)}
+                    color={voiceEnabled ? "primary" : "default"}
+                    sx={{
+                      border: "1px solid",
+                      borderColor: voiceEnabled ? "primary.main" : "divider",
+                      borderRadius: 1,
+                    }}
+                  >
+                    {voiceEnabled ? <Mic /> : <MicOff />}
+                  </IconButton>
+                </Tooltip>
+
+                <ToggleButtonGroup
                 value={shotQuality}
                 exclusive
                 onChange={(_, val) => setShotQuality(val)}
@@ -2125,6 +2098,7 @@ const GameMode: React.FC = () => {
                   Contested
                 </ToggleButton>
               </ToggleButtonGroup>
+              </Box>
             </Box>
           )}
 

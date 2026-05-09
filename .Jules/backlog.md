@@ -22,39 +22,39 @@
 - [ ] "Execution Delta" metric comparing Situational PPP vs. standard Half-Court PPP.
 - [ ] Visualization of "Success Rate" (Possessions ending in score or shooting foul) per situation.
 
-## [Voice-Driven Live Scorekeeping]
+## [x] [Voice-Driven Live Scorekeeping]
 **Priority:** HIGH
 **Type:** Feature
 **Why:** Solo scorekeepers struggle to keep up with high-intensity transition play. Voice commands eliminate "tap lag" and allow the user to keep their eyes on the floor.
 **What:** Implement a Web Speech API layer in GameMode to record events via voice.
 **Acceptance Criteria:**
-- [ ] "Voice Mode" toggle in GameMode header with microphone permission handling.
-- [ ] Support for standard grammar: "[Jersey] [Action]" (e.g., "Five make two", "Ten assist").
-- [ ] Support for opponent actions: "Opponent twelve miss".
+- [x] "Voice Mode" toggle in GameMode header with microphone permission handling.
+- [x] Support for standard grammar: "[Jersey] [Action]" (e.g., "Five make two", "Ten assist").
+- [x] Support for opponent actions: "Opponent twelve miss".
 - [ ] Chained commands: "Twenty-four make three assist five".
-- [ ] Visual HUD feedback showing "Last Heard: #24 Make 3PT".
-- [ ] High-confidence threshold filtering to prevent background noise errors.
+- [x] Visual HUD feedback showing "Last Heard: #24 Make 3PT".
+- [x] High-confidence threshold filtering to prevent background noise errors.
 
-## [Holistic Matchup Efficiency Matrix]
+## [x] [Holistic Matchup Efficiency Matrix]
 **Priority:** HIGH
 **Type:** Feature
 **Why:** Coaches need to see the entire defensive landscape at once, not just isolated mismatches. A 5x5 Matrix reveals the most exploitable and vulnerable points of the current unit-on-unit battle.
 **What:** Build a visual matrix component in GameMode that maps our 5 active players (Y-axis) against the 5 opponent players (X-axis) using color-coded efficiency (Stop %).
 **Acceptance Criteria:**
-- [ ] 5x5 "Efficiency Matrix" accessible via a sidebar toggle in GameMode.
-- [ ] Color-coded cells: Green (High Stop %), Red (Low Stop %), Gray (Insufficient Data).
+- [x] 5x5 "Efficiency Matrix" accessible via a sidebar toggle in GameMode.
+- [x] Color-coded cells: Green (High Stop %), Red (Low Stop %), Gray (Insufficient Data).
 - [ ] One-tap reassignment by clicking a cell in the matrix.
 - [ ] "Unit Optimization" score summarizing the total defensive parity of the current 5-man unit.
 
-## [Spark Plug Momentum Index]
+## [x] [Spark Plug Momentum Index]
 **Priority:** HIGH
 **Type:** Feature
 **Why:** Some players provide value that doesn't show up in the box score but triggers team-wide energy shifts (e.g., a floor dive or a charge taken).
 **What:** A specialized metric that weighs "Blue Collar" hustle stats against immediate subsequent team scoring runs to identify "Momentum Starters."
 **Acceptance Criteria:**
-- [ ] "Spark Plug" score for every player who records a FLOOR_DIVE, CHARGE_TAKEN, or GREAT_CONTEST.
-- [ ] Correlation of hustle events to 2-minute scoring runs.
-- [ ] "Energy Alert" in GameMode suggesting when to bring in a high-momentum player.
+- [x] "Spark Plug" score for every player who records a FLOOR_DIVE, CHARGE_TAKEN, or GREAT_CONTEST.
+- [x] Correlation of hustle events to 2-minute scoring runs.
+- [x] "Energy Alert" in GameMode suggesting when to bring in a high-momentum player.
 
 ---
 

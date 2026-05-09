@@ -3,7 +3,7 @@
  * @description Advanced analytics and situational metrics.
  */
 
-import { ACTION_TYPES } from "../../constants/stats";
+import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../../constants/stats";
 import { StatEvent, Player } from "../../db";
 import { formatClock, calculateElapsedMinutes } from "../mathUtils";
 import {
@@ -30,6 +30,7 @@ import {
   SpecialtyExecution,
   GameAnalyticsContext,
   LineupAggregates,
+  SparkPlugIndex,
 } from "./types";
 
 export const calculateOpponentScoutingStats = (
@@ -158,6 +159,124 @@ export const calculatePlayEfficiency = (
       };
     })
     .sort((a, b) => b.attempts - a.attempts);
+};
+
+/**
+ * 🏀 Forge: Spark Plug Momentum Index
+ * WHY: Identify players who trigger team-wide energy shifts via hustle.
+ * Calculation: Weighs hustle stats (Dives, Charges, Contests) against
+ * immediate subsequent 2-minute team scoring runs.
+ */
+export const calculateSparkPlugIndex = (
+  stats: StatEvent[],
+  periodLenMinutes: number = 10,
+): SparkPlugIndex[] => {
+  const result: Map<string, { hustle: number; momentum: number }> = new Map();
+  const periodLenSecs = periodLenMinutes * 60;
+
+  // 1. Identify all hustle events
+  const hustleEvents = stats.filter(
+    (s) =>
+      !s.deletedAt &&
+      [
+        ACTION_TYPES.FLOOR_DIVE,
+        ACTION_TYPES.CHARGE_TAKEN,
+        ACTION_TYPES.GREAT_CONTEST,
+      ].includes(s.type),
+  );
+
+  hustleEvents.forEach((h) => {
+    const pId = h.playerId;
+    if (!result.has(pId)) result.set(pId, { hustle: 0, momentum: 0 });
+    const entry = result.get(pId)!;
+    entry.hustle++;
+
+    // 2. Look for team scoring in the next 2 minutes (120s)
+    const hTime =
+      (h.period - 1) * periodLenSecs + (periodLenSecs - (h.clockTime ?? 0));
+    const endTime = hTime + 120;
+
+    const runPoints = stats.reduce((acc, s) => {
+      if (
+        s.deletedAt ||
+        s.type !== ACTION_TYPES.MAKE ||
+        isOpponentId(s.playerId)
+      )
+        return acc;
+      const sTime =
+        (s.period - 1) * periodLenSecs + (periodLenSecs - (s.clockTime ?? 0));
+      if (sTime > hTime && sTime <= endTime) {
+        return acc + (s.points || 0);
+      }
+      return acc;
+    }, 0);
+
+    entry.momentum += runPoints;
+  });
+
+  return Array.from(result.entries())
+    .map(([pId, val]) => ({
+      playerId: pId,
+      hustleStats: val.hustle,
+      momentumScore: val.momentum,
+      compositeIndex: Math.round(val.hustle * 2 + val.momentum / 2),
+    }))
+    .sort((a, b) => b.compositeIndex - a.compositeIndex);
+};
+
+/**
+ * 🏀 Forge: Matchup Efficiency Logic
+ * Calculates Stop % for specific player matchups.
+ */
+export const calculateMatchupEfficiency = (
+  stats: StatEvent[],
+  matchups: Record<string, string>,
+) => {
+  const result: {
+    teamPlayerId: string;
+    teamPlayerJersey: string;
+    oppPlayerId: string;
+    oppPlayerJersey: string;
+    stopPct: number;
+    possessions: number;
+  }[] = [];
+
+  const data: Record<string, { stops: number; total: number }> = {};
+
+  for (const s of stats) {
+    if (!isActive(s) || !isOpponentId(s.playerId)) continue;
+
+    const defenderId = s.primaryDefenderId || matchups[s.playerId];
+    if (!defenderId) continue;
+
+    const key = `${defenderId}|${s.playerId}`;
+    if (!data[key]) data[key] = { stops: 0, total: 0 };
+
+    if (
+      isFieldGoal(s) ||
+      (s.type === ACTION_TYPES.MAKE && s.points === 1) ||
+      s.type === ACTION_TYPES.TURNOVER
+    ) {
+      data[key].total++;
+      if (s.type === ACTION_TYPES.MISS || s.type === ACTION_TYPES.TURNOVER) {
+        data[key].stops++;
+      }
+    }
+  }
+
+  for (const [key, val] of Object.entries(data)) {
+    const [tId, oId] = key.split("|");
+    result.push({
+      teamPlayerId: tId,
+      teamPlayerJersey: "", // To be filled by UI
+      oppPlayerId: oId,
+      oppPlayerJersey: oId.includes(":") ? oId.split(":")[1] : "??",
+      stopPct: val.total > 0 ? Math.round((val.stops / val.total) * 100) : 0,
+      possessions: val.total,
+    });
+  }
+
+  return result;
 };
 
 export const calculateOpponentThreats = (

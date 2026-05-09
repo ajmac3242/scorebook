@@ -99,6 +99,13 @@ export interface PlayEfficiency {
   efg: string;
 }
 
+export interface SparkPlugIndex {
+  playerId: string;
+  hustleStats: number;
+  momentumScore: number;
+  compositeIndex: number;
+}
+
 export interface OpponentThreat {
   playerId: string;
   points: number;
