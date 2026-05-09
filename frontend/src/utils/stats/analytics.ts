@@ -26,6 +26,8 @@ import {
   HaltAlert,
   TalkingPoint,
   PracticeFocusArea,
+  DefensiveIntegrity,
+  SpecialtyExecution,
   GameAnalyticsContext,
   LineupAggregates,
 } from "./types";
@@ -623,4 +625,120 @@ export const generatePracticePrescription = (params: {
   }
 
   return focusAreas;
+};
+
+/**
+ * 🏀 Assistant Coach: Defensive Integrity Report
+ * WHY: Coaches need to know *why* a bucket was allowed to fix it in practice.
+ */
+export const calculateDefensiveIntegrity = (
+  stats: StatEvent[],
+): DefensiveIntegrity[] => {
+  const data: Record<string, { points: number; frequency: number }> = {};
+  let totalPointsAllowed = 0;
+
+  for (let i = 0; i < stats.length; i++) {
+    const s = stats[i];
+    if (!isActive(s) || s.type !== ACTION_TYPES.MAKE) continue;
+
+    const isOpp = isOpponentId(s.playerId);
+    if (!isOpp) continue;
+
+    totalPointsAllowed += s.points || 0;
+    const reason = s.breakdownReason || "Other / Unattributed";
+
+    if (!data[reason]) {
+      data[reason] = { points: 0, frequency: 0 };
+    }
+    data[reason].points += s.points || 0;
+    data[reason].frequency += 1;
+  }
+
+  return Object.entries(data)
+    .map(([reason, d]) => ({
+      reason,
+      points: d.points,
+      frequency: d.frequency,
+      percentage:
+        totalPointsAllowed > 0
+          ? ((d.points / totalPointsAllowed) * 100).toFixed(1)
+          : "0.0",
+    }))
+    .sort((a, b) => b.points - a.points);
+};
+
+/**
+ * 🏀 Assistant Coach: Specialty Execution Analytical Engine
+ * WHY: Designing the perfect play is useless if you don't know if it works.
+ */
+export const calculateSituationalStats = (
+  stats: StatEvent[],
+): SpecialtyExecution[] => {
+  const data: Record<
+    string,
+    {
+      makes: number;
+      attempts: number;
+      points: number;
+      fta: number;
+      turnovers: number;
+      threePM: number;
+    }
+  > = {};
+
+  for (let i = 0; i < stats.length; i++) {
+    const s = stats[i];
+    if (!isActive(s) || !s.situation || isOpponentId(s.playerId)) continue;
+
+    if (!data[s.situation]) {
+      data[s.situation] = {
+        makes: 0,
+        attempts: 0,
+        points: 0,
+        fta: 0,
+        turnovers: 0,
+        threePM: 0,
+      };
+    }
+
+    const play = data[s.situation];
+    if (s.type === ACTION_TYPES.MAKE) {
+      play.points += s.points || 0;
+      if (s.points === 1) {
+        play.fta++;
+      } else {
+        play.makes++;
+        play.attempts++;
+        if (s.points === 3) {
+          play.threePM++;
+        }
+      }
+    } else if (s.type === ACTION_TYPES.MISS) {
+      if (s.points === 1) {
+        play.fta++;
+      } else {
+        play.attempts++;
+      }
+    } else if (s.type === ACTION_TYPES.TURNOVER) {
+      play.turnovers++;
+    }
+  }
+
+  return Object.entries(data)
+    .map(([situation, s]) => {
+      const possessions = calculatePossessions(
+        s.attempts,
+        s.fta,
+        s.turnovers,
+        0,
+      );
+      return {
+        situation,
+        attempts: s.attempts,
+        points: s.points,
+        ppp: calculatePpp(s.points, possessions),
+        efg: calculateEfgPct(s.makes, s.threePM, s.attempts),
+      };
+    })
+    .sort((a, b) => b.attempts - a.attempts);
 };

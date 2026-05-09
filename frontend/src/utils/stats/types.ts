@@ -132,6 +132,21 @@ export interface PracticeFocusArea {
   description: string;
 }
 
+export interface DefensiveIntegrity {
+  reason: string;
+  points: number;
+  frequency: number;
+  percentage: string;
+}
+
+export interface SpecialtyExecution {
+  situation: string;
+  attempts: number;
+  points: number;
+  ppp: string;
+  efg: string;
+}
+
 export interface GameAnalyticsContext {
   onCourtIds: Set<string>;
   teamFoulStats: {

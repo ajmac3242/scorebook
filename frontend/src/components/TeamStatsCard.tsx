@@ -14,6 +14,7 @@ export const TeamStatsCard = React.memo(
     oppPpp,
     livePace,
     refTightness,
+    activeSchemePpp,
   }: {
     defensiveStats: {
       totalStops: number;
@@ -24,6 +25,7 @@ export const TeamStatsCard = React.memo(
     oppPpp: string;
     livePace: number;
     refTightness?: number;
+    activeSchemePpp?: string;
   }) => {
     return (
       <MoleskineCard>
@@ -31,6 +33,35 @@ export const TeamStatsCard = React.memo(
           Team Stats
         </Typography>
         <Grid container spacing={2}>
+          <Grid item xs={6}>
+            <Box
+              sx={{
+                textAlign: "center",
+                p: 1.5,
+                bgcolor: "secondary.dark",
+                color: "white",
+                borderRadius: 2,
+                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
+              }}
+            >
+              <Typography
+                variant="caption"
+                sx={{
+                  display: "block",
+                  fontWeight: 800,
+                  fontSize: "0.5rem",
+                  letterSpacing: 1,
+                  mb: 0.5,
+                  opacity: 0.9,
+                }}
+              >
+                DEF SCHEME PPP
+              </Typography>
+              <Typography variant="h5" sx={{ fontWeight: 900, lineHeight: 1 }}>
+                {activeSchemePpp || "0.00"}
+              </Typography>
+            </Box>
+          </Grid>
           <Grid item xs={6}>
             <Box
               sx={{
