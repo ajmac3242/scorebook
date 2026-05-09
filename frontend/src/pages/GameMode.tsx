@@ -42,9 +42,7 @@ import {
   FlashOn,
   ArrowBack,
 } from "@mui/icons-material";
-import {
-  useMediaQuery,
-} from "@mui/material";
+import { useMediaQuery } from "@mui/material";
 import BasketballCourt from "../components/BasketballCourt";
 import RecentActionItem from "../components/RecentActionItem";
 import QuickSubDialog from "../components/QuickSubDialog";
