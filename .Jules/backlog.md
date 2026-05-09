@@ -119,17 +119,27 @@
 - [ ] "Quality Control" HUD in GameMode showing average xPTS per possession for the current lineup.
 - [ ] Post-game "Process Report" highlighting high xPTS shots that missed vs. low xPTS shots that went in.
 
-## Executive Halftime Talking Points Generator
+## [x] Executive Halftime Talking Points Generator
 **Priority:** HIGH
 **Type:** Feature
 **Why:** Halftime is only 10 minutes. Coaches need automated synthesis of complex data into 3 punchy, actionable directives for the locker room.
 **What:** An automated NLP-style engine that analyzes game aggregates vs. season averages to generate 3 executive-level bullet points.
 **Acceptance Criteria:**
-- [ ] "Talking Points" tab in the Halftime Report Dialog.
-- [ ] Bullet 1 (Offensive): Efficiency insight (e.g., "eFG% is 12% below average; stop settling for long 2s").
-- [ ] Bullet 2 (Defensive): Personnel threat (e.g., "Opponent #24 is 4/4 on drives; force him left").
-- [ ] Bullet 3 (Personnel): Lineup suggestion (e.g., "Lineup [5,10,12] is +8; keep them together").
-- [ ] "Copy for Assistant" button to send talking points via clipboard.
+- [x] "Talking Points" tab in the Halftime Report Dialog.
+- [x] Bullet 1 (Offensive): Efficiency insight (e.g., "eFG% is 12% below average; stop settling for long 2s").
+- [x] Bullet 2 (Defensive): Personnel threat (e.g., "Opponent #24 is 4/4 on drives; force him left").
+- [x] Bullet 3 (Personnel): Lineup suggestion (e.g., "Lineup [5,10,12] is +8; keep them together").
+- [x] "Copy for Assistant" button to send talking points via clipboard.
+
+## [x] Integrated Practice Prescription Engine
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Game data is only useful if it changes behavior in practice. Automating the bridge between performance and preparation ensures no tactical weakness is ignored.
+**What:** An engine in GameStats that identifies the 3 biggest performance gaps vs. season averages and suggests specific drills to address them.
+**Acceptance Criteria:**
+- [x] Automated "Practice Plan" section in the Game Stats page.
+- [x] Logic to identify top 3 focus areas based on Game vs. Season delta.
+- [x] Suggestion of specific drills (e.g., "Pressure Free Throws", "3-on-2 Transition") based on the identified gaps.
 
 ## Coach-Assistant Live Sync Bridge
 **Priority:** HIGH
