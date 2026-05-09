@@ -22,6 +22,11 @@ export const REDACTED_HEADERS = Object.freeze(
     "session-id",
     "api-key",
     "secret",
+/**
+ * Pre-compiled regex for path normalization.
+ */
+const PATH_PREFIX_REGEX = /^\/(\$default|api)/;
+const TRAILING_SLASH_REGEX = /\/+$/;
     "password",
     "token",
   ]),
@@ -201,7 +206,7 @@ export function normalizePath(event: APIGatewayProxyEventV2): string {
     "/") as string;
 
   // ⚡ Bolt: Use regex for cleaner prefix and trailing slash normalization.
-  const path = raw.replace(/^\/(\$default|api)/, "").replace(/\/+$/, "");
+  const path = raw.replace(PATH_PREFIX_REGEX, "").replace(TRAILING_SLASH_REGEX, "");
 
   return path || "/";
 }

@@ -96,7 +96,8 @@ export const calculateStopsAndKills = (stats: StatEvent[]) => {
     }
 
     const isOpp =
-      s.playerId === "OPPONENT" || s.playerId.startsWith("OPPONENT:");
+      s.playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
+      s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":");
 
     if (isOpp && s.type === ACTION_TYPES.MAKE) {
       currentStreak = 0;
@@ -191,11 +192,25 @@ export const calculateOnOffStats = (
   players: { id: string; name: string }[],
 ): OnOffStats[] => {
   const sorted = sortStats(stats);
-  const results: OnOffStats[] = [];
 
-  for (const player of players) {
-    const pId = player.id;
-    const statsOn = {
+  const playerOnStats = new Map<
+    string,
+    {
+      ptsFor: number;
+      ptsAgainst: number;
+      fga: number;
+      fta: number;
+      to: number;
+      oreb: number;
+      oppFga: number;
+      oppFta: number;
+      oppTo: number;
+      oppOreb: number;
+    }
+  >();
+
+  for (const p of players) {
+    playerOnStats.set(p.id, {
       ptsFor: 0,
       ptsAgainst: 0,
       fga: 0,
@@ -206,47 +221,80 @@ export const calculateOnOffStats = (
       oppFta: 0,
       oppTo: 0,
       oppOreb: 0,
-    };
-    const statsOff = {
-      ptsFor: 0,
-      ptsAgainst: 0,
-      fga: 0,
-      fta: 0,
-      to: 0,
-      oreb: 0,
-      oppFga: 0,
-      oppFta: 0,
-      oppTo: 0,
-      oppOreb: 0,
-    };
+    });
+  }
 
-    const currentLineup = new Set<string>();
+  const globalStats = {
+    ptsFor: 0,
+    ptsAgainst: 0,
+    fga: 0,
+    fta: 0,
+    to: 0,
+    oreb: 0,
+    oppFga: 0,
+    oppFta: 0,
+    oppTo: 0,
+    oppOreb: 0,
+  };
 
-    for (const s of sorted) {
-      if (!isActive(s)) continue;
+  const currentLineup = new Set<string>();
 
-      if (s.type === ACTION_TYPES.SUB_IN) {
-        currentLineup.add(s.playerId);
-        continue;
+  for (const s of sorted) {
+    if (!isActive(s)) continue;
+
+    if (s.type === ACTION_TYPES.SUB_IN) {
+      currentLineup.add(s.playerId);
+      continue;
+    }
+    if (s.type === ACTION_TYPES.SUB_OUT) {
+      currentLineup.delete(s.playerId);
+      continue;
+    }
+
+    const isOpp =
+      s.playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
+      s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":");
+
+    const pts = s.points || 0;
+    const type = s.type;
+
+    const isMake = type === ACTION_TYPES.MAKE;
+    const isMiss = type === ACTION_TYPES.MISS;
+    const isTurnover = type === ACTION_TYPES.TURNOVER;
+    const isOreb = type === ACTION_TYPES.OFF_REBOUND;
+
+    if (isMake) {
+      if (isOpp) globalStats.ptsAgainst += pts;
+      else globalStats.ptsFor += pts;
+    }
+
+    if (isMake || isMiss) {
+      if (pts === 1) {
+        if (isOpp) globalStats.oppFta++;
+        else globalStats.fta++;
+      } else {
+        if (isOpp) globalStats.oppFga++;
+        else globalStats.fga++;
       }
-      if (s.type === ACTION_TYPES.SUB_OUT) {
-        currentLineup.delete(s.playerId);
-        continue;
+    } else if (isTurnover) {
+      if (isOpp) globalStats.oppTo++;
+      else globalStats.to++;
+    } else if (isOreb) {
+      if (isOpp) globalStats.oppOreb++;
+      else globalStats.oreb++;
+    }
+
+    // Update ON stats for active players
+    for (const pId of currentLineup) {
+      const target = playerOnStats.get(pId);
+      if (!target) continue;
+
+      if (isMake) {
+        if (isOpp) target.ptsAgainst += pts;
+        else target.ptsFor += pts;
       }
 
-      const isOn = currentLineup.has(pId);
-      const target = isOn ? statsOn : statsOff;
-      const isOpp =
-        s.playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
-        s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":");
-
-      if (s.type === ACTION_TYPES.MAKE) {
-        if (isOpp) target.ptsAgainst += s.points || 0;
-        else target.ptsFor += s.points || 0;
-      }
-
-      if (s.type === ACTION_TYPES.MAKE || s.type === ACTION_TYPES.MISS) {
-        const pts = s.points || 0;
+      if (isMake || isMiss) {
         if (pts === 1) {
           if (isOpp) target.oppFta++;
           else target.fta++;
@@ -254,78 +302,82 @@ export const calculateOnOffStats = (
           if (isOpp) target.oppFga++;
           else target.fga++;
         }
-      } else if (s.type === ACTION_TYPES.TURNOVER) {
+      } else if (isTurnover) {
         if (isOpp) target.oppTo++;
         else target.to++;
-      } else if (s.type === ACTION_TYPES.OFF_REBOUND) {
+      } else if (isOreb) {
         if (isOpp) target.oppOreb++;
         else target.oreb++;
       }
     }
+  }
 
-    const onPoss = calculatePossessions(
-      statsOn.fga,
-      statsOn.fta,
-      statsOn.to,
-      statsOn.oreb,
-    );
+  return players.map((player) => {
+    const on = playerOnStats.get(player.id)!;
+    const off = {
+      ptsFor: globalStats.ptsFor - on.ptsFor,
+      ptsAgainst: globalStats.ptsAgainst - on.ptsAgainst,
+      fga: globalStats.fga - on.fga,
+      fta: globalStats.fta - on.fta,
+      to: globalStats.to - on.to,
+      oreb: globalStats.oreb - on.oreb,
+      oppFga: globalStats.oppFga - on.oppFga,
+      oppFta: globalStats.oppFta - on.oppFta,
+      oppTo: globalStats.oppTo - on.oppTo,
+      oppOreb: globalStats.oppOreb - on.oppOreb,
+    };
+
+    const onPoss = calculatePossessions(on.fga, on.fta, on.to, on.oreb);
     const onOppPoss = calculatePossessions(
-      statsOn.oppFga,
-      statsOn.oppFta,
-      statsOn.oppTo,
-      statsOn.oppOreb,
+      on.oppFga,
+      on.oppFta,
+      on.oppTo,
+      on.oppOreb,
     );
-    const offPoss = calculatePossessions(
-      statsOff.fga,
-      statsOff.fta,
-      statsOff.to,
-      statsOff.oreb,
-    );
+    const offPoss = calculatePossessions(off.fga, off.fta, off.to, off.oreb);
     const offOppPoss = calculatePossessions(
-      statsOff.oppFga,
-      statsOff.oppFta,
-      statsOff.oppTo,
-      statsOff.oppOreb,
+      off.oppFga,
+      off.oppFta,
+      off.oppTo,
+      off.oppOreb,
     );
 
-    const onOffRating = calculatePpp(statsOn.ptsFor, onPoss);
-    const onDefRating = calculatePpp(statsOn.ptsAgainst, onOppPoss);
+    const onOffRating = calculatePpp(on.ptsFor, onPoss);
+    const onDefRating = calculatePpp(on.ptsAgainst, onOppPoss);
     const onNet = (parseFloat(onOffRating) - parseFloat(onDefRating)).toFixed(
       2,
     );
 
-    const offOffRating = calculatePpp(statsOff.ptsFor, offPoss);
-    const offDefRating = calculatePpp(statsOff.ptsAgainst, offOppPoss);
+    const offOffRating = calculatePpp(off.ptsFor, offPoss);
+    const offDefRating = calculatePpp(off.ptsAgainst, offOppPoss);
     const offNet = (
       parseFloat(offOffRating) - parseFloat(offDefRating)
     ).toFixed(2);
 
     const diff = (parseFloat(onNet) - parseFloat(offNet)).toFixed(2);
 
-    results.push({
-      playerId: pId,
+    return {
+      playerId: player.id,
       name: player.name,
       on: {
         possessions: Math.round(onPoss),
-        ptsFor: statsOn.ptsFor,
-        ptsAgainst: statsOn.ptsAgainst,
+        ptsFor: on.ptsFor,
+        ptsAgainst: on.ptsAgainst,
         offRating: onOffRating,
         defRating: onDefRating,
         netRating: onNet,
       },
       off: {
         possessions: Math.round(offPoss),
-        ptsFor: statsOff.ptsFor,
-        ptsAgainst: statsOff.ptsAgainst,
+        ptsFor: off.ptsFor,
+        ptsAgainst: off.ptsAgainst,
         offRating: offOffRating,
         defRating: offDefRating,
         netRating: offNet,
       },
       differential: diff,
-    });
-  }
-
-  return results;
+    };
+  });
 };
 
 export interface MatchupStat {
@@ -352,61 +404,44 @@ export const calculateMatchupStats = (
 
   // Track current defenders assigned to opponents based on events
   const currentMatchups = new Map<string, string>();
-
-  for (const s of sorted) {
-    if (!isActive(s)) continue;
-
-    const isOpp =
-      s.playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
-      s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":");
-    if (!isOpp) continue;
-
-    const oppId = s.playerId;
-    const defenderId = s.primaryDefenderId;
-
-    if (defenderId) {
-      currentMatchups.set(oppId, defenderId);
-    }
-
-    const activeDefender = currentMatchups.get(oppId);
-    if (!activeDefender) continue;
-
-    const key = `${oppId}:${activeDefender}`;
-    if (!matchupMap.has(key)) {
-      matchupMap.set(key, { pointsAllowed: 0, stops: 0, possessions: 0 });
-    }
-    const m = matchupMap.get(key)!;
-
-    if (s.type === ACTION_TYPES.MAKE) {
-      m.pointsAllowed += s.points || 0;
-      m.possessions++;
-    } else if (s.type === ACTION_TYPES.TURNOVER) {
-      m.stops++;
-      m.possessions++;
-    } else if (s.type === ACTION_TYPES.MISS) {
-      // Possession continues until a rebound or another event
-      // For simplicity in Matchup Tracking, we count the end of a possession
-      // In a real tracker, this would be more complex
-    } else if (s.type === ACTION_TYPES.DEF_REBOUND) {
-      // This is usually recorded for our player, but if we see it in context of an opponent miss
-      // it counts as a stop. However, StatEvent for DEF_REBOUND has playerId of our player.
-    }
-  }
-
-  // Refined pass to capture stops on defensive rebounds
   let inOppPossession = false;
   let lastOppPlayerId = "";
+
   for (const s of sorted) {
     if (!isActive(s)) continue;
+
     const isOpp =
       s.playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
       s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":");
 
     if (isOpp) {
       lastOppPlayerId = s.playerId;
-      if (s.type === ACTION_TYPES.MISS) inOppPossession = true;
-      if (s.type === ACTION_TYPES.MAKE || s.type === ACTION_TYPES.TURNOVER)
+      const defenderId = s.primaryDefenderId;
+
+      if (defenderId) {
+        currentMatchups.set(lastOppPlayerId, defenderId);
+      }
+
+      const activeDefender = currentMatchups.get(lastOppPlayerId);
+      if (!activeDefender) continue;
+
+      const key = `${lastOppPlayerId}:${activeDefender}`;
+      if (!matchupMap.has(key)) {
+        matchupMap.set(key, { pointsAllowed: 0, stops: 0, possessions: 0 });
+      }
+      const m = matchupMap.get(key)!;
+
+      if (s.type === ACTION_TYPES.MAKE) {
+        m.pointsAllowed += s.points || 0;
+        m.possessions++;
         inOppPossession = false;
+      } else if (s.type === ACTION_TYPES.TURNOVER) {
+        m.stops++;
+        m.possessions++;
+        inOppPossession = false;
+      } else if (s.type === ACTION_TYPES.MISS) {
+        inOppPossession = true;
+      }
     } else {
       if (
         inOppPossession &&
@@ -414,9 +449,10 @@ export const calculateMatchupStats = (
       ) {
         const defenderId = s.playerId;
         const key = `${lastOppPlayerId}:${defenderId}`;
-        if (matchupMap.has(key)) {
-          matchupMap.get(key)!.stops++;
-          matchupMap.get(key)!.possessions++;
+        const m = matchupMap.get(key);
+        if (m) {
+          m.stops++;
+          m.possessions++;
         }
         inOppPossession = false;
       }

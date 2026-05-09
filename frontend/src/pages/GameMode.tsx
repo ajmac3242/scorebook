@@ -60,7 +60,7 @@ import FreeThrowWorkflowDialog from "../components/FreeThrowWorkflowDialog";
 import HalftimeReportDialog from "../components/HalftimeReportDialog";
 import PlaybookEfficiencyWidget from "../components/PlaybookEfficiencyWidget";
 import { PlayerStatRow } from "../components/PlayerStatRow";
-import { db, type StatEvent, type Player, type Game, type Team } from "../db";
+import { db, type StatEvent } from "../db";
 import { syncService } from "../utils/syncService";
 import { logger } from "../utils/logger";
 import {
@@ -80,6 +80,10 @@ import { Scoreboard } from "../components/Scoreboard";
 import { TeamStatsCard } from "../components/TeamStatsCard";
 import { ActionControls } from "../components/ActionControls";
 import { useGameMode } from "../hooks/useGameMode";
+import {
+  QuickAction,
+  LineupPlayerButton,
+} from "./GameMode/GameModeComponents";
 
 /**
  * GameMode page component.
@@ -752,6 +756,29 @@ const GameMode: React.FC = () => {
     [chainPrompt, gameId, setChainPrompt, setSnackbar],
   );
 
+  /**
+   * Handler for LineupPlayerButton clicks.
+   * Memoized to prevent re-renders of LineupPlayerButton.
+   */
+  const handleLineupPlayerClick = useCallback(
+    (playerId: string) => {
+      setSubOutPlayerId(playerId);
+      setIsSubDialogOpen(true);
+    },
+    [setSubOutPlayerId, setIsSubDialogOpen],
+  );
+
+  /**
+   * Handler for QuickAction clicks.
+   * Memoized to prevent re-renders of QuickAction.
+   */
+  const handleQuickActionClick = useCallback(
+    (type: string | null) => {
+      setStatType(type);
+    },
+    [setStatType],
+  );
+
   if (!gameId || !teamId) {
     return null;
   }
@@ -1018,10 +1045,7 @@ const GameMode: React.FC = () => {
                             gameData.onCourtPeriodFouls.get(p.id!) || 0
                           }
                           streak={playerStreaks.get(p.id!)}
-                          onClick={() => {
-                            setSubOutPlayerId(p.id!);
-                            setIsSubDialogOpen(true);
-                          }}
+                          onClick={handleLineupPlayerClick}
                         />
                       ))}
                     {Array.from({
@@ -1579,7 +1603,7 @@ const GameMode: React.FC = () => {
                 label={action.label}
                 icon={action.icon}
                 statType={statType}
-                setStatType={setStatType}
+                onClick={handleQuickActionClick}
               />
             ))}
           </Box>
@@ -2075,172 +2099,5 @@ const GameMode: React.FC = () => {
     </Box>
   );
 };
-
-const QuickAction: React.FC<{
-  type: string;
-  label: string;
-  icon: React.ElementType;
-  statType: string | null;
-  setStatType: (_type: string | null) => void;
-}> = React.memo(({ type, label, icon: Icon, statType, setStatType }) => (
-  <Tooltip title={label || ""}>
-    <Button
-      variant={statType === type ? "contained" : "outlined"}
-      color="inherit"
-      aria-pressed={statType === type}
-      aria-label={`Record ${label}`}
-      onClick={() => {
-        setStatType(type);
-      }}
-      sx={{
-        flexDirection: "column",
-        py: 2,
-        minWidth: 80,
-        borderColor: "#D1D1D1",
-        backgroundColor: statType === type ? "primary.main" : "transparent",
-        color: statType === type ? "white" : "text.primary",
-      }}
-    >
-      <Icon sx={{ mb: 1 }} />
-      <Typography variant="caption">{label}</Typography>
-    </Button>
-  </Tooltip>
-));
-
-const LineupPlayerButton: React.FC<{
-  player: Player;
-  stats: PlayerAggregates | undefined;
-  jerseyNumber: string;
-  isReadOnly: boolean;
-  period: number;
-  game: Game | null;
-  team: Team | null;
-  stintSecs: number;
-  periodFouls: number;
-  streak: string | undefined;
-  onClick: () => void;
-}> = React.memo(
-  ({
-    player,
-    stats,
-    jerseyNumber,
-    isReadOnly,
-    period,
-    game,
-    team,
-    stintSecs,
-    periodFouls,
-    streak,
-    onClick,
-  }) => {
-    const theme = useTheme();
-    const pf = stats?.fouls || 0;
-    const foulLimit = game?.foulLimit || team?.defaultFoulLimit || 5;
-    const isFoulTrouble = pf === foulLimit - 1;
-    const isFouledOut = pf >= foulLimit;
-
-    const curPeriodKey = `P${period}`;
-    const periodFoulLimit = team?.foulWarningThresholds?.[curPeriodKey] || 99;
-    const isFoulTroubleInPeriod = periodFouls >= periodFoulLimit;
-
-    const maxStint = (team?.maxStintDuration || 8) * 60;
-    const isFatigued = stintSecs > maxStint;
-
-    return (
-      <Box sx={{ display: "flex", gap: 0.5, alignItems: "center" }}>
-        <Button
-          fullWidth
-          disabled={isReadOnly}
-          variant="contained"
-          onClick={onClick}
-          sx={{
-            justifyContent: "flex-start",
-            px: 1,
-            bgcolor: isFouledOut
-              ? "error.main"
-              : isFoulTrouble || isFoulTroubleInPeriod
-                ? "warning.main"
-                : "primary.main",
-            color: "white",
-            borderWidth: "1.5px",
-            animation:
-              isFoulTrouble || isFouledOut || isFoulTroubleInPeriod
-                ? `${pulse} 2s infinite ease-in-out`
-                : "none",
-            "&.Mui-disabled": {
-              bgcolor: isFouledOut
-                ? "error.main"
-                : isFoulTrouble
-                  ? "warning.main"
-                  : "primary.main",
-              color: "white",
-            },
-          }}
-        >
-          <Avatar
-            sx={{
-              width: 24,
-              height: 24,
-              mr: 1,
-              bgcolor: "white",
-              color: "primary.main",
-              fontSize: "0.7rem",
-              fontWeight: 700,
-            }}
-          >
-            {jerseyNumber}
-          </Avatar>
-          <Box sx={{ flex: 1, textAlign: "left" }}>
-            <Typography
-              variant="caption"
-              sx={{ fontWeight: 700, display: "block", lineHeight: 1 }}
-            >
-              {player.name}
-              {isFatigued && (
-                <Tooltip
-                  title={`Fatigue Alert: Exceeded ${maxStint / 60} mins`}
-                >
-                  <Box component="span" sx={{ ml: 0.5, fontSize: "0.8rem" }}>
-                    ⚠️
-                  </Box>
-                </Tooltip>
-              )}
-            </Typography>
-            <Typography
-              variant="caption"
-              sx={{ fontSize: "0.6rem", opacity: 0.8 }}
-            >
-              {stats?.points || 0} pts | {stats?.rebounds || 0} reb | {pf} pf |{" "}
-              {(() => {
-                const color =
-                  stintSecs > maxStint
-                    ? theme.palette.error.main
-                    : stintSecs > maxStint * 0.75
-                      ? theme.palette.warning.main
-                      : "inherit";
-                return (
-                  <Box component="span" sx={{ color }}>
-                    {formatClock(stintSecs)}
-                  </Box>
-                );
-              })()}
-            </Typography>
-          </Box>
-          {streak === "HOT" && (
-            <Box sx={{ fontSize: "0.8rem", ml: 0.5 }}>🔥</Box>
-          )}
-          {isFouledOut && (
-            <Chip
-              label="OUT"
-              size="small"
-              color="error"
-              sx={{ height: 16, fontSize: "0.5rem" }}
-            />
-          )}
-        </Button>
-      </Box>
-    );
-  },
-);
 
 export default GameMode;
