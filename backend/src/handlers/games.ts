@@ -5,7 +5,7 @@ import {
   UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { ok, badRequest, notFound } from "../responses.js";
-import { isValidUuid } from "../validation.js";
+import { isValidUuid, validateGameMetadata } from "../validation.js";
 import { Keys } from "../keys.js";
 import { extractIdFromPath } from "../utils.js";
 import { getItemsByGSI, createItem, softDeleteItem } from "../database.js";
@@ -50,30 +50,9 @@ export async function handleGames(
       return await getItemsByGSI(`TEAM#${teamId}`, tableName, docClient);
     }
     if (method === "POST") {
-      if (!isValidUuid(body?.teamId)) {
-        return badRequest("Valid teamId (UUID) is required");
-      }
-      if (
-        !body?.opponent ||
-        typeof body.opponent !== "string" ||
-        body.opponent.length > 100
-      ) {
-        return badRequest(
-          "Opponent name is required and must be under 100 characters",
-        );
-      }
-      if (
-        body.location !== undefined &&
-        (typeof body.location !== "string" || body.location.length > 100)
-      ) {
-        return badRequest("Location must be a string under 100 characters");
-      }
-      if (
-        body.date !== undefined &&
-        (typeof body.date !== "string" || body.date.length > 50)
-      ) {
-        return badRequest("Date must be a string under 50 characters");
-      }
+      const error = validateGameMetadata(body);
+      if (error) return badRequest(error);
+
       const resp = await createItem(
         "GAME",
         "METADATA",

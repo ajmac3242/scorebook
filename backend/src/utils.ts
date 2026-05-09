@@ -64,17 +64,17 @@ function sanitizeForLog(obj: unknown, depth = 0): unknown {
 }
 
 /**
+ * Pre-compiled combined regex for redaction.
+ */
+const REDACT_REGEX = new RegExp(Array.from(REDACTED_HEADERS).join("|"), "gi");
+
+/**
  * Redacts sensitive terms from a string.
  * @param input - The string to redact.
  * @returns The redacted string.
  */
 function redactString(input: string): string {
-  let result = input;
-  REDACTED_HEADERS.forEach((term) => {
-    const regex = new RegExp(term, "gi");
-    result = result.replace(regex, "[REDACTED]");
-  });
-  return result;
+  return input.replace(REDACT_REGEX, "[REDACTED]");
 }
 
 /**
@@ -162,7 +162,7 @@ export function maskEvent(event: APIGatewayProxyEventV2): unknown {
     { key: "multiValueQueryStringParameters", redactAll: true },
   ];
 
-  for (const { key, redactAll } of redactTargets) {
+  redactTargets.forEach(({ key, redactAll }) => {
     const val = anyEvent[key];
     if (val) {
       (masked as Record<string, unknown>)[key] = redactMap(
@@ -170,7 +170,7 @@ export function maskEvent(event: APIGatewayProxyEventV2): unknown {
         redactAll,
       );
     }
-  }
+  });
 
   if (event.cookies) {
     masked.cookies = event.cookies.map(() => "[REDACTED]");

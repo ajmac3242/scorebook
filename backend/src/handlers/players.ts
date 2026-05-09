@@ -1,7 +1,7 @@
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
 import { DynamoDBDocumentClient, UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import { ok, badRequest } from "../responses.js";
-import { isValidUuid } from "../validation.js";
+import { isValidUuid, validatePlayerMetadata } from "../validation.js";
 import { Keys } from "../keys.js";
 import { extractIdFromPath } from "../utils.js";
 import { getItems, createItem, softDeleteItem } from "../database.js";
@@ -35,15 +35,8 @@ export async function handlePlayers(
   if (path === "/players") {
     if (method === "GET") return await getItems(tableName, "PLAYER", docClient);
     if (method === "POST") {
-      if (
-        !body?.name ||
-        typeof body.name !== "string" ||
-        body.name.length > 100
-      ) {
-        return badRequest(
-          "Player name is required and must be under 100 characters",
-        );
-      }
+      const error = validatePlayerMetadata(body);
+      if (error) return badRequest(error);
       return await createItem(
         "PLAYER",
         "METADATA",

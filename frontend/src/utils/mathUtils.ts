@@ -39,11 +39,9 @@ export const determineResult = (
  */
 export const formatClock = (totalSeconds: number): string => {
   // ⚡ Bolt: Use bitwise OR for faster floor operation and template literals for efficiency.
-  // WHY: Bitwise OR (| 0) is a high-performance alternative to Math.floor() for positive
-  // integers in hot paths, as it effectively truncates decimal places in a single operation.
   const mins = (totalSeconds / 60) | 0;
   const secs = totalSeconds % 60;
-  return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
+  return `${mins}:${String(secs).padStart(2, "0")}`;
 };
 
 /**
@@ -97,8 +95,11 @@ export const calculateElapsedMinutes = (
   periodType: string = "QUARTERS",
 ): number => {
   const periodLengthMins = periodType === "HALVES" ? 20 : 10;
-  const periodLenSecs = periodLengthMins * 60;
-  const elapsedInCurrent = Math.max(0, periodLenSecs - clockSeconds);
-  const elapsedInPrevious = (period - 1) * periodLenSecs;
-  return (elapsedInPrevious + elapsedInCurrent) / 60;
+  const periodDurationSeconds = periodLengthMins * 60;
+  const secondsElapsedInCurrentPeriod = Math.max(
+    0,
+    periodDurationSeconds - clockSeconds,
+  );
+  const secondsElapsedInPreviousPeriods = (period - 1) * periodDurationSeconds;
+  return (secondsElapsedInPreviousPeriods + secondsElapsedInCurrentPeriod) / 60;
 };
