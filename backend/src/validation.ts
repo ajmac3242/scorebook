@@ -52,13 +52,8 @@ export function isValidPlayerId(id: unknown): boolean {
   if (SPECIAL_ID_SET.has(id)) return true;
   // ⚡ Bolt: Use O(1) string checks before more expensive operations.
   const strId = id as string;
-  const prefix = SPECIAL_PLAYER_IDS.OPPONENT + ":";
+  const prefix = `${SPECIAL_PLAYER_IDS.OPPONENT}:`;
   if (strId.startsWith(prefix)) {
-    // 🛡️ Guard: Length check for jersey-prefixed IDs.
-    // WHY: 'OPPONENT:' (9 chars) plus a 1 or 2 digit jersey number (1-2 chars).
-    // Total valid length must be 10 or 11 characters.
-    // This optimization avoids expensive operations for obviously invalid IDs.
-    if (strId.length > 11 || strId.length < 10) return false;
     const jersey = strId.slice(prefix.length);
     return /^\d{1,2}$/.test(jersey);
   }
@@ -215,6 +210,53 @@ export function validateStatEvent(body: unknown): string | null {
       !VALID_OPPONENT_PLAY_TYPES.has(b.opponentPlayType))
   ) {
     return "Invalid opponent play type";
+  }
+  return null;
+}
+
+/**
+ * Validates player metadata for creation.
+ * @param body - The player data to validate.
+ * @returns {string | null} Error message or null if valid.
+ */
+export function validatePlayerMetadata(body: Record<string, unknown>): string | null {
+  if (
+    !body.name ||
+    typeof body.name !== "string" ||
+    body.name.length > 100
+  ) {
+    return "Player name is required and must be under 100 characters";
+  }
+  return null;
+}
+
+/**
+ * Validates game metadata for creation.
+ * @param body - The game data to validate.
+ * @returns {string | null} Error message or null if valid.
+ */
+export function validateGameMetadata(body: Record<string, unknown>): string | null {
+  if (!isValidUuid(body.teamId)) {
+    return "Valid teamId (UUID) is required";
+  }
+  if (
+    !body.opponent ||
+    typeof body.opponent !== "string" ||
+    body.opponent.length > 100
+  ) {
+    return "Opponent name is required and must be under 100 characters";
+  }
+  if (
+    body.location !== undefined &&
+    (typeof body.location !== "string" || body.location.length > 100)
+  ) {
+    return "Location must be a string under 100 characters";
+  }
+  if (
+    body.date !== undefined &&
+    (typeof body.date !== "string" || body.date.length > 50)
+  ) {
+    return "Date must be a string under 50 characters";
   }
   return null;
 }
