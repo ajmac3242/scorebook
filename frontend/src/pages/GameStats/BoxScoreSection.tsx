@@ -10,7 +10,10 @@ import {
   Typography,
 } from "@mui/material";
 import SortableHeader from "../../components/SortableHeader";
-import { type PlayerAggregates, type OpponentAggregates } from "../../utils/stats";
+import {
+  type PlayerAggregates,
+  type OpponentAggregates,
+} from "../../utils/stats";
 
 /**
  * @file BoxScoreSection.tsx

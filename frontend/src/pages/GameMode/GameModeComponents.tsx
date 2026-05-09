@@ -153,7 +153,9 @@ export const LineupPlayerButton: React.FC<LineupPlayerButtonProps> = React.memo(
             >
               {player.name}
               {isFatigued && (
-                <Tooltip title={`Fatigue Alert: Exceeded ${maxStint / 60} mins`}>
+                <Tooltip
+                  title={`Fatigue Alert: Exceeded ${maxStint / 60} mins`}
+                >
                   <Box component="span" sx={{ ml: 0.5, fontSize: "0.8rem" }}>
                     ⚠️
                   </Box>

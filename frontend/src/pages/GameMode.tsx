@@ -80,10 +80,7 @@ import { Scoreboard } from "../components/Scoreboard";
 import { TeamStatsCard } from "../components/TeamStatsCard";
 import { ActionControls } from "../components/ActionControls";
 import { useGameMode } from "../hooks/useGameMode";
-import {
-  QuickAction,
-  LineupPlayerButton,
-} from "./GameMode/GameModeComponents";
+import { QuickAction, LineupPlayerButton } from "./GameMode/GameModeComponents";
 
 /**
  * GameMode page component.

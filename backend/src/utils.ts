@@ -206,7 +206,9 @@ export function normalizePath(event: APIGatewayProxyEventV2): string {
     "/") as string;
 
   // ⚡ Bolt: Use regex for cleaner prefix and trailing slash normalization.
-  const path = raw.replace(PATH_PREFIX_REGEX, "").replace(TRAILING_SLASH_REGEX, "");
+  const path = raw
+    .replace(PATH_PREFIX_REGEX, "")
+    .replace(TRAILING_SLASH_REGEX, "");
 
   return path || "/";
 }
