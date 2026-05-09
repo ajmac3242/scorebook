@@ -16,6 +16,7 @@ import {
   isOpponentId,
   getBonusStatus,
   calculateHaltAlerts,
+  calculateOpponentThreats,
   type PlayerAggregates,
   OpponentThreat,
 } from "../utils/stats";
@@ -381,8 +382,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       clockSeconds,
       team?.periodType,
     );
-    const fpm =
-      elapsedMinutes > 1 ? (teamFouls + oppFouls) / elapsedMinutes : 0;
+    const fpm = elapsedMinutes > 1 ? (teamFouls + oppFouls) / elapsedMinutes : 0;
 
     return {
       currentScore: curScore,
