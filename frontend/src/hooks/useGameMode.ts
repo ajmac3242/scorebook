@@ -431,7 +431,14 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
         .slice(-10)
         .reverse(),
     };
-  }, [sortedGameStats, period, team?.periodType, team?.fouls, game]);
+  }, [
+    sortedGameStats,
+    period,
+    clockSeconds,
+    team?.periodType,
+    team?.fouls,
+    game,
+  ]);
 
   const gameData = useMemo(() => {
     const stintDurations = new Map<string, number>();
