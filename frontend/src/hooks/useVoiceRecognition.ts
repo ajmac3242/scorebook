@@ -1,9 +1,10 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useState, useEffect, useRef } from "react";
 import { parseVoiceCommand, type ParsedVoiceCommand } from "../utils/voiceParser";
 import { logger } from "../utils/logger";
 
 interface UseVoiceRecognitionProps {
-  onCommand: (command: ParsedVoiceCommand) => void;
+  onCommand: (_command: ParsedVoiceCommand) => void;
   enabled: boolean;
 }
 
@@ -38,7 +39,7 @@ export const useVoiceRecognition = ({ onCommand, enabled }: UseVoiceRecognitionP
       }
     };
 
-    recognition.onerror = (event: any) => {
+    recognition.onerror = (event: { error: string }) => {
       logger.error("Voice recognition error:", event.error);
       setIsListening(false);
     };
@@ -50,7 +51,7 @@ export const useVoiceRecognition = ({ onCommand, enabled }: UseVoiceRecognitionP
       if (enabled) {
         try {
           recognition.start();
-        } catch (e) {
+        } catch {
           // Ignore if already started
         }
       }
@@ -69,7 +70,9 @@ export const useVoiceRecognition = ({ onCommand, enabled }: UseVoiceRecognitionP
     if (enabled) {
       try {
         recognitionRef.current?.start();
-      } catch (e) {}
+      } catch {
+        // Recognition already started
+      }
     } else {
       recognitionRef.current?.stop();
     }

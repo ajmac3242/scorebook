@@ -132,7 +132,20 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
 
   const { togglePossession } = usePossessionTracker(gameId);
 
+  // 3. Derived State & Local UI State
+  const [selectedX, setSelectedX] = useState<number | null>(null);
+  const [selectedY, setSelectedY] = useState<number | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isBreakdownDialogOpen, setIsBreakdownDialogOpen] = useState(false);
+  const [lastOpponentStatId, setLastOpponentStatId] = useState<string | null>(
+    null,
+  );
   const [voiceEnabled, setVoiceEnabled] = useState(false);
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity: "success" | "error" | "warning" | "info";
+  }>({ open: false, message: "", severity: "success" });
 
   const handleVoiceCommand = useCallback(
     async (command: ParsedVoiceCommand) => {
@@ -178,7 +191,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
           message: `Voice Recorded: #${command.jerseyNumber} ${command.action}`,
           severity: "success",
         });
-      } catch (err) {
+      } catch {
         setSnackbar({
           open: true,
           message: "Voice command failed",
@@ -202,15 +215,6 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     onCommand: handleVoiceCommand,
     enabled: voiceEnabled,
   });
-
-  // 3. Derived State & Local UI State
-  const [selectedX, setSelectedX] = useState<number | null>(null);
-  const [selectedY, setSelectedY] = useState<number | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isBreakdownDialogOpen, setIsBreakdownDialogOpen] = useState(false);
-  const [lastOpponentStatId, setLastOpponentStatId] = useState<string | null>(
-    null,
-  );
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
   const [statType, setStatType] = useState<string | null>(null);
   const [points, setPoints] = useState<number>(2);
@@ -243,11 +247,6 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     type: "ASSIST" | "REBOUND";
     originalStat: StatEvent;
   } | null>(null);
-  const [snackbar, setSnackbar] = useState<{
-    open: boolean;
-    message: string;
-    severity: "success" | "error" | "warning" | "info";
-  }>({ open: false, message: "", severity: "success" });
 
   // 4. More Domain Derived State
   const sortedGameStats = useMemo(() => {
