@@ -153,7 +153,8 @@ export const TeamStatsCard = React.memo(
               sx={{
                 textAlign: "center",
                 p: 1.5,
-                bgcolor: (refTightness || 0) > 0.8 ? "error.main" : "secondary.main",
+                bgcolor:
+                  (refTightness || 0) > 0.8 ? "error.main" : "secondary.main",
                 color: "white",
                 borderRadius: 2,
                 boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
