@@ -66,10 +66,7 @@ function sanitizeForLog(obj: unknown, depth = 0): unknown {
 /**
  * Pre-compiled combined regex for redaction.
  */
-const REDACT_REGEX = new RegExp(
-  Array.from(REDACTED_HEADERS).join("|"),
-  "gi",
-);
+const REDACT_REGEX = new RegExp(Array.from(REDACTED_HEADERS).join("|"), "gi");
 
 /**
  * Redacts sensitive terms from a string.

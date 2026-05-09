@@ -219,12 +219,10 @@ export function validateStatEvent(body: unknown): string | null {
  * @param body - The player data to validate.
  * @returns {string | null} Error message or null if valid.
  */
-export function validatePlayerMetadata(body: Record<string, unknown>): string | null {
-  if (
-    !body.name ||
-    typeof body.name !== "string" ||
-    body.name.length > 100
-  ) {
+export function validatePlayerMetadata(
+  body: Record<string, unknown>,
+): string | null {
+  if (!body.name || typeof body.name !== "string" || body.name.length > 100) {
     return "Player name is required and must be under 100 characters";
   }
   return null;
@@ -235,7 +233,9 @@ export function validatePlayerMetadata(body: Record<string, unknown>): string | 
  * @param body - The game data to validate.
  * @returns {string | null} Error message or null if valid.
  */
-export function validateGameMetadata(body: Record<string, unknown>): string | null {
+export function validateGameMetadata(
+  body: Record<string, unknown>,
+): string | null {
   if (!isValidUuid(body.teamId)) {
     return "Valid teamId (UUID) is required";
   }

@@ -101,7 +101,5 @@ export const calculateElapsedMinutes = (
     periodDurationSeconds - clockSeconds,
   );
   const secondsElapsedInPreviousPeriods = (period - 1) * periodDurationSeconds;
-  return (
-    (secondsElapsedInPreviousPeriods + secondsElapsedInCurrentPeriod) / 60
-  );
+  return (secondsElapsedInPreviousPeriods + secondsElapsedInCurrentPeriod) / 60;
 };
