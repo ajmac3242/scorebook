@@ -11,7 +11,7 @@ import { BREAKDOWN_REASONS } from "../constants/stats";
 
 interface DefensiveBreakdownDialogProps {
   open: boolean;
-  onClose: (reason?: string) => void;
+  onClose: (_reason?: string) => void;
 }
 
 const DefensiveBreakdownDialog: React.FC<DefensiveBreakdownDialogProps> = ({

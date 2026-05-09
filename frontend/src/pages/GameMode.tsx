@@ -68,6 +68,7 @@ import {
   ACTION_TYPES,
   SPECIAL_PLAYER_IDS,
   SHOT_QUALITY,
+  SITUATIONS,
 } from "../constants/stats";
 import { type PlayerAggregates, getPlayerDisplayName } from "../utils/stats";
 import { formatClock, formatPlusMinus } from "../utils/mathUtils";
@@ -141,6 +142,8 @@ const GameMode: React.FC = () => {
     setIsAuditDialogOpen,
     isFtWorkflowOpen,
     setIsFtWorkflowOpen,
+    situation,
+    setSituation,
     isHalftimeReportOpen,
     setIsHalftimeReportOpen,
     isBreakdownDialogOpen,
@@ -457,6 +460,7 @@ const GameMode: React.FC = () => {
       setIsBreakdownDialogOpen,
       gameData.possessionStartClock,
       matchups,
+      game?.activeDefensiveScheme,
     ],
   );
 

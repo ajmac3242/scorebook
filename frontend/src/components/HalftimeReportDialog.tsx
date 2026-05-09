@@ -12,6 +12,12 @@ import {
   Avatar,
   Divider,
   Chip,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
 } from "@mui/material";
 import {
   LineupAggregates,
