@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, useTheme } from "@mui/material";
+import { Box, useTheme, Theme } from "@mui/material";
 
 import { getHeatmapColor } from "../utils/shotZones";
 
@@ -18,7 +18,7 @@ interface HeatmapData {
   [key: string]: { makes: number; attempts: number };
 }
 
-const getCourtStyles = (theme: any) => `
+const getCourtStyles = (theme: Theme) => `
   @keyframes marker-appear {
     0% { transform: scale(0); opacity: 0; }
     70% { transform: scale(1.2); opacity: 1; }

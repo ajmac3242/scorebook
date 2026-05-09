@@ -450,6 +450,7 @@ const GameMode: React.FC = () => {
       setIsDialogOpen,
       setStatType,
       setPlayName,
+      setSituation,
       setIsEditing,
       setEditingStatId,
       setSelectedPlayerId,
@@ -458,6 +459,7 @@ const GameMode: React.FC = () => {
       gameData.possessionStartClock,
       matchups,
       game?.activeDefensiveScheme,
+      situation,
     ],
   );
 
@@ -618,6 +620,7 @@ const GameMode: React.FC = () => {
       setPoints,
       setPlayName,
       setShotQuality,
+      setSituation,
       setSelectedX,
       setSelectedY,
       setIsEditing,
