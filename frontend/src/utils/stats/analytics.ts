@@ -28,7 +28,168 @@ import {
   PracticeFocusArea,
   GameAnalyticsContext,
   LineupAggregates,
+  SituationalStats,
+  WinningTimeRecommendation,
+  DefensiveIntegrity,
 } from "./types";
+
+/**
+ * 🏀 Assistant Coach: Tactical Goal Status Calculation
+ * Evaluates live KPIs against user-defined goals.
+ */
+export const calculateTacticalGoalStatus = (params: {
+  stats: StatEvent[];
+  goals: { metric: string; threshold: number; direction: "above" | "below" }[];
+}) => {
+  const { stats, goals } = params;
+
+  // ⚡ Bolt: Single pass to get team totals for KPIs
+  let fga = 0,
+    fta = 0,
+    to = 0,
+    oreb = 0,
+    pts = 0;
+  let oppFga = 0,
+    oppThreePM = 0,
+    oppMakes = 0;
+  let oppDreb = 0;
+
+  for (let i = 0; i < stats.length; i++) {
+    const s = stats[i];
+    if (!isActive(s)) continue;
+
+    const isOpp = isOpponentId(s.playerId);
+
+    if (isOpp) {
+      if (isFieldGoal(s)) {
+        oppFga++;
+        if (s.type === ACTION_TYPES.MAKE) {
+          oppMakes++;
+          if (s.points === 3) oppThreePM++;
+        }
+      } else if (s.type === ACTION_TYPES.DEF_REBOUND) {
+        oppDreb++;
+      }
+    } else {
+      if (s.type === ACTION_TYPES.MAKE) {
+        pts += s.points || 0;
+        if (s.points !== 1) fga++;
+        else fta++;
+      } else if (s.type === ACTION_TYPES.MISS) {
+        if (s.points !== 1) fga++;
+        else fta++;
+      } else if (s.type === ACTION_TYPES.TURNOVER) {
+        to++;
+      } else if (s.type === ACTION_TYPES.OFF_REBOUND) {
+        oreb++;
+      }
+    }
+  }
+
+  const possessions = calculatePossessions(fga, fta, to, oreb);
+  const ppp = calculatePpp(pts, possessions);
+  const toRate =
+    possessions > 0 ? ((to / possessions) * 100).toFixed(1) : "0.0";
+  const orebPct =
+    oreb + oppDreb > 0 ? ((oreb / (oreb + oppDreb)) * 100).toFixed(1) : "0.0";
+  const oppEfg = calculateEfgPct(oppMakes, oppThreePM, oppFga);
+
+  const kpis: Record<string, string> = {
+    "OREB%": orebPct,
+    "TO Rate": toRate,
+    "Opp eFG%": oppEfg,
+    PPP: ppp,
+  };
+
+  return goals.map((goal) => {
+    const currentVal = parseFloat(kpis[goal.metric] || "0");
+    const isMet =
+      goal.direction === "above"
+        ? currentVal >= goal.threshold
+        : currentVal <= goal.threshold;
+
+    return {
+      ...goal,
+      currentValue: currentVal,
+      isMet,
+    };
+  });
+};
+
+/**
+ * 🏀 Assistant Coach: Opponent Archetype Recognition
+ * Analyzes shot distribution to identify defensive focus areas.
+ */
+export const analyzeOpponentArchetype = (stats: StatEvent[]) => {
+  let rimAttempts = 0;
+  let threeAttempts = 0;
+  let totalAttempts = 0;
+
+  for (let i = 0; i < stats.length; i++) {
+    const s = stats[i];
+    if (
+      !isActive(s) ||
+      !isOpponentId(s.playerId) ||
+      (s.type !== ACTION_TYPES.MAKE && s.type !== ACTION_TYPES.MISS) ||
+      s.points === 1
+    )
+      continue;
+
+    totalAttempts++;
+    if (s.points === 3) {
+      threeAttempts++;
+    } else {
+      const dist = Math.sqrt(
+        Math.pow((s.locationX || 0) * 5 - 250, 2) +
+          Math.pow((s.locationY || 0) * 4.7 - 140, 2),
+      );
+      if (dist <= 100) rimAttempts++;
+    }
+  }
+
+  if (totalAttempts < 5) return "Scouting...";
+
+  const rimRate = rimAttempts / totalAttempts;
+  const threeRate = threeAttempts / totalAttempts;
+
+  if (rimRate > 0.45)
+    return { type: "Rim-Heavy Slashing", suggestion: "Pack the paint / Zone" };
+  if (threeRate > 0.4)
+    return {
+      type: "Long-Range Marksmen",
+      suggestion: "Stay home / No help off shooters",
+    };
+  if (rimRate < 0.2 && threeRate < 0.2)
+    return {
+      type: "Mid-Range Specialists",
+      suggestion: "Hand in face / Contest all",
+    };
+  return {
+    type: "Balanced Attack",
+    suggestion: "Stay disciplined on rotations",
+  };
+};
+
+/**
+ * 🏀 Assistant Coach: Predictive Fatigue Decay Modeler
+ * WHY: Correlates live stint duration with a drop in performance.
+ */
+export const calculateFatigueDecay = (
+  stintSeconds: number,
+  maxStintMinutes: number,
+) => {
+  const maxSecs = maxStintMinutes * 60;
+  if (stintSeconds < maxSecs * 0.75) return 100; // Fresh
+
+  // Decay begins at 75% of max stint
+  const decayStart = maxSecs * 0.75;
+  const decayRange = maxSecs * 0.5; // Over-extended by 50%
+  const elapsedInDecay = Math.max(0, stintSeconds - decayStart);
+
+  // Linear decay to 60% efficiency
+  const efficiency = Math.max(60, 100 - (elapsedInDecay / decayRange) * 40);
+  return Math.round(efficiency);
+};
 
 export const calculateOpponentScoutingStats = (
   stats: StatEvent[],
@@ -381,15 +542,27 @@ export const calculateHaltAlerts = (params: {
     });
   }
 
-  // 3. Time to Sub fatigue alerts
+  // 3. Time to Sub fatigue alerts (with Proactive Sub Alerts)
   gameData.onCourtIds.forEach((pId: string) => {
     const duration = gameData.stintDurations.get(pId) || 0;
-    if (duration > maxStintDuration * 60) {
+    const maxSecs = maxStintDuration * 60;
+
+    if (duration > maxSecs) {
       alerts.push({
         id: `fatigue-${pId}`,
         type: "FATIGUE",
+        severity: "error",
+        message: `RED LINE: #${jerseyMap.get(pId)} over-extended (${Math.floor(duration / 60)}m)`,
+        playerId: pId,
+        jerseyNumber: jerseyMap.get(pId),
+      });
+    } else if (duration > maxSecs - 120) {
+      // 2 minute warning
+      alerts.push({
+        id: `proactive-sub-${pId}`,
+        type: "FATIGUE",
         severity: "warning",
-        message: `Fatigue Alert: #${jerseyMap.get(pId)} (${Math.floor(duration / 60)}m)`,
+        message: `Proactive Sub: #${jerseyMap.get(pId)} near red-line`,
         playerId: pId,
         jerseyNumber: jerseyMap.get(pId),
       });
@@ -543,4 +716,213 @@ export const generatePracticePrescription = (params: {
   }
 
   return focusAreas;
+};
+
+/**
+ * 🔨 Forge: Special Situation (ATO/SLOB/BLOB) Analytical Engine
+ * WHY: Designing the perfect play is useless if you don't know if it works.
+ * This engine moves beyond raw stats to show efficiency in high-leverage set plays.
+ */
+export const calculateSituationalStats = (
+  stats: StatEvent[],
+  halfCourtPpp: string,
+): SituationalStats[] => {
+  const situations = ["ATO", "SLOB", "BLOB", "EOP"];
+  const data: Record<
+    string,
+    {
+      attempts: number;
+      makes: number;
+      points: number;
+      threePM: number;
+      fta: number;
+      turnovers: number;
+      successes: number;
+    }
+  > = {};
+
+  situations.forEach((s) => {
+    data[s] = {
+      attempts: 0,
+      makes: 0,
+      points: 0,
+      threePM: 0,
+      fta: 0,
+      turnovers: 0,
+      successes: 0,
+    };
+  });
+
+  for (let i = 0; i < stats.length; i++) {
+    const s = stats[i];
+    if (!isActive(s) || !s.situation || !data[s.situation]) continue;
+
+    const situ = data[s.situation];
+    if (s.type === ACTION_TYPES.MAKE) {
+      situ.points += s.points || 0;
+      situ.successes++;
+      if (s.points === 1) {
+        situ.fta++;
+      } else {
+        situ.makes++;
+        situ.attempts++;
+        if (s.points === 3) situ.threePM++;
+      }
+    } else if (s.type === ACTION_TYPES.MISS) {
+      if (s.points === 1) situ.fta++;
+      else situ.attempts++;
+    } else if (s.type === ACTION_TYPES.TURNOVER) {
+      situ.turnovers++;
+    } else if (s.type === ACTION_TYPES.FOUL_SHOOTING) {
+      situ.successes++;
+    }
+  }
+
+  return situations.map((situ) => {
+    const s = data[situ];
+    const possessions = calculatePossessions(s.attempts, s.fta, s.turnovers, 0);
+    const ppp = calculatePpp(s.points, possessions);
+    const efg = calculateEfgPct(s.makes, s.threePM, s.attempts);
+    const successRate =
+      possessions > 0 ? ((s.successes / possessions) * 100).toFixed(1) : "0.0";
+    const delta = (parseFloat(ppp) - parseFloat(halfCourtPpp)).toFixed(2);
+
+    return {
+      situation: situ,
+      attempts: s.attempts,
+      makes: s.makes,
+      points: s.points,
+      ppp,
+      efg,
+      successRate,
+      pppDelta: delta,
+    };
+  });
+};
+
+/**
+ * 🔨 Forge: High-Leverage "Winning Time" Decision Support HUD
+ * WHY: Provides the "mathematically correct" tactical path during high-leverage moments.
+ */
+export const calculateWinningTimeRecommendations = (params: {
+  gameStats: StatEvent[];
+  playbookEfficiency: PlayEfficiency[];
+  refTightness: number; // Fouls Per Minute
+  opponentThreats: OpponentThreat[];
+  teamFouls: number;
+  oppFouls: number;
+  scoreDiff: number;
+  clockSeconds: number;
+  timeoutsRemaining: number;
+}): WinningTimeRecommendation => {
+  const {
+    playbookEfficiency,
+    refTightness,
+    opponentThreats,
+    scoreDiff,
+    clockSeconds,
+    timeoutsRemaining,
+  } = params;
+
+  // 1. Offensive Recommendation
+  const topSets = playbookEfficiency.slice(0, 3).map((p) => ({
+    name: p.name,
+    ppp: p.ppp,
+  }));
+
+  let offensiveRec = "Run your highest-efficiency sets.";
+  if (topSets.length > 0) {
+    offensiveRec = `Prioritize "${topSets[0].name}" (PPP: ${topSets[0].ppp}).`;
+  }
+
+  // 2. Defensive Recommendation
+  let defensiveRec = "Stay disciplined and contest every shot.";
+  if (refTightness > 0.8) {
+    defensiveRec =
+      "Refs are tight (FPM > 0.8). Avoid reach-ins; play vertical.";
+  } else if (opponentThreats.length > 0) {
+    defensiveRec = `High threat detected. Trap or shade help toward #${opponentThreats[0].playerId.split(":")[1]}.`;
+  }
+
+  // 3. Timeout Strategy
+  let strategy: "SAVE" | "USE" = "SAVE";
+  let timeoutReason = "Keep for late-game advancement or stopping runs.";
+
+  if (clockSeconds < 60 && Math.abs(scoreDiff) <= 3 && timeoutsRemaining > 1) {
+    strategy = "USE";
+    timeoutReason =
+      "High-leverage moment: Draw up a set for a high-quality look.";
+  } else if (scoreDiff < -8) {
+    strategy = "USE";
+    timeoutReason = "Opponent run detected. Settle the team down.";
+  }
+
+  return {
+    offensive: { topSets, recommendation: offensiveRec },
+    defensive: {
+      recommendation: defensiveRec,
+      threats: opponentThreats.map((t) => ({
+        jersey: t.playerId.split(":")[1] || "??",
+        points: t.points,
+      })),
+    },
+    timeout: { strategy, reason: timeoutReason },
+  };
+};
+
+/**
+ * 🔨 Forge: Defensive Breakdown Attribution
+ * WHY: Separates physical skill makes from tactical mental errors.
+ */
+export const calculateDefensiveIntegrity = (
+  stats: StatEvent[],
+): DefensiveIntegrity => {
+  const breakdowns: Record<string, { points: number; count: number }> = {
+    "Missed Rotation": { points: 0, count: 0 },
+    "Transition Leak": { points: 0, count: 0 },
+    "Poor Closeout": { points: 0, count: 0 },
+    "Out-Hustled": { points: 0, count: 0 },
+    "Great Contest": { points: 0, count: 0 },
+  };
+
+  let totalPointsAllowed = 0;
+
+  for (let i = 0; i < stats.length; i++) {
+    const s = stats[i];
+    if (
+      !isActive(s) ||
+      !isOpponentId(s.playerId) ||
+      s.type !== ACTION_TYPES.MAKE ||
+      s.points === 1
+    )
+      continue;
+
+    totalPointsAllowed += s.points || 0;
+    if (s.breakdownType && breakdowns[s.breakdownType]) {
+      breakdowns[s.breakdownType].points += s.points || 0;
+      breakdowns[s.breakdownType].count++;
+    }
+  }
+
+  const breakdownList = Object.entries(breakdowns)
+    .map(([type, data]) => ({
+      type,
+      points: data.points,
+      count: data.count,
+      frequency:
+        totalPointsAllowed > 0
+          ? ((data.points / totalPointsAllowed) * 100).toFixed(1)
+          : "0.0",
+    }))
+    .sort((a, b) => b.points - a.points);
+
+  const tacticalWeakLink =
+    breakdownList.length > 0 && breakdownList[0].points > 0
+      ? breakdownList[0].type
+      : "None Identified";
+
+  return {
+    breakdowns: breakdownList,
+    tacticalWeakLink,
+  };
 };

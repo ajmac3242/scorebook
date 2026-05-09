@@ -42,8 +42,8 @@ export const formatClock = (totalSeconds: number): string => {
   // WHY: Bitwise OR (| 0) is a high-performance alternative to Math.floor() for positive
   // integers in hot paths, as it effectively truncates decimal places in a single operation.
   const mins = (totalSeconds / 60) | 0;
-  const secs = totalSeconds % 60;
-  return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
+  const secs = (totalSeconds % 60).toString().padStart(2, "0");
+  return `${mins}:${secs}`;
 };
 
 /**
@@ -81,5 +81,5 @@ export const getPlusMinusColor = (val: number): string => {
  * @returns {string} The formatted value.
  */
 export const formatPlusMinus = (val: number): string => {
-  return val > 0 ? `+${val}` : String(val);
+  return `${val > 0 ? "+" : ""}${val}`;
 };

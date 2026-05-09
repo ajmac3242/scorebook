@@ -24,12 +24,20 @@ Scorebook is a mobile-first, offline-ready basketball statistics tracking applic
 
 ## Architecture
 
-### Causal Accountability
-Scorebook is built on the principle of **Causal Accountability**. Standard box scores tell you *what* happened; Scorebook tells you *why*.
-- **Matchup Tracking**: Move beyond team defense by attributing every opponent bucket to a primary defender. Track "Points Allowed" and "Stop %" for every player on your roster.
-- **On/Off Impact Analytics**: Measure a player's true value by comparing team performance (Net Rating) when they are on the floor versus when they are on the bench.
-- **Shot Clock Process Analysis**: Evaluate offensive discipline by categorizing every shot into Early, Mid, or Late-clock phases. Identify if your team is rushing shots or executing late into the clock.
-- **Tactical Attribution**: Tag turnovers and fouls with specific causes (e.g., "Missed Rotation", "Poor Spacing") to drive data-driven practice prescriptions.
+### Predictive Intelligence & Decision Support
+Scorebook has evolved from **Causal Accountability** (understanding *why* things happened) into a **Predictive Intelligence** platform. It provides automated decision support to help coaches make the right tactical calls in the heat of the game.
+
+- **Live Tactical KPI HUD**: Real-time tracking of team-defined goals (e.g., OREB%, TO Rate). Visual alerts pulse when KPIs cross critical thresholds.
+- **Opponent Archetype Recognition**: Automated profiling of opponent play-calling patterns (e.g., "Heavy ISO", "PnR Focused") with suggested defensive adjustments.
+- **Predictive Fatigue Modeling**: Uses a decay model to predict efficiency drops *before* they happen, represented by a pulsing battery icon on lineup cards.
+- **Winning Time Decision Support**: A specialized HUD for high-leverage moments (final 4m, spread <= 5) that synthesizes foul situations, timeout availability, and lineup efficiency to provide mathematically optimized recommendations.
+
+### Causal Accountability (The Foundation)
+Standard box scores tell you *what* happened; Scorebook tells you *why*.
+- **Matchup Tracking**: Attribute every opponent bucket to a primary defender to track "Points Allowed" and "Stop %" for every player.
+- **On/Off Impact Analytics**: Measure true value by comparing team performance (Net Rating) when players are on the floor vs. the bench.
+- **Shot Clock Process Analysis**: Evaluate offensive discipline by categorizing shots into Early, Mid, or Late-clock phases.
+- **Tactical Attribution**: Tag turnovers and fouls with specific causes (e.g., "Missed Rotation", "Poor Spacing") to drive automated practice prescriptions.
 
 ### Modular Backend
 The backend has transitioned from a monolithic handler to a domain-specific modular architecture. The core router in `index.ts` delegates requests to specialized handlers in `backend/src/handlers/` (Players, Teams, Games, Cleanup), improving maintainability and reducing the cold-start footprint.
@@ -88,7 +96,8 @@ To maintain high velocity while ensuring reliability:
 
 ### Live Intelligence
 - **Real-time Game Tracking**: Easy-to-use interface for logging shots, misses, rebounds, and more.
-- **Defensive Momentum HUD**: Real-time tracking of **Defensive Stops** and **Kills** (3 consecutive stops).
+- **Defensive Momentum HUD**: Real-time visualization of "Stops" and "Kills" (3 consecutive stops) using interactive icons and tooltips.
+- **Ref Tightness Tracking**: Monitors Fouls Per Minute (FPM) to identify "Ref-Identity Conflicts" and suggest defensive adjustments before foul trouble hits.
 - **Special Situations (ATO/SLOB/BLOB)**: Dedicated tracking and analytical engine for possessions following timeouts or dead balls.
 - **Shot Quality & Process Tagging**: Tag shots as "Open" or "Contested" to move the conversation from results to quality.
 - **Momentum & Run Alerts**: Automated detection of opponent scoring runs and scoring droughts.

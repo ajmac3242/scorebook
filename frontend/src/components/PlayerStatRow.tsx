@@ -28,6 +28,7 @@ interface PlayerStatRowProps {
   fouls: number;
   plusMinus: number;
   streak: "HOT" | "COLD" | null | undefined;
+  isOnCourt?: boolean;
 }
 
 export const PlayerStatRow: React.FC<PlayerStatRowProps> = React.memo(
@@ -50,8 +51,14 @@ export const PlayerStatRow: React.FC<PlayerStatRowProps> = React.memo(
     fouls,
     plusMinus,
     streak,
+    isOnCourt = false,
   }) => (
-    <TableRow>
+    <TableRow
+      sx={{
+        bgcolor: isOnCourt ? "rgba(25, 118, 210, 0.08)" : "transparent",
+        transition: "background-color 0.3s ease",
+      }}
+    >
       <TableCell sx={{ py: 1, px: 1 }}>
         <Typography
           variant="caption"

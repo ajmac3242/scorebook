@@ -27,6 +27,11 @@ export interface Team {
   maxStintDuration?: number; // In minutes
   playbook?: string[];
   foulWarningThresholds?: Record<string, number>;
+  tacticalGoals?: {
+    metric: string;
+    threshold: number;
+    direction: "above" | "below";
+  }[];
 }
 
 /**
@@ -108,6 +113,9 @@ export interface StatEvent {
   shotClockPhase?: "EARLY" | "MID" | "LATE";
   primaryDefenderId?: string;
   situation?: string; // 'ATO', 'SLOB', 'BLOB', 'EOP'
+  defensiveScheme?: "MAN" | "ZONE" | "PRESS" | "DOUBLE";
+  opponentPlayType?: "PnR" | "ISO" | "POST" | "TRANSITION" | "OFF_SCREEN";
+  breakdownType?: string;
   timestamp: string;
   deletedAt?: string;
   synced?: number;
@@ -147,7 +155,9 @@ export class AppDatabase extends Dexie {
     // v19:    Added 'name' index to 'opponents' table.
     // v20:    Added 'isStar' to Player schema.
     // v21:    Added 'matchups' to Game and 'primaryDefenderId', 'shotClockPhase' to StatEvent.
-    this.version(21).stores({
+    // v22:    Added 'tacticalGoals' to Team and 'defensiveScheme', 'opponentPlayType' to StatEvent.
+    // v23:    Added 'breakdownType' to StatEvent.
+    this.version(23).stores({
       teams: "id, synced, deletedAt, isFavorite",
       players: "id, synced, isArchived, deletedAt",
       teamPlayers: "id, [teamId+playerId], teamId, playerId, synced",

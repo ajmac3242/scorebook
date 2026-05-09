@@ -1,23 +1,56 @@
 # Scorebook Backlog
-## [ ] [Ref-Identity Conflict Alert System]
-**Priority:** HIGH
-**Type:** Enhancement
-**Why:** If a team's identity is "High Pressure" but the officiating "Tightness" is high, they will foul out. Proactive alerts allow the coach to adjust aggressiveness before the game is lost.
-**What:** A predictive engine that compares live Officiating FPM (Fouls Per Minute) against the Team's active defensive scheme.
-**Acceptance Criteria:**
-- [ ] Live "Ref Tightness" meter in GameMode sidebar.
-- [ ] Conflict Alert (Visual) when Foul Rate exceeds 0.8 FPM while in a "High Pressure" scheme (Press/Double).
-- [ ] Recommendation to "Dial Back Pressure" or "Sub Fresh Legs" based on foul distribution.
 
-## [ ] [Opponent "Go-To" Usage Analytics (Clutch)]
+## [x] [Live Tactical KPI Performance HUD]
 **Priority:** HIGH
 **Type:** Feature
-**Why:** In "Winning Time," every team has a primary option. Identifying this player's usage rate and preferred shot type in the clutch allows for specialized defensive counters.
-**What:** An analytical tool that identifies opponent usage rates and eFG% specifically in clutch situations (final 4 mins, < 5pt spread).
+**Why:** Coaches often lose sight of their pre-game strategic goals (e.g., "Win the glass", "Under 12 TOs") during the heat of the game. A live HUD keeps the team's identity front-and-center.
+**What:** Build a "Goals HUD" in GameMode that tracks real-time progress against 3-5 user-defined Tactical KPIs (e.g., OREB%, TO Rate, Opponent eFG%).
 **Acceptance Criteria:**
-- [ ] "Clutch Threat" indicator on the opponent roster card during Winning Time.
-- [ ] Breakdown of "Clutch Action Type" (e.g., "ISO Drive", "PnR Handler").
-- [ ] Comparison of Opponent X's Clutch Usage vs. Regulation Usage.
+- [x] Define "Tactical Goals" in Team Settings with target thresholds.
+- [x] Live HUD in GameMode showing Goal Status: Green (Meeting), Red (Failing).
+- [x] Pulse animation when a KPI crosses the threshold (e.g., "Goal Met: OREB% > 30%").
+- [x] Integration with the Halftime Report to summarize "Identity Discipline."
+
+## [x] [Opponent Tactical Archetype & "Tell" Recognition]
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Elite assistants identify opponent play-calling patterns ("Tells") by the 2nd quarter. Automating this helps the head coach adjust the defensive scheme before the opponent pulls away.
+**What:** An intelligence layer that analyzes opponent scoring events to identify recurring "Tactical Archetypes" (e.g., "Heavy Pick-and-Roll", "Isolation-Driven", "Corner 3 Hunters").
+**Acceptance Criteria:**
+- [x] Automated "Opponent Profile" in GameMode updating every 5 possessions.
+- [x] "Trend Alert" when a specific play-type exceeds 1.2 PPP (e.g., "Alert: Opponent scoring 1.4 PPP on ISO drives").
+- [x] Suggestion for defensive adjustment based on archetype (e.g., "Switch to Zone: Opponent ISO efficiency is critical").
+
+## [x] [Predictive "Rotation Fatigue" Efficiency Modeler]
+**Priority:** HIGH
+**Type:** Feature
+**Why:** A player's impact doesn't drop off a cliff at exactly 8 minutes; it's a gradual decay. This modeler uses historical and live data to predict when a player is about to become a liability.
+**What:** Enhance the "Fatigue" system to use a "Decay Model" that correlates live stint duration with a drop in Net Rating and Stop %.
+**Acceptance Criteria:**
+- [x] Visual "Efficiency Decay" indicator on Lineup Cards (e.g., a battery icon draining from Green -> Yellow -> Red).
+- [x] "Proactive Sub Alert" triggered 2 minutes *before* a player hits their predicted "Red Line."
+- [x] Post-game "Rotation Audit" showing the points lost due to "Over-Extended Stints."
+
+## [x] [High-Leverage "Winning Time" Decision Support HUD]
+**Priority:** HIGH
+**Type:** Feature
+**Why:** The final 4 minutes of a close game are where "gut feelings" lead to losses. A specialized HUD provides the "mathematically correct" tactical path during high-leverage moments.
+**What:** A specialized "Winning Time" HUD that activates in "Clutch Mode" (final 4m, spread <= 5). It synthesizes foul situations, timeout availability, and lineup efficiency.
+**Acceptance Criteria:**
+- [x] "Winning Time" HUD overlay in GameMode.
+- [x] "Offensive Recommendation": Which of our 3 top sets has the highest PPP in this specific game.
+- [x] "Defensive Recommendation": Based on current game Ref Tightness and Opponent Threat stats.
+- [x] "Timeout Strategy": Visual advisor for "Save" vs "Use" based on score/time/possession.
+
+## [ ] [Program-Wide "Success DNA" Correlation Engine]
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Every program has a different path to victory. For some, it's rebounding; for others, it's 3PT volume. This engine tells the coach exactly which stats actually drive WINS for their specific roster.
+**What:** A longitudinal analytical engine that correlates game outcomes (Win/Loss) with all tracked KPIs (Four Factors, Pace, Scheme Efficiency) across a season.
+**Acceptance Criteria:**
+- [ ] "Success DNA" dashboard in Program Analytics.
+- [ ] Correlation coefficient display (e.g., "Winning for this team is 85% correlated with OREB% > 28%").
+- [ ] "Identity Blueprint": Automated summary of the "3 Keys to Victory" based on historical success data.
 
 ## [ ] [Bench Momentum & "Spark Plug" Impact Tracking]
 **Priority:** HIGH
@@ -29,15 +62,6 @@
 - [ ] Correlation chart showing "Hustle Events" vs. "Lead Change" frequency.
 - [ ] "Impact per Stint" summary for second-unit players.
 
-## [ ] ["Defensive Scheme" Real-Time PPP Analyzer]
-**Priority:** HIGH
-**Type:** Feature
-**Why:** Coaches need to know which defensive set is most effective *now*. PPP allowed by scheme is the ultimate truth for mid-game adjustments.
-**What:** Enhance "Defensive Scheme" tracking to provide live PPP (Points Per Possession) allowed for Man vs. Zone vs. Press.
-**Acceptance Criteria:**
-- [ ] Sidebar toggle in GameMode to select active defensive scheme.
-- [ ] Real-time PPP display for the active scheme.
-- [ ] "Scheme Efficiency" comparison table in the Halftime Report.
 
 ## [ ] [Lineup "Offensive Chemistry" Connectivity Map]
 **Priority:** HIGH
@@ -62,27 +86,27 @@
 - [ ] Visual HUD feedback showing "Last Heard: #24 Make 3PT".
 - [ ] High-confidence threshold filtering to prevent background noise errors.
 
-## Special Situation (ATO/SLOB/BLOB) Analytical Engine
+## [x] Special Situation (ATO/SLOB/BLOB) Analytical Engine
 **Priority:** HIGH
 **Type:** Feature
 **Why:** Designing the perfect play is useless if you don't know if it works. This engine moves beyond raw stats to show efficiency in high-leverage set plays.
 **What:** Build a dedicated analytics module and UI to visualize PPP and eFG% for possessions tagged as ATO, SLOB, BLOB, or EOP.
 **Acceptance Criteria:**
-- [ ] Add `calculateSituationalStats` to the stats engine to derive PPP/eFG% filtered by situation.
-- [ ] New "Specialty Execution" card in GameStats showing a performance table by situation.
-- [ ] "Execution Delta" metric comparing Situational PPP vs. standard Half-Court PPP.
-- [ ] Visualization of "Success Rate" (Possessions ending in score or shooting foul) per situation.
+- [x] Add `calculateSituationalStats` to the stats engine to derive PPP/eFG% filtered by situation.
+- [x] New "Specialty Execution" card in GameStats showing a performance table by situation.
+- [x] "Execution Delta" metric comparing Situational PPP vs. standard Half-Court PPP.
+- [x] Visualization of "Success Rate" (Possessions ending in score or shooting foul) per situation.
 
-## Defensive Breakdown Attribution (The Accountability Layer)
+## [x] Defensive Breakdown Attribution (The Accountability Layer)
 **Priority:** HIGH
 **Type:** Feature
 **Why:** Coaches need to know *why* a bucket was allowed to fix it in practice. This layer separates physical skill makes from tactical mental errors.
 **What:** Enhance opponent scoring events with a mandatory (optional toggle) breakdown reason and provide a post-game integrity report.
 **Acceptance Criteria:**
-- [ ] Quick-select "Breakdown Reason" overlay after recording an opponent make: "Missed Rotation", "Transition Leak", "Poor Closeout", "Out-Hustled", "Great Contest".
-- [ ] "Defensive Integrity" report in GameStats summarizing % of points allowed by breakdown category.
-- [ ] "Tactical Weak Link" identification: Highlight the most frequent breakdown type in the current game.
-- [ ] Filter opponent shot chart markers by breakdown type.
+- [x] Quick-select "Breakdown Reason" overlay after recording an opponent make: "Missed Rotation", "Transition Leak", "Poor Closeout", "Out-Hustled", "Great Contest".
+- [x] "Defensive Integrity" report in GameStats summarizing % of points allowed by breakdown category.
+- [x] "Tactical Weak Link" identification: Highlight the most frequent breakdown type in the current game.
+- [x] Filter opponent shot chart markers by breakdown type.
 
 ## Expected Value (xPTS) & Shot Quality ROI Engine
 **Priority:** HIGH
@@ -95,17 +119,27 @@
 - [ ] "Quality Control" HUD in GameMode showing average xPTS per possession for the current lineup.
 - [ ] Post-game "Process Report" highlighting high xPTS shots that missed vs. low xPTS shots that went in.
 
-## Executive Halftime Talking Points Generator
+## [x] Executive Halftime Talking Points Generator
 **Priority:** HIGH
 **Type:** Feature
 **Why:** Halftime is only 10 minutes. Coaches need automated synthesis of complex data into 3 punchy, actionable directives for the locker room.
 **What:** An automated NLP-style engine that analyzes game aggregates vs. season averages to generate 3 executive-level bullet points.
 **Acceptance Criteria:**
-- [ ] "Talking Points" tab in the Halftime Report Dialog.
-- [ ] Bullet 1 (Offensive): Efficiency insight (e.g., "eFG% is 12% below average; stop settling for long 2s").
-- [ ] Bullet 2 (Defensive): Personnel threat (e.g., "Opponent #24 is 4/4 on drives; force him left").
-- [ ] Bullet 3 (Personnel): Lineup suggestion (e.g., "Lineup [5,10,12] is +8; keep them together").
-- [ ] "Copy for Assistant" button to send talking points via clipboard.
+- [x] "Talking Points" tab in the Halftime Report Dialog.
+- [x] Bullet 1 (Offensive): Efficiency insight (e.g., "eFG% is 12% below average; stop settling for long 2s").
+- [x] Bullet 2 (Defensive): Personnel threat (e.g., "Opponent #24 is 4/4 on drives; force him left").
+- [x] Bullet 3 (Personnel): Lineup suggestion (e.g., "Lineup [5,10,12] is +8; keep them together").
+- [x] "Copy for Assistant" button to send talking points via clipboard.
+
+## [x] Integrated Practice Prescription Engine
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Game data is only useful if it changes behavior in practice. Automating the bridge between performance and preparation ensures no tactical weakness is ignored.
+**What:** An engine in GameStats that identifies the 3 biggest performance gaps vs. season averages and suggests specific drills to address them.
+**Acceptance Criteria:**
+- [x] Automated "Practice Plan" section in the Game Stats page.
+- [x] Logic to identify top 3 focus areas based on Game vs. Season delta.
+- [x] Suggestion of specific drills (e.g., "Pressure Free Throws", "3-on-2 Transition") based on the identified gaps.
 
 ## Coach-Assistant Live Sync Bridge
 **Priority:** HIGH
