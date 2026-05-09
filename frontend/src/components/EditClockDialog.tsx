@@ -37,12 +37,29 @@ export const EditClockDialog: React.FC<{
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs">
       <DialogTitle sx={{ fontFamily: "var(--serif)" }}>Edit Clock</DialogTitle>
       <DialogContent>
+        <Box sx={{ mb: 2, display: "flex", gap: 1, justifyContent: "center" }}>
+          {[8, 10, 12, 20].map((m) => (
+            <Button
+              key={m}
+              variant="outlined"
+              size="small"
+              onClick={() => {
+                setMins(m);
+                setSecs(0);
+              }}
+              sx={{ fontSize: "0.7rem", minWidth: 0, px: 1.5 }}
+            >
+              {m}:00
+            </Button>
+          ))}
+        </Box>
+
         <Stack
           direction="row"
           spacing={3}
           alignItems="center"
           justifyContent="center"
-          sx={{ py: 3 }}
+          sx={{ py: 1 }}
         >
           <Box sx={{ textAlign: "center" }}>
             <Typography

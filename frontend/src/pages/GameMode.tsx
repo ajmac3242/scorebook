@@ -450,6 +450,7 @@ const GameMode: React.FC = () => {
       setIsDialogOpen,
       setStatType,
       setPlayName,
+      setSituation,
       setIsEditing,
       setEditingStatId,
       setSelectedPlayerId,
@@ -458,6 +459,7 @@ const GameMode: React.FC = () => {
       gameData.possessionStartClock,
       matchups,
       game?.activeDefensiveScheme,
+      situation,
     ],
   );
 
@@ -618,6 +620,7 @@ const GameMode: React.FC = () => {
       setPoints,
       setPlayName,
       setShotQuality,
+      setSituation,
       setSelectedX,
       setSelectedY,
       setIsEditing,
@@ -871,6 +874,7 @@ const GameMode: React.FC = () => {
                 recentStatsLength={gameData.recentStats.length}
                 onEndGame={() => setIsEndGameDialogOpen(true)}
                 isGameCompleted={!!game?.completed}
+                isEnding={isEnding}
               />
 
               <ToggleButtonGroup
@@ -1291,6 +1295,9 @@ const GameMode: React.FC = () => {
                             fouls={row.fouls}
                             plusMinus={row.plusMinus}
                             streak={playerStreaks.get(row.id.toString())}
+                            isOnCourt={gameData.onCourtIds.has(
+                              row.id.toString(),
+                            )}
                           />
                         ))}
                       </TableBody>
@@ -1585,6 +1592,26 @@ const GameMode: React.FC = () => {
           ) {
             e.preventDefault();
             handleSaveStat();
+            return;
+          }
+
+          if (isSavingStat) return;
+
+          const key = e.key.toLowerCase();
+          const actionMap: Record<string, string> = {
+            m: ACTION_TYPES.MAKE,
+            x: ACTION_TYPES.MISS,
+            o: ACTION_TYPES.OFF_REBOUND,
+            d: ACTION_TYPES.DEF_REBOUND,
+            a: ACTION_TYPES.ASSIST,
+            t: ACTION_TYPES.TURNOVER,
+            s: ACTION_TYPES.STEAL,
+            b: ACTION_TYPES.BLOCK,
+            f: ACTION_TYPES.FOUL_SHOOTING,
+          };
+
+          if (actionMap[key]) {
+            setStatType(actionMap[key]);
           }
         }}
       >

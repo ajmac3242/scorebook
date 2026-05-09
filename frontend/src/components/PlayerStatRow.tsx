@@ -12,6 +12,7 @@ import { getPlusMinusColor, formatPlusMinus } from "../utils/mathUtils";
 interface PlayerStatRowProps {
   jerseyNumber: string;
   name: string;
+  isOnCourt?: boolean;
   min: number;
   points: number;
   threePM: number;
@@ -50,8 +51,13 @@ export const PlayerStatRow: React.FC<PlayerStatRowProps> = React.memo(
     fouls,
     plusMinus,
     streak,
+    isOnCourt,
   }) => (
-    <TableRow>
+    <TableRow
+      sx={{
+        bgcolor: isOnCourt ? "rgba(25, 118, 210, 0.04)" : "transparent",
+      }}
+    >
       <TableCell sx={{ py: 1, px: 1 }}>
         <Typography
           variant="caption"

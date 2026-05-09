@@ -31,6 +31,7 @@ import {
   Save as SaveIcon,
   Close as CloseIcon,
   History as HistoryIcon,
+  FilterList as FilterIcon,
 } from "@mui/icons-material";
 import { db, type StatEvent, type Player } from "../db";
 import { ACTION_TYPES } from "../constants/stats";
@@ -58,6 +59,7 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
   const [editPlayerId, setEditPlayerId] = useState<string>("");
   const [editTime, setEditTime] = useState<string>("");
   const [editPeriod, setEditPeriod] = useState<number>(1);
+  const [playerFilter, setPlayerFilter] = useState<string>("ALL");
 
   const subEvents = useLiveQuery(() => {
     if (!gameId) return [];
@@ -131,6 +133,12 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
     [players],
   );
 
+  const filteredEvents = useMemo(() => {
+    if (!subEvents) return [];
+    if (playerFilter === "ALL") return subEvents;
+    return subEvents.filter((e) => e.playerId === playerFilter);
+  }, [subEvents, playerFilter]);
+
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
       <DialogTitle
@@ -144,10 +152,36 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
         <HistoryIcon /> Substitution Timeline Audit
       </DialogTitle>
       <DialogContent>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-          Review and correct the substitution timeline. Inaccurate data here
-          affects plus/minus and lineup efficiency metrics.
-        </Typography>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 2,
+          }}
+        >
+          <Typography variant="body2" color="text.secondary">
+            Review and correct the substitution timeline. Inaccurate data here
+            affects plus/minus and lineup efficiency metrics.
+          </Typography>
+
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <FilterIcon fontSize="small" color="action" />
+            <Select
+              size="small"
+              value={playerFilter}
+              onChange={(e) => setPlayerFilter(e.target.value)}
+              sx={{ minWidth: 150, fontSize: "0.75rem" }}
+            >
+              <MenuItem value="ALL">All Players</MenuItem>
+              {playerOptions.map((p) => (
+                <MenuItem key={p.id} value={p.id} sx={{ fontSize: "0.75rem" }}>
+                  #{jerseyMap.get(p.id!) ?? "??"} {p.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </Box>
+        </Box>
 
         <TableContainer sx={{ maxHeight: 400 }}>
           <Table stickyHeader size="small">
@@ -161,7 +195,7 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
               </TableRow>
             </TableHead>
             <TableBody>
-              {subEvents?.map((event) => {
+              {filteredEvents.map((event) => {
                 const isEditing = editingId === event.id;
                 const player = players.find((p) => p.id === event.playerId);
 
