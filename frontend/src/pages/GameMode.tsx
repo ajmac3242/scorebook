@@ -58,6 +58,7 @@ import QuickSubDialog from "../components/QuickSubDialog";
 import SubstitutionAuditDialog from "../components/SubstitutionAuditDialog";
 import FreeThrowWorkflowDialog from "../components/FreeThrowWorkflowDialog";
 import HalftimeReportDialog from "../components/HalftimeReportDialog";
+import DefensiveBreakdownDialog from "../components/DefensiveBreakdownDialog";
 import PlaybookEfficiencyWidget from "../components/PlaybookEfficiencyWidget";
 import { PlayerStatRow } from "../components/PlayerStatRow";
 import { db, type StatEvent } from "../db";
@@ -67,6 +68,7 @@ import {
   ACTION_TYPES,
   SPECIAL_PLAYER_IDS,
   SHOT_QUALITY,
+  SITUATIONS,
 } from "../constants/stats";
 import { type PlayerAggregates, getPlayerDisplayName } from "../utils/stats";
 import { formatClock, formatPlusMinus } from "../utils/mathUtils";
@@ -140,8 +142,14 @@ const GameMode: React.FC = () => {
     setIsAuditDialogOpen,
     isFtWorkflowOpen,
     setIsFtWorkflowOpen,
+    situation,
+    setSituation,
     isHalftimeReportOpen,
     setIsHalftimeReportOpen,
+    isBreakdownDialogOpen,
+    setIsBreakdownDialogOpen,
+    lastOpponentStatId,
+    setLastOpponentStatId,
     isDeleting,
     setIsDeleting,
     isEnding,
@@ -180,7 +188,7 @@ const GameMode: React.FC = () => {
     statsMap,
     matchups,
     opponentStats,
-    halftimeLineupStats,
+    halftimeStats,
     playerStreaks,
     playbookEfficiency,
     markers,
@@ -340,8 +348,10 @@ const GameMode: React.FC = () => {
               typeToSave === ACTION_TYPES.MISS
                 ? (shotQuality ?? undefined)
                 : undefined,
+            situation: situation ?? undefined,
             shotClockPhase: derivedShotClockPhase,
             primaryDefenderId,
+            defensiveScheme: game?.activeDefensiveScheme,
             synced: 0,
           });
           await syncService.pushUpdates();
@@ -364,15 +374,22 @@ const GameMode: React.FC = () => {
               typeToSave === ACTION_TYPES.MISS
                 ? (shotQuality ?? undefined)
                 : undefined,
+            situation: situation ?? undefined,
             shotClockPhase: derivedShotClockPhase,
             primaryDefenderId,
+            defensiveScheme: game?.activeDefensiveScheme,
             period,
             clockTime: clockSeconds,
             timestamp: new Date().toISOString(),
             synced: 0,
           };
-          await db.stats.add(newStat);
+          const savedId = (await db.stats.add(newStat)) as string;
           await syncService.pushUpdates();
+
+          if (trackingMode === "OPPONENT" && typeToSave === ACTION_TYPES.MAKE) {
+            setLastOpponentStatId(savedId);
+            setIsBreakdownDialogOpen(true);
+          }
 
           if (
             trackingMode === "TEAM" &&
@@ -397,6 +414,7 @@ const GameMode: React.FC = () => {
         setIsDialogOpen(false);
         setStatType(null);
         setPlayName("");
+        setSituation(null);
         setIsEditing(false);
         setEditingStatId(null);
         if (trackingMode === "OPPONENT") setSelectedPlayerId(null);
@@ -435,8 +453,11 @@ const GameMode: React.FC = () => {
       setIsEditing,
       setEditingStatId,
       setSelectedPlayerId,
+      setLastOpponentStatId,
+      setIsBreakdownDialogOpen,
       gameData.possessionStartClock,
       matchups,
+      game?.activeDefensiveScheme,
     ],
   );
 
@@ -583,6 +604,7 @@ const GameMode: React.FC = () => {
       setPoints(stat.points || 2);
       setPlayName(stat.playName || "");
       setShotQuality(stat.shotQuality || null);
+      setSituation(stat.situation || null);
       setSelectedX(stat.locationX || 0);
       setSelectedY(stat.locationY || 0);
       setIsEditing(true);
@@ -939,6 +961,11 @@ const GameMode: React.FC = () => {
               oppPpp={gameData.oppPpp}
               livePace={gameData.livePace}
               refTightness={gameData.refTightness}
+              activeSchemePpp={
+                gameData.schemeEfficiency.find(
+                  (s) => s.name === game?.activeDefensiveScheme,
+                )?.ppp
+              }
             />
 
             <MoleskineCard>
@@ -1842,6 +1869,32 @@ const GameMode: React.FC = () => {
                 gutterBottom
                 sx={{ display: "block", mb: 1 }}
               >
+                Situation
+              </Typography>
+              <ToggleButtonGroup
+                value={situation}
+                exclusive
+                onChange={(_, val) => setSituation(val)}
+                size="small"
+                fullWidth
+              >
+                {Object.values(SITUATIONS).map((sit) => (
+                  <ToggleButton key={sit} value={sit}>
+                    {sit}
+                  </ToggleButton>
+                ))}
+              </ToggleButtonGroup>
+            </Box>
+          )}
+
+          {(statType === ACTION_TYPES.MAKE ||
+            statType === ACTION_TYPES.MISS) && (
+            <Box sx={{ mt: 3 }}>
+              <Typography
+                variant="caption"
+                gutterBottom
+                sx={{ display: "block", mb: 1 }}
+              >
                 Shot Quality
               </Typography>
               <ToggleButtonGroup
@@ -2024,15 +2077,40 @@ const GameMode: React.FC = () => {
         />
       )}
 
+      <DefensiveBreakdownDialog
+        open={isBreakdownDialogOpen}
+        onClose={async (reason) => {
+          setIsBreakdownDialogOpen(false);
+          if (reason && lastOpponentStatId) {
+            try {
+              await db.stats.update(lastOpponentStatId, {
+                breakdownReason: reason,
+                synced: 0,
+              });
+              await syncService.pushUpdates();
+              setSnackbar({
+                open: true,
+                message: "Breakdown reason attributed",
+                severity: "success",
+              });
+            } catch (err) {
+              logger.error("Failed to update breakdown reason:", err);
+            }
+          }
+          setLastOpponentStatId(null);
+        }}
+      />
+
       <HalftimeReportDialog
         open={isHalftimeReportOpen}
         onClose={() => setIsHalftimeReportOpen(false)}
         teamPpp={gameData.teamPpp}
         oppPpp={gameData.oppPpp}
         seasonPpp={teamSeasonStats?.ppp || "0.00"}
-        topLineups={halftimeLineupStats}
-        bottomLineups={[...halftimeLineupStats].reverse()}
+        topLineups={halftimeStats.lineupStats}
+        bottomLineups={[...halftimeStats.lineupStats].reverse()}
         opponentThreats={gameData.momentumAlerts.opponentThreats}
+        schemeEfficiency={halftimeStats.schemeEfficiency}
         jerseyMap={jerseyMap}
       />
 

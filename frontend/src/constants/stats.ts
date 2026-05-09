@@ -37,6 +37,27 @@ export const SHOT_QUALITY = {
 };
 
 /**
+ * Defensive breakdown reasons.
+ */
+export const BREAKDOWN_REASONS = {
+  MISSED_ROTATION: "Missed Rotation",
+  TRANSITION_LEAK: "Transition Leak",
+  POOR_CLOSEOUT: "Poor Closeout",
+  OUT_HUSTLED: "Out-Hustled",
+  GREAT_CONTEST: "Great Contest",
+};
+
+/**
+ * Special situations.
+ */
+export const SITUATIONS = {
+  ATO: "ATO",
+  SLOB: "SLOB",
+  BLOB: "BLOB",
+  EOP: "EOP",
+};
+
+/**
  * Supported game action types that can be recorded as events.
  */
 export const ACTION_TYPES = {

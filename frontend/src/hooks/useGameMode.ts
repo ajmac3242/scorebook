@@ -132,11 +132,16 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
   const [selectedX, setSelectedX] = useState<number | null>(null);
   const [selectedY, setSelectedY] = useState<number | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isBreakdownDialogOpen, setIsBreakdownDialogOpen] = useState(false);
+  const [lastOpponentStatId, setLastOpponentStatId] = useState<string | null>(
+    null,
+  );
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
   const [statType, setStatType] = useState<string | null>(null);
   const [points, setPoints] = useState<number>(2);
   const [playName, setPlayName] = useState<string>("");
   const [shotQuality, setShotQuality] = useState<string | null>(null);
+  const [situation, setSituation] = useState<string | null>(null);
 
   const [sortConfig, setSortConfig] = useState<{
     key: keyof PlayerAggregates;
@@ -206,6 +211,16 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       oppTo = 0,
       oppOreb = 0;
 
+    const schemeStats: Record<
+      string,
+      { points: number; fga: number; fta: number; to: number }
+    > = {
+      MAN: { points: 0, fga: 0, fta: 0, to: 0 },
+      ZONE: { points: 0, fga: 0, fta: 0, to: 0 },
+      PRESS: { points: 0, fga: 0, fta: 0, to: 0 },
+      DOUBLE: { points: 0, fga: 0, fta: 0, to: 0 },
+    };
+
     let lastTeamScoreClockTime = periodLen;
     let lastTeamScorePeriod = 1;
     let foundLastTeamScore = false;
@@ -224,6 +239,20 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
         if (s.type === ACTION_TYPES.MAKE) {
           if (s.points === 1) oppFta++;
           else oppFga++;
+        }
+
+        if (s.defensiveScheme && schemeStats[s.defensiveScheme]) {
+          const scheme = schemeStats[s.defensiveScheme];
+          if (s.type === ACTION_TYPES.MAKE) {
+            scheme.points += s.points || 0;
+            if (s.points === 1) scheme.fta++;
+            else scheme.fga++;
+          } else if (s.type === ACTION_TYPES.MISS) {
+            if (s.points === 1) scheme.fta++;
+            else scheme.fga++;
+          } else if (s.type === ACTION_TYPES.TURNOVER) {
+            scheme.to++;
+          }
         }
       } else {
         curScore += s.points || 0;
@@ -408,6 +437,10 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
         oppTOL: Math.max(0, MAX_TIMEOUTS - oppTimeouts),
       },
       possessionState: posState,
+      schemeEfficiency: Object.entries(schemeStats).map(([name, s]) => {
+        const poss = calculatePossessions(s.fga, s.fta, s.to, 0);
+        return { name, ppp: calculatePpp(s.points, poss), possessions: poss };
+      }),
       onCourtIds: onCourt,
       stintStarts,
       defensiveStats,
@@ -627,17 +660,55 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     return res.sort((a, b) => b.points - a.points);
   }, [sortedGameStats, gameData.momentumAlerts.opponentThreats]);
 
-  const halftimeLineupStats = useMemo(() => {
-    if (!isHalftimeReportOpen) return [];
+  const halftimeStats = useMemo(() => {
+    if (!isHalftimeReportOpen) return { lineupStats: [], schemeEfficiency: [] };
     const firstHalfStats = sortedGameStats.filter((s) =>
       (team?.periodType || "QUARTERS") === "QUARTERS"
         ? s.period <= 2
         : s.period <= 1,
     );
-    return calculateLineupStats(firstHalfStats, {
-      isSorted: true,
-      periodLength: game?.periodLength,
+
+    const schemeStats: Record<
+      string,
+      { points: number; fga: number; fta: number; to: number }
+    > = {
+      MAN: { points: 0, fga: 0, fta: 0, to: 0 },
+      ZONE: { points: 0, fga: 0, fta: 0, to: 0 },
+      PRESS: { points: 0, fga: 0, fta: 0, to: 0 },
+      DOUBLE: { points: 0, fga: 0, fta: 0, to: 0 },
+    };
+
+    firstHalfStats.forEach((s) => {
+      if (
+        s.deletedAt ||
+        !isOpponentId(s.playerId) ||
+        !s.defensiveScheme ||
+        !schemeStats[s.defensiveScheme]
+      )
+        return;
+      const scheme = schemeStats[s.defensiveScheme];
+      if (s.type === ACTION_TYPES.MAKE) {
+        scheme.points += s.points || 0;
+        if (s.points === 1) scheme.fta++;
+        else scheme.fga++;
+      } else if (s.type === ACTION_TYPES.MISS) {
+        if (s.points === 1) scheme.fta++;
+        else scheme.fga++;
+      } else if (s.type === ACTION_TYPES.TURNOVER) {
+        scheme.to++;
+      }
     });
+
+    return {
+      lineupStats: calculateLineupStats(firstHalfStats, {
+        isSorted: true,
+        periodLength: game?.periodLength,
+      }),
+      schemeEfficiency: Object.entries(schemeStats).map(([name, s]) => {
+        const poss = calculatePossessions(s.fga, s.fta, s.to, 0);
+        return { name, ppp: calculatePpp(s.points, poss), possessions: poss };
+      }),
+    };
   }, [
     isHalftimeReportOpen,
     sortedGameStats,
@@ -716,6 +787,8 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     setPlayName,
     shotQuality,
     setShotQuality,
+    situation,
+    setSituation,
     clockSeconds,
     setClockSeconds,
     isClockRunning,
@@ -758,6 +831,10 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     setSnackbar,
     isSubDialogOpen,
     setIsSubDialogOpen,
+    isBreakdownDialogOpen,
+    setIsBreakdownDialogOpen,
+    lastOpponentStatId,
+    setLastOpponentStatId,
     subOutPlayerId,
     setSubOutPlayerId,
     draftOnCourtIds,
@@ -787,7 +864,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     statsMap,
     matchups: game?.matchups || {},
     opponentStats,
-    halftimeLineupStats,
+    halftimeStats,
     playerStreaks,
     playbookEfficiency,
     markers,

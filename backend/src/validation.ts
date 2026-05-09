@@ -114,6 +114,19 @@ export const VALID_OPPONENT_PLAY_TYPES = Object.freeze(
 );
 
 /**
+ * Valid defensive breakdown reasons.
+ */
+export const VALID_BREAKDOWN_REASONS = Object.freeze(
+  new Set([
+    "Missed Rotation",
+    "Transition Leak",
+    "Poor Closeout",
+    "Out-Hustled",
+    "Great Contest",
+  ]),
+);
+
+/**
  * Validates a stat event body.
  * @param body - The stat event data to validate.
  * @returns {string | null} Error message or null if valid.
@@ -210,6 +223,13 @@ export function validateStatEvent(body: unknown): string | null {
       !VALID_OPPONENT_PLAY_TYPES.has(b.opponentPlayType))
   ) {
     return "Invalid opponent play type";
+  }
+  if (
+    b.breakdownReason !== undefined &&
+    (typeof b.breakdownReason !== "string" ||
+      !VALID_BREAKDOWN_REASONS.has(b.breakdownReason))
+  ) {
+    return "Invalid defensive breakdown reason";
   }
   return null;
 }

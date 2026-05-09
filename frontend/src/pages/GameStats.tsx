@@ -61,6 +61,8 @@ import {
   calculatePpp,
   generatePracticePrescription,
   calculateTeamSeasonAverages,
+  calculateDefensiveIntegrity,
+  calculateSituationalStats,
   type ScoreFlowPoint,
 } from "../utils/stats";
 import { MoleskineCard } from "../components/SharedUI";
@@ -126,6 +128,8 @@ const GameStats: React.FC = () => {
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [isAuditDialogOpen, setIsAuditDialogOpen] = useState(false);
   const [isPracticePlannerOpen, setIsPracticePlannerOpen] = useState(false);
+  const [isDefensiveIntegrityOpen, setIsDefensiveIntegrityOpen] =
+    useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [editOpponent, setEditOpponent] = useState("");
   const [editDate, setEditDate] = useState("");
@@ -683,6 +687,14 @@ const GameStats: React.FC = () => {
   const defensiveStats = useMemo(() => {
     return calculateStopsAndKills(scoreFlowSortedStats);
   }, [scoreFlowSortedStats]);
+
+  const defensiveIntegrity = useMemo(() => {
+    return calculateDefensiveIntegrity(allStats);
+  }, [allStats]);
+
+  const specialtyExecution = useMemo(() => {
+    return calculateSituationalStats(allStats);
+  }, [allStats]);
 
   const practiceFocusAreas = useMemo(() => {
     if (!teamSeasonStats || !teamData) return [];
@@ -1683,6 +1695,84 @@ const GameStats: React.FC = () => {
                   }}
                 >
                   <Typography variant="h6" sx={{ fontFamily: "var(--serif)" }}>
+                    Defensive Integrity
+                  </Typography>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    onClick={() => setIsDefensiveIntegrityOpen(true)}
+                  >
+                    View Report
+                  </Button>
+                </Box>
+                <TableContainer>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell
+                          sx={{ fontSize: "0.65rem", fontWeight: 800 }}
+                        >
+                          REASON
+                        </TableCell>
+                        <TableCell
+                          align="right"
+                          sx={{ fontSize: "0.65rem", fontWeight: 800 }}
+                        >
+                          PTS
+                        </TableCell>
+                        <TableCell
+                          align="right"
+                          sx={{ fontSize: "0.65rem", fontWeight: 800 }}
+                        >
+                          %
+                        </TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {defensiveIntegrity.slice(0, 5).map((row) => (
+                        <TableRow key={row.reason}>
+                          <TableCell
+                            sx={{ fontSize: "0.75rem", fontWeight: 600 }}
+                          >
+                            {row.reason}
+                          </TableCell>
+                          <TableCell
+                            align="right"
+                            sx={{ fontSize: "0.75rem", fontWeight: 700 }}
+                          >
+                            {row.points}
+                          </TableCell>
+                          <TableCell
+                            align="right"
+                            sx={{ fontSize: "0.75rem", fontWeight: 700 }}
+                          >
+                            {row.percentage}%
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                      {defensiveIntegrity.length === 0 && (
+                        <TableRow>
+                          <TableCell colSpan={3} align="center">
+                            No breakdown data recorded.
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </MoleskineCard>
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <MoleskineCard>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    mb: 2,
+                  }}
+                >
+                  <Typography variant="h6" sx={{ fontFamily: "var(--serif)" }}>
                     Lineup Efficiency
                   </Typography>
                   <Stack direction="row" spacing={1} alignItems="center">
@@ -1704,6 +1794,71 @@ const GameStats: React.FC = () => {
                   </Stack>
                 </Box>
                 {lineupTable}
+              </MoleskineCard>
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <MoleskineCard>
+                <Typography
+                  variant="h6"
+                  sx={{ fontFamily: "var(--serif)", mb: 2 }}
+                >
+                  Specialty Execution
+                </Typography>
+                <TableContainer>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell
+                          sx={{ fontSize: "0.65rem", fontWeight: 800 }}
+                        >
+                          SITUATION
+                        </TableCell>
+                        <TableCell
+                          align="right"
+                          sx={{ fontSize: "0.65rem", fontWeight: 800 }}
+                        >
+                          PPP
+                        </TableCell>
+                        <TableCell
+                          align="right"
+                          sx={{ fontSize: "0.65rem", fontWeight: 800 }}
+                        >
+                          eFG%
+                        </TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {specialtyExecution.map((row) => (
+                        <TableRow key={row.situation}>
+                          <TableCell
+                            sx={{ fontSize: "0.75rem", fontWeight: 600 }}
+                          >
+                            {row.situation}
+                          </TableCell>
+                          <TableCell
+                            align="right"
+                            sx={{ fontSize: "0.75rem", fontWeight: 700 }}
+                          >
+                            {row.ppp}
+                          </TableCell>
+                          <TableCell
+                            align="right"
+                            sx={{ fontSize: "0.75rem", fontWeight: 700 }}
+                          >
+                            {row.efg}%
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                      {specialtyExecution.length === 0 && (
+                        <TableRow>
+                          <TableCell colSpan={3} align="center">
+                            No situational plays recorded.
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
               </MoleskineCard>
             </Grid>
           </Grid>
@@ -1907,6 +2062,69 @@ const GameStats: React.FC = () => {
           <Button onClick={() => setIsPracticePlannerOpen(false)}>Close</Button>
           <Button variant="contained" color="success">
             Export to Practice PDF
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={isDefensiveIntegrityOpen}
+        onClose={() => setIsDefensiveIntegrityOpen(false)}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle sx={{ fontFamily: "var(--serif)", fontWeight: 800 }}>
+          Defensive Integrity Report
+        </DialogTitle>
+        <DialogContent>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+            Breakdown of points allowed by tactical error category. Use this to
+            identify your most frequent defensive "weak links."
+          </Typography>
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell sx={{ fontWeight: 800 }}>REASON</TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 800 }}>
+                    FREQ
+                  </TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 800 }}>
+                    PTS
+                  </TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 800 }}>
+                    % OF TOTAL
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {defensiveIntegrity.map((row) => (
+                  <TableRow key={row.reason}>
+                    <TableCell sx={{ fontWeight: 600 }}>{row.reason}</TableCell>
+                    <TableCell align="right">{row.frequency}</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 700 }}>
+                      {row.points}
+                    </TableCell>
+                    <TableCell
+                      align="right"
+                      sx={{
+                        fontWeight: 900,
+                        color:
+                          parseFloat(row.percentage) > 30
+                            ? "error.main"
+                            : "inherit",
+                      }}
+                    >
+                      {row.percentage}%
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setIsDefensiveIntegrityOpen(false)}>
+            Close
           </Button>
         </DialogActions>
       </Dialog>

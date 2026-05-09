@@ -1,24 +1,24 @@
 # Scorebook Backlog
 
-## [Defensive Breakdown Attribution (The Accountability Layer)]
+## [x] [Defensive Breakdown Attribution (The Accountability Layer)]
 **Priority:** HIGH
 **Type:** Feature
 **Why:** Coaches need to know *why* a bucket was allowed to fix it in practice. This layer separates physical skill makes from tactical mental errors.
 **What:** Enhance opponent scoring events with a mandatory (optional toggle) breakdown reason and provide a post-game integrity report.
 **Acceptance Criteria:**
-- [ ] Quick-select "Breakdown Reason" overlay after recording an opponent make: "Missed Rotation", "Transition Leak", "Poor Closeout", "Out-Hustled", "Great Contest".
-- [ ] "Defensive Integrity" report in GameStats summarizing % of points allowed by breakdown category.
-- [ ] "Tactical Weak Link" identification: Highlight the most frequent breakdown type in the current game.
+- [x] Quick-select "Breakdown Reason" overlay after recording an opponent make: "Missed Rotation", "Transition Leak", "Poor Closeout", "Out-Hustled", "Great Contest".
+- [x] "Defensive Integrity" report in GameStats summarizing % of points allowed by breakdown category.
+- [x] "Tactical Weak Link" identification: Highlight the most frequent breakdown type in the current game.
 - [ ] Filter opponent shot chart markers by breakdown type.
 
-## [Special Situation (ATO/SLOB/BLOB) Analytical Engine]
+## [x] [Special Situation (ATO/SLOB/BLOB) Analytical Engine]
 **Priority:** HIGH
 **Type:** Feature
 **Why:** Designing the perfect play is useless if you don't know if it works. This engine moves beyond raw stats to show efficiency in high-leverage set plays.
 **What:** Build a dedicated analytics module and UI to visualize PPP and eFG% for possessions tagged as ATO, SLOB, BLOB, or EOP.
 **Acceptance Criteria:**
-- [ ] Add `calculateSituationalStats` to the stats engine to derive PPP/eFG% filtered by situation.
-- [ ] New "Specialty Execution" card in GameStats showing a performance table by situation.
+- [x] Add `calculateSituationalStats` to the stats engine to derive PPP/eFG% filtered by situation.
+- [x] New "Specialty Execution" card in GameStats showing a performance table by situation.
 - [ ] "Execution Delta" metric comparing Situational PPP vs. standard Half-Court PPP.
 - [ ] Visualization of "Success Rate" (Possessions ending in score or shooting foul) per situation.
 
@@ -78,15 +78,15 @@
 - [x] Breakdown of "Clutch Action Type" (e.g., "ISO Drive", "PnR Handler").
 - [x] Comparison of Opponent X's Clutch Usage vs. Regulation Usage.
 
-## [/] ["Defensive Scheme" Real-Time PPP Analyzer]
+## [x] ["Defensive Scheme" Real-Time PPP Analyzer]
 **Priority:** HIGH
 **Type:** Feature
 **Why:** Coaches need to know which defensive set is most effective *now*. PPP allowed by scheme is the ultimate truth for mid-game adjustments.
 **What:** Enhance "Defensive Scheme" tracking to provide live PPP (Points Per Possession) allowed for Man vs. Zone vs. Press.
 **Acceptance Criteria:**
 - [x] Sidebar toggle in GameMode to select active defensive scheme.
-- [ ] Real-time PPP display for the active scheme.
-- [ ] "Scheme Efficiency" comparison table in the Halftime Report.
+- [x] Real-time PPP display for the active scheme.
+- [x] "Scheme Efficiency" comparison table in the Halftime Report.
 
 ## [ ] [Lineup "Offensive Chemistry" Connectivity Map]
 **Priority:** HIGH

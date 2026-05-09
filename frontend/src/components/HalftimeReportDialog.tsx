@@ -12,6 +12,12 @@ import {
   Avatar,
   Divider,
   Chip,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
 } from "@mui/material";
 import {
   LineupAggregates,
@@ -32,6 +38,7 @@ interface HalftimeReportDialogProps {
   topLineups: LineupAggregates[];
   bottomLineups: LineupAggregates[];
   opponentThreats: OpponentThreat[];
+  schemeEfficiency: { name: string; ppp: string; possessions: number }[];
   jerseyMap: Map<string, string | undefined>;
 }
 
@@ -44,6 +51,7 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
   topLineups,
   bottomLineups,
   opponentThreats,
+  schemeEfficiency,
   jerseyMap,
 }) => {
   const talkingPoints = React.useMemo(
@@ -206,6 +214,68 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
               season average
             </Typography>
           )}
+        </Box>
+
+        <Divider sx={{ mb: 2 }} />
+
+        <Box sx={{ mb: 3 }}>
+          <Typography
+            variant="subtitle2"
+            sx={{ fontWeight: 700, mb: 1, color: "secondary.main" }}
+          >
+            DEFENSIVE SCHEME EFFICIENCY
+          </Typography>
+          <TableContainer>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell sx={{ fontSize: "0.65rem", fontWeight: 800 }}>
+                    SCHEME
+                  </TableCell>
+                  <TableCell
+                    align="right"
+                    sx={{ fontSize: "0.65rem", fontWeight: 800 }}
+                  >
+                    POSS
+                  </TableCell>
+                  <TableCell
+                    align="right"
+                    sx={{ fontSize: "0.65rem", fontWeight: 800 }}
+                  >
+                    PPP
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {schemeEfficiency
+                  .filter((s) => s.possessions > 0)
+                  .map((s) => (
+                    <TableRow key={s.name}>
+                      <TableCell sx={{ fontSize: "0.75rem", fontWeight: 600 }}>
+                        {s.name}
+                      </TableCell>
+                      <TableCell align="right" sx={{ fontSize: "0.75rem" }}>
+                        {Math.round(s.possessions)}
+                      </TableCell>
+                      <TableCell
+                        align="right"
+                        sx={{ fontSize: "0.75rem", fontWeight: 700 }}
+                      >
+                        {s.ppp}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                {schemeEfficiency.filter((s) => s.possessions > 0).length ===
+                  0 && (
+                  <TableRow>
+                    <TableCell colSpan={3} align="center">
+                      No defensive data for this half.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
         </Box>
 
         <Divider sx={{ mb: 2 }} />
