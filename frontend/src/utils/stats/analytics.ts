@@ -235,7 +235,9 @@ export const calculateOpponentThreats = (
     }
   }
 
-  return Array.from(threats.values()).filter((t) => t.isHot || t.isClutchThreat);
+  return Array.from(threats.values()).filter(
+    (t) => t.isHot || t.isClutchThreat,
+  );
 };
 
 export const calculateScoreFlow = (
