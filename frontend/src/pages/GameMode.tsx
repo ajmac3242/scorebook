@@ -938,7 +938,31 @@ const GameMode: React.FC = () => {
               teamPpp={gameData.teamPpp}
               oppPpp={gameData.oppPpp}
               livePace={gameData.livePace}
+                refTightness={gameData.refTightness}
             />
+
+              <MoleskineCard>
+                <Typography variant="caption" sx={{ fontWeight: 700, mb: 1, display: "block", color: "text.secondary" }}>
+                  ACTIVE DEFENSIVE SCHEME
+                </Typography>
+                <ToggleButtonGroup
+                  value={game?.activeDefensiveScheme || "MAN"}
+                  exclusive
+                  onChange={async (_, val) => {
+                    if (val && gameId) {
+                      await db.games.update(gameId, { activeDefensiveScheme: val, synced: 0 });
+                      await syncService.pushUpdates();
+                    }
+                  }}
+                  size="small"
+                  fullWidth
+                >
+                  <ToggleButton value="MAN" sx={{ fontSize: "0.65rem" }}>MAN</ToggleButton>
+                  <ToggleButton value="ZONE" sx={{ fontSize: "0.65rem" }}>ZONE</ToggleButton>
+                  <ToggleButton value="PRESS" sx={{ fontSize: "0.65rem" }}>PRESS</ToggleButton>
+                  <ToggleButton value="DOUBLE" sx={{ fontSize: "0.65rem" }}>DOUBLE</ToggleButton>
+                </ToggleButtonGroup>
+              </MoleskineCard>
 
             {trackingMode === "TEAM" && (
               <PlaybookEfficiencyWidget
@@ -1303,6 +1327,19 @@ const GameMode: React.FC = () => {
                                   >
                                     🔥
                                   </Box>
+                                )}
+                                {opp.isClutchThreat && (
+                                  <Chip
+                                    label="CLUTCH THREAT"
+                                    size="small"
+                                    color="error"
+                                    sx={{
+                                      ml: 1,
+                                      height: 16,
+                                      fontSize: "0.55rem",
+                                      fontWeight: 800,
+                                    }}
+                                  />
                                 )}
                               </Typography>
                               <Typography

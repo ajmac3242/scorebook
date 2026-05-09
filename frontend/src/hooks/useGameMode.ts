@@ -19,7 +19,7 @@ import {
   type PlayerAggregates,
   OpponentThreat,
 } from "../utils/stats";
-import { roundToOne } from "../utils/mathUtils";
+import { roundToOne, calculateElapsedMinutes } from "../utils/mathUtils";
 import { useTheme } from "@mui/material";
 
 import { useGameClock } from "./useGameClock";
@@ -376,11 +376,19 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     const teamPoss = calculatePossessions(teamFga, teamFta, teamTo, teamOreb);
     const oppPoss = calculatePossessions(oppFga, oppFta, oppTo, oppOreb);
 
+    const elapsedMinutes = calculateElapsedMinutes(
+      period,
+      clockSeconds,
+      team?.periodType,
+    );
+    const fpm = elapsedMinutes > 1 ? (teamFouls + oppFouls) / elapsedMinutes : 0;
+
     return {
       currentScore: curScore,
       opponentScore: oppScore,
       teamPpp: calculatePpp(curScore, teamPoss),
       oppPpp: calculatePpp(oppScore, oppPoss),
+      refTightness: fpm,
       teamPoss,
       oppPoss,
       teamFoulStats: {
@@ -403,7 +411,12 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       defensiveStats,
       momentumAlerts: {
         opponentRun: opponentRunValue,
-        opponentThreats: Array.from(threats.values()).filter((t) => t.isHot),
+        opponentThreats: calculateOpponentThreats(sortedGameStats, {
+          period,
+          clockTime: clockSeconds,
+          scoreDiff: curScore - oppScore,
+          periodType: team?.periodType || "QUARTERS",
+        }),
       },
       onCourtPeriodFouls,
       lastLineupChangeClock,
@@ -510,7 +523,10 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     return calculateHaltAlerts({
       players,
       statsMap,
-      gameData,
+      gameData: {
+        ...gameData,
+        activeDefensiveScheme: game?.activeDefensiveScheme,
+      },
       period,
       clockSeconds,
       periodType: team?.periodType || "QUARTERS",
@@ -521,6 +537,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     players,
     statsMap,
     gameData,
+    game?.activeDefensiveScheme,
     period,
     clockSeconds,
     team?.periodType,
@@ -593,7 +610,8 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
         id,
         jersey: id.includes(":") ? id.split(":")[1] : "??",
         ...agg,
-        isHot: !!t,
+        isHot: !!t?.isHot,
+        isClutchThreat: !!t?.isClutchThreat,
         straightPoints: t?.straightPoints || 0,
       });
     }
