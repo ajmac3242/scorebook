@@ -1,5 +1,11 @@
 import React from "react";
-import { Box, Typography, Button, Avatar, IconButton } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Button,
+  Avatar,
+  IconButton,
+} from "@mui/material";
 import { History } from "@mui/icons-material";
 import { MoleskineCard } from "../../components/SharedUI";
 import { formatClock, formatPlusMinus } from "../../utils/mathUtils";
@@ -22,9 +28,7 @@ interface LineupSectionProps {
   setSubOutPlayerId: (_id: string | null) => void;
   setIsSubDialogOpen: (_open: boolean) => void;
   chainPrompt: { type: "ASSIST" | "REBOUND"; originalStat: StatEvent } | null;
-  setChainPrompt: (
-    _prompt: { type: "ASSIST" | "REBOUND"; originalStat: StatEvent } | null,
-  ) => void;
+  setChainPrompt: (_prompt: { type: "ASSIST" | "REBOUND"; originalStat: StatEvent } | null) => void;
   handleChainAction: (_playerId: string, _type: string) => void;
 }
 
@@ -136,9 +140,7 @@ export const LineupSection: React.FC<LineupSectionProps> = ({
                 key={emptyId}
                 variant="outlined"
                 disabled={isReadOnly}
-                aria-label={
-                  "Empty lineup slot " + (i + 1) + ", click to assign player"
-                }
+                aria-label={"Empty lineup slot " + (i + 1) + ", click to assign player"}
                 onClick={() => {
                   setSubOutPlayerId(emptyId);
                   setIsSubDialogOpen(true);

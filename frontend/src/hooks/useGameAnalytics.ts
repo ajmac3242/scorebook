@@ -304,20 +304,12 @@ export const useGameAnalytics = (
           (periodLen - clockSeconds);
       }
       if (droughtSecs >= 180)
-        scoringDrought =
-          Math.floor(droughtSecs / 60) +
-          "m " +
-          Math.floor(droughtSecs % 60) +
-          "s";
+        scoringDrought = Math.floor(droughtSecs / 60) + "m " + Math.floor(droughtSecs % 60) + "s";
     } else {
       const elapsedGameSecs =
         (period - 1) * periodLen + (periodLen - clockSeconds);
       if (elapsedGameSecs >= 180)
-        scoringDrought =
-          Math.floor(elapsedGameSecs / 60) +
-          "m " +
-          Math.floor(elapsedGameSecs % 60) +
-          "s";
+        scoringDrought = Math.floor(elapsedGameSecs / 60) + "m " + Math.floor(elapsedGameSecs % 60) + "s";
     }
 
     const totalElapsedSeconds =
