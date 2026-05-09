@@ -9,28 +9,25 @@ export default [
     ignores: ["src/__tests__/**", "src/index.d.ts"],
     languageOptions: {
       parser: tsParser,
-      parserOptions: { project: "./tsconfig.json" },
+      parserOptions: { project: "./tsconfig.json" }
     },
     plugins: {
       "@typescript-eslint": tsPlugin,
-      jsdoc: jsdocPlugin,
+      jsdoc: jsdocPlugin
     },
     rules: {
       // JSDoc comment enforcement
-      "jsdoc/require-jsdoc": [
-        "warn",
-        {
-          require: {
-            FunctionDeclaration: true,
-            MethodDefinition: true,
-            ClassDeclaration: true,
-            ArrowFunctionExpression: false,
-            FunctionExpression: true,
-          },
-          publicOnly: false,
-          checkConstructors: true,
+      "jsdoc/require-jsdoc": ["warn", {
+        require: {
+          FunctionDeclaration: true,
+          MethodDefinition: true,
+          ClassDeclaration: true,
+          ArrowFunctionExpression: false,
+          FunctionExpression: true
         },
-      ],
+        publicOnly: false,
+        checkConstructors: true
+      }],
       "jsdoc/require-description": ["warn", { descriptionStyle: "body" }],
       "jsdoc/require-param": "warn",
       "jsdoc/require-param-description": "warn",
@@ -40,7 +37,7 @@ export default [
       "jsdoc/check-alignment": "warn",
       "jsdoc/check-param-names": "warn",
       // General TS rules
-      "@typescript-eslint/no-explicit-any": "warn",
-    },
-  },
+      "@typescript-eslint/no-explicit-any": "warn"
+    }
+  }
 ];

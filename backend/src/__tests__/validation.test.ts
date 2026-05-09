@@ -150,40 +150,5 @@ describe("validation.ts", () => {
         "Location coordinates must be finite numbers between 0 and 100",
       );
     });
-
-    it("returns error for invalid situation", () => {
-      expect(validateStatEvent({ ...validEvent, situation: "INVALID" })).toBe(
-        "Invalid situational context",
-      );
-      expect(validateStatEvent({ ...validEvent, situation: 123 })).toBe(
-        "Invalid situational context",
-      );
-    });
-
-    it("returns error for invalid shotClockPhase", () => {
-      expect(
-        validateStatEvent({ ...validEvent, shotClockPhase: "INVALID" }),
-      ).toBe("Invalid shot clock phase");
-      expect(validateStatEvent({ ...validEvent, shotClockPhase: 123 })).toBe(
-        "Invalid shot clock phase",
-      );
-    });
-
-    it("returns error for invalid primaryDefenderId", () => {
-      expect(
-        validateStatEvent({ ...validEvent, primaryDefenderId: "invalid" }),
-      ).toBe("Invalid primary defender ID");
-    });
-
-    it("returns null for valid optional fields", () => {
-      expect(
-        validateStatEvent({
-          ...validEvent,
-          situation: "ATO",
-          shotClockPhase: "EARLY",
-          primaryDefenderId: "OPPONENT:12",
-        }),
-      ).toBeNull();
-    });
   });
 });

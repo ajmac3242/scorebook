@@ -62,8 +62,3 @@ cd frontend && pnpm test:jules -- "<module-name>"
 - **Patterns in what gets left incomplete**: Defensive efficiency (Opponent PPP) is often neglected in favor of offensive metrics, leaving coaches with only half the tactical picture.
 - **Recurring issues agents create**: Hard-coding game lengths (e.g., 40 mins) in UI components instead of deriving them from team settings or calculating a standardized rate (NET/40).
 - **End-of-Day improvement patterns**: Implementing 'Temporal Windowing' (Last 5/10 games) provides immediate value for scouting and performance trend analysis without requiring complex backend filtering.
-
-## End-of-Day Insights - 2026-05-26
-- **Patterns in what gets left incomplete**: Real-time analytical overlays (like Ref Tightness) are often missing because they require cross-domain state (fouls + clock).
-- **Recurring issues agents create**: Accessing `ref.current` inside `useMemo` blocks, which violates React's rendering principles and triggers linting errors.
-- **End-of-Day improvement patterns**: Integrating "Tactical Logic" (like Ref-Identity conflict alerts) directly into the primary HUD ensures coaches see actionable advice exactly when they need it most.

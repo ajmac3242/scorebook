@@ -87,7 +87,6 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
             mb: 1,
           }}
           aria-live="polite"
-          aria-atomic="true"
           aria-label={`${name} score: ${score}`}
         >
           <AnimatedNumber value={score} />

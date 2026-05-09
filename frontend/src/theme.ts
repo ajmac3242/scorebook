@@ -120,11 +120,11 @@ const theme = createTheme({
         }
 
         .moleskine-card {
-           border-radius: 8px;
-           box-shadow: 0px 4px 12px rgba(0,0,0,0.05);
-           border: 1px solid rgba(0,0,0,0.05);
-           background-color: #FFFFFF;
-           padding: 16px;
+          border-radius: 8px;
+          box-shadow: 0px 4px 12px rgba(0,0,0,0.05);
+          border: 1px solid rgba(0,0,0,0.05);
+          background-color: #FFFFFF;
+          padding: 16px;
         }
       `,
     },
