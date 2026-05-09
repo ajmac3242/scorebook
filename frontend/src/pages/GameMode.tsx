@@ -5,7 +5,7 @@
  * on an interactive court, manage active lineups, and track opponent scoring.
  */
 
-import React, { useEffect, useCallback, useMemo } from "react";
+import React, { useEffect, useCallback } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import {
   Box,
@@ -60,7 +60,7 @@ import {
   SPECIAL_PLAYER_IDS,
   SHOT_QUALITY,
 } from "../constants/stats";
-import { formatClock, formatPlusMinus } from "../utils/mathUtils";
+import { formatClock } from "../utils/mathUtils";
 import { MoleskineCard } from "../components/SharedUI";
 
 // Extracted modules
