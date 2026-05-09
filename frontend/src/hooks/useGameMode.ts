@@ -169,6 +169,12 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
   }>({ open: false, message: "", severity: "success" });
 
   // 4. More Domain Derived State
+  /**
+   * ⚡ Bolt: Memoize sorted game stats.
+   * By sorting once here, we avoid O(N log N) work in multiple downstream useMemos
+   * (eventAggregates, playerStreaks, playbookEfficiency, etc.) whenever any
+   * non-stat state (like clock or period) changes.
+   */
   const sortedGameStats = useMemo(() => {
     return [...gameStats].sort((a, b) => {
       if (a.timestamp < b.timestamp) return -1;
@@ -654,6 +660,12 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     [sortedGameStats],
   );
 
+  /**
+   * ⚡ Bolt: Memoize matchups to ensure stable object reference.
+   * Only re-evaluates when the underlying matchups data in the game object changes.
+   */
+  const matchups = useMemo(() => game?.matchups || {}, [game?.matchups]);
+
   const markers = useMemo(() => {
     const res = [];
     const oppColor = theme.palette.secondary.main;
@@ -785,7 +797,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     jerseyMap,
     sortedStatsGridData,
     statsMap,
-    matchups: game?.matchups || {},
+    matchups,
     opponentStats,
     halftimeLineupStats,
     playerStreaks,

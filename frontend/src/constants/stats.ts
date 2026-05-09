@@ -7,7 +7,7 @@
 /**
  * Standardized acronyms for basketball statistics.
  */
-export const STAT_ACRONYMS = {
+export const STAT_ACRONYMS = Object.freeze({
   POINTS: "PTS",
   REBOUNDS: "REB",
   ASSISTS: "AST",
@@ -26,20 +26,20 @@ export const STAT_ACRONYMS = {
   PERSONAL_FOULS: "PF",
   TECHNICAL_FOUL: "TF",
   MINUTES: "MIN",
-};
+});
 
 /**
  * Shot quality tags.
  */
-export const SHOT_QUALITY = {
+export const SHOT_QUALITY = Object.freeze({
   OPEN: "OPEN",
   CONTESTED: "CONTESTED",
-};
+});
 
 /**
  * Supported game action types that can be recorded as events.
  */
-export const ACTION_TYPES = {
+export const ACTION_TYPES = Object.freeze({
   MAKE: "MAKE",
   MISS: "MISS",
   REBOUND: "REBOUND",
@@ -57,16 +57,16 @@ export const ACTION_TYPES = {
   SUB_IN: "SUB_IN",
   SUB_OUT: "SUB_OUT",
   POSSESSION: "POSSESSION",
-};
+});
 
 /**
  * Standardized IDs for special players.
  */
-export const SPECIAL_PLAYER_IDS = {
+export const SPECIAL_PLAYER_IDS = Object.freeze({
   OPPONENT: "OPPONENT",
   TEAM_TIMEOUT: "TEAM_TIMEOUT",
   OUR_TEAM: "OUR_TEAM",
-};
+});
 
 /**
  * Bonus status configuration based on foul counts and period type.
@@ -74,7 +74,7 @@ export const SPECIAL_PLAYER_IDS = {
 export const BONUS_CONFIG: Record<
   string,
   { double: number; single: number; warning: number }
-> = {
+> = Object.freeze({
   QUARTERS: { double: 999, single: 5, warning: 4 },
   HALVES: { double: 10, single: 7, warning: 6 },
-};
+});

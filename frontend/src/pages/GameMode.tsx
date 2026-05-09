@@ -5,7 +5,7 @@
  * on an interactive court, manage active lineups, and track opponent scoring.
  */
 
-import React, { useEffect, useCallback } from "react";
+import React, { useEffect, useCallback, useMemo } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import {
   Box,
@@ -43,13 +43,6 @@ import {
   ArrowBack,
 } from "@mui/icons-material";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TableSortLabel,
   useMediaQuery,
 } from "@mui/material";
 import BasketballCourt from "../components/BasketballCourt";
@@ -59,7 +52,6 @@ import SubstitutionAuditDialog from "../components/SubstitutionAuditDialog";
 import FreeThrowWorkflowDialog from "../components/FreeThrowWorkflowDialog";
 import HalftimeReportDialog from "../components/HalftimeReportDialog";
 import PlaybookEfficiencyWidget from "../components/PlaybookEfficiencyWidget";
-import { PlayerStatRow } from "../components/PlayerStatRow";
 import { db, type StatEvent } from "../db";
 import { syncService } from "../utils/syncService";
 import { logger } from "../utils/logger";
@@ -68,25 +60,54 @@ import {
   SPECIAL_PLAYER_IDS,
   SHOT_QUALITY,
 } from "../constants/stats";
-import { type PlayerAggregates, getPlayerDisplayName } from "../utils/stats";
 import { formatClock, formatPlusMinus } from "../utils/mathUtils";
 import { MoleskineCard } from "../components/SharedUI";
 
 // Extracted modules
 import { detectShotValueFromCoords } from "../utils/courtUtils";
-import { pulse } from "../styles/animations";
+import { getPlayerDisplayName } from "../utils/stats";
 import { EditClockDialog } from "../components/EditClockDialog";
 import { Scoreboard } from "../components/Scoreboard";
 import { TeamStatsCard } from "../components/TeamStatsCard";
 import { ActionControls } from "../components/ActionControls";
 import { useGameMode } from "../hooks/useGameMode";
-import { QuickAction, LineupPlayerButton } from "./GameMode/GameModeComponents";
+import { QuickAction } from "./GameMode/GameModeComponents";
+import { LineupSection } from "./GameMode/LineupSection";
+import { StatsTableSection } from "./GameMode/StatsTableSection";
 
 /**
  * GameMode page component.
  * Manages the state for live game tracking, including selections,
  * dialogs for recording actions, and real-time score calculation.
  */
+const ACTION_LIST = [
+  { type: ACTION_TYPES.MAKE, label: "Make", icon: Check },
+  { type: ACTION_TYPES.MISS, label: "Miss", icon: Close },
+  {
+    type: ACTION_TYPES.OFF_REBOUND,
+    label: "Off Reb",
+    icon: SportsBasketball,
+  },
+  {
+    type: ACTION_TYPES.DEF_REBOUND,
+    label: "Def Reb",
+    icon: SportsBasketball,
+  },
+  { type: ACTION_TYPES.ASSIST, label: "Assist", icon: PanTool },
+  {
+    type: ACTION_TYPES.TURNOVER,
+    label: "Turnover",
+    icon: SwapHoriz,
+  },
+  { type: ACTION_TYPES.STEAL, label: "Steal", icon: FlashOn },
+  { type: ACTION_TYPES.BLOCK, label: "Block", icon: ArrowBack },
+  {
+    type: ACTION_TYPES.FOUL_SHOOTING,
+    label: "S. Foul",
+    icon: Warning,
+  },
+];
+
 const GameMode: React.FC = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -993,283 +1014,29 @@ const GameMode: React.FC = () => {
 
             {trackingMode === "TEAM" ? (
               <>
-                <MoleskineCard>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      mb: 1.5,
-                      p: 1.5,
-                      borderRadius: 2,
-                      bgcolor: "rgba(255,255,255,0.04)",
-                      border: "1px solid rgba(255,255,255,0.08)",
-                    }}
-                  >
-                    <Box>
-                      <Typography
-                        variant="subtitle2"
-                        sx={{
-                          fontWeight: 800,
-                          fontSize: "0.7rem",
-                          textTransform: "uppercase",
-                          letterSpacing: 1,
-                          color: "primary.main",
-                        }}
-                      >
-                        Live Lineup
-                      </Typography>
-                      <Typography
-                        variant="caption"
-                        sx={{
-                          fontSize: "0.65rem",
-                          fontWeight: 600,
-                          fontFamily: "'Courier New', monospace",
-                          opacity: 0.9,
-                        }}
-                      >
-                        STINT:{" "}
-                        {formatClock(gameData.currentLineupStintDuration)}
-                      </Typography>
-                    </Box>
-                    <Box sx={{ textAlign: "right" }}>
-                      <Typography
-                        variant="h6"
-                        data-testid="lineup-plus-minus"
-                        sx={{
-                          fontWeight: 900,
-                          color:
-                            gameData.currentLineupPlusMinus >= 0
-                              ? "success.main"
-                              : "error.main",
-                          lineHeight: 1,
-                          fontSize: "1.2rem",
-                        }}
-                      >
-                        {formatPlusMinus(gameData.currentLineupPlusMinus)}
-                      </Typography>
-                      <Typography
-                        variant="caption"
-                        sx={{
-                          fontSize: "0.55rem",
-                          fontWeight: 800,
-                          textTransform: "uppercase",
-                          opacity: 0.6,
-                        }}
-                      >
-                        Net Impact
-                      </Typography>
-                    </Box>
-                  </Box>
-                  <Box
-                    sx={{
-                      display: "grid",
-                      gridTemplateColumns: "1fr",
-                      gap: 1,
-                    }}
-                  >
-                    {players
-                      .filter((p) => gameData.onCourtIds.has(p.id!))
-                      .map((p) => (
-                        <LineupPlayerButton
-                          key={p.id}
-                          player={p}
-                          stats={statsMap.get(p.id!)}
-                          jerseyNumber={jerseyMap.get(p.id!) || ""}
-                          isReadOnly={isReadOnly}
-                          period={period}
-                          game={game}
-                          team={team}
-                          stintSecs={gameData.stintDurations.get(p.id!) || 0}
-                          periodFouls={
-                            gameData.onCourtPeriodFouls.get(p.id!) || 0
-                          }
-                          streak={playerStreaks.get(p.id!)}
-                          onClick={handleLineupPlayerClick}
-                        />
-                      ))}
-                    {Array.from({
-                      length: Math.max(0, 5 - gameData.onCourtIds.size),
-                    }).map((_, i) => {
-                      const emptyId = `EMPTY-${i}`;
-                      return (
-                        <Button
-                          key={emptyId}
-                          variant="outlined"
-                          disabled={isReadOnly}
-                          aria-label={`Empty lineup slot ${i + 1}, click to assign player`}
-                          onClick={() => {
-                            setSubOutPlayerId(emptyId);
-                            setIsSubDialogOpen(true);
-                          }}
-                          fullWidth
-                          sx={{
-                            justifyContent: "flex-start",
-                            borderStyle: "dashed",
-                            color: "text.secondary",
-                            px: 1,
-                          }}
-                        >
-                          <Avatar
-                            sx={{
-                              width: 20,
-                              height: 20,
-                              fontSize: "0.65rem",
-                              mr: 1,
-                              bgcolor: "transparent",
-                              border: "1px dashed #ccc",
-                              color: "text.secondary",
-                            }}
-                          >
-                            +
-                          </Avatar>
-                          <Typography variant="caption">Empty Slot</Typography>
-                        </Button>
-                      );
-                    })}
-                  </Box>
-                </MoleskineCard>
-
-                {chainPrompt && (
-                  <MoleskineCard
-                    sx={{
-                      bgcolor: "primary.light",
-                      color: "primary.contrastText",
-                      animation: `${pulse} 2s infinite ease-in-out`,
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        mb: 1.5,
-                      }}
-                    >
-                      <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
-                        WHO GOT THE {chainPrompt.type}?
-                      </Typography>
-                      <IconButton
-                        size="small"
-                        onClick={() => setChainPrompt(null)}
-                        sx={{ color: "white" }}
-                      >
-                        <History fontSize="small" />
-                      </IconButton>
-                    </Box>
-                    <Box
-                      sx={{
-                        display: "grid",
-                        gridTemplateColumns: "repeat(3, 1fr)",
-                        gap: 1,
-                      }}
-                    >
-                      {players
-                        .filter((p) => gameData.onCourtIds.has(p.id!))
-                        .map((p) => (
-                          <Button
-                            key={p.id}
-                            variant="contained"
-                            size="small"
-                            onClick={() =>
-                              handleChainAction(p.id!, chainPrompt.type)
-                            }
-                            sx={{
-                              bgcolor: "white",
-                              color: "primary.main",
-                              fontWeight: 800,
-                              fontSize: "0.7rem",
-                              "&:hover": { bgcolor: "rgba(255,255,255,0.9)" },
-                            }}
-                          >
-                            #{jerseyMap.get(p.id!)}
-                          </Button>
-                        ))}
-                    </Box>
-                  </MoleskineCard>
-                )}
-
-                <MoleskineCard>
-                  <Typography
-                    variant="subtitle2"
-                    sx={{ fontWeight: 600, mb: 2 }}
-                  >
-                    Player Performance
-                  </Typography>
-                  <TableContainer>
-                    <Table size="small">
-                      <TableHead>
-                        <TableRow>
-                          {[
-                            { label: "#", key: "jerseyNumber" },
-                            { label: "NAME", key: "name" },
-                            { label: "MIN", key: "min" },
-                            { label: "PTS", key: "points" },
-                            { label: "REB", key: "rebounds" },
-                            { label: "AST", key: "assists" },
-                            { label: "PF", key: "fouls" },
-                            { label: "+/-", key: "plusMinus" },
-                          ].map((head) => (
-                            <TableCell
-                              key={head.key}
-                              sx={{
-                                fontSize: "0.65rem",
-                                fontWeight: 800,
-                                px: 0.5,
-                              }}
-                            >
-                              <TableSortLabel
-                                active={sortConfig.key === head.key}
-                                direction={
-                                  sortConfig.key === head.key
-                                    ? sortConfig.direction
-                                    : "asc"
-                                }
-                                onClick={() =>
-                                  setSortConfig({
-                                    key: head.key as keyof PlayerAggregates,
-                                    direction:
-                                      sortConfig.key === head.key &&
-                                      sortConfig.direction === "asc"
-                                        ? "desc"
-                                        : "asc",
-                                  })
-                                }
-                              >
-                                {head.label}
-                              </TableSortLabel>
-                            </TableCell>
-                          ))}
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {sortedStatsGridData.map((row) => (
-                          <PlayerStatRow
-                            key={row.id}
-                            jerseyNumber={row.jerseyNumber?.toString() ?? ""}
-                            name={row.name}
-                            min={row.min}
-                            points={row.points}
-                            threePM={row.threePM}
-                            threePA={row.threePA}
-                            threePPct={row.threePPct}
-                            ftm={row.ftm}
-                            fta={row.fta}
-                            ftPct={row.ftPct}
-                            rebounds={row.rebounds}
-                            assists={row.assists}
-                            steals={row.steals}
-                            blocks={row.blocks}
-                            turnovers={row.turnovers}
-                            fouls={row.fouls}
-                            plusMinus={row.plusMinus}
-                            streak={playerStreaks.get(row.id.toString())}
-                          />
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                </MoleskineCard>
+                <LineupSection
+                  gameData={gameData}
+                  players={players}
+                  statsMap={statsMap}
+                  jerseyMap={jerseyMap}
+                  isReadOnly={isReadOnly}
+                  period={period}
+                  game={game}
+                  team={team}
+                  playerStreaks={playerStreaks}
+                  handleLineupPlayerClick={handleLineupPlayerClick}
+                  setSubOutPlayerId={setSubOutPlayerId}
+                  setIsSubDialogOpen={setIsSubDialogOpen}
+                  chainPrompt={chainPrompt}
+                  setChainPrompt={setChainPrompt}
+                  handleChainAction={handleChainAction}
+                />
+                <StatsTableSection
+                  sortedStatsGridData={sortedStatsGridData}
+                  sortConfig={sortConfig}
+                  setSortConfig={setSortConfig}
+                  playerStreaks={playerStreaks}
+                />
               </>
             ) : (
               <MoleskineCard
@@ -1623,33 +1390,7 @@ const GameMode: React.FC = () => {
               mb: 3,
             }}
           >
-            {[
-              { type: ACTION_TYPES.MAKE, label: "Make", icon: Check },
-              { type: ACTION_TYPES.MISS, label: "Miss", icon: Close },
-              {
-                type: ACTION_TYPES.OFF_REBOUND,
-                label: "Off Reb",
-                icon: SportsBasketball,
-              },
-              {
-                type: ACTION_TYPES.DEF_REBOUND,
-                label: "Def Reb",
-                icon: SportsBasketball,
-              },
-              { type: ACTION_TYPES.ASSIST, label: "Assist", icon: PanTool },
-              {
-                type: ACTION_TYPES.TURNOVER,
-                label: "Turnover",
-                icon: SwapHoriz,
-              },
-              { type: ACTION_TYPES.STEAL, label: "Steal", icon: FlashOn },
-              { type: ACTION_TYPES.BLOCK, label: "Block", icon: ArrowBack },
-              {
-                type: ACTION_TYPES.FOUL_SHOOTING,
-                label: "S. Foul",
-                icon: Warning,
-              },
-            ].map((action) => (
+            {ACTION_LIST.map((action) => (
               <QuickAction
                 key={action.type}
                 type={action.type}

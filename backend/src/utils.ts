@@ -301,11 +301,16 @@ export function stripLocalFields(data: unknown, depth = 0): unknown {
   }
 
   // ⚡ Bolt: Use Object.entries() for faster object iteration in modern engines.
-  const result: Record<string, unknown> = {};
   const entries = Object.entries(data as Record<string, unknown>);
+
+  // ⚡ Bolt: Fast-path for empty objects.
+  if (entries.length === 0) return data;
+
+  const result: Record<string, unknown> = {};
   for (let i = 0; i < entries.length; i++) {
     const [key, value] = entries[i];
-    if (!INTERNAL_KEYS.has(key) && !FORBIDDEN_KEYS.has(key)) {
+    // Consolidate security and internal key checks for speed.
+    if (!FORBIDDEN_KEYS.has(key) && !INTERNAL_KEYS.has(key)) {
       result[key] = stripLocalFields(value, depth + 1);
     }
   }

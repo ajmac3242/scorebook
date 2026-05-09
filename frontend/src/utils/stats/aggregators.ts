@@ -85,6 +85,12 @@ export const calculatePpp = (points: number, possessions: number): string => {
   return (points / possessions).toFixed(2);
 };
 
+/**
+ * Calculates estimated possessions for a team or player.
+ * WHY: Uses the standard basketball analytics formula: FGA + 0.44 * FTA + TO - OREB.
+ * The 0.44 coefficient accounts for free throws that end a possession (and-ones, technicals, etc.)
+ * vs those that don't, providing a more accurate denominator for efficiency metrics like PPP.
+ */
 export const calculatePossessions = (
   fga: number,
   fta: number,
@@ -97,12 +103,22 @@ export const calculatePossessions = (
 export const calculateFtPct = (makes: number, attempts: number): string =>
   calcPct(makes, attempts);
 
+/**
+ * Calculates Effective Field Goal Percentage (eFG%).
+ * WHY: This metric adjusts for the fact that three-point shots are worth more than two-point shots.
+ * It provides a more accurate representation of scoring efficiency than traditional FG%.
+ */
 export const calculateEfgPct = (
   makes: number,
   threePM: number,
   attempts: number,
 ): string => calcPct(makes + 0.5 * threePM, attempts);
 
+/**
+ * Calculates True Shooting Percentage (TS%).
+ * WHY: TS% is a comprehensive measure of shooting efficiency that accounts for field goals,
+ * 3-pointers, and free throws. It measures how efficiently a player uses their scoring attempts.
+ */
 export const calculateTsPct = (
   points: number,
   attempts: number,

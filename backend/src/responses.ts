@@ -47,6 +47,9 @@ export function sanitizeOutput(data: unknown, depth = 0): unknown {
   }
 
   if (Array.isArray(data)) {
+    // ⚡ Bolt: Fast-path for empty arrays.
+    if (data.length === 0) return data;
+
     // Optimization: Pre-allocate array if size is known.
     const len = data.length;
     const result = new Array(len);
@@ -57,8 +60,12 @@ export function sanitizeOutput(data: unknown, depth = 0): unknown {
   }
 
   // ⚡ Bolt: Use Object.entries() for faster object iteration in modern engines.
-  const sanitized: Record<string, unknown> = {};
   const entries = Object.entries(data as Record<string, unknown>);
+
+  // ⚡ Bolt: Fast-path for empty objects.
+  if (entries.length === 0) return data;
+
+  const sanitized: Record<string, unknown> = {};
   for (let i = 0; i < entries.length; i++) {
     const [key, value] = entries[i];
     if (key === "id" || !INTERNAL_KEYS.has(key)) {
