@@ -127,20 +127,5 @@
 - [ ] Visual indicator of "Tempo Delta" (Difference between our target pace and current game pace).
 - [ ] "Pace Shift" notification when the game tempo changes by more than 15% in a single period.
 
-## [x] Ref-Identity Conflict Alert System
+## [ ] [Ref-Identity Conflict Alert System]
 **Priority:** HIGH
-**Type:** Enhancement
-**Why:** If a team's identity is "High Pressure" but the officiating "Tightness" is high, they will foul out. Proactive alerts allow the coach to adjust aggressiveness before the game is lost.
-**Status:** [x] COMPLETE (2026-05-26)
-
-## [x] Opponent "Go-To" Usage Analytics (Clutch)
-**Priority:** HIGH
-**Type:** Feature
-**Why:** In "Winning Time," every team has a primary option. Identifying this player's usage rate and preferred shot type in the clutch allows for specialized defensive counters.
-**Status:** [x] COMPLETE (2026-05-26)
-
-## [x] "Defensive Scheme" Real-Time Analyzer
-**Priority:** HIGH
-**Type:** Feature
-**Why:** Coaches need to know which defensive set is most effective now. PPP allowed by scheme is the ultimate truth for mid-game adjustments.
-**Status:** [x] COMPLETE (2026-05-26)

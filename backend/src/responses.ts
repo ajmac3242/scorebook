@@ -58,7 +58,9 @@ export function sanitizeOutput(data: unknown, depth = 0): unknown {
 
   // ⚡ Bolt: Use Object.entries() for faster object iteration in modern engines.
   const sanitized: Record<string, unknown> = {};
-  for (const [key, value] of Object.entries(data as Record<string, unknown>)) {
+  const entries = Object.entries(data as Record<string, unknown>);
+  for (let i = 0; i < entries.length; i++) {
+    const [key, value] = entries[i];
     if (key === "id" || !INTERNAL_KEYS.has(key)) {
       sanitized[key] = sanitizeOutput(value, depth + 1);
     }

@@ -10,11 +10,11 @@
 
 | Entity | PK | SK | Attributes |
 | --- | --- | --- | --- |
-| **Team** | `TEAM#<TeamId>` | `METADATA#<TeamId>` | Name, SeasonId, tacticalGoals?, deletedAt? |
+| **Team** | `TEAM#<TeamId>` | `METADATA#<TeamId>` | Name, SeasonId, deletedAt? |
 | **Player** | `PLAYER#<PlayerId>` | `METADATA#<PlayerId>` | Name, DefaultNumber, isStar (0/1), isArchived (0/1), deletedAt? |
 | **TeamPlayer** | `TEAM#<TeamId>` | `PLAYER#<PlayerId>` | JerseyNumber (1-3 digits), deletedAt? |
 | **Game** | `GAME#<GameId>` | `METADATA#<GameId>` | TeamId, Opponent, Date, Location, completed (0/1), deletedAt? |
-| **StatEvent** | `GAME#<GameId>` | `STAT#<Timestamp>#<StatId>` | PlayerId, Type, Points, LocationX, LocationY, timestamp, situation?, shotClockPhase?, primaryDefenderId?, defensiveScheme?, opponentPlayType? |
+| **StatEvent** | `GAME#<GameId>` | `STAT#<Timestamp>#<StatId>` | PlayerId, Type, Points, LocationX, LocationY, timestamp, situation?, shotClockPhase?, primaryDefenderId? |
 
 ### Global Secondary Indexes (GSI)
 
@@ -166,17 +166,13 @@ All write endpoints (`POST`, `PUT`, `PATCH`) require `Content-Type: application/
   "locationY": 25.0,
   "situation": "ATO",
   "shotClockPhase": "MID",
-  "primaryDefenderId": "defender-uuid",
-  "defensiveScheme": "MAN",
-  "opponentPlayType": "PnR"
+  "primaryDefenderId": "defender-uuid"
 }
 ```
 - **Response**: `201 Created`
 
 #### Stat Event Field Definitions
 
-- **Type**: The action performed.
-  - Valid values: `MAKE`, `MISS`, `REBOUND`, `OFF_REBOUND`, `DEF_REBOUND`, `ASSIST`, `STEAL`, `TURNOVER`, `BLOCK`, `FOUL`, `FOUL_SHOOTING`, `FOUL_NON_SHOOTING`, `TIMEOUT`, `SUB_IN`, `SUB_OUT`, `POSSESSION`, `TECHNICAL_FOUL`.
 - **situation**: Tactical context of the possession.
   - `ATO`: After Time Out
   - `SLOB`: Sideline Out of Bounds
@@ -187,10 +183,6 @@ All write endpoints (`POST`, `PUT`, `PATCH`) require `Content-Type: application/
   - `MID`: Middle of the clock
   - `LATE`: Final 5 seconds of the clock
 - **primaryDefenderId**: The ID of the opponent player primarily responsible for defending the action (used in Matchup Tracking).
-- **defensiveScheme**: The active defensive strategy.
-  - Valid values: `MAN`, `ZONE`, `PRESS`, `DOUBLE`.
-- **opponentPlayType**: The tactical archetype of the opponent's possession.
-  - Valid values: `PnR`, `ISO`, `POST`, `TRANSITION`, `OFF_SCREEN`.
 
 ### Administration
 

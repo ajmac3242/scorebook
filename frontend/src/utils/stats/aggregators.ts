@@ -44,7 +44,8 @@ export const sortStats = (stats: StatEvent[]): StatEvent[] => {
 };
 
 export const isOpponentId = (playerId: string): boolean =>
-  playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT);
+  playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
+  playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":");
 
 export const isActive = (stat: StatEvent): boolean => !stat.deletedAt;
 
@@ -70,8 +71,9 @@ export const isFieldGoal = (stat: StatEvent): boolean =>
   (stat.type === ACTION_TYPES.MAKE || stat.type === ACTION_TYPES.MISS) &&
   !isFreeThrow(stat);
 
-export const calcPct = (numerator: number, denominator: number): string => {
-  if (denominator <= 0 || numerator <= 0) return "0.0";
+const calcPct = (numerator: number, denominator: number): string => {
+  if (denominator <= 0) return "0.0";
+  if (numerator <= 0) return "0.0";
   return formatToOne((numerator / denominator) * 100);
 };
 
@@ -220,11 +222,15 @@ export const applyActionToAggregate = (agg: BaseStats, stat: StatEvent) => {
       }
       break;
     case ACTION_TYPES.REBOUND:
-    case ACTION_TYPES.OFF_REBOUND:
-    case ACTION_TYPES.DEF_REBOUND:
       agg.rebounds++;
-      if (stat.type === ACTION_TYPES.OFF_REBOUND) agg.offRebounds++;
-      if (stat.type === ACTION_TYPES.DEF_REBOUND) agg.defRebounds++;
+      break;
+    case ACTION_TYPES.OFF_REBOUND:
+      agg.offRebounds++;
+      agg.rebounds++;
+      break;
+    case ACTION_TYPES.DEF_REBOUND:
+      agg.defRebounds++;
+      agg.rebounds++;
       break;
     case ACTION_TYPES.BLOCK:
       agg.blocks++;
@@ -439,6 +445,11 @@ export const calculateTeamAggregates = (
     opp.oreb,
   );
 
+  const teamOrebPct =
+    team.oreb + opp.dreb > 0
+      ? ((team.oreb / (team.oreb + opp.dreb)) * 100).toFixed(1)
+      : "0.0";
+
   return {
     ppg: formatToOne(team.pts / gp),
     rpg: formatToOne(team.reb / gp),
@@ -450,8 +461,11 @@ export const calculateTeamAggregates = (
     possessions: Math.round(totalPossessions),
     oppPpp: calculatePpp(opp.pts, totalOppPossessions),
     ftPct: calculateFtPct(team.ftm, team.fta),
-    turnoverRate: calcPct(team.to, totalPossessions),
-    orebPct: calcPct(team.oreb, team.oreb + opp.dreb),
+    turnoverRate:
+      totalPossessions > 0
+        ? ((team.to / totalPossessions) * 100).toFixed(1)
+        : "0.0",
+    orebPct: teamOrebPct,
   };
 };
 
@@ -524,11 +538,11 @@ export const isEventInPeriod = (
   periodType: string,
 ): boolean => {
   if (periodType === "QUARTERS") {
-    if (currentPeriod === 4) return eventPeriod >= 4;
-    return eventPeriod === currentPeriod;
+    return currentPeriod === 4
+      ? eventPeriod >= 4
+      : eventPeriod === currentPeriod;
   }
 
   // For non-quarters (halves), any period >= 2 is part of the second half (including OT)
-  if (currentPeriod === 1) return eventPeriod === 1;
-  return eventPeriod >= 2;
+  return currentPeriod === 1 ? eventPeriod === 1 : eventPeriod >= 2;
 };

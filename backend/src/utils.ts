@@ -6,6 +6,11 @@
 import { APIGatewayProxyEventV2 } from "aws-lambda";
 import crypto from "node:crypto";
 import { INTERNAL_KEYS } from "./responses.js";
+/**
+ * Pre-compiled regex for path normalization.
+ */
+const PATH_PREFIX_REGEX = /^\/(\$default|api)/;
+const TRAILING_SLASH_REGEX = /\/+$/;
 
 /**
  * Set of headers that should be redacted from logs for security.
@@ -22,23 +27,10 @@ export const REDACTED_HEADERS = Object.freeze(
     "session-id",
     "api-key",
     "secret",
-/**
- * Pre-compiled regex for path normalization.
- */
-const PATH_PREFIX_REGEX = /^\/(\$default|api)/;
-const TRAILING_SLASH_REGEX = /\/+$/;
     "password",
     "token",
   ]),
 );
-
-/**
- * Checks if a given key is considered sensitive and should be redacted.
- * @param key - The key to check.
- * @returns True if the key is sensitive.
- */
-export const isSensitiveKey = (key: string): boolean =>
-  REDACTED_HEADERS.has(key.toLowerCase());
 
 /**
  * Redacts sensitive fields from an object before logging.
@@ -62,7 +54,7 @@ function sanitizeForLog(obj: unknown, depth = 0): unknown {
 
   const sanitized: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(obj as Record<string, unknown>)) {
-    if (isSensitiveKey(key)) {
+    if (REDACTED_HEADERS.has(key.toLowerCase())) {
       sanitized[key] = "[REDACTED]";
     } else {
       sanitized[key] = sanitizeForLog(value, depth + 1);
@@ -136,7 +128,7 @@ function redactMap(
   if (!map) return undefined;
   const redacted = { ...map };
   for (const key in redacted) {
-    if (redactAll || isSensitiveKey(key)) {
+    if (redactAll || REDACTED_HEADERS.has(key.toLowerCase())) {
       const val = redacted[key];
       redacted[key] = Array.isArray(val)
         ? val.map(() => "[REDACTED]")
@@ -225,11 +217,10 @@ export function normalizePath(event: APIGatewayProxyEventV2): string {
  * @returns {{method: string, path: string}} Normalized metadata.
  */
 export function extractRequestMetadata(event: APIGatewayProxyEventV2) {
-  const anyEvent = event as unknown as Record<string, unknown>;
   const method =
     event.requestContext?.http?.method ||
-    anyEvent.method ||
-    anyEvent.httpMethod ||
+    (event as unknown as Record<string, unknown>).method ||
+    (event as unknown as Record<string, unknown>).httpMethod ||
     "GET";
   return { method: method as string, path: normalizePath(event) };
 }
@@ -271,7 +262,8 @@ export function getHeader(
 ): string | undefined {
   if (!headers) return undefined;
   const target = name.toLowerCase();
-  return Object.entries(headers).find(([k]) => k.toLowerCase() === target)?.[1];
+  const key = Object.keys(headers).find((k) => k.toLowerCase() === target);
+  return key ? headers[key] : undefined;
 }
 
 /**

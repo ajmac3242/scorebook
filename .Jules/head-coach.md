@@ -69,7 +69,6 @@ Observation: The platform has achieved "Scorebook Maturity" but still treats eve
 Impact: Coaches are still forced to perform too much mental synthesis during high-pressure game situations. They may observe a high foul count but fail to correlate it with the referee's live "Tightness" vs. their own defensive scheme in real-time. Similarly, whileassist totals are tracked, the "Causal Map" of who creates the best shots for whom remains invisible.
 
 Recommendation: Focus the next development cycle on **Causal Analytics** and **Environmental Awareness**. Prioritize the Ref-Identity Conflict Alert System to provide proactive risk management, and implement Lineup "Offensive Chemistry" Connectivity Maps to reveal the true playmakers. Finally, the "Ghost Archive" features must be fully implemented to complete the transition to a true Tactical Operating System.
-
 ## 2026-05-23 - Strategic Focus: Operational Intelligence & Decision Support
 
 Observation: The platform has matured from a data entry system to a robust analytical engine. However, the most critical gap is "Decision Lag"—the time between a tactical failure occurring on the court and the coach receiving actionable data to fix it. We are currently displaying stats, but we aren't yet prescribing solutions in real-time.
@@ -93,11 +92,3 @@ Observation: A deep audit of the codebase vs. the archived backlog revealed that
 Impact: Coaches are forced to perform manual mental synthesis for defensive accountability and lineup value. Without these "Causal" features, the app remains a high-end scorebook rather than a true tactical operating system.
 
 Recommendation: Immediately prioritize the implementation of the "Ghost Archive" features—Defensive Matchup Tracking and On/Off Analytics. Simultaneously, introduce "Shot Clock Process Analysis" to begin tracking offensive discipline. This pivot moves the platform from tracking *results* to tracking *causal factors* and providing proactive *decision support*.
-
-## 2026-05-25 - Strategic Focus: Predictive Intelligence & Causal Accountability
-
-Observation: The application has achieved high fidelity in recording *what* happened (events) and *when* it happened (momentum). However, we are still lagging in the *predictive* and *causal* domains. We capture fatigue as a binary "Time to Sub" alert, but we don't yet model the efficiency decay that leads to tactical failures. Similarly, we track opponent scoring, but we don't automatically identify the *archetype* of their offense to suggest counter-schemes.
-
-Impact: Coaches are still forced to perform high-stress mental synthesis during "Winning Time." Without automated KPI tracking against pre-game goals, the team's identity can drift during high-intensity periods. The disconnect between per-game stats and season-wide "Success DNA" means coaches may be prioritizing the wrong metrics in practice.
-
-Recommendation: Pivot the strategic roadmap toward **Automated Decision Support**. Priority must be given to the Live Tactical KPI HUD to ensure identity discipline and the "Winning Time" Decision Support HUD to optimize high-leverage outcomes. We must also implement the "Success DNA" Correlation Engine to identify the true drivers of victory for the program. This moves the platform from a "Digitized Scorebook" to a "Tactical Operating System."

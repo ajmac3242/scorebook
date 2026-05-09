@@ -10,11 +10,7 @@ import {
   Typography,
   IconButton,
 } from "@mui/material";
-import {
-  Add as AddIcon,
-  Remove as RemoveIcon,
-  Restore as RestoreIcon,
-} from "@mui/icons-material";
+import { Add as AddIcon, Remove as RemoveIcon } from "@mui/icons-material";
 
 /**
  * 🏀 CoachBoard: EditClockDialog
@@ -112,39 +108,6 @@ export const EditClockDialog: React.FC<{
             </Stack>
           </Box>
         </Stack>
-
-        <Box sx={{ mt: 2, textAlign: "center" }}>
-          <Typography
-            variant="caption"
-            sx={{ fontWeight: 700, mb: 1, display: "block" }}
-          >
-            QUICK RESET
-          </Typography>
-          <Stack direction="row" spacing={1} justifyContent="center">
-            <Button
-              size="small"
-              variant="outlined"
-              startIcon={<RestoreIcon />}
-              onClick={() => {
-                setMins(10);
-                setSecs(0);
-              }}
-            >
-              10:00
-            </Button>
-            <Button
-              size="small"
-              variant="outlined"
-              startIcon={<RestoreIcon />}
-              onClick={() => {
-                setMins(20);
-                setSecs(0);
-              }}
-            >
-              20:00
-            </Button>
-          </Stack>
-        </Box>
       </DialogContent>
       <DialogActions sx={{ p: 2 }}>
         <Button onClick={onClose} color="inherit">

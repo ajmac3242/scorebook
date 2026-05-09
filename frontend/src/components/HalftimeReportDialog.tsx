@@ -13,12 +13,10 @@ import {
   Divider,
   Chip,
 } from "@mui/material";
-import { StatEvent } from "../db";
 import {
   LineupAggregates,
   OpponentThreat,
   generateHalftimeTalkingPoints,
-  calculateTacticalGoalStatus,
 } from "../utils/stats";
 import {
   Assignment as AssignmentIcon,
@@ -35,12 +33,6 @@ interface HalftimeReportDialogProps {
   bottomLineups: LineupAggregates[];
   opponentThreats: OpponentThreat[];
   jerseyMap: Map<string, string | undefined>;
-  tacticalGoals?: {
-    metric: string;
-    threshold: number;
-    direction: "above" | "below";
-  }[];
-  allStats: StatEvent[];
 }
 
 const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
@@ -53,17 +45,7 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
   bottomLineups,
   opponentThreats,
   jerseyMap,
-  tacticalGoals,
-  allStats,
 }) => {
-  const goalStatus = React.useMemo(() => {
-    if (!tacticalGoals) return [];
-    return calculateTacticalGoalStatus({
-      stats: allStats,
-      goals: tacticalGoals,
-    });
-  }, [allStats, tacticalGoals]);
-
   const talkingPoints = React.useMemo(
     () =>
       generateHalftimeTalkingPoints({
@@ -95,53 +77,6 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
         Halftime Tactical Report
       </DialogTitle>
       <DialogContent>
-        {goalStatus.length > 0 && (
-          <Box sx={{ mb: 3 }}>
-            <Typography
-              variant="subtitle2"
-              sx={{ fontWeight: 800, color: "secondary.main", mb: 1.5 }}
-            >
-              IDENTITY DISCIPLINE (TACTICAL GOALS)
-            </Typography>
-            <Grid container spacing={1}>
-              {goalStatus.map((goal, idx) => (
-                <Grid item xs={6} sm={4} key={idx}>
-                  <Box
-                    sx={{
-                      p: 1,
-                      textAlign: "center",
-                      borderRadius: 1,
-                      bgcolor: goal.isMet ? "success.light" : "error.light",
-                      color: "white",
-                    }}
-                  >
-                    <Typography
-                      variant="caption"
-                      sx={{ fontWeight: 800, display: "block" }}
-                    >
-                      {goal.metric}
-                    </Typography>
-                    <Typography
-                      variant="h6"
-                      sx={{ fontWeight: 900, lineHeight: 1 }}
-                    >
-                      {goal.currentValue}
-                      {goal.metric.includes("%") ? "%" : ""}
-                    </Typography>
-                    <Typography
-                      variant="caption"
-                      sx={{ fontSize: "0.55rem", opacity: 0.8 }}
-                    >
-                      Target: {goal.direction === "above" ? ">" : "<"}{" "}
-                      {goal.threshold}
-                    </Typography>
-                  </Box>
-                </Grid>
-              ))}
-            </Grid>
-          </Box>
-        )}
-
         <Box sx={{ mb: 3 }}>
           <Box
             sx={{
