@@ -106,11 +106,12 @@ export interface OpponentThreat {
   consecutiveMakes: number;
   straightPoints: number;
   isHot: boolean;
+  isClutchThreat?: boolean;
 }
 
 export interface HaltAlert {
   id: string;
-  type: "FOUL" | "BONUS" | "FATIGUE" | "CLUTCH";
+  type: "FOUL" | "BONUS" | "FATIGUE" | "CLUTCH" | "REF_CONFLICT";
   severity: "warning" | "error" | "info";
   message: string;
   playerId?: string;
@@ -135,11 +136,13 @@ export interface GameAnalyticsContext {
   onCourtIds: Set<string>;
   teamFoulStats: {
     oppFouls: number;
+    teamFouls: number;
     [key: string]: string | number | boolean | undefined;
   };
   stintDurations: Map<string, number>;
   currentScore: number;
   opponentScore: number;
+  activeDefensiveScheme?: string;
 }
 
 export interface LineupAggregates {

@@ -105,6 +105,20 @@ export const VALID_SHOT_CLOCK_PHASES = Object.freeze(
 );
 
 /**
+ * Valid defensive schemes.
+ */
+export const VALID_DEFENSIVE_SCHEMES = Object.freeze(
+  new Set(["MAN", "ZONE", "PRESS", "DOUBLE"]),
+);
+
+/**
+ * Valid opponent play types.
+ */
+export const VALID_OPPONENT_PLAY_TYPES = Object.freeze(
+  new Set(["PnR", "ISO", "POST", "TRANSITION", "OFF_SCREEN"]),
+);
+
+/**
  * Validates a stat event body.
  * @param body - The stat event data to validate.
  * @returns {string | null} Error message or null if valid.
@@ -187,6 +201,20 @@ export function validateStatEvent(body: unknown): string | null {
     !isValidPlayerId(b.primaryDefenderId)
   ) {
     return "Invalid primary defender ID";
+  }
+  if (
+    b.defensiveScheme !== undefined &&
+    (typeof b.defensiveScheme !== "string" ||
+      !VALID_DEFENSIVE_SCHEMES.has(b.defensiveScheme))
+  ) {
+    return "Invalid defensive scheme";
+  }
+  if (
+    b.opponentPlayType !== undefined &&
+    (typeof b.opponentPlayType !== "string" ||
+      !VALID_OPPONENT_PLAY_TYPES.has(b.opponentPlayType))
+  ) {
+    return "Invalid opponent play type";
   }
   return null;
 }

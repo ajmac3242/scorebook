@@ -5,7 +5,7 @@
 
 import { ACTION_TYPES } from "../../constants/stats";
 import { StatEvent, Player } from "../../db";
-import { formatClock } from "../mathUtils";
+import { formatClock, calculateElapsedMinutes } from "../mathUtils";
 import {
   isActive,
   isOpponentId,
@@ -160,6 +160,12 @@ export const calculatePlayEfficiency = (
 
 export const calculateOpponentThreats = (
   stats: StatEvent[],
+  params?: {
+    period: number;
+    clockTime: number;
+    scoreDiff: number;
+    periodType: string;
+  },
 ): OpponentThreat[] => {
   const threats = new Map<string, OpponentThreat>();
   let currentGameId: string | null = null;
@@ -193,6 +199,7 @@ export const calculateOpponentThreats = (
         consecutiveMakes: 0,
         straightPoints: 0,
         isHot: false,
+        isClutchThreat: false,
       });
     }
 
@@ -204,8 +211,22 @@ export const calculateOpponentThreats = (
         t.makes++;
         t.consecutiveMakes++;
       }
+
+      const isClutch = params
+        ? isClutchEvent(
+            params.period,
+            params.clockTime,
+            params.scoreDiff,
+            params.periodType,
+          )
+        : false;
+
       if (t.points >= 8 || t.consecutiveMakes >= 3 || t.straightPoints >= 6) {
         t.isHot = true;
+      }
+
+      if (isClutch && (t.isHot || t.points >= 10)) {
+        t.isClutchThreat = true;
       }
     } else if (s.type === ACTION_TYPES.MISS) {
       if (isFieldGoal(s)) {
@@ -214,7 +235,9 @@ export const calculateOpponentThreats = (
     }
   }
 
-  return Array.from(threats.values()).filter((t) => t.isHot);
+  return Array.from(threats.values()).filter(
+    (t) => t.isHot || t.isClutchThreat,
+  );
 };
 
 export const calculateScoreFlow = (
@@ -299,6 +322,38 @@ export const calculateScoreFlow = (
     }
   }
   return result;
+};
+
+/**
+ * 📊 Basketball Analytics: Ref Tightness
+ * Measured as Fouls Per Minute (FPM) for both teams combined.
+ */
+export const calculateRefTightness = (
+  stats: StatEvent[],
+  period: number,
+  clockSeconds: number,
+  periodType: string = "QUARTERS",
+): number => {
+  const elapsedMinutes = calculateElapsedMinutes(
+    period,
+    clockSeconds,
+    periodType,
+  );
+
+  if (elapsedMinutes <= 1) return 0;
+
+  const fouls = stats.filter(
+    (s) =>
+      !s.deletedAt &&
+      [
+        ACTION_TYPES.FOUL,
+        ACTION_TYPES.FOUL_SHOOTING,
+        ACTION_TYPES.FOUL_NON_SHOOTING,
+        ACTION_TYPES.TECHNICAL_FOUL,
+      ].includes(s.type),
+  ).length;
+
+  return fouls / elapsedMinutes;
 };
 
 export const isClutchEvent = (
@@ -409,6 +464,31 @@ export const calculateHaltAlerts = (params: {
       type: "CLUTCH",
       severity: "error",
       message: "🔥 CLUTCH MODE ACTIVE",
+    });
+  }
+
+  // 5. Ref-Identity Conflict Alert
+  const isHighPressure =
+    gameData.activeDefensiveScheme === "PRESS" ||
+    gameData.activeDefensiveScheme === "DOUBLE";
+
+  const elapsedMinutes = calculateElapsedMinutes(
+    period,
+    clockSeconds,
+    periodType,
+  );
+  const fpm =
+    elapsedMinutes > 1
+      ? (gameData.teamFoulStats.teamFouls + gameData.teamFoulStats.oppFouls) /
+        elapsedMinutes
+      : 0;
+
+  if (isHighPressure && fpm > 0.8) {
+    alerts.push({
+      id: "ref-conflict",
+      type: "REF_CONFLICT",
+      severity: "error",
+      message: "⚠️ REF CONFLICT: Dial Back Pressure",
     });
   }
 

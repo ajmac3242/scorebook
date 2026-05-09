@@ -13,6 +13,7 @@ export const TeamStatsCard = React.memo(
     teamPpp,
     oppPpp,
     livePace,
+    refTightness,
   }: {
     defensiveStats: {
       totalStops: number;
@@ -22,6 +23,7 @@ export const TeamStatsCard = React.memo(
     teamPpp: string;
     oppPpp: string;
     livePace: number;
+    refTightness?: number;
   }) => {
     return (
       <MoleskineCard>
@@ -117,7 +119,7 @@ export const TeamStatsCard = React.memo(
               </Typography>
             </Box>
           </Grid>
-          <Grid item xs={12}>
+          <Grid item xs={6}>
             <Box
               sx={{
                 textAlign: "center",
@@ -133,15 +135,46 @@ export const TeamStatsCard = React.memo(
                 sx={{
                   display: "block",
                   fontWeight: 800,
+                  fontSize: "0.5rem",
                   letterSpacing: 1,
                   mb: 0.5,
                   opacity: 0.9,
                 }}
               >
-                LIVE PACE (POSS/40M)
+                PACE
               </Typography>
-              <Typography variant="h4" sx={{ fontWeight: 900, lineHeight: 1 }}>
+              <Typography variant="h5" sx={{ fontWeight: 900, lineHeight: 1 }}>
                 {livePace.toFixed(1)}
+              </Typography>
+            </Box>
+          </Grid>
+          <Grid item xs={6}>
+            <Box
+              sx={{
+                textAlign: "center",
+                p: 1.5,
+                bgcolor:
+                  (refTightness || 0) > 0.8 ? "error.main" : "secondary.main",
+                color: "white",
+                borderRadius: 2,
+                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
+              }}
+            >
+              <Typography
+                variant="caption"
+                sx={{
+                  display: "block",
+                  fontWeight: 800,
+                  fontSize: "0.5rem",
+                  letterSpacing: 1,
+                  mb: 0.5,
+                  opacity: 0.9,
+                }}
+              >
+                REF TIGHTNESS
+              </Typography>
+              <Typography variant="h5" sx={{ fontWeight: 900, lineHeight: 1 }}>
+                {(refTightness || 0).toFixed(2)}
               </Typography>
             </Box>
           </Grid>

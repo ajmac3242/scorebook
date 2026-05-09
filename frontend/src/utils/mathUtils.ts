@@ -83,3 +83,22 @@ export const getPlusMinusColor = (val: number): string => {
 export const formatPlusMinus = (val: number): string => {
   return val > 0 ? `+${val}` : String(val);
 };
+
+/**
+ * Calculates the total elapsed minutes in a game.
+ * @param {number} period - Current period.
+ * @param {number} clockSeconds - Seconds remaining in the period.
+ * @param {string} periodType - 'QUARTERS' or 'HALVES'.
+ * @returns {number} Total elapsed minutes.
+ */
+export const calculateElapsedMinutes = (
+  period: number,
+  clockSeconds: number,
+  periodType: string = "QUARTERS",
+): number => {
+  const periodLengthMins = periodType === "HALVES" ? 20 : 10;
+  const periodLenSecs = periodLengthMins * 60;
+  const elapsedInCurrent = Math.max(0, periodLenSecs - clockSeconds);
+  const elapsedInPrevious = (period - 1) * periodLenSecs;
+  return (elapsedInPrevious + elapsedInCurrent) / 60;
+};

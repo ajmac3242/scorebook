@@ -88,6 +88,7 @@ export interface Game {
   deletedAt?: string;
   synced?: number;
   matchups?: Record<string, string>; // Opponent Player ID -> Our Player ID
+  activeDefensiveScheme?: "MAN" | "ZONE" | "PRESS" | "DOUBLE";
 }
 
 /**
@@ -108,6 +109,8 @@ export interface StatEvent {
   shotClockPhase?: "EARLY" | "MID" | "LATE";
   primaryDefenderId?: string;
   situation?: string; // 'ATO', 'SLOB', 'BLOB', 'EOP'
+  defensiveScheme?: "MAN" | "ZONE" | "PRESS" | "DOUBLE";
+  opponentPlayType?: "PnR" | "ISO" | "POST" | "TRANSITION" | "OFF_SCREEN";
   timestamp: string;
   deletedAt?: string;
   synced?: number;
@@ -147,7 +150,8 @@ export class AppDatabase extends Dexie {
     // v19:    Added 'name' index to 'opponents' table.
     // v20:    Added 'isStar' to Player schema.
     // v21:    Added 'matchups' to Game and 'primaryDefenderId', 'shotClockPhase' to StatEvent.
-    this.version(21).stores({
+    // v22:    Added 'activeDefensiveScheme' to Game and 'defensiveScheme', 'opponentPlayType' to StatEvent.
+    this.version(22).stores({
       teams: "id, synced, deletedAt, isFavorite",
       players: "id, synced, isArchived, deletedAt",
       teamPlayers: "id, [teamId+playerId], teamId, playerId, synced",
