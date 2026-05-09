@@ -1709,7 +1709,9 @@ const GameStats: React.FC = () => {
                   <Table size="small">
                     <TableHead>
                       <TableRow>
-                        <TableCell sx={{ fontSize: "0.65rem", fontWeight: 800 }}>
+                        <TableCell
+                          sx={{ fontSize: "0.65rem", fontWeight: 800 }}
+                        >
                           REASON
                         </TableCell>
                         <TableCell
@@ -1796,14 +1798,19 @@ const GameStats: React.FC = () => {
             </Grid>
             <Grid item xs={12} md={4}>
               <MoleskineCard>
-                <Typography variant="h6" sx={{ fontFamily: "var(--serif)", mb: 2 }}>
+                <Typography
+                  variant="h6"
+                  sx={{ fontFamily: "var(--serif)", mb: 2 }}
+                >
                   Specialty Execution
                 </Typography>
                 <TableContainer>
                   <Table size="small">
                     <TableHead>
                       <TableRow>
-                        <TableCell sx={{ fontSize: "0.65rem", fontWeight: 800 }}>
+                        <TableCell
+                          sx={{ fontSize: "0.65rem", fontWeight: 800 }}
+                        >
                           SITUATION
                         </TableCell>
                         <TableCell

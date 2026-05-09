@@ -661,8 +661,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
   }, [sortedGameStats, gameData.momentumAlerts.opponentThreats]);
 
   const halftimeStats = useMemo(() => {
-    if (!isHalftimeReportOpen)
-      return { lineupStats: [], schemeEfficiency: [] };
+    if (!isHalftimeReportOpen) return { lineupStats: [], schemeEfficiency: [] };
     const firstHalfStats = sortedGameStats.filter((s) =>
       (team?.periodType || "QUARTERS") === "QUARTERS"
         ? s.period <= 2

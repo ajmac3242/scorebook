@@ -386,10 +386,7 @@ const GameMode: React.FC = () => {
           const savedId = (await db.stats.add(newStat)) as string;
           await syncService.pushUpdates();
 
-          if (
-            trackingMode === "OPPONENT" &&
-            typeToSave === ACTION_TYPES.MAKE
-          ) {
+          if (trackingMode === "OPPONENT" && typeToSave === ACTION_TYPES.MAKE) {
             setLastOpponentStatId(savedId);
             setIsBreakdownDialogOpen(true);
           }

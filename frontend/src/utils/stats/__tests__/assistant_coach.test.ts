@@ -33,12 +33,12 @@ describe("Assistant Coach Analytics", () => {
 
       const result = calculateDefensiveIntegrity(stats as StatEvent[]);
       expect(result).toHaveLength(2);
-      expect(result[0].reason).toBe('Missed Rotation');
+      expect(result[0].reason).toBe("Missed Rotation");
       expect(result[0].points).toBe(5);
-      expect(result[0].percentage).toBe('71.4'); // 5 / 7 * 100
-      expect(result[1].reason).toBe('Transition Leak');
+      expect(result[0].percentage).toBe("71.4"); // 5 / 7 * 100
+      expect(result[1].reason).toBe("Transition Leak");
       expect(result[1].points).toBe(2);
-      expect(result[1].percentage).toBe('28.6'); // 2 / 7 * 100
+      expect(result[1].percentage).toBe("28.6"); // 2 / 7 * 100
     });
 
     it("handles unattributed buckets", () => {
