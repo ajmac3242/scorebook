@@ -39,11 +39,7 @@ import {
   Close,
   PanTool,
   SwapHoriz,
-  FlashOn,
-  Mic,
-  MicOff,
-  GridOn,
-  Shield,
+  FlashOn, Mic, MicOff, GridOn, Shield,
   ArrowBack,
 } from "@mui/icons-material";
 import {
@@ -104,6 +100,7 @@ const GameMode: React.FC = () => {
   const gameId = searchParams.get("gameId");
   const teamId = searchParams.get("teamId");
 
+  const lastEnergyAlertRef = React.useRef<string | null>(null);
   const {
     selectedX,
     setSelectedX,
@@ -644,8 +641,26 @@ const GameMode: React.FC = () => {
   useEffect(() => {
     if (!gameId || !teamId) {
       navigate("/");
+      return;
     }
-  }, [gameId, teamId, navigate]);
+
+    // Energy Alert Logic: Trigger snackbar if a player's composite index is very high
+    const topSpark = sparkPlugIndex[0];
+    if (topSpark && topSpark.compositeIndex >= 12 && !isReadOnly) {
+      const alertKey = `${topSpark.playerId}-${topSpark.compositeIndex}`;
+      if (lastEnergyAlertRef.current !== alertKey) {
+        lastEnergyAlertRef.current = alertKey;
+        const pName = playerNamesMap.get(topSpark.playerId)?.split(" ")[0] || "Player";
+        const jersey = jerseyMap.get(topSpark.playerId);
+
+        setSnackbar({
+          open: true,
+          message: `🔥 ENERGY ALERT: #${jersey} ${pName} is providing a massive Spark Plug impact!`,
+          severity: "info",
+        });
+      }
+    }
+  }, [gameId, teamId, navigate, sparkPlugIndex, playerNamesMap, jerseyMap, isReadOnly, setSnackbar]);
 
   const handleToggleClock = useCallback(() => {
     setIsClockRunning((prev) => {
@@ -917,16 +932,10 @@ const GameMode: React.FC = () => {
               />
 
               <Box
-                sx={{
-                  display: "flex",
-                  gap: 1,
-                  width: { xs: "100%", sm: "auto" },
-                }}
+                sx={{ display: "flex", gap: 1, width: { xs: "100%", sm: "auto" } }}
               >
                 <Tooltip
-                  title={
-                    voiceEnabled ? "Disable Voice Mode" : "Enable Voice Mode"
-                  }
+                  title={voiceEnabled ? "Disable Voice Mode" : "Enable Voice Mode"}
                 >
                   <IconButton
                     onClick={() => setVoiceEnabled(!voiceEnabled)}
@@ -942,22 +951,22 @@ const GameMode: React.FC = () => {
                 </Tooltip>
 
                 <ToggleButtonGroup
-                  value={trackingMode}
-                  exclusive
-                  aria-label="Tracking Mode"
-                  onChange={(_, val) => val && setTrackingMode(val)}
-                  size="small"
-                  disabled={isReadOnly}
-                  fullWidth={theme.breakpoints.down("sm") !== null}
-                  sx={{ width: { xs: "100%", sm: "auto" } }}
-                >
-                  <ToggleButton value="TEAM">
-                    {team?.name || "Our Team"}
-                  </ToggleButton>
-                  <ToggleButton value="OPPONENT">
-                    {game?.opponent || "Opponent"}
-                  </ToggleButton>
-                </ToggleButtonGroup>
+                value={trackingMode}
+                exclusive
+                aria-label="Tracking Mode"
+                onChange={(_, val) => val && setTrackingMode(val)}
+                size="small"
+                disabled={isReadOnly}
+                fullWidth={theme.breakpoints.down("sm") !== null}
+                sx={{ width: { xs: "100%", sm: "auto" } }}
+              >
+                <ToggleButton value="TEAM">
+                  {team?.name || "Our Team"}
+                </ToggleButton>
+                <ToggleButton value="OPPONENT">
+                  {game?.opponent || "Opponent"}
+                </ToggleButton>
+              </ToggleButtonGroup>
               </Box>
             </Box>
 
@@ -1053,6 +1062,19 @@ const GameMode: React.FC = () => {
                   oppActiveIds={opponentStats.slice(0, 5).map((o) => o.id)}
                   matchupData={matchupEfficiency}
                   jerseyMap={jerseyMap}
+                  currentMatchups={matchups}
+                  onReassign={async (oId, tId) => {
+                    if (!gameId) return;
+                    const newMatchups = {
+                      ...(matchups || {}),
+                      [oId]: matchups[oId] === tId ? "" : tId,
+                    };
+                    await db.games.update(gameId, {
+                      matchups: newMatchups,
+                      synced: 0,
+                    });
+                    await syncService.pushUpdates();
+                  }}
                 />
               )}
             </MoleskineCard>
@@ -1341,9 +1363,7 @@ const GameMode: React.FC = () => {
                     <Table size="small">
                       <TableHead>
                         <TableRow>
-                          <TableCell
-                            sx={{ fontSize: "0.6rem", fontWeight: 800 }}
-                          >
+                          <TableCell sx={{ fontSize: "0.6rem", fontWeight: 800 }}>
                             PLAYER
                           </TableCell>
                           <TableCell
@@ -1373,7 +1393,11 @@ const GameMode: React.FC = () => {
                               sx={{ fontSize: "0.65rem", fontWeight: 700 }}
                             >
                               #{jerseyMap.get(spi.playerId)}{" "}
-                              {playerNamesMap.get(spi.playerId)?.split(" ")[0]}
+                              {
+                                playerNamesMap
+                                  .get(spi.playerId)
+                                  ?.split(" ")[0]
+                              }
                             </TableCell>
                             <TableCell
                               align="center"

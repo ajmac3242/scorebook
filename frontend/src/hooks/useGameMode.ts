@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { db, type StatEvent } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
 import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../constants/stats";
@@ -31,6 +31,7 @@ import { useStatWriter } from "./useStatWriter";
 import { usePossessionTracker } from "./usePossessionTracker";
 import { useVoiceRecognition } from "./useVoiceRecognition";
 import { ParsedVoiceCommand } from "../utils/voiceParser";
+import { logger } from "../utils/logger";
 
 export const useGameMode = (gameId: string | null, teamId: string | null) => {
   const theme = useTheme();
@@ -151,58 +152,58 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     async (command: ParsedVoiceCommand) => {
       if (!gameId) return;
 
-      let pId = "";
-      if (command.isOpponent) {
-        pId = command.jerseyNumber
-          ? `${SPECIAL_PLAYER_IDS.OPPONENT}:${command.jerseyNumber}`
-          : SPECIAL_PLAYER_IDS.OPPONENT;
-      } else if (command.jerseyNumber) {
-        const player = teamPlayers.find(
-          (tp) => tp.jerseyNumber === command.jerseyNumber,
-        );
-        if (player) {
-          pId = player.playerId;
-        } else {
-          logger.warn(
-            `Voice command for unknown jersey: ${command.jerseyNumber}`,
+      for (const action of command.actions) {
+        let pId = "";
+        if (action.isOpponent) {
+          pId = action.jerseyNumber
+            ? `${SPECIAL_PLAYER_IDS.OPPONENT}:${action.jerseyNumber}`
+            : SPECIAL_PLAYER_IDS.OPPONENT;
+        } else if (action.jerseyNumber) {
+          const player = teamPlayers.find(
+            (tp) => tp.jerseyNumber === action.jerseyNumber,
           );
-          return;
-        }
-      } else {
-        return;
-      }
-
-      try {
-        const saved = await writeStat({
-          playerId: pId,
-          type: command.action,
-          points: command.points,
-          period,
-          clockTime: clockSeconds,
-          locationX: 0,
-          locationY: 0,
-        });
-
-        if (
-          saved &&
-          command.isOpponent &&
-          command.action === ACTION_TYPES.MAKE
-        ) {
-          setLastOpponentStatId(saved.id!);
-          setIsBreakdownDialogOpen(true);
+          if (player) {
+            pId = player.playerId;
+          } else {
+            logger.warn(`Voice command for unknown jersey: ${action.jerseyNumber}`);
+            continue;
+          }
+        } else {
+          continue;
         }
 
-        setSnackbar({
-          open: true,
-          message: `Voice Recorded: #${command.jerseyNumber} ${command.action}`,
-          severity: "success",
-        });
-      } catch {
-        setSnackbar({
-          open: true,
-          message: "Voice command failed",
-          severity: "error",
-        });
+        try {
+          const saved = await writeStat({
+            playerId: pId,
+            type: action.action,
+            points: action.points,
+            period,
+            clockTime: clockSeconds,
+            locationX: 0,
+            locationY: 0,
+          });
+
+          if (
+            saved &&
+            action.isOpponent &&
+            action.action === ACTION_TYPES.MAKE
+          ) {
+            setLastOpponentStatId(saved.id!);
+            setIsBreakdownDialogOpen(true);
+          }
+
+          setSnackbar({
+            open: true,
+            message: `Voice Recorded: #${action.jerseyNumber} ${action.action}`,
+            severity: "success",
+          });
+        } catch {
+          setSnackbar({
+            open: true,
+            message: "Voice command failed",
+            severity: "error",
+          });
+        }
       }
     },
     [

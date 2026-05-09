@@ -3,52 +3,54 @@ import { parseVoiceCommand } from "./voiceParser";
 import { ACTION_TYPES } from "../constants/stats";
 
 describe("voiceParser", () => {
-  it("should parse simple team commands", () => {
-    const cmd = parseVoiceCommand("five make three");
-    expect(cmd).toEqual({
-      jerseyNumber: "5",
+  it("parses simple make command", () => {
+    const result = parseVoiceCommand("twenty three make three");
+    expect(result?.actions).toHaveLength(1);
+    expect(result?.actions[0]).toEqual({
+      jerseyNumber: "23",
       action: ACTION_TYPES.MAKE,
       points: 3,
       isOpponent: false,
-      raw: "five make three",
     });
   });
 
-  it("should parse opponent commands", () => {
-    const cmd = parseVoiceCommand("opponent twelve miss");
-    expect(cmd).toEqual({
-      jerseyNumber: "12",
-      action: ACTION_TYPES.MISS,
-      points: 2,
-      isOpponent: true,
-      raw: "opponent twelve miss",
-    });
-  });
-
-  it("should handle multi-word numbers", () => {
-    const cmd = parseVoiceCommand("twenty three make two");
-    expect(cmd).toEqual({
-      jerseyNumber: "23",
+  it("parses opponent action", () => {
+    const result = parseVoiceCommand("opponent five make");
+    expect(result?.actions).toHaveLength(1);
+    expect(result?.actions[0]).toEqual({
+      jerseyNumber: "5",
       action: ACTION_TYPES.MAKE,
       points: 2,
-      isOpponent: false,
-      raw: "twenty three make two",
+      isOpponent: true,
     });
   });
 
-  it("should handle digits", () => {
-    const cmd = parseVoiceCommand("24 steal");
-    expect(cmd).toEqual({
-      jerseyNumber: "24",
-      action: ACTION_TYPES.STEAL,
-      points: 2,
+  it("parses chained make and assist", () => {
+    const result = parseVoiceCommand("twenty three make three assist five");
+    expect(result?.actions).toHaveLength(2);
+    expect(result?.actions[0]).toEqual({
+      jerseyNumber: "23",
+      action: ACTION_TYPES.MAKE,
+      points: 3,
       isOpponent: false,
-      raw: "24 steal",
+    });
+    expect(result?.actions[1]).toEqual({
+      jerseyNumber: "5",
+      action: ACTION_TYPES.ASSIST,
+      points: undefined,
+      isOpponent: false,
     });
   });
 
-  it("should return null for unknown actions", () => {
-    const cmd = parseVoiceCommand("ten dance");
-    expect(cmd).toBeNull();
+  it("parses chained miss and rebound", () => {
+    const result = parseVoiceCommand("ten miss rebound zero");
+    expect(result?.actions).toHaveLength(2);
+    expect(result?.actions[0].action).toBe(ACTION_TYPES.MISS);
+    expect(result?.actions[1]).toEqual({
+      jerseyNumber: "0",
+      action: ACTION_TYPES.REBOUND,
+      points: undefined,
+      isOpponent: false,
+    });
   });
 });

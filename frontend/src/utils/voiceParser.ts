@@ -1,10 +1,14 @@
 import { ACTION_TYPES } from "../constants/stats";
 
-export interface ParsedVoiceCommand {
+export interface ParsedVoiceAction {
   jerseyNumber?: string;
   action: string;
   points?: number;
   isOpponent: boolean;
+}
+
+export interface ParsedVoiceCommand {
+  actions: ParsedVoiceAction[];
   raw: string;
 }
 
@@ -48,65 +52,98 @@ const ACTION_MAP: Record<string, string> = {
 };
 
 /**
- * Parses a voice transcript into a structured basketball action.
- * Supports: "[Jersey] [Action] [Points]" or "Opponent [Jersey] [Action]"
+ * Helper to parse a number from one or two words.
  */
-export const parseVoiceCommand = (
-  transcript: string,
-): ParsedVoiceCommand | null => {
+const parseNumberAt = (words: string[], index: number): { value: string; consumed: number } | null => {
+  if (index >= words.length) return null;
+
+  const first = words[index];
+  if (!isNaN(parseInt(first))) return { value: first, consumed: 1 };
+
+  if (NUMBER_MAP[first]) {
+    const tens = parseInt(NUMBER_MAP[first]);
+    if (tens >= 20 && words[index + 1] && NUMBER_MAP[words[index + 1]] && parseInt(NUMBER_MAP[words[index + 1]]) < 10) {
+      return { value: (tens + parseInt(NUMBER_MAP[words[index + 1]])).toString(), consumed: 2 };
+    }
+    return { value: NUMBER_MAP[first], consumed: 1 };
+  }
+
+  return null;
+};
+
+/**
+ * Parses a voice transcript into a structured list of basketball actions.
+ * Supports:
+ * - "[Jersey] [Action] [Points]"
+ * - "Opponent [Jersey] [Action]"
+ * - Chained: "[Jersey] make [Points] assist [Jersey]"
+ * - Chained: "[Jersey] miss rebound [Jersey]"
+ */
+export const parseVoiceCommand = (transcript: string): ParsedVoiceCommand | null => {
   const words = transcript.toLowerCase().trim().split(/\s+/);
   if (words.length < 2) return null;
 
+  const actions: ParsedVoiceAction[] = [];
   let isOpponent = false;
-  let wordIndex = 0;
+  let currentJersey: string | undefined = undefined;
 
-  if (words[0] === "opponent") {
-    isOpponent = true;
-    wordIndex++;
-  }
+  let i = 0;
+  while (i < words.length) {
+    const word = words[i];
 
-  // Handle complex numbers like "twenty three"
-  let jerseyNumber = "";
-  if (NUMBER_MAP[words[wordIndex]]) {
-    if (
-      words[wordIndex + 1] &&
-      NUMBER_MAP[words[wordIndex + 1]] &&
-      parseInt(NUMBER_MAP[words[wordIndex + 1]]) < 10
-    ) {
-      // Handle "twenty three"
-      const tens = parseInt(NUMBER_MAP[words[wordIndex]]);
-      const ones = parseInt(NUMBER_MAP[words[wordIndex + 1]]);
-      jerseyNumber = (tens + ones).toString();
-      wordIndex += 2;
-    } else {
-      jerseyNumber = NUMBER_MAP[words[wordIndex]];
-      wordIndex++;
+    if (word === "opponent") {
+      isOpponent = true;
+      i++;
+      continue;
     }
-  } else if (!isNaN(parseInt(words[wordIndex]))) {
-    jerseyNumber = words[wordIndex];
-    wordIndex++;
-  }
 
-  const actionWord = words[wordIndex];
-  const action = ACTION_MAP[actionWord];
-
-  if (!action) return null;
-
-  let points = 2;
-  if (action === ACTION_TYPES.MAKE) {
-    const nextWord = words[wordIndex + 1];
-    if (nextWord && NUMBER_MAP[nextWord]) {
-      points = parseInt(NUMBER_MAP[nextWord]);
-    } else if (nextWord && !isNaN(parseInt(nextWord))) {
-      points = parseInt(nextWord);
+    // Try to parse jersey number
+    const numResult = parseNumberAt(words, i);
+    if (numResult && !ACTION_MAP[words[i]]) { // Don't consume if it's an action (some actions might be mistaken?)
+      currentJersey = numResult.value;
+      i += numResult.consumed;
+      continue;
     }
+
+    // Try to parse action
+    const action = ACTION_MAP[word];
+    if (action) {
+      let points = 2;
+      i++;
+
+      // If it's a make, look for points
+      if (action === ACTION_TYPES.MAKE) {
+        const ptsResult = parseNumberAt(words, i);
+        if (ptsResult) {
+          points = parseInt(ptsResult.value);
+          i += ptsResult.consumed;
+        }
+      }
+
+      // Check if another jersey follows immediately (for chained actions like "assist five")
+      let secondaryJersey = undefined;
+      const secNumResult = parseNumberAt(words, i);
+      if (secNumResult) {
+        secondaryJersey = secNumResult.value;
+        i += secNumResult.consumed;
+      }
+
+      actions.push({
+        jerseyNumber: secondaryJersey || currentJersey,
+        action,
+        points: action === ACTION_TYPES.MAKE ? points : undefined,
+        isOpponent,
+      });
+      continue;
+    }
+
+    i++;
   }
+
+  if (actions.length === 0) return null;
 
   return {
-    jerseyNumber,
-    action,
-    points,
-    isOpponent,
+    actions,
     raw: transcript,
   };
 };
