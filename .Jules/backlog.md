@@ -9,7 +9,7 @@
 - [x] Quick-select "Breakdown Reason" overlay after recording an opponent make: "Missed Rotation", "Transition Leak", "Poor Closeout", "Out-Hustled", "Great Contest".
 - [x] "Defensive Integrity" report in GameStats summarizing % of points allowed by breakdown category.
 - [x] "Tactical Weak Link" identification: Highlight the most frequent breakdown type in the current game.
-- [ ] Filter opponent shot chart markers by breakdown type.
+- [x] Filter opponent shot chart markers by breakdown type.
 
 ## [x] [Special Situation (ATO/SLOB/BLOB) Analytical Engine]
 **Priority:** HIGH
@@ -19,8 +19,8 @@
 **Acceptance Criteria:**
 - [x] Add `calculateSituationalStats` to the stats engine to derive PPP/eFG% filtered by situation.
 - [x] New "Specialty Execution" card in GameStats showing a performance table by situation.
-- [ ] "Execution Delta" metric comparing Situational PPP vs. standard Half-Court PPP.
-- [ ] Visualization of "Success Rate" (Possessions ending in score or shooting foul) per situation.
+- [x] "Execution Delta" metric comparing Situational PPP vs. standard Half-Court PPP.
+- [x] Visualization of "Success Rate" (Possessions ending in score or shooting foul) per situation.
 
 ## [x] [Voice-Driven Live Scorekeeping]
 **Priority:** HIGH

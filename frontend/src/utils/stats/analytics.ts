@@ -792,6 +792,7 @@ export const calculateDefensiveIntegrity = (
  */
 export const calculateSituationalStats = (
   stats: StatEvent[],
+  teamPpp: string = "0.00",
 ): SpecialtyExecution[] => {
   const data: Record<
     string,
@@ -802,6 +803,7 @@ export const calculateSituationalStats = (
       fta: number;
       turnovers: number;
       threePM: number;
+      successes: number;
     }
   > = {};
 
@@ -817,12 +819,14 @@ export const calculateSituationalStats = (
         fta: 0,
         turnovers: 0,
         threePM: 0,
+        successes: 0,
       };
     }
 
     const play = data[s.situation];
     if (s.type === ACTION_TYPES.MAKE) {
       play.points += s.points || 0;
+      play.successes++;
       if (s.points === 1) {
         play.fta++;
       } else {
@@ -840,6 +844,8 @@ export const calculateSituationalStats = (
       }
     } else if (s.type === ACTION_TYPES.TURNOVER) {
       play.turnovers++;
+    } else if (s.type === ACTION_TYPES.FOUL_SHOOTING) {
+      play.successes++;
     }
   }
 
@@ -851,12 +857,18 @@ export const calculateSituationalStats = (
         s.turnovers,
         0,
       );
+      const situationalPpp = calculatePpp(s.points, possessions);
       return {
         situation,
         attempts: s.attempts,
         points: s.points,
-        ppp: calculatePpp(s.points, possessions),
+        ppp: situationalPpp,
         efg: calculateEfgPct(s.makes, s.threePM, s.attempts),
+        delta: (parseFloat(situationalPpp) - parseFloat(teamPpp)).toFixed(2),
+        successRate:
+          possessions > 0
+            ? ((s.successes / possessions) * 100).toFixed(1)
+            : "0.0",
       };
     })
     .sort((a, b) => b.attempts - a.attempts);
