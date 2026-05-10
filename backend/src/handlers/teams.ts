@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 import { ok, created, badRequest } from "../responses.js";
 import { isValidUuid } from "../validation.js";
 import { Keys } from "../keys.js";
-import { extractIdFromPath } from "../utils.js";
+import { extractIdFromPath, stripLocalFields } from "../utils.js";
 import {
   getItems,
   createItem,
@@ -130,7 +130,7 @@ export async function handleTeams(
         return badRequest("Invalid team-player association id (UUID required)");
       }
 
-      const cleanBody = { ...body } as Record<string, unknown>;
+      const cleanBody = stripLocalFields(body) as Record<string, unknown>;
       delete cleanBody.id;
 
       const teamPlayerItem = {

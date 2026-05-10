@@ -197,6 +197,12 @@ export function validateStatEvent(body: unknown): string | null {
   ) {
     return "Invalid situational context";
   }
+  // 🛡️ Enhancement: Prevent excessively long string values (max 256 chars for metadata)
+  for (const [key, val] of Object.entries(b)) {
+    if (typeof val === "string" && val.length > 256) {
+      return `Field ${key} exceeds maximum length of 256 characters`;
+    }
+  }
   if (
     b.shotClockPhase !== undefined &&
     (typeof b.shotClockPhase !== "string" ||
