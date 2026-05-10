@@ -135,16 +135,19 @@ function redactMap(
 
   const redacted: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(map)) {
-    if (redactAll || REDACTED_HEADERS.has(key.toLowerCase())) {
-      if (Array.isArray(value)) {
-        redacted[key] = value.map(() => "[REDACTED]");
-      } else {
-        redacted[key] = "[REDACTED]";
-      }
-    } else if (value !== null && typeof value === "object") {
+    const shouldRedact = redactAll || REDACTED_HEADERS.has(key.toLowerCase());
+
+    if (shouldRedact) {
+      redacted[key] = Array.isArray(value)
+        ? value.map(() => "[REDACTED]")
+        : "[REDACTED]";
+      continue;
+    }
+
+    if (value !== null && typeof value === "object") {
       redacted[key] = Array.isArray(value)
         ? value.map((item) =>
-            item !== null && typeof item === "object"
+            typeof item === "object" && item !== null
               ? redactMap(item as Record<string, unknown>, redactAll, depth + 1)
               : item,
           )
@@ -168,42 +171,31 @@ function redactMap(
  * @returns {unknown} A sanitized copy of the event.
  */
 export function maskEvent(event: APIGatewayProxyEventV2): unknown {
-  // 🛡️ Enhancement 1-3: Broadened log masking for headers, query params, and authorizer.
-  const masked = { ...event };
-  const anyEvent = event as unknown as Record<string, unknown>;
+  const masked: Record<string, unknown> = { ...event };
 
-  // Consolidate redaction for headers, query params and their multi-value variants
-  const redactTargets: Array<{ key: string; redactAll?: boolean }> = [
-    { key: "headers" },
-    { key: "multiValueHeaders" },
+  const redactTargets = [
+    { key: "headers", redactAll: false },
+    { key: "multiValueHeaders", redactAll: false },
     { key: "queryStringParameters", redactAll: true },
     { key: "multiValueQueryStringParameters", redactAll: true },
-  ];
+  ] as const;
 
-  redactTargets.forEach(({ key, redactAll }) => {
-    const val = anyEvent[key];
+  for (const { key, redactAll } of redactTargets) {
+    const val = masked[key];
     if (val) {
-      (masked as Record<string, unknown>)[key] = redactMap(
-        val as Record<string, unknown>,
-        redactAll,
-      );
+      masked[key] = redactMap(val as Record<string, unknown>, redactAll);
     }
-  });
+  }
 
   if (event.cookies) {
     masked.cookies = event.cookies.map(() => "[REDACTED]");
   }
 
-  // Redact authorizer context which may contain JWT claims or internal IDs
-  const requestContext = masked.requestContext as unknown as Record<
-    string,
-    unknown
-  >;
+  const requestContext = masked.requestContext as Record<string, unknown>;
   if (requestContext?.authorizer) {
     requestContext.authorizer = "[REDACTED]";
   }
 
-  // 🛡️ Enhancement 11: Redact body in logs to prevent sensitive data leakage and log bloating
   if (masked.body) {
     masked.body = "[REDACTED]";
   }

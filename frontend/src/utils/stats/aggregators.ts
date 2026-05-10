@@ -445,10 +445,7 @@ export const calculateTeamAggregates = (
     opp.oreb,
   );
 
-  const teamOrebPct =
-    team.oreb + opp.dreb > 0
-      ? ((team.oreb / (team.oreb + opp.dreb)) * 100).toFixed(1)
-      : "0.0";
+  const teamOrebPct = calcPct(team.oreb, team.oreb + opp.dreb);
 
   return {
     ppg: formatToOne(team.pts / gp),

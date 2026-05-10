@@ -38,8 +38,7 @@ export const determineResult = (
  * @returns {string} The formatted clock string (e.g., "10:00").
  */
 export const formatClock = (totalSeconds: number): string => {
-  // ⚡ Bolt: Use bitwise OR for faster floor operation and template literals for efficiency.
-  const mins = (totalSeconds / 60) | 0;
+  const mins = Math.floor(totalSeconds / 60);
   const secs = totalSeconds % 60;
   return `${mins}:${String(secs).padStart(2, "0")}`;
 };
@@ -94,12 +93,19 @@ export const calculateElapsedMinutes = (
   clockSeconds: number,
   periodType: string = "QUARTERS",
 ): number => {
-  const periodLengthMins = periodType === "HALVES" ? 20 : 10;
+  const PERIOD_MINUTES: Record<string, number> = {
+    HALVES: 20,
+    QUARTERS: 10,
+  };
+
+  const periodLengthMins = PERIOD_MINUTES[periodType] || 10;
   const periodDurationSeconds = periodLengthMins * 60;
+
   const secondsElapsedInCurrentPeriod = Math.max(
     0,
     periodDurationSeconds - clockSeconds,
   );
   const secondsElapsedInPreviousPeriods = (period - 1) * periodDurationSeconds;
+
   return (secondsElapsedInPreviousPeriods + secondsElapsedInCurrentPeriod) / 60;
 };
