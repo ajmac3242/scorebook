@@ -658,7 +658,6 @@ const GameMode: React.FC = () => {
       setSelectedY,
       setIsEditing,
       setIsDialogOpen,
-      setOpponentPlayType,
     ],
   );
 

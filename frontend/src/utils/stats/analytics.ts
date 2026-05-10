@@ -1004,7 +1004,6 @@ export const calculateShotROI = (stats: StatEvent[]) => {
 export const calculatePaintTouchStats = (stats: StatEvent[]) => {
   let paintTouches = 0;
   let pointsAfterPaintTouch = 0;
-  let countAfterPaintTouch = 0;
 
   for (let i = 0; i < stats.length; i++) {
     const s = stats[i];
@@ -1026,7 +1025,6 @@ export const calculatePaintTouchStats = (stats: StatEvent[]) => {
 
       if (next.type === ACTION_TYPES.MAKE && !isOpponentId(next.playerId)) {
         pointsAfterPaintTouch += (next.points || 0);
-        countAfterPaintTouch++;
         break;
       }
     }
