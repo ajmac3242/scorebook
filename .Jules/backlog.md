@@ -192,6 +192,57 @@
 - [ ] "Identity Goals" section where coaches see % of games where goals were met.
 - [ ] Filter by date range or opponent strength.
 
+## [ ] [Paint Touches & Rim Pressure Analytics]
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Shooting selection is only half the battle. Coaches need to know if their offense is "settling" or actively attacking the heart of the defense.
+**What:** Implement a "Paint Touch" event type and a live counter in the GameMode. Correlate Paint Touches with subsequent eFG% to prove the value of rim pressure.
+**Acceptance Criteria:**
+- [ ] New "Paint Touch" quick-action button in GameMode.
+- [ ] Live HUD indicator showing "Paint Touches" for the current period.
+- [ ] Analytics bridge: "Points Per Paint Touch" (PPPT) metric in GameStats.
+- [ ] Visualization on the Shot Chart showing where paint touches originated.
+
+## [ ] ["Hockey Assist" (Secondary Assist) & Playmaking Chain]
+**Priority:** HIGH
+**Type:** Feature
+**Why:** The player who makes the "extra pass" often goes unrewarded in traditional stats. Identifying secondary assists reveals the true floor generals who drive offensive flow.
+**What:** Allow for a secondary "Hockey Assist" to be recorded during the "Who Assisted?" chain.
+**Acceptance Criteria:**
+- [ ] Enhance "Teammate Assist?" overlay to allow selecting a second player for a "Hockey Assist."
+- [ ] "Hockey Assist" column in the Box Score and Player Stats.
+- [ ] "Offensive Flow Rating" per player: (Assists + Hockey Assists) / Possessions.
+
+## [ ] [Lineup "Defensive Synergy" (Lineup x Scheme Efficiency)]
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Some 5-man units are elite in a 2-3 Zone but struggle in Man-to-Man. Identifying these synergies allows for precise defensive substitutions based on the active scheme.
+**What:** Build a matrix in GameStats that cross-references Lineup Efficiency with the Active Defensive Scheme.
+**Acceptance Criteria:**
+- [ ] "Scheme Synergy" table in GameStats showing PPP Allowed by Lineup *filtered by* Defensive Scheme.
+- [ ] "Best Scheme" recommendation for the currently active on-court lineup.
+- [ ] Identification of "Defensive Anchor" duos who maintain low PPP across all schemes.
+
+## [ ] [Tactical KPI "Identity HUD"]
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Coaches enter games with specific tactical goals (e.g., "Limit them to < 10 fast break points"). A live HUD keeps these goals front-and-center during the chaos of the game.
+**What:** Allow coaches to select 3 "Identity Goals" during game setup and display their live status in the GameMode header.
+**Acceptance Criteria:**
+- [ ] "Identity Goals" selector in Create Game workflow.
+- [ ] Live HUD elements in GameMode (e.g., "TOs: 4/10 limit", "OREBs: 8/12 goal").
+- [ ] Visual alert when a "Limit" KPI is exceeded (e.g., Turning red when fast break points allowed exceed the goal).
+
+## [ ] [Individual Defensive Breakdown Accountability Metrics]
+**Priority:** HIGH
+**Type:** Feature
+**Why:** We track *why* a bucket was allowed, but we need to tie it back to *who* was responsible to drive causal accountability.
+**What:** Aggregate Defensive Breakdown Reasons by the "Primary Defender" identified in Matchup Tracking.
+**Acceptance Criteria:**
+- [ ] "Individual Accountability" table in GameStats.
+- [ ] Breakdown of Points Allowed per player by category (e.g., "Player X: 6 pts via Poor Closeouts").
+- [ ] "Coach's Note" auto-generation: "Focus on Rotations with Player Y" based on breakdown trends.
+
 ## [x] [Substitution Timeline Audit]
 **Priority:** HIGH
 **Type:** Feature

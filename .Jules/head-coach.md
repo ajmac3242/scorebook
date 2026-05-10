@@ -62,6 +62,14 @@ Impact: The absence of these "archived" features means coaches are missing out o
 
 Recommendation: Immediately restore the missing "Ghost" features to the active backlog for implementation. Prioritize "Live Game Identity Radar" for real-time tactical adherence and "On/Off Team Impact Analytics" to provide the deep-value insights coaches need for roster optimization. Introduce "Defensive Breakdown Attribution" to move from tracking *results* to tracking *tactical failures*.
 
+## 2026-05-27 - Strategic Frontier: From Recording Results to Mastering the Process
+
+Observation: A comprehensive audit of the codebase vs. the backlog reveals that we have successfully transitioned from a "Digital Scorebook" to a "Tactical Operating System." We have sophisticated engines for PPP, eFG%, Lineup Net Rating, and even momentum alerts (Droughts/Runs). However, we have discovered a layer of "Silent Logic"—engines like the Ref-Identity Conflict Alert and HALT are implemented but not yet fully surfaced as persistent, high-visibility UI elements in the `GameMode`. Furthermore, our tracking is still heavily "Result-Based" (Makes/Misses) rather than "Process-Based" (Paint Touches, Hockey Assists).
+
+Impact: Coaches are getting the *what* and the *when*, but they are still missing the *how* of offensive flow. A team can have a high eFG% while having zero paint touches, which is an unsustainable process. Similarly, we attribute defensive breakdowns to "Missed Rotations," but we don't yet aggregate these failures into individual accountability metrics that drive personnel decisions.
+
+Recommendation: Pivot the strategic roadmap toward **Process Mastery** and **Causal Accountability**. We must prioritize the "Identity HUD" to track tactical KPIs in real-time, "Paint Touch" tracking to measure rim pressure, and "Individual Defensive Accountability" metrics to quantify the cost of tactical failures per player. This moves the platform from analyzing the outcome to optimizing the execution.
+
 ## 2026-05-03 - Strategic Pivot: From Passive Aggregates to Causal Accountability
 
 Observation: The platform has achieved "Scorebook Maturity" but still treats events as isolated data points. We capture *what* happened but often miss *why* it happened or the *environmental context* (e.g., officiating tightness, lineup chemistry). The "Ghost Archive" discovery highlights a lack of follow-through on complex tactical features that move the needle from scorekeeping to coaching.
