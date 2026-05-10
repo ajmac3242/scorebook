@@ -387,8 +387,8 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
         <DialogContent>
           <DialogContentText>
             Are you sure you want to delete this substitution event? This will
-            immediately affect live lineups, plus/minus calculations, and
-            stint durations.
+            immediately affect live lineups, plus/minus calculations, and stint
+            durations.
           </DialogContentText>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>

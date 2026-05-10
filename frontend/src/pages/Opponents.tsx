@@ -123,7 +123,11 @@ const Opponents: React.FC = () => {
                 <Typography variant="h6" color="text.secondary">
                   No opponents tracked yet
                 </Typography>
-                <Typography variant="body2" color="text.disabled" sx={{ mb: 3 }}>
+                <Typography
+                  variant="body2"
+                  color="text.disabled"
+                  sx={{ mb: 3 }}
+                >
                   Opponents are automatically added when you schedule a game.
                 </Typography>
                 <Button
@@ -290,8 +294,9 @@ const Opponents: React.FC = () => {
         </DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to delete <strong>{opponentToDelete?.name}</strong>?
-            This will permanently remove all scouting data and player records for this opponent.
+            Are you sure you want to delete{" "}
+            <strong>{opponentToDelete?.name}</strong>? This will permanently
+            remove all scouting data and player records for this opponent.
           </DialogContentText>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
