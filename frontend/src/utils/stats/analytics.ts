@@ -5,12 +5,17 @@
 
 import { ACTION_TYPES } from "../../constants/stats";
 import { StatEvent, Player } from "../../db";
-import { formatClock, calculateElapsedMinutes } from "../mathUtils";
+import {
+  formatClock,
+  calculateElapsedMinutes,
+  formatToOne,
+} from "../mathUtils";
 import {
   isActive,
   isOpponentId,
   isScoringEvent,
   isFieldGoal,
+  isFoulAction,
   calculatePossessions,
   calculatePpp,
   calculateEfgPct,
@@ -463,16 +468,7 @@ export const calculateRefTightness = (
 
   if (elapsedMinutes <= 1) return 0;
 
-  const fouls = stats.filter(
-    (s) =>
-      !s.deletedAt &&
-      [
-        ACTION_TYPES.FOUL,
-        ACTION_TYPES.FOUL_SHOOTING,
-        ACTION_TYPES.FOUL_NON_SHOOTING,
-        ACTION_TYPES.TECHNICAL_FOUL,
-      ].includes(s.type),
-  ).length;
+  const fouls = stats.filter((s) => isActive(s) && isFoulAction(s)).length;
 
   return fouls / elapsedMinutes;
 };
@@ -483,15 +479,18 @@ export const isClutchEvent = (
   scoreDiff: number,
   periodType: string,
 ): boolean => {
+  if (Math.abs(scoreDiff) > 5) return false;
+
   const isOT = periodType === "QUARTERS" ? eventPeriod > 4 : eventPeriod > 2;
   const isFinal =
     periodType === "QUARTERS" ? eventPeriod === 4 : eventPeriod === 2;
 
-  const isClutchScore = Math.abs(scoreDiff) <= 5;
+  if (!isFinal && !isOT) return false;
+
   const regulationClutchTime = periodType === "QUARTERS" ? 240 : 120;
   const isClutchTime = isOT || clockTime <= regulationClutchTime;
 
-  return (isFinal || isOT) && isClutchTime && isClutchScore;
+  return isClutchTime;
 };
 
 export const calculateHaltAlerts = (params: {
@@ -539,23 +538,8 @@ export const calculateHaltAlerts = (params: {
   });
 
   // 2. Bonus Approaching Alert
-  const oppFouls = gameData.teamFoulStats.oppFouls;
-  const bonusLimit = periodType === "QUARTERS" ? 5 : 7;
-  if (oppFouls === bonusLimit - 1) {
-    alerts.push({
-      id: "bonus-approaching",
-      type: "BONUS",
-      severity: "info",
-      message: "Opponent in Foul Trouble (4/5)",
-    });
-  } else if (oppFouls >= bonusLimit) {
-    alerts.push({
-      id: "in-bonus",
-      type: "BONUS",
-      severity: "warning",
-      message: "BONUS ACTIVE: Attack the Rim",
-    });
-  }
+  const bonusAlert = getBonusAlert(gameData.teamFoulStats.oppFouls, periodType);
+  if (bonusAlert) alerts.push(bonusAlert);
 
   // 3. Time to Sub fatigue alerts
   gameData.onCourtIds.forEach((pId: string) => {
@@ -780,7 +764,7 @@ export const calculateDefensiveIntegrity = (
       frequency: d.frequency,
       percentage:
         totalPointsAllowed > 0
-          ? ((d.points / totalPointsAllowed) * 100).toFixed(1)
+          ? formatToOne((d.points / totalPointsAllowed) * 100)
           : "0.0",
     }))
     .sort((a, b) => b.points - a.points);
@@ -867,9 +851,39 @@ export const calculateSituationalStats = (
         delta: (parseFloat(situationalPpp) - parseFloat(teamPpp)).toFixed(2),
         successRate:
           possessions > 0
-            ? ((s.successes / possessions) * 100).toFixed(1)
+            ? formatToOne((s.successes / possessions) * 100)
             : "0.0",
       };
     })
     .sort((a, b) => b.attempts - a.attempts);
 };
+
+/**
+ * Helper to determine if a bonus alert should be displayed.
+ */
+function getBonusAlert(
+  oppFouls: number,
+  periodType: string,
+): HaltAlert | undefined {
+  const bonusLimit = periodType === "QUARTERS" ? 5 : 7;
+
+  if (oppFouls === bonusLimit - 1) {
+    return {
+      id: "bonus-approaching",
+      type: "BONUS",
+      severity: "info",
+      message: `Opponent in Foul Trouble (${oppFouls}/${bonusLimit})`,
+    };
+  }
+
+  if (oppFouls >= bonusLimit) {
+    return {
+      id: "in-bonus",
+      type: "BONUS",
+      severity: "warning",
+      message: "BONUS ACTIVE: Attack the Rim",
+    };
+  }
+
+  return undefined;
+}

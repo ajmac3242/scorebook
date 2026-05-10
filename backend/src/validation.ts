@@ -197,12 +197,10 @@ export function validateStatEvent(body: unknown): string | null {
   ) {
     return "Invalid situational context";
   }
-  // 🛡️ Enhancement: Prevent excessively long string values (max 256 chars for metadata)
-  for (const [key, val] of Object.entries(b)) {
-    if (typeof val === "string" && val.length > 256) {
-      return `Field ${key} exceeds maximum length of 256 characters`;
-    }
-  }
+
+  const lengthError = validateStringLengths(b, 256);
+  if (lengthError) return lengthError;
+
   if (
     b.shotClockPhase !== undefined &&
     (typeof b.shotClockPhase !== "string" ||
@@ -236,6 +234,24 @@ export function validateStatEvent(body: unknown): string | null {
       !VALID_BREAKDOWN_REASONS.has(b.breakdownReason))
   ) {
     return "Invalid defensive breakdown reason";
+  }
+  return null;
+}
+
+/**
+ * Validates that all string values in an object are under a specific length.
+ * @param obj - The object to validate.
+ * @param maxLength - Maximum allowed length.
+ * @returns {string | null} Error message or null.
+ */
+function validateStringLengths(
+  obj: Record<string, unknown>,
+  maxLength: number,
+): string | null {
+  for (const [key, val] of Object.entries(obj)) {
+    if (typeof val === "string" && val.length > maxLength) {
+      return `Field ${key} exceeds maximum length of ${maxLength} characters`;
+    }
   }
   return null;
 }
