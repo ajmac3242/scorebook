@@ -229,6 +229,26 @@ export const Scoreboard = React.memo(
                 gap: 0.5,
               }}
             >
+              {gameData.momentumAlerts.scoringDrought && (
+                <Stack spacing={0.5} alignItems="center">
+                  <Typography
+                    variant="caption"
+                    role="status"
+                    aria-live="polite"
+                    sx={{
+                      bgcolor: "warning.main",
+                      color: "black",
+                      px: 1,
+                      borderRadius: 1,
+                      fontSize: "0.6rem",
+                      fontWeight: 800,
+                      animation: `${pulse} 2s infinite ease-in-out`,
+                    }}
+                  >
+                    DROUGHT: {gameData.momentumAlerts.scoringDrought}
+                  </Typography>
+                </Stack>
+              )}
               {gameData.momentumAlerts.opponentRun && (
                 <Stack spacing={0.5} alignItems="center">
                   <Typography

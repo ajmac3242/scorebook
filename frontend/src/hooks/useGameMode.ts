@@ -230,6 +230,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
   const [playName, setPlayName] = useState<string>("");
   const [shotQuality, setShotQuality] = useState<string | null>(null);
   const [situation, setSituation] = useState<string | null>(null);
+  const [opponentPlayType, setOpponentPlayType] = useState<string | null>(null);
 
   const [sortConfig, setSortConfig] = useState<{
     key: keyof PlayerAggregates;
@@ -873,6 +874,8 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     setShotQuality,
     situation,
     setSituation,
+    opponentPlayType,
+    setOpponentPlayType,
     clockSeconds,
     setClockSeconds,
     isClockRunning,

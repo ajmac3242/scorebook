@@ -150,6 +150,8 @@ const GameMode: React.FC = () => {
     setIsFtWorkflowOpen,
     situation,
     setSituation,
+    opponentPlayType,
+    setOpponentPlayType,
     isHalftimeReportOpen,
     setIsHalftimeReportOpen,
     isBreakdownDialogOpen,
@@ -363,6 +365,12 @@ const GameMode: React.FC = () => {
                 ? (shotQuality ?? undefined)
                 : undefined,
             situation: situation ?? undefined,
+            opponentPlayType:
+              (typeToSave === ACTION_TYPES.MAKE ||
+                typeToSave === ACTION_TYPES.MISS) &&
+              selectedPlayerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT)
+                ? (opponentPlayType as any)
+                : undefined,
             shotClockPhase: derivedShotClockPhase,
             primaryDefenderId,
             defensiveScheme: game?.activeDefensiveScheme,
@@ -389,6 +397,12 @@ const GameMode: React.FC = () => {
                 ? (shotQuality ?? undefined)
                 : undefined,
             situation: situation ?? undefined,
+            opponentPlayType:
+              (typeToSave === ACTION_TYPES.MAKE ||
+                typeToSave === ACTION_TYPES.MISS) &&
+              selectedPlayerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT)
+                ? (opponentPlayType as any)
+                : undefined,
             shotClockPhase: derivedShotClockPhase,
             primaryDefenderId,
             defensiveScheme: game?.activeDefensiveScheme,
@@ -429,6 +443,7 @@ const GameMode: React.FC = () => {
         setStatType(null);
         setPlayName("");
         setSituation(null);
+        setOpponentPlayType(null);
         setIsEditing(false);
         setEditingStatId(null);
         if (trackingMode === "OPPONENT") setSelectedPlayerId(null);
@@ -639,6 +654,8 @@ const GameMode: React.FC = () => {
       setSelectedY,
       setIsEditing,
       setIsDialogOpen,
+      opponentPlayType,
+      setOpponentPlayType,
     ],
   );
 
@@ -1076,6 +1093,72 @@ const GameMode: React.FC = () => {
                   <GridOn fontSize="small" />
                 </IconButton>
               </Box>
+              {!showMatchupMatrix && (
+                <Box
+                  sx={{
+                    p: 1.5,
+                    borderRadius: 2,
+                    bgcolor: "rgba(255,152,0,0.05)",
+                    border: "1px solid rgba(255,152,0,0.1)",
+                  }}
+                >
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      fontWeight: 800,
+                      color: "warning.dark",
+                      textTransform: "uppercase",
+                      display: "block",
+                      mb: 0.5,
+                    }}
+                  >
+                    Target Attack
+                  </Typography>
+                  {(() => {
+                    const sorted = [...matchupEfficiency].sort(
+                      (a, b) => a.stopPct - b.stopPct,
+                    );
+                    const target = sorted[0];
+                    if (!target || target.possessions < 3) {
+                      return (
+                        <Typography variant="caption" color="text.secondary">
+                          Collecting data... (min. 3 possessions)
+                        </Typography>
+                      );
+                    }
+                    return (
+                      <Stack direction="row" alignItems="center" spacing={1}>
+                        <Avatar
+                          sx={{
+                            width: 24,
+                            height: 24,
+                            fontSize: "0.6rem",
+                            bgcolor: "error.main",
+                            fontWeight: 900,
+                          }}
+                        >
+                          {target.oppPlayerJersey}
+                        </Avatar>
+                        <Box>
+                          <Typography
+                            variant="caption"
+                            sx={{ fontWeight: 800, display: "block" }}
+                          >
+                            Attack Opponent #{target.oppPlayerJersey}
+                          </Typography>
+                          <Typography
+                            variant="caption"
+                            sx={{ color: "error.main", fontWeight: 700 }}
+                          >
+                            Stop %: {target.stopPct}% ({target.possessions}{" "}
+                            poss)
+                          </Typography>
+                        </Box>
+                      </Stack>
+                    );
+                  })()}
+                </Box>
+              )}
               {showMatchupMatrix && (
                 <MatchupMatrix
                   teamActiveIds={Array.from(gameData.onCourtIds)}
@@ -2127,6 +2210,44 @@ const GameMode: React.FC = () => {
                 </Box>
               </Box>
             )}
+          {(statType === ACTION_TYPES.MAKE ||
+            statType === ACTION_TYPES.MISS) &&
+            trackingMode === "OPPONENT" && (
+            <Box sx={{ mt: 3 }}>
+              <Typography
+                variant="caption"
+                gutterBottom
+                sx={{ display: "block", mb: 1 }}
+              >
+                Opponent Play Type
+              </Typography>
+              <ToggleButtonGroup
+                value={opponentPlayType}
+                exclusive
+                onChange={(_, val) => setOpponentPlayType(val)}
+                size="small"
+                fullWidth
+                sx={{ flexWrap: "wrap" }}
+              >
+                <ToggleButton value="PnR" sx={{ fontSize: "0.6rem" }}>
+                  PnR
+                </ToggleButton>
+                <ToggleButton value="ISO" sx={{ fontSize: "0.6rem" }}>
+                  ISO
+                </ToggleButton>
+                <ToggleButton value="POST" sx={{ fontSize: "0.6rem" }}>
+                  POST
+                </ToggleButton>
+                <ToggleButton value="TRANSITION" sx={{ fontSize: "0.6rem" }}>
+                  TRANS
+                </ToggleButton>
+                <ToggleButton value="OFF_SCREEN" sx={{ fontSize: "0.6rem" }}>
+                  SCREEN
+                </ToggleButton>
+              </ToggleButtonGroup>
+            </Box>
+          )}
+
           {(statType === ACTION_TYPES.MAKE ||
             statType === ACTION_TYPES.MISS) && (
             <Box sx={{ mt: 3 }}>
