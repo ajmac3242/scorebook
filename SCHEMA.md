@@ -14,7 +14,7 @@
 | **Player** | `PLAYER#<PlayerId>` | `METADATA#<PlayerId>` | Name, DefaultNumber, isStar (0/1), isArchived (0/1), deletedAt? |
 | **TeamPlayer** | `TEAM#<TeamId>` | `PLAYER#<PlayerId>` | JerseyNumber (1-3 digits), deletedAt? |
 | **Game** | `GAME#<GameId>` | `METADATA#<GameId>` | TeamId, Opponent, Date, Location, completed (0/1), deletedAt? |
-| **StatEvent** | `GAME#<GameId>` | `STAT#<Timestamp>#<StatId>` | PlayerId, Type, Points, LocationX, LocationY, timestamp, situation?, shotClockPhase?, primaryDefenderId? |
+| **StatEvent** | `GAME#<GameId>` | `STAT#<Timestamp>#<StatId>` | PlayerId, Type, Points, LocationX, LocationY, timestamp, situation?, shotClockPhase?, primaryDefenderId?, defensiveScheme?, opponentPlayType?, breakdownReason? |
 
 ### Global Secondary Indexes (GSI)
 
@@ -173,16 +173,26 @@ All write endpoints (`POST`, `PUT`, `PATCH`) require `Content-Type: application/
 
 #### Stat Event Field Definitions
 
+- **playerId**: ID of the player performing the action.
+  - `UUID`: Standard for registered team players.
+  - `OPPONENT`: General tracking for unidentified opponents.
+  - `OPPONENT:{jersey}`: Specific opponent identified by jersey number (e.g., `OPPONENT:12`).
 - **situation**: Tactical context of the possession.
   - `ATO`: After Time Out
   - `SLOB`: Sideline Out of Bounds
   - `BLOB`: Baseline Out of Bounds
   - `EOP`: End of Period
 - **shotClockPhase**: Timing of the shot within the possession.
-  - `EARLY`: First 25% of the clock
+  - `EARLY`: First 10 seconds of the clock
   - `MID`: Middle of the clock
   - `LATE`: Final 5 seconds of the clock
 - **primaryDefenderId**: The ID of the opponent player primarily responsible for defending the action (used in Matchup Tracking).
+- **defensiveScheme**: The active defensive set during the event.
+  - `MAN`, `ZONE`, `PRESS`, `DOUBLE`
+- **opponentPlayType**: The offensive action type executed by the opponent.
+  - `PnR`, `ISO`, `POST`, `TRANSITION`, `OFF_SCREEN`
+- **breakdownReason**: The specific tactical failure attributed to a points-allowed event.
+  - `Missed Rotation`, `Transition Leak`, `Poor Closeout`, `Out-Hustled`, `Great Contest`
 
 ### Administration
 

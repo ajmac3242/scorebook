@@ -25,11 +25,13 @@ Scorebook is a mobile-first, offline-ready basketball statistics tracking applic
 ## Architecture
 
 ### Causal Accountability
-Scorebook is built on the principle of **Causal Accountability**. Standard box scores tell you *what* happened; Scorebook tells you *why*.
-- **Matchup Tracking**: Move beyond team defense by attributing every opponent bucket to a primary defender. Track "Points Allowed" and "Stop %" for every player on your roster.
-- **On/Off Impact Analytics**: Measure a player's true value by comparing team performance (Net Rating) when they are on the floor versus when they are on the bench.
-- **Shot Clock Process Analysis**: Evaluate offensive discipline by categorizing every shot into Early, Mid, or Late-clock phases. Identify if your team is rushing shots or executing late into the clock.
-- **Tactical Attribution**: Tag turnovers and fouls with specific causes (e.g., "Missed Rotation", "Poor Spacing") to drive data-driven practice prescriptions.
+Scorebook is built on the principle of **Causal Accountability**. Standard box scores tell you *what* happened; Scorebook tells you *why*. By capturing the environmental and tactical context of every action, Scorebook transforms raw data into actionable coaching intelligence.
+
+- **Matchup Tracking & Efficiency Matrix**: Move beyond team-level defensive stats. Scorebook attributes every opponent bucket to a primary defender, generating a real-time **Holistic Matchup Matrix**. This identifies exactly which 1-on-1 battles are being won or lost, allowing for surgical defensive adjustments.
+- **On/Off Impact Analytics**: Measure a player's true value using high-fidelity Net Rating. See how the team's offensive and defensive efficiency fluctuates when specific players or 5-man units are on the floor versus on the bench.
+- **Shot Clock Process Analysis**: Evaluate offensive discipline by categorizing shots into **Early** (first 10s), **Mid**, or **Late** (final 5s) clock phases. This helps coaches identify if the team is settling for "rush" shots or successfully executing deep into the set.
+- **Defensive Breakdown Attribution**: When an opponent scores, Scorebook prompts for a "Breakdown Reason" (e.g., *Missed Rotation*, *Transition Leak*, *Poor Closeout*). This creates a direct feedback loop between game events and practice focus.
+- **Special Situation Engine (ATO/SLOB/BLOB)**: Track efficiency (PPP and eFG%) specifically for possessions following timeouts or out-of-bounds plays to measure the effectiveness of your set-play execution.
 
 ### Modular Backend
 The backend has transitioned from a monolithic handler to a domain-specific modular architecture. The core router in `index.ts` delegates requests to specialized handlers in `backend/src/handlers/` (Players, Teams, Games, Cleanup), improving maintainability and reducing the cold-start footprint.
@@ -54,10 +56,13 @@ To optimize read performance and reduce DynamoDB costs:
 ## Development Workflow
 
 ### Agent-Based Development
-This project utilizes specialized AI agents (Jules) to maintain and evolve the codebase. Coordination is handled through the `.Jules/` directory:
-- **backlog.md**: The active list of features and maintenance tasks.
-- **backlog-archive.md**: History of completed tasks to keep the active context small.
-- **Agent Roles**: Specialized files (e.g., `scout.md`, `scribe-guardian.md`) define the ownership and responsibilities of different agent personas.
+Scorebook is maintained through an autonomous agent-centric model using **Jules**. Each agent has a specific persona and area of ownership, ensuring high code quality and documentation standards.
+
+Coordination is managed through the `.Jules/` directory:
+- **backlog.md**: The "Source of Truth" for project status, containing the active roadmap and feature acceptance criteria.
+- **backlog-archive.md**: A historical record of completed missions, maintaining a lean context for active agents.
+- **Agent Roles**: Personas like `Scout` (QA/Testing), `Forge` (Feature Development), and `Scribe & Guardian` (Documentation/Knowledge) have defined boundaries to prevent overlap and ensure specialized focus.
+- **Coordination Journals**: Agents log learnings and patterns in their respective journal files (e.g., `scribe-guardian.md`) to maintain institutional memory across sessions.
 
 ### Targeted Testing
 To maintain high velocity while ensuring reliability:
