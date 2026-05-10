@@ -1683,23 +1683,52 @@ const GameStats: React.FC = () => {
                   Rim Pressure (Paint Touches)
                 </Typography>
                 <Box sx={{ mb: 2 }}>
-                  <Typography variant="caption" color="text.secondary" display="block">
-                    Paint touches correlate rim pressure with offensive efficiency. PPPT measures points generated within 15s of a paint touch.
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    display="block"
+                  >
+                    Paint touches correlate rim pressure with offensive
+                    efficiency. PPPT measures points generated within 15s of a
+                    paint touch.
                   </Typography>
                 </Box>
                 <Grid container spacing={2} sx={{ mb: 3 }}>
                   <Grid item xs={6}>
-                    <Typography variant="h4" sx={{ fontWeight: 900 }}>{paintTouchStats.total}</Typography>
-                    <Typography variant="caption" color="text.secondary">TOTAL TOUCHES</Typography>
+                    <Typography variant="h4" sx={{ fontWeight: 900 }}>
+                      {paintTouchStats.total}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      TOTAL TOUCHES
+                    </Typography>
                   </Grid>
                   <Grid item xs={6}>
-                    <Typography variant="h4" sx={{ fontWeight: 900, color: "success.main" }}>{paintTouchStats.pppt}</Typography>
-                    <Typography variant="caption" color="text.secondary">PPPT</Typography>
+                    <Typography
+                      variant="h4"
+                      sx={{ fontWeight: 900, color: "success.main" }}
+                    >
+                      {paintTouchStats.pppt}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      PPPT
+                    </Typography>
                   </Grid>
                 </Grid>
                 <Divider sx={{ my: 2 }} />
-                <Typography variant="caption" sx={{ fontWeight: 700, display: "block", textAlign: "center" }}>
-                  EFFICIENCY MULTIPLIER: {((parseFloat(paintTouchStats.pppt) / (parseFloat(teamData.ppp) || 1))).toFixed(2)}x
+                <Typography
+                  variant="caption"
+                  sx={{
+                    fontWeight: 700,
+                    display: "block",
+                    textAlign: "center",
+                  }}
+                >
+                  EFFICIENCY MULTIPLIER:{" "}
+                  {(
+                    parseFloat(paintTouchStats.pppt) /
+                    (parseFloat(teamData.ppp) || 1)
+                  ).toFixed(2)}
+                  x
                 </Typography>
               </MoleskineCard>
             </Grid>
@@ -1713,18 +1742,34 @@ const GameStats: React.FC = () => {
                   Process Report (ROI)
                 </Typography>
                 <Box sx={{ mb: 2 }}>
-                  <Typography variant="caption" color="text.secondary" display="block">
-                    This report compares actual scoring against Expected Points (xPTS) based on shot location and quality.
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    display="block"
+                  >
+                    This report compares actual scoring against Expected Points
+                    (xPTS) based on shot location and quality.
                   </Typography>
                 </Box>
                 <Grid container spacing={2} sx={{ mb: 3 }}>
                   <Grid item xs={6}>
-                    <Typography variant="h4" sx={{ fontWeight: 900 }}>{shotROI.totalPoints}</Typography>
-                    <Typography variant="caption" color="text.secondary">ACTUAL PTS</Typography>
+                    <Typography variant="h4" sx={{ fontWeight: 900 }}>
+                      {shotROI.totalPoints}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      ACTUAL PTS
+                    </Typography>
                   </Grid>
                   <Grid item xs={6}>
-                    <Typography variant="h4" sx={{ fontWeight: 900, color: "primary.main" }}>{shotROI.totalXPts}</Typography>
-                    <Typography variant="caption" color="text.secondary">EXPECTED PTS</Typography>
+                    <Typography
+                      variant="h4"
+                      sx={{ fontWeight: 900, color: "primary.main" }}
+                    >
+                      {shotROI.totalXPts}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      EXPECTED PTS
+                    </Typography>
                   </Grid>
                 </Grid>
                 <Divider sx={{ my: 2 }} />
@@ -1733,12 +1778,18 @@ const GameStats: React.FC = () => {
                     variant="h3"
                     sx={{
                       fontWeight: 900,
-                      color: parseFloat(shotROI.roi) >= 0 ? "success.main" : "error.main"
+                      color:
+                        parseFloat(shotROI.roi) >= 0
+                          ? "success.main"
+                          : "error.main",
                     }}
                   >
-                    {parseFloat(shotROI.roi) > 0 ? "+" : ""}{Math.round(parseFloat(shotROI.roi) * 100)}%
+                    {parseFloat(shotROI.roi) > 0 ? "+" : ""}
+                    {Math.round(parseFloat(shotROI.roi) * 100)}%
                   </Typography>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>SHOT ROI</Typography>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
+                    SHOT ROI
+                  </Typography>
                   <Typography variant="caption" color="text.secondary">
                     {parseFloat(shotROI.roi) >= 0
                       ? "Over-performing relative to shot quality."
@@ -1760,46 +1811,120 @@ const GameStats: React.FC = () => {
                   <Table size="small">
                     <TableHead>
                       <TableRow>
-                        <TableCell sx={{ fontSize: "0.65rem", fontWeight: 800 }}>CONNECTION</TableCell>
-                        <TableCell align="right" sx={{ fontSize: "0.65rem", fontWeight: 800 }}>FREQ</TableCell>
-                        <TableCell align="right" sx={{ fontSize: "0.65rem", fontWeight: 800 }}>PTS</TableCell>
-                        <TableCell align="right" sx={{ fontSize: "0.65rem", fontWeight: 800 }}>eFG%</TableCell>
+                        <TableCell
+                          sx={{ fontSize: "0.65rem", fontWeight: 800 }}
+                        >
+                          CONNECTION
+                        </TableCell>
+                        <TableCell
+                          align="right"
+                          sx={{ fontSize: "0.65rem", fontWeight: 800 }}
+                        >
+                          FREQ
+                        </TableCell>
+                        <TableCell
+                          align="right"
+                          sx={{ fontSize: "0.65rem", fontWeight: 800 }}
+                        >
+                          PTS
+                        </TableCell>
+                        <TableCell
+                          align="right"
+                          sx={{ fontSize: "0.65rem", fontWeight: 800 }}
+                        >
+                          eFG%
+                        </TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {assistNetwork.edges.sort((a,b) => b.count - a.count).slice(0, 5).map((edge, idx) => (
-                        <TableRow key={idx}>
-                          <TableCell>
-                            <Stack direction="row" spacing={1} alignItems="center">
-                              <Avatar sx={{ width: 20, height: 20, fontSize: "0.6rem" }}>
-                                {shotChartJerseyMap.get(edge.passerId) || "??"}
-                              </Avatar>
-                              <Typography variant="caption">→</Typography>
-                              <Avatar sx={{ width: 20, height: 20, fontSize: "0.6rem" }}>
-                                {shotChartJerseyMap.get(edge.finisherId) || "??"}
-                              </Avatar>
-                            </Stack>
-                          </TableCell>
-                          <TableCell align="right" sx={{ fontSize: "0.75rem" }}>{edge.count}</TableCell>
-                          <TableCell align="right" sx={{ fontSize: "0.75rem" }}>{edge.points}</TableCell>
-                          <TableCell align="right" sx={{ fontSize: "0.75rem", fontWeight: 700 }}>{edge.efg}%</TableCell>
-                        </TableRow>
-                      ))}
+                      {assistNetwork.edges
+                        .sort((a, b) => b.count - a.count)
+                        .slice(0, 5)
+                        .map((edge, idx) => (
+                          <TableRow key={idx}>
+                            <TableCell>
+                              <Stack
+                                direction="row"
+                                spacing={1}
+                                alignItems="center"
+                              >
+                                <Avatar
+                                  sx={{
+                                    width: 20,
+                                    height: 20,
+                                    fontSize: "0.6rem",
+                                  }}
+                                >
+                                  {shotChartJerseyMap.get(edge.passerId) ||
+                                    "??"}
+                                </Avatar>
+                                <Typography variant="caption">→</Typography>
+                                <Avatar
+                                  sx={{
+                                    width: 20,
+                                    height: 20,
+                                    fontSize: "0.6rem",
+                                  }}
+                                >
+                                  {shotChartJerseyMap.get(edge.finisherId) ||
+                                    "??"}
+                                </Avatar>
+                              </Stack>
+                            </TableCell>
+                            <TableCell
+                              align="right"
+                              sx={{ fontSize: "0.75rem" }}
+                            >
+                              {edge.count}
+                            </TableCell>
+                            <TableCell
+                              align="right"
+                              sx={{ fontSize: "0.75rem" }}
+                            >
+                              {edge.points}
+                            </TableCell>
+                            <TableCell
+                              align="right"
+                              sx={{ fontSize: "0.75rem", fontWeight: 700 }}
+                            >
+                              {edge.efg}%
+                            </TableCell>
+                          </TableRow>
+                        ))}
                       {assistNetwork.edges.length === 0 && (
                         <TableRow>
-                          <TableCell colSpan={4} align="center">No assists recorded.</TableCell>
+                          <TableCell colSpan={4} align="center">
+                            No assists recorded.
+                          </TableCell>
                         </TableRow>
                       )}
                     </TableBody>
                   </Table>
                 </TableContainer>
                 {assistNetwork.primaryPlaymakerId && (
-                  <Box sx={{ mt: 2, p: 1, bgcolor: "rgba(0,0,0,0.02)", borderRadius: 1 }}>
-                    <Typography variant="caption" display="block" sx={{ fontWeight: 800 }}>
-                      PRIMARY PLAYMAKER: #{shotChartJerseyMap.get(assistNetwork.primaryPlaymakerId)}
+                  <Box
+                    sx={{
+                      mt: 2,
+                      p: 1,
+                      bgcolor: "rgba(0,0,0,0.02)",
+                      borderRadius: 1,
+                    }}
+                  >
+                    <Typography
+                      variant="caption"
+                      display="block"
+                      sx={{ fontWeight: 800 }}
+                    >
+                      PRIMARY PLAYMAKER: #
+                      {shotChartJerseyMap.get(assistNetwork.primaryPlaymakerId)}
                     </Typography>
-                    <Typography variant="caption" display="block" sx={{ fontWeight: 800 }}>
-                      PRIMARY FINISHER: #{shotChartJerseyMap.get(assistNetwork.primaryFinisherId)}
+                    <Typography
+                      variant="caption"
+                      display="block"
+                      sx={{ fontWeight: 800 }}
+                    >
+                      PRIMARY FINISHER: #
+                      {shotChartJerseyMap.get(assistNetwork.primaryFinisherId)}
                     </Typography>
                   </Box>
                 )}

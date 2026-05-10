@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   calculateAssistNetwork,
   calculateShotROI,
-  calculatePaintTouchStats
+  calculatePaintTouchStats,
 } from "../analytics";
 import { StatEvent } from "../../../db";
 import { ACTION_TYPES } from "../../../constants/stats";
@@ -20,7 +20,7 @@ describe("Forge: Core Analytics Extensions", () => {
       timestamp: "2024-01-01T10:00:00Z",
       period: 1,
       clockTime: 600,
-      shotQuality: "OPEN"
+      shotQuality: "OPEN",
     },
     {
       id: "2",
@@ -29,7 +29,7 @@ describe("Forge: Core Analytics Extensions", () => {
       type: ACTION_TYPES.ASSIST,
       timestamp: "2024-01-01T10:00:00Z",
       period: 1,
-      clockTime: 600
+      clockTime: 600,
     },
     {
       id: "3",
@@ -49,7 +49,7 @@ describe("Forge: Core Analytics Extensions", () => {
       period: 1,
       clockTime: 580,
       timestamp: "2024-01-01T10:00:20Z",
-    }
+    },
   ];
 
   it("should calculate Assist Network correctly", () => {
@@ -64,7 +64,7 @@ describe("Forge: Core Analytics Extensions", () => {
         points: 3,
         timestamp: "2024-01-01T10:05:00Z",
         period: 1,
-        clockTime: 300
+        clockTime: 300,
       },
       {
         id: "6",
@@ -73,15 +73,15 @@ describe("Forge: Core Analytics Extensions", () => {
         type: ACTION_TYPES.ASSIST,
         timestamp: "2024-01-01T10:05:00Z",
         period: 1,
-        clockTime: 300
-      }
+        clockTime: 300,
+      },
     ];
 
     const network = calculateAssistNetwork(statsWith3ptAssist);
     expect(network.edges).toHaveLength(2);
 
     // Check P5 node (Passer of 3pt)
-    const p5Node = network.nodes.find(n => n.playerId === "P5");
+    const p5Node = network.nodes.find((n) => n.playerId === "P5");
     expect(p5Node?.assists).toBe(1);
     expect(p5Node?.pointsGenerated).toBe(3);
     // eFG% for passer should account for the 3pt made by finisher
