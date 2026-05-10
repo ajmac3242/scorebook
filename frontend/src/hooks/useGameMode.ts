@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { db, type StatEvent } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
 import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../constants/stats";
@@ -17,6 +17,8 @@ import {
   getBonusStatus,
   calculateHaltAlerts,
   calculateOpponentThreats,
+  calculateMatchupEfficiency,
+  calculateSparkPlugIndex,
   type PlayerAggregates,
   OpponentThreat,
 } from "../utils/stats";
@@ -27,6 +29,9 @@ import { useGameClock } from "./useGameClock";
 import { useLineupState } from "./useLineupState";
 import { useStatWriter } from "./useStatWriter";
 import { usePossessionTracker } from "./usePossessionTracker";
+import { useVoiceRecognition } from "./useVoiceRecognition";
+import { ParsedVoiceCommand } from "../utils/voiceParser";
+import { logger } from "../utils/logger";
 
 export const useGameMode = (gameId: string | null, teamId: string | null) => {
   const theme = useTheme();
@@ -136,6 +141,89 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
   const [lastOpponentStatId, setLastOpponentStatId] = useState<string | null>(
     null,
   );
+  const [voiceEnabled, setVoiceEnabled] = useState(false);
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity: "success" | "error" | "warning" | "info";
+  }>({ open: false, message: "", severity: "success" });
+
+  const handleVoiceCommand = useCallback(
+    async (command: ParsedVoiceCommand) => {
+      if (!gameId) return;
+
+      for (const action of command.actions) {
+        let pId = "";
+        if (action.isOpponent) {
+          pId = action.jerseyNumber
+            ? `${SPECIAL_PLAYER_IDS.OPPONENT}:${action.jerseyNumber}`
+            : SPECIAL_PLAYER_IDS.OPPONENT;
+        } else if (action.jerseyNumber) {
+          const player = teamPlayers.find(
+            (tp) => tp.jerseyNumber === action.jerseyNumber,
+          );
+          if (player) {
+            pId = player.playerId;
+          } else {
+            logger.warn(
+              `Voice command for unknown jersey: ${action.jerseyNumber}`,
+            );
+            continue;
+          }
+        } else {
+          continue;
+        }
+
+        try {
+          const saved = await writeStat({
+            playerId: pId,
+            type: action.action,
+            points: action.points,
+            period,
+            clockTime: clockSeconds,
+            locationX: 0,
+            locationY: 0,
+          });
+
+          if (
+            saved &&
+            action.isOpponent &&
+            action.action === ACTION_TYPES.MAKE
+          ) {
+            setLastOpponentStatId(saved.id!);
+            setIsBreakdownDialogOpen(true);
+          }
+
+          setSnackbar({
+            open: true,
+            message: `Voice Recorded: #${action.jerseyNumber} ${action.action}`,
+            severity: "success",
+          });
+        } catch {
+          setSnackbar({
+            open: true,
+            message: "Voice command failed",
+            severity: "error",
+          });
+        }
+      }
+    },
+    [
+      gameId,
+      teamPlayers,
+      period,
+      clockSeconds,
+      writeStat,
+      setLastOpponentStatId,
+      setIsBreakdownDialogOpen,
+      setSnackbar,
+    ],
+  );
+
+  const { isListening, lastTranscript } = useVoiceRecognition({
+    onCommand: handleVoiceCommand,
+    enabled: voiceEnabled,
+  });
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
   const [statType, setStatType] = useState<string | null>(null);
   const [points, setPoints] = useState<number>(2);
@@ -163,15 +251,11 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
   const [isHalftimeReportOpen, setIsHalftimeReportOpen] = useState(false);
   const [lastViewedHalftimePeriod, setLastViewedHalftimePeriod] =
     useState<number>(0);
+  const [showMatchupMatrix, setShowMatchupMatrix] = useState(false);
   const [chainPrompt, setChainPrompt] = useState<{
     type: "ASSIST" | "REBOUND";
     originalStat: StatEvent;
   } | null>(null);
-  const [snackbar, setSnackbar] = useState<{
-    open: boolean;
-    message: string;
-    severity: "success" | "error" | "warning" | "info";
-  }>({ open: false, message: "", severity: "success" });
 
   // 4. More Domain Derived State
   const sortedGameStats = useMemo(() => {
@@ -835,6 +919,10 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     setIsBreakdownDialogOpen,
     lastOpponentStatId,
     setLastOpponentStatId,
+    voiceEnabled,
+    setVoiceEnabled,
+    isListening,
+    lastTranscript,
     subOutPlayerId,
     setSubOutPlayerId,
     draftOnCourtIds,
@@ -863,6 +951,16 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     sortedStatsGridData,
     statsMap,
     matchups: game?.matchups || {},
+    matchupEfficiency: useMemo(
+      () => calculateMatchupEfficiency(sortedGameStats, game?.matchups || {}),
+      [sortedGameStats, game?.matchups],
+    ),
+    sparkPlugIndex: useMemo(
+      () => calculateSparkPlugIndex(sortedGameStats, game?.periodLength || 10),
+      [sortedGameStats, game?.periodLength],
+    ),
+    showMatchupMatrix,
+    setShowMatchupMatrix,
     opponentStats,
     halftimeStats,
     playerStreaks,

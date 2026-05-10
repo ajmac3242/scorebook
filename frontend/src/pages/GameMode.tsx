@@ -40,6 +40,10 @@ import {
   PanTool,
   SwapHoriz,
   FlashOn,
+  Mic,
+  MicOff,
+  GridOn,
+  Shield,
   ArrowBack,
 } from "@mui/icons-material";
 import {
@@ -54,6 +58,7 @@ import {
 } from "@mui/material";
 import BasketballCourt from "../components/BasketballCourt";
 import RecentActionItem from "../components/RecentActionItem";
+import { MatchupMatrix } from "../components/MatchupMatrix";
 import QuickSubDialog from "../components/QuickSubDialog";
 import SubstitutionAuditDialog from "../components/SubstitutionAuditDialog";
 import FreeThrowWorkflowDialog from "../components/FreeThrowWorkflowDialog";
@@ -99,6 +104,7 @@ const GameMode: React.FC = () => {
   const gameId = searchParams.get("gameId");
   const teamId = searchParams.get("teamId");
 
+  const lastEnergyAlertRef = React.useRef<string | null>(null);
   const {
     selectedX,
     setSelectedX,
@@ -149,6 +155,14 @@ const GameMode: React.FC = () => {
     isBreakdownDialogOpen,
     setIsBreakdownDialogOpen,
     lastOpponentStatId,
+    voiceEnabled,
+    setVoiceEnabled,
+    isListening,
+    lastTranscript,
+    matchupEfficiency,
+    sparkPlugIndex,
+    showMatchupMatrix,
+    setShowMatchupMatrix,
     setLastOpponentStatId,
     isDeleting,
     setIsDeleting,
@@ -631,8 +645,36 @@ const GameMode: React.FC = () => {
   useEffect(() => {
     if (!gameId || !teamId) {
       navigate("/");
+      return;
     }
-  }, [gameId, teamId, navigate]);
+
+    // Energy Alert Logic: Trigger snackbar if a player's composite index is very high
+    const topSpark = sparkPlugIndex[0];
+    if (topSpark && topSpark.compositeIndex >= 12 && !isReadOnly) {
+      const alertKey = `${topSpark.playerId}-${topSpark.compositeIndex}`;
+      if (lastEnergyAlertRef.current !== alertKey) {
+        lastEnergyAlertRef.current = alertKey;
+        const pName =
+          playerNamesMap.get(topSpark.playerId)?.split(" ")[0] || "Player";
+        const jersey = jerseyMap.get(topSpark.playerId);
+
+        setSnackbar({
+          open: true,
+          message: `🔥 ENERGY ALERT: #${jersey} ${pName} is providing a massive Spark Plug impact!`,
+          severity: "info",
+        });
+      }
+    }
+  }, [
+    gameId,
+    teamId,
+    navigate,
+    sparkPlugIndex,
+    playerNamesMap,
+    jerseyMap,
+    isReadOnly,
+    setSnackbar,
+  ]);
 
   const handleToggleClock = useCallback(() => {
     setIsClockRunning((prev) => {
@@ -815,6 +857,32 @@ const GameMode: React.FC = () => {
       )}
       <Grid container spacing={3}>
         <Grid item xs={12} md={8}>
+          {voiceEnabled && (
+            <Alert
+              severity={isListening ? "info" : "warning"}
+              icon={
+                isListening ? (
+                  <Mic sx={{ animation: `${pulse} 2s infinite` }} />
+                ) : (
+                  <MicOff />
+                )
+              }
+              sx={{ mb: 2, borderRadius: 2, fontWeight: 700 }}
+            >
+              {isListening
+                ? "Voice Mode Active: Listening for commands..."
+                : "Voice Mode Paused"}
+              {lastTranscript && (
+                <Typography
+                  variant="caption"
+                  sx={{ display: "block", mt: 0.5, fontStyle: "italic" }}
+                >
+                  Last heard: "{lastTranscript}"
+                </Typography>
+              )}
+            </Alert>
+          )}
+
           <Scoreboard
             game={game}
             team={team}
@@ -877,23 +945,49 @@ const GameMode: React.FC = () => {
                 isEnding={isEnding}
               />
 
-              <ToggleButtonGroup
-                value={trackingMode}
-                exclusive
-                aria-label="Tracking Mode"
-                onChange={(_, val) => val && setTrackingMode(val)}
-                size="small"
-                disabled={isReadOnly}
-                fullWidth={theme.breakpoints.down("sm") !== null}
-                sx={{ width: { xs: "100%", sm: "auto" } }}
+              <Box
+                sx={{
+                  display: "flex",
+                  gap: 1,
+                  width: { xs: "100%", sm: "auto" },
+                }}
               >
-                <ToggleButton value="TEAM">
-                  {team?.name || "Our Team"}
-                </ToggleButton>
-                <ToggleButton value="OPPONENT">
-                  {game?.opponent || "Opponent"}
-                </ToggleButton>
-              </ToggleButtonGroup>
+                <Tooltip
+                  title={
+                    voiceEnabled ? "Disable Voice Mode" : "Enable Voice Mode"
+                  }
+                >
+                  <IconButton
+                    onClick={() => setVoiceEnabled(!voiceEnabled)}
+                    color={voiceEnabled ? "primary" : "default"}
+                    sx={{
+                      border: "1px solid",
+                      borderColor: voiceEnabled ? "primary.main" : "divider",
+                      borderRadius: 1,
+                    }}
+                  >
+                    {voiceEnabled ? <Mic /> : <MicOff />}
+                  </IconButton>
+                </Tooltip>
+
+                <ToggleButtonGroup
+                  value={trackingMode}
+                  exclusive
+                  aria-label="Tracking Mode"
+                  onChange={(_, val) => val && setTrackingMode(val)}
+                  size="small"
+                  disabled={isReadOnly}
+                  fullWidth={theme.breakpoints.down("sm") !== null}
+                  sx={{ width: { xs: "100%", sm: "auto" } }}
+                >
+                  <ToggleButton value="TEAM">
+                    {team?.name || "Our Team"}
+                  </ToggleButton>
+                  <ToggleButton value="OPPONENT">
+                    {game?.opponent || "Opponent"}
+                  </ToggleButton>
+                </ToggleButtonGroup>
+              </Box>
             </Box>
 
             <Box
@@ -959,6 +1053,52 @@ const GameMode: React.FC = () => {
 
         <Grid item xs={12} md={4}>
           <Stack spacing={3}>
+            <MoleskineCard>
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  mb: 1,
+                }}
+              >
+                <Typography
+                  variant="caption"
+                  sx={{ fontWeight: 800, color: "text.secondary" }}
+                >
+                  MATCHUP ANALYTICS
+                </Typography>
+                <IconButton
+                  size="small"
+                  onClick={() => setShowMatchupMatrix(!showMatchupMatrix)}
+                  color={showMatchupMatrix ? "primary" : "default"}
+                >
+                  <GridOn fontSize="small" />
+                </IconButton>
+              </Box>
+              {showMatchupMatrix && (
+                <MatchupMatrix
+                  teamActiveIds={Array.from(gameData.onCourtIds)}
+                  oppActiveIds={opponentStats.slice(0, 5).map((o) => o.id)}
+                  matchupData={matchupEfficiency}
+                  jerseyMap={jerseyMap}
+                  currentMatchups={matchups}
+                  onReassign={async (oId, tId) => {
+                    if (!gameId) return;
+                    const newMatchups = {
+                      ...(matchups || {}),
+                      [oId]: matchups[oId] === tId ? "" : tId,
+                    };
+                    await db.games.update(gameId, {
+                      matchups: newMatchups,
+                      synced: 0,
+                    });
+                    await syncService.pushUpdates();
+                  }}
+                />
+              )}
+            </MoleskineCard>
+
             <TeamStatsCard
               defensiveStats={gameData.defensiveStats}
               teamPpp={gameData.teamPpp}
@@ -1227,8 +1367,92 @@ const GameMode: React.FC = () => {
                   >
                     Player Performance
                   </Typography>
+                  <TableContainer sx={{ mt: 2, mb: 3 }}>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        fontWeight: 800,
+                        mb: 1,
+                        display: "block",
+                        textTransform: "uppercase",
+                        color: "primary.main",
+                      }}
+                    >
+                      SPARK PLUG MOMENTUM INDEX
+                    </Typography>
+                    <Table size="small" aria-label="Spark Plug Momentum Index">
+                      <TableHead>
+                        <TableRow>
+                          <TableCell
+                            sx={{ fontSize: "0.6rem", fontWeight: 800 }}
+                          >
+                            PLAYER
+                          </TableCell>
+                          <TableCell
+                            align="center"
+                            sx={{ fontSize: "0.6rem", fontWeight: 800 }}
+                          >
+                            HUSTLE
+                          </TableCell>
+                          <TableCell
+                            align="center"
+                            sx={{ fontSize: "0.6rem", fontWeight: 800 }}
+                          >
+                            RUN PTS
+                          </TableCell>
+                          <TableCell
+                            align="center"
+                            sx={{ fontSize: "0.6rem", fontWeight: 800 }}
+                          >
+                            INDEX
+                          </TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {sparkPlugIndex.slice(0, 3).map((spi) => (
+                          <TableRow key={spi.playerId}>
+                            <TableCell
+                              sx={{ fontSize: "0.65rem", fontWeight: 700 }}
+                            >
+                              #{jerseyMap.get(spi.playerId)}{" "}
+                              {playerNamesMap.get(spi.playerId)?.split(" ")[0]}
+                            </TableCell>
+                            <TableCell
+                              align="center"
+                              sx={{ fontSize: "0.65rem" }}
+                            >
+                              {spi.hustleStats}
+                            </TableCell>
+                            <TableCell
+                              align="center"
+                              sx={{ fontSize: "0.65rem" }}
+                            >
+                              {spi.momentumScore}
+                            </TableCell>
+                            <TableCell align="center">
+                              <Chip
+                                label={spi.compositeIndex}
+                                size="small"
+                                color={
+                                  spi.compositeIndex >= 10
+                                    ? "primary"
+                                    : "default"
+                                }
+                                sx={{
+                                  height: 18,
+                                  fontSize: "0.6rem",
+                                  fontWeight: 800,
+                                }}
+                              />
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+
                   <TableContainer>
-                    <Table size="small">
+                    <Table size="small" aria-label="Player Performance">
                       <TableHead>
                         <TableRow>
                           {[
@@ -1702,6 +1926,21 @@ const GameMode: React.FC = () => {
                 type: ACTION_TYPES.FOUL_SHOOTING,
                 label: "S. Foul",
                 icon: Warning,
+              },
+              {
+                type: ACTION_TYPES.FLOOR_DIVE,
+                label: "Floor Dive",
+                icon: SportsBasketball,
+              },
+              {
+                type: ACTION_TYPES.CHARGE_TAKEN,
+                label: "Charge",
+                icon: PanTool,
+              },
+              {
+                type: ACTION_TYPES.GREAT_CONTEST,
+                label: "Contest",
+                icon: Shield,
               },
             ].map((action) => (
               <QuickAction
