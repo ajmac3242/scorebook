@@ -24,6 +24,8 @@ import {
   Box,
   Stack,
   Avatar,
+  DialogContentText,
+  Tooltip,
 } from "@mui/material";
 import {
   Delete as DeleteIcon,
@@ -32,6 +34,7 @@ import {
   Close as CloseIcon,
   History as HistoryIcon,
   FilterList as FilterIcon,
+  Warning as WarningIcon,
 } from "@mui/icons-material";
 import { db, type StatEvent, type Player } from "../db";
 import { ACTION_TYPES } from "../constants/stats";
@@ -60,6 +63,8 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
   const [editTime, setEditTime] = useState<string>("");
   const [editPeriod, setEditPeriod] = useState<number>(1);
   const [playerFilter, setPlayerFilter] = useState<string>("ALL");
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [eventToDelete, setEventToDelete] = useState<string | null>(null);
 
   const subEvents = useLiveQuery(() => {
     if (!gameId) return [];
@@ -109,20 +114,16 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (
-      !window.confirm(
-        "Are you sure you want to delete this substitution event? This will affect lineup and plus/minus calculations.",
-      )
-    ) {
-      return;
-    }
+  const handleDelete = async () => {
+    if (!eventToDelete) return;
     try {
-      await db.stats.update(id, {
+      await db.stats.update(eventToDelete, {
         deletedAt: new Date().toISOString(),
         synced: 0,
       });
       await syncService.pushUpdates();
+      setDeleteConfirmOpen(false);
+      setEventToDelete(null);
     } catch (err) {
       logger.error("Failed to delete substitution event:", err);
     }
@@ -166,12 +167,15 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
           </Typography>
 
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <FilterIcon fontSize="small" color="action" />
+            <Tooltip title="Filter by player">
+              <FilterIcon fontSize="small" color="action" />
+            </Tooltip>
             <Select
               size="small"
               value={playerFilter}
               onChange={(e) => setPlayerFilter(e.target.value)}
               sx={{ minWidth: 150, fontSize: "0.75rem" }}
+              aria-label="Filter events by player"
             >
               <MenuItem value="ALL">All Players</MenuItem>
               {playerOptions.map((p) => (
@@ -294,21 +298,25 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                           spacing={1}
                           justifyContent="flex-end"
                         >
-                          <IconButton
-                            size="small"
-                            color="primary"
-                            onClick={handleSaveEdit}
-                            aria-label="Save changes"
-                          >
-                            <SaveIcon fontSize="small" />
-                          </IconButton>
-                          <IconButton
-                            size="small"
-                            onClick={() => setEditingId(null)}
-                            aria-label="Cancel editing"
-                          >
-                            <CloseIcon fontSize="small" />
-                          </IconButton>
+                          <Tooltip title="Save Changes">
+                            <IconButton
+                              size="small"
+                              color="primary"
+                              onClick={handleSaveEdit}
+                              aria-label="Save changes"
+                            >
+                              <SaveIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                          <Tooltip title="Cancel Editing">
+                            <IconButton
+                              size="small"
+                              onClick={() => setEditingId(null)}
+                              aria-label="Cancel editing"
+                            >
+                              <CloseIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
                         </Stack>
                       ) : (
                         <Stack
@@ -316,21 +324,32 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                           spacing={1}
                           justifyContent="flex-end"
                         >
-                          <IconButton
-                            size="small"
-                            onClick={() => handleStartEdit(event)}
-                            aria-label={`Edit ${event.type === ACTION_TYPES.SUB_IN ? "sub in" : "sub out"} for ${player?.name}`}
+                          <Tooltip
+                            title={`Edit ${event.type === ACTION_TYPES.SUB_IN ? "Sub In" : "Sub Out"}`}
                           >
-                            <EditIcon fontSize="small" />
-                          </IconButton>
-                          <IconButton
-                            size="small"
-                            color="error"
-                            onClick={() => handleDelete(event.id!)}
-                            aria-label={`Delete ${event.type === ACTION_TYPES.SUB_IN ? "sub in" : "sub out"} for ${player?.name}`}
+                            <IconButton
+                              size="small"
+                              onClick={() => handleStartEdit(event)}
+                              aria-label={`Edit ${event.type === ACTION_TYPES.SUB_IN ? "sub in" : "sub out"} for ${player?.name}`}
+                            >
+                              <EditIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                          <Tooltip
+                            title={`Delete ${event.type === ACTION_TYPES.SUB_IN ? "Sub In" : "Sub Out"}`}
                           >
-                            <DeleteIcon fontSize="small" />
-                          </IconButton>
+                            <IconButton
+                              size="small"
+                              color="error"
+                              onClick={() => {
+                                setEventToDelete(event.id!);
+                                setDeleteConfirmOpen(true);
+                              }}
+                              aria-label={`Delete ${event.type === ACTION_TYPES.SUB_IN ? "sub in" : "sub out"} for ${player?.name}`}
+                            >
+                              <DeleteIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
                         </Stack>
                       )}
                     </TableCell>
@@ -353,6 +372,39 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
       <DialogActions sx={{ p: 2 }}>
         <Button onClick={onClose}>Close</Button>
       </DialogActions>
+
+      <Dialog
+        open={deleteConfirmOpen}
+        onClose={() => setDeleteConfirmOpen(false)}
+        aria-labelledby="delete-sub-title"
+      >
+        <DialogTitle
+          id="delete-sub-title"
+          sx={{ display: "flex", alignItems: "center", gap: 1 }}
+        >
+          <WarningIcon color="error" /> Delete Substitution Event?
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete this substitution event? This will
+            immediately affect live lineups, plus/minus calculations, and
+            stint durations.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={() => setDeleteConfirmOpen(false)} color="inherit">
+            Cancel
+          </Button>
+          <Button
+            onClick={handleDelete}
+            color="error"
+            variant="contained"
+            autoFocus
+          >
+            Delete Event
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Dialog>
   );
 };

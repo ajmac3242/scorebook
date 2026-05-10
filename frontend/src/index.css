@@ -126,3 +126,10 @@ p {
 .hover-grow:active {
   transform: scale(0.95);
 }
+
+/* Accessible focus-visible styles across the app */
+:focus-visible {
+  outline: 3px solid #154c56;
+  outline-offset: 2px;
+  border-radius: 4px;
+}

@@ -21,6 +21,7 @@ import { useNavigate } from "react-router-dom";
 import { StatItem } from "./SharedUI";
 import { getInitials } from "../utils/stats";
 import { Refresh as RefreshIcon } from "@mui/icons-material";
+import { pulse } from "../styles/animations";
 
 interface EntityBannerProps {
   title: string;
@@ -386,6 +387,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                   },
                   display: { xs: "none", sm: "flex" },
                   transition: "all 0.3s ease",
+                  animation: isSyncing ? `${pulse} 2s infinite` : "none",
                 }}
               >
                 {isSyncing ? "Syncing..." : showSyncSuccess ? "Synced" : "Sync"}

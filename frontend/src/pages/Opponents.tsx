@@ -14,12 +14,14 @@ import {
   DialogContent,
   DialogActions,
   TextField,
+  DialogContentText,
 } from "@mui/material";
 import {
   Assessment as ScoutingIcon,
   ChevronRight as ChevronRightIcon,
   Add as AddIcon,
   Delete as DeleteIcon,
+  Warning as WarningIcon,
 } from "@mui/icons-material";
 import { db } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -35,6 +37,11 @@ const Opponents: React.FC = () => {
   const [newName, setNewName] = useState("");
   const [newLogoUrl, setNewLogoUrl] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [opponentToDelete, setOpponentToDelete] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
 
   const opponentsQueryResult = useLiveQuery(() => db.opponents.toArray(), []);
   const opponents = opponentsQueryResult || [];
@@ -61,18 +68,15 @@ const Opponents: React.FC = () => {
     }
   };
 
-  const handleDeleteOpponent = async (id: string) => {
-    if (
-      window.confirm(
-        "Are you sure you want to delete this opponent and all their scouting data?",
-      )
-    ) {
-      try {
-        await db.opponents.delete(id);
-        await syncService.pushUpdates();
-      } catch (err) {
-        logger.error("Failed to delete opponent", err);
-      }
+  const handleDeleteOpponent = async () => {
+    if (!opponentToDelete) return;
+    try {
+      await db.opponents.delete(opponentToDelete.id);
+      await syncService.pushUpdates();
+      setDeleteDialogOpen(false);
+      setOpponentToDelete(null);
+    } catch (err) {
+      logger.error("Failed to delete opponent", err);
     }
   };
 
@@ -119,9 +123,17 @@ const Opponents: React.FC = () => {
                 <Typography variant="h6" color="text.secondary">
                   No opponents tracked yet
                 </Typography>
-                <Typography variant="body2" color="text.disabled">
+                <Typography variant="body2" color="text.disabled" sx={{ mb: 3 }}>
                   Opponents are automatically added when you schedule a game.
                 </Typography>
+                <Button
+                  variant="outlined"
+                  startIcon={<AddIcon />}
+                  onClick={() => setOpenAddDialog(true)}
+                  sx={{ borderRadius: 2 }}
+                >
+                  Add Your First Opponent
+                </Button>
               </Box>
             </Grid>
           ) : (
@@ -184,7 +196,11 @@ const Opponents: React.FC = () => {
                         aria-label="Delete Opponent"
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleDeleteOpponent(opponent.id);
+                          setOpponentToDelete({
+                            id: opponent.id,
+                            name: opponent.name,
+                          });
+                          setDeleteDialogOpen(true);
                         }}
                       >
                         <DeleteIcon />
@@ -257,6 +273,38 @@ const Opponents: React.FC = () => {
             disabled={!newName.trim() || isSubmitting}
           >
             {isSubmitting ? "Adding..." : "Add"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+        aria-labelledby="delete-dialog-title"
+      >
+        <DialogTitle
+          id="delete-dialog-title"
+          sx={{ display: "flex", alignItems: "center", gap: 1 }}
+        >
+          <WarningIcon color="error" /> Confirm Deletion
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete <strong>{opponentToDelete?.name}</strong>?
+            This will permanently remove all scouting data and player records for this opponent.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={() => setDeleteDialogOpen(false)} color="inherit">
+            Cancel
+          </Button>
+          <Button
+            onClick={handleDeleteOpponent}
+            color="error"
+            variant="contained"
+            autoFocus
+          >
+            Delete Opponent
           </Button>
         </DialogActions>
       </Dialog>
