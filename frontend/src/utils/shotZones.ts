@@ -97,15 +97,16 @@ export const getHeatmapColor = (fgPct: number): string => {
  * OPEN: Uncontested shot.
  * CONTESTED: Defended shot.
  */
-export const XPTS_TABLE: Record<ShotZone, { OPEN: number; CONTESTED: number }> = {
-  RA: { OPEN: 1.65, CONTESTED: 1.25 },
-  PAINT: { OPEN: 1.20, CONTESTED: 0.85 },
-  MID_LEFT: { OPEN: 0.95, CONTESTED: 0.70 },
-  MID_CENTER: { OPEN: 1.05, CONTESTED: 0.75 },
-  MID_RIGHT: { OPEN: 0.95, CONTESTED: 0.70 },
-  "3PT_LEFT_CORNER": { OPEN: 1.15, CONTESTED: 0.80 },
-  "3PT_RIGHT_CORNER": { OPEN: 1.15, CONTESTED: 0.80 },
-  "3PT_LEFT": { OPEN: 1.05, CONTESTED: 0.75 },
-  "3PT_CENTER": { OPEN: 1.08, CONTESTED: 0.78 },
-  "3PT_RIGHT": { OPEN: 1.05, CONTESTED: 0.75 },
-};
+export const XPTS_TABLE: Record<ShotZone, { OPEN: number; CONTESTED: number }> =
+  {
+    RA: { OPEN: 1.65, CONTESTED: 1.25 },
+    PAINT: { OPEN: 1.2, CONTESTED: 0.85 },
+    MID_LEFT: { OPEN: 0.95, CONTESTED: 0.7 },
+    MID_CENTER: { OPEN: 1.05, CONTESTED: 0.75 },
+    MID_RIGHT: { OPEN: 0.95, CONTESTED: 0.7 },
+    "3PT_LEFT_CORNER": { OPEN: 1.15, CONTESTED: 0.8 },
+    "3PT_RIGHT_CORNER": { OPEN: 1.15, CONTESTED: 0.8 },
+    "3PT_LEFT": { OPEN: 1.05, CONTESTED: 0.75 },
+    "3PT_CENTER": { OPEN: 1.08, CONTESTED: 0.78 },
+    "3PT_RIGHT": { OPEN: 1.05, CONTESTED: 0.75 },
+  };
