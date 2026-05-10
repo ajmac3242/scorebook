@@ -1,5 +1,8 @@
 import { describe, it, expect } from "vitest";
-import { calculateSparkPlugIndex, calculateMatchupEfficiency } from "../analytics";
+import {
+  calculateSparkPlugIndex,
+  calculateMatchupEfficiency,
+} from "../analytics";
 import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../../../constants/stats";
 import { StatEvent } from "../../../db";
 
@@ -102,7 +105,11 @@ describe("Forge Analytics", () => {
       ];
 
       const efficiency = calculateMatchupEfficiency(stats, {});
-      const p1m10 = efficiency.find(e => e.teamPlayerId === "p1" && e.oppPlayerId === SPECIAL_PLAYER_IDS.OPPONENT + ":10");
+      const p1m10 = efficiency.find(
+        (e) =>
+          e.teamPlayerId === "p1" &&
+          e.oppPlayerId === SPECIAL_PLAYER_IDS.OPPONENT + ":10",
+      );
       expect(p1m10).toBeDefined();
       expect(p1m10?.possessions).toBe(3);
       expect(p1m10?.stopPct).toBe(Math.round((2 / 3) * 100)); // Miss + Turnover = 2 stops

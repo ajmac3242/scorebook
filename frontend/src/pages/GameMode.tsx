@@ -39,7 +39,11 @@ import {
   Close,
   PanTool,
   SwapHoriz,
-  FlashOn, Mic, MicOff, GridOn, Shield,
+  FlashOn,
+  Mic,
+  MicOff,
+  GridOn,
+  Shield,
   ArrowBack,
 } from "@mui/icons-material";
 import {
@@ -650,7 +654,8 @@ const GameMode: React.FC = () => {
       const alertKey = `${topSpark.playerId}-${topSpark.compositeIndex}`;
       if (lastEnergyAlertRef.current !== alertKey) {
         lastEnergyAlertRef.current = alertKey;
-        const pName = playerNamesMap.get(topSpark.playerId)?.split(" ")[0] || "Player";
+        const pName =
+          playerNamesMap.get(topSpark.playerId)?.split(" ")[0] || "Player";
         const jersey = jerseyMap.get(topSpark.playerId);
 
         setSnackbar({
@@ -660,7 +665,16 @@ const GameMode: React.FC = () => {
         });
       }
     }
-  }, [gameId, teamId, navigate, sparkPlugIndex, playerNamesMap, jerseyMap, isReadOnly, setSnackbar]);
+  }, [
+    gameId,
+    teamId,
+    navigate,
+    sparkPlugIndex,
+    playerNamesMap,
+    jerseyMap,
+    isReadOnly,
+    setSnackbar,
+  ]);
 
   const handleToggleClock = useCallback(() => {
     setIsClockRunning((prev) => {
@@ -932,10 +946,16 @@ const GameMode: React.FC = () => {
               />
 
               <Box
-                sx={{ display: "flex", gap: 1, width: { xs: "100%", sm: "auto" } }}
+                sx={{
+                  display: "flex",
+                  gap: 1,
+                  width: { xs: "100%", sm: "auto" },
+                }}
               >
                 <Tooltip
-                  title={voiceEnabled ? "Disable Voice Mode" : "Enable Voice Mode"}
+                  title={
+                    voiceEnabled ? "Disable Voice Mode" : "Enable Voice Mode"
+                  }
                 >
                   <IconButton
                     onClick={() => setVoiceEnabled(!voiceEnabled)}
@@ -951,22 +971,22 @@ const GameMode: React.FC = () => {
                 </Tooltip>
 
                 <ToggleButtonGroup
-                value={trackingMode}
-                exclusive
-                aria-label="Tracking Mode"
-                onChange={(_, val) => val && setTrackingMode(val)}
-                size="small"
-                disabled={isReadOnly}
-                fullWidth={theme.breakpoints.down("sm") !== null}
-                sx={{ width: { xs: "100%", sm: "auto" } }}
-              >
-                <ToggleButton value="TEAM">
-                  {team?.name || "Our Team"}
-                </ToggleButton>
-                <ToggleButton value="OPPONENT">
-                  {game?.opponent || "Opponent"}
-                </ToggleButton>
-              </ToggleButtonGroup>
+                  value={trackingMode}
+                  exclusive
+                  aria-label="Tracking Mode"
+                  onChange={(_, val) => val && setTrackingMode(val)}
+                  size="small"
+                  disabled={isReadOnly}
+                  fullWidth={theme.breakpoints.down("sm") !== null}
+                  sx={{ width: { xs: "100%", sm: "auto" } }}
+                >
+                  <ToggleButton value="TEAM">
+                    {team?.name || "Our Team"}
+                  </ToggleButton>
+                  <ToggleButton value="OPPONENT">
+                    {game?.opponent || "Opponent"}
+                  </ToggleButton>
+                </ToggleButtonGroup>
               </Box>
             </Box>
 
@@ -1363,7 +1383,9 @@ const GameMode: React.FC = () => {
                     <Table size="small" aria-label="Spark Plug Momentum Index">
                       <TableHead>
                         <TableRow>
-                          <TableCell sx={{ fontSize: "0.6rem", fontWeight: 800 }}>
+                          <TableCell
+                            sx={{ fontSize: "0.6rem", fontWeight: 800 }}
+                          >
                             PLAYER
                           </TableCell>
                           <TableCell
@@ -1393,11 +1415,7 @@ const GameMode: React.FC = () => {
                               sx={{ fontSize: "0.65rem", fontWeight: 700 }}
                             >
                               #{jerseyMap.get(spi.playerId)}{" "}
-                              {
-                                playerNamesMap
-                                  .get(spi.playerId)
-                                  ?.split(" ")[0]
-                              }
+                              {playerNamesMap.get(spi.playerId)?.split(" ")[0]}
                             </TableCell>
                             <TableCell
                               align="center"
