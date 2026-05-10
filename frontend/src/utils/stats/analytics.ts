@@ -5,7 +5,11 @@
 
 import { ACTION_TYPES } from "../../constants/stats";
 import { StatEvent, Player } from "../../db";
-import { formatClock, calculateElapsedMinutes, formatToOne } from "../mathUtils";
+import {
+  formatClock,
+  calculateElapsedMinutes,
+  formatToOne,
+} from "../mathUtils";
 import {
   isActive,
   isOpponentId,
@@ -846,7 +850,9 @@ export const calculateSituationalStats = (
         efg: calculateEfgPct(s.makes, s.threePM, s.attempts),
         delta: (parseFloat(situationalPpp) - parseFloat(teamPpp)).toFixed(2),
         successRate:
-          possessions > 0 ? formatToOne((s.successes / possessions) * 100) : "0.0",
+          possessions > 0
+            ? formatToOne((s.successes / possessions) * 100)
+            : "0.0",
       };
     })
     .sort((a, b) => b.attempts - a.attempts);
