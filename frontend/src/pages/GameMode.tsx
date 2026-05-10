@@ -27,6 +27,7 @@ import {
   Alert,
   Tooltip,
   Snackbar,
+  Divider,
 } from "@mui/material";
 
 import {
@@ -1220,10 +1221,7 @@ const GameMode: React.FC = () => {
                   </Typography>
                 </Grid>
                 <Grid item xs={6}>
-                  <Typography
-                    variant="h6"
-                    sx={{ fontWeight: 900, color: "primary.main" }}
-                  >
+                  <Typography variant="h6" sx={{ fontWeight: 900, color: "primary.main" }}>
                     {paintTouchStats.pppt}
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
@@ -1258,14 +1256,10 @@ const GameMode: React.FC = () => {
                     variant="h6"
                     sx={{
                       fontWeight: 900,
-                      color:
-                        parseFloat(shotROI.roi) >= 0
-                          ? "success.main"
-                          : "error.main",
+                      color: parseFloat(shotROI.roi) >= 0 ? "success.main" : "error.main"
                     }}
                   >
-                    {parseFloat(shotROI.roi) > 0 ? "+" : ""}
-                    {Math.round(parseFloat(shotROI.roi) * 100)}%
+                    {parseFloat(shotROI.roi) > 0 ? "+" : ""}{Math.round(parseFloat(shotROI.roi) * 100)}%
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
                     SHOT ROI
