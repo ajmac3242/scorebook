@@ -101,26 +101,26 @@
 - [x] Real-time PPP display for the active scheme.
 - [x] "Scheme Efficiency" comparison table in the Halftime Report.
 
-## [ ] [Lineup "Offensive Chemistry" Connectivity Map]
+## [x] Lineup "Offensive Chemistry" Connectivity Map
 **Priority:** HIGH
 **Type:** Feature
 **Why:** Understanding who makes whom better is the key to elite playcalling. Connectivity maps show which duos create the most efficient shots.
 **What:** Create a visual "Assist Network" diagram for the active 5-man unit.
 **Acceptance Criteria:**
-- [ ] Visual graph in GameStats showing assist/pass connectivity between players.
-- [ ] Weighting of connections by eFG% (e.g., "Player A to Player B results in 65% eFG%").
-- [ ] Identification of "Primary Playmaker" and "Primary Finisher" nodes for the current lineup.
+- [x] Visual graph in GameStats showing assist/pass connectivity between players.
+- [x] Weighting of connections by eFG% (e.g., "Player A to Player B results in 65% eFG%").
+- [x] Identification of "Primary Playmaker" and "Primary Finisher" nodes for the current lineup.
 
-## [ ] Expected Value (xPTS) & Shot Quality ROI Engine
+## [x] Expected Value (xPTS) & Shot Quality ROI Engine
 **Priority:** HIGH
 **Type:** Feature
 **Why:** A cold shooting night shouldn't result in a tactical pivot if the "Process" is correct. xPTS moves the conversation from results to quality.
 **What:** A model that assigns Expected Points (xPTS) to every shot based on location and the "Shot Quality" (Open/Contested) tag.
 **Acceptance Criteria:**
-- [ ] Implement a lookup table for xPTS based on zone averages and shot quality weights.
-- [ ] "Shot ROI" metric in GameStats: (Total Points / Total xPTS) - 1.0.
-- [ ] "Quality Control" HUD in GameMode showing average xPTS per possession for the current lineup.
-- [ ] Post-game "Process Report" highlighting high xPTS shots that missed vs. low xPTS shots that went in.
+- [x] Implement a lookup table for xPTS based on zone averages and shot quality weights.
+- [x] "Shot ROI" metric in GameStats: (Total Points / Total xPTS) - 1.0.
+- [x] "Quality Control" HUD in GameMode showing average xPTS per possession for the current lineup.
+- [x] Post-game "Process Report" highlighting high xPTS shots that missed vs. low xPTS shots that went in.
 
 ## [x] [Executive Halftime Talking Points Generator]
 **Priority:** HIGH
@@ -192,16 +192,16 @@
 - [ ] "Identity Goals" section where coaches see % of games where goals were met.
 - [ ] Filter by date range or opponent strength.
 
-## [ ] [Paint Touches & Rim Pressure Analytics]
+## [x] [Paint Touches & Rim Pressure Analytics]
 **Priority:** HIGH
 **Type:** Feature
 **Why:** Shooting selection is only half the battle. Coaches need to know if their offense is "settling" or actively attacking the heart of the defense.
 **What:** Implement a "Paint Touch" event type and a live counter in the GameMode. Correlate Paint Touches with subsequent eFG% to prove the value of rim pressure.
 **Acceptance Criteria:**
-- [ ] New "Paint Touch" quick-action button in GameMode.
-- [ ] Live HUD indicator showing "Paint Touches" for the current period.
-- [ ] Analytics bridge: "Points Per Paint Touch" (PPPT) metric in GameStats.
-- [ ] Visualization on the Shot Chart showing where paint touches originated.
+- [x] New "Paint Touch" quick-action button in GameMode.
+- [x] Live HUD indicator showing "Paint Touches" for the current period.
+- [x] Analytics bridge: "Points Per Paint Touch" (PPPT) metric in GameStats.
+- [x] Visualization on the Shot Chart showing where paint touches originated.
 
 ## [ ] ["Hockey Assist" (Secondary Assist) & Playmaking Chain]
 **Priority:** HIGH

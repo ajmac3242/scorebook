@@ -27,6 +27,7 @@ import {
   Alert,
   Tooltip,
   Snackbar,
+  Divider,
 } from "@mui/material";
 
 import {
@@ -209,6 +210,8 @@ const GameMode: React.FC = () => {
     playbookEfficiency,
     markers,
     clockSecondsRef,
+    shotROI,
+    paintTouchStats,
   } = useGameMode(gameId, teamId);
 
   /**
@@ -656,7 +659,6 @@ const GameMode: React.FC = () => {
       setSelectedY,
       setIsEditing,
       setIsDialogOpen,
-      setOpponentPlayType,
     ],
   );
 
@@ -1195,6 +1197,83 @@ const GameMode: React.FC = () => {
                 )?.ppp
               }
             />
+
+            <MoleskineCard>
+              <Typography
+                variant="caption"
+                sx={{
+                  fontWeight: 800,
+                  color: "primary.main",
+                  textTransform: "uppercase",
+                  display: "block",
+                  mb: 1,
+                }}
+              >
+                Offensive Identity (KPIs)
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={6}>
+                  <Typography variant="h6" sx={{ fontWeight: 900 }}>
+                    {paintTouchStats.total}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    PAINT TOUCHES
+                  </Typography>
+                </Grid>
+                <Grid item xs={6}>
+                  <Typography
+                    variant="h6"
+                    sx={{ fontWeight: 900, color: "primary.main" }}
+                  >
+                    {paintTouchStats.pppt}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    PTS / TOUCH
+                  </Typography>
+                </Grid>
+              </Grid>
+              <Divider sx={{ my: 1.5, opacity: 0.1 }} />
+              <Typography
+                variant="caption"
+                sx={{
+                  fontWeight: 800,
+                  color: "primary.main",
+                  textTransform: "uppercase",
+                  display: "block",
+                  mb: 1,
+                }}
+              >
+                Quality Control (xPTS)
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={6}>
+                  <Typography variant="h6" sx={{ fontWeight: 900 }}>
+                    {shotROI.avgXPts}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    xPTS / POSS
+                  </Typography>
+                </Grid>
+                <Grid item xs={6}>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      fontWeight: 900,
+                      color:
+                        parseFloat(shotROI.roi) >= 0
+                          ? "success.main"
+                          : "error.main",
+                    }}
+                  >
+                    {parseFloat(shotROI.roi) > 0 ? "+" : ""}
+                    {Math.round(parseFloat(shotROI.roi) * 100)}%
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    SHOT ROI
+                  </Typography>
+                </Grid>
+              </Grid>
+            </MoleskineCard>
 
             <MoleskineCard>
               <Typography
@@ -1921,6 +2000,10 @@ const GameMode: React.FC = () => {
           if (actionMap[key]) {
             setStatType(actionMap[key]);
           }
+
+          if (key === "p") {
+            setStatType(ACTION_TYPES.PAINT_TOUCH);
+          }
         }}
       >
         <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
@@ -2025,6 +2108,11 @@ const GameMode: React.FC = () => {
                 type: ACTION_TYPES.GREAT_CONTEST,
                 label: "Contest",
                 icon: Shield,
+              },
+              {
+                type: ACTION_TYPES.PAINT_TOUCH,
+                label: "Paint Touch (P)",
+                icon: SportsBasketball,
               },
             ].map((action) => (
               <QuickAction
