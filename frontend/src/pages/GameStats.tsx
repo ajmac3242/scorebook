@@ -448,7 +448,13 @@ const GameStats: React.FC = () => {
         selectedBreakdown === "ALL" || s.breakdownReason === selectedBreakdown;
       const playMatch =
         selectedPlay === "ALL" || (s.playName && s.playName === selectedPlay);
-      if (playerMatch && typeMatch && playMatch && qualityMatch && breakdownMatch) {
+      if (
+        playerMatch &&
+        typeMatch &&
+        playMatch &&
+        qualityMatch &&
+        breakdownMatch
+      ) {
         filtered.push(s);
         if (s.type === ACTION_TYPES.MAKE || s.type === ACTION_TYPES.MISS) {
           markers.push({
