@@ -1986,29 +1986,29 @@ const GameMode: React.FC = () => {
             }}
           >
             {[
-              { type: ACTION_TYPES.MAKE, label: "Make", icon: Check },
-              { type: ACTION_TYPES.MISS, label: "Miss", icon: Close },
+              { type: ACTION_TYPES.MAKE, label: "Make (M)", icon: Check },
+              { type: ACTION_TYPES.MISS, label: "Miss (X)", icon: Close },
               {
                 type: ACTION_TYPES.OFF_REBOUND,
-                label: "Off Reb",
+                label: "Off Reb (O)",
                 icon: SportsBasketball,
               },
               {
                 type: ACTION_TYPES.DEF_REBOUND,
-                label: "Def Reb",
+                label: "Def Reb (D)",
                 icon: SportsBasketball,
               },
-              { type: ACTION_TYPES.ASSIST, label: "Assist", icon: PanTool },
+              { type: ACTION_TYPES.ASSIST, label: "Assist (A)", icon: PanTool },
               {
                 type: ACTION_TYPES.TURNOVER,
-                label: "Turnover",
+                label: "Turnover (T)",
                 icon: SwapHoriz,
               },
-              { type: ACTION_TYPES.STEAL, label: "Steal", icon: FlashOn },
-              { type: ACTION_TYPES.BLOCK, label: "Block", icon: ArrowBack },
+              { type: ACTION_TYPES.STEAL, label: "Steal (S)", icon: FlashOn },
+              { type: ACTION_TYPES.BLOCK, label: "Block (B)", icon: ArrowBack },
               {
                 type: ACTION_TYPES.FOUL_SHOOTING,
-                label: "S. Foul",
+                label: "S. Foul (F)",
                 icon: Warning,
               },
               {
@@ -2327,13 +2327,17 @@ const GameMode: React.FC = () => {
           <Button onClick={() => setIsDialogOpen(false)} color="inherit">
             Cancel
           </Button>
-          <Button
-            onClick={() => handleSaveStat()}
-            variant="contained"
-            disabled={!selectedPlayerId || !statType || isSavingStat}
-          >
-            {isSavingStat ? "Saving..." : isEditing ? "Update" : "Save"}
-          </Button>
+          <Tooltip title="Save Action (Enter)">
+            <span>
+              <Button
+                onClick={() => handleSaveStat()}
+                variant="contained"
+                disabled={!selectedPlayerId || !statType || isSavingStat}
+              >
+                {isSavingStat ? "Saving..." : isEditing ? "Update" : "Save"}
+              </Button>
+            </span>
+          </Tooltip>
         </DialogActions>
       </Dialog>
 

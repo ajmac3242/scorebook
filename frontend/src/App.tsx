@@ -81,11 +81,15 @@ const AppContent: React.FC = () => {
             left: 16,
             width: "auto",
             height: "auto",
-            bgcolor: "primary.main",
+            bgcolor: "primary.dark",
             color: "white",
-            p: 2,
-            borderRadius: 1,
+            p: "12px 24px",
+            borderRadius: "32px",
             zIndex: 10000,
+            textDecoration: "none",
+            fontWeight: 800,
+            boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
+            border: "2px solid white",
           },
         }}
       >

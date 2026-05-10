@@ -229,19 +229,32 @@ const Navigation: React.FC = () => {
             }}
           >
             {!isMobile && (
-              <Typography
-                variant="h6"
-                noWrap
-                sx={{
-                  fontFamily: "var(--serif)",
-                  color: "primary.dark",
-                  fontWeight: 800,
-                  fontSize: "1.25rem",
-                  letterSpacing: "0.02em",
-                }}
-              >
-                Scorebook
-              </Typography>
+              <Tooltip title="Back to Home Dashboard">
+                <Typography
+                  variant="h6"
+                  noWrap
+                  component={Link}
+                  to="/"
+                  sx={{
+                    fontFamily: "var(--serif)",
+                    color: "primary.dark",
+                    fontWeight: 800,
+                    fontSize: "1.25rem",
+                    letterSpacing: "0.02em",
+                    textDecoration: "none",
+                    "&:hover": {
+                      opacity: 0.8,
+                    },
+                    "&:focus-visible": {
+                      outline: `2px solid ${theme.palette.primary.dark}`,
+                      outlineOffset: "4px",
+                      borderRadius: "4px",
+                    },
+                  }}
+                >
+                  Scorebook
+                </Typography>
+              </Tooltip>
             )}
           </Box>
 

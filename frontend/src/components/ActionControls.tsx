@@ -164,7 +164,7 @@ export const ActionControls = React.memo(
           title={
             recentStatsLength === 0
               ? "No actions to undo"
-              : "Revert the last recorded action (Ctrl+Z)"
+              : "Revert the last recorded action (Ctrl+Z or ⌘Z)"
           }
         >
           <span>

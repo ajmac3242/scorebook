@@ -372,6 +372,7 @@ export const Scoreboard = React.memo(
               }}
             >
               <Typography
+                aria-live="off"
                 sx={{
                   color: "white",
                   fontSize: { xs: "1.5rem", sm: "2.5rem" },

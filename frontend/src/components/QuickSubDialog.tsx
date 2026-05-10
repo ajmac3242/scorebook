@@ -63,6 +63,7 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
             variant="text"
             onClick={() => handleSwapClick(selectedSwapId)}
             sx={{ fontSize: "0.65rem" }}
+            aria-label="Clear current selection"
           >
             Clear Selection
           </Button>
@@ -110,6 +111,12 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                           : isFoulTrouble
                             ? "warning.main"
                             : "divider",
+                        borderWidth: selectedSwapId === p.id ? 2 : 1,
+                        "&:focus-visible": {
+                          outline: "2px solid",
+                          outlineColor: "primary.main",
+                          outlineOffset: "2px",
+                        },
                         color: isFouledOut ? "error.main" : "text.primary",
                         bgcolor:
                           selectedSwapId === p.id
@@ -156,10 +163,16 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                       justifyContent: "flex-start",
                       borderStyle: "dashed",
                       color: "text.secondary",
+                      borderWidth: selectedSwapId === emptyId ? 2 : 1,
                       bgcolor:
                         selectedSwapId === emptyId
                           ? "rgba(0,0,0,0.05)"
                           : "transparent",
+                      "&:focus-visible": {
+                        outline: "2px solid",
+                        outlineColor: "primary.main",
+                        outlineOffset: "2px",
+                      },
                     }}
                   >
                     <Avatar
@@ -213,6 +226,12 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                           : isFoulTrouble
                             ? "warning.main"
                             : "divider",
+                        borderWidth: selectedSwapId === p.id ? 2 : 1,
+                        "&:focus-visible": {
+                          outline: "2px solid",
+                          outlineColor: "primary.main",
+                          outlineOffset: "2px",
+                        },
                         color: isFouledOut ? "error.main" : "text.primary",
                         opacity: isFouledOut ? 0.6 : 1,
                         bgcolor:
