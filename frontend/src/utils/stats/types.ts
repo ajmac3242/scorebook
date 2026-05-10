@@ -152,6 +152,8 @@ export interface SpecialtyExecution {
   points: number;
   ppp: string;
   efg: string;
+  delta?: string;
+  successRate?: string;
 }
 
 export interface GameAnalyticsContext {
