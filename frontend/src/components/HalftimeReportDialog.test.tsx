@@ -88,27 +88,23 @@ describe("HalftimeReportDialog", () => {
   });
 
   it("renders empty state for schemes", () => {
-    render(
-      <HalftimeReportDialog
-        {...defaultProps}
-        schemeEfficiency={[]}
-      />
-    );
-    expect(screen.getByText("No defensive data for this half.")).toBeInTheDocument();
+    render(<HalftimeReportDialog {...defaultProps} schemeEfficiency={[]} />);
+    expect(
+      screen.getByText("No defensive data for this half."),
+    ).toBeInTheDocument();
   });
 
   it("renders empty state for opponent threats", () => {
-    render(
-      <HalftimeReportDialog
-        {...defaultProps}
-        opponentThreats={[]}
-      />
-    );
-    expect(screen.getByText("No major opponent threats detected this half.")).toBeInTheDocument();
+    render(<HalftimeReportDialog {...defaultProps} opponentThreats={[]} />);
+    expect(
+      screen.getByText("No major opponent threats detected this half."),
+    ).toBeInTheDocument();
   });
 
   it("shows performing below season average warning", () => {
     render(<HalftimeReportDialog {...defaultProps} />);
-    expect(screen.getByText(/Performing 0.05 below season average/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Performing 0.05 below season average/),
+    ).toBeInTheDocument();
   });
 });

@@ -36,15 +36,15 @@ describe("BasketballCourt Component", () => {
   it("renders heatmap zones", () => {
     const heatmapData = {
       "3PT_CENTER": { makes: 1, attempts: 2 },
-      "PAINT": { makes: 3, attempts: 5 },
-      "RA": { makes: 4, attempts: 4 },
+      PAINT: { makes: 3, attempts: 5 },
+      RA: { makes: 4, attempts: 4 },
       "3PT_LEFT": { makes: 1, attempts: 1 },
       "3PT_RIGHT": { makes: 1, attempts: 1 },
       "3PT_LEFT_CORNER": { makes: 1, attempts: 1 },
       "3PT_RIGHT_CORNER": { makes: 1, attempts: 1 },
-      "MID_LEFT": { makes: 1, attempts: 1 },
-      "MID_RIGHT": { makes: 1, attempts: 1 },
-      "MID_CENTER": { makes: 1, attempts: 1 },
+      MID_LEFT: { makes: 1, attempts: 1 },
+      MID_RIGHT: { makes: 1, attempts: 1 },
+      MID_CENTER: { makes: 1, attempts: 1 },
     };
     const { container } = render(<BasketballCourt heatmapData={heatmapData} />);
 
