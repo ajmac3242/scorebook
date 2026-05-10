@@ -102,7 +102,7 @@ export function response(
     statusCode,
     headers: {
       ...headers,
-      "Content-Type": "application/json",
+      "Content-Type": "application/json; charset=utf-8",
       "Cache-Control":
         "private, no-cache, no-store, max-age=0, must-revalidate",
       "Surrogate-Control": "no-store",

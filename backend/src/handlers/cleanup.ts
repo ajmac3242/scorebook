@@ -33,6 +33,12 @@ export async function handleCleanup(
     const requestApiKey = getHeader(event.headers, "x-api-key") || "";
 
     if (!requestApiKey || !safeCompare(requestApiKey, adminApiKey)) {
+      logError("Unauthorized Cleanup Attempt", {
+        path,
+        method,
+        ip: getHeader(event.headers, "x-forwarded-for"),
+        userAgent: getHeader(event.headers, "user-agent"),
+      });
       return response(403, { message: "Unauthorized cleanup request" });
     }
 

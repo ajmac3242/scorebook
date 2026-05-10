@@ -29,6 +29,9 @@ export const REDACTED_HEADERS = Object.freeze(
     "secret",
     "password",
     "token",
+    "x-real-ip",
+    "x-forwarded-for",
+    "x-client-ip",
   ]),
 );
 
@@ -108,7 +111,7 @@ export function logInfo(label: string, data?: unknown) {
   if (data !== undefined) {
     console.info(
       `[INFO] ${label}:`,
-      typeof data === "object" ? JSON.stringify(data) : data,
+      typeof data === "object" ? JSON.stringify(sanitizeForLog(data)) : data,
     );
   } else {
     console.info(`[INFO] ${label}`);
@@ -119,20 +122,35 @@ export function logInfo(label: string, data?: unknown) {
  * Helper to redact sensitive keys in a map (Record).
  * @param map - The map to redact.
  * @param redactAll - Whether to redact all keys regardless of name.
+ * @param depth
  * @returns A redacted copy of the map.
  */
 function redactMap(
   map: Record<string, unknown> | undefined,
   redactAll = false,
+  depth = 0,
 ): Record<string, unknown> | undefined {
   if (!map) return undefined;
-  const redacted = { ...map };
-  for (const key in redacted) {
+  if (depth > 10) return { "[DEPTH_LIMIT]": "[REDACTED]" };
+
+  const redacted: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(map)) {
     if (redactAll || REDACTED_HEADERS.has(key.toLowerCase())) {
-      const val = redacted[key];
-      redacted[key] = Array.isArray(val)
-        ? val.map(() => "[REDACTED]")
-        : "[REDACTED]";
+      if (Array.isArray(value)) {
+        redacted[key] = value.map(() => "[REDACTED]");
+      } else {
+        redacted[key] = "[REDACTED]";
+      }
+    } else if (value !== null && typeof value === "object") {
+      redacted[key] = Array.isArray(value)
+        ? value.map((item) =>
+            item !== null && typeof item === "object"
+              ? redactMap(item as Record<string, unknown>, redactAll, depth + 1)
+              : item,
+          )
+        : redactMap(value as Record<string, unknown>, redactAll, depth + 1);
+    } else {
+      redacted[key] = value;
     }
   }
   return redacted;
@@ -249,7 +267,9 @@ export function safeCompare(a: string, b: string): boolean {
 export function extractIdFromPath(path: string, prefix: string): string | null {
   if (!path.startsWith(prefix)) return null;
   const id = path.slice(prefix.length);
-  return id.includes("/") ? null : id;
+  // 🛡️ Enhancement: Harden against excessively long IDs (max 128 chars)
+  if (id.length > 128 || id.includes("/")) return null;
+  return id;
 }
 
 /**

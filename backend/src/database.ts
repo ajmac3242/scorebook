@@ -29,6 +29,7 @@ export async function getItems(
       IndexName: "GSI1",
       KeyConditionExpression: "GSI1PK = :pk",
       ExpressionAttributeValues: { ":pk": gsiPrefix },
+      Limit: 1000,
     }),
   );
   return ok(filterActive(result.Items));
@@ -53,6 +54,7 @@ export async function getItemsByGSI(
       IndexName: "GSI1",
       KeyConditionExpression: "GSI1PK = :pk",
       ExpressionAttributeValues: { ":pk": gsiPk },
+      Limit: 1000,
     }),
   );
   return ok(filterActive(result.Items));

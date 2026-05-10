@@ -32,3 +32,8 @@
 **Vulnerability:** The application leaked potentially sensitive data (query parameters and authorizer context) into CloudWatch logs and lacked standard defensive layers like HTTP method whitelisting, request body size limits, and advanced security headers (Surrogate-Control, DNS-Prefetch-Control). Error logs also risked leaking secrets via `Error.message` and `Error.stack`.
 **Learning:** Log redaction must be exhaustive across all event fields and error objects to be effective. Relying solely on header redaction leaves gaps in query strings and authorizer metadata. Defense-in-depth requires multiple layers of protection at the handler entry point.
 **Prevention:** Implement centralized, exhaustive log masking for all event fields and recursively sanitize all error logs (including messages and stack traces). Enforce strict whitelists for HTTP methods and upper bounds for payload sizes to mitigate DoS and injection risks.
+
+## 2026-05-10 - [Global vs Targeted Mass Assignment Protection]
+**Vulnerability:** Attempting to apply global mass assignment protection (`stripLocalFields`) at the body-parsing level in the main handler can break legitimate use cases like item restoration (where `deletedAt: null` is required) or archiving.
+**Learning:** Security filters that strip fields must be applied contextually. While global protection is tempting, it can interfere with business logic that relies on "sensitive" fields for state transitions.
+**Prevention:** Apply `stripLocalFields` strategically in creation and update handlers rather than globally, or implement a "bypass" mechanism for specific fields in transition-focused endpoints.
