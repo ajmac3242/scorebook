@@ -106,6 +106,29 @@ export interface SparkPlugIndex {
   compositeIndex: number;
 }
 
+export interface AssistNetworkNode {
+  playerId: string;
+  assists: number;
+  assistedMakes: number;
+  pointsGenerated: number;
+  efg: string;
+}
+
+export interface AssistEdge {
+  passerId: string;
+  finisherId: string;
+  count: number;
+  points: number;
+  efg: string;
+}
+
+export interface AssistNetwork {
+  nodes: AssistNetworkNode[];
+  edges: AssistEdge[];
+  primaryPlaymakerId: string | null;
+  primaryFinisherId: string | null;
+}
+
 export interface OpponentThreat {
   playerId: string;
   points: number;

@@ -3,13 +3,14 @@
  * @description Advanced analytics and situational metrics.
  */
 
-import { ACTION_TYPES } from "../../constants/stats";
+import { ACTION_TYPES, SHOT_QUALITY } from "../../constants/stats";
 import { StatEvent, Player } from "../../db";
 import {
   formatClock,
   calculateElapsedMinutes,
   formatToOne,
 } from "../mathUtils";
+import { getShotZone, XPTS_TABLE } from "../shotZones";
 import {
   isActive,
   isOpponentId,
@@ -36,6 +37,9 @@ import {
   GameAnalyticsContext,
   LineupAggregates,
   SparkPlugIndex,
+  AssistNetwork,
+  AssistNetworkNode,
+  AssistEdge,
 } from "./types";
 
 export const calculateOpponentScoutingStats = (
@@ -859,8 +863,181 @@ export const calculateSituationalStats = (
 };
 
 /**
+ * 🏀 Forge: Offensive Chemistry Assist Network
+ * WHY: Identify which player combinations are the most efficient.
+ * Connectivity maps show who makes whom better.
+ */
+export const calculateAssistNetwork = (
+  stats: StatEvent[],
+): AssistNetwork => {
+  const nodesMap = new Map<string, { assists: number; assistedMakes: number; points: number; threePM: number }>();
+  const edgesMap = new Map<string, { count: number; points: number; threePM: number }>();
+
+  // 1. Single pass to collect assist data
+  for (let i = 0; i < stats.length; i++) {
+    const s = stats[i];
+    if (!isActive(s) || s.type !== ACTION_TYPES.MAKE || isOpponentId(s.playerId)) continue;
+
+    // We need to find the assist event for this make
+    // In our system, assists are separate events with the same timestamp/clockTime
+    const assist = stats.find(a =>
+      isActive(a) &&
+      a.type === ACTION_TYPES.ASSIST &&
+      a.timestamp === s.timestamp &&
+      a.playerId !== s.playerId
+    );
+
+    if (assist) {
+      const passerId = assist.playerId;
+      const finisherId = s.playerId;
+
+      // Update Node: Passer
+      if (!nodesMap.has(passerId)) nodesMap.set(passerId, { assists: 0, assistedMakes: 0, points: 0, threePM: 0 });
+      const passer = nodesMap.get(passerId)!;
+      passer.assists++;
+      passer.points += (s.points || 0);
+      if (s.points === 3) passer.threePM++;
+
+      // Update Node: Finisher
+      if (!nodesMap.has(finisherId)) nodesMap.set(finisherId, { assists: 0, assistedMakes: 0, points: 0, threePM: 0 });
+      const finisher = nodesMap.get(finisherId)!;
+      finisher.assistedMakes++;
+      finisher.points += (s.points || 0);
+      if (s.points === 3) finisher.threePM++;
+
+      // Update Edge
+      const edgeKey = `${passerId}->${finisherId}`;
+      if (!edgesMap.has(edgeKey)) edgesMap.set(edgeKey, { count: 0, points: 0, threePM: 0 });
+      const edge = edgesMap.get(edgeKey)!;
+      edge.count++;
+      edge.points += (s.points || 0);
+      if (s.points === 3) edge.threePM++;
+    }
+  }
+
+  const nodes: AssistNetworkNode[] = Array.from(nodesMap.entries()).map(([playerId, val]) => ({
+    playerId,
+    assists: val.assists,
+    assistedMakes: val.assistedMakes,
+    pointsGenerated: val.points, // Points generated as passer OR received as finisher
+    efg: calculateEfgPct(val.assistedMakes || val.assists, val.threePM, val.assistedMakes || val.assists)
+  }));
+
+  const edges: AssistEdge[] = Array.from(edgesMap.entries()).map(([key, val]) => {
+    const [passerId, finisherId] = key.split("->");
+    return {
+      passerId,
+      finisherId,
+      count: val.count,
+      points: val.points,
+      efg: calculateEfgPct(val.count, val.threePM, val.count)
+    };
+  });
+
+  let primaryPlaymakerId = null;
+  let primaryFinisherId = null;
+
+  if (nodes.length > 0) {
+    primaryPlaymakerId = [...nodes].sort((a, b) => b.assists - a.assists)[0].playerId;
+    primaryFinisherId = [...nodes].sort((a, b) => b.assistedMakes - a.assistedMakes)[0].playerId;
+  }
+
+  return {
+    nodes,
+    edges,
+    primaryPlaymakerId,
+    primaryFinisherId
+  };
+};
+
+/**
  * Helper to determine if a bonus alert should be displayed.
  */
+/**
+ * 🏀 Forge: Expected Points (xPTS) Logic
+ * Calculation: Maps shot location to zone and quality to expected value.
+ */
+export const calculateXPts = (stat: StatEvent): number => {
+  if (!isActive(stat) || (stat.type !== ACTION_TYPES.MAKE && stat.type !== ACTION_TYPES.MISS)) return 0;
+  if (stat.points === 1) return 0.75; // FT average
+
+  const zone = getShotZone(stat.locationX || 0, stat.locationY || 0);
+  const quality = (stat.shotQuality as keyof typeof SHOT_QUALITY) || SHOT_QUALITY.CONTESTED;
+
+  return XPTS_TABLE[zone]?.[quality as 'OPEN' | 'CONTESTED'] || 0;
+};
+
+/**
+ * 🏀 Forge: Shot ROI & Process Efficiency
+ * WHY: A cold shooting night shouldn't result in a tactical pivot if the "Process" is correct.
+ */
+export const calculateShotROI = (stats: StatEvent[]) => {
+  let totalPoints = 0;
+  let totalXPts = 0;
+  let count = 0;
+
+  for (const s of stats) {
+    if (!isActive(s) || (s.type !== ACTION_TYPES.MAKE && s.type !== ACTION_TYPES.MISS)) continue;
+    if (isOpponentId(s.playerId)) continue;
+
+    totalPoints += (s.points || 0);
+    totalXPts += calculateXPts(s);
+    count++;
+  }
+
+  const roi = totalXPts > 0 ? (totalPoints / totalXPts) - 1.0 : 0;
+  const avgXPtsPerPoss = count > 0 ? totalXPts / count : 0;
+
+  return {
+    roi: roi.toFixed(2),
+    avgXPts: avgXPtsPerPoss.toFixed(2),
+    totalXPts: totalXPts.toFixed(1),
+    totalPoints
+  };
+};
+
+/**
+ * 🏀 Forge: Paint Touches & Rim Pressure
+ * WHY: Shooting selection is only half the battle. Coaches need to know
+ * if their offense is actively attacking the heart of the defense.
+ */
+export const calculatePaintTouchStats = (stats: StatEvent[]) => {
+  let paintTouches = 0;
+  let pointsAfterPaintTouch = 0;
+  let countAfterPaintTouch = 0;
+
+  for (let i = 0; i < stats.length; i++) {
+    const s = stats[i];
+    if (!isActive(s) || s.type !== ACTION_TYPES.PAINT_TOUCH || isOpponentId(s.playerId)) continue;
+
+    paintTouches++;
+
+    // Look for scoring in the next 15 seconds of the same possession/period
+    const touchTime = s.clockTime ?? 0;
+    const period = s.period;
+
+    for (let j = i + 1; j < stats.length; j++) {
+      const next = stats[j];
+      if (!isActive(next) || next.period !== period) break;
+      if (next.type === ACTION_TYPES.POSSESSION || next.type === ACTION_TYPES.TURNOVER) break;
+
+      const timeDiff = touchTime - (next.clockTime ?? 0);
+      if (timeDiff > 15) break;
+
+      if (next.type === ACTION_TYPES.MAKE && !isOpponentId(next.playerId)) {
+        pointsAfterPaintTouch += (next.points || 0);
+        countAfterPaintTouch++;
+        break;
+      }
+    }
+  }
+
+  return {
+    total: paintTouches,
+    pppt: paintTouches > 0 ? (pointsAfterPaintTouch / paintTouches).toFixed(2) : "0.00"
+  };
+};
+
 function getBonusAlert(
   oppFouls: number,
   periodType: string,

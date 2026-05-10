@@ -19,6 +19,8 @@ import {
   calculateOpponentThreats,
   calculateMatchupEfficiency,
   calculateSparkPlugIndex,
+  calculateShotROI,
+  calculatePaintTouchStats,
   type PlayerAggregates,
   OpponentThreat,
 } from "../utils/stats";
@@ -961,6 +963,14 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     sparkPlugIndex: useMemo(
       () => calculateSparkPlugIndex(sortedGameStats, game?.periodLength || 10),
       [sortedGameStats, game?.periodLength],
+    ),
+    shotROI: useMemo(
+      () => calculateShotROI(sortedGameStats),
+      [sortedGameStats],
+    ),
+    paintTouchStats: useMemo(
+      () => calculatePaintTouchStats(sortedGameStats),
+      [sortedGameStats],
     ),
     showMatchupMatrix,
     setShowMatchupMatrix,

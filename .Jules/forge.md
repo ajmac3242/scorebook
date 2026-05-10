@@ -1,18 +1,21 @@
-# Forge Journal
+# Forge Journal 🔨
 
-## Linked Events & Momentum Alerts Implementation
+## Architectural Decisions
 
-### Architectural Decisions
-- **Event Chaining:** Integrated follow-up prompts directly into `handleSaveStat` in `GameMode.tsx`. This avoids the need for a complex state machine while ensuring statistical accuracy by cloning metadata (period, clockTime, timestamp) from the original shot.
-- **Momentum Logic:** Decoupled scoring run and drought detection into the `eventAggregates` memoized block. This ensures high-frequency renders (due to the clock) don't re-process the entire stat stream unless a new event is recorded.
-- **Configurable Thresholds:** Expanded the `Team` interface to support `foulWarningThresholds`. This required a schema-less approach for the Record type to handle any period ID.
+- **Connectivity Maps (Assist Network):** Established a pattern of using temporal matching for assists in `calculateAssistNetwork`. Decided that a passer's eFG% within the network should reflect the team's efficiency on those generated shots (e.g., assisting a 3PT results in 1.5 eFG% contribution) rather than just a binary make/miss.
+- **xPTS Logic:** Centralized shot quality expected values in `frontend/src/utils/shotZones.ts` using a 2D map of [Zone][Quality]. This allows other agents to easily update the "baseline" as the competitive level of the team changes (e.g., NBA vs High School averages).
+- **ROI Metric:** Defined "Shot ROI" as `(Actual / Expected) - 1.0`. This provides a normalized percentage (e.g., +15%) that coaches can use to distinguish between "bad luck" and "bad selection."
 
-### Patterns Established
-- **O(N) single-pass derivation:** Continued the "Bolt" pattern of processing the sorted event stream once to derive multiple statistical sets (scores, fouls, alerts, lineups).
-- **HUD Alerts:** Introduced a high-visibility, pulsed `Alert` overlay in the Scoreboard for momentum shifts, providing immediate "Suggest Timeout" visual cues.
+## Patterns Established
 
-### Basketball Domain Edge Cases
-- **Multi-Period Droughts:** Correctly handled droughts that span across period boundaries (e.g. not scoring in the last 2 mins of P1 and first 2 mins of P2) by calculating total elapsed game clock.
-- **Run Breaks:** Ensured that *any* scoring event by our team immediately terminates an opponent run, regardless of point value.
-- **Assist Ownership:** Prevented a player from being credited with an assist on their own made field goal in the chaining UI.
-- **Free Throw Exclusion:** Field goal streaks and momentum runs correctly exclude free throws (points=1) to focus on dynamic play flow.
+- **Chained HUD Indicators:** Integrated the xPTS and Paint Touch stats into the `GameMode` sidebar. This establishes a pattern of "Strategic KPIs" that update in real-time alongside the raw score, reinforcing "The Process."
+- **Keyboard Shortcuts:** Reserved 'p' for Paint Touches. Shortcuts should be documented in the Stat recording dialog to encourage high-speed tracking.
+
+## Basketball Domain Insights
+
+- **Paint Touch Window:** Settled on a 15-second window for `calculatePaintTouchStats`. This accounts for the time it takes to collapse a defense, kick out, and find the open shooter while still attributing the efficiency gain to the original rim pressure.
+- **Shot Clock Phase Definitions:** 'EARLY' (0-10s), 'MID' (10-20s), and 'LATE' (20s+) phases are now standard across the engine for shot rhythm analysis.
+
+## Data Model Decisions
+
+- **StatEvent Extensions:** Leveraged `situation` and `shotClockPhase` fields to drive the new analytics. These fields are critical for separating "Transition" performance from "Half-Court" performance.
