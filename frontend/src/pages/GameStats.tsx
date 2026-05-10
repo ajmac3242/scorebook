@@ -696,6 +696,84 @@ const GameStats: React.FC = () => {
     return calculateSituationalStats(allStats);
   }, [allStats]);
 
+  const opponentPlayTypeEfficiency = useMemo(() => {
+    const data: Record<
+      string,
+      {
+        makes: number;
+        attempts: number;
+        points: number;
+        fta: number;
+        turnovers: number;
+        threePM: number;
+      }
+    > = {};
+
+    for (let i = 0; i < allStats.length; i++) {
+      const s = allStats[i];
+      if (
+        s.deletedAt ||
+        !s.opponentPlayType ||
+        !s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT)
+      )
+        continue;
+
+      if (!data[s.opponentPlayType]) {
+        data[s.opponentPlayType] = {
+          makes: 0,
+          attempts: 0,
+          points: 0,
+          fta: 0,
+          turnovers: 0,
+          threePM: 0,
+        };
+      }
+
+      const play = data[s.opponentPlayType];
+      if (s.type === ACTION_TYPES.MAKE) {
+        play.points += s.points || 0;
+        if (s.points === 1) {
+          play.fta++;
+        } else {
+          play.makes++;
+          play.attempts++;
+          if (s.points === 3) {
+            play.threePM++;
+          }
+        }
+      } else if (s.type === ACTION_TYPES.MISS) {
+        if (s.points === 1) {
+          play.fta++;
+        } else {
+          play.attempts++;
+        }
+      } else if (s.type === ACTION_TYPES.TURNOVER) {
+        play.turnovers++;
+      }
+    }
+
+    return Object.entries(data)
+      .map(([type, s]) => {
+        const possessions = calculatePossessions(
+          s.attempts,
+          s.fta,
+          s.turnovers,
+          0,
+        );
+        return {
+          type,
+          attempts: s.attempts,
+          points: s.points,
+          ppp: calculatePpp(s.points, possessions),
+          efg:
+            s.attempts > 0
+              ? (((s.makes + 0.5 * s.threePM) / s.attempts) * 100).toFixed(1)
+              : "0.0",
+        };
+      })
+      .sort((a, b) => b.attempts - a.attempts);
+  }, [allStats]);
+
   const practiceFocusAreas = useMemo(() => {
     if (!teamSeasonStats || !teamData) return [];
     // Calculate current game rates
@@ -1555,6 +1633,72 @@ const GameStats: React.FC = () => {
         {/* Efficiency Analytics Card */}
         <Grid item xs={12}>
           <Grid container spacing={3}>
+            <Grid item xs={12} md={4}>
+              <MoleskineCard>
+                <Typography
+                  variant="h6"
+                  sx={{ fontFamily: "var(--serif)", mb: 2 }}
+                >
+                  Opponent Play Types
+                </Typography>
+                <TableContainer>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell
+                          sx={{ fontSize: "0.65rem", fontWeight: 800 }}
+                        >
+                          TYPE
+                        </TableCell>
+                        <TableCell
+                          align="right"
+                          sx={{ fontSize: "0.65rem", fontWeight: 800 }}
+                        >
+                          PPP
+                        </TableCell>
+                        <TableCell
+                          align="right"
+                          sx={{ fontSize: "0.65rem", fontWeight: 800 }}
+                        >
+                          eFG%
+                        </TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {opponentPlayTypeEfficiency.map((row) => (
+                        <TableRow key={row.type}>
+                          <TableCell
+                            sx={{ fontSize: "0.75rem", fontWeight: 600 }}
+                          >
+                            {row.type}
+                          </TableCell>
+                          <TableCell
+                            align="right"
+                            sx={{ fontSize: "0.75rem", fontWeight: 700 }}
+                          >
+                            {row.ppp}
+                          </TableCell>
+                          <TableCell
+                            align="right"
+                            sx={{ fontSize: "0.75rem", fontWeight: 700 }}
+                          >
+                            {row.efg}%
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                      {opponentPlayTypeEfficiency.length === 0 && (
+                        <TableRow>
+                          <TableCell colSpan={3} align="center">
+                            No play types recorded.
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </MoleskineCard>
+            </Grid>
+
             <Grid item xs={12} md={4}>
               <MoleskineCard>
                 <Typography
