@@ -31,7 +31,7 @@
 - [x] "Voice Mode" toggle in GameMode header with microphone permission handling.
 - [x] Support for standard grammar: "[Jersey] [Action]" (e.g., "Five make two", "Ten assist").
 - [x] Support for opponent actions: "Opponent twelve miss".
-- [ ] Chained commands: "Twenty-four make three assist five".
+- [x] Chained commands: "Twenty-four make three assist five".
 - [x] Visual HUD feedback showing "Last Heard: #24 Make 3PT".
 - [x] High-confidence threshold filtering to prevent background noise errors.
 
@@ -43,7 +43,7 @@
 **Acceptance Criteria:**
 - [x] 5x5 "Efficiency Matrix" accessible via a sidebar toggle in GameMode.
 - [x] Color-coded cells: Green (High Stop %), Red (Low Stop %), Gray (Insufficient Data).
-- [ ] One-tap reassignment by clicking a cell in the matrix.
+- [x] One-tap reassignment by clicking a cell in the matrix.
 - [ ] "Unit Optimization" score summarizing the total defensive parity of the current 5-man unit.
 
 ## [x] [Spark Plug Momentum Index]
@@ -55,6 +55,19 @@
 - [x] "Spark Plug" score for every player who records a FLOOR_DIVE, CHARGE_TAKEN, or GREAT_CONTEST.
 - [x] Correlation of hustle events to 2-minute scoring runs.
 - [x] "Energy Alert" in GameMode suggesting when to bring in a high-momentum player.
+
+---
+
+## Documentation & Knowledge Layer
+**Priority:** MEDIUM
+**Type:** Documentation
+**Why:** Maintain systemic clarity for future agents and human contributors as the "Causal Accountability" logic grows.
+**Acceptance Criteria:**
+- [x] Update SCHEMA.md with extended StatEvent attributes (breakdownReason, defensiveScheme, opponentPlayType).
+- [x] Document "Jersey Prefix" playerId format in SCHEMA.md.
+- [x] Deep-dive into "Causal Accountability" principles in README.md.
+- [ ] Create ARCHITECTURE.md for high-level system overview (Offline-first sync, Snapshot architecture).
+- [ ] Document internal analytical formulas (PPP, Spark Plug Index, Fatigue Decay) in a dedicated ANALYTICS.md.
 
 ---
 
