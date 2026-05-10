@@ -1,15 +1,6 @@
-import {
-  jest,
-  describe,
-  it,
-  expect,
-  beforeEach,
-} from "@jest/globals";
+import { jest, describe, it, expect, beforeEach } from "@jest/globals";
 import { handler } from "../index.js";
-import {
-  DynamoDBDocumentClient,
-  PutCommand,
-} from "@aws-sdk/lib-dynamodb";
+import { DynamoDBDocumentClient, PutCommand } from "@aws-sdk/lib-dynamodb";
 import { mockClient } from "aws-sdk-client-mock";
 
 const ddbMock = mockClient(DynamoDBDocumentClient);
@@ -52,10 +43,14 @@ describe("Mass Assignment Vulnerability Test", () => {
       playerId,
       jerseyNumber: "10",
       deletedAt: "2023-01-01T00:00:00.000Z",
-      __proto__: { polluted: true }
+      __proto__: { polluted: true },
     };
 
-    const event = createEvent("POST", `/teams/${teamId}/players`, malformedBody);
+    const event = createEvent(
+      "POST",
+      `/teams/${teamId}/players`,
+      malformedBody,
+    );
     await handler(event);
 
     const putCalls = ddbMock.commandCalls(PutCommand);
