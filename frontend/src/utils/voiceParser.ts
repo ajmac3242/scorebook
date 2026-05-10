@@ -54,10 +54,7 @@ const ACTION_MAP: Record<string, string> = {
 /**
  * Helper to parse a number from one or two words.
  */
-const parseNumberAt = (
-  words: string[],
-  index: number,
-): { value: string; consumed: number } | null => {
+const parseNumberAt = (words: string[], index: number): { value: string; consumed: number } | null => {
   if (index >= words.length) return null;
 
   const first = words[index];
@@ -65,16 +62,8 @@ const parseNumberAt = (
 
   if (NUMBER_MAP[first]) {
     const tens = parseInt(NUMBER_MAP[first]);
-    if (
-      tens >= 20 &&
-      words[index + 1] &&
-      NUMBER_MAP[words[index + 1]] &&
-      parseInt(NUMBER_MAP[words[index + 1]]) < 10
-    ) {
-      return {
-        value: (tens + parseInt(NUMBER_MAP[words[index + 1]])).toString(),
-        consumed: 2,
-      };
+    if (tens >= 20 && words[index + 1] && NUMBER_MAP[words[index + 1]] && parseInt(NUMBER_MAP[words[index + 1]]) < 10) {
+      return { value: (tens + parseInt(NUMBER_MAP[words[index + 1]])).toString(), consumed: 2 };
     }
     return { value: NUMBER_MAP[first], consumed: 1 };
   }
@@ -90,9 +79,7 @@ const parseNumberAt = (
  * - Chained: "[Jersey] make [Points] assist [Jersey]"
  * - Chained: "[Jersey] miss rebound [Jersey]"
  */
-export const parseVoiceCommand = (
-  transcript: string,
-): ParsedVoiceCommand | null => {
+export const parseVoiceCommand = (transcript: string): ParsedVoiceCommand | null => {
   const words = transcript.toLowerCase().trim().split(/\s+/);
   if (words.length < 2) return null;
 
@@ -112,8 +99,7 @@ export const parseVoiceCommand = (
 
     // Try to parse jersey number
     const numResult = parseNumberAt(words, i);
-    if (numResult && !ACTION_MAP[words[i]]) {
-      // Don't consume if it's an action (some actions might be mistaken?)
+    if (numResult && !ACTION_MAP[words[i]]) { // Don't consume if it's an action (some actions might be mistaken?)
       currentJersey = numResult.value;
       i += numResult.consumed;
       continue;

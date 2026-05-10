@@ -165,9 +165,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
           if (player) {
             pId = player.playerId;
           } else {
-            logger.warn(
-              `Voice command for unknown jersey: ${action.jerseyNumber}`,
-            );
+            logger.warn(`Voice command for unknown jersey: ${action.jerseyNumber}`);
             continue;
           }
         } else {

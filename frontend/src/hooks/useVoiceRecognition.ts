@@ -1,9 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useRef } from "react";
-import {
-  parseVoiceCommand,
-  type ParsedVoiceCommand,
-} from "../utils/voiceParser";
+import { parseVoiceCommand, type ParsedVoiceCommand } from "../utils/voiceParser";
 import { logger } from "../utils/logger";
 
 interface UseVoiceRecognitionProps {
@@ -11,18 +8,13 @@ interface UseVoiceRecognitionProps {
   enabled: boolean;
 }
 
-export const useVoiceRecognition = ({
-  onCommand,
-  enabled,
-}: UseVoiceRecognitionProps) => {
+export const useVoiceRecognition = ({ onCommand, enabled }: UseVoiceRecognitionProps) => {
   const [isListening, setIsListening] = useState(false);
   const [lastTranscript, setLastTranscript] = useState("");
   const recognitionRef = useRef<any>(null);
 
   useEffect(() => {
-    const SpeechRecognition =
-      (window as any).SpeechRecognition ||
-      (window as any).webkitSpeechRecognition;
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
       logger.warn("Web Speech API is not supported in this browser.");
       return;

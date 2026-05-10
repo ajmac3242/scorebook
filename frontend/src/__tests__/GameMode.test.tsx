@@ -124,7 +124,7 @@ describe("GameMode Component", () => {
     expect(opps.length).toBeGreaterThan(0);
     expect(await screen.findByText(/Live Lineup/i)).toBeInTheDocument();
     // Verify player appears in the stats table
-    const table = await screen.findByRole("table");
+    const table = await screen.findByRole("table", { name: /Player Performance/i });
     // PlayerStatRow might truncate or split name
     expect(within(table).getByText(/Player/i)).toBeInTheDocument();
   });
