@@ -2211,43 +2211,42 @@ const GameMode: React.FC = () => {
                 </Box>
               </Box>
             )}
-          {(statType === ACTION_TYPES.MAKE ||
-            statType === ACTION_TYPES.MISS) &&
+          {(statType === ACTION_TYPES.MAKE || statType === ACTION_TYPES.MISS) &&
             trackingMode === "OPPONENT" && (
-            <Box sx={{ mt: 3 }}>
-              <Typography
-                variant="caption"
-                gutterBottom
-                sx={{ display: "block", mb: 1 }}
-              >
-                Opponent Play Type
-              </Typography>
-              <ToggleButtonGroup
-                value={opponentPlayType}
-                exclusive
-                onChange={(_, val) => setOpponentPlayType(val)}
-                size="small"
-                fullWidth
-                sx={{ flexWrap: "wrap" }}
-              >
-                <ToggleButton value="PnR" sx={{ fontSize: "0.6rem" }}>
-                  PnR
-                </ToggleButton>
-                <ToggleButton value="ISO" sx={{ fontSize: "0.6rem" }}>
-                  ISO
-                </ToggleButton>
-                <ToggleButton value="POST" sx={{ fontSize: "0.6rem" }}>
-                  POST
-                </ToggleButton>
-                <ToggleButton value="TRANSITION" sx={{ fontSize: "0.6rem" }}>
-                  TRANS
-                </ToggleButton>
-                <ToggleButton value="OFF_SCREEN" sx={{ fontSize: "0.6rem" }}>
-                  SCREEN
-                </ToggleButton>
-              </ToggleButtonGroup>
-            </Box>
-          )}
+              <Box sx={{ mt: 3 }}>
+                <Typography
+                  variant="caption"
+                  gutterBottom
+                  sx={{ display: "block", mb: 1 }}
+                >
+                  Opponent Play Type
+                </Typography>
+                <ToggleButtonGroup
+                  value={opponentPlayType}
+                  exclusive
+                  onChange={(_, val) => setOpponentPlayType(val)}
+                  size="small"
+                  fullWidth
+                  sx={{ flexWrap: "wrap" }}
+                >
+                  <ToggleButton value="PnR" sx={{ fontSize: "0.6rem" }}>
+                    PnR
+                  </ToggleButton>
+                  <ToggleButton value="ISO" sx={{ fontSize: "0.6rem" }}>
+                    ISO
+                  </ToggleButton>
+                  <ToggleButton value="POST" sx={{ fontSize: "0.6rem" }}>
+                    POST
+                  </ToggleButton>
+                  <ToggleButton value="TRANSITION" sx={{ fontSize: "0.6rem" }}>
+                    TRANS
+                  </ToggleButton>
+                  <ToggleButton value="OFF_SCREEN" sx={{ fontSize: "0.6rem" }}>
+                    SCREEN
+                  </ToggleButton>
+                </ToggleButtonGroup>
+              </Box>
+            )}
 
           {(statType === ACTION_TYPES.MAKE ||
             statType === ACTION_TYPES.MISS) && (
