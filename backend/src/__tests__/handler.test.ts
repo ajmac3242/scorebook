@@ -368,4 +368,108 @@ describe("Lambda Handler", () => {
       );
     });
   });
+
+  describe("More Games & Stats Coverage", () => {
+    it("POST /games with completed=1 snapshots stats", async () => {
+      ddbMock.on(PutCommand).resolves({});
+      ddbMock.on(QueryCommand).resolves({ Items: [] });
+      ddbMock.on(GetCommand).resolves({
+        Item: {
+          id: "277e909a-6536-4d2d-937e-f608759556fa",
+          teamId: "277e909a-6536-4d2d-937e-f608759556fb",
+        },
+      });
+      s3Mock.on(PutObjectCommand).resolves({});
+
+      const event = createEvent("POST", "/games", {
+        teamId: "277e909a-6536-4d2d-937e-f608759556fa",
+        opponent: "Opp",
+        completed: 1,
+      });
+      const response: any = await handler(event);
+      expect(response.statusCode).toBe(201);
+      // snapshots: team games and game stats
+      expect(s3Mock.calls().length).toBe(2);
+    });
+
+    it("DELETE /games/:id soft deletes and snapshots", async () => {
+      ddbMock.on(GetCommand).resolves({
+        Item: {
+          id: "277e909a-6536-4d2d-937e-f608759556fa",
+          teamId: "277e909a-6536-4d2d-937e-f608759556fb",
+        },
+      });
+      ddbMock.on(UpdateCommand).resolves({});
+      ddbMock.on(QueryCommand).resolves({ Items: [] });
+      s3Mock.on(PutObjectCommand).resolves({});
+
+      const event = createEvent(
+        "DELETE",
+        "/games/277e909a-6536-4d2d-937e-f608759556fa",
+      );
+      const response: any = await handler(event);
+      expect(response.statusCode).toBe(200);
+      // snapshots team games (PutObject) + delete snapshots (DeleteObject)
+      expect(s3Mock.calls().length).toBe(2);
+    });
+
+    it("POST /games/:id/complete returns 404 if game not found", async () => {
+      ddbMock.on(GetCommand).resolves({});
+      const event = createEvent(
+        "POST",
+        "/games/277e909a-6536-4d2d-937e-f608759556fa/complete",
+      );
+      const response: any = await handler(event);
+      expect(response.statusCode).toBe(404);
+    });
+
+    it("GET /games/:id/stats returns stats list", async () => {
+      ddbMock.on(QueryCommand).resolves({
+        Items: [{ id: "s1", type: "MAKE" }],
+      });
+      const event = createEvent(
+        "GET",
+        "/games/277e909a-6536-4d2d-937e-f608759556fa/stats",
+      );
+      const response: any = await handler(event);
+      expect(response.statusCode).toBe(200);
+      expect(JSON.parse(response.body)).toHaveLength(1);
+    });
+
+    it("GET /games/:id/stats with invalid gameId returns 400", async () => {
+      const event = createEvent("GET", "/games/invalid-uuid/stats");
+      const response: any = await handler(event);
+      expect(response.statusCode).toBe(400);
+    });
+
+    it("POST /games/:id/stats with invalid id returns 400", async () => {
+      const event = createEvent(
+        "POST",
+        "/games/277e909a-6536-4d2d-937e-f608759556fa/stats",
+        {
+          id: "not-a-uuid",
+          type: "MAKE",
+          playerId: "277e909a-6536-4d2d-937e-f608759556f9",
+          points: 2,
+        },
+      );
+      const response: any = await handler(event);
+      expect(response.statusCode).toBe(400);
+    });
+
+    it("POST /games/:id/stats with invalid timestamp returns 400", async () => {
+      const event = createEvent(
+        "POST",
+        "/games/277e909a-6536-4d2d-937e-f608759556fa/stats",
+        {
+          type: "MAKE",
+          playerId: "277e909a-6536-4d2d-937e-f608759556f9",
+          points: 2,
+          timestamp: "invalid-date",
+        },
+      );
+      const response: any = await handler(event);
+      expect(response.statusCode).toBe(400);
+    });
+  });
 });

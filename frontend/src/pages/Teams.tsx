@@ -630,8 +630,10 @@ const Teams: React.FC = () => {
             sx={{ mb: 2 }}
             disabled={isSubmitting}
           >
-            <InputLabel>Period Type</InputLabel>
+            <InputLabel id="period-type-label">Period Type</InputLabel>
             <Select
+              labelId="period-type-label"
+              id="period-type-select"
               value={periodType}
               onChange={(e) =>
                 setPeriodType(e.target.value as "QUARTERS" | "HALVES")
@@ -711,7 +713,7 @@ const Teams: React.FC = () => {
           <Button
             onClick={handleAddTeam}
             variant="contained"
-            disabled={!teamName.trim() || isSubmitting}
+            disabled={isSubmitting}
           >
             {isSubmitting ? "Adding..." : "Add"}
           </Button>

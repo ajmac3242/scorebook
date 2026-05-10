@@ -385,7 +385,7 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
                       borderColor: "warning.main",
                     }}
                   >
-                    <Typography variant="body2">
+                    <Typography variant="body2" component="div">
                       <strong>#{t.playerId.split(":")[1] || "??"}</strong>:{" "}
                       {t.points} pts
                       {t.straightPoints >= 6 && (
