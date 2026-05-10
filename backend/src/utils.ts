@@ -111,7 +111,9 @@ export function logInfo(label: string, data?: unknown) {
   if (data !== undefined) {
     console.info(
       `[INFO] ${label}:`,
-      typeof data === "object" ? JSON.stringify(sanitizeForLog(data)) : data,
+      typeof data === "object"
+        ? JSON.stringify(sanitizeForLog(data))
+        : data,
     );
   } else {
     console.info(`[INFO] ${label}`);
@@ -122,7 +124,6 @@ export function logInfo(label: string, data?: unknown) {
  * Helper to redact sensitive keys in a map (Record).
  * @param map - The map to redact.
  * @param redactAll - Whether to redact all keys regardless of name.
- * @param depth
  * @returns A redacted copy of the map.
  */
 function redactMap(
