@@ -369,7 +369,7 @@ const GameMode: React.FC = () => {
               (typeToSave === ACTION_TYPES.MAKE ||
                 typeToSave === ACTION_TYPES.MISS) &&
               selectedPlayerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT)
-                ? (opponentPlayType as any)
+                ? (opponentPlayType as StatEvent["opponentPlayType"])
                 : undefined,
             shotClockPhase: derivedShotClockPhase,
             primaryDefenderId,
@@ -401,7 +401,7 @@ const GameMode: React.FC = () => {
               (typeToSave === ACTION_TYPES.MAKE ||
                 typeToSave === ACTION_TYPES.MISS) &&
               selectedPlayerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT)
-                ? (opponentPlayType as any)
+                ? (opponentPlayType as StatEvent["opponentPlayType"])
                 : undefined,
             shotClockPhase: derivedShotClockPhase,
             primaryDefenderId,
@@ -489,6 +489,8 @@ const GameMode: React.FC = () => {
       matchups,
       game?.activeDefensiveScheme,
       situation,
+      opponentPlayType,
+      setOpponentPlayType,
     ],
   );
 
@@ -654,7 +656,6 @@ const GameMode: React.FC = () => {
       setSelectedY,
       setIsEditing,
       setIsDialogOpen,
-      opponentPlayType,
       setOpponentPlayType,
     ],
   );
