@@ -5,30 +5,9 @@ import PlaybookEfficiencyWidget from "./PlaybookEfficiencyWidget";
 describe("PlaybookEfficiencyWidget", () => {
   const defaultProps = {
     plays: [
-      {
-        name: "Horns",
-        ppp: "1.25",
-        attempts: 4,
-        makes: 2,
-        points: 5,
-        efg: "62.5",
-      },
-      {
-        name: "ISO",
-        ppp: "0.80",
-        attempts: 5,
-        makes: 1,
-        points: 4,
-        efg: "20.0",
-      },
-      {
-        name: "Hammer",
-        ppp: "1.00",
-        attempts: 2,
-        makes: 1,
-        points: 2,
-        efg: "50.0",
-      },
+      { name: "Horns", ppp: "1.25", attempts: 4, makes: 2, points: 5, efg: "62.5" },
+      { name: "ISO", ppp: "0.80", attempts: 5, makes: 1, points: 4, efg: "20.0" },
+      { name: "Hammer", ppp: "1.00", attempts: 2, makes: 1, points: 2, efg: "50.0" },
     ],
     teamPpp: 1.0,
     gameStats: [
