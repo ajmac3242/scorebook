@@ -24,3 +24,8 @@
 - **Basketball Workflow Insight**: Defensive accountability often requires immediate reflection. Triggering a "Breakdown Reason" dialog immediately after an opponent make ensures the scorekeeper captures the coach's real-time assessment (e.g., "Missed Rotation") while the play is fresh, without cluttering the main HUD.
 - **Implementation Pattern**: The `db.stats.add()` method returns the primary key of the new record. Using this returned ID for subsequent updates (like breakdown attribution) is safer than relying on local object properties, especially when IDs are auto-generated.
 - **Basketball Analytics**: Offensive "Specialty Execution" (ATO/SLOB/BLOB) metrics should be isolated to our team to measure coaching effectiveness. Mixed team/opponent metrics in these categories often create "noise" that obscures whether specific set plays are working.
+
+## Journal - Session 4
+- **Basketball Workflow Insight**: Tactical filtering in shot charts (e.g., by breakdown reason) helps coaches bridge the gap between "result" and "process" visually. Seeing a cluster of misses caused by "Poor Closeouts" on the perimeter provides immediate film-review focus points.
+- **Implementation Pattern**: "Execution Delta" (Situational PPP - Team Average PPP) is a powerful relative metric. It tells a coach not just if a set play worked, but if it was *better* than their standard offense, justifying the timeout used to call it.
+- **Basketball Edge Case**: "Success Rate" in specialty situations must include shooting fouls. A play that results in a trip to the FT line is a successful execution of the set, even if no field goal was attempted. Our situational engine now captures `FOUL_SHOOTING` as a success metric.

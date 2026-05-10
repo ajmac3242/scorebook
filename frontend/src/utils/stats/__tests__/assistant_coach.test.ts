@@ -51,12 +51,12 @@ describe("Assistant Coach Analytics", () => {
   });
 
   describe("calculateSituationalStats", () => {
-    it("aggregates PPP and eFG% by situation for our team only", () => {
+    it("aggregates PPP, Delta, and Success Rate by situation", () => {
       const stats: Partial<StatEvent>[] = [
         {
           playerId: "PLAYER:1",
           type: ACTION_TYPES.MAKE,
-          points: 2,
+          points: 3,
           situation: "ATO",
         },
         {
@@ -66,19 +66,36 @@ describe("Assistant Coach Analytics", () => {
           situation: "ATO",
         },
         {
+          playerId: "PLAYER:1",
+          type: ACTION_TYPES.FOUL_SHOOTING,
+          situation: "ATO",
+        }, // Success (shooting foul)
+        {
           playerId: "OPPONENT:1",
           type: ACTION_TYPES.MAKE,
           points: 2,
           situation: "ATO",
-        }, // Should be ignored (opponent)
+        },
       ];
 
-      const result = calculateSituationalStats(stats as StatEvent[]);
+      const teamPpp = "1.00";
+      const result = calculateSituationalStats(stats as StatEvent[], teamPpp);
+
       expect(result).toHaveLength(1);
       expect(result[0].situation).toBe("ATO");
-      expect(result[0].attempts).toBe(2);
-      expect(result[0].points).toBe(2);
-      expect(result[0].ppp).toBe("1.00"); // 2 points / 2 possessions
+      expect(result[0].attempts).toBe(2); // MAKE 3PT + MISS
+      expect(result[0].points).toBe(3);
+      expect(result[0].ppp).toBe("1.50"); // 3 points / 2 possessions
+      expect(result[0].delta).toBe("0.50"); // 1.50 - 1.00
+      expect(result[0].successRate).toBe("100.0"); // 2 successes (Make + Foul) / 2 possessions? No, wait...
+      // Actually, possessions for Situational is simplified to fga + 0.44*fta + to.
+      // In this test: FGA=2 (Make 3, Miss). Successes = 2 (Make 3, Foul Shooting).
+      // Success Rate = 2 / 2 * 100 = 100.0%
+    });
+
+    it("handles zero possessions safely", () => {
+      const result = calculateSituationalStats([], "1.00");
+      expect(result).toHaveLength(0);
     });
   });
 });

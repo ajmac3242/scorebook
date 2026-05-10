@@ -50,6 +50,7 @@ import {
   ACTION_TYPES,
   SPECIAL_PLAYER_IDS,
   SHOT_QUALITY,
+  BREAKDOWN_REASONS,
 } from "../constants/stats";
 import {
   calculatePlayerAggregates,
@@ -108,6 +109,7 @@ const GameStats: React.FC = () => {
   );
   const [selectedType, setSelectedType] = useState<string>("ALL");
   const [selectedQuality, setSelectedQuality] = useState<string>("ALL");
+  const [selectedBreakdown, setSelectedBreakdown] = useState<string>("ALL");
   const [selectedPlay, setSelectedPlay] = useState<string>("ALL");
   const [periodFilter, setPeriodFilter] = useState<string>("ALL");
   const [clutchFilter, setClutchFilter] = useState(false);
@@ -442,9 +444,11 @@ const GameStats: React.FC = () => {
       const typeMatch = selectedType === "ALL" || s.type === selectedType;
       const qualityMatch =
         selectedQuality === "ALL" || s.shotQuality === selectedQuality;
+      const breakdownMatch =
+        selectedBreakdown === "ALL" || s.breakdownReason === selectedBreakdown;
       const playMatch =
         selectedPlay === "ALL" || (s.playName && s.playName === selectedPlay);
-      if (playerMatch && typeMatch && playMatch && qualityMatch) {
+      if (playerMatch && typeMatch && playMatch && qualityMatch && breakdownMatch) {
         filtered.push(s);
         if (s.type === ACTION_TYPES.MAKE || s.type === ACTION_TYPES.MISS) {
           markers.push({
@@ -467,6 +471,7 @@ const GameStats: React.FC = () => {
     selectedPlayerId,
     selectedType,
     selectedQuality,
+    selectedBreakdown,
     selectedPlay,
     shotChartJerseyMap,
   ]);
@@ -693,8 +698,8 @@ const GameStats: React.FC = () => {
   }, [allStats]);
 
   const specialtyExecution = useMemo(() => {
-    return calculateSituationalStats(allStats);
-  }, [allStats]);
+    return calculateSituationalStats(allStats, teamData.ppp);
+  }, [allStats, teamData.ppp]);
 
   const opponentPlayTypeEfficiency = useMemo(() => {
     const data: Record<
@@ -996,6 +1001,21 @@ const GameStats: React.FC = () => {
             <MenuItem value="ALL">All Qualities</MenuItem>
             <MenuItem value={SHOT_QUALITY.OPEN}>Open</MenuItem>
             <MenuItem value={SHOT_QUALITY.CONTESTED}>Contested</MenuItem>
+          </Select>
+        </FormControl>
+        <FormControl fullWidth size="small">
+          <InputLabel>Breakdown</InputLabel>
+          <Select
+            value={selectedBreakdown}
+            label="Breakdown"
+            onChange={(e) => setSelectedBreakdown(e.target.value)}
+          >
+            <MenuItem value="ALL">All Breakdowns</MenuItem>
+            {Object.values(BREAKDOWN_REASONS).map((reason) => (
+              <MenuItem key={reason} value={reason}>
+                {reason}
+              </MenuItem>
+            ))}
           </Select>
         </FormControl>
         {team?.playbook && team.playbook.length > 0 && (
@@ -1967,6 +1987,18 @@ const GameStats: React.FC = () => {
                           align="right"
                           sx={{ fontSize: "0.65rem", fontWeight: 800 }}
                         >
+                          Δ
+                        </TableCell>
+                        <TableCell
+                          align="right"
+                          sx={{ fontSize: "0.65rem", fontWeight: 800 }}
+                        >
+                          SUCCESS %
+                        </TableCell>
+                        <TableCell
+                          align="right"
+                          sx={{ fontSize: "0.65rem", fontWeight: 800 }}
+                        >
                           eFG%
                         </TableCell>
                       </TableRow>
@@ -1987,6 +2019,28 @@ const GameStats: React.FC = () => {
                           </TableCell>
                           <TableCell
                             align="right"
+                            sx={{
+                              fontSize: "0.75rem",
+                              fontWeight: 700,
+                              color:
+                                parseFloat(row.delta) > 0
+                                  ? "success.main"
+                                  : parseFloat(row.delta) < 0
+                                    ? "error.main"
+                                    : "inherit",
+                            }}
+                          >
+                            {parseFloat(row.delta) > 0 ? "+" : ""}
+                            {row.delta}
+                          </TableCell>
+                          <TableCell
+                            align="right"
+                            sx={{ fontSize: "0.75rem", fontWeight: 700 }}
+                          >
+                            {row.successRate}%
+                          </TableCell>
+                          <TableCell
+                            align="right"
                             sx={{ fontSize: "0.75rem", fontWeight: 700 }}
                           >
                             {row.efg}%
@@ -1995,7 +2049,7 @@ const GameStats: React.FC = () => {
                       ))}
                       {specialtyExecution.length === 0 && (
                         <TableRow>
-                          <TableCell colSpan={3} align="center">
+                          <TableCell colSpan={5} align="center">
                             No situational plays recorded.
                           </TableCell>
                         </TableRow>
