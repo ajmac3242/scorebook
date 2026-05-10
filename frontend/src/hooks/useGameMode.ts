@@ -948,6 +948,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     sortedGameStats,
     gameData,
     jerseyMap,
+    statsGridData,
     sortedStatsGridData,
     statsMap,
     matchups: game?.matchups || {},

@@ -14,12 +14,12 @@ import {
   Box,
 } from "@mui/material";
 import theme from "./theme";
-import GameMode from "./pages/GameMode";
+import GameMode from "./pages/GameMode/GameMode";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Players from "./pages/Players";
 import PlayerStats from "./pages/PlayerStats";
-import GameStats from "./pages/GameStats";
+import GameStats from "./pages/GameStats/GameStats";
 import Teams from "./pages/Teams";
 import TeamStats from "./pages/TeamStats";
 import Opponents from "./pages/Opponents";

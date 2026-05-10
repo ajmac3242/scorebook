@@ -5,7 +5,7 @@ import {
   within,
   waitFor,
 } from "@testing-library/react";
-import GameMode from "../pages/GameMode";
+import GameMode from "../pages/GameMode/GameMode";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { BrowserRouter } from "react-router-dom";
 import { mockDb } from "../dbMock";

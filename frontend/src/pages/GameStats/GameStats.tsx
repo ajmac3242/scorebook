@@ -4,10 +4,6 @@ import {
   Box,
   Typography,
   Grid,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   Stack,
   Table,
   TableBody,
@@ -30,8 +26,8 @@ import {
   ToggleButton,
   ToggleButtonGroup,
   useMediaQuery,
-  Chip,
   Divider,
+  Chip,
 } from "@mui/material";
 import {
   OpenInFull as ExpandIcon,
@@ -41,16 +37,13 @@ import {
   Edit as EditIcon,
   FitnessCenter as PracticeIcon,
 } from "@mui/icons-material";
-import BasketballCourt from "../components/BasketballCourt";
-import SubstitutionAuditDialog from "../components/SubstitutionAuditDialog";
-import { getShotZone } from "../utils/shotZones";
-import { db } from "../db";
+import SubstitutionAuditDialog from "../../components/SubstitutionAuditDialog";
+import { db } from "../../db";
 import { useLiveQuery } from "dexie-react-hooks";
 import {
   ACTION_TYPES,
   SPECIAL_PLAYER_IDS,
-  SHOT_QUALITY,
-} from "../constants/stats";
+} from "../../constants/stats";
 import {
   calculatePlayerAggregates,
   calculateOpponentAggregates,
@@ -64,20 +57,22 @@ import {
   calculateDefensiveIntegrity,
   calculateSituationalStats,
   type ScoreFlowPoint,
-} from "../utils/stats";
-import { MoleskineCard } from "../components/SharedUI";
-import EntityBanner from "../components/EntityBanner";
-import { OnOffImpactTable } from "../components/OnOffImpactTable";
+} from "../../utils/stats";
+import { MoleskineCard } from "../../components/SharedUI";
+import EntityBanner from "../../components/EntityBanner";
+import { OnOffImpactTable } from "../../components/OnOffImpactTable";
 import {
   calculateOnOffStats,
   calculateMatchupStats,
-} from "../utils/stats/impact";
-import { logger } from "../utils/logger";
-import { syncService } from "../utils/syncService";
+} from "../../utils/stats/impact";
+import { logger } from "../../utils/logger";
+import { syncService } from "../../utils/syncService";
 import dayjs from "dayjs";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
-import { BoxScoreSection } from "./GameStats/BoxScoreSection";
+import { BoxScoreSection } from "./BoxScoreSection";
+import EfficiencyAnalytics from "./EfficiencyAnalytics";
+import StatsVisualizations from "./StatsVisualizations";
 import {
   Line,
   Area,
@@ -90,6 +85,7 @@ import {
   ReferenceLine,
   ComposedChart,
 } from "recharts";
+import { getShotZone } from "../../utils/shotZones";
 
 /**
  * GameStats page component.
@@ -557,75 +553,17 @@ const GameStats: React.FC = () => {
     };
   }, [stats]);
 
-  const playEfficiency = useMemo(() => {
-    const data: Record<
-      string,
-      { makes: number; attempts: number; points: number }
-    > = {};
-    for (let i = 0; i < stats.length; i++) {
-      const s = stats[i];
-      if (
-        (s.type === ACTION_TYPES.MAKE || s.type === ACTION_TYPES.MISS) &&
-        s.playName
-      ) {
-        if (!data[s.playName])
-          data[s.playName] = { makes: 0, attempts: 0, points: 0 };
-        data[s.playName].attempts++;
-        if (s.type === ACTION_TYPES.MAKE) {
-          data[s.playName].makes++;
-          data[s.playName].points += s.points || 0;
-        }
-      }
-    }
-    return Object.entries(data).map(([name, stats]) => ({
-      name,
-      ...stats,
-      efg:
-        stats.attempts > 0
-          ? ((stats.points / stats.attempts / 2) * 100).toFixed(1)
-          : "0.0",
-    }));
-  }, [stats]);
-
-  const processEfficiency = useMemo(() => {
-    const data: Record<
-      string,
-      { makes: number; attempts: number; points: number }
-    > = {
-      [SHOT_QUALITY.OPEN]: { makes: 0, attempts: 0, points: 0 },
-      [SHOT_QUALITY.CONTESTED]: { makes: 0, attempts: 0, points: 0 },
+  /**
+   * ⚡ Bolt Optimization: Unified Efficiency Aggregates
+   * Reduces iterations over the statistics array by processing Play, Process, and Clock metrics in a single pass.
+   */
+  const efficiencyAggregates = useMemo(() => {
+    const playData: Record<string, { makes: number; attempts: number; points: number }> = {};
+    const processData: Record<string, { makes: number; attempts: number; points: number }> = {
+      OPEN: { makes: 0, attempts: 0, points: 0 },
+      CONTESTED: { makes: 0, attempts: 0, points: 0 },
     };
-
-    for (let i = 0; i < stats.length; i++) {
-      const s = stats[i];
-      if (
-        (s.type === ACTION_TYPES.MAKE || s.type === ACTION_TYPES.MISS) &&
-        s.shotQuality &&
-        data[s.shotQuality]
-      ) {
-        data[s.shotQuality].attempts++;
-        if (s.type === ACTION_TYPES.MAKE) {
-          data[s.shotQuality].makes++;
-          data[s.shotQuality].points += s.points || 0;
-        }
-      }
-    }
-
-    return Object.entries(data).map(([quality, stats]) => ({
-      quality,
-      ...stats,
-      efg:
-        stats.attempts > 0
-          ? ((stats.points / stats.attempts / 2) * 100).toFixed(1)
-          : "0.0",
-    }));
-  }, [stats]);
-
-  const shotClockEfficiency = useMemo(() => {
-    const data: Record<
-      string,
-      { makes: number; attempts: number; points: number }
-    > = {
+    const clockData: Record<string, { makes: number; attempts: number; points: number }> = {
       EARLY: { makes: 0, attempts: 0, points: 0 },
       MID: { makes: 0, attempts: 0, points: 0 },
       LATE: { makes: 0, attempts: 0, points: 0 },
@@ -633,27 +571,49 @@ const GameStats: React.FC = () => {
 
     for (let i = 0; i < stats.length; i++) {
       const s = stats[i];
-      if (
-        (s.type === ACTION_TYPES.MAKE || s.type === ACTION_TYPES.MISS) &&
-        s.shotClockPhase &&
-        data[s.shotClockPhase]
-      ) {
-        data[s.shotClockPhase].attempts++;
-        if (s.type === ACTION_TYPES.MAKE) {
-          data[s.shotClockPhase].makes++;
-          data[s.shotClockPhase].points += s.points || 0;
+      if (s.type !== ACTION_TYPES.MAKE && s.type !== ACTION_TYPES.MISS) continue;
+
+      const isMake = s.type === ACTION_TYPES.MAKE;
+      const pts = isMake ? (s.points || 0) : 0;
+
+      if (s.playName) {
+        if (!playData[s.playName]) playData[s.playName] = { makes: 0, attempts: 0, points: 0 };
+        playData[s.playName].attempts++;
+        if (isMake) {
+          playData[s.playName].makes++;
+          playData[s.playName].points += pts;
+        }
+      }
+
+      if (s.shotQuality && processData[s.shotQuality]) {
+        processData[s.shotQuality].attempts++;
+        if (isMake) {
+          processData[s.shotQuality].makes++;
+          processData[s.shotQuality].points += pts;
+        }
+      }
+
+      if (s.shotClockPhase && clockData[s.shotClockPhase]) {
+        clockData[s.shotClockPhase].attempts++;
+        if (isMake) {
+          clockData[s.shotClockPhase].makes++;
+          clockData[s.shotClockPhase].points += pts;
         }
       }
     }
 
-    return Object.entries(data).map(([phase, stats]) => ({
-      phase,
-      ...stats,
-      efg:
-        stats.attempts > 0
-          ? ((stats.points / stats.attempts / 2) * 100).toFixed(1)
-          : "0.0",
-    }));
+    const mapToResult = (data: Record<string, { makes: number; attempts: number; points: number }>, keyName: string) =>
+      Object.entries(data).map(([key, val]) => ({
+        [keyName]: key,
+        ...val,
+        efg: val.attempts > 0 ? ((val.points / val.attempts / 2) * 100).toFixed(1) : "0.0",
+      }));
+
+    return {
+      playEfficiency: mapToResult(playData, "name").sort((a, b) => (b.attempts as number) - (a.attempts as number)),
+      processEfficiency: mapToResult(processData, "quality"),
+      shotClockEfficiency: mapToResult(clockData, "phase"),
+    };
   }, [stats]);
 
   const lineupStats = useMemo(() => {
@@ -849,103 +809,6 @@ const GameStats: React.FC = () => {
       oppData={oppData}
       sortConfig={sortConfig}
       handleSort={handleSort}
-    />
-  );
-  const shotChartFilters = (
-    <Box sx={{ mb: 2 }}>
-      <Stack
-        direction="row"
-        justifyContent="space-between"
-        alignItems="center"
-        mb={1}
-      >
-        <Typography variant="subtitle2">Filters</Typography>
-        <Stack direction="row" spacing={1}>
-          <Button
-            size="small"
-            variant={compareMode ? "contained" : "outlined"}
-            onClick={() => setCompareMode(!compareMode)}
-            sx={{ fontSize: "0.7rem" }}
-          >
-            Compare
-          </Button>
-          <ToggleButtonGroup
-            value={shotChartView}
-            exclusive
-            onChange={(_, val) => val && setShotChartView(val)}
-            size="small"
-          >
-            <ToggleButton value="markers">Markers</ToggleButton>
-            <ToggleButton value="heatmap">Heatmap</ToggleButton>
-          </ToggleButtonGroup>
-        </Stack>
-      </Stack>
-      <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
-        <FormControl fullWidth size="small">
-          <InputLabel>Player</InputLabel>
-          <Select
-            value={selectedPlayerId}
-            label="Player"
-            onChange={(e) => setSelectedPlayerId(e.target.value)}
-          >
-            <MenuItem value="ALL">All Players</MenuItem>
-            {players.map((p) => (
-              <MenuItem key={p.id} value={p.id}>
-                {p.name}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <FormControl fullWidth size="small">
-          <InputLabel>Type</InputLabel>
-          <Select
-            value={selectedType}
-            label="Type"
-            onChange={(e) => setSelectedType(e.target.value)}
-          >
-            <MenuItem value="ALL">All Shots</MenuItem>
-            <MenuItem value={ACTION_TYPES.MAKE}>Makes</MenuItem>
-            <MenuItem value={ACTION_TYPES.MISS}>Misses</MenuItem>
-          </Select>
-        </FormControl>
-        <FormControl fullWidth size="small">
-          <InputLabel>Quality</InputLabel>
-          <Select
-            value={selectedQuality}
-            label="Quality"
-            onChange={(e) => setSelectedQuality(e.target.value)}
-          >
-            <MenuItem value="ALL">All Qualities</MenuItem>
-            <MenuItem value={SHOT_QUALITY.OPEN}>Open</MenuItem>
-            <MenuItem value={SHOT_QUALITY.CONTESTED}>Contested</MenuItem>
-          </Select>
-        </FormControl>
-        {team?.playbook && team.playbook.length > 0 && (
-          <FormControl fullWidth size="small">
-            <InputLabel>Play</InputLabel>
-            <Select
-              value={selectedPlay}
-              label="Play"
-              onChange={(e) => setSelectedPlay(e.target.value)}
-            >
-              <MenuItem value="ALL">All Plays</MenuItem>
-              {team.playbook.map((play) => (
-                <MenuItem key={play} value={play}>
-                  {play}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        )}
-      </Stack>
-    </Box>
-  );
-
-  const shotChartCourt = (
-    <BasketballCourt
-      markers={shotChartView === "markers" ? shotChartMarkers : []}
-      heatmapData={shotChartView === "heatmap" ? heatmapData : undefined}
-      onMarkerClick={(m) => setSelectedPlayerId(m.playerId || "ALL")}
     />
   );
 
@@ -1418,110 +1281,44 @@ const GameStats: React.FC = () => {
                 mb: 2,
               }}
             >
-              <Typography variant="h6" sx={{ fontFamily: "var(--serif)" }}>
-                {compareMode ? "Tactical Comparison" : "Shot Chart"}{" "}
-                {!compareMode &&
-                  periodFilter !== "ALL" &&
-                  `(${periodLabel} ${periodFilter})`}
-              </Typography>
               <IconButton
                 onClick={() => setExpandedSection("shotChart")}
                 aria-label="Expand Shot Chart section"
                 title="Expand section"
+                sx={{ ml: "auto" }}
               >
                 <ExpandIcon />
               </IconButton>
             </Box>
-            {shotChartFilters}
-
-            {compareMode ? (
-              <Box
-                sx={{
-                  display: "flex",
-                  gap: 2,
-                  overflowX: isMobile ? "auto" : "visible",
-                  scrollSnapType: isMobile ? "x mandatory" : "none",
-                  pb: 1,
-                  "&::-webkit-scrollbar": { display: "none" },
-                }}
-              >
-                {[
-                  {
-                    id: 1,
-                    p: comparePeriod1,
-                    setP: setComparePeriod1,
-                    data: heatmapData1,
-                  },
-                  {
-                    id: 2,
-                    p: comparePeriod2,
-                    setP: setComparePeriod2,
-                    data: heatmapData2,
-                  },
-                ].map((court) => (
-                  <Box
-                    key={court.id}
-                    sx={{
-                      minWidth: isMobile ? "100%" : "calc(50% - 8px)",
-                      scrollSnapAlign: "start",
-                    }}
-                  >
-                    <Stack
-                      direction="row"
-                      justifyContent="space-between"
-                      alignItems="center"
-                      sx={{ mb: 1 }}
-                    >
-                      <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
-                        {periodLabel} {court.p}
-                      </Typography>
-                      <Select
-                        size="small"
-                        value={court.p}
-                        onChange={(e) => court.setP(e.target.value)}
-                        sx={{ height: 30, fontSize: "0.8rem" }}
-                      >
-                        {periods
-                          .filter((p) => p !== "ALL")
-                          .map((p) => (
-                            <MenuItem key={p} value={p}>
-                              {periodLabel} {p}
-                            </MenuItem>
-                          ))}
-                      </Select>
-                    </Stack>
-                    <BasketballCourt
-                      heatmapData={
-                        shotChartView === "heatmap" ? court.data : undefined
-                      }
-                      markers={
-                        shotChartView === "markers"
-                          ? shotChartMarkers.filter(
-                              (m) =>
-                                allStats.find((s) => s.id === m.id)?.period ===
-                                parseInt(court.p),
-                            )
-                          : []
-                      }
-                    />
-                  </Box>
-                ))}
-              </Box>
-            ) : (
-              <Box sx={{ p: 1 }}>{shotChartCourt}</Box>
-            )}
-
-            {compareMode && isMobile && (
-              <Typography
-                variant="caption"
-                display="block"
-                textAlign="center"
-                color="text.secondary"
-                sx={{ mt: 1 }}
-              >
-                ← Swipe to compare →
-              </Typography>
-            )}
+            <StatsVisualizations
+              compareMode={compareMode}
+              setCompareMode={setCompareMode}
+              shotChartView={shotChartView}
+              setShotChartView={setShotChartView}
+              selectedPlayerId={selectedPlayerId}
+              setSelectedPlayerId={setSelectedPlayerId}
+              selectedType={selectedType}
+              setSelectedType={setSelectedType}
+              selectedQuality={selectedQuality}
+              setSelectedQuality={setSelectedQuality}
+              selectedPlay={selectedPlay}
+              setSelectedPlay={setSelectedPlay}
+              players={players}
+              teamPlaybook={team?.playbook || []}
+              periodLabel={periodLabel}
+              periodFilter={periodFilter}
+              shotChartMarkers={shotChartMarkers}
+              heatmapData={heatmapData}
+              comparePeriod1={comparePeriod1}
+              setComparePeriod1={setComparePeriod1}
+              comparePeriod2={comparePeriod2}
+              setComparePeriod2={setComparePeriod2}
+              heatmapData1={heatmapData1}
+              heatmapData2={heatmapData2}
+              periods={periods}
+              allStats={allStats}
+              isMobile={isMobile}
+            />
           </MoleskineCard>
         </Grid>
 
@@ -1554,136 +1351,14 @@ const GameStats: React.FC = () => {
 
         {/* Efficiency Analytics Card */}
         <Grid item xs={12}>
+          <EfficiencyAnalytics
+            shotClockEfficiency={efficiencyAggregates.shotClockEfficiency}
+            processEfficiency={efficiencyAggregates.processEfficiency}
+            playEfficiency={efficiencyAggregates.playEfficiency}
+          />
+        </Grid>
+        <Grid item xs={12}>
           <Grid container spacing={3}>
-            <Grid item xs={12} md={4}>
-              <MoleskineCard>
-                <Typography
-                  variant="h6"
-                  sx={{ fontFamily: "var(--serif)", mb: 2 }}
-                >
-                  Shot Rhythm (Clock)
-                </Typography>
-                <TableContainer>
-                  <Table size="small">
-                    <TableHead>
-                      <TableRow sx={{ bgcolor: "rgba(0,0,0,0.02)" }}>
-                        <TableCell sx={{ fontWeight: 700 }}>Phase</TableCell>
-                        <TableCell align="right" sx={{ fontWeight: 700 }}>
-                          Freq
-                        </TableCell>
-                        <TableCell align="right" sx={{ fontWeight: 700 }}>
-                          PTS
-                        </TableCell>
-                        <TableCell align="right" sx={{ fontWeight: 700 }}>
-                          eFG%
-                        </TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {shotClockEfficiency.map((p) => (
-                        <TableRow key={p.phase}>
-                          <TableCell sx={{ fontWeight: 600 }}>
-                            {p.phase}
-                          </TableCell>
-                          <TableCell align="right">{p.attempts}</TableCell>
-                          <TableCell align="right">{p.points}</TableCell>
-                          <TableCell align="right">{p.efg}%</TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              </MoleskineCard>
-            </Grid>
-
-            <Grid item xs={12} md={4}>
-              <MoleskineCard>
-                <Typography
-                  variant="h6"
-                  sx={{ fontFamily: "var(--serif)", mb: 2 }}
-                >
-                  Process Efficiency
-                </Typography>
-                <TableContainer>
-                  <Table size="small">
-                    <TableHead>
-                      <TableRow sx={{ bgcolor: "rgba(0,0,0,0.02)" }}>
-                        <TableCell sx={{ fontWeight: 700 }}>Quality</TableCell>
-                        <TableCell align="right" sx={{ fontWeight: 700 }}>
-                          Freq
-                        </TableCell>
-                        <TableCell align="right" sx={{ fontWeight: 700 }}>
-                          PTS
-                        </TableCell>
-                        <TableCell align="right" sx={{ fontWeight: 700 }}>
-                          eFG%
-                        </TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {processEfficiency.map((p) => (
-                        <TableRow key={p.quality}>
-                          <TableCell sx={{ fontWeight: 600 }}>
-                            {p.quality}
-                          </TableCell>
-                          <TableCell align="right">{p.attempts}</TableCell>
-                          <TableCell align="right">{p.points}</TableCell>
-                          <TableCell align="right">{p.efg}%</TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              </MoleskineCard>
-            </Grid>
-
-            <Grid item xs={12} md={4}>
-              <MoleskineCard>
-                <Typography
-                  variant="h6"
-                  sx={{ fontFamily: "var(--serif)", mb: 2 }}
-                >
-                  Play Efficiency
-                </Typography>
-                <TableContainer>
-                  <Table size="small">
-                    <TableHead>
-                      <TableRow sx={{ bgcolor: "rgba(0,0,0,0.02)" }}>
-                        <TableCell sx={{ fontWeight: 700 }}>Play</TableCell>
-                        <TableCell align="right" sx={{ fontWeight: 700 }}>
-                          Freq
-                        </TableCell>
-                        <TableCell align="right" sx={{ fontWeight: 700 }}>
-                          PTS
-                        </TableCell>
-                        <TableCell align="right" sx={{ fontWeight: 700 }}>
-                          eFG%
-                        </TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {playEfficiency.map((play) => (
-                        <TableRow key={play.name}>
-                          <TableCell sx={{ fontWeight: 600 }}>
-                            {play.name}
-                          </TableCell>
-                          <TableCell align="right">{play.attempts}</TableCell>
-                          <TableCell align="right">{play.points}</TableCell>
-                          <TableCell align="right">{play.efg}%</TableCell>
-                        </TableRow>
-                      ))}
-                      {playEfficiency.length === 0 && (
-                        <TableRow>
-                          <TableCell colSpan={4} align="center">
-                            No play-tagged shots recorded.
-                          </TableCell>
-                        </TableRow>
-                      )}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              </MoleskineCard>
-            </Grid>
             <Grid item xs={12} md={4}>
               <MoleskineCard>
                 <Box
@@ -1894,12 +1569,37 @@ const GameStats: React.FC = () => {
         <DialogContent>
           {expandedSection === "boxScore" && boxScoreTable}
           {expandedSection === "shotChart" && (
-            <>
-              {shotChartFilters}
-              <Box sx={{ p: 1, maxWidth: 800, mx: "auto" }}>
-                {shotChartCourt}
-              </Box>
-            </>
+            <Box sx={{ p: 1, maxWidth: 800, mx: "auto" }}>
+              <StatsVisualizations
+                compareMode={compareMode}
+                setCompareMode={setCompareMode}
+                shotChartView={shotChartView}
+                setShotChartView={setShotChartView}
+                selectedPlayerId={selectedPlayerId}
+                setSelectedPlayerId={setSelectedPlayerId}
+                selectedType={selectedType}
+                setSelectedType={setSelectedType}
+                selectedQuality={selectedQuality}
+                setSelectedQuality={setSelectedQuality}
+                selectedPlay={selectedPlay}
+                setSelectedPlay={setSelectedPlay}
+                players={players}
+                teamPlaybook={team?.playbook || []}
+                periodLabel={periodLabel}
+                periodFilter={periodFilter}
+                shotChartMarkers={shotChartMarkers}
+                heatmapData={heatmapData}
+                comparePeriod1={comparePeriod1}
+                setComparePeriod1={setComparePeriod1}
+                comparePeriod2={comparePeriod2}
+                setComparePeriod2={setComparePeriod2}
+                heatmapData1={heatmapData1}
+                heatmapData2={heatmapData2}
+                periods={periods}
+                allStats={allStats}
+                isMobile={isMobile}
+              />
+            </Box>
           )}
           {expandedSection === "scoreFlow" && (
             <Box sx={{ height: 500 }}>{scoreFlowChart}</Box>

@@ -185,32 +185,30 @@ export const calculateSparkPlugIndex = (
       ].includes(s.type),
   );
 
+  // ⚡ Performance Optimization: Pre-calculate scoring map to avoid O(H*N) complexity.
+  // Instead of re-scanning all stats for every hustle event, we build a temporal point map.
+  const secondBySecondPoints = new Map<number, number>();
+  stats.forEach((s) => {
+    if (!s.deletedAt && s.type === ACTION_TYPES.MAKE && !isOpponentId(s.playerId)) {
+      const sTime = (s.period - 1) * periodLenSecs + (periodLenSecs - (s.clockTime ?? 0));
+      secondBySecondPoints.set(sTime, (secondBySecondPoints.get(sTime) || 0) + (s.points || 0));
+    }
+  });
+
   hustleEvents.forEach((h) => {
     const pId = h.playerId;
     if (!result.has(pId)) result.set(pId, { hustle: 0, momentum: 0 });
     const entry = result.get(pId)!;
     entry.hustle++;
 
-    // 2. Look for team scoring in the next 2 minutes (120s)
-    const hTime =
-      (h.period - 1) * periodLenSecs + (periodLenSecs - (h.clockTime ?? 0));
+    const hTime = (h.period - 1) * periodLenSecs + (periodLenSecs - (h.clockTime ?? 0));
     const endTime = hTime + 120;
 
-    const runPoints = stats.reduce((acc, s) => {
-      if (
-        s.deletedAt ||
-        s.type !== ACTION_TYPES.MAKE ||
-        isOpponentId(s.playerId)
-      )
-        return acc;
-      const sTime =
-        (s.period - 1) * periodLenSecs + (periodLenSecs - (s.clockTime ?? 0));
-      if (sTime > hTime && sTime <= endTime) {
-        return acc + (s.points || 0);
-      }
-      return acc;
-    }, 0);
-
+    // Use temporal map for O(120) instead of O(N) lookup
+    let runPoints = 0;
+    for (let t = hTime + 1; t <= endTime; t++) {
+      runPoints += secondBySecondPoints.get(t) || 0;
+    }
     entry.momentum += runPoints;
   });
 
