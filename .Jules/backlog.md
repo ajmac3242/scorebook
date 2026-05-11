@@ -209,8 +209,8 @@
 **Why:** The player who makes the "extra pass" often goes unrewarded in traditional stats. Identifying secondary assists reveals the true floor generals who drive offensive flow.
 **What:** Allow for a secondary "Hockey Assist" to be recorded during the "Who Assisted?" chain.
 **Acceptance Criteria:**
-- [ ] Enhance "Teammate Assist?" overlay to allow selecting a second player for a "Hockey Assist."
-- [ ] "Hockey Assist" column in the Box Score and Player Stats.
+- [x] Enhance "Teammate Assist?" overlay to allow selecting a second player for a "Hockey Assist."
+- [x] "Hockey Assist" column in the Box Score and Player Stats.
 - [ ] "Offensive Flow Rating" per player: (Assists + Hockey Assists) / Possessions.
 
 ## [ ] [Lineup "Defensive Synergy" (Lineup x Scheme Efficiency)]
@@ -233,14 +233,14 @@
 - [ ] Live HUD elements in GameMode (e.g., "TOs: 4/10 limit", "OREBs: 8/12 goal").
 - [ ] Visual alert when a "Limit" KPI is exceeded (e.g., Turning red when fast break points allowed exceed the goal).
 
-## [ ] [Individual Defensive Breakdown Accountability Metrics]
+## [x] [Individual Defensive Breakdown Accountability Metrics]
 **Priority:** HIGH
 **Type:** Feature
 **Why:** We track *why* a bucket was allowed, but we need to tie it back to *who* was responsible to drive causal accountability.
 **What:** Aggregate Defensive Breakdown Reasons by the "Primary Defender" identified in Matchup Tracking.
 **Acceptance Criteria:**
-- [ ] "Individual Accountability" table in GameStats.
-- [ ] Breakdown of Points Allowed per player by category (e.g., "Player X: 6 pts via Poor Closeouts").
+- [x] "Individual Accountability" table in GameStats.
+- [x] Breakdown of Points Allowed per player by category (e.g., "Player X: 6 pts via Poor Closeouts").
 - [ ] "Coach's Note" auto-generation: "Focus on Rotations with Player Y" based on breakdown trends.
 
 ## [x] [Substitution Timeline Audit]
@@ -314,7 +314,7 @@
 **Why:** Coaches often lose track of momentum shifts during the heat of the game. Real-time alerts for "10-0 Runs" or "3-Minute Droughts" act as a data-driven trigger for timeouts.
 **What:** Monitor the live event stream for scoring patterns. Trigger a visual HUD alert in `GameMode` when specific momentum thresholds are met.
 **Acceptance Criteria:**
-- [ ] Trigger "Opponent Run" alert (e.g., 8-0 or 10-2 run) in the scoreboard area.
+- [x] Trigger "Opponent Run" alert (e.g., 8-0 or 10-2 run) in the scoreboard area.
 - [ ] Trigger "Scoring Drought" alert if "Our Team" has not scored for X consecutive minutes of game clock.
 - [ ] Alerts should include a "Suggest Timeout" visual cue.
 - [ ] Thresholds should be configurable in Team Settings (default: 8 points for a run, 3 minutes for a drought).

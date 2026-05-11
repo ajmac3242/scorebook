@@ -63,6 +63,7 @@ export interface ScoreboardProps {
     possessionState: string | null;
     momentumAlerts: {
       opponentRun: string | null;
+      teamRun: string | null;
       scoringDrought: string | null;
       opponentThreats: OpponentThreat[];
     };
@@ -216,6 +217,7 @@ export const Scoreboard = React.memo(
         >
           {/* Momentum Alerts */}
           {(gameData.momentumAlerts.opponentRun ||
+            gameData.momentumAlerts.teamRun ||
             gameData.momentumAlerts.scoringDrought ||
             gameData.momentumAlerts.opponentThreats.length > 0) && (
             <Box
@@ -246,6 +248,26 @@ export const Scoreboard = React.memo(
                     }}
                   >
                     DROUGHT: {gameData.momentumAlerts.scoringDrought}
+                  </Typography>
+                </Stack>
+              )}
+              {gameData.momentumAlerts.teamRun && (
+                <Stack spacing={0.5} alignItems="center">
+                  <Typography
+                    variant="caption"
+                    role="status"
+                    aria-live="polite"
+                    sx={{
+                      bgcolor: "success.main",
+                      color: "white",
+                      px: 1,
+                      borderRadius: 1,
+                      fontSize: "0.6rem",
+                      fontWeight: 800,
+                      animation: `${pulse} 2s infinite ease-in-out`,
+                    }}
+                  >
+                    TEAM RUN: {gameData.momentumAlerts.teamRun}
                   </Typography>
                 </Stack>
               )}

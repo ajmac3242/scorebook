@@ -174,6 +174,9 @@ export const calculatePlayerAggregates = (
         case ACTION_TYPES.ASSIST:
           player.assists++;
           break;
+        case ACTION_TYPES.HOCKEY_ASSIST:
+          player.hockeyAssists++;
+          break;
         case ACTION_TYPES.STEAL:
           player.steals++;
           break;
@@ -248,6 +251,7 @@ export const calculatePlayerAggregates = (
       player.points = roundToOne(player.points / gp);
       player.rebounds = roundToOne(player.rebounds / gp);
       player.assists = roundToOne(player.assists / gp);
+      player.hockeyAssists = roundToOne(player.hockeyAssists / gp);
       player.steals = roundToOne(player.steals / gp);
       player.turnovers = roundToOne(player.turnovers / gp);
       player.blocks = roundToOne(player.blocks / gp);

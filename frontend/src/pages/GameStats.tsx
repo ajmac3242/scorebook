@@ -44,7 +44,7 @@ import {
 import BasketballCourt from "../components/BasketballCourt";
 import SubstitutionAuditDialog from "../components/SubstitutionAuditDialog";
 import { getShotZone } from "../utils/shotZones";
-import { db } from "../db";
+import { db, type Player } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
 import {
   ACTION_TYPES,
@@ -63,6 +63,7 @@ import {
   generatePracticePrescription,
   calculateTeamSeasonAverages,
   calculateDefensiveIntegrity,
+  calculateIndividualDefensiveBreakdown,
   calculateSituationalStats,
   calculateAssistNetwork,
   calculateShotROI,
@@ -705,6 +706,14 @@ const GameStats: React.FC = () => {
   const defensiveIntegrity = useMemo(() => {
     return calculateDefensiveIntegrity(allStats);
   }, [allStats]);
+
+  const individualDefensiveBreakdown = useMemo(() => {
+    return calculateIndividualDefensiveBreakdown(
+      allStats,
+      players as Player[],
+      shotChartJerseyMap,
+    );
+  }, [allStats, players, shotChartJerseyMap]);
 
   const specialtyExecution = useMemo(() => {
     return calculateSituationalStats(allStats, teamData.ppp);
@@ -1674,6 +1683,81 @@ const GameStats: React.FC = () => {
         {/* Efficiency Analytics Card */}
         <Grid item xs={12}>
           <Grid container spacing={3}>
+            <Grid item xs={12} md={6}>
+              <MoleskineCard>
+                <Typography
+                  variant="h6"
+                  sx={{ fontFamily: "var(--serif)", mb: 2 }}
+                >
+                  Individual Defensive Accountability
+                </Typography>
+                <TableContainer>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow sx={{ bgcolor: "rgba(0,0,0,0.02)" }}>
+                        <TableCell sx={{ fontWeight: 700 }}>Defender</TableCell>
+                        <TableCell align="right" sx={{ fontWeight: 700 }}>
+                          PTS Agn
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 700 }}>
+                          Primary Breakdown
+                        </TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {individualDefensiveBreakdown.map((row) => (
+                        <TableRow key={row.playerId}>
+                          <TableCell>
+                            <Stack
+                              direction="row"
+                              spacing={1}
+                              alignItems="center"
+                            >
+                              <Avatar
+                                sx={{
+                                  width: 24,
+                                  height: 24,
+                                  fontSize: "0.75rem",
+                                }}
+                              >
+                                {row.jerseyNumber}
+                              </Avatar>
+                              <Typography variant="body2">
+                                {row.playerName}
+                              </Typography>
+                            </Stack>
+                          </TableCell>
+                          <TableCell align="right" sx={{ fontWeight: 700 }}>
+                            {row.pointsAllowed}
+                          </TableCell>
+                          <TableCell>
+                            <Chip
+                              label={row.primaryReason}
+                              size="small"
+                              variant="outlined"
+                              color={
+                                row.primaryReason === "Great Contest"
+                                  ? "success"
+                                  : "error"
+                              }
+                              sx={{ fontSize: "0.65rem", height: 20 }}
+                            />
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                      {individualDefensiveBreakdown.length === 0 && (
+                        <TableRow>
+                          <TableCell colSpan={3} align="center">
+                            No defensive breakdown data.
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </MoleskineCard>
+            </Grid>
+
             <Grid item xs={12} md={4}>
               <MoleskineCard>
                 <Typography

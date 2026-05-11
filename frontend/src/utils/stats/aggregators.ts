@@ -238,6 +238,9 @@ export const applyActionToAggregate = (agg: BaseStats, stat: StatEvent) => {
     case ACTION_TYPES.ASSIST:
       agg.assists++;
       break;
+    case ACTION_TYPES.HOCKEY_ASSIST:
+      if (agg.hockeyAssists !== undefined) agg.hockeyAssists++;
+      break;
     case ACTION_TYPES.STEAL:
       agg.steals++;
       break;
@@ -277,6 +280,7 @@ export function initializeStatsMap(
       points: 0,
       rebounds: 0,
       assists: 0,
+      hockeyAssists: 0,
       steals: 0,
       turnovers: 0,
       blocks: 0,
@@ -477,6 +481,7 @@ export const calculateOpponentAggregates = (
     offRebounds: 0,
     defRebounds: 0,
     assists: 0,
+    hockeyAssists: 0,
     blocks: 0,
     steals: 0,
     turnovers: 0,

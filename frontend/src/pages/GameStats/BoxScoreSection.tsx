@@ -115,6 +115,13 @@ export const BoxScoreSection: React.FC<BoxScoreSectionProps> = React.memo(
                 tooltip="Assists"
               />
               <SortableHeader
+                label="HA"
+                sortKey="hockeyAssists"
+                sortConfig={sortConfig}
+                onSort={handleSort}
+                tooltip="Hockey Assists (Secondary Assists)"
+              />
+              <SortableHeader
                 label="STL"
                 sortKey="steals"
                 hideOnMobile
@@ -216,6 +223,7 @@ export const BoxScoreSection: React.FC<BoxScoreSectionProps> = React.memo(
                 </TableCell>
                 <TableCell align="right">{row.rebounds}</TableCell>
                 <TableCell align="right">{row.assists}</TableCell>
+                <TableCell align="right">{row.hockeyAssists}</TableCell>
                 <TableCell
                   align="right"
                   sx={{ display: { xs: "none", sm: "table-cell" } }}
