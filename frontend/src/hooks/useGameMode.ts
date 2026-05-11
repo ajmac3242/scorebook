@@ -487,6 +487,25 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     }
     if (tempOppRunPoints >= 8) opponentRunValue = `${tempOppRunPoints}-0`;
 
+    let teamRunValue = null;
+    let tempTeamRunPoints = 0;
+    let oppScoredSinceTeamRunStarted = false;
+    for (let i = sortedGameStats.length - 1; i >= 0; i--) {
+      const s = sortedGameStats[i];
+      if (s.deletedAt || s.type !== ACTION_TYPES.MAKE) continue;
+      const isOpp =
+        s.playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
+        s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":");
+      if (!isOpp) {
+        if (oppScoredSinceTeamRunStarted) break;
+        tempTeamRunPoints += s.points || 0;
+      } else {
+        oppScoredSinceTeamRunStarted = true;
+        break;
+      }
+    }
+    if (tempTeamRunPoints >= 8) teamRunValue = `${tempTeamRunPoints}-0`;
+
     const MAX_TIMEOUTS = team?.fouls || 3;
     const teamBonus = getBonusStatus(teamFouls, pType);
     const oppBonus = getBonusStatus(oppFouls, pType);
@@ -533,6 +552,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       defensiveStats,
       momentumAlerts: {
         opponentRun: opponentRunValue,
+        teamRun: teamRunValue,
         opponentThreats: calculateOpponentThreats(sortedGameStats, {
           period,
           clockTime: clockSeconds,

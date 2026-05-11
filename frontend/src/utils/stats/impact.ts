@@ -4,14 +4,16 @@
  */
 
 import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../../constants/stats";
-import { StatEvent } from "../../db";
+import { Player, StatEvent } from "../../db";
 import {
   isActive,
   isScoringEvent,
   sortStats,
   calculatePossessions,
   calculatePpp,
+  isOpponentId,
 } from "./aggregators";
+import { IndividualDefensiveBreakdown } from "./types";
 
 export const calculatePlayerStreaks = (
   stats: StatEvent[],
@@ -477,6 +479,78 @@ export const calculateMatchupStats = (
         data.possessions > 0
           ? ((data.stops / data.possessions) * 100).toFixed(1)
           : "0.0",
+    });
+  }
+
+  return results.sort((a, b) => b.pointsAllowed - a.pointsAllowed);
+};
+
+export const calculateIndividualDefensiveBreakdown = (
+  stats: StatEvent[],
+  players: Player[],
+  jerseyMap: Map<string, string | undefined>,
+): IndividualDefensiveBreakdown[] => {
+  const playerBreakdownMap = new Map<
+    string,
+    {
+      pointsAllowed: number;
+      reasons: Map<string, { points: number; frequency: number }>;
+    }
+  >();
+
+  for (const s of stats) {
+    if (
+      !isActive(s) ||
+      !s.primaryDefenderId ||
+      !isOpponentId(s.playerId) ||
+      s.type !== ACTION_TYPES.MAKE
+    )
+      continue;
+
+    const defenderId = s.primaryDefenderId;
+    if (!playerBreakdownMap.has(defenderId)) {
+      playerBreakdownMap.set(defenderId, {
+        pointsAllowed: 0,
+        reasons: new Map(),
+      });
+    }
+
+    const pData = playerBreakdownMap.get(defenderId)!;
+    const pts = s.points || 0;
+    pData.pointsAllowed += pts;
+
+    const reason = s.breakdownReason || "No Reason Logged";
+    if (!pData.reasons.has(reason)) {
+      pData.reasons.set(reason, { points: 0, frequency: 0 });
+    }
+    const rData = pData.reasons.get(reason)!;
+    rData.points += pts;
+    rData.frequency += 1;
+  }
+
+  const results: IndividualDefensiveBreakdown[] = [];
+  for (const [pId, data] of playerBreakdownMap.entries()) {
+    const player = players.find((p) => p.id === pId);
+    if (!player) continue;
+
+    const breakdowns = Array.from(data.reasons.entries()).map(
+      ([reason, rData]) => ({
+        reason,
+        points: rData.points,
+        frequency: rData.frequency,
+      }),
+    );
+
+    const primaryReason = breakdowns.sort((a, b) => b.points - a.points)[0]
+      ?.reason;
+
+    results.push({
+      playerId: pId,
+      playerName: player.name,
+      jerseyNumber: jerseyMap.get(pId) || "??",
+      pointsAllowed: data.pointsAllowed,
+      breakdowns,
+      primaryReason: primaryReason || "N/A",
     });
   }
 

@@ -69,6 +69,7 @@ export interface PlayerAggregates {
   points: number;
   rebounds: number;
   assists: number;
+  hockeyAssists: number;
   steals: number;
   turnovers: number;
   blocks: number;
@@ -169,6 +170,19 @@ export interface DefensiveIntegrity {
   percentage: string;
 }
 
+export interface IndividualDefensiveBreakdown {
+  playerId: string;
+  playerName: string;
+  jerseyNumber: string;
+  pointsAllowed: number;
+  breakdowns: {
+    reason: string;
+    points: number;
+    frequency: number;
+  }[];
+  primaryReason: string;
+}
+
 export interface SpecialtyExecution {
   situation: string;
   attempts: number;
@@ -209,6 +223,7 @@ export interface BaseStats {
   offRebounds: number;
   defRebounds: number;
   assists: number;
+  hockeyAssists: number;
   steals: number;
   turnovers: number;
   blocks: number;

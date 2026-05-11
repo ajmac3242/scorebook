@@ -827,7 +827,16 @@ const GameMode: React.FC = () => {
           synced: 0,
         });
         await syncService.pushUpdates();
-        setChainPrompt(null);
+
+        if (type === ACTION_TYPES.ASSIST) {
+          setChainPrompt({
+            type: ACTION_TYPES.HOCKEY_ASSIST as any,
+            originalStat,
+          });
+        } else {
+          setChainPrompt(null);
+        }
+
         setSnackbar({
           open: true,
           message: `${type} recorded`,
