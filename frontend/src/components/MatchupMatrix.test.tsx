@@ -31,7 +31,9 @@ describe("MatchupMatrix", () => {
       />,
     );
 
-    expect(screen.getByText(/Holistic Matchup Efficiency/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Holistic Matchup Efficiency/i),
+    ).toBeInTheDocument();
     expect(screen.getByText("#10")).toBeInTheDocument();
     expect(screen.getByText("#20")).toBeInTheDocument();
     expect(screen.getByText("#1")).toBeInTheDocument();

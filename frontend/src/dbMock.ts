@@ -9,12 +9,18 @@ export class SyncPromise<T> {
   public status: "fulfilled" | "rejected" = "fulfilled";
   public value: T;
 
+  /**
+   *
+   */
   constructor(value: T, status: "fulfilled" | "rejected" = "fulfilled") {
     this.value = value;
     this.status = status;
     this.flatten();
   }
 
+  /**
+   *
+   */
   private flatten() {
     let iterations = 0;
     while (
@@ -30,6 +36,9 @@ export class SyncPromise<T> {
     }
   }
 
+  /**
+   *
+   */
   then<U>(onfulfilled?: (_value: T) => U | PromiseLike<U>): SyncPromise<U> {
     if (this.status === "rejected") return this as unknown as SyncPromise<U>;
     if (!onfulfilled) return this as unknown as SyncPromise<U>;
@@ -41,6 +50,9 @@ export class SyncPromise<T> {
     }
   }
 
+  /**
+   *
+   */
   catch<U>(
     onrejected?: (_reason: unknown) => U | PromiseLike<U>,
   ): SyncPromise<U | T> {
@@ -54,6 +66,9 @@ export class SyncPromise<T> {
     }
   }
 
+  /**
+   *
+   */
   finally(onfinally?: () => void): SyncPromise<T> {
     if (onfinally) {
       try {
@@ -65,6 +80,9 @@ export class SyncPromise<T> {
     return this;
   }
 
+  /**
+   *
+   */
   static resolve<T>(value: T): SyncPromise<T> {
     if (value && typeof value === "object" && "isSync" in (value as object)) {
       return value as unknown as SyncPromise<T>;
@@ -72,10 +90,16 @@ export class SyncPromise<T> {
     return new SyncPromise(value);
   }
 
+  /**
+   *
+   */
   static reject<T = unknown>(error: T): SyncPromise<T> {
     return new SyncPromise(error, "rejected");
   }
 
+  /**
+   *
+   */
   static all<U>(promises: (SyncPromise<U> | Promise<U> | U)[]) {
     const results: U[] = [];
     for (const p of promises) {
@@ -98,6 +122,9 @@ type MockTable = {
   data: any[];
   [key: string]: any;
 };
+/**
+ *
+ */
 function createCollection<T>(
   getData: () => T[],
   onDelete?: (_items: T[]) => void,
@@ -144,6 +171,9 @@ function createCollection<T>(
   };
   return coll;
 }
+/**
+ *
+ */
 function createWhereClause<T>(table: { data: T[] }, key: string): any {
   const coll = createCollection(() => table.data);
   const onDelete = (items: T[]) => {
@@ -323,13 +353,22 @@ export const mockDb: any = {
     }
   }),
   subscribers: new Set<() => void>(),
+  /**
+   *
+   */
   subscribe(cb: () => void) {
     this.subscribers.add(cb);
     return () => this.subscribers.delete(cb);
   },
+  /**
+   *
+   */
   notify() {
     this.subscribers.forEach((cb) => cb());
   },
+  /**
+   *
+   */
   seed(data: any) {
     Object.keys(data).forEach((k) => {
       if (this[k]) {
@@ -341,6 +380,9 @@ export const mockDb: any = {
     });
     this.notify();
   },
+  /**
+   *
+   */
   reset() {
     [
       this.teams,
