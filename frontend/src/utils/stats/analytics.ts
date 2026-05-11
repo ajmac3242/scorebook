@@ -8,6 +8,7 @@ import { StatEvent, Player } from "../../db";
 import {
   formatClock,
   calculateElapsedMinutes,
+  calculateElapsedSeconds,
   formatToOne,
 } from "../mathUtils";
 import { getShotZone, XPTS_TABLE } from "../shotZones";
@@ -42,6 +43,33 @@ import {
   AssistEdge,
 } from "./types";
 
+/**
+ * Factory for creating an empty OpponentAggregates object.
+ */
+const createEmptyOpponentAggregates = (): OpponentAggregates => ({
+  points: 0,
+  makes: 0,
+  attempts: 0,
+  fgPct: "0.0",
+  rebounds: 0,
+  offRebounds: 0,
+  defRebounds: 0,
+  assists: 0,
+  hockeyAssists: 0,
+  blocks: 0,
+  steals: 0,
+  turnovers: 0,
+  fouls: 0,
+  fta: 0,
+  ftm: 0,
+  threePM: 0,
+  threePA: 0,
+  min: 0,
+  plusMinus: 0,
+  ppp: "0.00",
+  possessions: 0,
+});
+
 export const calculateOpponentScoutingStats = (
   stats: StatEvent[],
 ): Map<string, OpponentAggregates> => {
@@ -54,29 +82,7 @@ export const calculateOpponentScoutingStats = (
     const pId = s.playerId;
     let agg = result.get(pId);
     if (!agg) {
-      agg = {
-        points: 0,
-        makes: 0,
-        attempts: 0,
-        fgPct: "0.0",
-        rebounds: 0,
-        offRebounds: 0,
-        defRebounds: 0,
-        assists: 0,
-        hockeyAssists: 0,
-        blocks: 0,
-        steals: 0,
-        turnovers: 0,
-        fouls: 0,
-        fta: 0,
-        ftm: 0,
-        threePM: 0,
-        threePA: 0,
-        min: 0,
-        plusMinus: 0,
-        ppp: "0.00",
-        possessions: 0,
-      };
+      agg = createEmptyOpponentAggregates();
       result.set(pId, agg);
     }
 
@@ -84,12 +90,12 @@ export const calculateOpponentScoutingStats = (
   }
 
   for (const agg of result.values()) {
-    const possessions = calculatePossessions(
-      agg.attempts,
-      agg.fta,
-      agg.turnovers,
-      agg.offRebounds,
-    );
+    const possessions = calculatePossessions({
+      fga: agg.attempts,
+      fta: agg.fta,
+      turnovers: agg.turnovers,
+      offRebounds: agg.offRebounds,
+    });
     agg.possessions = Math.round(possessions);
     agg.ppp = calculatePpp(agg.points, possessions);
     agg.fgPct = calculateFgPct(agg.makes, agg.attempts);
@@ -153,12 +159,12 @@ export const calculatePlayEfficiency = (
 
   return Object.entries(data)
     .map(([name, s]) => {
-      const possessions = calculatePossessions(
-        s.attempts,
-        s.fta,
-        s.turnovers,
-        0,
-      );
+      const possessions = calculatePossessions({
+        fga: s.attempts,
+        fta: s.fta,
+        turnovers: s.turnovers,
+        offRebounds: 0,
+      });
       return {
         name,
         attempts: s.attempts,
@@ -202,8 +208,7 @@ export const calculateSparkPlugIndex = (
     entry.hustle++;
 
     // 2. Look for team scoring in the next 2 minutes (120s)
-    const hTime =
-      (h.period - 1) * periodLenSecs + (periodLenSecs - (h.clockTime ?? 0));
+    const hTime = calculateElapsedSeconds(h.period, h.clockTime ?? 0, periodLenSecs);
     const endTime = hTime + 120;
 
     const runPoints = stats.reduce((acc, s) => {
@@ -213,8 +218,7 @@ export const calculateSparkPlugIndex = (
         isOpponentId(s.playerId)
       )
         return acc;
-      const sTime =
-        (s.period - 1) * periodLenSecs + (periodLenSecs - (s.clockTime ?? 0));
+      const sTime = calculateElapsedSeconds(s.period, s.clockTime ?? 0, periodLenSecs);
       if (sTime > hTime && sTime <= endTime) {
         return acc + (s.points || 0);
       }
@@ -259,18 +263,18 @@ export const calculateMatchupEfficiency = (
     const defenderId = s.primaryDefenderId || matchups[s.playerId];
     if (!defenderId) continue;
 
+    const isFGA = isFieldGoal(s);
+    const isFT = s.type === ACTION_TYPES.MAKE && s.points === 1;
+    const isTO = s.type === ACTION_TYPES.TURNOVER;
+
+    if (!isFGA && !isFT && !isTO) continue;
+
     const key = `${defenderId}|${s.playerId}`;
     if (!data[key]) data[key] = { stops: 0, total: 0 };
 
-    if (
-      isFieldGoal(s) ||
-      (s.type === ACTION_TYPES.MAKE && s.points === 1) ||
-      s.type === ACTION_TYPES.TURNOVER
-    ) {
-      data[key].total++;
-      if (s.type === ACTION_TYPES.MISS || s.type === ACTION_TYPES.TURNOVER) {
-        data[key].stops++;
-      }
+    data[key].total++;
+    if (s.type === ACTION_TYPES.MISS || isTO) {
+      data[key].stops++;
     }
   }
 
@@ -381,8 +385,8 @@ export const calculateScoreFlow = (
   ];
   const periodLenSecs = periodLengthMinutes * 60;
 
-  const team = { fga: 0, fta: 0, to: 0, oreb: 0 };
-  const opp = { fga: 0, fta: 0, to: 0, oreb: 0 };
+  const teamAgg = { fga: 0, fta: 0, to: 0, oreb: 0 };
+  const oppAgg = { fga: 0, fta: 0, to: 0, oreb: 0 };
   const currentLineup = new Set<string>();
 
   for (let i = 0; i < stats.length; i++) {
@@ -399,20 +403,20 @@ export const calculateScoreFlow = (
 
     const { type } = stat;
     if (isFieldGoal(stat)) {
-      if (isOpp) opp.fga++;
-      else team.fga++;
+      if (isOpp) oppAgg.fga++;
+      else teamAgg.fga++;
     } else if (
       stat.points === 1 &&
       (type === ACTION_TYPES.MAKE || type === ACTION_TYPES.MISS)
     ) {
-      if (isOpp) opp.fta++;
-      else team.fta++;
+      if (isOpp) oppAgg.fta++;
+      else teamAgg.fta++;
     } else if (type === ACTION_TYPES.TURNOVER) {
-      if (isOpp) opp.to++;
-      else team.to++;
+      if (isOpp) oppAgg.to++;
+      else teamAgg.to++;
     } else if (type === ACTION_TYPES.OFF_REBOUND) {
-      if (isOpp) opp.oreb++;
-      else team.oreb++;
+      if (isOpp) oppAgg.oreb++;
+      else teamAgg.oreb++;
     }
 
     if (stat.type === ACTION_TYPES.SUB_IN) {
@@ -424,16 +428,20 @@ export const calculateScoreFlow = (
     if (stat.type === ACTION_TYPES.MAKE || stat.type === ACTION_TYPES.TIMEOUT) {
       const period = stat.period || 1;
       const clockTime = stat.clockTime ?? periodLenSecs;
-      const elapsedSeconds =
-        (period - 1) * periodLenSecs + (periodLenSecs - clockTime);
+      const elapsedSeconds = calculateElapsedSeconds(period, clockTime, periodLenSecs);
 
-      const teamPoss = calculatePossessions(
-        team.fga,
-        team.fta,
-        team.to,
-        team.oreb,
-      );
-      const oppPoss = calculatePossessions(opp.fga, opp.fta, opp.to, opp.oreb);
+      const teamPoss = calculatePossessions({
+        fga: teamAgg.fga,
+        fta: teamAgg.fta,
+        turnovers: teamAgg.to,
+        offRebounds: teamAgg.oreb,
+      });
+      const oppPoss = calculatePossessions({
+        fga: oppAgg.fga,
+        fta: oppAgg.fta,
+        turnovers: oppAgg.to,
+        offRebounds: oppAgg.oreb,
+      });
 
       let eventLabel = stat.type;
       if (stat.type === ACTION_TYPES.MAKE) {
@@ -840,12 +848,12 @@ export const calculateSituationalStats = (
 
   return Object.entries(data)
     .map(([situation, s]) => {
-      const possessions = calculatePossessions(
-        s.attempts,
-        s.fta,
-        s.turnovers,
-        0,
-      );
+      const possessions = calculatePossessions({
+        fga: s.attempts,
+        fta: s.fta,
+        turnovers: s.turnovers,
+        offRebounds: 0,
+      });
       const situationalPpp = calculatePpp(s.points, possessions);
       return {
         situation,
@@ -868,28 +876,33 @@ export const calculateSituationalStats = (
  * WHY: Identify which player combinations are the most efficient.
  * Connectivity maps show who makes whom better.
  */
-export const calculateAssistNetwork = (stats: StatEvent[]): AssistNetwork => {
-  const nodesMap = new Map<
-    string,
-    { assists: number; assistedMakes: number; points: number; threePM: number }
-  >();
-  const edgesMap = new Map<
-    string,
-    { count: number; points: number; threePM: number }
-  >();
+interface AssistNodeData {
+  assists: number;
+  assistedMakes: number;
+  points: number;
+  threePM: number;
+}
 
-  // 1. Single pass to collect assist data
+const updateAssistNode = (map: Map<string, AssistNodeData>, playerId: string, isPasser: boolean, points: number) => {
+  let node = map.get(playerId);
+  if (!node) {
+    node = { assists: 0, assistedMakes: 0, points: 0, threePM: 0 };
+    map.set(playerId, node);
+  }
+  if (isPasser) node.assists++;
+  else node.assistedMakes++;
+  node.points += points;
+  if (points === 3) node.threePM++;
+};
+
+export const calculateAssistNetwork = (stats: StatEvent[]): AssistNetwork => {
+  const nodesMap = new Map<string, AssistNodeData>();
+  const edgesMap = new Map<string, { count: number; points: number; threePM: number }>();
+
   for (let i = 0; i < stats.length; i++) {
     const s = stats[i];
-    if (
-      !isActive(s) ||
-      s.type !== ACTION_TYPES.MAKE ||
-      isOpponentId(s.playerId)
-    )
-      continue;
+    if (!isActive(s) || s.type !== ACTION_TYPES.MAKE || isOpponentId(s.playerId)) continue;
 
-    // We need to find the assist event for this make
-    // In our system, assists are separate events with the same timestamp/clockTime
     const assist = stats.find(
       (a) =>
         isActive(a) &&
@@ -901,87 +914,50 @@ export const calculateAssistNetwork = (stats: StatEvent[]): AssistNetwork => {
     if (assist) {
       const passerId = assist.playerId;
       const finisherId = s.playerId;
+      const points = s.points || 0;
 
-      // Update Node: Passer
-      if (!nodesMap.has(passerId))
-        nodesMap.set(passerId, {
-          assists: 0,
-          assistedMakes: 0,
-          points: 0,
-          threePM: 0,
-        });
-      const passer = nodesMap.get(passerId)!;
-      passer.assists++;
-      passer.points += s.points || 0;
-      if (s.points === 3) passer.threePM++;
+      updateAssistNode(nodesMap, passerId, true, points);
+      updateAssistNode(nodesMap, finisherId, false, points);
 
-      // Update Node: Finisher
-      if (!nodesMap.has(finisherId))
-        nodesMap.set(finisherId, {
-          assists: 0,
-          assistedMakes: 0,
-          points: 0,
-          threePM: 0,
-        });
-      const finisher = nodesMap.get(finisherId)!;
-      finisher.assistedMakes++;
-      finisher.points += s.points || 0;
-      if (s.points === 3) finisher.threePM++;
-
-      // Update Edge
       const edgeKey = `${passerId}->${finisherId}`;
-      if (!edgesMap.has(edgeKey))
-        edgesMap.set(edgeKey, { count: 0, points: 0, threePM: 0 });
-      const edge = edgesMap.get(edgeKey)!;
+      let edge = edgesMap.get(edgeKey);
+      if (!edge) {
+        edge = { count: 0, points: 0, threePM: 0 };
+        edgesMap.set(edgeKey, edge);
+      }
       edge.count++;
-      edge.points += s.points || 0;
-      if (s.points === 3) edge.threePM++;
+      edge.points += points;
+      if (points === 3) edge.threePM++;
     }
   }
 
-  const nodes: AssistNetworkNode[] = Array.from(nodesMap.entries()).map(
-    ([playerId, val]) => ({
-      playerId,
-      assists: val.assists,
-      assistedMakes: val.assistedMakes,
-      pointsGenerated: val.points, // Points generated as passer OR received as finisher
-      efg: calculateEfgPct(
-        val.assistedMakes || val.assists,
-        val.threePM,
-        val.assistedMakes || val.assists,
-      ),
-    }),
-  );
+  const nodes: AssistNetworkNode[] = Array.from(nodesMap.entries()).map(([playerId, val]) => ({
+    playerId,
+    assists: val.assists,
+    assistedMakes: val.assistedMakes,
+    pointsGenerated: val.points,
+    efg: calculateEfgPct(val.assistedMakes || val.assists, val.threePM, val.assistedMakes || val.assists),
+  }));
 
-  const edges: AssistEdge[] = Array.from(edgesMap.entries()).map(
-    ([key, val]) => {
-      const [passerId, finisherId] = key.split("->");
-      return {
-        passerId,
-        finisherId,
-        count: val.count,
-        points: val.points,
-        efg: calculateEfgPct(val.count, val.threePM, val.count),
-      };
-    },
-  );
+  const edges: AssistEdge[] = Array.from(edgesMap.entries()).map(([key, val]) => {
+    const [passerId, finisherId] = key.split("->");
+    return {
+      passerId,
+      finisherId,
+      count: val.count,
+      points: val.points,
+      efg: calculateEfgPct(val.count, val.threePM, val.count),
+    };
+  });
 
-  let primaryPlaymakerId = null;
-  let primaryFinisherId = null;
-
-  if (nodes.length > 0) {
-    primaryPlaymakerId = [...nodes].sort((a, b) => b.assists - a.assists)[0]
-      .playerId;
-    primaryFinisherId = [...nodes].sort(
-      (a, b) => b.assistedMakes - a.assistedMakes,
-    )[0].playerId;
-  }
+  const sortedByAssists = [...nodes].sort((a, b) => b.assists - a.assists);
+  const sortedByMakes = [...nodes].sort((a, b) => b.assistedMakes - a.assistedMakes);
 
   return {
     nodes,
     edges,
-    primaryPlaymakerId,
-    primaryFinisherId,
+    primaryPlaymakerId: sortedByAssists[0]?.playerId || null,
+    primaryFinisherId: sortedByMakes[0]?.playerId || null,
   };
 };
 
