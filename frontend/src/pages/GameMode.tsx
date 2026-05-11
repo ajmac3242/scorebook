@@ -830,7 +830,7 @@ const GameMode: React.FC = () => {
 
         if (type === ACTION_TYPES.ASSIST) {
           setChainPrompt({
-            type: ACTION_TYPES.HOCKEY_ASSIST as any,
+            type: ACTION_TYPES.HOCKEY_ASSIST as "HOCKEY_ASSIST",
             originalStat,
           });
         } else {

@@ -256,7 +256,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     useState<number>(0);
   const [showMatchupMatrix, setShowMatchupMatrix] = useState(false);
   const [chainPrompt, setChainPrompt] = useState<{
-    type: "ASSIST" | "REBOUND";
+    type: "ASSIST" | "REBOUND" | "HOCKEY_ASSIST";
     originalStat: StatEvent;
   } | null>(null);
 

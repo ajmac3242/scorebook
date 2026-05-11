@@ -44,7 +44,7 @@ import {
 import BasketballCourt from "../components/BasketballCourt";
 import SubstitutionAuditDialog from "../components/SubstitutionAuditDialog";
 import { getShotZone } from "../utils/shotZones";
-import { db } from "../db";
+import { db, type Player } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
 import {
   ACTION_TYPES,
@@ -710,7 +710,7 @@ const GameStats: React.FC = () => {
   const individualDefensiveBreakdown = useMemo(() => {
     return calculateIndividualDefensiveBreakdown(
       allStats,
-      players as any,
+      players as Player[],
       shotChartJerseyMap,
     );
   }, [allStats, players, shotChartJerseyMap]);
