@@ -79,8 +79,15 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
   };
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+    <Dialog
+      open={open}
+      onClose={onClose}
+      fullWidth
+      maxWidth="sm"
+      aria-labelledby="halftime-report-title"
+    >
       <DialogTitle
+        id="halftime-report-title"
         sx={{
           fontFamily: "var(--serif)",
           textAlign: "center",
