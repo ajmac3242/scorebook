@@ -66,8 +66,8 @@
 - [x] Update SCHEMA.md with extended StatEvent attributes (breakdownReason, defensiveScheme, opponentPlayType).
 - [x] Document "Jersey Prefix" playerId format in SCHEMA.md.
 - [x] Deep-dive into "Causal Accountability" principles in README.md.
-- [ ] Create ARCHITECTURE.md for high-level system overview (Offline-first sync, Snapshot architecture).
-- [ ] Document internal analytical formulas (PPP, Spark Plug Index, Fatigue Decay) in a dedicated ANALYTICS.md.
+- [x] Create ARCHITECTURE.md for high-level system overview (Offline-first sync, Snapshot architecture).
+- [x] Document internal analytical formulas (PPP, Spark Plug Index, Fatigue Decay) in a dedicated ANALYTICS.md.
 
 ---
 
