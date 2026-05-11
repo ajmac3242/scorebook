@@ -1,5 +1,5 @@
 import { StatEvent } from "../../db";
-import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../../constants/stats";
+import { ACTION_TYPES } from "../../constants/stats";
 
 /**
  * 🏀 Scout: Possession Logic Utility
@@ -24,10 +24,6 @@ export const processPossessionEvent = (
     newState.currentProcessingPeriod = event.period;
     newState.possessionStartClock = periodLen;
   }
-
-  const isOpp =
-    event.playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
-    event.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":");
 
   const clockTime = event.clockTime ?? periodLen;
 
