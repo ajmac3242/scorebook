@@ -93,8 +93,14 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
   const isComplete = results.every((r) => r !== null);
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs">
-      <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      fullWidth
+      maxWidth="xs"
+      aria-labelledby="ft-sequence-title"
+    >
+      <DialogTitle id="ft-sequence-title" sx={{ fontFamily: "var(--serif)" }}>
         Free Throw Sequence
       </DialogTitle>
       <DialogContent>

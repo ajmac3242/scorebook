@@ -77,6 +77,19 @@ const NavItem: React.FC<{
             bgcolor: alpha(theme.palette.primary.light, 0.4),
             color: "white",
           },
+          "&::after": isSelected
+            ? {
+                content: '""',
+                position: "absolute",
+                bottom: "4px",
+                left: "20%",
+                right: "20%",
+                height: "2px",
+                bgcolor: "white",
+                borderRadius: "2px",
+                opacity: 0.8,
+              }
+            : {},
         }}
       >
         <ListItemIcon

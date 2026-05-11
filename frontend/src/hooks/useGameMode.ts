@@ -148,6 +148,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     open: boolean;
     message: string;
     severity: "success" | "error" | "warning" | "info";
+    action?: "UNDO";
   }>({ open: false, message: "", severity: "success" });
 
   const handleVoiceCommand = useCallback(
