@@ -122,5 +122,8 @@ export const calculateElapsedSeconds = (
   clockSeconds: number,
   periodDurationSeconds: number,
 ): number => {
-  return (period - 1) * periodDurationSeconds + (periodDurationSeconds - clockSeconds);
+  return (
+    (period - 1) * periodDurationSeconds +
+    (periodDurationSeconds - clockSeconds)
+  );
 };

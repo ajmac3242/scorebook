@@ -208,7 +208,11 @@ export const calculateSparkPlugIndex = (
     entry.hustle++;
 
     // 2. Look for team scoring in the next 2 minutes (120s)
-    const hTime = calculateElapsedSeconds(h.period, h.clockTime ?? 0, periodLenSecs);
+    const hTime = calculateElapsedSeconds(
+      h.period,
+      h.clockTime ?? 0,
+      periodLenSecs,
+    );
     const endTime = hTime + 120;
 
     const runPoints = stats.reduce((acc, s) => {
@@ -218,7 +222,11 @@ export const calculateSparkPlugIndex = (
         isOpponentId(s.playerId)
       )
         return acc;
-      const sTime = calculateElapsedSeconds(s.period, s.clockTime ?? 0, periodLenSecs);
+      const sTime = calculateElapsedSeconds(
+        s.period,
+        s.clockTime ?? 0,
+        periodLenSecs,
+      );
       if (sTime > hTime && sTime <= endTime) {
         return acc + (s.points || 0);
       }
@@ -428,7 +436,11 @@ export const calculateScoreFlow = (
     if (stat.type === ACTION_TYPES.MAKE || stat.type === ACTION_TYPES.TIMEOUT) {
       const period = stat.period || 1;
       const clockTime = stat.clockTime ?? periodLenSecs;
-      const elapsedSeconds = calculateElapsedSeconds(period, clockTime, periodLenSecs);
+      const elapsedSeconds = calculateElapsedSeconds(
+        period,
+        clockTime,
+        periodLenSecs,
+      );
 
       const teamPoss = calculatePossessions({
         fga: teamAgg.fga,
@@ -883,7 +895,12 @@ interface AssistNodeData {
   threePM: number;
 }
 
-const updateAssistNode = (map: Map<string, AssistNodeData>, playerId: string, isPasser: boolean, points: number) => {
+const updateAssistNode = (
+  map: Map<string, AssistNodeData>,
+  playerId: string,
+  isPasser: boolean,
+  points: number,
+) => {
   let node = map.get(playerId);
   if (!node) {
     node = { assists: 0, assistedMakes: 0, points: 0, threePM: 0 };
@@ -897,11 +914,19 @@ const updateAssistNode = (map: Map<string, AssistNodeData>, playerId: string, is
 
 export const calculateAssistNetwork = (stats: StatEvent[]): AssistNetwork => {
   const nodesMap = new Map<string, AssistNodeData>();
-  const edgesMap = new Map<string, { count: number; points: number; threePM: number }>();
+  const edgesMap = new Map<
+    string,
+    { count: number; points: number; threePM: number }
+  >();
 
   for (let i = 0; i < stats.length; i++) {
     const s = stats[i];
-    if (!isActive(s) || s.type !== ACTION_TYPES.MAKE || isOpponentId(s.playerId)) continue;
+    if (
+      !isActive(s) ||
+      s.type !== ACTION_TYPES.MAKE ||
+      isOpponentId(s.playerId)
+    )
+      continue;
 
     const assist = stats.find(
       (a) =>
@@ -931,27 +956,37 @@ export const calculateAssistNetwork = (stats: StatEvent[]): AssistNetwork => {
     }
   }
 
-  const nodes: AssistNetworkNode[] = Array.from(nodesMap.entries()).map(([playerId, val]) => ({
-    playerId,
-    assists: val.assists,
-    assistedMakes: val.assistedMakes,
-    pointsGenerated: val.points,
-    efg: calculateEfgPct(val.assistedMakes || val.assists, val.threePM, val.assistedMakes || val.assists),
-  }));
+  const nodes: AssistNetworkNode[] = Array.from(nodesMap.entries()).map(
+    ([playerId, val]) => ({
+      playerId,
+      assists: val.assists,
+      assistedMakes: val.assistedMakes,
+      pointsGenerated: val.points,
+      efg: calculateEfgPct(
+        val.assistedMakes || val.assists,
+        val.threePM,
+        val.assistedMakes || val.assists,
+      ),
+    }),
+  );
 
-  const edges: AssistEdge[] = Array.from(edgesMap.entries()).map(([key, val]) => {
-    const [passerId, finisherId] = key.split("->");
-    return {
-      passerId,
-      finisherId,
-      count: val.count,
-      points: val.points,
-      efg: calculateEfgPct(val.count, val.threePM, val.count),
-    };
-  });
+  const edges: AssistEdge[] = Array.from(edgesMap.entries()).map(
+    ([key, val]) => {
+      const [passerId, finisherId] = key.split("->");
+      return {
+        passerId,
+        finisherId,
+        count: val.count,
+        points: val.points,
+        efg: calculateEfgPct(val.count, val.threePM, val.count),
+      };
+    },
+  );
 
   const sortedByAssists = [...nodes].sort((a, b) => b.assists - a.assists);
-  const sortedByMakes = [...nodes].sort((a, b) => b.assistedMakes - a.assistedMakes);
+  const sortedByMakes = [...nodes].sort(
+    (a, b) => b.assistedMakes - a.assistedMakes,
+  );
 
   return {
     nodes,
