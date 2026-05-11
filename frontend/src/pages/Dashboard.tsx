@@ -53,7 +53,12 @@ const Dashboard: React.FC = () => {
   // Find the starred team
   // 🎨 Palette: Map undefined to null to distinguish "loading" from "not found"
   const favoriteTeam = useLiveQuery(
-    () => db.teams.where("isFavorite").equals(1).first().then(res => res || null),
+    () =>
+      db.teams
+        .where("isFavorite")
+        .equals(1)
+        .first()
+        .then((res) => res || null),
     [],
   );
 

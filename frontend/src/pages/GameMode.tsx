@@ -1930,7 +1930,11 @@ const GameMode: React.FC = () => {
               >
                 <Typography
                   variant="subtitle2"
-                  sx={{ fontWeight: 600, display: "flex", alignItems: "center" }}
+                  sx={{
+                    fontWeight: 600,
+                    display: "flex",
+                    alignItems: "center",
+                  }}
                 >
                   <History sx={{ fontSize: 18, mr: 1 }} /> Recent Actions
                 </Typography>
@@ -1953,9 +1957,7 @@ const GameMode: React.FC = () => {
                         <Typography variant="caption">M: Make</Typography>
                         <Typography variant="caption">X: Miss</Typography>
                         <Typography variant="caption">A: Assist</Typography>
-                        <Typography variant="caption">
-                          O/D: Rebound
-                        </Typography>
+                        <Typography variant="caption">O/D: Rebound</Typography>
                         <Typography variant="caption">T: Turnover</Typography>
                         <Typography variant="caption">S: Steal</Typography>
                         <Typography variant="caption">B: Block</Typography>
