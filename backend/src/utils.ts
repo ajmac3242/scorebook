@@ -122,7 +122,7 @@ export function logInfo(label: string, data?: unknown) {
  * Helper to redact sensitive keys in a map (Record).
  * @param map - The map to redact.
  * @param redactAll - Whether to redact all keys regardless of name.
- * @param depth
+ * @param depth - Current recursion depth.
  * @returns A redacted copy of the map.
  */
 function redactMap(

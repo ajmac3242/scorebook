@@ -1023,7 +1023,9 @@ export const calculateShotROI = (stats: StatEvent[]) => {
       continue;
     if (isOpponentId(s.playerId)) continue;
 
-    totalPoints += s.points || 0;
+    if (s.type === ACTION_TYPES.MAKE) {
+      totalPoints += s.points || 0;
+    }
     totalXPts += calculateXPts(s);
     count++;
   }

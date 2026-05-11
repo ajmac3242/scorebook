@@ -122,7 +122,6 @@ type MockTable = {
   data: any[];
   [key: string]: any;
 };
-
 /**
  *
  */
@@ -172,7 +171,6 @@ function createCollection<T>(
   };
   return coll;
 }
-
 /**
  *
  */
