@@ -1,5 +1,60 @@
 # Scorebook Backlog
 
+## [ ] [HALT: Proactive Tactical Intervention System]
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Coaches often miss critical tactical risks (foul trouble, fatigue, mismatch exploitation) in the heat of a game. A persistent "Heads-Up" alert system transforms raw data into immediate coaching directives.
+**What:** Elevate the existing "HALT" logic from a passive scoreboard overlay to a proactive side-rail HUD in GameMode that provides specific "Actions" (e.g., "Sub #5 - High Foul Risk").
+**Acceptance Criteria:**
+- [ ] Dedicated "Tactical Alerts" panel in the GameMode sidebar.
+- [ ] Color-coded severity (Warning: Yellow, Critical: Red).
+- [ ] Direct action buttons within alerts (e.g., "Open Sub Dialog" for a fatigue alert).
+- [ ] Integration of Ref-Identity conflict alerts ("Dial back pressure").
+
+## [ ] [Tactical Identity HUD (KPI Adherence)]
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Every coach enters a game with a specific "Identity" (e.g., "We attack the paint"). A live HUD tracking these specific goals ensures the team doesn't drift into inefficient play.
+**What:** A customizable header widget in GameMode that tracks 3 user-selected Tactical KPIs (e.g., Paint Touches, Early Clock eFG%, Turnover Rate).
+**Acceptance Criteria:**
+- [ ] KPI selector in Game Setup (e.g., Choose 3 from a list of 10).
+- [ ] Real-time progress bars/counters in the GameMode header.
+- [ ] Visual pulse/alert when a goal is met or a limit is exceeded.
+- [ ] Post-game "Identity Scorecard" summarizing KPI performance.
+
+## [ ] [Verified Period Workflow (Reconciliation)]
+**Priority:** HIGH
+**Type:** UX / Data Integrity
+**Why:** Official scores and fouls often drift from the app. A forced reconciliation at every period break ensures the analytics engine remains a "Source of Truth."
+**What:** A mandatory modal at the end of each period that requires the scorekeeper to verify Score and Team Fouls against the official table.
+**Acceptance Criteria:**
+- [ ] Trigger modal immediately when clock hits 0:00 or "Next Period" is clicked.
+- [ ] Side-by-side comparison of "App Totals" vs "Official Totals."
+- [ ] "Balance" feature: Automatically insert a `SYSTEM_ADJUSTMENT` event to fix discrepancies.
+- [ ] Period stats are locked (read-only) once verified.
+
+## [ ] [Strategic Timeout & Game State Advisor]
+**Priority:** HIGH
+**Type:** Feature / Decision Support
+**Why:** Timeout management in the 4th quarter is high-stress. An advisor removes the mental math of "How many do we have left?" and "Is this the right time?"
+**What:** A decision-support engine that analyzes Momentum, Timeouts Remaining, and Score Spread to suggest optimal timeout windows.
+**Acceptance Criteria:**
+- [ ] "Timeout Advisor" HUD element that glows when a timeout is mathematically recommended (e.g., 8-0 Opponent run).
+- [ ] "Winning Time" logic: Specialized advice for the final 2 minutes (e.g., "Save one for the advance").
+- [ ] Visual indicator of "Effective Timeouts" relative to the game's remaining pace.
+
+## [ ] [Opponent Play-Type "Counter-Strike" Analytics]
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Knowing an opponent is scoring on "PnR" is step one. Knowing *how* to stop it (e.g., "Switch" vs "Hedge") based on their efficiency is the winning adjustment.
+**What:** Enhance Opponent Play-Type tracking to recommend specific defensive adjustments based on live PPP.
+**Acceptance Criteria:**
+- [ ] Live indicator in GameMode: "Opponent scoring 1.4 PPP on PnR."
+- [ ] "Adjustment Suggestion" based on active scheme (e.g., "Switch screens to neutralize #24").
+- [ ] Post-game breakdown in GameStats showing "Points Allowed by Action Type x Our Scheme."
+
+---
+
 ## [x] [Defensive Breakdown Attribution (The Accountability Layer)]
 **Priority:** HIGH
 **Type:** Feature
@@ -44,7 +99,7 @@
 - [x] 5x5 "Efficiency Matrix" accessible via a sidebar toggle in GameMode.
 - [x] Color-coded cells: Green (High Stop %), Red (Low Stop %), Gray (Insufficient Data).
 - [x] One-tap reassignment by clicking a cell in the matrix.
-- [ ] "Unit Optimization" score summarizing the total defensive parity of the current 5-man unit.
+- [x] "Unit Optimization" score summarizing the total defensive parity of the current 5-man unit.
 
 ## [x] [Spark Plug Momentum Index]
 **Priority:** HIGH
@@ -150,16 +205,6 @@
 - [ ] Real-time "Mismatch Alert" when a specific defender's Stop % drops below a configurable threshold.
 - [ ] "Targeted Play" recommendation based on which of our players has the best eFG% against that specific defender's archetype.
 
-## [ ] Strategic Timeout & Game State Advisor
-**Priority:** HIGH
-**Type:** Feature
-**Why:** Timeout decisions in the 4th quarter are high-stress. An advisor that considers remaining timeouts, foul situation, and momentum helps coaches make the "mathematically correct" call.
-**What:** Build a "Decision Support" engine that analyzes game state (Score, Time, Fouls, Momentum) and provides a recommended action during dead balls.
-**Acceptance Criteria:**
-- [ ] "Timeout Logic" that triggers a recommendation when the opponent is on a 6-0 run OR when a star player enters foul trouble.
-- [ ] Late-game "Situational HUD" (e.g., "Down 2, 10s left: Recommendation - Attack the rim for 2PT to tie").
-- [ ] Visual indicator of "Effective Timeouts Remaining" considering the game's current pace and remaining duration.
-
 ## [ ] Automated Post-Game Player Performance Narratives
 **Priority:** HIGH
 **Type:** Feature
@@ -222,16 +267,6 @@
 - [ ] "Scheme Synergy" table in GameStats showing PPP Allowed by Lineup *filtered by* Defensive Scheme.
 - [ ] "Best Scheme" recommendation for the currently active on-court lineup.
 - [ ] Identification of "Defensive Anchor" duos who maintain low PPP across all schemes.
-
-## [ ] [Tactical KPI "Identity HUD"]
-**Priority:** HIGH
-**Type:** Feature
-**Why:** Coaches enter games with specific tactical goals (e.g., "Limit them to < 10 fast break points"). A live HUD keeps these goals front-and-center during the chaos of the game.
-**What:** Allow coaches to select 3 "Identity Goals" during game setup and display their live status in the GameMode header.
-**Acceptance Criteria:**
-- [ ] "Identity Goals" selector in Create Game workflow.
-- [ ] Live HUD elements in GameMode (e.g., "TOs: 4/10 limit", "OREBs: 8/12 goal").
-- [ ] Visual alert when a "Limit" KPI is exceeded (e.g., Turning red when fast break points allowed exceed the goal).
 
 ## [x] [Individual Defensive Breakdown Accountability Metrics]
 **Priority:** HIGH
@@ -351,28 +386,6 @@
 - [ ] Integrated "Momentum Shift" analyzer that highlights the specific play or sub that triggered a scoring run.
 - [ ] "Coach's Reflection" text area to save takeaways for the next practice plan.
 
-## [ ] Opponent Play-Type Breakdown (PnR vs ISO vs Post)
-**Priority:** HIGH
-**Type:** Feature
-**Why:** Understanding *how* an opponent is scoring (e.g., Pick-and-Roll vs. Isolation) is the first step to stopping them. Defensive adjustments are only as good as the underlying data.
-**What:** Add a "Play Type" tag to opponent scoring events. Allow the scorekeeper to quickly categorize opponent buckets as "PnR", "ISO", "Post", "Transition", or "Off-Screen".
-**Acceptance Criteria:**
-- [ ] Optional "Play Type" selector in the opponent shot recording dialog.
-- [ ] "Opponent Scoring Breakdown" table in GameStats showing efficiency by Play Type.
-- [ ] Real-time alerts for recurring threats (e.g., "Opponent scoring 1.8 PPP on Pick-and-Rolls").
-- [ ] Filter opponent shot chart by Play Type.
-
-## [ ] Live Defensive Scheme Effectiveness Dashboard
-**Priority:** HIGH
-**Type:** Feature
-**Why:** Coaches often stick to a defensive scheme (e.g., 2-3 Zone) because it's "safe," even when it's being shredded. A live efficiency dashboard allows for data-driven adjustments mid-quarter.
-**What:** Build a real-time monitor that tracks Points Per Possession (PPP) allowed for the current active defensive scheme (Man, Zone, Press) and compares it to the season average.
-**Acceptance Criteria:**
-- [ ] "Active Defense" toggle in GameMode header.
-- [ ] Real-time PPP display for the active scheme.
-- [ ] "Switch Defense" alert if current scheme PPP is > 1.2 for 3 consecutive possessions.
-- [ ] Breakdown table in GameStats showing PPP Allowed by Scheme.
-
 ## [x] [Shot Clock Process Analysis]
 **Priority:** HIGH
 **Type:** Feature
@@ -476,16 +489,6 @@
 - [ ] New "Opponent Library" section or a way to save an opponent's `opponentRoster` from the Game Mode.
 - [ ] "Load Roster" option in Create Game workflow for selected opponents.
 - [ ] Cumulative "Opponent Scouting Report" view showing a player's stats across all games where they were tracked via a persistent ID.
-
-## [ ] Verified Period Workflow
-**Priority:** MEDIUM
-**Type:** UX
-**Why:** Official scores and fouls often drift from the app during high-intensity games. A scheduled reconciliation ensures data integrity before moving to the next phase of the game.
-**What:** At the end of every period, show a mandatory "Verify Stats" dialog. The scorekeeper must confirm the score and team fouls against the official table before the period is marked "Verified."
-**Acceptance Criteria:**
-- [ ] Automated dialog trigger when the clock hits 0:00 or "Next Period" is clicked.
-- [ ] Display summarized period stats (Score, Fouls) with input fields for "Correction" if they differ from the app.
-- [ ] Generate a `SYSTEM_CORRECTION` event to balance totals if manual overrides are entered.
 
 ## [ ] Multi-Period Tactical Heatmaps
 **Priority:** MEDIUM
