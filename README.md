@@ -72,6 +72,12 @@ To maintain high velocity while ensuring reliability:
   - Frontend: `frontend/src/**/*.test.ts` (Vitest)
 - **CI Enforcement**: The full suite of 100+ tests runs on every PR via GitHub Actions.
 
+## Detailed Documentation
+- [Architecture Overview](./docs/ARCHITECTURE.md): Deep dive into the offline-first sync and snapshot distribution system.
+- [Analytics Engine](./docs/ANALYTICS.md): Definitions and formulas for PPP, Spark Plug Index, xPTS, and Causal Accountability metrics.
+- [Data Schema](./SCHEMA.md): Database entity definitions and API endpoint documentation.
+- [Data Flow](./docs/DATAFLOW.md): Sequence diagrams for synchronization and snapshot processes.
+
 ## Setup Instructions
 
 ### Frontend
@@ -92,15 +98,18 @@ To maintain high velocity while ensuring reliability:
 ## Key Features
 
 ### Live Intelligence
-- **Real-time Game Tracking**: Easy-to-use interface for logging shots, misses, rebounds, and more.
-- **Defensive Momentum HUD**: Real-time tracking of **Defensive Stops** and **Kills** (3 consecutive stops).
-- **Special Situations (ATO/SLOB/BLOB)**: Dedicated tracking and analytical engine for possessions following timeouts or dead balls.
-- **Shot Quality & Process Tagging**: Tag shots as "Open" or "Contested" to move the conversation from results to quality.
+- **Real-time Game Tracking**: High-frequency interface for logging shots, misses, and defensive actions.
+- **Voice-Driven Scorekeeping**: Hands-free scoring using natural voice commands (e.g., "Five make three assist ten").
+- **Defensive Momentum HUD**: Real-time tracking of **Defensive Stops**, **Kills**, and **Ref Tightness**.
+- **Special Situations (ATO/SLOB/BLOB)**: Dedicated tracking for possessions following timeouts or dead balls.
+- **Target Attack HUD**: Real-time identification of the opponent's "weak link" based on live Stop % data.
 - **Momentum & Run Alerts**: Automated detection of opponent scoring runs and scoring droughts.
 
 ### Deep Analytics
-- **Shot Charts**: Visual representation of shot locations on a virtual court.
-- **Advanced Analytics**: Automatic calculation of advanced metrics including **Effective Field Goal Percentage (eFG%)** and **True Shooting Percentage (TS%)**.
-- **Lineup Efficiency Tracking**: Analyze the performance (Plus/Minus) of specific 5-player combinations.
-- **Hot/Cold Streak Indicators**: Visual cues (🔥/❄️) help coaches identify players with scoring momentum.
-- **Offline-First Synchronization**: Robust synchronization across devices with background conflict resolution.
+- **Holistic Matchup Matrix**: 5x5 tactical HUD mapping unit-on-unit efficiency with one-tap reassignments.
+- **Spark Plug Momentum Index**: Correlates "Blue Collar" hustle (dives, charges) with subsequent team scoring runs.
+- **Paint Touches & Rim Pressure**: Measures offensive aggression via paint entries and Points Per Paint Touch (PPPT).
+- **Shot Clock Process Analysis**: Categorizes shots by clock phase (Early/Mid/Late) to evaluate offensive discipline.
+- **Substitution Timeline Audit**: Chronological editor to retroactively correct lineup errors for 100% accurate Net Rating.
+- **Executive Halftime Talking Points**: Automated synthesis of game data into 3 actionable locker-room directives.
+- **Offline-First Synchronization**: Robust background sync with IndexedDB and AWS S3 snapshots.
