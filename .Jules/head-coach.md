@@ -70,13 +70,6 @@ Impact: Coaches are getting the *what* and the *when*, but they are still missin
 
 Recommendation: Pivot the strategic roadmap toward **Process Mastery** and **Causal Accountability**. We must prioritize the "Identity HUD" to track tactical KPIs in real-time, "Paint Touch" tracking to measure rim pressure, and "Individual Defensive Accountability" metrics to quantify the cost of tactical failures per player. This moves the platform from analyzing the outcome to optimizing the execution.
 
-## 2026-05-03 - Strategic Pivot: From Passive Aggregates to Causal Accountability
-
-Observation: The platform has achieved "Scorebook Maturity" but still treats events as isolated data points. We capture *what* happened but often miss *why* it happened or the *environmental context* (e.g., officiating tightness, lineup chemistry). The "Ghost Archive" discovery highlights a lack of follow-through on complex tactical features that move the needle from scorekeeping to coaching.
-
-Impact: Coaches are still forced to perform too much mental synthesis during high-pressure game situations. They may observe a high foul count but fail to correlate it with the referee's live "Tightness" vs. their own defensive scheme in real-time. Similarly, whileassist totals are tracked, the "Causal Map" of who creates the best shots for whom remains invisible.
-
-Recommendation: Focus the next development cycle on **Causal Analytics** and **Environmental Awareness**. Prioritize the Ref-Identity Conflict Alert System to provide proactive risk management, and implement Lineup "Offensive Chemistry" Connectivity Maps to reveal the true playmakers. Finally, the "Ghost Archive" features must be fully implemented to complete the transition to a true Tactical Operating System.
 ## 2026-05-23 - Strategic Focus: Operational Intelligence & Decision Support
 
 Observation: The platform has matured from a data entry system to a robust analytical engine. However, the most critical gap is "Decision Lag"—the time between a tactical failure occurring on the court and the coach receiving actionable data to fix it. We are currently displaying stats, but we aren't yet prescribing solutions in real-time.
@@ -108,3 +101,11 @@ Observation: A deep audit of the codebase reveals that the "Statistical Foundati
 Impact: The platform is currently a "High-End Data Processor." It correctly calculates the numbers, but it doesn't always tell the coach what to *do* with them in real-time. Without "Defensive Breakdown Attribution," coaches know they are losing, but they don't have the data-driven "Proof" to fix a specific player's missed rotation during the next timeout. Without "Voice-Driven Scorekeeping," the data integrity during high-intensity transition play remains at risk of human "Tap Lag."
 
 Recommendation: The next development phase must move beyond raw aggregates into **Causal Accountability** and **Operational Intelligence**. We must implement the "Accountability Layer" (Defensive Breakdown Attribution) to bridge the gap between results and coaching. We must also prioritize "Zero-Friction Entry" (Voice Mode) to ensure 100% data fidelity. Finally, the "Holistic Matchup Matrix" will serve as the crown jewel of decision support, providing a single visual for unit-on-unit optimization.
+
+## 2026-05-28 - Strategic Shift: Surfacing the "Silent Logic"
+
+Observation: The platform has achieved "Scorebook Maturity," with sophisticated engines for PPP, eFG%, and real-time alerts. However, my audit revealed a layer of "Silent Logic"—engines like HALT and Ref-Identity Conflict alerts are technically implemented but remain largely hidden or passive within the `GameMode` interface. We are calculating the risks but not always forcing the intervention.
+
+Impact: Without high-visibility, actionable UI for these alerts, the coach's cognitive load remains high as they must manually hunt for the "why" behind a tactical failure. "Silent Logic" leads to missed opportunities for mid-game course correction.
+
+Recommendation: Pivot toward **Operational Intelligence**. The next cycle must focus on surfacing the "Silent Logic" through a dedicated Tactical HALT Sidebar and an Identity HUD. We must also close the data integrity loop with a Verified Period Workflow to ensure the "Source of Truth" never drifts from the official table. This transition moves the platform from analyzing history to mastering the live-game process.
