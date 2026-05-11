@@ -1708,11 +1708,23 @@ const GameStats: React.FC = () => {
                       {individualDefensiveBreakdown.map((row) => (
                         <TableRow key={row.playerId}>
                           <TableCell>
-                            <Stack direction="row" spacing={1} alignItems="center">
-                              <Avatar sx={{ width: 24, height: 24, fontSize: '0.75rem' }}>
+                            <Stack
+                              direction="row"
+                              spacing={1}
+                              alignItems="center"
+                            >
+                              <Avatar
+                                sx={{
+                                  width: 24,
+                                  height: 24,
+                                  fontSize: "0.75rem",
+                                }}
+                              >
                                 {row.jerseyNumber}
                               </Avatar>
-                              <Typography variant="body2">{row.playerName}</Typography>
+                              <Typography variant="body2">
+                                {row.playerName}
+                              </Typography>
                             </Stack>
                           </TableCell>
                           <TableCell align="right" sx={{ fontWeight: 700 }}>
@@ -1723,8 +1735,12 @@ const GameStats: React.FC = () => {
                               label={row.primaryReason}
                               size="small"
                               variant="outlined"
-                              color={row.primaryReason === 'Great Contest' ? 'success' : 'error'}
-                              sx={{ fontSize: '0.65rem', height: 20 }}
+                              color={
+                                row.primaryReason === "Great Contest"
+                                  ? "success"
+                                  : "error"
+                              }
+                              sx={{ fontSize: "0.65rem", height: 20 }}
                             />
                           </TableCell>
                         </TableRow>
