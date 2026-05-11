@@ -7,7 +7,6 @@ import { ACTION_TYPES } from "../../constants/stats";
 import { StatEvent, Player, TeamPlayer } from "../../db";
 import { roundToOne } from "../mathUtils";
 import {
-  isOpponentId,
   sortStats,
   isActive,
   initializeStatsMap,
