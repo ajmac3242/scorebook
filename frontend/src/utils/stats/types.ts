@@ -27,6 +27,7 @@ export interface OpponentAggregates {
   offRebounds: number;
   defRebounds: number;
   assists: number;
+  hockeyAssists: number;
   blocks: number;
   steals: number;
   turnovers: number;

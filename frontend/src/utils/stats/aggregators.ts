@@ -481,6 +481,7 @@ export const calculateOpponentAggregates = (
     offRebounds: 0,
     defRebounds: 0,
     assists: 0,
+    hockeyAssists: 0,
     blocks: 0,
     steals: 0,
     turnovers: 0,

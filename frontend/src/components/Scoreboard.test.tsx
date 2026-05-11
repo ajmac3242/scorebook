@@ -36,6 +36,7 @@ const defaultProps = {
     possessionState: "OUR_TEAM",
     momentumAlerts: {
       opponentRun: "8-0",
+      teamRun: "10-0",
       scoringDrought: "3:00",
       opponentThreats: [
         {
