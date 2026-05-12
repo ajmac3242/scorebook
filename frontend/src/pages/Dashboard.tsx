@@ -268,7 +268,7 @@ const Dashboard: React.FC = () => {
             variant="h4"
             sx={{ fontFamily: "var(--serif)", mb: 2, fontWeight: 700 }}
           >
-            Welcome to Scorebook!
+            Welcome to CourtSight!
           </Typography>
           <Typography
             variant="body1"
