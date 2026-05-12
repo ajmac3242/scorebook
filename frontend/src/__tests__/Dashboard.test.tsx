@@ -23,7 +23,7 @@ describe("Dashboard Component", () => {
     );
 
     expect(await screen.findByText(/Notebook Overview/i)).toBeInTheDocument();
-    expect(screen.getByText(/Welcome to Scorebook!/i)).toBeInTheDocument();
+        expect(screen.getByText(/Welcome to CourtSight!/i)).toBeInTheDocument();
   });
 
   it("renders dashboard for favorite team", async () => {
