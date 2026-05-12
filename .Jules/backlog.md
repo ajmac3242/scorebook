@@ -1,18 +1,18 @@
 # Scorebook Backlog
 
-## [ ] [DESIGN-001-A: Design Tokens — Token Interface & Electric Orange Values]
+## [x] [DESIGN-001-A: Design Tokens — Token Interface & Electric Orange Values]
 **Priority:** CRITICAL
 **Type:** Design System
 **Why:** All CourtSight UI stories depend on a single source of truth for color. Without this file every component uses hardcoded hex values that cannot be swapped for theming. This is the hard blocker for all other DESIGN stories.
 **What:** Create `src/theme/tokens.ts`. Define the `ThemeTokens` interface and export the default `electricOrangeTokens` object.
 **Scope:** `src/theme/tokens.ts` (new file only — do not touch any other file)
 **Acceptance Criteria:**
-- [ ] `ThemeTokens` interface exported with fields: `primary`, `primaryDark`, `primaryContainer`, `onPrimary`, `onPrimaryContainer`, `background`, `surface`, `surfaceVariant`, `elevatedCard`, `outline`, `textPrimary`, `textSecondary`, `success`, `warning`, `error`, `info`
-- [ ] `electricOrangeTokens` object exported implementing `ThemeTokens`: primary `#FF6B1A`, primaryDark `#D9550D`, primaryContainer `#3A2418`, onPrimary `#1A0F09`, onPrimaryContainer `#FFD9C7`, background `#0F1115`, surface `#151922`, surfaceVariant `#1C2230`, elevatedCard `#222A3A`, outline `#384256`, textPrimary `#F3F6FA`, textSecondary `#AAB4C5`, success `#35C759`, warning `#FFB020`, error `#FF5D73`, info `#5AA9FF`
-- [ ] File compiles with no TypeScript errors
-- [ ] No other files are modified
+- [x] `ThemeTokens` interface exported with fields: `primary`, `primaryDark`, `primaryContainer`, `onPrimary`, `onPrimaryContainer`, `background`, `surface`, `surfaceVariant`, `elevatedCard`, `outline`, `textPrimary`, `textSecondary`, `success`, `warning`, `error`, `info`
+- [x] `electricOrangeTokens` object exported implementing `ThemeTokens`: primary `#FF6B1A`, primaryDark `#D9550D`, primaryContainer `#3A2418`, onPrimary `#1A0F09`, onPrimaryContainer `#FFD9C7`, background `#0F1115`, surface `#151922`, surfaceVariant `#1C2230`, elevatedCard `#222A3A`, outline `#384256`, textPrimary `#F3F6FA`, textSecondary `#AAB4C5`, success `#35C759`, warning `#FFB020`, error `#FF5D73`, info `#5AA9FF`
+- [x] File compiles with no TypeScript errors
+- [x] No other files are modified
 
-## [ ] [DESIGN-001-B: Design Tokens — MUI Theme Builder Function]
+## [x] [DESIGN-001-B: Design Tokens — MUI Theme Builder Function]
 **Priority:** CRITICAL
 **Type:** Design System
 **Why:** Token values from DESIGN-001-A need to be translated into a MUI `Theme` object. The builder must accept any `ThemeTokens` object so runtime theme switching (DESIGN-011) works without additional changes.
@@ -20,12 +20,12 @@
 **Scope:** `src/theme/buildTheme.ts` (new file only — do not touch any other file)
 **Depends on:** DESIGN-001-A
 **Acceptance Criteria:**
-- [ ] `buildCourtSightTheme` accepts a `ThemeTokens` argument
-- [ ] MUI palette mapped: `primary.main` → `tokens.primary`, `primary.dark` → `tokens.primaryDark`, `primary.contrastText` → `tokens.onPrimary`, `background.default` → `tokens.background`, `background.paper` → `tokens.surface`, `text.primary` → `tokens.textPrimary`, `text.secondary` → `tokens.textSecondary`, `divider` → `tokens.outline`, `success.main` → `tokens.success`, `warning.main` → `tokens.warning`, `error.main` → `tokens.error`, `info.main` → `tokens.info`
-- [ ] `mode` set to `dark`
-- [ ] No other files are modified
+- [x] `buildCourtSightTheme` accepts a `ThemeTokens` argument
+- [x] MUI palette mapped: `primary.main` → `tokens.primary`, `primary.dark` → `tokens.primaryDark`, `primary.contrastText` → `tokens.onPrimary`, `background.default` → `tokens.background`, `background.paper` → `tokens.surface`, `text.primary` → `tokens.textPrimary`, `text.secondary` → `tokens.textSecondary`, `divider` → `tokens.outline`, `success.main` → `tokens.success`, `warning.main` → `tokens.warning`, `error.main` → `tokens.error`, `info.main` → `tokens.info`
+- [x] `mode` set to `dark`
+- [x] No other files are modified
 
-## [ ] [DESIGN-001-C: Design Tokens — Wire Theme into App]
+## [x] [DESIGN-001-C: Design Tokens — Wire Theme into App]
 **Priority:** CRITICAL
 **Type:** Design System
 **Why:** The theme builder is useless until applied to the running app. This story wires `electricOrangeTokens` through `buildCourtSightTheme` into MUI's `ThemeProvider` so the new palette is live immediately.
@@ -33,13 +33,13 @@
 **Scope:** `src/App.tsx`, `index.html` only — do not touch any page or component files
 **Depends on:** DESIGN-001-B
 **Acceptance Criteria:**
-- [ ] `App.tsx` imports `buildCourtSightTheme` and `electricOrangeTokens`
-- [ ] `ThemeProvider` wraps the app with `buildCourtSightTheme(electricOrangeTokens)`
-- [ ] `CssBaseline` included inside `ThemeProvider`
-- [ ] `index.html` `<title>` updated to `CourtSight`
-- [ ] `index.html` `theme-color` meta set to `#FF6B1A`
-- [ ] App still loads and runs without errors
-- [ ] No page or feature component files are modified
+- [x] `App.tsx` imports `buildCourtSightTheme` and `electricOrangeTokens`
+- [x] `ThemeProvider` wraps the app with `buildCourtSightTheme(electricOrangeTokens)`
+- [x] `CssBaseline` included inside `ThemeProvider`
+- [x] `index.html` `<title>` updated to `CourtSight`
+- [x] `index.html` `theme-color` meta set to `#FF6B1A`
+- [x] App still loads and runs without errors
+- [x] No page or feature component files are modified
 
 ## [ ] [DESIGN-002: Rebrand — App Name, Logo & Favicon]
 **Priority:** CRITICAL
@@ -167,7 +167,7 @@
 - [ ] Border radius consistent: cards `12px`, buttons `8px`, chips `8px`
 - [ ] All components pass a manual visual review on iPad (768px) and mobile (390px) viewport sizes
 
-## [ ] [DESIGN-011-A: Theme Editor — Preset Token Files]
+## [x] [DESIGN-011-A: Theme Editor — Preset Token Files]
 **Priority:** HIGH
 **Type:** Feature
 **Why:** Before the theme switching UI can be built, all preset token objects need to exist as data. This story creates the 8 preset token files so DESIGN-011-B can import them without any business logic changes.
@@ -175,9 +175,9 @@
 **Scope:** `src/theme/presets/` directory (new files only) — do not touch App.tsx, ThemeContext, or any component
 **Depends on:** DESIGN-001-A
 **Acceptance Criteria:**
-- [ ] 8 preset files created: `electricOrange.ts`, `midnightNavy.ts`, `championshipGold.ts`, `emeraldCourt.ts`, `electricViolet.ts`, `crimsonBlaze.ts`, `arcticWhite.ts`, `stealth.ts`
-- [ ] Each file exports a named `ThemeTokens` object, a `label` string, and a `previewColor` hex string
-- [ ] Token values per preset:
+- [x] 8 preset files created: `electricOrange.ts`, `midnightNavy.ts`, `championshipGold.ts`, `emeraldCourt.ts`, `electricViolet.ts`, `crimsonBlaze.ts`, `arcticWhite.ts`, `stealth.ts`
+- [x] Each file exports a named `ThemeTokens` object, a `label` string, and a `previewColor` hex string
+- [x] Token values per preset:
   - **Electric Orange** (default): primary `#FF6B1A`, background `#0F1115`, surface `#151922`
   - **Midnight Navy**: primary `#3B82F6`, background `#0A0F1E`, surface `#111827`
   - **Championship Gold**: primary `#F5B800`, background `#0F0E09`, surface `#1A1810`
@@ -186,8 +186,8 @@
   - **Crimson Blaze**: primary `#EF4444`, background `#150A0A`, surface `#1F1010`
   - **Arctic White** (light mode): primary `#FF6B1A`, background `#F8F9FA`, surface `#FFFFFF`, textPrimary `#0F1115`, textSecondary `#6B7280`, mode override `light`
   - **Stealth**: primary `#9CA3AF`, background `#000000`, surface `#0A0A0A`
-- [ ] All files compile with no TypeScript errors
-- [ ] No other files are modified
+- [x] All files compile with no TypeScript errors
+- [x] No other files are modified
 
 ---
 
