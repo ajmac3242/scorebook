@@ -1,5 +1,57 @@
 # Scorebook Backlog
 
+## [ ] [Defensive "Kill" & Momentum Tracker]
+**Priority:** HIGH
+**Type:** Feature / UX
+**Why:** A "Kill" (3 consecutive defensive stops) is the gold standard for defensive momentum. Visualizing this in real-time motivates the unit and triggers timeout decisions.
+**What:** Add a live "Kill Streak" counter and visual pulse in the GameMode scoreboard that tracks consecutive defensive stops.
+**Acceptance Criteria:**
+- [ ] Real-time "Stop Streak" counter in the GameMode header.
+- [ ] Visual animation/notification when a "Kill" (3 stops) is achieved.
+- [ ] "Kill Count" added to the Team Stats card.
+- [ ] Historical "Kill Log" in the game timeline.
+
+## [ ] [Archetype-Based Matchup Advisor]
+**Priority:** HIGH
+**Type:** Feature / Decision Support
+**Why:** Coaches shouldn't just know who is scoring, but *how* to stop them. Linking defender Stop % to opponent "Play Types" (PnR, ISO, etc.) identifies the optimal personnel counter.
+**What:** Enhance the Matchup Matrix to suggest the best defender for a specific opponent player based on their performance against that player's most frequent Play Type.
+**Acceptance Criteria:**
+- [ ] "Recommended Matchup" badge in the Matchup Matrix.
+- [ ] Correlation of Defender X's Stop % specifically against "PnR Handler" or "ISO" actions.
+- [ ] Alert when a "Mismatched Archetype" occurs (e.g., a slow defender on a high-transition scorer).
+
+## [ ] ["Winning Time" (Clutch) Performance HUD]
+**Priority:** HIGH
+**Type:** UX / Feature
+**Why:** The final 4 minutes of a close game require different tactical data (Usage Rate, Clutch eFG%). This HUD removes the "noise" and focuses only on high-pressure performance.
+**What:** Automatically trigger a "Clutch Mode" UI state when the game clock is < 4:00 and the spread is < 5 points.
+**Acceptance Criteria:**
+- [ ] High-contrast "Winning Time" visual state for the GameMode sidebar.
+- [ ] Highlight "Clutch usage" leaders for both teams (who wants the ball?).
+- [ ] Show "Free Throw Reliability" for the 5 players currently on the floor.
+- [ ] Proactive timeout/foul strategy alerts based on the "Winning Time" context.
+
+## [ ] [Live On/Off Team Impact HUD]
+**Priority:** HIGH
+**Type:** Feature / Analytics
+**Why:** Plus/Minus is noisy. On/Off Net Rating shows a player's true relative value. Knowing the team is -10.0 per 100 possessions when Player X sits is the ultimate subbing directive.
+**What:** A live "Impact HUD" that shows the On/Off Net Rating delta for all rostered players relative to the current game's pace.
+**Acceptance Criteria:**
+- [ ] "Impact" column in the GameMode player table showing (Team Net Rating ON) - (Team Net Rating OFF).
+- [ ] Color-coded "Relative Value" pips (Green: Team better with them, Red: Team better without).
+- [ ] Integration into the "Halt" fatigue alert (e.g., "Player X is tired but Team is -15 with them OFF").
+
+## [ ] [Post-Game "Process vs. Result" Scorecard]
+**Priority:** HIGH
+**Type:** Feature / UX
+**Why:** Coaches need to know if they lost because of "bad luck" (cold shooting on good looks) or "bad process." Separating shot quality from the result preserves team confidence.
+**What:** An automated post-game report that compares "Actual Score" vs "Expected Score" (based on xPTS/Shot Quality).
+**Acceptance Criteria:**
+- [ ] "Process Report Card" in GameStats (A through F grade based on Shot Quality ROI).
+- [ ] "Win/Loss Logic" breakdown: "We lost the game but won the process (Shot Quality +12%)."
+- [ ] Identification of the "Process MVP" (Player with highest xPTS creation regardless of makes).
+
 ## [x] [DESIGN-001-A: Design Tokens — Token Interface & Electric Orange Values]
 **Priority:** CRITICAL
 **Type:** Design System
