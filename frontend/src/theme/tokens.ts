@@ -44,6 +44,8 @@ export interface ThemeTokens {
   error: string;
   /** Neutral informational — secondary comparative data, info chips */
   info: string;
+  /** Theme mode override — 'light' or 'dark' */
+  mode?: 'light' | 'dark';
 }
 
 /**

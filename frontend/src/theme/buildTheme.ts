@@ -10,7 +10,7 @@ import { getComponentOverrides } from './overrides';
  * Translates CourtSight design tokens into a functional MUI Theme object.
  */
 export function buildCourtSightTheme(tokens: ThemeTokens): Theme {
-  const mode = (tokens as any).mode || 'dark';
+  const mode = tokens.mode || 'dark';
 
   return createTheme({
     palette: {
