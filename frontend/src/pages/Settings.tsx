@@ -100,12 +100,12 @@ const Settings: React.FC = () => {
 
   const activePreset = useMemo(
     () => availablePresets.find((preset) => preset.id === presetId),
-    [availablePresets, presetId]
+    [availablePresets, presetId],
   );
 
   const showSnackbar = (
     message: string,
-    severity: SnackbarState["severity"] = "info"
+    severity: SnackbarState["severity"] = "info",
   ) => {
     setSnackbar({
       open: true,
@@ -144,20 +144,28 @@ const Settings: React.FC = () => {
   };
 
   const cardRadius =
-    (theme.shape as typeof theme.shape & {
-      borderRadiusLg?: number;
-      borderRadiusMd?: number;
-    }).borderRadiusLg ??
-    (theme.shape as typeof theme.shape & {
-      borderRadiusMd?: number;
-    }).borderRadiusMd ??
+    (
+      theme.shape as typeof theme.shape & {
+        borderRadiusLg?: number;
+        borderRadiusMd?: number;
+      }
+    ).borderRadiusLg ??
+    (
+      theme.shape as typeof theme.shape & {
+        borderRadiusMd?: number;
+      }
+    ).borderRadiusMd ??
     theme.shape.borderRadius;
 
   const statusItems = [
     {
       label: "Network",
       value: isOnline ? "Online" : "Offline",
-      icon: isOnline ? <WifiIcon fontSize="small" /> : <WifiOffIcon fontSize="small" />,
+      icon: isOnline ? (
+        <WifiIcon fontSize="small" />
+      ) : (
+        <WifiOffIcon fontSize="small" />
+      ),
       color: isOnline ? "success" : "warning",
     },
     {
@@ -249,7 +257,7 @@ const Settings: React.FC = () => {
                           ["border-color", "box-shadow", "transform"],
                           {
                             duration: theme.transitions.duration.shorter,
-                          }
+                          },
                         ),
                         transform: selected ? "translateY(-1px)" : "none",
                         overflow: "hidden",
@@ -276,7 +284,10 @@ const Settings: React.FC = () => {
                               </Typography>
 
                               {selected ? (
-                                <CheckCircleIcon color="primary" fontSize="small" />
+                                <CheckCircleIcon
+                                  color="primary"
+                                  fontSize="small"
+                                />
                               ) : null}
                             </Stack>
 
@@ -296,10 +307,17 @@ const Settings: React.FC = () => {
                               ))}
                             </Stack>
 
-                            <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                            <Stack
+                              direction="row"
+                              spacing={1}
+                              flexWrap="wrap"
+                              useFlexGap
+                            >
                               <Chip
                                 size="small"
-                                label={preset.mode === "dark" ? "Dark" : "Light"}
+                                label={
+                                  preset.mode === "dark" ? "Dark" : "Light"
+                                }
                                 variant={selected ? "filled" : "outlined"}
                                 color={selected ? "primary" : "default"}
                               />
@@ -315,7 +333,10 @@ const Settings: React.FC = () => {
                             </Stack>
 
                             {preset.description ? (
-                              <Typography variant="body2" color="text.secondary">
+                              <Typography
+                                variant="body2"
+                                color="text.secondary"
+                              >
                                 {preset.description}
                               </Typography>
                             ) : null}
@@ -354,7 +375,10 @@ const Settings: React.FC = () => {
                       height: "100%",
                       borderRadius: cardRadius,
                       borderColor: "divider",
-                      backgroundColor: alpha(theme.palette.background.default, 0.5),
+                      backgroundColor: alpha(
+                        theme.palette.background.default,
+                        0.5,
+                      ),
                     }}
                   >
                     <Stack spacing={1.25}>
@@ -367,20 +391,20 @@ const Settings: React.FC = () => {
                               item.color === "success"
                                 ? theme.palette.success.main
                                 : item.color === "warning"
-                                ? theme.palette.warning.main
-                                : item.color === "info"
-                                ? theme.palette.info.main
-                                : theme.palette.text.secondary,
-                              0.12
+                                  ? theme.palette.warning.main
+                                  : item.color === "info"
+                                    ? theme.palette.info.main
+                                    : theme.palette.text.secondary,
+                              0.12,
                             ),
                             color:
                               item.color === "success"
                                 ? "success.main"
                                 : item.color === "warning"
-                                ? "warning.main"
-                                : item.color === "info"
-                                ? "info.main"
-                                : "text.secondary",
+                                  ? "warning.main"
+                                  : item.color === "info"
+                                    ? "info.main"
+                                    : "text.secondary",
                           }}
                         >
                           {item.icon}
@@ -457,7 +481,8 @@ const Settings: React.FC = () => {
                   System Logs
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  Review recent diagnostic output and copy it for troubleshooting.
+                  Review recent diagnostic output and copy it for
+                  troubleshooting.
                 </Typography>
               </Box>
 
@@ -527,7 +552,11 @@ const Settings: React.FC = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setLogoutDialogOpen(false)}>Cancel</Button>
-          <Button color="error" variant="contained" onClick={handleConfirmLogout}>
+          <Button
+            color="error"
+            variant="contained"
+            onClick={handleConfirmLogout}
+          >
             Log out
           </Button>
         </DialogActions>
