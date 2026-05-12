@@ -25,9 +25,9 @@ Identifies players who trigger team-wide energy shifts through "Blue Collar" hus
 
 **Logic:**
 1. Identify **Hustle Events**: Floor Dives, Charges Taken, Great Contests.
-2. Track **Subsequent Scoring**: Total team points scored in the 120 seconds following a hustle event.
+2. Track **Subsequent Scoring**: Total team points scored in the 120 seconds (2 minutes) following a hustle event.
 3. **Composite Index**:
-   $$Index = (Hustle \times 2) + (\frac{\text{Momentum Points}}{2})$$
+   $$Index = \lfloor (Hustle \times 2) + (\frac{\text{Momentum Points}}{2}) \rceil$$
 
 ## 4. Expected Points (xPTS) & Shot ROI
 Moves the conversation from results to quality by evaluating the "Process" of the offense.
@@ -57,7 +57,13 @@ Categorizes points allowed by tactical failure to drive causal accountability.
 - **Out-Hustled**: Losing 50/50 balls or offensive rebounds.
 - **Great Contest**: The opponent simply made a tough, well-defended shot.
 
-## 7. Shot Clock Process Analysis
+## 7. Special Situation Engine (ATO/SLOB/BLOB/EOP)
+Measures tactical execution effectiveness for possessions following dead balls or timeouts.
+
+- **Execution Delta**: The difference between the Situational PPP and the team's overall game PPP ($Delta = PPP_{sit} - PPP_{game}$).
+- **Success Rate %**: The percentage of situational possessions ending in a successful outcome (Made Shot or Shooting Foul).
+
+## 8. Shot Clock Process Analysis
 Evaluates offensive discipline by timing.
 
 - **Early Clock**: First 10 seconds (Transition/Primary Break).
@@ -66,9 +72,9 @@ Evaluates offensive discipline by timing.
 
 Efficiency (eFG%) is tracked across these phases to identify if the team is "rushing" or "executing."
 
-## 8. Fatigue Decay Model
+## 9. Fatigue Decay Model
 Monitors a player's stint duration and alerts the coach when efficiency is likely to drop.
 
 **Logic:**
-- Triggers a "Fatigue Alert" when a player's continuous stint exceeds the configured **Max Stint Duration** (default: 8 minutes).
-- Correlates stint length with a drop-off in hustle events and eFG%.
+- Triggers a "Fatigue Alert" when a player's continuous stint exceeds the configured **Max Stint Duration** (multiplied by 60 for seconds).
+- Displays a visual alert in the Game HUD to prompt for a substitution.

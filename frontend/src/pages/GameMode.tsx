@@ -28,11 +28,20 @@ import {
   Tooltip,
   Snackbar,
   Divider,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TableSortLabel,
+  useMediaQuery,
 } from "@mui/material";
 
 import {
   History,
   SportsBasketball,
+  Undo as UndoIcon,
   Warning,
   PlayArrow,
   Pause,
@@ -46,17 +55,8 @@ import {
   GridOn,
   Shield,
   ArrowBack,
+  HelpOutline,
 } from "@mui/icons-material";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TableSortLabel,
-  useMediaQuery,
-} from "@mui/material";
 import BasketballCourt from "../components/BasketballCourt";
 import RecentActionItem from "../components/RecentActionItem";
 import { MatchupMatrix } from "../components/MatchupMatrix";
@@ -238,6 +238,7 @@ const GameMode: React.FC = () => {
           message: "Action undone",
           severity: "success",
         });
+        setChainPrompt(null);
       } catch (err) {
         logger.error("Failed to undo stat:", err);
         setSnackbar({
@@ -247,7 +248,7 @@ const GameMode: React.FC = () => {
         });
       }
     }
-  }, [gameData.recentStats, setSnackbar]);
+  }, [gameData.recentStats, setSnackbar, setChainPrompt]);
 
   // 🧠 Clarity: Keyboard shortcut for Undo (Ctrl+Z or Cmd+Z)
   useEffect(() => {
@@ -447,6 +448,7 @@ const GameMode: React.FC = () => {
           open: true,
           message: isEditing ? "Action updated" : "Action recorded",
           severity: "success",
+          action: "UNDO",
         });
         setIsDialogOpen(false);
         setStatType(null);
@@ -1958,33 +1960,101 @@ const GameMode: React.FC = () => {
             )}
 
             <MoleskineCard>
-              <Typography
-                variant="subtitle2"
-                gutterBottom
-                sx={{ fontWeight: 600, display: "flex", alignItems: "center" }}
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  mb: 1,
+                }}
               >
-                <History sx={{ fontSize: 18, mr: 1 }} /> Recent Actions
-              </Typography>
+                <Typography
+                  variant="subtitle2"
+                  sx={{
+                    fontWeight: 600,
+                    display: "flex",
+                    alignItems: "center",
+                  }}
+                >
+                  <History sx={{ fontSize: 18, mr: 1 }} /> Recent Actions
+                </Typography>
+                <Tooltip
+                  title={
+                    <Box sx={{ p: 1 }}>
+                      <Typography
+                        variant="caption"
+                        sx={{ fontWeight: 800, display: "block", mb: 0.5 }}
+                      >
+                        KEYBOARD SHORTCUTS
+                      </Typography>
+                      <Box
+                        sx={{
+                          display: "grid",
+                          gridTemplateColumns: "1fr 1fr",
+                          gap: 1,
+                        }}
+                      >
+                        <Typography variant="caption">M: Make</Typography>
+                        <Typography variant="caption">X: Miss</Typography>
+                        <Typography variant="caption">A: Assist</Typography>
+                        <Typography variant="caption">O/D: Rebound</Typography>
+                        <Typography variant="caption">T: Turnover</Typography>
+                        <Typography variant="caption">S: Steal</Typography>
+                        <Typography variant="caption">B: Block</Typography>
+                        <Typography variant="caption">F: Foul</Typography>
+                        <Typography variant="caption">P: Paint</Typography>
+                        <Typography variant="caption">Space: Clock</Typography>
+                      </Box>
+                      <Typography
+                        variant="caption"
+                        sx={{ display: "block", mt: 1, opacity: 0.8 }}
+                      >
+                        Ctrl+Z: Undo last
+                      </Typography>
+                    </Box>
+                  }
+                >
+                  <IconButton size="small" aria-label="Keyboard Shortcuts Help">
+                    <HelpOutline fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+              </Box>
               <Stack spacing={1}>
                 {gameData.recentStats.filter((s) => !s.deletedAt).length ===
                 0 ? (
                   <Box
                     sx={{
-                      py: 4,
+                      py: 6,
                       textAlign: "center",
-                      border: "1px dashed #D1D1D1",
-                      borderRadius: 1,
+                      border: "2px dashed rgba(0,0,0,0.08)",
+                      borderRadius: 2,
                       display: "flex",
                       flexDirection: "column",
                       alignItems: "center",
-                      gap: 1,
+                      gap: 2,
+                      bgcolor: "rgba(0,0,0,0.01)",
                     }}
                   >
-                    <History sx={{ color: "text.secondary", opacity: 0.5 }} />
-                    <Typography variant="caption" color="text.secondary">
-                      No actions recorded yet. Tap the court or use quick
-                      actions to start tracking.
-                    </Typography>
+                    <History
+                      sx={{
+                        fontSize: 48,
+                        color: "text.secondary",
+                        opacity: 0.2,
+                      }}
+                    />
+                    <Box sx={{ maxWidth: 200 }}>
+                      <Typography
+                        variant="subtitle2"
+                        color="text.secondary"
+                        sx={{ fontWeight: 700, mb: 0.5 }}
+                      >
+                        Ready for Tip-off
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        Tap the court or use quick actions to record live game
+                        stats.
+                      </Typography>
+                    </Box>
                   </Box>
                 ) : (
                   gameData.recentStats.map((s, index) => (
@@ -2782,7 +2852,7 @@ const GameMode: React.FC = () => {
 
       <Snackbar
         open={snackbar.open}
-        autoHideDuration={4000}
+        autoHideDuration={6000}
         onClose={() => setSnackbar({ ...snackbar, open: false })}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
@@ -2791,6 +2861,18 @@ const GameMode: React.FC = () => {
           severity={snackbar.severity}
           variant="filled"
           sx={{ width: "100%" }}
+          action={
+            snackbar.action === "UNDO" ? (
+              <Button
+                color="inherit"
+                size="small"
+                onClick={handleUndo}
+                startIcon={<UndoIcon />}
+              >
+                UNDO
+              </Button>
+            ) : undefined
+          }
         >
           {snackbar.message}
         </Alert>

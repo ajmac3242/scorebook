@@ -109,3 +109,21 @@ export const calculateElapsedMinutes = (
 
   return (secondsElapsedInPreviousPeriods + secondsElapsedInCurrentPeriod) / 60;
 };
+
+/**
+ * Calculates total elapsed seconds since the start of the game.
+ * @param {number} period - Current period.
+ * @param {number} clockSeconds - Seconds remaining in the period.
+ * @param {number} periodDurationSeconds - Standard period duration in seconds.
+ * @returns {number} Total elapsed seconds.
+ */
+export const calculateElapsedSeconds = (
+  period: number,
+  clockSeconds: number,
+  periodDurationSeconds: number,
+): number => {
+  return (
+    (period - 1) * periodDurationSeconds +
+    (periodDurationSeconds - clockSeconds)
+  );
+};

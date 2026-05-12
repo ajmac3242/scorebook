@@ -47,8 +47,15 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
   handleQuickSub,
 }) => {
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+    <Dialog
+      open={open}
+      onClose={onClose}
+      fullWidth
+      maxWidth="sm"
+      aria-labelledby="quick-sub-title"
+    >
       <DialogTitle
+        id="quick-sub-title"
         sx={{
           fontFamily: "var(--serif)",
           display: "flex",

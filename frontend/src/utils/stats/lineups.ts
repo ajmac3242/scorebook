@@ -7,10 +7,15 @@ import { ACTION_TYPES } from "../../constants/stats";
 import { StatEvent, Player, TeamPlayer } from "../../db";
 import { roundToOne } from "../mathUtils";
 import {
-  isOpponentId,
   sortStats,
+  isActive,
   initializeStatsMap,
   isFreeThrow,
+  updateScores,
+  calculateFgPct,
+  calculateFtPct,
+  calculateEfgPct,
+  calculateTsPct,
 } from "./aggregators";
 import { isClutchEvent } from "./analytics";
 import { LineupAggregates, PlayerAggregates } from "./types";
@@ -42,7 +47,7 @@ export const calculatePlayerAggregates = (
   } = {},
 ): PlayerAggregates[] => {
   const statsMap = initializeStatsMap(players, teamPlayers);
-  const periodLen = options.periodLength ? options.periodLength * 60 : 600;
+  const periodLen = (options.periodLength || 10) * 60;
 
   const activeStints = new Map<
     string,
@@ -58,7 +63,7 @@ export const calculatePlayerAggregates = (
 
   for (let i = 0; i < sortedStats.length; i++) {
     const stat = sortedStats[i];
-    if (stat.deletedAt) continue;
+    if (!isActive(stat)) continue;
 
     const { playerId, type, clockTime, period, gameId } = stat;
 
@@ -70,11 +75,7 @@ export const calculatePlayerAggregates = (
         options.periodType || "QUARTERS",
       );
       if (!isClutch) {
-        if (type === ACTION_TYPES.MAKE) {
-          const pts = stat.points || 0;
-          if (isOpponentId(playerId)) scores.opp += pts;
-          else scores.team += pts;
-        }
+        updateScores(stat, scores);
         if (type === ACTION_TYPES.SUB_IN) {
           activeStints.set(playerId, {
             startClock: clockTime,
@@ -116,14 +117,7 @@ export const calculatePlayerAggregates = (
       currentPeriod = period;
     }
 
-    if (type === ACTION_TYPES.MAKE) {
-      const pts = stat.points || 0;
-      if (isOpponentId(playerId)) {
-        scores.opp += pts;
-      } else {
-        scores.team += pts;
-      }
-    }
+    updateScores(stat, scores);
 
     const player = statsMap.get(playerId);
     if (player) {
@@ -222,30 +216,15 @@ export const calculatePlayerAggregates = (
     const gpActual = player.gamesPlayed.size;
     const gp = gpActual || 1;
     player.gp = gpActual;
-    player.fgPct =
-      player.attempts > 0
-        ? ((player.makes / player.attempts) * 100).toFixed(1)
-        : "0.0";
-    player.threePPct =
-      player.threePA > 0
-        ? ((player.threePM / player.threePA) * 100).toFixed(1)
-        : "0.0";
-    player.ftPct =
-      player.fta > 0 ? ((player.ftm / player.fta) * 100).toFixed(1) : "0.0";
-    player.efgPct =
-      player.attempts > 0
-        ? (
-            ((player.makes + 0.5 * player.threePM) / player.attempts) *
-            100
-          ).toFixed(1)
-        : "0.0";
-    player.tsPct =
-      player.attempts + 0.44 * player.fta > 0
-        ? (
-            (player.points / (2 * (player.attempts + 0.44 * player.fta))) *
-            100
-          ).toFixed(1)
-        : "0.0";
+    player.fgPct = calculateFgPct(player.makes, player.attempts);
+    player.threePPct = calculateFgPct(player.threePM, player.threePA);
+    player.ftPct = calculateFtPct(player.ftm, player.fta);
+    player.efgPct = calculateEfgPct(
+      player.makes,
+      player.threePM,
+      player.attempts,
+    );
+    player.tsPct = calculateTsPct(player.points, player.attempts, player.fta);
 
     if (isAverage) {
       player.points = roundToOne(player.points / gp);
@@ -322,7 +301,7 @@ export const calculateLineupStats = (
 
   for (let i = 0; i < sortedStats.length; i++) {
     const s = sortedStats[i];
-    if (s.deletedAt) continue;
+    if (!isActive(s)) continue;
 
     if (currentGameId !== null && s.gameId !== currentGameId) {
       if (currentLineup.size === 5) {
@@ -385,14 +364,7 @@ export const calculateLineupStats = (
           options.periodType || "QUARTERS",
         ));
 
-    if (s.type === ACTION_TYPES.MAKE) {
-      const pts = s.points || 0;
-      if (isOpponentId(s.playerId)) {
-        scores.opp += pts;
-      } else {
-        scores.team += pts;
-      }
-    }
+    updateScores(s, scores);
 
     if (s.type === ACTION_TYPES.SUB_IN || s.type === ACTION_TYPES.SUB_OUT) {
       if (currentLineup.size === 5 && s.clockTime !== undefined && isClutch) {
