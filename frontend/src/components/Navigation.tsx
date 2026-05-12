@@ -265,7 +265,7 @@ const Navigation: React.FC = () => {
                     },
                   }}
                 >
-                  Scorebook
+                  CourtSight
                 </Typography>
               </Tooltip>
             )}
