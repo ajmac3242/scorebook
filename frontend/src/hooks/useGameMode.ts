@@ -474,7 +474,10 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
 
     const defensiveStats = {
       ...rawDefensiveStats,
-      stopPct: oppPoss > 0 ? Math.round((rawDefensiveStats.totalStops / oppPoss) * 100) : 0,
+      stopPct:
+        oppPoss > 0
+          ? Math.round((rawDefensiveStats.totalStops / oppPoss) * 100)
+          : 0,
     };
 
     let opponentRunValue = null;
@@ -658,10 +661,13 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     }) => {
       if (!gameId) return;
 
-      const teamScoreDiff = adjustments.teamScore - eventAggregates.currentScore;
+      const teamScoreDiff =
+        adjustments.teamScore - eventAggregates.currentScore;
       const oppScoreDiff = adjustments.oppScore - eventAggregates.opponentScore;
-      const teamFoulDiff = adjustments.teamFouls - eventAggregates.teamFoulStats.teamFouls;
-      const oppFoulDiff = adjustments.oppFouls - eventAggregates.teamFoulStats.oppFouls;
+      const teamFoulDiff =
+        adjustments.teamFouls - eventAggregates.teamFoulStats.teamFouls;
+      const oppFoulDiff =
+        adjustments.oppFouls - eventAggregates.teamFoulStats.oppFouls;
 
       const timestamp = new Date().toISOString();
 
@@ -721,7 +727,13 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       setIsVerificationOpen(false);
       originalHandleNextPeriod(team?.periodType || "QUARTERS");
     },
-    [gameId, period, eventAggregates, originalHandleNextPeriod, team?.periodType],
+    [
+      gameId,
+      period,
+      eventAggregates,
+      originalHandleNextPeriod,
+      team?.periodType,
+    ],
   );
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
   const [statType, setStatType] = useState<string | null>(null);

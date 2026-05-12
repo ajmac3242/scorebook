@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  Box,
-  Typography,
-  Paper,
-  Stack,
-  Button,
-} from "@mui/material";
+import { Box, Typography, Paper, Stack, Button } from "@mui/material";
 import {
   Warning,
   Error as ErrorIcon,
@@ -38,13 +32,21 @@ export const TacticalAlertsSidebar: React.FC<TacticalAlertsSidebarProps> = ({
     <Box sx={{ width: "100%", height: "100%" }}>
       <Typography
         variant="caption"
-        sx={{ fontWeight: 800, color: "text.secondary", mb: 2, display: "block" }}
+        sx={{
+          fontWeight: 800,
+          color: "text.secondary",
+          mb: 2,
+          display: "block",
+        }}
       >
         TACTICAL ALERTS (HALT)
       </Typography>
       <Stack spacing={1.5}>
         {alerts.length === 0 ? (
-          <Typography variant="caption" sx={{ fontStyle: "italic", opacity: 0.5 }}>
+          <Typography
+            variant="caption"
+            sx={{ fontStyle: "italic", opacity: 0.5 }}
+          >
             No active tactical threats.
           </Typography>
         ) : (
@@ -89,7 +91,9 @@ export const TacticalAlertsSidebar: React.FC<TacticalAlertsSidebarProps> = ({
                     <Button
                       size="small"
                       variant="outlined"
-                      color={alert.severity === "CRITICAL" ? "error" : "warning"}
+                      color={
+                        alert.severity === "CRITICAL" ? "error" : "warning"
+                      }
                       onClick={alert.onAction}
                       sx={{
                         fontSize: "0.6rem",

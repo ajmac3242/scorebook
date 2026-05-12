@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  Box,
-  Typography,
-  Stack,
-  LinearProgress,
-  Tooltip,
-} from "@mui/material";
+import { Box, Typography, Stack, LinearProgress, Tooltip } from "@mui/material";
 import { CheckCircle } from "@mui/icons-material";
 
 /**
@@ -40,19 +34,32 @@ export const TacticalIdentityHUD: React.FC<TacticalIdentityHUDProps> = ({
       }}
     >
       {kpis.map((kpi) => {
-        const val = typeof kpi.value === "string" ? parseFloat(kpi.value) : kpi.value;
+        const val =
+          typeof kpi.value === "string" ? parseFloat(kpi.value) : kpi.value;
         const progress = Math.min((val / kpi.target) * 100, 100);
         const isMet = kpi.inverse ? val <= kpi.target : val >= kpi.target;
 
         return (
           <Box key={kpi.name} sx={{ flex: 1, maxWidth: 200 }}>
-            <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 0.5 }}>
-              <Typography variant="caption" sx={{ fontWeight: 800, fontSize: "0.6rem", opacity: 0.8 }}>
+            <Stack
+              direction="row"
+              justifyContent="space-between"
+              alignItems="center"
+              sx={{ mb: 0.5 }}
+            >
+              <Typography
+                variant="caption"
+                sx={{ fontWeight: 800, fontSize: "0.6rem", opacity: 0.8 }}
+              >
                 {kpi.label.toUpperCase()}
               </Typography>
-              {isMet && <CheckCircle sx={{ fontSize: 12, color: "success.main" }} />}
+              {isMet && (
+                <CheckCircle sx={{ fontSize: 12, color: "success.main" }} />
+              )}
             </Stack>
-            <Tooltip title={`Goal: ${kpi.target}${kpi.isPercentage ? "%" : ""}`}>
+            <Tooltip
+              title={`Goal: ${kpi.target}${kpi.isPercentage ? "%" : ""}`}
+            >
               <Box sx={{ position: "relative" }}>
                 <LinearProgress
                   variant="determinate"
@@ -69,8 +76,12 @@ export const TacticalIdentityHUD: React.FC<TacticalIdentityHUDProps> = ({
                 />
               </Box>
             </Tooltip>
-            <Typography variant="h6" sx={{ fontWeight: 900, fontSize: "1rem", mt: 0.2 }}>
-              {kpi.value}{kpi.isPercentage ? "%" : ""}
+            <Typography
+              variant="h6"
+              sx={{ fontWeight: 900, fontSize: "1rem", mt: 0.2 }}
+            >
+              {kpi.value}
+              {kpi.isPercentage ? "%" : ""}
             </Typography>
           </Box>
         );
