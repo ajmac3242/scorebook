@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Box,
   Typography,
@@ -8,11 +8,10 @@ import {
   Grid,
   Tooltip,
   Chip,
-
-} from '@mui/material';
-import CheckIcon from '@mui/icons-material/Check';
-import PaletteIcon from '@mui/icons-material/Palette';
-import { useAppTheme, ThemePreset } from '../theme/ThemeContext';
+} from "@mui/material";
+import CheckIcon from "@mui/icons-material/Check";
+import PaletteIcon from "@mui/icons-material/Palette";
+import { useAppTheme, ThemePreset } from "../theme/ThemeContext";
 
 interface PresetCardProps {
   preset: ThemePreset;
@@ -20,14 +19,18 @@ interface PresetCardProps {
   onSelect: () => void;
 }
 
-const PresetCard: React.FC<PresetCardProps> = ({ preset, selected, onSelect }) => (
+const PresetCard: React.FC<PresetCardProps> = ({
+  preset,
+  selected,
+  onSelect,
+}) => (
   <Card
     variant="outlined"
     sx={{
-      borderColor: selected ? 'primary.main' : 'divider',
+      borderColor: selected ? "primary.main" : "divider",
       borderWidth: selected ? 2 : 1,
       borderRadius: 2,
-      transition: 'border-color 0.2s',
+      transition: "border-color 0.2s",
     }}
   >
     <CardActionArea onClick={onSelect} sx={{ p: 0 }}>
@@ -35,18 +38,18 @@ const PresetCard: React.FC<PresetCardProps> = ({ preset, selected, onSelect }) =
         sx={{
           height: 56,
           bgcolor: preset.previewColor,
-          borderRadius: '8px 8px 0 0',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
+          borderRadius: "8px 8px 0 0",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
         }}
       >
         {selected && (
           <CheckIcon
             sx={{
-              color: '#fff',
-              bgcolor: 'rgba(0,0,0,0.35)',
-              borderRadius: '50%',
+              color: "#fff",
+              bgcolor: "rgba(0,0,0,0.35)",
+              borderRadius: "50%",
               p: 0.4,
               fontSize: 28,
             }}
@@ -61,7 +64,7 @@ const PresetCard: React.FC<PresetCardProps> = ({ preset, selected, onSelect }) =
           label={preset.mode}
           size="small"
           variant="outlined"
-          sx={{ fontSize: '0.6rem', height: 18, mt: 0.5 }}
+          sx={{ fontSize: "0.6rem", height: 18, mt: 0.5 }}
         />
       </CardContent>
     </CardActionArea>
@@ -72,8 +75,8 @@ const Settings: React.FC = () => {
   const { presetId, setPresetId, availablePresets } = useAppTheme();
 
   return (
-    <Box sx={{ p: { xs: 2, sm: 3 }, maxWidth: 800, mx: 'auto' }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
+    <Box sx={{ p: { xs: 2, sm: 3 }, maxWidth: 800, mx: "auto" }}>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 3 }}>
         <PaletteIcon color="primary" />
         <Typography variant="h5" fontWeight={700}>
           Appearance
@@ -84,7 +87,8 @@ const Settings: React.FC = () => {
         THEME
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-        Choose a colour theme for CourtSight. Your selection is saved automatically.
+        Choose a colour theme for CourtSight. Your selection is saved
+        automatically.
       </Typography>
 
       <Grid container spacing={2}>

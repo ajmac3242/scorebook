@@ -1,7 +1,7 @@
-import React from 'react';
-import { Box, Typography, Button, Chip, Avatar, Paper } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
-import SportBasketballIcon from '@mui/icons-material/SportsBasketball';
+import React from "react";
+import { Box, Typography, Button, Chip, Avatar, Paper } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
+import SportBasketballIcon from "@mui/icons-material/SportsBasketball";
 
 /**
  * DESIGN-011-D: LivePreviewStrip
@@ -16,7 +16,7 @@ const LivePreviewStrip: React.FC = () => {
     <Paper
       variant="outlined"
       sx={{
-        overflow: 'hidden',
+        overflow: "hidden",
         borderRadius: 2,
         mt: 3,
       }}
@@ -24,17 +24,17 @@ const LivePreviewStrip: React.FC = () => {
       {/* Mini app bar */}
       <Box
         sx={{
-          bgcolor: 'background.paper',
-          borderBottom: '1px solid',
-          borderColor: 'divider',
+          bgcolor: "background.paper",
+          borderBottom: "1px solid",
+          borderColor: "divider",
           px: 2,
           py: 1,
-          display: 'flex',
-          alignItems: 'center',
+          display: "flex",
+          alignItems: "center",
           gap: 1,
         }}
       >
-        <SportBasketballIcon sx={{ color: 'primary.main', fontSize: 20 }} />
+        <SportBasketballIcon sx={{ color: "primary.main", fontSize: 20 }} />
         <Typography variant="subtitle2" fontWeight={700} color="text.primary">
           CourtSight
         </Typography>
@@ -43,10 +43,10 @@ const LivePreviewStrip: React.FC = () => {
           label="LIVE"
           size="small"
           sx={{
-            bgcolor: 'primary.main',
+            bgcolor: "primary.main",
             color: theme.palette.getContrastText(theme.palette.primary.main),
             fontWeight: 700,
-            fontSize: '0.65rem',
+            fontSize: "0.65rem",
             height: 20,
           }}
         />
@@ -54,8 +54,8 @@ const LivePreviewStrip: React.FC = () => {
           sx={{
             width: 24,
             height: 24,
-            bgcolor: 'primary.main',
-            fontSize: '0.7rem',
+            bgcolor: "primary.main",
+            fontSize: "0.7rem",
           }}
         >
           C
@@ -65,13 +65,13 @@ const LivePreviewStrip: React.FC = () => {
       {/* Content area */}
       <Box
         sx={{
-          bgcolor: 'background.default',
+          bgcolor: "background.default",
           px: 2,
           py: 1.5,
-          display: 'flex',
-          alignItems: 'center',
+          display: "flex",
+          alignItems: "center",
           gap: 1.5,
-          flexWrap: 'wrap',
+          flexWrap: "wrap",
         }}
       >
         <Button variant="contained" size="small" disableElevation>
