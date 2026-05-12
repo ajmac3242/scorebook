@@ -3,17 +3,10 @@
  * @description Main application entry point for the React frontend.
  * Configures the theme, routing, authentication provider, and layout.
  */
-
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import {
-  ThemeProvider,
-  CssBaseline,
-  Typography,
-  Container,
-  Box,
-} from "@mui/material";
-import theme from "./theme";
+import { Typography, Container, Box } from "@mui/material";
+import { CourtSightThemeProvider, ThemePreset } from "./theme/ThemeContext";
 import GameMode from "./pages/GameMode";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
@@ -31,6 +24,58 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 import DevAuthBypass from "./components/DevAuthBypass";
 
 /**
+ * Theme presets available to the user via the Settings page.
+ * The first entry ("default") is applied on first load unless a
+ * persisted preference is found in localStorage.
+ */
+const THEME_PRESETS: ThemePreset[] = [
+  {
+    id: "default",
+    label: "CourtSight Classic",
+    previewColor: "#4fc3f7",
+    mode: "dark",
+    palette: {
+      primary: { main: "#4fc3f7" },
+      secondary: { main: "#1a3a5c" },
+      background: { default: "#0d1b2a", paper: "#1a3a5c" },
+    },
+  },
+  {
+    id: "light",
+    label: "Daybreak",
+    previewColor: "#1565c0",
+    mode: "light",
+    palette: {
+      primary: { main: "#1565c0" },
+      secondary: { main: "#e3f2fd" },
+      background: { default: "#f5f5f5", paper: "#ffffff" },
+    },
+  },
+  {
+    id: "forest",
+    label: "Forest",
+    previewColor: "#66bb6a",
+    mode: "dark",
+    palette: {
+      primary: { main: "#66bb6a" },
+      secondary: { main: "#1b5e20" },
+      background: { default: "#0a1f0a", paper: "#1b5e20" },
+    },
+  },
+  {
+    id: "sunset",
+    label: "Sunset",
+    previewColor: "#ff7043",
+    mode: "dark",
+    palette: {
+      primary: { main: "#ff7043" },
+      secondary: { main: "#bf360c" },
+      background: { default: "#1a0a00", paper: "#bf360c" },
+    },
+  },
+];
+
+/**
  * Higher-order component to protect routes that require authentication.
  * Redirects to the login page if the user is not authenticated.
  *
@@ -42,7 +87,6 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const { isAuthenticated, loading } = useAuth();
-
   if (loading) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", mt: 8 }}>
@@ -50,7 +94,6 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
       </Box>
     );
   }
-
   return isAuthenticated ? <>{children}</> : <Navigate to="/login" />;
 };
 
@@ -62,7 +105,6 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
  */
 const AppContent: React.FC = () => {
   const { isAuthenticated } = useAuth();
-
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <Box
@@ -95,9 +137,7 @@ const AppContent: React.FC = () => {
       >
         Skip to main content
       </Box>
-      {/* Show navigation bar only for authenticated users */}
       {isAuthenticated && <Navigation />}
-
       <Box
         id="main-content"
         component="main"
@@ -114,12 +154,7 @@ const AppContent: React.FC = () => {
           overflowX: "hidden",
         }}
       >
-        <Container
-          maxWidth="xl"
-          sx={{
-            px: { xs: 1, sm: 2 },
-          }}
-        >
+        <Container maxWidth="xl" sx={{ px: { xs: 1, sm: 2 } }}>
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route
@@ -202,7 +237,6 @@ const AppContent: React.FC = () => {
                 </ProtectedRoute>
               }
             />
-            {/* Catch-all route to redirect to home */}
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </Container>
@@ -213,20 +247,21 @@ const AppContent: React.FC = () => {
 
 /**
  * Root App component providing global providers (Theme, Auth, Router).
+ * CourtSightThemeProvider owns ThemeProvider + CssBaseline internally,
+ * so those are not duplicated here.
  *
  * @returns {React.ReactElement}
  */
 const App: React.FC = () => {
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <CourtSightThemeProvider presets={THEME_PRESETS} defaultPresetId="default">
       <Router>
         <AuthProvider>
           <DevAuthBypass />
           <AppContent />
         </AuthProvider>
       </Router>
-    </ThemeProvider>
+    </CourtSightThemeProvider>
   );
 };
 
