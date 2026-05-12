@@ -17,6 +17,7 @@ vi.mock("../utils/syncService", () => ({
   },
 }));
 
+const mockPresets = [{ id: "default", label: "Default", previewColor: "#FF6B2B", mode: "dark" as const, palette: { primary: { main: "#FF6B2B" } } }];
 describe("Settings Component", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -28,7 +29,7 @@ describe("Settings Component", () => {
   const renderComponent = () =>
     render(
       <BrowserRouter>
-        <CourtSightThemeProvider>
+        <CourtSightThemeProvider presets={mockPresets}>
           <AuthProvider>
             <Settings />
           </AuthProvider>
