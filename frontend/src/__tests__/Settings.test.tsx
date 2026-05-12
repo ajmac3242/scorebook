@@ -28,11 +28,11 @@ describe("Settings Component", () => {
   const renderComponent = () =>
     render(
       <BrowserRouter>
-        <CourtSightThemeProvider>
-          <AuthProvider>
-            <Settings />
-          </AuthProvider>
-        </CourtSightThemeProvider>
+<CourtSightThemeProvider>
+  <AuthProvider>
+          <Settings />
+        </AuthProvider>
+  </CourtSightThemeProvider>
       </BrowserRouter>,
     );
 
