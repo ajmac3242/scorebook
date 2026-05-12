@@ -155,7 +155,6 @@ const GameMode: React.FC = () => {
     isFtWorkflowOpen,
     setIsFtWorkflowOpen,
     isVerificationOpen,
-    _setIsVerificationOpen,
     handleVerifyPeriod,
     situation,
     setSituation,
@@ -220,6 +219,7 @@ const GameMode: React.FC = () => {
     clockSecondsRef,
     shotROI,
     paintTouchStats,
+    haltAlerts,
   } = useGameMode(gameId, teamId);
 
   /**
