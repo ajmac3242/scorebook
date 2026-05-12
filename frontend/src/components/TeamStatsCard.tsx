@@ -112,7 +112,13 @@ export const TeamStatsCard = React.memo(
                 transition: "all 0.3s ease",
               }}
             >
-              <Stack direction="row" spacing={0.5} justifyContent="center" alignItems="center" sx={{ mb: 0.5 }}>
+              <Stack
+                direction="row"
+                spacing={0.5}
+                justifyContent="center"
+                alignItems="center"
+                sx={{ mb: 0.5 }}
+              >
                 <Typography
                   variant="caption"
                   sx={{
@@ -124,7 +130,13 @@ export const TeamStatsCard = React.memo(
                   KILLS
                 </Typography>
                 {defensiveStats.totalKills > 0 && (
-                  <LocalFireDepartment sx={{ fontSize: 14, color: "#FF4500", animation: `${pulse} 2s infinite` }} />
+                  <LocalFireDepartment
+                    sx={{
+                      fontSize: 14,
+                      color: "#FF4500",
+                      animation: `${pulse} 2s infinite`,
+                    }}
+                  />
                 )}
               </Stack>
               <Typography
@@ -134,7 +146,8 @@ export const TeamStatsCard = React.memo(
                   color: "#FF4500",
                   lineHeight: 1,
                   textShadow: "0 2px 4px rgba(255,69,0,0.2)",
-                  transform: defensiveStats.currentStreak >= 2 ? "scale(1.1)" : "none",
+                  transform:
+                    defensiveStats.currentStreak >= 2 ? "scale(1.1)" : "none",
                   transition: "transform 0.3s ease",
                 }}
               >
