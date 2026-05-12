@@ -167,6 +167,81 @@
 - [ ] Border radius consistent: cards `12px`, buttons `8px`, chips `8px`
 - [ ] All components pass a manual visual review on iPad (768px) and mobile (390px) viewport sizes
 
+## [ ] [DESIGN-011-A: Theme Editor — Preset Token Files]
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Before the theme switching UI can be built, all preset token objects need to exist as data. This story creates the 8 preset token files so DESIGN-011-B can import them without any business logic changes.
+**What:** Create `src/theme/presets/` directory with one file per preset, each exporting a `ThemeTokens` object.
+**Scope:** `src/theme/presets/` directory (new files only) — do not touch App.tsx, ThemeContext, or any component
+**Depends on:** DESIGN-001-A
+**Acceptance Criteria:**
+- [ ] 8 preset files created: `electricOrange.ts`, `midnightNavy.ts`, `championshipGold.ts`, `emeraldCourt.ts`, `electricViolet.ts`, `crimsonBlaze.ts`, `arcticWhite.ts`, `stealth.ts`
+- [ ] Each file exports a named `ThemeTokens` object, a `label` string, and a `previewColor` hex string
+- [ ] Token values per preset:
+  - **Electric Orange** (default): primary `#FF6B1A`, background `#0F1115`, surface `#151922`
+  - **Midnight Navy**: primary `#3B82F6`, background `#0A0F1E`, surface `#111827`
+  - **Championship Gold**: primary `#F5B800`, background `#0F0E09`, surface `#1A1810`
+  - **Emerald Court**: primary `#10B981`, background `#091510`, surface `#0F1F18`
+  - **Electric Violet**: primary `#8B5CF6`, background `#0D0A1E`, surface `#13102A`
+  - **Crimson Blaze**: primary `#EF4444`, background `#150A0A`, surface `#1F1010`
+  - **Arctic White** (light mode): primary `#FF6B1A`, background `#F8F9FA`, surface `#FFFFFF`, textPrimary `#0F1115`, textSecondary `#6B7280`, mode override `light`
+  - **Stealth**: primary `#9CA3AF`, background `#000000`, surface `#0A0A0A`
+- [ ] All files compile with no TypeScript errors
+- [ ] No other files are modified
+
+---
+
+## [ ] [DESIGN-011-B: Theme Editor — Theme Context & Runtime Switching]
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Preset files are useless until the app can switch between them at runtime without a page reload. This story wires a React context that holds the active token set and rebuilds the MUI theme on change, persisting the coach's choice to localStorage.
+**What:** Create `src/theme/ThemeContext.tsx`. Refactor `App.tsx` to consume context instead of using `electricOrangeTokens` directly.
+**Scope:** `src/theme/ThemeContext.tsx` (new), `src/App.tsx` refactor only
+**Depends on:** DESIGN-011-A
+**Acceptance Criteria:**
+- [ ] `ThemeContext` provides `{ activeTokens, setPreset, presets }` to the component tree
+- [ ] `presets` is an array of all 8 preset objects with `id`, `label`, `previewColor`, and `tokens`
+- [ ] `setPreset(id: string)` updates `activeTokens` and triggers MUI theme rebuild — no page reload
+- [ ] Active preset `id` persisted to `localStorage` key `courtsight_theme_preset` and restored on app load
+- [ ] `App.tsx` reads `activeTokens` from context and passes to `buildCourtSightTheme`
+- [ ] Default preset is `electricOrange` if nothing stored in localStorage
+- [ ] App compiles and switches themes correctly with no errors
+
+---
+
+## [ ] [DESIGN-011-C: Theme Editor — Settings Page Preset Gallery]
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Coaches need a visual way to browse and select presets. A settings page with a click-to-activate preset gallery is the clearest UX for this.
+**What:** Create `src/pages/Settings.tsx` with a preset gallery section. Add Settings to the nav.
+**Scope:** `src/pages/Settings.tsx` (new), `SideNav.tsx` and `BottomNav.tsx` to add Settings nav item
+**Depends on:** DESIGN-011-B, DESIGN-003-B, DESIGN-003-C
+**Acceptance Criteria:**
+- [ ] Settings page accessible via nav (gear icon at bottom of SideNav)
+- [ ] "Appearance" section on Settings page with heading "Theme"
+- [ ] Preset gallery renders one card per preset showing: preview swatch circle in `previewColor`, preset `label`, active checkmark if currently selected
+- [ ] Clicking a preset card calls `setPreset(id)` — entire app repaints immediately with no reload
+- [ ] Active preset card has `primary` border and checkmark indicator
+- [ ] Arctic White preset card clearly labelled "(Light Mode)"
+- [ ] No hardcoded hex colors — all card styles from theme tokens
+
+---
+
+## [ ] [DESIGN-011-D: Theme Editor — Custom Color Override & Live Preview Strip]
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Coaches who want to match their team colors exactly need the ability to override the primary accent on top of any preset. The live preview strip gives immediate feedback before committing.
+**What:** Add a custom color override section to `src/pages/Settings.tsx`. Create `src/components/theme/LivePreviewStrip.tsx`.
+**Scope:** `src/pages/Settings.tsx` update, `src/components/theme/LivePreviewStrip.tsx` (new)
+**Depends on:** DESIGN-011-C
+**Acceptance Criteria:**
+- [ ] "Custom Accent" section below preset gallery on Settings page
+- [ ] Color input (MUI `TextField` type `color` + hex text input) lets coach enter any hex value
+- [ ] `LivePreviewStrip` renders horizontally below the input showing: primary button, active nav chip, live badge, foul pip dots — all using the preview color in real time as the coach types
+- [ ] "Apply" button calls `setCustomPrimary(hex: string)` context method that overrides only the `primary`, `primaryDark`, and `primaryContainer` tokens of the active preset
+- [ ] "Reset" button reverts to the base preset's primary values
+- [ ] Custom primary persisted
+      
 ## [ ] [HALT: Proactive Tactical Intervention System]
 **Priority:** HIGH
 **Type:** Feature
