@@ -341,212 +341,204 @@ const Teams: React.FC = () => {
 
             return (
               <Grid item xs={12} sm={6} md={6} key={team.id}>
-                <Tooltip
-                  title="Click to view team dashboard"
-                  placement="top"
-                  arrow
-                >
+                <Tooltip title="Click to view team dashboard" placement="top" arrow>
                   <MoleskineCard
                     role="button"
                     tabIndex={0}
                     aria-label={`View stats for ${team.name}`}
                     sx={{
-                      cursor: "pointer",
-                      height: "100%",
-                      bgcolor: team.primaryColor || "primary.main",
-                      color: contrastColor,
-                      transition: "transform 0.2s, box-shadow 0.2s",
-                      "&:hover": {
-                        transform: "translateY(-4px)",
-                        boxShadow: "0 8px 24px rgba(0,0,0,0.2)",
-                      },
-                      "&:focus-visible": {
-                        outline: `4px solid ${contrastColor === "white" ? "rgba(255,255,255,0.8)" : "rgba(0,0,0,0.8)"}`,
-                        outlineOffset: "2px",
-                        transform: "translateY(-4px)",
-                        boxShadow: `0 12px 32px rgba(0,0,0,0.3), 0 0 0 8px ${team.primaryColor}44`,
-                      },
-                      display: "flex",
-                      flexDirection: "column",
-                      p: 0,
-                      overflow: "hidden",
-                      border: "none",
-                    }}
-                    onClick={() => navigate(`/teams/${team.id}`)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        navigate(`/teams/${team.id}`);
-                      }
-                    }}
-                  >
-                    <Box sx={{ p: 3, flexGrow: 1 }}>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "flex-start",
-                          mb: 3,
-                        }}
-                      >
-                        <Box>
-                          <Box
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 1,
-                            }}
-                          >
-                            <Typography
-                              variant="h5"
-                              sx={{
-                                fontFamily: "var(--serif)",
-                                fontWeight: 700,
-                                mb: 0.5,
-                                color: "inherit",
-                              }}
-                            >
-                              {team.name}
-                            </Typography>
-                            <Tooltip
-                              title={
-                                team.isFavorite
-                                  ? "Remove from favorites"
-                                  : "Mark as favorite"
-                              }
-                            >
-                              <IconButton
-                                size="small"
-                                onClick={(e) =>
-                                  handleToggleFavorite(
-                                    team.id!,
-                                    team.isFavorite || 0,
-                                    e,
-                                  )
-                                }
-                                sx={{ color: "inherit", p: 0.5 }}
-                                aria-label={
-                                  team.isFavorite
-                                    ? `Remove ${team.name} from favorites`
-                                    : `Mark ${team.name} as favorite`
-                                }
-                              >
-                                {team.isFavorite ? (
-                                  <StarIcon sx={{ color: "#FFD700" }} />
-                                ) : (
-                                  <StarBorderIcon sx={{ opacity: 0.5 }} />
-                                )}
-                              </IconButton>
-                            </Tooltip>
-                          </Box>
-                          <Typography
-                            variant="caption"
-                            sx={{ opacity: 0.8, color: "inherit" }}
-                          >
-                            {team.description || "No description"}
-                          </Typography>
-                        </Box>
-                        {team.logoUrl ? (
-                          <Avatar
-                            src={team.logoUrl}
-                            variant="rounded"
-                            sx={{
-                              width: 60,
-                              height: 60,
-                              bgcolor: "rgba(255,255,255,0.1)",
-                              p: 0.5,
-                            }}
-                          />
-                        ) : (
-                          <Avatar
-                            variant="rounded"
-                            sx={{
-                              width: 60,
-                              height: 60,
-                              bgcolor: "rgba(255,255,255,0.2)",
-                              color: "inherit",
-                              fontSize: "1.5rem",
-                              fontWeight: "bold",
-                            }}
-                          >
-                            {getInitials(team.name)}
-                          </Avatar>
-                        )}
-                      </Box>
-
-                      <Box sx={{ mb: 2 }}>
-                        <Typography
-                          variant="h4"
-                          sx={{ fontWeight: 800, color: "inherit" }}
-                        >
-                          {aggregates.record}
-                        </Typography>
-                        <Typography
-                          variant="caption"
-                          sx={{ opacity: 0.7, color: "inherit" }}
-                        >
-                          WIN-LOSS RECORD
-                        </Typography>
-                      </Box>
-                    </Box>
-
+                    cursor: "pointer",
+                    height: "100%",
+                    bgcolor: team.primaryColor || "primary.main",
+                    color: contrastColor,
+                    transition: "transform 0.2s, box-shadow 0.2s",
+                    "&:hover": {
+                      transform: "translateY(-4px)",
+                      boxShadow: "0 8px 24px rgba(0,0,0,0.2)",
+                    },
+                    "&:focus-visible": {
+                      outline: `4px solid ${contrastColor === "white" ? "rgba(255,255,255,0.8)" : "rgba(0,0,0,0.8)"}`,
+                      outlineOffset: "2px",
+                      transform: "translateY(-4px)",
+                      boxShadow: `0 12px 32px rgba(0,0,0,0.3), 0 0 0 8px ${team.primaryColor}44`,
+                    },
+                    display: "flex",
+                    flexDirection: "column",
+                    p: 0,
+                    overflow: "hidden",
+                    border: "none",
+                  }}
+                  onClick={() => navigate(`/teams/${team.id}`)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      navigate(`/teams/${team.id}`);
+                    }
+                  }}
+                >
+                  <Box sx={{ p: 3, flexGrow: 1 }}>
                     <Box
                       sx={{
-                        bgcolor: "rgba(0,0,0,0.1)",
-                        p: 2,
                         display: "flex",
                         justifyContent: "space-between",
+                        alignItems: "flex-start",
+                        mb: 3,
                       }}
                     >
-                      <StatItem
-                        label="PPG"
-                        value={aggregates.ppg}
-                        light={contrastColor === "white"}
-                      />
-                      <Typography
-                        sx={{
-                          color: contrastColor,
-                          opacity: 0.3,
-                          alignSelf: "center",
-                        }}
-                      >
-                        |
-                      </Typography>
-                      <StatItem
-                        label="RPG"
-                        value={aggregates.rpg}
-                        light={contrastColor === "white"}
-                      />
-                      <Typography
-                        sx={{
-                          color: contrastColor,
-                          opacity: 0.3,
-                          alignSelf: "center",
-                        }}
-                      >
-                        |
-                      </Typography>
-                      <StatItem
-                        label="APG"
-                        value={aggregates.apg}
-                        light={contrastColor === "white"}
-                      />
-                      <Typography
-                        sx={{
-                          color: contrastColor,
-                          opacity: 0.3,
-                          alignSelf: "center",
-                        }}
-                      >
-                        |
-                      </Typography>
-                      <StatItem
-                        label="OPPG"
-                        value={aggregates.oppg}
-                        light={contrastColor === "white"}
-                      />
+                      <Box>
+                        <Box
+                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                        >
+                          <Typography
+                            variant="h5"
+                            sx={{
+                              fontFamily: "var(--serif)",
+                              fontWeight: 700,
+                              mb: 0.5,
+                              color: "inherit",
+                            }}
+                          >
+                            {team.name}
+                          </Typography>
+                          <Tooltip
+                            title={
+                              team.isFavorite
+                                ? "Remove from favorites"
+                                : "Mark as favorite"
+                            }
+                          >
+                            <IconButton
+                              size="small"
+                              onClick={(e) =>
+                                handleToggleFavorite(
+                                  team.id!,
+                                  team.isFavorite || 0,
+                                  e,
+                                )
+                              }
+                              sx={{ color: "inherit", p: 0.5 }}
+                              aria-label={
+                                team.isFavorite
+                                  ? `Remove ${team.name} from favorites`
+                                  : `Mark ${team.name} as favorite`
+                              }
+                            >
+                              {team.isFavorite ? (
+                                <StarIcon sx={{ color: "#FFD700" }} />
+                              ) : (
+                                <StarBorderIcon sx={{ opacity: 0.5 }} />
+                              )}
+                            </IconButton>
+                          </Tooltip>
+                        </Box>
+                        <Typography
+                          variant="caption"
+                          sx={{ opacity: 0.8, color: "inherit" }}
+                        >
+                          {team.description || "No description"}
+                        </Typography>
+                      </Box>
+                      {team.logoUrl ? (
+                        <Avatar
+                          src={team.logoUrl}
+                          variant="rounded"
+                          sx={{
+                            width: 60,
+                            height: 60,
+                            bgcolor: "rgba(255,255,255,0.1)",
+                            p: 0.5,
+                          }}
+                        />
+                      ) : (
+                        <Avatar
+                          variant="rounded"
+                          sx={{
+                            width: 60,
+                            height: 60,
+                            bgcolor: "rgba(255,255,255,0.2)",
+                            color: "inherit",
+                            fontSize: "1.5rem",
+                            fontWeight: "bold",
+                          }}
+                        >
+                          {getInitials(team.name)}
+                        </Avatar>
+                      )}
                     </Box>
-                  </MoleskineCard>
-                </Tooltip>
+
+                    <Box sx={{ mb: 2 }}>
+                      <Typography
+                        variant="h4"
+                        sx={{ fontWeight: 800, color: "inherit" }}
+                      >
+                        {aggregates.record}
+                      </Typography>
+                      <Typography
+                        variant="caption"
+                        sx={{ opacity: 0.7, color: "inherit" }}
+                      >
+                        WIN-LOSS RECORD
+                      </Typography>
+                    </Box>
+                  </Box>
+
+                  <Box
+                    sx={{
+                      bgcolor: "rgba(0,0,0,0.1)",
+                      p: 2,
+                      display: "flex",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <StatItem
+                      label="PPG"
+                      value={aggregates.ppg}
+                      light={contrastColor === "white"}
+                    />
+                    <Typography
+                      sx={{
+                        color: contrastColor,
+                        opacity: 0.3,
+                        alignSelf: "center",
+                      }}
+                    >
+                      |
+                    </Typography>
+                    <StatItem
+                      label="RPG"
+                      value={aggregates.rpg}
+                      light={contrastColor === "white"}
+                    />
+                    <Typography
+                      sx={{
+                        color: contrastColor,
+                        opacity: 0.3,
+                        alignSelf: "center",
+                      }}
+                    >
+                      |
+                    </Typography>
+                    <StatItem
+                      label="APG"
+                      value={aggregates.apg}
+                      light={contrastColor === "white"}
+                    />
+                    <Typography
+                      sx={{
+                        color: contrastColor,
+                        opacity: 0.3,
+                        alignSelf: "center",
+                      }}
+                    >
+                      |
+                    </Typography>
+                    <StatItem
+                      label="OPPG"
+                      value={aggregates.oppg}
+                      light={contrastColor === "white"}
+                    />
+                  </Box>
+                </MoleskineCard>
+              </Tooltip>
               </Grid>
             );
           })}
