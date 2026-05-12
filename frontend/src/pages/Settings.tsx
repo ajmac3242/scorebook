@@ -357,14 +357,7 @@ const SystemSection: React.FC<SystemSectionProps> = ({
         <Stack spacing={1.5}>
           {[...logs].reverse().map((log, index) => (
             <Box key={index}>
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "baseline",
-                  gap: 1,
-                  mb: 0.5,
-                }}
-              >
+              <Box sx={{ display: "flex", alignItems: "baseline", gap: 1, mb: 0.5 }}>
                 <Typography
                   variant="caption"
                   sx={{
@@ -380,21 +373,13 @@ const SystemSection: React.FC<SystemSectionProps> = ({
                 >
                   {log.level}
                 </Typography>
-                <Typography
-                  variant="caption"
-                  color="text.secondary"
-                  sx={{ fontSize: "0.7rem" }}
-                >
+                <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.7rem" }}>
                   {new Date(log.timestamp).toLocaleTimeString()}
                 </Typography>
               </Box>
               <Typography
                 variant="body2"
-                sx={{
-                  fontFamily: "monospace",
-                  fontSize: "0.8rem",
-                  wordBreak: "break-all",
-                }}
+                sx={{ fontFamily: "monospace", fontSize: "0.8rem", wordBreak: "break-all" }}
               >
                 {log.message}
               </Typography>
@@ -418,7 +403,6 @@ const AppearanceSection: React.FC<{
       subtitle="Customise how CourtSight looks for you"
     />
     <Divider sx={{ mb: 3 }} />
-
     <Typography
       variant="subtitle2"
       fontWeight={700}
@@ -430,7 +414,6 @@ const AppearanceSection: React.FC<{
     <Typography variant="body2" color="text.secondary" sx={{ mb: 2.5 }}>
       Choose a colour theme for CourtSight. Your selection is saved automatically.
     </Typography>
-
     <Grid container spacing={2}>
       {availablePresets.map((preset) => (
         <Grid size={{ xs: 6, sm: 4, md: 3 }} key={preset.id}>
@@ -455,6 +438,10 @@ const NAV_ITEMS: NavItem[] = [
   { id: "appearance", label: "Appearance", icon: <PaletteIcon fontSize="small" />, description: "Themes" },
 ];
 
+/**
+ * Settings page component.
+ * Two-column layout: sidebar nav (Account / System / Appearance) + content panel.
+ */
 const Settings: React.FC = () => {
   const { logout } = useAuth();
   const { presetId, setPresetId, availablePresets } = useAppTheme();
@@ -528,7 +515,6 @@ const Settings: React.FC = () => {
     } catch (err) {
       logger.error("Failed to clean up local state during logout:", err);
     }
-
     logout();
   };
 
@@ -545,22 +531,14 @@ const Settings: React.FC = () => {
     navigator.clipboard.writeText(logString);
     setIsCopied(true);
     setTimeout(() => setIsCopied(false), 2000);
-    setSnackbar({
-      open: true,
-      message: "Logs copied to clipboard",
-      severity: "success",
-    });
+    setSnackbar({ open: true, message: "Logs copied to clipboard", severity: "success" });
   };
 
   const handleClearLogs = () => {
     if (window.confirm("Are you sure you want to clear all system logs?")) {
       logger.clearLogs();
       setLogs([]);
-      setSnackbar({
-        open: true,
-        message: "System logs cleared",
-        severity: "success",
-      });
+      setSnackbar({ open: true, message: "System logs cleared", severity: "success" });
     }
   };
 
@@ -601,6 +579,7 @@ const Settings: React.FC = () => {
           alignItems: "flex-start",
         }}
       >
+        {/* Sidebar Navigation */}
         <Paper
           elevation={0}
           sx={{
@@ -614,24 +593,17 @@ const Settings: React.FC = () => {
             top: { md: 80 },
           }}
         >
-          <Box
-            sx={{
-              px: 2,
-              py: 1.5,
-              borderBottom: "1px solid",
-              borderColor: "divider",
-            }}
-          >
+          <Box sx={{ px: 2, py: 1.5, borderBottom: "1px solid", borderColor: "divider" }}>
             <Typography
               variant="overline"
               color="text.secondary"
-              fontWeight={olor: "divider",
-            overflow: "hidden",
-            position: { md: "sticky" },
-            top: { md: 80 },
-          }}
-        >
-          ding>
+              fontWeight={700}
+              sx={{ letterSpacing: 1 }}
+            >
+              Settings
+            </Typography>
+          </Box>
+          <List disablePadding>
             {NAV_ITEMS.map((item, idx) => {
               const isActive = activeSection === item.id;
               return (
@@ -646,37 +618,18 @@ const Settings: React.FC = () => {
                         borderRadius: 0,
                         "&.Mui-selected": {
                           bgcolor: "primary.main",
-                          color: "primary.contrastTeolor: "divider",
-            overflow: "hidden",
-            position: { md: "sticky" },
-            top: { md: 80 },
-          }}
-        >
-          ow: "hidden",
-            position: { md: "sticky" },
-            top: { md: 80 },
-          }}
-        >
-          : "divider",
-            overflow: "hidden",
-            position: { md: "sticky" },
-            top: { md: 80 },
-          }}
-        >
-           },
+                          color: "primary.contrastText",
+                          "& .MuiListItemIcon-root": { color: "primary.contrastText" },
+                          "& .MuiListItemText-secondary": { color: "rgba(255,255,255,0.7)" },
+                          "&:hover": { bgcolor: "primary.dark" },
                         },
                       }}
                     >
                       <ListItemIcon
-                        sx={{
-                          minWidth: 34,
-                          color: "divider",
-            overflow: "hidden",
-            position: { md: "sticky" },
-            top: { md: 80 },
-          }}
-        >
-               </ListItemIcon>
+                        sx={{ minWidth: 34, color: isActive ? "inherit" : "text.secondary" }}
+                      >
+                        {item.icon}
+                      </ListItemIcon>
                       <ListItemText
                         primary={item.label}
                         secondary={item.description}
@@ -684,132 +637,79 @@ const Settings: React.FC = () => {
                           variant: "body2",
                           fontWeight: isActive ? 700 : 500,
                         }}
-                        secondaryTypogrolor: "divider",
-            overflow: "hidden",
-            position: { md: "sticky" },
-            top: { md: 80 },
-          }}
-        >
-                              </ListItemButolor: "divider",
-            overflow: "hidden",
-            position: { md: "sticky" },
-            top: { md: 80 },
-          }}
-        >
-                   })}
-          </Lolor: "divider",
-            overflow: "hidden",
-            position: { md: "sticky" },
-            top: { md: 80 },
-          }}
-        >
-          ,
+                        secondaryTypographyProps={{ variant: "caption" }}
+                      />
+                      {isActive && <ChevronRightIcon fontSize="small" sx={{ ml: 0.5 }} />}
+                    </ListItemButton>
+                  </ListItem>
+                  {idx < NAV_ITEMS.length - 1 && <Divider />}
+                </React.Fragment>
+              );
+            })}
+          </List>
+        </Paper>
+
+        {/* Content Panel */}
+        <Paper
+          elevation={0}
+          sx={{
+            flex: 1,
+            minWidth: 0,
+            borderRadius: 3,
             border: "1px solid",
             borderColor: "divider",
-            overflow: "hidden",
-            position: { md: "sticky" },
-            top: { md: 80 },
+            p: { xs: 2.5, sm: 3.5 },
           }}
         >
-          idden",
-            position: { md: "sticky" },
-            top: { md: 80 },
-          }}
-        >
-                     position: { md: "sticky" },
-            top: { md: 80 },
-          }}
-        >
-             overflow: "hidden",
-            position: { md: "sticky" },
-            top: { md: 80 },
-          }}
-        >
-          ticky" },
-            top: { md: 80 },
-          }}
-        >
-          = "appearance" && (
+          {activeSection === "account" && <AccountSection onLogoutClick={handleLogoutClick} />}
+          {activeSection === "system" && (
+            <SystemSection
+              isOnline={isOnline}
+              isSyncing={isSyncing}
+              hasUnsynced={hasUnsynced}
+              logs={logs}
+              isCopied={isCopied}
+              onCopyLogs={copyLogsToClipboard}
+              onClearLogs={handleClearLogs}
+            />
+          )}
+          {activeSection === "appearance" && (
             <AppearanceSection
-              presetId={prolor: "divider",
-            overflow: "hidden",
-            position: { md: "sticky" },
-            top: { md: 80 },
-          }}
-        >
-           </Boolor: "divider",
-            overflow: "hidden",
-            position: { md: "sticky" },
-            top: { md: 80 },
-          }}
-        >
-                <DialogTolor: "divider",
-            overflow: "hidden",
-            position: { md: "sticky" },
-            top: { md: 80 },
-          }}
-        >
-              >
-               <WarningIcon color="error" />
+              presetId={presetId}
+              availablePresets={availablePresets}
+              onSelectPreset={setPresetId}
+            />
+          )}
+        </Paper>
+      </Box>
+
+      <Dialog
+        open={logoutDialogOpen}
+        onClose={() => setLogoutDialogOpen(false)}
+        maxWidth="xs"
+        fullWidth
+      >
+        <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1.5, color: "error.main" }}>
+          <WarningIcon color="error" />
           Unsynced Changes
-        </Diolor: "divider",
-            overflow: "hidden",
-            position: { md: "sticky" },
-            top: { md: 80 },
-          }}
-        >
-          
-            position: { md: "sticky" },
-            top: { md: 80 },
-          }}
-        >
-          low: "hidden",
-            position: { md: "sticky" },
-            top: { md: 80 },
-          }}
-        >
-          r",
-            overflow: "hidden",
-            position: { md: "sticky" },
-            top: { md: 80 },
-          }}
-        >
-          
-            overflow: "hidden",
-            position: { md: "sticky" },
-            top: { md: 80 },
-          }}
-        >
-          ivider",
-            overflow: "hidden",
-            position: { md: "sticky" },
-            top: { md: 80 },
-          }}
-        >
-                    top: { md: 80 },
-          }}
-        >
-               overflow: "hidden",
-            position: { md: "sticky" },
-            top: { md: 80 },
-          }}
-        >
-          d in the repo baseolor: "divider",
-            overflow: "hidden",
-            position: { md: "sticky" },
-            top: { md: 80 },
-          }}
-        >
-          "sticky" },
-            top: { md: 80 },
-          }}
-        >
-          verflow: "hidden",
-            position: { md: "sticky" },
-            top: { md: 80 },
-          }}
-        >
-          },
-          }}
-        >
-          
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            You have data that hasn't been synced to the server yet. If you logout now, these
+            changes may be lost. Are you sure you want to logout?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{ p: 2, px: 3, pb: 3 }}>
+          <Button onClick={() => setLogoutDialogOpen(false)} color="inherit">
+            Cancel
+          </Button>
+          <Button onClick={confirmLogout} color="error" variant="contained">
+            Logout Anyway
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
+  );
+};
+
+export default Settings;
