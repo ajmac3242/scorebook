@@ -51,7 +51,7 @@ describe("Settings Component", () => {
     expect(screen.getAllByText(/appearance/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/color theme/i)).toBeInTheDocument();
     expect(screen.getByText(/theme presets/i)).toBeInTheDocument();
-    expect(screen.getByText(/default/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/default/i).length).toBeGreaterThan(0);
   });
 
   it.skip("handles logout without unsynced changes", async () => {
