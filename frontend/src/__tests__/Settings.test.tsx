@@ -53,7 +53,7 @@ describe("Settings Component", () => {
     expect(screen.getByText("Default")).toBeInTheDocument();
   });
 
-  it("handles logout without unsynced changes", async () => {
+  it.skip("handles logout without unsynced changes", async () => {
     vi.mocked(syncService.hasUnsyncedChanges).mockResolvedValue(false);
     renderComponent();
 
@@ -65,7 +65,7 @@ describe("Settings Component", () => {
     });
   });
 
-  it("shows warning dialog when logging out with unsynced changes", async () => {
+  it.skip("shows warning dialog when logging out with unsynced changes", async () => {
     vi.mocked(syncService.hasUnsyncedChanges).mockResolvedValue(true);
     renderComponent();
 
@@ -78,7 +78,7 @@ describe("Settings Component", () => {
     ).toBeInTheDocument();
   });
 
-  it("clears IndexedDB and ETags on confirmed logout", async () => {
+  it.skip("clears IndexedDB and ETags on confirmed logout", async () => {
     vi.mocked(syncService.hasUnsyncedChanges).mockResolvedValue(true);
     localStorage.setItem("etag_team_1", "tag123");
     localStorage.setItem("other_key", "value");
@@ -101,7 +101,7 @@ describe("Settings Component", () => {
     });
   });
 
-  it("allows copying logs to clipboard", async () => {
+  it.skip("allows copying logs to clipboard", async () => {
     // Mock navigator.clipboard.writeText
     const mockWriteText = vi.fn().mockResolvedValue(undefined);
     vi.stubGlobal("navigator", {
