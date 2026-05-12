@@ -53,6 +53,7 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
       fullWidth
       maxWidth="sm"
       aria-labelledby="quick-sub-title"
+      aria-describedby="quick-sub-instructions"
     >
       <DialogTitle
         id="quick-sub-title"
@@ -78,6 +79,7 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
       </DialogTitle>
       <DialogContent>
         <Typography
+          id="quick-sub-instructions"
           variant="caption"
           color="text.secondary"
           sx={{ mb: 2, display: "block" }}

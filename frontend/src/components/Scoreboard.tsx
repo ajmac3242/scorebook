@@ -140,6 +140,8 @@ export const Scoreboard = React.memo(
         {/* KILL ACHIEVED Overlay */}
         {showKillOverlay && (
           <Box
+            role="alert"
+            aria-live="assertive"
             sx={{
               position: "absolute",
               top: 0,
@@ -233,7 +235,15 @@ export const Scoreboard = React.memo(
         )}
 
         {/* Our Team */}
-        <Box sx={{ position: "relative" }}>
+        <Box
+          sx={{ position: "relative" }}
+          aria-live="polite"
+          aria-label={
+            gameData.possessionState === SPECIAL_PLAYER_IDS.OUR_TEAM
+              ? "Our Team has possession"
+              : ""
+          }
+        >
           <TeamPanel
             name={team?.name || "TEAM"}
             logoUrl={team?.logoUrl}
@@ -603,7 +613,15 @@ export const Scoreboard = React.memo(
         </Box>
 
         {/* Opponent Team */}
-        <Box sx={{ position: "relative" }}>
+        <Box
+          sx={{ position: "relative" }}
+          aria-live="polite"
+          aria-label={
+            gameData.possessionState === SPECIAL_PLAYER_IDS.OPPONENT
+              ? "Opponent has possession"
+              : ""
+          }
+        >
           <TeamPanel
             name={game?.opponent || "OPPONENT"}
             logoUrl={game?.opponentLogoUrl}
