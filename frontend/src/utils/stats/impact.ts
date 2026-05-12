@@ -81,6 +81,7 @@ export const calculateStopsAndKills = (stats: StatEvent[]) => {
   let totalStops = 0;
   let totalKills = 0;
   let currentStreak = 0;
+  const killEvents: { period: number; clockTime: number }[] = [];
 
   let inOpponentPossession = false;
   let isOurPossession = false;
@@ -160,11 +161,15 @@ export const calculateStopsAndKills = (stats: StatEvent[]) => {
 
     if (currentStreak >= 3) {
       totalKills++;
+      killEvents.push({
+        period: s.period,
+        clockTime: s.clockTime || 0,
+      });
       currentStreak = 0;
     }
   }
 
-  return { totalStops, totalKills, currentStreak };
+  return { totalStops, totalKills, currentStreak, killEvents };
 };
 
 export interface OnOffStats {

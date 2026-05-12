@@ -1,7 +1,8 @@
 import React from "react";
-import { Box, Typography, Grid, Tooltip } from "@mui/material";
-import { FlashOn } from "@mui/icons-material";
+import { Box, Typography, Grid, Tooltip, Stack } from "@mui/material";
+import { FlashOn, LocalFireDepartment } from "@mui/icons-material";
 import { MoleskineCard, AnimatedNumber } from "./SharedUI";
+import { pulse } from "../styles/animations";
 
 /**
  * 🏀 CoachBoard: Team Stats Card
@@ -99,30 +100,55 @@ export const TeamStatsCard = React.memo(
               sx={{
                 textAlign: "center",
                 p: 1.5,
-                bgcolor: "rgba(0,0,0,0.03)",
+                bgcolor:
+                  defensiveStats.currentStreak >= 2
+                    ? "rgba(255,69,0,0.1)"
+                    : "rgba(0,0,0,0.03)",
                 borderRadius: 2,
-                border: "1px solid rgba(0,0,0,0.05)",
+                border:
+                  defensiveStats.currentStreak >= 2
+                    ? "1px solid #FF4500"
+                    : "1px solid rgba(0,0,0,0.05)",
+                transition: "all 0.3s ease",
               }}
             >
-              <Typography
-                variant="caption"
-                sx={{
-                  display: "block",
-                  color: "text.secondary",
-                  fontWeight: 700,
-                  letterSpacing: 1,
-                  mb: 0.5,
-                }}
+              <Stack
+                direction="row"
+                spacing={0.5}
+                justifyContent="center"
+                alignItems="center"
+                sx={{ mb: 0.5 }}
               >
-                KILLS
-              </Typography>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    color: "text.secondary",
+                    fontWeight: 700,
+                    letterSpacing: 1,
+                  }}
+                >
+                  KILLS
+                </Typography>
+                {defensiveStats.totalKills > 0 && (
+                  <LocalFireDepartment
+                    sx={{
+                      fontSize: 14,
+                      color: "#FF4500",
+                      animation: `${pulse} 2s infinite`,
+                    }}
+                  />
+                )}
+              </Stack>
               <Typography
                 variant="h4"
                 sx={{
-                  fontWeight: 800,
+                  fontWeight: 900,
                   color: "#FF4500",
                   lineHeight: 1,
                   textShadow: "0 2px 4px rgba(255,69,0,0.2)",
+                  transform:
+                    defensiveStats.currentStreak >= 2 ? "scale(1.1)" : "none",
+                  transition: "transform 0.3s ease",
                 }}
               >
                 <AnimatedNumber value={defensiveStats.totalKills} />

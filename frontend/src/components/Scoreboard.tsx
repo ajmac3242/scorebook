@@ -94,6 +94,18 @@ export const Scoreboard = React.memo(
   }: ScoreboardProps) => {
     const theme = useTheme();
     const timeoutTotal = game?.timeoutLimit ?? team?.defaultTimeoutLimit ?? 3;
+    const [showKillOverlay, setShowKillOverlay] = React.useState(false);
+    const lastKillCount = React.useRef(gameData.defensiveStats.totalKills);
+
+    React.useEffect(() => {
+      if (gameData.defensiveStats.totalKills > lastKillCount.current) {
+        setShowKillOverlay(true);
+        const timer = setTimeout(() => setShowKillOverlay(false), 3000);
+        lastKillCount.current = gameData.defensiveStats.totalKills;
+        return () => clearTimeout(timer);
+      }
+      lastKillCount.current = gameData.defensiveStats.totalKills;
+    }, [gameData.defensiveStats.totalKills]);
 
     return (
       <Box
@@ -124,6 +136,47 @@ export const Scoreboard = React.memo(
             opacity: 0.8,
           }}
         />
+
+        {/* KILL ACHIEVED Overlay */}
+        {showKillOverlay && (
+          <Box
+            sx={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              zIndex: 110,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              background:
+                "linear-gradient(45deg, rgba(255,107,26,0.9) 0%, rgba(217,85,13,0.9) 100%)",
+              animation: `${pulse} 0.5s ease-in-out`,
+            }}
+          >
+            <Stack alignItems="center" spacing={1}>
+              <LocalFireDepartment sx={{ fontSize: "4rem", color: "white" }} />
+              <Typography
+                variant="h3"
+                sx={{
+                  fontWeight: 900,
+                  color: "white",
+                  textShadow: "0 4px 20px rgba(0,0,0,0.5)",
+                  letterSpacing: 4,
+                }}
+              >
+                KILL ACHIEVED
+              </Typography>
+              <Typography
+                variant="h6"
+                sx={{ fontWeight: 800, color: "rgba(255,255,255,0.8)" }}
+              >
+                3 STOPS IN A ROW
+              </Typography>
+            </Stack>
+          </Box>
+        )}
 
         {/* HALT Alerts Overlay */}
         {haltAlerts.length > 0 && (
