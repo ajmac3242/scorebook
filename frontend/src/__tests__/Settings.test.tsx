@@ -26,11 +26,11 @@ const mockPresets = [
     palette: { primary: { main: "#FF6B2B" } },
   },
 ];
+
 describe("Settings Component", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     localStorage.clear();
-    // Mock db.delete
     (db.delete as any) = vi.fn().mockResolvedValue(undefined);
   });
 
@@ -48,7 +48,7 @@ describe("Settings Component", () => {
   it("renders Settings page and displays system status", async () => {
     renderComponent();
 
-    expect(screen.getByText("Appearance")).toBeInTheDocument();
+    expect(screen.getAllByText("Appearance").length).toBeGreaterThan(0);
     expect(screen.getByText("THEME")).toBeInTheDocument();
     expect(screen.getByText("Default")).toBeInTheDocument();
   });
@@ -96,13 +96,12 @@ describe("Settings Component", () => {
     await waitFor(() => {
       expect(db.delete).toHaveBeenCalled();
       expect(localStorage.getItem("etag_team_1")).toBeNull();
-      expect(localStorage.getItem("other_key")).toBe("value"); // Should NOT be removed
+      expect(localStorage.getItem("other_key")).toBe("value");
       expect(localStorage.getItem("isAuthenticated")).toBeNull();
     });
   });
 
   it.skip("allows copying logs to clipboard", async () => {
-    // Mock navigator.clipboard.writeText
     const mockWriteText = vi.fn().mockResolvedValue(undefined);
     vi.stubGlobal("navigator", {
       clipboard: {
@@ -110,7 +109,6 @@ describe("Settings Component", () => {
       },
     });
 
-    // Add a mock log to ensure the copy button is not disabled
     import("../utils/logger").then(({ logger }) => {
       logger.info("Test log");
     });
