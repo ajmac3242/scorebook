@@ -218,7 +218,10 @@ const AppContent: React.FC = () => {
  * @returns {React.ReactElement}
  */
 const App: React.FC = () => {
-  const theme = React.useMemo(() => buildCourtSightTheme(electricOrangeTokens), []);
+  const theme = React.useMemo(
+    () => buildCourtSightTheme(electricOrangeTokens),
+    [],
+  );
 
   return (
     <ThemeProvider theme={theme}>
