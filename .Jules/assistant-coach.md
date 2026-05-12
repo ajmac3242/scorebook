@@ -29,3 +29,8 @@
 - **Basketball Workflow Insight**: Tactical filtering in shot charts (e.g., by breakdown reason) helps coaches bridge the gap between "result" and "process" visually. Seeing a cluster of misses caused by "Poor Closeouts" on the perimeter provides immediate film-review focus points.
 - **Implementation Pattern**: "Execution Delta" (Situational PPP - Team Average PPP) is a powerful relative metric. It tells a coach not just if a set play worked, but if it was *better* than their standard offense, justifying the timeout used to call it.
 - **Basketball Edge Case**: "Success Rate" in specialty situations must include shooting fouls. A play that results in a trip to the FT line is a successful execution of the set, even if no field goal was attempted. Our situational engine now captures `FOUL_SHOOTING` as a success metric.
+
+## Journal - Session 5
+- **Basketball Workflow Insight**: Momentum is psychological but data-driven. A "Kill" (3 stops) acts as a pivot point for a game; visualizing this explicitly helps coaches decide when to press their advantage or when the opponent has broken their rhythm.
+- **Implementation Pattern**: The "Winning Time" HUD uses a high-contrast state to remove non-essential stats during high-pressure minutes. By focusing on Usage Rate and FT Reliability of the 5 players on the floor, we provide the most relevant data for 4th-quarter decision making.
+- **Basketball Edge Case**: "Usage Rate" in clutch situations is approximated by (Attempts + 0.44 * FTA + TO). High usage combined with low FT% identifies a "Hack-a" risk, while high usage with high points identify the "Go-to" option that needs a personnel counter.

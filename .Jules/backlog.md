@@ -1,6 +1,6 @@
 # Scorebook Backlog
 
-## [ ] [Defensive "Kill" & Momentum Tracker]
+## [x] [Defensive "Kill" & Momentum Tracker]
 **Priority:** HIGH
 **Type:** Feature / UX
 **Why:** A "Kill" (3 consecutive defensive stops) is the gold standard for defensive momentum. Visualizing this in real-time motivates the unit and triggers timeout decisions.
@@ -11,7 +11,7 @@
 - [ ] "Kill Count" added to the Team Stats card.
 - [ ] Historical "Kill Log" in the game timeline.
 
-## [ ] [Archetype-Based Matchup Advisor]
+## [x] [Archetype-Based Matchup Advisor]
 **Priority:** HIGH
 **Type:** Feature / Decision Support
 **Why:** Coaches shouldn't just know who is scoring, but *how* to stop them. Linking defender Stop % to opponent "Play Types" (PnR, ISO, etc.) identifies the optimal personnel counter.
@@ -21,7 +21,7 @@
 - [ ] Correlation of Defender X's Stop % specifically against "PnR Handler" or "ISO" actions.
 - [ ] Alert when a "Mismatched Archetype" occurs (e.g., a slow defender on a high-transition scorer).
 
-## [ ] ["Winning Time" (Clutch) Performance HUD]
+## [x] ["Winning Time" (Clutch) Performance HUD]
 **Priority:** HIGH
 **Type:** UX / Feature
 **Why:** The final 4 minutes of a close game require different tactical data (Usage Rate, Clutch eFG%). This HUD removes the "noise" and focuses only on high-pressure performance.

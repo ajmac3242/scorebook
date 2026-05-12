@@ -11,6 +11,7 @@ import {
   Paper,
   Tooltip,
 } from "@mui/material";
+import { Star } from "@mui/icons-material";
 
 interface MatchupData {
   teamPlayerId: string;
@@ -25,6 +26,8 @@ interface MatchupMatrixProps {
   teamActiveIds: string[];
   oppActiveIds: string[];
   matchupData: MatchupData[];
+  archetypeEfficiency?: Record<string, Record<string, number>>;
+  oppMostFrequentPlayType?: Record<string, string>;
   jerseyMap: Map<string, string | undefined>;
   currentMatchups?: Record<string, string>;
   onReassign?: (_oppPlayerId: string, _teamPlayerId: string) => void;
@@ -34,6 +37,8 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
   teamActiveIds,
   oppActiveIds,
   matchupData,
+  archetypeEfficiency = {},
+  oppMostFrequentPlayType = {},
   jerseyMap,
   currentMatchups = {},
   onReassign,
@@ -108,13 +113,45 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
                 {oppActiveIds.map((oId) => {
                   const data = getCellData(tId, oId);
                   const isAssigned = currentMatchups[oId] === tId;
+
+                  // Archetype Advisor Logic: Recommend if this player is the best against the opponent's frequent play type
+                  const frequentPlayType = oppMostFrequentPlayType[oId];
+                  let isRecommended = false;
+                  if (frequentPlayType) {
+                    const myEff =
+                      archetypeEfficiency[tId]?.[frequentPlayType] || 0;
+                    if (myEff >= 60) {
+                      // Check if anyone else is better
+                      const othersEff = teamActiveIds
+                        .filter((id) => id !== tId)
+                        .map(
+                          (id) =>
+                            archetypeEfficiency[id]?.[frequentPlayType] || 0,
+                        );
+                      if (myEff >= Math.max(...othersEff, 50)) {
+                        isRecommended = true;
+                      }
+                    }
+                  }
+
                   return (
                     <Tooltip
                       key={`${tId}-${oId}`}
                       title={
-                        data
-                          ? `${data.stopPct}% Stop Rate over ${data.possessions} possessions. Click to assign.`
-                          : "Click to assign."
+                        <>
+                          {data
+                            ? `${data.stopPct}% Stop Rate over ${data.possessions} possessions.`
+                            : "No matchup data."}
+                          {isRecommended && (
+                            <Box sx={{ mt: 0.5, color: "gold", fontWeight: 800 }}>
+                              ⭐ Statistically Best Personnel Counter for{" "}
+                              {frequentPlayType}
+                            </Box>
+                          )}
+                          <Box sx={{ mt: 0.5, fontStyle: "italic" }}>
+                            Click to assign.
+                          </Box>
+                        </>
                       }
                     >
                       <TableCell
@@ -132,11 +169,23 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
                           ),
                           cursor: "pointer",
                           border: isAssigned ? "2px solid #2196f3" : "none",
+                          position: "relative",
                           "&:hover": {
                             bgcolor: "rgba(33, 150, 243, 0.1)",
                           },
                         }}
                       >
+                        {isRecommended && (
+                          <Star
+                            sx={{
+                              position: "absolute",
+                              top: 1,
+                              right: 1,
+                              fontSize: 10,
+                              color: "gold",
+                            }}
+                          />
+                        )}
                         {data ? `${data.stopPct}%` : "-"}
                       </TableCell>
                     </Tooltip>

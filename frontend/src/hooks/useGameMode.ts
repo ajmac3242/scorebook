@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { db, type StatEvent } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
 import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../constants/stats";
@@ -21,6 +21,7 @@ import {
   calculateSparkPlugIndex,
   calculateShotROI,
   calculatePaintTouchStats,
+  calculateArchetypeEfficiency,
   type PlayerAggregates,
   OpponentThreat,
 } from "../utils/stats";
@@ -644,6 +645,21 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     };
   }, [eventAggregates, clockSeconds, period, game?.periodLength]);
 
+  const lastKillCount = useRef<number | null>(null);
+  useEffect(() => {
+    if (
+      lastKillCount.current !== null &&
+      gameData.defensiveStats.totalKills > lastKillCount.current
+    ) {
+      setSnackbar({
+        open: true,
+        message: "🛡️ KILL ACHIEVED! 3 Consecutive Defensive Stops.",
+        severity: "success",
+      });
+    }
+    lastKillCount.current = gameData.defensiveStats.totalKills;
+  }, [gameData.defensiveStats.totalKills, setSnackbar]);
+
   const handleNextPeriod = useCallback(async () => {
     if (lastVerifiedPeriod < period) {
       setIsVerificationOpen(true);
@@ -783,6 +799,24 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       periodType: team?.periodType || "QUARTERS",
       maxStintDuration: team?.maxStintDuration || 8,
       jerseyMap,
+      archetypeEfficiency: calculateArchetypeEfficiency(sortedGameStats),
+      oppMostFrequentPlayType: (() => {
+        const playTypeCounts: Record<string, Record<string, number>> = {};
+        sortedGameStats.forEach((s) => {
+          if (isOpponentId(s.playerId) && s.opponentPlayType) {
+            if (!playTypeCounts[s.playerId]) playTypeCounts[s.playerId] = {};
+            playTypeCounts[s.playerId][s.opponentPlayType] =
+              (playTypeCounts[s.playerId][s.opponentPlayType] || 0) + 1;
+          }
+        });
+        const result: Record<string, string> = {};
+        Object.entries(playTypeCounts).forEach(([oppId, counts]) => {
+          const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+          if (sorted[0]) result[oppId] = sorted[0][0];
+        });
+        return result;
+      })(),
+      matchups: game?.matchups || {},
     });
   }, [
     players,
@@ -794,6 +828,8 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     team?.periodType,
     team?.maxStintDuration,
     jerseyMap,
+    sortedGameStats,
+    game?.matchups,
   ]);
 
   const {
@@ -1086,6 +1122,26 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       () => calculateMatchupEfficiency(sortedGameStats, game?.matchups || {}),
       [sortedGameStats, game?.matchups],
     ),
+    archetypeEfficiency: useMemo(
+      () => calculateArchetypeEfficiency(sortedGameStats),
+      [sortedGameStats],
+    ),
+    oppMostFrequentPlayType: useMemo(() => {
+      const playTypeCounts: Record<string, Record<string, number>> = {};
+      sortedGameStats.forEach((s) => {
+        if (isOpponentId(s.playerId) && s.opponentPlayType) {
+          if (!playTypeCounts[s.playerId]) playTypeCounts[s.playerId] = {};
+          playTypeCounts[s.playerId][s.opponentPlayType] =
+            (playTypeCounts[s.playerId][s.opponentPlayType] || 0) + 1;
+        }
+      });
+      const result: Record<string, string> = {};
+      Object.entries(playTypeCounts).forEach(([oppId, counts]) => {
+        const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+        if (sorted[0]) result[oppId] = sorted[0][0];
+      });
+      return result;
+    }, [sortedGameStats]),
     sparkPlugIndex: useMemo(
       () => calculateSparkPlugIndex(sortedGameStats, game?.periodLength || 10),
       [sortedGameStats, game?.periodLength],
@@ -1094,6 +1150,46 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       () => calculateShotROI(sortedGameStats),
       [sortedGameStats],
     ),
+    isClutchMode: useMemo(() => {
+      return isClutchEvent(
+        period,
+        clockSeconds,
+        gameData.currentScore - gameData.opponentScore,
+        team?.periodType || "QUARTERS",
+      );
+    }, [
+      period,
+      clockSeconds,
+      gameData.currentScore,
+      gameData.opponentScore,
+      team?.periodType,
+    ]),
+    clutchStats: useMemo(() => {
+      const clutchEvents = sortedGameStats.filter((s) =>
+        isClutchEvent(
+          s.period,
+          s.clockTime || 0,
+          0, // Filter by time/period context
+          team?.periodType || "QUARTERS",
+        ),
+      );
+      return calculatePlayerAggregates(
+        players,
+        clutchEvents,
+        teamPlayers,
+        "total",
+        {
+          isSorted: true,
+          periodLength: game?.periodLength,
+        },
+      );
+    }, [
+      sortedGameStats,
+      players,
+      teamPlayers,
+      team?.periodType,
+      game?.periodLength,
+    ]),
     paintTouchStats: useMemo(
       () => calculatePaintTouchStats(sortedGameStats),
       [sortedGameStats],

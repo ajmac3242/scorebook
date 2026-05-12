@@ -66,6 +66,7 @@ import QuickSubDialog from "../components/QuickSubDialog";
 import SubstitutionAuditDialog from "../components/SubstitutionAuditDialog";
 import FreeThrowWorkflowDialog from "../components/FreeThrowWorkflowDialog";
 import HalftimeReportDialog from "../components/HalftimeReportDialog";
+import { ClutchPerformanceHUD } from "../components/ClutchPerformanceHUD";
 import DefensiveBreakdownDialog from "../components/DefensiveBreakdownDialog";
 import PlaybookEfficiencyWidget from "../components/PlaybookEfficiencyWidget";
 import { TacticalAlertsSidebar } from "../components/TacticalAlertsSidebar";
@@ -218,6 +219,8 @@ const GameMode: React.FC = () => {
     markers,
     clockSecondsRef,
     shotROI,
+    isClutchMode,
+    clutchStats,
     paintTouchStats,
     haltAlerts,
   } = useGameMode(gameId, teamId);
@@ -1120,6 +1123,24 @@ const GameMode: React.FC = () => {
 
         <Grid item xs={12} md={4}>
           <Stack spacing={3}>
+            {isClutchMode && (
+              <MoleskineCard
+                sx={{
+                  bgcolor: "rgba(211, 47, 47, 0.05)",
+                  border: "2px solid",
+                  borderColor: "error.main",
+                  animation: `${pulse} 4s infinite ease-in-out`,
+                }}
+              >
+                <ClutchPerformanceHUD
+                  onCourtStats={clutchStats.filter((p) =>
+                    gameData.onCourtIds.has(p.id.toString()),
+                  )}
+                  jerseyMap={jerseyMap}
+                />
+              </MoleskineCard>
+            )}
+
             <MoleskineCard>
               <TacticalAlertsSidebar alerts={haltAlerts} />
             </MoleskineCard>

@@ -250,6 +250,41 @@ export const calculateSparkPlugIndex = (
  * 🏀 Forge: Matchup Efficiency Logic
  * Calculates Stop % for specific player matchups.
  */
+/**
+ * 🏀 Assistant Coach: Archetype Efficiency Logic
+ * WHY: Coaches shouldn't just know who is scoring, but *how* to stop them.
+ * Calculates Stop % specifically against opponent play types (PnR, ISO, etc.)
+ */
+export const calculateArchetypeEfficiency = (stats: StatEvent[]) => {
+  const data: Record<string, { stops: number; total: number }> = {};
+
+  for (const s of stats) {
+    if (!isActive(s) || !isOpponentId(s.playerId) || !s.opponentPlayType)
+      continue;
+
+    const defenderId = s.primaryDefenderId;
+    if (!defenderId) continue;
+
+    const key = `${defenderId}|${s.opponentPlayType}`;
+    if (!data[key]) data[key] = { stops: 0, total: 0 };
+
+    data[key].total++;
+    if (s.type === ACTION_TYPES.MISS || s.type === ACTION_TYPES.TURNOVER) {
+      data[key].stops++;
+    }
+  }
+
+  const result: Record<string, Record<string, number>> = {};
+  for (const [key, val] of Object.entries(data)) {
+    const [dId, playType] = key.split("|");
+    if (!result[dId]) result[dId] = {};
+    result[dId][playType] =
+      val.total > 0 ? Math.round((val.stops / val.total) * 100) : 0;
+  }
+
+  return result;
+};
+
 export const calculateMatchupEfficiency = (
   stats: StatEvent[],
   matchups: Record<string, string>,
@@ -527,6 +562,9 @@ export const calculateHaltAlerts = (params: {
   periodType: string;
   maxStintDuration: number;
   jerseyMap: Map<string, string | undefined>;
+  archetypeEfficiency?: Record<string, Record<string, number>>;
+  oppMostFrequentPlayType?: Record<string, string>;
+  matchups?: Record<string, string>;
 }): HaltAlert[] => {
   const alerts: HaltAlert[] = [];
   const {
@@ -538,6 +576,9 @@ export const calculateHaltAlerts = (params: {
     periodType,
     maxStintDuration,
     jerseyMap,
+    archetypeEfficiency = {},
+    oppMostFrequentPlayType = {},
+    matchups = {},
   } = params;
 
   // 1. Star Player Foul Warning
@@ -621,6 +662,27 @@ export const calculateHaltAlerts = (params: {
       message: "⚠️ REF CONFLICT: Dial Back Pressure",
     });
   }
+
+  // 6. Mismatched Archetype Alert
+  Object.entries(matchups).forEach(([oppId, teamPlayerId]) => {
+    if (!teamPlayerId || !gameData.onCourtIds.has(teamPlayerId)) return;
+    const frequentPlayType = oppMostFrequentPlayType[oppId];
+    if (frequentPlayType) {
+      const efficiency =
+        archetypeEfficiency[teamPlayerId]?.[frequentPlayType] || 0;
+      // If we have data (total > 0) and efficiency is low
+      if (efficiency > 0 && efficiency < 40) {
+        const oppJersey = oppId.includes(":") ? oppId.split(":")[1] : "??";
+        alerts.push({
+          id: `mismatch-${oppId}`,
+          type: "CONFLICT",
+          severity: "warning",
+          message: `Archetype Mismatch: #${jerseyMap.get(teamPlayerId)} struggling vs #${oppJersey} (${frequentPlayType})`,
+          actionLabel: "Change Matchup",
+        });
+      }
+    }
+  });
 
   return alerts;
 };
