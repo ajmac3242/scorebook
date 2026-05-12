@@ -1,5 +1,172 @@
 # Scorebook Backlog
 
+## [ ] [DESIGN-001-A: Design Tokens — Token Interface & Electric Orange Values]
+**Priority:** CRITICAL
+**Type:** Design System
+**Why:** All CourtSight UI stories depend on a single source of truth for color. Without this file every component uses hardcoded hex values that cannot be swapped for theming. This is the hard blocker for all other DESIGN stories.
+**What:** Create `src/theme/tokens.ts`. Define the `ThemeTokens` interface and export the default `electricOrangeTokens` object.
+**Scope:** `src/theme/tokens.ts` (new file only — do not touch any other file)
+**Acceptance Criteria:**
+- [ ] `ThemeTokens` interface exported with fields: `primary`, `primaryDark`, `primaryContainer`, `onPrimary`, `onPrimaryContainer`, `background`, `surface`, `surfaceVariant`, `elevatedCard`, `outline`, `textPrimary`, `textSecondary`, `success`, `warning`, `error`, `info`
+- [ ] `electricOrangeTokens` object exported implementing `ThemeTokens`: primary `#FF6B1A`, primaryDark `#D9550D`, primaryContainer `#3A2418`, onPrimary `#1A0F09`, onPrimaryContainer `#FFD9C7`, background `#0F1115`, surface `#151922`, surfaceVariant `#1C2230`, elevatedCard `#222A3A`, outline `#384256`, textPrimary `#F3F6FA`, textSecondary `#AAB4C5`, success `#35C759`, warning `#FFB020`, error `#FF5D73`, info `#5AA9FF`
+- [ ] File compiles with no TypeScript errors
+- [ ] No other files are modified
+
+## [ ] [DESIGN-001-B: Design Tokens — MUI Theme Builder Function]
+**Priority:** CRITICAL
+**Type:** Design System
+**Why:** Token values from DESIGN-001-A need to be translated into a MUI `Theme` object. The builder must accept any `ThemeTokens` object so runtime theme switching (DESIGN-011) works without additional changes.
+**What:** Create `src/theme/buildTheme.ts`. Export a `buildCourtSightTheme(tokens: ThemeTokens): Theme` function.
+**Scope:** `src/theme/buildTheme.ts` (new file only — do not touch any other file)
+**Depends on:** DESIGN-001-A
+**Acceptance Criteria:**
+- [ ] `buildCourtSightTheme` accepts a `ThemeTokens` argument
+- [ ] MUI palette mapped: `primary.main` → `tokens.primary`, `primary.dark` → `tokens.primaryDark`, `primary.contrastText` → `tokens.onPrimary`, `background.default` → `tokens.background`, `background.paper` → `tokens.surface`, `text.primary` → `tokens.textPrimary`, `text.secondary` → `tokens.textSecondary`, `divider` → `tokens.outline`, `success.main` → `tokens.success`, `warning.main` → `tokens.warning`, `error.main` → `tokens.error`, `info.main` → `tokens.info`
+- [ ] `mode` set to `dark`
+- [ ] No other files are modified
+
+## [ ] [DESIGN-001-C: Design Tokens — Wire Theme into App]
+**Priority:** CRITICAL
+**Type:** Design System
+**Why:** The theme builder is useless until applied to the running app. This story wires `electricOrangeTokens` through `buildCourtSightTheme` into MUI's `ThemeProvider` so the new palette is live immediately.
+**What:** Update `App.tsx` to apply the CourtSight theme. Update `index.html` meta tags.
+**Scope:** `src/App.tsx`, `index.html` only — do not touch any page or component files
+**Depends on:** DESIGN-001-B
+**Acceptance Criteria:**
+- [ ] `App.tsx` imports `buildCourtSightTheme` and `electricOrangeTokens`
+- [ ] `ThemeProvider` wraps the app with `buildCourtSightTheme(electricOrangeTokens)`
+- [ ] `CssBaseline` included inside `ThemeProvider`
+- [ ] `index.html` `<title>` updated to `CourtSight`
+- [ ] `index.html` `theme-color` meta set to `#FF6B1A`
+- [ ] App still loads and runs without errors
+- [ ] No page or feature component files are modified
+
+## [ ] [DESIGN-002: Rebrand — App Name, Logo & Favicon]
+**Priority:** CRITICAL
+**Type:** Rebrand
+**Why:** Every visible reference to "Scorebook" must be replaced with "CourtSight" before layout work begins so agents do not create new components with the old name.
+**What:** Replace all UI-visible "Scorebook" references. Create `CourtSightLogo` SVG component. Replace favicon.
+**Scope:** `src/components/CourtSightLogo.tsx` (new), `public/favicon.svg`, any file containing "Scorebook" in UI-visible text — do not touch routing logic, data models, or API calls
+**Depends on:** DESIGN-001-C
+**Acceptance Criteria:**
+- [ ] `CourtSightLogo.tsx` created as an SVG React component — wordmark "CourtSight" in Inter Bold with a basketball-arc icon in `#FF6B1A`
+- [ ] `favicon.svg` updated to match logo mark
+- [ ] All UI-visible strings "Scorebook" replaced with "CourtSight"
+- [ ] No route names, API endpoints, database keys, or Dexie schema fields changed
+- [ ] App compiles and loads without errors
+
+## [ ] [DESIGN-003-A: App Shell — Layout Wrapper Component]
+**Priority:** CRITICAL
+**Type:** Layout
+**Why:** Before nav drawer or bottom nav can be built, the app needs a shell wrapper defining the three-panel layout: drawer slot, top bar slot, and main content area.
+**What:** Create `src/components/layout/AppShell.tsx`. Wire into router mount as top-level layout wrapper.
+**Scope:** `src/components/layout/AppShell.tsx` (new), router mount file only — do not build drawer or nav contents yet
+**Depends on:** DESIGN-001-C
+**Acceptance Criteria:**
+- [ ] `AppShell` renders a full-viewport `Box` with CSS grid: `[drawer][main]` on ≥768px, `[main]` + bottom slot on mobile
+- [ ] Drawer slot 240px wide on ≥768px, hidden on smaller screens
+- [ ] Main content area fills remaining space with `overflow-y: auto`
+- [ ] Bottom slot reserved (empty `Box` 56px height) on <768px
+- [ ] `children` rendered inside main content area
+- [ ] All existing pages still render correctly inside the new shell
+- [ ] No nav contents, icons, or route links added yet
+
+## [ ] [DESIGN-003-B: App Shell — Side Navigation Drawer]
+**Priority:** CRITICAL
+**Type:** Navigation
+**Why:** Coaches on iPad need persistent one-tap access to all six sections. The drawer should be always visible on tablet and collapse on mobile.
+**What:** Create `src/components/layout/SideNav.tsx` and mount it in the drawer slot of `AppShell`.
+**Scope:** `src/components/layout/SideNav.tsx` (new), `AppShell.tsx` update only
+**Depends on:** DESIGN-003-A
+**Acceptance Criteria:**
+- [ ] MUI `Drawer` variant `permanent` on ≥768px, `temporary` on smaller screens
+- [ ] Nav items in order: Dashboard, Games, Live, Players, Teams, Reports — each with MUI icon and label
+- [ ] Active item uses `primaryContainer` background and `primary` text color from theme
+- [ ] Live item has animated orange dot badge when game in progress (prop-driven, defaults false)
+- [ ] Coach profile pill at drawer bottom: avatar initial + display name
+- [ ] Drawer background uses `background.paper` token
+- [ ] No hardcoded hex colors
+
+## [ ] [DESIGN-003-C: App Shell — Bottom Navigation for Mobile]
+**Priority:** CRITICAL
+**Type:** Navigation
+**Why:** On phones, a bottom nav gives coaches thumb-accessible navigation to the five most-used sections.
+**What:** Create `src/components/layout/BottomNav.tsx` and mount it conditionally in the bottom slot of `AppShell` on <768px.
+**Scope:** `src/components/layout/BottomNav.tsx` (new), `AppShell.tsx` update only
+**Depends on:** DESIGN-003-B
+**Acceptance Criteria:**
+- [ ] MUI `BottomNavigation` with five items: Dashboard, Games, Live, Players, Teams
+- [ ] Only visible on screens <768px
+- [ ] Active item uses `primary` color
+- [ ] Live item shows orange dot indicator when game in progress (prop-driven)
+- [ ] Background uses `surface` token
+- [ ] No hardcoded hex colors
+
+## [ ] [DESIGN-004: App Shell — Top App Bar]
+**Priority:** CRITICAL
+**Type:** Navigation
+**Why:** The top bar is the coach's command strip — it holds team switcher, sync/live status, omnisearch trigger, notifications, and profile. Must be slim and always visible.
+**What:** Create `src/components/layout/AppTopBar.tsx` and `src/components/layout/SyncBadge.tsx`. Mount in `AppShell`.
+**Scope:** `src/components/layout/AppTopBar.tsx` (new), `src/components/layout/SyncBadge.tsx` (new), `AppShell.tsx` update only
+**Depends on:** DESIGN-003-A
+**Acceptance Criteria:**
+- [ ] MUI `AppBar` with `position="sticky"`, background matches `surface` token
+- [ ] Left: `CourtSightLogo` mark + starred team name/switcher chip
+- [ ] Center: OmniSearch trigger button (logic wired in DESIGN-005)
+- [ ] Right: `SyncBadge` (green pulse when live, grey when offline), notification bell, profile avatar
+- [ ] `SyncBadge` is its own component — animated green dot with "LIVE" label when active
+- [ ] AppBar height 56px mobile, 64px tablet+
+- [ ] No hardcoded hex colors
+
+## [ ] [DESIGN-005-A: OmniSearch — Input Shell & Dropdown Container]
+**Priority:** CRITICAL
+**Type:** Feature
+**Why:** Coaches must find any player, team, game, from one place. This story builds the visual shell only — input field and empty dropdown. Logic comes in DESIGN-005-B.
+**What:** Create `src/components/search/OmniSearch.tsx`. Wire trigger button in `AppTopBar`.
+**Scope:** `src/components/search/OmniSearch.tsx` (new), `AppTopBar.tsx` trigger wire-up only
+**Depends on:** DESIGN-004
+**Acceptance Criteria:**
+- [ ] Search input renders as full-width modal overlay on mobile, inline expanded panel on tablet+
+- [ ] Placeholder: `Search players, games, teams, stats, or actions…`
+- [ ] Dropdown container renders below input with grouped section headers: Players, Games, Teams, Reports, Actions
+- [ ] Keyboard shortcut hint shown: `⌘K` on desktop
+- [ ] Empty state shows recent searches (static placeholder data acceptable)
+- [ ] Close on Escape key or outside click
+- [ ] No search logic yet — dropdown shows empty sections with headers only
+- [ ] No hardcoded hex colors
+
+## [ ] [DESIGN-005-B: OmniSearch — Search Hook & Grouped Results]
+**Priority:** CRITICAL
+**Type:** Feature
+**Why:** The search shell needs to return real results from existing app data (players, games, teams).
+**What:** Create `src/hooks/useOmniSearch.ts` and `src/components/search/SearchDropdown.tsx`. Wire into `OmniSearch.tsx`.
+**Scope:** `src/hooks/useOmniSearch.ts` (new), `src/components/search/SearchDropdown.tsx` (new), `OmniSearch.tsx` update only
+**Depends on:** DESIGN-005-A
+**Acceptance Criteria:**
+- [ ] `useOmniSearch(query: string)` returns `{ players, games, teams, reports, actions }` filtered from existing app data
+- [ ] Results update on each keystroke with 150ms debounce
+- [ ] `SearchDropdown` renders each group with icon + label rows
+- [ ] Best match pinned to top of dropdown
+- [ ] Each result row is keyboard navigable (arrow keys + Enter)
+- [ ] Selecting a result navigates to the correct page
+- [ ] No hardcoded hex colors
+
+
+## [ ] [DESIGN-010-A: Design Audit — Layout & Navigation Files]
+**Priority:** HIGH
+**Type:** Quality
+**Why:** After all layout and nav stories land, a dedicated audit pass ensures no hardcoded colors, incorrect spacing, or missing theme token usage slipped through.
+**What:** Audit all files in `src/components/layout/` and `src/components/search/` for design compliance.
+**Scope:** `src/components/layout/` and `src/components/search/` — read and fix only, no new features
+**Depends on:** DESIGN-005-C
+**Acceptance Criteria:**
+- [ ] Zero hardcoded hex color values in any layout or search component
+- [ ] All spacing values use MUI `theme.spacing()` — no raw pixel strings except where explicitly documented
+- [ ] All font sizes use MUI typography variants — no raw `fontSize` strings
+- [ ] Tabular numeral font feature applied to all numeric stat displays
+- [ ] Border radius consistent: cards `12px`, buttons `8px`, chips `8px`
+- [ ] All components pass a manual visual review on iPad (768px) and mobile (390px) viewport sizes
+
 ## [ ] [HALT: Proactive Tactical Intervention System]
 **Priority:** HIGH
 **Type:** Feature
