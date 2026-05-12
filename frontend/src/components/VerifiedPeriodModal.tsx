@@ -8,7 +8,6 @@ import {
   Typography,
   Grid,
   TextField,
-  Divider,
   Box,
 } from "@mui/material";
 import { CheckCircle } from "@mui/icons-material";
@@ -24,7 +23,7 @@ interface VerifiedPeriodModalProps {
   periodLabel: string;
   appScore: { team: number; opp: number };
   appFouls: { team: number; opp: number };
-  onVerify: (adjustments: {
+  onVerify: (_adjustments: {
     teamScore: number;
     oppScore: number;
     teamFouls: number;

@@ -6,7 +6,7 @@ import {
   LinearProgress,
   Tooltip,
 } from "@mui/material";
-import { CheckCircle, InfoOutlined } from "@mui/icons-material";
+import { CheckCircle } from "@mui/icons-material";
 
 /**
  * @file TacticalIdentityHUD.tsx
