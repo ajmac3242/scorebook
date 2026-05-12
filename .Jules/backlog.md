@@ -1,5 +1,240 @@
 # Scorebook Backlog
 
+## [x] [DESIGN-001-A: Design Tokens — Token Interface & Electric Orange Values]
+**Priority:** CRITICAL
+**Type:** Design System
+**Why:** All CourtSight UI stories depend on a single source of truth for color. Without this file every component uses hardcoded hex values that cannot be swapped for theming. This is the hard blocker for all other DESIGN stories.
+**What:** Create `src/theme/tokens.ts`. Define the `ThemeTokens` interface and export the default `electricOrangeTokens` object.
+**Scope:** `src/theme/tokens.ts` (new file only — do not touch any other file)
+**Acceptance Criteria:**
+- [x] `ThemeTokens` interface exported with fields: `primary`, `primaryDark`, `primaryContainer`, `onPrimary`, `onPrimaryContainer`, `background`, `surface`, `surfaceVariant`, `elevatedCard`, `outline`, `textPrimary`, `textSecondary`, `success`, `warning`, `error`, `info`
+- [x] `electricOrangeTokens` object exported implementing `ThemeTokens`: primary `#FF6B1A`, primaryDark `#D9550D`, primaryContainer `#3A2418`, onPrimary `#1A0F09`, onPrimaryContainer `#FFD9C7`, background `#0F1115`, surface `#151922`, surfaceVariant `#1C2230`, elevatedCard `#222A3A`, outline `#384256`, textPrimary `#F3F6FA`, textSecondary `#AAB4C5`, success `#35C759`, warning `#FFB020`, error `#FF5D73`, info `#5AA9FF`
+- [x] File compiles with no TypeScript errors
+- [x] No other files are modified
+
+## [x] [DESIGN-001-B: Design Tokens — MUI Theme Builder Function]
+**Priority:** CRITICAL
+**Type:** Design System
+**Why:** Token values from DESIGN-001-A need to be translated into a MUI `Theme` object. The builder must accept any `ThemeTokens` object so runtime theme switching (DESIGN-011) works without additional changes.
+**What:** Create `src/theme/buildTheme.ts`. Export a `buildCourtSightTheme(tokens: ThemeTokens): Theme` function.
+**Scope:** `src/theme/buildTheme.ts` (new file only — do not touch any other file)
+**Depends on:** DESIGN-001-A
+**Acceptance Criteria:**
+- [x] `buildCourtSightTheme` accepts a `ThemeTokens` argument
+- [x] MUI palette mapped: `primary.main` → `tokens.primary`, `primary.dark` → `tokens.primaryDark`, `primary.contrastText` → `tokens.onPrimary`, `background.default` → `tokens.background`, `background.paper` → `tokens.surface`, `text.primary` → `tokens.textPrimary`, `text.secondary` → `tokens.textSecondary`, `divider` → `tokens.outline`, `success.main` → `tokens.success`, `warning.main` → `tokens.warning`, `error.main` → `tokens.error`, `info.main` → `tokens.info`
+- [x] `mode` set to `dark`
+- [x] No other files are modified
+
+## [x] [DESIGN-001-C: Design Tokens — Wire Theme into App]
+**Priority:** CRITICAL
+**Type:** Design System
+**Why:** The theme builder is useless until applied to the running app. This story wires `electricOrangeTokens` through `buildCourtSightTheme` into MUI's `ThemeProvider` so the new palette is live immediately.
+**What:** Update `App.tsx` to apply the CourtSight theme. Update `index.html` meta tags.
+**Scope:** `src/App.tsx`, `index.html` only — do not touch any page or component files
+**Depends on:** DESIGN-001-B
+**Acceptance Criteria:**
+- [x] `App.tsx` imports `buildCourtSightTheme` and `electricOrangeTokens`
+- [x] `ThemeProvider` wraps the app with `buildCourtSightTheme(electricOrangeTokens)`
+- [x] `CssBaseline` included inside `ThemeProvider`
+- [x] `index.html` `<title>` updated to `CourtSight`
+- [x] `index.html` `theme-color` meta set to `#FF6B1A`
+- [x] App still loads and runs without errors
+- [x] No page or feature component files are modified
+
+## [ ] [DESIGN-002: Rebrand — App Name, Logo & Favicon]
+**Priority:** CRITICAL
+**Type:** Rebrand
+**Why:** Every visible reference to "Scorebook" must be replaced with "CourtSight" before layout work begins so agents do not create new components with the old name.
+**What:** Replace all UI-visible "Scorebook" references. Create `CourtSightLogo` SVG component. Replace favicon.
+**Scope:** `src/components/CourtSightLogo.tsx` (new), `public/favicon.svg`, any file containing "Scorebook" in UI-visible text — do not touch routing logic, data models, or API calls
+**Depends on:** DESIGN-001-C
+**Acceptance Criteria:**
+- [ ] `CourtSightLogo.tsx` created as an SVG React component — wordmark "CourtSight" in Inter Bold with a basketball-arc icon in `#FF6B1A`
+- [ ] `favicon.svg` updated to match logo mark
+- [ ] All UI-visible strings "Scorebook" replaced with "CourtSight"
+- [ ] No route names, API endpoints, database keys, or Dexie schema fields changed
+- [ ] App compiles and loads without errors
+
+## [ ] [DESIGN-003-A: App Shell — Layout Wrapper Component]
+**Priority:** CRITICAL
+**Type:** Layout
+**Why:** Before nav drawer or bottom nav can be built, the app needs a shell wrapper defining the three-panel layout: drawer slot, top bar slot, and main content area.
+**What:** Create `src/components/layout/AppShell.tsx`. Wire into router mount as top-level layout wrapper.
+**Scope:** `src/components/layout/AppShell.tsx` (new), router mount file only — do not build drawer or nav contents yet
+**Depends on:** DESIGN-001-C
+**Acceptance Criteria:**
+- [ ] `AppShell` renders a full-viewport `Box` with CSS grid: `[drawer][main]` on ≥768px, `[main]` + bottom slot on mobile
+- [ ] Drawer slot 240px wide on ≥768px, hidden on smaller screens
+- [ ] Main content area fills remaining space with `overflow-y: auto`
+- [ ] Bottom slot reserved (empty `Box` 56px height) on <768px
+- [ ] `children` rendered inside main content area
+- [ ] All existing pages still render correctly inside the new shell
+- [ ] No nav contents, icons, or route links added yet
+
+## [ ] [DESIGN-003-B: App Shell — Side Navigation Drawer]
+**Priority:** CRITICAL
+**Type:** Navigation
+**Why:** Coaches on iPad need persistent one-tap access to all six sections. The drawer should be always visible on tablet and collapse on mobile.
+**What:** Create `src/components/layout/SideNav.tsx` and mount it in the drawer slot of `AppShell`.
+**Scope:** `src/components/layout/SideNav.tsx` (new), `AppShell.tsx` update only
+**Depends on:** DESIGN-003-A
+**Acceptance Criteria:**
+- [ ] MUI `Drawer` variant `permanent` on ≥768px, `temporary` on smaller screens
+- [ ] Nav items in order: Dashboard, Games, Live, Players, Teams, Reports — each with MUI icon and label
+- [ ] Active item uses `primaryContainer` background and `primary` text color from theme
+- [ ] Live item has animated orange dot badge when game in progress (prop-driven, defaults false)
+- [ ] Coach profile pill at drawer bottom: avatar initial + display name
+- [ ] Drawer background uses `background.paper` token
+- [ ] No hardcoded hex colors
+
+## [ ] [DESIGN-003-C: App Shell — Bottom Navigation for Mobile]
+**Priority:** CRITICAL
+**Type:** Navigation
+**Why:** On phones, a bottom nav gives coaches thumb-accessible navigation to the five most-used sections.
+**What:** Create `src/components/layout/BottomNav.tsx` and mount it conditionally in the bottom slot of `AppShell` on <768px.
+**Scope:** `src/components/layout/BottomNav.tsx` (new), `AppShell.tsx` update only
+**Depends on:** DESIGN-003-B
+**Acceptance Criteria:**
+- [ ] MUI `BottomNavigation` with five items: Dashboard, Games, Live, Players, Teams
+- [ ] Only visible on screens <768px
+- [ ] Active item uses `primary` color
+- [ ] Live item shows orange dot indicator when game in progress (prop-driven)
+- [ ] Background uses `surface` token
+- [ ] No hardcoded hex colors
+
+## [ ] [DESIGN-004: App Shell — Top App Bar]
+**Priority:** CRITICAL
+**Type:** Navigation
+**Why:** The top bar is the coach's command strip — it holds team switcher, sync/live status, omnisearch trigger, notifications, and profile. Must be slim and always visible.
+**What:** Create `src/components/layout/AppTopBar.tsx` and `src/components/layout/SyncBadge.tsx`. Mount in `AppShell`.
+**Scope:** `src/components/layout/AppTopBar.tsx` (new), `src/components/layout/SyncBadge.tsx` (new), `AppShell.tsx` update only
+**Depends on:** DESIGN-003-A
+**Acceptance Criteria:**
+- [ ] MUI `AppBar` with `position="sticky"`, background matches `surface` token
+- [ ] Left: `CourtSightLogo` mark + starred team name/switcher chip
+- [ ] Center: OmniSearch trigger button (logic wired in DESIGN-005)
+- [ ] Right: `SyncBadge` (green pulse when live, grey when offline), notification bell, profile avatar
+- [ ] `SyncBadge` is its own component — animated green dot with "LIVE" label when active
+- [ ] AppBar height 56px mobile, 64px tablet+
+- [ ] No hardcoded hex colors
+
+## [ ] [DESIGN-005-A: OmniSearch — Input Shell & Dropdown Container]
+**Priority:** CRITICAL
+**Type:** Feature
+**Why:** Coaches must find any player, team, game, from one place. This story builds the visual shell only — input field and empty dropdown. Logic comes in DESIGN-005-B.
+**What:** Create `src/components/search/OmniSearch.tsx`. Wire trigger button in `AppTopBar`.
+**Scope:** `src/components/search/OmniSearch.tsx` (new), `AppTopBar.tsx` trigger wire-up only
+**Depends on:** DESIGN-004
+**Acceptance Criteria:**
+- [ ] Search input renders as full-width modal overlay on mobile, inline expanded panel on tablet+
+- [ ] Placeholder: `Search players, games, teams, stats, or actions…`
+- [ ] Dropdown container renders below input with grouped section headers: Players, Games, Teams, Reports, Actions
+- [ ] Keyboard shortcut hint shown: `⌘K` on desktop
+- [ ] Empty state shows recent searches (static placeholder data acceptable)
+- [ ] Close on Escape key or outside click
+- [ ] No search logic yet — dropdown shows empty sections with headers only
+- [ ] No hardcoded hex colors
+
+## [ ] [DESIGN-005-B: OmniSearch — Search Hook & Grouped Results]
+**Priority:** CRITICAL
+**Type:** Feature
+**Why:** The search shell needs to return real results from existing app data (players, games, teams).
+**What:** Create `src/hooks/useOmniSearch.ts` and `src/components/search/SearchDropdown.tsx`. Wire into `OmniSearch.tsx`.
+**Scope:** `src/hooks/useOmniSearch.ts` (new), `src/components/search/SearchDropdown.tsx` (new), `OmniSearch.tsx` update only
+**Depends on:** DESIGN-005-A
+**Acceptance Criteria:**
+- [ ] `useOmniSearch(query: string)` returns `{ players, games, teams, reports, actions }` filtered from existing app data
+- [ ] Results update on each keystroke with 150ms debounce
+- [ ] `SearchDropdown` renders each group with icon + label rows
+- [ ] Best match pinned to top of dropdown
+- [ ] Each result row is keyboard navigable (arrow keys + Enter)
+- [ ] Selecting a result navigates to the correct page
+- [ ] No hardcoded hex colors
+
+## [ ] [DESIGN-010-A: Design Audit — Layout & Navigation Files]
+**Priority:** HIGH
+**Type:** Quality
+**Why:** After all layout and nav stories land, a dedicated audit pass ensures no hardcoded colors, incorrect spacing, or missing theme token usage slipped through.
+**What:** Audit all files in `src/components/layout/` and `src/components/search/` for design compliance.
+**Scope:** `src/components/layout/` and `src/components/search/` — read and fix only, no new features
+**Depends on:** DESIGN-005-C
+**Acceptance Criteria:**
+- [ ] Zero hardcoded hex color values in any layout or search component
+- [ ] All spacing values use MUI `theme.spacing()` — no raw pixel strings except where explicitly documented
+- [ ] All font sizes use MUI typography variants — no raw `fontSize` strings
+- [ ] Tabular numeral font feature applied to all numeric stat displays
+- [ ] Border radius consistent: cards `12px`, buttons `8px`, chips `8px`
+- [ ] All components pass a manual visual review on iPad (768px) and mobile (390px) viewport sizes
+
+## [x] [DESIGN-011-A: Theme Editor — Preset Token Files]
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Before the theme switching UI can be built, all preset token objects need to exist as data. This story creates the 8 preset token files so DESIGN-011-B can import them without any business logic changes.
+**What:** Create `src/theme/presets/` directory with one file per preset, each exporting a `ThemeTokens` object.
+**Scope:** `src/theme/presets/` directory (new files only) — do not touch App.tsx, ThemeContext, or any component
+**Depends on:** DESIGN-001-A
+**Acceptance Criteria:**
+- [x] 8 preset files created: `electricOrange.ts`, `midnightNavy.ts`, `championshipGold.ts`, `emeraldCourt.ts`, `electricViolet.ts`, `crimsonBlaze.ts`, `arcticWhite.ts`, `stealth.ts`
+- [x] Each file exports a named `ThemeTokens` object, a `label` string, and a `previewColor` hex string
+- [x] Token values per preset:
+  - **Electric Orange** (default): primary `#FF6B1A`, background `#0F1115`, surface `#151922`
+  - **Midnight Navy**: primary `#3B82F6`, background `#0A0F1E`, surface `#111827`
+  - **Championship Gold**: primary `#F5B800`, background `#0F0E09`, surface `#1A1810`
+  - **Emerald Court**: primary `#10B981`, background `#091510`, surface `#0F1F18`
+  - **Electric Violet**: primary `#8B5CF6`, background `#0D0A1E`, surface `#13102A`
+  - **Crimson Blaze**: primary `#EF4444`, background `#150A0A`, surface `#1F1010`
+  - **Arctic White** (light mode): primary `#FF6B1A`, background `#F8F9FA`, surface `#FFFFFF`, textPrimary `#0F1115`, textSecondary `#6B7280`, mode override `light`
+  - **Stealth**: primary `#9CA3AF`, background `#000000`, surface `#0A0A0A`
+- [x] All files compile with no TypeScript errors
+- [x] No other files are modified
+
+## [ ] [DESIGN-011-B: Theme Editor — Theme Context & Runtime Switching]
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Preset files are useless until the app can switch between them at runtime without a page reload. This story wires a React context that holds the active token set and rebuilds the MUI theme on change, persisting the coach's choice to localStorage.
+**What:** Create `src/theme/ThemeContext.tsx`. Refactor `App.tsx` to consume context instead of using `electricOrangeTokens` directly.
+**Scope:** `src/theme/ThemeContext.tsx` (new), `src/App.tsx` refactor only
+**Depends on:** DESIGN-011-A
+**Acceptance Criteria:**
+- [ ] `ThemeContext` provides `{ activeTokens, setPreset, presets }` to the component tree
+- [ ] `presets` is an array of all 8 preset objects with `id`, `label`, `previewColor`, and `tokens`
+- [ ] `setPreset(id: string)` updates `activeTokens` and triggers MUI theme rebuild — no page reload
+- [ ] Active preset `id` persisted to `localStorage` key `courtsight_theme_preset` and restored on app load
+- [ ] `App.tsx` reads `activeTokens` from context and passes to `buildCourtSightTheme`
+- [ ] Default preset is `electricOrange` if nothing stored in localStorage
+- [ ] App compiles and switches themes correctly with no errors
+
+## [ ] [DESIGN-011-C: Theme Editor — Settings Page Preset Gallery]
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Coaches need a visual way to browse and select presets. A settings page with a click-to-activate preset gallery is the clearest UX for this.
+**What:** Create `src/pages/Settings.tsx` with a preset gallery section. Add Settings to the nav.
+**Scope:** `src/pages/Settings.tsx` (new), `SideNav.tsx` and `BottomNav.tsx` to add Settings nav item
+**Depends on:** DESIGN-011-B, DESIGN-003-B, DESIGN-003-C
+**Acceptance Criteria:**
+- [ ] Settings page accessible via nav (gear icon at bottom of SideNav)
+- [ ] "Appearance" section on Settings page with heading "Theme"
+- [ ] Preset gallery renders one card per preset showing: preview swatch circle in `previewColor`, preset `label`, active checkmark if currently selected
+- [ ] Clicking a preset card calls `setPreset(id)` — entire app repaints immediately with no reload
+- [ ] Active preset card has `primary` border and checkmark indicator
+- [ ] Arctic White preset card clearly labelled "(Light Mode)"
+- [ ] No hardcoded hex colors — all card styles from theme tokens
+
+## [ ] [DESIGN-011-D: Theme Editor — Custom Color Override & Live Preview Strip]
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Coaches who want to match their team colors exactly need the ability to override the primary accent on top of any preset. The live preview strip gives immediate feedback before committing.
+**What:** Add a custom color override section to `src/pages/Settings.tsx`. Create `src/components/theme/LivePreviewStrip.tsx`.
+**Scope:** `src/pages/Settings.tsx` update, `src/components/theme/LivePreviewStrip.tsx` (new)
+**Depends on:** DESIGN-011-C
+**Acceptance Criteria:**
+- [ ] "Custom Accent" section below preset gallery on Settings page
+- [ ] Color input (MUI `TextField` type `color` + hex text input) lets coach enter any hex value
+- [ ] `LivePreviewStrip` renders horizontally below the input showing: primary button, active nav chip, live badge, foul pip dots — all using the preview color in real time as the coach types
+- [ ] "Apply" button calls `setCustomPrimary(hex: string)` context method that overrides only the `primary`, `primaryDark`, and `primaryContainer` tokens of the active preset
+- [ ] "Reset" button reverts to the base preset's primary values
+- [ ] Custom primary persisted
+
 ## [x] [HALT: Proactive Tactical Intervention System]
 **Priority:** HIGH
 **Type:** Feature
