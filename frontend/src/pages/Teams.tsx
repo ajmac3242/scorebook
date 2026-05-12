@@ -341,11 +341,12 @@ const Teams: React.FC = () => {
 
             return (
               <Grid item xs={12} sm={6} md={6} key={team.id}>
-                <MoleskineCard
-                  role="button"
-                  tabIndex={0}
-                  aria-label={`View stats for ${team.name}`}
-                  sx={{
+                <Tooltip title="Click to view team dashboard" placement="top" arrow>
+                  <MoleskineCard
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`View stats for ${team.name}`}
+                    sx={{
                     cursor: "pointer",
                     height: "100%",
                     bgcolor: team.primaryColor || "primary.main",
@@ -537,6 +538,7 @@ const Teams: React.FC = () => {
                     />
                   </Box>
                 </MoleskineCard>
+              </Tooltip>
               </Grid>
             );
           })}

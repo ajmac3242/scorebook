@@ -365,6 +365,7 @@ const Dashboard: React.FC = () => {
                 exclusive
                 onChange={(_, val) => val && setGameCountFilter(val)}
                 size="small"
+                aria-label="Filter team aggregates by last games count"
               >
                 <ToggleButton value="5" sx={{ px: 1.5 }}>
                   L5
@@ -611,6 +612,9 @@ const Dashboard: React.FC = () => {
                   {recentResults.map((game) => (
                     <Box
                       key={game.id}
+                      role="button"
+                      tabIndex={0}
+                      aria-label={`View stats for game vs ${game.opponent}`}
                       sx={{
                         p: 2,
                         borderRadius: 2,
@@ -625,6 +629,11 @@ const Dashboard: React.FC = () => {
                         },
                       }}
                       onClick={() => navigate(`/game/stats?gameId=${game.id}`)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          navigate(`/game/stats?gameId=${game.id}`);
+                        }
+                      }}
                     >
                       <Box
                         sx={{
@@ -743,6 +752,7 @@ const Dashboard: React.FC = () => {
                 variant="outlined"
                 sx={{ mt: 3 }}
                 onClick={() => navigate(`/teams/${favoriteTeam.id}`)}
+                aria-label={`View full schedule for ${favoriteTeam.name}`}
               >
                 View Full Schedule
               </Button>

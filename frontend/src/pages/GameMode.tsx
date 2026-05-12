@@ -2543,6 +2543,7 @@ const GameMode: React.FC = () => {
                     fullWidth
                     variant={points === pts ? "contained" : "outlined"}
                     onClick={() => setPoints(pts)}
+                    aria-label={`${pts} point shot`}
                   >
                     {pts}
                   </Button>

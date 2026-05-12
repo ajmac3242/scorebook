@@ -274,7 +274,7 @@ const Navigation: React.FC = () => {
           {/* Central Navigation Pill Container */}
           <Box
             component="nav"
-            aria-label="Main Navigation"
+            aria-label="Main Navigation Pill"
             sx={{
               position: "absolute",
               left: "50%",

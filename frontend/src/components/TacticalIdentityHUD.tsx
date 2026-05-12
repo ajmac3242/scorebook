@@ -40,7 +40,11 @@ export const TacticalIdentityHUD: React.FC<TacticalIdentityHUDProps> = ({
         const isMet = kpi.inverse ? val <= kpi.target : val >= kpi.target;
 
         return (
-          <Box key={kpi.name} sx={{ flex: 1, maxWidth: 200 }}>
+          <Box
+            key={kpi.name}
+            sx={{ flex: 1, maxWidth: 200 }}
+            aria-label={`${kpi.label}: ${kpi.value}${kpi.isPercentage ? "%" : ""}. Target: ${kpi.target}${kpi.isPercentage ? "%" : ""}`}
+          >
             <Stack
               direction="row"
               justifyContent="space-between"

@@ -68,13 +68,7 @@ export const ActionControls = React.memo(
           </span>
         </Tooltip>
 
-        <Tooltip
-          title={
-            possessionState === SPECIAL_PLAYER_IDS.OUR_TEAM
-              ? "Change possession to Opponent"
-              : "Change possession to Our Team"
-          }
-        >
+        <Tooltip title="Toggle ball possession between teams">
           <span>
             <Button
               size="small"
