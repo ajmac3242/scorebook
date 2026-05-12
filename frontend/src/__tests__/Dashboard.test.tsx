@@ -13,7 +13,7 @@ describe("Dashboard Component", () => {
     mockDb.reset();
   });
 
-  it("renders Dashboard page and empty state", async () => {
+  it("renders Dashboard page and empty state", () => {
     render(
       <ThemeProvider theme={theme}>
         <BrowserRouter>
@@ -22,7 +22,7 @@ describe("Dashboard Component", () => {
       </ThemeProvider>,
     );
 
-    expect(await screen.findByText(/Notebook Overview/i)).toBeInTheDocument();
+    expect(screen.getByText(/Notebook Overview/i)).toBeInTheDocument();
     expect(screen.getByText(/Welcome to Scorebook!/i)).toBeInTheDocument();
   });
 

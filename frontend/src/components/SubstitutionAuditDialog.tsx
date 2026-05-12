@@ -141,15 +141,8 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
   }, [subEvents, playerFilter]);
 
   return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      fullWidth
-      maxWidth="md"
-      aria-labelledby="sub-audit-title"
-    >
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
       <DialogTitle
-        id="sub-audit-title"
         sx={{
           fontFamily: "var(--serif)",
           display: "flex",

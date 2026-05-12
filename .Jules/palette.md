@@ -7,7 +7,3 @@ Action: Implement 10 micro-UX improvements focusing on feedback, accessibility, 
 ## 2026-05-27 - Micro-UX Improvements Implementation
 Learning: Small changes like adding keyboard hints and replacing native confirm dialogs significantly improve the "feel" of the app. Centralized focus-visible styles in index.css help ensure consistent accessibility.
 Action: Implemented 10+ improvements across Opponents, SubstitutionAudit, GameMode, and Navigation.
-
-## 2026-05-11 - Polish & Accessibility Suite
-Learning: `useLiveQuery` returns `undefined` while loading, which often causes a "flicker" of empty states. Mapping `undefined` to `null` in the query itself allows for clean `if (val === undefined) return <Loader />` logic.
-Action: Implemented 10+ micro-UX improvements including loading states, inline UNDO actions, shortcut discovery, and global focus indicators.

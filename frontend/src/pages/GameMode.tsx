@@ -28,20 +28,11 @@ import {
   Tooltip,
   Snackbar,
   Divider,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TableSortLabel,
-  useMediaQuery,
 } from "@mui/material";
 
 import {
   History,
   SportsBasketball,
-  Undo as UndoIcon,
   Warning,
   PlayArrow,
   Pause,
@@ -55,16 +46,22 @@ import {
   GridOn,
   Shield,
   ArrowBack,
-  HelpOutline,
 } from "@mui/icons-material";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TableSortLabel,
+  useMediaQuery,
+} from "@mui/material";
 import BasketballCourt from "../components/BasketballCourt";
 import RecentActionItem from "../components/RecentActionItem";
 import { MatchupMatrix } from "../components/MatchupMatrix";
 import QuickSubDialog from "../components/QuickSubDialog";
 import SubstitutionAuditDialog from "../components/SubstitutionAuditDialog";
-import { TacticalAlertsHUD } from "../components/TacticalAlertsHUD";
-import { TacticalIdentityHUD, TacticalKPI } from "../components/TacticalIdentityHUD";
-import { VerifiedPeriodModal } from "../components/VerifiedPeriodModal";
 import FreeThrowWorkflowDialog from "../components/FreeThrowWorkflowDialog";
 import HalftimeReportDialog from "../components/HalftimeReportDialog";
 import DefensiveBreakdownDialog from "../components/DefensiveBreakdownDialog";
@@ -103,8 +100,6 @@ const GameMode: React.FC = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [isKpiDialogOpen, setIsKpiDialogOpen] = React.useState(false);
-  const [isVerifiedPeriodModalOpen, setIsVerifiedPeriodModalOpen] = React.useState(false);
 
   // Extract game and team IDs from URL parameters
   const gameId = searchParams.get("gameId");
@@ -209,7 +204,6 @@ const GameMode: React.FC = () => {
     sortedStatsGridData,
     statsMap,
     matchups,
-    haltAlerts,
     opponentStats,
     halftimeStats,
     playerStreaks,
@@ -219,6 +213,30 @@ const GameMode: React.FC = () => {
     shotROI,
     paintTouchStats,
   } = useGameMode(gameId, teamId);
+  useEffect(() => {
+    if (!gameId || !teamId) {
+      navigate("/");
+      return;
+    }
+
+    // Energy Alert Logic
+    const topSpark = sparkPlugIndex[0];
+    if (topSpark && topSpark.compositeIndex >= 12 && !isReadOnly) {
+      const alertKey = `${topSpark.playerId}-${topSpark.compositeIndex}`;
+      if (lastEnergyAlertRef.current !== alertKey) {
+        lastEnergyAlertRef.current = alertKey;
+        const pName = playerNamesMap.get(topSpark.playerId)?.split(" ")[0] || "Player";
+        const jersey = jerseyMap.get(topSpark.playerId);
+
+        setSnackbar({
+          open: true,
+          message: `🔥 ENERGY ALERT: #${jersey} ${pName} is providing a massive Spark Plug impact!`,
+          severity: "info",
+        });
+      }
+    }
+  }, [gameId, teamId, navigate, sparkPlugIndex, isReadOnly, playerNamesMap, jerseyMap, setSnackbar]);
+
 
   /**
    * Undoes the most recent statistical action.
@@ -238,7 +256,6 @@ const GameMode: React.FC = () => {
           message: "Action undone",
           severity: "success",
         });
-        setChainPrompt(null);
       } catch (err) {
         logger.error("Failed to undo stat:", err);
         setSnackbar({
@@ -248,7 +265,7 @@ const GameMode: React.FC = () => {
         });
       }
     }
-  }, [gameData.recentStats, setSnackbar, setChainPrompt]);
+  }, [gameData.recentStats, setSnackbar]);
 
   // 🧠 Clarity: Keyboard shortcut for Undo (Ctrl+Z or Cmd+Z)
   useEffect(() => {
@@ -448,7 +465,6 @@ const GameMode: React.FC = () => {
           open: true,
           message: isEditing ? "Action updated" : "Action recorded",
           severity: "success",
-          action: "UNDO",
         });
         setIsDialogOpen(false);
         setStatType(null);
@@ -498,59 +514,12 @@ const GameMode: React.FC = () => {
       setIsBreakdownDialogOpen,
       gameData.possessionStartClock,
       matchups,
-    haltAlerts,
       game?.activeDefensiveScheme,
       situation,
       opponentPlayType,
       setOpponentPlayType,
     ],
   );
-
-  const handleNextPeriodActual = useCallback(async () => {
-    const nextPeriod = period < 10 ? period + 1 : 1;
-    setPeriod(nextPeriod);
-    const defaultMins = periodType === "QUARTERS" ? 10 : 20;
-    const nextSeconds = defaultMins * 60;
-    setClockSeconds(nextSeconds);
-    setIsClockRunning(false);
-    if (gameId) {
-      try {
-        await db.games.update(gameId, { currentPeriod: nextPeriod, clockTime: nextSeconds, synced: 0 });
-        await syncService.pushUpdates();
-      } catch (err) {
-        logger.error("Failed to update game period:", err);
-      }
-    }
-  }, [gameId, period, periodType, setPeriod, setClockSeconds, setIsClockRunning]);
-
-  const handleVerifyPeriod = useCallback(
-    async (data: { teamScore: number; oppScore: number; teamFouls: number; oppFouls: number }) => {
-      if (!gameId) return;
-      const timestamp = new Date().toISOString();
-      const scoreDiff = data.teamScore - gameData.currentScore;
-      if (scoreDiff !== 0) {
-        await db.stats.add({
-          id: crypto.randomUUID(), gameId, playerId: SPECIAL_PLAYER_IDS.OUR_TEAM,
-          type: ACTION_TYPES.SYSTEM_ADJUSTMENT, points: scoreDiff, period, clockTime: 0, timestamp, synced: 0,
-        });
-      }
-      const oppScoreDiff = data.oppScore - gameData.opponentScore;
-      if (oppScoreDiff !== 0) {
-        await db.stats.add({
-          id: crypto.randomUUID(), gameId, playerId: SPECIAL_PLAYER_IDS.OPPONENT,
-          type: ACTION_TYPES.SYSTEM_ADJUSTMENT, points: oppScoreDiff, period, clockTime: 0, timestamp, synced: 0,
-        });
-      }
-      setIsVerifiedPeriodModalOpen(false);
-      await syncService.pushUpdates();
-      handleNextPeriodActual();
-    },
-    [gameId, gameData, period, handleNextPeriodActual],
-  );
-
-  const handleNextPeriod = useCallback(() => {
-    setIsVerifiedPeriodModalOpen(true);
-  }, []);
 
   const handleSwapClick = useCallback(
     (id: string) => {
@@ -717,22 +686,7 @@ const GameMode: React.FC = () => {
     ],
   );
 
-
-  const activeKpis: TacticalKPI[] = React.useMemo(() => {
-    if (!game?.tacticalKpis) return [];
-    const kpis: TacticalKPI[] = [];
-    const teamPoss = gameData.teamPoss || 1;
-    game.tacticalKpis.forEach((key) => {
-      if (key === "PAINT_TOUCHES") {
-        kpis.push({ key, label: "Paint Touches", value: gameData.teamPaintTouches, target: 20, goalType: "MIN" });
-      } else if (key === "EFG_PCT") {
-        kpis.push({ key, label: "eFG%", value: `${Math.round(parseFloat(gameData.teamPpp) * 50)}%`, target: 50, goalType: "MIN" });
-      } else if (key === "TO_RATE") {
-        kpis.push({ key, label: "TO Rate", value: `${Math.round(((gameData.currentScore || 0) / teamPoss) * 100)}%`, target: 15, goalType: "MAX" });
-      }
-    });
-    return kpis;
-  }, [game?.tacticalKpis, gameData]);
+  useEffect(() => {
     if (!gameId || !teamId) {
       navigate("/");
       return;
@@ -755,6 +709,16 @@ const GameMode: React.FC = () => {
         });
       }
     }
+  }, [
+    gameId,
+    teamId,
+    navigate,
+    sparkPlugIndex,
+    playerNamesMap,
+    jerseyMap,
+    isReadOnly,
+    setSnackbar,
+  ]);
 
   const handleToggleClock = useCallback(() => {
     setIsClockRunning((prev) => {
@@ -785,11 +749,39 @@ const GameMode: React.FC = () => {
         }
       }
       setIsClockEditDialogOpen(false);
-      if (mins === 0 && secs === 0) setIsVerifiedPeriodModalOpen(true);
     },
     [gameId, setClockSeconds, setIsClockEditDialogOpen],
   );
 
+  const handleNextPeriod = useCallback(async () => {
+    const nextPeriod = period < 10 ? period + 1 : 1;
+    setPeriod(nextPeriod);
+
+    const defaultMins = periodType === "QUARTERS" ? 10 : 20;
+    const nextSeconds = defaultMins * 60;
+    setClockSeconds(nextSeconds);
+    setIsClockRunning(false);
+
+    if (gameId) {
+      try {
+        await db.games.update(gameId, {
+          currentPeriod: nextPeriod,
+          clockTime: nextSeconds,
+          synced: 0,
+        });
+        await syncService.pushUpdates();
+      } catch (err) {
+        logger.error("Failed to update game period:", err);
+      }
+    }
+  }, [
+    gameId,
+    period,
+    periodType,
+    setPeriod,
+    setClockSeconds,
+    setIsClockRunning,
+  ]);
 
   const handleTimeout = useCallback(async () => {
     if (!gameId || isReadOnly) return;
@@ -904,6 +896,9 @@ const GameMode: React.FC = () => {
     [setStatType],
   );
 
+  if (!gameId || !teamId) {
+    return null;
+  }
 
   return (
     <Box sx={{ pb: 4, opacity: isReadOnly ? 0.7 : 1 }}>
@@ -941,15 +936,10 @@ const GameMode: React.FC = () => {
             </Alert>
           )}
 
-          <TacticalIdentityHUD kpis={activeKpis} />
-          <Box sx={{ textAlign: "center", mt: -1, mb: 2 }}>
-            <Button size="small" onClick={() => setIsKpiDialogOpen(true)} sx={{ fontSize: "0.6rem", opacity: 0.6 }}>Configure KPIs</Button>
-          </Box>
           <Scoreboard
             game={game}
             team={team}
             gameData={gameData}
-            haltAlerts={haltAlerts}
             period={period}
             periodLabel={periodLabel}
             maxPeriod={maxPeriod}
@@ -1116,15 +1106,6 @@ const GameMode: React.FC = () => {
 
         <Grid item xs={12} md={4}>
           <Stack spacing={3}>
-            <TacticalAlertsHUD
-              alerts={haltAlerts}
-              onAction={(alert) => {
-                if (alert.playerId) {
-                  setSubOutPlayerId(alert.playerId);
-                  setIsSubDialogOpen(true);
-                }
-              }}
-            />
             <MoleskineCard>
               <Box
                 sx={{
@@ -1960,101 +1941,33 @@ const GameMode: React.FC = () => {
             )}
 
             <MoleskineCard>
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  mb: 1,
-                }}
+              <Typography
+                variant="subtitle2"
+                gutterBottom
+                sx={{ fontWeight: 600, display: "flex", alignItems: "center" }}
               >
-                <Typography
-                  variant="subtitle2"
-                  sx={{
-                    fontWeight: 600,
-                    display: "flex",
-                    alignItems: "center",
-                  }}
-                >
-                  <History sx={{ fontSize: 18, mr: 1 }} /> Recent Actions
-                </Typography>
-                <Tooltip
-                  title={
-                    <Box sx={{ p: 1 }}>
-                      <Typography
-                        variant="caption"
-                        sx={{ fontWeight: 800, display: "block", mb: 0.5 }}
-                      >
-                        KEYBOARD SHORTCUTS
-                      </Typography>
-                      <Box
-                        sx={{
-                          display: "grid",
-                          gridTemplateColumns: "1fr 1fr",
-                          gap: 1,
-                        }}
-                      >
-                        <Typography variant="caption">M: Make</Typography>
-                        <Typography variant="caption">X: Miss</Typography>
-                        <Typography variant="caption">A: Assist</Typography>
-                        <Typography variant="caption">O/D: Rebound</Typography>
-                        <Typography variant="caption">T: Turnover</Typography>
-                        <Typography variant="caption">S: Steal</Typography>
-                        <Typography variant="caption">B: Block</Typography>
-                        <Typography variant="caption">F: Foul</Typography>
-                        <Typography variant="caption">P: Paint</Typography>
-                        <Typography variant="caption">Space: Clock</Typography>
-                      </Box>
-                      <Typography
-                        variant="caption"
-                        sx={{ display: "block", mt: 1, opacity: 0.8 }}
-                      >
-                        Ctrl+Z: Undo last
-                      </Typography>
-                    </Box>
-                  }
-                >
-                  <IconButton size="small" aria-label="Keyboard Shortcuts Help">
-                    <HelpOutline fontSize="small" />
-                  </IconButton>
-                </Tooltip>
-              </Box>
+                <History sx={{ fontSize: 18, mr: 1 }} /> Recent Actions
+              </Typography>
               <Stack spacing={1}>
                 {gameData.recentStats.filter((s) => !s.deletedAt).length ===
                 0 ? (
                   <Box
                     sx={{
-                      py: 6,
+                      py: 4,
                       textAlign: "center",
-                      border: "2px dashed rgba(0,0,0,0.08)",
-                      borderRadius: 2,
+                      border: "1px dashed #D1D1D1",
+                      borderRadius: 1,
                       display: "flex",
                       flexDirection: "column",
                       alignItems: "center",
-                      gap: 2,
-                      bgcolor: "rgba(0,0,0,0.01)",
+                      gap: 1,
                     }}
                   >
-                    <History
-                      sx={{
-                        fontSize: 48,
-                        color: "text.secondary",
-                        opacity: 0.2,
-                      }}
-                    />
-                    <Box sx={{ maxWidth: 200 }}>
-                      <Typography
-                        variant="subtitle2"
-                        color="text.secondary"
-                        sx={{ fontWeight: 700, mb: 0.5 }}
-                      >
-                        Ready for Tip-off
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        Tap the court or use quick actions to record live game
-                        stats.
-                      </Typography>
-                    </Box>
+                    <History sx={{ color: "text.secondary", opacity: 0.5 }} />
+                    <Typography variant="caption" color="text.secondary">
+                      No actions recorded yet. Tap the court or use quick
+                      actions to start tracking.
+                    </Typography>
                   </Box>
                 ) : (
                   gameData.recentStats.map((s, index) => (
@@ -2803,45 +2716,6 @@ const GameMode: React.FC = () => {
         </Tooltip>
       )}
 
-      <VerifiedPeriodModal
-        open={isVerifiedPeriodModalOpen}
-        onClose={() => setIsVerifiedPeriodModalOpen(false)}
-        onVerify={handleVerifyPeriod}
-        appData={{
-          teamScore: gameData.currentScore,
-          oppScore: gameData.opponentScore,
-          teamFouls: gameData.teamFoulStats.teamFouls,
-          oppFouls: gameData.teamFoulStats.oppFouls,
-        }}
-        period={period}
-        periodLabel={periodLabel}
-      />
-      <Dialog open={isKpiDialogOpen} onClose={() => setIsKpiDialogOpen(false)} fullWidth maxWidth="xs">
-        <DialogTitle>Tactical Identity (KPIs)</DialogTitle>
-        <DialogContent>
-          <DialogContentText sx={{ mb: 2 }}>Select up to 3 KPIs to track during the game.</DialogContentText>
-          <Stack spacing={1}>
-            {[
-              { key: "PAINT_TOUCHES", label: "Paint Touches" },
-              { key: "EFG_PCT", label: "eFG%" },
-              { key: "TO_RATE", label: "Turnover Rate" },
-            ].map((kpi) => {
-              const isSelected = game?.tacticalKpis?.includes(kpi.key);
-              return (
-                <Button key={kpi.key} variant={isSelected ? "contained" : "outlined"} onClick={async () => {
-                    const current = game?.tacticalKpis || [];
-                    let next;
-                    if (isSelected) { next = current.filter((k) => k !== kpi.key); }
-                    else { if (current.length >= 3) return; next = [...current, kpi.key]; }
-                    await db.games.update(gameId, { tacticalKpis: next, synced: 0 });
-                    await syncService.pushUpdates();
-                  }} fullWidth>{kpi.label}</Button>
-              );
-            })}
-          </Stack>
-        </DialogContent>
-        <DialogActions><Button onClick={() => setIsKpiDialogOpen(false)}>Done</Button></DialogActions>
-      </Dialog>
       <EditClockDialog
         open={isClockEditDialogOpen}
         onClose={() => setIsClockEditDialogOpen(false)}
@@ -2852,7 +2726,7 @@ const GameMode: React.FC = () => {
 
       <Snackbar
         open={snackbar.open}
-        autoHideDuration={6000}
+        autoHideDuration={4000}
         onClose={() => setSnackbar({ ...snackbar, open: false })}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
@@ -2861,18 +2735,6 @@ const GameMode: React.FC = () => {
           severity={snackbar.severity}
           variant="filled"
           sx={{ width: "100%" }}
-          action={
-            snackbar.action === "UNDO" ? (
-              <Button
-                color="inherit"
-                size="small"
-                onClick={handleUndo}
-                startIcon={<UndoIcon />}
-              >
-                UNDO
-              </Button>
-            ) : undefined
-          }
         >
           {snackbar.message}
         </Alert>

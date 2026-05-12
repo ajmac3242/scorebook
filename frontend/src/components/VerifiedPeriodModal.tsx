@@ -10,13 +10,23 @@ interface VerifiedPeriodModalProps {
   periodLabel: string;
 }
 
-export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({ open, onClose, onVerify, appData, period, periodLabel }) => {
+export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
+  open,
+  onClose,
+  onVerify: _onVerify,
+  appData,
+  period,
+  periodLabel,
+}) => {
   const [teamScore, setTeamScore] = React.useState(appData.teamScore);
   const [oppScore, setOppScore] = React.useState(appData.oppScore);
   const [teamFouls, setTeamFouls] = React.useState(appData.teamFouls);
   const [oppFouls, setOppFouls] = React.useState(appData.oppFouls);
   React.useEffect(() => {
-    setTeamScore(appData.teamScore); setOppScore(appData.oppScore); setTeamFouls(appData.teamFouls); setOppFouls(appData.oppFouls);
+    setTeamScore(appData.teamScore);
+    setOppScore(appData.oppScore);
+    setTeamFouls(appData.teamFouls);
+    setOppFouls(appData.oppFouls);
   }, [appData, open]);
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
@@ -41,8 +51,16 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({ open, 
         </Box>
       </DialogContent>
       <DialogActions sx={{ p: 3, justifyContent: "space-between" }}>
-        <Button onClick={onClose} color="inherit">Cancel</Button>
-        <Button variant="contained" onClick={() => onVerify({ teamScore, oppScore, teamFouls, oppFouls })} sx={{ px: 4, fontWeight: 800 }}>Verify & Lock Period</Button>
+        <Button onClick={onClose} color="inherit">
+          Cancel
+        </Button>
+        <Button
+          variant="contained"
+          onClick={() => _onVerify({ teamScore, oppScore, teamFouls, oppFouls })}
+          sx={{ px: 4, fontWeight: 800 }}
+        >
+          Verify & Lock Period
+        </Button>
       </DialogActions>
     </Dialog>
   );

@@ -136,20 +136,6 @@ const theme = createTheme({
           "&:hover": {
             boxShadow: "0px 2px 4px rgba(0,0,0,0.1)",
           },
-          "&.Mui-focusVisible": {
-            outline: "2px solid #023246",
-            outlineOffset: "2px",
-          },
-        },
-      },
-    },
-    MuiIconButton: {
-      styleOverrides: {
-        root: {
-          "&.Mui-focusVisible": {
-            outline: "2px solid #023246",
-            outlineOffset: "2px",
-          },
         },
       },
     },

@@ -21,7 +21,6 @@ import {
   calculateSparkPlugIndex,
   calculateShotROI,
   calculatePaintTouchStats,
-  processPossessionEvent,
   type PlayerAggregates,
   OpponentThreat,
 } from "../utils/stats";
@@ -149,7 +148,6 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     open: boolean;
     message: string;
     severity: "success" | "error" | "warning" | "info";
-    action?: "UNDO";
   }>({ open: false, message: "", severity: "success" });
 
   const handleVoiceCommand = useCallback(
@@ -317,148 +315,104 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     let foundLastTeamScore = false;
 
     const threats = new Map<string, OpponentThreat>();
-    let possessionInfo = {
-      possessionStartClock: periodLen,
-      currentProcessingPeriod: 1,
-      possessionState: null as string | null,
-    };
+    let possessionStartClock = periodLen;
 
     for (const s of sortedGameStats) {
       if (s.deletedAt) continue;
+      const isOpp = s.playerId === SPECIAL_PLAYER_IDS.OPPONENT || s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":");
 
-      possessionInfo = processPossessionEvent(s, possessionInfo, periodLen);
-
-      const isOpp =
-        s.playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
-        s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":");
-
-      if (isOpp) {
-        oppScore += s.points || 0;
-        if (s.type === ACTION_TYPES.MAKE) {
-          if (s.points === 1) oppFta++;
-          else oppFga++;
-        }
-
-        if (s.defensiveScheme && schemeStats[s.defensiveScheme]) {
-          const scheme = schemeStats[s.defensiveScheme];
-          if (s.type === ACTION_TYPES.MAKE) {
-            scheme.points += s.points || 0;
-            if (s.points === 1) scheme.fta++;
-            else scheme.fga++;
-          } else if (s.type === ACTION_TYPES.MISS) {
-            if (s.points === 1) scheme.fta++;
-            else scheme.fga++;
-          } else if (s.type === ACTION_TYPES.TURNOVER) {
-            scheme.to++;
-          }
-        }
-      } else {
-        curScore += s.points || 0;
-        if (s.type === ACTION_TYPES.MAKE) {
+      // Score and Basic Stats
+      if (s.type === ACTION_TYPES.MAKE) {
+        if (isOpp) {
+          oppScore += s.points || 0;
+          if (s.points === 1) oppFta++; else oppFga++;
+        } else {
+          curScore += s.points || 0;
           lastTeamScoreClockTime = s.clockTime ?? periodLen;
           lastTeamScorePeriod = s.period;
           foundLastTeamScore = true;
-          if (s.points === 1) teamFta++;
-          else {
+          if (s.points === 1) teamFta++; else {
+            teamFga++;
+            if (s.points === 3) teamThreePM++;
+          }
+        }
+        if (s.points && s.points > 1) possessionStartClock = s.clockTime ?? periodLen;
+      } else if (s.type === ACTION_TYPES.MISS) {
+        if (isOpp) {
+          if (s.points === 1) oppFta++; else oppFga++;
+        } else {
+          if (s.points === 1) teamFta++; else {
             teamFga++;
             if (s.points === 3) teamThreePM++;
           }
         }
       }
 
-      if (
-        [
-          ACTION_TYPES.FOUL,
-          ACTION_TYPES.FOUL_SHOOTING,
-          ACTION_TYPES.FOUL_NON_SHOOTING,
-          ACTION_TYPES.TECHNICAL_FOUL,
-        ].includes(s.type)
-      ) {
+      // Defensive Schemes (Opponent Scoring)
+      if (isOpp && s.defensiveScheme && schemeStats[s.defensiveScheme]) {
+        const scheme = schemeStats[s.defensiveScheme];
+        if (s.type === ACTION_TYPES.MAKE) {
+          scheme.points += s.points || 0;
+          if (s.points === 1) scheme.fta++; else scheme.fga++;
+        } else if (s.type === ACTION_TYPES.MISS) {
+          if (s.points === 1) scheme.fta++; else scheme.fga++;
+        } else if (s.type === ACTION_TYPES.TURNOVER) {
+          scheme.to++;
+        }
+      }
+
+      // Fouls
+      if ([ACTION_TYPES.FOUL, ACTION_TYPES.FOUL_SHOOTING, ACTION_TYPES.FOUL_NON_SHOOTING, ACTION_TYPES.TECHNICAL_FOUL].includes(s.type)) {
         if (isEventInPeriod(s.period, period, pType)) {
-          if (isOpp) oppFouls++;
-          else {
+          if (isOpp) oppFouls++; else {
             teamFouls++;
             if (onCourt.has(s.playerId)) {
-              onCourtPeriodFouls.set(
-                s.playerId,
-                (onCourtPeriodFouls.get(s.playerId) || 0) + 1,
-              );
+              onCourtPeriodFouls.set(s.playerId, (onCourtPeriodFouls.get(s.playerId) || 0) + 1);
             }
           }
         }
       }
 
+      // Timeouts
       if (s.type === ACTION_TYPES.TIMEOUT) {
-        if (isOpp) oppTimeouts++;
-        else teamTimeouts++;
+        if (isOpp) oppTimeouts++; else teamTimeouts++;
       }
 
+      // Possession & Turnovers
       if (s.type === ACTION_TYPES.POSSESSION) {
         posState = s.playerId;
         possessionStartClock = s.clockTime ?? periodLen;
-        } else if (s.type === ACTION_TYPES.PAINT_TOUCH) {
-          teamPaintTouches++;
+      } else if (s.type === ACTION_TYPES.TURNOVER) {
+        if (isOpp) oppTo++; else teamTo++;
+        possessionStartClock = s.clockTime ?? periodLen;
+      } else if (s.type === ACTION_TYPES.OFF_REBOUND) {
+        if (isOpp) oppOreb++; else teamOreb++;
+        possessionStartClock = s.clockTime ?? periodLen;
       }
 
+      // Paint Touches (KPI)
+      if (s.type === ACTION_TYPES.PAINT_TOUCH && !isOpp) {
+        teamPaintTouches++;
+      }
+
+      // Opponent Threats
       if (isOpp) {
-        if (s.type === ACTION_TYPES.MISS) {
-          if (s.points === 1) oppFta++;
-          else {
-            oppFga++;
-            const t = threats.get(s.playerId);
-            if (t) t.consecutiveMakes = 0;
-          }
-        } else if (s.type === ACTION_TYPES.OFF_REBOUND) oppOreb++;
-        if (s.type === ACTION_TYPES.TURNOVER) {
-          oppTo++;
-          possessionStartClock = s.clockTime ?? periodLen;
-        } else if (s.type === ACTION_TYPES.PAINT_TOUCH) {
-          teamPaintTouches++;
-        } else if (s.type === ACTION_TYPES.MAKE && s.points && s.points > 1) {
-          possessionStartClock = s.clockTime ?? periodLen;
-        } else if (s.type === ACTION_TYPES.PAINT_TOUCH) {
-          teamPaintTouches++;
-          let t = threats.get(s.playerId);
+        let t = threats.get(s.playerId);
+        if (s.type === ACTION_TYPES.MAKE && s.points && s.points > 1) {
           if (!t) {
-            t = {
-              playerId: s.playerId,
-              points: 0,
-              makes: 0,
-              consecutiveMakes: 0,
-              straightPoints: 0,
-              isHot: false,
-            };
+            t = { playerId: s.playerId, points: 0, makes: 0, consecutiveMakes: 0, straightPoints: 0, isHot: false };
             threats.set(s.playerId, t);
           }
           t.points += s.points;
           t.makes++;
           t.consecutiveMakes++;
           if (t.points >= 8 || t.consecutiveMakes >= 3) t.isHot = true;
-        }
-      } else {
-        if (s.type === ACTION_TYPES.MISS) {
-          if (s.points === 1) teamFta++;
-          else {
-            teamFga++;
-            if (s.points === 3) teamThreePM++;
-          }
-        } else if (s.type === ACTION_TYPES.OFF_REBOUND) {
-          teamOreb++;
-          possessionStartClock = s.clockTime ?? periodLen;
-        } else if (s.type === ACTION_TYPES.PAINT_TOUCH) {
-          teamPaintTouches++;
-        } else if (s.type === ACTION_TYPES.TURNOVER) {
-          teamTo++;
-          possessionStartClock = s.clockTime ?? periodLen;
-        } else if (s.type === ACTION_TYPES.PAINT_TOUCH) {
-          teamPaintTouches++;
-        } else if (s.type === ACTION_TYPES.MAKE && s.points && s.points > 1) {
-          possessionStartClock = s.clockTime ?? periodLen;
-        } else if (s.type === ACTION_TYPES.PAINT_TOUCH) {
-          teamPaintTouches++;
+        } else if (s.type === ACTION_TYPES.MISS && s.points && s.points > 1) {
+          if (t) t.consecutiveMakes = 0;
         }
       }
 
+      // Lineup Tracking
       if (s.type === ACTION_TYPES.SUB_IN) {
         onCourt.add(s.playerId);
         if (s.period === period) {
@@ -549,11 +503,16 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     const fpm =
       elapsedMinutes > 1 ? (teamFouls + oppFouls) / elapsedMinutes : 0;
 
+    const teamEfgPct = teamFga > 0 ? ((teamFga - teamThreePM) + teamThreePM * 1.5) / teamFga : 0;
+    const teamTurnoverRate = teamPoss > 0 ? teamTo / teamPoss : 0;
+
     return {
       currentScore: curScore,
       opponentScore: oppScore,
       teamPpp: calculatePpp(curScore, teamPoss),
       oppPpp: calculatePpp(oppScore, oppPoss),
+      teamEfgPct,
+      teamTurnoverRate,
       refTightness: fpm,
       teamPoss,
       oppPoss,
@@ -598,7 +557,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       lastTeamScoreClockTime,
       lastTeamScorePeriod,
       foundLastTeamScore,
-      possessionStartClock: possessionInfo.possessionStartClock,
+      possessionStartClock,
       recentStats: sortedGameStats
         .filter((s) => !s.deletedAt)
         .slice(-10)

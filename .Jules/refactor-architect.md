@@ -9,8 +9,3 @@ Pattern: Centralize validation logic and use modern JS/TS features for cleaner u
 Smell: Inconsistent use of rounding utilities (toFixed vs formatToOne) and bitwise operations for floor.
 Learning: Prioritize explicit logic (Math.floor) over bitwise operations for clarity, and reuse existing formatting utilities to ensure consistent decimal precision across the app.
 Pattern: Extract complex conditional logic (like bonus alerts) into dedicated pure helper functions to keep main domain functions focused.
-
-2024-05-29 - High-Impact Engine Refactoring
-Smell: Duplicated scoring and percentage logic across the stats engine; positional argument fatigue in complex functions.
-Learning: Object-based parameters for internal utilities (like `calculatePossessions`) significantly reduce cognitive load at call sites. Extracting sub-logic (like `updateAssistNode`) into helpers eliminates massive copy-paste blocks for similar entities (passer vs finisher).
-Pattern: Standardize all stats calculations around shared helpers (`calcPct`, `updateScores`, `isActive`) and use object params for functions exceeding 3 arguments.

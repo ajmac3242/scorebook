@@ -16,7 +16,6 @@ import {
   Divider,
   ToggleButton,
   ToggleButtonGroup,
-  CircularProgress,
 } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import {
@@ -51,14 +50,8 @@ const Dashboard: React.FC = () => {
   const [gameCountFilter, setGameCountFilter] = React.useState<string>("all");
 
   // Find the starred team
-  // 🎨 Palette: Map undefined to null to distinguish "loading" from "not found"
   const favoriteTeam = useLiveQuery(
-    () =>
-      db.teams
-        .where("isFavorite")
-        .equals(1)
-        .first()
-        .then((res) => res || null),
+    () => db.teams.where("isFavorite").equals(1).first(),
     [],
   );
 
@@ -224,22 +217,7 @@ const Dashboard: React.FC = () => {
       .slice(0, 3);
   }, [teamGames]);
 
-  if (favoriteTeam === undefined) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "60vh",
-        }}
-      >
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (favoriteTeam === null) {
+  if (!favoriteTeam) {
     return (
       <Box>
         <PageHeader title="Notebook Overview" />
@@ -617,12 +595,7 @@ const Dashboard: React.FC = () => {
                         bgcolor: "rgba(0,0,0,0.02)",
                         border: "1px solid rgba(0,0,0,0.05)",
                         cursor: "pointer",
-                        transition: "all 0.2s ease-in-out",
-                        "&:hover": {
-                          bgcolor: "rgba(0,0,0,0.04)",
-                          transform: "translateY(-4px)",
-                          boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                        },
+                        "&:hover": { bgcolor: "rgba(0,0,0,0.04)" },
                       }}
                       onClick={() => navigate(`/game/stats?gameId=${game.id}`)}
                     >
@@ -704,12 +677,7 @@ const Dashboard: React.FC = () => {
                         bgcolor: "rgba(0,0,0,0.02)",
                         border: "1px solid rgba(0,0,0,0.05)",
                         cursor: "pointer",
-                        transition: "all 0.2s ease-in-out",
-                        "&:hover": {
-                          bgcolor: "rgba(0,0,0,0.04)",
-                          transform: "translateY(-4px)",
-                          boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                        },
+                        "&:hover": { bgcolor: "rgba(0,0,0,0.04)" },
                       }}
                       onClick={() => navigate(`/game/stats?gameId=${game.id}`)}
                       role="button"

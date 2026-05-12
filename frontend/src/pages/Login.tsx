@@ -9,7 +9,6 @@ import {
   Container,
   Paper,
   Alert,
-  CircularProgress,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -22,15 +21,12 @@ const Login: React.FC = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [isLoadingData, setIsLoadingData] = useState(false);
   const navigate = useNavigate();
   const { setIsAuthenticated } = useAuth();
 
   const onSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    setIsLoggingIn(true);
-    setError("");
 
     const user = new CognitoUser({
       Username: username,
@@ -77,7 +73,6 @@ const Login: React.FC = () => {
       onFailure: (err) => {
         logger.error("Authentication failed", err);
         setError(err.message || JSON.stringify(err));
-        setIsLoggingIn(false);
       },
       newPasswordRequired: (_userAttributes, _requiredAttributes) => {
         setError("New password required");
@@ -181,14 +176,9 @@ const Login: React.FC = () => {
               type="submit"
               fullWidth
               variant="contained"
-              sx={{ mt: 3, mb: 2, height: 42 }}
-              disabled={isLoggingIn}
+              sx={{ mt: 3, mb: 2 }}
             >
-              {isLoggingIn ? (
-                <CircularProgress size={24} color="inherit" />
-              ) : (
-                "Sign In"
-              )}
+              Sign In
             </Button>
           </Box>
         </Paper>

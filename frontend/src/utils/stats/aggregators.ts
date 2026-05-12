@@ -71,7 +71,7 @@ export const isFieldGoal = (stat: StatEvent): boolean =>
   (stat.type === ACTION_TYPES.MAKE || stat.type === ACTION_TYPES.MISS) &&
   !isFreeThrow(stat);
 
-export const calcPct = (numerator: number, denominator: number): string => {
+const calcPct = (numerator: number, denominator: number): string => {
   if (denominator <= 0) return "0.0";
   if (numerator <= 0) return "0.0";
   return formatToOne((numerator / denominator) * 100);
@@ -86,22 +86,12 @@ export const calculatePpp = (points: number, possessions: number): string => {
 };
 
 export const calculatePossessions = (
-  fgaOrParams:
-    | number
-    | { fga: number; fta: number; turnovers: number; offRebounds: number },
-  fta: number = 0,
-  to: number = 0,
-  oreb: number = 0,
+  fga: number,
+  fta: number,
+  to: number,
+  oreb: number,
 ): number => {
-  if (typeof fgaOrParams === "object") {
-    return (
-      fgaOrParams.fga +
-      0.44 * fgaOrParams.fta +
-      fgaOrParams.turnovers -
-      fgaOrParams.offRebounds
-    );
-  }
-  return fgaOrParams + 0.44 * fta + to - oreb;
+  return fga + 0.44 * fta + to - oreb;
 };
 
 export const calculateFtPct = (makes: number, attempts: number): string =>
@@ -446,18 +436,18 @@ export const calculateTeamAggregates = (
   }
 
   const gp = targetCount || 1;
-  const totalPossessions = calculatePossessions({
-    fga: team.fga,
-    fta: team.fta,
-    turnovers: team.to,
-    offRebounds: team.oreb,
-  });
-  const totalOppPossessions = calculatePossessions({
-    fga: opp.fga,
-    fta: opp.fta,
-    turnovers: opp.to,
-    offRebounds: opp.oreb,
-  });
+  const totalPossessions = calculatePossessions(
+    team.fga,
+    team.fta,
+    team.to,
+    team.oreb,
+  );
+  const totalOppPossessions = calculatePossessions(
+    opp.fga,
+    opp.fta,
+    opp.to,
+    opp.oreb,
+  );
 
   const teamOrebPct = calcPct(team.oreb, team.oreb + opp.dreb);
 
@@ -509,12 +499,12 @@ export const calculateOpponentAggregates = (
     applyActionToAggregate(agg, stat);
   }
 
-  const possessions = calculatePossessions({
-    fga: agg.attempts,
-    fta: agg.fta,
-    turnovers: agg.turnovers,
-    offRebounds: agg.offRebounds,
-  });
+  const possessions = calculatePossessions(
+    agg.attempts,
+    agg.fta,
+    agg.turnovers,
+    agg.offRebounds,
+  );
 
   return {
     ...agg,

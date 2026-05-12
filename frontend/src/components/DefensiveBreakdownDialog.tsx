@@ -19,17 +19,8 @@ const DefensiveBreakdownDialog: React.FC<DefensiveBreakdownDialogProps> = ({
   onClose,
 }) => {
   return (
-    <Dialog
-      open={open}
-      onClose={() => onClose()}
-      fullWidth
-      maxWidth="xs"
-      aria-labelledby="defensive-breakdown-title"
-    >
-      <DialogTitle
-        id="defensive-breakdown-title"
-        sx={{ fontFamily: "var(--serif)", fontWeight: 800 }}
-      >
+    <Dialog open={open} onClose={() => onClose()} fullWidth maxWidth="xs">
+      <DialogTitle sx={{ fontFamily: "var(--serif)", fontWeight: 800 }}>
         DEFENSIVE BREAKDOWN
       </DialogTitle>
       <DialogContent>
