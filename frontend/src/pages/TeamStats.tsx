@@ -52,7 +52,13 @@ import {
   NavigateNext,
   NavigateBefore,
 } from "@mui/icons-material";
-import { Stepper, Step, StepLabel, Checkbox, FormControlLabel } from "@mui/material";
+import {
+  Stepper,
+  Step,
+  StepLabel,
+  Checkbox,
+  FormControlLabel,
+} from "@mui/material";
 import { db, type TeamPlayer, type StatEvent } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
 import { STAT_ACRONYMS } from "../constants/stats";
@@ -1806,7 +1812,10 @@ const TeamStats: React.FC = () => {
                   SELECT TACTICAL IDENTITY KPIs
                 </Typography>
                 {[
-                  { id: "paint_touches", label: "Paint Touches (Rim Pressure)" },
+                  {
+                    id: "paint_touches",
+                    label: "Paint Touches (Rim Pressure)",
+                  },
                   { id: "efg", label: "eFG% (Shooting Efficiency)" },
                   { id: "stop_pct", label: "Stop % (Defensive Consistency)" },
                   { id: "to_rate", label: "Turnover Rate (Ball Security)" },
