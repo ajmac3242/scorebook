@@ -1,5 +1,11 @@
 import React from "react";
-import { Box, Typography, Paper, Stack, Button } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Paper,
+  Stack,
+  Button,
+} from "@mui/material";
 import {
   Warning,
   Error as ErrorIcon,
@@ -14,8 +20,8 @@ import {
 
 export interface TacticalAlert {
   id: string;
-  type: "FATIGUE" | "FOUL" | "CONFLICT";
-  severity: "WARNING" | "CRITICAL";
+  type: "FATIGUE" | "FOUL" | "CONFLICT" | "BONUS" | "CLUTCH" | "REF_CONFLICT";
+  severity: "WARNING" | "CRITICAL" | "warning" | "error" | "info";
   message: string;
   actionLabel?: string;
   onAction?: () => void;
@@ -32,21 +38,13 @@ export const TacticalAlertsSidebar: React.FC<TacticalAlertsSidebarProps> = ({
     <Box sx={{ width: "100%", height: "100%" }}>
       <Typography
         variant="caption"
-        sx={{
-          fontWeight: 800,
-          color: "text.secondary",
-          mb: 2,
-          display: "block",
-        }}
+        sx={{ fontWeight: 800, color: "text.secondary", mb: 2, display: "block" }}
       >
         TACTICAL ALERTS (HALT)
       </Typography>
       <Stack spacing={1.5}>
         {alerts.length === 0 ? (
-          <Typography
-            variant="caption"
-            sx={{ fontStyle: "italic", opacity: 0.5 }}
-          >
+          <Typography variant="caption" sx={{ fontStyle: "italic", opacity: 0.5 }}>
             No active tactical threats.
           </Typography>
         ) : (
@@ -58,18 +56,27 @@ export const TacticalAlertsSidebar: React.FC<TacticalAlertsSidebarProps> = ({
                 p: 1.5,
                 borderLeft: "4px solid",
                 borderColor:
-                  alert.severity === "CRITICAL" ? "error.main" : "warning.main",
+                  alert.severity === "CRITICAL" || alert.severity === "error"
+                    ? "error.main"
+                    : alert.severity === "info"
+                      ? "info.main"
+                      : "warning.main",
                 bgcolor:
-                  alert.severity === "CRITICAL"
+                  alert.severity === "CRITICAL" || alert.severity === "error"
                     ? "rgba(211, 47, 47, 0.05)"
-                    : "rgba(237, 108, 2, 0.05)",
+                    : alert.severity === "info"
+                      ? "rgba(2, 136, 209, 0.05)"
+                      : "rgba(237, 108, 2, 0.05)",
               }}
             >
               <Stack direction="row" spacing={1} alignItems="flex-start">
-                {alert.severity === "CRITICAL" ? (
+                {alert.severity === "CRITICAL" || alert.severity === "error" ? (
                   <ErrorIcon color="error" fontSize="small" />
                 ) : (
-                  <Warning color="warning" fontSize="small" />
+                  <Warning
+                    color={alert.severity === "info" ? "info" : "warning"}
+                    fontSize="small"
+                  />
                 )}
                 <Box sx={{ flex: 1 }}>
                   <Typography
@@ -82,9 +89,7 @@ export const TacticalAlertsSidebar: React.FC<TacticalAlertsSidebarProps> = ({
                     <Button
                       size="small"
                       variant="outlined"
-                      color={
-                        alert.severity === "CRITICAL" ? "error" : "warning"
-                      }
+                      color={alert.severity === "CRITICAL" ? "error" : "warning"}
                       onClick={alert.onAction}
                       sx={{
                         fontSize: "0.6rem",

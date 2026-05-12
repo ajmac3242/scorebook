@@ -921,9 +921,7 @@ const GameMode: React.FC = () => {
             </Alert>
           )}
 
-          <Box
-            sx={{ mb: 2, bgcolor: "rgba(0,0,0,0.02)", p: 1, borderRadius: 2 }}
-          >
+          <Box sx={{ mb: 2, bgcolor: "rgba(0,0,0,0.02)", p: 1, borderRadius: 2 }}>
             <TacticalIdentityHUD
               kpis={[
                 {

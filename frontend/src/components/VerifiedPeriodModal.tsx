@@ -39,18 +39,10 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
   appFouls,
   onVerify,
 }) => {
-  const [officialTeamScore, setOfficialTeamScore] = useState(
-    appScore.team.toString(),
-  );
-  const [officialOppScore, setOfficialOppScore] = useState(
-    appScore.opp.toString(),
-  );
-  const [officialTeamFouls, setOfficialTeamFouls] = useState(
-    appFouls.team.toString(),
-  );
-  const [officialOppFouls, setOfficialOppFouls] = useState(
-    appFouls.opp.toString(),
-  );
+  const [officialTeamScore, setOfficialTeamScore] = useState(appScore.team.toString());
+  const [officialOppScore, setOfficialOppScore] = useState(appScore.opp.toString());
+  const [officialTeamFouls, setOfficialTeamFouls] = useState(appFouls.team.toString());
+  const [officialOppFouls, setOfficialOppFouls] = useState(appFouls.opp.toString());
 
   const handleConfirm = () => {
     onVerify({
@@ -75,11 +67,7 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
         VERIFY {periodLabel.toUpperCase()} {period} TOTALS
       </DialogTitle>
       <DialogContent>
-        <Typography
-          variant="body2"
-          color="text.secondary"
-          sx={{ mb: 3, textAlign: "center" }}
-        >
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 3, textAlign: "center" }}>
           Please reconcile app totals with the official scorekeeper's table.
         </Typography>
 
@@ -140,11 +128,7 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
         </Grid>
 
         <Box sx={{ mt: 3, p: 2, bgcolor: "rgba(0,0,0,0.02)", borderRadius: 1 }}>
-          <Typography
-            variant="caption"
-            color="text.secondary"
-            sx={{ fontStyle: "italic" }}
-          >
+          <Typography variant="caption" color="text.secondary" sx={{ fontStyle: "italic" }}>
             Discrepancies will be corrected via SYSTEM_ADJUSTMENT events.
           </Typography>
         </Box>

@@ -468,7 +468,14 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       if (!stintStarts.has(pId)) stintStarts.set(pId, periodLen);
     });
 
-    const defensiveStats = calculateStopsAndKills(sortedGameStats);
+    const rawDefensiveStats = calculateStopsAndKills(sortedGameStats);
+    const teamPoss = calculatePossessions(teamFga, teamFta, teamTo, teamOreb);
+    const oppPoss = calculatePossessions(oppFga, oppFta, oppTo, oppOreb);
+
+    const defensiveStats = {
+      ...rawDefensiveStats,
+      stopPct: oppPoss > 0 ? Math.round((rawDefensiveStats.totalStops / oppPoss) * 100) : 0,
+    };
 
     let opponentRunValue = null;
     let tempOppRunPoints = 0;
@@ -511,9 +518,6 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     const MAX_TIMEOUTS = team?.fouls || 3;
     const teamBonus = getBonusStatus(teamFouls, pType);
     const oppBonus = getBonusStatus(oppFouls, pType);
-    const teamPoss = calculatePossessions(teamFga, teamFta, teamTo, teamOreb);
-    const oppPoss = calculatePossessions(oppFga, oppFta, oppTo, oppOreb);
-
     const elapsedMinutes = calculateElapsedMinutes(
       period,
       clockSeconds,
@@ -654,13 +658,10 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     }) => {
       if (!gameId) return;
 
-      const teamScoreDiff =
-        adjustments.teamScore - eventAggregates.currentScore;
+      const teamScoreDiff = adjustments.teamScore - eventAggregates.currentScore;
       const oppScoreDiff = adjustments.oppScore - eventAggregates.opponentScore;
-      const teamFoulDiff =
-        adjustments.teamFouls - eventAggregates.teamFoulStats.teamFouls;
-      const oppFoulDiff =
-        adjustments.oppFouls - eventAggregates.teamFoulStats.oppFouls;
+      const teamFoulDiff = adjustments.teamFouls - eventAggregates.teamFoulStats.teamFouls;
+      const oppFoulDiff = adjustments.oppFouls - eventAggregates.teamFoulStats.oppFouls;
 
       const timestamp = new Date().toISOString();
 
@@ -720,13 +721,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       setIsVerificationOpen(false);
       originalHandleNextPeriod(team?.periodType || "QUARTERS");
     },
-    [
-      gameId,
-      period,
-      eventAggregates,
-      originalHandleNextPeriod,
-      team?.periodType,
-    ],
+    [gameId, period, eventAggregates, originalHandleNextPeriod, team?.periodType],
   );
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
   const [statType, setStatType] = useState<string | null>(null);
@@ -1102,9 +1097,6 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     handleToggleClock,
     handleEditClock,
     handleNextPeriod,
-    handleVerifyPeriod,
-    isVerificationOpen,
-    setIsVerificationOpen,
     togglePossession,
     writeStat,
     deleteStat,
