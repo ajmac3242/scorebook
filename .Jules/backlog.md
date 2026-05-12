@@ -1,6 +1,6 @@
 # Scorebook Backlog
 
-## [ ] [HALT: Proactive Tactical Intervention System]
+## [x] [HALT: Proactive Tactical Intervention System]
 **Priority:** HIGH
 **Type:** Feature
 **Why:** Coaches often miss critical tactical risks (foul trouble, fatigue, mismatch exploitation) in the heat of a game. A persistent "Heads-Up" alert system transforms raw data into immediate coaching directives.
@@ -11,7 +11,7 @@
 - [ ] Direct action buttons within alerts (e.g., "Open Sub Dialog" for a fatigue alert).
 - [ ] Integration of Ref-Identity conflict alerts ("Dial back pressure").
 
-## [ ] [Tactical Identity HUD (KPI Adherence)]
+## [x] [Tactical Identity HUD (KPI Adherence)]
 **Priority:** HIGH
 **Type:** Feature
 **Why:** Every coach enters a game with a specific "Identity" (e.g., "We attack the paint"). A live HUD tracking these specific goals ensures the team doesn't drift into inefficient play.
@@ -22,7 +22,7 @@
 - [ ] Visual pulse/alert when a goal is met or a limit is exceeded.
 - [ ] Post-game "Identity Scorecard" summarizing KPI performance.
 
-## [ ] [Verified Period Workflow (Reconciliation)]
+## [x] [Verified Period Workflow (Reconciliation)]
 **Priority:** HIGH
 **Type:** UX / Data Integrity
 **Why:** Official scores and fouls often drift from the app. A forced reconciliation at every period break ensures the analytics engine remains a "Source of Truth."

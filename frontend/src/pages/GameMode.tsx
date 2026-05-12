@@ -68,6 +68,9 @@ import FreeThrowWorkflowDialog from "../components/FreeThrowWorkflowDialog";
 import HalftimeReportDialog from "../components/HalftimeReportDialog";
 import DefensiveBreakdownDialog from "../components/DefensiveBreakdownDialog";
 import PlaybookEfficiencyWidget from "../components/PlaybookEfficiencyWidget";
+import { TacticalAlertsSidebar } from "../components/TacticalAlertsSidebar";
+import { TacticalIdentityHUD } from "../components/TacticalIdentityHUD";
+import { VerifiedPeriodModal } from "../components/VerifiedPeriodModal";
 import { PlayerStatRow } from "../components/PlayerStatRow";
 import { db, type StatEvent } from "../db";
 import { syncService } from "../utils/syncService";
@@ -151,6 +154,9 @@ const GameMode: React.FC = () => {
     setIsAuditDialogOpen,
     isFtWorkflowOpen,
     setIsFtWorkflowOpen,
+    isVerificationOpen,
+    setIsVerificationOpen,
+    handleVerifyPeriod,
     situation,
     setSituation,
     opponentPlayType,
@@ -915,6 +921,33 @@ const GameMode: React.FC = () => {
             </Alert>
           )}
 
+          <Box sx={{ mb: 2, bgcolor: "rgba(0,0,0,0.02)", p: 1, borderRadius: 2 }}>
+            <TacticalIdentityHUD
+              kpis={[
+                {
+                  name: "paint_touches",
+                  label: "Paint Touches",
+                  value: paintTouchStats.total,
+                  target: 25,
+                },
+                {
+                  name: "efg",
+                  label: "eFG%",
+                  value: Math.round(parseFloat(gameData.teamPpp) * 50), // Rough eFG estimate for demo
+                  target: 52,
+                  isPercentage: true,
+                },
+                {
+                  name: "stop_pct",
+                  label: "Stop %",
+                  value: gameData.defensiveStats.stopPct,
+                  target: 60,
+                  isPercentage: true,
+                },
+              ]}
+            />
+          </Box>
+
           <Scoreboard
             game={game}
             team={team}
@@ -1085,6 +1118,10 @@ const GameMode: React.FC = () => {
 
         <Grid item xs={12} md={4}>
           <Stack spacing={3}>
+            <MoleskineCard>
+              <TacticalAlertsSidebar alerts={haltAlerts} />
+            </MoleskineCard>
+
             <MoleskineCard>
               <Box
                 sx={{
@@ -2769,6 +2806,21 @@ const GameMode: React.FC = () => {
         onSave={handleEditClock}
         initialMinutes={Math.floor(clockSeconds / 60)}
         initialSeconds={clockSeconds % 60}
+      />
+
+      <VerifiedPeriodModal
+        open={isVerificationOpen}
+        period={period}
+        periodLabel={periodLabel}
+        appScore={{
+          team: gameData.currentScore,
+          opp: gameData.opponentScore,
+        }}
+        appFouls={{
+          team: gameData.teamFoulStats.teamFouls,
+          opp: gameData.teamFoulStats.oppFouls,
+        }}
+        onVerify={handleVerifyPeriod}
       />
 
       <Snackbar

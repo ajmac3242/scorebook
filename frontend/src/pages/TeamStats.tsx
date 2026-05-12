@@ -52,7 +52,7 @@ import {
   NavigateNext,
   NavigateBefore,
 } from "@mui/icons-material";
-import { Stepper, Step, StepLabel } from "@mui/material";
+import { Stepper, Step, StepLabel, Checkbox, FormControlLabel } from "@mui/material";
 import { db, type TeamPlayer, type StatEvent } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
 import { STAT_ACRONYMS } from "../constants/stats";
@@ -139,6 +139,11 @@ const TeamStats: React.FC = () => {
   const [newPeriodLength, setNewPeriodLength] = useState<number>(10);
   const [newTimeoutLimit, setNewTimeoutLimit] = useState<number>(3);
   const [newFoulLimit, setNewFoulLimit] = useState<number>(5);
+  const [newTacticalKpis, setNewTacticalKpis] = useState<string[]>([
+    "paint_touches",
+    "efg",
+    "stop_pct",
+  ]);
   const [isSubmittingGame, setIsSubmittingGame] = useState(false);
   const [rosterSearchTerm, setRosterSearchTerm] = useState("");
 
@@ -527,6 +532,7 @@ const TeamStats: React.FC = () => {
         timeoutLimit: newTimeoutLimit,
         foulLimit: newFoulLimit,
         periodType: newPeriodType,
+        tacticalKpis: newTacticalKpis,
         synced: 0,
       });
       await syncService.pushUpdates();
@@ -1651,6 +1657,9 @@ const TeamStats: React.FC = () => {
               <StepLabel>Settings</StepLabel>
             </Step>
             <Step>
+              <StepLabel>Identity</StepLabel>
+            </Step>
+            <Step>
               <StepLabel>Review</StepLabel>
             </Step>
           </Stepper>
@@ -1792,6 +1801,40 @@ const TeamStats: React.FC = () => {
             )}
 
             {activeStep === 3 && (
+              <Stack spacing={2}>
+                <Typography variant="caption" sx={{ fontWeight: 800 }}>
+                  SELECT TACTICAL IDENTITY KPIs
+                </Typography>
+                {[
+                  { id: "paint_touches", label: "Paint Touches (Rim Pressure)" },
+                  { id: "efg", label: "eFG% (Shooting Efficiency)" },
+                  { id: "stop_pct", label: "Stop % (Defensive Consistency)" },
+                  { id: "to_rate", label: "Turnover Rate (Ball Security)" },
+                  { id: "oreb_pct", label: "Offensive Rebound %" },
+                ].map((kpi) => (
+                  <FormControlLabel
+                    key={kpi.id}
+                    control={
+                      <Checkbox
+                        checked={newTacticalKpis.includes(kpi.id)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setNewTacticalKpis([...newTacticalKpis, kpi.id]);
+                          } else {
+                            setNewTacticalKpis(
+                              newTacticalKpis.filter((id) => id !== kpi.id),
+                            );
+                          }
+                        }}
+                      />
+                    }
+                    label={kpi.label}
+                  />
+                ))}
+              </Stack>
+            )}
+
+            {activeStep === 4 && (
               <Box>
                 <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 2 }}>
                   Review Game Details
@@ -1857,7 +1900,7 @@ const TeamStats: React.FC = () => {
           >
             Back
           </Button>
-          {activeStep < 3 ? (
+          {activeStep < 4 ? (
             <Button
               variant="contained"
               disabled={
