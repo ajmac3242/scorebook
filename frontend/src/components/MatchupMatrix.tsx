@@ -143,9 +143,7 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
                             ? `${data.stopPct}% Stop Rate over ${data.possessions} possessions.`
                             : "No matchup data."}
                           {isRecommended && (
-                            <Box
-                              sx={{ mt: 0.5, color: "gold", fontWeight: 800 }}
-                            >
+                            <Box sx={{ mt: 0.5, color: "gold", fontWeight: 800 }}>
                               ⭐ Statistically Best Personnel Counter for{" "}
                               {frequentPlayType}
                             </Box>

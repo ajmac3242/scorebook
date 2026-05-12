@@ -22,6 +22,7 @@ import {
   calculateShotROI,
   calculatePaintTouchStats,
   calculateArchetypeEfficiency,
+  isClutchEvent,
   type PlayerAggregates,
   OpponentThreat,
 } from "../utils/stats";

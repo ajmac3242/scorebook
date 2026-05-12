@@ -143,11 +143,12 @@ export interface OpponentThreat {
 
 export interface HaltAlert {
   id: string;
-  type: "FOUL" | "BONUS" | "FATIGUE" | "CLUTCH" | "REF_CONFLICT";
+  type: "FOUL" | "BONUS" | "FATIGUE" | "CLUTCH" | "REF_CONFLICT" | "CONFLICT";
   severity: "warning" | "error" | "info";
   message: string;
   playerId?: string;
   jerseyNumber?: string;
+  actionLabel?: string;
 }
 
 export interface TalkingPoint {

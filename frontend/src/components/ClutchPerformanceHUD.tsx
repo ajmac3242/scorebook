@@ -179,10 +179,7 @@ export const ClutchPerformanceHUD: React.FC<ClutchPerformanceHUDProps> = ({
                             },
                           }}
                         />
-                        <Typography
-                          variant="caption"
-                          sx={{ fontSize: "0.5rem" }}
-                        >
+                        <Typography variant="caption" sx={{ fontSize: "0.5rem" }}>
                           {Math.round(usage)}%
                         </Typography>
                       </Box>
@@ -238,14 +235,10 @@ export const ClutchPerformanceHUD: React.FC<ClutchPerformanceHUDProps> = ({
               {poorFT && (
                 <Typography
                   variant="caption"
-                  sx={{
-                    display: "block",
-                    color: "error.main",
-                    fontWeight: 700,
-                  }}
+                  sx={{ display: "block", color: "error.main", fontWeight: 700 }}
                 >
-                  🚨 FT Risk: #{jerseyMap.get(poorFT.id.toString())} is a
-                  "Hack-a" target ({poorFT.ftPct}%).
+                  🚨 FT Risk: #{jerseyMap.get(poorFT.id.toString())} is a "Hack-a"
+                  target ({poorFT.ftPct}%).
                 </Typography>
               )}
               {!highUsage && !poorFT && (
