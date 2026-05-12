@@ -89,7 +89,7 @@ const BottomNav: React.FC<BottomNavProps> = ({ gameInProgress = false }) => {
           },
         }}
       >
-        {BOTTOM_NAV_ITEMS.map((item, index) => {
+        {BOTTOM_NAV_ITEMS.map((item) => {
           const isLive = item.label === 'Live';
           return (
             <BottomNavigationAction
