@@ -292,7 +292,9 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     let teamFga = 0,
       teamFta = 0,
       teamTo = 0,
-      teamOreb = 0;
+      teamOreb = 0,
+      teamThreePM = 0,
+      teamPaintTouches = 0;
     let oppFga = 0,
       oppFta = 0,
       oppTo = 0,
@@ -348,7 +350,10 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
           lastTeamScorePeriod = s.period;
           foundLastTeamScore = true;
           if (s.points === 1) teamFta++;
-          else teamFga++;
+          else {
+            teamFga++;
+            if (s.points === 3) teamThreePM++;
+          }
         }
       }
 
@@ -382,6 +387,8 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       if (s.type === ACTION_TYPES.POSSESSION) {
         posState = s.playerId;
         possessionStartClock = s.clockTime ?? periodLen;
+        } else if (s.type === ACTION_TYPES.PAINT_TOUCH) {
+          teamPaintTouches++;
       }
 
       if (isOpp) {
@@ -396,8 +403,12 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
         if (s.type === ACTION_TYPES.TURNOVER) {
           oppTo++;
           possessionStartClock = s.clockTime ?? periodLen;
+        } else if (s.type === ACTION_TYPES.PAINT_TOUCH) {
+          teamPaintTouches++;
         } else if (s.type === ACTION_TYPES.MAKE && s.points && s.points > 1) {
           possessionStartClock = s.clockTime ?? periodLen;
+        } else if (s.type === ACTION_TYPES.PAINT_TOUCH) {
+          teamPaintTouches++;
           let t = threats.get(s.playerId);
           if (!t) {
             t = {
@@ -418,15 +429,24 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       } else {
         if (s.type === ACTION_TYPES.MISS) {
           if (s.points === 1) teamFta++;
-          else teamFga++;
+          else {
+            teamFga++;
+            if (s.points === 3) teamThreePM++;
+          }
         } else if (s.type === ACTION_TYPES.OFF_REBOUND) {
           teamOreb++;
           possessionStartClock = s.clockTime ?? periodLen;
+        } else if (s.type === ACTION_TYPES.PAINT_TOUCH) {
+          teamPaintTouches++;
         } else if (s.type === ACTION_TYPES.TURNOVER) {
           teamTo++;
           possessionStartClock = s.clockTime ?? periodLen;
+        } else if (s.type === ACTION_TYPES.PAINT_TOUCH) {
+          teamPaintTouches++;
         } else if (s.type === ACTION_TYPES.MAKE && s.points && s.points > 1) {
           possessionStartClock = s.clockTime ?? periodLen;
+        } else if (s.type === ACTION_TYPES.PAINT_TOUCH) {
+          teamPaintTouches++;
         }
       }
 
@@ -528,6 +548,8 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       refTightness: fpm,
       teamPoss,
       oppPoss,
+      teamThreePM,
+      teamPaintTouches,
       teamFoulStats: {
         teamFouls,
         oppFouls,

@@ -89,6 +89,7 @@ export interface Game {
   synced?: number;
   matchups?: Record<string, string>; // Opponent Player ID -> Our Player ID
   activeDefensiveScheme?: "MAN" | "ZONE" | "PRESS" | "DOUBLE";
+  tacticalKpis?: string[];
 }
 
 /**
@@ -153,7 +154,7 @@ export class AppDatabase extends Dexie {
     // v21:    Added 'matchups' to Game and 'primaryDefenderId', 'shotClockPhase' to StatEvent.
     // v22:    Added 'activeDefensiveScheme' to Game and 'defensiveScheme', 'opponentPlayType' to StatEvent.
     // v23:    Added 'breakdownReason' to StatEvent.
-    this.version(23).stores({
+    this.version(24).stores({
       teams: "id, synced, deletedAt, isFavorite",
       players: "id, synced, isArchived, deletedAt",
       teamPlayers: "id, [teamId+playerId], teamId, playerId, synced",

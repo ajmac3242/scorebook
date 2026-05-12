@@ -62,6 +62,9 @@ import RecentActionItem from "../components/RecentActionItem";
 import { MatchupMatrix } from "../components/MatchupMatrix";
 import QuickSubDialog from "../components/QuickSubDialog";
 import SubstitutionAuditDialog from "../components/SubstitutionAuditDialog";
+import { TacticalAlertsHUD } from "../components/TacticalAlertsHUD";
+import { TacticalIdentityHUD, TacticalKPI } from "../components/TacticalIdentityHUD";
+import { VerifiedPeriodModal } from "../components/VerifiedPeriodModal";
 import FreeThrowWorkflowDialog from "../components/FreeThrowWorkflowDialog";
 import HalftimeReportDialog from "../components/HalftimeReportDialog";
 import DefensiveBreakdownDialog from "../components/DefensiveBreakdownDialog";
@@ -100,6 +103,8 @@ const GameMode: React.FC = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const [isKpiDialogOpen, setIsKpiDialogOpen] = React.useState(false);
+  const [isVerifiedPeriodModalOpen, setIsVerifiedPeriodModalOpen] = React.useState(false);
 
   // Extract game and team IDs from URL parameters
   const gameId = searchParams.get("gameId");
@@ -204,6 +209,7 @@ const GameMode: React.FC = () => {
     sortedStatsGridData,
     statsMap,
     matchups,
+    haltAlerts,
     opponentStats,
     halftimeStats,
     playerStreaks,
@@ -490,12 +496,59 @@ const GameMode: React.FC = () => {
       setIsBreakdownDialogOpen,
       gameData.possessionStartClock,
       matchups,
+    haltAlerts,
       game?.activeDefensiveScheme,
       situation,
       opponentPlayType,
       setOpponentPlayType,
     ],
   );
+
+  const handleNextPeriodActual = useCallback(async () => {
+    const nextPeriod = period < 10 ? period + 1 : 1;
+    setPeriod(nextPeriod);
+    const defaultMins = periodType === "QUARTERS" ? 10 : 20;
+    const nextSeconds = defaultMins * 60;
+    setClockSeconds(nextSeconds);
+    setIsClockRunning(false);
+    if (gameId) {
+      try {
+        await db.games.update(gameId, { currentPeriod: nextPeriod, clockTime: nextSeconds, synced: 0 });
+        await syncService.pushUpdates();
+      } catch (err) {
+        logger.error("Failed to update game period:", err);
+      }
+    }
+  }, [gameId, period, periodType, setPeriod, setClockSeconds, setIsClockRunning]);
+
+  const handleVerifyPeriod = useCallback(
+    async (data: { teamScore: number; oppScore: number; teamFouls: number; oppFouls: number }) => {
+      if (!gameId) return;
+      const timestamp = new Date().toISOString();
+      const scoreDiff = data.teamScore - gameData.currentScore;
+      if (scoreDiff !== 0) {
+        await db.stats.add({
+          id: crypto.randomUUID(), gameId, playerId: SPECIAL_PLAYER_IDS.OUR_TEAM,
+          type: ACTION_TYPES.SYSTEM_ADJUSTMENT, points: scoreDiff, period, clockTime: 0, timestamp, synced: 0,
+        });
+      }
+      const oppScoreDiff = data.oppScore - gameData.opponentScore;
+      if (oppScoreDiff !== 0) {
+        await db.stats.add({
+          id: crypto.randomUUID(), gameId, playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.SYSTEM_ADJUSTMENT, points: oppScoreDiff, period, clockTime: 0, timestamp, synced: 0,
+        });
+      }
+      setIsVerifiedPeriodModalOpen(false);
+      await syncService.pushUpdates();
+      handleNextPeriodActual();
+    },
+    [gameId, gameData, period, handleNextPeriodActual],
+  );
+
+  const handleNextPeriod = useCallback(() => {
+    setIsVerifiedPeriodModalOpen(true);
+  }, []);
 
   const handleSwapClick = useCallback(
     (id: string) => {
@@ -662,7 +715,22 @@ const GameMode: React.FC = () => {
     ],
   );
 
-  useEffect(() => {
+
+  const activeKpis: TacticalKPI[] = React.useMemo(() => {
+    if (!game?.tacticalKpis) return [];
+    const kpis: TacticalKPI[] = [];
+    const teamPoss = gameData.teamPoss || 1;
+    game.tacticalKpis.forEach((key) => {
+      if (key === "PAINT_TOUCHES") {
+        kpis.push({ key, label: "Paint Touches", value: gameData.teamPaintTouches, target: 20, goalType: "MIN" });
+      } else if (key === "EFG_PCT") {
+        kpis.push({ key, label: "eFG%", value: `${Math.round(parseFloat(gameData.teamPpp) * 50)}%`, target: 50, goalType: "MIN" });
+      } else if (key === "TO_RATE") {
+        kpis.push({ key, label: "TO Rate", value: `${Math.round(((gameData.currentScore || 0) / teamPoss) * 100)}%`, target: 15, goalType: "MAX" });
+      }
+    });
+    return kpis;
+  }, [game?.tacticalKpis, gameData]);
     if (!gameId || !teamId) {
       navigate("/");
       return;
@@ -685,16 +753,6 @@ const GameMode: React.FC = () => {
         });
       }
     }
-  }, [
-    gameId,
-    teamId,
-    navigate,
-    sparkPlugIndex,
-    playerNamesMap,
-    jerseyMap,
-    isReadOnly,
-    setSnackbar,
-  ]);
 
   const handleToggleClock = useCallback(() => {
     setIsClockRunning((prev) => {
@@ -725,39 +783,11 @@ const GameMode: React.FC = () => {
         }
       }
       setIsClockEditDialogOpen(false);
+      if (mins === 0 && secs === 0) setIsVerifiedPeriodModalOpen(true);
     },
     [gameId, setClockSeconds, setIsClockEditDialogOpen],
   );
 
-  const handleNextPeriod = useCallback(async () => {
-    const nextPeriod = period < 10 ? period + 1 : 1;
-    setPeriod(nextPeriod);
-
-    const defaultMins = periodType === "QUARTERS" ? 10 : 20;
-    const nextSeconds = defaultMins * 60;
-    setClockSeconds(nextSeconds);
-    setIsClockRunning(false);
-
-    if (gameId) {
-      try {
-        await db.games.update(gameId, {
-          currentPeriod: nextPeriod,
-          clockTime: nextSeconds,
-          synced: 0,
-        });
-        await syncService.pushUpdates();
-      } catch (err) {
-        logger.error("Failed to update game period:", err);
-      }
-    }
-  }, [
-    gameId,
-    period,
-    periodType,
-    setPeriod,
-    setClockSeconds,
-    setIsClockRunning,
-  ]);
 
   const handleTimeout = useCallback(async () => {
     if (!gameId || isReadOnly) return;
@@ -872,9 +902,6 @@ const GameMode: React.FC = () => {
     [setStatType],
   );
 
-  if (!gameId || !teamId) {
-    return null;
-  }
 
   return (
     <Box sx={{ pb: 4, opacity: isReadOnly ? 0.7 : 1 }}>
@@ -912,10 +939,15 @@ const GameMode: React.FC = () => {
             </Alert>
           )}
 
+          <TacticalIdentityHUD kpis={activeKpis} />
+          <Box sx={{ textAlign: "center", mt: -1, mb: 2 }}>
+            <Button size="small" onClick={() => setIsKpiDialogOpen(true)} sx={{ fontSize: "0.6rem", opacity: 0.6 }}>Configure KPIs</Button>
+          </Box>
           <Scoreboard
             game={game}
             team={team}
             gameData={gameData}
+            haltAlerts={haltAlerts}
             period={period}
             periodLabel={periodLabel}
             maxPeriod={maxPeriod}
@@ -1082,6 +1114,15 @@ const GameMode: React.FC = () => {
 
         <Grid item xs={12} md={4}>
           <Stack spacing={3}>
+            <TacticalAlertsHUD
+              alerts={haltAlerts}
+              onAction={(alert) => {
+                if (alert.playerId) {
+                  setSubOutPlayerId(alert.playerId);
+                  setIsSubDialogOpen(true);
+                }
+              }}
+            />
             <MoleskineCard>
               <Box
                 sx={{
@@ -2692,6 +2733,45 @@ const GameMode: React.FC = () => {
         </Tooltip>
       )}
 
+      <VerifiedPeriodModal
+        open={isVerifiedPeriodModalOpen}
+        onClose={() => setIsVerifiedPeriodModalOpen(false)}
+        onVerify={handleVerifyPeriod}
+        appData={{
+          teamScore: gameData.currentScore,
+          oppScore: gameData.opponentScore,
+          teamFouls: gameData.teamFoulStats.teamFouls,
+          oppFouls: gameData.teamFoulStats.oppFouls,
+        }}
+        period={period}
+        periodLabel={periodLabel}
+      />
+      <Dialog open={isKpiDialogOpen} onClose={() => setIsKpiDialogOpen(false)} fullWidth maxWidth="xs">
+        <DialogTitle>Tactical Identity (KPIs)</DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ mb: 2 }}>Select up to 3 KPIs to track during the game.</DialogContentText>
+          <Stack spacing={1}>
+            {[
+              { key: "PAINT_TOUCHES", label: "Paint Touches" },
+              { key: "EFG_PCT", label: "eFG%" },
+              { key: "TO_RATE", label: "Turnover Rate" },
+            ].map((kpi) => {
+              const isSelected = game?.tacticalKpis?.includes(kpi.key);
+              return (
+                <Button key={kpi.key} variant={isSelected ? "contained" : "outlined"} onClick={async () => {
+                    const current = game?.tacticalKpis || [];
+                    let next;
+                    if (isSelected) { next = current.filter((k) => k !== kpi.key); }
+                    else { if (current.length >= 3) return; next = [...current, kpi.key]; }
+                    await db.games.update(gameId, { tacticalKpis: next, synced: 0 });
+                    await syncService.pushUpdates();
+                  }} fullWidth>{kpi.label}</Button>
+              );
+            })}
+          </Stack>
+        </DialogContent>
+        <DialogActions><Button onClick={() => setIsKpiDialogOpen(false)}>Done</Button></DialogActions>
+      </Dialog>
       <EditClockDialog
         open={isClockEditDialogOpen}
         onClose={() => setIsClockEditDialogOpen(false)}

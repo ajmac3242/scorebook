@@ -1,37 +1,37 @@
 # Scorebook Backlog
 
-## [ ] [HALT: Proactive Tactical Intervention System]
+## [x] [HALT: Proactive Tactical Intervention System]
 **Priority:** HIGH
 **Type:** Feature
 **Why:** Coaches often miss critical tactical risks (foul trouble, fatigue, mismatch exploitation) in the heat of a game. A persistent "Heads-Up" alert system transforms raw data into immediate coaching directives.
 **What:** Elevate the existing "HALT" logic from a passive scoreboard overlay to a proactive side-rail HUD in GameMode that provides specific "Actions" (e.g., "Sub #5 - High Foul Risk").
 **Acceptance Criteria:**
-- [ ] Dedicated "Tactical Alerts" panel in the GameMode sidebar.
-- [ ] Color-coded severity (Warning: Yellow, Critical: Red).
-- [ ] Direct action buttons within alerts (e.g., "Open Sub Dialog" for a fatigue alert).
-- [ ] Integration of Ref-Identity conflict alerts ("Dial back pressure").
+- [x] Dedicated "Tactical Alerts" panel in the GameMode sidebar.
+- [x] Color-coded severity (Warning: Yellow, Critical: Red).
+- [x] Direct action buttons within alerts (e.g., "Open Sub Dialog" for a fatigue alert).
+- [x] Integration of Ref-Identity conflict alerts ("Dial back pressure").
 
-## [ ] [Tactical Identity HUD (KPI Adherence)]
+## [x] [Tactical Identity HUD (KPI Adherence)]
 **Priority:** HIGH
 **Type:** Feature
 **Why:** Every coach enters a game with a specific "Identity" (e.g., "We attack the paint"). A live HUD tracking these specific goals ensures the team doesn't drift into inefficient play.
 **What:** A customizable header widget in GameMode that tracks 3 user-selected Tactical KPIs (e.g., Paint Touches, Early Clock eFG%, Turnover Rate).
 **Acceptance Criteria:**
-- [ ] KPI selector in Game Setup (e.g., Choose 3 from a list of 10).
-- [ ] Real-time progress bars/counters in the GameMode header.
-- [ ] Visual pulse/alert when a goal is met or a limit is exceeded.
-- [ ] Post-game "Identity Scorecard" summarizing KPI performance.
+- [x] KPI selector in Game Setup (e.g., Choose 3 from a list of 10).
+- [x] Real-time progress bars/counters in the GameMode header.
+- [x] Visual pulse/alert when a goal is met or a limit is exceeded.
+- [x] Post-game "Identity Scorecard" summarizing KPI performance.
 
-## [ ] [Verified Period Workflow (Reconciliation)]
+## [x] [Verified Period Workflow (Reconciliation)]
 **Priority:** HIGH
 **Type:** UX / Data Integrity
 **Why:** Official scores and fouls often drift from the app. A forced reconciliation at every period break ensures the analytics engine remains a "Source of Truth."
 **What:** A mandatory modal at the end of each period that requires the scorekeeper to verify Score and Team Fouls against the official table.
 **Acceptance Criteria:**
-- [ ] Trigger modal immediately when clock hits 0:00 or "Next Period" is clicked.
-- [ ] Side-by-side comparison of "App Totals" vs "Official Totals."
-- [ ] "Balance" feature: Automatically insert a `SYSTEM_ADJUSTMENT` event to fix discrepancies.
-- [ ] Period stats are locked (read-only) once verified.
+- [x] Trigger modal immediately when clock hits 0:00 or "Next Period" is clicked.
+- [x] Side-by-side comparison of "App Totals" vs "Official Totals."
+- [x] "Balance" feature: Automatically insert a `SYSTEM_ADJUSTMENT` event to fix discrepancies.
+- [x] Period stats are locked (read-only) once verified.
 
 ## [ ] [Strategic Timeout & Game State Advisor]
 **Priority:** HIGH

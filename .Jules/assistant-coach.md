@@ -29,3 +29,9 @@
 - **Basketball Workflow Insight**: Tactical filtering in shot charts (e.g., by breakdown reason) helps coaches bridge the gap between "result" and "process" visually. Seeing a cluster of misses caused by "Poor Closeouts" on the perimeter provides immediate film-review focus points.
 - **Implementation Pattern**: "Execution Delta" (Situational PPP - Team Average PPP) is a powerful relative metric. It tells a coach not just if a set play worked, but if it was *better* than their standard offense, justifying the timeout used to call it.
 - **Basketball Edge Case**: "Success Rate" in specialty situations must include shooting fouls. A play that results in a trip to the FT line is a successful execution of the set, even if no field goal was attempted. Our situational engine now captures `FOUL_SHOOTING` as a success metric.
+
+## Journal - Session 5
+- **Basketball Workflow Insight**: Tactical Identity (KPIs) provides a "North Star" for coaches during chaotic game stretches. By surfacing Paint Touches and 3PM directly in the header, we transition from "counting stats" to "monitoring identity adherence."
+- **Implementation Pattern**: The `SYSTEM_ADJUSTMENT` action type is essential for data integrity. It allows for "lossless" score reconciliation at period breaks, preserving the audit trail of what happened on the floor while ensuring the dashboard totals match the official table.
+- **Basketball Edge Case**: Period verification must happen *before* advancing the period. Locking stats at the buzzer prevents retro-active "score manipulation" and forces the discipline of checking with the table when the data is freshest.
+- **Proactive HALT**: Moving HALT alerts from a passive overlay to a sidebar with direct action buttons (like opening the Sub dialog) reduces the "Taps to Action" (TTA) metric, which is critical for high-speed scorekeeping.
