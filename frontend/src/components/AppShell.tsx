@@ -4,8 +4,8 @@
  * Provides CSS-grid layout with a side drawer slot (tablet+) and bottom slot (mobile).
  * No nav content, icons, or route links are defined here (see DESIGN-003-B/C).
  */
-import React from 'react';
-import { Box, useMediaQuery, useTheme } from '@mui/material';
+import React from "react";
+import { Box, useMediaQuery, useTheme } from "@mui/material";
 
 interface AppShellProps {
   /** Rendered inside the main content area */
@@ -34,17 +34,17 @@ const AppShell: React.FC<AppShellProps> = ({
   bottomNavSlot,
 }) => {
   const theme = useTheme();
-  const isTablet = useMediaQuery(theme.breakpoints.up('md')); // md = 768px in MUI default
+  const isTablet = useMediaQuery(theme.breakpoints.up("md")); // md = 768px in MUI default
 
   return (
     <Box
       sx={{
-        display: 'flex',
-        flexDirection: 'row',
-        height: '100dvh',
-        width: '100%',
-        overflow: 'hidden',
-        bgcolor: 'background.default',
+        display: "flex",
+        flexDirection: "row",
+        height: "100dvh",
+        width: "100%",
+        overflow: "hidden",
+        bgcolor: "background.default",
       }}
     >
       {/* Side drawer slot — 240px wide, tablet+ only */}
@@ -54,8 +54,8 @@ const AppShell: React.FC<AppShellProps> = ({
           sx={{
             width: 240,
             flexShrink: 0,
-            height: '100%',
-            overflow: 'hidden',
+            height: "100%",
+            overflow: "hidden",
           }}
         >
           {drawerSlot}
@@ -66,9 +66,9 @@ const AppShell: React.FC<AppShellProps> = ({
       <Box
         sx={{
           flex: 1,
-          display: 'flex',
-          flexDirection: 'column',
-          overflow: 'hidden',
+          display: "flex",
+          flexDirection: "column",
+          overflow: "hidden",
           minWidth: 0,
         }}
       >
@@ -80,9 +80,9 @@ const AppShell: React.FC<AppShellProps> = ({
           component="main"
           sx={{
             flex: 1,
-            overflowY: 'auto',
-            overflowX: 'hidden',
-            WebkitOverflowScrolling: 'touch',
+            overflowY: "auto",
+            overflowX: "hidden",
+            WebkitOverflowScrolling: "touch",
           }}
         >
           {children}
