@@ -48,9 +48,9 @@ describe("Settings Component", () => {
   it("renders Settings page and displays system status", async () => {
     renderComponent();
 
-        expect(screen.getByText("Appearance")).toBeInTheDocument();
-        expect(screen.getByText("THEME")).toBeInTheDocument();
-        expect(screen.getByText("Default")).toBeInTheDocument();
+    expect(screen.getByText("Appearance")).toBeInTheDocument();
+    expect(screen.getByText("THEME")).toBeInTheDocument();
+    expect(screen.getByText("Default")).toBeInTheDocument();
   });
 
   it("handles logout without unsynced changes", async () => {
