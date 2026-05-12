@@ -21,7 +21,6 @@ import {
   calculateSparkPlugIndex,
   calculateShotROI,
   calculatePaintTouchStats,
-  processPossessionEvent,
   type PlayerAggregates,
   OpponentThreat,
 } from "../utils/stats";
@@ -111,7 +110,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     setPeriod,
     handleToggleClock,
     handleEditClock,
-    handleNextPeriod,
+    handleNextPeriod: originalHandleNextPeriod,
   } = useGameClock(
     gameId,
     team?.defaultPeriodLength,
@@ -228,8 +227,9 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     onCommand: handleVoiceCommand,
     enabled: voiceEnabled,
   });
-  const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
-  const [statType, setStatType] = useState<string | null>(null);
+  const [isVerificationOpen, setIsVerificationOpen] = useState(false);
+  const [lastVerifiedPeriod, setLastVerifiedPeriod] = useState(0);
+
   const [points, setPoints] = useState<number>(2);
   const [playName, setPlayName] = useState<string>("");
   const [shotQuality, setShotQuality] = useState<string | null>(null);
@@ -315,17 +315,10 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     let foundLastTeamScore = false;
 
     const threats = new Map<string, OpponentThreat>();
-    let possessionInfo = {
-      possessionStartClock: periodLen,
-      currentProcessingPeriod: 1,
-      possessionState: null as string | null,
-    };
+    let possessionStartClock = periodLen;
 
     for (const s of sortedGameStats) {
       if (s.deletedAt) continue;
-
-      possessionInfo = processPossessionEvent(s, possessionInfo, periodLen);
-
       const isOpp =
         s.playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
         s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":");
@@ -390,6 +383,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
 
       if (s.type === ACTION_TYPES.POSSESSION) {
         posState = s.playerId;
+        possessionStartClock = s.clockTime ?? periodLen;
       }
 
       if (isOpp) {
@@ -403,7 +397,9 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
         } else if (s.type === ACTION_TYPES.OFF_REBOUND) oppOreb++;
         if (s.type === ACTION_TYPES.TURNOVER) {
           oppTo++;
+          possessionStartClock = s.clockTime ?? periodLen;
         } else if (s.type === ACTION_TYPES.MAKE && s.points && s.points > 1) {
+          possessionStartClock = s.clockTime ?? periodLen;
           let t = threats.get(s.playerId);
           if (!t) {
             t = {
@@ -427,8 +423,12 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
           else teamFga++;
         } else if (s.type === ACTION_TYPES.OFF_REBOUND) {
           teamOreb++;
+          possessionStartClock = s.clockTime ?? periodLen;
         } else if (s.type === ACTION_TYPES.TURNOVER) {
           teamTo++;
+          possessionStartClock = s.clockTime ?? periodLen;
+        } else if (s.type === ACTION_TYPES.MAKE && s.points && s.points > 1) {
+          possessionStartClock = s.clockTime ?? periodLen;
         }
       }
 
@@ -468,7 +468,17 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       if (!stintStarts.has(pId)) stintStarts.set(pId, periodLen);
     });
 
-    const defensiveStats = calculateStopsAndKills(sortedGameStats);
+    const rawDefensiveStats = calculateStopsAndKills(sortedGameStats);
+    const teamPoss = calculatePossessions(teamFga, teamFta, teamTo, teamOreb);
+    const oppPoss = calculatePossessions(oppFga, oppFta, oppTo, oppOreb);
+
+    const defensiveStats = {
+      ...rawDefensiveStats,
+      stopPct:
+        oppPoss > 0
+          ? Math.round((rawDefensiveStats.totalStops / oppPoss) * 100)
+          : 0,
+    };
 
     let opponentRunValue = null;
     let tempOppRunPoints = 0;
@@ -511,9 +521,6 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     const MAX_TIMEOUTS = team?.fouls || 3;
     const teamBonus = getBonusStatus(teamFouls, pType);
     const oppBonus = getBonusStatus(oppFouls, pType);
-    const teamPoss = calculatePossessions(teamFga, teamFta, teamTo, teamOreb);
-    const oppPoss = calculatePossessions(oppFga, oppFta, oppTo, oppOreb);
-
     const elapsedMinutes = calculateElapsedMinutes(
       period,
       clockSeconds,
@@ -569,7 +576,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       lastTeamScoreClockTime,
       lastTeamScorePeriod,
       foundLastTeamScore,
-      possessionStartClock: possessionInfo.possessionStartClock,
+      possessionStartClock,
       recentStats: sortedGameStats
         .filter((s) => !s.deletedAt)
         .slice(-10)
@@ -637,6 +644,99 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     };
   }, [eventAggregates, clockSeconds, period, game?.periodLength]);
 
+  const handleNextPeriod = useCallback(async () => {
+    if (lastVerifiedPeriod < period) {
+      setIsVerificationOpen(true);
+      return;
+    }
+    originalHandleNextPeriod(team?.periodType || "QUARTERS");
+  }, [period, lastVerifiedPeriod, originalHandleNextPeriod, team?.periodType]);
+
+  const handleVerifyPeriod = useCallback(
+    async (adjustments: {
+      teamScore: number;
+      oppScore: number;
+      teamFouls: number;
+      oppFouls: number;
+    }) => {
+      if (!gameId) return;
+
+      const teamScoreDiff =
+        adjustments.teamScore - eventAggregates.currentScore;
+      const oppScoreDiff = adjustments.oppScore - eventAggregates.opponentScore;
+      const teamFoulDiff =
+        adjustments.teamFouls - eventAggregates.teamFoulStats.teamFouls;
+      const oppFoulDiff =
+        adjustments.oppFouls - eventAggregates.teamFoulStats.oppFouls;
+
+      const timestamp = new Date().toISOString();
+
+      if (teamScoreDiff !== 0) {
+        await db.stats.add({
+          gameId,
+          playerId: SPECIAL_PLAYER_IDS.OUR_TEAM,
+          type: ACTION_TYPES.SYSTEM_ADJUSTMENT,
+          points: teamScoreDiff,
+          period,
+          clockTime: 0,
+          timestamp,
+          synced: 0,
+        });
+      }
+      if (oppScoreDiff !== 0) {
+        await db.stats.add({
+          gameId,
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.SYSTEM_ADJUSTMENT,
+          points: oppScoreDiff,
+          period,
+          clockTime: 0,
+          timestamp,
+          synced: 0,
+        });
+      }
+      // Simplified foul adjustment for now (doesn't attribute to specific players)
+      if (teamFoulDiff !== 0) {
+        for (let i = 0; i < Math.abs(teamFoulDiff); i++) {
+          await db.stats.add({
+            gameId,
+            playerId: SPECIAL_PLAYER_IDS.OUR_TEAM,
+            type: teamFoulDiff > 0 ? ACTION_TYPES.FOUL : "ADJUST_FOUL_REMOVE",
+            period,
+            clockTime: 0,
+            timestamp,
+            synced: 0,
+          });
+        }
+      }
+      if (oppFoulDiff !== 0) {
+        for (let i = 0; i < Math.abs(oppFoulDiff); i++) {
+          await db.stats.add({
+            gameId,
+            playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+            type: oppFoulDiff > 0 ? ACTION_TYPES.FOUL : "ADJUST_FOUL_REMOVE",
+            period,
+            clockTime: 0,
+            timestamp,
+            synced: 0,
+          });
+        }
+      }
+
+      setLastVerifiedPeriod(period);
+      setIsVerificationOpen(false);
+      originalHandleNextPeriod(team?.periodType || "QUARTERS");
+    },
+    [
+      gameId,
+      period,
+      eventAggregates,
+      originalHandleNextPeriod,
+      team?.periodType,
+    ],
+  );
+  const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
+  const [statType, setStatType] = useState<string | null>(null);
   const playerNamesMap = useMemo(() => {
     const map = new Map<string, string>();
     for (const p of players) {
@@ -928,6 +1028,10 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     setIsFtWorkflowOpen,
     isHalftimeReportOpen,
     setIsHalftimeReportOpen,
+    isVerificationOpen,
+    setIsVerificationOpen,
+    lastVerifiedPeriod,
+    handleVerifyPeriod,
     lastViewedHalftimePeriod,
     setLastViewedHalftimePeriod,
     isDeleting,

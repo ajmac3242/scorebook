@@ -10,71 +10,11 @@
 
 | Entity | PK | SK | Attributes |
 | --- | --- | --- | --- |
-| **Team** | `TEAM#<TeamId>` | `METADATA#<TeamId>` | name, seasonId, primaryColor, fouls, deletedAt? |
-| **Player** | `PLAYER#<PlayerId>` | `METADATA#<PlayerId>` | name, defaultNumber, isStar (0/1), isArchived (0/1), deletedAt? |
-| **TeamPlayer** | `TEAM#<TeamId>` | `PLAYER#<PlayerId>` | id (assoc-uuid), teamId, playerId, jerseyNumber (1-3 digits), deletedAt? |
-| **Game** | `GAME#<GameId>` | `METADATA#<GameId>` | teamId, opponent, date, location, completed (0/1), periodLength, foulLimit, deletedAt? |
-| **StatEvent** | `GAME#<GameId>` | `STAT#<Timestamp>#<StatId>` | id, playerId, type, points, locationX, locationY, timestamp, situation?, shotClockPhase?, primaryDefenderId?, defensiveScheme?, opponentPlayType?, breakdownReason? |
-
-### Entity Examples (JSON)
-
-#### Team
-```json
-{
-  "PK": "TEAM#550e8400-e29b-41d4-a716-446655440000",
-  "SK": "METADATA#550e8400-e29b-41d4-a716-446655440000",
-  "id": "550e8400-e29b-41d4-a716-446655440000",
-  "name": "City Varsity",
-  "primaryColor": "#023246",
-  "fouls": 5
-}
-```
-
-#### Player
-```json
-{
-  "PK": "PLAYER#7c9e6679-7425-40de-944b-e07fc1f90ae7",
-  "SK": "METADATA#7c9e6679-7425-40de-944b-e07fc1f90ae7",
-  "id": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
-  "name": "Stephen Curry",
-  "isStar": 1,
-  "isArchived": 0
-}
-```
-
-#### Game
-```json
-{
-  "PK": "GAME#f47ac10b-58cc-4372-a567-0e02b2c3d479",
-  "SK": "METADATA#f47ac10b-58cc-4372-a567-0e02b2c3d479",
-  "id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-  "teamId": "550e8400-e29b-41d4-a716-446655440000",
-  "opponent": "Lakers",
-  "location": "Home",
-  "date": "2024-11-15",
-  "completed": 1,
-  "periodLength": 8,
-  "foulLimit": 5
-}
-```
-
-#### StatEvent
-```json
-{
-  "PK": "GAME#f47ac10b-58cc-4372-a567-0e02b2c3d479",
-  "SK": "STAT#2024-11-15T19:05:00.000Z#a3f12b",
-  "id": "a3f12b",
-  "playerId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
-  "type": "MAKE",
-  "points": 3,
-  "period": 1,
-  "clockTime": 420.5,
-  "locationX": 85.0,
-  "locationY": 25.0,
-  "situation": "ATO",
-  "shotClockPhase": "MID"
-}
-```
+| **Team** | `TEAM#<TeamId>` | `METADATA#<TeamId>` | Name, SeasonId, deletedAt? |
+| **Player** | `PLAYER#<PlayerId>` | `METADATA#<PlayerId>` | Name, DefaultNumber, isStar (0/1), isArchived (0/1), deletedAt? |
+| **TeamPlayer** | `TEAM#<TeamId>` | `PLAYER#<PlayerId>` | JerseyNumber (1-3 digits), deletedAt? |
+| **Game** | `GAME#<GameId>` | `METADATA#<GameId>` | TeamId, Opponent, Date, Location, completed (0/1), deletedAt? |
+| **StatEvent** | `GAME#<GameId>` | `STAT#<Timestamp>#<StatId>` | PlayerId, Type, Points, LocationX, LocationY, timestamp, situation?, shotClockPhase?, primaryDefenderId?, defensiveScheme?, opponentPlayType?, breakdownReason? |
 
 ### Global Secondary Indexes (GSI)
 
@@ -98,18 +38,7 @@ All write endpoints (`POST`, `PUT`, `PATCH`) require `Content-Type: application/
 
 #### `GET /teams`
 - **Description**: List all active teams.
-- **Response**: `200 OK`
-- **Response Shape**:
-```json
-[
-  {
-    "id": "team-uuid",
-    "name": "Warriors",
-    "primaryColor": "#1D428A",
-    "fouls": 5
-  }
-]
-```
+- **Response**: `200 OK` with an array of Team objects.
 
 #### `POST /teams`
 - **Description**: Create a team.
@@ -186,18 +115,7 @@ All write endpoints (`POST`, `PUT`, `PATCH`) require `Content-Type: application/
 #### `GET /games?teamId={id}`
 - **Description**: List games for a specific team.
 - **Query Params**: `teamId` (Required UUID)
-- **Response Shape**:
-```json
-[
-  {
-    "id": "game-uuid",
-    "teamId": "team-uuid",
-    "opponent": "Lakers",
-    "date": "2024-11-15",
-    "completed": 1
-  }
-]
-```
+- **Response**: `200 OK` with an array of Game objects.
 
 #### `POST /games`
 - **Description**: Create a new game.
@@ -232,18 +150,7 @@ All write endpoints (`POST`, `PUT`, `PATCH`) require `Content-Type: application/
 
 #### `GET /games/{id}/stats`
 - **Description**: List all stats for a game.
-- **Response Shape**:
-```json
-[
-  {
-    "id": "stat-uuid",
-    "playerId": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
-    "type": "MAKE",
-    "points": 3,
-    "timestamp": "2024-11-15T19:05:00.000Z"
-  }
-]
-```
+- **Response**: `200 OK` with an array of StatEvent objects.
 
 #### `POST /games/{id}/stats`
 - **Description**: Record a stat event.
