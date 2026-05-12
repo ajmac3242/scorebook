@@ -21,6 +21,7 @@ import {
   calculateSparkPlugIndex,
   calculateShotROI,
   calculatePaintTouchStats,
+  processPossessionEvent,
   type PlayerAggregates,
   OpponentThreat,
 } from "../utils/stats";
@@ -397,10 +398,17 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     let foundLastTeamScore = false;
 
     const threats = new Map<string, OpponentThreat>();
-    let possessionStartClock = periodLen;
+    let possessionInfo = {
+      possessionStartClock: periodLen,
+      currentProcessingPeriod: 1,
+      possessionState: null as string | null,
+    };
 
     for (const s of sortedGameStats) {
       if (s.deletedAt) continue;
+
+      possessionInfo = processPossessionEvent(s, possessionInfo, periodLen);
+
       const isOpp =
         s.playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
         s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":");
@@ -465,7 +473,6 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
 
       if (s.type === ACTION_TYPES.POSSESSION) {
         posState = s.playerId;
-        possessionStartClock = s.clockTime ?? periodLen;
       }
 
       if (isOpp) {
@@ -479,9 +486,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
         } else if (s.type === ACTION_TYPES.OFF_REBOUND) oppOreb++;
         if (s.type === ACTION_TYPES.TURNOVER) {
           oppTo++;
-          possessionStartClock = s.clockTime ?? periodLen;
         } else if (s.type === ACTION_TYPES.MAKE && s.points && s.points > 1) {
-          possessionStartClock = s.clockTime ?? periodLen;
           let t = threats.get(s.playerId);
           if (!t) {
             t = {
@@ -505,12 +510,8 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
           else teamFga++;
         } else if (s.type === ACTION_TYPES.OFF_REBOUND) {
           teamOreb++;
-          possessionStartClock = s.clockTime ?? periodLen;
         } else if (s.type === ACTION_TYPES.TURNOVER) {
           teamTo++;
-          possessionStartClock = s.clockTime ?? periodLen;
-        } else if (s.type === ACTION_TYPES.MAKE && s.points && s.points > 1) {
-          possessionStartClock = s.clockTime ?? periodLen;
         }
       }
 
@@ -651,7 +652,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       lastTeamScoreClockTime,
       lastTeamScorePeriod,
       foundLastTeamScore,
-      possessionStartClock,
+      possessionStartClock: possessionInfo.possessionStartClock,
       recentStats: sortedGameStats
         .filter((s) => !s.deletedAt)
         .slice(-10)

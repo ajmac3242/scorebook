@@ -28,6 +28,14 @@ import {
   Tooltip,
   Snackbar,
   Divider,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TableSortLabel,
+  useMediaQuery,
 } from "@mui/material";
 
 import {
@@ -49,16 +57,6 @@ import {
   ArrowBack,
   HelpOutline,
 } from "@mui/icons-material";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TableSortLabel,
-  useMediaQuery,
-} from "@mui/material";
 import BasketballCourt from "../components/BasketballCourt";
 import RecentActionItem from "../components/RecentActionItem";
 import { MatchupMatrix } from "../components/MatchupMatrix";
@@ -240,6 +238,7 @@ const GameMode: React.FC = () => {
           message: "Action undone",
           severity: "success",
         });
+        setChainPrompt(null);
       } catch (err) {
         logger.error("Failed to undo stat:", err);
         setSnackbar({
@@ -249,7 +248,7 @@ const GameMode: React.FC = () => {
         });
       }
     }
-  }, [gameData.recentStats, setSnackbar]);
+  }, [gameData.recentStats, setSnackbar, setChainPrompt]);
 
   // 🧠 Clarity: Keyboard shortcut for Undo (Ctrl+Z or Cmd+Z)
   useEffect(() => {

@@ -13,7 +13,8 @@ import {
   Container,
   Box,
 } from "@mui/material";
-import theme from "./theme";
+import { buildCourtSightTheme } from "./theme/buildTheme";
+import { electricOrangeTokens } from "./theme/tokens";
 import GameMode from "./pages/GameMode";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
@@ -217,6 +218,11 @@ const AppContent: React.FC = () => {
  * @returns {React.ReactElement}
  */
 const App: React.FC = () => {
+  const theme = React.useMemo(
+    () => buildCourtSightTheme(electricOrangeTokens),
+    [],
+  );
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />

@@ -31,7 +31,7 @@ Scorebook is built on the principle of **Causal Accountability**. Standard box s
 - **On/Off Impact Analytics**: Measure a player's true value using high-fidelity Net Rating. See how the team's offensive and defensive efficiency fluctuates when specific players or 5-man units are on the floor versus on the bench.
 - **Shot Clock Process Analysis**: Evaluate offensive discipline by categorizing shots into **Early** (first 10s), **Mid**, or **Late** (final 5s) clock phases. This helps coaches identify if the team is settling for "rush" shots or successfully executing deep into the set.
 - **Defensive Breakdown Attribution**: When an opponent scores, Scorebook prompts for a "Breakdown Reason" (e.g., *Missed Rotation*, *Transition Leak*, *Poor Closeout*). This creates a direct feedback loop between game events and practice focus.
-- **Special Situation Engine (ATO/SLOB/BLOB)**: Track efficiency (PPP and eFG%) specifically for possessions following timeouts or out-of-bounds plays to measure the effectiveness of your set-play execution.
+- **Special Situation Engine (ATO/SLOB/BLOB)**: Track efficiency (**Execution Delta** and **Success %**) specifically for possessions following timeouts or out-of-bounds plays to measure the effectiveness of your set-play execution. See [ANALYTICS.md](./docs/ANALYTICS.md) for details.
 
 ### Modular Backend
 The backend has transitioned from a monolithic handler to a domain-specific modular architecture. The core router in `index.ts` delegates requests to specialized handlers in `backend/src/handlers/` (Players, Teams, Games, Cleanup), improving maintainability and reducing the cold-start footprint.
@@ -106,8 +106,8 @@ To maintain high velocity while ensuring reliability:
 - **Momentum & Run Alerts**: Automated detection of opponent scoring runs and scoring droughts.
 
 ### Deep Analytics
-- **Holistic Matchup Matrix**: 5x5 tactical HUD mapping unit-on-unit efficiency with one-tap reassignments.
-- **Spark Plug Momentum Index**: Correlates "Blue Collar" hustle (dives, charges) with subsequent team scoring runs.
+- **Holistic Matchup Matrix**: 5x5 tactical HUD mapping unit-on-unit efficiency (Stop %) with one-tap reassignments.
+- **Spark Plug Momentum Index**: Correlates "Blue Collar" hustle (dives, charges) with subsequent team scoring runs. See [ANALYTICS.md](./docs/ANALYTICS.md).
 - **Paint Touches & Rim Pressure**: Measures offensive aggression via paint entries and Points Per Paint Touch (PPPT).
 - **Shot Clock Process Analysis**: Categorizes shots by clock phase (Early/Mid/Late) to evaluate offensive discipline.
 - **Substitution Timeline Audit**: Chronological editor to retroactively correct lineup errors for 100% accurate Net Rating.
