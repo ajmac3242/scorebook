@@ -109,3 +109,11 @@ Observation: The platform has achieved "Scorebook Maturity," with sophisticated 
 Impact: Without high-visibility, actionable UI for these alerts, the coach's cognitive load remains high as they must manually hunt for the "why" behind a tactical failure. "Silent Logic" leads to missed opportunities for mid-game course correction.
 
 Recommendation: Pivot toward **Operational Intelligence**. The next cycle must focus on surfacing the "Silent Logic" through a dedicated Tactical HALT Sidebar and an Identity HUD. We must also close the data integrity loop with a Verified Period Workflow to ensure the "Source of Truth" never drifts from the official table. This transition moves the platform from analyzing history to mastering the live-game process.
+
+## 2026-05-29 - Strategic Evolution: Psychological Momentum & Personnel Optimization
+
+Observation: We have perfected the "Physical" tracking (shots, rebounds) and the "Mathematical" tracking (PPP, eFG%). However, basketball games are won in the "Psychological" and "Personnel" margins. We are missing the "Momentum Streaks" (Kills) that coaches use to fuel runs, and our personnel suggestions are still based on raw totals rather than archetype-specific matchups or relative On/Off impact.
+
+Impact: Coaches are still manually tracking "Kills" on paper or in their heads, diverting focus from the court. Roster decisions in "Winning Time" are often based on season-wide reputation rather than live-game clutch data. The lack of On/Off analytics prevents identifying "Silent Contributors" who have a low box-score profile but high unit-level impact.
+
+Recommendation: Transition toward **Personnel Optimization** and **Momentum Management**. We must surface "Defensive Kills" as a primary live metric to drive team energy. We must also deliver "On/Off Net Rating" live to ensure coaches know the true cost of resting a high-impact player. Finally, the "Process vs Result" scorecard is essential to keep the team focused on execution quality even when shots aren't falling.
