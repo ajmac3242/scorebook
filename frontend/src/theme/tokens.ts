@@ -44,6 +44,8 @@ export interface ThemeTokens {
   error: string;
   /** Neutral informational — secondary comparative data, info chips */
   info: string;
+  /** Theme mode override — 'light' or 'dark' */
+  mode?: "light" | "dark";
 }
 
 /**
@@ -54,20 +56,20 @@ export interface ThemeTokens {
  * live badges, and urgent stat alerts. Never use orange on every chart series.
  */
 export const electricOrangeTokens: ThemeTokens = {
-  primary: '#FF6B1A',
-  primaryDark: '#D9550D',
-  primaryContainer: '#3A2418',
-  onPrimary: '#1A0F09',
-  onPrimaryContainer: '#FFD9C7',
-  background: '#0F1115',
-  surface: '#151922',
-  surfaceVariant: '#1C2230',
-  elevatedCard: '#222A3A',
-  outline: '#384256',
-  textPrimary: '#F3F6FA',
-  textSecondary: '#AAB4C5',
-  success: '#35C759',
-  warning: '#FFB020',
-  error: '#FF5D73',
-  info: '#5AA9FF',
+  primary: "#FF6B1A",
+  primaryDark: "#D9550D",
+  primaryContainer: "#3A2418",
+  onPrimary: "#1A0F09",
+  onPrimaryContainer: "#FFD9C7",
+  background: "#0F1115",
+  surface: "#151922",
+  surfaceVariant: "#1C2230",
+  elevatedCard: "#222A3A",
+  outline: "#384256",
+  textPrimary: "#F3F6FA",
+  textSecondary: "#AAB4C5",
+  success: "#35C759",
+  warning: "#FFB020",
+  error: "#FF5D73",
+  info: "#5AA9FF",
 };
