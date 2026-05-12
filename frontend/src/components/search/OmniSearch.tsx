@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from "react";
 import {
   Box,
   Dialog,
@@ -12,11 +12,17 @@ import {
   useMediaQuery,
   useTheme,
   Divider,
-} from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
-import CloseIcon from '@mui/icons-material/Close';
+} from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
+import CloseIcon from "@mui/icons-material/Close";
 
-const SECTION_HEADERS = ['Players', 'Games', 'Teams', 'Reports', 'Actions'] as const;
+const SECTION_HEADERS = [
+  "Players",
+  "Games",
+  "Teams",
+  "Reports",
+  "Actions",
+] as const;
 
 export interface OmniSearchProps {
   open: boolean;
@@ -24,46 +30,46 @@ export interface OmniSearchProps {
 }
 
 const OmniSearch: React.FC<OmniSearchProps> = ({ open, onClose }) => {
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   // Focus input when opened
   useEffect(() => {
     if (open) {
       setTimeout(() => inputRef.current?.focus(), 50);
     } else {
-      setQuery('');
+      setQuery("");
     }
   }, [open]);
 
   const searchInput = (
     <Box
       sx={{
-        display: 'flex',
-        alignItems: 'center',
+        display: "flex",
+        alignItems: "center",
         gap: 1,
         px: 2,
         py: 1.5,
-        borderBottom: '1px solid',
-        borderColor: 'divider',
+        borderBottom: "1px solid",
+        borderColor: "divider",
       }}
     >
-      <SearchIcon sx={{ color: 'text.secondary', flexShrink: 0 }} />
+      <SearchIcon sx={{ color: "text.secondary", flexShrink: 0 }} />
       <InputBase
         inputRef={inputRef}
         fullWidth
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Search players, games, teams, stats, or actions…"
-        onKeyDown={(e) => e.key === 'Escape' && onClose()}
-        sx={{ fontSize: '1rem' }}
+        onKeyDown={(e) => e.key === "Escape" && onClose()}
+        sx={{ fontSize: "1rem" }}
       />
       {query && (
         <CloseIcon
-          sx={{ color: 'text.secondary', cursor: 'pointer', flexShrink: 0 }}
-          onClick={() => setQuery('')}
+          sx={{ color: "text.secondary", cursor: "pointer", flexShrink: 0 }}
+          onClick={() => setQuery("")}
         />
       )}
     </Box>
@@ -75,13 +81,13 @@ const OmniSearch: React.FC<OmniSearchProps> = ({ open, onClose }) => {
         <React.Fragment key={section}>
           <ListSubheader
             sx={{
-              bgcolor: 'background.paper',
-              lineHeight: '32px',
-              fontSize: '0.7rem',
+              bgcolor: "background.paper",
+              lineHeight: "32px",
+              fontSize: "0.7rem",
               fontWeight: 700,
-              letterSpacing: '0.1em',
-              color: 'text.disabled',
-              textTransform: 'uppercase',
+              letterSpacing: "0.1em",
+              color: "text.disabled",
+              textTransform: "uppercase",
             }}
           >
             {section}
@@ -108,7 +114,7 @@ const OmniSearch: React.FC<OmniSearchProps> = ({ open, onClose }) => {
         fullScreen
         open={open}
         onClose={onClose}
-        PaperProps={{ sx: { bgcolor: 'background.paper' } }}
+        PaperProps={{ sx: { bgcolor: "background.paper" } }}
       >
         {searchInput}
         {emptyDropdown}
@@ -121,17 +127,17 @@ const OmniSearch: React.FC<OmniSearchProps> = ({ open, onClose }) => {
   return (
     <Box
       sx={{
-        position: 'fixed',
+        position: "fixed",
         top: 64,
-        left: '50%',
-        transform: 'translateX(-50%)',
-        width: '100%',
+        left: "50%",
+        transform: "translateX(-50%)",
+        width: "100%",
         maxWidth: 640,
         zIndex: (t) => t.zIndex.appBar + 1,
         px: 2,
       }}
     >
-      <Paper elevation={8} sx={{ borderRadius: 2, overflow: 'hidden' }}>
+      <Paper elevation={8} sx={{ borderRadius: 2, overflow: "hidden" }}>
         {searchInput}
         {emptyDropdown}
       </Paper>
