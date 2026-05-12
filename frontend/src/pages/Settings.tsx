@@ -394,7 +394,7 @@ const SystemSection: React.FC<SystemSectionProps> = ({
 const AppearanceSection: React.FC<{
   presetId: string;
   availablePresets: ThemePreset[];
-  onSelectPreset: (id: string) => void;
+  onSelectPreset: (_id: string) => void;
 }> = ({ presetId, availablePresets, onSelectPreset }) => (
   <Box>
     <SectionHeader
