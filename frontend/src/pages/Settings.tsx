@@ -196,9 +196,9 @@ const NAV_ITEMS: NavItem[] = [
   },
   {
     id: "appearance",
-    label: "Appearance",
+    label: "Theme",
     icon: <PaletteIcon fontSize="small" />,
-    description: "Themes",
+    description: "Appearance",
   },
 ];
 
