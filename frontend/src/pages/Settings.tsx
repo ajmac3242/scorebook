@@ -1,70 +1,475 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
-  Alert,
-  Avatar,
   Box,
+  Typography,
   Button,
+  Divider,
+  Stack,
+  Paper,
+  Chip,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Snackbar,
+  Alert,
   Card,
   CardActionArea,
   CardContent,
-  Chip,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  Divider,
   Grid,
-  Paper,
-  Snackbar,
-  Stack,
   Tooltip,
-  Typography,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
 } from "@mui/material";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import LogoutIcon from "@mui/icons-material/Logout";
-import PaletteIcon from "@mui/icons-material/Palette";
-import StorageIcon from "@mui/icons-material/Storage";
-import SyncIcon from "@mui/icons-material/Sync";
-import WifiIcon from "@mui/icons-material/Wifi";
-import WifiOffIcon from "@mui/icons-material/WifiOff";
-import { alpha, useTheme } from "@mui/material/styles";
-
-import { useAppTheme } from "../theme/ThemeContext";
-
-// Adjust these imports to match your app if the paths differ.
+import {
+  Logout as LogoutIcon,
+  Wifi as OnlineIcon,
+  WifiOff as OfflineIcon,
+  Refresh as SyncingIcon,
+  Settings as SettingsIcon,
+  Warning as WarningIcon,
+  ContentCopy as CopyIcon,
+  DeleteOutline as ClearIcon,
+  Check as CheckIcon,
+  Palette as PaletteIcon,
+  ManageAccounts as AccountIcon,
+  Computer as SystemIcon,
+  Article as LogsIcon,
+  MonitorHeart as StatusIcon,
+  ChevronRight as ChevronRightIcon,
+} from "@mui/icons-material";
 import { useAuth } from "../context/AuthContext";
-import { subscribeToSyncStatus } from "../services/syncService";
-import { getSystemLogs } from "../services/logService";
+import { syncService } from "../utils/syncService";
+import { logger, type LogEntry } from "../utils/logger";
+import EntityBanner from "../components/EntityBanner";
+import { db } from "../db";
+import { useAppTheme, ThemePreset } from "../theme/ThemeContext";
 
-type SnackbarState = {
-  open: boolean;
-  message: string;
-  severity: "success" | "info" | "warning" | "error";
-};
+type SettingsSection = "account" | "system" | "appearance";
 
-type SyncSnapshot = {
+interface NavItem {
+  id: SettingsSection;
+  label: string;
+  icon: React.ReactNode;
+  description: string;
+}
+
+interface PresetCardProps {
+  preset: ThemePreset;
+  selected: boolean;
+  onSelect: () => void;
+}
+
+const PresetCard: React.FC<PresetCardProps> = ({ preset, selected, onSelect }) => (
+  <Card
+    variant="outlined"
+    sx={{
+      borderColor: selected ? "primary.main" : "divider",
+      borderWidth: selected ? 2 : 1,
+      borderRadius: 2,
+      transition: "border-color 0.2s, box-shadow 0.2s",
+      boxShadow: selected ? 2 : 0,
+    }}
+  >
+    <CardActionArea onClick={onSelect} sx={{ p: 0 }}>
+      <Box
+        sx={{
+          height: 56,
+          bgcolor: preset.previewColor,
+          borderRadius: "8px 8px 0 0",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        {selected && (
+          <CheckIcon
+            sx={{
+              color: "common.white",
+              bgcolor: "rgba(0,0,0,0.35)",
+              borderRadius: "50%",
+              p: 0.4,
+              fontSize: 28,
+            }}
+          />
+        )}
+      </Box>
+      <CardContent sx={{ py: 1, px: 1.5 }}>
+        <Typography variant="body2" fontWeight={600} noWrap>
+          {preset.label}
+        </Typography>
+        <Chip
+          label={preset.mode}
+          size="small"
+          variant="outlined"
+          sx={{ fontSize: "0.6rem", height: 18, mt: 0.5 }}
+        />
+      </CardContent>
+    </CardActionArea>
+  </Card>
+);
+
+interface SectionHeaderProps {
+  icon: React.ReactNode;
+  title: string;
+  subtitle: string;
+}
+
+const SectionHeader: React.FC<SectionHeaderProps> = ({ icon, title, subtitle }) => (
+  <Box sx={{ mb: 3 }}>
+    <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 0.5 }}>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          width: 36,
+          height: 36,
+          borderRadius: 2,
+          bgcolor: "primary.main",
+          color: "primary.contrastText",
+          flexShrink: 0,
+        }}
+      >
+        {icon}
+      </Box>
+      <Typography variant="h6" fontWeight={700}>
+        {title}
+      </Typography>
+    </Box>
+    <Typography variant="body2" color="text.secondary" sx={{ ml: "52px" }}>
+      {subtitle}
+    </Typography>
+  </Box>
+);
+
+const AccountSection: React.FC<{ onLogoutClick: () => void }> = ({ onLogoutClick }) => (
+  <Box>
+    <SectionHeader
+      icon={<AccountIcon fontSize="small" />}
+      title="Account"
+      subtitle="Manage your login and session"
+    />
+    <Divider sx={{ mb: 3 }} />
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: { xs: "column", sm: "row" },
+        alignItems: { xs: "flex-start", sm: "center" },
+        justifyContent: "space-between",
+        gap: 2,
+        p: 2.5,
+        borderRadius: 2,
+        border: "1px solid",
+        borderColor: "divider",
+        bgcolor: "background.default",
+      }}
+    >
+      <Box>
+        <Typography variant="body1" fontWeight={600}>
+          Sign out of CourtSight
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          You will be redirected to the login screen.
+        </Typography>
+      </Box>
+      <Button
+        variant="contained"
+        color="error"
+        size="medium"
+        startIcon={<LogoutIcon />}
+        onClick={onLogoutClick}
+        sx={{ borderRadius: 2, flexShrink: 0 }}
+      >
+        Log Out
+      </Button>
+    </Box>
+  </Box>
+);
+
+interface SystemSectionProps {
+  isOnline: boolean;
   isSyncing: boolean;
   hasUnsynced: boolean;
-};
+  logs: LogEntry[];
+  isCopied: boolean;
+  onCopyLogs: () => void;
+  onClearLogs: () => void;
+}
+
+const SystemSection: React.FC<SystemSectionProps> = ({
+  isOnline,
+  isSyncing,
+  hasUnsynced,
+  logs,
+  isCopied,
+  onCopyLogs,
+  onClearLogs,
+}) => (
+  <Box>
+    <SectionHeader
+      icon={<SystemIcon fontSize="small" />}
+      title="System"
+      subtitle="Live status and diagnostic logs"
+    />
+    <Divider sx={{ mb: 3 }} />
+
+    <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1.5 }}>
+      <StatusIcon fontSize="small" color="action" />
+      <Typography
+        variant="subtitle2"
+        fontWeight={700}
+        color="text.secondary"
+        sx={{ textTransform: "uppercase", letterSpacing: 0.5 }}
+      >
+        System Status
+      </Typography>
+    </Box>
+    <Stack spacing={1.5} sx={{ mb: 4 }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          p: 2,
+          bgcolor: "background.default",
+          borderRadius: 2,
+          border: "1px solid",
+          borderColor: "divider",
+          gap: 2,
+        }}
+      >
+        <Box>
+          <Typography variant="body2" fontWeight={600}>
+            Network Connection
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            {isOnline ? "Connected to the internet" : "No internet connection detected"}
+          </Typography>
+        </Box>
+        <Chip
+          icon={isOnline ? <OnlineIcon /> : <OfflineIcon />}
+          label={isOnline ? "Online" : "Offline"}
+          color={isOnline ? "success" : "error"}
+          size="small"
+        />
+      </Box>
+
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          p: 2,
+          bgcolor: "background.default",
+          borderRadius: 2,
+          border: "1px solid",
+          borderColor: "divider",
+          gap: 2,
+        }}
+      >
+        <Box>
+          <Typography variant="body2" fontWeight={600}>
+            Synchronization
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            {isSyncing
+              ? "Syncing data to server…"
+              : hasUnsynced
+                ? "Changes are pending upload"
+                : "All data is up to date"}
+          </Typography>
+        </Box>
+        <Chip
+          icon={
+            isSyncing ? (
+              <SyncingIcon className="spin" />
+            ) : hasUnsynced ? (
+              <WarningIcon />
+            ) : (
+              <SyncingIcon />
+            )
+          }
+          label={isSyncing ? "Syncing…" : hasUnsynced ? "Unsynced" : "Up to date"}
+          color={isSyncing ? "secondary" : hasUnsynced ? "warning" : "default"}
+          size="small"
+        />
+      </Box>
+    </Stack>
+
+    <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1.5, flexWrap: "wrap" }}>
+      <LogsIcon fontSize="small" color="action" />
+      <Typography
+        variant="subtitle2"
+        fontWeight={700}
+        color="text.secondary"
+        sx={{ textTransform: "uppercase", letterSpacing: 0.5 }}
+      >
+        System Logs
+      </Typography>
+      <Box sx={{ ml: "auto", display: "flex", gap: 1 }}>
+        <Button
+          size="small"
+          startIcon={isCopied ? <CheckIcon /> : <CopyIcon />}
+          onClick={onCopyLogs}
+          disabled={logs.length === 0}
+          color={isCopied ? "success" : "primary"}
+        >
+          {isCopied ? "Copied" : "Copy"}
+        </Button>
+        <Button
+          size="small"
+          startIcon={<ClearIcon />}
+          onClick={onClearLogs}
+          disabled={logs.length === 0}
+          color="error"
+        >
+          Clear
+        </Button>
+      </Box>
+    </Box>
+
+    <Paper
+      elevation={0}
+      sx={{
+        bgcolor: "background.default",
+        borderRadius: 2,
+        p: 2,
+        maxHeight: 320,
+        overflowY: "auto",
+        border: "1px solid",
+        borderColor: "divider",
+      }}
+    >
+      {logs.length === 0 ? (
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{ textAlign: "center", fontStyle: "italic", py: 3 }}
+        >
+          No logs recorded yet.
+        </Typography>
+      ) : (
+        <Stack spacing={1.5}>
+          {[...logs].reverse().map((log, index) => (
+            <Box key={index}>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "baseline",
+                  gap: 1,
+                  mb: 0.5,
+                }}
+              >
+                <Typography
+                  variant="caption"
+                  sx={{
+                    fontWeight: "bold",
+                    color:
+                      log.level === "error"
+                        ? "error.main"
+                        : log.level === "warn"
+                          ? "warning.main"
+                          : "text.secondary",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  {log.level}
+                </Typography>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ fontSize: "0.7rem" }}
+                >
+                  {new Date(log.timestamp).toLocaleTimeString()}
+                </Typography>
+              </Box>
+              <Typography
+                variant="body2"
+                sx={{
+                  fontFamily: "monospace",
+                  fontSize: "0.8rem",
+                  wordBreak: "break-all",
+                }}
+              >
+                {log.message}
+              </Typography>
+            </Box>
+          ))}
+        </Stack>
+      )}
+    </Paper>
+  </Box>
+);
+
+const AppearanceSection: React.FC<{
+  presetId: string;
+  availablePresets: ThemePreset[];
+  onSelectPreset: (id: string) => void;
+}> = ({ presetId, availablePresets, onSelectPreset }) => (
+  <Box>
+    <SectionHeader
+      icon={<PaletteIcon fontSize="small" />}
+      title="Appearance"
+      subtitle="Customise how CourtSight looks for you"
+    />
+    <Divider sx={{ mb: 3 }} />
+
+    <Typography
+      variant="subtitle2"
+      fontWeight={700}
+      color="text.secondary"
+      sx={{ textTransform: "uppercase", letterSpacing: 0.5, mb: 1 }}
+    >
+      Colour Theme
+    </Typography>
+    <Typography variant="body2" color="text.secondary" sx={{ mb: 2.5 }}>
+      Choose a colour theme for CourtSight. Your selection is saved automatically.
+    </Typography>
+
+    <Grid container spacing={2}>
+      {availablePresets.map((preset) => (
+        <Grid size={{ xs: 6, sm: 4, md: 3 }} key={preset.id}>
+          <Tooltip title={preset.label} arrow>
+            <span>
+              <PresetCard
+                preset={preset}
+                selected={preset.id === presetId}
+                onSelect={() => onSelectPreset(preset.id)}
+              />
+            </span>
+          </Tooltip>
+        </Grid>
+      ))}
+    </Grid>
+  </Box>
+);
+
+const NAV_ITEMS: NavItem[] = [
+  { id: "account", label: "Account", icon: <AccountIcon fontSize="small" />, description: "Sign out" },
+  { id: "system", label: "System", icon: <SystemIcon fontSize="small" />, description: "Status & logs" },
+  { id: "appearance", label: "Appearance", icon: <PaletteIcon fontSize="small" />, description: "Themes" },
+];
 
 const Settings: React.FC = () => {
-  const theme = useTheme();
-  const { presetId, setPresetId, availablePresets } = useAppTheme();
   const { logout } = useAuth();
-
-  const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
+  const { presetId, setPresetId, availablePresets } = useAppTheme();
+  const [activeSection, setActiveSection] = useState<SettingsSection>("account");
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [isSyncing, setIsSyncing] = useState(false);
   const [hasUnsynced, setHasUnsynced] = useState(false);
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
-  const [logs, setLogs] = useState<string[]>([]);
+  const [logs, setLogs] = useState<LogEntry[]>(logger.getLogs());
   const [isCopied, setIsCopied] = useState(false);
-  const [snackbar, setSnackbar] = useState<SnackbarState>({
-    open: false,
-    message: "",
-    severity: "info",
-  });
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity: "success" | "error";
+  }>({ open: false, message: "", severity: "success" });
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
@@ -73,503 +478,102 @@ const Settings: React.FC = () => {
     window.addEventListener("online", handleOnline);
     window.addEventListener("offline", handleOffline);
 
-    let unsubscribe: (() => void) | undefined;
+    syncService.hasUnsyncedChanges().then(setHasUnsynced);
 
-    try {
-      unsubscribe = subscribeToSyncStatus?.((snapshot: SyncSnapshot) => {
-        setIsSyncing(Boolean(snapshot?.isSyncing));
-        setHasUnsynced(Boolean(snapshot?.hasUnsynced));
-      });
-    } catch {
-      // no-op if sync service is unavailable in this environment
-    }
+    const unsubscribe = syncService.subscribe((status) => {
+      setIsSyncing(status);
+      syncService.hasUnsyncedChanges().then(setHasUnsynced);
+    });
 
-    try {
-      const nextLogs = getSystemLogs?.() ?? [];
-      setLogs(Array.isArray(nextLogs) ? nextLogs : []);
-    } catch {
-      setLogs([]);
-    }
+    const unsubscribeLogs = logger.subscribe(() => {
+      setLogs(logger.getLogs());
+    });
+
+    const interval = setInterval(() => {
+      syncService.hasUnsyncedChanges().then(setHasUnsynced);
+    }, 3000);
 
     return () => {
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
-      unsubscribe?.();
+      unsubscribe();
+      unsubscribeLogs();
+      clearInterval(interval);
     };
   }, []);
 
-  const activePreset = useMemo(
-    () => availablePresets.find((preset) => preset.id === presetId),
-    [availablePresets, presetId],
-  );
+  const handleLogoutClick = async () => {
+    const unsynced = await syncService.hasUnsyncedChanges();
+    if (unsynced) {
+      setLogoutDialogOpen(true);
+    } else {
+      logout();
+    }
+  };
 
-  const showSnackbar = (
-    message: string,
-    severity: SnackbarState["severity"] = "info",
-  ) => {
+  const confirmLogout = async () => {
+    setLogoutDialogOpen(false);
+    try {
+      await db.delete();
+      const keysToRemove: string[] = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key?.startsWith("etag_")) {
+          keysToRemove.push(key);
+        }
+      }
+      for (const key of keysToRemove) {
+        localStorage.removeItem(key);
+      }
+    } catch (err) {
+      logger.error("Failed to clean up local state during logout:", err);
+    }
+
+    logout();
+  };
+
+  const copyLogsToClipboard = () => {
+    const logString = logs
+      .map(
+        (l) =>
+          `[${l.timestamp}] [${l.level.toUpperCase()}] ${l.message}${
+            l.error ? `\nError: ${JSON.stringify(l.error)}` : ""
+          }${l.context ? `\nContext: ${JSON.stringify(l.context)}` : ""}`,
+      )
+      .join("\n\n");
+
+    navigator.clipboard.writeText(logString);
+    setIsCopied(true);
+    setTimeout(() => setIsCopied(false), 2000);
     setSnackbar({
       open: true,
-      message,
-      severity,
+      message: "Logs copied to clipboard",
+      severity: "success",
     });
   };
 
-  const handleSelectPreset = (id: string) => {
-    setPresetId(id);
-    showSnackbar("Theme updated.", "success");
-  };
-
-  const handleCopyLogs = async () => {
-    try {
-      await navigator.clipboard.writeText(logs.join("\n"));
-      setIsCopied(true);
-      showSnackbar("System logs copied.", "success");
-    } catch {
-      showSnackbar("Unable to copy logs.", "error");
+  const handleClearLogs = () => {
+    if (window.confirm("Are you sure you want to clear all system logs?")) {
+      logger.clearLogs();
+      setLogs([]);
+      setSnackbar({
+        open: true,
+        message: "System logs cleared",
+        severity: "success",
+      });
     }
   };
-
-  const handleCloseSnackbar = () => {
-    setSnackbar((prev) => ({ ...prev, open: false }));
-  };
-
-  const handleConfirmLogout = async () => {
-    try {
-      await logout();
-    } catch {
-      showSnackbar("Logout failed. Please try again.", "error");
-    } finally {
-      setLogoutDialogOpen(false);
-    }
-  };
-
-  const cardRadius =
-    (
-      theme.shape as typeof theme.shape & {
-        borderRadiusLg?: number;
-        borderRadiusMd?: number;
-      }
-    ).borderRadiusLg ??
-    (
-      theme.shape as typeof theme.shape & {
-        borderRadiusMd?: number;
-      }
-    ).borderRadiusMd ??
-    theme.shape.borderRadius;
-
-  const statusItems = [
-    {
-      label: "Network",
-      value: isOnline ? "Online" : "Offline",
-      icon: isOnline ? (
-        <WifiIcon fontSize="small" />
-      ) : (
-        <WifiOffIcon fontSize="small" />
-      ),
-      color: isOnline ? "success" : "warning",
-    },
-    {
-      label: "Sync",
-      value: isSyncing ? "Syncing" : "Idle",
-      icon: <SyncIcon fontSize="small" />,
-      color: isSyncing ? "info" : "default",
-    },
-    {
-      label: "Local changes",
-      value: hasUnsynced ? "Pending sync" : "All synced",
-      icon: <StorageIcon fontSize="small" />,
-      color: hasUnsynced ? "warning" : "success",
-    },
-  ] as const;
 
   return (
-    <Box
-      sx={{
-        maxWidth: 960,
-        mx: "auto",
-        px: { xs: 2, sm: 3 },
-        py: { xs: 3, sm: 4 },
-      }}
-    >
-      <Stack spacing={3}>
-        <Box>
-          <Typography variant="h4" fontWeight={700} gutterBottom>
-            Settings
-          </Typography>
-          <Typography variant="body1" color="text.secondary">
-            Manage the app appearance, system status, and maintenance tools for{" "}
-            {activePreset?.label ? "your Courtsight experience" : "Courtsight"}.
-          </Typography>
-        </Box>
-
-        <Divider />
-
-        <Paper
-          variant="outlined"
-          sx={{
-            p: { xs: 2, sm: 3 },
-            borderRadius: cardRadius,
-            borderColor: "divider",
-            backgroundColor: "background.paper",
-          }}
-        >
-          <Stack spacing={2.5}>
-            <Stack direction="row" spacing={1.5} alignItems="center">
-              <Avatar
-                sx={{
-                  bgcolor: alpha(theme.palette.primary.main, 0.12),
-                  color: "primary.main",
-                  width: 40,
-                  height: 40,
-                }}
-              >
-                <PaletteIcon />
-              </Avatar>
-              <Box>
-                <Typography variant="h6" fontWeight={700}>
-                  Appearance
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Choose a preset theme for your coaching workflow.
-                </Typography>
-              </Box>
-            </Stack>
-
-            <Grid container spacing={2}>
-              {availablePresets.map((preset) => {
-                const selected = preset.id === presetId;
-                const swatches = [
-                  preset.tokens.primary,
-                  preset.tokens.surface,
-                  preset.tokens.background,
-                ].filter(Boolean);
-
-                return (
-                  <Grid item xs={12} sm={6} md={4} key={preset.id}>
-                    <Card
-                      variant="outlined"
-                      sx={{
-                        height: "100%",
-                        borderRadius: cardRadius,
-                        borderColor: selected ? "primary.main" : "divider",
-                        boxShadow: selected ? theme.shadows[4] : "none",
-                        transition: theme.transitions.create(
-                          ["border-color", "box-shadow", "transform"],
-                          {
-                            duration: theme.transitions.duration.shorter,
-                          },
-                        ),
-                        transform: selected ? "translateY(-1px)" : "none",
-                        overflow: "hidden",
-                      }}
-                    >
-                      <CardActionArea
-                        onClick={() => handleSelectPreset(preset.id)}
-                        sx={{
-                          height: "100%",
-                          alignItems: "stretch",
-                          borderRadius: "inherit",
-                        }}
-                      >
-                        <CardContent sx={{ p: 2 }}>
-                          <Stack spacing={1.5}>
-                            <Stack
-                              direction="row"
-                              alignItems="center"
-                              justifyContent="space-between"
-                              spacing={1}
-                            >
-                              <Typography variant="subtitle1" fontWeight={700}>
-                                {preset.label}
-                              </Typography>
-
-                              {selected ? (
-                                <CheckCircleIcon
-                                  color="primary"
-                                  fontSize="small"
-                                />
-                              ) : null}
-                            </Stack>
-
-                            <Stack direction="row" spacing={1}>
-                              {swatches.map((color, index) => (
-                                <Box
-                                  key={`${preset.id}-${index}`}
-                                  sx={{
-                                    width: 28,
-                                    height: 28,
-                                    borderRadius: "50%",
-                                    bgcolor: color,
-                                    border: "1px solid",
-                                    borderColor: "divider",
-                                  }}
-                                />
-                              ))}
-                            </Stack>
-
-                            <Stack
-                              direction="row"
-                              spacing={1}
-                              flexWrap="wrap"
-                              useFlexGap
-                            >
-                              <Chip
-                                size="small"
-                                label={
-                                  preset.mode === "dark" ? "Dark" : "Light"
-                                }
-                                variant={selected ? "filled" : "outlined"}
-                                color={selected ? "primary" : "default"}
-                              />
-                              {preset.description ? (
-                                <Tooltip title={preset.description}>
-                                  <Chip
-                                    size="small"
-                                    label="About"
-                                    variant="outlined"
-                                  />
-                                </Tooltip>
-                              ) : null}
-                            </Stack>
-
-                            {preset.description ? (
-                              <Typography
-                                variant="body2"
-                                color="text.secondary"
-                              >
-                                {preset.description}
-                              </Typography>
-                            ) : null}
-                          </Stack>
-                        </CardContent>
-                      </CardActionArea>
-                    </Card>
-                  </Grid>
-                );
-              })}
-            </Grid>
-          </Stack>
-        </Paper>
-
-        <Paper
-          variant="outlined"
-          sx={{
-            p: { xs: 2, sm: 3 },
-            borderRadius: cardRadius,
-            borderColor: "divider",
-            backgroundColor: "background.paper",
-          }}
-        >
-          <Stack spacing={2.5}>
-            <Typography variant="h6" fontWeight={700}>
-              System Status
-            </Typography>
-
-            <Grid container spacing={2}>
-              {statusItems.map((item) => (
-                <Grid item xs={12} sm={4} key={item.label}>
-                  <Paper
-                    variant="outlined"
-                    sx={{
-                      p: 2,
-                      height: "100%",
-                      borderRadius: cardRadius,
-                      borderColor: "divider",
-                      backgroundColor: alpha(
-                        theme.palette.background.default,
-                        0.5,
-                      ),
-                    }}
-                  >
-                    <Stack spacing={1.25}>
-                      <Stack direction="row" spacing={1} alignItems="center">
-                        <Avatar
-                          sx={{
-                            width: 32,
-                            height: 32,
-                            bgcolor: alpha(
-                              item.color === "success"
-                                ? theme.palette.success.main
-                                : item.color === "warning"
-                                  ? theme.palette.warning.main
-                                  : item.color === "info"
-                                    ? theme.palette.info.main
-                                    : theme.palette.text.secondary,
-                              0.12,
-                            ),
-                            color:
-                              item.color === "success"
-                                ? "success.main"
-                                : item.color === "warning"
-                                  ? "warning.main"
-                                  : item.color === "info"
-                                    ? "info.main"
-                                    : "text.secondary",
-                          }}
-                        >
-                          {item.icon}
-                        </Avatar>
-                        <Typography variant="subtitle2" color="text.secondary">
-                          {item.label}
-                        </Typography>
-                      </Stack>
-
-                      <Typography variant="h6" fontWeight={700}>
-                        {item.value}
-                      </Typography>
-                    </Stack>
-                  </Paper>
-                </Grid>
-              ))}
-            </Grid>
-          </Stack>
-        </Paper>
-
-        <Paper
-          variant="outlined"
-          sx={{
-            p: { xs: 2, sm: 3 },
-            borderRadius: cardRadius,
-            borderColor: "divider",
-            backgroundColor: "background.paper",
-          }}
-        >
-          <Stack
-            direction={{ xs: "column", sm: "row" }}
-            spacing={2}
-            alignItems={{ xs: "flex-start", sm: "center" }}
-            justifyContent="space-between"
-          >
-            <Box>
-              <Typography variant="h6" fontWeight={700}>
-                Account
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Sign out of the current device when you are done coaching.
-              </Typography>
-            </Box>
-
-            <Button
-              variant="outlined"
-              color="error"
-              startIcon={<LogoutIcon />}
-              onClick={() => setLogoutDialogOpen(true)}
-            >
-              Log out
-            </Button>
-          </Stack>
-        </Paper>
-
-        <Paper
-          variant="outlined"
-          sx={{
-            p: { xs: 2, sm: 3 },
-            borderRadius: cardRadius,
-            borderColor: "divider",
-            backgroundColor: "background.paper",
-          }}
-        >
-          <Stack spacing={2}>
-            <Stack
-              direction={{ xs: "column", sm: "row" }}
-              spacing={2}
-              justifyContent="space-between"
-              alignItems={{ xs: "flex-start", sm: "center" }}
-            >
-              <Box>
-                <Typography variant="h6" fontWeight={700}>
-                  System Logs
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Review recent diagnostic output and copy it for
-                  troubleshooting.
-                </Typography>
-              </Box>
-
-              <Button
-                variant="outlined"
-                startIcon={<ContentCopyIcon />}
-                onClick={handleCopyLogs}
-                disabled={!logs.length}
-              >
-                {isCopied ? "Copied" : "Copy logs"}
-              </Button>
-            </Stack>
-
-            <Paper
-              variant="outlined"
-              sx={{
-                p: 2,
-                borderRadius: cardRadius,
-                borderColor: "divider",
-                backgroundColor: alpha(theme.palette.background.default, 0.65),
-                minHeight: 180,
-                maxHeight: 320,
-                overflow: "auto",
-              }}
-            >
-              {logs.length ? (
-                <Stack spacing={1}>
-                  {logs.map((entry, index) => (
-                    <Typography
-                      key={`${entry}-${index}`}
-                      variant="body2"
-                      sx={{
-                        fontFamily: theme.typography.fontFamily,
-                        color: "text.secondary",
-                        whiteSpace: "pre-wrap",
-                        wordBreak: "break-word",
-                      }}
-                    >
-                      {entry}
-                    </Typography>
-                  ))}
-                </Stack>
-              ) : (
-                <Typography variant="body2" color="text.secondary">
-                  No logs available.
-                </Typography>
-              )}
-            </Paper>
-          </Stack>
-        </Paper>
-      </Stack>
-
-      <Dialog
-        open={logoutDialogOpen}
-        onClose={() => setLogoutDialogOpen(false)}
-        PaperProps={{
-          sx: {
-            borderRadius: cardRadius,
-          },
-        }}
-      >
-        <DialogTitle>Log out?</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            You will need to sign in again to access Courtsight on this device.
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setLogoutDialogOpen(false)}>Cancel</Button>
-          <Button
-            color="error"
-            variant="contained"
-            onClick={handleConfirmLogout}
-          >
-            Log out
-          </Button>
-        </DialogActions>
-      </Dialog>
-
+    <Box sx={{ pb: 8 }}>
       <Snackbar
         open={snackbar.open}
-        autoHideDuration={3000}
-        onClose={handleCloseSnackbar}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
         <Alert
-          onClose={handleCloseSnackbar}
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
           severity={snackbar.severity}
           variant="filled"
           sx={{ width: "100%" }}
@@ -577,8 +581,235 @@ const Settings: React.FC = () => {
           {snackbar.message}
         </Alert>
       </Snackbar>
-    </Box>
-  );
-};
 
-export default Settings;
+      <EntityBanner
+        title="Settings"
+        icon={<SettingsIcon />}
+        subtitle="Manage your application and view system status"
+        backTo="/"
+      />
+
+      <Box
+        sx={{
+          mt: 3,
+          mx: "auto",
+          px: { xs: 2, sm: 3, md: 4 },
+          maxWidth: 1100,
+          display: "flex",
+          flexDirection: { xs: "column", md: "row" },
+          gap: 3,
+          alignItems: "flex-start",
+        }}
+      >
+        <Paper
+          elevation={0}
+          sx={{
+            width: { xs: "100%", md: 220 },
+            flexShrink: 0,
+            borderRadius: 3,
+            border: "1px solid",
+            borderColor: "divider",
+            overflow: "hidden",
+            position: { md: "sticky" },
+            top: { md: 80 },
+          }}
+        >
+          <Box
+            sx={{
+              px: 2,
+              py: 1.5,
+              borderBottom: "1px solid",
+              borderColor: "divider",
+            }}
+          >
+            <Typography
+              variant="overline"
+              color="text.secondary"
+              fontWeight={olor: "divider",
+            overflow: "hidden",
+            position: { md: "sticky" },
+            top: { md: 80 },
+          }}
+        >
+          ding>
+            {NAV_ITEMS.map((item, idx) => {
+              const isActive = activeSection === item.id;
+              return (
+                <React.Fragment key={item.id}>
+                  <ListItem disablePadding>
+                    <ListItemButton
+                      selected={isActive}
+                      onClick={() => setActiveSection(item.id)}
+                      sx={{
+                        py: 1.25,
+                        px: 2,
+                        borderRadius: 0,
+                        "&.Mui-selected": {
+                          bgcolor: "primary.main",
+                          color: "primary.contrastTeolor: "divider",
+            overflow: "hidden",
+            position: { md: "sticky" },
+            top: { md: 80 },
+          }}
+        >
+          ow: "hidden",
+            position: { md: "sticky" },
+            top: { md: 80 },
+          }}
+        >
+          : "divider",
+            overflow: "hidden",
+            position: { md: "sticky" },
+            top: { md: 80 },
+          }}
+        >
+           },
+                        },
+                      }}
+                    >
+                      <ListItemIcon
+                        sx={{
+                          minWidth: 34,
+                          color: "divider",
+            overflow: "hidden",
+            position: { md: "sticky" },
+            top: { md: 80 },
+          }}
+        >
+               </ListItemIcon>
+                      <ListItemText
+                        primary={item.label}
+                        secondary={item.description}
+                        primaryTypographyProps={{
+                          variant: "body2",
+                          fontWeight: isActive ? 700 : 500,
+                        }}
+                        secondaryTypogrolor: "divider",
+            overflow: "hidden",
+            position: { md: "sticky" },
+            top: { md: 80 },
+          }}
+        >
+                              </ListItemButolor: "divider",
+            overflow: "hidden",
+            position: { md: "sticky" },
+            top: { md: 80 },
+          }}
+        >
+                   })}
+          </Lolor: "divider",
+            overflow: "hidden",
+            position: { md: "sticky" },
+            top: { md: 80 },
+          }}
+        >
+          ,
+            border: "1px solid",
+            borderColor: "divider",
+            overflow: "hidden",
+            position: { md: "sticky" },
+            top: { md: 80 },
+          }}
+        >
+          idden",
+            position: { md: "sticky" },
+            top: { md: 80 },
+          }}
+        >
+                     position: { md: "sticky" },
+            top: { md: 80 },
+          }}
+        >
+             overflow: "hidden",
+            position: { md: "sticky" },
+            top: { md: 80 },
+          }}
+        >
+          ticky" },
+            top: { md: 80 },
+          }}
+        >
+          = "appearance" && (
+            <AppearanceSection
+              presetId={prolor: "divider",
+            overflow: "hidden",
+            position: { md: "sticky" },
+            top: { md: 80 },
+          }}
+        >
+           </Boolor: "divider",
+            overflow: "hidden",
+            position: { md: "sticky" },
+            top: { md: 80 },
+          }}
+        >
+                <DialogTolor: "divider",
+            overflow: "hidden",
+            position: { md: "sticky" },
+            top: { md: 80 },
+          }}
+        >
+              >
+               <WarningIcon color="error" />
+          Unsynced Changes
+        </Diolor: "divider",
+            overflow: "hidden",
+            position: { md: "sticky" },
+            top: { md: 80 },
+          }}
+        >
+          
+            position: { md: "sticky" },
+            top: { md: 80 },
+          }}
+        >
+          low: "hidden",
+            position: { md: "sticky" },
+            top: { md: 80 },
+          }}
+        >
+          r",
+            overflow: "hidden",
+            position: { md: "sticky" },
+            top: { md: 80 },
+          }}
+        >
+          
+            overflow: "hidden",
+            position: { md: "sticky" },
+            top: { md: 80 },
+          }}
+        >
+          ivider",
+            overflow: "hidden",
+            position: { md: "sticky" },
+            top: { md: 80 },
+          }}
+        >
+                    top: { md: 80 },
+          }}
+        >
+               overflow: "hidden",
+            position: { md: "sticky" },
+            top: { md: 80 },
+          }}
+        >
+          d in the repo baseolor: "divider",
+            overflow: "hidden",
+            position: { md: "sticky" },
+            top: { md: 80 },
+          }}
+        >
+          "sticky" },
+            top: { md: 80 },
+          }}
+        >
+          verflow: "hidden",
+            position: { md: "sticky" },
+            top: { md: 80 },
+          }}
+        >
+          },
+          }}
+        >
+          
