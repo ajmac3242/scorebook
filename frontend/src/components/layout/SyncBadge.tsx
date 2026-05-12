@@ -1,6 +1,6 @@
 import React from "react";
 import { Box, Typography } from "@mui/material";
-import { keyframes } from "@mui/system";
+import { keyframes } from "@mui/material/styles";
 
 const pulse = keyframes`
   0% { opacity: 1; transform: scale(1); }
