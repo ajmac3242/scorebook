@@ -7,7 +7,7 @@ import { syncService } from "../utils/syncService";
 import { AuthProvider } from "../context/AuthContext";
 import React from "react";
 import { CourtSightThemeProvider } from "../theme/ThemeContext";
- 
+
 // Mock the whole syncService
 vi.mock("../utils/syncService", () => ({
   syncService: {
