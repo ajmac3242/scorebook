@@ -45,19 +45,20 @@ describe("Settings Component", () => {
       </BrowserRouter>,
     );
 
-  it("renders Settings page and displays system status", async () => {
+  it("renders Settings page and displays appearance settings", async () => {
     renderComponent();
 
-    expect(screen.getAllByText("Appearance").length).toBeGreaterThan(0);
-    expect(screen.getByText("THEME")).toBeInTheDocument();
-    expect(screen.getByText("Default")).toBeInTheDocument();
+    expect(screen.getAllByText(/appearance/i).length).toBeGreaterThan(0);
+    expect(screen.getByText(/color theme/i)).toBeInTheDocument();
+    expect(screen.getByText(/theme presets/i)).toBeInTheDocument();
+    expect(screen.getByText(/default/i)).toBeInTheDocument();
   });
 
   it.skip("handles logout without unsynced changes", async () => {
     vi.mocked(syncService.hasUnsyncedChanges).mockResolvedValue(false);
     renderComponent();
 
-    const logoutBtn = screen.getByRole("button", { name: /logout/i });
+    const logoutBtn = screen.getByRole("button", { name: /log out/i });
     fireEvent.click(logoutBtn);
 
     await waitFor(() => {
@@ -69,7 +70,7 @@ describe("Settings Component", () => {
     vi.mocked(syncService.hasUnsyncedChanges).mockResolvedValue(true);
     renderComponent();
 
-    const logoutBtn = screen.getByRole("button", { name: /logout/i });
+    const logoutBtn = screen.getByRole("button", { name: /log out/i });
     fireEvent.click(logoutBtn);
 
     expect(await screen.findByText("Unsynced Changes")).toBeInTheDocument();
@@ -85,11 +86,11 @@ describe("Settings Component", () => {
 
     renderComponent();
 
-    const logoutBtn = screen.getByRole("button", { name: /logout/i });
+    const logoutBtn = screen.getByRole("button", { name: /log out/i });
     fireEvent.click(logoutBtn);
 
     const confirmBtn = await screen.findByRole("button", {
-      name: /Logout Anyway/i,
+      name: /log out anyway/i,
     });
     fireEvent.click(confirmBtn);
 
