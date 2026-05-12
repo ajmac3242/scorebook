@@ -2,7 +2,7 @@ import React, {
   createContext,
   useContext,
   useState,
-  useEffect,
+
   useMemo,
   ReactNode,
 } from 'react';
@@ -33,7 +33,7 @@ const STORAGE_KEY = 'courtsight_preset_id';
 
 interface ThemeContextValue {
   presetId: string;
-  setPresetId: (id: string) => void;
+  setPresetId: (_id: string) => void;
   availablePresets: ThemePreset[];
   theme: Theme;
 }
