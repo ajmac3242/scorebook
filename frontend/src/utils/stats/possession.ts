@@ -15,7 +15,7 @@ export interface PossessionClockState {
 export const processPossessionEvent = (
   event: StatEvent,
   state: PossessionClockState,
-  periodLen: number,
+  periodLen: number
 ): PossessionClockState => {
   const newState = { ...state };
 
@@ -39,12 +39,11 @@ export const processPossessionEvent = (
     ACTION_TYPES.TURNOVER,
     ACTION_TYPES.DEF_REBOUND,
     ACTION_TYPES.STEAL,
-    ACTION_TYPES.MAKE,
+    ACTION_TYPES.MAKE
   ].includes(event.type);
 
   // Note: Offensive rebounds do NOT change possession but DO reset the shot clock
-  const isShotClockReset =
-    isPossessionChange || event.type === ACTION_TYPES.OFF_REBOUND;
+  const isShotClockReset = isPossessionChange || event.type === ACTION_TYPES.OFF_REBOUND;
 
   if (isShotClockReset) {
     // Only reset if it's a field goal make (not a FT)

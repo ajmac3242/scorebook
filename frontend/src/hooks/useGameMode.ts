@@ -569,7 +569,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       lastTeamScoreClockTime,
       lastTeamScorePeriod,
       foundLastTeamScore,
-      possessionStartClock,
+      possessionStartClock: possessionInfo.possessionStartClock,
       recentStats: sortedGameStats
         .filter((s) => !s.deletedAt)
         .slice(-10)
