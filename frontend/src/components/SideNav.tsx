@@ -14,8 +14,7 @@ import {
   ListItemText,
   Avatar,
   Typography,
-  Badge,
-  useTheme,
+    useTheme,
   useMediaQuery,
 } from '@mui/material';
 import {
