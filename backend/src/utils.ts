@@ -229,11 +229,9 @@ export function normalizePath(event: APIGatewayProxyEventV2): string {
  * @returns {{method: string, path: string}} Normalized metadata.
  */
 export function extractRequestMetadata(event: APIGatewayProxyEventV2) {
+  const raw = event as unknown as Record<string, unknown>;
   const method =
-    event.requestContext?.http?.method ||
-    (event as unknown as Record<string, unknown>).method ||
-    (event as unknown as Record<string, unknown>).httpMethod ||
-    "GET";
+    event.requestContext?.http?.method ?? raw.method ?? raw.httpMethod ?? "GET";
   return { method: method as string, path: normalizePath(event) };
 }
 
@@ -312,11 +310,9 @@ export function stripLocalFields(data: unknown, depth = 0): unknown {
     return data.map((item) => stripLocalFields(item, depth + 1));
   }
 
-  // ⚡ Bolt: Use Object.entries() for faster object iteration in modern engines.
+  // ⚡ Bolt: Use for...of with Object.entries() for clarity.
   const result: Record<string, unknown> = {};
-  const entries = Object.entries(data as Record<string, unknown>);
-  for (let i = 0; i < entries.length; i++) {
-    const [key, value] = entries[i];
+  for (const [key, value] of Object.entries(data as Record<string, unknown>)) {
     if (!INTERNAL_KEYS.has(key) && !FORBIDDEN_KEYS.has(key)) {
       result[key] = stripLocalFields(value, depth + 1);
     }

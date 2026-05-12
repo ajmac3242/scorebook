@@ -101,13 +101,9 @@ export const calculateElapsedMinutes = (
   const periodLengthMins = PERIOD_MINUTES[periodType] || 10;
   const periodDurationSeconds = periodLengthMins * 60;
 
-  const secondsElapsedInCurrentPeriod = Math.max(
-    0,
-    periodDurationSeconds - clockSeconds,
+  return (
+    calculateElapsedSeconds(period, clockSeconds, periodDurationSeconds) / 60
   );
-  const secondsElapsedInPreviousPeriods = (period - 1) * periodDurationSeconds;
-
-  return (secondsElapsedInPreviousPeriods + secondsElapsedInCurrentPeriod) / 60;
 };
 
 /**

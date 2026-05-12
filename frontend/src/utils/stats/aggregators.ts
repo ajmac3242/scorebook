@@ -22,22 +22,17 @@ import {
  * Standardized sorting for statistical events based on timestamp.
  */
 export const sortStats = (stats: StatEvent[]): StatEvent[] => {
+  const priorities: Record<string, number> = {
+    [ACTION_TYPES.SUB_IN]: 1,
+    [ACTION_TYPES.SUB_OUT]: 3,
+  };
+
   return [...stats].sort((a, b) => {
     if (a.timestamp < b.timestamp) return -1;
     if (a.timestamp > b.timestamp) return 1;
 
-    const pA =
-      a.type === ACTION_TYPES.SUB_IN
-        ? 1
-        : a.type === ACTION_TYPES.SUB_OUT
-          ? 3
-          : 2;
-    const pB =
-      b.type === ACTION_TYPES.SUB_IN
-        ? 1
-        : b.type === ACTION_TYPES.SUB_OUT
-          ? 3
-          : 2;
+    const pA = priorities[a.type] ?? 2;
+    const pB = priorities[b.type] ?? 2;
 
     return pA - pB;
   });
@@ -73,7 +68,6 @@ export const isFieldGoal = (stat: StatEvent): boolean =>
 
 export const calcPct = (numerator: number, denominator: number): string => {
   if (denominator <= 0) return "0.0";
-  if (numerator <= 0) return "0.0";
   return formatToOne((numerator / denominator) * 100);
 };
 
@@ -277,8 +271,7 @@ export function initializeStatsMap(
   );
 
   const statsMap = new Map<string, PlayerAggregates>();
-  for (let i = 0; i < players.length; i++) {
-    const player = players[i];
+  for (const player of players) {
     const playerId = player.id!.toString();
     statsMap.set(playerId, {
       id: player.id,
@@ -360,8 +353,7 @@ export const calculateTeamAggregates = (
   const gameTotals = new Map<string, { team: number; opp: number }>();
   let targetCount = 0;
 
-  for (let i = 0; i < games.length; i++) {
-    const g = games[i];
+  for (const g of games) {
     if (!completedOnly || g.completed === 1) {
       gameTotals.set(g.id!, { team: 0, opp: 0 });
       targetCount++;
@@ -389,8 +381,7 @@ export const calculateTeamAggregates = (
     dreb: 0,
   };
 
-  for (let i = 0; i < stats.length; i++) {
-    const stat = stats[i];
+  for (const stat of stats) {
     if (!isActive(stat)) continue;
 
     const totals = gameTotals.get(stat.gameId);
@@ -502,8 +493,7 @@ export const calculateOpponentAggregates = (
     threePA: 0,
   };
 
-  for (let i = 0; i < stats.length; i++) {
-    const stat = stats[i];
+  for (const stat of stats) {
     if (!isActive(stat) || !isOpponentId(stat.playerId)) continue;
 
     applyActionToAggregate(agg, stat);
@@ -531,11 +521,8 @@ export const calculateGameResult = (
   stats: StatEvent[],
 ) => {
   const scores = { team: 0, opp: 0 };
-  for (let i = 0; i < stats.length; i++) {
-    const stat = stats[i];
-    if (!isActive(stat)) continue;
-
-    if (stat.gameId === gameId) {
+  for (const stat of stats) {
+    if (isActive(stat) && stat.gameId === gameId) {
       updateScores(stat, scores);
     }
   }
