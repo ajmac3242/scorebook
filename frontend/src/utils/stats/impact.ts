@@ -24,8 +24,7 @@ export const calculatePlayerStreaks = (
 
   const sorted = options.isSorted ? stats : sortStats(stats);
 
-  for (let i = 0; i < sorted.length; i++) {
-    const s = sorted[i];
+  for (const s of sorted) {
     if (!isActive(s)) continue;
 
     if (s.gameId !== currentGameId) {
@@ -57,17 +56,9 @@ export const calculatePlayerStreaks = (
       continue;
     }
 
-    if (
-      history[0] === "MAKE" &&
-      history[1] === "MAKE" &&
-      history[2] === "MAKE"
-    ) {
+    if (history.every((v) => v === "MAKE")) {
       result.set(pId, "HOT");
-    } else if (
-      history[0] === "MISS" &&
-      history[1] === "MISS" &&
-      history[2] === "MISS"
-    ) {
+    } else if (history.every((v) => v === "MISS")) {
       result.set(pId, "COLD");
     } else {
       result.set(pId, null);
@@ -270,32 +261,7 @@ export const calculateOnOffStats = (
     const isTurnover = type === ACTION_TYPES.TURNOVER;
     const isOreb = type === ACTION_TYPES.OFF_REBOUND;
 
-    if (isMake) {
-      if (isOpp) globalStats.ptsAgainst += pts;
-      else globalStats.ptsFor += pts;
-    }
-
-    if (isMake || isMiss) {
-      if (pts === 1) {
-        if (isOpp) globalStats.oppFta++;
-        else globalStats.fta++;
-      } else {
-        if (isOpp) globalStats.oppFga++;
-        else globalStats.fga++;
-      }
-    } else if (isTurnover) {
-      if (isOpp) globalStats.oppTo++;
-      else globalStats.to++;
-    } else if (isOreb) {
-      if (isOpp) globalStats.oppOreb++;
-      else globalStats.oreb++;
-    }
-
-    // Update ON stats for active players
-    for (const pId of currentLineup) {
-      const target = playerOnStats.get(pId);
-      if (!target) continue;
-
+    const updateAgg = (target: (typeof globalStats)) => {
       if (isMake) {
         if (isOpp) target.ptsAgainst += pts;
         else target.ptsFor += pts;
@@ -316,6 +282,14 @@ export const calculateOnOffStats = (
         if (isOpp) target.oppOreb++;
         else target.oreb++;
       }
+    };
+
+    updateAgg(globalStats);
+
+    // Update ON stats for active players
+    for (const pId of currentLineup) {
+      const target = playerOnStats.get(pId);
+      if (target) updateAgg(target);
     }
   }
 
