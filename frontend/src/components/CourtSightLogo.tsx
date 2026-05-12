@@ -3,7 +3,7 @@
  * @description CourtSight wordmark + basketball-arc icon SVG React component.
  * Used in TopAppBar, SideNav header, and login screen.
  */
-import React from 'react';
+import React from "react";
 
 interface CourtSightLogoProps {
   /** Width of the logo. Height scales proportionally. Default: 140 */
@@ -35,15 +35,44 @@ const CourtSightLogo: React.FC<CourtSightLogoProps> = ({
         role="img"
       >
         {/* Basketball circle */}
-        <circle cx="16" cy="16" r="14" stroke="#FF6B1A" strokeWidth="2.5" fill="none" />
+        <circle
+          cx="16"
+          cy="16"
+          r="14"
+          stroke="#FF6B1A"
+          strokeWidth="2.5"
+          fill="none"
+        />
         {/* Vertical seam */}
-        <path d="M16 2 Q16 16 16 30" stroke="#FF6B1A" strokeWidth="1.8" fill="none" />
+        <path
+          d="M16 2 Q16 16 16 30"
+          stroke="#FF6B1A"
+          strokeWidth="1.8"
+          fill="none"
+        />
         {/* Horizontal seam */}
-        <path d="M2 16 Q16 16 30 16" stroke="#FF6B1A" strokeWidth="1.8" fill="none" />
+        <path
+          d="M2 16 Q16 16 30 16"
+          stroke="#FF6B1A"
+          strokeWidth="1.8"
+          fill="none"
+        />
         {/* Top-left arc seam */}
-        <path d="M5 6 Q10 16 5 26" stroke="#FF6B1A" strokeWidth="1.8" fill="none" strokeLinecap="round" />
+        <path
+          d="M5 6 Q10 16 5 26"
+          stroke="#FF6B1A"
+          strokeWidth="1.8"
+          fill="none"
+          strokeLinecap="round"
+        />
         {/* Top-right arc seam */}
-        <path d="M27 6 Q22 16 27 26" stroke="#FF6B1A" strokeWidth="1.8" fill="none" strokeLinecap="round" />
+        <path
+          d="M27 6 Q22 16 27 26"
+          stroke="#FF6B1A"
+          strokeWidth="1.8"
+          fill="none"
+          strokeLinecap="round"
+        />
         {/* Eye / sight dot overlay */}
         <circle cx="16" cy="16" r="3.5" fill="#FF6B1A" />
         <circle cx="16" cy="16" r="1.5" fill="#FFFFFF" />
@@ -62,11 +91,40 @@ const CourtSightLogo: React.FC<CourtSightLogoProps> = ({
       role="img"
     >
       {/* Basketball arc icon */}
-      <circle cx="20" cy="21" r="13" stroke="#FF6B1A" strokeWidth="2.2" fill="none" />
-      <path d="M20 8 Q20 21 20 34" stroke="#FF6B1A" strokeWidth="1.6" fill="none" />
-      <path d="M7 21 Q20 21 33 21" stroke="#FF6B1A" strokeWidth="1.6" fill="none" />
-      <path d="M10 11 Q14 21 10 31" stroke="#FF6B1A" strokeWidth="1.6" fill="none" strokeLinecap="round" />
-      <path d="M30 11 Q26 21 30 31" stroke="#FF6B1A" strokeWidth="1.6" fill="none" strokeLinecap="round" />
+      <circle
+        cx="20"
+        cy="21"
+        r="13"
+        stroke="#FF6B1A"
+        strokeWidth="2.2"
+        fill="none"
+      />
+      <path
+        d="M20 8 Q20 21 20 34"
+        stroke="#FF6B1A"
+        strokeWidth="1.6"
+        fill="none"
+      />
+      <path
+        d="M7 21 Q20 21 33 21"
+        stroke="#FF6B1A"
+        strokeWidth="1.6"
+        fill="none"
+      />
+      <path
+        d="M10 11 Q14 21 10 31"
+        stroke="#FF6B1A"
+        strokeWidth="1.6"
+        fill="none"
+        strokeLinecap="round"
+      />
+      <path
+        d="M30 11 Q26 21 30 31"
+        stroke="#FF6B1A"
+        strokeWidth="1.6"
+        fill="none"
+        strokeLinecap="round"
+      />
       {/* Sight dot */}
       <circle cx="20" cy="21" r="3" fill="#FF6B1A" />
       <circle cx="20" cy="21" r="1.2" fill="#FFFFFF" />
