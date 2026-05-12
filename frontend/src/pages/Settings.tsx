@@ -64,7 +64,11 @@ interface PresetCardProps {
   onSelect: () => void;
 }
 
-const PresetCard: React.FC<PresetCardProps> = ({ preset, selected, onSelect }) => (
+const PresetCard: React.FC<PresetCardProps> = ({
+  preset,
+  selected,
+  onSelect,
+}) => (
   <Card
     variant="outlined"
     sx={{
@@ -119,7 +123,11 @@ interface SectionHeaderProps {
   subtitle: string;
 }
 
-const SectionHeader: React.FC<SectionHeaderProps> = ({ icon, title, subtitle }) => (
+const SectionHeader: React.FC<SectionHeaderProps> = ({
+  icon,
+  title,
+  subtitle,
+}) => (
   <Box sx={{ mb: 3 }}>
     <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 0.5 }}>
       <Box
@@ -147,7 +155,9 @@ const SectionHeader: React.FC<SectionHeaderProps> = ({ icon, title, subtitle }) 
   </Box>
 );
 
-const AccountSection: React.FC<{ onLogoutClick: () => void }> = ({ onLogoutClick }) => (
+const AccountSection: React.FC<{ onLogoutClick: () => void }> = ({
+  onLogoutClick,
+}) => (
   <Box>
     <SectionHeader
       icon={<AccountIcon fontSize="small" />}
@@ -248,7 +258,9 @@ const SystemSection: React.FC<SystemSectionProps> = ({
             Network Connection
           </Typography>
           <Typography variant="caption" color="text.secondary">
-            {isOnline ? "Connected to the internet" : "No internet connection detected"}
+            {isOnline
+              ? "Connected to the internet"
+              : "No internet connection detected"}
           </Typography>
         </Box>
         <Chip
@@ -294,14 +306,24 @@ const SystemSection: React.FC<SystemSectionProps> = ({
               <SyncingIcon />
             )
           }
-          label={isSyncing ? "Syncing…" : hasUnsynced ? "Unsynced" : "Up to date"}
+          label={
+            isSyncing ? "Syncing…" : hasUnsynced ? "Unsynced" : "Up to date"
+          }
           color={isSyncing ? "secondary" : hasUnsynced ? "warning" : "default"}
           size="small"
         />
       </Box>
     </Stack>
 
-    <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1.5, flexWrap: "wrap" }}>
+    <Box
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        gap: 1,
+        mb: 1.5,
+        flexWrap: "wrap",
+      }}
+    >
       <LogsIcon fontSize="small" color="action" />
       <Typography
         variant="subtitle2"
@@ -357,7 +379,14 @@ const SystemSection: React.FC<SystemSectionProps> = ({
         <Stack spacing={1.5}>
           {[...logs].reverse().map((log, index) => (
             <Box key={index}>
-              <Box sx={{ display: "flex", alignItems: "baseline", gap: 1, mb: 0.5 }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "baseline",
+                  gap: 1,
+                  mb: 0.5,
+                }}
+              >
                 <Typography
                   variant="caption"
                   sx={{
@@ -373,13 +402,21 @@ const SystemSection: React.FC<SystemSectionProps> = ({
                 >
                   {log.level}
                 </Typography>
-                <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.7rem" }}>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ fontSize: "0.7rem" }}
+                >
                   {new Date(log.timestamp).toLocaleTimeString()}
                 </Typography>
               </Box>
               <Typography
                 variant="body2"
-                sx={{ fontFamily: "monospace", fontSize: "0.8rem", wordBreak: "break-all" }}
+                sx={{
+                  fontFamily: "monospace",
+                  fontSize: "0.8rem",
+                  wordBreak: "break-all",
+                }}
               >
                 {log.message}
               </Typography>
@@ -412,7 +449,8 @@ const AppearanceSection: React.FC<{
       Colour Theme
     </Typography>
     <Typography variant="body2" color="text.secondary" sx={{ mb: 2.5 }}>
-      Choose a colour theme for CourtSight. Your selection is saved automatically.
+      Choose a colour theme for CourtSight. Your selection is saved
+      automatically.
     </Typography>
     <Grid container spacing={2}>
       {availablePresets.map((preset) => (
@@ -433,9 +471,24 @@ const AppearanceSection: React.FC<{
 );
 
 const NAV_ITEMS: NavItem[] = [
-  { id: "account", label: "Account", icon: <AccountIcon fontSize="small" />, description: "Sign out" },
-  { id: "system", label: "System", icon: <SystemIcon fontSize="small" />, description: "Status & logs" },
-  { id: "appearance", label: "Appearance", icon: <PaletteIcon fontSize="small" />, description: "Themes" },
+  {
+    id: "account",
+    label: "Account",
+    icon: <AccountIcon fontSize="small" />,
+    description: "Sign out",
+  },
+  {
+    id: "system",
+    label: "System",
+    icon: <SystemIcon fontSize="small" />,
+    description: "Status & logs",
+  },
+  {
+    id: "appearance",
+    label: "Appearance",
+    icon: <PaletteIcon fontSize="small" />,
+    description: "Themes",
+  },
 ];
 
 /**
@@ -445,7 +498,8 @@ const NAV_ITEMS: NavItem[] = [
 const Settings: React.FC = () => {
   const { logout } = useAuth();
   const { presetId, setPresetId, availablePresets } = useAppTheme();
-  const [activeSection, setActiveSection] = useState<SettingsSection>("account");
+  const [activeSection, setActiveSection] =
+    useState<SettingsSection>("account");
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [isSyncing, setIsSyncing] = useState(false);
   const [hasUnsynced, setHasUnsynced] = useState(false);
@@ -531,14 +585,22 @@ const Settings: React.FC = () => {
     navigator.clipboard.writeText(logString);
     setIsCopied(true);
     setTimeout(() => setIsCopied(false), 2000);
-    setSnackbar({ open: true, message: "Logs copied to clipboard", severity: "success" });
+    setSnackbar({
+      open: true,
+      message: "Logs copied to clipboard",
+      severity: "success",
+    });
   };
 
   const handleClearLogs = () => {
     if (window.confirm("Are you sure you want to clear all system logs?")) {
       logger.clearLogs();
       setLogs([]);
-      setSnackbar({ open: true, message: "System logs cleared", severity: "success" });
+      setSnackbar({
+        open: true,
+        message: "System logs cleared",
+        severity: "success",
+      });
     }
   };
 
@@ -593,7 +655,14 @@ const Settings: React.FC = () => {
             top: { md: 80 },
           }}
         >
-          <Box sx={{ px: 2, py: 1.5, borderBottom: "1px solid", borderColor: "divider" }}>
+          <Box
+            sx={{
+              px: 2,
+              py: 1.5,
+              borderBottom: "1px solid",
+              borderColor: "divider",
+            }}
+          >
             <Typography
               variant="overline"
               color="text.secondary"
@@ -619,14 +688,21 @@ const Settings: React.FC = () => {
                         "&.Mui-selected": {
                           bgcolor: "primary.main",
                           color: "primary.contrastText",
-                          "& .MuiListItemIcon-root": { color: "primary.contrastText" },
-                          "& .MuiListItemText-secondary": { color: "rgba(255,255,255,0.7)" },
+                          "& .MuiListItemIcon-root": {
+                            color: "primary.contrastText",
+                          },
+                          "& .MuiListItemText-secondary": {
+                            color: "rgba(255,255,255,0.7)",
+                          },
                           "&:hover": { bgcolor: "primary.dark" },
                         },
                       }}
                     >
                       <ListItemIcon
-                        sx={{ minWidth: 34, color: isActive ? "inherit" : "text.secondary" }}
+                        sx={{
+                          minWidth: 34,
+                          color: isActive ? "inherit" : "text.secondary",
+                        }}
                       >
                         {item.icon}
                       </ListItemIcon>
@@ -639,7 +715,9 @@ const Settings: React.FC = () => {
                         }}
                         secondaryTypographyProps={{ variant: "caption" }}
                       />
-                      {isActive && <ChevronRightIcon fontSize="small" sx={{ ml: 0.5 }} />}
+                      {isActive && (
+                        <ChevronRightIcon fontSize="small" sx={{ ml: 0.5 }} />
+                      )}
                     </ListItemButton>
                   </ListItem>
                   {idx < NAV_ITEMS.length - 1 && <Divider />}
@@ -661,7 +739,9 @@ const Settings: React.FC = () => {
             p: { xs: 2.5, sm: 3.5 },
           }}
         >
-          {activeSection === "account" && <AccountSection onLogoutClick={handleLogoutClick} />}
+          {activeSection === "account" && (
+            <AccountSection onLogoutClick={handleLogoutClick} />
+          )}
           {activeSection === "system" && (
             <SystemSection
               isOnline={isOnline}
@@ -689,14 +769,22 @@ const Settings: React.FC = () => {
         maxWidth="xs"
         fullWidth
       >
-        <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1.5, color: "error.main" }}>
+        <DialogTitle
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 1.5,
+            color: "error.main",
+          }}
+        >
           <WarningIcon color="error" />
           Unsynced Changes
         </DialogTitle>
         <DialogContent>
           <DialogContentText>
-            You have data that hasn't been synced to the server yet. If you logout now, these
-            changes may be lost. Are you sure you want to logout?
+            You have data that hasn't been synced to the server yet. If you
+            logout now, these changes may be lost. Are you sure you want to
+            logout?
           </DialogContentText>
         </DialogContent>
         <DialogActions sx={{ p: 2, px: 3, pb: 3 }}>
