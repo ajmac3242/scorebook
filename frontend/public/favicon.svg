@@ -1,26 +1,16 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <!-- Main Book Cover/Shape -->
-  <path d="M64 128 C 128 160 384 160 448 128 V 384 C 384 416 128 416 64 384 Z" fill="#1D2B3A" />
-
-  <!-- Inner Pages with Wood Texture-like color -->
-  <path d="M80 144 C 136 172 376 172 432 144 V 368 C 376 396 136 396 80 368 Z" fill="#D4A76A" />
-
-  <!-- Spine/Center Fold -->
-  <path d="M256 168 V 396" stroke="#1D2B3A" stroke-width="4" stroke-linecap="round" />
-
-  <!-- Court Markings -->
-  <g fill="none" stroke="#1D2B3A" stroke-width="8" stroke-linecap="round">
-    <!-- Center Circle -->
-    <circle cx="256" cy="268" r="48" />
-
-    <!-- Left Court -->
-    <path d="M80 192 A 160 160 0 0 1 80 344" />
-    <rect x="80" y="228" width="64" height="80" />
-    <path d="M144 228 A 40 40 0 0 1 144 308" />
-
-    <!-- Right Court -->
-    <path d="M432 192 A 160 160 0 0 0 432 344" />
-    <rect x="368" y="228" width="64" height="80" />
-    <path d="M368 228 A 40 40 0 0 0 368 308" />
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <!-- CourtSight favicon: basketball mark with sight dot -->
+  <!-- Basketball circle -->
+  <circle cx="16" cy="16" r="14" stroke="#FF6B1A" stroke-width="2.5" fill="none"/>
+  <!-- Vertical seam -->
+  <path d="M16 2 Q16 16 16 30" stroke="#FF6B1A" stroke-width="1.8" fill="none"/>
+  <!-- Horizontal seam -->
+  <path d="M2 16 Q16 16 30 16" stroke="#FF6B1A" stroke-width="1.8" fill="none"/>
+  <!-- Left arc seam -->
+  <path d="M5 6 Q10 16 5 26" stroke="#FF6B1A" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+  <!-- Right arc seam -->
+  <path d="M27 6 Q22 16 27 26" stroke="#FF6B1A" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+  <!-- Sight dot -->
+  <circle cx="16" cy="16" r="3.5" fill="#FF6B1A"/>
+  <circle cx="16" cy="16" r="1.5" fill="#FFFFFF"/>
 </svg>
