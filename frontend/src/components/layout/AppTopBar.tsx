@@ -43,7 +43,7 @@ const AppTopBar: React.FC<AppTopBarProps> = ({
         <Box
           sx={{ display: "flex", alignItems: "center", gap: 1, flexShrink: 0 }}
         >
-          <CourtSightLogo size={32} />
+          <CourtSightLogo width={32} />
           <Chip
             label={teamName}
             size="small"
