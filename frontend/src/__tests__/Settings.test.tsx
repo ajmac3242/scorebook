@@ -6,6 +6,7 @@ import { db } from "../db";
 import { syncService } from "../utils/syncService";
 import { AuthProvider } from "../context/AuthContext";
 import React from "react";
+import { CourtSightThemeProvider } from "../theme/ThemeContext";
 
 // Mock the whole syncService
 vi.mock("../utils/syncService", () => ({
@@ -27,9 +28,11 @@ describe("Settings Component", () => {
   const renderComponent = () =>
     render(
       <BrowserRouter>
-        <AuthProvider>
+<CourtSightThemeProvider>
+  <AuthProvider>
           <Settings />
         </AuthProvider>
+  </CourtSightThemeProvider>
       </BrowserRouter>,
     );
 
