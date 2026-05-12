@@ -231,10 +231,7 @@ export function normalizePath(event: APIGatewayProxyEventV2): string {
 export function extractRequestMetadata(event: APIGatewayProxyEventV2) {
   const raw = event as unknown as Record<string, unknown>;
   const method =
-    event.requestContext?.http?.method ??
-    raw.method ??
-    raw.httpMethod ??
-    "GET";
+    event.requestContext?.http?.method ?? raw.method ?? raw.httpMethod ?? "GET";
   return { method: method as string, path: normalizePath(event) };
 }
 

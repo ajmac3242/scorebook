@@ -261,7 +261,7 @@ export const calculateOnOffStats = (
     const isTurnover = type === ACTION_TYPES.TURNOVER;
     const isOreb = type === ACTION_TYPES.OFF_REBOUND;
 
-    const updateAgg = (target: (typeof globalStats)) => {
+    const updateAgg = (target: typeof globalStats) => {
       if (isMake) {
         if (isOpp) target.ptsAgainst += pts;
         else target.ptsFor += pts;
