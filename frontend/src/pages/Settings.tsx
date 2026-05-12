@@ -585,7 +585,13 @@ const Settings: React.FC = () => {
                 overflow: "hidden",
               }}
             >
-              <Box sx={{ p: 2.5, borderBottom: "1px solid", borderColor: "divider" }}>
+              <Box
+                sx={{
+                  p: 2.5,
+                  borderBottom: "1px solid",
+                  borderColor: "divider",
+                }}
+              >
                 <Typography variant="h6" fontWeight={700}>
                   Application Settings
                 </Typography>
@@ -601,7 +607,9 @@ const Settings: React.FC = () => {
                       selected={activeSection === item.id}
                       onClick={() => setActiveSection(item.id)}
                     >
-                      <ListItemIcon sx={{ minWidth: 36 }}>{item.icon}</ListItemIcon>
+                      <ListItemIcon sx={{ minWidth: 36 }}>
+                        {item.icon}
+                      </ListItemIcon>
                       <ListItemText
                         primary={item.label}
                         secondary={item.description}
