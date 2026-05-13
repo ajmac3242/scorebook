@@ -491,10 +491,11 @@ const Settings: React.FC = () => {
   return (
     <Box
       sx={{
-        pb: 4,
-        pt: 0.5,
+        pb: 2,
+        pt: 0,
         bgcolor: "#F9FAFB",
         minHeight: "100%",
+        width: "100%",
       }}
     >
       <Snackbar
@@ -517,6 +518,7 @@ const Settings: React.FC = () => {
         <Paper
           elevation={0}
           sx={{
+            width: "100%",
             borderRadius: "12px",
             border: "1px solid #EAECF0",
             overflow: "hidden",
@@ -693,10 +695,7 @@ const Settings: React.FC = () => {
                           onClick={handleClearLogs}
                           disabled={logs.length === 0}
                           color="error"
-                          sx={{
-                            textTransform: "none",
-                            alignSelf: "flex-start",
-                          }}
+                          sx={{ textTransform: "none", alignSelf: "flex-start" }}
                         >
                           Clear logs
                         </Button>
@@ -756,9 +755,7 @@ const Settings: React.FC = () => {
                                       color: "#667085",
                                     }}
                                   >
-                                    {new Date(
-                                      log.timestamp,
-                                    ).toLocaleTimeString()}
+                                    {new Date(log.timestamp).toLocaleTimeString()}
                                   </Typography>
                                 </Box>
                                 <Typography
@@ -812,9 +809,8 @@ const Settings: React.FC = () => {
                           height: 14,
                           borderRadius: "50%",
                           bgcolor:
-                            availablePresets.find(
-                              (preset) => preset.id === presetId,
-                            )?.previewColor || "primary.main",
+                            availablePresets.find((preset) => preset.id === presetId)
+                              ?.previewColor || "primary.main",
                           border: "1px solid rgba(16,24,40,0.08)",
                           flexShrink: 0,
                         }}
@@ -826,9 +822,8 @@ const Settings: React.FC = () => {
                           fontWeight: 500,
                         }}
                       >
-                        {availablePresets.find(
-                          (preset) => preset.id === presetId,
-                        )?.label ?? "Theme"}
+                        {availablePresets.find((preset) => preset.id === presetId)?.label ??
+                          "Theme"}
                       </Typography>
                     </Box>
                   }
@@ -840,7 +835,7 @@ const Settings: React.FC = () => {
                   alignTop
                   borderBottom={false}
                   action={
-                    <Box>
+                    <Box sx={{ width: "100%" }}>
                       <Grid container spacing={2}>
                         {availablePresets.map((preset) => (
                           <Grid item xs={12} sm={6} lg={4} key={preset.id}>
@@ -864,40 +859,6 @@ const Settings: React.FC = () => {
           </Box>
         </Paper>
       </PageContainer>
-
-      <Dialog
-        open={logoutDialogOpen}
-        onClose={() => setLogoutDialogOpen(false)}
-        maxWidth="xs"
-        fullWidth
-      >
-        <DialogTitle
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: 1.5,
-            color: "error.main",
-          }}
-        >
-          <WarningIcon color="error" />
-          Unsynced Changes
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            You have data that hasn't been synced to the server yet. If you log
-            out now, these changes may be lost. Are you sure you want to
-            continue?
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions sx={{ p: 2, px: 3, pb: 3 }}>
-          <Button onClick={() => setLogoutDialogOpen(false)} color="inherit">
-            Cancel
-          </Button>
-          <Button onClick={confirmLogout} color="error" variant="contained">
-            Log out anyway
-          </Button>
-        </DialogActions>
-      </Dialog>
     </Box>
   );
 };
