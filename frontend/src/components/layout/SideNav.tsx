@@ -22,6 +22,7 @@ import {
 } from "@mui/icons-material";
 import { NavLink, useLocation } from "react-router-dom";
 import CourtSightLogo from "../CourtSightLogo";
+import { APP_SHELL_LAYOUT } from "./AppShell";
 
 interface SideNavProps {
   /** Whether the game is currently live (to show the animated dot) */
@@ -67,12 +68,19 @@ const SideNav: React.FC<SideNavProps> = ({
       }}
     >
       {/* Logo Section */}
-      <Box sx={{ p: 3, display: "flex", justifyContent: "center" }}>
-        <CourtSightLogo width={160} />
+      <Box
+        sx={{
+          px: 2,
+          py: 2.5,
+          display: "flex",
+          justifyContent: "center",
+        }}
+      >
+        <CourtSightLogo width={152} />
       </Box>
 
       {/* Navigation Links */}
-      <List sx={{ flexGrow: 1, px: 2 }}>
+      <List sx={{ flexGrow: 1, px: 1.5 }}>
         {NAV_ITEMS.map((item) => {
           const isActive = location.pathname === item.path;
           return (
@@ -82,7 +90,9 @@ const SideNav: React.FC<SideNavProps> = ({
                 to={item.path}
                 onClick={onMobileClose}
                 sx={{
+                  minHeight: 44,
                   borderRadius: 2,
+                  px: 1.5,
                   bgcolor: isActive ? "primary.container" : "transparent",
                   color: isActive ? "primary.main" : "text.secondary",
                   "&:hover": {
@@ -91,7 +101,7 @@ const SideNav: React.FC<SideNavProps> = ({
                   },
                   "& .MuiListItemIcon-root": {
                     color: "inherit",
-                    minWidth: 40,
+                    minWidth: 36,
                   },
                 }}
               >
@@ -129,21 +139,33 @@ const SideNav: React.FC<SideNavProps> = ({
       </List>
 
       {/* Settings & Profile Pill */}
-      <Box sx={{ p: 2, borderTop: "1px solid", borderColor: "divider" }}>
+      <Box sx={{ p: 1.5, borderTop: "1px solid", borderColor: "divider" }}>
         <ListItem disablePadding sx={{ mb: 1 }}>
           <ListItemButton
             component={NavLink}
             to="/settings"
             onClick={onMobileClose}
             sx={{
+              minHeight: 44,
               borderRadius: 2,
+              px: 1.5,
               color:
                 location.pathname === "/settings"
                   ? "primary.main"
                   : "text.secondary",
+              bgcolor:
+                location.pathname === "/settings"
+                  ? "primary.container"
+                  : "transparent",
+              "&:hover": {
+                bgcolor:
+                  location.pathname === "/settings"
+                    ? "primary.container"
+                    : "action.hover",
+              },
             }}
           >
-            <ListItemIcon sx={{ minWidth: 40, color: "inherit" }}>
+            <ListItemIcon sx={{ minWidth: 36, color: "inherit" }}>
               <SettingsIcon />
             </ListItemIcon>
             <ListItemText
@@ -186,7 +208,13 @@ const SideNav: React.FC<SideNavProps> = ({
   );
 
   return (
-    <Box component="nav" sx={{ width: { md: 240 }, flexShrink: { md: 0 } }}>
+    <Box
+      component="nav"
+      sx={{
+        width: { md: APP_SHELL_LAYOUT.drawerWidth },
+        flexShrink: { md: 0 },
+      }}
+    >
       {/* Mobile Drawer */}
       {!isDesktop && (
         <Drawer
@@ -196,7 +224,10 @@ const SideNav: React.FC<SideNavProps> = ({
           ModalProps={{ keepMounted: true }}
           sx={{
             display: { xs: "block", md: "none" },
-            "& .MuiDrawer-paper": { boxSizing: "border-box", width: 240 },
+            "& .MuiDrawer-paper": {
+              boxSizing: "border-box",
+              width: APP_SHELL_LAYOUT.drawerWidth,
+            },
           }}
         >
           {drawerContent}
@@ -211,7 +242,7 @@ const SideNav: React.FC<SideNavProps> = ({
             display: { xs: "none", md: "block" },
             "& .MuiDrawer-paper": {
               boxSizing: "border-box",
-              width: 240,
+              width: APP_SHELL_LAYOUT.drawerWidth,
               position: "relative",
               height: "100%",
             },
