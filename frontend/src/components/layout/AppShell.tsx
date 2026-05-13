@@ -10,6 +10,8 @@ interface AppShellProps {
 
 export const APP_SHELL_LAYOUT = {
   drawerWidth: 240,
+  desktopInset: 2,
+  mobileInset: 1,
 } as const;
 
 const AppShell: React.FC<AppShellProps> = ({
@@ -49,8 +51,8 @@ const AppShell: React.FC<AppShellProps> = ({
             width: "100%",
             overflowY: "auto",
             overflowX: "hidden",
-            px: { xs: 1, sm: 2 },
-            py: { xs: 1, sm: 2 },
+            px: APP_SHELL_LAYOUT.mobileInset,
+            py: APP_SHELL_LAYOUT.mobileInset,
             bgcolor: "background.paper",
             position: "relative",
             outline: "none",
@@ -82,69 +84,81 @@ const AppShell: React.FC<AppShellProps> = ({
   return (
     <Box
       sx={{
-        display: "flex",
-        flexDirection: "row",
         height: "100dvh",
         width: "100%",
-        minWidth: 0,
         overflow: "hidden",
         bgcolor: "background.paper",
+        p: APP_SHELL_LAYOUT.desktopInset,
+        boxSizing: "border-box",
       }}
     >
       <Box
-        component="aside"
         sx={{
-          width: APP_SHELL_LAYOUT.drawerWidth,
-          minWidth: APP_SHELL_LAYOUT.drawerWidth,
-          maxWidth: APP_SHELL_LAYOUT.drawerWidth,
-          height: "100%",
-          flexShrink: 0,
-          borderRight: "1px solid",
-          borderColor: "divider",
-          bgcolor: "background.paper",
-          overflow: "hidden",
-        }}
-      >
-        {drawerSlot}
-      </Box>
-
-      <Box
-        sx={{
-          flex: 1,
-          minWidth: 0,
-          minHeight: 0,
           display: "flex",
-          flexDirection: "column",
+          flexDirection: "row",
+          gap: APP_SHELL_LAYOUT.desktopInset,
+          height: "100%",
+          width: "100%",
+          minWidth: 0,
           overflow: "hidden",
           bgcolor: "background.paper",
         }}
       >
-        {topBarSlot ? (
-          <Box sx={{ flexShrink: 0, minWidth: 0, zIndex: 1100 }}>
-            {topBarSlot}
-          </Box>
-        ) : null}
+        <Box
+          component="aside"
+          sx={{
+            width: APP_SHELL_LAYOUT.drawerWidth,
+            minWidth: APP_SHELL_LAYOUT.drawerWidth,
+            maxWidth: APP_SHELL_LAYOUT.drawerWidth,
+            height: "100%",
+            flexShrink: 0,
+            bgcolor: "background.paper",
+            overflow: "hidden",
+            borderRadius: 3,
+          }}
+        >
+          {drawerSlot}
+        </Box>
 
         <Box
-          component="main"
-          id="main-content"
           sx={{
             flex: 1,
-            minHeight: 0,
             minWidth: 0,
-            width: "100%",
-            overflowY: "auto",
-            overflowX: "hidden",
-            px: { xs: 1, sm: 2, md: 2 },
-            py: { xs: 1, sm: 2, md: 2 },
+            minHeight: 0,
+            display: "flex",
+            flexDirection: "column",
+            overflow: "hidden",
             bgcolor: "background.paper",
-            position: "relative",
-            outline: "none",
-            WebkitOverflowScrolling: "touch",
           }}
-          tabIndex={-1}
         >
-          {children}
+          {topBarSlot ? (
+            <Box sx={{ flexShrink: 0, minWidth: 0, zIndex: 1100 }}>
+              {topBarSlot}
+            </Box>
+          ) : null}
+
+          <Box
+            component="main"
+            id="main-content"
+            sx={{
+              flex: 1,
+              minHeight: 0,
+              minWidth: 0,
+              width: "100%",
+              overflowY: "auto",
+              overflowX: "hidden",
+              pr: 0,
+              pt: 0,
+              pb: 0,
+              bgcolor: "background.paper",
+              position: "relative",
+              outline: "none",
+              WebkitOverflowScrolling: "touch",
+            }}
+            tabIndex={-1}
+          >
+            {children}
+          </Box>
         </Box>
       </Box>
     </Box>
