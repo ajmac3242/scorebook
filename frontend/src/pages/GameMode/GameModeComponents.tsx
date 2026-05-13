@@ -32,7 +32,7 @@ interface QuickActionProps {
  */
 export const QuickAction: React.FC<QuickActionProps> = React.memo(
   ({ type, label, icon: Icon, statType, onClick }) => (
-    <Tooltip title={label || ""}>
+    <Tooltip title={label} arrow>
       <Button
         variant={statType === type ? "contained" : "outlined"}
         color="inherit"
@@ -48,10 +48,17 @@ export const QuickAction: React.FC<QuickActionProps> = React.memo(
           borderColor: "#D1D1D1",
           backgroundColor: statType === type ? "primary.main" : "transparent",
           color: statType === type ? "white" : "text.primary",
+          "&:focus-visible": {
+            outline: "2px solid",
+            outlineColor: "primary.main",
+            outlineOffset: "2px",
+          },
         }}
       >
         <Icon sx={{ mb: 1 }} />
-        <Typography variant="caption">{label}</Typography>
+        <Typography variant="caption" sx={{ fontWeight: 700 }}>
+          {label}
+        </Typography>
       </Button>
     </Tooltip>
   ),

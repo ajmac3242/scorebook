@@ -138,6 +138,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
   const [selectedY, setSelectedY] = useState<number | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isBreakdownDialogOpen, setIsBreakdownDialogOpen] = useState(false);
+  const [isSavingSub, setIsSavingSub] = useState(false);
   const [lastOpponentStatId, setLastOpponentStatId] = useState<string | null>(
     null,
   );
@@ -711,6 +712,8 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     setIsEnding,
     isSavingStat,
     setIsSavingStat,
+    isSavingSub,
+    setIsSavingSub,
     chainPrompt,
     setChainPrompt,
     snackbar,

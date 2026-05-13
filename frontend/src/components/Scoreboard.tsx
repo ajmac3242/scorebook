@@ -373,7 +373,7 @@ export const Scoreboard = React.memo(
                   key={t.playerId}
                   spacing={0.5}
                   alignItems="center"
-                  role="status"
+                  role="alert"
                   aria-live="polite"
                 >
                   <Typography

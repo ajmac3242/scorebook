@@ -46,6 +46,10 @@ const getCourtStyles = (theme: Theme) => `
     opacity: 1 !important;
     cursor: pointer;
   }
+  .court-svg:focus-visible {
+    outline: 2px solid ${theme.palette.primary.main} !important;
+    outline-offset: 2px;
+  }
   @keyframes pulse {
     0% { r: 6; stroke-width: 1; }
     50% { r: 8; stroke-width: 3; }
@@ -95,13 +99,22 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
         <svg
           viewBox="0 0 500 470"
           role="img"
-          aria-label="Interactive basketball court map"
+          aria-label="Interactive basketball court map. Tap or use keyboard to record shot locations."
           onClick={handleCourtClick}
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              if (onCoordClick) onCoordClick(50, 50); // Default to center for keyboard
+            }
+          }}
           style={{
             width: "100%",
             height: "100%",
             cursor: onCoordClick ? "crosshair" : "default",
+            outline: "none",
           }}
+          className="court-svg"
           xmlns="http://www.w3.org/2000/svg"
         >
           {/* Out of bounds / Court Perimeter */}
