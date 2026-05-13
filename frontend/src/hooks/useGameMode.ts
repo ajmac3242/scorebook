@@ -245,7 +245,12 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
             newLineup.delete(outId);
             newLineup.add(inId);
 
-            await quickSub(gameData.onCourtIds, newLineup, period, clockSeconds);
+            await quickSub(
+              gameData.onCourtIds,
+              newLineup,
+              period,
+              clockSeconds,
+            );
 
             setSnackbar({
               open: true,
