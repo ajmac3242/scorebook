@@ -9,7 +9,6 @@ import {
   ListItemText,
   Typography,
   Avatar,
-  useTheme,
   useMediaQuery,
 } from "@mui/material";
 import {
@@ -55,7 +54,6 @@ const SideNav: React.FC<SideNavProps> = ({
   onMobileClose,
   coachName = "Coach",
 }) => {
-  const theme = useTheme();
   const isDesktop = useMediaQuery("(min-width:768px)");
   const location = useLocation();
 

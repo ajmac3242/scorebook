@@ -5,7 +5,7 @@
  */
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { Typography, Box, CircularProgress } from "@mui/material";
+import { Box, CircularProgress } from "@mui/material";
 import { CourtSightThemeProvider, ThemePreset } from "./theme/ThemeContext";
 import GameMode from "./pages/GameMode";
 import Login from "./pages/Login";

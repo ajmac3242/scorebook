@@ -62,3 +62,8 @@ cd frontend && pnpm test:jules -- "<module-name>"
 - **Patterns in what gets left incomplete**: Defensive efficiency (Opponent PPP) is often neglected in favor of offensive metrics, leaving coaches with only half the tactical picture.
 - **Recurring issues agents create**: Hard-coding game lengths (e.g., 40 mins) in UI components instead of deriving them from team settings or calculating a standardized rate (NET/40).
 - **End-of-Day improvement patterns**: Implementing 'Temporal Windowing' (Last 5/10 games) provides immediate value for scouting and performance trend analysis without requiring complex backend filtering.
+
+## End-of-Day Insights - 2026-05-13
+- **Patterns in what gets left incomplete**: Global layout refactors can easily leave orphan routes or missing imports if not audited across all device viewports.
+- **Recurring issues agents create**: Leaving unused MUI imports (like Typography or useTheme) after refactoring component structures.
+- **End-of-Day improvement patterns**: Using a centralized AppShell with dedicated slots for nav components ensures a consistent UI across the entire application while simplifying individual page logic.
