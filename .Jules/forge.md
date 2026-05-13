@@ -19,3 +19,7 @@
 ## Data Model Decisions
 
 - **StatEvent Extensions:** Leveraged `situation` and `shotClockPhase` fields to drive the new analytics. These fields are critical for separating "Transition" performance from "Half-Court" performance.
+## 🔨 Forge: [Voice-Command Substitution Entry]
+- Implemented voice command parsing for player substitutions: '[Jersey] in for [Jersey]', '[Jersey] sub [Jersey]', and 'sub [Jersey] for [Jersey]'.
+- Integrated voice substitution into 'useGameMode.ts' using the 'quickSub' utility for atomic lineup updates.
+- Added unit tests in 'voiceParser.test.ts' covering all substitution patterns and opponent substitutions.

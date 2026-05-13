@@ -154,6 +154,65 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     async (command: ParsedVoiceCommand) => {
       if (!gameId) return;
 
+      // Detect Substitution Pair
+      const subInAction = command.actions.find(
+        (a) => a.action === ACTION_TYPES.SUB_IN,
+      );
+      const subOutAction = command.actions.find(
+        (a) => a.action === ACTION_TYPES.SUB_OUT,
+      );
+
+      if (
+        subInAction &&
+        subOutAction &&
+        subInAction.isOpponent === subOutAction.isOpponent
+      ) {
+        const isOpp = subInAction.isOpponent;
+        let inId = "";
+        let outId = "";
+
+        if (isOpp) {
+          inId = `${SPECIAL_PLAYER_IDS.OPPONENT}:${subInAction.jerseyNumber}`;
+          outId = `${SPECIAL_PLAYER_IDS.OPPONENT}:${subOutAction.jerseyNumber}`;
+        } else {
+          const inPlayer = teamPlayers.find(
+            (tp) => tp.jerseyNumber === subInAction.jerseyNumber,
+          );
+          const outPlayer = teamPlayers.find(
+            (tp) => tp.jerseyNumber === subOutAction.jerseyNumber,
+          );
+          if (inPlayer && outPlayer) {
+            inId = inPlayer.playerId;
+            outId = outPlayer.playerId;
+          }
+        }
+
+        if (inId && outId) {
+          try {
+            const newLineup = new Set(gameData.onCourtIds);
+            newLineup.delete(outId);
+            newLineup.add(inId);
+
+            await quickSub(gameData.onCourtIds, newLineup, period, clockSeconds);
+
+            setSnackbar({
+              open: true,
+              message: `Lineup Updated: #${subInAction.jerseyNumber} IN, #${subOutAction.jerseyNumber} OUT.`,
+              severity: "success",
+            });
+            return;
+          } catch (err) {
+            logger.error("Voice substitution failed:", err);
+            setSnackbar({
+              open: true,
+              message: "Voice substitution failed",
+              severity: "error",
+            });
+            return;
+          }
+        }
+      }
+
       for (const action of command.actions) {
         let pId = "";
         if (action.isOpponent) {
@@ -219,6 +278,8 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       setLastOpponentStatId,
       setIsBreakdownDialogOpen,
       setSnackbar,
+      gameData.onCourtIds,
+      quickSub,
     ],
   );
 
