@@ -1,11 +1,7 @@
 import { ACTION_TYPES } from "../../../constants/stats";
 import { StatEvent, Player } from "../../../db";
 import { calculateElapsedMinutes } from "../../mathUtils";
-import {
-  isActive,
-  isOpponentId,
-  isFieldGoal,
-} from "../aggregators";
+import { isActive, isOpponentId, isFieldGoal } from "../aggregators";
 import {
   OpponentThreat,
   PlayerAggregates,
@@ -55,7 +51,7 @@ export const calculateOpponentThreats = (
 
     const isOpp = isOpponentId(s.playerId);
 
-    if (!isOpp && (s.type === ACTION_TYPES.MAKE)) {
+    if (!isOpp && s.type === ACTION_TYPES.MAKE) {
       for (const t of threats.values()) {
         t.straightPoints = 0;
       }
