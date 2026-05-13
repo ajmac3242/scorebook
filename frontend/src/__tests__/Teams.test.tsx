@@ -45,12 +45,9 @@ describe("Teams Component", () => {
       </ThemeProvider>,
     );
 
-  const openAddDialog = async () => {
+  const openCreateDialog = async () => {
     renderComponent();
-
-    const addButton = screen.getByRole("button", { name: /add team/i });
-    fireEvent.click(addButton);
-
+    fireEvent.click(screen.getByRole("button", { name: /add team/i }));
     return await screen.findByRole("dialog");
   };
 
@@ -110,10 +107,10 @@ describe("Teams Component", () => {
 
     renderComponent();
 
-    const teamOneFavoriteButton = await screen.findByLabelText(
+    const favoriteButton = await screen.findByLabelText(
       /mark team one as favorite/i,
     );
-    fireEvent.click(teamOneFavoriteButton);
+    fireEvent.click(favoriteButton);
 
     await waitFor(() => {
       const t1 = mockDb.teams.data.find((t: any) => t.id === "t1");
@@ -150,7 +147,7 @@ describe("Teams Component", () => {
   });
 
   it("adds a team successfully and shows a success snackbar", async () => {
-    const dialog = await openAddDialog();
+    const dialog = await openCreateDialog();
 
     fillRequiredFields(dialog, {
       name: "Bulls",
@@ -167,7 +164,7 @@ describe("Teams Component", () => {
     const halvesOption = await screen.findByRole("option", { name: /halves/i });
     fireEvent.click(halvesOption);
 
-    fireEvent.click(within(dialog).getByRole("button", { name: /^create/i }));
+    fireEvent.click(within(dialog).getByRole("button", { name: /create/i }));
 
     await waitFor(() => {
       expect(mockDb.teams.data.some((t: any) => t.name === "Bulls")).toBe(true);
@@ -179,9 +176,9 @@ describe("Teams Component", () => {
   });
 
   it("validates empty team name", async () => {
-    const dialog = await openAddDialog();
+    const dialog = await openCreateDialog();
 
-    fireEvent.click(within(dialog).getByRole("button", { name: /^create/i }));
+    fireEvent.click(within(dialog).getByRole("button", { name: /create/i }));
 
     expect(
       await screen.findByText(/team name is required/i),
@@ -189,7 +186,7 @@ describe("Teams Component", () => {
   });
 
   it("closes the dialog when cancel is clicked", async () => {
-    const dialog = await openAddDialog();
+    const dialog = await openCreateDialog();
 
     fireEvent.click(within(dialog).getByRole("button", { name: /cancel/i }));
 
@@ -225,11 +222,11 @@ describe("Teams Component", () => {
       throw new Error("Add failed");
     });
 
-    const dialog = await openAddDialog();
+    const dialog = await openCreateDialog();
 
     fillRequiredFields(dialog, { name: "Fail Team" });
 
-    fireEvent.click(within(dialog).getByRole("button", { name: /^create/i }));
+    fireEvent.click(within(dialog).getByRole("button", { name: /create/i }));
 
     await waitFor(() => {
       expect(loggerSpy).toHaveBeenCalled();
