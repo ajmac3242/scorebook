@@ -49,6 +49,8 @@ const ACTION_MAP: Record<string, string> = {
   turnover: ACTION_TYPES.TURNOVER,
   foul: ACTION_TYPES.FOUL_SHOOTING,
   timeout: ACTION_TYPES.TIMEOUT,
+  sub: ACTION_TYPES.SUB_IN,
+  in: ACTION_TYPES.SUB_IN,
 };
 
 /**
@@ -124,6 +126,52 @@ export const parseVoiceCommand = (
     if (action) {
       let points = 2;
       i++;
+
+      // Handle Substitution patterns: "[Jersey] in for [Jersey]" or "[Jersey] sub [Jersey]"
+      if (action === ACTION_TYPES.SUB_IN) {
+        // Skip "for" if it exists (e.g., "12 in for 5" or "sub 12 for 5")
+        if (words[i] === "for") i++;
+
+        const nextNumResult = parseNumberAt(words, i);
+        if (nextNumResult) {
+          const incoming = currentJersey;
+          const outgoing = nextNumResult.value;
+
+          if (incoming && outgoing) {
+            actions.push({
+              jerseyNumber: incoming,
+              action: ACTION_TYPES.SUB_IN,
+              isOpponent,
+            });
+            actions.push({
+              jerseyNumber: outgoing,
+              action: ACTION_TYPES.SUB_OUT,
+              isOpponent,
+            });
+            i += nextNumResult.consumed;
+            continue;
+          } else if (!incoming && outgoing) {
+            // "sub [Jersey] for [Jersey]" case
+            i += nextNumResult.consumed;
+            if (words[i] === "for") i++;
+            const secondNumResult = parseNumberAt(words, i);
+            if (secondNumResult) {
+              actions.push({
+                jerseyNumber: outgoing,
+                action: ACTION_TYPES.SUB_IN,
+                isOpponent,
+              });
+              actions.push({
+                jerseyNumber: secondNumResult.value,
+                action: ACTION_TYPES.SUB_OUT,
+                isOpponent,
+              });
+              i += secondNumResult.consumed;
+              continue;
+            }
+          }
+        }
+      }
 
       // If it's a make, look for points
       if (action === ACTION_TYPES.MAKE) {

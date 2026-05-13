@@ -612,6 +612,8 @@ const GameMode: React.FC = () => {
     clockSeconds,
     setIsSubDialogOpen,
     setSnackbar,
+    isSavingSub,
+    setIsSavingSub,
   ]);
 
   const handleDeleteStat = useCallback(async () => {

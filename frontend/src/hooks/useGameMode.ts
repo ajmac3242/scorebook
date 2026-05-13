@@ -150,9 +150,125 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     action?: "UNDO";
   }>({ open: false, message: "", severity: "success" });
 
+  const [isVerificationOpen, setIsVerificationOpen] = useState(false);
+  const [lastVerifiedPeriod, setLastVerifiedPeriod] = useState(0);
+
+  const [points, setPoints] = useState<number>(2);
+  const [playName, setPlayName] = useState<string>("");
+  const [shotQuality, setShotQuality] = useState<string | null>(null);
+  const [situation, setSituation] = useState<string | null>(null);
+  const [opponentPlayType, setOpponentPlayType] = useState<string | null>(null);
+
+  const [sortConfig, setSortConfig] = useState<{
+    key: keyof PlayerAggregates;
+    direction: "asc" | "desc";
+  }>({ key: "jerseyNumber", direction: "asc" });
+
+  const [markerFilter, setMarkerFilter] = useState<string>("ALL");
+
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [statToDelete, setStatToDelete] = useState<string | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingStatId, setEditingStatId] = useState<string | null>(null);
+
+  const [isEndGameDialogOpen, setIsEndGameDialogOpen] = useState(false);
+  const [isClockEditDialogOpen, setIsClockEditDialogOpen] = useState(false);
+  const [isSummaryDialogOpen, setIsSummaryDialogOpen] = useState(false);
+  const [isAuditDialogOpen, setIsAuditDialogOpen] = useState(false);
+  const [isFtWorkflowOpen, setIsFtWorkflowOpen] = useState(false);
+  const [isHalftimeReportOpen, setIsHalftimeReportOpen] = useState(false);
+  const [lastViewedHalftimePeriod, setLastViewedHalftimePeriod] =
+    useState<number>(0);
+  const [showMatchupMatrix, setShowMatchupMatrix] = useState(false);
+  const [chainPrompt, setChainPrompt] = useState<{
+    type: "ASSIST" | "REBOUND" | "HOCKEY_ASSIST";
+    originalStat: StatEvent;
+  } | null>(null);
+
+  // 4. More Domain Derived State
+  const sortedGameStats = useMemo(() => {
+    return [...gameStats].sort((a, b) => {
+      if (a.timestamp < b.timestamp) return -1;
+      if (a.timestamp > b.timestamp) return 1;
+      return 0;
+    });
+  }, [gameStats]);
+
+  const { eventAggregates, gameData } = useGameAggregator(
+    sortedGameStats,
+    period,
+    clockSeconds,
+    team,
+    game,
+  );
+
   const handleVoiceCommand = useCallback(
     async (command: ParsedVoiceCommand) => {
       if (!gameId) return;
+
+      // Detect Substitution Pair
+      const subInAction = command.actions.find(
+        (a) => a.action === ACTION_TYPES.SUB_IN,
+      );
+      const subOutAction = command.actions.find(
+        (a) => a.action === ACTION_TYPES.SUB_OUT,
+      );
+
+      if (
+        subInAction &&
+        subOutAction &&
+        subInAction.isOpponent === subOutAction.isOpponent
+      ) {
+        const isOpp = subInAction.isOpponent;
+        let inId = "";
+        let outId = "";
+
+        if (isOpp) {
+          inId = `${SPECIAL_PLAYER_IDS.OPPONENT}:${subInAction.jerseyNumber}`;
+          outId = `${SPECIAL_PLAYER_IDS.OPPONENT}:${subOutAction.jerseyNumber}`;
+        } else {
+          const inPlayer = teamPlayers.find(
+            (tp) => tp.jerseyNumber === subInAction.jerseyNumber,
+          );
+          const outPlayer = teamPlayers.find(
+            (tp) => tp.jerseyNumber === subOutAction.jerseyNumber,
+          );
+          if (inPlayer && outPlayer) {
+            inId = inPlayer.playerId;
+            outId = outPlayer.playerId;
+          }
+        }
+
+        if (inId && outId) {
+          try {
+            const newLineup = new Set(gameData.onCourtIds);
+            newLineup.delete(outId);
+            newLineup.add(inId);
+
+            await quickSub(
+              gameData.onCourtIds,
+              newLineup,
+              period,
+              clockSeconds,
+            );
+
+            setSnackbar({
+              open: true,
+              message: `Lineup Updated: #${subInAction.jerseyNumber} IN, #${subOutAction.jerseyNumber} OUT.`,
+              severity: "success",
+            });
+            return;
+          } catch (err) {
+            logger.error("Voice substitution failed:", err);
+            setSnackbar({
+              open: true,
+              message: "Voice substitution failed",
+              severity: "error",
+            });
+            return;
+          }
+        }
+      }
 
       for (const action of command.actions) {
         let pId = "";
@@ -219,6 +335,8 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
       setLastOpponentStatId,
       setIsBreakdownDialogOpen,
       setSnackbar,
+      gameData.onCourtIds,
+      quickSub,
     ],
   );
 
@@ -226,57 +344,6 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     onCommand: handleVoiceCommand,
     enabled: voiceEnabled,
   });
-  const [isVerificationOpen, setIsVerificationOpen] = useState(false);
-  const [lastVerifiedPeriod, setLastVerifiedPeriod] = useState(0);
-
-  const [points, setPoints] = useState<number>(2);
-  const [playName, setPlayName] = useState<string>("");
-  const [shotQuality, setShotQuality] = useState<string | null>(null);
-  const [situation, setSituation] = useState<string | null>(null);
-  const [opponentPlayType, setOpponentPlayType] = useState<string | null>(null);
-
-  const [sortConfig, setSortConfig] = useState<{
-    key: keyof PlayerAggregates;
-    direction: "asc" | "desc";
-  }>({ key: "jerseyNumber", direction: "asc" });
-
-  const [markerFilter, setMarkerFilter] = useState<string>("ALL");
-
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [statToDelete, setStatToDelete] = useState<string | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
-  const [editingStatId, setEditingStatId] = useState<string | null>(null);
-
-  const [isEndGameDialogOpen, setIsEndGameDialogOpen] = useState(false);
-  const [isClockEditDialogOpen, setIsClockEditDialogOpen] = useState(false);
-  const [isSummaryDialogOpen, setIsSummaryDialogOpen] = useState(false);
-  const [isAuditDialogOpen, setIsAuditDialogOpen] = useState(false);
-  const [isFtWorkflowOpen, setIsFtWorkflowOpen] = useState(false);
-  const [isHalftimeReportOpen, setIsHalftimeReportOpen] = useState(false);
-  const [lastViewedHalftimePeriod, setLastViewedHalftimePeriod] =
-    useState<number>(0);
-  const [showMatchupMatrix, setShowMatchupMatrix] = useState(false);
-  const [chainPrompt, setChainPrompt] = useState<{
-    type: "ASSIST" | "REBOUND" | "HOCKEY_ASSIST";
-    originalStat: StatEvent;
-  } | null>(null);
-
-  // 4. More Domain Derived State
-  const sortedGameStats = useMemo(() => {
-    return [...gameStats].sort((a, b) => {
-      if (a.timestamp < b.timestamp) return -1;
-      if (a.timestamp > b.timestamp) return 1;
-      return 0;
-    });
-  }, [gameStats]);
-
-  const { eventAggregates, gameData } = useGameAggregator(
-    sortedGameStats,
-    period,
-    clockSeconds,
-    team,
-    game,
-  );
 
   const lastKillCount = useRef<number | null>(null);
   useEffect(() => {

@@ -53,4 +53,66 @@ describe("voiceParser", () => {
       isOpponent: false,
     });
   });
+
+  describe("substitutions", () => {
+    it("parses '[Jersey] in for [Jersey]'", () => {
+      const result = parseVoiceCommand("twelve in for five");
+      expect(result?.actions).toHaveLength(2);
+      expect(result?.actions[0]).toEqual({
+        jerseyNumber: "12",
+        action: ACTION_TYPES.SUB_IN,
+        isOpponent: false,
+      });
+      expect(result?.actions[1]).toEqual({
+        jerseyNumber: "5",
+        action: ACTION_TYPES.SUB_OUT,
+        isOpponent: false,
+      });
+    });
+
+    it("parses '[Jersey] sub [Jersey]'", () => {
+      const result = parseVoiceCommand("12 sub 5");
+      expect(result?.actions).toHaveLength(2);
+      expect(result?.actions[0]).toEqual({
+        jerseyNumber: "12",
+        action: ACTION_TYPES.SUB_IN,
+        isOpponent: false,
+      });
+      expect(result?.actions[1]).toEqual({
+        jerseyNumber: "5",
+        action: ACTION_TYPES.SUB_OUT,
+        isOpponent: false,
+      });
+    });
+
+    it("parses 'sub [Jersey] for [Jersey]'", () => {
+      const result = parseVoiceCommand("sub twelve for five");
+      expect(result?.actions).toHaveLength(2);
+      expect(result?.actions[0]).toEqual({
+        jerseyNumber: "12",
+        action: ACTION_TYPES.SUB_IN,
+        isOpponent: false,
+      });
+      expect(result?.actions[1]).toEqual({
+        jerseyNumber: "5",
+        action: ACTION_TYPES.SUB_OUT,
+        isOpponent: false,
+      });
+    });
+
+    it("parses opponent substitution", () => {
+      const result = parseVoiceCommand("opponent ten in for zero");
+      expect(result?.actions).toHaveLength(2);
+      expect(result?.actions[0]).toEqual({
+        jerseyNumber: "10",
+        action: ACTION_TYPES.SUB_IN,
+        isOpponent: true,
+      });
+      expect(result?.actions[1]).toEqual({
+        jerseyNumber: "0",
+        action: ACTION_TYPES.SUB_OUT,
+        isOpponent: true,
+      });
+    });
+  });
 });
