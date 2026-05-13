@@ -7,11 +7,6 @@ import {
   CardActionArea,
   CardContent,
   Chip,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
   Grid,
   Paper,
   Snackbar,
@@ -31,7 +26,6 @@ import {
   Wifi as OnlineIcon,
   WifiOff as OfflineIcon,
 } from "@mui/icons-material";
-import PageContainer from "../components/layout/PageContainer";
 import { useAuth } from "../context/AuthContext";
 import { db } from "../db";
 import { useAppTheme, ThemePreset } from "../theme/ThemeContext";
@@ -328,7 +322,6 @@ const Settings: React.FC = () => {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [isSyncing, setIsSyncing] = useState(false);
   const [hasUnsynced, setHasUnsynced] = useState(false);
-  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   const [logs, setLogs] = useState<LogEntry[]>(logger.getLogs());
   const [isCopied, setIsCopied] = useState(false);
   const [snackbar, setSnackbar] = useState<{
@@ -423,17 +416,6 @@ const Settings: React.FC = () => {
   );
 
   const handleLogoutClick = async () => {
-    const unsynced = await syncService.hasUnsyncedChanges();
-    if (unsynced) {
-      setLogoutDialogOpen(true);
-    } else {
-      logout();
-    }
-  };
-
-  const confirmLogout = async () => {
-    setLogoutDialogOpen(false);
-
     try {
       await db.delete();
 
@@ -491,8 +473,8 @@ const Settings: React.FC = () => {
   return (
     <Box
       sx={{
-        pb: 4,
-        pt: 0.5,
+        pb: 8,
+        pt: { xs: 2, sm: 3 },
         bgcolor: "#F9FAFB",
         minHeight: "100%",
       }}
@@ -513,7 +495,14 @@ const Settings: React.FC = () => {
         </Alert>
       </Snackbar>
 
-      <PageContainer width="full">
+      <Box
+        sx={{
+          mx: "auto",
+          px: { xs: 2, sm: 3, md: 4 },
+          width: "100%",
+          maxWidth: 1180,
+        }}
+      >
         <Paper
           elevation={0}
           sx={{
@@ -594,47 +583,23 @@ const Settings: React.FC = () => {
 
                 <SettingsRow
                   label="Logout"
-                  description="Sign out of CourtSight on this device. Unsynced changes may be lost if they have not finished uploading."
+                  description="Sign out of CourtSight on this device. Local cache and stored sync metadata will be cleared."
                   borderBottom={false}
                   action={
-                    <Stack
-                      direction={{ xs: "column", sm: "row" }}
-                      spacing={1.5}
-                      alignItems={{ xs: "flex-start", sm: "center" }}
+                    <Button
+                      variant="contained"
+                      color="error"
+                      startIcon={<LogoutIcon />}
+                      onClick={handleLogoutClick}
+                      sx={{
+                        borderRadius: "8px",
+                        textTransform: "none",
+                        fontWeight: 600,
+                        boxShadow: "none",
+                      }}
                     >
-                      {hasUnsynced ? (
-                        <Chip
-                          icon={<WarningIcon />}
-                          label="Unsynced changes"
-                          color="warning"
-                          size="small"
-                          sx={{ fontWeight: 500 }}
-                        />
-                      ) : (
-                        <Chip
-                          icon={<CheckIcon />}
-                          label="Safe to logout"
-                          color="success"
-                          size="small"
-                          variant="outlined"
-                          sx={{ fontWeight: 500 }}
-                        />
-                      )}
-                      <Button
-                        variant="contained"
-                        color="error"
-                        startIcon={<LogoutIcon />}
-                        onClick={handleLogoutClick}
-                        sx={{
-                          borderRadius: "8px",
-                          textTransform: "none",
-                          fontWeight: 600,
-                          boxShadow: "none",
-                        }}
-                      >
-                        Log out
-                      </Button>
-                    </Stack>
+                      Log out
+                    </Button>
                   }
                 />
               </Box>
@@ -863,41 +828,7 @@ const Settings: React.FC = () => {
             )}
           </Box>
         </Paper>
-      </PageContainer>
-
-      <Dialog
-        open={logoutDialogOpen}
-        onClose={() => setLogoutDialogOpen(false)}
-        maxWidth="xs"
-        fullWidth
-      >
-        <DialogTitle
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: 1.5,
-            color: "error.main",
-          }}
-        >
-          <WarningIcon color="error" />
-          Unsynced Changes
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            You have data that hasn't been synced to the server yet. If you log
-            out now, these changes may be lost. Are you sure you want to
-            continue?
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions sx={{ p: 2, px: 3, pb: 3 }}>
-          <Button onClick={() => setLogoutDialogOpen(false)} color="inherit">
-            Cancel
-          </Button>
-          <Button onClick={confirmLogout} color="error" variant="contained">
-            Log out anyway
-          </Button>
-        </DialogActions>
-      </Dialog>
+      </Box>
     </Box>
   );
 };

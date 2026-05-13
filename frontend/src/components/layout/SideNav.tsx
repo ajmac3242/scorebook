@@ -10,6 +10,7 @@ import {
   Typography,
   Avatar,
   useMediaQuery,
+  ButtonBase,
 } from "@mui/material";
 import {
   Dashboard as DashboardIcon,
@@ -19,20 +20,18 @@ import {
   Groups as TeamsIcon,
   Assessment as ReportsIcon,
   Settings as SettingsIcon,
+  Search as SearchIcon,
 } from "@mui/icons-material";
 import { NavLink, useLocation } from "react-router-dom";
 import CourtSightLogo from "../CourtSightLogo";
 import { APP_SHELL_LAYOUT } from "./AppShell";
 
 interface SideNavProps {
-  /** Whether the game is currently live (to show the animated dot) */
   isLive?: boolean;
-  /** Mobile open state */
   mobileOpen?: boolean;
-  /** Mobile close handler */
   onMobileClose?: () => void;
-  /** Coach display name for the bottom pill */
   coachName?: string;
+  onSearchOpen?: () => void;
 }
 
 const NAV_ITEMS = [
@@ -45,15 +44,12 @@ const NAV_ITEMS = [
   { label: "Reports", path: "/reports", icon: <ReportsIcon /> },
 ];
 
-/**
- * SideNav — The vertical navigation drawer for CourtSight.
- * Permanent on tablet/desktop (>= 768px), temporary on mobile.
- */
 const SideNav: React.FC<SideNavProps> = ({
   isLive = false,
   mobileOpen = false,
   onMobileClose,
   coachName = "Coach",
+  onSearchOpen,
 }) => {
   const isDesktop = useMediaQuery("(min-width:768px)");
   const location = useLocation();
@@ -69,18 +65,56 @@ const SideNav: React.FC<SideNavProps> = ({
     >
       <Box
         sx={{
-          px: 2,
-          py: 2.5,
+          px: 2.5,
+          pt: 2.5,
+          pb: 1.5,
           display: "flex",
-          justifyContent: "center",
+          alignItems: "center",
+          justifyContent: "flex-start",
         }}
       >
         <CourtSightLogo width={152} />
       </Box>
 
+      <Box sx={{ px: 2, pb: 1.5 }}>
+        <ButtonBase
+          onClick={onSearchOpen}
+          aria-label="Open search"
+          sx={{
+            width: "100%",
+            height: 40,
+            px: 1.5,
+            borderRadius: 2,
+            border: "1px solid",
+            borderColor: "divider",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "flex-start",
+            gap: 1,
+            color: "text.secondary",
+            bgcolor: "background.paper",
+            "&:hover": {
+              bgcolor: "action.hover",
+            },
+          }}
+        >
+          <SearchIcon sx={{ fontSize: 18 }} />
+          <Typography
+            sx={{
+              fontSize: "0.875rem",
+              fontWeight: 500,
+              color: "text.secondary",
+            }}
+          >
+            Search
+          </Typography>
+        </ButtonBase>
+      </Box>
+
       <List sx={{ flexGrow: 1, px: 1.5 }}>
         {NAV_ITEMS.map((item) => {
           const isActive = location.pathname === item.path;
+
           return (
             <ListItem key={item.label} disablePadding sx={{ mb: 0.5 }}>
               <ListItemButton
@@ -89,8 +123,8 @@ const SideNav: React.FC<SideNavProps> = ({
                 onClick={onMobileClose}
                 sx={{
                   minHeight: 44,
-                  borderRadius: 2,
                   px: 1.5,
+                  borderRadius: 2,
                   justifyContent: "flex-start",
                   bgcolor: isActive ? "primary.container" : "transparent",
                   color: isActive ? "primary.main" : "text.secondary",
@@ -145,22 +179,26 @@ const SideNav: React.FC<SideNavProps> = ({
             onClick={onMobileClose}
             sx={{
               minHeight: 44,
-              borderRadius: 2,
               px: 1.5,
+              borderRadius: 2,
               justifyContent: "flex-start",
-              color:
-                location.pathname === "/settings"
-                  ? "primary.main"
-                  : "text.secondary",
               bgcolor:
                 location.pathname === "/settings"
                   ? "primary.container"
                   : "transparent",
+              color:
+                location.pathname === "/settings"
+                  ? "primary.main"
+                  : "text.secondary",
               "&:hover": {
                 bgcolor:
                   location.pathname === "/settings"
                     ? "primary.container"
                     : "action.hover",
+                color:
+                  location.pathname === "/settings"
+                    ? "primary.main"
+                    : "text.primary",
               },
             }}
           >
@@ -169,7 +207,10 @@ const SideNav: React.FC<SideNavProps> = ({
             </ListItemIcon>
             <ListItemText
               primary="Settings"
-              primaryTypographyProps={{ fontSize: "0.9rem", fontWeight: 500 }}
+              primaryTypographyProps={{
+                fontSize: "0.9rem",
+                fontWeight: 500,
+              }}
             />
           </ListItemButton>
         </ListItem>
@@ -232,26 +273,15 @@ const SideNav: React.FC<SideNavProps> = ({
     <Box
       component="nav"
       sx={{
-        width: APP_SHELL_LAYOUT.drawerWidth,
-        minWidth: APP_SHELL_LAYOUT.drawerWidth,
-        maxWidth: APP_SHELL_LAYOUT.drawerWidth,
+        width: "100%",
         height: "100%",
+        minWidth: 0,
         display: "flex",
-        justifyContent: "flex-start",
-        alignItems: "stretch",
-        alignSelf: "start",
+        flexDirection: "column",
+        bgcolor: "background.paper",
       }}
     >
-      <Box
-        sx={{
-          width: "100%",
-          height: "100%",
-          minWidth: 0,
-          bgcolor: "background.paper",
-        }}
-      >
-        {drawerContent}
-      </Box>
+      {drawerContent}
     </Box>
   );
 };
