@@ -30,7 +30,6 @@ import DevAuthBypass from "./components/DevAuthBypass";
 
 // Layout components
 import AppShell from "./components/layout/AppShell";
-import AppTopBar from "./components/layout/AppTopBar";
 import SideNav from "./components/layout/SideNav";
 import BottomNav from "./components/layout/BottomNav";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -125,11 +124,6 @@ const AppContent: React.FC = () => {
     [],
   );
 
-  const starredTeam = useLiveQuery(
-    () => db.teams.where("isFavorite").equals(1).first(),
-    [],
-  );
-
   if (loading) {
     return (
       <Box
@@ -161,17 +155,12 @@ const AppContent: React.FC = () => {
           mobileOpen={mobileOpen}
           onMobileClose={() => setMobileOpen(false)}
           isLive={!!liveGame}
-        />
-      }
-      topBarSlot={
-        <AppTopBar
-          teamName={starredTeam?.name}
-          isLive={!!liveGame}
           onSearchOpen={() => {
             // OmniSearch logic in DESIGN-005
           }}
         />
       }
+      topBarSlot={null}
       bottomSlot={<BottomNav isLive={!!liveGame} />}
     >
       {/* Skip to main content link for accessibility */}
@@ -264,10 +253,10 @@ const AppContent: React.FC = () => {
           }
         />
         <Route
-          path="/game/stats"
+          path="/teams"
           element={
             <ProtectedRoute>
-              <GameStats />
+              <Teams />
             </ProtectedRoute>
           }
         />
@@ -288,10 +277,10 @@ const AppContent: React.FC = () => {
           }
         />
         <Route
-          path="/teams"
+          path="/game/:gameId"
           element={
             <ProtectedRoute>
-              <Teams />
+              <GameStats />
             </ProtectedRoute>
           }
         />
@@ -303,30 +292,21 @@ const AppContent: React.FC = () => {
             </ProtectedRoute>
           }
         />
-        {/* Handle case where user might try to go to /login while authenticated */}
-        <Route path="/login" element={<Navigate to="/" />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </AppShell>
   );
 };
 
-/**
- * Root App component providing global providers (Theme, Auth, Router).
- * CourtSightThemeProvider owns ThemeProvider + CssBaseline internally,
- * so those are not duplicated here.
- *
- * @returns {React.ReactElement}
- */
 const App: React.FC = () => {
   return (
-    <CourtSightThemeProvider presets={THEME_PRESETS} defaultPresetId="default">
-      <Router>
-        <AuthProvider>
+    <CourtSightThemeProvider presets={THEME_PRESETS}>
+      <AuthProvider>
+        <Router>
           <DevAuthBypass />
           <AppContent />
-        </AuthProvider>
-      </Router>
+        </Router>
+      </AuthProvider>
     </CourtSightThemeProvider>
   );
 };
