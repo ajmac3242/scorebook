@@ -31,6 +31,7 @@ import {
   Wifi as OnlineIcon,
   WifiOff as OfflineIcon,
 } from "@mui/icons-material";
+import PageContainer from "../components/layout/PageContainer";
 import { useAuth } from "../context/AuthContext";
 import { db } from "../db";
 import { useAppTheme, ThemePreset } from "../theme/ThemeContext";
@@ -490,8 +491,8 @@ const Settings: React.FC = () => {
   return (
     <Box
       sx={{
-        pb: 8,
-        pt: { xs: 2, sm: 3 },
+        pb: 4,
+        pt: 0.5,
         bgcolor: "#F9FAFB",
         minHeight: "100%",
       }}
@@ -512,14 +513,7 @@ const Settings: React.FC = () => {
         </Alert>
       </Snackbar>
 
-      <Box
-        sx={{
-          mx: "auto",
-          px: { xs: 2, sm: 3, md: 4 },
-          width: "100%",
-          maxWidth: 1180,
-        }}
-      >
+      <PageContainer width="full">
         <Paper
           elevation={0}
           sx={{
@@ -699,10 +693,7 @@ const Settings: React.FC = () => {
                           onClick={handleClearLogs}
                           disabled={logs.length === 0}
                           color="error"
-                          sx={{
-                            textTransform: "none",
-                            alignSelf: "flex-start",
-                          }}
+                          sx={{ textTransform: "none", alignSelf: "flex-start" }}
                         >
                           Clear logs
                         </Button>
@@ -762,9 +753,7 @@ const Settings: React.FC = () => {
                                       color: "#667085",
                                     }}
                                   >
-                                    {new Date(
-                                      log.timestamp,
-                                    ).toLocaleTimeString()}
+                                    {new Date(log.timestamp).toLocaleTimeString()}
                                   </Typography>
                                 </Box>
                                 <Typography
@@ -818,9 +807,8 @@ const Settings: React.FC = () => {
                           height: 14,
                           borderRadius: "50%",
                           bgcolor:
-                            availablePresets.find(
-                              (preset) => preset.id === presetId,
-                            )?.previewColor || "primary.main",
+                            availablePresets.find((preset) => preset.id === presetId)?.previewColor ||
+                            "primary.main",
                           border: "1px solid rgba(16,24,40,0.08)",
                           flexShrink: 0,
                         }}
@@ -832,9 +820,7 @@ const Settings: React.FC = () => {
                           fontWeight: 500,
                         }}
                       >
-                        {availablePresets.find(
-                          (preset) => preset.id === presetId,
-                        )?.label ?? "Theme"}
+                        {availablePresets.find((preset) => preset.id === presetId)?.label ?? "Theme"}
                       </Typography>
                     </Box>
                   }
@@ -869,7 +855,7 @@ const Settings: React.FC = () => {
             )}
           </Box>
         </Paper>
-      </Box>
+      </PageContainer>
 
       <Dialog
         open={logoutDialogOpen}
@@ -890,9 +876,8 @@ const Settings: React.FC = () => {
         </DialogTitle>
         <DialogContent>
           <DialogContentText>
-            You have data that hasn't been synced to the server yet. If you log
-            out now, these changes may be lost. Are you sure you want to
-            continue?
+            You have data that hasn't been synced to the server yet. If you log out now,
+            these changes may be lost. Are you sure you want to continue?
           </DialogContentText>
         </DialogContent>
         <DialogActions sx={{ p: 2, px: 3, pb: 3 }}>
