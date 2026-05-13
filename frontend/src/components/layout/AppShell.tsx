@@ -13,9 +13,29 @@ interface AppShellProps {
 }
 
 /**
+ * Central layout tokens for the app shell.
+ * Change these values in one place to update gutters app-wide.
+ */
+export const APP_SHELL_LAYOUT = {
+  drawerWidth: 224,
+  contentMaxWidth: 1440,
+  gutterX: {
+    xs: 1,
+    sm: 1.25,
+    md: 1.25,
+    lg: 1.5,
+  },
+  gutterY: {
+    xs: 0.75,
+    sm: 1,
+    md: 1.5,
+  },
+} as const;
+
+/**
  * AppShell — The core layout wrapper for CourtSight.
  * Defines the responsive grid:
- * - Desktop (>= 768px): [Drawer (240px)] [TopBar + Main Content]
+ * - Desktop (>= 768px): [Drawer] [TopBar + Main Content]
  * - Mobile (< 768px): [TopBar] [Main Content] [BottomNav (56px)]
  */
 const AppShell: React.FC<AppShellProps> = ({
@@ -30,12 +50,15 @@ const AppShell: React.FC<AppShellProps> = ({
     <Box
       sx={{
         display: "grid",
-        gridTemplateColumns: isDesktop ? "240px 1fr" : "1fr",
+        gridTemplateColumns: isDesktop
+          ? `${APP_SHELL_LAYOUT.drawerWidth}px 1fr`
+          : "1fr",
         gridTemplateRows: "auto 1fr auto",
         height: "100vh",
         width: "100vw",
         overflow: "hidden",
         bgcolor: "background.default",
+        "--app-content-max-width": `${APP_SHELL_LAYOUT.contentMaxWidth}px`,
       }}
     >
       {/* Drawer Slot (Desktop Only) */}
@@ -48,6 +71,7 @@ const AppShell: React.FC<AppShellProps> = ({
             borderColor: "divider",
             bgcolor: "background.paper",
             overflow: "hidden",
+            minWidth: 0,
           }}
         >
           {drawerSlot}
@@ -62,6 +86,7 @@ const AppShell: React.FC<AppShellProps> = ({
           position: "sticky",
           top: 0,
           zIndex: 1100,
+          minWidth: 0,
         }}
       >
         {topBarSlot}
@@ -76,9 +101,18 @@ const AppShell: React.FC<AppShellProps> = ({
           gridRow: "2 / 3",
           overflowY: "auto",
           width: "100%",
-          p: { xs: 1, sm: 3 },
+          minWidth: 0,
+          px: APP_SHELL_LAYOUT.gutterX,
+          py: APP_SHELL_LAYOUT.gutterY,
           position: "relative",
           outline: "none",
+          "--page-gutter-x-xs": `${APP_SHELL_LAYOUT.gutterX.xs * 8}px`,
+          "--page-gutter-x-sm": `${APP_SHELL_LAYOUT.gutterX.sm * 8}px`,
+          "--page-gutter-x-md": `${APP_SHELL_LAYOUT.gutterX.md * 8}px`,
+          "--page-gutter-x-lg": `${APP_SHELL_LAYOUT.gutterX.lg * 8}px`,
+          "--page-gutter-y-xs": `${APP_SHELL_LAYOUT.gutterY.xs * 8}px`,
+          "--page-gutter-y-sm": `${APP_SHELL_LAYOUT.gutterY.sm * 8}px`,
+          "--page-gutter-y-md": `${APP_SHELL_LAYOUT.gutterY.md * 8}px`,
         }}
         tabIndex={-1}
       >
