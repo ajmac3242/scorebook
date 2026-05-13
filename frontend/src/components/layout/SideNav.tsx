@@ -67,7 +67,6 @@ const SideNav: React.FC<SideNavProps> = ({
         bgcolor: "background.paper",
       }}
     >
-      {/* Logo Section */}
       <Box
         sx={{
           px: 2,
@@ -79,7 +78,6 @@ const SideNav: React.FC<SideNavProps> = ({
         <CourtSightLogo width={152} />
       </Box>
 
-      {/* Navigation Links */}
       <List sx={{ flexGrow: 1, px: 1.5 }}>
         {NAV_ITEMS.map((item) => {
           const isActive = location.pathname === item.path;
@@ -93,6 +91,7 @@ const SideNav: React.FC<SideNavProps> = ({
                   minHeight: 44,
                   borderRadius: 2,
                   px: 1.5,
+                  justifyContent: "flex-start",
                   bgcolor: isActive ? "primary.container" : "transparent",
                   color: isActive ? "primary.main" : "text.secondary",
                   "&:hover": {
@@ -138,7 +137,6 @@ const SideNav: React.FC<SideNavProps> = ({
         })}
       </List>
 
-      {/* Settings & Profile Pill */}
       <Box sx={{ p: 1.5, borderTop: "1px solid", borderColor: "divider" }}>
         <ListItem disablePadding sx={{ mb: 1 }}>
           <ListItemButton
@@ -149,6 +147,7 @@ const SideNav: React.FC<SideNavProps> = ({
               minHeight: 44,
               borderRadius: 2,
               px: 1.5,
+              justifyContent: "flex-start",
               color:
                 location.pathname === "/settings"
                   ? "primary.main"
@@ -207,51 +206,52 @@ const SideNav: React.FC<SideNavProps> = ({
     </Box>
   );
 
+  if (!isDesktop) {
+    return (
+      <Drawer
+        anchor="left"
+        variant="temporary"
+        open={mobileOpen}
+        onClose={onMobileClose}
+        ModalProps={{ keepMounted: true }}
+        sx={{
+          display: { xs: "block", md: "none" },
+          "& .MuiDrawer-paper": {
+            boxSizing: "border-box",
+            width: APP_SHELL_LAYOUT.drawerWidth,
+            left: 0,
+          },
+        }}
+      >
+        {drawerContent}
+      </Drawer>
+    );
+  }
+
   return (
     <Box
       component="nav"
       sx={{
-        width: { md: APP_SHELL_LAYOUT.drawerWidth },
-        flexShrink: { md: 0 },
+        width: APP_SHELL_LAYOUT.drawerWidth,
+        minWidth: APP_SHELL_LAYOUT.drawerWidth,
+        maxWidth: APP_SHELL_LAYOUT.drawerWidth,
+        height: "100%",
+        display: "flex",
+        justifyContent: "flex-start",
+        alignItems: "stretch",
+        alignSelf: "start",
       }}
     >
-      {/* Mobile Drawer */}
-      {!isDesktop && (
-        <Drawer
-          variant="temporary"
-          open={mobileOpen}
-          onClose={onMobileClose}
-          ModalProps={{ keepMounted: true }}
-          sx={{
-            display: { xs: "block", md: "none" },
-            "& .MuiDrawer-paper": {
-              boxSizing: "border-box",
-              width: APP_SHELL_LAYOUT.drawerWidth,
-            },
-          }}
-        >
-          {drawerContent}
-        </Drawer>
-      )}
-
-      {/* Desktop Drawer */}
-      {isDesktop && (
-        <Drawer
-          variant="permanent"
-          sx={{
-            display: { xs: "none", md: "block" },
-            "& .MuiDrawer-paper": {
-              boxSizing: "border-box",
-              width: APP_SHELL_LAYOUT.drawerWidth,
-              position: "relative",
-              height: "100%",
-            },
-          }}
-          open
-        >
-          {drawerContent}
-        </Drawer>
-      )}
+      <Box
+        sx={{
+          width: "100%",
+          height: "100%",
+          minWidth: 0,
+          bgcolor: "background.paper",
+        }}
+      >
+        {drawerContent}
+      </Box>
     </Box>
   );
 };
