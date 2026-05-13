@@ -129,7 +129,9 @@ const AppShell: React.FC<AppShellProps> = ({
           overflow: "hidden",
         }}
       >
-        <Box sx={{ flexShrink: 0, minWidth: 0, zIndex: 1100 }}>{topBarSlot}</Box>
+        <Box sx={{ flexShrink: 0, minWidth: 0, zIndex: 1100 }}>
+          {topBarSlot}
+        </Box>
 
         <Box
           component="main"
