@@ -489,7 +489,10 @@ const Settings: React.FC = () => {
     <Box
       sx={{
         width: "100%",
-        minHeight: "100%",
+        flex: 1,
+        minHeight: 0,
+        display: "flex",
+        flexDirection: "column",
         bgcolor: "transparent",
       }}
     >
@@ -513,7 +516,10 @@ const Settings: React.FC = () => {
         elevation={0}
         sx={{
           width: "100%",
-          minHeight: "100%",
+          flex: 1,
+          minHeight: 0,
+          display: "flex",
+          flexDirection: "column",
           borderRadius: 3,
           border: "1px solid",
           borderColor: "divider",
@@ -527,6 +533,7 @@ const Settings: React.FC = () => {
             px: { xs: 2, sm: 3 },
             pt: { xs: 2, sm: 2.5 },
             pb: 0.75,
+            flexShrink: 0,
           }}
         >
           <Typography
@@ -546,6 +553,7 @@ const Settings: React.FC = () => {
             px: { xs: 1, sm: 2 },
             borderBottom: "1px solid",
             borderColor: "divider",
+            flexShrink: 0,
           }}
         >
           <Tabs
@@ -584,7 +592,16 @@ const Settings: React.FC = () => {
           </Tabs>
         </Box>
 
-        <Box sx={{ px: { xs: 2, sm: 3 }, py: 0.5 }}>
+        <Box
+          sx={{
+            px: { xs: 2, sm: 3 },
+            py: 0.5,
+            flex: 1,
+            minHeight: 0,
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
           {activeTab === "account" && (
             <Box sx={{ py: 1.5 }}>
               <SectionIntro
