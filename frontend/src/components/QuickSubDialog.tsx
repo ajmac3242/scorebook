@@ -286,9 +286,7 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
           onClick={handleQuickSub}
           variant="contained"
           disabled={isSaving}
-          startIcon={
-            isSaving ? <CircularProgress size={20} /> : <SwapHoriz />
-          }
+          startIcon={isSaving ? <CircularProgress size={20} /> : <SwapHoriz />}
         >
           {isSaving ? "Saving..." : "Sub In"}
         </Button>

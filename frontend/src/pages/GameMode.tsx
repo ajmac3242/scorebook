@@ -1696,14 +1696,38 @@ const GameMode: React.FC = () => {
                       <TableHead>
                         <TableRow>
                           {[
-                            { label: "#", key: "jerseyNumber", desc: "Jersey Number" },
+                            {
+                              label: "#",
+                              key: "jerseyNumber",
+                              desc: "Jersey Number",
+                            },
                             { label: "NAME", key: "name", desc: "Player Name" },
-                            { label: "MIN", key: "min", desc: "Minutes Played" },
-                            { label: "PTS", key: "points", desc: "Points Scored" },
-                            { label: "REB", key: "rebounds", desc: "Total Rebounds" },
+                            {
+                              label: "MIN",
+                              key: "min",
+                              desc: "Minutes Played",
+                            },
+                            {
+                              label: "PTS",
+                              key: "points",
+                              desc: "Points Scored",
+                            },
+                            {
+                              label: "REB",
+                              key: "rebounds",
+                              desc: "Total Rebounds",
+                            },
                             { label: "AST", key: "assists", desc: "Assists" },
-                            { label: "PF", key: "fouls", desc: "Personal Fouls" },
-                            { label: "+/-", key: "plusMinus", desc: "Plus/Minus Rating" },
+                            {
+                              label: "PF",
+                              key: "fouls",
+                              desc: "Personal Fouls",
+                            },
+                            {
+                              label: "+/-",
+                              key: "plusMinus",
+                              desc: "Plus/Minus Rating",
+                            },
                           ].map((head) => (
                             <TableCell
                               key={head.key}
