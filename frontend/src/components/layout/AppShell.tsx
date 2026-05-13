@@ -18,7 +18,7 @@ interface AppShellProps {
  */
 export const APP_SHELL_LAYOUT = {
   drawerWidth: 224,
-  contentMaxWidth: 1440,
+  contentMaxWidth: "none",
   gutterX: {
     xs: 1,
     sm: 1.25,
@@ -34,9 +34,8 @@ export const APP_SHELL_LAYOUT = {
 
 /**
  * AppShell — The core layout wrapper for CourtSight.
- * Defines the responsive grid:
- * - Desktop (>= 768px): [Drawer] [TopBar + Main Content]
- * - Mobile (< 768px): [TopBar] [Main Content] [BottomNav (56px)]
+ * Desktop (>= 768px): left-pinned rail + right content column
+ * Mobile (< 768px): top bar + content + bottom nav
  */
 const AppShell: React.FC<AppShellProps> = ({
   drawerSlot,
@@ -51,75 +50,69 @@ const AppShell: React.FC<AppShellProps> = ({
       sx={{
         display: "grid",
         gridTemplateColumns: isDesktop
-          ? `${APP_SHELL_LAYOUT.drawerWidth}px 1fr`
-          : "1fr",
-        gridTemplateRows: "auto 1fr auto",
-        height: "100vh",
-        width: "100vw",
+          ? `${APP_SHELL_LAYOUT.drawerWidth}px minmax(0, 1fr)`
+          : "minmax(0, 1fr)",
+        gridTemplateRows: "auto minmax(0, 1fr) auto",
+        height: "100dvh",
+        width: "100%",
+        minWidth: 0,
         overflow: "hidden",
         bgcolor: "background.default",
-        "--app-content-max-width": `${APP_SHELL_LAYOUT.contentMaxWidth}px`,
       }}
     >
-      {/* Drawer Slot (Desktop Only) */}
       {isDesktop && (
         <Box
+          component="aside"
           sx={{
             gridColumn: "1 / 2",
             gridRow: "1 / 4",
+            width: APP_SHELL_LAYOUT.drawerWidth,
+            minWidth: APP_SHELL_LAYOUT.drawerWidth,
+            maxWidth: APP_SHELL_LAYOUT.drawerWidth,
             borderRight: "1px solid",
             borderColor: "divider",
             bgcolor: "background.paper",
             overflow: "hidden",
-            minWidth: 0,
+            justifySelf: "start",
+            alignSelf: "stretch",
           }}
         >
           {drawerSlot}
         </Box>
       )}
 
-      {/* Top Bar Slot */}
       <Box
         sx={{
           gridColumn: isDesktop ? "2 / 3" : "1 / 2",
           gridRow: "1 / 2",
-          position: "sticky",
-          top: 0,
-          zIndex: 1100,
           minWidth: 0,
+          zIndex: 1100,
         }}
       >
         {topBarSlot}
       </Box>
 
-      {/* Main Content Area */}
       <Box
         component="main"
         id="main-content"
         sx={{
           gridColumn: isDesktop ? "2 / 3" : "1 / 2",
           gridRow: "2 / 3",
-          overflowY: "auto",
-          width: "100%",
           minWidth: 0,
+          width: "100%",
+          overflowY: "auto",
+          overflowX: "hidden",
           px: APP_SHELL_LAYOUT.gutterX,
           py: APP_SHELL_LAYOUT.gutterY,
           position: "relative",
           outline: "none",
-          "--page-gutter-x-xs": `${APP_SHELL_LAYOUT.gutterX.xs * 8}px`,
-          "--page-gutter-x-sm": `${APP_SHELL_LAYOUT.gutterX.sm * 8}px`,
-          "--page-gutter-x-md": `${APP_SHELL_LAYOUT.gutterX.md * 8}px`,
-          "--page-gutter-x-lg": `${APP_SHELL_LAYOUT.gutterX.lg * 8}px`,
-          "--page-gutter-y-xs": `${APP_SHELL_LAYOUT.gutterY.xs * 8}px`,
-          "--page-gutter-y-sm": `${APP_SHELL_LAYOUT.gutterY.sm * 8}px`,
-          "--page-gutter-y-md": `${APP_SHELL_LAYOUT.gutterY.md * 8}px`,
+          WebkitOverflowScrolling: "touch",
         }}
         tabIndex={-1}
       >
         {children}
       </Box>
 
-      {/* Bottom Slot (Mobile Only) */}
       {!isDesktop && (
         <Box
           sx={{
