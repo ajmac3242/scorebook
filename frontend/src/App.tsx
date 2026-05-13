@@ -27,19 +27,12 @@ import OpponentScoutingReport from "./pages/OpponentScoutingReport";
 import Settings from "./pages/Settings";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import DevAuthBypass from "./components/DevAuthBypass";
-
-// Layout components
 import AppShell from "./components/layout/AppShell";
 import SideNav from "./components/layout/SideNav";
 import BottomNav from "./components/layout/BottomNav";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "./db";
 
-/**
- * Theme presets available to the user via the Settings page.
- * The first entry ("default") is applied on first load unless a
- * persisted preference is found in localStorage.
- */
 const THEME_PRESETS: ThemePreset[] = [
   {
     id: "default",
@@ -87,18 +80,11 @@ const THEME_PRESETS: ThemePreset[] = [
   },
 ];
 
-/**
- * Higher-order component to protect routes that require authentication.
- * Redirects to the login page if the user is not authenticated.
- *
- * @param {object} props - Component props.
- * @param {React.ReactNode} props.children - Child components to render if authenticated.
- * @returns {React.ReactElement}
- */
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const { isAuthenticated, loading } = useAuth();
+
   if (loading) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", mt: 8 }}>
@@ -106,15 +92,10 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
       </Box>
     );
   }
+
   return isAuthenticated ? <>{children}</> : <Navigate to="/login" />;
 };
 
-/**
- * Main layout component containing the navigation and routed page content.
- * Handles the display of the sidebar based on authentication state.
- *
- * @returns {React.ReactElement}
- */
 const AppContent: React.FC = () => {
   const { isAuthenticated, loading } = useAuth();
   const [mobileOpen, setMobileOpen] = React.useState(false);
@@ -156,14 +137,13 @@ const AppContent: React.FC = () => {
           onMobileClose={() => setMobileOpen(false)}
           isLive={!!liveGame}
           onSearchOpen={() => {
-            // OmniSearch logic in DESIGN-005
+            // Hook OmniSearch here when ready.
           }}
         />
       }
       topBarSlot={null}
       bottomSlot={<BottomNav isLive={!!liveGame} />}
     >
-      {/* Skip to main content link for accessibility */}
       <Box
         component="a"
         href="#main-content"
