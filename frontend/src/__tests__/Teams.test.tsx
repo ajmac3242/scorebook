@@ -240,9 +240,11 @@ describe("Teams Component", () => {
     renderComponent();
 
     const card =
-      (await screen.findByRole("button", {
-        name: /view team dashboard for nav team/i,
-      }).catch(() => null)) ||
+      (await screen
+        .findByRole("button", {
+          name: /view team dashboard for nav team/i,
+        })
+        .catch(() => null)) ||
       (await screen.findByLabelText(/view stats for nav team/i));
 
     fireEvent.keyDown(card, { key: "Enter", code: "Enter" });
