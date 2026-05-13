@@ -1,14 +1,14 @@
 # Scorebook Backlog
 
-## [x] [Voice-Command Substitution Entry]
+## [ ] [Voice-Command Substitution Entry]
 **Priority:** HIGH
 **Type:** Feature / UX
 **Why:** Substitutions are high-friction events. Voice commands ("Sub 12 for 5") allow scorekeepers to keep eyes on the court while maintaining perfect lineup data.
 **What:** Expand `useVoiceRecognition.ts` and `voiceParser.ts` to support substitution intent.
 **Acceptance Criteria:**
-- [x] Parse "[Jersey] in for [Jersey]" and "[Jersey] sub [Jersey]" commands.
-- [x] Auto-generate `SUB_IN` and `SUB_OUT` events in IndexedDB.
-- [x] Visual HUD confirmation: "Lineup Updated: #12 IN, #5 OUT."
+- [ ] Parse "[Jersey] in for [Jersey]" and "[Jersey] sub [Jersey]" commands.
+- [ ] Auto-generate `SUB_IN` and `SUB_OUT` events in IndexedDB.
+- [ ] Visual HUD confirmation: "Lineup Updated: #12 IN, #5 OUT."
 
 ## [ ] [Live Defensive Breakdown Accountability HUD]
 **Priority:** HIGH

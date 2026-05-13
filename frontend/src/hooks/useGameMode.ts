@@ -150,6 +150,58 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     action?: "UNDO";
   }>({ open: false, message: "", severity: "success" });
 
+  const [isVerificationOpen, setIsVerificationOpen] = useState(false);
+  const [lastVerifiedPeriod, setLastVerifiedPeriod] = useState(0);
+
+  const [points, setPoints] = useState<number>(2);
+  const [playName, setPlayName] = useState<string>("");
+  const [shotQuality, setShotQuality] = useState<string | null>(null);
+  const [situation, setSituation] = useState<string | null>(null);
+  const [opponentPlayType, setOpponentPlayType] = useState<string | null>(null);
+
+  const [sortConfig, setSortConfig] = useState<{
+    key: keyof PlayerAggregates;
+    direction: "asc" | "desc";
+  }>({ key: "jerseyNumber", direction: "asc" });
+
+  const [markerFilter, setMarkerFilter] = useState<string>("ALL");
+
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [statToDelete, setStatToDelete] = useState<string | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingStatId, setEditingStatId] = useState<string | null>(null);
+
+  const [isEndGameDialogOpen, setIsEndGameDialogOpen] = useState(false);
+  const [isClockEditDialogOpen, setIsClockEditDialogOpen] = useState(false);
+  const [isSummaryDialogOpen, setIsSummaryDialogOpen] = useState(false);
+  const [isAuditDialogOpen, setIsAuditDialogOpen] = useState(false);
+  const [isFtWorkflowOpen, setIsFtWorkflowOpen] = useState(false);
+  const [isHalftimeReportOpen, setIsHalftimeReportOpen] = useState(false);
+  const [lastViewedHalftimePeriod, setLastViewedHalftimePeriod] =
+    useState<number>(0);
+  const [showMatchupMatrix, setShowMatchupMatrix] = useState(false);
+  const [chainPrompt, setChainPrompt] = useState<{
+    type: "ASSIST" | "REBOUND" | "HOCKEY_ASSIST";
+    originalStat: StatEvent;
+  } | null>(null);
+
+  // 4. More Domain Derived State
+  const sortedGameStats = useMemo(() => {
+    return [...gameStats].sort((a, b) => {
+      if (a.timestamp < b.timestamp) return -1;
+      if (a.timestamp > b.timestamp) return 1;
+      return 0;
+    });
+  }, [gameStats]);
+
+  const { eventAggregates, gameData } = useGameAggregator(
+    sortedGameStats,
+    period,
+    clockSeconds,
+    team,
+    game,
+  );
+
   const handleVoiceCommand = useCallback(
     async (command: ParsedVoiceCommand) => {
       if (!gameId) return;
@@ -287,57 +339,6 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     onCommand: handleVoiceCommand,
     enabled: voiceEnabled,
   });
-  const [isVerificationOpen, setIsVerificationOpen] = useState(false);
-  const [lastVerifiedPeriod, setLastVerifiedPeriod] = useState(0);
-
-  const [points, setPoints] = useState<number>(2);
-  const [playName, setPlayName] = useState<string>("");
-  const [shotQuality, setShotQuality] = useState<string | null>(null);
-  const [situation, setSituation] = useState<string | null>(null);
-  const [opponentPlayType, setOpponentPlayType] = useState<string | null>(null);
-
-  const [sortConfig, setSortConfig] = useState<{
-    key: keyof PlayerAggregates;
-    direction: "asc" | "desc";
-  }>({ key: "jerseyNumber", direction: "asc" });
-
-  const [markerFilter, setMarkerFilter] = useState<string>("ALL");
-
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [statToDelete, setStatToDelete] = useState<string | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
-  const [editingStatId, setEditingStatId] = useState<string | null>(null);
-
-  const [isEndGameDialogOpen, setIsEndGameDialogOpen] = useState(false);
-  const [isClockEditDialogOpen, setIsClockEditDialogOpen] = useState(false);
-  const [isSummaryDialogOpen, setIsSummaryDialogOpen] = useState(false);
-  const [isAuditDialogOpen, setIsAuditDialogOpen] = useState(false);
-  const [isFtWorkflowOpen, setIsFtWorkflowOpen] = useState(false);
-  const [isHalftimeReportOpen, setIsHalftimeReportOpen] = useState(false);
-  const [lastViewedHalftimePeriod, setLastViewedHalftimePeriod] =
-    useState<number>(0);
-  const [showMatchupMatrix, setShowMatchupMatrix] = useState(false);
-  const [chainPrompt, setChainPrompt] = useState<{
-    type: "ASSIST" | "REBOUND" | "HOCKEY_ASSIST";
-    originalStat: StatEvent;
-  } | null>(null);
-
-  // 4. More Domain Derived State
-  const sortedGameStats = useMemo(() => {
-    return [...gameStats].sort((a, b) => {
-      if (a.timestamp < b.timestamp) return -1;
-      if (a.timestamp > b.timestamp) return 1;
-      return 0;
-    });
-  }, [gameStats]);
-
-  const { eventAggregates, gameData } = useGameAggregator(
-    sortedGameStats,
-    period,
-    clockSeconds,
-    team,
-    game,
-  );
 
   const lastKillCount = useRef<number | null>(null);
   useEffect(() => {
