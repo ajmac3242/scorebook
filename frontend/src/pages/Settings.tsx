@@ -801,9 +801,8 @@ const Settings: React.FC = () => {
                         height: 14,
                         borderRadius: "50%",
                         bgcolor:
-                          availablePresets.find(
-                            (preset) => preset.id === presetId,
-                          )?.previewColor || theme.palette.primary.main,
+                          availablePresets.find((preset) => preset.id === presetId)
+                            ?.previewColor || theme.palette.primary.main,
                         border: "1px solid",
                         borderColor: alpha(theme.palette.text.primary, 0.08),
                         flexShrink: 0,
@@ -816,8 +815,8 @@ const Settings: React.FC = () => {
                         fontWeight: 500,
                       }}
                     >
-                      {availablePresets.find((preset) => preset.id === presetId)
-                        ?.label ?? "Theme"}
+                      {availablePresets.find((preset) => preset.id === presetId)?.label ??
+                        "Theme"}
                     </Typography>
                   </Box>
                 }
