@@ -7,11 +7,6 @@ import {
   CardActionArea,
   CardContent,
   Chip,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
   Grid,
   Paper,
   Snackbar,
@@ -31,7 +26,6 @@ import {
   Wifi as OnlineIcon,
   WifiOff as OfflineIcon,
 } from "@mui/icons-material";
-import PageContainer from "../components/layout/PageContainer";
 import { useAuth } from "../context/AuthContext";
 import { db } from "../db";
 import { useAppTheme, ThemePreset } from "../theme/ThemeContext";
@@ -328,7 +322,6 @@ const Settings: React.FC = () => {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [isSyncing, setIsSyncing] = useState(false);
   const [hasUnsynced, setHasUnsynced] = useState(false);
-  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   const [logs, setLogs] = useState<LogEntry[]>(logger.getLogs());
   const [isCopied, setIsCopied] = useState(false);
   const [snackbar, setSnackbar] = useState<{
@@ -423,17 +416,6 @@ const Settings: React.FC = () => {
   );
 
   const handleLogoutClick = async () => {
-    const unsynced = await syncService.hasUnsyncedChanges();
-    if (unsynced) {
-      setLogoutDialogOpen(true);
-    } else {
-      logout();
-    }
-  };
-
-  const confirmLogout = async () => {
-    setLogoutDialogOpen(false);
-
     try {
       await db.delete();
 
@@ -491,11 +473,10 @@ const Settings: React.FC = () => {
   return (
     <Box
       sx={{
-        pb: 2,
-        pt: 0,
+        pb: 8,
+        pt: { xs: 2, sm: 3 },
         bgcolor: "#F9FAFB",
         minHeight: "100%",
-        width: "100%",
       }}
     >
       <Snackbar
@@ -514,11 +495,17 @@ const Settings: React.FC = () => {
         </Alert>
       </Snackbar>
 
-      <PageContainer width="full">
+      <Box
+        sx={{
+          mx: "auto",
+          px: { xs: 2, sm: 3, md: 4 },
+          width: "100%",
+          maxWidth: 1180,
+        }}
+      >
         <Paper
           elevation={0}
           sx={{
-            width: "100%",
             borderRadius: "12px",
             border: "1px solid #EAECF0",
             overflow: "hidden",
@@ -596,47 +583,23 @@ const Settings: React.FC = () => {
 
                 <SettingsRow
                   label="Logout"
-                  description="Sign out of CourtSight on this device. Unsynced changes may be lost if they have not finished uploading."
+                  description="Sign out of CourtSight on this device. Local cache and stored sync metadata will be cleared."
                   borderBottom={false}
                   action={
-                    <Stack
-                      direction={{ xs: "column", sm: "row" }}
-                      spacing={1.5}
-                      alignItems={{ xs: "flex-start", sm: "center" }}
+                    <Button
+                      variant="contained"
+                      color="error"
+                      startIcon={<LogoutIcon />}
+                      onClick={handleLogoutClick}
+                      sx={{
+                        borderRadius: "8px",
+                        textTransform: "none",
+                        fontWeight: 600,
+                        boxShadow: "none",
+                      }}
                     >
-                      {hasUnsynced ? (
-                        <Chip
-                          icon={<WarningIcon />}
-                          label="Unsynced changes"
-                          color="warning"
-                          size="small"
-                          sx={{ fontWeight: 500 }}
-                        />
-                      ) : (
-                        <Chip
-                          icon={<CheckIcon />}
-                          label="Safe to logout"
-                          color="success"
-                          size="small"
-                          variant="outlined"
-                          sx={{ fontWeight: 500 }}
-                        />
-                      )}
-                      <Button
-                        variant="contained"
-                        color="error"
-                        startIcon={<LogoutIcon />}
-                        onClick={handleLogoutClick}
-                        sx={{
-                          borderRadius: "8px",
-                          textTransform: "none",
-                          fontWeight: 600,
-                          boxShadow: "none",
-                        }}
-                      >
-                        Log out
-                      </Button>
-                    </Stack>
+                      Log out
+                    </Button>
                   }
                 />
               </Box>
@@ -835,7 +798,7 @@ const Settings: React.FC = () => {
                   alignTop
                   borderBottom={false}
                   action={
-                    <Box sx={{ width: "100%" }}>
+                    <Box>
                       <Grid container spacing={2}>
                         {availablePresets.map((preset) => (
                           <Grid item xs={12} sm={6} lg={4} key={preset.id}>
@@ -858,7 +821,7 @@ const Settings: React.FC = () => {
             )}
           </Box>
         </Paper>
-      </PageContainer>
+      </Box>
     </Box>
   );
 };
