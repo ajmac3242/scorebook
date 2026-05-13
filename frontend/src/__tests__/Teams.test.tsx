@@ -54,12 +54,15 @@ describe("Teams Component", () => {
     return await screen.findByRole("dialog");
   };
 
-  const fillRequiredFields = (dialog: HTMLElement, overrides?: {
-    name?: string;
-    description?: string;
-    logoUrl?: string;
-    fouls?: string;
-  }) => {
+  const fillRequiredFields = (
+    dialog: HTMLElement,
+    overrides?: {
+      name?: string;
+      description?: string;
+      logoUrl?: string;
+      fouls?: string;
+    },
+  ) => {
     fireEvent.change(within(dialog).getByLabelText(/team name/i), {
       target: { value: overrides?.name ?? "Bulls" },
     });
