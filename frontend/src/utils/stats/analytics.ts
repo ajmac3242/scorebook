@@ -72,7 +72,9 @@ export const calculateArchetypeEfficiency = (stats: StatEvent[]) => {
   for (const [key, val] of Object.entries(data)) {
     const [dId, playType] = key.split("|");
     if (!result[dId]) result[dId] = {};
-    result[dId][playType] = Math.round(parseFloat(calcPct(val.stops, val.total)));
+    result[dId][playType] = Math.round(
+      parseFloat(calcPct(val.stops, val.total)),
+    );
   }
 
   return result;

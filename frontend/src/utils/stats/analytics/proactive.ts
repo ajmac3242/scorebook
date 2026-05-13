@@ -145,7 +145,9 @@ export const calculateHaltAlerts = (params: {
 
     const fouls = statsMap.get(p.id!)?.fouls || 0;
     const isFoulTrouble =
-      (period === 1 && fouls >= 2) || (period === 2 && fouls >= 3) || fouls >= 4;
+      (period === 1 && fouls >= 2) ||
+      (period === 2 && fouls >= 3) ||
+      fouls >= 4;
 
     if (isFoulTrouble) {
       alerts.push({

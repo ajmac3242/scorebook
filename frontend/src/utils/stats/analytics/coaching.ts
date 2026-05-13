@@ -1,5 +1,10 @@
 import { StatEvent } from "../../../db";
-import { isActive, isOpponentId, calcPct, isScoringEvent } from "../aggregators";
+import {
+  isActive,
+  isOpponentId,
+  calcPct,
+  isScoringEvent,
+} from "../aggregators";
 import {
   TalkingPoint,
   OpponentThreat,
