@@ -57,6 +57,8 @@ const AppShell: React.FC<AppShellProps> = ({
             position: "relative",
             outline: "none",
             WebkitOverflowScrolling: "touch",
+            display: "flex",
+            flexDirection: "column",
           }}
           tabIndex={-1}
         >
@@ -154,6 +156,8 @@ const AppShell: React.FC<AppShellProps> = ({
               position: "relative",
               outline: "none",
               WebkitOverflowScrolling: "touch",
+              display: "flex",
+              flexDirection: "column",
             }}
             tabIndex={-1}
           >
