@@ -13,7 +13,6 @@ import {
   calculatePpp,
   isOpponentId,
   isFreeThrow,
-  isFieldGoal,
 } from "./aggregators";
 import { IndividualDefensiveBreakdown } from "./types";
 
