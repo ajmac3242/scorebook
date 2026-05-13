@@ -10,17 +10,6 @@ interface AppShellProps {
 
 export const APP_SHELL_LAYOUT = {
   drawerWidth: 240,
-  gutterX: {
-    xs: 1,
-    sm: 1.25,
-    md: 1.5,
-    lg: 2,
-  },
-  gutterY: {
-    xs: 0.75,
-    sm: 1,
-    md: 1,
-  },
 } as const;
 
 const AppShell: React.FC<AppShellProps> = ({
@@ -41,7 +30,7 @@ const AppShell: React.FC<AppShellProps> = ({
           width: "100%",
           minWidth: 0,
           overflow: "hidden",
-          bgcolor: "background.default",
+          bgcolor: "background.paper",
         }}
       >
         {topBarSlot ? (
@@ -60,8 +49,9 @@ const AppShell: React.FC<AppShellProps> = ({
             width: "100%",
             overflowY: "auto",
             overflowX: "hidden",
-            px: APP_SHELL_LAYOUT.gutterX,
-            py: APP_SHELL_LAYOUT.gutterY,
+            px: { xs: 1, sm: 2 },
+            py: { xs: 1, sm: 2 },
+            bgcolor: "background.paper",
             position: "relative",
             outline: "none",
             WebkitOverflowScrolling: "touch",
@@ -98,7 +88,7 @@ const AppShell: React.FC<AppShellProps> = ({
         width: "100%",
         minWidth: 0,
         overflow: "hidden",
-        bgcolor: "background.default",
+        bgcolor: "background.paper",
       }}
     >
       <Box
@@ -126,7 +116,7 @@ const AppShell: React.FC<AppShellProps> = ({
           display: "flex",
           flexDirection: "column",
           overflow: "hidden",
-          bgcolor: "background.default",
+          bgcolor: "background.paper",
         }}
       >
         {topBarSlot ? (
@@ -145,8 +135,9 @@ const AppShell: React.FC<AppShellProps> = ({
             width: "100%",
             overflowY: "auto",
             overflowX: "hidden",
-            px: APP_SHELL_LAYOUT.gutterX,
-            py: APP_SHELL_LAYOUT.gutterY,
+            px: { xs: 1, sm: 2, md: 2 },
+            py: { xs: 1, sm: 2, md: 2 },
+            bgcolor: "background.paper",
             position: "relative",
             outline: "none",
             WebkitOverflowScrolling: "touch",
