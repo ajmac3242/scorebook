@@ -95,7 +95,7 @@ export const calculatePossessions = (
       fgaOrParams.offRebounds
     );
   }
-  return fgaOrParams + 0.44 * fta + to - oreb;
+  return (fgaOrParams as number) + 0.44 * fta + to - oreb;
 };
 
 export const calculateFtPct = (makes: number, attempts: number): string =>

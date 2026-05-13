@@ -199,7 +199,7 @@ class SyncService {
    * Only after a chunk of items is successfully acknowledged by the API do we
    * update their 'synced' status in IndexedDB using a single batched transaction.
    *
-   * @param {Record<string, any>} table - Dexie table.
+   * @param {Table<T, any>} table - Dexie table.
    * @param {string | ((item: T) => string)} endpoint - API endpoint or a function that returns an endpoint.
    * @param {string} entityName - Name for logging.
    * @param {(item: T) => Promise<void>} [onSuccess] - Optional callback after successful push.

@@ -1,10 +1,42 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useRef } from "react";
 import {
   parseVoiceCommand,
   type ParsedVoiceCommand,
 } from "../utils/voiceParser";
 import { logger } from "../utils/logger";
+
+// Define SpeechRecognition types
+interface SpeechRecognitionEvent extends Event {
+  results: SpeechRecognitionResultList;
+  resultIndex: number;
+}
+
+interface SpeechRecognitionErrorEvent extends Event {
+  error: string;
+  message: string;
+}
+
+interface SpeechRecognition extends EventTarget {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  onstart: (_event: Event) => void;
+  onresult: (_event: SpeechRecognitionEvent) => void;
+  onerror: (_event: SpeechRecognitionErrorEvent) => void;
+  onend: (_event: Event) => void;
+  start: () => void;
+  stop: () => void;
+  abort: () => void;
+}
+
+interface SpeechRecognitionConstructor {
+  new (): SpeechRecognition;
+}
+
+interface WindowWithSpeechRecognition extends Window {
+  SpeechRecognition?: SpeechRecognitionConstructor;
+  webkitSpeechRecognition?: SpeechRecognitionConstructor;
+}
 
 interface UseVoiceRecognitionProps {
   onCommand: (_command: ParsedVoiceCommand) => void;
@@ -17,12 +49,12 @@ export const useVoiceRecognition = ({
 }: UseVoiceRecognitionProps) => {
   const [isListening, setIsListening] = useState(false);
   const [lastTranscript, setLastTranscript] = useState("");
-  const recognitionRef = useRef<any>(null);
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
 
   useEffect(() => {
     const SpeechRecognition =
-      (window as any).SpeechRecognition ||
-      (window as any).webkitSpeechRecognition;
+      (window as WindowWithSpeechRecognition).SpeechRecognition ||
+      (window as WindowWithSpeechRecognition).webkitSpeechRecognition;
     if (!SpeechRecognition) {
       logger.warn("Web Speech API is not supported in this browser.");
       return;
@@ -33,12 +65,12 @@ export const useVoiceRecognition = ({
     recognition.interimResults = false;
     recognition.lang = "en-US";
 
-    recognition.onstart = () => {
+    recognition.onstart = (_event: Event) => {
       setIsListening(true);
       logger.info("Voice recognition started");
     };
 
-    recognition.onresult = (event: any) => {
+    recognition.onresult = (event: SpeechRecognitionEvent) => {
       const transcript = event.results[event.results.length - 1][0].transcript;
       setLastTranscript(transcript);
       const command = parseVoiceCommand(transcript);
@@ -47,12 +79,12 @@ export const useVoiceRecognition = ({
       }
     };
 
-    recognition.onerror = (event: { error: string }) => {
+    recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
       logger.error("Voice recognition error:", event.error);
       setIsListening(false);
     };
 
-    recognition.onend = () => {
+    recognition.onend = (_event: Event) => {
       setIsListening(false);
       logger.info("Voice recognition ended");
       // Auto-restart if enabled
