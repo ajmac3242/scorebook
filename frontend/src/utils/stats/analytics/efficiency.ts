@@ -8,6 +8,10 @@ import {
   calculateEfgPct,
   applyActionToAggregate,
   calculateFgPct,
+  isScoringEvent,
+  isFreeThrow,
+  isThreePointAttempt,
+  calcPct,
 } from "../aggregators";
 import {
   OpponentAggregates,
@@ -59,8 +63,12 @@ export const calculateOpponentScoutingStats = (
   }
 
   for (const agg of result.values()) {
-    const possessions =
-      agg.attempts + 0.44 * agg.fta + agg.turnovers - agg.offRebounds;
+    const possessions = calculatePossessions({
+      fga: agg.attempts,
+      fta: agg.fta,
+      turnovers: agg.turnovers,
+      offRebounds: agg.offRebounds,
+    });
     agg.possessions = Math.round(possessions);
     agg.ppp = calculatePpp(agg.points, possessions);
     agg.fgPct = calculateFgPct(agg.makes, agg.attempts);
@@ -100,19 +108,19 @@ export const calculatePlayEfficiency = (
     }
 
     const play = data[s.playName];
-    if (s.type === ACTION_TYPES.MAKE) {
+    if (isScoringEvent(s)) {
       play.points += s.points || 0;
-      if (s.points === 1) {
+      if (isFreeThrow(s)) {
         play.fta++;
       } else {
         play.makes++;
         play.attempts++;
-        if (s.points === 3) {
+        if (isThreePointAttempt(s)) {
           play.threePM++;
         }
       }
     } else if (s.type === ACTION_TYPES.MISS) {
-      if (s.points === 1) {
+      if (isFreeThrow(s)) {
         play.fta++;
       } else {
         play.attempts++;
@@ -176,20 +184,20 @@ export const calculateSituationalStats = (
     }
 
     const play = data[s.situation];
-    if (s.type === ACTION_TYPES.MAKE) {
+    if (isScoringEvent(s)) {
       play.points += s.points || 0;
       play.successes++;
-      if (s.points === 1) {
+      if (isFreeThrow(s)) {
         play.fta++;
       } else {
         play.makes++;
         play.attempts++;
-        if (s.points === 3) {
+        if (isThreePointAttempt(s)) {
           play.threePM++;
         }
       }
     } else if (s.type === ACTION_TYPES.MISS) {
-      if (s.points === 1) {
+      if (isFreeThrow(s)) {
         play.fta++;
       } else {
         play.attempts++;
@@ -217,10 +225,7 @@ export const calculateSituationalStats = (
         ppp: situationalPpp,
         efg: calculateEfgPct(s.makes, s.threePM, s.attempts),
         delta: (parseFloat(situationalPpp) - parseFloat(teamPpp)).toFixed(2),
-        successRate:
-          possessions > 0
-            ? (Math.round((s.successes / possessions) * 1000) / 10).toFixed(1)
-            : "0.0",
+        successRate: calcPct(s.successes, possessions),
       };
     })
     .sort((a, b) => b.attempts - a.attempts);

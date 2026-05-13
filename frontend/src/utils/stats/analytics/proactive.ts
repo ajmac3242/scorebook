@@ -140,26 +140,26 @@ export const calculateHaltAlerts = (params: {
   } = params;
 
   // 1. Star Player Foul Warning
-  players.forEach((p) => {
-    if (p.isStar === 1 && gameData.onCourtIds.has(p.id)) {
-      const fouls = statsMap.get(p.id!)?.fouls || 0;
-      let trigger = false;
-      if (period === 1 && fouls >= 2) trigger = true;
-      if (period === 2 && fouls >= 3) trigger = true;
-      if (fouls >= 4) trigger = true;
+  for (const p of players) {
+    if (p.isStar !== 1 || !gameData.onCourtIds.has(p.id)) continue;
 
-      if (trigger) {
-        alerts.push({
-          id: `foul-${p.id}`,
-          type: "FOUL",
-          severity: fouls >= 4 ? "error" : "warning",
-          message: `Star Foul Trouble: #${jerseyMap.get(p.id!)} (${fouls} PF)`,
-          playerId: p.id,
-          jerseyNumber: jerseyMap.get(p.id!),
-        });
-      }
+    const fouls = statsMap.get(p.id!)?.fouls || 0;
+    const isFoulTrouble =
+      (period === 1 && fouls >= 2) ||
+      (period === 2 && fouls >= 3) ||
+      fouls >= 4;
+
+    if (isFoulTrouble) {
+      alerts.push({
+        id: `foul-${p.id}`,
+        type: "FOUL",
+        severity: fouls >= 4 ? "error" : "warning",
+        message: `Star Foul Trouble: #${jerseyMap.get(p.id!)} (${fouls} PF)`,
+        playerId: p.id,
+        jerseyNumber: jerseyMap.get(p.id!),
+      });
     }
-  });
+  }
 
   // 2. Bonus Approaching Alert
   const bonusLimit = periodType === "QUARTERS" ? 5 : 7;
@@ -181,19 +181,19 @@ export const calculateHaltAlerts = (params: {
   }
 
   // 3. Time to Sub fatigue alerts
-  gameData.onCourtIds.forEach((pId: string) => {
+  for (const pId of gameData.onCourtIds) {
     const duration = gameData.stintDurations.get(pId) || 0;
-    if (duration > maxStintDuration * 60) {
-      alerts.push({
-        id: `fatigue-${pId}`,
-        type: "FATIGUE",
-        severity: "warning",
-        message: `Fatigue Alert: #${jerseyMap.get(pId)} (${Math.floor(duration / 60)}m)`,
-        playerId: pId,
-        jerseyNumber: jerseyMap.get(pId),
-      });
-    }
-  });
+    if (duration <= maxStintDuration * 60) continue;
+
+    alerts.push({
+      id: `fatigue-${pId}`,
+      type: "FATIGUE",
+      severity: "warning",
+      message: `Fatigue Alert: #${jerseyMap.get(pId)} (${Math.floor(duration / 60)}m)`,
+      playerId: pId,
+      jerseyNumber: jerseyMap.get(pId),
+    });
+  }
 
   // 4. Clutch Mode Alert
   const isClutch = isClutchEvent(

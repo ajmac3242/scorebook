@@ -68,7 +68,7 @@ export const isFieldGoal = (stat: StatEvent): boolean =>
 
 export const calcPct = (numerator: number, denominator: number): string => {
   if (denominator <= 0) return "0.0";
-  return formatToOne((numerator / denominator) * 100);
+  return (Math.round((numerator / denominator) * 1000) / 10).toFixed(1);
 };
 
 export const calculateFgPct = (makes: number, attempts: number): string =>

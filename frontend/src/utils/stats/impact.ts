@@ -12,6 +12,7 @@ import {
   calculatePossessions,
   calculatePpp,
   isOpponentId,
+  isFreeThrow,
 } from "./aggregators";
 import { IndividualDefensiveBreakdown } from "./types";
 
@@ -249,36 +250,29 @@ export const calculateOnOffStats = (
       continue;
     }
 
-    const isOpp =
-      s.playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
-      s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":");
+    const isOpp = isOpponentId(s.playerId);
 
     const pts = s.points || 0;
     const type = s.type;
 
-    const isMake = type === ACTION_TYPES.MAKE;
-    const isMiss = type === ACTION_TYPES.MISS;
-    const isTurnover = type === ACTION_TYPES.TURNOVER;
-    const isOreb = type === ACTION_TYPES.OFF_REBOUND;
-
     const updateAgg = (target: typeof globalStats) => {
-      if (isMake) {
+      if (isScoringEvent(s)) {
         if (isOpp) target.ptsAgainst += pts;
         else target.ptsFor += pts;
       }
 
-      if (isMake || isMiss) {
-        if (pts === 1) {
+      if (isScoringEvent(s) || type === ACTION_TYPES.MISS) {
+        if (isFreeThrow(s)) {
           if (isOpp) target.oppFta++;
           else target.fta++;
         } else {
           if (isOpp) target.oppFga++;
           else target.fga++;
         }
-      } else if (isTurnover) {
+      } else if (type === ACTION_TYPES.TURNOVER) {
         if (isOpp) target.oppTo++;
         else target.to++;
-      } else if (isOreb) {
+      } else if (type === ACTION_TYPES.OFF_REBOUND) {
         if (isOpp) target.oppOreb++;
         else target.oreb++;
       }

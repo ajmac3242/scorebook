@@ -6,7 +6,15 @@
 import { ACTION_TYPES } from "../../constants/stats";
 import { StatEvent } from "../../db";
 import { calculateElapsedMinutes } from "../mathUtils";
-import { isActive, isOpponentId, isFieldGoal } from "./aggregators";
+import {
+  isActive,
+  isOpponentId,
+  isFieldGoal,
+  isFoulAction,
+  calcPct,
+  isFreeThrow,
+  isScoringEvent,
+} from "./aggregators";
 
 export * from "./analytics/efficiency";
 export * from "./analytics/proactive";
@@ -31,16 +39,7 @@ export const calculateRefTightness = (
 
   if (elapsedMinutes <= 1) return 0;
 
-  const fouls = stats.filter(
-    (s) =>
-      isActive(s) &&
-      [
-        ACTION_TYPES.FOUL,
-        ACTION_TYPES.FOUL_SHOOTING,
-        ACTION_TYPES.FOUL_NON_SHOOTING,
-        ACTION_TYPES.TECHNICAL_FOUL,
-      ].includes(s.type),
-  ).length;
+  const fouls = stats.filter((s) => isActive(s) && isFoulAction(s)).length;
 
   return fouls / elapsedMinutes;
 };
@@ -73,8 +72,9 @@ export const calculateArchetypeEfficiency = (stats: StatEvent[]) => {
   for (const [key, val] of Object.entries(data)) {
     const [dId, playType] = key.split("|");
     if (!result[dId]) result[dId] = {};
-    result[dId][playType] =
-      val.total > 0 ? Math.round((val.stops / val.total) * 100) : 0;
+    result[dId][playType] = Math.round(
+      parseFloat(calcPct(val.stops, val.total)),
+    );
   }
 
   return result;
@@ -102,7 +102,7 @@ export const calculateMatchupEfficiency = (
     if (!defenderId) continue;
 
     const isFGA = isFieldGoal(s);
-    const isFT = s.type === ACTION_TYPES.MAKE && s.points === 1;
+    const isFT = isScoringEvent(s) && isFreeThrow(s);
     const isTO = s.type === ACTION_TYPES.TURNOVER;
 
     if (!isFGA && !isFT && !isTO) continue;
@@ -123,7 +123,7 @@ export const calculateMatchupEfficiency = (
       teamPlayerJersey: "", // To be filled by UI
       oppPlayerId: oId,
       oppPlayerJersey: oId.includes(":") ? oId.split(":")[1] : "??",
-      stopPct: val.total > 0 ? Math.round((val.stops / val.total) * 100) : 0,
+      stopPct: Math.round(parseFloat(calcPct(val.stops, val.total))),
       possessions: val.total,
     });
   }

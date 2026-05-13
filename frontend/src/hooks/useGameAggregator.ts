@@ -9,6 +9,10 @@ import {
   getBonusStatus,
   calculateOpponentThreats,
   OpponentThreat,
+  isOpponentId,
+  isFoulAction,
+  isScoringEvent,
+  isFreeThrow,
 } from "../utils/stats";
 import { calculateElapsedMinutes } from "../utils/mathUtils";
 
@@ -67,25 +71,23 @@ export const useGameAggregator = (
 
     for (const s of sortedGameStats) {
       if (s.deletedAt) continue;
-      const isOpp =
-        s.playerId === SPECIAL_PLAYER_IDS.OPPONENT ||
-        s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":");
+      const isOpp = isOpponentId(s.playerId);
 
       if (isOpp) {
         oppScore += s.points || 0;
-        if (s.type === ACTION_TYPES.MAKE) {
-          if (s.points === 1) oppFta++;
+        if (isScoringEvent(s)) {
+          if (isFreeThrow(s)) oppFta++;
           else oppFga++;
         }
 
         if (s.defensiveScheme && schemeStats[s.defensiveScheme]) {
           const scheme = schemeStats[s.defensiveScheme];
-          if (s.type === ACTION_TYPES.MAKE) {
+          if (isScoringEvent(s)) {
             scheme.points += s.points || 0;
-            if (s.points === 1) scheme.fta++;
+            if (isFreeThrow(s)) scheme.fta++;
             else scheme.fga++;
           } else if (s.type === ACTION_TYPES.MISS) {
-            if (s.points === 1) scheme.fta++;
+            if (isFreeThrow(s)) scheme.fta++;
             else scheme.fga++;
           } else if (s.type === ACTION_TYPES.TURNOVER) {
             scheme.to++;
@@ -93,23 +95,16 @@ export const useGameAggregator = (
         }
       } else {
         curScore += s.points || 0;
-        if (s.type === ACTION_TYPES.MAKE) {
+        if (isScoringEvent(s)) {
           lastTeamScoreClockTime = s.clockTime ?? periodLen;
           lastTeamScorePeriod = s.period;
           foundLastTeamScore = true;
-          if (s.points === 1) teamFta++;
+          if (isFreeThrow(s)) teamFta++;
           else teamFga++;
         }
       }
 
-      if (
-        [
-          ACTION_TYPES.FOUL,
-          ACTION_TYPES.FOUL_SHOOTING,
-          ACTION_TYPES.FOUL_NON_SHOOTING,
-          ACTION_TYPES.TECHNICAL_FOUL,
-        ].includes(s.type)
-      ) {
+      if (isFoulAction(s)) {
         if (isEventInPeriod(s.period, period, pType)) {
           if (isOpp) oppFouls++;
           else {
@@ -136,7 +131,7 @@ export const useGameAggregator = (
 
       if (isOpp) {
         if (s.type === ACTION_TYPES.MISS) {
-          if (s.points === 1) oppFta++;
+          if (isFreeThrow(s)) oppFta++;
           else {
             oppFga++;
             const t = threats.get(s.playerId);
@@ -146,7 +141,7 @@ export const useGameAggregator = (
         if (s.type === ACTION_TYPES.TURNOVER) {
           oppTo++;
           possessionStartClock = s.clockTime ?? periodLen;
-        } else if (s.type === ACTION_TYPES.MAKE && s.points && s.points > 1) {
+        } else if (isScoringEvent(s) && !isFreeThrow(s)) {
           possessionStartClock = s.clockTime ?? periodLen;
           let t = threats.get(s.playerId);
           if (!t) {
@@ -160,14 +155,14 @@ export const useGameAggregator = (
             };
             threats.set(s.playerId, t);
           }
-          t.points += s.points;
+          t.points += s.points || 0;
           t.makes++;
           t.consecutiveMakes++;
           if (t.points >= 8 || t.consecutiveMakes >= 3) t.isHot = true;
         }
       } else {
         if (s.type === ACTION_TYPES.MISS) {
-          if (s.points === 1) teamFta++;
+          if (isFreeThrow(s)) teamFta++;
           else teamFga++;
         } else if (s.type === ACTION_TYPES.OFF_REBOUND) {
           teamOreb++;
@@ -175,7 +170,7 @@ export const useGameAggregator = (
         } else if (s.type === ACTION_TYPES.TURNOVER) {
           teamTo++;
           possessionStartClock = s.clockTime ?? periodLen;
-        } else if (s.type === ACTION_TYPES.MAKE && s.points && s.points > 1) {
+        } else if (isScoringEvent(s) && !isFreeThrow(s)) {
           possessionStartClock = s.clockTime ?? periodLen;
         }
       }
@@ -301,7 +296,12 @@ export const useGameAggregator = (
       },
       possessionState: posState,
       schemeEfficiency: Object.entries(schemeStats).map(([name, s]) => {
-        const poss = calculatePossessions(s.fga, s.fta, s.to, 0);
+        const poss = calculatePossessions({
+          fga: s.fga,
+          fta: s.fta,
+          turnovers: s.to,
+          offRebounds: 0,
+        });
         return { name, ppp: calculatePpp(s.points, poss), possessions: poss };
       }),
       onCourtIds: onCourt,
