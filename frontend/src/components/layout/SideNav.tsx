@@ -171,7 +171,7 @@ const SideNav: React.FC<SideNavProps> = ({
         })}
       </List>
 
-      <Box sx={{ p: 1.5, borderTop: "1px solid", borderColor: "divider" }}>
+      <Box sx={{ p: 1.5, mt: "auto" }}>
         <ListItem disablePadding sx={{ mb: 1 }}>
           <ListItemButton
             component={NavLink}
