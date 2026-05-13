@@ -4,8 +4,13 @@
  * Configures the theme, routing, authentication provider, and layout.
  */
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { Typography, Container, Box } from "@mui/material";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import { Box, CircularProgress } from "@mui/material";
 import { CourtSightThemeProvider, ThemePreset } from "./theme/ThemeContext";
 import GameMode from "./pages/GameMode";
 import Login from "./pages/Login";
@@ -15,13 +20,21 @@ import PlayerStats from "./pages/PlayerStats";
 import GameStats from "./pages/GameStats";
 import Teams from "./pages/Teams";
 import TeamStats from "./pages/TeamStats";
+import Games from "./pages/Games";
+import Reports from "./pages/Reports";
 import Opponents from "./pages/Opponents";
 import OpponentScoutingReport from "./pages/OpponentScoutingReport";
 import Settings from "./pages/Settings";
-import Navigation from "./components/Navigation";
-import { Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import DevAuthBypass from "./components/DevAuthBypass";
+
+// Layout components
+import AppShell from "./components/layout/AppShell";
+import AppTopBar from "./components/layout/AppTopBar";
+import SideNav from "./components/layout/SideNav";
+import BottomNav from "./components/layout/BottomNav";
+import { useLiveQuery } from "dexie-react-hooks";
+import { db } from "./db";
 
 /**
  * Theme presets available to the user via the Settings page.
@@ -90,7 +103,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
   if (loading) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", mt: 8 }}>
-        <Typography>Loading...</Typography>
+        <CircularProgress />
       </Box>
     );
   }
@@ -104,9 +117,65 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
  * @returns {React.ReactElement}
  */
 const AppContent: React.FC = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
+  const [mobileOpen, setMobileOpen] = React.useState(false);
+
+  const liveGame = useLiveQuery(
+    () => db.games.where("completed").equals(0).first(),
+    [],
+  );
+
+  const starredTeam = useLiveQuery(
+    () => db.teams.where("isFavorite").equals(1).first(),
+    [],
+  );
+
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="*" element={<Navigate to="/login" />} />
+      </Routes>
+    );
+  }
+
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+    <AppShell
+      drawerSlot={
+        <SideNav
+          mobileOpen={mobileOpen}
+          onMobileClose={() => setMobileOpen(false)}
+          isLive={!!liveGame}
+        />
+      }
+      topBarSlot={
+        <AppTopBar
+          teamName={starredTeam?.name}
+          isLive={!!liveGame}
+          onSearchOpen={() => {
+            // OmniSearch logic in DESIGN-005
+            console.log("Open Search");
+          }}
+        />
+      }
+      bottomSlot={<BottomNav isLive={!!liveGame} />}
+    >
+      {/* Skip to main content link for accessibility */}
       <Box
         component="a"
         href="#main-content"
@@ -137,111 +206,109 @@ const AppContent: React.FC = () => {
       >
         Skip to main content
       </Box>
-      {isAuthenticated && <Navigation />}
-      <Box
-        id="main-content"
-        component="main"
-        tabIndex={-1}
-        sx={{
-          flexGrow: 1,
-          p: { xs: 1, sm: 3 },
-          pt: {
-            xs: isAuthenticated ? "80px" : 2,
-            sm: isAuthenticated ? "104px" : 3,
-          },
-          pb: { xs: 2, sm: 3 },
-          width: "100%",
-          overflowX: "hidden",
-        }}
-      >
-        <Container maxWidth="xl" sx={{ px: { xs: 1, sm: 2 } }}>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route
-              path="/"
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/opponents"
-              element={
-                <ProtectedRoute>
-                  <Opponents />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/opponents/:opponentId/scouting"
-              element={
-                <ProtectedRoute>
-                  <OpponentScoutingReport />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/settings"
-              element={
-                <ProtectedRoute>
-                  <Settings />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/teams/:teamId"
-              element={
-                <ProtectedRoute>
-                  <TeamStats />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/game/stats"
-              element={
-                <ProtectedRoute>
-                  <GameStats />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/players/:playerId"
-              element={
-                <ProtectedRoute>
-                  <PlayerStats />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/players"
-              element={
-                <ProtectedRoute>
-                  <Players />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/teams"
-              element={
-                <ProtectedRoute>
-                  <Teams />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/game"
-              element={
-                <ProtectedRoute>
-                  <GameMode />
-                </ProtectedRoute>
-              }
-            />
-            <Route path="*" element={<Navigate to="/" />} />
-          </Routes>
-        </Container>
-      </Box>
-    </Box>
+
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/games"
+          element={
+            <ProtectedRoute>
+              <Games />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/reports"
+          element={
+            <ProtectedRoute>
+              <Reports />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/opponents"
+          element={
+            <ProtectedRoute>
+              <Opponents />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/opponents/:opponentId/scouting"
+          element={
+            <ProtectedRoute>
+              <OpponentScoutingReport />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <Settings />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/teams/:teamId"
+          element={
+            <ProtectedRoute>
+              <TeamStats />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/game/stats"
+          element={
+            <ProtectedRoute>
+              <GameStats />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/players/:playerId"
+          element={
+            <ProtectedRoute>
+              <PlayerStats />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/players"
+          element={
+            <ProtectedRoute>
+              <Players />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/teams"
+          element={
+            <ProtectedRoute>
+              <Teams />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/game"
+          element={
+            <ProtectedRoute>
+              <GameMode />
+            </ProtectedRoute>
+          }
+        />
+        {/* Handle case where user might try to go to /login while authenticated */}
+        <Route path="/login" element={<Navigate to="/" />} />
+        <Route path="*" element={<Navigate to="/" />} />
+      </Routes>
+    </AppShell>
   );
 };
 

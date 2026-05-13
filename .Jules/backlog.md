@@ -20,7 +20,7 @@
 - [ ] "Win/Loss Logic" breakdown: "We lost the game but won the process (Shot Quality +12%)."
 - [ ] Identification of the "Process MVP" (Player with highest xPTS creation regardless of makes).
 
-## [ ] [DESIGN-002: Rebrand — App Name, Logo & Favicon]
+## [x] [DESIGN-002: Rebrand — App Name, Logo & Favicon]
 **Priority:** CRITICAL
 **Type:** Rebrand
 **Why:** Every visible reference to "Scorebook" must be replaced with "CourtSight" before layout work begins so agents do not create new components with the old name.
@@ -34,7 +34,7 @@
 - [ ] No route names, API endpoints, database keys, or Dexie schema fields changed
 - [ ] App compiles and loads without errors
 
-## [ ] [DESIGN-003-A: App Shell — Layout Wrapper Component]
+## [x] [DESIGN-003-A: App Shell — Layout Wrapper Component]
 **Priority:** CRITICAL
 **Type:** Layout
 **Why:** Before nav drawer or bottom nav can be built, the app needs a shell wrapper defining the three-panel layout: drawer slot, top bar slot, and main content area.
@@ -50,7 +50,7 @@
 - [ ] All existing pages still render correctly inside the new shell
 - [ ] No nav contents, icons, or route links added yet
 
-## [ ] [DESIGN-003-B: App Shell — Side Navigation Drawer]
+## [x] [DESIGN-003-B: App Shell — Side Navigation Drawer]
 **Priority:** CRITICAL
 **Type:** Navigation
 **Why:** Coaches on iPad need persistent one-tap access to all six sections. The drawer should be always visible on tablet and collapse on mobile.
@@ -66,7 +66,7 @@
 - [ ] Drawer background uses `background.paper` token
 - [ ] No hardcoded hex colors
 
-## [ ] [DESIGN-003-C: App Shell — Bottom Navigation for Mobile]
+## [x] [DESIGN-003-C: App Shell — Bottom Navigation for Mobile]
 **Priority:** CRITICAL
 **Type:** Navigation
 **Why:** On phones, a bottom nav gives coaches thumb-accessible navigation to the five most-used sections.
@@ -81,7 +81,7 @@
 - [ ] Background uses `surface` token
 - [ ] No hardcoded hex colors
 
-## [ ] [DESIGN-004: App Shell — Top App Bar]
+## [x] [DESIGN-004: App Shell — Top App Bar]
 **Priority:** CRITICAL
 **Type:** Navigation
 **Why:** The top bar is the coach's command strip — it holds team switcher, sync/live status, omnisearch trigger, notifications, and profile. Must be slim and always visible.
