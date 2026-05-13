@@ -94,6 +94,14 @@ Impact: Coaches are forced to perform manual mental synthesis for defensive acco
 
 Recommendation: Immediately prioritize the implementation of the "Ghost Archive" features—Defensive Matchup Tracking and On/Off Analytics. Simultaneously, introduce "Shot Clock Process Analysis" to begin tracking offensive discipline. This pivot moves the platform from tracking *results* to tracking *causal factors* and providing proactive *decision support*.
 
+## 2025-05-30 - Strategic Command: Achieving Operational Intelligence
+
+Observation: The platform has successfully transitioned from a passive recorder to a proactive tactical assistant. We have stabilized the core engines for PPP, eFG%, and real-time defensive momentum (Kills). However, the final frontier is "Frictionless Execution." The strategic roadmap must now focus on reducing the "Observation-to-Action" lag. This means implementing Voice-Command entries for high-frequency actions like substitutions and surfacing "Causal Accountability" metrics—specifically *why* defensive breakdowns occur and how they correlate to individual personnel.
+
+Impact: Without Voice Mode for substitutions, scorekeepers risk losing lineup integrity during rapid-fire transition play. Without the "Breakdown Accountability HUD," coaches can see that the team is failing defensively but lack the objective data to pinpoint the failure (e.g., "Missed Rotation" vs "Poor Closeout") and hold specific players accountable during timeouts.
+
+Recommendation: Prioritize **Operational Intelligence** and **Causal Accountability**. The immediate backlog now emphasizes Voice-Driven Subbing to protect data integrity and the Defensive Breakdown HUD to provide "Tactical Proof" for coaching interventions. We are moving from telling the coach *what* happened to explaining *why* it happened and *how* to fix it through personnel and strategy adjustments.
+
 ## 2026-05-26 - Strategic Realignment: From Raw Data to Decision Support
 
 Observation: A deep audit of the codebase reveals that the "Statistical Foundation" is now remarkably solid. We have successfully implemented complex logic for PPP, eFG%, Lineup Net Rating, and even advanced predictive systems like HALT and Ref-Identity Conflict alerts. However, a significant strategic gap remains: "Silent Logic." While the analytical engines exist (e.g., HALT alerts in `analytics.ts`), they are not always surfacing their insights effectively in the `GameMode` UI, or they lack the necessary "Causal" context (e.g., *why* a defensive breakdown happened).

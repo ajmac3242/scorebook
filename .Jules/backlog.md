@@ -1,5 +1,55 @@
 # Scorebook Backlog
 
+## [ ] [Voice-Command Substitution Entry]
+**Priority:** HIGH
+**Type:** Feature / UX
+**Why:** Substitutions are high-friction events. Voice commands ("Sub 12 for 5") allow scorekeepers to keep eyes on the court while maintaining perfect lineup data.
+**What:** Expand `useVoiceRecognition.ts` and `voiceParser.ts` to support substitution intent.
+**Acceptance Criteria:**
+- [ ] Parse "[Jersey] in for [Jersey]" and "[Jersey] sub [Jersey]" commands.
+- [ ] Auto-generate `SUB_IN` and `SUB_OUT` events in IndexedDB.
+- [ ] Visual HUD confirmation: "Lineup Updated: #12 IN, #5 OUT."
+
+## [ ] [Live Defensive Breakdown Accountability HUD]
+**Priority:** HIGH
+**Type:** Feature / Analytics
+**Why:** Tracking *why* an opponent scored (e.g., "Missed Rotation") is the difference between a scorebook and a coaching tool.
+**What:** A sidebar widget in `GameMode` that aggregates `breakdownReason` and attributes them to the `primaryDefenderId`.
+**Acceptance Criteria:**
+- [ ] Real-time "Breakdown Leaderboard" (Reasons and Players responsible).
+- [ ] "Accountability Index": Points Allowed per defender normalized by frequency of breakdowns.
+- [ ] One-tap breakdown attribution during the opponent score workflow.
+
+## [ ] [Predictive Foul Strategy Substitution Advisor]
+**Priority:** HIGH
+**Type:** Feature / Decision Support
+**Why:** Managing stars in foul trouble is high-stress. An advisor removes the "gut feeling" by calculating the risk of disqualification vs. time remaining.
+**What:** A HUD element that calculates "Foul Risk" (Possessions remaining / Fouls available).
+**Acceptance Criteria:**
+- [ ] "Foul Risk" badge on lineup buttons (LOW/MED/HIGH).
+- [ ] "Suggested Return" clock time for players sitting with foul trouble.
+- [ ] Alert when opponent star is in foul trouble to drive "Target Attack" strategy.
+
+## [ ] [Multi-Game Persistent Scouting Integration]
+**Priority:** HIGH
+**Type:** Feature
+**Why:** Coaches play the same teams multiple times. Persistent IDs allow for a "Scouting Report" that builds automatically over the season.
+**What:** Bridge `OpponentScoutingReport` with `GameMode` to load historical tendencies.
+**Acceptance Criteria:**
+- [ ] Auto-load "Tendency Badges" (e.g., "Drives Left", "3PT Threat") on opponent cards.
+- [ ] Save/Load opponent rosters from the "Opponent Library."
+- [ ] Cumulative matchup history: "Player X has a 70% Stop Rate against this opponent over 3 games."
+
+## [ ] [Shot Clock Process ROI Gauge]
+**Priority:** HIGH
+**Type:** Enhancement / Analytics
+**Why:** Offensive discipline is measured by shot quality relative to time used. "Settling" early in the clock is a process failure even if the shot goes in.
+**What:** A visualization in `GameStats` comparing efficiency across EARLY (0-8s), MID (9-16s), and LATE (17-24s) phases.
+**Acceptance Criteria:**
+- [ ] "Process Gauge" showing eFG% vs Expected eFG% by shot clock phase.
+- [ ] Identification of "Efficiency Killers": Low-quality shots taken early in the possession.
+- [ ] Post-game "Discipline Grade" for the team's offensive process.
+
 ## [ ] [Live On/Off Team Impact HUD]
 **Priority:** HIGH
 **Type:** Feature / Analytics
