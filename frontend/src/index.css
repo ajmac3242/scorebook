@@ -25,11 +25,16 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+html,
+body,
 #root {
   width: 100%;
-  max-width: 1280px;
-  margin: 0 auto;
   min-height: 100vh;
+}
+
+#root {
+  max-width: none;
+  margin: 0;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
@@ -70,7 +75,6 @@ p {
   padding: 24px;
 }
 
-/* Custom scrollbar for that premium feel */
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -127,7 +131,6 @@ p {
   transform: scale(0.95);
 }
 
-/* Accessible focus-visible styles across the app */
 :focus-visible {
   outline: 3px solid #154c56;
   outline-offset: 2px;
