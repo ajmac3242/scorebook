@@ -5,14 +5,8 @@
 
 import { ACTION_TYPES } from "../../constants/stats";
 import { StatEvent } from "../../db";
-import {
-  calculateElapsedMinutes,
-} from "../mathUtils";
-import {
-  isActive,
-  isOpponentId,
-  isFieldGoal,
-} from "./aggregators";
+import { calculateElapsedMinutes } from "../mathUtils";
+import { isActive, isOpponentId, isFieldGoal } from "./aggregators";
 
 export * from "./analytics/efficiency";
 export * from "./analytics/proactive";
@@ -37,12 +31,16 @@ export const calculateRefTightness = (
 
   if (elapsedMinutes <= 1) return 0;
 
-  const fouls = stats.filter((s) => isActive(s) && [
-    ACTION_TYPES.FOUL,
-    ACTION_TYPES.FOUL_SHOOTING,
-    ACTION_TYPES.FOUL_NON_SHOOTING,
-    ACTION_TYPES.TECHNICAL_FOUL,
-  ].includes(s.type)).length;
+  const fouls = stats.filter(
+    (s) =>
+      isActive(s) &&
+      [
+        ACTION_TYPES.FOUL,
+        ACTION_TYPES.FOUL_SHOOTING,
+        ACTION_TYPES.FOUL_NON_SHOOTING,
+        ACTION_TYPES.TECHNICAL_FOUL,
+      ].includes(s.type),
+  ).length;
 
   return fouls / elapsedMinutes;
 };

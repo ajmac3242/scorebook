@@ -1,9 +1,6 @@
 import { ACTION_TYPES } from "../../../constants/stats";
 import { StatEvent } from "../../../db";
-import {
-  formatClock,
-  calculateElapsedSeconds,
-} from "../../mathUtils";
+import { formatClock, calculateElapsedSeconds } from "../../mathUtils";
 import { getShotZone, XPTS_TABLE } from "../../shotZones";
 import { SHOT_QUALITY } from "../../../constants/stats";
 import {
