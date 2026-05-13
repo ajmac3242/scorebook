@@ -497,10 +497,9 @@ const Settings: React.FC = () => {
 
       <Box
         sx={{
-          mx: "auto",
-          px: { xs: 2, sm: 3, md: 4 },
+          px: { xs: 2, sm: 2.5, md: 3 },
           width: "100%",
-          maxWidth: 1180,
+          maxWidth: "100%",
         }}
       >
         <Paper
