@@ -45,9 +45,23 @@ describe("Teams Component", () => {
       </ThemeProvider>,
     );
 
+  const getCreateTeamButton = () => {
+    return (
+      screen.queryByRole("button", { name: /add team/i }) ||
+      screen.queryByRole("button", { name: /create first team/i }) ||
+      screen.queryByRole("button", { name: /create team now/i }) ||
+      screen.queryByRole("button", { name: /create team/i })
+    );
+  };
+
   const openCreateDialog = async () => {
     renderComponent();
-    fireEvent.click(screen.getByLabelText(/add new team/i));
+
+    const trigger = getCreateTeamButton();
+    expect(trigger).toBeTruthy();
+
+    fireEvent.click(trigger as HTMLElement);
+
     return await screen.findByRole("dialog");
   };
 
@@ -87,6 +101,14 @@ describe("Teams Component", () => {
     return (
       screen.queryByRole("textbox", { name: /search/i }) ||
       screen.queryByPlaceholderText(/search/i)
+    );
+  };
+
+  const getSubmitButton = (dialog: HTMLElement) => {
+    return (
+      within(dialog).queryByRole("button", { name: /^add$/i }) ||
+      within(dialog).queryByRole("button", { name: /^create$/i }) ||
+      within(dialog).queryByRole("button", { name: /create team/i })
     );
   };
 
@@ -175,7 +197,9 @@ describe("Teams Component", () => {
     const halvesOption = await screen.findByRole("option", { name: /halves/i });
     fireEvent.click(halvesOption);
 
-    fireEvent.click(within(dialog).getByRole("button", { name: /^add$/i }));
+    const submitButton = getSubmitButton(dialog);
+    expect(submitButton).toBeTruthy();
+    fireEvent.click(submitButton as HTMLElement);
 
     await waitFor(() => {
       expect(mockDb.teams.data.some((t: any) => t.name === "Bulls")).toBe(true);
@@ -189,7 +213,9 @@ describe("Teams Component", () => {
   it("validates empty team name", async () => {
     const dialog = await openCreateDialog();
 
-    fireEvent.click(within(dialog).getByRole("button", { name: /^add$/i }));
+    const submitButton = getSubmitButton(dialog);
+    expect(submitButton).toBeTruthy();
+    fireEvent.click(submitButton as HTMLElement);
 
     expect(
       await screen.findByText(/team name is required/i),
@@ -213,7 +239,11 @@ describe("Teams Component", () => {
 
     renderComponent();
 
-    const card = await screen.findByLabelText(/view stats for nav team/i);
+    const card =
+      (await screen.findByRole("button", {
+        name: /view team dashboard for nav team/i,
+      }).catch(() => null)) ||
+      (await screen.findByLabelText(/view stats for nav team/i));
 
     fireEvent.keyDown(card, { key: "Enter", code: "Enter" });
     expect(mockNavigate).toHaveBeenCalledWith("/teams/t1");
@@ -235,7 +265,9 @@ describe("Teams Component", () => {
 
     fillRequiredFields(dialog, { name: "Fail Team" });
 
-    fireEvent.click(within(dialog).getByRole("button", { name: /^add$/i }));
+    const submitButton = getSubmitButton(dialog);
+    expect(submitButton).toBeTruthy();
+    fireEvent.click(submitButton as HTMLElement);
 
     await waitFor(() => {
       expect(loggerSpy).toHaveBeenCalled();
