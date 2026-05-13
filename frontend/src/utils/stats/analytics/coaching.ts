@@ -1,7 +1,6 @@
 import { ACTION_TYPES } from "../../../constants/stats";
 import { StatEvent } from "../../../db";
-import { formatToOne } from "../../mathUtils";
-import { isActive, isOpponentId } from "../aggregators";
+import { isActive, isOpponentId, calcPct, isScoringEvent } from "../aggregators";
 import {
   TalkingPoint,
   OpponentThreat,
@@ -139,7 +138,7 @@ export const calculateDefensiveIntegrity = (
 
   for (let i = 0; i < stats.length; i++) {
     const s = stats[i];
-    if (!isActive(s) || s.type !== ACTION_TYPES.MAKE) continue;
+    if (!isActive(s) || !isScoringEvent(s)) continue;
 
     const isOpp = isOpponentId(s.playerId);
     if (!isOpp) continue;
@@ -159,10 +158,7 @@ export const calculateDefensiveIntegrity = (
       reason,
       points: metrics.points,
       frequency: metrics.frequency,
-      percentage:
-        totalPointsAllowed > 0
-          ? formatToOne((metrics.points / totalPointsAllowed) * 100)
-          : "0.0",
+      percentage: calcPct(metrics.points, totalPointsAllowed),
     }))
     .sort((a, b) => b.points - a.points);
 };
