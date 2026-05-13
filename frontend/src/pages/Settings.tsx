@@ -693,7 +693,10 @@ const Settings: React.FC = () => {
                           onClick={handleClearLogs}
                           disabled={logs.length === 0}
                           color="error"
-                          sx={{ textTransform: "none", alignSelf: "flex-start" }}
+                          sx={{
+                            textTransform: "none",
+                            alignSelf: "flex-start",
+                          }}
                         >
                           Clear logs
                         </Button>
@@ -753,7 +756,9 @@ const Settings: React.FC = () => {
                                       color: "#667085",
                                     }}
                                   >
-                                    {new Date(log.timestamp).toLocaleTimeString()}
+                                    {new Date(
+                                      log.timestamp,
+                                    ).toLocaleTimeString()}
                                   </Typography>
                                 </Box>
                                 <Typography
@@ -807,8 +812,9 @@ const Settings: React.FC = () => {
                           height: 14,
                           borderRadius: "50%",
                           bgcolor:
-                            availablePresets.find((preset) => preset.id === presetId)?.previewColor ||
-                            "primary.main",
+                            availablePresets.find(
+                              (preset) => preset.id === presetId,
+                            )?.previewColor || "primary.main",
                           border: "1px solid rgba(16,24,40,0.08)",
                           flexShrink: 0,
                         }}
@@ -820,7 +826,9 @@ const Settings: React.FC = () => {
                           fontWeight: 500,
                         }}
                       >
-                        {availablePresets.find((preset) => preset.id === presetId)?.label ?? "Theme"}
+                        {availablePresets.find(
+                          (preset) => preset.id === presetId,
+                        )?.label ?? "Theme"}
                       </Typography>
                     </Box>
                   }
@@ -876,8 +884,9 @@ const Settings: React.FC = () => {
         </DialogTitle>
         <DialogContent>
           <DialogContentText>
-            You have data that hasn't been synced to the server yet. If you log out now,
-            these changes may be lost. Are you sure you want to continue?
+            You have data that hasn't been synced to the server yet. If you log
+            out now, these changes may be lost. Are you sure you want to
+            continue?
           </DialogContentText>
         </DialogContent>
         <DialogActions sx={{ p: 2, px: 3, pb: 3 }}>
