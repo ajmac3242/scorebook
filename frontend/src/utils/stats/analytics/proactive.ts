@@ -5,7 +5,6 @@ import {
   isActive,
   isOpponentId,
   isFieldGoal,
-  isFoulAction,
 } from "../aggregators";
 import {
   OpponentThreat,

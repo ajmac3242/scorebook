@@ -206,7 +206,7 @@ class SyncService {
    * @private
    */
   private async pushEntity<T extends { id?: string | number; synced?: number }>(
-    table: Table<T, any>,
+    table: Table<T, unknown>,
     endpoint: string | ((_item: T) => string),
     entityName: string,
     onSuccess?: (_item: T) => Promise<void>,

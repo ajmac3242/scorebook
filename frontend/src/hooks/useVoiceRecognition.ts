@@ -20,10 +20,10 @@ interface SpeechRecognition extends EventTarget {
   continuous: boolean;
   interimResults: boolean;
   lang: string;
-  onstart: (event: Event) => void;
-  onresult: (event: SpeechRecognitionEvent) => void;
-  onerror: (event: SpeechRecognitionErrorEvent) => void;
-  onend: (event: Event) => void;
+  onstart: (_event: Event) => void;
+  onresult: (_event: SpeechRecognitionEvent) => void;
+  onerror: (_event: SpeechRecognitionErrorEvent) => void;
+  onend: (_event: Event) => void;
   start: () => void;
   stop: () => void;
   abort: () => void;
@@ -65,7 +65,7 @@ export const useVoiceRecognition = ({
     recognition.interimResults = false;
     recognition.lang = "en-US";
 
-    recognition.onstart = () => {
+    recognition.onstart = (_event: Event) => {
       setIsListening(true);
       logger.info("Voice recognition started");
     };
@@ -84,7 +84,7 @@ export const useVoiceRecognition = ({
       setIsListening(false);
     };
 
-    recognition.onend = () => {
+    recognition.onend = (_event: Event) => {
       setIsListening(false);
       logger.info("Voice recognition ended");
       // Auto-restart if enabled

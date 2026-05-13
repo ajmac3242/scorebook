@@ -6,17 +6,11 @@ import {
   calculatePlayerAggregates,
   calculatePlayerStreaks,
   calculatePlayEfficiency,
-  calculateStopsAndKills,
-  calculatePossessions,
-  calculatePpp,
   calculateLineupStats,
   calculateTeamSeasonAverages,
   calculateOpponentAggregates,
-  isEventInPeriod,
   isOpponentId,
-  getBonusStatus,
   calculateHaltAlerts,
-  calculateOpponentThreats,
   calculateMatchupEfficiency,
   calculateSparkPlugIndex,
   calculateShotROI,
@@ -24,9 +18,8 @@ import {
   calculateArchetypeEfficiency,
   isClutchEvent,
   type PlayerAggregates,
-  OpponentThreat,
 } from "../utils/stats";
-import { roundToOne, calculateElapsedMinutes } from "../utils/mathUtils";
+import { roundToOne } from "../utils/mathUtils";
 import { useTheme } from "@mui/material";
 
 import { useGameClock } from "./useGameClock";

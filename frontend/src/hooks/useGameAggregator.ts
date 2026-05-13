@@ -390,7 +390,7 @@ export const useGameAggregator = (
       ),
       momentumAlerts: { ...eventAggregates.momentumAlerts, scoringDrought },
     };
-  }, [eventAggregates, clockSeconds, period, game?.periodLength]);
+  }, [eventAggregates, clockSeconds, period, game]);
 
   return {
     eventAggregates,
