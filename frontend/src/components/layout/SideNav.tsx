@@ -10,7 +10,7 @@ import {
   Typography,
   Avatar,
   useMediaQuery,
-  IconButton,
+  ButtonBase,
 } from "@mui/material";
 import {
   Dashboard as DashboardIcon,
@@ -24,17 +24,13 @@ import {
 } from "@mui/icons-material";
 import { NavLink, useLocation } from "react-router-dom";
 import CourtSightLogo from "../CourtSightLogo";
+import { APP_SHELL_LAYOUT } from "./AppShell";
 
 interface SideNavProps {
-  /** Whether the game is currently live (to show the animated dot) */
   isLive?: boolean;
-  /** Mobile open state */
   mobileOpen?: boolean;
-  /** Mobile close handler */
   onMobileClose?: () => void;
-  /** Coach display name for the bottom pill */
   coachName?: string;
-  /** Search trigger */
   onSearchOpen?: () => void;
 }
 
@@ -48,10 +44,6 @@ const NAV_ITEMS = [
   { label: "Reports", path: "/reports", icon: <ReportsIcon /> },
 ];
 
-/**
- * SideNav — The vertical navigation drawer for CourtSight.
- * Permanent on tablet/desktop (>= 768px), temporary on mobile.
- */
 const SideNav: React.FC<SideNavProps> = ({
   isLive = false,
   mobileOpen = false,
@@ -71,7 +63,6 @@ const SideNav: React.FC<SideNavProps> = ({
         bgcolor: "background.paper",
       }}
     >
-      {/* Logo */}
       <Box
         sx={{
           px: 2.5,
@@ -85,24 +76,20 @@ const SideNav: React.FC<SideNavProps> = ({
         <CourtSightLogo width={152} />
       </Box>
 
-      {/* Search */}
-      <Box
-        sx={{
-          px: 2,
-          pb: 1.5,
-        }}
-      >
-        <IconButton
+      <Box sx={{ px: 2, pb: 1.5 }}>
+        <ButtonBase
           onClick={onSearchOpen}
           aria-label="Open search"
           sx={{
             width: "100%",
             height: 40,
+            px: 1.5,
+            borderRadius: 2,
             border: "1px solid",
             borderColor: "divider",
-            borderRadius: 2,
+            display: "flex",
+            alignItems: "center",
             justifyContent: "flex-start",
-            px: 1.5,
             gap: 1,
             color: "text.secondary",
             bgcolor: "background.paper",
@@ -111,23 +98,23 @@ const SideNav: React.FC<SideNavProps> = ({
             },
           }}
         >
-          <SearchIcon fontSize="small" />
+          <SearchIcon sx={{ fontSize: 18 }} />
           <Typography
             sx={{
               fontSize: "0.875rem",
-              color: "text.secondary",
               fontWeight: 500,
+              color: "text.secondary",
             }}
           >
             Search
           </Typography>
-        </IconButton>
+        </ButtonBase>
       </Box>
 
-      {/* Navigation Links */}
-      <List sx={{ flexGrow: 1, px: 2 }}>
+      <List sx={{ flexGrow: 1, px: 1.5 }}>
         {NAV_ITEMS.map((item) => {
           const isActive = location.pathname === item.path;
+
           return (
             <ListItem key={item.label} disablePadding sx={{ mb: 0.5 }}>
               <ListItemButton
@@ -136,7 +123,9 @@ const SideNav: React.FC<SideNavProps> = ({
                 onClick={onMobileClose}
                 sx={{
                   minHeight: 44,
+                  px: 1.5,
                   borderRadius: 2,
+                  justifyContent: "flex-start",
                   bgcolor: isActive ? "primary.container" : "transparent",
                   color: isActive ? "primary.main" : "text.secondary",
                   "&:hover": {
@@ -145,7 +134,7 @@ const SideNav: React.FC<SideNavProps> = ({
                   },
                   "& .MuiListItemIcon-root": {
                     color: "inherit",
-                    minWidth: 40,
+                    minWidth: 36,
                   },
                 }}
               >
@@ -182,8 +171,7 @@ const SideNav: React.FC<SideNavProps> = ({
         })}
       </List>
 
-      {/* Settings & Profile Pill */}
-      <Box sx={{ p: 2, borderTop: "1px solid", borderColor: "divider" }}>
+      <Box sx={{ p: 1.5, borderTop: "1px solid", borderColor: "divider" }}>
         <ListItem disablePadding sx={{ mb: 1 }}>
           <ListItemButton
             component={NavLink}
@@ -191,7 +179,9 @@ const SideNav: React.FC<SideNavProps> = ({
             onClick={onMobileClose}
             sx={{
               minHeight: 44,
+              px: 1.5,
               borderRadius: 2,
+              justifyContent: "flex-start",
               bgcolor:
                 location.pathname === "/settings"
                   ? "primary.container"
@@ -212,12 +202,15 @@ const SideNav: React.FC<SideNavProps> = ({
               },
             }}
           >
-            <ListItemIcon sx={{ minWidth: 40, color: "inherit" }}>
+            <ListItemIcon sx={{ minWidth: 36, color: "inherit" }}>
               <SettingsIcon />
             </ListItemIcon>
             <ListItemText
               primary="Settings"
-              primaryTypographyProps={{ fontSize: "0.9rem", fontWeight: 500 }}
+              primaryTypographyProps={{
+                fontSize: "0.9rem",
+                fontWeight: 500,
+              }}
             />
           </ListItemButton>
         </ListItem>
@@ -254,40 +247,41 @@ const SideNav: React.FC<SideNavProps> = ({
     </Box>
   );
 
-  return (
-    <Box component="nav" sx={{ width: { md: 240 }, flexShrink: { md: 0 } }}>
-      {!isDesktop && (
-        <Drawer
-          variant="temporary"
-          open={mobileOpen}
-          onClose={onMobileClose}
-          ModalProps={{ keepMounted: true }}
-          sx={{
-            display: { xs: "block", md: "none" },
-            "& .MuiDrawer-paper": { boxSizing: "border-box", width: 240 },
-          }}
-        >
-          {drawerContent}
-        </Drawer>
-      )}
+  if (!isDesktop) {
+    return (
+      <Drawer
+        anchor="left"
+        variant="temporary"
+        open={mobileOpen}
+        onClose={onMobileClose}
+        ModalProps={{ keepMounted: true }}
+        sx={{
+          display: { xs: "block", md: "none" },
+          "& .MuiDrawer-paper": {
+            boxSizing: "border-box",
+            width: APP_SHELL_LAYOUT.drawerWidth,
+            left: 0,
+          },
+        }}
+      >
+        {drawerContent}
+      </Drawer>
+    );
+  }
 
-      {isDesktop && (
-        <Drawer
-          variant="permanent"
-          sx={{
-            display: { xs: "none", md: "block" },
-            "& .MuiDrawer-paper": {
-              boxSizing: "border-box",
-              width: 240,
-              position: "relative",
-              height: "100%",
-            },
-          }}
-          open
-        >
-          {drawerContent}
-        </Drawer>
-      )}
+  return (
+    <Box
+      component="nav"
+      sx={{
+        width: "100%",
+        height: "100%",
+        minWidth: 0,
+        display: "flex",
+        flexDirection: "column",
+        bgcolor: "background.paper",
+      }}
+    >
+      {drawerContent}
     </Box>
   );
 };
