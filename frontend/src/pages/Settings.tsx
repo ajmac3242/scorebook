@@ -77,7 +77,7 @@ const PresetCard: React.FC<PresetCardProps> = ({
         borderColor: selected ? "primary.main" : "divider",
         borderWidth: selected ? 1.5 : 1,
         overflow: "hidden",
-        bgcolor: "background.default",
+        bgcolor: "background.paper",
         boxShadow: "none",
         transition: "all 0.18s ease",
         "&:hover": {
@@ -104,7 +104,7 @@ const PresetCard: React.FC<PresetCardProps> = ({
               borderRadius: 1.5,
               border: "1px solid",
               borderColor: selected ? "primary.main" : "divider",
-              bgcolor: "background.paper",
+              bgcolor: "background.default",
               overflow: "hidden",
             }}
           >
@@ -488,10 +488,9 @@ const Settings: React.FC = () => {
   return (
     <Box
       sx={{
-        pb: { xs: 2, sm: 3 },
-        pt: 0,
-        bgcolor: "transparent",
+        width: "100%",
         minHeight: "100%",
+        bgcolor: "transparent",
       }}
     >
       <Snackbar
@@ -510,344 +509,331 @@ const Settings: React.FC = () => {
         </Alert>
       </Snackbar>
 
-      <Box
+      <Paper
+        elevation={0}
         sx={{
-          px: { xs: 1, sm: 1.5, md: 2 },
           width: "100%",
-          maxWidth: "100%",
+          minHeight: "100%",
+          borderRadius: 3,
+          border: "1px solid",
+          borderColor: "divider",
+          overflow: "hidden",
+          bgcolor: "background.default",
+          boxShadow: "none",
         }}
       >
-        <Paper
-          elevation={0}
+        <Box
           sx={{
-            borderRadius: 3,
-            border: "1px solid",
-            borderColor: "divider",
-            overflow: "hidden",
-            bgcolor: "background.default",
-            boxShadow: "none",
+            px: { xs: 2, sm: 3 },
+            pt: { xs: 2, sm: 2.5 },
+            pb: 0.75,
           }}
         >
-          <Box
+          <Typography
             sx={{
-              px: { xs: 2, sm: 3 },
-              pt: 2,
-              pb: 0.75,
+              fontSize: "1.125rem",
+              fontWeight: 600,
+              color: "text.primary",
+              mb: 0.25,
             }}
           >
-            <Typography
-              sx={{
-                fontSize: "1.125rem",
-                fontWeight: 600,
-                color: "text.primary",
-                mb: 0.25,
-              }}
-            >
-              Settings
-            </Typography>
-          </Box>
+            Settings
+          </Typography>
+        </Box>
 
-          <Box
-            sx={{
-              px: { xs: 1, sm: 2 },
-              borderBottom: "1px solid",
-              borderColor: "divider",
+        <Box
+          sx={{
+            px: { xs: 1, sm: 2 },
+            borderBottom: "1px solid",
+            borderColor: "divider",
+          }}
+        >
+          <Tabs
+            value={tabValueToIndex(activeTab)}
+            onChange={(_, value) => setActiveTab(indexToTabValue(value))}
+            variant="scrollable"
+            scrollButtons="auto"
+            TabIndicatorProps={{
+              style: {
+                height: 2,
+                borderRadius: 999,
+              },
             }}
-          >
-            <Tabs
-              value={tabValueToIndex(activeTab)}
-              onChange={(_, value) => setActiveTab(indexToTabValue(value))}
-              variant="scrollable"
-              scrollButtons="auto"
-              TabIndicatorProps={{
-                style: {
-                  height: 2,
-                  borderRadius: 999,
-                },
-              }}
-              sx={{
+            sx={{
+              minHeight: 44,
+              "& .MuiTabs-indicator": {
+                backgroundColor: theme.palette.text.primary,
+              },
+              "& .MuiTab-root": {
                 minHeight: 44,
-                "& .MuiTabs-indicator": {
-                  backgroundColor: theme.palette.text.primary,
-                },
-                "& .MuiTab-root": {
-                  minHeight: 44,
-                  minWidth: "auto",
-                  textTransform: "none",
-                  fontWeight: 600,
-                  fontSize: "0.8125rem",
-                  color: "text.secondary",
-                  px: 1.5,
-                },
-                "& .Mui-selected": {
-                  color: `${theme.palette.text.primary} !important`,
-                },
-              }}
-            >
-              <Tab label="Account" />
-              <Tab label="System" />
-              <Tab label="Appearance" />
-            </Tabs>
-          </Box>
+                minWidth: "auto",
+                textTransform: "none",
+                fontWeight: 600,
+                fontSize: "0.8125rem",
+                color: "text.secondary",
+                px: 1.5,
+              },
+              "& .Mui-selected": {
+                color: `${theme.palette.text.primary} !important`,
+              },
+            }}
+          >
+            <Tab label="Account" />
+            <Tab label="System" />
+            <Tab label="Appearance" />
+          </Tabs>
+        </Box>
 
-          <Box sx={{ px: { xs: 2, sm: 3 }, py: 0.5 }}>
-            {activeTab === "account" && (
-              <Box sx={{ py: 1.5 }}>
-                <SectionIntro
-                  title="Account"
-                  subtitle="Manage your local app data and sign out safely."
-                />
+        <Box sx={{ px: { xs: 2, sm: 3 }, py: 0.5 }}>
+          {activeTab === "account" && (
+            <Box sx={{ py: 1.5 }}>
+              <SectionIntro
+                title="Account"
+                subtitle="Manage your local app data and sign out safely."
+              />
 
-                <SettingsRow
-                  label="Logout"
-                  description="Sign out of CourtSight on this device. Local cache and stored sync metadata will be cleared."
-                  borderBottom={false}
-                  action={
-                    <Button
-                      variant="contained"
-                      color="error"
-                      startIcon={<LogoutIcon />}
-                      onClick={handleLogoutClick}
-                      sx={{
-                        borderRadius: 2,
-                        textTransform: "none",
-                        fontWeight: 600,
-                        boxShadow: "none",
-                      }}
+              <SettingsRow
+                label="Logout"
+                description="Sign out of CourtSight on this device. Local cache and stored sync metadata will be cleared."
+                borderBottom={false}
+                action={
+                  <Button
+                    variant="contained"
+                    color="error"
+                    startIcon={<LogoutIcon />}
+                    onClick={handleLogoutClick}
+                    sx={{
+                      borderRadius: 2,
+                      textTransform: "none",
+                      fontWeight: 600,
+                      boxShadow: "none",
+                    }}
+                  >
+                    Log out
+                  </Button>
+                }
+              />
+            </Box>
+          )}
+
+          {activeTab === "system" && (
+            <Box sx={{ py: 1.5 }}>
+              <SectionIntro
+                title="System"
+                subtitle="Check connectivity, synchronization, and local diagnostic logs."
+              />
+
+              <SettingsRow
+                label="Network connection"
+                description="Current internet connectivity for this device."
+                action={networkChip}
+              />
+
+              <SettingsRow
+                label="Synchronization"
+                description="Shows whether local data has finished syncing to the server."
+                action={syncStatusChip}
+              />
+
+              <SettingsRow
+                label="System logs"
+                description="Copy logs for debugging or clear them from local storage."
+                alignTop
+                borderBottom={false}
+                action={
+                  <Box>
+                    <Stack
+                      direction={{ xs: "column", sm: "row" }}
+                      spacing={1}
+                      sx={{ mb: 1.5 }}
                     >
-                      Log out
-                    </Button>
-                  }
-                />
-              </Box>
-            )}
-
-            {activeTab === "system" && (
-              <Box sx={{ py: 1.5 }}>
-                <SectionIntro
-                  title="System"
-                  subtitle="Check connectivity, synchronization, and local diagnostic logs."
-                />
-
-                <SettingsRow
-                  label="Network connection"
-                  description="Current internet connectivity for this device."
-                  action={networkChip}
-                />
-
-                <SettingsRow
-                  label="Synchronization"
-                  description="Shows whether local data has finished syncing to the server."
-                  action={syncStatusChip}
-                />
-
-                <SettingsRow
-                  label="System logs"
-                  description="Copy logs for debugging or clear them from local storage."
-                  alignTop
-                  borderBottom={false}
-                  action={
-                    <Box>
-                      <Stack
-                        direction={{ xs: "column", sm: "row" }}
-                        spacing={1}
-                        sx={{ mb: 1.5 }}
-                      >
-                        <Button
-                          size="small"
-                          startIcon={isCopied ? <CheckIcon /> : <CopyIcon />}
-                          onClick={copyLogsToClipboard}
-                          disabled={logs.length === 0}
-                          color={isCopied ? "success" : "inherit"}
-                          sx={{
-                            textTransform: "none",
-                            alignSelf: "flex-start",
-                            borderColor: "divider",
-                          }}
-                          variant="outlined"
-                        >
-                          {isCopied ? "Copied" : "Copy logs"}
-                        </Button>
-                        <Button
-                          size="small"
-                          startIcon={<ClearIcon />}
-                          onClick={handleClearLogs}
-                          disabled={logs.length === 0}
-                          color="error"
-                          sx={{
-                            textTransform: "none",
-                            alignSelf: "flex-start",
-                          }}
-                        >
-                          Clear logs
-                        </Button>
-                      </Stack>
-
-                      <Paper
-                        elevation={0}
+                      <Button
+                        size="small"
+                        startIcon={isCopied ? <CheckIcon /> : <CopyIcon />}
+                        onClick={copyLogsToClipboard}
+                        disabled={logs.length === 0}
+                        color={isCopied ? "success" : "inherit"}
                         sx={{
-                          bgcolor: alpha(theme.palette.text.primary, 0.03),
-                          borderRadius: 2,
-                          p: 2,
-                          maxHeight: 260,
-                          overflowY: "auto",
-                          border: "1px solid",
+                          textTransform: "none",
+                          alignSelf: "flex-start",
                           borderColor: "divider",
                         }}
+                        variant="outlined"
                       >
-                        {logs.length === 0 ? (
-                          <Typography
-                            sx={{
-                              fontSize: "0.875rem",
-                              color: "text.secondary",
-                              fontStyle: "italic",
-                            }}
-                          >
-                            No logs recorded yet.
-                          </Typography>
-                        ) : (
-                          <Stack spacing={1.25}>
-                            {[...logs].reverse().map((log, index) => (
-                              <Box key={index}>
-                                <Box
-                                  sx={{
-                                    display: "flex",
-                                    alignItems: "baseline",
-                                    gap: 1,
-                                    mb: 0.25,
-                                  }}
-                                >
-                                  <Typography
-                                    sx={{
-                                      fontSize: "0.6875rem",
-                                      fontWeight: 700,
-                                      textTransform: "uppercase",
-                                      color:
-                                        log.level === "error"
-                                          ? "error.main"
-                                          : log.level === "warn"
-                                            ? "warning.main"
-                                            : "text.secondary",
-                                    }}
-                                  >
-                                    {log.level}
-                                  </Typography>
-                                  <Typography
-                                    sx={{
-                                      fontSize: "0.6875rem",
-                                      color: "text.secondary",
-                                    }}
-                                  >
-                                    {new Date(
-                                      log.timestamp,
-                                    ).toLocaleTimeString()}
-                                  </Typography>
-                                </Box>
-                                <Typography
-                                  sx={{
-                                    fontFamily: "monospace",
-                                    fontSize: "0.75rem",
-                                    color: "text.primary",
-                                    wordBreak: "break-all",
-                                  }}
-                                >
-                                  {log.message}
-                                </Typography>
-                              </Box>
-                            ))}
-                          </Stack>
-                        )}
-                      </Paper>
-                    </Box>
-                  }
-                />
-              </Box>
-            )}
+                        {isCopied ? "Copied" : "Copy logs"}
+                      </Button>
+                      <Button
+                        size="small"
+                        startIcon={<ClearIcon />}
+                        onClick={handleClearLogs}
+                        disabled={logs.length === 0}
+                        color="error"
+                        sx={{ textTransform: "none", alignSelf: "flex-start" }}
+                      >
+                        Clear logs
+                      </Button>
+                    </Stack>
 
-            {activeTab === "appearance" && (
-              <Box sx={{ py: 1.5 }}>
-                <SectionIntro
-                  title="Appearance"
-                  subtitle="Change how your application looks and feels."
-                />
-
-                <SettingsRow
-                  label="Color theme"
-                  description="Select a theme for the application interface."
-                  action={
-                    <Box
+                    <Paper
+                      elevation={0}
                       sx={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: 1,
-                        px: 1.5,
-                        py: 1,
+                        bgcolor: alpha(theme.palette.text.primary, 0.03),
+                        borderRadius: 2,
+                        p: 2,
+                        maxHeight: 260,
+                        overflowY: "auto",
                         border: "1px solid",
                         borderColor: "divider",
-                        borderRadius: 2,
-                        minWidth: 150,
-                        bgcolor: "background.paper",
                       }}
                     >
-                      <Box
-                        sx={{
-                          width: 14,
-                          height: 14,
-                          borderRadius: "50%",
-                          bgcolor:
-                            availablePresets.find(
-                              (preset) => preset.id === presetId,
-                            )?.previewColor || theme.palette.primary.main,
-                          border: "1px solid",
-                          borderColor: alpha(theme.palette.text.primary, 0.08),
-                          flexShrink: 0,
-                        }}
-                      />
-                      <Typography
-                        sx={{
-                          fontSize: "0.875rem",
-                          color: "text.primary",
-                          fontWeight: 500,
-                        }}
-                      >
-                        {availablePresets.find(
-                          (preset) => preset.id === presetId,
-                        )?.label ?? "Theme"}
-                      </Typography>
-                    </Box>
-                  }
-                />
+                      {logs.length === 0 ? (
+                        <Typography
+                          sx={{
+                            fontSize: "0.875rem",
+                            color: "text.secondary",
+                            fontStyle: "italic",
+                          }}
+                        >
+                          No logs recorded yet.
+                        </Typography>
+                      ) : (
+                        <Stack spacing={1.25}>
+                          {[...logs].reverse().map((log, index) => (
+                            <Box key={index}>
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  alignItems: "baseline",
+                                  gap: 1,
+                                  mb: 0.25,
+                                }}
+                              >
+                                <Typography
+                                  sx={{
+                                    fontSize: "0.6875rem",
+                                    fontWeight: 700,
+                                    textTransform: "uppercase",
+                                    color:
+                                      log.level === "error"
+                                        ? "error.main"
+                                        : log.level === "warn"
+                                          ? "warning.main"
+                                          : "text.secondary",
+                                  }}
+                                >
+                                  {log.level}
+                                </Typography>
+                                <Typography
+                                  sx={{
+                                    fontSize: "0.6875rem",
+                                    color: "text.secondary",
+                                  }}
+                                >
+                                  {new Date(log.timestamp).toLocaleTimeString()}
+                                </Typography>
+                              </Box>
+                              <Typography
+                                sx={{
+                                  fontFamily: "monospace",
+                                  fontSize: "0.75rem",
+                                  color: "text.primary",
+                                  wordBreak: "break-all",
+                                }}
+                              >
+                                {log.message}
+                              </Typography>
+                            </Box>
+                          ))}
+                        </Stack>
+                      )}
+                    </Paper>
+                  </Box>
+                }
+              />
+            </Box>
+          )}
 
-                <SettingsRow
-                  label="Theme presets"
-                  description="Choose how the app should appear across the interface."
-                  alignTop
-                  borderBottom={false}
-                  action={
-                    <Box sx={{ width: "100%" }}>
-                      <Grid container spacing={2}>
-                        {availablePresets.map((preset) => (
-                          <Grid item xs={12} sm={6} lg={4} key={preset.id}>
-                            <Tooltip title={preset.label} arrow>
-                              <span>
-                                <PresetCard
-                                  preset={preset}
-                                  selected={preset.id === presetId}
-                                  onSelect={() => setPresetId(preset.id)}
-                                />
-                              </span>
-                            </Tooltip>
-                          </Grid>
-                        ))}
-                      </Grid>
-                    </Box>
-                  }
-                />
-              </Box>
-            )}
-          </Box>
-        </Paper>
-      </Box>
+          {activeTab === "appearance" && (
+            <Box sx={{ py: 1.5 }}>
+              <SectionIntro
+                title="Appearance"
+                subtitle="Change how your application looks and feels."
+              />
+
+              <SettingsRow
+                label="Color theme"
+                description="Select a theme for the application interface."
+                action={
+                  <Box
+                    sx={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 1,
+                      px: 1.5,
+                      py: 1,
+                      border: "1px solid",
+                      borderColor: "divider",
+                      borderRadius: 2,
+                      minWidth: 150,
+                      bgcolor: "background.paper",
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        width: 14,
+                        height: 14,
+                        borderRadius: "50%",
+                        bgcolor:
+                          availablePresets.find((preset) => preset.id === presetId)
+                            ?.previewColor || theme.palette.primary.main,
+                        border: "1px solid",
+                        borderColor: alpha(theme.palette.text.primary, 0.08),
+                        flexShrink: 0,
+                      }}
+                    />
+                    <Typography
+                      sx={{
+                        fontSize: "0.875rem",
+                        color: "text.primary",
+                        fontWeight: 500,
+                      }}
+                    >
+                      {availablePresets.find((preset) => preset.id === presetId)?.label ??
+                        "Theme"}
+                    </Typography>
+                  </Box>
+                }
+              />
+
+              <SettingsRow
+                label="Theme presets"
+                description="Choose how the app should appear across the interface."
+                alignTop
+                borderBottom={false}
+                action={
+                  <Box sx={{ width: "100%" }}>
+                    <Grid container spacing={2}>
+                      {availablePresets.map((preset) => (
+                        <Grid item xs={12} sm={6} lg={4} key={preset.id}>
+                          <Tooltip title={preset.label} arrow>
+                            <span>
+                              <PresetCard
+                                preset={preset}
+                                selected={preset.id === presetId}
+                                onSelect={() => setPresetId(preset.id)}
+                              />
+                            </span>
+                          </Tooltip>
+                        </Grid>
+                      ))}
+                    </Grid>
+                  </Box>
+                }
+              />
+            </Box>
+          )}
+        </Box>
+      </Paper>
     </Box>
   );
 };
