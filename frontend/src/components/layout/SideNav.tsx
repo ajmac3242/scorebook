@@ -1,6 +1,8 @@
 import React from "react";
 import {
+  Avatar,
   Box,
+  ButtonBase,
   Drawer,
   List,
   ListItem,
@@ -8,19 +10,17 @@ import {
   ListItemIcon,
   ListItemText,
   Typography,
-  Avatar,
   useMediaQuery,
-  ButtonBase,
 } from "@mui/material";
 import {
-  Dashboard as DashboardIcon,
-  SportsBasketball as GamesIcon,
-  FlashOn as LiveIcon,
-  People as PlayersIcon,
-  Groups as TeamsIcon,
   Assessment as ReportsIcon,
-  Settings as SettingsIcon,
+  Dashboard as DashboardIcon,
+  FlashOn as LiveIcon,
+  Groups as TeamsIcon,
+  People as PlayersIcon,
   Search as SearchIcon,
+  Settings as SettingsIcon,
+  SportsBasketball as GamesIcon,
 } from "@mui/icons-material";
 import { NavLink, useLocation } from "react-router-dom";
 import CourtSightLogo from "../CourtSightLogo";
@@ -126,10 +126,10 @@ const SideNav: React.FC<SideNavProps> = ({
                   px: 1.5,
                   borderRadius: 2,
                   justifyContent: "flex-start",
-                  bgcolor: isActive ? "primary.container" : "transparent",
+                  bgcolor: isActive ? "action.selected" : "transparent",
                   color: isActive ? "primary.main" : "text.secondary",
                   "&:hover": {
-                    bgcolor: isActive ? "primary.container" : "action.hover",
+                    bgcolor: isActive ? "action.selected" : "action.hover",
                     color: isActive ? "primary.main" : "text.primary",
                   },
                   "& .MuiListItemIcon-root": {
@@ -150,7 +150,7 @@ const SideNav: React.FC<SideNavProps> = ({
                           width: 8,
                           height: 8,
                           borderRadius: "50%",
-                          bgcolor: "#FF6B1A",
+                          bgcolor: "warning.main",
                           border: "2px solid",
                           borderColor: "background.paper",
                         }}
@@ -184,7 +184,7 @@ const SideNav: React.FC<SideNavProps> = ({
               justifyContent: "flex-start",
               bgcolor:
                 location.pathname === "/settings"
-                  ? "primary.container"
+                  ? "action.selected"
                   : "transparent",
               color:
                 location.pathname === "/settings"
@@ -193,7 +193,7 @@ const SideNav: React.FC<SideNavProps> = ({
               "&:hover": {
                 bgcolor:
                   location.pathname === "/settings"
-                    ? "primary.container"
+                    ? "action.selected"
                     : "action.hover",
                 color:
                   location.pathname === "/settings"
@@ -230,6 +230,7 @@ const SideNav: React.FC<SideNavProps> = ({
               width: 32,
               height: 32,
               bgcolor: "primary.main",
+              color: "primary.contrastText",
               fontSize: "0.85rem",
               fontWeight: 700,
             }}
@@ -261,6 +262,7 @@ const SideNav: React.FC<SideNavProps> = ({
             boxSizing: "border-box",
             width: APP_SHELL_LAYOUT.drawerWidth,
             left: 0,
+            bgcolor: "background.paper",
           },
         }}
       >
