@@ -14,6 +14,7 @@ import {
   Stack,
   Button,
   Avatar,
+  CircularProgress,
 } from "@mui/material";
 import { SwapHoriz } from "@mui/icons-material";
 import { Player, Team, Game } from "../db";
@@ -31,6 +32,7 @@ interface QuickSubDialogProps {
   jerseyMap: Map<string, string>;
   handleSwapClick: (_id: string) => void;
   handleQuickSub: () => void;
+  isSaving?: boolean;
 }
 
 const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
@@ -45,6 +47,7 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
   jerseyMap,
   handleSwapClick,
   handleQuickSub,
+  isSaving = false,
 }) => {
   return (
     <Dialog
@@ -282,9 +285,12 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
         <Button
           onClick={handleQuickSub}
           variant="contained"
-          startIcon={<SwapHoriz />}
+          disabled={isSaving}
+          startIcon={
+            isSaving ? <CircularProgress size={20} /> : <SwapHoriz />
+          }
         >
-          Sub In
+          {isSaving ? "Saving..." : "Sub In"}
         </Button>
       </DialogActions>
     </Dialog>

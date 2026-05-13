@@ -62,6 +62,13 @@ export const ActionControls = React.memo(
               onClick={onNextPeriod}
               disabled={isReadOnly}
               aria-label="Advance to Next Period"
+              sx={{
+                "&:focus-visible": {
+                  outline: "2px solid",
+                  outlineColor: "primary.main",
+                  outlineOffset: "2px",
+                },
+              }}
             >
               Period
             </Button>
@@ -83,6 +90,13 @@ export const ActionControls = React.memo(
               }
               aria-pressed={!!possessionState}
               color={possessionState ? "primary" : "inherit"}
+              sx={{
+                "&:focus-visible": {
+                  outline: "2px solid",
+                  outlineColor: "primary.main",
+                  outlineOffset: "2px",
+                },
+              }}
             >
               Poss
             </Button>
@@ -99,6 +113,13 @@ export const ActionControls = React.memo(
               disabled={isReadOnly}
               aria-label="manage lineup substitutions"
               aria-haspopup="dialog"
+              sx={{
+                "&:focus-visible": {
+                  outline: "2px solid",
+                  outlineColor: "primary.main",
+                  outlineOffset: "2px",
+                },
+              }}
             >
               Sub
             </Button>
@@ -116,6 +137,11 @@ export const ActionControls = React.memo(
                 border: "1px solid rgba(0,0,0,0.23)",
                 borderRadius: "4px",
                 p: "5px",
+                "&:focus-visible": {
+                  outline: "2px solid",
+                  outlineColor: "primary.main",
+                  outlineOffset: "2px",
+                },
               }}
             >
               <History />
@@ -132,6 +158,13 @@ export const ActionControls = React.memo(
               onClick={onTimeout}
               disabled={isReadOnly}
               aria-label="log team timeout"
+              sx={{
+                "&:focus-visible": {
+                  outline: "2px solid",
+                  outlineColor: "primary.main",
+                  outlineOffset: "2px",
+                },
+              }}
             >
               Timeout
             </Button>
@@ -148,6 +181,13 @@ export const ActionControls = React.memo(
               disabled={isReadOnly}
               aria-label="record free throws"
               aria-haspopup="dialog"
+              sx={{
+                "&:focus-visible": {
+                  outline: "2px solid",
+                  outlineColor: "primary.main",
+                  outlineOffset: "2px",
+                },
+              }}
             >
               FT
             </Button>
@@ -173,6 +213,13 @@ export const ActionControls = React.memo(
                   ? "undo last action (no actions to undo)"
                   : "undo last action"
               }
+              sx={{
+                "&:focus-visible": {
+                  outline: "2px solid",
+                  outlineColor: "primary.main",
+                  outlineOffset: "2px",
+                },
+              }}
             >
               Undo
             </Button>
@@ -189,6 +236,13 @@ export const ActionControls = React.memo(
                 onClick={onEndGame}
                 disabled={isEnding}
                 aria-label="End and Save Game"
+                sx={{
+                  "&:focus-visible": {
+                    outline: "2px solid",
+                    outlineColor: "error.main",
+                    outlineOffset: "2px",
+                  },
+                }}
               >
                 {isEnding ? "Ending..." : "End Game"}
               </Button>

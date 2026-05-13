@@ -181,6 +181,8 @@ const GameMode: React.FC = () => {
     setIsEnding,
     isSavingStat,
     setIsSavingStat,
+    isSavingSub,
+    setIsSavingSub,
     chainPrompt,
     setChainPrompt,
     snackbar,
@@ -542,8 +544,9 @@ const GameMode: React.FC = () => {
   );
 
   const handleQuickSub = useCallback(async () => {
-    if (!gameId || isReadOnly) return;
+    if (!gameId || isReadOnly || isSavingSub) return;
 
+    setIsSavingSub(true);
     try {
       const timestamp = new Date().toISOString();
 
@@ -587,7 +590,7 @@ const GameMode: React.FC = () => {
       await syncService.pushUpdates();
       setSnackbar({
         open: true,
-        message: "Substitution recorded",
+        message: `Lineup updated: substituted ${toSubIn.length} in, ${toSubOut.length} out`,
         severity: "success",
       });
     } catch (err) {
@@ -597,6 +600,8 @@ const GameMode: React.FC = () => {
         message: "Failed to record substitution",
         severity: "error",
       });
+    } finally {
+      setIsSavingSub(false);
     }
   }, [
     gameId,
@@ -1691,14 +1696,14 @@ const GameMode: React.FC = () => {
                       <TableHead>
                         <TableRow>
                           {[
-                            { label: "#", key: "jerseyNumber" },
-                            { label: "NAME", key: "name" },
-                            { label: "MIN", key: "min" },
-                            { label: "PTS", key: "points" },
-                            { label: "REB", key: "rebounds" },
-                            { label: "AST", key: "assists" },
-                            { label: "PF", key: "fouls" },
-                            { label: "+/-", key: "plusMinus" },
+                            { label: "#", key: "jerseyNumber", desc: "Jersey Number" },
+                            { label: "NAME", key: "name", desc: "Player Name" },
+                            { label: "MIN", key: "min", desc: "Minutes Played" },
+                            { label: "PTS", key: "points", desc: "Points Scored" },
+                            { label: "REB", key: "rebounds", desc: "Total Rebounds" },
+                            { label: "AST", key: "assists", desc: "Assists" },
+                            { label: "PF", key: "fouls", desc: "Personal Fouls" },
+                            { label: "+/-", key: "plusMinus", desc: "Plus/Minus Rating" },
                           ].map((head) => (
                             <TableCell
                               key={head.key}
@@ -1708,26 +1713,28 @@ const GameMode: React.FC = () => {
                                 px: 0.5,
                               }}
                             >
-                              <TableSortLabel
-                                active={sortConfig.key === head.key}
-                                direction={
-                                  sortConfig.key === head.key
-                                    ? sortConfig.direction
-                                    : "asc"
-                                }
-                                onClick={() =>
-                                  setSortConfig({
-                                    key: head.key as keyof PlayerAggregates,
-                                    direction:
-                                      sortConfig.key === head.key &&
-                                      sortConfig.direction === "asc"
-                                        ? "desc"
-                                        : "asc",
-                                  })
-                                }
-                              >
-                                {head.label}
-                              </TableSortLabel>
+                              <Tooltip title={head.desc} arrow placement="top">
+                                <TableSortLabel
+                                  active={sortConfig.key === head.key}
+                                  direction={
+                                    sortConfig.key === head.key
+                                      ? sortConfig.direction
+                                      : "asc"
+                                  }
+                                  onClick={() =>
+                                    setSortConfig({
+                                      key: head.key as keyof PlayerAggregates,
+                                      direction:
+                                        sortConfig.key === head.key &&
+                                        sortConfig.direction === "asc"
+                                          ? "desc"
+                                          : "asc",
+                                    })
+                                  }
+                                >
+                                  {head.label}
+                                </TableSortLabel>
+                              </Tooltip>
                             </TableCell>
                           ))}
                         </TableRow>
@@ -2075,6 +2082,15 @@ const GameMode: React.FC = () => {
                         stats.
                       </Typography>
                     </Box>
+                    <Button
+                      variant="contained"
+                      size="small"
+                      startIcon={<SportsBasketball />}
+                      onClick={() => setIsDialogOpen(true)}
+                      sx={{ mt: 1, fontWeight: 800 }}
+                    >
+                      Record First Action
+                    </Button>
                   </Box>
                 ) : (
                   gameData.recentStats.map((s, index) => (
@@ -2553,6 +2569,21 @@ const GameMode: React.FC = () => {
           )}
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
+          {(selectedPlayerId || statType) && (
+            <Button
+              onClick={() => {
+                setSelectedPlayerId(null);
+                setStatType(null);
+                setPlayName("");
+                setSituation(null);
+                setOpponentPlayType(null);
+              }}
+              color="warning"
+              sx={{ mr: "auto" }}
+            >
+              Clear Selection
+            </Button>
+          )}
           <Button onClick={() => setIsDialogOpen(false)} color="inherit">
             Cancel
           </Button>
@@ -2672,6 +2703,7 @@ const GameMode: React.FC = () => {
         jerseyMap={jerseyMap}
         handleSwapClick={handleSwapClick}
         handleQuickSub={handleQuickSub}
+        isSaving={isSavingSub}
       />
 
       {gameId && (
