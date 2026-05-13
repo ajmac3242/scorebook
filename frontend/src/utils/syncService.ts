@@ -199,14 +199,14 @@ class SyncService {
    * Only after a chunk of items is successfully acknowledged by the API do we
    * update their 'synced' status in IndexedDB using a single batched transaction.
    *
-   * @param {Record<string, any>} table - Dexie table.
+   * @param {Table<T, any>} table - Dexie table.
    * @param {string | ((item: T) => string)} endpoint - API endpoint or a function that returns an endpoint.
    * @param {string} entityName - Name for logging.
    * @param {(item: T) => Promise<void>} [onSuccess] - Optional callback after successful push.
    * @private
    */
   private async pushEntity<T extends { id?: string | number; synced?: number }>(
-    table: Table<T, unknown>,
+    table: Table<T, any>,
     endpoint: string | ((_item: T) => string),
     entityName: string,
     onSuccess?: (_item: T) => Promise<void>,
@@ -252,8 +252,7 @@ class SyncService {
       if (successIds.length > 0) {
         await db.transaction("rw", table, async () => {
           for (let j = 0; j < successIds.length; j++) {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            await table.update(successIds[j], { synced: 1 } as any);
+            await table.update(successIds[j], { synced: 1 } as Partial<T>);
           }
         });
       }

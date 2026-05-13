@@ -169,7 +169,6 @@ const AppContent: React.FC = () => {
           isLive={!!liveGame}
           onSearchOpen={() => {
             // OmniSearch logic in DESIGN-005
-            console.log("Open Search");
           }}
         />
       }
