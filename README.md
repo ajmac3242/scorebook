@@ -100,13 +100,16 @@ To maintain high velocity while ensuring reliability:
 ### Live Intelligence
 - **Real-time Game Tracking**: High-frequency interface for logging shots, misses, and defensive actions.
 - **Voice-Driven Scorekeeping**: Hands-free scoring using natural voice commands (e.g., "Five make three assist ten").
+- **Defensive 'Kill' Tracker**: Real-time monitoring of consecutive defensive stops. Achievements of 3 stops ("Kills") are highlighted to drive defensive intensity.
 - **Defensive Momentum HUD**: Real-time tracking of **Defensive Stops**, **Kills**, and **Ref Tightness**.
 - **Special Situations (ATO/SLOB/BLOB)**: Dedicated tracking for possessions following timeouts or dead balls.
 - **Target Attack HUD**: Real-time identification of the opponent's "weak link" based on live Stop % data.
 - **Momentum & Run Alerts**: Automated detection of opponent scoring runs and scoring droughts.
+- **'Winning Time' (Clutch) HUD**: Automatically activates in the final 4 minutes of close games, surfacing high-leverage stats like Clutch Usage and Free Throw reliability.
 
 ### Deep Analytics
 - **Holistic Matchup Matrix**: 5x5 tactical HUD mapping unit-on-unit efficiency with one-tap reassignments.
+- **Archetype-Based Matchup Advisor**: Proactively suggests optimal defensive matchups by correlating defender Stop % with opponent "Play Types" (e.g., PnR, ISO).
 - **Spark Plug Momentum Index**: Correlates "Blue Collar" hustle (dives, charges) with subsequent team scoring runs.
 - **Paint Touches & Rim Pressure**: Measures offensive aggression via paint entries and Points Per Paint Touch (PPPT).
 - **Shot Clock Process Analysis**: Categorizes shots by clock phase (Early/Mid/Late) to evaluate offensive discipline.

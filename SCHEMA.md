@@ -10,18 +10,18 @@
 
 | Entity | PK | SK | Attributes |
 | --- | --- | --- | --- |
-| **Team** | `TEAM#<TeamId>` | `METADATA#<TeamId>` | Name, SeasonId, deletedAt? |
-| **Player** | `PLAYER#<PlayerId>` | `METADATA#<PlayerId>` | Name, DefaultNumber, isStar (0/1), isArchived (0/1), deletedAt? |
-| **TeamPlayer** | `TEAM#<TeamId>` | `PLAYER#<PlayerId>` | JerseyNumber (1-3 digits), deletedAt? |
-| **Game** | `GAME#<GameId>` | `METADATA#<GameId>` | TeamId, Opponent, Date, Location, completed (0/1), deletedAt? |
-| **StatEvent** | `GAME#<GameId>` | `STAT#<Timestamp>#<StatId>` | PlayerId, Type, Points, LocationX, LocationY, timestamp, situation?, shotClockPhase?, primaryDefenderId?, defensiveScheme?, opponentPlayType?, breakdownReason? |
+| **Team** | `TEAM#<TeamId>` | `METADATA#<TeamId>` | Name, Description?, PeriodType, LogoUrl?, PrimaryColor?, Fouls?, IsFavorite (0/1), DefaultPeriodLength?, DefaultTimeoutLimit?, DefaultFoulLimit?, DefaultOvertimeLength?, MaxStintDuration?, Playbook?, FoulWarningThresholds?, DeletedAt? |
+| **Player** | `PLAYER#<PlayerId>` | `METADATA#<PlayerId>` | Name, AvatarColor?, IsStar (0/1), IsArchived (0/1), DeletedAt? |
+| **TeamPlayer** | `TEAM#<TeamId>` | `PLAYER#<PlayerId>` | JerseyNumber (1-3 digits), DeletedAt? |
+| **Game** | `GAME#<GameId>` | `METADATA#<GameId>` | TeamId, Opponent, OpponentId?, OpponentLogoUrl?, Date, Time?, Location, Completed (0/1), CurrentPeriod?, ClockTime?, PeriodLength?, TimeoutLimit?, FoulLimit?, PeriodType?, Matchups?, ActiveDefensiveScheme?, TacticalKpis?, DeletedAt? |
+| **StatEvent** | `GAME#<GameId>` | `STAT#<Timestamp>#<StatId>` | PlayerId, Type, Points?, LocationX?, LocationY?, Timestamp, Period, ClockTime?, Situation?, ShotClockPhase?, PrimaryDefenderId?, DefensiveScheme?, OpponentPlayType?, BreakdownReason?, PlayName?, ShotQuality?, DeletedAt? |
 
 ### Global Secondary Indexes (GSI)
 
 #### GSI1: Entity Lookup & Hierarchy
-- **GSI1PK**: `SK` (or `PK` for sub-resources)
-- **GSI1SK**: `PK` (or `SK` for sub-resources)
-- *Purpose*: Find all Teams (`GSI1PK=TEAM`), all Players (`GSI1PK=PLAYER`), all Games for a Team (`GSI1PK=TEAM#<id>`), all Players in a Team (`GSI1PK=TEAM#<id>`).
+- **GSI1PK**: `TEAM` (Teams), `PLAYER` (Players), `TEAM#<id>` (Games/TeamPlayers), `GAME#<id>` (Stats)
+- **GSI1SK**: `TEAM#<id>` (Teams), `PLAYER#<id>` (Players), `GAME#<id>` (Games), `PLAYER#<id>` (TeamPlayers), `STAT#<ts>#<id>` (Stats)
+- *Purpose*: Find all Teams, all Players, all Games for a Team, all Players in a Team, or all Stats for a Game.
 
 #### GSI2: Player Stats Aggregate (Reserved)
 - **GSI2PK**: `PLAYER#<PlayerId>`
