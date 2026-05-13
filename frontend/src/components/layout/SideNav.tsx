@@ -261,6 +261,7 @@ const SideNav: React.FC<SideNavProps> = ({
             boxSizing: "border-box",
             width: APP_SHELL_LAYOUT.drawerWidth,
             left: 0,
+            bgcolor: "background.paper",
           },
         }}
       >
