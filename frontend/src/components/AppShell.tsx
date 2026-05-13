@@ -1,60 +1,75 @@
-/**
- * @file AppShell.tsx
- * @description CourtSight App Shell — full-viewport layout wrapper.
- * Provides CSS-grid layout with a side drawer slot (tablet+) and bottom slot (mobile).
- * No nav content, icons, or route links are defined here (see DESIGN-003-B/C).
- */
 import React from "react";
-import { Box, useMediaQuery, useTheme } from "@mui/material";
+import { Box, useMediaQuery } from "@mui/material";
 
 interface AppShellProps {
-  /** Rendered inside the main content area */
-  children: React.ReactNode;
-  /** Slot for the side navigation drawer (tablet+ only) */
+  /** Slot for the side navigation drawer (visible on desktop) */
   drawerSlot?: React.ReactNode;
   /** Slot for the top app bar */
   topBarSlot?: React.ReactNode;
-  /** Slot for the bottom navigation (mobile only) */
-  bottomNavSlot?: React.ReactNode;
+  /** Slot for the bottom navigation (visible on mobile) */
+  bottomSlot?: React.ReactNode;
+  /** Primary content to render in the main scrollable area */
+  children: React.ReactNode;
 }
 
 /**
- * AppShell — full-viewport layout wrapper.
- *
- * Layout:
- *   ≥ 768px: [drawer 240px] | [top bar + main content]
- *   < 768px: [top bar + main content] / [bottom nav 56px]
- *
- * Children are rendered inside the main content area (scrollable).
+ * Central layout tokens for the app shell.
+ * Change these values in one place to update gutters app-wide.
+ */
+export const APP_SHELL_LAYOUT = {
+  drawerWidth: 240,
+  contentMaxWidth: 1440,
+  gutterX: {
+    xs: 1.5,
+    sm: 2,
+    md: 2,
+    lg: 3,
+  },
+  gutterY: {
+    xs: 1,
+    sm: 1.5,
+    md: 2,
+  },
+} as const;
+
+/**
+ * AppShell — The core layout wrapper for CourtSight.
+ * Defines the responsive grid:
+ * - Desktop (>= 768px): [Drawer (240px)] [TopBar + Main Content]
+ * - Mobile (< 768px): [TopBar] [Main Content] [BottomNav (56px)]
  */
 const AppShell: React.FC<AppShellProps> = ({
-  children,
   drawerSlot,
   topBarSlot,
-  bottomNavSlot,
+  bottomSlot,
+  children,
 }) => {
-  const theme = useTheme();
-  const isTablet = useMediaQuery(theme.breakpoints.up("md")); // md = 768px in MUI default
+  const isDesktop = useMediaQuery("(min-width:768px)");
 
   return (
     <Box
       sx={{
-        display: "flex",
-        flexDirection: "row",
-        height: "100dvh",
-        width: "100%",
+        display: "grid",
+        gridTemplateColumns: isDesktop
+          ? `${APP_SHELL_LAYOUT.drawerWidth}px 1fr`
+          : "1fr",
+        gridTemplateRows: "auto 1fr auto",
+        height: "100vh",
+        width: "100vw",
         overflow: "hidden",
         bgcolor: "background.default",
+        "--app-content-max-width": `${APP_SHELL_LAYOUT.contentMaxWidth}px`,
       }}
     >
-      {/* Side drawer slot — 240px wide, tablet+ only */}
-      {isTablet && drawerSlot && (
+      {/* Drawer Slot (Desktop Only) */}
+      {isDesktop && (
         <Box
-          component="aside"
           sx={{
-            width: 240,
-            flexShrink: 0,
-            height: "100%",
+            gridColumn: "1 / 2",
+            gridRow: "1 / 4",
+            borderRight: "1px solid",
+            borderColor: "divider",
+            bgcolor: "background.paper",
             overflow: "hidden",
           }}
         >
@@ -62,44 +77,62 @@ const AppShell: React.FC<AppShellProps> = ({
         </Box>
       )}
 
-      {/* Right-hand column: top bar + main content + optional bottom nav */}
+      {/* Top Bar Slot */}
       <Box
         sx={{
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          overflow: "hidden",
-          minWidth: 0,
+          gridColumn: isDesktop ? "2 / 3" : "1 / 2",
+          gridRow: "1 / 2",
+          position: "sticky",
+          top: 0,
+          zIndex: 1100,
         }}
       >
-        {/* Top app bar slot */}
         {topBarSlot}
+      </Box>
 
-        {/* Main scrollable content area */}
+      {/* Main Content Area */}
+      <Box
+        component="main"
+        id="main-content"
+        sx={{
+          gridColumn: isDesktop ? "2 / 3" : "1 / 2",
+          gridRow: "2 / 3",
+          overflowY: "auto",
+          width: "100%",
+          minWidth: 0,
+          px: APP_SHELL_LAYOUT.gutterX,
+          py: APP_SHELL_LAYOUT.gutterY,
+          position: "relative",
+          outline: "none",
+          "--page-gutter-x-xs": `${APP_SHELL_LAYOUT.gutterX.xs * 8}px`,
+          "--page-gutter-x-sm": `${APP_SHELL_LAYOUT.gutterX.sm * 8}px`,
+          "--page-gutter-x-md": `${APP_SHELL_LAYOUT.gutterX.md * 8}px`,
+          "--page-gutter-x-lg": `${APP_SHELL_LAYOUT.gutterX.lg * 8}px`,
+          "--page-gutter-y-xs": `${APP_SHELL_LAYOUT.gutterY.xs * 8}px`,
+          "--page-gutter-y-sm": `${APP_SHELL_LAYOUT.gutterY.sm * 8}px`,
+          "--page-gutter-y-md": `${APP_SHELL_LAYOUT.gutterY.md * 8}px`,
+        }}
+        tabIndex={-1}
+      >
+        {children}
+      </Box>
+
+      {/* Bottom Slot (Mobile Only) */}
+      {!isDesktop && (
         <Box
-          component="main"
           sx={{
-            flex: 1,
-            overflowY: "auto",
-            overflowX: "hidden",
-            WebkitOverflowScrolling: "touch",
+            gridColumn: "1 / 2",
+            gridRow: "3 / 4",
+            height: 56,
+            borderTop: "1px solid",
+            borderColor: "divider",
+            bgcolor: "background.paper",
+            zIndex: 1100,
           }}
         >
-          {children}
+          {bottomSlot}
         </Box>
-
-        {/* Bottom navigation slot — 56px tall, mobile only */}
-        {!isTablet && bottomNavSlot && (
-          <Box
-            sx={{
-              height: 56,
-              flexShrink: 0,
-            }}
-          >
-            {bottomNavSlot}
-          </Box>
-        )}
-      </Box>
+      )}
     </Box>
   );
 };

@@ -31,6 +31,7 @@ import {
   Wifi as OnlineIcon,
   WifiOff as OfflineIcon,
 } from "@mui/icons-material";
+import PageContainer from "../components/layout/PageContainer";
 import { useAuth } from "../context/AuthContext";
 import { db } from "../db";
 import { useAppTheme, ThemePreset } from "../theme/ThemeContext";
@@ -490,8 +491,8 @@ const Settings: React.FC = () => {
   return (
     <Box
       sx={{
-        pb: 8,
-        pt: { xs: 2, sm: 3 },
+        pb: 4,
+        pt: 0.5,
         bgcolor: "#F9FAFB",
         minHeight: "100%",
       }}
@@ -512,14 +513,7 @@ const Settings: React.FC = () => {
         </Alert>
       </Snackbar>
 
-      <Box
-        sx={{
-          mx: "auto",
-          px: { xs: 2, sm: 3, md: 4 },
-          width: "100%",
-          maxWidth: 1180,
-        }}
-      >
+      <PageContainer width="full">
         <Paper
           elevation={0}
           sx={{
@@ -869,7 +863,7 @@ const Settings: React.FC = () => {
             )}
           </Box>
         </Paper>
-      </Box>
+      </PageContainer>
 
       <Dialog
         open={logoutDialogOpen}
