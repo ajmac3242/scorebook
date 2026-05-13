@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import {
   Alert,
+  alpha,
   Box,
   Button,
   Card,
@@ -15,6 +16,7 @@ import {
   Tabs,
   Tooltip,
   Typography,
+  useTheme,
 } from "@mui/material";
 import {
   Check as CheckIcon,
@@ -64,184 +66,193 @@ const PresetCard: React.FC<PresetCardProps> = ({
   preset,
   selected,
   onSelect,
-}) => (
-  <Card
-    variant="outlined"
-    sx={{
-      borderRadius: "10px",
-      borderColor: selected ? "primary.main" : "#E4E7EC",
-      borderWidth: selected ? 1.5 : 1,
-      overflow: "hidden",
-      bgcolor: "#FFFFFF",
-      boxShadow: "none",
-      transition: "all 0.18s ease",
-      "&:hover": {
-        borderColor: selected ? "primary.main" : "#D0D5DD",
-        boxShadow: "0 1px 2px rgba(16, 24, 40, 0.06)",
-      },
-    }}
-  >
-    <CardActionArea onClick={onSelect} sx={{ height: "100%" }}>
-      <Box
-        sx={{
-          p: 1.25,
-          bgcolor: "#F9FAFB",
-          borderBottom: "1px solid #EAECF0",
-        }}
-      >
+}) => {
+  const theme = useTheme();
+
+  return (
+    <Card
+      variant="outlined"
+      sx={{
+        borderRadius: 2,
+        borderColor: selected ? "primary.main" : "divider",
+        borderWidth: selected ? 1.5 : 1,
+        overflow: "hidden",
+        bgcolor: "background.default",
+        boxShadow: "none",
+        transition: "all 0.18s ease",
+        "&:hover": {
+          borderColor: selected ? "primary.main" : alpha(theme.palette.text.primary, 0.16),
+          boxShadow: "0 1px 2px rgba(16, 24, 40, 0.06)",
+        },
+      }}
+    >
+      <CardActionArea onClick={onSelect} sx={{ height: "100%" }}>
         <Box
           sx={{
-            position: "relative",
-            height: 104,
-            borderRadius: "8px",
-            border: "1px solid",
-            borderColor: selected ? "primary.main" : "#EAECF0",
-            bgcolor: "#FFFFFF",
-            overflow: "hidden",
+            p: 1.25,
+            bgcolor: alpha(theme.palette.text.primary, 0.02),
+            borderBottom: "1px solid",
+            borderColor: "divider",
           }}
         >
           <Box
             sx={{
-              height: 10,
-              bgcolor: preset.previewColor,
-              borderBottom: "1px solid #EAECF0",
+              position: "relative",
+              height: 104,
+              borderRadius: 1.5,
+              border: "1px solid",
+              borderColor: selected ? "primary.main" : "divider",
+              bgcolor: "background.paper",
+              overflow: "hidden",
             }}
-          />
-
-          <Box sx={{ display: "flex", height: "calc(100% - 10px)" }}>
+          >
             <Box
               sx={{
-                width: "30%",
-                borderRight: "1px solid #EAECF0",
-                bgcolor: "#F9FAFB",
-                p: 0.75,
+                height: 10,
+                bgcolor: preset.previewColor,
+                borderBottom: "1px solid",
+                borderColor: "divider",
               }}
-            >
+            />
+
+            <Box sx={{ display: "flex", height: "calc(100% - 10px)" }}>
               <Box
                 sx={{
-                  width: "72%",
-                  height: 5,
-                  borderRadius: 999,
-                  bgcolor: "#D0D5DD",
-                  mb: 0.75,
+                  width: "30%",
+                  borderRight: "1px solid",
+                  borderColor: "divider",
+                  bgcolor: alpha(theme.palette.text.primary, 0.02),
+                  p: 0.75,
                 }}
-              />
-              <Box
-                sx={{
-                  width: "88%",
-                  height: 4,
-                  borderRadius: 999,
-                  bgcolor: "#EAECF0",
-                  mb: 0.5,
-                }}
-              />
-              <Box
-                sx={{
-                  width: "68%",
-                  height: 4,
-                  borderRadius: 999,
-                  bgcolor: "#EAECF0",
-                }}
-              />
+              >
+                <Box
+                  sx={{
+                    width: "72%",
+                    height: 5,
+                    borderRadius: 999,
+                    bgcolor: alpha(theme.palette.text.primary, 0.16),
+                    mb: 0.75,
+                  }}
+                />
+                <Box
+                  sx={{
+                    width: "88%",
+                    height: 4,
+                    borderRadius: 999,
+                    bgcolor: alpha(theme.palette.text.primary, 0.08),
+                    mb: 0.5,
+                  }}
+                />
+                <Box
+                  sx={{
+                    width: "68%",
+                    height: 4,
+                    borderRadius: 999,
+                    bgcolor: alpha(theme.palette.text.primary, 0.08),
+                  }}
+                />
+              </Box>
+
+              <Box sx={{ flex: 1, p: 1 }}>
+                <Box
+                  sx={{
+                    width: "40%",
+                    height: 5,
+                    borderRadius: 999,
+                    bgcolor: alpha(theme.palette.text.primary, 0.16),
+                    mb: 1,
+                  }}
+                />
+                <Stack direction="row" spacing={0.75} sx={{ mb: 1 }}>
+                  <Box
+                    sx={{
+                      flex: 1,
+                      height: 32,
+                      borderRadius: 1.25,
+                      border: "1px solid",
+                      borderColor: "divider",
+                      bgcolor: alpha(theme.palette.text.primary, 0.02),
+                    }}
+                  />
+                  <Box
+                    sx={{
+                      flex: 1,
+                      height: 32,
+                      borderRadius: 1.25,
+                      border: "1px solid",
+                      borderColor: "divider",
+                      bgcolor: alpha(theme.palette.text.primary, 0.02),
+                    }}
+                  />
+                </Stack>
+                <Box
+                  sx={{
+                    width: "90%",
+                    height: 4,
+                    borderRadius: 999,
+                    bgcolor: alpha(theme.palette.text.primary, 0.08),
+                    mb: 0.5,
+                  }}
+                />
+                <Box
+                  sx={{
+                    width: "70%",
+                    height: 4,
+                    borderRadius: 999,
+                    bgcolor: alpha(theme.palette.text.primary, 0.08),
+                  }}
+                />
+              </Box>
             </Box>
 
-            <Box sx={{ flex: 1, p: 1 }}>
+            {selected && (
               <Box
                 sx={{
-                  width: "40%",
-                  height: 5,
-                  borderRadius: 999,
-                  bgcolor: "#D0D5DD",
-                  mb: 1,
+                  position: "absolute",
+                  top: 8,
+                  right: 8,
+                  width: 18,
+                  height: 18,
+                  borderRadius: "50%",
+                  bgcolor: "primary.main",
+                  color: "primary.contrastText",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  boxShadow: "0 1px 2px rgba(16,24,40,0.16)",
                 }}
-              />
-              <Stack direction="row" spacing={0.75} sx={{ mb: 1 }}>
-                <Box
-                  sx={{
-                    flex: 1,
-                    height: 32,
-                    borderRadius: "6px",
-                    border: "1px solid #EAECF0",
-                    bgcolor: "#FCFCFD",
-                  }}
-                />
-                <Box
-                  sx={{
-                    flex: 1,
-                    height: 32,
-                    borderRadius: "6px",
-                    border: "1px solid #EAECF0",
-                    bgcolor: "#FCFCFD",
-                  }}
-                />
-              </Stack>
-              <Box
-                sx={{
-                  width: "90%",
-                  height: 4,
-                  borderRadius: 999,
-                  bgcolor: "#EAECF0",
-                  mb: 0.5,
-                }}
-              />
-              <Box
-                sx={{
-                  width: "70%",
-                  height: 4,
-                  borderRadius: 999,
-                  bgcolor: "#EAECF0",
-                }}
-              />
-            </Box>
+              >
+                <CheckIcon sx={{ fontSize: 12 }} />
+              </Box>
+            )}
           </Box>
-
-          {selected && (
-            <Box
-              sx={{
-                position: "absolute",
-                top: 8,
-                right: 8,
-                width: 18,
-                height: 18,
-                borderRadius: "50%",
-                bgcolor: "primary.main",
-                color: "primary.contrastText",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                boxShadow: "0 1px 2px rgba(16,24,40,0.16)",
-              }}
-            >
-              <CheckIcon sx={{ fontSize: 12 }} />
-            </Box>
-          )}
         </Box>
-      </Box>
 
-      <CardContent
-        sx={{
-          px: 1.5,
-          py: 1.25,
-          "&:last-child": { pb: 1.25 },
-        }}
-      >
-        <Typography
-          variant="body2"
+        <CardContent
           sx={{
-            fontWeight: 600,
-            color: "#101828",
-            mb: 0.25,
+            px: 1.5,
+            py: 1.25,
+            "&:last-child": { pb: 1.25 },
           }}
         >
-          {preset.label}
-        </Typography>
-        <Typography variant="caption" sx={{ color: "#667085" }}>
-          {preset.mode}
-        </Typography>
-      </CardContent>
-    </CardActionArea>
-  </Card>
-);
+          <Typography
+            variant="body2"
+            sx={{
+              fontWeight: 600,
+              color: "text.primary",
+              mb: 0.25,
+            }}
+          >
+            {preset.label}
+          </Typography>
+          <Typography variant="caption" sx={{ color: "text.secondary" }}>
+            {preset.mode}
+          </Typography>
+        </CardContent>
+      </CardActionArea>
+    </Card>
+  );
+};
 
 const SettingsRow: React.FC<SettingsRowProps> = ({
   label,
@@ -253,7 +264,8 @@ const SettingsRow: React.FC<SettingsRowProps> = ({
   <Box
     sx={{
       py: 2.5,
-      borderBottom: borderBottom ? "1px solid #EAECF0" : "none",
+      borderBottom: borderBottom ? "1px solid" : "none",
+      borderColor: "divider",
       display: "grid",
       gridTemplateColumns: { xs: "1fr", md: "220px minmax(0, 1fr)" },
       gap: { xs: 1.5, md: 3 },
@@ -265,7 +277,7 @@ const SettingsRow: React.FC<SettingsRowProps> = ({
         sx={{
           fontSize: "0.875rem",
           fontWeight: 500,
-          color: "#344054",
+          color: "text.primary",
           mb: description ? 0.5 : 0,
         }}
       >
@@ -275,7 +287,7 @@ const SettingsRow: React.FC<SettingsRowProps> = ({
         <Typography
           sx={{
             fontSize: "0.875rem",
-            color: "#667085",
+            color: "text.secondary",
             lineHeight: 1.45,
           }}
         >
@@ -296,7 +308,7 @@ const SectionIntro: React.FC<{ title: string; subtitle: string }> = ({
       sx={{
         fontSize: "0.875rem",
         fontWeight: 600,
-        color: "#101828",
+        color: "text.primary",
         mb: 0.5,
       }}
     >
@@ -305,7 +317,7 @@ const SectionIntro: React.FC<{ title: string; subtitle: string }> = ({
     <Typography
       sx={{
         fontSize: "0.875rem",
-        color: "#667085",
+        color: "text.secondary",
         lineHeight: 1.5,
       }}
     >
@@ -315,6 +327,7 @@ const SectionIntro: React.FC<{ title: string; subtitle: string }> = ({
 );
 
 const Settings: React.FC = () => {
+  const theme = useTheme();
   const { logout } = useAuth();
   const { presetId, setPresetId, availablePresets } = useAppTheme();
 
@@ -505,10 +518,11 @@ const Settings: React.FC = () => {
         <Paper
           elevation={0}
           sx={{
-            borderRadius: "12px",
-            border: "1px solid #D0D5DD",
+            borderRadius: 3,
+            border: "1px solid",
+            borderColor: "divider",
             overflow: "hidden",
-            bgcolor: "#FCFCFD",
+            bgcolor: "background.default",
             boxShadow: "none",
           }}
         >
@@ -523,7 +537,7 @@ const Settings: React.FC = () => {
               sx={{
                 fontSize: "1.125rem",
                 fontWeight: 600,
-                color: "#101828",
+                color: "text.primary",
                 mb: 0.25,
               }}
             >
@@ -534,7 +548,8 @@ const Settings: React.FC = () => {
           <Box
             sx={{
               px: { xs: 1, sm: 2 },
-              borderBottom: "1px solid #EAECF0",
+              borderBottom: "1px solid",
+              borderColor: "divider",
             }}
           >
             <Tabs
@@ -551,7 +566,7 @@ const Settings: React.FC = () => {
               sx={{
                 minHeight: 44,
                 "& .MuiTabs-indicator": {
-                  backgroundColor: "#101828",
+                  backgroundColor: theme.palette.text.primary,
                 },
                 "& .MuiTab-root": {
                   minHeight: 44,
@@ -559,11 +574,11 @@ const Settings: React.FC = () => {
                   textTransform: "none",
                   fontWeight: 600,
                   fontSize: "0.8125rem",
-                  color: "#667085",
+                  color: "text.secondary",
                   px: 1.5,
                 },
                 "& .Mui-selected": {
-                  color: "#101828 !important",
+                  color: `${theme.palette.text.primary} !important`,
                 },
               }}
             >
@@ -592,7 +607,7 @@ const Settings: React.FC = () => {
                       startIcon={<LogoutIcon />}
                       onClick={handleLogoutClick}
                       sx={{
-                        borderRadius: "8px",
+                        borderRadius: 2,
                         textTransform: "none",
                         fontWeight: 600,
                         boxShadow: "none",
@@ -645,8 +660,7 @@ const Settings: React.FC = () => {
                           sx={{
                             textTransform: "none",
                             alignSelf: "flex-start",
-                            color: isCopied ? undefined : "#344054",
-                            borderColor: "#D0D5DD",
+                            borderColor: "divider",
                           }}
                           variant="outlined"
                         >
@@ -658,10 +672,7 @@ const Settings: React.FC = () => {
                           onClick={handleClearLogs}
                           disabled={logs.length === 0}
                           color="error"
-                          sx={{
-                            textTransform: "none",
-                            alignSelf: "flex-start",
-                          }}
+                          sx={{ textTransform: "none", alignSelf: "flex-start" }}
                         >
                           Clear logs
                         </Button>
@@ -670,19 +681,20 @@ const Settings: React.FC = () => {
                       <Paper
                         elevation={0}
                         sx={{
-                          bgcolor: "#F9FAFB",
-                          borderRadius: "8px",
+                          bgcolor: alpha(theme.palette.text.primary, 0.03),
+                          borderRadius: 2,
                           p: 2,
                           maxHeight: 260,
                           overflowY: "auto",
-                          border: "1px solid #EAECF0",
+                          border: "1px solid",
+                          borderColor: "divider",
                         }}
                       >
                         {logs.length === 0 ? (
                           <Typography
                             sx={{
                               fontSize: "0.875rem",
-                              color: "#667085",
+                              color: "text.secondary",
                               fontStyle: "italic",
                             }}
                           >
@@ -710,7 +722,7 @@ const Settings: React.FC = () => {
                                           ? "error.main"
                                           : log.level === "warn"
                                             ? "warning.main"
-                                            : "#667085",
+                                            : "text.secondary",
                                     }}
                                   >
                                     {log.level}
@@ -718,19 +730,17 @@ const Settings: React.FC = () => {
                                   <Typography
                                     sx={{
                                       fontSize: "0.6875rem",
-                                      color: "#667085",
+                                      color: "text.secondary",
                                     }}
                                   >
-                                    {new Date(
-                                      log.timestamp,
-                                    ).toLocaleTimeString()}
+                                    {new Date(log.timestamp).toLocaleTimeString()}
                                   </Typography>
                                 </Box>
                                 <Typography
                                   sx={{
                                     fontFamily: "monospace",
                                     fontSize: "0.75rem",
-                                    color: "#101828",
+                                    color: "text.primary",
                                     wordBreak: "break-all",
                                   }}
                                 >
@@ -765,10 +775,11 @@ const Settings: React.FC = () => {
                         gap: 1,
                         px: 1.5,
                         py: 1,
-                        border: "1px solid #D0D5DD",
-                        borderRadius: "8px",
+                        border: "1px solid",
+                        borderColor: "divider",
+                        borderRadius: 2,
                         minWidth: 150,
-                        bgcolor: "#FFFFFF",
+                        bgcolor: "background.paper",
                       }}
                     >
                       <Box
@@ -777,23 +788,22 @@ const Settings: React.FC = () => {
                           height: 14,
                           borderRadius: "50%",
                           bgcolor:
-                            availablePresets.find(
-                              (preset) => preset.id === presetId,
-                            )?.previewColor || "primary.main",
-                          border: "1px solid rgba(16,24,40,0.08)",
+                            availablePresets.find((preset) => preset.id === presetId)
+                              ?.previewColor || theme.palette.primary.main,
+                          border: "1px solid",
+                          borderColor: alpha(theme.palette.text.primary, 0.08),
                           flexShrink: 0,
                         }}
                       />
                       <Typography
                         sx={{
                           fontSize: "0.875rem",
-                          color: "#101828",
+                          color: "text.primary",
                           fontWeight: 500,
                         }}
                       >
-                        {availablePresets.find(
-                          (preset) => preset.id === presetId,
-                        )?.label ?? "Theme"}
+                        {availablePresets.find((preset) => preset.id === presetId)?.label ??
+                          "Theme"}
                       </Typography>
                     </Box>
                   }
