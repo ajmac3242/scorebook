@@ -1,7 +1,10 @@
 import { ACTION_TYPES } from "../../../constants/stats";
 import { StatEvent } from "../../../db";
 import { formatToOne } from "../../mathUtils";
-import { isActive, isOpponentId } from "../aggregators";
+import {
+  isActive,
+  isOpponentId,
+} from "../aggregators";
 import {
   TalkingPoint,
   OpponentThreat,
