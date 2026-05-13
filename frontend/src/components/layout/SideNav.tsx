@@ -137,7 +137,10 @@ const SideNav: React.FC<SideNavProps> = ({
             onClick={onMobileClose}
             sx={{
               borderRadius: 2,
-              color: location.pathname === "/settings" ? "primary.main" : "text.secondary",
+              color:
+                location.pathname === "/settings"
+                  ? "primary.main"
+                  : "text.secondary",
             }}
           >
             <ListItemIcon sx={{ minWidth: 40, color: "inherit" }}>

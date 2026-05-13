@@ -4,7 +4,12 @@
  * Configures the theme, routing, authentication provider, and layout.
  */
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import { Box, CircularProgress } from "@mui/material";
 import { CourtSightThemeProvider, ThemePreset } from "./theme/ThemeContext";
 import GameMode from "./pages/GameMode";
@@ -117,17 +122,24 @@ const AppContent: React.FC = () => {
 
   const liveGame = useLiveQuery(
     () => db.games.where("completed").equals(0).first(),
-    []
+    [],
   );
 
   const starredTeam = useLiveQuery(
     () => db.teams.where("isFavorite").equals(1).first(),
-    []
+    [],
   );
 
   if (loading) {
     return (
-      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
         <CircularProgress />
       </Box>
     );
