@@ -81,7 +81,9 @@ const PresetCard: React.FC<PresetCardProps> = ({
         boxShadow: "none",
         transition: "all 0.18s ease",
         "&:hover": {
-          borderColor: selected ? "primary.main" : alpha(theme.palette.text.primary, 0.16),
+          borderColor: selected
+            ? "primary.main"
+            : alpha(theme.palette.text.primary, 0.16),
           boxShadow: "0 1px 2px rgba(16, 24, 40, 0.06)",
         },
       }}
@@ -672,7 +674,10 @@ const Settings: React.FC = () => {
                           onClick={handleClearLogs}
                           disabled={logs.length === 0}
                           color="error"
-                          sx={{ textTransform: "none", alignSelf: "flex-start" }}
+                          sx={{
+                            textTransform: "none",
+                            alignSelf: "flex-start",
+                          }}
                         >
                           Clear logs
                         </Button>
@@ -733,7 +738,9 @@ const Settings: React.FC = () => {
                                       color: "text.secondary",
                                     }}
                                   >
-                                    {new Date(log.timestamp).toLocaleTimeString()}
+                                    {new Date(
+                                      log.timestamp,
+                                    ).toLocaleTimeString()}
                                   </Typography>
                                 </Box>
                                 <Typography
@@ -788,8 +795,9 @@ const Settings: React.FC = () => {
                           height: 14,
                           borderRadius: "50%",
                           bgcolor:
-                            availablePresets.find((preset) => preset.id === presetId)
-                              ?.previewColor || theme.palette.primary.main,
+                            availablePresets.find(
+                              (preset) => preset.id === presetId,
+                            )?.previewColor || theme.palette.primary.main,
                           border: "1px solid",
                           borderColor: alpha(theme.palette.text.primary, 0.08),
                           flexShrink: 0,
@@ -802,8 +810,9 @@ const Settings: React.FC = () => {
                           fontWeight: 500,
                         }}
                       >
-                        {availablePresets.find((preset) => preset.id === presetId)?.label ??
-                          "Theme"}
+                        {availablePresets.find(
+                          (preset) => preset.id === presetId,
+                        )?.label ?? "Theme"}
                       </Typography>
                     </Box>
                   }
