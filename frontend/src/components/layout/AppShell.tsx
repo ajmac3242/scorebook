@@ -2,18 +2,14 @@ import React from "react";
 import { Box, useMediaQuery } from "@mui/material";
 
 interface AppShellProps {
-  /** Slot for the side navigation drawer (visible on desktop) */
   drawerSlot?: React.ReactNode;
-  /** Slot for the top app bar */
   topBarSlot?: React.ReactNode;
-  /** Slot for the bottom navigation (visible on mobile) */
   bottomSlot?: React.ReactNode;
-  /** Primary content to render in the main scrollable area */
   children: React.ReactNode;
 }
 
 export const APP_SHELL_LAYOUT = {
-  drawerWidth: 224,
+  drawerWidth: 240,
   gutterX: {
     xs: 1,
     sm: 1.25,
@@ -23,15 +19,10 @@ export const APP_SHELL_LAYOUT = {
   gutterY: {
     xs: 0.75,
     sm: 1,
-    md: 1.25,
+    md: 1,
   },
 } as const;
 
-/**
- * AppShell — desktop uses a fixed left rail + flexible right workspace.
- * This keeps the nav pinned to the left edge while the page consumes
- * all remaining width, matching the reference layout.
- */
 const AppShell: React.FC<AppShellProps> = ({
   drawerSlot,
   topBarSlot,
@@ -53,7 +44,11 @@ const AppShell: React.FC<AppShellProps> = ({
           bgcolor: "background.default",
         }}
       >
-        <Box sx={{ flexShrink: 0, minWidth: 0 }}>{topBarSlot}</Box>
+        {topBarSlot ? (
+          <Box sx={{ flexShrink: 0, minWidth: 0, zIndex: 1100 }}>
+            {topBarSlot}
+          </Box>
+        ) : null}
 
         <Box
           component="main"
@@ -62,6 +57,7 @@ const AppShell: React.FC<AppShellProps> = ({
             flex: 1,
             minHeight: 0,
             minWidth: 0,
+            width: "100%",
             overflowY: "auto",
             overflowX: "hidden",
             px: APP_SHELL_LAYOUT.gutterX,
@@ -75,18 +71,20 @@ const AppShell: React.FC<AppShellProps> = ({
           {children}
         </Box>
 
-        <Box
-          sx={{
-            flexShrink: 0,
-            height: 56,
-            borderTop: "1px solid",
-            borderColor: "divider",
-            bgcolor: "background.paper",
-            zIndex: 1100,
-          }}
-        >
-          {bottomSlot}
-        </Box>
+        {bottomSlot ? (
+          <Box
+            sx={{
+              flexShrink: 0,
+              height: 56,
+              borderTop: "1px solid",
+              borderColor: "divider",
+              bgcolor: "background.paper",
+              zIndex: 1100,
+            }}
+          >
+            {bottomSlot}
+          </Box>
+        ) : null}
       </Box>
     );
   }
@@ -124,14 +122,18 @@ const AppShell: React.FC<AppShellProps> = ({
         sx={{
           flex: 1,
           minWidth: 0,
+          minHeight: 0,
           display: "flex",
           flexDirection: "column",
           overflow: "hidden",
+          bgcolor: "background.default",
         }}
       >
-        <Box sx={{ flexShrink: 0, minWidth: 0, zIndex: 1100 }}>
-          {topBarSlot}
-        </Box>
+        {topBarSlot ? (
+          <Box sx={{ flexShrink: 0, minWidth: 0, zIndex: 1100 }}>
+            {topBarSlot}
+          </Box>
+        ) : null}
 
         <Box
           component="main"
