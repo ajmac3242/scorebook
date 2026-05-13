@@ -10,6 +10,7 @@ import {
   Typography,
   Avatar,
   useMediaQuery,
+  IconButton,
 } from "@mui/material";
 import {
   Dashboard as DashboardIcon,
@@ -19,10 +20,10 @@ import {
   Groups as TeamsIcon,
   Assessment as ReportsIcon,
   Settings as SettingsIcon,
+  Search as SearchIcon,
 } from "@mui/icons-material";
 import { NavLink, useLocation } from "react-router-dom";
 import CourtSightLogo from "../CourtSightLogo";
-import { APP_SHELL_LAYOUT } from "./AppShell";
 
 interface SideNavProps {
   /** Whether the game is currently live (to show the animated dot) */
@@ -33,6 +34,8 @@ interface SideNavProps {
   onMobileClose?: () => void;
   /** Coach display name for the bottom pill */
   coachName?: string;
+  /** Search trigger */
+  onSearchOpen?: () => void;
 }
 
 const NAV_ITEMS = [
@@ -54,6 +57,7 @@ const SideNav: React.FC<SideNavProps> = ({
   mobileOpen = false,
   onMobileClose,
   coachName = "Coach",
+  onSearchOpen,
 }) => {
   const isDesktop = useMediaQuery("(min-width:768px)");
   const location = useLocation();
@@ -67,18 +71,61 @@ const SideNav: React.FC<SideNavProps> = ({
         bgcolor: "background.paper",
       }}
     >
+      {/* Logo */}
       <Box
         sx={{
-          px: 2,
-          py: 2.5,
+          px: 2.5,
+          pt: 2.5,
+          pb: 1.5,
           display: "flex",
-          justifyContent: "center",
+          alignItems: "center",
+          justifyContent: "flex-start",
         }}
       >
         <CourtSightLogo width={152} />
       </Box>
 
-      <List sx={{ flexGrow: 1, px: 1.5 }}>
+      {/* Search */}
+      <Box
+        sx={{
+          px: 2,
+          pb: 1.5,
+        }}
+      >
+        <IconButton
+          onClick={onSearchOpen}
+          aria-label="Open search"
+          sx={{
+            width: "100%",
+            height: 40,
+            border: "1px solid",
+            borderColor: "divider",
+            borderRadius: 2,
+            justifyContent: "flex-start",
+            px: 1.5,
+            gap: 1,
+            color: "text.secondary",
+            bgcolor: "background.paper",
+            "&:hover": {
+              bgcolor: "action.hover",
+            },
+          }}
+        >
+          <SearchIcon fontSize="small" />
+          <Typography
+            sx={{
+              fontSize: "0.875rem",
+              color: "text.secondary",
+              fontWeight: 500,
+            }}
+          >
+            Search
+          </Typography>
+        </IconButton>
+      </Box>
+
+      {/* Navigation Links */}
+      <List sx={{ flexGrow: 1, px: 2 }}>
         {NAV_ITEMS.map((item) => {
           const isActive = location.pathname === item.path;
           return (
@@ -90,8 +137,6 @@ const SideNav: React.FC<SideNavProps> = ({
                 sx={{
                   minHeight: 44,
                   borderRadius: 2,
-                  px: 1.5,
-                  justifyContent: "flex-start",
                   bgcolor: isActive ? "primary.container" : "transparent",
                   color: isActive ? "primary.main" : "text.secondary",
                   "&:hover": {
@@ -100,7 +145,7 @@ const SideNav: React.FC<SideNavProps> = ({
                   },
                   "& .MuiListItemIcon-root": {
                     color: "inherit",
-                    minWidth: 36,
+                    minWidth: 40,
                   },
                 }}
               >
@@ -137,7 +182,8 @@ const SideNav: React.FC<SideNavProps> = ({
         })}
       </List>
 
-      <Box sx={{ p: 1.5, borderTop: "1px solid", borderColor: "divider" }}>
+      {/* Settings & Profile Pill */}
+      <Box sx={{ p: 2, borderTop: "1px solid", borderColor: "divider" }}>
         <ListItem disablePadding sx={{ mb: 1 }}>
           <ListItemButton
             component={NavLink}
@@ -146,25 +192,27 @@ const SideNav: React.FC<SideNavProps> = ({
             sx={{
               minHeight: 44,
               borderRadius: 2,
-              px: 1.5,
-              justifyContent: "flex-start",
-              color:
-                location.pathname === "/settings"
-                  ? "primary.main"
-                  : "text.secondary",
               bgcolor:
                 location.pathname === "/settings"
                   ? "primary.container"
                   : "transparent",
+              color:
+                location.pathname === "/settings"
+                  ? "primary.main"
+                  : "text.secondary",
               "&:hover": {
                 bgcolor:
                   location.pathname === "/settings"
                     ? "primary.container"
                     : "action.hover",
+                color:
+                  location.pathname === "/settings"
+                    ? "primary.main"
+                    : "text.primary",
               },
             }}
           >
-            <ListItemIcon sx={{ minWidth: 36, color: "inherit" }}>
+            <ListItemIcon sx={{ minWidth: 40, color: "inherit" }}>
               <SettingsIcon />
             </ListItemIcon>
             <ListItemText
@@ -206,52 +254,40 @@ const SideNav: React.FC<SideNavProps> = ({
     </Box>
   );
 
-  if (!isDesktop) {
-    return (
-      <Drawer
-        anchor="left"
-        variant="temporary"
-        open={mobileOpen}
-        onClose={onMobileClose}
-        ModalProps={{ keepMounted: true }}
-        sx={{
-          display: { xs: "block", md: "none" },
-          "& .MuiDrawer-paper": {
-            boxSizing: "border-box",
-            width: APP_SHELL_LAYOUT.drawerWidth,
-            left: 0,
-          },
-        }}
-      >
-        {drawerContent}
-      </Drawer>
-    );
-  }
-
   return (
-    <Box
-      component="nav"
-      sx={{
-        width: APP_SHELL_LAYOUT.drawerWidth,
-        minWidth: APP_SHELL_LAYOUT.drawerWidth,
-        maxWidth: APP_SHELL_LAYOUT.drawerWidth,
-        height: "100%",
-        display: "flex",
-        justifyContent: "flex-start",
-        alignItems: "stretch",
-        alignSelf: "start",
-      }}
-    >
-      <Box
-        sx={{
-          width: "100%",
-          height: "100%",
-          minWidth: 0,
-          bgcolor: "background.paper",
-        }}
-      >
-        {drawerContent}
-      </Box>
+    <Box component="nav" sx={{ width: { md: 240 }, flexShrink: { md: 0 } }}>
+      {!isDesktop && (
+        <Drawer
+          variant="temporary"
+          open={mobileOpen}
+          onClose={onMobileClose}
+          ModalProps={{ keepMounted: true }}
+          sx={{
+            display: { xs: "block", md: "none" },
+            "& .MuiDrawer-paper": { boxSizing: "border-box", width: 240 },
+          }}
+        >
+          {drawerContent}
+        </Drawer>
+      )}
+
+      {isDesktop && (
+        <Drawer
+          variant="permanent"
+          sx={{
+            display: { xs: "none", md: "block" },
+            "& .MuiDrawer-paper": {
+              boxSizing: "border-box",
+              width: 240,
+              position: "relative",
+              height: "100%",
+            },
+          }}
+          open
+        >
+          {drawerContent}
+        </Drawer>
+      )}
     </Box>
   );
 };
