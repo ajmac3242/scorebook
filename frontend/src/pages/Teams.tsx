@@ -1,71 +1,115 @@
-import React, { useState, useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import {
-  Box,
-  Typography,
-  Button,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  Fab,
-  Grid,
-  Avatar,
-  Snackbar,
   Alert,
-  Tooltip,
-  IconButton,
+  Avatar,
+  Box,
+  Button,
+  Chip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  FormControl,
   FormHelperText,
+  Grid,
+  IconButton,
+  InputAdornment,
+  InputLabel,
+  MenuItem,
+  Paper,
+  Select,
+  Snackbar,
+  Stack,
+  TextField,
+  Tooltip,
+  Typography,
+  useTheme,
 } from "@mui/material";
 import {
   Add as AddIcon,
+  ArrowForward as ArrowForwardIcon,
   Groups as TeamsIcon,
+  Search as SearchIcon,
   Star as StarIcon,
   StarBorder as StarBorderIcon,
 } from "@mui/icons-material";
-import { db, type Team, type StatEvent } from "../db";
-import { syncService } from "../utils/syncService";
 import { useNavigate } from "react-router-dom";
-import { MoleskineCard, StatItem } from "../components/SharedUI";
-import { logger } from "../utils/logger";
-import { useTeams } from "../hooks/useTeams";
 import { useLiveQuery } from "dexie-react-hooks";
+import { db, type StatEvent, type Team } from "../db";
+import { useTeams } from "../hooks/useTeams";
+import { logger } from "../utils/logger";
 import { calculateTeamAggregates, getInitials } from "../utils/stats";
-import EntityBanner from "../components/EntityBanner";
+import { syncService } from "../utils/syncService";
 
-const contrastColorCache: Record<string, "white" | "black"> = {};
-
-/**
- * Calculates luminance to determine if text should be white or black for a given background color.
- * Memoized to avoid redundant calculations in list renders.
- * @param {string} hexcolor - Hex color string.
- * @returns {"white" | "black"} Contrast color.
- */
-const getContrastColor = (hexcolor: string) => {
-  if (!hexcolor) return "white";
-  if (contrastColorCache[hexcolor]) return contrastColorCache[hexcolor];
-
-  const hex = hexcolor.replace("#", "");
-  const r = parseInt(hex.substr(0, 2), 16);
-  const g = parseInt(hex.substr(2, 2), 16);
-  const b = parseInt(hex.substr(4, 2), 16);
-  const yiq = (r * 299 + g * 587 + b * 114) / 1000;
-  const result = yiq >= 128 ? "black" : "white";
-
-  contrastColorCache[hexcolor] = result;
-  return result;
+type TeamAggregateSummary = {
+  record: string;
+  ppg: string;
+  rpg: string;
+  apg: string;
+  oppg: string;
 };
 
-/**
- * Teams page component.
- * Displays a list of teams and provides a way to add new teams.
- */
+const DEFAULT_TEAM_ACCENT = "#154C56";
+
+const isValidHex = (value?: string) =>
+  !!value && /^#([0-9A-F]{6})$/i.test(value.trim());
+
+const hexToRgb = (hex: string) => {
+  const normalized = hex.replace("#", "");
+  return {
+    r: parseInt(normalized.slice(0, 2), 16),
+    g: parseInt(normalized.slice(2, 4), 16),
+    b: parseInt(normalized.slice(4, 6), 16),
+  };
+};
+
+const buildTeamAccent = (teamColor?: string) => {
+  const safe = isValidHex(teamColor) ? teamColor!.trim() : DEFAULT_TEAM_ACCENT;
+  const { r, g, b } = hexToRgb(safe);
+
+  return {
+    solid: safe,
+    softBg: `rgba(${r}, ${g}, ${b}, 0.12)`,
+    softerBg: `rgba(${r}, ${g}, ${b}, 0.08)`,
+    border: `rgba(${r}, ${g}, ${b}, 0.24)`,
+    ring: `rgba(${r}, ${g}, ${b}, 0.18)`,
+  };
+};
+
+const StatCell: React.FC<{ label: string; value: string }> = ({
+  label,
+  value,
+}) => (
+  <Box sx={{ minWidth: 0 }}>
+    <Typography
+      sx={{
+        fontSize: "0.6875rem",
+        fontWeight: 700,
+        letterSpacing: "0.05em",
+        textTransform: "uppercase",
+        color: "text.secondary",
+        mb: 0.5,
+      }}
+    >
+      {label}
+    </Typography>
+    <Typography
+      sx={{
+        fontSize: "1.375rem",
+        lineHeight: 1,
+        fontWeight: 700,
+        color: "text.primary",
+      }}
+    >
+      {value}
+    </Typography>
+  </Box>
+);
+
 const Teams: React.FC = () => {
+  const theme = useTheme();
   const navigate = useNavigate();
+
   const [open, setOpen] = useState(false);
   const [teamName, setTeamName] = useState("");
   const [description, setDescription] = useState("");
@@ -73,7 +117,7 @@ const Teams: React.FC = () => {
     "QUARTERS",
   );
   const [logoUrl, setLogoUrl] = useState("");
-  const [primaryColor, setPrimaryColor] = useState("#154C56");
+  const [primaryColor, setPrimaryColor] = useState(DEFAULT_TEAM_ACCENT);
   const [fouls, setFouls] = useState<number>(3);
   const [showValidation, setShowValidation] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -84,18 +128,33 @@ const Teams: React.FC = () => {
     severity: "success" | "error";
   }>({ open: false, message: "", severity: "success" });
 
-  // Use shared hooks for data fetching
   const teams = useTeams();
 
   const filteredTeams = useMemo(() => {
-    // Performance: Normalize search term once outside the loop
-    const normalizedSearch = searchTerm.toLowerCase();
-    return teams.filter((t) => t.name.toLowerCase().includes(normalizedSearch));
+    const normalizedSearch = searchTerm.trim().toLowerCase();
+
+    if (!normalizedSearch) return teams;
+
+    return teams.filter((team) => {
+      const haystack = [
+        team.name,
+        team.description || "",
+        team.periodType || "",
+      ]
+        .join(" ")
+        .toLowerCase();
+
+      return haystack.includes(normalizedSearch);
+    });
   }, [teams, searchTerm]);
 
-  // Fetch all games and stats for the visible teams to calculate aggregates
+  const favoriteCount = useMemo(
+    () => teams.filter((team) => team.isFavorite).length,
+    [teams],
+  );
+
   const teamIds = useMemo(
-    () => teams.map((t) => t.id).filter(Boolean),
+    () => teams.map((team) => team.id).filter(Boolean),
     [teams],
   );
 
@@ -113,7 +172,7 @@ const Teams: React.FC = () => {
   );
 
   const gameIds = useMemo(
-    () => (allGames || []).map((g) => g.id).filter(Boolean),
+    () => allGames.map((game) => game.id).filter(Boolean),
     [allGames],
   );
 
@@ -130,108 +189,128 @@ const Teams: React.FC = () => {
     [allStatsQueryResult],
   );
 
-  // Pre-calculate team aggregates to avoid O(N^2) filtering in the render loop.
   const teamAggregatesMap = useMemo(() => {
     const gamesByTeam: Record<string, (typeof allGames)[0][]> = {};
     for (let i = 0; i < allGames.length; i++) {
-      const g = allGames[i];
-      if (!gamesByTeam[g.teamId]) gamesByTeam[g.teamId] = [];
-      gamesByTeam[g.teamId].push(g);
+      const game = allGames[i];
+      if (!gamesByTeam[game.teamId]) gamesByTeam[game.teamId] = [];
+      gamesByTeam[game.teamId].push(game);
     }
 
     const statsByGame: Record<string, StatEvent[]> = {};
     for (let i = 0; i < allStats.length; i++) {
-      const s = allStats[i] as StatEvent;
-      if (!statsByGame[s.gameId]) statsByGame[s.gameId] = [];
-      statsByGame[s.gameId].push(s);
+      const stat = allStats[i] as StatEvent;
+      if (!statsByGame[stat.gameId]) statsByGame[stat.gameId] = [];
+      statsByGame[stat.gameId].push(stat);
     }
 
-    const results: Record<
-      string,
-      ReturnType<typeof calculateTeamAggregates>
-    > = {};
+    const results: Record<string, TeamAggregateSummary> = {};
     for (let i = 0; i < teams.length; i++) {
       const team = teams[i];
       const teamGames = gamesByTeam[team.id!] || [];
-      // Optimization: Manually collect stats for the team to avoid creating intermediate arrays with flatMap.
       const teamStats: StatEvent[] = [];
+
       for (let j = 0; j < teamGames.length; j++) {
-        const gStats = statsByGame[teamGames[j].id!];
-        if (gStats) {
-          for (let k = 0; k < gStats.length; k++) {
-            teamStats.push(gStats[k]);
+        const gameStats = statsByGame[teamGames[j].id!];
+        if (gameStats) {
+          for (let k = 0; k < gameStats.length; k++) {
+            teamStats.push(gameStats[k]);
           }
         }
       }
-      results[team.id!] = calculateTeamAggregates(teamGames, teamStats);
+
+      results[team.id!] = calculateTeamAggregates(
+        teamGames,
+        teamStats,
+      ) as TeamAggregateSummary;
     }
+
     return results;
   }, [teams, allGames, allStats]);
 
-  /**
-   * Toggles the favorite status of a team.
-   * Ensures only one team can be marked as favorite at a time.
-   * @param {string} teamId - The ID of the team to toggle.
-   * @param {number} currentFavorite - Current favorite status (0 or 1).
-   */
+  const closeDialog = () => {
+    setOpen(false);
+    setShowValidation(false);
+  };
+
+  const resetForm = () => {
+    setTeamName("");
+    setDescription("");
+    setPeriodType("QUARTERS");
+    setLogoUrl("");
+    setPrimaryColor(DEFAULT_TEAM_ACCENT);
+    setFouls(3);
+    setShowValidation(false);
+    setIsSubmitting(false);
+  };
+
   const handleToggleFavorite = async (
     teamId: string,
     currentFavorite: number,
     e: React.MouseEvent,
   ) => {
     e.stopPropagation();
+
     try {
       if (!currentFavorite) {
-        // We are marking this team as favorite. Unmark all others.
         const allFavorites = await db.teams
           .where("isFavorite")
           .equals(1)
           .toArray();
-        for (const f of allFavorites) {
-          if (f.id !== teamId) {
-            await db.teams.update(f.id!, { isFavorite: 0, synced: 0 });
+
+        for (const favoriteTeam of allFavorites) {
+          if (favoriteTeam.id !== teamId) {
+            await db.teams.update(favoriteTeam.id!, {
+              isFavorite: 0,
+              synced: 0,
+            });
           }
         }
+
         await db.teams.update(teamId, { isFavorite: 1, synced: 0 });
       } else {
         await db.teams.update(teamId, { isFavorite: 0, synced: 0 });
       }
+
       await syncService.pushUpdates();
     } catch (err) {
       logger.error("Failed to toggle favorite team", err, { teamId });
+      setSnackbar({
+        open: true,
+        message: "Could not update favorite team",
+        severity: "error",
+      });
     }
   };
 
-  /**
-   * Handles adding a new team to the database.
-   */
   const handleAddTeam = async () => {
-    if (!teamName.trim()) {
+    if (!teamName.trim() || fouls <= 0) {
       setShowValidation(true);
       return;
     }
+
     setIsSubmitting(true);
+
     try {
       const newTeam: Team = {
         id: crypto.randomUUID(),
-        name: teamName,
-        description,
+        name: teamName.trim(),
+        description: description.trim(),
         periodType,
-        logoUrl,
-        primaryColor,
+        logoUrl: logoUrl.trim(),
+        primaryColor: isValidHex(primaryColor)
+          ? primaryColor.trim()
+          : DEFAULT_TEAM_ACCENT,
         fouls,
         synced: 0,
       };
+
       await db.teams.add(newTeam);
       await syncService.pushUpdates();
-      setOpen(false);
-      setTeamName("");
-      setDescription("");
-      setPeriodType("QUARTERS");
-      setLogoUrl("");
-      setPrimaryColor("#154C56");
-      setFouls(3);
-      setShowValidation(false);
+
+      closeDialog();
+      resetForm();
+
       setSnackbar({
         open: true,
         message: "Team created successfully!",
@@ -239,13 +318,34 @@ const Teams: React.FC = () => {
       });
     } catch (err) {
       logger.error("Failed to add team", err, { teamName });
-    } finally {
       setIsSubmitting(false);
+      setSnackbar({
+        open: true,
+        message: "Failed to create team",
+        severity: "error",
+      });
     }
   };
 
+  const emptyStateTitle = searchTerm
+    ? `No teams matching "${searchTerm}"`
+    : "No teams yet";
+
+  const emptyStateDescription = searchTerm
+    ? "Try a different search, clear the filter, or create a new team."
+    : "Create your first team to start tracking performance, rosters, and game results.";
+
   return (
-    <Box sx={{ pb: 8 }}>
+    <Box
+      sx={{
+        width: "100%",
+        flex: 1,
+        minHeight: 0,
+        display: "flex",
+        flexDirection: "column",
+        bgcolor: "transparent",
+      }}
+    >
       <Snackbar
         open={snackbar.open}
         autoHideDuration={4000}
@@ -261,471 +361,670 @@ const Teams: React.FC = () => {
           {snackbar.message}
         </Alert>
       </Snackbar>
-      <EntityBanner
-        title="Teams"
-        icon={<TeamsIcon />}
-        subtitle="Manage your basketball teams"
-        backTo="/"
-        searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
-      />
 
-      <Box sx={{ mt: 4 }}>
-        {filteredTeams.length === 0 && (
-          <Box
+      <Paper
+        elevation={0}
+        sx={{
+          width: "100%",
+          flex: 1,
+          minHeight: 0,
+          display: "flex",
+          flexDirection: "column",
+          borderRadius: 3,
+          border: "1px solid",
+          borderColor: "divider",
+          overflow: "hidden",
+          bgcolor: "background.default",
+          boxShadow: "none",
+        }}
+      >
+        <Box
+          sx={{
+            px: { xs: 2, sm: 3 },
+            pt: { xs: 2, sm: 2.5 },
+            pb: 2,
+            display: "flex",
+            alignItems: { xs: "flex-start", md: "center" },
+            justifyContent: "space-between",
+            gap: 2,
+            flexWrap: "wrap",
+            flexShrink: 0,
+          }}
+        >
+          <Box>
+            <Typography
+              sx={{
+                fontSize: "1.125rem",
+                fontWeight: 600,
+                color: "text.primary",
+                mb: 0.5,
+              }}
+            >
+              Teams
+            </Typography>
+            <Typography
+              sx={{
+                fontSize: "0.875rem",
+                color: "text.secondary",
+                lineHeight: 1.5,
+              }}
+            >
+              Manage your basketball teams, review performance at a glance, and
+              open team dashboards.
+            </Typography>
+          </Box>
+
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => setOpen(true)}
             sx={{
-              textAlign: "center",
-              py: 12,
-              bgcolor: "rgba(0,0,0,0.02)",
-              borderRadius: 4,
-              border: "2px dashed rgba(0,0,0,0.1)",
+              borderRadius: 2,
+              textTransform: "none",
+              fontWeight: 600,
+              boxShadow: "none",
+              flexShrink: 0,
             }}
           >
-            <TeamsIcon
+            Add team
+          </Button>
+        </Box>
+
+        <Box
+          sx={{
+            px: { xs: 2, sm: 3 },
+            pb: 2.5,
+            borderBottom: "1px solid",
+            borderColor: "divider",
+            flexShrink: 0,
+          }}
+        >
+          <Stack
+            direction={{ xs: "column", md: "row" }}
+            spacing={1.5}
+            alignItems={{ xs: "stretch", md: "center" }}
+            justifyContent="space-between"
+          >
+            <TextField
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search teams"
+              size="small"
               sx={{
-                fontSize: 64,
-                color: "text.secondary",
-                opacity: 0.2,
-                mb: 2,
+                width: { xs: "100%", md: 320 },
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: 2,
+                  bgcolor: "background.paper",
+                },
+              }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon
+                      sx={{ color: "text.secondary", fontSize: 18 }}
+                    />
+                  </InputAdornment>
+                ),
               }}
             />
-            <Typography
-              id="empty-state-msg"
-              variant="h6"
-              color="text.secondary"
-              gutterBottom
-            >
-              {searchTerm
-                ? `No teams matching "${searchTerm}"`
-                : "Your Notebook is Empty"}
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-              {searchTerm
-                ? "Try adjusting your search terms"
-                : "Start by adding your first basketball team"}
-            </Typography>
-            {searchTerm ? (
-              <Button
-                variant="outlined"
-                onClick={() => setSearchTerm("")}
-                sx={{ borderRadius: 2 }}
-                aria-describedby="empty-state-msg"
-              >
-                Clear Search
-              </Button>
-            ) : (
-              <Button
-                variant="contained"
-                startIcon={<AddIcon />}
-                onClick={() => setOpen(true)}
-                sx={{ borderRadius: 2 }}
-                aria-describedby="empty-state-msg"
-              >
-                Create Team Now
-              </Button>
-            )}
-          </Box>
-        )}
-        <Grid container spacing={3}>
-          {filteredTeams.map((team) => {
-            const aggregates = teamAggregatesMap[team.id!] || {
-              record: "0-0",
-              ppg: "0.0",
-              rpg: "0.0",
-              apg: "0.0",
-              oppg: "0.0",
-            };
-            const contrastColor = getContrastColor(
-              team.primaryColor || "#154C56",
-            );
 
-            return (
-              <Grid item xs={12} sm={6} md={6} key={team.id}>
-                <Tooltip
-                  title="Click to view team dashboard"
-                  placement="top"
-                  arrow
+            <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+              <Chip
+                label={`${teams.length} total`}
+                size="small"
+                variant="outlined"
+                sx={{
+                  borderRadius: 1.5,
+                  bgcolor: "background.paper",
+                  borderColor: "divider",
+                  color: "text.secondary",
+                  fontWeight: 500,
+                }}
+              />
+              <Chip
+                label={`${favoriteCount} favorite`}
+                size="small"
+                variant="outlined"
+                sx={{
+                  borderRadius: 1.5,
+                  bgcolor: "background.paper",
+                  borderColor: "divider",
+                  color: "text.secondary",
+                  fontWeight: 500,
+                }}
+              />
+            </Stack>
+          </Stack>
+        </Box>
+
+        <Box
+          sx={{
+            px: { xs: 2, sm: 3 },
+            py: { xs: 2, sm: 3 },
+            flex: 1,
+            minHeight: 0,
+            overflowY: "auto",
+          }}
+        >
+          {filteredTeams.length === 0 ? (
+            <Box
+              sx={{
+                minHeight: 300,
+                borderRadius: 3,
+                border: "1px dashed",
+                borderColor: "divider",
+                bgcolor: "background.paper",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                textAlign: "center",
+                px: 3,
+                py: 6,
+              }}
+            >
+              <Box>
+                <Box
+                  sx={{
+                    width: 64,
+                    height: 64,
+                    borderRadius: "50%",
+                    mx: "auto",
+                    mb: 2,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    bgcolor: "action.hover",
+                    color: "text.secondary",
+                  }}
                 >
-                  <MoleskineCard
-                    role="button"
-                    tabIndex={0}
-                    aria-label={`View stats for ${team.name}`}
+                  <TeamsIcon sx={{ fontSize: 30 }} />
+                </Box>
+
+                <Typography
+                  sx={{
+                    fontSize: "1rem",
+                    fontWeight: 600,
+                    color: "text.primary",
+                    mb: 1,
+                  }}
+                >
+                  {emptyStateTitle}
+                </Typography>
+
+                <Typography
+                  sx={{
+                    fontSize: "0.875rem",
+                    color: "text.secondary",
+                    lineHeight: 1.6,
+                    maxWidth: 480,
+                    mx: "auto",
+                    mb: 2.5,
+                  }}
+                >
+                  {emptyStateDescription}
+                </Typography>
+
+                {searchTerm ? (
+                  <Button
+                    variant="outlined"
+                    onClick={() => setSearchTerm("")}
                     sx={{
-                      cursor: "pointer",
-                      height: "100%",
-                      bgcolor: team.primaryColor || "primary.main",
-                      color: contrastColor,
-                      transition: "transform 0.2s, box-shadow 0.2s",
-                      "&:hover": {
-                        transform: "translateY(-4px)",
-                        boxShadow: "0 8px 24px rgba(0,0,0,0.2)",
-                      },
-                      "&:focus-visible": {
-                        outline: `4px solid ${contrastColor === "white" ? "rgba(255,255,255,0.8)" : "rgba(0,0,0,0.8)"}`,
-                        outlineOffset: "2px",
-                        transform: "translateY(-4px)",
-                        boxShadow: `0 12px 32px rgba(0,0,0,0.3), 0 0 0 8px ${team.primaryColor}44`,
-                      },
-                      display: "flex",
-                      flexDirection: "column",
-                      p: 0,
-                      overflow: "hidden",
-                      border: "none",
-                    }}
-                    onClick={() => navigate(`/teams/${team.id}`)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        navigate(`/teams/${team.id}`);
-                      }
+                      borderRadius: 2,
+                      textTransform: "none",
+                      fontWeight: 600,
                     }}
                   >
-                    <Box sx={{ p: 3, flexGrow: 1 }}>
+                    Clear search
+                  </Button>
+                ) : (
+                  <Button
+                    variant="contained"
+                    startIcon={<AddIcon />}
+                    onClick={() => setOpen(true)}
+                    sx={{
+                      borderRadius: 2,
+                      textTransform: "none",
+                      fontWeight: 600,
+                      boxShadow: "none",
+                    }}
+                  >
+                    Create first team
+                  </Button>
+                )}
+              </Box>
+            </Box>
+          ) : (
+            <Grid container spacing={2.5}>
+              {filteredTeams.map((team) => {
+                const aggregates = teamAggregatesMap[team.id!] || {
+                  record: "0-0",
+                  ppg: "0.0",
+                  rpg: "0.0",
+                  apg: "0.0",
+                  oppg: "0.0",
+                };
+
+                const accent = buildTeamAccent(team.primaryColor);
+
+                return (
+                  <Grid item xs={12} md={6} xl={4} key={team.id}>
+                    <Paper
+                      role="button"
+                      tabIndex={0}
+                      elevation={0}
+                      aria-label={`View team dashboard for ${team.name}`}
+                      onClick={() => navigate(`/teams/${team.id}`)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          navigate(`/teams/${team.id}`);
+                        }
+                      }}
+                      sx={{
+                        position: "relative",
+                        height: "100%",
+                        display: "flex",
+                        flexDirection: "column",
+                        borderRadius: 3,
+                        border: "1px solid",
+                        borderColor: team.isFavorite
+                          ? accent.border
+                          : "divider",
+                        bgcolor: "background.paper",
+                        overflow: "hidden",
+                        cursor: "pointer",
+                        transition:
+                          "transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease",
+                        "&:hover": {
+                          transform: "translateY(-2px)",
+                          boxShadow: theme.shadows[3],
+                          borderColor: accent.border,
+                        },
+                        "&:focus-visible": {
+                          outline: "none",
+                          boxShadow: `0 0 0 3px ${accent.ring}`,
+                          borderColor: accent.solid,
+                        },
+                      }}
+                    >
                       <Box
                         sx={{
+                          height: 6,
+                          bgcolor: accent.solid,
+                          flexShrink: 0,
+                        }}
+                      />
+
+                      <Box
+                        sx={{
+                          p: 2.25,
                           display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "flex-start",
-                          mb: 3,
+                          flexDirection: "column",
+                          flex: 1,
                         }}
                       >
-                        <Box>
-                          <Box
+                        <Box
+                          sx={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            gap: 2,
+                            alignItems: "flex-start",
+                            mb: 2,
+                          }}
+                        >
+                          <Box sx={{ minWidth: 0, flex: 1 }}>
+                            <Stack
+                              direction="row"
+                              spacing={1}
+                              alignItems="center"
+                              sx={{ mb: 0.75 }}
+                            >
+                              <Typography
+                                sx={{
+                                  fontSize: "1.125rem",
+                                  fontWeight: 700,
+                                  color: "text.primary",
+                                  minWidth: 0,
+                                  overflow: "hidden",
+                                  textOverflow: "ellipsis",
+                                  whiteSpace: "nowrap",
+                                }}
+                              >
+                                {team.name}
+                              </Typography>
+
+                              <Tooltip
+                                title={
+                                  team.isFavorite
+                                    ? "Remove from favorites"
+                                    : "Mark as favorite"
+                                }
+                              >
+                                <IconButton
+                                  size="small"
+                                  onClick={(e) =>
+                                    handleToggleFavorite(
+                                      team.id!,
+                                      team.isFavorite || 0,
+                                      e,
+                                    )
+                                  }
+                                  sx={{
+                                    p: 0.5,
+                                    color: team.isFavorite
+                                      ? accent.solid
+                                      : "text.secondary",
+                                    flexShrink: 0,
+                                    "&:hover": {
+                                      bgcolor: "action.hover",
+                                    },
+                                  }}
+                                  aria-label={
+                                    team.isFavorite
+                                      ? `Remove ${team.name} from favorites`
+                                      : `Mark ${team.name} as favorite`
+                                  }
+                                >
+                                  {team.isFavorite ? (
+                                    <StarIcon sx={{ fontSize: 18 }} />
+                                  ) : (
+                                    <StarBorderIcon sx={{ fontSize: 18 }} />
+                                  )}
+                                </IconButton>
+                              </Tooltip>
+                            </Stack>
+
+                            <Typography
+                              sx={{
+                                fontSize: "0.875rem",
+                                color: "text.secondary",
+                                lineHeight: 1.5,
+                                mb: 1.5,
+                                minHeight: 42,
+                              }}
+                            >
+                              {team.description?.trim() ||
+                                "No description yet."}
+                            </Typography>
+
+                            <Chip
+                              size="small"
+                              label={
+                                team.periodType === "HALVES"
+                                  ? "Halves"
+                                  : "Quarters"
+                              }
+                              sx={{
+                                borderRadius: 1.5,
+                                bgcolor: accent.softerBg,
+                                color: "text.primary",
+                                border: "1px solid",
+                                borderColor: accent.border,
+                                fontWeight: 600,
+                              }}
+                            />
+                          </Box>
+
+                          {team.logoUrl ? (
+                            <Avatar
+                              src={team.logoUrl}
+                              variant="rounded"
+                              sx={{
+                                width: 56,
+                                height: 56,
+                                bgcolor: accent.softerBg,
+                                border: "1px solid",
+                                borderColor: accent.border,
+                                p: 0.5,
+                                color: "text.primary",
+                              }}
+                            />
+                          ) : (
+                            <Avatar
+                              variant="rounded"
+                              sx={{
+                                width: 56,
+                                height: 56,
+                                bgcolor: accent.softBg,
+                                color: accent.solid,
+                                border: "1px solid",
+                                borderColor: accent.border,
+                                fontSize: "1.125rem",
+                                fontWeight: 700,
+                              }}
+                            >
+                              {getInitials(team.name)}
+                            </Avatar>
+                          )}
+                        </Box>
+
+                        <Box
+                          sx={{
+                            borderRadius: 2.5,
+                            px: 2,
+                            py: 1.75,
+                            mb: 2,
+                            bgcolor: "action.hover",
+                            border: "1px solid",
+                            borderColor: "divider",
+                          }}
+                        >
+                          <Typography
                             sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 1,
+                              fontSize: "2rem",
+                              lineHeight: 1,
+                              fontWeight: 800,
+                              color: "text.primary",
+                              mb: 0.5,
+                            }}
+                          >
+                            {aggregates.record}
+                          </Typography>
+                          <Typography
+                            sx={{
+                              fontSize: "0.75rem",
+                              fontWeight: 700,
+                              letterSpacing: "0.04em",
+                              textTransform: "uppercase",
+                              color: "text.secondary",
+                            }}
+                          >
+                            Win-loss record
+                          </Typography>
+                        </Box>
+
+                        <Box
+                          sx={{
+                            mt: "auto",
+                            pt: 2,
+                            borderTop: "1px solid",
+                            borderColor: "divider",
+                          }}
+                        >
+                          <Grid container spacing={1.5}>
+                            <Grid item xs={6} sm={3}>
+                              <StatCell label="PPG" value={aggregates.ppg} />
+                            </Grid>
+                            <Grid item xs={6} sm={3}>
+                              <StatCell label="RPG" value={aggregates.rpg} />
+                            </Grid>
+                            <Grid item xs={6} sm={3}>
+                              <StatCell label="APG" value={aggregates.apg} />
+                            </Grid>
+                            <Grid item xs={6} sm={3}>
+                              <StatCell label="OPPG" value={aggregates.oppg} />
+                            </Grid>
+                          </Grid>
+
+                          <Stack
+                            direction="row"
+                            spacing={0.75}
+                            alignItems="center"
+                            sx={{
+                              mt: 2,
+                              color: accent.solid,
                             }}
                           >
                             <Typography
-                              variant="h5"
                               sx={{
-                                fontFamily: "var(--serif)",
-                                fontWeight: 700,
-                                mb: 0.5,
-                                color: "inherit",
+                                fontSize: "0.875rem",
+                                fontWeight: 600,
                               }}
                             >
-                              {team.name}
+                              Open team dashboard
                             </Typography>
-                            <Tooltip
-                              title={
-                                team.isFavorite
-                                  ? "Remove from favorites"
-                                  : "Mark as favorite"
-                              }
-                            >
-                              <IconButton
-                                size="small"
-                                onClick={(e) =>
-                                  handleToggleFavorite(
-                                    team.id!,
-                                    team.isFavorite || 0,
-                                    e,
-                                  )
-                                }
-                                sx={{ color: "inherit", p: 0.5 }}
-                                aria-label={
-                                  team.isFavorite
-                                    ? `Remove ${team.name} from favorites`
-                                    : `Mark ${team.name} as favorite`
-                                }
-                              >
-                                {team.isFavorite ? (
-                                  <StarIcon sx={{ color: "#FFD700" }} />
-                                ) : (
-                                  <StarBorderIcon sx={{ opacity: 0.5 }} />
-                                )}
-                              </IconButton>
-                            </Tooltip>
-                          </Box>
-                          <Typography
-                            variant="caption"
-                            sx={{ opacity: 0.8, color: "inherit" }}
-                          >
-                            {team.description || "No description"}
-                          </Typography>
+                            <ArrowForwardIcon sx={{ fontSize: 16 }} />
+                          </Stack>
                         </Box>
-                        {team.logoUrl ? (
-                          <Avatar
-                            src={team.logoUrl}
-                            variant="rounded"
-                            sx={{
-                              width: 60,
-                              height: 60,
-                              bgcolor: "rgba(255,255,255,0.1)",
-                              p: 0.5,
-                            }}
-                          />
-                        ) : (
-                          <Avatar
-                            variant="rounded"
-                            sx={{
-                              width: 60,
-                              height: 60,
-                              bgcolor: "rgba(255,255,255,0.2)",
-                              color: "inherit",
-                              fontSize: "1.5rem",
-                              fontWeight: "bold",
-                            }}
-                          >
-                            {getInitials(team.name)}
-                          </Avatar>
-                        )}
                       </Box>
-
-                      <Box sx={{ mb: 2 }}>
-                        <Typography
-                          variant="h4"
-                          sx={{ fontWeight: 800, color: "inherit" }}
-                        >
-                          {aggregates.record}
-                        </Typography>
-                        <Typography
-                          variant="caption"
-                          sx={{ opacity: 0.7, color: "inherit" }}
-                        >
-                          WIN-LOSS RECORD
-                        </Typography>
-                      </Box>
-                    </Box>
-
-                    <Box
-                      sx={{
-                        bgcolor: "rgba(0,0,0,0.1)",
-                        p: 2,
-                        display: "flex",
-                        justifyContent: "space-between",
-                      }}
-                    >
-                      <StatItem
-                        label="PPG"
-                        value={aggregates.ppg}
-                        light={contrastColor === "white"}
-                      />
-                      <Typography
-                        sx={{
-                          color: contrastColor,
-                          opacity: 0.3,
-                          alignSelf: "center",
-                        }}
-                      >
-                        |
-                      </Typography>
-                      <StatItem
-                        label="RPG"
-                        value={aggregates.rpg}
-                        light={contrastColor === "white"}
-                      />
-                      <Typography
-                        sx={{
-                          color: contrastColor,
-                          opacity: 0.3,
-                          alignSelf: "center",
-                        }}
-                      >
-                        |
-                      </Typography>
-                      <StatItem
-                        label="APG"
-                        value={aggregates.apg}
-                        light={contrastColor === "white"}
-                      />
-                      <Typography
-                        sx={{
-                          color: contrastColor,
-                          opacity: 0.3,
-                          alignSelf: "center",
-                        }}
-                      >
-                        |
-                      </Typography>
-                      <StatItem
-                        label="OPPG"
-                        value={aggregates.oppg}
-                        light={contrastColor === "white"}
-                      />
-                    </Box>
-                  </MoleskineCard>
-                </Tooltip>
-              </Grid>
-            );
-          })}
-        </Grid>
-      </Box>
-
-      <Tooltip title="Add New Team">
-        <Fab
-          color="primary"
-          aria-label="add new team"
-          sx={{
-            position: "fixed",
-            bottom: "calc(32px + env(safe-area-inset-bottom))",
-            right: 32,
-            transition: "transform 0.2s",
-            "&:hover": { transform: "scale(1.1) rotate(90deg)" },
-          }}
-          onClick={() => {
-            setOpen(true);
-          }}
-        >
-          <AddIcon />
-        </Fab>
-      </Tooltip>
+                    </Paper>
+                  </Grid>
+                );
+              })}
+            </Grid>
+          )}
+        </Box>
+      </Paper>
 
       <Dialog
         open={open}
-        onClose={() => {
-          setOpen(false);
-          setShowValidation(false);
+        onClose={closeDialog}
+        fullWidth
+        maxWidth="sm"
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            bgcolor: "background.paper",
+          },
         }}
       >
-        <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
-          Add New Team
+        <DialogTitle sx={{ fontWeight: 700, color: "text.primary" }}>
+          Add new team
         </DialogTitle>
+
         <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Team Name"
-            fullWidth
-            variant="outlined"
-            value={teamName}
-            onChange={(e) => setTeamName(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && teamName.trim() && !isSubmitting) {
-                handleAddTeam();
-              }
-            }}
-            sx={{ mt: 1, mb: 2 }}
-            error={showValidation && !teamName.trim()}
-            helperText={
-              showValidation && !teamName.trim() ? (
-                <span id="team-name-error">Team name is required</span>
-              ) : (
-                ""
-              )
-            }
-            FormHelperTextProps={{
-              id: "team-name-error",
-            }}
-            inputProps={{
-              "aria-invalid": showValidation && !teamName.trim(),
-              "aria-describedby":
+          <Stack spacing={2} sx={{ pt: 1 }}>
+            <TextField
+              autoFocus
+              label="Team name"
+              value={teamName}
+              onChange={(e) => setTeamName(e.target.value)}
+              error={showValidation && !teamName.trim()}
+              helperText={
                 showValidation && !teamName.trim()
-                  ? "team-name-error"
-                  : undefined,
-              "aria-required": "true",
-            }}
-            required
-            disabled={isSubmitting}
-          />
-          <TextField
-            margin="dense"
-            label="Description"
-            fullWidth
-            variant="outlined"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && teamName.trim() && !isSubmitting) {
-                handleAddTeam();
+                  ? "Team name is required"
+                  : " "
               }
-            }}
-            sx={{ mb: 2 }}
-            disabled={isSubmitting}
-          />
-          <FormControl
-            fullWidth
-            variant="outlined"
-            sx={{ mb: 2 }}
-            disabled={isSubmitting}
-          >
-            <InputLabel id="period-type-label">Period Type</InputLabel>
-            <Select
-              labelId="period-type-label"
-              id="period-type-select"
-              value={periodType}
-              onChange={(e) =>
-                setPeriodType(e.target.value as "QUARTERS" | "HALVES")
-              }
-              label="Period Type"
-            >
-              <MenuItem value="QUARTERS">Quarters</MenuItem>
-              <MenuItem value="HALVES">Halves</MenuItem>
-            </Select>
-            <FormHelperText>
-              Determines if games are tracked by Quarters (4 periods) or Halves
-              (2 periods).
-            </FormHelperText>
-          </FormControl>
-          <TextField
-            margin="dense"
-            label="Logo URL (optional)"
-            fullWidth
-            variant="outlined"
-            value={logoUrl}
-            onChange={(e) => setLogoUrl(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && teamName.trim() && !isSubmitting) {
-                handleAddTeam();
-              }
-            }}
-            sx={{ mb: 2 }}
-            disabled={isSubmitting}
-          />
-          <TextField
-            margin="dense"
-            label="Fouls"
-            type="number"
-            fullWidth
-            variant="outlined"
-            value={fouls}
-            onChange={(e) => setFouls(parseInt(e.target.value) || 0)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && teamName.trim() && !isSubmitting) {
-                handleAddTeam();
-              }
-            }}
-            sx={{ mb: 2 }}
-            disabled={isSubmitting}
-            inputProps={{ min: 0 }}
-            helperText="Default number of timeouts/fouls for this team"
-          />
-          <Typography
-            variant="subtitle2"
-            gutterBottom
-            component="label"
-            htmlFor="primary-color-input"
-          >
-            Primary Color
-          </Typography>
-          <input
-            id="primary-color-input"
-            type="color"
-            style={{
-              display: "block",
-              width: "100%",
-              height: 48,
-              padding: "2px",
-              border: "1px solid #D1D1D1",
-              borderRadius: 8,
-              cursor: "pointer",
-              backgroundColor: "white",
-            }}
-            value={primaryColor}
-            onChange={(e) => setPrimaryColor(e.target.value)}
-          />
+              fullWidth
+            />
+
+            <TextField
+              label="Description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Optional short description"
+              fullWidth
+            />
+
+            <FormControl fullWidth>
+              <InputLabel id="period-type-label">Period type</InputLabel>
+              <Select
+                labelId="period-type-label"
+                label="Period type"
+                value={periodType}
+                onChange={(e) =>
+                  setPeriodType(e.target.value as "QUARTERS" | "HALVES")
+                }
+              >
+                <MenuItem value="QUARTERS">Quarters</MenuItem>
+                <MenuItem value="HALVES">Halves</MenuItem>
+              </Select>
+            </FormControl>
+
+            <TextField
+              label="Logo URL"
+              value={logoUrl}
+              onChange={(e) => setLogoUrl(e.target.value)}
+              placeholder="https://..."
+              fullWidth
+            />
+
+            <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+              <TextField
+                label="Primary color"
+                value={primaryColor}
+                onChange={(e) => setPrimaryColor(e.target.value)}
+                error={showValidation && !isValidHex(primaryColor)}
+                helperText={
+                  showValidation && !isValidHex(primaryColor)
+                    ? "Use a valid hex color like #154C56"
+                    : " "
+                }
+                fullWidth
+              />
+
+              <Box sx={{ minWidth: { xs: "100%", sm: 72 } }}>
+                <TextField
+                  label=" "
+                  type="color"
+                  value={
+                    isValidHex(primaryColor)
+                      ? primaryColor
+                      : DEFAULT_TEAM_ACCENT
+                  }
+                  onChange={(e) => setPrimaryColor(e.target.value)}
+                  fullWidth
+                  sx={{
+                    "& .MuiInputBase-root": {
+                      height: 56,
+                      p: 0.75,
+                    },
+                    "& input": {
+                      p: 0,
+                      height: "100%",
+                      cursor: "pointer",
+                    },
+                  }}
+                />
+              </Box>
+            </Stack>
+
+            <FormControl fullWidth error={showValidation && fouls <= 0}>
+              <TextField
+                label="Team fouls to bonus"
+                type="number"
+                value={fouls}
+                onChange={(e) => setFouls(Number(e.target.value))}
+                inputProps={{ min: 1 }}
+                fullWidth
+              />
+              <FormHelperText>
+                {showValidation && fouls <= 0
+                  ? "Fouls must be greater than 0"
+                  : " "}
+              </FormHelperText>
+            </FormControl>
+          </Stack>
         </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setOpen(false)} disabled={isSubmitting}>
+
+        <DialogActions sx={{ px: 3, pb: 3, pt: 1 }}>
+          <Button
+            onClick={closeDialog}
+            sx={{ textTransform: "none", fontWeight: 600 }}
+          >
             Cancel
           </Button>
           <Button
-            onClick={handleAddTeam}
             variant="contained"
+            onClick={handleAddTeam}
             disabled={isSubmitting}
+            sx={{
+              textTransform: "none",
+              fontWeight: 600,
+              boxShadow: "none",
+            }}
           >
-            {isSubmitting ? "Adding..." : "Add"}
+            {isSubmitting ? "Creating…" : "Create team"}
           </Button>
         </DialogActions>
       </Dialog>
