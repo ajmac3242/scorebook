@@ -12,30 +12,25 @@ interface AppShellProps {
   children: React.ReactNode;
 }
 
-/**
- * Central layout tokens for the app shell.
- * Change these values in one place to update gutters app-wide.
- */
 export const APP_SHELL_LAYOUT = {
   drawerWidth: 224,
-  contentMaxWidth: "none",
   gutterX: {
     xs: 1,
     sm: 1.25,
-    md: 1.25,
-    lg: 1.5,
+    md: 1.5,
+    lg: 2,
   },
   gutterY: {
     xs: 0.75,
     sm: 1,
-    md: 1.5,
+    md: 1.25,
   },
 } as const;
 
 /**
- * AppShell — The core layout wrapper for CourtSight.
- * Desktop (>= 768px): left-pinned rail + right content column
- * Mobile (< 768px): top bar + content + bottom nav
+ * AppShell — desktop uses a fixed left rail + flexible right workspace.
+ * This keeps the nav pinned to the left edge while the page consumes
+ * all remaining width, matching the reference layout.
  */
 const AppShell: React.FC<AppShellProps> = ({
   drawerSlot,
@@ -45,79 +40,44 @@ const AppShell: React.FC<AppShellProps> = ({
 }) => {
   const isDesktop = useMediaQuery("(min-width:768px)");
 
-  return (
-    <Box
-      sx={{
-        display: "grid",
-        gridTemplateColumns: isDesktop
-          ? `${APP_SHELL_LAYOUT.drawerWidth}px minmax(0, 1fr)`
-          : "minmax(0, 1fr)",
-        gridTemplateRows: "auto minmax(0, 1fr) auto",
-        height: "100dvh",
-        width: "100%",
-        minWidth: 0,
-        overflow: "hidden",
-        bgcolor: "background.default",
-      }}
-    >
-      {isDesktop && (
-        <Box
-          component="aside"
-          sx={{
-            gridColumn: "1 / 2",
-            gridRow: "1 / 4",
-            width: APP_SHELL_LAYOUT.drawerWidth,
-            minWidth: APP_SHELL_LAYOUT.drawerWidth,
-            maxWidth: APP_SHELL_LAYOUT.drawerWidth,
-            borderRight: "1px solid",
-            borderColor: "divider",
-            bgcolor: "background.paper",
-            overflow: "hidden",
-            justifySelf: "start",
-            alignSelf: "stretch",
-          }}
-        >
-          {drawerSlot}
-        </Box>
-      )}
-
+  if (!isDesktop) {
+    return (
       <Box
         sx={{
-          gridColumn: isDesktop ? "2 / 3" : "1 / 2",
-          gridRow: "1 / 2",
-          minWidth: 0,
-          zIndex: 1100,
-        }}
-      >
-        {topBarSlot}
-      </Box>
-
-      <Box
-        component="main"
-        id="main-content"
-        sx={{
-          gridColumn: isDesktop ? "2 / 3" : "1 / 2",
-          gridRow: "2 / 3",
-          minWidth: 0,
+          display: "flex",
+          flexDirection: "column",
+          height: "100dvh",
           width: "100%",
-          overflowY: "auto",
-          overflowX: "hidden",
-          px: APP_SHELL_LAYOUT.gutterX,
-          py: APP_SHELL_LAYOUT.gutterY,
-          position: "relative",
-          outline: "none",
-          WebkitOverflowScrolling: "touch",
+          minWidth: 0,
+          overflow: "hidden",
+          bgcolor: "background.default",
         }}
-        tabIndex={-1}
       >
-        {children}
-      </Box>
+        <Box sx={{ flexShrink: 0, minWidth: 0 }}>{topBarSlot}</Box>
 
-      {!isDesktop && (
+        <Box
+          component="main"
+          id="main-content"
+          sx={{
+            flex: 1,
+            minHeight: 0,
+            minWidth: 0,
+            overflowY: "auto",
+            overflowX: "hidden",
+            px: APP_SHELL_LAYOUT.gutterX,
+            py: APP_SHELL_LAYOUT.gutterY,
+            position: "relative",
+            outline: "none",
+            WebkitOverflowScrolling: "touch",
+          }}
+          tabIndex={-1}
+        >
+          {children}
+        </Box>
+
         <Box
           sx={{
-            gridColumn: "1 / 2",
-            gridRow: "3 / 4",
+            flexShrink: 0,
             height: 56,
             borderTop: "1px solid",
             borderColor: "divider",
@@ -127,7 +87,71 @@ const AppShell: React.FC<AppShellProps> = ({
         >
           {bottomSlot}
         </Box>
-      )}
+      </Box>
+    );
+  }
+
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "row",
+        height: "100dvh",
+        width: "100%",
+        minWidth: 0,
+        overflow: "hidden",
+        bgcolor: "background.default",
+      }}
+    >
+      <Box
+        component="aside"
+        sx={{
+          width: APP_SHELL_LAYOUT.drawerWidth,
+          minWidth: APP_SHELL_LAYOUT.drawerWidth,
+          maxWidth: APP_SHELL_LAYOUT.drawerWidth,
+          height: "100%",
+          flexShrink: 0,
+          borderRight: "1px solid",
+          borderColor: "divider",
+          bgcolor: "background.paper",
+          overflow: "hidden",
+        }}
+      >
+        {drawerSlot}
+      </Box>
+
+      <Box
+        sx={{
+          flex: 1,
+          minWidth: 0,
+          display: "flex",
+          flexDirection: "column",
+          overflow: "hidden",
+        }}
+      >
+        <Box sx={{ flexShrink: 0, minWidth: 0, zIndex: 1100 }}>{topBarSlot}</Box>
+
+        <Box
+          component="main"
+          id="main-content"
+          sx={{
+            flex: 1,
+            minHeight: 0,
+            minWidth: 0,
+            width: "100%",
+            overflowY: "auto",
+            overflowX: "hidden",
+            px: APP_SHELL_LAYOUT.gutterX,
+            py: APP_SHELL_LAYOUT.gutterY,
+            position: "relative",
+            outline: "none",
+            WebkitOverflowScrolling: "touch",
+          }}
+          tabIndex={-1}
+        >
+          {children}
+        </Box>
+      </Box>
     </Box>
   );
 };
