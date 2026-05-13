@@ -21,7 +21,7 @@ import {
   Settings as SettingsIcon,
 } from "@mui/icons-material";
 import { NavLink, useLocation } from "react-router-dom";
-import CourtSightLogo from "../CourtSightLogo";
+import CourtSightLogo from "./CourtSightLogo";
 import { APP_SHELL_LAYOUT } from "./AppShell";
 
 interface SideNavProps {
