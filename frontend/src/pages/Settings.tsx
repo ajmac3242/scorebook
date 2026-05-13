@@ -473,9 +473,9 @@ const Settings: React.FC = () => {
   return (
     <Box
       sx={{
-        pb: 8,
-        pt: { xs: 2, sm: 3 },
-        bgcolor: "#F9FAFB",
+        pb: { xs: 2, sm: 3 },
+        pt: 0,
+        bgcolor: "transparent",
         minHeight: "100%",
       }}
     >
@@ -497,7 +497,7 @@ const Settings: React.FC = () => {
 
       <Box
         sx={{
-          px: { xs: 2, sm: 2.5, md: 3 },
+          px: { xs: 1, sm: 1.5, md: 2 },
           width: "100%",
           maxWidth: "100%",
         }}
@@ -506,9 +506,10 @@ const Settings: React.FC = () => {
           elevation={0}
           sx={{
             borderRadius: "12px",
-            border: "1px solid #EAECF0",
+            border: "1px solid #D0D5DD",
             overflow: "hidden",
-            bgcolor: "#FFFFFF",
+            bgcolor: "#FCFCFD",
+            boxShadow: "none",
           }}
         >
           <Box
@@ -657,10 +658,7 @@ const Settings: React.FC = () => {
                           onClick={handleClearLogs}
                           disabled={logs.length === 0}
                           color="error"
-                          sx={{
-                            textTransform: "none",
-                            alignSelf: "flex-start",
-                          }}
+                          sx={{ textTransform: "none", alignSelf: "flex-start" }}
                         >
                           Clear logs
                         </Button>
@@ -720,9 +718,7 @@ const Settings: React.FC = () => {
                                       color: "#667085",
                                     }}
                                   >
-                                    {new Date(
-                                      log.timestamp,
-                                    ).toLocaleTimeString()}
+                                    {new Date(log.timestamp).toLocaleTimeString()}
                                   </Typography>
                                 </Box>
                                 <Typography
@@ -776,9 +772,8 @@ const Settings: React.FC = () => {
                           height: 14,
                           borderRadius: "50%",
                           bgcolor:
-                            availablePresets.find(
-                              (preset) => preset.id === presetId,
-                            )?.previewColor || "primary.main",
+                            availablePresets.find((preset) => preset.id === presetId)
+                              ?.previewColor || "primary.main",
                           border: "1px solid rgba(16,24,40,0.08)",
                           flexShrink: 0,
                         }}
@@ -790,9 +785,8 @@ const Settings: React.FC = () => {
                           fontWeight: 500,
                         }}
                       >
-                        {availablePresets.find(
-                          (preset) => preset.id === presetId,
-                        )?.label ?? "Theme"}
+                        {availablePresets.find((preset) => preset.id === presetId)?.label ??
+                          "Theme"}
                       </Typography>
                     </Box>
                   }
@@ -804,7 +798,7 @@ const Settings: React.FC = () => {
                   alignTop
                   borderBottom={false}
                   action={
-                    <Box>
+                    <Box sx={{ width: "100%" }}>
                       <Grid container spacing={2}>
                         {availablePresets.map((preset) => (
                           <Grid item xs={12} sm={6} lg={4} key={preset.id}>
