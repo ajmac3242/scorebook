@@ -62,7 +62,9 @@ describe("Players Component", () => {
 
     expect(await findPlayersTitle()).toBeInTheDocument();
     expect(
-      screen.getByText(/your notebook is empty|start by adding your first player/i),
+      screen.getByText(
+        /your notebook is empty|start by adding your first player/i,
+      ),
     ).toBeInTheDocument();
   });
 
