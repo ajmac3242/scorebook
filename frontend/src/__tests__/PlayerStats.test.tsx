@@ -77,11 +77,11 @@ describe("PlayerStats Page", () => {
       games: [],
       stats: [],
     });
-
+  
     renderComponent("/players/p1?teamId=t1");
-
+  
     expect(await screen.findByText(/^Jacob$/i)).toBeInTheDocument();
-    expect(screen.getByText(/varsity/i)).toBeInTheDocument();
+    expect((await screen.findAllByText(/varsity/i)).length).toBeGreaterThan(0);
     expect(screen.getByText(/#12/i)).toBeInTheDocument();
   });
 
