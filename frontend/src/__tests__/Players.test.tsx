@@ -57,11 +57,11 @@ describe("Players Component", () => {
     );
   };
 
-  it("renders Players page and empty state", async () => {
+  it("renders Players page and default empty state", async () => {
     renderComponent();
 
     expect(await findPlayersTitle()).toBeInTheDocument();
-    expect(screen.getByText(/^No players yet$/i)).toBeInTheDocument();
+    expect(screen.getByText(/^No active players$/i)).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: /create first player/i }),
     ).toBeInTheDocument();
