@@ -93,6 +93,7 @@ import {
   ResponsiveContainer,
   Legend,
   ReferenceLine,
+  ReferenceArea,
   ComposedChart,
 } from "recharts";
 
@@ -1097,6 +1098,22 @@ const GameStats: React.FC = () => {
           stroke="#666"
           strokeWidth={2}
           label="Neutral"
+        />
+
+        {/* Lead Shading: Blue for Our Team leading, Red for Opponent leading */}
+        <ReferenceArea
+          yAxisId="spread"
+          y1={0}
+          y2={100}
+          fill={theme.palette.primary.main}
+          fillOpacity={0.05}
+        />
+        <ReferenceArea
+          yAxisId="spread"
+          y1={-100}
+          y2={0}
+          fill={theme.palette.secondary.main}
+          fillOpacity={0.05}
         />
 
         {/* Period boundaries */}

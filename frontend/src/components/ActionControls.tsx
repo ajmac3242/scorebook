@@ -6,6 +6,7 @@ import {
   SwapHoriz,
   Groups,
   SportsBasketball,
+  SyncAlt,
 } from "@mui/icons-material";
 import { SPECIAL_PLAYER_IDS } from "../constants/stats";
 
@@ -21,6 +22,7 @@ export interface ActionControlsProps {
   onTimeout: () => void;
   onNextPeriod: () => void;
   onTogglePossession: () => void;
+  onOpponentTurnover: () => void;
   possessionState: string | null;
   recentStatsLength: number;
   onEndGame: () => void;
@@ -38,6 +40,7 @@ export const ActionControls = React.memo(
     onTimeout,
     onNextPeriod,
     onTogglePossession,
+    onOpponentTurnover,
     possessionState,
     recentStatsLength,
     onEndGame,
@@ -71,6 +74,29 @@ export const ActionControls = React.memo(
               }}
             >
               Period
+            </Button>
+          </span>
+        </Tooltip>
+
+        <Tooltip title="Record a turnover for the opponent and flip possession">
+          <span>
+            <Button
+              size="small"
+              variant="outlined"
+              startIcon={<SyncAlt />}
+              onClick={onOpponentTurnover}
+              disabled={isReadOnly}
+              aria-label="record opponent turnover"
+              color="secondary"
+              sx={{
+                "&:focus-visible": {
+                  outline: "2px solid",
+                  outlineColor: "secondary.main",
+                  outlineOffset: "2px",
+                },
+              }}
+            >
+              Opp TO
             </Button>
           </span>
         </Tooltip>
