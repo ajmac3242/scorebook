@@ -240,13 +240,13 @@ const PlayerStats: React.FC = () => {
   }, [player, filteredStats, games, selectedGameId, clutchFilter, currentTeam]);
 
   const getJerseyNumber = () => {
-    if (teamIdParam) {
-      const teamPlayer = teamPlayers.find(
-        (tp) => tp.teamId.toString() === teamIdParam.toString(),
-      );
-      return tp?.jerseyNumber ?? "";
-    }
-    return "";
+    if (!teamIdParam) return "";
+  
+    return (
+      teamPlayers.find(
+        (teamPlayer) => teamPlayer.teamId.toString() === teamIdParam.toString(),
+      )?.jerseyNumber ?? ""
+    );
   };
 
   const isDeleted = !!player?.deletedAt;
