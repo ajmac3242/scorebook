@@ -38,7 +38,6 @@ import {
   ArrowBack as ArrowBackIcon,
   Check as CheckIcon,
   Edit as EditIcon,
-  History as HistoryIcon,
   LocalFireDepartment as FireIcon,
   Warning,
 } from "@mui/icons-material";
