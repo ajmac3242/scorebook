@@ -1,4 +1,3 @@
-// frontend/src/__tests__/PlayerStats.test.tsx
 import {
   render,
   screen,
@@ -14,9 +13,11 @@ import PlayerStats from "../pages/PlayerStats";
 import { mockDb } from "../dbMock";
 
 vi.mock("../components/BasketballCourt", () => ({
-  default: ({ mode }: { mode: string }) => (
-    <div data-testid="basketball-court">{mode}</div>
-  ),
+  default: ({
+    shotChartView,
+  }: {
+    shotChartView: string;
+  }) => <div data-testid="basketball-court">{shotChartView}</div>,
 }));
 
 const theme = createTheme();
@@ -88,9 +89,7 @@ describe("PlayerStats Page", () => {
 
     renderComponent();
 
-    fireEvent.click(
-      await screen.findByRole("button", { name: /edit player/i }),
-    );
+    fireEvent.click(await screen.findByRole("button", { name: /edit player/i }));
 
     const nameInput = await screen.findByLabelText(/player name/i);
     fireEvent.change(nameInput, { target: { value: "Jacob Updated" } });
@@ -126,7 +125,7 @@ describe("PlayerStats Page", () => {
 
     renderComponent();
 
-    expect(await screen.findByText(/pending deletion/i)).toBeInTheDocument();
+    expect(await screen.findAllByText(/pending deletion/i)).toHaveLength(2);
     expect(
       screen.getByText(/restore them from the players list/i),
     ).toBeInTheDocument();
