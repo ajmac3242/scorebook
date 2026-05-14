@@ -1,3 +1,4 @@
+// frontend/src/__tests__/PlayerStats.test.tsx
 import {
   render,
   screen,
@@ -13,8 +14,16 @@ import PlayerStats from "../pages/PlayerStats";
 import { mockDb } from "../dbMock";
 
 vi.mock("../components/BasketballCourt", () => ({
-  default: ({ view }: { view: string }) => (
-    <div data-testid="basketball-court">{view}</div>
+  default: ({
+    markers = [],
+    heatmapData,
+  }: {
+    markers?: Array<unknown>;
+    heatmapData?: Record<string, unknown>;
+  }) => (
+    <div data-testid="basketball-court">
+      {heatmapData ? "heatmap" : "markers"}-{markers.length}
+    </div>
   ),
 }));
 
@@ -87,9 +96,7 @@ describe("PlayerStats Page", () => {
 
     renderComponent();
 
-    fireEvent.click(
-      await screen.findByRole("button", { name: /edit player/i }),
-    );
+    fireEvent.click(await screen.findByRole("button", { name: /edit player/i }));
 
     const nameInput = await screen.findByLabelText(/player name/i);
     fireEvent.change(nameInput, { target: { value: "Jacob Updated" } });
@@ -143,14 +150,14 @@ describe("PlayerStats Page", () => {
     renderComponent();
 
     expect(await screen.findByTestId("basketball-court")).toHaveTextContent(
-      "markers",
+      "markers-0",
     );
 
     fireEvent.click(screen.getByRole("button", { name: /heatmap/i }));
 
     await waitFor(() => {
       expect(screen.getByTestId("basketball-court")).toHaveTextContent(
-        "heatmap",
+        "heatmap-0",
       );
     });
   });
