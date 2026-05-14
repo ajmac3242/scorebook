@@ -615,8 +615,8 @@ const PlayerStats: React.FC = () => {
           {isDeleted && (
             <Alert severity="warning" icon={<Warning />} sx={{ mb: 3 }}>
               <AlertTitle>Pending Deletion</AlertTitle>
-              This player is scheduled for deletion in <strong>{timeLeft}</strong>.
-              Restore them from the Players list.
+              This player is scheduled for deletion in{" "}
+              <strong>{timeLeft}</strong>. Restore them from the Players list.
             </Alert>
           )}
 
@@ -677,7 +677,8 @@ const PlayerStats: React.FC = () => {
                     <Box>
                       <Typography sx={statLabelSx}>Scope</Typography>
                       <Typography variant="body2" color="text.secondary">
-                        {currentTeam?.name || "Career totals across visible games"}
+                        {currentTeam?.name ||
+                          "Career totals across visible games"}
                       </Typography>
                     </Box>
 
@@ -685,8 +686,8 @@ const PlayerStats: React.FC = () => {
                       <Typography sx={statLabelSx}>Filters</Typography>
                       <Typography variant="body2" color="text.secondary">
                         {selectedType || "All action types"} ·{" "}
-                        {selectedGameId ? "Single game selected" : "All games"} ·{" "}
-                        {clutchFilter ? "Clutch only" : "All situations"}
+                        {selectedGameId ? "Single game selected" : "All games"}{" "}
+                        · {clutchFilter ? "Clutch only" : "All situations"}
                       </Typography>
                     </Box>
 
@@ -782,7 +783,8 @@ const PlayerStats: React.FC = () => {
                 >
                   <Typography variant="h6">Action Log</Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Detailed event history for the current player and filter set.
+                    Detailed event history for the current player and filter
+                    set.
                   </Typography>
                 </Box>
 
@@ -803,7 +805,10 @@ const PlayerStats: React.FC = () => {
                         <TableRow>
                           <TableCell colSpan={6}>
                             <Box sx={{ py: 4, textAlign: "center" }}>
-                              <Typography variant="body2" color="text.secondary">
+                              <Typography
+                                variant="body2"
+                                color="text.secondary"
+                              >
                                 No actions match the current filters.
                               </Typography>
                             </Box>
@@ -814,10 +819,14 @@ const PlayerStats: React.FC = () => {
                           const game = games.find((g) => g.id === event.gameId);
 
                           return (
-                            <TableRow key={`${event.gameId}-${event.id || index}`}>
+                            <TableRow
+                              key={`${event.gameId}-${event.id || index}`}
+                            >
                               <TableCell>{event.type}</TableCell>
                               <TableCell>
-                                {game?.opponentName || game?.name || event.gameId}
+                                {game?.opponentName ||
+                                  game?.name ||
+                                  event.gameId}
                               </TableCell>
                               <TableCell>{event.period || "-"}</TableCell>
                               <TableCell>{event.clockTime || "-"}</TableCell>

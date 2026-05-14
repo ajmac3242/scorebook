@@ -63,7 +63,9 @@ describe("PlayerStats Page", () => {
     mockDb.seed({
       players: [{ id: "p1", name: "Jacob", avatarColor: "#5c8f61" }],
       teams: [{ id: "t1", name: "Varsity", periodType: "QUARTERS" }],
-      teamPlayers: [{ id: "tp1", playerId: "p1", teamId: "t1", jerseyNumber: "12" }],
+      teamPlayers: [
+        { id: "tp1", playerId: "p1", teamId: "t1", jerseyNumber: "12" },
+      ],
       games: [],
       stats: [],
     });
@@ -86,7 +88,9 @@ describe("PlayerStats Page", () => {
 
     renderComponent();
 
-    fireEvent.click(await screen.findByRole("button", { name: /edit player/i }));
+    fireEvent.click(
+      await screen.findByRole("button", { name: /edit player/i }),
+    );
 
     const nameInput = await screen.findByLabelText(/player name/i);
     fireEvent.change(nameInput, { target: { value: "Jacob Updated" } });
