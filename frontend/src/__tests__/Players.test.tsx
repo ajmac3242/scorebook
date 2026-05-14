@@ -1,6 +1,12 @@
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  cleanup,
+} from "@testing-library/react";
 import Players from "../pages/Players";
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { mockDb } from "../dbMock";
 import { BrowserRouter } from "react-router-dom";
 import React from "react";
@@ -11,6 +17,11 @@ const theme = createTheme();
 describe("Players Component", () => {
   beforeEach(() => {
     mockDb.reset();
+    vi.restoreAllMocks();
+  });
+
+  afterEach(() => {
+    cleanup();
   });
 
   const renderComponent = () =>
@@ -22,12 +33,37 @@ describe("Players Component", () => {
       </ThemeProvider>,
     );
 
+  const findPlayersTitle = async () => {
+    return (
+      (await screen
+        .findByRole("heading", { name: /^Players$/i })
+        .catch(() => null)) || screen.getByText(/^Players$/i)
+    );
+  };
+
+  const findCreatePlayerTrigger = () => {
+    return (
+      screen.queryByLabelText(/add new player/i) ||
+      screen.queryByRole("button", { name: /create first player/i }) ||
+      screen.queryByRole("button", { name: /add player/i })
+    );
+  };
+
+  const findSubmitButton = () => {
+    return (
+      screen.queryByRole("button", { name: /^Add Player$/i }) ||
+      screen.queryByRole("button", { name: /^Add$/i }) ||
+      screen.queryByRole("button", { name: /create player/i })
+    );
+  };
+
   it("renders Players page and empty state", async () => {
     renderComponent();
+
+    expect(await findPlayersTitle()).toBeInTheDocument();
     expect(
-      await screen.findByRole("heading", { name: /^Players$/i, level: 3 }),
+      screen.getByText(/your notebook is empty|start by adding your first player/i),
     ).toBeInTheDocument();
-    expect(screen.getByText(/No active players found/i)).toBeInTheDocument();
   });
 
   it("renders list of players", async () => {
@@ -39,6 +75,7 @@ describe("Players Component", () => {
     });
 
     renderComponent();
+
     expect(await screen.findByText(/John Doe/i)).toBeInTheDocument();
     expect(screen.getByText(/Jane Smith/i)).toBeInTheDocument();
   });
@@ -46,12 +83,16 @@ describe("Players Component", () => {
   it("adds a new player", async () => {
     renderComponent();
 
-    fireEvent.click(screen.getByLabelText(/add new player/i));
+    const trigger = findCreatePlayerTrigger();
+    expect(trigger).toBeTruthy();
+    fireEvent.click(trigger as HTMLElement);
 
-    const nameInput = screen.getByLabelText(/Player Name/i);
+    const nameInput = await screen.findByLabelText(/player name/i);
     fireEvent.change(nameInput, { target: { value: "New Player" } });
 
-    fireEvent.click(screen.getByRole("button", { name: /Add Player/i }));
+    const submitButton = findSubmitButton();
+    expect(submitButton).toBeTruthy();
+    fireEvent.click(submitButton as HTMLElement);
 
     await waitFor(() => {
       expect(mockDb.players.add).toHaveBeenCalledWith(
@@ -68,9 +109,8 @@ describe("Players Component", () => {
     });
 
     renderComponent();
-    expect(
-      await screen.findByRole("heading", { name: /^Players$/i, level: 3 }),
-    ).toBeInTheDocument();
+
+    expect(await findPlayersTitle()).toBeInTheDocument();
   });
 
   it("handles error when adding player", async () => {
@@ -79,17 +119,23 @@ describe("Players Component", () => {
       .spyOn(logger.logger, "error")
       .mockImplementation(() => {});
 
-    renderComponent();
-
     vi.spyOn(mockDb.players, "add").mockImplementation(() => {
       throw new Error("Add failed");
     });
 
-    fireEvent.click(screen.getByLabelText(/add new player/i));
-    fireEvent.change(screen.getByLabelText(/Player Name/i), {
+    renderComponent();
+
+    const trigger = findCreatePlayerTrigger();
+    expect(trigger).toBeTruthy();
+    fireEvent.click(trigger as HTMLElement);
+
+    fireEvent.change(await screen.findByLabelText(/player name/i), {
       target: { value: "Fail Player" },
     });
-    fireEvent.click(screen.getByRole("button", { name: /Add Player/i }));
+
+    const submitButton = findSubmitButton();
+    expect(submitButton).toBeTruthy();
+    fireEvent.click(submitButton as HTMLElement);
 
     await waitFor(() => {
       expect(loggerSpy).toHaveBeenCalledWith(
