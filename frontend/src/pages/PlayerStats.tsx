@@ -1,13 +1,24 @@
-import React, { useState, useMemo, useEffect } from "react";
-import { useParams, useSearchParams } from "react-router-dom";
+// frontend/src/pages/PlayerStats.tsx
+import React, { useEffect, useMemo, useState } from "react";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import {
+  Alert,
+  AlertTitle,
+  Avatar,
   Box,
-  Typography,
-  Grid,
+  Button,
+  Chip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   FormControl,
+  Grid,
+  IconButton,
   InputLabel,
-  Select,
   MenuItem,
+  Paper,
+  Select,
   Stack,
   Table,
   TableBody,
@@ -15,41 +26,55 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
   TextField,
-  Alert,
-  AlertTitle,
   ToggleButton,
   ToggleButtonGroup,
+  Tooltip,
+  Typography,
+  alpha,
+  useTheme,
 } from "@mui/material";
+import {
+  ArrowBack as ArrowBackIcon,
+  Check as CheckIcon,
+  Edit as EditIcon,
+  History as HistoryIcon,
+  LocalFireDepartment as FireIcon,
+  Warning,
+} from "@mui/icons-material";
+import dayjs from "dayjs";
+import { useLiveQuery } from "dexie-react-hooks";
 import BasketballCourt from "../components/BasketballCourt";
 import { getShotZone } from "../utils/shotZones";
 import { db, type StatEvent } from "../db";
 import { syncService } from "../utils/syncService";
-import { useLiveQuery } from "dexie-react-hooks";
-import { calculatePlayerAggregates } from "../utils/stats";
-import { MoleskineCard, StatCard } from "../components/SharedUI";
-import EntityBanner from "../components/EntityBanner";
+import { calculatePlayerAggregates, getInitials } from "../utils/stats";
 import { useTeams } from "../hooks/useTeams";
 import { AVATAR_COLORS } from "../constants/colors";
-import { Warning, Edit as EditIcon } from "@mui/icons-material";
-import dayjs from "dayjs";
-import IconButton from "@mui/material/IconButton";
+import { logger } from "../utils/logger";
 
-/**
- * PlayerStats page component.
- * Displays detailed statistics for an individual player,
- * including a shot chart and a detailed action log.
- */
+const SHOT_EVENT_TYPES = [
+  "MAKE",
+  "MISS",
+  "REBOUND",
+  "ASSIST",
+  "STEAL",
+  "TURNOVER",
+  "BLOCK",
+  "FOUL",
+];
+
 const PlayerStats: React.FC = () => {
+  const theme = useTheme();
+  const navigate = useNavigate();
   const { playerId } = useParams<{ playerId: string }>();
-
   const [searchParams] = useSearchParams();
   const teamIdParam = searchParams.get("teamId");
+
+  const radius = theme.shape.borderRadius;
+  const shellRadius = radius * 1.5;
+  const sectionRadius = radius * 1.5;
+  const controlRadius = radius * 1.25;
 
   const [selectedGameId, setSelectedGameId] = useState<string>("");
   const [selectedType, setSelectedType] = useState<string>("");
@@ -59,8 +84,9 @@ const PlayerStats: React.FC = () => {
   );
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [editName, setEditName] = useState("");
-  const [editColor, setEditColor] = useState("");
+  const [editColor, setEditColor] = useState(AVATAR_COLORS[0]);
   const [timeLeft, setTimeLeft] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
   const player = useLiveQuery(
     () => (playerId ? db.players.get(playerId) : undefined),
@@ -68,23 +94,31 @@ const PlayerStats: React.FC = () => {
   );
 
   useEffect(() => {
-    if (player?.deletedAt) {
-      const timer = setInterval(() => {
-        const deleteTime = dayjs(player.deletedAt).add(24, "hour");
-        const diff = deleteTime.diff(dayjs());
-        if (diff <= 0) {
-          setTimeLeft("Deleting now...");
-        } else {
-          const hours = Math.floor(diff / (1000 * 60 * 60));
-          const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-          setTimeLeft(`${hours}h ${mins}m`);
-        }
-      }, 1000);
-      return () => clearInterval(timer);
+    if (!player?.deletedAt) {
+      setTimeLeft("");
+      return;
     }
+
+    const updateCountdown = () => {
+      const deleteTime = dayjs(player.deletedAt).add(24, "hour");
+      const diff = deleteTime.diff(dayjs());
+
+      if (diff <= 0) {
+        setTimeLeft("Deleting now...");
+        return;
+      }
+
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      setTimeLeft(`${hours}h ${mins}m`);
+    };
+
+    updateCountdown();
+    const timer = setInterval(updateCountdown, 1000);
+
+    return () => clearInterval(timer);
   }, [player?.deletedAt]);
 
-  // Use shared hooks
   const teams = useTeams();
 
   const teamPlayers =
@@ -115,7 +149,6 @@ const PlayerStats: React.FC = () => {
   );
   const allStats = useMemo(() => allStatsResult || [], [allStatsResult]);
 
-  // Optimization: Extract gameIdSet into its own useMemo to prevent redundant creations within filteredStats.
   const gameIdSet = useMemo(() => {
     const set = new Set<string | undefined>();
     for (let i = 0; i < games.length; i++) {
@@ -126,8 +159,8 @@ const PlayerStats: React.FC = () => {
 
   const filteredStats = useMemo(() => {
     const stats = allStats as StatEvent[];
-    // Optimization: Use a standard for loop instead of .filter() to reduce function call overhead and improve performance.
-    const result = [];
+    const result: StatEvent[] = [];
+
     for (let i = 0; i < stats.length; i++) {
       const stat = stats[i];
       if (selectedGameId !== "" && stat.gameId !== selectedGameId) continue;
@@ -135,42 +168,42 @@ const PlayerStats: React.FC = () => {
       if (selectedGameId === "" && !gameIdSet.has(stat.gameId)) continue;
       result.push(stat);
     }
+
     return result;
   }, [allStats, selectedGameId, selectedType, gameIdSet]);
 
-  /**
-   * Updates player-level metadata.
-   */
-  const handleUpdatePlayer = async () => {
-    if (!playerId) return;
-    await db.players.update(playerId, {
-      name: editName,
-      avatarColor: editColor,
-      synced: 0,
-    });
-    await syncService.pushUpdates();
-    setOpenEditDialog(false);
-  };
-
   const heatmapData = useMemo(() => {
     const data: Record<string, { makes: number; attempts: number }> = {};
-    for (let i = 0; i < filteredStats.length; i++) {
-      const s = filteredStats[i];
-      if (s.type !== "MAKE" && s.type !== "MISS") continue;
 
-      const zone = getShotZone(s.locationX || 0, s.locationY || 0);
+    for (let i = 0; i < filteredStats.length; i++) {
+      const stat = filteredStats[i];
+      if (stat.type !== "MAKE" && stat.type !== "MISS") continue;
+
+      const zone = getShotZone(stat.locationX || 0, stat.locationY || 0);
       if (!data[zone]) data[zone] = { makes: 0, attempts: 0 };
       data[zone].attempts++;
-      if (s.type === "MAKE") data[zone].makes++;
+      if (stat.type === "MAKE") data[zone].makes++;
     }
+
     return data;
   }, [filteredStats]);
 
+  const selectedGame = useMemo(
+    () => games.find((game) => game.id === selectedGameId),
+    [games, selectedGameId],
+  );
+
+  const currentTeam = useMemo(
+    () => teams.find((team) => team.id?.toString() === teamIdParam?.toString()),
+    [teams, teamIdParam],
+  );
+
   const aggregates = useMemo(() => {
     const activeGame = games.find(
-      (g) => g.id === selectedGameId && !g.completed,
+      (game) => game.id === selectedGameId && !game.completed,
     );
-    const res = calculatePlayerAggregates(
+
+    const result = calculatePlayerAggregates(
       [player].filter((p): p is NonNullable<typeof p> => p !== undefined),
       filteredStats,
       [],
@@ -178,9 +211,7 @@ const PlayerStats: React.FC = () => {
       {
         periodLength: activeGame?.periodLength,
         clutchOnly: clutchFilter,
-        periodType: teamIdParam
-          ? teams.find((t) => t.id === teamIdParam)?.periodType
-          : "QUARTERS",
+        periodType: currentTeam?.periodType || "QUARTERS",
         liveContext: activeGame
           ? {
               clockTime: activeGame.clockTime || 0,
@@ -189,8 +220,9 @@ const PlayerStats: React.FC = () => {
           : undefined,
       },
     );
+
     return (
-      res[0] || {
+      result[0] || {
         points: 0,
         rebounds: 0,
         assists: 0,
@@ -207,89 +239,618 @@ const PlayerStats: React.FC = () => {
         attempts: 0,
       }
     );
-  }, [
-    player,
-    filteredStats,
-    games,
-    selectedGameId,
-    clutchFilter,
-    teamIdParam,
-    teams,
-  ]);
+  }, [player, filteredStats, games, selectedGameId, clutchFilter, currentTeam]);
 
-  /**
-   * Retrieves the jersey number for the current player within the filtered team context.
-   */
   const getJerseyNumber = () => {
     if (teamIdParam) {
-      const tp = teamPlayers.find(
-        (t) => t.teamId.toString() === teamIdParam.toString(),
+      const teamPlayer = teamPlayers.find(
+        (tp) => tp.teamId.toString() === teamIdParam.toString(),
       );
-      return tp?.jerseyNumber ?? "";
+      return teamPlayer?.jerseyNumber ?? "";
     }
     return "";
   };
 
   const isDeleted = !!player?.deletedAt;
+  const accent = player?.avatarColor || theme.palette.primary.main;
+  const accentSoft = alpha(accent, 0.12);
+  const accentSoftStrong = alpha(accent, 0.18);
+  const accentBorder = alpha(accent, 0.3);
+  const accentFocus = alpha(accent, 0.22);
+  const jerseyNumber = getJerseyNumber();
+
+  const filteredEvents = useMemo(() => {
+    const result = [...filteredStats];
+    result.sort((a, b) => {
+      const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return bTime - aTime;
+    });
+    return result;
+  }, [filteredStats]);
+
+  const handleOpenEdit = () => {
+    setEditName(player?.name || "");
+    setEditColor(player?.avatarColor || AVATAR_COLORS[0]);
+    setOpenEditDialog(true);
+  };
+
+  const handleUpdatePlayer = async () => {
+    if (!playerId) return;
+
+    setIsSaving(true);
+
+    try {
+      await db.players.update(playerId, {
+        name: editName,
+        avatarColor: editColor,
+        synced: 0,
+      });
+      await syncService.pushUpdates();
+      setOpenEditDialog(false);
+    } catch (err) {
+      logger.error("Failed to update player", err, { playerId, editName });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const statLabelSx = {
+    fontSize: "0.75rem",
+    fontWeight: 700,
+    letterSpacing: "0.04em",
+    textTransform: "uppercase" as const,
+    color: "text.secondary",
+    mb: 0.5,
+    fontFamily: theme.typography.body2.fontFamily,
+  };
+
+  const statValueSx = {
+    fontSize: "1.5rem",
+    lineHeight: 1,
+    fontWeight: 700,
+    color: "text.primary",
+    fontFamily: theme.typography.h4.fontFamily,
+  };
+
+  const summaryStats = [
+    { label: "Minutes", value: aggregates.min },
+    { label: "Points", value: aggregates.points },
+    { label: "Rebounds", value: aggregates.rebounds },
+    { label: "Assists", value: aggregates.assists },
+    { label: "Steals", value: aggregates.steals },
+    { label: "Blocks", value: aggregates.blocks },
+    { label: "FG%", value: `${aggregates.fgPct}%` },
+    { label: "eFG%", value: `${aggregates.efgPct}%` },
+    { label: "FG", value: `${aggregates.makes}/${aggregates.attempts}` },
+    { label: "+/-", value: aggregates.plusMinus },
+  ];
 
   return (
-    <Box sx={{ pb: 4, opacity: isDeleted ? 0.7 : 1 }}>
-      <EntityBanner
-        title={player?.name || "Player"}
-        subtitle={
-          teamIdParam
-            ? teams.find((t) => t.id?.toString() === teamIdParam)?.name
-            : "Career Stats"
-        }
-        avatarColor={player?.avatarColor}
-        backTo="/players"
-        primaryColor={player?.avatarColor}
-        jerseyNumber={getJerseyNumber()}
-        stats={[
-          { label: "MIN", value: aggregates.min },
-          { label: "PTS", value: aggregates.points },
-          { label: "FG%", value: `${aggregates.fgPct}%` },
-          { label: "eFG%", value: `${aggregates.efgPct}%` },
-          { label: "+/-", value: aggregates.plusMinus },
-        ]}
-        actions={
-          <Stack direction="row" spacing={1} alignItems="center">
-            {!isDeleted && (
+    <Box sx={{ pb: 6, opacity: isDeleted ? 0.78 : 1 }}>
+      <Paper
+        elevation={0}
+        sx={{
+          borderRadius: shellRadius,
+          border: "1px solid",
+          borderColor: "divider",
+          bgcolor: "background.default",
+          overflow: "hidden",
+        }}
+      >
+        <Box
+          sx={{
+            px: { xs: 2, sm: 3 },
+            py: { xs: 2, sm: 2.5 },
+            borderBottom: "1px solid",
+            borderColor: "divider",
+            bgcolor: "background.paper",
+          }}
+        >
+          <Stack
+            direction={{ xs: "column", lg: "row" }}
+            spacing={2.5}
+            justifyContent="space-between"
+            alignItems={{ xs: "flex-start", lg: "center" }}
+          >
+            <Stack direction="row" spacing={2} alignItems="center">
               <IconButton
-                onClick={() => {
-                  setEditName(player?.name || "");
-                  setEditColor(player?.avatarColor || "#154C56");
-                  setOpenEditDialog(true);
-                }}
+                aria-label="back to players"
+                onClick={() => navigate("/players")}
                 sx={{
-                  color: "white",
-                  bgcolor: "rgba(255,255,255,0.1)",
-                  "&:hover": {
-                    bgcolor: "rgba(255,255,255,0.2)",
-                    transform: "scale(1.1)",
-                  },
+                  border: "1px solid",
+                  borderColor: "divider",
+                  bgcolor: "background.default",
                 }}
               >
-                <EditIcon />
+                <ArrowBackIcon />
               </IconButton>
+
+              <Avatar
+                sx={{
+                  width: 64,
+                  height: 64,
+                  bgcolor: accentSoft,
+                  color: accent,
+                  border: "1px solid",
+                  borderColor: accentBorder,
+                  fontSize: "1.5rem",
+                  fontWeight: 700,
+                }}
+              >
+                {player?.name ? getInitials(player.name) : "P"}
+              </Avatar>
+
+              <Box>
+                <Stack
+                  direction="row"
+                  spacing={1}
+                  alignItems="center"
+                  sx={{ flexWrap: "wrap", mb: 0.5 }}
+                >
+                  <Typography variant="h4">
+                    {player?.name || "Player"}
+                  </Typography>
+
+                  {jerseyNumber !== "" && (
+                    <Chip
+                      label={`#${jerseyNumber}`}
+                      size="small"
+                      sx={{
+                        borderRadius: controlRadius,
+                        bgcolor: accentSoft,
+                        border: "1px solid",
+                        borderColor: accentBorder,
+                        color: "text.primary",
+                      }}
+                    />
+                  )}
+
+                  {isDeleted && (
+                    <Chip
+                      label="Pending deletion"
+                      size="small"
+                      color="warning"
+                      sx={{ borderRadius: controlRadius }}
+                    />
+                  )}
+                </Stack>
+
+                <Typography variant="body2" color="text.secondary">
+                  {currentTeam?.name || "Career Stats"}
+                </Typography>
+              </Box>
+            </Stack>
+
+            <Stack
+              direction={{ xs: "column", sm: "row" }}
+              spacing={1}
+              alignItems={{ xs: "stretch", sm: "center" }}
+            >
+              <Chip
+                label={`MIN ${aggregates.min}`}
+                sx={{
+                  borderRadius: controlRadius,
+                  bgcolor: "background.default",
+                  border: "1px solid",
+                  borderColor: "divider",
+                }}
+              />
+              <Chip
+                label={`PTS ${aggregates.points}`}
+                sx={{
+                  borderRadius: controlRadius,
+                  bgcolor: "background.default",
+                  border: "1px solid",
+                  borderColor: "divider",
+                }}
+              />
+              <Chip
+                label={`FG% ${aggregates.fgPct}%`}
+                sx={{
+                  borderRadius: controlRadius,
+                  bgcolor: "background.default",
+                  border: "1px solid",
+                  borderColor: "divider",
+                }}
+              />
+              <Chip
+                label={`eFG% ${aggregates.efgPct}%`}
+                sx={{
+                  borderRadius: controlRadius,
+                  bgcolor: "background.default",
+                  border: "1px solid",
+                  borderColor: "divider",
+                }}
+              />
+              <Tooltip title="Edit player">
+                <span>
+                  <IconButton
+                    aria-label="edit player"
+                    onClick={handleOpenEdit}
+                    disabled={isDeleted}
+                    sx={{
+                      color: accent,
+                      bgcolor: accentSoft,
+                      border: "1px solid",
+                      borderColor: accentBorder,
+                      "&:hover": {
+                        bgcolor: accentSoftStrong,
+                      },
+                    }}
+                  >
+                    <EditIcon />
+                  </IconButton>
+                </span>
+              </Tooltip>
+            </Stack>
+          </Stack>
+        </Box>
+
+        <Box
+          sx={{
+            px: { xs: 2, sm: 3 },
+            py: 2,
+            borderBottom: "1px solid",
+            borderColor: "divider",
+            bgcolor: "background.default",
+          }}
+        >
+          <Stack spacing={1.5}>
+            <Stack
+              direction={{ xs: "column", xl: "row" }}
+              spacing={1.5}
+              alignItems={{ xs: "stretch", xl: "center" }}
+              justifyContent="space-between"
+            >
+              <Stack
+                direction={{ xs: "column", md: "row" }}
+                spacing={1.5}
+                sx={{ flex: 1 }}
+              >
+                <FormControl size="small" sx={{ minWidth: 220 }}>
+                  <InputLabel id="player-game-filter-label">Game</InputLabel>
+                  <Select
+                    labelId="player-game-filter-label"
+                    value={selectedGameId}
+                    label="Game"
+                    onChange={(e) => setSelectedGameId(e.target.value)}
+                    sx={{
+                      borderRadius: controlRadius,
+                      bgcolor: "background.paper",
+                    }}
+                  >
+                    <MenuItem value="">All Games</MenuItem>
+                    {games.map((game) => (
+                      <MenuItem key={game.id} value={game.id}>
+                        {game.opponentName || game.name || game.id}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+
+                <FormControl size="small" sx={{ minWidth: 220 }}>
+                  <InputLabel id="player-action-filter-label">
+                    Action Type
+                  </InputLabel>
+                  <Select
+                    labelId="player-action-filter-label"
+                    value={selectedType}
+                    label="Action Type"
+                    onChange={(e) => setSelectedType(e.target.value)}
+                    sx={{
+                      borderRadius: controlRadius,
+                      bgcolor: "background.paper",
+                    }}
+                  >
+                    <MenuItem value="">All Actions</MenuItem>
+                    {SHOT_EVENT_TYPES.map((type) => (
+                      <MenuItem key={type} value={type}>
+                        {type}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Stack>
+
+              <Stack
+                direction={{ xs: "column", sm: "row" }}
+                spacing={1}
+                alignItems={{ xs: "stretch", sm: "center" }}
+              >
+                <Button
+                  variant={clutchFilter ? "contained" : "outlined"}
+                  onClick={() => setClutchFilter((prev) => !prev)}
+                  startIcon={<FireIcon />}
+                  sx={{
+                    borderRadius: controlRadius,
+                    boxShadow: "none",
+                  }}
+                >
+                  Clutch
+                </Button>
+
+                <ToggleButtonGroup
+                  size="small"
+                  exclusive
+                  value={shotChartView}
+                  onChange={(_, value) => {
+                    if (value) setShotChartView(value);
+                  }}
+                  aria-label="shot chart view"
+                  sx={{
+                    "& .MuiToggleButton-root": {
+                      borderRadius: `${controlRadius}px !important`,
+                      px: 1.5,
+                      textTransform: "none",
+                    },
+                  }}
+                >
+                  <ToggleButton value="markers" aria-label="markers">
+                    Markers
+                  </ToggleButton>
+                  <ToggleButton value="heatmap" aria-label="heatmap">
+                    Heatmap
+                  </ToggleButton>
+                </ToggleButtonGroup>
+              </Stack>
+            </Stack>
+
+            {selectedGame && (
+              <Chip
+                label={`Selected game: ${selectedGame.opponentName || selectedGame.name || selectedGame.id}`}
+                size="small"
+                sx={{
+                  alignSelf: "flex-start",
+                  borderRadius: controlRadius,
+                  bgcolor: accentSoft,
+                  border: "1px solid",
+                  borderColor: accentBorder,
+                }}
+              />
             )}
           </Stack>
-        }
-      />
+        </Box>
 
-      {isDeleted && (
-        <Alert severity="warning" icon={<Warning />} sx={{ mb: 4, mt: 3 }}>
-          <AlertTitle>Pending Deletion</AlertTitle>
-          This player is scheduled for deletion in <strong>{timeLeft}</strong>.
-          Restore them from the Players list.
-        </Alert>
-      )}
+        <Box sx={{ px: { xs: 2, sm: 3 }, py: { xs: 2, sm: 3 } }}>
+          {isDeleted && (
+            <Alert severity="warning" icon={<Warning />} sx={{ mb: 3 }}>
+              <AlertTitle>Pending Deletion</AlertTitle>
+              This player is scheduled for deletion in <strong>{timeLeft}</strong>.
+              Restore them from the Players list.
+            </Alert>
+          )}
+
+          <Grid container spacing={2.5}>
+            <Grid item xs={12} xl={4}>
+              <Stack spacing={2.5}>
+                <Paper
+                  elevation={0}
+                  sx={{
+                    borderRadius: sectionRadius,
+                    border: "1px solid",
+                    borderColor: "divider",
+                    bgcolor: "background.paper",
+                    p: 2.25,
+                  }}
+                >
+                  <Typography variant="h6" sx={{ mb: 2 }}>
+                    Summary
+                  </Typography>
+
+                  <Grid container spacing={1.5}>
+                    {summaryStats.map((stat) => (
+                      <Grid item xs={6} key={stat.label}>
+                        <Box
+                          sx={{
+                            borderRadius: controlRadius,
+                            border: "1px solid",
+                            borderColor: "divider",
+                            bgcolor: "background.default",
+                            px: 1.5,
+                            py: 1.5,
+                            minHeight: 84,
+                          }}
+                        >
+                          <Typography sx={statLabelSx}>{stat.label}</Typography>
+                          <Typography sx={statValueSx}>{stat.value}</Typography>
+                        </Box>
+                      </Grid>
+                    ))}
+                  </Grid>
+                </Paper>
+
+                <Paper
+                  elevation={0}
+                  sx={{
+                    borderRadius: sectionRadius,
+                    border: "1px solid",
+                    borderColor: "divider",
+                    bgcolor: "background.paper",
+                    p: 2.25,
+                  }}
+                >
+                  <Typography variant="h6" sx={{ mb: 1.5 }}>
+                    Context
+                  </Typography>
+
+                  <Stack spacing={1.25}>
+                    <Box>
+                      <Typography sx={statLabelSx}>Scope</Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {currentTeam?.name || "Career totals across visible games"}
+                      </Typography>
+                    </Box>
+
+                    <Box>
+                      <Typography sx={statLabelSx}>Filters</Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {selectedType || "All action types"} ·{" "}
+                        {selectedGameId ? "Single game selected" : "All games"} ·{" "}
+                        {clutchFilter ? "Clutch only" : "All situations"}
+                      </Typography>
+                    </Box>
+
+                    <Box>
+                      <Typography sx={statLabelSx}>Shot chart</Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {shotChartView === "markers"
+                          ? "Marker view for individual attempts."
+                          : "Heatmap view by shot zone efficiency."}
+                      </Typography>
+                    </Box>
+                  </Stack>
+                </Paper>
+              </Stack>
+            </Grid>
+
+            <Grid item xs={12} xl={8}>
+              <Paper
+                elevation={0}
+                sx={{
+                  borderRadius: sectionRadius,
+                  border: "1px solid",
+                  borderColor: "divider",
+                  bgcolor: "background.paper",
+                  p: 2.25,
+                }}
+              >
+                <Stack
+                  direction={{ xs: "column", md: "row" }}
+                  spacing={1}
+                  justifyContent="space-between"
+                  alignItems={{ xs: "flex-start", md: "center" }}
+                  sx={{ mb: 2 }}
+                >
+                  <Box>
+                    <Typography variant="h6">Shot Chart</Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {shotChartView === "markers"
+                        ? "Review each recorded shot location."
+                        : "See makes and attempts grouped by zone."}
+                    </Typography>
+                  </Box>
+
+                  <Chip
+                    label={`${filteredStats.length} tracked events`}
+                    size="small"
+                    sx={{
+                      borderRadius: controlRadius,
+                      bgcolor: "background.default",
+                      border: "1px solid",
+                      borderColor: "divider",
+                    }}
+                  />
+                </Stack>
+
+                <Box
+                  sx={{
+                    borderRadius: sectionRadius,
+                    overflow: "hidden",
+                    border: "1px solid",
+                    borderColor: "divider",
+                    bgcolor: "background.default",
+                    p: { xs: 1, sm: 2 },
+                  }}
+                >
+                  <BasketballCourt
+                    stats={filteredStats}
+                    mode={shotChartView}
+                    heatmapData={heatmapData}
+                  />
+                </Box>
+              </Paper>
+            </Grid>
+
+            <Grid item xs={12}>
+              <Paper
+                elevation={0}
+                sx={{
+                  borderRadius: sectionRadius,
+                  border: "1px solid",
+                  borderColor: "divider",
+                  bgcolor: "background.paper",
+                  overflow: "hidden",
+                }}
+              >
+                <Box
+                  sx={{
+                    px: 2.25,
+                    py: 2,
+                    borderBottom: "1px solid",
+                    borderColor: "divider",
+                  }}
+                >
+                  <Typography variant="h6">Action Log</Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Detailed event history for the current player and filter set.
+                  </Typography>
+                </Box>
+
+                <TableContainer>
+                  <Table size="small" aria-label="player action log">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Type</TableCell>
+                        <TableCell>Game</TableCell>
+                        <TableCell>Period</TableCell>
+                        <TableCell>Clock</TableCell>
+                        <TableCell align="right">X</TableCell>
+                        <TableCell align="right">Y</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {filteredEvents.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={6}>
+                            <Box sx={{ py: 4, textAlign: "center" }}>
+                              <Typography variant="body2" color="text.secondary">
+                                No actions match the current filters.
+                              </Typography>
+                            </Box>
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        filteredEvents.map((event, index) => {
+                          const game = games.find((g) => g.id === event.gameId);
+
+                          return (
+                            <TableRow key={`${event.gameId}-${event.id || index}`}>
+                              <TableCell>{event.type}</TableCell>
+                              <TableCell>
+                                {game?.opponentName || game?.name || event.gameId}
+                              </TableCell>
+                              <TableCell>{event.period || "-"}</TableCell>
+                              <TableCell>{event.clockTime || "-"}</TableCell>
+                              <TableCell align="right">
+                                {event.locationX ?? "-"}
+                              </TableCell>
+                              <TableCell align="right">
+                                {event.locationY ?? "-"}
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })
+                      )}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Paper>
+            </Grid>
+          </Grid>
+        </Box>
+      </Paper>
 
       <Dialog
         open={openEditDialog}
         onClose={() => setOpenEditDialog(false)}
         fullWidth
         maxWidth="xs"
+        PaperProps={{
+          sx: {
+            borderRadius: shellRadius,
+          },
+        }}
       >
         <DialogTitle>Edit Player Details</DialogTitle>
         <DialogContent>
@@ -300,260 +861,76 @@ const PlayerStats: React.FC = () => {
               value={editName}
               onChange={(e) => setEditName(e.target.value)}
             />
+
             <Box>
               <Typography variant="subtitle2" gutterBottom>
                 Avatar Color
               </Typography>
+
               <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-                {AVATAR_COLORS.map((color) => (
-                  <Box
-                    key={color}
-                    onClick={() => setEditColor(color)}
-                    sx={{
-                      width: 32,
-                      height: 32,
-                      borderRadius: "50%",
-                      bgcolor: color,
-                      cursor: "pointer",
-                      border: editColor === color ? "3px solid #000" : "none",
-                      boxSizing: "border-box",
-                      "&:hover": { transform: "scale(1.1)" },
-                      transition: "transform 0.1s",
-                    }}
-                  />
-                ))}
+                {AVATAR_COLORS.map((color) => {
+                  const selected = editColor === color;
+
+                  return (
+                    <Box
+                      key={color}
+                      role="button"
+                      tabIndex={0}
+                      aria-label={`select avatar color ${color}`}
+                      onClick={() => setEditColor(color)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          setEditColor(color);
+                        }
+                      }}
+                      sx={{
+                        width: 32,
+                        height: 32,
+                        borderRadius: "50%",
+                        bgcolor: color,
+                        cursor: "pointer",
+                        border: "2px solid",
+                        borderColor: selected ? "text.primary" : "divider",
+                        boxSizing: "border-box",
+                        display: "grid",
+                        placeItems: "center",
+                        transition: theme.transitions.create(
+                          ["transform", "box-shadow", "border-color"],
+                          { duration: theme.transitions.duration.shorter },
+                        ),
+                        "&:hover": { transform: "scale(1.08)" },
+                        "&:focus-visible": {
+                          outline: "none",
+                          boxShadow: `0 0 0 3px ${accentFocus}`,
+                        },
+                      }}
+                    >
+                      {selected && (
+                        <CheckIcon sx={{ color: "#fff", fontSize: 16 }} />
+                      )}
+                    </Box>
+                  );
+                })}
               </Box>
             </Box>
           </Stack>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenEditDialog(false)}>Cancel</Button>
+
+        <DialogActions sx={{ px: 3, pb: 3 }}>
+          <Button onClick={() => setOpenEditDialog(false)} disabled={isSaving}>
+            Cancel
+          </Button>
           <Button
             onClick={handleUpdatePlayer}
             variant="contained"
-            disabled={!editName}
+            disabled={isSaving}
+            sx={{ boxShadow: "none" }}
           >
-            Save
+            {isSaving ? "Saving..." : "Save changes"}
           </Button>
         </DialogActions>
       </Dialog>
-
-      <MoleskineCard sx={{ mb: 3, mt: 3 }}>
-        <Stack
-          direction="row"
-          justifyContent="space-between"
-          alignItems="center"
-          mb={2}
-        >
-          <Typography variant="subtitle2">Filters</Typography>
-          <ToggleButtonGroup
-            value={shotChartView}
-            exclusive
-            onChange={(_, val) => val && setShotChartView(val)}
-            size="small"
-          >
-            <ToggleButton value="markers">Markers</ToggleButton>
-            <ToggleButton value="heatmap">Heatmap</ToggleButton>
-          </ToggleButtonGroup>
-        </Stack>
-        <Stack
-          direction={{ xs: "column", sm: "row" }}
-          spacing={2}
-          alignItems="center"
-        >
-          <FormControl fullWidth size="small">
-            <InputLabel>Game</InputLabel>
-            <Select
-              value={selectedGameId}
-              label="Game"
-              onChange={(e) => setSelectedGameId(e.target.value as string)}
-            >
-              <MenuItem value="">All Games</MenuItem>
-              {games.map((g) => (
-                <MenuItem key={g.id} value={g.id!}>
-                  {g.opponent} ({g.date})
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <FormControl fullWidth size="small">
-            <InputLabel>Action Type</InputLabel>
-            <Select
-              value={selectedType}
-              label="Action Type"
-              onChange={(e) => setSelectedType(e.target.value)}
-            >
-              <MenuItem value="">All Actions</MenuItem>
-              <MenuItem value="MAKE">Makes</MenuItem>
-              <MenuItem value="MISS">Misses</MenuItem>
-              <MenuItem value="REBOUND">Total Rebounds</MenuItem>
-              <MenuItem value="OFF_REBOUND">Off. Rebounds</MenuItem>
-              <MenuItem value="DEF_REBOUND">Def. Rebounds</MenuItem>
-              <MenuItem value="ASSIST">Assists</MenuItem>
-              <MenuItem value="STEAL">Steals</MenuItem>
-              <MenuItem value="BLOCK">Blocks</MenuItem>
-              <MenuItem value="TURNOVER">Turnovers</MenuItem>
-            </Select>
-          </FormControl>
-          <ToggleButton
-            value="clutch"
-            selected={clutchFilter}
-            onChange={() => setClutchFilter(!clutchFilter)}
-            size="small"
-            color="primary"
-            sx={{
-              fontWeight: 800,
-              whiteSpace: "nowrap",
-              minWidth: 120,
-              bgcolor: clutchFilter ? "primary.main" : "transparent",
-              color: clutchFilter ? "white" : "primary.main",
-              "&:hover": {
-                bgcolor: clutchFilter
-                  ? "primary.dark"
-                  : "rgba(25, 118, 210, 0.04)",
-              },
-            }}
-          >
-            🔥 CLUTCH
-          </ToggleButton>
-        </Stack>
-      </MoleskineCard>
-
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={4}>
-          <Stack spacing={2}>
-            <StatCard label="Total Minutes" value={aggregates.min} />
-            <StatCard label="Total Points" value={aggregates.points} />
-            <Box
-              sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2 }}
-            >
-              <StatCard label="FG%" value={`${aggregates.fgPct}%`} />
-              <StatCard label="eFG%" value={`${aggregates.efgPct}%`} />
-              <StatCard
-                label="FG"
-                value={`${aggregates.makes}/${aggregates.attempts}`}
-              />
-              <StatCard
-                label="+/-"
-                value={
-                  aggregates.plusMinus > 0
-                    ? `+${aggregates.plusMinus}`
-                    : aggregates.plusMinus
-                }
-              />
-              <StatCard label="REB" value={aggregates.rebounds} />
-              <StatCard label="AST" value={aggregates.assists} />
-              <StatCard label="STL" value={aggregates.steals} />
-              <StatCard label="BLK" value={aggregates.blocks} />
-              <StatCard label="TO" value={aggregates.turnovers} />
-              <StatCard
-                label="OREB/DREB"
-                value={`${aggregates.offRebounds}/${aggregates.defRebounds}`}
-              />
-            </Box>
-          </Stack>
-        </Grid>
-        <Grid item xs={12} md={8}>
-          <MoleskineCard sx={{ p: 1 }}>
-            <BasketballCourt
-              markers={
-                shotChartView === "markers"
-                  ? filteredStats.map((s) => ({
-                      id: s.id,
-                      x: s.locationX || 0,
-                      y: s.locationY || 0,
-                      type: s.type,
-                    }))
-                  : []
-              }
-              heatmapData={
-                shotChartView === "heatmap" ? heatmapData : undefined
-              }
-            />
-          </MoleskineCard>
-        </Grid>
-        <Grid item xs={12}>
-          <TableContainer
-            component={MoleskineCard}
-            sx={{
-              mx: { xs: -2, sm: 0 },
-              width: { xs: "calc(100% + 32px)", sm: "100%" },
-            }}
-          >
-            <Table size="small">
-              <TableHead>
-                <TableRow sx={{ bgcolor: "rgba(0,0,0,0.02)" }}>
-                  <TableCell sx={{ fontWeight: 700, p: { xs: 1, sm: 2 } }}>
-                    Period
-                  </TableCell>
-                  <TableCell sx={{ fontWeight: 700, p: { xs: 1, sm: 2 } }}>
-                    Game
-                  </TableCell>
-                  <TableCell sx={{ fontWeight: 700, p: { xs: 1, sm: 2 } }}>
-                    Clock
-                  </TableCell>
-                  <TableCell sx={{ fontWeight: 700, p: { xs: 1, sm: 2 } }}>
-                    Action
-                  </TableCell>
-                  <TableCell
-                    sx={{ fontWeight: 700, p: { xs: 1, sm: 2 } }}
-                    align="right"
-                  >
-                    Pts
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {filteredStats
-                  .slice()
-                  .reverse()
-                  .map((stat) => {
-                    const g = games.find((g) => g.id === stat.gameId);
-                    const formatClock = (totalSeconds: number) => {
-                      const mins = Math.floor(totalSeconds / 60);
-                      const secs = totalSeconds % 60;
-                      return `${mins}:${secs.toString().padStart(2, "0")}`;
-                    };
-                    return (
-                      <TableRow key={stat.id} hover>
-                        <TableCell sx={{ p: { xs: 1, sm: 2 } }}>
-                          P{stat.period || 1}
-                        </TableCell>
-                        <TableCell sx={{ p: { xs: 1, sm: 2 } }}>
-                          {stat.clockTime !== undefined
-                            ? formatClock(stat.clockTime)
-                            : "-"}
-                        </TableCell>
-                        <TableCell sx={{ p: { xs: 1, sm: 2 } }}>
-                          <Typography
-                            variant="body2"
-                            sx={{
-                              fontSize: { xs: "0.75rem", sm: "0.875rem" },
-                              fontWeight: 500,
-                            }}
-                          >
-                            {g?.opponent || "Unknown"}
-                          </Typography>
-                        </TableCell>
-                        <TableCell sx={{ p: { xs: 1, sm: 2 } }}>
-                          <Typography
-                            variant="body2"
-                            sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
-                          >
-                            {stat.type}
-                          </Typography>
-                        </TableCell>
-                        <TableCell align="right" sx={{ p: { xs: 1, sm: 2 } }}>
-                          {stat.points || 0}
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Grid>
-      </Grid>
     </Box>
   );
 };
