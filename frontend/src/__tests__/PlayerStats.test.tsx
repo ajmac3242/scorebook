@@ -96,7 +96,9 @@ describe("PlayerStats Page", () => {
 
     renderComponent();
 
-    fireEvent.click(await screen.findByRole("button", { name: /edit player/i }));
+    fireEvent.click(
+      await screen.findByRole("button", { name: /edit player/i }),
+    );
 
     const nameInput = await screen.findByLabelText(/player name/i);
     fireEvent.change(nameInput, { target: { value: "Jacob Updated" } });
