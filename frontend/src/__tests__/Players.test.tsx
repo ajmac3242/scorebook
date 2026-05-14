@@ -63,7 +63,7 @@ describe("Players Component", () => {
     expect(await findPlayersTitle()).toBeInTheDocument();
     expect(
       screen.getByText(
-        /your notebook is empty|start by adding your first player/i,
+        /no active players|no players yet|your notebook is empty|start by adding your first/i,
       ),
     ).toBeInTheDocument();
   });
@@ -71,8 +71,8 @@ describe("Players Component", () => {
   it("renders list of players", async () => {
     mockDb.seed({
       players: [
-        { id: "p1", name: "John Doe", avatarColor: "red" },
-        { id: "p2", name: "Jane Smith", avatarColor: "blue" },
+        { id: "p1", name: "John Doe", avatarColor: "#ff0000" },
+        { id: "p2", name: "Jane Smith", avatarColor: "#0000ff" },
       ],
     });
 
