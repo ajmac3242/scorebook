@@ -13,8 +13,8 @@ import PlayerStats from "../pages/PlayerStats";
 import { mockDb } from "../dbMock";
 
 vi.mock("../components/BasketballCourt", () => ({
-  default: ({ shotChartView }: { shotChartView: string }) => (
-    <div data-testid="basketball-court">{shotChartView}</div>
+  default: ({ view }: { view: string }) => (
+    <div data-testid="basketball-court">{view}</div>
   ),
 }));
 
