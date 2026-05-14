@@ -29,8 +29,10 @@ export const TeamStatsCard = React.memo(
     activeSchemePpp?: string;
   }) => {
     const getRefAdvice = (fpm: number) => {
-      if (fpm > 0.8) return { text: "PLAY SOFT / AVOID REACHING", color: "error.main" };
-      if (fpm < 0.4 && fpm > 0) return { text: "PRESS HARD / BE AGGRESSIVE", color: "success.main" };
+      if (fpm > 0.8)
+        return { text: "PLAY SOFT / AVOID REACHING", color: "error.main" };
+      if (fpm < 0.4 && fpm > 0)
+        return { text: "PRESS HARD / BE AGGRESSIVE", color: "success.main" };
       return { text: "STANDARD DEFENSIVE PRESSURE", color: "text.secondary" };
     };
 
