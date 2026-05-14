@@ -336,3 +336,53 @@
 - [ ] Replace static Dashboard with a dynamic "My Team" hub driven by "Star Team" selection.
 - [ ] Implement a multi-step workflow for the `Create Game` dialog (Opponent -> Date/Time -> Settings).
 - [ ] Update `Edit Team Details` to include global game defaults (period lengths, foul limits, timeout counts).
+
+## [Live Timeout Huddle Snapshot]
+**Priority:** HIGH
+**Type:** Feature / UX
+**Why:** Coaches have only 60 seconds during a timeout. Surfacing the 3 most critical tactical data points (e.g., "Opponent Run PPP," "Our Best Active Lineup," and "Execution Gap") removes the mental fog of high-pressure moments.
+**What:** A dedicated "Huddle Mode" button in GameMode that opens a full-screen, high-contrast overlay with three actionable directives.
+**Acceptance Criteria:**
+- [ ] "One-Tap Huddle" button in GameMode.
+- [ ] Logic to identify the 3 most significant outliers (e.g., specific player hot/cold, specific scheme failure).
+- [ ] High-contrast, large-font UI designed to be readable from 3 feet away.
+
+## [Referee Situational Bias & Whistle Flow HUD]
+**Priority:** HIGH
+**Type:** Feature / Decision Support
+**Why:** Officiating is often inconsistent across different game contexts (e.g., "Calling it tight on drives" vs "Letting them play in transition"). Identifying these patterns allows coaches to adjust aggression.
+**What:** Enhance the Referee Profile to track foul frequency by action type (Drives, Post-ups, Perimeter) and period-over-period whistle flow.
+**Acceptance Criteria:**
+- [ ] "Whistle Flow" chart showing Fouls Per Possession over the course of the game.
+- [ ] "Bias Indicator" identifying if fouls are disproportionately called against a specific player or action type.
+- [ ] Alert: "Refs calling perimeter hand-checks tight; adjust defense."
+
+## [Rim Pressure 'Gravity' & Kick-Out Analytics]
+**Priority:** HIGH
+**Type:** Enhancement / Analytics
+**Why:** Paint touches are valuable not just for shots, but for "Gravity"—collapsing the defense to create open 3s. Identifying who generates the most "Gravity" (assists/hockey assists from the paint) reveals the true offensive engines.
+**What:** Correlate Paint Touch events with subsequent assists and secondary assists to calculate a "Rim Gravity Index."
+**Acceptance Criteria:**
+- [ ] "Rim Gravity" metric in GameStats: (Assists from Paint / Total Paint Touches).
+- [ ] Visualization showing "Gravity Paths" (Paint touch to corner 3 assist).
+- [ ] Identification of the team's "Primary Paint Collapser."
+
+## [Predictive Rotation 'Red-Line' Fatigue Advisor]
+**Priority:** HIGH
+**Type:** Feature / Decision Support
+**Why:** A player's performance often "cliffs" before they look visibly tired. Predictive modeling using cumulative game minutes and intensity (stats per minute) can identify the "Red-Line" before it costs points.
+**What:** A fatigue advisor that uses stint history and live performance metrics to predict when a player's efficiency is likely to drop.
+**Acceptance Criteria:**
+- [ ] "Efficiency Red-Line" indicator on the bench/lineup cards.
+- [ ] Predictive "Minutes Remaining" before recommended sub based on cumulative game load.
+- [ ] Alert: "Player X is approaching Red-Line; Efficiency expected to drop by 15%."
+
+## [Opponent Tendency 'Scouting Badge' Overlay]
+**Priority:** HIGH
+**Type:** Feature / UX
+**Why:** Scouting reports are useless if the coach has to look away from the court to remember them. Surfacing tendencies (e.g., "Drives Left 80%") directly on the live tracking card keeps the game plan in focus.
+**What:** Integrate persistent scouting data into the live GameMode opponent cards as high-visibility "Tendency Badges."
+**Acceptance Criteria:**
+- [ ] "Tendency Badges" (e.g., "LEFTY", "STRETCH 4", "SHOOTER") on opponent tracking cards.
+- [ ] Dynamic badge updates if the opponent deviates from season tendencies during the live game.
+- [ ] One-tap access to the full scouting report for that specific player from the GameMode.

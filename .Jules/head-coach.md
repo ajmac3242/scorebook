@@ -125,3 +125,11 @@ Observation: We have perfected the "Physical" tracking (shots, rebounds) and the
 Impact: Coaches are still manually tracking "Kills" on paper or in their heads, diverting focus from the court. Roster decisions in "Winning Time" are often based on season-wide reputation rather than live-game clutch data. The lack of On/Off analytics prevents identifying "Silent Contributors" who have a low box-score profile but high unit-level impact.
 
 Recommendation: Transition toward **Personnel Optimization** and **Momentum Management**. We must surface "Defensive Kills" as a primary live metric to drive team energy. We must also deliver "On/Off Net Rating" live to ensure coaches know the true cost of resting a high-impact player. Finally, the "Process vs Result" scorecard is essential to keep the team focused on execution quality even when shots aren't falling.
+
+## 2025-05-31 - Strategic Command: From Data Clarity to Decision Automation
+
+Observation: We have achieved a high degree of "Data Clarity"—the engine correctly captures and calculates complex metrics like PPP, eFG%, and Net Rating. However, the next leap for CourtSight is "Decision Automation." Coaches in high-leverage situations (like a 60-second timeout) do not have the time to synthesize these metrics. They need the system to pre-digest the data and deliver a "Huddle Snapshot" of exactly what needs to change. Furthermore, we are missing the "Environmental" layer of the game—the officiating flow and how it impacts tactical aggression.
+
+Impact: Without automated synthesis, the "Data-to-Action" loop remains too long. A coach might realize their zone defense is failing 3 possessions too late. By automating the identification of outliers (e.g., specific matchup failure or referee bias), we move from being a "Dashboard" to being a "Strategic Partner."
+
+Recommendation: Pivot the roadmap toward **Operational Intelligence** and **Predictive Decision Support**. Prioritize the "Live Timeout Huddle Snapshot" for high-pressure synthesis and the "Referee Situational Bias HUD" to manage tactical aggression. We must also deepen our understanding of offensive flow by tracking "Rim Gravity" (how paint touches generate open 3s) to identify the true catalysts of our scoring runs. This transition ensures CourtSight is not just recording the game, but helping win it.
