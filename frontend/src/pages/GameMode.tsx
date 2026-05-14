@@ -804,30 +804,59 @@ const GameMode: React.FC = () => {
     setIsAuditDialogOpen(true);
   }, [setIsAuditDialogOpen]);
 
-  const handleTogglePossession = useCallback(async () => {
+  const handleTogglePossession = useCallback(
+    async (manualTarget?: string) => {
+      if (!gameId || isReadOnly) return;
+
+      const targetTeam =
+        manualTarget ||
+        (gameData.possessionState === SPECIAL_PLAYER_IDS.OUR_TEAM
+          ? SPECIAL_PLAYER_IDS.OPPONENT
+          : SPECIAL_PLAYER_IDS.OUR_TEAM);
+
+      try {
+        await db.stats.add({
+          id: crypto.randomUUID(),
+          gameId: gameId,
+          playerId: targetTeam,
+          type: ACTION_TYPES.POSSESSION,
+          period,
+          clockTime: clockSeconds,
+          timestamp: new Date().toISOString(),
+          synced: 0,
+        });
+        await syncService.pushUpdates();
+      } catch (err) {
+        logger.error("Failed to toggle possession:", err);
+      }
+    },
+    [gameId, isReadOnly, period, gameData.possessionState, clockSeconds],
+  );
+
+  const handleOpponentTurnover = useCallback(async () => {
     if (!gameId || isReadOnly) return;
-
-    const targetTeam =
-      gameData.possessionState === SPECIAL_PLAYER_IDS.OUR_TEAM
-        ? SPECIAL_PLAYER_IDS.OPPONENT
-        : SPECIAL_PLAYER_IDS.OUR_TEAM;
-
     try {
       await db.stats.add({
         id: crypto.randomUUID(),
-        gameId: gameId,
-        playerId: targetTeam,
-        type: ACTION_TYPES.POSSESSION,
+        gameId,
+        playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+        type: ACTION_TYPES.TURNOVER,
         period,
         clockTime: clockSeconds,
         timestamp: new Date().toISOString(),
         synced: 0,
       });
-      await syncService.pushUpdates();
+      // Auto-flip possession to Our Team after an opponent turnover
+      await handleTogglePossession(SPECIAL_PLAYER_IDS.OUR_TEAM);
+      setSnackbar({
+        open: true,
+        message: "Opponent turnover recorded",
+        severity: "success",
+      });
     } catch (err) {
-      logger.error("Failed to toggle possession:", err);
+      logger.error("Failed to record opponent turnover:", err);
     }
-  }, [gameId, isReadOnly, period, gameData.possessionState, clockSeconds]);
+  }, [gameId, isReadOnly, period, clockSeconds, handleTogglePossession]);
 
   const handleChainAction = useCallback(
     async (pId: string, type: string) => {
@@ -1015,6 +1044,7 @@ const GameMode: React.FC = () => {
                 onTimeout={handleTimeout}
                 onNextPeriod={handleNextPeriod}
                 onTogglePossession={() => handleTogglePossession()}
+                onOpponentTurnover={handleOpponentTurnover}
                 possessionState={gameData.possessionState}
                 recentStatsLength={gameData.recentStats.length}
                 onEndGame={() => setIsEndGameDialogOpen(true)}

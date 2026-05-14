@@ -196,9 +196,9 @@
 **Why:** Referee "tightness" (fouls per minute) and bias (home/away split) should dictate how aggressive a team plays. A coach who knows the ref is calling it tight can adjust defensive pressure before foul trouble hits.
 **What:** An intelligence layer that analyzes the frequency and distribution of fouls called by the current officiating crew.
 **Acceptance Criteria:**
-- [ ] "Ref Tightness Meter" in GameMode comparing current game Fouls Per Minute (FPM) against a historical baseline.
+- [x] "Ref Tightness Meter" in GameMode comparing current game Fouls Per Minute (FPM) against a historical baseline.
 - [ ] "Foul Bias" indicator showing the split between Our Team vs Opponent fouls.
-- [ ] "Aggression Advisor" suggesting "Press Hard" or "Play Soft" based on FPM.
+- [x] "Aggression Advisor" suggesting "Press Hard" or "Play Soft" based on FPM.
 
 ## [ ] Program-Wide "Tactical DNA" Comparison
 **Priority:** HIGH
@@ -311,10 +311,10 @@
 **Why:** Box scores are static. A flow chart shows *when* the game was won or lost and how specific lineups affected the lead.
 **What:** Add a "Game Flow" visualization to the `GameStats` page—a line graph showing the point spread over the course of the game clock.
 **Acceptance Criteria:**
-- [ ] Interactive line chart showing `Our Score - Opponent Score` on the Y-axis and `Game Time` on the X-axis.
-- [ ] Mark key events on the timeline (Timeouts, Period ends).
-- [ ] Hovering over the line shows the score and active lineup at that specific time.
-- [ ] Color-code the background to show who was "in control" (e.g., blue for home lead, red for away lead).
+- [x] Interactive line chart showing `Our Score - Opponent Score` on the Y-axis and `Game Time` on the X-axis.
+- [x] Mark key events on the timeline (Timeouts, Period ends).
+- [x] Hovering over the line shows the score and active lineup at that specific time.
+- [x] Color-code the background to show who was "in control" (e.g., blue for home lead, red for away lead).
 
 ## [ ] Multi-Game Lineup Net Rating Analytics
 **Priority:** MEDIUM

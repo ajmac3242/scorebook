@@ -28,6 +28,14 @@ export const TeamStatsCard = React.memo(
     refTightness?: number;
     activeSchemePpp?: string;
   }) => {
+    const getRefAdvice = (fpm: number) => {
+      if (fpm > 0.8) return { text: "PLAY SOFT / AVOID REACHING", color: "error.main" };
+      if (fpm < 0.4 && fpm > 0) return { text: "PRESS HARD / BE AGGRESSIVE", color: "success.main" };
+      return { text: "STANDARD DEFENSIVE PRESSURE", color: "text.secondary" };
+    };
+
+    const advice = getRefAdvice(refTightness || 0);
+
     return (
       <MoleskineCard>
         <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 2 }}>
@@ -67,6 +75,20 @@ export const TeamStatsCard = React.memo(
                 </Typography>
               </Box>
             </Tooltip>
+            <Typography
+              variant="caption"
+              sx={{
+                display: "block",
+                textAlign: "center",
+                fontWeight: 800,
+                fontSize: "0.55rem",
+                mt: 0.5,
+                color: advice.color,
+                lineHeight: 1.1,
+              }}
+            >
+              {advice.text}
+            </Typography>
           </Grid>
           <Grid item xs={6}>
             <Box
