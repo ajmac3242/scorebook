@@ -61,10 +61,9 @@ describe("Players Component", () => {
     renderComponent();
 
     expect(await findPlayersTitle()).toBeInTheDocument();
+    expect(screen.getByText(/^No players yet$/i)).toBeInTheDocument();
     expect(
-      screen.getByText(
-        /no active players|no players yet|your notebook is empty|start by adding your first/i,
-      ),
+      screen.getByRole("button", { name: /create first player/i }),
     ).toBeInTheDocument();
   });
 
