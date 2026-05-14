@@ -255,39 +255,112 @@ describe("impact analytics", () => {
     it("should track stops and kills", () => {
       const stats: StatEvent[] = [
         {
-          id: "s1",
           gameId: "g1",
           playerId: SPECIAL_PLAYER_IDS.OPPONENT,
           type: ACTION_TYPES.TURNOVER,
           period: 1,
-          clockTime: 600,
-          timestamp: "2026-01-01T00:00:00Z",
-          synced: 1,
+          timestamp: "1",
         },
         {
-          id: "s2",
           gameId: "g1",
           playerId: SPECIAL_PLAYER_IDS.OPPONENT,
           type: ACTION_TYPES.TURNOVER,
           period: 1,
-          clockTime: 500,
-          timestamp: "2026-01-01T00:00:01Z",
-          synced: 1,
+          timestamp: "2",
         },
         {
-          id: "s3",
           gameId: "g1",
           playerId: SPECIAL_PLAYER_IDS.OPPONENT,
           type: ACTION_TYPES.TURNOVER,
           period: 1,
-          clockTime: 400,
-          timestamp: "2026-01-01T00:00:02Z",
-          synced: 1,
+          timestamp: "3",
         },
       ];
       const result = calculateStopsAndKills(stats);
       expect(result.totalStops).toBe(3);
       expect(result.totalKills).toBe(1);
+    });
+
+    it("should reset streak on opponent make", () => {
+      const stats: StatEvent[] = [
+        {
+          gameId: "g1",
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.TURNOVER,
+          period: 1,
+          timestamp: "1",
+        },
+        {
+          gameId: "g1",
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.TURNOVER,
+          period: 1,
+          timestamp: "2",
+        },
+        {
+          gameId: "g1",
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.MAKE,
+          points: 2,
+          period: 1,
+          timestamp: "3",
+        },
+        {
+          gameId: "g1",
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.TURNOVER,
+          period: 1,
+          timestamp: "4",
+        },
+      ];
+      const result = calculateStopsAndKills(stats);
+      expect(result.totalStops).toBe(3);
+      expect(result.totalKills).toBe(0);
+      expect(result.currentStreak).toBe(1);
+    });
+
+    it("should count defensive rebound as a stop", () => {
+      const stats: StatEvent[] = [
+        {
+          gameId: "g1",
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.MISS,
+          period: 1,
+          timestamp: "1",
+        },
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.DEF_REBOUND,
+          period: 1,
+          timestamp: "2",
+        },
+      ];
+      const result = calculateStopsAndKills(stats);
+      expect(result.totalStops).toBe(1);
+      expect(result.currentStreak).toBe(1);
+    });
+
+    it("should reset streak on technical foul", () => {
+      const stats: StatEvent[] = [
+        {
+          gameId: "g1",
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+          type: ACTION_TYPES.TURNOVER,
+          period: 1,
+          timestamp: "1",
+        },
+        {
+          gameId: "g1",
+          playerId: "p1",
+          type: ACTION_TYPES.TECHNICAL_FOUL,
+          period: 1,
+          timestamp: "2",
+        },
+      ];
+      const result = calculateStopsAndKills(stats);
+      expect(result.totalStops).toBe(1);
+      expect(result.currentStreak).toBe(0);
     });
   });
 });
