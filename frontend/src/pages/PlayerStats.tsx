@@ -1,4 +1,3 @@
-// frontend/src/pages/PlayerStats.tsx
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import {
@@ -52,7 +51,7 @@ import { useTeams } from "../hooks/useTeams";
 import { AVATAR_COLORS } from "../constants/colors";
 import { logger } from "../utils/logger";
 
-const SHOT_EVENT_TYPES = [
+const ACTION_TYPES = [
   "MAKE",
   "MISS",
   "REBOUND",
@@ -245,7 +244,7 @@ const PlayerStats: React.FC = () => {
       const teamPlayer = teamPlayers.find(
         (tp) => tp.teamId.toString() === teamIdParam.toString(),
       );
-      return teamPlayer?.jerseyNumber ?? "";
+      return tp?.jerseyNumber ?? "";
     }
     return "";
   };
@@ -258,15 +257,7 @@ const PlayerStats: React.FC = () => {
   const accentFocus = alpha(accent, 0.22);
   const jerseyNumber = getJerseyNumber();
 
-  const filteredEvents = useMemo(() => {
-    const result = [...filteredStats];
-    result.sort((a, b) => {
-      const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-      const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-      return bTime - aTime;
-    });
-    return result;
-  }, [filteredStats]);
+  const filteredEvents = filteredStats;
 
   const handleOpenEdit = () => {
     setEditName(player?.name || "");
@@ -522,7 +513,7 @@ const PlayerStats: React.FC = () => {
                     <MenuItem value="">All Games</MenuItem>
                     {games.map((game) => (
                       <MenuItem key={game.id} value={game.id}>
-                        {game.opponentName || game.name || game.id}
+                        {game.opponent || game.id}
                       </MenuItem>
                     ))}
                   </Select>
@@ -543,7 +534,7 @@ const PlayerStats: React.FC = () => {
                     }}
                   >
                     <MenuItem value="">All Actions</MenuItem>
-                    {SHOT_EVENT_TYPES.map((type) => (
+                    {ACTION_TYPES.map((type) => (
                       <MenuItem key={type} value={type}>
                         {type}
                       </MenuItem>
@@ -597,7 +588,7 @@ const PlayerStats: React.FC = () => {
 
             {selectedGame && (
               <Chip
-                label={`Selected game: ${selectedGame.opponentName || selectedGame.name || selectedGame.id}`}
+                label={`Selected game: ${selectedGame.opponent || selectedGame.id}`}
                 size="small"
                 sx={{
                   alignSelf: "flex-start",
@@ -615,8 +606,8 @@ const PlayerStats: React.FC = () => {
           {isDeleted && (
             <Alert severity="warning" icon={<Warning />} sx={{ mb: 3 }}>
               <AlertTitle>Pending Deletion</AlertTitle>
-              This player is scheduled for deletion in{" "}
-              <strong>{timeLeft}</strong>. Restore them from the Players list.
+              This player is scheduled for deletion in <strong>{timeLeft}</strong>.
+              Restore them from the Players list.
             </Alert>
           )}
 
@@ -677,8 +668,7 @@ const PlayerStats: React.FC = () => {
                     <Box>
                       <Typography sx={statLabelSx}>Scope</Typography>
                       <Typography variant="body2" color="text.secondary">
-                        {currentTeam?.name ||
-                          "Career totals across visible games"}
+                        {currentTeam?.name || "Career totals across visible games"}
                       </Typography>
                     </Box>
 
@@ -686,8 +676,8 @@ const PlayerStats: React.FC = () => {
                       <Typography sx={statLabelSx}>Filters</Typography>
                       <Typography variant="body2" color="text.secondary">
                         {selectedType || "All action types"} ·{" "}
-                        {selectedGameId ? "Single game selected" : "All games"}{" "}
-                        · {clutchFilter ? "Clutch only" : "All situations"}
+                        {selectedGameId ? "Single game selected" : "All games"} ·{" "}
+                        {clutchFilter ? "Clutch only" : "All situations"}
                       </Typography>
                     </Box>
 
@@ -754,8 +744,8 @@ const PlayerStats: React.FC = () => {
                   }}
                 >
                   <BasketballCourt
-                    stats={filteredStats}
-                    mode={shotChartView}
+                    shotChartView={shotChartView}
+                    filteredStats={filteredStats}
                     heatmapData={heatmapData}
                   />
                 </Box>
@@ -783,8 +773,7 @@ const PlayerStats: React.FC = () => {
                 >
                   <Typography variant="h6">Action Log</Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Detailed event history for the current player and filter
-                    set.
+                    Detailed event history for the current player and filter set.
                   </Typography>
                 </Box>
 
@@ -805,10 +794,7 @@ const PlayerStats: React.FC = () => {
                         <TableRow>
                           <TableCell colSpan={6}>
                             <Box sx={{ py: 4, textAlign: "center" }}>
-                              <Typography
-                                variant="body2"
-                                color="text.secondary"
-                              >
+                              <Typography variant="body2" color="text.secondary">
                                 No actions match the current filters.
                               </Typography>
                             </Box>
@@ -819,15 +805,9 @@ const PlayerStats: React.FC = () => {
                           const game = games.find((g) => g.id === event.gameId);
 
                           return (
-                            <TableRow
-                              key={`${event.gameId}-${event.id || index}`}
-                            >
+                            <TableRow key={`${event.gameId}-${index}`}>
                               <TableCell>{event.type}</TableCell>
-                              <TableCell>
-                                {game?.opponentName ||
-                                  game?.name ||
-                                  event.gameId}
-                              </TableCell>
+                              <TableCell>{game?.opponent || event.gameId}</TableCell>
                               <TableCell>{event.period || "-"}</TableCell>
                               <TableCell>{event.clockTime || "-"}</TableCell>
                               <TableCell align="right">
