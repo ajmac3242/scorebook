@@ -1,6 +1,6 @@
-# Welcome to Scorebook - Basketball
+# Welcome to CourtSight - Basketball
 
-Scorebook is a mobile-first, offline-ready basketball statistics tracking application designed as a **Tactical Operating System**. It moves beyond raw stats to provide **Causal Accountability**—helping coaches understand the *why* behind game events through environmental factors, tactical breakdown attribution, and real-time strategic advising.
+CourtSight is a mobile-first, offline-ready basketball statistics tracking application designed as a **Tactical Operating System**. It moves beyond raw stats to provide **Causal Accountability**—helping coaches understand the *why* behind game events through environmental factors, tactical breakdown attribution, and real-time strategic advising.
 
 ## Tech Stack
 
@@ -25,12 +25,12 @@ Scorebook is a mobile-first, offline-ready basketball statistics tracking applic
 ## Architecture
 
 ### Causal Accountability
-Scorebook is built on the principle of **Causal Accountability**. Standard box scores tell you *what* happened; Scorebook tells you *why*. By capturing the environmental and tactical context of every action, Scorebook transforms raw data into actionable coaching intelligence.
+CourtSight is built on the principle of **Causal Accountability**. Standard box scores tell you *what* happened; CourtSight tells you *why*. By capturing the environmental and tactical context of every action, CourtSight transforms raw data into actionable coaching intelligence.
 
-- **Matchup Tracking & Efficiency Matrix**: Move beyond team-level defensive stats. Scorebook attributes every opponent bucket to a primary defender, generating a real-time **Holistic Matchup Matrix**. This identifies exactly which 1-on-1 battles are being won or lost, allowing for surgical defensive adjustments.
+- **Matchup Tracking & Efficiency Matrix**: Move beyond team-level defensive stats. CourtSight attributes every opponent bucket to a primary defender, generating a real-time **Holistic Matchup Matrix**. This identifies exactly which 1-on-1 battles are being won or lost, allowing for surgical defensive adjustments.
 - **On/Off Impact Analytics**: Measure a player's true value using high-fidelity Net Rating. See how the team's offensive and defensive efficiency fluctuates when specific players or 5-man units are on the floor versus on the bench.
 - **Shot Clock Process Analysis**: Evaluate offensive discipline by categorizing shots into **Early** (first 10s), **Mid**, or **Late** (final 5s) clock phases. This helps coaches identify if the team is settling for "rush" shots or successfully executing deep into the set.
-- **Defensive Breakdown Attribution**: When an opponent scores, Scorebook prompts for a "Breakdown Reason" (e.g., *Missed Rotation*, *Transition Leak*, *Poor Closeout*). This creates a direct feedback loop between game events and practice focus.
+- **Defensive Breakdown Attribution**: When an opponent scores, CourtSight prompts for a "Breakdown Reason" (e.g., *Missed Rotation*, *Transition Leak*, *Poor Closeout*). This creates a direct feedback loop between game events and practice focus.
 - **Special Situation Engine (ATO/SLOB/BLOB)**: Track efficiency (PPP and eFG%) specifically for possessions following timeouts or out-of-bounds plays to measure the effectiveness of your set-play execution.
 
 ### Modular Backend
@@ -56,7 +56,7 @@ To optimize read performance and reduce DynamoDB costs:
 ## Development Workflow
 
 ### Agent-Based Development
-Scorebook is maintained through an autonomous agent-centric model using **Jules**. Each agent has a specific persona and area of ownership, ensuring high code quality and documentation standards.
+CourtSight is maintained through an autonomous agent-centric model using **Jules**. Each agent has a specific persona and area of ownership, ensuring high code quality and documentation standards.
 
 Coordination is managed through the `.Jules/` directory:
 - **backlog.md**: The "Source of Truth" for project status, containing the active roadmap and feature acceptance criteria.

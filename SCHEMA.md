@@ -38,7 +38,20 @@ All write endpoints (`POST`, `PUT`, `PATCH`) require `Content-Type: application/
 
 #### `GET /teams`
 - **Description**: List all active teams.
-- **Response**: `200 OK` with an array of Team objects.
+- **Response**: `200 OK`
+- **Response Body**:
+```json
+[
+  {
+    "id": "team-uuid",
+    "name": "Warriors",
+    "description": "City High Varsity",
+    "primaryColor": "#1D428A",
+    "fouls": 5,
+    "isFavorite": 1
+  }
+]
+```
 
 #### `POST /teams`
 - **Description**: Create a team.
@@ -51,22 +64,43 @@ All write endpoints (`POST`, `PUT`, `PATCH`) require `Content-Type: application/
   "fouls": 5
 }
 ```
-- **Response**: `201 Created` with the created Team object.
+- **Response**: `201 Created`
+- **Response Body**:
+```json
+{
+  "id": "generated-uuid",
+  "name": "Warriors",
+  "description": "City High Varsity",
+  "primaryColor": "#1D428A",
+  "fouls": 5
+}
+```
 
 #### `DELETE /teams/{id}`
 - **Description**: Soft delete a team.
 - **Response**: `200 OK`
+- **Response Body**: `{ "message": "Item deleted" }`
 
 #### `PATCH /teams/{id}`
 - **Description**: Restore a deleted team.
 - **Request Body**: `{ "deletedAt": null }`
 - **Response**: `200 OK`
+- **Response Body**: `{ "message": "Item restored" }`
 
 ### Team Players (Roster)
 
 #### `GET /teams/{teamId}/players`
 - **Description**: List players assigned to a team.
-- **Response**: `200 OK` with an array of TeamPlayer objects.
+- **Response**: `200 OK`
+- **Response Body**:
+```json
+[
+  {
+    "playerId": "player-uuid",
+    "jerseyNumber": "30"
+  }
+]
+```
 
 #### `POST /teams/{teamId}/players`
 - **Description**: Add player to team roster.
@@ -77,45 +111,90 @@ All write endpoints (`POST`, `PUT`, `PATCH`) require `Content-Type: application/
   "jerseyNumber": "30"
 }
 ```
-- **Response**: `201 Created` with the association object.
+- **Response**: `201 Created`
+- **Response Body**:
+```json
+{
+  "playerId": "uuid-v4-string",
+  "jerseyNumber": "30"
+}
+```
 
 #### `DELETE /teams/{teamId}/players/{playerId}`
 - **Description**: Remove player from team (soft delete association).
 - **Response**: `200 OK`
+- **Response Body**: `{ "message": "Item deleted" }`
 
 ### Players
 
 #### `GET /players`
 - **Description**: List all active players.
-- **Response**: `200 OK` with an array of Player objects.
+- **Response**: `200 OK`
+- **Response Body**:
+```json
+[
+  {
+    "id": "player-uuid",
+    "name": "Stephen Curry",
+    "avatarColor": "blue",
+    "isStar": 1
+  }
+]
+```
 
 #### `POST /players`
 - **Description**: Create a global player entity.
 - **Request Body**:
 ```json
 {
-  "name": "Stephen Curry"
+  "name": "Stephen Curry",
+  "avatarColor": "blue",
+  "isStar": 1
 }
 ```
-- **Response**: `201 Created` with the created Player object.
+- **Response**: `201 Created`
+- **Response Body**:
+```json
+{
+  "id": "generated-uuid",
+  "name": "Stephen Curry",
+  "avatarColor": "blue",
+  "isStar": 1
+}
+```
 
 #### `DELETE /players/{id}`
 - **Description**: Soft delete a player.
 - **Query Params**: `?archive=true` - Transitions player to an archived state instead of soft deletion.
 - **Response**: `200 OK`
+- **Response Body**: `{ "message": "Item archived" }` (if archive=true) or `{ "message": "Item deleted" }`
 
 #### `PATCH /players/{id}`
 - **Description**: Update/Restore a player.
 - **Request Body (Restore from Soft Delete)**: `{ "deletedAt": null }`
 - **Request Body (Restore from Archive)**: `{ "isArchived": 0 }`
 - **Response**: `200 OK`
+- **Response Body**: `{ "message": "Item restored" }`
 
 ### Games
 
 #### `GET /games?teamId={id}`
 - **Description**: List games for a specific team.
 - **Query Params**: `teamId` (Required UUID)
-- **Response**: `200 OK` with an array of Game objects.
+- **Response**: `200 OK`
+- **Response Body**:
+```json
+[
+  {
+    "id": "game-uuid",
+    "teamId": "team-uuid",
+    "opponent": "Lakers",
+    "date": "2024-11-15",
+    "location": "Home",
+    "completed": 0
+  }
+]
+```
 
 #### `POST /games`
 - **Description**: Create a new game.
@@ -132,25 +211,43 @@ All write endpoints (`POST`, `PUT`, `PATCH`) require `Content-Type: application/
 }
 ```
 - **Response**: `201 Created`
+- **Response Body**:
+```json
+{
+  "id": "generated-uuid",
+  "teamId": "team-uuid",
+  "opponent": "Lakers",
+  "location": "Home",
+  "date": "2024-11-15",
+  "time": "19:00",
+  "periodLength": 8,
+  "foulLimit": 5,
+  "completed": 0
+}
+```
 
 #### `DELETE /games/{id}`
 - **Description**: Soft delete a game.
 - **Response**: `200 OK`
+- **Response Body**: `{ "message": "Item deleted" }`
 
 #### `PATCH /games/{id}`
 - **Description**: Restore a deleted game.
 - **Request Body**: `{ "deletedAt": null }`
 - **Response**: `200 OK`
+- **Response Body**: `{ "message": "Game restored" }`
 
 #### `POST /games/{id}/complete`
 - **Description**: Mark a game as completed. Triggers final S3 snapshot.
 - **Response**: `200 OK`
+- **Response Body**: `{ "message": "Game completed" }`
 
 ### Game Stats
 
 #### `GET /games/{id}/stats`
 - **Description**: List all stats for a game.
-- **Response**: `200 OK` with an array of StatEvent objects.
+- **Response**: `200 OK`
+- **Response Body**: An array of StatEvent objects.
 
 #### `POST /games/{id}/stats`
 - **Description**: Record a stat event.
@@ -166,10 +263,14 @@ All write endpoints (`POST`, `PUT`, `PATCH`) require `Content-Type: application/
   "locationY": 25.0,
   "situation": "ATO",
   "shotClockPhase": "MID",
-  "primaryDefenderId": "defender-uuid"
+  "primaryDefenderId": "defender-uuid",
+  "defensiveScheme": "MAN",
+  "opponentPlayType": "PnR",
+  "breakdownReason": "Missed Rotation"
 }
 ```
 - **Response**: `201 Created`
+- **Response Body**: The recorded StatEvent object (with generated `id` and `timestamp`).
 
 #### Stat Event Field Definitions
 
@@ -177,6 +278,8 @@ All write endpoints (`POST`, `PUT`, `PATCH`) require `Content-Type: application/
   - `UUID`: Standard for registered team players.
   - `OPPONENT`: General tracking for unidentified opponents.
   - `OPPONENT:{jersey}`: Specific opponent identified by jersey number (e.g., `OPPONENT:12`).
+- **type**: The type of action performed.
+  - `MAKE`, `MISS`, `REBOUND`, `OFF_REBOUND`, `DEF_REBOUND`, `ASSIST`, `STEAL`, `TURNOVER`, `BLOCK`, `FOUL`, `FOUL_SHOOTING`, `FOUL_NON_SHOOTING`, `TIMEOUT`, `SUB_IN`, `SUB_OUT`, `POSSESSION`, `TECHNICAL_FOUL`
 - **situation**: Tactical context of the possession.
   - `ATO`: After Time Out
   - `SLOB`: Sideline Out of Bounds
@@ -200,6 +303,7 @@ All write endpoints (`POST`, `PUT`, `PATCH`) require `Content-Type: application/
 - **Description**: Hard delete soft-deleted items older than 24 hours.
 - **Headers**: `x-api-key`: Admin API Key (Min 16 characters).
 - **Response**: `200 OK`
+- **Response Body**: `{ "message": "Cleanup complete" }`
 
 ---
 

@@ -64,7 +64,7 @@ Recommendation: Immediately restore the missing "Ghost" features to the active b
 
 ## 2026-05-27 - Strategic Frontier: From Recording Results to Mastering the Process
 
-Observation: A comprehensive audit of the codebase vs. the backlog reveals that we have successfully transitioned from a "Digital Scorebook" to a "Tactical Operating System." We have sophisticated engines for PPP, eFG%, Lineup Net Rating, and even momentum alerts (Droughts/Runs). However, we have discovered a layer of "Silent Logic"—engines like the Ref-Identity Conflict Alert and HALT are implemented but not yet fully surfaced as persistent, high-visibility UI elements in the `GameMode`. Furthermore, our tracking is still heavily "Result-Based" (Makes/Misses) rather than "Process-Based" (Paint Touches, Hockey Assists).
+Observation: A comprehensive audit of the codebase vs. the backlog reveals that we have successfully transitioned from a "Digital CourtSight" to a "Tactical Operating System." We have sophisticated engines for PPP, eFG%, Lineup Net Rating, and even momentum alerts (Droughts/Runs). However, we have discovered a layer of "Silent Logic"—engines like the Ref-Identity Conflict Alert and HALT are implemented but not yet fully surfaced as persistent, high-visibility UI elements in the `GameMode`. Furthermore, our tracking is still heavily "Result-Based" (Makes/Misses) rather than "Process-Based" (Paint Touches, Hockey Assists).
 
 Impact: Coaches are getting the *what* and the *when*, but they are still missing the *how* of offensive flow. A team can have a high eFG% while having zero paint touches, which is an unsustainable process. Similarly, we attribute defensive breakdowns to "Missed Rotations," but we don't yet aggregate these failures into individual accountability metrics that drive personnel decisions.
 
@@ -84,7 +84,7 @@ Observation: A deep audit revealed that high-impact coaching features (HALT, On/
 
 Impact: The platform currently excels at data collection but lags in automated tactical intervention. Coaches are still manually tracking matchups and officiating tightness, which increases cognitive load during high-pressure game moments.
 
-Recommendation: Restore and prioritize the "Ghost" features. Specifically, focus on the HALT system for immediate risk management and On/Off Analytics for longitudinal roster optimization. This shift moves the platform from a "Digitized Scorebook" to a true "Tactical Command Center."
+Recommendation: Restore and prioritize the "Ghost" features. Specifically, focus on the HALT system for immediate risk management and On/Off Analytics for longitudinal roster optimization. This shift moves the platform from a "Digitized CourtSight" to a true "Tactical Command Center."
 
 ## 2026-05-25 - Strategic Pivot: Causal Accountability & Decision Support
 
@@ -112,7 +112,7 @@ Recommendation: The next development phase must move beyond raw aggregates into 
 
 ## 2026-05-28 - Strategic Shift: Surfacing the "Silent Logic"
 
-Observation: The platform has achieved "Scorebook Maturity," with sophisticated engines for PPP, eFG%, and real-time alerts. However, my audit revealed a layer of "Silent Logic"—engines like HALT and Ref-Identity Conflict alerts are technically implemented but remain largely hidden or passive within the `GameMode` interface. We are calculating the risks but not always forcing the intervention.
+Observation: The platform has achieved "CourtSight Maturity," with sophisticated engines for PPP, eFG%, and real-time alerts. However, my audit revealed a layer of "Silent Logic"—engines like HALT and Ref-Identity Conflict alerts are technically implemented but remain largely hidden or passive within the `GameMode` interface. We are calculating the risks but not always forcing the intervention.
 
 Impact: Without high-visibility, actionable UI for these alerts, the coach's cognitive load remains high as they must manually hunt for the "why" behind a tactical failure. "Silent Logic" leads to missed opportunities for mid-game course correction.
 
