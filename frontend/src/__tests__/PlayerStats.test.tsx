@@ -64,7 +64,7 @@ describe("PlayerStats Page", () => {
     expect(await screen.findByText(/^Jacob$/i)).toBeInTheDocument();
     expect(screen.getByText(/career stats/i)).toBeInTheDocument();
     expect(screen.getByText(/summary/i)).toBeInTheDocument();
-    expect(screen.getByText(/shot chart/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/shot chart/i).length).toBeGreaterThan(0);
   });
 
   it("renders team context when teamId is present", async () => {
