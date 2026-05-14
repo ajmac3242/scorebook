@@ -1,6 +1,6 @@
-# Contributing to Scorebook
+# Contributing to CourtSight
 
-Welcome! Scorebook is a **Tactical Operating System** for basketball, built with an offline-first, agent-centric development model.
+Welcome! CourtSight is a **Tactical Operating System** for basketball, built with an offline-first, agent-centric development model.
 
 ## Agent-Based Development
 

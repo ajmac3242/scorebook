@@ -1,6 +1,6 @@
 # Analytics Engine: Formulas & Logic
 
-Scorebook is built on **Causal Accountability**. This document defines the formulas and logic used to derive the tactical intelligence provided to coaches.
+CourtSight is built on **Causal Accountability**. This document defines the formulas and logic used to derive the tactical intelligence provided to coaches.
 
 ## 1. Possession Efficiency (PPP)
 The gold standard for measuring offensive and defensive quality, independent of game pace.

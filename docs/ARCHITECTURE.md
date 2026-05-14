@@ -1,6 +1,6 @@
-# System Architecture: Scorebook - Basketball
+# System Architecture: CourtSight - Basketball
 
-Scorebook is a **Tactical Operating System** for basketball, built with an offline-first, mobile-optimized architecture. It leverages a serverless AWS backend and a robust local storage layer to ensure reliability in environments with intermittent connectivity (e.g., high school gyms).
+CourtSight is a **Tactical Operating System** for basketball, built with an offline-first, mobile-optimized architecture. It leverages a serverless AWS backend and a robust local storage layer to ensure reliability in environments with intermittent connectivity (e.g., high school gyms).
 
 ## Core Architectural Pillars
 

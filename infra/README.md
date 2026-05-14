@@ -1,6 +1,6 @@
-# Scorebook Infrastructure
+# CourtSight Infrastructure
 
-This directory contains the Terraform configuration for the Scorebook serverless basketball stats application.
+This directory contains the Terraform configuration for the CourtSight serverless basketball stats application.
 
 ## Architecture
 
