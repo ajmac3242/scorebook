@@ -745,7 +745,7 @@ const PlayerStats: React.FC = () => {
                   }}
                 >
                   <BasketballCourt
-                    shotChartView={shotChartView}
+                    view={shotChartView}
                     filteredStats={filteredStats}
                     heatmapData={heatmapData}
                   />
