@@ -51,6 +51,12 @@ export const useVoiceRecognition = ({
   const [lastTranscript, setLastTranscript] = useState("");
   const recognitionRef = useRef<SpeechRecognition | null>(null);
 
+  // Use a ref for onCommand to avoid restarting recognition when the callback changes
+  const onCommandRef = useRef(onCommand);
+  useEffect(() => {
+    onCommandRef.current = onCommand;
+  }, [onCommand]);
+
   useEffect(() => {
     const SpeechRecognition =
       (window as WindowWithSpeechRecognition).SpeechRecognition ||
@@ -75,7 +81,7 @@ export const useVoiceRecognition = ({
       setLastTranscript(transcript);
       const command = parseVoiceCommand(transcript);
       if (command) {
-        onCommand(command);
+        onCommandRef.current(command);
       }
     };
 
@@ -104,7 +110,7 @@ export const useVoiceRecognition = ({
         recognitionRef.current.stop();
       }
     };
-  }, [onCommand, enabled]);
+  }, [enabled]); // Only depend on enabled, not onCommand
 
   useEffect(() => {
     if (enabled) {

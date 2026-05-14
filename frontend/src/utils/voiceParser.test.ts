@@ -14,6 +14,12 @@ describe("voiceParser", () => {
     });
   });
 
+  it("parses multi-word jersey numbers", () => {
+    const result = parseVoiceCommand("forty five make two");
+    expect(result?.actions).toHaveLength(1);
+    expect(result?.actions[0].jerseyNumber).toBe("45");
+  });
+
   it("parses opponent action", () => {
     const result = parseVoiceCommand("opponent five make");
     expect(result?.actions).toHaveLength(1);
@@ -114,5 +120,11 @@ describe("voiceParser", () => {
         isOpponent: true,
       });
     });
+  });
+
+  it("handles malformed input gracefully", () => {
+    expect(parseVoiceCommand("")).toBeNull();
+    expect(parseVoiceCommand("hello")).toBeNull();
+    expect(parseVoiceCommand("23")).toBeNull();
   });
 });
