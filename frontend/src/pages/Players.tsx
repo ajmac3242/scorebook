@@ -1,48 +1,65 @@
-import React, { useState, useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import {
-  Box,
-  Typography,
-  Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  Fab,
-  Avatar,
-  Chip,
-  FormControlLabel,
-  Switch,
-  Grid,
-  Snackbar,
   Alert,
-  Tooltip,
+  Avatar,
+  Box,
+  Button,
+  Chip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  FormControlLabel,
+  Grid,
   IconButton,
+  InputAdornment,
+  Paper,
+  Snackbar,
+  Stack,
+  Switch,
+  TextField,
+  Tooltip,
+  Typography,
+  alpha,
+  useTheme,
 } from "@mui/material";
 import {
   Add as AddIcon,
+  Check as CheckIcon,
   History,
   People as PlayersIcon,
-  Check as CheckIcon,
+  Search as SearchIcon,
   Star as StarIcon,
-  StarBorder as StarOutlineIcon,
+  StarBorder as StarBorderIcon,
 } from "@mui/icons-material";
+import { useLiveQuery } from "dexie-react-hooks";
+import { useNavigate } from "react-router-dom";
 import { db } from "../db";
 import { syncService } from "../utils/syncService";
-import { getInitials, calculatePlayerAggregates } from "../utils/stats";
-import { MoleskineCard, StatItem } from "../components/SharedUI";
-import { useLiveQuery } from "dexie-react-hooks";
+import { calculatePlayerAggregates, getInitials } from "../utils/stats";
 import { logger } from "../utils/logger";
 import { AVATAR_COLORS } from "../constants/colors";
-import EntityBanner from "../components/EntityBanner";
-import { useNavigate } from "react-router-dom";
 
-/**
- * Players page component.
- * Displays a list of all players and allows adding new player records.
- */
+type PlayerWithStats = {
+  id?: string;
+  name: string;
+  avatarColor?: string;
+  isArchived?: number;
+  isStar?: number;
+  ppg: number;
+  rpg: number;
+  apg: number;
+};
+
 const Players: React.FC = () => {
+  const theme = useTheme();
   const navigate = useNavigate();
+
+  const radius = theme.shape.borderRadius;
+  const shellRadius = radius * 1.5;
+  const sectionRadius = radius * 1.5;
+  const controlRadius = radius * 1.25;
+
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [avatarColor, setAvatarColor] = useState(AVATAR_COLORS[0]);
@@ -56,21 +73,21 @@ const Players: React.FC = () => {
     severity: "success" | "error";
   }>({ open: false, message: "", severity: "success" });
 
-  // Use live query directly to handle archived/deleted filtering
   const playersResult = useLiveQuery(() => {
     return db.players
       .toArray()
       .then((all) => {
-        // Performance: Normalize search term once outside the loop
-        const normalizedSearch = searchTerm.toLowerCase();
-        return all.filter((p) => {
-          if (p.deletedAt) return false;
-          if (!showArchived && p.isArchived) return false;
+        const normalizedSearch = searchTerm.trim().toLowerCase();
+
+        return all.filter((player) => {
+          if (player.deletedAt) return false;
+          if (!showArchived && player.isArchived) return false;
           if (
             normalizedSearch &&
-            !p.name.toLowerCase().includes(normalizedSearch)
-          )
+            !player.name.toLowerCase().includes(normalizedSearch)
+          ) {
             return false;
+          }
           return true;
         });
       })
@@ -85,41 +102,61 @@ const Players: React.FC = () => {
   const allStatsResult = useLiveQuery(() => db.stats.toArray());
   const allStats = useMemo(() => allStatsResult || [], [allStatsResult]);
 
-  const playersWithStats = useMemo(() => {
+  const playersWithStats = useMemo<PlayerWithStats[]>(() => {
     const aggregates = calculatePlayerAggregates(
       players,
       allStats,
       [],
       "average",
     );
-    // Optimization: Create the map in a single pass using a for loop to avoid intermediate array allocation from map().
-    const aggMap = new Map();
+
+    const aggregateMap = new Map();
     for (let i = 0; i < aggregates.length; i++) {
-      const a = aggregates[i];
-      aggMap.set(a.id, a);
+      const aggregate = aggregates[i];
+      aggregateMap.set(aggregate.id, aggregate);
     }
 
-    // Optimization: Use a standard map call to merge player data with their aggregates.
-    return players.map((p) => {
-      const agg = aggMap.get(p.id!);
+    return players.map((player) => {
+      const aggregate = aggregateMap.get(player.id!);
       return {
-        ...p,
-        ppg: agg?.points || 0,
-        rpg: agg?.rebounds || 0,
-        apg: agg?.assists || 0,
+        ...player,
+        ppg: aggregate?.points || 0,
+        rpg: aggregate?.rebounds || 0,
+        apg: aggregate?.assists || 0,
       };
     });
   }, [players, allStats]);
 
-  /**
-   * Handles adding a new player record.
-   */
+  const starCount = useMemo(
+    () => playersWithStats.filter((player) => player.isStar).length,
+    [playersWithStats],
+  );
+
+  const archivedCount = useMemo(
+    () => playersWithStats.filter((player) => player.isArchived).length,
+    [playersWithStats],
+  );
+
+  const resetForm = () => {
+    setName("");
+    setAvatarColor(AVATAR_COLORS[0]);
+    setShowValidation(false);
+    setIsSubmitting(false);
+  };
+
+  const handleDialogClose = () => {
+    setOpen(false);
+    setShowValidation(false);
+  };
+
   const handleAddPlayer = async () => {
     if (!name.trim()) {
       setShowValidation(true);
       return;
     }
+
     setIsSubmitting(true);
+
     try {
       await db.players.add({
         id: crypto.randomUUID(),
@@ -128,11 +165,12 @@ const Players: React.FC = () => {
         isArchived: 0,
         synced: 0,
       });
+
       await syncService.pushUpdates();
+
       setOpen(false);
-      setName("");
-      setAvatarColor(AVATAR_COLORS[0]);
-      setShowValidation(false);
+      resetForm();
+
       setSnackbar({
         open: true,
         message: "Player added successfully!",
@@ -140,7 +178,11 @@ const Players: React.FC = () => {
       });
     } catch (err) {
       logger.error("Failed to add player", err, { name });
-    } finally {
+      setSnackbar({
+        open: true,
+        message: "Failed to add player",
+        severity: "error",
+      });
       setIsSubmitting(false);
     }
   };
@@ -149,8 +191,19 @@ const Players: React.FC = () => {
     try {
       await db.players.update(id, { isArchived: 0, synced: 0 });
       await syncService.pushUpdates();
+
+      setSnackbar({
+        open: true,
+        message: "Player restored",
+        severity: "success",
+      });
     } catch (err) {
       logger.error("Failed to restore player", err, { id });
+      setSnackbar({
+        open: true,
+        message: "Failed to restore player",
+        severity: "error",
+      });
     }
   };
 
@@ -160,12 +213,63 @@ const Players: React.FC = () => {
     currentIsStar: number | undefined,
   ) => {
     e.stopPropagation();
+
     try {
-      await db.players.update(id, { isStar: currentIsStar ? 0 : 1, synced: 0 });
+      await db.players.update(id, {
+        isStar: currentIsStar ? 0 : 1,
+        synced: 0,
+      });
       await syncService.pushUpdates();
     } catch (err) {
       logger.error("Failed to toggle star player status", err, { id });
+      setSnackbar({
+        open: true,
+        message: "Failed to update star player",
+        severity: "error",
+      });
     }
+  };
+
+  const emptyStateTitle = searchTerm
+    ? `No players matching "${searchTerm}"`
+    : showArchived
+      ? "No players yet"
+      : "No active players";
+
+  const emptyStateDescription = searchTerm
+    ? "Try a different search or clear the filter."
+    : showArchived
+      ? "Add your first player to start tracking individual performance."
+      : "You have no active players right now. Try showing archived players or add a new player.";
+
+  const getAccentStyles = (accentColor?: string) => {
+    const accent = accentColor || theme.palette.primary.main;
+
+    return {
+      accent,
+      accentSoft: alpha(accent, 0.12),
+      accentSoftStrong: alpha(accent, 0.18),
+      accentBorder: alpha(accent, 0.3),
+      accentFocus: alpha(accent, 0.22),
+    };
+  };
+
+  const statLabelSx = {
+    fontSize: "0.75rem",
+    fontWeight: 700,
+    letterSpacing: "0.04em",
+    textTransform: "uppercase" as const,
+    color: "text.secondary",
+    mb: 0.5,
+    fontFamily: theme.typography.body2.fontFamily,
+  };
+
+  const statValueSx = {
+    fontSize: "1.5rem",
+    lineHeight: 1,
+    fontWeight: 700,
+    color: "text.primary",
+    fontFamily: theme.typography.h4.fontFamily,
   };
 
   return (
@@ -185,363 +289,617 @@ const Players: React.FC = () => {
           {snackbar.message}
         </Alert>
       </Snackbar>
-      <EntityBanner
-        title="Players"
-        icon={<PlayersIcon />}
-        backTo="/"
-        searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
-        actions={
-          <FormControlLabel
-            control={
-              <Switch
-                checked={showArchived}
-                onChange={(e) => setShowArchived(e.target.checked)}
-                inputProps={{ "aria-label": "Show archived players" }}
-                sx={{
-                  "& .MuiSwitch-track": { bgcolor: "rgba(255,255,255,0.3)" },
-                }}
-              />
-            }
-            label="Show Archived"
-            sx={{ color: "white", mr: 0 }}
-          />
-        }
-      />
 
-      <Box sx={{ mt: 4 }} />
-
-      <Grid container spacing={3}>
-        {playersWithStats.map((player) => (
-          <Grid item xs={12} sm={6} md={6} key={player.id}>
-            <MoleskineCard
-              role="button"
-              tabIndex={0}
-              aria-label={`${player.isArchived ? "Restore" : "View stats for"} ${player.name}`}
-              sx={{
-                cursor: "pointer",
-                height: "100%",
-                bgcolor: player.avatarColor || "grey.500",
-                color: "white",
-                transition: "transform 0.2s, box-shadow 0.2s",
-                "&:hover": {
-                  transform: "translateY(-4px)",
-                  boxShadow: "0 8px 24px rgba(0,0,0,0.2)",
-                },
-                "&:focus-visible": {
-                  outline: "4px solid rgba(255,255,255,0.8)",
-                  outlineOffset: "2px",
-                  transform: "translateY(-4px)",
-                  boxShadow: `0 12px 32px rgba(0,0,0,0.3), 0 0 0 8px ${player.avatarColor}44`,
-                },
-                display: "flex",
-                flexDirection: "column",
-                p: 0,
-                overflow: "hidden",
-                border: "none",
-                opacity: player.isArchived ? 0.7 : 1,
-              }}
-              onClick={() =>
-                player.isArchived
-                  ? handleRestorePlayer(player.id!)
-                  : navigate(`/players/${player.id}`)
-              }
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  player.isArchived
-                    ? handleRestorePlayer(player.id!)
-                    : navigate(`/players/${player.id}`);
-                }
-              }}
-            >
-              <Box sx={{ p: 3, flexGrow: 1 }}>
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "flex-start",
-                    mb: 3,
-                  }}
-                >
-                  <Box>
-                    <Typography
-                      variant="h5"
-                      sx={{
-                        fontFamily: "var(--serif)",
-                        fontWeight: 700,
-                        mb: 0.5,
-                        color: "white",
-                      }}
-                    >
-                      {player.name}
-                    </Typography>
-                    <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-                      {Boolean(player.isArchived) && (
-                        <Chip
-                          label="Archived"
-                          size="small"
-                          sx={{
-                            bgcolor: "rgba(255,255,255,0.2)",
-                            color: "white",
-                          }}
-                          icon={
-                            <History
-                              sx={{
-                                fontSize: "12px !important",
-                                color: "white !important",
-                              }}
-                            />
-                          }
-                        />
-                      )}
-                      <Tooltip
-                        title={
-                          player.isStar
-                            ? "Remove Star Player"
-                            : "Mark as Star Player"
-                        }
-                      >
-                        <IconButton
-                          size="small"
-                          onClick={(e) =>
-                            handleToggleStar(e, player.id!, player.isStar)
-                          }
-                          sx={{
-                            color: player.isStar
-                              ? "#FFD700"
-                              : "rgba(255,255,255,0.5)",
-                          }}
-                        >
-                          {player.isStar ? <StarIcon /> : <StarOutlineIcon />}
-                        </IconButton>
-                      </Tooltip>
-                    </Box>
-                  </Box>
-                  <Avatar
-                    sx={{
-                      width: 60,
-                      height: 60,
-                      bgcolor: "rgba(255,255,255,0.2)",
-                      color: "white",
-                      fontSize: "1.5rem",
-                      fontWeight: "bold",
-                      border: "2px solid rgba(255,255,255,0.3)",
-                    }}
-                  >
-                    {getInitials(player.name)}
-                  </Avatar>
-                </Box>
-              </Box>
-
+      <Paper
+        elevation={0}
+        sx={{
+          borderRadius: shellRadius,
+          border: "1px solid",
+          borderColor: "divider",
+          bgcolor: "background.default",
+          overflow: "hidden",
+        }}
+      >
+        <Box
+          sx={{
+            px: { xs: 2, sm: 3 },
+            py: { xs: 2, sm: 2.5 },
+            borderBottom: "1px solid",
+            borderColor: "divider",
+            bgcolor: "background.paper",
+          }}
+        >
+          <Stack
+            direction={{ xs: "column", md: "row" }}
+            spacing={2}
+            alignItems={{ xs: "flex-start", md: "center" }}
+            justifyContent="space-between"
+          >
+            <Stack direction="row" spacing={1.5} alignItems="center">
               <Box
                 sx={{
-                  bgcolor: "rgba(0,0,0,0.1)",
-                  p: 2,
-                  display: "flex",
-                  justifyContent: "space-around",
+                  width: 44,
+                  height: 44,
+                  borderRadius: controlRadius,
+                  display: "grid",
+                  placeItems: "center",
+                  bgcolor: alpha(theme.palette.primary.main, 0.08),
+                  color: "primary.main",
+                  border: "1px solid",
+                  borderColor: alpha(theme.palette.primary.main, 0.18),
+                  flexShrink: 0,
                 }}
               >
-                <StatItem label="PPG" value={player.ppg} light />
-                <Typography
-                  sx={{ color: "white", opacity: 0.3, alignSelf: "center" }}
-                >
-                  |
-                </Typography>
-                <StatItem label="RPG" value={player.rpg} light />
-                <Typography
-                  sx={{ color: "white", opacity: 0.3, alignSelf: "center" }}
-                >
-                  |
-                </Typography>
-                <StatItem label="APG" value={player.apg} light />
+                <PlayersIcon fontSize="small" />
               </Box>
-            </MoleskineCard>
-          </Grid>
-        ))}
-        {playersWithStats.length === 0 && (
-          <Grid item xs={12}>
-            <Box
+
+              <Box>
+                <Typography variant="h4" sx={{ mb: 0.25 }}>
+                  Players
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Manage your roster, highlight star players, and open individual dashboards.
+                </Typography>
+              </Box>
+            </Stack>
+
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              aria-label="add new player"
+              onClick={() => setOpen(true)}
               sx={{
-                textAlign: "center",
-                py: 12,
-                bgcolor: "rgba(0,0,0,0.02)",
-                borderRadius: 4,
-                border: "2px dashed rgba(0,0,0,0.1)",
+                borderRadius: controlRadius,
+                px: 2,
+                boxShadow: "none",
+                flexShrink: 0,
               }}
             >
-              <PlayersIcon
+              Add player
+            </Button>
+          </Stack>
+        </Box>
+
+        <Box
+          sx={{
+            px: { xs: 2, sm: 3 },
+            py: 2,
+            borderBottom: "1px solid",
+            borderColor: "divider",
+            bgcolor: "background.default",
+          }}
+        >
+          <Stack
+            direction={{ xs: "column", lg: "row" }}
+            spacing={1.5}
+            alignItems={{ xs: "stretch", lg: "center" }}
+            justifyContent="space-between"
+          >
+            <TextField
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search players"
+              size="small"
+              sx={{
+                width: { xs: "100%", md: 320 },
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: controlRadius,
+                  bgcolor: "background.paper",
+                },
+              }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon sx={{ color: "text.secondary", fontSize: 18 }} />
+                  </InputAdornment>
+                ),
+              }}
+            />
+
+            <Stack
+              direction={{ xs: "column", sm: "row" }}
+              spacing={1}
+              alignItems={{ xs: "stretch", sm: "center" }}
+              flexWrap="wrap"
+              useFlexGap
+            >
+              <Chip
+                label={`${playersWithStats.length} shown`}
+                size="small"
+                variant="outlined"
                 sx={{
-                  fontSize: 64,
+                  borderRadius: controlRadius,
+                  bgcolor: "background.paper",
+                  borderColor: "divider",
                   color: "text.secondary",
-                  opacity: 0.2,
-                  mb: 2,
                 }}
               />
-              <Typography
-                id="empty-state-msg"
-                variant="h6"
-                color="text.secondary"
-                gutterBottom
-              >
-                {searchTerm
-                  ? `No players matching "${searchTerm}"`
-                  : `No ${showArchived ? "" : "active"} players found.`}
-              </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                {searchTerm
-                  ? "Try adjusting your search terms"
-                  : "Start by adding players to your roster"}
-              </Typography>
-              {searchTerm ? (
-                <Button
-                  variant="outlined"
-                  onClick={() => setSearchTerm("")}
-                  sx={{ borderRadius: 2 }}
-                  aria-describedby="empty-state-msg"
-                >
-                  Clear Search
-                </Button>
-              ) : (
-                <Button
-                  variant="contained"
-                  startIcon={<AddIcon />}
-                  onClick={() => setOpen(true)}
-                  sx={{ borderRadius: 2 }}
-                  aria-describedby="empty-state-msg"
-                >
-                  Add Your First Player
-                </Button>
-              )}
-            </Box>
-          </Grid>
-        )}
-      </Grid>
+              <Chip
+                label={`${starCount} starred`}
+                size="small"
+                variant="outlined"
+                sx={{
+                  borderRadius: controlRadius,
+                  bgcolor: "background.paper",
+                  borderColor: "divider",
+                  color: "text.secondary",
+                }}
+              />
+              <Chip
+                label={`${archivedCount} archived`}
+                size="small"
+                variant="outlined"
+                sx={{
+                  borderRadius: controlRadius,
+                  bgcolor: "background.paper",
+                  borderColor: "divider",
+                  color: "text.secondary",
+                }}
+              />
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={showArchived}
+                    onChange={(e) => setShowArchived(e.target.checked)}
+                    inputProps={{ "aria-label": "show archived players" }}
+                  />
+                }
+                label="Show archived"
+                sx={{
+                  ml: { xs: 0, sm: 0.5 },
+                  mr: 0,
+                  color: "text.secondary",
+                  "& .MuiFormControlLabel-label": {
+                    fontSize: "0.875rem",
+                    fontFamily: theme.typography.body2.fontFamily,
+                  },
+                }}
+              />
+            </Stack>
+          </Stack>
+        </Box>
 
-      <Tooltip title="Add New Player">
-        <Fab
-          color="primary"
-          aria-label="add new player"
+        <Box
           sx={{
-            position: "fixed",
-            bottom: "calc(32px + env(safe-area-inset-bottom))",
-            right: 32,
-            transition: "transform 0.2s",
-            "&:hover": { transform: "scale(1.1) rotate(90deg)" },
+            px: { xs: 2, sm: 3 },
+            py: { xs: 2, sm: 3 },
           }}
-          onClick={() => setOpen(true)}
         >
-          <AddIcon />
-        </Fab>
-      </Tooltip>
+          {playersWithStats.length === 0 ? (
+            <Box
+              sx={{
+                minHeight: 320,
+                borderRadius: sectionRadius,
+                border: "1px dashed",
+                borderColor: "divider",
+                bgcolor: "background.paper",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                textAlign: "center",
+                px: 3,
+                py: 6,
+              }}
+            >
+              <Box>
+                <Box
+                  sx={{
+                    width: 64,
+                    height: 64,
+                    borderRadius: "50%",
+                    mx: "auto",
+                    mb: 2,
+                    display: "grid",
+                    placeItems: "center",
+                    bgcolor: "action.hover",
+                    color: "text.secondary",
+                  }}
+                >
+                  <PlayersIcon />
+                </Box>
+
+                <Typography variant="h6" sx={{ mb: 1 }}>
+                  {emptyStateTitle}
+                </Typography>
+
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ maxWidth: 480, mx: "auto", mb: 3 }}
+                >
+                  {emptyStateDescription}
+                </Typography>
+
+                {searchTerm ? (
+                  <Button
+                    variant="outlined"
+                    onClick={() => setSearchTerm("")}
+                    sx={{ borderRadius: controlRadius }}
+                  >
+                    Clear search
+                  </Button>
+                ) : (
+                  <Button
+                    variant="contained"
+                    startIcon={<AddIcon />}
+                    onClick={() => setOpen(true)}
+                    sx={{ borderRadius: controlRadius, boxShadow: "none" }}
+                  >
+                    Create first player
+                  </Button>
+                )}
+              </Box>
+            </Box>
+          ) : (
+            <Grid container spacing={2.5}>
+              {playersWithStats.map((player) => {
+                const {
+                  accent,
+                  accentSoft,
+                  accentSoftStrong,
+                  accentBorder,
+                  accentFocus,
+                } = getAccentStyles(player.avatarColor);
+
+                return (
+                  <Grid item xs={12} md={6} xl={4} key={player.id}>
+                    <Paper
+                      role="button"
+                      tabIndex={0}
+                      elevation={0}
+                      aria-label={
+                        player.isArchived
+                          ? `Restore ${player.name}`
+                          : `View player dashboard for ${player.name}`
+                      }
+                      onClick={() =>
+                        player.isArchived
+                          ? handleRestorePlayer(player.id!)
+                          : navigate(`/players/${player.id}`)
+                      }
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          if (player.isArchived) {
+                            handleRestorePlayer(player.id!);
+                          } else {
+                            navigate(`/players/${player.id}`);
+                          }
+                        }
+                      }}
+                      sx={{
+                        height: "100%",
+                        borderRadius: sectionRadius,
+                        border: "1px solid",
+                        borderColor: player.isStar ? accentBorder : "divider",
+                        bgcolor: "background.paper",
+                        overflow: "hidden",
+                        cursor: "pointer",
+                        opacity: player.isArchived ? 0.72 : 1,
+                        transition: theme.transitions.create(
+                          ["transform", "box-shadow", "border-color", "background-color"],
+                          { duration: theme.transitions.duration.shorter },
+                        ),
+                        "&:hover": {
+                          transform: "translateY(-2px)",
+                          boxShadow: theme.shadows[3],
+                          borderColor: accentBorder,
+                        },
+                        "&:focus-visible": {
+                          outline: "none",
+                          boxShadow: `0 0 0 3px ${accentFocus}`,
+                          borderColor: accent,
+                        },
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          height: 6,
+                          bgcolor: accent,
+                        }}
+                      />
+
+                      <Box
+                        sx={{
+                          p: { xs: 2, sm: 2.25 },
+                          display: "flex",
+                          flexDirection: "column",
+                          height: "100%",
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "flex-start",
+                            gap: 2,
+                            mb: 2,
+                          }}
+                        >
+                          <Box sx={{ minWidth: 0, flex: 1 }}>
+                            <Stack
+                              direction="row"
+                              spacing={1}
+                              alignItems="center"
+                              sx={{ mb: 0.75, flexWrap: "wrap" }}
+                            >
+                              <Typography variant="h6">
+                                {player.name}
+                              </Typography>
+
+                              {Boolean(player.isArchived) && (
+                                <Chip
+                                  label="Archived"
+                                  size="small"
+                                  icon={<History />}
+                                  sx={{
+                                    borderRadius: controlRadius,
+                                    bgcolor: "action.hover",
+                                    color: "text.secondary",
+                                    "& .MuiChip-icon": {
+                                      color: "text.secondary",
+                                    },
+                                  }}
+                                />
+                              )}
+
+                              {Boolean(player.isStar) && (
+                                <Chip
+                                  label="Starred"
+                                  size="small"
+                                  sx={{
+                                    borderRadius: controlRadius,
+                                    bgcolor: accentSoft,
+                                    color: "text.primary",
+                                    border: "1px solid",
+                                    borderColor: accentBorder,
+                                  }}
+                                />
+                              )}
+                            </Stack>
+
+                            <Typography variant="body2" color="text.secondary">
+                              {player.isArchived
+                                ? "Archived player. Select to restore to the active roster."
+                                : "Track player performance and open detailed individual stats."}
+                            </Typography>
+                          </Box>
+
+                          <Stack spacing={1} alignItems="flex-end">
+                            <Tooltip
+                              title={
+                                player.isStar
+                                  ? "Remove star player"
+                                  : "Mark as star player"
+                              }
+                            >
+                              <IconButton
+                                size="small"
+                                onClick={(e) =>
+                                  handleToggleStar(e, player.id!, player.isStar)
+                                }
+                                aria-label={
+                                  player.isStar
+                                    ? `Remove ${player.name} from starred players`
+                                    : `Mark ${player.name} as star player`
+                                }
+                                sx={{
+                                  color: player.isStar ? accent : "text.secondary",
+                                  bgcolor: player.isStar ? accentSoft : "transparent",
+                                  "&:hover": {
+                                    bgcolor: accentSoftStrong,
+                                  },
+                                }}
+                              >
+                                {player.isStar ? (
+                                  <StarIcon sx={{ fontSize: 18 }} />
+                                ) : (
+                                  <StarBorderIcon sx={{ fontSize: 18 }} />
+                                )}
+                              </IconButton>
+                            </Tooltip>
+
+                            <Avatar
+                              sx={{
+                                width: 56,
+                                height: 56,
+                                bgcolor: accentSoft,
+                                color: accent,
+                                border: "1px solid",
+                                borderColor: accentBorder,
+                                fontWeight: 700,
+                              }}
+                            >
+                              {getInitials(player.name)}
+                            </Avatar>
+                          </Stack>
+                        </Box>
+
+                        <Box
+                          sx={{
+                            borderRadius: sectionRadius,
+                            px: 2,
+                            py: 1.75,
+                            mb: 2,
+                            bgcolor: "action.hover",
+                            border: "1px solid",
+                            borderColor: "divider",
+                          }}
+                        >
+                          <Typography sx={statLabelSx}>
+                            Average stats
+                          </Typography>
+
+                          <Grid container spacing={1.5}>
+                            <Grid item xs={4}>
+                              <Typography sx={statLabelSx}>PPG</Typography>
+                              <Typography sx={statValueSx}>
+                                {player.ppg}
+                              </Typography>
+                            </Grid>
+                            <Grid item xs={4}>
+                              <Typography sx={statLabelSx}>RPG</Typography>
+                              <Typography sx={statValueSx}>
+                                {player.rpg}
+                              </Typography>
+                            </Grid>
+                            <Grid item xs={4}>
+                              <Typography sx={statLabelSx}>APG</Typography>
+                              <Typography sx={statValueSx}>
+                                {player.apg}
+                              </Typography>
+                            </Grid>
+                          </Grid>
+                        </Box>
+
+                        <Stack
+                          direction="row"
+                          justifyContent="space-between"
+                          alignItems="center"
+                          sx={{
+                            mt: "auto",
+                            pt: 2,
+                            borderTop: "1px solid",
+                            borderColor: "divider",
+                          }}
+                        >
+                          <Typography variant="body2" color="text.secondary">
+                            {player.isArchived
+                              ? "Restore player"
+                              : "Open player dashboard"}
+                          </Typography>
+
+                          <Box
+                            sx={{
+                              width: 12,
+                              height: 12,
+                              borderRadius: "50%",
+                              bgcolor: accent,
+                              border: "1px solid",
+                              borderColor: alpha(theme.palette.common.black, 0.08),
+                              flexShrink: 0,
+                            }}
+                          />
+                        </Stack>
+                      </Box>
+                    </Paper>
+                  </Grid>
+                );
+              })}
+            </Grid>
+          )}
+        </Box>
+      </Paper>
 
       <Dialog
         open={open}
-        onClose={() => {
-          setOpen(false);
-          setShowValidation(false);
+        onClose={handleDialogClose}
+        fullWidth
+        maxWidth="sm"
+        PaperProps={{
+          sx: {
+            borderRadius: shellRadius,
+          },
         }}
       >
-        <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
-          Add New Player
-        </DialogTitle>
+        <DialogTitle>Add Player</DialogTitle>
+
         <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Player Name"
-            fullWidth
-            variant="outlined"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && name.trim() && !isSubmitting) {
-                handleAddPlayer();
+          <Stack spacing={2} sx={{ pt: 1 }}>
+            <TextField
+              autoFocus
+              label="Player Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              error={showValidation && !name.trim()}
+              helperText={
+                showValidation && !name.trim() ? "Player name is required" : " "
               }
-            }}
-            sx={{ mb: 2, mt: 1 }}
-            error={showValidation && !name.trim()}
-            helperText={
-              showValidation && !name.trim() ? (
-                <span id="player-name-error">Player name is required</span>
-              ) : (
-                ""
-              )
-            }
-            FormHelperTextProps={{
-              id: "player-name-error",
-            }}
-            inputProps={{
-              "aria-invalid": showValidation && !name.trim(),
-              "aria-describedby":
-                showValidation && !name.trim()
-                  ? "player-name-error"
-                  : undefined,
-              "aria-required": "true",
-            }}
-            required
-            disabled={isSubmitting}
-          />
-          <Typography variant="subtitle2" gutterBottom id="avatar-color-label">
-            Avatar Color
-          </Typography>
-          <Box
-            sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}
-            role="radiogroup"
-            aria-labelledby="avatar-color-label"
-          >
-            {AVATAR_COLORS.map((color) => (
-              <Tooltip key={color} title={`Select ${color.toUpperCase()}`}>
-                <Box
-                  onClick={() => setAvatarColor(color)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      setAvatarColor(color);
-                    }
-                  }}
-                  role="radio"
-                  tabIndex={0}
-                  aria-label={`Select color ${color.toUpperCase()} as avatar color`}
-                  aria-checked={avatarColor === color}
-                  sx={{
-                    width: 32,
-                    height: 32,
-                    borderRadius: "50%",
-                    bgcolor: color,
-                    cursor: "pointer",
-                    border:
-                      avatarColor === color
-                        ? "3px solid #000"
-                        : "1px solid rgba(0,0,0,0.1)",
-                    boxSizing: "border-box",
-                    transition: "all 0.1s",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    "&:hover": { transform: "scale(1.2)" },
-                    "&:focus-visible": {
-                      outline: "2px solid #000",
-                      outlineOffset: "2px",
-                    },
-                  }}
-                >
-                  {avatarColor === color && (
-                    <CheckIcon sx={{ color: "#000", fontSize: 20 }} />
-                  )}
-                </Box>
-              </Tooltip>
-            ))}
-          </Box>
+              fullWidth
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleAddPlayer();
+                }
+              }}
+            />
+
+            <Box>
+              <Typography
+                variant="body2"
+                sx={{ fontWeight: 600, color: "text.primary", mb: 1.25 }}
+              >
+                Avatar color
+              </Typography>
+
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.25 }}>
+                {AVATAR_COLORS.map((color) => {
+                  const selected = avatarColor === color;
+
+                  return (
+                    <Tooltip title={selected ? "Selected color" : color} key={color}>
+                      <Box
+                        role="button"
+                        tabIndex={0}
+                        aria-label={`Select avatar color ${color}`}
+                        onClick={() => setAvatarColor(color)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            setAvatarColor(color);
+                          }
+                        }}
+                        sx={{
+                          width: 40,
+                          height: 40,
+                          borderRadius: "50%",
+                          bgcolor: color,
+                          cursor: "pointer",
+                          border: "2px solid",
+                          borderColor: selected ? "text.primary" : "divider",
+                          display: "grid",
+                          placeItems: "center",
+                          transition: theme.transitions.create(
+                            ["transform", "box-shadow", "border-color"],
+                            { duration: theme.transitions.duration.shorter },
+                          ),
+                          "&:hover": {
+                            transform: "scale(1.06)",
+                          },
+                          "&:focus-visible": {
+                            outline: "none",
+                            boxShadow: `0 0 0 3px ${alpha(theme.palette.primary.main, 0.18)}`,
+                          },
+                        }}
+                      >
+                        {selected && (
+                          <CheckIcon
+                            sx={{
+                              color: "#fff",
+                              fontSize: 18,
+                            }}
+                          />
+                        )}
+                      </Box>
+                    </Tooltip>
+                  );
+                })}
+              </Box>
+            </Box>
+          </Stack>
         </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setOpen(false)} disabled={isSubmitting}>
+
+        <DialogActions sx={{ px: 3, pb: 3, pt: 1 }}>
+          <Button onClick={handleDialogClose} disabled={isSubmitting}>
             Cancel
           </Button>
           <Button
             onClick={handleAddPlayer}
             variant="contained"
-            disabled={!name.trim() || isSubmitting}
+            disabled={isSubmitting}
+            sx={{ boxShadow: "none" }}
           >
-            {isSubmitting ? "Adding..." : "Add Player"}
+            {isSubmitting ? "Adding..." : "Add player"}
           </Button>
         </DialogActions>
       </Dialog>
