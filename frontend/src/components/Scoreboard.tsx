@@ -98,7 +98,7 @@ export const Scoreboard = React.memo(
     const lastKillCount = React.useRef(gameData.defensiveStats.totalKills);
 
     React.useEffect(() => {
-      if (gameData.defensiveStats.totalKills > lastKillCount.current) {
+      if (gameData.defensiveStats.totalKills> lastKillCount.current) {
         setShowKillOverlay(true);
         const timer = setTimeout(() => setShowKillOverlay(false), 3000);
         lastKillCount.current = gameData.defensiveStats.totalKills;
@@ -122,8 +122,7 @@ export const Scoreboard = React.memo(
           border: "1px solid rgba(255,255,255,0.08)",
           position: "relative",
           overflow: "hidden",
-        }}
-      >
+        }}>
         {/* Top Accent Line */}
         <Box
           sx={{
@@ -134,8 +133,7 @@ export const Scoreboard = React.memo(
             height: "3px",
             background: `linear-gradient(90deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
             opacity: 0.8,
-          }}
-        />
+          }} />
 
         {/* KILL ACHIEVED Overlay */}
         {showKillOverlay && (
@@ -155,9 +153,8 @@ export const Scoreboard = React.memo(
               background:
                 "linear-gradient(45deg, rgba(255,107,26,0.9) 0%, rgba(217,85,13,0.9) 100%)",
               animation: `${pulse} 0.5s ease-in-out`,
-            }}
-          >
-            <Stack alignItems="center" spacing={1}>
+            }}>
+            <Stack alignItems={{ xs: "center" }} spacing={1}>
               <LocalFireDepartment sx={{ fontSize: "4rem", color: "white" }} />
               <Typography
                 variant="h3"
@@ -166,14 +163,12 @@ export const Scoreboard = React.memo(
                   color: "white",
                   textShadow: "0 4px 20px rgba(0,0,0,0.5)",
                   letterSpacing: 4,
-                }}
-              >
+                }}>
                 KILL ACHIEVED
               </Typography>
               <Typography
                 variant="h6"
-                sx={{ fontWeight: 800, color: "rgba(255,255,255,0.8)" }}
-              >
+                sx={{ fontWeight: 800, color: "rgba(255,255,255,0.8)" }}>
                 3 STOPS IN A ROW
               </Typography>
             </Stack>
@@ -181,7 +176,7 @@ export const Scoreboard = React.memo(
         )}
 
         {/* HALT Alerts Overlay */}
-        {haltAlerts.length > 0 && (
+        {haltAlerts.length> 0 && (
           <Box
             role="alert"
             aria-live="assertive"
@@ -199,8 +194,7 @@ export const Scoreboard = React.memo(
               justifyContent: "center",
               background: "rgba(0,0,0,0.4)",
               backdropFilter: "blur(4px)",
-            }}
-          >
+            }}>
             {haltAlerts.map((alert) => (
               <Box
                 key={alert.id}
@@ -221,12 +215,10 @@ export const Scoreboard = React.memo(
                   display: "flex",
                   alignItems: "center",
                   gap: 2,
-                }}
-              >
+                }}>
                 <Typography
                   variant="h6"
-                  sx={{ fontWeight: 900, fontSize: "1.2rem" }}
-                >
+                  sx={{ fontWeight: 900, fontSize: "1.2rem" }}>
                   {alert.message}
                 </Typography>
               </Box>
@@ -242,16 +234,14 @@ export const Scoreboard = React.memo(
             gameData.possessionState === SPECIAL_PLAYER_IDS.OUR_TEAM
               ? "Our Team has possession"
               : ""
-          }
-        >
+          }>
           <TeamPanel
             name={team?.name || "TEAM"}
             logoUrl={team?.logoUrl}
             score={gameData.currentScore}
             timeouts={gameData.timeoutStats.teamTOL}
             timeoutTotal={timeoutTotal}
-            isOpponent={false}
-          />
+            isOpponent={false} />
           {gameData.possessionState === SPECIAL_PLAYER_IDS.OUR_TEAM && (
             <Tooltip title="Current Possession">
               <SportsBasketball
@@ -262,8 +252,7 @@ export const Scoreboard = React.memo(
                   color: "primary.main",
                   fontSize: "1.2rem",
                   animation: `${pulse} 2s infinite ease-in-out`,
-                }}
-              />
+                }} />
             </Tooltip>
           )}
         </Box>
@@ -276,13 +265,12 @@ export const Scoreboard = React.memo(
             alignItems: "center",
             flex: 1,
             px: 2,
-          }}
-        >
+          }}>
           {/* Momentum Alerts */}
           {(gameData.momentumAlerts.opponentRun ||
             gameData.momentumAlerts.teamRun ||
             gameData.momentumAlerts.scoringDrought ||
-            gameData.momentumAlerts.opponentThreats.length > 0) && (
+            gameData.momentumAlerts.opponentThreats.length> 0) && (
             <Box
               sx={{
                 position: "absolute",
@@ -292,10 +280,9 @@ export const Scoreboard = React.memo(
                 flexDirection: "column",
                 alignItems: "center",
                 gap: 0.5,
-              }}
-            >
+              }}>
               {gameData.momentumAlerts.scoringDrought && (
-                <Stack spacing={0.5} alignItems="center">
+                <Stack spacing={0.5} alignItems={{ xs: "center" }}>
                   <Typography
                     variant="caption"
                     role="status"
@@ -308,14 +295,13 @@ export const Scoreboard = React.memo(
                       fontSize: "0.6rem",
                       fontWeight: 800,
                       animation: `${pulse} 2s infinite ease-in-out`,
-                    }}
-                  >
+                    }}>
                     DROUGHT: {gameData.momentumAlerts.scoringDrought}
                   </Typography>
                 </Stack>
               )}
               {gameData.momentumAlerts.teamRun && (
-                <Stack spacing={0.5} alignItems="center">
+                <Stack spacing={0.5} alignItems={{ xs: "center" }}>
                   <Typography
                     variant="caption"
                     role="status"
@@ -328,14 +314,13 @@ export const Scoreboard = React.memo(
                       fontSize: "0.6rem",
                       fontWeight: 800,
                       animation: `${pulse} 2s infinite ease-in-out`,
-                    }}
-                  >
+                    }}>
                     TEAM RUN: {gameData.momentumAlerts.teamRun}
                   </Typography>
                 </Stack>
               )}
               {gameData.momentumAlerts.opponentRun && (
-                <Stack spacing={0.5} alignItems="center">
+                <Stack spacing={0.5} alignItems={{ xs: "center" }}>
                   <Typography
                     variant="caption"
                     role="status"
@@ -348,8 +333,7 @@ export const Scoreboard = React.memo(
                       fontSize: "0.6rem",
                       fontWeight: 800,
                       animation: `${pulse} 2s infinite ease-in-out`,
-                    }}
-                  >
+                    }}>
                     RUN: {gameData.momentumAlerts.opponentRun}
                   </Typography>
                   <Typography
@@ -362,8 +346,7 @@ export const Scoreboard = React.memo(
                       fontSize: "0.5rem",
                       fontWeight: 900,
                       textTransform: "uppercase",
-                    }}
-                  >
+                    }}>
                     Suggest Timeout
                   </Typography>
                 </Stack>
@@ -372,10 +355,9 @@ export const Scoreboard = React.memo(
                 <Stack
                   key={t.playerId}
                   spacing={0.5}
-                  alignItems="center"
+                  alignItems={{ xs: "center" }}
                   role="alert"
-                  aria-live="polite"
-                >
+                  aria-live="polite">
                   <Typography
                     variant="caption"
                     sx={{
@@ -386,13 +368,12 @@ export const Scoreboard = React.memo(
                       fontSize: "0.55rem",
                       fontWeight: 900,
                       animation: `${pulse} 2.5s infinite ease-in-out`,
-                    }}
-                  >
-                    {t.straightPoints >= 6
+                    }}>
+                    {t.straightPoints>= 6
                       ? `THREAT: Opp #${t.playerId.split(":")[1] || "??"} has scored ${t.straightPoints} STRAIGHT`
                       : `THREAT: Opp #${t.playerId.split(":")[1] || "??"} (${t.points} pts)`}
                   </Typography>
-                  {t.straightPoints >= 8 && (
+                  {t.straightPoints>= 8 && (
                     <Typography
                       variant="caption"
                       sx={{
@@ -403,8 +384,7 @@ export const Scoreboard = React.memo(
                         fontSize: "0.45rem",
                         fontWeight: 900,
                         textTransform: "uppercase",
-                      }}
-                    >
+                      }}>
                       Change Matchup
                     </Typography>
                   )}
@@ -421,16 +401,14 @@ export const Scoreboard = React.memo(
               fontSize: { xs: "0.7rem", sm: "1rem" },
               letterSpacing: 2,
               mb: 0.5,
-            }}
-          >
-            {period > maxPeriod
+            }}>
+            {period> maxPeriod
               ? `OT ${period - maxPeriod}`
               : `${periodLabel} ${period}`.toUpperCase()}
           </Typography>
 
           <Tooltip
-            title={isReadOnly ? "" : "Adjust Game Time and Clock Status"}
-          >
+            title={isReadOnly ? "" : "Adjust Game Time and Clock Status"}>
             <Box
               onClick={onEditClock}
               role="button"
@@ -454,8 +432,7 @@ export const Scoreboard = React.memo(
                   outlineOffset: "4px",
                   borderRadius: "4px",
                 },
-              }}
-            >
+              }}>
               <Typography
                 aria-live="off"
                 sx={{
@@ -465,8 +442,7 @@ export const Scoreboard = React.memo(
                   fontFamily: "'Courier New', monospace",
                   lineHeight: 1,
                   letterSpacing: 1,
-                }}
-              >
+                }}>
                 {formatClock(clockSeconds)}
               </Typography>
 
@@ -481,8 +457,7 @@ export const Scoreboard = React.memo(
                   position: "relative",
                   overflow: "hidden",
                   visibility: isClockRunning ? "visible" : "hidden",
-                }}
-              >
+                }}>
                 <Box
                   sx={{
                     position: "absolute",
@@ -490,8 +465,7 @@ export const Scoreboard = React.memo(
                     height: "100%",
                     background: `linear-gradient(90deg, transparent, ${theme.palette.primary.main}, transparent)`,
                     animation: `${slideBackAndForth} 1.5s infinite ease-in-out`,
-                  }}
-                />
+                  }} />
               </Box>
             </Box>
           </Tooltip>
@@ -504,8 +478,7 @@ export const Scoreboard = React.memo(
               alignItems: "center",
               gap: 2,
               minHeight: 24,
-            }}
-          >
+            }}>
             {/* Team Bonus */}
             {gameData.teamFoulStats.teamBonusLabel && (
               <Typography
@@ -514,60 +487,53 @@ export const Scoreboard = React.memo(
                   fontWeight: 900,
                   fontSize: "0.7rem",
                   letterSpacing: 1,
-                }}
-              >
+                }}>
                 BONUS →
               </Typography>
             )}
 
             {/* Defensive Momentum HUD */}
-            <Stack direction="row" spacing={1.5} alignItems="center">
+            <Stack direction="row" spacing={1.5} alignItems={{ xs: "center" }}>
               <Tooltip
-                title={`Total Defensive Stops: ${gameData.defensiveStats.totalStops}`}
-              >
-                <Stack direction="row" spacing={0.5} alignItems="center">
+                title={`Total Defensive Stops: ${gameData.defensiveStats.totalStops}`}>
+                <Stack direction="row" spacing={0.5} alignItems={{ xs: "center" }}>
                   <Shield
                     sx={{
                       fontSize: "1rem",
                       color: "primary.main",
                       opacity: 0.8,
-                    }}
-                  />
+                    }} />
                   <Typography
                     sx={{
                       color: "white",
                       fontSize: "0.75rem",
                       fontWeight: 800,
                       fontFamily: "'Inter', sans-serif",
-                    }}
-                  >
+                    }}>
                     {gameData.defensiveStats.totalStops}
                   </Typography>
                 </Stack>
               </Tooltip>
 
               <Tooltip
-                title={`Total Kills: ${gameData.defensiveStats.totalKills}`}
-              >
-                <Stack direction="row" spacing={0.5} alignItems="center">
+                title={`Total Kills: ${gameData.defensiveStats.totalKills}`}>
+                <Stack direction="row" spacing={0.5} alignItems={{ xs: "center" }}>
                   <LocalFireDepartment
                     sx={{
                       fontSize: "1.1rem",
                       color: "error.main",
                       animation:
-                        gameData.defensiveStats.totalKills > 0
+                        gameData.defensiveStats.totalKills> 0
                           ? `${pulse} 2s infinite ease-in-out`
                           : "none",
-                    }}
-                  />
+                    }} />
                   <Typography
                     sx={{
                       color: "white",
                       fontSize: "0.85rem",
                       fontWeight: 900,
                       fontFamily: "'Inter', sans-serif",
-                    }}
-                  >
+                    }}>
                     {gameData.defensiveStats.totalKills}
                   </Typography>
                 </Stack>
@@ -583,15 +549,14 @@ export const Scoreboard = React.memo(
                       height: 6,
                       borderRadius: "50%",
                       bgcolor:
-                        gameData.defensiveStats.currentStreak >= dot
+                        gameData.defensiveStats.currentStreak>= dot
                           ? "error.main"
                           : "rgba(255,255,255,0.1)",
                       boxShadow:
-                        gameData.defensiveStats.currentStreak >= dot
+                        gameData.defensiveStats.currentStreak>= dot
                           ? `0 0 8px ${theme.palette.error.main}`
                           : "none",
-                    }}
-                  />
+                    }} />
                 ))}
               </Stack>
             </Stack>
@@ -604,8 +569,7 @@ export const Scoreboard = React.memo(
                   fontWeight: 900,
                   fontSize: "0.7rem",
                   letterSpacing: 1,
-                }}
-              >
+                }}>
                 ← BONUS
               </Typography>
             )}
@@ -620,16 +584,14 @@ export const Scoreboard = React.memo(
             gameData.possessionState === SPECIAL_PLAYER_IDS.OPPONENT
               ? "Opponent has possession"
               : ""
-          }
-        >
+          }>
           <TeamPanel
             name={game?.opponent || "OPPONENT"}
             logoUrl={game?.opponentLogoUrl}
             score={gameData.opponentScore}
             timeouts={gameData.timeoutStats.oppTOL}
             timeoutTotal={timeoutTotal}
-            isOpponent={true}
-          />
+            isOpponent={true} />
           {gameData.possessionState === SPECIAL_PLAYER_IDS.OPPONENT && (
             <Tooltip title="Current Possession">
               <SportsBasketball
@@ -640,8 +602,7 @@ export const Scoreboard = React.memo(
                   color: "secondary.main",
                   fontSize: "1.2rem",
                   animation: `${pulse} 2s infinite ease-in-out`,
-                }}
-              />
+                }} />
             </Tooltip>
           )}
         </Box>

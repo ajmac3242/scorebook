@@ -33,8 +33,7 @@ const SortableHeader: React.FC<SortableHeaderProps> = ({
         "&:hover": { color: "primary.main" },
         whiteSpace: "nowrap",
         display: hideOnMobile ? { xs: "none", sm: "table-cell" } : "table-cell",
-      }}
-    >
+      }}>
       {label}{" "}
       {sortConfig.key === sortKey &&
         (sortConfig.direction === "asc" ? "↑" : "↓")}

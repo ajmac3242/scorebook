@@ -98,8 +98,7 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
       onClose={onClose}
       fullWidth
       maxWidth="xs"
-      aria-labelledby="ft-sequence-title"
-    >
+      aria-labelledby="ft-sequence-title">
       <DialogTitle id="ft-sequence-title" sx={{ fontFamily: "var(--serif)" }}>
         Free Throw Sequence
       </DialogTitle>
@@ -122,8 +121,7 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
           <Typography
             variant="caption"
             gutterBottom
-            sx={{ display: "block", mb: 1, fontWeight: 600 }}
-          >
+            sx={{ display: "block", mb: 1, fontWeight: 600 }}>
             Number of Attempts
           </Typography>
           <Stack direction="row" spacing={1}>
@@ -132,9 +130,8 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
                 key={n}
                 fullWidth
                 variant={attempts === n ? "contained" : "outlined"}
-                onClick={() => setAttempts(n)}
-              >
-                {n} Shot{n > 1 ? "s" : ""}
+                onClick={() => setAttempts(n)}>
+                {n} Shot{n> 1 ? "s" : ""}
               </Button>
             ))}
           </Stack>
@@ -149,8 +146,7 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
                 border: "1px solid",
                 borderColor: "divider",
                 borderRadius: 1,
-              }}
-            >
+              }}>
               <Typography variant="subtitle2" gutterBottom>
                 Attempt #{idx + 1}
               </Typography>
@@ -160,8 +156,7 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
                   variant={res === "MAKE" ? "contained" : "outlined"}
                   color="success"
                   startIcon={<CheckIcon />}
-                  onClick={() => handleRecordResult(idx, "MAKE")}
-                >
+                  onClick={() => handleRecordResult(idx, "MAKE")}>
                   Make
                 </Button>
                 <Button
@@ -169,8 +164,7 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
                   variant={res === "MISS" ? "contained" : "outlined"}
                   color="error"
                   startIcon={<CloseIcon />}
-                  onClick={() => handleRecordResult(idx, "MISS")}
-                >
+                  onClick={() => handleRecordResult(idx, "MISS")}>
                   Miss
                 </Button>
               </Stack>
@@ -185,8 +179,7 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
         <Button
           onClick={handleSave}
           variant="contained"
-          disabled={!isComplete || !playerId}
-        >
+          disabled={!isComplete || !playerId}>
           Save Sequence
         </Button>
       </DialogActions>

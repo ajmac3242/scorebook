@@ -35,8 +35,7 @@ export const MoleskineCard: React.FC<PaperProps> = ({
       p: 2,
       ...sx,
     }}
-    {...props}
-  >
+    {...props}>
     {children}
   </Paper>
 );
@@ -77,8 +76,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
           minHeight: 48,
           position: "relative",
           px: 6,
-        }}
-      >
+        }}>
         {showBack && (
           <Tooltip title="Go back">
             <IconButton
@@ -92,8 +90,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
                   transform: "scale(1.1)",
                   transition: "transform 0.2s",
                 },
-              }}
-            >
+              }}>
               <ArrowBackIcon />
             </IconButton>
           </Tooltip>
@@ -104,8 +101,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
             sx={{
               fontFamily: "var(--serif)",
               fontSize: { xs: "1.75rem", sm: "2.125rem" },
-            }}
-          >
+            }}>
             {title}
           </Typography>
         </Box>
@@ -118,8 +114,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
             textAlign: "center",
             mt: 0.5,
             fontSize: { xs: "1rem", sm: "1.25rem" },
-          }}
-        >
+          }}>
           {subtitle}
         </Typography>
       )}
@@ -147,20 +142,17 @@ export const StatItem: React.FC<StatItemProps> = ({ label, value, light }) => (
   <Box
     sx={{ textAlign: "center" }}
     role="text"
-    aria-label={`${value} ${label}`}
-  >
+    aria-label={`${value} ${label}`}>
     <Typography
       variant="caption"
       sx={{ opacity: 0.8, color: light ? "white" : "text.secondary" }}
-      aria-hidden="true"
-    >
+      aria-hidden="true">
       {label}
     </Typography>
     <Typography
       variant="h4"
       sx={{ fontWeight: 700, color: light ? "white" : "text.primary" }}
-      aria-hidden="true"
-    >
+      aria-hidden="true">
       {typeof value === "number" ? <AnimatedNumber value={value} /> : value}
     </Typography>
   </Box>
@@ -187,8 +179,7 @@ export const StatCard: React.FC<StatCardProps> = ({ label, value }) => (
       border: "1px solid #D1D1D1",
       transition: "transform 0.2s",
       "&:hover": { transform: "translateY(-4px)" },
-    }}
-  >
+    }}>
     <CardContent sx={{ p: 2, "&:last-child": { pb: 2 } }}>
       <Typography variant="caption" color="text.secondary" gutterBottom>
         {label}

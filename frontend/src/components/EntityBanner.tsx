@@ -101,15 +101,13 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
         position: "relative",
         overflow: "hidden",
         transition: "background-color 0.3s ease",
-      }}
-    >
+      }}>
       <Tooltip
         title={
           backTo
             ? `Back to ${backTo.split("/").pop() || "Previous Page"}`
             : "Go Back"
-        }
-      >
+        }>
         <IconButton
           aria-label={
             backTo
@@ -127,30 +125,18 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
               bgcolor: "rgba(255,255,255,0.2)",
               transform: "scale(1.1)",
             },
-          }}
-        >
+          }}>
           <ArrowBackIcon />
         </IconButton>
       </Tooltip>
 
-      <Grid
-        container
-        alignItems="center"
-        spacing={{ xs: 2, sm: 4 }}
-        sx={{ mt: { xs: 0, sm: 1 } }}
-      >
-        <Grid
-          item
-          xs={12}
-          sm="auto"
-          sx={{ textAlign: { xs: "center", sm: "left" } }}
-        >
+      <Grid container alignItems={{ xs: "center" }} spacing={{ xs: 2, sm: 4 }} sx={{ mt: { xs: 0, sm: 1 } }}>
+        <Grid size={{ xs: 12 }} sm="auto" sx={{ textAlign: { xs: "center", sm: "left" } }}>
           <Box
             sx={{
               position: "relative",
               display: "inline-block",
-            }}
-          >
+            }}>
             {avatarSrc ? (
               <Box
                 component="img"
@@ -159,8 +145,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                   width: { xs: 80, md: 120 },
                   height: "auto",
                   filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.3))",
-                }}
-              />
+                }} />
             ) : icon ? (
               <Avatar
                 sx={{
@@ -172,8 +157,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                   "& svg": {
                     fontSize: { xs: "2.5rem", md: "4rem" },
                   },
-                }}
-              >
+                }}>
                 {icon}
               </Avatar>
             ) : (
@@ -185,8 +169,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                   fontSize: { xs: "2rem", md: "3rem" },
                   border: "4px solid rgba(255,255,255,0.3)",
                   mx: "auto",
-                }}
-              >
+                }}>
                 {getInitials(title)}
               </Avatar>
             )}
@@ -208,14 +191,13 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                   fontWeight: "bold",
                   border: "3px solid white",
                   zIndex: 2,
-                }}
-              >
+                }}>
                 {jerseyNumber}
               </Box>
             )}
           </Box>
         </Grid>
-        <Grid item xs={12} sm sx={{ textAlign: { xs: "center", sm: "left" } }}>
+        <Grid size={{ xs: 12 }} sm sx={{ textAlign: { xs: "center", sm: "left" } }}>
           <Typography
             variant="h3"
             sx={{
@@ -225,8 +207,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
               letterSpacing: 1,
               color: "white",
               fontSize: { xs: "1.75rem", sm: "3rem" },
-            }}
-          >
+            }}>
             {title}
           </Typography>
           {subtitle && (
@@ -237,19 +218,17 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                 fontWeight: 500,
                 color: "white",
                 fontSize: { xs: "1rem", sm: "1.25rem" },
-              }}
-            >
+              }}>
               {subtitle}
             </Typography>
           )}
         </Grid>
-        {stats.length > 0 && (
-          <Grid item xs={12} md="auto">
+        {stats.length> 0 && (
+          <Grid size={{ xs: 12 }} md="auto">
             <Stack
               direction="row"
               spacing={{ xs: 2, sm: 4 }}
-              justifyContent={{ xs: "center", sm: "flex-start" }}
-            >
+              justifyContent={{ xs: "center", sm: "flex-start" }}>
               {stats.map((stat, index) => (
                 <React.Fragment key={stat.label}>
                   <StatItem label={stat.label} value={stat.value} light />
@@ -260,8 +239,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                         alignSelf: "center",
                         color: "white",
                         fontSize: { xs: "1.5rem", sm: "2rem" },
-                      }}
-                    >
+                      }}>
                       |
                     </Typography>
                   )}
@@ -280,8 +258,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
           alignItems: "center",
           gap: 1,
           zIndex: 10,
-        }}
-      >
+        }}>
         {showSearch && (
           <Box
             sx={{
@@ -295,8 +272,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                 : "transparent",
               borderRadius: "20px",
               pr: isSearchExpanded ? 1 : 0,
-            }}
-          >
+            }}>
             <Tooltip title={isSearchExpanded ? "Close search" : "Search"}>
               <IconButton
                 ref={searchButtonRef}
@@ -304,8 +280,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                 aria-expanded={isSearchExpanded}
                 aria-controls="entity-search-field"
                 onClick={() => setIsSearchExpanded(!isSearchExpanded)}
-                sx={{ color: "white", flexShrink: 0 }}
-              >
+                sx={{ color: "white", flexShrink: 0 }}>
                 {isSearchExpanded && !searchTerm ? (
                   <CloseIcon fontSize="small" />
                 ) : (
@@ -322,7 +297,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                 aria-label={`Search ${title}`}
                 value={searchTerm || ""}
                 onChange={(e) => onSearchChange(e.target.value)}
-                InputProps={{
+                slotProps={{ input: {
                   disableUnderline: true,
                   sx: {
                     color: "white",
@@ -336,16 +311,14 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                           aria-label="clear search"
                           size="small"
                           onClick={() => onSearchChange("")}
-                          sx={{ color: "rgba(255,255,255,0.7)" }}
-                        >
+                          sx={{ color: "rgba(255,255,255,0.7)" }}>
                           <CloseIcon fontSize="inherit" />
                         </IconButton>
                       </Tooltip>
                     </InputAdornment>
                   ) : null,
                 }}
-                sx={{ width: "100%" }}
-              />
+                sx={{ width: "100%" }} />
             )}
           </Box>
         )}
@@ -357,8 +330,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                 : showSyncSuccess
                   ? "Data Synced!"
                   : "Sync data"
-            }
-          >
+            }>
             <span aria-live="polite">
               <Button
                 variant="outlined"
@@ -388,8 +360,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                   display: { xs: "none", sm: "flex" },
                   transition: "all 0.3s ease",
                   animation: isSyncing ? `${pulse} 2s infinite` : "none",
-                }}
-              >
+                }}>
                 {isSyncing ? "Syncing..." : showSyncSuccess ? "Synced" : "Sync"}
               </Button>
             </span>

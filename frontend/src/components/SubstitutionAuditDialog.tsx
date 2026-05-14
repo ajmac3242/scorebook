@@ -80,7 +80,7 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
       .then((events) => {
         return [...events].sort((a, b) => {
           if (a.timestamp < b.timestamp) return -1;
-          if (a.timestamp > b.timestamp) return 1;
+          if (a.timestamp> b.timestamp) return 1;
           return 0;
         });
       });
@@ -146,8 +146,7 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
       onClose={onClose}
       fullWidth
       maxWidth="md"
-      aria-labelledby="sub-audit-title"
-    >
+      aria-labelledby="sub-audit-title">
       <DialogTitle
         id="sub-audit-title"
         sx={{
@@ -155,8 +154,7 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
           display: "flex",
           alignItems: "center",
           gap: 1,
-        }}
-      >
+        }}>
         <HistoryIcon /> Substitution Timeline Audit
       </DialogTitle>
       <DialogContent>
@@ -166,8 +164,7 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
             justifyContent: "space-between",
             alignItems: "center",
             mb: 2,
-          }}
-        >
+          }}>
           <Typography variant="body2" color="text.secondary">
             Review and correct the substitution timeline. Inaccurate data here
             affects plus/minus and lineup efficiency metrics.
@@ -182,8 +179,7 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
               value={playerFilter}
               onChange={(e) => setPlayerFilter(e.target.value)}
               sx={{ minWidth: 150, fontSize: "0.75rem" }}
-              aria-label="Filter events by player"
-            >
+              aria-label="Filter events by player">
               <MenuItem value="ALL">All Players</MenuItem>
               {playerOptions.map((p) => (
                 <MenuItem key={p.id} value={p.id} sx={{ fontSize: "0.75rem" }}>
@@ -214,8 +210,7 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                   <TableRow key={event.id} hover>
                     <TableCell>
                       <Box
-                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                      >
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                         <Typography
                           variant="caption"
                           sx={{
@@ -230,8 +225,7 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                               event.type === ACTION_TYPES.SUB_IN
                                 ? "success.contrastText"
                                 : "error.contrastText",
-                          }}
-                        >
+                          }}>
                           {event.type.replace("SUB_", "")}
                         </Typography>
                       </Box>
@@ -245,8 +239,7 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                           onChange={(e) =>
                             setEditPeriod(parseInt(e.target.value) || 1)
                           }
-                          sx={{ width: 60 }}
-                        />
+                          sx={{ width: 60 }} />
                       ) : (
                         event.period
                       )}
@@ -258,8 +251,7 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                           value={editTime}
                           onChange={(e) => setEditTime(e.target.value)}
                           placeholder="mm:ss"
-                          sx={{ width: 80 }}
-                        />
+                          sx={{ width: 80 }} />
                       ) : (
                         formatClock(event.clockTime || 0)
                       )}
@@ -270,8 +262,7 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                           size="small"
                           value={editPlayerId}
                           onChange={(e) => setEditPlayerId(e.target.value)}
-                          sx={{ minWidth: 150 }}
-                        >
+                          sx={{ minWidth: 150 }}>
                           {playerOptions.map((p) => (
                             <MenuItem key={p.id} value={p.id}>
                               #{jerseyMap.get(p.id!) ?? "??"} {p.name}
@@ -280,16 +271,14 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                         </Select>
                       ) : (
                         <Box
-                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                        >
+                          sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                           <Avatar
                             sx={{
                               width: 24,
                               height: 24,
                               fontSize: "0.75rem",
                               bgcolor: player?.avatarColor,
-                            }}
-                          >
+                            }}>
                             {jerseyMap.get(event.playerId) ?? "??"}
                           </Avatar>
                           <Typography variant="body2">
@@ -303,15 +292,13 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                         <Stack
                           direction="row"
                           spacing={1}
-                          justifyContent="flex-end"
-                        >
+                          justifyContent="flex-end">
                           <Tooltip title="Save Changes">
                             <IconButton
                               size="small"
                               color="primary"
                               onClick={handleSaveEdit}
-                              aria-label="Save changes"
-                            >
+                              aria-label="Save changes">
                               <SaveIcon fontSize="small" />
                             </IconButton>
                           </Tooltip>
@@ -319,8 +306,7 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                             <IconButton
                               size="small"
                               onClick={() => setEditingId(null)}
-                              aria-label="Cancel editing"
-                            >
+                              aria-label="Cancel editing">
                               <CloseIcon fontSize="small" />
                             </IconButton>
                           </Tooltip>
@@ -329,22 +315,18 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                         <Stack
                           direction="row"
                           spacing={1}
-                          justifyContent="flex-end"
-                        >
+                          justifyContent="flex-end">
                           <Tooltip
-                            title={`Edit ${event.type === ACTION_TYPES.SUB_IN ? "Sub In" : "Sub Out"}`}
-                          >
+                            title={`Edit ${event.type === ACTION_TYPES.SUB_IN ? "Sub In" : "Sub Out"}`}>
                             <IconButton
                               size="small"
                               onClick={() => handleStartEdit(event)}
-                              aria-label={`Edit ${event.type === ACTION_TYPES.SUB_IN ? "sub in" : "sub out"} for ${player?.name}`}
-                            >
+                              aria-label={`Edit ${event.type === ACTION_TYPES.SUB_IN ? "sub in" : "sub out"} for ${player?.name}`}>
                               <EditIcon fontSize="small" />
                             </IconButton>
                           </Tooltip>
                           <Tooltip
-                            title={`Delete ${event.type === ACTION_TYPES.SUB_IN ? "Sub In" : "Sub Out"}`}
-                          >
+                            title={`Delete ${event.type === ACTION_TYPES.SUB_IN ? "Sub In" : "Sub Out"}`}>
                             <IconButton
                               size="small"
                               color="error"
@@ -352,8 +334,7 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                                 setEventToDelete(event.id!);
                                 setDeleteConfirmOpen(true);
                               }}
-                              aria-label={`Delete ${event.type === ACTION_TYPES.SUB_IN ? "sub in" : "sub out"} for ${player?.name}`}
-                            >
+                              aria-label={`Delete ${event.type === ACTION_TYPES.SUB_IN ? "sub in" : "sub out"} for ${player?.name}`}>
                               <DeleteIcon fontSize="small" />
                             </IconButton>
                           </Tooltip>
@@ -383,12 +364,10 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
       <Dialog
         open={deleteConfirmOpen}
         onClose={() => setDeleteConfirmOpen(false)}
-        aria-labelledby="delete-sub-title"
-      >
+        aria-labelledby="delete-sub-title">
         <DialogTitle
           id="delete-sub-title"
-          sx={{ display: "flex", alignItems: "center", gap: 1 }}
-        >
+          sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <WarningIcon color="error" /> Delete Substitution Event?
         </DialogTitle>
         <DialogContent>
@@ -406,8 +385,7 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
             onClick={handleDelete}
             color="error"
             variant="contained"
-            autoFocus
-          >
+            autoFocus>
             Delete Event
           </Button>
         </DialogActions>

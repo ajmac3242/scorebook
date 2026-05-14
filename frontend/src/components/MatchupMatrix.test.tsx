@@ -27,8 +27,7 @@ describe("MatchupMatrix", () => {
         teamActiveIds={teamActiveIds}
         oppActiveIds={oppActiveIds}
         matchupData={matchupData}
-        jerseyMap={jerseyMap}
-      />,
+        jerseyMap={jerseyMap} />,
     );
 
     expect(
@@ -49,8 +48,7 @@ describe("MatchupMatrix", () => {
         oppActiveIds={oppActiveIds}
         matchupData={matchupData}
         jerseyMap={jerseyMap}
-        onReassign={onReassign}
-      />,
+        onReassign={onReassign} />,
     );
 
     const cell = screen.getByText("80%");
@@ -67,8 +65,7 @@ describe("MatchupMatrix", () => {
         oppActiveIds={oppActiveIds}
         matchupData={matchupData}
         jerseyMap={jerseyMap}
-        currentMatchups={currentMatchups}
-      />,
+        currentMatchups={currentMatchups} />,
     );
 
     const cell = screen.getByText("80%");

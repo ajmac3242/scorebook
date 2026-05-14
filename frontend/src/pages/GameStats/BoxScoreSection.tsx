@@ -35,8 +35,7 @@ export const BoxScoreSection: React.FC<BoxScoreSectionProps> = React.memo(
         sx={{
           mx: { xs: -2, sm: 0 },
           width: { xs: "calc(100% + 32px)", sm: "100%" },
-        }}
-      >
+        }}>
         <Table size="small">
           <TableHead>
             <TableRow sx={{ bgcolor: "rgba(0,0,0,0.02)" }}>
@@ -45,120 +44,104 @@ export const BoxScoreSection: React.FC<BoxScoreSectionProps> = React.memo(
                 sortKey="name"
                 align="left"
                 sortConfig={sortConfig}
-                onSort={handleSort}
-              />
+                onSort={handleSort} />
               <SortableHeader
                 label="MIN"
                 sortKey="min"
                 sortConfig={sortConfig}
                 onSort={handleSort}
-                tooltip="Minutes Played"
-              />
+                tooltip="Minutes Played" />
               <SortableHeader
                 label="PTS"
                 sortKey="points"
                 sortConfig={sortConfig}
                 onSort={handleSort}
-                tooltip="Points"
-              />
+                tooltip="Points" />
               <SortableHeader
                 label="FG"
                 sortKey="makes"
                 sortConfig={sortConfig}
                 onSort={handleSort}
-                tooltip="Field Goals Made-Attempted"
-              />
+                tooltip="Field Goals Made-Attempted" />
               <SortableHeader
                 label="FG%"
                 sortKey="fgPct"
                 hideOnMobile
                 sortConfig={sortConfig}
                 onSort={handleSort}
-                tooltip="Field Goal Percentage"
-              />
+                tooltip="Field Goal Percentage" />
               <SortableHeader
                 label="eFG%"
                 sortKey="efgPct"
                 hideOnMobile
                 sortConfig={sortConfig}
                 onSort={handleSort}
-                tooltip="Effective Field Goal Percentage"
-              />
+                tooltip="Effective Field Goal Percentage" />
               <SortableHeader
                 label="OREB"
                 sortKey="offRebounds"
                 hideOnMobile
                 sortConfig={sortConfig}
                 onSort={handleSort}
-                tooltip="Offensive Rebounds"
-              />
+                tooltip="Offensive Rebounds" />
               <SortableHeader
                 label="DREB"
                 sortKey="defRebounds"
                 hideOnMobile
                 sortConfig={sortConfig}
                 onSort={handleSort}
-                tooltip="Defensive Rebounds"
-              />
+                tooltip="Defensive Rebounds" />
               <SortableHeader
                 label="REB"
                 sortKey="rebounds"
                 sortConfig={sortConfig}
                 onSort={handleSort}
-                tooltip="Total Rebounds"
-              />
+                tooltip="Total Rebounds" />
               <SortableHeader
                 label="AST"
                 sortKey="assists"
                 sortConfig={sortConfig}
                 onSort={handleSort}
-                tooltip="Assists"
-              />
+                tooltip="Assists" />
               <SortableHeader
                 label="HA"
                 sortKey="hockeyAssists"
                 sortConfig={sortConfig}
                 onSort={handleSort}
-                tooltip="Hockey Assists (Secondary Assists)"
-              />
+                tooltip="Hockey Assists (Secondary Assists)" />
               <SortableHeader
                 label="STL"
                 sortKey="steals"
                 hideOnMobile
                 sortConfig={sortConfig}
                 onSort={handleSort}
-                tooltip="Steals"
-              />
+                tooltip="Steals" />
               <SortableHeader
                 label="BLK"
                 sortKey="blocks"
                 hideOnMobile
                 sortConfig={sortConfig}
                 onSort={handleSort}
-                tooltip="Blocks"
-              />
+                tooltip="Blocks" />
               <SortableHeader
                 label="TO"
                 sortKey="turnovers"
                 hideOnMobile
                 sortConfig={sortConfig}
                 onSort={handleSort}
-                tooltip="Turnovers"
-              />
+                tooltip="Turnovers" />
               <SortableHeader
                 label="PF"
                 sortKey="fouls"
                 sortConfig={sortConfig}
                 onSort={handleSort}
-                tooltip="Personal Fouls"
-              />
+                tooltip="Personal Fouls" />
               <SortableHeader
                 label="+/-"
                 sortKey="plusMinus"
                 sortConfig={sortConfig}
                 onSort={handleSort}
-                tooltip="Plus/Minus"
-              />
+                tooltip="Plus/Minus" />
             </TableRow>
           </TableHead>
           <TableBody>
@@ -170,16 +153,14 @@ export const BoxScoreSection: React.FC<BoxScoreSectionProps> = React.memo(
                     display: "flex",
                     alignItems: "center",
                     gap: 1,
-                  }}
-                >
+                  }}>
                   <Avatar
                     sx={{
                       width: 24,
                       height: 24,
                       fontSize: "0.75rem",
                       bgcolor: row.avatarColor,
-                    }}
-                  >
+                    }}>
                     {row.jerseyNumber}
                   </Avatar>
                   <Typography
@@ -187,8 +168,7 @@ export const BoxScoreSection: React.FC<BoxScoreSectionProps> = React.memo(
                     sx={{
                       fontWeight: 600,
                       fontSize: { xs: "0.75rem", sm: "0.875rem" },
-                    }}
-                  >
+                    }}>
                     {row.name}
                   </Typography>
                 </TableCell>
@@ -199,26 +179,22 @@ export const BoxScoreSection: React.FC<BoxScoreSectionProps> = React.memo(
                 </TableCell>
                 <TableCell
                   align="right"
-                  sx={{ display: { xs: "none", sm: "table-cell" } }}
-                >
+                  sx={{ display: { xs: "none", sm: "table-cell" } }}>
                   {row.fgPct}%
                 </TableCell>
                 <TableCell
                   align="right"
-                  sx={{ display: { xs: "none", sm: "table-cell" } }}
-                >
+                  sx={{ display: { xs: "none", sm: "table-cell" } }}>
                   {row.efgPct}%
                 </TableCell>
                 <TableCell
                   align="right"
-                  sx={{ display: { xs: "none", sm: "table-cell" } }}
-                >
+                  sx={{ display: { xs: "none", sm: "table-cell" } }}>
                   {row.offRebounds}
                 </TableCell>
                 <TableCell
                   align="right"
-                  sx={{ display: { xs: "none", sm: "table-cell" } }}
-                >
+                  sx={{ display: { xs: "none", sm: "table-cell" } }}>
                   {row.defRebounds}
                 </TableCell>
                 <TableCell align="right">{row.rebounds}</TableCell>
@@ -226,31 +202,27 @@ export const BoxScoreSection: React.FC<BoxScoreSectionProps> = React.memo(
                 <TableCell align="right">{row.hockeyAssists}</TableCell>
                 <TableCell
                   align="right"
-                  sx={{ display: { xs: "none", sm: "table-cell" } }}
-                >
+                  sx={{ display: { xs: "none", sm: "table-cell" } }}>
                   {row.steals}
                 </TableCell>
                 <TableCell
                   align="right"
-                  sx={{ display: { xs: "none", sm: "table-cell" } }}
-                >
+                  sx={{ display: { xs: "none", sm: "table-cell" } }}>
                   {row.blocks}
                 </TableCell>
                 <TableCell
                   align="right"
-                  sx={{ display: { xs: "none", sm: "table-cell" } }}
-                >
+                  sx={{ display: { xs: "none", sm: "table-cell" } }}>
                   {row.turnovers}
                 </TableCell>
                 <TableCell align="right">{row.fouls}</TableCell>
                 <TableCell align="right">
-                  {row.plusMinus > 0 ? `+${row.plusMinus}` : row.plusMinus}
+                  {row.plusMinus> 0 ? `+${row.plusMinus}` : row.plusMinus}
                 </TableCell>
               </TableRow>
             ))}
             <TableRow
-              sx={{ bgcolor: "primary.light", color: "primary.contrastText" }}
-            >
+              sx={{ bgcolor: "primary.light", color: "primary.contrastText" }}>
               <TableCell sx={{ fontWeight: 700 }}>
                 TEAM TOTALS (PPP: {teamData.ppp})
               </TableCell>
@@ -273,46 +245,39 @@ export const BoxScoreSection: React.FC<BoxScoreSectionProps> = React.memo(
               </TableCell>
               <TableCell
                 align="right"
-                sx={{ display: { xs: "none", sm: "table-cell" } }}
-              >
+                sx={{ display: { xs: "none", sm: "table-cell" } }}>
                 {oppData.fgPct}%
               </TableCell>
               <TableCell
                 align="right"
-                sx={{ display: { xs: "none", sm: "table-cell" } }}
-              >
+                sx={{ display: { xs: "none", sm: "table-cell" } }}>
                 -
               </TableCell>
               <TableCell
                 align="right"
-                sx={{ display: { xs: "none", sm: "table-cell" } }}
-              >
+                sx={{ display: { xs: "none", sm: "table-cell" } }}>
                 {oppData.offRebounds}
               </TableCell>
               <TableCell
                 align="right"
-                sx={{ display: { xs: "none", sm: "table-cell" } }}
-              >
+                sx={{ display: { xs: "none", sm: "table-cell" } }}>
                 {oppData.defRebounds}
               </TableCell>
               <TableCell align="right">{oppData.rebounds}</TableCell>
               <TableCell align="right">{oppData.assists}</TableCell>
               <TableCell
                 align="right"
-                sx={{ display: { xs: "none", sm: "table-cell" } }}
-              >
+                sx={{ display: { xs: "none", sm: "table-cell" } }}>
                 {oppData.steals}
               </TableCell>
               <TableCell
                 align="right"
-                sx={{ display: { xs: "none", sm: "table-cell" } }}
-              >
+                sx={{ display: { xs: "none", sm: "table-cell" } }}>
                 {oppData.blocks}
               </TableCell>
               <TableCell
                 align="right"
-                sx={{ display: { xs: "none", sm: "table-cell" } }}
-              >
+                sx={{ display: { xs: "none", sm: "table-cell" } }}>
                 {oppData.turnovers}
               </TableCell>
               <TableCell align="right">{oppData.fouls}</TableCell>

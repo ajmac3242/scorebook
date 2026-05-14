@@ -24,8 +24,7 @@ const CourtSightLogo: React.FC<CourtSightLogoProps> = ({
           justifyContent: "center",
           color: "#FF6B1A",
           lineHeight: 0,
-        }}
-      >
+        }}>
         <SportsBasketballIcon sx={{ fontSize: iconSize }} />
       </Box>
     );
@@ -42,15 +41,13 @@ const CourtSightLogo: React.FC<CourtSightLogoProps> = ({
         width: "fit-content",
         color: "text.primary",
         lineHeight: 1,
-      }}
-    >
+      }}>
       <SportsBasketballIcon
         sx={{
           fontSize: iconSize,
           color: "#FF6B1A",
           flexShrink: 0,
-        }}
-      />
+        }} />
       <Typography
         sx={{
           fontSize: Math.max(18, Math.round(width * 0.13)),
@@ -58,8 +55,7 @@ const CourtSightLogo: React.FC<CourtSightLogoProps> = ({
           letterSpacing: "-0.02em",
           color: "inherit",
           lineHeight: 1,
-        }}
-      >
+        }}>
         <Box component="span" sx={{ color: "#FF6B1A" }}>
           Court
         </Box>

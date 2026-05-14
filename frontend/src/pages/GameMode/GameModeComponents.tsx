@@ -53,8 +53,7 @@ export const QuickAction: React.FC<QuickActionProps> = React.memo(
             outlineColor: "primary.main",
             outlineOffset: "2px",
           },
-        }}
-      >
+        }}>
         <Icon sx={{ mb: 1 }} />
         <Typography variant="caption" sx={{ fontWeight: 700 }}>
           {label}
@@ -100,14 +99,14 @@ export const LineupPlayerButton: React.FC<LineupPlayerButtonProps> = React.memo(
     const pf = stats?.fouls || 0;
     const foulLimit = game?.foulLimit || team?.defaultFoulLimit || 5;
     const isFoulTrouble = pf === foulLimit - 1;
-    const isFouledOut = pf >= foulLimit;
+    const isFouledOut = pf>= foulLimit;
 
     const curPeriodKey = `P${period}`;
     const periodFoulLimit = team?.foulWarningThresholds?.[curPeriodKey] || 99;
-    const isFoulTroubleInPeriod = periodFouls >= periodFoulLimit;
+    const isFoulTroubleInPeriod = periodFouls>= periodFoulLimit;
 
     const maxStint = (team?.maxStintDuration || 8) * 60;
-    const isFatigued = stintSecs > maxStint;
+    const isFatigued = stintSecs> maxStint;
 
     return (
       <Box sx={{ display: "flex", gap: 0.5, alignItems: "center" }}>
@@ -138,8 +137,7 @@ export const LineupPlayerButton: React.FC<LineupPlayerButtonProps> = React.memo(
                   : "primary.main",
               color: "white",
             },
-          }}
-        >
+          }}>
           <Avatar
             sx={{
               width: 24,
@@ -149,20 +147,17 @@ export const LineupPlayerButton: React.FC<LineupPlayerButtonProps> = React.memo(
               color: "primary.main",
               fontSize: "0.7rem",
               fontWeight: 700,
-            }}
-          >
+            }}>
             {jerseyNumber}
           </Avatar>
           <Box sx={{ flex: 1, textAlign: "left" }}>
             <Typography
               variant="caption"
-              sx={{ fontWeight: 700, display: "block", lineHeight: 1 }}
-            >
+              sx={{ fontWeight: 700, display: "block", lineHeight: 1 }}>
               {player.name}
               {isFatigued && (
                 <Tooltip
-                  title={`Fatigue Alert: Exceeded ${maxStint / 60} mins`}
-                >
+                  title={`Fatigue Alert: Exceeded ${maxStint / 60} mins`}>
                   <Box component="span" sx={{ ml: 0.5, fontSize: "0.8rem" }}>
                     ⚠️
                   </Box>
@@ -171,14 +166,13 @@ export const LineupPlayerButton: React.FC<LineupPlayerButtonProps> = React.memo(
             </Typography>
             <Typography
               variant="caption"
-              sx={{ fontSize: "0.6rem", opacity: 0.8 }}
-            >
+              sx={{ fontSize: "0.6rem", opacity: 0.8 }}>
               {stats?.points || 0} pts | {stats?.rebounds || 0} reb | {pf} pf |{" "}
               {(() => {
                 const color =
-                  stintSecs > maxStint
+                  stintSecs> maxStint
                     ? theme.palette.error.main
-                    : stintSecs > maxStint * 0.75
+                    : stintSecs> maxStint * 0.75
                       ? theme.palette.warning.main
                       : "inherit";
                 return (
@@ -197,8 +191,7 @@ export const LineupPlayerButton: React.FC<LineupPlayerButtonProps> = React.memo(
               label="OUT"
               size="small"
               color="error"
-              sx={{ height: 16, fontSize: "0.5rem" }}
-            />
+              sx={{ height: 16, fontSize: "0.5rem" }} />
           )}
         </Button>
       </Box>

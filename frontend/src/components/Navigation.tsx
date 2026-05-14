@@ -90,8 +90,7 @@ const NavItem: React.FC<{
                 opacity: 0.8,
               }
             : {},
-        }}
-      >
+        }}>
         <ListItemIcon
           sx={{
             minWidth: 0,
@@ -101,8 +100,7 @@ const NavItem: React.FC<{
             "& svg": {
               fontSize: "1.25rem",
             },
-          }}
-        >
+          }}>
           {item.icon}
         </ListItemIcon>
         {isSelected && (
@@ -113,8 +111,7 @@ const NavItem: React.FC<{
               fontFamily: "var(--serif)",
               whiteSpace: "nowrap",
               fontSize: "0.85rem",
-            }}
-          >
+            }}>
             {item.text}
           </Typography>
         )}
@@ -194,8 +191,7 @@ const Navigation: React.FC = () => {
               from: { transform: "translateX(100%)", opacity: 0 },
               to: { transform: "translateX(0)", opacity: 1 },
             },
-          }}
-        >
+          }}>
           <BasketballIcon className="spin" aria-hidden="true" />
           <Typography variant="caption" sx={{ fontWeight: "bold" }}>
             SYNCING DATA
@@ -218,8 +214,7 @@ const Navigation: React.FC = () => {
           display: "flex",
           alignItems: "center",
           px: isMobile ? 1.5 : 4,
-        }}
-      >
+        }}>
         <Box
           sx={{
             display: "flex",
@@ -230,8 +225,7 @@ const Navigation: React.FC = () => {
             maxWidth: "1400px",
             margin: "0 auto",
             position: "relative",
-          }}
-        >
+          }}>
           {/* Logo Section */}
           <Box
             sx={{
@@ -239,8 +233,7 @@ const Navigation: React.FC = () => {
               alignItems: "center",
               gap: 1.5,
               minWidth: isMobile ? "40px" : "200px",
-            }}
-          >
+            }}>
             {!isMobile && (
               <Tooltip title="Back to Home Dashboard">
                 <Typography
@@ -263,8 +256,7 @@ const Navigation: React.FC = () => {
                       outlineOffset: "4px",
                       borderRadius: "4px",
                     },
-                  }}
-                >
+                  }}>
                   CourtSight
                 </Typography>
               </Tooltip>
@@ -282,8 +274,7 @@ const Navigation: React.FC = () => {
               display: "flex",
               justifyContent: "center",
               zIndex: 1,
-            }}
-          >
+            }}>
             <Box
               sx={{
                 display: "flex",
@@ -299,14 +290,12 @@ const Navigation: React.FC = () => {
                 width: isMobile ? "100%" : "auto",
                 justifyContent: isMobile ? "space-between" : "center",
                 maxWidth: isMobile ? "320px" : "none",
-              }}
-            >
+              }}>
               {menuItems.map((item) => (
                 <NavItem
                   key={item.text}
                   item={item}
-                  isSelected={location.pathname === item.path}
-                />
+                  isSelected={location.pathname === item.path} />
               ))}
             </Box>
           </Box>
@@ -318,8 +307,7 @@ const Navigation: React.FC = () => {
                 width: "200px",
                 display: "flex",
                 justifyContent: "flex-end",
-              }}
-            />
+              }} />
           )}
         </Box>
       </Box>

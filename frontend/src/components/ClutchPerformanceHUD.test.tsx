@@ -73,8 +73,7 @@ describe("ClutchPerformanceHUD", () => {
       <ThemeProvider theme={theme}>
         <ClutchPerformanceHUD
           onCourtStats={highUsageStats}
-          jerseyMap={mockJerseyMap}
-        />
+          jerseyMap={mockJerseyMap} />
       </ThemeProvider>,
     );
 
@@ -98,8 +97,7 @@ describe("ClutchPerformanceHUD", () => {
       <ThemeProvider theme={theme}>
         <ClutchPerformanceHUD
           onCourtStats={poorFTStats}
-          jerseyMap={mockJerseyMap}
-        />
+          jerseyMap={mockJerseyMap} />
       </ThemeProvider>,
     );
 
@@ -143,8 +141,7 @@ describe("ClutchPerformanceHUD", () => {
       <ThemeProvider theme={theme}>
         <ClutchPerformanceHUD
           onCourtStats={stats}
-          jerseyMap={extendedJerseyMap}
-        />
+          jerseyMap={extendedJerseyMap} />
       </ThemeProvider>,
     );
 
@@ -162,8 +159,7 @@ describe("ClutchPerformanceHUD", () => {
       <ThemeProvider theme={theme}>
         <ClutchPerformanceHUD
           onCourtStats={zeroStats}
-          jerseyMap={mockJerseyMap}
-        />
+          jerseyMap={mockJerseyMap} />
       </ThemeProvider>,
     );
 
@@ -179,8 +175,7 @@ describe("ClutchPerformanceHUD", () => {
       <ThemeProvider theme={theme}>
         <ClutchPerformanceHUD
           onCourtStats={goodFTStats}
-          jerseyMap={mockJerseyMap}
-        />
+          jerseyMap={mockJerseyMap} />
       </ThemeProvider>,
     );
 

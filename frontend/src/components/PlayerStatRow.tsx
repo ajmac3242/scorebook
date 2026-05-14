@@ -56,8 +56,7 @@ export const PlayerStatRow: React.FC<PlayerStatRowProps> = React.memo(
     <TableRow
       sx={{
         bgcolor: isOnCourt ? "rgba(25, 118, 210, 0.04)" : "transparent",
-      }}
-    >
+      }}>
       <TableCell sx={{ py: 1, px: 1 }}>
         <Typography
           variant="caption"
@@ -65,8 +64,7 @@ export const PlayerStatRow: React.FC<PlayerStatRowProps> = React.memo(
             fontWeight: 600,
             display: "block",
             lineHeight: 1.1,
-          }}
-        >
+          }}>
           #{jerseyNumber}
         </Typography>
         <Typography
@@ -79,8 +77,7 @@ export const PlayerStatRow: React.FC<PlayerStatRowProps> = React.memo(
             overflow: "hidden",
             textOverflow: "ellipsis",
             maxWidth: "60px",
-          }}
-        >
+          }}>
           {name.split(" ")[0]}
           {streak === "HOT" && (
             <Tooltip title="Hot Streak (3+ makes)">
@@ -142,16 +139,15 @@ export const PlayerStatRow: React.FC<PlayerStatRowProps> = React.memo(
         sx={{
           px: 1,
           fontSize: "0.75rem",
-          fontWeight: fouls >= 4 ? 700 : 400,
+          fontWeight: fouls>= 4 ? 700 : 400,
           bgcolor:
-            fouls >= 5
+            fouls>= 5
               ? "error.main"
               : fouls === 4
                 ? "warning.main"
                 : "transparent",
-          color: fouls >= 4 ? "white" : "inherit",
-        }}
-      >
+          color: fouls>= 4 ? "white" : "inherit",
+        }}>
         {fouls}
       </TableCell>
       <TableCell
@@ -161,8 +157,7 @@ export const PlayerStatRow: React.FC<PlayerStatRowProps> = React.memo(
           fontSize: "0.75rem",
           color: getPlusMinusColor(plusMinus),
           fontWeight: plusMinus !== 0 ? 600 : 400,
-        }}
-      >
+        }}>
         {formatPlusMinus(plusMinus)}
       </TableCell>
     </TableRow>

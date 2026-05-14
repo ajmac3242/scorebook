@@ -44,27 +44,24 @@ export const TacticalIdentityHUD: React.FC<TacticalIdentityHUDProps> = ({
         width: "100%",
         justifyContent: "space-around",
         alignItems: "center",
-      }}
-    >
+      }}>
       {kpis.map((kpi) => {
         const val =
           typeof kpi.value === "string" ? parseFloat(kpi.value) : kpi.value;
         const progress = Math.min((val / kpi.target) * 100, 100);
-        const isMet = kpi.inverse ? val <= kpi.target : val >= kpi.target;
+        const isMet = kpi.inverse ? val <= kpi.target : val>= kpi.target;
         const description = getKPIDescription(kpi.name);
 
         return (
           <Box
             key={kpi.name}
             sx={{ flex: 1, maxWidth: 200 }}
-            aria-label={`${kpi.label}: ${kpi.value}${kpi.isPercentage ? "%" : ""}. Target: ${kpi.target}${kpi.isPercentage ? "%" : ""}`}
-          >
+            aria-label={`${kpi.label}: ${kpi.value}${kpi.isPercentage ? "%" : ""}. Target: ${kpi.target}${kpi.isPercentage ? "%" : ""}`}>
             <Stack
               direction="row"
               justifyContent="space-between"
-              alignItems="center"
-              sx={{ mb: 0.5 }}
-            >
+              alignItems={{ xs: "center" }}
+              sx={{ mb: 0.5 }}>
               <Tooltip title={description} arrow placement="top">
                 <Typography
                   variant="caption"
@@ -74,8 +71,7 @@ export const TacticalIdentityHUD: React.FC<TacticalIdentityHUDProps> = ({
                     opacity: 0.8,
                     cursor: "help",
                     borderBottom: "1px dotted rgba(0,0,0,0.2)",
-                  }}
-                >
+                  }}>
                   {kpi.label.toUpperCase()}
                 </Typography>
               </Tooltip>
@@ -84,8 +80,7 @@ export const TacticalIdentityHUD: React.FC<TacticalIdentityHUDProps> = ({
               )}
             </Stack>
             <Tooltip
-              title={`Goal: ${kpi.target}${kpi.isPercentage ? "%" : ""}`}
-            >
+              title={`Goal: ${kpi.target}${kpi.isPercentage ? "%" : ""}`}>
               <Box sx={{ position: "relative" }}>
                 <LinearProgress
                   variant="determinate"
@@ -98,14 +93,12 @@ export const TacticalIdentityHUD: React.FC<TacticalIdentityHUDProps> = ({
                       bgcolor: isMet ? "success.main" : "primary.main",
                       borderRadius: 3,
                     },
-                  }}
-                />
+                  }} />
               </Box>
             </Tooltip>
             <Typography
               variant="h6"
-              sx={{ fontWeight: 900, fontSize: "1rem", mt: 0.2 }}
-            >
+              sx={{ fontWeight: 900, fontSize: "1rem", mt: 0.2 }}>
               {kpi.value}
               {kpi.isPercentage ? "%" : ""}
             </Typography>

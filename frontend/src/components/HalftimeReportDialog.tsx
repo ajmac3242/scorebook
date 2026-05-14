@@ -84,16 +84,14 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
       onClose={onClose}
       fullWidth
       maxWidth="sm"
-      aria-labelledby="halftime-report-title"
-    >
+      aria-labelledby="halftime-report-title">
       <DialogTitle
         id="halftime-report-title"
         sx={{
           fontFamily: "var(--serif)",
           textAlign: "center",
           fontWeight: 700,
-        }}
-      >
+        }}>
         Halftime Tactical Report
       </DialogTitle>
       <DialogContent>
@@ -104,8 +102,7 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
               justifyContent: "space-between",
               alignItems: "center",
               mb: 1,
-            }}
-          >
+            }}>
             <Typography
               variant="subtitle2"
               sx={{
@@ -114,8 +111,7 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
                 display: "flex",
                 alignItems: "center",
                 gap: 1,
-              }}
-            >
+              }}>
               <AssignmentIcon fontSize="small" /> HALFTIME TALKING POINTS
             </Typography>
             <Button
@@ -123,8 +119,7 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
               startIcon={copied ? <CheckIcon /> : <CopyIcon />}
               onClick={handleCopyTalkingPoints}
               color={copied ? "success" : "primary"}
-              sx={{ fontSize: "0.65rem" }}
-            >
+              sx={{ fontSize: "0.65rem" }}>
               {copied ? "Copied!" : "Copy"}
             </Button>
           </Box>
@@ -148,12 +143,10 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
                       : p.type === "DEFENSE"
                         ? "error.main"
                         : "success.main",
-                }}
-              >
+                }}>
                 <Typography
                   variant="subtitle2"
-                  sx={{ fontWeight: 800, mb: 0.5 }}
-                >
+                  sx={{ fontWeight: 800, mb: 0.5 }}>
                   {p.text}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
@@ -168,50 +161,44 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
 
         <Box sx={{ mb: 3, textAlign: "center" }}>
           <Grid container spacing={2}>
-            <Grid item xs={4}>
+            <Grid size={{ xs: 4 }}>
               <Typography
                 variant="caption"
                 color="text.secondary"
-                sx={{ fontWeight: 700 }}
-              >
+                sx={{ fontWeight: 700 }}>
                 HALF PPP
               </Typography>
               <Typography
                 variant="h4"
                 color="primary.main"
-                sx={{ fontWeight: 800 }}
-              >
+                sx={{ fontWeight: 800 }}>
                 {teamPpp}
               </Typography>
             </Grid>
-            <Grid item xs={4}>
+            <Grid size={{ xs: 4 }}>
               <Typography
                 variant="caption"
                 color="text.secondary"
-                sx={{ fontWeight: 700 }}
-              >
+                sx={{ fontWeight: 700 }}>
                 OPP PPP
               </Typography>
               <Typography
                 variant="h4"
                 color="secondary.main"
-                sx={{ fontWeight: 800 }}
-              >
+                sx={{ fontWeight: 800 }}>
                 {oppPpp}
               </Typography>
             </Grid>
-            <Grid item xs={4}>
+            <Grid size={{ xs: 4 }}>
               <Typography
                 variant="caption"
                 color="text.secondary"
-                sx={{ fontWeight: 700 }}
-              >
+                sx={{ fontWeight: 700 }}>
                 SEASON AVG
               </Typography>
               <Typography
                 variant="h4"
-                sx={{ fontWeight: 800, color: "grey.600" }}
-              >
+                sx={{ fontWeight: 800, color: "grey.600" }}>
                 {seasonPpp}
               </Typography>
             </Grid>
@@ -220,8 +207,7 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
             <Typography
               variant="caption"
               color="error.main"
-              sx={{ mt: 1, display: "block", fontWeight: 700 }}
-            >
+              sx={{ mt: 1, display: "block", fontWeight: 700 }}>
               Performing{" "}
               {(parseFloat(seasonPpp) - parseFloat(teamPpp)).toFixed(2)} below
               season average
@@ -234,8 +220,7 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
         <Box sx={{ mb: 3 }}>
           <Typography
             variant="subtitle2"
-            sx={{ fontWeight: 700, mb: 1, color: "secondary.main" }}
-          >
+            sx={{ fontWeight: 700, mb: 1, color: "secondary.main" }}>
             DEFENSIVE SCHEME EFFICIENCY
           </Typography>
           <TableContainer>
@@ -247,21 +232,19 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
                   </TableCell>
                   <TableCell
                     align="right"
-                    sx={{ fontSize: "0.65rem", fontWeight: 800 }}
-                  >
+                    sx={{ fontSize: "0.65rem", fontWeight: 800 }}>
                     POSS
                   </TableCell>
                   <TableCell
                     align="right"
-                    sx={{ fontSize: "0.65rem", fontWeight: 800 }}
-                  >
+                    sx={{ fontSize: "0.65rem", fontWeight: 800 }}>
                     PPP
                   </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {schemeEfficiency
-                  .filter((s) => s.possessions > 0)
+                  .filter((s) => s.possessions> 0)
                   .map((s) => (
                     <TableRow key={s.name}>
                       <TableCell sx={{ fontSize: "0.75rem", fontWeight: 600 }}>
@@ -272,13 +255,12 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
                       </TableCell>
                       <TableCell
                         align="right"
-                        sx={{ fontSize: "0.75rem", fontWeight: 700 }}
-                      >
+                        sx={{ fontSize: "0.75rem", fontWeight: 700 }}>
                         {s.ppp}
                       </TableCell>
                     </TableRow>
                   ))}
-                {schemeEfficiency.filter((s) => s.possessions > 0).length ===
+                {schemeEfficiency.filter((s) => s.possessions> 0).length ===
                   0 && (
                   <TableRow>
                     <TableCell colSpan={3} align="center">
@@ -296,8 +278,7 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
         <Box sx={{ mb: 3 }}>
           <Typography
             variant="subtitle2"
-            sx={{ fontWeight: 700, mb: 1, color: "success.main" }}
-          >
+            sx={{ fontWeight: 700, mb: 1, color: "success.main" }}>
             TOP PERFORMING LINEUPS (+/-)
           </Typography>
           <Stack spacing={1}>
@@ -311,14 +292,12 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
                   p: 1,
                   bgcolor: "rgba(0,0,0,0.02)",
                   borderRadius: 1,
-                }}
-              >
+                }}>
                 <Stack direction="row" spacing={0.5}>
                   {l.lineup.map((pId) => (
                     <Avatar
                       key={pId}
-                      sx={{ width: 24, height: 24, fontSize: "0.65rem" }}
-                    >
+                      sx={{ width: 24, height: 24, fontSize: "0.65rem" }}>
                       {jerseyMap.get(pId) || "??"}
                     </Avatar>
                   ))}
@@ -334,8 +313,7 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
         <Box sx={{ mb: 3 }}>
           <Typography
             variant="subtitle2"
-            sx={{ fontWeight: 700, mb: 1, color: "error.main" }}
-          >
+            sx={{ fontWeight: 700, mb: 1, color: "error.main" }}>
             STRUGGLING LINEUPS (+/-)
           </Typography>
           <Stack spacing={1}>
@@ -349,14 +327,12 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
                   p: 1,
                   bgcolor: "rgba(0,0,0,0.02)",
                   borderRadius: 1,
-                }}
-              >
+                }}>
                 <Stack direction="row" spacing={0.5}>
                   {l.lineup.map((pId) => (
                     <Avatar
                       key={pId}
-                      sx={{ width: 24, height: 24, fontSize: "0.65rem" }}
-                    >
+                      sx={{ width: 24, height: 24, fontSize: "0.65rem" }}>
                       {jerseyMap.get(pId) || "??"}
                     </Avatar>
                   ))}
@@ -372,12 +348,11 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
         <Box sx={{ mb: 3 }}>
           <Typography
             variant="subtitle2"
-            sx={{ fontWeight: 700, mb: 1, color: "warning.main" }}
-          >
+            sx={{ fontWeight: 700, mb: 1, color: "warning.main" }}>
             OPPONENT STREAKS & THREATS
           </Typography>
           <Stack spacing={1}>
-            {opponentThreats.length > 0 ? (
+            {opponentThreats.length> 0 ? (
               opponentThreats
                 .sort((a, b) => b.points - a.points)
                 .slice(0, 3)
@@ -390,12 +365,11 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
                       borderRadius: 1,
                       borderLeft: "3px solid",
                       borderColor: "warning.main",
-                    }}
-                  >
+                    }}>
                     <Typography variant="body2" component="div">
                       <strong>#{t.playerId.split(":")[1] || "??"}</strong>:{" "}
                       {t.points} pts
-                      {t.straightPoints >= 6 && (
+                      {t.straightPoints>= 6 && (
                         <Chip
                           label={`${t.straightPoints} STRAIGHT`}
                           size="small"
@@ -405,8 +379,7 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
                             fontSize: "0.6rem",
                             ml: 1,
                             fontWeight: 800,
-                          }}
-                        />
+                          }} />
                       )}
                     </Typography>
                   </Box>

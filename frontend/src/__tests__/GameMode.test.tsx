@@ -27,8 +27,7 @@ vi.mock("../components/BasketballCourt", () => ({
         const x = Number(e.currentTarget.getAttribute("data-x") || 50);
         const y = Number(e.currentTarget.getAttribute("data-y") || 50);
         onCoordClick(x, y);
-      }}
-    >
+      }}>
       Mock Basketball Court
     </div>
   ),

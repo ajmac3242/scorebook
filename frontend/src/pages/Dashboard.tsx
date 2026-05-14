@@ -87,7 +87,7 @@ const Dashboard: React.FC = () => {
   }, [teamGames, gameCountFilter]);
   const rawAllStats = useLiveQuery(
     () =>
-      gameIds.length > 0
+      gameIds.length> 0
         ? db.stats.where("gameId").anyOf(gameIds).toArray()
         : [],
     [gameIds],
@@ -111,7 +111,7 @@ const Dashboard: React.FC = () => {
 
   const rawPlayers = useLiveQuery(
     () =>
-      playerIds.length > 0
+      playerIds.length> 0
         ? db.players.where("id").anyOf(playerIds).toArray()
         : [],
     [playerIds],
@@ -153,7 +153,7 @@ const Dashboard: React.FC = () => {
   const lineupStats = useMemo(() => {
     if (!Array.isArray(allStats)) return [];
     return calculateLineupStats(allStats).filter(
-      (l) => l.seconds > 120, // Min 2 minutes to show on dashboard
+      (l) => l.seconds> 120, // Min 2 minutes to show on dashboard
     );
   }, [allStats]);
 
@@ -232,8 +232,7 @@ const Dashboard: React.FC = () => {
           justifyContent: "center",
           alignItems: "center",
           minHeight: "60vh",
-        }}
-      >
+        }}>
         <CircularProgress />
       </Box>
     );
@@ -254,39 +253,34 @@ const Dashboard: React.FC = () => {
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-          }}
-        >
+          }}>
           <StarIcon
             sx={{
               fontSize: 64,
               color: "primary.main",
               opacity: 0.2,
               mb: 2,
-            }}
-          />
+            }} />
           <Typography
             variant="h4"
-            sx={{ fontFamily: "var(--serif)", mb: 2, fontWeight: 700 }}
-          >
+            sx={{ fontFamily: "var(--serif)", mb: 2, fontWeight: 700 }}>
             Welcome to CourtSight!
           </Typography>
           <Typography
             variant="body1"
             color="text.secondary"
-            sx={{ mb: 4, maxWidth: 600, mx: "auto" }}
-          >
+            sx={{ mb: 4, maxWidth: 600, mx: "auto" }}>
             Set your primary team to see a personalized dashboard with stats,
             heatmaps, and upcoming schedule at a glance.
           </Typography>
-          <Stack direction="row" spacing={2} justifyContent="center">
+          <Stack direction="row" spacing={2} justifyContent={{ xs: "center" }}>
             <Button
               component={Link}
               to="/teams"
               variant="contained"
               size="large"
               startIcon={<StarIcon />}
-              sx={{ px: 4, py: 1.5, borderRadius: 2 }}
-            >
+              sx={{ px: 4, py: 1.5, borderRadius: 2 }}>
               Star a Team in Notebook
             </Button>
           </Stack>
@@ -309,15 +303,13 @@ const Dashboard: React.FC = () => {
             fontWeight: "bold",
             color: "white",
             boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-          }}
-        >
+          }}>
           {getInitials(favoriteTeam.name)}
         </Avatar>
         <Box>
           <Typography
             variant="h4"
-            sx={{ fontFamily: "var(--serif)", fontWeight: 800 }}
-          >
+            sx={{ fontFamily: "var(--serif)", fontWeight: 800 }}>
             {favoriteTeam.name}
           </Typography>
           <Chip
@@ -326,8 +318,7 @@ const Dashboard: React.FC = () => {
                 sx={{
                   fontSize: "1rem !important",
                   color: "#FFD700 !important",
-                }}
-              />
+                }} />
             }
             label="My Team"
             size="small"
@@ -337,14 +328,13 @@ const Dashboard: React.FC = () => {
               bgcolor: "rgba(255, 215, 0, 0.1)",
               color: "#B8860B",
               border: "1px solid rgba(255, 215, 0, 0.3)",
-            }}
-          />
+            }} />
         </Box>
       </Box>
 
       <Grid container spacing={3}>
         {/* Key Stats */}
-        <Grid item xs={12} md={8}>
+        <Grid size={{ xs: 12, md: 8 }}>
           <MoleskineCard sx={{ height: "100%" }}>
             <Box
               sx={{
@@ -352,8 +342,7 @@ const Dashboard: React.FC = () => {
                 justifyContent: "space-between",
                 alignItems: "center",
                 mb: 3,
-              }}
-            >
+              }}>
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                 <TrendingUp color="primary" />
                 <Typography variant="h6" sx={{ fontWeight: 700 }}>
@@ -365,8 +354,7 @@ const Dashboard: React.FC = () => {
                 exclusive
                 onChange={(_, val) => val && setGameCountFilter(val)}
                 size="small"
-                aria-label="Filter team aggregates by last games count"
-              >
+                aria-label="Filter team aggregates by last games count">
                 <ToggleButton value="5" sx={{ px: 1.5 }}>
                   L5
                 </ToggleButton>
@@ -379,16 +367,16 @@ const Dashboard: React.FC = () => {
               </ToggleButtonGroup>
             </Box>
             <Grid container spacing={2}>
-              <Grid item xs={6} sm={3}>
+              <Grid size={{ xs: 6, sm: 3 }}>
                 <StatItem label="Record" value={aggregates.record} />
               </Grid>
-              <Grid item xs={6} sm={3}>
+              <Grid size={{ xs: 6, sm: 3 }}>
                 <StatItem label="PPG" value={aggregates.ppg} />
               </Grid>
-              <Grid item xs={6} sm={3}>
+              <Grid size={{ xs: 6, sm: 3 }}>
                 <StatItem label="OPPG" value={aggregates.oppg} />
               </Grid>
-              <Grid item xs={6} sm={3}>
+              <Grid size={{ xs: 6, sm: 3 }}>
                 <StatItem label="RPG" value={aggregates.rpg} />
               </Grid>
             </Grid>
@@ -403,8 +391,7 @@ const Dashboard: React.FC = () => {
                 alignItems: { xs: "flex-start", sm: "center" },
                 mb: 2,
                 gap: 1,
-              }}
-            >
+              }}>
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                 <Assessment color="primary" />
                 <Typography variant="h6" sx={{ fontWeight: 700 }}>
@@ -416,8 +403,7 @@ const Dashboard: React.FC = () => {
                 exclusive
                 onChange={(_, val) => val && setSelectedPeriod(val)}
                 size="small"
-                aria-label="Filter stats by period"
-              >
+                aria-label="Filter stats by period">
                 <ToggleButton value="ALL" aria-label="Show all periods">
                   All
                 </ToggleButton>
@@ -459,14 +445,13 @@ const Dashboard: React.FC = () => {
               <Typography
                 variant="body2"
                 color="text.secondary"
-                sx={{ py: 2, textAlign: "center" }}
-              >
+                sx={{ py: 2, textAlign: "center" }}>
                 Not enough lineup data for this period.
               </Typography>
             ) : (
               <Grid container spacing={2} sx={{ mb: 4 }}>
                 {lineupStats.slice(0, 3).map((lineup, idx) => (
-                  <Grid item xs={12} key={idx}>
+                  <Grid size={{ xs: 12 }} key={idx}>
                     <Box
                       sx={{
                         p: 1.5,
@@ -475,8 +460,7 @@ const Dashboard: React.FC = () => {
                         display: "flex",
                         justifyContent: "space-between",
                         alignItems: "center",
-                      }}
-                    >
+                      }}>
                       <Stack direction="row" spacing={0.5}>
                         {lineup.lineup.map((pId) => (
                           <Avatar
@@ -486,8 +470,7 @@ const Dashboard: React.FC = () => {
                               height: 28,
                               fontSize: "0.7rem",
                               bgcolor: favoriteTeam.primaryColor,
-                            }}
-                          >
+                            }}>
                             {teamPlayers.find((tp) => tp.playerId === pId)
                               ?.jerseyNumber || "??"}
                           </Avatar>
@@ -499,12 +482,11 @@ const Dashboard: React.FC = () => {
                           sx={{
                             fontWeight: 800,
                             color:
-                              lineup.netRating > 0
+                              lineup.netRating> 0
                                 ? "success.main"
                                 : "error.main",
-                          }}
-                        >
-                          {lineup.netRating > 0 ? "+" : ""}
+                          }}>
+                          {lineup.netRating> 0 ? "+" : ""}
                           {lineup.netRating}
                         </Typography>
                         <Typography variant="caption" color="text.secondary">
@@ -526,14 +508,13 @@ const Dashboard: React.FC = () => {
               </Typography>
             </Box>
             <Grid container spacing={3}>
-              <Grid item xs={12} sm={4}>
+              <Grid size={{ xs: 12, sm: 4 }}>
                 <MoleskineCard
                   sx={{
                     bgcolor: "rgba(0,0,0,0.02)",
                     textAlign: "center",
                     border: "1px solid rgba(0,0,0,0.05)",
-                  }}
-                >
+                  }}>
                   <Typography variant="caption" color="text.secondary">
                     POINTS PER GAME
                   </Typography>
@@ -545,14 +526,13 @@ const Dashboard: React.FC = () => {
                   </Typography>
                 </MoleskineCard>
               </Grid>
-              <Grid item xs={12} sm={4}>
+              <Grid size={{ xs: 12, sm: 4 }}>
                 <MoleskineCard
                   sx={{
                     bgcolor: "rgba(0,0,0,0.02)",
                     textAlign: "center",
                     border: "1px solid rgba(0,0,0,0.05)",
-                  }}
-                >
+                  }}>
                   <Typography variant="caption" color="text.secondary">
                     REBOUNDS PER GAME
                   </Typography>
@@ -564,14 +544,13 @@ const Dashboard: React.FC = () => {
                   </Typography>
                 </MoleskineCard>
               </Grid>
-              <Grid item xs={12} sm={4}>
+              <Grid size={{ xs: 12, sm: 4 }}>
                 <MoleskineCard
                   sx={{
                     bgcolor: "rgba(0,0,0,0.02)",
                     textAlign: "center",
                     border: "1px solid rgba(0,0,0,0.05)",
-                  }}
-                >
+                  }}>
                   <Typography variant="caption" color="text.secondary">
                     ASSISTS PER GAME
                   </Typography>
@@ -588,12 +567,11 @@ const Dashboard: React.FC = () => {
         </Grid>
 
         {/* Schedule & Actions */}
-        <Grid item xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <Stack spacing={3}>
             <MoleskineCard>
               <Box
-                sx={{ display: "flex", alignItems: "center", mb: 2, gap: 1 }}
-              >
+                sx={{ display: "flex", alignItems: "center", mb: 2, gap: 1 }}>
                 <Assessment color="primary" />
                 <Typography variant="h6" sx={{ fontWeight: 700 }}>
                   Recent Results
@@ -603,8 +581,7 @@ const Dashboard: React.FC = () => {
                 <Typography
                   variant="body2"
                   color="text.secondary"
-                  sx={{ py: 2, textAlign: "center" }}
-                >
+                  sx={{ py: 2, textAlign: "center" }}>
                   No games completed yet.
                 </Typography>
               ) : (
@@ -633,15 +610,13 @@ const Dashboard: React.FC = () => {
                         if (e.key === "Enter" || e.key === " ") {
                           navigate(`/game/stats?gameId=${game.id}`);
                         }
-                      }}
-                    >
+                      }}>
                       <Box
                         sx={{
                           display: "flex",
                           justifyContent: "space-between",
                           mb: 1,
-                        }}
-                      >
+                        }}>
                         <Typography variant="caption" color="text.secondary">
                           {dayjs(game.date).format("MMM D")}
                         </Typography>
@@ -659,20 +634,17 @@ const Dashboard: React.FC = () => {
                             height: 16,
                             fontSize: "0.6rem",
                             fontWeight: 900,
-                          }}
-                        />
+                          }} />
                       </Box>
                       <Box
                         sx={{
                           display: "flex",
                           justifyContent: "space-between",
                           alignItems: "center",
-                        }}
-                      >
+                        }}>
                         <Typography
                           variant="subtitle2"
-                          sx={{ fontWeight: 700 }}
-                        >
+                          sx={{ fontWeight: 700 }}>
                           vs {game.opponent}
                         </Typography>
                         <Typography variant="h6" sx={{ fontWeight: 800 }}>
@@ -687,8 +659,7 @@ const Dashboard: React.FC = () => {
 
             <MoleskineCard>
               <Box
-                sx={{ display: "flex", alignItems: "center", mb: 2, gap: 1 }}
-              >
+                sx={{ display: "flex", alignItems: "center", mb: 2, gap: 1 }}>
                 <Event color="primary" />
                 <Typography variant="h6" sx={{ fontWeight: 700 }}>
                   Upcoming Games
@@ -698,8 +669,7 @@ const Dashboard: React.FC = () => {
                 <Typography
                   variant="body2"
                   color="text.secondary"
-                  sx={{ py: 2, textAlign: "center" }}
-                >
+                  sx={{ py: 2, textAlign: "center" }}>
                   No upcoming games scheduled.
                 </Typography>
               ) : (
@@ -728,13 +698,11 @@ const Dashboard: React.FC = () => {
                           navigate(`/game/stats?gameId=${game.id}`);
                         }
                       }}
-                      aria-label={`Upcoming game vs ${game.opponent} on ${dayjs(game.date).format("MMM D, YYYY")}`}
-                    >
+                      aria-label={`Upcoming game vs ${game.opponent} on ${dayjs(game.date).format("MMM D, YYYY")}`}>
                       <Typography
                         variant="caption"
                         color="text.secondary"
-                        sx={{ display: "block", mb: 0.5 }}
-                      >
+                        sx={{ display: "block", mb: 0.5 }}>
                         {dayjs(game.date).format("MMM D, YYYY")} {game.time}
                       </Typography>
                       <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
@@ -752,8 +720,7 @@ const Dashboard: React.FC = () => {
                 variant="outlined"
                 sx={{ mt: 3 }}
                 onClick={() => navigate(`/teams/${favoriteTeam.id}`)}
-                aria-label={`View full schedule for ${favoriteTeam.name}`}
-              >
+                aria-label={`View full schedule for ${favoriteTeam.name}`}>
                 View Full Schedule
               </Button>
             </MoleskineCard>
@@ -762,8 +729,7 @@ const Dashboard: React.FC = () => {
               sx={{
                 bgcolor: favoriteTeam.primaryColor || "primary.main",
                 color: "white",
-              }}
-            >
+              }}>
               <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
                 Quick Actions
               </Typography>
@@ -776,8 +742,7 @@ const Dashboard: React.FC = () => {
                     "&:hover": { bgcolor: "rgba(255,255,255,0.3)" },
                   }}
                   startIcon={<AddIcon />}
-                  onClick={() => navigate(`/teams/${favoriteTeam.id}`)}
-                >
+                  onClick={() => navigate(`/teams/${favoriteTeam.id}`)}>
                   Schedule New Game
                 </Button>
                 <Button
@@ -788,8 +753,7 @@ const Dashboard: React.FC = () => {
                     "&:hover": { bgcolor: "rgba(255,255,255,0.3)" },
                   }}
                   startIcon={<Assessment />}
-                  onClick={() => navigate(`/teams/${favoriteTeam.id}`)}
-                >
+                  onClick={() => navigate(`/teams/${favoriteTeam.id}`)}>
                   Manage Roster
                 </Button>
               </Stack>

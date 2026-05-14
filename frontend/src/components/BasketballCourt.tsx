@@ -94,8 +94,7 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
           aspectRatio: "50 / 47",
           position: "relative",
           bgcolor: "#FFFDF5",
-        }}
-      >
+        }}>
         <svg
           viewBox="0 0 500 470"
           role="img"
@@ -115,8 +114,7 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
             outline: "none",
           }}
           className="court-svg"
-          xmlns="http://www.w3.org/2000/svg"
-        >
+          xmlns="http://www.w3.org/2000/svg">
           {/* Out of bounds / Court Perimeter */}
           <rect
             x="0"
@@ -125,46 +123,42 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
             height="470"
             fill="none"
             stroke={charcoal}
-            strokeWidth={strokeWidth}
-          />
+            strokeWidth={strokeWidth} />
 
           {/* Heatmap Zones Overlay */}
           {heatmapData && (
             <g opacity="0.4" style={{ pointerEvents: "none" }}>
               {/* 3PT ABOVE THE BREAK */}
-              {heatmapData["3PT_CENTER"]?.attempts > 0 && (
+              {heatmapData["3PT_CENTER"]?.attempts> 0 && (
                 <path
                   d="M 100 295 A 220 220 0 0 0 400 295 L 400 470 L 100 470 Z"
                   fill={getHeatmapColor(
                     (heatmapData["3PT_CENTER"].makes /
                       heatmapData["3PT_CENTER"].attempts) *
                       100,
-                  )}
-                />
+                  )} />
               )}
-              {heatmapData["3PT_LEFT"]?.attempts > 0 && (
+              {heatmapData["3PT_LEFT"]?.attempts> 0 && (
                 <path
                   d="M 0 140 L 30 140 A 220 220 0 0 0 100 295 L 0 470 Z"
                   fill={getHeatmapColor(
                     (heatmapData["3PT_LEFT"].makes /
                       heatmapData["3PT_LEFT"].attempts) *
                       100,
-                  )}
-                />
+                  )} />
               )}
-              {heatmapData["3PT_RIGHT"]?.attempts > 0 && (
+              {heatmapData["3PT_RIGHT"]?.attempts> 0 && (
                 <path
                   d="M 500 140 L 470 140 A 220 220 0 0 1 400 295 L 500 470 Z"
                   fill={getHeatmapColor(
                     (heatmapData["3PT_RIGHT"].makes /
                       heatmapData["3PT_RIGHT"].attempts) *
                       100,
-                  )}
-                />
+                  )} />
               )}
 
               {/* CORNER 3s */}
-              {heatmapData["3PT_LEFT_CORNER"]?.attempts > 0 && (
+              {heatmapData["3PT_LEFT_CORNER"]?.attempts> 0 && (
                 <rect
                   x="0"
                   y="0"
@@ -174,10 +168,9 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
                     (heatmapData["3PT_LEFT_CORNER"].makes /
                       heatmapData["3PT_LEFT_CORNER"].attempts) *
                       100,
-                  )}
-                />
+                  )} />
               )}
-              {heatmapData["3PT_RIGHT_CORNER"]?.attempts > 0 && (
+              {heatmapData["3PT_RIGHT_CORNER"]?.attempts> 0 && (
                 <rect
                   x="470"
                   y="0"
@@ -187,32 +180,29 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
                     (heatmapData["3PT_RIGHT_CORNER"].makes /
                       heatmapData["3PT_RIGHT_CORNER"].attempts) *
                       100,
-                  )}
-                />
+                  )} />
               )}
 
               {/* MID RANGE */}
-              {heatmapData["MID_LEFT"]?.attempts > 0 && (
+              {heatmapData["MID_LEFT"]?.attempts> 0 && (
                 <path
                   d="M 30 0 L 170 0 L 170 190 L 86 190 A 220 220 0 0 1 30 140 Z"
                   fill={getHeatmapColor(
                     (heatmapData["MID_LEFT"].makes /
                       heatmapData["MID_LEFT"].attempts) *
                       100,
-                  )}
-                />
+                  )} />
               )}
-              {heatmapData["MID_RIGHT"]?.attempts > 0 && (
+              {heatmapData["MID_RIGHT"]?.attempts> 0 && (
                 <path
                   d="M 330 0 L 470 0 L 470 140 A 220 220 0 0 0 414 190 L 330 190 Z"
                   fill={getHeatmapColor(
                     (heatmapData["MID_RIGHT"].makes /
                       heatmapData["MID_RIGHT"].attempts) *
                       100,
-                  )}
-                />
+                  )} />
               )}
-              {heatmapData["MID_CENTER"]?.attempts > 0 && (
+              {heatmapData["MID_CENTER"]?.attempts> 0 && (
                 <rect
                   x="170"
                   y="190"
@@ -222,12 +212,11 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
                     (heatmapData["MID_CENTER"].makes /
                       heatmapData["MID_CENTER"].attempts) *
                       100,
-                  )}
-                />
+                  )} />
               )}
 
               {/* PAINT & RA */}
-              {heatmapData["PAINT"]?.attempts > 0 && (
+              {heatmapData["PAINT"]?.attempts> 0 && (
                 <rect
                   x="170"
                   y="0"
@@ -237,10 +226,9 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
                     (heatmapData["PAINT"].makes /
                       heatmapData["PAINT"].attempts) *
                       100,
-                  )}
-                />
+                  )} />
               )}
-              {heatmapData["RA"]?.attempts > 0 && (
+              {heatmapData["RA"]?.attempts> 0 && (
                 <circle
                   cx="250"
                   cy="47"
@@ -248,8 +236,7 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
                   fill={getHeatmapColor(
                     (heatmapData["RA"].makes / heatmapData["RA"].attempts) *
                       100,
-                  )}
-                />
+                  )} />
               )}
             </g>
           )}
@@ -262,24 +249,21 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
             height="190"
             fill="none"
             stroke={charcoal}
-            strokeWidth={strokeWidth}
-          />
+            strokeWidth={strokeWidth} />
 
           {/* Free Throw Circle (Top half) */}
           <path
             d="M 170 190 A 60 60 0 0 0 330 190"
             fill="none"
             stroke={charcoal}
-            strokeWidth={strokeWidth}
-          />
+            strokeWidth={strokeWidth} />
           {/* Free Throw Circle (Bottom dashed half) */}
           <path
             d="M 170 190 A 60 60 0 0 1 330 190"
             fill="none"
             stroke={charcoal}
             strokeWidth={strokeWidth}
-            strokeDasharray="10,10"
-          />
+            strokeDasharray="10,10" />
 
           {/* Three Point Line */}
           <line
@@ -288,30 +272,26 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
             x2="30"
             y2="140"
             stroke={charcoal}
-            strokeWidth={strokeWidth}
-          />
+            strokeWidth={strokeWidth} />
           <line
             x1="470"
             y1="0"
             x2="470"
             y2="140"
             stroke={charcoal}
-            strokeWidth={strokeWidth}
-          />
+            strokeWidth={strokeWidth} />
           <path
             d="M 30 140 A 220 220 0 0 0 470 140"
             fill="none"
             stroke={charcoal}
-            strokeWidth={strokeWidth}
-          />
+            strokeWidth={strokeWidth} />
 
           {/* Restricted Area Arc */}
           <path
             d="M 210 40 A 40 40 0 0 0 290 40"
             fill="none"
             stroke={charcoal}
-            strokeWidth={strokeWidth}
-          />
+            strokeWidth={strokeWidth} />
 
           {/* Backboard */}
           <line
@@ -320,8 +300,7 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
             x2="280"
             y2="40"
             stroke={charcoal}
-            strokeWidth={strokeWidth * 1.5}
-          />
+            strokeWidth={strokeWidth * 1.5} />
 
           {/* Rim / Hoop */}
           <circle
@@ -330,8 +309,7 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
             r="7"
             fill="none"
             stroke={charcoal}
-            strokeWidth={strokeWidth}
-          />
+            strokeWidth={strokeWidth} />
 
           {/* Markers / Heatmap Points */}
           <style>{getCourtStyles(theme)}</style>
@@ -376,8 +354,7 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
                 style={{
                   cursor: onMarkerClick ? "pointer" : "default",
                   outline: "none",
-                }}
-              >
+                }}>
                 <title>{`${marker.type} - ${marker.playerName ? marker.playerName : marker.label ? "#" + marker.label : "Opponent"}`}</title>
                 <circle
                   className={isLatest ? "latest-marker" : "court-marker"}
@@ -387,8 +364,7 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
                   fill={color}
                   fillOpacity={isLatest ? "1" : "0.8"}
                   stroke={color}
-                  strokeWidth={isLatest ? "2" : "1"}
-                />
+                  strokeWidth={isLatest ? "2" : "1"} />
                 {marker.label && (
                   <text
                     x={svgX}
@@ -396,8 +372,7 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
                     fontSize="12"
                     textAnchor="middle"
                     fill={charcoal}
-                    style={{ pointerEvents: "none", fontWeight: "bold" }}
-                  >
+                    style={{ pointerEvents: "none", fontWeight: "bold" }}>
                     {marker.label}
                   </text>
                 )}

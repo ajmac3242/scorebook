@@ -24,12 +24,10 @@ const DefensiveBreakdownDialog: React.FC<DefensiveBreakdownDialogProps> = ({
       onClose={() => onClose()}
       fullWidth
       maxWidth="xs"
-      aria-labelledby="defensive-breakdown-title"
-    >
+      aria-labelledby="defensive-breakdown-title">
       <DialogTitle
         id="defensive-breakdown-title"
-        sx={{ fontFamily: "var(--serif)", fontWeight: 800 }}
-      >
+        sx={{ fontFamily: "var(--serif)", fontWeight: 800 }}>
         DEFENSIVE BREAKDOWN
       </DialogTitle>
       <DialogContent>
@@ -49,15 +47,13 @@ const DefensiveBreakdownDialog: React.FC<DefensiveBreakdownDialogProps> = ({
                 textTransform: "none",
                 fontWeight: 600,
                 py: 1.5,
-              }}
-            >
+              }}>
               {reason}
             </Button>
           ))}
           <Button
             onClick={() => onClose()}
-            sx={{ mt: 1, textTransform: "none" }}
-          >
+            sx={{ mt: 1, textTransform: "none" }}>
             Skip / No Reason
           </Button>
         </Box>

@@ -47,8 +47,7 @@ export const ClutchPerformanceHUD: React.FC<ClutchPerformanceHUDProps> = ({
           p: 1,
           bgcolor: "error.dark",
           borderRadius: 1,
-        }}
-      >
+        }}>
         <Typography
           variant="caption"
           sx={{
@@ -58,8 +57,7 @@ export const ClutchPerformanceHUD: React.FC<ClutchPerformanceHUDProps> = ({
             display: "flex",
             alignItems: "center",
             gap: 1,
-          }}
-        >
+          }}>
           <LocalFireDepartment fontSize="small" /> WINNING TIME HUD
         </Typography>
         <Chip
@@ -71,8 +69,7 @@ export const ClutchPerformanceHUD: React.FC<ClutchPerformanceHUDProps> = ({
             fontWeight: 900,
             bgcolor: "white",
             color: "error.main",
-          }}
-        />
+          }} />
       </Box>
 
       <TableContainer>
@@ -84,20 +81,17 @@ export const ClutchPerformanceHUD: React.FC<ClutchPerformanceHUDProps> = ({
               </TableCell>
               <TableCell
                 align="center"
-                sx={{ fontSize: "0.6rem", fontWeight: 800, p: 0.5 }}
-              >
+                sx={{ fontSize: "0.6rem", fontWeight: 800, p: 0.5 }}>
                 PTS
               </TableCell>
               <TableCell
                 align="center"
-                sx={{ fontSize: "0.6rem", fontWeight: 800, p: 0.5 }}
-              >
+                sx={{ fontSize: "0.6rem", fontWeight: 800, p: 0.5 }}>
                 FT%
               </TableCell>
               <TableCell
                 align="center"
-                sx={{ fontSize: "0.6rem", fontWeight: 800, p: 0.5 }}
-              >
+                sx={{ fontSize: "0.6rem", fontWeight: 800, p: 0.5 }}>
                 USAGE
               </TableCell>
             </TableRow>
@@ -107,7 +101,7 @@ export const ClutchPerformanceHUD: React.FC<ClutchPerformanceHUDProps> = ({
               .sort((a, b) => b.points - a.points)
               .map((p) => {
                 const usage =
-                  totalClutchAttempts > 0
+                  totalClutchAttempts> 0
                     ? ((p.attempts + p.fta * 0.44 + p.turnovers) /
                         totalClutchAttempts) *
                       100
@@ -117,16 +111,14 @@ export const ClutchPerformanceHUD: React.FC<ClutchPerformanceHUDProps> = ({
                   <TableRow key={p.id}>
                     <TableCell sx={{ p: 0.5 }}>
                       <Box
-                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                      >
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                         <Avatar
                           sx={{
                             width: 20,
                             height: 20,
                             fontSize: "0.6rem",
                             bgcolor: "primary.main",
-                          }}
-                        >
+                          }}>
                           {jerseyMap.get(p.id.toString()) || "?"}
                         </Avatar>
                         <Typography variant="caption" sx={{ fontWeight: 700 }}>
@@ -139,9 +131,8 @@ export const ClutchPerformanceHUD: React.FC<ClutchPerformanceHUDProps> = ({
                         variant="caption"
                         sx={{
                           fontWeight: 900,
-                          color: p.points > 0 ? "success.main" : "inherit",
-                        }}
-                      >
+                          color: p.points> 0 ? "success.main" : "inherit",
+                        }}>
                         {p.points}
                       </Typography>
                     </TableCell>
@@ -151,20 +142,18 @@ export const ClutchPerformanceHUD: React.FC<ClutchPerformanceHUDProps> = ({
                         sx={{
                           fontWeight: 700,
                           color:
-                            parseFloat(p.ftPct) >= 80
+                            parseFloat(p.ftPct)>= 80
                               ? "success.main"
-                              : parseFloat(p.ftPct) <= 50 && p.fta > 0
+                              : parseFloat(p.ftPct) <= 50 && p.fta> 0
                                 ? "error.main"
                                 : "inherit",
-                        }}
-                      >
+                        }}>
                         {p.ftPct}%
                       </Typography>
                     </TableCell>
                     <TableCell align="center" sx={{ p: 0.5, minWidth: 60 }}>
                       <Box
-                        sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
-                      >
+                        sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
                         <LinearProgress
                           variant="determinate"
                           value={usage}
@@ -175,14 +164,12 @@ export const ClutchPerformanceHUD: React.FC<ClutchPerformanceHUDProps> = ({
                             bgcolor: "rgba(0,0,0,0.05)",
                             "& .MuiLinearProgress-bar": {
                               bgcolor:
-                                usage > 30 ? "error.main" : "primary.main",
+                                usage> 30 ? "error.main" : "primary.main",
                             },
-                          }}
-                        />
+                          }} />
                         <Typography
                           variant="caption"
-                          sx={{ fontSize: "0.5rem" }}
-                        >
+                          sx={{ fontSize: "0.5rem" }}>
                           {Math.round(usage)}%
                         </Typography>
                       </Box>
@@ -202,22 +189,21 @@ export const ClutchPerformanceHUD: React.FC<ClutchPerformanceHUDProps> = ({
             color: "text.secondary",
             display: "block",
             mb: 0.5,
-          }}
-        >
+          }}>
           CLUTCH ADVISOR
         </Typography>
         {(() => {
           const highUsage = onCourtStats.find((p) => {
             const usage =
-              totalClutchAttempts > 0
+              totalClutchAttempts> 0
                 ? ((p.attempts + p.fta * 0.44 + p.turnovers) /
                     totalClutchAttempts) *
                   100
                 : 0;
-            return usage > 35;
+            return usage> 35;
           });
           const poorFT = onCourtStats.find(
-            (p) => p.fta > 0 && parseFloat(p.ftPct) < 60,
+            (p) => p.fta> 0 && parseFloat(p.ftPct) < 60,
           );
 
           return (
@@ -229,8 +215,7 @@ export const ClutchPerformanceHUD: React.FC<ClutchPerformanceHUDProps> = ({
                     display: "block",
                     color: "warning.dark",
                     fontWeight: 700,
-                  }}
-                >
+                  }}>
                   ⚠️ High Usage: Play through #
                   {jerseyMap.get(highUsage.id.toString())} or find counter.
                 </Typography>
@@ -242,8 +227,7 @@ export const ClutchPerformanceHUD: React.FC<ClutchPerformanceHUDProps> = ({
                     display: "block",
                     color: "error.main",
                     fontWeight: 700,
-                  }}
-                >
+                  }}>
                   🚨 FT Risk: #{jerseyMap.get(poorFT.id.toString())} is a
                   "Hack-a" target ({poorFT.ftPct}%).
                 </Typography>
@@ -251,8 +235,7 @@ export const ClutchPerformanceHUD: React.FC<ClutchPerformanceHUDProps> = ({
               {!highUsage && !poorFT && (
                 <Typography
                   variant="caption"
-                  sx={{ fontStyle: "italic", opacity: 0.6 }}
-                >
+                  sx={{ fontStyle: "italic", opacity: 0.6 }}>
                   Maintain current rotation and spread usage.
                 </Typography>
               )}

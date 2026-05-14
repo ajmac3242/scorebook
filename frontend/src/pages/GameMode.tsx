@@ -361,7 +361,7 @@ const GameMode: React.FC = () => {
 
           const elapsed = gameData.possessionStartClock - clockSeconds;
           if (elapsed <= 10) derivedShotClockPhase = "EARLY";
-          else if (elapsed >= 20) derivedShotClockPhase = "LATE";
+          else if (elapsed>= 20) derivedShotClockPhase = "LATE";
           else derivedShotClockPhase = "MID";
         }
 
@@ -439,7 +439,7 @@ const GameMode: React.FC = () => {
             trackingMode === "TEAM" &&
             !selectedPlayerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT)
           ) {
-            if (typeToSave === ACTION_TYPES.MAKE && points > 1) {
+            if (typeToSave === ACTION_TYPES.MAKE && points> 1) {
               setChainPrompt({ type: "ASSIST", originalStat: newStat });
             } else if (typeToSave === ACTION_TYPES.MISS) {
               setChainPrompt({ type: "REBOUND", originalStat: newStat });
@@ -689,7 +689,7 @@ const GameMode: React.FC = () => {
 
     // Energy Alert Logic: Trigger snackbar if a player's composite index is very high
     const topSpark = sparkPlugIndex[0];
-    if (topSpark && topSpark.compositeIndex >= 12 && !isReadOnly) {
+    if (topSpark && topSpark.compositeIndex>= 12 && !isReadOnly) {
       const alertKey = `${topSpark.playerId}-${topSpark.compositeIndex}`;
       if (lastEnergyAlertRef.current !== alertKey) {
         lastEnergyAlertRef.current = alertKey;
@@ -933,7 +933,7 @@ const GameMode: React.FC = () => {
         </Alert>
       )}
       <Grid container spacing={3}>
-        <Grid item xs={12} md={8}>
+        <Grid size={{ xs: 12, md: 8 }}>
           {voiceEnabled && (
             <Alert
               severity={isListening ? "info" : "warning"}
@@ -944,16 +944,14 @@ const GameMode: React.FC = () => {
                   <MicOff />
                 )
               }
-              sx={{ mb: 2, borderRadius: 2, fontWeight: 700 }}
-            >
+              sx={{ mb: 2, borderRadius: 2, fontWeight: 700 }}>
               {isListening
                 ? "Voice Mode Active: Listening for commands..."
                 : "Voice Mode Paused"}
               {lastTranscript && (
                 <Typography
                   variant="caption"
-                  sx={{ display: "block", mt: 0.5, fontStyle: "italic" }}
-                >
+                  sx={{ display: "block", mt: 0.5, fontStyle: "italic" }}>
                   Last heard: "{lastTranscript}"
                 </Typography>
               )}
@@ -961,8 +959,7 @@ const GameMode: React.FC = () => {
           )}
 
           <Box
-            sx={{ mb: 2, bgcolor: "rgba(0,0,0,0.02)", p: 1, borderRadius: 2 }}
-          >
+            sx={{ mb: 2, bgcolor: "rgba(0,0,0,0.02)", p: 1, borderRadius: 2 }}>
             <TacticalIdentityHUD
               kpis={[
                 {
@@ -985,8 +982,7 @@ const GameMode: React.FC = () => {
                   target: 60,
                   isPercentage: true,
                 },
-              ]}
-            />
+              ]} />
           </Box>
 
           <Scoreboard
@@ -1003,8 +999,7 @@ const GameMode: React.FC = () => {
               if (!isReadOnly) {
                 setIsClockEditDialogOpen(true);
               }
-            }}
-          />
+            }} />
 
           <MoleskineCard
             sx={{
@@ -1013,8 +1008,7 @@ const GameMode: React.FC = () => {
                   ? `2px solid ${theme.palette.secondary.main}`
                   : "1px solid rgba(0,0,0,0.12)",
               transition: "border 0.3s ease",
-            }}
-          >
+            }}>
             <Box
               sx={{
                 mb: 3,
@@ -1023,8 +1017,7 @@ const GameMode: React.FC = () => {
                 justifyContent: "space-between",
                 alignItems: { xs: "flex-start", sm: "center" },
                 gap: 2,
-              }}
-            >
+              }}>
               <ActionControls
                 isReadOnly={isReadOnly}
                 onUndo={handleUndo}
@@ -1049,21 +1042,18 @@ const GameMode: React.FC = () => {
                 recentStatsLength={gameData.recentStats.length}
                 onEndGame={() => setIsEndGameDialogOpen(true)}
                 isGameCompleted={!!game?.completed}
-                isEnding={isEnding}
-              />
+                isEnding={isEnding} />
 
               <Box
                 sx={{
                   display: "flex",
                   gap: 1,
                   width: { xs: "100%", sm: "auto" },
-                }}
-              >
+                }}>
                 <Tooltip
                   title={
                     voiceEnabled ? "Disable Voice Mode" : "Enable Voice Mode"
-                  }
-                >
+                  }>
                   <IconButton
                     onClick={() => setVoiceEnabled(!voiceEnabled)}
                     color={voiceEnabled ? "primary" : "default"}
@@ -1071,8 +1061,7 @@ const GameMode: React.FC = () => {
                       border: "1px solid",
                       borderColor: voiceEnabled ? "primary.main" : "divider",
                       borderRadius: 1,
-                    }}
-                  >
+                    }}>
                     {voiceEnabled ? <Mic /> : <MicOff />}
                   </IconButton>
                 </Tooltip>
@@ -1085,8 +1074,7 @@ const GameMode: React.FC = () => {
                   size="small"
                   disabled={isReadOnly}
                   fullWidth={theme.breakpoints.down("sm") !== null}
-                  sx={{ width: { xs: "100%", sm: "auto" } }}
-                >
+                  sx={{ width: { xs: "100%", sm: "auto" } }}>
                   <ToggleButton value="TEAM">
                     {team?.name || "Our Team"}
                   </ToggleButton>
@@ -1104,8 +1092,7 @@ const GameMode: React.FC = () => {
                 gap: 1,
                 flexWrap: "wrap",
                 alignItems: "center",
-              }}
-            >
+              }}>
               <Box
                 sx={{
                   display: "flex",
@@ -1114,8 +1101,7 @@ const GameMode: React.FC = () => {
                   pb: 1,
                   width: { xs: "100%", sm: "auto" },
                   "&::-webkit-scrollbar": { display: "none" },
-                }}
-              >
+                }}>
                 {[
                   "ALL",
                   "MAKE",
@@ -1131,16 +1117,14 @@ const GameMode: React.FC = () => {
                     onClick={() => setMarkerFilter(type)}
                     variant={markerFilter === type ? "filled" : "outlined"}
                     size="small"
-                    color={markerFilter === type ? "primary" : "default"}
-                  />
+                    color={markerFilter === type ? "primary" : "default"} />
                 ))}
               </Box>
             </Box>
 
             <BasketballCourt
               onCoordClick={handleCourtClick}
-              markers={markers}
-            />
+              markers={markers} />
             {isMobile && !isReadOnly && (
               <Typography
                 variant="caption"
@@ -1150,15 +1134,14 @@ const GameMode: React.FC = () => {
                   textAlign: "center",
                   color: "text.secondary",
                   fontStyle: "italic",
-                }}
-              >
+                }}>
                 Tip: Tap the court to record a play at that location
               </Typography>
             )}
           </MoleskineCard>
         </Grid>
 
-        <Grid item xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <Stack spacing={3}>
             {isClutchMode && (
               <MoleskineCard
@@ -1167,14 +1150,12 @@ const GameMode: React.FC = () => {
                   border: "2px solid",
                   borderColor: "error.main",
                   animation: `${pulse} 4s infinite ease-in-out`,
-                }}
-              >
+                }}>
                 <ClutchPerformanceHUD
                   onCourtStats={clutchStats.filter((p) =>
                     gameData.onCourtIds.has(p.id.toString()),
                   )}
-                  jerseyMap={jerseyMap}
-                />
+                  jerseyMap={jerseyMap} />
               </MoleskineCard>
             )}
 
@@ -1189,19 +1170,16 @@ const GameMode: React.FC = () => {
                   justifyContent: "space-between",
                   alignItems: "center",
                   mb: 1,
-                }}
-              >
+                }}>
                 <Typography
                   variant="caption"
-                  sx={{ fontWeight: 800, color: "text.secondary" }}
-                >
+                  sx={{ fontWeight: 800, color: "text.secondary" }}>
                   MATCHUP ANALYTICS
                 </Typography>
                 <IconButton
                   size="small"
                   onClick={() => setShowMatchupMatrix(!showMatchupMatrix)}
-                  color={showMatchupMatrix ? "primary" : "default"}
-                >
+                  color={showMatchupMatrix ? "primary" : "default"}>
                   <GridOn fontSize="small" />
                 </IconButton>
               </Box>
@@ -1212,8 +1190,7 @@ const GameMode: React.FC = () => {
                     borderRadius: 2,
                     bgcolor: "rgba(255,152,0,0.05)",
                     border: "1px solid rgba(255,152,0,0.1)",
-                  }}
-                >
+                  }}>
                   <Typography
                     variant="caption"
                     sx={{
@@ -1222,8 +1199,7 @@ const GameMode: React.FC = () => {
                       textTransform: "uppercase",
                       display: "block",
                       mb: 0.5,
-                    }}
-                  >
+                    }}>
                     Target Attack
                   </Typography>
                   {(() => {
@@ -1239,7 +1215,7 @@ const GameMode: React.FC = () => {
                       );
                     }
                     return (
-                      <Stack direction="row" alignItems="center" spacing={1}>
+                      <Stack direction="row" alignItems={{ xs: "center" }} spacing={1}>
                         <Avatar
                           sx={{
                             width: 24,
@@ -1247,21 +1223,18 @@ const GameMode: React.FC = () => {
                             fontSize: "0.6rem",
                             bgcolor: "error.main",
                             fontWeight: 900,
-                          }}
-                        >
+                          }}>
                           {target.oppPlayerJersey}
                         </Avatar>
                         <Box>
                           <Typography
                             variant="caption"
-                            sx={{ fontWeight: 800, display: "block" }}
-                          >
+                            sx={{ fontWeight: 800, display: "block" }}>
                             Attack Opponent #{target.oppPlayerJersey}
                           </Typography>
                           <Typography
                             variant="caption"
-                            sx={{ color: "error.main", fontWeight: 700 }}
-                          >
+                            sx={{ color: "error.main", fontWeight: 700 }}>
                             Stop %: {target.stopPct}% ({target.possessions}{" "}
                             poss)
                           </Typography>
@@ -1289,8 +1262,7 @@ const GameMode: React.FC = () => {
                       synced: 0,
                     });
                     await syncService.pushUpdates();
-                  }}
-                />
+                  }} />
               )}
             </MoleskineCard>
 
@@ -1304,8 +1276,7 @@ const GameMode: React.FC = () => {
                 gameData.schemeEfficiency.find(
                   (s) => s.name === game?.activeDefensiveScheme,
                 )?.ppp
-              }
-            />
+              } />
 
             <MoleskineCard>
               <Typography
@@ -1316,12 +1287,11 @@ const GameMode: React.FC = () => {
                   textTransform: "uppercase",
                   display: "block",
                   mb: 1,
-                }}
-              >
+                }}>
                 Offensive Identity (KPIs)
               </Typography>
               <Grid container spacing={2}>
-                <Grid item xs={6}>
+                <Grid size={{ xs: 6 }}>
                   <Typography variant="h6" sx={{ fontWeight: 900 }}>
                     {paintTouchStats.total}
                   </Typography>
@@ -1329,11 +1299,10 @@ const GameMode: React.FC = () => {
                     PAINT TOUCHES
                   </Typography>
                 </Grid>
-                <Grid item xs={6}>
+                <Grid size={{ xs: 6 }}>
                   <Typography
                     variant="h6"
-                    sx={{ fontWeight: 900, color: "primary.main" }}
-                  >
+                    sx={{ fontWeight: 900, color: "primary.main" }}>
                     {paintTouchStats.pppt}
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
@@ -1350,12 +1319,11 @@ const GameMode: React.FC = () => {
                   textTransform: "uppercase",
                   display: "block",
                   mb: 1,
-                }}
-              >
+                }}>
                 Quality Control (xPTS)
               </Typography>
               <Grid container spacing={2}>
-                <Grid item xs={6}>
+                <Grid size={{ xs: 6 }}>
                   <Typography variant="h6" sx={{ fontWeight: 900 }}>
                     {shotROI.avgXPts}
                   </Typography>
@@ -1363,18 +1331,17 @@ const GameMode: React.FC = () => {
                     xPTS / POSS
                   </Typography>
                 </Grid>
-                <Grid item xs={6}>
+                <Grid size={{ xs: 6 }}>
                   <Typography
                     variant="h6"
                     sx={{
                       fontWeight: 900,
                       color:
-                        parseFloat(shotROI.roi) >= 0
+                        parseFloat(shotROI.roi)>= 0
                           ? "success.main"
                           : "error.main",
-                    }}
-                  >
-                    {parseFloat(shotROI.roi) > 0 ? "+" : ""}
+                    }}>
+                    {parseFloat(shotROI.roi)> 0 ? "+" : ""}
                     {Math.round(parseFloat(shotROI.roi) * 100)}%
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
@@ -1392,8 +1359,7 @@ const GameMode: React.FC = () => {
                   mb: 1,
                   display: "block",
                   color: "text.secondary",
-                }}
-              >
+                }}>
                 ACTIVE DEFENSIVE SCHEME
               </Typography>
               <ToggleButtonGroup
@@ -1409,8 +1375,7 @@ const GameMode: React.FC = () => {
                   }
                 }}
                 size="small"
-                fullWidth
-              >
+                fullWidth>
                 <ToggleButton value="MAN" sx={{ fontSize: "0.65rem" }}>
                   MAN
                 </ToggleButton>
@@ -1430,8 +1395,7 @@ const GameMode: React.FC = () => {
               <PlaybookEfficiencyWidget
                 plays={playbookEfficiency}
                 teamPpp={parseFloat(gameData.teamPpp)}
-                gameStats={sortedGameStats}
-              />
+                gameStats={sortedGameStats} />
             )}
 
             {trackingMode === "TEAM" ? (
@@ -1447,8 +1411,7 @@ const GameMode: React.FC = () => {
                       borderRadius: 2,
                       bgcolor: "rgba(255,255,255,0.04)",
                       border: "1px solid rgba(255,255,255,0.08)",
-                    }}
-                  >
+                    }}>
                     <Box>
                       <Typography
                         variant="subtitle2"
@@ -1458,8 +1421,7 @@ const GameMode: React.FC = () => {
                           textTransform: "uppercase",
                           letterSpacing: 1,
                           color: "primary.main",
-                        }}
-                      >
+                        }}>
                         Live Lineup
                       </Typography>
                       <Typography
@@ -1469,8 +1431,7 @@ const GameMode: React.FC = () => {
                           fontWeight: 600,
                           fontFamily: "'Courier New', monospace",
                           opacity: 0.9,
-                        }}
-                      >
+                        }}>
                         STINT:{" "}
                         {formatClock(gameData.currentLineupStintDuration)}
                       </Typography>
@@ -1482,13 +1443,12 @@ const GameMode: React.FC = () => {
                         sx={{
                           fontWeight: 900,
                           color:
-                            gameData.currentLineupPlusMinus >= 0
+                            gameData.currentLineupPlusMinus>= 0
                               ? "success.main"
                               : "error.main",
                           lineHeight: 1,
                           fontSize: "1.2rem",
-                        }}
-                      >
+                        }}>
                         {formatPlusMinus(gameData.currentLineupPlusMinus)}
                       </Typography>
                       <Typography
@@ -1498,8 +1458,7 @@ const GameMode: React.FC = () => {
                           fontWeight: 800,
                           textTransform: "uppercase",
                           opacity: 0.6,
-                        }}
-                      >
+                        }}>
                         Net Impact
                       </Typography>
                     </Box>
@@ -1509,8 +1468,7 @@ const GameMode: React.FC = () => {
                       display: "grid",
                       gridTemplateColumns: "1fr",
                       gap: 1,
-                    }}
-                  >
+                    }}>
                     {players
                       .filter((p) => gameData.onCourtIds.has(p.id!))
                       .map((p) => (
@@ -1528,8 +1486,7 @@ const GameMode: React.FC = () => {
                             gameData.onCourtPeriodFouls.get(p.id!) || 0
                           }
                           streak={playerStreaks.get(p.id!)}
-                          onClick={handleLineupPlayerClick}
-                        />
+                          onClick={handleLineupPlayerClick} />
                       ))}
                     {Array.from({
                       length: Math.max(0, 5 - gameData.onCourtIds.size),
@@ -1551,8 +1508,7 @@ const GameMode: React.FC = () => {
                             borderStyle: "dashed",
                             color: "text.secondary",
                             px: 1,
-                          }}
-                        >
+                          }}>
                           <Avatar
                             sx={{
                               width: 20,
@@ -1562,8 +1518,7 @@ const GameMode: React.FC = () => {
                               bgcolor: "transparent",
                               border: "1px dashed #ccc",
                               color: "text.secondary",
-                            }}
-                          >
+                            }}>
                             +
                           </Avatar>
                           <Typography variant="caption">Empty Slot</Typography>
@@ -1579,24 +1534,21 @@ const GameMode: React.FC = () => {
                       bgcolor: "primary.light",
                       color: "primary.contrastText",
                       animation: `${pulse} 2s infinite ease-in-out`,
-                    }}
-                  >
+                    }}>
                     <Box
                       sx={{
                         display: "flex",
                         justifyContent: "space-between",
                         alignItems: "center",
                         mb: 1.5,
-                      }}
-                    >
+                      }}>
                       <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
                         WHO GOT THE {chainPrompt.type}?
                       </Typography>
                       <IconButton
                         size="small"
                         onClick={() => setChainPrompt(null)}
-                        sx={{ color: "white" }}
-                      >
+                        sx={{ color: "white" }}>
                         <History fontSize="small" />
                       </IconButton>
                     </Box>
@@ -1605,8 +1557,7 @@ const GameMode: React.FC = () => {
                         display: "grid",
                         gridTemplateColumns: "repeat(3, 1fr)",
                         gap: 1,
-                      }}
-                    >
+                      }}>
                       {players
                         .filter((p) => gameData.onCourtIds.has(p.id!))
                         .map((p) => (
@@ -1623,8 +1574,7 @@ const GameMode: React.FC = () => {
                               fontWeight: 800,
                               fontSize: "0.7rem",
                               "&:hover": { bgcolor: "rgba(255,255,255,0.9)" },
-                            }}
-                          >
+                            }}>
                             #{jerseyMap.get(p.id!)}
                           </Button>
                         ))}
@@ -1635,8 +1585,7 @@ const GameMode: React.FC = () => {
                 <MoleskineCard>
                   <Typography
                     variant="subtitle2"
-                    sx={{ fontWeight: 600, mb: 2 }}
-                  >
+                    sx={{ fontWeight: 600, mb: 2 }}>
                     Player Performance
                   </Typography>
                   <TableContainer sx={{ mt: 2, mb: 3 }}>
@@ -1648,34 +1597,29 @@ const GameMode: React.FC = () => {
                         display: "block",
                         textTransform: "uppercase",
                         color: "primary.main",
-                      }}
-                    >
+                      }}>
                       SPARK PLUG MOMENTUM INDEX
                     </Typography>
                     <Table size="small" aria-label="Spark Plug Momentum Index">
                       <TableHead>
                         <TableRow>
                           <TableCell
-                            sx={{ fontSize: "0.6rem", fontWeight: 800 }}
-                          >
+                            sx={{ fontSize: "0.6rem", fontWeight: 800 }}>
                             PLAYER
                           </TableCell>
                           <TableCell
                             align="center"
-                            sx={{ fontSize: "0.6rem", fontWeight: 800 }}
-                          >
+                            sx={{ fontSize: "0.6rem", fontWeight: 800 }}>
                             HUSTLE
                           </TableCell>
                           <TableCell
                             align="center"
-                            sx={{ fontSize: "0.6rem", fontWeight: 800 }}
-                          >
+                            sx={{ fontSize: "0.6rem", fontWeight: 800 }}>
                             RUN PTS
                           </TableCell>
                           <TableCell
                             align="center"
-                            sx={{ fontSize: "0.6rem", fontWeight: 800 }}
-                          >
+                            sx={{ fontSize: "0.6rem", fontWeight: 800 }}>
                             INDEX
                           </TableCell>
                         </TableRow>
@@ -1684,21 +1628,18 @@ const GameMode: React.FC = () => {
                         {sparkPlugIndex.slice(0, 3).map((spi) => (
                           <TableRow key={spi.playerId}>
                             <TableCell
-                              sx={{ fontSize: "0.65rem", fontWeight: 700 }}
-                            >
+                              sx={{ fontSize: "0.65rem", fontWeight: 700 }}>
                               #{jerseyMap.get(spi.playerId)}{" "}
                               {playerNamesMap.get(spi.playerId)?.split(" ")[0]}
                             </TableCell>
                             <TableCell
                               align="center"
-                              sx={{ fontSize: "0.65rem" }}
-                            >
+                              sx={{ fontSize: "0.65rem" }}>
                               {spi.hustleStats}
                             </TableCell>
                             <TableCell
                               align="center"
-                              sx={{ fontSize: "0.65rem" }}
-                            >
+                              sx={{ fontSize: "0.65rem" }}>
                               {spi.momentumScore}
                             </TableCell>
                             <TableCell align="center">
@@ -1706,7 +1647,7 @@ const GameMode: React.FC = () => {
                                 label={spi.compositeIndex}
                                 size="small"
                                 color={
-                                  spi.compositeIndex >= 10
+                                  spi.compositeIndex>= 10
                                     ? "primary"
                                     : "default"
                                 }
@@ -1714,8 +1655,7 @@ const GameMode: React.FC = () => {
                                   height: 18,
                                   fontSize: "0.6rem",
                                   fontWeight: 800,
-                                }}
-                              />
+                                }} />
                             </TableCell>
                           </TableRow>
                         ))}
@@ -1767,8 +1707,7 @@ const GameMode: React.FC = () => {
                                 fontSize: "0.65rem",
                                 fontWeight: 800,
                                 px: 0.5,
-                              }}
-                            >
+                              }}>
                               <Tooltip title={head.desc} arrow placement="top">
                                 <TableSortLabel
                                   active={sortConfig.key === head.key}
@@ -1786,8 +1725,7 @@ const GameMode: React.FC = () => {
                                           ? "desc"
                                           : "asc",
                                     })
-                                  }
-                                >
+                                  }>
                                   {head.label}
                                 </TableSortLabel>
                               </Tooltip>
@@ -1819,8 +1757,7 @@ const GameMode: React.FC = () => {
                             streak={playerStreaks.get(row.id.toString())}
                             isOnCourt={gameData.onCourtIds.has(
                               row.id.toString(),
-                            )}
-                          />
+                            )} />
                         ))}
                       </TableBody>
                     </Table>
@@ -1831,8 +1768,7 @@ const GameMode: React.FC = () => {
               <MoleskineCard
                 sx={{
                   bgcolor: "rgba(0,0,0,0.02)",
-                }}
-              >
+                }}>
                 <Typography
                   variant="subtitle2"
                   gutterBottom
@@ -1840,19 +1776,17 @@ const GameMode: React.FC = () => {
                     fontWeight: 700,
                     display: "flex",
                     justifyContent: "space-between",
-                  }}
-                >
+                  }}>
                   <span>{game?.opponent || "Opponent"} Scouting</span>
                   <Chip
                     label="Live Tracking"
                     size="small"
                     color="secondary"
-                    sx={{ height: 18, fontSize: "0.6rem" }}
-                  />
+                    sx={{ height: 18, fontSize: "0.6rem" }} />
                 </Typography>
 
                 <Stack spacing={1} sx={{ mt: 2 }}>
-                  {opponentStats.length > 0 ? (
+                  {opponentStats.length> 0 ? (
                     opponentStats.map((opp) => (
                       <Box
                         key={opp.id}
@@ -1861,23 +1795,20 @@ const GameMode: React.FC = () => {
                           bgcolor: "white",
                           borderRadius: 2,
                           border: "1px solid rgba(0,0,0,0.05)",
-                        }}
-                      >
+                        }}>
                         <Box
                           sx={{
                             display: "flex",
                             justifyContent: "space-between",
                             alignItems: "center",
                             mb: 1,
-                          }}
-                        >
+                          }}>
                           <Box
                             sx={{
                               display: "flex",
                               alignItems: "center",
                               gap: 1.5,
-                            }}
-                          >
+                            }}>
                             <Avatar
                               sx={{
                                 width: 32,
@@ -1885,21 +1816,18 @@ const GameMode: React.FC = () => {
                                 bgcolor: "secondary.main",
                                 fontSize: "0.8rem",
                                 fontWeight: 700,
-                              }}
-                            >
+                              }}>
                               {opp.jersey}
                             </Avatar>
                             <Box>
                               <Typography
                                 variant="body2"
-                                sx={{ fontWeight: 700 }}
-                              >
+                                sx={{ fontWeight: 700 }}>
                                 Opponent #{opp.jersey}
                                 {opp.isHot && (
                                   <Box
                                     component="span"
-                                    sx={{ ml: 1, fontSize: "1rem" }}
-                                  >
+                                    sx={{ ml: 1, fontSize: "1rem" }}>
                                     🔥
                                   </Box>
                                 )}
@@ -1913,20 +1841,18 @@ const GameMode: React.FC = () => {
                                       height: 16,
                                       fontSize: "0.55rem",
                                       fontWeight: 800,
-                                    }}
-                                  />
+                                    }} />
                                 )}
                               </Typography>
                               <Typography
                                 variant="caption"
-                                color="text.secondary"
-                              >
+                                color="text.secondary">
                                 {opp.points} pts | {opp.makes}-{opp.attempts} FG
                                 | {opp.turnovers} TO
                               </Typography>
                             </Box>
                           </Box>
-                          {opp.straightPoints >= 4 && (
+                          {opp.straightPoints>= 4 && (
                             <Chip
                               label={`${opp.straightPoints} STRAIGHT`}
                               size="small"
@@ -1935,8 +1861,7 @@ const GameMode: React.FC = () => {
                                 height: 16,
                                 fontSize: "0.55rem",
                                 fontWeight: 800,
-                              }}
-                            />
+                              }} />
                           )}
                         </Box>
 
@@ -1950,8 +1875,7 @@ const GameMode: React.FC = () => {
                               display: "block",
                               mb: 0.5,
                               color: "text.secondary",
-                            }}
-                          >
+                            }}>
                             Primary Defender
                           </Typography>
                           <Box
@@ -1959,8 +1883,7 @@ const GameMode: React.FC = () => {
                               display: "grid",
                               gridTemplateColumns: "repeat(5, 1fr)",
                               gap: 0.5,
-                            }}
-                          >
+                            }}>
                             {players
                               .filter((p) => gameData.onCourtIds.has(p.id!))
                               .map((p) => (
@@ -1991,8 +1914,7 @@ const GameMode: React.FC = () => {
                                     fontSize: "0.65rem",
                                     fontWeight: 700,
                                     height: 24,
-                                  }}
-                                >
+                                  }}>
                                   #{jerseyMap.get(p.id!)}
                                 </Button>
                               ))}
@@ -2007,8 +1929,7 @@ const GameMode: React.FC = () => {
                         textAlign: "center",
                         border: "1px dashed #ccc",
                         borderRadius: 2,
-                      }}
-                    >
+                      }}>
                       <Typography variant="caption" color="text.secondary">
                         No opponent players tracked yet.
                       </Typography>
@@ -2023,18 +1944,15 @@ const GameMode: React.FC = () => {
                     bgcolor: "secondary.light",
                     borderRadius: 2,
                     color: "white",
-                  }}
-                >
+                  }}>
                   <Typography
                     variant="caption"
-                    sx={{ fontWeight: 700, display: "block", mb: 0.5 }}
-                  >
+                    sx={{ fontWeight: 700, display: "block", mb: 0.5 }}>
                     QUICK TIP
                   </Typography>
                   <Typography
                     variant="caption"
-                    sx={{ lineHeight: 1.2, display: "block" }}
-                  >
+                    sx={{ lineHeight: 1.2, display: "block" }}>
                     Tap the court in Opponent mode to record stats for specific
                     jersey numbers. Hot players will be highlighted here.
                   </Typography>
@@ -2049,16 +1967,14 @@ const GameMode: React.FC = () => {
                   justifyContent: "space-between",
                   alignItems: "center",
                   mb: 1,
-                }}
-              >
+                }}>
                 <Typography
                   variant="subtitle2"
                   sx={{
                     fontWeight: 600,
                     display: "flex",
                     alignItems: "center",
-                  }}
-                >
+                  }}>
                   <History sx={{ fontSize: 18, mr: 1 }} /> Recent Actions
                 </Typography>
                 <Tooltip
@@ -2066,8 +1982,7 @@ const GameMode: React.FC = () => {
                     <Box sx={{ p: 1 }}>
                       <Typography
                         variant="caption"
-                        sx={{ fontWeight: 800, display: "block", mb: 0.5 }}
-                      >
+                        sx={{ fontWeight: 800, display: "block", mb: 0.5 }}>
                         KEYBOARD SHORTCUTS
                       </Typography>
                       <Box
@@ -2075,8 +1990,7 @@ const GameMode: React.FC = () => {
                           display: "grid",
                           gridTemplateColumns: "1fr 1fr",
                           gap: 1,
-                        }}
-                      >
+                        }}>
                         <Typography variant="caption">M: Make</Typography>
                         <Typography variant="caption">X: Miss</Typography>
                         <Typography variant="caption">A: Assist</Typography>
@@ -2090,13 +2004,11 @@ const GameMode: React.FC = () => {
                       </Box>
                       <Typography
                         variant="caption"
-                        sx={{ display: "block", mt: 1, opacity: 0.8 }}
-                      >
+                        sx={{ display: "block", mt: 1, opacity: 0.8 }}>
                         Ctrl+Z: Undo last
                       </Typography>
                     </Box>
-                  }
-                >
+                  }>
                   <IconButton size="small" aria-label="Keyboard Shortcuts Help">
                     <HelpOutline fontSize="small" />
                   </IconButton>
@@ -2116,21 +2028,18 @@ const GameMode: React.FC = () => {
                       alignItems: "center",
                       gap: 2,
                       bgcolor: "rgba(0,0,0,0.01)",
-                    }}
-                  >
+                    }}>
                     <History
                       sx={{
                         fontSize: 48,
                         color: "text.secondary",
                         opacity: 0.2,
-                      }}
-                    />
+                      }} />
                     <Box sx={{ maxWidth: 200 }}>
                       <Typography
                         variant="subtitle2"
                         color="text.secondary"
-                        sx={{ fontWeight: 700, mb: 0.5 }}
-                      >
+                        sx={{ fontWeight: 700, mb: 0.5 }}>
                         Ready for Tip-off
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
@@ -2143,8 +2052,7 @@ const GameMode: React.FC = () => {
                       size="small"
                       startIcon={<SportsBasketball />}
                       onClick={() => setIsDialogOpen(true)}
-                      sx={{ mt: 1, fontWeight: 800 }}
-                    >
+                      sx={{ mt: 1, fontWeight: 800 }}>
                       Record First Action
                     </Button>
                   </Box>
@@ -2166,8 +2074,7 @@ const GameMode: React.FC = () => {
                       onDelete={(id) => {
                         setStatToDelete(id);
                         setIsDeleteDialogOpen(true);
-                      }}
-                    />
+                      }} />
                   ))
                 )}
               </Stack>
@@ -2216,8 +2123,7 @@ const GameMode: React.FC = () => {
           if (key === "p") {
             setStatType(ACTION_TYPES.PAINT_TOUCH);
           }
-        }}
-      >
+        }}>
         <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
           {isEditing ? "Edit Action" : "Record Action"}
         </DialogTitle>
@@ -2232,16 +2138,14 @@ const GameMode: React.FC = () => {
               display: "flex",
               alignItems: "center",
               gap: 2,
-            }}
-          >
+            }}>
             <Avatar
               sx={{
                 bgcolor:
                   trackingMode === "OPPONENT"
                     ? "secondary.main"
                     : "primary.main",
-              }}
-            >
+              }}>
               {selectedPlayerId
                 ? trackingMode === "OPPONENT"
                   ? "OP"
@@ -2268,8 +2172,7 @@ const GameMode: React.FC = () => {
           <Typography
             variant="caption"
             gutterBottom
-            sx={{ display: "block", mb: 1 }}
-          >
+            sx={{ display: "block", mb: 1 }}>
             Action Type
           </Typography>
           <Box
@@ -2278,8 +2181,7 @@ const GameMode: React.FC = () => {
               gridTemplateColumns: "repeat(3, 1fr)",
               gap: 1,
               mb: 3,
-            }}
-          >
+            }}>
             {[
               { type: ACTION_TYPES.MAKE, label: "Make (M)", icon: Check },
               { type: ACTION_TYPES.MISS, label: "Miss (X)", icon: Close },
@@ -2333,8 +2235,7 @@ const GameMode: React.FC = () => {
                 label={action.label}
                 icon={action.icon}
                 statType={statType}
-                onClick={handleQuickActionClick}
-              />
+                onClick={handleQuickActionClick} />
             ))}
           </Box>
 
@@ -2343,8 +2244,7 @@ const GameMode: React.FC = () => {
               <Typography
                 variant="caption"
                 gutterBottom
-                sx={{ display: "block", mb: 1 }}
-              >
+                sx={{ display: "block", mb: 1 }}>
                 Who?
               </Typography>
               <Box
@@ -2352,8 +2252,7 @@ const GameMode: React.FC = () => {
                   display: "grid",
                   gridTemplateColumns: "repeat(5, 1fr)",
                   gap: 1,
-                }}
-              >
+                }}>
                 {players
                   .filter((p) => gameData.onCourtIds.has(p.id!))
                   .map((p) => (
@@ -2368,8 +2267,7 @@ const GameMode: React.FC = () => {
                         minWidth: 0,
                         fontWeight: 700,
                         borderColor: "#D1D1D1",
-                      }}
-                    >
+                      }}>
                       {jerseyMap.get(p.id!)}
                     </Button>
                   ))}
@@ -2382,8 +2280,7 @@ const GameMode: React.FC = () => {
               <Typography
                 variant="caption"
                 gutterBottom
-                sx={{ display: "block", mb: 1 }}
-              >
+                sx={{ display: "block", mb: 1 }}>
                 Opponent Jersey # (Optional)
               </Typography>
               <Box
@@ -2391,8 +2288,7 @@ const GameMode: React.FC = () => {
                   display: "flex",
                   gap: 1,
                   flexWrap: "wrap",
-                }}
-              >
+                }}>
                 {[
                   "0",
                   "1",
@@ -2430,8 +2326,7 @@ const GameMode: React.FC = () => {
                         minWidth: 40,
                         fontWeight: 700,
                         borderColor: "#D1D1D1",
-                      }}
-                    >
+                      }}>
                       {num}
                     </Button>
                   );
@@ -2448,7 +2343,7 @@ const GameMode: React.FC = () => {
                 const foulsForWarning = foulsRequiredForBonus - 1;
                 const fouls = gameData.teamFoulStats.oppFouls;
 
-                if (fouls >= foulsRequiredForBonus) {
+                if (fouls>= foulsRequiredForBonus) {
                   return (
                     <Typography
                       variant="caption"
@@ -2459,8 +2354,7 @@ const GameMode: React.FC = () => {
                         fontWeight: 900,
                         fontSize: "0.55rem",
                         mt: 0.5,
-                      }}
-                    >
+                      }}>
                       IN BONUS
                     </Typography>
                   );
@@ -2475,8 +2369,7 @@ const GameMode: React.FC = () => {
                         fontWeight: 700,
                         fontSize: "0.55rem",
                         mt: 0.5,
-                      }}
-                    >
+                      }}>
                       NEXT: BONUS
                     </Typography>
                   );
@@ -2488,13 +2381,12 @@ const GameMode: React.FC = () => {
           {(statType === ACTION_TYPES.MAKE || statType === ACTION_TYPES.MISS) &&
             trackingMode === "TEAM" &&
             team?.playbook &&
-            team.playbook.length > 0 && (
+            team.playbook.length> 0 && (
               <Box sx={{ mt: 3 }}>
                 <Typography
                   variant="caption"
                   gutterBottom
-                  sx={{ display: "block", mb: 1 }}
-                >
+                  sx={{ display: "block", mb: 1 }}>
                   Offensive Play
                 </Typography>
                 <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
@@ -2505,8 +2397,7 @@ const GameMode: React.FC = () => {
                       size="small"
                       onClick={() => setPlayName(playName === play ? "" : play)}
                       color={playName === play ? "primary" : "default"}
-                      variant={playName === play ? "filled" : "outlined"}
-                    />
+                      variant={playName === play ? "filled" : "outlined"} />
                   ))}
                 </Box>
               </Box>
@@ -2517,8 +2408,7 @@ const GameMode: React.FC = () => {
                 <Typography
                   variant="caption"
                   gutterBottom
-                  sx={{ display: "block", mb: 1 }}
-                >
+                  sx={{ display: "block", mb: 1 }}>
                   Opponent Play Type
                 </Typography>
                 <ToggleButtonGroup
@@ -2527,8 +2417,7 @@ const GameMode: React.FC = () => {
                   onChange={(_, val) => setOpponentPlayType(val)}
                   size="small"
                   fullWidth
-                  sx={{ flexWrap: "wrap" }}
-                >
+                  sx={{ flexWrap: "wrap" }}>
                   <ToggleButton value="PnR" sx={{ fontSize: "0.6rem" }}>
                     PnR
                   </ToggleButton>
@@ -2554,8 +2443,7 @@ const GameMode: React.FC = () => {
               <Typography
                 variant="caption"
                 gutterBottom
-                sx={{ display: "block", mb: 1 }}
-              >
+                sx={{ display: "block", mb: 1 }}>
                 Situation
               </Typography>
               <ToggleButtonGroup
@@ -2563,8 +2451,7 @@ const GameMode: React.FC = () => {
                 exclusive
                 onChange={(_, val) => setSituation(val)}
                 size="small"
-                fullWidth
-              >
+                fullWidth>
                 {Object.values(SITUATIONS).map((sit) => (
                   <ToggleButton key={sit} value={sit}>
                     {sit}
@@ -2580,8 +2467,7 @@ const GameMode: React.FC = () => {
               <Typography
                 variant="caption"
                 gutterBottom
-                sx={{ display: "block", mb: 1 }}
-              >
+                sx={{ display: "block", mb: 1 }}>
                 Shot Quality
               </Typography>
               <ToggleButtonGroup
@@ -2589,8 +2475,7 @@ const GameMode: React.FC = () => {
                 exclusive
                 onChange={(_, val) => setShotQuality(val)}
                 size="small"
-                fullWidth
-              >
+                fullWidth>
                 <ToggleButton value={SHOT_QUALITY.OPEN}>Open</ToggleButton>
                 <ToggleButton value={SHOT_QUALITY.CONTESTED}>
                   Contested
@@ -2604,8 +2489,7 @@ const GameMode: React.FC = () => {
               <Typography
                 variant="caption"
                 gutterBottom
-                sx={{ display: "block", mb: 1 }}
-              >
+                sx={{ display: "block", mb: 1 }}>
                 Points
               </Typography>
               <Stack direction="row" spacing={1}>
@@ -2615,8 +2499,7 @@ const GameMode: React.FC = () => {
                     fullWidth
                     variant={points === pts ? "contained" : "outlined"}
                     onClick={() => setPoints(pts)}
-                    aria-label={`${pts} point shot`}
-                  >
+                    aria-label={`${pts} point shot`}>
                     {pts}
                   </Button>
                 ))}
@@ -2635,8 +2518,7 @@ const GameMode: React.FC = () => {
                 setOpponentPlayType(null);
               }}
               color="warning"
-              sx={{ mr: "auto" }}
-            >
+              sx={{ mr: "auto" }}>
               Clear Selection
             </Button>
           )}
@@ -2648,8 +2530,7 @@ const GameMode: React.FC = () => {
               <Button
                 onClick={() => handleSaveStat()}
                 variant="contained"
-                disabled={!selectedPlayerId || !statType || isSavingStat}
-              >
+                disabled={!selectedPlayerId || !statType || isSavingStat}>
                 {isSavingStat ? "Saving..." : isEditing ? "Update" : "Save"}
               </Button>
             </span>
@@ -2664,8 +2545,7 @@ const GameMode: React.FC = () => {
           if (e.key === "Enter" && !isEnding) {
             handleEndGame();
           }
-        }}
-      >
+        }}>
         <DialogTitle sx={{ fontFamily: "var(--serif)" }}>End Game?</DialogTitle>
         <DialogContent>
           <DialogContentText>
@@ -2677,16 +2557,14 @@ const GameMode: React.FC = () => {
           <Button
             onClick={() => setIsEndGameDialogOpen(false)}
             color="inherit"
-            disabled={isEnding}
-          >
+            disabled={isEnding}>
             No, Continue
           </Button>
           <Button
             onClick={handleEndGame}
             color="error"
             variant="contained"
-            disabled={isEnding}
-          >
+            disabled={isEnding}>
             {isEnding ? "Ending..." : "Yes, Finish Game"}
           </Button>
         </DialogActions>
@@ -2694,8 +2572,7 @@ const GameMode: React.FC = () => {
 
       <Dialog
         open={isSummaryDialogOpen}
-        onClose={() => setIsSummaryDialogOpen(false)}
-      >
+        onClose={() => setIsSummaryDialogOpen(false)}>
         <DialogTitle sx={{ fontFamily: "var(--serif)", textAlign: "center" }}>
           Game Summary
         </DialogTitle>
@@ -2707,13 +2584,12 @@ const GameMode: React.FC = () => {
             <Typography
               variant="h5"
               color={
-                gameData.currentScore > gameData.opponentScore
+                gameData.currentScore> gameData.opponentScore
                   ? "success.main"
                   : "error.main"
               }
-              sx={{ fontWeight: 600, mb: 3 }}
-            >
-              {gameData.currentScore > gameData.opponentScore
+              sx={{ fontWeight: 600, mb: 3 }}>
+              {gameData.currentScore> gameData.opponentScore
                 ? "WIN"
                 : gameData.currentScore < gameData.opponentScore
                   ? "LOSS"
@@ -2731,8 +2607,7 @@ const GameMode: React.FC = () => {
             onClick={() => {
               setIsSummaryDialogOpen(false);
             }}
-            sx={{ mr: 2 }}
-          >
+            sx={{ mr: 2 }}>
             Close & Review Actions
           </Button>
           <Button
@@ -2740,8 +2615,7 @@ const GameMode: React.FC = () => {
             onClick={() => {
               setIsSummaryDialogOpen(false);
               navigate(`/game/stats?gameId=${gameId}`);
-            }}
-          >
+            }}>
             View Box Score
           </Button>
         </DialogActions>
@@ -2759,8 +2633,7 @@ const GameMode: React.FC = () => {
         jerseyMap={jerseyMap}
         handleSwapClick={handleSwapClick}
         handleQuickSub={handleQuickSub}
-        isSaving={isSavingSub}
-      />
+        isSaving={isSavingSub} />
 
       {gameId && (
         <SubstitutionAuditDialog
@@ -2768,8 +2641,7 @@ const GameMode: React.FC = () => {
           onClose={() => setIsAuditDialogOpen(false)}
           gameId={gameId}
           players={players}
-          jerseyMap={jerseyMap}
-        />
+          jerseyMap={jerseyMap} />
       )}
 
       {gameId && selectedPlayerId && (
@@ -2781,8 +2653,7 @@ const GameMode: React.FC = () => {
           player={players.find((p) => p.id === selectedPlayerId)}
           jerseyNumber={jerseyMap.get(selectedPlayerId)}
           period={period}
-          clockTime={clockSeconds}
-        />
+          clockTime={clockSeconds} />
       )}
 
       <DefensiveBreakdownDialog
@@ -2806,8 +2677,7 @@ const GameMode: React.FC = () => {
             }
           }
           setLastOpponentStatId(null);
-        }}
-      />
+        }} />
 
       <HalftimeReportDialog
         open={isHalftimeReportOpen}
@@ -2819,8 +2689,7 @@ const GameMode: React.FC = () => {
         bottomLineups={[...halftimeStats.lineupStats].reverse()}
         opponentThreats={gameData.momentumAlerts.opponentThreats}
         schemeEfficiency={halftimeStats.schemeEfficiency}
-        jerseyMap={jerseyMap}
-      />
+        jerseyMap={jerseyMap} />
 
       <Dialog
         open={isDeleteDialogOpen}
@@ -2829,8 +2698,7 @@ const GameMode: React.FC = () => {
           if (e.key === "Enter" && !isDeleting) {
             handleDeleteStat();
           }
-        }}
-      >
+        }}>
         <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
           Confirm Delete
         </DialogTitle>
@@ -2864,16 +2732,14 @@ const GameMode: React.FC = () => {
           <Button
             onClick={() => setIsDeleteDialogOpen(false)}
             color="inherit"
-            disabled={isDeleting}
-          >
+            disabled={isDeleting}>
             Cancel
           </Button>
           <Button
             onClick={handleDeleteStat}
             color="error"
             variant="contained"
-            disabled={isDeleting}
-          >
+            disabled={isDeleting}>
             {isDeleting ? "Deleting..." : "Delete Action"}
           </Button>
         </DialogActions>
@@ -2881,8 +2747,7 @@ const GameMode: React.FC = () => {
 
       {!isReadOnly && !game?.completed && (
         <Tooltip
-          title={isClockRunning ? "Pause Clock (Space)" : "Start Clock (Space)"}
-        >
+          title={isClockRunning ? "Pause Clock (Space)" : "Start Clock (Space)"}>
           <IconButton
             onClick={handleToggleClock}
             sx={{
@@ -2901,8 +2766,7 @@ const GameMode: React.FC = () => {
               },
               transition: "all 0.2s ease-in-out",
             }}
-            aria-label={isClockRunning ? "Pause Clock" : "Start Clock"}
-          >
+            aria-label={isClockRunning ? "Pause Clock" : "Start Clock"}>
             {isClockRunning ? (
               <Pause sx={{ fontSize: 32 }} />
             ) : (
@@ -2917,8 +2781,7 @@ const GameMode: React.FC = () => {
         onClose={() => setIsClockEditDialogOpen(false)}
         onSave={handleEditClock}
         initialMinutes={Math.floor(clockSeconds / 60)}
-        initialSeconds={clockSeconds % 60}
-      />
+        initialSeconds={clockSeconds % 60} />
 
       <VerifiedPeriodModal
         open={isVerificationOpen}
@@ -2932,15 +2795,13 @@ const GameMode: React.FC = () => {
           team: gameData.teamFoulStats.teamFouls,
           opp: gameData.teamFoulStats.oppFouls,
         }}
-        onVerify={handleVerifyPeriod}
-      />
+        onVerify={handleVerifyPeriod} />
 
       <Snackbar
         open={snackbar.open}
         autoHideDuration={6000}
         onClose={() => setSnackbar({ ...snackbar, open: false })}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-      >
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}>
         <Alert
           onClose={() => setSnackbar({ ...snackbar, open: false })}
           severity={snackbar.severity}
@@ -2952,13 +2813,11 @@ const GameMode: React.FC = () => {
                 color="inherit"
                 size="small"
                 onClick={handleUndo}
-                startIcon={<UndoIcon />}
-              >
+                startIcon={<UndoIcon />}>
                 UNDO
               </Button>
             ) : undefined
-          }
-        >
+          }>
           {snackbar.message}
         </Alert>
       </Snackbar>

@@ -86,8 +86,7 @@ const PresetCard: React.FC<PresetCardProps> = ({
             : alpha(theme.palette.text.primary, 0.16),
           boxShadow: "0 1px 2px rgba(16, 24, 40, 0.06)",
         },
-      }}
-    >
+      }}>
       <CardActionArea onClick={onSelect} sx={{ height: "100%" }}>
         <Box
           sx={{
@@ -95,8 +94,7 @@ const PresetCard: React.FC<PresetCardProps> = ({
             bgcolor: alpha(theme.palette.text.primary, 0.02),
             borderBottom: "1px solid",
             borderColor: "divider",
-          }}
-        >
+          }}>
           <Box
             sx={{
               position: "relative",
@@ -106,16 +104,14 @@ const PresetCard: React.FC<PresetCardProps> = ({
               borderColor: selected ? "primary.main" : "divider",
               bgcolor: "background.default",
               overflow: "hidden",
-            }}
-          >
+            }}>
             <Box
               sx={{
                 height: 10,
                 bgcolor: preset.previewColor,
                 borderBottom: "1px solid",
                 borderColor: "divider",
-              }}
-            />
+              }} />
 
             <Box sx={{ display: "flex", height: "calc(100% - 10px)" }}>
               <Box
@@ -125,8 +121,7 @@ const PresetCard: React.FC<PresetCardProps> = ({
                   borderColor: "divider",
                   bgcolor: alpha(theme.palette.text.primary, 0.02),
                   p: 0.75,
-                }}
-              >
+                }}>
                 <Box
                   sx={{
                     width: "72%",
@@ -134,8 +129,7 @@ const PresetCard: React.FC<PresetCardProps> = ({
                     borderRadius: 999,
                     bgcolor: alpha(theme.palette.text.primary, 0.16),
                     mb: 0.75,
-                  }}
-                />
+                  }} />
                 <Box
                   sx={{
                     width: "88%",
@@ -143,16 +137,14 @@ const PresetCard: React.FC<PresetCardProps> = ({
                     borderRadius: 999,
                     bgcolor: alpha(theme.palette.text.primary, 0.08),
                     mb: 0.5,
-                  }}
-                />
+                  }} />
                 <Box
                   sx={{
                     width: "68%",
                     height: 4,
                     borderRadius: 999,
                     bgcolor: alpha(theme.palette.text.primary, 0.08),
-                  }}
-                />
+                  }} />
               </Box>
 
               <Box sx={{ flex: 1, p: 1 }}>
@@ -163,8 +155,7 @@ const PresetCard: React.FC<PresetCardProps> = ({
                     borderRadius: 999,
                     bgcolor: alpha(theme.palette.text.primary, 0.16),
                     mb: 1,
-                  }}
-                />
+                  }} />
                 <Stack direction="row" spacing={0.75} sx={{ mb: 1 }}>
                   <Box
                     sx={{
@@ -174,8 +165,7 @@ const PresetCard: React.FC<PresetCardProps> = ({
                       border: "1px solid",
                       borderColor: "divider",
                       bgcolor: alpha(theme.palette.text.primary, 0.02),
-                    }}
-                  />
+                    }} />
                   <Box
                     sx={{
                       flex: 1,
@@ -184,8 +174,7 @@ const PresetCard: React.FC<PresetCardProps> = ({
                       border: "1px solid",
                       borderColor: "divider",
                       bgcolor: alpha(theme.palette.text.primary, 0.02),
-                    }}
-                  />
+                    }} />
                 </Stack>
                 <Box
                   sx={{
@@ -194,16 +183,14 @@ const PresetCard: React.FC<PresetCardProps> = ({
                     borderRadius: 999,
                     bgcolor: alpha(theme.palette.text.primary, 0.08),
                     mb: 0.5,
-                  }}
-                />
+                  }} />
                 <Box
                   sx={{
                     width: "70%",
                     height: 4,
                     borderRadius: 999,
                     bgcolor: alpha(theme.palette.text.primary, 0.08),
-                  }}
-                />
+                  }} />
               </Box>
             </Box>
 
@@ -222,8 +209,7 @@ const PresetCard: React.FC<PresetCardProps> = ({
                   alignItems: "center",
                   justifyContent: "center",
                   boxShadow: "0 1px 2px rgba(16,24,40,0.16)",
-                }}
-              >
+                }}>
                 <CheckIcon sx={{ fontSize: 12 }} />
               </Box>
             )}
@@ -235,16 +221,14 @@ const PresetCard: React.FC<PresetCardProps> = ({
             px: 1.5,
             py: 1.25,
             "&:last-child": { pb: 1.25 },
-          }}
-        >
+          }}>
           <Typography
             variant="body2"
             sx={{
               fontWeight: 600,
               color: "text.primary",
               mb: 0.25,
-            }}
-          >
+            }}>
             {preset.label}
           </Typography>
           <Typography variant="caption" sx={{ color: "text.secondary" }}>
@@ -272,8 +256,7 @@ const SettingsRow: React.FC<SettingsRowProps> = ({
       gridTemplateColumns: { xs: "1fr", md: "220px minmax(0, 1fr)" },
       gap: { xs: 1.5, md: 3 },
       alignItems: alignTop ? "start" : "center",
-    }}
-  >
+    }}>
     <Box>
       <Typography
         sx={{
@@ -281,8 +264,7 @@ const SettingsRow: React.FC<SettingsRowProps> = ({
           fontWeight: 500,
           color: "text.primary",
           mb: description ? 0.5 : 0,
-        }}
-      >
+        }}>
         {label}
       </Typography>
       {description && (
@@ -291,8 +273,7 @@ const SettingsRow: React.FC<SettingsRowProps> = ({
             fontSize: "0.875rem",
             color: "text.secondary",
             lineHeight: 1.45,
-          }}
-        >
+          }}>
           {description}
         </Typography>
       )}
@@ -312,8 +293,7 @@ const SectionIntro: React.FC<{ title: string; subtitle: string }> = ({
         fontWeight: 600,
         color: "text.primary",
         mb: 0.5,
-      }}
-    >
+      }}>
       {title}
     </Typography>
     <Typography
@@ -321,8 +301,7 @@ const SectionIntro: React.FC<{ title: string; subtitle: string }> = ({
         fontSize: "0.875rem",
         color: "text.secondary",
         lineHeight: 1.5,
-      }}
-    >
+      }}>
       {subtitle}
     </Typography>
   </Box>
@@ -384,8 +363,7 @@ const Settings: React.FC = () => {
           label="Syncing…"
           color="secondary"
           size="small"
-          sx={{ fontWeight: 500 }}
-        />
+          sx={{ fontWeight: 500 }} />
       );
     }
 
@@ -396,8 +374,7 @@ const Settings: React.FC = () => {
           label="Unsynced changes"
           color="warning"
           size="small"
-          sx={{ fontWeight: 500 }}
-        />
+          sx={{ fontWeight: 500 }} />
       );
     }
 
@@ -407,8 +384,7 @@ const Settings: React.FC = () => {
         label="Up to date"
         color="success"
         size="small"
-        sx={{ fontWeight: 500 }}
-      />
+        sx={{ fontWeight: 500 }} />
     );
   }, [hasUnsynced, isSyncing]);
 
@@ -418,16 +394,14 @@ const Settings: React.FC = () => {
       label="Online"
       color="success"
       size="small"
-      sx={{ fontWeight: 500 }}
-    />
+      sx={{ fontWeight: 500 }} />
   ) : (
     <Chip
       icon={<OfflineIcon />}
       label="Offline"
       color="error"
       size="small"
-      sx={{ fontWeight: 500 }}
-    />
+      sx={{ fontWeight: 500 }} />
   );
 
   const handleLogoutClick = async () => {
@@ -494,20 +468,17 @@ const Settings: React.FC = () => {
         display: "flex",
         flexDirection: "column",
         bgcolor: "transparent",
-      }}
-    >
+      }}>
       <Snackbar
         open={snackbar.open}
         autoHideDuration={4000}
         onClose={() => setSnackbar({ ...snackbar, open: false })}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-      >
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}>
         <Alert
           onClose={() => setSnackbar({ ...snackbar, open: false })}
           severity={snackbar.severity}
           variant="filled"
-          sx={{ width: "100%" }}
-        >
+          sx={{ width: "100%" }}>
           {snackbar.message}
         </Alert>
       </Snackbar>
@@ -526,24 +497,21 @@ const Settings: React.FC = () => {
           overflow: "hidden",
           bgcolor: "background.default",
           boxShadow: "none",
-        }}
-      >
+        }}>
         <Box
           sx={{
             px: { xs: 2, sm: 3 },
             pt: { xs: 2, sm: 2.5 },
             pb: 0.75,
             flexShrink: 0,
-          }}
-        >
+          }}>
           <Typography
             sx={{
               fontSize: "1.125rem",
               fontWeight: 600,
               color: "text.primary",
               mb: 0.25,
-            }}
-          >
+            }}>
             Settings
           </Typography>
         </Box>
@@ -554,14 +522,13 @@ const Settings: React.FC = () => {
             borderBottom: "1px solid",
             borderColor: "divider",
             flexShrink: 0,
-          }}
-        >
+          }}>
           <Tabs
             value={tabValueToIndex(activeTab)}
             onChange={(_, value) => setActiveTab(indexToTabValue(value))}
             variant="scrollable"
             scrollButtons="auto"
-            TabIndicatorProps={{
+            slotProps={{ indicator: {
               style: {
                 height: 2,
                 borderRadius: 999,
@@ -584,8 +551,7 @@ const Settings: React.FC = () => {
               "& .Mui-selected": {
                 color: `${theme.palette.text.primary} !important`,
               },
-            }}
-          >
+            }}>
             <Tab label="Account" />
             <Tab label="System" />
             <Tab label="Appearance" />
@@ -600,14 +566,12 @@ const Settings: React.FC = () => {
             minHeight: 0,
             display: "flex",
             flexDirection: "column",
-          }}
-        >
+          }}>
           {activeTab === "account" && (
             <Box sx={{ py: 1.5 }}>
               <SectionIntro
                 title="Account"
-                subtitle="Manage your local app data and sign out safely."
-              />
+                subtitle="Manage your local app data and sign out safely." />
 
               <SettingsRow
                 label="Logout"
@@ -624,12 +588,10 @@ const Settings: React.FC = () => {
                       textTransform: "none",
                       fontWeight: 600,
                       boxShadow: "none",
-                    }}
-                  >
+                    }}>
                     Log out
                   </Button>
-                }
-              />
+                } />
             </Box>
           )}
 
@@ -637,20 +599,17 @@ const Settings: React.FC = () => {
             <Box sx={{ py: 1.5 }}>
               <SectionIntro
                 title="System"
-                subtitle="Check connectivity, synchronization, and local diagnostic logs."
-              />
+                subtitle="Check connectivity, synchronization, and local diagnostic logs." />
 
               <SettingsRow
                 label="Network connection"
                 description="Current internet connectivity for this device."
-                action={networkChip}
-              />
+                action={networkChip} />
 
               <SettingsRow
                 label="Synchronization"
                 description="Shows whether local data has finished syncing to the server."
-                action={syncStatusChip}
-              />
+                action={syncStatusChip} />
 
               <SettingsRow
                 label="System logs"
@@ -662,8 +621,7 @@ const Settings: React.FC = () => {
                     <Stack
                       direction={{ xs: "column", sm: "row" }}
                       spacing={1}
-                      sx={{ mb: 1.5 }}
-                    >
+                      sx={{ mb: 1.5 }}>
                       <Button
                         size="small"
                         startIcon={isCopied ? <CheckIcon /> : <CopyIcon />}
@@ -675,8 +633,7 @@ const Settings: React.FC = () => {
                           alignSelf: "flex-start",
                           borderColor: "divider",
                         }}
-                        variant="outlined"
-                      >
+                        variant="outlined">
                         {isCopied ? "Copied" : "Copy logs"}
                       </Button>
                       <Button
@@ -685,8 +642,7 @@ const Settings: React.FC = () => {
                         onClick={handleClearLogs}
                         disabled={logs.length === 0}
                         color="error"
-                        sx={{ textTransform: "none", alignSelf: "flex-start" }}
-                      >
+                        sx={{ textTransform: "none", alignSelf: "flex-start" }}>
                         Clear logs
                       </Button>
                     </Stack>
@@ -701,16 +657,14 @@ const Settings: React.FC = () => {
                         overflowY: "auto",
                         border: "1px solid",
                         borderColor: "divider",
-                      }}
-                    >
+                      }}>
                       {logs.length === 0 ? (
                         <Typography
                           sx={{
                             fontSize: "0.875rem",
                             color: "text.secondary",
                             fontStyle: "italic",
-                          }}
-                        >
+                          }}>
                           No logs recorded yet.
                         </Typography>
                       ) : (
@@ -723,8 +677,7 @@ const Settings: React.FC = () => {
                                   alignItems: "baseline",
                                   gap: 1,
                                   mb: 0.25,
-                                }}
-                              >
+                                }}>
                                 <Typography
                                   sx={{
                                     fontSize: "0.6875rem",
@@ -736,16 +689,14 @@ const Settings: React.FC = () => {
                                         : log.level === "warn"
                                           ? "warning.main"
                                           : "text.secondary",
-                                  }}
-                                >
+                                  }}>
                                   {log.level}
                                 </Typography>
                                 <Typography
                                   sx={{
                                     fontSize: "0.6875rem",
                                     color: "text.secondary",
-                                  }}
-                                >
+                                  }}>
                                   {new Date(log.timestamp).toLocaleTimeString()}
                                 </Typography>
                               </Box>
@@ -755,8 +706,7 @@ const Settings: React.FC = () => {
                                   fontSize: "0.75rem",
                                   color: "text.primary",
                                   wordBreak: "break-all",
-                                }}
-                              >
+                                }}>
                                 {log.message}
                               </Typography>
                             </Box>
@@ -765,8 +715,7 @@ const Settings: React.FC = () => {
                       )}
                     </Paper>
                   </Box>
-                }
-              />
+                } />
             </Box>
           )}
 
@@ -774,8 +723,7 @@ const Settings: React.FC = () => {
             <Box sx={{ py: 1.5 }}>
               <SectionIntro
                 title="Appearance"
-                subtitle="Change how your application looks and feels."
-              />
+                subtitle="Change how your application looks and feels." />
 
               <SettingsRow
                 label="Color theme"
@@ -793,8 +741,7 @@ const Settings: React.FC = () => {
                       borderRadius: 2,
                       minWidth: 150,
                       bgcolor: "background.paper",
-                    }}
-                  >
+                    }}>
                     <Box
                       sx={{
                         width: 14,
@@ -807,21 +754,18 @@ const Settings: React.FC = () => {
                         border: "1px solid",
                         borderColor: alpha(theme.palette.text.primary, 0.08),
                         flexShrink: 0,
-                      }}
-                    />
+                      }} />
                     <Typography
                       sx={{
                         fontSize: "0.875rem",
                         color: "text.primary",
                         fontWeight: 500,
-                      }}
-                    >
+                      }}>
                       {availablePresets.find((preset) => preset.id === presetId)
                         ?.label ?? "Theme"}
                     </Typography>
                   </Box>
-                }
-              />
+                } />
 
               <SettingsRow
                 label="Theme presets"
@@ -832,22 +776,20 @@ const Settings: React.FC = () => {
                   <Box sx={{ width: "100%" }}>
                     <Grid container spacing={2}>
                       {availablePresets.map((preset) => (
-                        <Grid item xs={12} sm={6} lg={4} key={preset.id}>
+                        <Grid size={{ xs: 12, sm: 6, lg: lg }} key={preset.id}>
                           <Tooltip title={preset.label} arrow>
                             <span>
                               <PresetCard
                                 preset={preset}
                                 selected={preset.id === presetId}
-                                onSelect={() => setPresetId(preset.id)}
-                              />
+                                onSelect={() => setPresetId(preset.id)} />
                             </span>
                           </Tooltip>
                         </Grid>
                       ))}
                     </Grid>
                   </Box>
-                }
-              />
+                } />
             </Box>
           )}
         </Box>

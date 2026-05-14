@@ -27,15 +27,13 @@ export const OnOffImpactTable: React.FC<OnOffImpactTableProps> = ({ data }) => {
             <TableCell
               colSpan={3}
               align="center"
-              sx={{ bgcolor: "rgba(0,255,0,0.05)", fontWeight: 800 }}
-            >
+              sx={{ bgcolor: "rgba(0,255,0,0.05)", fontWeight: 800 }}>
               TEAM ON
             </TableCell>
             <TableCell
               colSpan={3}
               align="center"
-              sx={{ bgcolor: "rgba(255,0,0,0.05)", fontWeight: 800 }}
-            >
+              sx={{ bgcolor: "rgba(255,0,0,0.05)", fontWeight: 800 }}>
               TEAM OFF
             </TableCell>
             <TableCell rowSpan={2} align="center" sx={{ fontWeight: 800 }}>
@@ -45,38 +43,32 @@ export const OnOffImpactTable: React.FC<OnOffImpactTableProps> = ({ data }) => {
           <TableRow>
             <TableCell
               align="center"
-              sx={{ fontSize: "0.7rem", fontWeight: 700 }}
-            >
+              sx={{ fontSize: "0.7rem", fontWeight: 700 }}>
               OFF RTG
             </TableCell>
             <TableCell
               align="center"
-              sx={{ fontSize: "0.7rem", fontWeight: 700 }}
-            >
+              sx={{ fontSize: "0.7rem", fontWeight: 700 }}>
               DEF RTG
             </TableCell>
             <TableCell
               align="center"
-              sx={{ fontSize: "0.7rem", fontWeight: 700 }}
-            >
+              sx={{ fontSize: "0.7rem", fontWeight: 700 }}>
               NET RTG
             </TableCell>
             <TableCell
               align="center"
-              sx={{ fontSize: "0.7rem", fontWeight: 700 }}
-            >
+              sx={{ fontSize: "0.7rem", fontWeight: 700 }}>
               OFF RTG
             </TableCell>
             <TableCell
               align="center"
-              sx={{ fontSize: "0.7rem", fontWeight: 700 }}
-            >
+              sx={{ fontSize: "0.7rem", fontWeight: 700 }}>
               DEF RTG
             </TableCell>
             <TableCell
               align="center"
-              sx={{ fontSize: "0.7rem", fontWeight: 700 }}
-            >
+              sx={{ fontSize: "0.7rem", fontWeight: 700 }}>
               NET RTG
             </TableCell>
           </TableRow>
@@ -92,11 +84,10 @@ export const OnOffImpactTable: React.FC<OnOffImpactTableProps> = ({ data }) => {
                 sx={{
                   fontWeight: 700,
                   color:
-                    parseFloat(row.on.netRating) >= 0
+                    parseFloat(row.on.netRating)>= 0
                       ? "success.main"
                       : "error.main",
-                }}
-              >
+                }}>
                 {formatPlusMinus(parseFloat(row.on.netRating))}
               </TableCell>
               <TableCell align="center">{row.off.offRating}</TableCell>
@@ -106,11 +97,10 @@ export const OnOffImpactTable: React.FC<OnOffImpactTableProps> = ({ data }) => {
                 sx={{
                   fontWeight: 700,
                   color:
-                    parseFloat(row.off.netRating) >= 0
+                    parseFloat(row.off.netRating)>= 0
                       ? "success.main"
                       : "error.main",
-                }}
-              >
+                }}>
                 {formatPlusMinus(parseFloat(row.off.netRating))}
               </TableCell>
               <TableCell
@@ -119,11 +109,10 @@ export const OnOffImpactTable: React.FC<OnOffImpactTableProps> = ({ data }) => {
                   fontWeight: 900,
                   bgcolor: "rgba(0,0,0,0.02)",
                   color:
-                    parseFloat(row.differential) >= 0
+                    parseFloat(row.differential)>= 0
                       ? "success.main"
                       : "error.main",
-                }}
-              >
+                }}>
                 {formatPlusMinus(parseFloat(row.differential))}
               </TableCell>
             </TableRow>

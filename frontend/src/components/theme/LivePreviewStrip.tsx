@@ -19,8 +19,7 @@ const LivePreviewStrip: React.FC = () => {
         overflow: "hidden",
         borderRadius: 2,
         mt: 3,
-      }}
-    >
+      }}>
       {/* Mini app bar */}
       <Box
         sx={{
@@ -32,8 +31,7 @@ const LivePreviewStrip: React.FC = () => {
           display: "flex",
           alignItems: "center",
           gap: 1,
-        }}
-      >
+        }}>
         <SportBasketballIcon sx={{ color: "primary.main", fontSize: 20 }} />
         <Typography variant="subtitle2" fontWeight={700} color="text.primary">
           CourtSight
@@ -48,16 +46,14 @@ const LivePreviewStrip: React.FC = () => {
             fontWeight: 700,
             fontSize: "0.65rem",
             height: 20,
-          }}
-        />
+          }} />
         <Avatar
           sx={{
             width: 24,
             height: 24,
             bgcolor: "primary.main",
             fontSize: "0.7rem",
-          }}
-        >
+          }}>
           C
         </Avatar>
       </Box>
@@ -72,8 +68,7 @@ const LivePreviewStrip: React.FC = () => {
           alignItems: "center",
           gap: 1.5,
           flexWrap: "wrap",
-        }}
-      >
+        }}>
         <Button variant="contained" size="small" disableElevation>
           Primary
         </Button>

@@ -39,8 +39,7 @@ describe("EditClockDialog", () => {
         <EditClockDialog
           {...defaultProps}
           initialMinutes={12}
-          initialSeconds={45}
-        />
+          initialSeconds={45} />
       </ThemeProvider>,
     );
 

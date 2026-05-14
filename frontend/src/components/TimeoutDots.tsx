@@ -20,12 +20,11 @@ const TimeoutDots: React.FC<TimeoutDotsProps> = ({
   <Stack
     direction="row"
     spacing={0.5}
-    alignItems="center"
+    alignItems={{ xs: "center" }}
     data-testid={testId}
     role="img"
     aria-label={`${count} timeouts remaining`}
-    aria-live="polite"
-  >
+    aria-live="polite">
     {Array.from({ length: total }).map((_, i) => {
       // In the new design:
       // Filled dots = remaining timeouts
@@ -50,8 +49,7 @@ const TimeoutDots: React.FC<TimeoutDotsProps> = ({
             border: `1.5px solid ${color}`,
             boxShadow: isActive ? `0 0 8px ${color}` : "none",
             transition: "all 0.3s ease",
-          }}
-        />
+          }} />
       );
     })}
   </Stack>

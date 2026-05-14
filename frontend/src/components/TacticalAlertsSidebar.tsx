@@ -37,16 +37,14 @@ export const TacticalAlertsSidebar: React.FC<TacticalAlertsSidebarProps> = ({
           color: "text.secondary",
           mb: 2,
           display: "block",
-        }}
-      >
+        }}>
         TACTICAL ALERTS (HALT)
       </Typography>
       <Stack spacing={1.5}>
         {alerts.length === 0 ? (
           <Typography
             variant="caption"
-            sx={{ fontStyle: "italic", opacity: 0.5 }}
-          >
+            sx={{ fontStyle: "italic", opacity: 0.5 }}>
             No active tactical threats.
           </Typography>
         ) : (
@@ -69,22 +67,19 @@ export const TacticalAlertsSidebar: React.FC<TacticalAlertsSidebarProps> = ({
                     : alert.severity === "info"
                       ? "rgba(2, 136, 209, 0.05)"
                       : "rgba(237, 108, 2, 0.05)",
-              }}
-            >
+              }}>
               <Stack direction="row" spacing={1} alignItems="flex-start">
                 {alert.severity === "CRITICAL" || alert.severity === "error" ? (
                   <ErrorIcon color="error" fontSize="small" />
                 ) : (
                   <Warning
                     color={alert.severity === "info" ? "info" : "warning"}
-                    fontSize="small"
-                  />
+                    fontSize="small" />
                 )}
                 <Box sx={{ flex: 1 }}>
                   <Typography
                     variant="caption"
-                    sx={{ fontWeight: 700, display: "block", mb: 0.5 }}
-                  >
+                    sx={{ fontWeight: 700, display: "block", mb: 0.5 }}>
                     {alert.message}
                   </Typography>
                   {alert.actionLabel && (
@@ -108,8 +103,7 @@ export const TacticalAlertsSidebar: React.FC<TacticalAlertsSidebarProps> = ({
                         ) : alert.type === "FOUL" ? (
                           <Gavel />
                         ) : undefined
-                      }
-                    >
+                      }>
                       {alert.actionLabel}
                     </Button>
                   )}
