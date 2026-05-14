@@ -61,9 +61,11 @@ export const TacticalIdentityHUD: React.FC<TacticalIdentityHUDProps> = ({
           >
             <Stack
               direction="row"
-              justifyContent="space-between"
-              alignItems="center"
-              sx={{ mb: 0.5 }}
+              sx={{
+                justifyContent: "space-between",
+                alignItems: "center",
+                mb: 0.5,
+              }}
             >
               <Tooltip title={description} arrow placement="top">
                 <Typography
@@ -83,6 +85,7 @@ export const TacticalIdentityHUD: React.FC<TacticalIdentityHUDProps> = ({
                 <CheckCircle sx={{ fontSize: 12, color: "success.main" }} />
               )}
             </Stack>
+
             <Tooltip
               title={`Goal: ${kpi.target}${kpi.isPercentage ? "%" : ""}`}
             >
@@ -102,6 +105,7 @@ export const TacticalIdentityHUD: React.FC<TacticalIdentityHUDProps> = ({
                 />
               </Box>
             </Tooltip>
+
             <Typography
               variant="h6"
               sx={{ fontWeight: 900, fontSize: "1rem", mt: 0.2 }}

@@ -55,7 +55,7 @@ const Players: React.FC = () => {
   const theme = useTheme();
   const navigate = useNavigate();
 
-  const radius = theme.shape.borderRadius;
+  const radius = Number(theme.shape.borderRadius);
   const shellRadius = radius * 1.5;
   const sectionRadius = radius * 1.5;
   const controlRadius = radius * 1.25;
@@ -312,10 +312,16 @@ const Players: React.FC = () => {
           <Stack
             direction={{ xs: "column", md: "row" }}
             spacing={2}
-            alignItems={{ xs: "flex-start", md: "center" }}
-            justifyContent="space-between"
+            sx={{
+              alignItems: { xs: "flex-start", md: "center" },
+              justifyContent: "space-between",
+            }}
           >
-            <Stack direction="row" spacing={1.5} alignItems="center">
+            <Stack
+              direction="row"
+              spacing={1.5}
+              sx={{ alignItems: "center" }}
+            >
               <Box
                 sx={{
                   width: 44,
@@ -373,8 +379,10 @@ const Players: React.FC = () => {
           <Stack
             direction={{ xs: "column", lg: "row" }}
             spacing={1.5}
-            alignItems={{ xs: "stretch", lg: "center" }}
-            justifyContent="space-between"
+            sx={{
+              alignItems: { xs: "stretch", lg: "center" },
+              justifyContent: "space-between",
+            }}
           >
             <TextField
               value={searchTerm}
@@ -388,22 +396,26 @@ const Players: React.FC = () => {
                   bgcolor: "background.paper",
                 },
               }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon
-                      sx={{ color: "text.secondary", fontSize: 18 }}
-                    />
-                  </InputAdornment>
-                ),
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon
+                        sx={{ color: "text.secondary", fontSize: 18 }}
+                      />
+                    </InputAdornment>
+                  ),
+                },
               }}
             />
 
             <Stack
               direction={{ xs: "column", sm: "row" }}
               spacing={1}
-              alignItems={{ xs: "stretch", sm: "center" }}
-              flexWrap="wrap"
+              sx={{
+                alignItems: { xs: "stretch", sm: "center" },
+                flexWrap: "wrap",
+              }}
               useFlexGap
             >
               <Chip
@@ -444,7 +456,9 @@ const Players: React.FC = () => {
                   <Switch
                     checked={showArchived}
                     onChange={(e) => setShowArchived(e.target.checked)}
-                    inputProps={{ "aria-label": "show archived players" }}
+                    slotProps={{
+                      input: { "aria-label": "show archived players" },
+                    }}
                   />
                 }
                 label="Show archived"
@@ -545,7 +559,7 @@ const Players: React.FC = () => {
                 } = getAccentStyles(player.avatarColor);
 
                 return (
-                  <Grid item xs={12} md={6} xl={4} key={player.id}>
+                  <Grid size={{ xs: 12, md: 6, xl: 4 }} key={player.id}>
                     <Paper
                       role="button"
                       tabIndex={0}
@@ -628,8 +642,11 @@ const Players: React.FC = () => {
                             <Stack
                               direction="row"
                               spacing={1}
-                              alignItems="center"
-                              sx={{ mb: 0.75, flexWrap: "wrap" }}
+                              sx={{
+                                mb: 0.75,
+                                flexWrap: "wrap",
+                                alignItems: "center",
+                              }}
                             >
                               <Typography variant="h6">
                                 {player.name}
@@ -673,7 +690,10 @@ const Players: React.FC = () => {
                             </Typography>
                           </Box>
 
-                          <Stack spacing={1} alignItems="flex-end">
+                          <Stack
+                            spacing={1}
+                            sx={{ alignItems: "flex-end" }}
+                          >
                             <Tooltip
                               title={
                                 player.isStar
@@ -743,19 +763,19 @@ const Players: React.FC = () => {
                           </Typography>
 
                           <Grid container spacing={1.5}>
-                            <Grid item xs={4}>
+                            <Grid size={{ xs: 4 }}>
                               <Typography sx={statLabelSx}>PPG</Typography>
                               <Typography sx={statValueSx}>
                                 {player.ppg}
                               </Typography>
                             </Grid>
-                            <Grid item xs={4}>
+                            <Grid size={{ xs: 4 }}>
                               <Typography sx={statLabelSx}>RPG</Typography>
                               <Typography sx={statValueSx}>
                                 {player.rpg}
                               </Typography>
                             </Grid>
-                            <Grid item xs={4}>
+                            <Grid size={{ xs: 4 }}>
                               <Typography sx={statLabelSx}>APG</Typography>
                               <Typography sx={statValueSx}>
                                 {player.apg}
@@ -766,9 +786,9 @@ const Players: React.FC = () => {
 
                         <Stack
                           direction="row"
-                          justifyContent="space-between"
-                          alignItems="center"
                           sx={{
+                            justifyContent: "space-between",
+                            alignItems: "center",
                             mt: "auto",
                             pt: 2,
                             borderTop: "1px solid",
@@ -811,9 +831,11 @@ const Players: React.FC = () => {
         onClose={handleDialogClose}
         fullWidth
         maxWidth="sm"
-        PaperProps={{
-          sx: {
-            borderRadius: shellRadius,
+        slotProps={{
+          paper: {
+            sx: {
+              borderRadius: shellRadius,
+            },
           },
         }}
       >

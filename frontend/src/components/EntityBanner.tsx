@@ -1,6 +1,7 @@
 import React from "react";
 import {
   Box,
+  Dialog,
   Typography,
   Grid,
   Avatar,
@@ -135,14 +136,11 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
 
       <Grid
         container
-        alignItems="center"
-        spacing={{ xs: 2, sm: 4 }}
-        sx={{ mt: { xs: 0, sm: 1 } }}
+        spacing={{ xs: 2, sm: 3 }}
+        sx={{ mt: { xs: 1, sm: 2 }, alignItems: "center" }}
       >
         <Grid
-          item
-          xs={12}
-          sm="auto"
+          size={{ xs: 12, sm: "auto" }}
           sx={{ textAlign: { xs: "center", sm: "left" } }}
         >
           <Box
@@ -215,7 +213,11 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
             )}
           </Box>
         </Grid>
-        <Grid item xs={12} sm sx={{ textAlign: { xs: "center", sm: "left" } }}>
+
+        <Grid
+          size={{ xs: 12, sm: "grow" }}
+          sx={{ textAlign: { xs: "center", sm: "left" } }}
+        >
           <Typography
             variant="h3"
             sx={{
@@ -243,12 +245,15 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
             </Typography>
           )}
         </Grid>
+
         {stats.length > 0 && (
-          <Grid item xs={12} md="auto">
+          <Grid size={{ xs: 12, md: "auto" }}>
             <Stack
               direction="row"
               spacing={{ xs: 2, sm: 4 }}
-              justifyContent={{ xs: "center", sm: "flex-start" }}
+              sx={{
+                justifyContent: { xs: "center", sm: "flex-start" },
+              }}
             >
               {stats.map((stat, index) => (
                 <React.Fragment key={stat.label}>
@@ -271,6 +276,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
           </Grid>
         )}
       </Grid>
+
       <Box
         sx={{
           position: "absolute",
@@ -321,28 +327,30 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                 placeholder="Search..."
                 aria-label={`Search ${title}`}
                 value={searchTerm || ""}
-                onChange={(e) => onSearchChange(e.target.value)}
-                InputProps={{
-                  disableUnderline: true,
-                  sx: {
-                    color: "white",
-                    fontSize: "0.9rem",
-                    width: "100%",
+                onChange={(e) => onSearchChange?.(e.target.value)}
+                slotProps={{
+                  input: {
+                    disableUnderline: true,
+                    sx: {
+                      color: "white",
+                      fontSize: "0.9rem",
+                      width: "100%",
+                    },
+                    endAdornment: searchTerm ? (
+                      <InputAdornment position="end">
+                        <Tooltip title="Clear search">
+                          <IconButton
+                            aria-label="clear search"
+                            size="small"
+                            onClick={() => onSearchChange?.("")}
+                            sx={{ color: "rgba(255,255,255,0.7)" }}
+                          >
+                            <CloseIcon fontSize="inherit" />
+                          </IconButton>
+                        </Tooltip>
+                      </InputAdornment>
+                    ) : null,
                   },
-                  endAdornment: searchTerm ? (
-                    <InputAdornment position="end">
-                      <Tooltip title="Clear search">
-                        <IconButton
-                          aria-label="clear search"
-                          size="small"
-                          onClick={() => onSearchChange("")}
-                          sx={{ color: "rgba(255,255,255,0.7)" }}
-                        >
-                          <CloseIcon fontSize="inherit" />
-                        </IconButton>
-                      </Tooltip>
-                    </InputAdornment>
-                  ) : null,
                 }}
                 sx={{ width: "100%" }}
               />

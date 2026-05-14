@@ -107,7 +107,7 @@ const Opponents: React.FC = () => {
       <Box sx={{ mt: 4 }}>
         <Grid container spacing={3}>
           {opponents.length === 0 ? (
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <Box
                 sx={{
                   py: 8,
@@ -142,7 +142,7 @@ const Opponents: React.FC = () => {
             </Grid>
           ) : (
             opponents.map((opponent) => (
-              <Grid item xs={12} sm={6} md={4} key={opponent.id}>
+              <Grid size={{ xs: 12, sm: 6, md: 4 }} key={opponent.id}>
                 <MoleskineCard
                   sx={{
                     p: 0,

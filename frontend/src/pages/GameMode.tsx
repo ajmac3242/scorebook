@@ -47,7 +47,7 @@ import {
   GridOn,
   Shield,
   ArrowBack,
-  HelpOutline,
+  HelpOutlined,
 } from "@mui/icons-material";
 import {
   Table,
@@ -372,19 +372,19 @@ const GameMode: React.FC = () => {
             points: typeToSave === ACTION_TYPES.MAKE ? points : 0,
             playName:
               typeToSave === ACTION_TYPES.MAKE ||
-              typeToSave === ACTION_TYPES.MISS
+                typeToSave === ACTION_TYPES.MISS
                 ? playName
                 : undefined,
             shotQuality:
               typeToSave === ACTION_TYPES.MAKE ||
-              typeToSave === ACTION_TYPES.MISS
+                typeToSave === ACTION_TYPES.MISS
                 ? (shotQuality ?? undefined)
                 : undefined,
             situation: situation ?? undefined,
             opponentPlayType:
               (typeToSave === ACTION_TYPES.MAKE ||
                 typeToSave === ACTION_TYPES.MISS) &&
-              selectedPlayerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT)
+                selectedPlayerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT)
                 ? (opponentPlayType as StatEvent["opponentPlayType"])
                 : undefined,
             shotClockPhase: derivedShotClockPhase,
@@ -404,19 +404,19 @@ const GameMode: React.FC = () => {
             locationY: selectedY || 0,
             playName:
               typeToSave === ACTION_TYPES.MAKE ||
-              typeToSave === ACTION_TYPES.MISS
+                typeToSave === ACTION_TYPES.MISS
                 ? playName
                 : undefined,
             shotQuality:
               typeToSave === ACTION_TYPES.MAKE ||
-              typeToSave === ACTION_TYPES.MISS
+                typeToSave === ACTION_TYPES.MISS
                 ? (shotQuality ?? undefined)
                 : undefined,
             situation: situation ?? undefined,
             opponentPlayType:
               (typeToSave === ACTION_TYPES.MAKE ||
                 typeToSave === ACTION_TYPES.MISS) &&
-              selectedPlayerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT)
+                selectedPlayerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT)
                 ? (opponentPlayType as StatEvent["opponentPlayType"])
                 : undefined,
             shotClockPhase: derivedShotClockPhase,
@@ -933,7 +933,7 @@ const GameMode: React.FC = () => {
         </Alert>
       )}
       <Grid container spacing={3}>
-        <Grid item xs={12} md={8}>
+        <Grid size={{ xs: 12, md: 8 }}>
           {voiceEnabled && (
             <Alert
               severity={isListening ? "info" : "warning"}
@@ -1158,7 +1158,7 @@ const GameMode: React.FC = () => {
           </MoleskineCard>
         </Grid>
 
-        <Grid item xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <Stack spacing={3}>
             {isClutchMode && (
               <MoleskineCard
@@ -1321,7 +1321,7 @@ const GameMode: React.FC = () => {
                 Offensive Identity (KPIs)
               </Typography>
               <Grid container spacing={2}>
-                <Grid item xs={6}>
+                <Grid size={{ xs: 6 }}>
                   <Typography variant="h6" sx={{ fontWeight: 900 }}>
                     {paintTouchStats.total}
                   </Typography>
@@ -1329,7 +1329,7 @@ const GameMode: React.FC = () => {
                     PAINT TOUCHES
                   </Typography>
                 </Grid>
-                <Grid item xs={6}>
+                <Grid size={{ xs: 6 }}>
                   <Typography
                     variant="h6"
                     sx={{ fontWeight: 900, color: "primary.main" }}
@@ -1355,7 +1355,7 @@ const GameMode: React.FC = () => {
                 Quality Control (xPTS)
               </Typography>
               <Grid container spacing={2}>
-                <Grid item xs={6}>
+                <Grid size={{ xs: 6 }}>
                   <Typography variant="h6" sx={{ fontWeight: 900 }}>
                     {shotROI.avgXPts}
                   </Typography>
@@ -1363,7 +1363,7 @@ const GameMode: React.FC = () => {
                     xPTS / POSS
                   </Typography>
                 </Grid>
-                <Grid item xs={6}>
+                <Grid size={{ xs: 6 }}>
                   <Typography
                     variant="h6"
                     sx={{
@@ -1782,7 +1782,7 @@ const GameMode: React.FC = () => {
                                       key: head.key as keyof PlayerAggregates,
                                       direction:
                                         sortConfig.key === head.key &&
-                                        sortConfig.direction === "asc"
+                                          sortConfig.direction === "asc"
                                           ? "desc"
                                           : "asc",
                                     })
@@ -2098,13 +2098,13 @@ const GameMode: React.FC = () => {
                   }
                 >
                   <IconButton size="small" aria-label="Keyboard Shortcuts Help">
-                    <HelpOutline fontSize="small" />
+                    <HelpOutlined fontSize="small" />
                   </IconButton>
                 </Tooltip>
               </Box>
               <Stack spacing={1}>
                 {gameData.recentStats.filter((s) => !s.deletedAt).length ===
-                0 ? (
+                  0 ? (
                   <Box
                     sx={{
                       py: 6,
@@ -2252,11 +2252,11 @@ const GameMode: React.FC = () => {
               <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
                 {selectedPlayerId
                   ? getPlayerDisplayName(
-                      selectedPlayerId,
-                      playerNamesMap,
-                      game?.opponent,
-                      team?.name,
-                    )
+                    selectedPlayerId,
+                    playerNamesMap,
+                    game?.opponent,
+                    team?.name,
+                  )
                   : "Select a player..."}
               </Typography>
               <Typography variant="caption" color="text.secondary">
@@ -2550,54 +2550,54 @@ const GameMode: React.FC = () => {
 
           {(statType === ACTION_TYPES.MAKE ||
             statType === ACTION_TYPES.MISS) && (
-            <Box sx={{ mt: 3 }}>
-              <Typography
-                variant="caption"
-                gutterBottom
-                sx={{ display: "block", mb: 1 }}
-              >
-                Situation
-              </Typography>
-              <ToggleButtonGroup
-                value={situation}
-                exclusive
-                onChange={(_, val) => setSituation(val)}
-                size="small"
-                fullWidth
-              >
-                {Object.values(SITUATIONS).map((sit) => (
-                  <ToggleButton key={sit} value={sit}>
-                    {sit}
-                  </ToggleButton>
-                ))}
-              </ToggleButtonGroup>
-            </Box>
-          )}
+              <Box sx={{ mt: 3 }}>
+                <Typography
+                  variant="caption"
+                  gutterBottom
+                  sx={{ display: "block", mb: 1 }}
+                >
+                  Situation
+                </Typography>
+                <ToggleButtonGroup
+                  value={situation}
+                  exclusive
+                  onChange={(_, val) => setSituation(val)}
+                  size="small"
+                  fullWidth
+                >
+                  {Object.values(SITUATIONS).map((sit) => (
+                    <ToggleButton key={sit} value={sit}>
+                      {sit}
+                    </ToggleButton>
+                  ))}
+                </ToggleButtonGroup>
+              </Box>
+            )}
 
           {(statType === ACTION_TYPES.MAKE ||
             statType === ACTION_TYPES.MISS) && (
-            <Box sx={{ mt: 3 }}>
-              <Typography
-                variant="caption"
-                gutterBottom
-                sx={{ display: "block", mb: 1 }}
-              >
-                Shot Quality
-              </Typography>
-              <ToggleButtonGroup
-                value={shotQuality}
-                exclusive
-                onChange={(_, val) => setShotQuality(val)}
-                size="small"
-                fullWidth
-              >
-                <ToggleButton value={SHOT_QUALITY.OPEN}>Open</ToggleButton>
-                <ToggleButton value={SHOT_QUALITY.CONTESTED}>
-                  Contested
-                </ToggleButton>
-              </ToggleButtonGroup>
-            </Box>
-          )}
+              <Box sx={{ mt: 3 }}>
+                <Typography
+                  variant="caption"
+                  gutterBottom
+                  sx={{ display: "block", mb: 1 }}
+                >
+                  Shot Quality
+                </Typography>
+                <ToggleButtonGroup
+                  value={shotQuality}
+                  exclusive
+                  onChange={(_, val) => setShotQuality(val)}
+                  size="small"
+                  fullWidth
+                >
+                  <ToggleButton value={SHOT_QUALITY.OPEN}>Open</ToggleButton>
+                  <ToggleButton value={SHOT_QUALITY.CONTESTED}>
+                    Contested
+                  </ToggleButton>
+                </ToggleButtonGroup>
+              </Box>
+            )}
 
           {statType === ACTION_TYPES.MAKE && (
             <Box sx={{ mt: 3 }}>

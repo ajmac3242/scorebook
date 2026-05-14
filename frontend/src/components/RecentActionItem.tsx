@@ -1,6 +1,6 @@
 /**
  * @file RecentActionItem.tsx
- * @description Sub-component for displaying a single item in the recent actions history.
+ * @description Sub-component for displaying a single in the recent actions history.
  */
 
 import React from "react";

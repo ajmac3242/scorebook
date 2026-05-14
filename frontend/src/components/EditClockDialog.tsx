@@ -57,9 +57,11 @@ export const EditClockDialog: React.FC<{
         <Stack
           direction="row"
           spacing={3}
-          alignItems="center"
-          justifyContent="center"
-          sx={{ py: 1 }}
+          sx={{
+            alignItems: "center",
+            justifyContent: "center",
+            py: 1,
+          }}
         >
           <Box sx={{ textAlign: "center" }}>
             <Typography
@@ -68,7 +70,11 @@ export const EditClockDialog: React.FC<{
             >
               MINUTES
             </Typography>
-            <Stack direction="column" spacing={1} alignItems="center">
+            <Stack
+              direction="column"
+              spacing={1}
+              sx={{ alignItems: "center" }}
+            >
               <IconButton
                 onClick={() => setMins(Math.min(99, mins + 1))}
                 size="small"
@@ -91,9 +97,11 @@ export const EditClockDialog: React.FC<{
               </IconButton>
             </Stack>
           </Box>
+
           <Typography variant="h4" sx={{ mt: 3, fontWeight: 800 }}>
             :
           </Typography>
+
           <Box sx={{ textAlign: "center" }}>
             <Typography
               variant="caption"
@@ -101,7 +109,11 @@ export const EditClockDialog: React.FC<{
             >
               SECONDS
             </Typography>
-            <Stack direction="column" spacing={1} alignItems="center">
+            <Stack
+              direction="column"
+              spacing={1}
+              sx={{ alignItems: "center" }}
+            >
               <IconButton
                 onClick={() => setSecs((secs + 1) % 60)}
                 size="small"
@@ -126,6 +138,7 @@ export const EditClockDialog: React.FC<{
           </Box>
         </Stack>
       </DialogContent>
+
       <DialogActions sx={{ p: 2 }}>
         <Button onClick={onClose} color="inherit">
           Cancel

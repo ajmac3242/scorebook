@@ -27,7 +27,7 @@ import { Link, useLocation } from "react-router-dom";
 import { syncService } from "../utils/syncService";
 
 /**
- * Navigation item component that expands on hover or when selected.
+ * Navigation component that expands on hover or when selected.
  * @param root0
  * @param root0.item
  * @param root0.isSelected

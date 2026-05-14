@@ -16,26 +16,26 @@ import { SPECIAL_PLAYER_IDS } from "../constants/stats";
  */
 export interface ScoreboardProps {
   game:
-    | {
-        opponent?: string;
-        opponentLogoUrl?: string;
-        completed?: number;
-        deletedAt?: string;
-        timeoutLimit?: number;
-      }
-    | null
-    | undefined;
+  | {
+    opponent?: string;
+    opponentLogoUrl?: string;
+    completed?: number;
+    deletedAt?: string;
+    timeoutLimit?: number;
+  }
+  | null
+  | undefined;
   team:
-    | {
-        name?: string;
-        logoUrl?: string;
-        periodType?: string;
-        fouls?: number;
-        deletedAt?: string;
-        defaultTimeoutLimit?: number;
-      }
-    | null
-    | undefined;
+  | {
+    name?: string;
+    logoUrl?: string;
+    periodType?: string;
+    fouls?: number;
+    deletedAt?: string;
+    defaultTimeoutLimit?: number;
+  }
+  | null
+  | undefined;
   gameData: {
     currentScore: number;
     opponentScore: number;
@@ -157,7 +157,7 @@ export const Scoreboard = React.memo(
               animation: `${pulse} 0.5s ease-in-out`,
             }}
           >
-            <Stack alignItems="center" spacing={1}>
+            <Stack spacing={1} sx={{ alignItems: "center" }}>
               <LocalFireDepartment sx={{ fontSize: "4rem", color: "white" }} />
               <Typography
                 variant="h3"
@@ -283,135 +283,135 @@ export const Scoreboard = React.memo(
             gameData.momentumAlerts.teamRun ||
             gameData.momentumAlerts.scoringDrought ||
             gameData.momentumAlerts.opponentThreats.length > 0) && (
-            <Box
-              sx={{
-                position: "absolute",
-                top: 8,
-                zIndex: 10,
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: 0.5,
-              }}
-            >
-              {gameData.momentumAlerts.scoringDrought && (
-                <Stack spacing={0.5} alignItems="center">
-                  <Typography
-                    variant="caption"
-                    role="status"
-                    aria-live="polite"
-                    sx={{
-                      bgcolor: "warning.main",
-                      color: "black",
-                      px: 1,
-                      borderRadius: 1,
-                      fontSize: "0.6rem",
-                      fontWeight: 800,
-                      animation: `${pulse} 2s infinite ease-in-out`,
-                    }}
-                  >
-                    DROUGHT: {gameData.momentumAlerts.scoringDrought}
-                  </Typography>
-                </Stack>
-              )}
-              {gameData.momentumAlerts.teamRun && (
-                <Stack spacing={0.5} alignItems="center">
-                  <Typography
-                    variant="caption"
-                    role="status"
-                    aria-live="polite"
-                    sx={{
-                      bgcolor: "success.main",
-                      color: "white",
-                      px: 1,
-                      borderRadius: 1,
-                      fontSize: "0.6rem",
-                      fontWeight: 800,
-                      animation: `${pulse} 2s infinite ease-in-out`,
-                    }}
-                  >
-                    TEAM RUN: {gameData.momentumAlerts.teamRun}
-                  </Typography>
-                </Stack>
-              )}
-              {gameData.momentumAlerts.opponentRun && (
-                <Stack spacing={0.5} alignItems="center">
-                  <Typography
-                    variant="caption"
-                    role="status"
-                    aria-live="polite"
-                    sx={{
-                      bgcolor: "error.main",
-                      color: "white",
-                      px: 1,
-                      borderRadius: 1,
-                      fontSize: "0.6rem",
-                      fontWeight: 800,
-                      animation: `${pulse} 2s infinite ease-in-out`,
-                    }}
-                  >
-                    RUN: {gameData.momentumAlerts.opponentRun}
-                  </Typography>
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      bgcolor: "rgba(255,255,255,0.9)",
-                      color: "error.main",
-                      px: 1,
-                      borderRadius: 1,
-                      fontSize: "0.5rem",
-                      fontWeight: 900,
-                      textTransform: "uppercase",
-                    }}
-                  >
-                    Suggest Timeout
-                  </Typography>
-                </Stack>
-              )}
-              {gameData.momentumAlerts.opponentThreats.map((t) => (
-                <Stack
-                  key={t.playerId}
-                  spacing={0.5}
-                  alignItems="center"
-                  role="alert"
-                  aria-live="polite"
-                >
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      bgcolor: "warning.main",
-                      color: "black",
-                      px: 1,
-                      borderRadius: 1,
-                      fontSize: "0.55rem",
-                      fontWeight: 900,
-                      animation: `${pulse} 2.5s infinite ease-in-out`,
-                    }}
-                  >
-                    {t.straightPoints >= 6
-                      ? `THREAT: Opp #${t.playerId.split(":")[1] || "??"} has scored ${t.straightPoints} STRAIGHT`
-                      : `THREAT: Opp #${t.playerId.split(":")[1] || "??"} (${t.points} pts)`}
-                  </Typography>
-                  {t.straightPoints >= 8 && (
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: 8,
+                  zIndex: 10,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: 0.5,
+                }}
+              >
+                {gameData.momentumAlerts.scoringDrought && (
+                  <Stack spacing={0.5} sx={{ alignItems: "center" }}>
+                    <Typography
+                      variant="caption"
+                      role="status"
+                      aria-live="polite"
+                      sx={{
+                        bgcolor: "warning.main",
+                        color: "black",
+                        px: 1,
+                        borderRadius: 1,
+                        fontSize: "0.6rem",
+                        fontWeight: 800,
+                        animation: `${pulse} 2s infinite ease-in-out`,
+                      }}
+                    >
+                      DROUGHT: {gameData.momentumAlerts.scoringDrought}
+                    </Typography>
+                  </Stack>
+                )}
+                {gameData.momentumAlerts.teamRun && (
+                  <Stack spacing={0.5} sx={{ alignItems: "center" }}>
+                    <Typography
+                      variant="caption"
+                      role="status"
+                      aria-live="polite"
+                      sx={{
+                        bgcolor: "success.main",
+                        color: "white",
+                        px: 1,
+                        borderRadius: 1,
+                        fontSize: "0.6rem",
+                        fontWeight: 800,
+                        animation: `${pulse} 2s infinite ease-in-out`,
+                      }}
+                    >
+                      TEAM RUN: {gameData.momentumAlerts.teamRun}
+                    </Typography>
+                  </Stack>
+                )}
+                {gameData.momentumAlerts.opponentRun && (
+                  <Stack spacing={0.5} sx={{ alignItems: "center" }}>
+                    <Typography
+                      variant="caption"
+                      role="status"
+                      aria-live="polite"
+                      sx={{
+                        bgcolor: "error.main",
+                        color: "white",
+                        px: 1,
+                        borderRadius: 1,
+                        fontSize: "0.6rem",
+                        fontWeight: 800,
+                        animation: `${pulse} 2s infinite ease-in-out`,
+                      }}
+                    >
+                      RUN: {gameData.momentumAlerts.opponentRun}
+                    </Typography>
                     <Typography
                       variant="caption"
                       sx={{
                         bgcolor: "rgba(255,255,255,0.9)",
-                        color: "warning.dark",
+                        color: "error.main",
                         px: 1,
                         borderRadius: 1,
-                        fontSize: "0.45rem",
+                        fontSize: "0.5rem",
                         fontWeight: 900,
                         textTransform: "uppercase",
                       }}
                     >
-                      Change Matchup
+                      Suggest Timeout
                     </Typography>
-                  )}
-                </Stack>
-              ))}
-            </Box>
-          )}
+                  </Stack>
+                )}
+                {gameData.momentumAlerts.opponentThreats.map((t) => (
+                  <Stack
+                    key={t.playerId}
+                    spacing={0.5}
+                    sx={{ alignItems: "center" }}
+                    role="alert"
+                    aria-live="polite"
+                  >
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        bgcolor: "warning.main",
+                        color: "black",
+                        px: 1,
+                        borderRadius: 1,
+                        fontSize: "0.55rem",
+                        fontWeight: 900,
+                        animation: `${pulse} 2.5s infinite ease-in-out`,
+                      }}
+                    >
+                      {t.straightPoints >= 6
+                        ? `THREAT: Opp #${t.playerId.split(":")[1] || "??"} has scored ${t.straightPoints} STRAIGHT`
+                        : `THREAT: Opp #${t.playerId.split(":")[1] || "??"} (${t.points} pts)`}
+                    </Typography>
+                    {t.straightPoints >= 8 && (
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          bgcolor: "rgba(255,255,255,0.9)",
+                          color: "warning.dark",
+                          px: 1,
+                          borderRadius: 1,
+                          fontSize: "0.45rem",
+                          fontWeight: 900,
+                          textTransform: "uppercase",
+                        }}
+                      >
+                        Change Matchup
+                      </Typography>
+                    )}
+                  </Stack>
+                ))}
+              </Box>
+            )}
 
           <Typography
             variant="h6"
@@ -521,11 +521,19 @@ export const Scoreboard = React.memo(
             )}
 
             {/* Defensive Momentum HUD */}
-            <Stack direction="row" spacing={1.5} alignItems="center">
+            <Stack
+              direction="row"
+              spacing={1.5}
+              sx={{ alignItems: "center" }}
+            >
               <Tooltip
                 title={`Total Defensive Stops: ${gameData.defensiveStats.totalStops}`}
               >
-                <Stack direction="row" spacing={0.5} alignItems="center">
+                <Stack
+                  direction="row"
+                  spacing={0.5}
+                  sx={{ alignItems: "center" }}
+                >
                   <Shield
                     sx={{
                       fontSize: "1rem",
@@ -549,7 +557,11 @@ export const Scoreboard = React.memo(
               <Tooltip
                 title={`Total Kills: ${gameData.defensiveStats.totalKills}`}
               >
-                <Stack direction="row" spacing={0.5} alignItems="center">
+                <Stack
+                  direction="row"
+                  spacing={0.5}
+                  sx={{ alignItems: "center" }}
+                >
                   <LocalFireDepartment
                     sx={{
                       fontSize: "1.1rem",

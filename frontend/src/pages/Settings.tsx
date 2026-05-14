@@ -21,7 +21,7 @@ import {
 import {
   Check as CheckIcon,
   ContentCopy as CopyIcon,
-  DeleteOutline as ClearIcon,
+  DeleteOutlined as ClearIcon,
   Logout as LogoutIcon,
   Refresh as SyncingIcon,
   Warning as WarningIcon,
@@ -456,8 +456,7 @@ const Settings: React.FC = () => {
     const logString = logs
       .map(
         (l) =>
-          `[${l.timestamp}] [${l.level.toUpperCase()}] ${l.message}${
-            l.error ? `\nError: ${JSON.stringify(l.error)}` : ""
+          `[${l.timestamp}] [${l.level.toUpperCase()}] ${l.message}${l.error ? `\nError: ${JSON.stringify(l.error)}` : ""
           }${l.context ? `\nContext: ${JSON.stringify(l.context)}` : ""}`,
       )
       .join("\n\n");
@@ -832,7 +831,7 @@ const Settings: React.FC = () => {
                   <Box sx={{ width: "100%" }}>
                     <Grid container spacing={2}>
                       {availablePresets.map((preset) => (
-                        <Grid item xs={12} sm={6} lg={4} key={preset.id}>
+                        <Grid size={{ xs: 12, sm: 6, lg: 4 }} key={preset.id}>
                           <Tooltip title={preset.label} arrow>
                             <span>
                               <PresetCard
