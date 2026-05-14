@@ -13,11 +13,9 @@ import PlayerStats from "../pages/PlayerStats";
 import { mockDb } from "../dbMock";
 
 vi.mock("../components/BasketballCourt", () => ({
-  default: ({
-    shotChartView,
-  }: {
-    shotChartView: string;
-  }) => <div data-testid="basketball-court">{shotChartView}</div>,
+  default: ({ shotChartView }: { shotChartView: string }) => (
+    <div data-testid="basketball-court">{shotChartView}</div>
+  ),
 }));
 
 const theme = createTheme();
@@ -89,7 +87,9 @@ describe("PlayerStats Page", () => {
 
     renderComponent();
 
-    fireEvent.click(await screen.findByRole("button", { name: /edit player/i }));
+    fireEvent.click(
+      await screen.findByRole("button", { name: /edit player/i }),
+    );
 
     const nameInput = await screen.findByLabelText(/player name/i);
     fireEvent.change(nameInput, { target: { value: "Jacob Updated" } });
