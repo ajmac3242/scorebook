@@ -338,7 +338,8 @@ const Players: React.FC = () => {
                   Players
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  Manage your roster, highlight star players, and open individual dashboards.
+                  Manage your roster, highlight star players, and open
+                  individual dashboards.
                 </Typography>
               </Box>
             </Stack>
@@ -390,7 +391,9 @@ const Players: React.FC = () => {
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <SearchIcon sx={{ color: "text.secondary", fontSize: 18 }} />
+                    <SearchIcon
+                      sx={{ color: "text.secondary", fontSize: 18 }}
+                    />
                   </InputAdornment>
                 ),
               }}
@@ -577,7 +580,12 @@ const Players: React.FC = () => {
                         cursor: "pointer",
                         opacity: player.isArchived ? 0.72 : 1,
                         transition: theme.transitions.create(
-                          ["transform", "box-shadow", "border-color", "background-color"],
+                          [
+                            "transform",
+                            "box-shadow",
+                            "border-color",
+                            "background-color",
+                          ],
                           { duration: theme.transitions.duration.shorter },
                         ),
                         "&:hover": {
@@ -684,8 +692,12 @@ const Players: React.FC = () => {
                                     : `Mark ${player.name} as star player`
                                 }
                                 sx={{
-                                  color: player.isStar ? accent : "text.secondary",
-                                  bgcolor: player.isStar ? accentSoft : "transparent",
+                                  color: player.isStar
+                                    ? accent
+                                    : "text.secondary",
+                                  bgcolor: player.isStar
+                                    ? accentSoft
+                                    : "transparent",
                                   "&:hover": {
                                     bgcolor: accentSoftStrong,
                                   },
@@ -776,7 +788,10 @@ const Players: React.FC = () => {
                               borderRadius: "50%",
                               bgcolor: accent,
                               border: "1px solid",
-                              borderColor: alpha(theme.palette.common.black, 0.08),
+                              borderColor: alpha(
+                                theme.palette.common.black,
+                                0.08,
+                              ),
                               flexShrink: 0,
                             }}
                           />
@@ -837,7 +852,10 @@ const Players: React.FC = () => {
                   const selected = avatarColor === color;
 
                   return (
-                    <Tooltip title={selected ? "Selected color" : color} key={color}>
+                    <Tooltip
+                      title={selected ? "Selected color" : color}
+                      key={color}
+                    >
                       <Box
                         role="button"
                         tabIndex={0}
