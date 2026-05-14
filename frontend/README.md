@@ -1,4 +1,4 @@
-# CourtSight Readme
+# CourtSight
 
 # React + TypeScript + Vite
 
