@@ -158,6 +158,7 @@ const SideNav: React.FC<SideNavProps> = ({
                     )}
                   </Box>
                 </ListItemIcon>
+
                 <ListItemText
                   primary={item.label}
                   slotProps={{
@@ -165,8 +166,8 @@ const SideNav: React.FC<SideNavProps> = ({
                       sx: {
                         fontWeight: isActive ? 700 : 500,
                         fontSize: "0.9rem",
-                      }
-                    }
+                      },
+                    },
                   }}
                 />
               </ListItemButton>
@@ -209,6 +210,7 @@ const SideNav: React.FC<SideNavProps> = ({
             <ListItemIcon sx={{ minWidth: 36, color: "inherit" }}>
               <SettingsIcon />
             </ListItemIcon>
+
             <ListItemText
               primary="Settings"
               slotProps={{
@@ -216,8 +218,8 @@ const SideNav: React.FC<SideNavProps> = ({
                   sx: {
                     fontSize: "0.9rem",
                     fontWeight: 500,
-                  }
-                }
+                  },
+                },
               }}
             />
           </ListItemButton>

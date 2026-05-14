@@ -1,7 +1,6 @@
 import React from "react";
 import {
   Box,
-  Dialog,
   Typography,
   Grid,
   Avatar,
@@ -17,11 +16,11 @@ import {
   Search as SearchIcon,
   Close as CloseIcon,
   CheckCircle as CheckIcon,
+  Refresh as RefreshIcon,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { StatItem } from "./SharedUI";
 import { getInitials } from "../utils/stats";
-import { Refresh as RefreshIcon } from "@mui/icons-material";
 import { pulse } from "../styles/animations";
 
 interface EntityBannerProps {
@@ -78,6 +77,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
         searchButtonRef.current?.focus();
       }
     };
+
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isSearchExpanded]);
@@ -188,6 +188,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                 {getInitials(title)}
               </Avatar>
             )}
+
             {jerseyNumber && (
               <Box
                 sx={{
@@ -231,6 +232,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
           >
             {title}
           </Typography>
+
           {subtitle && (
             <Typography
               variant="h6"
@@ -319,6 +321,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                 )}
               </IconButton>
             </Tooltip>
+
             {isSearchExpanded && (
               <TextField
                 id="entity-search-field"
@@ -357,6 +360,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
             )}
           </Box>
         )}
+
         {onSync && !isSearchExpanded && (
           <Tooltip
             title={
@@ -403,6 +407,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
             </span>
           </Tooltip>
         )}
+
         {!isSearchExpanded && actions}
       </Box>
     </Box>
