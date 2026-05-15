@@ -1,4 +1,9 @@
-import { alpha, createTheme, type Theme, type ThemeOptions } from "@mui/material/styles";
+import {
+  alpha,
+  createTheme,
+  type Theme,
+  type ThemeOptions,
+} from "@mui/material/styles";
 import { cssVariables } from "./cssVariables";
 import {
   tokens,
@@ -15,14 +20,22 @@ const muiBreakpointValues = {
   xl: 1536,
 };
 
+/**
+ *
+ */
 function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
+/**
+ *
+ */
 function deepMerge<T>(base: T, override?: DeepPartial<T>): T {
   if (!override) return base;
 
-  const output: Record<string, unknown> = { ...(base as Record<string, unknown>) };
+  const output: Record<string, unknown> = {
+    ...(base as Record<string, unknown>),
+  };
 
   for (const key of Object.keys(override) as Array<keyof T>) {
     const baseValue = output[key as string];
@@ -40,11 +53,19 @@ function deepMerge<T>(base: T, override?: DeepPartial<T>): T {
   return output as T;
 }
 
+/**
+ *
+ */
 export function resolveTokens(preset?: ThemePreset): AppTokens {
   return deepMerge(tokens, preset?.overrides);
 }
 
-function buildComponentTheme(activeTokens: AppTokens): ThemeOptions["components"] {
+/**
+ *
+ */
+function buildComponentTheme(
+  activeTokens: AppTokens,
+): ThemeOptions["components"] {
   return {
     MuiCssBaseline: {
       styleOverrides: {
@@ -143,7 +164,8 @@ function buildComponentTheme(activeTokens: AppTokens): ThemeOptions["components"
           },
           "&.Mui-disabled": {
             color: activeTokens.semantic.color.action.disabled,
-            backgroundColor: activeTokens.semantic.color.action.disabledBackground,
+            backgroundColor:
+              activeTokens.semantic.color.action.disabledBackground,
           },
         },
       },
@@ -235,7 +257,8 @@ function buildComponentTheme(activeTokens: AppTokens): ThemeOptions["components"
             borderWidth: 2,
           },
           "&.Mui-disabled": {
-            backgroundColor: activeTokens.semantic.color.action.disabledBackground,
+            backgroundColor:
+              activeTokens.semantic.color.action.disabledBackground,
           },
         },
         input: {
@@ -293,7 +316,10 @@ function buildComponentTheme(activeTokens: AppTokens): ThemeOptions["components"
           "&.Mui-selected": {
             backgroundColor: activeTokens.semantic.color.action.selected,
             "&:hover": {
-              backgroundColor: alpha(activeTokens.semantic.color.brand.primary, 0.14),
+              backgroundColor: alpha(
+                activeTokens.semantic.color.brand.primary,
+                0.14,
+              ),
             },
           },
         },
@@ -324,6 +350,9 @@ function buildComponentTheme(activeTokens: AppTokens): ThemeOptions["components"
   };
 }
 
+/**
+ *
+ */
 export function buildTheme(preset?: ThemePreset): Theme {
   const activeTokens = resolveTokens(preset);
 
@@ -390,7 +419,8 @@ export function buildTheme(preset?: ThemePreset): Theme {
         hover: activeTokens.semantic.color.action.hover,
         selected: activeTokens.semantic.color.action.selected,
         disabled: activeTokens.semantic.color.action.disabled,
-        disabledBackground: activeTokens.semantic.color.action.disabledBackground,
+        disabledBackground:
+          activeTokens.semantic.color.action.disabledBackground,
       },
     },
 
@@ -432,7 +462,8 @@ export function buildTheme(preset?: ThemePreset): Theme {
         fontSize: activeTokens.semantic.typography.sectionTitle.fontSize,
         fontWeight: activeTokens.semantic.typography.sectionTitle.fontWeight,
         lineHeight: activeTokens.semantic.typography.sectionTitle.lineHeight,
-        letterSpacing: activeTokens.semantic.typography.sectionTitle.letterSpacing,
+        letterSpacing:
+          activeTokens.semantic.typography.sectionTitle.letterSpacing,
       },
       body1: {
         fontFamily: activeTokens.typography.fontFamily.body,
@@ -445,7 +476,8 @@ export function buildTheme(preset?: ThemePreset): Theme {
         fontSize: activeTokens.semantic.typography.supportingText.fontSize,
         fontWeight: activeTokens.semantic.typography.supportingText.fontWeight,
         lineHeight: activeTokens.semantic.typography.supportingText.lineHeight,
-        letterSpacing: activeTokens.semantic.typography.supportingText.letterSpacing,
+        letterSpacing:
+          activeTokens.semantic.typography.supportingText.letterSpacing,
       },
       caption: {
         fontFamily: activeTokens.typography.fontFamily.body,
