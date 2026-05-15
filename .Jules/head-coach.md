@@ -133,3 +133,11 @@ Observation: We have achieved a high degree of "Data Clarity"—the engine corre
 Impact: Without automated synthesis, the "Data-to-Action" loop remains too long. A coach might realize their zone defense is failing 3 possessions too late. By automating the identification of outliers (e.g., specific matchup failure or referee bias), we move from being a "Dashboard" to being a "Strategic Partner."
 
 Recommendation: Pivot the roadmap toward **Operational Intelligence** and **Predictive Decision Support**. Prioritize the "Live Timeout Huddle Snapshot" for high-pressure synthesis and the "Referee Situational Bias HUD" to manage tactical aggression. We must also deepen our understanding of offensive flow by tracking "Rim Gravity" (how paint touches generate open 3s) to identify the true catalysts of our scoring runs. This transition ensures CourtSight is not just recording the game, but helping win it.
+
+## 2025-06-01 - Strategic Apex: Mastering the Margins and Synergistic Flow
+
+Observation: CourtSight has successfully transitioned from a scoring app to a tactical operating system. We have achieved high-fidelity tracking of efficiency (PPP, eFG%) and momentum (Kills, Runs). However, the final frontier is "Mastering the Margins"—the subtle psychological and synergistic factors that determine victory in high-leverage situations. Currently, we lack visibility into "Bench Rust" (player readiness), "Run Anatomy" (causal source of scoring spurts), and "Communication Seams" (synergistic defensive failures).
+
+Impact: Coaches are still making "gut-feel" decisions during the final 4 minutes of close games regarding which star is "ready" to go back in or which defensive pairing is a communication risk. Without specific "Run Anatomy," timeouts are spent on generic motivation rather than surgical tactical adjustments (e.g., "Stop the leakage in transition").
+
+Recommendation: Pivot toward **Causal Anatomy** and **Predictive Synergies**. Prioritize the "Rust Factor" indicator to manage bench rotations scientifically and the "Run Anatomy" breakdown to empower coaches with "Proof" during huddles. Finally, move from identifying individual defensive failures to mapping "Communication Seams" between pairs, ensuring the closing lineup has mathematically proven synergistic flow.
