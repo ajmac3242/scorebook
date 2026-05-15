@@ -305,7 +305,9 @@ const SettingsRow: React.FC<SettingsRowProps> = ({
         gap: { xs: 1.5, md: 3 },
         py: 3,
         minHeight: 72,
-        borderBottom: borderBottom ? `1px solid ${theme.palette.divider}` : "none",
+        borderBottom: borderBottom
+          ? `1px solid ${theme.palette.divider}`
+          : "none",
       }}
     >
       <Box sx={{ pr: { md: 2 } }}>
@@ -422,7 +424,9 @@ const Settings: React.FC = () => {
   );
 
   const activePreset = useMemo(
-    () => availablePresets.find((preset) => preset.id === presetId) ?? availablePresets[0],
+    () =>
+      availablePresets.find((preset) => preset.id === presetId) ??
+      availablePresets[0],
     [availablePresets, presetId],
   );
 
@@ -682,9 +686,9 @@ const Settings: React.FC = () => {
 
       <SettingsRow
         label="Local database"
-        description={`${totalDbRecords.toLocaleString()} total records across ${Object.keys(
-          dbStats,
-        ).length} tables.`}
+        description={`${totalDbRecords.toLocaleString()} total records across ${
+          Object.keys(dbStats).length
+        } tables.`}
         alignTop
       >
         <Stack spacing={1} sx={{ width: "100%" }}>
