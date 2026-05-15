@@ -214,7 +214,7 @@ const Settings: React.FC = () => {
   const theme = useTheme();
   const { logout } = useAuth();
   const [userEmail, setUserEmail] = useState<string>("—");
-  
+
   useEffect(() => {
     const cognitoUser = UserPool.getCurrentUser();
     if (cognitoUser) {
