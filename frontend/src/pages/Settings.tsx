@@ -98,9 +98,6 @@ const tabLabel = (tab: SettingsTab): string => {
   }
 };
 
-const modeLabel = (mode: ThemePreset["mode"]) =>
-  mode === "light" ? "Light" : "Dark";
-
 const ThemeMiniPreview: React.FC<{
   color: string;
   selected: boolean;
@@ -577,11 +574,6 @@ const Settings: React.FC = () => {
   const totalDbRecords = useMemo(
     () => Object.values(dbStats).reduce((a, b) => a + b, 0),
     [dbStats],
-  );
-
-  const activePreset = useMemo(
-    () => availablePresets.find((preset) => preset.id === presetId) ?? availablePresets[0],
-    [availablePresets, presetId],
   );
 
   const showSnackbar = (
