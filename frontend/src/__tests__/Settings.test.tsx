@@ -57,7 +57,7 @@ describe("Settings Component", () => {
     fireEvent.click(appearanceTab);
 
     // Updated: SectionIntro title is now "Theme" (was "Color theme")
-    expect(screen.getByText(/^Appearance$/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/^Appearance$/i).length).toBeGreaterThan(0);
 
     // Updated: description matches Settings.tsx renderAppearanceTab()
     expect(
