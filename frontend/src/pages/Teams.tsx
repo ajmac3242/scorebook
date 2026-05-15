@@ -135,7 +135,11 @@ const Teams: React.FC = () => {
     const normalizedSearch = searchTerm.trim().toLowerCase();
     if (!normalizedSearch) return teams;
     return teams.filter((team) => {
-      const haystack = [team.name, team.description || "", team.periodType || ""]
+      const haystack = [
+        team.name,
+        team.description || "",
+        team.periodType || "",
+      ]
         .join(" ")
         .toLowerCase();
       return haystack.includes(normalizedSearch);
@@ -154,7 +158,10 @@ const Teams: React.FC = () => {
 
   const allGamesQueryResult = useLiveQuery(() => {
     if (teamIds.length === 0) return [];
-    return db.games.where("teamId").anyOf(teamIds as string[]).toArray();
+    return db.games
+      .where("teamId")
+      .anyOf(teamIds as string[])
+      .toArray();
   }, [teamIds]);
 
   const allGames = useMemo(
@@ -169,7 +176,10 @@ const Teams: React.FC = () => {
 
   const allStatsQueryResult = useLiveQuery(() => {
     if (gameIds.length === 0) return [];
-    return db.stats.where("gameId").anyOf(gameIds as string[]).toArray();
+    return db.stats
+      .where("gameId")
+      .anyOf(gameIds as string[])
+      .toArray();
   }, [gameIds]);
 
   const allStats = useMemo(
@@ -232,7 +242,10 @@ const Teams: React.FC = () => {
           .toArray();
         for (const favoriteTeam of allFavorites) {
           if (favoriteTeam.id !== teamId) {
-            await db.teams.update(favoriteTeam.id!, { isFavorite: 0, synced: 0 });
+            await db.teams.update(favoriteTeam.id!, {
+              isFavorite: 0,
+              synced: 0,
+            });
           }
         }
         await db.teams.update(teamId, { isFavorite: 1, synced: 0 });
@@ -424,7 +437,9 @@ const Teams: React.FC = () => {
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <SearchIcon sx={{ color: "text.secondary", fontSize: 18 }} />
+                    <SearchIcon
+                      sx={{ color: "text.secondary", fontSize: 18 }}
+                    />
                   </InputAdornment>
                 ),
               }}
@@ -698,13 +713,16 @@ const Teams: React.FC = () => {
                                 minHeight: 42,
                               }}
                             >
-                              {team.description?.trim() || "No description yet."}
+                              {team.description?.trim() ||
+                                "No description yet."}
                             </Typography>
 
                             <Chip
                               size="small"
                               label={
-                                team.periodType === "HALVES" ? "Halves" : "Quarters"
+                                team.periodType === "HALVES"
+                                  ? "Halves"
+                                  : "Quarters"
                               }
                               sx={{
                                 borderRadius: `${theme.shape.borderRadius * 0.75}px`,
@@ -912,7 +930,9 @@ const Teams: React.FC = () => {
                   label=" "
                   type="color"
                   value={
-                    isValidHex(primaryColor) ? primaryColor : DEFAULT_TEAM_ACCENT
+                    isValidHex(primaryColor)
+                      ? primaryColor
+                      : DEFAULT_TEAM_ACCENT
                   }
                   onChange={(e) => setPrimaryColor(e.target.value)}
                   fullWidth
