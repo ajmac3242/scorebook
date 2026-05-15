@@ -11,7 +11,8 @@ import {
   Navigate,
 } from "react-router-dom";
 import { Box, CircularProgress } from "@mui/material";
-import { CourtSightThemeProvider, ThemePreset } from "./theme/ThemeContext";
+import { CourtSightThemeProvider } from "./theme/ThemeContext";
+import { PRESETS, DEFAULT_PRESET_ID } from "./theme/presets";
 import GameMode from "./pages/GameMode";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
@@ -33,74 +34,10 @@ import BottomNav from "./components/layout/BottomNav";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "./db";
 
-const THEME_PRESETS: ThemePreset[] = [
-  {
-    id: "default",
-    label: "CourtSight Classic",
-    previewColor: "#4fc3f7",
-    mode: "dark",
-    palette: {
-      primary: { main: "#4fc3f7" },
-      secondary: { main: "#1a3a5c" },
-      background: { default: "#0d1b2a", paper: "#1a3a5c" },
-      text: { primary: "#f5f9ff", secondary: "#b8c7da" },
-    },
-  },
-  {
-    id: "gametime",
-    label: "Gametime",
-    previewColor: "#1565c0",
-    mode: "light",
-    palette: {
-      primary: { main: "#1565c0" },
-      secondary: { main: "#e8f1fb" },
-      background: { default: "#f7f8fa", paper: "#ffffff" },
-      text: { primary: "#101828", secondary: "#667085" },
-    },
-  },
-  {
-    id: "hardwood",
-    label: "Hardwood",
-    previewColor: "#c58a3d",
-    mode: "light",
-    palette: {
-      primary: { main: "#c58a3d" },
-      secondary: { main: "#ead8bf" },
-      background: { default: "#f6efe6", paper: "#fff9f2" },
-      text: { primary: "#3d2a1a", secondary: "#7a5a3a" },
-    },
-  },
-  {
-    id: "leather",
-    label: "Leather",
-    previewColor: "#c96a2b",
-    mode: "dark",
-    palette: {
-      primary: { main: "#c96a2b" },
-      secondary: { main: "#5a3420" },
-      background: { default: "#1a120d", paper: "#3b2418" },
-      text: { primary: "#f8efe8", secondary: "#d0b3a1" },
-    },
-  },
-  {
-    id: "blacktop",
-    label: "Blacktop",
-    previewColor: "#f59e0b",
-    mode: "dark",
-    palette: {
-      primary: { main: "#f59e0b" },
-      secondary: { main: "#24292f" },
-      background: { default: "#111315", paper: "#1b1f24" },
-      text: { primary: "#f7f7f7", secondary: "#b5bcc6" },
-    },
-  },
-];
-
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const { isAuthenticated, loading } = useAuth();
-
   if (loading) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", mt: 8 }}>
@@ -108,14 +45,12 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
       </Box>
     );
   }
-
   return isAuthenticated ? <>{children}</> : <Navigate to="/login" />;
 };
 
 const AppContent: React.FC = () => {
   const { isAuthenticated, loading } = useAuth();
   const [mobileOpen, setMobileOpen] = React.useState(false);
-
   const liveGame = useLiveQuery(
     () => db.games.where("completed").equals(0).first(),
     [],
@@ -190,7 +125,6 @@ const AppContent: React.FC = () => {
       >
         Skip to main content
       </Box>
-
       <Routes>
         <Route
           path="/"
@@ -296,7 +230,10 @@ const AppContent: React.FC = () => {
 
 const App: React.FC = () => {
   return (
-    <CourtSightThemeProvider presets={THEME_PRESETS}>
+    <CourtSightThemeProvider
+      presets={PRESETS}
+      defaultPresetId={DEFAULT_PRESET_ID}
+    >
       <AuthProvider>
         <Router>
           <DevAuthBypass />

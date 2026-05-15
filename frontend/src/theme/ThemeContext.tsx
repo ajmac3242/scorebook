@@ -1,32 +1,18 @@
 import React, {
   createContext,
   useContext,
-  useState,
   useMemo,
+  useState,
   ReactNode,
 } from "react";
-import { createTheme, ThemeProvider, Theme } from "@mui/material/styles";
+import { ThemeProvider, type Theme } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
+import buildTheme from "./buildTheme";
+import type { ThemePreset } from "./tokens/tokens";
 
-/**
- * Minimal shape expected from each preset file.
- * Full type lives in tokens.ts (DESIGN-001-A).
- */
-export interface ThemePreset {
-  id: string;
-  label: string;
-  previewColor: string;
-  mode: "light" | "dark";
-  palette: {
-    primary: { main: string };
-    secondary?: { main: string };
-    background?: { default?: string; paper?: string };
-    text?: { primary?: string; secondary?: string };
-  };
-  typography?: {
-    fontFamily?: string;
-  };
-}
+// Re-export so consumers can import ThemePreset from this file
+// without needing to know where it's defined internally.
+export type { ThemePreset };
 
 const STORAGE_KEY = "courtsight_preset_id";
 
@@ -34,6 +20,7 @@ interface ThemeContextValue {
   presetId: string;
   setPresetId: (_id: string) => void;
   availablePresets: ThemePreset[];
+  activePreset: ThemePreset;
   theme: Theme;
 }
 
@@ -44,36 +31,10 @@ const ThemeCtx = createContext<ThemeContextValue | null>(null);
  */
 export function useAppTheme(): ThemeContextValue {
   const ctx = useContext(ThemeCtx);
-  if (!ctx)
+  if (!ctx) {
     throw new Error("useAppTheme must be used inside CourtSightThemeProvider");
+  }
   return ctx;
-}
-
-/**
- *
- */
-function buildMuiTheme(preset: ThemePreset): Theme {
-  return createTheme({
-    palette: {
-      mode: preset.mode,
-      primary: preset.palette.primary,
-      ...(preset.palette.secondary
-        ? { secondary: preset.palette.secondary }
-        : {}),
-      background: preset.palette.background ?? {},
-      text: preset.palette.text ?? {},
-    },
-    typography: preset.typography ?? {},
-    components: {
-      MuiCssBaseline: {
-        styleOverrides: {
-          body: {
-            overscrollBehavior: "none",
-          },
-        },
-      },
-    },
-  });
 }
 
 interface Props {
@@ -90,7 +51,8 @@ export function CourtSightThemeProvider({
   defaultPresetId,
   children,
 }: Props) {
-  const fallbackId = defaultPresetId ?? presets[0]?.id ?? "";
+  const fallbackPreset = presets[0];
+  const fallbackId = defaultPresetId ?? fallbackPreset?.id ?? "";
 
   const [presetId, setPresetIdState] = useState<string>(() => {
     try {
@@ -105,21 +67,31 @@ export function CourtSightThemeProvider({
     try {
       localStorage.setItem(STORAGE_KEY, id);
     } catch {
-      // Ignore storage errors
+      // Ignore storage failures
     }
   };
 
   const activePreset = useMemo(
-    () => presets.find((p) => p.id === presetId) ?? presets[0],
-    [presets, presetId],
+    () => presets.find((preset) => preset.id === presetId) ?? fallbackPreset,
+    [presets, presetId, fallbackPreset],
   );
 
-  const theme = useMemo(() => buildMuiTheme(activePreset), [activePreset]);
+  const theme = useMemo(() => buildTheme(activePreset), [activePreset]);
 
   const value = useMemo(
-    () => ({ presetId, setPresetId, availablePresets: presets, theme }),
-    [presetId, presets, theme],
+    () => ({
+      presetId,
+      setPresetId,
+      availablePresets: presets,
+      activePreset,
+      theme,
+    }),
+    [presetId, presets, activePreset, theme],
   );
+
+  if (!activePreset) {
+    throw new Error("CourtSightThemeProvider requires at least one preset");
+  }
 
   return (
     <ThemeCtx.Provider value={value}>
