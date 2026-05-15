@@ -1,5 +1,55 @@
 # CourtSight Backlog
 
+## [ ] [Live Bench 'Rust' Factor & Re-entry Advisor]
+**Priority:** HIGH
+**Type:** Feature / Decision Support
+**Why:** Star players often struggle with rhythm after long stretches on the bench. Tracking "Bench Rust" (cumulative game time since last stint) removes the guesswork of when a player is getting too cold to contribute immediately.
+**What:** Implement a "Rust Factor" indicator for bench players that tracks game clock minutes since their last SUB_OUT.
+**Acceptance Criteria:**
+- [ ] Visual "Rust Meter" on bench player cards in GameMode (e.g., turns blue after 6 mins).
+- [ ] "Star Return Alert" for players with `isStar: 1` who have been sitting for more than 25% of the total game time.
+- [ ] Integration with the HALT system to prioritize warming up cold stars.
+
+## [ ] [Opponent Run 'Anatomy' Live Breakdown]
+**Priority:** HIGH
+**Type:** Feature / Analytics
+**Why:** Recognizing an 8-0 run is basic; recognizing that 6 of those points came from "Transition Leakage" is coaching. Breakdown anatomy allows for surgical adjustments.
+**What:** A dynamic modal or sidebar widget that activates during an "Opponent Run" alert, identifying the primary causal factors (e.g., TOs, OREBs, Scheme Failure).
+**Acceptance Criteria:**
+- [ ] "Run Source" breakdown: % of run points from Fast Break vs Set Defense.
+- [ ] "Scheme Accountability": Indicator of which defensive scheme (Man/Zone) was active during the run.
+- [ ] One-tap "Stop the Bleeding" tactical suggestion (e.g., "Switch to Zone to force a slower pace").
+
+## [ ] [Defensive 'Communication Seam' Identifier]
+**Priority:** HIGH
+**Type:** Feature / Causal Accountability
+**Why:** Defensive failures are often about pairs of players missing rotations together. Identifying "Leaky Duos" helps coaches avoid non-synergistic lineups.
+**What:** Correlation analytics that identify pairs of players who are consistently on the floor together during "Defensive Breakdowns" (StatEvents with a `breakdownReason`).
+**Acceptance Criteria:**
+- [ ] "Seam Leaderboard" in GameStats showing 2-player pairings with the highest points-allowed-per-possession.
+- [ ] "Communication Alert" in GameMode if a high-risk pair is substituted in together.
+- [ ] Visual matrix mapping breakdown types (e.g., "Missed Rotation") to specific defensive pairs.
+
+## [ ] [Possession ROI: 'Set Play' vs. 'Scramble' Efficiency]
+**Priority:** HIGH
+**Type:** Enhancement / Analytics
+**Why:** Coaches spend hours on playbooks. They need to prove that "Set Plays" (stat with `playName`) are actually more efficient than "Scramble" play (stat without `playName`).
+**What:** A comparative analytics engine that calculates the ROI of running the playbook vs. playing in flow/transition.
+**Acceptance Criteria:**
+- [ ] "Playbook ROI" gauge in GameStats comparing PPP on Sets vs PPP on Scramble.
+- [ ] "Play Type Success Rate" for ATO (After Timeout) and SLOB/BLOB situations specifically.
+- [ ] Identification of the "Empty Possession" rate for called plays (possessions ending in TO or blocked shot).
+
+## [ ] [Optimal 'Clutch' Lineup Suggester]
+**Priority:** HIGH
+**Type:** Feature / Decision Support
+**Why:** In the final 4 minutes of a close game, a coach's "gut feeling" on who should be in the game can be clouded by stress. A data-driven suggester removes the bias.
+**What:** An intelligence layer for the "Winning Time" HUD that recommends the mathematically optimal 5-man unit based on live Net Rating, FT reliability, and current fatigue.
+**Acceptance Criteria:**
+- [ ] "Recommended Closers" list surfaced when Clutch Mode is active.
+- [ ] "Reliability Index" for on-court players combining FT% and TO rate.
+- [ ] One-tap "Closing Sub" button that triggers the multi-player substitution workflow.
+
 ## [ ] [Voice-Command Substitution Entry]
 **Priority:** HIGH
 **Type:** Feature / UX
