@@ -22,6 +22,9 @@ interface ThemeContextValue {
 
 const ThemeCtx = createContext<ThemeContextValue | null>(null);
 
+/**
+ *
+ */
 export function useAppTheme(): ThemeContextValue {
   const ctx = useContext(ThemeCtx);
   if (!ctx) {
@@ -36,6 +39,9 @@ interface Props {
   children: ReactNode;
 }
 
+/**
+ *
+ */
 export function CourtSightThemeProvider({
   presets,
   defaultPresetId,
