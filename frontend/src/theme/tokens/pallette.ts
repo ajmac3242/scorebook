@@ -156,26 +156,26 @@ export const brand = {
 };
 
 export const surfaces = {
-  canvas: neutral[100],        // legacy #fffdf5 feel
-  app: warmGray[100],          // legacy #F6F6F6 app bg
-  paper: neutral[50],          // card / sheet / app bar
-  subtle: neutral[300],        // code blocks / subdued panels
+  canvas: neutral[100], // legacy #fffdf5 feel
+  app: warmGray[100], // legacy #F6F6F6 app bg
+  paper: neutral[50], // card / sheet / app bar
+  subtle: neutral[300], // code blocks / subdued panels
   muted: warmGray[200],
   border: neutral[500],
   borderStrong: warmGray[500],
 };
 
 export const text = {
-  primary: blue[900],          // legacy #023246
-  secondary: slate[500],       // legacy #5A7381
-  heading: "#1A1A1A",          // legacy index.css heading tone
-  body: neutral[900],          // legacy #2d2d2d
+  primary: blue[900], // legacy #023246
+  secondary: slate[500], // legacy #5A7381
+  heading: "#1A1A1A", // legacy index.css heading tone
+  body: neutral[900], // legacy #2d2d2d
   muted: warmGray[700],
   inverse: "#FFFFFF",
 };
 
 export const focus = {
-  ring: "#154C56",             // from :focus-visible in index.css
+  ring: "#154C56", // from :focus-visible in index.css
 };
 
 export const palette = {
