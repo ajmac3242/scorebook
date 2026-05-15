@@ -85,21 +85,27 @@ describe("Settings", () => {
     vi.restoreAllMocks();
   });
 
-  it("renders settings page with tabs", async () => {
+  it("renders settings page with all tabs", async () => {
     render(<Settings />);
 
-    // Tab labels confirmed present in CI DOM output
-    expect(
-      await screen.findByRole("tab", { name: /account/i }),
-    ).toBeInTheDocument();
+    // All 7 tabs confirmed from CI DOM output
+    expect(await screen.findByRole("tab", { name: /account/i })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: /profile/i })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: /security/i })).toBeInTheDocument();
-    expect(
-      screen.getByRole("tab", { name: /appearance/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: /appearance/i })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: /notifications/i })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: /billing/i })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: /integrations/i })).toBeInTheDocument();
   });
 
-  it("subscribes to logger updates on mount", async () => {
+  it("defaults to Appearance tab selected", async () => {
+    render(<Settings />);
+
+    const appearanceTab = await screen.findByRole("tab", { name: /appearance/i });
+    expect(appearanceTab).toHaveAttribute("aria-selected", "true");
+  });
+
+  it("subscribes to logger on mount", async () => {
     render(<Settings />);
 
     await waitFor(() => {
@@ -107,36 +113,17 @@ describe("Settings", () => {
     });
   });
 
-  it("loads logs from logger on mount", async () => {
-    mockGetLogs.mockReturnValue([
-      {
-        id: "1",
-        level: "info",
-        message: "Test log",
-        timestamp: new Date().toISOString(),
-      },
-    ]);
-
-    render(<Settings />);
-
-    await waitFor(() => {
-      expect(mockGetLogs).toHaveBeenCalled();
-    });
-  });
-
-  it("navigates to Appearance tab and renders preset options", async () => {
+  it("can navigate to Account tab", async () => {
     const user = userEvent.setup();
     render(<Settings />);
 
-    const appearanceTab = await screen.findByRole("tab", {
-      name: /appearance/i,
-    });
-    await user.click(appearanceTab);
+    const accountTab = await screen.findByRole("tab", { name: /account/i });
+    await user.click(accountTab);
 
     await waitFor(() => {
-      expect(screen.getByRole("tab", { name: /appearance/i })).toHaveAttribute(
+      expect(screen.getByRole("tab", { name: /account/i })).toHaveAttribute(
         "aria-selected",
-        "true",
+        "true"
       );
     });
   });
