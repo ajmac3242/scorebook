@@ -4,11 +4,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import Settings from "../pages/Settings";
 
-const {
-  mockClearLogs,
-  mockSubscribe,
-  mockGetLogs,
-} = vi.hoisted(() => ({
+const { mockClearLogs, mockSubscribe, mockGetLogs } = vi.hoisted(() => ({
   mockClearLogs: vi.fn(),
   mockSubscribe: vi.fn(() => vi.fn()),
   mockGetLogs: vi.fn(() => []),
