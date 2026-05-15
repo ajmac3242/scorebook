@@ -350,7 +350,15 @@ export const tokens = {
 export type AppTokens = typeof tokens;
 
 export type DeepPartial<T> = {
-  [K in keyof T]?: T[K] extends object ? DeepPartial<T[K]> : T[K];
+  [K in keyof T]?: T[K] extends object
+    ? DeepPartial<T[K]>
+    : T[K] extends number
+    ? number
+    : T[K] extends string
+    ? string
+    : T[K] extends boolean
+    ? boolean
+    : T[K];
 };
 
 export type ThemePreset = {
