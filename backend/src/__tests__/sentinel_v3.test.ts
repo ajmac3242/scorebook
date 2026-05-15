@@ -109,23 +109,23 @@ describe("Sentinel Security Enhancements V3", () => {
   });
 
   describe("Constant Immutability", () => {
-    it("REDACTED_HEADERS is frozen", () => {
-      const { REDACTED_HEADERS } = require("../utils.js");
+    it("REDACTED_HEADERS is frozen", async () => {
+      const { REDACTED_HEADERS } = await import("../utils.js");
       expect(Object.isFrozen(REDACTED_HEADERS)).toBe(true);
     });
 
-    it("INTERNAL_KEYS is frozen", () => {
-      const { INTERNAL_KEYS } = require("../responses.js");
+    it("INTERNAL_KEYS is frozen", async () => {
+      const { INTERNAL_KEYS } = await import("../responses.js");
       expect(Object.isFrozen(INTERNAL_KEYS)).toBe(true);
     });
 
-    it("SPECIAL_PLAYER_IDS is frozen", () => {
-      const { SPECIAL_PLAYER_IDS } = require("../validation.js");
+    it("SPECIAL_PLAYER_IDS is frozen", async () => {
+      const { SPECIAL_PLAYER_IDS } = await import("../validation.js");
       expect(Object.isFrozen(SPECIAL_PLAYER_IDS)).toBe(true);
     });
 
-    it("VALID_ACTION_TYPES is frozen", () => {
-      const { VALID_ACTION_TYPES } = require("../validation.js");
+    it("VALID_ACTION_TYPES is frozen", async () => {
+      const { VALID_ACTION_TYPES } = await import("../validation.js");
       expect(Object.isFrozen(VALID_ACTION_TYPES)).toBe(true);
     });
   });
