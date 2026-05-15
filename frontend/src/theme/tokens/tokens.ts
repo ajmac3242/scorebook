@@ -43,7 +43,6 @@ export const tokens = {
     inputHeightMd: 40,
     dialogPadding: 24,
     pagePaddingX: 24,
-
     pageMaxWidth: 1280,
     pagePanelPadding: 32,
     pagePanelPaddingMobile: 20,
@@ -94,14 +93,22 @@ export const tokens = {
         default: "#F9FAFB",
         paper: "#FFFFFF",
         subtle: "#F8F9FC",
+        elevated: "#FFFFFF",
+        inset: "#F3F4F6",
       },
       surface: {
+        default: "#FFFFFF",
+        subtle: "#F8F9FC",
         elevated: "#FFFFFF",
-        sunken: "#F3F4F6",
+        inset: "#F3F4F6",
+        strong: "#E5E7EB",
+        accentSoft: "#EFF6FF",
       },
       text: {
         primary: "#101828",
         secondary: "#667085",
+        tertiary: "#98A2B3",
+        muted: "#C4CCD8",
         inverse: "#FFFFFF",
         disabled: "#98A2B3",
       },
@@ -109,6 +116,7 @@ export const tokens = {
         subtle: "#EAECF0",
         default: "#D0D5DD",
         strong: "#98A2B3",
+        accent: "#93C5FD",
         focus: "#2E90FA",
       },
       action: {
@@ -116,6 +124,7 @@ export const tokens = {
         selected: "rgba(46, 144, 250, 0.10)",
         disabled: "#98A2B3",
         disabledBackground: "#F2F4F7",
+        focusRing: "#2E90FA",
       },
       feedback: {
         success: {
@@ -223,6 +232,16 @@ export const tokens = {
         borderWidth: 1,
         selectedBorderWidth: 2,
       },
+    },
+  },
+
+  density: {
+    live: {
+      controlHeight: 52,
+      iconButton: 48,
+      cardPadding: 16,
+      gap: 12,
+      gridGap: 12,
     },
   },
 } as const;
