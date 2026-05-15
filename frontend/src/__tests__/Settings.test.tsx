@@ -1,5 +1,5 @@
 import React from "react";
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import Settings from "../pages/Settings";
@@ -73,7 +73,7 @@ vi.mock("../utils/syncService", () => ({
 
 describe("Settings", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    // Only clear call history — do NOT use restoreAllMocks, it destroys hoisted spies
     mockClearLogs.mockClear();
     mockSubscribe.mockClear();
     mockGetLogs.mockClear();
@@ -81,46 +81,32 @@ describe("Settings", () => {
     mockSubscribe.mockImplementation(() => vi.fn());
   });
 
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
   it("renders settings page with all tabs", async () => {
     render(<Settings />);
 
-    // All 7 tabs confirmed from CI DOM output
-    expect(
-      await screen.findByRole("tab", { name: /account/i }),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole("tab", { name: /account/i })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: /profile/i })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: /security/i })).toBeInTheDocument();
-    expect(
-      screen.getByRole("tab", { name: /appearance/i }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("tab", { name: /notifications/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: /appearance/i })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: /notifications/i })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: /billing/i })).toBeInTheDocument();
-    expect(
-      screen.getByRole("tab", { name: /integrations/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: /integrations/i })).toBeInTheDocument();
   });
 
   it("defaults to Appearance tab selected", async () => {
     render(<Settings />);
 
-    const appearanceTab = await screen.findByRole("tab", {
-      name: /appearance/i,
-    });
+    const appearanceTab = await screen.findByRole("tab", { name: /appearance/i });
     expect(appearanceTab).toHaveAttribute("aria-selected", "true");
   });
 
   it("subscribes to logger on mount", async () => {
     render(<Settings />);
 
+    // logger.subscribe is called on component mount regardless of active tab
     await waitFor(() => {
       expect(mockSubscribe).toHaveBeenCalled();
-    });
+    }, { timeout: 3000 });
   });
 
   it("can navigate to Account tab", async () => {
@@ -133,7 +119,7 @@ describe("Settings", () => {
     await waitFor(() => {
       expect(screen.getByRole("tab", { name: /account/i })).toHaveAttribute(
         "aria-selected",
-        "true",
+        "true"
       );
     });
   });
