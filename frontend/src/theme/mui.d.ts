@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-empty-object-type */
+
 import type { AppTokens } from "./tokens/tokens";
 
 declare module "@mui/material/styles" {
