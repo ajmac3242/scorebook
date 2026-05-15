@@ -1,5 +1,3 @@
-// frontend/src/tokens/palette.ts
-
 export type ColorScale = {
   50: string;
   100: string;
@@ -61,15 +59,15 @@ export const warmGray: ColorScale = {
 
 export const neutral: ColorScale = {
   50: "#FFFFFF",
-  100: "#FFFDF5",
-  200: "#F7F4EA",
-  300: "#F5F5F0",
-  400: "#E7E2D8",
-  500: "#D1D1D1",
-  600: "#B1B1B1",
-  700: "#8E8E8E",
-  800: "#5D5D5D",
-  900: "#2D2D2D",
+  100: "#FAFBFC",
+  200: "#F3F5F7",
+  300: "#E9EDF1",
+  400: "#D9DEE4",
+  500: "#C2CAD3",
+  600: "#97A3AF",
+  700: "#6B7785",
+  800: "#46515C",
+  900: "#1F2933",
 };
 
 export const successScale: ColorScale = {
@@ -111,11 +109,6 @@ export const warningScale: ColorScale = {
   900: "#56390E",
 };
 
-export const paperGrid = {
-  dot: "#D1D1D1",
-  background: "#F6F6F6",
-};
-
 export const brand = {
   primary: {
     main: blue[500],
@@ -124,10 +117,10 @@ export const brand = {
     contrastText: "#FFFFFF",
   } satisfies SemanticColor,
   secondary: {
-    main: warmGray[400],
-    light: warmGray[100],
-    dark: warmGray[600],
-    contrastText: blue[900],
+    main: slate[500],
+    light: slate[300],
+    dark: slate[700],
+    contrastText: "#FFFFFF",
   } satisfies SemanticColor,
   success: {
     main: successScale[500],
@@ -155,27 +148,44 @@ export const brand = {
   } satisfies SemanticColor,
 };
 
-export const surfaces = {
-  canvas: neutral[100], // legacy #fffdf5 feel
-  app: warmGray[100], // legacy #F6F6F6 app bg
-  paper: neutral[50], // card / sheet / app bar
-  subtle: neutral[300], // code blocks / subdued panels
-  muted: warmGray[200],
-  border: neutral[500],
-  borderStrong: warmGray[500],
+export const background = {
+  default: warmGray[100],
+  subtle: neutral[200],
+  paper: neutral[50],
+  elevated: "#FFFFFF",
+  inset: warmGray[200],
+};
+
+export const surface = {
+  default: neutral[50],
+  subtle: neutral[200],
+  elevated: "#FFFFFF",
+  inset: warmGray[200],
+  strong: warmGray[300],
+  accentSoft: blue[50],
 };
 
 export const text = {
-  primary: blue[900], // legacy #023246
-  secondary: slate[500], // legacy #5A7381
-  heading: "#1A1A1A", // legacy index.css heading tone
-  body: neutral[900], // legacy #2d2d2d
+  primary: blue[900],
+  secondary: slate[500],
+  tertiary: slate[700],
   muted: warmGray[700],
   inverse: "#FFFFFF",
 };
 
-export const focus = {
-  ring: "#154C56", // from :focus-visible in index.css
+export const border = {
+  subtle: neutral[400],
+  default: neutral[500],
+  strong: warmGray[500],
+  accent: blue[200],
+};
+
+export const action = {
+  hover: "rgba(2, 50, 70, 0.04)",
+  selected: "rgba(40, 112, 148, 0.10)",
+  disabled: "rgba(31, 41, 51, 0.38)",
+  disabledBackground: "rgba(31, 41, 51, 0.08)",
+  focusRing: "#154C56",
 };
 
 export const palette = {
@@ -186,11 +196,12 @@ export const palette = {
   successScale,
   errorScale,
   warningScale,
-  paperGrid,
   brand,
-  surfaces,
+  background,
+  surface,
   text,
-  focus,
+  border,
+  action,
 };
 
 export type AppPalette = typeof palette;
