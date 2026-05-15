@@ -7,6 +7,81 @@ export const PRESETS: ThemePreset[] = [
     label: "Classic",
     previewColor: "#287094",
     mode: "light",
+    overrides: {
+      semantic: {
+        color: {
+          brand: {
+            primary: "#287094",
+            primaryLight: "#5AA6C8",
+            primaryDark: "#023246",
+            secondary: "#D99E32",
+          },
+          background: {
+            default: "#F6F6F6",
+            subtle: "#F1F3F5",
+            paper: "#FFFFFF",
+            elevated: "#FFFFFF",
+            inset: "#ECEFF2",
+          },
+          surface: {
+            default: "#FFFFFF",
+            subtle: "#F8FAFB",
+            elevated: "#FFFFFF",
+            inset: "#ECEFF2",
+            strong: "#E0E5E9",
+            accentSoft: "#EAF3F8",
+          },
+          text: {
+            primary: "#023246",
+            secondary: "#4F6B78",
+            tertiary: "#6F8793",
+            muted: "#9AAAB3",
+            inverse: "#FFFFFF",
+            disabled: "#9AAAB3",
+          },
+          border: {
+            subtle: "#E1E6EA",
+            default: "#CDD6DC",
+            strong: "#AEBBC4",
+            accent: "#B8D3DF",
+            focus: "#287094",
+          },
+          action: {
+            hover: "rgba(40, 112, 148, 0.06)",
+            selected: "rgba(40, 112, 148, 0.12)",
+            disabled: "rgba(2, 50, 70, 0.38)",
+            disabledBackground: "rgba(2, 50, 70, 0.08)",
+            focusRing: "#287094",
+          },
+          feedback: {
+            success: {
+              main: "#4E7D5B",
+              light: "#709A7A",
+              dark: "#2E5C10",
+              contrastText: "#FFFFFF",
+            },
+            error: {
+              main: "#A64444",
+              light: "#BC6666",
+              dark: "#782F2F",
+              contrastText: "#FFFFFF",
+            },
+            warning: {
+              main: "#D99E32",
+              light: "#E5AF45",
+              dark: "#BC8323",
+              contrastText: "#FFFFFF",
+            },
+            info: {
+              main: "#287094",
+              light: "#5AA6C8",
+              dark: "#023246",
+              contrastText: "#FFFFFF",
+            },
+          },
+        },
+      },
+    },
   },
 
   // ─── Gametime ───────────────────────────────────────────────────────────────
@@ -63,15 +138,15 @@ export const PRESETS: ThemePreset[] = [
           },
           feedback: {
             success: {
-              main: "#6daa45",
-              light: "#8dc46a",
-              dark: "#4d8f25",
+              main: "#6DAA45",
+              light: "#8DC46A",
+              dark: "#4D8F25",
               contrastText: "#FFFFFF",
             },
             error: {
-              main: "#dd6974",
-              light: "#e88e97",
-              dark: "#c24a59",
+              main: "#DD6974",
+              light: "#E88E97",
+              dark: "#C24A59",
               contrastText: "#FFFFFF",
             },
             warning: {
@@ -81,9 +156,9 @@ export const PRESETS: ThemePreset[] = [
               contrastText: "#0E1117",
             },
             info: {
-              main: "#5591c7",
-              light: "#78aad6",
-              dark: "#3b78ab",
+              main: "#5591C7",
+              light: "#78AAD6",
+              dark: "#3B78AB",
               contrastText: "#FFFFFF",
             },
           },
@@ -271,7 +346,7 @@ export const PRESETS: ThemePreset[] = [
             primary: "#FF6B2B",
             primaryLight: "#FF8F5A",
             primaryDark: "#CC4A10",
-            secondary: "#5591c7",
+            secondary: "#5591C7",
           },
           background: {
             default: "#111111",
@@ -312,15 +387,15 @@ export const PRESETS: ThemePreset[] = [
           },
           feedback: {
             success: {
-              main: "#6daa45",
-              light: "#8dc46a",
-              dark: "#4d8f25",
+              main: "#6DAA45",
+              light: "#8DC46A",
+              dark: "#4D8F25",
               contrastText: "#FFFFFF",
             },
             error: {
-              main: "#dd6974",
-              light: "#e88e97",
-              dark: "#c24a59",
+              main: "#DD6974",
+              light: "#E88E97",
+              dark: "#C24A59",
               contrastText: "#FFFFFF",
             },
             warning: {
@@ -330,9 +405,9 @@ export const PRESETS: ThemePreset[] = [
               contrastText: "#111111",
             },
             info: {
-              main: "#5591c7",
-              light: "#78aad6",
-              dark: "#3b78ab",
+              main: "#5591C7",
+              light: "#78AAD6",
+              dark: "#3B78AB",
               contrastText: "#FFFFFF",
             },
           },
@@ -343,4 +418,5 @@ export const PRESETS: ThemePreset[] = [
 ];
 
 export const DEFAULT_PRESET_ID = "classic";
+
 export default PRESETS;
