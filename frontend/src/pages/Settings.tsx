@@ -46,58 +46,12 @@ const TAB_LABELS: Record<SettingsTab, string> = {
   appearance: "Appearance",
 };
 
-type AppTheme = ReturnType<typeof useTheme> & {
-  appTokens?: {
-    settings?: {
-      shell?: {
-        maxWidth?: number;
-        radius?: number;
-        border?: string;
-        background?: string;
-        headerPaddingX?: number;
-        headerPaddingTop?: number;
-        contentPaddingX?: number;
-        contentPaddingBottom?: number;
-      };
-      tabs?: {
-        height?: number;
-        paddingX?: number;
-      };
-      section?: {
-        titleGap?: number;
-        introMarginBottom?: number;
-      };
-      row?: {
-        minHeight?: number;
-        paddingY?: number;
-        labelWidth?: number;
-        gap?: number;
-        dividerColor?: string;
-        descriptionMaxWidth?: number;
-      };
-      selectionCard?: {
-        radius?: number;
-        borderWidth?: number;
-        selectedBorderWidth?: number;
-        padding?: number;
-        titleGap?: number;
-        previewRadius?: number;
-        checkSize?: number;
-        checkOffset?: number;
-      };
-      control?: {
-        selectWidth?: number;
-      };
-    };
-  };
-};
-
 const SectionIntro: React.FC<{ title: string; description: string }> = ({
   title,
   description,
 }) => {
-  const theme = useTheme() as AppTheme;
-  const section = theme.appTokens?.settings?.section;
+  const theme = useTheme();
+  const section = theme.appTokens.settings?.section;
 
   return (
     <Box sx={{ mb: `${(section?.introMarginBottom ?? 20) / 8}rem` }}>
@@ -130,8 +84,8 @@ const SettingsRow: React.FC<SettingsRowProps> = ({
   borderBottom = true,
   alignTop = false,
 }) => {
-  const theme = useTheme() as AppTheme;
-  const row = theme.appTokens?.settings?.row;
+  const theme = useTheme();
+  const row = theme.appTokens.settings?.row;
 
   return (
     <Box
@@ -177,8 +131,8 @@ const ThemeMiniPreview: React.FC<{ color: string; selected: boolean }> = ({
   color,
   selected,
 }) => {
-  const theme = useTheme() as AppTheme;
-  const card = theme.appTokens?.settings?.selectionCard;
+  const theme = useTheme();
+  const card = theme.appTokens.settings?.selectionCard;
   const previewRadius = card?.previewRadius ?? 6;
   const checkSize = card?.checkSize ?? 18;
   const checkOffset = card?.checkOffset ?? 10;
@@ -267,13 +221,9 @@ interface PresetCardProps {
   onSelect: () => void;
 }
 
-const PresetCard: React.FC<PresetCardProps> = ({
-  preset,
-  selected,
-  onSelect,
-}) => {
-  const theme = useTheme() as AppTheme;
-  const card = theme.appTokens?.settings?.selectionCard;
+const PresetCard: React.FC<PresetCardProps> = ({ preset, selected, onSelect }) => {
+  const theme = useTheme();
+  const card = theme.appTokens.settings?.selectionCard;
 
   const radius = card?.radius ?? 10;
   const borderWidth = card?.borderWidth ?? 1;
@@ -326,10 +276,10 @@ const PresetCard: React.FC<PresetCardProps> = ({
 };
 
 const Settings: React.FC = () => {
-  const theme = useTheme() as AppTheme;
-  const shell = theme.appTokens?.settings?.shell;
-  const tabs = theme.appTokens?.settings?.tabs;
-  const settingsTokens = theme.appTokens?.settings;
+  const theme = useTheme();
+  const settingsTokens = theme.appTokens.settings;
+  const shell = settingsTokens?.shell;
+  const tabs = settingsTokens?.tabs;
 
   const { logout } = useAuth();
   const { presetId, setPresetId, availablePresets } = useAppTheme();
@@ -425,13 +375,10 @@ const Settings: React.FC = () => {
     const text = logs
       .map((l) => `[${l.level.toUpperCase()}] ${l.timestamp} — ${l.message}`)
       .join("\n");
-    navigator.clipboard
-      .writeText(text)
-      .then(() => showSnackbar("Logs copied."));
+    navigator.clipboard.writeText(text).then(() => showSnackbar("Logs copied."));
   };
 
-  const handleLanguageChange = (e: SelectChangeEvent) =>
-    setLanguage(e.target.value);
+  const handleLanguageChange = (e: SelectChangeEvent) => setLanguage(e.target.value);
 
   const renderAccountTab = () => (
     <Box>
@@ -440,10 +387,7 @@ const Settings: React.FC = () => {
         description="Manage your local app data and sign out safely."
       />
 
-      <SettingsRow
-        label="Email address"
-        description="Your registered account email."
-      >
+      <SettingsRow label="Email address" description="Your registered account email.">
         <Typography variant="body2" color="text.secondary">
           {userEmail}
         </Typography>
@@ -551,16 +495,8 @@ const Settings: React.FC = () => {
         description="Monitor sync health, inspect local storage, and review logs."
       />
 
-      <SettingsRow
-        label="Sync"
-        description="Manually push and pull data from the cloud."
-      >
-        <Stack
-          direction="row"
-          spacing={1.5}
-          alignItems="center"
-          flexWrap="wrap"
-        >
+      <SettingsRow label="Sync" description="Manually push and pull data from the cloud.">
+        <Stack direction="row" spacing={1.5} alignItems="center" flexWrap="wrap">
           <Chip
             icon={isOnline ? <OnlineIcon /> : <OfflineIcon />}
             label={isOnline ? "Online" : "Offline"}
