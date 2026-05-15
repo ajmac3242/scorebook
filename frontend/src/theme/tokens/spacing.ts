@@ -24,30 +24,30 @@ export const spacing = {
 } as const;
 
 export const space = {
-  xxs: spacing[1],     // 4
-  xs: spacing[2],      // 8
-  sm: spacing[3],      // 12
-  md: spacing[4],      // 16
-  lg: spacing[6],      // 24
-  xl: spacing[8],      // 32
-  xxl: spacing[12],    // 48
-  xxxl: spacing[16],   // 64
+  xxs: spacing[1], // 4
+  xs: spacing[2], // 8
+  sm: spacing[3], // 12
+  md: spacing[4], // 16
+  lg: spacing[6], // 24
+  xl: spacing[8], // 32
+  xxl: spacing[12], // 48
+  xxxl: spacing[16], // 64
 } as const;
 
 export const layout = {
-  pagePaddingX: spacing[4],        // 16
-  pagePaddingXWide: spacing[6],    // 24
-  pagePaddingY: spacing[4],        // 16
-  sectionGap: spacing[6],          // 24
-  cardPaddingCompact: spacing[4],  // 16
-  cardPadding: spacing[6],         // 24
-  cardPaddingLarge: spacing[8],    // 32
-  panelGap: spacing[4],            // 16
-  stackGap: spacing[3],            // 12
-  inlineGap: spacing[2],           // 8
-  controlGap: spacing[2],          // 8
-  gridGap: spacing[4],             // 16
-  dialogPadding: spacing[6],       // 24
+  pagePaddingX: spacing[4], // 16
+  pagePaddingXWide: spacing[6], // 24
+  pagePaddingY: spacing[4], // 16
+  sectionGap: spacing[6], // 24
+  cardPaddingCompact: spacing[4], // 16
+  cardPadding: spacing[6], // 24
+  cardPaddingLarge: spacing[8], // 32
+  panelGap: spacing[4], // 16
+  stackGap: spacing[3], // 12
+  inlineGap: spacing[2], // 8
+  controlGap: spacing[2], // 8
+  gridGap: spacing[4], // 16
+  dialogPadding: spacing[6], // 24
   toolbarHeight: 56,
   touchTargetMin: 44,
   dottedGridSize: 24,
