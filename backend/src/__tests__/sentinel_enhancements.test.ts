@@ -389,8 +389,8 @@ describe("Sentinel Security Enhancements Tests", () => {
       );
     });
 
-    it("should reject non-finite numbers for clockTime", () => {
-      const { validateStatEvent } = require("../validation.js");
+    it("should reject non-finite numbers for clockTime", async () => {
+      const { validateStatEvent } = await import("../validation.js");
       const error = validateStatEvent({
         type: "MAKE",
         playerId: "277e909a-6536-4d2d-937e-f608759556fb",
@@ -399,8 +399,8 @@ describe("Sentinel Security Enhancements Tests", () => {
       expect(error).toBe("Clock time must be a finite number at least 0");
     });
 
-    it("should strip __proto__ in stripLocalFields", () => {
-      const { stripLocalFields } = require("../utils.js");
+    it("should strip __proto__ in stripLocalFields", async () => {
+      const { stripLocalFields } = await import("../utils.js");
       const malicious = JSON.parse(
         '{"name": "test", "__proto__": {"polluted": true}}',
       );
@@ -411,14 +411,14 @@ describe("Sentinel Security Enhancements Tests", () => {
       );
     });
 
-    it("should handle nested arrays in stripLocalFields", () => {
-      const { stripLocalFields } = require("../utils.js");
+    it("should handle nested arrays in stripLocalFields", async () => {
+      const { stripLocalFields } = await import("../utils.js");
       const data = {
         name: "Team",
         PK: "SECRET",
         players: [{ name: "P1", SK: "HIDE" }],
       };
-      const cleaned = stripLocalFields(data);
+      const cleaned: any = stripLocalFields(data);
       expect(cleaned.PK).toBeUndefined();
       expect((cleaned.players as any)[0].SK).toBeUndefined();
     });
