@@ -10,6 +10,10 @@ import CssBaseline from "@mui/material/CssBaseline";
 import buildTheme from "./buildTheme";
 import type { ThemePreset } from "./tokens/tokens";
 
+// Re-export so consumers can import ThemePreset from this file
+// without needing to know where it's defined internally.
+export type { ThemePreset };
+
 const STORAGE_KEY = "courtsight_preset_id";
 
 interface ThemeContextValue {
@@ -22,9 +26,6 @@ interface ThemeContextValue {
 
 const ThemeCtx = createContext<ThemeContextValue | null>(null);
 
-/**
- *
- */
 export function useAppTheme(): ThemeContextValue {
   const ctx = useContext(ThemeCtx);
   if (!ctx) {
@@ -39,9 +40,6 @@ interface Props {
   children: ReactNode;
 }
 
-/**
- *
- */
 export function CourtSightThemeProvider({
   presets,
   defaultPresetId,
