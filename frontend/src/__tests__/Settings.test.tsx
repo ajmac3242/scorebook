@@ -83,19 +83,29 @@ describe("Settings", () => {
   it("renders settings page with all tabs", async () => {
     render(<Settings />);
 
-    expect(await screen.findByRole("tab", { name: /account/i })).toBeInTheDocument();
+    expect(
+      await screen.findByRole("tab", { name: /account/i }),
+    ).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: /profile/i })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: /security/i })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: /appearance/i })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: /notifications/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("tab", { name: /appearance/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("tab", { name: /notifications/i }),
+    ).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: /billing/i })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: /integrations/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("tab", { name: /integrations/i }),
+    ).toBeInTheDocument();
   });
 
   it("defaults to Appearance tab selected", async () => {
     render(<Settings />);
 
-    const appearanceTab = await screen.findByRole("tab", { name: /appearance/i });
+    const appearanceTab = await screen.findByRole("tab", {
+      name: /appearance/i,
+    });
     expect(appearanceTab).toHaveAttribute("aria-selected", "true");
   });
 
@@ -104,7 +114,9 @@ describe("Settings", () => {
 
     // Confirmed in CI DOM: this text is visible in the default Appearance tab panel
     expect(
-      await screen.findByText(/Change how your public dashboard looks and feels/i)
+      await screen.findByText(
+        /Change how your public dashboard looks and feels/i,
+      ),
     ).toBeInTheDocument();
   });
 
@@ -118,7 +130,7 @@ describe("Settings", () => {
     await waitFor(() => {
       expect(screen.getByRole("tab", { name: /account/i })).toHaveAttribute(
         "aria-selected",
-        "true"
+        "true",
       );
     });
   });
