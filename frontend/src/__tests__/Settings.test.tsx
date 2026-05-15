@@ -4,11 +4,15 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import Settings from "../pages/Settings";
 
+// ─── Hoisted mocks (must come before vi.mock calls) ───────────────────────────
+
 const { mockClearLogs, mockSubscribe, mockGetLogs } = vi.hoisted(() => ({
   mockClearLogs: vi.fn(),
   mockSubscribe: vi.fn(() => vi.fn()),
   mockGetLogs: vi.fn(() => []),
 }));
+
+// ─── Module mocks ─────────────────────────────────────────────────────────────
 
 vi.mock("../utils/logger", () => ({
   logger: {
@@ -27,12 +31,22 @@ vi.mock("../db", () => ({
   },
 }));
 
+// Fix: availablePresets and currentPreset are required by Settings.tsx:756
 vi.mock("../theme/ThemeContext", () => ({
   useAppTheme: () => ({
     themeMode: "light",
     setThemeMode: vi.fn(),
     themePreset: "default",
     setThemePreset: vi.fn(),
+    currentPreset: {
+      id: "default",
+      name: "Default",
+      colors: {},
+    },
+    availablePresets: [
+      { id: "default", name: "Default", colors: {} },
+      { id: "dark", name: "Dark", colors: {} },
+    ],
   }),
 }));
 
@@ -55,6 +69,8 @@ vi.mock("../utils/syncService", () => ({
     getStatus: vi.fn(() => "idle"),
   },
 }));
+
+// ─── Tests ────────────────────────────────────────────────────────────────────
 
 describe("Settings", () => {
   beforeEach(() => {
