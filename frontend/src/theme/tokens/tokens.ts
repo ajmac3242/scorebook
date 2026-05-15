@@ -1,4 +1,4 @@
-import { breakpoints } from "./breakpoints";
+import { breakpoints, layoutModes } from "./breakpoints";
 import { palette } from "./palette";
 import {
   spacing,
@@ -58,6 +58,13 @@ export const borders = {
   focus: `3px solid ${palette.action.focusRing}`,
 } as const;
 
+export type FeedbackColorGroup = {
+  main: string;
+  light: string;
+  dark: string;
+  contrastText: string;
+};
+
 export const semantic = {
   color: {
     brand: {
@@ -102,11 +109,33 @@ export const semantic = {
       disabledBackground: palette.action.disabledBackground,
       focusRing: palette.action.focusRing,
     },
+    // Expanded: each feedback color is now a full group so presets can
+    // override individual variants (main, light, dark, contrastText).
     feedback: {
-      success: palette.brand.success.main,
-      error: palette.brand.error.main,
-      warning: palette.brand.warning.main,
-      info: palette.brand.info.main,
+      success: {
+        main: palette.brand.success.main,
+        light: palette.brand.success.light,
+        dark: palette.brand.success.dark,
+        contrastText: palette.brand.success.contrastText,
+      } satisfies FeedbackColorGroup,
+      error: {
+        main: palette.brand.error.main,
+        light: palette.brand.error.light,
+        dark: palette.brand.error.dark,
+        contrastText: palette.brand.error.contrastText,
+      } satisfies FeedbackColorGroup,
+      warning: {
+        main: palette.brand.warning.main,
+        light: palette.brand.warning.light,
+        dark: palette.brand.warning.dark,
+        contrastText: palette.brand.warning.contrastText,
+      } satisfies FeedbackColorGroup,
+      info: {
+        main: palette.brand.info.main,
+        light: palette.brand.info.light,
+        dark: palette.brand.info.dark,
+        contrastText: palette.brand.info.contrastText,
+      } satisfies FeedbackColorGroup,
     },
   },
   typography: {
@@ -183,6 +212,7 @@ export const semantic = {
     panelMinWidthLaptop: componentSize.panelMinWidthLaptop,
   },
   breakpoints,
+  layoutModes,
   component: {
     radius: {
       input: radii.md,
@@ -211,47 +241,47 @@ export const cssVars = {
   "--color-brand-primary-light": semantic.color.brand.primaryLight,
   "--color-brand-primary-dark": semantic.color.brand.primaryDark,
   "--color-brand-secondary": semantic.color.brand.secondary,
-
   "--color-background-default": semantic.color.background.default,
   "--color-background-subtle": semantic.color.background.subtle,
   "--color-background-paper": semantic.color.background.paper,
   "--color-background-elevated": semantic.color.background.elevated,
   "--color-background-inset": semantic.color.background.inset,
-
   "--color-surface-default": semantic.color.surface.default,
   "--color-surface-subtle": semantic.color.surface.subtle,
   "--color-surface-elevated": semantic.color.surface.elevated,
   "--color-surface-inset": semantic.color.surface.inset,
   "--color-surface-strong": semantic.color.surface.strong,
   "--color-surface-accent-soft": semantic.color.surface.accentSoft,
-
   "--color-text-primary": semantic.color.text.primary,
   "--color-text-secondary": semantic.color.text.secondary,
   "--color-text-tertiary": semantic.color.text.tertiary,
   "--color-text-muted": semantic.color.text.muted,
   "--color-text-inverse": semantic.color.text.inverse,
-
   "--color-border-subtle": semantic.color.border.subtle,
   "--color-border-default": semantic.color.border.default,
   "--color-border-strong": semantic.color.border.strong,
   "--color-border-accent": semantic.color.border.accent,
   "--color-border-focus": semantic.color.border.focus,
-
   "--color-action-hover": semantic.color.action.hover,
   "--color-action-selected": semantic.color.action.selected,
   "--color-action-disabled": semantic.color.action.disabled,
   "--color-action-disabled-bg": semantic.color.action.disabledBackground,
-
-  "--color-feedback-success": semantic.color.feedback.success,
-  "--color-feedback-error": semantic.color.feedback.error,
-  "--color-feedback-warning": semantic.color.feedback.warning,
-  "--color-feedback-info": semantic.color.feedback.info,
-
+  "--color-feedback-success": semantic.color.feedback.success.main,
+  "--color-feedback-success-light": semantic.color.feedback.success.light,
+  "--color-feedback-success-dark": semantic.color.feedback.success.dark,
+  "--color-feedback-error": semantic.color.feedback.error.main,
+  "--color-feedback-error-light": semantic.color.feedback.error.light,
+  "--color-feedback-error-dark": semantic.color.feedback.error.dark,
+  "--color-feedback-warning": semantic.color.feedback.warning.main,
+  "--color-feedback-warning-light": semantic.color.feedback.warning.light,
+  "--color-feedback-warning-dark": semantic.color.feedback.warning.dark,
+  "--color-feedback-info": semantic.color.feedback.info.main,
+  "--color-feedback-info-light": semantic.color.feedback.info.light,
+  "--color-feedback-info-dark": semantic.color.feedback.info.dark,
   "--font-body": typography.fontFamily.body,
   "--font-display": typography.fontFamily.display,
   "--font-accent": typography.fontFamily.accent,
   "--font-mono": typography.fontFamily.mono,
-
   "--font-size-xs": typography.fontSize.xs,
   "--font-size-sm": typography.fontSize.sm,
   "--font-size-md": typography.fontSize.md,
@@ -260,7 +290,6 @@ export const cssVars = {
   "--font-size-2xl": typography.fontSize["2xl"],
   "--font-size-3xl": typography.fontSize["3xl"],
   "--font-size-4xl": typography.fontSize["4xl"],
-
   "--space-0": `${spacing[0]}px`,
   "--space-1": `${spacing[1]}px`,
   "--space-2": `${spacing[2]}px`,
@@ -272,7 +301,6 @@ export const cssVars = {
   "--space-10": `${spacing[10]}px`,
   "--space-12": `${spacing[12]}px`,
   "--space-16": `${spacing[16]}px`,
-
   "--touch-target-min": `${touch.targetMin}px`,
   "--touch-target-comfortable": `${touch.targetComfortable}px`,
   "--touch-target-large": `${touch.targetLarge}px`,
@@ -280,20 +308,17 @@ export const cssVars = {
   "--shell-bottom-bar-height": `${shell.bottomBarHeight}px`,
   "--sidebar-width-tablet": `${shell.sidebarWidthTablet}px`,
   "--sidebar-width-laptop": `${shell.sidebarWidthLaptop}px`,
-
   "--radius-xs": `${radii.xs}px`,
   "--radius-sm": `${radii.sm}px`,
   "--radius-md": `${radii.md}px`,
   "--radius-lg": `${radii.lg}px`,
   "--radius-xl": `${radii.xl}px`,
   "--radius-pill": `${radii.pill}px`,
-
   "--shadow-xs": shadows.xs,
   "--shadow-sm": shadows.sm,
   "--shadow-md": shadows.md,
   "--shadow-lg": shadows.lg,
   "--shadow-xl": shadows.xl,
-
   "--motion-fast": motion.duration.fast,
   "--motion-normal": motion.duration.normal,
   "--motion-slow": motion.duration.slow,
@@ -304,6 +329,7 @@ export const cssVars = {
 
 export const tokens = {
   breakpoints,
+  layoutModes,
   palette,
   spacing,
   space,
