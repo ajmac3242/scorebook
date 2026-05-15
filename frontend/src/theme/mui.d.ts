@@ -9,3 +9,5 @@ declare module "@mui/material/styles" {
     appTokens?: AppTokens;
   }
 }
+
+export {};
