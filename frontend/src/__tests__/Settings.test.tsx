@@ -17,13 +17,14 @@ vi.mock("../utils/syncService", () => ({
   },
 }));
 
+// mockPresets now uses the new ThemePreset shape (overrides, not palette)
 const mockPresets = [
   {
     id: "default",
     label: "Default",
     previewColor: "#FF6B2B",
     mode: "dark" as const,
-    palette: { primary: { main: "#FF6B2B" } },
+    overrides: {},
   },
 ];
 
@@ -48,19 +49,31 @@ describe("Settings Component", () => {
   it("renders Settings page and displays appearance settings", async () => {
     renderComponent();
 
+    // Tab bar renders
     expect(screen.getAllByText(/appearance/i).length).toBeGreaterThan(0);
-    expect(screen.getByText(/color theme/i)).toBeInTheDocument();
-    expect(screen.getByText(/theme presets/i)).toBeInTheDocument();
+
+    // Click through to the Appearance tab so its content renders
+    const appearanceTab = screen.getByRole("tab", { name: /appearance/i });
+    fireEvent.click(appearanceTab);
+
+    // Updated: SectionIntro title is now "Theme" (was "Color theme")
+    expect(screen.getByText(/^theme$/i)).toBeInTheDocument();
+
+    // Updated: description is now "Choose how CourtSight looks and feels."
+    // (was "Theme presets")
+    expect(
+      screen.getByText(/choose how courtsight looks and feels/i),
+    ).toBeInTheDocument();
+
+    // Preset label from mockPresets should still render
     expect(screen.getAllByText(/default/i).length).toBeGreaterThan(0);
   });
 
   it.skip("handles logout without unsynced changes", async () => {
     vi.mocked(syncService.hasUnsyncedChanges).mockResolvedValue(false);
     renderComponent();
-
     const logoutBtn = screen.getByRole("button", { name: /log out/i });
     fireEvent.click(logoutBtn);
-
     await waitFor(() => {
       expect(localStorage.getItem("isAuthenticated")).toBeNull();
     });
@@ -69,10 +82,8 @@ describe("Settings Component", () => {
   it.skip("shows warning dialog when logging out with unsynced changes", async () => {
     vi.mocked(syncService.hasUnsyncedChanges).mockResolvedValue(true);
     renderComponent();
-
     const logoutBtn = screen.getByRole("button", { name: /log out/i });
     fireEvent.click(logoutBtn);
-
     expect(await screen.findByText("Unsynced Changes")).toBeInTheDocument();
     expect(
       screen.getByText(/You have data that hasn't been synced/i),
@@ -83,17 +94,13 @@ describe("Settings Component", () => {
     vi.mocked(syncService.hasUnsyncedChanges).mockResolvedValue(true);
     localStorage.setItem("etag_team_1", "tag123");
     localStorage.setItem("other_key", "value");
-
     renderComponent();
-
     const logoutBtn = screen.getByRole("button", { name: /log out/i });
     fireEvent.click(logoutBtn);
-
     const confirmBtn = await screen.findByRole("button", {
       name: /log out anyway/i,
     });
     fireEvent.click(confirmBtn);
-
     await waitFor(() => {
       expect(db.delete).toHaveBeenCalled();
       expect(localStorage.getItem("etag_team_1")).toBeNull();
@@ -109,16 +116,12 @@ describe("Settings Component", () => {
         writeText: mockWriteText,
       },
     });
-
     import("../utils/logger").then(({ logger }) => {
       logger.info("Test log");
     });
-
     renderComponent();
-
     const copyBtn = await screen.findByRole("button", { name: /copy/i });
     fireEvent.click(copyBtn);
-
     expect(mockWriteText).toHaveBeenCalled();
   });
 });
