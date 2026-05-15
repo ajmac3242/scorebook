@@ -216,6 +216,7 @@ function buildComponentTheme(
           minHeight: activeTokens.settings.tabs.height,
         },
         flexContainer: {
+          display: "flex",
           gap: activeTokens.settings.tabs.gap,
         },
         indicator: {
