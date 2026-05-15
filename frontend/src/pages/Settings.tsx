@@ -9,19 +9,24 @@ import {
   CardContent,
   Chip,
   Divider,
+  MenuItem,
   Paper,
+  Select,
   Snackbar,
   Stack,
   Tab,
   Tabs,
+  TextField,
   Tooltip,
   Typography,
   useTheme,
 } from "@mui/material";
+import type { SelectChangeEvent } from "@mui/material/Select";
 import {
   Check as CheckIcon,
   ContentCopy as CopyIcon,
   DeleteOutline as ClearIcon,
+  Launch as LaunchIcon,
   Logout as LogoutIcon,
   Refresh as SyncIcon,
   Warning as WarningIcon,
@@ -35,7 +40,15 @@ import { useAppTheme, ThemePreset } from "../theme/ThemeContext";
 import { logger, type LogEntry } from "../utils/logger";
 import { syncService } from "../utils/syncService";
 
-type SettingsTab = "account" | "system" | "appearance";
+type SettingsTab =
+  | "account"
+  | "profile"
+  | "security"
+  | "appearance"
+  | "notifications"
+  | "billing"
+  | "integrations"
+  | "system";
 
 interface PresetCardProps {
   preset: ThemePreset;
@@ -52,37 +65,75 @@ interface SettingsRowProps {
   alignTop?: boolean;
 }
 
-const tabValueToIndex = (tab: SettingsTab): number => {
-  if (tab === "account") return 0;
-  if (tab === "system") return 1;
-  return 2;
-};
+const publicTabs: SettingsTab[] = [
+  "account",
+  "profile",
+  "security",
+  "appearance",
+  "notifications",
+  "billing",
+  "integrations",
+];
 
-const indexToTabValue = (index: number): SettingsTab => {
-  if (index === 0) return "account";
-  if (index === 1) return "system";
-  return "appearance";
+const tabLabel = (tab: SettingsTab): string => {
+  switch (tab) {
+    case "account":
+      return "Account";
+    case "profile":
+      return "Profile";
+    case "security":
+      return "Security";
+    case "appearance":
+      return "Appearance";
+    case "notifications":
+      return "Notifications";
+    case "billing":
+      return "Billing";
+    case "integrations":
+      return "Integrations";
+    case "system":
+      return "System";
+    default:
+      return tab;
+  }
 };
 
 const modeLabel = (mode: ThemePreset["mode"]) =>
-  mode === "light" ? "light" : "dark";
+  mode === "light" ? "Light" : "Dark";
 
-const ThemeMiniPreview: React.FC<{ color: string; selected: boolean }> = ({
-  color,
-  selected,
-}) => {
+const ThemeMiniPreview: React.FC<{
+  color: string;
+  selected: boolean;
+  custom?: boolean;
+}> = ({ color, selected, custom = false }) => {
   const theme = useTheme();
+  const settings = (theme as typeof theme & {
+    appTokens?: {
+      settings?: {
+        selectionCard?: {
+          previewRadius?: number;
+          checkSize?: number;
+          checkOffset?: number;
+        };
+      };
+    };
+  }).appTokens?.settings;
+
+  const previewRadius = settings?.selectionCard?.previewRadius ?? 8;
+  const checkSize = settings?.selectionCard?.checkSize ?? 20;
+  const checkOffset = settings?.selectionCard?.checkOffset ?? 12;
 
   return (
     <Box
       sx={{
-        borderRadius: `${theme.shape.borderRadius * 1.25}px`,
+        borderRadius: `${previewRadius}px`,
         border: `1px solid ${
           selected ? theme.palette.primary.main : theme.palette.divider
         }`,
         overflow: "hidden",
         bgcolor: "background.paper",
         position: "relative",
+        minHeight: 128,
       }}
     >
       <Box
@@ -91,100 +142,134 @@ const ThemeMiniPreview: React.FC<{ color: string; selected: boolean }> = ({
           bgcolor: color,
         }}
       />
+
       <Box sx={{ p: 1.5, bgcolor: "background.default" }}>
         <Box
           sx={{
             display: "grid",
-            gridTemplateColumns: "30% 1fr",
-            minHeight: 86,
+            gridTemplateColumns: "1fr",
+            minHeight: 92,
             border: `1px solid ${theme.palette.divider}`,
-            borderRadius: `${theme.shape.borderRadius}px`,
+            borderRadius: `${previewRadius}px`,
             overflow: "hidden",
             bgcolor: "background.paper",
+            position: "relative",
           }}
         >
           <Box
             sx={{
-              borderRight: `1px solid ${theme.palette.divider}`,
-              p: 1,
-              bgcolor: "background.default",
+              px: 1.25,
+              py: 1,
+              borderBottom: `1px solid ${theme.palette.divider}`,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              bgcolor: "background.paper",
             }}
           >
+            <Stack direction="row" spacing={0.5}>
+              <Box sx={{ width: 5, height: 5, borderRadius: "50%", bgcolor: "#F97066" }} />
+              <Box sx={{ width: 5, height: 5, borderRadius: "50%", bgcolor: "#FDB022" }} />
+              <Box sx={{ width: 5, height: 5, borderRadius: "50%", bgcolor: "#32D583" }} />
+            </Stack>
             <Box
               sx={{
+                width: 28,
                 height: 6,
-                width: "72%",
                 borderRadius: 999,
-                bgcolor: "action.hover",
-                mb: 0.75,
-              }}
-            />
-            <Box
-              sx={{
-                height: 6,
-                width: "52%",
-                borderRadius: 999,
-                bgcolor: "action.hover",
-                mb: 0.5,
-              }}
-            />
-            <Box
-              sx={{
-                height: 6,
-                width: "60%",
-                borderRadius: 999,
-                bgcolor: "action.hover",
+                bgcolor: color,
               }}
             />
           </Box>
 
-          <Box sx={{ p: 1 }}>
-            <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
+          <Box sx={{ p: 1.25 }}>
+            {custom ? (
               <Box
                 sx={{
-                  flex: 1,
-                  height: 28,
-                  borderRadius: `${theme.shape.borderRadius * 0.75}px`,
-                  border: `1px solid ${theme.palette.divider}`,
-                  bgcolor: "background.default",
+                  height: "100%",
+                  minHeight: 56,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  borderRadius: `${Math.max(previewRadius - 2, 6)}px`,
+                  bgcolor: alpha(theme.palette.text.primary, 0.04),
                 }}
-              />
-              <Box
-                sx={{
-                  flex: 1,
-                  height: 28,
-                  borderRadius: `${theme.shape.borderRadius * 0.75}px`,
-                  border: `1px solid ${theme.palette.divider}`,
-                  bgcolor: "background.default",
-                }}
-              />
-            </Stack>
-            <Box
-              sx={{
-                height: 6,
-                width: "74%",
-                borderRadius: 999,
-                bgcolor: "action.hover",
-                mb: 0.75,
-              }}
-            />
-            <Box
-              sx={{
-                height: 6,
-                width: "58%",
-                borderRadius: 999,
-                bgcolor: "action.hover",
-                mb: 0.5,
-              }}
-            />
-            <Box
-              sx={{
-                height: 6,
-                width: "68%",
-                borderRadius: 999,
-                bgcolor: "action.hover",
-              }}
-            />
+              >
+                <Chip
+                  label="Edit CSS"
+                  variant="outlined"
+                  sx={{
+                    borderColor: "divider",
+                    bgcolor: "background.paper",
+                    "& .MuiChip-label": {
+                      px: 1.5,
+                      fontWeight: 600,
+                    },
+                  }}
+                />
+              </Box>
+            ) : (
+              <Stack spacing={1}>
+                <Box
+                  sx={{
+                    height: 6,
+                    width: "58%",
+                    borderRadius: 999,
+                    bgcolor: alpha(theme.palette.text.primary, 0.08),
+                  }}
+                />
+                <Box
+                  sx={{
+                    height: 36,
+                    borderRadius: `${Math.max(previewRadius - 2, 6)}px`,
+                    border: `1px solid ${theme.palette.divider}`,
+                    overflow: "hidden",
+                    p: 0.75,
+                    display: "flex",
+                    alignItems: "flex-end",
+                    gap: 0.5,
+                  }}
+                >
+                  {[22, 28, 26, 32, 30, 34, 36].map((h, i) => (
+                    <Box
+                      key={i}
+                      sx={{
+                        flex: 1,
+                        height: h,
+                        borderRadius: 999,
+                        bgcolor:
+                          i % 2 === 0
+                            ? alpha(theme.palette.primary.main, 0.18)
+                            : alpha(theme.palette.text.primary, 0.12),
+                      }}
+                    />
+                  ))}
+                </Box>
+                <Box
+                  sx={{
+                    display: "flex",
+                    gap: 0.5,
+                  }}
+                >
+                  <Box
+                    sx={{
+                      flex: 1,
+                      height: 5,
+                      borderRadius: 999,
+                      bgcolor: alpha(theme.palette.text.primary, 0.08),
+                    }}
+                  />
+                  <Box
+                    sx={{
+                      width: "24%",
+                      height: 5,
+                      borderRadius: 999,
+                      bgcolor: alpha(theme.palette.text.primary, 0.08),
+                    }}
+                  />
+                </Box>
+              </Stack>
+            )}
           </Box>
         </Box>
       </Box>
@@ -193,10 +278,10 @@ const ThemeMiniPreview: React.FC<{ color: string; selected: boolean }> = ({
         <Box
           sx={{
             position: "absolute",
-            top: 14,
-            right: 14,
-            width: 22,
-            height: 22,
+            top: checkOffset,
+            right: checkOffset,
+            width: checkSize,
+            height: checkSize,
             borderRadius: "50%",
             bgcolor: "primary.main",
             color: "primary.contrastText",
@@ -219,15 +304,36 @@ const PresetCard: React.FC<PresetCardProps> = ({
   onSelect,
 }) => {
   const theme = useTheme();
+  const settings = (theme as typeof theme & {
+    appTokens?: {
+      settings?: {
+        selectionCard?: {
+          radius?: number;
+          borderWidth?: number;
+          selectedBorderWidth?: number;
+          padding?: number;
+          titleGap?: number;
+        };
+      };
+    };
+  }).appTokens?.settings;
+
+  const radius = settings?.selectionCard?.radius ?? 12;
+  const borderWidth = settings?.selectionCard?.borderWidth ?? 1;
+  const selectedBorderWidth = settings?.selectionCard?.selectedBorderWidth ?? 2;
+  const padding = settings?.selectionCard?.padding ?? 12;
+  const titleGap = settings?.selectionCard?.titleGap ?? 4;
+
+  const isCustom = preset.id.toLowerCase().includes("custom");
 
   return (
     <Card
       sx={{
         height: "100%",
         border: `${
-          selected ? 2 : 1
+          selected ? selectedBorderWidth : borderWidth
         }px solid ${selected ? theme.palette.primary.main : theme.palette.divider}`,
-        borderRadius: `${theme.shape.borderRadius * 1.5}px`,
+        borderRadius: `${radius}px`,
         boxShadow: "none",
         bgcolor: "background.paper",
         transition: `border-color ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut},
@@ -251,14 +357,18 @@ const PresetCard: React.FC<PresetCardProps> = ({
         <CardContent
           sx={{
             width: "100%",
-            p: 1.5,
-            "&:last-child": { pb: 1.5 },
+            p: `${padding}px`,
+            "&:last-child": { pb: `${padding}px` },
             display: "flex",
             flexDirection: "column",
             gap: 1.5,
           }}
         >
-          <ThemeMiniPreview color={preset.previewColor} selected={selected} />
+          <ThemeMiniPreview
+            color={preset.previewColor}
+            selected={selected}
+            custom={isCustom}
+          />
 
           <Box>
             <Typography
@@ -266,19 +376,23 @@ const PresetCard: React.FC<PresetCardProps> = ({
                 fontSize: theme.typography.body1.fontSize,
                 fontWeight: 600,
                 color: "text.primary",
-                mb: 0.25,
+                mb: `${titleGap}px`,
               }}
             >
               {preset.label}
             </Typography>
             <Typography
               sx={{
-                fontSize: theme.typography.caption.fontSize,
+                fontSize: theme.typography.body2.fontSize,
                 color: "text.secondary",
-                textTransform: "lowercase",
+                lineHeight: 1.5,
               }}
             >
-              {modeLabel(preset.mode)}
+              {isCustom
+                ? "Manage styling with CSS."
+                : preset.id.toLowerCase().includes("simpl")
+                  ? "Minimal and modern."
+                  : "Default company branding."}
             </Typography>
           </Box>
         </CardContent>
@@ -296,24 +410,43 @@ const SettingsRow: React.FC<SettingsRowProps> = ({
   alignTop = false,
 }) => {
   const theme = useTheme();
+  const appTheme = theme as typeof theme & {
+    appTokens?: {
+      settings?: {
+        row?: {
+          minHeight?: number;
+          paddingY?: number;
+          labelWidth?: number;
+          gap?: number;
+          dividerColor?: string;
+          descriptionMaxWidth?: number;
+        };
+      };
+    };
+  };
+
+  const row = appTheme.appTokens?.settings?.row;
 
   return (
     <Box
       sx={{
         display: "grid",
-        gridTemplateColumns: { xs: "1fr", md: "240px minmax(0, 1fr)" },
-        gap: { xs: 1.5, md: 3 },
-        py: 3,
-        minHeight: 72,
+        gridTemplateColumns: {
+          xs: "1fr",
+          md: `${row?.labelWidth ?? 280}px minmax(0, 1fr)`,
+        },
+        gap: { xs: 1.5, md: `${row?.gap ?? 32}px` },
+        py: `${row?.paddingY ?? 24}px`,
+        minHeight: `${row?.minHeight ?? 92}px`,
         borderBottom: borderBottom
-          ? `1px solid ${theme.palette.divider}`
+          ? `1px solid ${row?.dividerColor ?? theme.palette.divider}`
           : "none",
       }}
     >
       <Box sx={{ pr: { md: 2 } }}>
         <Typography
           sx={{
-            fontSize: theme.typography.body2.fontSize,
+            fontSize: theme.typography.body1.fontSize,
             fontWeight: 600,
             color: "text.primary",
             mb: 0.5,
@@ -327,7 +460,7 @@ const SettingsRow: React.FC<SettingsRowProps> = ({
               fontSize: theme.typography.body2.fontSize,
               color: "text.secondary",
               lineHeight: 1.6,
-              maxWidth: 240,
+              maxWidth: row?.descriptionMaxWidth ?? 280,
             }}
           >
             {description}
@@ -352,8 +485,29 @@ const SettingsRow: React.FC<SettingsRowProps> = ({
   );
 };
 
+const PlaceholderPanel: React.FC<{
+  title: string;
+  description: string;
+}> = ({ title, description }) => {
+  return (
+    <Box sx={{ pt: 3 }}>
+      <Typography variant="h6" sx={{ mb: 0.75 }}>
+        {title}
+      </Typography>
+      <Typography variant="body2" color="text.secondary">
+        {description}
+      </Typography>
+    </Box>
+  );
+};
+
 const Settings: React.FC = () => {
   const theme = useTheme();
+  const appTheme = theme as typeof theme & {
+    appTokens?: typeof import("../theme/tokens/tokens").tokens;
+  };
+  const settingsTokens = appTheme.appTokens?.settings;
+
   const { logout } = useAuth();
   const { presetId, setPresetId, availablePresets } = useAppTheme();
 
@@ -363,6 +517,8 @@ const Settings: React.FC = () => {
   const [isSyncing, setIsSyncing] = useState(false);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [dbStats, setDbStats] = useState<Record<string, number>>({});
+  const [brandColor, setBrandColor] = useState("#444CE7");
+  const [language, setLanguage] = useState("English (UK)");
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;
@@ -424,9 +580,7 @@ const Settings: React.FC = () => {
   );
 
   const activePreset = useMemo(
-    () =>
-      availablePresets.find((preset) => preset.id === presetId) ??
-      availablePresets[0],
+    () => availablePresets.find((preset) => preset.id === presetId) ?? availablePresets[0],
     [availablePresets, presetId],
   );
 
@@ -472,124 +626,206 @@ const Settings: React.FC = () => {
     });
   };
 
+  const handleLanguageChange = (event: SelectChangeEvent<string>) => {
+    setLanguage(event.target.value);
+  };
+
   const renderAppearanceTab = () => (
     <Box sx={{ pt: 3 }}>
-      <Typography
+      <Box
         sx={{
-          fontSize: theme.typography.h6.fontSize,
-          fontWeight: 600,
-          color: "text.primary",
-          mb: 0.75,
+          display: "flex",
+          alignItems: { xs: "flex-start", md: "center" },
+          justifyContent: "space-between",
+          gap: 2,
+          flexWrap: "wrap",
+          mb: `${settingsTokens?.section?.introMarginBottom ?? 24}px`,
         }}
       >
-        Appearance
-      </Typography>
-      <Typography
-        sx={{
-          fontSize: theme.typography.body2.fontSize,
-          color: "text.secondary",
-          lineHeight: 1.6,
-          mb: 2.5,
-        }}
-      >
-        Change how your application looks and feels.
-      </Typography>
+        <Box>
+          <Typography
+            variant="h6"
+            sx={{ mb: `${settingsTokens?.section?.titleGap ?? 6}px` }}
+          >
+            Appearance
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Change how your public dashboard looks and feels.
+          </Typography>
+        </Box>
+
+        <Button
+          variant="text"
+          endIcon={<LaunchIcon sx={{ fontSize: 16 }} />}
+          sx={{
+            color: "text.secondary",
+            minHeight: 36,
+            px: 0,
+            "&:hover": { backgroundColor: "transparent", color: "text.primary" },
+          }}
+        >
+          dashboard.untitledui.com
+        </Button>
+      </Box>
 
       <SettingsRow
-        label="Color theme"
-        description="Select a theme for the application interface."
+        label="Brand color"
+        description="Select or customize your brand color."
       >
-        {activePreset && (
-          <Chip
-            icon={
-              <Box
-                sx={{
-                  width: 14,
-                  height: 14,
-                  borderRadius: "50%",
-                  bgcolor: activePreset.previewColor,
-                  ml: 0.5,
-                }}
-              />
-            }
-            label={activePreset.label}
-            variant="outlined"
+        <Stack direction="row" spacing={1.5} alignItems="center" flexWrap="wrap">
+          <Box
             sx={{
-              height: 36,
-              borderRadius: `${theme.shape.borderRadius}px`,
-              borderColor: "divider",
-              bgcolor: "background.paper",
-              "& .MuiChip-label": {
-                px: 1.25,
-                fontSize: theme.typography.body2.fontSize,
-                color: "text.primary",
+              width: `${settingsTokens?.control?.colorSwatchSize ?? 24}px`,
+              height: `${settingsTokens?.control?.colorSwatchSize ?? 24}px`,
+              borderRadius: "8px",
+              bgcolor: brandColor,
+              border: `1px solid ${alpha(theme.palette.common.black, 0.06)}`,
+              flexShrink: 0,
+            }}
+          />
+          <TextField
+            value={brandColor}
+            onChange={(e) => setBrandColor(e.target.value)}
+            size="small"
+            sx={{
+              width: `${settingsTokens?.control?.inputWidth ?? 132}px`,
+              "& .MuiOutlinedInput-root": {
+                bgcolor: "background.paper",
               },
             }}
           />
-        )}
+        </Stack>
       </SettingsRow>
 
       <SettingsRow
-        label="Theme presets"
-        description="Choose how the app should appear across the interface."
-        borderBottom={false}
+        label="Dashboard charts"
+        description="How charts are displayed."
         alignTop
       >
         <Box sx={{ width: "100%" }}>
-          {availablePresets.length === 0 ? (
-            <Alert
-              severity="warning"
-              icon={<WarningIcon />}
-              sx={{ fontSize: theme.typography.body2.fontSize }}
-            >
-              No themes available.
-            </Alert>
-          ) : (
-            <Box
-              sx={{
-                display: "grid",
-                gridTemplateColumns: {
-                  xs: "1fr",
-                  lg: "repeat(3, minmax(0, 1fr))",
-                },
-                gap: 2,
-              }}
-            >
-              {availablePresets.map((preset) => (
-                <PresetCard
-                  key={preset.id}
-                  preset={preset}
-                  selected={preset.id === presetId}
-                  onSelect={() => setPresetId(preset.id)}
-                />
-              ))}
-            </Box>
-          )}
+          <Button
+            variant="text"
+            sx={{
+              px: 0,
+              mb: 2,
+              minHeight: 24,
+              fontSize: theme.typography.body2.fontSize,
+              color: "primary.main",
+              "&:hover": { backgroundColor: "transparent" },
+            }}
+          >
+            View examples
+          </Button>
+
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: {
+                xs: "1fr",
+                lg: "repeat(3, minmax(0, 1fr))",
+              },
+              gap: 2,
+            }}
+          >
+            {[
+              ...(availablePresets.length
+                ? availablePresets
+                : [
+                    {
+                      id: "default",
+                      label: "Default",
+                      previewColor: theme.palette.primary.main,
+                      mode: "light" as const,
+                    },
+                    {
+                      id: "simplified",
+                      label: "Simplified",
+                      previewColor: "#D0D5DD",
+                      mode: "light" as const,
+                    },
+                    {
+                      id: "custom-css",
+                      label: "Custom CSS",
+                      previewColor: "#D0D5DD",
+                      mode: "light" as const,
+                    },
+                  ]),
+            ]
+              .slice(0, 3)
+              .map((preset, index) => {
+                const fallbackIds = ["default", "simplified", "custom-css"];
+                const normalizedPreset =
+                  availablePresets.length > 0
+                    ? preset
+                    : {
+                        ...preset,
+                        id: fallbackIds[index],
+                      };
+
+                return (
+                  <PresetCard
+                    key={normalizedPreset.id}
+                    preset={normalizedPreset as ThemePreset}
+                    selected={normalizedPreset.id === presetId || index === 0}
+                    onSelect={() => setPresetId(normalizedPreset.id)}
+                  />
+                );
+              })}
+          </Box>
         </Box>
+      </SettingsRow>
+
+      <SettingsRow
+        label="Language"
+        description="Default language for public dashboard."
+      >
+        <Select
+          value={language}
+          onChange={handleLanguageChange}
+          size="small"
+          sx={{
+            width: `${settingsTokens?.control?.selectWidth ?? 280}px`,
+            maxWidth: "100%",
+          }}
+        >
+          <MenuItem value="English (UK)">🇬🇧 English (UK)</MenuItem>
+          <MenuItem value="English (US)">🇺🇸 English (US)</MenuItem>
+          <MenuItem value="French">🇫🇷 French</MenuItem>
+          <MenuItem value="German">🇩🇪 German</MenuItem>
+        </Select>
+      </SettingsRow>
+
+      <SettingsRow
+        label="Cookie banner"
+        description="Display cookie banners to visitors."
+        borderBottom={false}
+        alignTop
+      >
+        <Alert
+          severity="info"
+          sx={{
+            width: "100%",
+            borderRadius: "12px",
+            bgcolor: alpha(theme.palette.primary.main, 0.04),
+            color: "text.secondary",
+            "& .MuiAlert-icon": {
+              color: "primary.main",
+            },
+          }}
+        >
+          This setting is ready for the same row pattern, but the final control set
+          still needs product decisions.
+        </Alert>
       </SettingsRow>
     </Box>
   );
 
   const renderAccountTab = () => (
     <Box sx={{ pt: 3 }}>
-      <Typography
-        sx={{
-          fontSize: theme.typography.h6.fontSize,
-          fontWeight: 600,
-          color: "text.primary",
-          mb: 0.75,
-        }}
-      >
+      <Typography variant="h6" sx={{ mb: 0.75 }}>
         Account
       </Typography>
-      <Typography
-        sx={{
-          fontSize: theme.typography.body2.fontSize,
-          color: "text.secondary",
-          lineHeight: 1.6,
-          mb: 2.5,
-        }}
-      >
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
         Manage your session and account details.
       </Typography>
 
@@ -597,13 +833,7 @@ const Settings: React.FC = () => {
         label="Email"
         description="The email associated with your account."
         action={
-          <Typography
-            sx={{
-              fontSize: theme.typography.body2.fontSize,
-              color: "text.primary",
-              fontWeight: 500,
-            }}
-          >
+          <Typography variant="body2" sx={{ color: "text.primary", fontWeight: 500 }}>
             {userEmail}
           </Typography>
         }
@@ -620,10 +850,7 @@ const Settings: React.FC = () => {
             size="small"
             startIcon={<LogoutIcon />}
             onClick={logout}
-            sx={{
-              minHeight: 40,
-              borderRadius: `${theme.shape.borderRadius}px`,
-            }}
+            sx={{ minHeight: 40 }}
           >
             Sign out
           </Button>
@@ -634,24 +861,10 @@ const Settings: React.FC = () => {
 
   const renderSystemTab = () => (
     <Box sx={{ pt: 3 }}>
-      <Typography
-        sx={{
-          fontSize: theme.typography.h6.fontSize,
-          fontWeight: 600,
-          color: "text.primary",
-          mb: 0.75,
-        }}
-      >
+      <Typography variant="h6" sx={{ mb: 0.75 }}>
         System
       </Typography>
-      <Typography
-        sx={{
-          fontSize: theme.typography.body2.fontSize,
-          color: "text.secondary",
-          lineHeight: 1.6,
-          mb: 2.5,
-        }}
-      >
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
         Monitor sync health, inspect local storage, and review logs.
       </Typography>
 
@@ -659,13 +872,12 @@ const Settings: React.FC = () => {
         label="Connection"
         description="Current network and sync availability."
         action={
-          <Stack direction="row" spacing={1}>
+          <Stack direction="row" spacing={1} flexWrap="wrap">
             <Chip
               size="small"
               icon={isOnline ? <OnlineIcon /> : <OfflineIcon />}
               label={isOnline ? "Online" : "Offline"}
               color={isOnline ? "success" : "default"}
-              sx={{ borderRadius: `${theme.shape.borderRadius}px` }}
             />
             <Button
               variant="outlined"
@@ -673,10 +885,7 @@ const Settings: React.FC = () => {
               startIcon={<SyncIcon />}
               disabled={isSyncing || !isOnline}
               onClick={handleSync}
-              sx={{
-                minHeight: 36,
-                borderRadius: `${theme.shape.borderRadius}px`,
-              }}
+              sx={{ minHeight: 36 }}
             >
               {isSyncing ? "Syncing…" : "Sync now"}
             </Button>
@@ -686,9 +895,9 @@ const Settings: React.FC = () => {
 
       <SettingsRow
         label="Local database"
-        description={`${totalDbRecords.toLocaleString()} total records across ${
-          Object.keys(dbStats).length
-        } tables.`}
+        description={`${totalDbRecords.toLocaleString()} total records across ${Object.keys(
+          dbStats,
+        ).length} tables.`}
         alignTop
       >
         <Stack spacing={1} sx={{ width: "100%" }}>
@@ -701,25 +910,17 @@ const Settings: React.FC = () => {
               sx={{
                 py: 0.75,
                 px: 1.25,
-                borderRadius: `${theme.shape.borderRadius}px`,
+                borderRadius: "10px",
                 bgcolor: "background.default",
                 border: `1px solid ${theme.palette.divider}`,
               }}
             >
-              <Typography
-                sx={{
-                  fontSize: theme.typography.body2.fontSize,
-                  color: "text.primary",
-                }}
-              >
+              <Typography variant="body2" sx={{ color: "text.primary" }}>
                 {table}
               </Typography>
               <Typography
-                sx={{
-                  fontSize: theme.typography.caption.fontSize,
-                  color: "text.secondary",
-                  fontWeight: 600,
-                }}
+                variant="caption"
+                sx={{ color: "text.secondary", fontWeight: 600 }}
               >
                 {count.toLocaleString()}
               </Typography>
@@ -766,12 +967,7 @@ const Settings: React.FC = () => {
         }
       >
         {logs.length === 0 ? (
-          <Typography
-            sx={{
-              fontSize: theme.typography.body2.fontSize,
-              color: "text.secondary",
-            }}
-          >
+          <Typography variant="body2" color="text.secondary">
             No logs yet.
           </Typography>
         ) : (
@@ -782,7 +978,7 @@ const Settings: React.FC = () => {
               overflowY: "auto",
               bgcolor: "background.default",
               border: `1px solid ${theme.palette.divider}`,
-              borderRadius: `${theme.shape.borderRadius * 1.25}px`,
+              borderRadius: "12px",
               p: 1.5,
             }}
           >
@@ -803,16 +999,10 @@ const Settings: React.FC = () => {
                     wordBreak: "break-word",
                   }}
                 >
-                  <Box
-                    component="span"
-                    sx={{ color: "text.secondary", mr: 0.75 }}
-                  >
+                  <Box component="span" sx={{ color: "text.secondary", mr: 0.75 }}>
                     [{log.level.toUpperCase()}]
                   </Box>
-                  <Box
-                    component="span"
-                    sx={{ color: "text.disabled", mr: 0.75 }}
-                  >
+                  <Box component="span" sx={{ color: "text.disabled", mr: 0.75 }}>
                     {log.timestamp}
                   </Box>
                   {log.message}
@@ -825,12 +1015,60 @@ const Settings: React.FC = () => {
     </Box>
   );
 
+  const renderContent = () => {
+    switch (activeTab) {
+      case "account":
+        return renderAccountTab();
+      case "appearance":
+        return renderAppearanceTab();
+      case "system":
+        return renderSystemTab();
+      case "profile":
+        return (
+          <PlaceholderPanel
+            title="Profile"
+            description="Profile settings can now reuse the same shell, tabs, and row primitives."
+          />
+        );
+      case "security":
+        return (
+          <PlaceholderPanel
+            title="Security"
+            description="Security settings can reuse this token-driven settings structure."
+          />
+        );
+      case "notifications":
+        return (
+          <PlaceholderPanel
+            title="Notifications"
+            description="Notification settings can be added without inventing a new layout system."
+          />
+        );
+      case "billing":
+        return (
+          <PlaceholderPanel
+            title="Billing"
+            description="Billing settings can plug into the same settings shell and row patterns."
+          />
+        );
+      case "integrations":
+        return (
+          <PlaceholderPanel
+            title="Integrations"
+            description="Integration settings can share the same tokens and spacing model."
+          />
+        );
+      default:
+        return renderAppearanceTab();
+    }
+  };
+
   return (
     <Box
       id="main-content"
       sx={{
         width: "100%",
-        maxWidth: 1280,
+        maxWidth: `${settingsTokens?.shell?.maxWidth ?? 1280}px`,
         mx: "auto",
         px: { xs: 2, md: 3 },
         py: { xs: 2, md: 3 },
@@ -839,40 +1077,57 @@ const Settings: React.FC = () => {
       <Paper
         variant="outlined"
         sx={{
-          borderRadius: `${theme.shape.borderRadius * 2}px`,
+          borderRadius: `${settingsTokens?.shell?.radius ?? 20}px`,
           overflow: "hidden",
-          bgcolor: "background.paper",
-          borderColor: "divider",
+          bgcolor: settingsTokens?.shell?.background ?? "background.paper",
+          border: settingsTokens?.shell?.border ?? `1px solid ${theme.palette.divider}`,
           boxShadow: "none",
         }}
       >
-        <Box sx={{ px: { xs: 2.5, md: 3 }, pt: { xs: 2.5, md: 3 } }}>
-          <Typography
-            variant="h5"
-            sx={{
-              mb: 2,
-            }}
-          >
+        <Box
+          sx={{
+            px: {
+              xs: 2.5,
+              md: `${settingsTokens?.shell?.headerPaddingX ?? 32}px`,
+            },
+            pt: {
+              xs: 2.5,
+              md: `${settingsTokens?.shell?.headerPaddingTop ?? 28}px`,
+            },
+          }}
+        >
+          <Typography variant="h5" sx={{ mb: 2.5 }}>
             Settings
           </Typography>
 
           <Tabs
-            value={tabValueToIndex(activeTab)}
-            onChange={(_, value) => setActiveTab(indexToTabValue(value))}
+            value={publicTabs.indexOf(activeTab)}
+            onChange={(_, value) => setActiveTab(publicTabs[value] ?? "appearance")}
             aria-label="Settings sections"
+            variant="scrollable"
+            scrollButtons="auto"
           >
-            <Tab label="Account" />
-            <Tab label="System" />
-            <Tab label="Appearance" />
+            {publicTabs.map((tab) => (
+              <Tab key={tab} label={tabLabel(tab)} />
+            ))}
           </Tabs>
         </Box>
 
         <Divider />
 
-        <Box sx={{ px: { xs: 2.5, md: 3 }, pb: { xs: 3, md: 4 } }}>
-          {activeTab === "account" && renderAccountTab()}
-          {activeTab === "system" && renderSystemTab()}
-          {activeTab === "appearance" && renderAppearanceTab()}
+        <Box
+          sx={{
+            px: {
+              xs: 2.5,
+              md: `${settingsTokens?.shell?.contentPaddingX ?? 32}px`,
+            },
+            pb: {
+              xs: 3,
+              md: `${settingsTokens?.shell?.contentPaddingBottom ?? 32}px`,
+            },
+          }}
+        >
+          {renderContent()}
         </Box>
       </Paper>
 
@@ -885,6 +1140,7 @@ const Settings: React.FC = () => {
         <Alert
           severity={snackbar.severity}
           onClose={() => setSnackbar((prev) => ({ ...prev, open: false }))}
+          icon={snackbar.severity === "warning" ? <WarningIcon /> : undefined}
           sx={{ fontSize: theme.typography.body2.fontSize }}
         >
           {snackbar.message}
