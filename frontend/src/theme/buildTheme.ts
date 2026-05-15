@@ -1,12 +1,24 @@
-import { createTheme, alpha, Theme, ThemeOptions } from "@mui/material/styles";
+import {
+  alpha,
+  createTheme,
+  type Theme,
+  type ThemeOptions,
+} from "@mui/material/styles";
 import { cssVariables } from "./cssVariables";
-import { muiBreakpointValues } from "./tokens/breakpoints";
 import {
   tokens,
   type AppTokens,
   type DeepPartial,
   type ThemePreset,
 } from "./tokens/tokens";
+
+const muiBreakpointValues = {
+  xs: 0,
+  sm: 600,
+  md: 900,
+  lg: 1200,
+  xl: 1536,
+};
 
 /**
  *
@@ -20,19 +32,24 @@ function isObject(value: unknown): value is Record<string, unknown> {
  */
 function deepMerge<T>(base: T, override?: DeepPartial<T>): T {
   if (!override) return base;
+
   const output: Record<string, unknown> = {
     ...(base as Record<string, unknown>),
   };
+
   for (const key of Object.keys(override) as Array<keyof T>) {
     const baseValue = output[key as string];
     const overrideValue = override[key];
+
     if (overrideValue === undefined) continue;
+
     if (isObject(baseValue) && isObject(overrideValue)) {
       output[key as string] = deepMerge(baseValue, overrideValue);
     } else {
       output[key as string] = overrideValue as unknown;
     }
   }
+
   return output as T;
 }
 
@@ -63,18 +80,18 @@ function buildComponentTheme(
           color: activeTokens.semantic.color.text.primary,
           fontFamily: activeTokens.typography.fontFamily.body,
           overscrollBehavior: "none",
-          paddingTop: "env(safe-area-inset-top)",
-          paddingRight: "env(safe-area-inset-right)",
-          paddingBottom: "env(safe-area-inset-bottom)",
-          paddingLeft: "env(safe-area-inset-left)",
+          margin: 0,
         },
         "#root": {
           minHeight: "100dvh",
           backgroundColor: activeTokens.semantic.color.background.default,
         },
-        "*": { boxSizing: "border-box" },
+        "*": {
+          boxSizing: "border-box",
+        },
       },
     },
+
     MuiAppBar: {
       styleOverrides: {
         root: {
@@ -85,29 +102,41 @@ function buildComponentTheme(
         },
       },
     },
+
     MuiPaper: {
-      defaultProps: { elevation: 0 },
+      defaultProps: {
+        elevation: 0,
+      },
       styleOverrides: {
         root: {
           backgroundImage: "none",
           backgroundColor: activeTokens.semantic.color.background.paper,
+          borderColor: activeTokens.semantic.color.border.subtle,
         },
-        rounded: { borderRadius: activeTokens.semantic.component.radius.card },
+        rounded: {
+          borderRadius: activeTokens.semantic.component.sectionCard.radius,
+        },
       },
     },
+
     MuiCard: {
-      defaultProps: { elevation: 0 },
+      defaultProps: {
+        elevation: 0,
+      },
       styleOverrides: {
         root: {
-          borderRadius: activeTokens.semantic.component.radius.card,
+          borderRadius: activeTokens.semantic.component.selectionCard.radius,
           border: activeTokens.semantic.component.border.card,
           boxShadow: activeTokens.semantic.component.shadow.card,
-          backgroundColor: activeTokens.semantic.color.surface.elevated,
+          backgroundColor: activeTokens.semantic.color.background.paper,
         },
       },
     },
+
     MuiButton: {
-      defaultProps: { disableElevation: true },
+      defaultProps: {
+        disableElevation: true,
+      },
       styleOverrides: {
         root: {
           minHeight: activeTokens.touch.targetComfortable,
@@ -119,14 +148,20 @@ function buildComponentTheme(
           fontWeight: activeTokens.semantic.typography.button.fontWeight,
           letterSpacing: activeTokens.semantic.typography.button.letterSpacing,
           textTransform: activeTokens.semantic.typography.button.textTransform,
+          boxShadow: "none",
           transition: [
             `background-color ${activeTokens.motion.duration.normal} ${activeTokens.motion.easing.productive}`,
             `border-color ${activeTokens.motion.duration.normal} ${activeTokens.motion.easing.productive}`,
             `color ${activeTokens.motion.duration.normal} ${activeTokens.motion.easing.productive}`,
             `transform ${activeTokens.motion.duration.fast} ${activeTokens.motion.easing.productive}`,
           ].join(", "),
-          "&:hover": { transform: "translateY(-1px)" },
-          "&:active": { transform: "translateY(0)" },
+          "&:hover": {
+            transform: "translateY(-1px)",
+            boxShadow: "none",
+          },
+          "&:active": {
+            transform: "translateY(0)",
+          },
           "&.Mui-disabled": {
             color: activeTokens.semantic.color.action.disabled,
             backgroundColor:
@@ -135,6 +170,7 @@ function buildComponentTheme(
         },
       },
     },
+
     MuiIconButton: {
       styleOverrides: {
         root: {
@@ -155,6 +191,7 @@ function buildComponentTheme(
         },
       },
     },
+
     MuiChip: {
       styleOverrides: {
         root: {
@@ -163,7 +200,46 @@ function buildComponentTheme(
         },
       },
     },
-    MuiTextField: { defaultProps: { variant: "outlined" } },
+
+    MuiTabs: {
+      styleOverrides: {
+        root: {
+          minHeight: activeTokens.layout.subnavHeight,
+        },
+        indicator: {
+          height: activeTokens.semantic.component.subnavTab.indicatorHeight,
+          borderRadius: 999,
+          backgroundColor: activeTokens.semantic.color.brand.primary,
+        },
+        flexContainer: {
+          gap: activeTokens.layout.inlineGap * 2,
+        },
+      },
+    },
+
+    MuiTab: {
+      styleOverrides: {
+        root: {
+          minHeight: activeTokens.layout.subnavHeight,
+          paddingInline: activeTokens.layout.inlineGap,
+          paddingBlock: activeTokens.layout.inlineGap,
+          textTransform: "none",
+          fontSize: activeTokens.semantic.typography.supportingText.fontSize,
+          fontWeight: activeTokens.typography.fontWeight.medium,
+          color: activeTokens.semantic.color.text.secondary,
+          "&.Mui-selected": {
+            color: activeTokens.semantic.color.text.primary,
+          },
+        },
+      },
+    },
+
+    MuiTextField: {
+      defaultProps: {
+        variant: "outlined",
+      },
+    },
+
     MuiOutlinedInput: {
       styleOverrides: {
         root: {
@@ -191,11 +267,15 @@ function buildComponentTheme(
         },
       },
     },
+
     MuiInputLabel: {
       styleOverrides: {
-        root: { color: activeTokens.semantic.color.text.secondary },
+        root: {
+          color: activeTokens.semantic.color.text.secondary,
+        },
       },
     },
+
     MuiDialog: {
       styleOverrides: {
         paper: {
@@ -208,14 +288,23 @@ function buildComponentTheme(
         },
       },
     },
+
     MuiDialogContent: {
-      styleOverrides: { root: { padding: activeTokens.layout.dialogPadding } },
-    },
-    MuiDivider: {
       styleOverrides: {
-        root: { borderColor: activeTokens.semantic.color.border.subtle },
+        root: {
+          padding: activeTokens.layout.dialogPadding,
+        },
       },
     },
+
+    MuiDivider: {
+      styleOverrides: {
+        root: {
+          borderColor: activeTokens.semantic.color.border.subtle,
+        },
+      },
+    },
+
     MuiListItemButton: {
       styleOverrides: {
         root: {
@@ -236,24 +325,19 @@ function buildComponentTheme(
         },
       },
     },
-    MuiTab: {
-      styleOverrides: {
-        root: {
-          minHeight: activeTokens.componentSize.segmentedControlHeight,
-          textTransform: "none",
-          fontWeight: activeTokens.typography.fontWeight.medium,
-        },
-      },
-    },
+
     MuiTableCell: {
       styleOverrides: {
-        root: { borderColor: activeTokens.semantic.color.border.subtle },
+        root: {
+          borderColor: activeTokens.semantic.color.border.subtle,
+        },
         head: {
           color: activeTokens.semantic.color.text.secondary,
           fontWeight: activeTokens.typography.fontWeight.semibold,
         },
       },
     },
+
     MuiTooltip: {
       styleOverrides: {
         tooltip: {
@@ -273,9 +357,15 @@ export function buildTheme(preset?: ThemePreset): Theme {
   const activeTokens = resolveTokens(preset);
 
   return createTheme({
-    breakpoints: { values: muiBreakpointValues },
+    breakpoints: {
+      values: muiBreakpointValues,
+    },
+
     spacing: (factor: number) => `${4 * factor}px`,
-    shape: { borderRadius: activeTokens.radii.md },
+
+    shape: {
+      borderRadius: activeTokens.radii.md,
+    },
 
     palette: {
       mode: preset?.mode ?? "light",
@@ -322,6 +412,7 @@ export function buildTheme(preset?: ThemePreset): Theme {
       text: {
         primary: activeTokens.semantic.color.text.primary,
         secondary: activeTokens.semantic.color.text.secondary,
+        disabled: activeTokens.semantic.color.text.disabled,
       },
       divider: activeTokens.semantic.color.border.subtle,
       action: {
@@ -336,54 +427,70 @@ export function buildTheme(preset?: ThemePreset): Theme {
     typography: {
       fontFamily: activeTokens.typography.fontFamily.body,
       h1: {
-        ...activeTokens.semantic.typography.titleLg,
-        color: activeTokens.semantic.color.text.primary,
+        fontFamily: activeTokens.typography.fontFamily.display,
+        fontSize: activeTokens.typography.fontSize["4xl"],
+        fontWeight: activeTokens.typography.fontWeight.bold,
+        lineHeight: 1.1,
       },
       h2: {
-        ...activeTokens.semantic.typography.titleMd,
-        color: activeTokens.semantic.color.text.primary,
+        fontFamily: activeTokens.typography.fontFamily.display,
+        fontSize: activeTokens.typography.fontSize["3xl"],
+        fontWeight: activeTokens.typography.fontWeight.bold,
+        lineHeight: 1.15,
       },
       h3: {
-        ...activeTokens.semantic.typography.titleSm,
-        color: activeTokens.semantic.color.text.primary,
+        fontFamily: activeTokens.typography.fontFamily.display,
+        fontSize: activeTokens.typography.fontSize["2xl"],
+        fontWeight: activeTokens.typography.fontWeight.semibold,
+        lineHeight: 1.2,
       },
       h4: {
-        ...activeTokens.semantic.typography.sectionTitle,
-        color: activeTokens.semantic.color.text.primary,
+        fontFamily: activeTokens.typography.fontFamily.body,
+        fontSize: activeTokens.typography.fontSize.xl,
+        fontWeight: activeTokens.typography.fontWeight.semibold,
+        lineHeight: 1.25,
       },
       h5: {
-        ...activeTokens.semantic.typography.cardTitle,
-        color: activeTokens.semantic.color.text.primary,
+        fontFamily: activeTokens.semantic.typography.pageTitle.fontFamily,
+        fontSize: activeTokens.semantic.typography.pageTitle.fontSize,
+        fontWeight: activeTokens.semantic.typography.pageTitle.fontWeight,
+        lineHeight: activeTokens.semantic.typography.pageTitle.lineHeight,
+        letterSpacing: activeTokens.semantic.typography.pageTitle.letterSpacing,
       },
       h6: {
-        ...activeTokens.semantic.typography.cardTitle,
-        color: activeTokens.semantic.color.text.primary,
+        fontFamily: activeTokens.semantic.typography.sectionTitle.fontFamily,
+        fontSize: activeTokens.semantic.typography.sectionTitle.fontSize,
+        fontWeight: activeTokens.semantic.typography.sectionTitle.fontWeight,
+        lineHeight: activeTokens.semantic.typography.sectionTitle.lineHeight,
+        letterSpacing:
+          activeTokens.semantic.typography.sectionTitle.letterSpacing,
       },
       body1: {
-        ...activeTokens.semantic.typography.bodyMd,
-        color: activeTokens.semantic.color.text.primary,
+        fontFamily: activeTokens.typography.fontFamily.body,
+        fontSize: activeTokens.typography.fontSize.md,
+        fontWeight: activeTokens.typography.fontWeight.regular,
+        lineHeight: 1.6,
       },
       body2: {
-        ...activeTokens.semantic.typography.bodySm,
-        color: activeTokens.semantic.color.text.secondary,
-      },
-      button: { ...activeTokens.semantic.typography.button },
-      subtitle1: {
-        ...activeTokens.semantic.typography.sectionTitle,
-        color: activeTokens.semantic.color.text.primary,
-      },
-      subtitle2: {
-        ...activeTokens.semantic.typography.labelMd,
-        color: activeTokens.semantic.color.text.secondary,
+        fontFamily: activeTokens.semantic.typography.supportingText.fontFamily,
+        fontSize: activeTokens.semantic.typography.supportingText.fontSize,
+        fontWeight: activeTokens.semantic.typography.supportingText.fontWeight,
+        lineHeight: activeTokens.semantic.typography.supportingText.lineHeight,
+        letterSpacing:
+          activeTokens.semantic.typography.supportingText.letterSpacing,
       },
       caption: {
-        ...activeTokens.semantic.typography.labelSm,
-        color: activeTokens.semantic.color.text.tertiary,
+        fontFamily: activeTokens.typography.fontFamily.body,
+        fontSize: activeTokens.typography.fontSize.xs,
+        fontWeight: activeTokens.typography.fontWeight.medium,
+        lineHeight: 1.4,
       },
-      overline: {
-        ...activeTokens.semantic.typography.labelSm,
-        color: activeTokens.semantic.color.text.secondary,
-        textTransform: "uppercase",
+      button: {
+        fontFamily: activeTokens.semantic.typography.button.fontFamily,
+        fontSize: activeTokens.semantic.typography.button.fontSize,
+        fontWeight: activeTokens.semantic.typography.button.fontWeight,
+        letterSpacing: activeTokens.semantic.typography.button.letterSpacing,
+        textTransform: activeTokens.semantic.typography.button.textTransform,
       },
     },
 

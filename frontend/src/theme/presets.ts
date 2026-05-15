@@ -1,9 +1,7 @@
 import type { ThemePreset } from "./tokens/tokens";
 
 export const PRESETS: ThemePreset[] = [
-  // ─── Classic ─────────────────────────────────────────────
-  // Clean, professional. The default everyday workhorse.
-  // Navy + steel blue. Neutral warm surfaces. Standard spacing.
+  // ─── Classic ────────────────────────────────────────────────────────────────
   {
     id: "classic",
     label: "Classic",
@@ -11,9 +9,7 @@ export const PRESETS: ThemePreset[] = [
     mode: "light",
   },
 
-  // ─── Gametime ─────────────────────────────────────────────
-  // High-energy live game mode. Bold primary, rich dark surfaces,
-  // high-contrast text. Dense spacing for fast interactions.
+  // ─── Gametime ───────────────────────────────────────────────────────────────
   {
     id: "gametime",
     label: "Gametime",
@@ -49,6 +45,7 @@ export const PRESETS: ThemePreset[] = [
             tertiary: "#6E6B66",
             muted: "#4E4B48",
             inverse: "#0E1117",
+            disabled: "#6E6B66",
           },
           border: {
             subtle: "#232931",
@@ -92,21 +89,10 @@ export const PRESETS: ThemePreset[] = [
           },
         },
       },
-      density: {
-        live: {
-          controlHeight: 52,
-          iconButton: 48,
-          cardPadding: 16,
-          gap: 12,
-          gridGap: 12,
-        },
-      },
     },
   },
 
-  // ─── Hardwood ─────────────────────────────────────────────
-  // Warm wood tones. Amber accent. Earthy surfaces.
-  // Evokes the floor of a real gym. Light mode.
+  // ─── Hardwood ───────────────────────────────────────────────────────────────
   {
     id: "hardwood",
     label: "Hardwood",
@@ -142,6 +128,7 @@ export const PRESETS: ThemePreset[] = [
             tertiary: "#9C7A52",
             muted: "#BDA882",
             inverse: "#FFFFFF",
+            disabled: "#9C7A52",
           },
           border: {
             subtle: "#E2D8C8",
@@ -188,9 +175,7 @@ export const PRESETS: ThemePreset[] = [
     },
   },
 
-  // ─── Leather ──────────────────────────────────────────────
-  // Rich, deep-brown premium feel. Gold accent.
-  // Coaches clipboard energy. Light mode.
+  // ─── Leather ────────────────────────────────────────────────────────────────
   {
     id: "leather",
     label: "Leather",
@@ -226,6 +211,7 @@ export const PRESETS: ThemePreset[] = [
             tertiary: "#8B6440",
             muted: "#B89A72",
             inverse: "#FFFFFF",
+            disabled: "#8B6440",
           },
           border: {
             subtle: "#D9CAAE",
@@ -272,9 +258,7 @@ export const PRESETS: ThemePreset[] = [
     },
   },
 
-  // ─── Blacktop ─────────────────────────────────────────────
-  // Street ball. Dark surfaces, vivid accent. High contrast.
-  // For coaches who keep score at the outdoor courts.
+  // ─── Blacktop ───────────────────────────────────────────────────────────────
   {
     id: "blacktop",
     label: "Blacktop",
@@ -310,6 +294,7 @@ export const PRESETS: ThemePreset[] = [
             tertiary: "#666666",
             muted: "#404040",
             inverse: "#111111",
+            disabled: "#666666",
           },
           border: {
             subtle: "#242424",
