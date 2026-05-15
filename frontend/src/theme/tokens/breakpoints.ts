@@ -13,5 +13,13 @@ export const muiBreakpointValues = {
   xl: 1920,
 } as const;
 
+export const layoutModes = {
+  phone: "stacked",
+  tablet: "operational",
+  laptop: "review",
+  desktop: "expanded",
+} as const;
+
 export type AppBreakpoints = typeof breakpoints;
 export type MuiBreakpointValues = typeof muiBreakpointValues;
+export type AppLayoutModes = typeof layoutModes;
