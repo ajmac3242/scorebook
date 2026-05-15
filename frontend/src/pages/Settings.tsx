@@ -33,6 +33,7 @@ import { db } from "../db";
 import { useAppTheme, ThemePreset } from "../theme/ThemeContext";
 import { logger, type LogEntry } from "../utils/logger";
 import { syncService } from "../utils/syncService";
+import { UserPool } from "../UserPool";
 
 type SettingsTab = "account" | "system" | "appearance";
 
@@ -211,7 +212,24 @@ const SectionIntro: React.FC<{ title: string; description?: string }> = ({
 
 const Settings: React.FC = () => {
   const theme = useTheme();
-  const { user, logout } = useAuth();
+  const { logout } = useAuth();
+  const [userEmail, setUserEmail] = useState<string>("—");
+  
+  useEffect(() => {
+    const cognitoUser = UserPool.getCurrentUser();
+    if (cognitoUser) {
+      cognitoUser.getSession((err: Error | null, session: unknown) => {
+        if (!err && session) {
+          cognitoUser.getUserAttributes((attrErr, attrs) => {
+            if (!attrErr && attrs) {
+              const emailAttr = attrs.find((a) => a.getName() === "email");
+              if (emailAttr) setUserEmail(emailAttr.getValue());
+            }
+          });
+        }
+      });
+    }
+  }, []);
   const { presetId, setPresetId, availablePresets } = useAppTheme();
 
   const [activeTab, setActiveTab] = useState<SettingsTab>("account");
@@ -262,7 +280,8 @@ const Settings: React.FC = () => {
     }
     setIsSyncing(true);
     try {
-      await syncService.syncAll();
+      await syncService.pushUpdates();
+      await syncService.pullAll();
       showSnackbar("Sync complete.");
     } catch {
       showSnackbar("Sync failed. Try again.", "error");
@@ -361,7 +380,7 @@ const Settings: React.FC = () => {
             />
             <SettingsRow
               label="Email"
-              description={user?.email ?? "—"}
+              description={userEmail}
               action={null}
               borderBottom={false}
             />
