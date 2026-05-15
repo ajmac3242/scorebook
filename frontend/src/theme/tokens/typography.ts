@@ -14,14 +14,14 @@ export const fontWeight = {
 } as const;
 
 export const fontSize = {
-  xs: "0.75rem",     // 12
-  sm: "0.875rem",    // 14
-  md: "1rem",        // 16
-  lg: "1.125rem",    // 18
-  xl: "1.25rem",     // 20
-  "2xl": "1.5rem",   // 24
+  xs: "0.75rem", // 12
+  sm: "0.875rem", // 14
+  md: "1rem", // 16
+  lg: "1.125rem", // 18
+  xl: "1.25rem", // 20
+  "2xl": "1.5rem", // 24
   "3xl": "1.875rem", // 30
-  "4xl": "2.25rem",  // 36
+  "4xl": "2.25rem", // 36
 } as const;
 
 export const lineHeight = {
