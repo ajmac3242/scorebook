@@ -1,7 +1,6 @@
 import { createTheme, alpha, Theme, ThemeOptions } from "@mui/material/styles";
 import { cssVariables } from "./cssVariables";
 import { muiBreakpointValues } from "./tokens/breakpoints";
-import { palette } from "./tokens/palette";
 import {
   tokens,
   type AppTokens,
@@ -9,16 +8,10 @@ import {
   type ThemePreset,
 } from "./tokens/tokens";
 
-/**
- *
- */
 function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-/**
- *
- */
 function deepMerge<T>(base: T, override?: DeepPartial<T>): T {
   if (!override) return base;
 
@@ -42,16 +35,10 @@ function deepMerge<T>(base: T, override?: DeepPartial<T>): T {
   return output as T;
 }
 
-/**
- *
- */
 export function resolveTokens(preset?: ThemePreset): AppTokens {
   return deepMerge(tokens, preset?.overrides);
 }
 
-/**
- *
- */
 function buildComponentTheme(
   activeTokens: AppTokens,
 ): ThemeOptions["components"] {
@@ -153,8 +140,7 @@ function buildComponentTheme(
           },
           "&.Mui-disabled": {
             color: activeTokens.semantic.color.action.disabled,
-            backgroundColor:
-              activeTokens.semantic.color.action.disabledBackground,
+            backgroundColor: activeTokens.semantic.color.action.disabledBackground,
           },
         },
       },
@@ -213,8 +199,7 @@ function buildComponentTheme(
             borderWidth: 2,
           },
           "&.Mui-disabled": {
-            backgroundColor:
-              activeTokens.semantic.color.action.disabledBackground,
+            backgroundColor: activeTokens.semantic.color.action.disabledBackground,
           },
         },
         input: {
@@ -316,9 +301,6 @@ function buildComponentTheme(
   };
 }
 
-/**
- *
- */
 export function buildTheme(preset?: ThemePreset): Theme {
   const activeTokens = resolveTokens(preset);
 
@@ -339,37 +321,37 @@ export function buildTheme(preset?: ThemePreset): Theme {
         main: activeTokens.semantic.color.brand.primary,
         light: activeTokens.semantic.color.brand.primaryLight,
         dark: activeTokens.semantic.color.brand.primaryDark,
-        contrastText: palette.brand.primary.contrastText,
+        contrastText: activeTokens.semantic.color.text.inverse,
       },
       secondary: {
         main: activeTokens.semantic.color.brand.secondary,
-        light: palette.brand.secondary.light,
-        dark: palette.brand.secondary.dark,
-        contrastText: palette.brand.secondary.contrastText,
+        light: activeTokens.semantic.color.brand.secondary,
+        dark: activeTokens.semantic.color.brand.secondary,
+        contrastText: activeTokens.semantic.color.text.inverse,
       },
       success: {
-        main: palette.brand.success.main,
-        light: palette.brand.success.light,
-        dark: palette.brand.success.dark,
-        contrastText: palette.brand.success.contrastText,
+        main: activeTokens.semantic.color.feedback.success,
+        light: activeTokens.semantic.color.feedback.success,
+        dark: activeTokens.semantic.color.feedback.success,
+        contrastText: activeTokens.semantic.color.text.inverse,
       },
       error: {
-        main: palette.brand.error.main,
-        light: palette.brand.error.light,
-        dark: palette.brand.error.dark,
-        contrastText: palette.brand.error.contrastText,
+        main: activeTokens.semantic.color.feedback.error,
+        light: activeTokens.semantic.color.feedback.error,
+        dark: activeTokens.semantic.color.feedback.error,
+        contrastText: activeTokens.semantic.color.text.inverse,
       },
       warning: {
-        main: palette.brand.warning.main,
-        light: palette.brand.warning.light,
-        dark: palette.brand.warning.dark,
-        contrastText: palette.brand.warning.contrastText,
+        main: activeTokens.semantic.color.feedback.warning,
+        light: activeTokens.semantic.color.feedback.warning,
+        dark: activeTokens.semantic.color.feedback.warning,
+        contrastText: activeTokens.semantic.color.text.primary,
       },
       info: {
-        main: palette.brand.info.main,
-        light: palette.brand.info.light,
-        dark: palette.brand.info.dark,
-        contrastText: palette.brand.info.contrastText,
+        main: activeTokens.semantic.color.feedback.info,
+        light: activeTokens.semantic.color.feedback.info,
+        dark: activeTokens.semantic.color.feedback.info,
+        contrastText: activeTokens.semantic.color.text.inverse,
       },
       background: {
         default: activeTokens.semantic.color.background.default,
@@ -384,8 +366,7 @@ export function buildTheme(preset?: ThemePreset): Theme {
         hover: activeTokens.semantic.color.action.hover,
         selected: activeTokens.semantic.color.action.selected,
         disabled: activeTokens.semantic.color.action.disabled,
-        disabledBackground:
-          activeTokens.semantic.color.action.disabledBackground,
+        disabledBackground: activeTokens.semantic.color.action.disabledBackground,
       },
     },
 
