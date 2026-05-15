@@ -7,6 +7,16 @@
     "test": "NODE_OPTIONS=--experimental-vm-modules jest",
     "lint": "eslint \"src/**/*.ts\" --max-warnings=0"
   },
+  "jest": {
+    "extensionsToTreatAsEsm": [".ts"],
+    "moduleNameMapper": {
+      "^(\\.{1,2}/.*)\\.js$": "$1"
+    },
+    "transform": {
+      "^.+\\.tsx?$": ["ts-jest", { "useESM": true }]
+    },
+    "testMatch": ["<rootDir>/src/**/__tests__/**/*.[jt]s?(x)", "<rootDir>/src/**/*.test.[jt]s?(x)"]
+  },
   "devDependencies": {
     "@jest/globals": "29.7.0",
     "@types/aws-lambda": "^8.10.161",

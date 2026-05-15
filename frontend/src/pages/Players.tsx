@@ -315,7 +315,7 @@ const Players: React.FC = () => {
             alignItems={{ xs: "flex-start", md: "center" }}
             justifyContent="space-between"
           >
-            <Stack direction="row" spacing={1.5} alignItems={{ xs: "center" }}>
+            <Stack direction="row" spacing={1.5} alignItems="center">
               <Box
                 sx={{
                   width: 44,
@@ -388,7 +388,7 @@ const Players: React.FC = () => {
                   bgcolor: "background.paper",
                 },
               }}
-              slotProps={{ input:
+              InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
                     <SearchIcon
@@ -403,7 +403,7 @@ const Players: React.FC = () => {
               direction={{ xs: "column", sm: "row" }}
               spacing={1}
               alignItems={{ xs: "stretch", sm: "center" }}
-              flexWrap={{ xs: "wrap" }}
+              flexWrap="wrap"
               useFlexGap
             >
               <Chip
@@ -444,7 +444,7 @@ const Players: React.FC = () => {
                   <Switch
                     checked={showArchived}
                     onChange={(e) => setShowArchived(e.target.checked)}
-                    slotProps={{ htmlInput: { "aria-label": "show archived players" } }}
+                    inputProps={{ "aria-label": "show archived players" }}
                   />
                 }
                 label="Show archived"
@@ -545,7 +545,7 @@ const Players: React.FC = () => {
                 } = getAccentStyles(player.avatarColor);
 
                 return (
-                  <Grid xs={12} md={6} xl={4} key={player.id}>
+                  <Grid item xs={12} md={6} xl={4} key={player.id}>
                     <Paper
                       role="button"
                       tabIndex={0}
@@ -628,7 +628,7 @@ const Players: React.FC = () => {
                             <Stack
                               direction="row"
                               spacing={1}
-                              alignItems={{ xs: "center" }}
+                              alignItems="center"
                               sx={{ mb: 0.75, flexWrap: "wrap" }}
                             >
                               <Typography variant="h6">
@@ -743,19 +743,19 @@ const Players: React.FC = () => {
                           </Typography>
 
                           <Grid container spacing={1.5}>
-                            <Grid xs={4}>
+                            <Grid item xs={4}>
                               <Typography sx={statLabelSx}>PPG</Typography>
                               <Typography sx={statValueSx}>
                                 {player.ppg}
                               </Typography>
                             </Grid>
-                            <Grid xs={4}>
+                            <Grid item xs={4}>
                               <Typography sx={statLabelSx}>RPG</Typography>
                               <Typography sx={statValueSx}>
                                 {player.rpg}
                               </Typography>
                             </Grid>
-                            <Grid xs={4}>
+                            <Grid item xs={4}>
                               <Typography sx={statLabelSx}>APG</Typography>
                               <Typography sx={statValueSx}>
                                 {player.apg}
@@ -767,7 +767,7 @@ const Players: React.FC = () => {
                         <Stack
                           direction="row"
                           justifyContent="space-between"
-                          alignItems={{ xs: "center" }}
+                          alignItems="center"
                           sx={{
                             mt: "auto",
                             pt: 2,
@@ -811,7 +811,7 @@ const Players: React.FC = () => {
         onClose={handleDialogClose}
         fullWidth
         maxWidth="sm"
-        slotProps={{ paper:
+        PaperProps={{
           sx: {
             borderRadius: shellRadius,
           },

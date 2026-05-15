@@ -20,7 +20,7 @@ const TimeoutDots: React.FC<TimeoutDotsProps> = ({
   <Stack
     direction="row"
     spacing={0.5}
-    alignItems={{ xs: "center" }}
+    alignItems="center"
     data-testid={testId}
     role="img"
     aria-label={`${count} timeouts remaining`}

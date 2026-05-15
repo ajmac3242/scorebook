@@ -135,7 +135,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
 
       <Grid
         container
-        alignItems={{ xs: "center" }}
+        alignItems="center"
         spacing={{ xs: 2, sm: 4 }}
         sx={{ mt: { xs: 0, sm: 1 } }}
       >
@@ -215,7 +215,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
             )}
           </Box>
         </Grid>
-        <Grid xs={12} sm sx={{ textAlign: { xs: "center", sm: "left" } }}>
+        <Grid item xs={12} sm sx={{ textAlign: { xs: "center", sm: "left" } }}>
           <Typography
             variant="h3"
             sx={{
@@ -244,7 +244,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
           )}
         </Grid>
         {stats.length > 0 && (
-          <Grid xs={12} md="auto">
+          <Grid item xs={12} md="auto">
             <Stack
               direction="row"
               spacing={{ xs: 2, sm: 4 }}
@@ -322,7 +322,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                 aria-label={`Search ${title}`}
                 value={searchTerm || ""}
                 onChange={(e) => onSearchChange(e.target.value)}
-                slotProps={{ input:
+                InputProps={{
                   disableUnderline: true,
                   sx: {
                     color: "white",

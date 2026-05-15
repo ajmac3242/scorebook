@@ -832,7 +832,7 @@ const Settings: React.FC = () => {
                   <Box sx={{ width: "100%" }}>
                     <Grid container spacing={2}>
                       {availablePresets.map((preset) => (
-                        <Grid xs={12} sm={6} lg={4} key={preset.id}>
+                        <Grid item xs={12} sm={6} lg={4} key={preset.id}>
                           <Tooltip title={preset.label} arrow>
                             <span>
                               <PresetCard
