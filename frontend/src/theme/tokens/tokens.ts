@@ -1,5 +1,3 @@
-// frontend/src/tokens/tokens.ts
-
 import { palette } from "./palette";
 import { spacing, space, layout } from "./spacing";
 import { typography } from "./typography";
@@ -37,18 +35,18 @@ export const motion = {
     emphasized: "cubic-bezier(0.2, 0.8, 0.2, 1)",
   },
   scale: {
-    hover: 1.05,
-    press: 0.95,
-    iconHover: 1.1,
+    hover: 1.02,
+    press: 0.98,
+    iconHover: 1.06,
   },
 } as const;
 
 export const borders = {
-  subtle: `1px solid ${palette.surfaces.border}`,
-  default: `1px solid ${palette.surfaces.border}`,
-  strong: `1px solid ${palette.surfaces.borderStrong}`,
-  accent: `1px solid ${palette.brand.primary.main}`,
-  focus: `3px solid ${palette.focus.ring}`,
+  subtle: `1px solid ${palette.border.subtle}`,
+  default: `1px solid ${palette.border.default}`,
+  strong: `1px solid ${palette.border.strong}`,
+  accent: `1px solid ${palette.border.accent}`,
+  focus: `3px solid ${palette.action.focusRing}`,
 } as const;
 
 export const semantic = {
@@ -59,25 +57,41 @@ export const semantic = {
       primaryDark: palette.brand.primary.dark,
       secondary: palette.brand.secondary.main,
     },
+    background: {
+      default: palette.background.default,
+      subtle: palette.background.subtle,
+      paper: palette.background.paper,
+      elevated: palette.background.elevated,
+      inset: palette.background.inset,
+    },
+    surface: {
+      default: palette.surface.default,
+      subtle: palette.surface.subtle,
+      elevated: palette.surface.elevated,
+      inset: palette.surface.inset,
+      strong: palette.surface.strong,
+      accentSoft: palette.surface.accentSoft,
+    },
     text: {
-      heading: palette.text.heading,
       primary: palette.text.primary,
-      body: palette.text.body,
       secondary: palette.text.secondary,
+      tertiary: palette.text.tertiary,
       muted: palette.text.muted,
       inverse: palette.text.inverse,
     },
-    surface: {
-      canvas: palette.surfaces.canvas,
-      app: palette.surfaces.app,
-      paper: palette.surfaces.paper,
-      subtle: palette.surfaces.subtle,
-      muted: palette.surfaces.muted,
-    },
     border: {
-      subtle: palette.surfaces.border,
-      strong: palette.surfaces.borderStrong,
-      focus: palette.focus.ring,
+      subtle: palette.border.subtle,
+      default: palette.border.default,
+      strong: palette.border.strong,
+      accent: palette.border.accent,
+      focus: palette.action.focusRing,
+    },
+    action: {
+      hover: palette.action.hover,
+      selected: palette.action.selected,
+      disabled: palette.action.disabled,
+      disabledBackground: palette.action.disabledBackground,
+      focusRing: palette.action.focusRing,
     },
     feedback: {
       success: palette.brand.success.main,
@@ -87,19 +101,21 @@ export const semantic = {
     },
   },
   typography: {
-    display: typography.textStyles.displayMd,
-    pageTitle: typography.textStyles.displaySm,
-    sectionTitle: typography.textStyles.headingLg,
-    panelTitle: typography.textStyles.headingMd,
-    cardTitle: typography.textStyles.headingSm,
-    body: typography.textStyles.bodyMd,
-    bodySmall: typography.textStyles.bodySm,
-    label: typography.textStyles.labelLg,
-    labelSmall: typography.textStyles.labelSm,
-    stat: typography.textStyles.stat,
-    statLabel: typography.textStyles.statLabel,
+    titleLg: typography.textStyles.titleLg,
+    titleMd: typography.textStyles.titleMd,
+    titleSm: typography.textStyles.titleSm,
+    sectionTitle: typography.textStyles.sectionTitle,
+    cardTitle: typography.textStyles.cardTitle,
+    bodyLg: typography.textStyles.bodyLg,
+    bodyMd: typography.textStyles.bodyMd,
+    bodySm: typography.textStyles.bodySm,
+    labelMd: typography.textStyles.labelMd,
+    labelSm: typography.textStyles.labelSm,
+    metric: typography.textStyles.metric,
+    metricLabel: typography.textStyles.metricLabel,
     button: typography.textStyles.button,
     code: typography.textStyles.code,
+    editorialAccent: typography.textStyles.editorialAccent,
   },
   layout: {
     pagePaddingX: layout.pagePaddingX,
@@ -108,26 +124,34 @@ export const semantic = {
     sectionGap: layout.sectionGap,
     panelGap: layout.panelGap,
     gridGap: layout.gridGap,
+    gridGapDense: layout.gridGapDense,
     stackGap: layout.stackGap,
+    stackGapDense: layout.stackGapDense,
     inlineGap: layout.inlineGap,
+    inlineGapTight: layout.inlineGapTight,
     cardPaddingCompact: layout.cardPaddingCompact,
     cardPadding: layout.cardPadding,
     cardPaddingLarge: layout.cardPaddingLarge,
     dialogPadding: layout.dialogPadding,
+    controlGap: layout.controlGap,
+    touchTargetMin: layout.touchTargetMin,
+    inputHeightSm: layout.inputHeightSm,
+    inputHeightMd: layout.inputHeightMd,
+    inputHeightLg: layout.inputHeightLg,
   },
   component: {
     radius: {
       input: radii.md,
-      card: radii.md,
+      card: radii.lg,
       dialog: radii.lg,
       button: radii.md,
       chip: radii.pill,
     },
     shadow: {
-      card: shadows.md,
+      card: shadows.sm,
       floating: shadows.lg,
       topBar: shadows.sm,
-      hover: shadows.lg,
+      hover: shadows.md,
     },
     border: {
       card: borders.default,
@@ -135,12 +159,6 @@ export const semantic = {
       divider: borders.subtle,
       focus: borders.focus,
     },
-  },
-  texture: {
-    paperDotColor: palette.paperGrid.dot,
-    paperDotBackground: palette.paperGrid.background,
-    paperDotSize: layout.dottedGridSize,
-    paperDotRadius: layout.dottedGridDot,
   },
 } as const;
 
@@ -150,30 +168,44 @@ export const cssVars = {
   "--color-brand-primary-dark": semantic.color.brand.primaryDark,
   "--color-brand-secondary": semantic.color.brand.secondary,
 
-  "--color-text-heading": semantic.color.text.heading,
+  "--color-background-default": semantic.color.background.default,
+  "--color-background-subtle": semantic.color.background.subtle,
+  "--color-background-paper": semantic.color.background.paper,
+  "--color-background-elevated": semantic.color.background.elevated,
+  "--color-background-inset": semantic.color.background.inset,
+
+  "--color-surface-default": semantic.color.surface.default,
+  "--color-surface-subtle": semantic.color.surface.subtle,
+  "--color-surface-elevated": semantic.color.surface.elevated,
+  "--color-surface-inset": semantic.color.surface.inset,
+  "--color-surface-strong": semantic.color.surface.strong,
+  "--color-surface-accent-soft": semantic.color.surface.accentSoft,
+
   "--color-text-primary": semantic.color.text.primary,
-  "--color-text-body": semantic.color.text.body,
   "--color-text-secondary": semantic.color.text.secondary,
+  "--color-text-tertiary": semantic.color.text.tertiary,
   "--color-text-muted": semantic.color.text.muted,
   "--color-text-inverse": semantic.color.text.inverse,
 
-  "--color-surface-canvas": semantic.color.surface.canvas,
-  "--color-surface-app": semantic.color.surface.app,
-  "--color-surface-paper": semantic.color.surface.paper,
-  "--color-surface-subtle": semantic.color.surface.subtle,
-  "--color-surface-muted": semantic.color.surface.muted,
-
   "--color-border-subtle": semantic.color.border.subtle,
+  "--color-border-default": semantic.color.border.default,
   "--color-border-strong": semantic.color.border.strong,
+  "--color-border-accent": semantic.color.border.accent,
   "--color-border-focus": semantic.color.border.focus,
+
+  "--color-action-hover": semantic.color.action.hover,
+  "--color-action-selected": semantic.color.action.selected,
+  "--color-action-disabled": semantic.color.action.disabled,
+  "--color-action-disabled-bg": semantic.color.action.disabledBackground,
 
   "--color-feedback-success": semantic.color.feedback.success,
   "--color-feedback-error": semantic.color.feedback.error,
   "--color-feedback-warning": semantic.color.feedback.warning,
   "--color-feedback-info": semantic.color.feedback.info,
 
-  "--font-display": typography.fontFamily.display,
   "--font-body": typography.fontFamily.body,
+  "--font-display": typography.fontFamily.display,
+  "--font-accent": typography.fontFamily.accent,
   "--font-mono": typography.fontFamily.mono,
 
   "--font-size-xs": typography.fontSize.xs,
@@ -216,11 +248,6 @@ export const cssVars = {
   "--ease-standard": motion.easing.standard,
   "--ease-productive": motion.easing.productive,
   "--ease-emphasized": motion.easing.emphasized,
-
-  "--paper-grid-size": `${semantic.texture.paperDotSize}px`,
-  "--paper-grid-dot": `${semantic.texture.paperDotRadius}px`,
-  "--paper-grid-dot-color": semantic.texture.paperDotColor,
-  "--paper-grid-bg": semantic.texture.paperDotBackground,
 } as const;
 
 export const tokens = {
@@ -239,10 +266,14 @@ export const tokens = {
 
 export type AppTokens = typeof tokens;
 
+export type DeepPartial<T> = {
+  [K in keyof T]?: T[K] extends object ? DeepPartial<T[K]> : T[K];
+};
+
 export type ThemePreset = {
   id: string;
   label: string;
   previewColor: string;
   mode: "light" | "dark";
-  tokens: AppTokens;
+  overrides?: DeepPartial<AppTokens>;
 };
