@@ -1,5 +1,14 @@
+import { breakpoints } from "./breakpoints";
 import { palette } from "./palette";
-import { spacing, space, layout } from "./spacing";
+import {
+  spacing,
+  space,
+  layout,
+  touch,
+  density,
+  shell,
+  componentSize,
+} from "./spacing";
 import { typography } from "./typography";
 
 export const radii = {
@@ -134,11 +143,46 @@ export const semantic = {
     cardPaddingLarge: layout.cardPaddingLarge,
     dialogPadding: layout.dialogPadding,
     controlGap: layout.controlGap,
-    touchTargetMin: layout.touchTargetMin,
     inputHeightSm: layout.inputHeightSm,
     inputHeightMd: layout.inputHeightMd,
     inputHeightLg: layout.inputHeightLg,
   },
+  touch: {
+    targetMin: touch.targetMin,
+    targetComfortable: touch.targetComfortable,
+    targetLarge: touch.targetLarge,
+    iconButtonMin: touch.iconButtonMin,
+    thumbReachInset: touch.thumbReachInset,
+    dragHandleMin: touch.dragHandleMin,
+  },
+  density: {
+    live: density.live,
+    review: density.review,
+  },
+  shell: {
+    safeAreaTop: shell.safeAreaTop,
+    safeAreaRight: shell.safeAreaRight,
+    safeAreaBottom: shell.safeAreaBottom,
+    safeAreaLeft: shell.safeAreaLeft,
+    topBarHeight: shell.topBarHeight,
+    bottomBarHeight: shell.bottomBarHeight,
+    sideRailWidthTablet: shell.sideRailWidthTablet,
+    sidebarWidthTablet: shell.sidebarWidthTablet,
+    sidebarWidthLaptop: shell.sidebarWidthLaptop,
+  },
+  componentSize: {
+    segmentedControlHeight: componentSize.segmentedControlHeight,
+    filterBarMinHeight: componentSize.filterBarMinHeight,
+    statCardMinWidthPhone: componentSize.statCardMinWidthPhone,
+    statCardMinWidthTablet: componentSize.statCardMinWidthTablet,
+    statCardMinWidthLaptop: componentSize.statCardMinWidthLaptop,
+    modalMaxWidthPhone: componentSize.modalMaxWidthPhone,
+    modalMaxWidthTablet: componentSize.modalMaxWidthTablet,
+    modalMaxWidthLaptop: componentSize.modalMaxWidthLaptop,
+    panelMinWidthTablet: componentSize.panelMinWidthTablet,
+    panelMinWidthLaptop: componentSize.panelMinWidthLaptop,
+  },
+  breakpoints,
   component: {
     radius: {
       input: radii.md,
@@ -229,6 +273,14 @@ export const cssVars = {
   "--space-12": `${spacing[12]}px`,
   "--space-16": `${spacing[16]}px`,
 
+  "--touch-target-min": `${touch.targetMin}px`,
+  "--touch-target-comfortable": `${touch.targetComfortable}px`,
+  "--touch-target-large": `${touch.targetLarge}px`,
+  "--shell-top-bar-height": `${shell.topBarHeight}px`,
+  "--shell-bottom-bar-height": `${shell.bottomBarHeight}px`,
+  "--sidebar-width-tablet": `${shell.sidebarWidthTablet}px`,
+  "--sidebar-width-laptop": `${shell.sidebarWidthLaptop}px`,
+
   "--radius-xs": `${radii.xs}px`,
   "--radius-sm": `${radii.sm}px`,
   "--radius-md": `${radii.md}px`,
@@ -251,10 +303,15 @@ export const cssVars = {
 } as const;
 
 export const tokens = {
+  breakpoints,
   palette,
   spacing,
   space,
   layout,
+  touch,
+  density,
+  shell,
+  componentSize,
   typography,
   radii,
   shadows,
