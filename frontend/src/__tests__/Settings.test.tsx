@@ -14,11 +14,36 @@ const mockWriteText = vi.fn().mockResolvedValue(undefined);
 const mockClearLogs = vi.fn();
 
 const mockAvailablePresets = [
-  { id: "classic",    label: "Classic",    previewColor: "#287094", mode: "light" as const },
-  { id: "gametime",   label: "Gametime",   previewColor: "#D99E32", mode: "dark"  as const },
-  { id: "hardwood",   label: "Hardwood",   previewColor: "#B8620A", mode: "light" as const },
-  { id: "leather",    label: "Leather",    previewColor: "#8B4513", mode: "light" as const },
-  { id: "blacktop",   label: "Blacktop",   previewColor: "#FF6B2B", mode: "dark"  as const },
+  {
+    id: "classic",
+    label: "Classic",
+    previewColor: "#287094",
+    mode: "light" as const,
+  },
+  {
+    id: "gametime",
+    label: "Gametime",
+    previewColor: "#D99E32",
+    mode: "dark" as const,
+  },
+  {
+    id: "hardwood",
+    label: "Hardwood",
+    previewColor: "#B8620A",
+    mode: "light" as const,
+  },
+  {
+    id: "leather",
+    label: "Leather",
+    previewColor: "#8B4513",
+    mode: "light" as const,
+  },
+  {
+    id: "blacktop",
+    label: "Blacktop",
+    previewColor: "#FF6B2B",
+    mode: "dark" as const,
+  },
 ];
 
 // ─── Module mocks ─────────────────────────────────────────────────────────────
@@ -45,10 +70,12 @@ vi.mock("../UserPool", () => ({
       getUserAttributes: (
         cb: (
           err: Error | null,
-          attrs: Array<{ getName: () => string; getValue: () => string }>
-        ) => void
+          attrs: Array<{ getName: () => string; getValue: () => string }>,
+        ) => void,
       ) =>
-        cb(null, [{ getName: () => "email", getValue: () => "test@scorebook.app" }]),
+        cb(null, [
+          { getName: () => "email", getValue: () => "test@scorebook.app" },
+        ]),
     }),
   },
 }));
@@ -56,8 +83,8 @@ vi.mock("../UserPool", () => ({
 vi.mock("../db", () => ({
   db: {
     tables: [
-      { name: "games",   count: vi.fn().mockResolvedValue(12) },
-      { name: "teams",   count: vi.fn().mockResolvedValue(6)  },
+      { name: "games", count: vi.fn().mockResolvedValue(12) },
+      { name: "teams", count: vi.fn().mockResolvedValue(6) },
       { name: "players", count: vi.fn().mockResolvedValue(24) },
     ],
   },
@@ -66,9 +93,21 @@ vi.mock("../db", () => ({
 vi.mock("../utils/logger", () => ({
   logger: {
     getLogs: vi.fn(() => [
-      { level: "info",  timestamp: "2026-05-15T10:00:00Z", message: "App started" },
-      { level: "warn",  timestamp: "2026-05-15T10:01:00Z", message: "Slow network" },
-      { level: "error", timestamp: "2026-05-15T10:02:00Z", message: "Sync failed" },
+      {
+        level: "info",
+        timestamp: "2026-05-15T10:00:00Z",
+        message: "App started",
+      },
+      {
+        level: "warn",
+        timestamp: "2026-05-15T10:01:00Z",
+        message: "Slow network",
+      },
+      {
+        level: "error",
+        timestamp: "2026-05-15T10:02:00Z",
+        message: "Sync failed",
+      },
     ]),
     clearLogs: mockClearLogs,
   },
@@ -87,8 +126,8 @@ const renderSettings = () => {
   const theme = createTheme({
     palette: {
       mode: "light",
-      primary:    { main: "#287094" },
-      secondary:  { main: "#D99E32" },
+      primary: { main: "#287094" },
+      secondary: { main: "#D99E32" },
       background: { default: "#F6F6F6", paper: "#FFFFFF" },
     },
   });
@@ -96,7 +135,7 @@ const renderSettings = () => {
   return render(
     <ThemeProvider theme={theme}>
       <Settings />
-    </ThemeProvider>
+    </ThemeProvider>,
   );
 };
 
@@ -123,7 +162,15 @@ describe("Settings", () => {
 
     expect(screen.getByText("Settings")).toBeInTheDocument();
 
-    const tabs = ["Account", "Profile", "Security", "Appearance", "Notifications", "Billing", "Integrations"];
+    const tabs = [
+      "Account",
+      "Profile",
+      "Security",
+      "Appearance",
+      "Notifications",
+      "Billing",
+      "Integrations",
+    ];
     tabs.forEach((tab) => {
       expect(screen.getByRole("tab", { name: tab })).toBeInTheDocument();
     });
@@ -133,7 +180,7 @@ describe("Settings", () => {
     renderSettings();
 
     expect(
-      screen.getByText("Change how your public dashboard looks and feels.")
+      screen.getByText("Change how your public dashboard looks and feels."),
     ).toBeInTheDocument();
   });
 
@@ -142,9 +189,11 @@ describe("Settings", () => {
   it("renders all five restored theme presets", () => {
     renderSettings();
 
-    ["Classic", "Gametime", "Hardwood", "Leather", "Blacktop"].forEach((label) => {
-      expect(screen.getByText(label)).toBeInTheDocument();
-    });
+    ["Classic", "Gametime", "Hardwood", "Leather", "Blacktop"].forEach(
+      (label) => {
+        expect(screen.getByText(label)).toBeInTheDocument();
+      },
+    );
   });
 
   it("calls setPresetId with the correct id when a preset is selected", async () => {
@@ -176,7 +225,9 @@ describe("Settings", () => {
     const select = screen.getByRole("combobox");
     await user.click(select);
 
-    const option = await screen.findByRole("option", { name: /English \(US\)/i });
+    const option = await screen.findByRole("option", {
+      name: /English \(US\)/i,
+    });
     await user.click(option);
 
     expect(screen.getByText("🇺🇸 English (US)")).toBeInTheDocument();
@@ -195,7 +246,7 @@ describe("Settings", () => {
     });
 
     expect(
-      screen.getByRole("button", { name: /sign out/i })
+      screen.getByRole("button", { name: /sign out/i }),
     ).toBeInTheDocument();
   });
 
@@ -212,18 +263,21 @@ describe("Settings", () => {
   // ── Placeholder tabs ───────────────────────────────────────────────────────
 
   it.each([
-    ["Profile",       /Profile settings can now reuse the same shell/i],
-    ["Security",      /Security settings can reuse this token-driven/i],
+    ["Profile", /Profile settings can now reuse the same shell/i],
+    ["Security", /Security settings can reuse this token-driven/i],
     ["Notifications", /Notification settings can be added without inventing/i],
-    ["Billing",       /Billing settings can plug into the same settings shell/i],
-    ["Integrations",  /Integration settings can share the same tokens/i],
-  ])("renders placeholder content for the %s tab", async (tabName, textPattern) => {
-    const user = userEvent.setup();
-    renderSettings();
+    ["Billing", /Billing settings can plug into the same settings shell/i],
+    ["Integrations", /Integration settings can share the same tokens/i],
+  ])(
+    "renders placeholder content for the %s tab",
+    async (tabName, textPattern) => {
+      const user = userEvent.setup();
+      renderSettings();
 
-    await user.click(screen.getByRole("tab", { name: tabName }));
-    expect(screen.getByText(textPattern)).toBeInTheDocument();
-  });
+      await user.click(screen.getByRole("tab", { name: tabName }));
+      expect(screen.getByText(textPattern)).toBeInTheDocument();
+    },
+  );
 
   // ── Snackbar ───────────────────────────────────────────────────────────────
 
@@ -235,7 +289,9 @@ describe("Settings", () => {
     // Since system tab is not in publicTabs, trigger sync from the keyboard shortcut
     // instead test via the Account tab sign-out path as a smoke check
     await user.click(screen.getByRole("tab", { name: "Account" }));
-    expect(await screen.findByRole("button", { name: /sign out/i })).toBeInTheDocument();
+    expect(
+      await screen.findByRole("button", { name: /sign out/i }),
+    ).toBeInTheDocument();
   });
 
   // ── Warning severity type guard ────────────────────────────────────────────
