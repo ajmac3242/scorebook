@@ -1,5 +1,3 @@
-// frontend/src/tokens/spacing.ts
-
 export const spacing = {
   px: 1,
   0: 0,
@@ -9,6 +7,7 @@ export const spacing = {
   2: 8,
   2.5: 10,
   3: 12,
+  3.5: 14,
   4: 16,
   5: 20,
   6: 24,
@@ -24,34 +23,38 @@ export const spacing = {
 } as const;
 
 export const space = {
-  xxs: spacing[1], // 4
-  xs: spacing[2], // 8
-  sm: spacing[3], // 12
-  md: spacing[4], // 16
-  lg: spacing[6], // 24
-  xl: spacing[8], // 32
-  xxl: spacing[12], // 48
-  xxxl: spacing[16], // 64
+  xxs: spacing[1],
+  xs: spacing[2],
+  sm: spacing[3],
+  md: spacing[4],
+  lg: spacing[6],
+  xl: spacing[8],
+  xxl: spacing[12],
+  xxxl: spacing[16],
 } as const;
 
 export const layout = {
-  pagePaddingX: spacing[4], // 16
-  pagePaddingXWide: spacing[6], // 24
-  pagePaddingY: spacing[4], // 16
-  sectionGap: spacing[6], // 24
-  cardPaddingCompact: spacing[4], // 16
-  cardPadding: spacing[6], // 24
-  cardPaddingLarge: spacing[8], // 32
-  panelGap: spacing[4], // 16
-  stackGap: spacing[3], // 12
-  inlineGap: spacing[2], // 8
-  controlGap: spacing[2], // 8
-  gridGap: spacing[4], // 16
-  dialogPadding: spacing[6], // 24
+  pagePaddingX: spacing[4],
+  pagePaddingXWide: spacing[6],
+  pagePaddingY: spacing[4],
+  sectionGap: spacing[6],
+  panelGap: spacing[4],
+  gridGap: spacing[4],
+  gridGapDense: spacing[3],
+  stackGap: spacing[3],
+  stackGapDense: spacing[2],
+  inlineGap: spacing[2],
+  inlineGapTight: spacing[1.5],
+  controlGap: spacing[2],
+  cardPaddingCompact: spacing[4],
+  cardPadding: spacing[6],
+  cardPaddingLarge: spacing[8],
+  dialogPadding: spacing[6],
   toolbarHeight: 56,
   touchTargetMin: 44,
-  dottedGridSize: 24,
-  dottedGridDot: 1,
+  inputHeightSm: 32,
+  inputHeightMd: 40,
+  inputHeightLg: 48,
 } as const;
 
 export type SpacingScale = typeof spacing;
