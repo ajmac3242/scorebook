@@ -62,7 +62,11 @@ const indexToTabValue = (index: number): SettingsTab => {
   return "appearance";
 };
 
-const PresetCard: React.FC<PresetCardProps> = ({ preset, selected, onSelect }) => {
+const PresetCard: React.FC<PresetCardProps> = ({
+  preset,
+  selected,
+  onSelect,
+}) => {
   const theme = useTheme();
   return (
     <Card
@@ -89,7 +93,9 @@ const PresetCard: React.FC<PresetCardProps> = ({ preset, selected, onSelect }) =
           borderRadius: "inherit",
         }}
       >
-        <CardContent sx={{ p: theme.spacing(2), "&:last-child": { pb: theme.spacing(2) } }}>
+        <CardContent
+          sx={{ p: theme.spacing(2), "&:last-child": { pb: theme.spacing(2) } }}
+        >
           <Stack direction="row" alignItems="center" spacing={1.5}>
             <Box
               sx={{
@@ -141,7 +147,9 @@ const SettingsRow: React.FC<SettingsRowProps> = ({
         justifyContent: "space-between",
         gap: theme.spacing(2),
         py: theme.spacing(1.5),
-        borderBottom: borderBottom ? `1px solid ${theme.palette.divider}` : "none",
+        borderBottom: borderBottom
+          ? `1px solid ${theme.palette.divider}`
+          : "none",
       }}
     >
       <Box sx={{ flex: 1, minWidth: 0 }}>
@@ -273,7 +281,9 @@ const Settings: React.FC = () => {
     const text = logs
       .map((l) => `[${l.level.toUpperCase()}] ${l.timestamp} — ${l.message}`)
       .join("\n");
-    navigator.clipboard.writeText(text).then(() => showSnackbar("Logs copied."));
+    navigator.clipboard
+      .writeText(text)
+      .then(() => showSnackbar("Logs copied."));
   };
 
   const logLevelColor = (level: string) => {
@@ -488,7 +498,10 @@ const Settings: React.FC = () => {
                       startIcon={<CopyIcon />}
                       disabled={logs.length === 0}
                       onClick={handleCopyLogs}
-                      sx={{ minHeight: 36, fontSize: theme.typography.caption.fontSize }}
+                      sx={{
+                        minHeight: 36,
+                        fontSize: theme.typography.caption.fontSize,
+                      }}
                     >
                       Copy
                     </Button>
@@ -502,7 +515,10 @@ const Settings: React.FC = () => {
                       startIcon={<ClearIcon />}
                       disabled={logs.length === 0}
                       onClick={handleClearLogs}
-                      sx={{ minHeight: 36, fontSize: theme.typography.caption.fontSize }}
+                      sx={{
+                        minHeight: 36,
+                        fontSize: theme.typography.caption.fontSize,
+                      }}
                     >
                       Clear
                     </Button>
