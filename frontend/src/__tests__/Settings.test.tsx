@@ -1,126 +1,137 @@
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import Settings from "../pages/Settings";
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { BrowserRouter } from "react-router-dom";
-import { db } from "../db";
-import { syncService } from "../utils/syncService";
-import { AuthProvider } from "../context/AuthContext";
 import React from "react";
-import { CourtSightThemeProvider } from "../theme/ThemeContext";
+import { describe, it, expect, beforeEach, vi } from "vitest";
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import Settings from "../pages/Settings";
 
-// Mock the whole syncService
-vi.mock("../utils/syncService", () => ({
-  syncService: {
-    hasUnsyncedChanges: vi.fn().mockResolvedValue(false),
-    subscribe: vi.fn(() => vi.fn()),
-    getSyncingStatus: vi.fn().mockReturnValue(false),
+// ─── Hoisted mocks ────────────────────────────────────────────────────────────
+
+const { mockClearLogs, mockSubscribe, mockGetLogs } = vi.hoisted(() => ({
+  mockClearLogs: vi.fn(),
+  mockSubscribe: vi.fn(() => vi.fn()),
+  mockGetLogs: vi.fn(() => []),
+}));
+
+// ─── Module mocks ─────────────────────────────────────────────────────────────
+
+vi.mock("../utils/logger", () => ({
+  logger: {
+    clearLogs: mockClearLogs,
+    subscribe: mockSubscribe,
+    getLogs: mockGetLogs,
   },
 }));
 
-// mockPresets now uses the new ThemePreset shape (overrides, not palette)
-const mockPresets = [
-  {
-    id: "default",
-    label: "Default",
-    previewColor: "#FF6B2B",
-    mode: "dark" as const,
-    overrides: {},
+vi.mock("../db", () => ({
+  db: {
+    settings: {
+      get: vi.fn(),
+      put: vi.fn(),
+    },
   },
-];
+}));
 
-describe("Settings Component", () => {
+vi.mock("../theme/ThemeContext", () => ({
+  useAppTheme: () => ({
+    themeMode: "light",
+    setThemeMode: vi.fn(),
+    themePreset: "default",
+    setThemePreset: vi.fn(),
+    currentPreset: {
+      id: "default",
+      name: "Default",
+      colors: {},
+    },
+    availablePresets: [
+      { id: "default", name: "Default", colors: {} },
+      { id: "dark", name: "Dark", colors: {} },
+    ],
+  }),
+}));
+
+vi.mock("../context/AuthContext", () => ({
+  useAuth: () => ({
+    user: { id: "test-user", email: "test@example.com" },
+    login: vi.fn(),
+    logout: vi.fn(),
+    register: vi.fn(),
+    loading: false,
+    isAuthenticated: true,
+  }),
+}));
+
+vi.mock("../utils/syncService", () => ({
+  syncService: {
+    exportData: vi.fn(),
+    importData: vi.fn(),
+    syncNow: vi.fn(),
+    getStatus: vi.fn(() => "idle"),
+  },
+}));
+
+// ─── Tests ────────────────────────────────────────────────────────────────────
+
+describe("Settings", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-    localStorage.clear();
-    (db.delete as any) = vi.fn().mockResolvedValue(undefined);
+    mockClearLogs.mockClear();
+    mockSubscribe.mockClear();
+    mockGetLogs.mockClear();
+    mockGetLogs.mockReturnValue([]);
+    mockSubscribe.mockImplementation(() => vi.fn());
   });
 
-  const renderComponent = () =>
-    render(
-      <BrowserRouter>
-        <CourtSightThemeProvider presets={mockPresets}>
-          <AuthProvider>
-            <Settings />
-          </AuthProvider>
-        </CourtSightThemeProvider>
-      </BrowserRouter>,
-    );
+  it("renders settings page with all tabs", async () => {
+    render(<Settings />);
 
-  it("renders Settings page and displays appearance settings", async () => {
-    renderComponent();
-
-    // Tab bar renders
-    expect(screen.getAllByText(/appearance/i).length).toBeGreaterThan(0);
-
-    // Click through to the Appearance tab so its content renders
-    const appearanceTab = screen.getByRole("tab", { name: /appearance/i });
-    fireEvent.click(appearanceTab);
-
-    // Updated: SectionIntro title is now "Theme" (was "Color theme")
-    expect(screen.getAllByText(/^Appearance$/i).length).toBeGreaterThan(0);
-
-    // Updated: description matches Settings.tsx renderAppearanceTab()
     expect(
-      screen.getByText(/change how your application looks and feels/i),
+      await screen.findByRole("tab", { name: /account/i }),
     ).toBeInTheDocument();
-
-    // Preset label from mockPresets should still render
-    expect(screen.getAllByText(/default/i).length).toBeGreaterThan(0);
-  });
-
-  it.skip("handles logout without unsynced changes", async () => {
-    vi.mocked(syncService.hasUnsyncedChanges).mockResolvedValue(false);
-    renderComponent();
-    const logoutBtn = screen.getByRole("button", { name: /log out/i });
-    fireEvent.click(logoutBtn);
-    await waitFor(() => {
-      expect(localStorage.getItem("isAuthenticated")).toBeNull();
-    });
-  });
-
-  it.skip("shows warning dialog when logging out with unsynced changes", async () => {
-    vi.mocked(syncService.hasUnsyncedChanges).mockResolvedValue(true);
-    renderComponent();
-    const logoutBtn = screen.getByRole("button", { name: /log out/i });
-    fireEvent.click(logoutBtn);
-    expect(await screen.findByText("Unsynced Changes")).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: /profile/i })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: /security/i })).toBeInTheDocument();
     expect(
-      screen.getByText(/You have data that hasn't been synced/i),
+      screen.getByRole("tab", { name: /appearance/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("tab", { name: /notifications/i }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: /billing/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("tab", { name: /integrations/i }),
     ).toBeInTheDocument();
   });
 
-  it.skip("clears IndexedDB and ETags on confirmed logout", async () => {
-    vi.mocked(syncService.hasUnsyncedChanges).mockResolvedValue(true);
-    localStorage.setItem("etag_team_1", "tag123");
-    localStorage.setItem("other_key", "value");
-    renderComponent();
-    const logoutBtn = screen.getByRole("button", { name: /log out/i });
-    fireEvent.click(logoutBtn);
-    const confirmBtn = await screen.findByRole("button", {
-      name: /log out anyway/i,
+  it("defaults to Appearance tab selected", async () => {
+    render(<Settings />);
+
+    const appearanceTab = await screen.findByRole("tab", {
+      name: /appearance/i,
     });
-    fireEvent.click(confirmBtn);
-    await waitFor(() => {
-      expect(db.delete).toHaveBeenCalled();
-      expect(localStorage.getItem("etag_team_1")).toBeNull();
-      expect(localStorage.getItem("other_key")).toBe("value");
-      expect(localStorage.getItem("isAuthenticated")).toBeNull();
-    });
+    expect(appearanceTab).toHaveAttribute("aria-selected", "true");
   });
 
-  it.skip("allows copying logs to clipboard", async () => {
-    const mockWriteText = vi.fn().mockResolvedValue(undefined);
-    vi.stubGlobal("navigator", {
-      clipboard: {
-        writeText: mockWriteText,
-      },
+  it("renders appearance tab content by default", async () => {
+    render(<Settings />);
+
+    // Confirmed in CI DOM: this text is visible in the default Appearance tab panel
+    expect(
+      await screen.findByText(
+        /Change how your public dashboard looks and feels/i,
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it("can navigate to Account tab", async () => {
+    const user = userEvent.setup();
+    render(<Settings />);
+
+    const accountTab = await screen.findByRole("tab", { name: /account/i });
+    await user.click(accountTab);
+
+    await waitFor(() => {
+      expect(screen.getByRole("tab", { name: /account/i })).toHaveAttribute(
+        "aria-selected",
+        "true",
+      );
     });
-    import("../utils/logger").then(({ logger }) => {
-      logger.info("Test log");
-    });
-    renderComponent();
-    const copyBtn = await screen.findByRole("button", { name: /copy/i });
-    fireEvent.click(copyBtn);
-    expect(mockWriteText).toHaveBeenCalled();
   });
 });

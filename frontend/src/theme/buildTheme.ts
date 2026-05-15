@@ -141,8 +141,8 @@ function buildComponentTheme(
         root: {
           minHeight: activeTokens.touch.targetComfortable,
           borderRadius: activeTokens.semantic.component.radius.button,
-          paddingInline: activeTokens.layout.inlineGap * 1.5,
-          paddingBlock: activeTokens.layout.inlineGap,
+          paddingInline: 14,
+          paddingBlock: 8,
           fontFamily: activeTokens.semantic.typography.button.fontFamily,
           fontSize: activeTokens.semantic.typography.button.fontSize,
           fontWeight: activeTokens.semantic.typography.button.fontWeight,
@@ -166,6 +166,14 @@ function buildComponentTheme(
             color: activeTokens.semantic.color.action.disabled,
             backgroundColor:
               activeTokens.semantic.color.action.disabledBackground,
+          },
+        },
+        outlined: {
+          borderColor: activeTokens.semantic.color.border.default,
+          backgroundColor: activeTokens.semantic.color.background.paper,
+          "&:hover": {
+            borderColor: activeTokens.semantic.color.border.strong,
+            backgroundColor: activeTokens.semantic.color.background.subtle,
           },
         },
       },
@@ -197,6 +205,7 @@ function buildComponentTheme(
         root: {
           borderRadius: activeTokens.semantic.component.radius.chip,
           fontWeight: activeTokens.typography.fontWeight.medium,
+          backgroundColor: activeTokens.semantic.color.background.paper,
         },
       },
     },
@@ -204,15 +213,13 @@ function buildComponentTheme(
     MuiTabs: {
       styleOverrides: {
         root: {
-          minHeight: activeTokens.layout.subnavHeight,
-        },
-        indicator: {
-          height: activeTokens.semantic.component.subnavTab.indicatorHeight,
-          borderRadius: 999,
-          backgroundColor: activeTokens.semantic.color.brand.primary,
+          minHeight: activeTokens.settings.tabs.height,
         },
         flexContainer: {
-          gap: activeTokens.layout.inlineGap * 2,
+          gap: activeTokens.settings.tabs.gap,
+        },
+        indicator: {
+          display: "none",
         },
       },
     },
@@ -220,15 +227,22 @@ function buildComponentTheme(
     MuiTab: {
       styleOverrides: {
         root: {
-          minHeight: activeTokens.layout.subnavHeight,
-          paddingInline: activeTokens.layout.inlineGap,
-          paddingBlock: activeTokens.layout.inlineGap,
+          minHeight: activeTokens.settings.tabs.height,
+          paddingInline: activeTokens.settings.tabs.paddingX,
+          paddingBlock: 8,
+          borderRadius: activeTokens.settings.tabs.radius,
           textTransform: "none",
+          minWidth: 0,
+          color: activeTokens.settings.tabs.inactiveColor,
           fontSize: activeTokens.semantic.typography.supportingText.fontSize,
           fontWeight: activeTokens.typography.fontWeight.medium,
-          color: activeTokens.semantic.color.text.secondary,
+          transition: "background-color 180ms ease, color 180ms ease",
+          "&:hover": {
+            backgroundColor: activeTokens.settings.tabs.hoverBackground,
+          },
           "&.Mui-selected": {
-            color: activeTokens.semantic.color.text.primary,
+            color: activeTokens.settings.tabs.activeColor,
+            backgroundColor: activeTokens.settings.tabs.activeBackground,
           },
         },
       },
@@ -262,8 +276,8 @@ function buildComponentTheme(
           },
         },
         input: {
-          paddingBlock: activeTokens.layout.inlineGap,
-          paddingInline: activeTokens.layout.inlineGapTight * 2,
+          paddingBlock: 10,
+          paddingInline: 14,
         },
       },
     },
@@ -272,6 +286,16 @@ function buildComponentTheme(
       styleOverrides: {
         root: {
           color: activeTokens.semantic.color.text.secondary,
+        },
+      },
+    },
+
+    MuiSelect: {
+      styleOverrides: {
+        select: {
+          display: "flex",
+          alignItems: "center",
+          minHeight: "unset",
         },
       },
     },
