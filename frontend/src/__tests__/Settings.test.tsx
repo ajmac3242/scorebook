@@ -36,6 +36,17 @@ vi.mock("../theme/ThemeContext", () => ({
   }),
 }));
 
+vi.mock("../context/AuthContext", () => ({
+  useAuth: () => ({
+    user: { id: "test-user", email: "test@example.com" },
+    login: vi.fn(),
+    logout: vi.fn(),
+    register: vi.fn(),
+    loading: false,
+    isAuthenticated: true,
+  }),
+}));
+
 vi.mock("../utils/syncService", () => ({
   syncService: {
     exportData: vi.fn(),
