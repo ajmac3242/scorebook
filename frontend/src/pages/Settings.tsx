@@ -221,7 +221,11 @@ interface PresetCardProps {
   onSelect: () => void;
 }
 
-const PresetCard: React.FC<PresetCardProps> = ({ preset, selected, onSelect }) => {
+const PresetCard: React.FC<PresetCardProps> = ({
+  preset,
+  selected,
+  onSelect,
+}) => {
   const theme = useTheme();
   const card = theme.appTokens.settings?.selectionCard;
 
@@ -375,10 +379,13 @@ const Settings: React.FC = () => {
     const text = logs
       .map((l) => `[${l.level.toUpperCase()}] ${l.timestamp} — ${l.message}`)
       .join("\n");
-    navigator.clipboard.writeText(text).then(() => showSnackbar("Logs copied."));
+    navigator.clipboard
+      .writeText(text)
+      .then(() => showSnackbar("Logs copied."));
   };
 
-  const handleLanguageChange = (e: SelectChangeEvent) => setLanguage(e.target.value);
+  const handleLanguageChange = (e: SelectChangeEvent) =>
+    setLanguage(e.target.value);
 
   const renderAccountTab = () => (
     <Box>
@@ -387,7 +394,10 @@ const Settings: React.FC = () => {
         description="Manage your local app data and sign out safely."
       />
 
-      <SettingsRow label="Email address" description="Your registered account email.">
+      <SettingsRow
+        label="Email address"
+        description="Your registered account email."
+      >
         <Typography variant="body2" color="text.secondary">
           {userEmail}
         </Typography>
@@ -495,8 +505,16 @@ const Settings: React.FC = () => {
         description="Monitor sync health, inspect local storage, and review logs."
       />
 
-      <SettingsRow label="Sync" description="Manually push and pull data from the cloud.">
-        <Stack direction="row" spacing={1.5} alignItems="center" flexWrap="wrap">
+      <SettingsRow
+        label="Sync"
+        description="Manually push and pull data from the cloud."
+      >
+        <Stack
+          direction="row"
+          spacing={1.5}
+          alignItems="center"
+          flexWrap="wrap"
+        >
           <Chip
             icon={isOnline ? <OnlineIcon /> : <OfflineIcon />}
             label={isOnline ? "Online" : "Offline"}
