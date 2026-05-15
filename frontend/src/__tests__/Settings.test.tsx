@@ -57,12 +57,11 @@ describe("Settings Component", () => {
     fireEvent.click(appearanceTab);
 
     // Updated: SectionIntro title is now "Theme" (was "Color theme")
-    expect(screen.getByText(/^theme$/i)).toBeInTheDocument();
+    expect(screen.getByText(/^Appearance$/i)).toBeInTheDocument();
 
-    // Updated: description is now "Choose how CourtSight looks and feels."
-    // (was "Theme presets")
+    // Updated: description matches Settings.tsx renderAppearanceTab()
     expect(
-      screen.getByText(/choose how courtsight looks and feels/i),
+      screen.getByText(/change how your application looks and feels/i),
     ).toBeInTheDocument();
 
     // Preset label from mockPresets should still render
