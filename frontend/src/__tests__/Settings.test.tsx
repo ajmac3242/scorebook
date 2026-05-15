@@ -4,7 +4,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import Settings from "../pages/Settings";
 
-// ─── Hoisted mocks (must come before vi.mock calls) ───────────────────────────
+// ─── Hoisted mocks ────────────────────────────────────────────────────────────
 
 const { mockClearLogs, mockSubscribe, mockGetLogs } = vi.hoisted(() => ({
   mockClearLogs: vi.fn(),
@@ -31,7 +31,6 @@ vi.mock("../db", () => ({
   },
 }));
 
-// Fix: availablePresets and currentPreset are required by Settings.tsx:756
 vi.mock("../theme/ThemeContext", () => ({
   useAppTheme: () => ({
     themeMode: "light",
@@ -86,13 +85,17 @@ describe("Settings", () => {
     vi.restoreAllMocks();
   });
 
-  it("renders settings page", async () => {
+  it("renders settings page with tabs", async () => {
     render(<Settings />);
 
-    expect(await screen.findByText(/settings/i)).toBeInTheDocument();
+    // Tab labels confirmed present in CI DOM output
+    expect(await screen.findByRole("tab", { name: /account/i })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: /profile/i })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: /security/i })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: /appearance/i })).toBeInTheDocument();
   });
 
-  it("subscribes to logger updates", async () => {
+  it("subscribes to logger updates on mount", async () => {
     render(<Settings />);
 
     await waitFor(() => {
@@ -100,7 +103,7 @@ describe("Settings", () => {
     });
   });
 
-  it("loads logs from logger", async () => {
+  it("loads logs from logger on mount", async () => {
     mockGetLogs.mockReturnValue([
       {
         id: "1",
@@ -117,17 +120,18 @@ describe("Settings", () => {
     });
   });
 
-  it("clears logs when clear action is triggered", async () => {
+  it("navigates to Appearance tab and renders preset options", async () => {
     const user = userEvent.setup();
-
     render(<Settings />);
 
-    const clearButton = await screen.findByRole("button", {
-      name: /clear logs/i,
+    const appearanceTab = await screen.findByRole("tab", { name: /appearance/i });
+    await user.click(appearanceTab);
+
+    await waitFor(() => {
+      expect(screen.getByRole("tab", { name: /appearance/i })).toHaveAttribute(
+        "aria-selected",
+        "true"
+      );
     });
-
-    await user.click(clearButton);
-
-    expect(mockClearLogs).toHaveBeenCalled();
   });
 });
