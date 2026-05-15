@@ -84,19 +84,29 @@ describe("Settings", () => {
   it("renders settings page with all tabs", async () => {
     render(<Settings />);
 
-    expect(await screen.findByRole("tab", { name: /account/i })).toBeInTheDocument();
+    expect(
+      await screen.findByRole("tab", { name: /account/i }),
+    ).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: /profile/i })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: /security/i })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: /appearance/i })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: /notifications/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("tab", { name: /appearance/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("tab", { name: /notifications/i }),
+    ).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: /billing/i })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: /integrations/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("tab", { name: /integrations/i }),
+    ).toBeInTheDocument();
   });
 
   it("defaults to Appearance tab selected", async () => {
     render(<Settings />);
 
-    const appearanceTab = await screen.findByRole("tab", { name: /appearance/i });
+    const appearanceTab = await screen.findByRole("tab", {
+      name: /appearance/i,
+    });
     expect(appearanceTab).toHaveAttribute("aria-selected", "true");
   });
 
@@ -104,9 +114,12 @@ describe("Settings", () => {
     render(<Settings />);
 
     // logger.subscribe is called on component mount regardless of active tab
-    await waitFor(() => {
-      expect(mockSubscribe).toHaveBeenCalled();
-    }, { timeout: 3000 });
+    await waitFor(
+      () => {
+        expect(mockSubscribe).toHaveBeenCalled();
+      },
+      { timeout: 3000 },
+    );
   });
 
   it("can navigate to Account tab", async () => {
@@ -119,7 +132,7 @@ describe("Settings", () => {
     await waitFor(() => {
       expect(screen.getByRole("tab", { name: /account/i })).toHaveAttribute(
         "aria-selected",
-        "true"
+        "true",
       );
     });
   });
