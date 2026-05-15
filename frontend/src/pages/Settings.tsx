@@ -104,17 +104,19 @@ const ThemeMiniPreview: React.FC<{
   custom?: boolean;
 }> = ({ color, selected, custom = false }) => {
   const theme = useTheme();
-  const settings = (theme as typeof theme & {
-    appTokens?: {
-      settings?: {
-        selectionCard?: {
-          previewRadius?: number;
-          checkSize?: number;
-          checkOffset?: number;
+  const settings = (
+    theme as typeof theme & {
+      appTokens?: {
+        settings?: {
+          selectionCard?: {
+            previewRadius?: number;
+            checkSize?: number;
+            checkOffset?: number;
+          };
         };
       };
-    };
-  }).appTokens?.settings;
+    }
+  ).appTokens?.settings;
 
   const previewRadius = settings?.selectionCard?.previewRadius ?? 8;
   const checkSize = settings?.selectionCard?.checkSize ?? 20;
@@ -165,9 +167,30 @@ const ThemeMiniPreview: React.FC<{
             }}
           >
             <Stack direction="row" spacing={0.5}>
-              <Box sx={{ width: 5, height: 5, borderRadius: "50%", bgcolor: "#F97066" }} />
-              <Box sx={{ width: 5, height: 5, borderRadius: "50%", bgcolor: "#FDB022" }} />
-              <Box sx={{ width: 5, height: 5, borderRadius: "50%", bgcolor: "#32D583" }} />
+              <Box
+                sx={{
+                  width: 5,
+                  height: 5,
+                  borderRadius: "50%",
+                  bgcolor: "#F97066",
+                }}
+              />
+              <Box
+                sx={{
+                  width: 5,
+                  height: 5,
+                  borderRadius: "50%",
+                  bgcolor: "#FDB022",
+                }}
+              />
+              <Box
+                sx={{
+                  width: 5,
+                  height: 5,
+                  borderRadius: "50%",
+                  bgcolor: "#32D583",
+                }}
+              />
             </Stack>
             <Box
               sx={{
@@ -301,19 +324,21 @@ const PresetCard: React.FC<PresetCardProps> = ({
   onSelect,
 }) => {
   const theme = useTheme();
-  const settings = (theme as typeof theme & {
-    appTokens?: {
-      settings?: {
-        selectionCard?: {
-          radius?: number;
-          borderWidth?: number;
-          selectedBorderWidth?: number;
-          padding?: number;
-          titleGap?: number;
+  const settings = (
+    theme as typeof theme & {
+      appTokens?: {
+        settings?: {
+          selectionCard?: {
+            radius?: number;
+            borderWidth?: number;
+            selectedBorderWidth?: number;
+            padding?: number;
+            titleGap?: number;
+          };
         };
       };
-    };
-  }).appTokens?.settings;
+    }
+  ).appTokens?.settings;
 
   const radius = settings?.selectionCard?.radius ?? 12;
   const borderWidth = settings?.selectionCard?.borderWidth ?? 1;
@@ -653,7 +678,10 @@ const Settings: React.FC = () => {
             color: "text.secondary",
             minHeight: 36,
             px: 0,
-            "&:hover": { backgroundColor: "transparent", color: "text.primary" },
+            "&:hover": {
+              backgroundColor: "transparent",
+              color: "text.primary",
+            },
           }}
         >
           dashboard.untitledui.com
@@ -664,7 +692,12 @@ const Settings: React.FC = () => {
         label="Brand color"
         description="Select or customize your brand color."
       >
-        <Stack direction="row" spacing={1.5} alignItems="center" flexWrap="wrap">
+        <Stack
+          direction="row"
+          spacing={1.5}
+          alignItems="center"
+          flexWrap="wrap"
+        >
           <Box
             sx={{
               width: `${settingsTokens?.control?.colorSwatchSize ?? 24}px`,
@@ -805,8 +838,8 @@ const Settings: React.FC = () => {
             },
           }}
         >
-          This setting is ready for the same row pattern, but the final control set
-          still needs product decisions.
+          This setting is ready for the same row pattern, but the final control
+          set still needs product decisions.
         </Alert>
       </SettingsRow>
     </Box>
@@ -825,7 +858,10 @@ const Settings: React.FC = () => {
         label="Email"
         description="The email associated with your account."
         action={
-          <Typography variant="body2" sx={{ color: "text.primary", fontWeight: 500 }}>
+          <Typography
+            variant="body2"
+            sx={{ color: "text.primary", fontWeight: 500 }}
+          >
             {userEmail}
           </Typography>
         }
@@ -887,9 +923,9 @@ const Settings: React.FC = () => {
 
       <SettingsRow
         label="Local database"
-        description={`${totalDbRecords.toLocaleString()} total records across ${Object.keys(
-          dbStats,
-        ).length} tables.`}
+        description={`${totalDbRecords.toLocaleString()} total records across ${
+          Object.keys(dbStats).length
+        } tables.`}
         alignTop
       >
         <Stack spacing={1} sx={{ width: "100%" }}>
@@ -991,10 +1027,16 @@ const Settings: React.FC = () => {
                     wordBreak: "break-word",
                   }}
                 >
-                  <Box component="span" sx={{ color: "text.secondary", mr: 0.75 }}>
+                  <Box
+                    component="span"
+                    sx={{ color: "text.secondary", mr: 0.75 }}
+                  >
                     [{log.level.toUpperCase()}]
                   </Box>
-                  <Box component="span" sx={{ color: "text.disabled", mr: 0.75 }}>
+                  <Box
+                    component="span"
+                    sx={{ color: "text.disabled", mr: 0.75 }}
+                  >
                     {log.timestamp}
                   </Box>
                   {log.message}
@@ -1072,7 +1114,9 @@ const Settings: React.FC = () => {
           borderRadius: `${settingsTokens?.shell?.radius ?? 20}px`,
           overflow: "hidden",
           bgcolor: settingsTokens?.shell?.background ?? "background.paper",
-          border: settingsTokens?.shell?.border ?? `1px solid ${theme.palette.divider}`,
+          border:
+            settingsTokens?.shell?.border ??
+            `1px solid ${theme.palette.divider}`,
           boxShadow: "none",
         }}
       >
@@ -1094,7 +1138,9 @@ const Settings: React.FC = () => {
 
           <Tabs
             value={publicTabs.indexOf(activeTab)}
-            onChange={(_, value) => setActiveTab(publicTabs[value] ?? "appearance")}
+            onChange={(_, value) =>
+              setActiveTab(publicTabs[value] ?? "appearance")
+            }
             aria-label="Settings sections"
             variant="scrollable"
             scrollButtons="auto"

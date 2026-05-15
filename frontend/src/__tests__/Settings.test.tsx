@@ -53,8 +53,8 @@ vi.mock("../UserPool", () => ({
       getUserAttributes: (
         cb: (
           err: Error | null,
-          attrs: Array<{ getName: () => string; getValue: () => string }>
-        ) => void
+          attrs: Array<{ getName: () => string; getValue: () => string }>,
+        ) => void,
       ) =>
         cb(null, [
           {
@@ -115,7 +115,7 @@ const renderSettings = () => {
   return render(
     <ThemeProvider theme={theme}>
       <Settings />
-    </ThemeProvider>
+    </ThemeProvider>,
   );
 };
 
@@ -141,7 +141,7 @@ describe("Settings", () => {
     expect(screen.getByText("Settings")).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: "Appearance" })).toBeInTheDocument();
     expect(
-      screen.getByText("Change how your public dashboard looks and feels.")
+      screen.getByText("Change how your public dashboard looks and feels."),
     ).toBeInTheDocument();
 
     await waitFor(() => {
@@ -198,9 +198,13 @@ describe("Settings", () => {
 
     await user.click(screen.getByRole("tab", { name: "Account" }));
 
-    expect(screen.getByText("Manage your session and account details.")).toBeInTheDocument();
+    expect(
+      screen.getByText("Manage your session and account details."),
+    ).toBeInTheDocument();
     expect(screen.getByText("test@example.com")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /sign out/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /sign out/i }),
+    ).toBeInTheDocument();
   });
 
   it("calls logout when sign out is clicked", async () => {
@@ -219,17 +223,21 @@ describe("Settings", () => {
 
     await user.click(screen.getByRole("tab", { name: "Profile" }));
     expect(
-      screen.getByText(/Profile settings can now reuse the same shell/i)
+      screen.getByText(/Profile settings can now reuse the same shell/i),
     ).toBeInTheDocument();
 
     await user.click(screen.getByRole("tab", { name: "Security" }));
     expect(
-      screen.getByText(/Security settings can reuse this token-driven settings structure/i)
+      screen.getByText(
+        /Security settings can reuse this token-driven settings structure/i,
+      ),
     ).toBeInTheDocument();
 
     await user.click(screen.getByRole("tab", { name: "Notifications" }));
     expect(
-      screen.getByText(/Notification settings can be added without inventing a new layout system/i)
+      screen.getByText(
+        /Notification settings can be added without inventing a new layout system/i,
+      ),
     ).toBeInTheDocument();
   });
 
@@ -239,12 +247,16 @@ describe("Settings", () => {
 
     await user.click(screen.getByRole("tab", { name: "Billing" }));
     expect(
-      screen.getByText(/Billing settings can plug into the same settings shell/i)
+      screen.getByText(
+        /Billing settings can plug into the same settings shell/i,
+      ),
     ).toBeInTheDocument();
 
     await user.click(screen.getByRole("tab", { name: "Integrations" }));
     expect(
-      screen.getByText(/Integration settings can share the same tokens and spacing model/i)
+      screen.getByText(
+        /Integration settings can share the same tokens and spacing model/i,
+      ),
     ).toBeInTheDocument();
   });
 });
