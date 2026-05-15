@@ -89,10 +89,14 @@ describe("Settings", () => {
     render(<Settings />);
 
     // Tab labels confirmed present in CI DOM output
-    expect(await screen.findByRole("tab", { name: /account/i })).toBeInTheDocument();
+    expect(
+      await screen.findByRole("tab", { name: /account/i }),
+    ).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: /profile/i })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: /security/i })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: /appearance/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("tab", { name: /appearance/i }),
+    ).toBeInTheDocument();
   });
 
   it("subscribes to logger updates on mount", async () => {
@@ -124,13 +128,15 @@ describe("Settings", () => {
     const user = userEvent.setup();
     render(<Settings />);
 
-    const appearanceTab = await screen.findByRole("tab", { name: /appearance/i });
+    const appearanceTab = await screen.findByRole("tab", {
+      name: /appearance/i,
+    });
     await user.click(appearanceTab);
 
     await waitFor(() => {
       expect(screen.getByRole("tab", { name: /appearance/i })).toHaveAttribute(
         "aria-selected",
-        "true"
+        "true",
       );
     });
   });
