@@ -31,7 +31,7 @@ const PlaybookEfficiencyWidget: React.FC<PlaybookEfficiencyWidgetProps> = ({
 
   const getEfficiencyColor = (ppp: string) => {
     const val = parseFloat(ppp);
-    if (val> teamPpp * 1.1) return "success.main";
+    if (val > teamPpp * 1.1) return "success.main";
     if (val < teamPpp * 0.9) return "error.main";
     return "warning.main";
   };
@@ -64,21 +64,25 @@ const PlaybookEfficiencyWidget: React.FC<PlaybookEfficiencyWidgetProps> = ({
               p: 1,
               bgcolor: "rgba(0,0,0,0.02)",
               borderRadius: 1,
-            }}>
+            }}
+          >
             <Box>
               <Typography
                 variant="caption"
-                sx={{ fontWeight: 700, display: "block" }}>
+                sx={{ fontWeight: 700, display: "block" }}
+              >
                 {play.name.toUpperCase()}
               </Typography>
               <Typography
                 variant="body2"
-                sx={{ fontWeight: 800, color: getEfficiencyColor(play.ppp) }}>
+                sx={{ fontWeight: 800, color: getEfficiencyColor(play.ppp) }}
+              >
                 {play.ppp} PPP{" "}
                 <Typography
                   component="span"
                   variant="caption"
-                  color="text.secondary">
+                  color="text.secondary"
+                >
                   ({play.attempts} poss)
                 </Typography>
               </Typography>
@@ -92,7 +96,8 @@ const PlaybookEfficiencyWidget: React.FC<PlaybookEfficiencyWidgetProps> = ({
           <Typography
             variant="caption"
             color="text.secondary"
-            sx={{ textAlign: "center", py: 1 }}>
+            sx={{ textAlign: "center", py: 1 }}
+          >
             No plays tagged yet.
           </Typography>
         )}
@@ -102,7 +107,8 @@ const PlaybookEfficiencyWidget: React.FC<PlaybookEfficiencyWidgetProps> = ({
         open={!!selectedPlay}
         onClose={() => setSelectedPlay(null)}
         fullWidth
-        maxWidth="sm">
+        maxWidth="sm"
+      >
         <DialogTitle sx={{ fontFamily: "var(--serif)" }}>
           Shot Chart: {selectedPlay}
         </DialogTitle>

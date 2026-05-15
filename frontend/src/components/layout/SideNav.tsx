@@ -61,7 +61,8 @@ const SideNav: React.FC<SideNavProps> = ({
         display: "flex",
         flexDirection: "column",
         bgcolor: "background.paper",
-      }}>
+      }}
+    >
       <Box
         sx={{
           px: 2.5,
@@ -70,7 +71,8 @@ const SideNav: React.FC<SideNavProps> = ({
           display: "flex",
           alignItems: "center",
           justifyContent: "flex-start",
-        }}>
+        }}
+      >
         <CourtSightLogo width={152} />
       </Box>
 
@@ -94,14 +96,16 @@ const SideNav: React.FC<SideNavProps> = ({
             "&:hover": {
               bgcolor: "action.hover",
             },
-          }}>
+          }}
+        >
           <SearchIcon sx={{ fontSize: 18 }} />
           <Typography
             sx={{
               fontSize: "0.875rem",
               fontWeight: 500,
               color: "text.secondary",
-            }}>
+            }}
+          >
             Search
           </Typography>
         </ButtonBase>
@@ -132,7 +136,8 @@ const SideNav: React.FC<SideNavProps> = ({
                     color: "inherit",
                     minWidth: 36,
                   },
-                }}>
+                }}
+              >
                 <ListItemIcon>
                   <Box sx={{ position: "relative", display: "flex" }}>
                     {item.icon}
@@ -148,7 +153,8 @@ const SideNav: React.FC<SideNavProps> = ({
                           bgcolor: "warning.main",
                           border: "2px solid",
                           borderColor: "background.paper",
-                        }} />
+                        }}
+                      />
                     )}
                   </Box>
                 </ListItemIcon>
@@ -157,7 +163,8 @@ const SideNav: React.FC<SideNavProps> = ({
                   primaryTypographyProps={{
                     fontWeight: isActive ? 700 : 500,
                     fontSize: "0.9rem",
-                  }} />
+                  }}
+                />
               </ListItemButton>
             </ListItem>
           );
@@ -193,7 +200,8 @@ const SideNav: React.FC<SideNavProps> = ({
                     ? "primary.main"
                     : "text.primary",
               },
-            }}>
+            }}
+          >
             <ListItemIcon sx={{ minWidth: 36, color: "inherit" }}>
               <SettingsIcon />
             </ListItemIcon>
@@ -202,7 +210,8 @@ const SideNav: React.FC<SideNavProps> = ({
               primaryTypographyProps={{
                 fontSize: "0.9rem",
                 fontWeight: 500,
-              }} />
+              }}
+            />
           </ListItemButton>
         </ListItem>
 
@@ -214,7 +223,8 @@ const SideNav: React.FC<SideNavProps> = ({
             p: 1.5,
             borderRadius: 3,
             bgcolor: "action.hover",
-          }}>
+          }}
+        >
           <Avatar
             sx={{
               width: 32,
@@ -223,12 +233,14 @@ const SideNav: React.FC<SideNavProps> = ({
               color: "primary.contrastText",
               fontSize: "0.85rem",
               fontWeight: 700,
-            }}>
+            }}
+          >
             {coachName[0]}
           </Avatar>
           <Typography
             variant="body2"
-            sx={{ fontWeight: 600, color: "text.primary" }}>
+            sx={{ fontWeight: 600, color: "text.primary" }}
+          >
             {coachName}
           </Typography>
         </Box>
@@ -252,7 +264,8 @@ const SideNav: React.FC<SideNavProps> = ({
             left: 0,
             bgcolor: "background.paper",
           },
-        }}>
+        }}
+      >
         {drawerContent}
       </Drawer>
     );
@@ -268,7 +281,8 @@ const SideNav: React.FC<SideNavProps> = ({
         display: "flex",
         flexDirection: "column",
         bgcolor: "background.paper",
-      }}>
+      }}
+    >
       {drawerContent}
     </Box>
   );

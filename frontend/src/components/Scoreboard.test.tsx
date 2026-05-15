@@ -146,7 +146,7 @@ describe("Scoreboard", () => {
     expect(screen.getByText("STINT LIMIT REACHED")).toBeInTheDocument();
   });
 
-  it("renders OT label when period> maxPeriod", () => {
+  it("renders OT label when period > maxPeriod", () => {
     render(
       <ThemeProvider theme={theme}>
         <Scoreboard {...defaultProps} period={5} />

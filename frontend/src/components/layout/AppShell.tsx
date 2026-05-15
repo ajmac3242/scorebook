@@ -33,7 +33,8 @@ const AppShell: React.FC<AppShellProps> = ({
           minWidth: 0,
           overflow: "hidden",
           bgcolor: "background.paper",
-        }}>
+        }}
+      >
         {topBarSlot ? (
           <Box sx={{ flexShrink: 0, minWidth: 0, zIndex: 1100 }}>
             {topBarSlot}
@@ -59,7 +60,8 @@ const AppShell: React.FC<AppShellProps> = ({
             display: "flex",
             flexDirection: "column",
           }}
-          tabIndex={-1}>
+          tabIndex={-1}
+        >
           {children}
         </Box>
 
@@ -72,7 +74,8 @@ const AppShell: React.FC<AppShellProps> = ({
               borderColor: "divider",
               bgcolor: "background.paper",
               zIndex: 1100,
-            }}>
+            }}
+          >
             {bottomSlot}
           </Box>
         ) : null}
@@ -89,7 +92,8 @@ const AppShell: React.FC<AppShellProps> = ({
         bgcolor: "background.paper",
         p: APP_SHELL_LAYOUT.desktopInset,
         boxSizing: "border-box",
-      }}>
+      }}
+    >
       <Box
         sx={{
           display: "flex",
@@ -100,7 +104,8 @@ const AppShell: React.FC<AppShellProps> = ({
           minWidth: 0,
           overflow: "hidden",
           bgcolor: "background.paper",
-        }}>
+        }}
+      >
         <Box
           component="aside"
           sx={{
@@ -112,7 +117,8 @@ const AppShell: React.FC<AppShellProps> = ({
             bgcolor: "background.paper",
             overflow: "hidden",
             borderRadius: 3,
-          }}>
+          }}
+        >
           {drawerSlot}
         </Box>
 
@@ -125,7 +131,8 @@ const AppShell: React.FC<AppShellProps> = ({
             flexDirection: "column",
             overflow: "hidden",
             bgcolor: "background.paper",
-          }}>
+          }}
+        >
           {topBarSlot ? (
             <Box sx={{ flexShrink: 0, minWidth: 0, zIndex: 1100 }}>
               {topBarSlot}
@@ -149,7 +156,8 @@ const AppShell: React.FC<AppShellProps> = ({
               display: "flex",
               flexDirection: "column",
             }}
-            tabIndex={-1}>
+            tabIndex={-1}
+          >
             {children}
           </Box>
         </Box>

@@ -8,15 +8,14 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "vitest run",
-    "test:jules": "vitest run"
+    "test": "vitest run"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
-    "@mui/icons-material": "9.0.1",
-    "@mui/material": "9.0.1",
-    "@mui/x-date-pickers": "9.2.0",
+    "@mui/icons-material": "6.5.0",
+    "@mui/material": "6.5.0",
+    "@mui/x-date-pickers": "6.20.2",
     "amazon-cognito-identity-js": "^6.3.16",
     "dayjs": "^1.11.20",
     "dexie": "^4.4.2",

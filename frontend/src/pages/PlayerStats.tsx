@@ -347,7 +347,8 @@ const PlayerStats: React.FC = () => {
           borderColor: "divider",
           bgcolor: "background.default",
           overflow: "hidden",
-        }}>
+        }}
+      >
         <Box
           sx={{
             px: { xs: 2, sm: 3 },
@@ -355,12 +356,14 @@ const PlayerStats: React.FC = () => {
             borderBottom: "1px solid",
             borderColor: "divider",
             bgcolor: "background.paper",
-          }}>
+          }}
+        >
           <Stack
             direction={{ xs: "column", lg: "row" }}
             spacing={2.5}
             justifyContent="space-between"
-            alignItems={{ xs: "flex-start", lg: "center" }}>
+            alignItems={{ xs: "flex-start", lg: "center" }}
+          >
             <Stack direction="row" spacing={2} alignItems={{ xs: "center" }}>
               <IconButton
                 aria-label="back to players"
@@ -369,7 +372,8 @@ const PlayerStats: React.FC = () => {
                   border: "1px solid",
                   borderColor: "divider",
                   bgcolor: "background.default",
-                }}>
+                }}
+              >
                 <ArrowBackIcon />
               </IconButton>
 
@@ -383,7 +387,8 @@ const PlayerStats: React.FC = () => {
                   borderColor: accentBorder,
                   fontSize: "1.5rem",
                   fontWeight: 700,
-                }}>
+                }}
+              >
                 {player?.name ? getInitials(player.name) : "P"}
               </Avatar>
 
@@ -392,7 +397,8 @@ const PlayerStats: React.FC = () => {
                   direction="row"
                   spacing={1}
                   alignItems={{ xs: "center" }}
-                  sx={{ flexWrap: "wrap", mb: 0.5 }}>
+                  sx={{ flexWrap: "wrap", mb: 0.5 }}
+                >
                   <Typography variant="h4">
                     {player?.name || "Player"}
                   </Typography>
@@ -407,7 +413,8 @@ const PlayerStats: React.FC = () => {
                         border: "1px solid",
                         borderColor: accentBorder,
                         color: "text.primary",
-                      }} />
+                      }}
+                    />
                   )}
 
                   {isDeleted && (
@@ -415,7 +422,8 @@ const PlayerStats: React.FC = () => {
                       label="Pending deletion"
                       size="small"
                       color="warning"
-                      sx={{ borderRadius: controlRadius }} />
+                      sx={{ borderRadius: controlRadius }}
+                    />
                   )}
                 </Stack>
 
@@ -428,7 +436,8 @@ const PlayerStats: React.FC = () => {
             <Stack
               direction={{ xs: "column", sm: "row" }}
               spacing={1}
-              alignItems={{ xs: "stretch", sm: "center" }}>
+              alignItems={{ xs: "stretch", sm: "center" }}
+            >
               <Chip
                 label={`MIN ${aggregates.min}`}
                 sx={{
@@ -436,7 +445,8 @@ const PlayerStats: React.FC = () => {
                   bgcolor: "background.default",
                   border: "1px solid",
                   borderColor: "divider",
-                }} />
+                }}
+              />
               <Chip
                 label={`PTS ${aggregates.points}`}
                 sx={{
@@ -444,7 +454,8 @@ const PlayerStats: React.FC = () => {
                   bgcolor: "background.default",
                   border: "1px solid",
                   borderColor: "divider",
-                }} />
+                }}
+              />
               <Chip
                 label={`FG% ${aggregates.fgPct}%`}
                 sx={{
@@ -452,7 +463,8 @@ const PlayerStats: React.FC = () => {
                   bgcolor: "background.default",
                   border: "1px solid",
                   borderColor: "divider",
-                }} />
+                }}
+              />
               <Chip
                 label={`eFG% ${aggregates.efgPct}%`}
                 sx={{
@@ -460,7 +472,8 @@ const PlayerStats: React.FC = () => {
                   bgcolor: "background.default",
                   border: "1px solid",
                   borderColor: "divider",
-                }} />
+                }}
+              />
               <Tooltip title="Edit player">
                 <span>
                   <IconButton
@@ -475,7 +488,8 @@ const PlayerStats: React.FC = () => {
                       "&:hover": {
                         bgcolor: accentSoftStrong,
                       },
-                    }}>
+                    }}
+                  >
                     <EditIcon />
                   </IconButton>
                 </span>
@@ -491,17 +505,20 @@ const PlayerStats: React.FC = () => {
             borderBottom: "1px solid",
             borderColor: "divider",
             bgcolor: "background.default",
-          }}>
+          }}
+        >
           <Stack spacing={1.5}>
             <Stack
               direction={{ xs: "column", xl: "row" }}
               spacing={1.5}
               alignItems={{ xs: "stretch", xl: "center" }}
-              justifyContent="space-between">
+              justifyContent="space-between"
+            >
               <Stack
                 direction={{ xs: "column", md: "row" }}
                 spacing={1.5}
-                sx={{ flex: 1 }}>
+                sx={{ flex: 1 }}
+              >
                 <FormControl size="small" sx={{ minWidth: 220 }}>
                   <InputLabel id="player-game-filter-label">Game</InputLabel>
                   <Select
@@ -512,7 +529,8 @@ const PlayerStats: React.FC = () => {
                     sx={{
                       borderRadius: controlRadius,
                       bgcolor: "background.paper",
-                    }}>
+                    }}
+                  >
                     <MenuItem value="">All Games</MenuItem>
                     {games.map((game) => (
                       <MenuItem key={game.id} value={game.id}>
@@ -534,7 +552,8 @@ const PlayerStats: React.FC = () => {
                     sx={{
                       borderRadius: controlRadius,
                       bgcolor: "background.paper",
-                    }}>
+                    }}
+                  >
                     <MenuItem value="">All Actions</MenuItem>
                     {ACTION_TYPES.map((type) => (
                       <MenuItem key={type} value={type}>
@@ -548,7 +567,8 @@ const PlayerStats: React.FC = () => {
               <Stack
                 direction={{ xs: "column", sm: "row" }}
                 spacing={1}
-                alignItems={{ xs: "stretch", sm: "center" }}>
+                alignItems={{ xs: "stretch", sm: "center" }}
+              >
                 <Button
                   variant={clutchFilter ? "contained" : "outlined"}
                   onClick={() => setClutchFilter((prev) => !prev)}
@@ -556,7 +576,8 @@ const PlayerStats: React.FC = () => {
                   sx={{
                     borderRadius: controlRadius,
                     boxShadow: "none",
-                  }}>
+                  }}
+                >
                   Clutch
                 </Button>
 
@@ -574,7 +595,8 @@ const PlayerStats: React.FC = () => {
                       px: 1.5,
                       textTransform: "none",
                     },
-                  }}>
+                  }}
+                >
                   <ToggleButton value="markers" aria-label="markers">
                     Markers
                   </ToggleButton>
@@ -595,7 +617,8 @@ const PlayerStats: React.FC = () => {
                   bgcolor: accentSoft,
                   border: "1px solid",
                   borderColor: accentBorder,
-                }} />
+                }}
+              />
             )}
           </Stack>
         </Box>
@@ -610,7 +633,7 @@ const PlayerStats: React.FC = () => {
           )}
 
           <Grid container spacing={2.5}>
-            <Grid size={{ xs: 12, xl: 4 }}>
+            <Grid xs={12} xl={4}>
               <Stack spacing={2.5}>
                 <Paper
                   elevation={0}
@@ -620,14 +643,15 @@ const PlayerStats: React.FC = () => {
                     borderColor: "divider",
                     bgcolor: "background.paper",
                     p: 2.25,
-                  }}>
+                  }}
+                >
                   <Typography variant="h6" sx={{ mb: 2 }}>
                     Summary
                   </Typography>
 
                   <Grid container spacing={1.5}>
                     {summaryStats.map((stat) => (
-                      <Grid size={{ xs: 6 }} key={stat.label}>
+                      <Grid xs={6} key={stat.label}>
                         <Box
                           sx={{
                             borderRadius: controlRadius,
@@ -637,7 +661,8 @@ const PlayerStats: React.FC = () => {
                             px: 1.5,
                             py: 1.5,
                             minHeight: 84,
-                          }}>
+                          }}
+                        >
                           <Typography sx={statLabelSx}>{stat.label}</Typography>
                           <Typography sx={statValueSx}>{stat.value}</Typography>
                         </Box>
@@ -654,7 +679,8 @@ const PlayerStats: React.FC = () => {
                     borderColor: "divider",
                     bgcolor: "background.paper",
                     p: 2.25,
-                  }}>
+                  }}
+                >
                   <Typography variant="h6" sx={{ mb: 1.5 }}>
                     Context
                   </Typography>
@@ -690,7 +716,7 @@ const PlayerStats: React.FC = () => {
               </Stack>
             </Grid>
 
-            <Grid size={{ xs: 12, xl: 8 }}>
+            <Grid xs={12} xl={8}>
               <Paper
                 elevation={0}
                 sx={{
@@ -699,13 +725,15 @@ const PlayerStats: React.FC = () => {
                   borderColor: "divider",
                   bgcolor: "background.paper",
                   p: 2.25,
-                }}>
+                }}
+              >
                 <Stack
                   direction={{ xs: "column", md: "row" }}
                   spacing={1}
                   justifyContent="space-between"
                   alignItems={{ xs: "flex-start", md: "center" }}
-                  sx={{ mb: 2 }}>
+                  sx={{ mb: 2 }}
+                >
                   <Box>
                     <Typography variant="h6">Shot Chart</Typography>
                     <Typography variant="body2" color="text.secondary">
@@ -723,7 +751,8 @@ const PlayerStats: React.FC = () => {
                       bgcolor: "background.default",
                       border: "1px solid",
                       borderColor: "divider",
-                    }} />
+                    }}
+                  />
                 </Stack>
 
                 <Box
@@ -734,17 +763,19 @@ const PlayerStats: React.FC = () => {
                     borderColor: "divider",
                     bgcolor: "background.default",
                     p: { xs: 1, sm: 2 },
-                  }}>
+                  }}
+                >
                   <BasketballCourt
                     markers={shotChartView === "markers" ? courtMarkers : []}
                     heatmapData={
                       shotChartView === "heatmap" ? heatmapData : undefined
-                    } />
+                    }
+                  />
                 </Box>
               </Paper>
             </Grid>
 
-            <Grid size={{ xs: 12 }}>
+            <Grid xs={12}>
               <Paper
                 elevation={0}
                 sx={{
@@ -753,14 +784,16 @@ const PlayerStats: React.FC = () => {
                   borderColor: "divider",
                   bgcolor: "background.paper",
                   overflow: "hidden",
-                }}>
+                }}
+              >
                 <Box
                   sx={{
                     px: 2.25,
                     py: 2,
                     borderBottom: "1px solid",
                     borderColor: "divider",
-                  }}>
+                  }}
+                >
                   <Typography variant="h6">Action Log</Typography>
                   <Typography variant="body2" color="text.secondary">
                     Detailed event history for the current player and filter
@@ -787,7 +820,8 @@ const PlayerStats: React.FC = () => {
                             <Box sx={{ py: 4, textAlign: "center" }}>
                               <Typography
                                 variant="body2"
-                                color="text.secondary">
+                                color="text.secondary"
+                              >
                                 No actions match the current filters.
                               </Typography>
                             </Box>
@@ -829,11 +863,12 @@ const PlayerStats: React.FC = () => {
         onClose={() => setOpenEditDialog(false)}
         fullWidth
         maxWidth="xs"
-        slotProps={{ paper: {
+        slotProps={{ paper:
           sx: {
             borderRadius: shellRadius,
           },
-        }}>
+        }}
+      >
         <DialogTitle>Edit Player Details</DialogTitle>
         <DialogContent>
           <Stack spacing={3} sx={{ mt: 1 }}>
@@ -841,7 +876,8 @@ const PlayerStats: React.FC = () => {
               fullWidth
               label="Player Name"
               value={editName}
-              onChange={(e) => setEditName(e.target.value)} />
+              onChange={(e) => setEditName(e.target.value)}
+            />
 
             <Box>
               <Typography variant="subtitle2" gutterBottom>
@@ -885,7 +921,8 @@ const PlayerStats: React.FC = () => {
                           outline: "none",
                           boxShadow: `0 0 0 3px ${accentFocus}`,
                         },
-                      }}>
+                      }}
+                    >
                       {selected && (
                         <CheckIcon sx={{ color: "#fff", fontSize: 16 }} />
                       )}
@@ -905,7 +942,8 @@ const PlayerStats: React.FC = () => {
             onClick={handleUpdatePlayer}
             variant="contained"
             disabled={isSaving}
-            sx={{ boxShadow: "none" }}>
+            sx={{ boxShadow: "none" }}
+          >
             {isSaving ? "Saving..." : "Save changes"}
           </Button>
         </DialogActions>

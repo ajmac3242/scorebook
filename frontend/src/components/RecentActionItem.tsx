@@ -67,7 +67,8 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
           return (
             <SportsBasketball
               {...commonProps}
-              sx={{ ...iconSx, color: "primary.main" }} />
+              sx={{ ...iconSx, color: "primary.main" }}
+            />
           );
         case ACTION_TYPES.ASSIST:
           return (
@@ -77,44 +78,51 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
           return (
             <FlashOn
               {...commonProps}
-              sx={{ ...iconSx, color: "warning.main" }} />
+              sx={{ ...iconSx, color: "warning.main" }}
+            />
           );
         case ACTION_TYPES.TURNOVER:
           return (
             <SwapHoriz
               {...commonProps}
-              sx={{ ...iconSx, color: "warning.dark" }} />
+              sx={{ ...iconSx, color: "warning.dark" }}
+            />
           );
         case ACTION_TYPES.BLOCK:
           return (
             <ArrowBack
               {...commonProps}
-              sx={{ ...iconSx, color: "secondary.main" }} />
+              sx={{ ...iconSx, color: "secondary.main" }}
+            />
           );
         case ACTION_TYPES.FOUL:
           return (
             <Warning
               {...commonProps}
-              sx={{ ...iconSx, color: "error.light" }} />
+              sx={{ ...iconSx, color: "error.light" }}
+            />
           );
         case ACTION_TYPES.TIMEOUT:
           return (
             <History
               {...commonProps}
-              sx={{ ...iconSx, color: "text.secondary" }} />
+              sx={{ ...iconSx, color: "text.secondary" }}
+            />
           );
         case ACTION_TYPES.SUB_IN:
         case ACTION_TYPES.SUB_OUT:
           return (
             <Groups
               {...commonProps}
-              sx={{ ...iconSx, color: "text.secondary" }} />
+              sx={{ ...iconSx, color: "text.secondary" }}
+            />
           );
         case ACTION_TYPES.POSSESSION:
           return (
             <SwapHoriz
               {...commonProps}
-              sx={{ ...iconSx, color: "primary.light" }} />
+              sx={{ ...iconSx, color: "primary.light" }}
+            />
           );
         default:
           return null;
@@ -158,7 +166,8 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
             bgcolor: "rgba(0, 0, 0, 0.05)",
             boxShadow: `0 0 0 4px ${theme.palette.primary.main}22`,
           },
-        }}>
+        }}
+      >
         <Box sx={{ display: "flex", alignItems: "center" }}>
           <Box sx={{ minWidth: 24, display: "flex", justifyContent: "center" }}>
             {getActionIcon(stat.type)}
@@ -180,7 +189,8 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
               size="small"
               disabled={isReadOnly}
               onClick={() => onEdit(stat)}
-              aria-label={`edit ${stat.type} for ${playerName}`}>
+              aria-label={`edit ${stat.type} for ${playerName}`}
+            >
               <Edit fontSize="small" />
             </IconButton>
           </Tooltip>
@@ -189,7 +199,8 @@ const RecentActionItem: React.FC<RecentActionItemProps> = React.memo(
               size="small"
               disabled={isReadOnly}
               onClick={() => onDelete(stat.id!)}
-              aria-label={`delete ${stat.type} for ${playerName}`}>
+              aria-label={`delete ${stat.type} for ${playerName}`}
+            >
               <Delete fontSize="small" />
             </IconButton>
           </Tooltip>

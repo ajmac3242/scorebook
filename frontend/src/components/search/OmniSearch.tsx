@@ -54,7 +54,8 @@ const OmniSearch: React.FC<OmniSearchProps> = ({ open, onClose }) => {
         py: 1.5,
         borderBottom: "1px solid",
         borderColor: "divider",
-      }}>
+      }}
+    >
       <SearchIcon sx={{ color: "text.secondary", flexShrink: 0 }} />
       <InputBase
         inputRef={inputRef}
@@ -63,11 +64,13 @@ const OmniSearch: React.FC<OmniSearchProps> = ({ open, onClose }) => {
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Search players, games, teams, stats, or actions…"
         onKeyDown={(e) => e.key === "Escape" && onClose()}
-        sx={{ fontSize: "1rem" }} />
+        sx={{ fontSize: "1rem" }}
+      />
       {query && (
         <CloseIcon
           sx={{ color: "text.secondary", cursor: "pointer", flexShrink: 0 }}
-          onClick={() => setQuery("")} />
+          onClick={() => setQuery("")}
+        />
       )}
     </Box>
   );
@@ -85,7 +88,8 @@ const OmniSearch: React.FC<OmniSearchProps> = ({ open, onClose }) => {
               letterSpacing: "0.1em",
               color: "text.disabled",
               textTransform: "uppercase",
-            }}>
+            }}
+          >
             {section}
           </ListSubheader>
           <ListItem sx={{ pl: 3, py: 0.5 }}>
@@ -94,7 +98,8 @@ const OmniSearch: React.FC<OmniSearchProps> = ({ open, onClose }) => {
                 <Typography variant="body2" color="text.disabled">
                   No results
                 </Typography>
-              } />
+              }
+            />
           </ListItem>
           {idx < SECTION_HEADERS.length - 1 && <Divider />}
         </React.Fragment>
@@ -109,7 +114,8 @@ const OmniSearch: React.FC<OmniSearchProps> = ({ open, onClose }) => {
         fullScreen
         open={open}
         onClose={onClose}
-        slotProps={{ paper: { sx: { bgcolor: "background.paper" } } }}>
+        slotProps={{ paper: { sx: { bgcolor: "background.paper" } } }}
+      >
         {searchInput}
         {emptyDropdown}
       </Dialog>
@@ -129,7 +135,8 @@ const OmniSearch: React.FC<OmniSearchProps> = ({ open, onClose }) => {
         maxWidth: 640,
         zIndex: (t) => t.zIndex.appBar + 1,
         px: 2,
-      }}>
+      }}
+    >
       <Paper elevation={8} sx={{ borderRadius: 2, overflow: "hidden" }}>
         {searchInput}
         {emptyDropdown}

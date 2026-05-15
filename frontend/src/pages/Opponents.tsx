@@ -97,15 +97,17 @@ const Opponents: React.FC = () => {
             sx={{
               bgcolor: "rgba(255,255,255,0.1)",
               "&:hover": { bgcolor: "rgba(255,255,255,0.2)" },
-            }}>
+            }}
+          >
             Add Opponent
           </Button>
-        } />
+        }
+      />
 
       <Box sx={{ mt: 4 }}>
         <Grid container spacing={3}>
           {opponents.length === 0 ? (
-            <Grid size={{ xs: 12 }}>
+            <Grid xs={12}>
               <Box
                 sx={{
                   py: 8,
@@ -113,30 +115,34 @@ const Opponents: React.FC = () => {
                   border: "2px dashed #ddd",
                   borderRadius: 2,
                   bgcolor: "rgba(0,0,0,0.02)",
-                }}>
+                }}
+              >
                 <ScoutingIcon
-                  sx={{ fontSize: 48, color: "text.disabled", mb: 2 }} />
+                  sx={{ fontSize: 48, color: "text.disabled", mb: 2 }}
+                />
                 <Typography variant="h6" color="text.secondary">
                   No opponents tracked yet
                 </Typography>
                 <Typography
                   variant="body2"
                   color="text.disabled"
-                  sx={{ mb: 3 }}>
+                  sx={{ mb: 3 }}
+                >
                   Opponents are automatically added when you schedule a game.
                 </Typography>
                 <Button
                   variant="outlined"
                   startIcon={<AddIcon />}
                   onClick={() => setOpenAddDialog(true)}
-                  sx={{ borderRadius: 2 }}>
+                  sx={{ borderRadius: 2 }}
+                >
                   Add Your First Opponent
                 </Button>
               </Box>
             </Grid>
           ) : (
             opponents.map((opponent) => (
-              <Grid size={{ xs: 12, sm: 6, md: md }} key={opponent.id}>
+              <Grid xs={12} sm={6} md={4} key={opponent.id}>
                 <MoleskineCard
                   sx={{
                     p: 0,
@@ -147,7 +153,8 @@ const Opponents: React.FC = () => {
                       boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
                     },
                   }}
-                  onClick={() => navigate(`/opponents/${opponent.id}/scouting`)}>
+                  onClick={() => navigate(`/opponents/${opponent.id}/scouting`)}
+                >
                   <Box
                     sx={{
                       p: 2,
@@ -156,14 +163,16 @@ const Opponents: React.FC = () => {
                       gap: 2,
                       bgcolor: "rgba(0,0,0,0.02)",
                       borderBottom: "1px solid #eee",
-                    }}>
+                    }}
+                  >
                     <Avatar
                       src={opponent.logoUrl}
                       sx={{
                         width: 48,
                         height: 48,
                         bgcolor: "var(--palette-midnight)",
-                      }}>
+                      }}
+                    >
                       {getInitials(opponent.name)}
                     </Avatar>
                     <Box sx={{ flexGrow: 1 }}>
@@ -182,7 +191,8 @@ const Opponents: React.FC = () => {
                       display: "flex",
                       justifyContent: "flex-end",
                       gap: 1,
-                    }}>
+                    }}
+                  >
                     <Tooltip title="Delete Opponent">
                       <IconButton
                         size="small"
@@ -195,7 +205,8 @@ const Opponents: React.FC = () => {
                             name: opponent.name,
                           });
                           setDeleteDialogOpen(true);
-                        }}>
+                        }}
+                      >
                         <DeleteIcon />
                       </IconButton>
                     </Tooltip>
@@ -207,7 +218,8 @@ const Opponents: React.FC = () => {
                         onClick={(e) => {
                           e.stopPropagation();
                           navigate(`/opponents/${opponent.id}/scouting`);
-                        }}>
+                        }}
+                      >
                         <ScoutingIcon />
                       </IconButton>
                     </Tooltip>
@@ -236,7 +248,8 @@ const Opponents: React.FC = () => {
                 }
               }}
               autoFocus
-              disabled={isSubmitting} />
+              disabled={isSubmitting}
+            />
             <TextField
               label="Logo URL"
               fullWidth
@@ -247,19 +260,22 @@ const Opponents: React.FC = () => {
                   handleAddOpponent();
                 }
               }}
-              disabled={isSubmitting} />
+              disabled={isSubmitting}
+            />
           </Stack>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
           <Button
             onClick={() => setOpenAddDialog(false)}
-            disabled={isSubmitting}>
+            disabled={isSubmitting}
+          >
             Cancel
           </Button>
           <Button
             variant="contained"
             onClick={handleAddOpponent}
-            disabled={!newName.trim() || isSubmitting}>
+            disabled={!newName.trim() || isSubmitting}
+          >
             {isSubmitting ? "Adding..." : "Add"}
           </Button>
         </DialogActions>
@@ -268,10 +284,12 @@ const Opponents: React.FC = () => {
       <Dialog
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
-        aria-labelledby="delete-dialog-title">
+        aria-labelledby="delete-dialog-title"
+      >
         <DialogTitle
           id="delete-dialog-title"
-          sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          sx={{ display: "flex", alignItems: "center", gap: 1 }}
+        >
           <WarningIcon color="error" /> Confirm Deletion
         </DialogTitle>
         <DialogContent>
@@ -289,7 +307,8 @@ const Opponents: React.FC = () => {
             onClick={handleDeleteOpponent}
             color="error"
             variant="contained"
-            autoFocus>
+            autoFocus
+          >
             Delete Opponent
           </Button>
         </DialogActions>

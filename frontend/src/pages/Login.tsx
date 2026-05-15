@@ -95,13 +95,15 @@ const Login: React.FC = () => {
             flexDirection: "column",
             alignItems: "center",
             gap: 3,
-          }}>
+          }}
+        >
           <SportsBasketball
             sx={{
               fontSize: 80,
               color: "primary.main",
               animation: "spin 2s linear infinite",
-            }} />
+            }}
+          />
           <Typography variant="h5" sx={{ fontFamily: "var(--serif)" }}>
             Loading notebook data...
           </Typography>
@@ -123,7 +125,8 @@ const Login: React.FC = () => {
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-          }}>
+          }}
+        >
           <Box
             sx={{
               width: 64,
@@ -134,10 +137,12 @@ const Login: React.FC = () => {
               alignItems: "center",
               justifyContent: "center",
               mb: 2,
-            }}>
+            }}
+          >
             <SportsBasketball
               aria-hidden="true"
-              sx={{ color: "white", fontSize: 40 }} />
+              sx={{ color: "white", fontSize: 40 }}
+            />
           </Box>
           <Typography component="h1" variant="h5" gutterBottom>
             Sign In
@@ -158,7 +163,8 @@ const Login: React.FC = () => {
               autoComplete="username"
               autoFocus
               value={username}
-              onChange={(e) => setUsername(e.target.value)} />
+              onChange={(e) => setUsername(e.target.value)}
+            />
             <TextField
               margin="normal"
               required
@@ -169,13 +175,15 @@ const Login: React.FC = () => {
               id="password"
               autoComplete="current-password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)} />
+              onChange={(e) => setPassword(e.target.value)}
+            />
             <Button
               type="submit"
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2, height: 42 }}
-              disabled={isLoggingIn}>
+              disabled={isLoggingIn}
+            >
               {isLoggingIn ? (
                 <CircularProgress size={24} color="inherit" />
               ) : (

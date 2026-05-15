@@ -56,7 +56,7 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
   ) => {
     if (isAssigned) return "rgba(33, 150, 243, 0.2)"; // Blue for currently assigned
     if (possessions < 3) return "rgba(0,0,0,0.05)";
-    if (stopPct>= 70) return "rgba(76, 175, 80, 0.2)"; // Green
+    if (stopPct >= 70) return "rgba(76, 175, 80, 0.2)"; // Green
     if (stopPct <= 40) return "rgba(244, 67, 54, 0.2)"; // Red
     return "rgba(255, 152, 0, 0.1)"; // Orange
   };
@@ -70,7 +70,8 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
           mb: 1,
           display: "block",
           textTransform: "uppercase",
-        }}>
+        }}
+      >
         Holistic Matchup Efficiency (Stop %)
       </Typography>
       <TableContainer component={Paper} variant="outlined">
@@ -82,14 +83,16 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
                   bgcolor: "rgba(0,0,0,0.02)",
                   fontWeight: 800,
                   fontSize: "0.6rem",
-                }}>
+                }}
+              >
                 US \ OPP
               </TableCell>
               {oppActiveIds.map((oId) => (
                 <TableCell
                   key={oId}
                   align="center"
-                  sx={{ fontWeight: 800, fontSize: "0.6rem" }}>
+                  sx={{ fontWeight: 800, fontSize: "0.6rem" }}
+                >
                   #{oId.includes(":") ? oId.split(":")[1] : "??"}
                 </TableCell>
               ))}
@@ -103,7 +106,8 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
                     fontWeight: 800,
                     fontSize: "0.6rem",
                     bgcolor: "rgba(0,0,0,0.02)",
-                  }}>
+                  }}
+                >
                   #{jerseyMap.get(tId) || "??"}
                 </TableCell>
                 {oppActiveIds.map((oId) => {
@@ -116,7 +120,7 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
                   if (frequentPlayType) {
                     const myEff =
                       archetypeEfficiency[tId]?.[frequentPlayType] || 0;
-                    if (myEff>= 60) {
+                    if (myEff >= 60) {
                       // Check if anyone else is better
                       const othersEff = teamActiveIds
                         .filter((id) => id !== tId)
@@ -124,7 +128,7 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
                           (id) =>
                             archetypeEfficiency[id]?.[frequentPlayType] || 0,
                         );
-                      if (myEff>= Math.max(...othersEff, 50)) {
+                      if (myEff >= Math.max(...othersEff, 50)) {
                         isRecommended = true;
                       }
                     }
@@ -140,7 +144,8 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
                             : "No matchup data."}
                           {isRecommended && (
                             <Box
-                              sx={{ mt: 0.5, color: "gold", fontWeight: 800 }}>
+                              sx={{ mt: 0.5, color: "gold", fontWeight: 800 }}
+                            >
                               ⭐ Statistically Best Personnel Counter for{" "}
                               {frequentPlayType}
                             </Box>
@@ -149,7 +154,8 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
                             Click to assign.
                           </Box>
                         </>
-                      }>
+                      }
+                    >
                       <TableCell
                         align="center"
                         onClick={() => {
@@ -169,7 +175,8 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
                           "&:hover": {
                             bgcolor: "rgba(33, 150, 243, 0.1)",
                           },
-                        }}>
+                        }}
+                      >
                         {isRecommended && (
                           <Star
                             sx={{
@@ -178,7 +185,8 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
                               right: 1,
                               fontSize: 10,
                               color: "gold",
-                            }} />
+                            }}
+                          />
                         )}
                         {data ? `${data.stopPct}%` : "-"}
                       </TableCell>

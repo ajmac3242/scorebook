@@ -45,7 +45,8 @@ const BottomNav: React.FC<BottomNavProps> = ({ isLive = false }) => {
         borderRadius: 0,
         bgcolor: "background.paper",
       }}
-      elevation={3}>
+      elevation={3}
+    >
       <BottomNavigation
         showLabels
         value={location.pathname}
@@ -62,7 +63,8 @@ const BottomNav: React.FC<BottomNavProps> = ({ isLive = false }) => {
               color: "primary.main",
             },
           },
-        }}>
+        }}
+      >
         {NAV_ITEMS.map((item) => (
           <BottomNavigationAction
             key={item.label}
@@ -81,10 +83,12 @@ const BottomNav: React.FC<BottomNavProps> = ({ isLive = false }) => {
                       height: 6,
                       borderRadius: "50%",
                       bgcolor: "#FF6B1A",
-                    }} />
+                    }}
+                  />
                 )}
               </Box>
-            } />
+            }
+          />
         ))}
       </BottomNavigation>
     </Paper>

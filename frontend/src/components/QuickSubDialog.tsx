@@ -56,7 +56,8 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
       fullWidth
       maxWidth="sm"
       aria-labelledby="quick-sub-title"
-      aria-describedby="quick-sub-instructions">
+      aria-describedby="quick-sub-instructions"
+    >
       <DialogTitle
         id="quick-sub-title"
         sx={{
@@ -64,7 +65,8 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-        }}>
+        }}
+      >
         Quick Substitution
         {selectedSwapId && (
           <Button
@@ -72,7 +74,8 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
             variant="text"
             onClick={() => handleSwapClick(selectedSwapId)}
             sx={{ fontSize: "0.65rem" }}
-            aria-label="Clear current selection">
+            aria-label="Clear current selection"
+          >
             Clear Selection
           </Button>
         )}
@@ -82,12 +85,13 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
           id="quick-sub-instructions"
           variant="caption"
           color="text.secondary"
-          sx={{ mb: 2, display: "block" }}>
+          sx={{ mb: 2, display: "block" }}
+        >
           To substitute: Tap an on-court player and then a bench player to swap
           their positions.
         </Typography>
         <Grid container spacing={2} sx={{ mt: 1 }}>
-          <Grid size={{ xs: 6 }}>
+          <Grid xs={6}>
             <Typography variant="subtitle2" gutterBottom align="center">
               ON COURT
             </Typography>
@@ -100,7 +104,7 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                   const foulLimit =
                     game?.foulLimit || team?.defaultFoulLimit || 5;
                   const isFoulTrouble = pf === foulLimit - 1;
-                  const isFouledOut = pf>= foulLimit;
+                  const isFouledOut = pf >= foulLimit;
 
                   return (
                     <Button
@@ -134,7 +138,8 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                                 ? "warning.light"
                                 : "primary.main"
                             : "transparent",
-                      }}>
+                      }}
+                    >
                       <Avatar
                         sx={{
                           width: 24,
@@ -142,7 +147,8 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                           fontSize: "0.75rem",
                           mr: 1,
                           bgcolor: p.avatarColor || "grey.500",
-                        }}>
+                        }}
+                      >
                         {jerseyMap.get(p.id!) ?? ""}
                       </Avatar>
                       <Typography variant="body2" noWrap>
@@ -179,7 +185,8 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                         outlineColor: "primary.main",
                         outlineOffset: "2px",
                       },
-                    }}>
+                    }}
+                  >
                     <Avatar
                       sx={{
                         width: 24,
@@ -189,7 +196,8 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                         bgcolor: "transparent",
                         border: "1px dashed #bdbdbd",
                         color: "#bdbdbd",
-                      }}>
+                      }}
+                    >
                       ?
                     </Avatar>
                     <Typography variant="body2">Empty</Typography>
@@ -198,7 +206,7 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
               })}
             </Stack>
           </Grid>
-          <Grid size={{ xs: 6 }}>
+          <Grid xs={6}>
             <Typography variant="subtitle2" gutterBottom align="center">
               BENCH
             </Typography>
@@ -211,7 +219,7 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                   const foulLimit =
                     game?.foulLimit || team?.defaultFoulLimit || 5;
                   const isFoulTrouble = pf === foulLimit - 1;
-                  const isFouledOut = pf>= foulLimit;
+                  const isFouledOut = pf >= foulLimit;
 
                   return (
                     <Button
@@ -246,7 +254,8 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                                 ? "warning.light"
                                 : "primary.main"
                             : "transparent",
-                      }}>
+                      }}
+                    >
                       <Avatar
                         sx={{
                           width: 24,
@@ -254,7 +263,8 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                           fontSize: "0.75rem",
                           mr: 1,
                           bgcolor: p.avatarColor || "grey.500",
-                        }}>
+                        }}
+                      >
                         {jerseyMap.get(p.id!) ?? ""}
                       </Avatar>
                       <Typography variant="body2" noWrap>
@@ -276,7 +286,8 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
           onClick={handleQuickSub}
           variant="contained"
           disabled={isSaving}
-          startIcon={isSaving ? <CircularProgress size={20} /> : <SwapHoriz />}>
+          startIcon={isSaving ? <CircularProgress size={20} /> : <SwapHoriz />}
+        >
           {isSaving ? "Saving..." : "Sub In"}
         </Button>
       </DialogActions>

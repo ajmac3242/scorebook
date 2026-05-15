@@ -129,7 +129,8 @@ const AppContent: React.FC = () => {
           justifyContent: "center",
           alignItems: "center",
           height: "100vh",
-        }}>
+        }}
+      >
         <CircularProgress />
       </Box>
     );
@@ -153,10 +154,12 @@ const AppContent: React.FC = () => {
           isLive={!!liveGame}
           onSearchOpen={() => {
             // Hook OmniSearch here when ready.
-          }} />
+          }}
+        />
       }
       topBarSlot={null}
-      bottomSlot={<BottomNav isLive={!!liveGame} />}>
+      bottomSlot={<BottomNav isLive={!!liveGame} />}
+    >
       <Box
         component="a"
         href="#main-content"
@@ -183,7 +186,8 @@ const AppContent: React.FC = () => {
             boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
             border: "2px solid white",
           },
-        }}>
+        }}
+      >
         Skip to main content
       </Box>
 
@@ -194,84 +198,96 @@ const AppContent: React.FC = () => {
             <ProtectedRoute>
               <Dashboard />
             </ProtectedRoute>
-          } />
+          }
+        />
         <Route
           path="/games"
           element={
             <ProtectedRoute>
               <Games />
             </ProtectedRoute>
-          } />
+          }
+        />
         <Route
           path="/reports"
           element={
             <ProtectedRoute>
               <Reports />
             </ProtectedRoute>
-          } />
+          }
+        />
         <Route
           path="/opponents"
           element={
             <ProtectedRoute>
               <Opponents />
             </ProtectedRoute>
-          } />
+          }
+        />
         <Route
           path="/opponents/:opponentId/scouting"
           element={
             <ProtectedRoute>
               <OpponentScoutingReport />
             </ProtectedRoute>
-          } />
+          }
+        />
         <Route
           path="/settings"
           element={
             <ProtectedRoute>
               <Settings />
             </ProtectedRoute>
-          } />
+          }
+        />
         <Route
           path="/teams/:teamId"
           element={
             <ProtectedRoute>
               <TeamStats />
             </ProtectedRoute>
-          } />
+          }
+        />
         <Route
           path="/teams"
           element={
             <ProtectedRoute>
               <Teams />
             </ProtectedRoute>
-          } />
+          }
+        />
         <Route
           path="/players/:playerId"
           element={
             <ProtectedRoute>
               <PlayerStats />
             </ProtectedRoute>
-          } />
+          }
+        />
         <Route
           path="/players"
           element={
             <ProtectedRoute>
               <Players />
             </ProtectedRoute>
-          } />
+          }
+        />
         <Route
           path="/game/:gameId"
           element={
             <ProtectedRoute>
               <GameStats />
             </ProtectedRoute>
-          } />
+          }
+        />
         <Route
           path="/game"
           element={
             <ProtectedRoute>
               <GameMode />
             </ProtectedRoute>
-          } />
+          }
+        />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </AppShell>

@@ -23,7 +23,8 @@ const SyncBadge: React.FC<SyncBadgeProps> = ({ isLive = false }) => {
         py: 0.5,
         borderRadius: 2,
         bgcolor: isLive ? "rgba(34,197,94,0.12)" : "rgba(156,163,175,0.12)",
-      }}>
+      }}
+    >
       <Box
         sx={{
           width: 8,
@@ -31,7 +32,8 @@ const SyncBadge: React.FC<SyncBadgeProps> = ({ isLive = false }) => {
           borderRadius: "50%",
           bgcolor: isLive ? "#22c55e" : "#9ca3af",
           animation: isLive ? `${pulse} 1.8s ease-in-out infinite` : "none",
-        }} />
+        }}
+      />
       <Typography
         variant="caption"
         sx={{
@@ -40,7 +42,8 @@ const SyncBadge: React.FC<SyncBadgeProps> = ({ isLive = false }) => {
           letterSpacing: "0.08em",
           color: isLive ? "#22c55e" : "#9ca3af",
           lineHeight: 1,
-        }}>
+        }}
+      >
         {isLive ? "LIVE" : "OFFLINE"}
       </Typography>
     </Box>

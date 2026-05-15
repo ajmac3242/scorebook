@@ -27,7 +27,8 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
         alignItems: "center",
         gap: { xs: 1, sm: 3 },
         flexDirection: isOpponent ? "row-reverse" : "row",
-      }}>
+      }}
+    >
       {/* Logo & Name */}
       <Box
         sx={{
@@ -35,7 +36,8 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
           flexDirection: "column",
           alignItems: "center",
           minWidth: { xs: 50, sm: 80 },
-        }}>
+        }}
+      >
         <Avatar
           src={logoUrl}
           sx={{
@@ -44,7 +46,8 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
             bgcolor: isOpponent ? "secondary.main" : "primary.main",
             border: "2px solid rgba(255,255,255,0.2)",
             mb: 0.5,
-          }}>
+          }}
+        >
           {name.charAt(0)}
         </Avatar>
         <Typography
@@ -60,7 +63,8 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
             overflow: "hidden",
             textOverflow: "ellipsis",
             whiteSpace: "nowrap",
-          }}>
+          }}
+        >
           {name}
         </Typography>
       </Box>
@@ -71,7 +75,8 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-        }}>
+        }}
+      >
         <Typography
           sx={{
             color: "white",
@@ -82,13 +87,15 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
             mb: 1,
           }}
           aria-live="polite"
-          aria-label={`${name} score: ${score}`}>
+          aria-label={`${name} score: ${score}`}
+        >
           <AnimatedNumber value={score} />
         </Typography>
         <TimeoutDots
           count={timeouts}
           total={timeoutTotal}
-          data-testid={isOpponent ? "opp-timeout-dots" : "team-timeout-dots"} />
+          data-testid={isOpponent ? "opp-timeout-dots" : "team-timeout-dots"}
+        />
       </Box>
     </Box>
   );

@@ -28,7 +28,8 @@ const PageContainer: React.FC<PageContainerProps> = ({
         maxWidth: width === "full" ? "100%" : widthMap[width],
         minWidth: 0,
         ...sx,
-      }}>
+      }}
+    >
       {children}
     </Box>
   );

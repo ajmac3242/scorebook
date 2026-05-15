@@ -29,17 +29,20 @@ const AppTopBar: React.FC<AppTopBarProps> = ({
         borderColor: "divider",
         height: { xs: 56, sm: 64 },
         justifyContent: "center",
-      }}>
+      }}
+    >
       <Toolbar
         disableGutters
         sx={{
           px: { xs: 1.5, sm: 2 },
           minHeight: "unset !important",
           gap: 1,
-        }}>
+        }}
+      >
         {/* Left: Logo + team switcher chip */}
         <Box
-          sx={{ display: "flex", alignItems: "center", gap: 1, flexShrink: 0 }}>
+          sx={{ display: "flex", alignItems: "center", gap: 1, flexShrink: 0 }}
+        >
           <CourtSightLogo width={32} />
           <Chip
             label={teamName}
@@ -52,7 +55,8 @@ const AppTopBar: React.FC<AppTopBarProps> = ({
               color: "text.primary",
               cursor: "pointer",
               "&:hover": { bgcolor: "action.hover" },
-            }} />
+            }}
+          />
         </Box>
 
         {/* Spacer */}
@@ -71,7 +75,8 @@ const AppTopBar: React.FC<AppTopBarProps> = ({
             gap: 0.5,
             color: "text.secondary",
             "&:hover": { bgcolor: "action.hover" },
-          }}>
+          }}
+        >
           <SearchIcon fontSize="small" />
         </IconButton>
 
@@ -85,12 +90,14 @@ const AppTopBar: React.FC<AppTopBarProps> = ({
             alignItems: "center",
             gap: 0.5,
             flexShrink: 0,
-          }}>
+          }}
+        >
           <SyncBadge isLive={isLive} />
           <IconButton
             size="small"
             aria-label="Notifications"
-            sx={{ color: "text.secondary" }}>
+            sx={{ color: "text.secondary" }}
+          >
             <NotificationsNoneOutlinedIcon fontSize="small" />
           </IconButton>
           <Avatar
@@ -101,7 +108,8 @@ const AppTopBar: React.FC<AppTopBarProps> = ({
               fontSize: "0.8rem",
               fontWeight: 700,
               cursor: "pointer",
-            }}>
+            }}
+          >
             C
           </Avatar>
         </Box>

@@ -43,7 +43,7 @@ const OpponentScoutingReport: React.FC = () => {
 
   const stats = useLiveQuery(
     () =>
-      gameIds.length> 0
+      gameIds.length > 0
         ? db.stats.where("gameId").anyOf(gameIds).toArray()
         : Promise.resolve([]),
     [gameIds],
@@ -67,10 +67,11 @@ const OpponentScoutingReport: React.FC = () => {
         icon={<OpponentsIcon />}
         subtitle={`Historical Scouting Report | ${games?.length || 0} Games Tracked`}
         avatarSrc={opponent?.logoUrl}
-        backTo="/teams" // Assuming this is where users come from />
+        backTo="/teams" // Assuming this is where users come from
+      />
 
       <Grid container spacing={3} sx={{ mt: 2 }}>
-        <Grid size={{ xs: 12 }}>
+        <Grid xs={12}>
           <MoleskineCard>
             <Typography variant="h6" sx={{ fontFamily: "var(--serif)", mb: 2 }}>
               Player Scouting (Cumulative)
@@ -111,14 +112,16 @@ const OpponentScoutingReport: React.FC = () => {
                     <TableRow key={pId}>
                       <TableCell sx={{ fontWeight: 600 }}>
                         <Box
-                          sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                        >
                           <Avatar
                             sx={{
                               width: 24,
                               height: 24,
                               fontSize: "0.75rem",
                               bgcolor: "secondary.main",
-                            }}>
+                            }}
+                          >
                             {pId.split(":")[1] || "??"}
                           </Avatar>
                           #{pId.split(":")[1] || "??"}

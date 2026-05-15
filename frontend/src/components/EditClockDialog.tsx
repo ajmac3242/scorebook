@@ -47,7 +47,8 @@ export const EditClockDialog: React.FC<{
                 setMins(m);
                 setSecs(0);
               }}
-              sx={{ fontSize: "0.7rem", minWidth: 0, px: 1.5 }}>
+              sx={{ fontSize: "0.7rem", minWidth: 0, px: 1.5 }}
+            >
               {m}:00
             </Button>
           ))}
@@ -58,29 +59,34 @@ export const EditClockDialog: React.FC<{
           spacing={3}
           alignItems={{ xs: "center" }}
           justifyContent={{ xs: "center" }}
-          sx={{ py: 1 }}>
+          sx={{ py: 1 }}
+        >
           <Box sx={{ textAlign: "center" }}>
             <Typography
               variant="caption"
-              sx={{ fontWeight: 700, mb: 1, display: "block" }}>
+              sx={{ fontWeight: 700, mb: 1, display: "block" }}
+            >
               MINUTES
             </Typography>
             <Stack direction="column" spacing={1} alignItems={{ xs: "center" }}>
               <IconButton
                 onClick={() => setMins(Math.min(99, mins + 1))}
                 size="small"
-                aria-label="Increase minutes">
+                aria-label="Increase minutes"
+              >
                 <AddIcon />
               </IconButton>
               <Typography
                 variant="h4"
-                sx={{ fontWeight: 800, minWidth: "2ch" }}>
+                sx={{ fontWeight: 800, minWidth: "2ch" }}
+              >
                 {mins}
               </Typography>
               <IconButton
                 onClick={() => setMins(Math.max(0, mins - 1))}
                 size="small"
-                aria-label="Decrease minutes">
+                aria-label="Decrease minutes"
+              >
                 <RemoveIcon />
               </IconButton>
             </Stack>
@@ -91,25 +97,29 @@ export const EditClockDialog: React.FC<{
           <Box sx={{ textAlign: "center" }}>
             <Typography
               variant="caption"
-              sx={{ fontWeight: 700, mb: 1, display: "block" }}>
+              sx={{ fontWeight: 700, mb: 1, display: "block" }}
+            >
               SECONDS
             </Typography>
             <Stack direction="column" spacing={1} alignItems={{ xs: "center" }}>
               <IconButton
                 onClick={() => setSecs((secs + 1) % 60)}
                 size="small"
-                aria-label="Increase seconds">
+                aria-label="Increase seconds"
+              >
                 <AddIcon />
               </IconButton>
               <Typography
                 variant="h4"
-                sx={{ fontWeight: 800, minWidth: "2ch" }}>
+                sx={{ fontWeight: 800, minWidth: "2ch" }}
+              >
                 {secs.toString().padStart(2, "0")}
               </Typography>
               <IconButton
                 onClick={() => setSecs((secs - 1 + 60) % 60)}
                 size="small"
-                aria-label="Decrease seconds">
+                aria-label="Decrease seconds"
+              >
                 <RemoveIcon />
               </IconButton>
             </Stack>

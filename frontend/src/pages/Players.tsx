@@ -278,12 +278,14 @@ const Players: React.FC = () => {
         open={snackbar.open}
         autoHideDuration={4000}
         onClose={() => setSnackbar({ ...snackbar, open: false })}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}>
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
         <Alert
           onClose={() => setSnackbar({ ...snackbar, open: false })}
           severity={snackbar.severity}
           variant="filled"
-          sx={{ width: "100%" }}>
+          sx={{ width: "100%" }}
+        >
           {snackbar.message}
         </Alert>
       </Snackbar>
@@ -296,7 +298,8 @@ const Players: React.FC = () => {
           borderColor: "divider",
           bgcolor: "background.default",
           overflow: "hidden",
-        }}>
+        }}
+      >
         <Box
           sx={{
             px: { xs: 2, sm: 3 },
@@ -304,12 +307,14 @@ const Players: React.FC = () => {
             borderBottom: "1px solid",
             borderColor: "divider",
             bgcolor: "background.paper",
-          }}>
+          }}
+        >
           <Stack
             direction={{ xs: "column", md: "row" }}
             spacing={2}
             alignItems={{ xs: "flex-start", md: "center" }}
-            justifyContent="space-between">
+            justifyContent="space-between"
+          >
             <Stack direction="row" spacing={1.5} alignItems={{ xs: "center" }}>
               <Box
                 sx={{
@@ -323,7 +328,8 @@ const Players: React.FC = () => {
                   border: "1px solid",
                   borderColor: alpha(theme.palette.primary.main, 0.18),
                   flexShrink: 0,
-                }}>
+                }}
+              >
                 <PlayersIcon fontSize="small" />
               </Box>
 
@@ -348,7 +354,8 @@ const Players: React.FC = () => {
                 px: 2,
                 boxShadow: "none",
                 flexShrink: 0,
-              }}>
+              }}
+            >
               Add player
             </Button>
           </Stack>
@@ -361,12 +368,14 @@ const Players: React.FC = () => {
             borderBottom: "1px solid",
             borderColor: "divider",
             bgcolor: "background.default",
-          }}>
+          }}
+        >
           <Stack
             direction={{ xs: "column", lg: "row" }}
             spacing={1.5}
             alignItems={{ xs: "stretch", lg: "center" }}
-            justifyContent="space-between">
+            justifyContent="space-between"
+          >
             <TextField
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -379,21 +388,24 @@ const Players: React.FC = () => {
                   bgcolor: "background.paper",
                 },
               }}
-              slotProps={{ input: {
+              slotProps={{ input:
                 startAdornment: (
                   <InputAdornment position="start">
                     <SearchIcon
-                      sx={{ color: "text.secondary", fontSize: 18 }} />
+                      sx={{ color: "text.secondary", fontSize: 18 }}
+                    />
                   </InputAdornment>
                 ),
-              }} />
+              }}
+            />
 
             <Stack
               direction={{ xs: "column", sm: "row" }}
               spacing={1}
               alignItems={{ xs: "stretch", sm: "center" }}
               flexWrap={{ xs: "wrap" }}
-              useFlexGap>
+              useFlexGap
+            >
               <Chip
                 label={`${playersWithStats.length} shown`}
                 size="small"
@@ -403,7 +415,8 @@ const Players: React.FC = () => {
                   bgcolor: "background.paper",
                   borderColor: "divider",
                   color: "text.secondary",
-                }} />
+                }}
+              />
               <Chip
                 label={`${starCount} starred`}
                 size="small"
@@ -413,7 +426,8 @@ const Players: React.FC = () => {
                   bgcolor: "background.paper",
                   borderColor: "divider",
                   color: "text.secondary",
-                }} />
+                }}
+              />
               <Chip
                 label={`${archivedCount} archived`}
                 size="small"
@@ -423,13 +437,15 @@ const Players: React.FC = () => {
                   bgcolor: "background.paper",
                   borderColor: "divider",
                   color: "text.secondary",
-                }} />
+                }}
+              />
               <FormControlLabel
                 control={
                   <Switch
                     checked={showArchived}
                     onChange={(e) => setShowArchived(e.target.checked)}
-                    slotProps={{ htmlInput: { "aria-label": "show archived players" } }} />
+                    slotProps={{ htmlInput: { "aria-label": "show archived players" } }}
+                  />
                 }
                 label="Show archived"
                 sx={{
@@ -440,7 +456,8 @@ const Players: React.FC = () => {
                     fontSize: "0.875rem",
                     fontFamily: theme.typography.body2.fontFamily,
                   },
-                }} />
+                }}
+              />
             </Stack>
           </Stack>
         </Box>
@@ -449,7 +466,8 @@ const Players: React.FC = () => {
           sx={{
             px: { xs: 2, sm: 3 },
             py: { xs: 2, sm: 3 },
-          }}>
+          }}
+        >
           {playersWithStats.length === 0 ? (
             <Box
               sx={{
@@ -464,7 +482,8 @@ const Players: React.FC = () => {
                 textAlign: "center",
                 px: 3,
                 py: 6,
-              }}>
+              }}
+            >
               <Box>
                 <Box
                   sx={{
@@ -477,7 +496,8 @@ const Players: React.FC = () => {
                     placeItems: "center",
                     bgcolor: "action.hover",
                     color: "text.secondary",
-                  }}>
+                  }}
+                >
                   <PlayersIcon />
                 </Box>
 
@@ -488,7 +508,8 @@ const Players: React.FC = () => {
                 <Typography
                   variant="body2"
                   color="text.secondary"
-                  sx={{ maxWidth: 480, mx: "auto", mb: 3 }}>
+                  sx={{ maxWidth: 480, mx: "auto", mb: 3 }}
+                >
                   {emptyStateDescription}
                 </Typography>
 
@@ -496,7 +517,8 @@ const Players: React.FC = () => {
                   <Button
                     variant="outlined"
                     onClick={() => setSearchTerm("")}
-                    sx={{ borderRadius: controlRadius }}>
+                    sx={{ borderRadius: controlRadius }}
+                  >
                     Clear search
                   </Button>
                 ) : (
@@ -504,7 +526,8 @@ const Players: React.FC = () => {
                     variant="contained"
                     startIcon={<AddIcon />}
                     onClick={() => setOpen(true)}
-                    sx={{ borderRadius: controlRadius, boxShadow: "none" }}>
+                    sx={{ borderRadius: controlRadius, boxShadow: "none" }}
+                  >
                     Create first player
                   </Button>
                 )}
@@ -522,7 +545,7 @@ const Players: React.FC = () => {
                 } = getAccentStyles(player.avatarColor);
 
                 return (
-                  <Grid size={{ xs: 12, md: 6, xl: xl }} key={player.id}>
+                  <Grid xs={12} md={6} xl={4} key={player.id}>
                     <Paper
                       role="button"
                       tabIndex={0}
@@ -575,12 +598,14 @@ const Players: React.FC = () => {
                           boxShadow: `0 0 0 3px ${accentFocus}`,
                           borderColor: accent,
                         },
-                      }}>
+                      }}
+                    >
                       <Box
                         sx={{
                           height: 6,
                           bgcolor: accent,
-                        }} />
+                        }}
+                      />
 
                       <Box
                         sx={{
@@ -588,7 +613,8 @@ const Players: React.FC = () => {
                           display: "flex",
                           flexDirection: "column",
                           height: "100%",
-                        }}>
+                        }}
+                      >
                         <Box
                           sx={{
                             display: "flex",
@@ -596,13 +622,15 @@ const Players: React.FC = () => {
                             alignItems: "flex-start",
                             gap: 2,
                             mb: 2,
-                          }}>
+                          }}
+                        >
                           <Box sx={{ minWidth: 0, flex: 1 }}>
                             <Stack
                               direction="row"
                               spacing={1}
                               alignItems={{ xs: "center" }}
-                              sx={{ mb: 0.75, flexWrap: "wrap" }}>
+                              sx={{ mb: 0.75, flexWrap: "wrap" }}
+                            >
                               <Typography variant="h6">
                                 {player.name}
                               </Typography>
@@ -619,7 +647,8 @@ const Players: React.FC = () => {
                                     "& .MuiChip-icon": {
                                       color: "text.secondary",
                                     },
-                                  }} />
+                                  }}
+                                />
                               )}
 
                               {Boolean(player.isStar) && (
@@ -632,7 +661,8 @@ const Players: React.FC = () => {
                                     color: "text.primary",
                                     border: "1px solid",
                                     borderColor: accentBorder,
-                                  }} />
+                                  }}
+                                />
                               )}
                             </Stack>
 
@@ -649,7 +679,8 @@ const Players: React.FC = () => {
                                 player.isStar
                                   ? "Remove star player"
                                   : "Mark as star player"
-                              }>
+                              }
+                            >
                               <IconButton
                                 size="small"
                                 onClick={(e) =>
@@ -670,7 +701,8 @@ const Players: React.FC = () => {
                                   "&:hover": {
                                     bgcolor: accentSoftStrong,
                                   },
-                                }}>
+                                }}
+                              >
                                 {player.isStar ? (
                                   <StarIcon sx={{ fontSize: 18 }} />
                                 ) : (
@@ -688,7 +720,8 @@ const Players: React.FC = () => {
                                 border: "1px solid",
                                 borderColor: accentBorder,
                                 fontWeight: 700,
-                              }}>
+                              }}
+                            >
                               {getInitials(player.name)}
                             </Avatar>
                           </Stack>
@@ -703,25 +736,26 @@ const Players: React.FC = () => {
                             bgcolor: "action.hover",
                             border: "1px solid",
                             borderColor: "divider",
-                          }}>
+                          }}
+                        >
                           <Typography sx={statLabelSx}>
                             Average stats
                           </Typography>
 
                           <Grid container spacing={1.5}>
-                            <Grid size={{ xs: 4 }}>
+                            <Grid xs={4}>
                               <Typography sx={statLabelSx}>PPG</Typography>
                               <Typography sx={statValueSx}>
                                 {player.ppg}
                               </Typography>
                             </Grid>
-                            <Grid size={{ xs: 4 }}>
+                            <Grid xs={4}>
                               <Typography sx={statLabelSx}>RPG</Typography>
                               <Typography sx={statValueSx}>
                                 {player.rpg}
                               </Typography>
                             </Grid>
-                            <Grid size={{ xs: 4 }}>
+                            <Grid xs={4}>
                               <Typography sx={statLabelSx}>APG</Typography>
                               <Typography sx={statValueSx}>
                                 {player.apg}
@@ -739,7 +773,8 @@ const Players: React.FC = () => {
                             pt: 2,
                             borderTop: "1px solid",
                             borderColor: "divider",
-                          }}>
+                          }}
+                        >
                           <Typography variant="body2" color="text.secondary">
                             {player.isArchived
                               ? "Restore player"
@@ -758,7 +793,8 @@ const Players: React.FC = () => {
                                 0.08,
                               ),
                               flexShrink: 0,
-                            }} />
+                            }}
+                          />
                         </Stack>
                       </Box>
                     </Paper>
@@ -775,11 +811,12 @@ const Players: React.FC = () => {
         onClose={handleDialogClose}
         fullWidth
         maxWidth="sm"
-        slotProps={{ paper: {
+        slotProps={{ paper:
           sx: {
             borderRadius: shellRadius,
           },
-        }}>
+        }}
+      >
         <DialogTitle>Add Player</DialogTitle>
 
         <DialogContent>
@@ -799,12 +836,14 @@ const Players: React.FC = () => {
                   e.preventDefault();
                   handleAddPlayer();
                 }
-              }} />
+              }}
+            />
 
             <Box>
               <Typography
                 variant="body2"
-                sx={{ fontWeight: 600, color: "text.primary", mb: 1.25 }}>
+                sx={{ fontWeight: 600, color: "text.primary", mb: 1.25 }}
+              >
                 Avatar color
               </Typography>
 
@@ -815,7 +854,8 @@ const Players: React.FC = () => {
                   return (
                     <Tooltip
                       title={selected ? "Selected color" : color}
-                      key={color}>
+                      key={color}
+                    >
                       <Box
                         role="button"
                         tabIndex={0}
@@ -848,13 +888,15 @@ const Players: React.FC = () => {
                             outline: "none",
                             boxShadow: `0 0 0 3px ${alpha(theme.palette.primary.main, 0.18)}`,
                           },
-                        }}>
+                        }}
+                      >
                         {selected && (
                           <CheckIcon
                             sx={{
                               color: "#fff",
                               fontSize: 18,
-                            }} />
+                            }}
+                          />
                         )}
                       </Box>
                     </Tooltip>
@@ -873,7 +915,8 @@ const Players: React.FC = () => {
             onClick={handleAddPlayer}
             variant="contained"
             disabled={isSubmitting}
-            sx={{ boxShadow: "none" }}>
+            sx={{ boxShadow: "none" }}
+          >
             {isSubmitting ? "Adding..." : "Add player"}
           </Button>
         </DialogActions>

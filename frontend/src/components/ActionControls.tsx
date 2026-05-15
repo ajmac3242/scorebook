@@ -54,7 +54,8 @@ export const ActionControls = React.memo(
           gap: 1,
           flexWrap: "wrap",
           alignItems: "center",
-        }}>
+        }}
+      >
         <Tooltip title="Advance to Next Period">
           <span>
             <Button
@@ -70,7 +71,8 @@ export const ActionControls = React.memo(
                   outlineColor: "primary.main",
                   outlineOffset: "2px",
                 },
-              }}>
+              }}
+            >
               Period
             </Button>
           </span>
@@ -92,7 +94,8 @@ export const ActionControls = React.memo(
                   outlineColor: "secondary.main",
                   outlineOffset: "2px",
                 },
-              }}>
+              }}
+            >
               Opp TO
             </Button>
           </span>
@@ -119,7 +122,8 @@ export const ActionControls = React.memo(
                   outlineColor: "primary.main",
                   outlineOffset: "2px",
                 },
-              }}>
+              }}
+            >
               Poss
             </Button>
           </span>
@@ -141,7 +145,8 @@ export const ActionControls = React.memo(
                   outlineColor: "primary.main",
                   outlineOffset: "2px",
                 },
-              }}>
+              }}
+            >
               Sub
             </Button>
           </span>
@@ -163,7 +168,8 @@ export const ActionControls = React.memo(
                   outlineColor: "primary.main",
                   outlineOffset: "2px",
                 },
-              }}>
+              }}
+            >
               <History />
             </IconButton>
           </span>
@@ -184,7 +190,8 @@ export const ActionControls = React.memo(
                   outlineColor: "primary.main",
                   outlineOffset: "2px",
                 },
-              }}>
+              }}
+            >
               Timeout
             </Button>
           </span>
@@ -206,7 +213,8 @@ export const ActionControls = React.memo(
                   outlineColor: "primary.main",
                   outlineOffset: "2px",
                 },
-              }}>
+              }}
+            >
               FT
             </Button>
           </span>
@@ -217,7 +225,8 @@ export const ActionControls = React.memo(
             recentStatsLength === 0
               ? "No actions to undo"
               : "Revert the last recorded action (Ctrl+Z or ⌘Z)"
-          }>
+          }
+        >
           <span>
             <Button
               size="small"
@@ -236,7 +245,8 @@ export const ActionControls = React.memo(
                   outlineColor: "primary.main",
                   outlineOffset: "2px",
                 },
-              }}>
+              }}
+            >
               Undo
             </Button>
           </span>
@@ -258,7 +268,8 @@ export const ActionControls = React.memo(
                     outlineColor: "error.main",
                     outlineOffset: "2px",
                   },
-                }}>
+                }}
+              >
                 {isEnding ? "Ending..." : "End Game"}
               </Button>
             </span>
