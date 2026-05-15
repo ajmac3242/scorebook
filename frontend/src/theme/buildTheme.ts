@@ -1,9 +1,4 @@
-import {
-  alpha,
-  createTheme,
-  type Theme,
-  type ThemeOptions,
-} from "@mui/material/styles";
+import { alpha, createTheme, type Theme, type ThemeOptions } from "@mui/material/styles";
 import { cssVariables } from "./cssVariables";
 import {
   tokens,
@@ -20,22 +15,14 @@ const muiBreakpointValues = {
   xl: 1536,
 };
 
-/**
- *
- */
 function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-/**
- *
- */
 function deepMerge<T>(base: T, override?: DeepPartial<T>): T {
   if (!override) return base;
 
-  const output: Record<string, unknown> = {
-    ...(base as Record<string, unknown>),
-  };
+  const output: Record<string, unknown> = { ...(base as Record<string, unknown>) };
 
   for (const key of Object.keys(override) as Array<keyof T>) {
     const baseValue = output[key as string];
@@ -53,19 +40,11 @@ function deepMerge<T>(base: T, override?: DeepPartial<T>): T {
   return output as T;
 }
 
-/**
- *
- */
 export function resolveTokens(preset?: ThemePreset): AppTokens {
   return deepMerge(tokens, preset?.overrides);
 }
 
-/**
- *
- */
-function buildComponentTheme(
-  activeTokens: AppTokens,
-): ThemeOptions["components"] {
+function buildComponentTheme(activeTokens: AppTokens): ThemeOptions["components"] {
   return {
     MuiCssBaseline: {
       styleOverrides: {
@@ -141,8 +120,8 @@ function buildComponentTheme(
         root: {
           minHeight: activeTokens.touch.targetComfortable,
           borderRadius: activeTokens.semantic.component.radius.button,
-          paddingInline: activeTokens.layout.inlineGap * 1.5,
-          paddingBlock: activeTokens.layout.inlineGap,
+          paddingInline: 14,
+          paddingBlock: 8,
           fontFamily: activeTokens.semantic.typography.button.fontFamily,
           fontSize: activeTokens.semantic.typography.button.fontSize,
           fontWeight: activeTokens.semantic.typography.button.fontWeight,
@@ -164,8 +143,15 @@ function buildComponentTheme(
           },
           "&.Mui-disabled": {
             color: activeTokens.semantic.color.action.disabled,
-            backgroundColor:
-              activeTokens.semantic.color.action.disabledBackground,
+            backgroundColor: activeTokens.semantic.color.action.disabledBackground,
+          },
+        },
+        outlined: {
+          borderColor: activeTokens.semantic.color.border.default,
+          backgroundColor: activeTokens.semantic.color.background.paper,
+          "&:hover": {
+            borderColor: activeTokens.semantic.color.border.strong,
+            backgroundColor: activeTokens.semantic.color.background.subtle,
           },
         },
       },
@@ -197,6 +183,7 @@ function buildComponentTheme(
         root: {
           borderRadius: activeTokens.semantic.component.radius.chip,
           fontWeight: activeTokens.typography.fontWeight.medium,
+          backgroundColor: activeTokens.semantic.color.background.paper,
         },
       },
     },
@@ -204,15 +191,13 @@ function buildComponentTheme(
     MuiTabs: {
       styleOverrides: {
         root: {
-          minHeight: activeTokens.layout.subnavHeight,
-        },
-        indicator: {
-          height: activeTokens.semantic.component.subnavTab.indicatorHeight,
-          borderRadius: 999,
-          backgroundColor: activeTokens.semantic.color.brand.primary,
+          minHeight: activeTokens.settings.tabs.height,
         },
         flexContainer: {
-          gap: activeTokens.layout.inlineGap * 2,
+          gap: activeTokens.settings.tabs.gap,
+        },
+        indicator: {
+          display: "none",
         },
       },
     },
@@ -220,15 +205,22 @@ function buildComponentTheme(
     MuiTab: {
       styleOverrides: {
         root: {
-          minHeight: activeTokens.layout.subnavHeight,
-          paddingInline: activeTokens.layout.inlineGap,
-          paddingBlock: activeTokens.layout.inlineGap,
+          minHeight: activeTokens.settings.tabs.height,
+          paddingInline: activeTokens.settings.tabs.paddingX,
+          paddingBlock: 8,
+          borderRadius: activeTokens.settings.tabs.radius,
           textTransform: "none",
+          minWidth: 0,
+          color: activeTokens.settings.tabs.inactiveColor,
           fontSize: activeTokens.semantic.typography.supportingText.fontSize,
           fontWeight: activeTokens.typography.fontWeight.medium,
-          color: activeTokens.semantic.color.text.secondary,
+          transition: "background-color 180ms ease, color 180ms ease",
+          "&:hover": {
+            backgroundColor: activeTokens.settings.tabs.hoverBackground,
+          },
           "&.Mui-selected": {
-            color: activeTokens.semantic.color.text.primary,
+            color: activeTokens.settings.tabs.activeColor,
+            backgroundColor: activeTokens.settings.tabs.activeBackground,
           },
         },
       },
@@ -257,13 +249,12 @@ function buildComponentTheme(
             borderWidth: 2,
           },
           "&.Mui-disabled": {
-            backgroundColor:
-              activeTokens.semantic.color.action.disabledBackground,
+            backgroundColor: activeTokens.semantic.color.action.disabledBackground,
           },
         },
         input: {
-          paddingBlock: activeTokens.layout.inlineGap,
-          paddingInline: activeTokens.layout.inlineGapTight * 2,
+          paddingBlock: 10,
+          paddingInline: 14,
         },
       },
     },
@@ -272,6 +263,16 @@ function buildComponentTheme(
       styleOverrides: {
         root: {
           color: activeTokens.semantic.color.text.secondary,
+        },
+      },
+    },
+
+    MuiSelect: {
+      styleOverrides: {
+        select: {
+          display: "flex",
+          alignItems: "center",
+          minHeight: "unset",
         },
       },
     },
@@ -316,10 +317,7 @@ function buildComponentTheme(
           "&.Mui-selected": {
             backgroundColor: activeTokens.semantic.color.action.selected,
             "&:hover": {
-              backgroundColor: alpha(
-                activeTokens.semantic.color.brand.primary,
-                0.14,
-              ),
+              backgroundColor: alpha(activeTokens.semantic.color.brand.primary, 0.14),
             },
           },
         },
@@ -350,9 +348,6 @@ function buildComponentTheme(
   };
 }
 
-/**
- *
- */
 export function buildTheme(preset?: ThemePreset): Theme {
   const activeTokens = resolveTokens(preset);
 
@@ -419,8 +414,7 @@ export function buildTheme(preset?: ThemePreset): Theme {
         hover: activeTokens.semantic.color.action.hover,
         selected: activeTokens.semantic.color.action.selected,
         disabled: activeTokens.semantic.color.action.disabled,
-        disabledBackground:
-          activeTokens.semantic.color.action.disabledBackground,
+        disabledBackground: activeTokens.semantic.color.action.disabledBackground,
       },
     },
 
@@ -462,8 +456,7 @@ export function buildTheme(preset?: ThemePreset): Theme {
         fontSize: activeTokens.semantic.typography.sectionTitle.fontSize,
         fontWeight: activeTokens.semantic.typography.sectionTitle.fontWeight,
         lineHeight: activeTokens.semantic.typography.sectionTitle.lineHeight,
-        letterSpacing:
-          activeTokens.semantic.typography.sectionTitle.letterSpacing,
+        letterSpacing: activeTokens.semantic.typography.sectionTitle.letterSpacing,
       },
       body1: {
         fontFamily: activeTokens.typography.fontFamily.body,
@@ -476,8 +469,7 @@ export function buildTheme(preset?: ThemePreset): Theme {
         fontSize: activeTokens.semantic.typography.supportingText.fontSize,
         fontWeight: activeTokens.semantic.typography.supportingText.fontWeight,
         lineHeight: activeTokens.semantic.typography.supportingText.lineHeight,
-        letterSpacing:
-          activeTokens.semantic.typography.supportingText.letterSpacing,
+        letterSpacing: activeTokens.semantic.typography.supportingText.letterSpacing,
       },
       caption: {
         fontFamily: activeTokens.typography.fontFamily.body,
