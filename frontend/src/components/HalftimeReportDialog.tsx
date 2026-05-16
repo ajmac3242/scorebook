@@ -168,7 +168,7 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
 
         <Box sx={{ mb: 3, textAlign: "center" }}>
           <Grid container spacing={2}>
-            <Grid  size={{ xs: 4 }}>
+            <Grid item xs={4}>
               <Typography
                 variant="caption"
                 color="text.secondary"
@@ -184,7 +184,7 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
                 {teamPpp}
               </Typography>
             </Grid>
-            <Grid  size={{ xs: 4 }}>
+            <Grid item xs={4}>
               <Typography
                 variant="caption"
                 color="text.secondary"
@@ -200,7 +200,7 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
                 {oppPpp}
               </Typography>
             </Grid>
-            <Grid  size={{ xs: 4 }}>
+            <Grid item xs={4}>
               <Typography
                 variant="caption"
                 color="text.secondary"

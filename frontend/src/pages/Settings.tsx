@@ -25,7 +25,7 @@ import type { SelectChangeEvent } from "@mui/material/Select";
 import {
   Check as CheckIcon,
   ContentCopy as CopyIcon,
-  DeleteOutlineddddddddddd as ClearIcon,
+  DeleteOutlined as ClearIcon,
   Launch as LaunchIcon,
   Logout as LogoutIcon,
   Refresh as SyncIcon,
@@ -708,7 +708,8 @@ const Settings: React.FC = () => {
               flexShrink: 0,
             }}
           />
-          <TextField value={brandColor}
+          <TextField
+            value={brandColor}
             onChange={(e) => setBrandColor(e.target.value)}
             size="small"
             sx={{

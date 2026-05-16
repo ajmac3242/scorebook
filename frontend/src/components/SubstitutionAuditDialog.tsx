@@ -238,7 +238,8 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                     </TableCell>
                     <TableCell>
                       {isEditing ? (
-                        <TextField size="small"
+                        <TextField
+                          size="small"
                           type="number"
                           value={editPeriod}
                           onChange={(e) =>
@@ -252,7 +253,8 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                     </TableCell>
                     <TableCell>
                       {isEditing ? (
-                        <TextField size="small"
+                        <TextField
+                          size="small"
                           value={editTime}
                           onChange={(e) => setEditTime(e.target.value)}
                           placeholder="mm:ss"

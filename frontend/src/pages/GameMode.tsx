@@ -933,7 +933,7 @@ const GameMode: React.FC = () => {
         </Alert>
       )}
       <Grid container spacing={3}>
-        <Grid  size={{ xs: 12, md: 8 }}>
+        <Grid item xs={12} md={8}>
           {voiceEnabled && (
             <Alert
               severity={isListening ? "info" : "warning"}
@@ -1158,7 +1158,7 @@ const GameMode: React.FC = () => {
           </MoleskineCard>
         </Grid>
 
-        <Grid  size={{ xs: 12, md: 4 }}>
+        <Grid item xs={12} md={4}>
           <Stack spacing={3}>
             {isClutchMode && (
               <MoleskineCard
@@ -1321,7 +1321,7 @@ const GameMode: React.FC = () => {
                 Offensive Identity (KPIs)
               </Typography>
               <Grid container spacing={2}>
-                <Grid  size={{ xs: 6 }}>
+                <Grid item xs={6}>
                   <Typography variant="h6" sx={{ fontWeight: 900 }}>
                     {paintTouchStats.total}
                   </Typography>
@@ -1329,7 +1329,7 @@ const GameMode: React.FC = () => {
                     PAINT TOUCHES
                   </Typography>
                 </Grid>
-                <Grid  size={{ xs: 6 }}>
+                <Grid item xs={6}>
                   <Typography
                     variant="h6"
                     sx={{ fontWeight: 900, color: "primary.main" }}
@@ -1355,7 +1355,7 @@ const GameMode: React.FC = () => {
                 Quality Control (xPTS)
               </Typography>
               <Grid container spacing={2}>
-                <Grid  size={{ xs: 6 }}>
+                <Grid item xs={6}>
                   <Typography variant="h6" sx={{ fontWeight: 900 }}>
                     {shotROI.avgXPts}
                   </Typography>
@@ -1363,7 +1363,7 @@ const GameMode: React.FC = () => {
                     xPTS / POSS
                   </Typography>
                 </Grid>
-                <Grid  size={{ xs: 6 }}>
+                <Grid item xs={6}>
                   <Typography
                     variant="h6"
                     sx={{

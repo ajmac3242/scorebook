@@ -309,7 +309,7 @@ const Teams: React.FC = () => {
     ? "Try a different search, clear the filter, or create a new team."
     : "Create your first team to start tracking performance, rosters, and game results.";
 
-  const cardRadius = `${( (theme.shape.borderRadius as number) as number) * 1.5}px`;
+  const cardRadius = `${((theme.shape.borderRadius as any) as number) * 1.5}px`;
   const transitionAll = `transform ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}, box-shadow ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}, border-color ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}`;
 
   return (
@@ -395,7 +395,7 @@ const Teams: React.FC = () => {
             startIcon={<AddIcon />}
             onClick={() => setOpen(true)}
             sx={{
-              borderRadius: `${ (theme.shape.borderRadius as number) as number}px`,
+              borderRadius: `${((theme.shape.borderRadius as any) as number)}px`,
               textTransform: "none",
               fontWeight: 600,
               boxShadow: "none",
@@ -424,14 +424,15 @@ const Teams: React.FC = () => {
               justifyContent: "space-between",
             }}
           >
-            <TextField value={searchTerm}
+            <TextField
+              value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search teams"
               size="small"
               sx={{
                 width: { xs: "100%", md: 320 },
                 "& .MuiOutlinedInput-root": {
-                  borderRadius: `${ (theme.shape.borderRadius as number) as number}px`,
+                  borderRadius: `${((theme.shape.borderRadius as any) as number)}px`,
                   bgcolor: "background.paper",
                 },
               }}
@@ -453,7 +454,7 @@ const Teams: React.FC = () => {
                 size="small"
                 variant="outlined"
                 sx={{
-                  borderRadius: `${( (theme.shape.borderRadius as number) as number) * 0.75}px`,
+                  borderRadius: `${((theme.shape.borderRadius as any) as number) * 0.75}px`,
                   bgcolor: "background.paper",
                   borderColor: "divider",
                   color: "text.secondary",
@@ -466,7 +467,7 @@ const Teams: React.FC = () => {
                 size="small"
                 variant="outlined"
                 sx={{
-                  borderRadius: `${( (theme.shape.borderRadius as number) as number) * 0.75}px`,
+                  borderRadius: `${((theme.shape.borderRadius as any) as number) * 0.75}px`,
                   bgcolor: "background.paper",
                   borderColor: "divider",
                   color: "text.secondary",
@@ -548,7 +549,7 @@ const Teams: React.FC = () => {
                     variant="outlined"
                     onClick={() => setSearchTerm("")}
                     sx={{
-                      borderRadius: `${ (theme.shape.borderRadius as number) as number}px`,
+                      borderRadius: `${((theme.shape.borderRadius as any) as number)}px`,
                       textTransform: "none",
                       fontWeight: 600,
                       minHeight: 44,
@@ -562,7 +563,7 @@ const Teams: React.FC = () => {
                     startIcon={<AddIcon />}
                     onClick={() => setOpen(true)}
                     sx={{
-                      borderRadius: `${ (theme.shape.borderRadius as number) as number}px`,
+                      borderRadius: `${((theme.shape.borderRadius as any) as number)}px`,
                       textTransform: "none",
                       fontWeight: 600,
                       boxShadow: "none",
@@ -727,7 +728,7 @@ const Teams: React.FC = () => {
                                   : "Quarters"
                               }
                               sx={{
-                                borderRadius: `${( (theme.shape.borderRadius as number) as number) * 0.75}px`,
+                                borderRadius: `${((theme.shape.borderRadius as any) as number) * 0.75}px`,
                                 bgcolor: accent.softerBg,
                                 color: "text.primary",
                                 border: `1px solid ${accent.border}`,
@@ -748,7 +749,7 @@ const Teams: React.FC = () => {
                                 border: `1px solid ${accent.border}`,
                                 p: 0.5,
                                 color: "text.primary",
-                                borderRadius: `${ (theme.shape.borderRadius as number) as number}px`,
+                                borderRadius: `${((theme.shape.borderRadius as any) as number)}px`,
                               }}
                             />
                           ) : (
@@ -762,7 +763,7 @@ const Teams: React.FC = () => {
                                 border: `1px solid ${accent.border}`,
                                 fontSize: theme.typography.h6.fontSize,
                                 fontWeight: 700,
-                                borderRadius: `${ (theme.shape.borderRadius as number) as number}px`,
+                                borderRadius: `${((theme.shape.borderRadius as any) as number)}px`,
                               }}
                             >
                               {getInitials(team.name)}
@@ -773,7 +774,7 @@ const Teams: React.FC = () => {
                         {/* Win-loss record */}
                         <Box
                           sx={{
-                            borderRadius: `${( (theme.shape.borderRadius as number) as number) * 1.25}px`,
+                            borderRadius: `${((theme.shape.borderRadius as any) as number) * 1.25}px`,
                             px: theme.spacing(2),
                             py: theme.spacing(1.75),
                             mb: theme.spacing(2),
@@ -878,7 +879,8 @@ const Teams: React.FC = () => {
         </DialogTitle>
         <DialogContent>
           <Stack spacing={2} sx={{ pt: 1 }}>
-            <TextField autoFocus
+            <TextField
+              autoFocus
               label="Team name"
               value={teamName}
               onChange={(e) => setTeamName(e.target.value)}
@@ -890,7 +892,8 @@ const Teams: React.FC = () => {
               }
               fullWidth
             />
-            <TextField label="Description"
+            <TextField
+              label="Description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Optional short description"
@@ -910,14 +913,16 @@ const Teams: React.FC = () => {
                 <MenuItem value="HALVES">Halves</MenuItem>
               </Select>
             </FormControl>
-            <TextField label="Logo URL"
+            <TextField
+              label="Logo URL"
               value={logoUrl}
               onChange={(e) => setLogoUrl(e.target.value)}
               placeholder="https://..."
               fullWidth
             />
             <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
-              <TextField label="Primary color"
+              <TextField
+                label="Primary color"
                 value={primaryColor}
                 onChange={(e) => setPrimaryColor(e.target.value)}
                 error={showValidation && !isValidHex(primaryColor)}
@@ -929,7 +934,8 @@ const Teams: React.FC = () => {
                 fullWidth
               />
               <Box sx={{ minWidth: { xs: "100%", sm: 72 } }}>
-                <TextField label=" "
+                <TextField
+                  label=" "
                   type="color"
                   value={
                     isValidHex(primaryColor)
@@ -946,7 +952,8 @@ const Teams: React.FC = () => {
               </Box>
             </Stack>
             <FormControl fullWidth error={showValidation && fouls <= 0}>
-              <TextField label="Team fouls to bonus"
+              <TextField
+                label="Team fouls to bonus"
                 type="number"
                 value={fouls}
                 onChange={(e) => setFouls(Number(e.target.value))}

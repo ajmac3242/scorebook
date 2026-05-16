@@ -133,13 +133,18 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
         </IconButton>
       </Tooltip>
 
-      <Grid container
+      <Grid
+        container
         alignItems="center"
         spacing={{ xs: 2, sm: 4 }}
         sx={{ mt: { xs: 0, sm: 1 } }}
       >
-        <Grid sm="auto"
-          sx={{ textAlign: { xs: "center", sm: "left" } }} size={{ xs: 12 }}>
+        <Grid
+          item
+          xs={12}
+          sm="auto"
+          sx={{ textAlign: { xs: "center", sm: "left" } }}
+        >
           <Box
             sx={{
               position: "relative",
@@ -210,7 +215,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
             )}
           </Box>
         </Grid>
-        <Grid sm sx={{ textAlign: { xs: "center", sm: "left" } }} size={{ xs: 12 }}>
+        <Grid item xs={12} sm sx={{ textAlign: { xs: "center", sm: "left" } }}>
           <Typography
             variant="h3"
             sx={{
@@ -239,7 +244,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
           )}
         </Grid>
         {stats.length > 0 && (
-          <Grid md="auto" size={{ xs: 12 }}>
+          <Grid item xs={12} md="auto">
             <Stack
               direction="row"
               spacing={{ xs: 2, sm: 4 }}
@@ -309,15 +314,16 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
               </IconButton>
             </Tooltip>
             {isSearchExpanded && (
-              <TextField id="entity-search-field"
+              <TextField
+                id="entity-search-field"
                 autoFocus
                 variant="standard"
                 placeholder="Search..."
                 aria-label={`Search ${title}`}
                 value={searchTerm || ""}
                 onChange={(e) => onSearchChange(e.target.value)}
-
-                         slotProps={{ input: { disableUnderline: true,
+                InputProps={{
+                  disableUnderline: true,
                   sx: {
                     color: "white",
                     fontSize: "0.9rem",
@@ -330,7 +336,8 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                           aria-label="clear search"
                           size="small"
                           onClick={() => onSearchChange("")}
-                          sx={{ color: "rgba(255,255,255,0.7)" } }}>
+                          sx={{ color: "rgba(255,255,255,0.7)" }}
+                        >
                           <CloseIcon fontSize="inherit" />
                         </IconButton>
                       </Tooltip>

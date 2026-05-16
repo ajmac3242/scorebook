@@ -344,7 +344,7 @@ const Dashboard: React.FC = () => {
 
       <Grid container spacing={3}>
         {/* Key Stats */}
-        <Grid  size={{ xs: 12, md: 8 }}>
+        <Grid item xs={12} md={8}>
           <MoleskineCard sx={{ height: "100%" }}>
             <Box
               sx={{
@@ -379,16 +379,16 @@ const Dashboard: React.FC = () => {
               </ToggleButtonGroup>
             </Box>
             <Grid container spacing={2}>
-              <Grid  size={{ xs: 6, sm: 3 }}>
+              <Grid item xs={6} sm={3}>
                 <StatItem label="Record" value={aggregates.record} />
               </Grid>
-              <Grid  size={{ xs: 6, sm: 3 }}>
+              <Grid item xs={6} sm={3}>
                 <StatItem label="PPG" value={aggregates.ppg} />
               </Grid>
-              <Grid  size={{ xs: 6, sm: 3 }}>
+              <Grid item xs={6} sm={3}>
                 <StatItem label="OPPG" value={aggregates.oppg} />
               </Grid>
-              <Grid  size={{ xs: 6, sm: 3 }}>
+              <Grid item xs={6} sm={3}>
                 <StatItem label="RPG" value={aggregates.rpg} />
               </Grid>
             </Grid>
@@ -466,7 +466,7 @@ const Dashboard: React.FC = () => {
             ) : (
               <Grid container spacing={2} sx={{ mb: 4 }}>
                 {lineupStats.slice(0, 3).map((lineup, idx) => (
-                  <Grid key={idx} size={{ xs: 12 }}>
+                  <Grid item xs={12} key={idx}>
                     <Box
                       sx={{
                         p: 1.5,
@@ -526,7 +526,7 @@ const Dashboard: React.FC = () => {
               </Typography>
             </Box>
             <Grid container spacing={3}>
-              <Grid  size={{ xs: 12, sm: 4 }}>
+              <Grid item xs={12} sm={4}>
                 <MoleskineCard
                   sx={{
                     bgcolor: "rgba(0,0,0,0.02)",
@@ -545,7 +545,7 @@ const Dashboard: React.FC = () => {
                   </Typography>
                 </MoleskineCard>
               </Grid>
-              <Grid  size={{ xs: 12, sm: 4 }}>
+              <Grid item xs={12} sm={4}>
                 <MoleskineCard
                   sx={{
                     bgcolor: "rgba(0,0,0,0.02)",
@@ -564,7 +564,7 @@ const Dashboard: React.FC = () => {
                   </Typography>
                 </MoleskineCard>
               </Grid>
-              <Grid  size={{ xs: 12, sm: 4 }}>
+              <Grid item xs={12} sm={4}>
                 <MoleskineCard
                   sx={{
                     bgcolor: "rgba(0,0,0,0.02)",
@@ -588,7 +588,7 @@ const Dashboard: React.FC = () => {
         </Grid>
 
         {/* Schedule & Actions */}
-        <Grid  size={{ xs: 12, md: 4 }}>
+        <Grid item xs={12} md={4}>
           <Stack spacing={3}>
             <MoleskineCard>
               <Box

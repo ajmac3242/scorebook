@@ -153,7 +153,8 @@ const Login: React.FC = () => {
             </Alert>
           )}
           <Box component="form" onSubmit={onSubmit} sx={{ mt: 1 }}>
-            <TextField margin="normal"
+            <TextField
+              margin="normal"
               required
               fullWidth
               id="username"
@@ -164,7 +165,8 @@ const Login: React.FC = () => {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
             />
-            <TextField margin="normal"
+            <TextField
+              margin="normal"
               required
               fullWidth
               name="password"
