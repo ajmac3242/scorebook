@@ -84,7 +84,7 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
         </Typography>
 
         <Grid container spacing={3}>
-          <Grid item xs={6}>
+          <Grid  size={{ xs: 6 }}>
             <Typography
               variant="caption"
               sx={{ fontWeight: 800, mb: 1, display: "block" }}
@@ -92,16 +92,14 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
               OUR TEAM
             </Typography>
             <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-              <TextField
-                label="Official Score"
+              <TextField label="Official Score"
                 type="number"
                 value={officialTeamScore}
                 onChange={(e) => setOfficialTeamScore(e.target.value)}
                 size="small"
                 helperText={`App: ${appScore.team}`}
               />
-              <TextField
-                label="Official Fouls"
+              <TextField label="Official Fouls"
                 type="number"
                 value={officialTeamFouls}
                 onChange={(e) => setOfficialTeamFouls(e.target.value)}
@@ -111,7 +109,7 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
             </Box>
           </Grid>
 
-          <Grid item xs={6}>
+          <Grid  size={{ xs: 6 }}>
             <Typography
               variant="caption"
               sx={{ fontWeight: 800, mb: 1, display: "block" }}
@@ -119,16 +117,14 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
               OPPONENT
             </Typography>
             <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-              <TextField
-                label="Official Score"
+              <TextField label="Official Score"
                 type="number"
                 value={officialOppScore}
                 onChange={(e) => setOfficialOppScore(e.target.value)}
                 size="small"
                 helperText={`App: ${appScore.opp}`}
               />
-              <TextField
-                label="Official Fouls"
+              <TextField label="Official Fouls"
                 type="number"
                 value={officialOppFouls}
                 onChange={(e) => setOfficialOppFouls(e.target.value)}

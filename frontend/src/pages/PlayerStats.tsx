@@ -633,7 +633,7 @@ const PlayerStats: React.FC = () => {
           )}
 
           <Grid container spacing={2.5}>
-            <Grid item xs={12} xl={4}>
+            <Grid  size={{ xs: 12, xl: 4 }}>
               <Stack spacing={2.5}>
                 <Paper
                   elevation={0}
@@ -651,7 +651,7 @@ const PlayerStats: React.FC = () => {
 
                   <Grid container spacing={1.5}>
                     {summaryStats.map((stat) => (
-                      <Grid item xs={6} key={stat.label}>
+                      <Grid key={stat.label} size={{ xs: 6 }}>
                         <Box
                           sx={{
                             borderRadius: controlRadius,
@@ -716,7 +716,7 @@ const PlayerStats: React.FC = () => {
               </Stack>
             </Grid>
 
-            <Grid item xs={12} xl={8}>
+            <Grid  size={{ xs: 12, xl: 8 }}>
               <Paper
                 elevation={0}
                 sx={{
@@ -775,7 +775,7 @@ const PlayerStats: React.FC = () => {
               </Paper>
             </Grid>
 
-            <Grid item xs={12}>
+            <Grid  size={{ xs: 12 }}>
               <Paper
                 elevation={0}
                 sx={{
@@ -872,8 +872,7 @@ const PlayerStats: React.FC = () => {
         <DialogTitle>Edit Player Details</DialogTitle>
         <DialogContent>
           <Stack spacing={3} sx={{ mt: 1 }}>
-            <TextField
-              fullWidth
+            <TextField fullWidth
               label="Player Name"
               value={editName}
               onChange={(e) => setEditName(e.target.value)}

@@ -107,7 +107,7 @@ const Opponents: React.FC = () => {
       <Box sx={{ mt: 4 }}>
         <Grid container spacing={3}>
           {opponents.length === 0 ? (
-            <Grid item xs={12}>
+            <Grid  size={{ xs: 12 }}>
               <Box
                 sx={{
                   py: 8,
@@ -142,7 +142,7 @@ const Opponents: React.FC = () => {
             </Grid>
           ) : (
             opponents.map((opponent) => (
-              <Grid item xs={12} sm={6} md={4} key={opponent.id}>
+              <Grid key={opponent.id} size={{ xs: 12, sm: 6, md: 4 }}>
                 <MoleskineCard
                   sx={{
                     p: 0,
@@ -237,8 +237,7 @@ const Opponents: React.FC = () => {
         </DialogTitle>
         <DialogContent>
           <Stack spacing={3} sx={{ mt: 1, minWidth: 300 }}>
-            <TextField
-              label="Opponent Name"
+            <TextField label="Opponent Name"
               fullWidth
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
@@ -250,8 +249,7 @@ const Opponents: React.FC = () => {
               autoFocus
               disabled={isSubmitting}
             />
-            <TextField
-              label="Logo URL"
+            <TextField label="Logo URL"
               fullWidth
               value={newLogoUrl}
               onChange={(e) => setNewLogoUrl(e.target.value)}

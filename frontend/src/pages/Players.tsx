@@ -376,8 +376,7 @@ const Players: React.FC = () => {
             alignItems={{ xs: "stretch", lg: "center" }}
             justifyContent="space-between"
           >
-            <TextField
-              value={searchTerm}
+            <TextField value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search players"
               size="small"
@@ -388,12 +387,11 @@ const Players: React.FC = () => {
                   bgcolor: "background.paper",
                 },
               }}
-              InputProps={{
-                startAdornment: (
+
+                     slotProps={{ input: { startAdornment: (
                   <InputAdornment position="start">
                     <SearchIcon
-                      sx={{ color: "text.secondary", fontSize: 18 }}
-                    />
+                      sx={{ color: "text.secondary", fontSize: 18 } }} />
                   </InputAdornment>
                 ),
               }}
@@ -545,7 +543,7 @@ const Players: React.FC = () => {
                 } = getAccentStyles(player.avatarColor);
 
                 return (
-                  <Grid item xs={12} md={6} xl={4} key={player.id}>
+                  <Grid key={player.id} size={{ xs: 12, md: 6, xl: 4 }}>
                     <Paper
                       role="button"
                       tabIndex={0}
@@ -743,19 +741,19 @@ const Players: React.FC = () => {
                           </Typography>
 
                           <Grid container spacing={1.5}>
-                            <Grid item xs={4}>
+                            <Grid  size={{ xs: 4 }}>
                               <Typography sx={statLabelSx}>PPG</Typography>
                               <Typography sx={statValueSx}>
                                 {player.ppg}
                               </Typography>
                             </Grid>
-                            <Grid item xs={4}>
+                            <Grid  size={{ xs: 4 }}>
                               <Typography sx={statLabelSx}>RPG</Typography>
                               <Typography sx={statValueSx}>
                                 {player.rpg}
                               </Typography>
                             </Grid>
-                            <Grid item xs={4}>
+                            <Grid  size={{ xs: 4 }}>
                               <Typography sx={statLabelSx}>APG</Typography>
                               <Typography sx={statValueSx}>
                                 {player.apg}
@@ -821,8 +819,7 @@ const Players: React.FC = () => {
 
         <DialogContent>
           <Stack spacing={2} sx={{ pt: 1 }}>
-            <TextField
-              autoFocus
+            <TextField autoFocus
               label="Player Name"
               value={name}
               onChange={(e) => setName(e.target.value)}
