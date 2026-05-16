@@ -1,5 +1,55 @@
 # CourtSight Backlog
 
+## [ ] [Live 'Practice Plan' Bookmark & Tactical Tagging]
+**Priority:** HIGH
+**Type:** UX / Feature
+**Why:** Coaches identify teaching moments during games but often forget them by the next practice. One-tap "Practice Bookmarking" ensures the film session and practice plan are pre-populated with actual game events.
+**What:** Add a "Bookmark for Practice" icon to the RecentActionItem and the "Opponent Score" workflow. These bookmarks aggregate into a "Practice Prescription" report.
+**Acceptance Criteria:**
+- [ ] Bookmark icon visible on all recent action items.
+- [ ] Optional "Coach Note" field when bookmarking.
+- [ ] Dedicated "Practice Plan" section in GameStats showing bookmarked events.
+
+## [ ] [Unit 'Familiarity & Synergy' Risk Advisor]
+**Priority:** HIGH
+**Type:** Decision Support / Analytics
+**Why:** Desperation lineups often fail due to lack of shared experience. Units with low "Shared Minutes" have higher communication failure rates.
+**What:** A "Familiarity Meter" on the lineup HUD that shows the total season minutes the current 5-man unit has played together.
+**Acceptance Criteria:**
+- [ ] "Familiarity Score" (Total Shared Minutes) displayed for the active lineup.
+- [ ] Visual warning: "High Communication Risk" for units with < 10 shared minutes.
+- [ ] Net Rating comparison: Current Unit vs. Season Average for that unit.
+
+## [ ] [Final-Minute 'Advance' & Foul-to-Give Tactical HUD]
+**Priority:** HIGH
+**Type:** Feature / Decision Support
+**Why:** The final 60 seconds require precision tactical math (Fouls to give, Advance status). Mistakes here lose games.
+**What:** A specialized HUD that activates in the final 1:00 of the 4th/OT, surfacing fouls to give and advance directives.
+**Acceptance Criteria:**
+- [ ] "Fouls to Give" counter clearly visible in the final minute.
+- [ ] "Advance Directive": Visual indicator if a timeout will allow an advance.
+- [ ] "Clock Management" advice: e.g., "Don't Foul - Use Foul-to-Give at 8s".
+
+## [ ] [Live Personnel Tendency 'Assistant' Alerts]
+**Priority:** HIGH
+**Type:** Operational Intelligence
+**Why:** Automating the observation of patterns (e.g., "He always drives left") allows the coach to adjust the game plan in real-time.
+**What:** Real-time alerts when an opponent player exceeds a tendency threshold (e.g., specific drive direction or shot type).
+**Acceptance Criteria:**
+- [ ] Trigger alert: "Opponent #[X] has driven LEFT on 80% of touches."
+- [ ] HUD highlight on the opponent card when a tendency is identified.
+- [ ] Suggested defensive adjustment (e.g., "Shade Left").
+
+## [ ] [Defensive 'Shell' Integrity & Paint ROI Tracker]
+**Priority:** HIGH
+**Type:** Analytics / Feature
+**Why:** structural health of the defense is measured by paint entries. Tracking how often the opponent gets "Into the Paint" regardless of the score identifies process failures.
+**What:** A live gauge tracking "Paint Entry Rate" vs "Season Goal," providing a "Shell Integrity" grade.
+**Acceptance Criteria:**
+- [ ] "Shell Integrity" grade (A-F) based on opponent paint touches per possession.
+- [ ] Correlation of paint entries to subsequent points allowed.
+- [ ] Alert when Paint Entry Rate exceeds 40% of possessions.
+
 ## [ ] [Live Bench 'Rust' Factor & Re-entry Advisor]
 **Priority:** HIGH
 **Type:** Feature / Decision Support
@@ -7,6 +57,7 @@
 **What:** Implement a "Rust Factor" indicator for bench players that tracks game clock minutes since their last SUB_OUT.
 **Acceptance Criteria:**
 - [ ] Visual "Rust Meter" on bench player cards in GameMode (e.g., turns blue after 6 mins).
+- [ ] Visual progress bar indicating 'Rhythm Decay' on bench cards.
 - [ ] "Star Return Alert" for players with `isStar: 1` who have been sitting for more than 25% of the total game time.
 - [ ] Integration with the HALT system to prioritize warming up cold stars.
 
@@ -50,25 +101,25 @@
 - [ ] "Reliability Index" for on-court players combining FT% and TO rate.
 - [ ] One-tap "Closing Sub" button that triggers the multi-player substitution workflow.
 
-## [ ] [Voice-Command Substitution Entry]
+## [x] [Voice-Command Substitution Entry]
 **Priority:** HIGH
 **Type:** Feature / UX
 **Why:** Substitutions are high-friction events. Voice commands ("Sub 12 for 5") allow scorekeepers to keep eyes on the court while maintaining perfect lineup data.
 **What:** Expand `useVoiceRecognition.ts` and `voiceParser.ts` to support substitution intent.
 **Acceptance Criteria:**
-- [ ] Parse "[Jersey] in for [Jersey]" and "[Jersey] sub [Jersey]" commands.
-- [ ] Auto-generate `SUB_IN` and `SUB_OUT` events in IndexedDB.
-- [ ] Visual HUD confirmation: "Lineup Updated: #12 IN, #5 OUT."
+- [x] Parse "[Jersey] in for [Jersey]" and "[Jersey] sub [Jersey]" commands.
+- [x] Auto-generate `SUB_IN` and `SUB_OUT` events in IndexedDB.
+- [x] Visual HUD confirmation: "Lineup Updated: #12 IN, #5 OUT."
 
-## [ ] [Live Defensive Breakdown Accountability HUD]
+## [x] [Live Defensive Breakdown Accountability HUD]
 **Priority:** HIGH
 **Type:** Feature / Analytics
 **Why:** Tracking *why* an opponent scored (e.g., "Missed Rotation") is the difference between a scorebook and a coaching tool.
 **What:** A sidebar widget in `GameMode` that aggregates `breakdownReason` and attributes them to the `primaryDefenderId`.
 **Acceptance Criteria:**
-- [ ] Real-time "Breakdown Leaderboard" (Reasons and Players responsible).
-- [ ] "Accountability Index": Points Allowed per defender normalized by frequency of breakdowns.
-- [ ] One-tap breakdown attribution during the opponent score workflow.
+- [x] Real-time "Breakdown Leaderboard" (Reasons and Players responsible).
+- [x] "Accountability Index": Points Allowed per defender normalized by frequency of breakdowns.
+- [x] One-tap breakdown attribution during the opponent score workflow.
 
 ## [ ] [Predictive Foul Strategy Substitution Advisor]
 **Priority:** HIGH

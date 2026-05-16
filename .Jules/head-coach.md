@@ -141,3 +141,11 @@ Observation: CourtSight has successfully transitioned from a scoring app to a ta
 Impact: Coaches are still making "gut-feel" decisions during the final 4 minutes of close games regarding which star is "ready" to go back in or which defensive pairing is a communication risk. Without specific "Run Anatomy," timeouts are spent on generic motivation rather than surgical tactical adjustments (e.g., "Stop the leakage in transition").
 
 Recommendation: Pivot toward **Causal Anatomy** and **Predictive Synergies**. Prioritize the "Rust Factor" indicator to manage bench rotations scientifically and the "Run Anatomy" breakdown to empower coaches with "Proof" during huddles. Finally, move from identifying individual defensive failures to mapping "Communication Seams" between pairs, ensuring the closing lineup has mathematically proven synergistic flow.
+
+## 2025-06-02 - Strategic Command: Frictionless Tactical Continuity & Final-Minute Precision
+
+Observation: CourtSight has matured into a powerful "Causal Operating System." We have the data and the engines. The next evolution is ensuring that these insights survive the transition from the live game to the next practice and providing surgical precision during the highest-leverage minute of the game. We are moving from "What happened" to "What do we fix in 48 hours?" and "How do we win in 60 seconds?"
+
+Impact: Without direct practice bookmarks, the most valuable teaching moments are lost to the fog of war. Without a specialized final-minute HUD, coaches are prone to mental math errors regarding fouls-to-give and timeout advance rules.
+
+Recommendation: Prioritize "Live Practice Bookmarking" to automate the practice plan generation and the "Final-Minute Tactical HUD" to ensure perfect execution under pressure. We are closing the loop between live game stress and deliberate practice improvement.
