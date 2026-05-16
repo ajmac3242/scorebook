@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import {
+  Grid2 as Grid,
   Alert,
   Avatar,
   Box,
@@ -26,6 +27,7 @@ import {
   useTheme,
 } from "@mui/material";
 import {
+  Grid2 as Grid,
   Add as AddIcon,
   ArrowForward as ArrowForwardIcon,
   Groups as TeamsIcon,
@@ -33,13 +35,20 @@ import {
   Star as StarIcon,
   StarBorder as StarBorderIcon,
 } from "@mui/icons-material";
-import { useNavigate } from "react-router-dom";
-import { useLiveQuery } from "dexie-react-hooks";
-import { db, type StatEvent, type Team } from "../db";
-import { useTeams } from "../hooks/useTeams";
-import { logger } from "../utils/logger";
-import { calculateTeamAggregates, getInitials } from "../utils/stats";
-import { syncService } from "../utils/syncService";
+import {
+  Grid2 as Grid, useNavigate } from "react-router-dom";
+import {
+  Grid2 as Grid, useLiveQuery } from "dexie-react-hooks";
+import {
+  Grid2 as Grid, db, type StatEvent, type Team } from "../db";
+import {
+  Grid2 as Grid, useTeams } from "../hooks/useTeams";
+import {
+  Grid2 as Grid, logger } from "../utils/logger";
+import {
+  Grid2 as Grid, calculateTeamAggregates, getInitials } from "../utils/stats";
+import {
+  Grid2 as Grid, syncService } from "../utils/syncService";
 
 type TeamAggregateSummary = {
   record: string;
