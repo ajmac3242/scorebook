@@ -57,7 +57,9 @@ export const EditClockDialog: React.FC<{
         <Stack
           direction="row"
           spacing={3}
-          sx={{ py: 1, alignItems: "center", justifyContent: "center" }}
+          sx={{ alignItems: "center" }}
+          sx={{ justifyContent: "center" }}
+          sx={{ py: 1 }}
         >
           <Box sx={{ textAlign: "center" }}>
             <Typography

@@ -71,7 +71,7 @@ const OpponentScoutingReport: React.FC = () => {
       />
 
       <Grid container spacing={3} sx={{ mt: 2 }}>
-        <Grid size={{ xs: 12 }}>
+        <Grid item xs={12}>
           <MoleskineCard>
             <Typography variant="h6" sx={{ fontFamily: "var(--serif)", mb: 2 }}>
               Player Scouting (Cumulative)

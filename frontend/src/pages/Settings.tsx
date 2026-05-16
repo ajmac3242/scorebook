@@ -25,7 +25,7 @@ import type { SelectChangeEvent } from "@mui/material/Select";
 import {
   Check as CheckIcon,
   ContentCopy as CopyIcon,
-  DeleteOutlined as ClearIcon,
+  DeleteOutlineddd as ClearIcon,
   Launch as LaunchIcon,
   Logout as LogoutIcon,
   Refresh as SyncIcon,
@@ -695,7 +695,8 @@ const Settings: React.FC = () => {
         <Stack
           direction="row"
           spacing={1.5}
-          sx={{ alignItems: "center", flexWrap: "wrap" }}
+          alignItems="center"
+          flexWrap="wrap"
         >
           <Box
             sx={{
@@ -899,7 +900,7 @@ const Settings: React.FC = () => {
         label="Connection"
         description="Current network and sync availability."
         action={
-          <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap" }}>
+          <Stack direction="row" spacing={1} flexWrap="wrap">
             <Chip
               size="small"
               icon={isOnline ? <OnlineIcon /> : <OfflineIcon />}
@@ -932,9 +933,9 @@ const Settings: React.FC = () => {
             <Stack
               key={table}
               direction="row"
+              justifyContent="space-between"
+              alignItems="center"
               sx={{
-                justifyContent: "space-between",
-                alignItems: "center",
                 py: 0.75,
                 px: 1.25,
                 borderRadius: "10px",

@@ -361,10 +361,10 @@ const PlayerStats: React.FC = () => {
           <Stack
             direction={{ xs: "column", lg: "row" }}
             spacing={2.5}
-            sx={{ justifyContent: "space-between" }}
-            sx={{ alignItems: { xs: "flex-start", lg: "center" } }}
+            justifyContent="space-between"
+            alignItems={{ xs: "flex-start", lg: "center" }}
           >
-            <Stack direction="row" spacing={2} sx={{ alignItems: "center" }}>
+            <Stack direction="row" spacing={2} alignItems="center">
               <IconButton
                 aria-label="back to players"
                 onClick={() => navigate("/players")}
@@ -396,7 +396,7 @@ const PlayerStats: React.FC = () => {
                 <Stack
                   direction="row"
                   spacing={1}
-                  sx={{ alignItems: "center" }}
+                  alignItems="center"
                   sx={{ flexWrap: "wrap", mb: 0.5 }}
                 >
                   <Typography variant="h4">
@@ -436,7 +436,7 @@ const PlayerStats: React.FC = () => {
             <Stack
               direction={{ xs: "column", sm: "row" }}
               spacing={1}
-              sx={{ alignItems: { xs: "stretch", sm: "center" } }}
+              alignItems={{ xs: "stretch", sm: "center" }}
             >
               <Chip
                 label={`MIN ${aggregates.min}`}
@@ -511,8 +511,8 @@ const PlayerStats: React.FC = () => {
             <Stack
               direction={{ xs: "column", xl: "row" }}
               spacing={1.5}
-              sx={{ alignItems: { xs: "stretch", xl: "center" } }}
-              sx={{ justifyContent: "space-between" }}
+              alignItems={{ xs: "stretch", xl: "center" }}
+              justifyContent="space-between"
             >
               <Stack
                 direction={{ xs: "column", md: "row" }}
@@ -567,7 +567,7 @@ const PlayerStats: React.FC = () => {
               <Stack
                 direction={{ xs: "column", sm: "row" }}
                 spacing={1}
-                sx={{ alignItems: { xs: "stretch", sm: "center" } }}
+                alignItems={{ xs: "stretch", sm: "center" }}
               >
                 <Button
                   variant={clutchFilter ? "contained" : "outlined"}
@@ -633,7 +633,7 @@ const PlayerStats: React.FC = () => {
           )}
 
           <Grid container spacing={2.5}>
-            <Grid size={{ xs: 12 }} xl={4}>
+            <Grid item xs={12} xl={4}>
               <Stack spacing={2.5}>
                 <Paper
                   elevation={0}
@@ -651,7 +651,7 @@ const PlayerStats: React.FC = () => {
 
                   <Grid container spacing={1.5}>
                     {summaryStats.map((stat) => (
-                      <Grid size={{ xs: 6 }} key={stat.label}>
+                      <Grid item xs={6} key={stat.label}>
                         <Box
                           sx={{
                             borderRadius: controlRadius,
@@ -716,7 +716,7 @@ const PlayerStats: React.FC = () => {
               </Stack>
             </Grid>
 
-            <Grid size={{ xs: 12 }} xl={8}>
+            <Grid item xs={12} xl={8}>
               <Paper
                 elevation={0}
                 sx={{
@@ -730,8 +730,8 @@ const PlayerStats: React.FC = () => {
                 <Stack
                   direction={{ xs: "column", md: "row" }}
                   spacing={1}
-                  sx={{ justifyContent: "space-between" }}
-                  sx={{ alignItems: { xs: "flex-start", md: "center" } }}
+                  justifyContent="space-between"
+                  alignItems={{ xs: "flex-start", md: "center" }}
                   sx={{ mb: 2 }}
                 >
                   <Box>
@@ -775,7 +775,7 @@ const PlayerStats: React.FC = () => {
               </Paper>
             </Grid>
 
-            <Grid size={{ xs: 12 }}>
+            <Grid item xs={12}>
               <Paper
                 elevation={0}
                 sx={{
@@ -863,7 +863,7 @@ const PlayerStats: React.FC = () => {
         onClose={() => setOpenEditDialog(false)}
         fullWidth
         maxWidth="xs"
-        slotProps={{ paper: {
+        PaperProps={{
           sx: {
             borderRadius: shellRadius,
           },

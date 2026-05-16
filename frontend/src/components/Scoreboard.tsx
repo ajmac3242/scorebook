@@ -157,7 +157,7 @@ export const Scoreboard = React.memo(
               animation: `${pulse} 0.5s ease-in-out`,
             }}
           >
-            <Stack sx={{ alignItems: "center" }} spacing={1}>
+            <Stack alignItems="center" spacing={1}>
               <LocalFireDepartment sx={{ fontSize: "4rem", color: "white" }} />
               <Typography
                 variant="h3"
@@ -295,7 +295,7 @@ export const Scoreboard = React.memo(
               }}
             >
               {gameData.momentumAlerts.scoringDrought && (
-                <Stack spacing={0.5} sx={{ alignItems: "center" }}>
+                <Stack spacing={0.5} alignItems="center">
                   <Typography
                     variant="caption"
                     role="status"
@@ -315,7 +315,7 @@ export const Scoreboard = React.memo(
                 </Stack>
               )}
               {gameData.momentumAlerts.teamRun && (
-                <Stack spacing={0.5} sx={{ alignItems: "center" }}>
+                <Stack spacing={0.5} alignItems="center">
                   <Typography
                     variant="caption"
                     role="status"
@@ -335,7 +335,7 @@ export const Scoreboard = React.memo(
                 </Stack>
               )}
               {gameData.momentumAlerts.opponentRun && (
-                <Stack spacing={0.5} sx={{ alignItems: "center" }}>
+                <Stack spacing={0.5} alignItems="center">
                   <Typography
                     variant="caption"
                     role="status"
@@ -372,7 +372,7 @@ export const Scoreboard = React.memo(
                 <Stack
                   key={t.playerId}
                   spacing={0.5}
-                  sx={{ alignItems: "center" }}
+                  alignItems="center"
                   role="alert"
                   aria-live="polite"
                 >
@@ -521,11 +521,11 @@ export const Scoreboard = React.memo(
             )}
 
             {/* Defensive Momentum HUD */}
-            <Stack direction="row" spacing={1.5} sx={{ alignItems: "center" }}>
+            <Stack direction="row" spacing={1.5} alignItems="center">
               <Tooltip
                 title={`Total Defensive Stops: ${gameData.defensiveStats.totalStops}`}
               >
-                <Stack direction="row" spacing={0.5} sx={{ alignItems: "center" }}>
+                <Stack direction="row" spacing={0.5} alignItems="center">
                   <Shield
                     sx={{
                       fontSize: "1rem",
@@ -549,7 +549,7 @@ export const Scoreboard = React.memo(
               <Tooltip
                 title={`Total Kills: ${gameData.defensiveStats.totalKills}`}
               >
-                <Stack direction="row" spacing={0.5} sx={{ alignItems: "center" }}>
+                <Stack direction="row" spacing={0.5} alignItems="center">
                   <LocalFireDepartment
                     sx={{
                       fontSize: "1.1rem",

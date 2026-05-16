@@ -1,6 +1,5 @@
 import React, { useMemo, useState } from "react";
 import {
-  Grid2 as Grid,
   Alert,
   Avatar,
   Box,
@@ -11,6 +10,7 @@ import {
   DialogContent,
   DialogTitle,
   FormControlLabel,
+  Grid,
   IconButton,
   InputAdornment,
   Paper,
@@ -24,7 +24,6 @@ import {
   useTheme,
 } from "@mui/material";
 import {
-  Grid2 as Grid,
   Add as AddIcon,
   Check as CheckIcon,
   History,
@@ -33,20 +32,13 @@ import {
   Star as StarIcon,
   StarBorder as StarBorderIcon,
 } from "@mui/icons-material";
-import {
-  Grid2 as Grid, useLiveQuery } from "dexie-react-hooks";
-import {
-  Grid2 as Grid, useNavigate } from "react-router-dom";
-import {
-  Grid2 as Grid, db } from "../db";
-import {
-  Grid2 as Grid, syncService } from "../utils/syncService";
-import {
-  Grid2 as Grid, calculatePlayerAggregates, getInitials } from "../utils/stats";
-import {
-  Grid2 as Grid, logger } from "../utils/logger";
-import {
-  Grid2 as Grid, AVATAR_COLORS } from "../constants/colors";
+import { useLiveQuery } from "dexie-react-hooks";
+import { useNavigate } from "react-router-dom";
+import { db } from "../db";
+import { syncService } from "../utils/syncService";
+import { calculatePlayerAggregates, getInitials } from "../utils/stats";
+import { logger } from "../utils/logger";
+import { AVATAR_COLORS } from "../constants/colors";
 
 type PlayerWithStats = {
   id?: string;
@@ -320,10 +312,10 @@ const Players: React.FC = () => {
           <Stack
             direction={{ xs: "column", md: "row" }}
             spacing={2}
-            sx={{ alignItems: { xs: "flex-start", md: "center" } }}
-            sx={{ justifyContent: "space-between" }}
+            alignItems={{ xs: "flex-start", md: "center" }}
+            justifyContent="space-between"
           >
-            <Stack direction="row" spacing={1.5} sx={{ alignItems: "center" }}>
+            <Stack direction="row" spacing={1.5} alignItems="center">
               <Box
                 sx={{
                   width: 44,
@@ -381,8 +373,8 @@ const Players: React.FC = () => {
           <Stack
             direction={{ xs: "column", lg: "row" }}
             spacing={1.5}
-            sx={{ alignItems: { xs: "stretch", lg: "center" } }}
-            sx={{ justifyContent: "space-between" }}
+            alignItems={{ xs: "stretch", lg: "center" }}
+            justifyContent="space-between"
           >
             <TextField
               value={searchTerm}
@@ -396,7 +388,7 @@ const Players: React.FC = () => {
                   bgcolor: "background.paper",
                 },
               }}
-              slotProps={{ input: {
+              InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
                     <SearchIcon
@@ -410,8 +402,8 @@ const Players: React.FC = () => {
             <Stack
               direction={{ xs: "column", sm: "row" }}
               spacing={1}
-              sx={{ alignItems: { xs: "stretch", sm: "center" } }}
-              sx={{ flexWrap: "wrap" }}
+              alignItems={{ xs: "stretch", sm: "center" }}
+              flexWrap="wrap"
               useFlexGap
             >
               <Chip
@@ -452,7 +444,7 @@ const Players: React.FC = () => {
                   <Switch
                     checked={showArchived}
                     onChange={(e) => setShowArchived(e.target.checked)}
-                    slotProps={{ htmlInput: { "aria-label": "show archived players" }}
+                    inputProps={{ "aria-label": "show archived players" }}
                   />
                 }
                 label="Show archived"
@@ -553,7 +545,7 @@ const Players: React.FC = () => {
                 } = getAccentStyles(player.avatarColor);
 
                 return (
-                  <Grid size={{ xs: 12, md: 6, xl: 4 }} key={player.id}>
+                  <Grid item xs={12} md={6} xl={4} key={player.id}>
                     <Paper
                       role="button"
                       tabIndex={0}
@@ -636,7 +628,7 @@ const Players: React.FC = () => {
                             <Stack
                               direction="row"
                               spacing={1}
-                              sx={{ alignItems: "center" }}
+                              alignItems="center"
                               sx={{ mb: 0.75, flexWrap: "wrap" }}
                             >
                               <Typography variant="h6">
@@ -681,7 +673,7 @@ const Players: React.FC = () => {
                             </Typography>
                           </Box>
 
-                          <Stack spacing={1} sx={{ alignItems: "flex-end" }}>
+                          <Stack spacing={1} alignItems="flex-end">
                             <Tooltip
                               title={
                                 player.isStar
@@ -751,19 +743,19 @@ const Players: React.FC = () => {
                           </Typography>
 
                           <Grid container spacing={1.5}>
-                            <Grid size={{ xs: 4 }}>
+                            <Grid item xs={4}>
                               <Typography sx={statLabelSx}>PPG</Typography>
                               <Typography sx={statValueSx}>
                                 {player.ppg}
                               </Typography>
                             </Grid>
-                            <Grid size={{ xs: 4 }}>
+                            <Grid item xs={4}>
                               <Typography sx={statLabelSx}>RPG</Typography>
                               <Typography sx={statValueSx}>
                                 {player.rpg}
                               </Typography>
                             </Grid>
-                            <Grid size={{ xs: 4 }}>
+                            <Grid item xs={4}>
                               <Typography sx={statLabelSx}>APG</Typography>
                               <Typography sx={statValueSx}>
                                 {player.apg}
@@ -774,8 +766,8 @@ const Players: React.FC = () => {
 
                         <Stack
                           direction="row"
-                          sx={{ justifyContent: "space-between" }}
-                          sx={{ alignItems: "center" }}
+                          justifyContent="space-between"
+                          alignItems="center"
                           sx={{
                             mt: "auto",
                             pt: 2,
@@ -819,7 +811,7 @@ const Players: React.FC = () => {
         onClose={handleDialogClose}
         fullWidth
         maxWidth="sm"
-        slotProps={{ paper: {
+        PaperProps={{
           sx: {
             borderRadius: shellRadius,
           },

@@ -20,32 +20,49 @@ const muiBreakpointValues = {
   xl: 1536,
 };
 
+/**
+ *
+ */
 function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
+/**
+ *
+ */
 function deepMerge<T>(base: T, override?: DeepPartial<T>): T {
   if (!override) return base;
+
   const output: Record<string, unknown> = {
     ...(base as Record<string, unknown>),
   };
+
   for (const key of Object.keys(override) as Array<keyof T>) {
     const baseValue = output[key as string];
     const overrideValue = override[key];
+
     if (overrideValue === undefined) continue;
+
     if (isObject(baseValue) && isObject(overrideValue)) {
       output[key as string] = deepMerge(baseValue, overrideValue);
     } else {
       output[key as string] = overrideValue as unknown;
     }
   }
+
   return output as T;
 }
 
+/**
+ *
+ */
 export function resolveTokens(preset?: ThemePreset): AppTokens {
   return deepMerge(tokens, preset?.overrides);
 }
 
+/**
+ *
+ */
 function buildComponentTheme(
   activeTokens: AppTokens,
 ): ThemeOptions["components"] {
@@ -74,6 +91,7 @@ function buildComponentTheme(
         },
       },
     },
+
     MuiAppBar: {
       styleOverrides: {
         root: {
@@ -84,6 +102,7 @@ function buildComponentTheme(
         },
       },
     },
+
     MuiPaper: {
       defaultProps: {
         elevation: 0,
@@ -99,6 +118,7 @@ function buildComponentTheme(
         },
       },
     },
+
     MuiCard: {
       defaultProps: {
         elevation: 0,
@@ -112,6 +132,7 @@ function buildComponentTheme(
         },
       },
     },
+
     MuiButton: {
       defaultProps: {
         disableElevation: true,
@@ -129,10 +150,10 @@ function buildComponentTheme(
           textTransform: activeTokens.semantic.typography.button.textTransform,
           boxShadow: "none",
           transition: [
-            \`background-color \${activeTokens.motion.duration.normal} \${activeTokens.motion.easing.productive}\`,
-            \`border-color \${activeTokens.motion.duration.normal} \${activeTokens.motion.easing.productive}\`,
-            \`color \${activeTokens.motion.duration.normal} \${activeTokens.motion.easing.productive}\`,
-            \`transform \${activeTokens.motion.duration.fast} \${activeTokens.motion.easing.productive}\`,
+            `background-color ${activeTokens.motion.duration.normal} ${activeTokens.motion.easing.productive}`,
+            `border-color ${activeTokens.motion.duration.normal} ${activeTokens.motion.easing.productive}`,
+            `color ${activeTokens.motion.duration.normal} ${activeTokens.motion.easing.productive}`,
+            `transform ${activeTokens.motion.duration.fast} ${activeTokens.motion.easing.productive}`,
           ].join(", "),
           "&:hover": {
             transform: "translateY(-1px)",
@@ -157,6 +178,7 @@ function buildComponentTheme(
         },
       },
     },
+
     MuiIconButton: {
       styleOverrides: {
         root: {
@@ -164,19 +186,20 @@ function buildComponentTheme(
           minHeight: activeTokens.touch.iconButtonMin,
           borderRadius: activeTokens.radii.pill,
           transition: [
-            \`background-color \${activeTokens.motion.duration.normal} \${activeTokens.motion.easing.productive}\`,
-            \`transform \${activeTokens.motion.duration.fast} \${activeTokens.motion.easing.productive}\`,
+            `background-color ${activeTokens.motion.duration.normal} ${activeTokens.motion.easing.productive}`,
+            `transform ${activeTokens.motion.duration.fast} ${activeTokens.motion.easing.productive}`,
           ].join(", "),
           "&:hover": {
             backgroundColor: activeTokens.semantic.color.action.hover,
-            transform: \`scale(\${activeTokens.motion.scale.iconHover})\`,
+            transform: `scale(${activeTokens.motion.scale.iconHover})`,
           },
           "&:active": {
-            transform: \`scale(\${activeTokens.motion.scale.press})\`,
+            transform: `scale(${activeTokens.motion.scale.press})`,
           },
         },
       },
     },
+
     MuiChip: {
       styleOverrides: {
         root: {
@@ -186,6 +209,7 @@ function buildComponentTheme(
         },
       },
     },
+
     MuiTabs: {
       styleOverrides: {
         root: {
@@ -196,6 +220,7 @@ function buildComponentTheme(
         },
       },
     },
+
     MuiTab: {
       styleOverrides: {
         root: {
@@ -219,11 +244,13 @@ function buildComponentTheme(
         },
       },
     },
+
     MuiTextField: {
       defaultProps: {
         variant: "outlined",
       },
     },
+
     MuiOutlinedInput: {
       styleOverrides: {
         root: {
@@ -251,6 +278,7 @@ function buildComponentTheme(
         },
       },
     },
+
     MuiInputLabel: {
       styleOverrides: {
         root: {
@@ -258,6 +286,7 @@ function buildComponentTheme(
         },
       },
     },
+
     MuiSelect: {
       styleOverrides: {
         select: {
@@ -267,6 +296,7 @@ function buildComponentTheme(
         },
       },
     },
+
     MuiDialog: {
       styleOverrides: {
         paper: {
@@ -279,6 +309,7 @@ function buildComponentTheme(
         },
       },
     },
+
     MuiDialogContent: {
       styleOverrides: {
         root: {
@@ -286,6 +317,7 @@ function buildComponentTheme(
         },
       },
     },
+
     MuiDivider: {
       styleOverrides: {
         root: {
@@ -293,6 +325,7 @@ function buildComponentTheme(
         },
       },
     },
+
     MuiListItemButton: {
       styleOverrides: {
         root: {
@@ -313,6 +346,7 @@ function buildComponentTheme(
         },
       },
     },
+
     MuiTableCell: {
       styleOverrides: {
         root: {
@@ -324,6 +358,7 @@ function buildComponentTheme(
         },
       },
     },
+
     MuiTooltip: {
       styleOverrides: {
         tooltip: {
@@ -336,12 +371,23 @@ function buildComponentTheme(
   };
 }
 
+/**
+ *
+ */
 export function buildTheme(preset?: ThemePreset): Theme {
   const activeTokens = resolveTokens(preset);
+
   return createTheme({
-    breakpoints: { values: muiBreakpointValues },
-    spacing: (factor: number) => \`\${4 * factor}px\`,
-    shape: { borderRadius: activeTokens.radii.md },
+    breakpoints: {
+      values: muiBreakpointValues,
+    },
+
+    spacing: (factor: number) => `${4 * factor}px`,
+
+    shape: {
+      borderRadius: activeTokens.radii.md,
+    },
+
     palette: {
       mode: preset?.mode ?? "light",
       primary: {
@@ -398,6 +444,7 @@ export function buildTheme(preset?: ThemePreset): Theme {
           activeTokens.semantic.color.action.disabledBackground,
       },
     },
+
     typography: {
       fontFamily: activeTokens.typography.fontFamily.body,
       h1: {
@@ -467,7 +514,9 @@ export function buildTheme(preset?: ThemePreset): Theme {
         textTransform: activeTokens.semantic.typography.button.textTransform,
       },
     },
+
     components: buildComponentTheme(activeTokens),
   });
 }
+
 export default buildTheme;
