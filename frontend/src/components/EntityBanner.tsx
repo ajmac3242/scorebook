@@ -212,10 +212,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
             )}
           </Box>
         </Grid>
-        <Grid
-          size={{ xs: 12, sm: true }}
-          sx={{ textAlign: { xs: "center", sm: "left" } }}
-        >
+        <Grid size={{ xs: 12, sm: true }} sx={{ textAlign: { xs: "center", sm: "left" } }}>
           <Typography
             variant="h3"
             sx={{

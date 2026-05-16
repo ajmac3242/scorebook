@@ -11,7 +11,7 @@ import {
   DialogTitle,
   FormControl,
   FormHelperText,
-  Grid,
+  Grid2 as Grid,
   IconButton,
   InputAdornment,
   InputLabel,
@@ -84,7 +84,7 @@ const StatCell: React.FC<{ label: string; value: string }> = ({
     <Box sx={{ minWidth: 0 }}>
       <Typography
         sx={{
-          fontSize: theme.typography.caption.fontSize, // was "0.6875rem" (11px — below floor)
+          fontSize: theme.typography.caption.fontSize,
           fontWeight: 700,
           letterSpacing: "0.05em",
           textTransform: "uppercase",
@@ -96,7 +96,7 @@ const StatCell: React.FC<{ label: string; value: string }> = ({
       </Typography>
       <Typography
         sx={{
-          fontSize: theme.typography.h5.fontSize, // was hardcoded "1.375rem"
+          fontSize: theme.typography.h5.fontSize,
           lineHeight: 1,
           fontWeight: 700,
           color: "text.primary",
@@ -303,14 +303,14 @@ const Teams: React.FC = () => {
   };
 
   const emptyStateTitle = searchTerm
-    ? `No teams matching "${searchTerm}"`
+    ? \`No teams matching "\${searchTerm}"\`
     : "No teams yet";
   const emptyStateDescription = searchTerm
     ? "Try a different search, clear the filter, or create a new team."
     : "Create your first team to start tracking performance, rosters, and game results.";
 
-  const cardRadius = `${theme.shape.borderRadius * 1.5}px`;
-  const transitionAll = `transform ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}, box-shadow ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}, border-color ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}`;
+  const cardRadius = \`\${theme.shape.borderRadius * 1.5}px\`;
+  const transitionAll = \`transform \${theme.transitions.duration.short}ms \${theme.transitions.easing.easeInOut}, box-shadow \${theme.transitions.duration.short}ms \${theme.transitions.easing.easeInOut}, border-color \${theme.transitions.duration.short}ms \${theme.transitions.easing.easeInOut}\`;
 
   return (
     <Box
@@ -348,7 +348,7 @@ const Teams: React.FC = () => {
           display: "flex",
           flexDirection: "column",
           borderRadius: cardRadius,
-          border: `1px solid ${theme.palette.divider}`,
+          border: \`1px solid \${theme.palette.divider}\`,
           overflow: "hidden",
           bgcolor: "background.default",
           boxShadow: "none",
@@ -371,7 +371,7 @@ const Teams: React.FC = () => {
           <Box>
             <Typography
               sx={{
-                fontSize: theme.typography.h6.fontSize, // was "1.125rem"
+                fontSize: theme.typography.h6.fontSize,
                 fontWeight: 600,
                 color: "text.primary",
                 mb: 0.5,
@@ -381,7 +381,7 @@ const Teams: React.FC = () => {
             </Typography>
             <Typography
               sx={{
-                fontSize: theme.typography.body2.fontSize, // was "0.875rem"
+                fontSize: theme.typography.body2.fontSize,
                 color: "text.secondary",
                 lineHeight: 1.5,
               }}
@@ -395,7 +395,7 @@ const Teams: React.FC = () => {
             startIcon={<AddIcon />}
             onClick={() => setOpen(true)}
             sx={{
-              borderRadius: `${theme.shape.borderRadius}px`,
+              borderRadius: \`\${theme.shape.borderRadius}px\`,
               textTransform: "none",
               fontWeight: 600,
               boxShadow: "none",
@@ -412,7 +412,7 @@ const Teams: React.FC = () => {
           sx={{
             px: { xs: theme.spacing(2), sm: theme.spacing(3) },
             pb: theme.spacing(2.5),
-            borderBottom: `1px solid ${theme.palette.divider}`,
+            borderBottom: \`1px solid \${theme.palette.divider}\`,
             flexShrink: 0,
           }}
         >
@@ -432,7 +432,7 @@ const Teams: React.FC = () => {
               sx={{
                 width: { xs: "100%", md: 320 },
                 "& .MuiOutlinedInput-root": {
-                  borderRadius: `${theme.shape.borderRadius}px`,
+                  borderRadius: \`\${theme.shape.borderRadius}px\`,
                   bgcolor: "background.paper",
                 },
               }}
@@ -448,18 +448,13 @@ const Teams: React.FC = () => {
                 },
               }}
             />
-            <Stack
-              direction="row"
-              spacing={1}
-              sx={{ flexWrap: "wrap" }}
-              useFlexGap
-            >
+            <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap" }} useFlexGap>
               <Chip
-                label={`${teams.length} total`}
+                label={\`\${teams.length} total\`}
                 size="small"
                 variant="outlined"
                 sx={{
-                  borderRadius: `${theme.shape.borderRadius * 0.75}px`,
+                  borderRadius: \`\${theme.shape.borderRadius * 0.75}px\`,
                   bgcolor: "background.paper",
                   borderColor: "divider",
                   color: "text.secondary",
@@ -468,11 +463,11 @@ const Teams: React.FC = () => {
                 }}
               />
               <Chip
-                label={`${favoriteCount} favorite`}
+                label={\`\${favoriteCount} favorite\`}
                 size="small"
                 variant="outlined"
                 sx={{
-                  borderRadius: `${theme.shape.borderRadius * 0.75}px`,
+                  borderRadius: \`\${theme.shape.borderRadius * 0.75}px\`,
                   bgcolor: "background.paper",
                   borderColor: "divider",
                   color: "text.secondary",
@@ -500,7 +495,7 @@ const Teams: React.FC = () => {
               sx={{
                 minHeight: 300,
                 borderRadius: cardRadius,
-                border: `1px dashed ${theme.palette.divider}`,
+                border: \`1px dashed \${theme.palette.divider}\`,
                 bgcolor: "background.paper",
                 display: "flex",
                 alignItems: "center",
@@ -554,7 +549,7 @@ const Teams: React.FC = () => {
                     variant="outlined"
                     onClick={() => setSearchTerm("")}
                     sx={{
-                      borderRadius: `${theme.shape.borderRadius}px`,
+                      borderRadius: \`\${theme.shape.borderRadius}px\`,
                       textTransform: "none",
                       fontWeight: 600,
                       minHeight: 44,
@@ -568,7 +563,7 @@ const Teams: React.FC = () => {
                     startIcon={<AddIcon />}
                     onClick={() => setOpen(true)}
                     sx={{
-                      borderRadius: `${theme.shape.borderRadius}px`,
+                      borderRadius: \`\${theme.shape.borderRadius}px\`,
                       textTransform: "none",
                       fontWeight: 600,
                       boxShadow: "none",
@@ -598,12 +593,12 @@ const Teams: React.FC = () => {
                       role="button"
                       tabIndex={0}
                       elevation={0}
-                      aria-label={`View team dashboard for ${team.name}`}
-                      onClick={() => navigate(`/teams/${team.id}`)}
+                      aria-label={\`View team dashboard for \${team.name}\`}
+                      onClick={() => navigate(\`/teams/\${team.id}\`)}
                       onKeyDown={(e) => {
                         if (e.key === "Enter" || e.key === " ") {
                           e.preventDefault();
-                          navigate(`/teams/${team.id}`);
+                          navigate(\`/teams/\${team.id}\`);
                         }
                       }}
                       sx={{
@@ -612,7 +607,7 @@ const Teams: React.FC = () => {
                         display: "flex",
                         flexDirection: "column",
                         borderRadius: cardRadius,
-                        border: `1px solid ${team.isFavorite ? accent.border : theme.palette.divider}`,
+                        border: \`1px solid \${team.isFavorite ? accent.border : theme.palette.divider}\`,
                         bgcolor: "background.paper",
                         overflow: "hidden",
                         cursor: "pointer",
@@ -624,7 +619,7 @@ const Teams: React.FC = () => {
                         },
                         "&:focus-visible": {
                           outline: "none",
-                          boxShadow: `0 0 0 3px ${accent.ring}`,
+                          boxShadow: \`0 0 0 3px \${accent.ring}\`,
                           borderColor: accent.solid,
                         },
                       }}
@@ -660,7 +655,7 @@ const Teams: React.FC = () => {
                             >
                               <Typography
                                 sx={{
-                                  fontSize: theme.typography.h6.fontSize, // was "1.125rem"
+                                  fontSize: theme.typography.h6.fontSize,
                                   fontWeight: 700,
                                   color: "text.primary",
                                   minWidth: 0,
@@ -699,8 +694,8 @@ const Teams: React.FC = () => {
                                   }}
                                   aria-label={
                                     team.isFavorite
-                                      ? `Remove ${team.name} from favorites`
-                                      : `Mark ${team.name} as favorite`
+                                      ? \`Remove \${team.name} from favorites\`
+                                      : \`Mark \${team.name} as favorite\`
                                   }
                                 >
                                   {team.isFavorite ? (
@@ -714,7 +709,7 @@ const Teams: React.FC = () => {
 
                             <Typography
                               sx={{
-                                fontSize: theme.typography.body2.fontSize, // was "0.875rem"
+                                fontSize: theme.typography.body2.fontSize,
                                 color: "text.secondary",
                                 lineHeight: 1.5,
                                 mb: theme.spacing(1.5),
@@ -733,10 +728,10 @@ const Teams: React.FC = () => {
                                   : "Quarters"
                               }
                               sx={{
-                                borderRadius: `${theme.shape.borderRadius * 0.75}px`,
+                                borderRadius: \`\${theme.shape.borderRadius * 0.75}px\`,
                                 bgcolor: accent.softerBg,
                                 color: "text.primary",
-                                border: `1px solid ${accent.border}`,
+                                border: \`1px solid \${accent.border}\`,
                                 fontWeight: 600,
                                 fontSize: theme.typography.caption.fontSize,
                               }}
@@ -751,10 +746,10 @@ const Teams: React.FC = () => {
                                 width: 56,
                                 height: 56,
                                 bgcolor: accent.softerBg,
-                                border: `1px solid ${accent.border}`,
+                                border: \`1px solid \${accent.border}\`,
                                 p: 0.5,
                                 color: "text.primary",
-                                borderRadius: `${theme.shape.borderRadius}px`,
+                                borderRadius: \`\${theme.shape.borderRadius}px\`,
                               }}
                             />
                           ) : (
@@ -765,10 +760,10 @@ const Teams: React.FC = () => {
                                 height: 56,
                                 bgcolor: accent.softBg,
                                 color: accent.solid,
-                                border: `1px solid ${accent.border}`,
+                                border: \`1px solid \${accent.border}\`,
                                 fontSize: theme.typography.h6.fontSize,
                                 fontWeight: 700,
-                                borderRadius: `${theme.shape.borderRadius}px`,
+                                borderRadius: \`\${theme.shape.borderRadius}px\`,
                               }}
                             >
                               {getInitials(team.name)}
@@ -779,17 +774,17 @@ const Teams: React.FC = () => {
                         {/* Win-loss record */}
                         <Box
                           sx={{
-                            borderRadius: `${theme.shape.borderRadius * 1.25}px`,
+                            borderRadius: \`\${theme.shape.borderRadius * 1.25}px\`,
                             px: theme.spacing(2),
                             py: theme.spacing(1.75),
                             mb: theme.spacing(2),
                             bgcolor: "action.hover",
-                            border: `1px solid ${theme.palette.divider}`,
+                            border: \`1px solid \${theme.palette.divider}\`,
                           }}
                         >
                           <Typography
                             sx={{
-                              fontSize: theme.typography.h4.fontSize, // was "2rem"
+                              fontSize: theme.typography.h4.fontSize,
                               lineHeight: 1,
                               fontWeight: 800,
                               color: "text.primary",
@@ -800,7 +795,7 @@ const Teams: React.FC = () => {
                           </Typography>
                           <Typography
                             sx={{
-                              fontSize: theme.typography.caption.fontSize, // was "0.75rem"
+                              fontSize: theme.typography.caption.fontSize,
                               fontWeight: 700,
                               letterSpacing: "0.04em",
                               textTransform: "uppercase",
@@ -816,7 +811,7 @@ const Teams: React.FC = () => {
                           sx={{
                             mt: "auto",
                             pt: theme.spacing(2),
-                            borderTop: `1px solid ${theme.palette.divider}`,
+                            borderTop: \`1px solid \${theme.palette.divider}\`,
                           }}
                         >
                           <Grid container spacing={1.5}>
