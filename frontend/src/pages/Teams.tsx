@@ -419,8 +419,10 @@ const Teams: React.FC = () => {
           <Stack
             direction={{ xs: "column", md: "row" }}
             spacing={1.5}
-            alignItems={{ xs: "stretch", md: "center" }}
-            justifyContent="space-between"
+            sx={{
+              alignItems: { xs: "stretch", md: "center" },
+              justifyContent: "space-between",
+            }}
           >
             <TextField
               value={searchTerm}
@@ -434,14 +436,16 @@ const Teams: React.FC = () => {
                   bgcolor: "background.paper",
                 },
               }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon
-                      sx={{ color: "text.secondary", fontSize: 18 }}
-                    />
-                  </InputAdornment>
-                ),
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon
+                        sx={{ color: "text.secondary", fontSize: 18 }}
+                      />
+                    </InputAdornment>
+                  ),
+                },
               }}
             />
             <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap" }} useFlexGap>
@@ -647,8 +651,7 @@ const Teams: React.FC = () => {
                             <Stack
                               direction="row"
                               spacing={1}
-                              alignItems="center"
-                              sx={{ mb: 0.75 }}
+                              sx={{ mb: 0.75, alignItems: "center" }}
                             >
                               <Typography
                                 sx={{
@@ -829,8 +832,11 @@ const Teams: React.FC = () => {
                           <Stack
                             direction="row"
                             spacing={0.75}
-                            alignItems="center"
-                            sx={{ mt: theme.spacing(2), color: accent.solid }}
+                            sx={{
+                              mt: theme.spacing(2),
+                              color: accent.solid,
+                              alignItems: "center",
+                            }}
                           >
                             <Typography
                               sx={{
