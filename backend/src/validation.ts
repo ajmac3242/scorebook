@@ -29,7 +29,8 @@ const UUID_REGEX =
  * @returns {boolean} True if it's a valid UUID string.
  */
 export function isValidUuid(id: unknown): id is string {
-  return typeof id === "string" && UUID_REGEX.test(id);
+  // 🛡️ Sentinel: Enforce strict type and length before regex
+  return typeof id === "string" && id.length === 36 && UUID_REGEX.test(id);
 }
 
 /**
@@ -48,6 +49,8 @@ export function isValidUuid(id: unknown): id is string {
  */
 export function isValidPlayerId(id: unknown): boolean {
   if (typeof id !== "string") return false;
+  // 🛡️ Sentinel: Enforce max length for any player ID format
+  if (id.length > 50) return false;
   if (isValidUuid(id)) return true;
   if (SPECIAL_ID_SET.has(id)) return true;
   // ⚡ Bolt: Use O(1) string checks before more expensive operations.
@@ -198,7 +201,7 @@ export function validateStatEvent(body: unknown): string | null {
     return "Invalid situational context";
   }
 
-  const lengthError = validateStringLengths(b, 256);
+  const lengthError = validateStringLengths(b, 128);
   if (lengthError) return lengthError;
 
   if (
@@ -267,7 +270,8 @@ export function validatePlayerMetadata(
   if (!body.name || typeof body.name !== "string" || body.name.length > 100) {
     return "Player name is required and must be under 100 characters";
   }
-  return null;
+  // 🛡️ Sentinel: Prevent oversized string payloads in metadata
+  return validateStringLengths(body, 128);
 }
 
 /**
@@ -300,5 +304,6 @@ export function validateGameMetadata(
   ) {
     return "Date must be a string under 50 characters";
   }
-  return null;
+  // 🛡️ Sentinel: Prevent oversized string payloads in metadata
+  return validateStringLengths(body, 128);
 }
