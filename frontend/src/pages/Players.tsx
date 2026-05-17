@@ -56,9 +56,9 @@ const Players: React.FC = () => {
   const navigate = useNavigate();
 
   const radius = theme.shape.borderRadius;
-  const shellRadius = radius * 1.5;
-  const sectionRadius = radius * 1.5;
-  const controlRadius = radius * 1.25;
+  const shellRadius = (radius as any) * 1.5;
+  const sectionRadius = (radius as any) * 1.5;
+  const controlRadius = (radius as any) * 1.25;
 
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
@@ -293,7 +293,7 @@ const Players: React.FC = () => {
       <Paper
         elevation={0}
         sx={{
-          borderRadius: shellRadius,
+          borderRadius: (shellRadius as any),
           border: "1px solid",
           borderColor: "divider",
           bgcolor: "background.default",
@@ -312,15 +312,14 @@ const Players: React.FC = () => {
           <Stack
             direction={{ xs: "column", md: "row" }}
             spacing={2}
-            }
-
-           sx={{ alignItems: { xs: "flex-start", md: "center", justifyContent: 'space-between' }} >
-            <Stack direction="row" spacing={1.5}  sx={{ alignItems: 'center' }} >
+            sx={{ alignItems: { xs: "flex-start", md: "center" }, justifyContent: "space-between" }}
+          >
+            <Stack direction="row" spacing={1.5} sx={{ alignItems: "center" }}>
               <Box
                 sx={{
                   width: 44,
                   height: 44,
-                  borderRadius: controlRadius,
+                  borderRadius: (controlRadius as any),
                   display: "grid",
                   placeItems: "center",
                   bgcolor: alpha(theme.palette.primary.main, 0.08),
@@ -350,7 +349,7 @@ const Players: React.FC = () => {
               aria-label="add new player"
               onClick={() => setOpen(true)}
               sx={{
-                borderRadius: controlRadius,
+                borderRadius: (controlRadius as any),
                 px: 2,
                 boxShadow: "none",
                 flexShrink: 0,
@@ -373,9 +372,8 @@ const Players: React.FC = () => {
           <Stack
             direction={{ xs: "column", lg: "row" }}
             spacing={1.5}
-            }
-
-           sx={{ alignItems: { xs: "stretch", lg: "center", justifyContent: 'space-between' }} >
+            sx={{ alignItems: { xs: "stretch", lg: "center" }, justifyContent: "space-between" }}
+          >
             <TextField
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -384,34 +382,24 @@ const Players: React.FC = () => {
               sx={{
                 width: { xs: "100%", md: 320 },
                 "& .MuiOutlinedInput-root": {
-                  borderRadius: controlRadius,
+                  borderRadius: (controlRadius as any),
                   bgcolor: "background.paper",
                 },
               }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon
-                      sx={{ color: "text.secondary", fontSize: 18 }}
-                    />
-                  </InputAdornment>
-                ),
-              }}
+              slotProps={{ input: { startAdornment: ( <InputAdornment position="start"> <SearchIcon sx={{ color: "text.secondary", fontSize: 18 }} /> </InputAdornment> ) } }}
             />
 
             <Stack
               direction={{ xs: "column", sm: "row" }}
               spacing={1}
-              }
-
-              useFlexGap
-             sx={{ alignItems: { xs: "stretch", sm: "center", flexWrap: 'wrap' }} >
+              useFlexGap sx={{ alignItems: { xs: "stretch", sm: "center" }, flexWrap: "wrap" }}
+            >
               <Chip
                 label={`${playersWithStats.length} shown`}
                 size="small"
                 variant="outlined"
                 sx={{
-                  borderRadius: controlRadius,
+                  borderRadius: (controlRadius as any),
                   bgcolor: "background.paper",
                   borderColor: "divider",
                   color: "text.secondary",
@@ -422,7 +410,7 @@ const Players: React.FC = () => {
                 size="small"
                 variant="outlined"
                 sx={{
-                  borderRadius: controlRadius,
+                  borderRadius: (controlRadius as any),
                   bgcolor: "background.paper",
                   borderColor: "divider",
                   color: "text.secondary",
@@ -433,7 +421,7 @@ const Players: React.FC = () => {
                 size="small"
                 variant="outlined"
                 sx={{
-                  borderRadius: controlRadius,
+                  borderRadius: (controlRadius as any),
                   bgcolor: "background.paper",
                   borderColor: "divider",
                   color: "text.secondary",
@@ -444,7 +432,7 @@ const Players: React.FC = () => {
                   <Switch
                     checked={showArchived}
                     onChange={(e) => setShowArchived(e.target.checked)}
-                    inputProps={{ "aria-label": "show archived players" }}
+                    slotProps={{ htmlInput: { "aria-label": "show archived players" } }}
                   />
                 }
                 label="Show archived"
@@ -472,7 +460,7 @@ const Players: React.FC = () => {
             <Box
               sx={{
                 minHeight: 320,
-                borderRadius: sectionRadius,
+                borderRadius: (sectionRadius as any),
                 border: "1px dashed",
                 borderColor: "divider",
                 bgcolor: "background.paper",
@@ -517,7 +505,7 @@ const Players: React.FC = () => {
                   <Button
                     variant="outlined"
                     onClick={() => setSearchTerm("")}
-                    sx={{ borderRadius: controlRadius }}
+                    sx={{ borderRadius: (controlRadius as any) }}
                   >
                     Clear search
                   </Button>
@@ -526,7 +514,7 @@ const Players: React.FC = () => {
                     variant="contained"
                     startIcon={<AddIcon />}
                     onClick={() => setOpen(true)}
-                    sx={{ borderRadius: controlRadius, boxShadow: "none" }}
+                    sx={{ borderRadius: (controlRadius as any), boxShadow: "none" }}
                   >
                     Create first player
                   </Button>
@@ -545,7 +533,7 @@ const Players: React.FC = () => {
                 } = getAccentStyles(player.avatarColor);
 
                 return (
-                  <Grid     key={player.id} size={{ xs: 12, md: 6, xl: 4 }} >
+                  <Grid size={{ xs: 12, md: 6, xl: 4 }} key={player.id}>
                     <Paper
                       role="button"
                       tabIndex={0}
@@ -572,7 +560,7 @@ const Players: React.FC = () => {
                       }}
                       sx={{
                         height: "100%",
-                        borderRadius: sectionRadius,
+                        borderRadius: (sectionRadius as any),
                         border: "1px solid",
                         borderColor: player.isStar ? accentBorder : "divider",
                         bgcolor: "background.paper",
@@ -628,8 +616,7 @@ const Players: React.FC = () => {
                             <Stack
                               direction="row"
                               spacing={1}
-
-                              sx={{ mb: 0.75, flexWrap: "wrap", alignItems: 'center' }}
+                              sx={{ alignItems: "center", mb: 0.75, flexWrap: "wrap" }}
                             >
                               <Typography variant="h6">
                                 {player.name}
@@ -641,7 +628,7 @@ const Players: React.FC = () => {
                                   size="small"
                                   icon={<History />}
                                   sx={{
-                                    borderRadius: controlRadius,
+                                    borderRadius: (controlRadius as any),
                                     bgcolor: "action.hover",
                                     color: "text.secondary",
                                     "& .MuiChip-icon": {
@@ -656,7 +643,7 @@ const Players: React.FC = () => {
                                   label="Starred"
                                   size="small"
                                   sx={{
-                                    borderRadius: controlRadius,
+                                    borderRadius: (controlRadius as any),
                                     bgcolor: accentSoft,
                                     color: "text.primary",
                                     border: "1px solid",
@@ -673,7 +660,7 @@ const Players: React.FC = () => {
                             </Typography>
                           </Box>
 
-                          <Stack spacing={1}  sx={{ alignItems: 'flex-end' }} >
+                          <Stack spacing={1} alignItems="flex-end">
                             <Tooltip
                               title={
                                 player.isStar
@@ -729,7 +716,7 @@ const Players: React.FC = () => {
 
                         <Box
                           sx={{
-                            borderRadius: sectionRadius,
+                            borderRadius: (sectionRadius as any),
                             px: 2,
                             py: 1.75,
                             mb: 2,
@@ -743,19 +730,19 @@ const Players: React.FC = () => {
                           </Typography>
 
                           <Grid container spacing={1.5}>
-                            <Grid   size={{ xs: 4 }} >
+                            <Grid size={{ xs: 4 }}>
                               <Typography sx={statLabelSx}>PPG</Typography>
                               <Typography sx={statValueSx}>
                                 {player.ppg}
                               </Typography>
                             </Grid>
-                            <Grid   size={{ xs: 4 }} >
+                            <Grid size={{ xs: 4 }}>
                               <Typography sx={statLabelSx}>RPG</Typography>
                               <Typography sx={statValueSx}>
                                 {player.rpg}
                               </Typography>
                             </Grid>
-                            <Grid   size={{ xs: 4 }} >
+                            <Grid size={{ xs: 4 }}>
                               <Typography sx={statLabelSx}>APG</Typography>
                               <Typography sx={statValueSx}>
                                 {player.apg}
@@ -766,12 +753,13 @@ const Players: React.FC = () => {
 
                         <Stack
                           direction="row"
-
-
-                          sx={{ mt: "auto",
+                          sx={{ justifyContent: "space-between", alignItems: "center" }}
+                          sx={{
+                            mt: "auto",
                             pt: 2,
                             borderTop: "1px solid",
-                            borderColor: "divider",, alignItems: 'center', justifyContent: 'space-between' }}
+                            borderColor: "divider",
+                          }}
                         >
                           <Typography variant="body2" color="text.secondary">
                             {player.isArchived
@@ -809,10 +797,12 @@ const Players: React.FC = () => {
         onClose={handleDialogClose}
         fullWidth
         maxWidth="sm"
-
-       slotProps={{ paper: { sx: {
-            borderRadius: shellRadius,
-          }, } }} >
+        PaperProps={{
+          sx: {
+            borderRadius: (shellRadius as any),
+          },
+        }}
+      >
         <DialogTitle>Add Player</DialogTitle>
 
         <DialogContent>

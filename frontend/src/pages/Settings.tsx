@@ -695,9 +695,8 @@ const Settings: React.FC = () => {
         <Stack
           direction="row"
           spacing={1.5}
-
-
-         sx={{ alignItems: 'center', flexWrap: 'wrap' }} >
+          sx={{ alignItems: "center" , flexWrap: "wrap"  }}
+        >
           <Box
             sx={{
               width: `${settingsTokens?.control?.colorSwatchSize ?? 24}px`,
@@ -900,7 +899,7 @@ const Settings: React.FC = () => {
         label="Connection"
         description="Current network and sync availability."
         action={
-          <Stack direction="row" spacing={1}  sx={{ flexWrap: 'wrap' }} >
+          <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap" }}>
             <Chip
               size="small"
               icon={isOnline ? <OnlineIcon /> : <OfflineIcon />}
@@ -933,13 +932,15 @@ const Settings: React.FC = () => {
             <Stack
               key={table}
               direction="row"
-
-
-              sx={{ py: 0.75,
+              justifyContent="space-between"
+              sx={{ alignItems: "center" }}
+              sx={{
+                py: 0.75,
                 px: 1.25,
                 borderRadius: "10px",
                 bgcolor: "background.default",
-                border: `1px solid ${theme.palette.divider}`,, alignItems: 'center', justifyContent: 'space-between' }}
+                border: `1px solid ${theme.palette.divider}`,
+              }}
             >
               <Typography variant="body2" sx={{ color: "text.primary" }}>
                 {table}

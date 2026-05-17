@@ -215,6 +215,7 @@ function buildComponentTheme(
         root: {
           minHeight: activeTokens.settings.tabs.height,
         },
+
         indicator: {
           display: "none",
         },

@@ -61,9 +61,9 @@ export const TacticalIdentityHUD: React.FC<TacticalIdentityHUDProps> = ({
           >
             <Stack
               direction="row"
-
-
-              sx={{ mb: 0.5, alignItems: 'center', justifyContent: 'space-between' }}
+              justifyContent="space-between"
+              alignItems="center"
+              sx={{ mb: 0.5 }}
             >
               <Tooltip title={description} arrow placement="top">
                 <Typography

@@ -650,7 +650,7 @@ const TeamStats: React.FC = () => {
           { label: "Def. PPP", value: teamAggregates.oppPpp },
         ]}
         actions={
-          <Stack direction="row" spacing={1}  sx={{ alignItems: 'center' }} >
+          <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
             {!isDeleted ? (
               <>
                 <Tooltip title="Edit Team">
@@ -712,7 +712,7 @@ const TeamStats: React.FC = () => {
 
         {(tabValue === 1 || tabValue === 2) && (
           <Box sx={{ p: 1, pr: 2 }}>
-            <Stack direction="row" spacing={1}  sx={{ alignItems: 'center' }} >
+            <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
               <Typography variant="caption" sx={{ fontWeight: 700 }}>
                 ANALYTICS WINDOW:
               </Typography>
@@ -1246,7 +1246,7 @@ const TeamStats: React.FC = () => {
           </Box>
           <Grid container spacing={2}>
             {sortedRoster.map((player) => (
-              <Grid     key={player.id} size={{ xs: 12, sm: 6, md: 4 }} >
+              <Grid size={{ xs: 12, sm: 6, md: 4 }} key={player.id}>
                 <MoleskineCard
                   onClick={() =>
                     navigate(`/players/${player.id}?teamId=${teamId}`)
@@ -1375,8 +1375,8 @@ const TeamStats: React.FC = () => {
                 onChange={(e) =>
                   setEditPeriodLength(parseInt(e.target.value) || 0)
                 }
-
-               slotProps={{ htmlInput: { min: 1 } }} />
+                slotProps={{ htmlInput: { min: 1 } }}
+              />
               <TextField
                 fullWidth
                 label="OT Length (Mins)"
@@ -1385,8 +1385,8 @@ const TeamStats: React.FC = () => {
                 onChange={(e) =>
                   setEditOvertimeLength(parseInt(e.target.value) || 0)
                 }
-
-               slotProps={{ htmlInput: { min: 1 } }} />
+                slotProps={{ htmlInput: { min: 1 } }}
+              />
             </Stack>
 
             <TextField
@@ -1397,9 +1397,9 @@ const TeamStats: React.FC = () => {
               onChange={(e) =>
                 setEditMaxStintDuration(parseInt(e.target.value) || 0)
               }
-
+              slotProps={{ htmlInput: { min: 1 } }}
               helperText="Alert scorekeeper when player exceeds this time"
-             slotProps={{ htmlInput: { min: 1 } }} />
+            />
 
             <Stack direction="row" spacing={2}>
               <TextField
@@ -1410,8 +1410,8 @@ const TeamStats: React.FC = () => {
                 onChange={(e) =>
                   setEditTimeoutLimit(parseInt(e.target.value) || 0)
                 }
-
-               slotProps={{ htmlInput: { min: 0 } }} />
+                slotProps={{ htmlInput: { min: 0 } }}
+              />
               <TextField
                 fullWidth
                 label="Foul Limit"
@@ -1420,8 +1420,8 @@ const TeamStats: React.FC = () => {
                 onChange={(e) =>
                   setEditFoulLimit(parseInt(e.target.value) || 0)
                 }
-
-               slotProps={{ htmlInput: { min: 1 } }} />
+                slotProps={{ htmlInput: { min: 1 } }}
+              />
             </Stack>
 
             <Divider sx={{ my: 1 }}>
@@ -1433,7 +1433,7 @@ const TeamStats: React.FC = () => {
               </Typography>
               <Grid container spacing={1}>
                 {[1, 2, 3, 4].map((p) => (
-                  <Grid   key={p} size={{ xs: 3 }} >
+                  <Grid size={{ xs: 3 }} key={p}>
                     <TextField
                       size="small"
                       label={`P${p}`}
@@ -1445,8 +1445,8 @@ const TeamStats: React.FC = () => {
                           [`P${p}`]: parseInt(e.target.value) || 0,
                         }))
                       }
-
-                     slotProps={{ htmlInput: { min: 0, max: editFoulLimit } }} />
+                      slotProps={{ htmlInput: { min: 0, max: editFoulLimit } }}
+                    />
                   </Grid>
                 ))}
               </Grid>
@@ -1530,13 +1530,7 @@ const TeamStats: React.FC = () => {
             value={rosterSearchTerm}
             onChange={(e) => setRosterSearchTerm(e.target.value)}
             sx={{ mb: 2, mt: 1 }}
-
-                 slotProps={{ input: { startAdornment: (
-                <SearchIcon
-                  fontSize="small"
-                  sx={{ color: "text.secondary", mr: 1 } }} />
-              ),
-            }}
+            slotProps={{ input: { startAdornment: ( <SearchIcon fontSize="small" sx={{ color: "text.secondary", mr: 1 }} /> ) } }}
           />
           <List>
             {(() => {
@@ -1587,7 +1581,7 @@ const TeamStats: React.FC = () => {
                             <TextField
                               size="small"
                               label="#"
-
+                              slotProps={{ htmlInput: { maxLength: 2 } }}
                               sx={{ width: { xs: 60, sm: 80 } }}
                               value={jersey}
                               onChange={(e) => {
@@ -1596,7 +1590,7 @@ const TeamStats: React.FC = () => {
                                   stageJerseyUpdate(pId, val);
                                 }
                               }}
-                             slotProps={{ htmlInput: { maxLength: 2 } }} />
+                            />
                           )}
                           {isIn ? (
                             <IconButton
@@ -1730,19 +1724,19 @@ const TeamStats: React.FC = () => {
                   label="Date"
                   type="date"
                   fullWidth
-
+                  slotProps={{ label: { shrink: true } }}
                   value={newDate}
                   onChange={(e) => setNewDate(e.target.value)}
                   required
-                 slotProps={{ inputLabel: { shrink: true } }} />
+                />
                 <TextField
                   label="Time"
                   type="time"
                   fullWidth
-
+                  slotProps={{ label: { shrink: true } }}
                   value={newTime}
                   onChange={(e) => setNewTime(e.target.value)}
-                 slotProps={{ inputLabel: { shrink: true } }} />
+                />
                 <Autocomplete
                   freeSolo
                   options={allRecentLocations}
@@ -1778,8 +1772,8 @@ const TeamStats: React.FC = () => {
                   onChange={(e) =>
                     setNewPeriodLength(parseInt(e.target.value) || 0)
                   }
-
-                 slotProps={{ htmlInput: { min: 1 } }} />
+                  slotProps={{ htmlInput: { min: 1 } }}
+                />
                 <Stack direction="row" spacing={2}>
                   <TextField
                     fullWidth
@@ -1789,8 +1783,8 @@ const TeamStats: React.FC = () => {
                     onChange={(e) =>
                       setNewTimeoutLimit(parseInt(e.target.value) || 0)
                     }
-
-                   slotProps={{ htmlInput: { min: 0 } }} />
+                    slotProps={{ htmlInput: { min: 0 } }}
+                  />
                   <TextField
                     fullWidth
                     label="Foul Limit"
@@ -1799,8 +1793,8 @@ const TeamStats: React.FC = () => {
                     onChange={(e) =>
                       setNewFoulLimit(parseInt(e.target.value) || 0)
                     }
-
-                   slotProps={{ htmlInput: { min: 1 } }} />
+                    slotProps={{ htmlInput: { min: 1 } }}
+                  />
                 </Stack>
               </Stack>
             )}
@@ -1848,7 +1842,7 @@ const TeamStats: React.FC = () => {
                   Review Game Details
                 </Typography>
                 <Grid container spacing={2}>
-                  <Grid   size={{ xs: 6 }} >
+                  <Grid size={{ xs: 6 }}>
                     <Typography variant="caption" color="text.secondary">
                       OPPONENT
                     </Typography>
@@ -1856,7 +1850,7 @@ const TeamStats: React.FC = () => {
                       {newOpponent}
                     </Typography>
                   </Grid>
-                  <Grid   size={{ xs: 6 }} >
+                  <Grid size={{ xs: 6 }}>
                     <Typography variant="caption" color="text.secondary">
                       LOGISTICS
                     </Typography>
@@ -1865,10 +1859,10 @@ const TeamStats: React.FC = () => {
                     </Typography>
                     <Typography variant="caption">{newLocation}</Typography>
                   </Grid>
-                  <Grid   size={{ xs: 12 }} >
+                  <Grid size={{ xs: 12 }}>
                     <Divider sx={{ my: 1 }} />
                   </Grid>
-                  <Grid   size={{ xs: 6 }} >
+                  <Grid size={{ xs: 6 }}>
                     <Typography variant="caption" color="text.secondary">
                       FORMAT
                     </Typography>
@@ -1876,7 +1870,7 @@ const TeamStats: React.FC = () => {
                       {newPeriodType} ({newPeriodLength}m)
                     </Typography>
                   </Grid>
-                  <Grid   size={{ xs: 6 }} >
+                  <Grid size={{ xs: 6 }}>
                     <Typography variant="caption" color="text.secondary">
                       LIMITS
                     </Typography>
