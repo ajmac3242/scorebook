@@ -1,5 +1,55 @@
 # CourtSight Backlog
 
+## [ ] [Live 'Tactical Adherence' Auditor]
+**Priority:** HIGH
+**Type:** Feature / Decision Support
+**Why:** Coaches set a "Game Plan" (e.g., "No middle drives", "Force them left"), but in the heat of the game, players drift. This tool measures real-time adherence to tactical goals.
+**What:** An overlay that tracks specific defensive constraints (e.g., % of drives allowed to the middle) and provides a "Tactical Grade" during timeouts.
+**Acceptance Criteria:**
+- [ ] Configurable "Game Plan Constraint" selector in GameMode.
+- [ ] Live "Adherence Grade" based on StatEvents matching (or violating) the constraint.
+- [ ] "Alert: Tactical Drift" when violations exceed 3 in a single period.
+
+## [ ] [Full-Game 'Possession Equity' Ledger]
+**Priority:** HIGH
+**Type:** Analytics / UX
+**Why:** Every touch has a value. Players need to see the "ROI" of their possessions (e.g., "You used 15 possessions to generate 10 points") to drive unselfish play.
+**What:** A leaderboard surfacing "Points Per Touch" and "Points Generated Per Possession Used" for all active players.
+**Acceptance Criteria:**
+- [ ] "Equity Score" column in GameStats (Points Generated / Total Touches).
+- [ ] Identification of "Possession Black Holes" (High usage, low points generated).
+- [ ] Visual flow chart showing where the "Possession Value" was lost (TOs vs Misses).
+
+## [ ] [Opponent Substitution 'Pattern Matcher']
+**Priority:** HIGH
+**Type:** Feature / Predictive Intelligence
+**Why:** Opponent coaches have substitution "tells" (e.g., "They always sub their star back in at the 4:00 mark"). Anticpating these moves allows for preemptive counter-subs.
+**What:** An engine that analyzes opponent `SUB_IN`/`SUB_OUT` timestamps across games to predict their next rotation move.
+**Acceptance Criteria:**
+- [ ] "Rotation Alert" in GameMode: "Opponent #24 expected to return in ~60 seconds."
+- [ ] Suggested counter-lineup based on historical success against that specific opponent sub pattern.
+- [ ] Visual timeline of opponent rotation "nodes" across the game.
+
+## [ ] [Huddle 'Impact' Reality Check]
+**Priority:** HIGH
+**Type:** UX / Coaching Support
+**Why:** Halftime and Timeout huddles are often based on the last 3 plays. A "Reality Check" surfaces the most significant deviation from the season mean to ensure adjustments are evidence-based.
+**What:** A high-contrast "Huddle Card" that identifies the ONE thing the team is doing significantly worse (or better) than their season average.
+**Acceptance Criteria:**
+- [ ] One-tap "Huddle Card" in the Sidebar.
+- [ ] Automatic identification of the "Metric Outlier" (e.g., "Turnover rate is 12% higher than season average").
+- [ ] Comparison of the "Outlier" to the current score spread: "Fixing this TO rate = +8 points expected."
+
+## [ ] [Lineup 'Rust vs. Rhythm' Optimizer]
+**Priority:** HIGH
+**Type:** Feature / Decision Support
+**Why:** Managing "Bench Rust" is an art; the Optimizer makes it a science. It suggests exactly when a star player's "Rhythm" is maximized versus when "Rust" (stiffness/coldness) will set in.
+**What:** Enhance the "Bench Rust" factor with a "Rhythm Decay" curve that predicts efficiency based on time-since-last-stint.
+**Acceptance Criteria:**
+- [ ] "Optimal Re-entry Window" highlight on bench cards.
+- [ ] "Rust Warning" when a player has been sitting for > 10 game minutes.
+- [ ] Correlation of "Stint 1 Efficiency" to "Stint 2 Rhythm" to predict individual player warm-up needs.
+
 ## [ ] [Live 'Practice Plan' Bookmark & Tactical Tagging]
 **Priority:** HIGH
 **Type:** UX / Feature
@@ -40,7 +90,7 @@
 - [ ] HUD highlight on the opponent card when a tendency is identified.
 - [ ] Suggested defensive adjustment (e.g., "Shade Left").
 
-## [ ] [Defensive 'Shell' Integrity & Paint ROI Tracker]
+## [x] [Defensive 'Shell' Integrity & Paint ROI Tracker]
 **Priority:** HIGH
 **Type:** Analytics / Feature
 **Why:** structural health of the defense is measured by paint entries. Tracking how often the opponent gets "Into the Paint" regardless of the score identifies process failures.
@@ -151,7 +201,7 @@
 - [ ] Identification of "Efficiency Killers": Low-quality shots taken early in the possession.
 - [ ] Post-game "Discipline Grade" for the team's offensive process.
 
-## [ ] [Live On/Off Team Impact HUD]
+## [x] [Live On/Off Team Impact HUD]
 **Priority:** HIGH
 **Type:** Feature / Analytics
 **Why:** Plus/Minus is noisy. On/Off Net Rating shows a player's true relative value. Knowing the team is -10.0 per 100 possessions when Player X sits is the ultimate subbing directive.
