@@ -932,9 +932,9 @@ const Settings: React.FC = () => {
             <Stack
               key={table}
               direction="row"
-              justifyContent="space-between"
-              sx={{ alignItems: "center" }}
               sx={{
+                justifyContent: "space-between",
+                alignItems: "center",
                 py: 0.75,
                 px: 1.25,
                 borderRadius: "10px",

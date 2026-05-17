@@ -432,7 +432,7 @@ const Players: React.FC = () => {
                   <Switch
                     checked={showArchived}
                     onChange={(e) => setShowArchived(e.target.checked)}
-                    slotProps={{ htmlInput: { "aria-label": "show archived players" } }}
+                    slotProps={{ input: { "aria-label": "show archived players" } }}
                   />
                 }
                 label="Show archived"
@@ -660,7 +660,7 @@ const Players: React.FC = () => {
                             </Typography>
                           </Box>
 
-                          <Stack spacing={1} alignItems="flex-end">
+                          <Stack spacing={1} sx={{ alignItems: "flex-end" }}>
                             <Tooltip
                               title={
                                 player.isStar
@@ -753,8 +753,9 @@ const Players: React.FC = () => {
 
                         <Stack
                           direction="row"
-                          sx={{ justifyContent: "space-between", alignItems: "center" }}
                           sx={{
+                            justifyContent: "space-between",
+                            alignItems: "center",
                             mt: "auto",
                             pt: 2,
                             borderTop: "1px solid",
@@ -797,9 +798,11 @@ const Players: React.FC = () => {
         onClose={handleDialogClose}
         fullWidth
         maxWidth="sm"
-        PaperProps={{
-          sx: {
-            borderRadius: (shellRadius as any),
+        slotProps={{
+          paper: {
+            sx: {
+              borderRadius: (shellRadius as any),
+            },
           },
         }}
       >

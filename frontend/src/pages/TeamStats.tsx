@@ -1724,7 +1724,7 @@ const TeamStats: React.FC = () => {
                   label="Date"
                   type="date"
                   fullWidth
-                  slotProps={{ label: { shrink: true } }}
+                  slotProps={{ inputLabel: { shrink: true } }}
                   value={newDate}
                   onChange={(e) => setNewDate(e.target.value)}
                   required
@@ -1733,7 +1733,7 @@ const TeamStats: React.FC = () => {
                   label="Time"
                   type="time"
                   fullWidth
-                  slotProps={{ label: { shrink: true } }}
+                  slotProps={{ inputLabel: { shrink: true } }}
                   value={newTime}
                   onChange={(e) => setNewTime(e.target.value)}
                 />

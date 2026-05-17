@@ -338,7 +338,7 @@ const PlayerStats: React.FC = () => {
   ];
 
   return (
-    <Box sx={{ pb: 6, opacity: isDeleted ? 0.78 : 1 }}>
+    <Box sx={{pb: 6, opacity: isDeleted ? 0.78 : 1 }}>
       <Paper
         elevation={0}
         sx={{
@@ -361,10 +361,9 @@ const PlayerStats: React.FC = () => {
           <Stack
             direction={{ xs: "column", lg: "row" }}
             spacing={2.5}
-            justifyContent="space-between"
-            alignItems={{ xs: "flex-start", lg: "center" }}
+            sx={{ justifyContent: "space-between" ,  alignItems: { xs: "flex-start", lg: "center" } }}
           >
-            <Stack direction="row" spacing={2} alignItems="center">
+            <Stack direction="row" spacing={2} sx={{ alignItems: "center" }}>
               <IconButton
                 aria-label="back to players"
                 onClick={() => navigate("/players")}
@@ -396,8 +395,7 @@ const PlayerStats: React.FC = () => {
                 <Stack
                   direction="row"
                   spacing={1}
-                  alignItems="center"
-                  sx={{ flexWrap: "wrap", mb: 0.5 }}
+                  sx={{ alignItems: "center" ,  flexWrap: "wrap", mb: 0.5 }}
                 >
                   <Typography variant="h4">
                     {player?.name || "Player"}
@@ -436,7 +434,7 @@ const PlayerStats: React.FC = () => {
             <Stack
               direction={{ xs: "column", sm: "row" }}
               spacing={1}
-              alignItems={{ xs: "stretch", sm: "center" }}
+              sx={{ alignItems: { xs: "stretch", sm: "center" } }}
             >
               <Chip
                 label={`MIN ${aggregates.min}`}
@@ -511,8 +509,7 @@ const PlayerStats: React.FC = () => {
             <Stack
               direction={{ xs: "column", xl: "row" }}
               spacing={1.5}
-              alignItems={{ xs: "stretch", xl: "center" }}
-              justifyContent="space-between"
+              sx={{ alignItems: { xs: "stretch", xl: "center" } ,  justifyContent: "space-between" }}
             >
               <Stack
                 direction={{ xs: "column", md: "row" }}
@@ -567,7 +564,7 @@ const PlayerStats: React.FC = () => {
               <Stack
                 direction={{ xs: "column", sm: "row" }}
                 spacing={1}
-                alignItems={{ xs: "stretch", sm: "center" }}
+                sx={{ alignItems: { xs: "stretch", sm: "center" } }}
               >
                 <Button
                   variant={clutchFilter ? "contained" : "outlined"}
@@ -633,7 +630,7 @@ const PlayerStats: React.FC = () => {
           )}
 
           <Grid container spacing={2.5}>
-            <Grid size={{ xs: 12 }} xl={4}>
+            <Grid size={{ xs: 12, xl: 4 }}>
               <Stack spacing={2.5}>
                 <Paper
                   elevation={0}
@@ -651,7 +648,7 @@ const PlayerStats: React.FC = () => {
 
                   <Grid container spacing={1.5}>
                     {summaryStats.map((stat) => (
-                      <Grid item xs={6} key={stat.label}>
+                      <Grid size={{ xs: 6 }} key={stat.label}>
                         <Box
                           sx={{
                             borderRadius: controlRadius,
@@ -716,7 +713,7 @@ const PlayerStats: React.FC = () => {
               </Stack>
             </Grid>
 
-            <Grid size={{ xs: 12 }} xl={8}>
+            <Grid size={{ xs: 12, xl: 8 }}>
               <Paper
                 elevation={0}
                 sx={{
@@ -730,9 +727,7 @@ const PlayerStats: React.FC = () => {
                 <Stack
                   direction={{ xs: "column", md: "row" }}
                   spacing={1}
-                  justifyContent="space-between"
-                  alignItems={{ xs: "flex-start", md: "center" }}
-                  sx={{ mb: 2 }}
+                  sx={{ justifyContent: "space-between" ,  alignItems: { xs: "flex-start", md: "center" }, mb: 2}}
                 >
                   <Box>
                     <Typography variant="h6">Shot Chart</Typography>
@@ -863,9 +858,11 @@ const PlayerStats: React.FC = () => {
         onClose={() => setOpenEditDialog(false)}
         fullWidth
         maxWidth="xs"
-        PaperProps={{
-          sx: {
-            borderRadius: shellRadius,
+        slotProps={{
+          paper: {
+            sx: {
+              borderRadius: shellRadius,
+            },
           },
         }}
       >
@@ -900,8 +897,7 @@ const PlayerStats: React.FC = () => {
                           e.preventDefault();
                           setEditColor(color);
                         }
-                      }}
-                      sx={{
+                      ,
                         width: 32,
                         height: 32,
                         borderRadius: "50%",
