@@ -149,3 +149,11 @@ Observation: CourtSight has matured into a powerful "Causal Operating System." W
 Impact: Without direct practice bookmarks, the most valuable teaching moments are lost to the fog of war. Without a specialized final-minute HUD, coaches are prone to mental math errors regarding fouls-to-give and timeout advance rules.
 
 Recommendation: Prioritize "Live Practice Bookmarking" to automate the practice plan generation and the "Final-Minute Tactical HUD" to ensure perfect execution under pressure. We are closing the loop between live game stress and deliberate practice improvement.
+
+## 2025-06-03 - Strategic Audit: Transitioning from Visibility to Predictive Accountability
+
+Observation: A thorough audit of the current implementation reveals that our "Visibility" layer is becoming world-class. Features like the On/Off Impact HUD and the Tactical Identity HUD are now fully operational, providing coaches with immediate clarity on personnel value and process health (Paint Touches/Shell Integrity). However, we are entering the "Predictive Accountability" phase where we must not only show what is happening but anticipate failures before they occur.
+
+Impact: We have moved past the "Ghost Archive" risk—the core engines are stable. The new risk is "Contextual Drift," where a coach sees the metrics but fails to adjust because the app doesn't explicitly flag the *delta* between intent and execution in real-time.
+
+Recommendation: Pivot the HIGH-priority backlog toward "Predictive Intervention." This includes identifying opponent substitution patterns before they exploit a mismatch, and a "Rust vs. Rhythm" optimizer to scientifically manage bench re-entry. We must also close the loop on "Possession Equity"—ensuring every player knows the mathematical value of their touches.
