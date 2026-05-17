@@ -419,9 +419,9 @@ const Teams: React.FC = () => {
           <Stack
             direction={{ xs: "column", md: "row" }}
             spacing={1.5}
-            alignItems={{ xs: "stretch", md: "center" }}
-            justifyContent="space-between"
-          >
+            }
+
+           sx={{ alignItems: { xs: "stretch", md: "center", justifyContent: 'space-between' }} >
             <TextField
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -444,7 +444,7 @@ const Teams: React.FC = () => {
                 ),
               }}
             />
-            <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+            <Stack direction="row" spacing={1}  useFlexGap sx={{ flexWrap: 'wrap' }} >
               <Chip
                 label={`${teams.length} total`}
                 size="small"
@@ -584,7 +584,7 @@ const Teams: React.FC = () => {
                 };
                 const accent = buildTeamAccent(team.primaryColor);
                 return (
-                  <Grid item xs={12} md={6} xl={4} key={team.id}>
+                  <Grid     key={team.id} size={{ xs: 12, md: 6, xl: 4 }} >
                     <Paper
                       role="button"
                       tabIndex={0}
@@ -647,8 +647,8 @@ const Teams: React.FC = () => {
                             <Stack
                               direction="row"
                               spacing={1}
-                              alignItems="center"
-                              sx={{ mb: 0.75 }}
+
+                              sx={{ mb: 0.75, alignItems: 'center' }}
                             >
                               <Typography
                                 sx={{
@@ -812,16 +812,16 @@ const Teams: React.FC = () => {
                           }}
                         >
                           <Grid container spacing={1.5}>
-                            <Grid item xs={6} sm={3}>
+                            <Grid    size={{ xs: 6, sm: 3 }} >
                               <StatCell label="PPG" value={aggregates.ppg} />
                             </Grid>
-                            <Grid item xs={6} sm={3}>
+                            <Grid    size={{ xs: 6, sm: 3 }} >
                               <StatCell label="RPG" value={aggregates.rpg} />
                             </Grid>
-                            <Grid item xs={6} sm={3}>
+                            <Grid    size={{ xs: 6, sm: 3 }} >
                               <StatCell label="APG" value={aggregates.apg} />
                             </Grid>
-                            <Grid item xs={6} sm={3}>
+                            <Grid    size={{ xs: 6, sm: 3 }} >
                               <StatCell label="OPPG" value={aggregates.oppg} />
                             </Grid>
                           </Grid>
@@ -829,8 +829,8 @@ const Teams: React.FC = () => {
                           <Stack
                             direction="row"
                             spacing={0.75}
-                            alignItems="center"
-                            sx={{ mt: theme.spacing(2), color: accent.solid }}
+
+                            sx={{ mt: theme.spacing(2), color: accent.solid, alignItems: 'center' }}
                           >
                             <Typography
                               sx={{
@@ -859,13 +859,11 @@ const Teams: React.FC = () => {
         onClose={closeDialog}
         fullWidth
         maxWidth="sm"
-        PaperProps={{
-          sx: {
+
+       slotProps={{ paper: { sx: {
             borderRadius: cardRadius,
             bgcolor: "background.paper",
-          },
-        }}
-      >
+          }, } }} >
         <DialogTitle sx={{ fontWeight: 700, color: "text.primary" }}>
           Add new team
         </DialogTitle>
@@ -949,9 +947,9 @@ const Teams: React.FC = () => {
                 type="number"
                 value={fouls}
                 onChange={(e) => setFouls(Number(e.target.value))}
-                inputProps={{ min: 1 }}
+
                 fullWidth
-              />
+               slotProps={{ htmlInput: { min: 1 } }} />
               <FormHelperText>
                 {showValidation && fouls <= 0
                   ? "Fouls must be greater than 0"

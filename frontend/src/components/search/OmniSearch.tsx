@@ -114,8 +114,8 @@ const OmniSearch: React.FC<OmniSearchProps> = ({ open, onClose }) => {
         fullScreen
         open={open}
         onClose={onClose}
-        PaperProps={{ sx: { bgcolor: "background.paper" } }}
-      >
+
+       slotProps={{ paper: { sx: { bgcolor: "background.paper" } } }} >
         {searchInput}
         {emptyDropdown}
       </Dialog>
