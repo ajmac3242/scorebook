@@ -141,3 +141,27 @@ Observation: CourtSight has successfully transitioned from a scoring app to a ta
 Impact: Coaches are still making "gut-feel" decisions during the final 4 minutes of close games regarding which star is "ready" to go back in or which defensive pairing is a communication risk. Without specific "Run Anatomy," timeouts are spent on generic motivation rather than surgical tactical adjustments (e.g., "Stop the leakage in transition").
 
 Recommendation: Pivot toward **Causal Anatomy** and **Predictive Synergies**. Prioritize the "Rust Factor" indicator to manage bench rotations scientifically and the "Run Anatomy" breakdown to empower coaches with "Proof" during huddles. Finally, move from identifying individual defensive failures to mapping "Communication Seams" between pairs, ensuring the closing lineup has mathematically proven synergistic flow.
+
+## 2025-06-02 - Strategic Command: Frictionless Tactical Continuity & Final-Minute Precision
+
+Observation: CourtSight has matured into a powerful "Causal Operating System." We have the data and the engines. The next evolution is ensuring that these insights survive the transition from the live game to the next practice and providing surgical precision during the highest-leverage minute of the game. We are moving from "What happened" to "What do we fix in 48 hours?" and "How do we win in 60 seconds?"
+
+Impact: Without direct practice bookmarks, the most valuable teaching moments are lost to the fog of war. Without a specialized final-minute HUD, coaches are prone to mental math errors regarding fouls-to-give and timeout advance rules.
+
+Recommendation: Prioritize "Live Practice Bookmarking" to automate the practice plan generation and the "Final-Minute Tactical HUD" to ensure perfect execution under pressure. We are closing the loop between live game stress and deliberate practice improvement.
+
+## 2025-06-03 - Strategic Audit: Transitioning from Visibility to Predictive Accountability
+
+Observation: A thorough audit of the current implementation reveals that our "Visibility" layer is becoming world-class. Features like the On/Off Impact HUD and the Tactical Identity HUD are now fully operational, providing coaches with immediate clarity on personnel value and process health (Paint Touches/Shell Integrity). However, we are entering the "Predictive Accountability" phase where we must not only show what is happening but anticipate failures before they occur.
+
+Impact: We have moved past the "Ghost Archive" risk—the core engines are stable. The new risk is "Contextual Drift," where a coach sees the metrics but fails to adjust because the app doesn't explicitly flag the *delta* between intent and execution in real-time.
+
+Recommendation: Pivot the HIGH-priority backlog toward "Predictive Intervention." This includes identifying opponent substitution patterns before they exploit a mismatch, and a "Rust vs. Rhythm" optimizer to scientifically manage bench re-entry. We must also close the loop on "Possession Equity"—ensuring every player knows the mathematical value of their touches.
+
+## 2025-06-04 - Strategic Shift: From Data Saturation to Decision Automation
+
+Observation: CourtSight has reached a level of "Data Saturation." We are capturing almost every meaningful metric (PPP, eFG%, Net Rating, Kills), but the "Observation-to-Action" loop is still limited by the coach's ability to synthesize this data in the heat of the game. We are telling the coach *what* is happening, but the next frontier is automating the *why* and the *how to fix it*.
+
+Impact: Decision Lag remains the primary opponent. A coach might see a -10 Net Rating but spend their entire timeout trying to figure out if it's due to poor transition defense or bad shot selection. Furthermore, the bridge between game-time insights and the next practice session remains a manual, high-friction workflow.
+
+Recommendation: Transition to **Decision Automation** and **Frictionless Tactical Continuity**. We must prioritize the "Run Anatomy" HUD to provide immediate causal explanations for momentum shifts and the "Possession Equity" (PPT) metrics to drive player buy-in on unselfish play. Most importantly, we must close the loop on "Tactical Drift" by automating the "Practice Prescription" generation, ensuring every bookmarked game moment translates directly into a coaching correction in 48 hours. Finally, elite programs require "Two-Man Coverage," necessitating a Multi-Device Sync Bridge to separate data entry from strategic analysis.

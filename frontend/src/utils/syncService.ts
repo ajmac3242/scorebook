@@ -128,7 +128,7 @@ class SyncService {
   private async getHeaders(): Promise<Record<string, string>> {
     const token = await this.getSessionToken();
     const headers: Record<string, string> = {
-      "Content-Type": "application/json",
+      "Content-Type": "application/json; charset=utf-8",
     };
 
     if (token) {
@@ -234,7 +234,11 @@ class SyncService {
               successIds.push(item.id!);
               if (onSuccess) await onSuccess(item);
             } else {
-              const errorBody = await res.text();
+              // 🛡️ Sentinel: Redact error body to prevent leaking sensitive API responses
+              const rawError = await res.text();
+              const errorBody =
+                rawError.length > 512 ? "[TRUNCATED_ERROR]" : rawError;
+
               logger.error(
                 `Failed to push ${entityName} ${item.id}: Status ${res.status}`,
                 undefined,

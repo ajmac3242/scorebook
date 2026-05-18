@@ -34,7 +34,12 @@ function parseBody(body: string | undefined): Record<string, unknown> {
   if (!body) return {};
   try {
     const parsed = typeof body === "string" ? JSON.parse(body) : body;
-    return parsed && typeof parsed === "object" ? parsed : {};
+    // 🛡️ Sentinel: Ensure parsed body is a non-null object and not an array
+    // to prevent downstream logic from failing or being bypassed.
+    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+      return parsed as Record<string, unknown>;
+    }
+    return {};
   } catch {
     return {};
   }
