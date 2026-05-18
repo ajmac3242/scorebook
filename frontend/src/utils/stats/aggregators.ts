@@ -274,7 +274,7 @@ export function initializeStatsMap(
   for (const player of players) {
     const playerId = player.id!.toString();
     statsMap.set(playerId, {
-      id: player.id,
+      id: player.id as string,
       name: player.name,
       avatarColor: player.avatarColor,
       jerseyNumber: jerseyMap.get(playerId) ?? "",

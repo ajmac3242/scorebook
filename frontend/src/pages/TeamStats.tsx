@@ -190,7 +190,7 @@ const TeamStats: React.FC = () => {
       setEditFoulLimit(team.defaultFoulLimit || 5);
       setEditMaxStintDuration(team.maxStintDuration || 8);
       setEditFoulWarningThresholds(team.foulWarningThresholds || {});
-      setEditPlaybook(team.playbook || []);
+      setEditPlaybook(team.playbook || ([] as any[]));
     }
     // We only want to sync from DB when the team object itself changes (e.g. initial load)
   }, [team]);
@@ -221,7 +221,7 @@ const TeamStats: React.FC = () => {
     return db.teamPlayers.where("teamId").equals(teamId.toString()).toArray();
   }, [teamId]);
   const teamPlayers = useMemo(
-    () => teamPlayersResult || [],
+    () => teamPlayersResult || ([] as any[]),
     [teamPlayersResult],
   );
 
@@ -241,9 +241,9 @@ const TeamStats: React.FC = () => {
           logger.error("Failed to fetch locations:", error);
           return [];
         });
-    }) || [];
+    }) || ([] as any[]);
 
-  const allOpponents = useLiveQuery(() => db.opponents.toArray()) || [];
+  const allOpponents = useLiveQuery(() => db.opponents.toArray()) || ([] as any[]);
 
   const teamPlayerDetails = useMemo(() => {
     // Optimization: Use a single for loop and a Set for O(1) lookups to avoid intermediate array allocations.
@@ -286,7 +286,7 @@ const TeamStats: React.FC = () => {
       .anyOf(gameIds as string[])
       .toArray();
   }, [gameIds]);
-  const allStats = useMemo(() => allStatsResult || [], [allStatsResult]);
+  const allStats = useMemo(() => allStatsResult || ([] as any[]), [allStatsResult]);
 
   const teamAggregates = useMemo(
     () => calculateTeamAggregates(games, allStats as StatEvent[]),
@@ -519,7 +519,7 @@ const TeamStats: React.FC = () => {
             id: opponentId,
             name: newOpponent,
             logoUrl: newOpponentLogoUrl,
-            roster: [],
+            roster: [] as any[],
             synced: 0,
           });
         }

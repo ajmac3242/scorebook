@@ -37,7 +37,7 @@ interface EntityBannerProps {
   isSyncing?: boolean;
   jerseyNumber?: string;
   searchTerm?: string;
-  onSearchChange?: (_value: string) => void;
+  onSearchChange?: (value: string) => void;
 }
 
 /**
@@ -133,11 +133,15 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
         </IconButton>
       </Tooltip>
 
-      <Grid container
-
+      <Grid
+        container
         spacing={{ xs: 2, sm: 4 }}
-        sx={{alignItems: "center",  mt: { xs: 0, sm: 1 } }}>
-        <Grid sx={{ textAlign: { xs: "center", sm: "left" } }} size={{xs: 12, sm: "auto"}}>
+        sx={{ alignItems: "center", mt: { xs: 0, sm: 1 } }}
+      >
+        <Grid
+          size={{ xs: 12, sm: "auto" }}
+          sx={{ textAlign: { xs: "center", sm: "left" } }}
+        >
           <Box
             sx={{
               position: "relative",
@@ -208,7 +212,10 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
             )}
           </Box>
         </Grid>
-        <Grid sm sx={{ textAlign: { xs: "center", sm: "left" } }} size={{xs: 12}}>
+        <Grid
+          size={{ xs: 12, sm: "grow" }}
+          sx={{ textAlign: { xs: "center", sm: "left" } }}
+        >
           <Typography
             variant="h3"
             sx={{
@@ -237,11 +244,12 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
           )}
         </Grid>
         {stats.length > 0 && (
-          <Grid  size={{xs: 12, md: "auto"}}>
-            <Stack direction="row"
+          <Grid size={{ xs: 12, md: "auto" }}>
+            <Stack
+              direction="row"
               spacing={{ xs: 2, sm: 4 }}
-
-             sx={{justifyContent: {{ xs: "center", sm: "flex-start" }}}}>
+              sx={{ justifyContent: { xs: "center", sm: "flex-start" } }}
+            >
               {stats.map((stat, index) => (
                 <React.Fragment key={stat.label}>
                   <StatItem label={stat.label} value={stat.value} light />
@@ -314,29 +322,30 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                 aria-label={`Search ${title}`}
                 value={searchTerm || ""}
                 onChange={(e) => onSearchChange(e.target.value)}
-                slotProps={{ input: {
-                  disableUnderline: true,
-                  sx: {
-                    color: "white",
-                    fontSize: "0.9rem",
-                    width: "100%",
+                slotProps={{
+                  input: {
+                    disableUnderline: true,
+                    sx: {
+                      color: "white",
+                      fontSize: "0.9rem",
+                      width: "100%",
+                    },
+                    endAdornment: searchTerm ? (
+                      <InputAdornment position="end">
+                        <Tooltip title="Clear search">
+                          <IconButton
+                            aria-label="clear search"
+                            size="small"
+                            onClick={() => onSearchChange("")}
+                            sx={{ color: "rgba(255,255,255,0.7)" }}
+                          >
+                            <CloseIcon fontSize="inherit" />
+                          </IconButton>
+                        </Tooltip>
+                      </InputAdornment>
+                    ) : null,
                   },
-                  endAdornment: searchTerm ? (
-                    <InputAdornment position="end">
-                      <Tooltip title="Clear search">
-                        <IconButton
-                          aria-label="clear search"
-                          size="small"
-                          onClick={() => onSearchChange("")}
-                          sx={{ color: "rgba(255,255,255,0.7)" }}
-                        >
-                          <CloseIcon fontSize="inherit" />
-                        </IconButton>
-                      </Tooltip>
-                    </InputAdornment>
-                  ) : null,
-                }
-              }}
+                }}
                 sx={{ width: "100%" }}
               />
             )}

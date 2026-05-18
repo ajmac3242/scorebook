@@ -1,19 +1,13 @@
 import { useLiveQuery } from "dexie-react-hooks";
-import { db } from "../db";
+import { db, type Game } from "../db";
 
-/**
- * Hook to fetch games for a specific team from the local database.
- * @param {string} teamId - The team ID.
- * @returns {Game[]} Array of games.
- */
 export const useGames = (teamId?: string) => {
-  return (
-    useLiveQuery(
-      () =>
-        teamId !== undefined
-          ? db.games.where("teamId").equals(teamId.toString()).toArray()
-          : Promise.resolve([]),
-      [teamId],
-    ) || []
+  return useLiveQuery(
+    async () => {
+      if (!teamId) return [] as Game[];
+      return db.games.where("teamId").equals(teamId).toArray();
+    },
+    [teamId],
+    [] as Game[]
   );
 };

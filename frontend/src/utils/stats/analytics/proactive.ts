@@ -141,7 +141,7 @@ export const calculateHaltAlerts = (params: {
 
   // 1. Star Player Foul Warning
   for (const p of players) {
-    if (p.isStar !== 1 || !gameData.onCourtIds.has(p.id)) continue;
+    if (p.isStar !== 1 || !gameData.onCourtIds.has(p.id!)) continue;
 
     const fouls = statsMap.get(p.id!)?.fouls || 0;
     const isFoulTrouble =
