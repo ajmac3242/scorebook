@@ -37,7 +37,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
   const theme = useTheme();
 
   // 1. Data Retrieval
-  const gameStatsQueryResult = useLiveQuery(
+  const gameStatsQueryResult = useLiveQuery<any>(
     () => (gameId ? db.stats.where("gameId").equals(gameId).toArray() : []),
     [gameId],
   );
@@ -46,7 +46,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     [gameStatsQueryResult],
   );
 
-  const rawRosterData = useLiveQuery(() => {
+  const rawRosterData = useLiveQuery<any>(() => {
     if (!teamId) return { teamPlayers: [], players: [] };
     return db.teamPlayers
       .where("teamId")
@@ -69,7 +69,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
   const teamPlayers = rosterData.teamPlayers;
   const players = rosterData.players;
 
-  const gameAndTeam = useLiveQuery(() => {
+  const gameAndTeam = useLiveQuery<any>(() => {
     return db.games.get(gameId || "").then((g) => {
       if (g?.teamId) {
         return db.teams.get(g.teamId).then((t) => ({ game: g, team: t }));
@@ -80,7 +80,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
 
   const { game, team } = gameAndTeam;
 
-  const teamSeasonStats = useLiveQuery(() => {
+  const teamSeasonStats = useLiveQuery<any>(() => {
     if (!teamId)
       return { ppp: "0.00", ftPct: "0.0", turnoverRate: "0.0", orebPct: "0.0" };
     return db.games

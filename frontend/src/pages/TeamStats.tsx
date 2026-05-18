@@ -171,7 +171,7 @@ const TeamStats: React.FC = () => {
     }));
   };
 
-  const team = useLiveQuery(() => {
+  const team = useLiveQuery<any>(() => {
     if (teamId === undefined) return undefined;
     return db.teams.get(teamId);
   }, [teamId]);
@@ -216,7 +216,7 @@ const TeamStats: React.FC = () => {
   const games = useGames(teamId);
   const allPlayers = usePlayers();
 
-  const teamPlayersResult = useLiveQuery(() => {
+  const teamPlayersResult = useLiveQuery<any>(() => {
     if (teamId === undefined) return [];
     return db.teamPlayers.where("teamId").equals(teamId.toString()).toArray();
   }, [teamId]);
@@ -226,7 +226,7 @@ const TeamStats: React.FC = () => {
   );
 
   const allRecentLocations =
-    useLiveQuery(() => {
+    useLiveQuery<any>(() => {
       return db.games
         .toArray()
         .then((items) => {
@@ -243,7 +243,7 @@ const TeamStats: React.FC = () => {
         });
     }) || ([] as any[]);
 
-  const allOpponents = useLiveQuery(() => db.opponents.toArray()) || ([] as any[]);
+  const allOpponents = useLiveQuery<any>(() => db.opponents.toArray()) || ([] as any[]);
 
   const teamPlayerDetails = useMemo(() => {
     // Optimization: Use a single for loop and a Set for O(1) lookups to avoid intermediate array allocations.
@@ -279,7 +279,7 @@ const TeamStats: React.FC = () => {
 
     return filtered.map((g) => g.id).filter(Boolean);
   }, [games, gameCountFilter]);
-  const allStatsResult = useLiveQuery(() => {
+  const allStatsResult = useLiveQuery<any>(() => {
     if (gameIds.length === 0) return [];
     return db.stats
       .where("gameId")

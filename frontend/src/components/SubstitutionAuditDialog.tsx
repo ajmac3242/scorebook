@@ -66,7 +66,7 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<string | null>(null);
 
-  const subEvents = useLiveQuery(() => {
+  const subEvents = useLiveQuery<any>(() => {
     if (!gameId) return [];
     return db.stats
       .where("gameId")

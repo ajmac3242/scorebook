@@ -24,7 +24,7 @@ const OpponentScoutingReport: React.FC = () => {
 
   const opponent = useLiveQuery<any>(
     () =>
-      opponentId ? db.opponents.get(opponentId) : undefined,
+      opponentId ? db.opponents.get(opponentId) : Promise.resolve(undefined),
     [opponentId],
   );
 
@@ -32,12 +32,12 @@ const OpponentScoutingReport: React.FC = () => {
     () =>
       opponentId
         ? db.games.where("opponentId").equals(opponentId).toArray()
-        : [],
+        : Promise.resolve([]),
     [opponentId],
   );
 
   const gameIds = useMemo(
-    () => (games?.map((g: any) => g.id).filter(Boolean) as string[]) || [],
+    () => (games?.map((g) => g.id).filter(Boolean) as string[]) || [],
     [games],
   );
 
@@ -45,7 +45,7 @@ const OpponentScoutingReport: React.FC = () => {
     () =>
       gameIds.length > 0
         ? db.stats.where("gameId").anyOf(gameIds).toArray()
-        : [],
+        : Promise.resolve([]),
     [gameIds],
   );
 

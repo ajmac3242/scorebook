@@ -32,10 +32,6 @@ export const REDACTED_HEADERS = Object.freeze(
     "x-real-ip",
     "x-forwarded-for",
     "x-client-ip",
-    "x-amz-date",
-    "x-amz-content-sha256",
-    "x-amz-user-agent",
-    "x-amz-security-token",
   ]),
 );
 
@@ -302,15 +298,14 @@ const FORBIDDEN_KEYS = Object.freeze(
  * @returns {unknown} The cleaned data.
  */
 export function stripLocalFields(data: unknown, depth = 0): unknown {
-  if (depth > 10) {
-    return Array.isArray(data) ? [] : {};
-  }
-
   if (data === null || typeof data !== "object") {
     return data;
   }
 
-  // 🛡️ Sentinel: Block prototype pollution attempts via nested objects
+  if (depth > 10) {
+    return {};
+  }
+
   if (Array.isArray(data)) {
     return data.map((item) => stripLocalFields(item, depth + 1));
   }

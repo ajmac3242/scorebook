@@ -141,7 +141,7 @@ const Opponents: React.FC = () => {
               </Box>
             </Grid>
           ) : (
-            opponents.map((opponent: any) => (
+            opponents.map((opponent) => (
               <Grid key={opponent.id} size={{xs: 12, sm: 6, md: 4}}>
                 <MoleskineCard
                   sx={{

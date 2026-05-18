@@ -8,7 +8,7 @@ import { logger } from "../utils/logger";
  */
 export const usePlayers = () => {
   return (
-    useLiveQuery(() => {
+    useLiveQuery<any>(() => {
       return db.players
         .toArray()
         .then((items) => {

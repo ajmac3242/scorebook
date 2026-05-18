@@ -175,7 +175,8 @@ const GameStats: React.FC = () => {
       const data = payload[0].payload;
       return (
         <Box
-          sx={{bgcolor: "white",
+          sx={{
+            bgcolor: "white",
             p: 2,
             border: "1px solid rgba(0,0,0,0.1)",
             boxShadow: theme.shadows[3],
@@ -252,13 +253,13 @@ const GameStats: React.FC = () => {
     () =>
       gameId !== undefined
         ? db.games.get(gameId as string)
-        : undefined,
+        : Promise.resolve(undefined),
     [gameId],
   );
 
   const team = useLiveQuery<any>(
     () =>
-      game?.teamId ? db.teams.get(game.teamId) : undefined,
+      game?.teamId ? db.teams.get(game.teamId) : Promise.resolve(undefined),
     [game?.teamId],
   );
 
@@ -270,7 +271,7 @@ const GameStats: React.FC = () => {
             .equals(game.teamId)
             .toArray()
             .then((games) => {
-              const gameIds = games.map((g: any) => g.id!).filter(Boolean);
+              const gameIds = games.map((g) => g.id!).filter(Boolean);
               return db.stats
                 .where("gameId")
                 .anyOf(gameIds)
@@ -279,7 +280,7 @@ const GameStats: React.FC = () => {
                   calculateTeamSeasonAverages(games, allStats),
                 );
             })
-        : undefined,
+        : Promise.resolve(undefined),
     [game?.teamId],
   );
 
@@ -298,7 +299,7 @@ const GameStats: React.FC = () => {
     () =>
       game?.teamId
         ? db.teamPlayers.where("teamId").equals(game.teamId).toArray()
-        : [],
+        : Promise.resolve([]),
     [game?.teamId],
   );
   const teamPlayers = useMemo(
@@ -307,7 +308,7 @@ const GameStats: React.FC = () => {
   );
 
   const playerIds = useMemo(
-    () => teamPlayers.map((tp: any) => tp.playerId.toString()),
+    () => teamPlayers.map((tp) => tp.playerId.toString()),
     [teamPlayers],
   );
 
@@ -319,11 +320,11 @@ const GameStats: React.FC = () => {
 
   useEffect(() => {
     if (game) {
-      setEditOpponent(game.opponent as string || "");
+      setEditOpponent(game.opponent || "");
       setEditDate(game.date || "");
       setEditTime(game.time || "");
-      setEditLocation(game.location as string || "");
-      setEditOpponentLogoUrl(game.opponentLogoUrl as string || "");
+      setEditLocation(game.location || "");
+      setEditOpponentLogoUrl(game.opponentLogoUrl || "");
     }
   }, [game]);
 
@@ -331,7 +332,7 @@ const GameStats: React.FC = () => {
     () =>
       gameId !== undefined
         ? db.stats.where("gameId").equals(gameId).toArray()
-        : [],
+        : Promise.resolve([]),
     [gameId],
   );
   const allStats = useMemo(
@@ -966,7 +967,7 @@ const GameStats: React.FC = () => {
   );
   const shotChartFilters = (
     <Box sx={{ mb: 2 }}>
-      <Stack direction="row" sx={{ mb: 1, alignItems: "center", justifyContent: "space-between"}}>
+      <Stack direction="row" sx={{mb: 1, alignItems: "center", justifyContent: "space-between"}}>
         <Typography variant="subtitle2">Filters</Typography>
         <Stack direction="row" spacing={1}>
           <Button
@@ -997,7 +998,7 @@ const GameStats: React.FC = () => {
             onChange={(e) => setSelectedPlayerId(e.target.value)}
           >
             <MenuItem value="ALL">All Players</MenuItem>
-            {players.map((p: any) => (
+            {players.map((p) => (
               <MenuItem key={p.id} value={p.id}>
                 {p.name}
               </MenuItem>
@@ -1052,7 +1053,7 @@ const GameStats: React.FC = () => {
               onChange={(e) => setSelectedPlay(e.target.value)}
             >
               <MenuItem value="ALL">All Plays</MenuItem>
-              {team.playbook.map((play: any) => (
+              {team.playbook.map((play) => (
                 <MenuItem key={play} value={play}>
                   {play}
                 </MenuItem>
@@ -1269,7 +1270,7 @@ const GameStats: React.FC = () => {
       sx={{ pb: 4, opacity: isDeleted ? 0.7 : 1, bgcolor: "white" }}
     >
       <EntityBanner
-        title={game?.opponent ? `vs ${game.opponent as string}` : "Game Stats"}
+        title={game?.opponent ? `vs ${game.opponent}` : "Game Stats"}
         subtitle={`${game?.date ? dayjs(game.date).format("MM-DD-YYYY") : ""} ${game?.time || ""} | ${game?.location || ""}`}
         avatarSrc={game?.opponentLogoUrl}
         avatarColor="rgba(255,255,255,0.1)"
@@ -1371,7 +1372,7 @@ const GameStats: React.FC = () => {
             fullWidth={Boolean(isMobile)}
             sx={{ flexGrow: isMobile ? 1 : 0 }}
           >
-            {periods.map((p: any) => (
+            {periods.map((p) => (
               <ToggleButton key={p} value={p}>
                 {p === "ALL" ? "Full Game" : `${periodLabel} ${p}`}
               </ToggleButton>
@@ -1616,8 +1617,8 @@ const GameStats: React.FC = () => {
                         sx={{ height: 30, fontSize: "0.8rem" }}
                       >
                         {periods
-                          .filter((p: any) => p !== "ALL")
-                          .map((p: any) => (
+                          .filter((p) => p !== "ALL")
+                          .map((p) => (
                             <MenuItem key={p} value={p}>
                               {periodLabel} {p}
                             </MenuItem>
@@ -1980,11 +1981,11 @@ const GameStats: React.FC = () => {
                   >
                     <Typography variant="caption" sx={{display: "block", fontWeight: 800}}>
                       PRIMARY PLAYMAKER: #
-                      {shotChartJerseyMap.get(assistNetwork.primaryPlaymakerId as any)}
+                      {shotChartJerseyMap.get(assistNetwork.primaryPlaymakerId)}
                     </Typography>
                     <Typography variant="caption" sx={{display: "block", fontWeight: 800}}>
                       PRIMARY FINISHER: #
-                      {shotChartJerseyMap.get(assistNetwork.primaryFinisherId as any)}
+                      {shotChartJerseyMap.get(assistNetwork.primaryFinisherId)}
                     </Typography>
                   </Box>
                 )}
@@ -2082,7 +2083,7 @@ const GameStats: React.FC = () => {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {shotClockEfficiency.map((p: any) => (
+                      {shotClockEfficiency.map((p) => (
                         <TableRow key={p.phase}>
                           <TableCell sx={{ fontWeight: 600 }}>
                             {p.phase}
@@ -2123,7 +2124,7 @@ const GameStats: React.FC = () => {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {processEfficiency.map((p: any) => (
+                      {processEfficiency.map((p) => (
                         <TableRow key={p.quality}>
                           <TableCell sx={{ fontWeight: 600 }}>
                             {p.quality}
@@ -2164,7 +2165,7 @@ const GameStats: React.FC = () => {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {playEfficiency.map((play: any) => (
+                      {playEfficiency.map((play) => (
                         <TableRow key={play.name}>
                           <TableCell sx={{ fontWeight: 600 }}>
                             {play.name}

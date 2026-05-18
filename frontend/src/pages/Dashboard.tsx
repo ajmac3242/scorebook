@@ -52,7 +52,7 @@ const Dashboard: React.FC = () => {
 
   // Find the starred team
   // 🎨 Palette: Map undefined to null to distinguish "loading" from "not found"
-  const favoriteTeam = useLiveQuery(
+  const favoriteTeam = useLiveQuery<any>(
     () =>
       db.teams
         .where("isFavorite")
@@ -65,7 +65,7 @@ const Dashboard: React.FC = () => {
   const teamId = favoriteTeam?.id;
 
   // Fetch games for the favorite team
-  const rawTeamGames = useLiveQuery(
+  const rawTeamGames = useLiveQuery<any>(
     () => (teamId ? db.games.where("teamId").equals(teamId).toArray() : []),
     [teamId],
   );
@@ -85,7 +85,7 @@ const Dashboard: React.FC = () => {
     }
     return filtered.map((g) => g.id).filter(Boolean) as string[];
   }, [teamGames, gameCountFilter]);
-  const rawAllStats = useLiveQuery(
+  const rawAllStats = useLiveQuery<any>(
     () =>
       gameIds.length > 0
         ? db.stats.where("gameId").anyOf(gameIds).toArray()
@@ -96,7 +96,7 @@ const Dashboard: React.FC = () => {
   const allStats = useMemo(() => rawAllStats || [], [rawAllStats]);
 
   // Fetch players for leaders section
-  const rawTeamPlayers = useLiveQuery(
+  const rawTeamPlayers = useLiveQuery<any>(
     () =>
       teamId ? db.teamPlayers.where("teamId").equals(teamId).toArray() : [],
     [teamId],
@@ -109,7 +109,7 @@ const Dashboard: React.FC = () => {
     [teamPlayers],
   );
 
-  const rawPlayers = useLiveQuery(
+  const rawPlayers = useLiveQuery<any>(
     () =>
       playerIds.length > 0
         ? db.players.where("id").anyOf(playerIds).toArray()
