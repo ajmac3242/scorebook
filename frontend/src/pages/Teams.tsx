@@ -11,7 +11,7 @@ import {
   DialogTitle,
   FormControl,
   FormHelperText,
-  Grid,
+  Grid2 as Grid,
   IconButton,
   InputAdornment,
   InputLabel,
@@ -584,7 +584,7 @@ const Teams: React.FC = () => {
                 };
                 const accent = buildTeamAccent(team.primaryColor);
                 return (
-                  <Grid item xs={12} md={6} xl={4} key={team.id}>
+                  <Grid size={{ xs: 12, md: 6 }} xl={4} key={team.id}>
                     <Paper
                       role="button"
                       tabIndex={0}
@@ -812,16 +812,16 @@ const Teams: React.FC = () => {
                           }}
                         >
                           <Grid container spacing={1.5}>
-                            <Grid item xs={6} sm={3}>
+                            <Grid size={{ xs: 6, sm: 3 }}>
                               <StatCell label="PPG" value={aggregates.ppg} />
                             </Grid>
-                            <Grid item xs={6} sm={3}>
+                            <Grid size={{ xs: 6, sm: 3 }}>
                               <StatCell label="RPG" value={aggregates.rpg} />
                             </Grid>
-                            <Grid item xs={6} sm={3}>
+                            <Grid size={{ xs: 6, sm: 3 }}>
                               <StatCell label="APG" value={aggregates.apg} />
                             </Grid>
-                            <Grid item xs={6} sm={3}>
+                            <Grid size={{ xs: 6, sm: 3 }}>
                               <StatCell label="OPPG" value={aggregates.oppg} />
                             </Grid>
                           </Grid>

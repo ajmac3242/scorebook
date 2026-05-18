@@ -13,7 +13,7 @@ import {
   DialogContent,
   DialogTitle,
   FormControl,
-  Grid,
+  Grid2 as Grid,
   IconButton,
   InputLabel,
   MenuItem,
@@ -633,7 +633,7 @@ const PlayerStats: React.FC = () => {
           )}
 
           <Grid container spacing={2.5}>
-            <Grid item xs={12} xl={4}>
+            <Grid size={{ xs: 12, xl: 4 }}>
               <Stack spacing={2.5}>
                 <Paper
                   elevation={0}
@@ -651,7 +651,7 @@ const PlayerStats: React.FC = () => {
 
                   <Grid container spacing={1.5}>
                     {summaryStats.map((stat) => (
-                      <Grid item xs={6} key={stat.label}>
+                      <Grid size={{ xs: 6 }} key={stat.label}>
                         <Box
                           sx={{
                             borderRadius: controlRadius,
@@ -716,7 +716,7 @@ const PlayerStats: React.FC = () => {
               </Stack>
             </Grid>
 
-            <Grid item xs={12} xl={8}>
+            <Grid size={{ xs: 12, xl: 8 }}>
               <Paper
                 elevation={0}
                 sx={{
@@ -775,7 +775,7 @@ const PlayerStats: React.FC = () => {
               </Paper>
             </Grid>
 
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}
               <Paper
                 elevation={0}
                 sx={{

@@ -10,7 +10,7 @@ import {
   DialogContent,
   DialogTitle,
   FormControlLabel,
-  Grid,
+  Grid2 as Grid,
   IconButton,
   InputAdornment,
   Paper,
@@ -545,7 +545,7 @@ const Players: React.FC = () => {
                 } = getAccentStyles(player.avatarColor);
 
                 return (
-                  <Grid item xs={12} md={6} xl={4} key={player.id}>
+                  <Grid size={{ xs: 12, md: 6 }} xl={4} key={player.id}>
                     <Paper
                       role="button"
                       tabIndex={0}
@@ -743,19 +743,19 @@ const Players: React.FC = () => {
                           </Typography>
 
                           <Grid container spacing={1.5}>
-                            <Grid item xs={4}>
+                            <Grid size={{ xs: 4 }}
                               <Typography sx={statLabelSx}>PPG</Typography>
                               <Typography sx={statValueSx}>
                                 {player.ppg}
                               </Typography>
                             </Grid>
-                            <Grid item xs={4}>
+                            <Grid size={{ xs: 4 }}
                               <Typography sx={statLabelSx}>RPG</Typography>
                               <Typography sx={statValueSx}>
                                 {player.rpg}
                               </Typography>
                             </Grid>
-                            <Grid item xs={4}>
+                            <Grid size={{ xs: 4 }}
                               <Typography sx={statLabelSx}>APG</Typography>
                               <Typography sx={statValueSx}>
                                 {player.apg}

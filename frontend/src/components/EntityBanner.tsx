@@ -2,7 +2,7 @@ import React from "react";
 import {
   Box,
   Typography,
-  Grid,
+  Grid2 as Grid,
   Avatar,
   IconButton,
   Stack,
@@ -215,7 +215,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
             )}
           </Box>
         </Grid>
-        <Grid item xs={12} sm sx={{ textAlign: { xs: "center", sm: "left" } }}>
+        <Grid size={{ xs: 12, sm: true }} sx={{ textAlign: { xs: "center", sm: "left" } }}>
           <Typography
             variant="h3"
             sx={{
@@ -244,7 +244,9 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
           )}
         </Grid>
         {stats.length > 0 && (
-          <Grid item xs={12} md="auto">
+          <Grid size={{ xs: 12, md: "auto" }}>
+
+
             <Stack
               direction="row"
               spacing={{ xs: 2, sm: 4 }}

@@ -6,7 +6,7 @@ import {
   DialogActions,
   Button,
   Typography,
-  Grid,
+  Grid2 as Grid,
   TextField,
   Box,
 } from "@mui/material";
@@ -84,7 +84,7 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
         </Typography>
 
         <Grid container spacing={3}>
-          <Grid item xs={6}>
+          <Grid size={{ xs: 6 }}
             <Typography
               variant="caption"
               sx={{ fontWeight: 800, mb: 1, display: "block" }}
@@ -111,7 +111,7 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
             </Box>
           </Grid>
 
-          <Grid item xs={6}>
+          <Grid size={{ xs: 6 }}
             <Typography
               variant="caption"
               sx={{ fontWeight: 800, mb: 1, display: "block" }}

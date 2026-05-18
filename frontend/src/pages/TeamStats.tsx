@@ -5,7 +5,7 @@ import {
   useMediaQuery,
   Box,
   Typography,
-  Grid,
+  Grid2 as Grid,
   Button,
   Avatar,
   Table,
@@ -1246,7 +1246,7 @@ const TeamStats: React.FC = () => {
           </Box>
           <Grid container spacing={2}>
             {sortedRoster.map((player) => (
-              <Grid item xs={12} sm={6} md={4} key={player.id}>
+              <Grid size={{ xs: 12, sm: 6, md: 4 }} key={player.id}>
                 <MoleskineCard
                   onClick={() =>
                     navigate(`/players/${player.id}?teamId=${teamId}`)
@@ -1433,7 +1433,7 @@ const TeamStats: React.FC = () => {
               </Typography>
               <Grid container spacing={1}>
                 {[1, 2, 3, 4].map((p) => (
-                  <Grid item xs={3} key={p}>
+                  <Grid size={{ xs: 3 }} key={p}>
                     <TextField
                       size="small"
                       label={`P${p}`}
@@ -1849,7 +1849,7 @@ const TeamStats: React.FC = () => {
                   Review Game Details
                 </Typography>
                 <Grid container spacing={2}>
-                  <Grid item xs={6}>
+                  <Grid size={{ xs: 6 }}
                     <Typography variant="caption" color="text.secondary">
                       OPPONENT
                     </Typography>
@@ -1857,7 +1857,7 @@ const TeamStats: React.FC = () => {
                       {newOpponent}
                     </Typography>
                   </Grid>
-                  <Grid item xs={6}>
+                  <Grid size={{ xs: 6 }}
                     <Typography variant="caption" color="text.secondary">
                       LOGISTICS
                     </Typography>
@@ -1866,10 +1866,10 @@ const TeamStats: React.FC = () => {
                     </Typography>
                     <Typography variant="caption">{newLocation}</Typography>
                   </Grid>
-                  <Grid item xs={12}>
+                  <Grid size={{ xs: 12 }}
                     <Divider sx={{ my: 1 }} />
                   </Grid>
-                  <Grid item xs={6}>
+                  <Grid size={{ xs: 6 }}
                     <Typography variant="caption" color="text.secondary">
                       FORMAT
                     </Typography>
@@ -1877,7 +1877,7 @@ const TeamStats: React.FC = () => {
                       {newPeriodType} ({newPeriodLength}m)
                     </Typography>
                   </Grid>
-                  <Grid item xs={6}>
+                  <Grid size={{ xs: 6 }}
                     <Typography variant="caption" color="text.secondary">
                       LIMITS
                     </Typography>
