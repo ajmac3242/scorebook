@@ -114,7 +114,7 @@ jobs:
           # Run eslint with output before failing
           pnpm exec eslint "src/**/*.{ts,tsx}" --config eslint.config.js --fix --rule '{"jsdoc/require-jsdoc": ["warn", {"enableFixer": true, "require": {"FunctionDeclaration": true, "FunctionExpression": true, "MethodDefinition": true}}]}' || true
           # Check if there are any remaining issues
-          pnpm exec eslint "src/**/*.{ts,tsx}" --config eslint.config.js --rule '{"jsdoc/require-jsdoc": ["warn", {"enableFixer": true, "require": {"FunctionDeclaration": true, "FunctionExpression": true, "MethodDefinition": true}}]}'
+          pnpm exec eslint "src/**/*.{ts,tsx}" --config eslint.config.js --fix
           echo "::endgroup::"
 
       - name: Commit Auto-fixes
