@@ -47,7 +47,7 @@ import {
   GridOn,
   Shield,
   ArrowBack,
-  HelpOutline,
+  HelpOutlined,
 } from "@mui/icons-material";
 import {
   Table,
@@ -2098,7 +2098,7 @@ const GameMode: React.FC = () => {
                   }
                 >
                   <IconButton size="small" aria-label="Keyboard Shortcuts Help">
-                    <HelpOutline fontSize="small" />
+                    <HelpOutlined fontSize="small" />
                   </IconButton>
                 </Tooltip>
               </Box>
