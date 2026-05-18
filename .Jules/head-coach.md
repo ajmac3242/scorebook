@@ -157,3 +157,11 @@ Observation: A thorough audit of the current implementation reveals that our "Vi
 Impact: We have moved past the "Ghost Archive" risk—the core engines are stable. The new risk is "Contextual Drift," where a coach sees the metrics but fails to adjust because the app doesn't explicitly flag the *delta* between intent and execution in real-time.
 
 Recommendation: Pivot the HIGH-priority backlog toward "Predictive Intervention." This includes identifying opponent substitution patterns before they exploit a mismatch, and a "Rust vs. Rhythm" optimizer to scientifically manage bench re-entry. We must also close the loop on "Possession Equity"—ensuring every player knows the mathematical value of their touches.
+
+## 2025-06-04 - Strategic Shift: From Data Saturation to Decision Automation
+
+Observation: CourtSight has reached a level of "Data Saturation." We are capturing almost every meaningful metric (PPP, eFG%, Net Rating, Kills), but the "Observation-to-Action" loop is still limited by the coach's ability to synthesize this data in the heat of the game. We are telling the coach *what* is happening, but the next frontier is automating the *why* and the *how to fix it*.
+
+Impact: Decision Lag remains the primary opponent. A coach might see a -10 Net Rating but spend their entire timeout trying to figure out if it's due to poor transition defense or bad shot selection. Furthermore, the bridge between game-time insights and the next practice session remains a manual, high-friction workflow.
+
+Recommendation: Transition to **Decision Automation** and **Frictionless Tactical Continuity**. We must prioritize the "Run Anatomy" HUD to provide immediate causal explanations for momentum shifts and the "Possession Equity" (PPT) metrics to drive player buy-in on unselfish play. Most importantly, we must close the loop on "Tactical Drift" by automating the "Practice Prescription" generation, ensuring every bookmarked game moment translates directly into a coaching correction in 48 hours. Finally, elite programs require "Two-Man Coverage," necessitating a Multi-Device Sync Bridge to separate data entry from strategic analysis.

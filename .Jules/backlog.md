@@ -1,5 +1,55 @@
 # CourtSight Backlog
 
+## [ ] [Live 'Possession Value' ROI (Points Per Touch)]
+**Priority:** HIGH
+**Type:** Analytics / UX
+**Why:** Modern coaching requires "Buy-In" on unselfishness. Quantifying the points generated per touch (PPT) transforms "ball-hogging" from a critique into a mathematical process failure.
+**What:** A live "Possession Equity" leaderboard that calculates Points Generated (Points + Points from Assists) divided by Total Touches.
+**Acceptance Criteria:**
+- [ ] "Equity Score" (PPT) column in the GameMode player table.
+- [ ] Real-time identification of "Possession Efficiency Gaps" (High touch count but low points generated).
+- [ ] A "Touch Flow" indicator showing if the ball is "sticking" (Touches without subsequent passes/shots).
+
+## [ ] [Visual 'Run Anatomy' & Momentum Causal Breakdown]
+**Priority:** HIGH
+**Type:** Feature / Decision Support
+**Why:** Identifying a run is easy; identifying the *source* is coaching. Surgical adjustments require knowing if an 8-0 run was caused by "Transition Leakage," "Rebounding Failure," or "Scheme Breakdown."
+**What:** A high-contrast "Run Anatomy" HUD that activates during an Opponent Run alert, categorizing the causal factors of the opponent's momentum.
+**Acceptance Criteria:**
+- [ ] "Anatomy Gauge" showing % of run points from: Second Chance, Fast Break, and Paint.
+- [ ] "Lineup Accountability": Highlighting which our unit was on the floor for the majority of the run.
+- [ ] One-tap "Tactical Pivot" recommendation (e.g., "Full-Court Press" or "Force Middle") based on the anatomy.
+
+## [ ] [Automated 'Practice Prescription' Generator]
+**Priority:** HIGH
+**Type:** UX / Workflow
+**Why:** The gap between game-time failure and practice-time correction is where seasons are lost. Automating the bridge between live "Bookmarked" events and a formal practice plan ensures zero "Tactical Drift."
+**What:** A system that aggregates "Practice Bookmarks" and "Defensive Breakdowns" into a downloadable "Practice Prescription" PDF.
+**Acceptance Criteria:**
+- [ ] One-tap "Practice Bookmark" on the Recent Action HUD.
+- [ ] "Prescription Engine" that identifies the top 3 tactical failures (e.g., "Transition Defense") based on frequency of breakdowns.
+- [ ] Exportable PDF with a summary of teaching moments, associated players, and timestamps.
+
+## [ ] [Strategic 'End-of-Clock' & 'Foul-to-Give' Tactical HUD]
+**Priority:** HIGH
+**Type:** Feature / Decision Support
+**Why:** The final 60 seconds is "Winning Time." Mental fatigue often leads to errors in "Foul-to-Give" math or "Advance" rules. This HUD automates the tactical math so the coach can focus on the play.
+**What:** A specialized "End-of-Clock" HUD that activates in the final 2 minutes of the game, surfacing situational math.
+**Acceptance Criteria:**
+- [ ] Persistent "Fouls to Give" display (for both teams).
+- [ ] "Timeout Advance Status": Visual confirmation if taking a timeout allows the ball to advance.
+- [ ] "Tactical Directives": e.g., "Foul to Give: Agressive Defense" or "Zero Fouls to Give: No Reaching."
+
+## [ ] [Elite Program: Multi-Device 'Scout-to-Bench' Sync Bridge]
+**Priority:** HIGH
+**Type:** Feature / Infrastructure
+**Why:** Elite programs use "Two-Man Coverage"—a scorekeeper behind the bench and a coach on the sideline. Real-time sync ensures the coach has live data on a tablet while the assistant tracks the game.
+**What:** A real-time websocket or polling-based sync bridge that allows two devices to share the same game state with <500ms latency.
+**Acceptance Criteria:**
+- [ ] "Join as Observer" mode for secondary devices.
+- [ ] Real-time updates of the Scoreboard and Tactical HUDs on the observer device.
+- [ ] Conflict-free stat entry (primary device only for writes, or locked writes).
+
 ## [ ] [Live 'Tactical Adherence' Auditor]
 **Priority:** HIGH
 **Type:** Feature / Decision Support
@@ -9,16 +59,6 @@
 - [ ] Configurable "Game Plan Constraint" selector in GameMode.
 - [ ] Live "Adherence Grade" based on StatEvents matching (or violating) the constraint.
 - [ ] "Alert: Tactical Drift" when violations exceed 3 in a single period.
-
-## [ ] [Full-Game 'Possession Equity' Ledger]
-**Priority:** HIGH
-**Type:** Analytics / UX
-**Why:** Every touch has a value. Players need to see the "ROI" of their possessions (e.g., "You used 15 possessions to generate 10 points") to drive unselfish play.
-**What:** A leaderboard surfacing "Points Per Touch" and "Points Generated Per Possession Used" for all active players.
-**Acceptance Criteria:**
-- [ ] "Equity Score" column in GameStats (Points Generated / Total Touches).
-- [ ] Identification of "Possession Black Holes" (High usage, low points generated).
-- [ ] Visual flow chart showing where the "Possession Value" was lost (TOs vs Misses).
 
 ## [ ] [Opponent Substitution 'Pattern Matcher']
 **Priority:** HIGH
@@ -50,16 +90,6 @@
 - [ ] "Rust Warning" when a player has been sitting for > 10 game minutes.
 - [ ] Correlation of "Stint 1 Efficiency" to "Stint 2 Rhythm" to predict individual player warm-up needs.
 
-## [ ] [Live 'Practice Plan' Bookmark & Tactical Tagging]
-**Priority:** HIGH
-**Type:** UX / Feature
-**Why:** Coaches identify teaching moments during games but often forget them by the next practice. One-tap "Practice Bookmarking" ensures the film session and practice plan are pre-populated with actual game events.
-**What:** Add a "Bookmark for Practice" icon to the RecentActionItem and the "Opponent Score" workflow. These bookmarks aggregate into a "Practice Prescription" report.
-**Acceptance Criteria:**
-- [ ] Bookmark icon visible on all recent action items.
-- [ ] Optional "Coach Note" field when bookmarking.
-- [ ] Dedicated "Practice Plan" section in GameStats showing bookmarked events.
-
 ## [ ] [Unit 'Familiarity & Synergy' Risk Advisor]
 **Priority:** HIGH
 **Type:** Decision Support / Analytics
@@ -69,16 +99,6 @@
 - [ ] "Familiarity Score" (Total Shared Minutes) displayed for the active lineup.
 - [ ] Visual warning: "High Communication Risk" for units with < 10 shared minutes.
 - [ ] Net Rating comparison: Current Unit vs. Season Average for that unit.
-
-## [ ] [Final-Minute 'Advance' & Foul-to-Give Tactical HUD]
-**Priority:** HIGH
-**Type:** Feature / Decision Support
-**Why:** The final 60 seconds require precision tactical math (Fouls to give, Advance status). Mistakes here lose games.
-**What:** A specialized HUD that activates in the final 1:00 of the 4th/OT, surfacing fouls to give and advance directives.
-**Acceptance Criteria:**
-- [ ] "Fouls to Give" counter clearly visible in the final minute.
-- [ ] "Advance Directive": Visual indicator if a timeout will allow an advance.
-- [ ] "Clock Management" advice: e.g., "Don't Foul - Use Foul-to-Give at 8s".
 
 ## [ ] [Live Personnel Tendency 'Assistant' Alerts]
 **Priority:** HIGH
@@ -110,16 +130,6 @@
 - [ ] Visual progress bar indicating 'Rhythm Decay' on bench cards.
 - [ ] "Star Return Alert" for players with `isStar: 1` who have been sitting for more than 25% of the total game time.
 - [ ] Integration with the HALT system to prioritize warming up cold stars.
-
-## [ ] [Opponent Run 'Anatomy' Live Breakdown]
-**Priority:** HIGH
-**Type:** Feature / Analytics
-**Why:** Recognizing an 8-0 run is basic; recognizing that 6 of those points came from "Transition Leakage" is coaching. Breakdown anatomy allows for surgical adjustments.
-**What:** A dynamic modal or sidebar widget that activates during an "Opponent Run" alert, identifying the primary causal factors (e.g., TOs, OREBs, Scheme Failure).
-**Acceptance Criteria:**
-- [ ] "Run Source" breakdown: % of run points from Fast Break vs Set Defense.
-- [ ] "Scheme Accountability": Indicator of which defensive scheme (Man/Zone) was active during the run.
-- [ ] One-tap "Stop the Bleeding" tactical suggestion (e.g., "Switch to Zone to force a slower pace").
 
 ## [ ] [Defensive 'Communication Seam' Identifier]
 **Priority:** HIGH
@@ -240,12 +250,6 @@
 - [ ] Live indicator in GameMode: "Opponent scoring 1.4 PPP on PnR."
 - [ ] "Adjustment Suggestion" based on active scheme (e.g., "Switch screens to neutralize #24").
 - [ ] Post-game breakdown in GameStats showing "Points Allowed by Action Type x Our Scheme."
-
-## Coach-Assistant Live Sync Bridge
-**Priority:** HIGH
-**Type:** Feature
-**Why:** Elite programs use multiple sets of eyes.
-**What:** A multi-device websocket or real-time sync layer.
 
 ## [ ] Dynamic "Target Attack" Identifier
 **Priority:** HIGH
