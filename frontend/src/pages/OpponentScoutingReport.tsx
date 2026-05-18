@@ -22,30 +22,30 @@ import { Groups as OpponentsIcon } from "@mui/icons-material";
 const OpponentScoutingReport: React.FC = () => {
   const { opponentId } = useParams<{ opponentId: string }>();
 
-  const opponent = useLiveQuery(
+  const opponent = useLiveQuery<any>(
     () =>
-      opponentId ? db.opponents.get(opponentId) : Promise.resolve(undefined),
+      opponentId ? db.opponents.get(opponentId) : undefined,
     [opponentId],
   );
 
-  const games = useLiveQuery(
+  const games = useLiveQuery<any>(
     () =>
       opponentId
         ? db.games.where("opponentId").equals(opponentId).toArray()
-        : Promise.resolve([]),
+        : [],
     [opponentId],
   );
 
   const gameIds = useMemo(
-    () => (games?.map((g) => g.id).filter(Boolean) as string[]) || [],
+    () => (games?.map((g: any) => g.id).filter(Boolean) as string[]) || [],
     [games],
   );
 
-  const stats = useLiveQuery(
+  const stats = useLiveQuery<any>(
     () =>
       gameIds.length > 0
         ? db.stats.where("gameId").anyOf(gameIds).toArray()
-        : Promise.resolve([]),
+        : [],
     [gameIds],
   );
 
@@ -71,7 +71,7 @@ const OpponentScoutingReport: React.FC = () => {
       />
 
       <Grid container spacing={3} sx={{ mt: 2 }}>
-        <Grid item xs={12}>
+        <Grid  size={{xs: 12}}>
           <MoleskineCard>
             <Typography variant="h6" sx={{ fontFamily: "var(--serif)", mb: 2 }}>
               Player Scouting (Cumulative)

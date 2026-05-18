@@ -175,8 +175,7 @@ const GameStats: React.FC = () => {
       const data = payload[0].payload;
       return (
         <Box
-          sx={{
-            bgcolor: "white",
+          sx={{bgcolor: "white",
             p: 2,
             border: "1px solid rgba(0,0,0,0.1)",
             boxShadow: theme.shadows[3],
@@ -226,7 +225,7 @@ const GameStats: React.FC = () => {
             )}
           </Stack>
           <Grid container spacing={1}>
-            <Grid item xs={6}>
+            <Grid  size={{xs: 6}}>
               <Typography variant="caption" sx={{ display: "block" }}>
                 TEAM PPP
               </Typography>
@@ -234,7 +233,7 @@ const GameStats: React.FC = () => {
                 {data.teamPpp || "0.00"}
               </Typography>
             </Grid>
-            <Grid item xs={6}>
+            <Grid  size={{xs: 6}}>
               <Typography variant="caption" sx={{ display: "block" }}>
                 OPP PPP
               </Typography>
@@ -249,21 +248,21 @@ const GameStats: React.FC = () => {
     return null;
   };
 
-  const game = useLiveQuery(
+  const game = useLiveQuery<any>(
     () =>
       gameId !== undefined
         ? db.games.get(gameId as string)
-        : Promise.resolve(undefined),
+        : undefined,
     [gameId],
   );
 
-  const team = useLiveQuery(
+  const team = useLiveQuery<any>(
     () =>
-      game?.teamId ? db.teams.get(game.teamId) : Promise.resolve(undefined),
+      game?.teamId ? db.teams.get(game.teamId) : undefined,
     [game?.teamId],
   );
 
-  const teamSeasonStatsResult = useLiveQuery(
+  const teamSeasonStatsResult = useLiveQuery<any>(
     () =>
       game?.teamId
         ? db.games
@@ -271,7 +270,7 @@ const GameStats: React.FC = () => {
             .equals(game.teamId)
             .toArray()
             .then((games) => {
-              const gameIds = games.map((g) => g.id!).filter(Boolean);
+              const gameIds = games.map((g: any) => g.id!).filter(Boolean);
               return db.stats
                 .where("gameId")
                 .anyOf(gameIds)
@@ -280,7 +279,7 @@ const GameStats: React.FC = () => {
                   calculateTeamSeasonAverages(games, allStats),
                 );
             })
-        : Promise.resolve(undefined),
+        : undefined,
     [game?.teamId],
   );
 
@@ -295,11 +294,11 @@ const GameStats: React.FC = () => {
     );
   }, [teamSeasonStatsResult]);
 
-  const teamPlayersResult = useLiveQuery(
+  const teamPlayersResult = useLiveQuery<any>(
     () =>
       game?.teamId
         ? db.teamPlayers.where("teamId").equals(game.teamId).toArray()
-        : Promise.resolve([]),
+        : [],
     [game?.teamId],
   );
   const teamPlayers = useMemo(
@@ -308,11 +307,11 @@ const GameStats: React.FC = () => {
   );
 
   const playerIds = useMemo(
-    () => teamPlayers.map((tp) => tp.playerId.toString()),
+    () => teamPlayers.map((tp: any) => tp.playerId.toString()),
     [teamPlayers],
   );
 
-  const playersResult = useLiveQuery(
+  const playersResult = useLiveQuery<any>(
     () => db.players.where("id").anyOf(playerIds).toArray(),
     [playerIds],
   );
@@ -320,19 +319,19 @@ const GameStats: React.FC = () => {
 
   useEffect(() => {
     if (game) {
-      setEditOpponent(game.opponent || "");
+      setEditOpponent(game.opponent as string || "");
       setEditDate(game.date || "");
       setEditTime(game.time || "");
-      setEditLocation(game.location || "");
-      setEditOpponentLogoUrl(game.opponentLogoUrl || "");
+      setEditLocation(game.location as string || "");
+      setEditOpponentLogoUrl(game.opponentLogoUrl as string || "");
     }
   }, [game]);
 
-  const allStatsResult = useLiveQuery(
+  const allStatsResult = useLiveQuery<any>(
     () =>
       gameId !== undefined
         ? db.stats.where("gameId").equals(gameId).toArray()
-        : Promise.resolve([]),
+        : [],
     [gameId],
   );
   const allStats = useMemo(
@@ -967,12 +966,7 @@ const GameStats: React.FC = () => {
   );
   const shotChartFilters = (
     <Box sx={{ mb: 2 }}>
-      <Stack
-        direction="row"
-        justifyContent="space-between"
-        alignItems="center"
-        mb={1}
-      >
+      <Stack direction="row" sx={{ mb: 1, alignItems: "center", justifyContent: "space-between"}}>
         <Typography variant="subtitle2">Filters</Typography>
         <Stack direction="row" spacing={1}>
           <Button
@@ -1003,7 +997,7 @@ const GameStats: React.FC = () => {
             onChange={(e) => setSelectedPlayerId(e.target.value)}
           >
             <MenuItem value="ALL">All Players</MenuItem>
-            {players.map((p) => (
+            {players.map((p: any) => (
               <MenuItem key={p.id} value={p.id}>
                 {p.name}
               </MenuItem>
@@ -1058,7 +1052,7 @@ const GameStats: React.FC = () => {
               onChange={(e) => setSelectedPlay(e.target.value)}
             >
               <MenuItem value="ALL">All Plays</MenuItem>
-              {team.playbook.map((play) => (
+              {team.playbook.map((play: any) => (
                 <MenuItem key={play} value={play}>
                   {play}
                 </MenuItem>
@@ -1275,7 +1269,7 @@ const GameStats: React.FC = () => {
       sx={{ pb: 4, opacity: isDeleted ? 0.7 : 1, bgcolor: "white" }}
     >
       <EntityBanner
-        title={game?.opponent ? `vs ${game.opponent}` : "Game Stats"}
+        title={game?.opponent ? `vs ${game.opponent as string}` : "Game Stats"}
         subtitle={`${game?.date ? dayjs(game.date).format("MM-DD-YYYY") : ""} ${game?.time || ""} | ${game?.location || ""}`}
         avatarSrc={game?.opponentLogoUrl}
         avatarColor="rgba(255,255,255,0.1)"
@@ -1286,7 +1280,7 @@ const GameStats: React.FC = () => {
           { label: "Def. PPP", value: oppData.ppp },
         ]}
         actions={
-          <Stack direction="row" spacing={1} alignItems="center">
+          <Stack direction="row" spacing={1} sx={{alignItems: "center"}}>
             {!isDeleted && (
               <Stack direction="row" spacing={1}>
                 <Button
@@ -1357,7 +1351,7 @@ const GameStats: React.FC = () => {
           gap: 2,
         }}
       >
-        <Stack direction="row" spacing={2} alignItems="center">
+        <Stack direction="row" spacing={2} sx={{alignItems: "center"}}>
           <ToggleButtonGroup
             value={activeTab}
             exclusive
@@ -1377,7 +1371,7 @@ const GameStats: React.FC = () => {
             fullWidth={Boolean(isMobile)}
             sx={{ flexGrow: isMobile ? 1 : 0 }}
           >
-            {periods.map((p) => (
+            {periods.map((p: any) => (
               <ToggleButton key={p} value={p}>
                 {p === "ALL" ? "Full Game" : `${periodLabel} ${p}`}
               </ToggleButton>
@@ -1409,7 +1403,7 @@ const GameStats: React.FC = () => {
 
       <Grid container spacing={3}>
         {activeTab === "impact" && (
-          <Grid item xs={12}>
+          <Grid  size={{xs: 12}}>
             <MoleskineCard>
               <Typography
                 variant="h6"
@@ -1423,7 +1417,7 @@ const GameStats: React.FC = () => {
         )}
 
         {activeTab === "impact" && (
-          <Grid item xs={12}>
+          <Grid  size={{xs: 12}}>
             <MoleskineCard>
               <Typography
                 variant="h6"
@@ -1477,13 +1471,13 @@ const GameStats: React.FC = () => {
         )}
 
         {/* Defensive Metrics Card */}
-        <Grid item xs={12}>
+        <Grid  size={{xs: 12}}>
           <MoleskineCard>
             <Typography variant="h6" sx={{ fontFamily: "var(--serif)", mb: 2 }}>
               Defensive Metrics
             </Typography>
             <Grid container spacing={4}>
-              <Grid item xs={4}>
+              <Grid  size={{xs: 4}}>
                 <Box sx={{ textAlign: "center" }}>
                   <Typography
                     variant="h4"
@@ -1497,7 +1491,7 @@ const GameStats: React.FC = () => {
                   </Typography>
                 </Box>
               </Grid>
-              <Grid item xs={4}>
+              <Grid  size={{xs: 4}}>
                 <Box sx={{ textAlign: "center" }}>
                   <Typography
                     variant="h4"
@@ -1511,7 +1505,7 @@ const GameStats: React.FC = () => {
                   </Typography>
                 </Box>
               </Grid>
-              <Grid item xs={4}>
+              <Grid  size={{xs: 4}}>
                 <Box sx={{ textAlign: "center" }}>
                   <Typography variant="h4" sx={{ fontWeight: 700 }}>
                     {defensiveStats.currentStreak}
@@ -1526,7 +1520,7 @@ const GameStats: React.FC = () => {
         </Grid>
 
         {/* Box Score Card */}
-        <Grid item xs={12}>
+        <Grid  size={{xs: 12}}>
           <MoleskineCard>
             <Box
               sx={{
@@ -1553,7 +1547,7 @@ const GameStats: React.FC = () => {
         </Grid>
 
         {/* Shot Chart Card */}
-        <Grid item xs={12} md={compareMode ? 12 : 6}>
+        <Grid  size={{xs: 12, md: compareMode ? 12 : 6}}>
           <MoleskineCard>
             <Box
               sx={{
@@ -1611,12 +1605,7 @@ const GameStats: React.FC = () => {
                       scrollSnapAlign: "start",
                     }}
                   >
-                    <Stack
-                      direction="row"
-                      justifyContent="space-between"
-                      alignItems="center"
-                      sx={{ mb: 1 }}
-                    >
+                    <Stack direction="row" sx={{alignItems: "center", justifyContent: "space-between", mb: 1}}>
                       <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
                         {periodLabel} {court.p}
                       </Typography>
@@ -1627,8 +1616,8 @@ const GameStats: React.FC = () => {
                         sx={{ height: 30, fontSize: "0.8rem" }}
                       >
                         {periods
-                          .filter((p) => p !== "ALL")
-                          .map((p) => (
+                          .filter((p: any) => p !== "ALL")
+                          .map((p: any) => (
                             <MenuItem key={p} value={p}>
                               {periodLabel} {p}
                             </MenuItem>
@@ -1657,13 +1646,7 @@ const GameStats: React.FC = () => {
             )}
 
             {compareMode && isMobile && (
-              <Typography
-                variant="caption"
-                display="block"
-                textAlign="center"
-                color="text.secondary"
-                sx={{ mt: 1 }}
-              >
+              <Typography variant="caption" color="text.secondary" sx={{display: "block", textAlign: "center", mt: 1}}>
                 ← Swipe to compare →
               </Typography>
             )}
@@ -1671,7 +1654,7 @@ const GameStats: React.FC = () => {
         </Grid>
 
         {/* Score Flow Card */}
-        <Grid item xs={12} md={6}>
+        <Grid  size={{xs: 12, md: 6}}>
           <MoleskineCard>
             <Box
               sx={{
@@ -1698,9 +1681,9 @@ const GameStats: React.FC = () => {
         </Grid>
 
         {/* Efficiency Analytics Card */}
-        <Grid item xs={12}>
+        <Grid  size={{xs: 12}}>
           <Grid container spacing={3}>
-            <Grid item xs={12} md={6}>
+            <Grid  size={{xs: 12, md: 6}}>
               <MoleskineCard>
                 <Typography
                   variant="h6"
@@ -1725,11 +1708,7 @@ const GameStats: React.FC = () => {
                       {individualDefensiveBreakdown.map((row) => (
                         <TableRow key={row.playerId}>
                           <TableCell>
-                            <Stack
-                              direction="row"
-                              spacing={1}
-                              alignItems="center"
-                            >
+                            <Stack direction="row" spacing={1} sx={{alignItems: "center"}}>
                               <Avatar
                                 sx={{
                                   width: 24,
@@ -1775,7 +1754,7 @@ const GameStats: React.FC = () => {
               </MoleskineCard>
             </Grid>
 
-            <Grid item xs={12} md={4}>
+            <Grid  size={{xs: 12, md: 4}}>
               <MoleskineCard>
                 <Typography
                   variant="h6"
@@ -1784,18 +1763,14 @@ const GameStats: React.FC = () => {
                   Rim Pressure (Paint Touches)
                 </Typography>
                 <Box sx={{ mb: 2 }}>
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    display="block"
-                  >
+                  <Typography variant="caption" color="text.secondary" sx={{display: "block"}}>
                     Paint touches correlate rim pressure with offensive
                     efficiency. PPPT measures points generated within 15s of a
                     paint touch.
                   </Typography>
                 </Box>
                 <Grid container spacing={2} sx={{ mb: 3 }}>
-                  <Grid item xs={6}>
+                  <Grid  size={{xs: 6}}>
                     <Typography variant="h4" sx={{ fontWeight: 900 }}>
                       {paintTouchStats.total}
                     </Typography>
@@ -1803,7 +1778,7 @@ const GameStats: React.FC = () => {
                       TOTAL TOUCHES
                     </Typography>
                   </Grid>
-                  <Grid item xs={6}>
+                  <Grid  size={{xs: 6}}>
                     <Typography
                       variant="h4"
                       sx={{ fontWeight: 900, color: "success.main" }}
@@ -1834,7 +1809,7 @@ const GameStats: React.FC = () => {
               </MoleskineCard>
             </Grid>
 
-            <Grid item xs={12} md={4}>
+            <Grid  size={{xs: 12, md: 4}}>
               <MoleskineCard>
                 <Typography
                   variant="h6"
@@ -1843,17 +1818,13 @@ const GameStats: React.FC = () => {
                   Process Report (ROI)
                 </Typography>
                 <Box sx={{ mb: 2 }}>
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    display="block"
-                  >
+                  <Typography variant="caption" color="text.secondary" sx={{display: "block"}}>
                     This report compares actual scoring against Expected Points
                     (xPTS) based on shot location and quality.
                   </Typography>
                 </Box>
                 <Grid container spacing={2} sx={{ mb: 3 }}>
-                  <Grid item xs={6}>
+                  <Grid  size={{xs: 6}}>
                     <Typography variant="h4" sx={{ fontWeight: 900 }}>
                       {shotROI.totalPoints}
                     </Typography>
@@ -1861,7 +1832,7 @@ const GameStats: React.FC = () => {
                       ACTUAL PTS
                     </Typography>
                   </Grid>
-                  <Grid item xs={6}>
+                  <Grid  size={{xs: 6}}>
                     <Typography
                       variant="h4"
                       sx={{ fontWeight: 900, color: "primary.main" }}
@@ -1900,7 +1871,7 @@ const GameStats: React.FC = () => {
               </MoleskineCard>
             </Grid>
 
-            <Grid item xs={12} md={4}>
+            <Grid  size={{xs: 12, md: 4}}>
               <MoleskineCard>
                 <Typography
                   variant="h6"
@@ -1944,11 +1915,7 @@ const GameStats: React.FC = () => {
                         .map((edge, idx) => (
                           <TableRow key={idx}>
                             <TableCell>
-                              <Stack
-                                direction="row"
-                                spacing={1}
-                                alignItems="center"
-                              >
+                              <Stack direction="row" spacing={1} sx={{alignItems: "center"}}>
                                 <Avatar
                                   sx={{
                                     width: 20,
@@ -2011,28 +1978,20 @@ const GameStats: React.FC = () => {
                       borderRadius: 1,
                     }}
                   >
-                    <Typography
-                      variant="caption"
-                      display="block"
-                      sx={{ fontWeight: 800 }}
-                    >
+                    <Typography variant="caption" sx={{display: "block", fontWeight: 800}}>
                       PRIMARY PLAYMAKER: #
-                      {shotChartJerseyMap.get(assistNetwork.primaryPlaymakerId)}
+                      {shotChartJerseyMap.get(assistNetwork.primaryPlaymakerId as any)}
                     </Typography>
-                    <Typography
-                      variant="caption"
-                      display="block"
-                      sx={{ fontWeight: 800 }}
-                    >
+                    <Typography variant="caption" sx={{display: "block", fontWeight: 800}}>
                       PRIMARY FINISHER: #
-                      {shotChartJerseyMap.get(assistNetwork.primaryFinisherId)}
+                      {shotChartJerseyMap.get(assistNetwork.primaryFinisherId as any)}
                     </Typography>
                   </Box>
                 )}
               </MoleskineCard>
             </Grid>
 
-            <Grid item xs={12} md={4}>
+            <Grid  size={{xs: 12, md: 4}}>
               <MoleskineCard>
                 <Typography
                   variant="h6"
@@ -2098,7 +2057,7 @@ const GameStats: React.FC = () => {
               </MoleskineCard>
             </Grid>
 
-            <Grid item xs={12} md={4}>
+            <Grid  size={{xs: 12, md: 4}}>
               <MoleskineCard>
                 <Typography
                   variant="h6"
@@ -2123,7 +2082,7 @@ const GameStats: React.FC = () => {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {shotClockEfficiency.map((p) => (
+                      {shotClockEfficiency.map((p: any) => (
                         <TableRow key={p.phase}>
                           <TableCell sx={{ fontWeight: 600 }}>
                             {p.phase}
@@ -2139,7 +2098,7 @@ const GameStats: React.FC = () => {
               </MoleskineCard>
             </Grid>
 
-            <Grid item xs={12} md={4}>
+            <Grid  size={{xs: 12, md: 4}}>
               <MoleskineCard>
                 <Typography
                   variant="h6"
@@ -2164,7 +2123,7 @@ const GameStats: React.FC = () => {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {processEfficiency.map((p) => (
+                      {processEfficiency.map((p: any) => (
                         <TableRow key={p.quality}>
                           <TableCell sx={{ fontWeight: 600 }}>
                             {p.quality}
@@ -2180,7 +2139,7 @@ const GameStats: React.FC = () => {
               </MoleskineCard>
             </Grid>
 
-            <Grid item xs={12} md={4}>
+            <Grid  size={{xs: 12, md: 4}}>
               <MoleskineCard>
                 <Typography
                   variant="h6"
@@ -2205,7 +2164,7 @@ const GameStats: React.FC = () => {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {playEfficiency.map((play) => (
+                      {playEfficiency.map((play: any) => (
                         <TableRow key={play.name}>
                           <TableCell sx={{ fontWeight: 600 }}>
                             {play.name}
@@ -2227,7 +2186,7 @@ const GameStats: React.FC = () => {
                 </TableContainer>
               </MoleskineCard>
             </Grid>
-            <Grid item xs={12} md={4}>
+            <Grid  size={{xs: 12, md: 4}}>
               <MoleskineCard>
                 <Box
                   sx={{
@@ -2305,7 +2264,7 @@ const GameStats: React.FC = () => {
                 </TableContainer>
               </MoleskineCard>
             </Grid>
-            <Grid item xs={12} md={4}>
+            <Grid  size={{xs: 12, md: 4}}>
               <MoleskineCard>
                 <Box
                   sx={{
@@ -2318,7 +2277,7 @@ const GameStats: React.FC = () => {
                   <Typography variant="h6" sx={{ fontFamily: "var(--serif)" }}>
                     Lineup Efficiency
                   </Typography>
-                  <Stack direction="row" spacing={1} alignItems="center">
+                  <Stack direction="row" spacing={1} sx={{alignItems: "center"}}>
                     <Button
                       size="small"
                       variant="outlined"
@@ -2339,7 +2298,7 @@ const GameStats: React.FC = () => {
                 {lineupTable}
               </MoleskineCard>
             </Grid>
-            <Grid item xs={12} md={4}>
+            <Grid  size={{xs: 12, md: 4}}>
               <MoleskineCard>
                 <Typography
                   variant="h6"
@@ -2402,14 +2361,14 @@ const GameStats: React.FC = () => {
                               fontSize: "0.75rem",
                               fontWeight: 700,
                               color:
-                                parseFloat(row.delta) > 0
+                                parseFloat(row.delta || "0") > 0
                                   ? "success.main"
-                                  : parseFloat(row.delta) < 0
+                                  : parseFloat(row.delta || "0") < 0
                                     ? "error.main"
                                     : "inherit",
                             }}
                           >
-                            {parseFloat(row.delta) > 0 ? "+" : ""}
+                            {parseFloat(row.delta || "0") > 0 ? "+" : ""}
                             {row.delta}
                           </TableCell>
                           <TableCell
@@ -2543,7 +2502,7 @@ const GameStats: React.FC = () => {
               fullWidth
               label="Date"
               type="date"
-              InputLabelProps={{ shrink: true }}
+              slotProps={{ inputLabel: { shrink: true } }}
               value={editDate}
               onChange={(e) => setEditDate(e.target.value)}
             />
@@ -2551,7 +2510,7 @@ const GameStats: React.FC = () => {
               fullWidth
               label="Time"
               type="time"
-              InputLabelProps={{ shrink: true }}
+              slotProps={{ inputLabel: { shrink: true } }}
               value={editTime}
               onChange={(e) => setEditTime(e.target.value)}
             />
@@ -2578,7 +2537,7 @@ const GameStats: React.FC = () => {
         maxWidth="sm"
       >
         <DialogTitle sx={{ fontFamily: "var(--serif)", fontWeight: 800 }}>
-          <Stack direction="row" alignItems="center" spacing={1}>
+          <Stack direction="row" spacing={1} sx={{alignItems: "center"}}>
             <PracticeIcon color="success" />
             <span>Practice Prescription Engine</span>
           </Stack>

@@ -91,7 +91,7 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
           their positions.
         </Typography>
         <Grid container spacing={2} sx={{ mt: 1 }}>
-          <Grid item xs={6}>
+          <Grid  size={{xs: 6}}>
             <Typography variant="subtitle2" gutterBottom align="center">
               ON COURT
             </Typography>
@@ -206,7 +206,7 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
               })}
             </Stack>
           </Grid>
-          <Grid item xs={6}>
+          <Grid  size={{xs: 6}}>
             <Typography variant="subtitle2" gutterBottom align="center">
               BENCH
             </Typography>

@@ -156,7 +156,7 @@ const Teams: React.FC = () => {
     [teams],
   );
 
-  const allGamesQueryResult = useLiveQuery(() => {
+  const allGamesQueryResult = useLiveQuery<any>(() => {
     if (teamIds.length === 0) return [];
     return db.games
       .where("teamId")
@@ -174,7 +174,7 @@ const Teams: React.FC = () => {
     [allGames],
   );
 
-  const allStatsQueryResult = useLiveQuery(() => {
+  const allStatsQueryResult = useLiveQuery<any>(() => {
     if (gameIds.length === 0) return [];
     return db.stats
       .where("gameId")

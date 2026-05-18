@@ -87,7 +87,7 @@ const PlayerStats: React.FC = () => {
   const [timeLeft, setTimeLeft] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
-  const player = useLiveQuery(
+  const player = useLiveQuery<any>(
     () => (playerId ? db.players.get(playerId) : undefined),
     [playerId],
   );
@@ -121,7 +121,7 @@ const PlayerStats: React.FC = () => {
   const teams = useTeams();
 
   const teamPlayers =
-    useLiveQuery(
+    useLiveQuery<any>(
       () =>
         playerId
           ? db.teamPlayers
@@ -132,14 +132,14 @@ const PlayerStats: React.FC = () => {
       [playerId],
     ) || [];
 
-  const gamesQueryResult = useLiveQuery(
+  const gamesQueryResult = useLiveQuery<any>(
     () =>
       teamIdParam ? db.games.where("teamId").equals(teamIdParam).toArray() : [],
     [teamIdParam],
   );
   const games = useMemo(() => (gamesQueryResult || []) as Game[], [gamesQueryResult]);
 
-  const allStatsResult = useLiveQuery(
+  const allStatsResult = useLiveQuery<any>(
     () =>
       playerId !== undefined
         ? db.stats.where("playerId").equals(playerId).toArray()

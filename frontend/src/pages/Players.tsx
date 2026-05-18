@@ -73,7 +73,7 @@ const Players: React.FC = () => {
     severity: "success" | "error";
   }>({ open: false, message: "", severity: "success" });
 
-  const playersResult = useLiveQuery(() => {
+  const playersResult = useLiveQuery<any>(() => {
     return db.players
       .toArray()
       .then((all) => {
@@ -99,7 +99,7 @@ const Players: React.FC = () => {
 
   const players = useMemo(() => playersResult || [], [playersResult]);
 
-  const allStatsResult = useLiveQuery(() => db.stats.toArray());
+  const allStatsResult = useLiveQuery<any>(() => db.stats.toArray());
   const allStats = useMemo(() => allStatsResult || [], [allStatsResult]);
 
   const playersWithStats = useMemo<PlayerWithStats[]>(() => {

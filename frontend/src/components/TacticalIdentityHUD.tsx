@@ -59,12 +59,7 @@ export const TacticalIdentityHUD: React.FC<TacticalIdentityHUDProps> = ({
             sx={{ flex: 1, maxWidth: 200 }}
             aria-label={`${kpi.label}: ${kpi.value}${kpi.isPercentage ? "%" : ""}. Target: ${kpi.target}${kpi.isPercentage ? "%" : ""}`}
           >
-            <Stack
-              direction="row"
-              justifyContent="space-between"
-              alignItems="center"
-              sx={{ mb: 0.5 }}
-            >
+            <Stack direction="row" sx={{alignItems: "center", justifyContent: "space-between", mb: 0.5}}>
               <Tooltip title={description} arrow placement="top">
                 <Typography
                   variant="caption"
