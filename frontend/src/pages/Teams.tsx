@@ -11,7 +11,7 @@ import {
   DialogTitle,
   FormControl,
   FormHelperText,
-  Grid2 as Grid,
+  Grid,
   IconButton,
   InputAdornment,
   InputLabel,
@@ -434,7 +434,7 @@ const Teams: React.FC = () => {
                   bgcolor: "background.paper",
                 },
               }}
-              InputProps={{
+              slotProps={{ input: {
                 startAdornment: (
                   <InputAdornment position="start">
                     <SearchIcon
@@ -442,7 +442,7 @@ const Teams: React.FC = () => {
                     />
                   </InputAdornment>
                 ),
-              }}
+              } }}
             />
             <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
               <Chip
@@ -948,7 +948,7 @@ const Teams: React.FC = () => {
                 type="number"
                 value={fouls}
                 onChange={(e) => setFouls(Number(e.target.value))}
-                inputProps={{ min: 1 }}
+                slotProps={{ input: { min: 1 }}
                 fullWidth
               />
               <FormHelperText>
