@@ -969,7 +969,7 @@ const GameStats: React.FC = () => {
     <Box sx={{ mb: 2 }}>
       <Stack
         direction="row"
-            sx={{ justifyContent: "space-between", alignItems: "center", mb: 1 }}
+        sx={{ justifyContent: "space-between", alignItems: "center", mb: 1 }}
       >
         <Typography variant="subtitle2">Filters</Typography>
         <Stack direction="row" spacing={1}>

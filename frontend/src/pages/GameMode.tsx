@@ -1239,7 +1239,11 @@ const GameMode: React.FC = () => {
                       );
                     }
                     return (
-                      <Stack direction="row" sx={{ alignItems: "center" }} spacing={1}>
+                      <Stack
+                        direction="row"
+                        sx={{ alignItems: "center" }}
+                        spacing={1}
+                      >
                         <Avatar
                           sx={{
                             width: 24,

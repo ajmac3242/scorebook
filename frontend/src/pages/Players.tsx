@@ -388,15 +388,17 @@ const Players: React.FC = () => {
                   bgcolor: "background.paper",
                 },
               }}
-              slotProps={{ input: {
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon
-                      sx={{ color: "text.secondary", fontSize: 18 }}
-                    />
-                  </InputAdornment>
-            )
-          } }}
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon
+                        sx={{ color: "text.secondary", fontSize: 18 }}
+                      />
+                    </InputAdornment>
+                  ),
+                },
+              }}
             />
 
             <Stack
@@ -444,9 +446,11 @@ const Players: React.FC = () => {
                   <Switch
                     checked={showArchived}
                     onChange={(e) => setShowArchived(e.target.checked)}
-                    slotProps={{ input: { "aria-label": "show archived players" }} }
+                    slotProps={{
+                      input: { "aria-label": "show archived players" },
+                    }}
                   />
-             }
+                }
                 label="Show archived"
                 sx={{
                   ml: { xs: 0, sm: 0.5 },

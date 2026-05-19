@@ -1530,14 +1530,16 @@ const TeamStats: React.FC = () => {
             value={rosterSearchTerm}
             onChange={(e) => setRosterSearchTerm(e.target.value)}
             sx={{ mb: 2, mt: 1 }}
-            slotProps={{ input: {
-              startAdornment: (
-                <SearchIcon
-                  fontSize="small"
-                  sx={{ color: "text.secondary", mr: 1 }}
-                />
-              ),
-            }} }
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <SearchIcon
+                    fontSize="small"
+                    sx={{ color: "text.secondary", mr: 1 }}
+                  />
+                ),
+              },
+            }}
           />
           <List>
             {(() => {
