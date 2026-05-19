@@ -586,7 +586,7 @@ const Teams: React.FC = () => {
                 };
                 const accent = buildTeamAccent(team.primaryColor);
                 return (
-                  <Grid size={{ xs: 12, md: 6 }} xl={4} key={team.id}>
+                  <Grid size={{ xs: 12, md: 6, xl: 4 }} key={team.id}>
                     <Paper
                       role="button"
                       tabIndex={0}
@@ -860,12 +860,12 @@ const Teams: React.FC = () => {
         onClose={closeDialog}
         fullWidth
         maxWidth="sm"
-        PaperProps={{
+        slotProps={{ paper: {
           sx: {
             borderRadius: cardRadius,
             bgcolor: "background.paper",
           },
-        }}
+        }}}
       >
         <DialogTitle sx={{ fontWeight: 700, color: "text.primary" }}>
           Add new team
