@@ -135,13 +135,12 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
 
       <Grid
         container
-        
         spacing={{ xs: 2, sm: 4 }}
-        sx={{ mt: { xs: 0, sm: 1 }, alignItems: "center"  }}
+        sx={{ mt: { xs: 0, sm: 1 }, alignItems: "center" }}
       >
         <Grid
-                                size={{ xs: 12, sm: "auto" }}
-                    sx={{ textAlign: { xs: "center", sm: "left" } }}
+          size={{ xs: 12, sm: "auto" }}
+          sx={{ textAlign: { xs: "center", sm: "left" } }}
         >
           <Box
             sx={{
