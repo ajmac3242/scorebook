@@ -164,12 +164,10 @@ const SideNav: React.FC<SideNavProps> = ({
               primary: {
                 sx: {
                   fontWeight: isActive ? 700 : 500,        
-                                    fontSize: "0.9rem",
-                },
-              }                                },
-                  }}
-                /
-              </ListItemButton>
+                  fontSize: "0.9rem",              
+                                },
+            },
+          }}
             </ListItem>
           );
         })}
