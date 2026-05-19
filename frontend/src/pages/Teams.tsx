@@ -860,12 +860,14 @@ const Teams: React.FC = () => {
         onClose={closeDialog}
         fullWidth
         maxWidth="sm"
-        slotProps={{ paper: {
-          sx: {
-            borderRadius: cardRadius,
-            bgcolor: "background.paper",
+        slotProps={{
+          paper: {
+            sx: {
+              borderRadius: cardRadius,
+              bgcolor: "background.paper",
+            },
           },
-        }}}
+        }}
       >
         <DialogTitle sx={{ fontWeight: 700, color: "text.primary" }}>
           Add new team
