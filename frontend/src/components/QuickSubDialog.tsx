@@ -9,7 +9,7 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  Grid2 as Grid,
+  Grid,
   Typography,
   Stack,
   Button,
