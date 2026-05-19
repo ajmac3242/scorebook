@@ -161,7 +161,7 @@ const SideNav: React.FC<SideNavProps> = ({
                 <ListItemText
                   primary={item.label}
                   slotProps={{
-                    primary: {
+                    primary: { sx: {
                       fontWeight: isActive ? 700 : 500,
                       fontSize: "0.9rem",
                     },
@@ -259,7 +259,7 @@ const SideNav: React.FC<SideNavProps> = ({
         variant="temporary"
         open={mobileOpen}
         onClose={onMobileClose}
-        ModalProps={{ keepMounted: true }}
+        slotProps={{ modal: { keepMounted: true  }}}
         sx={{
           display: { xs: "block", md: "none" },
           "& .MuiDrawer-paper": {
