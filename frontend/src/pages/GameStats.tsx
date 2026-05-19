@@ -1354,7 +1354,8 @@ const GameStats: React.FC = () => {
           gap: 2,
         }}
       >
-        <Stack direction="row" spacing={2} alignItems="center">
+        <Stack direction="row" spacing={2} sx={{ alignItems: "center" }}>1612
+          
           <ToggleButtonGroup
             value={activeTab}
             exclusive
