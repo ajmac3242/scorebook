@@ -51,7 +51,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
 const AppContent: React.FC = () => {
   const { isAuthenticated, loading } = useAuth();
   const [mobileOpen, setMobileOpen] = React.useState(false);
-  const liveGame = useLiveQuery(
+  const liveGame = useLiveQuery<any>(
     () => db.games.where("completed").equals(0).first(),
     [],
   );

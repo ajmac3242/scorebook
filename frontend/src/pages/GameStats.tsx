@@ -967,7 +967,7 @@ const GameStats: React.FC = () => {
   );
   const shotChartFilters = (
     <Box sx={{ mb: 2 }}>
-      <Stack direction="row" sx={{mb: 1, alignItems: "center", justifyContent: "space-between"}}>
+      <Stack direction="row" sx={{alignItems: "center", justifyContent: "space-between", mb: 1}}>
         <Typography variant="subtitle2">Filters</Typography>
         <Stack direction="row" spacing={1}>
           <Button
