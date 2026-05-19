@@ -388,7 +388,7 @@ const Players: React.FC = () => {
                   bgcolor: "background.paper",
                 },
               }}
-              InputProps={{
+              slotProps={{ input: {
                 startAdornment: (
                   <InputAdornment position="start">
                     <SearchIcon
@@ -444,7 +444,7 @@ const Players: React.FC = () => {
                   <Switch
                     checked={showArchived}
                     onChange={(e) => setShowArchived(e.target.checked)}
-                    inputProps={{ "aria-label": "show archived players" }}
+                    slotProps={{ input: { "aria-label": "show archived players" }}
                   />
                 }
                 label="Show archived"

@@ -969,9 +969,7 @@ const GameStats: React.FC = () => {
     <Box sx={{ mb: 2 }}>
       <Stack
         direction="row"
-        justifyContent="space-between"
-        alignItems="center"
-        mb={1}
+            sx={{ justifyContent: "space-between", alignItems: "center", mb: 1 }}
       >
         <Typography variant="subtitle2">Filters</Typography>
         <Stack direction="row" spacing={1}>
@@ -2543,7 +2541,7 @@ const GameStats: React.FC = () => {
               fullWidth
               label="Date"
               type="date"
-              InputLabelProps={{ shrink: true }}
+              slotProps={{ inputLabel: { shrink: true } }}
               value={editDate}
               onChange={(e) => setEditDate(e.target.value)}
             />
@@ -2551,7 +2549,7 @@ const GameStats: React.FC = () => {
               fullWidth
               label="Time"
               type="time"
-              InputLabelProps={{ shrink: true }}
+              slotProps={{ inputLabel: { shrink: true } }}
               value={editTime}
               onChange={(e) => setEditTime(e.target.value)}
             />

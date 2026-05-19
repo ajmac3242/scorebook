@@ -1375,7 +1375,7 @@ const TeamStats: React.FC = () => {
                 onChange={(e) =>
                   setEditPeriodLength(parseInt(e.target.value) || 0)
                 }
-                inputProps={{ min: 1 }}
+                slotProps={{ input: { min: 1 } } }}
               />
               <TextField
                 fullWidth
@@ -1385,7 +1385,7 @@ const TeamStats: React.FC = () => {
                 onChange={(e) =>
                   setEditOvertimeLength(parseInt(e.target.value) || 0)
                 }
-                inputProps={{ min: 1 }}
+                slotProps={{ input: { min: 1 } } }}
               />
             </Stack>
 
@@ -1397,7 +1397,7 @@ const TeamStats: React.FC = () => {
               onChange={(e) =>
                 setEditMaxStintDuration(parseInt(e.target.value) || 0)
               }
-              inputProps={{ min: 1 }}
+              slotProps={{ input: { min: 1 } }}
               helperText="Alert scorekeeper when player exceeds this time"
             />
 
@@ -1410,7 +1410,7 @@ const TeamStats: React.FC = () => {
                 onChange={(e) =>
                   setEditTimeoutLimit(parseInt(e.target.value) || 0)
                 }
-                inputProps={{ min: 0 }}
+                slotProps={{ input: { min: 0 } }}
               />
               <TextField
                 fullWidth
@@ -1420,7 +1420,7 @@ const TeamStats: React.FC = () => {
                 onChange={(e) =>
                   setEditFoulLimit(parseInt(e.target.value) || 0)
                 }
-                inputProps={{ min: 1 }}
+                slotProps={{ input: { min: 1 } }}
               />
             </Stack>
 
@@ -1445,7 +1445,7 @@ const TeamStats: React.FC = () => {
                           [`P${p}`]: parseInt(e.target.value) || 0,
                         }))
                       }
-                      inputProps={{ min: 0, max: editFoulLimit }}
+                      slotProps={{ input: { min: 0, max: editFoulLimit } }}
                     />
                   </Grid>
                 ))}
@@ -1530,7 +1530,7 @@ const TeamStats: React.FC = () => {
             value={rosterSearchTerm}
             onChange={(e) => setRosterSearchTerm(e.target.value)}
             sx={{ mb: 2, mt: 1 }}
-            InputProps={{
+            slotProps={{ input: {
               startAdornment: (
                 <SearchIcon
                   fontSize="small"
@@ -1588,7 +1588,7 @@ const TeamStats: React.FC = () => {
                             <TextField
                               size="small"
                               label="#"
-                              inputProps={{ maxLength: 2 }}
+                              slotProps={{ input: { maxLength: 2 } }}
                               sx={{ width: { xs: 60, sm: 80 } }}
                               value={jersey}
                               onChange={(e) => {
@@ -1731,7 +1731,7 @@ const TeamStats: React.FC = () => {
                   label="Date"
                   type="date"
                   fullWidth
-                  InputLabelProps={{ shrink: true }}
+                  slotProps={{ inputLabel: { shrink: true } }}
                   value={newDate}
                   onChange={(e) => setNewDate(e.target.value)}
                   required
@@ -1740,7 +1740,7 @@ const TeamStats: React.FC = () => {
                   label="Time"
                   type="time"
                   fullWidth
-                  InputLabelProps={{ shrink: true }}
+                  slotProps={{ inputLabel: { shrink: true } }}
                   value={newTime}
                   onChange={(e) => setNewTime(e.target.value)}
                 />
@@ -1779,7 +1779,7 @@ const TeamStats: React.FC = () => {
                   onChange={(e) =>
                     setNewPeriodLength(parseInt(e.target.value) || 0)
                   }
-                  inputProps={{ min: 1 }}
+                  slotProps={{ input: { min: 1 } }}
                 />
                 <Stack direction="row" spacing={2}>
                   <TextField
@@ -1790,7 +1790,7 @@ const TeamStats: React.FC = () => {
                     onChange={(e) =>
                       setNewTimeoutLimit(parseInt(e.target.value) || 0)
                     }
-                    inputProps={{ min: 0 }}
+                    slotProps={{ input: { min: 0 } }}
                   />
                   <TextField
                     fullWidth
@@ -1800,7 +1800,7 @@ const TeamStats: React.FC = () => {
                     onChange={(e) =>
                       setNewFoulLimit(parseInt(e.target.value) || 0)
                     }
-                    inputProps={{ min: 1 }}
+                    slotProps={{ input: { min: 1 } }}
                   />
                 </Stack>
               </Stack>
