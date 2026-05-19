@@ -183,11 +183,22 @@ const SideNav: React.FC<SideNavProps> = ({
               borderRadius: 2,
               justifyContent: "flex-start",
               bgcolor:
-                location.pathname === "/settings" ? "action.selected" : "transparent",
-              color: location.pathname === "/settings" ? "primary.main" : "text.secondary",
+                location.pathname === "/settings"
+                  ? "action.selected"
+                  : "transparent",
+              color:
+                location.pathname === "/settings"
+                  ? "primary.main"
+                  : "text.secondary",
               "&:hover": {
-                bgcolor: location.pathname === "/settings" ? "action.selected" : "action.hover",
-                color: location.pathname === "/settings" ? "primary.main" : "text.primary",
+                bgcolor:
+                  location.pathname === "/settings"
+                    ? "action.selected"
+                    : "action.hover",
+                color:
+                  location.pathname === "/settings"
+                    ? "primary.main"
+                    : "text.primary",
               },
             }}
           >

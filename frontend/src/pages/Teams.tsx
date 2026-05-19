@@ -446,7 +446,7 @@ const Teams: React.FC = () => {
                 },
               }}
             />
-            <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
+            <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap" }}>
               <Chip
                 label={`${teams.length} total`}
                 size="small"
