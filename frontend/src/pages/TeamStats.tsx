@@ -650,8 +650,7 @@ const TeamStats: React.FC = () => {
           { label: "Def. PPP", value: teamAggregates.oppPpp },
         ]}
         actions={
-          <Stack direction="row" spacing={1} alignItems="center">
-            {!isDeleted ? (
+<Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>            {!isDeleted ? (
               <>
                 <Tooltip title="Edit Team">
                   <IconButton
@@ -712,8 +711,7 @@ const TeamStats: React.FC = () => {
 
         {(tabValue === 1 || tabValue === 2) && (
           <Box sx={{ p: 1, pr: 2 }}>
-            <Stack direction="row" spacing={1} alignItems="center">
-              <Typography variant="caption" sx={{ fontWeight: 700 }}>
+  <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>              <Typography variant="caption" sx={{ fontWeight: 700 }}>
                 ANALYTICS WINDOW:
               </Typography>
               <ToggleButtonGroup
@@ -1590,7 +1588,7 @@ const TeamStats: React.FC = () => {
                             <TextField
                               size="small"
                               label="#"
-                              slotProps={{ input: { maxLength: 2 } }}
+                              slotProps={{ htmlInput: { maxLength: 2 } }}
                               sx={{ width: { xs: 60, sm: 80 } }}
                               value={jersey}
                               onChange={(e) => {

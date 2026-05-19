@@ -1284,8 +1284,7 @@ const GameStats: React.FC = () => {
           { label: "Def. PPP", value: oppData.ppp },
         ]}
         actions={
-          <Stack direction="row" spacing={1} alignItems="center">
-            {!isDeleted && (
+<Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>            {!isDeleted && (
               <Stack direction="row" spacing={1}>
                 <Button
                   variant="contained"
@@ -1611,9 +1610,7 @@ const GameStats: React.FC = () => {
                   >
                     <Stack
                       direction="row"
-                      justifyContent="space-between"
-                      alignItems="center"
-                      sx={{ mb: 1 }}
+                      sx={justifyContent: "space-between", alignItems: "center", mb: 1 }}: 1 }}
                     >
                       <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
                         {periodLabel} {court.p}
@@ -2316,12 +2313,8 @@ const GameStats: React.FC = () => {
                   <Typography variant="h6" sx={{ fontFamily: "var(--serif)" }}>
                     Lineup Efficiency
                   </Typography>
-                  <Stack direction="row" spacing={1} alignItems="center">
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      onClick={() => setIsAuditDialogOpen(true)}
-                      startIcon={<Restore />}
+        :1287
+            <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>                      size="small"
                     >
                       Audit Subs
                     </Button>
