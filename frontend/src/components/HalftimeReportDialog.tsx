@@ -7,7 +7,7 @@ import {
   Button,
   Typography,
   Box,
-  Grid2 as Grid,
+  Grid,
   Stack,
   Avatar,
   Divider,
