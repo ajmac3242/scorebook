@@ -28,11 +28,18 @@ export default [
       "react-hooks/set-state-in-effect": "off",
       "no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
       // JSDoc enforcement for frontend components and functions
-      "jsdoc/require-jsdoc": "off",
-      "jsdoc/require-description": "off",
-      "jsdoc/require-param": "off",
-      "jsdoc/require-param-description": "off",
-      "jsdoc/require-returns": "off",
+      "jsdoc/require-jsdoc": ["warn", { 
+        enableFixer: true, 
+        require: { 
+          FunctionDeclaration: true, 
+          FunctionExpression: true, 
+          MethodDefinition: true 
+        } 
+      }],
+      "jsdoc/require-description": "warn",
+      "jsdoc/require-param": "warn",
+      "jsdoc/require-param-description": "warn",
+      "jsdoc/require-returns": "warn",
       "jsdoc/check-alignment": "warn",
       "jsdoc/check-param-names": "warn",
     },
