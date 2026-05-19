@@ -160,10 +160,10 @@ const SideNav: React.FC<SideNavProps> = ({
                 </ListItemIcon>
                 <ListItemText
                   primary={item.label}
-                  primaryTypographyProps={{
+                  slotProps={{ primary: {
                     fontWeight: isActive ? 700 : 500,
                     fontSize: "0.9rem",
-                  }}
+                  } }}
                 />
               </ListItemButton>
             </ListItem>
@@ -207,10 +207,10 @@ const SideNav: React.FC<SideNavProps> = ({
             </ListItemIcon>
             <ListItemText
               primary="Settings"
-              primaryTypographyProps={{
+              slotProps={{ primary: {
                 fontSize: "0.9rem",
                 fontWeight: 500,
-              }}
+              } }}
             />
           </ListItemButton>
         </ListItem>
