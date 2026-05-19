@@ -396,7 +396,7 @@ const Players: React.FC = () => {
                     />
                   </InputAdornment>
                 ),
-              }} }
+              }} 
             />
 
             <Stack
@@ -444,7 +444,7 @@ const Players: React.FC = () => {
                   <Switch
                     checked={showArchived}
                     onChange={(e) => setShowArchived(e.target.checked)}
-                    slotProps={{ input: { "aria-label": "show archived players" }}
+                    slotProps={{ input: { "aria-label": "show archived players" }} }
                   />
              }
                 label="Show archived"
