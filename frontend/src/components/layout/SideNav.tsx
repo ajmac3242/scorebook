@@ -168,11 +168,9 @@ const SideNav: React.FC<SideNavProps> = ({
                                 },
             },
           }}
-            </ListItem>
-          );
-        })}
-      </List>
-
+          />
+          </ListItemButton>
+        </ListItem>
       <Box sx={{ p: 1.5, mt: "auto" }}>
         <ListItem disablePadding sx={{ mb: 1 }}>
           <ListItemButton
