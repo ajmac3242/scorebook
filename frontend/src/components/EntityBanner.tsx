@@ -248,7 +248,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
             <Stack
               direction="row"
               spacing={{ xs: 2, sm: 4 }}
-                          sx={{ justifyContent: { xs: "center", sm: "flex-start" } }}
+              sx={{ justifyContent: { xs: "center", sm: "flex-start" } }}
             >
               {stats.map((stat, index) => (
                 <React.Fragment key={stat.label}>
