@@ -116,8 +116,7 @@ const SideNav: React.FC<SideNavProps> = ({
           const isActive = location.pathname === item.path;
 
           return (
-            <ListItem key={item.label} disablePadding sx={{ mb: 0.5 }}>
-              <ListItemButton
+            <ListItem key={item.label} disablePadding sx={{ mb: 0.5 }}>              <ListItemButton
                 component={NavLink}
                 to={item.path}
                 onClick={onMobileClose}
