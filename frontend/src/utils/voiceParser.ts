@@ -55,6 +55,8 @@ const ACTION_MAP: Record<string, string> = {
 
 /**
  * Helper to parse a number from one or two words.
+ * @param words
+ * @param index
  */
 const parseNumberAt = (
   words: string[],
@@ -91,6 +93,7 @@ const parseNumberAt = (
  * - "Opponent [Jersey] [Action]"
  * - Chained: "[Jersey] make [Points] assist [Jersey]"
  * - Chained: "[Jersey] miss rebound [Jersey]"
+ * @param transcript
  */
 export const parseVoiceCommand = (
   transcript: string,

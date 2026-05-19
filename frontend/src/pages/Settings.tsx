@@ -695,7 +695,7 @@ const Settings: React.FC = () => {
         <Stack
           direction="row"
           spacing={1.5}
-          sx={{ alignItems: "center" , flexWrap: "wrap"  }}
+          sx={{ alignItems: "center", flexWrap: "wrap" }}
         >
           <Box
             sx={{

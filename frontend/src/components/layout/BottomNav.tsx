@@ -30,6 +30,8 @@ const NAV_ITEMS = [
 
 /**
  * BottomNav — Thumb-accessible navigation for mobile screens (< 768px).
+ * @param root0
+ * @param root0.isLive
  */
 const BottomNav: React.FC<BottomNavProps> = ({ isLive = false }) => {
   const navigate = useNavigate();

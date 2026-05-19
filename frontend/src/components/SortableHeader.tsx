@@ -13,6 +13,14 @@ interface SortableHeaderProps {
 
 /**
  * Helper component for sortable table headers.
+ * @param root0
+ * @param root0.label
+ * @param root0.sortKey
+ * @param root0.align
+ * @param root0.hideOnMobile
+ * @param root0.sortConfig
+ * @param root0.onSort
+ * @param root0.tooltip
  */
 const SortableHeader: React.FC<SortableHeaderProps> = ({
   label,

@@ -21,6 +21,10 @@ const widthMap: Record<PageWidth, string> = {
  * PageContainer — standard page framing that sits inside AppShell's gutters.
  * - Uses app-level gutters defined by AppShell
  * - Allows page-specific width overrides
+ * @param root0
+ * @param root0.children
+ * @param root0.width
+ * @param root0.sx
  */
 const PageContainer: React.FC<PageContainerProps> = ({
   children,

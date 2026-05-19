@@ -45,6 +45,10 @@ interface Props {
 
 /**
  *
+ * @param root0
+ * @param root0.presets
+ * @param root0.defaultPresetId
+ * @param root0.children
  */
 export function CourtSightThemeProvider({
   presets,

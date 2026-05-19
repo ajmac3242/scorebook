@@ -137,7 +137,10 @@ const PlayerStats: React.FC = () => {
       teamIdParam ? db.games.where("teamId").equals(teamIdParam).toArray() : [],
     [teamIdParam],
   );
-  const games = useMemo(() => (gamesQueryResult || []) as Game[], [gamesQueryResult]);
+  const games = useMemo(
+    () => (gamesQueryResult || []) as Game[],
+    [gamesQueryResult],
+  );
 
   const allStatsResult = useLiveQuery<any>(
     () =>
@@ -146,7 +149,10 @@ const PlayerStats: React.FC = () => {
         : [],
     [playerId],
   );
-  const allStats = useMemo(() => (allStatsResult || []) as StatEvent[], [allStatsResult]);
+  const allStats = useMemo(
+    () => (allStatsResult || []) as StatEvent[],
+    [allStatsResult],
+  );
 
   const gameIdSet = useMemo(() => {
     const set = new Set<string | undefined>();

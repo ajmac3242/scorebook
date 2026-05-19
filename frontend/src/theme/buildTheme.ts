@@ -22,6 +22,7 @@ const muiBreakpointValues = {
 
 /**
  *
+ * @param value
  */
 function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -29,6 +30,8 @@ function isObject(value: unknown): value is Record<string, unknown> {
 
 /**
  *
+ * @param base
+ * @param override
  */
 function deepMerge<T>(base: T, override?: DeepPartial<T>): T {
   if (!override) return base;
@@ -55,6 +58,7 @@ function deepMerge<T>(base: T, override?: DeepPartial<T>): T {
 
 /**
  *
+ * @param preset
  */
 export function resolveTokens(preset?: ThemePreset): AppTokens {
   return deepMerge(tokens, preset?.overrides);
@@ -62,6 +66,7 @@ export function resolveTokens(preset?: ThemePreset): AppTokens {
 
 /**
  *
+ * @param activeTokens
  */
 function buildComponentTheme(
   activeTokens: AppTokens,
@@ -374,6 +379,7 @@ function buildComponentTheme(
 
 /**
  *
+ * @param preset
  */
 export function buildTheme(preset?: ThemePreset): Theme {
   const activeTokens = resolveTokens(preset);

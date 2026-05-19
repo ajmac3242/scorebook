@@ -11,6 +11,8 @@ export class SyncPromise<T> {
 
   /**
    *
+   * @param value
+   * @param status
    */
   constructor(value: T, status: "fulfilled" | "rejected" = "fulfilled") {
     this.value = value;
@@ -38,6 +40,7 @@ export class SyncPromise<T> {
 
   /**
    *
+   * @param onfulfilled
    */
   then<U>(onfulfilled?: (_value: T) => U | PromiseLike<U>): SyncPromise<U> {
     if (this.status === "rejected") return this as unknown as SyncPromise<U>;
@@ -52,6 +55,7 @@ export class SyncPromise<T> {
 
   /**
    *
+   * @param onrejected
    */
   catch<U>(
     onrejected?: (_reason: unknown) => U | PromiseLike<U>,
@@ -68,6 +72,7 @@ export class SyncPromise<T> {
 
   /**
    *
+   * @param onfinally
    */
   finally(onfinally?: () => void): SyncPromise<T> {
     if (onfinally) {
@@ -82,6 +87,7 @@ export class SyncPromise<T> {
 
   /**
    *
+   * @param value
    */
   static resolve<T>(value: T): SyncPromise<T> {
     if (value && typeof value === "object" && "isSync" in (value as object)) {
@@ -92,6 +98,7 @@ export class SyncPromise<T> {
 
   /**
    *
+   * @param error
    */
   static reject<T = unknown>(error: T): SyncPromise<T> {
     return new SyncPromise(error, "rejected");
@@ -99,6 +106,7 @@ export class SyncPromise<T> {
 
   /**
    *
+   * @param promises
    */
   static all<U>(promises: (SyncPromise<U> | Promise<U> | U)[]) {
     const results: U[] = [];
@@ -124,6 +132,8 @@ type MockTable = {
 };
 /**
  *
+ * @param getData
+ * @param onDelete
  */
 function createCollection<T>(
   getData: () => T[],
@@ -173,6 +183,9 @@ function createCollection<T>(
 }
 /**
  *
+ * @param table
+ * @param table.data
+ * @param key
  */
 function createWhereClause<T>(table: { data: T[] }, key: string): any {
   const coll = createCollection(() => table.data);
@@ -355,6 +368,7 @@ export const mockDb: any = {
   subscribers: new Set<() => void>(),
   /**
    *
+   * @param cb
    */
   subscribe(cb: () => void) {
     this.subscribers.add(cb);
@@ -368,6 +382,7 @@ export const mockDb: any = {
   },
   /**
    *
+   * @param data
    */
   seed(data: any) {
     Object.keys(data).forEach((k) => {
