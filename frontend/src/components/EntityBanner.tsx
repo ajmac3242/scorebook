@@ -325,28 +325,30 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                 aria-label={`Search ${title}`}
                 value={searchTerm || ""}
                 onChange={(e) => onSearchChange(e.target.value)}
-                          slotProps={{ input: {
-                  disableUnderline: true,
-                  sx: {
-                    color: "white",
-                    fontSize: "0.9rem",
-                    width: "100%",
+                slotProps={{
+                  input: {
+                    disableUnderline: true,
+                    sx: {
+                      color: "white",
+                      fontSize: "0.9rem",
+                      width: "100%",
+                    },
+                    endAdornment: searchTerm ? (
+                      <InputAdornment position="end">
+                        <Tooltip title="Clear search">
+                          <IconButton
+                            aria-label="clear search"
+                            size="small"
+                            onClick={() => onSearchChange("")}
+                            sx={{ color: "rgba(255,255,255,0.7)" }}
+                          >
+                            <CloseIcon fontSize="inherit" />
+                          </IconButton>
+                        </Tooltip>
+                      </InputAdornment>
+                    ) : null,
                   },
-                  endAdornment: searchTerm ? (
-                    <InputAdornment position="end">
-                      <Tooltip title="Clear search">
-                        <IconButton
-                          aria-label="clear search"
-                          size="small"
-                          onClick={() => onSearchChange("")}
-                          sx={{ color: "rgba(255,255,255,0.7)" }}
-                        >
-                          <CloseIcon fontSize="inherit" />
-                        </IconButton>
-                      </Tooltip>
-                    </InputAdornment>
-                  ) : null,
-                          } }}
+                }}
                 sx={{ width: "100%" }}
               />
             )}
