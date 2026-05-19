@@ -1849,7 +1849,7 @@ const TeamStats: React.FC = () => {
                   Review Game Details
                 </Typography>
                 <Grid container spacing={2}>
-                  <Grid size={{ xs: 6 }}
+                  <Grid size={{ xs: 6 }}>
                     <Typography variant="caption" color="text.secondary">
                       OPPONENT
                     </Typography>
@@ -1857,7 +1857,7 @@ const TeamStats: React.FC = () => {
                       {newOpponent}
                     </Typography>
                   </Grid>
-                  <Grid size={{ xs: 6 }}
+                  <Grid size={{ xs: 6 }}>
                     <Typography variant="caption" color="text.secondary">
                       LOGISTICS
                     </Typography>
@@ -1869,7 +1869,7 @@ const TeamStats: React.FC = () => {
                   <Grid size={{ xs: 12 }}
                     <Divider sx={{ my: 1 }} />
                   </Grid>
-                  <Grid size={{ xs: 6 }}
+                  <Grid size={{ xs: 6 }}>
                     <Typography variant="caption" color="text.secondary">
                       FORMAT
                     </Typography>
@@ -1877,7 +1877,7 @@ const TeamStats: React.FC = () => {
                       {newPeriodType} ({newPeriodLength}m)
                     </Typography>
                   </Grid>
-                  <Grid size={{ xs: 6 }}
+                  <Grid size={{ xs: 6 }}>
                     <Typography variant="caption" color="text.secondary">
                       LIMITS
                     </Typography>
