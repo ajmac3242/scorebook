@@ -226,7 +226,7 @@ const GameStats: React.FC = () => {
             )}
           </Stack>
           <Grid container spacing={1}>
-            <Grid size={{ xs: 6 }}
+            <Grid size={{ xs: 6 }}>
               <Typography variant="caption" sx={{ display: "block" }}>
                 TEAM PPP
               </Typography>
@@ -234,7 +234,7 @@ const GameStats: React.FC = () => {
                 {data.teamPpp || "0.00"}
               </Typography>
             </Grid>
-            <Grid size={{ xs: 6 }}
+            <Grid size={{ xs: 6 }}>
               <Typography variant="caption" sx={{ display: "block" }}>
                 OPP PPP
               </Typography>
@@ -1409,7 +1409,7 @@ const GameStats: React.FC = () => {
 
       <Grid container spacing={3}>
         {activeTab === "impact" && (
-          <Grid size={{ xs: 12 }}
+          <Grid size={{ xs: 12 }}>
             <MoleskineCard>
               <Typography
                 variant="h6"
@@ -1423,7 +1423,7 @@ const GameStats: React.FC = () => {
         )}
 
         {activeTab === "impact" && (
-          <Grid size={{ xs: 12 }}
+          <Grid size={{ xs: 12 }}>
             <MoleskineCard>
               <Typography
                 variant="h6"
@@ -1477,13 +1477,13 @@ const GameStats: React.FC = () => {
         )}
 
         {/* Defensive Metrics Card */}
-        <Grid size={{ xs: 12 }}
+        <Grid size={{ xs: 12 }}>
           <MoleskineCard>
             <Typography variant="h6" sx={{ fontFamily: "var(--serif)", mb: 2 }}>
               Defensive Metrics
             </Typography>
             <Grid container spacing={4}>
-              <Grid size={{ xs: 4 }}
+              <Grid size={{ xs: 4 }}>
                 <Box sx={{ textAlign: "center" }}>
                   <Typography
                     variant="h4"
@@ -1497,7 +1497,7 @@ const GameStats: React.FC = () => {
                   </Typography>
                 </Box>
               </Grid>
-              <Grid size={{ xs: 4 }}
+              <Grid size={{ xs: 4 }}>
                 <Box sx={{ textAlign: "center" }}>
                   <Typography
                     variant="h4"
@@ -1511,7 +1511,7 @@ const GameStats: React.FC = () => {
                   </Typography>
                 </Box>
               </Grid>
-              <Grid size={{ xs: 4 }}
+              <Grid size={{ xs: 4 }}>
                 <Box sx={{ textAlign: "center" }}>
                   <Typography variant="h4" sx={{ fontWeight: 700 }}>
                     {defensiveStats.currentStreak}
@@ -1526,7 +1526,7 @@ const GameStats: React.FC = () => {
         </Grid>
 
         {/* Box Score Card */}
-        <Grid size={{ xs: 12 }}
+        <Grid size={{ xs: 12 }}>
           <MoleskineCard>
             <Box
               sx={{
@@ -1698,7 +1698,7 @@ const GameStats: React.FC = () => {
         </Grid>
 
         {/* Efficiency Analytics Card */}
-        <Grid size={{ xs: 12 }}
+        <Grid size={{ xs: 12 }}>
           <Grid container spacing={3}>
             <Grid size={{ xs: 12, md: 6 }}>
               <MoleskineCard>
@@ -1795,7 +1795,7 @@ const GameStats: React.FC = () => {
                   </Typography>
                 </Box>
                 <Grid container spacing={2} sx={{ mb: 3 }}>
-                  <Grid size={{ xs: 6 }}
+                  <Grid size={{ xs: 6 }}>
                     <Typography variant="h4" sx={{ fontWeight: 900 }}>
                       {paintTouchStats.total}
                     </Typography>
@@ -1803,7 +1803,7 @@ const GameStats: React.FC = () => {
                       TOTAL TOUCHES
                     </Typography>
                   </Grid>
-                  <Grid size={{ xs: 6 }}
+                  <Grid size={{ xs: 6 }}>
                     <Typography
                       variant="h4"
                       sx={{ fontWeight: 900, color: "success.main" }}
@@ -1853,7 +1853,7 @@ const GameStats: React.FC = () => {
                   </Typography>
                 </Box>
                 <Grid container spacing={2} sx={{ mb: 3 }}>
-                  <Grid size={{ xs: 6 }}
+                  <Grid size={{ xs: 6 }}>
                     <Typography variant="h4" sx={{ fontWeight: 900 }}>
                       {shotROI.totalPoints}
                     </Typography>
@@ -1861,7 +1861,7 @@ const GameStats: React.FC = () => {
                       ACTUAL PTS
                     </Typography>
                   </Grid>
-                  <Grid size={{ xs: 6 }}
+                  <Grid size={{ xs: 6 }}>
                     <Typography
                       variant="h4"
                       sx={{ fontWeight: 900, color: "primary.main" }}
