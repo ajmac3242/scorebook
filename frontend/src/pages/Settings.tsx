@@ -22,7 +22,7 @@ import type { SelectChangeEvent } from "@mui/material/Select";
 import {
   Check as CheckIcon,
   ContentCopy as CopyIcon,
-  DeleteOutline as ClearIcon,
+  DeleteOutlined as ClearIcon,
   Logout as LogoutIcon,
   Refresh as SyncIcon,
   Warning as WarningIcon,
