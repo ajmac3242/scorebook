@@ -772,7 +772,7 @@ const Teams: React.FC = () => {
                         {/* Win-loss record */}
                         <Box
                           sx={{
-                            borderRadius: `${theme.shape.Number(theme.shape.borderRadius) * 1.25}px`,
+                            borderRadius: `${Number(theme.shape.borderRadius) * 1.25}px`,
                             px: theme.spacing(2),
                             py: theme.spacing(1.75),
                             mb: theme.spacing(2),
