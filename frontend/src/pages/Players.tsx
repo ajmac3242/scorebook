@@ -293,7 +293,7 @@ const Players: React.FC = () => {
       <Paper
         elevation={0}
         sx={{
-          borderRadius: shellRadius as any,
+          borderRadius: (shellRadius as any),
           border: "1px solid",
           borderColor: "divider",
           bgcolor: "background.default",
@@ -312,17 +312,14 @@ const Players: React.FC = () => {
           <Stack
             direction={{ xs: "column", md: "row" }}
             spacing={2}
-            sx={{
-              alignItems: { xs: "flex-start", md: "center" },
-              justifyContent: "space-between",
-            }}
+            sx={{ alignItems: { xs: "flex-start", md: "center" }, justifyContent: "space-between" }}
           >
             <Stack direction="row" spacing={1.5} sx={{ alignItems: "center" }}>
               <Box
                 sx={{
                   width: 44,
                   height: 44,
-                  borderRadius: controlRadius as any,
+                  borderRadius: (controlRadius as any),
                   display: "grid",
                   placeItems: "center",
                   bgcolor: alpha(theme.palette.primary.main, 0.08),
@@ -352,7 +349,7 @@ const Players: React.FC = () => {
               aria-label="add new player"
               onClick={() => setOpen(true)}
               sx={{
-                borderRadius: controlRadius as any,
+                borderRadius: (controlRadius as any),
                 px: 2,
                 boxShadow: "none",
                 flexShrink: 0,
@@ -375,10 +372,7 @@ const Players: React.FC = () => {
           <Stack
             direction={{ xs: "column", lg: "row" }}
             spacing={1.5}
-            sx={{
-              alignItems: { xs: "stretch", lg: "center" },
-              justifyContent: "space-between",
-            }}
+            sx={{ alignItems: { xs: "stretch", lg: "center" }, justifyContent: "space-between" }}
           >
             <TextField
               value={searchTerm}
@@ -388,39 +382,24 @@ const Players: React.FC = () => {
               sx={{
                 width: { xs: "100%", md: 320 },
                 "& .MuiOutlinedInput-root": {
-                  borderRadius: controlRadius as any,
+                  borderRadius: (controlRadius as any),
                   bgcolor: "background.paper",
                 },
               }}
-              slotProps={{
-                input: {
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      {" "}
-                      <SearchIcon
-                        sx={{ color: "text.secondary", fontSize: 18 }}
-                      />{" "}
-                    </InputAdornment>
-                  ),
-                },
-              }}
+              slotProps={{ input: { startAdornment: ( <InputAdornment position="start"> <SearchIcon sx={{ color: "text.secondary", fontSize: 18 }} /> </InputAdornment> ) } }}
             />
 
             <Stack
               direction={{ xs: "column", sm: "row" }}
               spacing={1}
-              useFlexGap
-              sx={{
-                alignItems: { xs: "stretch", sm: "center" },
-                flexWrap: "wrap",
-              }}
+              useFlexGap sx={{ alignItems: { xs: "stretch", sm: "center" }, flexWrap: "wrap" }}
             >
               <Chip
                 label={`${playersWithStats.length} shown`}
                 size="small"
                 variant="outlined"
                 sx={{
-                  borderRadius: controlRadius as any,
+                  borderRadius: (controlRadius as any),
                   bgcolor: "background.paper",
                   borderColor: "divider",
                   color: "text.secondary",
@@ -431,7 +410,7 @@ const Players: React.FC = () => {
                 size="small"
                 variant="outlined"
                 sx={{
-                  borderRadius: controlRadius as any,
+                  borderRadius: (controlRadius as any),
                   bgcolor: "background.paper",
                   borderColor: "divider",
                   color: "text.secondary",
@@ -442,7 +421,7 @@ const Players: React.FC = () => {
                 size="small"
                 variant="outlined"
                 sx={{
-                  borderRadius: controlRadius as any,
+                  borderRadius: (controlRadius as any),
                   bgcolor: "background.paper",
                   borderColor: "divider",
                   color: "text.secondary",
@@ -453,9 +432,7 @@ const Players: React.FC = () => {
                   <Switch
                     checked={showArchived}
                     onChange={(e) => setShowArchived(e.target.checked)}
-                    slotProps={{
-                      input: { "aria-label": "show archived players" },
-                    }}
+                    slotProps={{ input: { "aria-label": "show archived players" } }}
                   />
                 }
                 label="Show archived"
@@ -483,7 +460,7 @@ const Players: React.FC = () => {
             <Box
               sx={{
                 minHeight: 320,
-                borderRadius: sectionRadius as any,
+                borderRadius: (sectionRadius as any),
                 border: "1px dashed",
                 borderColor: "divider",
                 bgcolor: "background.paper",
@@ -528,7 +505,7 @@ const Players: React.FC = () => {
                   <Button
                     variant="outlined"
                     onClick={() => setSearchTerm("")}
-                    sx={{ borderRadius: controlRadius as any }}
+                    sx={{ borderRadius: (controlRadius as any) }}
                   >
                     Clear search
                   </Button>
@@ -537,10 +514,7 @@ const Players: React.FC = () => {
                     variant="contained"
                     startIcon={<AddIcon />}
                     onClick={() => setOpen(true)}
-                    sx={{
-                      borderRadius: controlRadius as any,
-                      boxShadow: "none",
-                    }}
+                    sx={{ borderRadius: (controlRadius as any), boxShadow: "none" }}
                   >
                     Create first player
                   </Button>
@@ -586,7 +560,7 @@ const Players: React.FC = () => {
                       }}
                       sx={{
                         height: "100%",
-                        borderRadius: sectionRadius as any,
+                        borderRadius: (sectionRadius as any),
                         border: "1px solid",
                         borderColor: player.isStar ? accentBorder : "divider",
                         bgcolor: "background.paper",
@@ -642,11 +616,7 @@ const Players: React.FC = () => {
                             <Stack
                               direction="row"
                               spacing={1}
-                              sx={{
-                                alignItems: "center",
-                                mb: 0.75,
-                                flexWrap: "wrap",
-                              }}
+                              sx={{ alignItems: "center", mb: 0.75, flexWrap: "wrap" }}
                             >
                               <Typography variant="h6">
                                 {player.name}
@@ -658,7 +628,7 @@ const Players: React.FC = () => {
                                   size="small"
                                   icon={<History />}
                                   sx={{
-                                    borderRadius: controlRadius as any,
+                                    borderRadius: (controlRadius as any),
                                     bgcolor: "action.hover",
                                     color: "text.secondary",
                                     "& .MuiChip-icon": {
@@ -673,7 +643,7 @@ const Players: React.FC = () => {
                                   label="Starred"
                                   size="small"
                                   sx={{
-                                    borderRadius: controlRadius as any,
+                                    borderRadius: (controlRadius as any),
                                     bgcolor: accentSoft,
                                     color: "text.primary",
                                     border: "1px solid",
@@ -746,7 +716,7 @@ const Players: React.FC = () => {
 
                         <Box
                           sx={{
-                            borderRadius: sectionRadius as any,
+                            borderRadius: (sectionRadius as any),
                             px: 2,
                             py: 1.75,
                             mb: 2,
@@ -831,7 +801,7 @@ const Players: React.FC = () => {
         slotProps={{
           paper: {
             sx: {
-              borderRadius: shellRadius as any,
+              borderRadius: (shellRadius as any),
             },
           },
         }}

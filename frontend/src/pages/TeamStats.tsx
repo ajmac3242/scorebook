@@ -243,8 +243,7 @@ const TeamStats: React.FC = () => {
         });
     }) || ([] as any[]);
 
-  const allOpponents =
-    useLiveQuery<any>(() => db.opponents.toArray()) || ([] as any[]);
+  const allOpponents = useLiveQuery<any>(() => db.opponents.toArray()) || ([] as any[]);
 
   const teamPlayerDetails = useMemo(() => {
     // Optimization: Use a single for loop and a Set for O(1) lookups to avoid intermediate array allocations.
@@ -287,10 +286,7 @@ const TeamStats: React.FC = () => {
       .anyOf(gameIds as string[])
       .toArray();
   }, [gameIds]);
-  const allStats = useMemo(
-    () => allStatsResult || ([] as any[]),
-    [allStatsResult],
-  );
+  const allStats = useMemo(() => allStatsResult || ([] as any[]), [allStatsResult]);
 
   const teamAggregates = useMemo(
     () => calculateTeamAggregates(games, allStats as StatEvent[]),
@@ -1534,16 +1530,7 @@ const TeamStats: React.FC = () => {
             value={rosterSearchTerm}
             onChange={(e) => setRosterSearchTerm(e.target.value)}
             sx={{ mb: 2, mt: 1 }}
-            slotProps={{
-              input: {
-                startAdornment: (
-                  <SearchIcon
-                    fontSize="small"
-                    sx={{ color: "text.secondary", mr: 1 }}
-                  />
-                ),
-              },
-            }}
+            slotProps={{ input: { startAdornment: ( <SearchIcon fontSize="small" sx={{ color: "text.secondary", mr: 1 }} /> ) } }}
           />
           <List>
             {(() => {

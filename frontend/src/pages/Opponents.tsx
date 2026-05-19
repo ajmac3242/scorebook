@@ -43,10 +43,7 @@ const Opponents: React.FC = () => {
     name: string;
   } | null>(null);
 
-  const opponentsQueryResult = useLiveQuery<any>(
-    () => db.opponents.toArray(),
-    [],
-  );
+  const opponentsQueryResult = useLiveQuery<any>(() => db.opponents.toArray(), []);
   const opponents = opponentsQueryResult || [];
 
   const handleAddOpponent = async () => {
@@ -110,7 +107,7 @@ const Opponents: React.FC = () => {
       <Box sx={{ mt: 4 }}>
         <Grid container spacing={3}>
           {opponents.length === 0 ? (
-            <Grid size={{ xs: 12 }}>
+            <Grid  size={{xs: 12}}>
               <Box
                 sx={{
                   py: 8,
@@ -145,7 +142,7 @@ const Opponents: React.FC = () => {
             </Grid>
           ) : (
             opponents.map((opponent) => (
-              <Grid key={opponent.id} size={{ xs: 12, sm: 6, md: 4 }}>
+              <Grid key={opponent.id} size={{xs: 12, sm: 6, md: 4}}>
                 <MoleskineCard
                   sx={{
                     p: 0,

@@ -2,8 +2,6 @@
  * 🏀 CoachBoard: detectShotValueFromCoords
  * Why: Automatically detects if a shot is a 2 or 3 based on court coordinates.
  * Coordinates are 0-100 percentage of SVG viewBox "0 0 500 470".
- * @param x
- * @param y
  */
 export const detectShotValueFromCoords = (x: number, y: number): number => {
   const svgX = x * 5; // 500 / 100

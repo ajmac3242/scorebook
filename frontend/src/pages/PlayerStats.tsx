@@ -71,9 +71,9 @@ const PlayerStats: React.FC = () => {
   const teamIdParam = searchParams.get("teamId");
 
   const radius = theme.shape.borderRadius as number;
-  const shellRadius = radius * 1.5;
-  const sectionRadius = radius * 1.5;
-  const controlRadius = radius * 1.25;
+  const shellRadius = (radius as number) * 1.5;
+  const sectionRadius = (radius as number) * 1.5;
+  const controlRadius = (radius as number) * 1.25;
 
   const [selectedGameId, setSelectedGameId] = useState<string>("");
   const [selectedType, setSelectedType] = useState<string>("");
@@ -137,10 +137,7 @@ const PlayerStats: React.FC = () => {
       teamIdParam ? db.games.where("teamId").equals(teamIdParam).toArray() : [],
     [teamIdParam],
   );
-  const games = useMemo(
-    () => (gamesQueryResult || []) as Game[],
-    [gamesQueryResult],
-  );
+  const games = useMemo(() => (gamesQueryResult || []) as Game[], [gamesQueryResult]);
 
   const allStatsResult = useLiveQuery<any>(
     () =>
@@ -149,10 +146,7 @@ const PlayerStats: React.FC = () => {
         : [],
     [playerId],
   );
-  const allStats = useMemo(
-    () => (allStatsResult || []) as StatEvent[],
-    [allStatsResult],
-  );
+  const allStats = useMemo(() => (allStatsResult || []) as StatEvent[], [allStatsResult]);
 
   const gameIdSet = useMemo(() => {
     const set = new Set<string | undefined>();

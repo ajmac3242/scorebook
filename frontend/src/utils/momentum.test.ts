@@ -7,7 +7,6 @@ import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../constants/stats";
 
 /**
  * Ported logic for testing
- * @param sortedGameStats
  */
 const detectOpponentRun = (
   sortedGameStats: {

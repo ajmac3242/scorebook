@@ -24,10 +24,6 @@ export * from "./analytics/advanced";
 /**
  * 📊 Basketball Analytics: Ref Tightness
  * Measured as Fouls Per Minute (FPM) for both teams combined.
- * @param stats
- * @param period
- * @param clockSeconds
- * @param periodType
  */
 export const calculateRefTightness = (
   stats: StatEvent[],
@@ -52,7 +48,6 @@ export const calculateRefTightness = (
  * 🏀 Assistant Coach: Archetype Efficiency Logic
  * WHY: Coaches shouldn't just know who is scoring, but *how* to stop them.
  * Calculates Stop % specifically against opponent play types (PnR, ISO, etc.)
- * @param stats
  */
 export const calculateArchetypeEfficiency = (stats: StatEvent[]) => {
   const data: Record<string, { stops: number; total: number }> = {};

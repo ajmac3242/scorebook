@@ -309,7 +309,7 @@ const Teams: React.FC = () => {
     ? "Try a different search, clear the filter, or create a new team."
     : "Create your first team to start tracking performance, rosters, and game results.";
 
-  const cardRadius = `${(theme.shape.borderRadius as any as number) * 1.5}px`;
+  const cardRadius = `${((theme.shape.borderRadius as any) as number) * 1.5}px`;
   const transitionAll = `transform ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}, box-shadow ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}, border-color ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}`;
 
   return (
@@ -419,10 +419,7 @@ const Teams: React.FC = () => {
           <Stack
             direction={{ xs: "column", md: "row" }}
             spacing={1.5}
-            sx={{
-              alignItems: { xs: "stretch", md: "center" },
-              justifyContent: "space-between",
-            }}
+            sx={{ alignItems: { xs: "stretch", md: "center" }, justifyContent: "space-between" }}
           >
             <TextField
               value={searchTerm}
@@ -436,31 +433,15 @@ const Teams: React.FC = () => {
                   bgcolor: "background.paper",
                 },
               }}
-              slotProps={{
-                input: {
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      {" "}
-                      <SearchIcon
-                        sx={{ color: "text.secondary", fontSize: 18 }}
-                      />{" "}
-                    </InputAdornment>
-                  ),
-                },
-              }}
+              slotProps={{ input: { startAdornment: ( <InputAdornment position="start"> <SearchIcon sx={{ color: "text.secondary", fontSize: 18 }} /> </InputAdornment> ) } }}
             />
-            <Stack
-              direction="row"
-              spacing={1}
-              useFlexGap
-              sx={{ flexWrap: "wrap" }}
-            >
+            <Stack direction="row" spacing={1} useFlexGap sx={{ flexWrap: "wrap" }}>
               <Chip
                 label={`${teams.length} total`}
                 size="small"
                 variant="outlined"
                 sx={{
-                  borderRadius: `${(theme.shape.borderRadius as any as number) * 0.75}px`,
+                  borderRadius: `${((theme.shape.borderRadius as any) as number) * 0.75}px`,
                   bgcolor: "background.paper",
                   borderColor: "divider",
                   color: "text.secondary",
@@ -473,7 +454,7 @@ const Teams: React.FC = () => {
                 size="small"
                 variant="outlined"
                 sx={{
-                  borderRadius: `${(theme.shape.borderRadius as any as number) * 0.75}px`,
+                  borderRadius: `${((theme.shape.borderRadius as any) as number) * 0.75}px`,
                   bgcolor: "background.paper",
                   borderColor: "divider",
                   color: "text.secondary",
@@ -734,7 +715,7 @@ const Teams: React.FC = () => {
                                   : "Quarters"
                               }
                               sx={{
-                                borderRadius: `${(theme.shape.borderRadius as any as number) * 0.75}px`,
+                                borderRadius: `${((theme.shape.borderRadius as any) as number) * 0.75}px`,
                                 bgcolor: accent.softerBg,
                                 color: "text.primary",
                                 border: `1px solid ${accent.border}`,
@@ -780,7 +761,7 @@ const Teams: React.FC = () => {
                         {/* Win-loss record */}
                         <Box
                           sx={{
-                            borderRadius: `${(theme.shape.borderRadius as any as number) * 1.25}px`,
+                            borderRadius: `${((theme.shape.borderRadius as any) as number) * 1.25}px`,
                             px: theme.spacing(2),
                             py: theme.spacing(1.75),
                             mb: theme.spacing(2),
@@ -838,11 +819,7 @@ const Teams: React.FC = () => {
                           <Stack
                             direction="row"
                             spacing={0.75}
-                            sx={{
-                              mt: theme.spacing(2),
-                              color: accent.solid,
-                              alignItems: "center",
-                            }}
+                            sx={{ mt: theme.spacing(2), color: accent.solid, alignItems: "center" }}
                           >
                             <Typography
                               sx={{
@@ -871,11 +848,7 @@ const Teams: React.FC = () => {
         onClose={closeDialog}
         fullWidth
         maxWidth="sm"
-        slotProps={{
-          paper: {
-            sx: { borderRadius: cardRadius, bgcolor: "background.paper" },
-          },
-        }}
+        slotProps={{ paper: { sx: { borderRadius: cardRadius, bgcolor: "background.paper" } } }}
       >
         <DialogTitle sx={{ fontWeight: 700, color: "text.primary" }}>
           Add new team

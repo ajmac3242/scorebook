@@ -6,7 +6,6 @@ export type CSSVariableStyleObject = Record<`--${string}`, string | number>;
 
 /**
  *
- * @param vars
  */
 export function cssVariables(vars: CSSVariableMap): CSSVariableStyleObject {
   return Object.fromEntries(

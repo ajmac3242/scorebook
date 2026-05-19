@@ -20,7 +20,6 @@ import {
 
 /**
  * Standardized sorting for statistical events based on timestamp.
- * @param stats
  */
 export const sortStats = (stats: StatEvent[]): StatEvent[] => {
   const priorities: Record<string, number> = {
@@ -133,10 +132,6 @@ export const getPlayerJersey = (
 
 /**
  * Resolves a player's display name, handling opponent and team-level identifiers.
- * @param playerId
- * @param playerNamesMap
- * @param gameOpponent
- * @param teamName
  */
 export const getPlayerDisplayName = (
   playerId: string,
@@ -266,8 +261,6 @@ export const applyActionToAggregate = (agg: BaseStats, stat: StatEvent) => {
 
 /**
  *
- * @param players
- * @param teamPlayers
  */
 export function initializeStatsMap(
   players: Player[],
@@ -335,7 +328,6 @@ export const calculateTeamSeasonAverages = (
 
 /**
  * Calculates a win-loss-draw record from game totals.
- * @param gameTotals
  */
 function calculateRecord(
   gameTotals: Iterable<{ team: number; opp: number }>,
