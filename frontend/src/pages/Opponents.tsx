@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import {
   Box,
   Typography,
-  Grid2 as Grid,
+  Grid,
   Avatar,
   IconButton,
   Button,
