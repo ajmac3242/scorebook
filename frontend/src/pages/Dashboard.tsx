@@ -8,7 +8,7 @@ import React, { useMemo } from "react";
 import {
   Typography,
   Box,
-  Grid2 as Grid,
+  Grid,
   Button,
   Stack,
   Avatar,
