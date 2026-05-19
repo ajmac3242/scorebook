@@ -1866,7 +1866,7 @@ const TeamStats: React.FC = () => {
                     </Typography>
                     <Typography variant="caption">{newLocation}</Typography>
                   </Grid>
-                  <Grid size={{ xs: 12 }}
+                  <Grid size={{ xs: 12 }}>
                     <Divider sx={{ my: 1 }} />
                   </Grid>
                   <Grid size={{ xs: 6 }}>
