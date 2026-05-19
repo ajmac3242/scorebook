@@ -434,15 +434,17 @@ const Teams: React.FC = () => {
                   bgcolor: "background.paper",
                 },
               }}
-              slotProps={{ input: {
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon
-                      sx={{ color: "text.secondary", fontSize: 18 }}
-                    />
-                  </InputAdornment>
-                ),
-              } }}
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon
+                        sx={{ color: "text.secondary", fontSize: 18 }}
+                      />
+                    </InputAdornment>
+                  ),
+                },
+              }}
             />
             <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
               <Chip
