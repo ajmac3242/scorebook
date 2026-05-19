@@ -1537,7 +1537,7 @@ const TeamStats: React.FC = () => {
                   sx={{ color: "text.secondary", mr: 1 }}
                 />
               ),
-            }}
+            }} }
           />
           <List>
             {(() => {

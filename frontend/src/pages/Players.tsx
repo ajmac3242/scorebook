@@ -396,7 +396,7 @@ const Players: React.FC = () => {
                     />
                   </InputAdornment>
                 ),
-              }}
+              }} }
             />
 
             <Stack
