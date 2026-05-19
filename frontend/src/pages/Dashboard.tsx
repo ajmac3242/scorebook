@@ -279,7 +279,7 @@ const Dashboard: React.FC = () => {
             Set your primary team to see a personalized dashboard with stats,
             heatmaps, and upcoming schedule at a glance.
           </Typography>
-          <Stack direction="row" spacing={2} sx={{ justifyContent: "center" }}
+          <Stack direction="row" spacing={2} sx={{ justifyContent: "center" }}>
             <Button
               component={Link}
               to="/teams"
