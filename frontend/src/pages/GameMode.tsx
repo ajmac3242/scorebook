@@ -10,7 +10,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import {
   Box,
   Typography,
-  Grid2 as Grid,
+  Grid,
   Button,
   Dialog,
   DialogTitle,
