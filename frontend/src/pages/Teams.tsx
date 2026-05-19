@@ -830,8 +830,12 @@ const Teams: React.FC = () => {
                           <Stack
                             direction="row"
                             spacing={0.75}
-                                        sx={{ alignItems: "center", mt: theme.spacing(2), color: accent.solid }}
-                            >
+                            sx={{
+                              alignItems: "center",
+                              mt: theme.spacing(2),
+                              color: accent.solid,
+                            }}
+                          >
                             <Typography
                               sx={{
                                 fontSize: theme.typography.body2.fontSize,
