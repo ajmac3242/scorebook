@@ -107,7 +107,7 @@ const Opponents: React.FC = () => {
       <Box sx={{ mt: 4 }}>
         <Grid container spacing={3}>
           {opponents.length === 0 ? (
-            <Grid size={{ xs: 12 }}
+            <Grid size={{ xs: 12 }}>
               <Box
                 sx={{
                   py: 8,
