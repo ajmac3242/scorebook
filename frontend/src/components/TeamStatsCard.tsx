@@ -139,8 +139,8 @@ export const TeamStatsCard = React.memo(
               <Stack
                 direction="row"
                 spacing={0.5}
-                          sx={{ mb: 0.5, justifyContent: "center", alignItems: "center" }}
-          >
+                sx={{ mb: 0.5, justifyContent: "center", alignItems: "center" }}
+              >
                 <Typography
                   variant="caption"
                   sx={{
