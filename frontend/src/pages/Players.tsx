@@ -10,7 +10,7 @@ import {
   DialogContent,
   DialogTitle,
   FormControlLabel,
-  Grid2 as Grid,
+  Grid,
   IconButton,
   InputAdornment,
   Paper,
