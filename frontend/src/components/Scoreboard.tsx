@@ -525,7 +525,11 @@ export const Scoreboard = React.memo(
               <Tooltip
                 title={`Total Defensive Stops: ${gameData.defensiveStats.totalStops}`}
               >
-                <Stack direction="row" spacing={0.5} sx={{ alignItems: "center" }}>
+                <Stack
+                  direction="row"
+                  spacing={0.5}
+                  sx={{ alignItems: "center" }}
+                >
                   <Shield
                     sx={{
                       fontSize: "1rem",
@@ -549,7 +553,11 @@ export const Scoreboard = React.memo(
               <Tooltip
                 title={`Total Kills: ${gameData.defensiveStats.totalKills}`}
               >
-                <Stack direction="row" spacing={0.5} sx={{ alignItems: "center" }}>
+                <Stack
+                  direction="row"
+                  spacing={0.5}
+                  sx={{ alignItems: "center" }}
+                >
                   <LocalFireDepartment
                     sx={{
                       fontSize: "1.1rem",
