@@ -446,7 +446,7 @@ const Players: React.FC = () => {
                     onChange={(e) => setShowArchived(e.target.checked)}
                     slotProps={{ input: { "aria-label": "show archived players" }}
                   />
-                }
+             }
                 label="Show archived"
                 sx={{
                   ml: { xs: 0, sm: 0.5 },
