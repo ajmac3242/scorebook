@@ -743,19 +743,19 @@ const Players: React.FC = () => {
                           </Typography>
 
                           <Grid container spacing={1.5}>
-                            <Grid size={{ xs: 4 }}
+                            <Grid size={{ xs: 4 }}>
                               <Typography sx={statLabelSx}>PPG</Typography>
                               <Typography sx={statValueSx}>
                                 {player.ppg}
                               </Typography>
                             </Grid>
-                            <Grid size={{ xs: 4 }}
+                            <Grid size={{ xs: 4 }}>
                               <Typography sx={statLabelSx}>RPG</Typography>
                               <Typography sx={statValueSx}>
                                 {player.rpg}
                               </Typography>
                             </Grid>
-                            <Grid size={{ xs: 4 }}
+                            <Grid size={{ xs: 4 }}>
                               <Typography sx={statLabelSx}>APG</Typography>
                               <Typography sx={statValueSx}>
                                 {player.apg}

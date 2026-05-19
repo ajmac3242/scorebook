@@ -775,7 +775,7 @@ const PlayerStats: React.FC = () => {
               </Paper>
             </Grid>
 
-            <Grid size={{ xs: 12 }}
+            <Grid size={{ xs: 12 }}>
               <Paper
                 elevation={0}
                 sx={{
