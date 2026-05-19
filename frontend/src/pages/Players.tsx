@@ -395,8 +395,8 @@ const Players: React.FC = () => {
                       sx={{ color: "text.secondary", fontSize: 18 }}
                     />
                   </InputAdornment>
-                ),
-              }} 
+            )
+          } }}
             />
 
             <Stack
