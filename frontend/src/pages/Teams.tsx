@@ -955,7 +955,7 @@ const Teams: React.FC = () => {
                 type="number"
                 value={fouls}
                 onChange={(e) => setFouls(Number(e.target.value))}
-                slotProps={{ htmlInput: { min: 1 } } }}
+                slotProps={{ htmlInput: { min: 1 } }}
                 fullWidth
               />
               <FormHelperText>

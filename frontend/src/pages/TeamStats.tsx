@@ -1375,7 +1375,7 @@ const TeamStats: React.FC = () => {
                 onChange={(e) =>
                   setEditPeriodLength(parseInt(e.target.value) || 0)
                 }
-                slotProps={{ input: { min: 1 } } }}
+                slotProps={{ input: { min: 1 } }}
               />
               <TextField
                 fullWidth
@@ -1385,7 +1385,7 @@ const TeamStats: React.FC = () => {
                 onChange={(e) =>
                   setEditOvertimeLength(parseInt(e.target.value) || 0)
                 }
-                slotProps={{ input: { min: 1 } } }}
+                slotProps={{ input: { min: 1 } }}
               />
             </Stack>
 
