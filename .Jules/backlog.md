@@ -1,5 +1,55 @@
 # CourtSight Backlog
 
+## [ ] [Live 'Momentum Pivot' Identifier]
+**Priority:** HIGH
+**Type:** Feature / Decision Support
+**Why:** Coaches need to know the *exact* moment momentum shifted. Identifying the "Pivot Play"—the specific turnover, missed box-out, or substitution that ended a run or started a drought—allows for surgical coaching interventions during the next timeout.
+**What:** A real-time intelligence layer that identifies and bookmarks the "Pivot Play" for every 8+ point swing or 3-minute drought.
+**Acceptance Criteria:**
+- [ ] Automated identification of the "Momentum Pivot" event (the stat that triggered a trend reversal).
+- [ ] "Pivot Alert" in GameMode with a one-tap "Review Pivot" to see the personnel on floor and the causal breakdown.
+- [ ] High-leverage "Pivot Summary" in the post-game report.
+
+## [ ] [Real-Time 'System ROI' (Spacing & Gravity) Gauge]
+**Priority:** HIGH
+**Type:** Analytics / UX
+**Why:** Modern basketball is about spacing and gravity. Tracking the correlation between "Paint Touches" and "Open Corner 3s" proves the offensive "System" is working even if the shots are missing, preventing coaches from abandoning a good process too early.
+**What:** A live "System ROI" gauge that tracks "Gravity-Assisted XPTS"—points generated specifically from paint-out actions (Paint Touch -> Kickout -> Shot).
+**Acceptance Criteria:**
+- [ ] "Gravity ROI" metric in TacticalIdentityHUD: (XPTS generated from Paint-to-Perimeter flow).
+- [ ] Visual "Flow Path" indicator showing if the ball is moving from "In" to "Out."
+- [ ] Alert: "System Breakdown" when 3 consecutive possessions end without a rim attack or paint touch.
+
+## [ ] [Defensive 'Communication Seam' (Pairwise) Analytics]
+**Priority:** HIGH
+**Type:** Feature / Causal Accountability
+**Why:** Defensive failures are rarely about one person; they are about communication seams between pairs (e.g., a missed switch). Identifying "Leaky Duos" helps coaches optimize closing lineups.
+**What:** An analytical engine that cross-references `breakdownReason` with active 2-player pairings to identify which duos have the highest communication failure rates.
+**Acceptance Criteria:**
+- [ ] "Seam Leaderboard" identifying the 5 top 2-player pairings with the highest points-allowed-per-possession.
+- [ ] "Synergy Warning" in the QuickSubDialog if a high-risk pair (high breakdown correlation) is about to be subbed in together.
+- [ ] Matrix mapping breakdown types (e.g., "Missed Rotation") to specific synergistic pairings.
+
+## [ ] [Referee 'Aggression Auditor' (Action-Type Mapper)]
+**Priority:** HIGH
+**Type:** Decision Support / Feature
+**Why:** Knowing "The refs are calling it tight" is too vague. Coaches need to know *where* and *how* (e.g., "They are calling hand-checks on drives but letting them play in the post"). This dictates tactical aggression levels.
+**What:** A situational map that correlates fouls with `StatEvent` coordinates and action types to identify "Ref No-Go Zones."
+**Acceptance Criteria:**
+- [ ] "Aggression Map" overlay in the TeamStatsCard showing regions and action types where fouls are called disproportionately.
+- [ ] "Tactical Pivot" advice: e.g., "Refs calling perimeter hand-checks tight; adjust to 'Soft' ball-pressure."
+- [ ] Whistle-flow trend line showing if the crew's "Tightness" is increasing or decreasing over the periods.
+
+## [ ] [Automated 'Winning Time' Win Probability HUD]
+**Priority:** HIGH
+**Type:** Feature / UX
+**Why:** In the final 2 minutes of a close game, a coach's judgment is often clouded by stress. A live "Win Probability" engine provides an objective baseline for "Foul Now" vs "Play Out" decisions.
+**What:** A live probability engine that activates in the final 4 minutes, calculating win odds based on Time, Score, Possession, and Team FT%.
+**Acceptance Criteria:**
+- [ ] Live "Win Prob %" display in the scoreboard during Clutch Mode.
+- [ ] "Strategy Directive" based on probability (e.g., "Quick 2 Needed" or "Foul Immediately").
+- [ ] "Leverage Index" highlighting the highest-leverage defensive possessions remaining.
+
 ## [ ] [Live 'Possession Value' ROI (Points Per Touch)]
 **Priority:** HIGH
 **Type:** Analytics / UX

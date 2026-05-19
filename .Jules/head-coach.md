@@ -165,3 +165,11 @@ Observation: CourtSight has reached a level of "Data Saturation." We are capturi
 Impact: Decision Lag remains the primary opponent. A coach might see a -10 Net Rating but spend their entire timeout trying to figure out if it's due to poor transition defense or bad shot selection. Furthermore, the bridge between game-time insights and the next practice session remains a manual, high-friction workflow.
 
 Recommendation: Transition to **Decision Automation** and **Frictionless Tactical Continuity**. We must prioritize the "Run Anatomy" HUD to provide immediate causal explanations for momentum shifts and the "Possession Equity" (PPT) metrics to drive player buy-in on unselfish play. Most importantly, we must close the loop on "Tactical Drift" by automating the "Practice Prescription" generation, ensuring every bookmarked game moment translates directly into a coaching correction in 48 hours. Finally, elite programs require "Two-Man Coverage," necessitating a Multi-Device Sync Bridge to separate data entry from strategic analysis.
+
+## 2025-06-05 - Strategic Command: From Visibility to Decision Automation
+
+Observation: CourtSight has achieved "Data Maturity"—we are tracking almost every meaningful metric from Paint Touches to Shot Clock phases. However, we have identified a "Synthesis Gap." Coaches are receiving raw data (e.g., "Ref Tightness is 0.8") but are still required to manually perform the tactical translation (e.g., "Should I dial back the press?"). Furthermore, we are missing the "Causal Flow"—identifying the exact "Momentum Pivot" play that changed the game's trajectory.
+
+Impact: Decision Lag remains the primary barrier to victory. A coach who spends 40 seconds of a 60-second timeout trying to find the "why" behind an 8-0 run has lost the opportunity to implement the "how" of the fix. Without automated win probability and aggression auditors, tactical pivots are still heavily reliant on stressed intuition.
+
+Recommendation: Pivot toward **Decision Automation** and **Causal Flow**. The immediate priority is the "Momentum Pivot Identifier" to surgically isolate game-changing events and the "Referee Aggression Auditor" to translate whistle-flow into specific tactical aggression levels (Soft vs. Aggressive). We are moving from a "Dashboard" to an "Automated Strategic Partner."
