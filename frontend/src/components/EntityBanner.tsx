@@ -2,7 +2,7 @@ import React from "react";
 import {
   Box,
   Typography,
-  Grid2 as Grid,
+  Grid,
   Avatar,
   IconButton,
   Stack,
@@ -325,7 +325,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                 aria-label={`Search ${title}`}
                 value={searchTerm || ""}
                 onChange={(e) => onSearchChange(e.target.value)}
-                InputProps={{
+                          slotProps={{ input: {
                   disableUnderline: true,
                   sx: {
                     color: "white",
@@ -346,7 +346,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                       </Tooltip>
                     </InputAdornment>
                   ) : null,
-                }}
+                          } }}
                 sx={{ width: "100%" }}
               />
             )}
