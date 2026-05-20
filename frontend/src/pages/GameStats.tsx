@@ -1611,7 +1611,7 @@ const GameStats: React.FC = () => {
                   >
                     <Stack
                       direction="row"
-                      sx={justifyContent: "space-between", alignItems: "center", mb: 1 }}: 1 }}
+                      sx={{ justifyContent: "space-between", alignItems: "center", mb: 1 }}
                     >
                       <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
                         {periodLabel} {court.p}
