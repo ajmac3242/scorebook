@@ -3,7 +3,6 @@
  * @description Provides logic for bidirectional synchronization between local IndexedDB and the backend API.
  * Implements push (local-to-remote) and pull (remote-to-local via API and S3 snapshots) functionality.
  */
-
 import { db, Game, TeamPlayer, StatEvent, Team, Player } from "../db";
 import { UserPool } from "../UserPool";
 import { CognitoUserSession } from "amazon-cognito-identity-js";
@@ -34,7 +33,7 @@ interface GameSnapshot {
  * 2. 'pushUpdates' asynchronously sends local changes to the API.
  * 3. 'pullAll' and 'sync*' methods retrieve data using a hybrid API/S3 strategy.
  * 4. ETag-based caching (via If-None-Match) is used for S3 snapshots to minimize
- *    bandwidth and processing of large datasets (like rosters and game stats).
+ * bandwidth and processing of large datasets (like rosters and game stats).
  */
 class SyncService {
   private isSyncing = false;
@@ -150,6 +149,7 @@ class SyncService {
     options: RequestInit = {},
   ): Promise<Response> {
     const headers = await this.getHeaders();
+
     return fetch(url, {
       ...options,
       headers: {
@@ -212,11 +212,13 @@ class SyncService {
     onSuccess?: (_item: T) => Promise<void>,
   ) {
     if (!table) return;
+
     const items = await table.where("synced").equals(0).toArray();
 
     // ⚡ Bolt: Process items in concurrent chunks to improve throughput.
     // Sequential pushing is slow for large datasets (e.g. game stats).
     const CHUNK_SIZE = 5;
+
     for (let i = 0; i < items.length; i += CHUNK_SIZE) {
       const chunk = items.slice(i, i + CHUNK_SIZE);
       const successIds: (string | number)[] = [];
@@ -226,10 +228,12 @@ class SyncService {
           try {
             const url =
               typeof endpoint === "function" ? endpoint(item) : endpoint;
+
             const res = await this.fetchApi(url, {
               method: "POST",
               body: JSON.stringify(item),
             });
+
             if (res.ok) {
               successIds.push(item.id!);
               if (onSuccess) await onSuccess(item);
@@ -252,7 +256,8 @@ class SyncService {
       if (successIds.length > 0) {
         await db.transaction("rw", table, async () => {
           for (let j = 0; j < successIds.length; j++) {
-            await table.update(successIds[j], { synced: 1 } as any);
+            const update: Pick<T, "synced"> = { synced: 1 };
+            await table.update(successIds[j], update);
           }
         });
       }
@@ -265,6 +270,7 @@ class SyncService {
    */
   async pushUpdates() {
     if (this.isSyncing) return;
+
     this.setSyncing(true);
     logger.info("Starting push updates...");
 
@@ -361,10 +367,7 @@ class SyncService {
    * @param {string} teamId - The team ID.
    */
   async syncTeamGamesList(teamId: string) {
-    const localGamesCount = await db.games
-      .where("teamId")
-      .equals(teamId)
-      .count();
+    const localGamesCount = await db.games.where("teamId").equals(teamId).count();
     const etag =
       localGamesCount > 0 ? this.getETag("team_games", teamId) : null;
 
@@ -483,6 +486,7 @@ class SyncService {
     const gameStatsPromises = games
       .filter((game) => game.completed)
       .map((game) => this.syncGameStats(game.id!.toString()));
+
     await Promise.all(gameStatsPromises);
   }
 
@@ -492,6 +496,7 @@ class SyncService {
    */
   async pullAll() {
     if (this.isSyncing) return;
+
     this.setSyncing(true);
     logger.info("Starting full pull sync...");
 
@@ -505,6 +510,7 @@ class SyncService {
       // 1. Process Teams
       if (teamsRes.ok) {
         const teams = await teamsRes.json();
+
         await db.transaction("rw", [db.teams], async () => {
           const teamsToPut = teams.map((t: Team) => ({
             ...t,
@@ -525,6 +531,7 @@ class SyncService {
       // 4. Process all global players
       if (playersRes.ok) {
         const players = await playersRes.json();
+
         await db.transaction("rw", [db.players], async () => {
           const playersToPut = players.map((p: Player) => ({
             ...p,
@@ -536,10 +543,7 @@ class SyncService {
       }
 
       // 5. Pull stats for all completed games discovered in parallel
-      const completedGames = await db.games
-        .where("completed")
-        .equals(1)
-        .toArray();
+      const completedGames = await db.games.where("completed").equals(1).toArray();
       const completedGamePromises = completedGames.map((g) =>
         this.syncGameStats(g.id!.toString()),
       );
