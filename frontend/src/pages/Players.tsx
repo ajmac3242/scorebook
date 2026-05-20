@@ -638,8 +638,7 @@ const Players: React.FC = () => {
                             <Stack
                               direction="row"
                               spacing={1}
-                              alignItems="center"
-                              sx={{ mb: 0.75, flexWrap: "wrap" }}
+                              sx={{ alignItems: "center", mb: 0.75, flexWrap: "wrap" }}
                             >
                               <Typography variant="h6">
                                 {player.name}
