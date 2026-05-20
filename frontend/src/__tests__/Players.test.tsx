@@ -7,6 +7,7 @@ import {
 } from "@testing-library/react";
 import Players from "../pages/Players";
 import { CourtSightThemeProvider } from "../theme/ThemeContext";
+import { themePresets } from "../theme/tokens/tokens";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { mockDb } from "../dbMock";
 import { BrowserRouter } from "react-router-dom";
@@ -27,11 +28,14 @@ describe("Players Component", () => {
 
   const renderComponent = () =>
     render(
-      <ThemeProvider theme={theme}>
+      <CourtSightThemeProvider
+        presets={themePresets}
+        defaultPresetId={themePresets[0]?.id}
+      >
         <BrowserRouter>
           <Players />
         </BrowserRouter>
-      </ThemeProvider>,
+      </CourtSightThemeProvider>,
     );
 
   const findPlayersTitle = async () => {
