@@ -7,7 +7,7 @@ import {
 } from "@testing-library/react";
 import Players from "../pages/Players";
 import { CourtSightThemeProvider } from "../theme/ThemeContext";
-import { themePresets } from "../theme/tokens/tokens";
+import { tokens } from "../theme/tokens/tokens";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { mockDb } from "../dbMock";
 import { BrowserRouter } from "react-router-dom";
@@ -15,6 +15,15 @@ import React from "react";
 import { ThemeProvider, createTheme } from "@mui/material";
 
 const theme = createTheme();
+
+const testPresets = [
+  {
+    id: "test-preset",
+    name: "Test preset",
+    description: "Test preset",
+    tokens,
+  },
+];
 
 describe("Players Component", () => {
   beforeEach(() => {
@@ -29,8 +38,8 @@ describe("Players Component", () => {
   const renderComponent = () =>
     render(
       <CourtSightThemeProvider
-        presets={themePresets}
-        defaultPresetId={themePresets[0]?.id}
+        presets={testPresets}
+        defaultPresetId={testPresets[0].id}
       >
         <BrowserRouter>
           <Players />
