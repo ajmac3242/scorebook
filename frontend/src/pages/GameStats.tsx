@@ -2574,7 +2574,7 @@ const GameStats: React.FC = () => {
         maxWidth="sm"
       >
         <DialogTitle sx={{ fontFamily: "var(--serif)", fontWeight: 800 }}>
-          <Stack direction="row" alignItems="center" spacing={1}>
+          <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
             <PracticeIcon color="success" />
             <span>Practice Prescription Engine</span>
           </Stack>
