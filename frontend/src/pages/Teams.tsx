@@ -419,8 +419,8 @@ const Teams: React.FC = () => {
           <Stack
             direction={{ xs: "column", md: "row" }}
             spacing={1.5}
-            alignItems={{ xs: "stretch", md: "center" }}
             justifyContent="space-between"
+            sx={{ alignItems: { xs: "stretch", md: "center" } }}
           >
             <TextField
               value={searchTerm}
