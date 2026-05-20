@@ -16,7 +16,6 @@ import { ThemeProvider, createTheme } from "@mui/material";
 
 const theme = createTheme();
 
-
 describe("Players Component", () => {
   beforeEach(() => {
     mockDb.reset();
