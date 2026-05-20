@@ -669,7 +669,7 @@ const Settings: React.FC = () => {
             pb: 0,
           }}
         >
-          <Typography variant="h5" fontWeight={600} sx={{ mb: 2.5 }}>
+          <Typography variant="h5" sx={{ fontWeight: 600, mb: 2.5 }}>
             Settings
           </Typography>
 
