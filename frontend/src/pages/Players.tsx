@@ -312,8 +312,10 @@ const Players: React.FC = () => {
           <Stack
             direction={{ xs: "column", md: "row" }}
             spacing={2}
-            alignItems={{ xs: "flex-start", md: "center" }}
-            justifyContent="space-between"
+            sx={{
+              alignItems: { xs: "flex-start", md: "center" },
+              justifyContent: "space-between",
+            }}
           >
             <Stack direction="row" spacing={1.5} sx={{ alignItems: "center" }}>
               <Box
@@ -677,7 +679,7 @@ const Players: React.FC = () => {
                             </Typography>
                           </Box>
 
-                          <Stack spacing={1} alignItems="flex-end">
+                          <Stack spacing={1} sx={{ alignItems: "flex-end" }}>
                             <Tooltip
                               title={
                                 player.isStar
@@ -770,9 +772,9 @@ const Players: React.FC = () => {
 
                         <Stack
                           direction="row"
-                          justifyContent="space-between"
-                          alignItems="center"
                           sx={{
+                            justifyContent: "space-between",
+                            alignItems: "center",
                             mt: "auto",
                             pt: 2,
                             borderTop: "1px solid",
