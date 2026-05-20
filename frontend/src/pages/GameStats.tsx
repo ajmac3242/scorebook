@@ -1284,7 +1284,9 @@ const GameStats: React.FC = () => {
           { label: "Def. PPP", value: oppData.ppp },
         ]}
         actions={
-<Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>            {!isDeleted && (
+          <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+            {" "}
+            {!isDeleted && (
               <Stack direction="row" spacing={1}>
                 <Button
                   variant="contained"
@@ -1354,8 +1356,8 @@ const GameStats: React.FC = () => {
           gap: 2,
         }}
       >
-        <Stack direction="row" spacing={2} sx={{ alignItems: "center" }}>1612
-          
+        <Stack direction="row" spacing={2} sx={{ alignItems: "center" }}>
+          1612
           <ToggleButtonGroup
             value={activeTab}
             exclusive
@@ -1366,7 +1368,6 @@ const GameStats: React.FC = () => {
             <ToggleButton value="standard">Standard</ToggleButton>
             <ToggleButton value="impact">Impact (On/Off)</ToggleButton>
           </ToggleButtonGroup>
-
           <ToggleButtonGroup
             value={periodFilter}
             exclusive
@@ -1611,7 +1612,11 @@ const GameStats: React.FC = () => {
                   >
                     <Stack
                       direction="row"
-                      sx={{ justifyContent: "space-between", alignItems: "center", mb: 1 }}
+                      sx={{
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        mb: 1,
+                      }}
                     >
                       <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
                         {periodLabel} {court.p}
@@ -2314,12 +2319,12 @@ const GameStats: React.FC = () => {
                   <Typography variant="h6" sx={{ fontFamily: "var(--serif)" }}>
                     Lineup Efficiency
                   </Typography>
-            <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
-                    <Button
-                      size="small"
-                    >
-                      Audit Subs
-                    </Button>
+                  <Stack
+                    direction="row"
+                    spacing={1}
+                    sx={{ alignItems: "center" }}
+                  >
+                    <Button size="small">Audit Subs</Button>
                     <IconButton
                       onClick={() => setExpandedSection("lineups")}
                       aria-label="Expand Lineup Efficiency section"
