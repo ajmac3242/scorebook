@@ -56,9 +56,9 @@ const Players: React.FC = () => {
   const navigate = useNavigate();
 
   const radius = theme.shape.borderRadius;
-  const shellRadius = radius * 1.5;
-  const sectionRadius = radius * 1.5;
-  const controlRadius = radius * 1.25;
+  const shellRadius = radius;
+  const sectionRadius = radius;
+  const controlRadius = radius;
 
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
