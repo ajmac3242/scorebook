@@ -365,7 +365,7 @@ const Players: React.FC = () => {
               Add player
             </Button>
           </Stack>
-        </TokenSectionCard>
+        </Box>
 
         <Box
           sx={{
@@ -545,8 +545,8 @@ const Players: React.FC = () => {
                     Create first player
                   </Button>
                 )}
-              </TokenPageShell>
-            </TokenPageShell>
+              </Box>
+            </Box>
           ) : (
             <Grid container spacing={2.5}>
               {playersWithStats.map((player) => {
@@ -688,7 +688,7 @@ const Players: React.FC = () => {
                                 ? "Archived player. Select to restore to the active roster."
                                 : "Track player performance and open detailed individual stats."}
                             </Typography>
-                          </TokenPageShell>
+                          </Box>
 
                           <Stack spacing={1} sx={{ alignItems: "flex-end" }}>
                             <Tooltip
