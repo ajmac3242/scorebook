@@ -5,7 +5,7 @@ import {
   useMediaQuery,
   Box,
   Typography,
-  Grid2 as Grid,
+  Grid,
   Button,
   Avatar,
   Table,
@@ -1412,7 +1412,7 @@ const TeamStats: React.FC = () => {
                 onChange={(e) =>
                   setEditTimeoutLimit(parseInt(e.target.value) || 0)
                 }
-                slotProps={{ input: { min: 0 } }}
+                slotProps={{ htmlInput: { min: 0 } }}
               />
               <TextField
                 fullWidth
@@ -1447,7 +1447,7 @@ const TeamStats: React.FC = () => {
                           [`P${p}`]: parseInt(e.target.value) || 0,
                         }))
                       }
-                      slotProps={{ input: { min: 0, max: editFoulLimit } }}
+                      slotProps={{ htmlInput: { min: 0, max: editFoulLimit } }}
                     />
                   </Grid>
                 ))}
@@ -1794,7 +1794,7 @@ const TeamStats: React.FC = () => {
                     onChange={(e) =>
                       setNewTimeoutLimit(parseInt(e.target.value) || 0)
                     }
-                    slotProps={{ input: { min: 0 } }}
+                    slotProps={{ htmlInput: { min: 0 } }}
                   />
                   <TextField
                     fullWidth
