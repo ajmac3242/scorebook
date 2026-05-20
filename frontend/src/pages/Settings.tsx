@@ -47,13 +47,11 @@ const TAB_LABELS: Record<SettingsTab, string> = {
   appearance: "Appearance",
 };
 
-const SectionIntro: React.FC<{ title: string; description: string }> = ({
-  title,
-  description,
-}) => {
-  const theme = useTheme();
-  const tokens = useTokens();
-  const section = tokens.settings.section;
+const SectionIntro: React.FC<{
+  title: string;
+  description: string;
+  section: { titleGap: number; introMarginBottom: number };
+}> = ({ title, description, section }) => {
 
   return (
     <Box sx={{ mb: `${(section?.introMarginBottom ?? 20) / 8}rem` }}>
@@ -76,6 +74,14 @@ interface SettingsRowProps {
   children?: React.ReactNode;
   borderBottom?: boolean;
   alignTop?: boolean;
+  row: {
+    labelWidth: number;
+    gap: number;
+    minHeight: number;
+    paddingY: number;
+    dividerColor: string;
+    descriptionMaxWidth: number;
+  };
 }
 
 const SettingsRow: React.FC<SettingsRowProps> = ({
@@ -84,10 +90,9 @@ const SettingsRow: React.FC<SettingsRowProps> = ({
   children,
   borderBottom = true,
   alignTop = false,
+  row,
 }) => {
   const theme = useTheme();
-  const tokens = useTokens();
-  const row = tokens.settings.row;
 
   return (
     <Box
@@ -133,13 +138,12 @@ const SettingsRow: React.FC<SettingsRowProps> = ({
   );
 };
 
-const ThemeMiniPreview: React.FC<{ color: string; selected: boolean }> = ({
-  color,
-  selected,
-}) => {
+const ThemeMiniPreview: React.FC<{
+  color: string;
+  selected: boolean;
+  card: { previewRadius: number; checkSize: number; checkOffset: number };
+}> = ({ color, selected, card }) => {
   const theme = useTheme();
-  const tokens = useTokens();
-  const card = tokens.settings.selectionCard;
   const previewRadius = card?.previewRadius ?? 6;
   const checkSize = card?.checkSize ?? 18;
   const checkOffset = card?.checkOffset ?? 10;
@@ -226,6 +230,16 @@ interface PresetCardProps {
   preset: ThemePreset;
   selected: boolean;
   onSelect: () => void;
+  card: {
+    radius: number;
+    borderWidth: number;
+    selectedBorderWidth: number;
+    padding: number;
+    titleGap: number;
+    previewRadius: number;
+    checkSize: number;
+    checkOffset: number;
+  };
 }
 
 const PresetCard: React.FC<PresetCardProps> = ({
@@ -263,7 +277,7 @@ const PresetCard: React.FC<PresetCardProps> = ({
       onClick={onSelect}
     >
       <CardActionArea disableRipple sx={{ p: `${padding}px` }}>
-        <ThemeMiniPreview color={preset.previewColor} selected={selected} />
+        <ThemeMiniPreview color={preset.previewColor} selected={selected} card={card} />
         <Box sx={{ mt: `${titleGap + 6}px` }}>
           <Typography
             variant="body2"
@@ -290,8 +304,11 @@ const Settings: React.FC = () => {
   const theme = useTheme();
   const tokens = useTokens();
   const settingsTokens = tokens.settings;
-  const shell = settingsTokens?.shell;
-  const tabs = settingsTokens?.tabs;
+  const shell = settingsTokens.shell;
+  const tabs = settingsTokens.tabs;
+  const section = settingsTokens.section;
+  const row = settingsTokens.row;
+  const selectionCard = settingsTokens.selectionCard;
 
   const { logout } = useAuth();
   const { presetId, setPresetId, availablePresets } = useAppTheme();
@@ -400,9 +417,11 @@ const Settings: React.FC = () => {
       <SectionIntro
         title="Account"
         description="Manage your local app data and sign out safely."
+        section={section}
       />
 
       <SettingsRow
+        row={row}
         label="Email address"
         description="Your registered account email."
       >
@@ -412,6 +431,7 @@ const Settings: React.FC = () => {
       </SettingsRow>
 
       <SettingsRow
+        row={row}
         label="Logout"
         description="Sign out of CourtSight on this device. Local cache and stored sync metadata will be cleared."
         borderBottom={false}
@@ -438,9 +458,11 @@ const Settings: React.FC = () => {
         <SectionIntro
           title="Appearance"
           description="Change how your application looks and feels."
+          section={section}
         />
 
         <SettingsRow
+          row={row}
           label="Color theme"
           description="Select a theme for the application interface."
         >
@@ -459,6 +481,7 @@ const Settings: React.FC = () => {
         </SettingsRow>
 
         <SettingsRow
+          row={row}
           label="Theme presets"
           description="Choose how the app should appear across the interface."
           alignTop
@@ -480,12 +503,14 @@ const Settings: React.FC = () => {
                 preset={preset}
                 selected={presetId === preset.id}
                 onSelect={() => setPresetId(preset.id)}
+                card={selectionCard}
               />
             ))}
           </Box>
         </SettingsRow>
 
         <SettingsRow
+          row={row}
           label="Language"
           description="Choose your preferred display language."
           borderBottom={false}
@@ -511,9 +536,11 @@ const Settings: React.FC = () => {
       <SectionIntro
         title="System"
         description="Monitor sync health, inspect local storage, and review logs."
+        section={section}
       />
 
       <SettingsRow
+        row={row}
         label="Sync"
         description="Manually push and pull data from the cloud."
       >
@@ -542,6 +569,7 @@ const Settings: React.FC = () => {
       </SettingsRow>
 
       <SettingsRow
+        row={row}
         label="Local storage"
         description={`${totalDbRecords.toLocaleString()} total records across ${
           Object.keys(dbStats).length
@@ -561,6 +589,7 @@ const Settings: React.FC = () => {
       </SettingsRow>
 
       <SettingsRow
+        row={row}
         label="Logs"
         description="Diagnostic log output from this session."
         alignTop
