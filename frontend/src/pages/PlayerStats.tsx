@@ -869,7 +869,7 @@ const PlayerStats: React.FC = () => {
         fullWidth
         maxWidth="xs"
         sx={{
-          '& .MuiDialog-paper': {
+          "& .MuiDialog-paper": {
             borderRadius: shellRadius,
           },
         }}
