@@ -315,7 +315,7 @@ const Players: React.FC = () => {
             alignItems={{ xs: "flex-start", md: "center" }}
             justifyContent="space-between"
           >
-            <Stack direction="row" spacing={1.5} alignItems="center">
+            <Stack direction="row" spacing={1.5} sx={{ alignItems: "center" }}>
               <Box
                 sx={{
                   width: 44,
