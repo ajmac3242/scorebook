@@ -1,5 +1,4 @@
 import {
-  alpha,
   createTheme,
   type Theme,
   type ThemeOptions,
@@ -379,7 +378,7 @@ export function buildTheme(preset?: ThemePreset): Theme {
     components: buildComponentTheme(activeTokens),
   });
 
-  (theme as any).appTokens = activeTokens;
+  theme.appTokens = activeTokens;
 
   return theme;
 }

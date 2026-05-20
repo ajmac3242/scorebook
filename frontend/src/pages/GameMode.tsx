@@ -856,7 +856,14 @@ const GameMode: React.FC = () => {
     } catch (err) {
       logger.error("Failed to record opponent turnover:", err);
     }
-  }, [gameId, isReadOnly, period, clockSeconds, handleTogglePossession]);
+  }, [
+    gameId,
+    isReadOnly,
+    period,
+    clockSeconds,
+    handleTogglePossession,
+    setSnackbar,
+  ]);
 
   const handleChainAction = useCallback(
     async (pId: string, type: string) => {

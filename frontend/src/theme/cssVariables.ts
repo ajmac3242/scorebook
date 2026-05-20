@@ -6,12 +6,12 @@ import type { AppTokens } from "./tokens/tokens";
  * becomes { '--cs-semantic-color-primary-main': '#fff' }
  */
 export function generateCssVariables(
-  obj: any,
+  obj: Record<string, unknown>,
   prefix = "--cs",
 ): Record<string, string | number> {
   const vars: Record<string, string | number> = {};
 
-  const flatten = (current: any, path: string) => {
+  const flatten = (current: Record<string, unknown>, path: string) => {
     for (const key in current) {
       const value = current[key];
       const newPath = path ? `${path}-${key}` : key;
@@ -20,12 +20,10 @@ export function generateCssVariables(
         typeof value === "object" &&
         value !== null &&
         !Array.isArray(value) &&
-        // Don't flatten typography/shadow objects if they are used as multi-value CSS props
-        // But for this app, we want to flatten everything to have granular control
-        key !== "easing" // keep easing as is if it was an object, but it's a string
+        key !== "easing"
       ) {
-        flatten(value, newPath);
-      } else {
+        flatten(value as Record<string, unknown>, newPath);
+      } else if (typeof value === "string" || typeof value === "number") {
         vars[`${prefix}-${newPath}`] = value;
       }
     }
@@ -35,6 +33,7 @@ export function generateCssVariables(
   return vars;
 }
 
-export const cssVariables = (tokens: AppTokens) => generateCssVariables(tokens);
+export const cssVariables = (tokens: AppTokens) =>
+  generateCssVariables(tokens as unknown as Record<string, unknown>);
 
 export default cssVariables;

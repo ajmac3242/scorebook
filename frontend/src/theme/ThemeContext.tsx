@@ -5,7 +5,7 @@ import React, {
   useState,
   ReactNode,
 } from "react";
-import { ThemeProvider, createTheme } from "@mui/material/styles";
+import { ThemeProvider, type Theme } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import buildTheme from "./buildTheme";
 import type { ThemePreset } from "./tokens/tokens";
@@ -21,7 +21,7 @@ interface ThemeContextValue {
   setPresetId: (_id: string) => void;
   availablePresets: ThemePreset[];
   activePreset: ThemePreset;
-  theme: any;
+  theme: Theme;
 }
 
 const ThemeCtx = createContext<ThemeContextValue | null>(null);
@@ -95,7 +95,7 @@ export function CourtSightThemeProvider({
 
   return (
     <ThemeCtx.Provider value={value}>
-      <ThemeProvider theme={theme} defaultMode={activePreset.mode}>
+      <ThemeProvider theme={theme}>
         <CssBaseline />
         {children}
       </ThemeProvider>

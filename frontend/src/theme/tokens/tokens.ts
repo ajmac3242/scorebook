@@ -1,7 +1,7 @@
 import { palettes } from "./palette";
 import { spacing } from "./spacing";
 import { typographyPrimitives } from "./typography";
-import { breakpoints, muiBreakpointValues } from "./breakpoints";
+import { breakpoints } from "./breakpoints";
 import { elevationPrimitives } from "./elevation";
 
 export const tokens = {
