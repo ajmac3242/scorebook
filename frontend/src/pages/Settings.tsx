@@ -57,8 +57,7 @@ const SectionIntro: React.FC<{ title: string; description: string }> = ({
     <Box sx={{ mb: `${(section?.introMarginBottom ?? 20) / 8}rem` }}>
       <Typography
         variant="h6"
-        fontWeight={600}
-        sx={{ mb: `${(section?.titleGap ?? 4) / 8}rem` }}
+        sx={{ fontWeight: 600, mb: `${(section?.titleGap ?? 4) / 8}rem` }}
       >
         {title}
       </Typography>
