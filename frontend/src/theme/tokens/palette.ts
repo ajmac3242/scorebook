@@ -11,13 +11,6 @@ export type ColorScale = {
   900: string;
 };
 
-export type SemanticColor = {
-  main: string;
-  light: string;
-  dark: string;
-  contrastText: string;
-};
-
 export const blue: ColorScale = {
   50: "#F1F7FA",
   100: "#D9EAF1",
@@ -109,86 +102,7 @@ export const warningScale: ColorScale = {
   900: "#56390E",
 };
 
-export const brand = {
-  primary: {
-    main: blue[500],
-    light: blue[400],
-    dark: blue[900],
-    contrastText: "#FFFFFF",
-  } satisfies SemanticColor,
-  secondary: {
-    main: slate[500],
-    light: slate[300],
-    dark: slate[700],
-    contrastText: "#FFFFFF",
-  } satisfies SemanticColor,
-  success: {
-    main: successScale[500],
-    light: successScale[300],
-    dark: successScale[700],
-    contrastText: "#FFFFFF",
-  } satisfies SemanticColor,
-  error: {
-    main: errorScale[500],
-    light: errorScale[300],
-    dark: errorScale[700],
-    contrastText: "#FFFFFF",
-  } satisfies SemanticColor,
-  warning: {
-    main: warningScale[500],
-    light: warningScale[300],
-    dark: warningScale[700],
-    contrastText: blue[900],
-  } satisfies SemanticColor,
-  info: {
-    main: slate[500],
-    light: slate[300],
-    dark: slate[700],
-    contrastText: "#FFFFFF",
-  } satisfies SemanticColor,
-};
-
-export const background = {
-  default: warmGray[100],
-  subtle: neutral[200],
-  paper: neutral[50],
-  elevated: "#FFFFFF",
-  inset: warmGray[200],
-};
-
-export const surface = {
-  default: neutral[50],
-  subtle: neutral[200],
-  elevated: "#FFFFFF",
-  inset: warmGray[200],
-  strong: warmGray[300],
-  accentSoft: blue[50],
-};
-
-export const text = {
-  primary: blue[900],
-  secondary: slate[500],
-  tertiary: slate[700],
-  muted: warmGray[700],
-  inverse: "#FFFFFF",
-};
-
-export const border = {
-  subtle: neutral[400],
-  default: neutral[500],
-  strong: warmGray[500],
-  accent: blue[200],
-};
-
-export const action = {
-  hover: "rgba(2, 50, 70, 0.04)",
-  selected: "rgba(40, 112, 148, 0.10)",
-  disabled: "rgba(31, 41, 51, 0.38)",
-  disabledBackground: "rgba(31, 41, 51, 0.08)",
-  focusRing: "#154C56",
-};
-
-export const palette = {
+export const palettes = {
   blue,
   slate,
   warmGray,
@@ -196,12 +110,4 @@ export const palette = {
   successScale,
   errorScale,
   warningScale,
-  brand,
-  background,
-  surface,
-  text,
-  border,
-  action,
 };
-
-export type AppPalette = typeof palette;
