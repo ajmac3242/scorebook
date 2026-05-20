@@ -450,7 +450,7 @@ const Teams: React.FC = () => {
                 size="small"
                 variant="outlined"
                 sx={{
-                  borderRadius: `${theme.shape.borderRadius * 0.75}px`,
+                  borderRadius: theme.shape.borderRadius,
                   bgcolor: "background.paper",
                   borderColor: "divider",
                   color: "text.secondary",
@@ -463,7 +463,7 @@ const Teams: React.FC = () => {
                 size="small"
                 variant="outlined"
                 sx={{
-                  borderRadius: `${theme.shape.borderRadius * 0.75}px`,
+                  borderRadius: theme.shape.borderRadius,
                   bgcolor: "background.paper",
                   borderColor: "divider",
                   color: "text.secondary",
@@ -725,7 +725,7 @@ const Teams: React.FC = () => {
                                   : "Quarters"
                               }
                               sx={{
-                                borderRadius: `${theme.shape.borderRadius * 0.75}px`,
+                                borderRadius: theme.shape.borderRadius,
                                 bgcolor: accent.softerBg,
                                 color: "text.primary",
                                 border: `1px solid ${accent.border}`,
@@ -771,7 +771,7 @@ const Teams: React.FC = () => {
                         {/* Win-loss record */}
                         <Box
                           sx={{
-                            borderRadius: `${theme.shape.borderRadius * 1.25}px`,
+                            borderRadius: cardRadius,
                             px: theme.spacing(2),
                             py: theme.spacing(1.75),
                             mb: theme.spacing(2),
@@ -829,8 +829,11 @@ const Teams: React.FC = () => {
                           <Stack
                             direction="row"
                             spacing={0.75}
-                            alignItems="center"
-                            sx={{ mt: theme.spacing(2), color: accent.solid }}
+                            sx={{
+                              alignItems: "center",
+                              mt: theme.spacing(2),
+                              color: accent.solid,
+                            }}
                           >
                             <Typography
                               sx={{
@@ -859,10 +862,12 @@ const Teams: React.FC = () => {
         onClose={closeDialog}
         fullWidth
         maxWidth="sm"
-        PaperProps={{
-          sx: {
-            borderRadius: cardRadius,
-            bgcolor: "background.paper",
+        slotProps={{
+          paper: {
+            sx: {
+              borderRadius: cardRadius,
+              bgcolor: "background.paper",
+            },
           },
         }}
       >
@@ -949,7 +954,7 @@ const Teams: React.FC = () => {
                 type="number"
                 value={fouls}
                 onChange={(e) => setFouls(Number(e.target.value))}
-                inputProps={{ min: 1 }}
+                slotProps={{ htmlInput: { min: 1 } }}
                 fullWidth
               />
               <FormHelperText>
