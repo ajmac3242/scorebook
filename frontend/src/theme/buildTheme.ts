@@ -286,7 +286,7 @@ export function buildTheme(preset?: ThemePreset): Theme {
 
   const theme = createTheme({
     cssVariables: {
-       colorSchemeSelector: 'class',
+      colorSchemeSelector: "class",
     },
     breakpoints: {
       values: muiBreakpointValues,
@@ -305,37 +305,43 @@ export function buildTheme(preset?: ThemePreset): Theme {
             main: activeTokens.semantic.color.brand.primary.main,
             light: activeTokens.semantic.color.brand.primary.light,
             dark: activeTokens.semantic.color.brand.primary.dark,
-            contrastText: activeTokens.semantic.color.brand.primary.contrastText,
+            contrastText:
+              activeTokens.semantic.color.brand.primary.contrastText,
           },
           secondary: {
             main: activeTokens.semantic.color.brand.secondary.main,
             light: activeTokens.semantic.color.brand.secondary.light,
             dark: activeTokens.semantic.color.brand.secondary.dark,
-            contrastText: activeTokens.semantic.color.brand.secondary.contrastText,
+            contrastText:
+              activeTokens.semantic.color.brand.secondary.contrastText,
           },
           success: {
             main: activeTokens.semantic.color.feedback.success.main,
             light: activeTokens.semantic.color.feedback.success.light,
             dark: activeTokens.semantic.color.feedback.success.dark,
-            contrastText: activeTokens.semantic.color.feedback.success.contrastText,
+            contrastText:
+              activeTokens.semantic.color.feedback.success.contrastText,
           },
           error: {
             main: activeTokens.semantic.color.feedback.error.main,
             light: activeTokens.semantic.color.feedback.error.light,
             dark: activeTokens.semantic.color.feedback.error.dark,
-            contrastText: activeTokens.semantic.color.feedback.error.contrastText,
+            contrastText:
+              activeTokens.semantic.color.feedback.error.contrastText,
           },
           warning: {
             main: activeTokens.semantic.color.feedback.warning.main,
             light: activeTokens.semantic.color.feedback.warning.light,
             dark: activeTokens.semantic.color.feedback.warning.dark,
-            contrastText: activeTokens.semantic.color.feedback.warning.contrastText,
+            contrastText:
+              activeTokens.semantic.color.feedback.warning.contrastText,
           },
           info: {
             main: activeTokens.semantic.color.feedback.info.main,
             light: activeTokens.semantic.color.feedback.info.light,
             dark: activeTokens.semantic.color.feedback.info.dark,
-            contrastText: activeTokens.semantic.color.feedback.info.contrastText,
+            contrastText:
+              activeTokens.semantic.color.feedback.info.contrastText,
           },
           background: {
             default: activeTokens.semantic.color.background.default,
@@ -357,8 +363,8 @@ export function buildTheme(preset?: ThemePreset): Theme {
         },
       },
       dark: {
-         // Dark scheme can be defined if needed
-      }
+        // Dark scheme can be defined if needed
+      },
     },
 
     typography: {
