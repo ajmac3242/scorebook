@@ -263,10 +263,9 @@ const PresetCard: React.FC<PresetCardProps> = ({
         <Box sx={{ mt: `${titleGap + 6}px` }}>
           <Typography
             variant="body2"
-            fontWeight={600}
-            fontSize="0.8125rem"
             color="text.primary"
             noWrap
+            sx={{ fontWeight: 600, fontSize: "0.8125rem" }}
           >
             {preset.label}
           </Typography>
