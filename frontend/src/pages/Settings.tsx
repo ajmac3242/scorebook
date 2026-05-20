@@ -244,10 +244,9 @@ const PresetCard: React.FC<PresetCardProps> = ({
   preset,
   selected,
   onSelect,
+  card,
 }) => {
   const theme = useTheme();
-  const tokens = useTokens();
-  const card = tokens.settings.selectionCard;
 
   const radius = card?.radius ?? 10;
   const borderWidth = card?.borderWidth ?? 1;
