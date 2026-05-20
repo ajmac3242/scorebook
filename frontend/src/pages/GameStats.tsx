@@ -2012,16 +2012,14 @@ const GameStats: React.FC = () => {
                   >
                     <Typography
                       variant="caption"
-                      display="block"
-                      sx={{ fontWeight: 800 }}
+                      sx={{ display: "block", fontWeight: 800 }}
                     >
                       PRIMARY PLAYMAKER: #
                       {shotChartJerseyMap.get(assistNetwork.primaryPlaymakerId)}
                     </Typography>
                     <Typography
                       variant="caption"
-                      display="block"
-                      sx={{ fontWeight: 800 }}
+                      sx={{ display: "block", fontWeight: 800 }}
                     >
                       PRIMARY FINISHER: #
                       {shotChartJerseyMap.get(assistNetwork.primaryFinisherId)}
