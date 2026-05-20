@@ -365,7 +365,7 @@ const Players: React.FC = () => {
               Add player
             </Button>
           </Stack>
-        </TokenPageShell>
+        </TokenSectionCard>
 
         <Box
           sx={{
