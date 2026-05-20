@@ -742,7 +742,7 @@ const Players: React.FC = () => {
                               {getInitials(player.name)}
                             </Avatar>
                           </Stack>
-                        </TokenPageShell>
+                        </Box>
 
                         <Box
                           sx={{
