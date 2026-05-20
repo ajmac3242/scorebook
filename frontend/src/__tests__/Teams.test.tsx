@@ -7,13 +7,12 @@ import {
   within,
 } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
-import { ThemeProvider, createTheme } from "@mui/material";
+import { CourtSightThemeProvider } from "../theme/ThemeContext";
+import { PRESETS } from "../theme/presets";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import Teams from "../pages/Teams";
 import { mockDb } from "../dbMock";
 import { logger } from "../utils/logger";
-
-const theme = createTheme();
 
 const mockNavigate = vi.fn();
 
@@ -38,11 +37,11 @@ describe("Teams Component", () => {
 
   const renderComponent = () =>
     render(
-      <ThemeProvider theme={theme}>
+      <CourtSightThemeProvider presets={PRESETS} defaultPresetId="classic">
         <BrowserRouter>
           <Teams />
         </BrowserRouter>
-      </ThemeProvider>,
+      </CourtSightThemeProvider>,
     );
 
   const getCreateTeamButton = () => {
