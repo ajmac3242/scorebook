@@ -36,7 +36,11 @@ import { useNavigate } from "react-router-dom";
 import { db } from "../db";
 import { syncService } from "../utils/syncService";
 import { useTokens } from "../theme/useTokens";
-import { TokenPageShell, TokenSectionCard, TokenPageTitle } from "../components/layout/TokenLayout";
+import {
+  TokenPageShell,
+  TokenSectionCard,
+  TokenPageTitle,
+} from "../components/layout/TokenLayout";
 import { calculatePlayerAggregates, getInitials } from "../utils/stats";
 import { logger } from "../utils/logger";
 import { AVATAR_COLORS } from "../constants/colors";
@@ -337,9 +341,7 @@ const Players: React.FC = () => {
               </Box>
 
               <Box>
-                <TokenPageTitle sx={{ mb: 0.25 }}>
-                  Players
-                </TokenPageTitle>
+                <TokenPageTitle sx={{ mb: 0.25 }}>Players</TokenPageTitle>
                 <Typography variant="body2" color="text.secondary">
                   Manage your roster, highlight star players, and open
                   individual dashboards.
