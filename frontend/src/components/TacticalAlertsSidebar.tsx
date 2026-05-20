@@ -71,7 +71,11 @@ export const TacticalAlertsSidebar: React.FC<TacticalAlertsSidebarProps> = ({
                       : "rgba(237, 108, 2, 0.05)",
               }}
             >
-              <Stack direction="row" spacing={1} sx={{alignItems: "flex-start"}}>
+              <Stack
+                direction="row"
+                spacing={1}
+                sx={{ alignItems: "flex-start" }}
+              >
                 {alert.severity === "CRITICAL" || alert.severity === "error" ? (
                   <ErrorIcon color="error" fontSize="small" />
                 ) : (

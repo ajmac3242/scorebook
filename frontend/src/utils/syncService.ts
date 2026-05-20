@@ -367,7 +367,10 @@ class SyncService {
    * @param {string} teamId - The team ID.
    */
   async syncTeamGamesList(teamId: string) {
-    const localGamesCount = await db.games.where("teamId").equals(teamId).count();
+    const localGamesCount = await db.games
+      .where("teamId")
+      .equals(teamId)
+      .count();
     const etag =
       localGamesCount > 0 ? this.getETag("team_games", teamId) : null;
 
@@ -543,7 +546,10 @@ class SyncService {
       }
 
       // 5. Pull stats for all completed games discovered in parallel
-      const completedGames = await db.games.where("completed").equals(1).toArray();
+      const completedGames = await db.games
+        .where("completed")
+        .equals(1)
+        .toArray();
       const completedGamePromises = completedGames.map((g) =>
         this.syncGameStats(g.id!.toString()),
       );

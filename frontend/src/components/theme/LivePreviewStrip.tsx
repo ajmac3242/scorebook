@@ -35,7 +35,11 @@ const LivePreviewStrip: React.FC = () => {
         }}
       >
         <SportBasketballIcon sx={{ color: "primary.main", fontSize: 20 }} />
-        <Typography variant="subtitle2" color="text.primary" sx={{fontWeight: 700}}>
+        <Typography
+          variant="subtitle2"
+          color="text.primary"
+          sx={{ fontWeight: 700 }}
+        >
           CourtSight
         </Typography>
         <Box sx={{ flex: 1 }} />

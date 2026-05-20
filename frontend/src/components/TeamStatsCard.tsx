@@ -44,7 +44,7 @@ export const TeamStatsCard = React.memo(
           Team Stats
         </Typography>
         <Grid container spacing={2}>
-          <Grid  size={{xs: 6}}>
+          <Grid size={{ xs: 6 }}>
             <Tooltip title="Points Per Possession allowed in current defensive scheme">
               <Box
                 sx={{
@@ -92,7 +92,7 @@ export const TeamStatsCard = React.memo(
               {advice.text}
             </Typography>
           </Grid>
-          <Grid  size={{xs: 6}}>
+          <Grid size={{ xs: 6 }}>
             <Box
               sx={{
                 textAlign: "center",
@@ -119,7 +119,7 @@ export const TeamStatsCard = React.memo(
               </Typography>
             </Box>
           </Grid>
-          <Grid  size={{xs: 6}}>
+          <Grid size={{ xs: 6 }}>
             <Box
               sx={{
                 textAlign: "center",
@@ -136,7 +136,11 @@ export const TeamStatsCard = React.memo(
                 transition: "all 0.3s ease",
               }}
             >
-              <Stack direction="row" spacing={0.5} sx={{alignItems: "center", justifyContent: "center", mb: 0.5}}>
+              <Stack
+                direction="row"
+                spacing={0.5}
+                sx={{ alignItems: "center", justifyContent: "center", mb: 0.5 }}
+              >
                 <Typography
                   variant="caption"
                   sx={{
@@ -173,7 +177,7 @@ export const TeamStatsCard = React.memo(
               </Typography>
             </Box>
           </Grid>
-          <Grid  size={{xs: 6}}>
+          <Grid size={{ xs: 6 }}>
             <Box sx={{ textAlign: "center", p: 1 }}>
               <Typography
                 variant="caption"
@@ -186,7 +190,7 @@ export const TeamStatsCard = React.memo(
               </Typography>
             </Box>
           </Grid>
-          <Grid  size={{xs: 6}}>
+          <Grid size={{ xs: 6 }}>
             <Box sx={{ textAlign: "center", p: 1 }}>
               <Typography
                 variant="caption"
@@ -199,7 +203,7 @@ export const TeamStatsCard = React.memo(
               </Typography>
             </Box>
           </Grid>
-          <Grid  size={{xs: 6}}>
+          <Grid size={{ xs: 6 }}>
             <Tooltip title="Estimated possessions per 40 minutes (normalized speed of play)">
               <Box
                 sx={{
@@ -233,7 +237,7 @@ export const TeamStatsCard = React.memo(
               </Box>
             </Tooltip>
           </Grid>
-          <Grid  size={{xs: 6}}>
+          <Grid size={{ xs: 6 }}>
             <Tooltip title="Fouls Per Minute (FPM). High values (>0.8) indicate a tightly called game.">
               <Box
                 sx={{

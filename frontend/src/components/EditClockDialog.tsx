@@ -54,7 +54,11 @@ export const EditClockDialog: React.FC<{
           ))}
         </Box>
 
-        <Stack direction="row" spacing={3} sx={{alignItems: "center", justifyContent: "center", py: 1}}>
+        <Stack
+          direction="row"
+          spacing={3}
+          sx={{ alignItems: "center", justifyContent: "center", py: 1 }}
+        >
           <Box sx={{ textAlign: "center" }}>
             <Typography
               variant="caption"
@@ -62,7 +66,7 @@ export const EditClockDialog: React.FC<{
             >
               MINUTES
             </Typography>
-            <Stack direction="column" spacing={1} sx={{alignItems: "center"}}>
+            <Stack direction="column" spacing={1} sx={{ alignItems: "center" }}>
               <IconButton
                 onClick={() => setMins(Math.min(99, mins + 1))}
                 size="small"
@@ -95,7 +99,7 @@ export const EditClockDialog: React.FC<{
             >
               SECONDS
             </Typography>
-            <Stack direction="column" spacing={1} sx={{alignItems: "center"}}>
+            <Stack direction="column" spacing={1} sx={{ alignItems: "center" }}>
               <IconButton
                 onClick={() => setSecs((secs + 1) % 60)}
                 size="small"

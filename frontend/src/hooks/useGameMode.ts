@@ -1,5 +1,12 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from "react";
-import { db, type StatEvent, type Player, type TeamPlayer, type Team, type Game } from "../db";
+import {
+  db,
+  type StatEvent,
+  type Player,
+  type TeamPlayer,
+  type Team,
+  type Game,
+} from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
 import { ACTION_TYPES, SPECIAL_PLAYER_IDS } from "../constants/stats";
 import {
@@ -46,7 +53,10 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     [gameStatsQueryResult],
   );
 
-  const rawRosterData = useLiveQuery<{ teamPlayers: TeamPlayer[]; players: Player[] }>(() => {
+  const rawRosterData = useLiveQuery<{
+    teamPlayers: TeamPlayer[];
+    players: Player[];
+  }>(() => {
     if (!teamId) return { teamPlayers: [], players: [] };
     return db.teamPlayers
       .where("teamId")
@@ -69,7 +79,10 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
   const teamPlayers = rosterData.teamPlayers;
   const players = rosterData.players;
 
-  const gameAndTeam = useLiveQuery<{ game: Game | undefined; team: Team | undefined }>(() => {
+  const gameAndTeam = useLiveQuery<{
+    game: Game | undefined;
+    team: Team | undefined;
+  }>(() => {
     return db.games.get(gameId || "").then((g) => {
       if (g?.teamId) {
         return db.teams.get(g.teamId).then((t) => ({ game: g, team: t }));
@@ -80,7 +93,12 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
 
   const { game, team } = gameAndTeam;
 
-  const teamSeasonStats = useLiveQuery<{ ppp: string; ftPct: string; turnoverRate: string; orebPct: string }>(() => {
+  const teamSeasonStats = useLiveQuery<{
+    ppp: string;
+    ftPct: string;
+    turnoverRate: string;
+    orebPct: string;
+  }>(() => {
     if (!teamId)
       return { ppp: "0.00", ftPct: "0.0", turnoverRate: "0.0", orebPct: "0.0" };
     return db.games

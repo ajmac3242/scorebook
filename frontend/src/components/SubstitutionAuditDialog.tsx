@@ -300,7 +300,11 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                     </TableCell>
                     <TableCell align="right">
                       {isEditing ? (
-                        <Stack direction="row" spacing={1} sx={{justifyContent: "flex-end"}}>
+                        <Stack
+                          direction="row"
+                          spacing={1}
+                          sx={{ justifyContent: "flex-end" }}
+                        >
                           <Tooltip title="Save Changes">
                             <IconButton
                               size="small"
@@ -322,7 +326,11 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                           </Tooltip>
                         </Stack>
                       ) : (
-                        <Stack direction="row" spacing={1} sx={{justifyContent: "flex-end"}}>
+                        <Stack
+                          direction="row"
+                          spacing={1}
+                          sx={{ justifyContent: "flex-end" }}
+                        >
                           <Tooltip
                             title={`Edit ${event.type === ACTION_TYPES.SUB_IN ? "Sub In" : "Sub Out"}`}
                           >
