@@ -519,7 +519,12 @@ export function buildTheme(preset?: ThemePreset): Theme {
     },
 
     components: buildComponentTheme(activeTokens),
+    appTokens: activeTokens,
   });
+
+  theme.appTokens = activeTokens;
+
+  return theme;
 }
 
 export default buildTheme;
