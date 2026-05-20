@@ -2,10 +2,9 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import FreeThrowWorkflowDialog from "./FreeThrowWorkflowDialog";
 import React from "react";
-import { ThemeProvider, createTheme } from "@mui/material";
+import { CourtSightThemeProvider } from "../theme/ThemeContext";
+import { PRESETS } from "../theme/presets";
 import { mockDb } from "../dbMock";
-
-const theme = createTheme();
 
 const defaultProps = {
   open: true,
@@ -26,9 +25,9 @@ describe("FreeThrowWorkflowDialog", () => {
 
   it("renders correctly when open", () => {
     render(
-      <ThemeProvider theme={theme}>
+      <CourtSightThemeProvider presets={PRESETS} defaultPresetId="classic">
         <FreeThrowWorkflowDialog {...defaultProps} />
-      </ThemeProvider>,
+      </CourtSightThemeProvider>,
     );
 
     expect(screen.getByText("Free Throw Sequence")).toBeInTheDocument();
@@ -38,9 +37,9 @@ describe("FreeThrowWorkflowDialog", () => {
 
   it("allows changing the number of attempts", () => {
     render(
-      <ThemeProvider theme={theme}>
+      <CourtSightThemeProvider presets={PRESETS} defaultPresetId="classic">
         <FreeThrowWorkflowDialog {...defaultProps} />
-      </ThemeProvider>,
+      </CourtSightThemeProvider>,
     );
 
     // Default is 2
@@ -55,9 +54,9 @@ describe("FreeThrowWorkflowDialog", () => {
 
   it("allows recording makes and misses", () => {
     render(
-      <ThemeProvider theme={theme}>
+      <CourtSightThemeProvider presets={PRESETS} defaultPresetId="classic">
         <FreeThrowWorkflowDialog {...defaultProps} />
-      </ThemeProvider>,
+      </CourtSightThemeProvider>,
     );
 
     const makeButtons = screen.getAllByRole("button", { name: /Make/i });
@@ -75,9 +74,9 @@ describe("FreeThrowWorkflowDialog", () => {
 
   it("disables Save button until all attempts are recorded", () => {
     render(
-      <ThemeProvider theme={theme}>
+      <CourtSightThemeProvider presets={PRESETS} defaultPresetId="classic">
         <FreeThrowWorkflowDialog {...defaultProps} />
-      </ThemeProvider>,
+      </CourtSightThemeProvider>,
     );
 
     const saveButton = screen.getByRole("button", { name: /Save Sequence/i });
@@ -92,9 +91,9 @@ describe("FreeThrowWorkflowDialog", () => {
 
   it("saves stats and closes on Save", async () => {
     render(
-      <ThemeProvider theme={theme}>
+      <CourtSightThemeProvider presets={PRESETS} defaultPresetId="classic">
         <FreeThrowWorkflowDialog {...defaultProps} />
-      </ThemeProvider>,
+      </CourtSightThemeProvider>,
     );
 
     fireEvent.click(screen.getAllByRole("button", { name: /Make/i })[0]);
@@ -132,9 +131,9 @@ describe("FreeThrowWorkflowDialog", () => {
     });
 
     render(
-      <ThemeProvider theme={theme}>
+      <CourtSightThemeProvider presets={PRESETS} defaultPresetId="classic">
         <FreeThrowWorkflowDialog {...defaultProps} />
-      </ThemeProvider>,
+      </CourtSightThemeProvider>,
     );
 
     fireEvent.click(screen.getAllByRole("button", { name: /Make/i })[0]);
