@@ -375,8 +375,10 @@ const Players: React.FC = () => {
           <Stack
             direction={{ xs: "column", lg: "row" }}
             spacing={1.5}
-            alignItems={{ xs: "stretch", lg: "center" }}
-            justifyContent="space-between"
+            sx={{
+              alignItems: { xs: "stretch", lg: "center" },
+              justifyContent: "space-between",
+            }}
           >
             <TextField
               value={searchTerm}
@@ -406,9 +408,11 @@ const Players: React.FC = () => {
             <Stack
               direction={{ xs: "column", sm: "row" }}
               spacing={1}
-              alignItems={{ xs: "stretch", sm: "center" }}
-              flexWrap="wrap"
               useFlexGap
+              sx={{
+                alignItems: { xs: "stretch", sm: "center" },
+                flexWrap: "wrap",
+              }}
             >
               <Chip
                 label={`${playersWithStats.length} shown`}
@@ -551,7 +555,7 @@ const Players: React.FC = () => {
                 } = getAccentStyles(player.avatarColor);
 
                 return (
-                  <Grid size={{ xs: 12, md: 6 }} xl={4} key={player.id}>
+                  <Grid size={{ xs: 12, md: 6, xl: 4 }} key={player.id}>
                     <Paper
                       role="button"
                       tabIndex={0}
@@ -817,8 +821,8 @@ const Players: React.FC = () => {
         onClose={handleDialogClose}
         fullWidth
         maxWidth="sm"
-        PaperProps={{
-          sx: {
+        sx={{
+          '& .MuiDialog-paper': {
             borderRadius: shellRadius,
           },
         }}
