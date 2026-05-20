@@ -22,7 +22,7 @@ import type { SelectChangeEvent } from "@mui/material/Select";
 import {
   Check as CheckIcon,
   ContentCopy as CopyIcon,
-  DeleteOutline as ClearIcon,
+  DeleteOutlined as ClearIcon,
   Logout as LogoutIcon,
   Refresh as SyncIcon,
   Warning as WarningIcon,
@@ -57,8 +57,7 @@ const SectionIntro: React.FC<{ title: string; description: string }> = ({
     <Box sx={{ mb: `${(section?.introMarginBottom ?? 20) / 8}rem` }}>
       <Typography
         variant="h6"
-        fontWeight={600}
-        sx={{ mb: `${(section?.titleGap ?? 4) / 8}rem` }}
+        sx={{ fontWeight: 600, mb: `${(section?.titleGap ?? 4) / 8}rem` }}
       >
         {title}
       </Typography>
@@ -108,7 +107,11 @@ const SettingsRow: React.FC<SettingsRowProps> = ({
       }}
     >
       <Box sx={{ maxWidth: row?.descriptionMaxWidth ?? 240 }}>
-        <Typography variant="body2" fontWeight={500} color="text.primary">
+        <Typography
+          variant="body2"
+          color="text.primary"
+          sx={{ fontWeight: 500 }}
+        >
           {label}
         </Typography>
         {description && (
@@ -259,10 +262,9 @@ const PresetCard: React.FC<PresetCardProps> = ({
         <Box sx={{ mt: `${titleGap + 6}px` }}>
           <Typography
             variant="body2"
-            fontWeight={600}
-            fontSize="0.8125rem"
             color="text.primary"
             noWrap
+            sx={{ fontWeight: 600, fontSize: "0.8125rem" }}
           >
             {preset.label}
           </Typography>
@@ -512,8 +514,7 @@ const Settings: React.FC = () => {
         <Stack
           direction="row"
           spacing={1.5}
-          alignItems="center"
-          flexWrap="wrap"
+          sx={{ alignItems: "center", flexWrap: "wrap" }}
         >
           <Chip
             icon={isOnline ? <OnlineIcon /> : <OfflineIcon />}
@@ -560,7 +561,7 @@ const Settings: React.FC = () => {
         borderBottom={false}
       >
         <Stack spacing={1.5}>
-          <Stack direction="row" spacing={1} flexWrap="wrap">
+          <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap" }}>
             <Button
               variant="outlined"
               size="small"
@@ -669,7 +670,7 @@ const Settings: React.FC = () => {
             pb: 0,
           }}
         >
-          <Typography variant="h5" fontWeight={600} sx={{ mb: 2.5 }}>
+          <Typography variant="h5" sx={{ fontWeight: 600, mb: 2.5 }}>
             Settings
           </Typography>
 

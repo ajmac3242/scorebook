@@ -214,9 +214,9 @@ function buildComponentTheme(
       styleOverrides: {
         root: {
           minHeight: activeTokens.settings.tabs.height,
-        },
-        flexContainer: {
-          gap: activeTokens.settings.tabs.gap,
+          "& .MuiTabs-flexContainer": {
+            gap: activeTokens.settings.tabs.gap,
+          },
         },
         indicator: {
           display: "none",

@@ -57,7 +57,7 @@ jobs:
               - 'SCHEMA.md'
 
   # ---------------------------------------------------------------
-  # Code Auto-Fix
+  # Code Auto-Fix (best-effort: format + fix, never blocks pipeline)
   # ---------------------------------------------------------------
   code-auto-fix:
     name: Code Auto-Fix
@@ -92,7 +92,7 @@ jobs:
           cd backend
           for i in {1..3}; do pnpm install --frozen-lockfile --prefer-offline --reporter=appendonly && break || if [ $i -eq 3 ]; then exit 1; else sleep 10; fi; done
           pnpm exec prettier --write "src/**/*.ts"
-          pnpm exec eslint "src/**/*.ts" --config eslint.config.mjs --fix --rule '{"jsdoc/require-jsdoc": ["warn", {"enableFixer": true, "require": {"FunctionDeclaration": true, "FunctionExpression": true, "MethodDefinition": true}}]}'
+          pnpm exec eslint "src/**/*.ts" --config eslint.config.mjs --fix || true
           echo "::endgroup::"
 
       - name: "Frontend: Auto-Fix"
@@ -108,7 +108,7 @@ jobs:
       - name: Commit Auto-fixes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "chore: auto-format and JSDoc stubs [skip ci]"
+          commit_message: "chore: auto-format and lint fixes [skip ci]"
           file_pattern: "backend/src/** frontend/src/**"
 
   # ---------------------------------------------------------------
@@ -143,6 +143,14 @@ jobs:
           cd backend
           for i in {1..3}; do pnpm install --frozen-lockfile --prefer-offline --reporter=appendonly && break || if [ $i -eq 3 ]; then exit 1; else sleep 10; fi; done
           pnpm run build
+          echo "::endgroup::"
+
+      - name: "Backend: Lint"
+        timeout-minutes: 5
+        run: |
+          echo "::group::Backend Lint"
+          cd backend
+          pnpm exec eslint "src/**/*.ts" --config eslint.config.mjs
           echo "::endgroup::"
 
       - name: "Backend: Run Tests"
@@ -202,6 +210,14 @@ jobs:
         run: |
           echo "::group::Generate frontend build hash"
           find frontend/dist -type f | sort | xargs sha256sum | sha256sum | awk '{print $1}' > frontend-build-hash.txt
+          echo "::endgroup::"
+
+      - name: "Frontend: Lint"
+        timeout-minutes: 5
+        run: |
+          echo "::group::Frontend Lint"
+          cd frontend
+          pnpm exec eslint "src/**/*.{ts,tsx}" --config eslint.config.js
           echo "::endgroup::"
 
       - name: "Frontend: Run Tests"

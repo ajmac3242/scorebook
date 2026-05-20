@@ -92,10 +92,6 @@ const SideNav: React.FC<SideNavProps> = ({
             justifyContent: "flex-start",
             gap: 1,
             color: "text.secondary",
-            bgcolor: "background.paper",
-            "&:hover": {
-              bgcolor: "action.hover",
-            },
           }}
         >
           <SearchIcon sx={{ fontSize: 18 }} />
@@ -160,9 +156,13 @@ const SideNav: React.FC<SideNavProps> = ({
                 </ListItemIcon>
                 <ListItemText
                   primary={item.label}
-                  primaryTypographyProps={{
-                    fontWeight: isActive ? 700 : 500,
-                    fontSize: "0.9rem",
+                  slotProps={{
+                    primary: {
+                      sx: {
+                        fontWeight: isActive ? 700 : 500,
+                        fontSize: "0.9rem",
+                      },
+                    },
                   }}
                 />
               </ListItemButton>
@@ -202,27 +202,44 @@ const SideNav: React.FC<SideNavProps> = ({
               },
             }}
           >
-            <ListItemIcon sx={{ minWidth: 36, color: "inherit" }}>
-              <SettingsIcon />
+            <ListItemIcon sx={{ position: "relative", display: "flex" }}>
+              <SettingsIcon sx={{ fontSize: 18 }} />
             </ListItemIcon>
             <ListItemText
               primary="Settings"
-              primaryTypographyProps={{
-                fontSize: "0.9rem",
-                fontWeight: 500,
+              slotProps={{
+                primary: {
+                  sx: {
+                    fontWeight: location.pathname === "/settings" ? 700 : 500,
+                    fontSize: "0.9rem",
+                  },
+                },
               }}
             />
           </ListItemButton>
         </ListItem>
 
+        <Box sx={{ px: 1.5, mb: 1.5 }}>
+          <Box
+            sx={{
+              width: "100%",
+              height: 1,
+              bgcolor: "divider",
+            }}
+          />
+        </Box>
+
         <Box
           sx={{
+            px: 1.5,
+            py: 1,
             display: "flex",
             alignItems: "center",
-            gap: 1.5,
-            p: 1.5,
-            borderRadius: 3,
-            bgcolor: "action.hover",
+            cursor: "pointer",
+            borderRadius: 2,
+            "&:hover": {
+              bgcolor: "action.hover",
+            },
           }}
         >
           <Avatar
@@ -230,19 +247,14 @@ const SideNav: React.FC<SideNavProps> = ({
               width: 32,
               height: 32,
               bgcolor: "primary.main",
-              color: "primary.contrastText",
-              fontSize: "0.85rem",
-              fontWeight: 700,
+              fontSize: "0.875rem",
             }}
           >
             {coachName[0]}
           </Avatar>
-          <Typography
-            variant="body2"
-            sx={{ fontWeight: 600, color: "text.primary" }}
-          >
-            {coachName}
-          </Typography>
+          <Box sx={{ ml: 2 }}>
+            <Typography variant="subtitle2">{coachName}</Typography>
+          </Box>
         </Box>
       </Box>
     </Box>
@@ -251,11 +263,12 @@ const SideNav: React.FC<SideNavProps> = ({
   if (!isDesktop) {
     return (
       <Drawer
-        anchor="left"
         variant="temporary"
         open={mobileOpen}
         onClose={onMobileClose}
-        ModalProps={{ keepMounted: true }}
+        ModalProps={{
+          keepMounted: true,
+        }}
         sx={{
           display: { xs: "block", md: "none" },
           "& .MuiDrawer-paper": {
@@ -272,19 +285,19 @@ const SideNav: React.FC<SideNavProps> = ({
   }
 
   return (
-    <Box
-      component="nav"
+    <Drawer
+      variant="permanent"
       sx={{
-        width: "100%",
-        height: "100%",
-        minWidth: 0,
-        display: "flex",
-        flexDirection: "column",
-        bgcolor: "background.paper",
+        width: APP_SHELL_LAYOUT.drawerWidth,
+        flexShrink: 0,
+        [`& .MuiDrawer-paper`]: {
+          width: APP_SHELL_LAYOUT.drawerWidth,
+          boxSizing: "border-box",
+        },
       }}
     >
       {drawerContent}
-    </Box>
+    </Drawer>
   );
 };
 

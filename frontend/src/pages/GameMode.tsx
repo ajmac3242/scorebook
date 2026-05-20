@@ -47,7 +47,7 @@ import {
   GridOn,
   Shield,
   ArrowBack,
-  HelpOutline,
+  HelpOutlined,
 } from "@mui/icons-material";
 import {
   Table,
@@ -933,7 +933,7 @@ const GameMode: React.FC = () => {
         </Alert>
       )}
       <Grid container spacing={3}>
-        <Grid item xs={12} md={8}>
+        <Grid size={{ xs: 12, md: 8 }}>
           {voiceEnabled && (
             <Alert
               severity={isListening ? "info" : "warning"}
@@ -1158,7 +1158,7 @@ const GameMode: React.FC = () => {
           </MoleskineCard>
         </Grid>
 
-        <Grid item xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <Stack spacing={3}>
             {isClutchMode && (
               <MoleskineCard
@@ -1239,7 +1239,11 @@ const GameMode: React.FC = () => {
                       );
                     }
                     return (
-                      <Stack direction="row" alignItems="center" spacing={1}>
+                      <Stack
+                        direction="row"
+                        sx={{ alignItems: "center" }}
+                        spacing={1}
+                      >
                         <Avatar
                           sx={{
                             width: 24,
@@ -1321,7 +1325,7 @@ const GameMode: React.FC = () => {
                 Offensive Identity (KPIs)
               </Typography>
               <Grid container spacing={2}>
-                <Grid item xs={6}>
+                <Grid size={{ xs: 6 }}>
                   <Typography variant="h6" sx={{ fontWeight: 900 }}>
                     {paintTouchStats.total}
                   </Typography>
@@ -1329,7 +1333,7 @@ const GameMode: React.FC = () => {
                     PAINT TOUCHES
                   </Typography>
                 </Grid>
-                <Grid item xs={6}>
+                <Grid size={{ xs: 6 }}>
                   <Typography
                     variant="h6"
                     sx={{ fontWeight: 900, color: "primary.main" }}
@@ -1355,7 +1359,7 @@ const GameMode: React.FC = () => {
                 Quality Control (xPTS)
               </Typography>
               <Grid container spacing={2}>
-                <Grid item xs={6}>
+                <Grid size={{ xs: 6 }}>
                   <Typography variant="h6" sx={{ fontWeight: 900 }}>
                     {shotROI.avgXPts}
                   </Typography>
@@ -1363,7 +1367,7 @@ const GameMode: React.FC = () => {
                     xPTS / POSS
                   </Typography>
                 </Grid>
-                <Grid item xs={6}>
+                <Grid size={{ xs: 6 }}>
                   <Typography
                     variant="h6"
                     sx={{
@@ -2098,7 +2102,7 @@ const GameMode: React.FC = () => {
                   }
                 >
                   <IconButton size="small" aria-label="Keyboard Shortcuts Help">
-                    <HelpOutline fontSize="small" />
+                    <HelpOutlined fontSize="small" />
                   </IconButton>
                 </Tooltip>
               </Box>

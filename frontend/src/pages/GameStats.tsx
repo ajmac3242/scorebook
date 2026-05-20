@@ -226,7 +226,7 @@ const GameStats: React.FC = () => {
             )}
           </Stack>
           <Grid container spacing={1}>
-            <Grid item xs={6}>
+            <Grid size={{ xs: 6 }}>
               <Typography variant="caption" sx={{ display: "block" }}>
                 TEAM PPP
               </Typography>
@@ -234,7 +234,7 @@ const GameStats: React.FC = () => {
                 {data.teamPpp || "0.00"}
               </Typography>
             </Grid>
-            <Grid item xs={6}>
+            <Grid size={{ xs: 6 }}>
               <Typography variant="caption" sx={{ display: "block" }}>
                 OPP PPP
               </Typography>
@@ -969,9 +969,7 @@ const GameStats: React.FC = () => {
     <Box sx={{ mb: 2 }}>
       <Stack
         direction="row"
-        justifyContent="space-between"
-        alignItems="center"
-        mb={1}
+        sx={{ justifyContent: "space-between", alignItems: "center", mb: 1 }}
       >
         <Typography variant="subtitle2">Filters</Typography>
         <Stack direction="row" spacing={1}>
@@ -1286,7 +1284,8 @@ const GameStats: React.FC = () => {
           { label: "Def. PPP", value: oppData.ppp },
         ]}
         actions={
-          <Stack direction="row" spacing={1} alignItems="center">
+          <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+            {" "}
             {!isDeleted && (
               <Stack direction="row" spacing={1}>
                 <Button
@@ -1357,7 +1356,8 @@ const GameStats: React.FC = () => {
           gap: 2,
         }}
       >
-        <Stack direction="row" spacing={2} alignItems="center">
+        <Stack direction="row" spacing={2} sx={{ alignItems: "center" }}>
+          1612
           <ToggleButtonGroup
             value={activeTab}
             exclusive
@@ -1368,7 +1368,6 @@ const GameStats: React.FC = () => {
             <ToggleButton value="standard">Standard</ToggleButton>
             <ToggleButton value="impact">Impact (On/Off)</ToggleButton>
           </ToggleButtonGroup>
-
           <ToggleButtonGroup
             value={periodFilter}
             exclusive
@@ -1409,7 +1408,7 @@ const GameStats: React.FC = () => {
 
       <Grid container spacing={3}>
         {activeTab === "impact" && (
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <MoleskineCard>
               <Typography
                 variant="h6"
@@ -1423,7 +1422,7 @@ const GameStats: React.FC = () => {
         )}
 
         {activeTab === "impact" && (
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <MoleskineCard>
               <Typography
                 variant="h6"
@@ -1477,13 +1476,13 @@ const GameStats: React.FC = () => {
         )}
 
         {/* Defensive Metrics Card */}
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <MoleskineCard>
             <Typography variant="h6" sx={{ fontFamily: "var(--serif)", mb: 2 }}>
               Defensive Metrics
             </Typography>
             <Grid container spacing={4}>
-              <Grid item xs={4}>
+              <Grid size={{ xs: 4 }}>
                 <Box sx={{ textAlign: "center" }}>
                   <Typography
                     variant="h4"
@@ -1497,7 +1496,7 @@ const GameStats: React.FC = () => {
                   </Typography>
                 </Box>
               </Grid>
-              <Grid item xs={4}>
+              <Grid size={{ xs: 4 }}>
                 <Box sx={{ textAlign: "center" }}>
                   <Typography
                     variant="h4"
@@ -1511,7 +1510,7 @@ const GameStats: React.FC = () => {
                   </Typography>
                 </Box>
               </Grid>
-              <Grid item xs={4}>
+              <Grid size={{ xs: 4 }}>
                 <Box sx={{ textAlign: "center" }}>
                   <Typography variant="h4" sx={{ fontWeight: 700 }}>
                     {defensiveStats.currentStreak}
@@ -1526,7 +1525,7 @@ const GameStats: React.FC = () => {
         </Grid>
 
         {/* Box Score Card */}
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <MoleskineCard>
             <Box
               sx={{
@@ -1553,7 +1552,7 @@ const GameStats: React.FC = () => {
         </Grid>
 
         {/* Shot Chart Card */}
-        <Grid item xs={12} md={compareMode ? 12 : 6}>
+        <Grid size={{ xs: 12, md: compareMode ? 12 : 6 }}>
           <MoleskineCard>
             <Box
               sx={{
@@ -1613,9 +1612,11 @@ const GameStats: React.FC = () => {
                   >
                     <Stack
                       direction="row"
-                      justifyContent="space-between"
-                      alignItems="center"
-                      sx={{ mb: 1 }}
+                      sx={{
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        mb: 1,
+                      }}
                     >
                       <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
                         {periodLabel} {court.p}
@@ -1659,10 +1660,8 @@ const GameStats: React.FC = () => {
             {compareMode && isMobile && (
               <Typography
                 variant="caption"
-                display="block"
-                textAlign="center"
                 color="text.secondary"
-                sx={{ mt: 1 }}
+                sx={{ display: "block", textAlign: "center", mt: 1 }}
               >
                 ← Swipe to compare →
               </Typography>
@@ -1671,7 +1670,7 @@ const GameStats: React.FC = () => {
         </Grid>
 
         {/* Score Flow Card */}
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <MoleskineCard>
             <Box
               sx={{
@@ -1698,9 +1697,9 @@ const GameStats: React.FC = () => {
         </Grid>
 
         {/* Efficiency Analytics Card */}
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <Grid container spacing={3}>
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <MoleskineCard>
                 <Typography
                   variant="h6"
@@ -1728,7 +1727,7 @@ const GameStats: React.FC = () => {
                             <Stack
                               direction="row"
                               spacing={1}
-                              alignItems="center"
+                              sx={{ alignItems: "center" }}
                             >
                               <Avatar
                                 sx={{
@@ -1775,7 +1774,7 @@ const GameStats: React.FC = () => {
               </MoleskineCard>
             </Grid>
 
-            <Grid item xs={12} md={4}>
+            <Grid size={{ xs: 12, md: 4 }}>
               <MoleskineCard>
                 <Typography
                   variant="h6"
@@ -1787,7 +1786,7 @@ const GameStats: React.FC = () => {
                   <Typography
                     variant="caption"
                     color="text.secondary"
-                    display="block"
+                    sx={{ display: "block" }}
                   >
                     Paint touches correlate rim pressure with offensive
                     efficiency. PPPT measures points generated within 15s of a
@@ -1795,7 +1794,7 @@ const GameStats: React.FC = () => {
                   </Typography>
                 </Box>
                 <Grid container spacing={2} sx={{ mb: 3 }}>
-                  <Grid item xs={6}>
+                  <Grid size={{ xs: 6 }}>
                     <Typography variant="h4" sx={{ fontWeight: 900 }}>
                       {paintTouchStats.total}
                     </Typography>
@@ -1803,7 +1802,7 @@ const GameStats: React.FC = () => {
                       TOTAL TOUCHES
                     </Typography>
                   </Grid>
-                  <Grid item xs={6}>
+                  <Grid size={{ xs: 6 }}>
                     <Typography
                       variant="h4"
                       sx={{ fontWeight: 900, color: "success.main" }}
@@ -1834,7 +1833,7 @@ const GameStats: React.FC = () => {
               </MoleskineCard>
             </Grid>
 
-            <Grid item xs={12} md={4}>
+            <Grid size={{ xs: 12, md: 4 }}>
               <MoleskineCard>
                 <Typography
                   variant="h6"
@@ -1846,14 +1845,14 @@ const GameStats: React.FC = () => {
                   <Typography
                     variant="caption"
                     color="text.secondary"
-                    display="block"
+                    sx={{ display: "block" }}
                   >
                     This report compares actual scoring against Expected Points
                     (xPTS) based on shot location and quality.
                   </Typography>
                 </Box>
                 <Grid container spacing={2} sx={{ mb: 3 }}>
-                  <Grid item xs={6}>
+                  <Grid size={{ xs: 6 }}>
                     <Typography variant="h4" sx={{ fontWeight: 900 }}>
                       {shotROI.totalPoints}
                     </Typography>
@@ -1861,7 +1860,7 @@ const GameStats: React.FC = () => {
                       ACTUAL PTS
                     </Typography>
                   </Grid>
-                  <Grid item xs={6}>
+                  <Grid size={{ xs: 6 }}>
                     <Typography
                       variant="h4"
                       sx={{ fontWeight: 900, color: "primary.main" }}
@@ -1900,7 +1899,7 @@ const GameStats: React.FC = () => {
               </MoleskineCard>
             </Grid>
 
-            <Grid item xs={12} md={4}>
+            <Grid size={{ xs: 12, md: 4 }}>
               <MoleskineCard>
                 <Typography
                   variant="h6"
@@ -1947,7 +1946,7 @@ const GameStats: React.FC = () => {
                               <Stack
                                 direction="row"
                                 spacing={1}
-                                alignItems="center"
+                                sx={{ alignItems: "center" }}
                               >
                                 <Avatar
                                   sx={{
@@ -2013,16 +2012,14 @@ const GameStats: React.FC = () => {
                   >
                     <Typography
                       variant="caption"
-                      display="block"
-                      sx={{ fontWeight: 800 }}
+                      sx={{ display: "block", fontWeight: 800 }}
                     >
                       PRIMARY PLAYMAKER: #
                       {shotChartJerseyMap.get(assistNetwork.primaryPlaymakerId)}
                     </Typography>
                     <Typography
                       variant="caption"
-                      display="block"
-                      sx={{ fontWeight: 800 }}
+                      sx={{ display: "block", fontWeight: 800 }}
                     >
                       PRIMARY FINISHER: #
                       {shotChartJerseyMap.get(assistNetwork.primaryFinisherId)}
@@ -2032,7 +2029,7 @@ const GameStats: React.FC = () => {
               </MoleskineCard>
             </Grid>
 
-            <Grid item xs={12} md={4}>
+            <Grid size={{ xs: 12, md: 4 }}>
               <MoleskineCard>
                 <Typography
                   variant="h6"
@@ -2098,7 +2095,7 @@ const GameStats: React.FC = () => {
               </MoleskineCard>
             </Grid>
 
-            <Grid item xs={12} md={4}>
+            <Grid size={{ xs: 12, md: 4 }}>
               <MoleskineCard>
                 <Typography
                   variant="h6"
@@ -2139,7 +2136,7 @@ const GameStats: React.FC = () => {
               </MoleskineCard>
             </Grid>
 
-            <Grid item xs={12} md={4}>
+            <Grid size={{ xs: 12, md: 4 }}>
               <MoleskineCard>
                 <Typography
                   variant="h6"
@@ -2180,7 +2177,7 @@ const GameStats: React.FC = () => {
               </MoleskineCard>
             </Grid>
 
-            <Grid item xs={12} md={4}>
+            <Grid size={{ xs: 12, md: 4 }}>
               <MoleskineCard>
                 <Typography
                   variant="h6"
@@ -2227,7 +2224,7 @@ const GameStats: React.FC = () => {
                 </TableContainer>
               </MoleskineCard>
             </Grid>
-            <Grid item xs={12} md={4}>
+            <Grid size={{ xs: 12, md: 4 }}>
               <MoleskineCard>
                 <Box
                   sx={{
@@ -2305,7 +2302,7 @@ const GameStats: React.FC = () => {
                 </TableContainer>
               </MoleskineCard>
             </Grid>
-            <Grid item xs={12} md={4}>
+            <Grid size={{ xs: 12, md: 4 }}>
               <MoleskineCard>
                 <Box
                   sx={{
@@ -2318,15 +2315,12 @@ const GameStats: React.FC = () => {
                   <Typography variant="h6" sx={{ fontFamily: "var(--serif)" }}>
                     Lineup Efficiency
                   </Typography>
-                  <Stack direction="row" spacing={1} alignItems="center">
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      onClick={() => setIsAuditDialogOpen(true)}
-                      startIcon={<Restore />}
-                    >
-                      Audit Subs
-                    </Button>
+                  <Stack
+                    direction="row"
+                    spacing={1}
+                    sx={{ alignItems: "center" }}
+                  >
+                    <Button size="small">Audit Subs</Button>
                     <IconButton
                       onClick={() => setExpandedSection("lineups")}
                       aria-label="Expand Lineup Efficiency section"
@@ -2339,7 +2333,7 @@ const GameStats: React.FC = () => {
                 {lineupTable}
               </MoleskineCard>
             </Grid>
-            <Grid item xs={12} md={4}>
+            <Grid size={{ xs: 12, md: 4 }}>
               <MoleskineCard>
                 <Typography
                   variant="h6"
@@ -2543,7 +2537,7 @@ const GameStats: React.FC = () => {
               fullWidth
               label="Date"
               type="date"
-              InputLabelProps={{ shrink: true }}
+              slotProps={{ inputLabel: { shrink: true } }}
               value={editDate}
               onChange={(e) => setEditDate(e.target.value)}
             />
@@ -2551,7 +2545,7 @@ const GameStats: React.FC = () => {
               fullWidth
               label="Time"
               type="time"
-              InputLabelProps={{ shrink: true }}
+              slotProps={{ inputLabel: { shrink: true } }}
               value={editTime}
               onChange={(e) => setEditTime(e.target.value)}
             />
@@ -2578,7 +2572,7 @@ const GameStats: React.FC = () => {
         maxWidth="sm"
       >
         <DialogTitle sx={{ fontFamily: "var(--serif)", fontWeight: 800 }}>
-          <Stack direction="row" alignItems="center" spacing={1}>
+          <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
             <PracticeIcon color="success" />
             <span>Practice Prescription Engine</span>
           </Stack>

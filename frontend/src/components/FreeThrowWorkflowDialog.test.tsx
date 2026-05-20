@@ -67,8 +67,10 @@ describe("FreeThrowWorkflowDialog", () => {
     fireEvent.click(missButtons[1]);
 
     // Check if they are "contained" (active)
-    expect(makeButtons[0]).toHaveClass("MuiButton-containedSuccess");
-    expect(missButtons[1]).toHaveClass("MuiButton-containedError");
+    expect(makeButtons[0]).toHaveClass("MuiButton-contained");
+    expect(makeButtons[0]).toHaveClass("MuiButton-colorSuccess");
+    expect(missButtons[1]).toHaveClass("MuiButton-contained");
+    expect(missButtons[1]).toHaveClass("MuiButton-colorError");
   });
 
   it("disables Save button until all attempts are recorded", () => {
