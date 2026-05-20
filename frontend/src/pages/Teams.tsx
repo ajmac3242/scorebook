@@ -968,4 +968,23 @@ const Teams: React.FC = () => {
             Cancel
           </Button>
           <Button
-            va
+            variant="contained"
+            onClick={handleAddTeam}
+            disabled={isSubmitting}
+            sx={{
+              borderRadius: `${theme.shape.borderRadius}px`,
+              textTransform: "none",
+              fontWeight: 600,
+              boxShadow: "none",
+              minHeight: 44,
+            }}
+          >
+            {isSubmitting ? "Adding..." : "Add team"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
+  );
+};
+
+export default Teams;
