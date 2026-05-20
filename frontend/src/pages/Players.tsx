@@ -12,6 +12,7 @@ import {
   FormControlLabel,
   Grid,
   IconButton,
+  Paper,
   InputAdornment,
   Snackbar,
   Stack,
@@ -62,7 +63,9 @@ const Players: React.FC = () => {
   const navigate = useNavigate();
 
   const pageShell = tokens.semantic.component.pageShell;
+  const shellRadius = pageShell.radius;
   const sectionCard = tokens.semantic.component.sectionCard;
+  const controlRadius = tokens.semantic.component.radius.button;
   const inputRadius = tokens.semantic.component.radius.input;
 
   const [open, setOpen] = useState(false);
