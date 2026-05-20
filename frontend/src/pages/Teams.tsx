@@ -309,7 +309,7 @@ const Teams: React.FC = () => {
     ? "Try a different search, clear the filter, or create a new team."
     : "Create your first team to start tracking performance, rosters, and game results.";
 
-  const cardRadius = `${theme.shape.borderRadius * 1.5}px`;
+  const cardRadius = theme.shape.borderRadius;
   const transitionAll = `transform ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}, box-shadow ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}, border-color ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}`;
 
   return (
