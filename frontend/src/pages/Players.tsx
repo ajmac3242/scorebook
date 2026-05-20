@@ -340,7 +340,7 @@ const Players: React.FC = () => {
               </Box>
 
               <Box>
-                <Typography variant="h4" sx={{ mb: 0.25 }}>
+                <TokenPageTitle sx={{ mb: 0.25 }}>
                   Players
                 </TokenPageTitle>
                 <Typography variant="body2" color="text.secondary">
