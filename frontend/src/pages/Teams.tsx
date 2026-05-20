@@ -434,17 +434,24 @@ const Teams: React.FC = () => {
                   bgcolor: "background.paper",
                 },
               }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon
-                      sx={{ color: "text.secondary", fontSize: 18 }}
-                    />
-                  </InputAdornment>
-                ),
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon
+                        sx={{ color: "text.secondary", fontSize: 18 }}
+                      />
+                    </InputAdornment>
+                  ),
+                },
               }}
             />
-            <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+            <Stack
+              direction="row"
+              spacing={1}
+              useFlexGap
+              sx={{ flexWrap: "wrap" }}
+            >
               <Chip
                 label={`${teams.length} total`}
                 size="small"
@@ -647,8 +654,7 @@ const Teams: React.FC = () => {
                             <Stack
                               direction="row"
                               spacing={1}
-                              alignItems="center"
-                              sx={{ mb: 0.75 }}
+                              sx={{ alignItems: "center", mb: 0.75 }}
                             >
                               <Typography
                                 sx={{
