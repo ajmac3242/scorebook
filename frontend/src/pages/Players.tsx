@@ -513,7 +513,7 @@ const Players: React.FC = () => {
                   }}
                 >
                   <PlayersIcon />
-                </TokenPageShell>
+                </Box>
 
                 <Typography variant="h6" sx={{ mb: 1 }}>
                   {emptyStateTitle}
