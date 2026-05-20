@@ -108,7 +108,9 @@ describe("Teams Component", () => {
     return (
       within(dialog).queryByRole("button", { name: /^add$/i }) ||
       within(dialog).queryByRole("button", { name: /^create$/i }) ||
-      within(dialog).queryByRole("button", { name: /create team/i })
+      within(dialog).queryByRole("button", { name: /create team/i }) ||
+      within(dialog).queryByRole("button", { name: /save team/i }) ||
+      within(dialog).queryByRole("button", { name: /save/i })
     );
   };
 
