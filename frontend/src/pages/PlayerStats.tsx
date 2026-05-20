@@ -364,7 +364,7 @@ const PlayerStats: React.FC = () => {
             justifyContent="space-between"
             alignItems={{ xs: "flex-start", lg: "center" }}
           >
-            <Stack direction="row" spacing={2} alignItems="center">
+            <Stack direction="row" spacing={2} sx={{ alignItems: "center" }}>
               <IconButton
                 aria-label="back to players"
                 onClick={() => navigate("/players")}
