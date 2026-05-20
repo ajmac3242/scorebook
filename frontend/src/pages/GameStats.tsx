@@ -1660,10 +1660,8 @@ const GameStats: React.FC = () => {
             {compareMode && isMobile && (
               <Typography
                 variant="caption"
-                display="block"
-                textAlign="center"
                 color="text.secondary"
-                sx={{ mt: 1 }}
+                sx={{ display: "block", textAlign: "center", mt: 1 }}
               >
                 ← Swipe to compare →
               </Typography>
@@ -1729,7 +1727,7 @@ const GameStats: React.FC = () => {
                             <Stack
                               direction="row"
                               spacing={1}
-                              alignItems="center"
+                              sx={{ alignItems: "center" }}
                             >
                               <Avatar
                                 sx={{
@@ -1788,7 +1786,7 @@ const GameStats: React.FC = () => {
                   <Typography
                     variant="caption"
                     color="text.secondary"
-                    display="block"
+                    sx={{ display: "block" }}
                   >
                     Paint touches correlate rim pressure with offensive
                     efficiency. PPPT measures points generated within 15s of a
@@ -1847,7 +1845,7 @@ const GameStats: React.FC = () => {
                   <Typography
                     variant="caption"
                     color="text.secondary"
-                    display="block"
+                    sx={{ display: "block" }}
                   >
                     This report compares actual scoring against Expected Points
                     (xPTS) based on shot location and quality.
