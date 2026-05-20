@@ -6,6 +6,7 @@ import {
   cleanup,
 } from "@testing-library/react";
 import Players from "../pages/Players";
+import { CourtSightThemeProvider } from "../theme/ThemeContext";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { mockDb } from "../dbMock";
 import { BrowserRouter } from "react-router-dom";
