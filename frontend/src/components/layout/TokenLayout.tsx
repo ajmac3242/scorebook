@@ -4,7 +4,6 @@ import { useTokens } from "../../theme/useTokens";
 
 export const TokenPageShell: React.FC<BoxProps> = ({ sx, children, ...props }) => {
   const tokens = useTokens();
-  const shell = tokens.semantic.component.pageShell;
   const layout = tokens.layout;
 
   return (
