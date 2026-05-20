@@ -1377,7 +1377,7 @@ const TeamStats: React.FC = () => {
                 onChange={(e) =>
                   setEditPeriodLength(parseInt(e.target.value) || 0)
                 }
-                slotProps={{ input: { min: 1 } }}
+                slotProps={{ htmlInput: { min: 1 } }}
               />
               <TextField
                 fullWidth
@@ -1387,7 +1387,7 @@ const TeamStats: React.FC = () => {
                 onChange={(e) =>
                   setEditOvertimeLength(parseInt(e.target.value) || 0)
                 }
-                slotProps={{ input: { min: 1 } }}
+                slotProps={{ htmlInput: { min: 1 } }}
               />
             </Stack>
 
@@ -1399,7 +1399,7 @@ const TeamStats: React.FC = () => {
               onChange={(e) =>
                 setEditMaxStintDuration(parseInt(e.target.value) || 0)
               }
-              slotProps={{ input: { min: 1 } }}
+              slotProps={{ htmlInput: { min: 1 } }}
               helperText="Alert scorekeeper when player exceeds this time"
             />
 
@@ -1422,7 +1422,7 @@ const TeamStats: React.FC = () => {
                 onChange={(e) =>
                   setEditFoulLimit(parseInt(e.target.value) || 0)
                 }
-                slotProps={{ input: { min: 1 } }}
+                slotProps={{ htmlInput: { min: 1 } }}
               />
             </Stack>
 
@@ -1783,7 +1783,7 @@ const TeamStats: React.FC = () => {
                   onChange={(e) =>
                     setNewPeriodLength(parseInt(e.target.value) || 0)
                   }
-                  slotProps={{ input: { min: 1 } }}
+                  slotProps={{ htmlInput: { min: 1 } }}
                 />
                 <Stack direction="row" spacing={2}>
                   <TextField
@@ -1804,7 +1804,7 @@ const TeamStats: React.FC = () => {
                     onChange={(e) =>
                       setNewFoulLimit(parseInt(e.target.value) || 0)
                     }
-                    slotProps={{ input: { min: 1 } }}
+                    slotProps={{ htmlInput: { min: 1 } }}
                   />
                 </Stack>
               </Stack>
