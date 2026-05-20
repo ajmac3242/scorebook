@@ -814,7 +814,7 @@ const Players: React.FC = () => {
                           />
                         </Stack>
                       </Box>
-                    </TokenSectionCard>
+                    </Paper>
                   </Grid>
                 );
               })}
