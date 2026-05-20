@@ -2314,8 +2314,9 @@ const GameStats: React.FC = () => {
                   <Typography variant="h6" sx={{ fontFamily: "var(--serif)" }}>
                     Lineup Efficiency
                   </Typography>
-        :1287
-            <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>                      size="small"
+            <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+                    <Button
+                      size="small"
                     >
                       Audit Subs
                     </Button>
