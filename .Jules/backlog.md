@@ -1,5 +1,175 @@
 # CourtSight Backlog
 
+## [ ] [Live 'Momentum Pivot' Identifier]
+**Priority:** HIGH
+**Type:** Feature / Decision Support
+**Why:** Coaches need to know the *exact* moment momentum shifted. Identifying the "Pivot Play"—the specific turnover, missed box-out, or substitution that ended a run or started a drought—allows for surgical coaching interventions during the next timeout.
+**What:** A real-time intelligence layer that identifies and bookmarks the "Pivot Play" for every 8+ point swing or 3-minute drought.
+**Acceptance Criteria:**
+- [ ] Automated identification of the "Momentum Pivot" event (the stat that triggered a trend reversal).
+- [ ] "Pivot Alert" in GameMode with a one-tap "Review Pivot" to see the personnel on floor and the causal breakdown.
+- [ ] High-leverage "Pivot Summary" in the post-game report.
+
+## [ ] [Real-Time 'System ROI' (Spacing & Gravity) Gauge]
+**Priority:** HIGH
+**Type:** Analytics / UX
+**Why:** Modern basketball is about spacing and gravity. Tracking the correlation between "Paint Touches" and "Open Corner 3s" proves the offensive "System" is working even if the shots are missing, preventing coaches from abandoning a good process too early.
+**What:** A live "System ROI" gauge that tracks "Gravity-Assisted XPTS"—points generated specifically from paint-out actions (Paint Touch -> Kickout -> Shot).
+**Acceptance Criteria:**
+- [ ] "Gravity ROI" metric in TacticalIdentityHUD: (XPTS generated from Paint-to-Perimeter flow).
+- [ ] Visual "Flow Path" indicator showing if the ball is moving from "In" to "Out."
+- [ ] Alert: "System Breakdown" when 3 consecutive possessions end without a rim attack or paint touch.
+
+## [ ] [Defensive 'Communication Seam' (Pairwise) Analytics]
+**Priority:** HIGH
+**Type:** Feature / Causal Accountability
+**Why:** Defensive failures are rarely about one person; they are about communication seams between pairs (e.g., a missed switch). Identifying "Leaky Duos" helps coaches optimize closing lineups.
+**What:** An analytical engine that cross-references `breakdownReason` with active 2-player pairings to identify which duos have the highest communication failure rates.
+**Acceptance Criteria:**
+- [ ] "Seam Leaderboard" identifying the 5 top 2-player pairings with the highest points-allowed-per-possession.
+- [ ] "Synergy Warning" in the QuickSubDialog if a high-risk pair (high breakdown correlation) is about to be subbed in together.
+- [ ] Matrix mapping breakdown types (e.g., "Missed Rotation") to specific synergistic pairings.
+
+## [ ] [Referee 'Aggression Auditor' (Action-Type Mapper)]
+**Priority:** HIGH
+**Type:** Decision Support / Feature
+**Why:** Knowing "The refs are calling it tight" is too vague. Coaches need to know *where* and *how* (e.g., "They are calling hand-checks on drives but letting them play in the post"). This dictates tactical aggression levels.
+**What:** A situational map that correlates fouls with `StatEvent` coordinates and action types to identify "Ref No-Go Zones."
+**Acceptance Criteria:**
+- [ ] "Aggression Map" overlay in the TeamStatsCard showing regions and action types where fouls are called disproportionately.
+- [ ] "Tactical Pivot" advice: e.g., "Refs calling perimeter hand-checks tight; adjust to 'Soft' ball-pressure."
+- [ ] Whistle-flow trend line showing if the crew's "Tightness" is increasing or decreasing over the periods.
+
+## [ ] [Automated 'Winning Time' Win Probability HUD]
+**Priority:** HIGH
+**Type:** Feature / UX
+**Why:** In the final 2 minutes of a close game, a coach's judgment is often clouded by stress. A live "Win Probability" engine provides an objective baseline for "Foul Now" vs "Play Out" decisions.
+**What:** A live probability engine that activates in the final 4 minutes, calculating win odds based on Time, Score, Possession, and Team FT%.
+**Acceptance Criteria:**
+- [ ] Live "Win Prob %" display in the scoreboard during Clutch Mode.
+- [ ] "Strategy Directive" based on probability (e.g., "Quick 2 Needed" or "Foul Immediately").
+- [ ] "Leverage Index" highlighting the highest-leverage defensive possessions remaining.
+
+## [ ] [Live 'Possession Value' ROI (Points Per Touch)]
+**Priority:** HIGH
+**Type:** Analytics / UX
+**Why:** Modern coaching requires "Buy-In" on unselfishness. Quantifying the points generated per touch (PPT) transforms "ball-hogging" from a critique into a mathematical process failure.
+**What:** A live "Possession Equity" leaderboard that calculates Points Generated (Points + Points from Assists) divided by Total Touches.
+**Acceptance Criteria:**
+- [ ] "Equity Score" (PPT) column in the GameMode player table.
+- [ ] Real-time identification of "Possession Efficiency Gaps" (High touch count but low points generated).
+- [ ] A "Touch Flow" indicator showing if the ball is "sticking" (Touches without subsequent passes/shots).
+
+## [ ] [Visual 'Run Anatomy' & Momentum Causal Breakdown]
+**Priority:** HIGH
+**Type:** Feature / Decision Support
+**Why:** Identifying a run is easy; identifying the *source* is coaching. Surgical adjustments require knowing if an 8-0 run was caused by "Transition Leakage," "Rebounding Failure," or "Scheme Breakdown."
+**What:** A high-contrast "Run Anatomy" HUD that activates during an Opponent Run alert, categorizing the causal factors of the opponent's momentum.
+**Acceptance Criteria:**
+- [ ] "Anatomy Gauge" showing % of run points from: Second Chance, Fast Break, and Paint.
+- [ ] "Lineup Accountability": Highlighting which our unit was on the floor for the majority of the run.
+- [ ] One-tap "Tactical Pivot" recommendation (e.g., "Full-Court Press" or "Force Middle") based on the anatomy.
+
+## [ ] [Automated 'Practice Prescription' Generator]
+**Priority:** HIGH
+**Type:** UX / Workflow
+**Why:** The gap between game-time failure and practice-time correction is where seasons are lost. Automating the bridge between live "Bookmarked" events and a formal practice plan ensures zero "Tactical Drift."
+**What:** A system that aggregates "Practice Bookmarks" and "Defensive Breakdowns" into a downloadable "Practice Prescription" PDF.
+**Acceptance Criteria:**
+- [ ] One-tap "Practice Bookmark" on the Recent Action HUD.
+- [ ] "Prescription Engine" that identifies the top 3 tactical failures (e.g., "Transition Defense") based on frequency of breakdowns.
+- [ ] Exportable PDF with a summary of teaching moments, associated players, and timestamps.
+
+## [ ] [Strategic 'End-of-Clock' & 'Foul-to-Give' Tactical HUD]
+**Priority:** HIGH
+**Type:** Feature / Decision Support
+**Why:** The final 60 seconds is "Winning Time." Mental fatigue often leads to errors in "Foul-to-Give" math or "Advance" rules. This HUD automates the tactical math so the coach can focus on the play.
+**What:** A specialized "End-of-Clock" HUD that activates in the final 2 minutes of the game, surfacing situational math.
+**Acceptance Criteria:**
+- [ ] Persistent "Fouls to Give" display (for both teams).
+- [ ] "Timeout Advance Status": Visual confirmation if taking a timeout allows the ball to advance.
+- [ ] "Tactical Directives": e.g., "Foul to Give: Agressive Defense" or "Zero Fouls to Give: No Reaching."
+
+## [ ] [Elite Program: Multi-Device 'Scout-to-Bench' Sync Bridge]
+**Priority:** HIGH
+**Type:** Feature / Infrastructure
+**Why:** Elite programs use "Two-Man Coverage"—a scorekeeper behind the bench and a coach on the sideline. Real-time sync ensures the coach has live data on a tablet while the assistant tracks the game.
+**What:** A real-time websocket or polling-based sync bridge that allows two devices to share the same game state with <500ms latency.
+**Acceptance Criteria:**
+- [ ] "Join as Observer" mode for secondary devices.
+- [ ] Real-time updates of the Scoreboard and Tactical HUDs on the observer device.
+- [ ] Conflict-free stat entry (primary device only for writes, or locked writes).
+
+## [ ] [Live 'Tactical Adherence' Auditor]
+**Priority:** HIGH
+**Type:** Feature / Decision Support
+**Why:** Coaches set a "Game Plan" (e.g., "No middle drives", "Force them left"), but in the heat of the game, players drift. This tool measures real-time adherence to tactical goals.
+**What:** An overlay that tracks specific defensive constraints (e.g., % of drives allowed to the middle) and provides a "Tactical Grade" during timeouts.
+**Acceptance Criteria:**
+- [ ] Configurable "Game Plan Constraint" selector in GameMode.
+- [ ] Live "Adherence Grade" based on StatEvents matching (or violating) the constraint.
+- [ ] "Alert: Tactical Drift" when violations exceed 3 in a single period.
+
+## [ ] [Opponent Substitution 'Pattern Matcher']
+**Priority:** HIGH
+**Type:** Feature / Predictive Intelligence
+**Why:** Opponent coaches have substitution "tells" (e.g., "They always sub their star back in at the 4:00 mark"). Anticpating these moves allows for preemptive counter-subs.
+**What:** An engine that analyzes opponent `SUB_IN`/`SUB_OUT` timestamps across games to predict their next rotation move.
+**Acceptance Criteria:**
+- [ ] "Rotation Alert" in GameMode: "Opponent #24 expected to return in ~60 seconds."
+- [ ] Suggested counter-lineup based on historical success against that specific opponent sub pattern.
+- [ ] Visual timeline of opponent rotation "nodes" across the game.
+
+## [ ] [Huddle 'Impact' Reality Check]
+**Priority:** HIGH
+**Type:** UX / Coaching Support
+**Why:** Halftime and Timeout huddles are often based on the last 3 plays. A "Reality Check" surfaces the most significant deviation from the season mean to ensure adjustments are evidence-based.
+**What:** A high-contrast "Huddle Card" that identifies the ONE thing the team is doing significantly worse (or better) than their season average.
+**Acceptance Criteria:**
+- [ ] One-tap "Huddle Card" in the Sidebar.
+- [ ] Automatic identification of the "Metric Outlier" (e.g., "Turnover rate is 12% higher than season average").
+- [ ] Comparison of the "Outlier" to the current score spread: "Fixing this TO rate = +8 points expected."
+
+## [ ] [Lineup 'Rust vs. Rhythm' Optimizer]
+**Priority:** HIGH
+**Type:** Feature / Decision Support
+**Why:** Managing "Bench Rust" is an art; the Optimizer makes it a science. It suggests exactly when a star player's "Rhythm" is maximized versus when "Rust" (stiffness/coldness) will set in.
+**What:** Enhance the "Bench Rust" factor with a "Rhythm Decay" curve that predicts efficiency based on time-since-last-stint.
+**Acceptance Criteria:**
+- [ ] "Optimal Re-entry Window" highlight on bench cards.
+- [ ] "Rust Warning" when a player has been sitting for > 10 game minutes.
+- [ ] Correlation of "Stint 1 Efficiency" to "Stint 2 Rhythm" to predict individual player warm-up needs.
+
+## [ ] [Unit 'Familiarity & Synergy' Risk Advisor]
+**Priority:** HIGH
+**Type:** Decision Support / Analytics
+**Why:** Desperation lineups often fail due to lack of shared experience. Units with low "Shared Minutes" have higher communication failure rates.
+**What:** A "Familiarity Meter" on the lineup HUD that shows the total season minutes the current 5-man unit has played together.
+**Acceptance Criteria:**
+- [ ] "Familiarity Score" (Total Shared Minutes) displayed for the active lineup.
+- [ ] Visual warning: "High Communication Risk" for units with < 10 shared minutes.
+- [ ] Net Rating comparison: Current Unit vs. Season Average for that unit.
+
+## [ ] [Live Personnel Tendency 'Assistant' Alerts]
+**Priority:** HIGH
+**Type:** Operational Intelligence
+**Why:** Automating the observation of patterns (e.g., "He always drives left") allows the coach to adjust the game plan in real-time.
+**What:** Real-time alerts when an opponent player exceeds a tendency threshold (e.g., specific drive direction or shot type).
+**Acceptance Criteria:**
+- [ ] Trigger alert: "Opponent #[X] has driven LEFT on 80% of touches."
+- [ ] HUD highlight on the opponent card when a tendency is identified.
+- [ ] Suggested defensive adjustment (e.g., "Shade Left").
+
+## [x] [Defensive 'Shell' Integrity & Paint ROI Tracker]
+**Priority:** HIGH
+**Type:** Analytics / Feature
+**Why:** structural health of the defense is measured by paint entries. Tracking how often the opponent gets "Into the Paint" regardless of the score identifies process failures.
+**What:** A live gauge tracking "Paint Entry Rate" vs "Season Goal," providing a "Shell Integrity" grade.
+**Acceptance Criteria:**
+- [ ] "Shell Integrity" grade (A-F) based on opponent paint touches per possession.
+- [ ] Correlation of paint entries to subsequent points allowed.
+- [ ] Alert when Paint Entry Rate exceeds 40% of possessions.
+
 ## [ ] [Live Bench 'Rust' Factor & Re-entry Advisor]
 **Priority:** HIGH
 **Type:** Feature / Decision Support
