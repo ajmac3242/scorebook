@@ -347,7 +347,7 @@ const Players: React.FC = () => {
                   Manage your roster, highlight star players, and open
                   individual dashboards.
                 </Typography>
-              </TokenPageShell>
+              </Box>
             </Stack>
 
             <Button
