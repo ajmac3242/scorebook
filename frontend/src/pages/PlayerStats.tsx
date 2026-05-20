@@ -13,7 +13,7 @@ import {
   DialogContent,
   DialogTitle,
   FormControl,
-  Grid2 as Grid,
+  Grid,
   IconButton,
   InputLabel,
   MenuItem,
