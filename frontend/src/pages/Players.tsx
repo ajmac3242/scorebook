@@ -822,7 +822,7 @@ const Players: React.FC = () => {
         fullWidth
         maxWidth="sm"
         sx={{
-          '& .MuiDialog-paper': {
+          "& .MuiDialog-paper": {
             borderRadius: shellRadius,
           },
         }}
