@@ -52,7 +52,6 @@ const SectionIntro: React.FC<{
   description: string;
   section: { titleGap: number; introMarginBottom: number };
 }> = ({ title, description, section }) => {
-
   return (
     <Box sx={{ mb: `${(section?.introMarginBottom ?? 20) / 8}rem` }}>
       <Typography
@@ -277,7 +276,11 @@ const PresetCard: React.FC<PresetCardProps> = ({
       onClick={onSelect}
     >
       <CardActionArea disableRipple sx={{ p: `${padding}px` }}>
-        <ThemeMiniPreview color={preset.previewColor} selected={selected} card={card} />
+        <ThemeMiniPreview
+          color={preset.previewColor}
+          selected={selected}
+          card={card}
+        />
         <Box sx={{ mt: `${titleGap + 6}px` }}>
           <Typography
             variant="body2"
