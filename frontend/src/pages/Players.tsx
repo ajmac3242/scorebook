@@ -474,7 +474,7 @@ const Players: React.FC = () => {
               />
             </Stack>
           </Stack>
-        </TokenPageShell>
+        </Box>
 
         <Box
           sx={{
