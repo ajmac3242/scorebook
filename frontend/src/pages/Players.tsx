@@ -12,8 +12,8 @@ import {
   FormControlLabel,
   Grid,
   IconButton,
-  InputAdornment,
   Paper,
+  InputAdornment,
   Snackbar,
   Stack,
   Switch,
@@ -36,6 +36,12 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { useNavigate } from "react-router-dom";
 import { db } from "../db";
 import { syncService } from "../utils/syncService";
+import { useTokens } from "../theme/useTokens";
+import {
+  TokenPageShell,
+  TokenSectionCard,
+  TokenPageTitle,
+} from "../components/layout/TokenLayout";
 import { calculatePlayerAggregates, getInitials } from "../utils/stats";
 import { logger } from "../utils/logger";
 import { AVATAR_COLORS } from "../constants/colors";
@@ -53,12 +59,14 @@ type PlayerWithStats = {
 
 const Players: React.FC = () => {
   const theme = useTheme();
+  const tokens = useTokens();
   const navigate = useNavigate();
 
-  const radius = theme.shape.borderRadius;
-  const shellRadius = radius;
-  const sectionRadius = radius;
-  const controlRadius = radius;
+  const pageShell = tokens.semantic.component.pageShell;
+  const shellRadius = pageShell.radius;
+  const sectionCard = tokens.semantic.component.sectionCard;
+  const controlRadius = tokens.semantic.component.radius.button;
+  const inputRadius = tokens.semantic.component.radius.input;
 
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
@@ -273,7 +281,7 @@ const Players: React.FC = () => {
   };
 
   return (
-    <Box sx={{ pb: 8 }}>
+    <TokenPageShell id="main-content" sx={{ pb: 8 }}>
       <Snackbar
         open={snackbar.open}
         autoHideDuration={4000}
@@ -290,14 +298,14 @@ const Players: React.FC = () => {
         </Alert>
       </Snackbar>
 
-      <Paper
-        elevation={0}
+      <TokenSectionCard
         sx={{
-          borderRadius: shellRadius,
-          border: "1px solid",
-          borderColor: "divider",
-          bgcolor: "background.default",
+          borderRadius: `${pageShell.radius}px`,
+          border: pageShell.border,
+          boxShadow: pageShell.shadow,
+          bgcolor: pageShell.background,
           overflow: "hidden",
+          p: 0,
         }}
       >
         <Box
@@ -336,9 +344,7 @@ const Players: React.FC = () => {
               </Box>
 
               <Box>
-                <Typography variant="h4" sx={{ mb: 0.25 }}>
-                  Players
-                </Typography>
+                <TokenPageTitle sx={{ mb: 0.25 }}>Players</TokenPageTitle>
                 <Typography variant="body2" color="text.secondary">
                   Manage your roster, highlight star players, and open
                   individual dashboards.
@@ -482,7 +488,7 @@ const Players: React.FC = () => {
             <Box
               sx={{
                 minHeight: 320,
-                borderRadius: sectionRadius,
+                borderRadius: `${sectionCard.radius}px`,
                 border: "1px dashed",
                 borderColor: "divider",
                 bgcolor: "background.paper",
@@ -582,7 +588,7 @@ const Players: React.FC = () => {
                       }}
                       sx={{
                         height: "100%",
-                        borderRadius: sectionRadius,
+                        borderRadius: `${sectionCard.radius}px`,
                         border: "1px solid",
                         borderColor: player.isStar ? accentBorder : "divider",
                         bgcolor: "background.paper",
@@ -654,7 +660,7 @@ const Players: React.FC = () => {
                                   size="small"
                                   icon={<History />}
                                   sx={{
-                                    borderRadius: controlRadius,
+                                    borderRadius: `${inputRadius}px`,
                                     bgcolor: "action.hover",
                                     color: "text.secondary",
                                     "& .MuiChip-icon": {
@@ -669,7 +675,7 @@ const Players: React.FC = () => {
                                   label="Starred"
                                   size="small"
                                   sx={{
-                                    borderRadius: controlRadius,
+                                    borderRadius: `${inputRadius}px`,
                                     bgcolor: accentSoft,
                                     color: "text.primary",
                                     border: "1px solid",
@@ -742,7 +748,7 @@ const Players: React.FC = () => {
 
                         <Box
                           sx={{
-                            borderRadius: sectionRadius,
+                            borderRadius: `${sectionCard.radius}px`,
                             px: 2,
                             py: 1.75,
                             mb: 2,
@@ -817,7 +823,7 @@ const Players: React.FC = () => {
             </Grid>
           )}
         </Box>
-      </Paper>
+      </TokenSectionCard>
 
       <Dialog
         open={open}
@@ -934,7 +940,7 @@ const Players: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
-    </Box>
+    </TokenPageShell>
   );
 };
 
