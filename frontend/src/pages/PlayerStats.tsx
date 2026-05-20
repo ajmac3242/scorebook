@@ -398,8 +398,7 @@ const PlayerStats: React.FC = () => {
                 <Stack
                   direction="row"
                   spacing={1}
-                  alignItems="center"
-                  sx={{ flexWrap: "wrap", mb: 0.5 }}
+                  sx={{ alignItems: "center", flexWrap: "wrap", mb: 0.5 }}
                 >
                   <Typography variant="h4">
                     {player?.name || "Player"}
@@ -513,8 +512,10 @@ const PlayerStats: React.FC = () => {
             <Stack
               direction={{ xs: "column", xl: "row" }}
               spacing={1.5}
-              alignItems={{ xs: "stretch", xl: "center" }}
-              justifyContent="space-between"
+              sx={{
+                alignItems: { xs: "stretch", xl: "center" },
+                justifyContent: "space-between",
+              }}
             >
               <Stack
                 direction={{ xs: "column", md: "row" }}
@@ -732,9 +733,11 @@ const PlayerStats: React.FC = () => {
                 <Stack
                   direction={{ xs: "column", md: "row" }}
                   spacing={1}
-                  justifyContent="space-between"
-                  alignItems={{ xs: "flex-start", md: "center" }}
-                  sx={{ mb: 2 }}
+                  sx={{
+                    justifyContent: "space-between",
+                    alignItems: { xs: "flex-start", md: "center" },
+                    mb: 2,
+                  }}
                 >
                   <Box>
                     <Typography variant="h6">Shot Chart</Typography>
