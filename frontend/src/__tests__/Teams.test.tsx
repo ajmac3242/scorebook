@@ -111,7 +111,7 @@ describe("Teams Component", () => {
       within(dialog).queryByRole("button", { name: /create team/i }) ||
       within(dialog).queryByRole("button", { name: /save team/i }) ||
       within(dialog).queryByRole("button", { name: /save/i }) ||
-      within(dialog).querySelector('button[type="submit"]') ||
+      dialog.querySelector('button[type="submit"]') ||
       Array.from(within(dialog).queryAllByRole("button")).find(
         (button) => !/cancel/i.test(button.textContent || ""),
       ) ||
