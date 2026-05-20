@@ -59,10 +59,7 @@ const Players: React.FC = () => {
 
   const pageShell = tokens.semantic.component.pageShell;
   const sectionCard = tokens.semantic.component.sectionCard;
-  const buttonRadius = tokens.semantic.component.radius.button;
   const inputRadius = tokens.semantic.component.radius.input;
-  const chipRadius = tokens.semantic.component.radius.chip;
-  const dialogRadius = tokens.semantic.component.radius.dialog;
 
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
