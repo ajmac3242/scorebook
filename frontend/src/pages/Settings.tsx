@@ -516,8 +516,7 @@ const Settings: React.FC = () => {
         <Stack
           direction="row"
           spacing={1.5}
-          alignItems="center"
-          flexWrap="wrap"
+          sx={{ alignItems: "center", flexWrap: "wrap" }}
         >
           <Chip
             icon={isOnline ? <OnlineIcon /> : <OfflineIcon />}
