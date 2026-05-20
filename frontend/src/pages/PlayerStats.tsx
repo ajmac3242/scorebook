@@ -71,9 +71,9 @@ const PlayerStats: React.FC = () => {
   const teamIdParam = searchParams.get("teamId");
 
   const radius = theme.shape.borderRadius;
-  const shellRadius = radius * 1.5;
-  const sectionRadius = radius * 1.5;
-  const controlRadius = radius * 1.25;
+  const shellRadius = radius;
+  const sectionRadius = radius;
+  const controlRadius = radius;
 
   const [selectedGameId, setSelectedGameId] = useState<string>("");
   const [selectedType, setSelectedType] = useState<string>("");
