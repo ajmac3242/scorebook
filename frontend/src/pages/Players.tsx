@@ -820,7 +820,7 @@ const Players: React.FC = () => {
               })}
             </Grid>
           )}
-        </TokenPageShell>
+        </Box>
       </TokenSectionCard>
 
       <Dialog
