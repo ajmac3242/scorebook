@@ -868,8 +868,8 @@ const PlayerStats: React.FC = () => {
         onClose={() => setOpenEditDialog(false)}
         fullWidth
         maxWidth="xs"
-        PaperProps={{
-          sx: {
+        sx={{
+          '& .MuiDialog-paper': {
             borderRadius: shellRadius,
           },
         }}
