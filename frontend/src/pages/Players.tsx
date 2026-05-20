@@ -919,8 +919,8 @@ const Players: React.FC = () => {
                     </Tooltip>
                   );
                 })}
-              </TokenPageShell>
-            </TokenPageShell>
+              </Box>
+            </Box>
           </Stack>
         </DialogContent>
 
