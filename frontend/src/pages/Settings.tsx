@@ -560,7 +560,7 @@ const Settings: React.FC = () => {
         borderBottom={false}
       >
         <Stack spacing={1.5}>
-          <Stack direction="row" spacing={1} flexWrap="wrap">
+          <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap" }}>
             <Button
               variant="outlined"
               size="small"
