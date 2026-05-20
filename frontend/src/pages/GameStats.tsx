@@ -1946,7 +1946,7 @@ const GameStats: React.FC = () => {
                               <Stack
                                 direction="row"
                                 spacing={1}
-                                alignItems="center"
+                                sx={{ alignItems: "center" }}
                               >
                                 <Avatar
                                   sx={{
