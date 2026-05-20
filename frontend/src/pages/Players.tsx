@@ -779,7 +779,7 @@ const Players: React.FC = () => {
                               </Typography>
                             </Grid>
                           </Grid>
-                        </TokenPageShell>
+                        </Box>
 
                         <Stack
                           direction="row"
