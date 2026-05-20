@@ -108,7 +108,7 @@ const SettingsRow: React.FC<SettingsRowProps> = ({
       }}
     >
       <Box sx={{ maxWidth: row?.descriptionMaxWidth ?? 240 }}>
-        <Typography variant="body2" fontWeight={500} color="text.primary">
+        <Typography variant="body2" color="text.primary" sx={{ fontWeight: 500 }}>
           {label}
         </Typography>
         {description && (
