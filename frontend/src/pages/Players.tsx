@@ -337,7 +337,7 @@ const Players: React.FC = () => {
                 }}
               >
                 <PlayersIcon fontSize="small" />
-              </TokenPageShell>
+              </Box>
 
               <Box>
                 <Typography variant="h4" sx={{ mb: 0.25 }}>
