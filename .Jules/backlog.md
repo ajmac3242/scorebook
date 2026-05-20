@@ -591,3 +591,53 @@
 - [ ] "Tendency Badges" (e.g., "LEFTY", "STRETCH 4", "SHOOTER") on opponent tracking cards.
 - [ ] Dynamic badge updates if the opponent deviates from season tendencies during the live game.
 - [ ] One-tap access to the full scouting report for that specific player from the GameMode.
+
+## [Live 'Process-over-Result' Confidence HUD]
+**Priority:** HIGH
+**Type:** Feature / UX
+**Why:** Teams often abandon a winning offensive "Process" because shots aren't falling (Bad Luck). Surfacing the "Expected Points" vs "Actual Points" delta in real-time allows coaches to keep players focused on high-quality looks even during a shooting slump.
+**What:** A live "Confidence Gauge" in GameMode that visualizes the totalXPts vs totalPoints delta.
+**Acceptance Criteria:**
+- [ ] A high-visibility "Confidence Gauge" that glows GREEN when xPTS > Actual Points (Good Process, Bad Luck).
+- [ ] Real-time "Process Delta" (+/- xPTS) displayed in the Tactical HUD.
+- [ ] Alert: "Trust the Process" triggered during a 0-for-5 slump on "OPEN" shots.
+
+## [Opponent 'Tactical Shift' Detector]
+**Priority:** HIGH
+**Type:** Predictive Intelligence
+**Why:** Opponent coaches often pivot schemes (e.g., Man to Zone) or focal points (e.g., PnR to Post) mid-quarter. Detecting these shifts early allows for preemptive counter-adjustments before a run starts.
+**What:** An automated detection engine that monitors opponent StatEvent patterns for significant deviations from their game-to-date baseline.
+**Acceptance Criteria:**
+- [ ] Alert: "Opponent Shift: 3 consecutive Zone possessions detected."
+- [ ] Alert: "Opponent Shift: increased focus on RIM ATTACKS (+30% vs game average)."
+- [ ] Visual indicator on the opponent card when their "Play-Type Frequency" shifts by >15%.
+
+## [Live 'Unit Rhythm' Stagnation Alert]
+**Priority:** HIGH
+**Type:** Feature / Decision Support
+**Why:** Lineups often "Stagnate" (efficiency cliffs) before the coach notices. Identifying "Rhythm Decay" within a single stint—rather than relying on overall game Net Rating—drives faster substitution decisions.
+**What:** A stint-level efficiency monitor that tracks the "Decay Rate" of PPP for the active unit.
+**Acceptance Criteria:**
+- [ ] "Rhythm Meter" on the lineup HUD showing the stint's PPP trend (Rolling 3-possession average).
+- [ ] Alert: "Unit Stagnation: PPP has dropped by 0.4 in the last 4 minutes."
+- [ ] Suggested "Spark Plug" sub from the bench when stagnation is detected.
+
+## [Automated 'Rim Protection' (Verticality) ROI]
+**Priority:** HIGH
+**Type:** Analytics / Causal Accountability
+**Why:** Elite rim protection is often about "forcing a miss" through verticality rather than a block. Quantifying the points saved by defenders who don't record a counting stat reveals the team's true defensive anchors.
+**What:** A "Verticality" metric derived from StatEvent data where a primaryDefenderId is linked to an opponent rim MISS without a BLOCK or STEAL.
+**Acceptance Criteria:**
+- [ ] "Verticality Score" in the accountability HUD (Points Saved per Rim Contest).
+- [ ] Leaderboard for "Rim Deterrence" identifying players with the lowest Opponent Rim % when on-court.
+- [ ] Attribution: Automatically link on-court "Defensive Anchor" to opponent rim misses.
+
+## [Live 'Off-Ball' Defensive Accountability Tracker]
+**Priority:** HIGH
+**Type:** Feature / Causal Accountability
+**Why:** Most points allowed aren't "blow-bys" but "late tags" or "missed rotations" off-ball. Isolating off-ball failures from primary defender failure is the key to fixing a leaky defense.
+**What:** Expand the breakdownReason system to include "Off-Ball" categories (e.g., "Late Tag", "No Help") and attribute them to a secondaryDefenderId.
+**Acceptance Criteria:**
+- [ ] Addition of "Secondary Defender" selection to the Opponent Score/Breakdown workflow.
+- [ ] "Off-Ball Failure" leaderboard in GameStats.
+- [ ] Correlation matrix: identifying if specific pairs (Guard/Big) have a high "Missed Tag" rate on PnR.
