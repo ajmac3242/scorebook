@@ -33,6 +33,7 @@ import { useAuth } from "../context/AuthContext";
 import { UserPool } from "../UserPool";
 import { db } from "../db";
 import { useAppTheme, ThemePreset } from "../theme/ThemeContext";
+import { useTokens } from "../theme/useTokens";
 import { logger, type LogEntry } from "../utils/logger";
 import { syncService } from "../utils/syncService";
 
@@ -51,7 +52,8 @@ const SectionIntro: React.FC<{ title: string; description: string }> = ({
   description,
 }) => {
   const theme = useTheme();
-  const section = theme.appTokens?.settings?.section;
+  const tokens = useTokens();
+  const section = tokens.settings.section;
 
   return (
     <Box sx={{ mb: `${(section?.introMarginBottom ?? 20) / 8}rem` }}>
@@ -84,7 +86,8 @@ const SettingsRow: React.FC<SettingsRowProps> = ({
   alignTop = false,
 }) => {
   const theme = useTheme();
-  const row = theme.appTokens?.settings?.row;
+  const tokens = useTokens();
+  const row = tokens.settings.row;
 
   return (
     <Box
@@ -135,7 +138,8 @@ const ThemeMiniPreview: React.FC<{ color: string; selected: boolean }> = ({
   selected,
 }) => {
   const theme = useTheme();
-  const card = theme.appTokens?.settings?.selectionCard;
+  const tokens = useTokens();
+  const card = tokens.settings.selectionCard;
   const previewRadius = card?.previewRadius ?? 6;
   const checkSize = card?.checkSize ?? 18;
   const checkOffset = card?.checkOffset ?? 10;
@@ -230,7 +234,8 @@ const PresetCard: React.FC<PresetCardProps> = ({
   onSelect,
 }) => {
   const theme = useTheme();
-  const card = theme.appTokens?.settings?.selectionCard;
+  const tokens = useTokens();
+  const card = tokens.settings.selectionCard;
 
   const radius = card?.radius ?? 10;
   const borderWidth = card?.borderWidth ?? 1;
@@ -283,7 +288,8 @@ const PresetCard: React.FC<PresetCardProps> = ({
 
 const Settings: React.FC = () => {
   const theme = useTheme();
-  const settingsTokens = theme.appTokens?.settings;
+  const tokens = useTokens();
+  const settingsTokens = tokens.settings;
   const shell = settingsTokens?.shell;
   const tabs = settingsTokens?.tabs;
 
