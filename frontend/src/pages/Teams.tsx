@@ -156,7 +156,7 @@ const Teams: React.FC = () => {
     [teams],
   );
 
-  const allGamesQueryResult = useLiveQuery<any>(() => {
+  const allGamesQueryResult = useLiveQuery<unknown>(() => {
     if (teamIds.length === 0) return [];
     return db.games
       .where("teamId")
@@ -174,7 +174,7 @@ const Teams: React.FC = () => {
     [allGames],
   );
 
-  const allStatsQueryResult = useLiveQuery<any>(() => {
+  const allStatsQueryResult = useLiveQuery<unknown>(() => {
     if (gameIds.length === 0) return [];
     return db.stats
       .where("gameId")
@@ -309,7 +309,7 @@ const Teams: React.FC = () => {
     ? "Try a different search, clear the filter, or create a new team."
     : "Create your first team to start tracking performance, rosters, and game results.";
 
-  const cardRadius = `${((theme.shape.borderRadius as any) as number) * 1.5}px`;
+  const cardRadius = `${((theme.shape.borderRadius as unknown) as number) * 1.5}px`;
   const transitionAll = `transform ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}, box-shadow ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}, border-color ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}`;
 
   return (
@@ -441,7 +441,7 @@ const Teams: React.FC = () => {
                 size="small"
                 variant="outlined"
                 sx={{
-                  borderRadius: `${((theme.shape.borderRadius as any) as number) * 0.75}px`,
+                  borderRadius: `${((theme.shape.borderRadius as unknown) as number) * 0.75}px`,
                   bgcolor: "background.paper",
                   borderColor: "divider",
                   color: "text.secondary",
@@ -454,7 +454,7 @@ const Teams: React.FC = () => {
                 size="small"
                 variant="outlined"
                 sx={{
-                  borderRadius: `${((theme.shape.borderRadius as any) as number) * 0.75}px`,
+                  borderRadius: `${((theme.shape.borderRadius as unknown) as number) * 0.75}px`,
                   bgcolor: "background.paper",
                   borderColor: "divider",
                   color: "text.secondary",
@@ -715,7 +715,7 @@ const Teams: React.FC = () => {
                                   : "Quarters"
                               }
                               sx={{
-                                borderRadius: `${((theme.shape.borderRadius as any) as number) * 0.75}px`,
+                                borderRadius: `${((theme.shape.borderRadius as unknown) as number) * 0.75}px`,
                                 bgcolor: accent.softerBg,
                                 color: "text.primary",
                                 border: `1px solid ${accent.border}`,
@@ -761,7 +761,7 @@ const Teams: React.FC = () => {
                         {/* Win-loss record */}
                         <Box
                           sx={{
-                            borderRadius: `${((theme.shape.borderRadius as any) as number) * 1.25}px`,
+                            borderRadius: `${((theme.shape.borderRadius as unknown) as number) * 1.25}px`,
                             px: theme.spacing(2),
                             py: theme.spacing(1.75),
                             mb: theme.spacing(2),

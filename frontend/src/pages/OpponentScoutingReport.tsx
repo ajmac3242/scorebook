@@ -22,13 +22,13 @@ import { Groups as OpponentsIcon } from "@mui/icons-material";
 const OpponentScoutingReport: React.FC = () => {
   const { opponentId } = useParams<{ opponentId: string }>();
 
-  const opponent = useLiveQuery<any>(
+  const opponent = useLiveQuery<unknown>(
     () =>
       opponentId ? db.opponents.get(opponentId) : Promise.resolve(undefined),
     [opponentId],
   );
 
-  const games = useLiveQuery<any>(
+  const games = useLiveQuery<unknown>(
     () =>
       opponentId
         ? db.games.where("opponentId").equals(opponentId).toArray()
@@ -41,7 +41,7 @@ const OpponentScoutingReport: React.FC = () => {
     [games],
   );
 
-  const stats = useLiveQuery<any>(
+  const stats = useLiveQuery<unknown>(
     () =>
       gameIds.length > 0
         ? db.stats.where("gameId").anyOf(gameIds).toArray()

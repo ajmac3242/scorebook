@@ -252,7 +252,6 @@ class SyncService {
       if (successIds.length > 0) {
         await db.transaction("rw", table, async () => {
           for (let j = 0; j < successIds.length; j++) {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             await table.update(successIds[j], { synced: 1 } as any);
           }
         });

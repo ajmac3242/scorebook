@@ -52,7 +52,7 @@ const Dashboard: React.FC = () => {
 
   // Find the starred team
   // 🎨 Palette: Map undefined to null to distinguish "loading" from "not found"
-  const favoriteTeam = useLiveQuery<any>(
+  const favoriteTeam = useLiveQuery<unknown>(
     () =>
       db.teams
         .where("isFavorite")
@@ -65,7 +65,7 @@ const Dashboard: React.FC = () => {
   const teamId = favoriteTeam?.id;
 
   // Fetch games for the favorite team
-  const rawTeamGames = useLiveQuery<any>(
+  const rawTeamGames = useLiveQuery<unknown>(
     () => (teamId ? db.games.where("teamId").equals(teamId).toArray() : []),
     [teamId],
   );
@@ -85,7 +85,7 @@ const Dashboard: React.FC = () => {
     }
     return filtered.map((g) => g.id).filter(Boolean) as string[];
   }, [teamGames, gameCountFilter]);
-  const rawAllStats = useLiveQuery<any>(
+  const rawAllStats = useLiveQuery<unknown>(
     () =>
       gameIds.length > 0
         ? db.stats.where("gameId").anyOf(gameIds).toArray()
@@ -96,7 +96,7 @@ const Dashboard: React.FC = () => {
   const allStats = useMemo(() => rawAllStats || [], [rawAllStats]);
 
   // Fetch players for leaders section
-  const rawTeamPlayers = useLiveQuery<any>(
+  const rawTeamPlayers = useLiveQuery<unknown>(
     () =>
       teamId ? db.teamPlayers.where("teamId").equals(teamId).toArray() : [],
     [teamId],
@@ -109,7 +109,7 @@ const Dashboard: React.FC = () => {
     [teamPlayers],
   );
 
-  const rawPlayers = useLiveQuery<any>(
+  const rawPlayers = useLiveQuery<unknown>(
     () =>
       playerIds.length > 0
         ? db.players.where("id").anyOf(playerIds).toArray()
@@ -198,7 +198,7 @@ const Dashboard: React.FC = () => {
 
       if (selectedPeriod !== "ALL") {
         if (selectedPeriod === "OT") {
-          const isHalves = favoriteTeam?.periodType === "HALVES";
+          const isHalves = ((favoriteTeam as { periodType?: string })?.periodType) === "HALVES";
           const threshold = isHalves ? 2 : 4;
           if (s.period <= threshold) continue;
         } else if (s.period.toString() !== selectedPeriod) {
@@ -212,7 +212,7 @@ const Dashboard: React.FC = () => {
       if (s.type === ACTION_TYPES.MAKE) data[zone].makes++;
     }
     return data;
-  }, [allStats, selectedPeriod, favoriteTeam?.periodType]);
+        }, [allStats, selectedPeriod, favoriteTeam]);
 
   const upcomingGames = useMemo(() => {
     const now = dayjs();

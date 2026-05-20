@@ -43,7 +43,7 @@ const Opponents: React.FC = () => {
     name: string;
   } | null>(null);
 
-  const opponentsQueryResult = useLiveQuery<any>(() => db.opponents.toArray(), []);
+  const opponentsQueryResult = useLiveQuery<unknown>(() => db.opponents.toArray(), []);
   const opponents = opponentsQueryResult || [];
 
   const handleAddOpponent = async () => {

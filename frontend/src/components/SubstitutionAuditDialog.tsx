@@ -36,7 +36,7 @@ import {
   FilterList as FilterIcon,
   Warning as WarningIcon,
 } from "@mui/icons-material";
-import { db, type StatEvent, type Player } from "../db";
+import { db, type Player, type StatEvent } from "../db";
 import { ACTION_TYPES } from "../constants/stats";
 import { formatClock } from "../utils/mathUtils";
 import { useLiveQuery } from "dexie-react-hooks";
@@ -66,7 +66,7 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<string | null>(null);
 
-  const subEvents = useLiveQuery<any>(() => {
+  const subEvents = useLiveQuery<StatEvent[]>(() => {
     if (!gameId) return [];
     return db.stats
       .where("gameId")

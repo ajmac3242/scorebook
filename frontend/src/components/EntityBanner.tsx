@@ -37,7 +37,7 @@ interface EntityBannerProps {
   isSyncing?: boolean;
   jerseyNumber?: string;
   searchTerm?: string;
-  onSearchChange?: (value: string) => void;
+  onSearchChange?: (_value: string) => void;
 }
 
 /**
@@ -321,7 +321,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                 placeholder="Search..."
                 aria-label={`Search ${title}`}
                 value={searchTerm || ""}
-                onChange={(e) => onSearchChange(e.target.value)}
+                onChange={(e) => onSearchChange?.(e.target.value)}
                 slotProps={{
                   input: {
                     disableUnderline: true,

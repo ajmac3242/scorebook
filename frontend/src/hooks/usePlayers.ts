@@ -1,5 +1,5 @@
 import { useLiveQuery } from "dexie-react-hooks";
-import { db } from "../db";
+import { db, type Player } from "../db";
 import { logger } from "../utils/logger";
 
 /**
@@ -8,7 +8,7 @@ import { logger } from "../utils/logger";
  */
 export const usePlayers = () => {
   return (
-    useLiveQuery<any>(() => {
+    useLiveQuery<Player[]>(() => {
       return db.players
         .toArray()
         .then((items) => {

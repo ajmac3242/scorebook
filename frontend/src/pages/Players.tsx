@@ -56,9 +56,9 @@ const Players: React.FC = () => {
   const navigate = useNavigate();
 
   const radius = theme.shape.borderRadius;
-  const shellRadius = (radius as any) * 1.5;
-  const sectionRadius = (radius as any) * 1.5;
-  const controlRadius = (radius as any) * 1.25;
+  const shellRadius = (radius as unknown) * 1.5;
+  const sectionRadius = (radius as unknown) * 1.5;
+  const controlRadius = (radius as unknown) * 1.25;
 
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
@@ -73,7 +73,7 @@ const Players: React.FC = () => {
     severity: "success" | "error";
   }>({ open: false, message: "", severity: "success" });
 
-  const playersResult = useLiveQuery<any>(() => {
+  const playersResult = useLiveQuery<unknown>(() => {
     return db.players
       .toArray()
       .then((all) => {
@@ -99,7 +99,7 @@ const Players: React.FC = () => {
 
   const players = useMemo(() => playersResult || [], [playersResult]);
 
-  const allStatsResult = useLiveQuery<any>(() => db.stats.toArray());
+  const allStatsResult = useLiveQuery<unknown>(() => db.stats.toArray());
   const allStats = useMemo(() => allStatsResult || [], [allStatsResult]);
 
   const playersWithStats = useMemo<PlayerWithStats[]>(() => {
@@ -293,7 +293,7 @@ const Players: React.FC = () => {
       <Paper
         elevation={0}
         sx={{
-          borderRadius: (shellRadius as any),
+          borderRadius: (shellRadius as unknown),
           border: "1px solid",
           borderColor: "divider",
           bgcolor: "background.default",
@@ -319,7 +319,7 @@ const Players: React.FC = () => {
                 sx={{
                   width: 44,
                   height: 44,
-                  borderRadius: (controlRadius as any),
+                  borderRadius: (controlRadius as unknown),
                   display: "grid",
                   placeItems: "center",
                   bgcolor: alpha(theme.palette.primary.main, 0.08),
@@ -349,7 +349,7 @@ const Players: React.FC = () => {
               aria-label="add new player"
               onClick={() => setOpen(true)}
               sx={{
-                borderRadius: (controlRadius as any),
+                borderRadius: (controlRadius as unknown),
                 px: 2,
                 boxShadow: "none",
                 flexShrink: 0,
@@ -382,7 +382,7 @@ const Players: React.FC = () => {
               sx={{
                 width: { xs: "100%", md: 320 },
                 "& .MuiOutlinedInput-root": {
-                  borderRadius: (controlRadius as any),
+                  borderRadius: (controlRadius as unknown),
                   bgcolor: "background.paper",
                 },
               }}
@@ -399,7 +399,7 @@ const Players: React.FC = () => {
                 size="small"
                 variant="outlined"
                 sx={{
-                  borderRadius: (controlRadius as any),
+                  borderRadius: (controlRadius as unknown),
                   bgcolor: "background.paper",
                   borderColor: "divider",
                   color: "text.secondary",
@@ -410,7 +410,7 @@ const Players: React.FC = () => {
                 size="small"
                 variant="outlined"
                 sx={{
-                  borderRadius: (controlRadius as any),
+                  borderRadius: (controlRadius as unknown),
                   bgcolor: "background.paper",
                   borderColor: "divider",
                   color: "text.secondary",
@@ -421,7 +421,7 @@ const Players: React.FC = () => {
                 size="small"
                 variant="outlined"
                 sx={{
-                  borderRadius: (controlRadius as any),
+                  borderRadius: (controlRadius as unknown),
                   bgcolor: "background.paper",
                   borderColor: "divider",
                   color: "text.secondary",
@@ -460,7 +460,7 @@ const Players: React.FC = () => {
             <Box
               sx={{
                 minHeight: 320,
-                borderRadius: (sectionRadius as any),
+                borderRadius: (sectionRadius as unknown),
                 border: "1px dashed",
                 borderColor: "divider",
                 bgcolor: "background.paper",
@@ -505,7 +505,7 @@ const Players: React.FC = () => {
                   <Button
                     variant="outlined"
                     onClick={() => setSearchTerm("")}
-                    sx={{ borderRadius: (controlRadius as any) }}
+                    sx={{ borderRadius: (controlRadius as unknown) }}
                   >
                     Clear search
                   </Button>
@@ -514,7 +514,7 @@ const Players: React.FC = () => {
                     variant="contained"
                     startIcon={<AddIcon />}
                     onClick={() => setOpen(true)}
-                    sx={{ borderRadius: (controlRadius as any), boxShadow: "none" }}
+                    sx={{ borderRadius: (controlRadius as unknown), boxShadow: "none" }}
                   >
                     Create first player
                   </Button>
@@ -560,7 +560,7 @@ const Players: React.FC = () => {
                       }}
                       sx={{
                         height: "100%",
-                        borderRadius: (sectionRadius as any),
+                        borderRadius: (sectionRadius as unknown),
                         border: "1px solid",
                         borderColor: player.isStar ? accentBorder : "divider",
                         bgcolor: "background.paper",
@@ -628,7 +628,7 @@ const Players: React.FC = () => {
                                   size="small"
                                   icon={<History />}
                                   sx={{
-                                    borderRadius: (controlRadius as any),
+                                    borderRadius: (controlRadius as unknown),
                                     bgcolor: "action.hover",
                                     color: "text.secondary",
                                     "& .MuiChip-icon": {
@@ -643,7 +643,7 @@ const Players: React.FC = () => {
                                   label="Starred"
                                   size="small"
                                   sx={{
-                                    borderRadius: (controlRadius as any),
+                                    borderRadius: (controlRadius as unknown),
                                     bgcolor: accentSoft,
                                     color: "text.primary",
                                     border: "1px solid",
@@ -716,7 +716,7 @@ const Players: React.FC = () => {
 
                         <Box
                           sx={{
-                            borderRadius: (sectionRadius as any),
+                            borderRadius: (sectionRadius as unknown),
                             px: 2,
                             py: 1.75,
                             mb: 2,
@@ -801,7 +801,7 @@ const Players: React.FC = () => {
         slotProps={{
           paper: {
             sx: {
-              borderRadius: (shellRadius as any),
+              borderRadius: (shellRadius as unknown),
             },
           },
         }}

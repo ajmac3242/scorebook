@@ -249,7 +249,7 @@ const GameStats: React.FC = () => {
     return null;
   };
 
-  const game = useLiveQuery<any>(
+  const game = useLiveQuery<unknown>(
     () =>
       gameId !== undefined
         ? db.games.get(gameId as string)
@@ -257,13 +257,13 @@ const GameStats: React.FC = () => {
     [gameId],
   );
 
-  const team = useLiveQuery<any>(
+  const team = useLiveQuery<unknown>(
     () =>
       game?.teamId ? db.teams.get(game.teamId) : Promise.resolve(undefined),
     [game?.teamId],
   );
 
-  const teamSeasonStatsResult = useLiveQuery<any>(
+  const teamSeasonStatsResult = useLiveQuery<unknown>(
     () =>
       game?.teamId
         ? db.games
@@ -295,7 +295,7 @@ const GameStats: React.FC = () => {
     );
   }, [teamSeasonStatsResult]);
 
-  const teamPlayersResult = useLiveQuery<any>(
+  const teamPlayersResult = useLiveQuery<unknown>(
     () =>
       game?.teamId
         ? db.teamPlayers.where("teamId").equals(game.teamId).toArray()
@@ -312,7 +312,7 @@ const GameStats: React.FC = () => {
     [teamPlayers],
   );
 
-  const playersResult = useLiveQuery<any>(
+  const playersResult = useLiveQuery<unknown>(
     () => db.players.where("id").anyOf(playerIds).toArray(),
     [playerIds],
   );
@@ -328,7 +328,7 @@ const GameStats: React.FC = () => {
     }
   }, [game]);
 
-  const allStatsResult = useLiveQuery<any>(
+  const allStatsResult = useLiveQuery<unknown>(
     () =>
       gameId !== undefined
         ? db.stats.where("gameId").equals(gameId).toArray()
