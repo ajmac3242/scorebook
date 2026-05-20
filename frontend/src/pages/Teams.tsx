@@ -84,7 +84,7 @@ const StatCell: React.FC<{ label: string; value: string }> = ({
     <Box sx={{ minWidth: 0 }}>
       <Typography
         sx={{
-          fontSize: theme.typography.caption.fontSize, // was "0.6875rem" (11px — below floor)
+          fontSize: theme.typography.caption.fontSize,
           fontWeight: 700,
           letterSpacing: "0.05em",
           textTransform: "uppercase",
@@ -96,7 +96,7 @@ const StatCell: React.FC<{ label: string; value: string }> = ({
       </Typography>
       <Typography
         sx={{
-          fontSize: theme.typography.h5.fontSize, // was hardcoded "1.375rem"
+          fontSize: theme.typography.h5.fontSize,
           lineHeight: 1,
           fontWeight: 700,
           color: "text.primary",
@@ -309,7 +309,7 @@ const Teams: React.FC = () => {
     ? "Try a different search, clear the filter, or create a new team."
     : "Create your first team to start tracking performance, rosters, and game results.";
 
-  const cardRadius = `${Number(theme.shape.borderRadius) * 1.5}px`;
+  const cardRadius = `${theme.shape.borderRadius * 1.5}px`;
   const transitionAll = `transform ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}, box-shadow ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}, border-color ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}`;
 
   return (
@@ -371,7 +371,7 @@ const Teams: React.FC = () => {
           <Box>
             <Typography
               sx={{
-                fontSize: theme.typography.h6.fontSize, // was "1.125rem"
+                fontSize: theme.typography.h6.fontSize,
                 fontWeight: 600,
                 color: "text.primary",
                 mb: 0.5,
@@ -381,7 +381,7 @@ const Teams: React.FC = () => {
             </Typography>
             <Typography
               sx={{
-                fontSize: theme.typography.body2.fontSize, // was "0.875rem"
+                fontSize: theme.typography.body2.fontSize,
                 color: "text.secondary",
                 lineHeight: 1.5,
               }}
@@ -419,7 +419,8 @@ const Teams: React.FC = () => {
           <Stack
             direction={{ xs: "column", md: "row" }}
             spacing={1.5}
-                      sx={{ alignItems: { xs: "stretch", md: "center" }, justifyContent: "space-between" }}
+            alignItems={{ xs: "stretch", md: "center" }}
+            justifyContent="space-between"
           >
             <TextField
               value={searchTerm}
@@ -433,25 +434,23 @@ const Teams: React.FC = () => {
                   bgcolor: "background.paper",
                 },
               }}
-              slotProps={{
-                input: {
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon
-                        sx={{ color: "text.secondary", fontSize: 18 }}
-                      />
-                    </InputAdornment>
-                  ),
-                },
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon
+                      sx={{ color: "text.secondary", fontSize: 18 }}
+                    />
+                  </InputAdornment>
+                ),
               }}
             />
-            <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap" }}>
+            <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
               <Chip
                 label={`${teams.length} total`}
                 size="small"
                 variant="outlined"
                 sx={{
-                  borderRadius: `${Number(theme.shape.borderRadius) * 0.75}px`,
+                  borderRadius: `${theme.shape.borderRadius * 0.75}px`,
                   bgcolor: "background.paper",
                   borderColor: "divider",
                   color: "text.secondary",
@@ -464,7 +463,7 @@ const Teams: React.FC = () => {
                 size="small"
                 variant="outlined"
                 sx={{
-                  borderRadius: `${Number(theme.shape.borderRadius) * 0.75}px`,
+                  borderRadius: `${theme.shape.borderRadius * 0.75}px`,
                   bgcolor: "background.paper",
                   borderColor: "divider",
                   color: "text.secondary",
@@ -648,11 +647,12 @@ const Teams: React.FC = () => {
                             <Stack
                               direction="row"
                               spacing={1}
-                              sx={{ mb: 0.75, alignItems: "center" }}
+                              alignItems="center"
+                              sx={{ mb: 0.75 }}
                             >
                               <Typography
                                 sx={{
-                                  fontSize: theme.typography.h6.fontSize, // was "1.125rem"
+                                  fontSize: theme.typography.h6.fontSize,
                                   fontWeight: 700,
                                   color: "text.primary",
                                   minWidth: 0,
@@ -706,7 +706,7 @@ const Teams: React.FC = () => {
 
                             <Typography
                               sx={{
-                                fontSize: theme.typography.body2.fontSize, // was "0.875rem"
+                                fontSize: theme.typography.body2.fontSize,
                                 color: "text.secondary",
                                 lineHeight: 1.5,
                                 mb: theme.spacing(1.5),
@@ -725,7 +725,7 @@ const Teams: React.FC = () => {
                                   : "Quarters"
                               }
                               sx={{
-                                borderRadius: `${Number(theme.shape.borderRadius) * 0.75}px`,
+                                borderRadius: `${theme.shape.borderRadius * 0.75}px`,
                                 bgcolor: accent.softerBg,
                                 color: "text.primary",
                                 border: `1px solid ${accent.border}`,
@@ -771,7 +771,7 @@ const Teams: React.FC = () => {
                         {/* Win-loss record */}
                         <Box
                           sx={{
-                            borderRadius: `${Number(theme.shape.borderRadius) * 1.25}px`,
+                            borderRadius: `${theme.shape.borderRadius * 1.25}px`,
                             px: theme.spacing(2),
                             py: theme.spacing(1.75),
                             mb: theme.spacing(2),
@@ -781,7 +781,7 @@ const Teams: React.FC = () => {
                         >
                           <Typography
                             sx={{
-                              fontSize: theme.typography.h4.fontSize, // was "2rem"
+                              fontSize: theme.typography.h4.fontSize,
                               lineHeight: 1,
                               fontWeight: 800,
                               color: "text.primary",
@@ -792,7 +792,7 @@ const Teams: React.FC = () => {
                           </Typography>
                           <Typography
                             sx={{
-                              fontSize: theme.typography.caption.fontSize, // was "0.75rem"
+                              fontSize: theme.typography.caption.fontSize,
                               fontWeight: 700,
                               letterSpacing: "0.04em",
                               textTransform: "uppercase",
@@ -829,11 +829,8 @@ const Teams: React.FC = () => {
                           <Stack
                             direction="row"
                             spacing={0.75}
-                            sx={{
-                              alignItems: "center",
-                              mt: theme.spacing(2),
-                              color: accent.solid,
-                            }}
+                            alignItems="center"
+                            sx={{ mt: theme.spacing(2), color: accent.solid }}
                           >
                             <Typography
                               sx={{
@@ -862,12 +859,10 @@ const Teams: React.FC = () => {
         onClose={closeDialog}
         fullWidth
         maxWidth="sm"
-        slotProps={{
-          paper: {
-            sx: {
-              borderRadius: cardRadius,
-              bgcolor: "background.paper",
-            },
+        PaperProps={{
+          sx: {
+            borderRadius: cardRadius,
+            bgcolor: "background.paper",
           },
         }}
       >
@@ -954,7 +949,7 @@ const Teams: React.FC = () => {
                 type="number"
                 value={fouls}
                 onChange={(e) => setFouls(Number(e.target.value))}
-                slotProps={{ htmlInput: { min: 1 } }}
+                inputProps={{ min: 1 }}
                 fullWidth
               />
               <FormHelperText>
@@ -973,22 +968,4 @@ const Teams: React.FC = () => {
             Cancel
           </Button>
           <Button
-            variant="contained"
-            onClick={handleAddTeam}
-            disabled={isSubmitting}
-            sx={{
-              textTransform: "none",
-              fontWeight: 600,
-              boxShadow: "none",
-              minHeight: 44,
-            }}
-          >
-            {isSubmitting ? "Creating…" : "Create team"}
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Box>
-  );
-};
-
-export default Teams;
+            va
