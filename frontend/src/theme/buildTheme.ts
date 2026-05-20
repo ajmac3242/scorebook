@@ -380,7 +380,7 @@ function buildComponentTheme(
 export function buildTheme(preset?: ThemePreset): Theme {
   const activeTokens = resolveTokens(preset);
 
-  return createTheme({
+  const theme = createTheme({
     breakpoints: {
       values: muiBreakpointValues,
     },
