@@ -361,8 +361,10 @@ const PlayerStats: React.FC = () => {
           <Stack
             direction={{ xs: "column", lg: "row" }}
             spacing={2.5}
-            justifyContent="space-between"
-            alignItems={{ xs: "flex-start", lg: "center" }}
+            sx={{
+              justifyContent: "space-between",
+              alignItems: { xs: "flex-start", lg: "center" },
+            }}
           >
             <Stack direction="row" spacing={2} sx={{ alignItems: "center" }}>
               <IconButton
@@ -436,7 +438,7 @@ const PlayerStats: React.FC = () => {
             <Stack
               direction={{ xs: "column", sm: "row" }}
               spacing={1}
-              alignItems={{ xs: "stretch", sm: "center" }}
+              sx={{ alignItems: { xs: "stretch", sm: "center" } }}
             >
               <Chip
                 label={`MIN ${aggregates.min}`}
@@ -567,7 +569,7 @@ const PlayerStats: React.FC = () => {
               <Stack
                 direction={{ xs: "column", sm: "row" }}
                 spacing={1}
-                alignItems={{ xs: "stretch", sm: "center" }}
+                sx={{ alignItems: { xs: "stretch", sm: "center" } }}
               >
                 <Button
                   variant={clutchFilter ? "contained" : "outlined"}
