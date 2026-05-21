@@ -1,18 +1,40 @@
 /* eslint-disable @typescript-eslint/no-empty-object-type */
 import type { AppTokens } from "./tokens/tokens";
+import type { CSSProperties } from "react";
 
 declare module "@mui/material/styles" {
   interface Theme {
     appTokens: AppTokens;
-    vars: ThemeVars;
   }
 
   interface ThemeOptions {
     appTokens?: AppTokens;
   }
 
+  interface Palette {
+    tertiary: Palette["primary"];
+  }
+
+  interface PaletteOptions {
+    tertiary?: PaletteOptions["primary"];
+  }
+
+  interface Typography {
+    supporting: CSSProperties;
+  }
+
+  interface TypographyVariantsOptions {
+    supporting?: CSSProperties;
+  }
+
   interface ThemeVars {
-    cs: AppTokens; // Our namespaced variables
+    cs: AppTokens;
+  }
+}
+
+declare module "@mui/material/Typography" {
+  interface TypographyPropsVariantOverrides {
+    supporting: true;
   }
 }
 
