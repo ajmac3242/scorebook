@@ -315,7 +315,10 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                           <Tooltip title="Save Changes">
                             <IconButton
                               size="small"
-                              sx={{ color: "var(--cs-semantic-color-brand-primary-main)" }}
+                              sx={{
+                                color:
+                                  "var(--cs-semantic-color-brand-primary-main)",
+                              }}
                               onClick={handleSaveEdit}
                               aria-label="Save changes"
                             >
@@ -327,7 +330,10 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                               size="small"
                               onClick={() => setEditingId(null)}
                               aria-label="Cancel editing"
-                              sx={{ color: "var(--cs-semantic-color-text-secondary)" }}
+                              sx={{
+                                color:
+                                  "var(--cs-semantic-color-text-secondary)",
+                              }}
                             >
                               <CloseIcon fontSize="small" />
                             </IconButton>
@@ -346,7 +352,10 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                               size="small"
                               onClick={() => handleStartEdit(event)}
                               aria-label={`Edit ${event.type === ACTION_TYPES.SUB_IN ? "sub in" : "sub out"} for ${player?.name}`}
-                              sx={{ color: "var(--cs-semantic-color-text-secondary)" }}
+                              sx={{
+                                color:
+                                  "var(--cs-semantic-color-text-secondary)",
+                              }}
                             >
                               <EditIcon fontSize="small" />
                             </IconButton>
@@ -356,7 +365,10 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                           >
                             <IconButton
                               size="small"
-                              sx={{ color: "var(--cs-semantic-color-feedback-error-main)" }}
+                              sx={{
+                                color:
+                                  "var(--cs-semantic-color-feedback-error-main)",
+                              }}
                               onClick={() => {
                                 setEventToDelete(event.id!);
                                 setDeleteConfirmOpen(true);
@@ -403,10 +415,15 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
             fontWeight: "var(--cs-typography-fontWeight-bold)",
           }}
         >
-          <WarningIcon sx={{ color: "var(--cs-semantic-color-feedback-error-main)" }} /> Delete Substitution Event?
+          <WarningIcon
+            sx={{ color: "var(--cs-semantic-color-feedback-error-main)" }}
+          />{" "}
+          Delete Substitution Event?
         </DialogTitle>
         <DialogContent sx={{ p: "var(--cs-semantic-spacing-dialogPadding)" }}>
-          <DialogContentText sx={{ color: "var(--cs-semantic-color-text-secondary)" }}>
+          <DialogContentText
+            sx={{ color: "var(--cs-semantic-color-text-secondary)" }}
+          >
             Are you sure you want to delete this substitution event? This will
             immediately affect live lineups, plus/minus calculations, and stint
             durations.
@@ -418,7 +435,13 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
           </Button>
           <Button
             onClick={handleDelete}
-            sx={{ bgcolor: "var(--cs-semantic-color-feedback-error-main)", color: "white", "&:hover": { bgcolor: "var(--cs-semantic-color-feedback-error-dark)" } }}
+            sx={{
+              bgcolor: "var(--cs-semantic-color-feedback-error-main)",
+              color: "white",
+              "&:hover": {
+                bgcolor: "var(--cs-semantic-color-feedback-error-dark)",
+              },
+            }}
             variant="contained"
             autoFocus
           >

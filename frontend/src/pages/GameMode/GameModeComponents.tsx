@@ -1,12 +1,5 @@
 import React from "react";
-import {
-  Tooltip,
-  Button,
-  Typography,
-  Box,
-  Avatar,
-  Chip,
-} from "@mui/material";
+import { Tooltip, Button, Typography, Box, Avatar, Chip } from "@mui/material";
 import { type Player, type Game, type Team } from "../../db";
 import { type PlayerAggregates } from "../../utils/stats";
 import { formatClock } from "../../utils/mathUtils";
@@ -53,9 +46,11 @@ export const QuickAction: React.FC<QuickActionProps> = React.memo(
             statType === type
               ? "var(--cs-semantic-color-text-inverse)"
               : "var(--cs-semantic-color-text-primary)",
-          transition: "all var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
+          transition:
+            "all var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
           "&:focus-visible": {
-            outline: "var(--cs-semantic-focus-width)px solid var(--cs-semantic-color-action-focusRing)",
+            outline:
+              "var(--cs-semantic-focus-width)px solid var(--cs-semantic-color-action-focusRing)",
             outlineOffset: "var(--cs-semantic-focus-offset)px",
           },
         }}
@@ -142,7 +137,8 @@ export const LineupPlayerButton: React.FC<LineupPlayerButtonProps> = React.memo(
                   : "var(--cs-semantic-color-brand-primary-main)",
               color: "var(--cs-semantic-color-text-inverse)",
             },
-            transition: "all var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
+            transition:
+              "all var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
           }}
         >
           <Avatar

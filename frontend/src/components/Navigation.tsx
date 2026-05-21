@@ -56,7 +56,8 @@ const NavItem: React.FC<{
           color: isSelected
             ? "var(--cs-semantic-color-text-inverse)"
             : "var(--cs-semantic-color-text-disabled)",
-          transition: "all var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
+          transition:
+            "all var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -66,7 +67,8 @@ const NavItem: React.FC<{
             color: "var(--cs-semantic-color-text-inverse)",
           },
           "&:focus-visible": {
-            outline: "var(--cs-semantic-focus-width) solid var(--cs-semantic-color-action-focusRing)",
+            outline:
+              "var(--cs-semantic-focus-width) solid var(--cs-semantic-color-action-focusRing)",
             outlineOffset: "var(--cs-semantic-focus-offset)",
           },
           "&::after": isSelected
@@ -250,7 +252,8 @@ const Navigation: React.FC = () => {
                       opacity: 0.8,
                     },
                     "&:focus-visible": {
-                      outline: "var(--cs-semantic-focus-width) solid var(--cs-semantic-color-brand-primary-dark)",
+                      outline:
+                        "var(--cs-semantic-focus-width) solid var(--cs-semantic-color-brand-primary-dark)",
                       outlineOffset: "var(--cs-semantic-focus-offset)",
                       borderRadius: "var(--cs-semantic-shape-radius-xs)",
                     },

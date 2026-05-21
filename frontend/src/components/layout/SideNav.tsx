@@ -91,7 +91,8 @@ const SideNav: React.FC<SideNavProps> = ({
             justifyContent: "flex-start",
             gap: 1,
             color: "var(--cs-semantic-color-text-secondary)",
-            transition: "all var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
+            transition:
+              "all var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
             "&:hover": {
               borderColor: "var(--cs-semantic-color-border-default)",
               bgcolor: "var(--cs-semantic-color-action-hover)",
@@ -147,7 +148,8 @@ const SideNav: React.FC<SideNavProps> = ({
                     minWidth: 36,
                   },
                   "&:focus-visible": {
-                    outline: "var(--cs-semantic-focus-width) solid var(--cs-semantic-color-action-focusRing)",
+                    outline:
+                      "var(--cs-semantic-focus-width) solid var(--cs-semantic-color-action-focusRing)",
                     outlineOffset: "var(--cs-semantic-focus-offset)",
                   },
                 }}
@@ -239,7 +241,12 @@ const SideNav: React.FC<SideNavProps> = ({
           </ListItemButton>
         </ListItem>
 
-        <Box sx={{ px: "var(--cs-semantic-spacing-md)", mb: "var(--cs-semantic-spacing-md)" }}>
+        <Box
+          sx={{
+            px: "var(--cs-semantic-spacing-md)",
+            mb: "var(--cs-semantic-spacing-md)",
+          }}
+        >
           <Box
             sx={{
               width: "100%",
@@ -257,7 +264,8 @@ const SideNav: React.FC<SideNavProps> = ({
             alignItems: "center",
             cursor: "pointer",
             borderRadius: "var(--cs-semantic-shape-radius-md)",
-            transition: "background-color var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
+            transition:
+              "background-color var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
             "&:hover": {
               bgcolor: "var(--cs-semantic-color-action-hover)",
             },
