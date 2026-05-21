@@ -718,7 +718,7 @@ const Settings: React.FC = () => {
       id="main-content"
       sx={{
         width: "100%",
-        maxWidth: shell?.maxWidth ?? 1040,
+        maxWidth: "none",
         mx: 0,
       }}
     >

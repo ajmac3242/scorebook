@@ -65,18 +65,11 @@ const AppShell: React.FC<AppShellProps> = ({
             width: "100%",
             maxWidth: "none",
             mx: 0,
-            borderRadius: {
-              xs: `${pageSurface?.radius ?? 20}px`,
-              md: `0 ${pageSurface?.radius ?? 20}px ${pageSurface?.radius ?? 20}px 0`,
-            },
+            borderRadius: `${pageSurface?.radius ?? 20}px`,
             bgcolor: pageSurface?.background ?? "background.paper",
             border: pageSurface?.border ?? "1px solid",
             borderColor:
               pageSurface?.border === undefined ? "divider" : undefined,
-            borderLeft: {
-              xs: pageSurface?.border ?? "1px solid",
-              md: "none",
-            },
             boxShadow: pageSurface?.shadow ?? "none",
             overflow: "hidden",
             display: "flex",
