@@ -404,7 +404,9 @@ const Settings: React.FC = () => {
       .map((l) => `[${l.level.toUpperCase()}] ${l.timestamp} — ${l.message}`)
       .join("\n");
 
-    navigator.clipboard.writeText(text).then(() => showSnackbar("Logs copied."));
+    navigator.clipboard
+      .writeText(text)
+      .then(() => showSnackbar("Logs copied."));
   };
 
   const handleLanguageChange = (e: SelectChangeEvent) =>
@@ -599,8 +601,9 @@ const Settings: React.FC = () => {
       <SettingsRow
         row={row}
         label="Local storage"
-        description={`${totalDbRecords.toLocaleString()} total records across ${Object.keys(dbStats).length
-          } tables.`}
+        description={`${totalDbRecords.toLocaleString()} total records across ${
+          Object.keys(dbStats).length
+        } tables.`}
         alignTop
       >
         <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>

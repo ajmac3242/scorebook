@@ -65,7 +65,8 @@ export function CourtSightThemeProvider({
   });
 
   const activePreset = useMemo(
-    () => presets.find((preset) => preset.id === presetIdState) ?? fallbackPreset,
+    () =>
+      presets.find((preset) => preset.id === presetIdState) ?? fallbackPreset,
     [presets, presetIdState, fallbackPreset],
   );
 
@@ -73,7 +74,9 @@ export function CourtSightThemeProvider({
 
   const setPresetId = useCallback(
     (id: string) => {
-      const nextId = presets.some((preset) => preset.id === id) ? id : fallbackId;
+      const nextId = presets.some((preset) => preset.id === id)
+        ? id
+        : fallbackId;
 
       setPresetIdState(nextId);
 
