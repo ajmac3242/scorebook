@@ -6,7 +6,6 @@ import {
   Box,
   Avatar,
   Chip,
-  useTheme,
 } from "@mui/material";
 import { type Player, type Game, type Team } from "../../db";
 import { type PlayerAggregates } from "../../utils/stats";
@@ -102,7 +101,6 @@ export const LineupPlayerButton: React.FC<LineupPlayerButtonProps> = React.memo(
     streak,
     onClick,
   }) => {
-    const theme = useTheme();
     const pf = stats?.fouls || 0;
     const foulLimit = game?.foulLimit || team?.defaultFoulLimit || 5;
     const isFoulTrouble = pf === foulLimit - 1;
