@@ -8,10 +8,9 @@ import React, {
 import { ThemeProvider, type Theme } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import buildTheme from "./buildTheme";
+import PRESETS, { DEFAULT_PRESET_ID } from "./presets";
 import type { ThemePreset } from "./tokens/tokens";
 
-// Re-export so consumers can import ThemePreset from this file
-// without needing to know where it's defined internally.
 export type { ThemePreset };
 
 const STORAGE_KEY = "courtsight_preset_id";
@@ -26,9 +25,6 @@ interface ThemeContextValue {
 
 const ThemeCtx = createContext<ThemeContextValue | null>(null);
 
-/**
- *
- */
 export function useAppTheme(): ThemeContextValue {
   const ctx = useContext(ThemeCtx);
   if (!ctx) {
@@ -38,23 +34,20 @@ export function useAppTheme(): ThemeContextValue {
 }
 
 interface Props {
-  presets: ThemePreset[];
+  presets?: ThemePreset[];
   defaultPresetId?: string;
   children: ReactNode;
 }
 
-/**
- *
- */
 export function CourtSightThemeProvider({
-  presets,
-  defaultPresetId,
+  presets = PRESETS,
+  defaultPresetId = DEFAULT_PRESET_ID,
   children,
 }: Props) {
   const fallbackPreset = presets[0];
   const fallbackId = defaultPresetId ?? fallbackPreset?.id ?? "";
 
-  const [presetId, setPresetIdState] = useState<string>(() => {
+  const [presetIdState, setPresetIdState] = useState<string>(() => {
     try {
       return localStorage.getItem(STORAGE_KEY) ?? fallbackId;
     } catch {
@@ -62,19 +55,22 @@ export function CourtSightThemeProvider({
     }
   });
 
+  const activePreset = useMemo(
+    () => presets.find((preset) => preset.id === presetIdState) ?? fallbackPreset,
+    [presets, presetIdState, fallbackPreset],
+  );
+
+  const presetId = activePreset?.id ?? fallbackId;
+
   const setPresetId = (id: string) => {
-    setPresetIdState(id);
+    const nextId = presets.some((preset) => preset.id === id) ? id : fallbackId;
+    setPresetIdState(nextId);
     try {
-      localStorage.setItem(STORAGE_KEY, id);
+      localStorage.setItem(STORAGE_KEY, nextId);
     } catch {
       // Ignore storage failures
     }
   };
-
-  const activePreset = useMemo(
-    () => presets.find((preset) => preset.id === presetId) ?? fallbackPreset,
-    [presets, presetId, fallbackPreset],
-  );
 
   const theme = useMemo(() => buildTheme(activePreset), [activePreset]);
 
