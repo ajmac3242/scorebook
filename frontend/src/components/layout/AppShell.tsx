@@ -24,18 +24,16 @@ const AppShell: React.FC<AppShellProps> = ({
   const appFrame = tokens.layout.appFrame;
   const pageSurface = tokens.layout.pageSurface;
 
-  const desktopGutter =
-    appFrame?.desktopGutter ?? "var(--cs-semantic-spacing-xs)";
-  const mobileGutter =
-    appFrame?.mobileGutter ?? "var(--cs-semantic-spacing-sm)";
-  const mobileBottomNavOffset =
-    appFrame?.mobileBottomNavOffset ?? "72px";
+  const baseGutter = appFrame.gutter ?? 16;
+  const desktopGutter = Math.max(8, Math.round(baseGutter / 2));
+  const mobileGutter = baseGutter;
+  const mobileBottomNavOffset = 72;
 
   return (
     <Box
       sx={{
         minHeight: "100dvh",
-        bgcolor: appFrame?.background ?? "background.default",
+        bgcolor: appFrame.background ?? "background.default",
         display: "flex",
         alignItems: "stretch",
       }}
@@ -46,16 +44,16 @@ const AppShell: React.FC<AppShellProps> = ({
         component="main"
         sx={{
           flex: 1,
-          minWidth: appFrame?.contentMinWidth ?? 0,
+          minWidth: appFrame.contentMinWidth ?? 0,
           display: "flex",
           flexDirection: "column",
-          pt: { xs: mobileGutter, md: desktopGutter },
-          pr: { xs: mobileGutter, md: desktopGutter },
+          pt: { xs: `${mobileGutter}px`, md: `${desktopGutter}px` },
+          pr: { xs: `${mobileGutter}px`, md: `${desktopGutter}px` },
           pb: {
-            xs: `calc(${mobileGutter} + ${mobileBottomNavOffset})`,
-            md: desktopGutter,
+            xs: `calc(${mobileGutter}px + ${mobileBottomNavOffset}px)`,
+            md: `${desktopGutter}px`,
           },
-          pl: { xs: mobileGutter, md: 0 },
+          pl: { xs: `${mobileGutter}px`, md: 0 },
         }}
       >
         {topBarSlot}
