@@ -24,9 +24,9 @@ const AppShell: React.FC<AppShellProps> = ({
   const appFrame = tokens.layout.appFrame;
   const pageSurface = tokens.layout.pageSurface;
 
-  const baseGutter = appFrame.gutter ?? 16;
-  const desktopGutter = Math.max(8, Math.round(baseGutter / 2));
-  const mobileGutter = baseGutter;
+  const gutter = appFrame.gutter ?? 16;
+  const desktopGutter = Math.max(8, Math.round(gutter / 2));
+  const mobileGutter = gutter;
   const mobileBottomNavOffset = 72;
 
   return (

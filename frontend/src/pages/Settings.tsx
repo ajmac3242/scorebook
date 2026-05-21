@@ -608,9 +608,8 @@ const Settings: React.FC = () => {
       <SettingsRow
         row={row}
         label="Local storage"
-        description={`${totalDbRecords.toLocaleString()} total records across ${
-          Object.keys(dbStats).length
-        } tables.`}
+        description={`${totalDbRecords.toLocaleString()} total records across ${Object.keys(dbStats).length
+          } tables.`}
         alignTop
       >
         <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
@@ -718,8 +717,8 @@ const Settings: React.FC = () => {
       id="main-content"
       sx={{
         width: "100%",
-        maxWidth: shell?.maxWidth ?? 900,
-        mx: "auto",
+        maxWidth: shell?.maxWidth ?? 1040,
+        mx: 0,
       }}
     >
       <Box
@@ -729,13 +728,13 @@ const Settings: React.FC = () => {
             md: `${(shell?.headerPaddingX ?? 28) / 8}rem`,
           },
           pt: {
-            xs: 2.5,
-            md: `${(shell?.headerPaddingTop ?? 24) / 8}rem`,
+            xs: 2,
+            md: `${((shell?.headerPaddingTop ?? 24) - 8) / 8}rem`,
           },
           pb: 0,
         }}
       >
-        <Typography variant="h5" sx={{ fontWeight: 600, mb: 2.5 }}>
+        <Typography variant="h5" sx={{ fontWeight: 600, mb: 2 }}>
           Settings
         </Typography>
 
@@ -769,7 +768,7 @@ const Settings: React.FC = () => {
             xs: 2.5,
             md: `${(shell?.contentPaddingX ?? 28) / 8}rem`,
           },
-          pt: 3,
+          pt: 2,
           pb: {
             xs: 3,
             md: `${(shell?.contentPaddingBottom ?? 28) / 8}rem`,
