@@ -33,13 +33,15 @@ export const TacticalAlertsSidebar: React.FC<TacticalAlertsSidebarProps> = ({
       <Typography
         variant="caption"
         sx={{
-          fontWeight: 800,
-          color: "text.secondary",
-          mb: 2,
+          fontWeight: "var(--cs-typography-fontWeight-bold)",
+          color: "var(--cs-semantic-color-text-secondary)",
+          mb: "var(--cs-semantic-spacing-md)",
           display: "block",
+          textTransform: "uppercase",
+          letterSpacing: "var(--cs-typography-letterSpacing-wider)",
         }}
       >
-        TACTICAL ALERTS (HALT)
+        Tactical Alerts (HALT)
       </Typography>
       <Stack spacing={1.5}>
         {alerts.length === 0 ? (
@@ -55,20 +57,21 @@ export const TacticalAlertsSidebar: React.FC<TacticalAlertsSidebarProps> = ({
               key={alert.id}
               elevation={0}
               sx={{
-                p: 1.5,
+                p: "var(--cs-semantic-spacing-md)",
                 borderLeft: "4px solid",
                 borderColor:
                   alert.severity === "CRITICAL" || alert.severity === "error"
-                    ? "error.main"
+                    ? "var(--cs-semantic-color-feedback-error-main)"
                     : alert.severity === "info"
-                      ? "info.main"
-                      : "warning.main",
+                      ? "var(--cs-semantic-color-feedback-info-main)"
+                      : "var(--cs-semantic-color-feedback-warning-main)",
                 bgcolor:
                   alert.severity === "CRITICAL" || alert.severity === "error"
-                    ? "rgba(211, 47, 47, 0.05)"
+                    ? "var(--cs-semantic-color-feedback-error-light)"
                     : alert.severity === "info"
-                      ? "rgba(2, 136, 209, 0.05)"
-                      : "rgba(237, 108, 2, 0.05)",
+                      ? "var(--cs-semantic-color-feedback-info-light)"
+                      : "var(--cs-semantic-color-feedback-warning-light)",
+                borderRadius: "var(--cs-semantic-shape-radius-md)",
               }}
             >
               <Stack
@@ -87,7 +90,12 @@ export const TacticalAlertsSidebar: React.FC<TacticalAlertsSidebarProps> = ({
                 <Box sx={{ flex: 1 }}>
                   <Typography
                     variant="caption"
-                    sx={{ fontWeight: 700, display: "block", mb: 0.5 }}
+                    sx={{
+                      fontWeight: "var(--cs-typography-fontWeight-bold)",
+                      display: "block",
+                      mb: 0.5,
+                      color: "var(--cs-semantic-color-text-primary)",
+                    }}
                   >
                     {alert.message}
                   </Typography>

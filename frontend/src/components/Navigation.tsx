@@ -53,29 +53,25 @@ const NavItem: React.FC<{
           width: "auto",
           px: isSelected ? 2 : 1.25,
           py: 0.75,
-          borderRadius: "20px",
+          borderRadius: "var(--cs-semantic-shape-radius-full)",
           bgcolor: isSelected
-            ? alpha(theme.palette.primary.light, 0.2)
+            ? "var(--cs-semantic-color-action-selected)"
             : "transparent",
           color: isSelected
-            ? "white"
-            : alpha(theme.palette.primary.contrastText, 0.6),
-          transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+            ? "var(--cs-semantic-color-text-inverse)"
+            : "var(--cs-semantic-color-text-disabled)",
+          transition: "all var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           flexShrink: 0,
           "&:hover": {
-            bgcolor: isSelected
-              ? alpha(theme.palette.primary.light, 0.3)
-              : alpha(theme.palette.primary.light, 0.1),
-            color: "white",
+            bgcolor: "var(--cs-semantic-color-action-hover)",
+            color: "var(--cs-semantic-color-text-inverse)",
           },
           "&:focus-visible": {
-            outline: `2px solid ${theme.palette.primary.contrastText}`,
-            outlineOffset: "2px",
-            bgcolor: alpha(theme.palette.primary.light, 0.4),
-            color: "white",
+            outline: "var(--cs-semantic-focus-width) solid var(--cs-semantic-color-action-focusRing)",
+            outlineOffset: "var(--cs-semantic-focus-offset)",
           },
           "&::after": isSelected
             ? {
@@ -209,12 +205,12 @@ const Navigation: React.FC = () => {
           top: 0,
           left: 0,
           right: 0,
-          height: isMobile ? 64 : 80,
-          bgcolor: alpha(theme.palette.secondary.main, 0.7),
+          height: "var(--cs-semantic-spacing-appBarHeight)",
+          bgcolor: "var(--cs-semantic-color-background-overlay)",
           backdropFilter: "blur(12px)",
           WebkitBackdropFilter: "blur(12px)",
-          borderBottom: `1px solid ${alpha(theme.palette.secondary.dark, 0.2)}`,
-          zIndex: theme.zIndex.appBar,
+          borderBottom: "1px solid var(--cs-semantic-color-border-subtle)",
+          zIndex: "var(--cs-semantic-elevation-zIndex-appBar)",
           display: "flex",
           alignItems: "center",
           px: isMobile ? 1.5 : 4,
@@ -289,13 +285,13 @@ const Navigation: React.FC = () => {
                 display: "flex",
                 flexDirection: "row",
                 alignItems: "center",
-                bgcolor: theme.palette.primary.dark,
-                borderRadius: "32px",
+                bgcolor: "var(--cs-semantic-color-brand-primary-dark)",
+                borderRadius: "var(--cs-semantic-shape-radius-full)",
                 px: 0.75,
                 py: 0.5,
                 gap: 0.25,
-                boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
-                border: `1px solid ${alpha(theme.palette.primary.light, 0.2)}`,
+                boxShadow: "var(--cs-semantic-elevation-shadow-dialog)",
+                border: "1px solid var(--cs-semantic-color-border-subtle)",
                 width: isMobile ? "100%" : "auto",
                 justifyContent: isMobile ? "space-between" : "center",
                 maxWidth: isMobile ? "320px" : "none",

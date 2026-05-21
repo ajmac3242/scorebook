@@ -71,18 +71,18 @@ export const TacticalIdentityHUD: React.FC<TacticalIdentityHUDProps> = ({
                 <Typography
                   variant="caption"
                   sx={{
-                    fontWeight: 800,
+                    fontWeight: "var(--cs-typography-fontWeight-bold)",
                     fontSize: "0.6rem",
-                    opacity: 0.8,
+                    color: "var(--cs-semantic-color-text-secondary)",
                     cursor: "help",
-                    borderBottom: "1px dotted rgba(0,0,0,0.2)",
+                    borderBottom: "1px dotted var(--cs-semantic-color-border-subtle)",
                   }}
                 >
                   {kpi.label.toUpperCase()}
                 </Typography>
               </Tooltip>
               {isMet && (
-                <CheckCircle sx={{ fontSize: 12, color: "success.main" }} />
+                <CheckCircle sx={{ fontSize: 12, color: "var(--cs-semantic-color-feedback-success-main)" }} />
               )}
             </Stack>
             <Tooltip
@@ -95,9 +95,11 @@ export const TacticalIdentityHUD: React.FC<TacticalIdentityHUDProps> = ({
                   sx={{
                     height: 6,
                     borderRadius: 3,
-                    bgcolor: "rgba(0,0,0,0.05)",
+                    bgcolor: "var(--cs-semantic-color-action-disabledBackground)",
                     "& .MuiLinearProgress-bar": {
-                      bgcolor: isMet ? "success.main" : "primary.main",
+                      bgcolor: isMet
+                        ? "var(--cs-semantic-color-feedback-success-main)"
+                        : "var(--cs-semantic-color-brand-primary-main)",
                       borderRadius: 3,
                     },
                   }}
@@ -106,7 +108,12 @@ export const TacticalIdentityHUD: React.FC<TacticalIdentityHUDProps> = ({
             </Tooltip>
             <Typography
               variant="h6"
-              sx={{ fontWeight: 900, fontSize: "1rem", mt: 0.2 }}
+              sx={{
+                fontWeight: "var(--cs-typography-fontWeight-bold)",
+                fontSize: "1rem",
+                mt: 0.2,
+                color: "var(--cs-semantic-color-text-primary)",
+              }}
             >
               {kpi.value}
               {kpi.isPercentage ? "%" : ""}

@@ -29,10 +29,16 @@ const SortableHeader: React.FC<SortableHeaderProps> = ({
       onClick={() => onSort(sortKey)}
       sx={{
         cursor: "pointer",
-        fontWeight: 700,
-        "&:hover": { color: "primary.main" },
+        fontWeight: "var(--cs-typography-fontWeight-bold)",
+        color: "var(--cs-semantic-color-text-secondary)",
+        transition: "all var(--cs-motion-duration-fast) var(--cs-motion-easing-productive)",
+        "&:hover": {
+          color: "var(--cs-semantic-color-brand-primary-main)",
+          bgcolor: "var(--cs-semantic-color-action-hover)",
+        },
         whiteSpace: "nowrap",
         display: hideOnMobile ? { xs: "none", sm: "table-cell" } : "table-cell",
+        borderBottom: "2px solid var(--cs-semantic-color-border-subtle)",
       }}
     >
       {label}{" "}

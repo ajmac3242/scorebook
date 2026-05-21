@@ -43,7 +43,7 @@ const BottomNav: React.FC<BottomNavProps> = ({ isLive = false }) => {
         left: 0,
         right: 0,
         borderRadius: 0,
-        bgcolor: "background.paper",
+        bgcolor: "var(--cs-semantic-color-background-paper)",
       }}
       elevation={3}
     >
@@ -55,12 +55,14 @@ const BottomNav: React.FC<BottomNavProps> = ({ isLive = false }) => {
         }}
         sx={{
           height: 56,
+          bgcolor: "transparent",
           "& .MuiBottomNavigationAction-root": {
             minWidth: 0,
             padding: "6px 0",
-            color: "text.secondary",
+            color: "var(--cs-semantic-color-text-secondary)",
+            transition: "all var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
             "&.Mui-selected": {
-              color: "primary.main",
+              color: "var(--cs-semantic-color-brand-primary-main)",
             },
           },
         }}
@@ -82,7 +84,8 @@ const BottomNav: React.FC<BottomNavProps> = ({ isLive = false }) => {
                       width: 6,
                       height: 6,
                       borderRadius: "50%",
-                      bgcolor: "#FF6B1A",
+                      bgcolor: "var(--cs-semantic-color-feedback-warning-main)",
+                      border: "1px solid var(--cs-semantic-color-background-paper)",
                     }}
                   />
                 )}

@@ -100,29 +100,55 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
       maxWidth="xs"
       aria-labelledby="ft-sequence-title"
     >
-      <DialogTitle id="ft-sequence-title" sx={{ fontFamily: "var(--serif)" }}>
-        Free Throw Sequence
-      </DialogTitle>
-      <DialogContent>
-        <Box sx={{ mb: 3, display: "flex", alignItems: "center", gap: 2 }}>
-          <Avatar sx={{ bgcolor: player?.avatarColor }}>
+      <DialogTitle id="ft-sequence-title">Free Throw Sequence</DialogTitle>
+      <DialogContent sx={{ p: "var(--cs-semantic-spacing-dialogPadding)" }}>
+        <Box
+          sx={{
+            mb: "var(--cs-semantic-spacing-lg)",
+            display: "flex",
+            alignItems: "center",
+            gap: 2,
+          }}
+        >
+          <Avatar
+            sx={{
+              bgcolor:
+                player?.avatarColor || "var(--cs-semantic-color-surface-strong)",
+              color: "var(--cs-semantic-color-text-inverse)",
+              fontWeight: 700,
+            }}
+          >
             {jerseyNumber ?? "??"}
           </Avatar>
           <Box>
-            <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+            <Typography
+              variant="subtitle1"
+              sx={{
+                fontWeight: "var(--cs-typography-fontWeight-bold)",
+                color: "var(--cs-semantic-color-text-primary)",
+              }}
+            >
               {player?.name || "Select Player"}
             </Typography>
-            <Typography variant="caption" color="text.secondary">
+            <Typography
+              variant="caption"
+              sx={{ color: "var(--cs-semantic-color-text-secondary)" }}
+            >
               Recording free throws for the current player.
             </Typography>
           </Box>
         </Box>
 
-        <Box sx={{ mb: 3 }}>
+        <Box sx={{ mb: "var(--cs-semantic-spacing-lg)" }}>
           <Typography
             variant="caption"
-            gutterBottom
-            sx={{ display: "block", mb: 1, fontWeight: 600 }}
+            sx={{
+              display: "block",
+              mb: 1,
+              fontWeight: "var(--cs-typography-fontWeight-bold)",
+              color: "var(--cs-semantic-color-text-secondary)",
+              textTransform: "uppercase",
+            }}
           >
             Number of Attempts
           </Typography>
@@ -145,13 +171,20 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
             <Box
               key={idx}
               sx={{
-                p: 1.5,
-                border: "1px solid",
-                borderColor: "divider",
-                borderRadius: 1,
+                p: "var(--cs-semantic-spacing-md)",
+                border: "1px solid var(--cs-semantic-color-border-subtle)",
+                borderRadius: "var(--cs-semantic-shape-radius-md)",
+                bgcolor: "var(--cs-semantic-color-surface-subtle)",
               }}
             >
-              <Typography variant="subtitle2" gutterBottom>
+              <Typography
+                variant="subtitle2"
+                sx={{
+                  mb: 1,
+                  fontWeight: "var(--cs-typography-fontWeight-bold)",
+                  color: "var(--cs-semantic-color-text-primary)",
+                }}
+              >
                 Attempt #{idx + 1}
               </Typography>
               <Stack direction="row" spacing={2}>
@@ -178,7 +211,7 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
           ))}
         </Stack>
       </DialogContent>
-      <DialogActions sx={{ p: 2 }}>
+      <DialogActions sx={{ p: "var(--cs-semantic-spacing-md)" }}>
         <Button onClick={onClose} color="inherit">
           Cancel
         </Button>

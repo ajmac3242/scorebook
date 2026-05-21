@@ -67,9 +67,8 @@ export const ActionControls = React.memo(
               aria-label="Advance to Next Period"
               sx={{
                 "&:focus-visible": {
-                  outline: "2px solid",
-                  outlineColor: "primary.main",
-                  outlineOffset: "2px",
+                  outline: "var(--cs-semantic-focus-width) solid var(--cs-semantic-color-action-focusRing)",
+                  outlineOffset: "var(--cs-semantic-focus-offset)",
                 },
               }}
             >
@@ -90,9 +89,8 @@ export const ActionControls = React.memo(
               color="secondary"
               sx={{
                 "&:focus-visible": {
-                  outline: "2px solid",
-                  outlineColor: "secondary.main",
-                  outlineOffset: "2px",
+                  outline: "var(--cs-semantic-focus-width) solid var(--cs-semantic-color-brand-secondary-main)",
+                  outlineOffset: "var(--cs-semantic-focus-offset)",
                 },
               }}
             >
@@ -118,9 +116,8 @@ export const ActionControls = React.memo(
               color={possessionState ? "primary" : "inherit"}
               sx={{
                 "&:focus-visible": {
-                  outline: "2px solid",
-                  outlineColor: "primary.main",
-                  outlineOffset: "2px",
+                  outline: "var(--cs-semantic-focus-width) solid var(--cs-semantic-color-action-focusRing)",
+                  outlineOffset: "var(--cs-semantic-focus-offset)",
                 },
               }}
             >
@@ -141,9 +138,8 @@ export const ActionControls = React.memo(
               aria-haspopup="dialog"
               sx={{
                 "&:focus-visible": {
-                  outline: "2px solid",
-                  outlineColor: "primary.main",
-                  outlineOffset: "2px",
+                  outline: "var(--cs-semantic-focus-width) solid var(--cs-semantic-color-action-focusRing)",
+                  outlineOffset: "var(--cs-semantic-focus-offset)",
                 },
               }}
             >
@@ -160,13 +156,12 @@ export const ActionControls = React.memo(
               aria-label="audit substitutions history"
               aria-haspopup="dialog"
               sx={{
-                border: "1px solid rgba(0,0,0,0.23)",
-                borderRadius: "4px",
+                border: "1px solid var(--cs-semantic-color-border-default)",
+                borderRadius: "var(--cs-semantic-shape-radius-xs)",
                 p: "5px",
                 "&:focus-visible": {
-                  outline: "2px solid",
-                  outlineColor: "primary.main",
-                  outlineOffset: "2px",
+                  outline: "var(--cs-semantic-focus-width) solid var(--cs-semantic-color-action-focusRing)",
+                  outlineOffset: "var(--cs-semantic-focus-offset)",
                 },
               }}
             >
@@ -186,9 +181,8 @@ export const ActionControls = React.memo(
               aria-label="log team timeout"
               sx={{
                 "&:focus-visible": {
-                  outline: "2px solid",
-                  outlineColor: "primary.main",
-                  outlineOffset: "2px",
+                  outline: "var(--cs-semantic-focus-width) solid var(--cs-semantic-color-action-focusRing)",
+                  outlineOffset: "var(--cs-semantic-focus-offset)",
                 },
               }}
             >
@@ -209,9 +203,8 @@ export const ActionControls = React.memo(
               aria-haspopup="dialog"
               sx={{
                 "&:focus-visible": {
-                  outline: "2px solid",
-                  outlineColor: "primary.main",
-                  outlineOffset: "2px",
+                  outline: "var(--cs-semantic-focus-width) solid var(--cs-semantic-color-action-focusRing)",
+                  outlineOffset: "var(--cs-semantic-focus-offset)",
                 },
               }}
             >
@@ -241,9 +234,8 @@ export const ActionControls = React.memo(
               }
               sx={{
                 "&:focus-visible": {
-                  outline: "2px solid",
-                  outlineColor: "primary.main",
-                  outlineOffset: "2px",
+                  outline: "var(--cs-semantic-focus-width) solid var(--cs-semantic-color-action-focusRing)",
+                  outlineOffset: "var(--cs-semantic-focus-offset)",
                 },
               }}
             >
@@ -264,9 +256,8 @@ export const ActionControls = React.memo(
                 aria-label="End and Save Game"
                 sx={{
                   "&:focus-visible": {
-                    outline: "2px solid",
-                    outlineColor: "error.main",
-                    outlineOffset: "2px",
+                    outline: "var(--cs-semantic-focus-width) solid var(--cs-semantic-color-feedback-error-main)",
+                    outlineOffset: "var(--cs-semantic-focus-offset)",
                   },
                 }}
               >

@@ -43,7 +43,9 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
           sx={{
             width: { xs: 36, sm: 56 },
             height: { xs: 36, sm: 56 },
-            bgcolor: isOpponent ? "secondary.main" : "primary.main",
+            bgcolor: isOpponent
+              ? "var(--cs-semantic-color-brand-secondary-main)"
+              : "var(--cs-semantic-color-brand-primary-main)",
             border: "2px solid rgba(255,255,255,0.2)",
             mb: 0.5,
           }}
@@ -53,8 +55,8 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
         <Typography
           variant="caption"
           sx={{
-            color: "white",
-            fontWeight: 700,
+            color: "var(--cs-semantic-color-text-inverse)",
+            fontWeight: "var(--cs-typography-fontWeight-bold)",
             fontSize: { xs: "0.6rem", sm: "0.8rem" },
             textTransform: "uppercase",
             letterSpacing: 1,
@@ -79,11 +81,10 @@ export const TeamPanel: React.FC<TeamPanelProps> = ({
       >
         <Typography
           sx={{
-            color: "white",
+            color: "var(--cs-semantic-color-text-inverse)",
             fontSize: { xs: "2rem", sm: "3.5rem" },
             fontWeight: 900,
             lineHeight: 1,
-            fontFamily: "'Inter', sans-serif",
             mb: 1,
           }}
           aria-live="polite"

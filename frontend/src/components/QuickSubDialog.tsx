@@ -61,10 +61,11 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
       <DialogTitle
         id="quick-sub-title"
         sx={{
-          fontFamily: "var(--serif)",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
+          fontWeight: "var(--cs-typography-fontWeight-bold)",
+          color: "var(--cs-semantic-color-text-primary)",
         }}
       >
         Quick Substitution
@@ -73,24 +74,27 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
             size="small"
             variant="text"
             onClick={() => handleSwapClick(selectedSwapId)}
-            sx={{ fontSize: "0.65rem" }}
+            sx={{ fontSize: "var(--cs-typography-fontSize-xs)" }}
             aria-label="Clear current selection"
           >
             Clear Selection
           </Button>
         )}
       </DialogTitle>
-      <DialogContent>
+      <DialogContent sx={{ p: "var(--cs-semantic-spacing-dialogPadding)" }}>
         <Typography
           id="quick-sub-instructions"
           variant="caption"
-          color="text.secondary"
-          sx={{ mb: 2, display: "block" }}
+          sx={{
+            mb: "var(--cs-semantic-spacing-md)",
+            display: "block",
+            color: "var(--cs-semantic-color-text-secondary)",
+          }}
         >
           To substitute: Tap an on-court player and then a bench player to swap
           their positions.
         </Typography>
-        <Grid container spacing={2} sx={{ mt: 1 }}>
+        <Grid container spacing={2} sx={{ mt: "var(--cs-semantic-spacing-sm)" }}>
           <Grid size={{ xs: 6 }}>
             <Typography variant="subtitle2" gutterBottom align="center">
               ON COURT
@@ -119,24 +123,25 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                       sx={{
                         justifyContent: "flex-start",
                         borderColor: isFouledOut
-                          ? "error.main"
+                          ? "var(--cs-semantic-color-feedback-error-main)"
                           : isFoulTrouble
-                            ? "warning.main"
-                            : "divider",
+                            ? "var(--cs-semantic-color-feedback-warning-main)"
+                            : "var(--cs-semantic-color-border-subtle)",
                         borderWidth: selectedSwapId === p.id ? 2 : 1,
                         "&:focus-visible": {
-                          outline: "2px solid",
-                          outlineColor: "primary.main",
-                          outlineOffset: "2px",
+                          outline: "var(--cs-semantic-focus-width) solid var(--cs-semantic-color-action-focusRing)",
+                          outlineOffset: "var(--cs-semantic-focus-offset)",
                         },
-                        color: isFouledOut ? "error.main" : "text.primary",
+                        color: isFouledOut
+                          ? "var(--cs-semantic-color-feedback-error-main)"
+                          : "var(--cs-semantic-color-text-primary)",
                         bgcolor:
                           selectedSwapId === p.id
                             ? isFouledOut
-                              ? "error.light"
+                              ? "var(--cs-semantic-color-feedback-error-light)"
                               : isFoulTrouble
-                                ? "warning.light"
-                                : "primary.main"
+                                ? "var(--cs-semantic-color-feedback-warning-light)"
+                                : "var(--cs-semantic-color-brand-primary-main)"
                             : "transparent",
                       }}
                     >
@@ -174,16 +179,15 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                     sx={{
                       justifyContent: "flex-start",
                       borderStyle: "dashed",
-                      color: "text.secondary",
+                      color: "var(--cs-semantic-color-text-secondary)",
                       borderWidth: selectedSwapId === emptyId ? 2 : 1,
                       bgcolor:
                         selectedSwapId === emptyId
-                          ? "rgba(0,0,0,0.05)"
+                          ? "var(--cs-semantic-color-action-hover)"
                           : "transparent",
                       "&:focus-visible": {
-                        outline: "2px solid",
-                        outlineColor: "primary.main",
-                        outlineOffset: "2px",
+                        outline: "var(--cs-semantic-focus-width) solid var(--cs-semantic-color-action-focusRing)",
+                        outlineOffset: "var(--cs-semantic-focus-offset)",
                       },
                     }}
                   >
@@ -234,25 +238,26 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                       sx={{
                         justifyContent: "flex-start",
                         borderColor: isFouledOut
-                          ? "error.main"
+                          ? "var(--cs-semantic-color-feedback-error-main)"
                           : isFoulTrouble
-                            ? "warning.main"
-                            : "divider",
+                            ? "var(--cs-semantic-color-feedback-warning-main)"
+                            : "var(--cs-semantic-color-border-subtle)",
                         borderWidth: selectedSwapId === p.id ? 2 : 1,
                         "&:focus-visible": {
-                          outline: "2px solid",
-                          outlineColor: "primary.main",
-                          outlineOffset: "2px",
+                          outline: "var(--cs-semantic-focus-width) solid var(--cs-semantic-color-action-focusRing)",
+                          outlineOffset: "var(--cs-semantic-focus-offset)",
                         },
-                        color: isFouledOut ? "error.main" : "text.primary",
+                        color: isFouledOut
+                          ? "var(--cs-semantic-color-feedback-error-main)"
+                          : "var(--cs-semantic-color-text-primary)",
                         opacity: isFouledOut ? 0.6 : 1,
                         bgcolor:
                           selectedSwapId === p.id
                             ? isFouledOut
-                              ? "error.light"
+                              ? "var(--cs-semantic-color-feedback-error-light)"
                               : isFoulTrouble
-                                ? "warning.light"
-                                : "primary.main"
+                                ? "var(--cs-semantic-color-feedback-warning-light)"
+                                : "var(--cs-semantic-color-brand-primary-main)"
                             : "transparent",
                       }}
                     >
@@ -278,7 +283,7 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
           </Grid>
         </Grid>
       </DialogContent>
-      <DialogActions sx={{ p: 2 }}>
+      <DialogActions sx={{ p: "var(--cs-semantic-spacing-md)" }}>
         <Button onClick={onClose} color="inherit">
           Cancel
         </Button>

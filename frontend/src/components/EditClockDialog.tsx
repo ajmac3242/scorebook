@@ -35,9 +35,16 @@ export const EditClockDialog: React.FC<{
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs">
-      <DialogTitle sx={{ fontFamily: "var(--serif)" }}>Edit Clock</DialogTitle>
-      <DialogContent>
-        <Box sx={{ mb: 2, display: "flex", gap: 1, justifyContent: "center" }}>
+      <DialogTitle>Edit Clock</DialogTitle>
+      <DialogContent sx={{ p: "var(--cs-semantic-spacing-dialogPadding)" }}>
+        <Box
+          sx={{
+            mb: "var(--cs-semantic-spacing-md)",
+            display: "flex",
+            gap: 1,
+            justifyContent: "center",
+          }}
+        >
           {[8, 10, 12, 20].map((m) => (
             <Button
               key={m}
@@ -62,21 +69,32 @@ export const EditClockDialog: React.FC<{
           <Box sx={{ textAlign: "center" }}>
             <Typography
               variant="caption"
-              sx={{ fontWeight: 700, mb: 1, display: "block" }}
+              sx={{
+                fontWeight: "var(--cs-typography-fontWeight-bold)",
+                color: "var(--cs-semantic-color-text-secondary)",
+                mb: 1,
+                display: "block",
+                textTransform: "uppercase",
+              }}
             >
-              MINUTES
+              Minutes
             </Typography>
             <Stack direction="column" spacing={1} sx={{ alignItems: "center" }}>
               <IconButton
                 onClick={() => setMins(Math.min(99, mins + 1))}
                 size="small"
                 aria-label="Increase minutes"
+                sx={{ color: "var(--cs-semantic-color-brand-primary-main)" }}
               >
                 <AddIcon />
               </IconButton>
               <Typography
                 variant="h4"
-                sx={{ fontWeight: 800, minWidth: "2ch" }}
+                sx={{
+                  fontWeight: "var(--cs-typography-fontWeight-bold)",
+                  color: "var(--cs-semantic-color-text-primary)",
+                  minWidth: "2ch",
+                }}
               >
                 {mins}
               </Typography>
@@ -84,32 +102,51 @@ export const EditClockDialog: React.FC<{
                 onClick={() => setMins(Math.max(0, mins - 1))}
                 size="small"
                 aria-label="Decrease minutes"
+                sx={{ color: "var(--cs-semantic-color-brand-primary-main)" }}
               >
                 <RemoveIcon />
               </IconButton>
             </Stack>
           </Box>
-          <Typography variant="h4" sx={{ mt: 3, fontWeight: 800 }}>
+          <Typography
+            variant="h4"
+            sx={{
+              mt: 3,
+              fontWeight: "var(--cs-typography-fontWeight-bold)",
+              color: "var(--cs-semantic-color-text-secondary)",
+            }}
+          >
             :
           </Typography>
           <Box sx={{ textAlign: "center" }}>
             <Typography
               variant="caption"
-              sx={{ fontWeight: 700, mb: 1, display: "block" }}
+              sx={{
+                fontWeight: "var(--cs-typography-fontWeight-bold)",
+                color: "var(--cs-semantic-color-text-secondary)",
+                mb: 1,
+                display: "block",
+                textTransform: "uppercase",
+              }}
             >
-              SECONDS
+              Seconds
             </Typography>
             <Stack direction="column" spacing={1} sx={{ alignItems: "center" }}>
               <IconButton
                 onClick={() => setSecs((secs + 1) % 60)}
                 size="small"
                 aria-label="Increase seconds"
+                sx={{ color: "var(--cs-semantic-color-brand-primary-main)" }}
               >
                 <AddIcon />
               </IconButton>
               <Typography
                 variant="h4"
-                sx={{ fontWeight: 800, minWidth: "2ch" }}
+                sx={{
+                  fontWeight: "var(--cs-typography-fontWeight-bold)",
+                  color: "var(--cs-semantic-color-text-primary)",
+                  minWidth: "2ch",
+                }}
               >
                 {secs.toString().padStart(2, "0")}
               </Typography>
@@ -117,6 +154,7 @@ export const EditClockDialog: React.FC<{
                 onClick={() => setSecs((secs - 1 + 60) % 60)}
                 size="small"
                 aria-label="Decrease seconds"
+                sx={{ color: "var(--cs-semantic-color-brand-primary-main)" }}
               >
                 <RemoveIcon />
               </IconButton>
@@ -124,7 +162,7 @@ export const EditClockDialog: React.FC<{
           </Box>
         </Stack>
       </DialogContent>
-      <DialogActions sx={{ p: 2 }}>
+      <DialogActions sx={{ p: "var(--cs-semantic-spacing-md)" }}>
         <Button onClick={onClose} color="inherit">
           Cancel
         </Button>

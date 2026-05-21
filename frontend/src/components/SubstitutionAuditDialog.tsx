@@ -151,37 +151,47 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
       <DialogTitle
         id="sub-audit-title"
         sx={{
-          fontFamily: "var(--serif)",
           display: "flex",
           alignItems: "center",
           gap: 1,
+          fontWeight: "var(--cs-typography-fontWeight-bold)",
+          color: "var(--cs-semantic-color-text-primary)",
         }}
       >
         <HistoryIcon /> Substitution Timeline Audit
       </DialogTitle>
-      <DialogContent>
+      <DialogContent sx={{ p: "var(--cs-semantic-spacing-dialogPadding)" }}>
         <Box
           sx={{
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            mb: 2,
+            mb: "var(--cs-semantic-spacing-md)",
           }}
         >
-          <Typography variant="body2" color="text.secondary">
+          <Typography
+            variant="body2"
+            sx={{ color: "var(--cs-semantic-color-text-secondary)" }}
+          >
             Review and correct the substitution timeline. Inaccurate data here
             affects plus/minus and lineup efficiency metrics.
           </Typography>
 
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <Tooltip title="Filter by player">
-              <FilterIcon fontSize="small" color="action" />
+              <FilterIcon
+                fontSize="small"
+                sx={{ color: "var(--cs-semantic-color-text-tertiary)" }}
+              />
             </Tooltip>
             <Select
               size="small"
               value={playerFilter}
               onChange={(e) => setPlayerFilter(e.target.value)}
-              sx={{ minWidth: 150, fontSize: "0.75rem" }}
+              sx={{
+                minWidth: 150,
+                fontSize: "var(--cs-typography-fontSize-xs)",
+              }}
               aria-label="Filter events by player"
             >
               <MenuItem value="ALL">All Players</MenuItem>
@@ -224,12 +234,9 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                             borderRadius: 0.5,
                             bgcolor:
                               event.type === ACTION_TYPES.SUB_IN
-                                ? "success.light"
-                                : "error.light",
-                            color:
-                              event.type === ACTION_TYPES.SUB_IN
-                                ? "success.contrastText"
-                                : "error.contrastText",
+                                ? "var(--cs-semantic-color-feedback-success-main)"
+                                : "var(--cs-semantic-color-feedback-error-main)",
+                            color: "var(--cs-semantic-color-text-inverse)",
                           }}
                         >
                           {event.type.replace("SUB_", "")}
@@ -308,7 +315,7 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                           <Tooltip title="Save Changes">
                             <IconButton
                               size="small"
-                              color="primary"
+                              sx={{ color: "var(--cs-semantic-color-brand-primary-main)" }}
                               onClick={handleSaveEdit}
                               aria-label="Save changes"
                             >
@@ -320,6 +327,7 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                               size="small"
                               onClick={() => setEditingId(null)}
                               aria-label="Cancel editing"
+                              sx={{ color: "var(--cs-semantic-color-text-secondary)" }}
                             >
                               <CloseIcon fontSize="small" />
                             </IconButton>
@@ -338,6 +346,7 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                               size="small"
                               onClick={() => handleStartEdit(event)}
                               aria-label={`Edit ${event.type === ACTION_TYPES.SUB_IN ? "sub in" : "sub out"} for ${player?.name}`}
+                              sx={{ color: "var(--cs-semantic-color-text-secondary)" }}
                             >
                               <EditIcon fontSize="small" />
                             </IconButton>
@@ -347,7 +356,7 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
                           >
                             <IconButton
                               size="small"
-                              color="error"
+                              sx={{ color: "var(--cs-semantic-color-feedback-error-main)" }}
                               onClick={() => {
                                 setEventToDelete(event.id!);
                                 setDeleteConfirmOpen(true);
@@ -376,7 +385,7 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
           </Table>
         </TableContainer>
       </DialogContent>
-      <DialogActions sx={{ p: 2 }}>
+      <DialogActions sx={{ p: "var(--cs-semantic-spacing-md)" }}>
         <Button onClick={onClose}>Close</Button>
       </DialogActions>
 
@@ -387,24 +396,29 @@ const SubstitutionAuditDialog: React.FC<SubstitutionAuditDialogProps> = ({
       >
         <DialogTitle
           id="delete-sub-title"
-          sx={{ display: "flex", alignItems: "center", gap: 1 }}
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
+            fontWeight: "var(--cs-typography-fontWeight-bold)",
+          }}
         >
-          <WarningIcon color="error" /> Delete Substitution Event?
+          <WarningIcon sx={{ color: "var(--cs-semantic-color-feedback-error-main)" }} /> Delete Substitution Event?
         </DialogTitle>
-        <DialogContent>
-          <DialogContentText>
+        <DialogContent sx={{ p: "var(--cs-semantic-spacing-dialogPadding)" }}>
+          <DialogContentText sx={{ color: "var(--cs-semantic-color-text-secondary)" }}>
             Are you sure you want to delete this substitution event? This will
             immediately affect live lineups, plus/minus calculations, and stint
             durations.
           </DialogContentText>
         </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
+        <DialogActions sx={{ p: "var(--cs-semantic-spacing-md)" }}>
           <Button onClick={() => setDeleteConfirmOpen(false)} color="inherit">
             Cancel
           </Button>
           <Button
             onClick={handleDelete}
-            color="error"
+            sx={{ bgcolor: "var(--cs-semantic-color-feedback-error-main)", color: "white", "&:hover": { bgcolor: "var(--cs-semantic-color-feedback-error-dark)" } }}
             variant="contained"
             autoFocus
           >

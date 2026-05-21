@@ -54,35 +54,42 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
     possessions: number,
     isAssigned: boolean,
   ) => {
-    if (isAssigned) return "rgba(33, 150, 243, 0.2)"; // Blue for currently assigned
-    if (possessions < 3) return "rgba(0,0,0,0.05)";
-    if (stopPct >= 70) return "rgba(76, 175, 80, 0.2)"; // Green
-    if (stopPct <= 40) return "rgba(244, 67, 54, 0.2)"; // Red
-    return "rgba(255, 152, 0, 0.1)"; // Orange
+    if (isAssigned) return "var(--cs-semantic-color-brand-primary-light)";
+    if (possessions < 3) return "var(--cs-semantic-color-surface-subtle)";
+    if (stopPct >= 70) return "var(--cs-semantic-color-feedback-success-light)";
+    if (stopPct <= 40) return "var(--cs-semantic-color-feedback-error-light)";
+    return "var(--cs-semantic-color-feedback-warning-light)";
   };
 
   return (
-    <Box sx={{ mt: 2 }}>
+    <Box sx={{ mt: "var(--cs-semantic-spacing-md)" }}>
       <Typography
         variant="caption"
         sx={{
-          fontWeight: 800,
+          fontWeight: "var(--cs-typography-fontWeight-bold)",
           mb: 1,
           display: "block",
           textTransform: "uppercase",
+          color: "var(--cs-semantic-color-text-secondary)",
+          letterSpacing: "var(--cs-typography-letterSpacing-wider)",
         }}
       >
         Holistic Matchup Efficiency (Stop %)
       </Typography>
-      <TableContainer component={Paper} variant="outlined">
+      <TableContainer
+        component={Paper}
+        variant="outlined"
+        sx={{ borderRadius: "var(--cs-semantic-shape-radius-md)" }}
+      >
         <Table size="small" aria-label="Matchup Efficiency Matrix">
           <TableHead>
             <TableRow>
               <TableCell
                 sx={{
-                  bgcolor: "rgba(0,0,0,0.02)",
-                  fontWeight: 800,
+                  bgcolor: "var(--cs-semantic-color-surface-subtle)",
+                  fontWeight: "var(--cs-typography-fontWeight-bold)",
                   fontSize: "0.6rem",
+                  color: "var(--cs-semantic-color-text-secondary)",
                 }}
               >
                 US \ OPP
@@ -103,9 +110,10 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
               <TableRow key={tId}>
                 <TableCell
                   sx={{
-                    fontWeight: 800,
+                    fontWeight: "var(--cs-typography-fontWeight-bold)",
                     fontSize: "0.6rem",
-                    bgcolor: "rgba(0,0,0,0.02)",
+                    bgcolor: "var(--cs-semantic-color-surface-subtle)",
+                    color: "var(--cs-semantic-color-text-secondary)",
                   }}
                 >
                   #{jerseyMap.get(tId) || "??"}
@@ -138,22 +146,32 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
                     <Tooltip
                       key={`${tId}-${oId}`}
                       title={
-                        <>
-                          {data
-                            ? `${data.stopPct}% Stop Rate over ${data.possessions} possessions.`
-                            : "No matchup data."}
+                        <Box sx={{ p: 0.5 }}>
+                          <Typography variant="caption" sx={{ display: "block", fontWeight: 700 }}>
+                            {data
+                              ? `${data.stopPct}% Stop Rate over ${data.possessions} possessions.`
+                              : "No matchup data."}
+                          </Typography>
                           {isRecommended && (
-                            <Box
-                              sx={{ mt: 0.5, color: "gold", fontWeight: 800 }}
+                            <Typography
+                              variant="caption"
+                              sx={{
+                                mt: 0.5,
+                                display: "block",
+                                color: "var(--cs-semantic-color-feedback-warning-main)",
+                                fontWeight: 800,
+                              }}
                             >
-                              ⭐ Statistically Best Personnel Counter for{" "}
-                              {frequentPlayType}
-                            </Box>
+                              ⭐ Best Personnel Counter for {frequentPlayType}
+                            </Typography>
                           )}
-                          <Box sx={{ mt: 0.5, fontStyle: "italic" }}>
+                          <Typography
+                            variant="caption"
+                            sx={{ mt: 0.5, display: "block", fontStyle: "italic", opacity: 0.8 }}
+                          >
                             Click to assign.
-                          </Box>
-                        </>
+                          </Typography>
+                        </Box>
                       }
                     >
                       <TableCell
@@ -170,10 +188,13 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
                             isAssigned,
                           ),
                           cursor: "pointer",
-                          border: isAssigned ? "2px solid #2196f3" : "none",
+                          border: isAssigned
+                            ? "2px solid var(--cs-semantic-color-brand-primary-main)"
+                            : "none",
                           position: "relative",
+                          transition: "all var(--cs-motion-duration-fast) var(--cs-motion-easing-productive)",
                           "&:hover": {
-                            bgcolor: "rgba(33, 150, 243, 0.1)",
+                            filter: "brightness(0.95)",
                           },
                         }}
                       >
@@ -184,7 +205,7 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
                               top: 1,
                               right: 1,
                               fontSize: 10,
-                              color: "gold",
+                              color: "var(--cs-semantic-color-feedback-warning-main)",
                             }}
                           />
                         )}

@@ -36,8 +36,8 @@ const getCourtStyles = (theme: Theme) => `
     opacity: 1 !important;
   }
   g[role="button"]:focus-visible circle {
-    outline: 3px solid ${theme.palette.primary.main};
-    outline-offset: 3px;
+    outline: var(--cs-semantic-focus-width) solid var(--cs-semantic-color-action-focusRing);
+    outline-offset: var(--cs-semantic-focus-offset);
     transform: scale(1.5);
     opacity: 1 !important;
   }
@@ -47,8 +47,8 @@ const getCourtStyles = (theme: Theme) => `
     cursor: pointer;
   }
   .court-svg:focus-visible {
-    outline: 2px solid ${theme.palette.primary.main} !important;
-    outline-offset: 2px;
+    outline: var(--cs-semantic-focus-width) solid var(--cs-semantic-color-action-focusRing) !important;
+    outline-offset: var(--cs-semantic-focus-offset);
   }
   @keyframes pulse {
     0% { r: 6; stroke-width: 1; }
@@ -83,7 +83,7 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
       }
     };
 
-    const charcoal = "#2D2D2D";
+    const courtLineColor = "var(--cs-semantic-color-border-strong)";
     const strokeWidth = 2;
 
     return (
@@ -93,7 +93,10 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
           width: "100%",
           aspectRatio: "50 / 47",
           position: "relative",
-          bgcolor: "#FFFDF5",
+          bgcolor: "var(--cs-semantic-color-surface-moleskine)",
+          borderRadius: "var(--cs-semantic-shape-radius-md)",
+          border: "1px solid var(--cs-semantic-color-border-subtle)",
+          overflow: "hidden",
         }}
       >
         <svg
@@ -124,7 +127,7 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
             width="500"
             height="470"
             fill="none"
-            stroke={charcoal}
+            stroke={courtLineColor}
             strokeWidth={strokeWidth}
           />
 
@@ -261,7 +264,7 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
             width="160"
             height="190"
             fill="none"
-            stroke={charcoal}
+            stroke={courtLineColor}
             strokeWidth={strokeWidth}
           />
 
@@ -269,14 +272,14 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
           <path
             d="M 170 190 A 60 60 0 0 0 330 190"
             fill="none"
-            stroke={charcoal}
+            stroke={courtLineColor}
             strokeWidth={strokeWidth}
           />
           {/* Free Throw Circle (Bottom dashed half) */}
           <path
             d="M 170 190 A 60 60 0 0 1 330 190"
             fill="none"
-            stroke={charcoal}
+            stroke={courtLineColor}
             strokeWidth={strokeWidth}
             strokeDasharray="10,10"
           />
@@ -287,7 +290,7 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
             y1="0"
             x2="30"
             y2="140"
-            stroke={charcoal}
+            stroke={courtLineColor}
             strokeWidth={strokeWidth}
           />
           <line
@@ -295,13 +298,13 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
             y1="0"
             x2="470"
             y2="140"
-            stroke={charcoal}
+            stroke={courtLineColor}
             strokeWidth={strokeWidth}
           />
           <path
             d="M 30 140 A 220 220 0 0 0 470 140"
             fill="none"
-            stroke={charcoal}
+            stroke={courtLineColor}
             strokeWidth={strokeWidth}
           />
 
@@ -309,7 +312,7 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
           <path
             d="M 210 40 A 40 40 0 0 0 290 40"
             fill="none"
-            stroke={charcoal}
+            stroke={courtLineColor}
             strokeWidth={strokeWidth}
           />
 
@@ -319,7 +322,7 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
             y1="40"
             x2="280"
             y2="40"
-            stroke={charcoal}
+            stroke={courtLineColor}
             strokeWidth={strokeWidth * 1.5}
           />
 
@@ -329,7 +332,7 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
             cy="47"
             r="7"
             fill="none"
-            stroke={charcoal}
+            stroke={courtLineColor}
             strokeWidth={strokeWidth}
           />
 
@@ -337,14 +340,20 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
           <style>{getCourtStyles(theme)}</style>
           {markers.map((marker, index) => {
             const isLatest = index === markers.length - 1;
-            let color = marker.color || "#2D2D2D";
+            let color = marker.color || courtLineColor;
             if (!marker.color) {
-              if (marker.type === "MAKE") color = "#4CAF50";
-              else if (marker.type === "MISS") color = "#F44336";
-              else if (marker.type === "REBOUND") color = "#2196F3";
-              else if (marker.type === "STEAL") color = "#FF9800";
-              else if (marker.type === "ASSIST") color = "#9C27B0";
-              else if (marker.type === "TURNOVER") color = "#795548";
+              if (marker.type === "MAKE")
+                color = "var(--cs-semantic-color-feedback-success-main)";
+              else if (marker.type === "MISS")
+                color = "var(--cs-semantic-color-feedback-error-main)";
+              else if (marker.type === "REBOUND")
+                color = "var(--cs-semantic-color-feedback-info-main)";
+              else if (marker.type === "STEAL")
+                color = "var(--cs-semantic-color-feedback-warning-main)";
+              else if (marker.type === "ASSIST")
+                color = "var(--cs-semantic-color-brand-primary-main)";
+              else if (marker.type === "TURNOVER")
+                color = "var(--cs-semantic-color-text-secondary)";
             }
 
             const svgX = (marker.x / 100) * 500;
@@ -395,8 +404,11 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
                     y={svgY - 10}
                     fontSize="12"
                     textAnchor="middle"
-                    fill={charcoal}
-                    style={{ pointerEvents: "none", fontWeight: "bold" }}
+                    fill={courtLineColor}
+                    style={{
+                      pointerEvents: "none",
+                      fontWeight: "var(--cs-typography-fontWeight-bold)",
+                    }}
                   >
                     {marker.label}
                   </text>
