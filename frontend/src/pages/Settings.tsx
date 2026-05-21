@@ -1,3 +1,14 @@
+/**
+ * Settings page — full-width shell-integrated layout.
+ *
+ * Shell integration pattern:
+ * - maxWidth: "none" to fill the AppShell workspace
+ * - All spacing driven by settingsTokens.shell, .section, .row
+ * - Mobile/desktop responsive via breakpoint tokens
+ *
+ * For constrained-width pages (modals, wizards), use shell.maxWidth.
+ * For workspace pages (settings, dashboards), use "none".
+ */
 import React, { useEffect, useMemo, useState } from "react";
 import {
   Alert,
@@ -51,11 +62,17 @@ const SectionIntro: React.FC<{
   description: string;
   section: { titleGap: number; introMarginBottom: number };
 }> = ({ title, description, section }) => {
+  const introMarginBottom = Math.max(
+    12,
+    (section?.introMarginBottom ?? 20) - 6,
+  );
+  const titleGap = Math.max(2, (section?.titleGap ?? 4) - 1);
+
   return (
-    <Box sx={{ mb: `${(section?.introMarginBottom ?? 20) / 8}rem` }}>
+    <Box sx={{ mb: `${introMarginBottom / 8}rem` }}>
       <Typography
         variant="h6"
-        sx={{ fontWeight: 600, mb: `${(section?.titleGap ?? 4) / 8}rem` }}
+        sx={{ fontWeight: 600, mb: `${titleGap / 8}rem` }}
       >
         {title}
       </Typography>
@@ -91,6 +108,9 @@ const SettingsRow: React.FC<SettingsRowProps> = ({
   row,
 }) => {
   const theme = useTheme();
+  const rowGap = Math.max(16, (row?.gap ?? 24) - 4);
+  const rowMinHeight = Math.max(64, (row?.minHeight ?? 80) - 8);
+  const rowPaddingY = Math.max(14, (row?.paddingY ?? 20) - 4);
 
   return (
     <Box
@@ -101,12 +121,12 @@ const SettingsRow: React.FC<SettingsRowProps> = ({
           md: `${row?.labelWidth ?? 260}px 1fr`,
         },
         gap: {
-          xs: 1.5,
-          md: `${row?.gap ?? 24}px`,
+          xs: 1.25,
+          md: `${rowGap}px`,
         },
         alignItems: alignTop ? "flex-start" : "center",
-        minHeight: row?.minHeight ?? 80,
-        py: `${(row?.paddingY ?? 20) / 8}rem`,
+        minHeight: rowMinHeight,
+        py: `${rowPaddingY / 8}rem`,
         ...(borderBottom && {
           borderBottom: `1px solid ${row?.dividerColor ?? theme.palette.divider}`,
         }),
@@ -125,7 +145,7 @@ const SettingsRow: React.FC<SettingsRowProps> = ({
           <Typography
             variant="caption"
             color="text.secondary"
-            sx={{ display: "block", mt: 0.5, lineHeight: 1.5 }}
+            sx={{ display: "block", mt: 0.375, lineHeight: 1.45 }}
           >
             {description}
           </Typography>
@@ -143,9 +163,9 @@ const ThemeMiniPreview: React.FC<{
   card: { previewRadius: number; checkSize: number; checkOffset: number };
 }> = ({ color, selected, card }) => {
   const theme = useTheme();
-  const previewRadius = card?.previewRadius ?? 6;
-  const checkSize = card?.checkSize ?? 18;
-  const checkOffset = card?.checkOffset ?? 10;
+  const previewRadius = Math.max(4, (card?.previewRadius ?? 6) - 1);
+  const checkSize = Math.max(16, (card?.checkSize ?? 18) - 2);
+  const checkOffset = Math.max(8, (card?.checkOffset ?? 10) - 2);
   const isDark = theme.palette.mode === "dark";
 
   return (
@@ -159,18 +179,18 @@ const ThemeMiniPreview: React.FC<{
         bgcolor: isDark ? "grey.900" : "grey.100",
       }}
     >
-      <Box sx={{ height: "24%", width: "100%", bgcolor: color }} />
+      <Box sx={{ height: "22%", width: "100%", bgcolor: color }} />
 
       <Box
         sx={{
-          px: "8px",
+          px: "7px",
           pt: "6px",
           display: "flex",
           flexDirection: "column",
-          gap: "5px",
+          gap: "4px",
         }}
       >
-        {[65, 85, 50, 75].map((w, i) => (
+        {[62, 82, 48, 70].map((w, i) => (
           <Box
             key={i}
             sx={{
@@ -182,19 +202,19 @@ const ThemeMiniPreview: React.FC<{
           />
         ))}
 
-        <Box sx={{ display: "flex", gap: "5px", mt: "3px" }}>
+        <Box sx={{ display: "flex", gap: "4px", mt: "2px" }}>
           <Box
             sx={{
-              height: 8,
-              width: "40%",
+              height: 7,
+              width: "38%",
               borderRadius: 1,
               bgcolor: alpha(color, 0.55),
             }}
           />
           <Box
             sx={{
-              height: 8,
-              width: "30%",
+              height: 7,
+              width: "28%",
               borderRadius: 1,
               bgcolor: isDark ? "grey.700" : "grey.200",
             }}
@@ -215,10 +235,10 @@ const ThemeMiniPreview: React.FC<{
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            boxShadow: "0 1px 4px rgba(0,0,0,0.2)",
+            boxShadow: "0 1px 4px rgba(0,0,0,0.16)",
           }}
         >
-          <CheckIcon sx={{ fontSize: checkSize * 0.6, color: "#fff" }} />
+          <CheckIcon sx={{ fontSize: checkSize * 0.58, color: "#fff" }} />
         </Box>
       )}
     </Box>
@@ -248,11 +268,11 @@ const PresetCard: React.FC<PresetCardProps> = ({
   card,
 }) => {
   const theme = useTheme();
-  const radius = card?.radius ?? 10;
+  const radius = Math.max(8, (card?.radius ?? 10) - 1);
   const borderWidth = card?.borderWidth ?? 1;
   const selectedBorderWidth = card?.selectedBorderWidth ?? 2;
-  const padding = card?.padding ?? 10;
-  const titleGap = card?.titleGap ?? 4;
+  const padding = Math.max(8, (card?.padding ?? 10) - 1);
+  const titleGap = Math.max(2, (card?.titleGap ?? 4) - 1);
 
   return (
     <Card
@@ -268,7 +288,7 @@ const PresetCard: React.FC<PresetCardProps> = ({
           borderColor: selected
             ? theme.palette.primary.main
             : theme.palette.primary.light,
-          boxShadow: "0 2px 10px rgba(16,24,40,0.07)",
+          boxShadow: "0 2px 8px rgba(16,24,40,0.06)",
         },
       }}
       onClick={onSelect}
@@ -280,19 +300,19 @@ const PresetCard: React.FC<PresetCardProps> = ({
           card={card}
         />
 
-        <Box sx={{ mt: `${titleGap + 6}px` }}>
+        <Box sx={{ mt: `${titleGap + 5}px` }}>
           <Typography
             variant="body2"
             color="text.primary"
             noWrap
-            sx={{ fontWeight: 600, fontSize: "0.8125rem" }}
+            sx={{ fontWeight: 600, fontSize: "0.8125rem", lineHeight: 1.2 }}
           >
             {preset.label}
           </Typography>
           <Typography
             variant="caption"
             color="text.secondary"
-            sx={{ textTransform: "capitalize" }}
+            sx={{ textTransform: "capitalize", lineHeight: 1.2 }}
           >
             {preset.mode}
           </Typography>
@@ -321,7 +341,6 @@ const Settings: React.FC = () => {
   const [isSyncing, setIsSyncing] = useState(false);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [dbStats, setDbStats] = useState<Record<string, number>>({});
-  const [language, setLanguage] = useState("English (UK)");
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;
@@ -414,10 +433,6 @@ const Settings: React.FC = () => {
       .then(() => showSnackbar("Logs copied."));
   };
 
-  const handleLanguageChange = (e: SelectChangeEvent) => {
-    setLanguage(e.target.value);
-  };
-
   const renderAccountTab = () => (
     <Box>
       <SectionIntro
@@ -448,7 +463,7 @@ const Settings: React.FC = () => {
           size="small"
           startIcon={<LogoutIcon />}
           onClick={logout}
-          sx={{ minHeight: 36 }}
+          sx={{ minHeight: 34 }}
         >
           Log out
         </Button>
@@ -457,7 +472,10 @@ const Settings: React.FC = () => {
   );
 
   const renderAppearanceTab = () => {
-    const selectWidth = settingsTokens?.control?.selectWidth ?? 260;
+    const selectWidth = Math.max(
+      220,
+      (settingsTokens?.control?.selectWidth ?? 260) - 12,
+    );
 
     return (
       <Box>
@@ -474,7 +492,7 @@ const Settings: React.FC = () => {
         >
           <Select
             value={presetId}
-            onChange={(e) => setPresetId(e.target.value)}
+            onChange={(e: SelectChangeEvent) => setPresetId(e.target.value)}
             size="small"
             renderValue={(value) => {
               const preset = availablePresets.find((p) => p.id === value);
@@ -485,8 +503,8 @@ const Settings: React.FC = () => {
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                   <Box
                     sx={{
-                      width: 10,
-                      height: 10,
+                      width: 9,
+                      height: 9,
                       borderRadius: "50%",
                       bgcolor: preset.previewColor,
                       flexShrink: 0,
@@ -503,8 +521,8 @@ const Settings: React.FC = () => {
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                   <Box
                     sx={{
-                      width: 10,
-                      height: 10,
+                      width: 9,
+                      height: 9,
                       borderRadius: "50%",
                       bgcolor: p.previewColor,
                       flexShrink: 0,
@@ -522,16 +540,18 @@ const Settings: React.FC = () => {
           label="Theme presets"
           description="Choose how the app should appear across the interface."
           alignTop
+          borderBottom={false}
         >
           <Box
             sx={{
               display: "grid",
               gridTemplateColumns: {
                 xs: "1fr",
-                sm: "repeat(2, minmax(0, 1fr))",
-                lg: "repeat(3, minmax(0, 1fr))",
+                sm: "repeat(2, minmax(0, 180px))",
+                lg: "repeat(3, minmax(0, 180px))",
               },
-              gap: 1.5,
+              gap: 1.25,
+              alignItems: "start",
             }}
           >
             {availablePresets.map((preset) => (
@@ -544,25 +564,6 @@ const Settings: React.FC = () => {
               />
             ))}
           </Box>
-        </SettingsRow>
-
-        <SettingsRow
-          row={row}
-          label="Language"
-          description="Choose your preferred display language."
-          borderBottom={false}
-        >
-          <Select
-            value={language}
-            onChange={handleLanguageChange}
-            size="small"
-            sx={{ width: selectWidth, maxWidth: "100%" }}
-          >
-            <MenuItem value="English (UK)">🇬🇧 English (UK)</MenuItem>
-            <MenuItem value="English (US)">🇺🇸 English (US)</MenuItem>
-            <MenuItem value="French">🇫🇷 French</MenuItem>
-            <MenuItem value="German">🇩🇪 German</MenuItem>
-          </Select>
         </SettingsRow>
       </Box>
     );
@@ -583,7 +584,7 @@ const Settings: React.FC = () => {
       >
         <Stack
           direction="row"
-          spacing={1.5}
+          spacing={1.25}
           sx={{ alignItems: "center", flexWrap: "wrap" }}
         >
           <Chip
@@ -598,7 +599,7 @@ const Settings: React.FC = () => {
             startIcon={<SyncIcon />}
             disabled={isSyncing || !isOnline}
             onClick={handleSync}
-            sx={{ minHeight: 36 }}
+            sx={{ minHeight: 34 }}
           >
             {isSyncing ? "Syncing…" : "Sync now"}
           </Button>
@@ -613,7 +614,7 @@ const Settings: React.FC = () => {
         } tables.`}
         alignTop
       >
-        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.75 }}>
           {Object.entries(dbStats).map(([table, count]) => (
             <Chip
               key={table}
@@ -632,7 +633,7 @@ const Settings: React.FC = () => {
         alignTop
         borderBottom={false}
       >
-        <Stack spacing={1.5}>
+        <Stack spacing={1.25}>
           <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap" }}>
             <Button
               variant="outlined"
@@ -640,7 +641,7 @@ const Settings: React.FC = () => {
               startIcon={<CopyIcon />}
               disabled={logs.length === 0}
               onClick={handleCopyLogs}
-              sx={{ minHeight: 36 }}
+              sx={{ minHeight: 34 }}
             >
               Copy
             </Button>
@@ -651,7 +652,7 @@ const Settings: React.FC = () => {
               startIcon={<ClearIcon />}
               disabled={logs.length === 0}
               onClick={handleClearLogs}
-              sx={{ minHeight: 36 }}
+              sx={{ minHeight: 34 }}
             >
               Clear
             </Button>
@@ -665,7 +666,7 @@ const Settings: React.FC = () => {
               borderRadius: 1,
               border: "1px solid",
               borderColor: "divider",
-              p: 1.5,
+              p: 1.25,
             }}
           >
             {logs.length === 0 ? (
@@ -726,16 +727,16 @@ const Settings: React.FC = () => {
         sx={{
           px: {
             xs: 2.5,
-            md: `${(shell?.headerPaddingX ?? 28) / 8}rem`,
+            md: `${Math.max(20, (shell?.headerPaddingX ?? 28) - 4) / 8}rem`,
           },
           pt: {
-            xs: 2,
-            md: `${((shell?.headerPaddingTop ?? 24) - 8) / 8}rem`,
+            xs: 1.75,
+            md: `${Math.max(12, (shell?.headerPaddingTop ?? 24) - 10) / 8}rem`,
           },
           pb: 0,
         }}
       >
-        <Typography variant="h5" sx={{ fontWeight: 600, mb: 2 }}>
+        <Typography variant="h5" sx={{ fontWeight: 600, mb: 1.5 }}>
           Settings
         </Typography>
 
@@ -746,12 +747,13 @@ const Settings: React.FC = () => {
           variant="scrollable"
           scrollButtons="auto"
           sx={{
+            minHeight: Math.max(36, (tabs?.height ?? 40) - 2),
             "& .MuiTab-root": {
               textTransform: "none",
               fontSize: "0.875rem",
               fontWeight: 500,
-              minHeight: tabs?.height ?? 40,
-              px: `${(tabs?.paddingX ?? 12) / 8}rem`,
+              minHeight: Math.max(36, (tabs?.height ?? 40) - 2),
+              px: `${Math.max(8, (tabs?.paddingX ?? 12) - 2) / 8}rem`,
             },
           }}
         >
@@ -767,12 +769,12 @@ const Settings: React.FC = () => {
         sx={{
           px: {
             xs: 2.5,
-            md: `${(shell?.contentPaddingX ?? 28) / 8}rem`,
+            md: `${Math.max(20, (shell?.contentPaddingX ?? 28) - 4) / 8}rem`,
           },
-          pt: 2,
+          pt: 1.5,
           pb: {
-            xs: 3,
-            md: `${(shell?.contentPaddingBottom ?? 28) / 8}rem`,
+            xs: 2.5,
+            md: `${Math.max(20, (shell?.contentPaddingBottom ?? 28) - 4) / 8}rem`,
           },
         }}
       >
