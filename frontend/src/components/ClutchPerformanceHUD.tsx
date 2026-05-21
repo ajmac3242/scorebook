@@ -124,8 +124,7 @@ export const ClutchPerformanceHUD: React.FC<ClutchPerformanceHUDProps> = ({
                             width: 20,
                             height: 20,
                             fontSize: "0.6rem",
-                            bgcolor:
-                              "var(--cs-semantic-color-brand-primary-main)",
+                            bgcolor: "var(--cs-semantic-color-brand-primary-main)",
                           }}
                         >
                           {jerseyMap.get(p.id.toString()) || "?"}
@@ -140,10 +139,7 @@ export const ClutchPerformanceHUD: React.FC<ClutchPerformanceHUDProps> = ({
                         variant="caption"
                         sx={{
                           fontWeight: 900,
-                          color:
-                            p.points > 0
-                              ? "var(--cs-semantic-color-feedback-success-main)"
-                              : "inherit",
+                          color: p.points > 0 ? "var(--cs-semantic-color-feedback-success-main)" : "inherit",
                         }}
                       >
                         {p.points}
@@ -176,13 +172,10 @@ export const ClutchPerformanceHUD: React.FC<ClutchPerformanceHUDProps> = ({
                             flex: 1,
                             height: 4,
                             borderRadius: 2,
-                            bgcolor:
-                              "var(--cs-semantic-color-action-disabledBackground)",
+                            bgcolor: "var(--cs-semantic-color-action-disabledBackground)",
                             "& .MuiLinearProgress-bar": {
                               bgcolor:
-                                usage > 30
-                                  ? "var(--cs-semantic-color-feedback-error-main)"
-                                  : "var(--cs-semantic-color-brand-primary-main)",
+                                usage > 30 ? "var(--cs-semantic-color-feedback-error-main)" : "var(--cs-semantic-color-brand-primary-main)",
                             },
                           }}
                         />

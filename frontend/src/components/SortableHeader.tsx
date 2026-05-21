@@ -31,8 +31,7 @@ const SortableHeader: React.FC<SortableHeaderProps> = ({
         cursor: "pointer",
         fontWeight: "var(--cs-typography-fontWeight-bold)",
         color: "var(--cs-semantic-color-text-secondary)",
-        transition:
-          "all var(--cs-motion-duration-fast) var(--cs-motion-easing-productive)",
+        transition: "all var(--cs-motion-duration-fast) var(--cs-motion-easing-productive)",
         "&:hover": {
           color: "var(--cs-semantic-color-brand-primary-main)",
           bgcolor: "var(--cs-semantic-color-action-hover)",

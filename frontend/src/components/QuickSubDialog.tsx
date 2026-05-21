@@ -94,11 +94,7 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
           To substitute: Tap an on-court player and then a bench player to swap
           their positions.
         </Typography>
-        <Grid
-          container
-          spacing={2}
-          sx={{ mt: "var(--cs-semantic-spacing-sm)" }}
-        >
+        <Grid container spacing={2} sx={{ mt: "var(--cs-semantic-spacing-sm)" }}>
           <Grid size={{ xs: 6 }}>
             <Typography variant="subtitle2" gutterBottom align="center">
               ON COURT
@@ -133,8 +129,7 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                             : "var(--cs-semantic-color-border-subtle)",
                         borderWidth: selectedSwapId === p.id ? 2 : 1,
                         "&:focus-visible": {
-                          outline:
-                            "var(--cs-semantic-focus-width) solid var(--cs-semantic-color-action-focusRing)",
+                          outline: "var(--cs-semantic-focus-width) solid var(--cs-semantic-color-action-focusRing)",
                           outlineOffset: "var(--cs-semantic-focus-offset)",
                         },
                         color: isFouledOut
@@ -191,8 +186,7 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                           ? "var(--cs-semantic-color-action-hover)"
                           : "transparent",
                       "&:focus-visible": {
-                        outline:
-                          "var(--cs-semantic-focus-width) solid var(--cs-semantic-color-action-focusRing)",
+                        outline: "var(--cs-semantic-focus-width) solid var(--cs-semantic-color-action-focusRing)",
                         outlineOffset: "var(--cs-semantic-focus-offset)",
                       },
                     }}
@@ -250,8 +244,7 @@ const QuickSubDialog: React.FC<QuickSubDialogProps> = ({
                             : "var(--cs-semantic-color-border-subtle)",
                         borderWidth: selectedSwapId === p.id ? 2 : 1,
                         "&:focus-visible": {
-                          outline:
-                            "var(--cs-semantic-focus-width) solid var(--cs-semantic-color-action-focusRing)",
+                          outline: "var(--cs-semantic-focus-width) solid var(--cs-semantic-color-action-focusRing)",
                           outlineOffset: "var(--cs-semantic-focus-offset)",
                         },
                         color: isFouledOut

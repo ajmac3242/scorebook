@@ -145,8 +145,7 @@ export const TeamStatsCard = React.memo(
                   defensiveStats.currentStreak >= 2
                     ? "1px solid var(--cs-semantic-color-feedback-error-main)"
                     : "1px solid var(--cs-semantic-color-border-subtle)",
-                transition:
-                  "all var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
+                transition: "all var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
               }}
             >
               <Stack
@@ -320,8 +319,7 @@ export const TeamStatsCard = React.memo(
                     i <= defensiveStats.currentStreak
                       ? "drop-shadow(0 0 4px var(--cs-semantic-color-feedback-warning-main))"
                       : "none",
-                  transition:
-                    "all var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
+                  transition: "all var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
                 }}
               />
             ))}

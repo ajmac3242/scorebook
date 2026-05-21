@@ -109,8 +109,7 @@ export const Scoreboard = React.memo(
     return (
       <Box
         sx={{
-          background:
-            "var(--cs-semantic-color-component-scoreboard-background)",
+          background: "var(--cs-semantic-color-component-scoreboard-background)",
           borderRadius: "var(--cs-semantic-shape-radius-xl)",
           p: "var(--cs-semantic-spacing-lg)",
           mb: "var(--cs-semantic-spacing-lg)",
@@ -210,10 +209,7 @@ export const Scoreboard = React.memo(
                       : alert.severity === "warning"
                         ? "var(--cs-semantic-color-feedback-warning-main)"
                         : "var(--cs-semantic-color-feedback-info-main)",
-                  color:
-                    alert.severity === "warning"
-                      ? "var(--cs-semantic-color-text-primary)"
-                      : "var(--cs-semantic-color-text-inverse)",
+                  color: alert.severity === "warning" ? "var(--cs-semantic-color-text-primary)" : "var(--cs-semantic-color-text-inverse)",
                   px: 3,
                   py: 1,
                   borderRadius: 2,
@@ -490,7 +486,7 @@ export const Scoreboard = React.memo(
                     position: "absolute",
                     width: "30%",
                     height: "100%",
-                    background: `linear-gradient(90deg, transparent, var(--cs-semantic-color-brand-primary-main), transparent)`,
+                      background: `linear-gradient(90deg, transparent, var(--cs-semantic-color-brand-primary-main), transparent)`,
                     animation: `${slideBackAndForth} 1.5s infinite ease-in-out`,
                   }}
                 />

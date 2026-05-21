@@ -53,8 +53,7 @@ const AppTopBar: React.FC<AppTopBarProps> = ({
               borderColor: "var(--cs-semantic-color-border-default)",
               color: "var(--cs-semantic-color-text-primary)",
               cursor: "pointer",
-              transition:
-                "all var(--cs-motion-duration-fast) var(--cs-motion-easing-productive)",
+              transition: "all var(--cs-motion-duration-fast) var(--cs-motion-easing-productive)",
               "&:hover": { bgcolor: "var(--cs-semantic-color-action-hover)" },
             }}
           />
@@ -74,8 +73,7 @@ const AppTopBar: React.FC<AppTopBarProps> = ({
             px: 1.5,
             gap: 0.5,
             color: "var(--cs-semantic-color-text-secondary)",
-            transition:
-              "all var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
+            transition: "all var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
             "&:hover": {
               bgcolor: "var(--cs-semantic-color-action-hover)",
               borderColor: "var(--cs-semantic-color-border-default)",
@@ -103,8 +101,7 @@ const AppTopBar: React.FC<AppTopBarProps> = ({
             aria-label="Notifications"
             sx={{
               color: "var(--cs-semantic-color-text-secondary)",
-              transition:
-                "all var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
+              transition: "all var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
               "&:hover": { color: "var(--cs-semantic-color-text-primary)" },
             }}
           >
@@ -118,8 +115,7 @@ const AppTopBar: React.FC<AppTopBarProps> = ({
               fontSize: "var(--cs-typography-fontSize-xs)",
               fontWeight: 700,
               cursor: "pointer",
-              transition:
-                "transform var(--cs-motion-duration-fast) var(--cs-motion-easing-productive)",
+              transition: "transform var(--cs-motion-duration-fast) var(--cs-motion-easing-productive)",
               "&:hover": { transform: "scale(1.05)" },
             }}
           >

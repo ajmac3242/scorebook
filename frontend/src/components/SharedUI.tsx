@@ -30,6 +30,7 @@ export const MoleskineCard: React.FC<PaperProps> = ({
   ...props
 }) => (
   <Paper
+    className="moleskine-card"
     sx={{
       p: "var(--cs-semantic-spacing-sectionCardPadding)",
       bgcolor: "var(--cs-semantic-color-surface-moleskine)",
