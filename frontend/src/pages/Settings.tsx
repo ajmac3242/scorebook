@@ -1,3 +1,14 @@
+/**
+ * Settings page — full-width shell-integrated layout.
+ *
+ * Shell integration pattern:
+ * - maxWidth: "none" to fill the AppShell workspace
+ * - All spacing driven by settingsTokens.shell, .section, .row
+ * - Mobile/desktop responsive via breakpoint tokens
+ *
+ * For constrained-width pages (modals, wizards), use shell.maxWidth.
+ * For workspace pages (settings, dashboards), use "none".
+ */
 import React, { useEffect, useMemo, useState } from "react";
 import {
   Alert,
