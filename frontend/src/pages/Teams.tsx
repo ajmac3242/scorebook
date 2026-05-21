@@ -2,6 +2,7 @@ import React, { useMemo, useState } from "react";
 import {
   Alert,
   Avatar,
+  alpha,
   Box,
   Button,
   Chip,
@@ -16,7 +17,6 @@ import {
   InputAdornment,
   InputLabel,
   MenuItem,
-  Paper,
   Select,
   Snackbar,
   Stack,
@@ -40,6 +40,12 @@ import { useTeams } from "../hooks/useTeams";
 import { logger } from "../utils/logger";
 import { calculateTeamAggregates, getInitials } from "../utils/stats";
 import { syncService } from "../utils/syncService";
+import { useTokens } from "../theme/useTokens";
+import {
+  TokenPageShell,
+  TokenSectionCard,
+  TokenPageTitle,
+} from "../components/layout/TokenLayout";
 
 type TeamAggregateSummary = {
   record: string;
@@ -54,24 +60,14 @@ const DEFAULT_TEAM_ACCENT = "#154C56";
 const isValidHex = (value?: string) =>
   !!value && /^#([0-9A-F]{6})$/i.test(value.trim());
 
-const hexToRgb = (hex: string) => {
-  const normalized = hex.replace("#", "");
-  return {
-    r: parseInt(normalized.slice(0, 2), 16),
-    g: parseInt(normalized.slice(2, 4), 16),
-    b: parseInt(normalized.slice(4, 6), 16),
-  };
-};
-
 const buildTeamAccent = (teamColor?: string) => {
   const safe = isValidHex(teamColor) ? teamColor!.trim() : DEFAULT_TEAM_ACCENT;
-  const { r, g, b } = hexToRgb(safe);
   return {
     solid: safe,
-    softBg: `rgba(${r}, ${g}, ${b}, 0.12)`,
-    softerBg: `rgba(${r}, ${g}, ${b}, 0.08)`,
-    border: `rgba(${r}, ${g}, ${b}, 0.24)`,
-    ring: `rgba(${r}, ${g}, ${b}, 0.18)`,
+    softBg: alpha(safe, 0.12),
+    softerBg: alpha(safe, 0.08),
+    border: alpha(safe, 0.24),
+    ring: alpha(safe, 0.18),
   };
 };
 
@@ -79,24 +75,24 @@ const StatCell: React.FC<{ label: string; value: string }> = ({
   label,
   value,
 }) => {
-  const theme = useTheme();
   return (
     <Box sx={{ minWidth: 0 }}>
       <Typography
+        variant="caption"
         sx={{
-          fontSize: theme.typography.caption.fontSize,
           fontWeight: 700,
           letterSpacing: "0.05em",
           textTransform: "uppercase",
           color: "text.secondary",
           mb: 0.5,
+          display: "block",
         }}
       >
         {label}
       </Typography>
       <Typography
+        variant="h5"
         sx={{
-          fontSize: theme.typography.h5.fontSize,
           lineHeight: 1,
           fontWeight: 700,
           color: "text.primary",
@@ -110,7 +106,11 @@ const StatCell: React.FC<{ label: string; value: string }> = ({
 
 const Teams: React.FC = () => {
   const theme = useTheme();
+  const tokens = useTokens();
   const navigate = useNavigate();
+
+  const controlRadius = tokens.semantic.component.radius.button;
+  const pageShell = tokens.semantic.component.pageShell;
   const [open, setOpen] = useState(false);
   const [teamName, setTeamName] = useState("");
   const [description, setDescription] = useState("");
@@ -309,20 +309,10 @@ const Teams: React.FC = () => {
     ? "Try a different search, clear the filter, or create a new team."
     : "Create your first team to start tracking performance, rosters, and game results.";
 
-  const cardRadius = theme.shape.borderRadius;
   const transitionAll = `transform ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}, box-shadow ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}, border-color ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}`;
 
   return (
-    <Box
-      sx={{
-        width: "100%",
-        flex: 1,
-        minHeight: 0,
-        display: "flex",
-        flexDirection: "column",
-        bgcolor: "transparent",
-      }}
-    >
+    <TokenPageShell id="main-content" sx={{ pb: 8 }}>
       <Snackbar
         open={snackbar.open}
         autoHideDuration={4000}
@@ -339,53 +329,35 @@ const Teams: React.FC = () => {
         </Alert>
       </Snackbar>
 
-      <Paper
-        elevation={0}
+      <TokenSectionCard
         sx={{
-          width: "100%",
-          flex: 1,
-          minHeight: 0,
-          display: "flex",
-          flexDirection: "column",
-          borderRadius: cardRadius,
-          border: `1px solid ${theme.palette.divider}`,
+          borderRadius: `${pageShell.radius}px`,
+          border: pageShell.border,
+          boxShadow: pageShell.shadow,
+          bgcolor: pageShell.background,
           overflow: "hidden",
-          bgcolor: "background.default",
-          boxShadow: "none",
+          p: 0,
         }}
       >
         {/* Header */}
         <Box
           sx={{
-            px: { xs: theme.spacing(2), sm: theme.spacing(3) },
-            pt: { xs: theme.spacing(2), sm: theme.spacing(2.5) },
-            pb: theme.spacing(2),
+            px: { xs: 2, sm: 3 },
+            py: { xs: 2, sm: 2.5 },
             display: "flex",
             alignItems: { xs: "flex-start", md: "center" },
             justifyContent: "space-between",
-            gap: theme.spacing(2),
+            gap: 2,
             flexWrap: "wrap",
             flexShrink: 0,
+            borderBottom: "1px solid",
+            borderColor: "divider",
+            bgcolor: "background.paper",
           }}
         >
           <Box>
-            <Typography
-              sx={{
-                fontSize: theme.typography.h6.fontSize,
-                fontWeight: 600,
-                color: "text.primary",
-                mb: 0.5,
-              }}
-            >
-              Teams
-            </Typography>
-            <Typography
-              sx={{
-                fontSize: theme.typography.body2.fontSize,
-                color: "text.secondary",
-                lineHeight: 1.5,
-              }}
-            >
+            <TokenPageTitle sx={{ mb: 0.5 }}>Teams</TokenPageTitle>
+            <Typography variant="body2" color="text.secondary">
               Manage your basketball teams, review performance at a glance, and
               open team dashboards.
             </Typography>
@@ -395,12 +367,11 @@ const Teams: React.FC = () => {
             startIcon={<AddIcon />}
             onClick={() => setOpen(true)}
             sx={{
-              borderRadius: `${theme.shape.borderRadius}px`,
+              borderRadius: controlRadius,
               textTransform: "none",
               fontWeight: 600,
               boxShadow: "none",
               flexShrink: 0,
-              minHeight: 44,
             }}
           >
             Add team
@@ -410,9 +381,11 @@ const Teams: React.FC = () => {
         {/* Search + filter bar */}
         <Box
           sx={{
-            px: { xs: theme.spacing(2), sm: theme.spacing(3) },
-            pb: theme.spacing(2.5),
-            borderBottom: `1px solid ${theme.palette.divider}`,
+            px: { xs: 2, sm: 3 },
+            py: 2,
+            borderBottom: "1px solid",
+            borderColor: "divider",
+            bgcolor: "background.default",
             flexShrink: 0,
           }}
         >
@@ -432,7 +405,7 @@ const Teams: React.FC = () => {
               sx={{
                 width: { xs: "100%", md: 320 },
                 "& .MuiOutlinedInput-root": {
-                  borderRadius: `${theme.shape.borderRadius}px`,
+                  borderRadius: controlRadius,
                   bgcolor: "background.paper",
                 },
               }}
@@ -459,12 +432,11 @@ const Teams: React.FC = () => {
                 size="small"
                 variant="outlined"
                 sx={{
-                  borderRadius: theme.shape.borderRadius,
+                  borderRadius: controlRadius,
                   bgcolor: "background.paper",
                   borderColor: "divider",
                   color: "text.secondary",
                   fontWeight: 500,
-                  fontSize: theme.typography.caption.fontSize,
                 }}
               />
               <Chip
@@ -472,12 +444,11 @@ const Teams: React.FC = () => {
                 size="small"
                 variant="outlined"
                 sx={{
-                  borderRadius: theme.shape.borderRadius,
+                  borderRadius: controlRadius,
                   bgcolor: "background.paper",
                   borderColor: "divider",
                   color: "text.secondary",
                   fontWeight: 500,
-                  fontSize: theme.typography.caption.fontSize,
                 }}
               />
             </Stack>
@@ -487,8 +458,8 @@ const Teams: React.FC = () => {
         {/* Content */}
         <Box
           sx={{
-            px: { xs: theme.spacing(2), sm: theme.spacing(3) },
-            py: { xs: theme.spacing(2), sm: theme.spacing(3) },
+            px: { xs: 2, sm: 3 },
+            py: { xs: 2, sm: 3 },
             flex: 1,
             minHeight: 0,
             overflowY: "auto",
@@ -499,15 +470,16 @@ const Teams: React.FC = () => {
             <Box
               sx={{
                 minHeight: 300,
-                borderRadius: cardRadius,
-                border: `1px dashed ${theme.palette.divider}`,
+                borderRadius: `${tokens.semantic.component.sectionCard.radius}px`,
+                border: "1px dashed",
+                borderColor: "divider",
                 bgcolor: "background.paper",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 textAlign: "center",
-                px: theme.spacing(3),
-                py: theme.spacing(6),
+                px: 3,
+                py: 6,
               }}
             >
               <Box>
@@ -517,7 +489,7 @@ const Teams: React.FC = () => {
                     height: 64,
                     borderRadius: "50%",
                     mx: "auto",
-                    mb: theme.spacing(2),
+                    mb: 2,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -528,23 +500,23 @@ const Teams: React.FC = () => {
                   <TeamsIcon sx={{ fontSize: 30 }} />
                 </Box>
                 <Typography
+                  variant="body1"
                   sx={{
-                    fontSize: theme.typography.body1.fontSize,
                     fontWeight: 600,
                     color: "text.primary",
-                    mb: theme.spacing(1),
+                    mb: 1,
                   }}
                 >
                   {emptyStateTitle}
                 </Typography>
                 <Typography
+                  variant="body2"
                   sx={{
-                    fontSize: theme.typography.body2.fontSize,
                     color: "text.secondary",
                     lineHeight: 1.6,
                     maxWidth: 480,
                     mx: "auto",
-                    mb: theme.spacing(2.5),
+                    mb: 2.5,
                   }}
                 >
                   {emptyStateDescription}
@@ -554,10 +526,9 @@ const Teams: React.FC = () => {
                     variant="outlined"
                     onClick={() => setSearchTerm("")}
                     sx={{
-                      borderRadius: `${theme.shape.borderRadius}px`,
+                      borderRadius: controlRadius,
                       textTransform: "none",
                       fontWeight: 600,
-                      minHeight: 44,
                     }}
                   >
                     Clear search
@@ -568,11 +539,10 @@ const Teams: React.FC = () => {
                     startIcon={<AddIcon />}
                     onClick={() => setOpen(true)}
                     sx={{
-                      borderRadius: `${theme.shape.borderRadius}px`,
+                      borderRadius: controlRadius,
                       textTransform: "none",
                       fontWeight: 600,
                       boxShadow: "none",
-                      minHeight: 44,
                     }}
                   >
                     Create first team
@@ -592,12 +562,14 @@ const Teams: React.FC = () => {
                   oppg: "0.0",
                 };
                 const accent = buildTeamAccent(team.primaryColor);
+                const sectionCard = tokens.semantic.component.sectionCard;
+                const inputRadius = tokens.semantic.component.radius.input;
+
                 return (
                   <Grid size={{ xs: 12, md: 6, xl: 4 }} key={team.id}>
-                    <Paper
+                    <Box
                       role="button"
                       tabIndex={0}
-                      elevation={0}
                       aria-label={`View team dashboard for ${team.name}`}
                       onClick={() => navigate(`/teams/${team.id}`)}
                       onKeyDown={(e) => {
@@ -611,8 +583,11 @@ const Teams: React.FC = () => {
                         height: "100%",
                         display: "flex",
                         flexDirection: "column",
-                        borderRadius: cardRadius,
-                        border: `1px solid ${team.isFavorite ? accent.border : theme.palette.divider}`,
+                        borderRadius: `${sectionCard.radius}px`,
+                        border: "1px solid",
+                        borderColor: team.isFavorite
+                          ? accent.border
+                          : "divider",
                         bgcolor: "background.paper",
                         overflow: "hidden",
                         cursor: "pointer",
@@ -636,7 +611,7 @@ const Teams: React.FC = () => {
 
                       <Box
                         sx={{
-                          p: theme.spacing(2.25),
+                          p: 2.25,
                           display: "flex",
                           flexDirection: "column",
                           flex: 1,
@@ -647,9 +622,9 @@ const Teams: React.FC = () => {
                           sx={{
                             display: "flex",
                             justifyContent: "space-between",
-                            gap: theme.spacing(2),
+                            gap: 2,
                             alignItems: "flex-start",
-                            mb: theme.spacing(2),
+                            mb: 2,
                           }}
                         >
                           <Box sx={{ minWidth: 0, flex: 1 }}>
@@ -659,8 +634,8 @@ const Teams: React.FC = () => {
                               sx={{ alignItems: "center", mb: 0.75 }}
                             >
                               <Typography
+                                variant="h6"
                                 sx={{
-                                  fontSize: theme.typography.h6.fontSize,
                                   fontWeight: 700,
                                   color: "text.primary",
                                   minWidth: 0,
@@ -693,9 +668,6 @@ const Teams: React.FC = () => {
                                       ? accent.solid
                                       : "text.secondary",
                                     flexShrink: 0,
-                                    minWidth: 44,
-                                    minHeight: 44,
-                                    "&:hover": { bgcolor: "action.hover" },
                                   }}
                                   aria-label={
                                     team.isFavorite
@@ -713,11 +685,11 @@ const Teams: React.FC = () => {
                             </Stack>
 
                             <Typography
+                              variant="body2"
                               sx={{
-                                fontSize: theme.typography.body2.fontSize,
                                 color: "text.secondary",
                                 lineHeight: 1.5,
-                                mb: theme.spacing(1.5),
+                                mb: 1.5,
                                 minHeight: 42,
                               }}
                             >
@@ -733,12 +705,11 @@ const Teams: React.FC = () => {
                                   : "Quarters"
                               }
                               sx={{
-                                borderRadius: theme.shape.borderRadius,
+                                borderRadius: inputRadius,
                                 bgcolor: accent.softerBg,
                                 color: "text.primary",
                                 border: `1px solid ${accent.border}`,
                                 fontWeight: 600,
-                                fontSize: theme.typography.caption.fontSize,
                               }}
                             />
                           </Box>
@@ -754,7 +725,7 @@ const Teams: React.FC = () => {
                                 border: `1px solid ${accent.border}`,
                                 p: 0.5,
                                 color: "text.primary",
-                                borderRadius: `${theme.shape.borderRadius}px`,
+                                borderRadius: `${tokens.semantic.shape.radius.md}px`,
                               }}
                             />
                           ) : (
@@ -766,9 +737,8 @@ const Teams: React.FC = () => {
                                 bgcolor: accent.softBg,
                                 color: accent.solid,
                                 border: `1px solid ${accent.border}`,
-                                fontSize: theme.typography.h6.fontSize,
                                 fontWeight: 700,
-                                borderRadius: `${theme.shape.borderRadius}px`,
+                                borderRadius: `${tokens.semantic.shape.radius.md}px`,
                               }}
                             >
                               {getInitials(team.name)}
@@ -779,17 +749,18 @@ const Teams: React.FC = () => {
                         {/* Win-loss record */}
                         <Box
                           sx={{
-                            borderRadius: cardRadius,
-                            px: theme.spacing(2),
-                            py: theme.spacing(1.75),
-                            mb: theme.spacing(2),
+                            borderRadius: `${sectionCard.radius}px`,
+                            px: 2,
+                            py: 1.75,
+                            mb: 2,
                             bgcolor: "action.hover",
-                            border: `1px solid ${theme.palette.divider}`,
+                            border: "1px solid",
+                            borderColor: "divider",
                           }}
                         >
                           <Typography
+                            variant="h4"
                             sx={{
-                              fontSize: theme.typography.h4.fontSize,
                               lineHeight: 1,
                               fontWeight: 800,
                               color: "text.primary",
@@ -799,8 +770,8 @@ const Teams: React.FC = () => {
                             {aggregates.record}
                           </Typography>
                           <Typography
+                            variant="caption"
                             sx={{
-                              fontSize: theme.typography.caption.fontSize,
                               fontWeight: 700,
                               letterSpacing: "0.04em",
                               textTransform: "uppercase",
@@ -815,8 +786,9 @@ const Teams: React.FC = () => {
                         <Box
                           sx={{
                             mt: "auto",
-                            pt: theme.spacing(2),
-                            borderTop: `1px solid ${theme.palette.divider}`,
+                            pt: 2,
+                            borderTop: "1px solid",
+                            borderColor: "divider",
                           }}
                         >
                           <Grid container spacing={1.5}>
@@ -839,13 +811,13 @@ const Teams: React.FC = () => {
                             spacing={0.75}
                             sx={{
                               alignItems: "center",
-                              mt: theme.spacing(2),
+                              mt: 2,
                               color: accent.solid,
                             }}
                           >
                             <Typography
+                              variant="body2"
                               sx={{
-                                fontSize: theme.typography.body2.fontSize,
                                 fontWeight: 600,
                               }}
                             >
@@ -855,14 +827,14 @@ const Teams: React.FC = () => {
                           </Stack>
                         </Box>
                       </Box>
-                    </Paper>
+                    </Box>
                   </Grid>
                 );
               })}
             </Grid>
           )}
         </Box>
-      </Paper>
+      </TokenSectionCard>
 
       {/* Add team dialog */}
       <Dialog
@@ -870,12 +842,9 @@ const Teams: React.FC = () => {
         onClose={closeDialog}
         fullWidth
         maxWidth="sm"
-        slotProps={{
-          paper: {
-            sx: {
-              borderRadius: cardRadius,
-              bgcolor: "background.paper",
-            },
+        sx={{
+          "& .MuiDialog-paper": {
+            borderRadius: `${tokens.semantic.component.radius.dialog}px`,
           },
         }}
       >
@@ -976,7 +945,7 @@ const Teams: React.FC = () => {
         <DialogActions sx={{ px: 3, pb: 3, pt: 1 }}>
           <Button
             onClick={closeDialog}
-            sx={{ textTransform: "none", fontWeight: 600, minHeight: 44 }}
+            sx={{ textTransform: "none", fontWeight: 600 }}
           >
             Cancel
           </Button>
@@ -985,18 +954,17 @@ const Teams: React.FC = () => {
             onClick={handleAddTeam}
             disabled={isSubmitting}
             sx={{
-              borderRadius: `${theme.shape.borderRadius}px`,
+              borderRadius: controlRadius,
               textTransform: "none",
               fontWeight: 600,
               boxShadow: "none",
-              minHeight: 44,
             }}
           >
             {isSubmitting ? "Adding..." : "Add team"}
           </Button>
         </DialogActions>
       </Dialog>
-    </Box>
+    </TokenPageShell>
   );
 };
 
