@@ -81,36 +81,36 @@ export const tokens = {
         },
       },
       background: {
-        default: palettes.warmGray[100],
-        subtle: palettes.neutral[200],
-        paper: palettes.neutral[50],
+        default: "#EEF1F4",
+        subtle: "#E7EBF0",
+        paper: "#FAFBFC",
         elevated: "#FFFFFF",
-        inset: palettes.warmGray[200],
+        inset: "#E3E8EE",
         overlay: "rgba(15, 23, 42, 0.6)",
       },
       surface: {
-        default: palettes.neutral[50],
-        subtle: palettes.neutral[100],
+        default: "#FAFBFC",
+        subtle: "#F4F7FA",
         elevated: "#FFFFFF",
-        inset: palettes.warmGray[200],
-        strong: palettes.warmGray[300],
+        inset: "#E3E8EE",
+        strong: "#D7DEE7",
         accentSoft: palettes.blue[50],
         moleskine: "#FFFDF5",
         onCourt: "rgba(40, 112, 148, 0.08)",
       },
       text: {
-        primary: palettes.blue[900],
-        secondary: palettes.slate[500],
-        tertiary: palettes.slate[700],
-        muted: palettes.warmGray[700],
-        disabled: palettes.neutral[600],
+        primary: "#163042",
+        secondary: "#486173",
+        tertiary: "#667C8C",
+        muted: "#7E909E",
+        disabled: "rgba(22, 48, 66, 0.38)",
         inverse: "#FFFFFF",
-        placeholder: palettes.neutral[500],
+        placeholder: "#8A99A6",
       },
       border: {
-        subtle: palettes.neutral[300],
-        default: palettes.neutral[400],
-        strong: palettes.warmGray[500],
+        subtle: "#D8DEE6",
+        default: "#C8D0DA",
+        strong: "#B2BDC9",
         accent: palettes.blue[200],
         focus: palettes.blue[500],
       },
@@ -437,14 +437,14 @@ export type AppTokens = typeof tokens;
 
 export type DeepPartial<T> = {
   [K in keyof T]?: T[K] extends object
-    ? DeepPartial<T[K]>
-    : T[K] extends number
-      ? number
-      : T[K] extends string
-        ? string
-        : T[K] extends boolean
-          ? boolean
-          : T[K];
+  ? DeepPartial<T[K]>
+  : T[K] extends number
+  ? number
+  : T[K] extends string
+  ? string
+  : T[K] extends boolean
+  ? boolean
+  : T[K];
 };
 
 export interface ThemePreset {
