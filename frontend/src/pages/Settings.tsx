@@ -8,7 +8,6 @@ import {
   Chip,
   Divider,
   MenuItem,
-  Paper,
   Select,
   Snackbar,
   Stack,
@@ -160,7 +159,6 @@ const ThemeMiniPreview: React.FC<{
       }}
     >
       <Box sx={{ height: "24%", width: "100%", bgcolor: color }} />
-
       <Box
         sx={{
           px: "8px",
@@ -181,7 +179,6 @@ const ThemeMiniPreview: React.FC<{
             }}
           />
         ))}
-
         <Box sx={{ display: "flex", gap: "5px", mt: "3px" }}>
           <Box
             sx={{
@@ -248,7 +245,6 @@ const PresetCard: React.FC<PresetCardProps> = ({
   card,
 }) => {
   const theme = useTheme();
-
   const radius = card?.radius ?? 10;
   const borderWidth = card?.borderWidth ?? 1;
   const selectedBorderWidth = card?.selectedBorderWidth ?? 2;
@@ -347,8 +343,10 @@ const Settings: React.FC = () => {
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
+
     window.addEventListener("online", handleOnline);
     window.addEventListener("offline", handleOffline);
+
     return () => {
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
@@ -358,6 +356,7 @@ const Settings: React.FC = () => {
   useEffect(() => {
     if (activeTab === "system") {
       setLogs(logger.getLogs());
+
       const loadStats = async () => {
         const stats: Record<string, number> = {};
         for (const table of db.tables) {
@@ -365,6 +364,7 @@ const Settings: React.FC = () => {
         }
         setDbStats(stats);
       };
+
       loadStats();
     }
   }, [activeTab]);
@@ -376,21 +376,18 @@ const Settings: React.FC = () => {
 
   const showSnackbar = (
     message: string,
-    severity: "success" | "error" | "info" = "success",
-  ) => setSnackbar({ open: true, message, severity });
+    severity: "success" | "error" | "info" | "warning" = "success",
+  ) => {
+    setSnackbar({ open: true, message, severity });
+  };
 
   const handleSync = async () => {
-    if (!isOnline) {
-      showSnackbar("You are offline. Sync unavailable.", "error");
-      return;
-    }
     setIsSyncing(true);
     try {
       await syncService.pushUpdates();
-      await syncService.pullAll();
       showSnackbar("Sync complete.");
     } catch {
-      showSnackbar("Sync failed. Try again.", "error");
+      showSnackbar("Sync failed. Please try again.", "error");
     } finally {
       setIsSyncing(false);
     }
@@ -406,6 +403,7 @@ const Settings: React.FC = () => {
     const text = logs
       .map((l) => `[${l.level.toUpperCase()}] ${l.timestamp} — ${l.message}`)
       .join("\n");
+
     navigator.clipboard
       .writeText(text)
       .then(() => showSnackbar("Logs copied."));
@@ -472,11 +470,41 @@ const Settings: React.FC = () => {
             value={presetId}
             onChange={(e) => setPresetId(e.target.value)}
             size="small"
+            renderValue={(value) => {
+              const preset = availablePresets.find((p) => p.id === value);
+              if (!preset) return String(value);
+
+              return (
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <Box
+                    sx={{
+                      width: 10,
+                      height: 10,
+                      borderRadius: "50%",
+                      bgcolor: preset.previewColor,
+                      flexShrink: 0,
+                    }}
+                  />
+                  {preset.label}
+                </Box>
+              );
+            }}
             sx={{ width: selectWidth, maxWidth: "100%" }}
           >
             {availablePresets.map((p) => (
               <MenuItem key={p.id} value={p.id}>
-                {p.label}
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <Box
+                    sx={{
+                      width: 10,
+                      height: 10,
+                      borderRadius: "50%",
+                      bgcolor: p.previewColor,
+                      flexShrink: 0,
+                    }}
+                  />
+                  {p.label}
+                </Box>
               </MenuItem>
             ))}
           </Select>
@@ -685,72 +713,62 @@ const Settings: React.FC = () => {
         mx: "auto",
       }}
     >
-      <Paper
-        variant="outlined"
+      <Box
         sx={{
-          borderRadius: `${shell?.radius ?? 12}px`,
-          borderColor: "divider",
-          bgcolor: shell?.background ?? "background.paper",
-          overflow: "hidden",
+          px: {
+            xs: 2.5,
+            md: `${(shell?.headerPaddingX ?? 28) / 8}rem`,
+          },
+          pt: {
+            xs: 2.5,
+            md: `${(shell?.headerPaddingTop ?? 24) / 8}rem`,
+          },
+          pb: 0,
         }}
       >
-        <Box
+        <Typography variant="h5" sx={{ fontWeight: 600, mb: 2.5 }}>
+          Settings
+        </Typography>
+
+        <Tabs
+          value={TABS.indexOf(activeTab)}
+          onChange={(_e, v) => setActiveTab(TABS[v] ?? "account")}
+          aria-label="Settings sections"
+          variant="scrollable"
+          scrollButtons="auto"
           sx={{
-            px: {
-              xs: 2.5,
-              md: `${(shell?.headerPaddingX ?? 28) / 8}rem`,
-            },
-            pt: {
-              xs: 2.5,
-              md: `${(shell?.headerPaddingTop ?? 24) / 8}rem`,
-            },
-            pb: 0,
-          }}
-        >
-          <Typography variant="h5" sx={{ fontWeight: 600, mb: 2.5 }}>
-            Settings
-          </Typography>
-
-          <Tabs
-            value={TABS.indexOf(activeTab)}
-            onChange={(_e, v) => setActiveTab(TABS[v] ?? "account")}
-            aria-label="Settings sections"
-            variant="scrollable"
-            scrollButtons="auto"
-            sx={{
-              "& .MuiTab-root": {
-                textTransform: "none",
-                fontSize: "0.875rem",
-                fontWeight: 500,
-                minHeight: tabs?.height ?? 40,
-                px: `${(tabs?.paddingX ?? 12) / 8}rem`,
-              },
-            }}
-          >
-            {TABS.map((tab) => (
-              <Tab key={tab} label={TAB_LABELS[tab]} />
-            ))}
-          </Tabs>
-        </Box>
-
-        <Divider />
-
-        <Box
-          sx={{
-            px: {
-              xs: 2.5,
-              md: `${(shell?.contentPaddingX ?? 28) / 8}rem`,
-            },
-            pt: 3,
-            pb: {
-              xs: 3,
-              md: `${(shell?.contentPaddingBottom ?? 28) / 8}rem`,
+            "& .MuiTab-root": {
+              textTransform: "none",
+              fontSize: "0.875rem",
+              fontWeight: 500,
+              minHeight: tabs?.height ?? 40,
+              px: `${(tabs?.paddingX ?? 12) / 8}rem`,
             },
           }}
         >
-          {renderContent()}
-        </Box>
-      </Paper>
+          {TABS.map((tab) => (
+            <Tab key={tab} label={TAB_LABELS[tab]} />
+          ))}
+        </Tabs>
+      </Box>
+
+      <Divider />
+
+      <Box
+        sx={{
+          px: {
+            xs: 2.5,
+            md: `${(shell?.contentPaddingX ?? 28) / 8}rem`,
+          },
+          pt: 3,
+          pb: {
+            xs: 3,
+            md: `${(shell?.contentPaddingBottom ?? 28) / 8}rem`,
+          },
+        }}
+      >
+        {renderContent()}
+      </Box>
 
       <Snackbar
         open={snackbar.open}
