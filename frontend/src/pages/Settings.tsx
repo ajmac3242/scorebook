@@ -159,7 +159,6 @@ const ThemeMiniPreview: React.FC<{
       }}
     >
       <Box sx={{ height: "24%", width: "100%", bgcolor: color }} />
-
       <Box
         sx={{
           px: "8px",
@@ -180,7 +179,6 @@ const ThemeMiniPreview: React.FC<{
             }}
           />
         ))}
-
         <Box sx={{ display: "flex", gap: "5px", mt: "3px" }}>
           <Box
             sx={{
@@ -247,7 +245,6 @@ const PresetCard: React.FC<PresetCardProps> = ({
   card,
 }) => {
   const theme = useTheme();
-
   const radius = card?.radius ?? 10;
   const borderWidth = card?.borderWidth ?? 1;
   const selectedBorderWidth = card?.selectedBorderWidth ?? 2;
@@ -346,8 +343,10 @@ const Settings: React.FC = () => {
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
+
     window.addEventListener("online", handleOnline);
     window.addEventListener("offline", handleOffline);
+
     return () => {
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
@@ -357,6 +356,7 @@ const Settings: React.FC = () => {
   useEffect(() => {
     if (activeTab === "system") {
       setLogs(logger.getLogs());
+
       const loadStats = async () => {
         const stats: Record<string, number> = {};
         for (const table of db.tables) {
@@ -364,6 +364,7 @@ const Settings: React.FC = () => {
         }
         setDbStats(stats);
       };
+
       loadStats();
     }
   }, [activeTab]);
@@ -402,9 +403,8 @@ const Settings: React.FC = () => {
     const text = logs
       .map((l) => `[${l.level.toUpperCase()}] ${l.timestamp} — ${l.message}`)
       .join("\n");
-    navigator.clipboard
-      .writeText(text)
-      .then(() => showSnackbar("Logs copied."));
+
+    navigator.clipboard.writeText(text).then(() => showSnackbar("Logs copied."));
   };
 
   const handleLanguageChange = (e: SelectChangeEvent) =>
@@ -471,6 +471,7 @@ const Settings: React.FC = () => {
             renderValue={(value) => {
               const preset = availablePresets.find((p) => p.id === value);
               if (!preset) return String(value);
+
               return (
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                   <Box
@@ -598,9 +599,8 @@ const Settings: React.FC = () => {
       <SettingsRow
         row={row}
         label="Local storage"
-        description={`${totalDbRecords.toLocaleString()} total records across ${
-          Object.keys(dbStats).length
-        } tables.`}
+        description={`${totalDbRecords.toLocaleString()} total records across ${Object.keys(dbStats).length
+          } tables.`}
         alignTop
       >
         <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>

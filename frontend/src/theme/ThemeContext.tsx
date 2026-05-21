@@ -27,9 +27,11 @@ const ThemeCtx = createContext<ThemeContextValue | null>(null);
 
 export function useAppTheme(): ThemeContextValue {
   const ctx = useContext(ThemeCtx);
+
   if (!ctx) {
     throw new Error("useAppTheme must be used inside CourtSightThemeProvider");
   }
+
   return ctx;
 }
 
