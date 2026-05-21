@@ -24,7 +24,7 @@ import {
 } from "@mui/icons-material";
 import { NavLink, useLocation } from "react-router-dom";
 import CourtSightLogo from "../CourtSightLogo";
-import { APP_SHELL_LAYOUT } from "./AppShell";
+import { useTokens } from "../../theme/useTokens";
 
 interface SideNavProps {
   isLive?: boolean;
@@ -53,6 +53,40 @@ const SideNav: React.FC<SideNavProps> = ({
 }) => {
   const isDesktop = useMediaQuery("(min-width:768px)");
   const location = useLocation();
+  const tokens = useTokens();
+
+  const drawerWidth = tokens.layout.appFrame.sidebarWidth ?? 220;
+  const isSettingsActive = location.pathname === "/settings";
+
+  const navButtonSx = (isActive: boolean) => ({
+    minHeight: "var(--cs-touch-targetComfortable)",
+    px: "var(--cs-semantic-spacing-md)",
+    borderRadius: "var(--cs-semantic-shape-radius-md)",
+    justifyContent: "flex-start",
+    bgcolor: isActive
+      ? "var(--cs-semantic-color-action-selected)"
+      : "transparent",
+    color: isActive
+      ? "var(--cs-semantic-color-text-primary)"
+      : "var(--cs-semantic-color-text-secondary)",
+    transition:
+      "all var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
+    "&:hover": {
+      bgcolor: isActive
+        ? "var(--cs-semantic-color-action-selected)"
+        : "var(--cs-semantic-color-action-hover)",
+      color: "var(--cs-semantic-color-text-primary)",
+    },
+    "& .MuiListItemIcon-root": {
+      color: "inherit",
+      minWidth: 36,
+    },
+    "&:focus-visible": {
+      outline:
+        "var(--cs-semantic-focus-width) solid var(--cs-semantic-color-action-focusRing)",
+      outlineOffset: "var(--cs-semantic-focus-offset)",
+    },
+  });
 
   const drawerContent = (
     <Box
@@ -122,37 +156,7 @@ const SideNav: React.FC<SideNavProps> = ({
                 component={NavLink}
                 to={item.path}
                 onClick={onMobileClose}
-                sx={{
-                  minHeight: "var(--cs-touch-targetComfortable)",
-                  px: "var(--cs-semantic-spacing-md)",
-                  borderRadius: "var(--cs-semantic-shape-radius-md)",
-                  justifyContent: "flex-start",
-                  bgcolor: isActive
-                    ? "var(--cs-semantic-color-action-selected)"
-                    : "transparent",
-                  color: isActive
-                    ? "var(--cs-semantic-color-brand-primary-main)"
-                    : "var(--cs-semantic-color-text-secondary)",
-                  transition:
-                    "all var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
-                  "&:hover": {
-                    bgcolor: isActive
-                      ? "var(--cs-semantic-color-action-selected)"
-                      : "var(--cs-semantic-color-action-hover)",
-                    color: isActive
-                      ? "var(--cs-semantic-color-brand-primary-main)"
-                      : "var(--cs-semantic-color-text-primary)",
-                  },
-                  "& .MuiListItemIcon-root": {
-                    color: "inherit",
-                    minWidth: 36,
-                  },
-                  "&:focus-visible": {
-                    outline:
-                      "var(--cs-semantic-focus-width) solid var(--cs-semantic-color-action-focusRing)",
-                    outlineOffset: "var(--cs-semantic-focus-offset)",
-                  },
-                }}
+                sx={navButtonSx(isActive)}
               >
                 <ListItemIcon>
                   <Box sx={{ position: "relative", display: "flex" }}>
@@ -174,6 +178,7 @@ const SideNav: React.FC<SideNavProps> = ({
                     )}
                   </Box>
                 </ListItemIcon>
+
                 <ListItemText
                   primary={item.label}
                   slotProps={{
@@ -197,42 +202,18 @@ const SideNav: React.FC<SideNavProps> = ({
             component={NavLink}
             to="/settings"
             onClick={onMobileClose}
-            sx={{
-              minHeight: "var(--cs-touch-targetComfortable)",
-              px: "var(--cs-semantic-spacing-md)",
-              borderRadius: "var(--cs-semantic-shape-radius-md)",
-              justifyContent: "flex-start",
-              bgcolor:
-                location.pathname === "/settings"
-                  ? "var(--cs-semantic-color-action-selected)"
-                  : "transparent",
-              color:
-                location.pathname === "/settings"
-                  ? "var(--cs-semantic-color-brand-primary-main)"
-                  : "var(--cs-semantic-color-text-secondary)",
-              transition:
-                "all var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
-              "&:hover": {
-                bgcolor:
-                  location.pathname === "/settings"
-                    ? "var(--cs-semantic-color-action-selected)"
-                    : "var(--cs-semantic-color-action-hover)",
-                color:
-                  location.pathname === "/settings"
-                    ? "var(--cs-semantic-color-brand-primary-main)"
-                    : "var(--cs-semantic-color-text-primary)",
-              },
-            }}
+            sx={navButtonSx(isSettingsActive)}
           >
             <ListItemIcon sx={{ position: "relative", display: "flex" }}>
               <SettingsIcon sx={{ fontSize: 18 }} />
             </ListItemIcon>
+
             <ListItemText
               primary="Settings"
               slotProps={{
                 primary: {
                   sx: {
-                    fontWeight: location.pathname === "/settings" ? 700 : 500,
+                    fontWeight: isSettingsActive ? 700 : 500,
                     fontSize: "0.9rem",
                   },
                 },
@@ -282,6 +263,7 @@ const SideNav: React.FC<SideNavProps> = ({
           >
             {coachName[0]}
           </Avatar>
+
           <Box sx={{ ml: 2 }}>
             <Typography variant="subtitle2">{coachName}</Typography>
           </Box>
@@ -303,7 +285,7 @@ const SideNav: React.FC<SideNavProps> = ({
           display: { xs: "block", md: "none" },
           "& .MuiDrawer-paper": {
             boxSizing: "border-box",
-            width: APP_SHELL_LAYOUT.drawerWidth,
+            width: drawerWidth,
             left: 0,
             bgcolor: "var(--cs-semantic-color-background-paper)",
           },
@@ -318,10 +300,10 @@ const SideNav: React.FC<SideNavProps> = ({
     <Drawer
       variant="permanent"
       sx={{
-        width: APP_SHELL_LAYOUT.drawerWidth,
+        width: drawerWidth,
         flexShrink: 0,
-        [`& .MuiDrawer-paper`]: {
-          width: APP_SHELL_LAYOUT.drawerWidth,
+        "& .MuiDrawer-paper": {
+          width: drawerWidth,
           boxSizing: "border-box",
         },
       }}
