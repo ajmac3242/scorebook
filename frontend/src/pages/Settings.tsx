@@ -608,9 +608,8 @@ const Settings: React.FC = () => {
       <SettingsRow
         row={row}
         label="Local storage"
-        description={`${totalDbRecords.toLocaleString()} total records across ${
-          Object.keys(dbStats).length
-        } tables.`}
+        description={`${totalDbRecords.toLocaleString()} total records across ${Object.keys(dbStats).length
+          } tables.`}
         alignTop
       >
         <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
@@ -718,7 +717,7 @@ const Settings: React.FC = () => {
       id="main-content"
       sx={{
         width: "100%",
-        maxWidth: shell?.maxWidth ?? 1040,
+        maxWidth: "none",
         mx: 0,
       }}
     >
