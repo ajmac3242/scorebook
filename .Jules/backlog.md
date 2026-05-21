@@ -100,6 +100,31 @@
 - [ ] Real-time updates of the Scoreboard and Tactical HUDs on the observer device.
 - [ ] Conflict-free stat entry (primary device only for writes, or locked writes).
 
+## [ ] [DEPS] Upgrade jest to 30.x
+**Priority:** CRITICAL
+**Type:** Technical Debt
+**Why:** Keep testing infrastructure up to date and benefit from new features/performance improvements in the latest major version.
+**What:** Upgrade jest and related packages (@jest/globals, @types/jest, jest-environment-node, ts-jest) to 30.x across backend and frontend.
+**Acceptance Criteria:**
+- [ ] All tests pass with Jest 30.
+- [ ] No regressions in test reporting or coverage.
+
+## [ ] [DEPS] Upgrade @types/node to 25.x
+**Priority:** CRITICAL
+**Type:** Technical Debt
+**Why:** Align with the latest Node.js type definitions.
+**What:** Upgrade @types/node to 25.x in both backend and frontend.
+**Acceptance Criteria:**
+- [ ] Successful type checking (pnpm build) in both directories.
+
+## [ ] [DEPS] Upgrade eslint-plugin-jsdoc to 63.x
+**Priority:** CRITICAL
+**Type:** Technical Debt
+**Why:** Keep documentation linting rules current.
+**What:** Upgrade eslint-plugin-jsdoc to 63.x.
+**Acceptance Criteria:**
+- [ ] pnpm lint passes with no new errors.
+
 ## [ ] [Live 'Tactical Adherence' Auditor]
 **Priority:** HIGH
 **Type:** Feature / Decision Support
