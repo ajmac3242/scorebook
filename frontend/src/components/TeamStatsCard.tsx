@@ -30,10 +30,19 @@ export const TeamStatsCard = React.memo(
   }) => {
     const getRefAdvice = (fpm: number) => {
       if (fpm > 0.8)
-        return { text: "PLAY SOFT / AVOID REACHING", color: "error.main" };
+        return {
+          text: "PLAY SOFT / AVOID REACHING",
+          color: "var(--cs-semantic-color-feedback-error-main)",
+        };
       if (fpm < 0.4 && fpm > 0)
-        return { text: "PRESS HARD / BE AGGRESSIVE", color: "success.main" };
-      return { text: "STANDARD DEFENSIVE PRESSURE", color: "text.secondary" };
+        return {
+          text: "PRESS HARD / BE AGGRESSIVE",
+          color: "var(--cs-semantic-color-feedback-success-main)",
+        };
+      return {
+        text: "STANDARD DEFENSIVE PRESSURE",
+        color: "var(--cs-semantic-color-text-secondary)",
+      };
     };
 
     const advice = getRefAdvice(refTightness || 0);
@@ -50,17 +59,17 @@ export const TeamStatsCard = React.memo(
                 sx={{
                   textAlign: "center",
                   p: 1.5,
-                  bgcolor: "secondary.dark",
-                  color: "white",
-                  borderRadius: 2,
-                  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
+                  bgcolor: "var(--cs-semantic-color-brand-secondary-dark)",
+                  color: "var(--cs-semantic-color-text-inverse)",
+                  borderRadius: "var(--cs-semantic-shape-radius-md)",
+                  boxShadow: "var(--cs-semantic-elevation-shadow-card)",
                 }}
               >
                 <Typography
                   variant="caption"
                   sx={{
                     display: "block",
-                    fontWeight: 800,
+                    fontWeight: "var(--cs-typography-fontWeight-bold)",
                     fontSize: "0.5rem",
                     letterSpacing: 1,
                     mb: 0.5,
@@ -71,7 +80,10 @@ export const TeamStatsCard = React.memo(
                 </Typography>
                 <Typography
                   variant="h5"
-                  sx={{ fontWeight: 900, lineHeight: 1 }}
+                  sx={{
+                    fontWeight: "var(--cs-typography-fontWeight-bold)",
+                    lineHeight: 1,
+                  }}
                 >
                   {activeSchemePpp || "0.00"}
                 </Typography>
@@ -97,9 +109,9 @@ export const TeamStatsCard = React.memo(
               sx={{
                 textAlign: "center",
                 p: 1.5,
-                bgcolor: "rgba(0,0,0,0.03)",
-                borderRadius: 2,
-                border: "1px solid rgba(0,0,0,0.05)",
+                bgcolor: "var(--cs-semantic-color-surface-subtle)",
+                borderRadius: "var(--cs-semantic-shape-radius-md)",
+                border: "1px solid var(--cs-semantic-color-border-subtle)",
               }}
             >
               <Typography
@@ -126,14 +138,15 @@ export const TeamStatsCard = React.memo(
                 p: 1.5,
                 bgcolor:
                   defensiveStats.currentStreak >= 2
-                    ? "rgba(255,69,0,0.1)"
-                    : "rgba(0,0,0,0.03)",
-                borderRadius: 2,
+                    ? "var(--cs-semantic-color-feedback-error-light)"
+                    : "var(--cs-semantic-color-surface-subtle)",
+                borderRadius: "var(--cs-semantic-shape-radius-md)",
                 border:
                   defensiveStats.currentStreak >= 2
-                    ? "1px solid #FF4500"
-                    : "1px solid rgba(0,0,0,0.05)",
-                transition: "all 0.3s ease",
+                    ? "1px solid var(--cs-semantic-color-feedback-error-main)"
+                    : "1px solid var(--cs-semantic-color-border-subtle)",
+                transition:
+                  "all var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
               }}
             >
               <Stack
@@ -209,17 +222,17 @@ export const TeamStatsCard = React.memo(
                 sx={{
                   textAlign: "center",
                   p: 1.5,
-                  bgcolor: "primary.main",
-                  color: "white",
-                  borderRadius: 2,
-                  boxShadow: "0 4px 12px rgba(25, 118, 210, 0.2)",
+                  bgcolor: "var(--cs-semantic-color-brand-primary-main)",
+                  color: "var(--cs-semantic-color-text-inverse)",
+                  borderRadius: "var(--cs-semantic-shape-radius-md)",
+                  boxShadow: "var(--cs-semantic-elevation-shadow-card)",
                 }}
               >
                 <Typography
                   variant="caption"
                   sx={{
                     display: "block",
-                    fontWeight: 800,
+                    fontWeight: "var(--cs-typography-fontWeight-bold)",
                     fontSize: "0.5rem",
                     letterSpacing: 1,
                     mb: 0.5,
@@ -230,7 +243,10 @@ export const TeamStatsCard = React.memo(
                 </Typography>
                 <Typography
                   variant="h5"
-                  sx={{ fontWeight: 900, lineHeight: 1 }}
+                  sx={{
+                    fontWeight: "var(--cs-typography-fontWeight-bold)",
+                    lineHeight: 1,
+                  }}
                 >
                   {livePace.toFixed(1)}
                 </Typography>
@@ -244,10 +260,12 @@ export const TeamStatsCard = React.memo(
                   textAlign: "center",
                   p: 1.5,
                   bgcolor:
-                    (refTightness || 0) > 0.8 ? "error.main" : "secondary.main",
-                  color: "white",
-                  borderRadius: 2,
-                  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
+                    (refTightness || 0) > 0.8
+                      ? "var(--cs-semantic-color-feedback-error-main)"
+                      : "var(--cs-semantic-color-brand-secondary-main)",
+                  color: "var(--cs-semantic-color-text-inverse)",
+                  borderRadius: "var(--cs-semantic-shape-radius-md)",
+                  boxShadow: "var(--cs-semantic-elevation-shadow-card)",
                 }}
               >
                 <Typography
@@ -296,13 +314,14 @@ export const TeamStatsCard = React.memo(
                   fontSize: 22,
                   color:
                     i <= defensiveStats.currentStreak
-                      ? "#FFD700"
-                      : "rgba(0,0,0,0.1)",
+                      ? "var(--cs-semantic-color-feedback-warning-main)"
+                      : "var(--cs-semantic-color-action-disabledBackground)",
                   filter:
                     i <= defensiveStats.currentStreak
-                      ? "drop-shadow(0 0 4px #FFD700)"
+                      ? "drop-shadow(0 0 4px var(--cs-semantic-color-feedback-warning-main))"
                       : "none",
-                  transition: "all 0.3s ease",
+                  transition:
+                    "all var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
                 }}
               />
             ))}

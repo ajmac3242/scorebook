@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Typography, Stack, useTheme, Tooltip } from "@mui/material";
+import { Box, Typography, Stack, Tooltip } from "@mui/material";
 import {
   LocalFireDepartment,
   Shield,
@@ -92,7 +92,6 @@ export const Scoreboard = React.memo(
     isClockRunning,
     onEditClock,
   }: ScoreboardProps) => {
-    const theme = useTheme();
     const timeoutTotal = game?.timeoutLimit ?? team?.defaultTimeoutLimit ?? 3;
     const [showKillOverlay, setShowKillOverlay] = React.useState(false);
     const lastKillCount = React.useRef(gameData.defensiveStats.totalKills);
@@ -111,15 +110,15 @@ export const Scoreboard = React.memo(
       <Box
         sx={{
           background:
-            "linear-gradient(180deg, rgba(30,30,30,1) 0%, rgba(10,10,10,1) 100%)",
-          borderRadius: 4,
-          p: { xs: 1.5, sm: 3 },
-          mb: 3,
+            "var(--cs-semantic-color-component-scoreboard-background)",
+          borderRadius: "var(--cs-semantic-shape-radius-xl)",
+          p: "var(--cs-semantic-spacing-lg)",
+          mb: "var(--cs-semantic-spacing-lg)",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          boxShadow: "0 12px 40px rgba(0,0,0,0.6)",
-          border: "1px solid rgba(255,255,255,0.08)",
+          boxShadow: "var(--cs-semantic-color-component-scoreboard-shadow)",
+          border: "var(--cs-semantic-color-component-scoreboard-border)",
           position: "relative",
           overflow: "hidden",
         }}
@@ -131,8 +130,8 @@ export const Scoreboard = React.memo(
             top: 0,
             left: 0,
             right: 0,
-            height: "3px",
-            background: `linear-gradient(90deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
+            height: "4px",
+            background: `linear-gradient(90deg, var(--cs-semantic-color-brand-primary-main) 0%, var(--cs-semantic-color-brand-secondary-main) 100%)`,
             opacity: 0.8,
           }}
         />
@@ -162,8 +161,8 @@ export const Scoreboard = React.memo(
               <Typography
                 variant="h3"
                 sx={{
-                  fontWeight: 900,
-                  color: "white",
+                  fontWeight: "var(--cs-typography-fontWeight-bold)",
+                  color: "var(--cs-semantic-color-text-inverse)",
                   textShadow: "0 4px 20px rgba(0,0,0,0.5)",
                   letterSpacing: 4,
                 }}
@@ -207,11 +206,14 @@ export const Scoreboard = React.memo(
                 sx={{
                   bgcolor:
                     alert.severity === "error"
-                      ? "error.main"
+                      ? "var(--cs-semantic-color-feedback-error-main)"
                       : alert.severity === "warning"
-                        ? "warning.main"
-                        : "info.main",
-                  color: alert.severity === "warning" ? "black" : "white",
+                        ? "var(--cs-semantic-color-feedback-warning-main)"
+                        : "var(--cs-semantic-color-feedback-info-main)",
+                  color:
+                    alert.severity === "warning"
+                      ? "var(--cs-semantic-color-text-primary)"
+                      : "var(--cs-semantic-color-text-inverse)",
                   px: 3,
                   py: 1,
                   borderRadius: 2,
@@ -259,7 +261,7 @@ export const Scoreboard = React.memo(
                   position: "absolute",
                   top: -10,
                   right: -10,
-                  color: "primary.main",
+                  color: "var(--cs-semantic-color-brand-primary-main)",
                   fontSize: "1.2rem",
                   animation: `${pulse} 2s infinite ease-in-out`,
                 }}
@@ -301,12 +303,12 @@ export const Scoreboard = React.memo(
                     role="status"
                     aria-live="polite"
                     sx={{
-                      bgcolor: "warning.main",
-                      color: "black",
+                      bgcolor: "var(--cs-semantic-color-feedback-warning-main)",
+                      color: "var(--cs-semantic-color-text-primary)",
                       px: 1,
                       borderRadius: 1,
                       fontSize: "0.6rem",
-                      fontWeight: 800,
+                      fontWeight: "var(--cs-typography-fontWeight-bold)",
                       animation: `${pulse} 2s infinite ease-in-out`,
                     }}
                   >
@@ -321,12 +323,12 @@ export const Scoreboard = React.memo(
                     role="status"
                     aria-live="polite"
                     sx={{
-                      bgcolor: "success.main",
-                      color: "white",
+                      bgcolor: "var(--cs-semantic-color-feedback-success-main)",
+                      color: "var(--cs-semantic-color-text-inverse)",
                       px: 1,
                       borderRadius: 1,
                       fontSize: "0.6rem",
-                      fontWeight: 800,
+                      fontWeight: "var(--cs-typography-fontWeight-bold)",
                       animation: `${pulse} 2s infinite ease-in-out`,
                     }}
                   >
@@ -341,12 +343,12 @@ export const Scoreboard = React.memo(
                     role="status"
                     aria-live="polite"
                     sx={{
-                      bgcolor: "error.main",
-                      color: "white",
+                      bgcolor: "var(--cs-semantic-color-feedback-error-main)",
+                      color: "var(--cs-semantic-color-text-inverse)",
                       px: 1,
                       borderRadius: 1,
                       fontSize: "0.6rem",
-                      fontWeight: 800,
+                      fontWeight: "var(--cs-typography-fontWeight-bold)",
                       animation: `${pulse} 2s infinite ease-in-out`,
                     }}
                   >
@@ -355,8 +357,8 @@ export const Scoreboard = React.memo(
                   <Typography
                     variant="caption"
                     sx={{
-                      bgcolor: "rgba(255,255,255,0.9)",
-                      color: "error.main",
+                      bgcolor: "var(--cs-semantic-color-background-elevated)",
+                      color: "var(--cs-semantic-color-feedback-error-main)",
                       px: 1,
                       borderRadius: 1,
                       fontSize: "0.5rem",
@@ -379,8 +381,8 @@ export const Scoreboard = React.memo(
                   <Typography
                     variant="caption"
                     sx={{
-                      bgcolor: "warning.main",
-                      color: "black",
+                      bgcolor: "var(--cs-semantic-color-feedback-warning-main)",
+                      color: "var(--cs-semantic-color-text-primary)",
                       px: 1,
                       borderRadius: 1,
                       fontSize: "0.55rem",
@@ -396,8 +398,8 @@ export const Scoreboard = React.memo(
                     <Typography
                       variant="caption"
                       sx={{
-                        bgcolor: "rgba(255,255,255,0.9)",
-                        color: "warning.dark",
+                        bgcolor: "var(--cs-semantic-color-background-elevated)",
+                        color: "var(--cs-semantic-color-feedback-warning-dark)",
                         px: 1,
                         borderRadius: 1,
                         fontSize: "0.45rem",
@@ -416,8 +418,8 @@ export const Scoreboard = React.memo(
           <Typography
             variant="h6"
             sx={{
-              color: "rgba(255,255,255,0.5)",
-              fontWeight: 800,
+              color: "var(--cs-semantic-color-text-tertiary)",
+              fontWeight: "var(--cs-typography-fontWeight-bold)",
               fontSize: { xs: "0.7rem", sm: "1rem" },
               letterSpacing: 2,
               mb: 0.5,
@@ -459,10 +461,10 @@ export const Scoreboard = React.memo(
               <Typography
                 aria-live="off"
                 sx={{
-                  color: "white",
+                  color: "var(--cs-semantic-color-text-inverse)",
                   fontSize: { xs: "1.5rem", sm: "2.5rem" },
-                  fontWeight: 700,
-                  fontFamily: "'Courier New', monospace",
+                  fontWeight: "var(--cs-typography-fontWeight-bold)",
+                  fontFamily: "var(--cs-typography-fontFamily-mono)",
                   lineHeight: 1,
                   letterSpacing: 1,
                 }}
@@ -488,7 +490,7 @@ export const Scoreboard = React.memo(
                     position: "absolute",
                     width: "30%",
                     height: "100%",
-                    background: `linear-gradient(90deg, transparent, ${theme.palette.primary.main}, transparent)`,
+                    background: `linear-gradient(90deg, transparent, var(--cs-semantic-color-brand-primary-main), transparent)`,
                     animation: `${slideBackAndForth} 1.5s infinite ease-in-out`,
                   }}
                 />
@@ -510,7 +512,7 @@ export const Scoreboard = React.memo(
             {gameData.teamFoulStats.teamBonusLabel && (
               <Typography
                 sx={{
-                  color: "#FFD700",
+                  color: "var(--cs-semantic-color-feedback-warning-main)",
                   fontWeight: 900,
                   fontSize: "0.7rem",
                   letterSpacing: 1,
@@ -533,16 +535,15 @@ export const Scoreboard = React.memo(
                   <Shield
                     sx={{
                       fontSize: "1rem",
-                      color: "primary.main",
+                      color: "var(--cs-semantic-color-brand-primary-main)",
                       opacity: 0.8,
                     }}
                   />
                   <Typography
                     sx={{
-                      color: "white",
+                      color: "var(--cs-semantic-color-text-inverse)",
                       fontSize: "0.75rem",
-                      fontWeight: 800,
-                      fontFamily: "'Inter', sans-serif",
+                      fontWeight: "var(--cs-typography-fontWeight-bold)",
                     }}
                   >
                     {gameData.defensiveStats.totalStops}
@@ -561,7 +562,7 @@ export const Scoreboard = React.memo(
                   <LocalFireDepartment
                     sx={{
                       fontSize: "1.1rem",
-                      color: "error.main",
+                      color: "var(--cs-semantic-color-feedback-error-main)",
                       animation:
                         gameData.defensiveStats.totalKills > 0
                           ? `${pulse} 2s infinite ease-in-out`
@@ -570,10 +571,9 @@ export const Scoreboard = React.memo(
                   />
                   <Typography
                     sx={{
-                      color: "white",
+                      color: "var(--cs-semantic-color-text-inverse)",
                       fontSize: "0.85rem",
                       fontWeight: 900,
-                      fontFamily: "'Inter', sans-serif",
                     }}
                   >
                     {gameData.defensiveStats.totalKills}
@@ -592,11 +592,11 @@ export const Scoreboard = React.memo(
                       borderRadius: "50%",
                       bgcolor:
                         gameData.defensiveStats.currentStreak >= dot
-                          ? "error.main"
-                          : "rgba(255,255,255,0.1)",
+                          ? "var(--cs-semantic-color-feedback-error-main)"
+                          : "var(--cs-semantic-color-action-disabledBackground)",
                       boxShadow:
                         gameData.defensiveStats.currentStreak >= dot
-                          ? `0 0 8px ${theme.palette.error.main}`
+                          ? `0 0 8px var(--cs-semantic-color-feedback-error-main)`
                           : "none",
                     }}
                   />
@@ -608,7 +608,7 @@ export const Scoreboard = React.memo(
             {gameData.teamFoulStats.oppBonusLabel && (
               <Typography
                 sx={{
-                  color: "#FFD700",
+                  color: "var(--cs-semantic-color-feedback-warning-main)",
                   fontWeight: 900,
                   fontSize: "0.7rem",
                   letterSpacing: 1,
@@ -645,7 +645,7 @@ export const Scoreboard = React.memo(
                   position: "absolute",
                   top: -10,
                   left: -10,
-                  color: "secondary.main",
+                  color: "var(--cs-semantic-color-brand-secondary-main)",
                   fontSize: "1.2rem",
                   animation: `${pulse} 2s infinite ease-in-out`,
                 }}

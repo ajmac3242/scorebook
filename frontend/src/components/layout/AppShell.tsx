@@ -9,9 +9,7 @@ interface AppShellProps {
 }
 
 export const APP_SHELL_LAYOUT = {
-  drawerWidth: 240,
-  desktopInset: 2,
-  mobileInset: 1,
+  drawerWidth: 260,
 } as const;
 
 const AppShell: React.FC<AppShellProps> = ({
@@ -32,11 +30,17 @@ const AppShell: React.FC<AppShellProps> = ({
           width: "100%",
           minWidth: 0,
           overflow: "hidden",
-          bgcolor: "background.paper",
+          bgcolor: "var(--cs-semantic-color-background-default)",
         }}
       >
         {topBarSlot ? (
-          <Box sx={{ flexShrink: 0, minWidth: 0, zIndex: 1100 }}>
+          <Box
+            sx={{
+              flexShrink: 0,
+              minWidth: 0,
+              zIndex: "var(--cs-semantic-elevation-zIndex-appBar)",
+            }}
+          >
             {topBarSlot}
           </Box>
         ) : null}
@@ -51,9 +55,7 @@ const AppShell: React.FC<AppShellProps> = ({
             width: "100%",
             overflowY: "auto",
             overflowX: "hidden",
-            px: APP_SHELL_LAYOUT.mobileInset,
-            py: APP_SHELL_LAYOUT.mobileInset,
-            bgcolor: "background.paper",
+            bgcolor: "var(--cs-semantic-color-background-default)",
             position: "relative",
             outline: "none",
             WebkitOverflowScrolling: "touch",
@@ -70,10 +72,9 @@ const AppShell: React.FC<AppShellProps> = ({
             sx={{
               flexShrink: 0,
               height: 56,
-              borderTop: "1px solid",
-              borderColor: "divider",
-              bgcolor: "background.paper",
-              zIndex: 1100,
+              borderTop: "1px solid var(--cs-semantic-color-border-subtle)",
+              bgcolor: "var(--cs-semantic-color-background-paper)",
+              zIndex: "var(--cs-semantic-elevation-zIndex-appBar)",
             }}
           >
             {bottomSlot}
@@ -89,8 +90,8 @@ const AppShell: React.FC<AppShellProps> = ({
         height: "100dvh",
         width: "100%",
         overflow: "hidden",
-        bgcolor: "background.paper",
-        p: APP_SHELL_LAYOUT.desktopInset,
+        bgcolor: "var(--cs-semantic-color-background-default)",
+        p: "var(--cs-semantic-spacing-md)",
         boxSizing: "border-box",
       }}
     >
@@ -98,12 +99,11 @@ const AppShell: React.FC<AppShellProps> = ({
         sx={{
           display: "flex",
           flexDirection: "row",
-          gap: APP_SHELL_LAYOUT.desktopInset,
+          gap: "var(--cs-semantic-spacing-md)",
           height: "100%",
           width: "100%",
           minWidth: 0,
           overflow: "hidden",
-          bgcolor: "background.paper",
         }}
       >
         <Box
@@ -114,9 +114,11 @@ const AppShell: React.FC<AppShellProps> = ({
             maxWidth: APP_SHELL_LAYOUT.drawerWidth,
             height: "100%",
             flexShrink: 0,
-            bgcolor: "background.paper",
+            bgcolor: "var(--cs-semantic-color-background-paper)",
             overflow: "hidden",
-            borderRadius: 3,
+            borderRadius: "var(--cs-semantic-shape-radius-lg)",
+            border: "1px solid var(--cs-semantic-color-border-subtle)",
+            boxShadow: "var(--cs-semantic-elevation-shadow-card)",
           }}
         >
           {drawerSlot}
@@ -130,11 +132,20 @@ const AppShell: React.FC<AppShellProps> = ({
             display: "flex",
             flexDirection: "column",
             overflow: "hidden",
-            bgcolor: "background.paper",
+            borderRadius: "var(--cs-semantic-shape-radius-lg)",
+            border: "1px solid var(--cs-semantic-color-border-subtle)",
+            bgcolor: "var(--cs-semantic-color-background-paper)",
+            boxShadow: "var(--cs-semantic-elevation-shadow-card)",
           }}
         >
           {topBarSlot ? (
-            <Box sx={{ flexShrink: 0, minWidth: 0, zIndex: 1100 }}>
+            <Box
+              sx={{
+                flexShrink: 0,
+                minWidth: 0,
+                zIndex: "var(--cs-semantic-elevation-zIndex-appBar)",
+              }}
+            >
               {topBarSlot}
             </Box>
           ) : null}
@@ -149,7 +160,6 @@ const AppShell: React.FC<AppShellProps> = ({
               width: "100%",
               overflowY: "auto",
               overflowX: "hidden",
-              bgcolor: "background.paper",
               position: "relative",
               outline: "none",
               WebkitOverflowScrolling: "touch",

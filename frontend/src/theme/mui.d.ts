@@ -30,6 +30,13 @@ declare module "@mui/material/styles" {
   interface ThemeVars {
     cs: AppTokens;
   }
+
+  interface TypeText {
+    tertiary: string;
+    muted: string;
+    inverse: string;
+    placeholder: string;
+  }
 }
 
 declare module "@mui/material/Typography" {

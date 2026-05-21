@@ -28,12 +28,21 @@ const DefensiveBreakdownDialog: React.FC<DefensiveBreakdownDialogProps> = ({
     >
       <DialogTitle
         id="defensive-breakdown-title"
-        sx={{ fontFamily: "var(--serif)", fontWeight: 800 }}
+        sx={{
+          fontWeight: "var(--cs-typography-fontWeight-bold)",
+          color: "var(--cs-semantic-color-text-primary)",
+        }}
       >
-        DEFENSIVE BREAKDOWN
+        Defensive Breakdown
       </DialogTitle>
-      <DialogContent>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+      <DialogContent sx={{ p: "var(--cs-semantic-spacing-dialogPadding)" }}>
+        <Typography
+          variant="body2"
+          sx={{
+            color: "var(--cs-semantic-color-text-secondary)",
+            mb: "var(--cs-semantic-spacing-md)",
+          }}
+        >
           Why was this bucket allowed? Attribution helps identify tactical
           weaknesses.
         </Typography>

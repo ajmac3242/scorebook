@@ -70,15 +70,22 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
     >
       <DialogTitle
         id="verified-period-modal-title"
-        sx={{ textAlign: "center", fontWeight: 800 }}
+        sx={{
+          textAlign: "center",
+          fontWeight: "var(--cs-typography-fontWeight-bold)",
+          color: "var(--cs-semantic-color-text-primary)",
+        }}
       >
-        VERIFY {periodLabel.toUpperCase()} {period} TOTALS
+        Verify {periodLabel} {period} Totals
       </DialogTitle>
-      <DialogContent>
+      <DialogContent sx={{ p: "var(--cs-semantic-spacing-dialogPadding)" }}>
         <Typography
           variant="body2"
-          color="text.secondary"
-          sx={{ mb: 3, textAlign: "center" }}
+          sx={{
+            mb: "var(--cs-semantic-spacing-lg)",
+            textAlign: "center",
+            color: "var(--cs-semantic-color-text-secondary)",
+          }}
         >
           Please reconcile app totals with the official scorekeeper's table.
         </Typography>
@@ -87,17 +94,30 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
           <Grid size={{ xs: 6 }}>
             <Typography
               variant="caption"
-              sx={{ fontWeight: 800, mb: 1, display: "block" }}
+              sx={{
+                fontWeight: "var(--cs-typography-fontWeight-bold)",
+                mb: "var(--cs-semantic-spacing-sm)",
+                display: "block",
+                color: "var(--cs-semantic-color-brand-primary-main)",
+                textTransform: "uppercase",
+              }}
             >
-              OUR TEAM
+              Our Team
             </Typography>
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "var(--cs-semantic-spacing-md)",
+              }}
+            >
               <TextField
                 label="Official Score"
                 type="number"
                 value={officialTeamScore}
                 onChange={(e) => setOfficialTeamScore(e.target.value)}
                 size="small"
+                fullWidth
                 helperText={`App: ${appScore.team}`}
               />
               <TextField
@@ -106,6 +126,7 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
                 value={officialTeamFouls}
                 onChange={(e) => setOfficialTeamFouls(e.target.value)}
                 size="small"
+                fullWidth
                 helperText={`App: ${appFouls.team}`}
               />
             </Box>
@@ -114,17 +135,30 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
           <Grid size={{ xs: 6 }}>
             <Typography
               variant="caption"
-              sx={{ fontWeight: 800, mb: 1, display: "block" }}
+              sx={{
+                fontWeight: "var(--cs-typography-fontWeight-bold)",
+                mb: "var(--cs-semantic-spacing-sm)",
+                display: "block",
+                color: "var(--cs-semantic-color-brand-secondary-main)",
+                textTransform: "uppercase",
+              }}
             >
-              OPPONENT
+              Opponent
             </Typography>
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "var(--cs-semantic-spacing-md)",
+              }}
+            >
               <TextField
                 label="Official Score"
                 type="number"
                 value={officialOppScore}
                 onChange={(e) => setOfficialOppScore(e.target.value)}
                 size="small"
+                fullWidth
                 helperText={`App: ${appScore.opp}`}
               />
               <TextField
@@ -133,31 +167,46 @@ export const VerifiedPeriodModal: React.FC<VerifiedPeriodModalProps> = ({
                 value={officialOppFouls}
                 onChange={(e) => setOfficialOppFouls(e.target.value)}
                 size="small"
+                fullWidth
                 helperText={`App: ${appFouls.opp}`}
               />
             </Box>
           </Grid>
         </Grid>
 
-        <Box sx={{ mt: 3, p: 2, bgcolor: "rgba(0,0,0,0.02)", borderRadius: 1 }}>
+        <Box
+          sx={{
+            mt: "var(--cs-semantic-spacing-lg)",
+            p: "var(--cs-semantic-spacing-md)",
+            bgcolor: "var(--cs-semantic-color-surface-subtle)",
+            border: "1px solid var(--cs-semantic-color-border-subtle)",
+            borderRadius: "var(--cs-semantic-shape-radius-md)",
+          }}
+        >
           <Typography
             variant="caption"
-            color="text.secondary"
-            sx={{ fontStyle: "italic" }}
+            sx={{
+              fontStyle: "italic",
+              color: "var(--cs-semantic-color-text-secondary)",
+              display: "block",
+            }}
           >
             Discrepancies will be corrected via SYSTEM_ADJUSTMENT events.
           </Typography>
         </Box>
       </DialogContent>
-      <DialogActions sx={{ p: 2 }}>
+      <DialogActions sx={{ p: "var(--cs-semantic-spacing-md)" }}>
         <Button
           fullWidth
           variant="contained"
           startIcon={<CheckCircle />}
           onClick={handleConfirm}
-          sx={{ py: 1.5, fontWeight: 800 }}
+          sx={{
+            py: 1.5,
+            fontWeight: "var(--cs-typography-fontWeight-bold)",
+          }}
         >
-          VERIFY & CONTINUE
+          Verify & Continue
         </Button>
       </DialogActions>
     </Dialog>

@@ -1,13 +1,5 @@
 import React from "react";
-import {
-  Tooltip,
-  Button,
-  Typography,
-  Box,
-  Avatar,
-  Chip,
-  useTheme,
-} from "@mui/material";
+import { Tooltip, Button, Typography, Box, Avatar, Chip } from "@mui/material";
 import { type Player, type Game, type Team } from "../../db";
 import { type PlayerAggregates } from "../../utils/stats";
 import { formatClock } from "../../utils/mathUtils";
@@ -45,13 +37,21 @@ export const QuickAction: React.FC<QuickActionProps> = React.memo(
           flexDirection: "column",
           py: 2,
           minWidth: 80,
-          borderColor: "#D1D1D1",
-          backgroundColor: statType === type ? "primary.main" : "transparent",
-          color: statType === type ? "white" : "text.primary",
+          borderColor: "var(--cs-semantic-color-border-default)",
+          backgroundColor:
+            statType === type
+              ? "var(--cs-semantic-color-brand-primary-main)"
+              : "transparent",
+          color:
+            statType === type
+              ? "var(--cs-semantic-color-text-inverse)"
+              : "var(--cs-semantic-color-text-primary)",
+          transition:
+            "all var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
           "&:focus-visible": {
-            outline: "2px solid",
-            outlineColor: "primary.main",
-            outlineOffset: "2px",
+            outline:
+              "var(--cs-semantic-focus-width)px solid var(--cs-semantic-color-action-focusRing)",
+            outlineOffset: "var(--cs-semantic-focus-offset)px",
           },
         }}
       >
@@ -96,7 +96,6 @@ export const LineupPlayerButton: React.FC<LineupPlayerButtonProps> = React.memo(
     streak,
     onClick,
   }) => {
-    const theme = useTheme();
     const pf = stats?.fouls || 0;
     const foulLimit = game?.foulLimit || team?.defaultFoulLimit || 5;
     const isFoulTrouble = pf === foulLimit - 1;
@@ -120,11 +119,11 @@ export const LineupPlayerButton: React.FC<LineupPlayerButtonProps> = React.memo(
             justifyContent: "flex-start",
             px: 1,
             bgcolor: isFouledOut
-              ? "error.main"
+              ? "var(--cs-semantic-color-feedback-error-main)"
               : isFoulTrouble || isFoulTroubleInPeriod
-                ? "warning.main"
-                : "primary.main",
-            color: "white",
+                ? "var(--cs-semantic-color-feedback-warning-main)"
+                : "var(--cs-semantic-color-brand-primary-main)",
+            color: "var(--cs-semantic-color-text-inverse)",
             borderWidth: "1.5px",
             animation:
               isFoulTrouble || isFouledOut || isFoulTroubleInPeriod
@@ -132,12 +131,14 @@ export const LineupPlayerButton: React.FC<LineupPlayerButtonProps> = React.memo(
                 : "none",
             "&.Mui-disabled": {
               bgcolor: isFouledOut
-                ? "error.main"
+                ? "var(--cs-semantic-color-feedback-error-main)"
                 : isFoulTrouble
-                  ? "warning.main"
-                  : "primary.main",
-              color: "white",
+                  ? "var(--cs-semantic-color-feedback-warning-main)"
+                  : "var(--cs-semantic-color-brand-primary-main)",
+              color: "var(--cs-semantic-color-text-inverse)",
             },
+            transition:
+              "all var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
           }}
         >
           <Avatar
@@ -145,8 +146,8 @@ export const LineupPlayerButton: React.FC<LineupPlayerButtonProps> = React.memo(
               width: 24,
               height: 24,
               mr: 1,
-              bgcolor: "white",
-              color: "primary.main",
+              bgcolor: "var(--cs-semantic-color-background-elevated)",
+              color: "var(--cs-semantic-color-brand-primary-main)",
               fontSize: "0.7rem",
               fontWeight: 700,
             }}
@@ -177,9 +178,9 @@ export const LineupPlayerButton: React.FC<LineupPlayerButtonProps> = React.memo(
               {(() => {
                 const color =
                   stintSecs > maxStint
-                    ? theme.palette.error.main
+                    ? "var(--cs-semantic-color-feedback-error-main)"
                     : stintSecs > maxStint * 0.75
-                      ? theme.palette.warning.main
+                      ? "var(--cs-semantic-color-feedback-warning-main)"
                       : "inherit";
                 return (
                   <Box component="span" sx={{ color }}>

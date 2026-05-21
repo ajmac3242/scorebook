@@ -27,6 +27,9 @@ const PageContainer: React.FC<PageContainerProps> = ({
         width: "100%",
         maxWidth: width === "full" ? "100%" : widthMap[width],
         minWidth: 0,
+        mx: "auto",
+        px: "var(--cs-semantic-spacing-pagePaddingX)",
+        py: "var(--cs-semantic-spacing-pagePaddingY)",
         ...sx,
       }}
     >

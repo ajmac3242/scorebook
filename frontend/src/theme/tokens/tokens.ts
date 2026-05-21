@@ -97,6 +97,8 @@ export const tokens = {
         inset: palettes.warmGray[200],
         strong: palettes.warmGray[300],
         accentSoft: palettes.blue[50],
+        moleskine: "#FFFDF5",
+        onCourt: "rgba(40, 112, 148, 0.08)",
       },
       text: {
         primary: palettes.blue[900],
@@ -270,12 +272,14 @@ export const tokens = {
       dialogPadding: spacing[6], // 24px
       sectionCardPadding: spacing[6], // 24px
       pagePaddingX: spacing[6], // 24px
+      pagePaddingY: spacing[6], // 24px
       inputHeightMd: spacing[10], // 40px
+      appBarHeight: spacing[16], // 64px
     },
 
     focus: {
-      width: 2,
-      offset: 2,
+      width: "2px",
+      offset: "2px",
     },
 
     shape: {
@@ -301,6 +305,11 @@ export const tokens = {
     },
 
     component: {
+      scoreboard: {
+        background: "linear-gradient(180deg, #1E1E1E 0%, #0A0A0A 100%)",
+        border: "1px solid rgba(255, 255, 255, 0.08)",
+        shadow: "0 12px 40px rgba(0, 0, 0, 0.6)",
+      },
       pageShell: {
         radius: 12,
         border: `1px solid var(--cs-semantic-color-border-subtle)`,

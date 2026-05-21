@@ -24,10 +24,9 @@ const AppTopBar: React.FC<AppTopBarProps> = ({
       position="sticky"
       elevation={0}
       sx={{
-        bgcolor: "background.paper",
-        borderBottom: "1px solid",
-        borderColor: "divider",
-        height: { xs: 56, sm: 64 },
+        bgcolor: "var(--cs-semantic-color-background-paper)",
+        borderBottom: "1px solid var(--cs-semantic-color-border-subtle)",
+        height: "var(--cs-semantic-spacing-appBarHeight)",
         justifyContent: "center",
       }}
     >
@@ -51,10 +50,12 @@ const AppTopBar: React.FC<AppTopBarProps> = ({
             sx={{
               fontWeight: 600,
               fontSize: "0.75rem",
-              borderColor: "divider",
-              color: "text.primary",
+              borderColor: "var(--cs-semantic-color-border-default)",
+              color: "var(--cs-semantic-color-text-primary)",
               cursor: "pointer",
-              "&:hover": { bgcolor: "action.hover" },
+              transition:
+                "all var(--cs-motion-duration-fast) var(--cs-motion-easing-productive)",
+              "&:hover": { bgcolor: "var(--cs-semantic-color-action-hover)" },
             }}
           />
         </Box>
@@ -68,13 +69,17 @@ const AppTopBar: React.FC<AppTopBarProps> = ({
           aria-label="Open search"
           size="small"
           sx={{
-            border: "1px solid",
-            borderColor: "divider",
-            borderRadius: 2,
+            border: "1px solid var(--cs-semantic-color-border-subtle)",
+            borderRadius: "var(--cs-semantic-shape-radius-md)",
             px: 1.5,
             gap: 0.5,
-            color: "text.secondary",
-            "&:hover": { bgcolor: "action.hover" },
+            color: "var(--cs-semantic-color-text-secondary)",
+            transition:
+              "all var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
+            "&:hover": {
+              bgcolor: "var(--cs-semantic-color-action-hover)",
+              borderColor: "var(--cs-semantic-color-border-default)",
+            },
           }}
         >
           <SearchIcon fontSize="small" />
@@ -96,7 +101,12 @@ const AppTopBar: React.FC<AppTopBarProps> = ({
           <IconButton
             size="small"
             aria-label="Notifications"
-            sx={{ color: "text.secondary" }}
+            sx={{
+              color: "var(--cs-semantic-color-text-secondary)",
+              transition:
+                "all var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
+              "&:hover": { color: "var(--cs-semantic-color-text-primary)" },
+            }}
           >
             <NotificationsNoneOutlinedIcon fontSize="small" />
           </IconButton>
@@ -104,10 +114,13 @@ const AppTopBar: React.FC<AppTopBarProps> = ({
             sx={{
               width: 32,
               height: 32,
-              bgcolor: "primary.main",
-              fontSize: "0.8rem",
+              bgcolor: "var(--cs-semantic-color-brand-primary-main)",
+              fontSize: "var(--cs-typography-fontSize-xs)",
               fontWeight: 700,
               cursor: "pointer",
+              transition:
+                "transform var(--cs-motion-duration-fast) var(--cs-motion-easing-productive)",
+              "&:hover": { transform: "scale(1.05)" },
             }}
           >
             C

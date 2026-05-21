@@ -27,14 +27,22 @@ export const OnOffImpactTable: React.FC<OnOffImpactTableProps> = ({ data }) => {
             <TableCell
               colSpan={3}
               align="center"
-              sx={{ bgcolor: "rgba(0,255,0,0.05)", fontWeight: 800 }}
+              sx={{
+                bgcolor: "var(--cs-semantic-color-feedback-success-light)",
+                fontWeight: "var(--cs-typography-fontWeight-bold)",
+                color: "var(--cs-semantic-color-feedback-success-dark)",
+              }}
             >
               TEAM ON
             </TableCell>
             <TableCell
               colSpan={3}
               align="center"
-              sx={{ bgcolor: "rgba(255,0,0,0.05)", fontWeight: 800 }}
+              sx={{
+                bgcolor: "var(--cs-semantic-color-feedback-error-light)",
+                fontWeight: "var(--cs-typography-fontWeight-bold)",
+                color: "var(--cs-semantic-color-feedback-error-dark)",
+              }}
             >
               TEAM OFF
             </TableCell>
@@ -93,8 +101,8 @@ export const OnOffImpactTable: React.FC<OnOffImpactTableProps> = ({ data }) => {
                   fontWeight: 700,
                   color:
                     parseFloat(row.on.netRating) >= 0
-                      ? "success.main"
-                      : "error.main",
+                      ? "var(--cs-semantic-color-feedback-success-main)"
+                      : "var(--cs-semantic-color-feedback-error-main)",
                 }}
               >
                 {formatPlusMinus(parseFloat(row.on.netRating))}
@@ -107,8 +115,8 @@ export const OnOffImpactTable: React.FC<OnOffImpactTableProps> = ({ data }) => {
                   fontWeight: 700,
                   color:
                     parseFloat(row.off.netRating) >= 0
-                      ? "success.main"
-                      : "error.main",
+                      ? "var(--cs-semantic-color-feedback-success-main)"
+                      : "var(--cs-semantic-color-feedback-error-main)",
                 }}
               >
                 {formatPlusMinus(parseFloat(row.off.netRating))}
@@ -117,11 +125,11 @@ export const OnOffImpactTable: React.FC<OnOffImpactTableProps> = ({ data }) => {
                 align="center"
                 sx={{
                   fontWeight: 900,
-                  bgcolor: "rgba(0,0,0,0.02)",
+                  bgcolor: "var(--cs-semantic-color-surface-subtle)",
                   color:
                     parseFloat(row.differential) >= 0
-                      ? "success.main"
-                      : "error.main",
+                      ? "var(--cs-semantic-color-feedback-success-main)"
+                      : "var(--cs-semantic-color-feedback-error-main)",
                 }}
               >
                 {formatPlusMinus(parseFloat(row.differential))}

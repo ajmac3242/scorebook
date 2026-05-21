@@ -32,7 +32,11 @@ export const MoleskineCard: React.FC<PaperProps> = ({
   <Paper
     className="moleskine-card"
     sx={{
-      p: 2,
+      p: "var(--cs-semantic-spacing-sectionCardPadding)",
+      bgcolor: "var(--cs-semantic-color-surface-moleskine)",
+      border: "1px solid var(--cs-semantic-color-border-subtle)",
+      borderRadius: "var(--cs-semantic-shape-radius-lg)",
+      boxShadow: "var(--cs-semantic-elevation-shadow-card)",
       ...sx,
     }}
     {...props}
@@ -68,15 +72,15 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
   const navigate = useNavigate();
 
   return (
-    <Box sx={{ mb: { xs: 3, sm: 4 }, position: "relative" }}>
+    <Box sx={{ mb: "var(--cs-semantic-spacing-lg)", position: "relative" }}>
       <Box
         sx={{
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          minHeight: 48,
+          minHeight: "var(--cs-touch-targetComfortable)",
           position: "relative",
-          px: 6,
+          px: "var(--cs-semantic-spacing-pagePaddingX)",
         }}
       >
         {showBack && (
@@ -87,11 +91,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
               sx={{
                 position: "absolute",
                 left: 0,
-                color: "text.primary",
-                "&:hover": {
-                  transform: "scale(1.1)",
-                  transition: "transform 0.2s",
-                },
+                color: "var(--cs-semantic-color-text-primary)",
               }}
             >
               <ArrowBackIcon />
@@ -102,8 +102,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
           <Typography
             variant="h4"
             sx={{
-              fontFamily: "var(--serif)",
-              fontSize: { xs: "1.75rem", sm: "2.125rem" },
+              color: "var(--cs-semantic-color-text-primary)",
             }}
           >
             {title}
@@ -113,17 +112,25 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
       {subtitle && (
         <Typography
           variant="h6"
-          color="text.secondary"
           sx={{
+            color: "var(--cs-semantic-color-text-secondary)",
             textAlign: "center",
             mt: 0.5,
-            fontSize: { xs: "1rem", sm: "1.25rem" },
           }}
         >
           {subtitle}
         </Typography>
       )}
-      {actions && <Box sx={{ mt: 2, textAlign: "center" }}>{actions}</Box>}
+      {actions && (
+        <Box
+          sx={{
+            mt: "var(--cs-semantic-spacing-md)",
+            textAlign: "center",
+          }}
+        >
+          {actions}
+        </Box>
+      )}
     </Box>
   );
 };
@@ -151,14 +158,26 @@ export const StatItem: React.FC<StatItemProps> = ({ label, value, light }) => (
   >
     <Typography
       variant="caption"
-      sx={{ opacity: 0.8, color: light ? "white" : "text.secondary" }}
+      sx={{
+        color: light
+          ? "var(--cs-semantic-color-text-inverse)"
+          : "var(--cs-semantic-color-text-secondary)",
+        fontWeight: "var(--cs-typography-fontWeight-bold)",
+        textTransform: "uppercase",
+        letterSpacing: "var(--cs-typography-letterSpacing-wider)",
+      }}
       aria-hidden="true"
     >
       {label}
     </Typography>
     <Typography
       variant="h4"
-      sx={{ fontWeight: 700, color: light ? "white" : "text.primary" }}
+      sx={{
+        fontWeight: "var(--cs-typography-fontWeight-bold)",
+        color: light
+          ? "var(--cs-semantic-color-text-inverse)"
+          : "var(--cs-semantic-color-text-primary)",
+      }}
       aria-hidden="true"
     >
       {typeof value === "number" ? <AnimatedNumber value={value} /> : value}
@@ -183,17 +202,26 @@ interface StatCardProps {
 export const StatCard: React.FC<StatCardProps> = ({ label, value }) => (
   <Card
     sx={{
-      bgcolor: "#FFFDF5",
-      border: "1px solid #D1D1D1",
-      transition: "transform 0.2s",
+      bgcolor: "var(--cs-semantic-color-surface-moleskine)",
+      border: "1px solid var(--cs-semantic-color-border-default)",
+      transition: `transform var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)`,
       "&:hover": { transform: "translateY(-4px)" },
     }}
   >
-    <CardContent sx={{ p: 2, "&:last-child": { pb: 2 } }}>
-      <Typography variant="caption" color="text.secondary" gutterBottom>
+    <CardContent
+      sx={{
+        p: "var(--cs-semantic-spacing-md)",
+        "&:last-child": { pb: "var(--cs-semantic-spacing-md)" },
+      }}
+    >
+      <Typography
+        variant="caption"
+        sx={{ color: "var(--cs-semantic-color-text-secondary)" }}
+        gutterBottom
+      >
         {label}
       </Typography>
-      <Typography variant="h5" sx={{ fontFamily: "var(--serif)" }}>
+      <Typography variant="h5" sx={{ fontWeight: 800 }}>
         {typeof value === "number" ? <AnimatedNumber value={value} /> : value}
       </Typography>
     </CardContent>

@@ -43,34 +43,34 @@ export const ClutchPerformanceHUD: React.FC<ClutchPerformanceHUDProps> = ({
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          mb: 2,
-          p: 1,
-          bgcolor: "error.dark",
-          borderRadius: 1,
+          mb: "var(--cs-semantic-spacing-md)",
+          p: "var(--cs-semantic-spacing-sm)",
+          bgcolor: "var(--cs-semantic-color-feedback-error-dark)",
+          borderRadius: "var(--cs-semantic-shape-radius-sm)",
         }}
       >
         <Typography
           variant="caption"
           sx={{
             fontWeight: 900,
-            color: "white",
+            color: "var(--cs-semantic-color-text-inverse)",
             letterSpacing: 2,
             display: "flex",
             alignItems: "center",
             gap: 1,
           }}
         >
-          <LocalFireDepartment fontSize="small" /> WINNING TIME HUD
+          <LocalFireDepartment fontSize="small" /> Winning Time HUD
         </Typography>
         <Chip
           label="CLUTCH"
           size="small"
           sx={{
             height: 16,
-            fontSize: "0.5rem",
+            fontSize: "var(--cs-typography-fontSize-xs)",
             fontWeight: 900,
-            bgcolor: "white",
-            color: "error.main",
+            bgcolor: "var(--cs-semantic-color-background-elevated)",
+            color: "var(--cs-semantic-color-feedback-error-main)",
           }}
         />
       </Box>
@@ -124,7 +124,8 @@ export const ClutchPerformanceHUD: React.FC<ClutchPerformanceHUDProps> = ({
                             width: 20,
                             height: 20,
                             fontSize: "0.6rem",
-                            bgcolor: "primary.main",
+                            bgcolor:
+                              "var(--cs-semantic-color-brand-primary-main)",
                           }}
                         >
                           {jerseyMap.get(p.id.toString()) || "?"}
@@ -139,7 +140,10 @@ export const ClutchPerformanceHUD: React.FC<ClutchPerformanceHUDProps> = ({
                         variant="caption"
                         sx={{
                           fontWeight: 900,
-                          color: p.points > 0 ? "success.main" : "inherit",
+                          color:
+                            p.points > 0
+                              ? "var(--cs-semantic-color-feedback-success-main)"
+                              : "inherit",
                         }}
                       >
                         {p.points}
@@ -152,9 +156,9 @@ export const ClutchPerformanceHUD: React.FC<ClutchPerformanceHUDProps> = ({
                           fontWeight: 700,
                           color:
                             parseFloat(p.ftPct) >= 80
-                              ? "success.main"
+                              ? "var(--cs-semantic-color-feedback-success-main)"
                               : parseFloat(p.ftPct) <= 50 && p.fta > 0
-                                ? "error.main"
+                                ? "var(--cs-semantic-color-feedback-error-main)"
                                 : "inherit",
                         }}
                       >
@@ -172,10 +176,13 @@ export const ClutchPerformanceHUD: React.FC<ClutchPerformanceHUDProps> = ({
                             flex: 1,
                             height: 4,
                             borderRadius: 2,
-                            bgcolor: "rgba(0,0,0,0.05)",
+                            bgcolor:
+                              "var(--cs-semantic-color-action-disabledBackground)",
                             "& .MuiLinearProgress-bar": {
                               bgcolor:
-                                usage > 30 ? "error.main" : "primary.main",
+                                usage > 30
+                                  ? "var(--cs-semantic-color-feedback-error-main)"
+                                  : "var(--cs-semantic-color-brand-primary-main)",
                             },
                           }}
                         />
@@ -194,14 +201,23 @@ export const ClutchPerformanceHUD: React.FC<ClutchPerformanceHUDProps> = ({
         </Table>
       </TableContainer>
 
-      <Box sx={{ mt: 2, p: 1, bgcolor: "rgba(0,0,0,0.02)", borderRadius: 1 }}>
+      <Box
+        sx={{
+          mt: "var(--cs-semantic-spacing-md)",
+          p: "var(--cs-semantic-spacing-sm)",
+          bgcolor: "var(--cs-semantic-color-surface-subtle)",
+          borderRadius: "var(--cs-semantic-shape-radius-sm)",
+          border: "1px solid var(--cs-semantic-color-border-subtle)",
+        }}
+      >
         <Typography
           variant="caption"
           sx={{
-            fontWeight: 800,
-            color: "text.secondary",
+            fontWeight: "var(--cs-typography-fontWeight-bold)",
+            color: "var(--cs-semantic-color-text-secondary)",
             display: "block",
             mb: 0.5,
+            textTransform: "uppercase",
           }}
         >
           CLUTCH ADVISOR
@@ -227,7 +243,7 @@ export const ClutchPerformanceHUD: React.FC<ClutchPerformanceHUDProps> = ({
                   variant="caption"
                   sx={{
                     display: "block",
-                    color: "warning.dark",
+                    color: "var(--cs-semantic-color-feedback-warning-dark)",
                     fontWeight: 700,
                   }}
                 >
@@ -240,7 +256,7 @@ export const ClutchPerformanceHUD: React.FC<ClutchPerformanceHUDProps> = ({
                   variant="caption"
                   sx={{
                     display: "block",
-                    color: "error.main",
+                    color: "var(--cs-semantic-color-feedback-error-main)",
                     fontWeight: 700,
                   }}
                 >

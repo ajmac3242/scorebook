@@ -60,7 +60,7 @@ const SideNav: React.FC<SideNavProps> = ({
         height: "100%",
         display: "flex",
         flexDirection: "column",
-        bgcolor: "background.paper",
+        bgcolor: "var(--cs-semantic-color-background-paper)",
       }}
     >
       <Box
@@ -82,16 +82,21 @@ const SideNav: React.FC<SideNavProps> = ({
           aria-label="Open search"
           sx={{
             width: "100%",
-            height: 40,
-            px: 1.5,
-            borderRadius: 2,
-            border: "1px solid",
-            borderColor: "divider",
+            height: "var(--cs-semantic-spacing-inputHeightMd)",
+            px: "var(--cs-semantic-spacing-md)",
+            borderRadius: "var(--cs-semantic-shape-radius-md)",
+            border: "1px solid var(--cs-semantic-color-border-subtle)",
             display: "flex",
             alignItems: "center",
             justifyContent: "flex-start",
             gap: 1,
-            color: "text.secondary",
+            color: "var(--cs-semantic-color-text-secondary)",
+            transition:
+              "all var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
+            "&:hover": {
+              borderColor: "var(--cs-semantic-color-border-default)",
+              bgcolor: "var(--cs-semantic-color-action-hover)",
+            },
           }}
         >
           <SearchIcon sx={{ fontSize: 18 }} />
@@ -118,19 +123,34 @@ const SideNav: React.FC<SideNavProps> = ({
                 to={item.path}
                 onClick={onMobileClose}
                 sx={{
-                  minHeight: 44,
-                  px: 1.5,
-                  borderRadius: 2,
+                  minHeight: "var(--cs-touch-targetComfortable)",
+                  px: "var(--cs-semantic-spacing-md)",
+                  borderRadius: "var(--cs-semantic-shape-radius-md)",
                   justifyContent: "flex-start",
-                  bgcolor: isActive ? "action.selected" : "transparent",
-                  color: isActive ? "primary.main" : "text.secondary",
+                  bgcolor: isActive
+                    ? "var(--cs-semantic-color-action-selected)"
+                    : "transparent",
+                  color: isActive
+                    ? "var(--cs-semantic-color-brand-primary-main)"
+                    : "var(--cs-semantic-color-text-secondary)",
+                  transition:
+                    "all var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
                   "&:hover": {
-                    bgcolor: isActive ? "action.selected" : "action.hover",
-                    color: isActive ? "primary.main" : "text.primary",
+                    bgcolor: isActive
+                      ? "var(--cs-semantic-color-action-selected)"
+                      : "var(--cs-semantic-color-action-hover)",
+                    color: isActive
+                      ? "var(--cs-semantic-color-brand-primary-main)"
+                      : "var(--cs-semantic-color-text-primary)",
                   },
                   "& .MuiListItemIcon-root": {
                     color: "inherit",
                     minWidth: 36,
+                  },
+                  "&:focus-visible": {
+                    outline:
+                      "var(--cs-semantic-focus-width) solid var(--cs-semantic-color-action-focusRing)",
+                    outlineOffset: "var(--cs-semantic-focus-offset)",
                   },
                 }}
               >
@@ -178,27 +198,29 @@ const SideNav: React.FC<SideNavProps> = ({
             to="/settings"
             onClick={onMobileClose}
             sx={{
-              minHeight: 44,
-              px: 1.5,
-              borderRadius: 2,
+              minHeight: "var(--cs-touch-targetComfortable)",
+              px: "var(--cs-semantic-spacing-md)",
+              borderRadius: "var(--cs-semantic-shape-radius-md)",
               justifyContent: "flex-start",
               bgcolor:
                 location.pathname === "/settings"
-                  ? "action.selected"
+                  ? "var(--cs-semantic-color-action-selected)"
                   : "transparent",
               color:
                 location.pathname === "/settings"
-                  ? "primary.main"
-                  : "text.secondary",
+                  ? "var(--cs-semantic-color-brand-primary-main)"
+                  : "var(--cs-semantic-color-text-secondary)",
+              transition:
+                "all var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
               "&:hover": {
                 bgcolor:
                   location.pathname === "/settings"
-                    ? "action.selected"
-                    : "action.hover",
+                    ? "var(--cs-semantic-color-action-selected)"
+                    : "var(--cs-semantic-color-action-hover)",
                 color:
                   location.pathname === "/settings"
-                    ? "primary.main"
-                    : "text.primary",
+                    ? "var(--cs-semantic-color-brand-primary-main)"
+                    : "var(--cs-semantic-color-text-primary)",
               },
             }}
           >
@@ -219,26 +241,33 @@ const SideNav: React.FC<SideNavProps> = ({
           </ListItemButton>
         </ListItem>
 
-        <Box sx={{ px: 1.5, mb: 1.5 }}>
+        <Box
+          sx={{
+            px: "var(--cs-semantic-spacing-md)",
+            mb: "var(--cs-semantic-spacing-md)",
+          }}
+        >
           <Box
             sx={{
               width: "100%",
               height: 1,
-              bgcolor: "divider",
+              bgcolor: "var(--cs-semantic-color-border-subtle)",
             }}
           />
         </Box>
 
         <Box
           sx={{
-            px: 1.5,
-            py: 1,
+            px: "var(--cs-semantic-spacing-md)",
+            py: "var(--cs-semantic-spacing-sm)",
             display: "flex",
             alignItems: "center",
             cursor: "pointer",
-            borderRadius: 2,
+            borderRadius: "var(--cs-semantic-shape-radius-md)",
+            transition:
+              "background-color var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
             "&:hover": {
-              bgcolor: "action.hover",
+              bgcolor: "var(--cs-semantic-color-action-hover)",
             },
           }}
         >
@@ -246,8 +275,9 @@ const SideNav: React.FC<SideNavProps> = ({
             sx={{
               width: 32,
               height: 32,
-              bgcolor: "primary.main",
-              fontSize: "0.875rem",
+              bgcolor: "var(--cs-semantic-color-brand-primary-main)",
+              fontSize: "var(--cs-typography-fontSize-sm)",
+              fontWeight: 700,
             }}
           >
             {coachName[0]}
@@ -275,7 +305,7 @@ const SideNav: React.FC<SideNavProps> = ({
             boxSizing: "border-box",
             width: APP_SHELL_LAYOUT.drawerWidth,
             left: 0,
-            bgcolor: "background.paper",
+            bgcolor: "var(--cs-semantic-color-background-paper)",
           },
         }}
       >

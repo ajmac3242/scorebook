@@ -55,7 +55,16 @@ export const PlayerStatRow: React.FC<PlayerStatRowProps> = React.memo(
   }) => (
     <TableRow
       sx={{
-        bgcolor: isOnCourt ? "rgba(25, 118, 210, 0.04)" : "transparent",
+        bgcolor: isOnCourt
+          ? "var(--cs-semantic-color-surface-onCourt)"
+          : "transparent",
+        transition:
+          "background-color var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
+        "&:hover": {
+          bgcolor: isOnCourt
+            ? "var(--cs-semantic-color-surface-onCourt)"
+            : "var(--cs-semantic-color-action-hover)",
+        },
       }}
     >
       <TableCell sx={{ py: 1, px: 1 }}>
@@ -145,11 +154,12 @@ export const PlayerStatRow: React.FC<PlayerStatRowProps> = React.memo(
           fontWeight: fouls >= 4 ? 700 : 400,
           bgcolor:
             fouls >= 5
-              ? "error.main"
+              ? "var(--cs-semantic-color-feedback-error-main)"
               : fouls === 4
-                ? "warning.main"
+                ? "var(--cs-semantic-color-feedback-warning-main)"
                 : "transparent",
-          color: fouls >= 4 ? "white" : "inherit",
+          color:
+            fouls >= 4 ? "var(--cs-semantic-color-text-inverse)" : "inherit",
         }}
       >
         {fouls}
