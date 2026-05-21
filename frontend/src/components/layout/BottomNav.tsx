@@ -54,7 +54,8 @@ const BottomNav: React.FC<BottomNavProps> = ({ isLive = false }) => {
         zIndex: theme.zIndex.appBar,
         borderRadius: 0,
         bgcolor: "var(--cs-semantic-color-background-paper)",
-        borderTop: "1px solid var(--cs-semantic-color-border-subtle, rgba(0,0,0,0.08))",
+        borderTop:
+          "1px solid var(--cs-semantic-color-border-subtle, rgba(0,0,0,0.08))",
         display: { xs: "block", md: "none" },
       }}
     >

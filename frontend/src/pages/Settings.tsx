@@ -609,8 +609,9 @@ const Settings: React.FC = () => {
       <SettingsRow
         row={row}
         label="Local storage"
-        description={`${totalDbRecords.toLocaleString()} total records across ${Object.keys(dbStats).length
-          } tables.`}
+        description={`${totalDbRecords.toLocaleString()} total records across ${
+          Object.keys(dbStats).length
+        } tables.`}
         alignTop
       >
         <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.75 }}>
@@ -700,7 +701,6 @@ const Settings: React.FC = () => {
     </Box>
   );
 
-
   const renderContent = () => {
     switch (activeTab) {
       case "account":
@@ -713,7 +713,6 @@ const Settings: React.FC = () => {
         return renderAccountTab();
     }
   };
-
 
   return (
     <Box
@@ -741,7 +740,6 @@ const Settings: React.FC = () => {
           Settings
         </Typography>
 
-
         <Tabs
           value={TABS.indexOf(activeTab)}
           onChange={(_e, v) => setActiveTab(TABS[v] ?? "account")}
@@ -765,9 +763,7 @@ const Settings: React.FC = () => {
         </Tabs>
       </Box>
 
-
       <Divider />
-
 
       <Box
         sx={{
@@ -784,7 +780,6 @@ const Settings: React.FC = () => {
       >
         {renderContent()}
       </Box>
-
 
       <Snackbar
         open={snackbar.open}
@@ -804,6 +799,5 @@ const Settings: React.FC = () => {
     </Box>
   );
 };
-
 
 export default Settings;
