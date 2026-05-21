@@ -3,7 +3,7 @@ import React, {
   useContext,
   useMemo,
   useState,
-  ReactNode,
+  type ReactNode,
 } from "react";
 import { ThemeProvider, type Theme } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -45,11 +45,17 @@ export function CourtSightThemeProvider({
   children,
 }: Props) {
   const fallbackPreset = presets[0];
-  const fallbackId = defaultPresetId ?? fallbackPreset?.id ?? "";
+
+  if (!fallbackPreset) {
+    throw new Error("CourtSightThemeProvider requires at least one preset");
+  }
+
+  const fallbackId = defaultPresetId ?? fallbackPreset.id;
 
   const [presetIdState, setPresetIdState] = useState<string>(() => {
     try {
-      return localStorage.getItem(STORAGE_KEY) ?? fallbackId;
+      const storedPresetId = localStorage.getItem(STORAGE_KEY);
+      return storedPresetId ?? fallbackId;
     } catch {
       return fallbackId;
     }
@@ -60,15 +66,17 @@ export function CourtSightThemeProvider({
     [presets, presetIdState, fallbackPreset],
   );
 
-  const presetId = activePreset?.id ?? fallbackId;
+  const presetId = activePreset.id;
 
   const setPresetId = (id: string) => {
     const nextId = presets.some((preset) => preset.id === id) ? id : fallbackId;
+
     setPresetIdState(nextId);
+
     try {
       localStorage.setItem(STORAGE_KEY, nextId);
     } catch {
-      // Ignore storage failures
+      // Ignore storage failures.
     }
   };
 
@@ -84,10 +92,6 @@ export function CourtSightThemeProvider({
     }),
     [presetId, presets, activePreset, theme],
   );
-
-  if (!activePreset) {
-    throw new Error("CourtSightThemeProvider requires at least one preset");
-  }
 
   return (
     <ThemeCtx.Provider value={value}>
