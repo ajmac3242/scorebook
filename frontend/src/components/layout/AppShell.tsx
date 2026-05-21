@@ -1,177 +1,71 @@
 import React from "react";
-import { Box, useMediaQuery } from "@mui/material";
+import { Box, Paper, useMediaQuery, useTheme } from "@mui/material";
+import SideNav from "./SideNav";
+import BottomNav from "./BottomNav";
+import { useTokens } from "../../theme/useTokens";
 
 interface AppShellProps {
-  drawerSlot?: React.ReactNode;
-  topBarSlot?: React.ReactNode;
-  bottomSlot?: React.ReactNode;
   children: React.ReactNode;
 }
 
-export const APP_SHELL_LAYOUT = {
-  drawerWidth: 260,
-} as const;
+const AppShell: React.FC<AppShellProps> = ({ children }) => {
+  const theme = useTheme();
+  const tokens = useTokens();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-const AppShell: React.FC<AppShellProps> = ({
-  drawerSlot,
-  topBarSlot,
-  bottomSlot,
-  children,
-}) => {
-  const isDesktop = useMediaQuery("(min-width:768px)");
+  const appFrame = tokens.layout.appFrame;
+  const pageSurface = tokens.layout.pageSurface;
 
-  if (!isDesktop) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          height: "100dvh",
-          width: "100%",
-          minWidth: 0,
-          overflow: "hidden",
-          bgcolor: "var(--cs-semantic-color-background-default)",
-        }}
-      >
-        {topBarSlot ? (
-          <Box
-            sx={{
-              flexShrink: 0,
-              minWidth: 0,
-              zIndex: "var(--cs-semantic-elevation-zIndex-appBar)",
-            }}
-          >
-            {topBarSlot}
-          </Box>
-        ) : null}
-
-        <Box
-          component="main"
-          id="main-content"
-          sx={{
-            flex: 1,
-            minHeight: 0,
-            minWidth: 0,
-            width: "100%",
-            overflowY: "auto",
-            overflowX: "hidden",
-            bgcolor: "var(--cs-semantic-color-background-default)",
-            position: "relative",
-            outline: "none",
-            WebkitOverflowScrolling: "touch",
-            display: "flex",
-            flexDirection: "column",
-          }}
-          tabIndex={-1}
-        >
-          {children}
-        </Box>
-
-        {bottomSlot ? (
-          <Box
-            sx={{
-              flexShrink: 0,
-              height: 56,
-              borderTop: "1px solid var(--cs-semantic-color-border-subtle)",
-              bgcolor: "var(--cs-semantic-color-background-paper)",
-              zIndex: "var(--cs-semantic-elevation-zIndex-appBar)",
-            }}
-          >
-            {bottomSlot}
-          </Box>
-        ) : null}
-      </Box>
-    );
-  }
+  const gutter = `${(appFrame?.gutter ?? 16) / 8}rem`;
+  const sidebarWidth = appFrame?.sidebarWidth ?? 220;
 
   return (
     <Box
       sx={{
-        height: "100dvh",
-        width: "100%",
-        overflow: "hidden",
-        bgcolor: "var(--cs-semantic-color-background-default)",
-        p: "var(--cs-semantic-spacing-md)",
-        boxSizing: "border-box",
+        minHeight: "100dvh",
+        bgcolor: appFrame?.background ?? "background.default",
+        display: "flex",
       }}
     >
+      {!isMobile && <SideNav />}
+
       <Box
+        component="main"
         sx={{
+          flex: 1,
+          minWidth: appFrame?.contentMinWidth ?? 0,
           display: "flex",
-          flexDirection: "row",
-          gap: "var(--cs-semantic-spacing-md)",
-          height: "100%",
-          width: "100%",
-          minWidth: 0,
-          overflow: "hidden",
+          flexDirection: "column",
+          p: gutter,
+          pb: {
+            xs: `calc(${gutter} + 72px)`,
+            md: gutter,
+          },
         }}
       >
-        <Box
-          component="aside"
-          sx={{
-            width: APP_SHELL_LAYOUT.drawerWidth,
-            minWidth: APP_SHELL_LAYOUT.drawerWidth,
-            maxWidth: APP_SHELL_LAYOUT.drawerWidth,
-            height: "100%",
-            flexShrink: 0,
-            bgcolor: "var(--cs-semantic-color-background-paper)",
-            overflow: "hidden",
-            borderRadius: "var(--cs-semantic-shape-radius-lg)",
-            border: "1px solid var(--cs-semantic-color-border-subtle)",
-            boxShadow: "var(--cs-semantic-elevation-shadow-card)",
-          }}
-        >
-          {drawerSlot}
-        </Box>
-
-        <Box
+        <Paper
+          elevation={0}
           sx={{
             flex: 1,
-            minWidth: 0,
-            minHeight: 0,
+            width: "100%",
+            maxWidth: pageSurface?.maxWidth ?? 1280,
+            mx: "auto",
+            borderRadius: `${pageSurface?.radius ?? 20}px`,
+            bgcolor: pageSurface?.background ?? "background.paper",
+            border: pageSurface?.border ?? "1px solid",
+            borderColor:
+              pageSurface?.border === undefined ? "divider" : undefined,
+            boxShadow: pageSurface?.shadow ?? "none",
+            overflow: "hidden",
             display: "flex",
             flexDirection: "column",
-            overflow: "hidden",
-            borderRadius: "var(--cs-semantic-shape-radius-lg)",
-            border: "1px solid var(--cs-semantic-color-border-subtle)",
-            bgcolor: "var(--cs-semantic-color-background-paper)",
-            boxShadow: "var(--cs-semantic-elevation-shadow-card)",
           }}
         >
-          {topBarSlot ? (
-            <Box
-              sx={{
-                flexShrink: 0,
-                minWidth: 0,
-                zIndex: "var(--cs-semantic-elevation-zIndex-appBar)",
-              }}
-            >
-              {topBarSlot}
-            </Box>
-          ) : null}
-
-          <Box
-            component="main"
-            id="main-content"
-            sx={{
-              flex: 1,
-              minHeight: 0,
-              minWidth: 0,
-              width: "100%",
-              overflowY: "auto",
-              overflowX: "hidden",
-              position: "relative",
-              outline: "none",
-              WebkitOverflowScrolling: "touch",
-              display: "flex",
-              flexDirection: "column",
-            }}
-            tabIndex={-1}
-          >
-            {children}
-          </Box>
-        </Box>
+          {children}
+        </Paper>
       </Box>
+
+      {isMobile && <BottomNav />}
     </Box>
   );
 };
