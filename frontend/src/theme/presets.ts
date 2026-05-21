@@ -2,10 +2,76 @@ import type { ThemePreset } from "./tokens/tokens";
 import { palettes } from "./tokens/palette";
 
 export const PRESETS: ThemePreset[] = [
-  // ─── Classic ────────────────────────────────────────────────────────────────
+  // ─── CourtSight Classic ──────────────────────────────────────────────────────
   {
     id: "classic",
-    label: "Classic",
+    label: "CourtSight Classic",
+    previewColor: "#00BCD4",
+    mode: "dark",
+    overrides: {
+      semantic: {
+        color: {
+          brand: {
+            primary: {
+              main: "#00BCD4",
+              light: "#4DD0E1",
+              dark: "#00838F",
+              contrastText: "#FFFFFF",
+            },
+            secondary: {
+              main: palettes.slate[500],
+              light: palettes.slate[300],
+              dark: palettes.slate[700],
+              contrastText: "#FFFFFF",
+            },
+          },
+          background: {
+            default: "#0D1117",
+            subtle: "#161B22",
+            paper: "#161B22",
+            elevated: "#1C2128",
+            inset: "#090D12",
+          },
+          surface: {
+            default: "#161B22",
+            subtle: "#1C2128",
+            elevated: "#1C2128",
+            inset: "#090D12",
+            strong: "#21262D",
+            accentSoft: "#0D2026",
+          },
+          text: {
+            primary: "#E6EDF3",
+            secondary: "#8B949E",
+            tertiary: "#6E7681",
+            muted: "#484F58",
+            inverse: "#0D1117",
+            disabled: "#6E7681",
+          },
+          border: {
+            subtle: "#21262D",
+            default: "#30363D",
+            strong: "#3D444D",
+            accent: "#0D3040",
+            focus: "#00BCD4",
+          },
+          action: {
+            hover: "rgba(0, 188, 212, 0.08)",
+            active: "rgba(0, 188, 212, 0.12)",
+            selected: "rgba(0, 188, 212, 0.16)",
+            disabled: "rgba(230, 237, 243, 0.38)",
+            disabledBackground: "rgba(230, 237, 243, 0.08)",
+            focusRing: "#00BCD4",
+          },
+        },
+      },
+    },
+  },
+
+  // ─── Gametime ────────────────────────────────────────────────────────────────
+  {
+    id: "gametime",
+    label: "Gametime",
     previewColor: palettes.blue[500],
     mode: "light",
     overrides: {
@@ -15,7 +81,7 @@ export const PRESETS: ThemePreset[] = [
             primary: {
               main: palettes.blue[500],
               light: palettes.blue[400],
-              dark: palettes.blue[900],
+              dark: palettes.blue[700],
               contrastText: "#FFFFFF",
             },
             secondary: {
@@ -30,91 +96,20 @@ export const PRESETS: ThemePreset[] = [
     },
   },
 
-  // ─── Gametime ───────────────────────────────────────────────────────────────
-  {
-    id: "gametime",
-    label: "Gametime",
-    previewColor: palettes.warningScale[500],
-    mode: "dark",
-    overrides: {
-      semantic: {
-        color: {
-          brand: {
-            primary: {
-              main: palettes.warningScale[500],
-              light: palettes.warningScale[300],
-              dark: palettes.warningScale[700],
-              contrastText: palettes.blue[900],
-            },
-            secondary: {
-              main: palettes.blue[500],
-              light: palettes.blue[300],
-              dark: palettes.blue[700],
-              contrastText: "#FFFFFF",
-            },
-          },
-          background: {
-            default: "#0E1117",
-            subtle: "#13181F",
-            paper: "#13181F",
-            elevated: "#1A2028",
-            inset: "#0A0D12",
-          },
-          surface: {
-            default: "#13181F",
-            subtle: "#171D26",
-            elevated: "#1A2028",
-            inset: "#0A0D12",
-            strong: "#242C38",
-            accentSoft: "#1C1A0F",
-          },
-          text: {
-            primary: "#F0EDE8",
-            secondary: "#A8A49E",
-            tertiary: "#6E6B66",
-            muted: "#4E4B48",
-            inverse: "#0E1117",
-            disabled: "#6E6B66",
-          },
-          border: {
-            subtle: "#232931",
-            default: "#2C3340",
-            strong: "#3A4454",
-            accent: "#4A3A10",
-            focus: palettes.warningScale[500],
-          },
-          action: {
-            hover: "rgba(217, 158, 50, 0.08)",
-            active: "rgba(217, 158, 50, 0.12)",
-            selected: "rgba(217, 158, 50, 0.16)",
-            disabled: "rgba(240, 237, 232, 0.38)",
-            disabledBackground: "rgba(240, 237, 232, 0.08)",
-            focusRing: palettes.warningScale[500],
-          },
-          feedback: {
-            warning: {
-              contrastText: "#0E1117",
-            },
-          },
-        },
-      },
-    },
-  },
-
-  // ─── Hardwood ───────────────────────────────────────────────────────────────
+  // ─── Hardwood ────────────────────────────────────────────────────────────────
   {
     id: "hardwood",
     label: "Hardwood",
-    previewColor: "#B8620A",
+    previewColor: "#B8860B",
     mode: "light",
     overrides: {
       semantic: {
         color: {
           brand: {
             primary: {
-              main: "#B8620A",
-              light: "#D97A1A",
-              dark: "#7A3E05",
+              main: "#B8860B",
+              light: "#D4A017",
+              dark: "#7A5700",
               contrastText: "#FFFFFF",
             },
             secondary: {
@@ -152,15 +147,147 @@ export const PRESETS: ThemePreset[] = [
             default: "#CDBFA8",
             strong: "#B8A48A",
             accent: "#D9A86A",
-            focus: "#B8620A",
+            focus: "#B8860B",
           },
           action: {
-            hover: "rgba(184, 98, 10, 0.06)",
-            active: "rgba(184, 98, 10, 0.10)",
-            selected: "rgba(184, 98, 10, 0.12)",
+            hover: "rgba(184, 134, 11, 0.06)",
+            active: "rgba(184, 134, 11, 0.10)",
+            selected: "rgba(184, 134, 11, 0.12)",
             disabled: "rgba(46, 31, 10, 0.38)",
             disabledBackground: "rgba(46, 31, 10, 0.08)",
-            focusRing: "#B8620A",
+            focusRing: "#B8860B",
+          },
+        },
+      },
+    },
+  },
+
+  // ─── Leather ─────────────────────────────────────────────────────────────────
+  {
+    id: "leather",
+    label: "Leather",
+    previewColor: "#C0391A",
+    mode: "dark",
+    overrides: {
+      semantic: {
+        color: {
+          brand: {
+            primary: {
+              main: "#C0391A",
+              light: "#E04D28",
+              dark: "#8B2500",
+              contrastText: "#FFFFFF",
+            },
+            secondary: {
+              main: palettes.warmGray[500],
+              light: palettes.warmGray[300],
+              dark: palettes.warmGray[700],
+              contrastText: "#FFFFFF",
+            },
+          },
+          background: {
+            default: "#130A04",
+            subtle: "#1C100A",
+            paper: "#1C100A",
+            elevated: "#261510",
+            inset: "#0D0603",
+          },
+          surface: {
+            default: "#1C100A",
+            subtle: "#221408",
+            elevated: "#261510",
+            inset: "#0D0603",
+            strong: "#2E1C0E",
+            accentSoft: "#2A0E06",
+          },
+          text: {
+            primary: "#EDE0D4",
+            secondary: "#A89080",
+            tertiary: "#6E5248",
+            muted: "#4E3830",
+            inverse: "#130A04",
+            disabled: "#6E5248",
+          },
+          border: {
+            subtle: "#2E1C0E",
+            default: "#3D2618",
+            strong: "#4F3425",
+            accent: "#6B2C14",
+            focus: "#C0391A",
+          },
+          action: {
+            hover: "rgba(192, 57, 26, 0.08)",
+            active: "rgba(192, 57, 26, 0.12)",
+            selected: "rgba(192, 57, 26, 0.16)",
+            disabled: "rgba(237, 224, 212, 0.38)",
+            disabledBackground: "rgba(237, 224, 212, 0.08)",
+            focusRing: "#C0391A",
+          },
+        },
+      },
+    },
+  },
+
+  // ─── Blacktop ────────────────────────────────────────────────────────────────
+  {
+    id: "blacktop",
+    label: "Blacktop",
+    previewColor: "#E87D0D",
+    mode: "dark",
+    overrides: {
+      semantic: {
+        color: {
+          brand: {
+            primary: {
+              main: "#E87D0D",
+              light: "#F5A03A",
+              dark: "#B05A00",
+              contrastText: "#0A0A0A",
+            },
+            secondary: {
+              main: palettes.slate[500],
+              light: palettes.slate[300],
+              dark: palettes.slate[700],
+              contrastText: "#FFFFFF",
+            },
+          },
+          background: {
+            default: "#0A0A0A",
+            subtle: "#111111",
+            paper: "#111111",
+            elevated: "#1A1A1A",
+            inset: "#060606",
+          },
+          surface: {
+            default: "#111111",
+            subtle: "#171717",
+            elevated: "#1A1A1A",
+            inset: "#060606",
+            strong: "#222222",
+            accentSoft: "#1A1000",
+          },
+          text: {
+            primary: "#F0F0F0",
+            secondary: "#A0A0A0",
+            tertiary: "#6A6A6A",
+            muted: "#444444",
+            inverse: "#0A0A0A",
+            disabled: "#6A6A6A",
+          },
+          border: {
+            subtle: "#1E1E1E",
+            default: "#2A2A2A",
+            strong: "#3A3A3A",
+            accent: "#3D2800",
+            focus: "#E87D0D",
+          },
+          action: {
+            hover: "rgba(232, 125, 13, 0.08)",
+            active: "rgba(232, 125, 13, 0.12)",
+            selected: "rgba(232, 125, 13, 0.16)",
+            disabled: "rgba(240, 240, 240, 0.38)",
+            disabledBackground: "rgba(240, 240, 240, 0.08)",
+            focusRing: "#E87D0D",
           },
         },
       },
@@ -168,6 +295,6 @@ export const PRESETS: ThemePreset[] = [
   },
 ];
 
-export const DEFAULT_PRESET_ID = "classic";
+export const DEFAULT_PRESET_ID = "gametime";
 
 export default PRESETS;
