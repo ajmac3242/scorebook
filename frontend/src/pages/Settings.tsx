@@ -120,6 +120,7 @@ const SettingsRow: React.FC<SettingsRowProps> = ({
         >
           {label}
         </Typography>
+
         {description && (
           <Typography
             variant="caption"
@@ -159,6 +160,7 @@ const ThemeMiniPreview: React.FC<{
       }}
     >
       <Box sx={{ height: "24%", width: "100%", bgcolor: color }} />
+
       <Box
         sx={{
           px: "8px",
@@ -179,6 +181,7 @@ const ThemeMiniPreview: React.FC<{
             }}
           />
         ))}
+
         <Box sx={{ display: "flex", gap: "5px", mt: "3px" }}>
           <Box
             sx={{
@@ -276,6 +279,7 @@ const PresetCard: React.FC<PresetCardProps> = ({
           selected={selected}
           card={card}
         />
+
         <Box sx={{ mt: `${titleGap + 6}px` }}>
           <Typography
             variant="body2"
@@ -326,6 +330,7 @@ const Settings: React.FC = () => {
 
   useEffect(() => {
     const cognitoUser = UserPool.getCurrentUser();
+
     if (cognitoUser) {
       cognitoUser.getSession((err: Error | null, session: unknown) => {
         if (!err && session) {
@@ -404,13 +409,12 @@ const Settings: React.FC = () => {
       .map((l) => `[${l.level.toUpperCase()}] ${l.timestamp} — ${l.message}`)
       .join("\n");
 
-    navigator.clipboard
-      .writeText(text)
-      .then(() => showSnackbar("Logs copied."));
+    navigator.clipboard.writeText(text).then(() => showSnackbar("Logs copied."));
   };
 
-  const handleLanguageChange = (e: SelectChangeEvent) =>
+  const handleLanguageChange = (e: SelectChangeEvent) => {
     setLanguage(e.target.value);
+  };
 
   const renderAccountTab = () => (
     <Box>
@@ -472,6 +476,7 @@ const Settings: React.FC = () => {
             size="small"
             renderValue={(value) => {
               const preset = availablePresets.find((p) => p.id === value);
+
               if (!preset) return String(value);
 
               return (
@@ -572,7 +577,7 @@ const Settings: React.FC = () => {
       <SettingsRow
         row={row}
         label="Sync"
-        description="Manually push and pull data from the cloud."
+        description="Manually push local changes to the cloud."
       >
         <Stack
           direction="row"
@@ -601,9 +606,8 @@ const Settings: React.FC = () => {
       <SettingsRow
         row={row}
         label="Local storage"
-        description={`${totalDbRecords.toLocaleString()} total records across ${
-          Object.keys(dbStats).length
-        } tables.`}
+        description={`${totalDbRecords.toLocaleString()} total records across ${Object.keys(dbStats).length
+          } tables.`}
         alignTop
       >
         <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
@@ -701,6 +705,8 @@ const Settings: React.FC = () => {
         return renderAppearanceTab();
       case "system":
         return renderSystemTab();
+      default:
+        return renderAccountTab();
     }
   };
 
@@ -708,7 +714,7 @@ const Settings: React.FC = () => {
     <Box
       id="main-content"
       sx={{
-        p: { xs: 2, md: 3 },
+        width: "100%",
         maxWidth: shell?.maxWidth ?? 900,
         mx: "auto",
       }}
