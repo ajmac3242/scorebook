@@ -16,9 +16,6 @@ const AppShell: React.FC<AppShellProps> = ({ children }) => {
   const appFrame = tokens.layout.appFrame;
   const pageSurface = tokens.layout.pageSurface;
 
-  const gutter = `${(appFrame?.gutter ?? 16) / 8}rem`;
-  const sidebarWidth = appFrame?.sidebarWidth ?? 220;
-
   return (
     <Box
       sx={{
