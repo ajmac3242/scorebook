@@ -384,7 +384,7 @@ const Settings: React.FC = () => {
   const handleSync = async () => {
     setIsSyncing(true);
     try {
-      await syncService.sync();
+      await syncService.pushUpdates();
       showSnackbar("Sync complete.");
     } catch {
       showSnackbar("Sync failed. Please try again.", "error");
@@ -601,9 +601,8 @@ const Settings: React.FC = () => {
       <SettingsRow
         row={row}
         label="Local storage"
-        description={`${totalDbRecords.toLocaleString()} total records across ${
-          Object.keys(dbStats).length
-        } tables.`}
+        description={`${totalDbRecords.toLocaleString()} total records across ${Object.keys(dbStats).length
+          } tables.`}
         alignTop
       >
         <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
