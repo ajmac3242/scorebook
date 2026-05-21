@@ -460,10 +460,12 @@ const HalftimeReportDialog: React.FC<HalftimeReportDialogProps> = ({
                     key={idx}
                     sx={{
                       p: "var(--cs-semantic-spacing-sm)",
-                      bgcolor: "var(--cs-semantic-color-feedback-warning-light)",
+                      bgcolor:
+                        "var(--cs-semantic-color-feedback-warning-light)",
                       borderRadius: "var(--cs-semantic-shape-radius-md)",
                       borderLeft: "4px solid",
-                      borderColor: "var(--cs-semantic-color-feedback-warning-main)",
+                      borderColor:
+                        "var(--cs-semantic-color-feedback-warning-main)",
                     }}
                   >
                     <Typography variant="body2" component="div">

@@ -147,7 +147,10 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
                       key={`${tId}-${oId}`}
                       title={
                         <Box sx={{ p: 0.5 }}>
-                          <Typography variant="caption" sx={{ display: "block", fontWeight: 700 }}>
+                          <Typography
+                            variant="caption"
+                            sx={{ display: "block", fontWeight: 700 }}
+                          >
                             {data
                               ? `${data.stopPct}% Stop Rate over ${data.possessions} possessions.`
                               : "No matchup data."}
@@ -158,7 +161,8 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
                               sx={{
                                 mt: 0.5,
                                 display: "block",
-                                color: "var(--cs-semantic-color-feedback-warning-main)",
+                                color:
+                                  "var(--cs-semantic-color-feedback-warning-main)",
                                 fontWeight: 800,
                               }}
                             >
@@ -167,7 +171,12 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
                           )}
                           <Typography
                             variant="caption"
-                            sx={{ mt: 0.5, display: "block", fontStyle: "italic", opacity: 0.8 }}
+                            sx={{
+                              mt: 0.5,
+                              display: "block",
+                              fontStyle: "italic",
+                              opacity: 0.8,
+                            }}
                           >
                             Click to assign.
                           </Typography>
@@ -192,7 +201,8 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
                             ? "2px solid var(--cs-semantic-color-brand-primary-main)"
                             : "none",
                           position: "relative",
-                          transition: "all var(--cs-motion-duration-fast) var(--cs-motion-easing-productive)",
+                          transition:
+                            "all var(--cs-motion-duration-fast) var(--cs-motion-easing-productive)",
                           "&:hover": {
                             filter: "brightness(0.95)",
                           },
@@ -205,7 +215,8 @@ export const MatchupMatrix: React.FC<MatchupMatrixProps> = ({
                               top: 1,
                               right: 1,
                               fontSize: 10,
-                              color: "var(--cs-semantic-color-feedback-warning-main)",
+                              color:
+                                "var(--cs-semantic-color-feedback-warning-main)",
                             }}
                           />
                         )}

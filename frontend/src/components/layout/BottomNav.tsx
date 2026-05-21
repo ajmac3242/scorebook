@@ -60,7 +60,8 @@ const BottomNav: React.FC<BottomNavProps> = ({ isLive = false }) => {
             minWidth: 0,
             padding: "6px 0",
             color: "var(--cs-semantic-color-text-secondary)",
-            transition: "all var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
+            transition:
+              "all var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
             "&.Mui-selected": {
               color: "var(--cs-semantic-color-brand-primary-main)",
             },
@@ -85,7 +86,8 @@ const BottomNav: React.FC<BottomNavProps> = ({ isLive = false }) => {
                       height: 6,
                       borderRadius: "50%",
                       bgcolor: "var(--cs-semantic-color-feedback-warning-main)",
-                      border: "1px solid var(--cs-semantic-color-background-paper)",
+                      border:
+                        "1px solid var(--cs-semantic-color-background-paper)",
                     }}
                   />
                 )}

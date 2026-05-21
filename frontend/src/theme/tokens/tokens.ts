@@ -97,8 +97,8 @@ export const tokens = {
         inset: palettes.warmGray[200],
         strong: palettes.warmGray[300],
         accentSoft: palettes.blue[50],
-    moleskine: "#FFFDF5",
-    onCourt: "rgba(40, 112, 148, 0.08)",
+        moleskine: "#FFFDF5",
+        onCourt: "rgba(40, 112, 148, 0.08)",
       },
       text: {
         primary: palettes.blue[900],

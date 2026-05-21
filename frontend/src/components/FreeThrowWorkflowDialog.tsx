@@ -113,7 +113,8 @@ const FreeThrowWorkflowDialog: React.FC<FreeThrowWorkflowDialogProps> = ({
           <Avatar
             sx={{
               bgcolor:
-                player?.avatarColor || "var(--cs-semantic-color-surface-strong)",
+                player?.avatarColor ||
+                "var(--cs-semantic-color-surface-strong)",
               color: "var(--cs-semantic-color-text-inverse)",
               fontWeight: 700,
             }}

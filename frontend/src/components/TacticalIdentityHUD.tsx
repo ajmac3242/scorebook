@@ -75,14 +75,20 @@ export const TacticalIdentityHUD: React.FC<TacticalIdentityHUDProps> = ({
                     fontSize: "0.6rem",
                     color: "var(--cs-semantic-color-text-secondary)",
                     cursor: "help",
-                    borderBottom: "1px dotted var(--cs-semantic-color-border-subtle)",
+                    borderBottom:
+                      "1px dotted var(--cs-semantic-color-border-subtle)",
                   }}
                 >
                   {kpi.label.toUpperCase()}
                 </Typography>
               </Tooltip>
               {isMet && (
-                <CheckCircle sx={{ fontSize: 12, color: "var(--cs-semantic-color-feedback-success-main)" }} />
+                <CheckCircle
+                  sx={{
+                    fontSize: 12,
+                    color: "var(--cs-semantic-color-feedback-success-main)",
+                  }}
+                />
               )}
             </Stack>
             <Tooltip
@@ -95,7 +101,8 @@ export const TacticalIdentityHUD: React.FC<TacticalIdentityHUDProps> = ({
                   sx={{
                     height: 6,
                     borderRadius: 3,
-                    bgcolor: "var(--cs-semantic-color-action-disabledBackground)",
+                    bgcolor:
+                      "var(--cs-semantic-color-action-disabledBackground)",
                     "& .MuiLinearProgress-bar": {
                       bgcolor: isMet
                         ? "var(--cs-semantic-color-feedback-success-main)"
