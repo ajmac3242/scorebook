@@ -61,6 +61,7 @@ const SideNav: React.FC<SideNavProps> = ({
   const tokens = useTokens();
 
   const drawerWidth = tokens.layout.appFrame.sidebarWidth ?? 220;
+  const shellBackground = tokens.layout.appFrame.background;
   const isSettingsActive = isRouteActive(location.pathname, "/settings");
 
   const navButtonSx = (isActive: boolean) => ({
@@ -99,7 +100,8 @@ const SideNav: React.FC<SideNavProps> = ({
         height: "100%",
         display: "flex",
         flexDirection: "column",
-        bgcolor: "var(--cs-semantic-color-background-paper)",
+        bgcolor: shellBackground,
+        borderRight: "1px solid var(--cs-semantic-color-border-subtle)",
       }}
     >
       <Box
@@ -143,7 +145,7 @@ const SideNav: React.FC<SideNavProps> = ({
             sx={{
               fontSize: "0.875rem",
               fontWeight: 500,
-              color: "text.secondary",
+              color: "var(--cs-semantic-color-text-secondary)",
             }}
           >
             Search
@@ -177,7 +179,7 @@ const SideNav: React.FC<SideNavProps> = ({
                           borderRadius: "50%",
                           bgcolor: "warning.main",
                           border: "2px solid",
-                          borderColor: "background.paper",
+                          borderColor: shellBackground,
                         }}
                       />
                     )}
@@ -292,7 +294,7 @@ const SideNav: React.FC<SideNavProps> = ({
             boxSizing: "border-box",
             width: drawerWidth,
             left: 0,
-            bgcolor: "var(--cs-semantic-color-background-paper)",
+            bgcolor: shellBackground,
           },
         }}
       >
@@ -310,6 +312,8 @@ const SideNav: React.FC<SideNavProps> = ({
         "& .MuiDrawer-paper": {
           width: drawerWidth,
           boxSizing: "border-box",
+          bgcolor: shellBackground,
+          borderRight: "1px solid var(--cs-semantic-color-border-subtle)",
         },
       }}
     >
