@@ -44,6 +44,11 @@ const NAV_ITEMS = [
   { label: "Reports", path: "/reports", icon: <ReportsIcon /> },
 ];
 
+const isRouteActive = (pathname: string, path: string) => {
+  if (path === "/") return pathname === "/";
+  return pathname === path || pathname.startsWith(`${path}/`);
+};
+
 const SideNav: React.FC<SideNavProps> = ({
   isLive = false,
   mobileOpen = false,
@@ -56,7 +61,7 @@ const SideNav: React.FC<SideNavProps> = ({
   const tokens = useTokens();
 
   const drawerWidth = tokens.layout.appFrame.sidebarWidth ?? 220;
-  const isSettingsActive = location.pathname === "/settings";
+  const isSettingsActive = isRouteActive(location.pathname, "/settings");
 
   const navButtonSx = (isActive: boolean) => ({
     minHeight: "var(--cs-touch-targetComfortable)",
@@ -148,7 +153,7 @@ const SideNav: React.FC<SideNavProps> = ({
 
       <List sx={{ flexGrow: 1, px: 1.5 }}>
         {NAV_ITEMS.map((item) => {
-          const isActive = location.pathname === item.path;
+          const isActive = isRouteActive(location.pathname, item.path);
 
           return (
             <ListItem key={item.label} disablePadding sx={{ mb: 0.5 }}>
