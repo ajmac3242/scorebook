@@ -608,8 +608,9 @@ const Settings: React.FC = () => {
       <SettingsRow
         row={row}
         label="Local storage"
-        description={`${totalDbRecords.toLocaleString()} total records across ${Object.keys(dbStats).length
-          } tables.`}
+        description={`${totalDbRecords.toLocaleString()} total records across ${
+          Object.keys(dbStats).length
+        } tables.`}
         alignTop
       >
         <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
