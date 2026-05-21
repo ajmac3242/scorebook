@@ -6,15 +6,24 @@ import { useTokens } from "../../theme/useTokens";
 
 interface AppShellProps {
   children: React.ReactNode;
+  drawerSlot?: React.ReactNode;
+  topBarSlot?: React.ReactNode;
+  bottomSlot?: React.ReactNode;
 }
 
-const AppShell: React.FC<AppShellProps> = ({ children }) => {
+const AppShell: React.FC<AppShellProps> = ({
+  children,
+  drawerSlot,
+  topBarSlot,
+  bottomSlot,
+}) => {
   const theme = useTheme();
   const tokens = useTokens();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const appFrame = tokens.layout.appFrame;
   const pageSurface = tokens.layout.pageSurface;
+  const gutter = "var(--cs-semantic-spacing-lg)";
 
   return (
     <Box
@@ -24,7 +33,7 @@ const AppShell: React.FC<AppShellProps> = ({ children }) => {
         display: "flex",
       }}
     >
-      {!isMobile && <SideNav />}
+      {!isMobile && (drawerSlot ?? <SideNav />)}
 
       <Box
         component="main"
@@ -40,6 +49,8 @@ const AppShell: React.FC<AppShellProps> = ({ children }) => {
           },
         }}
       >
+        {topBarSlot}
+
         <Paper
           elevation={0}
           sx={{
@@ -60,6 +71,8 @@ const AppShell: React.FC<AppShellProps> = ({ children }) => {
         >
           {children}
         </Paper>
+
+        {bottomSlot}
       </Box>
 
       {isMobile && <BottomNav />}
