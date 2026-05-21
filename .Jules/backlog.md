@@ -641,3 +641,53 @@
 - [ ] Addition of "Secondary Defender" selection to the Opponent Score/Breakdown workflow.
 - [ ] "Off-Ball Failure" leaderboard in GameStats.
 - [ ] Correlation matrix: identifying if specific pairs (Guard/Big) have a high "Missed Tag" rate on PnR.
+
+## [Live 'Synergy Seam' Exposure Alert]
+**Priority:** HIGH
+**Type:** Feature / Causal Accountability
+**Why:** Defensive failures are often caused by specific 2-player pairings missing rotations. Identifying "Leaky Duos" in real-time allows coaches to make surgical substitution adjustments before a defensive collapse.
+**What:** A live indicator in the Lineup HUD that flags when the current on-court unit contains a 2-player pairing with a high historical `breakdownReason` correlation.
+**Acceptance Criteria:**
+- [ ] Real-time "Synergy Warning" badge on the Lineup HUD.
+- [ ] Tooltip showing the specific pairing and their most frequent breakdown type (e.g., "Late Tag on PnR").
+- [ ] Correlation with live game events to see if the "Seam" is being exploited in the current stint.
+
+## [Predictive 'Bonus-by-Minute' Auditor]
+**Priority:** HIGH
+**Type:** Feature / Decision Support
+**Why:** Knowing the team is in the bonus is good; knowing they *will be* in the bonus in 2 minutes based on current whistle flow is a strategic advantage for play-calling.
+**What:** An auditor that uses period-to-date whistle flow to predict the exact game-clock time the opponent will enter the bonus.
+**Acceptance Criteria:**
+- [ ] "Expected Bonus Entry" clock time displayed in the Scoreboard.
+- [ ] Tactical directive: "Aggressive Mode" suggested when bonus entry is predicted within 120 seconds.
+- [ ] Alert: "Free Throw Opportunity High" based on opponent foul frequency.
+
+## [Momentum 'Pivot Play' HUD Confirmation]
+**Priority:** HIGH
+**Type:** Feature / Decision Support
+**Why:** Identifying a run is easy; identifying the *exact play* (the pivot) that allowed the run to start is coaching. Coaches need to "Confirm" the pivot to focus the team's attention during timeouts.
+**What:** When a run/drought alert is triggered, the HUD should isolate the "Pivot Play"—the specific turnover or missed box-out that preceded the run.
+**Acceptance Criteria:**
+- [ ] One-tap "Review Pivot" button on the Run/Drought Alert.
+- [ ] Isolation of the `StatEvent` deemed the "Pivot" (the last team success before the opponent run).
+- [ ] High-visibility "Pivot Summary" in the Halftime Report.
+
+## [Live 'Expected Lead' (xLead) Gauge]
+**Priority:** HIGH
+**Type:** Feature / UX
+**Why:** Coaches often overreact to a deficit that is actually just "Bad Luck" (cold shooting on good looks). The xLead gauge keeps the coaching staff calm by showing the score based on Shot Quality (xPTS).
+**What:** A live secondary score display (e.g., "xScore: 42-38") that visualizes the game's progress based on expected value rather than actual makes.
+**Acceptance Criteria:**
+- [ ] "Expected Score" (xScore) display next to the actual score in GameMode.
+- [ ] "Luck Delta" indicator: Color-coded to show if the team is overperforming or underperforming their process.
+- [ ] Alert: "Stay the Course" triggered if xScore lead is > 5 while actual score is trailing.
+
+## [Opponent 'Tactical Identity' Deviation Alert]
+**Priority:** HIGH
+**Type:** Predictive Intelligence
+**Why:** Opponents often "break character" under pressure or after a timeout. Detecting when they stop running their primary sets or shift their shot profile allows for immediate counter-adjustments.
+**What:** An engine that monitors live opponent play-type and location frequency and compares it to their season-long "Tactical Identity."
+**Acceptance Criteria:**
+- [ ] Alert: "Opponent Deviation: Increased Mid-Range frequency (+25% vs Season)."
+- [ ] Alert: "Opponent Deviation: Abandoned PnR sets in the last 4 possessions."
+- [ ] Visual indicator on the opponent card when they are playing "Off-Identity."
