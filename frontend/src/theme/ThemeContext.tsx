@@ -1,5 +1,6 @@
 import React, {
   createContext,
+  useCallback,
   useContext,
   useMemo,
   useState,
@@ -70,17 +71,20 @@ export function CourtSightThemeProvider({
 
   const presetId = activePreset.id;
 
-  const setPresetId = (id: string) => {
-    const nextId = presets.some((preset) => preset.id === id) ? id : fallbackId;
+  const setPresetId = useCallback(
+    (id: string) => {
+      const nextId = presets.some((preset) => preset.id === id) ? id : fallbackId;
 
-    setPresetIdState(nextId);
+      setPresetIdState(nextId);
 
-    try {
-      localStorage.setItem(STORAGE_KEY, nextId);
-    } catch {
-      // Ignore storage failures.
-    }
-  };
+      try {
+        localStorage.setItem(STORAGE_KEY, nextId);
+      } catch {
+        // Ignore storage failures.
+      }
+    },
+    [presets, fallbackId],
+  );
 
   const theme = useMemo(() => buildTheme(activePreset), [activePreset]);
 
@@ -92,7 +96,7 @@ export function CourtSightThemeProvider({
       activePreset,
       theme,
     }),
-    [presetId, presets, activePreset, theme],
+    [presetId, setPresetId, presets, activePreset, theme],
   );
 
   return (
