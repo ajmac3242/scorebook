@@ -11,9 +11,7 @@ import {
   ListItemButton,
   ListItemIcon,
   Typography,
-  useTheme,
   useMediaQuery,
-  alpha,
 } from "@mui/material";
 import {
   Dashboard as DashboardIcon,
@@ -38,8 +36,6 @@ const NavItem: React.FC<{
   isSelected: boolean;
   onClick?: () => void;
 }> = ({ item, isSelected, onClick }) => {
-  const theme = useTheme();
-
   return (
     <Tooltip title={item.text} placement="bottom">
       <ListItemButton
@@ -126,8 +122,7 @@ const NavItem: React.FC<{
  * @returns {React.ReactElement}
  */
 const Navigation: React.FC = () => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isMobile = useMediaQuery("(max-width:600px)");
   const location = useLocation();
   const [isSyncing, setIsSyncing] = useState(false);
 
@@ -255,9 +250,9 @@ const Navigation: React.FC = () => {
                       opacity: 0.8,
                     },
                     "&:focus-visible": {
-                      outline: `2px solid ${theme.palette.primary.dark}`,
-                      outlineOffset: "4px",
-                      borderRadius: "4px",
+                      outline: "var(--cs-semantic-focus-width) solid var(--cs-semantic-color-brand-primary-dark)",
+                      outlineOffset: "var(--cs-semantic-focus-offset)",
+                      borderRadius: "var(--cs-semantic-shape-radius-xs)",
                     },
                   }}
                 >

@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, useTheme, Theme } from "@mui/material";
+import { Box } from "@mui/material";
 
 import { getHeatmapColor } from "../utils/shotZones";
 
@@ -18,7 +18,7 @@ interface HeatmapData {
   [key: string]: { makes: number; attempts: number };
 }
 
-const getCourtStyles = (theme: Theme) => `
+const getCourtStyles = () => `
   @keyframes marker-appear {
     0% { transform: scale(0); opacity: 0; }
     70% { transform: scale(1.2); opacity: 1; }
@@ -71,7 +71,6 @@ interface BasketballCourtProps {
 
 const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
   ({ onCoordClick, onMarkerClick, markers = [], heatmapData }) => {
-    const theme = useTheme();
     const handleCourtClick = (e: React.MouseEvent<SVGSVGElement>) => {
       // Only trigger if we clicked the background or court lines, not a marker
       if ((e.target as SVGElement).tagName !== "circle" && onCoordClick) {
@@ -337,7 +336,7 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
           />
 
           {/* Markers / Heatmap Points */}
-          <style>{getCourtStyles(theme)}</style>
+          <style>{getCourtStyles()}</style>
           {markers.map((marker, index) => {
             const isLatest = index === markers.length - 1;
             let color = marker.color || courtLineColor;

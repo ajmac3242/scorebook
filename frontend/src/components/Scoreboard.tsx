@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Typography, Stack, useTheme, Tooltip } from "@mui/material";
+import { Box, Typography, Stack, Tooltip } from "@mui/material";
 import {
   LocalFireDepartment,
   Shield,
@@ -92,7 +92,6 @@ export const Scoreboard = React.memo(
     isClockRunning,
     onEditClock,
   }: ScoreboardProps) => {
-    const theme = useTheme();
     const timeoutTotal = game?.timeoutLimit ?? team?.defaultTimeoutLimit ?? 3;
     const [showKillOverlay, setShowKillOverlay] = React.useState(false);
     const lastKillCount = React.useRef(gameData.defensiveStats.totalKills);
