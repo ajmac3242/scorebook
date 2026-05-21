@@ -23,7 +23,13 @@ const AppShell: React.FC<AppShellProps> = ({
 
   const appFrame = tokens.layout.appFrame;
   const pageSurface = tokens.layout.pageSurface;
-  const gutter = "var(--cs-semantic-spacing-lg)";
+
+  const desktopGutter =
+    appFrame?.desktopGutter ?? "var(--cs-semantic-spacing-xs)";
+  const mobileGutter =
+    appFrame?.mobileGutter ?? "var(--cs-semantic-spacing-sm)";
+  const mobileBottomNavOffset =
+    appFrame?.mobileBottomNavOffset ?? "72px";
 
   return (
     <Box
@@ -31,6 +37,7 @@ const AppShell: React.FC<AppShellProps> = ({
         minHeight: "100dvh",
         bgcolor: appFrame?.background ?? "background.default",
         display: "flex",
+        alignItems: "stretch",
       }}
     >
       {!isMobile && (drawerSlot ?? <SideNav />)}
@@ -42,11 +49,13 @@ const AppShell: React.FC<AppShellProps> = ({
           minWidth: appFrame?.contentMinWidth ?? 0,
           display: "flex",
           flexDirection: "column",
-          p: gutter,
+          pt: { xs: mobileGutter, md: desktopGutter },
+          pr: { xs: mobileGutter, md: desktopGutter },
           pb: {
-            xs: `calc(${gutter} + 72px)`,
-            md: gutter,
+            xs: `calc(${mobileGutter} + ${mobileBottomNavOffset})`,
+            md: desktopGutter,
           },
+          pl: { xs: mobileGutter, md: 0 },
         }}
       >
         {topBarSlot}
@@ -56,17 +65,25 @@ const AppShell: React.FC<AppShellProps> = ({
           sx={{
             flex: 1,
             width: "100%",
-            maxWidth: pageSurface?.maxWidth ?? 1280,
-            mx: "auto",
-            borderRadius: `${pageSurface?.radius ?? 20}px`,
+            maxWidth: "none",
+            mx: 0,
+            borderRadius: {
+              xs: `${pageSurface?.radius ?? 20}px`,
+              md: `0 ${pageSurface?.radius ?? 20}px ${pageSurface?.radius ?? 20}px 0`,
+            },
             bgcolor: pageSurface?.background ?? "background.paper",
             border: pageSurface?.border ?? "1px solid",
             borderColor:
               pageSurface?.border === undefined ? "divider" : undefined,
+            borderLeft: {
+              xs: pageSurface?.border ?? "1px solid",
+              md: "none",
+            },
             boxShadow: pageSurface?.shadow ?? "none",
             overflow: "hidden",
             display: "flex",
             flexDirection: "column",
+            minHeight: 0,
           }}
         >
           {children}
@@ -75,7 +92,15 @@ const AppShell: React.FC<AppShellProps> = ({
         {bottomSlot}
       </Box>
 
-      {isMobile && <BottomNav />}
+      {isMobile && (
+        <Box
+          sx={{
+            display: { xs: "block", md: "none" },
+          }}
+        >
+          <BottomNav />
+        </Box>
+      )}
     </Box>
   );
 };
