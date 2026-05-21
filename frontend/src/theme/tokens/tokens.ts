@@ -52,14 +52,12 @@ export const darkSemanticColors = {
 } as const;
 
 export const tokens = {
-  // Primitives re-exported/composed
   palette: palettes,
   spacing: spacing,
   typography: typographyPrimitives,
   breakpoints: breakpoints,
   elevation: elevationPrimitives,
 
-  // Semantic Tokens
   semantic: {
     color: {
       brand: {
@@ -88,7 +86,7 @@ export const tokens = {
         paper: palettes.neutral[50],
         elevated: "#FFFFFF",
         inset: palettes.warmGray[200],
-        overlay: "rgba(15, 23, 42, 0.6)", // Scrim for modals/drawers
+        overlay: "rgba(15, 23, 42, 0.6)",
       },
       surface: {
         default: palettes.neutral[50],
@@ -268,13 +266,12 @@ export const tokens = {
       xl: spacing[8],
       "2xl": spacing[12],
 
-      // Component Spacing Tokens
-      dialogPadding: spacing[6], // 24px
-      sectionCardPadding: spacing[6], // 24px
-      pagePaddingX: spacing[6], // 24px
-      pagePaddingY: spacing[6], // 24px
-      inputHeightMd: spacing[10], // 40px
-      appBarHeight: spacing[16], // 64px
+      dialogPadding: spacing[6],
+      sectionCardPadding: spacing[6],
+      pagePaddingX: spacing[6],
+      pagePaddingY: spacing[6],
+      inputHeightMd: spacing[10],
+      appBarHeight: spacing[16],
     },
 
     focus: {
@@ -290,6 +287,7 @@ export const tokens = {
         md: 8,
         lg: 12,
         xl: 16,
+        "2xl": 20,
         full: 9999,
       },
     },
@@ -311,16 +309,16 @@ export const tokens = {
         shadow: "0 12px 40px rgba(0, 0, 0, 0.6)",
       },
       pageShell: {
-        radius: 12,
-        border: `1px solid var(--cs-semantic-color-border-subtle)`,
-        shadow: elevationPrimitives.shadows[1],
-        background: `var(--cs-semantic-color-background-paper)`,
+        radius: 20,
+        border: "1px solid var(--cs-semantic-color-border-subtle)",
+        shadow: "none",
+        background: "var(--cs-semantic-color-background-paper)",
       },
       sectionCard: {
         radius: 12,
-        border: `1px solid var(--cs-semantic-color-border-subtle)`,
+        border: "1px solid var(--cs-semantic-color-border-subtle)",
         shadow: "none",
-        background: `var(--cs-semantic-color-background-paper)`,
+        background: "var(--cs-semantic-color-background-paper)",
       },
       radius: {
         button: 8,
@@ -334,9 +332,9 @@ export const tokens = {
   settings: {
     shell: {
       maxWidth: 900,
-      radius: 12,
+      radius: 20,
       border: "1px solid var(--cs-semantic-color-border-subtle)",
-      background: "var(--cs-semantic-color-background-elevated)",
+      background: "var(--cs-semantic-color-background-paper)",
       headerPaddingX: 28,
       headerPaddingTop: 24,
       contentPaddingX: 28,
@@ -381,7 +379,6 @@ export const tokens = {
     },
   },
 
-  // Motion tokens
   motion: {
     duration: {
       fast: "120ms",
@@ -397,8 +394,27 @@ export const tokens = {
     },
   },
 
-  /** @deprecated Use semantic.spacing.inputHeightMd */
   layout: {
+    appFrame: {
+      gutter: 16,
+      sidebarWidth: 220,
+      background: "var(--cs-semantic-color-background-default)",
+      contentMinWidth: 0,
+    },
+    pageSurface: {
+      maxWidth: 1280,
+      radius: 20,
+      background: "var(--cs-semantic-color-background-paper)",
+      border: "1px solid var(--cs-semantic-color-border-subtle)",
+      dividerColor: "var(--cs-semantic-color-border-subtle)",
+      headerPaddingX: 24,
+      headerPaddingTop: 20,
+      contentPaddingX: 24,
+      contentPaddingBottom: 24,
+      shadow: "none",
+    },
+
+    /** @deprecated Use semantic.spacing.inputHeightMd */
     inputHeightMd: 40,
     /** @deprecated Use semantic.spacing.dialogPadding */
     dialogPadding: 24,
@@ -410,6 +426,7 @@ export const tokens = {
     /** @deprecated Use semantic.spacing.sectionCardPadding */
     sectionCardPadding: 24,
   },
+
   touch: {
     targetComfortable: 44,
     iconButtonMin: 44,
