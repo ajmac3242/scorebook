@@ -1,5 +1,4 @@
 import type { ThemePreset } from "./tokens/tokens";
-import { palettes } from "./tokens/palette";
 
 export const PRESETS: ThemePreset[] = [
   {
