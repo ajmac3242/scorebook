@@ -4,6 +4,53 @@ import { typographyPrimitives } from "./typography";
 import { breakpoints } from "./breakpoints";
 import { elevationPrimitives } from "./elevation";
 
+/**
+ * Base dark mode semantic colors.
+ * These roles provide a first-class dark theme foundation.
+ */
+export const darkSemanticColors = {
+  background: {
+    default: "#0E1117",
+    subtle: "#13181F",
+    paper: "#13181F",
+    elevated: "#1A2028",
+    inset: "#0A0D12",
+    overlay: "rgba(0, 0, 0, 0.7)",
+  },
+  surface: {
+    default: "#13181F",
+    subtle: "#171D26",
+    elevated: "#1A2028",
+    inset: "#0A0D12",
+    strong: "#242C38",
+    accentSoft: "rgba(40, 112, 148, 0.15)",
+  },
+  text: {
+    primary: "#F0EDE8",
+    secondary: "#A8A49E",
+    tertiary: "#6E6B66",
+    muted: "#4E4B48",
+    inverse: "#0E1117",
+    disabled: "rgba(240, 237, 232, 0.38)",
+    placeholder: "#4E4B48",
+  },
+  border: {
+    subtle: "#232931",
+    default: "#2C3340",
+    strong: "#3A4454",
+    accent: "rgba(40, 112, 148, 0.4)",
+    focus: palettes.blue[400],
+  },
+  action: {
+    hover: "rgba(240, 237, 232, 0.08)",
+    active: "rgba(240, 237, 232, 0.12)",
+    selected: "rgba(240, 237, 232, 0.16)",
+    disabled: "rgba(240, 237, 232, 0.38)",
+    disabledBackground: "rgba(240, 237, 232, 0.08)",
+    focusRing: palettes.blue[400],
+  },
+} as const;
+
 export const tokens = {
   // Primitives re-exported/composed
   palette: palettes,
@@ -179,6 +226,14 @@ export const tokens = {
         lineHeight: 1.4,
         letterSpacing: typographyPrimitives.letterSpacing.wide,
       },
+      overline: {
+        fontFamily: typographyPrimitives.fontFamily.body,
+        fontSize: typographyPrimitives.fontSize.xs,
+        fontWeight: typographyPrimitives.fontWeight.bold,
+        lineHeight: 1.2,
+        letterSpacing: typographyPrimitives.letterSpacing.wider,
+        textTransform: "uppercase" as const,
+      },
       label: {
         fontFamily: typographyPrimitives.fontFamily.body,
         fontSize: typographyPrimitives.fontSize.xs,
@@ -210,6 +265,17 @@ export const tokens = {
       lg: spacing[6],
       xl: spacing[8],
       "2xl": spacing[12],
+
+      // Component Spacing Tokens
+      dialogPadding: spacing[6], // 24px
+      sectionCardPadding: spacing[6], // 24px
+      pagePaddingX: spacing[6], // 24px
+      inputHeightMd: spacing[10], // 40px
+    },
+
+    focus: {
+      width: 2,
+      offset: 2,
     },
 
     shape: {
@@ -237,15 +303,15 @@ export const tokens = {
     component: {
       pageShell: {
         radius: 12,
-        border: `1px solid ${palettes.neutral[300]}`,
+        border: `1px solid var(--cs-semantic-color-border-subtle)`,
         shadow: elevationPrimitives.shadows[1],
-        background: palettes.neutral[50],
+        background: `var(--cs-semantic-color-background-paper)`,
       },
       sectionCard: {
         radius: 12,
-        border: `1px solid ${palettes.neutral[300]}`,
+        border: `1px solid var(--cs-semantic-color-border-subtle)`,
         shadow: "none",
-        background: palettes.neutral[50],
+        background: `var(--cs-semantic-color-background-paper)`,
       },
       radius: {
         button: 8,
@@ -260,8 +326,8 @@ export const tokens = {
     shell: {
       maxWidth: 900,
       radius: 12,
-      border: "1px solid #EAECF0",
-      background: "#FFFFFF",
+      border: "1px solid var(--cs-semantic-color-border-subtle)",
+      background: "var(--cs-semantic-color-background-elevated)",
       headerPaddingX: 28,
       headerPaddingTop: 24,
       contentPaddingX: 28,
@@ -272,10 +338,10 @@ export const tokens = {
       radius: 8,
       gap: 8,
       paddingX: 12,
-      activeBackground: "#F2F4F7",
-      activeColor: "#101828",
-      inactiveColor: "#667085",
-      hoverBackground: "#F9FAFB",
+      activeBackground: "var(--cs-semantic-color-surface-subtle)",
+      activeColor: "var(--cs-semantic-color-text-primary)",
+      inactiveColor: "var(--cs-semantic-color-text-secondary)",
+      hoverBackground: "var(--cs-semantic-color-action-hover)",
     },
     section: {
       titleGap: 4,
@@ -286,7 +352,7 @@ export const tokens = {
       paddingY: 20,
       labelWidth: 260,
       gap: 24,
-      dividerColor: "#EAECF0",
+      dividerColor: "var(--cs-semantic-color-border-subtle)",
       descriptionMaxWidth: 240,
     },
     selectionCard: {
@@ -322,14 +388,17 @@ export const tokens = {
     },
   },
 
-  // Component-specific legacy/convenience tokens (optional, keeping some for buildTheme compatibility)
+  /** @deprecated Use semantic.spacing.inputHeightMd */
   layout: {
     inputHeightMd: 40,
+    /** @deprecated Use semantic.spacing.dialogPadding */
     dialogPadding: 24,
+    /** @deprecated Use semantic.spacing.pagePaddingX */
     pagePaddingX: 24,
     pagePanelPaddingMobile: 20,
     pageMaxWidth: 1280,
     sectionCardPaddingCompact: 16,
+    /** @deprecated Use semantic.spacing.sectionCardPadding */
     sectionCardPadding: 24,
   },
   touch: {

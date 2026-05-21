@@ -6,6 +6,7 @@ import {
 import { cssVariables } from "./cssVariables";
 import {
   tokens,
+  darkSemanticColors,
   type AppTokens,
   type DeepPartial,
   type ThemePreset,
@@ -49,7 +50,18 @@ function deepMerge<T>(base: T, override?: DeepPartial<T>): T {
  *
  */
 export function resolveTokens(preset?: ThemePreset): AppTokens {
-  return deepMerge(tokens, preset?.overrides);
+  let baseTokens = tokens;
+
+  // If dark mode, inject base dark semantic colors before applying preset overrides
+  if (preset?.mode === "dark") {
+    baseTokens = deepMerge(tokens, {
+      semantic: {
+        color: darkSemanticColors,
+      },
+    } as unknown as DeepPartial<AppTokens>);
+  }
+
+  return deepMerge(baseTokens, preset?.overrides);
 }
 
 /**
@@ -159,6 +171,10 @@ function buildComponentTheme(
             backgroundColor:
               activeTokens.semantic.color.action.disabledBackground,
           },
+          "&:focus-visible": {
+            outline: `${activeTokens.semantic.focus.width}px solid ${activeTokens.semantic.color.action.focusRing}`,
+            outlineOffset: activeTokens.semantic.focus.offset,
+          },
         },
         outlined: {
           borderColor: activeTokens.semantic.color.border.default,
@@ -188,6 +204,10 @@ function buildComponentTheme(
           "&:active": {
             transform: `scale(${activeTokens.motion.scale.press})`,
           },
+          "&:focus-visible": {
+            outline: `${activeTokens.semantic.focus.width}px solid ${activeTokens.semantic.color.action.focusRing}`,
+            outlineOffset: activeTokens.semantic.focus.offset,
+          },
         },
       },
     },
@@ -211,7 +231,7 @@ function buildComponentTheme(
     MuiOutlinedInput: {
       styleOverrides: {
         root: {
-          minHeight: activeTokens.layout.inputHeightMd,
+          minHeight: activeTokens.semantic.spacing.inputHeightMd,
           borderRadius: activeTokens.semantic.shape.radius.md,
           backgroundColor: activeTokens.semantic.color.background.paper,
           "& .MuiOutlinedInput-notchedOutline": {
@@ -252,7 +272,7 @@ function buildComponentTheme(
     MuiDialogContent: {
       styleOverrides: {
         root: {
-          padding: activeTokens.layout.dialogPadding,
+          padding: activeTokens.semantic.spacing.dialogPadding,
         },
       },
     },
@@ -315,6 +335,13 @@ export function buildTheme(preset?: ThemePreset): Theme {
             contrastText:
               activeTokens.semantic.color.brand.secondary.contrastText,
           },
+          tertiary: {
+            main: activeTokens.semantic.color.brand.tertiary.main,
+            light: activeTokens.semantic.color.brand.tertiary.light,
+            dark: activeTokens.semantic.color.brand.tertiary.dark,
+            contrastText:
+              activeTokens.semantic.color.brand.tertiary.contrastText,
+          },
           success: {
             main: activeTokens.semantic.color.feedback.success.main,
             light: activeTokens.semantic.color.feedback.success.light,
@@ -363,7 +390,74 @@ export function buildTheme(preset?: ThemePreset): Theme {
         },
       },
       dark: {
-        // Dark scheme can be defined if needed
+        palette: {
+          primary: {
+            main: activeTokens.semantic.color.brand.primary.main,
+            light: activeTokens.semantic.color.brand.primary.light,
+            dark: activeTokens.semantic.color.brand.primary.dark,
+            contrastText:
+              activeTokens.semantic.color.brand.primary.contrastText,
+          },
+          secondary: {
+            main: activeTokens.semantic.color.brand.secondary.main,
+            light: activeTokens.semantic.color.brand.secondary.light,
+            dark: activeTokens.semantic.color.brand.secondary.dark,
+            contrastText:
+              activeTokens.semantic.color.brand.secondary.contrastText,
+          },
+          tertiary: {
+            main: activeTokens.semantic.color.brand.tertiary.main,
+            light: activeTokens.semantic.color.brand.tertiary.light,
+            dark: activeTokens.semantic.color.brand.tertiary.dark,
+            contrastText:
+              activeTokens.semantic.color.brand.tertiary.contrastText,
+          },
+          success: {
+            main: activeTokens.semantic.color.feedback.success.main,
+            light: activeTokens.semantic.color.feedback.success.light,
+            dark: activeTokens.semantic.color.feedback.success.dark,
+            contrastText:
+              activeTokens.semantic.color.feedback.success.contrastText,
+          },
+          error: {
+            main: activeTokens.semantic.color.feedback.error.main,
+            light: activeTokens.semantic.color.feedback.error.light,
+            dark: activeTokens.semantic.color.feedback.error.dark,
+            contrastText:
+              activeTokens.semantic.color.feedback.error.contrastText,
+          },
+          warning: {
+            main: activeTokens.semantic.color.feedback.warning.main,
+            light: activeTokens.semantic.color.feedback.warning.light,
+            dark: activeTokens.semantic.color.feedback.warning.dark,
+            contrastText:
+              activeTokens.semantic.color.feedback.warning.contrastText,
+          },
+          info: {
+            main: activeTokens.semantic.color.feedback.info.main,
+            light: activeTokens.semantic.color.feedback.info.light,
+            dark: activeTokens.semantic.color.feedback.info.dark,
+            contrastText:
+              activeTokens.semantic.color.feedback.info.contrastText,
+          },
+          background: {
+            default: activeTokens.semantic.color.background.default,
+            paper: activeTokens.semantic.color.background.paper,
+          },
+          text: {
+            primary: activeTokens.semantic.color.text.primary,
+            secondary: activeTokens.semantic.color.text.secondary,
+            disabled: activeTokens.semantic.color.text.disabled,
+          },
+          divider: activeTokens.semantic.color.border.subtle,
+          action: {
+            hover: activeTokens.semantic.color.action.hover,
+            selected: activeTokens.semantic.color.action.selected,
+            disabled: activeTokens.semantic.color.action.disabled,
+            disabledBackground:
+              activeTokens.semantic.color.action.disabledBackground,
+          },
+        },
       },
     },
 
@@ -375,9 +469,13 @@ export function buildTheme(preset?: ThemePreset): Theme {
       h4: activeTokens.semantic.typography.h4,
       h5: activeTokens.semantic.typography.h5,
       h6: activeTokens.semantic.typography.h6,
+      subtitle1: activeTokens.semantic.typography.h6,
+      subtitle2: activeTokens.semantic.typography.supporting,
       body1: activeTokens.semantic.typography.body1,
       body2: activeTokens.semantic.typography.body2,
+      supporting: activeTokens.semantic.typography.supporting,
       caption: activeTokens.semantic.typography.caption,
+      overline: activeTokens.semantic.typography.overline,
       button: activeTokens.semantic.typography.button,
     },
 
