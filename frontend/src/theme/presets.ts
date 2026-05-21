@@ -2,7 +2,6 @@ import type { ThemePreset } from "./tokens/tokens";
 import { palettes } from "./tokens/palette";
 
 export const PRESETS: ThemePreset[] = [
-  // ─── CourtSight Classic ──────────────────────────────────────────────────────
   {
     id: "classic",
     label: "CourtSight Classic",
@@ -68,7 +67,6 @@ export const PRESETS: ThemePreset[] = [
     },
   },
 
-  // ─── Gametime ────────────────────────────────────────────────────────────────
   {
     id: "gametime",
     label: "Gametime",
@@ -96,7 +94,6 @@ export const PRESETS: ThemePreset[] = [
     },
   },
 
-  // ─── Hardwood ────────────────────────────────────────────────────────────────
   {
     id: "hardwood",
     label: "Hardwood",
@@ -162,7 +159,6 @@ export const PRESETS: ThemePreset[] = [
     },
   },
 
-  // ─── Leather ─────────────────────────────────────────────────────────────────
   {
     id: "leather",
     label: "Leather",
@@ -228,7 +224,6 @@ export const PRESETS: ThemePreset[] = [
     },
   },
 
-  // ─── Blacktop ────────────────────────────────────────────────────────────────
   {
     id: "blacktop",
     label: "Blacktop",
