@@ -29,11 +29,16 @@ const AppShell: React.FC<AppShellProps> = ({
   const mobileGutter = gutter;
   const mobileBottomNavOffset = 72;
 
+  const shellBackground =
+    appFrame.background ?? "var(--cs-semantic-color-background-default)";
+  const workspaceBackground =
+    pageSurface?.background ?? "var(--cs-semantic-color-background-paper)";
+
   return (
     <Box
       sx={{
         minHeight: "100dvh",
-        bgcolor: appFrame.background ?? "background.default",
+        bgcolor: shellBackground,
         display: "flex",
         alignItems: "stretch",
       }}
@@ -47,6 +52,7 @@ const AppShell: React.FC<AppShellProps> = ({
           minWidth: appFrame.contentMinWidth ?? 0,
           display: "flex",
           flexDirection: "column",
+          bgcolor: shellBackground,
           pt: { xs: `${mobileGutter}px`, md: `${desktopGutter}px` },
           pr: { xs: `${mobileGutter}px`, md: `${desktopGutter}px` },
           pb: {
@@ -66,7 +72,7 @@ const AppShell: React.FC<AppShellProps> = ({
             maxWidth: "none",
             mx: 0,
             borderRadius: `${pageSurface?.radius ?? 20}px`,
-            bgcolor: pageSurface?.background ?? "background.paper",
+            bgcolor: workspaceBackground,
             border: pageSurface?.border ?? "1px solid",
             borderColor:
               pageSurface?.border === undefined ? "divider" : undefined,
@@ -83,7 +89,7 @@ const AppShell: React.FC<AppShellProps> = ({
         {bottomSlot}
       </Box>
 
-      {isMobile && (
+      {isMobile ? (
         <Box
           sx={{
             display: { xs: "block", md: "none" },
@@ -91,7 +97,7 @@ const AppShell: React.FC<AppShellProps> = ({
         >
           <BottomNav />
         </Box>
-      )}
+      ) : null}
     </Box>
   );
 };

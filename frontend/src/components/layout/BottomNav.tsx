@@ -4,6 +4,8 @@ import {
   BottomNavigationAction,
   Paper,
   Box,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import {
   Dashboard as DashboardIcon,
@@ -29,23 +31,32 @@ const NAV_ITEMS = [
 ];
 
 /**
- * BottomNav — Thumb-accessible navigation for mobile screens (< 768px).
+ * BottomNav — Thumb-accessible navigation for mobile screens.
  */
 const BottomNav: React.FC<BottomNavProps> = ({ isLive = false }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
+  if (!isMobile) {
+    return null;
+  }
 
   return (
     <Paper
+      elevation={3}
       sx={{
         position: "fixed",
         bottom: 0,
         left: 0,
         right: 0,
+        zIndex: theme.zIndex.appBar,
         borderRadius: 0,
         bgcolor: "var(--cs-semantic-color-background-paper)",
+        borderTop: "1px solid var(--cs-semantic-color-border-subtle, rgba(0,0,0,0.08))",
+        display: { xs: "block", md: "none" },
       }}
-      elevation={3}
     >
       <BottomNavigation
         showLabels
