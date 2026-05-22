@@ -92,15 +92,18 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
   return (
     <Box
       sx={{
-        p: { xs: 2, sm: 4 },
-        pt: { xs: 7, sm: 4 },
+        p: {
+          xs: "var(--cs-semantic-spacing-md)",
+          sm: "var(--cs-semantic-spacing-xl)",
+        },
+        pt: { xs: "calc(var(--cs-semantic-spacing-xl) * 2)", sm: "var(--cs-semantic-spacing-xl)" },
         mb: 0,
-        borderRadius: "8px",
+        borderRadius: "var(--cs-semantic-shape-radius-md)",
         bgcolor: primaryColor,
-        color: "white",
+        color: "var(--cs-semantic-color-text-inverse)",
         position: "relative",
         overflow: "hidden",
-        transition: "background-color 0.3s ease",
+        transition: `background-color var(--cs-motion-duration-slow) var(--cs-motion-easing-productive)`,
       }}
     >
       <Tooltip
@@ -119,14 +122,10 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
           onClick={() => (backTo ? navigate(backTo) : navigate(-1))}
           sx={{
             position: "absolute",
-            top: 16,
-            left: 16,
-            color: "white",
+            top: "var(--cs-semantic-spacing-md)",
+            left: "var(--cs-semantic-spacing-md)",
+            color: "var(--cs-semantic-color-text-inverse)",
             bgcolor: "rgba(255,255,255,0.1)",
-            "&:hover": {
-              bgcolor: "rgba(255,255,255,0.2)",
-              transform: "scale(1.1)",
-            },
           }}
         >
           <ArrowBackIcon />
@@ -182,6 +181,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                   fontSize: { xs: "2rem", md: "3rem" },
                   border: "4px solid rgba(255,255,255,0.3)",
                   mx: "auto",
+                  fontWeight: "var(--cs-typography-fontWeight-bold)",
                 }}
               >
                 {getInitials(title)}
@@ -193,17 +193,17 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                   position: "absolute",
                   bottom: -5,
                   right: -5,
-                  bgcolor: "var(--palette-golden-dune)",
-                  color: "var(--palette-midnight)",
-                  borderRadius: "50%",
+                  bgcolor: "var(--cs-palette-warningScale-500)",
+                  color: "var(--cs-semantic-color-brand-primary-dark)",
+                  borderRadius: "var(--cs-semantic-shape-radius-full)",
                   width: { xs: 28, sm: 36 },
                   height: { xs: 28, sm: 36 },
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   fontSize: { xs: "0.75rem", sm: "1rem" },
-                  fontWeight: "bold",
-                  border: "3px solid white",
+                  fontWeight: "var(--cs-typography-fontWeight-bold)",
+                  border: "3px solid var(--cs-semantic-color-text-inverse)",
                   zIndex: 2,
                 }}
               >
@@ -219,12 +219,11 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
           <Typography
             variant="h3"
             sx={{
-              fontFamily: "var(--serif)",
-              fontWeight: 700,
+              fontFamily: "var(--cs-typography-fontFamily-display)",
+              fontWeight: "var(--cs-typography-fontWeight-bold)",
               textTransform: "uppercase",
-              letterSpacing: 1,
-              color: "white",
-              fontSize: { xs: "1.75rem", sm: "3rem" },
+              letterSpacing: "var(--cs-typography-letterSpacing-tight)",
+              color: "var(--cs-semantic-color-text-inverse)",
             }}
           >
             {title}
@@ -234,9 +233,8 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
               variant="h6"
               sx={{
                 opacity: 0.9,
-                fontWeight: 500,
-                color: "white",
-                fontSize: { xs: "1rem", sm: "1.25rem" },
+                fontWeight: "var(--cs-typography-fontWeight-medium)",
+                color: "var(--cs-semantic-color-text-inverse)",
               }}
             >
               {subtitle}
@@ -258,7 +256,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                       sx={{
                         opacity: 0.3,
                         alignSelf: "center",
-                        color: "white",
+                      color: "var(--cs-semantic-color-text-inverse)",
                         fontSize: { xs: "1.5rem", sm: "2rem" },
                       }}
                     >
@@ -274,11 +272,11 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
       <Box
         sx={{
           position: "absolute",
-          top: 16,
-          right: 16,
+          top: "var(--cs-semantic-spacing-md)",
+          right: "var(--cs-semantic-spacing-md)",
           display: "flex",
           alignItems: "center",
-          gap: 1,
+          gap: "var(--cs-semantic-spacing-xs)",
           zIndex: 10,
         }}
       >
@@ -304,7 +302,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                 aria-expanded={isSearchExpanded}
                 aria-controls="entity-search-field"
                 onClick={() => setIsSearchExpanded(!isSearchExpanded)}
-                sx={{ color: "white", flexShrink: 0 }}
+                sx={{ color: "var(--cs-semantic-color-text-inverse)", flexShrink: 0 }}
               >
                 {isSearchExpanded && !searchTerm ? (
                   <CloseIcon fontSize="small" />
@@ -326,8 +324,8 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                   input: {
                     disableUnderline: true,
                     sx: {
-                      color: "white",
-                      fontSize: "0.9rem",
+                      color: "var(--cs-semantic-color-text-inverse)",
+                      fontSize: "var(--cs-typography-fontSize-sm)",
                       width: "100%",
                     },
                     endAdornment: searchTerm ? (
@@ -379,12 +377,12 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                 aria-busy={isSyncing}
                 className="hover-grow"
                 sx={{
-                  color: showSyncSuccess ? "#4CAF50" : "white",
+                  color: showSyncSuccess ? "var(--cs-semantic-color-feedback-success-main)" : "var(--cs-semantic-color-text-inverse)",
                   borderColor: showSyncSuccess
-                    ? "#4CAF50"
+                    ? "var(--cs-semantic-color-feedback-success-main)"
                     : "rgba(255,255,255,0.5)",
                   "&:hover": {
-                    borderColor: showSyncSuccess ? "#4CAF50" : "white",
+                    borderColor: showSyncSuccess ? "var(--cs-semantic-color-feedback-success-main)" : "var(--cs-semantic-color-text-inverse)",
                     bgcolor: "rgba(255,255,255,0.1)",
                   },
                   display: { xs: "none", sm: "flex" },

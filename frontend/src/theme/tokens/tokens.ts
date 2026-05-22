@@ -124,6 +124,12 @@ export const tokens = {
         disabledBackground: "rgba(31, 41, 51, 0.08)",
         focusRing: palettes.blue[500],
       },
+      emphasis: {
+        clutch: "#FF4500", // High-intensity orange-red for clutch moments
+        momentum: palettes.blue[400],
+        trendUp: palettes.successScale[500],
+        trendDown: palettes.errorScale[500],
+      },
       feedback: {
         success: {
           main: palettes.successScale[500],

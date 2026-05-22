@@ -19,6 +19,21 @@ declare module "@mui/material/styles" {
     tertiary?: PaletteOptions["primary"];
   }
 
+  interface PaletteEmphasis {
+    clutch: string;
+    momentum: string;
+    trendUp: string;
+    trendDown: string;
+  }
+
+  interface Palette {
+    emphasis: PaletteEmphasis;
+  }
+
+  interface PaletteOptions {
+    emphasis?: Partial<PaletteEmphasis>;
+  }
+
   interface Typography {
     supporting: CSSProperties;
   }

@@ -39,7 +39,7 @@ export const BoxScoreSection: React.FC<BoxScoreSectionProps> = React.memo(
       >
         <Table size="small">
           <TableHead>
-            <TableRow sx={{ bgcolor: "rgba(0,0,0,0.02)" }}>
+            <TableRow sx={{ bgcolor: "var(--cs-semantic-color-surface-subtle)" }}>
               <SortableHeader
                 label="PLAYER"
                 sortKey="name"
@@ -166,10 +166,10 @@ export const BoxScoreSection: React.FC<BoxScoreSectionProps> = React.memo(
               <TableRow key={row.id}>
                 <TableCell
                   sx={{
-                    fontWeight: 600,
+                    fontWeight: "var(--cs-typography-fontWeight-semibold)",
                     display: "flex",
                     alignItems: "center",
-                    gap: 1,
+                    gap: "var(--cs-semantic-spacing-xs)",
                   }}
                 >
                   <Avatar
@@ -185,8 +185,7 @@ export const BoxScoreSection: React.FC<BoxScoreSectionProps> = React.memo(
                   <Typography
                     variant="body2"
                     sx={{
-                      fontWeight: 600,
-                      fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                      fontWeight: "var(--cs-typography-fontWeight-semibold)",
                     }}
                   >
                     {row.name}
@@ -249,9 +248,14 @@ export const BoxScoreSection: React.FC<BoxScoreSectionProps> = React.memo(
               </TableRow>
             ))}
             <TableRow
-              sx={{ bgcolor: "primary.light", color: "primary.contrastText" }}
+              sx={{
+                bgcolor: "var(--cs-semantic-color-brand-primary-light)",
+                color: "var(--cs-semantic-color-brand-primary-contrastText)",
+              }}
             >
-              <TableCell sx={{ fontWeight: 700 }}>
+              <TableCell
+                sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}
+              >
                 TEAM TOTALS (PPP: {teamData.ppp})
               </TableCell>
               <TableCell align="right">-</TableCell>
@@ -262,8 +266,12 @@ export const BoxScoreSection: React.FC<BoxScoreSectionProps> = React.memo(
                 -
               </TableCell>
             </TableRow>
-            <TableRow sx={{ bgcolor: "secondary.light" }}>
-              <TableCell sx={{ fontWeight: 700 }}>
+            <TableRow
+              sx={{ bgcolor: "var(--cs-semantic-color-brand-secondary-light)" }}
+            >
+              <TableCell
+                sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}
+              >
                 OPPONENT (PPP: {oppData.ppp})
               </TableCell>
               <TableCell align="right">-</TableCell>
