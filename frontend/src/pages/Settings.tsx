@@ -443,7 +443,6 @@ const Settings: React.FC = () => {
         activeTab={activeTab}
         tabs={TABS}
         onTabChange={(tab) => setActiveTab(tab)}
-        variant="narrow"
       >
         {renderContent()}
       </AppPageShell>

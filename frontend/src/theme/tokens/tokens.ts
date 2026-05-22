@@ -54,9 +54,9 @@ export const darkSemanticColors = {
 
 export const tokens = {
   palette: palettes,
-  spacing: spacing,
+  spacing,
   typography: typographyPrimitives,
-  breakpoints: breakpoints,
+  breakpoints,
   elevation: elevationPrimitives,
 
   semantic: {
@@ -267,7 +267,6 @@ export const tokens = {
       lg: spacing[6],
       xl: spacing[8],
       "2xl": spacing[12],
-
       dialogPadding: spacing[6],
       sectionCardPadding: spacing[6],
       pagePaddingX: spacing[6],
@@ -407,23 +406,16 @@ export const tokens = {
       dividerOpacity: 0.55,
     },
     pageSurface: {
-      radius: 20,
-      background: "var(--cs-semantic-color-background-paper)",
-      border: "1px solid var(--cs-semantic-color-border-subtle)",
+      maxWidth: 1280,
+      radius: 0,
+      background: "transparent",
+      border: "none",
       dividerColor: "var(--cs-semantic-color-border-subtle)",
-      headerPaddingX: 24,
-      headerPaddingTop: 24,
-      contentPaddingX: 24,
-      contentPaddingBottom: 24,
+      headerPaddingX: 0,
+      headerPaddingTop: 0,
+      contentPaddingX: 0,
+      contentPaddingBottom: 0,
       shadow: "none",
-      variants: {
-        default: {
-          maxWidth: 1280,
-        },
-        narrow: {
-          maxWidth: 900,
-        },
-      },
     },
     pageTabs: {
       height: 40,

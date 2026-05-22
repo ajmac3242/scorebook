@@ -1,6 +1,5 @@
 import React from "react";
-import { Box, Divider, Tab, Tabs, Typography, useTheme } from "@mui/material";
-import { alpha } from "@mui/material/styles";
+import { Box, Tab, Tabs, Typography, useTheme } from "@mui/material";
 import { useTokens } from "../../theme/useTokens";
 
 export interface AppPageTab<T extends string> {
@@ -8,15 +7,12 @@ export interface AppPageTab<T extends string> {
   label: string;
 }
 
-type AppPageShellVariant = "default" | "narrow";
-
 interface AppPageShellProps<T extends string> {
   title: string;
   activeTab?: T;
   tabs?: readonly AppPageTab<T>[];
   onTabChange?: (_tab: T) => void;
   actions?: React.ReactNode;
-  variant?: AppPageShellVariant;
   children: React.ReactNode;
 }
 
@@ -26,20 +22,15 @@ function AppPageShell<T extends string>({
   tabs,
   onTabChange,
   actions,
-  variant = "default",
   children,
 }: AppPageShellProps<T>) {
   const theme = useTheme();
   const tokens = useTokens();
   const pageSurface = tokens.layout.pageSurface;
   const pageTabs = tokens.layout.pageTabs;
-  const surfaceVariant =
-    pageSurface?.variants?.[variant] ?? pageSurface?.variants?.default;
 
   const activeIndex =
     tabs && activeTab ? tabs.findIndex((tab) => tab.value === activeTab) : -1;
-
-  const showHeaderDivider = Boolean((tabs && tabs.length > 0) || actions);
 
   return (
     <Box
@@ -47,34 +38,22 @@ function AppPageShell<T extends string>({
       sx={{
         width: "100%",
         minWidth: 0,
-        maxWidth: surfaceVariant?.maxWidth ?? 1280,
-        mx: "auto",
-        borderRadius: {
-          xs: 0,
-          md: `${pageSurface?.radius ?? 20}px`,
-        },
-        background:
-          pageSurface?.background ??
-          "var(--cs-semantic-color-background-paper)",
-        border: {
-          xs: "none",
-          md:
-            pageSurface?.border ??
-            "1px solid var(--cs-semantic-color-border-subtle)",
-        },
+        maxWidth: pageSurface?.maxWidth ?? 1280,
+        background: pageSurface?.background ?? "transparent",
+        border: pageSurface?.border ?? "none",
         boxShadow: pageSurface?.shadow ?? "none",
-        overflow: "hidden",
+        overflow: "visible",
       }}
     >
       <Box
         sx={{
           px: {
-            xs: 2.5,
-            md: `${(pageSurface?.headerPaddingX ?? 24) / 8}rem`,
+            xs: 0,
+            md: `${(pageSurface?.headerPaddingX ?? 0) / 8}rem`,
           },
           pt: {
-            xs: 2.5,
-            md: `${(pageSurface?.headerPaddingTop ?? 24) / 8}rem`,
+            xs: 0,
+            md: `${(pageSurface?.headerPaddingTop ?? 0) / 8}rem`,
           },
           pb: 0,
         }}
@@ -151,28 +130,16 @@ function AppPageShell<T extends string>({
         ) : null}
       </Box>
 
-      {showHeaderDivider ? (
-        <Divider
-          sx={{
-            borderColor:
-              pageSurface?.dividerColor ??
-              (theme.palette.mode === "dark"
-                ? alpha(theme.palette.text.primary, 0.08)
-                : theme.palette.divider),
-          }}
-        />
-      ) : null}
-
       <Box
         sx={{
           px: {
-            xs: 2.5,
-            md: `${(pageSurface?.contentPaddingX ?? 24) / 8}rem`,
+            xs: 0,
+            md: `${(pageSurface?.contentPaddingX ?? 0) / 8}rem`,
           },
-          pt: 2.5,
+          pt: 0,
           pb: {
-            xs: 2.5,
-            md: `${(pageSurface?.contentPaddingBottom ?? 24) / 8}rem`,
+            xs: 0,
+            md: `${(pageSurface?.contentPaddingBottom ?? 0) / 8}rem`,
           },
         }}
       >
