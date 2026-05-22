@@ -4,14 +4,11 @@ import {
   Box,
   Button,
   Chip,
-  MenuItem,
-  Select,
   Snackbar,
   Stack,
   Typography,
   useTheme,
 } from "@mui/material";
-import type { SelectChangeEvent } from "@mui/material/Select";
 import {
   ContentCopy as CopyIcon,
   DeleteOutlined as ClearIcon,
@@ -25,7 +22,6 @@ import { useAuth } from "../context/AuthContext";
 import { UserPool } from "../UserPool";
 import { db } from "../db";
 import { useAppTheme } from "../theme/ThemeContext";
-import { useTokens } from "../theme/useTokens";
 import { logger, type LogEntry } from "../utils/logger";
 import { syncService } from "../utils/syncService";
 import AppPageShell, {
@@ -46,8 +42,6 @@ const TABS: readonly AppPageTab<SettingsTab>[] = [
 
 const Settings: React.FC = () => {
   const theme = useTheme();
-  const tokens = useTokens();
-  const settingsTokens = tokens.settings;
   const { logout } = useAuth();
   const { presetId, setPresetId, availablePresets } = useAppTheme();
 
@@ -151,7 +145,7 @@ const Settings: React.FC = () => {
 
   const renderAccountTab = () => (
     <PageSectionCard>
-      <Box sx={{ p: { xs: 2.5, md: 3 } }}>
+      <Box sx={{ p: { xs: 2.5, md: 0 } }}>
         <PageSectionIntro
           title="Account"
           description="Manage your local app data and sign out safely."
@@ -188,113 +182,50 @@ const Settings: React.FC = () => {
     </PageSectionCard>
   );
 
-  const renderAppearanceTab = () => {
-    const selectWidth = settingsTokens?.control?.selectWidth ?? 260;
+  const renderAppearanceTab = () => (
+    <PageSectionCard>
+      <Box sx={{ p: { xs: 2.5, md: 0 } }}>
+        <PageSectionIntro
+          title="Appearance"
+          description="Change how your application looks and feels."
+        />
 
-    return (
-      <PageSectionCard>
-        <Box sx={{ p: { xs: 2.5, md: 3 } }}>
-          <PageSectionIntro
-            title="Appearance"
-            description="Change how your application looks and feels."
-          />
-
-          <SettingsRow
-            label="Color theme"
-            description="Select a theme for the application interface."
-            control={
-              <Select
-                value={presetId}
-                onChange={(e: SelectChangeEvent) => setPresetId(e.target.value)}
-                size="small"
-                renderValue={(value) => {
-                  const preset = availablePresets.find((p) => p.id === value);
-
-                  if (!preset) return String(value);
-
-                  return (
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      <Box
-                        sx={{
-                          width: 9,
-                          height: 9,
-                          borderRadius: "50%",
-                          bgcolor: preset.previewColor,
-                          flexShrink: 0,
-                        }}
-                      />
-                      {preset.label}
-                    </Box>
-                  );
-                }}
-                sx={{
-                  width: selectWidth,
-                  maxWidth: "100%",
-                  "& .MuiSelect-select": {
-                    color: "text.primary",
-                  },
-                  "& .MuiSvgIcon-root": {
-                    color: "text.secondary",
-                  },
-                }}
-              >
-                {availablePresets.map((p) => (
-                  <MenuItem key={p.id} value={p.id}>
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      <Box
-                        sx={{
-                          width: 9,
-                          height: 9,
-                          borderRadius: "50%",
-                          bgcolor: p.previewColor,
-                          flexShrink: 0,
-                        }}
-                      />
-                      {p.label}
-                    </Box>
-                  </MenuItem>
-                ))}
-              </Select>
-            }
-          />
-
-          <SettingsRow
-            label="Theme presets"
-            description="Choose how the app should appear across the interface."
-            noDivider
-            control={
-              <Box
-                sx={{
-                  display: "grid",
-                  gridTemplateColumns: {
-                    xs: "1fr",
-                    sm: "repeat(2, minmax(0, 1fr))",
-                    lg: "repeat(3, minmax(0, 1fr))",
-                  },
-                  gap: 2,
-                  width: "100%",
-                  maxWidth: 980,
-                }}
-              >
-                {availablePresets.map((preset) => (
-                  <ThemePresetCard
-                    key={preset.id}
-                    preset={preset}
-                    selected={presetId === preset.id}
-                    onSelect={() => setPresetId(preset.id)}
-                  />
-                ))}
-              </Box>
-            }
-          />
-        </Box>
-      </PageSectionCard>
-    );
-  };
+        <SettingsRow
+          label="Theme presets"
+          description="Choose how the app should appear across the interface."
+          noDivider
+          control={
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: {
+                  xs: "1fr",
+                  sm: "repeat(2, minmax(0, 1fr))",
+                  lg: "repeat(3, minmax(0, 1fr))",
+                },
+                gap: 2,
+                width: "100%",
+                maxWidth: 980,
+              }}
+            >
+              {availablePresets.map((preset) => (
+                <ThemePresetCard
+                  key={preset.id}
+                  preset={preset}
+                  selected={presetId === preset.id}
+                  onSelect={() => setPresetId(preset.id)}
+                />
+              ))}
+            </Box>
+          }
+        />
+      </Box>
+    </PageSectionCard>
+  );
 
   const renderSystemTab = () => (
     <PageSectionCard>
-      <Box sx={{ p: { xs: 2.5, md: 3 } }}>
+      <Box sx={{ p: { xs: 2.5, md: 0 } }}>
         <PageSectionIntro
           title="System"
           description="Monitor sync health, inspect local storage, and review logs."
