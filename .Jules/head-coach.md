@@ -1,3 +1,11 @@
+## 2025-06-08 - Strategic Pivot: From Dashboard Clarity to Predictive Automation
+
+Observation: The platform has achieved "Data Maturity" with robust engines for efficiency, impact, and momentum. However, a "Synthesis Gap" remains where coaches must manually translate raw data into tactical decisions under pressure. We are showing them *what* is happening, but they still have to figure out the *how to fix it* in 60 seconds.
+
+Impact: Decision Lag remains the primary opponent in high-leverage situations. A coach who spends their huddle trying to find the source of a run has lost the opportunity to implement the surgical fix.
+
+Recommendation: Pivot toward **Decision Automation** and **Predictive Strategy**. The next cycle must focus on features that "Think Ahead" of the game: "Rotation Sustainability" to forecast the unit's efficiency cliff, "Personnel Pivot" Alerts to anticipate opponent star re-entries, and "Process Integrity" tracking to hold players accountable to the system regardless of shot outcome. We are moving from being a tactical operating system to being an automated strategic partner.
+
 ## 2025-05-15 - Strategic Assessment: From Scorekeeper to Head Coach
 
 Observation: The current application provides a robust foundation for recording live basketball events, with a well-designed court-based entry system and immediate statistical feedback. However, it currently functions more as a "digital scorebook" than a "coaching tool." Critical gaps include the lack of a live game clock, which prevents accurate tracking of player minutes and rotation efficiency, and a lack of advanced impact metrics like Plus/Minus (+/-) and Effective Field Goal Percentage (eFG%).

@@ -1,5 +1,55 @@
 # CourtSight Backlog
 
+## [ ] [Live "Rotation Sustainability" Forecast]
+**Priority:** HIGH
+**Type:** Feature / Decision Support
+**Why:** Coaches often leave a productive lineup in too long, leading to a "Performance Cliff" due to hidden fatigue. Forecasting sustainability allows for proactive substitutions before the unit's efficiency drops.
+**What:** A predictive engine that calculates the "Half-Life" of the current unit's Net Rating based on individual fatigue (Red-Line) and stint duration.
+**Acceptance Criteria:**
+- [ ] "Sustainability Timer" on the Lineup HUD showing estimated minutes remaining before expected efficiency decay.
+- [ ] Visual alert: "Unit Red-Line Approaching" when 3+ on-court players exceed their fatigue threshold.
+- [ ] Recommended "Bridge Lineup" to maintain lead while stars rest.
+
+## [ ] [Opponent "Personnel Pivot" Alert]
+**Priority:** HIGH
+**Type:** Predictive Intelligence
+**Why:** Opponent coaches often have "Rotation Tells"—specific times or score-deltas when they sub their star back in. Anticipating this allows for preemptive counter-subs.
+**What:** An automated detection engine that monitors opponent `SUB_IN` patterns and flags expected returns.
+**Acceptance Criteria:**
+- [ ] Alert: "Opponent Star #24 expected to return in < 60s (Rotation Node)."
+- [ ] Suggested counter-lineup/matchup specifically for the returning threat.
+- [ ] Historical "Return Probability" indicator on opponent bench cards.
+
+## [ ] [Live "Process Integrity" Streak Tracker]
+**Priority:** HIGH
+**Type:** Feature / UX
+**Why:** Shooting streaks are visible, but "Process Streaks" (e.g., 5 consecutive possessions with a paint touch) are the true drivers of winning. Tracking process integrity keeps players focused on the system even if shots miss.
+**What:** A HUD element that tracks consecutive possessions meeting team-defined "Winning Process" criteria (e.g., Paint Touch, Extra Pass).
+**Acceptance Criteria:**
+- [ ] "Process Streak" counter in GameMode.
+- [ ] Visual "System Synergy" reward/animation for reaching a 3-possession process streak.
+- [ ] Alert: "Process Breakdown" when 3 consecutive possessions fail the "System Test."
+
+## [ ] [Automated "Sub-Logic" Conflict Resolver]
+**Priority:** HIGH
+**Type:** Decision Support
+**Why:** In the heat of the game, a coach might sub out a player who is actually the "Defensive Anchor" for the current unit without realizing it. Conflict resolution flags tactical risks before the sub is finalized.
+**What:** A validation layer in the QuickSubDialog that identifies if a proposed substitution breaks a high-value defensive synergy or removes the primary rim protector.
+**Acceptance Criteria:**
+- [ ] "Conflict Warning" in the sub dialog (e.g., "Removing Primary Rim Protector while Opponent Rim % is High").
+- [ ] Alternative sub recommendation that preserves the defensive floor.
+- [ ] Logic to check "Unit Familiarity" for the proposed 5-man group.
+
+## [ ] [Strategic "Timeout Value" Optimizer]
+**Priority:** HIGH
+**Type:** Feature / Decision Support
+**Why:** Timeouts are a finite resource. Coaches often "Burn" them too early in runs or save them too long. An optimizer provides an objective "Timeout Value" based on run severity and remaining game clock.
+**What:** A live advisor that calculates the ROI of taking a timeout now vs. playing through the momentum.
+**Acceptance Criteria:**
+- [ ] "Timeout Recommended" glow on the timeout button during severe opponent runs.
+- [ ] "Timeout Leverage Index" showing the cost/benefit based on remaining timeouts and game phase.
+- [ ] Alert: "Hold Timeout" advice if the team has a high "System Integrity" score despite the run.
+
 ## [ ] [Live 'Momentum Pivot' Identifier]
 **Priority:** HIGH
 **Type:** Feature / Decision Support
