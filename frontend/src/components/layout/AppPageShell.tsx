@@ -43,7 +43,8 @@ function AppPageShell<T extends string>({
         flex: 1,
         alignSelf: "stretch",
         background:
-          pageSurface?.background ?? "var(--cs-semantic-color-background-default)",
+          pageSurface?.background ??
+          "var(--cs-semantic-color-background-default)",
         border: pageSurface?.border ?? "none",
         borderRadius: {
           xs: 0,
