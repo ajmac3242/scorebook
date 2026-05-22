@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  Box,
-  Card,
-  CardActionArea,
-  Typography,
-  useTheme,
-} from "@mui/material";
+import { Box, Card, CardActionArea, Typography, useTheme } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import { Check as CheckIcon } from "@mui/icons-material";
 import { ThemePreset } from "../../theme/ThemeContext";
