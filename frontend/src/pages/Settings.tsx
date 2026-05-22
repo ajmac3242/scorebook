@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Alert,
   Box,
@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import {
   ContentCopy as CopyIcon,
-  DeleteOutlined as ClearIcon,
+  DeleteOutlined as DeleteIcon,
   Logout as LogoutIcon,
   Refresh as SyncIcon,
   Warning as WarningIcon,
@@ -48,6 +48,8 @@ const Settings: React.FC = () => {
   const [activeTab, setActiveTab] = useState<SettingsTab>("account");
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [userEmail, setUserEmail] = useState("—");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [isSyncing, setIsSyncing] = useState(false);
   const [isOnline, setIsOnline] = useState(window.navigator.onLine);
   const [dbStats, setDbStats] = useState<Record<string, number>>({});
@@ -56,6 +58,14 @@ const Settings: React.FC = () => {
     message: string;
     severity: "success" | "error" | "info" | "warning";
   }>({ open: false, message: "", severity: "success" });
+
+  const loadDbStats = useCallback(async () => {
+    const stats: Record<string, number> = {};
+    for (const table of db.tables) {
+      stats[table.name] = await table.count();
+    }
+    setDbStats(stats);
+  }, []);
 
   useEffect(() => {
     const cognitoUser = UserPool.getCurrentUser();
@@ -66,7 +76,16 @@ const Settings: React.FC = () => {
           cognitoUser.getUserAttributes((attrErr, attrs) => {
             if (!attrErr && attrs) {
               const emailAttr = attrs.find((a) => a.getName() === "email");
+              const givenNameAttr = attrs.find(
+                (a) => a.getName() === "given_name",
+              );
+              const familyNameAttr = attrs.find(
+                (a) => a.getName() === "family_name",
+              );
+
               if (emailAttr) setUserEmail(emailAttr.getValue());
+              if (givenNameAttr) setFirstName(givenNameAttr.getValue());
+              if (familyNameAttr) setLastName(familyNameAttr.getValue());
             }
           });
         }
@@ -91,22 +110,20 @@ const Settings: React.FC = () => {
     if (activeTab !== "system") return;
 
     setLogs(logger.getLogs());
-
-    const loadStats = async () => {
-      const stats: Record<string, number> = {};
-      for (const table of db.tables) {
-        stats[table.name] = await table.count();
-      }
-      setDbStats(stats);
-    };
-
-    void loadStats();
-  }, [activeTab]);
+    void loadDbStats();
+  }, [activeTab, loadDbStats]);
 
   const totalDbRecords = useMemo(
     () => Object.values(dbStats).reduce((a, b) => a + b, 0),
     [dbStats],
   );
+
+  const displayName = useMemo(() => {
+    const fullName = `${firstName} ${lastName}`.trim();
+    return fullName || "—";
+  }, [firstName, lastName]);
+
+  const hasName = Boolean(firstName || lastName);
 
   const showSnackbar = (
     message: string,
@@ -119,6 +136,8 @@ const Settings: React.FC = () => {
     setIsSyncing(true);
     try {
       await syncService.pushUpdates();
+      setLogs(logger.getLogs());
+      await loadDbStats();
       showSnackbar("Sync complete.");
     } catch {
       showSnackbar("Sync failed. Please try again.", "error");
@@ -143,6 +162,21 @@ const Settings: React.FC = () => {
     });
   };
 
+  const handleClearLocalStorage = async () => {
+    try {
+      await db.transaction("rw", db.tables, async () => {
+        for (const table of db.tables) {
+          await table.clear();
+        }
+      });
+
+      await loadDbStats();
+      showSnackbar("Local data deleted.");
+    } catch {
+      showSnackbar("Failed to delete local data.", "error");
+    }
+  };
+
   const renderAccountTab = () => (
     <PageSectionCard>
       <Box sx={{ p: { xs: 2.5, md: 0 } }}>
@@ -150,6 +184,18 @@ const Settings: React.FC = () => {
           title="Account"
           description="Manage your local app data and sign out safely."
         />
+
+        {hasName ? (
+          <SettingsRow
+            label="Name"
+            description="Your registered account name."
+            control={
+              <Typography variant="body2" color="text.secondary">
+                {displayName}
+              </Typography>
+            }
+          />
+        ) : null}
 
         <SettingsRow
           label="Email address"
@@ -227,12 +273,25 @@ const Settings: React.FC = () => {
       <Box sx={{ p: { xs: 2.5, md: 0 } }}>
         <PageSectionIntro
           title="System"
-          description="Monitor sync health, inspect local storage, and review logs."
+          description="Check connectivity, synchronization, and local diagnostic logs."
         />
 
         <SettingsRow
-          label="Sync"
-          description="Manually push local changes to the cloud."
+          label="Network connection"
+          description="Current internet connectivity for this device."
+          control={
+            <Chip
+              icon={isOnline ? <OnlineIcon /> : <OfflineIcon />}
+              label={isOnline ? "Online" : "Offline"}
+              color={isOnline ? "success" : "default"}
+              size="small"
+            />
+          }
+        />
+
+        <SettingsRow
+          label="Synchronization"
+          description="Shows whether local data has finished syncing to the server."
           control={
             <Stack
               direction="row"
@@ -241,7 +300,7 @@ const Settings: React.FC = () => {
             >
               <Chip
                 icon={isOnline ? <OnlineIcon /> : <OfflineIcon />}
-                label={isOnline ? "Online" : "Offline"}
+                label={isSyncing ? "Syncing…" : isOnline ? "Up to date" : "Offline"}
                 color={isOnline ? "success" : "default"}
                 size="small"
               />
@@ -263,25 +322,61 @@ const Settings: React.FC = () => {
           label="Local storage"
           description={`${totalDbRecords.toLocaleString()} total records across ${Object.keys(dbStats).length} tables.`}
           control={
-            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.75 }}>
-              {Object.entries(dbStats).map(([table, count]) => (
-                <Chip
-                  key={table}
-                  label={`${table}: ${count.toLocaleString()}`}
-                  size="small"
-                  variant="outlined"
-                />
-              ))}
+            <Box
+              sx={{
+                width: "100%",
+                display: "flex",
+                flexDirection: { xs: "column", md: "row" },
+                alignItems: { xs: "flex-start", md: "flex-start" },
+                justifyContent: "space-between",
+                gap: 2,
+              }}
+            >
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: {
+                    xs: "1fr",
+                    sm: "repeat(2, minmax(0, max-content))",
+                    lg: "repeat(3, minmax(0, max-content))",
+                  },
+                  columnGap: 3,
+                  rowGap: 0.75,
+                }}
+              >
+                {Object.entries(dbStats).map(([table, count]) => (
+                  <Typography key={table} variant="body2" color="text.secondary">
+                    <Box
+                      component="span"
+                      sx={{ color: "text.primary", fontWeight: 600 }}
+                    >
+                      {table}
+                    </Box>
+                    {`: ${count.toLocaleString()}`}
+                  </Typography>
+                ))}
+              </Box>
+
+              <Button
+                variant="outlined"
+                color="error"
+                size="small"
+                startIcon={<DeleteIcon />}
+                onClick={handleClearLocalStorage}
+                sx={{ minHeight: 34, flexShrink: 0 }}
+              >
+                Delete local data
+              </Button>
             </Box>
           }
         />
 
         <SettingsRow
-          label="Logs"
-          description="Diagnostic log output from this session."
+          label="System logs"
+          description="Copy logs for debugging or clear them from local storage."
           noDivider
           control={
-            <Stack spacing={1.25} sx={{ width: "100%" }}>
+            <Stack spacing={1.5} sx={{ width: "100%" }}>
               <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap" }}>
                 <Button
                   variant="outlined"
@@ -291,18 +386,18 @@ const Settings: React.FC = () => {
                   onClick={handleCopyLogs}
                   sx={{ minHeight: 34 }}
                 >
-                  Copy
+                  Copy logs
                 </Button>
                 <Button
-                  variant="outlined"
+                  variant="text"
                   color="error"
                   size="small"
-                  startIcon={<ClearIcon />}
+                  startIcon={<DeleteIcon />}
                   disabled={logs.length === 0}
                   onClick={handleClearLogs}
                   sx={{ minHeight: 34 }}
                 >
-                  Clear
+                  Clear logs
                 </Button>
               </Stack>
 
@@ -310,12 +405,11 @@ const Settings: React.FC = () => {
                 sx={{
                   maxHeight: 220,
                   overflowY: "auto",
-                  bgcolor:
-                    theme.palette.mode === "dark" ? "grey.900" : "grey.50",
-                  borderRadius: 1,
+                  bgcolor: theme.palette.mode === "dark" ? "grey.900" : "grey.50",
+                  borderRadius: 1.5,
                   border: "1px solid",
                   borderColor: "divider",
-                  p: 1.25,
+                  p: 1.5,
                 }}
               >
                 {logs.length === 0 ? (
@@ -323,25 +417,44 @@ const Settings: React.FC = () => {
                     No logs yet.
                   </Typography>
                 ) : (
-                  <Stack spacing={0.25}>
+                  <Stack spacing={1}>
                     {logs.map((log, i) => (
-                      <Typography
-                        key={i}
-                        variant="caption"
-                        component="div"
-                        sx={{
-                          fontFamily: "monospace",
-                          color:
-                            log.level === "error"
-                              ? "error.main"
-                              : log.level === "warn"
-                                ? "warning.main"
-                                : "text.secondary",
-                        }}
-                      >
-                        [{log.level.toUpperCase()}] {log.timestamp}{" "}
-                        {log.message}
-                      </Typography>
+                      <Box key={i}>
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            display: "block",
+                            fontWeight: 700,
+                            letterSpacing: 0.2,
+                            color:
+                              log.level === "error"
+                                ? "error.main"
+                                : log.level === "warn"
+                                  ? "warning.main"
+                                  : "text.secondary",
+                          }}
+                        >
+                          {log.level.toUpperCase()}
+                          <Box
+                            component="span"
+                            sx={{ ml: 1, fontWeight: 600, color: "text.disabled" }}
+                          >
+                            {log.timestamp}
+                          </Box>
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          component="div"
+                          sx={{
+                            fontFamily: "monospace",
+                            color: "text.primary",
+                            whiteSpace: "pre-wrap",
+                            wordBreak: "break-word",
+                          }}
+                        >
+                          {log.message}
+                        </Typography>
+                      </Box>
                     ))}
                   </Stack>
                 )}
