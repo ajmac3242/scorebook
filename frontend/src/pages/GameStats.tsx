@@ -188,7 +188,10 @@ const GameStats: React.FC = () => {
         >
           <Typography
             variant="subtitle2"
-            sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)", mb: "var(--cs-semantic-spacing-xs)" }}
+            sx={{
+              fontWeight: "var(--cs-typography-fontWeight-bold)",
+              mb: "var(--cs-semantic-spacing-xs)",
+            }}
           >
             {label} - Spread: {data.Spread > 0 ? "+" : ""}
             {data.Spread}
@@ -217,7 +220,11 @@ const GameStats: React.FC = () => {
           >
             ACTIVE LINEUP:
           </Typography>
-          <Stack direction="row" spacing={"var(--cs-semantic-spacing-xs)"} sx={{ mb: "var(--cs-semantic-spacing-md)" }}>
+          <Stack
+            direction="row"
+            spacing={"var(--cs-semantic-spacing-xs)"}
+            sx={{ mb: "var(--cs-semantic-spacing-md)" }}
+          >
             {data.lineup?.map((pId: string) => (
               <Avatar
                 key={pId}
@@ -244,7 +251,10 @@ const GameStats: React.FC = () => {
               <Typography variant="caption" sx={{ display: "block" }}>
                 TEAM PPP
               </Typography>
-              <Typography variant="body2" sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}>
+              <Typography
+                variant="body2"
+                sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}
+              >
                 {data.teamPpp || "0.00"}
               </Typography>
             </Grid>
@@ -252,7 +262,10 @@ const GameStats: React.FC = () => {
               <Typography variant="caption" sx={{ display: "block" }}>
                 OPP PPP
               </Typography>
-              <Typography variant="body2" sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}>
+              <Typography
+                variant="body2"
+                sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}
+              >
                 {data.oppPpp || "0.00"}
               </Typography>
             </Grid>
@@ -983,7 +996,11 @@ const GameStats: React.FC = () => {
     <Box sx={{ mb: "var(--cs-semantic-spacing-md)" }}>
       <Stack
         direction="row"
-        sx={{ justifyContent: "space-between", alignItems: "center", mb: "var(--cs-semantic-spacing-xs)" }}
+        sx={{
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: "var(--cs-semantic-spacing-xs)",
+        }}
       >
         <Typography variant="subtitle2">Filters</Typography>
         <Stack direction="row" spacing={"var(--cs-semantic-spacing-xs)"}>
@@ -1006,7 +1023,10 @@ const GameStats: React.FC = () => {
           </ToggleButtonGroup>
         </Stack>
       </Stack>
-      <Stack direction={{ xs: "column", sm: "row" }} spacing={"var(--cs-semantic-spacing-md)"}>
+      <Stack
+        direction={{ xs: "column", sm: "row" }}
+        spacing={"var(--cs-semantic-spacing-md)"}
+      >
         <FormControl fullWidth size="small">
           <InputLabel>Player</InputLabel>
           <Select
@@ -1217,20 +1237,39 @@ const GameStats: React.FC = () => {
       <Table size="small">
         <TableHead>
           <TableRow sx={{ bgcolor: "var(--cs-semantic-color-surface-subtle)" }}>
-            <TableCell sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}>Lineup</TableCell>
-            <TableCell align="right" sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}>
+            <TableCell
+              sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}
+            >
+              Lineup
+            </TableCell>
+            <TableCell
+              align="right"
+              sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}
+            >
               MIN
             </TableCell>
-            <TableCell align="right" sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}>
+            <TableCell
+              align="right"
+              sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}
+            >
               PTS FOR
             </TableCell>
-            <TableCell align="right" sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}>
+            <TableCell
+              align="right"
+              sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}
+            >
               PTS AGN
             </TableCell>
-            <TableCell align="right" sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}>
+            <TableCell
+              align="right"
+              sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}
+            >
               NET/40
             </TableCell>
-            <TableCell align="right" sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}>
+            <TableCell
+              align="right"
+              sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}
+            >
               +/-
             </TableCell>
           </TableRow>
@@ -1239,7 +1278,10 @@ const GameStats: React.FC = () => {
           {lineupStats.map((row, idx) => (
             <TableRow key={idx}>
               <TableCell>
-                <Stack direction="row" spacing={"var(--cs-semantic-spacing-xs)"}>
+                <Stack
+                  direction="row"
+                  spacing={"var(--cs-semantic-spacing-xs)"}
+                >
                   {row.lineup.map((pId) => (
                     <Avatar
                       key={pId}
@@ -1302,7 +1344,11 @@ const GameStats: React.FC = () => {
           { label: "Def. PPP", value: oppData.ppp },
         ]}
         actions={
-          <Stack direction="row" spacing={"var(--cs-semantic-spacing-xs)"} sx={{ alignItems: "center" }}>
+          <Stack
+            direction="row"
+            spacing={"var(--cs-semantic-spacing-xs)"}
+            sx={{ alignItems: "center" }}
+          >
             {" "}
             {!isDeleted && (
               <Stack direction="row" spacing={"var(--cs-semantic-spacing-xs)"}>
@@ -1373,7 +1419,11 @@ const GameStats: React.FC = () => {
           gap: "var(--cs-semantic-spacing-md)",
         }}
       >
-        <Stack direction="row" spacing={"var(--cs-semantic-spacing-md)"} sx={{ alignItems: "center" }}>
+        <Stack
+          direction="row"
+          spacing={"var(--cs-semantic-spacing-md)"}
+          sx={{ alignItems: "center" }}
+        >
           <ToggleButtonGroup
             value={activeTab}
             exclusive
@@ -1408,8 +1458,12 @@ const GameStats: React.FC = () => {
           sx={{
             fontWeight: "var(--cs-typography-fontWeight-bold)",
             px: "var(--cs-semantic-spacing-lg)",
-            bgcolor: clutchFilter ? "var(--cs-semantic-color-emphasis-clutch)" : "transparent",
-            color: clutchFilter ? "var(--cs-semantic-color-text-inverse)" : "var(--cs-semantic-color-emphasis-clutch)",
+            bgcolor: clutchFilter
+              ? "var(--cs-semantic-color-emphasis-clutch)"
+              : "transparent",
+            color: clutchFilter
+              ? "var(--cs-semantic-color-text-inverse)"
+              : "var(--cs-semantic-color-emphasis-clutch)",
             borderColor: "var(--cs-semantic-color-emphasis-clutch)",
             "&:hover": {
               bgcolor: clutchFilter
@@ -1422,8 +1476,8 @@ const GameStats: React.FC = () => {
               color: "var(--cs-semantic-color-text-inverse)",
               "&:hover": {
                 bgcolor: "var(--cs-semantic-color-emphasis-clutch)",
-              }
-            }
+              },
+            },
           }}
         >
           🔥 CLUTCH MODE
@@ -1436,7 +1490,10 @@ const GameStats: React.FC = () => {
             <MoleskineCard>
               <Typography
                 variant="h6"
-                sx={{ fontFamily: "var(--cs-typography-fontFamily-display)", mb: "var(--cs-semantic-spacing-md)" }}
+                sx={{
+                  fontFamily: "var(--cs-typography-fontFamily-display)",
+                  mb: "var(--cs-semantic-spacing-md)",
+                }}
               >
                 Team Impact Analytics (On/Off)
               </Typography>
@@ -1450,25 +1507,57 @@ const GameStats: React.FC = () => {
             <MoleskineCard>
               <Typography
                 variant="h6"
-                sx={{ fontFamily: "var(--cs-typography-fontFamily-display)", mb: "var(--cs-semantic-spacing-md)" }}
+                sx={{
+                  fontFamily: "var(--cs-typography-fontFamily-display)",
+                  mb: "var(--cs-semantic-spacing-md)",
+                }}
               >
                 Matchup Accountability (Points Allowed)
               </Typography>
               <TableContainer component={Box}>
                 <Table size="small">
                   <TableHead>
-                    <TableRow sx={{ bgcolor: "var(--cs-semantic-color-surface-subtle)" }}>
-                      <TableCell sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}>Opponent</TableCell>
-                      <TableCell sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}>
+                    <TableRow
+                      sx={{
+                        bgcolor: "var(--cs-semantic-color-surface-subtle)",
+                      }}
+                    >
+                      <TableCell
+                        sx={{
+                          fontWeight: "var(--cs-typography-fontWeight-bold)",
+                        }}
+                      >
+                        Opponent
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          fontWeight: "var(--cs-typography-fontWeight-bold)",
+                        }}
+                      >
                         Primary Defender
                       </TableCell>
-                      <TableCell align="right" sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}>
+                      <TableCell
+                        align="right"
+                        sx={{
+                          fontWeight: "var(--cs-typography-fontWeight-bold)",
+                        }}
+                      >
                         PTS Allowed
                       </TableCell>
-                      <TableCell align="right" sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}>
+                      <TableCell
+                        align="right"
+                        sx={{
+                          fontWeight: "var(--cs-typography-fontWeight-bold)",
+                        }}
+                      >
                         Stops
                       </TableCell>
-                      <TableCell align="right" sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}>
+                      <TableCell
+                        align="right"
+                        sx={{
+                          fontWeight: "var(--cs-typography-fontWeight-bold)",
+                        }}
+                      >
                         Stop %
                       </TableCell>
                     </TableRow>
@@ -1480,7 +1569,12 @@ const GameStats: React.FC = () => {
                         <TableCell>{m.defenderName}</TableCell>
                         <TableCell align="right">{m.pointsAllowed}</TableCell>
                         <TableCell align="right">{m.stops}</TableCell>
-                        <TableCell align="right" sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}>
+                        <TableCell
+                          align="right"
+                          sx={{
+                            fontWeight: "var(--cs-typography-fontWeight-bold)",
+                          }}
+                        >
                           {m.stopPct}%
                         </TableCell>
                       </TableRow>
@@ -1504,7 +1598,10 @@ const GameStats: React.FC = () => {
           <MoleskineCard>
             <Typography
               variant="h6"
-              sx={{ fontFamily: "var(--cs-typography-fontFamily-display)", mb: "var(--cs-semantic-spacing-md)" }}
+              sx={{
+                fontFamily: "var(--cs-typography-fontFamily-display)",
+                mb: "var(--cs-semantic-spacing-md)",
+              }}
             >
               Defensive Metrics
             </Typography>
@@ -1539,7 +1636,10 @@ const GameStats: React.FC = () => {
               </Grid>
               <Grid size={{ xs: 4 }}>
                 <Box sx={{ textAlign: "center" }}>
-                  <Typography variant="h4" sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}>
+                  <Typography
+                    variant="h4"
+                    sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}
+                  >
                     {defensiveStats.currentStreak}
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
@@ -1562,7 +1662,10 @@ const GameStats: React.FC = () => {
                 mb: "var(--cs-semantic-spacing-md)",
               }}
             >
-              <Typography variant="h6" sx={{ fontFamily: "var(--cs-typography-fontFamily-display)" }}>
+              <Typography
+                variant="h6"
+                sx={{ fontFamily: "var(--cs-typography-fontFamily-display)" }}
+              >
                 Box Score{" "}
                 {periodFilter !== "ALL" && `(${periodLabel} ${periodFilter})`}
               </Typography>
@@ -1589,7 +1692,10 @@ const GameStats: React.FC = () => {
                 mb: "var(--cs-semantic-spacing-md)",
               }}
             >
-              <Typography variant="h6" sx={{ fontFamily: "var(--cs-typography-fontFamily-display)" }}>
+              <Typography
+                variant="h6"
+                sx={{ fontFamily: "var(--cs-typography-fontFamily-display)" }}
+              >
                 {compareMode ? "Tactical Comparison" : "Shot Chart"}{" "}
                 {!compareMode &&
                   periodFilter !== "ALL" &&
@@ -1633,7 +1739,9 @@ const GameStats: React.FC = () => {
                   <Box
                     key={court.id}
                     sx={{
-                      minWidth: isMobile ? "100%" : "calc(50% - var(--cs-semantic-spacing-sm))",
+                      minWidth: isMobile
+                        ? "100%"
+                        : "calc(50% - var(--cs-semantic-spacing-sm))",
                       scrollSnapAlign: "start",
                     }}
                   >
@@ -1688,7 +1796,11 @@ const GameStats: React.FC = () => {
               <Typography
                 variant="caption"
                 color="text.secondary"
-                sx={{ display: "block", textAlign: "center", mt: "var(--cs-semantic-spacing-xs)" }}
+                sx={{
+                  display: "block",
+                  textAlign: "center",
+                  mt: "var(--cs-semantic-spacing-xs)",
+                }}
               >
                 ← Swipe to compare →
               </Typography>
@@ -1707,7 +1819,10 @@ const GameStats: React.FC = () => {
                 mb: "var(--cs-semantic-spacing-md)",
               }}
             >
-              <Typography variant="h6" sx={{ fontFamily: "var(--cs-typography-fontFamily-display)" }}>
+              <Typography
+                variant="h6"
+                sx={{ fontFamily: "var(--cs-typography-fontFamily-display)" }}
+              >
                 Score Flow{" "}
                 {periodFilter !== "ALL" && `(${periodLabel} ${periodFilter})`}
               </Typography>
@@ -1730,19 +1845,41 @@ const GameStats: React.FC = () => {
               <MoleskineCard>
                 <Typography
                   variant="h6"
-                  sx={{ fontFamily: "var(--cs-typography-fontFamily-display)", mb: "var(--cs-semantic-spacing-md)" }}
+                  sx={{
+                    fontFamily: "var(--cs-typography-fontFamily-display)",
+                    mb: "var(--cs-semantic-spacing-md)",
+                  }}
                 >
                   Individual Defensive Accountability
                 </Typography>
                 <TableContainer>
                   <Table size="small">
                     <TableHead>
-                      <TableRow sx={{ bgcolor: "var(--cs-semantic-color-surface-subtle)" }}>
-                        <TableCell sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}>Defender</TableCell>
-                        <TableCell align="right" sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}>
+                      <TableRow
+                        sx={{
+                          bgcolor: "var(--cs-semantic-color-surface-subtle)",
+                        }}
+                      >
+                        <TableCell
+                          sx={{
+                            fontWeight: "var(--cs-typography-fontWeight-bold)",
+                          }}
+                        >
+                          Defender
+                        </TableCell>
+                        <TableCell
+                          align="right"
+                          sx={{
+                            fontWeight: "var(--cs-typography-fontWeight-bold)",
+                          }}
+                        >
                           PTS Agn
                         </TableCell>
-                        <TableCell sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}>
+                        <TableCell
+                          sx={{
+                            fontWeight: "var(--cs-typography-fontWeight-bold)",
+                          }}
+                        >
                           Primary Breakdown
                         </TableCell>
                       </TableRow>
@@ -1770,7 +1907,13 @@ const GameStats: React.FC = () => {
                               </Typography>
                             </Stack>
                           </TableCell>
-                          <TableCell align="right" sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}>
+                          <TableCell
+                            align="right"
+                            sx={{
+                              fontWeight:
+                                "var(--cs-typography-fontWeight-bold)",
+                            }}
+                          >
                             {row.pointsAllowed}
                           </TableCell>
                           <TableCell>
@@ -1783,7 +1926,10 @@ const GameStats: React.FC = () => {
                                   ? "success"
                                   : "error"
                               }
-                              sx={{ fontSize: "var(--cs-typography-fontSize-xs)", height: 20 }}
+                              sx={{
+                                fontSize: "var(--cs-typography-fontSize-xs)",
+                                height: 20,
+                              }}
                             />
                           </TableCell>
                         </TableRow>
@@ -1805,7 +1951,10 @@ const GameStats: React.FC = () => {
               <MoleskineCard>
                 <Typography
                   variant="h6"
-                  sx={{ fontFamily: "var(--cs-typography-fontFamily-display)", mb: "var(--cs-semantic-spacing-md)" }}
+                  sx={{
+                    fontFamily: "var(--cs-typography-fontFamily-display)",
+                    mb: "var(--cs-semantic-spacing-md)",
+                  }}
                 >
                   Rim Pressure (Paint Touches)
                 </Typography>
@@ -1820,9 +1969,18 @@ const GameStats: React.FC = () => {
                     paint touch.
                   </Typography>
                 </Box>
-                <Grid container spacing={"var(--cs-semantic-spacing-md)"} sx={{ mb: "var(--cs-semantic-spacing-lg)" }}>
+                <Grid
+                  container
+                  spacing={"var(--cs-semantic-spacing-md)"}
+                  sx={{ mb: "var(--cs-semantic-spacing-lg)" }}
+                >
                   <Grid size={{ xs: 6 }}>
-                    <Typography variant="h4" sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}>
+                    <Typography
+                      variant="h4"
+                      sx={{
+                        fontWeight: "var(--cs-typography-fontWeight-bold)",
+                      }}
+                    >
                       {paintTouchStats.total}
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
@@ -1832,7 +1990,10 @@ const GameStats: React.FC = () => {
                   <Grid size={{ xs: 6 }}>
                     <Typography
                       variant="h4"
-                      sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)", color: "var(--cs-semantic-color-feedback-success-main)" }}
+                      sx={{
+                        fontWeight: "var(--cs-typography-fontWeight-bold)",
+                        color: "var(--cs-semantic-color-feedback-success-main)",
+                      }}
                     >
                       {paintTouchStats.pppt}
                     </Typography>
@@ -1864,7 +2025,10 @@ const GameStats: React.FC = () => {
               <MoleskineCard>
                 <Typography
                   variant="h6"
-                  sx={{ fontFamily: "var(--cs-typography-fontFamily-display)", mb: "var(--cs-semantic-spacing-md)" }}
+                  sx={{
+                    fontFamily: "var(--cs-typography-fontFamily-display)",
+                    mb: "var(--cs-semantic-spacing-md)",
+                  }}
                 >
                   Process Report (ROI)
                 </Typography>
@@ -1878,9 +2042,18 @@ const GameStats: React.FC = () => {
                     (xPTS) based on shot location and quality.
                   </Typography>
                 </Box>
-                <Grid container spacing={"var(--cs-semantic-spacing-md)"} sx={{ mb: "var(--cs-semantic-spacing-lg)" }}>
+                <Grid
+                  container
+                  spacing={"var(--cs-semantic-spacing-md)"}
+                  sx={{ mb: "var(--cs-semantic-spacing-lg)" }}
+                >
                   <Grid size={{ xs: 6 }}>
-                    <Typography variant="h4" sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}>
+                    <Typography
+                      variant="h4"
+                      sx={{
+                        fontWeight: "var(--cs-typography-fontWeight-bold)",
+                      }}
+                    >
                       {shotROI.totalPoints}
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
@@ -1890,7 +2063,10 @@ const GameStats: React.FC = () => {
                   <Grid size={{ xs: 6 }}>
                     <Typography
                       variant="h4"
-                      sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)", color: "var(--cs-semantic-color-brand-primary-main)" }}
+                      sx={{
+                        fontWeight: "var(--cs-typography-fontWeight-bold)",
+                        color: "var(--cs-semantic-color-brand-primary-main)",
+                      }}
                     >
                       {shotROI.totalXPts}
                     </Typography>
@@ -1914,7 +2090,10 @@ const GameStats: React.FC = () => {
                     {parseFloat(shotROI.roi) > 0 ? "+" : ""}
                     {Math.round(parseFloat(shotROI.roi) * 100)}%
                   </Typography>
-                  <Typography variant="subtitle2" sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}>
+                  <Typography
+                    variant="subtitle2"
+                    sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}
+                  >
                     SHOT ROI
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
@@ -1930,7 +2109,10 @@ const GameStats: React.FC = () => {
               <MoleskineCard>
                 <Typography
                   variant="h6"
-                  sx={{ fontFamily: "var(--cs-typography-fontFamily-display)", mb: "var(--cs-semantic-spacing-md)" }}
+                  sx={{
+                    fontFamily: "var(--cs-typography-fontFamily-display)",
+                    mb: "var(--cs-semantic-spacing-md)",
+                  }}
                 >
                   Assist Network (Chemistry)
                 </Typography>
@@ -1939,25 +2121,37 @@ const GameStats: React.FC = () => {
                     <TableHead>
                       <TableRow>
                         <TableCell
-                          sx={{ fontSize: "var(--cs-typography-fontSize-xs)", fontWeight: "var(--cs-typography-fontWeight-bold)" }}
+                          sx={{
+                            fontSize: "var(--cs-typography-fontSize-xs)",
+                            fontWeight: "var(--cs-typography-fontWeight-bold)",
+                          }}
                         >
                           CONNECTION
                         </TableCell>
                         <TableCell
                           align="right"
-                          sx={{ fontSize: "var(--cs-typography-fontSize-xs)", fontWeight: "var(--cs-typography-fontWeight-bold)" }}
+                          sx={{
+                            fontSize: "var(--cs-typography-fontSize-xs)",
+                            fontWeight: "var(--cs-typography-fontWeight-bold)",
+                          }}
                         >
                           FREQ
                         </TableCell>
                         <TableCell
                           align="right"
-                          sx={{ fontSize: "var(--cs-typography-fontSize-xs)", fontWeight: "var(--cs-typography-fontWeight-bold)" }}
+                          sx={{
+                            fontSize: "var(--cs-typography-fontSize-xs)",
+                            fontWeight: "var(--cs-typography-fontWeight-bold)",
+                          }}
                         >
                           PTS
                         </TableCell>
                         <TableCell
                           align="right"
-                          sx={{ fontSize: "var(--cs-typography-fontSize-xs)", fontWeight: "var(--cs-typography-fontWeight-bold)" }}
+                          sx={{
+                            fontSize: "var(--cs-typography-fontSize-xs)",
+                            fontWeight: "var(--cs-typography-fontWeight-bold)",
+                          }}
                         >
                           eFG%
                         </TableCell>
@@ -1979,7 +2173,8 @@ const GameStats: React.FC = () => {
                                   sx={{
                                     width: 20,
                                     height: 20,
-                                    fontSize: "var(--cs-typography-fontSize-xs)",
+                                    fontSize:
+                                      "var(--cs-typography-fontSize-xs)",
                                   }}
                                 >
                                   {shotChartJerseyMap.get(edge.passerId) ||
@@ -1990,7 +2185,8 @@ const GameStats: React.FC = () => {
                                   sx={{
                                     width: 20,
                                     height: 20,
-                                    fontSize: "var(--cs-typography-fontSize-xs)",
+                                    fontSize:
+                                      "var(--cs-typography-fontSize-xs)",
                                   }}
                                 >
                                   {shotChartJerseyMap.get(edge.finisherId) ||
@@ -2000,19 +2196,27 @@ const GameStats: React.FC = () => {
                             </TableCell>
                             <TableCell
                               align="right"
-                              sx={{ fontSize: "var(--cs-typography-fontSize-sm)" }}
+                              sx={{
+                                fontSize: "var(--cs-typography-fontSize-sm)",
+                              }}
                             >
                               {edge.count}
                             </TableCell>
                             <TableCell
                               align="right"
-                              sx={{ fontSize: "var(--cs-typography-fontSize-sm)" }}
+                              sx={{
+                                fontSize: "var(--cs-typography-fontSize-sm)",
+                              }}
                             >
                               {edge.points}
                             </TableCell>
                             <TableCell
                               align="right"
-                              sx={{ fontSize: "var(--cs-typography-fontSize-sm)", fontWeight: "var(--cs-typography-fontWeight-bold)" }}
+                              sx={{
+                                fontSize: "var(--cs-typography-fontSize-sm)",
+                                fontWeight:
+                                  "var(--cs-typography-fontWeight-bold)",
+                              }}
                             >
                               {edge.efg}%
                             </TableCell>
@@ -2039,14 +2243,20 @@ const GameStats: React.FC = () => {
                   >
                     <Typography
                       variant="caption"
-                      sx={{ display: "block", fontWeight: "var(--cs-typography-fontWeight-bold)" }}
+                      sx={{
+                        display: "block",
+                        fontWeight: "var(--cs-typography-fontWeight-bold)",
+                      }}
                     >
                       PRIMARY PLAYMAKER: #
                       {shotChartJerseyMap.get(assistNetwork.primaryPlaymakerId)}
                     </Typography>
                     <Typography
                       variant="caption"
-                      sx={{ display: "block", fontWeight: "var(--cs-typography-fontWeight-bold)" }}
+                      sx={{
+                        display: "block",
+                        fontWeight: "var(--cs-typography-fontWeight-bold)",
+                      }}
                     >
                       PRIMARY FINISHER: #
                       {shotChartJerseyMap.get(assistNetwork.primaryFinisherId)}
@@ -2060,7 +2270,10 @@ const GameStats: React.FC = () => {
               <MoleskineCard>
                 <Typography
                   variant="h6"
-                  sx={{ fontFamily: "var(--cs-typography-fontFamily-display)", mb: "var(--cs-semantic-spacing-md)" }}
+                  sx={{
+                    fontFamily: "var(--cs-typography-fontFamily-display)",
+                    mb: "var(--cs-semantic-spacing-md)",
+                  }}
                 >
                   Opponent Play Types
                 </Typography>
@@ -2069,19 +2282,28 @@ const GameStats: React.FC = () => {
                     <TableHead>
                       <TableRow>
                         <TableCell
-                          sx={{ fontSize: "var(--cs-typography-fontSize-xs)", fontWeight: "var(--cs-typography-fontWeight-bold)" }}
+                          sx={{
+                            fontSize: "var(--cs-typography-fontSize-xs)",
+                            fontWeight: "var(--cs-typography-fontWeight-bold)",
+                          }}
                         >
                           TYPE
                         </TableCell>
                         <TableCell
                           align="right"
-                          sx={{ fontSize: "var(--cs-typography-fontSize-xs)", fontWeight: "var(--cs-typography-fontWeight-bold)" }}
+                          sx={{
+                            fontSize: "var(--cs-typography-fontSize-xs)",
+                            fontWeight: "var(--cs-typography-fontWeight-bold)",
+                          }}
                         >
                           PPP
                         </TableCell>
                         <TableCell
                           align="right"
-                          sx={{ fontSize: "var(--cs-typography-fontSize-xs)", fontWeight: "var(--cs-typography-fontWeight-bold)" }}
+                          sx={{
+                            fontSize: "var(--cs-typography-fontSize-xs)",
+                            fontWeight: "var(--cs-typography-fontWeight-bold)",
+                          }}
                         >
                           eFG%
                         </TableCell>
@@ -2091,19 +2313,31 @@ const GameStats: React.FC = () => {
                       {opponentPlayTypeEfficiency.map((row) => (
                         <TableRow key={row.type}>
                           <TableCell
-                            sx={{ fontSize: "var(--cs-typography-fontSize-sm)", fontWeight: "var(--cs-typography-fontWeight-semibold)" }}
+                            sx={{
+                              fontSize: "var(--cs-typography-fontSize-sm)",
+                              fontWeight:
+                                "var(--cs-typography-fontWeight-semibold)",
+                            }}
                           >
                             {row.type}
                           </TableCell>
                           <TableCell
                             align="right"
-                            sx={{ fontSize: "var(--cs-typography-fontSize-sm)", fontWeight: "var(--cs-typography-fontWeight-bold)" }}
+                            sx={{
+                              fontSize: "var(--cs-typography-fontSize-sm)",
+                              fontWeight:
+                                "var(--cs-typography-fontWeight-bold)",
+                            }}
                           >
                             {row.ppp}
                           </TableCell>
                           <TableCell
                             align="right"
-                            sx={{ fontSize: "var(--cs-typography-fontSize-sm)", fontWeight: "var(--cs-typography-fontWeight-bold)" }}
+                            sx={{
+                              fontSize: "var(--cs-typography-fontSize-sm)",
+                              fontWeight:
+                                "var(--cs-typography-fontWeight-bold)",
+                            }}
                           >
                             {row.efg}%
                           </TableCell>
@@ -2126,22 +2360,50 @@ const GameStats: React.FC = () => {
               <MoleskineCard>
                 <Typography
                   variant="h6"
-                  sx={{ fontFamily: "var(--cs-typography-fontFamily-display)", mb: "var(--cs-semantic-spacing-md)" }}
+                  sx={{
+                    fontFamily: "var(--cs-typography-fontFamily-display)",
+                    mb: "var(--cs-semantic-spacing-md)",
+                  }}
                 >
                   Shot Rhythm (Clock)
                 </Typography>
                 <TableContainer>
                   <Table size="small">
                     <TableHead>
-                      <TableRow sx={{ bgcolor: "var(--cs-semantic-color-surface-subtle)" }}>
-                        <TableCell sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}>Phase</TableCell>
-                        <TableCell align="right" sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}>
+                      <TableRow
+                        sx={{
+                          bgcolor: "var(--cs-semantic-color-surface-subtle)",
+                        }}
+                      >
+                        <TableCell
+                          sx={{
+                            fontWeight: "var(--cs-typography-fontWeight-bold)",
+                          }}
+                        >
+                          Phase
+                        </TableCell>
+                        <TableCell
+                          align="right"
+                          sx={{
+                            fontWeight: "var(--cs-typography-fontWeight-bold)",
+                          }}
+                        >
                           Freq
                         </TableCell>
-                        <TableCell align="right" sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}>
+                        <TableCell
+                          align="right"
+                          sx={{
+                            fontWeight: "var(--cs-typography-fontWeight-bold)",
+                          }}
+                        >
                           PTS
                         </TableCell>
-                        <TableCell align="right" sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}>
+                        <TableCell
+                          align="right"
+                          sx={{
+                            fontWeight: "var(--cs-typography-fontWeight-bold)",
+                          }}
+                        >
                           eFG%
                         </TableCell>
                       </TableRow>
@@ -2149,7 +2411,12 @@ const GameStats: React.FC = () => {
                     <TableBody>
                       {shotClockEfficiency.map((p) => (
                         <TableRow key={p.phase}>
-                          <TableCell sx={{ fontWeight: "var(--cs-typography-fontWeight-semibold)" }}>
+                          <TableCell
+                            sx={{
+                              fontWeight:
+                                "var(--cs-typography-fontWeight-semibold)",
+                            }}
+                          >
                             {p.phase}
                           </TableCell>
                           <TableCell align="right">{p.attempts}</TableCell>
@@ -2167,22 +2434,50 @@ const GameStats: React.FC = () => {
               <MoleskineCard>
                 <Typography
                   variant="h6"
-                  sx={{ fontFamily: "var(--cs-typography-fontFamily-display)", mb: "var(--cs-semantic-spacing-md)" }}
+                  sx={{
+                    fontFamily: "var(--cs-typography-fontFamily-display)",
+                    mb: "var(--cs-semantic-spacing-md)",
+                  }}
                 >
                   Process Efficiency
                 </Typography>
                 <TableContainer>
                   <Table size="small">
                     <TableHead>
-                      <TableRow sx={{ bgcolor: "var(--cs-semantic-color-surface-subtle)" }}>
-                        <TableCell sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}>Quality</TableCell>
-                        <TableCell align="right" sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}>
+                      <TableRow
+                        sx={{
+                          bgcolor: "var(--cs-semantic-color-surface-subtle)",
+                        }}
+                      >
+                        <TableCell
+                          sx={{
+                            fontWeight: "var(--cs-typography-fontWeight-bold)",
+                          }}
+                        >
+                          Quality
+                        </TableCell>
+                        <TableCell
+                          align="right"
+                          sx={{
+                            fontWeight: "var(--cs-typography-fontWeight-bold)",
+                          }}
+                        >
                           Freq
                         </TableCell>
-                        <TableCell align="right" sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}>
+                        <TableCell
+                          align="right"
+                          sx={{
+                            fontWeight: "var(--cs-typography-fontWeight-bold)",
+                          }}
+                        >
                           PTS
                         </TableCell>
-                        <TableCell align="right" sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}>
+                        <TableCell
+                          align="right"
+                          sx={{
+                            fontWeight: "var(--cs-typography-fontWeight-bold)",
+                          }}
+                        >
                           eFG%
                         </TableCell>
                       </TableRow>
@@ -2190,7 +2485,12 @@ const GameStats: React.FC = () => {
                     <TableBody>
                       {processEfficiency.map((p) => (
                         <TableRow key={p.quality}>
-                          <TableCell sx={{ fontWeight: "var(--cs-typography-fontWeight-semibold)" }}>
+                          <TableCell
+                            sx={{
+                              fontWeight:
+                                "var(--cs-typography-fontWeight-semibold)",
+                            }}
+                          >
                             {p.quality}
                           </TableCell>
                           <TableCell align="right">{p.attempts}</TableCell>
@@ -2208,22 +2508,50 @@ const GameStats: React.FC = () => {
               <MoleskineCard>
                 <Typography
                   variant="h6"
-                  sx={{ fontFamily: "var(--cs-typography-fontFamily-display)", mb: "var(--cs-semantic-spacing-md)" }}
+                  sx={{
+                    fontFamily: "var(--cs-typography-fontFamily-display)",
+                    mb: "var(--cs-semantic-spacing-md)",
+                  }}
                 >
                   Play Efficiency
                 </Typography>
                 <TableContainer>
                   <Table size="small">
                     <TableHead>
-                      <TableRow sx={{ bgcolor: "var(--cs-semantic-color-surface-subtle)" }}>
-                        <TableCell sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}>Play</TableCell>
-                        <TableCell align="right" sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}>
+                      <TableRow
+                        sx={{
+                          bgcolor: "var(--cs-semantic-color-surface-subtle)",
+                        }}
+                      >
+                        <TableCell
+                          sx={{
+                            fontWeight: "var(--cs-typography-fontWeight-bold)",
+                          }}
+                        >
+                          Play
+                        </TableCell>
+                        <TableCell
+                          align="right"
+                          sx={{
+                            fontWeight: "var(--cs-typography-fontWeight-bold)",
+                          }}
+                        >
                           Freq
                         </TableCell>
-                        <TableCell align="right" sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}>
+                        <TableCell
+                          align="right"
+                          sx={{
+                            fontWeight: "var(--cs-typography-fontWeight-bold)",
+                          }}
+                        >
                           PTS
                         </TableCell>
-                        <TableCell align="right" sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}>
+                        <TableCell
+                          align="right"
+                          sx={{
+                            fontWeight: "var(--cs-typography-fontWeight-bold)",
+                          }}
+                        >
                           eFG%
                         </TableCell>
                       </TableRow>
@@ -2231,7 +2559,12 @@ const GameStats: React.FC = () => {
                     <TableBody>
                       {playEfficiency.map((play) => (
                         <TableRow key={play.name}>
-                          <TableCell sx={{ fontWeight: "var(--cs-typography-fontWeight-semibold)" }}>
+                          <TableCell
+                            sx={{
+                              fontWeight:
+                                "var(--cs-typography-fontWeight-semibold)",
+                            }}
+                          >
                             {play.name}
                           </TableCell>
                           <TableCell align="right">{play.attempts}</TableCell>
@@ -2261,7 +2594,12 @@ const GameStats: React.FC = () => {
                     mb: "var(--cs-semantic-spacing-md)",
                   }}
                 >
-                  <Typography variant="h6" sx={{ fontFamily: "var(--cs-typography-fontFamily-display)" }}>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      fontFamily: "var(--cs-typography-fontFamily-display)",
+                    }}
+                  >
                     Defensive Integrity
                   </Typography>
                   <Button
@@ -2277,19 +2615,28 @@ const GameStats: React.FC = () => {
                     <TableHead>
                       <TableRow>
                         <TableCell
-                          sx={{ fontSize: "var(--cs-typography-fontSize-xs)", fontWeight: "var(--cs-typography-fontWeight-bold)" }}
+                          sx={{
+                            fontSize: "var(--cs-typography-fontSize-xs)",
+                            fontWeight: "var(--cs-typography-fontWeight-bold)",
+                          }}
                         >
                           REASON
                         </TableCell>
                         <TableCell
                           align="right"
-                          sx={{ fontSize: "var(--cs-typography-fontSize-xs)", fontWeight: "var(--cs-typography-fontWeight-bold)" }}
+                          sx={{
+                            fontSize: "var(--cs-typography-fontSize-xs)",
+                            fontWeight: "var(--cs-typography-fontWeight-bold)",
+                          }}
                         >
                           PTS
                         </TableCell>
                         <TableCell
                           align="right"
-                          sx={{ fontSize: "var(--cs-typography-fontSize-xs)", fontWeight: "var(--cs-typography-fontWeight-bold)" }}
+                          sx={{
+                            fontSize: "var(--cs-typography-fontSize-xs)",
+                            fontWeight: "var(--cs-typography-fontWeight-bold)",
+                          }}
                         >
                           %
                         </TableCell>
@@ -2299,19 +2646,31 @@ const GameStats: React.FC = () => {
                       {defensiveIntegrity.slice(0, 5).map((row) => (
                         <TableRow key={row.reason}>
                           <TableCell
-                            sx={{ fontSize: "var(--cs-typography-fontSize-sm)", fontWeight: "var(--cs-typography-fontWeight-semibold)" }}
+                            sx={{
+                              fontSize: "var(--cs-typography-fontSize-sm)",
+                              fontWeight:
+                                "var(--cs-typography-fontWeight-semibold)",
+                            }}
                           >
                             {row.reason}
                           </TableCell>
                           <TableCell
                             align="right"
-                            sx={{ fontSize: "var(--cs-typography-fontSize-sm)", fontWeight: "var(--cs-typography-fontWeight-bold)" }}
+                            sx={{
+                              fontSize: "var(--cs-typography-fontSize-sm)",
+                              fontWeight:
+                                "var(--cs-typography-fontWeight-bold)",
+                            }}
                           >
                             {row.points}
                           </TableCell>
                           <TableCell
                             align="right"
-                            sx={{ fontSize: "var(--cs-typography-fontSize-sm)", fontWeight: "var(--cs-typography-fontWeight-bold)" }}
+                            sx={{
+                              fontSize: "var(--cs-typography-fontSize-sm)",
+                              fontWeight:
+                                "var(--cs-typography-fontWeight-bold)",
+                            }}
                           >
                             {row.percentage}%
                           </TableCell>
@@ -2339,7 +2698,12 @@ const GameStats: React.FC = () => {
                     mb: "var(--cs-semantic-spacing-md)",
                   }}
                 >
-                  <Typography variant="h6" sx={{ fontFamily: "var(--cs-typography-fontFamily-display)" }}>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      fontFamily: "var(--cs-typography-fontFamily-display)",
+                    }}
+                  >
                     Lineup Efficiency
                   </Typography>
                   <Stack
@@ -2364,7 +2728,10 @@ const GameStats: React.FC = () => {
               <MoleskineCard>
                 <Typography
                   variant="h6"
-                  sx={{ fontFamily: "var(--cs-typography-fontFamily-display)", mb: "var(--cs-semantic-spacing-md)" }}
+                  sx={{
+                    fontFamily: "var(--cs-typography-fontFamily-display)",
+                    mb: "var(--cs-semantic-spacing-md)",
+                  }}
                 >
                   Specialty Execution
                 </Typography>
@@ -2373,31 +2740,46 @@ const GameStats: React.FC = () => {
                     <TableHead>
                       <TableRow>
                         <TableCell
-                          sx={{ fontSize: "var(--cs-typography-fontSize-xs)", fontWeight: "var(--cs-typography-fontWeight-bold)" }}
+                          sx={{
+                            fontSize: "var(--cs-typography-fontSize-xs)",
+                            fontWeight: "var(--cs-typography-fontWeight-bold)",
+                          }}
                         >
                           SITUATION
                         </TableCell>
                         <TableCell
                           align="right"
-                          sx={{ fontSize: "var(--cs-typography-fontSize-xs)", fontWeight: "var(--cs-typography-fontWeight-bold)" }}
+                          sx={{
+                            fontSize: "var(--cs-typography-fontSize-xs)",
+                            fontWeight: "var(--cs-typography-fontWeight-bold)",
+                          }}
                         >
                           PPP
                         </TableCell>
                         <TableCell
                           align="right"
-                          sx={{ fontSize: "var(--cs-typography-fontSize-xs)", fontWeight: "var(--cs-typography-fontWeight-bold)" }}
+                          sx={{
+                            fontSize: "var(--cs-typography-fontSize-xs)",
+                            fontWeight: "var(--cs-typography-fontWeight-bold)",
+                          }}
                         >
                           Δ
                         </TableCell>
                         <TableCell
                           align="right"
-                          sx={{ fontSize: "var(--cs-typography-fontSize-xs)", fontWeight: "var(--cs-typography-fontWeight-bold)" }}
+                          sx={{
+                            fontSize: "var(--cs-typography-fontSize-xs)",
+                            fontWeight: "var(--cs-typography-fontWeight-bold)",
+                          }}
                         >
                           SUCCESS %
                         </TableCell>
                         <TableCell
                           align="right"
-                          sx={{ fontSize: "var(--cs-typography-fontSize-xs)", fontWeight: "var(--cs-typography-fontWeight-bold)" }}
+                          sx={{
+                            fontSize: "var(--cs-typography-fontSize-xs)",
+                            fontWeight: "var(--cs-typography-fontWeight-bold)",
+                          }}
                         >
                           eFG%
                         </TableCell>
@@ -2407,13 +2789,21 @@ const GameStats: React.FC = () => {
                       {specialtyExecution.map((row) => (
                         <TableRow key={row.situation}>
                           <TableCell
-                            sx={{ fontSize: "var(--cs-typography-fontSize-sm)", fontWeight: "var(--cs-typography-fontWeight-semibold)" }}
+                            sx={{
+                              fontSize: "var(--cs-typography-fontSize-sm)",
+                              fontWeight:
+                                "var(--cs-typography-fontWeight-semibold)",
+                            }}
                           >
                             {row.situation}
                           </TableCell>
                           <TableCell
                             align="right"
-                            sx={{ fontSize: "var(--cs-typography-fontSize-sm)", fontWeight: "var(--cs-typography-fontWeight-bold)" }}
+                            sx={{
+                              fontSize: "var(--cs-typography-fontSize-sm)",
+                              fontWeight:
+                                "var(--cs-typography-fontWeight-bold)",
+                            }}
                           >
                             {row.ppp}
                           </TableCell>
@@ -2421,7 +2811,8 @@ const GameStats: React.FC = () => {
                             align="right"
                             sx={{
                               fontSize: "var(--cs-typography-fontSize-sm)",
-                              fontWeight: "var(--cs-typography-fontWeight-bold)",
+                              fontWeight:
+                                "var(--cs-typography-fontWeight-bold)",
                               color:
                                 parseFloat(row.delta) > 0
                                   ? "var(--cs-semantic-color-feedback-success-main)"
@@ -2435,13 +2826,21 @@ const GameStats: React.FC = () => {
                           </TableCell>
                           <TableCell
                             align="right"
-                            sx={{ fontSize: "var(--cs-typography-fontSize-sm)", fontWeight: "var(--cs-typography-fontWeight-bold)" }}
+                            sx={{
+                              fontSize: "var(--cs-typography-fontSize-sm)",
+                              fontWeight:
+                                "var(--cs-typography-fontWeight-bold)",
+                            }}
                           >
                             {row.successRate}%
                           </TableCell>
                           <TableCell
                             align="right"
-                            sx={{ fontSize: "var(--cs-typography-fontSize-sm)", fontWeight: "var(--cs-typography-fontWeight-bold)" }}
+                            sx={{
+                              fontSize: "var(--cs-typography-fontSize-sm)",
+                              fontWeight:
+                                "var(--cs-typography-fontWeight-bold)",
+                            }}
                           >
                             {row.efg}%
                           </TableCell>
@@ -2547,7 +2946,10 @@ const GameStats: React.FC = () => {
           </IconButton>
         </DialogTitle>
         <DialogContent>
-          <Stack spacing={"var(--cs-semantic-spacing-md)"} sx={{ mt: "var(--cs-semantic-spacing-xs)" }}>
+          <Stack
+            spacing={"var(--cs-semantic-spacing-md)"}
+            sx={{ mt: "var(--cs-semantic-spacing-xs)" }}
+          >
             <TextField
               fullWidth
               label="Opponent"
@@ -2584,9 +2986,18 @@ const GameStats: React.FC = () => {
             />
           </Stack>
         </DialogContent>
-        <DialogActions sx={{ px: "var(--cs-semantic-spacing-lg)", pb: "var(--cs-semantic-spacing-lg)" }}>
+        <DialogActions
+          sx={{
+            px: "var(--cs-semantic-spacing-lg)",
+            pb: "var(--cs-semantic-spacing-lg)",
+          }}
+        >
           <Button onClick={() => setOpenEditDialog(false)}>Cancel</Button>
-          <Button onClick={handleUpdateGame} variant="contained" sx={{ ml: "var(--cs-semantic-spacing-xs)" }}>
+          <Button
+            onClick={handleUpdateGame}
+            variant="contained"
+            sx={{ ml: "var(--cs-semantic-spacing-xs)" }}
+          >
             Save
           </Button>
         </DialogActions>
@@ -2598,14 +3009,27 @@ const GameStats: React.FC = () => {
         fullWidth
         maxWidth="sm"
       >
-        <DialogTitle sx={{ fontFamily: "var(--cs-typography-fontFamily-display)", fontWeight: "var(--cs-typography-fontWeight-bold)" }}>
-          <Stack direction="row" spacing={"var(--cs-semantic-spacing-sm)"} sx={{ alignItems: "center" }}>
+        <DialogTitle
+          sx={{
+            fontFamily: "var(--cs-typography-fontFamily-display)",
+            fontWeight: "var(--cs-typography-fontWeight-bold)",
+          }}
+        >
+          <Stack
+            direction="row"
+            spacing={"var(--cs-semantic-spacing-sm)"}
+            sx={{ alignItems: "center" }}
+          >
             <PracticeIcon color="success" />
             <span>Practice Prescription Engine</span>
           </Stack>
         </DialogTitle>
         <DialogContent>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: "var(--cs-semantic-spacing-md)" }}>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{ mb: "var(--cs-semantic-spacing-md)" }}
+          >
             Based on this game's statistical failures compared to your season
             averages, the following focus areas and drills are recommended for
             your next practice.
@@ -2632,7 +3056,10 @@ const GameStats: React.FC = () => {
                   >
                     <Typography
                       variant="subtitle2"
-                      sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)", color: "var(--cs-semantic-color-feedback-error-main)" }}
+                      sx={{
+                        fontWeight: "var(--cs-typography-fontWeight-bold)",
+                        color: "var(--cs-semantic-color-feedback-error-main)",
+                      }}
                     >
                       {area.metric}: {area.value}
                     </Typography>
@@ -2640,7 +3067,13 @@ const GameStats: React.FC = () => {
                       Season Avg: {area.average}
                     </Typography>
                   </Box>
-                  <Typography variant="body2" sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)", mb: "var(--cs-semantic-spacing-xs)" }}>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontWeight: "var(--cs-typography-fontWeight-bold)",
+                      mb: "var(--cs-semantic-spacing-xs)",
+                    }}
+                  >
                     DRILL: {area.drill}
                   </Typography>
                   <Typography variant="caption" sx={{ display: "block" }}>
@@ -2670,11 +3103,20 @@ const GameStats: React.FC = () => {
         fullWidth
         maxWidth="sm"
       >
-        <DialogTitle sx={{ fontFamily: "var(--cs-typography-fontFamily-display)", fontWeight: "var(--cs-typography-fontWeight-bold)" }}>
+        <DialogTitle
+          sx={{
+            fontFamily: "var(--cs-typography-fontFamily-display)",
+            fontWeight: "var(--cs-typography-fontWeight-bold)",
+          }}
+        >
           Defensive Integrity Report
         </DialogTitle>
         <DialogContent>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: "var(--cs-semantic-spacing-md)" }}>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{ mb: "var(--cs-semantic-spacing-md)" }}
+          >
             Breakdown of points allowed by tactical error category. Use this to
             identify your most frequent defensive "weak links."
           </Typography>
@@ -2699,7 +3141,12 @@ const GameStats: React.FC = () => {
                   <TableRow key={row.reason}>
                     <TableCell sx={{ fontWeight: 600 }}>{row.reason}</TableCell>
                     <TableCell align="right">{row.frequency}</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}>
+                    <TableCell
+                      align="right"
+                      sx={{
+                        fontWeight: "var(--cs-typography-fontWeight-bold)",
+                      }}
+                    >
                       {row.points}
                     </TableCell>
                     <TableCell
@@ -2731,7 +3178,9 @@ const GameStats: React.FC = () => {
         open={isDeleteDialogOpen}
         onClose={() => setIsDeleteDialogOpen(false)}
       >
-        <DialogTitle sx={{ fontFamily: "var(--cs-typography-fontFamily-display)" }}>
+        <DialogTitle
+          sx={{ fontFamily: "var(--cs-typography-fontFamily-display)" }}
+        >
           Delete Game?
         </DialogTitle>
         <DialogContent>

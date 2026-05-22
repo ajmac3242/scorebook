@@ -39,7 +39,9 @@ export const BoxScoreSection: React.FC<BoxScoreSectionProps> = React.memo(
       >
         <Table size="small">
           <TableHead>
-            <TableRow sx={{ bgcolor: "var(--cs-semantic-color-surface-subtle)" }}>
+            <TableRow
+              sx={{ bgcolor: "var(--cs-semantic-color-surface-subtle)" }}
+            >
               <SortableHeader
                 label="PLAYER"
                 sortKey="name"

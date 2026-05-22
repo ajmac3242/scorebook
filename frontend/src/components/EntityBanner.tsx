@@ -96,7 +96,10 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
           xs: "var(--cs-semantic-spacing-md)",
           sm: "var(--cs-semantic-spacing-xl)",
         },
-        pt: { xs: "calc(var(--cs-semantic-spacing-xl) * 2)", sm: "var(--cs-semantic-spacing-xl)" },
+        pt: {
+          xs: "calc(var(--cs-semantic-spacing-xl) * 2)",
+          sm: "var(--cs-semantic-spacing-xl)",
+        },
         mb: 0,
         borderRadius: "var(--cs-semantic-shape-radius-md)",
         bgcolor: primaryColor,
@@ -256,7 +259,7 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                       sx={{
                         opacity: 0.3,
                         alignSelf: "center",
-                      color: "var(--cs-semantic-color-text-inverse)",
+                        color: "var(--cs-semantic-color-text-inverse)",
                         fontSize: { xs: "1.5rem", sm: "2rem" },
                       }}
                     >
@@ -302,7 +305,10 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                 aria-expanded={isSearchExpanded}
                 aria-controls="entity-search-field"
                 onClick={() => setIsSearchExpanded(!isSearchExpanded)}
-                sx={{ color: "var(--cs-semantic-color-text-inverse)", flexShrink: 0 }}
+                sx={{
+                  color: "var(--cs-semantic-color-text-inverse)",
+                  flexShrink: 0,
+                }}
               >
                 {isSearchExpanded && !searchTerm ? (
                   <CloseIcon fontSize="small" />
@@ -377,12 +383,16 @@ const EntityBanner: React.FC<EntityBannerProps> = ({
                 aria-busy={isSyncing}
                 className="hover-grow"
                 sx={{
-                  color: showSyncSuccess ? "var(--cs-semantic-color-feedback-success-main)" : "var(--cs-semantic-color-text-inverse)",
+                  color: showSyncSuccess
+                    ? "var(--cs-semantic-color-feedback-success-main)"
+                    : "var(--cs-semantic-color-text-inverse)",
                   borderColor: showSyncSuccess
                     ? "var(--cs-semantic-color-feedback-success-main)"
                     : "rgba(255,255,255,0.5)",
                   "&:hover": {
-                    borderColor: showSyncSuccess ? "var(--cs-semantic-color-feedback-success-main)" : "var(--cs-semantic-color-text-inverse)",
+                    borderColor: showSyncSuccess
+                      ? "var(--cs-semantic-color-feedback-success-main)"
+                      : "var(--cs-semantic-color-text-inverse)",
                     bgcolor: "rgba(255,255,255,0.1)",
                   },
                   display: { xs: "none", sm: "flex" },
