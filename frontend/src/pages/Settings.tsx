@@ -382,7 +382,11 @@ const Settings: React.FC = () => {
                 }}
               >
                 {Object.entries(dbStats).map(([table, count]) => (
-                  <Typography key={table} variant="body2" color="text.secondary">
+                  <Typography
+                    key={table}
+                    variant="body2"
+                    color="text.secondary"
+                  >
                     <Box
                       component="span"
                       sx={{ color: "text.primary", fontWeight: 600 }}
@@ -442,7 +446,8 @@ const Settings: React.FC = () => {
                 sx={{
                   maxHeight: 220,
                   overflowY: "auto",
-                  bgcolor: theme.palette.mode === "dark" ? "grey.900" : "grey.50",
+                  bgcolor:
+                    theme.palette.mode === "dark" ? "grey.900" : "grey.50",
                   borderRadius: 1.5,
                   border: "1px solid",
                   borderColor: "divider",
@@ -474,7 +479,11 @@ const Settings: React.FC = () => {
                           {log.level.toUpperCase()}
                           <Box
                             component="span"
-                            sx={{ ml: 1, fontWeight: 600, color: "text.disabled" }}
+                            sx={{
+                              ml: 1,
+                              fontWeight: 600,
+                              color: "text.disabled",
+                            }}
                           >
                             {log.timestamp}
                           </Box>
