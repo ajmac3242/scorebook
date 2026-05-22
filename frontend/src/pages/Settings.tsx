@@ -22,7 +22,6 @@ import { useAuth } from "../context/AuthContext";
 import { UserPool } from "../UserPool";
 import { db } from "../db";
 import { useAppTheme } from "../theme/ThemeContext";
-import { useTokens } from "../theme/useTokens";
 import { logger, type LogEntry } from "../utils/logger";
 import { syncService } from "../utils/syncService";
 import AppPageShell, {
@@ -43,7 +42,6 @@ const TABS: readonly AppPageTab<SettingsTab>[] = [
 
 const Settings: React.FC = () => {
   const theme = useTheme();
-  const tokens = useTokens();
   const { logout } = useAuth();
   const { presetId, setPresetId, availablePresets } = useAppTheme();
 
