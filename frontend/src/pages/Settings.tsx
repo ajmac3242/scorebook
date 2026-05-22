@@ -311,7 +311,8 @@ const Settings: React.FC = () => {
                 sx={{
                   maxHeight: 220,
                   overflowY: "auto",
-                  bgcolor: theme.palette.mode === "dark" ? "grey.900" : "grey.50",
+                  bgcolor:
+                    theme.palette.mode === "dark" ? "grey.900" : "grey.50",
                   borderRadius: 1,
                   border: "1px solid",
                   borderColor: "divider",
@@ -339,7 +340,8 @@ const Settings: React.FC = () => {
                                 : "text.secondary",
                         }}
                       >
-                        [{log.level.toUpperCase()}] {log.timestamp} {log.message}
+                        [{log.level.toUpperCase()}] {log.timestamp}{" "}
+                        {log.message}
                       </Typography>
                     ))}
                   </Stack>

@@ -41,7 +41,8 @@ function AppPageShell<T extends string>({
         minWidth: 0,
         maxWidth: pageSurface?.maxWidth ?? 1280,
         background:
-          pageSurface?.background ?? "var(--cs-semantic-color-background-default)",
+          pageSurface?.background ??
+          "var(--cs-semantic-color-background-default)",
         border: pageSurface?.border ?? "none",
         borderRadius: {
           xs: 0,
