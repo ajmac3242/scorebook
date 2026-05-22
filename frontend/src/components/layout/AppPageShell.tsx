@@ -14,7 +14,7 @@ interface AppPageShellProps<T extends string> {
   title: string;
   activeTab?: T;
   tabs?: readonly AppPageTab<T>[];
-  onTabChange?: (tab: T) => void;
+  onTabChange?: (_tab: T) => void;
   actions?: React.ReactNode;
   variant?: AppPageShellVariant;
   children: React.ReactNode;
