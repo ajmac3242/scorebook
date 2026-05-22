@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Tab, Tabs, Typography, useTheme } from "@mui/material";
+import { Box, Divider, Tab, Tabs, Typography, useTheme } from "@mui/material";
 import { useTokens } from "../../theme/useTokens";
 
 export interface AppPageTab<T extends string> {
@@ -31,6 +31,7 @@ function AppPageShell<T extends string>({
 
   const activeIndex =
     tabs && activeTab ? tabs.findIndex((tab) => tab.value === activeTab) : -1;
+  const showTabs = Boolean(tabs && tabs.length > 0);
 
   return (
     <Box
@@ -40,8 +41,7 @@ function AppPageShell<T extends string>({
         minWidth: 0,
         maxWidth: pageSurface?.maxWidth ?? 1280,
         background:
-          pageSurface?.background ??
-          "var(--cs-semantic-color-background-default)",
+          pageSurface?.background ?? "var(--cs-semantic-color-background-default)",
         border: pageSurface?.border ?? "none",
         borderRadius: {
           xs: 0,
@@ -71,7 +71,7 @@ function AppPageShell<T extends string>({
             justifyContent: "space-between",
             gap: 2,
             flexDirection: { xs: "column", sm: "row" },
-            mb: 2,
+            mb: 1.25,
           }}
         >
           <Typography
@@ -87,52 +87,72 @@ function AppPageShell<T extends string>({
           {actions ? <Box sx={{ flexShrink: 0 }}>{actions}</Box> : null}
         </Box>
 
-        {tabs && tabs.length > 0 ? (
-          <Tabs
-            value={activeIndex < 0 ? 0 : activeIndex}
-            onChange={(_event, index: number) => {
-              if (!tabs || !onTabChange) return;
-              const nextTab = tabs[index];
-              if (nextTab) onTabChange(nextTab.value);
-            }}
-            aria-label={`${title} sections`}
-            variant="scrollable"
-            scrollButtons="auto"
-            textColor="inherit"
-            sx={{
-              minHeight: pageTabs?.height ?? 40,
-              mt: 0.5,
-              "& .MuiTabs-flexContainer": {
-                gap: `${pageTabs?.gap ?? 8}px`,
-              },
-              "& .MuiTabs-indicator": {
-                backgroundColor: theme.palette.primary.main,
-                height: 2,
-              },
-              "& .MuiTab-root": {
-                textTransform: "none",
-                fontSize: "0.875rem",
-                fontWeight: 500,
+        {showTabs ? (
+          <>
+            <Tabs
+              value={activeIndex < 0 ? 0 : activeIndex}
+              onChange={(_event, index: number) => {
+                if (!tabs || !onTabChange) return;
+                const nextTab = tabs[index];
+                if (nextTab) onTabChange(nextTab.value);
+              }}
+              aria-label={`${title} sections`}
+              variant="scrollable"
+              scrollButtons="auto"
+              textColor="inherit"
+              sx={{
                 minHeight: pageTabs?.height ?? 40,
-                px: `${(pageTabs?.paddingX ?? 12) / 8}rem`,
-                borderRadius: `${pageTabs?.radius ?? 8}px`,
-                color: pageTabs?.inactiveColor ?? "text.secondary",
-                transition:
-                  "background-color 150ms ease, color 150ms ease, box-shadow 150ms ease",
-                "&:hover": {
-                  backgroundColor: pageTabs?.hoverBackground ?? "action.hover",
+                mt: 0,
+                mb: 0,
+                minWidth: 0,
+                "& .MuiTabs-flexContainer": {
+                  gap: `${pageTabs?.gap ?? 8}px`,
                 },
-              },
-              "& .MuiTab-root.Mui-selected": {
-                color: pageTabs?.activeColor ?? "text.primary",
-                backgroundColor: pageTabs?.activeBackground ?? "transparent",
-              },
-            }}
-          >
-            {tabs.map((tab) => (
-              <Tab key={tab.value} label={tab.label} />
-            ))}
-          </Tabs>
+                "& .MuiTabs-scroller": {
+                  overflow: "visible !important",
+                },
+                "& .MuiTabs-indicator": {
+                  backgroundColor: theme.palette.primary.main,
+                  height: 2,
+                },
+                "& .MuiTab-root": {
+                  textTransform: "none",
+                  fontSize: "0.875rem",
+                  fontWeight: 500,
+                  minHeight: pageTabs?.height ?? 40,
+                  minWidth: 0,
+                  px: 1.5,
+                  pb: 1.25,
+                  pt: 0.75,
+                  borderRadius: 0,
+                  color: pageTabs?.inactiveColor ?? "text.secondary",
+                  backgroundColor: "transparent",
+                  transition: "color 150ms ease",
+                  "&:hover": {
+                    backgroundColor: "transparent",
+                    color: "text.primary",
+                  },
+                },
+                "& .MuiTab-root.Mui-selected": {
+                  color: pageTabs?.activeColor ?? "text.primary",
+                  backgroundColor: "transparent",
+                  fontWeight: 600,
+                },
+              }}
+            >
+              {tabs.map((tab) => (
+                <Tab key={tab.value} label={tab.label} />
+              ))}
+            </Tabs>
+
+            <Divider
+              sx={{
+                borderColor:
+                  pageSurface?.dividerColor ??
+                  "var(--cs-semantic-color-border-subtle)",
+              }}
+            />
+          </>
         ) : null}
       </Box>
 
@@ -142,7 +162,7 @@ function AppPageShell<T extends string>({
             xs: 2.5,
             md: `${(pageSurface?.contentPaddingX ?? 24) / 8}rem`,
           },
-          pt: 0.5,
+          pt: 2.5,
           pb: {
             xs: 2.5,
             md: `${(pageSurface?.contentPaddingBottom ?? 24) / 8}rem`,
