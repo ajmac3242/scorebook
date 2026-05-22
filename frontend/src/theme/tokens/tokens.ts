@@ -382,7 +382,7 @@ export const tokens = {
     appFrame: {
       gutter: 16,
       sidebarWidth: 220,
-      background: "var(--cs-semantic-color-background-default)",
+      background: "var(--cs-semantic-color-background-subtle)",
       contentMinWidth: 0,
     },
     sideNav: {
@@ -407,14 +407,14 @@ export const tokens = {
     },
     pageSurface: {
       maxWidth: 1280,
-      radius: 0,
-      background: "transparent",
+      radius: 20,
+      background: "var(--cs-semantic-color-background-paper)",
       border: "none",
       dividerColor: "var(--cs-semantic-color-border-subtle)",
       headerPaddingX: 24,
       headerPaddingTop: 12,
       contentPaddingX: 24,
-      contentPaddingBottom: 0,
+      contentPaddingBottom: 24,
       shadow: "none",
     },
     pageTabs: {
@@ -463,14 +463,14 @@ export type AppTokens = typeof tokens;
 
 export type DeepPartial<T> = {
   [K in keyof T]?: T[K] extends object
-    ? DeepPartial<T[K]>
-    : T[K] extends number
-      ? number
-      : T[K] extends string
-        ? string
-        : T[K] extends boolean
-          ? boolean
-          : T[K];
+  ? DeepPartial<T[K]>
+  : T[K] extends number
+  ? number
+  : T[K] extends string
+  ? string
+  : T[K] extends boolean
+  ? boolean
+  : T[K];
 };
 
 export interface ThemePreset {
