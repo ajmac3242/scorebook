@@ -414,6 +414,9 @@ export const tokens = {
       headerPaddingTop: 16,
       contentPaddingX: 32,
       contentPaddingBottom: 32,
+      controlsBackground: "var(--cs-semantic-color-background-subtle)",
+      controlsPaddingY: 14,
+      controlsDividerColor: "var(--cs-semantic-color-border-subtle)",
       shadow: "none",
     },
     pageTabs: {

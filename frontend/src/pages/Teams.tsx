@@ -41,11 +41,13 @@ import { logger } from "../utils/logger";
 import { calculateTeamAggregates, getInitials } from "../utils/stats";
 import { syncService } from "../utils/syncService";
 import { useTokens } from "../theme/useTokens";
-import {
-  TokenPageShell,
-  TokenSectionCard,
-  TokenPageTitle,
-} from "../components/layout/TokenLayout";
+import AppPageShell, {
+  type AppPageTab,
+} from "../components/layout/AppPageShell";
+import PageSectionCard from "../components/layout/PageSectionCard";
+import PageSectionIntro from "../components/layout/PageSectionIntro";
+
+type TeamTab = "all" | "favorites" | "archived";
 
 type TeamAggregateSummary = {
   record: string;
@@ -56,6 +58,12 @@ type TeamAggregateSummary = {
 };
 
 const DEFAULT_TEAM_ACCENT = "#154C56";
+
+const TABS: readonly AppPageTab<TeamTab>[] = [
+  { value: "all", label: "All" },
+  { value: "favorites", label: "Favorites" },
+  { value: "archived", label: "Archived" },
+] as const;
 
 const isValidHex = (value?: string) =>
   !!value && /^#([0-9A-F]{6})$/i.test(value.trim());
@@ -110,7 +118,8 @@ const Teams: React.FC = () => {
   const navigate = useNavigate();
 
   const controlRadius = tokens.semantic.component.radius.button;
-  const pageShell = tokens.semantic.component.pageShell;
+
+  const [activeTab, setActiveTab] = useState<TeamTab>("all");
   const [open, setOpen] = useState(false);
   const [teamName, setTeamName] = useState("");
   const [description, setDescription] = useState("");
@@ -131,10 +140,21 @@ const Teams: React.FC = () => {
 
   const teams = useTeams();
 
-  const filteredTeams = useMemo(() => {
+  const visibleTeams = useMemo(() => {
     const normalizedSearch = searchTerm.trim().toLowerCase();
-    if (!normalizedSearch) return teams;
+
     return teams.filter((team) => {
+      const matchesTab =
+        activeTab === "all"
+          ? true
+          : activeTab === "favorites"
+            ? Boolean(team.isFavorite)
+            : false;
+
+      if (!matchesTab) return false;
+
+      if (!normalizedSearch) return true;
+
       const haystack = [
         team.name,
         team.description || "",
@@ -142,14 +162,17 @@ const Teams: React.FC = () => {
       ]
         .join(" ")
         .toLowerCase();
+
       return haystack.includes(normalizedSearch);
     });
-  }, [teams, searchTerm]);
+  }, [activeTab, teams, searchTerm]);
 
   const favoriteCount = useMemo(
     () => teams.filter((team) => team.isFavorite).length,
     [teams],
   );
+
+  const archivedCount = 0;
 
   const teamIds = useMemo(
     () => teams.map((team) => team.id).filter(Boolean),
@@ -193,22 +216,26 @@ const Teams: React.FC = () => {
       if (!gamesByTeam[game.teamId]) gamesByTeam[game.teamId] = [];
       gamesByTeam[game.teamId].push(game);
     }
+
     const statsByGame: Record<string, StatEvent[]> = {};
     for (const stat of allStats as StatEvent[]) {
       if (!statsByGame[stat.gameId]) statsByGame[stat.gameId] = [];
       statsByGame[stat.gameId].push(stat);
     }
+
     const results: Record<string, TeamAggregateSummary> = {};
     for (const team of teams) {
       const teamGames = gamesByTeam[team.id!] || [];
       const teamStats: StatEvent[] = teamGames.flatMap(
         (g) => statsByGame[g.id!] || [],
       );
+
       results[team.id!] = calculateTeamAggregates(
         teamGames,
         teamStats,
       ) as TeamAggregateSummary;
     }
+
     return results;
   }, [teams, allGames, allStats]);
 
@@ -234,12 +261,14 @@ const Teams: React.FC = () => {
     e: React.MouseEvent,
   ) => {
     e.stopPropagation();
+
     try {
       if (!currentFavorite) {
         const allFavorites = await db.teams
           .where("isFavorite")
           .equals(1)
           .toArray();
+
         for (const favoriteTeam of allFavorites) {
           if (favoriteTeam.id !== teamId) {
             await db.teams.update(favoriteTeam.id!, {
@@ -248,10 +277,12 @@ const Teams: React.FC = () => {
             });
           }
         }
+
         await db.teams.update(teamId, { isFavorite: 1, synced: 0 });
       } else {
         await db.teams.update(teamId, { isFavorite: 0, synced: 0 });
       }
+
       await syncService.pushUpdates();
     } catch (err) {
       logger.error("Failed to toggle favorite team", err, { teamId });
@@ -268,7 +299,9 @@ const Teams: React.FC = () => {
       setShowValidation(true);
       return;
     }
+
     setIsSubmitting(true);
+
     try {
       const newTeam: Team = {
         id: crypto.randomUUID(),
@@ -282,6 +315,7 @@ const Teams: React.FC = () => {
         fouls,
         synced: 0,
       };
+
       await db.teams.add(newTeam);
       await syncService.pushUpdates();
       closeDialog();
@@ -302,17 +336,132 @@ const Teams: React.FC = () => {
     }
   };
 
-  const emptyStateTitle = searchTerm
-    ? `No teams matching "${searchTerm}"`
-    : "No teams yet";
-  const emptyStateDescription = searchTerm
-    ? "Try a different search, clear the filter, or create a new team."
-    : "Create your first team to start tracking performance, rosters, and game results.";
+  const emptyStateTitle =
+    activeTab === "archived"
+      ? "No archived teams"
+      : searchTerm
+        ? `No teams matching "${searchTerm}"`
+        : "No teams yet";
+
+  const emptyStateDescription =
+    activeTab === "archived"
+      ? "Archived teams will appear here once that workflow is available."
+      : searchTerm
+        ? "Try a different search, clear the filter, or create a new team."
+        : "Create your first team to start tracking performance, rosters, and game results.";
 
   const transitionAll = `transform ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}, box-shadow ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}, border-color ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}`;
 
+  const controls = (
+    <Stack
+      direction={{ xs: "column", md: "row" }}
+      spacing={1.5}
+      sx={{
+        justifyContent: "space-between",
+        alignItems: { xs: "stretch", md: "center" },
+        width: "100%",
+      }}
+    >
+      <Stack
+        direction={{ xs: "column", lg: "row" }}
+        spacing={1.25}
+        sx={{
+          alignItems: { xs: "stretch", lg: "center" },
+          minWidth: 0,
+          flex: 1,
+        }}
+      >
+        <TextField
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Search teams"
+          size="small"
+          fullWidth
+          sx={{
+            maxWidth: { xs: "100%", lg: 360 },
+            "& .MuiOutlinedInput-root": {
+              borderRadius: controlRadius,
+              bgcolor: "background.paper",
+            },
+          }}
+          slotProps={{
+            input: {
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon sx={{ color: "text.secondary", fontSize: 18 }} />
+                </InputAdornment>
+              ),
+            },
+          }}
+        />
+
+        <Stack direction="row" spacing={1} useFlexGap sx={{ flexWrap: "wrap" }}>
+          <Chip
+            label={`${teams.length} total`}
+            size="small"
+            variant="outlined"
+            sx={{
+              borderRadius: controlRadius,
+              bgcolor: "background.paper",
+              borderColor: "divider",
+              color: "text.secondary",
+              fontWeight: 500,
+            }}
+          />
+          <Chip
+            label={`${favoriteCount} favorite`}
+            size="small"
+            variant="outlined"
+            sx={{
+              borderRadius: controlRadius,
+              bgcolor: "background.paper",
+              borderColor: "divider",
+              color: "text.secondary",
+              fontWeight: 500,
+            }}
+          />
+          <Chip
+            label={`${archivedCount} archived`}
+            size="small"
+            variant="outlined"
+            sx={{
+              borderRadius: controlRadius,
+              bgcolor: "background.paper",
+              borderColor: "divider",
+              color: "text.secondary",
+              fontWeight: 500,
+            }}
+          />
+        </Stack>
+      </Stack>
+
+      <Button
+        variant="contained"
+        startIcon={<AddIcon />}
+        onClick={() => setOpen(true)}
+        sx={{
+          borderRadius: controlRadius,
+          textTransform: "none",
+          fontWeight: 600,
+          boxShadow: "none",
+          flexShrink: 0,
+          minHeight: 36,
+          alignSelf: { xs: "stretch", md: "center" },
+        }}
+      >
+        Add team
+      </Button>
+    </Stack>
+  );
+
   return (
-    <TokenPageShell id="main-content" sx={{ pb: 8 }}>
+    <AppPageShell<TeamTab>
+      title="Teams"
+      activeTab={activeTab}
+      tabs={TABS}
+      onTabChange={(tab) => setActiveTab(tab)}
+      controls={controls}
+    >
       <Snackbar
         open={snackbar.open}
         autoHideDuration={4000}
@@ -329,144 +478,26 @@ const Teams: React.FC = () => {
         </Alert>
       </Snackbar>
 
-      <TokenSectionCard
-        sx={{
-          borderRadius: `${pageShell.radius}px`,
-          border: pageShell.border,
-          boxShadow: pageShell.shadow,
-          bgcolor: pageShell.background,
-          overflow: "hidden",
-          p: 0,
-        }}
-      >
-        {/* Header */}
-        <Box
-          sx={{
-            px: { xs: 2, sm: 3 },
-            py: { xs: 2, sm: 2.5 },
-            display: "flex",
-            alignItems: { xs: "flex-start", md: "center" },
-            justifyContent: "space-between",
-            gap: 2,
-            flexWrap: "wrap",
-            flexShrink: 0,
-            borderBottom: "1px solid",
-            borderColor: "divider",
-            bgcolor: "background.paper",
-          }}
-        >
-          <Box>
-            <TokenPageTitle sx={{ mb: 0.5 }}>Teams</TokenPageTitle>
-            <Typography variant="body2" color="text.secondary">
-              Manage your basketball teams, review performance at a glance, and
-              open team dashboards.
-            </Typography>
-          </Box>
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={() => setOpen(true)}
-            sx={{
-              borderRadius: controlRadius,
-              textTransform: "none",
-              fontWeight: 600,
-              boxShadow: "none",
-              flexShrink: 0,
-            }}
-          >
-            Add team
-          </Button>
-        </Box>
+      <PageSectionCard>
+        <Box sx={{ p: { xs: 2.5, md: 0 } }}>
+          <PageSectionIntro
+            title={
+              activeTab === "all"
+                ? "All teams"
+                : activeTab === "favorites"
+                  ? "Favorite team"
+                  : "Archived teams"
+            }
+            description={
+              activeTab === "all"
+                ? "Review team performance, manage favorites, and open team dashboards."
+                : activeTab === "favorites"
+                  ? "Quick access to the team pinned for your dashboard workflow."
+                  : "Archived teams will appear here once that workflow is supported."
+            }
+          />
 
-        {/* Search + filter bar */}
-        <Box
-          sx={{
-            px: { xs: 2, sm: 3 },
-            py: 2,
-            borderBottom: "1px solid",
-            borderColor: "divider",
-            bgcolor: "background.default",
-            flexShrink: 0,
-          }}
-        >
-          <Stack
-            direction={{ xs: "column", md: "row" }}
-            spacing={1.5}
-            sx={{
-              justifyContent: "space-between",
-              alignItems: { xs: "stretch", md: "center" },
-            }}
-          >
-            <TextField
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search teams"
-              size="small"
-              sx={{
-                width: { xs: "100%", md: 320 },
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: controlRadius,
-                  bgcolor: "background.paper",
-                },
-              }}
-              slotProps={{
-                input: {
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon
-                        sx={{ color: "text.secondary", fontSize: 18 }}
-                      />
-                    </InputAdornment>
-                  ),
-                },
-              }}
-            />
-            <Stack
-              direction="row"
-              spacing={1}
-              useFlexGap
-              sx={{ flexWrap: "wrap" }}
-            >
-              <Chip
-                label={`${teams.length} total`}
-                size="small"
-                variant="outlined"
-                sx={{
-                  borderRadius: controlRadius,
-                  bgcolor: "background.paper",
-                  borderColor: "divider",
-                  color: "text.secondary",
-                  fontWeight: 500,
-                }}
-              />
-              <Chip
-                label={`${favoriteCount} favorite`}
-                size="small"
-                variant="outlined"
-                sx={{
-                  borderRadius: controlRadius,
-                  bgcolor: "background.paper",
-                  borderColor: "divider",
-                  color: "text.secondary",
-                  fontWeight: 500,
-                }}
-              />
-            </Stack>
-          </Stack>
-        </Box>
-
-        {/* Content */}
-        <Box
-          sx={{
-            px: { xs: 2, sm: 3 },
-            py: { xs: 2, sm: 3 },
-            flex: 1,
-            minHeight: 0,
-            overflowY: "auto",
-          }}
-        >
-          {filteredTeams.length === 0 ? (
-            /* Empty state */
+          {visibleTeams.length === 0 ? (
             <Box
               sx={{
                 minHeight: 300,
@@ -499,6 +530,7 @@ const Teams: React.FC = () => {
                 >
                   <TeamsIcon sx={{ fontSize: 30 }} />
                 </Box>
+
                 <Typography
                   variant="body1"
                   sx={{
@@ -509,6 +541,7 @@ const Teams: React.FC = () => {
                 >
                   {emptyStateTitle}
                 </Typography>
+
                 <Typography
                   variant="body2"
                   sx={{
@@ -521,6 +554,7 @@ const Teams: React.FC = () => {
                 >
                   {emptyStateDescription}
                 </Typography>
+
                 {searchTerm ? (
                   <Button
                     variant="outlined"
@@ -533,7 +567,7 @@ const Teams: React.FC = () => {
                   >
                     Clear search
                   </Button>
-                ) : (
+                ) : activeTab !== "archived" ? (
                   <Button
                     variant="contained"
                     startIcon={<AddIcon />}
@@ -547,13 +581,12 @@ const Teams: React.FC = () => {
                   >
                     Create first team
                   </Button>
-                )}
+                ) : null}
               </Box>
             </Box>
           ) : (
-            /* Team cards */
             <Grid container spacing={2.5}>
-              {filteredTeams.map((team) => {
+              {visibleTeams.map((team) => {
                 const aggregates = teamAggregatesMap[team.id!] || {
                   record: "0-0",
                   ppg: "0.0",
@@ -561,6 +594,7 @@ const Teams: React.FC = () => {
                   apg: "0.0",
                   oppg: "0.0",
                 };
+
                 const accent = buildTeamAccent(team.primaryColor);
                 const sectionCard = tokens.semantic.component.sectionCard;
                 const inputRadius = tokens.semantic.component.radius.input;
@@ -604,7 +638,6 @@ const Teams: React.FC = () => {
                         },
                       }}
                     >
-                      {/* Team color bar */}
                       <Box
                         sx={{ height: 6, bgcolor: accent.solid, flexShrink: 0 }}
                       />
@@ -617,7 +650,6 @@ const Teams: React.FC = () => {
                           flex: 1,
                         }}
                       >
-                        {/* Name + avatar row */}
                         <Box
                           sx={{
                             display: "flex",
@@ -646,6 +678,7 @@ const Teams: React.FC = () => {
                               >
                                 {team.name}
                               </Typography>
+
                               <Tooltip
                                 title={
                                   team.isFavorite
@@ -746,7 +779,6 @@ const Teams: React.FC = () => {
                           )}
                         </Box>
 
-                        {/* Win-loss record */}
                         <Box
                           sx={{
                             borderRadius: `${sectionCard.radius}px`,
@@ -782,7 +814,6 @@ const Teams: React.FC = () => {
                           </Typography>
                         </Box>
 
-                        {/* Stat cells */}
                         <Box
                           sx={{
                             mt: "auto",
@@ -834,9 +865,8 @@ const Teams: React.FC = () => {
             </Grid>
           )}
         </Box>
-      </TokenSectionCard>
+      </PageSectionCard>
 
-      {/* Add team dialog */}
       <Dialog
         open={open}
         onClose={closeDialog}
@@ -851,6 +881,7 @@ const Teams: React.FC = () => {
         <DialogTitle sx={{ fontWeight: 700, color: "text.primary" }}>
           Add new team
         </DialogTitle>
+
         <DialogContent>
           <Stack spacing={2} sx={{ pt: 1 }}>
             <TextField
@@ -866,6 +897,7 @@ const Teams: React.FC = () => {
               }
               fullWidth
             />
+
             <TextField
               label="Description"
               value={description}
@@ -873,6 +905,7 @@ const Teams: React.FC = () => {
               placeholder="Optional short description"
               fullWidth
             />
+
             <FormControl fullWidth>
               <InputLabel id="period-type-label">Period type</InputLabel>
               <Select
@@ -887,6 +920,7 @@ const Teams: React.FC = () => {
                 <MenuItem value="HALVES">Halves</MenuItem>
               </Select>
             </FormControl>
+
             <TextField
               label="Logo URL"
               value={logoUrl}
@@ -894,6 +928,7 @@ const Teams: React.FC = () => {
               placeholder="https://..."
               fullWidth
             />
+
             <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
               <TextField
                 label="Primary color"
@@ -907,6 +942,7 @@ const Teams: React.FC = () => {
                 }
                 fullWidth
               />
+
               <Box sx={{ minWidth: { xs: "100%", sm: 72 } }}>
                 <TextField
                   label=" "
@@ -925,6 +961,7 @@ const Teams: React.FC = () => {
                 />
               </Box>
             </Stack>
+
             <FormControl fullWidth error={showValidation && fouls <= 0}>
               <TextField
                 label="Team fouls to bonus"
@@ -942,6 +979,7 @@ const Teams: React.FC = () => {
             </FormControl>
           </Stack>
         </DialogContent>
+
         <DialogActions sx={{ px: 3, pb: 3, pt: 1 }}>
           <Button
             onClick={closeDialog}
@@ -964,7 +1002,7 @@ const Teams: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
-    </TokenPageShell>
+    </AppPageShell>
   );
 };
 
