@@ -40,7 +40,8 @@ function AppPageShell<T extends string>({
         minWidth: 0,
         maxWidth: pageSurface?.maxWidth ?? 1280,
         background:
-          pageSurface?.background ?? "var(--cs-semantic-color-background-default)",
+          pageSurface?.background ??
+          "var(--cs-semantic-color-background-default)",
         border: pageSurface?.border ?? "none",
         borderRadius: {
           xs: 0,
@@ -119,8 +120,7 @@ function AppPageShell<T extends string>({
                 transition:
                   "background-color 150ms ease, color 150ms ease, box-shadow 150ms ease",
                 "&:hover": {
-                  backgroundColor:
-                    pageTabs?.hoverBackground ?? "action.hover",
+                  backgroundColor: pageTabs?.hoverBackground ?? "action.hover",
                 },
               },
               "& .MuiTab-root.Mui-selected": {
