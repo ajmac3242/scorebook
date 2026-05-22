@@ -370,6 +370,12 @@ export function buildTheme(preset?: ThemePreset): Theme {
             contrastText:
               activeTokens.semantic.color.feedback.info.contrastText,
           },
+          emphasis: {
+            clutch: activeTokens.semantic.color.emphasis.clutch,
+            momentum: activeTokens.semantic.color.emphasis.momentum,
+            trendUp: activeTokens.semantic.color.emphasis.trendUp,
+            trendDown: activeTokens.semantic.color.emphasis.trendDown,
+          },
           background: {
             default: activeTokens.semantic.color.background.default,
             paper: activeTokens.semantic.color.background.paper,
@@ -439,6 +445,12 @@ export function buildTheme(preset?: ThemePreset): Theme {
             dark: activeTokens.semantic.color.feedback.info.dark,
             contrastText:
               activeTokens.semantic.color.feedback.info.contrastText,
+          },
+          emphasis: {
+            clutch: activeTokens.semantic.color.emphasis.clutch,
+            momentum: activeTokens.semantic.color.emphasis.momentum,
+            trendUp: activeTokens.semantic.color.emphasis.trendUp,
+            trendDown: activeTokens.semantic.color.emphasis.trendDown,
           },
           background: {
             default: activeTokens.semantic.color.background.default,
