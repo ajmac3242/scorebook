@@ -10,6 +10,7 @@ import {
   useTheme,
 } from "@mui/material";
 import {
+  CheckCircle as CheckCircleIcon,
   ContentCopy as CopyIcon,
   DeleteOutlined as DeleteIcon,
   Logout as LogoutIcon,
@@ -124,6 +125,12 @@ const Settings: React.FC = () => {
   }, [firstName, lastName]);
 
   const hasName = Boolean(firstName || lastName);
+
+  const syncStatusLabel = useMemo(() => {
+    if (isSyncing) return "Syncing…";
+    if (isOnline) return "Up to date";
+    return "Offline";
+  }, [isOnline, isSyncing]);
 
   const showSnackbar = (
     message: string,
@@ -285,6 +292,16 @@ const Settings: React.FC = () => {
               label={isOnline ? "Online" : "Offline"}
               color={isOnline ? "success" : "default"}
               size="small"
+              sx={{
+                fontWeight: 600,
+                ...(isOnline && {
+                  bgcolor: "success.main",
+                  color: "success.contrastText",
+                  "& .MuiChip-icon": {
+                    color: "inherit",
+                  },
+                }),
+              }}
             />
           }
         />
@@ -299,12 +316,30 @@ const Settings: React.FC = () => {
               sx={{ alignItems: "center", flexWrap: "wrap" }}
             >
               <Chip
-                icon={isOnline ? <OnlineIcon /> : <OfflineIcon />}
-                label={
-                  isSyncing ? "Syncing…" : isOnline ? "Up to date" : "Offline"
+                icon={
+                  isOnline ? (
+                    isSyncing ? (
+                      <SyncIcon />
+                    ) : (
+                      <CheckCircleIcon />
+                    )
+                  ) : (
+                    <OfflineIcon />
+                  )
                 }
+                label={syncStatusLabel}
                 color={isOnline ? "success" : "default"}
                 size="small"
+                sx={{
+                  fontWeight: 600,
+                  ...(isOnline && {
+                    bgcolor: "success.main",
+                    color: "success.contrastText",
+                    "& .MuiChip-icon": {
+                      color: "inherit",
+                    },
+                  }),
+                }}
               />
               <Button
                 variant="outlined"
