@@ -277,7 +277,11 @@ const Teams: React.FC = () => {
           }}
         >
           <Box sx={{ minWidth: 0 }}>
-            <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap", mb: 0.75 }}>
+            <Stack
+              direction="row"
+              spacing={1}
+              sx={{ flexWrap: "wrap", mb: 0.75 }}
+            >
               {team.isDefault ? (
                 <Chip
                   icon={<DefaultIcon />}
@@ -349,11 +353,7 @@ const Teams: React.FC = () => {
             size="small"
             variant="outlined"
           />
-          <Chip
-            label={`${team.games} games`}
-            size="small"
-            variant="outlined"
-          />
+          <Chip label={`${team.games} games`} size="small" variant="outlined" />
         </Stack>
 
         <Stack
@@ -440,7 +440,7 @@ const Teams: React.FC = () => {
         <MenuItem onClick={handleCloseMenu}>Open dashboard</MenuItem>
         <MenuItem onClick={handleCloseMenu}>
           {selectedTeamId &&
-            MOCK_TEAMS.find((team) => team.id === selectedTeamId)?.isStarred
+          MOCK_TEAMS.find((team) => team.id === selectedTeamId)?.isStarred
             ? "Remove star"
             : "Add star"}
         </MenuItem>
