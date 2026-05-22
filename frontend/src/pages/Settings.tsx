@@ -282,9 +282,9 @@ const PresetCard: React.FC<PresetCardProps> = ({
         border: selected
           ? `${selectedBorderWidth}px solid ${theme.palette.primary.main}`
           : `${borderWidth}px solid ${alpha(
-            theme.palette.text.primary,
-            theme.palette.mode === "dark" ? 0.12 : 0.12,
-          )}`,
+              theme.palette.text.primary,
+              theme.palette.mode === "dark" ? 0.12 : 0.12,
+            )}`,
         bgcolor: "background.paper",
         cursor: "pointer",
         transition:
@@ -624,8 +624,9 @@ const Settings: React.FC = () => {
       <SettingsRow
         row={row}
         label="Local storage"
-        description={`${totalDbRecords.toLocaleString()} total records across ${Object.keys(dbStats).length
-          } tables.`}
+        description={`${totalDbRecords.toLocaleString()} total records across ${
+          Object.keys(dbStats).length
+        } tables.`}
         alignTop
       >
         <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.75 }}>
