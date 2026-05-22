@@ -22,20 +22,25 @@ function SettingsRow({
     <>
       <Box
         sx={{
-          display: "flex",
-          flexDirection: { xs: "column", md: "row" },
-          alignItems: { xs: "flex-start", md: "center" },
-          justifyContent: "space-between",
-          gap: `${(formRow?.gap ?? 24) / 8}rem`,
-          py: `${(formRow?.paddingY ?? 20) / 8}rem`,
-          minHeight: { xs: "auto", md: `${formRow?.minHeight ?? 80}px` },
+          display: "grid",
+          gridTemplateColumns: {
+            xs: "1fr",
+            md: `${formRow?.labelWidth ?? 260}px minmax(0, 1fr)`,
+          },
+          alignItems: "start",
+          columnGap: {
+            xs: 0,
+            md: `${(formRow?.gap ?? 28) / 8}rem`,
+          },
+          rowGap: 2,
+          py: `${(formRow?.paddingY ?? 24) / 8}rem`,
         }}
       >
         <Box
           sx={{
-            width: "100%",
-            maxWidth: { xs: "100%", md: `${formRow?.labelWidth ?? 260}px` },
-            pr: { xs: 0, md: 2 },
+            minWidth: 0,
+            alignSelf: "start",
+            pt: 0,
           }}
         >
           <Typography
@@ -43,7 +48,7 @@ function SettingsRow({
             sx={{
               fontWeight: 600,
               color: "text.primary",
-              mb: description ? 0.5 : 0,
+              mb: 0.5,
             }}
           >
             {label}
@@ -52,9 +57,9 @@ function SettingsRow({
           {description ? (
             <Typography
               variant="body2"
+              color="text.secondary"
               sx={{
-                color: "text.secondary",
-                maxWidth: `${formRow?.descriptionMaxWidth ?? 240}px`,
+                maxWidth: formRow?.descriptionMaxWidth ?? 240,
               }}
             >
               {description}
@@ -64,11 +69,12 @@ function SettingsRow({
 
         <Box
           sx={{
-            width: "100%",
-            flex: 1,
             minWidth: 0,
+            width: "100%",
+            alignSelf: "start",
             display: "flex",
-            justifyContent: { xs: "flex-start", md: "flex-end" },
+            justifyContent: "flex-start",
+            alignItems: "flex-start",
           }}
         >
           {control}
