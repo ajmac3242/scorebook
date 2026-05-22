@@ -69,7 +69,11 @@ const SectionIntro: React.FC<{
     <Box sx={{ mb: `${introMarginBottom / 8}rem` }}>
       <Typography
         variant="h6"
-        sx={{ fontWeight: 600, mb: `${titleGap / 8}rem` }}
+        sx={{
+          fontWeight: 600,
+          mb: `${titleGap / 8}rem`,
+          color: "text.primary",
+        }}
       >
         {title}
       </Typography>
@@ -172,7 +176,7 @@ const ThemeMiniPreview: React.FC<{
         overflow: "hidden",
         bgcolor: isDark ? "grey.900" : "grey.100",
         border: "1px solid",
-        borderColor: alpha(theme.palette.text.primary, isDark ? 0.1 : 0.08),
+        borderColor: alpha(theme.palette.text.primary, isDark ? 0.08 : 0.08),
       }}
     >
       <Box sx={{ height: "22%", width: "100%", bgcolor: color }} />
@@ -277,7 +281,10 @@ const PresetCard: React.FC<PresetCardProps> = ({
         borderRadius: `${radius}px`,
         border: selected
           ? `${selectedBorderWidth}px solid ${theme.palette.primary.main}`
-          : `${borderWidth}px solid ${alpha(theme.palette.text.primary, theme.palette.mode === "dark" ? 0.16 : 0.12)}`,
+          : `${borderWidth}px solid ${alpha(
+            theme.palette.text.primary,
+            theme.palette.mode === "dark" ? 0.12 : 0.12,
+          )}`,
         bgcolor: "background.paper",
         cursor: "pointer",
         transition:
@@ -285,8 +292,11 @@ const PresetCard: React.FC<PresetCardProps> = ({
         "&:hover": {
           borderColor: selected
             ? theme.palette.primary.main
-            : alpha(theme.palette.primary.main, 0.45),
-          boxShadow: `0 4px 14px ${alpha(theme.palette.common.black, theme.palette.mode === "dark" ? 0.22 : 0.08)}`,
+            : alpha(theme.palette.primary.main, 0.38),
+          boxShadow: `0 4px 14px ${alpha(
+            theme.palette.common.black,
+            theme.palette.mode === "dark" ? 0.18 : 0.08,
+          )}`,
           transform: "translateY(-1px)",
         },
       }}
@@ -510,7 +520,16 @@ const Settings: React.FC = () => {
                 </Box>
               );
             }}
-            sx={{ width: selectWidth, maxWidth: "100%" }}
+            sx={{
+              width: selectWidth,
+              maxWidth: "100%",
+              "& .MuiSelect-select": {
+                color: "text.primary",
+              },
+              "& .MuiSvgIcon-root": {
+                color: "text.secondary",
+              },
+            }}
           >
             {availablePresets.map((p) => (
               <MenuItem key={p.id} value={p.id}>
@@ -605,9 +624,8 @@ const Settings: React.FC = () => {
       <SettingsRow
         row={row}
         label="Local storage"
-        description={`${totalDbRecords.toLocaleString()} total records across ${
-          Object.keys(dbStats).length
-        } tables.`}
+        description={`${totalDbRecords.toLocaleString()} total records across ${Object.keys(dbStats).length
+          } tables.`}
         alignTop
       >
         <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.75 }}>
@@ -732,7 +750,14 @@ const Settings: React.FC = () => {
           pb: 0,
         }}
       >
-        <Typography variant="h5" sx={{ fontWeight: 600, mb: 2 }}>
+        <Typography
+          variant="h5"
+          sx={{
+            fontWeight: 600,
+            mb: 2,
+            color: "text.primary",
+          }}
+        >
           Settings
         </Typography>
 
@@ -742,15 +767,25 @@ const Settings: React.FC = () => {
           aria-label="Settings sections"
           variant="scrollable"
           scrollButtons="auto"
+          textColor="inherit"
           sx={{
             minHeight: tabs?.height ?? 40,
-            mt: 0.5,
+            mt: 0.75,
+            "& .MuiTabs-indicator": {
+              backgroundColor: theme.palette.primary.main,
+              height: 2,
+            },
             "& .MuiTab-root": {
               textTransform: "none",
               fontSize: "0.875rem",
               fontWeight: 500,
               minHeight: tabs?.height ?? 40,
               px: `${(tabs?.paddingX ?? 12) / 8}rem`,
+              color: "text.secondary",
+              transition: "color 150ms ease",
+            },
+            "& .MuiTab-root.Mui-selected": {
+              color: "text.primary",
             },
           }}
         >
@@ -760,7 +795,14 @@ const Settings: React.FC = () => {
         </Tabs>
       </Box>
 
-      <Divider />
+      <Divider
+        sx={{
+          borderColor:
+            theme.palette.mode === "dark"
+              ? alpha(theme.palette.text.primary, 0.08)
+              : "divider",
+        }}
+      />
 
       <Box
         sx={{
@@ -768,7 +810,7 @@ const Settings: React.FC = () => {
             xs: 2.5,
             md: `${(shell?.contentPaddingX ?? 28) / 8}rem`,
           },
-          pt: 2,
+          pt: 2.5,
           pb: {
             xs: 2.5,
             md: `${(shell?.contentPaddingBottom ?? 28) / 8}rem`,
