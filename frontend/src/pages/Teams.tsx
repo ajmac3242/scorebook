@@ -5,7 +5,6 @@ import {
   PushPin as DefaultIcon,
   Search as SearchIcon,
   Star as StarFilledIcon,
-  StarBorder as StarIcon,
 } from "@mui/icons-material";
 import {
   Box,
