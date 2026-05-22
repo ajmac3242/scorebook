@@ -39,10 +39,16 @@ function AppPageShell<T extends string>({
         width: "100%",
         minWidth: 0,
         maxWidth: pageSurface?.maxWidth ?? 1280,
-        background: pageSurface?.background ?? "transparent",
+        background:
+          pageSurface?.background ??
+          "var(--cs-semantic-color-background-paper)",
         border: pageSurface?.border ?? "none",
+        borderRadius: {
+          xs: 0,
+          md: `${pageSurface?.radius ?? 20}px`,
+        },
         boxShadow: pageSurface?.shadow ?? "none",
-        overflow: "visible",
+        overflow: "hidden",
       }}
     >
       <Box
@@ -96,7 +102,6 @@ function AppPageShell<T extends string>({
             sx={{
               minHeight: pageTabs?.height ?? 40,
               mt: 0.5,
-              mb: 0,
               "& .MuiTabs-flexContainer": {
                 gap: `${pageTabs?.gap ?? 8}px`,
               },
@@ -139,8 +144,8 @@ function AppPageShell<T extends string>({
           },
           pt: 0.5,
           pb: {
-            xs: 0,
-            md: `${(pageSurface?.contentPaddingBottom ?? 0) / 8}rem`,
+            xs: 2.5,
+            md: `${(pageSurface?.contentPaddingBottom ?? 24) / 8}rem`,
           },
         }}
       >
