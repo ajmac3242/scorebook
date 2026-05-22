@@ -85,8 +85,7 @@ function SettingsRow({
         <Divider
           sx={{
             borderColor:
-              formRow?.dividerColor ??
-              "var(--cs-semantic-color-border-subtle)",
+              formRow?.dividerColor ?? "var(--cs-semantic-color-border-subtle)",
           }}
         />
       ) : null}
