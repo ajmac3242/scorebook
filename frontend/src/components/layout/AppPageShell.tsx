@@ -115,8 +115,7 @@ function AppPageShell<T extends string>({
                 transition:
                   "background-color 150ms ease, color 150ms ease, box-shadow 150ms ease",
                 "&:hover": {
-                  backgroundColor:
-                    pageTabs?.hoverBackground ?? "action.hover",
+                  backgroundColor: pageTabs?.hoverBackground ?? "action.hover",
                 },
               },
               "& .MuiTab-root.Mui-selected": {
