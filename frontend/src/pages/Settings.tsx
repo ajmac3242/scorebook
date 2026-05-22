@@ -205,7 +205,6 @@ const Settings: React.FC = () => {
                 },
                 gap: 2,
                 width: "100%",
-                maxWidth: 980,
               }}
             >
               {availablePresets.map((preset) => (
