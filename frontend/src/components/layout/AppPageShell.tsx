@@ -39,21 +39,26 @@ function AppPageShell<T extends string>({
         width: "100%",
         minWidth: 0,
         maxWidth: pageSurface?.maxWidth ?? 1280,
-        background: pageSurface?.background ?? "transparent",
+        background:
+          pageSurface?.background ?? "var(--cs-semantic-color-background-paper)",
         border: pageSurface?.border ?? "none",
+        borderRadius: {
+          xs: 0,
+          md: `${pageSurface?.radius ?? 20}px`,
+        },
         boxShadow: pageSurface?.shadow ?? "none",
-        overflow: "visible",
+        overflow: "hidden",
       }}
     >
       <Box
         sx={{
           px: {
-            xs: 0,
-            md: `${(pageSurface?.headerPaddingX ?? 0) / 8}rem`,
+            xs: 2.5,
+            md: `${(pageSurface?.headerPaddingX ?? 24) / 8}rem`,
           },
           pt: {
-            xs: 0,
-            md: `${(pageSurface?.headerPaddingTop ?? 0) / 8}rem`,
+            xs: 2,
+            md: `${(pageSurface?.headerPaddingTop ?? 12) / 8}rem`,
           },
           pb: 0,
         }}
@@ -95,7 +100,7 @@ function AppPageShell<T extends string>({
             textColor="inherit"
             sx={{
               minHeight: pageTabs?.height ?? 40,
-              mt: 0.75,
+              mt: 0.5,
               "& .MuiTabs-flexContainer": {
                 gap: `${pageTabs?.gap ?? 8}px`,
               },
@@ -114,7 +119,8 @@ function AppPageShell<T extends string>({
                 transition:
                   "background-color 150ms ease, color 150ms ease, box-shadow 150ms ease",
                 "&:hover": {
-                  backgroundColor: pageTabs?.hoverBackground ?? "action.hover",
+                  backgroundColor:
+                    pageTabs?.hoverBackground ?? "action.hover",
                 },
               },
               "& .MuiTab-root.Mui-selected": {
@@ -133,13 +139,13 @@ function AppPageShell<T extends string>({
       <Box
         sx={{
           px: {
-            xs: 0,
-            md: `${(pageSurface?.contentPaddingX ?? 0) / 8}rem`,
+            xs: 2.5,
+            md: `${(pageSurface?.contentPaddingX ?? 24) / 8}rem`,
           },
-          pt: 0,
+          pt: 0.5,
           pb: {
-            xs: 0,
-            md: `${(pageSurface?.contentPaddingBottom ?? 0) / 8}rem`,
+            xs: 2.5,
+            md: `${(pageSurface?.contentPaddingBottom ?? 24) / 8}rem`,
           },
         }}
       >
