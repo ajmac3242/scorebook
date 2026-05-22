@@ -66,9 +66,9 @@ const SideNav: React.FC<SideNavProps> = ({
   const isSettingsActive = isRouteActive(location.pathname, "/settings");
 
   const navButtonSx = (isActive: boolean) => ({
-    minHeight: "var(--cs-touch-targetComfortable)",
-    px: "var(--cs-semantic-spacing-md)",
-    borderRadius: "var(--cs-semantic-shape-radius-md)",
+    minHeight: 50,
+    px: 1.75,
+    borderRadius: "12px",
     justifyContent: "flex-start",
     bgcolor: isActive
       ? "var(--cs-semantic-color-action-selected)"
@@ -86,11 +86,12 @@ const SideNav: React.FC<SideNavProps> = ({
     },
     "& .MuiListItemIcon-root": {
       color: "inherit",
-      minWidth: 36,
+      minWidth: 38,
     },
     "& .MuiListItemText-primary": {
       fontWeight: isActive ? 600 : 500,
-      fontSize: "0.95rem",
+      fontSize: "1rem",
+      lineHeight: 1.2,
       letterSpacing: 0,
     },
     "&:focus-visible": {
@@ -111,38 +112,41 @@ const SideNav: React.FC<SideNavProps> = ({
     >
       <Box
         sx={{
-          px: 2.5,
-          pt: 2.25,
-          pb: 1.25,
+          px: 3,
+          pt: 3,
+          pb: 1.75,
           display: "flex",
           alignItems: "center",
           justifyContent: "flex-start",
         }}
       >
-        <CourtSightLogo width={152} />
+        <CourtSightLogo width={156} />
       </Box>
 
-      <Box sx={{ px: 0.75, pb: 1.75 }}>
+      <Box sx={{ px: 2, pb: 2.5 }}>
         <ButtonBase
           onClick={onSearchOpen}
           aria-label="Open search"
           sx={{
             width: "100%",
-            height: "var(--cs-semantic-spacing-inputHeightMd)",
-            px: "var(--cs-semantic-spacing-md)",
-            borderRadius: "var(--cs-semantic-shape-radius-md)",
+            height: 44,
+            px: 1.75,
+            borderRadius: "10px",
             border: "1px solid var(--cs-semantic-color-border-subtle)",
             display: "flex",
             alignItems: "center",
             justifyContent: "flex-start",
-            gap: 1,
+            gap: 1.25,
             color: "var(--cs-semantic-color-text-secondary)",
-            bgcolor: "transparent",
+            bgcolor:
+              tokens.semantic.color.background?.paper ??
+              "var(--cs-semantic-color-background-paper)",
+            boxShadow: `inset 0 1px 0 ${alpha("#ffffff", 0.02)}`,
             transition:
               "background-color var(--cs-motion-duration-normal) var(--cs-motion-easing-productive), border-color var(--cs-motion-duration-normal) var(--cs-motion-easing-productive), color var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
             "&:hover": {
               borderColor: "var(--cs-semantic-color-border-default)",
-              bgcolor: "var(--cs-semantic-color-action-hover)",
+              bgcolor: alpha("#ffffff", 0.02),
               color: "var(--cs-semantic-color-text-primary)",
             },
           }}
@@ -150,7 +154,7 @@ const SideNav: React.FC<SideNavProps> = ({
           <SearchIcon sx={{ fontSize: 18 }} />
           <Typography
             sx={{
-              fontSize: "0.875rem",
+              fontSize: "0.9375rem",
               fontWeight: 500,
               color: "inherit",
             }}
@@ -160,12 +164,12 @@ const SideNav: React.FC<SideNavProps> = ({
         </ButtonBase>
       </Box>
 
-      <List sx={{ flexGrow: 1, px: 0.75, py: 0.5 }}>
+      <List sx={{ flexGrow: 1, px: 1.25, py: 0.5 }}>
         {NAV_ITEMS.map((item) => {
           const isActive = isRouteActive(location.pathname, item.path);
 
           return (
-            <ListItem key={item.label} disablePadding sx={{ mb: 0.375 }}>
+            <ListItem key={item.label} disablePadding sx={{ mb: 0.75 }}>
               <ListItemButton
                 component={NavLink}
                 to={item.path}
@@ -200,20 +204,24 @@ const SideNav: React.FC<SideNavProps> = ({
         })}
       </List>
 
-      <Box sx={{ p: 0.75, mt: "auto" }}>
-        <ListItem disablePadding sx={{ mb: 1 }}>
+      <Box sx={{ px: 1.25, pb: 1.5, pt: 2.25, mt: "auto" }}>
+        <ListItem disablePadding sx={{ mb: 1.25 }}>
           <ListItemButton
             component={NavLink}
             to="/settings"
             onClick={onMobileClose}
             sx={{
               ...navButtonSx(isSettingsActive),
+              minHeight: 52,
               bgcolor: isSettingsActive
-                ? alpha("#12B5CB", 0.14)
-                : "transparent",
+                ? alpha("#12B5CB", 0.12)
+                : alpha("#ffffff", 0.01),
+              boxShadow: isSettingsActive
+                ? `inset 0 0 0 1px ${alpha("#12B5CB", 0.18)}`
+                : "none",
               "&:hover": {
                 bgcolor: isSettingsActive
-                  ? alpha("#12B5CB", 0.18)
+                  ? alpha("#12B5CB", 0.16)
                   : "var(--cs-semantic-color-action-hover)",
                 color: "var(--cs-semantic-color-text-primary)",
               },
@@ -229,8 +237,8 @@ const SideNav: React.FC<SideNavProps> = ({
 
         <Box
           sx={{
-            px: "var(--cs-semantic-spacing-md)",
-            mb: "var(--cs-semantic-spacing-sm)",
+            px: 0.25,
+            mb: 1.25,
           }}
         >
           <Box
@@ -238,20 +246,21 @@ const SideNav: React.FC<SideNavProps> = ({
               width: "100%",
               height: 1,
               bgcolor: "var(--cs-semantic-color-border-subtle)",
-              opacity: 0.7,
+              opacity: 0.55,
             }}
           />
         </Box>
 
         <Box
           sx={{
-            px: "var(--cs-semantic-spacing-md)",
-            py: "10px",
+            px: 1.5,
+            py: 1.375,
             display: "flex",
             alignItems: "center",
             cursor: "pointer",
-            borderRadius: "var(--cs-semantic-shape-radius-md)",
+            borderRadius: "12px",
             color: "var(--cs-semantic-color-text-primary)",
+            bgcolor: alpha("#ffffff", 0.015),
             transition:
               "background-color var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
             "&:hover": {
@@ -261,10 +270,10 @@ const SideNav: React.FC<SideNavProps> = ({
         >
           <Avatar
             sx={{
-              width: 32,
-              height: 32,
+              width: 34,
+              height: 34,
               bgcolor: "var(--cs-semantic-color-brand-primary-main)",
-              fontSize: "var(--cs-typography-fontSize-sm)",
+              fontSize: "0.875rem",
               fontWeight: 700,
               boxShadow: `0 2px 8px ${alpha("#000", 0.16)}`,
             }}
@@ -272,7 +281,7 @@ const SideNav: React.FC<SideNavProps> = ({
             {coachName[0]}
           </Avatar>
 
-          <Box sx={{ ml: 1.75, minWidth: 0 }}>
+          <Box sx={{ ml: 1.5, minWidth: 0 }}>
             <Typography
               variant="subtitle2"
               sx={{
