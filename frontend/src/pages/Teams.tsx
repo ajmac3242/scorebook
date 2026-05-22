@@ -187,7 +187,10 @@ const Teams: React.FC = () => {
       .toArray();
   }, [teamIds]);
 
-  const allGames = useMemo(() => allGamesQueryResult || [], [allGamesQueryResult]);
+  const allGames = useMemo(
+    () => allGamesQueryResult || [],
+    [allGamesQueryResult],
+  );
 
   const gameIds = useMemo(
     () => allGames.map((game) => game.id).filter(Boolean),
@@ -202,7 +205,10 @@ const Teams: React.FC = () => {
       .toArray();
   }, [gameIds]);
 
-  const allStats = useMemo(() => allStatsQueryResult || [], [allStatsQueryResult]);
+  const allStats = useMemo(
+    () => allStatsQueryResult || [],
+    [allStatsQueryResult],
+  );
 
   const teamAggregatesMap = useMemo(() => {
     const gamesByTeam: Record<string, (typeof allGames)[0][]> = {};
@@ -613,7 +619,9 @@ const Teams: React.FC = () => {
                         flexDirection: "column",
                         borderRadius: `${sectionCard.radius}px`,
                         border: "1px solid",
-                        borderColor: team.isFavorite ? accent.border : "divider",
+                        borderColor: team.isFavorite
+                          ? accent.border
+                          : "divider",
                         bgcolor: "background.paper",
                         overflow: "hidden",
                         cursor: "pointer",
@@ -718,7 +726,8 @@ const Teams: React.FC = () => {
                                 minHeight: 42,
                               }}
                             >
-                              {team.description?.trim() || "No description yet."}
+                              {team.description?.trim() ||
+                                "No description yet."}
                             </Typography>
 
                             <Chip
