@@ -380,75 +380,71 @@ export const tokens = {
   layout: {
     appFrame: {
       gutter: 16,
-      sidebarWidth: 220,
+      sidebarWidth: 236,
       background: "var(--cs-semantic-color-background-paper)",
       contentMinWidth: 0,
     },
     sideNav: {
-      width: 220,
-      paddingX: 16,
-      logoPaddingTop: 24,
-      logoPaddingBottom: 14,
-      searchPaddingBottom: 20,
-      searchHeight: 44,
+      width: 236,
+      paddingX: 20,
+      logoPaddingTop: 28,
+      logoPaddingBottom: 18,
+      searchPaddingBottom: 24,
+      searchHeight: 40,
       searchRadius: 10,
       searchPaddingX: 14,
-      navListPaddingX: 10,
-      navItemGap: 6,
-      sectionGapTop: 18,
-      bottomPaddingTop: 18,
-      bottomPaddingBottom: 12,
-      bottomGroupGap: 10,
-      coachCardPaddingX: 12,
-      coachCardPaddingY: 11,
+      navListPaddingX: 0,
+      navItemGap: 10,
+      sectionGapTop: 24,
+      bottomPaddingTop: 24,
+      bottomPaddingBottom: 16,
+      bottomGroupGap: 12,
+      coachCardPaddingX: 14,
+      coachCardPaddingY: 14,
       coachAvatarSize: 34,
       dividerOpacity: 0.55,
     },
     pageSurface: {
-      maxWidth: 1280,
+      maxWidth: "none",
       radius: 20,
       background: "var(--cs-semantic-color-background-default)",
       border: "none",
       dividerColor: "var(--cs-semantic-color-border-subtle)",
-      headerPaddingX: 24,
-      headerPaddingTop: 12,
-      contentPaddingX: 24,
-      contentPaddingBottom: 24,
+      headerPaddingX: 32,
+      headerPaddingTop: 16,
+      contentPaddingX: 32,
+      contentPaddingBottom: 32,
       shadow: "none",
     },
     pageTabs: {
       height: 40,
-      radius: 8,
-      gap: 8,
-      paddingX: 12,
-      activeBackground: "var(--cs-semantic-color-surface-subtle)",
+      radius: 0,
+      gap: 20,
+      paddingX: 4,
+      activeBackground: "transparent",
       activeColor: "var(--cs-semantic-color-text-primary)",
       inactiveColor: "var(--cs-semantic-color-text-secondary)",
-      hoverBackground: "var(--cs-semantic-color-action-hover)",
+      hoverBackground: "transparent",
     },
     formRow: {
-      minHeight: 80,
-      paddingY: 20,
-      gap: 24,
+      minHeight: 88,
+      paddingY: 24,
+      gap: 28,
       labelWidth: 260,
       descriptionMaxWidth: 240,
       dividerColor: "var(--cs-semantic-color-border-subtle)",
     },
     sectionIntro: {
-      titleGap: 4,
-      marginBottom: 20,
+      titleGap: 6,
+      marginBottom: 28,
     },
 
-    /** @deprecated Use semantic.spacing.inputHeightMd */
     inputHeightMd: 40,
-    /** @deprecated Use semantic.spacing.dialogPadding */
     dialogPadding: 24,
-    /** @deprecated Use semantic.spacing.pagePaddingX */
     pagePaddingX: 24,
     pagePanelPaddingMobile: 20,
     pageMaxWidth: 1280,
     sectionCardPaddingCompact: 16,
-    /** @deprecated Use semantic.spacing.sectionCardPadding */
     sectionCardPadding: 24,
   },
 
@@ -462,14 +458,14 @@ export type AppTokens = typeof tokens;
 
 export type DeepPartial<T> = {
   [K in keyof T]?: T[K] extends object
-    ? DeepPartial<T[K]>
-    : T[K] extends number
-      ? number
-      : T[K] extends string
-        ? string
-        : T[K] extends boolean
-          ? boolean
-          : T[K];
+  ? DeepPartial<T[K]>
+  : T[K] extends number
+  ? number
+  : T[K] extends string
+  ? string
+  : T[K] extends boolean
+  ? boolean
+  : T[K];
 };
 
 export interface ThemePreset {

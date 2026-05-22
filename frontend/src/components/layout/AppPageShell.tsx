@@ -39,10 +39,11 @@ function AppPageShell<T extends string>({
       sx={{
         width: "100%",
         minWidth: 0,
-        maxWidth: pageSurface?.maxWidth ?? 1280,
+        maxWidth: "none",
+        flex: 1,
+        alignSelf: "stretch",
         background:
-          pageSurface?.background ??
-          "var(--cs-semantic-color-background-default)",
+          pageSurface?.background ?? "var(--cs-semantic-color-background-default)",
         border: pageSurface?.border ?? "none",
         borderRadius: {
           xs: 0,
@@ -56,11 +57,11 @@ function AppPageShell<T extends string>({
         sx={{
           px: {
             xs: 2.5,
-            md: `${(pageSurface?.headerPaddingX ?? 24) / 8}rem`,
+            md: `${(pageSurface?.headerPaddingX ?? 32) / 8}rem`,
           },
           pt: {
             xs: 2,
-            md: `${(pageSurface?.headerPaddingTop ?? 12) / 8}rem`,
+            md: `${(pageSurface?.headerPaddingTop ?? 16) / 8}rem`,
           },
           pb: 0,
         }}
@@ -72,7 +73,7 @@ function AppPageShell<T extends string>({
             justifyContent: "space-between",
             gap: 2,
             flexDirection: { xs: "column", sm: "row" },
-            mb: 1.25,
+            mb: 1.5,
           }}
         >
           <Typography
@@ -104,10 +105,9 @@ function AppPageShell<T extends string>({
               sx={{
                 minHeight: pageTabs?.height ?? 40,
                 mt: 0,
-                mb: 0,
                 minWidth: 0,
                 "& .MuiTabs-flexContainer": {
-                  gap: `${pageTabs?.gap ?? 8}px`,
+                  gap: `${pageTabs?.gap ?? 20}px`,
                 },
                 "& .MuiTabs-scroller": {
                   overflow: "visible !important",
@@ -122,7 +122,7 @@ function AppPageShell<T extends string>({
                   fontWeight: 500,
                   minHeight: pageTabs?.height ?? 40,
                   minWidth: 0,
-                  px: 1.5,
+                  px: `${(pageTabs?.paddingX ?? 4) / 8}rem`,
                   pb: 1.25,
                   pt: 0.75,
                   borderRadius: 0,
@@ -148,6 +148,8 @@ function AppPageShell<T extends string>({
 
             <Divider
               sx={{
+                width: "calc(100% + 64px)",
+                ml: "-32px",
                 borderColor:
                   pageSurface?.dividerColor ??
                   "var(--cs-semantic-color-border-subtle)",
@@ -159,14 +161,16 @@ function AppPageShell<T extends string>({
 
       <Box
         sx={{
+          width: "100%",
+          minWidth: 0,
           px: {
             xs: 2.5,
-            md: `${(pageSurface?.contentPaddingX ?? 24) / 8}rem`,
+            md: `${(pageSurface?.contentPaddingX ?? 32) / 8}rem`,
           },
-          pt: 2.5,
+          pt: 1.5,
           pb: {
             xs: 2.5,
-            md: `${(pageSurface?.contentPaddingBottom ?? 24) / 8}rem`,
+            md: `${(pageSurface?.contentPaddingBottom ?? 32) / 8}rem`,
           },
         }}
       >
