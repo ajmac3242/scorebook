@@ -213,7 +213,9 @@ const Settings: React.FC = () => {
                   if (!preset) return String(value);
 
                   return (
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <Box
+                      sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                    >
                       <Box
                         sx={{
                           width: 9,
@@ -380,8 +382,7 @@ const Settings: React.FC = () => {
                 sx={{
                   maxHeight: 220,
                   overflowY: "auto",
-                  bgcolor:
-                    theme.palette.mode === "dark" ? "grey.900" : "grey.50",
+                  bgcolor: theme.palette.mode === "dark" ? "grey.900" : "grey.50",
                   borderRadius: 1,
                   border: "1px solid",
                   borderColor: "divider",
@@ -409,8 +410,7 @@ const Settings: React.FC = () => {
                                 : "text.secondary",
                         }}
                       >
-                        [{log.level.toUpperCase()}] {log.timestamp}{" "}
-                        {log.message}
+                        [{log.level.toUpperCase()}] {log.timestamp} {log.message}
                       </Typography>
                     ))}
                   </Stack>
@@ -443,7 +443,6 @@ const Settings: React.FC = () => {
         activeTab={activeTab}
         tabs={TABS}
         onTabChange={(tab) => setActiveTab(tab)}
-        variant="narrow"
       >
         {renderContent()}
       </AppPageShell>
