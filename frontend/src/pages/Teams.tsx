@@ -1,970 +1,454 @@
 import React, { useMemo, useState } from "react";
 import {
-  Alert,
-  Avatar,
-  alpha,
+  Add as AddIcon,
+  MoreHoriz as MoreHorizIcon,
+  PushPin as DefaultIcon,
+  Search as SearchIcon,
+  Star as StarFilledIcon,
+  StarBorder as StarIcon,
+} from "@mui/icons-material";
+import {
   Box,
   Button,
   Chip,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  FormControl,
-  FormHelperText,
-  Grid,
   IconButton,
   InputAdornment,
-  InputLabel,
+  Menu,
   MenuItem,
-  Select,
-  Snackbar,
   Stack,
   TextField,
-  Tooltip,
   Typography,
-  useTheme,
 } from "@mui/material";
-import {
-  Add as AddIcon,
-  ArrowForward as ArrowForwardIcon,
-  Groups as TeamsIcon,
-  Search as SearchIcon,
-  Star as StarIcon,
-  StarBorder as StarBorderIcon,
-} from "@mui/icons-material";
-import { useNavigate } from "react-router-dom";
-import { useLiveQuery } from "dexie-react-hooks";
-import { db, type StatEvent, type Team } from "../db";
-import { useTeams } from "../hooks/useTeams";
-import { logger } from "../utils/logger";
-import { calculateTeamAggregates, getInitials } from "../utils/stats";
-import { syncService } from "../utils/syncService";
-import { useTokens } from "../theme/useTokens";
-import {
-  TokenPageShell,
-  TokenSectionCard,
-  TokenPageTitle,
-} from "../components/layout/TokenLayout";
+import AppPageShell, {
+  type AppPageTab,
+} from "../components/layout/AppPageShell";
+import PageSectionCard from "../components/layout/PageSectionCard";
+import PageSectionIntro from "../components/layout/PageSectionIntro";
 
-type TeamAggregateSummary = {
+type TeamTab = "all" | "starred" | "archived";
+
+type TeamRecord = {
+  id: string;
+  name: string;
+  season: string;
+  level: string;
   record: string;
-  ppg: string;
-  rpg: string;
-  apg: string;
-  oppg: string;
+  players: number;
+  games: number;
+  isStarred: boolean;
+  isDefault: boolean;
+  isArchived: boolean;
+  updatedLabel: string;
 };
 
-const DEFAULT_TEAM_ACCENT = "#154C56";
+const TABS: readonly AppPageTab<TeamTab>[] = [
+  { value: "all", label: "All" },
+  { value: "starred", label: "Starred" },
+  { value: "archived", label: "Archived" },
+] as const;
 
-const isValidHex = (value?: string) =>
-  !!value && /^#([0-9A-F]{6})$/i.test(value.trim());
-
-const buildTeamAccent = (teamColor?: string) => {
-  const safe = isValidHex(teamColor) ? teamColor!.trim() : DEFAULT_TEAM_ACCENT;
-  return {
-    solid: safe,
-    softBg: alpha(safe, 0.12),
-    softerBg: alpha(safe, 0.08),
-    border: alpha(safe, 0.24),
-    ring: alpha(safe, 0.18),
-  };
-};
-
-const StatCell: React.FC<{ label: string; value: string }> = ({
-  label,
-  value,
-}) => {
-  return (
-    <Box sx={{ minWidth: 0 }}>
-      <Typography
-        variant="caption"
-        sx={{
-          fontWeight: 700,
-          letterSpacing: "0.05em",
-          textTransform: "uppercase",
-          color: "text.secondary",
-          mb: 0.5,
-          display: "block",
-        }}
-      >
-        {label}
-      </Typography>
-      <Typography
-        variant="h5"
-        sx={{
-          lineHeight: 1,
-          fontWeight: 700,
-          color: "text.primary",
-        }}
-      >
-        {value}
-      </Typography>
-    </Box>
-  );
-};
+const MOCK_TEAMS: readonly TeamRecord[] = [
+  {
+    id: "1",
+    name: "Brookfield Central Varsity",
+    season: "2025–26",
+    level: "Varsity",
+    record: "18–4",
+    players: 12,
+    games: 22,
+    isStarred: true,
+    isDefault: true,
+    isArchived: false,
+    updatedLabel: "Updated 2h ago",
+  },
+  {
+    id: "2",
+    name: "Brookfield Central JV",
+    season: "2025–26",
+    level: "JV",
+    record: "14–6",
+    players: 11,
+    games: 20,
+    isStarred: true,
+    isDefault: false,
+    isArchived: false,
+    updatedLabel: "Updated yesterday",
+  },
+  {
+    id: "3",
+    name: "Brookfield East 8th Grade",
+    season: "2025–26",
+    level: "Middle School",
+    record: "9–5",
+    players: 10,
+    games: 14,
+    isStarred: false,
+    isDefault: false,
+    isArchived: false,
+    updatedLabel: "Updated 3d ago",
+  },
+  {
+    id: "4",
+    name: "Summer Skills Camp",
+    season: "2025",
+    level: "Camp",
+    record: "—",
+    players: 24,
+    games: 0,
+    isStarred: false,
+    isDefault: false,
+    isArchived: true,
+    updatedLabel: "Archived 1w ago",
+  },
+] as const;
 
 const Teams: React.FC = () => {
-  const theme = useTheme();
-  const tokens = useTokens();
-  const navigate = useNavigate();
-
-  const controlRadius = tokens.semantic.component.radius.button;
-  const pageShell = tokens.semantic.component.pageShell;
-  const [open, setOpen] = useState(false);
-  const [teamName, setTeamName] = useState("");
-  const [description, setDescription] = useState("");
-  const [periodType, setPeriodType] = useState<"QUARTERS" | "HALVES">(
-    "QUARTERS",
-  );
-  const [logoUrl, setLogoUrl] = useState("");
-  const [primaryColor, setPrimaryColor] = useState(DEFAULT_TEAM_ACCENT);
-  const [fouls, setFouls] = useState<number>(3);
-  const [showValidation, setShowValidation] = useState(false);
+  const [activeTab, setActiveTab] = useState<TeamTab>("all");
   const [searchTerm, setSearchTerm] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [snackbar, setSnackbar] = useState<{
-    open: boolean;
-    message: string;
-    severity: "success" | "error";
-  }>({ open: false, message: "", severity: "success" });
+  const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
+  const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null);
 
-  const teams = useTeams();
+  const allCount = MOCK_TEAMS.filter((team) => !team.isArchived).length;
+  const starredCount = MOCK_TEAMS.filter(
+    (team) => team.isStarred && !team.isArchived,
+  ).length;
+  const archivedCount = MOCK_TEAMS.filter((team) => team.isArchived).length;
 
-  const filteredTeams = useMemo(() => {
+  const visibleTeams = useMemo(() => {
     const normalizedSearch = searchTerm.trim().toLowerCase();
-    if (!normalizedSearch) return teams;
-    return teams.filter((team) => {
+
+    return MOCK_TEAMS.filter((team) => {
+      const matchesTab =
+        activeTab === "all"
+          ? !team.isArchived
+          : activeTab === "starred"
+            ? team.isStarred && !team.isArchived
+            : team.isArchived;
+
+      if (!matchesTab) return false;
+
+      if (!normalizedSearch) return true;
+
       const haystack = [
         team.name,
-        team.description || "",
-        team.periodType || "",
+        team.season,
+        team.level,
+        team.record,
+        team.updatedLabel,
       ]
         .join(" ")
         .toLowerCase();
+
       return haystack.includes(normalizedSearch);
     });
-  }, [teams, searchTerm]);
+  }, [activeTab, searchTerm]);
 
-  const favoriteCount = useMemo(
-    () => teams.filter((team) => team.isFavorite).length,
-    [teams],
-  );
+  const summaryChips = useMemo(() => {
+    return [
+      { key: "all", label: `${allCount} active` },
+      { key: "starred", label: `${starredCount} starred` },
+      { key: "archived", label: `${archivedCount} archived` },
+    ];
+  }, [allCount, starredCount, archivedCount]);
 
-  const teamIds = useMemo(
-    () => teams.map((team) => team.id).filter(Boolean),
-    [teams],
-  );
-
-  const allGamesQueryResult = useLiveQuery(() => {
-    if (teamIds.length === 0) return [];
-    return db.games
-      .where("teamId")
-      .anyOf(teamIds as string[])
-      .toArray();
-  }, [teamIds]);
-
-  const allGames = useMemo(
-    () => allGamesQueryResult || [],
-    [allGamesQueryResult],
-  );
-
-  const gameIds = useMemo(
-    () => allGames.map((game) => game.id).filter(Boolean),
-    [allGames],
-  );
-
-  const allStatsQueryResult = useLiveQuery(() => {
-    if (gameIds.length === 0) return [];
-    return db.stats
-      .where("gameId")
-      .anyOf(gameIds as string[])
-      .toArray();
-  }, [gameIds]);
-
-  const allStats = useMemo(
-    () => allStatsQueryResult || [],
-    [allStatsQueryResult],
-  );
-
-  const teamAggregatesMap = useMemo(() => {
-    const gamesByTeam: Record<string, (typeof allGames)[0][]> = {};
-    for (const game of allGames) {
-      if (!gamesByTeam[game.teamId]) gamesByTeam[game.teamId] = [];
-      gamesByTeam[game.teamId].push(game);
-    }
-    const statsByGame: Record<string, StatEvent[]> = {};
-    for (const stat of allStats as StatEvent[]) {
-      if (!statsByGame[stat.gameId]) statsByGame[stat.gameId] = [];
-      statsByGame[stat.gameId].push(stat);
-    }
-    const results: Record<string, TeamAggregateSummary> = {};
-    for (const team of teams) {
-      const teamGames = gamesByTeam[team.id!] || [];
-      const teamStats: StatEvent[] = teamGames.flatMap(
-        (g) => statsByGame[g.id!] || [],
-      );
-      results[team.id!] = calculateTeamAggregates(
-        teamGames,
-        teamStats,
-      ) as TeamAggregateSummary;
-    }
-    return results;
-  }, [teams, allGames, allStats]);
-
-  const closeDialog = () => {
-    setOpen(false);
-    setShowValidation(false);
-  };
-
-  const resetForm = () => {
-    setTeamName("");
-    setDescription("");
-    setPeriodType("QUARTERS");
-    setLogoUrl("");
-    setPrimaryColor(DEFAULT_TEAM_ACCENT);
-    setFouls(3);
-    setShowValidation(false);
-    setIsSubmitting(false);
-  };
-
-  const handleToggleFavorite = async (
+  const handleOpenMenu = (
+    event: React.MouseEvent<HTMLElement>,
     teamId: string,
-    currentFavorite: number,
-    e: React.MouseEvent,
   ) => {
-    e.stopPropagation();
-    try {
-      if (!currentFavorite) {
-        const allFavorites = await db.teams
-          .where("isFavorite")
-          .equals(1)
-          .toArray();
-        for (const favoriteTeam of allFavorites) {
-          if (favoriteTeam.id !== teamId) {
-            await db.teams.update(favoriteTeam.id!, {
-              isFavorite: 0,
-              synced: 0,
-            });
-          }
-        }
-        await db.teams.update(teamId, { isFavorite: 1, synced: 0 });
-      } else {
-        await db.teams.update(teamId, { isFavorite: 0, synced: 0 });
-      }
-      await syncService.pushUpdates();
-    } catch (err) {
-      logger.error("Failed to toggle favorite team", err, { teamId });
-      setSnackbar({
-        open: true,
-        message: "Could not update favorite team",
-        severity: "error",
-      });
-    }
+    setMenuAnchor(event.currentTarget);
+    setSelectedTeamId(teamId);
   };
 
-  const handleAddTeam = async () => {
-    if (!teamName.trim() || fouls <= 0) {
-      setShowValidation(true);
-      return;
-    }
-    setIsSubmitting(true);
-    try {
-      const newTeam: Team = {
-        id: crypto.randomUUID(),
-        name: teamName.trim(),
-        description: description.trim(),
-        periodType,
-        logoUrl: logoUrl.trim(),
-        primaryColor: isValidHex(primaryColor)
-          ? primaryColor.trim()
-          : DEFAULT_TEAM_ACCENT,
-        fouls,
-        synced: 0,
-      };
-      await db.teams.add(newTeam);
-      await syncService.pushUpdates();
-      closeDialog();
-      resetForm();
-      setSnackbar({
-        open: true,
-        message: "Team created successfully!",
-        severity: "success",
-      });
-    } catch (err) {
-      logger.error("Failed to add team", err, { teamName });
-      setIsSubmitting(false);
-      setSnackbar({
-        open: true,
-        message: "Failed to create team",
-        severity: "error",
-      });
-    }
+  const handleCloseMenu = () => {
+    setMenuAnchor(null);
+    setSelectedTeamId(null);
   };
 
-  const emptyStateTitle = searchTerm
-    ? `No teams matching "${searchTerm}"`
-    : "No teams yet";
-  const emptyStateDescription = searchTerm
-    ? "Try a different search, clear the filter, or create a new team."
-    : "Create your first team to start tracking performance, rosters, and game results.";
-
-  const transitionAll = `transform ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}, box-shadow ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}, border-color ${theme.transitions.duration.short}ms ${theme.transitions.easing.easeInOut}`;
-
-  return (
-    <TokenPageShell id="main-content" sx={{ pb: 8 }}>
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={4000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-      >
-        <Alert
-          onClose={() => setSnackbar({ ...snackbar, open: false })}
-          severity={snackbar.severity}
-          variant="filled"
-          sx={{ width: "100%" }}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
-
-      <TokenSectionCard
+  const controls = (
+    <Stack
+      direction={{ xs: "column", md: "row" }}
+      spacing={1.5}
+      sx={{
+        alignItems: { xs: "stretch", md: "center" },
+        justifyContent: "space-between",
+        width: "100%",
+      }}
+    >
+      <Stack
+        direction={{ xs: "column", lg: "row" }}
+        spacing={1.25}
         sx={{
-          borderRadius: `${pageShell.radius}px`,
-          border: pageShell.border,
-          boxShadow: pageShell.shadow,
-          bgcolor: pageShell.background,
-          overflow: "hidden",
-          p: 0,
+          alignItems: { xs: "stretch", lg: "center" },
+          minWidth: 0,
+          flex: 1,
         }}
       >
-        {/* Header */}
-        <Box
+        <TextField
+          value={searchTerm}
+          onChange={(event) => setSearchTerm(event.target.value)}
+          placeholder="Search teams"
+          size="small"
+          fullWidth
           sx={{
-            px: { xs: 2, sm: 3 },
-            py: { xs: 2, sm: 2.5 },
-            display: "flex",
-            alignItems: { xs: "flex-start", md: "center" },
-            justifyContent: "space-between",
-            gap: 2,
+            maxWidth: { xs: "100%", lg: 360 },
+            "& .MuiInputBase-root": {
+              minHeight: 40,
+            },
+          }}
+          slotProps={{
+            input: {
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon fontSize="small" color="action" />
+                </InputAdornment>
+              ),
+            },
+          }}
+        />
+
+        <Stack
+          direction="row"
+          spacing={1}
+          sx={{
             flexWrap: "wrap",
-            flexShrink: 0,
-            borderBottom: "1px solid",
-            borderColor: "divider",
-            bgcolor: "background.paper",
+            alignItems: "center",
           }}
         >
-          <Box>
-            <TokenPageTitle sx={{ mb: 0.5 }}>Teams</TokenPageTitle>
+          {summaryChips.map((chip) => (
+            <Chip
+              key={chip.key}
+              label={chip.label}
+              size="small"
+              variant="outlined"
+              sx={{
+                height: 28,
+                fontWeight: 600,
+              }}
+            />
+          ))}
+        </Stack>
+      </Stack>
+
+      <Button
+        variant="contained"
+        startIcon={<AddIcon />}
+        sx={{ minHeight: 36, alignSelf: { xs: "stretch", md: "center" } }}
+      >
+        Add team
+      </Button>
+    </Stack>
+  );
+
+  const renderEmptyState = () => (
+    <Box
+      sx={{
+        py: { xs: 5, md: 7 },
+        px: { xs: 2, md: 3 },
+        textAlign: "center",
+      }}
+    >
+      <Typography variant="h6" sx={{ mb: 1 }}>
+        No teams found
+      </Typography>
+      <Typography variant="body2" color="text.secondary">
+        Try a different search or add a new team to get started.
+      </Typography>
+    </Box>
+  );
+
+  const renderTeamCard = (team: TeamRecord) => (
+    <Box
+      key={team.id}
+      sx={{
+        border: "1px solid",
+        borderColor: "divider",
+        borderRadius: 2,
+        bgcolor: "background.paper",
+        p: 2,
+        minWidth: 0,
+      }}
+    >
+      <Stack spacing={1.5}>
+        <Stack
+          direction="row"
+          spacing={1}
+          sx={{
+            alignItems: "flex-start",
+            justifyContent: "space-between",
+          }}
+        >
+          <Box sx={{ minWidth: 0 }}>
+            <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap", mb: 0.75 }}>
+              {team.isDefault ? (
+                <Chip
+                  icon={<DefaultIcon />}
+                  label="Default"
+                  size="small"
+                  color="primary"
+                  sx={{ fontWeight: 600 }}
+                />
+              ) : null}
+              {team.isStarred ? (
+                <Chip
+                  icon={<StarFilledIcon />}
+                  label="Starred"
+                  size="small"
+                  color="warning"
+                  variant="outlined"
+                  sx={{ fontWeight: 600 }}
+                />
+              ) : null}
+              {team.isArchived ? (
+                <Chip
+                  label="Archived"
+                  size="small"
+                  variant="outlined"
+                  sx={{ fontWeight: 600 }}
+                />
+              ) : null}
+            </Stack>
+
+            <Typography
+              variant="h6"
+              sx={{
+                fontWeight: 600,
+                color: "text.primary",
+                wordBreak: "break-word",
+              }}
+            >
+              {team.name}
+            </Typography>
+
             <Typography variant="body2" color="text.secondary">
-              Manage your basketball teams, review performance at a glance, and
-              open team dashboards.
+              {team.season} • {team.level}
             </Typography>
           </Box>
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={() => setOpen(true)}
-            sx={{
-              borderRadius: controlRadius,
-              textTransform: "none",
-              fontWeight: 600,
-              boxShadow: "none",
-              flexShrink: 0,
-            }}
-          >
-            Add team
-          </Button>
-        </Box>
 
-        {/* Search + filter bar */}
-        <Box
+          <IconButton
+            size="small"
+            onClick={(event) => handleOpenMenu(event, team.id)}
+            aria-label={`Open actions for ${team.name}`}
+            sx={{ flexShrink: 0 }}
+          >
+            <MoreHorizIcon fontSize="small" />
+          </IconButton>
+        </Stack>
+
+        <Stack
+          direction="row"
+          spacing={1}
+          sx={{ flexWrap: "wrap", alignItems: "center" }}
+        >
+          <Chip
+            label={`Record ${team.record}`}
+            size="small"
+            variant="outlined"
+            sx={{ fontWeight: 600 }}
+          />
+          <Chip
+            label={`${team.players} players`}
+            size="small"
+            variant="outlined"
+          />
+          <Chip
+            label={`${team.games} games`}
+            size="small"
+            variant="outlined"
+          />
+        </Stack>
+
+        <Stack
+          direction="row"
+          spacing={1}
           sx={{
-            px: { xs: 2, sm: 3 },
-            py: 2,
-            borderBottom: "1px solid",
-            borderColor: "divider",
-            bgcolor: "background.default",
-            flexShrink: 0,
+            alignItems: "center",
+            justifyContent: "space-between",
+            pt: 0.5,
           }}
         >
-          <Stack
-            direction={{ xs: "column", md: "row" }}
-            spacing={1.5}
-            sx={{
-              justifyContent: "space-between",
-              alignItems: { xs: "stretch", md: "center" },
-            }}
-          >
-            <TextField
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search teams"
-              size="small"
-              sx={{
-                width: { xs: "100%", md: 320 },
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: controlRadius,
-                  bgcolor: "background.paper",
-                },
-              }}
-              slotProps={{
-                input: {
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon
-                        sx={{ color: "text.secondary", fontSize: 18 }}
-                      />
-                    </InputAdornment>
-                  ),
-                },
-              }}
-            />
-            <Stack
-              direction="row"
-              spacing={1}
-              useFlexGap
-              sx={{ flexWrap: "wrap" }}
-            >
-              <Chip
-                label={`${teams.length} total`}
-                size="small"
-                variant="outlined"
-                sx={{
-                  borderRadius: controlRadius,
-                  bgcolor: "background.paper",
-                  borderColor: "divider",
-                  color: "text.secondary",
-                  fontWeight: 500,
-                }}
-              />
-              <Chip
-                label={`${favoriteCount} favorite`}
-                size="small"
-                variant="outlined"
-                sx={{
-                  borderRadius: controlRadius,
-                  bgcolor: "background.paper",
-                  borderColor: "divider",
-                  color: "text.secondary",
-                  fontWeight: 500,
-                }}
-              />
-            </Stack>
+          <Typography variant="caption" color="text.secondary">
+            {team.updatedLabel}
+          </Typography>
+
+          <Stack direction="row" spacing={1}>
+            <Button size="small" variant="text">
+              Open
+            </Button>
+            <Button size="small" variant="outlined">
+              Dashboard
+            </Button>
           </Stack>
-        </Box>
+        </Stack>
+      </Stack>
+    </Box>
+  );
 
-        {/* Content */}
-        <Box
-          sx={{
-            px: { xs: 2, sm: 3 },
-            py: { xs: 2, sm: 3 },
-            flex: 1,
-            minHeight: 0,
-            overflowY: "auto",
-          }}
-        >
-          {filteredTeams.length === 0 ? (
-            /* Empty state */
-            <Box
-              sx={{
-                minHeight: 300,
-                borderRadius: `${tokens.semantic.component.sectionCard.radius}px`,
-                border: "1px dashed",
-                borderColor: "divider",
-                bgcolor: "background.paper",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                textAlign: "center",
-                px: 3,
-                py: 6,
-              }}
-            >
-              <Box>
-                <Box
-                  sx={{
-                    width: 64,
-                    height: 64,
-                    borderRadius: "50%",
-                    mx: "auto",
-                    mb: 2,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    bgcolor: "action.hover",
-                    color: "text.secondary",
-                  }}
-                >
-                  <TeamsIcon sx={{ fontSize: 30 }} />
-                </Box>
-                <Typography
-                  variant="body1"
-                  sx={{
-                    fontWeight: 600,
-                    color: "text.primary",
-                    mb: 1,
-                  }}
-                >
-                  {emptyStateTitle}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{
-                    color: "text.secondary",
-                    lineHeight: 1.6,
-                    maxWidth: 480,
-                    mx: "auto",
-                    mb: 2.5,
-                  }}
-                >
-                  {emptyStateDescription}
-                </Typography>
-                {searchTerm ? (
-                  <Button
-                    variant="outlined"
-                    onClick={() => setSearchTerm("")}
-                    sx={{
-                      borderRadius: controlRadius,
-                      textTransform: "none",
-                      fontWeight: 600,
-                    }}
-                  >
-                    Clear search
-                  </Button>
-                ) : (
-                  <Button
-                    variant="contained"
-                    startIcon={<AddIcon />}
-                    onClick={() => setOpen(true)}
-                    sx={{
-                      borderRadius: controlRadius,
-                      textTransform: "none",
-                      fontWeight: 600,
-                      boxShadow: "none",
-                    }}
-                  >
-                    Create first team
-                  </Button>
-                )}
-              </Box>
-            </Box>
-          ) : (
-            /* Team cards */
-            <Grid container spacing={2.5}>
-              {filteredTeams.map((team) => {
-                const aggregates = teamAggregatesMap[team.id!] || {
-                  record: "0-0",
-                  ppg: "0.0",
-                  rpg: "0.0",
-                  apg: "0.0",
-                  oppg: "0.0",
-                };
-                const accent = buildTeamAccent(team.primaryColor);
-                const sectionCard = tokens.semantic.component.sectionCard;
-                const inputRadius = tokens.semantic.component.radius.input;
+  const renderGrid = () => (
+    <Box
+      sx={{
+        display: "grid",
+        gridTemplateColumns: {
+          xs: "1fr",
+          md: "repeat(2, minmax(0, 1fr))",
+          xl: "repeat(3, minmax(0, 1fr))",
+        },
+        gap: 2,
+      }}
+    >
+      {visibleTeams.map(renderTeamCard)}
+    </Box>
+  );
 
-                return (
-                  <Grid size={{ xs: 12, md: 6, xl: 4 }} key={team.id}>
-                    <Box
-                      role="button"
-                      tabIndex={0}
-                      aria-label={`View team dashboard for ${team.name}`}
-                      onClick={() => navigate(`/teams/${team.id}`)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === " ") {
-                          e.preventDefault();
-                          navigate(`/teams/${team.id}`);
-                        }
-                      }}
-                      sx={{
-                        position: "relative",
-                        height: "100%",
-                        display: "flex",
-                        flexDirection: "column",
-                        borderRadius: `${sectionCard.radius}px`,
-                        border: "1px solid",
-                        borderColor: team.isFavorite
-                          ? accent.border
-                          : "divider",
-                        bgcolor: "background.paper",
-                        overflow: "hidden",
-                        cursor: "pointer",
-                        transition: transitionAll,
-                        "&:hover": {
-                          transform: "translateY(-2px)",
-                          boxShadow: theme.shadows[3],
-                          borderColor: accent.border,
-                        },
-                        "&:focus-visible": {
-                          outline: "none",
-                          boxShadow: `0 0 0 3px ${accent.ring}`,
-                          borderColor: accent.solid,
-                        },
-                      }}
-                    >
-                      {/* Team color bar */}
-                      <Box
-                        sx={{ height: 6, bgcolor: accent.solid, flexShrink: 0 }}
-                      />
-
-                      <Box
-                        sx={{
-                          p: 2.25,
-                          display: "flex",
-                          flexDirection: "column",
-                          flex: 1,
-                        }}
-                      >
-                        {/* Name + avatar row */}
-                        <Box
-                          sx={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            gap: 2,
-                            alignItems: "flex-start",
-                            mb: 2,
-                          }}
-                        >
-                          <Box sx={{ minWidth: 0, flex: 1 }}>
-                            <Stack
-                              direction="row"
-                              spacing={1}
-                              sx={{ alignItems: "center", mb: 0.75 }}
-                            >
-                              <Typography
-                                variant="h6"
-                                sx={{
-                                  fontWeight: 700,
-                                  color: "text.primary",
-                                  minWidth: 0,
-                                  overflow: "hidden",
-                                  textOverflow: "ellipsis",
-                                  whiteSpace: "nowrap",
-                                }}
-                              >
-                                {team.name}
-                              </Typography>
-                              <Tooltip
-                                title={
-                                  team.isFavorite
-                                    ? "Remove from favorites"
-                                    : "Mark as favorite"
-                                }
-                              >
-                                <IconButton
-                                  size="small"
-                                  onClick={(e) =>
-                                    handleToggleFavorite(
-                                      team.id!,
-                                      team.isFavorite || 0,
-                                      e,
-                                    )
-                                  }
-                                  sx={{
-                                    p: 0.5,
-                                    color: team.isFavorite
-                                      ? accent.solid
-                                      : "text.secondary",
-                                    flexShrink: 0,
-                                  }}
-                                  aria-label={
-                                    team.isFavorite
-                                      ? `Remove ${team.name} from favorites`
-                                      : `Mark ${team.name} as favorite`
-                                  }
-                                >
-                                  {team.isFavorite ? (
-                                    <StarIcon sx={{ fontSize: 18 }} />
-                                  ) : (
-                                    <StarBorderIcon sx={{ fontSize: 18 }} />
-                                  )}
-                                </IconButton>
-                              </Tooltip>
-                            </Stack>
-
-                            <Typography
-                              variant="body2"
-                              sx={{
-                                color: "text.secondary",
-                                lineHeight: 1.5,
-                                mb: 1.5,
-                                minHeight: 42,
-                              }}
-                            >
-                              {team.description?.trim() ||
-                                "No description yet."}
-                            </Typography>
-
-                            <Chip
-                              size="small"
-                              label={
-                                team.periodType === "HALVES"
-                                  ? "Halves"
-                                  : "Quarters"
-                              }
-                              sx={{
-                                borderRadius: inputRadius,
-                                bgcolor: accent.softerBg,
-                                color: "text.primary",
-                                border: `1px solid ${accent.border}`,
-                                fontWeight: 600,
-                              }}
-                            />
-                          </Box>
-
-                          {team.logoUrl ? (
-                            <Avatar
-                              src={team.logoUrl}
-                              variant="rounded"
-                              sx={{
-                                width: 56,
-                                height: 56,
-                                bgcolor: accent.softerBg,
-                                border: `1px solid ${accent.border}`,
-                                p: 0.5,
-                                color: "text.primary",
-                                borderRadius: `${tokens.semantic.shape.radius.md}px`,
-                              }}
-                            />
-                          ) : (
-                            <Avatar
-                              variant="rounded"
-                              sx={{
-                                width: 56,
-                                height: 56,
-                                bgcolor: accent.softBg,
-                                color: accent.solid,
-                                border: `1px solid ${accent.border}`,
-                                fontWeight: 700,
-                                borderRadius: `${tokens.semantic.shape.radius.md}px`,
-                              }}
-                            >
-                              {getInitials(team.name)}
-                            </Avatar>
-                          )}
-                        </Box>
-
-                        {/* Win-loss record */}
-                        <Box
-                          sx={{
-                            borderRadius: `${sectionCard.radius}px`,
-                            px: 2,
-                            py: 1.75,
-                            mb: 2,
-                            bgcolor: "action.hover",
-                            border: "1px solid",
-                            borderColor: "divider",
-                          }}
-                        >
-                          <Typography
-                            variant="h4"
-                            sx={{
-                              lineHeight: 1,
-                              fontWeight: 800,
-                              color: "text.primary",
-                              mb: 0.5,
-                            }}
-                          >
-                            {aggregates.record}
-                          </Typography>
-                          <Typography
-                            variant="caption"
-                            sx={{
-                              fontWeight: 700,
-                              letterSpacing: "0.04em",
-                              textTransform: "uppercase",
-                              color: "text.secondary",
-                            }}
-                          >
-                            Win-loss record
-                          </Typography>
-                        </Box>
-
-                        {/* Stat cells */}
-                        <Box
-                          sx={{
-                            mt: "auto",
-                            pt: 2,
-                            borderTop: "1px solid",
-                            borderColor: "divider",
-                          }}
-                        >
-                          <Grid container spacing={1.5}>
-                            <Grid size={{ xs: 6, sm: 3 }}>
-                              <StatCell label="PPG" value={aggregates.ppg} />
-                            </Grid>
-                            <Grid size={{ xs: 6, sm: 3 }}>
-                              <StatCell label="RPG" value={aggregates.rpg} />
-                            </Grid>
-                            <Grid size={{ xs: 6, sm: 3 }}>
-                              <StatCell label="APG" value={aggregates.apg} />
-                            </Grid>
-                            <Grid size={{ xs: 6, sm: 3 }}>
-                              <StatCell label="OPPG" value={aggregates.oppg} />
-                            </Grid>
-                          </Grid>
-
-                          <Stack
-                            direction="row"
-                            spacing={0.75}
-                            sx={{
-                              alignItems: "center",
-                              mt: 2,
-                              color: accent.solid,
-                            }}
-                          >
-                            <Typography
-                              variant="body2"
-                              sx={{
-                                fontWeight: 600,
-                              }}
-                            >
-                              Open team dashboard
-                            </Typography>
-                            <ArrowForwardIcon sx={{ fontSize: 16 }} />
-                          </Stack>
-                        </Box>
-                      </Box>
-                    </Box>
-                  </Grid>
-                );
-              })}
-            </Grid>
-          )}
-        </Box>
-      </TokenSectionCard>
-
-      {/* Add team dialog */}
-      <Dialog
-        open={open}
-        onClose={closeDialog}
-        fullWidth
-        maxWidth="sm"
-        sx={{
-          "& .MuiDialog-paper": {
-            borderRadius: `${tokens.semantic.component.radius.dialog}px`,
-          },
-        }}
+  return (
+    <>
+      <AppPageShell<TeamTab>
+        title="Teams"
+        activeTab={activeTab}
+        tabs={TABS}
+        onTabChange={(tab) => setActiveTab(tab)}
+        controls={controls}
       >
-        <DialogTitle sx={{ fontWeight: 700, color: "text.primary" }}>
-          Add new team
-        </DialogTitle>
-        <DialogContent>
-          <Stack spacing={2} sx={{ pt: 1 }}>
-            <TextField
-              autoFocus
-              label="Team name"
-              value={teamName}
-              onChange={(e) => setTeamName(e.target.value)}
-              error={showValidation && !teamName.trim()}
-              helperText={
-                showValidation && !teamName.trim()
-                  ? "Team name is required"
-                  : " "
+        <PageSectionCard>
+          <Box sx={{ p: { xs: 2.5, md: 0 } }}>
+            <PageSectionIntro
+              title={
+                activeTab === "all"
+                  ? "All teams"
+                  : activeTab === "starred"
+                    ? "Starred teams"
+                    : "Archived teams"
               }
-              fullWidth
+              description={
+                activeTab === "all"
+                  ? "Manage active teams and jump into the team workspace."
+                  : activeTab === "starred"
+                    ? "Quick access to the teams you care about most."
+                    : "Review archived teams without cluttering your active list."
+              }
             />
-            <TextField
-              label="Description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Optional short description"
-              fullWidth
-            />
-            <FormControl fullWidth>
-              <InputLabel id="period-type-label">Period type</InputLabel>
-              <Select
-                labelId="period-type-label"
-                label="Period type"
-                value={periodType}
-                onChange={(e) =>
-                  setPeriodType(e.target.value as "QUARTERS" | "HALVES")
-                }
-              >
-                <MenuItem value="QUARTERS">Quarters</MenuItem>
-                <MenuItem value="HALVES">Halves</MenuItem>
-              </Select>
-            </FormControl>
-            <TextField
-              label="Logo URL"
-              value={logoUrl}
-              onChange={(e) => setLogoUrl(e.target.value)}
-              placeholder="https://..."
-              fullWidth
-            />
-            <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
-              <TextField
-                label="Primary color"
-                value={primaryColor}
-                onChange={(e) => setPrimaryColor(e.target.value)}
-                error={showValidation && !isValidHex(primaryColor)}
-                helperText={
-                  showValidation && !isValidHex(primaryColor)
-                    ? "Use a valid hex color like #154C56"
-                    : " "
-                }
-                fullWidth
-              />
-              <Box sx={{ minWidth: { xs: "100%", sm: 72 } }}>
-                <TextField
-                  label=" "
-                  type="color"
-                  value={
-                    isValidHex(primaryColor)
-                      ? primaryColor
-                      : DEFAULT_TEAM_ACCENT
-                  }
-                  onChange={(e) => setPrimaryColor(e.target.value)}
-                  fullWidth
-                  sx={{
-                    "& .MuiInputBase-root": { height: 56, p: 0.75 },
-                    "& input": { p: 0, height: "100%", cursor: "pointer" },
-                  }}
-                />
-              </Box>
-            </Stack>
-            <FormControl fullWidth error={showValidation && fouls <= 0}>
-              <TextField
-                label="Team fouls to bonus"
-                type="number"
-                value={fouls}
-                onChange={(e) => setFouls(Number(e.target.value))}
-                slotProps={{ htmlInput: { min: 1 } }}
-                fullWidth
-              />
-              <FormHelperText>
-                {showValidation && fouls <= 0
-                  ? "Fouls must be greater than 0"
-                  : " "}
-              </FormHelperText>
-            </FormControl>
-          </Stack>
-        </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 3, pt: 1 }}>
-          <Button
-            onClick={closeDialog}
-            sx={{ textTransform: "none", fontWeight: 600 }}
-          >
-            Cancel
-          </Button>
-          <Button
-            variant="contained"
-            onClick={handleAddTeam}
-            disabled={isSubmitting}
-            sx={{
-              borderRadius: controlRadius,
-              textTransform: "none",
-              fontWeight: 600,
-              boxShadow: "none",
-            }}
-          >
-            {isSubmitting ? "Adding..." : "Add team"}
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </TokenPageShell>
+
+            {visibleTeams.length === 0 ? renderEmptyState() : renderGrid()}
+          </Box>
+        </PageSectionCard>
+      </AppPageShell>
+
+      <Menu
+        anchorEl={menuAnchor}
+        open={Boolean(menuAnchor)}
+        onClose={handleCloseMenu}
+      >
+        <MenuItem onClick={handleCloseMenu}>Open team</MenuItem>
+        <MenuItem onClick={handleCloseMenu}>Open dashboard</MenuItem>
+        <MenuItem onClick={handleCloseMenu}>
+          {selectedTeamId &&
+            MOCK_TEAMS.find((team) => team.id === selectedTeamId)?.isStarred
+            ? "Remove star"
+            : "Add star"}
+        </MenuItem>
+        <MenuItem onClick={handleCloseMenu}>Set as default</MenuItem>
+        <MenuItem onClick={handleCloseMenu}>Archive</MenuItem>
+      </Menu>
+    </>
   );
 };
 

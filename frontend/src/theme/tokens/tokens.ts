@@ -414,6 +414,9 @@ export const tokens = {
       headerPaddingTop: 16,
       contentPaddingX: 32,
       contentPaddingBottom: 32,
+      controlsBackground: "var(--cs-semantic-color-background-subtle)",
+      controlsPaddingY: 14,
+      controlsDividerColor: "var(--cs-semantic-color-border-subtle)",
       shadow: "none",
     },
     pageTabs: {
@@ -458,14 +461,14 @@ export type AppTokens = typeof tokens;
 
 export type DeepPartial<T> = {
   [K in keyof T]?: T[K] extends object
-    ? DeepPartial<T[K]>
-    : T[K] extends number
-      ? number
-      : T[K] extends string
-        ? string
-        : T[K] extends boolean
-          ? boolean
-          : T[K];
+  ? DeepPartial<T[K]>
+  : T[K] extends number
+  ? number
+  : T[K] extends string
+  ? string
+  : T[K] extends boolean
+  ? boolean
+  : T[K];
 };
 
 export interface ThemePreset {

@@ -60,6 +60,7 @@ const AppShell: React.FC<AppShellProps> = ({
             md: `${desktopGutter}px`,
           },
           pl: { xs: `${mobileGutter}px`, md: 0 },
+          gap: topBarSlot ? { xs: 1.5, md: 1 } : 0,
         }}
       >
         {topBarSlot}
@@ -71,11 +72,16 @@ const AppShell: React.FC<AppShellProps> = ({
             width: "100%",
             maxWidth: "none",
             mx: 0,
-            borderRadius: `${pageSurface?.radius ?? 20}px`,
+            borderRadius: {
+              xs: 0,
+              md: `${pageSurface?.radius ?? 20}px`,
+            },
             bgcolor: workspaceBackground,
-            border: pageSurface?.border ?? "1px solid",
+            border: pageSurface?.border ?? "none",
             borderColor:
-              pageSurface?.border === undefined ? "divider" : undefined,
+              pageSurface?.border && pageSurface.border !== "none"
+                ? undefined
+                : "transparent",
             boxShadow: pageSurface?.shadow ?? "none",
             overflow: "hidden",
             display: "flex",
