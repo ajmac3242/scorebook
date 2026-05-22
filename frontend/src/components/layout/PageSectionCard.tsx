@@ -7,28 +7,28 @@ interface PageSectionCardProps {
   sx?: SxProps<Theme>;
 }
 
-const PageSectionCard: React.FC<PageSectionCardProps> = ({ children, sx }) => {
+function PageSectionCard({ children, sx }: PageSectionCardProps) {
   const tokens = useTokens();
   const sectionCard = tokens.semantic.component.sectionCard;
 
   return (
     <Box
-      sx={{
-        borderRadius: `${sectionCard?.radius ?? 12}px`,
-        border:
-          sectionCard?.border ??
-          "1px solid var(--cs-semantic-color-border-subtle)",
-        background:
-          sectionCard?.background ??
-          "var(--cs-semantic-color-background-paper)",
-        boxShadow: sectionCard?.shadow ?? "none",
-        overflow: "hidden",
-        ...sx,
-      }}
+      sx={[
+        {
+          width: "100%",
+          minWidth: 0,
+          background: sectionCard?.background ?? "transparent",
+          border: sectionCard?.border ?? "none",
+          borderRadius: `${sectionCard?.radius ?? 0}px`,
+          boxShadow: sectionCard?.shadow ?? "none",
+          overflow: "visible",
+        },
+        ...(Array.isArray(sx) ? sx : sx ? [sx] : []),
+      ]}
     >
       {children}
     </Box>
   );
-};
+}
 
 export default PageSectionCard;

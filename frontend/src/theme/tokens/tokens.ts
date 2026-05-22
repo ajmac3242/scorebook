@@ -82,44 +82,44 @@ export const tokens = {
         },
       },
       background: {
-        default: "#F1F3F5",
-        subtle: "#EAEDF0",
-        paper: "#F8F9FB",
+        default: "#EEF1F4",
+        subtle: "#E7EBF0",
+        paper: "#FAFBFC",
         elevated: "#FFFFFF",
-        inset: "#E4E8EC",
+        inset: "#E3E8EE",
         overlay: "rgba(15, 23, 42, 0.6)",
       },
       surface: {
-        default: "#F8F9FB",
-        subtle: "#F2F5F8",
+        default: "#FAFBFC",
+        subtle: "#F4F7FA",
         elevated: "#FFFFFF",
-        inset: "#E4E8EC",
-        strong: "#D9E0E7",
-        accentSoft: palettes.blue[50],
-        accentMuted: "rgba(40, 112, 148, 0.12)",
+        inset: "#E3E8EE",
+        strong: "#D7DEE7",
+        accentSoft: "rgba(46, 120, 166, 0.08)",
+        accentMuted: "rgba(46, 120, 166, 0.10)",
         moleskine: "#FFFDF5",
-        onCourt: "rgba(40, 112, 148, 0.08)",
+        onCourt: "rgba(46, 120, 166, 0.08)",
       },
       text: {
-        primary: "#1A2530",
-        secondary: "#5A6876",
-        tertiary: "#748391",
-        muted: "#8A96A2",
-        disabled: "rgba(26, 37, 48, 0.38)",
+        primary: "#163042",
+        secondary: "#486173",
+        tertiary: "#667C8C",
+        muted: "#7E909E",
+        disabled: "rgba(22, 48, 66, 0.38)",
         inverse: "#FFFFFF",
-        placeholder: "#97A2AD",
+        placeholder: "#8A99A6",
       },
       border: {
-        subtle: "#D3DAE2",
-        default: "#C3CCD6",
-        strong: "#AEB9C5",
-        accent: palettes.blue[200],
+        subtle: "#D8DEE6",
+        default: "#C8D0DA",
+        strong: "#B2BDC9",
+        accent: "#B7D1E3",
         focus: palettes.blue[500],
       },
       action: {
-        hover: "rgba(2, 50, 70, 0.04)",
-        active: "rgba(2, 50, 70, 0.08)",
-        selected: "rgba(40, 112, 148, 0.10)",
+        hover: "rgba(46, 120, 166, 0.04)",
+        active: "rgba(46, 120, 166, 0.08)",
+        selected: "rgba(46, 120, 166, 0.10)",
         disabled: "rgba(31, 41, 51, 0.38)",
         disabledBackground: "rgba(31, 41, 51, 0.08)",
         focusRing: palettes.blue[500],
@@ -311,15 +311,15 @@ export const tokens = {
       },
       pageShell: {
         radius: 20,
-        border: "1px solid var(--cs-semantic-color-border-subtle)",
+        border: "none",
         shadow: "none",
-        background: "var(--cs-semantic-color-background-paper)",
+        background: "var(--cs-semantic-color-background-default)",
       },
       sectionCard: {
-        radius: 12,
-        border: "1px solid var(--cs-semantic-color-border-subtle)",
+        radius: 0,
+        border: "none",
         shadow: "none",
-        background: "var(--cs-semantic-color-background-paper)",
+        background: "transparent",
       },
       navItem: {
         minHeight: 50,
@@ -331,10 +331,9 @@ export const tokens = {
         activeTextWeight: typographyPrimitives.fontWeight.semibold,
         activeBackground: "var(--cs-semantic-color-action-selected)",
         hoverBackground: "var(--cs-semantic-color-action-hover)",
-        settingsBackground: "var(--cs-semantic-color-surface-accentMuted)",
+        settingsBackground: "var(--cs-semantic-color-surface-accentSoft)",
         settingsHoverBackground: "var(--cs-semantic-color-action-selected)",
-        settingsActiveOutline:
-          "1px solid var(--cs-semantic-color-border-accent)",
+        settingsActiveOutline: "none",
       },
       radius: {
         button: 8,
@@ -382,7 +381,7 @@ export const tokens = {
     appFrame: {
       gutter: 16,
       sidebarWidth: 220,
-      background: "var(--cs-semantic-color-background-subtle)",
+      background: "var(--cs-semantic-color-background-paper)",
       contentMinWidth: 0,
     },
     sideNav: {
@@ -408,7 +407,7 @@ export const tokens = {
     pageSurface: {
       maxWidth: 1280,
       radius: 20,
-      background: "var(--cs-semantic-color-background-paper)",
+      background: "var(--cs-semantic-color-background-default)",
       border: "none",
       dividerColor: "var(--cs-semantic-color-border-subtle)",
       headerPaddingX: 24,
@@ -463,14 +462,14 @@ export type AppTokens = typeof tokens;
 
 export type DeepPartial<T> = {
   [K in keyof T]?: T[K] extends object
-    ? DeepPartial<T[K]>
-    : T[K] extends number
-      ? number
-      : T[K] extends string
-        ? string
-        : T[K] extends boolean
-          ? boolean
-          : T[K];
+  ? DeepPartial<T[K]>
+  : T[K] extends number
+  ? number
+  : T[K] extends string
+  ? string
+  : T[K] extends boolean
+  ? boolean
+  : T[K];
 };
 
 export interface ThemePreset {
