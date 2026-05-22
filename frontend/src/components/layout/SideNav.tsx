@@ -101,7 +101,6 @@ const SideNav: React.FC<SideNavProps> = ({
         display: "flex",
         flexDirection: "column",
         bgcolor: shellBackground,
-        borderRight: "1px solid var(--cs-semantic-color-border-subtle)",
       }}
     >
       <Box
@@ -295,6 +294,7 @@ const SideNav: React.FC<SideNavProps> = ({
             width: drawerWidth,
             left: 0,
             bgcolor: shellBackground,
+            borderRight: "none",
           },
         }}
       >
@@ -313,7 +313,7 @@ const SideNav: React.FC<SideNavProps> = ({
           width: drawerWidth,
           boxSizing: "border-box",
           bgcolor: shellBackground,
-          borderRight: "1px solid var(--cs-semantic-color-border-subtle)",
+          borderRight: "none",
         },
       }}
     >

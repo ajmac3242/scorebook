@@ -62,11 +62,8 @@ const SectionIntro: React.FC<{
   description: string;
   section: { titleGap: number; introMarginBottom: number };
 }> = ({ title, description, section }) => {
-  const introMarginBottom = Math.max(
-    12,
-    (section?.introMarginBottom ?? 20) - 6,
-  );
-  const titleGap = Math.max(2, (section?.titleGap ?? 4) - 1);
+  const introMarginBottom = section?.introMarginBottom ?? 20;
+  const titleGap = section?.titleGap ?? 4;
 
   return (
     <Box sx={{ mb: `${introMarginBottom / 8}rem` }}>
@@ -108,9 +105,6 @@ const SettingsRow: React.FC<SettingsRowProps> = ({
   row,
 }) => {
   const theme = useTheme();
-  const rowGap = Math.max(16, (row?.gap ?? 24) - 4);
-  const rowMinHeight = Math.max(64, (row?.minHeight ?? 80) - 8);
-  const rowPaddingY = Math.max(14, (row?.paddingY ?? 20) - 4);
 
   return (
     <Box
@@ -121,12 +115,12 @@ const SettingsRow: React.FC<SettingsRowProps> = ({
           md: `${row?.labelWidth ?? 260}px 1fr`,
         },
         gap: {
-          xs: 1.25,
-          md: `${rowGap}px`,
+          xs: 1.5,
+          md: `${row?.gap ?? 24}px`,
         },
         alignItems: alignTop ? "flex-start" : "center",
-        minHeight: rowMinHeight,
-        py: `${rowPaddingY / 8}rem`,
+        minHeight: row?.minHeight ?? 80,
+        py: `${(row?.paddingY ?? 20) / 8}rem`,
         ...(borderBottom && {
           borderBottom: `1px solid ${row?.dividerColor ?? theme.palette.divider}`,
         }),
@@ -145,7 +139,7 @@ const SettingsRow: React.FC<SettingsRowProps> = ({
           <Typography
             variant="caption"
             color="text.secondary"
-            sx={{ display: "block", mt: 0.375, lineHeight: 1.45 }}
+            sx={{ display: "block", mt: 0.5, lineHeight: 1.45 }}
           >
             {description}
           </Typography>
@@ -163,9 +157,9 @@ const ThemeMiniPreview: React.FC<{
   card: { previewRadius: number; checkSize: number; checkOffset: number };
 }> = ({ color, selected, card }) => {
   const theme = useTheme();
-  const previewRadius = Math.max(4, (card?.previewRadius ?? 6) - 1);
-  const checkSize = Math.max(16, (card?.checkSize ?? 18) - 2);
-  const checkOffset = Math.max(8, (card?.checkOffset ?? 10) - 2);
+  const previewRadius = card?.previewRadius ?? 6;
+  const checkSize = card?.checkSize ?? 18;
+  const checkOffset = card?.checkOffset ?? 10;
   const isDark = theme.palette.mode === "dark";
 
   return (
@@ -177,17 +171,19 @@ const ThemeMiniPreview: React.FC<{
         borderRadius: `${previewRadius}px`,
         overflow: "hidden",
         bgcolor: isDark ? "grey.900" : "grey.100",
+        border: "1px solid",
+        borderColor: alpha(theme.palette.text.primary, isDark ? 0.1 : 0.08),
       }}
     >
       <Box sx={{ height: "22%", width: "100%", bgcolor: color }} />
 
       <Box
         sx={{
-          px: "7px",
-          pt: "6px",
+          px: 1,
+          pt: 0.875,
           display: "flex",
           flexDirection: "column",
-          gap: "4px",
+          gap: 0.5,
         }}
       >
         {[62, 82, 48, 70].map((w, i) => (
@@ -202,7 +198,7 @@ const ThemeMiniPreview: React.FC<{
           />
         ))}
 
-        <Box sx={{ display: "flex", gap: "4px", mt: "2px" }}>
+        <Box sx={{ display: "flex", gap: 0.5, mt: 0.25 }}>
           <Box
             sx={{
               height: 7,
@@ -235,7 +231,7 @@ const ThemeMiniPreview: React.FC<{
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            boxShadow: "0 1px 4px rgba(0,0,0,0.16)",
+            boxShadow: `0 2px 8px ${alpha(theme.palette.common.black, 0.18)}`,
           }}
         >
           <CheckIcon sx={{ fontSize: checkSize * 0.58, color: "#fff" }} />
@@ -268,11 +264,11 @@ const PresetCard: React.FC<PresetCardProps> = ({
   card,
 }) => {
   const theme = useTheme();
-  const radius = Math.max(8, (card?.radius ?? 10) - 1);
+  const radius = card?.radius ?? 10;
   const borderWidth = card?.borderWidth ?? 1;
   const selectedBorderWidth = card?.selectedBorderWidth ?? 2;
-  const padding = Math.max(8, (card?.padding ?? 10) - 1);
-  const titleGap = Math.max(2, (card?.titleGap ?? 4) - 1);
+  const padding = card?.padding ?? 10;
+  const titleGap = card?.titleGap ?? 4;
 
   return (
     <Card
@@ -281,14 +277,17 @@ const PresetCard: React.FC<PresetCardProps> = ({
         borderRadius: `${radius}px`,
         border: selected
           ? `${selectedBorderWidth}px solid ${theme.palette.primary.main}`
-          : `${borderWidth}px solid ${theme.palette.divider}`,
+          : `${borderWidth}px solid ${alpha(theme.palette.text.primary, theme.palette.mode === "dark" ? 0.16 : 0.12)}`,
+        bgcolor: "background.paper",
         cursor: "pointer",
-        transition: "border-color 150ms ease, box-shadow 150ms ease",
+        transition:
+          "border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease",
         "&:hover": {
           borderColor: selected
             ? theme.palette.primary.main
-            : theme.palette.primary.light,
-          boxShadow: "0 2px 8px rgba(16,24,40,0.06)",
+            : alpha(theme.palette.primary.main, 0.45),
+          boxShadow: `0 4px 14px ${alpha(theme.palette.common.black, theme.palette.mode === "dark" ? 0.22 : 0.08)}`,
+          transform: "translateY(-1px)",
         },
       }}
       onClick={onSelect}
@@ -300,12 +299,12 @@ const PresetCard: React.FC<PresetCardProps> = ({
           card={card}
         />
 
-        <Box sx={{ mt: `${titleGap + 5}px` }}>
+        <Box sx={{ mt: `${titleGap + 6}px` }}>
           <Typography
             variant="body2"
             color="text.primary"
             noWrap
-            sx={{ fontWeight: 600, fontSize: "0.8125rem", lineHeight: 1.2 }}
+            sx={{ fontWeight: 600, fontSize: "0.875rem", lineHeight: 1.2 }}
           >
             {preset.label}
           </Typography>
@@ -472,10 +471,7 @@ const Settings: React.FC = () => {
   );
 
   const renderAppearanceTab = () => {
-    const selectWidth = Math.max(
-      220,
-      (settingsTokens?.control?.selectWidth ?? 260) - 12,
-    );
+    const selectWidth = settingsTokens?.control?.selectWidth ?? 260;
 
     return (
       <Box>
@@ -550,7 +546,7 @@ const Settings: React.FC = () => {
                 sm: "repeat(2, minmax(0, 180px))",
                 lg: "repeat(3, minmax(0, 180px))",
               },
-              gap: 1.25,
+              gap: 1.5,
               alignItems: "start",
             }}
           >
@@ -609,9 +605,8 @@ const Settings: React.FC = () => {
       <SettingsRow
         row={row}
         label="Local storage"
-        description={`${totalDbRecords.toLocaleString()} total records across ${
-          Object.keys(dbStats).length
-        } tables.`}
+        description={`${totalDbRecords.toLocaleString()} total records across ${Object.keys(dbStats).length
+          } tables.`}
         alignTop
       >
         <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.75 }}>
@@ -727,16 +722,16 @@ const Settings: React.FC = () => {
         sx={{
           px: {
             xs: 2.5,
-            md: `${Math.max(20, (shell?.headerPaddingX ?? 28) - 4) / 8}rem`,
+            md: `${(shell?.headerPaddingX ?? 28) / 8}rem`,
           },
           pt: {
-            xs: 1.75,
-            md: `${Math.max(12, (shell?.headerPaddingTop ?? 24) - 10) / 8}rem`,
+            xs: 2.5,
+            md: `${(shell?.headerPaddingTop ?? 28) / 8}rem`,
           },
           pb: 0,
         }}
       >
-        <Typography variant="h5" sx={{ fontWeight: 600, mb: 1.5 }}>
+        <Typography variant="h5" sx={{ fontWeight: 600, mb: 2 }}>
           Settings
         </Typography>
 
@@ -747,13 +742,14 @@ const Settings: React.FC = () => {
           variant="scrollable"
           scrollButtons="auto"
           sx={{
-            minHeight: Math.max(36, (tabs?.height ?? 40) - 2),
+            minHeight: tabs?.height ?? 40,
+            mt: 0.5,
             "& .MuiTab-root": {
               textTransform: "none",
               fontSize: "0.875rem",
               fontWeight: 500,
-              minHeight: Math.max(36, (tabs?.height ?? 40) - 2),
-              px: `${Math.max(8, (tabs?.paddingX ?? 12) - 2) / 8}rem`,
+              minHeight: tabs?.height ?? 40,
+              px: `${(tabs?.paddingX ?? 12) / 8}rem`,
             },
           }}
         >
@@ -769,12 +765,12 @@ const Settings: React.FC = () => {
         sx={{
           px: {
             xs: 2.5,
-            md: `${Math.max(20, (shell?.contentPaddingX ?? 28) - 4) / 8}rem`,
+            md: `${(shell?.contentPaddingX ?? 28) / 8}rem`,
           },
-          pt: 1.5,
+          pt: 2,
           pb: {
             xs: 2.5,
-            md: `${Math.max(20, (shell?.contentPaddingBottom ?? 28) - 4) / 8}rem`,
+            md: `${(shell?.contentPaddingBottom ?? 28) / 8}rem`,
           },
         }}
       >
