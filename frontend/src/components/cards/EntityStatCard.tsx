@@ -36,13 +36,13 @@ export type EntityStatCardProps = {
   isFavorite?: boolean;
   favoriteTooltip?: string;
   favoriteAriaLabel?: string;
-  onFavoriteClick?: (event: React.MouseEvent) => void;
+  onFavoriteClick?: (_event: React.MouseEvent) => void;
   recordValue: string;
   recordLabel?: string;
   stats: EntityStatCardStat[];
   footerLabel: string;
   onClick?: () => void;
-  onKeyDown?: (event: React.KeyboardEvent) => void;
+  onKeyDown?: (_event: React.KeyboardEvent) => void;
   ariaLabel?: string;
   cardRadius?: number;
   nestedRadius?: number;

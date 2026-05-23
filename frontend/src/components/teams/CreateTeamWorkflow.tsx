@@ -22,7 +22,7 @@ import { getInitials } from "../../utils/stats";
 type CreateTeamWorkflowProps = {
   open: boolean;
   onClose: () => void;
-  onCreated?: (team: Team) => void;
+  onCreated?: (_team: Team) => void;
 };
 
 type TeamPeriodType = "QUARTERS" | "HALVES";
