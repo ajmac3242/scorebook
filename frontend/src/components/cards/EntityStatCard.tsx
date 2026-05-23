@@ -102,17 +102,17 @@ const EntityStatCard: React.FC<EntityStatCardProps> = ({
         transition: transitionAll,
         "&:hover": onClick
           ? {
-            transform: "translateY(-2px)",
-            boxShadow: theme.shadows[3],
-            borderColor: accentBorder,
-          }
+              transform: "translateY(-2px)",
+              boxShadow: theme.shadows[3],
+              borderColor: accentBorder,
+            }
           : undefined,
         "&:focus-visible": onClick
           ? {
-            outline: "none",
-            boxShadow: `0 0 0 3px ${accentRing}`,
-            borderColor: accentColor,
-          }
+              outline: "none",
+              boxShadow: `0 0 0 3px ${accentRing}`,
+              borderColor: accentColor,
+            }
           : undefined,
         ...sx,
       }}

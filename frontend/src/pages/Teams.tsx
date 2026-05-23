@@ -117,10 +117,16 @@ const Teams: React.FC = () => {
 
   const allGamesQueryResult = useLiveQuery(() => {
     if (teamIds.length === 0) return [];
-    return db.games.where("teamId").anyOf(teamIds as string[]).toArray();
+    return db.games
+      .where("teamId")
+      .anyOf(teamIds as string[])
+      .toArray();
   }, [teamIds]);
 
-  const allGames = useMemo(() => allGamesQueryResult || [], [allGamesQueryResult]);
+  const allGames = useMemo(
+    () => allGamesQueryResult || [],
+    [allGamesQueryResult],
+  );
 
   const gameIds = useMemo(
     () => allGames.map((game) => game.id).filter(Boolean),
@@ -129,10 +135,16 @@ const Teams: React.FC = () => {
 
   const allStatsQueryResult = useLiveQuery(() => {
     if (gameIds.length === 0) return [];
-    return db.stats.where("gameId").anyOf(gameIds as string[]).toArray();
+    return db.stats
+      .where("gameId")
+      .anyOf(gameIds as string[])
+      .toArray();
   }, [gameIds]);
 
-  const allStats = useMemo(() => allStatsQueryResult || [], [allStatsQueryResult]);
+  const allStats = useMemo(
+    () => allStatsQueryResult || [],
+    [allStatsQueryResult],
+  );
 
   const teamAggregatesMap = useMemo(() => {
     const gamesByTeam: Record<string, (typeof allGames)[0][]> = {};
@@ -419,7 +431,9 @@ const Teams: React.FC = () => {
                   <Grid size={{ xs: 12, md: 6, xl: 4 }} key={team.id}>
                     <EntityStatCard
                       title={team.name}
-                      description={team.description?.trim() || "No description yet."}
+                      description={
+                        team.description?.trim() || "No description yet."
+                      }
                       badgeLabel={
                         team.periodType === "HALVES" ? "Halves" : "Quarters"
                       }

@@ -236,7 +236,9 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
           <TextField
             label="Color"
             type="color"
-            value={isValidHex(primaryColor) ? primaryColor : DEFAULT_TEAM_ACCENT}
+            value={
+              isValidHex(primaryColor) ? primaryColor : DEFAULT_TEAM_ACCENT
+            }
             onChange={(e) => setPrimaryColor(e.target.value)}
             fullWidth
             sx={{
@@ -265,7 +267,11 @@ const CreateTeamWorkflow: React.FC<CreateTeamWorkflowProps> = ({
         }}
       >
         <Box sx={{ height: 6, bgcolor: previewColors.solid }} />
-        <Stack direction="row" spacing={2} sx={{ p: 2.5, alignItems: "center" }}>
+        <Stack
+          direction="row"
+          spacing={2}
+          sx={{ p: 2.5, alignItems: "center" }}
+        >
           {logoUrl.trim() ? (
             <Avatar
               src={logoUrl.trim()}
