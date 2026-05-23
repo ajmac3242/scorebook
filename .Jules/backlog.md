@@ -1,5 +1,55 @@
 # CourtSight Backlog
 
+## [ ] [Live 'Direct-Action' Strategic Command Engine]
+**Priority:** HIGH
+**Type:** Feature / Decision Automation
+**Why:** Coaches often identify a tactical failure but take too long to formulate the specific fix. This engine translates live data outliers (e.g., "Opponent #24 eFG% > 70%") into direct, verbalizable commands for immediate execution.
+**What:** A high-visibility "Command Console" in GameMode that suggests one of three specific tactical pivots (e.g., "FORCE LEFT", "TRAP ON CATCH", "Z-ZONE PUSH") based on live efficiency gaps.
+**Acceptance Criteria:**
+- [ ] "Command Console" UI element in the GameMode sidebar.
+- [ ] Automated logic to select the most relevant "Direct-Action" command based on opponent efficiency.
+- [ ] Visual "Quick-Call" badge showing the specific defensive or offensive command to relay to the floor.
+
+## [ ] [Live 'Official-Player' Conflict Monitor]
+**Priority:** HIGH
+**Type:** Predictive Intelligence
+**Why:** Officiating "tightness" isn't uniform across players; some defensive styles (e.g., aggressive hand-checkers) are punished more by specific whistle flows. Monitoring this "style-to-ref friction" prevents avoidable foul-outs.
+**What:** An intelligence layer that correlates a player's individual foul frequency with the current game's Ref-Tightness (FPM) to predict disqualification risk before the next foul occurs.
+**Acceptance Criteria:**
+- [ ] "Conflict Indicator" on player cards showing the risk level of their specific defensive style against the current whistle flow.
+- [ ] Alert: "High-Risk Friction: Player X style vs. Ref Tightness" when a player reaches 3 fouls and FPM is > 0.8.
+- [ ] Suggested substitution timing to protect high-risk defenders during "Tight" officiating windows.
+
+## [ ] [Live 'Role-vs-Role' (Positional Parity) HUD]
+**Priority:** HIGH
+**Type:** Analytics / UX
+**Why:** Team totals often hide where the game is being won or lost (e.g., "Our Guards are winning but our Bigs are getting dominated"). Positional Parity reveals the "Positional War" in real-time.
+**What:** A 3-panel display in the Tactical HUD comparing aggregated efficiency (PPP and eFG%) of Guards, Wings, and Bigs against their opponent counterparts.
+**Acceptance Criteria:**
+- [ ] "Parity Panel" showing Guard-vs-Guard, Wing-vs-Wing, and Big-vs-Big efficiency deltas.
+- [ ] Color-coded "Winning/Losing" status for each positional group.
+- [ ] Visual alert: "Positional Collapse" when a group's eFG% delta falls below -15% relative to the opponent.
+
+## [ ] [Post-Game 'Rotation ROI' Simulator]
+**Priority:** HIGH
+**Type:** Feature / Decision Support
+**Why:** "What if" is the most common post-game question. Modeling alternative rotation scenarios helps coaches refine their "Closing Time" logic for future games.
+**What:** An interactive simulation tool in GameStats that allows coaches to retroactively "slide" substitution timestamps to see the projected impact on Net Rating and final score.
+**Acceptance Criteria:**
+- [ ] Interactive Timeline in GameStats with draggable substitution nodes.
+- [ ] Real-time recalculation of "Expected Score" based on the Net Rating of the simulated 5-man units.
+- [ ] Comparison view: "Actual Result" vs "Simulated Rotation Result."
+
+## [ ] [Opponent Coach 'Behavioral Profile' Tracker]
+**Priority:** HIGH
+**Type:** Predictive Intelligence
+**Why:** Opponent coaches have distinct behavioral patterns (e.g., "Always calls timeout after a 6-0 run" or "Switches to Zone after 3 straight paint scores"). Identifying these "Coaching Tells" allows for preemptive tactical preparing.
+**What:** A behavioral engine that monitors opponent coaching actions (Timeouts, Subs, Scheme Changes) relative to game events to identify repeatable patterns.
+**Acceptance Criteria:**
+- [ ] "Coach Profile" section in the Opponent Scouting Report.
+- [ ] Automated pattern detection: "Opponent Coach X typically calls timeout when the lead shrinks to < 4."
+- [ ] Alert: "Expected Opponent Pivot: Zone Defense likely after that last score."
+
 ## [ ] [Live "Rotation Sustainability" Forecast]
 **Priority:** HIGH
 **Type:** Feature / Decision Support
