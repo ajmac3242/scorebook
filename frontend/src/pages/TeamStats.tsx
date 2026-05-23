@@ -1288,7 +1288,9 @@ const TeamStats: React.FC = () => {
                     <TableCell align="right">{row.pointsAgainst}</TableCell>
                     <TableCell
                       align="right"
-                      sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}
+                      sx={{
+                        fontWeight: "var(--cs-typography-fontWeight-bold)",
+                      }}
                     >
                       {row.netRatingPer40}
                     </TableCell>
