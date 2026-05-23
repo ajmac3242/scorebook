@@ -39,6 +39,12 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Stepper,
+  Step,
+  StepLabel,
+  Checkbox,
+  FormControlLabel,
+  alpha,
 } from "@mui/material";
 import {
   PersonAdd as PersonAddIcon,
@@ -52,13 +58,6 @@ import {
   NavigateNext,
   NavigateBefore,
 } from "@mui/icons-material";
-import {
-  Stepper,
-  Step,
-  StepLabel,
-  Checkbox,
-  FormControlLabel,
-} from "@mui/material";
 import { db, type TeamPlayer, type StatEvent } from "../db";
 import { useLiveQuery } from "dexie-react-hooks";
 import { STAT_ACRONYMS } from "../constants/stats";
@@ -69,6 +68,12 @@ import {
   getInitials,
 } from "../utils/stats";
 import { MoleskineCard } from "../components/SharedUI";
+import {
+  TokenPageShell,
+  TokenSectionCard,
+  TokenPageTitle,
+} from "../components/layout/TokenLayout";
+import { useTokens } from "../theme/useTokens";
 import { syncService } from "../utils/syncService";
 import { logger } from "../utils/logger";
 import EntityBanner from "../components/EntityBanner";
@@ -86,6 +91,7 @@ const TeamStats: React.FC = () => {
   const { teamId } = useParams<{ teamId: string }>();
   const navigate = useNavigate();
   const theme = useTheme();
+  const tokens = useTokens();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const [statView, setStatView] = useState<"total" | "average">("total");
@@ -105,7 +111,7 @@ const TeamStats: React.FC = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [editName, setEditName] = useState("");
   const [editLogoUrl, setEditLogoUrl] = useState("");
-  const [editColor, setEditColor] = useState("#154C56");
+  const [editColor, setEditColor] = useState(tokens.palette.blue[900]);
   const [editPeriodType, setEditPeriodType] = useState<"QUARTERS" | "HALVES">(
     "QUARTERS",
   );
@@ -180,7 +186,7 @@ const TeamStats: React.FC = () => {
     if (team) {
       setEditName(team.name || "");
       setEditLogoUrl(team.logoUrl || "");
-      setEditColor(team.primaryColor || "#154C56");
+      setEditColor(team.primaryColor || tokens.palette.blue[900]);
       setEditPeriodType(team.periodType || "QUARTERS");
       setEditPeriodLength(
         team.defaultPeriodLength || (team.periodType === "HALVES" ? 20 : 10),
@@ -634,12 +640,12 @@ const TeamStats: React.FC = () => {
   }, [teamPlayers]);
 
   return (
-    <Box sx={{ pb: 4, opacity: isDeleted ? 0.7 : 1 }}>
+    <TokenPageShell sx={{ opacity: isDeleted ? 0.7 : 1 }}>
       <EntityBanner
         title={team?.name || "Team"}
         subtitle={`${teamAggregates.record} | ${team?.description || ""}`}
         avatarSrc={team?.logoUrl}
-        avatarColor="rgba(255,255,255,0.1)"
+        avatarColor="var(--cs-semantic-color-action-active)"
         backTo="/teams"
         primaryColor={team?.primaryColor}
         stats={[
@@ -650,7 +656,11 @@ const TeamStats: React.FC = () => {
           { label: "Def. PPP", value: teamAggregates.oppPpp },
         ]}
         actions={
-          <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+          <Stack
+            direction="row"
+            spacing={"var(--cs-semantic-spacing-xs)"}
+            sx={{ alignItems: "center" }}
+          >
             {" "}
             {!isDeleted ? (
               <>
@@ -659,11 +669,10 @@ const TeamStats: React.FC = () => {
                     aria-label="edit team"
                     onClick={() => setOpenSettingsDialog(true)}
                     sx={{
-                      color: "white",
-                      bgcolor: "rgba(255,255,255,0.1)",
+                      color: "var(--cs-semantic-color-text-inverse)",
+                      bgcolor: "var(--cs-semantic-color-action-active)",
                       "&:hover": {
-                        bgcolor: "rgba(255,255,255,0.2)",
-                        transform: "scale(1.1)",
+                        bgcolor: "var(--cs-semantic-color-action-selected)",
                       },
                     }}
                   >
@@ -688,10 +697,10 @@ const TeamStats: React.FC = () => {
 
       <Box
         sx={{
-          mb: 4,
-          borderRadius: "0 0 8px 8px",
-          bgcolor: "white",
-          borderBottom: "1px solid #ddd",
+          mb: "var(--cs-semantic-spacing-xl)",
+          borderRadius: `0 0 ${tokens.semantic.shape.radius.md}px ${tokens.semantic.shape.radius.md}px`,
+          bgcolor: "var(--cs-semantic-color-background-paper)",
+          borderBottom: "1px solid var(--cs-semantic-color-border-subtle)",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
@@ -701,21 +710,45 @@ const TeamStats: React.FC = () => {
         <Tabs
           value={tabValue}
           onChange={(_, val) => setTabValue(val)}
-          sx={{ px: 2 }}
+          sx={{ px: "var(--cs-semantic-spacing-md)" }}
           indicatorColor="primary"
           textColor="primary"
         >
-          <Tab label="Schedule" sx={{ fontWeight: 600 }} />
-          <Tab label="Team Stats" sx={{ fontWeight: 600 }} />
-          <Tab label="Lineup Analytics" sx={{ fontWeight: 600 }} />
-          <Tab label="Roster" sx={{ fontWeight: 600 }} />
+          <Tab
+            label="Schedule"
+            sx={{ fontWeight: "var(--cs-typography-fontWeight-semibold)" }}
+          />
+          <Tab
+            label="Team Stats"
+            sx={{ fontWeight: "var(--cs-typography-fontWeight-semibold)" }}
+          />
+          <Tab
+            label="Lineup Analytics"
+            sx={{ fontWeight: "var(--cs-typography-fontWeight-semibold)" }}
+          />
+          <Tab
+            label="Roster"
+            sx={{ fontWeight: "var(--cs-typography-fontWeight-semibold)" }}
+          />
         </Tabs>
 
         {(tabValue === 1 || tabValue === 2) && (
-          <Box sx={{ p: 1, pr: 2 }}>
-            <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+          <Box
+            sx={{
+              p: "var(--cs-semantic-spacing-xs)",
+              pr: "var(--cs-semantic-spacing-md)",
+            }}
+          >
+            <Stack
+              direction="row"
+              spacing={"var(--cs-semantic-spacing-xs)"}
+              sx={{ alignItems: "center" }}
+            >
               {" "}
-              <Typography variant="caption" sx={{ fontWeight: 700 }}>
+              <Typography
+                variant="caption"
+                sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}
+              >
                 ANALYTICS WINDOW:
               </Typography>
               <ToggleButtonGroup
@@ -724,13 +757,22 @@ const TeamStats: React.FC = () => {
                 onChange={(_, val) => val && setGameCountFilter(val)}
                 size="small"
               >
-                <ToggleButton value="5" sx={{ px: 2 }}>
+                <ToggleButton
+                  value="5"
+                  sx={{ px: "var(--cs-semantic-spacing-sm)" }}
+                >
                   Last 5
                 </ToggleButton>
-                <ToggleButton value="10" sx={{ px: 2 }}>
+                <ToggleButton
+                  value="10"
+                  sx={{ px: "var(--cs-semantic-spacing-sm)" }}
+                >
                   Last 10
                 </ToggleButton>
-                <ToggleButton value="all" sx={{ px: 2 }}>
+                <ToggleButton
+                  value="all"
+                  sx={{ px: "var(--cs-semantic-spacing-sm)" }}
+                >
                   All
                 </ToggleButton>
               </ToggleButtonGroup>
@@ -740,7 +782,14 @@ const TeamStats: React.FC = () => {
       </Box>
 
       {isDeleted && (
-        <Alert severity="warning" icon={<Warning />} sx={{ mb: 4, mx: 2 }}>
+        <Alert
+          severity="warning"
+          icon={<Warning />}
+          sx={{
+            mb: "var(--cs-semantic-spacing-xl)",
+            mx: "var(--cs-semantic-spacing-md)",
+          }}
+        >
           <AlertTitle>Team Pending Deletion</AlertTitle>
           This team and its games are scheduled for permanent deletion in{" "}
           {timeLeft}. All data is currently read-only.
@@ -753,13 +802,11 @@ const TeamStats: React.FC = () => {
             sx={{
               display: "flex",
               justifyContent: "space-between",
-              mb: 2,
+              mb: "var(--cs-semantic-spacing-md)",
               alignItems: "center",
             }}
           >
-            <Typography variant="h5" sx={{ fontFamily: "var(--serif)" }}>
-              Schedule
-            </Typography>
+            <TokenPageTitle>Schedule</TokenPageTitle>
             <Button
               variant="contained"
               size="small"
@@ -769,15 +816,12 @@ const TeamStats: React.FC = () => {
                 resetGameForm();
                 setOpenAddGame(true);
               }}
-              sx={{
-                bgcolor: "var(--palette-golden-dune)",
-                color: "var(--palette-midnight)",
-              }}
+              color="primary"
             >
               Create Game
             </Button>
           </Box>
-          <Box sx={{ mb: 3 }}>
+          <Box sx={{ mb: "var(--cs-semantic-spacing-lg)" }}>
             <ToggleButtonGroup
               value={scheduleView}
               exclusive
@@ -789,7 +833,7 @@ const TeamStats: React.FC = () => {
               <ToggleButton value="all">All Games</ToggleButton>
             </ToggleButtonGroup>
           </Box>
-          <Stack spacing={2}>
+          <Stack spacing={"var(--cs-semantic-spacing-md)"}>
             {filteredSchedule.map((game) => (
               <MoleskineCard
                 key={game.id}
@@ -798,11 +842,20 @@ const TeamStats: React.FC = () => {
                   display: "flex",
                   justifyContent: "space-between",
                   alignItems: "center",
-                  "&:hover": { bgcolor: "rgba(0,0,0,0.02)" },
+                  transition: `background-color var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)`,
+                  "&:hover": {
+                    bgcolor: "var(--cs-semantic-color-action-hover)",
+                  },
                 }}
                 onClick={() => navigate(`/game/stats?gameId=${game.id}`)}
               >
-                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "var(--cs-semantic-spacing-md)",
+                  }}
+                >
                   {game.opponentLogoUrl && (
                     <Box
                       component="img"
@@ -811,16 +864,24 @@ const TeamStats: React.FC = () => {
                         width: 40,
                         height: 40,
                         objectFit: "contain",
-                        borderRadius: "4px",
+                        borderRadius: "var(--cs-semantic-shape-radius-xs)",
                       }}
                     />
                   )}
                   <Box>
-                    <Typography variant="caption" color="text.secondary">
+                    <Typography
+                      variant="caption"
+                      sx={{ color: "var(--cs-semantic-color-text-secondary)" }}
+                    >
                       {dayjs(game.date).format("MM-DD-YYYY")} {game.time || ""}{" "}
                       @ {game.location}
                     </Typography>
-                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontWeight: "var(--cs-typography-fontWeight-semibold)",
+                      }}
+                    >
                       vs {game.opponent}
                     </Typography>
                   </Box>
@@ -852,17 +913,15 @@ const TeamStats: React.FC = () => {
         <Box>
           <Box
             sx={{
-              mb: 3,
+              mb: "var(--cs-semantic-spacing-lg)",
               display: "flex",
               flexDirection: { xs: "column", sm: "row" },
               justifyContent: "space-between",
               alignItems: { xs: "flex-start", sm: "center" },
-              gap: 2,
+              gap: "var(--cs-semantic-spacing-md)",
             }}
           >
-            <Typography variant="h5" sx={{ fontFamily: "var(--serif)" }}>
-              Player Performance
-            </Typography>
+            <TokenPageTitle>Player Performance</TokenPageTitle>
             <ToggleButtonGroup
               value={statView}
               exclusive
@@ -877,13 +936,19 @@ const TeamStats: React.FC = () => {
           <TableContainer
             component={MoleskineCard}
             sx={{
-              mx: { xs: -2, sm: 0 },
-              width: { xs: "calc(100% + 32px)", sm: "100%" },
+              mx: { xs: "-var(--cs-semantic-spacing-md)", sm: 0 },
+              width: {
+                xs: "calc(100% + var(--cs-semantic-spacing-xl))",
+                sm: "100%",
+              },
+              p: 0,
             }}
           >
             <Table size="small">
               <TableHead>
-                <TableRow sx={{ bgcolor: "rgba(0,0,0,0.02)" }}>
+                <TableRow
+                  sx={{ bgcolor: "var(--cs-semantic-color-surface-subtle)" }}
+                >
                   <SortableHeader
                     label="#"
                     sortKey="jerseyNumber"
@@ -1001,14 +1066,22 @@ const TeamStats: React.FC = () => {
                   <TableRow
                     key={row.id}
                     hover
-                    sx={{ cursor: "pointer" }}
+                    sx={{
+                      cursor: "pointer",
+                      "&:nth-of-type(odd)": {
+                        bgcolor: "var(--cs-semantic-color-background-paper)",
+                      },
+                      "&:nth-of-type(even)": {
+                        bgcolor: "var(--cs-semantic-color-surface-subtle)",
+                      },
+                    }}
                     onClick={() =>
                       navigate(`/players/${row.id}?teamId=${teamId}`)
                     }
                   >
                     <TableCell
                       sx={{
-                        fontWeight: 700,
+                        fontWeight: "var(--cs-typography-fontWeight-bold)",
                         display: { xs: "none", sm: "table-cell" },
                       }}
                     >
@@ -1027,15 +1100,25 @@ const TeamStats: React.FC = () => {
                         >
                           <Typography
                             variant="caption"
-                            sx={{ fontSize: { xs: "0.6rem", sm: "0.8rem" } }}
+                            sx={{
+                              fontSize: {
+                                xs: "var(--cs-typography-fontSize-xs)",
+                                sm: "var(--cs-typography-fontSize-sm)",
+                              },
+                            }}
                           >
                             {getInitials(row.name)}
                           </Typography>
                         </Avatar>
                         <Typography
+                          variant="body2"
                           sx={{
-                            fontWeight: 600,
-                            fontSize: { xs: "0.75rem", sm: "1rem" },
+                            fontWeight:
+                              "var(--cs-typography-fontWeight-semibold)",
+                            fontSize: {
+                              xs: "var(--cs-typography-fontSize-xs)",
+                              sm: "var(--cs-typography-fontSize-sm)",
+                            },
                           }}
                         >
                           {row.name}
@@ -1057,8 +1140,12 @@ const TeamStats: React.FC = () => {
                     <TableCell
                       align="right"
                       sx={{
-                        fontWeight: 700,
-                        fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                        fontWeight: "var(--cs-typography-fontWeight-bold)",
+                        fontSize: {
+                          xs: "var(--cs-typography-fontSize-xs)",
+                          sm: "var(--cs-typography-fontSize-sm)",
+                        },
+                        color: "var(--cs-semantic-color-stats-offensive)",
                       }}
                     >
                       {row.points}
@@ -1133,14 +1220,20 @@ const TeamStats: React.FC = () => {
 
       {tabValue === 2 && (
         <Box>
-          <Typography variant="h5" sx={{ fontFamily: "var(--serif)", mb: 3 }}>
+          <TokenPageTitle sx={{ mb: "var(--cs-semantic-spacing-lg)" }}>
             Lineup Efficiency
-          </Typography>
-          <TableContainer component={MoleskineCard}>
+          </TokenPageTitle>
+          <TableContainer component={MoleskineCard} sx={{ p: 0 }}>
             <Table size="small">
               <TableHead>
-                <TableRow sx={{ bgcolor: "rgba(0,0,0,0.02)" }}>
-                  <TableCell sx={{ fontWeight: 700 }}>Lineup</TableCell>
+                <TableRow
+                  sx={{ bgcolor: "var(--cs-semantic-color-surface-subtle)" }}
+                >
+                  <TableCell
+                    sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}
+                  >
+                    Lineup
+                  </TableCell>
                   <SortableHeader
                     label="MIN"
                     sortKey="seconds"
@@ -1195,18 +1288,21 @@ const TeamStats: React.FC = () => {
                     </TableCell>
                     <TableCell align="right">{row.pointsFor}</TableCell>
                     <TableCell align="right">{row.pointsAgainst}</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 700 }}>
+                    <TableCell
+                      align="right"
+                      sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}
+                    >
                       {row.netRatingPer40}
                     </TableCell>
                     <TableCell
                       align="right"
                       sx={{
-                        fontWeight: 700,
+                        fontWeight: "var(--cs-typography-fontWeight-bold)",
                         color:
                           row.netRating > 0
-                            ? "success.main"
+                            ? "var(--cs-semantic-color-feedback-success-main)"
                             : row.netRating < 0
-                              ? "error.main"
+                              ? "var(--cs-semantic-color-feedback-error-main)"
                               : "inherit",
                       }}
                     >
@@ -1224,29 +1320,24 @@ const TeamStats: React.FC = () => {
         <Box>
           <Box
             sx={{
-              mb: 3,
+              mb: "var(--cs-semantic-spacing-lg)",
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
             }}
           >
-            <Typography variant="h5" sx={{ fontFamily: "var(--serif)" }}>
-              Team Roster
-            </Typography>
+            <TokenPageTitle>Team Roster</TokenPageTitle>
             <Button
               variant="contained"
               disabled={isDeleted}
               startIcon={<PersonAddIcon />}
               onClick={() => setOpenRosterDialog(true)}
-              sx={{
-                bgcolor: "var(--palette-golden-dune)",
-                color: "var(--palette-midnight)",
-              }}
+              color="primary"
             >
               Manage Roster
             </Button>
           </Box>
-          <Grid container spacing={2}>
+          <Grid container spacing={"var(--cs-semantic-spacing-md)"}>
             {sortedRoster.map((player) => (
               <Grid size={{ xs: 12, sm: 6, md: 4 }} key={player.id}>
                 <MoleskineCard
@@ -1256,20 +1347,23 @@ const TeamStats: React.FC = () => {
                   sx={{
                     display: "flex",
                     alignItems: "center",
-                    gap: 2,
-                    transition: "transform 0.2s",
+                    gap: "var(--cs-semantic-spacing-md)",
+                    transition: [
+                      `transform var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)`,
+                      `background-color var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)`,
+                    ].join(", "),
                     cursor: "pointer",
                     "&:hover": {
-                      transform: "translateY(-4px)",
-                      bgcolor: "rgba(0,0,0,0.02)",
+                      transform: "translateY(-var(--cs-semantic-spacing-xs))",
+                      bgcolor: "var(--cs-semantic-color-action-hover)",
                     },
                   }}
                 >
                   <Typography
                     variant="h4"
                     sx={{
-                      fontWeight: 700,
-                      color: "text.secondary",
+                      fontWeight: "var(--cs-typography-fontWeight-bold)",
+                      color: "var(--cs-semantic-color-text-secondary)",
                       minWidth: 40,
                     }}
                   >
@@ -1278,7 +1372,11 @@ const TeamStats: React.FC = () => {
                   <Avatar sx={{ bgcolor: player.avatarColor }}>
                     {getInitials(player.name)}
                   </Avatar>
-                  <Typography sx={{ fontWeight: 600 }}>
+                  <Typography
+                    sx={{
+                      fontWeight: "var(--cs-typography-fontWeight-semibold)",
+                    }}
+                  >
                     {player.name}
                   </Typography>
                 </MoleskineCard>
@@ -1339,11 +1437,11 @@ const TeamStats: React.FC = () => {
                   width: "100%",
                   height: 48,
                   marginTop: 8,
-                  padding: "2px",
-                  border: "1px solid #D1D1D1",
-                  borderRadius: 8,
+                  padding: "var(--cs-semantic-spacing-xs)",
+                  border: `1px solid var(--cs-semantic-color-border-default)`,
+                  borderRadius: `var(--cs-semantic-shape-radius-md)`,
                   cursor: "pointer",
-                  backgroundColor: "white",
+                  backgroundColor: "var(--cs-semantic-color-background-paper)",
                 }}
                 value={editColor}
                 onChange={(e) => setEditColor(e.target.value)}
@@ -1503,12 +1601,17 @@ const TeamStats: React.FC = () => {
             </Box>
           </Stack>
         </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 3 }}>
+        <DialogActions
+          sx={{
+            px: "var(--cs-semantic-spacing-lg)",
+            pb: "var(--cs-semantic-spacing-lg)",
+          }}
+        >
           <Button onClick={() => setOpenSettingsDialog(false)}>Cancel</Button>
           <Button
             onClick={handleUpdateTeamSettings}
             variant="contained"
-            sx={{ ml: 1 }}
+            sx={{ ml: "var(--cs-semantic-spacing-xs)" }}
           >
             Save
           </Button>
@@ -1578,7 +1681,10 @@ const TeamStats: React.FC = () => {
                       key={playerEntityId}
                       divider
                       sx={{
-                        px: { xs: 1, sm: 2 },
+                        px: {
+                          xs: "var(--cs-semantic-spacing-xs)",
+                          sm: "var(--cs-semantic-spacing-md)",
+                        },
                       }}
                       secondaryAction={
                         <Box
@@ -1963,7 +2069,7 @@ const TeamStats: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
-    </Box>
+    </TokenPageShell>
   );
 };
 
