@@ -1,3 +1,11 @@
+## 2025-06-09 - Strategic Command: From Insights to Directives
+
+Observation: We have bridged the "Visibility Gap" (coaches now see the math) and the "Synthesis Gap" (they now see the causal connections). The final barrier to elite performance is "Decision Lag." Even when a coach sees a causal failure, the time required to formulate a specific, verbalizable command for the players on the court is too long in high-pressure moments.
+
+Impact: Tactical pivots are often "Too Little, Too Late." A coach might realize they need to trap a hot hand, but the run has already reached 10 points before the directive is issued.
+
+Recommendation: Pivot toward **Decision Automation** and **Strategic Command**. We must transition the platform from providing "Insights" (e.g., "Opponent #24 is hot") to providing "Directives" (e.g., "COMMAND: TRAP #24 ON CATCH"). The introduction of the "Direct-Action Strategic Command Engine" and "Official-Player Conflict Monitor" moves the platform from a supporting dashboard to an automated strategic partner that dictates the win.
+
 ## 2025-06-08 - Strategic Pivot: From Dashboard Clarity to Predictive Automation
 
 Observation: The platform has achieved "Data Maturity" with robust engines for efficiency, impact, and momentum. However, a "Synthesis Gap" remains where coaches must manually translate raw data into tactical decisions under pressure. We are showing them *what* is happening, but they still have to figure out the *how to fix it* in 60 seconds.
