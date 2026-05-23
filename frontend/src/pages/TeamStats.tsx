@@ -44,7 +44,6 @@ import {
   StepLabel,
   Checkbox,
   FormControlLabel,
-  alpha,
 } from "@mui/material";
 import {
   PersonAdd as PersonAddIcon,
@@ -70,7 +69,6 @@ import {
 import { MoleskineCard } from "../components/SharedUI";
 import {
   TokenPageShell,
-  TokenSectionCard,
   TokenPageTitle,
 } from "../components/layout/TokenLayout";
 import { useTokens } from "../theme/useTokens";
@@ -199,7 +197,7 @@ const TeamStats: React.FC = () => {
       setEditPlaybook(team.playbook || []);
     }
     // We only want to sync from DB when the team object itself changes (e.g. initial load)
-  }, [team]);
+  }, [team, tokens.palette.blue]);
 
   useEffect(() => {
     if (team?.deletedAt) {
