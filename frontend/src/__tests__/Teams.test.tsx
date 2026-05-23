@@ -159,8 +159,7 @@ describe("Teams Component", () => {
       within(dialog).queryByRole("button", { name: /submit/i }) ||
       dialog.querySelector('button[type="submit"]') ||
       Array.from(within(dialog).queryAllByRole("button")).find(
-        (button) =>
-          !/cancel|back|previous/i.test(button.textContent || ""),
+        (button) => !/cancel|back|previous/i.test(button.textContent || ""),
       ) ||
       null
     );
@@ -320,7 +319,9 @@ describe("Teams Component", () => {
     fireEvent.click(submitButton as HTMLElement);
 
     expect(
-      await screen.findByText(/failed to create team|unable to create team|something went wrong/i),
+      await screen.findByText(
+        /failed to create team|unable to create team|something went wrong/i,
+      ),
     ).toBeInTheDocument();
   });
 });
