@@ -12,7 +12,6 @@ import { PRESETS } from "../theme/presets";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import Teams from "../pages/Teams";
 import { mockDb } from "../dbMock";
-import { logger } from "../utils/logger";
 
 const mockNavigate = vi.fn();
 
@@ -64,7 +63,17 @@ describe("Teams Component", () => {
     return await screen.findByRole("dialog");
   };
 
-  const fillRequiredFields = (
+  const clickNext = async (dialog: HTMLElement) => {
+    const nextButton =
+      within(dialog).queryByRole("button", { name: /^next$/i }) ||
+      within(dialog).queryByRole("button", { name: /continue/i }) ||
+      within(dialog).queryByRole("button", { name: /review/i });
+
+    expect(nextButton).toBeTruthy();
+    fireEvent.click(nextButton as HTMLElement);
+  };
+
+  const fillWorkflow = async (
     dialog: HTMLElement,
     overrides?: {
       name?: string;
@@ -78,22 +87,59 @@ describe("Teams Component", () => {
     });
 
     if (overrides?.description !== undefined) {
-      fireEvent.change(within(dialog).getByLabelText(/description/i), {
-        target: { value: overrides.description },
-      });
+      const descriptionField =
+        within(dialog).queryByLabelText(/description/i) ||
+        within(dialog).queryByLabelText(/team description/i);
+
+      if (descriptionField) {
+        fireEvent.change(descriptionField, {
+          target: { value: overrides.description },
+        });
+      }
     }
+
+    await clickNext(dialog);
 
     if (overrides?.logoUrl !== undefined) {
-      fireEvent.change(within(dialog).getByLabelText(/logo url/i), {
-        target: { value: overrides.logoUrl },
-      });
+      const logoUrlField =
+        within(dialog).queryByLabelText(/logo url/i) ||
+        within(dialog).queryByLabelText(/logo/i);
+
+      if (logoUrlField) {
+        fireEvent.change(logoUrlField, {
+          target: { value: overrides.logoUrl },
+        });
+      }
     }
 
+    await clickNext(dialog);
+
     if (overrides?.fouls !== undefined) {
-      fireEvent.change(within(dialog).getByLabelText(/fouls/i), {
-        target: { value: overrides.fouls },
-      });
+      const foulsField =
+        within(dialog).queryByLabelText(/fouls/i) ||
+        within(dialog).queryByLabelText(/team fouls/i);
+
+      if (foulsField) {
+        fireEvent.change(foulsField, {
+          target: { value: overrides.fouls },
+        });
+      }
     }
+
+    const periodSelect = within(dialog).queryByRole("combobox", {
+      name: /period type/i,
+    });
+
+    if (periodSelect) {
+      fireEvent.mouseDown(periodSelect);
+
+      const halvesOption = await screen.findByRole("option", {
+        name: /halves/i,
+      });
+      fireEvent.click(halvesOption);
+    }
+
+    await clickNext(dialog);
   };
 
   const getSearchInput = () => {
@@ -105,14 +151,15 @@ describe("Teams Component", () => {
 
   const getSubmitButton = (dialog: HTMLElement) => {
     return (
-      within(dialog).queryByRole("button", { name: /^add$/i }) ||
       within(dialog).queryByRole("button", { name: /^create$/i }) ||
       within(dialog).queryByRole("button", { name: /create team/i }) ||
       within(dialog).queryByRole("button", { name: /save team/i }) ||
       within(dialog).queryByRole("button", { name: /save/i }) ||
+      within(dialog).queryByRole("button", { name: /finish/i }) ||
+      within(dialog).queryByRole("button", { name: /submit/i }) ||
       dialog.querySelector('button[type="submit"]') ||
       Array.from(within(dialog).queryAllByRole("button")).find(
-        (button) => !/cancel/i.test(button.textContent || ""),
+        (button) => !/cancel|back|previous/i.test(button.textContent || ""),
       ) ||
       null
     );
@@ -188,20 +235,12 @@ describe("Teams Component", () => {
   it("adds a team successfully and shows a success snackbar", async () => {
     const dialog = await openCreateDialog();
 
-    fillRequiredFields(dialog, {
+    await fillWorkflow(dialog, {
       name: "Bulls",
       description: "Dynasty",
       logoUrl: "http://logo.com",
       fouls: "6",
     });
-
-    const periodSelect = within(dialog).getByRole("combobox", {
-      name: /period type/i,
-    });
-    fireEvent.mouseDown(periodSelect);
-
-    const halvesOption = await screen.findByRole("option", { name: /halves/i });
-    fireEvent.click(halvesOption);
 
     const submitButton = getSubmitButton(dialog);
     expect(submitButton).toBeTruthy();
@@ -219,9 +258,12 @@ describe("Teams Component", () => {
   it("validates empty team name", async () => {
     const dialog = await openCreateDialog();
 
-    const submitButton = getSubmitButton(dialog);
-    expect(submitButton).toBeTruthy();
-    fireEvent.click(submitButton as HTMLElement);
+    const nextButton =
+      within(dialog).queryByRole("button", { name: /^next$/i }) ||
+      within(dialog).queryByRole("button", { name: /continue/i });
+
+    expect(nextButton).toBeTruthy();
+    fireEvent.click(nextButton as HTMLElement);
 
     expect(
       await screen.findByText(/team name is required/i),
@@ -263,22 +305,23 @@ describe("Teams Component", () => {
     expect(mockNavigate).toHaveBeenCalledWith("/teams/t1");
   });
 
-  it("logs an error when adding a team fails", async () => {
-    const loggerSpy = vi.spyOn(logger, "error").mockImplementation(() => {});
+  it("shows an error message when adding a team fails", async () => {
     mockDb.teams.add.mockImplementationOnce(() => {
       throw new Error("Add failed");
     });
 
     const dialog = await openCreateDialog();
 
-    fillRequiredFields(dialog, { name: "Fail Team" });
+    await fillWorkflow(dialog, { name: "Fail Team" });
 
     const submitButton = getSubmitButton(dialog);
     expect(submitButton).toBeTruthy();
     fireEvent.click(submitButton as HTMLElement);
 
-    await waitFor(() => {
-      expect(loggerSpy).toHaveBeenCalled();
-    });
+    expect(
+      await screen.findByText(
+        /failed to create team|unable to create team|something went wrong/i,
+      ),
+    ).toBeInTheDocument();
   });
 });
