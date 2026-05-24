@@ -706,11 +706,15 @@ const Players: React.FC = () => {
                               >
                                 {player.isStar ? (
                                   <StarIcon
-                                    sx={{ fontSize: tokens.typography.fontSize.xl }}
+                                    sx={{
+                                      fontSize: tokens.typography.fontSize.xl,
+                                    }}
                                   />
                                 ) : (
                                   <StarBorderIcon
-                                    sx={{ fontSize: tokens.typography.fontSize.xl }}
+                                    sx={{
+                                      fontSize: tokens.typography.fontSize.xl,
+                                    }}
                                   />
                                 )}
                               </IconButton>
@@ -743,28 +747,44 @@ const Players: React.FC = () => {
                             borderColor: "border.subtle",
                           }}
                         >
-                          <Typography variant="overline" color="text.secondary" sx={{ display: "block", mb: 1 }}>
+                          <Typography
+                            variant="overline"
+                            color="text.secondary"
+                            sx={{ display: "block", mb: 1 }}
+                          >
                             Average stats
                           </Typography>
 
                           <Grid container spacing={1.5}>
                             <Grid size={{ xs: 4 }}>
-                              <Typography variant="overline" color="text.muted" sx={{ display: "block", mb: 0.5 }}>PPG</Typography>
-                              <Typography variant="h3">
-                                {player.ppg}
+                              <Typography
+                                variant="overline"
+                                color="text.muted"
+                                sx={{ display: "block", mb: 0.5 }}
+                              >
+                                PPG
                               </Typography>
+                              <Typography variant="h3">{player.ppg}</Typography>
                             </Grid>
                             <Grid size={{ xs: 4 }}>
-                              <Typography variant="overline" color="text.muted" sx={{ display: "block", mb: 0.5 }}>RPG</Typography>
-                              <Typography variant="h3">
-                                {player.rpg}
+                              <Typography
+                                variant="overline"
+                                color="text.muted"
+                                sx={{ display: "block", mb: 0.5 }}
+                              >
+                                RPG
                               </Typography>
+                              <Typography variant="h3">{player.rpg}</Typography>
                             </Grid>
                             <Grid size={{ xs: 4 }}>
-                              <Typography variant="overline" color="text.muted" sx={{ display: "block", mb: 0.5 }}>APG</Typography>
-                              <Typography variant="h3">
-                                {player.apg}
+                              <Typography
+                                variant="overline"
+                                color="text.muted"
+                                sx={{ display: "block", mb: 0.5 }}
+                              >
+                                APG
                               </Typography>
+                              <Typography variant="h3">{player.apg}</Typography>
                             </Grid>
                           </Grid>
                         </Box>
