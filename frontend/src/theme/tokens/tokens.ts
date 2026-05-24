@@ -50,6 +50,11 @@ export const darkSemanticColors = {
     disabledBackground: "rgba(242, 246, 250, 0.08)",
     focusRing: palettes.blue[400],
   },
+  status: {
+    active: palettes.successScale[500],
+    inactive: palettes.neutral[600],
+    starred: palettes.warningScale[500],
+  },
 } as const;
 
 export const tokens = {
@@ -161,6 +166,12 @@ export const tokens = {
         track: "transparent",
         hover: palettes.neutral[500],
       },
+      status: {
+        active: palettes.successScale[500],
+        inactive: palettes.neutral[600],
+        starred: palettes.warningScale[400],
+      },
+      playerAvatars: palettes.playerAvatars,
     },
 
     typography: {

@@ -102,6 +102,17 @@ export const warningScale: ColorScale = {
   900: "#56390E",
 };
 
+export const playerAvatars = [
+  "#4E7D5B",
+  "#A64444",
+  "#5A7381",
+  "#154C56",
+  "#D9B382",
+  "#1F2D33",
+  "#7B68EE",
+  "#FF8C00",
+] as const;
+
 export const palettes = {
   blue,
   slate,
@@ -110,4 +121,5 @@ export const palettes = {
   successScale,
   errorScale,
   warningScale,
+  playerAvatars,
 };

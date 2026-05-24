@@ -28,10 +28,20 @@ declare module "@mui/material/styles" {
 
   interface Palette {
     emphasis: PaletteEmphasis;
+    status: {
+      active: string;
+      inactive: string;
+      starred: string;
+    };
   }
 
   interface PaletteOptions {
     emphasis?: Partial<PaletteEmphasis>;
+    status?: {
+      active: string;
+      inactive: string;
+      starred: string;
+    };
   }
 
   interface Typography {

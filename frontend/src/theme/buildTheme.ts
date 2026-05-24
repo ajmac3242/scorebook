@@ -393,6 +393,7 @@ export function buildTheme(preset?: ThemePreset): Theme {
             disabledBackground:
               activeTokens.semantic.color.action.disabledBackground,
           },
+          status: activeTokens.semantic.color.status,
         },
       },
       dark: {
@@ -469,6 +470,7 @@ export function buildTheme(preset?: ThemePreset): Theme {
             disabledBackground:
               activeTokens.semantic.color.action.disabledBackground,
           },
+          status: activeTokens.semantic.color.status,
         },
       },
     },
