@@ -256,9 +256,7 @@ const Players: React.FC = () => {
     return {
       accent,
       accentSoft: alpha(accent, 0.12),
-      accentSoftStrong: alpha(accent, 0.18),
       accentBorder: alpha(accent, 0.3),
-      accentFocus: alpha(accent, 0.22),
     };
   };
 
@@ -540,13 +538,9 @@ const Players: React.FC = () => {
           ) : (
             <Grid container spacing={2.5}>
               {playersWithStats.map((player) => {
-                const {
-                  accent,
-                  accentSoft,
-                  accentSoftStrong,
-                  accentBorder,
-                  accentFocus,
-                } = getAccentStyles(player.avatarColor);
+                const { accent, accentSoft, accentBorder } = getAccentStyles(
+                  player.avatarColor,
+                );
 
                 return (
                   <Grid size={{ xs: 12, md: 6, xl: 4 }} key={player.id}>
