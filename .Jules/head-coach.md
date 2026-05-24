@@ -1,3 +1,11 @@
+## 2025-06-10 - Strategic Command: Relay Accountability & Anticipatory Feedback
+
+Observation: We have perfected the "Directive" engine (telling the coach what to do). However, the final "Last Mile" problem is **Relay Accountability**. A system directive only wins games if it is successfully communicated to the floor and executed. Currently, there is no verification loop to ensure that the coach's tactical pivot was actually attempted or if it yielded the expected ROI.
+
+Impact: Tactical drift occurs not just at the player level, but at the "Relay" level. A coach might receive a directive to "Trap #24" but fail to relay it in time, or the relay might be ignored. Without a verification loop, we cannot distinguish between a "System Failure" (bad directive) and a "Relay Failure" (missed communication).
+
+Recommendation: Pivot toward **Relay Accountability** and **Anticipatory Feedback Loops**. We must implement a "Relay & Verification" workflow that tracks the latency between system directive and coach confirmation. Furthermore, we must shift from "Reactive Alerts" to "Anticipatory ROI"—specifically predicting the exact moment when tactical aggression (e.g., Bonus Attack Mode) becomes the mathematically dominant strategy before the opportunity is lost.
+
 ## 2025-06-09 - Strategic Command: From Insights to Directives
 
 Observation: We have bridged the "Visibility Gap" (coaches now see the math) and the "Synthesis Gap" (they now see the causal connections). The final barrier to elite performance is "Decision Lag." Even when a coach sees a causal failure, the time required to formulate a specific, verbalizable command for the players on the court is too long in high-pressure moments.
