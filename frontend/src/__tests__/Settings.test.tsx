@@ -53,9 +53,15 @@ if (!db.tables) {
 // Mock logger
 vi.mock("../utils/logger", () => ({
   logger: {
-    getLogs: vi.fn().mockReturnValue([
-      { level: "info", timestamp: "2024-01-01T10:00:00Z", message: "Initial log" },
-    ]),
+    getLogs: vi
+      .fn()
+      .mockReturnValue([
+        {
+          level: "info",
+          timestamp: "2024-01-01T10:00:00Z",
+          message: "Initial log",
+        },
+      ]),
     clearLogs: vi.fn(),
     info: vi.fn(),
     warn: vi.fn(),
@@ -95,7 +101,9 @@ describe("Settings Page", () => {
     expect(screen.getByText("Settings")).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: /Account/i })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: /System/i })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: /Appearance/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("tab", { name: /Appearance/i }),
+    ).toBeInTheDocument();
   });
 
   it("displays account information by default", async () => {
@@ -103,7 +111,9 @@ describe("Settings Page", () => {
 
     // Check if Account tab content is visible (getByText might match multiple elements if title and tab have same text)
     expect(screen.getAllByText("Account").length).toBeGreaterThan(0);
-    expect(screen.getByText("Manage your local app data and sign out safely.")).toBeInTheDocument();
+    expect(
+      screen.getByText("Manage your local app data and sign out safely."),
+    ).toBeInTheDocument();
 
     // Wait for user attributes to be loaded and displayed
     await waitFor(() => {
@@ -120,7 +130,7 @@ describe("Settings Page", () => {
     expect(screen.getByText("Theme presets")).toBeInTheDocument();
 
     // Verify all presets from PRESETS are rendered
-    PRESETS.forEach(preset => {
+    PRESETS.forEach((preset) => {
       expect(screen.getByText(preset.label)).toBeInTheDocument();
     });
   });
@@ -132,10 +142,12 @@ describe("Settings Page", () => {
     await user.click(screen.getByRole("tab", { name: /Appearance/i }));
 
     // Find a preset that is not the default one (assuming gametime is default)
-    const classicPreset = PRESETS.find(p => p.id === "classic");
+    const classicPreset = PRESETS.find((p) => p.id === "classic");
     if (!classicPreset) throw new Error("Classic preset not found");
 
-    const presetCard = screen.getByText(classicPreset.label).closest("div[role='button']") || screen.getByText(classicPreset.label);
+    const presetCard =
+      screen.getByText(classicPreset.label).closest("div[role='button']") ||
+      screen.getByText(classicPreset.label);
     await user.click(presetCard);
 
     // Verify localStorage was updated (part of ThemeContext behavior)
@@ -185,7 +197,9 @@ describe("Settings Page", () => {
     const copyButton = screen.getByRole("button", { name: /Copy logs/i });
     await user.click(copyButton);
 
-    expect(writeTextSpy).toHaveBeenCalledWith(expect.stringContaining("Initial log"));
+    expect(writeTextSpy).toHaveBeenCalledWith(
+      expect.stringContaining("Initial log"),
+    );
   });
 
   it("clears logs when Clear logs button is clicked", async () => {
@@ -206,7 +220,9 @@ describe("Settings Page", () => {
 
     await user.click(screen.getByRole("tab", { name: /System/i }));
 
-    const deleteButton = screen.getByRole("button", { name: /Delete local data/i });
+    const deleteButton = screen.getByRole("button", {
+      name: /Delete local data/i,
+    });
 
     // Mock db.transaction
     const transactionSpy = vi.spyOn(db, "transaction");
@@ -233,10 +249,18 @@ describe("Settings Page", () => {
     renderWithProviders(<Settings />);
 
     // Tabs should have role="tab"
-    expect(screen.getByRole("tab", { name: /Account/i })).toHaveAttribute("aria-selected", "true");
-    expect(screen.getByRole("tab", { name: /System/i })).toHaveAttribute("aria-selected", "false");
+    expect(screen.getByRole("tab", { name: /Account/i })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+    expect(screen.getByRole("tab", { name: /System/i })).toHaveAttribute(
+      "aria-selected",
+      "false",
+    );
 
     // Buttons should be accessible
-    expect(screen.getByRole("button", { name: /Log out/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /Log out/i }),
+    ).toBeInTheDocument();
   });
 });
