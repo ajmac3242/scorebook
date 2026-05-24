@@ -126,10 +126,13 @@ export const handler = async (
       (await handleCleanup(method, path, event, TABLE_NAME, docClient));
 
     if (res) {
-      if (res.headers) {
-        res.headers["X-Request-ID"] = requestId;
-      } else {
-        res.headers = { "X-Request-ID": requestId };
+      // 🛡️ Sentinel: Safe header injection for auditability
+      if (typeof res === "object") {
+        if (res.headers) {
+          res.headers["X-Request-ID"] = requestId;
+        } else {
+          res.headers = { "X-Request-ID": requestId };
+        }
       }
       return res;
     }
