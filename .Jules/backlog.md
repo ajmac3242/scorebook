@@ -1,5 +1,55 @@
 # CourtSight Backlog
 
+## [ ] [Live 'Strategic-Command' Relay & Verification Workflow]
+**Priority:** HIGH
+**Type:** Feature / Decision Automation
+**Why:** Even the best tactical directives are useless if they aren't relayed to the floor and executed. This workflow closes the loop by tracking the "Command-to-Relay" lag and verifying execution success.
+**What:** A "Command Relay" interface in GameMode that allows the coach to "Dispatch" a suggested directive (e.g., "TRAP #24") and requires a one-tap "Relayed" confirmation, subsequently tracking the PPP for the next 3 possessions to verify the adjustment's impact.
+**Acceptance Criteria:**
+- [ ] One-tap "Dispatch Command" UI for suggested directives.
+- [ ] "Relay Timer" tracking the latency between system suggestion and coach confirmation.
+- [ ] "Post-Relay ROI" readout showing the efficiency delta on the 3 possessions following the directive.
+
+## [ ] [Predictive 'Bonus-Optimization' Attack Advisor]
+**Priority:** HIGH
+**Type:** Predictive Intelligence
+**Why:** Entering the bonus early in a period is a massive mathematical advantage. This advisor doesn't just show the foul count; it predicts when the team *should* shift to "Aggressive Rim Attack" mode to maximize Free Throw ROI.
+**What:** A live advisor that correlates opponent foul frequency with our rim attack efficiency to identify the "Bonus Threshold"—the exact moment when the expected value of a drive exceeds a jump shot due to foul probability.
+**Acceptance Criteria:**
+- [ ] "Aggressive Attack" glow on the Tactical HUD when Bonus ROI is maximized.
+- [ ] Predictor: "Expected Bonus Entry in X possessions" based on live whistle flow.
+- [ ] ROI Calculator: (Points from FTs per Foul) vs. (PPP on Non-Paint FGAs).
+
+## [ ] [Live 'Gravity-Flow' (Inside-Out) ROI Gauge]
+**Priority:** HIGH
+**Type:** Analytics / UX
+**Why:** Coaches preach "Paint Touches," but the true value is often the resulting open 3. Quantifying the "Gravity ROI" (Inside-Out Flow) proves the system is working even if the perimeter shot misses.
+**What:** A visualization in the Tactical Identity HUD that tracks "Inside-Out Possessions"—those where a paint touch preceded a perimeter shot—and calculates the PPP and Shot Quality (xPTS) for those specific sequences.
+**Acceptance Criteria:**
+- [ ] "Gravity Gauge" showing the % of possessions with an "Inside-Out" flow.
+- [ ] "Flow ROI" metric: PPP on Inside-Out possessions vs. "Scramble" possessions.
+- [ ] Alert: "Flow Stagnation" when 3 consecutive possessions lack a paint-to-perimeter relay.
+
+## [ ] [Live 'Defensive-Anchor' Deterrence Tracker]
+**Priority:** HIGH
+**Type:** Feature / Causal Accountability
+**Why:** Elite rim protectors save points not just through blocks, but by *deterring* shots. Tracking "Rim Deterrence" (Opponent Rim Attempt Rate when X is on floor) reveals the true defensive anchors who don't show up in a box score.
+**What:** An accountability metric that monitors the opponent's "Rim Pressure" (Attempts / Possessions) specifically when a designated "Defensive Anchor" is on the court versus on the bench.
+**Acceptance Criteria:**
+- [ ] "Deterrence Index" in the On/Off Impact HUD (Opponent Rim % ON vs OFF).
+- [ ] Leaderboard for "Rim Deterrents" (Defenders with the lowest opponent rim frequency).
+- [ ] Visual highlight: "Deterrence Shield" active on player cards with < 20% opponent rim rate.
+
+## [ ] [Program-Wide 'Growth-Area' Development Tracker]
+**Priority:** HIGH
+**Type:** Feature / Longitudinal Analytics
+**Why:** A season is a developmental journey. This tracker identifies the "Tactical Drifts" that occur over months, helping coaches see if their practice prescriptions are actually leading to improved game execution.
+**What:** A longitudinal dashboard that overlays "Breakdown Reason" frequencies (e.g., "Missed Rotations") over a rolling 5-game window to identify if specific developmental "Growth Areas" are improving or regressing.
+**Acceptance Criteria:**
+- [ ] "Growth Trends" chart in the Program Dashboard tracking top 3 breakdown reasons over time.
+- [ ] "Correction Rate" metric: Measuring the reduction in a specific breakdown type following a "Practice Prescription" PDF export.
+- [ ] Alert: "Stagnant Growth" if a high-frequency breakdown persists for > 3 games.
+
 ## [ ] [Live 'Direct-Action' Strategic Command Engine]
 **Priority:** HIGH
 **Type:** Feature / Decision Automation
