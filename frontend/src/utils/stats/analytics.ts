@@ -37,7 +37,7 @@ export const calculateRefTightness = (
     periodType,
   );
 
-  if (elapsedMinutes <= 1) return 0;
+  if (elapsedMinutes < 0.1) return 0;
 
   const fouls = stats.filter((s) => isActive(s) && isFoulAction(s)).length;
 
