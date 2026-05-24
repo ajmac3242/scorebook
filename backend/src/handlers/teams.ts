@@ -2,7 +2,11 @@ import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
 import { DynamoDBDocumentClient, UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import { v4 as uuidv4 } from "uuid";
 import { ok, created, badRequest } from "../responses.js";
-import { isValidUuid } from "../validation.js";
+import {
+  isValidUuid,
+  validateStringLengths,
+  validateObjectDepthAndSize,
+} from "../validation.js";
 import { Keys } from "../keys.js";
 import { extractIdFromPath, stripLocalFields } from "../utils.js";
 import {
@@ -57,6 +61,12 @@ export async function handleTeams(
           "Team name is required and must be under 100 characters",
         );
       }
+      const depthError = validateObjectDepthAndSize(body);
+      if (depthError) return badRequest(depthError);
+
+      const error = validateStringLengths(body, 128);
+      if (error) return badRequest(error);
+
       const resp = await createItem(
         "TEAM",
         "METADATA",

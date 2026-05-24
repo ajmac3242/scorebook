@@ -72,16 +72,29 @@ function sanitizeForLog(obj: unknown, depth = 0): unknown {
 
 /**
  * Pre-compiled combined regex for redaction.
+ * Also targets patterns like key=value and key: value for robust redaction.
  */
-const REDACT_REGEX = new RegExp(Array.from(REDACTED_HEADERS).join("|"), "gi");
+const REDACT_REGEX = new RegExp(
+  `(${Array.from(REDACTED_HEADERS).join("|")})([\\s:=]+)([^\\s&,;]+)`,
+  "gi",
+);
 
 /**
- * Redacts sensitive terms from a string.
+ * Redacts sensitive terms and their associated values from a string.
  * @param input - The string to redact.
  * @returns The redacted string.
  */
-function redactString(input: string): string {
-  return input.replace(REDACT_REGEX, "[REDACTED]");
+export function redactString(input: string): string {
+  if (!input) return input;
+  // 🛡️ Sentinel: Enhanced redaction to cover both keywords and their values.
+  // First, redact key-value patterns (e.g., password=secret)
+  let redacted = input.replace(REDACT_REGEX, "$1$2[REDACTED]");
+  // Then, catch any standalone sensitive keywords
+  const standaloneRegex = new RegExp(
+    `\\b(${Array.from(REDACTED_HEADERS).join("|")})\\b`,
+    "gi",
+  );
+  return redacted.replace(standaloneRegex, "[REDACTED]");
 }
 
 /**
@@ -241,12 +254,17 @@ export function extractRequestMetadata(event: APIGatewayProxyEventV2) {
 
 /**
  * Timing-safe string comparison to prevent timing attacks on sensitive keys.
+ * Enforces maximum length and strict type checking to prevent ReDoS or DoS.
  *
  * @param {string} a - First string (e.g., user-provided key).
  * @param {string} b - Second string (e.g., actual secret key).
  * @returns {boolean} True if strings are equal.
  */
 export function safeCompare(a: string, b: string): boolean {
+  // 🛡️ Sentinel Enhancement 8: Strict type and length checks
+  if (typeof a !== "string" || typeof b !== "string") return false;
+  if (a.length > 1024 || b.length > 1024) return false;
+
   const hashA = crypto.createHash("sha256").update(a).digest();
   const hashB = crypto.createHash("sha256").update(b).digest();
   return crypto.timingSafeEqual(hashA, hashB);
