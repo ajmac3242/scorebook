@@ -9,7 +9,7 @@ import { CourtSightThemeProvider } from "../theme/ThemeContext";
 vi.mock("react-router-dom", async () => {
   const actual = await vi.importActual("react-router-dom");
   return {
-    ...actual as any,
+    ...(actual as any),
     useParams: () => ({ opponentId: "opp-1" }),
     useNavigate: () => vi.fn(),
   };
@@ -38,16 +38,17 @@ describe("OpponentScoutingReport Page", () => {
   const renderWithProviders = (ui: React.ReactNode) => {
     return render(
       <CourtSightThemeProvider>
-        <BrowserRouter>
-          {ui}
-        </BrowserRouter>
-      </CourtSightThemeProvider>
+        <BrowserRouter>{ui}</BrowserRouter>
+      </CourtSightThemeProvider>,
     );
   };
 
   beforeEach(() => {
     vi.clearAllMocks();
-    (db.opponents.get as any).mockResolvedValue({ id: "opp-1", name: "Rivals" });
+    (db.opponents.get as any).mockResolvedValue({
+      id: "opp-1",
+      name: "Rivals",
+    });
     (db.games.toArray as any).mockResolvedValue([]);
     (db.stats.toArray as any).mockResolvedValue([]);
   });
@@ -59,6 +60,8 @@ describe("OpponentScoutingReport Page", () => {
       expect(screen.getByText("Rivals")).toBeInTheDocument();
     });
 
-    expect(screen.getByText(/Player Scouting \(Cumulative\)/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Player Scouting \(Cumulative\)/i),
+    ).toBeInTheDocument();
   });
 });

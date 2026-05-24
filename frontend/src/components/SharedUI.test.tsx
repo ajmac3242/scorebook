@@ -1,12 +1,21 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, act } from "@testing-library/react";
-import { MoleskineCard, PageHeader, StatItem, StatCard, AnimatedNumber } from "./SharedUI";
+import {
+  MoleskineCard,
+  PageHeader,
+  StatItem,
+  StatCard,
+  AnimatedNumber,
+} from "./SharedUI";
 import { BrowserRouter } from "react-router-dom";
 
 // Mock useNavigate
 const mockNavigate = vi.fn();
 vi.mock("react-router-dom", async () => {
-  const actual = (await vi.importActual("react-router-dom")) as Record<string, unknown>;
+  const actual = (await vi.importActual("react-router-dom")) as Record<
+    string,
+    unknown
+  >;
   return {
     ...actual,
     useNavigate: () => mockNavigate,
@@ -25,7 +34,9 @@ describe("SharedUI Components", () => {
     });
 
     it("applies custom sx props", () => {
-      const { container } = render(<MoleskineCard sx={{ marginTop: "10px" }}>Content</MoleskineCard>);
+      const { container } = render(
+        <MoleskineCard sx={{ marginTop: "10px" }}>Content</MoleskineCard>,
+      );
       expect(container.firstChild).toHaveStyle("margin-top: 10px");
     });
   });
@@ -35,7 +46,7 @@ describe("SharedUI Components", () => {
       render(
         <BrowserRouter>
           <PageHeader title="Main Title" subtitle="Sub Title" />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
       expect(screen.getByText("Main Title")).toBeInTheDocument();
       expect(screen.getByText("Sub Title")).toBeInTheDocument();
@@ -45,16 +56,18 @@ describe("SharedUI Components", () => {
       render(
         <BrowserRouter>
           <PageHeader title="Title" actions={<button>Action</button>} />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
-      expect(screen.getByRole("button", { name: "Action" })).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "Action" }),
+      ).toBeInTheDocument();
     });
 
     it("navigates back when back button is clicked", () => {
       render(
         <BrowserRouter>
           <PageHeader title="Title" showBack />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
       const backButton = screen.getByLabelText("Go back");
       fireEvent.click(backButton);
@@ -65,7 +78,7 @@ describe("SharedUI Components", () => {
       render(
         <BrowserRouter>
           <PageHeader title="Title" showBack backTo="/home" />
-        </BrowserRouter>
+        </BrowserRouter>,
       );
       const backButton = screen.getByLabelText("Go back");
       fireEvent.click(backButton);
@@ -130,27 +143,33 @@ describe("SharedUI Components", () => {
     });
 
     it("handles decimals", () => {
-      const { container } = render(<AnimatedNumber value={10.5} decimals={1} />);
+      const { container } = render(
+        <AnimatedNumber value={10.5} decimals={1} />,
+      );
       expect(container.textContent).toBe("10.5");
     });
 
     it("respects duration prop", () => {
-       const { container, rerender } = render(<AnimatedNumber value={10} duration={100} />);
-       rerender(<AnimatedNumber value={20} duration={100} />);
-       act(() => {
-         vi.advanceTimersByTime(100);
-       });
-       expect(container.textContent).toBe("20");
+      const { container, rerender } = render(
+        <AnimatedNumber value={10} duration={100} />,
+      );
+      rerender(<AnimatedNumber value={20} duration={100} />);
+      act(() => {
+        vi.advanceTimersByTime(100);
+      });
+      expect(container.textContent).toBe("20");
     });
 
     it("handles light prop in StatItem", () => {
-       const { rerender } = render(<StatItem label="L" value="V" light={true} />);
-       // No crash and renders
-       expect(screen.getByText("L")).toBeInTheDocument();
-       expect(screen.getByText("V")).toBeInTheDocument();
+      const { rerender } = render(
+        <StatItem label="L" value="V" light={true} />,
+      );
+      // No crash and renders
+      expect(screen.getByText("L")).toBeInTheDocument();
+      expect(screen.getByText("V")).toBeInTheDocument();
 
-       rerender(<StatItem label="L" value="V" light={false} />);
-       expect(screen.getByText("V")).toBeInTheDocument();
+      rerender(<StatItem label="L" value="V" light={false} />);
+      expect(screen.getByText("V")).toBeInTheDocument();
     });
 
     it("triggers animation correctly in AnimatedNumber", () => {
@@ -186,7 +205,7 @@ describe("SharedUI Components", () => {
 
     it("renders as span by default", () => {
       const { container } = render(<AnimatedNumber value={10} />);
-      expect(container.querySelector('span')).toBeInTheDocument();
+      expect(container.querySelector("span")).toBeInTheDocument();
     });
   });
 });

@@ -11,7 +11,14 @@ describe("analytics.ts utilities", () => {
   describe("calculateRefTightness", () => {
     it("returns 0 if elapsed time is less than or equal to 0.1 minutes", () => {
       const stats = [
-        { type: ACTION_TYPES.FOUL, playerId: "p1", period: 1, clockTime: 599, timestamp: "2023-01-01T12:00:01Z", gameId: "g1" } as unknown as StatEvent,
+        {
+          type: ACTION_TYPES.FOUL,
+          playerId: "p1",
+          period: 1,
+          clockTime: 599,
+          timestamp: "2023-01-01T12:00:01Z",
+          gameId: "g1",
+        } as unknown as StatEvent,
       ];
       // 10:00 - 9:59 = 1 second = 0.016 mins
       expect(calculateRefTightness(stats, 1, 599, "QUARTERS")).toBe(0);
@@ -19,8 +26,22 @@ describe("analytics.ts utilities", () => {
 
     it("calculates fouls per minute correctly", () => {
       const stats = [
-        { type: ACTION_TYPES.FOUL, playerId: "p1", period: 1, clockTime: 540, timestamp: "T1", gameId: "g1" } as unknown as StatEvent,
-        { type: ACTION_TYPES.FOUL_SHOOTING, playerId: "p2", period: 1, clockTime: 480, timestamp: "T2", gameId: "g1" } as unknown as StatEvent,
+        {
+          type: ACTION_TYPES.FOUL,
+          playerId: "p1",
+          period: 1,
+          clockTime: 540,
+          timestamp: "T1",
+          gameId: "g1",
+        } as unknown as StatEvent,
+        {
+          type: ACTION_TYPES.FOUL_SHOOTING,
+          playerId: "p2",
+          period: 1,
+          clockTime: 480,
+          timestamp: "T2",
+          gameId: "g1",
+        } as unknown as StatEvent,
       ];
       // 10:00 - 8:00 = 2 minutes elapsed. 2 fouls. FPM should be 1.0.
       expect(calculateRefTightness(stats, 1, 480, "QUARTERS")).toBe(1.0);
@@ -28,9 +49,30 @@ describe("analytics.ts utilities", () => {
 
     it("handles multiple fouls in ref tightness calculation", () => {
       const stats = [
-        { type: ACTION_TYPES.FOUL, playerId: "p1", period: 1, clockTime: 480, timestamp: "T1", gameId: "g1" } as unknown as StatEvent,
-        { type: ACTION_TYPES.FOUL_SHOOTING, playerId: "p2", period: 1, clockTime: 420, timestamp: "T2", gameId: "g1" } as unknown as StatEvent,
-        { type: ACTION_TYPES.TECHNICAL_FOUL, playerId: "p3", period: 1, clockTime: 360, timestamp: "T3", gameId: "g1" } as unknown as StatEvent,
+        {
+          type: ACTION_TYPES.FOUL,
+          playerId: "p1",
+          period: 1,
+          clockTime: 480,
+          timestamp: "T1",
+          gameId: "g1",
+        } as unknown as StatEvent,
+        {
+          type: ACTION_TYPES.FOUL_SHOOTING,
+          playerId: "p2",
+          period: 1,
+          clockTime: 420,
+          timestamp: "T2",
+          gameId: "g1",
+        } as unknown as StatEvent,
+        {
+          type: ACTION_TYPES.TECHNICAL_FOUL,
+          playerId: "p3",
+          period: 1,
+          clockTime: 360,
+          timestamp: "T3",
+          gameId: "g1",
+        } as unknown as StatEvent,
       ];
       // 10:00 - 6:00 = 4 minutes elapsed. 3 fouls. FPM = 0.75.
       expect(calculateRefTightness(stats, 1, 360, "QUARTERS")).toBe(0.75);
@@ -38,7 +80,15 @@ describe("analytics.ts utilities", () => {
 
     it("filters out deleted events", () => {
       const stats = [
-        { type: ACTION_TYPES.FOUL, playerId: "p1", period: 1, clockTime: 540, timestamp: "T1", gameId: "g1", deletedAt: "some-date" } as unknown as StatEvent,
+        {
+          type: ACTION_TYPES.FOUL,
+          playerId: "p1",
+          period: 1,
+          clockTime: 540,
+          timestamp: "T1",
+          gameId: "g1",
+          deletedAt: "some-date",
+        } as unknown as StatEvent,
       ];
       expect(calculateRefTightness(stats, 1, 480, "QUARTERS")).toBe(0);
     });
@@ -83,9 +133,24 @@ describe("analytics.ts utilities", () => {
 
     it("skips non-opponent or missing play type/defender", () => {
       const stats: Partial<StatEvent>[] = [
-        { type: ACTION_TYPES.MISS, playerId: "teamPlayer", opponentPlayType: "PnR", primaryDefenderId: "def1" },
-        { type: ACTION_TYPES.MISS, playerId: SPECIAL_PLAYER_IDS.OPPONENT + ":10", opponentPlayType: undefined, primaryDefenderId: "def1" },
-        { type: ACTION_TYPES.MISS, playerId: SPECIAL_PLAYER_IDS.OPPONENT + ":10", opponentPlayType: "PnR", primaryDefenderId: undefined },
+        {
+          type: ACTION_TYPES.MISS,
+          playerId: "teamPlayer",
+          opponentPlayType: "PnR",
+          primaryDefenderId: "def1",
+        },
+        {
+          type: ACTION_TYPES.MISS,
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT + ":10",
+          opponentPlayType: undefined,
+          primaryDefenderId: "def1",
+        },
+        {
+          type: ACTION_TYPES.MISS,
+          playerId: SPECIAL_PLAYER_IDS.OPPONENT + ":10",
+          opponentPlayType: "PnR",
+          primaryDefenderId: undefined,
+        },
       ];
 
       const result = calculateArchetypeEfficiency(stats as StatEvent[]);
@@ -107,8 +172,12 @@ describe("analytics.ts utilities", () => {
       // def1 vs oppId: 1 stop (MISS) out of 1
       // def2 vs oppId: 0 stops (MAKE) out of 1
 
-      const def1Match = result.find(r => r.teamPlayerId === "def1" && r.oppPlayerId === oppId);
-      const def2Match = result.find(r => r.teamPlayerId === "def2" && r.oppPlayerId === oppId);
+      const def1Match = result.find(
+        (r) => r.teamPlayerId === "def1" && r.oppPlayerId === oppId,
+      );
+      const def2Match = result.find(
+        (r) => r.teamPlayerId === "def2" && r.oppPlayerId === oppId,
+      );
 
       expect(def1Match?.stopPct).toBe(100);
       expect(def2Match?.stopPct).toBe(0);
@@ -117,7 +186,11 @@ describe("analytics.ts utilities", () => {
     it("handles turnovers as stops", () => {
       const oppId = SPECIAL_PLAYER_IDS.OPPONENT + ":55";
       const stats: Partial<StatEvent>[] = [
-        { type: ACTION_TYPES.TURNOVER, playerId: oppId, primaryDefenderId: "def1" },
+        {
+          type: ACTION_TYPES.TURNOVER,
+          playerId: oppId,
+          primaryDefenderId: "def1",
+        },
       ];
       const result = calculateMatchupEfficiency(stats as StatEvent[], {});
       expect(result[0].stopPct).toBe(100);
@@ -144,7 +217,12 @@ describe("analytics.ts utilities", () => {
     it("handles free throws as possessions", () => {
       const oppId = SPECIAL_PLAYER_IDS.OPPONENT + ":10";
       const stats: Partial<StatEvent>[] = [
-        { type: ACTION_TYPES.MAKE, points: 1, playerId: oppId, primaryDefenderId: "def1" },
+        {
+          type: ACTION_TYPES.MAKE,
+          points: 1,
+          playerId: oppId,
+          primaryDefenderId: "def1",
+        },
       ];
       const result = calculateMatchupEfficiency(stats as StatEvent[], {});
       expect(result[0].possessions).toBe(1);
@@ -154,7 +232,11 @@ describe("analytics.ts utilities", () => {
     it("skips non-possession ending events", () => {
       const oppId = SPECIAL_PLAYER_IDS.OPPONENT + ":10";
       const stats: Partial<StatEvent>[] = [
-        { type: ACTION_TYPES.REBOUND, playerId: oppId, primaryDefenderId: "def1" },
+        {
+          type: ACTION_TYPES.REBOUND,
+          playerId: oppId,
+          primaryDefenderId: "def1",
+        },
       ];
       const result = calculateMatchupEfficiency(stats as StatEvent[], {});
       expect(result).toHaveLength(0);

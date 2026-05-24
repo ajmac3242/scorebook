@@ -15,11 +15,38 @@ vi.mock("dexie-react-hooks", () => ({
 vi.mock("../db", () => ({
   db: {
     teams: { get: vi.fn(), update: vi.fn() },
-    games: { where: vi.fn().mockReturnThis(), equals: vi.fn().mockReturnThis(), toArray: vi.fn().mockResolvedValue([]), add: vi.fn(), update: vi.fn() },
-    stats: { where: vi.fn().mockReturnThis(), anyOf: vi.fn().mockReturnThis(), toArray: vi.fn().mockResolvedValue([]) },
-    teamPlayers: { where: vi.fn().mockReturnThis(), equals: vi.fn().mockReturnThis(), toArray: vi.fn().mockResolvedValue([]), add: vi.fn(), delete: vi.fn(), update: vi.fn() },
-    players: { where: vi.fn().mockReturnThis(), anyOf: vi.fn().mockReturnThis(), toArray: vi.fn().mockResolvedValue([]) },
-    opponents: { where: vi.fn().mockReturnThis(), equals: vi.fn().mockReturnThis(), toArray: vi.fn().mockResolvedValue([]), first: vi.fn(), add: vi.fn() },
+    games: {
+      where: vi.fn().mockReturnThis(),
+      equals: vi.fn().mockReturnThis(),
+      toArray: vi.fn().mockResolvedValue([]),
+      add: vi.fn(),
+      update: vi.fn(),
+    },
+    stats: {
+      where: vi.fn().mockReturnThis(),
+      anyOf: vi.fn().mockReturnThis(),
+      toArray: vi.fn().mockResolvedValue([]),
+    },
+    teamPlayers: {
+      where: vi.fn().mockReturnThis(),
+      equals: vi.fn().mockReturnThis(),
+      toArray: vi.fn().mockResolvedValue([]),
+      add: vi.fn(),
+      delete: vi.fn(),
+      update: vi.fn(),
+    },
+    players: {
+      where: vi.fn().mockReturnThis(),
+      anyOf: vi.fn().mockReturnThis(),
+      toArray: vi.fn().mockResolvedValue([]),
+    },
+    opponents: {
+      where: vi.fn().mockReturnThis(),
+      equals: vi.fn().mockReturnThis(),
+      toArray: vi.fn().mockResolvedValue([]),
+      first: vi.fn(),
+      add: vi.fn(),
+    },
     open: vi.fn().mockResolvedValue(true),
   },
 }));
@@ -28,7 +55,7 @@ vi.mock("../db", () => ({
 vi.mock("react-router-dom", async () => {
   const actual = await vi.importActual("react-router-dom");
   return {
-    ...actual as any,
+    ...(actual as any),
     useParams: () => ({ teamId: "123" }),
     useNavigate: () => vi.fn(),
   };
@@ -41,7 +68,14 @@ vi.mock("../hooks/usePlayers", () => ({ usePlayers: () => [] }));
 // Mock stats utilities
 vi.mock("../utils/stats", () => ({
   calculatePlayerAggregates: () => [],
-  calculateTeamAggregates: () => ({ record: "0-0", ppg: "0", rpg: "0", apg: "0", ppp: "0", oppPpp: "0" }),
+  calculateTeamAggregates: () => ({
+    record: "0-0",
+    ppg: "0",
+    rpg: "0",
+    apg: "0",
+    ppp: "0",
+    oppPpp: "0",
+  }),
   calculateLineupStats: () => [],
   getInitials: () => "??",
 }));
@@ -66,7 +100,7 @@ describe("TeamStats Page Minimal", () => {
         <BrowserRouter>
           <TeamStats />
         </BrowserRouter>
-      </CourtSightThemeProvider>
+      </CourtSightThemeProvider>,
     );
     expect(screen.getByTestId("banner")).toHaveTextContent("Wildcats");
   });

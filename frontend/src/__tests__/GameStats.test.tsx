@@ -10,7 +10,7 @@ const mockNavigate = vi.fn();
 vi.mock("react-router-dom", async () => {
   const actual = await vi.importActual("react-router-dom");
   return {
-    ...actual as any,
+    ...(actual as any),
     useNavigate: () => mockNavigate,
     useSearchParams: () => [new URLSearchParams("gameId=game-123")],
   };
@@ -52,7 +52,7 @@ vi.mock("../db", () => ({
 vi.mock("recharts", async () => {
   const actual = await vi.importActual("recharts");
   return {
-    ...actual as any,
+    ...(actual as any),
     ResponsiveContainer: ({ children }: any) => <div>{children}</div>,
   };
 });
@@ -64,10 +64,8 @@ describe("GameStats Page", () => {
   const renderWithProviders = (ui: React.ReactNode) => {
     return render(
       <CourtSightThemeProvider>
-        <BrowserRouter>
-          {ui}
-        </BrowserRouter>
-      </CourtSightThemeProvider>
+        <BrowserRouter>{ui}</BrowserRouter>
+      </CourtSightThemeProvider>,
     );
   };
 
@@ -110,10 +108,14 @@ describe("GameStats Page", () => {
 
     await waitFor(() => screen.getByText(/Standard/i));
 
-    const impactTab = screen.getByRole("button", { name: /Impact \(On\/Off\)/i });
+    const impactTab = screen.getByRole("button", {
+      name: /Impact \(On\/Off\)/i,
+    });
     fireEvent.click(impactTab);
 
-    expect(screen.getByText(/Team Impact Analytics \(On\/Off\)/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Team Impact Analytics \(On\/Off\)/i),
+    ).toBeInTheDocument();
     expect(screen.getByText(/Matchup Accountability/i)).toBeInTheDocument();
   });
 
@@ -125,23 +127,29 @@ describe("GameStats Page", () => {
 
     fireEvent.click(clutchToggle);
     // Should have different styles/classes now
-    expect(clutchToggle).toHaveStyle("background-color: var(--cs-semantic-color-emphasis-clutch)");
+    expect(clutchToggle).toHaveStyle(
+      "background-color: var(--cs-semantic-color-emphasis-clutch)",
+    );
   });
 
   it("opens the Practice Prescription dialog", async () => {
     renderWithProviders(<GameStats />);
 
-    await waitFor(() => screen.getByRole("button", { name: /Practice Planner/i }));
+    await waitFor(() =>
+      screen.getByRole("button", { name: /Practice Planner/i }),
+    );
     fireEvent.click(screen.getByRole("button", { name: /Practice Planner/i }));
 
-    expect(screen.getByText("Practice Prescription Engine")).toBeInTheDocument();
+    expect(
+      screen.getByText("Practice Prescription Engine"),
+    ).toBeInTheDocument();
   });
 
   it("opens the Edit Game dialog", async () => {
     renderWithProviders(<GameStats />);
 
     await waitFor(() => screen.getByTestId("EditIcon"));
-    fireEvent.click(screen.getByTestId("EditIcon").closest('button')!);
+    fireEvent.click(screen.getByTestId("EditIcon").closest("button")!);
 
     expect(screen.getByText("Edit Game Details")).toBeInTheDocument();
     expect(screen.getByLabelText("Opponent")).toHaveValue("Rivals");

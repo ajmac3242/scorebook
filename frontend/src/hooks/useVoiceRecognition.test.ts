@@ -46,7 +46,9 @@ describe("useVoiceRecognition", () => {
       lang: "",
     };
 
-    const MockSpeechRecognition = vi.fn().mockImplementation(function (_this: unknown) {
+    const MockSpeechRecognition = vi.fn().mockImplementation(function (
+      _this: unknown,
+    ) {
       const self = _this as Record<string, unknown>;
       self.start = mockSpeechRecognition.start;
       self.stop = mockSpeechRecognition.stop;
@@ -77,35 +79,48 @@ describe("useVoiceRecognition", () => {
       });
     });
 
-    (window as unknown as Record<string, unknown>).SpeechRecognition = MockSpeechRecognition;
+    (window as unknown as Record<string, unknown>).SpeechRecognition =
+      MockSpeechRecognition;
   });
 
   afterEach(() => {
     delete (window as unknown as Record<string, unknown>).SpeechRecognition;
-    delete (window as unknown as Record<string, unknown>).webkitSpeechRecognition;
+    delete (window as unknown as Record<string, unknown>)
+      .webkitSpeechRecognition;
   });
 
   it("warns if SpeechRecognition is not supported", () => {
     delete (window as unknown as Record<string, unknown>).SpeechRecognition;
-    renderHook(() => useVoiceRecognition({ onCommand: vi.fn(), enabled: true }));
-    expect(logger.warn).toHaveBeenCalledWith("Web Speech API is not supported in this browser.");
+    renderHook(() =>
+      useVoiceRecognition({ onCommand: vi.fn(), enabled: true }),
+    );
+    expect(logger.warn).toHaveBeenCalledWith(
+      "Web Speech API is not supported in this browser.",
+    );
   });
 
   it("starts recognition if enabled is true", () => {
-    renderHook(() => useVoiceRecognition({ onCommand: vi.fn(), enabled: true }));
+    renderHook(() =>
+      useVoiceRecognition({ onCommand: vi.fn(), enabled: true }),
+    );
     expect(mockSpeechRecognition.start).toHaveBeenCalled();
   });
 
   it("stops recognition if enabled is false", () => {
-    const { rerender } = renderHook(({ enabled }) => useVoiceRecognition({ onCommand: vi.fn(), enabled }), {
-      initialProps: { enabled: true }
-    });
+    const { rerender } = renderHook(
+      ({ enabled }) => useVoiceRecognition({ onCommand: vi.fn(), enabled }),
+      {
+        initialProps: { enabled: true },
+      },
+    );
     rerender({ enabled: false });
     expect(mockSpeechRecognition.stop).toHaveBeenCalled();
   });
 
   it("updates isListening when onstart is called", () => {
-    const { result } = renderHook(() => useVoiceRecognition({ onCommand: vi.fn(), enabled: true }));
+    const { result } = renderHook(() =>
+      useVoiceRecognition({ onCommand: vi.fn(), enabled: true }),
+    );
     act(() => {
       currentOnstart();
     });
@@ -115,13 +130,13 @@ describe("useVoiceRecognition", () => {
 
   it("processes transcript and calls onCommand when result is received", () => {
     const onCommand = vi.fn();
-    const { result } = renderHook(() => useVoiceRecognition({ onCommand, enabled: true }));
+    const { result } = renderHook(() =>
+      useVoiceRecognition({ onCommand, enabled: true }),
+    );
 
     const mockEvent = {
-      results: [
-        [{ transcript: "foul" }]
-      ],
-      resultIndex: 0
+      results: [[{ transcript: "foul" }]],
+      resultIndex: 0,
     };
 
     act(() => {
@@ -132,7 +147,9 @@ describe("useVoiceRecognition", () => {
   });
 
   it("handles errors and updates isListening", () => {
-    const { result } = renderHook(() => useVoiceRecognition({ onCommand: vi.fn(), enabled: true }));
+    const { result } = renderHook(() =>
+      useVoiceRecognition({ onCommand: vi.fn(), enabled: true }),
+    );
     act(() => {
       currentOnstart();
     });
@@ -142,11 +159,16 @@ describe("useVoiceRecognition", () => {
       currentOnerror({ error: "network", message: "no internet" });
     });
     expect(result.current.isListening).toBe(false);
-    expect(logger.error).toHaveBeenCalledWith("Voice recognition error:", "network");
+    expect(logger.error).toHaveBeenCalledWith(
+      "Voice recognition error:",
+      "network",
+    );
   });
 
   it("handles onend and auto-restarts if enabled", () => {
-    renderHook(() => useVoiceRecognition({ onCommand: vi.fn(), enabled: true }));
+    renderHook(() =>
+      useVoiceRecognition({ onCommand: vi.fn(), enabled: true }),
+    );
     act(() => {
       currentOnend();
     });

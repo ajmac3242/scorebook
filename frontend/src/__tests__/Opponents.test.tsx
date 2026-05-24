@@ -24,10 +24,10 @@ vi.mock("../utils/syncService", () => ({
 }));
 
 // Mock crypto.randomUUID
-if (typeof window !== 'undefined' && !window.crypto?.randomUUID) {
-  Object.defineProperty(window.crypto, 'randomUUID', {
-    value: vi.fn().mockReturnValue('test-uuid'),
-    configurable: true
+if (typeof window !== "undefined" && !window.crypto?.randomUUID) {
+  Object.defineProperty(window.crypto, "randomUUID", {
+    value: vi.fn().mockReturnValue("test-uuid"),
+    configurable: true,
   });
 }
 
@@ -42,11 +42,13 @@ describe("Opponents Page", () => {
     render(
       <BrowserRouter>
         <Opponents />
-      </BrowserRouter>
+      </BrowserRouter>,
     );
 
     expect(screen.getByText(/No opponents tracked yet/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Add Your First Opponent/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /Add Your First Opponent/i }),
+    ).toBeInTheDocument();
   });
 
   it("renders a list of opponents", async () => {
@@ -59,7 +61,7 @@ describe("Opponents Page", () => {
     render(
       <BrowserRouter>
         <Opponents />
-      </BrowserRouter>
+      </BrowserRouter>,
     );
 
     await waitFor(() => {
@@ -77,7 +79,7 @@ describe("Opponents Page", () => {
     render(
       <BrowserRouter>
         <Opponents />
-      </BrowserRouter>
+      </BrowserRouter>,
     );
 
     // Open dialog
@@ -85,17 +87,23 @@ describe("Opponents Page", () => {
     expect(screen.getByText("Add New Opponent")).toBeInTheDocument();
 
     // Fill form
-    fireEvent.change(screen.getByLabelText(/Opponent Name/i), { target: { value: "Warriors" } });
-    fireEvent.change(screen.getByLabelText(/Logo URL/i), { target: { value: "http://logo.png" } });
+    fireEvent.change(screen.getByLabelText(/Opponent Name/i), {
+      target: { value: "Warriors" },
+    });
+    fireEvent.change(screen.getByLabelText(/Logo URL/i), {
+      target: { value: "http://logo.png" },
+    });
 
     // Submit
     fireEvent.click(screen.getByRole("button", { name: "Add" }));
 
     await waitFor(() => {
-      expect(db.opponents.add).toHaveBeenCalledWith(expect.objectContaining({
-        name: "Warriors",
-        logoUrl: "http://logo.png",
-      }));
+      expect(db.opponents.add).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: "Warriors",
+          logoUrl: "http://logo.png",
+        }),
+      );
       expect(syncService.pushUpdates).toHaveBeenCalled();
     });
   });
@@ -107,7 +115,7 @@ describe("Opponents Page", () => {
     render(
       <BrowserRouter>
         <Opponents />
-      </BrowserRouter>
+      </BrowserRouter>,
     );
 
     await waitFor(() => screen.getByText("Lakers"));
@@ -116,7 +124,9 @@ describe("Opponents Page", () => {
     fireEvent.click(screen.getByLabelText(/Delete Opponent/i));
 
     // Check dialog content
-    expect(screen.getByText(/Are you sure you want to delete/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Are you sure you want to delete/i),
+    ).toBeInTheDocument();
     // Lakers name appears in the list and in the dialog. Use getAllByText or specific selector.
     expect(screen.getAllByText("Lakers").length).toBeGreaterThan(1);
 

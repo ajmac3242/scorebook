@@ -25,11 +25,9 @@ describe("Settings Page", () => {
     return render(
       <CourtSightThemeProvider>
         <AuthProvider>
-          <BrowserRouter>
-            {ui}
-          </BrowserRouter>
+          <BrowserRouter>{ui}</BrowserRouter>
         </AuthProvider>
-      </CourtSightThemeProvider>
+      </CourtSightThemeProvider>,
     );
   };
 
@@ -39,7 +37,9 @@ describe("Settings Page", () => {
     expect(screen.getByText("Settings")).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: /Account/i })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: /System/i })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: /Appearance/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("tab", { name: /Appearance/i }),
+    ).toBeInTheDocument();
   });
 
   it("switches to Appearance tab and shows theme presets", async () => {
