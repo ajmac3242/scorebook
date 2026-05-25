@@ -1,5 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  act,
+} from "@testing-library/react";
 import GameStats from "../pages/GameStats";
 import { BrowserRouter } from "react-router-dom";
 import { db } from "../db";
@@ -144,7 +150,9 @@ describe("GameStats Page", () => {
       screen.getByRole("button", { name: /Practice Planner/i }),
     );
     await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: /Practice Planner/i }));
+      fireEvent.click(
+        screen.getByRole("button", { name: /Practice Planner/i }),
+      );
     });
 
     expect(

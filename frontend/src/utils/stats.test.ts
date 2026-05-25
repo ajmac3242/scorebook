@@ -64,7 +64,6 @@ describe("stats utilities", () => {
     });
   });
 
-
   describe("calculatePlayerAggregates", () => {
     const players = [
       { id: "p1", name: "Player 1", avatarColor: "red" },

@@ -1,5 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  act,
+} from "@testing-library/react";
 import SubstitutionAuditDialog from "../components/SubstitutionAuditDialog";
 import { db } from "../db";
 
@@ -66,7 +72,7 @@ describe("SubstitutionAuditDialog", () => {
         gameId={mockGameId}
         players={mockPlayers}
         jerseyMap={mockJerseyMap}
-      />
+      />,
     );
 
     await waitFor(() => {
@@ -85,7 +91,7 @@ describe("SubstitutionAuditDialog", () => {
         gameId={mockGameId}
         players={mockPlayers}
         jerseyMap={mockJerseyMap}
-      />
+      />,
     );
 
     await waitFor(() => screen.getByLabelText(/Edit sub in for Player One/i));
@@ -115,7 +121,7 @@ describe("SubstitutionAuditDialog", () => {
         gameId={mockGameId}
         players={mockPlayers}
         jerseyMap={mockJerseyMap}
-      />
+      />,
     );
 
     await waitFor(() => screen.getByLabelText(/Delete sub in for Player One/i));
@@ -125,16 +131,21 @@ describe("SubstitutionAuditDialog", () => {
       fireEvent.click(deleteButton);
     });
 
-    expect(screen.getByText(/Delete Substitution Event\?/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Delete Substitution Event\?/i),
+    ).toBeInTheDocument();
 
     const confirmButton = screen.getByRole("button", { name: /Delete Event/i });
     await act(async () => {
       fireEvent.click(confirmButton);
     });
 
-    expect(db.stats.update).toHaveBeenCalledWith("s1", expect.objectContaining({
-      deletedAt: expect.any(String),
-    }));
+    expect(db.stats.update).toHaveBeenCalledWith(
+      "s1",
+      expect.objectContaining({
+        deletedAt: expect.any(String),
+      }),
+    );
   });
 
   it("handles saving an edit", async () => {
@@ -147,7 +158,7 @@ describe("SubstitutionAuditDialog", () => {
         gameId={mockGameId}
         players={mockPlayers}
         jerseyMap={mockJerseyMap}
-      />
+      />,
     );
 
     await waitFor(() => screen.getByLabelText(/Edit sub in for Player One/i));
@@ -165,9 +176,12 @@ describe("SubstitutionAuditDialog", () => {
       fireEvent.click(saveButton);
     });
 
-    expect(db.stats.update).toHaveBeenCalledWith("s1", expect.objectContaining({
-      clockTime: 570,
-    }));
+    expect(db.stats.update).toHaveBeenCalledWith(
+      "s1",
+      expect.objectContaining({
+        clockTime: 570,
+      }),
+    );
   });
 
   it("filters events by player", async () => {
@@ -178,7 +192,7 @@ describe("SubstitutionAuditDialog", () => {
         gameId={mockGameId}
         players={mockPlayers}
         jerseyMap={mockJerseyMap}
-      />
+      />,
     );
 
     await waitFor(() => screen.getByText("Player One"));

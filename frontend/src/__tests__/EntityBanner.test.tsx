@@ -19,7 +19,9 @@ describe("EntityBanner", () => {
   };
 
   it("renders basic title and subtitle", () => {
-    renderWithRouter(<EntityBanner title="Test Team" subtitle="Test Subtitle" />);
+    renderWithRouter(
+      <EntityBanner title="Test Team" subtitle="Test Subtitle" />,
+    );
     expect(screen.getByText("Test Team")).toBeInTheDocument();
     expect(screen.getByText("Test Subtitle")).toBeInTheDocument();
   });
@@ -55,7 +57,11 @@ describe("EntityBanner", () => {
   it("handles search expansion and input", async () => {
     const onSearchChange = vi.fn();
     renderWithRouter(
-      <EntityBanner title="Test" onSearchChange={onSearchChange} searchTerm="" />
+      <EntityBanner
+        title="Test"
+        onSearchChange={onSearchChange}
+        searchTerm=""
+      />,
     );
 
     const searchButton = screen.getByLabelText("search");

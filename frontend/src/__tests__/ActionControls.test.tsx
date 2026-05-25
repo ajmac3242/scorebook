@@ -79,10 +79,16 @@ describe("ActionControls", () => {
   });
 
   it("shows correct possession toggle state", () => {
-    const { rerender } = render(<ActionControls {...mockProps} possessionState="OUR_TEAM" />);
-    expect(screen.getByLabelText(/Change possession to Opponent/i)).toBeInTheDocument();
+    const { rerender } = render(
+      <ActionControls {...mockProps} possessionState="OUR_TEAM" />,
+    );
+    expect(
+      screen.getByLabelText(/Change possession to Opponent/i),
+    ).toBeInTheDocument();
 
     rerender(<ActionControls {...mockProps} possessionState="OPPONENT" />);
-    expect(screen.getByLabelText(/Change possession to Our Team/i)).toBeInTheDocument();
+    expect(
+      screen.getByLabelText(/Change possession to Our Team/i),
+    ).toBeInTheDocument();
   });
 });

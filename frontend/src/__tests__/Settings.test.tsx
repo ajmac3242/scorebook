@@ -53,15 +53,13 @@ if (!db.tables) {
 // Mock logger
 vi.mock("../utils/logger", () => ({
   logger: {
-    getLogs: vi
-      .fn()
-      .mockReturnValue([
-        {
-          level: "info",
-          timestamp: "2024-01-01T10:00:00Z",
-          message: "Initial log",
-        },
-      ]),
+    getLogs: vi.fn().mockReturnValue([
+      {
+        level: "info",
+        timestamp: "2024-01-01T10:00:00Z",
+        message: "Initial log",
+      },
+    ]),
     clearLogs: vi.fn(),
     info: vi.fn(),
     warn: vi.fn(),
