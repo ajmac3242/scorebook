@@ -1,5 +1,55 @@
 # CourtSight Backlog
 
+## [ ] [Live 'Transition-Leakage' Causal Auditor]
+**Priority:** HIGH
+**Type:** Feature / Causal Accountability
+**Why:** Transition defense is often the first thing to break under pressure. Identifying whether "Leakage" is caused by poor floor balance, slow retreat speed, or missed "First-Pass" pressure allows for immediate tactical correction.
+**What:** An analytical HUD that activates after opponent transition scores, categorizing the failure based on player positioning and retreat timing data.
+**Acceptance Criteria:**
+- [ ] "Leakage Anatomy" display showing the primary cause of transition points (e.g., "Poor Floor Balance").
+- [ ] Accountability Index: Identifying players with the slowest average retreat-to-rim speed.
+- [ ] Alert: "Transition Vulnerability" if 2+ consecutive possessions end in opponent fast-break attempts.
+
+## [ ] [Automated '2-for-1' & Clock-Leverage Advisor]
+**Priority:** HIGH
+**Type:** Feature / Decision Support
+**Why:** Managing the clock in the final 2 minutes of a quarter or game is a mathematical challenge that coaches often miss in high-stress moments. Automating the "2-for-1" window ensures the team maximizes possession volume.
+**What:** A live clock-leverage indicator that glows when the "2-for-1" window is active and suggests the optimal shot-clock release time.
+**Acceptance Criteria:**
+- [ ] "2-for-1" visual alert in the Scoreboard HUD when the window opens (< 42s in period).
+- [ ] Suggested release time (e.g., "Shoot by 32s") to ensure a final possession.
+- [ ] "Clock Leverage" grade based on the team's adherence to end-of-period mathematical advantages.
+
+## [ ] [Opponent 'Adjustment-Response' Detector]
+**Priority:** HIGH
+**Type:** Predictive Intelligence
+**Why:** Elite opponent coaches respond to our adjustments. If we start trapping #24, they will pivot to a "Slip" or "Short Roll." Detecting their *response* to our tactical pivot allows us to stay one move ahead.
+**What:** An engine that monitors opponent play-type shifts specifically following a change in our active defensive scheme or tactical directive.
+**Acceptance Criteria:**
+- [ ] Alert: "Opponent Counter-Move: Adjusting to TRAP with High-Post Flash."
+- [ ] "Adjustment ROI" tracking the efficiency of our pivot before and after the opponent counter-adjustment.
+- [ ] Suggested "Counter-Counter" directive based on the detected opponent response.
+
+## [ ] [ATO Execution & Directive ROI Auditor]
+**Priority:** HIGH
+**Type:** Analytics / Feature
+**Why:** After-Timeout (ATO) plays are a signature of elite coaching. This auditor tracks the "Relay-to-Result" success rate, proving if the coach's huddle directives are actually translating into points.
+**What:** A specialized tracking layer that bookmarks the first possession following every timeout and calculates the team's "ATO PPP" (Points Per Possession).
+**Acceptance Criteria:**
+- [ ] "ATO ROI" leaderboard showing the success rate of various play-types called out of timeouts.
+- [ ] "Directive Accuracy" metric: % of ATO possessions that successfully executed the called play/directive.
+- [ ] Post-game "ATO Efficiency" summary comparing our execution to the opponent's.
+
+## [ ] [Live 'Defensive-Rotation' Stress Gauge]
+**Priority:** HIGH
+**Type:** Feature / UX
+**Why:** A defense can "hold" for 2-3 rotations before it inevitably breaks. Measuring the "Stress" (number of consecutive close-outs and tags) on the shell reveals when a collapse is imminent, even if the opponent hasn't scored yet.
+**What:** A live gauge that tracks the "Rotation Count" (number of defensive responses to ball movement) within a single possession and flags "High-Stress" scenarios.
+**Acceptance Criteria:**
+- [ ] "Stress Gauge" in the Tactical Identity HUD showing the number of consecutive rotations required.
+- [ ] Alert: "Shell Fatigue" when a possession exceeds 4 rotations.
+- [ ] Suggested timeout or sub if a unit sustains 3+ "High-Stress" possessions in a row.
+
 ## [ ] [Live 'Strategic-Command' Relay & Verification Workflow]
 **Priority:** HIGH
 **Type:** Feature / Decision Automation
@@ -717,7 +767,7 @@
 - [ ] Implement a multi-step workflow for the `Create Game` dialog (Opponent -> Date/Time -> Settings).
 - [ ] Update `Edit Team Details` to include global game defaults (period lengths, foul limits, timeout counts).
 
-## [Live Timeout Huddle Snapshot]
+## [ ] [Live Timeout Huddle Snapshot]
 **Priority:** HIGH
 **Type:** Feature / UX
 **Why:** Coaches have only 60 seconds during a timeout. Surfacing the 3 most critical tactical data points (e.g., "Opponent Run PPP," "Our Best Active Lineup," and "Execution Gap") removes the mental fog of high-pressure moments.
@@ -757,7 +807,7 @@
 - [ ] Predictive "Minutes Remaining" before recommended sub based on cumulative game load.
 - [ ] Alert: "Player X is approaching Red-Line; Efficiency expected to drop by 15%."
 
-## [Opponent Tendency 'Scouting Badge' Overlay]
+## [ ] [Opponent Tendency 'Scouting Badge' Overlay]
 **Priority:** HIGH
 **Type:** Feature / UX
 **Why:** Scouting reports are useless if the coach has to look away from the court to remember them. Surfacing tendencies (e.g., "Drives Left 80%") directly on the live tracking card keeps the game plan in focus.
@@ -767,7 +817,7 @@
 - [ ] Dynamic badge updates if the opponent deviates from season tendencies during the live game.
 - [ ] One-tap access to the full scouting report for that specific player from the GameMode.
 
-## [Live 'Process-over-Result' Confidence HUD]
+## [ ] [Live 'Process-over-Result' Confidence HUD]
 **Priority:** HIGH
 **Type:** Feature / UX
 **Why:** Teams often abandon a winning offensive "Process" because shots aren't falling (Bad Luck). Surfacing the "Expected Points" vs "Actual Points" delta in real-time allows coaches to keep players focused on high-quality looks even during a shooting slump.
@@ -777,7 +827,7 @@
 - [ ] Real-time "Process Delta" (+/- xPTS) displayed in the Tactical HUD.
 - [ ] Alert: "Trust the Process" triggered during a 0-for-5 slump on "OPEN" shots.
 
-## [Opponent 'Tactical Shift' Detector]
+## [ ] [Opponent 'Tactical Shift' Detector]
 **Priority:** HIGH
 **Type:** Predictive Intelligence
 **Why:** Opponent coaches often pivot schemes (e.g., Man to Zone) or focal points (e.g., PnR to Post) mid-quarter. Detecting these shifts early allows for preemptive counter-adjustments before a run starts.
@@ -787,7 +837,7 @@
 - [ ] Alert: "Opponent Shift: increased focus on RIM ATTACKS (+30% vs game average)."
 - [ ] Visual indicator on the opponent card when their "Play-Type Frequency" shifts by >15%.
 
-## [Live 'Unit Rhythm' Stagnation Alert]
+## [ ] [Live 'Unit Rhythm' Stagnation Alert]
 **Priority:** HIGH
 **Type:** Feature / Decision Support
 **Why:** Lineups often "Stagnate" (efficiency cliffs) before the coach notices. Identifying "Rhythm Decay" within a single stint—rather than relying on overall game Net Rating—drives faster substitution decisions.
@@ -797,7 +847,7 @@
 - [ ] Alert: "Unit Stagnation: PPP has dropped by 0.4 in the last 4 minutes."
 - [ ] Suggested "Spark Plug" sub from the bench when stagnation is detected.
 
-## [Automated 'Rim Protection' (Verticality) ROI]
+## [ ] [Automated 'Rim Protection' (Verticality) ROI]
 **Priority:** HIGH
 **Type:** Analytics / Causal Accountability
 **Why:** Elite rim protection is often about "forcing a miss" through verticality rather than a block. Quantifying the points saved by defenders who don't record a counting stat reveals the team's true defensive anchors.
@@ -807,7 +857,7 @@
 - [ ] Leaderboard for "Rim Deterrence" identifying players with the lowest Opponent Rim % when on-court.
 - [ ] Attribution: Automatically link on-court "Defensive Anchor" to opponent rim misses.
 
-## [Live 'Off-Ball' Defensive Accountability Tracker]
+## [ ] [Live 'Off-Ball' Defensive Accountability Tracker]
 **Priority:** HIGH
 **Type:** Feature / Causal Accountability
 **Why:** Most points allowed aren't "blow-bys" but "late tags" or "missed rotations" off-ball. Isolating off-ball failures from primary defender failure is the key to fixing a leaky defense.
@@ -817,7 +867,7 @@
 - [ ] "Off-Ball Failure" leaderboard in GameStats.
 - [ ] Correlation matrix: identifying if specific pairs (Guard/Big) have a high "Missed Tag" rate on PnR.
 
-## [Live 'Synergy Seam' Exposure Alert]
+## [ ] [Live 'Synergy Seam' Exposure Alert]
 **Priority:** HIGH
 **Type:** Feature / Causal Accountability
 **Why:** Defensive failures are often caused by specific 2-player pairings missing rotations. Identifying "Leaky Duos" in real-time allows coaches to make surgical substitution adjustments before a defensive collapse.
@@ -847,7 +897,7 @@
 - [ ] Isolation of the `StatEvent` deemed the "Pivot" (the last team success before the opponent run).
 - [ ] High-visibility "Pivot Summary" in the Halftime Report.
 
-## [Live 'Expected Lead' (xLead) Gauge]
+## [ ] [Live 'Expected Lead' (xLead) Gauge]
 **Priority:** HIGH
 **Type:** Feature / UX
 **Why:** Coaches often overreact to a deficit that is actually just "Bad Luck" (cold shooting on good looks). The xLead gauge keeps the coaching staff calm by showing the score based on Shot Quality (xPTS).
@@ -857,7 +907,7 @@
 - [ ] "Luck Delta" indicator: Color-coded to show if the team is overperforming or underperforming their process.
 - [ ] Alert: "Stay the Course" triggered if xScore lead is > 5 while actual score is trailing.
 
-## [Opponent 'Tactical Identity' Deviation Alert]
+## [ ] [Opponent 'Tactical Identity' Deviation Alert]
 **Priority:** HIGH
 **Type:** Predictive Intelligence
 **Why:** Opponents often "break character" under pressure or after a timeout. Detecting when they stop running their primary sets or shift their shot profile allows for immediate counter-adjustments.
