@@ -1,3 +1,14 @@
+/**
+ * @file GameMode.test.tsx
+ * @description Integration tests for the GameMode page.
+ *
+ * These tests verify end-to-end workflows including stat recording,
+ * lineup management, possession tracking, and coach board interactions.
+ *
+ * Sub-component unit tests live in __tests__/GameMode/ (e.g. VoiceModeBanner,
+ * TrackingModeToolbar, CourtMarkerFilters, LiveLineupCard, SparkPlugTable,
+ * DefensiveSchemeSelector, MatchupAnalyticsCard, OffensiveKPICard).
+ */
 import {
   render,
   screen,
