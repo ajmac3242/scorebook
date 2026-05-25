@@ -1,3 +1,11 @@
+## 2025-06-11 - Strategic Counter-Moves: Mastering the Tactical Response Loop
+
+Observation: We have successfully addressed the "Directives" and "Relay Accountability" layers. However, the game of basketball is a constant cycle of adjustments and counter-adjustments. Currently, we track our own tactical pivots, but we don't yet explicitly detect the **Opponent's Response** to those pivots. Furthermore, we are missing the "ATO ROI" (After Timeout)—the gold standard of coaching execution.
+
+Impact: Without detecting opponent counter-moves, a coach might stick with a tactical adjustment (e.g., a specific trap) long after the opponent has "solved" it. Furthermore, failing to quantify the success of huddle directives (ATO) means we cannot hold the coaching staff accountable for their most direct tactical interventions.
+
+Recommendation: Pivot toward **Counter-Tactical Intelligence** and **Execution ROI**. We must implement systems to detect opponent adjustments in real-time (the "Counter-Move" detector) and provide surgical feedback on ATO execution. We are moving from providing a "winning game plan" to providing a "dynamic tactical response engine" that evolves with the game flow.
+
 ## 2025-06-10 - Strategic Command: Relay Accountability & Anticipatory Feedback
 
 Observation: We have perfected the "Directive" engine (telling the coach what to do). However, the final "Last Mile" problem is **Relay Accountability**. A system directive only wins games if it is successfully communicated to the floor and executed. Currently, there is no verification loop to ensure that the coach's tactical pivot was actually attempted or if it yielded the expected ROI.
