@@ -1,10 +1,16 @@
-import { jest, describe, it, expect, beforeEach } from "@jest/globals";
+import {
+  jest,
+  describe,
+  it,
+  expect,
+  beforeEach,
+} from "@jest/globals";
 import { handler } from "../index.js";
 import { safeCompare } from "../utils.js";
 import {
   DynamoDBDocumentClient,
   QueryCommand,
-  PutCommand,
+  PutCommand
 } from "@aws-sdk/lib-dynamodb";
 import { mockClient } from "aws-sdk-client-mock";
 
@@ -16,14 +22,10 @@ describe("Sentinel Security Gap Verification", () => {
   });
 
   it("VERIFY: redactString only redacts the key, not the value (Information Leak)", async () => {
-    const consoleSpy = jest
-      .spyOn(console, "error")
-      .mockImplementation(() => {});
+    const consoleSpy = jest.spyOn(console, "error").mockImplementation(() => {});
 
     // Force an error with sensitive info in the message
-    const sensitiveError = new Error(
-      "Failed to connect with password=secret123",
-    );
+    const sensitiveError = new Error("Failed to connect with password=secret123");
     ddbMock.on(QueryCommand).rejects(sensitiveError);
 
     const event: any = {
@@ -34,8 +36,8 @@ describe("Sentinel Security Gap Verification", () => {
 
     await handler(event);
 
-    const logCall = consoleSpy.mock.calls.find((call) =>
-      call.some((arg) => typeof arg === "string" && arg.includes("[REDACTED]")),
+    const logCall = consoleSpy.mock.calls.find(call =>
+      call.some(arg => typeof arg === 'string' && arg.includes("[REDACTED]"))
     );
 
     expect(logCall).toBeDefined();
@@ -50,9 +52,7 @@ describe("Sentinel Security Gap Verification", () => {
   });
 
   it("ENHANCEMENT 2: parseBody rejects prototype pollution keys", async () => {
-    const consoleSpy = jest
-      .spyOn(console, "error")
-      .mockImplementation(() => {});
+    const consoleSpy = jest.spyOn(console, "error").mockImplementation(() => {});
     ddbMock.on(QueryCommand).resolves({ Items: [] });
 
     const event: any = {
@@ -60,18 +60,14 @@ describe("Sentinel Security Gap Verification", () => {
       rawPath: "/teams",
       requestContext: { http: { method: "POST", path: "/teams" } },
       headers: { "content-type": "application/json" },
-      body: '{"name": "Test Team", "__proto__": {"polluted": true}}',
+      body: '{"name": "Test Team", "__proto__": {"polluted": true}}'
     };
 
     const response: any = await handler(event);
     expect(response.statusCode).toBe(400);
 
-    const logCall = consoleSpy.mock.calls.find((call) =>
-      call.some(
-        (arg) =>
-          typeof arg === "string" &&
-          arg.includes("Prototype pollution attempt detected"),
-      ),
+    const logCall = consoleSpy.mock.calls.find(call =>
+      call.some(arg => typeof arg === 'string' && arg.includes("Prototype pollution attempt detected"))
     );
     expect(logCall).toBeDefined();
     consoleSpy.mockRestore();
@@ -83,76 +79,54 @@ describe("Sentinel Security Gap Verification", () => {
     const event: any = {
       version: "2.0",
       rawPath: "/games/277e909a-6536-4d2d-937e-f608759556fb/stats",
-      requestContext: {
-        http: {
-          method: "POST",
-          path: "/games/277e909a-6536-4d2d-937e-f608759556fb/stats",
-        },
-      },
+      requestContext: { http: { method: "POST", path: "/games/277e909a-6536-4d2d-937e-f608759556fb/stats" } },
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
         type: "MAKE",
         playerId: "277e909a-6536-4d2d-937e-f608759556fb",
         nested: {
           very: {
-            deep: "A".repeat(150), // exceeds 128
-          },
-        },
-      }),
+            deep: "A".repeat(150) // exceeds 128
+          }
+        }
+      })
     };
 
     const response: any = await handler(event);
     expect(response.statusCode).toBe(400);
-    expect(JSON.parse(response.body).message).toContain(
-      "exceeds maximum length",
-    );
+    expect(JSON.parse(response.body).message).toContain("exceeds maximum length");
   });
 
   it("ENHANCEMENT 4 & 5: validateObjectDepthAndSize guards against oversized payloads", async () => {
     ddbMock.on(PutCommand).resolves({});
 
     // Test Property Limit
-    const oversizedBody: any = {
-      type: "MAKE",
-      playerId: "277e909a-6536-4d2d-937e-f608759556fb",
-    };
+    const oversizedBody: any = { type: "MAKE", playerId: "277e909a-6536-4d2d-937e-f608759556fb" };
     for (let i = 0; i < 60; i++) oversizedBody[`key${i}`] = "value";
 
     const event1: any = {
       version: "2.0",
       rawPath: "/games/277e909a-6536-4d2d-937e-f608759556fb/stats",
-      requestContext: {
-        http: {
-          method: "POST",
-          path: "/games/277e909a-6536-4d2d-937e-f608759556fb/stats",
-        },
-      },
+      requestContext: { http: { method: "POST", path: "/games/277e909a-6536-4d2d-937e-f608759556fb/stats" } },
       headers: { "content-type": "application/json" },
-      body: JSON.stringify(oversizedBody),
+      body: JSON.stringify(oversizedBody)
     };
 
     const resp1: any = await handler(event1);
     expect(resp1.statusCode).toBe(400);
-    expect(JSON.parse(resp1.body).message).toBe(
-      "Object property limit exceeded",
-    );
+    expect(JSON.parse(resp1.body).message).toBe("Object property limit exceeded");
 
     // Test Array Limit
     const event2: any = {
       version: "2.0",
       rawPath: "/games/277e909a-6536-4d2d-937e-f608759556fb/stats",
-      requestContext: {
-        http: {
-          method: "POST",
-          path: "/games/277e909a-6536-4d2d-937e-f608759556fb/stats",
-        },
-      },
+      requestContext: { http: { method: "POST", path: "/games/277e909a-6536-4d2d-937e-f608759556fb/stats" } },
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
         type: "MAKE",
         playerId: "277e909a-6536-4d2d-937e-f608759556fb",
-        tags: new Array(101).fill("tag"),
-      }),
+        tags: new Array(101).fill("tag")
+      })
     };
     const resp2: any = await handler(event2);
     expect(resp2.statusCode).toBe(400);
@@ -165,10 +139,7 @@ describe("Sentinel Security Gap Verification", () => {
     const event: any = {
       version: "2.0",
       rawPath: "/teams",
-      requestContext: {
-        http: { method: "GET", path: "/teams" },
-        requestId: "test-req-id",
-      },
+      requestContext: { http: { method: "GET", path: "/teams" }, requestId: "test-req-id" },
     };
 
     const response: any = await handler(event);
@@ -192,24 +163,19 @@ describe("Sentinel Security Gap Verification", () => {
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
         name: "Hacker\0Team",
-      }),
+      })
     };
 
     const response: any = await handler(event);
     expect(response.statusCode).toBe(400);
-    expect(JSON.parse(response.body).message).toContain(
-      "contains invalid characters",
-    );
+    expect(JSON.parse(response.body).message).toContain("contains invalid characters");
   });
 
   it("ENHANCEMENT 10: validateStringLengths enforces recursion depth", async () => {
     ddbMock.on(PutCommand).resolves({});
 
     // Create a deeply nested object
-    const deepObj: any = {
-      type: "MAKE",
-      playerId: "277e909a-6536-4d2d-937e-f608759556fb",
-    };
+    const deepObj: any = { type: "MAKE", playerId: "277e909a-6536-4d2d-937e-f608759556fb" };
     let current = deepObj;
     for (let i = 0; i < 15; i++) {
       current.nested = {};
@@ -219,21 +185,14 @@ describe("Sentinel Security Gap Verification", () => {
     const event: any = {
       version: "2.0",
       rawPath: "/games/277e909a-6536-4d2d-937e-f608759556fb/stats",
-      requestContext: {
-        http: {
-          method: "POST",
-          path: "/games/277e909a-6536-4d2d-937e-f608759556fb/stats",
-        },
-      },
+      requestContext: { http: { method: "POST", path: "/games/277e909a-6536-4d2d-937e-f608759556fb/stats" } },
       headers: { "content-type": "application/json" },
-      body: JSON.stringify(deepObj),
+      body: JSON.stringify(deepObj)
     };
 
     const response: any = await handler(event);
     expect(response.statusCode).toBe(400);
     // It will hit validateObjectDepthAndSize first (limit 5) or validateStringLengths (limit 10)
-    expect(JSON.parse(response.body).message).toMatch(
-      /limit exceeded|depth exceeded/,
-    );
+    expect(JSON.parse(response.body).message).toMatch(/limit exceeded|depth exceeded/);
   });
 });

@@ -256,13 +256,13 @@ export function validateObjectDepthAndSize(
   data: unknown,
   depth = 0,
 ): string | null {
-  const MAX_DEPTH = 5;
+  const MAX_DEPTH = 10;
   const MAX_PROPERTIES = 50;
   const MAX_ARRAY_LENGTH = 100;
 
-  if (depth > MAX_DEPTH) return "Object depth limit exceeded";
-
   if (data === null || typeof data !== "object") return null;
+
+  if (depth > MAX_DEPTH) return "Object depth limit exceeded";
 
   if (Array.isArray(data)) {
     if (data.length > MAX_ARRAY_LENGTH) return "Array length limit exceeded";
@@ -298,7 +298,6 @@ export function validateStringLengths(
   maxLength: number,
   depth = 0,
 ): string | null {
-  if (depth > 10) return "Maximum validation depth exceeded";
   if (!data || typeof data !== "object") {
     if (typeof data === "string") {
       if (data.length > maxLength) {
@@ -310,6 +309,8 @@ export function validateStringLengths(
     }
     return null;
   }
+
+  if (depth > 10) return "Maximum validation depth exceeded";
 
   if (Array.isArray(data)) {
     for (const item of data) {

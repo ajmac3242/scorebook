@@ -320,12 +320,12 @@ const FORBIDDEN_KEYS = Object.freeze(
  * @returns {unknown} The cleaned data.
  */
 export function stripLocalFields(data: unknown, depth = 0): unknown {
-  if (depth > 10) {
-    return Array.isArray(data) ? [] : {};
-  }
-
   if (data === null || typeof data !== "object") {
     return data;
+  }
+
+  if (depth > 10) {
+    return Array.isArray(data) ? [] : {};
   }
 
   // 🛡️ Sentinel: Block prototype pollution attempts via nested objects

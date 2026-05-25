@@ -43,7 +43,7 @@ export function sanitizeOutput(data: unknown, depth = 0): unknown {
   }
 
   if (depth > 10) {
-    return {};
+    return Array.isArray(data) ? [] : {};
   }
 
   if (Array.isArray(data)) {

@@ -54,9 +54,7 @@ describe("Error Reporting Tests", () => {
 
     // Verify it was logged server-side (with request ID pattern)
     expect(consoleSpy).toHaveBeenCalledWith(
-      expect.stringMatching(
-        /\[ERROR\] \[req-.+\] Handler Error: Specific database error/,
-      ),
+      expect.stringMatching(/\[ERROR\] \[req-.+\] Handler Error: Specific database error/),
       expect.stringContaining("Specific database error"),
     );
   });
