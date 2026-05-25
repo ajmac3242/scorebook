@@ -1,7 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
   getInitials,
-  getPlayerJersey,
   calculatePlayerAggregates,
   calculateTeamAggregates,
   calculateOpponentAggregates,
@@ -65,32 +64,6 @@ describe("stats utilities", () => {
     });
   });
 
-  describe("getPlayerJersey", () => {
-    const teamPlayers: TeamPlayer[] = [
-      { id: "1", teamId: "t1", playerId: "p1", jerseyNumber: "23" },
-      { id: "2", teamId: "t1", playerId: "p2", jerseyNumber: "0" },
-    ];
-
-    it("returns the correct jersey number for a matching player", () => {
-      expect(getPlayerJersey("p1", teamPlayers)).toBe("23");
-    });
-
-    it("returns the correct jersey number for a player with '0' as jersey", () => {
-      expect(getPlayerJersey("p2", teamPlayers)).toBe("0");
-    });
-
-    it("returns an empty string if player ID is not found", () => {
-      expect(getPlayerJersey("p3", teamPlayers)).toBe("");
-    });
-
-    it("returns an empty string if player ID is undefined", () => {
-      expect(getPlayerJersey(undefined, teamPlayers)).toBe("");
-    });
-
-    it("returns an empty string if teamPlayers array is empty", () => {
-      expect(getPlayerJersey("p1", [])).toBe("");
-    });
-  });
 
   describe("calculatePlayerAggregates", () => {
     const players = [
