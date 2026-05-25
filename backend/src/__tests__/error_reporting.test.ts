@@ -52,9 +52,11 @@ describe("Error Reporting Tests", () => {
     const body = JSON.parse(response.body);
     expect(body.message).toBe("Internal Server Error");
 
-    // Verify it was logged server-side
+    // Verify it was logged server-side (with request ID pattern)
     expect(consoleSpy).toHaveBeenCalledWith(
-      expect.stringContaining("[ERROR] Handler Error: Specific database error"),
+      expect.stringMatching(
+        /\[ERROR\] \[req-.+\] Handler Error: Specific database error/,
+      ),
       expect.stringContaining("Specific database error"),
     );
   });

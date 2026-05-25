@@ -59,33 +59,61 @@ const ALLOWED_METHODS = new Set(["GET", "POST", "PUT", "PATCH", "DELETE"]);
 export const handler = async (
   event: APIGatewayProxyEventV2,
 ): Promise<APIGatewayProxyResultV2> => {
-  logInfo("Event", maskEvent(event));
+  const requestId =
+    getHeader(event.headers, "x-request-id") ||
+    event.requestContext?.requestId ||
+    `req-${Math.random().toString(36).slice(2, 11)}`;
+
+  logInfo(`[${requestId}] Event`, maskEvent(event));
 
   const { method, path } = extractRequestMetadata(event);
-  logInfo("Routing", { method, path });
+  logInfo(`[${requestId}] Routing`, { method, path });
 
   if (!ALLOWED_METHODS.has(method)) {
-    return response(405, { message: `Method ${method} not allowed` });
+    return response(
+      405,
+      { message: `Method ${method} not allowed` },
+      {},
+      requestId,
+    );
   }
 
   if (event.body && event.body.length > MAX_BODY_SIZE) {
-    return response(413, { message: "Payload too large" });
+    return response(413, { message: "Payload too large" }, {}, requestId);
   }
 
   if (["POST", "PUT", "PATCH"].includes(method) && event.body) {
     const contentType = getHeader(event.headers, "content-type");
     if (!contentType?.toLowerCase().includes("application/json")) {
-      return response(415, {
-        message: "Unsupported Media Type: application/json required",
-      });
+      return response(
+        415,
+        { message: "Unsupported Media Type: application/json required" },
+        {},
+        requestId,
+      );
     }
   }
 
   let body: Record<string, unknown> = {};
   try {
-    body = parseBody(event.body);
+    const rawBody = event.body;
+    // 🛡️ Sentinel Enhancement 2: Protect against prototype pollution
+    // by rejecting raw strings that contain forbidden keys before parsing.
+    if (
+      rawBody &&
+      (rawBody.includes('"__proto__"') ||
+        rawBody.includes('"constructor"') ||
+        rawBody.includes('"prototype"'))
+    ) {
+      logError(
+        `[${requestId}] Security Violation`,
+        "Prototype pollution attempt detected",
+      );
+      return response(400, { message: "Invalid request body" }, {}, requestId);
+    }
+    body = parseBody(rawBody);
   } catch (e) {
-    return badRequest("Invalid JSON body");
+    return response(400, { message: "Invalid JSON body" }, {}, requestId);
   }
 
   try {
@@ -97,18 +125,29 @@ export const handler = async (
       (await handleGames(method, path, body, event, TABLE_NAME, docClient)) ||
       (await handleCleanup(method, path, event, TABLE_NAME, docClient));
 
-    return res || notFound("Route not found");
+    if (res) {
+      // 🛡️ Sentinel: Safe header injection for auditability
+      if (typeof res === "object") {
+        if (res.headers) {
+          res.headers["X-Request-ID"] = requestId;
+        } else {
+          res.headers = { "X-Request-ID": requestId };
+        }
+      }
+      return res;
+    }
+    return response(404, { message: "Route not found" }, {}, requestId);
   } catch (error: unknown) {
     if (
       error instanceof Error &&
       error.name === "ConditionalCheckFailedException"
     ) {
       if (method === "POST") {
-        return response(409, { message: "Item already exists" });
+        return response(409, { message: "Item already exists" }, {}, requestId);
       }
-      return notFound("Item not found");
+      return response(404, { message: "Item not found" }, {}, requestId);
     }
-    logError("Handler Error", error);
-    return serverError();
+    logError(`[${requestId}] Handler Error`, error);
+    return response(500, { message: "Internal Server Error" }, {}, requestId);
   }
 };

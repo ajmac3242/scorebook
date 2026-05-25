@@ -43,7 +43,7 @@ export function sanitizeOutput(data: unknown, depth = 0): unknown {
   }
 
   if (depth > 10) {
-    return {};
+    return Array.isArray(data) ? [] : {};
   }
 
   if (Array.isArray(data)) {
@@ -91,17 +91,20 @@ export function filterActive<T extends { deletedAt?: string | null }>(
  * @param {number} statusCode - The HTTP status code.
  * @param {unknown} body - The JSON body data.
  * @param {Record<string, string>} [headers] - Optional additional headers.
+ * @param {string} [requestId] - Optional request ID for audit logging.
  * @returns {APIGatewayProxyStructuredResultV2} The formatted response object.
  */
 export function response(
   statusCode: number,
   body: unknown,
   headers: Record<string, string> = {},
+  requestId?: string,
 ): APIGatewayProxyStructuredResultV2 {
   return {
     statusCode,
     headers: {
       ...headers,
+      ...(requestId ? { "X-Request-ID": requestId } : {}),
       "Content-Type": "application/json; charset=utf-8",
       "Cache-Control":
         "private, no-cache, no-store, max-age=0, must-revalidate",
@@ -123,6 +126,7 @@ export function response(
       "X-DNS-Prefetch-Control": "off",
       "X-Download-Options": "noopen",
       "Origin-Agent-Cluster": "?1",
+      "Timing-Allow-Origin": "none",
     },
     body: JSON.stringify(sanitizeOutput(body)),
   };

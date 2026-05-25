@@ -201,6 +201,9 @@ export function validateStatEvent(body: unknown): string | null {
     return "Invalid situational context";
   }
 
+  const depthError = validateObjectDepthAndSize(b);
+  if (depthError) return depthError;
+
   const lengthError = validateStringLengths(b, 128);
   if (lengthError) return lengthError;
 
@@ -242,18 +245,94 @@ export function validateStatEvent(body: unknown): string | null {
 }
 
 /**
- * Validates that all string values in an object are under a specific length.
- * @param obj - The object to validate.
- * @param maxLength - Maximum allowed length.
+ * Validates the size and structure of an object or array to prevent DoS.
+ * Enforces maximum properties per object, maximum array elements, and maximum depth.
+ *
+ * @param data - The data to validate.
+ * @param depth - Current recursion depth.
  * @returns {string | null} Error message or null.
  */
-function validateStringLengths(
-  obj: Record<string, unknown>,
-  maxLength: number,
+export function validateObjectDepthAndSize(
+  data: unknown,
+  depth = 0,
 ): string | null {
-  for (const [key, val] of Object.entries(obj)) {
-    if (typeof val === "string" && val.length > maxLength) {
-      return `Field ${key} exceeds maximum length of ${maxLength} characters`;
+  const MAX_DEPTH = 10;
+  const MAX_PROPERTIES = 50;
+  const MAX_ARRAY_LENGTH = 100;
+
+  if (data === null || typeof data !== "object") return null;
+
+  if (depth > MAX_DEPTH) return "Object depth limit exceeded";
+
+  if (Array.isArray(data)) {
+    if (data.length > MAX_ARRAY_LENGTH) return "Array length limit exceeded";
+    for (const item of data) {
+      const error = validateObjectDepthAndSize(item, depth + 1);
+      if (error) return error;
+    }
+    return null;
+  }
+
+  const entries = Object.entries(data as Record<string, unknown>);
+  if (entries.length > MAX_PROPERTIES) return "Object property limit exceeded";
+
+  for (const [, val] of entries) {
+    const error = validateObjectDepthAndSize(val, depth + 1);
+    if (error) return error;
+  }
+
+  return null;
+}
+
+/**
+ * Validates that all string values in an object or array are under a specific length.
+ * Recursively checks nested structures.
+ *
+ * @param data - The data to validate.
+ * @param maxLength - Maximum allowed length for any string.
+ * @param depth - Current recursion depth.
+ * @returns {string | null} Error message or null.
+ */
+export function validateStringLengths(
+  data: unknown,
+  maxLength: number,
+  depth = 0,
+): string | null {
+  if (!data || typeof data !== "object") {
+    if (typeof data === "string") {
+      if (data.length > maxLength) {
+        return `String exceeds maximum length of ${maxLength} characters`;
+      }
+      if (data.includes("\0")) {
+        return "String contains invalid characters";
+      }
+    }
+    return null;
+  }
+
+  if (depth > 10) return "Maximum validation depth exceeded";
+
+  if (Array.isArray(data)) {
+    for (const item of data) {
+      const error = validateStringLengths(item, maxLength, depth + 1);
+      if (error) return error;
+    }
+    return null;
+  }
+
+  for (const [key, val] of Object.entries(data as Record<string, unknown>)) {
+    if (typeof val === "string") {
+      if (val.length > maxLength) {
+        return `Field ${key} exceeds maximum length of ${maxLength} characters`;
+      }
+      // 🛡️ Sentinel Enhancement 9: Prevent Null Byte Injection
+      if (val.includes("\0")) {
+        return `Field ${key} contains invalid characters`;
+      }
+    }
+    if (val && typeof val === "object") {
+      const error = validateStringLengths(val, maxLength, depth + 1);
+      if (error) return error;
     }
   }
   return null;
@@ -270,6 +349,9 @@ export function validatePlayerMetadata(
   if (!body.name || typeof body.name !== "string" || body.name.length > 100) {
     return "Player name is required and must be under 100 characters";
   }
+  const depthError = validateObjectDepthAndSize(body);
+  if (depthError) return depthError;
+
   // 🛡️ Sentinel: Prevent oversized string payloads in metadata
   return validateStringLengths(body, 128);
 }
@@ -304,6 +386,10 @@ export function validateGameMetadata(
   ) {
     return "Date must be a string under 50 characters";
   }
+
+  const depthError = validateObjectDepthAndSize(body);
+  if (depthError) return depthError;
+
   // 🛡️ Sentinel: Prevent oversized string payloads in metadata
   return validateStringLengths(body, 128);
 }
