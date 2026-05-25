@@ -4,6 +4,8 @@ import {
   isValidPlayerId,
   SPECIAL_PLAYER_IDS,
   validateStatEvent,
+  validateGameMetadata,
+  validatePlayerMetadata,
 } from "../validation.js";
 
 describe("validation.ts", () => {
@@ -149,6 +151,104 @@ describe("validation.ts", () => {
       expect(validateStatEvent({ ...validEvent, locationY: 101 })).toBe(
         "Location coordinates must be finite numbers between 0 and 100",
       );
+    });
+
+    it("returns error for invalid situational context", () => {
+      expect(validateStatEvent({ ...validEvent, situation: "INVALID" })).toBe(
+        "Invalid situational context",
+      );
+    });
+
+    it("returns error for invalid shot clock phase", () => {
+      expect(
+        validateStatEvent({ ...validEvent, shotClockPhase: "INVALID" }),
+      ).toBe("Invalid shot clock phase");
+    });
+
+    it("returns error for invalid primary defender ID", () => {
+      expect(
+        validateStatEvent({ ...validEvent, primaryDefenderId: "invalid" }),
+      ).toBe("Invalid primary defender ID");
+    });
+
+    it("returns error for invalid defensive scheme", () => {
+      expect(
+        validateStatEvent({ ...validEvent, defensiveScheme: "INVALID" }),
+      ).toBe("Invalid defensive scheme");
+    });
+
+    it("returns error for invalid opponent play type", () => {
+      expect(
+        validateStatEvent({ ...validEvent, opponentPlayType: "INVALID" }),
+      ).toBe("Invalid opponent play type");
+    });
+
+    it("returns error for invalid defensive breakdown reason", () => {
+      expect(
+        validateStatEvent({ ...validEvent, breakdownReason: "INVALID" }),
+      ).toBe("Invalid defensive breakdown reason");
+    });
+
+    it("returns error when string fields exceed maximum length", () => {
+      const longString = "a".repeat(129);
+      expect(
+        validateStatEvent({
+          ...validEvent,
+          situation: "ATO",
+          notes: longString,
+        }),
+      ).toContain("exceeds maximum length");
+    });
+  });
+
+  describe("validateGameMetadata", () => {
+    const validMeta = {
+      teamId: "277e909a-6536-4d2d-937e-f608759556fb",
+      opponent: "Rivals",
+    };
+
+    it("returns error for invalid teamId", () => {
+      expect(validateGameMetadata({ ...validMeta, teamId: "invalid" })).toBe(
+        "Valid teamId (UUID) is required",
+      );
+    });
+
+    it("returns error for invalid opponent name", () => {
+      expect(validateGameMetadata({ ...validMeta, opponent: "" })).toBe(
+        "Opponent name is required and must be under 100 characters",
+      );
+      expect(
+        validateGameMetadata({ ...validMeta, opponent: "a".repeat(101) }),
+      ).toBe("Opponent name is required and must be under 100 characters");
+    });
+
+    it("returns error for invalid location", () => {
+      expect(
+        validateGameMetadata({ ...validMeta, location: "a".repeat(101) }),
+      ).toBe("Location must be a string under 100 characters");
+    });
+
+    it("returns error for invalid date", () => {
+      expect(validateGameMetadata({ ...validMeta, date: "a".repeat(51) })).toBe(
+        "Date must be a string under 50 characters",
+      );
+    });
+  });
+
+  describe("validatePlayerMetadata", () => {
+    it("returns error for invalid player name", () => {
+      expect(validatePlayerMetadata({})).toBe(
+        "Player name is required and must be under 100 characters",
+      );
+      expect(validatePlayerMetadata({ name: "a".repeat(101) })).toBe(
+        "Player name is required and must be under 100 characters",
+      );
+    });
+
+    it("returns error for long metadata strings", () => {
+      expect(
+        validatePlayerMetadata({ name: "John", notes: "a".repeat(129) }),
+      ).toContain("exceeds maximum length");
     });
   });
 });

@@ -1,5 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  act,
+} from "@testing-library/react";
 import GameStats from "../pages/GameStats";
 import { BrowserRouter } from "react-router-dom";
 import { db } from "../db";
@@ -111,7 +117,9 @@ describe("GameStats Page", () => {
     const impactTab = screen.getByRole("button", {
       name: /Impact \(On\/Off\)/i,
     });
-    fireEvent.click(impactTab);
+    await act(async () => {
+      fireEvent.click(impactTab);
+    });
 
     expect(
       screen.getByText(/Team Impact Analytics \(On\/Off\)/i),
@@ -125,7 +133,10 @@ describe("GameStats Page", () => {
     await waitFor(() => screen.getByText(/CLUTCH MODE/i));
     const clutchToggle = screen.getByText(/CLUTCH MODE/i);
 
-    fireEvent.click(clutchToggle);
+    await act(async () => {
+      fireEvent.click(clutchToggle);
+    });
+
     // Should have different styles/classes now
     expect(clutchToggle).toHaveStyle(
       "background-color: var(--cs-semantic-color-emphasis-clutch)",
@@ -138,7 +149,11 @@ describe("GameStats Page", () => {
     await waitFor(() =>
       screen.getByRole("button", { name: /Practice Planner/i }),
     );
-    fireEvent.click(screen.getByRole("button", { name: /Practice Planner/i }));
+    await act(async () => {
+      fireEvent.click(
+        screen.getByRole("button", { name: /Practice Planner/i }),
+      );
+    });
 
     expect(
       screen.getByText("Practice Prescription Engine"),
@@ -149,7 +164,9 @@ describe("GameStats Page", () => {
     renderWithProviders(<GameStats />);
 
     await waitFor(() => screen.getByTestId("EditIcon"));
-    fireEvent.click(screen.getByTestId("EditIcon").closest("button")!);
+    await act(async () => {
+      fireEvent.click(screen.getByTestId("EditIcon").closest("button")!);
+    });
 
     expect(screen.getByText("Edit Game Details")).toBeInTheDocument();
     expect(screen.getByLabelText("Opponent")).toHaveValue("Rivals");

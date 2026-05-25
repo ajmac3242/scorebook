@@ -121,15 +121,6 @@ export const getInitials = (name: string | undefined | null): string => {
     .join("");
 };
 
-export const getPlayerJersey = (
-  playerId: number | string | undefined,
-  teamPlayers: TeamPlayer[],
-): string => {
-  if (!playerId) return "";
-  const tp = teamPlayers.find((t) => t.playerId === playerId);
-  return tp?.jerseyNumber ?? "";
-};
-
 /**
  * Resolves a player's display name, handling opponent and team-level identifiers.
  */

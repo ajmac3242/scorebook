@@ -157,6 +157,7 @@ export const ActionControls = React.memo(
             <IconButton
               size="small"
               onClick={() => onAuditSubs()}
+              disabled={isReadOnly}
               aria-label="audit substitutions history"
               aria-haspopup="dialog"
               sx={{
