@@ -346,7 +346,8 @@ describe("GameMode Component", () => {
     const dialog = await screen.findByRole("dialog");
     expect(dialog).toBeInTheDocument();
 
-    // Court click auto-sets statType to MAKE and pre-selects 3pt; no need to click Make again
+    fireEvent.click(within(dialog).getByLabelText(/Record Make/i));
+
     const threeBtn = await within(dialog).findByRole("button", {
       name: "3 point shot",
     });
@@ -364,7 +365,8 @@ describe("GameMode Component", () => {
     const dialog = await screen.findByRole("dialog");
     expect(dialog).toBeInTheDocument();
 
-    // Court click auto-sets statType to MAKE and pre-selects 2pt; no need to click Make again
+    fireEvent.click(within(dialog).getByLabelText(/Record Make/i));
+
     const twoBtn = await within(dialog).findByRole("button", {
       name: "2 point shot",
     });
