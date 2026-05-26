@@ -75,7 +75,10 @@ const ClockSpan: React.FC<{ stintSecs: number; maxStint: number }> = ({ stintSec
   return <Box component="span" sx={{ color }}>{formatClock(stintSecs)}</Box>;
 };
 
-interface LineupPlayerButtonProps {
+QuickAction.displayName = "QuickAction";
+
+/** Internal helper to avoid inline IIFE for clock color logic. */
+const ClockSpan
   player: Player;
   stats: PlayerAggregates | undefined;
   jerseyNumber: string;
@@ -205,3 +208,4 @@ export const LineupPlayerButton: React.FC<LineupPlayerButtonProps> = React.memo(
     );
   },
 );
+LineupPlayerButton.displayName = "LineupPlayerButton";
