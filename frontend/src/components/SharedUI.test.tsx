@@ -207,10 +207,7 @@ describe("SharedUI Components", () => {
       const { container } = render(<AnimatedNumber value={10} />);
       expect(container.querySelector("span")).toBeInTheDocument();
     });
-
-
   });
-
 
   describe("AnimatedNumber undefined value handling", () => {
     it("initialises to 0 when value is undefined", () => {
