@@ -177,7 +177,9 @@ const GameMode: React.FC = () => {
     isSavingSub,
     setIsSavingSub,
     chainPrompt,
+    setChainPrompt,
     snackbar,
+    setSnackbar,
     isSubDialogOpen,
     setIsSubDialogOpen,
     setSubOutPlayerId,
@@ -252,7 +254,7 @@ const GameMode: React.FC = () => {
     chainPrompt,
     statToDelete,
     isSavingSub,
-    setSnackbar: setSnackbar as (s: { open: boolean; message: string; severity: string; action?: string }) => void,
+    setSnackbar,
     setIsDialogOpen,
     setStatType,
     setPlayName,
@@ -263,7 +265,7 @@ const GameMode: React.FC = () => {
     setSelectedPlayerId,
     setLastOpponentStatId,
     setIsBreakdownDialogOpen,
-    setChainPrompt: setChainPrompt as (v: { type: string; originalStat: StatEvent } | null) => void,
+    setChainPrompt,
     setIsFtWorkflowOpen,
     setIsSavingStat,
     setIsEnding,
@@ -668,9 +670,9 @@ const GameMode: React.FC = () => {
                         {sortedStatsGridData.map((row) => (
                           <PlayerStatRow
                             key={row.id}
-                            jerseyNumber={row.jerseyNumber}
+                            jerseyNumber={row.jerseyNumber ?? ""}
                             name={row.name}
-                            isOnCourt={row.isOnCourt}
+                            isOnCourt={gameData.onCourtIds.has(String(row.id))}
                             min={row.min}
                             points={row.points}
                             threePM={row.threePM}
@@ -686,7 +688,6 @@ const GameMode: React.FC = () => {
                             turnovers={row.turnovers}
                             fouls={row.fouls}
                             plusMinus={row.plusMinus}
-                            streak={row.streak}
                           />
                         ))}
                       </TableBody>
