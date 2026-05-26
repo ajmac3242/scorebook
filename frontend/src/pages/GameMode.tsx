@@ -535,7 +535,7 @@ const GameMode: React.FC = () => {
 
             <CourtMarkerFilters
               markerFilter={markerFilter}
-              onFilterChange={setMarkerFilter}
+              onFilterChange={(f) => setMarkerFilter(f)}
             />
 
             <BasketballCourt onCoordClick={handleCourtClick} markers={markers} />
@@ -617,6 +617,7 @@ const GameMode: React.FC = () => {
                   isReadOnly={isReadOnly}
                   chainPrompt={chainPrompt}
                   playerStreaks={playerStreaks}
+                  stintDurations={gameData.stintDurations}
                   periodFoulMap={gameData.onCourtPeriodFouls}
                   onPlayerClick={handleLineupPlayerClick}
                   onEmptySlotClick={handleEmptySlotClick}
