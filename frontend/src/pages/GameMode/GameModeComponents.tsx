@@ -77,8 +77,7 @@ const ClockSpan: React.FC<{ stintSecs: number; maxStint: number }> = ({ stintSec
 
 QuickAction.displayName = "QuickAction";
 
-/** Internal helper to avoid inline IIFE for clock color logic. */
-const ClockSpan
+interface LineupPlayerButtonProps  {
   player: Player;
   stats: PlayerAggregates | undefined;
   jerseyNumber: string;
