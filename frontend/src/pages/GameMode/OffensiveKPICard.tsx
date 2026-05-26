@@ -67,7 +67,10 @@ export const OffensiveKPICard: React.FC<OffensiveKPICardProps> = React.memo(
           <Box sx={{ textAlign: "center" }}>
             <Typography
               variant="h5"
-              sx={{ fontWeight: 800, color: roiPositive ? "success.main" : "error.main" }}
+              sx={{
+                fontWeight: 800,
+                color: roiPositive ? "success.main" : "error.main",
+              }}
             >
               {roiDisplay}
             </Typography>
