@@ -35,11 +35,11 @@ interface UseGameModeActionsParams {
     onCourtIds: Set<string>;
   };
   draftOnCourtIds: Set<string>;
-  chainPrompt: { type: string; originalStat: StatEvent } | null;
+  chainPrompt: { type: "REBOUND" | "ASSIST" | "HOCKEY_ASSIST"; originalStat: StatEvent } | null;
   statToDelete: string | null;
   isSavingSub: boolean;
   // setters
-  setSnackbar: (s: { open: boolean; message: string; severity: string; action?: string }) => void;
+  setSnackbar: (s: { open: boolean; message: string; severity: "success" | "error" | "info" | "warning"; action?: "UNDO" }) => void;
   setIsDialogOpen: (v: boolean) => void;
   setStatType: (v: string | null) => void;
   setPlayName: (v: string) => void;
@@ -50,7 +50,7 @@ interface UseGameModeActionsParams {
   setSelectedPlayerId: (v: string | null) => void;
   setLastOpponentStatId: (v: string | null) => void;
   setIsBreakdownDialogOpen: (v: boolean) => void;
-  setChainPrompt: (v: { type: string; originalStat: StatEvent } | null) => void;
+  setChainPrompt: (v: { type: "REBOUND" | "ASSIST" | "HOCKEY_ASSIST"; originalStat: StatEvent } | null) => void;
   setIsFtWorkflowOpen: (v: boolean) => void;
   setIsSavingStat: (v: boolean) => void;
   setIsEnding: (v: boolean) => void;
