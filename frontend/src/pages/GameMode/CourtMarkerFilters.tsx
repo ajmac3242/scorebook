@@ -9,8 +9,8 @@ const FILTER_TYPES = ["ALL", "MAKE", "MISS", "REBOUND", "ASSIST", "STEAL", "BLOC
 export type MarkerFilter = (typeof FILTER_TYPES)[number];
 
 interface CourtMarkerFiltersProps {
-  markerFilter: string;
-  onFilterChange: (filter: string) => void;
+  markerFilter: MarkerFilter;
+  onFilterChange: (filter: MarkerFilter) => void;
 }
 
 export const CourtMarkerFilters: React.FC<CourtMarkerFiltersProps> = React.memo(
