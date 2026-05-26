@@ -1,12 +1,13 @@
+import { vi } from "vitest";
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { TrackingModeToolbar } from "../../pages/GameMode/TrackingModeToolbar";
 
 const defaultProps = {
   trackingMode: "TEAM",
-  onTrackingModeChange: jest.fn(),
+  onTrackingModeChange: vi.fn(),
   voiceEnabled: false,
-  onVoiceToggle: jest.fn(),
+  onVoiceToggle: vi.fn(),
   isReadOnly: false,
   game: null,
   team: null,
@@ -14,7 +15,7 @@ const defaultProps = {
 
 describe("TrackingModeToolbar", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("renders voice toggle button with enable label when voice is off", () => {

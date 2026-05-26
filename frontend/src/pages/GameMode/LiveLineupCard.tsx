@@ -52,6 +52,7 @@ export const LiveLineupCard: React.FC<LiveLineupCardProps> = React.memo(
     isReadOnly,
     chainPrompt,
     playerStreaks,
+    stintDurations,
     periodFoulMap,
     onPlayerClick,
     onEmptySlotClick,
@@ -72,19 +73,21 @@ export const LiveLineupCard: React.FC<LiveLineupCardProps> = React.memo(
               mb: 1,
             }}
           >
-            <Typography variant="overline" fontWeight={700}>
+            <Typography variant="overline" sx={{ ...( variant="overline"_sx_placeholder as any), fontWeight: 700 }}>
               Live Lineup
             </Typography>
             <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
               <Typography variant="caption" color="text.secondary">
                 STINT:{" "}
-                <Box component="span" fontWeight={700}>
+                <Box component="span" sx={{ fontWeight: 700 }}>
                   {formatClock(currentLineupStintDuration)}
                 </Box>
               </Typography>
               <Typography
                 variant="body2"
-                fontWeight={800}
+                sx={{ ...(
+                variant="body2"
+               _sx_placeholder as any), fontWeight: 800 }}
                 sx={{
                   color:
                     currentLineupPlusMinus >= 0 ? "success.main" : "error.main",
@@ -155,7 +158,9 @@ export const LiveLineupCard: React.FC<LiveLineupCardProps> = React.memo(
             >
               <Typography
                 variant="overline"
-                fontWeight={800}
+                sx={{ ...(
+                variant="overline"
+               _sx_placeholder as any), fontWeight: 800 }}
                 sx={{ color: "white" }}
               >
                 WHO GOT THE {chainPrompt.type}?

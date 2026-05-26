@@ -40,11 +40,8 @@ export const MatchupAnalyticsCard: React.FC<MatchupAnalyticsCardProps> =
       opponents,
       matchups,
       jerseyMap,
-      _players,
-      _onCourtIds,
-      gameId,
-      _game,
-    }) => {
+          gameId,
+      }) => {
       // Replaces the inline IIFE — sorted once per matchupEfficiency change
       const targetAttack = useMemo(() => {
         const sorted = [...matchupEfficiency].sort(
@@ -65,7 +62,7 @@ export const MatchupAnalyticsCard: React.FC<MatchupAnalyticsCardProps> =
               mb: 1,
             }}
           >
-            <Typography variant="overline" fontWeight={700}>
+            <Typography variant="overline" sx={{ ...( variant="overline"_sx_placeholder as any), fontWeight: 700 }}>
               MATCHUP ANALYTICS
             </Typography>
             <IconButton
@@ -86,7 +83,9 @@ export const MatchupAnalyticsCard: React.FC<MatchupAnalyticsCardProps> =
             <Box>
               <Typography
                 variant="caption"
-                fontWeight={700}
+                sx={{ ...(
+                variant="caption"
+               _sx_placeholder as any), fontWeight: 700 }}
                 display="block"
                 mb={0.5}
               >
@@ -112,7 +111,10 @@ export const MatchupAnalyticsCard: React.FC<MatchupAnalyticsCardProps> =
                     <Typography
                       variant="caption"
                       display="block"
-                      fontWeight={700}
+                      sx={{ ...(
+                      variant="caption"
+                      display="block"
+                     _sx_placeholder as any), fontWeight: 700 }}
                     >
                       Attack Opponent #{targetAttack!.oppPlayerJersey}
                     </Typography>
@@ -129,7 +131,7 @@ export const MatchupAnalyticsCard: React.FC<MatchupAnalyticsCardProps> =
           {showMatchupMatrix && (
             <MatchupMatrix
               opponents={opponents}
-              matchupData={matchupEfficiency}
+              matchupData={matchupEfficiency as never}
               jerseyMap={jerseyMap}
               currentMatchups={matchups}
               onReassign={async (oId, tId) => {

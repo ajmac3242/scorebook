@@ -1,21 +1,22 @@
+import { vi } from "vitest";
 import React from "react";
 import { render, screen } from "@testing-library/react";
 import { DefensiveSchemeSelector } from "../../pages/GameMode/DefensiveSchemeSelector";
 
-jest.mock("../../components/SharedUI", () => ({
+vi.mock("../../components/SharedUI", () => ({
   MoleskineCard: ({ children }: any) => <div>{children}</div>,
 }));
 
-jest.mock("../../db", () => ({
-  db: { games: { update: jest.fn().mockResolvedValue(undefined) } },
+vi.mock("../../db", () => ({
+  db: { games: { update: vi.fn().mockResolvedValue(undefined) } },
 }));
 
-jest.mock("../../utils/syncService", () => ({
-  syncService: { pushUpdates: jest.fn().mockResolvedValue(undefined) },
+vi.mock("../../utils/syncService", () => ({
+  syncService: { pushUpdates: vi.fn().mockResolvedValue(undefined) },
 }));
 
-jest.mock("../../utils/logger", () => ({
-  logger: { error: jest.fn() },
+vi.mock("../../utils/logger", () => ({
+  logger: { error: vi.fn() },
 }));
 
 const SCHEMES = ["MAN", "ZONE", "PRESS", "DOUBLE"];

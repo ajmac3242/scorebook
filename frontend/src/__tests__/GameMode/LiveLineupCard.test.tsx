@@ -1,8 +1,9 @@
+import { vi } from "vitest";
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { LiveLineupCard } from "../../pages/GameMode/LiveLineupCard";
 
-jest.mock("../../pages/GameMode/GameModeComponents", () => ({
+vi.mock("../../pages/GameMode/GameModeComponents", () => ({
   LineupPlayerButton: ({ player, onClick }: any) => (
     <button
       onClick={() => onClick(player.id)}
@@ -13,7 +14,7 @@ jest.mock("../../pages/GameMode/GameModeComponents", () => ({
   ),
 }));
 
-jest.mock("../../components/SharedUI", () => ({
+vi.mock("../../components/SharedUI", () => ({
   MoleskineCard: ({ children }: any) => <div>{children}</div>,
 }));
 
@@ -31,15 +32,15 @@ const defaultProps = {
   period: 1,
   isReadOnly: false,
   chainPrompt: null,
-  onPlayerClick: jest.fn(),
-  onEmptySlotClick: jest.fn(),
-  onChainAction: jest.fn(),
-  onDismissChain: jest.fn(),
+  onPlayerClick: vi.fn(),
+  onEmptySlotClick: vi.fn(),
+  onChainAction: vi.fn(),
+  onDismissChain: vi.fn(),
 };
 
 describe("LiveLineupCard", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("renders Live Lineup header text", () => {

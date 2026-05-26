@@ -30,18 +30,18 @@ export const OffensiveKPICard: React.FC<OffensiveKPICardProps> = React.memo(
 
     return (
       <MoleskineCard aria-label="Offensive Identity KPIs">
-        <Typography variant="overline" fontWeight={700} display="block" mb={1}>
+        <Typography variant="overline" sx={{ ...( variant="overline"_sx_placeholder as any), fontWeight: 700 }} display="block" mb={1}>
           Offensive Identity (KPIs)
         </Typography>
         <Stack direction="row" spacing={2} useFlexGap sx={{ flexWrap: "wrap" }}>
-          <Box textAlign="center">
-            <Typography variant="h5" fontWeight={800}>
+          <Box sx={{ textAlign: "center" }}>
+            <Typography variant="h5" sx={{ ...( variant="h5"_sx_placeholder as any), fontWeight: 800 }}>
               {paintTouchStats.total}
             </Typography>
             <Typography variant="caption">PAINT TOUCHES</Typography>
           </Box>
-          <Box textAlign="center">
-            <Typography variant="h5" fontWeight={800}>
+          <Box sx={{ textAlign: "center" }}>
+            <Typography variant="h5" sx={{ ...( variant="h5"_sx_placeholder as any), fontWeight: 800 }}>
               {paintTouchStats.pppt}
             </Typography>
             <Typography variant="caption">PTS / TOUCH</Typography>
@@ -50,7 +50,9 @@ export const OffensiveKPICard: React.FC<OffensiveKPICardProps> = React.memo(
 
         <Typography
           variant="overline"
-          fontWeight={700}
+          sx={{ ...(
+          variant="overline"
+         _sx_placeholder as any), fontWeight: 700 }}
           display="block"
           mt={2}
           mb={1}
@@ -58,16 +60,18 @@ export const OffensiveKPICard: React.FC<OffensiveKPICardProps> = React.memo(
           Quality Control (xPTS)
         </Typography>
         <Stack direction="row" spacing={2} useFlexGap sx={{ flexWrap: "wrap" }}>
-          <Box textAlign="center">
-            <Typography variant="h5" fontWeight={800}>
+          <Box sx={{ textAlign: "center" }}>
+            <Typography variant="h5" sx={{ ...( variant="h5"_sx_placeholder as any), fontWeight: 800 }}>
               {shotROI.avgXPts}
             </Typography>
             <Typography variant="caption">xPTS / POSS</Typography>
           </Box>
-          <Box textAlign="center">
+          <Box sx={{ textAlign: "center" }}>
             <Typography
               variant="h5"
-              fontWeight={800}
+              sx={{ ...(
+              variant="h5"
+             _sx_placeholder as any), fontWeight: 800 }}
               sx={{ color: roiPositive ? "success.main" : "error.main" }}
             >
               {roiDisplay}

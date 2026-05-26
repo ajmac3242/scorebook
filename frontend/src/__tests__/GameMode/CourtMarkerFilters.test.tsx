@@ -1,10 +1,11 @@
+import { vi } from "vitest";
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { CourtMarkerFilters } from "../../pages/GameMode/CourtMarkerFilters";
 
 const defaultProps = {
-  markerFilter: "ALL",
-  onFilterChange: jest.fn(),
+  markerFilter: "ALL" as const,
+  onFilterChange: vi.fn(),
 };
 
 const FILTER_TYPES = [
@@ -19,7 +20,7 @@ const FILTER_TYPES = [
 
 describe("CourtMarkerFilters", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("renders all filter chip types", () => {
