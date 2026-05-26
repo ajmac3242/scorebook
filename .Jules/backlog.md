@@ -1,5 +1,55 @@
 # CourtSight Backlog
 
+## [ ] [Live 'Strategic-Command' Priority Synthesizer]
+**Priority:** HIGH
+**Type:** Feature / Decision Automation
+**Why:** Coaches are often overwhelmed by multiple data alerts (fatigue, mismatches, runs). Synthesizing these into a single "Next-Action" priority reduces decision lag and ensures the most critical threat is addressed first.
+**What:** A top-level HUD element that ranks active HALT alerts by tactical impact and suggests the single most urgent coaching intervention (e.g., "SUB PLAYER X: Critical Fatigue + Mismatch").
+**Acceptance Criteria:**
+- [ ] "Priority One" command display in the GameMode header.
+- [ ] Weighted logic to rank alerts (e.g., Star player 4th foul > Unit Fatigue).
+- [ ] "Ignore" or "Dismiss" action that automatically rotates to the next highest priority command.
+
+## [ ] [Opponent 'Post-Huddle' (Counter-Tactical) Efficiency Auditor]
+**Priority:** HIGH
+**Type:** Predictive Intelligence / Feature
+**Why:** Opponent coaches use timeouts to adjust. Detecting if their efficiency *increases* immediately following a timeout reveals if they have successfully countered our scheme.
+**What:** A tracking layer that bookmarks the 3 possessions following an opponent timeout and compares their PPP to their game-average baseline to flag "Effective Counter-Moves."
+**Acceptance Criteria:**
+- [ ] Alert: "Opponent Counter-Move Detected" if post-timeout PPP exceeds game average by > 0.4.
+- [ ] Visual indicator showing the specific play-type the opponent shifted to out of the huddle.
+- [ ] Recommended counter-adjustment (e.g., "Shift to Zone") if the post-huddle run continues.
+
+## [ ] [Live 'Rim-Read' (Decision ROI) Auditor]
+**Priority:** HIGH
+**Type:** Feature / Causal Accountability
+**Why:** Basketball is won at the rim. Distinguishing between a "Good Decision/Bad Finish" and a "Bad Decision" (driving into a crowd) helps coaches provide surgical feedback to playmakers.
+**What:** An attribution layer in the shot recording workflow that tags rim attempts based on "Read Quality"—calculating the ROI of drives relative to defensive gravity/crowding.
+**Acceptance Criteria:**
+- [ ] "Read Quality" toggle (GOOD READ / FORCED) on the Rim Attempt dialog.
+- [ ] "Rim-Read ROI" metric for playmakers: (PPP on Good Reads vs. Forced Reads).
+- [ ] Visual highlight: "Elite Finisher" badge for players with > 60% Make Rate on "Forced" reads.
+
+## [ ] [Live 'Defensive-Shell' Recovery Speed Tracker]
+**Priority:** HIGH
+**Type:** Feature / Process Integrity
+**Why:** Most open 3s are given up because of slow "Recovery" after a closeout or rotation. Measuring the speed of the "Second Rotation" identifies which players are losing focus after the initial stop.
+**What:** A process-integrity metric that tracks the latency between a defensive "Closeout" and the subsequent "Recovery" to a help position or box-out.
+**Acceptance Criteria:**
+- [ ] "Recovery Speed" indicator (FAST/SLOW) tagged during defensive breakdown attribution.
+- [ ] Accountability leaderboard showing players with the most "Slow Recovery" tags.
+- [ ] Alert: "Shell Decay" if 3+ possessions in a period are tagged with slow recoveries.
+
+## [ ] [Live 'Winning-DNA' (Causal) Correlator]
+**Priority:** HIGH
+**Type:** Analytics / UX
+**Why:** Every team has a unique "Winning DNA"—a specific metric (e.g., "Deflections" or "Paint Touches") that correlates most strongly with their wins. Surfacing this in real-time ensures the team stays tethered to its core identity.
+**What:** A dynamic correlator that identifies the ONE live metric most strongly linked to the team's current lead or deficit based on historical and live-game data.
+**Acceptance Criteria:**
+- [ ] "Winning DNA" gauge highlighting the primary success driver (e.g., "CRITICAL: We are 5-0 when Deflections > 8").
+- [ ] Live "DNA Gap" showing the delta between current performance and the winning threshold.
+- [ ] Visual celebration: "DNA Match" animation when the team reaches its identity threshold.
+
 ## [ ] [Live 'Transition-Leakage' Causal Auditor]
 **Priority:** HIGH
 **Type:** Feature / Causal Accountability
