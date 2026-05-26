@@ -17,6 +17,7 @@ import {
   waitFor,
   act,
 } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import GameMode from "../pages/GameMode";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { BrowserRouter } from "react-router-dom";
@@ -347,11 +348,8 @@ describe("GameMode Component", () => {
     const dialog = await screen.findByRole("dialog");
     expect(dialog).toBeInTheDocument();
 
-    await act(async () => {
-      fireEvent.click(
-        within(dialog).getByRole("button", { name: /Record Make/i }),
-      );
-    });
+    const user = userEvent.setup();
+    await user.click(within(dialog).getByRole("button", { name: /Record Make/i }));
 
     const threeBtn = await within(dialog).findByRole("button", {
       name: "3 point shot",
@@ -370,11 +368,8 @@ describe("GameMode Component", () => {
     const dialog = await screen.findByRole("dialog");
     expect(dialog).toBeInTheDocument();
 
-    await act(async () => {
-      fireEvent.click(
-        within(dialog).getByRole("button", { name: /Record Make/i }),
-      );
-    });
+    const user = userEvent.setup();
+    await user.click(within(dialog).getByRole("button", { name: /Record Make/i }));
 
     const twoBtn = await within(dialog).findByRole("button", {
       name: "2 point shot",
