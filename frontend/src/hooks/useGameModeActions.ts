@@ -112,7 +112,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
     if (!selectedPlayerId || !typeToSave) return;
     setIsSavingStat(true);
     try {
-      if (!gameId) return;
+      if (!gameId) { setIsSavingStat(false); return; }
       let primaryDefenderId: string | undefined;
       let derivedShotClockPhase: "EARLY" | "MID" | "LATE" | undefined;
       if (typeToSave === ACTION_TYPES.MAKE || typeToSave === ACTION_TYPES.MISS) {
@@ -279,7 +279,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
       await db.stats.add({ id: crypto.randomUUID(), gameId, playerId: pId, type, period: originalStat.period, clockTime: originalStat.clockTime, timestamp: originalStat.timestamp, synced: 0 });
       await syncService.pushUpdates();
       if (type === ACTION_TYPES.ASSIST) {
-        setChainPrompt({ type: ACTION_TYPES.HOCKEY_ASSIST as "HOCKEY_ASSIST", originalStat });
+        setChainPrompt({ type: ACTION_TYPES.HOCKEY_ASSIST, originalStat });
       } else {
         setChainPrompt(null);
       }
