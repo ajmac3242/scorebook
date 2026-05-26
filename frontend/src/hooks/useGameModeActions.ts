@@ -234,7 +234,12 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
                 : undefined,
             shotClockPhase: derivedShotClockPhase,
             primaryDefenderId,
-            defensiveScheme: game?.activeDefensiveScheme as "MAN" | "ZONE" | "PRESS" | "DOUBLE" | undefined,
+            defensiveScheme: game?.activeDefensiveScheme as
+              | "MAN"
+              | "ZONE"
+              | "PRESS"
+              | "DOUBLE"
+              | undefined,
             synced: 0,
           });
           await syncService.pushUpdates();
@@ -266,7 +271,12 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
                 : undefined,
             shotClockPhase: derivedShotClockPhase,
             primaryDefenderId,
-            defensiveScheme: game?.activeDefensiveScheme as "MAN" | "ZONE" | "PRESS" | "DOUBLE" | undefined,
+            defensiveScheme: game?.activeDefensiveScheme as
+              | "MAN"
+              | "ZONE"
+              | "PRESS"
+              | "DOUBLE"
+              | undefined,
             period,
             clockTime: clockSeconds,
             timestamp: new Date().toISOString(),
@@ -530,7 +540,10 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
         });
         await syncService.pushUpdates();
         if (type === ACTION_TYPES.ASSIST) {
-          setChainPrompt({ type: ACTION_TYPES.HOCKEY_ASSIST as "HOCKEY_ASSIST", originalStat });
+          setChainPrompt({
+            type: ACTION_TYPES.HOCKEY_ASSIST as "HOCKEY_ASSIST",
+            originalStat,
+          });
         } else {
           setChainPrompt(null);
         }

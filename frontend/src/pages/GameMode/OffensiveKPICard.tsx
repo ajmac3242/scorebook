@@ -32,7 +32,7 @@ export const OffensiveKPICard: React.FC<OffensiveKPICardProps> = React.memo(
       <MoleskineCard aria-label="Offensive Identity KPIs">
         <Typography
           variant="overline"
-          sx={{ fontWeight: 700 , display: "block", mb: 1}}
+          sx={{ fontWeight: 700, display: "block", mb: 1 }}
         >
           Offensive Identity (KPIs)
         </Typography>
@@ -53,7 +53,7 @@ export const OffensiveKPICard: React.FC<OffensiveKPICardProps> = React.memo(
 
         <Typography
           variant="overline"
-          sx={{ fontWeight: 700 , display: "block", mt: 2, mb: 1}}
+          sx={{ fontWeight: 700, display: "block", mt: 2, mb: 1 }}
         >
           Quality Control (xPTS)
         </Typography>

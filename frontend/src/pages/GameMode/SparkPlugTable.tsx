@@ -37,7 +37,7 @@ export const SparkPlugTable: React.FC<SparkPlugTableProps> = React.memo(
       <MoleskineCard aria-label="Spark Plug Momentum Index">
         <Typography
           variant="overline"
-          sx={{ fontWeight: 700 , display: "block", mb: 1}}
+          sx={{ fontWeight: 700, display: "block", mb: 1 }}
         >
           SPARK PLUG MOMENTUM INDEX
         </Typography>
