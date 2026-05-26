@@ -58,6 +58,7 @@ export const TrackingModeToolbar: React.FC<TrackingModeToolbarProps> =
           onChange={(_e, val) => val && onTrackingModeChange(val)}
           size="small"
           disabled={isReadOnly}
+          aria-disabled={isReadOnly || undefined}
           sx={{ width: { xs: "100%", sm: "auto" } }}
           aria-label="Tracking mode"
         >

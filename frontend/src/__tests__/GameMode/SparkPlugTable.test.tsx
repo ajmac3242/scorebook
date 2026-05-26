@@ -65,7 +65,7 @@ describe("SparkPlugTable", () => {
         playerNamesMap={playerNamesMap}
       />,
     );
-    expect(screen.getByText("23")).toBeInTheDocument();
+    expect(screen.getByText(/#23/)).toBeInTheDocument();
   });
 
   it("renders composite index chip", () => {
