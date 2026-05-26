@@ -83,9 +83,7 @@ export const MatchupAnalyticsCard: React.FC<MatchupAnalyticsCardProps> =
             <Box>
               <Typography
                 variant="caption"
-                sx={{ fontWeight: 700 }}
-                display="block"
-                mb={0.5}
+                sx={{ fontWeight: 700 , display: "block", mb: 0.5}}
               >
                 Target Attack
               </Typography>
@@ -107,9 +105,7 @@ export const MatchupAnalyticsCard: React.FC<MatchupAnalyticsCardProps> =
                   />
                   <Box>
                     <Typography
-                      variant="caption"
-                      display="block"
-                      sx={{ fontWeight: 700 }}
+                      variant="caption" sx={{ fontWeight: 700 }}
                     >
                       Attack Opponent #{targetAttack!.oppPlayerJersey}
                     </Typography>
@@ -125,7 +121,8 @@ export const MatchupAnalyticsCard: React.FC<MatchupAnalyticsCardProps> =
 
           {showMatchupMatrix && (
             <MatchupMatrix
-              opponents={opponents}
+              teamActiveIds={Array.from(onCourtIds)}
+              oppActiveIds={opponents.map((o) => o.id)}
               matchupData={matchupEfficiency as never}
               jerseyMap={jerseyMap}
               currentMatchups={matchups}

@@ -25,7 +25,7 @@ export const DefensiveSchemeSelector: React.FC<DefensiveSchemeSelectorProps> =
       if (!val || !gameId) return;
       try {
         await db.games.update(gameId, {
-          activeDefensiveScheme: val,
+          activeDefensiveScheme: val as DefensiveScheme,
           synced: 0,
         });
         await syncService.pushUpdates();

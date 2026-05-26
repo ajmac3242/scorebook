@@ -26,9 +26,7 @@ export const VoiceModeBanner: React.FC<VoiceModeBannerProps> = React.memo(
         : "Voice Mode Paused"}
       {lastTranscript && (
         <Typography
-          variant="caption"
-          display="block"
-          sx={{ mt: 0.5, opacity: 0.85 }}
+          variant="caption" sx={{ mt: 0.5, opacity: 0.85 }}
         >
           Last heard: &ldquo;{lastTranscript}&rdquo;
         </Typography>
