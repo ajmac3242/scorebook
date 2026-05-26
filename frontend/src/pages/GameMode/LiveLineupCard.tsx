@@ -20,7 +20,7 @@ import { formatClock, formatPlusMinus } from "../../utils/mathUtils";
 import { ACTION_TYPES } from "../../constants/stats";
 
 interface ChainPrompt {
-  type: string;
+  type: "REBOUND" | "ASSIST" | "HOCKEY_ASSIST";
   originalStat: Pick<StatEvent, "period" | "clockTime" | "timestamp">;
 }
 
@@ -36,6 +36,7 @@ interface LiveLineupCardProps {
   period: number;
   isReadOnly: boolean;
   chainPrompt: ChainPrompt | null;
+  stintDurations?: Map<string, number>;
   playerStreaks?: Map<string, string>;
   periodFoulMap?: Map<string, number>;
   onPlayerClick: (playerId: string) => void;
@@ -70,11 +71,11 @@ export const LiveLineupCard: React.FC<LiveLineupCardProps> = React.memo(
     return (
       <>
         <MoleskineCard aria-label="Live Lineup">
-          <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1}>
+          <Stack direction="row" sx={{ justifyContent: "space-between", alignItems: "center", mb: 1 }}>
             <Typography variant="overline" fontWeight={700}>
               Live Lineup
             </Typography>
-            <Stack direction="row" spacing={1} alignItems="center">
+            <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
               <Typography variant="caption" color="text.secondary">
                 STINT:{" "}
                 <Box component="span" fontWeight={700}>
@@ -109,7 +110,7 @@ export const LiveLineupCard: React.FC<LiveLineupCardProps> = React.memo(
                 period={period}
                 game={game}
                 team={team}
-                stintSecs={0}
+                stintSecs={stintDurations?.get(p.id!) ?? 0}
                 periodFouls={periodFoulMap?.get(p.id!) ?? 0}
                 streak={playerStreaks?.get(p.id!)}
                 onClick={onPlayerClick}
@@ -143,15 +144,15 @@ export const LiveLineupCard: React.FC<LiveLineupCardProps> = React.memo(
             sx={{ bgcolor: "primary.main", color: "white" }}
             aria-label="Chain action prompt"
           >
-            <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1}>
+            <Stack direction="row" sx={{ justifyContent: "space-between", alignItems: "center", mb: 1 }}>
               <Typography variant="overline" fontWeight={800} sx={{ color: "white" }}>
                 WHO GOT THE {chainPrompt.type}?
               </Typography>
-              <IconButton size="small" onClick={onDismissChain} sx={{ color: "white" }} aria-label="✕">
+              <IconButton size="small" onClick={onDismissChain} sx={{ color: "white" }} aria-label="Dismiss chain action">
                 <Close fontSize="small" />
               </IconButton>
             </Stack>
-            <Stack direction="row" spacing={1} flexWrap="wrap">
+            <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap" }}>
               {onCourtPlayers.map((p) => (
                 <Button
                   key={p.id}
