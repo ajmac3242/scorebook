@@ -10,7 +10,7 @@ import { type Game, type Team } from "../../db";
 
 interface TrackingModeToolbarProps {
   trackingMode: string;
-  onTrackingModeChange: (mode: string) => void;
+  onTrackingModeChange: (_mode: string) => void;
   voiceEnabled: boolean;
   onVoiceToggle: () => void;
   isReadOnly: boolean;
