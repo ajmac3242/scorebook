@@ -83,9 +83,7 @@ export const MatchupAnalyticsCard: React.FC<MatchupAnalyticsCardProps> =
             <Box>
               <Typography
                 variant="caption"
-                sx={{ ...(
-                variant="caption"
-               _sx_placeholder as any), fontWeight: 700 }}
+                sx={{ fontWeight: 700 }}
                 display="block"
                 mb={0.5}
               >
@@ -111,10 +109,7 @@ export const MatchupAnalyticsCard: React.FC<MatchupAnalyticsCardProps> =
                     <Typography
                       variant="caption"
                       display="block"
-                      sx={{ ...(
-                      variant="caption"
-                      display="block"
-                     _sx_placeholder as any), fontWeight: 700 }}
+                      sx={{ fontWeight: 700 }}
                     >
                       Attack Opponent #{targetAttack!.oppPlayerJersey}
                     </Typography>

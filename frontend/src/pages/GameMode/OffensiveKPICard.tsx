@@ -35,13 +35,13 @@ export const OffensiveKPICard: React.FC<OffensiveKPICardProps> = React.memo(
         </Typography>
         <Stack direction="row" spacing={2} useFlexGap sx={{ flexWrap: "wrap" }}>
           <Box sx={{ textAlign: "center" }}>
-            <Typography variant="h5" sx={{ ...( variant="h5"_sx_placeholder as any), fontWeight: 800 }}>
+            <Typography variant="h5" sx={{ fontWeight: 800 }}>
               {paintTouchStats.total}
             </Typography>
             <Typography variant="caption">PAINT TOUCHES</Typography>
           </Box>
           <Box sx={{ textAlign: "center" }}>
-            <Typography variant="h5" sx={{ ...( variant="h5"_sx_placeholder as any), fontWeight: 800 }}>
+            <Typography variant="h5" sx={{ fontWeight: 800 }}>
               {paintTouchStats.pppt}
             </Typography>
             <Typography variant="caption">PTS / TOUCH</Typography>
@@ -50,9 +50,7 @@ export const OffensiveKPICard: React.FC<OffensiveKPICardProps> = React.memo(
 
         <Typography
           variant="overline"
-          sx={{ ...(
-          variant="overline"
-         _sx_placeholder as any), fontWeight: 700 }}
+          sx={{ fontWeight: 700 }}
           display="block"
           mt={2}
           mb={1}
@@ -61,7 +59,7 @@ export const OffensiveKPICard: React.FC<OffensiveKPICardProps> = React.memo(
         </Typography>
         <Stack direction="row" spacing={2} useFlexGap sx={{ flexWrap: "wrap" }}>
           <Box sx={{ textAlign: "center" }}>
-            <Typography variant="h5" sx={{ ...( variant="h5"_sx_placeholder as any), fontWeight: 800 }}>
+            <Typography variant="h5" sx={{ fontWeight: 800 }}>
               {shotROI.avgXPts}
             </Typography>
             <Typography variant="caption">xPTS / POSS</Typography>
@@ -69,9 +67,7 @@ export const OffensiveKPICard: React.FC<OffensiveKPICardProps> = React.memo(
           <Box sx={{ textAlign: "center" }}>
             <Typography
               variant="h5"
-              sx={{ ...(
-              variant="h5"
-             _sx_placeholder as any), fontWeight: 800 }}
+              sx={{ fontWeight: 800 }}
               sx={{ color: roiPositive ? "success.main" : "error.main" }}
             >
               {roiDisplay}

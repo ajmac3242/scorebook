@@ -85,9 +85,7 @@ export const LiveLineupCard: React.FC<LiveLineupCardProps> = React.memo(
               </Typography>
               <Typography
                 variant="body2"
-                sx={{ ...(
-                variant="body2"
-               _sx_placeholder as any), fontWeight: 800 }}
+                sx={{ fontWeight: 800 }}
                 sx={{
                   color:
                     currentLineupPlusMinus >= 0 ? "success.main" : "error.main",
@@ -158,9 +156,7 @@ export const LiveLineupCard: React.FC<LiveLineupCardProps> = React.memo(
             >
               <Typography
                 variant="overline"
-                sx={{ ...(
-                variant="overline"
-               _sx_placeholder as any), fontWeight: 800 }}
+                sx={{ fontWeight: 800 }}
                 sx={{ color: "white" }}
               >
                 WHO GOT THE {chainPrompt.type}?
