@@ -112,9 +112,11 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
     if (!selectedPlayerId || !typeToSave) return;
     setIsSavingStat(true);
     try {
-      if (!gameId) { setIsSavingStat(false); return; }
+      if (!gameId) { setIsSavingStat(false); return; }  // ← fix: reset before early return
+
       let primaryDefenderId: string | undefined;
       let derivedShotClockPhase: "EARLY" | "MID" | "LATE" | undefined;
+
       if (typeToSave === ACTION_TYPES.MAKE || typeToSave === ACTION_TYPES.MISS) {
         if (selectedPlayerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT)) {
           primaryDefenderId = matchups[selectedPlayerId];
@@ -124,6 +126,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
         else if (elapsed >= 20) derivedShotClockPhase = "LATE";
         else derivedShotClockPhase = "MID";
       }
+
       if (isEditing && editingStatId) {
         await db.stats.update(editingStatId, {
           playerId: selectedPlayerId,
@@ -164,6 +167,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
         };
         const savedId = (await db.stats.add(newStat)) as string;
         await syncService.pushUpdates();
+
         if (trackingMode === "OPPONENT" && typeToSave === ACTION_TYPES.MAKE) {
           setLastOpponentStatId(savedId);
           setIsBreakdownDialogOpen(true);
@@ -179,6 +183,7 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
           setIsFtWorkflowOpen(true);
         }
       }
+
       setSnackbar({ open: true, message: isEditing ? "Action updated" : "Action recorded", severity: "success", action: "UNDO" });
       setIsDialogOpen(false);
       setStatType(null);
@@ -194,12 +199,15 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
     } finally {
       setIsSavingStat(false);
     }
-  }, [statType, selectedPlayerId, gameId, isEditing, editingStatId, points, playName, selectedX, selectedY,
-    period, trackingMode, clockSeconds, shotQuality, situation, opponentPlayType, matchups,
-    game?.activeDefensiveScheme, gameData.possessionStartClock,
-    setIsSavingStat, setChainPrompt, setIsFtWorkflowOpen, setSnackbar, setIsDialogOpen,
-    setStatType, setPlayName, setSituation, setIsEditing, setEditingStatId,
-    setSelectedPlayerId, setLastOpponentStatId, setIsBreakdownDialogOpen, setOpponentPlayType]);
+  }, [
+    statType, selectedPlayerId, gameId, isEditing, editingStatId, points, playName,
+    selectedX, selectedY, period, trackingMode, clockSeconds, shotQuality,
+    situation, opponentPlayType, matchups, game?.activeDefensiveScheme,
+    gameData.possessionStartClock, setIsSavingStat, setChainPrompt,
+    setIsFtWorkflowOpen, setSnackbar, setIsDialogOpen, setStatType, setPlayName,
+    setSituation, setIsEditing, setEditingStatId, setSelectedPlayerId,
+    setLastOpponentStatId, setIsBreakdownDialogOpen, setOpponentPlayType,
+  ]);
 
   const handleDeleteStat = useCallback(async () => {
     if (!statToDelete) return;
@@ -243,8 +251,10 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
     } finally {
       setIsSavingSub(false);
     }
-  }, [gameId, isReadOnly, gameData.onCourtIds, draftOnCourtIds, period, clockSeconds,
-    setIsSubDialogOpen, setSnackbar, isSavingSub, setIsSavingSub]);
+  }, [
+    gameId, isReadOnly, gameData.onCourtIds, draftOnCourtIds, period, clockSeconds,
+    setIsSubDialogOpen, setSnackbar, isSavingSub, setIsSavingSub,
+  ]);
 
   const handleTogglePossession = useCallback(async (manualTarget?: string) => {
     if (!gameId || isReadOnly) return;
@@ -254,7 +264,16 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
         : SPECIAL_PLAYER_IDS.OUR_TEAM
     );
     try {
-      await db.stats.add({ id: crypto.randomUUID(), gameId, playerId: targetTeam, type: ACTION_TYPES.POSSESSION, period, clockTime: clockSeconds, timestamp: new Date().toISOString(), synced: 0 });
+      await db.stats.add({
+        id: crypto.randomUUID(),
+        gameId,
+        playerId: targetTeam,
+        type: ACTION_TYPES.POSSESSION,
+        period,
+        clockTime: clockSeconds,
+        timestamp: new Date().toISOString(),
+        synced: 0,
+      });
       await syncService.pushUpdates();
     } catch (err) {
       logger.error("Failed to toggle possession:", err);
@@ -264,7 +283,16 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
   const handleOpponentTurnover = useCallback(async () => {
     if (!gameId || isReadOnly) return;
     try {
-      await db.stats.add({ id: crypto.randomUUID(), gameId, playerId: SPECIAL_PLAYER_IDS.OPPONENT, type: ACTION_TYPES.TURNOVER, period, clockTime: clockSeconds, timestamp: new Date().toISOString(), synced: 0 });
+      await db.stats.add({
+        id: crypto.randomUUID(),
+        gameId,
+        playerId: SPECIAL_PLAYER_IDS.OPPONENT,
+        type: ACTION_TYPES.TURNOVER,
+        period,
+        clockTime: clockSeconds,
+        timestamp: new Date().toISOString(),
+        synced: 0,
+      });
       await handleTogglePossession(SPECIAL_PLAYER_IDS.OUR_TEAM);
       setSnackbar({ open: true, message: "Opponent turnover recorded", severity: "success" });
     } catch (err) {
@@ -276,7 +304,16 @@ export function useGameModeActions(params: UseGameModeActionsParams) {
     if (!chainPrompt || !gameId) return;
     const { originalStat } = chainPrompt;
     try {
-      await db.stats.add({ id: crypto.randomUUID(), gameId, playerId: pId, type, period: originalStat.period, clockTime: originalStat.clockTime, timestamp: originalStat.timestamp, synced: 0 });
+      await db.stats.add({
+        id: crypto.randomUUID(),
+        gameId,
+        playerId: pId,
+        type,
+        period: originalStat.period,
+        clockTime: originalStat.clockTime,
+        timestamp: originalStat.timestamp,
+        synced: 0,
+      });
       await syncService.pushUpdates();
       if (type === ACTION_TYPES.ASSIST) {
         setChainPrompt({ type: ACTION_TYPES.HOCKEY_ASSIST, originalStat });
