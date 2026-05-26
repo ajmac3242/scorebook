@@ -33,7 +33,7 @@ export const OffensiveKPICard: React.FC<OffensiveKPICardProps> = React.memo(
         <Typography variant="overline" fontWeight={700} display="block" mb={1}>
           Offensive Identity (KPIs)
         </Typography>
-        <Stack direction="row" spacing={2} flexWrap="wrap" useFlexGap>
+        <Stack direction="row" spacing={2} useFlexGap sx={{ flexWrap: "wrap" }}>
           <Box textAlign="center">
             <Typography variant="h5" fontWeight={800}>
               {paintTouchStats.total}
@@ -51,7 +51,7 @@ export const OffensiveKPICard: React.FC<OffensiveKPICardProps> = React.memo(
         <Typography variant="overline" fontWeight={700} display="block" mt={2} mb={1}>
           Quality Control (xPTS)
         </Typography>
-        <Stack direction="row" spacing={2} flexWrap="wrap" useFlexGap>
+        <Stack direction="row" spacing={2} useFlexGap sx={{ flexWrap: "wrap" }}>
           <Box textAlign="center">
             <Typography variant="h5" fontWeight={800}>
               {shotROI.avgXPts}
