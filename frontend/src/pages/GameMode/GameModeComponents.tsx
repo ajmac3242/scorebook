@@ -24,45 +24,63 @@ interface QuickActionProps {
  */
 export const QuickAction: React.FC<QuickActionProps> = React.memo(
   ({ type, label, icon: Icon, statType, onClick }) => (
-    <Tooltip title={label} arrow>
-      <Button
-        variant={statType === type ? "contained" : "outlined"}
-        color="inherit"
-        aria-pressed={statType === type}
-        aria-label={`Record ${label}`}
-        onClick={() => {
-          onClick(type);
-        }}
-        sx={{
-          flexDirection: "column",
-          py: 2,
-          minWidth: 80,
-          borderColor: "var(--cs-semantic-color-border-default)",
-          backgroundColor:
-            statType === type
-              ? "var(--cs-semantic-color-brand-primary-main)"
-              : "transparent",
-          color:
-            statType === type
-              ? "var(--cs-semantic-color-text-inverse)"
-              : "var(--cs-semantic-color-text-primary)",
-          transition:
-            "all var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
-          "&:focus-visible": {
-            outline:
-              "var(--cs-semantic-focus-width)px solid var(--cs-semantic-color-action-focusRing)",
-            outlineOffset: "var(--cs-semantic-focus-offset)px",
-          },
-        }}
-      >
-        <Icon sx={{ mb: 1 }} />
-        <Typography variant="caption" sx={{ fontWeight: 700 }}>
-          {label}
-        </Typography>
-      </Button>
-    </Tooltip>
+    <Button
+      variant={statType === type ? "contained" : "outlined"}
+      color="inherit"
+      aria-pressed={statType === type}
+      aria-label={`Record ${label}`}
+      onClick={() => {
+        onClick(type);
+      }}
+      sx={{
+        flexDirection: "column",
+        py: 2,
+        minWidth: 80,
+        borderColor: "var(--cs-semantic-color-border-default)",
+        backgroundColor:
+          statType === type
+            ? "var(--cs-semantic-color-brand-primary-main)"
+            : "transparent",
+        color:
+          statType === type
+            ? "var(--cs-semantic-color-text-inverse)"
+            : "var(--cs-semantic-color-text-primary)",
+        transition:
+          "all var(--cs-motion-duration-normal) var(--cs-motion-easing-productive)",
+        "&:focus-visible": {
+          outline:
+            "var(--cs-semantic-focus-width)px solid var(--cs-semantic-color-action-focusRing)",
+          outlineOffset: "var(--cs-semantic-focus-offset)px",
+        },
+      }}
+    >
+      <Icon sx={{ mb: 1 }} />
+      <Typography variant="caption" sx={{ fontWeight: 700 }}>
+        {label}
+      </Typography>
+    </Button>
   ),
 );
+
+/** Internal helper to avoid inline IIFE for clock color logic. */
+const ClockSpan: React.FC<{ stintSecs: number; maxStint: number }> = ({
+  stintSecs,
+  maxStint,
+}) => {
+  const color =
+    stintSecs > maxStint
+      ? "var(--cs-semantic-color-feedback-error-main)"
+      : stintSecs > maxStint * 0.75
+        ? "var(--cs-semantic-color-feedback-warning-main)"
+        : "inherit";
+  return (
+    <Box component="span" sx={{ color }}>
+      {formatClock(stintSecs)}
+    </Box>
+  );
+};
+
+QuickAction.displayName = "QuickAction";
 
 interface LineupPlayerButtonProps {
   player: Player;
@@ -175,19 +193,7 @@ export const LineupPlayerButton: React.FC<LineupPlayerButtonProps> = React.memo(
               sx={{ fontSize: "0.6rem", opacity: 0.8 }}
             >
               {stats?.points || 0} pts | {stats?.rebounds || 0} reb | {pf} pf |{" "}
-              {(() => {
-                const color =
-                  stintSecs > maxStint
-                    ? "var(--cs-semantic-color-feedback-error-main)"
-                    : stintSecs > maxStint * 0.75
-                      ? "var(--cs-semantic-color-feedback-warning-main)"
-                      : "inherit";
-                return (
-                  <Box component="span" sx={{ color }}>
-                    {formatClock(stintSecs)}
-                  </Box>
-                );
-              })()}
+              <ClockSpan stintSecs={stintSecs} maxStint={maxStint} />
             </Typography>
           </Box>
           {streak === "HOT" && (
@@ -206,3 +212,4 @@ export const LineupPlayerButton: React.FC<LineupPlayerButtonProps> = React.memo(
     );
   },
 );
+LineupPlayerButton.displayName = "LineupPlayerButton";

@@ -31,6 +31,7 @@ import { usePossessionTracker } from "./usePossessionTracker";
 import { useVoiceRecognition } from "./useVoiceRecognition";
 import { useGameAggregator } from "./useGameAggregator";
 import { ParsedVoiceCommand } from "../utils/voiceParser";
+import { type MarkerFilter } from "../pages/GameMode/CourtMarkerFilters";
 import { logger } from "../utils/logger";
 
 export const useGameMode = (gameId: string | null, teamId: string | null) => {
@@ -164,7 +165,7 @@ export const useGameMode = (gameId: string | null, teamId: string | null) => {
     direction: "asc" | "desc";
   }>({ key: "jerseyNumber", direction: "asc" });
 
-  const [markerFilter, setMarkerFilter] = useState<string>("ALL");
+  const [markerFilter, setMarkerFilter] = useState<MarkerFilter>("ALL");
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [statToDelete, setStatToDelete] = useState<string | null>(null);

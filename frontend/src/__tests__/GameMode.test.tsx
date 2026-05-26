@@ -1,9 +1,21 @@
+/**
+ * @file GameMode.test.tsx
+ * @description Integration tests for the GameMode page.
+ *
+ * These tests verify end-to-end workflows including stat recording,
+ * lineup management, possession tracking, and coach board interactions.
+ *
+ * Sub-component unit tests live in __tests__/GameMode/ (e.g. VoiceModeBanner,
+ * TrackingModeToolbar, CourtMarkerFilters, LiveLineupCard, SparkPlugTable,
+ * DefensiveSchemeSelector, MatchupAnalyticsCard, OffensiveKPICard).
+ */
 import {
   render,
   screen,
   fireEvent,
   within,
   waitFor,
+  act,
 } from "@testing-library/react";
 import GameMode from "../pages/GameMode";
 import { describe, it, expect, vi, beforeEach } from "vitest";
@@ -125,7 +137,7 @@ describe("GameMode Component", () => {
     expect(await screen.findByText(/Live Lineup/i)).toBeInTheDocument();
     // Verify player appears in the stats table
     const table = await screen.findByRole("table", {
-      name: /Player Performance/i,
+      name: /Player stats/i,
     });
     // PlayerStatRow might truncate or split name
     expect(within(table).getByText(/Player/i)).toBeInTheDocument();
@@ -332,14 +344,9 @@ describe("GameMode Component", () => {
     court.setAttribute("data-y", "5");
     fireEvent.click(court);
 
-    expect(await screen.findByRole("dialog")).toBeInTheDocument();
-
-    fireEvent.click(
-      within(screen.getByRole("dialog")).getByLabelText(/Record Make/i),
-    );
-
-    const threeBtn = screen.getByRole("button", { name: "3 point shot" });
-    expect(threeBtn).toHaveClass("MuiButton-contained");
+    const dialog = await screen.findByTestId("stat-dialog");
+    expect(dialog).toBeInTheDocument();
+    expect(dialog).toHaveAttribute("data-points", "3");
   });
 
   it("automatically detects 2pt shot value in the paint", async () => {
@@ -350,14 +357,9 @@ describe("GameMode Component", () => {
     court.setAttribute("data-y", "10");
     fireEvent.click(court);
 
-    expect(await screen.findByRole("dialog")).toBeInTheDocument();
-
-    fireEvent.click(
-      within(screen.getByRole("dialog")).getByLabelText(/Record Make/i),
-    );
-
-    const twoBtn = screen.getByRole("button", { name: "2 point shot" });
-    expect(twoBtn).toHaveClass("MuiButton-contained");
+    const dialog = await screen.findByTestId("stat-dialog");
+    expect(dialog).toBeInTheDocument();
+    expect(dialog).toHaveAttribute("data-points", "2");
   });
 
   it("🏀 CoachBoard: records opponent actions from the court", async () => {

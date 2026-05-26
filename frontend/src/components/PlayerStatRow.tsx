@@ -28,7 +28,7 @@ interface PlayerStatRowProps {
   turnovers: number;
   fouls: number;
   plusMinus: number;
-  streak: "HOT" | "COLD" | null | undefined;
+  streak?: "HOT" | "COLD" | null;
 }
 
 export const PlayerStatRow: React.FC<PlayerStatRowProps> = React.memo(

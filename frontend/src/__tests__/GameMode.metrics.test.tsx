@@ -1,5 +1,5 @@
 import { render, screen, waitFor } from "@testing-library/react";
-import GameMode from "./GameMode";
+import GameMode from "../pages/GameMode";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { mockDb } from "../dbMock";
 import { BrowserRouter } from "react-router-dom";
