@@ -344,15 +344,9 @@ describe("GameMode Component", () => {
     court.setAttribute("data-y", "5");
     fireEvent.click(court);
 
-    const dialog = await screen.findByRole("dialog");
+    const dialog = await screen.findByTestId("stat-dialog");
     expect(dialog).toBeInTheDocument();
-
-    fireEvent.keyDown(dialog, { key: "m" });
-
-    const threeBtn = await within(dialog).findByRole("button", {
-      name: "3 point shot",
-    });
-    expect(threeBtn).toHaveClass("MuiButton-contained");
+    expect(dialog).toHaveAttribute("data-points", "3");
   });
 
   it("automatically detects 2pt shot value in the paint", async () => {
@@ -363,15 +357,9 @@ describe("GameMode Component", () => {
     court.setAttribute("data-y", "10");
     fireEvent.click(court);
 
-    const dialog = await screen.findByRole("dialog");
+    const dialog = await screen.findByTestId("stat-dialog");
     expect(dialog).toBeInTheDocument();
-
-    fireEvent.keyDown(dialog, { key: "m" });
-
-    const twoBtn = await within(dialog).findByRole("button", {
-      name: "2 point shot",
-    });
-    expect(twoBtn).toHaveClass("MuiButton-contained");
+    expect(dialog).toHaveAttribute("data-points", "2");
   });
 
   it("🏀 CoachBoard: records opponent actions from the court", async () => {

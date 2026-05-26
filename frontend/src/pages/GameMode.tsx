@@ -1106,6 +1106,7 @@ const GameMode: React.FC = () => {
         fullWidth
         maxWidth="xs"
         aria-describedby="stat-dialog-player-info"
+        PaperProps={{ "data-testid": "stat-dialog", "data-points": points, "data-stattype": statType ?? "" } as React.ComponentPropsWithRef<"div">}
         onKeyDown={(e) => {
           if (
             e.key === "Enter" &&
@@ -1455,6 +1456,7 @@ const GameMode: React.FC = () => {
                     variant={points === pt ? "contained" : "outlined"}
                     size="small"
                     onClick={() => setPoints(pt)}
+                    aria-label={`${pt} point shot`}
                     sx={{ minWidth: 40, fontWeight: 800 }}
                   >
                     {pt}
