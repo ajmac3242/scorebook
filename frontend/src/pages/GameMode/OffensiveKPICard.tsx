@@ -30,7 +30,12 @@ export const OffensiveKPICard: React.FC<OffensiveKPICardProps> = React.memo(
 
     return (
       <MoleskineCard aria-label="Offensive Identity KPIs">
-        <Typography variant="overline" sx={{ fontWeight: 700 }} display="block" mb={1}>
+        <Typography
+          variant="overline"
+          sx={{ fontWeight: 700 }}
+          display="block"
+          mb={1}
+        >
           Offensive Identity (KPIs)
         </Typography>
         <Stack direction="row" spacing={2} useFlexGap sx={{ flexWrap: "wrap" }}>

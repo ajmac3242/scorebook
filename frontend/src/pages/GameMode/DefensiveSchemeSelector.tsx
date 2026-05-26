@@ -36,7 +36,10 @@ export const DefensiveSchemeSelector: React.FC<DefensiveSchemeSelectorProps> =
 
     return (
       <MoleskineCard aria-label="Active Defensive Scheme">
-        <Typography variant="overline" sx={{ fontWeight: 700, display: "block", mb: 1 }}>
+        <Typography
+          variant="overline"
+          sx={{ fontWeight: 700, display: "block", mb: 1 }}
+        >
           ACTIVE DEFENSIVE SCHEME
         </Typography>
         <ToggleButtonGroup
