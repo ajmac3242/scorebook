@@ -20,7 +20,7 @@ interface TrackingModeToolbarProps {
 
 export const TrackingModeToolbar: React.FC<TrackingModeToolbarProps> = React.memo(
   ({ trackingMode, onTrackingModeChange, voiceEnabled, onVoiceToggle, isReadOnly, game, team }) => (
-    <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
+    <Stack direction="row" spacing={1} sx={{ alignItems: "center", flexWrap: "wrap" }}>
       <IconButton
         onClick={onVoiceToggle}
         color={voiceEnabled ? "primary" : "default"}
