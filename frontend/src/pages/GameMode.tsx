@@ -941,16 +941,11 @@ const GameMode: React.FC = () => {
                   );
                 })}
               </Stack>
-              {(() => {
-                const pId = selectedPlayerId || "";
-                const isOpp = pId === SPECIAL_PLAYER_IDS.OPPONENT || pId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":");
-                if (!isOpp) return null;
-                const foulsRequired = periodType === "QUARTERS" ? 5 : 7;
-                const fouls = gameData.teamFoulStats.oppFouls;
-                if (fouls >= foulsRequired) return <Chip label="IN BONUS" size="small" color="error" />;
-                if (fouls === foulsRequired - 1) return <Chip label="NEXT: BONUS" size="small" color="warning" />;
-                return null;
-              })()}
+              <OpponentBonusChip
+                selectedPlayerId={selectedPlayerId}
+                oppFouls={gameData.teamFoulStats.oppFouls}
+                periodType={periodType}
+              />
             </Box>
           )}
 
