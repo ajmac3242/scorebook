@@ -209,28 +209,23 @@ describe("SharedUI Components", () => {
     });
 
     it("renders without crashing when value is undefined", () => {
-      expect(() =>
-        render(<AnimatedNumber value={undefined as unknown as number} />),
-      ).not.toThrow();
+      const { container } = render(
+        <AnimatedNumber value={undefined as unknown as number} />,
+      );
       act(() => {
         vi.runAllTimers();
       });
-      expect(screen.getByText("0")).toBeInTheDocument();
+      expect(container.textContent).toBe("0");
     });
 
     it("renders with decimal places when value is undefined", () => {
-      expect(() =>
-        render(
-          <AnimatedNumber
-            value={undefined as unknown as number}
-            decimals={2}
-          />,
-        ),
-      ).not.toThrow();
+      const { container } = render(
+        <AnimatedNumber value={undefined as unknown as number} decimals={2} />,
+      );
       act(() => {
         vi.runAllTimers();
       });
-      expect(screen.getByText("0.00")).toBeInTheDocument();
+      expect(container.textContent).toBe("0.00");
     });
   });
 });
