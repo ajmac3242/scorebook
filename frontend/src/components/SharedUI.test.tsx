@@ -208,26 +208,23 @@ describe("SharedUI Components", () => {
       expect(container.querySelector("span")).toBeInTheDocument();
     });
 
-    it("renders without crashing when value is undefined", () => {
-      let container!: HTMLElement;
-      act(() => {
-        ({ container } = render(
-          <AnimatedNumber value={undefined as unknown as number} />,
-        ));
-      });
+
+  });
+
+
+  describe("AnimatedNumber undefined value handling", () => {
+    it("initialises to 0 when value is undefined", () => {
+      const { container } = render(
+        <AnimatedNumber value={undefined as unknown as number} />,
+      );
+      // No fake timers active here — React flushes synchronously
       expect(container.textContent).toBe("0");
     });
 
-    it("renders with decimal places when value is undefined", () => {
-      let container!: HTMLElement;
-      act(() => {
-        ({ container } = render(
-          <AnimatedNumber
-            value={undefined as unknown as number}
-            decimals={2}
-          />,
-        ));
-      });
+    it("initialises to 0.00 when value is undefined and decimals=2", () => {
+      const { container } = render(
+        <AnimatedNumber value={undefined as unknown as number} decimals={2} />,
+      );
       expect(container.textContent).toBe("0.00");
     });
   });
