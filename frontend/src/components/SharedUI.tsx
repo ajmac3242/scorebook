@@ -248,31 +248,32 @@ export const AnimatedNumber: React.FC<AnimatedNumberProps> = ({
   duration = 500,
   decimals = 0,
 }) => {
-  const [displayValue, setDisplayValue] = useState(value);
-  const prevValueRef = useRef(value);
+  const safeValue = value ?? 0;
+  const [displayValue, setDisplayValue] = useState(safeValue);
+  const prevValueRef = useRef(safeValue);
 
   useEffect(() => {
     let startTimestamp: number | null = null;
     let animationFrameId: number;
-    const startValue = prevValueRef.current;
+    const startValue = prevValueRef.current ?? 0;
 
     const step = (timestamp: number) => {
       if (!startTimestamp) startTimestamp = timestamp;
       const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-      setDisplayValue(startValue + progress * (value - startValue));
+      setDisplayValue(startValue + progress * (safeValue - startValue));
       if (progress < 1) {
         animationFrameId = window.requestAnimationFrame(step);
       } else {
-        prevValueRef.current = value;
+        prevValueRef.current = safeValue;
       }
     };
 
     animationFrameId = window.requestAnimationFrame(step);
     return () => {
       window.cancelAnimationFrame(animationFrameId);
-      prevValueRef.current = value;
+      prevValueRef.current = safeValue;
     };
-  }, [value, duration]);
+  }, [safeValue, duration]);
 
   return <>{displayValue.toFixed(decimals)}</>;
 };

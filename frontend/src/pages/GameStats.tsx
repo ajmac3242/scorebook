@@ -1090,7 +1090,7 @@ const GameStats: React.FC = () => {
               onChange={(e) => setSelectedPlay(e.target.value)}
             >
               <MenuItem value="ALL">All Plays</MenuItem>
-              {team.playbook.map((play) => (
+              {(team?.playbook ?? []).map((play) => (
                 <MenuItem key={play} value={play}>
                   {play}
                 </MenuItem>

@@ -85,4 +85,19 @@ describe("BasketballCourt Component", () => {
     fireEvent.keyDown(markerButton, { key: " " });
     expect(onMarkerClick).toHaveBeenCalledTimes(2);
   });
+
+  it("renders markers with undefined x/y coordinates without crashing", () => {
+    const markers = [
+      {
+        id: 1,
+        x: undefined,
+        y: undefined,
+        type: "MAKE",
+        playerName: "John Doe",
+      },
+      { id: 2, x: 10, y: undefined, type: "MISS" },
+      { id: 3, x: undefined, y: 20, type: "REBOUND" },
+    ] as unknown as Parameters<typeof BasketballCourt>[0]["markers"];
+    expect(() => render(<BasketballCourt markers={markers} />)).not.toThrow();
+  });
 });
