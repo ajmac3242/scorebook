@@ -40,6 +40,7 @@ export const MatchupAnalyticsCard: React.FC<MatchupAnalyticsCardProps> =
       opponents,
       matchups,
       jerseyMap,
+      onCourtIds,
       gameId,
     }) => {
       // Replaces the inline IIFE — sorted once per matchupEfficiency change
