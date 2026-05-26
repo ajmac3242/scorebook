@@ -64,6 +64,17 @@ export const QuickAction: React.FC<QuickActionProps> = React.memo(
   ),
 );
 
+/** Internal helper to avoid inline IIFE for clock color logic. */
+const ClockSpan: React.FC<{ stintSecs: number; maxStint: number }> = ({ stintSecs, maxStint }) => {
+  const color =
+    stintSecs > maxStint
+      ? "var(--cs-semantic-color-feedback-error-main)"
+      : stintSecs > maxStint * 0.75
+        ? "var(--cs-semantic-color-feedback-warning-main)"
+        : "inherit";
+  return <Box component="span" sx={{ color }}>{formatClock(stintSecs)}</Box>;
+};
+
 interface LineupPlayerButtonProps {
   player: Player;
   stats: PlayerAggregates | undefined;
@@ -175,19 +186,7 @@ export const LineupPlayerButton: React.FC<LineupPlayerButtonProps> = React.memo(
               sx={{ fontSize: "0.6rem", opacity: 0.8 }}
             >
               {stats?.points || 0} pts | {stats?.rebounds || 0} reb | {pf} pf |{" "}
-              {(() => {
-                const color =
-                  stintSecs > maxStint
-                    ? "var(--cs-semantic-color-feedback-error-main)"
-                    : stintSecs > maxStint * 0.75
-                      ? "var(--cs-semantic-color-feedback-warning-main)"
-                      : "inherit";
-                return (
-                  <Box component="span" sx={{ color }}>
-                    {formatClock(stintSecs)}
-                  </Box>
-                );
-              })()}
+              <ClockSpan stintSecs={stintSecs} maxStint={maxStint} />
             </Typography>
           </Box>
           {streak === "HOT" && (
