@@ -212,6 +212,9 @@ describe("SharedUI Components", () => {
       expect(() =>
         render(<AnimatedNumber value={undefined as unknown as number} />),
       ).not.toThrow();
+      act(() => {
+        vi.runAllTimers();
+      });
       expect(screen.getByText("0")).toBeInTheDocument();
     });
 
@@ -224,6 +227,9 @@ describe("SharedUI Components", () => {
           />,
         ),
       ).not.toThrow();
+      act(() => {
+        vi.runAllTimers();
+      });
       expect(screen.getByText("0.00")).toBeInTheDocument();
     });
   });
