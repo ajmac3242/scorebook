@@ -65,8 +65,8 @@ vi.mock("./components/SharedUI", async (importOriginal) => {
   const actual: any = await importOriginal();
   return {
     ...actual,
-    AnimatedNumber: ({ value }: any) =>
-      React.createElement("span", null, value),
+    AnimatedNumber: ({ value, decimals = 0 }: any) =>
+      React.createElement("span", null, (value ?? 0).toFixed(decimals)),
   };
 });
 
