@@ -349,7 +349,9 @@ describe("GameMode Component", () => {
     expect(dialog).toBeInTheDocument();
 
     const user = userEvent.setup();
-    await user.click(within(dialog).getByRole("button", { name: /Record Make/i }));
+    await user.click(
+      within(dialog).getByRole("button", { name: /Record Make/i }),
+    );
 
     const threeBtn = await within(dialog).findByRole("button", {
       name: "3 point shot",
@@ -369,7 +371,9 @@ describe("GameMode Component", () => {
     expect(dialog).toBeInTheDocument();
 
     const user = userEvent.setup();
-    await user.click(within(dialog).getByRole("button", { name: /Record Make/i }));
+    await user.click(
+      within(dialog).getByRole("button", { name: /Record Make/i }),
+    );
 
     const twoBtn = await within(dialog).findByRole("button", {
       name: "2 point shot",
