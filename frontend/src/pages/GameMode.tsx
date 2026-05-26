@@ -177,9 +177,7 @@ const GameMode: React.FC = () => {
     isSavingSub,
     setIsSavingSub,
     chainPrompt,
-    setChainPrompt,
     snackbar,
-    setSnackbar,
     isSubDialogOpen,
     setIsSubDialogOpen,
     setSubOutPlayerId,
@@ -254,7 +252,7 @@ const GameMode: React.FC = () => {
     chainPrompt,
     statToDelete,
     isSavingSub,
-    setSnackbar,
+    setSnackbar: setSnackbar as (s: { open: boolean; message: string; severity: string; action?: string }) => void,
     setIsDialogOpen,
     setStatType,
     setPlayName,
@@ -265,7 +263,7 @@ const GameMode: React.FC = () => {
     setSelectedPlayerId,
     setLastOpponentStatId,
     setIsBreakdownDialogOpen,
-    setChainPrompt,
+    setChainPrompt: setChainPrompt as (v: { type: string; originalStat: StatEvent } | null) => void,
     setIsFtWorkflowOpen,
     setIsSavingStat,
     setIsEnding,
@@ -524,7 +522,7 @@ const GameMode: React.FC = () => {
               />
               <TrackingModeToolbar
                 trackingMode={trackingMode}
-                onTrackingModeChange={(_, val) => { if (val) setTrackingMode(val); }}
+                onTrackingModeChange={(val) => { if (val) setTrackingMode(val as "TEAM" | "OPPONENT"); }}
                 voiceEnabled={voiceEnabled}
                 onVoiceToggle={() => setVoiceEnabled(!voiceEnabled)}
                 isReadOnly={isReadOnly}
@@ -668,7 +666,28 @@ const GameMode: React.FC = () => {
                       </TableHead>
                       <TableBody>
                         {sortedStatsGridData.map((row) => (
-                          <PlayerStatRow key={row.id} row={row} />
+                          <PlayerStatRow
+                            key={row.id}
+                            jerseyNumber={row.jerseyNumber}
+                            name={row.name}
+                            isOnCourt={row.isOnCourt}
+                            min={row.min}
+                            points={row.points}
+                            threePM={row.threePM}
+                            threePA={row.threePA}
+                            threePPct={row.threePPct}
+                            ftm={row.ftm}
+                            fta={row.fta}
+                            ftPct={row.ftPct}
+                            rebounds={row.rebounds}
+                            assists={row.assists}
+                            steals={row.steals}
+                            blocks={row.blocks}
+                            turnovers={row.turnovers}
+                            fouls={row.fouls}
+                            plusMinus={row.plusMinus}
+                            streak={row.streak}
+                          />
                         ))}
                       </TableBody>
                     </Table>
@@ -684,7 +703,7 @@ const GameMode: React.FC = () => {
                 {opponentStats.length > 0 ? (
                   opponentStats.map((opp) => (
                     <Box key={opp.id} sx={{ mb: 2, p: 1.5, borderRadius: 2, border: "1px solid", borderColor: "divider" }}>
-                      <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
+                      <Stack direction="row" spacing={1} sx={{  mb: 1, alignItems: "center" }}>
                         <Avatar sx={{ width: 28, height: 28, fontSize: "0.7rem", bgcolor: opp.isHot ? "error.main" : "primary.main" }}>
                           {opp.jersey}
                         </Avatar>
@@ -707,7 +726,7 @@ const GameMode: React.FC = () => {
                       <Typography variant="caption" sx={{ fontWeight: 700, display: "block", mb: 0.5 }}>
                         Primary Defender
                       </Typography>
-                      <Stack direction="row" spacing={0.5} flexWrap="wrap">
+                      <Stack direction="row" spacing={0.5} sx={{ flexWrap: "wrap" }}>
                         {players
                           .filter((p) => gameData.onCourtIds.has(p.id!))
                           .map((p) => (
@@ -744,7 +763,7 @@ const GameMode: React.FC = () => {
 
             {/* ── Recent Actions ── */}
             <MoleskineCard>
-              <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
+              <Stack direction="row" sx={{   mb: 1, alignItems: "center", justifyContent: "space-between" }}>
                 <Typography variant="caption" sx={{ fontWeight: 800, color: "text.secondary" }}>
                   Recent Actions
                 </Typography>
@@ -788,10 +807,10 @@ const GameMode: React.FC = () => {
                   <RecentActionItem
                     key={s.id || index}
                     stat={s}
-                    playerNamesMap={playerNamesMap}
-                    jerseyMap={jerseyMap}
-                    game={game}
-                    team={team}
+                    playerName={playerNamesMap.get(s.playerId as string) ?? (game?.opponent ?? "Opponent")}
+                    periodLabel={periodLabel}
+                    isReadOnly={isReadOnly}
+                    isLatest={index === 0}
                     onEdit={openEditDialog}
                     onDelete={(id) => { setStatToDelete(id); setIsDeleteDialogOpen(true); }}
                   />
@@ -830,7 +849,7 @@ const GameMode: React.FC = () => {
       >
         <DialogTitle>{isEditing ? "Edit Action" : "Record Action"}</DialogTitle>
         <DialogContent>
-          <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 2 }} id="stat-dialog-player-info">
+          <Stack direction="row" spacing={1.5} sx={{  mb: 2, alignItems: "center" }} id="stat-dialog-player-info">
             <Avatar sx={{ bgcolor: "primary.main", fontWeight: 900 }}>
               {selectedPlayerId
                 ? trackingMode === "OPPONENT" ? "OP" : jerseyMap.get(selectedPlayerId) || "?"
@@ -883,7 +902,7 @@ const GameMode: React.FC = () => {
               <Typography variant="caption" sx={{ fontWeight: 800, display: "block", mb: 1, textTransform: "uppercase" }}>
                 Who?
               </Typography>
-              <Stack direction="row" flexWrap="wrap" gap={0.5}>
+              <Stack direction="row" sx={{  flexWrap: "wrap", gap: 0.5 }}>
                 {players.filter((p) => gameData.onCourtIds.has(p.id!)).map((p) => (
                   <Button
                     key={p.id}
@@ -904,7 +923,7 @@ const GameMode: React.FC = () => {
               <Typography variant="caption" sx={{ fontWeight: 800, display: "block", mb: 1, textTransform: "uppercase" }}>
                 Opponent Jersey # (Optional)
               </Typography>
-              <Stack direction="row" flexWrap="wrap" gap={0.5} sx={{ mb: 1 }}>
+              <Stack direction="row" sx={{   mb: 1, flexWrap: "wrap", gap: 0.5 }}>
                 {["0","1","2","3","4","5","10","11","12","23","24","30","32","33","34","35"].map((num) => {
                   const oppId = `${SPECIAL_PLAYER_IDS.OPPONENT}:${num}`;
                   return (
@@ -941,7 +960,7 @@ const GameMode: React.FC = () => {
                 <Typography variant="caption" sx={{ fontWeight: 800, display: "block", mb: 1, textTransform: "uppercase" }}>
                   Offensive Play
                 </Typography>
-                <Stack direction="row" flexWrap="wrap" gap={0.5}>
+                <Stack direction="row" sx={{  flexWrap: "wrap", gap: 0.5 }}>
                   {team.playbook.map((play) => (
                     <Chip
                       key={play}
@@ -962,7 +981,7 @@ const GameMode: React.FC = () => {
                 <Typography variant="caption" sx={{ fontWeight: 800, display: "block", mb: 1, textTransform: "uppercase" }}>
                   Shot Quality
                 </Typography>
-                <Stack direction="row" flexWrap="wrap" gap={0.5}>
+                <Stack direction="row" sx={{  flexWrap: "wrap", gap: 0.5 }}>
                   {Object.values(SHOT_QUALITY).map((q) => (
                     <Chip
                       key={q}
@@ -979,7 +998,7 @@ const GameMode: React.FC = () => {
                 <Typography variant="caption" sx={{ fontWeight: 800, display: "block", mb: 1, textTransform: "uppercase" }}>
                   Situation
                 </Typography>
-                <Stack direction="row" flexWrap="wrap" gap={0.5}>
+                <Stack direction="row" sx={{  flexWrap: "wrap", gap: 0.5 }}>
                   {Object.values(SITUATIONS).map((s) => (
                     <Chip
                       key={s}
@@ -1000,7 +1019,7 @@ const GameMode: React.FC = () => {
               <Typography variant="caption" sx={{ fontWeight: 800, display: "block", mb: 1, textTransform: "uppercase" }}>
                 Points
               </Typography>
-              <Stack direction="row" gap={0.5}>
+              <Stack direction="row" sx={{ gap: 0.5 }}>
                 {[1, 2, 3].map((pt) => (
                   <Button
                     key={pt}
@@ -1083,59 +1102,65 @@ const GameMode: React.FC = () => {
       {/* ─── Other Dialogs ────────────────────────────────────────────────────── */}
       <EditClockDialog
         open={isClockEditDialogOpen}
-        initialSeconds={clockSeconds}
+        initialMinutes={Math.floor(clockSeconds / 60)}
+        initialSeconds={clockSeconds % 60}
         onSave={handleEditClock}
         onClose={() => setIsClockEditDialogOpen(false)}
       />
       <QuickSubDialog
         open={isSubDialogOpen}
         players={players}
+        team={team}
+        game={game}
         draftOnCourtIds={draftOnCourtIds}
+        selectedSwapId={selectedSwapId}
         jerseyMap={jerseyMap}
         statsMap={statsMap}
         isSaving={isSavingSub}
-        onSwap={handleSwapClick}
-        onConfirm={handleQuickSub}
+        handleSwapClick={handleSwapClick}
+        handleQuickSub={handleQuickSub}
         onClose={() => setIsSubDialogOpen(false)}
       />
       <SubstitutionAuditDialog
         open={isAuditDialogOpen}
         gameId={gameId}
-        playerNamesMap={playerNamesMap}
+        players={players}
         jerseyMap={jerseyMap}
         onClose={() => setIsAuditDialogOpen(false)}
       />
       <FreeThrowWorkflowDialog
         open={isFtWorkflowOpen}
-        selectedPlayerId={selectedPlayerId}
+        playerId={selectedPlayerId ?? ""}
         gameId={gameId}
         period={period}
-        clockSeconds={clockSeconds}
+        clockTime={clockSeconds}
         onClose={() => setIsFtWorkflowOpen(false)}
       />
       <HalftimeReportDialog
         open={isHalftimeReportOpen}
-        halftimeStats={halftimeStats}
-        teamSeasonStats={teamSeasonStats}
+        teamPpp={gameData.teamPpp}
+        oppPpp={gameData.oppPpp}
+        seasonPpp={teamSeasonStats.ppp}
+        topLineups={halftimeStats.lineupStats.slice(0, 3)}
+        bottomLineups={halftimeStats.lineupStats.slice(-3)}
+        opponentThreats={gameData.momentumAlerts.opponentThreats}
+        schemeEfficiency={halftimeStats.schemeEfficiency}
         jerseyMap={jerseyMap}
-        playerNamesMap={playerNamesMap}
         onClose={() => setIsHalftimeReportOpen(false)}
       />
       <DefensiveBreakdownDialog
         open={isBreakdownDialogOpen}
-        statId={lastOpponentStatId}
-        players={players}
-        gameData={gameData}
-        jerseyMap={jerseyMap}
-        onClose={() => setIsBreakdownDialogOpen(false)}
+        onClose={(reason?: string) => {
+          setIsBreakdownDialogOpen(false);
+          if (reason) logger.info("Defensive breakdown:", reason);
+        }}
       />
       <VerifiedPeriodModal
         open={isVerificationOpen}
         period={period}
         periodLabel={periodLabel}
-        gameData={gameData}
-        jerseyMap={jerseyMap}
-        playerNamesMap={playerNamesMap}
+        appScore={{ team: gameData.currentScore, opp: gameData.opponentScore }}
+        appFouls={{ team: gameData.teamFoulStats.teamFouls, opp: gameData.teamFoulStats.oppFouls }}
         onVerify={handleVerifyPeriod}
       />
 
