@@ -95,6 +95,23 @@ import {
   QuickAction,
 } from "./GameMode/index";
 
+/** Displays bonus/foul status chip for opponent when an opponent player is selected. */
+const OpponentBonusChip: React.FC<{
+  selectedPlayerId: string | null;
+  oppFouls: number;
+  periodType: string;
+}> = ({ selectedPlayerId, oppFouls, periodType }) => {
+  const pId = selectedPlayerId || "";
+  const isOpp =
+    pId === SPECIAL_PLAYER_IDS.OPPONENT ||
+    pId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":");
+  if (!isOpp) return null;
+  const foulsRequired = periodType === "QUARTERS" ? 5 : 7;
+  if (oppFouls >= foulsRequired) return <Chip label="IN BONUS" size="small" color="error" />;
+  if (oppFouls === foulsRequired - 1) return <Chip label="NEXT: BONUS" size="small" color="warning" />;
+  return null;
+};
+
 const GameMode: React.FC = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
