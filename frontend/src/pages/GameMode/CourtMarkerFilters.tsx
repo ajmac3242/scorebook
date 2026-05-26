@@ -15,7 +15,7 @@ interface CourtMarkerFiltersProps {
 
 export const CourtMarkerFilters: React.FC<CourtMarkerFiltersProps> = React.memo(
   ({ markerFilter, onFilterChange }) => (
-    <Stack direction="row" spacing={0.5} flexWrap="wrap" useFlexGap>
+    <Stack direction="row" spacing={0.5} useFlexGap sx={{ flexWrap: "wrap" }}>
       {FILTER_TYPES.map((type) => (
         <Chip
           key={type}
