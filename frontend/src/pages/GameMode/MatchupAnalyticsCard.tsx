@@ -54,7 +54,7 @@ export const MatchupAnalyticsCard: React.FC<MatchupAnalyticsCardProps> = React.m
 
     return (
       <MoleskineCard aria-label="Matchup Analytics">
-        <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1}>
+        <Stack direction="row" sx={{ justifyContent: "space-between", alignItems: "center", mb: 1 }}>
           <Typography variant="overline" fontWeight={700}>
             MATCHUP ANALYTICS
           </Typography>
@@ -78,7 +78,7 @@ export const MatchupAnalyticsCard: React.FC<MatchupAnalyticsCardProps> = React.m
                 Collecting data... (min. 3 possessions)
               </Typography>
             ) : (
-              <Stack direction="row" spacing={1} alignItems="center">
+              <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
                 <Chip
                   label={`#${targetAttack!.oppPlayerJersey}`}
                   color="warning"
