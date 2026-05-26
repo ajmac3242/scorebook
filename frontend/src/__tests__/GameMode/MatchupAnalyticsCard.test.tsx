@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import MatchupAnalyticsCard from '../../pages/GameMode/MatchupAnalyticsCard';
+import { MatchupAnalyticsCard } from '../../pages/GameMode/MatchupAnalyticsCard';
 
 const defaultStats = [
   { label: 'Points', homeValue: 45, awayValue: 38, highlight: 'home' as const },
