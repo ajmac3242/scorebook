@@ -17,7 +17,6 @@ import { LineupPlayerButton } from "./GameModeComponents";
 import { type Player, type Game, type Team, type StatEvent } from "../../db";
 import { type PlayerAggregates } from "../../utils/stats";
 import { formatClock, formatPlusMinus } from "../../utils/mathUtils";
-import { ACTION_TYPES } from "../../constants/stats";
 
 interface ChainPrompt {
   type: "REBOUND" | "ASSIST" | "HOCKEY_ASSIST";
@@ -39,9 +38,9 @@ interface LiveLineupCardProps {
   stintDurations?: Map<string, number>;
   playerStreaks?: Map<string, string>;
   periodFoulMap?: Map<string, number>;
-  onPlayerClick: (playerId: string) => void;
-  onEmptySlotClick: (slotId: string) => void;
-  onChainAction: (playerId: string, type: string) => void;
+  onPlayerClick: (_playerId: string) => void;
+  onEmptySlotClick: (_slotId: string) => void;
+  onChainAction: (_playerId: string,_type: string) => void;
   onDismissChain: () => void;
 }
 
