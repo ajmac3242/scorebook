@@ -363,7 +363,7 @@ const BasketballCourt: React.FC<BasketballCourtProps> = React.memo(
               : marker.label
                 ? `#${marker.label}`
                 : "Opponent";
-            const markerAriaLabel = `${marker.type} by ${playerName} at ${marker.x.toFixed(0)}%, ${marker.y.toFixed(0)}%`;
+            const markerAriaLabel = `${marker.type} by ${playerName} at ${(marker.x ?? 0).toFixed(0)}%, ${(marker.y ?? 0).toFixed(0)}%`;
 
             return (
               <g

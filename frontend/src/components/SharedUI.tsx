@@ -248,7 +248,7 @@ export const AnimatedNumber: React.FC<AnimatedNumberProps> = ({
   duration = 500,
   decimals = 0,
 }) => {
-  const [displayValue, setDisplayValue] = useState(value);
+  const [displayValue, setDisplayValue] = useState(value ?? 0);
   const prevValueRef = useRef(value);
 
   useEffect(() => {
@@ -274,5 +274,5 @@ export const AnimatedNumber: React.FC<AnimatedNumberProps> = ({
     };
   }, [value, duration]);
 
-  return <>{displayValue.toFixed(decimals)}</>;
+  return <>{(displayValue ?? 0).toFixed(decimals)}</>;
 };

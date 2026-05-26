@@ -207,5 +207,21 @@ describe("SharedUI Components", () => {
       const { container } = render(<AnimatedNumber value={10} />);
       expect(container.querySelector("span")).toBeInTheDocument();
     });
+
+    it("renders without crashing when value is undefined", () => {
+      expect(() =>
+        render(<AnimatedNumber value={undefined as unknown as number} />),
+      ).not.toThrow();
+      expect(screen.getByText("0")).toBeInTheDocument();
+    });
+
+    it("renders with decimal places when value is undefined", () => {
+      expect(() =>
+        render(
+          <AnimatedNumber value={undefined as unknown as number} decimals={2} />,
+        ),
+      ).not.toThrow();
+      expect(screen.getByText("0.00")).toBeInTheDocument();
+    });
   });
 });
