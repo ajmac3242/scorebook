@@ -159,8 +159,8 @@ const GameMode: React.FC = () => {
     setIsEndGameDialogOpen,
     isClockEditDialogOpen,
     setIsClockEditDialogOpen,
-    isSummaryDialogOpen,
-    setIsSummaryDialogOpen,
+    ___isSummaryDialogOpen,
+    set__isSummaryDialogOpen,
     isAuditDialogOpen,
     setIsAuditDialogOpen,
     isFtWorkflowOpen,
@@ -175,7 +175,7 @@ const GameMode: React.FC = () => {
     setIsHalftimeReportOpen,
     isBreakdownDialogOpen,
     setIsBreakdownDialogOpen,
-    lastOpponentStatId,
+    _lastOpponentStatId,
     voiceEnabled,
     setVoiceEnabled,
     isListening,
@@ -184,7 +184,7 @@ const GameMode: React.FC = () => {
     sparkPlugIndex,
     showMatchupMatrix,
     setShowMatchupMatrix,
-    setLastOpponentStatId,
+    set_lastOpponentStatId,
     isDeleting,
     setIsDeleting,
     isEnding,
@@ -280,14 +280,14 @@ const GameMode: React.FC = () => {
     setIsEditing,
     setEditingStatId,
     setSelectedPlayerId,
-    setLastOpponentStatId,
+    set_lastOpponentStatId,
     setIsBreakdownDialogOpen,
     setChainPrompt,
     setIsFtWorkflowOpen,
     setIsSavingStat,
     setIsEnding,
     setIsEndGameDialogOpen,
-    setIsSummaryDialogOpen,
+    set__isSummaryDialogOpen,
     setIsDeleting,
     setIsDeleteDialogOpen,
     setStatToDelete,
@@ -362,7 +362,7 @@ const GameMode: React.FC = () => {
       setIsEditing, setIsDialogOpen],
   );
 
-  const handleToggleClock = useCallback(() => {
+  const _handleToggleClock = useCallback(() => {
     setIsClockRunning((prev) => {
       const next = !prev;
       if (gameId) db.games.update(gameId, { clockTime: clockSecondsRef.current, synced: 0 });
