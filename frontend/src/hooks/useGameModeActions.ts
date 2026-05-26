@@ -39,28 +39,28 @@ interface UseGameModeActionsParams {
   statToDelete: string | null;
   isSavingSub: boolean;
   // setters
-  setSnackbar: (s: { open: boolean; message: string; severity: "success" | "error" | "info" | "warning"; action?: "UNDO" }) => void;
-  setIsDialogOpen: (v: boolean) => void;
-  setStatType: (v: string | null) => void;
-  setPlayName: (v: string) => void;
-  setSituation: (v: string | null) => void;
-  setOpponentPlayType: (v: string | null) => void;
-  setIsEditing: (v: boolean) => void;
-  setEditingStatId: (v: string | null) => void;
-  setSelectedPlayerId: (v: string | null) => void;
-  setLastOpponentStatId: (v: string | null) => void;
-  setIsBreakdownDialogOpen: (v: boolean) => void;
-  setChainPrompt: (v: { type: "REBOUND" | "ASSIST" | "HOCKEY_ASSIST"; originalStat: StatEvent } | null) => void;
-  setIsFtWorkflowOpen: (v: boolean) => void;
-  setIsSavingStat: (v: boolean) => void;
-  setIsEnding: (v: boolean) => void;
-  setIsEndGameDialogOpen: (v: boolean) => void;
-  setIsSummaryDialogOpen: (v: boolean) => void;
-  setIsDeleting: (v: boolean) => void;
-  setIsDeleteDialogOpen: (v: boolean) => void;
-  setStatToDelete: (v: string | null) => void;
-  setIsSubDialogOpen: (v: boolean) => void;
-  setIsSavingSub: (v: boolean) => void;
+  setSnackbar: (_s: { open: boolean; message: string; severity: "success" | "error" | "info" | "warning"; action?: "UNDO" }) => void;
+  setIsDialogOpen: (_v: boolean) => void;
+  setStatType: (_v: string | null) => void;
+  setPlayName: (_v: string) => void;
+  setSituation: (_v: string | null) => void;
+  setOpponentPlayType: (_v: string | null) => void;
+  setIsEditing: (_v: boolean) => void;
+  setEditingStatId: (_v: string | null) => void;
+  setSelectedPlayerId: (_v: string | null) => void;
+  setLastOpponentStatId: (_v: string | null) => void;
+  setIsBreakdownDialogOpen: (_v: boolean) => void;
+  setChainPrompt: (_v: { type: "REBOUND" | "ASSIST" | "HOCKEY_ASSIST"; originalStat: StatEvent } | null) => void;
+  setIsFtWorkflowOpen: (_v: boolean) => void;
+  setIsSavingStat: (_v: boolean) => void;
+  setIsEnding: (_v: boolean) => void;
+  setIsEndGameDialogOpen: (_v: boolean) => void;
+  setIsSummaryDialogOpen: (_v: boolean) => void;
+  setIsDeleting: (_v: boolean) => void;
+  setIsDeleteDialogOpen: (_v: boolean) => void;
+  setStatToDelete: (_v: string | null) => void;
+  setIsSubDialogOpen: (_v: boolean) => void;
+  setIsSavingSub: (_v: boolean) => void;
 }
 
 export function useGameModeActions(params: UseGameModeActionsParams) {

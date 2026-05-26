@@ -159,7 +159,6 @@ const GameMode: React.FC = () => {
     setIsEndGameDialogOpen,
     isClockEditDialogOpen,
     setIsClockEditDialogOpen,
-    ___isSummaryDialogOpen,
     set__isSummaryDialogOpen,
     isAuditDialogOpen,
     setIsAuditDialogOpen,
@@ -175,7 +174,6 @@ const GameMode: React.FC = () => {
     setIsHalftimeReportOpen,
     isBreakdownDialogOpen,
     setIsBreakdownDialogOpen,
-    _lastOpponentStatId,
     voiceEnabled,
     setVoiceEnabled,
     isListening,
@@ -361,14 +359,6 @@ const GameMode: React.FC = () => {
       setPlayName, setShotQuality, setSituation, setSelectedX, setSelectedY,
       setIsEditing, setIsDialogOpen],
   );
-
-  const _handleToggleClock = useCallback(() => {
-    setIsClockRunning((prev) => {
-      const next = !prev;
-      if (gameId) db.games.update(gameId, { clockTime: clockSecondsRef.current, synced: 0 });
-      return next;
-    });
-  }, [gameId, setIsClockRunning, clockSecondsRef]);
 
   const handleEditClock = useCallback(
     async (mins: number, secs: number) => {
