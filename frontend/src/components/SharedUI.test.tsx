@@ -222,7 +222,10 @@ describe("SharedUI Components", () => {
       let container!: HTMLElement;
       act(() => {
         ({ container } = render(
-          <AnimatedNumber value={undefined as unknown as number} decimals={2} />,
+          <AnimatedNumber
+            value={undefined as unknown as number}
+            decimals={2}
+          />,
         ));
       });
       expect(container.textContent).toBe("0.00");
