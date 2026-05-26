@@ -107,8 +107,10 @@ const OpponentBonusChip: React.FC<{
     pId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT + ":");
   if (!isOpp) return null;
   const foulsRequired = periodType === "QUARTERS" ? 5 : 7;
-  if (oppFouls >= foulsRequired) return <Chip label="IN BONUS" size="small" color="error" />;
-  if (oppFouls === foulsRequired - 1) return <Chip label="NEXT: BONUS" size="small" color="warning" />;
+  if (oppFouls >= foulsRequired)
+    return <Chip label="IN BONUS" size="small" color="error" />;
+  if (oppFouls === foulsRequired - 1)
+    return <Chip label="NEXT: BONUS" size="small" color="warning" />;
   return null;
 };
 
@@ -312,10 +314,20 @@ const GameMode: React.FC = () => {
       setSelectedX(x);
       setSelectedY(y);
       setPoints(detectShotValueFromCoords(x, y));
-      setSelectedPlayerId(trackingMode === "OPPONENT" ? SPECIAL_PLAYER_IDS.OPPONENT : null);
+      setSelectedPlayerId(
+        trackingMode === "OPPONENT" ? SPECIAL_PLAYER_IDS.OPPONENT : null,
+      );
       setIsDialogOpen(true);
     },
-    [isReadOnly, trackingMode, setSelectedX, setSelectedY, setPoints, setSelectedPlayerId, setIsDialogOpen],
+    [
+      isReadOnly,
+      trackingMode,
+      setSelectedX,
+      setSelectedY,
+      setPoints,
+      setSelectedPlayerId,
+      setIsDialogOpen,
+    ],
   );
 
   const handleSwapClick = useCallback(
@@ -324,12 +336,19 @@ const GameMode: React.FC = () => {
         setSelectedSwapId(selectedSwapId === id ? null : id);
         return;
       }
-      const isAOnCourt = draftOnCourtIds.has(selectedSwapId) || selectedSwapId.startsWith("EMPTY");
+      const isAOnCourt =
+        draftOnCourtIds.has(selectedSwapId) ||
+        selectedSwapId.startsWith("EMPTY");
       const isBOnCourt = draftOnCourtIds.has(id) || id.startsWith("EMPTY");
-      if (isAOnCourt === isBOnCourt) { setSelectedSwapId(id); return; }
+      if (isAOnCourt === isBOnCourt) {
+        setSelectedSwapId(id);
+        return;
+      }
       setDraftOnCourtIds((prev) => {
         const next = new Set(prev);
-        const [onCourt, bench] = isAOnCourt ? [selectedSwapId, id] : [id, selectedSwapId];
+        const [onCourt, bench] = isAOnCourt
+          ? [selectedSwapId, id]
+          : [id, selectedSwapId];
         if (!onCourt.startsWith("EMPTY")) next.delete(onCourt);
         if (!bench.startsWith("EMPTY")) next.add(bench);
         return next;
@@ -354,9 +373,20 @@ const GameMode: React.FC = () => {
       setIsEditing(true);
       setIsDialogOpen(true);
     },
-    [isReadOnly, setEditingStatId, setSelectedPlayerId, setStatType, setPoints,
-      setPlayName, setShotQuality, setSituation, setSelectedX, setSelectedY,
-      setIsEditing, setIsDialogOpen],
+    [
+      isReadOnly,
+      setEditingStatId,
+      setSelectedPlayerId,
+      setStatType,
+      setPoints,
+      setPlayName,
+      setShotQuality,
+      setSituation,
+      setSelectedX,
+      setSelectedY,
+      setIsEditing,
+      setIsDialogOpen,
+    ],
   );
 
   const handleEditClock = useCallback(
@@ -384,13 +414,24 @@ const GameMode: React.FC = () => {
     setIsClockRunning(false);
     if (gameId) {
       try {
-        await db.games.update(gameId, { currentPeriod: nextPeriod, clockTime: nextSeconds, synced: 0 });
+        await db.games.update(gameId, {
+          currentPeriod: nextPeriod,
+          clockTime: nextSeconds,
+          synced: 0,
+        });
         await syncService.pushUpdates();
       } catch (err) {
         logger.error("Failed to update game period:", err);
       }
     }
-  }, [gameId, period, periodType, setPeriod, setClockSeconds, setIsClockRunning]);
+  }, [
+    gameId,
+    period,
+    periodType,
+    setPeriod,
+    setClockSeconds,
+    setIsClockRunning,
+  ]);
 
   const handleTimeout = useCallback(async () => {
     if (!gameId || isReadOnly) return;
@@ -398,7 +439,10 @@ const GameMode: React.FC = () => {
       await db.stats.add({
         id: crypto.randomUUID(),
         gameId,
-        playerId: trackingMode === "OPPONENT" ? SPECIAL_PLAYER_IDS.OPPONENT : SPECIAL_PLAYER_IDS.TEAM_TIMEOUT,
+        playerId:
+          trackingMode === "OPPONENT"
+            ? SPECIAL_PLAYER_IDS.OPPONENT
+            : SPECIAL_PLAYER_IDS.TEAM_TIMEOUT,
         type: ACTION_TYPES.TIMEOUT,
         period,
         clockTime: clockSeconds,
@@ -412,12 +456,18 @@ const GameMode: React.FC = () => {
   }, [gameId, isReadOnly, trackingMode, period, clockSeconds]);
 
   const handleLineupPlayerClick = useCallback(
-    (playerId: string) => { setSubOutPlayerId(playerId); setIsSubDialogOpen(true); },
+    (playerId: string) => {
+      setSubOutPlayerId(playerId);
+      setIsSubDialogOpen(true);
+    },
     [setSubOutPlayerId, setIsSubDialogOpen],
   );
 
   const handleEmptySlotClick = useCallback(
-    (slotId: string) => { setSubOutPlayerId(slotId); setIsSubDialogOpen(true); },
+    (slotId: string) => {
+      setSubOutPlayerId(slotId);
+      setIsSubDialogOpen(true);
+    },
     [setSubOutPlayerId, setIsSubDialogOpen],
   );
 
@@ -429,13 +479,17 @@ const GameMode: React.FC = () => {
   // ─── Energy Alert Effect ──────────────────────────────────────────────────────
 
   useEffect(() => {
-    if (!gameId || !teamId) { navigate("/"); return; }
+    if (!gameId || !teamId) {
+      navigate("/");
+      return;
+    }
     const topSpark = sparkPlugIndex[0];
     if (topSpark && topSpark.compositeIndex >= 12 && !isReadOnly) {
       const alertKey = `${topSpark.playerId}-${topSpark.compositeIndex}`;
       if (lastEnergyAlertRef.current !== alertKey) {
         lastEnergyAlertRef.current = alertKey;
-        const pName = playerNamesMap.get(topSpark.playerId)?.split(" ")[0] || "Player";
+        const pName =
+          playerNamesMap.get(topSpark.playerId)?.split(" ")[0] || "Player";
         const jersey = jerseyMap.get(topSpark.playerId);
         setSnackbar({
           open: true,
@@ -444,7 +498,16 @@ const GameMode: React.FC = () => {
         });
       }
     }
-  }, [gameId, teamId, navigate, sparkPlugIndex, playerNamesMap, jerseyMap, isReadOnly, setSnackbar]);
+  }, [
+    gameId,
+    teamId,
+    navigate,
+    sparkPlugIndex,
+    playerNamesMap,
+    jerseyMap,
+    isReadOnly,
+    setSnackbar,
+  ]);
 
   if (!gameId || !teamId) return null;
 
@@ -454,7 +517,8 @@ const GameMode: React.FC = () => {
     <Box sx={{ pb: 4, opacity: isReadOnly ? 0.7 : 1 }}>
       {isReadOnly && (
         <Alert severity="warning" icon={<Warning />} sx={{ mb: 2 }}>
-          This game is in read-only mode because it or its parent is pending deletion.
+          This game is in read-only mode because it or its parent is pending
+          deletion.
         </Alert>
       )}
 
@@ -462,15 +526,37 @@ const GameMode: React.FC = () => {
         {/* ── Left Column: Court + Controls ── */}
         <Grid size={{ xs: 12, md: 8 }}>
           {voiceEnabled && (
-            <VoiceModeBanner isListening={isListening} lastTranscript={lastTranscript} />
+            <VoiceModeBanner
+              isListening={isListening}
+              lastTranscript={lastTranscript}
+            />
           )}
 
-          <Box sx={{ mb: 2, bgcolor: "rgba(0,0,0,0.02)", p: 1, borderRadius: 2 }}>
+          <Box
+            sx={{ mb: 2, bgcolor: "rgba(0,0,0,0.02)", p: 1, borderRadius: 2 }}
+          >
             <TacticalIdentityHUD
               kpis={[
-                { name: "paint_touches", label: "Paint Touches", value: paintTouchStats.total, target: 25 },
-                { name: "efg", label: "eFG%", value: Math.round(parseFloat(gameData.teamPpp) * 50), target: 52, isPercentage: true },
-                { name: "stop_pct", label: "Stop %", value: gameData.defensiveStats.stopPct, target: 60, isPercentage: true },
+                {
+                  name: "paint_touches",
+                  label: "Paint Touches",
+                  value: paintTouchStats.total,
+                  target: 25,
+                },
+                {
+                  name: "efg",
+                  label: "eFG%",
+                  value: Math.round(parseFloat(gameData.teamPpp) * 50),
+                  target: 52,
+                  isPercentage: true,
+                },
+                {
+                  name: "stop_pct",
+                  label: "Stop %",
+                  value: gameData.defensiveStats.stopPct,
+                  target: 60,
+                  isPercentage: true,
+                },
               ]}
             />
           </Box>
@@ -485,14 +571,17 @@ const GameMode: React.FC = () => {
             isReadOnly={isReadOnly}
             clockSeconds={clockSeconds}
             isClockRunning={isClockRunning}
-            onEditClock={() => { if (!isReadOnly) setIsClockEditDialogOpen(true); }}
+            onEditClock={() => {
+              if (!isReadOnly) setIsClockEditDialogOpen(true);
+            }}
           />
 
           <MoleskineCard
             sx={{
-              border: trackingMode === "OPPONENT"
-                ? `2px solid ${theme.palette.secondary.main}`
-                : "1px solid rgba(0,0,0,0.12)",
+              border:
+                trackingMode === "OPPONENT"
+                  ? `2px solid ${theme.palette.secondary.main}`
+                  : "1px solid rgba(0,0,0,0.12)",
               transition: "border 0.3s ease",
             }}
           >
@@ -514,7 +603,11 @@ const GameMode: React.FC = () => {
                   if (selectedPlayerId) {
                     setIsFtWorkflowOpen(true);
                   } else {
-                    setSnackbar({ open: true, message: "Select a player first", severity: "warning" });
+                    setSnackbar({
+                      open: true,
+                      message: "Select a player first",
+                      severity: "warning",
+                    });
                   }
                 }}
                 onAuditSubs={() => setIsAuditDialogOpen(true)}
@@ -530,7 +623,9 @@ const GameMode: React.FC = () => {
               />
               <TrackingModeToolbar
                 trackingMode={trackingMode}
-                onTrackingModeChange={(val) => { if (val) setTrackingMode(val as "TEAM" | "OPPONENT"); }}
+                onTrackingModeChange={(val) => {
+                  if (val) setTrackingMode(val as "TEAM" | "OPPONENT");
+                }}
                 voiceEnabled={voiceEnabled}
                 onVoiceToggle={() => setVoiceEnabled(!voiceEnabled)}
                 isReadOnly={isReadOnly}
@@ -544,10 +639,22 @@ const GameMode: React.FC = () => {
               onFilterChange={(f) => setMarkerFilter(f)}
             />
 
-            <BasketballCourt onCoordClick={handleCourtClick} markers={markers} />
+            <BasketballCourt
+              onCoordClick={handleCourtClick}
+              markers={markers}
+            />
 
             {isMobile && !isReadOnly && (
-              <Typography variant="caption" sx={{ display: "block", mt: 1, textAlign: "center", color: "text.secondary", fontStyle: "italic" }}>
+              <Typography
+                variant="caption"
+                sx={{
+                  display: "block",
+                  mt: 1,
+                  textAlign: "center",
+                  color: "text.secondary",
+                  fontStyle: "italic",
+                }}
+              >
                 Tip: Tap the court to record a play at that location
               </Typography>
             )}
@@ -558,9 +665,18 @@ const GameMode: React.FC = () => {
         <Grid size={{ xs: 12, md: 4 }}>
           <Stack spacing={3}>
             {isClutchMode && (
-              <MoleskineCard sx={{ bgcolor: "rgba(211,47,47,0.05)", border: "2px solid", borderColor: "error.main", animation: `${pulse} 4s infinite ease-in-out` }}>
+              <MoleskineCard
+                sx={{
+                  bgcolor: "rgba(211,47,47,0.05)",
+                  border: "2px solid",
+                  borderColor: "error.main",
+                  animation: `${pulse} 4s infinite ease-in-out`,
+                }}
+              >
                 <ClutchPerformanceHUD
-                  onCourtStats={clutchStats.filter((p) => gameData.onCourtIds.has(p.id.toString()))}
+                  onCourtStats={clutchStats.filter((p) =>
+                    gameData.onCourtIds.has(p.id.toString()),
+                  )}
                   jerseyMap={jerseyMap}
                 />
               </MoleskineCard>
@@ -589,10 +705,17 @@ const GameMode: React.FC = () => {
               oppPpp={gameData.oppPpp}
               livePace={gameData.livePace}
               refTightness={gameData.refTightness}
-              activeSchemePpp={gameData.schemeEfficiency.find((s) => s.name === game?.activeDefensiveScheme)?.ppp}
+              activeSchemePpp={
+                gameData.schemeEfficiency.find(
+                  (s) => s.name === game?.activeDefensiveScheme,
+                )?.ppp
+              }
             />
 
-            <OffensiveKPICard paintTouchStats={paintTouchStats} shotROI={shotROI} />
+            <OffensiveKPICard
+              paintTouchStats={paintTouchStats}
+              shotROI={shotROI}
+            />
 
             <DefensiveSchemeSelector
               activeScheme={game?.activeDefensiveScheme}
@@ -617,7 +740,9 @@ const GameMode: React.FC = () => {
                   team={team}
                   statsMap={statsMap}
                   jerseyMap={jerseyMap}
-                  currentLineupStintDuration={gameData.currentLineupStintDuration}
+                  currentLineupStintDuration={
+                    gameData.currentLineupStintDuration
+                  }
                   currentLineupPlusMinus={gameData.currentLineupPlusMinus}
                   period={period}
                   isReadOnly={isReadOnly}
@@ -632,7 +757,10 @@ const GameMode: React.FC = () => {
                 />
 
                 <MoleskineCard>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 2 }}>
+                  <Typography
+                    variant="subtitle2"
+                    sx={{ fontWeight: 600, mb: 2 }}
+                  >
                     Player Performance
                   </Typography>
                   <SparkPlugTable
@@ -645,24 +773,59 @@ const GameMode: React.FC = () => {
                       <TableHead>
                         <TableRow>
                           {[
-                            { label: "#",    key: "jerseyNumber", desc: "Jersey Number" },
-                            { label: "NAME", key: "name",         desc: "Player Name" },
-                            { label: "MIN",  key: "min",          desc: "Minutes Played" },
-                            { label: "PTS",  key: "points",       desc: "Points Scored" },
-                            { label: "REB",  key: "rebounds",     desc: "Total Rebounds" },
-                            { label: "AST",  key: "assists",      desc: "Assists" },
-                            { label: "PF",   key: "fouls",        desc: "Personal Fouls" },
-                            { label: "+/-",  key: "plusMinus",    desc: "Plus/Minus Rating" },
+                            {
+                              label: "#",
+                              key: "jerseyNumber",
+                              desc: "Jersey Number",
+                            },
+                            { label: "NAME", key: "name", desc: "Player Name" },
+                            {
+                              label: "MIN",
+                              key: "min",
+                              desc: "Minutes Played",
+                            },
+                            {
+                              label: "PTS",
+                              key: "points",
+                              desc: "Points Scored",
+                            },
+                            {
+                              label: "REB",
+                              key: "rebounds",
+                              desc: "Total Rebounds",
+                            },
+                            { label: "AST", key: "assists", desc: "Assists" },
+                            {
+                              label: "PF",
+                              key: "fouls",
+                              desc: "Personal Fouls",
+                            },
+                            {
+                              label: "+/-",
+                              key: "plusMinus",
+                              desc: "Plus/Minus Rating",
+                            },
                           ].map((head) => (
-                            <TableCell key={head.key} sx={{ fontSize: "0.6rem", fontWeight: 800 }}>
+                            <TableCell
+                              key={head.key}
+                              sx={{ fontSize: "0.6rem", fontWeight: 800 }}
+                            >
                               <Tooltip title={head.desc}>
                                 <TableSortLabel
                                   active={sortConfig.key === head.key}
-                                  direction={sortConfig.key === head.key ? sortConfig.direction : "asc"}
+                                  direction={
+                                    sortConfig.key === head.key
+                                      ? sortConfig.direction
+                                      : "asc"
+                                  }
                                   onClick={() =>
                                     setSortConfig({
                                       key: head.key as keyof PlayerAggregates,
-                                      direction: sortConfig.key === head.key && sortConfig.direction === "asc" ? "desc" : "asc",
+                                      direction:
+                                        sortConfig.key === head.key &&
+                                        sortConfig.direction === "asc"
+                                          ? "desc"
+                                          : "asc",
                                     })
                                   }
                                 >
@@ -710,45 +873,109 @@ const GameMode: React.FC = () => {
                 </Typography>
                 {opponentStats.length > 0 ? (
                   opponentStats.map((opp) => (
-                    <Box key={opp.id} sx={{ mb: 2, p: 1.5, borderRadius: 2, border: "1px solid", borderColor: "divider" }}>
-                      <Stack direction="row" spacing={1} sx={{  mb: 1, alignItems: "center" }}>
-                        <Avatar sx={{ width: 28, height: 28, fontSize: "0.7rem", bgcolor: opp.isHot ? "error.main" : "primary.main" }}>
+                    <Box
+                      key={opp.id}
+                      sx={{
+                        mb: 2,
+                        p: 1.5,
+                        borderRadius: 2,
+                        border: "1px solid",
+                        borderColor: "divider",
+                      }}
+                    >
+                      <Stack
+                        direction="row"
+                        spacing={1}
+                        sx={{ mb: 1, alignItems: "center" }}
+                      >
+                        <Avatar
+                          sx={{
+                            width: 28,
+                            height: 28,
+                            fontSize: "0.7rem",
+                            bgcolor: opp.isHot ? "error.main" : "primary.main",
+                          }}
+                        >
                           {opp.jersey}
                         </Avatar>
                         <Box sx={{ flex: 1 }}>
-                          <Typography variant="caption" sx={{ fontWeight: 800, display: "block" }}>
+                          <Typography
+                            variant="caption"
+                            sx={{ fontWeight: 800, display: "block" }}
+                          >
                             Opponent #{opp.jersey}
-                            {opp.isHot && <span style={{ marginLeft: 4 }}>🔥</span>}
+                            {opp.isHot && (
+                              <span style={{ marginLeft: 4 }}>🔥</span>
+                            )}
                             {opp.isClutchThreat && (
-                              <Chip label="CLUTCH" size="small" color="error" sx={{ ml: 0.5, height: 16, fontSize: "0.55rem" }} />
+                              <Chip
+                                label="CLUTCH"
+                                size="small"
+                                color="error"
+                                sx={{
+                                  ml: 0.5,
+                                  height: 16,
+                                  fontSize: "0.55rem",
+                                }}
+                              />
                             )}
                           </Typography>
                           <Typography variant="caption" color="text.secondary">
-                            {opp.points} pts | {opp.makes}-{opp.attempts} FG | {opp.turnovers} TO
+                            {opp.points} pts | {opp.makes}-{opp.attempts} FG |{" "}
+                            {opp.turnovers} TO
                           </Typography>
                           {opp.straightPoints >= 4 && (
-                            <Chip label={`${opp.straightPoints}-0 RUN`} size="small" color="warning" sx={{ ml: 0.5, height: 16, fontSize: "0.55rem" }} />
+                            <Chip
+                              label={`${opp.straightPoints}-0 RUN`}
+                              size="small"
+                              color="warning"
+                              sx={{ ml: 0.5, height: 16, fontSize: "0.55rem" }}
+                            />
                           )}
                         </Box>
                       </Stack>
-                      <Typography variant="caption" sx={{ fontWeight: 700, display: "block", mb: 0.5 }}>
+                      <Typography
+                        variant="caption"
+                        sx={{ fontWeight: 700, display: "block", mb: 0.5 }}
+                      >
                         Primary Defender
                       </Typography>
-                      <Stack direction="row" spacing={0.5} sx={{ flexWrap: "wrap" }}>
+                      <Stack
+                        direction="row"
+                        spacing={0.5}
+                        sx={{ flexWrap: "wrap" }}
+                      >
                         {players
                           .filter((p) => gameData.onCourtIds.has(p.id!))
                           .map((p) => (
                             <Button
                               key={p.id}
-                              variant={matchups[opp.id] === p.id ? "contained" : "outlined"}
+                              variant={
+                                matchups[opp.id] === p.id
+                                  ? "contained"
+                                  : "outlined"
+                              }
                               size="small"
                               onClick={async () => {
                                 if (!gameId) return;
-                                const newMatchups = { ...(game?.matchups || {}), [opp.id]: matchups[opp.id] === p.id ? "" : p.id! };
-                                await db.games.update(gameId, { matchups: newMatchups, synced: 0 });
+                                const newMatchups = {
+                                  ...(game?.matchups || {}),
+                                  [opp.id]:
+                                    matchups[opp.id] === p.id ? "" : p.id!,
+                                };
+                                await db.games.update(gameId, {
+                                  matchups: newMatchups,
+                                  synced: 0,
+                                });
                                 await syncService.pushUpdates();
                               }}
-                              sx={{ minWidth: 0, p: 0.5, fontSize: "0.65rem", fontWeight: 700, height: 24 }}
+                              sx={{
+                                minWidth: 0,
+                                p: 0.5,
+                                fontSize: "0.65rem",
+                                fontWeight: 700,
+                                height: 24,
+                              }}
                             >
                               #{jerseyMap.get(p.id!)}
                             </Button>
@@ -758,11 +985,19 @@ const GameMode: React.FC = () => {
                   ))
                 ) : (
                   <Box sx={{ textAlign: "center", py: 3 }}>
-                    <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 1 }}>
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      sx={{ display: "block", mb: 1 }}
+                    >
                       No opponent players tracked yet.
                     </Typography>
-                    <Alert severity="info" sx={{ textAlign: "left", fontSize: "0.7rem" }}>
-                      <strong>QUICK TIP</strong> — Tap the court in Opponent mode to record stats for specific jersey numbers.
+                    <Alert
+                      severity="info"
+                      sx={{ textAlign: "left", fontSize: "0.7rem" }}
+                    >
+                      <strong>QUICK TIP</strong> — Tap the court in Opponent
+                      mode to record stats for specific jersey numbers.
                     </Alert>
                   </Box>
                 )}
@@ -771,34 +1006,62 @@ const GameMode: React.FC = () => {
 
             {/* ── Recent Actions ── */}
             <MoleskineCard>
-              <Stack direction="row" sx={{   mb: 1, alignItems: "center", justifyContent: "space-between" }}>
-                <Typography variant="caption" sx={{ fontWeight: 800, color: "text.secondary" }}>
+              <Stack
+                direction="row"
+                sx={{
+                  mb: 1,
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
+                <Typography
+                  variant="caption"
+                  sx={{ fontWeight: 800, color: "text.secondary" }}
+                >
                   Recent Actions
                 </Typography>
                 <Tooltip
                   title={
                     <Box sx={{ fontSize: "0.7rem" }}>
                       <strong>KEYBOARD SHORTCUTS</strong>
-                      <br />M: Make &nbsp; X: Miss &nbsp; A: Assist
-                      <br />O/D: Rebound &nbsp; T: Turnover
-                      <br />S: Steal &nbsp; B: Block &nbsp; F: Foul
-                      <br />P: Paint &nbsp; Space: Clock
-                      <br />Ctrl+Z: Undo last
+                      <br />
+                      M: Make &nbsp; X: Miss &nbsp; A: Assist
+                      <br />
+                      O/D: Rebound &nbsp; T: Turnover
+                      <br />
+                      S: Steal &nbsp; B: Block &nbsp; F: Foul
+                      <br />
+                      P: Paint &nbsp; Space: Clock
+                      <br />
+                      Ctrl+Z: Undo last
                     </Box>
                   }
                 >
-                  <IconButton size="small"><HelpOutlined fontSize="small" /></IconButton>
+                  <IconButton size="small">
+                    <HelpOutlined fontSize="small" />
+                  </IconButton>
                 </Tooltip>
               </Stack>
 
               {gameData.recentStats.filter((s) => !s.deletedAt).length === 0 ? (
                 <Box sx={{ textAlign: "center", py: 3 }}>
-                  <SportsBasketball sx={{ fontSize: 32, color: "text.disabled", mb: 1 }} />
-                  <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 1 }}>
+                  <SportsBasketball
+                    sx={{ fontSize: 32, color: "text.disabled", mb: 1 }}
+                  />
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ display: "block", mb: 1 }}
+                  >
                     Ready for Tip-off
                   </Typography>
-                  <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 2 }}>
-                    Tap the court or use quick actions to record live game stats.
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ display: "block", mb: 2 }}
+                  >
+                    Tap the court or use quick actions to record live game
+                    stats.
                   </Typography>
                   <Button
                     variant="outlined"
@@ -815,12 +1078,19 @@ const GameMode: React.FC = () => {
                   <RecentActionItem
                     key={s.id || index}
                     stat={s}
-                    playerName={playerNamesMap.get(s.playerId as string) ?? (game?.opponent ?? "Opponent")}
+                    playerName={
+                      playerNamesMap.get(s.playerId as string) ??
+                      game?.opponent ??
+                      "Opponent"
+                    }
                     periodLabel={periodLabel}
                     isReadOnly={isReadOnly}
                     isLatest={index === 0}
                     onEdit={openEditDialog}
-                    onDelete={(id) => { setStatToDelete(id); setIsDeleteDialogOpen(true); }}
+                    onDelete={(id) => {
+                      setStatToDelete(id);
+                      setIsDeleteDialogOpen(true);
+                    }}
                   />
                 ))
               )}
@@ -837,7 +1107,12 @@ const GameMode: React.FC = () => {
         maxWidth="xs"
         aria-describedby="stat-dialog-player-info"
         onKeyDown={(e) => {
-          if (e.key === "Enter" && selectedPlayerId && statType && !isSavingStat) {
+          if (
+            e.key === "Enter" &&
+            selectedPlayerId &&
+            statType &&
+            !isSavingStat
+          ) {
             e.preventDefault();
             handleSaveStat();
             return;
@@ -845,10 +1120,14 @@ const GameMode: React.FC = () => {
           if (isSavingStat) return;
           const key = e.key.toLowerCase();
           const actionMap: Record<string, string> = {
-            m: ACTION_TYPES.MAKE,         x: ACTION_TYPES.MISS,
-            o: ACTION_TYPES.OFF_REBOUND,  d: ACTION_TYPES.DEF_REBOUND,
-            a: ACTION_TYPES.ASSIST,       t: ACTION_TYPES.TURNOVER,
-            s: ACTION_TYPES.STEAL,        b: ACTION_TYPES.BLOCK,
+            m: ACTION_TYPES.MAKE,
+            x: ACTION_TYPES.MISS,
+            o: ACTION_TYPES.OFF_REBOUND,
+            d: ACTION_TYPES.DEF_REBOUND,
+            a: ACTION_TYPES.ASSIST,
+            t: ACTION_TYPES.TURNOVER,
+            s: ACTION_TYPES.STEAL,
+            b: ACTION_TYPES.BLOCK,
             f: ACTION_TYPES.FOUL_SHOOTING,
           };
           if (actionMap[key]) setStatType(actionMap[key]);
@@ -857,16 +1136,28 @@ const GameMode: React.FC = () => {
       >
         <DialogTitle>{isEditing ? "Edit Action" : "Record Action"}</DialogTitle>
         <DialogContent>
-          <Stack direction="row" spacing={1.5} sx={{  mb: 2, alignItems: "center" }} id="stat-dialog-player-info">
+          <Stack
+            direction="row"
+            spacing={1.5}
+            sx={{ mb: 2, alignItems: "center" }}
+            id="stat-dialog-player-info"
+          >
             <Avatar sx={{ bgcolor: "primary.main", fontWeight: 900 }}>
               {selectedPlayerId
-                ? trackingMode === "OPPONENT" ? "OP" : jerseyMap.get(selectedPlayerId) || "?"
+                ? trackingMode === "OPPONENT"
+                  ? "OP"
+                  : jerseyMap.get(selectedPlayerId) || "?"
                 : "?"}
             </Avatar>
             <Box>
               <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
                 {selectedPlayerId
-                  ? getPlayerDisplayName(selectedPlayerId, playerNamesMap, game?.opponent, team?.name)
+                  ? getPlayerDisplayName(
+                      selectedPlayerId,
+                      playerNamesMap,
+                      game?.opponent,
+                      team?.name,
+                    )
                   : "Select a player..."}
               </Typography>
               <Typography variant="caption" color="text.secondary">
@@ -875,24 +1166,71 @@ const GameMode: React.FC = () => {
             </Box>
           </Stack>
 
-          <Typography variant="caption" sx={{ fontWeight: 800, display: "block", mb: 1, textTransform: "uppercase" }}>
+          <Typography
+            variant="caption"
+            sx={{
+              fontWeight: 800,
+              display: "block",
+              mb: 1,
+              textTransform: "uppercase",
+            }}
+          >
             Action Type
           </Typography>
-          <Box sx={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 1, mb: 2 }}>
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: 1,
+              mb: 2,
+            }}
+          >
             {[
-              { type: ACTION_TYPES.MAKE,          label: "Make (M)",       icon: Check },
-              { type: ACTION_TYPES.MISS,          label: "Miss (X)",       icon: Close },
-              { type: ACTION_TYPES.OFF_REBOUND,   label: "Off Reb (O)",    icon: SportsBasketball },
-              { type: ACTION_TYPES.DEF_REBOUND,   label: "Def Reb (D)",    icon: SportsBasketball },
-              { type: ACTION_TYPES.ASSIST,        label: "Assist (A)",     icon: PanTool },
-              { type: ACTION_TYPES.TURNOVER,      label: "Turnover (T)",   icon: SwapHoriz },
-              { type: ACTION_TYPES.STEAL,         label: "Steal (S)",      icon: FlashOn },
-              { type: ACTION_TYPES.BLOCK,         label: "Block (B)",      icon: ArrowBack },
-              { type: ACTION_TYPES.FOUL_SHOOTING, label: "S. Foul (F)",    icon: Warning },
-              { type: ACTION_TYPES.FLOOR_DIVE,    label: "Floor Dive",     icon: SportsBasketball },
-              { type: ACTION_TYPES.CHARGE_TAKEN,  label: "Charge",         icon: PanTool },
-              { type: ACTION_TYPES.GREAT_CONTEST, label: "Contest",        icon: Shield },
-              { type: ACTION_TYPES.PAINT_TOUCH,   label: "Paint Touch (P)", icon: SportsBasketball },
+              { type: ACTION_TYPES.MAKE, label: "Make (M)", icon: Check },
+              { type: ACTION_TYPES.MISS, label: "Miss (X)", icon: Close },
+              {
+                type: ACTION_TYPES.OFF_REBOUND,
+                label: "Off Reb (O)",
+                icon: SportsBasketball,
+              },
+              {
+                type: ACTION_TYPES.DEF_REBOUND,
+                label: "Def Reb (D)",
+                icon: SportsBasketball,
+              },
+              { type: ACTION_TYPES.ASSIST, label: "Assist (A)", icon: PanTool },
+              {
+                type: ACTION_TYPES.TURNOVER,
+                label: "Turnover (T)",
+                icon: SwapHoriz,
+              },
+              { type: ACTION_TYPES.STEAL, label: "Steal (S)", icon: FlashOn },
+              { type: ACTION_TYPES.BLOCK, label: "Block (B)", icon: ArrowBack },
+              {
+                type: ACTION_TYPES.FOUL_SHOOTING,
+                label: "S. Foul (F)",
+                icon: Warning,
+              },
+              {
+                type: ACTION_TYPES.FLOOR_DIVE,
+                label: "Floor Dive",
+                icon: SportsBasketball,
+              },
+              {
+                type: ACTION_TYPES.CHARGE_TAKEN,
+                label: "Charge",
+                icon: PanTool,
+              },
+              {
+                type: ACTION_TYPES.GREAT_CONTEST,
+                label: "Contest",
+                icon: Shield,
+              },
+              {
+                type: ACTION_TYPES.PAINT_TOUCH,
+                label: "Paint Touch (P)",
+                icon: SportsBasketball,
+              },
             ].map((action) => (
               <QuickAction
                 key={action.type}
@@ -907,40 +1245,93 @@ const GameMode: React.FC = () => {
 
           {trackingMode === "TEAM" && (
             <Box sx={{ mb: 2 }}>
-              <Typography variant="caption" sx={{ fontWeight: 800, display: "block", mb: 1, textTransform: "uppercase" }}>
+              <Typography
+                variant="caption"
+                sx={{
+                  fontWeight: 800,
+                  display: "block",
+                  mb: 1,
+                  textTransform: "uppercase",
+                }}
+              >
                 Who?
               </Typography>
-              <Stack direction="row" sx={{  flexWrap: "wrap", gap: 0.5 }}>
-                {players.filter((p) => gameData.onCourtIds.has(p.id!)).map((p) => (
-                  <Button
-                    key={p.id}
-                    variant={selectedPlayerId === p.id ? "contained" : "outlined"}
-                    size="small"
-                    onClick={() => setSelectedPlayerId(p.id!)}
-                    sx={{ minWidth: 0, fontWeight: 700, borderColor: "#D1D1D1" }}
-                  >
-                    {jerseyMap.get(p.id!)}
-                  </Button>
-                ))}
+              <Stack direction="row" sx={{ flexWrap: "wrap", gap: 0.5 }}>
+                {players
+                  .filter((p) => gameData.onCourtIds.has(p.id!))
+                  .map((p) => (
+                    <Button
+                      key={p.id}
+                      variant={
+                        selectedPlayerId === p.id ? "contained" : "outlined"
+                      }
+                      size="small"
+                      onClick={() => setSelectedPlayerId(p.id!)}
+                      sx={{
+                        minWidth: 0,
+                        fontWeight: 700,
+                        borderColor: "#D1D1D1",
+                      }}
+                    >
+                      {jerseyMap.get(p.id!)}
+                    </Button>
+                  ))}
               </Stack>
             </Box>
           )}
 
           {trackingMode === "OPPONENT" && (
             <Box sx={{ mb: 2 }}>
-              <Typography variant="caption" sx={{ fontWeight: 800, display: "block", mb: 1, textTransform: "uppercase" }}>
+              <Typography
+                variant="caption"
+                sx={{
+                  fontWeight: 800,
+                  display: "block",
+                  mb: 1,
+                  textTransform: "uppercase",
+                }}
+              >
                 Opponent Jersey # (Optional)
               </Typography>
-              <Stack direction="row" sx={{   mb: 1, flexWrap: "wrap", gap: 0.5 }}>
-                {["0","1","2","3","4","5","10","11","12","23","24","30","32","33","34","35"].map((num) => {
+              <Stack direction="row" sx={{ mb: 1, flexWrap: "wrap", gap: 0.5 }}>
+                {[
+                  "0",
+                  "1",
+                  "2",
+                  "3",
+                  "4",
+                  "5",
+                  "10",
+                  "11",
+                  "12",
+                  "23",
+                  "24",
+                  "30",
+                  "32",
+                  "33",
+                  "34",
+                  "35",
+                ].map((num) => {
                   const oppId = `${SPECIAL_PLAYER_IDS.OPPONENT}:${num}`;
                   return (
                     <Button
                       key={num}
-                      variant={selectedPlayerId === oppId ? "contained" : "outlined"}
+                      variant={
+                        selectedPlayerId === oppId ? "contained" : "outlined"
+                      }
                       size="small"
-                      onClick={() => setSelectedPlayerId(selectedPlayerId === oppId ? SPECIAL_PLAYER_IDS.OPPONENT : oppId)}
-                      sx={{ minWidth: 40, fontWeight: 700, borderColor: "#D1D1D1" }}
+                      onClick={() =>
+                        setSelectedPlayerId(
+                          selectedPlayerId === oppId
+                            ? SPECIAL_PLAYER_IDS.OPPONENT
+                            : oppId,
+                        )
+                      }
+                      sx={{
+                        minWidth: 40,
+                        fontWeight: 700,
+                        borderColor: "#D1D1D1",
+                      }}
                     >
                       {num}
                     </Button>
@@ -960,10 +1351,18 @@ const GameMode: React.FC = () => {
             team?.playbook &&
             team.playbook.length > 0 && (
               <Box sx={{ mb: 2 }}>
-                <Typography variant="caption" sx={{ fontWeight: 800, display: "block", mb: 1, textTransform: "uppercase" }}>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    fontWeight: 800,
+                    display: "block",
+                    mb: 1,
+                    textTransform: "uppercase",
+                  }}
+                >
                   Offensive Play
                 </Typography>
-                <Stack direction="row" sx={{  flexWrap: "wrap", gap: 0.5 }}>
+                <Stack direction="row" sx={{ flexWrap: "wrap", gap: 0.5 }}>
                   {team.playbook.map((play) => (
                     <Chip
                       key={play}
@@ -978,19 +1377,30 @@ const GameMode: React.FC = () => {
               </Box>
             )}
 
-          {(statType === ACTION_TYPES.MAKE || statType === ACTION_TYPES.MISS) && (
+          {(statType === ACTION_TYPES.MAKE ||
+            statType === ACTION_TYPES.MISS) && (
             <>
               <Box sx={{ mb: 2 }}>
-                <Typography variant="caption" sx={{ fontWeight: 800, display: "block", mb: 1, textTransform: "uppercase" }}>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    fontWeight: 800,
+                    display: "block",
+                    mb: 1,
+                    textTransform: "uppercase",
+                  }}
+                >
                   Shot Quality
                 </Typography>
-                <Stack direction="row" sx={{  flexWrap: "wrap", gap: 0.5 }}>
+                <Stack direction="row" sx={{ flexWrap: "wrap", gap: 0.5 }}>
                   {Object.values(SHOT_QUALITY).map((q) => (
                     <Chip
                       key={q}
                       label={q}
                       size="small"
-                      onClick={() => setShotQuality(shotQuality === q ? null : q)}
+                      onClick={() =>
+                        setShotQuality(shotQuality === q ? null : q)
+                      }
                       color={shotQuality === q ? "primary" : "default"}
                       variant={shotQuality === q ? "filled" : "outlined"}
                     />
@@ -998,10 +1408,18 @@ const GameMode: React.FC = () => {
                 </Stack>
               </Box>
               <Box sx={{ mb: 2 }}>
-                <Typography variant="caption" sx={{ fontWeight: 800, display: "block", mb: 1, textTransform: "uppercase" }}>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    fontWeight: 800,
+                    display: "block",
+                    mb: 1,
+                    textTransform: "uppercase",
+                  }}
+                >
                   Situation
                 </Typography>
-                <Stack direction="row" sx={{  flexWrap: "wrap", gap: 0.5 }}>
+                <Stack direction="row" sx={{ flexWrap: "wrap", gap: 0.5 }}>
                   {Object.values(SITUATIONS).map((s) => (
                     <Chip
                       key={s}
@@ -1019,7 +1437,15 @@ const GameMode: React.FC = () => {
 
           {statType === ACTION_TYPES.MAKE && (
             <Box sx={{ mb: 2 }}>
-              <Typography variant="caption" sx={{ fontWeight: 800, display: "block", mb: 1, textTransform: "uppercase" }}>
+              <Typography
+                variant="caption"
+                sx={{
+                  fontWeight: 800,
+                  display: "block",
+                  mb: 1,
+                  textTransform: "uppercase",
+                }}
+              >
                 Points
               </Typography>
               <Stack direction="row" sx={{ gap: 0.5 }}>
@@ -1041,7 +1467,15 @@ const GameMode: React.FC = () => {
           {(statType === ACTION_TYPES.MAKE || statType === ACTION_TYPES.MISS) &&
             trackingMode === "OPPONENT" && (
               <Box sx={{ mb: 2 }}>
-                <Typography variant="caption" sx={{ fontWeight: 800, display: "block", mb: 1, textTransform: "uppercase" }}>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    fontWeight: 800,
+                    display: "block",
+                    mb: 1,
+                    textTransform: "uppercase",
+                  }}
+                >
                   Opponent Play Type
                 </Typography>
                 <ToggleButtonGroup
@@ -1052,7 +1486,11 @@ const GameMode: React.FC = () => {
                   fullWidth
                 >
                   {["ISO", "P&R", "POST", "SPOT", "TRANSITION"].map((pt) => (
-                    <ToggleButton key={pt} value={pt} sx={{ fontSize: "0.65rem" }}>
+                    <ToggleButton
+                      key={pt}
+                      value={pt}
+                      sx={{ fontSize: "0.65rem" }}
+                    >
                       {pt}
                     </ToggleButton>
                   ))}
@@ -1061,7 +1499,12 @@ const GameMode: React.FC = () => {
             )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setIsDialogOpen(false)} disabled={isSavingStat}>Cancel</Button>
+          <Button
+            onClick={() => setIsDialogOpen(false)}
+            disabled={isSavingStat}
+          >
+            Cancel
+          </Button>
           <Button
             onClick={() => handleSaveStat()}
             variant="contained"
@@ -1073,30 +1516,63 @@ const GameMode: React.FC = () => {
       </Dialog>
 
       {/* ─── Confirm Delete Dialog ────────────────────────────────────────────── */}
-      <Dialog open={isDeleteDialogOpen} onClose={() => setIsDeleteDialogOpen(false)} maxWidth="xs" fullWidth>
+      <Dialog
+        open={isDeleteDialogOpen}
+        onClose={() => setIsDeleteDialogOpen(false)}
+        maxWidth="xs"
+        fullWidth
+      >
         <DialogTitle>Delete Action?</DialogTitle>
         <DialogContent>
-          <DialogContentText>This action will be permanently removed. This cannot be undone.</DialogContentText>
+          <DialogContentText>
+            This action will be permanently removed. This cannot be undone.
+          </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setIsDeleteDialogOpen(false)} disabled={isDeleting}>Cancel</Button>
-          <Button onClick={handleDeleteStat} color="error" variant="contained" disabled={isDeleting}>
+          <Button
+            onClick={() => setIsDeleteDialogOpen(false)}
+            disabled={isDeleting}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleDeleteStat}
+            color="error"
+            variant="contained"
+            disabled={isDeleting}
+          >
             {isDeleting ? "Deleting..." : "Delete"}
           </Button>
         </DialogActions>
       </Dialog>
 
       {/* ─── End Game Dialog ──────────────────────────────────────────────────── */}
-      <Dialog open={isEndGameDialogOpen} onClose={() => setIsEndGameDialogOpen(false)} maxWidth="xs" fullWidth>
+      <Dialog
+        open={isEndGameDialogOpen}
+        onClose={() => setIsEndGameDialogOpen(false)}
+        maxWidth="xs"
+        fullWidth
+      >
         <DialogTitle>Finalize Game?</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            This will mark the game as complete and lock all stats. You can still view them afterward.
+            This will mark the game as complete and lock all stats. You can
+            still view them afterward.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setIsEndGameDialogOpen(false)} disabled={isEnding}>Cancel</Button>
-          <Button onClick={handleEndGame} variant="contained" color="primary" disabled={isEnding}>
+          <Button
+            onClick={() => setIsEndGameDialogOpen(false)}
+            disabled={isEnding}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleEndGame}
+            variant="contained"
+            color="primary"
+            disabled={isEnding}
+          >
             {isEnding ? "Finalizing..." : "Finalize Game"}
           </Button>
         </DialogActions>
@@ -1163,7 +1639,10 @@ const GameMode: React.FC = () => {
         period={period}
         periodLabel={periodLabel}
         appScore={{ team: gameData.currentScore, opp: gameData.opponentScore }}
-        appFouls={{ team: gameData.teamFoulStats.teamFouls, opp: gameData.teamFoulStats.oppFouls }}
+        appFouls={{
+          team: gameData.teamFoulStats.teamFouls,
+          opp: gameData.teamFoulStats.oppFouls,
+        }}
         onVerify={handleVerifyPeriod}
       />
 
@@ -1174,7 +1653,12 @@ const GameMode: React.FC = () => {
         message={snackbar.message}
         action={
           snackbar.action === "UNDO" ? (
-            <Button size="small" color="inherit" startIcon={<UndoIcon />} onClick={handleUndo}>
+            <Button
+              size="small"
+              color="inherit"
+              startIcon={<UndoIcon />}
+              onClick={handleUndo}
+            >
               Undo
             </Button>
           ) : undefined

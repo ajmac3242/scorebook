@@ -4,13 +4,7 @@
  * player buttons, empty slot placeholders, and chain action prompt.
  */
 import React from "react";
-import {
-  Box,
-  Typography,
-  Stack,
-  Button,
-  IconButton,
-} from "@mui/material";
+import { Box, Typography, Stack, Button, IconButton } from "@mui/material";
 import { Close } from "@mui/icons-material";
 import { MoleskineCard } from "../../components/SharedUI";
 import { LineupPlayerButton } from "./GameModeComponents";
@@ -40,7 +34,7 @@ interface LiveLineupCardProps {
   periodFoulMap?: Map<string, number>;
   onPlayerClick: (_playerId: string) => void;
   onEmptySlotClick: (_slotId: string) => void;
-  onChainAction: (_playerId: string,_type: string) => void;
+  onChainAction: (_playerId: string, _type: string) => void;
   onDismissChain: () => void;
 }
 
@@ -70,7 +64,14 @@ export const LiveLineupCard: React.FC<LiveLineupCardProps> = React.memo(
     return (
       <>
         <MoleskineCard aria-label="Live Lineup">
-          <Stack direction="row" sx={{ justifyContent: "space-between", alignItems: "center", mb: 1 }}>
+          <Stack
+            direction="row"
+            sx={{
+              justifyContent: "space-between",
+              alignItems: "center",
+              mb: 1,
+            }}
+          >
             <Typography variant="overline" fontWeight={700}>
               Live Lineup
             </Typography>
@@ -85,7 +86,8 @@ export const LiveLineupCard: React.FC<LiveLineupCardProps> = React.memo(
                 variant="body2"
                 fontWeight={800}
                 sx={{
-                  color: currentLineupPlusMinus >= 0 ? "success.main" : "error.main",
+                  color:
+                    currentLineupPlusMinus >= 0 ? "success.main" : "error.main",
                   lineHeight: 1,
                   fontSize: "1.2rem",
                 }}
@@ -143,11 +145,27 @@ export const LiveLineupCard: React.FC<LiveLineupCardProps> = React.memo(
             sx={{ bgcolor: "primary.main", color: "white" }}
             aria-label="Chain action prompt"
           >
-            <Stack direction="row" sx={{ justifyContent: "space-between", alignItems: "center", mb: 1 }}>
-              <Typography variant="overline" fontWeight={800} sx={{ color: "white" }}>
+            <Stack
+              direction="row"
+              sx={{
+                justifyContent: "space-between",
+                alignItems: "center",
+                mb: 1,
+              }}
+            >
+              <Typography
+                variant="overline"
+                fontWeight={800}
+                sx={{ color: "white" }}
+              >
                 WHO GOT THE {chainPrompt.type}?
               </Typography>
-              <IconButton size="small" onClick={onDismissChain} sx={{ color: "white" }} aria-label="Dismiss chain action">
+              <IconButton
+                size="small"
+                onClick={onDismissChain}
+                sx={{ color: "white" }}
+                aria-label="Dismiss chain action"
+              >
                 <Close fontSize="small" />
               </IconButton>
             </Stack>

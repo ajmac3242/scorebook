@@ -14,7 +14,9 @@ describe("VoiceModeBanner", () => {
   });
 
   it("shows last transcript when provided", () => {
-    render(<VoiceModeBanner isListening={true} lastTranscript="player one make" />);
+    render(
+      <VoiceModeBanner isListening={true} lastTranscript="player one make" />,
+    );
     expect(screen.getByText(/player one make/i)).toBeInTheDocument();
   });
 
@@ -24,12 +26,20 @@ describe("VoiceModeBanner", () => {
   });
 
   it("renders success severity when listening", () => {
-    const { container } = render(<VoiceModeBanner isListening={true} lastTranscript="" />);
-    expect(container.querySelector(".MuiAlert-colorSuccess")).toBeInTheDocument();
+    const { container } = render(
+      <VoiceModeBanner isListening={true} lastTranscript="" />,
+    );
+    expect(
+      container.querySelector(".MuiAlert-colorSuccess"),
+    ).toBeInTheDocument();
   });
 
   it("renders warning severity when paused", () => {
-    const { container } = render(<VoiceModeBanner isListening={false} lastTranscript="" />);
-    expect(container.querySelector(".MuiAlert-colorWarning")).toBeInTheDocument();
+    const { container } = render(
+      <VoiceModeBanner isListening={false} lastTranscript="" />,
+    );
+    expect(
+      container.querySelector(".MuiAlert-colorWarning"),
+    ).toBeInTheDocument();
   });
 });

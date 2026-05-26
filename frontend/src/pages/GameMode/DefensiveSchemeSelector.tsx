@@ -19,12 +19,15 @@ interface DefensiveSchemeSelectorProps {
   isReadOnly: boolean;
 }
 
-export const DefensiveSchemeSelector: React.FC<DefensiveSchemeSelectorProps> = React.memo(
-  ({ activeScheme, gameId, isReadOnly }) => {
+export const DefensiveSchemeSelector: React.FC<DefensiveSchemeSelectorProps> =
+  React.memo(({ activeScheme, gameId, isReadOnly }) => {
     const handleChange = async (_e: React.MouseEvent, val: string | null) => {
       if (!val || !gameId) return;
       try {
-        await db.games.update(gameId, { activeDefensiveScheme: val, synced: 0 });
+        await db.games.update(gameId, {
+          activeDefensiveScheme: val,
+          synced: 0,
+        });
         await syncService.pushUpdates();
       } catch (err) {
         logger.error("Failed to update defensive scheme:", err);
@@ -53,7 +56,6 @@ export const DefensiveSchemeSelector: React.FC<DefensiveSchemeSelectorProps> = R
         </ToggleButtonGroup>
       </MoleskineCard>
     );
-  },
-);
+  });
 
 DefensiveSchemeSelector.displayName = "DefensiveSchemeSelector";

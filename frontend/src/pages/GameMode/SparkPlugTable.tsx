@@ -47,10 +47,26 @@ export const SparkPlugTable: React.FC<SparkPlugTableProps> = React.memo(
             <Table size="small" aria-label="Spark Plug table">
               <TableHead>
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 700, fontSize: "0.65rem", py: 0.5 }}>PLAYER</TableCell>
-                  <TableCell sx={{ fontWeight: 700, fontSize: "0.65rem", py: 0.5 }}>HUSTLE</TableCell>
-                  <TableCell sx={{ fontWeight: 700, fontSize: "0.65rem", py: 0.5 }}>RUN</TableCell>
-                  <TableCell sx={{ fontWeight: 700, fontSize: "0.65rem", py: 0.5 }}>INDEX</TableCell>
+                  <TableCell
+                    sx={{ fontWeight: 700, fontSize: "0.65rem", py: 0.5 }}
+                  >
+                    PLAYER
+                  </TableCell>
+                  <TableCell
+                    sx={{ fontWeight: 700, fontSize: "0.65rem", py: 0.5 }}
+                  >
+                    HUSTLE
+                  </TableCell>
+                  <TableCell
+                    sx={{ fontWeight: 700, fontSize: "0.65rem", py: 0.5 }}
+                  >
+                    RUN
+                  </TableCell>
+                  <TableCell
+                    sx={{ fontWeight: 700, fontSize: "0.65rem", py: 0.5 }}
+                  >
+                    INDEX
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -60,8 +76,12 @@ export const SparkPlugTable: React.FC<SparkPlugTableProps> = React.memo(
                       #{jerseyMap.get(spi.playerId)}{" "}
                       {playerNamesMap.get(spi.playerId)?.split(" ")[0]}
                     </TableCell>
-                    <TableCell sx={{ fontSize: "0.7rem", py: 0.5 }}>{spi.hustleStats}</TableCell>
-                    <TableCell sx={{ fontSize: "0.7rem", py: 0.5 }}>{spi.momentumScore}</TableCell>
+                    <TableCell sx={{ fontSize: "0.7rem", py: 0.5 }}>
+                      {spi.hustleStats}
+                    </TableCell>
+                    <TableCell sx={{ fontSize: "0.7rem", py: 0.5 }}>
+                      {spi.momentumScore}
+                    </TableCell>
                     <TableCell sx={{ py: 0.5 }}>
                       <Chip
                         label={spi.compositeIndex}

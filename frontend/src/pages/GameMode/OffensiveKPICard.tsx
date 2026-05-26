@@ -48,7 +48,13 @@ export const OffensiveKPICard: React.FC<OffensiveKPICardProps> = React.memo(
           </Box>
         </Stack>
 
-        <Typography variant="overline" fontWeight={700} display="block" mt={2} mb={1}>
+        <Typography
+          variant="overline"
+          fontWeight={700}
+          display="block"
+          mt={2}
+          mb={1}
+        >
           Quality Control (xPTS)
         </Typography>
         <Stack direction="row" spacing={2} useFlexGap sx={{ flexWrap: "wrap" }}>

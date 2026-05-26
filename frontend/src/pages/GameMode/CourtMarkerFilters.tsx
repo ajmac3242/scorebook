@@ -5,7 +5,15 @@
 import React from "react";
 import { Stack, Chip } from "@mui/material";
 
-const FILTER_TYPES = ["ALL", "MAKE", "MISS", "REBOUND", "ASSIST", "STEAL", "BLOCK"] as const;
+const FILTER_TYPES = [
+  "ALL",
+  "MAKE",
+  "MISS",
+  "REBOUND",
+  "ASSIST",
+  "STEAL",
+  "BLOCK",
+] as const;
 export type MarkerFilter = (typeof FILTER_TYPES)[number];
 
 interface CourtMarkerFiltersProps {

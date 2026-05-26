@@ -65,19 +65,26 @@ export const QuickAction: React.FC<QuickActionProps> = React.memo(
 );
 
 /** Internal helper to avoid inline IIFE for clock color logic. */
-const ClockSpan: React.FC<{ stintSecs: number; maxStint: number }> = ({ stintSecs, maxStint }) => {
+const ClockSpan: React.FC<{ stintSecs: number; maxStint: number }> = ({
+  stintSecs,
+  maxStint,
+}) => {
   const color =
     stintSecs > maxStint
       ? "var(--cs-semantic-color-feedback-error-main)"
       : stintSecs > maxStint * 0.75
         ? "var(--cs-semantic-color-feedback-warning-main)"
         : "inherit";
-  return <Box component="span" sx={{ color }}>{formatClock(stintSecs)}</Box>;
+  return (
+    <Box component="span" sx={{ color }}>
+      {formatClock(stintSecs)}
+    </Box>
+  );
 };
 
 QuickAction.displayName = "QuickAction";
 
-interface LineupPlayerButtonProps  {
+interface LineupPlayerButtonProps {
   player: Player;
   stats: PlayerAggregates | undefined;
   jerseyNumber: string;

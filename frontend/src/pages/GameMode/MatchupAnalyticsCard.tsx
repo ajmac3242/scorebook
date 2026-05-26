@@ -31,93 +31,124 @@ interface MatchupAnalyticsCardProps {
   game: { matchups?: Record<string, string> } | null;
 }
 
-export const MatchupAnalyticsCard: React.FC<MatchupAnalyticsCardProps> = React.memo(
-  ({
-    matchupEfficiency,
-    showMatchupMatrix,
-    onToggleMatrix,
-    opponents,
-    matchups,
-    jerseyMap,
-    _players,
-    _onCourtIds,
-    gameId,
-    _game,
-  }) => {
-    // Replaces the inline IIFE — sorted once per matchupEfficiency change
-    const targetAttack = useMemo(() => {
-      const sorted = [...matchupEfficiency].sort((a, b) => a.stopPct - b.stopPct);
-      return sorted[0] ?? null;
-    }, [matchupEfficiency]);
+export const MatchupAnalyticsCard: React.FC<MatchupAnalyticsCardProps> =
+  React.memo(
+    ({
+      matchupEfficiency,
+      showMatchupMatrix,
+      onToggleMatrix,
+      opponents,
+      matchups,
+      jerseyMap,
+      _players,
+      _onCourtIds,
+      gameId,
+      _game,
+    }) => {
+      // Replaces the inline IIFE — sorted once per matchupEfficiency change
+      const targetAttack = useMemo(() => {
+        const sorted = [...matchupEfficiency].sort(
+          (a, b) => a.stopPct - b.stopPct,
+        );
+        return sorted[0] ?? null;
+      }, [matchupEfficiency]);
 
-    const hasEnoughData = targetAttack && targetAttack.possessions >= 3;
+      const hasEnoughData = targetAttack && targetAttack.possessions >= 3;
 
-    return (
-      <MoleskineCard aria-label="Matchup Analytics">
-        <Stack direction="row" sx={{ justifyContent: "space-between", alignItems: "center", mb: 1 }}>
-          <Typography variant="overline" fontWeight={700}>
-            MATCHUP ANALYTICS
-          </Typography>
-          <IconButton
-            size="small"
-            onClick={onToggleMatrix}
-            color={showMatchupMatrix ? "primary" : "default"}
-            aria-label={showMatchupMatrix ? "Hide matchup matrix" : "Show matchup matrix"}
-          >
-            <GridOn fontSize="small" />
-          </IconButton>
-        </Stack>
-
-        {!showMatchupMatrix && (
-          <Box>
-            <Typography variant="caption" fontWeight={700} display="block" mb={0.5}>
-              Target Attack
-            </Typography>
-            {!hasEnoughData ? (
-              <Typography variant="caption" color="text.secondary">
-                Collecting data... (min. 3 possessions)
-              </Typography>
-            ) : (
-              <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
-                <Chip
-                  label={`#${targetAttack!.oppPlayerJersey}`}
-                  color="warning"
-                  size="small"
-                  sx={{ fontWeight: 800 }}
-                />
-                <Box>
-                  <Typography variant="caption" display="block" fontWeight={700}>
-                    Attack Opponent #{targetAttack!.oppPlayerJersey}
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    Stop %: {targetAttack!.stopPct}% ({targetAttack!.possessions} poss)
-                  </Typography>
-                </Box>
-              </Stack>
-            )}
-          </Box>
-        )}
-
-        {showMatchupMatrix && (
-          <MatchupMatrix
-            opponents={opponents}
-            matchupData={matchupEfficiency}
-            jerseyMap={jerseyMap}
-            currentMatchups={matchups}
-            onReassign={async (oId, tId) => {
-              if (!gameId) return;
-              const newMatchups = {
-                ...(matchups || {}),
-                [oId]: matchups[oId] === tId ? "" : tId,
-              };
-              await db.games.update(gameId, { matchups: newMatchups, synced: 0 });
-              await syncService.pushUpdates();
+      return (
+        <MoleskineCard aria-label="Matchup Analytics">
+          <Stack
+            direction="row"
+            sx={{
+              justifyContent: "space-between",
+              alignItems: "center",
+              mb: 1,
             }}
-          />
-        )}
-      </MoleskineCard>
-    );
-  },
-);
+          >
+            <Typography variant="overline" fontWeight={700}>
+              MATCHUP ANALYTICS
+            </Typography>
+            <IconButton
+              size="small"
+              onClick={onToggleMatrix}
+              color={showMatchupMatrix ? "primary" : "default"}
+              aria-label={
+                showMatchupMatrix
+                  ? "Hide matchup matrix"
+                  : "Show matchup matrix"
+              }
+            >
+              <GridOn fontSize="small" />
+            </IconButton>
+          </Stack>
+
+          {!showMatchupMatrix && (
+            <Box>
+              <Typography
+                variant="caption"
+                fontWeight={700}
+                display="block"
+                mb={0.5}
+              >
+                Target Attack
+              </Typography>
+              {!hasEnoughData ? (
+                <Typography variant="caption" color="text.secondary">
+                  Collecting data... (min. 3 possessions)
+                </Typography>
+              ) : (
+                <Stack
+                  direction="row"
+                  spacing={1}
+                  sx={{ alignItems: "center" }}
+                >
+                  <Chip
+                    label={`#${targetAttack!.oppPlayerJersey}`}
+                    color="warning"
+                    size="small"
+                    sx={{ fontWeight: 800 }}
+                  />
+                  <Box>
+                    <Typography
+                      variant="caption"
+                      display="block"
+                      fontWeight={700}
+                    >
+                      Attack Opponent #{targetAttack!.oppPlayerJersey}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      Stop %: {targetAttack!.stopPct}% (
+                      {targetAttack!.possessions} poss)
+                    </Typography>
+                  </Box>
+                </Stack>
+              )}
+            </Box>
+          )}
+
+          {showMatchupMatrix && (
+            <MatchupMatrix
+              opponents={opponents}
+              matchupData={matchupEfficiency}
+              jerseyMap={jerseyMap}
+              currentMatchups={matchups}
+              onReassign={async (oId, tId) => {
+                if (!gameId) return;
+                const newMatchups = {
+                  ...(matchups || {}),
+                  [oId]: matchups[oId] === tId ? "" : tId,
+                };
+                await db.games.update(gameId, {
+                  matchups: newMatchups,
+                  synced: 0,
+                });
+                await syncService.pushUpdates();
+              }}
+            />
+          )}
+        </MoleskineCard>
+      );
+    },
+  );
 
 MatchupAnalyticsCard.displayName = "MatchupAnalyticsCard";
