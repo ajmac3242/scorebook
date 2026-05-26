@@ -62,7 +62,7 @@ export const MatchupAnalyticsCard: React.FC<MatchupAnalyticsCardProps> =
               mb: 1,
             }}
           >
-            <Typography variant="overline" sx={{ ...( variant="overline"_sx_placeholder as any), fontWeight: 700 }}>
+            <Typography variant="overline" sx={{ fontWeight: 700 }}>
               MATCHUP ANALYTICS
             </Typography>
             <IconButton

@@ -73,7 +73,7 @@ export const LiveLineupCard: React.FC<LiveLineupCardProps> = React.memo(
               mb: 1,
             }}
           >
-            <Typography variant="overline" sx={{ ...( variant="overline"_sx_placeholder as any), fontWeight: 700 }}>
+            <Typography variant="overline" sx={{ fontWeight: 700 }}>
               Live Lineup
             </Typography>
             <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
