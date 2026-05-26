@@ -226,7 +226,6 @@ const GameMode: React.FC = () => {
     playerStreaks,
     playbookEfficiency,
     markers,
-    clockSecondsRef,
     shotROI,
     isClutchMode,
     clutchStats,
