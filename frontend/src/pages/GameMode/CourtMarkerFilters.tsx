@@ -10,7 +10,7 @@ export type MarkerFilter = (typeof FILTER_TYPES)[number];
 
 interface CourtMarkerFiltersProps {
   markerFilter: MarkerFilter;
-  onFilterChange: (filter: MarkerFilter) => void;
+  onFilterChange: (_filter: MarkerFilter) => void;
 }
 
 export const CourtMarkerFilters: React.FC<CourtMarkerFiltersProps> = React.memo(
