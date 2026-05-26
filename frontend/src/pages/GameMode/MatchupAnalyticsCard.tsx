@@ -39,10 +39,10 @@ export const MatchupAnalyticsCard: React.FC<MatchupAnalyticsCardProps> = React.m
     opponents,
     matchups,
     jerseyMap,
-    players,
-    onCourtIds,
+    _players,
+    _onCourtIds,
     gameId,
-    game,
+    _game,
   }) => {
     // Replaces the inline IIFE — sorted once per matchupEfficiency change
     const targetAttack = useMemo(() => {
