@@ -343,13 +343,11 @@ describe("GameMode Component", () => {
     court.setAttribute("data-y", "5");
     fireEvent.click(court);
 
-    expect(await screen.findByRole("dialog")).toBeInTheDocument();
+    const dialog = await screen.findByRole("dialog");
+    expect(dialog).toBeInTheDocument();
 
-    fireEvent.click(
-      within(screen.getByRole("dialog")).getByLabelText(/Record Make/i),
-    );
-
-    const threeBtn = await screen.findByRole("button", {
+    // Court click auto-sets statType to MAKE and pre-selects 3pt; no need to click Make again
+    const threeBtn = await within(dialog).findByRole("button", {
       name: "3 point shot",
     });
     expect(threeBtn).toHaveClass("MuiButton-contained");
@@ -363,13 +361,13 @@ describe("GameMode Component", () => {
     court.setAttribute("data-y", "10");
     fireEvent.click(court);
 
-    expect(await screen.findByRole("dialog")).toBeInTheDocument();
+    const dialog = await screen.findByRole("dialog");
+    expect(dialog).toBeInTheDocument();
 
-    fireEvent.click(
-      within(screen.getByRole("dialog")).getByLabelText(/Record Make/i),
-    );
-
-    const twoBtn = await screen.findByRole("button", { name: "2 point shot" });
+    // Court click auto-sets statType to MAKE and pre-selects 2pt; no need to click Make again
+    const twoBtn = await within(dialog).findByRole("button", {
+      name: "2 point shot",
+    });
     expect(twoBtn).toHaveClass("MuiButton-contained");
   });
 
