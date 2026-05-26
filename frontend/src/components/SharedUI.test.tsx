@@ -218,7 +218,10 @@ describe("SharedUI Components", () => {
     it("renders with decimal places when value is undefined", () => {
       expect(() =>
         render(
-          <AnimatedNumber value={undefined as unknown as number} decimals={2} />,
+          <AnimatedNumber
+            value={undefined as unknown as number}
+            decimals={2}
+          />,
         ),
       ).not.toThrow();
       expect(screen.getByText("0.00")).toBeInTheDocument();
