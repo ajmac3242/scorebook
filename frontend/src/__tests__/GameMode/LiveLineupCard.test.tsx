@@ -3,9 +3,9 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { LiveLineupCard } from '../../pages/GameMode/LiveLineupCard';
 
 jest.mock('../../pages/GameMode/GameModeComponents', () => ({
-  LineupPlayerButton: ({ playerId, onClick }: any) => (
-    <button onClick={() => onClick(playerId)} data-testid={`player-btn-${playerId}`}>
-      Player {playerId}
+  LineupPlayerButton: ({ player, onClick }: any) => (
+    <button onClick={() => onClick(player.id)} data-testid={`player-btn-${player.id}`}>
+      Player {player.id}
     </button>
   ),
 }));
