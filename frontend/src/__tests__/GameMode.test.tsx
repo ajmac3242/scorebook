@@ -349,7 +349,7 @@ describe("GameMode Component", () => {
       within(screen.getByRole("dialog")).getByLabelText(/Record Make/i),
     );
 
-    const threeBtn = screen.getByRole("button", { name: "3 point shot" });
+    const threeBtn = await screen.findByRole("button", { name: "3 point shot" });
     expect(threeBtn).toHaveClass("MuiButton-contained");
   });
 
@@ -367,7 +367,7 @@ describe("GameMode Component", () => {
       within(screen.getByRole("dialog")).getByLabelText(/Record Make/i),
     );
 
-    const twoBtn = screen.getByRole("button", { name: "2 point shot" });
+    const twoBtn = await screen.findByRole("button", { name: "2 point shot" });
     expect(twoBtn).toHaveClass("MuiButton-contained");
   });
 

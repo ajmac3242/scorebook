@@ -85,6 +85,7 @@ export const LiveLineupCard: React.FC<LiveLineupCardProps> = React.memo(
               </Typography>
               <Typography
                 variant="body2"
+                data-testid="lineup-plus-minus"
                 sx={{
                   fontWeight: 800,
                   color:

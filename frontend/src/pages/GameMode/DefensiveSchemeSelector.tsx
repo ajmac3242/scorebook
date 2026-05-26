@@ -49,6 +49,7 @@ export const DefensiveSchemeSelector: React.FC<DefensiveSchemeSelectorProps> =
           size="small"
           fullWidth
           disabled={isReadOnly}
+          aria-disabled={isReadOnly || undefined}
           aria-label="Defensive scheme selection"
         >
           {SCHEMES.map((scheme) => (
