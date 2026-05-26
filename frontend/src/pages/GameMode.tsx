@@ -1106,13 +1106,13 @@ const GameMode: React.FC = () => {
         fullWidth
         maxWidth="xs"
         aria-describedby="stat-dialog-player-info"
-        PaperProps={
-          {
+        slotProps={{
+          paper: {
             "data-testid": "stat-dialog",
             "data-points": points,
             "data-stattype": statType ?? "",
-          } as React.ComponentPropsWithRef<"div">
-        }
+          } as React.ComponentPropsWithRef<"div">,
+        }}
         onKeyDown={(e) => {
           if (
             e.key === "Enter" &&
