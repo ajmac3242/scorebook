@@ -1,8 +1,10 @@
 /**
  * @file GameMode.tsx
  * @description The live game tracking interface.
- * Allows users to record statistical events (makes, misses, rebounds, etc.)
- * on an interactive court, manage active lineups, and track opponent scoring.
+ * Thin composition layer: reads from useGameMode + useGameModeActions,
+ * wires UI-only handlers, and assembles the layout.
+ * All DB mutations are in useGameModeActions.
+ * All sub-sections are delegated to /GameMode/ sub-components.
  */
 import React, { useEffect, useCallback } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
@@ -34,14 +36,11 @@ import {
   ToggleButton,
   ToggleButtonGroup,
   Tooltip,
-  Divider,
 } from "@mui/material";
 import {
   SportsBasketball,
   Undo as UndoIcon,
   Warning,
-  PlayArrow,
-  Pause,
   Check,
   Close,
   PanTool,
@@ -79,10 +78,11 @@ import {
   SITUATIONS,
 } from "../constants/stats";
 import { type PlayerAggregates, getPlayerDisplayName } from "../utils/stats";
-import { formatClock, formatPlusMinus } from "../utils/mathUtils";
+import { formatClock } from "../utils/mathUtils";
 import { detectShotValueFromCoords } from "../utils/courtUtils";
 import { pulse } from "../styles/animations";
 import { useGameMode } from "../hooks/useGameMode";
+import { useGameModeActions } from "../hooks/useGameModeActions";
 import {
   VoiceModeBanner,
   TrackingModeToolbar,
@@ -95,11 +95,6 @@ import {
   QuickAction,
 } from "./GameMode/index";
 
-/**
- * GameMode page component.
- * Thin composition layer: reads from useGameMode, wires handlers, assembles layout.
- * All sub-sections are delegated to /GameMode/ sub-components.
- */
 const GameMode: React.FC = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -196,7 +191,6 @@ const GameMode: React.FC = () => {
     setPeriod,
     trackingMode,
     setTrackingMode,
-    gameStats,
     players,
     playerNamesMap,
     game,
@@ -225,26 +219,68 @@ const GameMode: React.FC = () => {
     haltAlerts,
   } = useGameMode(gameId, teamId);
 
-  // ─── Handlers ────────────────────────────────────────────────────────────────
+  // ─── DB Action Handlers (via useGameModeActions) ──────────────────────────────
 
-  const handleUndo = useCallback(async () => {
-    if (gameData.recentStats.length === 0) return;
-    const lastStat = gameData.recentStats[0];
-    if (lastStat.id) {
-      try {
-        await db.stats.update(lastStat.id, {
-          deletedAt: new Date().toISOString(),
-          synced: 0,
-        });
-        await syncService.pushUpdates();
-        setSnackbar({ open: true, message: "Action undone", severity: "success" });
-      } catch (err) {
-        logger.error("Failed to undo stat:", err);
-        setSnackbar({ open: true, message: "Failed to undo action", severity: "error" });
-      }
-    }
-  }, [gameData.recentStats, setSnackbar]);
+  const {
+    handleUndo,
+    handleEndGame,
+    handleSaveStat,
+    handleDeleteStat,
+    handleQuickSub,
+    handleTogglePossession,
+    handleOpponentTurnover,
+    handleChainAction,
+  } = useGameModeActions({
+    gameId,
+    period,
+    clockSeconds,
+    isReadOnly,
+    trackingMode,
+    isEditing,
+    editingStatId,
+    selectedPlayerId,
+    statType,
+    points,
+    playName,
+    shotQuality,
+    situation,
+    opponentPlayType,
+    selectedX,
+    selectedY,
+    matchups,
+    game,
+    gameData,
+    draftOnCourtIds,
+    chainPrompt,
+    statToDelete,
+    isSavingSub,
+    setSnackbar,
+    setIsDialogOpen,
+    setStatType,
+    setPlayName,
+    setSituation,
+    setOpponentPlayType,
+    setIsEditing,
+    setEditingStatId,
+    setSelectedPlayerId,
+    setLastOpponentStatId,
+    setIsBreakdownDialogOpen,
+    setChainPrompt,
+    setIsFtWorkflowOpen,
+    setIsSavingStat,
+    setIsEnding,
+    setIsEndGameDialogOpen,
+    setIsSummaryDialogOpen,
+    setIsDeleting,
+    setIsDeleteDialogOpen,
+    setStatToDelete,
+    setIsSubDialogOpen,
+    setIsSavingSub,
+  });
 
+  // ─── UI-Only Handlers (stay in page) ─────────────────────────────────────────
+
+  // Keyboard shortcut: Ctrl+Z / Cmd+Z → Undo
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === "z") {
@@ -256,22 +292,6 @@ const GameMode: React.FC = () => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [handleUndo]);
 
-  const handleEndGame = useCallback(async () => {
-    setIsEnding(true);
-    try {
-      await db.games.update(gameId as string, { completed: 1, synced: 0 });
-      await syncService.pushUpdates();
-      setIsEndGameDialogOpen(false);
-      setIsSummaryDialogOpen(true);
-      setSnackbar({ open: true, message: "Game finalized successfully!", severity: "success" });
-    } catch (err) {
-      logger.error("Failed to end game:", err);
-      setSnackbar({ open: true, message: "Failed to finalize game", severity: "error" });
-    } finally {
-      setIsEnding(false);
-    }
-  }, [gameId, setIsEnding, setIsEndGameDialogOpen, setIsSummaryDialogOpen, setSnackbar]);
-
   const handleCourtClick = useCallback(
     (x: number, y: number) => {
       if (isReadOnly) return;
@@ -282,115 +302,6 @@ const GameMode: React.FC = () => {
       setIsDialogOpen(true);
     },
     [isReadOnly, trackingMode, setSelectedX, setSelectedY, setPoints, setSelectedPlayerId, setIsDialogOpen],
-  );
-
-  const handleSaveStat = useCallback(
-    async (currentType?: string) => {
-      const typeToSave = currentType || statType;
-      if (!selectedPlayerId || !typeToSave) return;
-      setIsSavingStat(true);
-      try {
-        if (!gameId) { setIsSavingStat(false); return; }
-
-        let primaryDefenderId: string | undefined;
-        let derivedShotClockPhase: "EARLY" | "MID" | "LATE" | undefined;
-
-        if (typeToSave === ACTION_TYPES.MAKE || typeToSave === ACTION_TYPES.MISS) {
-          if (selectedPlayerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT)) {
-            primaryDefenderId = matchups[selectedPlayerId];
-          }
-          const elapsed = gameData.possessionStartClock - clockSeconds;
-          derivedShotClockPhase = elapsed <= 10 ? "EARLY" : elapsed >= 20 ? "LATE" : "MID";
-        }
-
-        if (isEditing && editingStatId) {
-          await db.stats.update(editingStatId, {
-            playerId: selectedPlayerId!,
-            type: typeToSave,
-            points: typeToSave === ACTION_TYPES.MAKE ? points : 0,
-            playName: (typeToSave === ACTION_TYPES.MAKE || typeToSave === ACTION_TYPES.MISS) ? playName : undefined,
-            shotQuality: (typeToSave === ACTION_TYPES.MAKE || typeToSave === ACTION_TYPES.MISS) ? (shotQuality ?? undefined) : undefined,
-            situation: situation ?? undefined,
-            opponentPlayType:
-              (typeToSave === ACTION_TYPES.MAKE || typeToSave === ACTION_TYPES.MISS) &&
-                selectedPlayerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT)
-                ? (opponentPlayType as StatEvent["opponentPlayType"])
-                : undefined,
-            shotClockPhase: derivedShotClockPhase,
-            primaryDefenderId,
-            defensiveScheme: game?.activeDefensiveScheme,
-            synced: 0,
-          });
-          await syncService.pushUpdates();
-        } else {
-          const newStat: StatEvent = {
-            id: crypto.randomUUID(),
-            gameId,
-            playerId: selectedPlayerId!,
-            type: typeToSave,
-            points: typeToSave === ACTION_TYPES.MAKE ? points : 0,
-            locationX: selectedX || 0,
-            locationY: selectedY || 0,
-            playName: (typeToSave === ACTION_TYPES.MAKE || typeToSave === ACTION_TYPES.MISS) ? playName : undefined,
-            shotQuality: (typeToSave === ACTION_TYPES.MAKE || typeToSave === ACTION_TYPES.MISS) ? (shotQuality ?? undefined) : undefined,
-            situation: situation ?? undefined,
-            opponentPlayType:
-              (typeToSave === ACTION_TYPES.MAKE || typeToSave === ACTION_TYPES.MISS) &&
-                selectedPlayerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT)
-                ? (opponentPlayType as StatEvent["opponentPlayType"])
-                : undefined,
-            shotClockPhase: derivedShotClockPhase,
-            primaryDefenderId,
-            defensiveScheme: game?.activeDefensiveScheme,
-            period,
-            clockTime: clockSeconds,
-            timestamp: new Date().toISOString(),
-            synced: 0,
-          };
-          const savedId = (await db.stats.add(newStat)) as string;
-          await syncService.pushUpdates();
-
-          if (trackingMode === "OPPONENT" && typeToSave === ACTION_TYPES.MAKE) {
-            setLastOpponentStatId(savedId);
-            setIsBreakdownDialogOpen(true);
-          }
-          if (trackingMode === "TEAM" && !selectedPlayerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT)) {
-            if (typeToSave === ACTION_TYPES.MAKE && points > 1) {
-              setChainPrompt({ type: "ASSIST", originalStat: newStat });
-            } else if (typeToSave === ACTION_TYPES.MISS) {
-              setChainPrompt({ type: "REBOUND", originalStat: newStat });
-            }
-          }
-          if (typeToSave === ACTION_TYPES.FOUL_SHOOTING) {
-            setIsFtWorkflowOpen(true);
-          }
-        }
-
-        setSnackbar({ open: true, message: isEditing ? "Action updated" : "Action recorded", severity: "success", action: "UNDO" });
-        setIsDialogOpen(false);
-        setStatType(null);
-        setPlayName("");
-        setSituation(null);
-        setOpponentPlayType(null);
-        setIsEditing(false);
-        setEditingStatId(null);
-        if (trackingMode === "OPPONENT") setSelectedPlayerId(null);
-      } catch (err) {
-        logger.error("Failed to save stat:", err);
-        setSnackbar({ open: true, message: "Failed to save action", severity: "error" });
-      } finally {
-        setIsSavingStat(false);
-      }
-    },
-    [
-      statType, selectedPlayerId, gameId, isEditing, editingStatId, points, playName,
-      selectedX, selectedY, period, trackingMode, clockSeconds, shotQuality,
-      setIsSavingStat, setChainPrompt, setIsFtWorkflowOpen, setSnackbar,
-      setIsDialogOpen, setStatType, setPlayName, setSituation, setIsEditing,
-      setEditingStatId, setSelectedPlayerId, setLastOpponentStatId,
-      setIsBreakdownDialogOpen, gameData.possessionStartClock, matchups,
-      game?.activeDefensiveScheme, situation, opponentPlayType, setOpponentPlayType,
-    ],
   );
 
   const handleSwapClick = useCallback(
@@ -414,47 +325,6 @@ const GameMode: React.FC = () => {
     [selectedSwapId, draftOnCourtIds, setSelectedSwapId, setDraftOnCourtIds],
   );
 
-  const handleQuickSub = useCallback(async () => {
-    if (!gameId || isReadOnly || isSavingSub) return;
-    setIsSavingSub(true);
-    try {
-      const timestamp = new Date().toISOString();
-      const toSubOut = Array.from(gameData.onCourtIds).filter((id) => !draftOnCourtIds.has(id));
-      const toSubIn = Array.from(draftOnCourtIds).filter((id) => !gameData.onCourtIds.has(id) && !id.startsWith("EMPTY"));
-      for (const pId of toSubOut) {
-        await db.stats.add({ id: crypto.randomUUID(), gameId, playerId: pId, type: ACTION_TYPES.SUB_OUT, period, clockTime: clockSeconds, timestamp, synced: 0 });
-      }
-      for (const pId of toSubIn) {
-        await db.stats.add({ id: crypto.randomUUID(), gameId, playerId: pId, type: ACTION_TYPES.SUB_IN, period, clockTime: clockSeconds, timestamp, synced: 0 });
-      }
-      setIsSubDialogOpen(false);
-      await syncService.pushUpdates();
-      setSnackbar({ open: true, message: `Lineup updated: substituted ${toSubIn.length} in, ${toSubOut.length} out`, severity: "success" });
-    } catch (err) {
-      logger.error("Failed to record quick sub:", err);
-      setSnackbar({ open: true, message: "Failed to record substitution", severity: "error" });
-    } finally {
-      setIsSavingSub(false);
-    }
-  }, [gameId, isReadOnly, gameData.onCourtIds, draftOnCourtIds, period, clockSeconds, setIsSubDialogOpen, setSnackbar, isSavingSub, setIsSavingSub]);
-
-  const handleDeleteStat = useCallback(async () => {
-    if (!statToDelete) return;
-    setIsDeleting(true);
-    try {
-      await db.stats.update(statToDelete, { deletedAt: new Date().toISOString(), synced: 0 });
-      await syncService.pushUpdates();
-      setIsDeleteDialogOpen(false);
-      setStatToDelete(null);
-      setSnackbar({ open: true, message: "Action deleted successfully!", severity: "success" });
-    } catch (err) {
-      logger.error("Failed to delete stat:", err);
-      setSnackbar({ open: true, message: "Failed to delete action", severity: "error" });
-    } finally {
-      setIsDeleting(false);
-    }
-  }, [statToDelete, setIsDeleting, setIsDeleteDialogOpen, setStatToDelete, setSnackbar]);
-
   const openEditDialog = useCallback(
     (stat: StatEvent) => {
       if (isReadOnly) return;
@@ -470,7 +340,9 @@ const GameMode: React.FC = () => {
       setIsEditing(true);
       setIsDialogOpen(true);
     },
-    [isReadOnly, setEditingStatId, setSelectedPlayerId, setStatType, setPoints, setPlayName, setShotQuality, setSituation, setSelectedX, setSelectedY, setIsEditing, setIsDialogOpen],
+    [isReadOnly, setEditingStatId, setSelectedPlayerId, setStatType, setPoints,
+      setPlayName, setShotQuality, setSituation, setSelectedX, setSelectedY,
+      setIsEditing, setIsDialogOpen],
   );
 
   const handleToggleClock = useCallback(() => {
@@ -533,51 +405,6 @@ const GameMode: React.FC = () => {
     }
   }, [gameId, isReadOnly, trackingMode, period, clockSeconds]);
 
-  const handleTogglePossession = useCallback(
-    async (manualTarget?: string) => {
-      if (!gameId || isReadOnly) return;
-      const targetTeam = manualTarget || (gameData.possessionState === SPECIAL_PLAYER_IDS.OUR_TEAM ? SPECIAL_PLAYER_IDS.OPPONENT : SPECIAL_PLAYER_IDS.OUR_TEAM);
-      try {
-        await db.stats.add({ id: crypto.randomUUID(), gameId, playerId: targetTeam, type: ACTION_TYPES.POSSESSION, period, clockTime: clockSeconds, timestamp: new Date().toISOString(), synced: 0 });
-        await syncService.pushUpdates();
-      } catch (err) {
-        logger.error("Failed to toggle possession:", err);
-      }
-    },
-    [gameId, isReadOnly, period, gameData.possessionState, clockSeconds],
-  );
-
-  const handleOpponentTurnover = useCallback(async () => {
-    if (!gameId || isReadOnly) return;
-    try {
-      await db.stats.add({ id: crypto.randomUUID(), gameId, playerId: SPECIAL_PLAYER_IDS.OPPONENT, type: ACTION_TYPES.TURNOVER, period, clockTime: clockSeconds, timestamp: new Date().toISOString(), synced: 0 });
-      await handleTogglePossession(SPECIAL_PLAYER_IDS.OUR_TEAM);
-      setSnackbar({ open: true, message: "Opponent turnover recorded", severity: "success" });
-    } catch (err) {
-      logger.error("Failed to record opponent turnover:", err);
-    }
-  }, [gameId, isReadOnly, period, clockSeconds, handleTogglePossession, setSnackbar]);
-
-  const handleChainAction = useCallback(
-    async (pId: string, type: string) => {
-      if (!chainPrompt || !gameId) return;
-      const { originalStat } = chainPrompt;
-      try {
-        await db.stats.add({ id: crypto.randomUUID(), gameId, playerId: pId, type, period: originalStat.period, clockTime: originalStat.clockTime, timestamp: originalStat.timestamp, synced: 0 });
-        await syncService.pushUpdates();
-        if (type === ACTION_TYPES.ASSIST) {
-          setChainPrompt({ type: ACTION_TYPES.HOCKEY_ASSIST as "HOCKEY_ASSIST", originalStat });
-        } else {
-          setChainPrompt(null);
-        }
-        setSnackbar({ open: true, message: `${type} recorded`, severity: "success" });
-      } catch (err) {
-        logger.error("Failed to save chained stat:", err);
-      }
-    },
-    [chainPrompt, gameId, setChainPrompt, setSnackbar],
-  );
-
   const handleLineupPlayerClick = useCallback(
     (playerId: string) => { setSubOutPlayerId(playerId); setIsSubDialogOpen(true); },
     [setSubOutPlayerId, setIsSubDialogOpen],
@@ -593,6 +420,8 @@ const GameMode: React.FC = () => {
     [setStatType],
   );
 
+  // ─── Energy Alert Effect ──────────────────────────────────────────────────────
+
   useEffect(() => {
     if (!gameId || !teamId) { navigate("/"); return; }
     const topSpark = sparkPlugIndex[0];
@@ -602,7 +431,11 @@ const GameMode: React.FC = () => {
         lastEnergyAlertRef.current = alertKey;
         const pName = playerNamesMap.get(topSpark.playerId)?.split(" ")[0] || "Player";
         const jersey = jerseyMap.get(topSpark.playerId);
-        setSnackbar({ open: true, message: `🔥 ENERGY ALERT: #${jersey} ${pName} is providing a massive Spark Plug impact!`, severity: "info" });
+        setSnackbar({
+          open: true,
+          message: `🔥 ENERGY ALERT: #${jersey} ${pName} is providing a massive Spark Plug impact!`,
+          severity: "info",
+        });
       }
     }
   }, [gameId, teamId, navigate, sparkPlugIndex, playerNamesMap, jerseyMap, isReadOnly, setSnackbar]);
@@ -691,7 +524,7 @@ const GameMode: React.FC = () => {
               />
               <TrackingModeToolbar
                 trackingMode={trackingMode}
-                onTrackingModeChange={(val) => setTrackingMode(val)}
+                onTrackingModeChange={(_, val) => { if (val) setTrackingMode(val); }}
                 voiceEnabled={voiceEnabled}
                 onVoiceToggle={() => setVoiceEnabled(!voiceEnabled)}
                 isReadOnly={isReadOnly}
@@ -805,14 +638,14 @@ const GameMode: React.FC = () => {
                       <TableHead>
                         <TableRow>
                           {[
-                            { label: "#", key: "jerseyNumber", desc: "Jersey Number" },
-                            { label: "NAME", key: "name", desc: "Player Name" },
-                            { label: "MIN", key: "min", desc: "Minutes Played" },
-                            { label: "PTS", key: "points", desc: "Points Scored" },
-                            { label: "REB", key: "rebounds", desc: "Total Rebounds" },
-                            { label: "AST", key: "assists", desc: "Assists" },
-                            { label: "PF", key: "fouls", desc: "Personal Fouls" },
-                            { label: "+/-", key: "plusMinus", desc: "Plus/Minus Rating" },
+                            { label: "#",    key: "jerseyNumber", desc: "Jersey Number" },
+                            { label: "NAME", key: "name",         desc: "Player Name" },
+                            { label: "MIN",  key: "min",          desc: "Minutes Played" },
+                            { label: "PTS",  key: "points",       desc: "Points Scored" },
+                            { label: "REB",  key: "rebounds",     desc: "Total Rebounds" },
+                            { label: "AST",  key: "assists",      desc: "Assists" },
+                            { label: "PF",   key: "fouls",        desc: "Personal Fouls" },
+                            { label: "+/-",  key: "plusMinus",    desc: "Plus/Minus Rating" },
                           ].map((head) => (
                             <TableCell key={head.key} sx={{ fontSize: "0.6rem", fontWeight: 800 }}>
                               <Tooltip title={head.desc}>
@@ -843,6 +676,7 @@ const GameMode: React.FC = () => {
                 </MoleskineCard>
               </>
             ) : (
+              /* ── Opponent Scouting Panel ── */
               <MoleskineCard>
                 <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 2 }}>
                   {game?.opponent || "Opponent"} Scouting
@@ -968,8 +802,7 @@ const GameMode: React.FC = () => {
         </Grid>
       </Grid>
 
-      {/* ─── Dialogs ─────────────────────────────────────────────────────────── */}
-
+      {/* ─── Stat Entry Dialog ────────────────────────────────────────────────── */}
       <Dialog
         open={isDialogOpen}
         onClose={() => setIsDialogOpen(false)}
@@ -985,10 +818,10 @@ const GameMode: React.FC = () => {
           if (isSavingStat) return;
           const key = e.key.toLowerCase();
           const actionMap: Record<string, string> = {
-            m: ACTION_TYPES.MAKE, x: ACTION_TYPES.MISS,
-            o: ACTION_TYPES.OFF_REBOUND, d: ACTION_TYPES.DEF_REBOUND,
-            a: ACTION_TYPES.ASSIST, t: ACTION_TYPES.TURNOVER,
-            s: ACTION_TYPES.STEAL, b: ACTION_TYPES.BLOCK,
+            m: ACTION_TYPES.MAKE,         x: ACTION_TYPES.MISS,
+            o: ACTION_TYPES.OFF_REBOUND,  d: ACTION_TYPES.DEF_REBOUND,
+            a: ACTION_TYPES.ASSIST,       t: ACTION_TYPES.TURNOVER,
+            s: ACTION_TYPES.STEAL,        b: ACTION_TYPES.BLOCK,
             f: ACTION_TYPES.FOUL_SHOOTING,
           };
           if (actionMap[key]) setStatType(actionMap[key]);
@@ -1020,19 +853,19 @@ const GameMode: React.FC = () => {
           </Typography>
           <Box sx={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 1, mb: 2 }}>
             {[
-              { type: ACTION_TYPES.MAKE, label: "Make (M)", icon: Check },
-              { type: ACTION_TYPES.MISS, label: "Miss (X)", icon: Close },
-              { type: ACTION_TYPES.OFF_REBOUND, label: "Off Reb (O)", icon: SportsBasketball },
-              { type: ACTION_TYPES.DEF_REBOUND, label: "Def Reb (D)", icon: SportsBasketball },
-              { type: ACTION_TYPES.ASSIST, label: "Assist (A)", icon: PanTool },
-              { type: ACTION_TYPES.TURNOVER, label: "Turnover (T)", icon: SwapHoriz },
-              { type: ACTION_TYPES.STEAL, label: "Steal (S)", icon: FlashOn },
-              { type: ACTION_TYPES.BLOCK, label: "Block (B)", icon: ArrowBack },
-              { type: ACTION_TYPES.FOUL_SHOOTING, label: "S. Foul (F)", icon: Warning },
-              { type: ACTION_TYPES.FLOOR_DIVE, label: "Floor Dive", icon: SportsBasketball },
-              { type: ACTION_TYPES.CHARGE_TAKEN, label: "Charge", icon: PanTool },
-              { type: ACTION_TYPES.GREAT_CONTEST, label: "Contest", icon: Shield },
-              { type: ACTION_TYPES.PAINT_TOUCH, label: "Paint Touch (P)", icon: SportsBasketball },
+              { type: ACTION_TYPES.MAKE,          label: "Make (M)",       icon: Check },
+              { type: ACTION_TYPES.MISS,          label: "Miss (X)",       icon: Close },
+              { type: ACTION_TYPES.OFF_REBOUND,   label: "Off Reb (O)",    icon: SportsBasketball },
+              { type: ACTION_TYPES.DEF_REBOUND,   label: "Def Reb (D)",    icon: SportsBasketball },
+              { type: ACTION_TYPES.ASSIST,        label: "Assist (A)",     icon: PanTool },
+              { type: ACTION_TYPES.TURNOVER,      label: "Turnover (T)",   icon: SwapHoriz },
+              { type: ACTION_TYPES.STEAL,         label: "Steal (S)",      icon: FlashOn },
+              { type: ACTION_TYPES.BLOCK,         label: "Block (B)",      icon: ArrowBack },
+              { type: ACTION_TYPES.FOUL_SHOOTING, label: "S. Foul (F)",    icon: Warning },
+              { type: ACTION_TYPES.FLOOR_DIVE,    label: "Floor Dive",     icon: SportsBasketball },
+              { type: ACTION_TYPES.CHARGE_TAKEN,  label: "Charge",         icon: PanTool },
+              { type: ACTION_TYPES.GREAT_CONTEST, label: "Contest",        icon: Shield },
+              { type: ACTION_TYPES.PAINT_TOUCH,   label: "Paint Touch (P)", icon: SportsBasketball },
             ].map((action) => (
               <QuickAction
                 key={action.type}
@@ -1072,7 +905,7 @@ const GameMode: React.FC = () => {
                 Opponent Jersey # (Optional)
               </Typography>
               <Stack direction="row" flexWrap="wrap" gap={0.5} sx={{ mb: 1 }}>
-                {["0", "1", "2", "3", "4", "5", "10", "11", "12", "23", "24", "30", "32", "33", "34", "35"].map((num) => {
+                {["0","1","2","3","4","5","10","11","12","23","24","30","32","33","34","35"].map((num) => {
                   const oppId = `${SPECIAL_PLAYER_IDS.OPPONENT}:${num}`;
                   return (
                     <Button
@@ -1217,6 +1050,7 @@ const GameMode: React.FC = () => {
         </DialogActions>
       </Dialog>
 
+      {/* ─── Confirm Delete Dialog ────────────────────────────────────────────── */}
       <Dialog open={isDeleteDialogOpen} onClose={() => setIsDeleteDialogOpen(false)} maxWidth="xs" fullWidth>
         <DialogTitle>Delete Action?</DialogTitle>
         <DialogContent>
@@ -1230,6 +1064,7 @@ const GameMode: React.FC = () => {
         </DialogActions>
       </Dialog>
 
+      {/* ─── End Game Dialog ──────────────────────────────────────────────────── */}
       <Dialog open={isEndGameDialogOpen} onClose={() => setIsEndGameDialogOpen(false)} maxWidth="xs" fullWidth>
         <DialogTitle>Finalize Game?</DialogTitle>
         <DialogContent>
@@ -1245,6 +1080,7 @@ const GameMode: React.FC = () => {
         </DialogActions>
       </Dialog>
 
+      {/* ─── Other Dialogs ────────────────────────────────────────────────────── */}
       <EditClockDialog
         open={isClockEditDialogOpen}
         initialSeconds={clockSeconds}
