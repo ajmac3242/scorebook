@@ -82,6 +82,7 @@ import AppPageShell, {
 import PageSectionCard from "../components/layout/PageSectionCard";
 import PageSectionIntro from "../components/layout/PageSectionIntro";
 import EntityBanner from "../components/EntityBanner";
+import EntityRowCard from "../components/cards/EntityRowCard";
 import { MoleskineCard } from "../components/SharedUI";
 import SortableHeader from "../components/SortableHeader";
 
@@ -176,7 +177,6 @@ const TeamStats: React.FC = () => {
 
   const sectionPadding = { xs: 2.5, md: 0 };
   const controlRadius = tokens.semantic.component.radius.button;
-  const cardRadius = Math.max(tokens.semantic.component.sectionCard.radius, 20);
 
   const [activeTab, setActiveTab] = useState<TeamStatsTab>("schedule");
   const [statView, setStatView] = useState<"total" | "average">("total");
@@ -306,8 +306,17 @@ const TeamStats: React.FC = () => {
     }
   }, [team?.deletedAt]);
 
-  const games = useGames(teamId);
-  const allPlayers = usePlayers();
+  const gamesResult = useGames(teamId);
+  const allPlayersResult = usePlayers();
+
+  const games = useMemo(
+    () => (Array.isArray(gamesResult) ? gamesResult : []),
+    [gamesResult],
+  );
+  const allPlayers = useMemo(
+    () => (Array.isArray(allPlayersResult) ? allPlayersResult : []),
+    [allPlayersResult],
+  );
 
   const teamPlayersResult = useLiveQuery(() => {
     if (teamId === undefined) return [];
@@ -319,32 +328,39 @@ const TeamStats: React.FC = () => {
     [teamPlayersResult],
   );
 
-  const allRecentLocations =
-    useLiveQuery(() => {
-      return db.games
-        .toArray()
-        .then((items) => {
-          const locationSet = new Set<string>();
-          for (const g of items) {
-            if (g.location) locationSet.add(g.location);
-          }
-          return Array.from(locationSet).sort();
-        })
-        .catch((error) => {
-          logger.error("Failed to fetch locations:", error);
-          return [];
-        });
-    }) || [];
+  const allRecentLocationsResult = useLiveQuery(() => {
+    return db.games
+      .toArray()
+      .then((items) => {
+        const locationSet = new Set<string>();
+        for (const g of items) {
+          if (g.location) locationSet.add(g.location);
+        }
+        return Array.from(locationSet).sort();
+      })
+      .catch((error) => {
+        logger.error("Failed to fetch locations:", error);
+        return [];
+      });
+  });
 
-  const allOpponents = useLiveQuery(() => db.opponents.toArray()) || [];
+  const allRecentLocations = useMemo(
+    () =>
+      Array.isArray(allRecentLocationsResult) ? allRecentLocationsResult : [],
+    [allRecentLocationsResult],
+  );
+
+  const allOpponentsResult = useLiveQuery(() => db.opponents.toArray());
+  const allOpponents = useMemo(
+    () => (Array.isArray(allOpponentsResult) ? allOpponentsResult : []),
+    [allOpponentsResult],
+  );
 
   const teamPlayerDetails = useMemo(() => {
-    const safePlayers = Array.isArray(allPlayers) ? allPlayers : [];
     const playerIdSet = new Set(
       teamPlayers.map((tp) => tp.playerId?.toString()).filter(Boolean),
     );
-
-    return safePlayers.filter((p) => playerIdSet.has(p.id?.toString() || ""));
+    return allPlayers.filter((p) => playerIdSet.has(p.id?.toString() || ""));
   }, [allPlayers, teamPlayers]);
 
   const gameIds = useMemo(() => {
@@ -371,7 +387,11 @@ const TeamStats: React.FC = () => {
       .anyOf(gameIds as string[])
       .toArray();
   }, [gameIds]);
-  const allStats = useMemo(() => allStatsResult || [], [allStatsResult]);
+
+  const allStats = useMemo(
+    () => (Array.isArray(allStatsResult) ? allStatsResult : []),
+    [allStatsResult],
+  );
 
   const teamAggregates = useMemo(
     () => calculateTeamAggregates(games, allStats as StatEvent[]),
@@ -862,98 +882,60 @@ const TeamStats: React.FC = () => {
             ) : undefined,
           )
         ) : (
-          <Stack spacing={2}>
+          <Stack spacing={1.5}>
             {filteredSchedule.map((game) => (
-              <MoleskineCard
+              <EntityRowCard
                 key={game.id}
-                sx={{
-                  cursor: "pointer",
-                  transition:
-                    "background-color 180ms ease, transform 180ms ease",
-                  "&:hover": {
-                    bgcolor: "action.hover",
-                    transform: { md: "translateY(-2px)" },
-                  },
-                }}
-                onClick={() => navigate(`/game/stats?gameId=${game.id}`)}
-              >
-                <Stack
-                  direction={{ xs: "column", sm: "row" }}
-                  spacing={2}
-                  sx={{
-                    alignItems: { xs: "flex-start", sm: "center" },
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <Stack
-                    direction="row"
-                    spacing={2}
-                    sx={{ alignItems: "center", minWidth: 0 }}
-                  >
-                    {game.opponentLogoUrl ? (
-                      <Box
-                        component="img"
-                        src={game.opponentLogoUrl}
-                        alt={`${game.opponent} logo`}
-                        sx={{
-                          width: 44,
-                          height: 44,
-                          objectFit: "contain",
-                          borderRadius: `${Math.max(tokens.semantic.shape.radius.md, 12)}px`,
-                          bgcolor: "background.paper",
-                          border: "1px solid",
-                          borderColor: "divider",
-                          p: 0.5,
-                          flexShrink: 0,
-                        }}
-                      />
-                    ) : (
-                      <Avatar
-                        sx={{
-                          width: 44,
-                          height: 44,
-                          bgcolor: "action.hover",
-                          color: "text.secondary",
-                          fontWeight: 700,
-                        }}
-                      >
-                        {getInitials(game.opponent)}
-                      </Avatar>
-                    )}
-
-                    <Box sx={{ minWidth: 0 }}>
-                      <Typography
-                        variant="body2"
-                        sx={{
-                          color: "text.secondary",
-                          lineHeight: 1.5,
-                          mb: 0.25,
-                        }}
-                      >
-                        {dayjs(game.date).format("MMM D, YYYY")}
-                        {game.time ? ` • ${game.time}` : ""}
-                        {game.location ? ` • ${game.location}` : ""}
-                      </Typography>
-                      <Typography
-                        variant="h6"
-                        sx={{
-                          fontWeight: 700,
-                          fontSize: "var(--cs-typography-fontSize-md)",
-                        }}
-                      >
-                        vs {game.opponent}
-                      </Typography>
-                    </Box>
-                  </Stack>
-
-                  <Stack
-                    direction={{ xs: "row", sm: "row" }}
-                    spacing={1}
-                    sx={{ alignItems: "center", flexShrink: 0 }}
-                  >
-                    {game.completed ? (
-                      <Chip label="Final" size="small" />
-                    ) : (
+                accentColor={team?.primaryColor || DEFAULT_TEAM_ACCENT}
+                leading={
+                  game.opponentLogoUrl ? (
+                    <Box
+                      component="img"
+                      src={game.opponentLogoUrl}
+                      alt={`${game.opponent} logo`}
+                      sx={{
+                        width: 44,
+                        height: 44,
+                        objectFit: "contain",
+                        borderRadius: "12px",
+                        bgcolor: "background.paper",
+                        border: "1px solid",
+                        borderColor: "divider",
+                        p: 0.5,
+                      }}
+                    />
+                  ) : (
+                    <Avatar
+                      sx={{
+                        width: 44,
+                        height: 44,
+                        bgcolor: "action.hover",
+                        color: "text.secondary",
+                        fontWeight: 700,
+                      }}
+                    >
+                      {getInitials(game.opponent)}
+                    </Avatar>
+                  )
+                }
+                eyebrow={
+                  <>
+                    {dayjs(game.date).format("MMM D, YYYY")}
+                    {game.time ? ` • ${game.time}` : ""}
+                    {game.location ? ` • ${game.location}` : ""}
+                  </>
+                }
+                title={`vs ${game.opponent}`}
+                badges={
+                  game.completed ? (
+                    <Chip label="Final" size="small" />
+                  ) : (
+                    <Chip label="Scheduled" size="small" variant="outlined" />
+                  )
+                }
+                actions={
+                  <>
+                    {!game.completed ? (
                       <Button
                         variant="contained"
                         size="small"
@@ -971,7 +953,7 @@ const TeamStats: React.FC = () => {
                       >
                         Track
                       </Button>
-                    )}
+                    ) : null}
 
                     <Button
                       variant="text"
@@ -989,9 +971,17 @@ const TeamStats: React.FC = () => {
                     >
                       Open
                     </Button>
-                  </Stack>
-                </Stack>
-              </MoleskineCard>
+                  </>
+                }
+                onClick={() => navigate(`/game/stats?gameId=${game.id}`)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    navigate(`/game/stats?gameId=${game.id}`);
+                  }
+                }}
+                ariaLabel={`Open game details for ${game.opponent}`}
+              />
             ))}
           </Stack>
         )}
@@ -1241,107 +1231,23 @@ const TeamStats: React.FC = () => {
                     >
                       {row.gp}
                     </TableCell>
-                    <TableCell
-                      align="right"
-                      sx={{
-                        fontSize: {
-                          xs: "var(--cs-typography-fontSize-xs)",
-                          sm: "var(--cs-typography-fontSize-sm)",
-                        },
-                      }}
-                    >
-                      {row.min}
-                    </TableCell>
+                    <TableCell align="right">{row.min}</TableCell>
                     <TableCell
                       align="right"
                       sx={{
                         fontWeight: 700,
-                        fontSize: {
-                          xs: "var(--cs-typography-fontSize-xs)",
-                          sm: "var(--cs-typography-fontSize-sm)",
-                        },
                         color: "var(--cs-semantic-color-stats-offensive)",
                       }}
                     >
                       {row.points}
                     </TableCell>
-                    <TableCell
-                      align="right"
-                      sx={{
-                        fontSize: {
-                          xs: "var(--cs-typography-fontSize-xs)",
-                          sm: "var(--cs-typography-fontSize-sm)",
-                        },
-                      }}
-                    >
-                      {row.threePM}
-                    </TableCell>
-                    <TableCell
-                      align="right"
-                      sx={{
-                        fontSize: {
-                          xs: "var(--cs-typography-fontSize-xs)",
-                          sm: "var(--cs-typography-fontSize-sm)",
-                        },
-                      }}
-                    >
-                      {row.threePA}
-                    </TableCell>
-                    <TableCell
-                      align="right"
-                      sx={{
-                        fontSize: {
-                          xs: "var(--cs-typography-fontSize-xs)",
-                          sm: "var(--cs-typography-fontSize-sm)",
-                        },
-                      }}
-                    >
-                      {row.threePPct}%
-                    </TableCell>
-                    <TableCell
-                      align="right"
-                      sx={{
-                        fontSize: {
-                          xs: "var(--cs-typography-fontSize-xs)",
-                          sm: "var(--cs-typography-fontSize-sm)",
-                        },
-                      }}
-                    >
-                      {row.fgPct}%
-                    </TableCell>
-                    <TableCell
-                      align="right"
-                      sx={{
-                        fontSize: {
-                          xs: "var(--cs-typography-fontSize-xs)",
-                          sm: "var(--cs-typography-fontSize-sm)",
-                        },
-                      }}
-                    >
-                      {row.efgPct}%
-                    </TableCell>
-                    <TableCell
-                      align="right"
-                      sx={{
-                        fontSize: {
-                          xs: "var(--cs-typography-fontSize-xs)",
-                          sm: "var(--cs-typography-fontSize-sm)",
-                        },
-                      }}
-                    >
-                      {row.rebounds}
-                    </TableCell>
-                    <TableCell
-                      align="right"
-                      sx={{
-                        fontSize: {
-                          xs: "var(--cs-typography-fontSize-xs)",
-                          sm: "var(--cs-typography-fontSize-sm)",
-                        },
-                      }}
-                    >
-                      {row.assists}
-                    </TableCell>
+                    <TableCell align="right">{row.threePM}</TableCell>
+                    <TableCell align="right">{row.threePA}</TableCell>
+                    <TableCell align="right">{row.threePPct}%</TableCell>
+                    <TableCell align="right">{row.fgPct}%</TableCell>
+                    <TableCell align="right">{row.efgPct}%</TableCell>
+                    <TableCell align="right">{row.rebounds}</TableCell>
+                    <TableCell align="right">{row.assists}</TableCell>
                     <TableCell
                       align="right"
                       sx={{ display: { xs: "none", sm: "table-cell" } }}
@@ -1354,16 +1260,7 @@ const TeamStats: React.FC = () => {
                     >
                       {row.turnovers}
                     </TableCell>
-                    <TableCell
-                      align="right"
-                      sx={{
-                        fontSize: {
-                          xs: "var(--cs-typography-fontSize-xs)",
-                          sm: "var(--cs-typography-fontSize-sm)",
-                        },
-                        fontWeight: 600,
-                      }}
-                    >
+                    <TableCell align="right" sx={{ fontWeight: 600 }}>
                       {row.plusMinus > 0 ? `+${row.plusMinus}` : row.plusMinus}
                     </TableCell>
                   </TableRow>
@@ -1560,7 +1457,6 @@ const TeamStats: React.FC = () => {
                     gap: 2,
                     cursor: "pointer",
                     minHeight: 92,
-                    borderRadius: `${cardRadius}px`,
                     transition:
                       "transform 180ms ease, background-color 180ms ease",
                     "&:hover": {
@@ -1585,12 +1481,7 @@ const TeamStats: React.FC = () => {
                   </Avatar>
 
                   <Box sx={{ minWidth: 0, flex: 1 }}>
-                    <Typography
-                      sx={{
-                        fontWeight: 600,
-                        color: "text.primary",
-                      }}
-                    >
+                    <Typography sx={{ fontWeight: 600, color: "text.primary" }}>
                       {player.name}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
@@ -1624,13 +1515,22 @@ const TeamStats: React.FC = () => {
   return (
     <>
       <AppPageShell<TeamStatsTab>
-        title={team?.name || "Team"}
+        contextLabel={
+          <Box component="span" sx={{ color: "text.secondary" }}>
+            Teams /{" "}
+            <Box
+              component="span"
+              sx={{ color: "text.primary", fontWeight: 600 }}
+            >
+              {team?.name || "Team"}
+            </Box>
+          </Box>
+        }
         activeTab={activeTab}
         tabs={TABS}
         onTabChange={(tab) => setActiveTab(tab)}
         controls={headerControls}
-      >
-        <Stack spacing={3} sx={{ opacity: isDeleted ? 0.72 : 1 }}>
+        headerContent={
           <EntityBanner
             title={team?.name || "Team"}
             subtitle={`${teamAggregates.record}${team?.description ? ` | ${team.description}` : ""}`}
@@ -1680,7 +1580,9 @@ const TeamStats: React.FC = () => {
               )
             }
           />
-
+        }
+      >
+        <Stack spacing={3} sx={{ opacity: isDeleted ? 0.72 : 1 }}>
           {isDeleted ? (
             <Alert severity="warning" icon={<Warning />}>
               <AlertTitle>Team pending deletion</AlertTitle>
@@ -1973,97 +1875,95 @@ const TeamStats: React.FC = () => {
           />
 
           <List sx={{ pt: 0 }}>
-            {(() => {
-              const search = rosterSearchTerm.toLowerCase();
-              const teamPlayerMap = new Map<string, TeamPlayer>();
-              for (const tp of teamPlayers) {
-                teamPlayerMap.set(tp.playerId.toString(), tp);
-              }
+            {allPlayers
+              .filter((player) =>
+                player.name
+                  .toLowerCase()
+                  .includes(rosterSearchTerm.toLowerCase()),
+              )
+              .map((player) => {
+                const pId = player.id!.toString();
+                const dbRecord = teamPlayers.find(
+                  (tp) => tp.playerId.toString() === pId,
+                );
+                const stagedChange = pendingRosterChanges[pId];
 
-              return allPlayers
-                .filter((player) => player.name.toLowerCase().includes(search))
-                .map((player) => {
-                  const pId = player.id!.toString();
-                  const dbRecord = teamPlayerMap.get(pId);
-                  const stagedChange = pendingRosterChanges[pId];
+                let isIn = !!dbRecord;
+                if (stagedChange?.action === "add") isIn = true;
+                if (stagedChange?.action === "remove") isIn = false;
 
-                  let isIn = !!dbRecord;
-                  if (stagedChange?.action === "add") isIn = true;
-                  if (stagedChange?.action === "remove") isIn = false;
+                const jersey =
+                  localJerseyNumbers[pId] !== undefined
+                    ? localJerseyNumbers[pId]
+                    : (dbRecord?.jerseyNumber ?? "");
 
-                  const jersey =
-                    localJerseyNumbers[pId] !== undefined
-                      ? localJerseyNumbers[pId]
-                      : (dbRecord?.jerseyNumber ?? "");
+                return (
+                  <ListItem
+                    key={player.id}
+                    divider
+                    sx={{
+                      px: { xs: 1, sm: 2 },
+                      alignItems: "center",
+                    }}
+                    secondaryAction={
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: { xs: 0.5, sm: 1 },
+                        }}
+                      >
+                        {isIn ? (
+                          <TextField
+                            size="small"
+                            label="#"
+                            slotProps={{ htmlInput: { maxLength: 2 } }}
+                            sx={{ width: { xs: 60, sm: 80 } }}
+                            value={jersey}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              if (val === "" || /^\\d{1,2}$/.test(val)) {
+                                stageJerseyUpdate(pId, val);
+                              }
+                            }}
+                          />
+                        ) : null}
 
-                  return (
-                    <ListItem
-                      key={player.id}
-                      divider
-                      sx={{
-                        px: { xs: 1, sm: 2 },
-                        alignItems: "center",
-                      }}
-                      secondaryAction={
-                        <Box
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: { xs: 0.5, sm: 1 },
-                          }}
-                        >
-                          {isIn ? (
-                            <TextField
-                              size="small"
-                              label="#"
-                              slotProps={{ htmlInput: { maxLength: 2 } }}
-                              sx={{ width: { xs: 60, sm: 80 } }}
-                              value={jersey}
-                              onChange={(e) => {
-                                const val = e.target.value;
-                                if (val === "" || /^\d{1,2}$/.test(val)) {
-                                  stageJerseyUpdate(pId, val);
-                                }
-                              }}
-                            />
-                          ) : null}
-
-                          {isIn ? (
-                            <IconButton
-                              edge="end"
-                              aria-label={`remove ${player.name}`}
-                              onClick={() => stageRosterChange(pId, true)}
-                              color="error"
-                              size="small"
-                            >
-                              <CloseIcon fontSize="small" />
-                            </IconButton>
-                          ) : (
-                            <Button
-                              variant="contained"
-                              size="small"
-                              onClick={() => stageRosterChange(pId, false)}
-                              sx={{
-                                minWidth: { xs: 52, sm: 70 },
-                                textTransform: "none",
-                                fontWeight: 600,
-                                boxShadow: "none",
-                              }}
-                            >
-                              Add
-                            </Button>
-                          )}
-                        </Box>
-                      }
-                    >
-                      <Avatar sx={{ bgcolor: player.avatarColor, mr: 2 }}>
-                        {getInitials(player.name)}
-                      </Avatar>
-                      <ListItemText primary={player.name} />
-                    </ListItem>
-                  );
-                });
-            })()}
+                        {isIn ? (
+                          <IconButton
+                            edge="end"
+                            aria-label={`remove ${player.name}`}
+                            onClick={() => stageRosterChange(pId, true)}
+                            color="error"
+                            size="small"
+                          >
+                            <CloseIcon fontSize="small" />
+                          </IconButton>
+                        ) : (
+                          <Button
+                            variant="contained"
+                            size="small"
+                            onClick={() => stageRosterChange(pId, false)}
+                            sx={{
+                              minWidth: { xs: 52, sm: 70 },
+                              textTransform: "none",
+                              fontWeight: 600,
+                              boxShadow: "none",
+                            }}
+                          >
+                            Add
+                          </Button>
+                        )}
+                      </Box>
+                    }
+                  >
+                    <Avatar sx={{ bgcolor: player.avatarColor, mr: 2 }}>
+                      {getInitials(player.name)}
+                    </Avatar>
+                    <ListItemText primary={player.name} />
+                  </ListItem>
+                );
+              })}
           </List>
         </DialogContent>
 
@@ -2123,17 +2023,16 @@ const TeamStats: React.FC = () => {
                     } else if (newValue && newValue.name) {
                       setNewOpponent(newValue.name);
                       setNewOpponentId(newValue.id);
-                      if (newValue.logoUrl) {
+                      if (newValue.logoUrl)
                         setNewOpponentLogoUrl(newValue.logoUrl);
-                      }
                     } else {
                       setNewOpponent("");
                       setNewOpponentId(undefined);
                     }
                   }}
-                  onInputChange={(_, newInputValue) => {
-                    setNewOpponent(newInputValue);
-                  }}
+                  onInputChange={(_, newInputValue) =>
+                    setNewOpponent(newInputValue)
+                  }
                   renderInput={(params) => (
                     <TextField
                       {...params}
