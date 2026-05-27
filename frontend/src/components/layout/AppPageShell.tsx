@@ -29,7 +29,10 @@ function AppPageShell<T extends string>({
   headerContent,
 }: AppPageShellProps<T>) {
   const tokens = useTokens();
-  const containerRadius = Math.max(tokens.semantic.component.sectionCard.radius, 24);
+  const containerRadius = Math.max(
+    tokens.semantic.component.sectionCard.radius,
+    24,
+  );
 
   const showStandardHeader = Boolean(title) && !headerContent;
   const showTabs = Boolean(tabs?.length && activeTab && onTabChange);
@@ -50,7 +53,11 @@ function AppPageShell<T extends string>({
           py: { xs: 2, md: 3 },
         }}
       >
-        {(contextLabel || showStandardHeader || showTabs || controls || headerContent) && (
+        {(contextLabel ||
+          showStandardHeader ||
+          showTabs ||
+          controls ||
+          headerContent) && (
           <Box sx={{ mb: 3 }}>
             {contextLabel ? (
               <Typography
@@ -77,7 +84,11 @@ function AppPageShell<T extends string>({
               </Typography>
             ) : null}
 
-            {headerContent ? <Box sx={{ mb: showTabs || controls ? 2 : 0 }}>{headerContent}</Box> : null}
+            {headerContent ? (
+              <Box sx={{ mb: showTabs || controls ? 2 : 0 }}>
+                {headerContent}
+              </Box>
+            ) : null}
 
             {showTabs || controls ? (
               <>
@@ -107,7 +118,11 @@ function AppPageShell<T extends string>({
                       }}
                     >
                       {tabs!.map((tab) => (
-                        <Tab key={tab.value} value={tab.value} label={tab.label} />
+                        <Tab
+                          key={tab.value}
+                          value={tab.value}
+                          label={tab.label}
+                        />
                       ))}
                     </Tabs>
                   ) : (

@@ -49,7 +49,8 @@ const EntityRowCard: React.FC<EntityRowCardProps> = ({
         borderColor: alpha(accentColor, 0.16),
         bgcolor: "background.paper",
         overflow: "hidden",
-        transition: "transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease",
+        transition:
+          "transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease",
         boxShadow: "0 1px 2px rgba(15, 23, 42, 0.04)",
       }}
     >
@@ -74,7 +75,9 @@ const EntityRowCard: React.FC<EntityRowCardProps> = ({
           }}
         >
           {leading ? (
-            <Box sx={{ flexShrink: 0, display: "flex", alignItems: "center" }}>{leading}</Box>
+            <Box sx={{ flexShrink: 0, display: "flex", alignItems: "center" }}>
+              {leading}
+            </Box>
           ) : null}
 
           <Box sx={{ minWidth: 0, flex: 1 }}>
