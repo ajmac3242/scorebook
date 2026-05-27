@@ -313,8 +313,9 @@ const TeamStats: React.FC = () => {
     if (teamId === undefined) return [];
     return db.teamPlayers.where("teamId").equals(teamId.toString()).toArray();
   }, [teamId]);
-  const teamPlayers = useMemo(
-    () => teamPlayersResult || [],
+
+  const teamPlayers = useMemo<TeamPlayer[]>(
+    () => (Array.isArray(teamPlayersResult) ? teamPlayersResult : []),
     [teamPlayersResult],
   );
 
@@ -338,10 +339,12 @@ const TeamStats: React.FC = () => {
   const allOpponents = useLiveQuery(() => db.opponents.toArray()) || [];
 
   const teamPlayerDetails = useMemo(() => {
+    const safePlayers = Array.isArray(allPlayers) ? allPlayers : [];
     const playerIdSet = new Set(
-      teamPlayers.map((tp) => tp.playerId.toString()),
+      teamPlayers.map((tp) => tp.playerId?.toString()).filter(Boolean),
     );
-    return allPlayers.filter((p) => playerIdSet.has(p.id?.toString() || ""));
+
+    return safePlayers.filter((p) => playerIdSet.has(p.id?.toString() || ""));
   }, [allPlayers, teamPlayers]);
 
   const gameIds = useMemo(() => {
