@@ -27,7 +27,7 @@ interface MatchupStatRow {
 interface ImpactSectionProps {
   onOffStats: Parameters<typeof OnOffImpactTable>[0]["data"];
   matchupStats: MatchupStatRow[];
-  jerseyMap: Map<string, string>;
+  
 }
 
 export const ImpactSection = ({ onOffStats, matchupStats, jerseyMap }: ImpactSectionProps) => {
