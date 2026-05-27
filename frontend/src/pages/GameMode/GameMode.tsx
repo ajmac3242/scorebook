@@ -81,7 +81,7 @@ import { type PlayerAggregates, getPlayerDisplayName } from "../utils/stats";
 import { formatClock } from "../utils/mathUtils";
 import { detectShotValueFromCoords } from "../utils/courtUtils";
 import { pulse } from "../styles/animations";
-import { useGameMode } from "../hooks/useGameMode";
+import { useGameMode } from "./hooks/useGameMode";
 import { useGameModeActions } from "../hooks/useGameModeActions";
 import {
   VoiceModeBanner,
