@@ -1,9 +1,9 @@
 import { vi } from "vitest";
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
-import { LiveLineupCard } from "../../pages/GameMode/LiveLineupCard";
+import { LiveLineupCard } from "../../pages/GameMode/sections/LiveLineupCard";
 
-vi.mock("../../pages/GameMode/GameModeComponents", () => ({
+vi.mock("../../pages/GameMode/sections/GameModeComponents", () => ({
   LineupPlayerButton: ({ player, onClick }: any) => (
     <button
       onClick={() => onClick(player.id)}

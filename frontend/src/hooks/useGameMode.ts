@@ -31,7 +31,7 @@ import { usePossessionTracker } from "./usePossessionTracker";
 import { useVoiceRecognition } from "./useVoiceRecognition";
 import { useGameAggregator } from "./useGameAggregator";
 import { ParsedVoiceCommand } from "../utils/voiceParser";
-import { type MarkerFilter } from "../pages/GameMode/CourtMarkerFilters";
+import { type MarkerFilter } from "../pages/GameMode/sections/CourtMarkerFilters";
 import { logger } from "../utils/logger";
 
 export const useGameMode = (gameId: string | null, teamId: string | null) => {

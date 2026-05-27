@@ -1,7 +1,7 @@
 import { vi } from "vitest";
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
-import { TrackingModeToolbar } from "../../pages/GameMode/TrackingModeToolbar";
+import { TrackingModeToolbar } from "../../pages/GameMode/sections/TrackingModeToolbar";
 
 const defaultProps = {
   trackingMode: "TEAM",

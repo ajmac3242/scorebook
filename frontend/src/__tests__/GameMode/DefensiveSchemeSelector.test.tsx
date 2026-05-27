@@ -1,7 +1,7 @@
 import { vi } from "vitest";
 import React from "react";
 import { render, screen } from "@testing-library/react";
-import { DefensiveSchemeSelector } from "../../pages/GameMode/DefensiveSchemeSelector";
+import { DefensiveSchemeSelector } from "../../pages/GameMode/sections/DefensiveSchemeSelector";
 
 vi.mock("../../components/SharedUI", () => ({
   MoleskineCard: ({ children }: any) => <div>{children}</div>,

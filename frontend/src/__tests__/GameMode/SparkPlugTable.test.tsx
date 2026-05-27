@@ -1,7 +1,7 @@
 import { vi } from "vitest";
 import React from "react";
 import { render, screen } from "@testing-library/react";
-import { SparkPlugTable } from "../../pages/GameMode/SparkPlugTable";
+import { SparkPlugTable } from "../../pages/GameMode/sections/SparkPlugTable";
 
 vi.mock("../../components/SharedUI", () => ({
   MoleskineCard: ({ children }: any) => <div>{children}</div>,

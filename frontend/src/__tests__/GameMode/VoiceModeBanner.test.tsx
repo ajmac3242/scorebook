@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, it, expect } from "vitest";
-import { VoiceModeBanner } from "../../pages/GameMode/VoiceModeBanner";
+import { VoiceModeBanner } from "../../pages/GameMode/sections/VoiceModeBanner";
 
 describe("VoiceModeBanner", () => {
   it("shows active listening state text", () => {

@@ -1,16 +1,12 @@
-/**
- * @file index.ts
- * @description Barrel export for all GameMode sub-components.
- * Import from "./GameMode" instead of individual file paths.
- */
-export { VoiceModeBanner } from "./VoiceModeBanner";
-export { TrackingModeToolbar } from "./TrackingModeToolbar";
-export { CourtMarkerFilters } from "./CourtMarkerFilters";
-export type { MarkerFilter } from "./CourtMarkerFilters";
-export { MatchupAnalyticsCard } from "./MatchupAnalyticsCard";
-export { LiveLineupCard } from "./LiveLineupCard";
-export { SparkPlugTable } from "./SparkPlugTable";
-export { DefensiveSchemeSelector } from "./DefensiveSchemeSelector";
-export type { DefensiveScheme } from "./DefensiveSchemeSelector";
-export { OffensiveKPICard } from "./OffensiveKPICard";
-export { QuickAction, LineupPlayerButton } from "./GameModeComponents";
+export { default } from "./GameMode";
+export { VoiceModeBanner } from "./sections/VoiceModeBanner";
+export { TrackingModeToolbar } from "./sections/TrackingModeToolbar";
+export { CourtMarkerFilters } from "./sections/CourtMarkerFilters";
+export type { MarkerFilter } from "./sections/CourtMarkerFilters";
+export { MatchupAnalyticsCard } from "./sections/MatchupAnalyticsCard";
+export { LiveLineupCard } from "./sections/LiveLineupCard";
+export { SparkPlugTable } from "./sections/SparkPlugTable";
+export { DefensiveSchemeSelector } from "./sections/DefensiveSchemeSelector";
+export type { DefensiveScheme } from "./sections/DefensiveSchemeSelector";
+export { OffensiveKPICard } from "./sections/OffensiveKPICard";
+export { QuickAction, LineupPlayerButton } from "./sections/GameModeComponents";

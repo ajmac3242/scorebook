@@ -1,7 +1,7 @@
 import { vi } from "vitest";
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
-import { CourtMarkerFilters } from "../../pages/GameMode/CourtMarkerFilters";
+import { CourtMarkerFilters } from "../../pages/GameMode/sections/CourtMarkerFilters";
 
 const defaultProps = {
   markerFilter: "ALL" as const,

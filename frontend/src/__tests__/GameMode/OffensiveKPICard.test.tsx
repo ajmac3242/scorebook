@@ -1,7 +1,7 @@
 import { vi } from "vitest";
 import React from "react";
 import { render, screen } from "@testing-library/react";
-import { OffensiveKPICard } from "../../pages/GameMode/OffensiveKPICard";
+import { OffensiveKPICard } from "../../pages/GameMode/sections/OffensiveKPICard";
 
 vi.mock("../../components/SharedUI", () => ({
   MoleskineCard: ({ children }: any) => <div>{children}</div>,
