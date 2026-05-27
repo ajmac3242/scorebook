@@ -10,7 +10,12 @@ import {
 } from "@mui/material";
 import { OpenInFull as ExpandIcon } from "@mui/icons-material";
 
-type ExpandedSectionType = "boxScore" | "shotChart" | "scoreFlow" | "lineups" | null;
+type ExpandedSectionType =
+  | "boxScore"
+  | "shotChart"
+  | "scoreFlow"
+  | "lineups"
+  | null;
 
 interface ExpandedSectionDialogProps {
   expandedSection: ExpandedSectionType;
@@ -31,7 +36,12 @@ export const ExpandedSectionDialog = ({
   scoreFlowChart,
   lineupTable,
 }: ExpandedSectionDialogProps) => (
-  <Dialog fullWidth maxWidth="lg" open={expandedSection !== null} onClose={onClose}>
+  <Dialog
+    fullWidth
+    maxWidth="lg"
+    open={expandedSection !== null}
+    onClose={onClose}
+  >
     <DialogTitle
       sx={{
         fontFamily: "var(--cs-typography-fontFamily-display)",

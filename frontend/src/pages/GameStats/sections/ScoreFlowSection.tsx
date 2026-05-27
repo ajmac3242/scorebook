@@ -35,7 +35,12 @@ interface ScoreFlowTooltipProps {
   jerseyMap: Map<string, string>;
 }
 
-const ScoreFlowTooltip = ({ active, payload, label, jerseyMap }: ScoreFlowTooltipProps) => {
+const ScoreFlowTooltip = ({
+  active,
+  payload,
+  label,
+  jerseyMap,
+}: ScoreFlowTooltipProps) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
     return (
@@ -51,31 +56,49 @@ const ScoreFlowTooltip = ({ active, payload, label, jerseyMap }: ScoreFlowToolti
       >
         <Typography
           variant="subtitle2"
-          sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)", mb: "var(--cs-semantic-spacing-xs)" }}
+          sx={{
+            fontWeight: "var(--cs-typography-fontWeight-bold)",
+            mb: "var(--cs-semantic-spacing-xs)",
+          }}
         >
-          {label} - Spread: {data.Spread > 0 ? "+" : ""}{data.Spread}
+          {label} - Spread: {data.Spread > 0 ? "+" : ""}
+          {data.Spread}
         </Typography>
         {data.event && (
           <Chip
             label={data.event}
             size="small"
             color="primary"
-            sx={{ mb: "var(--cs-semantic-spacing-xs)", height: 20, fontSize: "var(--cs-typography-fontSize-xs)", fontWeight: "var(--cs-typography-fontWeight-bold)" }}
+            sx={{
+              mb: "var(--cs-semantic-spacing-xs)",
+              height: 20,
+              fontSize: "var(--cs-typography-fontSize-xs)",
+              fontWeight: "var(--cs-typography-fontWeight-bold)",
+            }}
           />
         )}
         <Divider sx={{ my: 1 }} />
         <Typography
           variant="caption"
-          sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)", display: "block", mb: "var(--cs-semantic-spacing-xs)" }}
+          sx={{
+            fontWeight: "var(--cs-typography-fontWeight-bold)",
+            display: "block",
+            mb: "var(--cs-semantic-spacing-xs)",
+          }}
         >
           ACTIVE LINEUP:
         </Typography>
-        <Stack direction="row" spacing={"var(--cs-semantic-spacing-xs)"} sx={{ mb: "var(--cs-semantic-spacing-md)" }}>
+        <Stack
+          direction="row"
+          spacing={"var(--cs-semantic-spacing-xs)"}
+          sx={{ mb: "var(--cs-semantic-spacing-md)" }}
+        >
           {data.lineup?.map((pId: string) => (
             <Avatar
               key={pId}
               sx={{
-                width: 24, height: 24,
+                width: 24,
+                height: 24,
                 fontSize: "var(--cs-typography-fontSize-xs)",
                 bgcolor: "var(--cs-semantic-color-surface-subtle)",
                 color: "var(--cs-semantic-color-text-primary)",
@@ -86,19 +109,31 @@ const ScoreFlowTooltip = ({ active, payload, label, jerseyMap }: ScoreFlowToolti
             </Avatar>
           ))}
           {(!data.lineup || data.lineup.length === 0) && (
-            <Typography variant="caption" color="text.secondary">Unknown</Typography>
+            <Typography variant="caption" color="text.secondary">
+              Unknown
+            </Typography>
           )}
         </Stack>
         <Grid container spacing={"var(--cs-semantic-spacing-xs)"}>
           <Grid size={{ xs: 6 }}>
-            <Typography variant="caption" sx={{ display: "block" }}>TEAM PPP</Typography>
-            <Typography variant="body2" sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}>
+            <Typography variant="caption" sx={{ display: "block" }}>
+              TEAM PPP
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}
+            >
               {data.teamPpp || "0.00"}
             </Typography>
           </Grid>
           <Grid size={{ xs: 6 }}>
-            <Typography variant="caption" sx={{ display: "block" }}>OPP PPP</Typography>
-            <Typography variant="body2" sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}>
+            <Typography variant="caption" sx={{ display: "block" }}>
+              OPP PPP
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}
+            >
               {data.oppPpp || "0.00"}
             </Typography>
           </Grid>
@@ -150,7 +185,11 @@ export const ScoreFlowSection = ({
           Score Flow{" "}
           {periodFilter !== "ALL" && `(${periodLabel} ${periodFilter})`}
         </Typography>
-        <IconButton onClick={onExpand} aria-label="Expand Score Flow section" title="Expand section">
+        <IconButton
+          onClick={onExpand}
+          aria-label="Expand Score Flow section"
+          title="Expand section"
+        >
           <ExpandIcon />
         </IconButton>
       </Box>
@@ -175,8 +214,20 @@ export const ScoreFlowSection = ({
               strokeWidth={2}
               label="Neutral"
             />
-            <ReferenceArea yAxisId="spread" y1={0} y2={100} fill={tokens.semantic.color.brand.primary.main} fillOpacity={0.05} />
-            <ReferenceArea yAxisId="spread" y1={-100} y2={0} fill={tokens.semantic.color.brand.secondary.main} fillOpacity={0.05} />
+            <ReferenceArea
+              yAxisId="spread"
+              y1={0}
+              y2={100}
+              fill={tokens.semantic.color.brand.primary.main}
+              fillOpacity={0.05}
+            />
+            <ReferenceArea
+              yAxisId="spread"
+              y1={-100}
+              y2={0}
+              fill={tokens.semantic.color.brand.secondary.main}
+              fillOpacity={0.05}
+            />
             {(() => {
               const refLines = [];
               const totalTime = (allStatsLength > 0 ? maxPeriod : 4) * pLen;
@@ -206,11 +257,53 @@ export const ScoreFlowSection = ({
                   strokeDasharray="3 3"
                 />
               ))}
-            <Area yAxisId="spread" type="stepAfter" dataKey="Spread" stroke={tokens.semantic.color.brand.primary.main} fill={tokens.semantic.color.brand.primary.main} fillOpacity={0.3} strokeWidth={2} />
-            <Line yAxisId="ppp" type="monotone" dataKey="teamPpp" name="Team PPP" stroke={tokens.semantic.color.brand.primary.main} strokeWidth={1} dot={false} strokeDasharray="3 3" />
-            <Line yAxisId="ppp" type="monotone" dataKey="oppPpp" name="Opp PPP" stroke={tokens.semantic.color.brand.secondary.main} strokeWidth={1} dot={false} strokeDasharray="3 3" />
-            <Line yAxisId="spread" type="stepAfter" dataKey="Team" stroke={tokens.semantic.color.brand.primary.main} strokeWidth={2} dot={false} hide />
-            <Line yAxisId="spread" type="stepAfter" dataKey="Opponent" stroke={tokens.semantic.color.brand.secondary.main} strokeWidth={2} dot={false} hide />
+            <Area
+              yAxisId="spread"
+              type="stepAfter"
+              dataKey="Spread"
+              stroke={tokens.semantic.color.brand.primary.main}
+              fill={tokens.semantic.color.brand.primary.main}
+              fillOpacity={0.3}
+              strokeWidth={2}
+            />
+            <Line
+              yAxisId="ppp"
+              type="monotone"
+              dataKey="teamPpp"
+              name="Team PPP"
+              stroke={tokens.semantic.color.brand.primary.main}
+              strokeWidth={1}
+              dot={false}
+              strokeDasharray="3 3"
+            />
+            <Line
+              yAxisId="ppp"
+              type="monotone"
+              dataKey="oppPpp"
+              name="Opp PPP"
+              stroke={tokens.semantic.color.brand.secondary.main}
+              strokeWidth={1}
+              dot={false}
+              strokeDasharray="3 3"
+            />
+            <Line
+              yAxisId="spread"
+              type="stepAfter"
+              dataKey="Team"
+              stroke={tokens.semantic.color.brand.primary.main}
+              strokeWidth={2}
+              dot={false}
+              hide
+            />
+            <Line
+              yAxisId="spread"
+              type="stepAfter"
+              dataKey="Opponent"
+              stroke={tokens.semantic.color.brand.secondary.main}
+              strokeWidth={2}
+              dot={false}
+              hide
+            />
           </ComposedChart>
         </ResponsiveContainer>
       </Box>

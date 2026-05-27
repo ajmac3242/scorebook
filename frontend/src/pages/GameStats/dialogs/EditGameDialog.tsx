@@ -54,22 +54,70 @@ export const EditGameDialog = ({
       }}
     >
       Edit Game Details
-      <IconButton color="error" onClick={onDeleteClick} aria-label="Delete game" title="Delete game">
+      <IconButton
+        color="error"
+        onClick={onDeleteClick}
+        aria-label="Delete game"
+        title="Delete game"
+      >
         <Delete />
       </IconButton>
     </DialogTitle>
     <DialogContent>
-      <Stack spacing={"var(--cs-semantic-spacing-md)"} sx={{ mt: "var(--cs-semantic-spacing-xs)" }}>
-        <TextField fullWidth label="Opponent" value={editOpponent} onChange={(e) => setEditOpponent(e.target.value)} />
-        <TextField fullWidth label="Opponent Logo URL" value={editOpponentLogoUrl} onChange={(e) => setEditOpponentLogoUrl(e.target.value)} />
-        <TextField fullWidth label="Date" type="date" slotProps={{ inputLabel: { shrink: true } }} value={editDate} onChange={(e) => setEditDate(e.target.value)} />
-        <TextField fullWidth label="Time" type="time" slotProps={{ inputLabel: { shrink: true } }} value={editTime} onChange={(e) => setEditTime(e.target.value)} />
-        <TextField fullWidth label="Location" value={editLocation} onChange={(e) => setEditLocation(e.target.value)} />
+      <Stack
+        spacing={"var(--cs-semantic-spacing-md)"}
+        sx={{ mt: "var(--cs-semantic-spacing-xs)" }}
+      >
+        <TextField
+          fullWidth
+          label="Opponent"
+          value={editOpponent}
+          onChange={(e) => setEditOpponent(e.target.value)}
+        />
+        <TextField
+          fullWidth
+          label="Opponent Logo URL"
+          value={editOpponentLogoUrl}
+          onChange={(e) => setEditOpponentLogoUrl(e.target.value)}
+        />
+        <TextField
+          fullWidth
+          label="Date"
+          type="date"
+          slotProps={{ inputLabel: { shrink: true } }}
+          value={editDate}
+          onChange={(e) => setEditDate(e.target.value)}
+        />
+        <TextField
+          fullWidth
+          label="Time"
+          type="time"
+          slotProps={{ inputLabel: { shrink: true } }}
+          value={editTime}
+          onChange={(e) => setEditTime(e.target.value)}
+        />
+        <TextField
+          fullWidth
+          label="Location"
+          value={editLocation}
+          onChange={(e) => setEditLocation(e.target.value)}
+        />
       </Stack>
     </DialogContent>
-    <DialogActions sx={{ px: "var(--cs-semantic-spacing-lg)", pb: "var(--cs-semantic-spacing-lg)" }}>
+    <DialogActions
+      sx={{
+        px: "var(--cs-semantic-spacing-lg)",
+        pb: "var(--cs-semantic-spacing-lg)",
+      }}
+    >
       <Button onClick={onClose}>Cancel</Button>
-      <Button onClick={onSave} variant="contained" sx={{ ml: "var(--cs-semantic-spacing-xs)" }}>Save</Button>
+      <Button
+        onClick={onSave}
+        variant="contained"
+        sx={{ ml: "var(--cs-semantic-spacing-xs)" }}
+      >
+        Save
+      </Button>
     </DialogActions>
   </Dialog>
 );

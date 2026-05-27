@@ -51,7 +51,10 @@ export const DefensiveSection = ({
         <MoleskineCard>
           <Typography
             variant="h6"
-            sx={{ fontFamily: "var(--cs-typography-fontFamily-display)", mb: "var(--cs-semantic-spacing-md)" }}
+            sx={{
+              fontFamily: "var(--cs-typography-fontFamily-display)",
+              mb: "var(--cs-semantic-spacing-md)",
+            }}
           >
             Defensive Metrics
           </Typography>
@@ -59,7 +62,10 @@ export const DefensiveSection = ({
             {[
               { label: "TOTAL STOPS", value: defensiveStats.totalStops },
               { label: "KILLS (3× STOPS)", value: defensiveStats.totalKills },
-              { label: "CURRENT STOP STREAK", value: defensiveStats.currentStreak },
+              {
+                label: "CURRENT STOP STREAK",
+                value: defensiveStats.currentStreak,
+              },
             ].map(({ label, value }) => (
               <Box
                 key={label}
@@ -73,10 +79,20 @@ export const DefensiveSection = ({
                   alignItems: "center",
                 }}
               >
-                <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 700, letterSpacing: "0.06em" }}>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ fontWeight: 700, letterSpacing: "0.06em" }}
+                >
                   {label}
                 </Typography>
-                <Typography variant="h5" sx={{ fontWeight: "var(--cs-typography-fontWeight-black)", fontVariantNumeric: "tabular-nums" }}>
+                <Typography
+                  variant="h5"
+                  sx={{
+                    fontWeight: "var(--cs-typography-fontWeight-black)",
+                    fontVariantNumeric: "tabular-nums",
+                  }}
+                >
                   {value}
                 </Typography>
               </Box>
@@ -90,19 +106,26 @@ export const DefensiveSection = ({
         <MoleskineCard>
           <Typography
             variant="h6"
-            sx={{ fontFamily: "var(--cs-typography-fontFamily-display)", mb: "var(--cs-semantic-spacing-md)" }}
+            sx={{
+              fontFamily: "var(--cs-typography-fontFamily-display)",
+              mb: "var(--cs-semantic-spacing-md)",
+            }}
           >
             Individual Defensive Accountability
           </Typography>
           <TableContainer>
             <Table size="small">
               <TableHead>
-                <TableRow sx={{ bgcolor: "var(--cs-semantic-color-surface-subtle)" }}>
+                <TableRow
+                  sx={{ bgcolor: "var(--cs-semantic-color-surface-subtle)" }}
+                >
                   {["Defender", "PTS Allowed", "Primary Breakdown"].map((h) => (
                     <TableCell
                       key={h}
                       align={h === "Defender" ? "left" : "right"}
-                      sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}
+                      sx={{
+                        fontWeight: "var(--cs-typography-fontWeight-bold)",
+                      }}
                     >
                       {h}
                     </TableCell>
@@ -113,20 +136,29 @@ export const DefensiveSection = ({
                 {individualDefensiveBreakdown.map((row) => (
                   <TableRow key={row.playerId}>
                     <TableCell>
-                      <Stack direction="row" spacing={"var(--cs-semantic-spacing-xs)"} sx={{ alignItems: "center" }}>
-                        <Avatar sx={{ width: 24, height: 24, fontSize: "0.65rem" }}>
+                      <Stack
+                        direction="row"
+                        spacing={"var(--cs-semantic-spacing-xs)"}
+                        sx={{ alignItems: "center" }}
+                      >
+                        <Avatar
+                          sx={{ width: 24, height: 24, fontSize: "0.65rem" }}
+                        >
                           {row.jerseyNumber}
                         </Avatar>
-                        <Typography variant="body2">{row.playerName}</Typography>
+                        <Typography variant="body2">
+                          {row.playerName}
+                        </Typography>
                       </Stack>
                     </TableCell>
                     <TableCell
                       align="right"
                       sx={{
                         fontWeight: "var(--cs-typography-fontWeight-bold)",
-                        color: row.pointsAllowed > 8
-                          ? "var(--cs-semantic-color-feedback-error-main)"
-                          : "inherit",
+                        color:
+                          row.pointsAllowed > 8
+                            ? "var(--cs-semantic-color-feedback-error-main)"
+                            : "inherit",
                         fontVariantNumeric: "tabular-nums",
                       }}
                     >
@@ -140,14 +172,23 @@ export const DefensiveSection = ({
                           sx={{ fontSize: "0.65rem", fontWeight: 600 }}
                         />
                       ) : (
-                        <Typography variant="caption" color="text.secondary">—</Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          —
+                        </Typography>
                       )}
                     </TableCell>
                   </TableRow>
                 ))}
                 {individualDefensiveBreakdown.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={3} align="center" sx={{ py: "var(--cs-semantic-spacing-md)", color: "text.secondary" }}>
+                    <TableCell
+                      colSpan={3}
+                      align="center"
+                      sx={{
+                        py: "var(--cs-semantic-spacing-md)",
+                        color: "text.secondary",
+                      }}
+                    >
                       No defensive breakdown data recorded.
                     </TableCell>
                   </TableRow>

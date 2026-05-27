@@ -51,7 +51,12 @@ import { DefensiveIntegrityDialog } from "./GameStats/dialogs/DefensiveIntegrity
 import { useGameStatsData } from "./GameStats/hooks/useGameStatsData";
 import { useGameStatsAnalytics } from "./GameStats/hooks/useGameStatsAnalytics";
 
-type ExpandedSectionType = "boxScore" | "shotChart" | "scoreFlow" | "lineups" | null;
+type ExpandedSectionType =
+  | "boxScore"
+  | "shotChart"
+  | "scoreFlow"
+  | "lineups"
+  | null;
 
 /**
  * GameStats page component.
@@ -65,25 +70,34 @@ const GameStats: React.FC = () => {
   // --- UI state ---
   const [periodFilter, setPeriodFilter] = useState("ALL");
   const [clutchFilter, setClutchFilter] = useState(false);
-  const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" }>({ key: "points", direction: "desc" });
+  const [sortConfig, setSortConfig] = useState<{
+    key: string;
+    direction: "asc" | "desc";
+  }>({ key: "points", direction: "desc" });
 
   // Shot chart state
-  const [selectedPlayerId, setSelectedPlayerId] = useState<number | string>("ALL");
+  const [selectedPlayerId, setSelectedPlayerId] = useState<number | string>(
+    "ALL",
+  );
   const [selectedType, setSelectedType] = useState("ALL");
   const [selectedQuality, setSelectedQuality] = useState("ALL");
   const [selectedBreakdown, setSelectedBreakdown] = useState("ALL");
   const [selectedPlay, setSelectedPlay] = useState("ALL");
   const [compareMode, setCompareMode] = useState(false);
-  const [shotChartView, setShotChartView] = useState<"markers" | "heatmap">("markers");
+  const [shotChartView, setShotChartView] = useState<"markers" | "heatmap">(
+    "markers",
+  );
   const [comparePeriod1, setComparePeriod1] = useState("1");
   const [comparePeriod2, setComparePeriod2] = useState("2");
 
   // Dialog state
-  const [expandedSection, setExpandedSection] = useState<ExpandedSectionType>(null);
+  const [expandedSection, setExpandedSection] =
+    useState<ExpandedSectionType>(null);
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isPracticePlannerOpen, setIsPracticePlannerOpen] = useState(false);
-  const [isDefensiveIntegrityOpen, setIsDefensiveIntegrityOpen] = useState(false);
+  const [isDefensiveIntegrityOpen, setIsDefensiveIntegrityOpen] =
+    useState(false);
   const [isAuditDialogOpen, setIsAuditDialogOpen] = useState(false);
 
   // Edit game state
@@ -104,7 +118,13 @@ const GameStats: React.FC = () => {
     periodFilter,
     clutchFilter,
     sortConfig,
-    shotChartFilters: { selectedPlayerId, selectedType, selectedQuality, selectedBreakdown, selectedPlay },
+    shotChartFilters: {
+      selectedPlayerId,
+      selectedType,
+      selectedQuality,
+      selectedBreakdown,
+      selectedPlay,
+    },
     comparePeriod1,
     comparePeriod2,
   });
@@ -170,7 +190,10 @@ const GameStats: React.FC = () => {
   const handleDeleteGame = useCallback(async () => {
     if (!gameId) return;
     try {
-      await db.games.update(gameId, { deletedAt: new Date().toISOString(), synced: 0 });
+      await db.games.update(gameId, {
+        deletedAt: new Date().toISOString(),
+        synced: 0,
+      });
       await syncService.syncGame(gameId);
       setIsDeleteDialogOpen(false);
       setOpenEditDialog(false);
@@ -205,7 +228,14 @@ const GameStats: React.FC = () => {
     } catch (e) {
       logger.error("Update game failed", e);
     }
-  }, [gameId, editOpponent, editOpponentLogoUrl, editDate, editTime, editLocation]);
+  }, [
+    gameId,
+    editOpponent,
+    editOpponentLogoUrl,
+    editDate,
+    editTime,
+    editLocation,
+  ]);
 
   const handleExportPDF = useCallback(async () => {
     setIsExporting(true);
@@ -213,8 +243,19 @@ const GameStats: React.FC = () => {
       const el = document.getElementById("game-stats-container");
       if (!el) return;
       const canvas = await html2canvas(el, { scale: 1.5, useCORS: true });
-      const pdf = new jsPDF({ orientation: "portrait", unit: "px", format: [canvas.width, canvas.height] });
-      pdf.addImage(canvas.toDataURL("image/png"), "PNG", 0, 0, canvas.width, canvas.height);
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "px",
+        format: [canvas.width, canvas.height],
+      });
+      pdf.addImage(
+        canvas.toDataURL("image/png"),
+        "PNG",
+        0,
+        0,
+        canvas.width,
+        canvas.height,
+      );
       pdf.save(`game-stats-${game?.opponent ?? "export"}.pdf`);
     } catch (e) {
       logger.error("PDF export failed", e);
@@ -239,33 +280,45 @@ const GameStats: React.FC = () => {
       <Table size="small">
         <TableHead>
           <TableRow sx={{ bgcolor: "var(--cs-semantic-color-surface-subtle)" }}>
-            {["Lineup", "MIN", "PTS FOR", "PTS AGN", "NET/40", "+/-"].map((h) => (
-              <TableCell
-                key={h}
-                align={h === "Lineup" ? "left" : "right"}
-                sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}
-              >
-                {h}
-              </TableCell>
-            ))}
+            {["Lineup", "MIN", "PTS FOR", "PTS AGN", "NET/40", "+/-"].map(
+              (h) => (
+                <TableCell
+                  key={h}
+                  align={h === "Lineup" ? "left" : "right"}
+                  sx={{ fontWeight: "var(--cs-typography-fontWeight-bold)" }}
+                >
+                  {h}
+                </TableCell>
+              ),
+            )}
           </TableRow>
         </TableHead>
         <TableBody>
           {lineupStats.map((row, idx) => (
             <TableRow key={idx}>
               <TableCell>
-                <Stack direction="row" spacing={"var(--cs-semantic-spacing-xs)"}>
+                <Stack
+                  direction="row"
+                  spacing={"var(--cs-semantic-spacing-xs)"}
+                >
                   {row.lineup.map((pId) => (
-                    <Avatar key={pId} sx={{ width: 24, height: 24, fontSize: "0.65rem" }}>
+                    <Avatar
+                      key={pId}
+                      sx={{ width: 24, height: 24, fontSize: "0.65rem" }}
+                    >
                       {shotChartJerseyMap.get(pId) ?? "??"}
                     </Avatar>
                   ))}
                 </Stack>
               </TableCell>
-              <TableCell align="right">{(row.seconds / 60).toFixed(1)}</TableCell>
+              <TableCell align="right">
+                {(row.seconds / 60).toFixed(1)}
+              </TableCell>
               <TableCell align="right">{row.pointsFor}</TableCell>
               <TableCell align="right">{row.pointsAgainst}</TableCell>
-              <TableCell align="right" sx={{ fontWeight: 700 }}>{row.netRatingPer40}</TableCell>
+              <TableCell align="right" sx={{ fontWeight: 700 }}>
+                {row.netRatingPer40}
+              </TableCell>
               <TableCell
                 align="right"
                 sx={{
@@ -308,7 +361,11 @@ const GameStats: React.FC = () => {
           { label: "Def. PPP", value: oppData.ppp },
         ]}
         actions={
-          <Stack direction="row" spacing={"var(--cs-semantic-spacing-xs)"} sx={{ alignItems: "center" }}>
+          <Stack
+            direction="row"
+            spacing={"var(--cs-semantic-spacing-xs)"}
+            sx={{ alignItems: "center" }}
+          >
             {!isDeleted && (
               <Stack direction="row" spacing={"var(--cs-semantic-spacing-xs)"}>
                 <Button
@@ -344,7 +401,12 @@ const GameStats: React.FC = () => {
                 <EditIcon />
               </IconButton>
             ) : (
-              <Button variant="outlined" color="warning" startIcon={<Restore />} onClick={handleRestoreGame}>
+              <Button
+                variant="outlined"
+                color="warning"
+                startIcon={<Restore />}
+                onClick={handleRestoreGame}
+              >
                 Restore
               </Button>
             )}
@@ -356,19 +418,36 @@ const GameStats: React.FC = () => {
         <Alert
           severity="warning"
           icon={<Warning />}
-          sx={{ mx: "var(--cs-semantic-spacing-md)", mt: "var(--cs-semantic-spacing-md)" }}
+          sx={{
+            mx: "var(--cs-semantic-spacing-md)",
+            mt: "var(--cs-semantic-spacing-md)",
+          }}
         >
           <AlertTitle>Game Deleted</AlertTitle>
-          This game has been deleted. Stats are read-only. You have 24 hours to restore it.
+          This game has been deleted. Stats are read-only. You have 24 hours to
+          restore it.
         </Alert>
       )}
 
       {/* Period / Clutch Filter Toolbar */}
-      <Box sx={{ px: "var(--cs-semantic-spacing-md)", pt: "var(--cs-semantic-spacing-md)" }}>
-        <Stack direction="row" spacing={"var(--cs-semantic-spacing-md)"} sx={{ alignItems: "center", flexWrap: "wrap" }}>
+      <Box
+        sx={{
+          px: "var(--cs-semantic-spacing-md)",
+          pt: "var(--cs-semantic-spacing-md)",
+        }}
+      >
+        <Stack
+          direction="row"
+          spacing={"var(--cs-semantic-spacing-md)"}
+          sx={{ alignItems: "center", flexWrap: "wrap" }}
+        >
           <FormControl size="small" sx={{ minWidth: 140 }}>
             <InputLabel>{periodLabel}</InputLabel>
-            <Select value={periodFilter} label={periodLabel} onChange={(e) => setPeriodFilter(e.target.value)}>
+            <Select
+              value={periodFilter}
+              label={periodLabel}
+              onChange={(e) => setPeriodFilter(e.target.value)}
+            >
               {periods.map((p) => (
                 <MenuItem key={p} value={p}>
                   {p === "ALL" ? "All Periods" : `${periodLabel} ${p}`}
@@ -387,8 +466,11 @@ const GameStats: React.FC = () => {
         </Stack>
       </Box>
 
-      <Grid container spacing={"var(--cs-semantic-spacing-md)"} sx={{ p: "var(--cs-semantic-spacing-md)" }}>
-
+      <Grid
+        container
+        spacing={"var(--cs-semantic-spacing-md)"}
+        sx={{ p: "var(--cs-semantic-spacing-md)" }}
+      >
         {/* On/Off Impact + Matchup Accountability */}
         <ImpactSection
           onOffStats={onOffStats}
@@ -415,8 +497,12 @@ const GameStats: React.FC = () => {
                 mb: "var(--cs-semantic-spacing-md)",
               }}
             >
-              <Typography variant="h6" sx={{ fontFamily: "var(--cs-typography-fontFamily-display)" }}>
-                Box Score {periodFilter !== "ALL" && `(${periodLabel} ${periodFilter})`}
+              <Typography
+                variant="h6"
+                sx={{ fontFamily: "var(--cs-typography-fontFamily-display)" }}
+              >
+                Box Score{" "}
+                {periodFilter !== "ALL" && `(${periodLabel} ${periodFilter})`}
               </Typography>
               <IconButton
                 onClick={() => setExpandedSection("boxScore")}

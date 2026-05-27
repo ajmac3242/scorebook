@@ -108,11 +108,21 @@ export function useGameStatsAnalytics(
         periodType: team?.periodType,
         liveContext:
           game && !game.completed
-            ? { clockTime: game.clockTime || 0, period: game.currentPeriod || 1 }
+            ? {
+                clockTime: game.clockTime || 0,
+                period: game.currentPeriod || 1,
+              }
             : undefined,
       },
     );
-  }, [players, scoreFlowSortedStats, teamPlayers, game, clutchFilter, team?.periodType]);
+  }, [
+    players,
+    scoreFlowSortedStats,
+    teamPlayers,
+    game,
+    clutchFilter,
+    team?.periodType,
+  ]);
 
   const playerAggregates = useMemo(() => {
     return [...aggregatedStats].sort((a, b) => {
@@ -129,12 +139,22 @@ export function useGameStatsAnalytics(
     const markers = [];
     for (let i = 0; i < stats.length; i++) {
       const s = stats[i];
-      const playerMatch = selectedPlayerId === "ALL" || s.playerId === selectedPlayerId;
+      const playerMatch =
+        selectedPlayerId === "ALL" || s.playerId === selectedPlayerId;
       const typeMatch = selectedType === "ALL" || s.type === selectedType;
-      const qualityMatch = selectedQuality === "ALL" || s.shotQuality === selectedQuality;
-      const breakdownMatch = selectedBreakdown === "ALL" || s.breakdownReason === selectedBreakdown;
-      const playMatch = selectedPlay === "ALL" || (s.playName && s.playName === selectedPlay);
-      if (playerMatch && typeMatch && playMatch && qualityMatch && breakdownMatch) {
+      const qualityMatch =
+        selectedQuality === "ALL" || s.shotQuality === selectedQuality;
+      const breakdownMatch =
+        selectedBreakdown === "ALL" || s.breakdownReason === selectedBreakdown;
+      const playMatch =
+        selectedPlay === "ALL" || (s.playName && s.playName === selectedPlay);
+      if (
+        playerMatch &&
+        typeMatch &&
+        playMatch &&
+        qualityMatch &&
+        breakdownMatch
+      ) {
         filtered.push(s);
         if (s.type === ACTION_TYPES.MAKE || s.type === ACTION_TYPES.MISS) {
           markers.push({
@@ -152,7 +172,15 @@ export function useGameStatsAnalytics(
       }
     }
     return { filtered, markers };
-  }, [stats, selectedPlayerId, selectedType, selectedQuality, selectedBreakdown, selectedPlay, shotChartJerseyMap]);
+  }, [
+    stats,
+    selectedPlayerId,
+    selectedType,
+    selectedQuality,
+    selectedBreakdown,
+    selectedPlay,
+    shotChartJerseyMap,
+  ]);
 
   const getHeatmapDataForPeriod = useCallback(
     (pFilter: string) => {
@@ -163,10 +191,13 @@ export function useGameStatsAnalytics(
       const data: Record<string, { makes: number; attempts: number }> = {};
       for (let i = 0; i < periodStats.length; i++) {
         const s = periodStats[i];
-        if (s.type !== ACTION_TYPES.MAKE && s.type !== ACTION_TYPES.MISS) continue;
-        if (selectedPlayerId !== "ALL" && s.playerId !== selectedPlayerId) continue;
+        if (s.type !== ACTION_TYPES.MAKE && s.type !== ACTION_TYPES.MISS)
+          continue;
+        if (selectedPlayerId !== "ALL" && s.playerId !== selectedPlayerId)
+          continue;
         if (selectedType !== "ALL" && s.type !== selectedType) continue;
-        if (selectedQuality !== "ALL" && s.shotQuality !== selectedQuality) continue;
+        if (selectedQuality !== "ALL" && s.shotQuality !== selectedQuality)
+          continue;
         if (selectedPlay !== "ALL" && s.playName !== selectedPlay) continue;
         const zone = getShotZone(s.locationX || 0, s.locationY || 0);
         if (!data[zone]) data[zone] = { makes: 0, attempts: 0 };
@@ -199,15 +230,21 @@ export function useGameStatsAnalytics(
   const oppData = useMemo(() => calculateOpponentAggregates(stats), [stats]);
 
   const teamData = useMemo(() => {
-    let fga = 0, fta = 0, turnovers = 0, oreb = 0, points = 0;
+    let fga = 0,
+      fta = 0,
+      turnovers = 0,
+      oreb = 0,
+      points = 0;
     for (let i = 0; i < stats.length; i++) {
       const s = stats[i];
       if (s.deletedAt || s.playerId === SPECIAL_PLAYER_IDS.OPPONENT) continue;
       if (s.type === ACTION_TYPES.MAKE) {
         points += s.points || 0;
-        if (s.points === 1) fta++; else fga++;
+        if (s.points === 1) fta++;
+        else fga++;
       } else if (s.type === ACTION_TYPES.MISS) {
-        if (s.points === 1) fta++; else fga++;
+        if (s.points === 1) fta++;
+        else fga++;
       } else if (s.type === ACTION_TYPES.TURNOVER) {
         turnovers++;
       } else if (s.type === ACTION_TYPES.OFF_REBOUND) {
@@ -219,11 +256,18 @@ export function useGameStatsAnalytics(
   }, [stats]);
 
   const playEfficiency = useMemo(() => {
-    const data: Record<string, { makes: number; attempts: number; points: number }> = {};
+    const data: Record<
+      string,
+      { makes: number; attempts: number; points: number }
+    > = {};
     for (let i = 0; i < stats.length; i++) {
       const s = stats[i];
-      if ((s.type === ACTION_TYPES.MAKE || s.type === ACTION_TYPES.MISS) && s.playName) {
-        if (!data[s.playName]) data[s.playName] = { makes: 0, attempts: 0, points: 0 };
+      if (
+        (s.type === ACTION_TYPES.MAKE || s.type === ACTION_TYPES.MISS) &&
+        s.playName
+      ) {
+        if (!data[s.playName])
+          data[s.playName] = { makes: 0, attempts: 0, points: 0 };
         data[s.playName].attempts++;
         if (s.type === ACTION_TYPES.MAKE) {
           data[s.playName].makes++;
@@ -234,18 +278,28 @@ export function useGameStatsAnalytics(
     return Object.entries(data).map(([name, st]) => ({
       name,
       ...st,
-      efg: st.attempts > 0 ? ((st.points / st.attempts / 2) * 100).toFixed(1) : "0.0",
+      efg:
+        st.attempts > 0
+          ? ((st.points / st.attempts / 2) * 100).toFixed(1)
+          : "0.0",
     }));
   }, [stats]);
 
   const processEfficiency = useMemo(() => {
-    const data: Record<string, { makes: number; attempts: number; points: number }> = {
+    const data: Record<
+      string,
+      { makes: number; attempts: number; points: number }
+    > = {
       [SHOT_QUALITY.OPEN]: { makes: 0, attempts: 0, points: 0 },
       [SHOT_QUALITY.CONTESTED]: { makes: 0, attempts: 0, points: 0 },
     };
     for (let i = 0; i < stats.length; i++) {
       const s = stats[i];
-      if ((s.type === ACTION_TYPES.MAKE || s.type === ACTION_TYPES.MISS) && s.shotQuality && data[s.shotQuality]) {
+      if (
+        (s.type === ACTION_TYPES.MAKE || s.type === ACTION_TYPES.MISS) &&
+        s.shotQuality &&
+        data[s.shotQuality]
+      ) {
         data[s.shotQuality].attempts++;
         if (s.type === ACTION_TYPES.MAKE) {
           data[s.shotQuality].makes++;
@@ -256,19 +310,29 @@ export function useGameStatsAnalytics(
     return Object.entries(data).map(([quality, st]) => ({
       quality,
       ...st,
-      efg: st.attempts > 0 ? ((st.points / st.attempts / 2) * 100).toFixed(1) : "0.0",
+      efg:
+        st.attempts > 0
+          ? ((st.points / st.attempts / 2) * 100).toFixed(1)
+          : "0.0",
     }));
   }, [stats]);
 
   const shotClockEfficiency = useMemo(() => {
-    const data: Record<string, { makes: number; attempts: number; points: number }> = {
+    const data: Record<
+      string,
+      { makes: number; attempts: number; points: number }
+    > = {
       EARLY: { makes: 0, attempts: 0, points: 0 },
       MID: { makes: 0, attempts: 0, points: 0 },
       LATE: { makes: 0, attempts: 0, points: 0 },
     };
     for (let i = 0; i < stats.length; i++) {
       const s = stats[i];
-      if ((s.type === ACTION_TYPES.MAKE || s.type === ACTION_TYPES.MISS) && s.shotClockPhase && data[s.shotClockPhase]) {
+      if (
+        (s.type === ACTION_TYPES.MAKE || s.type === ACTION_TYPES.MISS) &&
+        s.shotClockPhase &&
+        data[s.shotClockPhase]
+      ) {
         data[s.shotClockPhase].attempts++;
         if (s.type === ACTION_TYPES.MAKE) {
           data[s.shotClockPhase].makes++;
@@ -279,7 +343,10 @@ export function useGameStatsAnalytics(
     return Object.entries(data).map(([phase, st]) => ({
       phase,
       ...st,
-      efg: st.attempts > 0 ? ((st.points / st.attempts / 2) * 100).toFixed(1) : "0.0",
+      efg:
+        st.attempts > 0
+          ? ((st.points / st.attempts / 2) * 100).toFixed(1)
+          : "0.0",
     }));
   }, [stats]);
 
@@ -292,19 +359,31 @@ export function useGameStatsAnalytics(
         periodType: team?.periodType,
         liveContext:
           game && !game.completed
-            ? { clockTime: game.clockTime || 0, period: game.currentPeriod || 1 }
+            ? {
+                clockTime: game.clockTime || 0,
+                period: game.currentPeriod || 1,
+              }
             : undefined,
       }),
     [scoreFlowSortedStats, game, clutchFilter, team?.periodType],
   );
 
   const onOffStats = useMemo(
-    () => calculateOnOffStats(scoreFlowSortedStats, players as { id: string; name: string }[]),
+    () =>
+      calculateOnOffStats(
+        scoreFlowSortedStats,
+        players as { id: string; name: string }[],
+      ),
     [scoreFlowSortedStats, players],
   );
 
   const matchupStats = useMemo(
-    () => calculateMatchupStats(scoreFlowSortedStats, players as { id: string; name: string }[], shotChartJerseyMap),
+    () =>
+      calculateMatchupStats(
+        scoreFlowSortedStats,
+        players as { id: string; name: string }[],
+        shotChartJerseyMap,
+      ),
     [scoreFlowSortedStats, players, shotChartJerseyMap],
   );
 
@@ -319,7 +398,12 @@ export function useGameStatsAnalytics(
   );
 
   const individualDefensiveBreakdown = useMemo(
-    () => calculateIndividualDefensiveBreakdown(allStats, players as Player[], shotChartJerseyMap),
+    () =>
+      calculateIndividualDefensiveBreakdown(
+        allStats,
+        players as Player[],
+        shotChartJerseyMap,
+      ),
     [allStats, players, shotChartJerseyMap],
   );
 
@@ -335,35 +419,78 @@ export function useGameStatsAnalytics(
 
   const shotROI = useMemo(() => calculateShotROI(allStats), [allStats]);
 
-  const paintTouchStats = useMemo(() => calculatePaintTouchStats(allStats), [allStats]);
+  const paintTouchStats = useMemo(
+    () => calculatePaintTouchStats(allStats),
+    [allStats],
+  );
 
   const opponentPlayTypeEfficiency = useMemo(() => {
-    const data: Record<string, { makes: number; attempts: number; points: number; fta: number; turnovers: number; threePM: number }> = {};
+    const data: Record<
+      string,
+      {
+        makes: number;
+        attempts: number;
+        points: number;
+        fta: number;
+        turnovers: number;
+        threePM: number;
+      }
+    > = {};
     for (let i = 0; i < allStats.length; i++) {
       const s = allStats[i];
-      if (s.deletedAt || !s.opponentPlayType || !String(s.playerId).startsWith(SPECIAL_PLAYER_IDS.OPPONENT)) continue;
+      if (
+        s.deletedAt ||
+        !s.opponentPlayType ||
+        !String(s.playerId).startsWith(SPECIAL_PLAYER_IDS.OPPONENT)
+      )
+        continue;
       if (!data[s.opponentPlayType]) {
-        data[s.opponentPlayType] = { makes: 0, attempts: 0, points: 0, fta: 0, turnovers: 0, threePM: 0 };
+        data[s.opponentPlayType] = {
+          makes: 0,
+          attempts: 0,
+          points: 0,
+          fta: 0,
+          turnovers: 0,
+          threePM: 0,
+        };
       }
       const play = data[s.opponentPlayType];
       if (s.type === ACTION_TYPES.MAKE) {
         play.points += s.points || 0;
-        if (s.points === 1) { play.fta++; } else { play.makes++; play.attempts++; if (s.points === 3) play.threePM++; }
+        if (s.points === 1) {
+          play.fta++;
+        } else {
+          play.makes++;
+          play.attempts++;
+          if (s.points === 3) play.threePM++;
+        }
       } else if (s.type === ACTION_TYPES.MISS) {
-        if (s.points === 1) { play.fta++; } else { play.attempts++; }
+        if (s.points === 1) {
+          play.fta++;
+        } else {
+          play.attempts++;
+        }
       } else if (s.type === ACTION_TYPES.TURNOVER) {
         play.turnovers++;
       }
     }
     return Object.entries(data)
       .map(([type, s]) => {
-        const possessions = calculatePossessions(s.attempts, s.fta, s.turnovers, 0);
+        const possessions = calculatePossessions(
+          s.attempts,
+          s.fta,
+          s.turnovers,
+          0,
+        );
         return {
           type,
           attempts: s.attempts,
           points: s.points,
           ppp: calculatePpp(s.points, possessions),
-          efg: s.attempts > 0 ? (((s.makes + 0.5 * s.threePM) / s.attempts) * 100).toFixed(1) : "0.0",
+          efg:
+            s.attempts > 0
+              ? (((s.makes + 0.5 * s.threePM) / s.attempts) * 100).toFixed(1)
+              : "0.0",
         };
       })
       .sort((a, b) => b.attempts - a.attempts);
@@ -372,26 +499,40 @@ export function useGameStatsAnalytics(
   const practiceFocusAreas = useMemo(() => {
     if (!teamSeasonStats || !teamData) return [];
     const ftAttempts = stats.filter(
-      (s) => s.playerId !== SPECIAL_PLAYER_IDS.OPPONENT && s.points === 1 &&
+      (s) =>
+        s.playerId !== SPECIAL_PLAYER_IDS.OPPONENT &&
+        s.points === 1 &&
         (s.type === ACTION_TYPES.MAKE || s.type === ACTION_TYPES.MISS),
     ).length;
     const ftMakes = stats.filter(
-      (s) => s.playerId !== SPECIAL_PLAYER_IDS.OPPONENT && s.points === 1 && s.type === ACTION_TYPES.MAKE,
+      (s) =>
+        s.playerId !== SPECIAL_PLAYER_IDS.OPPONENT &&
+        s.points === 1 &&
+        s.type === ACTION_TYPES.MAKE,
     ).length;
     const gameFtPct = ftAttempts > 0 ? (ftMakes / ftAttempts) * 100 : 0;
     const gameTurnoverRate =
       teamData.possessions > 0
         ? (stats.filter(
-            (s) => s.playerId !== SPECIAL_PLAYER_IDS.OPPONENT && s.type === ACTION_TYPES.TURNOVER,
-          ).length / teamData.possessions) * 100
+            (s) =>
+              s.playerId !== SPECIAL_PLAYER_IDS.OPPONENT &&
+              s.type === ACTION_TYPES.TURNOVER,
+          ).length /
+            teamData.possessions) *
+          100
         : 0;
     const teamOreb = stats.filter(
-      (s) => s.playerId !== SPECIAL_PLAYER_IDS.OPPONENT && s.type === ACTION_TYPES.OFF_REBOUND,
+      (s) =>
+        s.playerId !== SPECIAL_PLAYER_IDS.OPPONENT &&
+        s.type === ACTION_TYPES.OFF_REBOUND,
     ).length;
     const oppDreb = stats.filter(
-      (s) => s.playerId === SPECIAL_PLAYER_IDS.OPPONENT && s.type === ACTION_TYPES.DEF_REBOUND,
+      (s) =>
+        s.playerId === SPECIAL_PLAYER_IDS.OPPONENT &&
+        s.type === ACTION_TYPES.DEF_REBOUND,
     ).length;
-    const gameOrebPct = teamOreb + oppDreb > 0 ? (teamOreb / (teamOreb + oppDreb)) * 100 : 0;
+    const gameOrebPct =
+      teamOreb + oppDreb > 0 ? (teamOreb / (teamOreb + oppDreb)) * 100 : 0;
     return generatePracticePrescription({
       gameStats: playerAggregates,
       teamStats: {
@@ -417,7 +558,8 @@ export function useGameStatsAnalytics(
       if (p > maxPeriod) otPeriodsSet.add(p);
     }
     const otPeriods = Array.from(otPeriodsSet).sort((a, b) => a - b);
-    for (let i = 0; i < otPeriods.length; i++) list.push(otPeriods[i].toString());
+    for (let i = 0; i < otPeriods.length; i++)
+      list.push(otPeriods[i].toString());
     return list;
   }, [maxPeriod, allStats]);
 

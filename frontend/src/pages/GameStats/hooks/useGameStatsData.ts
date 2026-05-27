@@ -10,17 +10,13 @@ import { calculateTeamSeasonAverages } from "../../utils/stats";
 export function useGameStatsData(gameId: string | undefined) {
   const game = useLiveQuery(
     () =>
-      gameId !== undefined
-        ? db.games.get(gameId)
-        : Promise.resolve(undefined),
+      gameId !== undefined ? db.games.get(gameId) : Promise.resolve(undefined),
     [gameId],
   );
 
   const team = useLiveQuery(
     () =>
-      game?.teamId
-        ? db.teams.get(game.teamId)
-        : Promise.resolve(undefined),
+      game?.teamId ? db.teams.get(game.teamId) : Promise.resolve(undefined),
     [game?.teamId],
   );
 
@@ -37,7 +33,9 @@ export function useGameStatsData(gameId: string | undefined) {
                 .where("gameId")
                 .anyOf(gameIds)
                 .toArray()
-                .then((allStats) => calculateTeamSeasonAverages(games, allStats));
+                .then((allStats) =>
+                  calculateTeamSeasonAverages(games, allStats),
+                );
             })
         : Promise.resolve(undefined),
     [game?.teamId],
@@ -62,22 +60,26 @@ export function useGameStatsData(gameId: string | undefined) {
     [game?.teamId],
   );
 
-  const teamPlayers = useMemo(() => teamPlayersResult ?? [], [teamPlayersResult]);
+  const teamPlayers = useMemo(
+    () => teamPlayersResult ?? [],
+    [teamPlayersResult],
+  );
 
   // Stable key avoids re-querying when teamPlayers array reference changes
   // but contents are identical (common with Dexie live queries).
   const playerIdsKey = useMemo(
-    () => teamPlayers.map((tp) => tp.playerId.toString()).sort().join(","),
+    () =>
+      teamPlayers
+        .map((tp) => tp.playerId.toString())
+        .sort()
+        .join(","),
     [teamPlayers],
   );
 
   const playersResult = useLiveQuery(
     () =>
       playerIdsKey
-        ? db.players
-            .where("id")
-            .anyOf(playerIdsKey.split(","))
-            .toArray()
+        ? db.players.where("id").anyOf(playerIdsKey.split(",")).toArray()
         : Promise.resolve([]),
     [playerIdsKey],
   );
