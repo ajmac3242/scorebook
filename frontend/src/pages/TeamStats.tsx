@@ -76,12 +76,11 @@ import {
   getInitials,
 } from "../utils/stats";
 
-import AppPageShell, {
-  type AppPageTab,
-} from "../components/layout/AppPageShell";
+import AppPageShell, { type AppPageTab } from "../components/layout/AppPageShell";
 import PageSectionCard from "../components/layout/PageSectionCard";
 import PageSectionIntro from "../components/layout/PageSectionIntro";
 import EntityBanner from "../components/EntityBanner";
+import EntityRowCard from "../components/cards/EntityRowCard";
 import { MoleskineCard } from "../components/SharedUI";
 import SortableHeader from "../components/SortableHeader";
 
@@ -176,14 +175,11 @@ const TeamStats: React.FC = () => {
 
   const sectionPadding = { xs: 2.5, md: 0 };
   const controlRadius = tokens.semantic.component.radius.button;
-  const cardRadius = Math.max(tokens.semantic.component.sectionCard.radius, 20);
 
   const [activeTab, setActiveTab] = useState<TeamStatsTab>("schedule");
   const [statView, setStatView] = useState<"total" | "average">("total");
   const [gameCountFilter, setGameCountFilter] = useState<string>("all");
-  const [scheduleView, setScheduleView] = useState<"upcoming" | "all">(
-    "upcoming",
-  );
+  const [scheduleView, setScheduleView] = useState<"upcoming" | "all">("upcoming");
 
   const [openRosterDialog, setOpenRosterDialog] = useState(false);
   const [pendingRosterChanges, setPendingRosterChanges] = useState<{
@@ -199,9 +195,7 @@ const TeamStats: React.FC = () => {
   const [editName, setEditName] = useState("");
   const [editLogoUrl, setEditLogoUrl] = useState("");
   const [editColor, setEditColor] = useState(DEFAULT_TEAM_ACCENT);
-  const [editPeriodType, setEditPeriodType] = useState<"QUARTERS" | "HALVES">(
-    "QUARTERS",
-  );
+  const [editPeriodType, setEditPeriodType] = useState<"QUARTERS" | "HALVES">("QUARTERS");
   const [editPeriodLength, setEditPeriodLength] = useState<number>(10);
   const [editOvertimeLength, setEditOvertimeLength] = useState<number>(5);
   const [editTimeoutLimit, setEditTimeoutLimit] = useState<number>(3);
@@ -226,16 +220,12 @@ const TeamStats: React.FC = () => {
   const [openAddGame, setOpenAddGame] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
   const [newOpponent, setNewOpponent] = useState("");
-  const [newOpponentId, setNewOpponentId] = useState<string | undefined>(
-    undefined,
-  );
+  const [newOpponentId, setNewOpponentId] = useState<string | undefined>(undefined);
   const [newOpponentLogoUrl, setNewOpponentLogoUrl] = useState("");
   const [newDate, setNewDate] = useState("");
   const [newTime, setNewTime] = useState("");
   const [newLocation, setNewLocation] = useState("");
-  const [newPeriodType, setNewPeriodType] = useState<"QUARTERS" | "HALVES">(
-    "QUARTERS",
-  );
+  const [newPeriodType, setNewPeriodType] = useState<"QUARTERS" | "HALVES">("QUARTERS");
   const [newPeriodLength, setNewPeriodLength] = useState<number>(10);
   const [newTimeoutLimit, setNewTimeoutLimit] = useState<number>(3);
   const [newFoulLimit, setNewFoulLimit] = useState<number>(5);
@@ -306,8 +296,14 @@ const TeamStats: React.FC = () => {
     }
   }, [team?.deletedAt]);
 
-  const games = useGames(teamId);
-  const allPlayers = usePlayers();
+  const gamesResult = useGames(teamId);
+  const allPlayersResult = usePlayers();
+
+  const games = useMemo(() => (Array.isArray(gamesResult) ? gamesResult : []), [gamesResult]);
+  const allPlayers = useMemo(
+    () => (Array.isArray(allPlayersResult) ? allPlayersResult : []),
+    [allPlayersResult],
+  );
 
   const teamPlayersResult = useLiveQuery(() => {
     if (teamId === undefined) return [];
@@ -319,32 +315,38 @@ const TeamStats: React.FC = () => {
     [teamPlayersResult],
   );
 
-  const allRecentLocations =
-    useLiveQuery(() => {
-      return db.games
-        .toArray()
-        .then((items) => {
-          const locationSet = new Set<string>();
-          for (const g of items) {
-            if (g.location) locationSet.add(g.location);
-          }
-          return Array.from(locationSet).sort();
-        })
-        .catch((error) => {
-          logger.error("Failed to fetch locations:", error);
-          return [];
-        });
-    }) || [];
+  const allRecentLocationsResult = useLiveQuery(() => {
+    return db.games
+      .toArray()
+      .then((items) => {
+        const locationSet = new Set<string>();
+        for (const g of items) {
+          if (g.location) locationSet.add(g.location);
+        }
+        return Array.from(locationSet).sort();
+      })
+      .catch((error) => {
+        logger.error("Failed to fetch locations:", error);
+        return [];
+      });
+  });
 
-  const allOpponents = useLiveQuery(() => db.opponents.toArray()) || [];
+  const allRecentLocations = useMemo(
+    () => (Array.isArray(allRecentLocationsResult) ? allRecentLocationsResult : []),
+    [allRecentLocationsResult],
+  );
+
+  const allOpponentsResult = useLiveQuery(() => db.opponents.toArray());
+  const allOpponents = useMemo(
+    () => (Array.isArray(allOpponentsResult) ? allOpponentsResult : []),
+    [allOpponentsResult],
+  );
 
   const teamPlayerDetails = useMemo(() => {
-    const safePlayers = Array.isArray(allPlayers) ? allPlayers : [];
     const playerIdSet = new Set(
       teamPlayers.map((tp) => tp.playerId?.toString()).filter(Boolean),
     );
-
-    return safePlayers.filter((p) => playerIdSet.has(p.id?.toString() || ""));
+    return allPlayers.filter((p) => playerIdSet.has(p.id?.toString() || ""));
   }, [allPlayers, teamPlayers]);
 
   const gameIds = useMemo(() => {
@@ -366,12 +368,10 @@ const TeamStats: React.FC = () => {
 
   const allStatsResult = useLiveQuery(() => {
     if (gameIds.length === 0) return [];
-    return db.stats
-      .where("gameId")
-      .anyOf(gameIds as string[])
-      .toArray();
+    return db.stats.where("gameId").anyOf(gameIds as string[]).toArray();
   }, [gameIds]);
-  const allStats = useMemo(() => allStatsResult || [], [allStatsResult]);
+
+  const allStats = useMemo(() => (Array.isArray(allStatsResult) ? allStatsResult : []), [allStatsResult]);
 
   const teamAggregates = useMemo(
     () => calculateTeamAggregates(games, allStats as StatEvent[]),
@@ -403,9 +403,7 @@ const TeamStats: React.FC = () => {
   }, [aggregatedStats, sortConfig]);
 
   const stageRosterChange = (playerId: string, currentlyIn: boolean) => {
-    const dbRecord = teamPlayers.find(
-      (t: TeamPlayer) => t.playerId.toString() === playerId,
-    );
+    const dbRecord = teamPlayers.find((t: TeamPlayer) => t.playerId.toString() === playerId);
     const isAlreadyInDb = !!dbRecord;
 
     setPendingRosterChanges((prev) => {
@@ -455,15 +453,10 @@ const TeamStats: React.FC = () => {
         }
       }
 
-      const existingPlayerIds = new Set(
-        teamPlayers.map((tp) => tp.playerId.toString()),
-      );
+      const existingPlayerIds = new Set(teamPlayers.map((tp) => tp.playerId.toString()));
 
       for (const [pId, jersey] of Object.entries(localJerseyNumbers)) {
-        if (
-          existingPlayerIds.has(pId) &&
-          pendingRosterChanges[pId]?.action !== "remove"
-        ) {
+        if (existingPlayerIds.has(pId) && pendingRosterChanges[pId]?.action !== "remove") {
           const record = await db.teamPlayers
             .where("[teamId+playerId]")
             .equals([teamId.toString(), pId])
@@ -483,18 +476,10 @@ const TeamStats: React.FC = () => {
       setPendingRosterChanges({});
       setLocalJerseyNumbers({});
       setRosterSearchTerm("");
-      setSnackbar({
-        open: true,
-        message: "Roster updated.",
-        severity: "success",
-      });
+      setSnackbar({ open: true, message: "Roster updated.", severity: "success" });
     } catch (err) {
       logger.error("Failed to save roster changes:", err);
-      setSnackbar({
-        open: true,
-        message: "Unable to save roster changes.",
-        severity: "error",
-      });
+      setSnackbar({ open: true, message: "Unable to save roster changes.", severity: "error" });
     }
   };
 
@@ -527,18 +512,10 @@ const TeamStats: React.FC = () => {
 
       await syncService.pushUpdates();
       setOpenSettingsDialog(false);
-      setSnackbar({
-        open: true,
-        message: "Team settings updated.",
-        severity: "success",
-      });
+      setSnackbar({ open: true, message: "Team settings updated.", severity: "success" });
     } catch (error) {
       logger.error("Failed to update team settings:", error);
-      setSnackbar({
-        open: true,
-        message: "Unable to update team settings.",
-        severity: "error",
-      });
+      setSnackbar({ open: true, message: "Unable to update team settings.", severity: "error" });
     }
   };
 
@@ -548,28 +525,17 @@ const TeamStats: React.FC = () => {
       const deletedAt = new Date().toISOString();
       await db.teams.update(team.id!, { deletedAt, synced: 0 });
 
-      const teamGames = await db.games
-        .where("teamId")
-        .equals(team.id!)
-        .toArray();
+      const teamGames = await db.games.where("teamId").equals(team.id!).toArray();
       for (const g of teamGames) {
         await db.games.update(g.id!, { deletedAt, synced: 0 });
       }
 
       await syncService.pushUpdates();
       setIsDeleteDialogOpen(false);
-      setSnackbar({
-        open: true,
-        message: "Team scheduled for deletion.",
-        severity: "success",
-      });
+      setSnackbar({ open: true, message: "Team scheduled for deletion.", severity: "success" });
     } catch (err) {
       logger.error("Failed to delete team:", err);
-      setSnackbar({
-        open: true,
-        message: "Unable to delete team.",
-        severity: "error",
-      });
+      setSnackbar({ open: true, message: "Unable to delete team.", severity: "error" });
     }
   };
 
@@ -578,27 +544,16 @@ const TeamStats: React.FC = () => {
     try {
       await db.teams.update(team.id!, { deletedAt: undefined, synced: 0 });
 
-      const teamGames = await db.games
-        .where("teamId")
-        .equals(team.id!)
-        .toArray();
+      const teamGames = await db.games.where("teamId").equals(team.id!).toArray();
       for (const g of teamGames) {
         await db.games.update(g.id!, { deletedAt: undefined, synced: 0 });
       }
 
       await syncService.pushUpdates();
-      setSnackbar({
-        open: true,
-        message: "Team restored.",
-        severity: "success",
-      });
+      setSnackbar({ open: true, message: "Team restored.", severity: "success" });
     } catch (error) {
       logger.error("Failed to restore team:", error);
-      setSnackbar({
-        open: true,
-        message: "Unable to restore team.",
-        severity: "error",
-      });
+      setSnackbar({ open: true, message: "Unable to restore team.", severity: "error" });
     }
   };
 
@@ -611,10 +566,7 @@ const TeamStats: React.FC = () => {
 
       let opponentId = newOpponentId;
       if (!opponentId) {
-        const existing = await db.opponents
-          .where("name")
-          .equals(newOpponent)
-          .first();
+        const existing = await db.opponents.where("name").equals(newOpponent).first();
         if (existing) {
           opponentId = existing.id;
         } else {
@@ -649,18 +601,10 @@ const TeamStats: React.FC = () => {
       await syncService.pushUpdates();
       setOpenAddGame(false);
       resetGameForm();
-      setSnackbar({
-        open: true,
-        message: "Game created.",
-        severity: "success",
-      });
+      setSnackbar({ open: true, message: "Game created.", severity: "success" });
     } catch (error) {
       logger.error("Failed to add game:", error);
-      setSnackbar({
-        open: true,
-        message: "Unable to create game.",
-        severity: "error",
-      });
+      setSnackbar({ open: true, message: "Unable to create game.", severity: "error" });
     } finally {
       setIsSubmittingGame(false);
     }
@@ -836,9 +780,7 @@ const TeamStats: React.FC = () => {
         {filteredSchedule.length === 0 ? (
           buildEmptyState(
             <GroupsIcon sx={{ fontSize: 30 }} />,
-            scheduleView === "upcoming"
-              ? "No upcoming games"
-              : "No games scheduled yet",
+            scheduleView === "upcoming" ? "No upcoming games" : "No games scheduled yet",
             scheduleView === "upcoming"
               ? "Switch to all games or create a new matchup for this team."
               : "Create your first game to start tracking performance and results.",
@@ -862,98 +804,56 @@ const TeamStats: React.FC = () => {
             ) : undefined,
           )
         ) : (
-          <Stack spacing={2}>
+          <Stack spacing={1.5}>
             {filteredSchedule.map((game) => (
-              <MoleskineCard
+              <EntityRowCard
                 key={game.id}
-                sx={{
-                  cursor: "pointer",
-                  transition:
-                    "background-color 180ms ease, transform 180ms ease",
-                  "&:hover": {
-                    bgcolor: "action.hover",
-                    transform: { md: "translateY(-2px)" },
-                  },
-                }}
-                onClick={() => navigate(`/game/stats?gameId=${game.id}`)}
-              >
-                <Stack
-                  direction={{ xs: "column", sm: "row" }}
-                  spacing={2}
-                  sx={{
-                    alignItems: { xs: "flex-start", sm: "center" },
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <Stack
-                    direction="row"
-                    spacing={2}
-                    sx={{ alignItems: "center", minWidth: 0 }}
-                  >
-                    {game.opponentLogoUrl ? (
-                      <Box
-                        component="img"
-                        src={game.opponentLogoUrl}
-                        alt={`${game.opponent} logo`}
-                        sx={{
-                          width: 44,
-                          height: 44,
-                          objectFit: "contain",
-                          borderRadius: `${Math.max(tokens.semantic.shape.radius.md, 12)}px`,
-                          bgcolor: "background.paper",
-                          border: "1px solid",
-                          borderColor: "divider",
-                          p: 0.5,
-                          flexShrink: 0,
-                        }}
-                      />
-                    ) : (
-                      <Avatar
-                        sx={{
-                          width: 44,
-                          height: 44,
-                          bgcolor: "action.hover",
-                          color: "text.secondary",
-                          fontWeight: 700,
-                        }}
-                      >
-                        {getInitials(game.opponent)}
-                      </Avatar>
-                    )}
-
-                    <Box sx={{ minWidth: 0 }}>
-                      <Typography
-                        variant="body2"
-                        sx={{
-                          color: "text.secondary",
-                          lineHeight: 1.5,
-                          mb: 0.25,
-                        }}
-                      >
-                        {dayjs(game.date).format("MMM D, YYYY")}
-                        {game.time ? ` • ${game.time}` : ""}
-                        {game.location ? ` • ${game.location}` : ""}
-                      </Typography>
-                      <Typography
-                        variant="h6"
-                        sx={{
-                          fontWeight: 700,
-                          fontSize: "var(--cs-typography-fontSize-md)",
-                        }}
-                      >
-                        vs {game.opponent}
-                      </Typography>
-                    </Box>
-                  </Stack>
-
-                  <Stack
-                    direction={{ xs: "row", sm: "row" }}
-                    spacing={1}
-                    sx={{ alignItems: "center", flexShrink: 0 }}
-                  >
-                    {game.completed ? (
-                      <Chip label="Final" size="small" />
-                    ) : (
+                accentColor={team?.primaryColor || DEFAULT_TEAM_ACCENT}
+                leading={
+                  game.opponentLogoUrl ? (
+                    <Box
+                      component="img"
+                      src={game.opponentLogoUrl}
+                      alt={`${game.opponent} logo`}
+                      sx={{
+                        width: 44,
+                        height: 44,
+                        objectFit: "contain",
+                        borderRadius: "12px",
+                        bgcolor: "background.paper",
+                        border: "1px solid",
+                        borderColor: "divider",
+                        p: 0.5,
+                      }}
+                    />
+                  ) : (
+                    <Avatar
+                      sx={{
+                        width: 44,
+                        height: 44,
+                        bgcolor: "action.hover",
+                        color: "text.secondary",
+                        fontWeight: 700,
+                      }}
+                    >
+                      {getInitials(game.opponent)}
+                    </Avatar>
+                  )
+                }
+                eyebrow={
+                  <>
+                    {dayjs(game.date).format("MMM D, YYYY")}
+                    {game.time ? ` • ${game.time}` : ""}
+                    {game.location ? ` • ${game.location}` : ""}
+                  </>
+                }
+                title={`vs ${game.opponent}`}
+                badges={
+                  game.completed ? <Chip label="Final" size="small" /> : <Chip label="Scheduled" size="small" variant="outlined" />
+                }
+                actions={
+                  <>
+                    {!game.completed ? (
                       <Button
                         variant="contained"
                         size="small"
@@ -971,7 +871,7 @@ const TeamStats: React.FC = () => {
                       >
                         Track
                       </Button>
-                    )}
+                    ) : null}
 
                     <Button
                       variant="text"
@@ -989,9 +889,17 @@ const TeamStats: React.FC = () => {
                     >
                       Open
                     </Button>
-                  </Stack>
-                </Stack>
-              </MoleskineCard>
+                  </>
+                }
+                onClick={() => navigate(`/game/stats?gameId=${game.id}`)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    navigate(`/game/stats?gameId=${game.id}`);
+                  }
+                }}
+                ariaLabel={`Open game details for ${game.opponent}`}
+              />
             ))}
           </Stack>
         )}
@@ -1053,9 +961,7 @@ const TeamStats: React.FC = () => {
           >
             <Table size="small">
               <TableHead>
-                <TableRow
-                  sx={{ bgcolor: "var(--cs-semantic-color-surface-subtle)" }}
-                >
+                <TableRow sx={{ bgcolor: "var(--cs-semantic-color-surface-subtle)" }}>
                   <SortableHeader
                     label="#"
                     sortKey="jerseyNumber"
@@ -1182,26 +1088,13 @@ const TeamStats: React.FC = () => {
                         bgcolor: "var(--cs-semantic-color-surface-subtle)",
                       },
                     }}
-                    onClick={() =>
-                      navigate(`/players/${row.id}?teamId=${teamId}`)
-                    }
+                    onClick={() => navigate(`/players/${row.id}?teamId=${teamId}`)}
                   >
-                    <TableCell
-                      sx={{
-                        fontWeight: 700,
-                        display: { xs: "none", sm: "table-cell" },
-                      }}
-                    >
+                    <TableCell sx={{ fontWeight: 700, display: { xs: "none", sm: "table-cell" } }}>
                       {row.jerseyNumber ?? "-"}
                     </TableCell>
                     <TableCell>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 1.25,
-                        }}
-                      >
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 1.25 }}>
                         <Avatar
                           sx={{
                             bgcolor: row.avatarColor || "grey.500",
@@ -1235,135 +1128,27 @@ const TeamStats: React.FC = () => {
                         </Typography>
                       </Box>
                     </TableCell>
-                    <TableCell
-                      align="center"
-                      sx={{ display: { xs: "none", sm: "table-cell" } }}
-                    >
+                    <TableCell align="center" sx={{ display: { xs: "none", sm: "table-cell" } }}>
                       {row.gp}
                     </TableCell>
-                    <TableCell
-                      align="right"
-                      sx={{
-                        fontSize: {
-                          xs: "var(--cs-typography-fontSize-xs)",
-                          sm: "var(--cs-typography-fontSize-sm)",
-                        },
-                      }}
-                    >
-                      {row.min}
-                    </TableCell>
-                    <TableCell
-                      align="right"
-                      sx={{
-                        fontWeight: 700,
-                        fontSize: {
-                          xs: "var(--cs-typography-fontSize-xs)",
-                          sm: "var(--cs-typography-fontSize-sm)",
-                        },
-                        color: "var(--cs-semantic-color-stats-offensive)",
-                      }}
-                    >
+                    <TableCell align="right">{row.min}</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 700, color: "var(--cs-semantic-color-stats-offensive)" }}>
                       {row.points}
                     </TableCell>
-                    <TableCell
-                      align="right"
-                      sx={{
-                        fontSize: {
-                          xs: "var(--cs-typography-fontSize-xs)",
-                          sm: "var(--cs-typography-fontSize-sm)",
-                        },
-                      }}
-                    >
-                      {row.threePM}
-                    </TableCell>
-                    <TableCell
-                      align="right"
-                      sx={{
-                        fontSize: {
-                          xs: "var(--cs-typography-fontSize-xs)",
-                          sm: "var(--cs-typography-fontSize-sm)",
-                        },
-                      }}
-                    >
-                      {row.threePA}
-                    </TableCell>
-                    <TableCell
-                      align="right"
-                      sx={{
-                        fontSize: {
-                          xs: "var(--cs-typography-fontSize-xs)",
-                          sm: "var(--cs-typography-fontSize-sm)",
-                        },
-                      }}
-                    >
-                      {row.threePPct}%
-                    </TableCell>
-                    <TableCell
-                      align="right"
-                      sx={{
-                        fontSize: {
-                          xs: "var(--cs-typography-fontSize-xs)",
-                          sm: "var(--cs-typography-fontSize-sm)",
-                        },
-                      }}
-                    >
-                      {row.fgPct}%
-                    </TableCell>
-                    <TableCell
-                      align="right"
-                      sx={{
-                        fontSize: {
-                          xs: "var(--cs-typography-fontSize-xs)",
-                          sm: "var(--cs-typography-fontSize-sm)",
-                        },
-                      }}
-                    >
-                      {row.efgPct}%
-                    </TableCell>
-                    <TableCell
-                      align="right"
-                      sx={{
-                        fontSize: {
-                          xs: "var(--cs-typography-fontSize-xs)",
-                          sm: "var(--cs-typography-fontSize-sm)",
-                        },
-                      }}
-                    >
-                      {row.rebounds}
-                    </TableCell>
-                    <TableCell
-                      align="right"
-                      sx={{
-                        fontSize: {
-                          xs: "var(--cs-typography-fontSize-xs)",
-                          sm: "var(--cs-typography-fontSize-sm)",
-                        },
-                      }}
-                    >
-                      {row.assists}
-                    </TableCell>
-                    <TableCell
-                      align="right"
-                      sx={{ display: { xs: "none", sm: "table-cell" } }}
-                    >
+                    <TableCell align="right">{row.threePM}</TableCell>
+                    <TableCell align="right">{row.threePA}</TableCell>
+                    <TableCell align="right">{row.threePPct}%</TableCell>
+                    <TableCell align="right">{row.fgPct}%</TableCell>
+                    <TableCell align="right">{row.efgPct}%</TableCell>
+                    <TableCell align="right">{row.rebounds}</TableCell>
+                    <TableCell align="right">{row.assists}</TableCell>
+                    <TableCell align="right" sx={{ display: { xs: "none", sm: "table-cell" } }}>
                       {row.steals}
                     </TableCell>
-                    <TableCell
-                      align="right"
-                      sx={{ display: { xs: "none", sm: "table-cell" } }}
-                    >
+                    <TableCell align="right" sx={{ display: { xs: "none", sm: "table-cell" } }}>
                       {row.turnovers}
                     </TableCell>
-                    <TableCell
-                      align="right"
-                      sx={{
-                        fontSize: {
-                          xs: "var(--cs-typography-fontSize-xs)",
-                          sm: "var(--cs-typography-fontSize-sm)",
-                        },
-                        fontWeight: 600,
-                      }}
-                    >
+                    <TableCell align="right" sx={{ fontWeight: 600 }}>
                       {row.plusMinus > 0 ? `+${row.plusMinus}` : row.plusMinus}
                     </TableCell>
                   </TableRow>
@@ -1391,15 +1176,10 @@ const TeamStats: React.FC = () => {
             "Track completed games to unlock lineup combinations and net rating insights.",
           )
         ) : (
-          <TableContainer
-            component={MoleskineCard}
-            sx={{ p: 0, overflowX: "auto" }}
-          >
+          <TableContainer component={MoleskineCard} sx={{ p: 0, overflowX: "auto" }}>
             <Table size="small">
               <TableHead>
-                <TableRow
-                  sx={{ bgcolor: "var(--cs-semantic-color-surface-subtle)" }}
-                >
+                <TableRow sx={{ bgcolor: "var(--cs-semantic-color-surface-subtle)" }}>
                   <TableCell sx={{ fontWeight: 700 }}>Lineup</TableCell>
                   <SortableHeader
                     label="MIN"
@@ -1450,16 +1230,12 @@ const TeamStats: React.FC = () => {
                               fontWeight: 700,
                             }}
                           >
-                            {localJerseyNumbers[pId] ||
-                              sortedRosterJerseyMap.get(pId) ||
-                              "??"}
+                            {localJerseyNumbers[pId] || sortedRosterJerseyMap.get(pId) || "??"}
                           </Avatar>
                         ))}
                       </Stack>
                     </TableCell>
-                    <TableCell align="right">
-                      {(row.seconds / 60).toFixed(1)}
-                    </TableCell>
+                    <TableCell align="right">{(row.seconds / 60).toFixed(1)}</TableCell>
                     <TableCell align="right">{row.pointsFor}</TableCell>
                     <TableCell align="right">{row.pointsAgainst}</TableCell>
                     <TableCell align="right" sx={{ fontWeight: 700 }}>
@@ -1551,18 +1327,14 @@ const TeamStats: React.FC = () => {
             {sortedRoster.map((player) => (
               <Grid size={{ xs: 12, sm: 6, md: 4 }} key={player.id}>
                 <MoleskineCard
-                  onClick={() =>
-                    navigate(`/players/${player.id}?teamId=${teamId}`)
-                  }
+                  onClick={() => navigate(`/players/${player.id}?teamId=${teamId}`)}
                   sx={{
                     display: "flex",
                     alignItems: "center",
                     gap: 2,
                     cursor: "pointer",
                     minHeight: 92,
-                    borderRadius: `${cardRadius}px`,
-                    transition:
-                      "transform 180ms ease, background-color 180ms ease",
+                    transition: "transform 180ms ease, background-color 180ms ease",
                     "&:hover": {
                       transform: { md: "translateY(-2px)" },
                       bgcolor: "action.hover",
@@ -1585,12 +1357,7 @@ const TeamStats: React.FC = () => {
                   </Avatar>
 
                   <Box sx={{ minWidth: 0, flex: 1 }}>
-                    <Typography
-                      sx={{
-                        fontWeight: 600,
-                        color: "text.primary",
-                      }}
-                    >
+                    <Typography sx={{ fontWeight: 600, color: "text.primary" }}>
                       {player.name}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
@@ -1624,13 +1391,16 @@ const TeamStats: React.FC = () => {
   return (
     <>
       <AppPageShell<TeamStatsTab>
-        title={team?.name || "Team"}
+        contextLabel={
+          <Box component="span" sx={{ color: "text.secondary" }}>
+            Teams / <Box component="span" sx={{ color: "text.primary", fontWeight: 600 }}>{team?.name || "Team"}</Box>
+          </Box>
+        }
         activeTab={activeTab}
         tabs={TABS}
         onTabChange={(tab) => setActiveTab(tab)}
         controls={headerControls}
-      >
-        <Stack spacing={3} sx={{ opacity: isDeleted ? 0.72 : 1 }}>
+        headerContent={
           <EntityBanner
             title={team?.name || "Team"}
             subtitle={`${teamAggregates.record}${team?.description ? ` | ${team.description}` : ""}`}
@@ -1680,12 +1450,14 @@ const TeamStats: React.FC = () => {
               )
             }
           />
-
+        }
+      >
+        <Stack spacing={3} sx={{ opacity: isDeleted ? 0.72 : 1 }}>
           {isDeleted ? (
             <Alert severity="warning" icon={<Warning />}>
               <AlertTitle>Team pending deletion</AlertTitle>
-              This team and its games are scheduled for permanent deletion in{" "}
-              {timeLeft}. All data is currently read-only.
+              This team and its games are scheduled for permanent deletion in {timeLeft}. All
+              data is currently read-only.
             </Alert>
           ) : null}
 
@@ -1739,10 +1511,7 @@ const TeamStats: React.FC = () => {
             />
 
             <Box>
-              <Typography
-                variant="caption"
-                sx={{ color: "text.secondary", fontWeight: 600 }}
-              >
+              <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600 }}>
                 Primary color
               </Typography>
               <Box
@@ -1774,9 +1543,7 @@ const TeamStats: React.FC = () => {
               <Select
                 value={editPeriodType}
                 label="Period type"
-                onChange={(e) =>
-                  setEditPeriodType(e.target.value as "QUARTERS" | "HALVES")
-                }
+                onChange={(e) => setEditPeriodType(e.target.value as "QUARTERS" | "HALVES")}
               >
                 <MenuItem value="QUARTERS">Quarters</MenuItem>
                 <MenuItem value="HALVES">Halves</MenuItem>
@@ -1789,9 +1556,7 @@ const TeamStats: React.FC = () => {
                 label="Period length (mins)"
                 type="number"
                 value={editPeriodLength}
-                onChange={(e) =>
-                  setEditPeriodLength(parseInt(e.target.value, 10) || 0)
-                }
+                onChange={(e) => setEditPeriodLength(parseInt(e.target.value, 10) || 0)}
                 slotProps={{ htmlInput: { min: 1 } }}
               />
               <TextField
@@ -1799,9 +1564,7 @@ const TeamStats: React.FC = () => {
                 label="OT length (mins)"
                 type="number"
                 value={editOvertimeLength}
-                onChange={(e) =>
-                  setEditOvertimeLength(parseInt(e.target.value, 10) || 0)
-                }
+                onChange={(e) => setEditOvertimeLength(parseInt(e.target.value, 10) || 0)}
                 slotProps={{ htmlInput: { min: 1 } }}
               />
             </Stack>
@@ -1811,9 +1574,7 @@ const TeamStats: React.FC = () => {
               label="Max stint duration (mins)"
               type="number"
               value={editMaxStintDuration}
-              onChange={(e) =>
-                setEditMaxStintDuration(parseInt(e.target.value, 10) || 0)
-              }
+              onChange={(e) => setEditMaxStintDuration(parseInt(e.target.value, 10) || 0)}
               slotProps={{ htmlInput: { min: 1 } }}
               helperText="Alert scorekeeper when a player exceeds this time."
             />
@@ -1824,9 +1585,7 @@ const TeamStats: React.FC = () => {
                 label="Timeouts"
                 type="number"
                 value={editTimeoutLimit}
-                onChange={(e) =>
-                  setEditTimeoutLimit(parseInt(e.target.value, 10) || 0)
-                }
+                onChange={(e) => setEditTimeoutLimit(parseInt(e.target.value, 10) || 0)}
                 slotProps={{ htmlInput: { min: 0 } }}
               />
               <TextField
@@ -1834,9 +1593,7 @@ const TeamStats: React.FC = () => {
                 label="Foul limit"
                 type="number"
                 value={editFoulLimit}
-                onChange={(e) =>
-                  setEditFoulLimit(parseInt(e.target.value, 10) || 0)
-                }
+                onChange={(e) => setEditFoulLimit(parseInt(e.target.value, 10) || 0)}
                 slotProps={{ htmlInput: { min: 1 } }}
               />
             </Stack>
@@ -1846,10 +1603,7 @@ const TeamStats: React.FC = () => {
             </Divider>
 
             <Box>
-              <Typography
-                variant="caption"
-                sx={{ mb: 1, display: "block", color: "text.secondary" }}
-              >
+              <Typography variant="caption" sx={{ mb: 1, display: "block", color: "text.secondary" }}>
                 Alert when a player reaches this many fouls in a period.
               </Typography>
               <Grid container spacing={1}>
@@ -1878,11 +1632,7 @@ const TeamStats: React.FC = () => {
             </Divider>
 
             <Box>
-              <Stack
-                direction={{ xs: "column", sm: "row" }}
-                spacing={1}
-                sx={{ mb: 1 }}
-              >
+              <Stack direction={{ xs: "column", sm: "row" }} spacing={1} sx={{ mb: 1 }}>
                 <TextField
                   fullWidth
                   size="small"
@@ -1942,12 +1692,7 @@ const TeamStats: React.FC = () => {
         </DialogActions>
       </Dialog>
 
-      <Dialog
-        open={openRosterDialog}
-        onClose={handleCancelRoster}
-        fullWidth
-        maxWidth="sm"
-      >
+      <Dialog open={openRosterDialog} onClose={handleCancelRoster} fullWidth maxWidth="sm">
         <DialogTitle sx={{ fontWeight: 700 }}>Manage team roster</DialogTitle>
 
         <DialogContent>
@@ -1962,10 +1707,7 @@ const TeamStats: React.FC = () => {
               input: {
                 startAdornment: (
                   <InputAdornment position="start">
-                    <SearchIcon
-                      fontSize="small"
-                      sx={{ color: "text.secondary" }}
-                    />
+                    <SearchIcon fontSize="small" sx={{ color: "text.secondary" }} />
                   </InputAdornment>
                 ),
               },
@@ -1973,97 +1715,89 @@ const TeamStats: React.FC = () => {
           />
 
           <List sx={{ pt: 0 }}>
-            {(() => {
-              const search = rosterSearchTerm.toLowerCase();
-              const teamPlayerMap = new Map<string, TeamPlayer>();
-              for (const tp of teamPlayers) {
-                teamPlayerMap.set(tp.playerId.toString(), tp);
-              }
+            {allPlayers
+              .filter((player) => player.name.toLowerCase().includes(rosterSearchTerm.toLowerCase()))
+              .map((player) => {
+                const pId = player.id!.toString();
+                const dbRecord = teamPlayers.find((tp) => tp.playerId.toString() === pId);
+                const stagedChange = pendingRosterChanges[pId];
 
-              return allPlayers
-                .filter((player) => player.name.toLowerCase().includes(search))
-                .map((player) => {
-                  const pId = player.id!.toString();
-                  const dbRecord = teamPlayerMap.get(pId);
-                  const stagedChange = pendingRosterChanges[pId];
+                let isIn = !!dbRecord;
+                if (stagedChange?.action === "add") isIn = true;
+                if (stagedChange?.action === "remove") isIn = false;
 
-                  let isIn = !!dbRecord;
-                  if (stagedChange?.action === "add") isIn = true;
-                  if (stagedChange?.action === "remove") isIn = false;
+                const jersey =
+                  localJerseyNumbers[pId] !== undefined
+                    ? localJerseyNumbers[pId]
+                    : (dbRecord?.jerseyNumber ?? "");
 
-                  const jersey =
-                    localJerseyNumbers[pId] !== undefined
-                      ? localJerseyNumbers[pId]
-                      : (dbRecord?.jerseyNumber ?? "");
+                return (
+                  <ListItem
+                    key={player.id}
+                    divider
+                    sx={{
+                      px: { xs: 1, sm: 2 },
+                      alignItems: "center",
+                    }}
+                    secondaryAction={
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: { xs: 0.5, sm: 1 },
+                        }}
+                      >
+                        {isIn ? (
+                          <TextField
+                            size="small"
+                            label="#"
+                            slotProps={{ htmlInput: { maxLength: 2 } }}
+                            sx={{ width: { xs: 60, sm: 80 } }}
+                            value={jersey}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              if (val === "" || /^\\d{1,2}$/.test(val)) {
+                                stageJerseyUpdate(pId, val);
+                              }
+                            }}
+                          />
+                        ) : null}
 
-                  return (
-                    <ListItem
-                      key={player.id}
-                      divider
-                      sx={{
-                        px: { xs: 1, sm: 2 },
-                        alignItems: "center",
-                      }}
-                      secondaryAction={
-                        <Box
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: { xs: 0.5, sm: 1 },
-                          }}
-                        >
-                          {isIn ? (
-                            <TextField
-                              size="small"
-                              label="#"
-                              slotProps={{ htmlInput: { maxLength: 2 } }}
-                              sx={{ width: { xs: 60, sm: 80 } }}
-                              value={jersey}
-                              onChange={(e) => {
-                                const val = e.target.value;
-                                if (val === "" || /^\d{1,2}$/.test(val)) {
-                                  stageJerseyUpdate(pId, val);
-                                }
-                              }}
-                            />
-                          ) : null}
-
-                          {isIn ? (
-                            <IconButton
-                              edge="end"
-                              aria-label={`remove ${player.name}`}
-                              onClick={() => stageRosterChange(pId, true)}
-                              color="error"
-                              size="small"
-                            >
-                              <CloseIcon fontSize="small" />
-                            </IconButton>
-                          ) : (
-                            <Button
-                              variant="contained"
-                              size="small"
-                              onClick={() => stageRosterChange(pId, false)}
-                              sx={{
-                                minWidth: { xs: 52, sm: 70 },
-                                textTransform: "none",
-                                fontWeight: 600,
-                                boxShadow: "none",
-                              }}
-                            >
-                              Add
-                            </Button>
-                          )}
-                        </Box>
-                      }
-                    >
-                      <Avatar sx={{ bgcolor: player.avatarColor, mr: 2 }}>
-                        {getInitials(player.name)}
-                      </Avatar>
-                      <ListItemText primary={player.name} />
-                    </ListItem>
-                  );
-                });
-            })()}
+                        {isIn ? (
+                          <IconButton
+                            edge="end"
+                            aria-label={`remove ${player.name}`}
+                            onClick={() => stageRosterChange(pId, true)}
+                            color="error"
+                            size="small"
+                          >
+                            <CloseIcon fontSize="small" />
+                          </IconButton>
+                        ) : (
+                          <Button
+                            variant="contained"
+                            size="small"
+                            onClick={() => stageRosterChange(pId, false)}
+                            sx={{
+                              minWidth: { xs: 52, sm: 70 },
+                              textTransform: "none",
+                              fontWeight: 600,
+                              boxShadow: "none",
+                            }}
+                          >
+                            Add
+                          </Button>
+                        )}
+                      </Box>
+                    }
+                  >
+                    <Avatar sx={{ bgcolor: player.avatarColor, mr: 2 }}>
+                      {getInitials(player.name)}
+                    </Avatar>
+                    <ListItemText primary={player.name} />
+                  </ListItem>
+                );
+              })}
           </List>
         </DialogContent>
 
@@ -2075,12 +1809,7 @@ const TeamStats: React.FC = () => {
         </DialogActions>
       </Dialog>
 
-      <Dialog
-        open={openAddGame}
-        onClose={() => setOpenAddGame(false)}
-        fullWidth
-        maxWidth="sm"
-      >
+      <Dialog open={openAddGame} onClose={() => setOpenAddGame(false)} fullWidth maxWidth="sm">
         <DialogTitle sx={{ fontWeight: 700 }}>Schedule new game</DialogTitle>
 
         <DialogContent>
@@ -2123,17 +1852,13 @@ const TeamStats: React.FC = () => {
                     } else if (newValue && newValue.name) {
                       setNewOpponent(newValue.name);
                       setNewOpponentId(newValue.id);
-                      if (newValue.logoUrl) {
-                        setNewOpponentLogoUrl(newValue.logoUrl);
-                      }
+                      if (newValue.logoUrl) setNewOpponentLogoUrl(newValue.logoUrl);
                     } else {
                       setNewOpponent("");
                       setNewOpponentId(undefined);
                     }
                   }}
-                  onInputChange={(_, newInputValue) => {
-                    setNewOpponent(newInputValue);
-                  }}
+                  onInputChange={(_, newInputValue) => setNewOpponent(newInputValue)}
                   renderInput={(params) => (
                     <TextField
                       {...params}
@@ -2182,9 +1907,7 @@ const TeamStats: React.FC = () => {
                   options={allRecentLocations}
                   value={newLocation}
                   onInputChange={(_, newValue) => setNewLocation(newValue)}
-                  renderInput={(params) => (
-                    <TextField {...params} label="Location" fullWidth />
-                  )}
+                  renderInput={(params) => <TextField {...params} label="Location" fullWidth />}
                 />
               </Stack>
             )}
@@ -2196,9 +1919,7 @@ const TeamStats: React.FC = () => {
                   <Select
                     value={newPeriodType}
                     label="Period type"
-                    onChange={(e) =>
-                      setNewPeriodType(e.target.value as "QUARTERS" | "HALVES")
-                    }
+                    onChange={(e) => setNewPeriodType(e.target.value as "QUARTERS" | "HALVES")}
                   >
                     <MenuItem value="QUARTERS">Quarters</MenuItem>
                     <MenuItem value="HALVES">Halves</MenuItem>
@@ -2210,9 +1931,7 @@ const TeamStats: React.FC = () => {
                   label="Period length (minutes)"
                   type="number"
                   value={newPeriodLength}
-                  onChange={(e) =>
-                    setNewPeriodLength(parseInt(e.target.value, 10) || 0)
-                  }
+                  onChange={(e) => setNewPeriodLength(parseInt(e.target.value, 10) || 0)}
                   slotProps={{ htmlInput: { min: 1 } }}
                 />
 
@@ -2222,9 +1941,7 @@ const TeamStats: React.FC = () => {
                     label="Timeouts"
                     type="number"
                     value={newTimeoutLimit}
-                    onChange={(e) =>
-                      setNewTimeoutLimit(parseInt(e.target.value, 10) || 0)
-                    }
+                    onChange={(e) => setNewTimeoutLimit(parseInt(e.target.value, 10) || 0)}
                     slotProps={{ htmlInput: { min: 0 } }}
                   />
                   <TextField
@@ -2232,9 +1949,7 @@ const TeamStats: React.FC = () => {
                     label="Foul limit"
                     type="number"
                     value={newFoulLimit}
-                    onChange={(e) =>
-                      setNewFoulLimit(parseInt(e.target.value, 10) || 0)
-                    }
+                    onChange={(e) => setNewFoulLimit(parseInt(e.target.value, 10) || 0)}
                     slotProps={{ htmlInput: { min: 1 } }}
                   />
                 </Stack>
@@ -2248,10 +1963,7 @@ const TeamStats: React.FC = () => {
                 </Typography>
 
                 {[
-                  {
-                    id: "paint_touches",
-                    label: "Paint Touches (Rim Pressure)",
-                  },
+                  { id: "paint_touches", label: "Paint Touches (Rim Pressure)" },
                   { id: "efg", label: "eFG% (Shooting Efficiency)" },
                   { id: "stop_pct", label: "Stop % (Defensive Consistency)" },
                   { id: "to_rate", label: "Turnover Rate (Ball Security)" },
@@ -2266,9 +1978,7 @@ const TeamStats: React.FC = () => {
                           if (e.target.checked) {
                             setNewTacticalKpis([...newTacticalKpis, kpi.id]);
                           } else {
-                            setNewTacticalKpis(
-                              newTacticalKpis.filter((id) => id !== kpi.id),
-                            );
+                            setNewTacticalKpis(newTacticalKpis.filter((id) => id !== kpi.id));
                           }
                         }}
                       />
@@ -2300,8 +2010,7 @@ const TeamStats: React.FC = () => {
                       LOGISTICS
                     </Typography>
                     <Typography variant="body1">
-                      {newDate ? dayjs(newDate).format("MMM D, YYYY") : "—"}{" "}
-                      {newTime}
+                      {newDate ? dayjs(newDate).format("MMM D, YYYY") : "—"} {newTime}
                     </Typography>
                     <Typography variant="caption">{newLocation}</Typography>
                   </Grid>
@@ -2330,8 +2039,7 @@ const TeamStats: React.FC = () => {
                 </Grid>
 
                 <Alert severity="info" sx={{ mt: 3 }}>
-                  Everything looks good. Click “Create game” to add it to the
-                  schedule.
+                  Everything looks good. Click “Create game” to add it to the schedule.
                 </Alert>
               </Box>
             )}
@@ -2339,10 +2047,7 @@ const TeamStats: React.FC = () => {
         </DialogContent>
 
         <DialogActions sx={{ p: 3 }}>
-          <Button
-            onClick={() => setOpenAddGame(false)}
-            disabled={isSubmittingGame}
-          >
+          <Button onClick={() => setOpenAddGame(false)} disabled={isSubmittingGame}>
             Cancel
           </Button>
           <Box sx={{ flex: "1 1 auto" }} />
@@ -2383,16 +2088,12 @@ const TeamStats: React.FC = () => {
         </DialogActions>
       </Dialog>
 
-      <Dialog
-        open={isDeleteDialogOpen}
-        onClose={() => setIsDeleteDialogOpen(false)}
-      >
+      <Dialog open={isDeleteDialogOpen} onClose={() => setIsDeleteDialogOpen(false)}>
         <DialogTitle sx={{ fontWeight: 700 }}>Delete team?</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to delete <strong>{team?.name}</strong>? This
-            will mark the team and all associated games as pending deletion. You
-            will have 24 hours to restore it.
+            Are you sure you want to delete <strong>{team?.name}</strong>? This will mark the team
+            and all associated games as pending deletion. You will have 24 hours to restore it.
           </DialogContentText>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
