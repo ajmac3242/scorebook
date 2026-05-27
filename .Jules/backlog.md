@@ -1,5 +1,55 @@
 # CourtSight Backlog
 
+## [ ] [Live 'Strategic-Command' Priority Synthesizer]
+**Priority:** HIGH
+**Type:** Feature / Decision Automation
+**Why:** In high-pressure moments, coaches are often overwhelmed by multiple data alerts (e.g., "Foul Trouble," "Momentum Shift," "Efficiency Drop"). A synthesizer ranks these threats by their mathematical impact on win probability, ensuring the coach addresses the most critical fire first.
+**What:** A top-level "Command HUD" in GameMode that aggregates all active HALT and identity alerts, assigning a "Priority Score" and highlighting the single most impactful tactical pivot.
+**Acceptance Criteria:**
+- [ ] "Priority Synthesizer" widget at the top of the Tactical Sidebar.
+- [ ] Ranking logic that weights "Clutch Time" and "Score Delta" into alert severity.
+- [ ] One-tap "Master Directive" that summarizes the top 3 urgent actions.
+
+## [ ] [Opponent 'Post-Huddle' (Counter-Tactical) Efficiency Auditor]
+**Priority:** HIGH
+**Type:** Feature / Causal Accountability
+**Why:** Opponent adjustments often happen during timeouts. Tracking the opponent's PPP on the 3 possessions immediately following *their* timeout reveals if their coach successfully solved our current scheme.
+**What:** An auditor that bookmarks the start of opponent possessions following an opponent timeout and compares their post-huddle efficiency to their game average.
+**Acceptance Criteria:**
+- [ ] Automated "Post-Huddle Tracking" triggered by opponent timeout events.
+- [ ] "Counter-Tactical ROI" metric showing the opponent's PPP increase/decrease after huddles.
+- [ ] Alert: "Opponent Adjustment Detected" if their post-huddle PPP exceeds game average by > 0.3.
+
+## [ ] [Live 'Rim-Read' (Decision ROI) Auditor]
+**Priority:** HIGH
+**Type:** Feature / Causal Accountability
+**Why:** Points at the rim are the result of a "Read"—the decision to drive, pass, or kick. Quantifying the ROI of these rim-level decisions proves if the ball-handler is making the "Right Read" regardless of the physical finish.
+**What:** An expansion of the Paint Touch system that requires a "Read Type" (Score Attempt, Pass to Cutter, Kick to Perimeter) and calculates the expected value (xPTS) of that decision.
+**Acceptance Criteria:**
+- [ ] "Read Selection" buttons added to the Paint Touch recording flow.
+- [ ] "Rim-Read ROI" leaderboard in GameStats (Points Generated per Rim Decision).
+- [ ] Identification of "Primary Playmakers" vs. "Black Hole" drivers based on Kick-out frequency.
+
+## [ ] [Live 'Defensive-Shell' Recovery Speed Tracker]
+**Priority:** HIGH
+**Type:** Feature / UX
+**Why:** Most defensive collapses occur during "Recovery"—the time it takes for the shell to reset after a help rotation. Tracking "Recovery Speed" (time from help-tag to next close-out) identifies when the defense is "playing in sand."
+**What:** A live gauge in the Tactical Identity HUD that tracks the average time between a `breakdownReason` event and the next successful `STOP` or `CONTEST`.
+**Acceptance Criteria:**
+- [ ] "Recovery Speed" metric (seconds) displayed in the Shell Integrity HUD.
+- [ ] Visual alert: "Shell Stagnation" when recovery time exceeds 2.5 seconds.
+- [ ] Correlation of "Recovery Speed" to opponent eFG% on secondary actions.
+
+## [ ] [Live 'Winning-DNA' (Causal) Correlator]
+**Priority:** HIGH
+**Type:** Predictive Intelligence
+**Why:** Coaches often wonder, "What is the ONE thing we need to do to win *this* specific game?" The DNA Correlator identifies which KPI (e.g., "Defensive Rebounding" vs. "Paint Touches") has the highest correlation to the current lead.
+**What:** A real-time correlation engine that calculates the R-value between live score-delta and various tactical KPIs, highlighting the "Key to the Game" in the Sidebar.
+**Acceptance Criteria:**
+- [ ] "Winning DNA" highlight in the Tactical Sidebar showing the most influential KPI.
+- [ ] Live "Correlation Strength" indicator (Weak/Moderate/Strong).
+- [ ] Dynamic adjustment of the "Key to the Game" as the game context shifts.
+
 ## [ ] [Live 'Transition-Leakage' Causal Auditor]
 **Priority:** HIGH
 **Type:** Feature / Causal Accountability
