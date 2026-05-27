@@ -15,15 +15,15 @@ interface EditGameDialogProps {
   open: boolean;
   onClose: () => void;
   editOpponent: string;
-  setEditOpponent: (v: string) => void;
+  setEditOpponent: (_v: string) => void;
   editOpponentLogoUrl: string;
-  setEditOpponentLogoUrl: (v: string) => void;
+  setEditOpponentLogoUrl: (_v: string) => void;
   editDate: string;
-  setEditDate: (v: string) => void;
+  setEditDate: (_v: string) => void;
   editTime: string;
-  setEditTime: (v: string) => void;
+  setEditTime: (_v: string) => void;
   editLocation: string;
-  setEditLocation: (v: string) => void;
+  setEditLocation: (_v: string) => void;
   onSave: () => void;
   onDeleteClick: () => void;
 }
