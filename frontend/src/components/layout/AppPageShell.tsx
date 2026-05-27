@@ -11,7 +11,7 @@ type AppPageShellProps<T extends string> = {
   title?: string;
   activeTab?: T;
   tabs?: readonly AppPageTab<T>[];
-  onTabChange?: (tab: T) => void;
+  onTabChange?: (_tab: T) => void;
   controls?: React.ReactNode;
   children: React.ReactNode;
   contextLabel?: React.ReactNode;
