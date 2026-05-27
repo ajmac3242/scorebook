@@ -253,9 +253,16 @@ export const AnimatedNumber: React.FC<AnimatedNumberProps> = ({
   const prevValueRef = useRef(safeValue);
 
   useEffect(() => {
+    const startValue = prevValueRef.current ?? 0;
+
+    // Skip animation when start and end are both 0 (e.g. undefined value on initial load)
+    if (startValue === safeValue) {
+      setDisplayValue(safeValue);
+      return;
+    }
+
     let startTimestamp: number | null = null;
     let animationFrameId: number;
-    const startValue = prevValueRef.current ?? 0;
 
     const step = (timestamp: number) => {
       if (!startTimestamp) startTimestamp = timestamp;
@@ -275,5 +282,5 @@ export const AnimatedNumber: React.FC<AnimatedNumberProps> = ({
     };
   }, [safeValue, duration]);
 
-  return <>{displayValue.toFixed(decimals)}</>;
+  return <span>{displayValue.toFixed(decimals)}</span>;
 };

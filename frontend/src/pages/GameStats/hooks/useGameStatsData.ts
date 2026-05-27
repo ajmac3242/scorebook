@@ -1,20 +1,26 @@
-import { useMemo, useEffect } from "react";
+import { useMemo } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "../../db";
 import { calculateTeamSeasonAverages } from "../../utils/stats";
 
+/**
+ * Fetches all raw Dexie data required by the GameStats page.
+ * Intentionally contains NO derived analytics — only DB reads.
+ */
 export function useGameStatsData(gameId: string | undefined) {
   const game = useLiveQuery(
     () =>
       gameId !== undefined
-        ? db.games.get(gameId as string)
+        ? db.games.get(gameId)
         : Promise.resolve(undefined),
     [gameId],
   );
 
   const team = useLiveQuery(
     () =>
-      game?.teamId ? db.teams.get(game.teamId) : Promise.resolve(undefined),
+      game?.teamId
+        ? db.teams.get(game.teamId)
+        : Promise.resolve(undefined),
     [game?.teamId],
   );
 
@@ -31,9 +37,7 @@ export function useGameStatsData(gameId: string | undefined) {
                 .where("gameId")
                 .anyOf(gameIds)
                 .toArray()
-                .then((allStats) =>
-                  calculateTeamSeasonAverages(games, allStats),
-                );
+                .then((allStats) => calculateTeamSeasonAverages(games, allStats));
             })
         : Promise.resolve(undefined),
     [game?.teamId],
@@ -41,7 +45,7 @@ export function useGameStatsData(gameId: string | undefined) {
 
   const teamSeasonStats = useMemo(
     () =>
-      teamSeasonStatsResult || {
+      teamSeasonStatsResult ?? {
         ppp: "0.00",
         ftPct: "0.0",
         turnoverRate: "0.0",
@@ -57,21 +61,28 @@ export function useGameStatsData(gameId: string | undefined) {
         : Promise.resolve([]),
     [game?.teamId],
   );
-  const teamPlayers = useMemo(
-    () => teamPlayersResult || [],
-    [teamPlayersResult],
-  );
 
-  const playerIds = useMemo(
-    () => teamPlayers.map((tp) => tp.playerId.toString()),
+  const teamPlayers = useMemo(() => teamPlayersResult ?? [], [teamPlayersResult]);
+
+  // Stable key avoids re-querying when teamPlayers array reference changes
+  // but contents are identical (common with Dexie live queries).
+  const playerIdsKey = useMemo(
+    () => teamPlayers.map((tp) => tp.playerId.toString()).sort().join(","),
     [teamPlayers],
   );
 
   const playersResult = useLiveQuery(
-    () => db.players.where("id").anyOf(playerIds).toArray(),
-    [playerIds],
+    () =>
+      playerIdsKey
+        ? db.players
+            .where("id")
+            .anyOf(playerIdsKey.split(","))
+            .toArray()
+        : Promise.resolve([]),
+    [playerIdsKey],
   );
-  const players = useMemo(() => playersResult || [], [playersResult]);
+
+  const players = useMemo(() => playersResult ?? [], [playersResult]);
 
   const allStatsResult = useLiveQuery(
     () =>
@@ -80,6 +91,7 @@ export function useGameStatsData(gameId: string | undefined) {
         : Promise.resolve([]),
     [gameId],
   );
+
   const allStats = useMemo(
     () => (Array.isArray(allStatsResult) ? allStatsResult : []),
     [allStatsResult],
@@ -90,7 +102,6 @@ export function useGameStatsData(gameId: string | undefined) {
     team,
     teamSeasonStats,
     teamPlayers,
-    playerIds,
     players,
     allStats,
   };

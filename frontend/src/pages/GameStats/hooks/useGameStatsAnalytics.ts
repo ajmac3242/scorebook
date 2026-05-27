@@ -341,7 +341,7 @@ export function useGameStatsAnalytics(
     const data: Record<string, { makes: number; attempts: number; points: number; fta: number; turnovers: number; threePM: number }> = {};
     for (let i = 0; i < allStats.length; i++) {
       const s = allStats[i];
-      if (s.deletedAt || !s.opponentPlayType || !s.playerId.startsWith(SPECIAL_PLAYER_IDS.OPPONENT)) continue;
+      if (s.deletedAt || !s.opponentPlayType || !String(s.playerId).startsWith(SPECIAL_PLAYER_IDS.OPPONENT)) continue;
       if (!data[s.opponentPlayType]) {
         data[s.opponentPlayType] = { makes: 0, attempts: 0, points: 0, fta: 0, turnovers: 0, threePM: 0 };
       }
