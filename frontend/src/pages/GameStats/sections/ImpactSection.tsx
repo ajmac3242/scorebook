@@ -30,7 +30,7 @@ interface ImpactSectionProps {
   
 }
 
-export const ImpactSection = ({ onOffStats, matchupStats, jerseyMap }: ImpactSectionProps) => {
+export const ImpactSection = ({ onOffStats, matchupStats }: ImpactSectionProps) => {
   return (
     <>
       <Grid size={{ xs: 12 }}>
