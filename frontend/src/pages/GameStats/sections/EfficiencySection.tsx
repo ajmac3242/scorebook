@@ -5,7 +5,6 @@ import {
   Grid,
   Stack,
   Avatar,
-  Chip,
   Table,
   TableBody,
   TableCell,
